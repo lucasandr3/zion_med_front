@@ -1,0 +1,444 @@
+<div class="relative min-h-[320px]">
+  @if (carregando) {
+    <app-loading-overlay />
+  }
+  @if (!carregando && pageData) {
+    <div class="clinica-config">
+      <div class="config-tabs" role="tablist">
+        <button type="button" class="config-tab" [class.active]="activeTab === 'dados'" (click)="setTab('dados')" role="tab">
+          <span class="material-symbols-outlined" style="font-size:1rem;vertical-align:middle;margin-right:4px">description</span>
+          Dados Gerais
+        </button>
+        <button type="button" class="config-tab" [class.active]="activeTab === 'visual'" (click)="setTab('visual')" role="tab">
+          <span class="material-symbols-outlined" style="font-size:1rem;vertical-align:middle;margin-right:4px">palette</span>
+          Tema Visual
+        </button>
+        @if (canAddMultiEmpresa) {
+          <button type="button" class="config-tab" [class.active]="activeTab === 'empresas'" (click)="setTab('empresas')" role="tab">
+            <span class="material-symbols-outlined" style="font-size:1rem;vertical-align:middle;margin-right:4px">business_center</span>
+            Empresas
+          </button>
+        }
+        <button type="button" class="config-tab" [class.active]="activeTab === 'assinatura'" (click)="setTab('assinatura')" role="tab">
+          <span class="material-symbols-outlined" style="font-size:1rem;vertical-align:middle;margin-right:4px">payments</span>
+          Assinatura
+        </button>
+        <button type="button" class="config-tab" [class.active]="activeTab === 'logs'" (click)="setTab('logs')" role="tab" style="text-decoration:none">
+          <span class="material-symbols-outlined" style="font-size:1rem;vertical-align:middle;margin-right:4px">history</span>
+          Logs
+        </button>
+      </div>
+
+      @if (erro) {
+        <p class="text-sm mb-4" style="color: var(--c-error, #dc2626)">{{ erro }}</p>
+      }
+      @if (sucesso) {
+        <p class="text-sm mb-4" style="color: var(--c-success, #22c55e)">Configurações salvas com sucesso.</p>
+      }
+
+      <form (ngSubmit)="salvar()" id="clinica-config-form">
+        @if (showStickyFooter) {
+          <div class="config-progress" id="config-progress-block">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+              <span style="font-size:12px;font-weight:600;color:var(--c-muted)">Perfil da empresa</span>
+              <span style="font-size:11px;color:var(--c-primary)" id="progress-text">{{ progressFilled() }} de 8 campos preenchidos</span>
+            </div>
+            <div class="config-progress-bar"><div class="fill" [style.width.%]="(progressFilled() / 8) * 100"></div></div>
+          </div>
+        }
+
+        <!-- Painel Dados Gerais -->
+        <div id="panel-dados" class="config-panel" [class.active]="activeTab === 'dados'" role="tabpanel">
+          <div class="section-card">
+            <div class="section-header">
+              <div class="icon-wrap"><span class="material-symbols-outlined">business</span></div>
+              <span class="section-title">Informações Básicas</span>
+            </div>
+            <div class="section-body">
+              <div class="field">
+                <label>Nome da empresa <span class="req">*</span></label>
+                <input type="text" [(ngModel)]="form.name" name="name" required class="form-input" placeholder="Nome da sua empresa">
+              </div>
+              <div class="field-row">
+                <div class="field">
+                  <label>E-mail para notificações <span class="req">*</span></label>
+                  <input type="email" [(ngModel)]="form.notification_email" name="notification_email" class="form-input" placeholder="recepcao@empresa.com">
+                </div>
+                <div class="field">
+                  <label>Telefone / WhatsApp</label>
+                  <input type="text" [(ngModel)]="form.phone" name="phone" class="form-input" placeholder="(11) 99999-9999" maxlength="16">
+                </div>
+              </div>
+              <div class="field">
+                <label>Endereço</label>
+                <input type="text" [(ngModel)]="form.address" name="address" class="form-input" placeholder="Endereço completo">
+                <div class="hint">Aparece no cabeçalho dos PDFs e na página do Link Bio.</div>
+              </div>
+              <div class="field">
+                <label>E-mail de contato público <span class="opt">opcional</span></label>
+                <input type="email" [(ngModel)]="form.contact_email" name="contact_email" class="form-input" placeholder="contato@empresa.com">
+                <div class="hint">Exibido na página do Link Bio. Diferente do e-mail de notificações.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-card">
+            <div class="section-header">
+              <div class="icon-wrap"><span class="material-symbols-outlined">receipt_long</span></div>
+              <span class="section-title">Dados para Faturamento</span>
+              <span style="margin-left:auto;font-size:11px;color:var(--c-muted)">Necessário para assinar planos</span>
+            </div>
+            <div class="section-body">
+              <div class="field">
+                <label>Nome/Razão Social na nota <span class="opt">opcional</span></label>
+                <input type="text" [(ngModel)]="form.billing_name" name="billing_name" class="form-input" placeholder="Nome ou razão social">
+                <div class="hint">Usado em boletos e faturas. Padrão: nome da empresa.</div>
+              </div>
+              <div class="field">
+                <label>E-mail para boletos <span class="opt">opcional</span></label>
+                <input type="email" [(ngModel)]="form.billing_email" name="billing_email" class="form-input" placeholder="financeiro@empresa.com">
+                <div class="hint">Onde os boletos serão enviados. Padrão: e-mail de notificações.</div>
+              </div>
+              <div class="field">
+                <label>CPF ou CNPJ <span class="req">*</span> <span class="opt">para assinatura</span></label>
+                <input type="text" [(ngModel)]="form.billing_document" name="billing_document" class="form-input" placeholder="000.000.000-00 ou 00.000.000/0001-00" maxlength="18">
+                <div class="hint">Obrigatório para gerar boletos. Apenas números ou com pontuação.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-card">
+            <div class="section-header">
+              <div class="icon-wrap"><span class="material-symbols-outlined">chat</span></div>
+              <span class="section-title">Comunicação por WhatsApp</span>
+            </div>
+            <div class="section-body">
+              <div class="field" style="margin-bottom:16px">
+                <label class="dark-toggle-card" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;margin-bottom:0">
+                  <span>
+                    <span class="dtitle">Receber comunicação por WhatsApp</span>
+                    <span class="dsub">Confirmações e avisos da loja no número cadastrado (Telefone/WhatsApp)</span>
+                  </span>
+                  <label class="toggle-wrap" style="position:relative;width:44px;height:24px;flex-shrink:0">
+                    <input type="checkbox" [(ngModel)]="form.whatsapp_notifications_enabled" name="whatsapp_notifications_enabled" style="opacity:0;position:absolute;width:0;height:0">
+                    <span class="toggle-track" style="position:absolute;inset:0;background:var(--c-border);border-radius:999px"></span>
+                    <span class="toggle-thumb" style="position:absolute;top:3px;left:3px;width:18px;height:18px;background:#fff;border-radius:50%;box-shadow:0 1px 3px rgba(0,0,0,.2)"></span>
+                  </label>
+                </label>
+              </div>
+              <div style="padding-left:4px;border-left:2px solid var(--c-soft);margin-top:12px">
+                <p style="font-size:12px;color:var(--c-muted);margin-bottom:10px">Quais notificações deseja receber:</p>
+                <label style="display:flex;align-items:center;gap:8px;margin-bottom:8px;cursor:pointer;font-size:13px;color:var(--c-text)">
+                  <input type="checkbox" [(ngModel)]="form.whatsapp_notify_cobranca" name="whatsapp_notify_cobranca">
+                  Cobrança (lembretes, vencimentos)
+                </label>
+                <label style="display:flex;align-items:center;gap:8px;margin-bottom:8px;cursor:pointer;font-size:13px;color:var(--c-text)">
+                  <input type="checkbox" [(ngModel)]="form.whatsapp_notify_faturas_boleto" name="whatsapp_notify_faturas_boleto">
+                  Faturas e boleto (confirmação de assinatura, boleto gerado)
+                </label>
+                <label style="display:flex;align-items:center;gap:8px;margin-bottom:0;cursor:pointer;font-size:13px;color:var(--c-text)">
+                  <input type="checkbox" [(ngModel)]="form.whatsapp_notify_avisos" name="whatsapp_notify_avisos">
+                  Avisos gerais da loja
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-card">
+            <div class="section-header">
+              <div class="icon-wrap"><span class="material-symbols-outlined">schedule</span></div>
+              <span class="section-title">Horário de Atendimento</span>
+              <span style="margin-left:auto;font-size:11px;color:var(--c-muted)">Deixe vazio para "Fechado"</span>
+            </div>
+            <div class="section-body">
+              <div class="schedule-grid">
+                @for (d of days; track d.id) {
+                  <div class="schedule-row" [class.active]="isScheduleActive(d.id)">
+                    <span class="day-label">{{ d.label }}</span>
+                    <label class="toggle-wrap" style="position:relative;width:34px;height:18px;flex-shrink:0">
+                      <input type="checkbox" [checked]="isScheduleActive(d.id)" (change)="toggleScheduleDay(d.id, $any($event.target).checked)" style="opacity:0;width:0;height:0">
+                      <span class="toggle-track" style="position:absolute;inset:0;background:var(--c-border);border-radius:999px;cursor:pointer"></span>
+                      <span class="toggle-thumb" style="position:absolute;top:2px;left:2px;width:14px;height:14px;background:#fff;border-radius:50%;pointer-events:none;box-shadow:0 1px 3px rgba(0,0,0,.2)"></span>
+                    </label>
+                    @if (isScheduleActive(d.id)) {
+                      <div style="display:flex;align-items:center;gap:6px;flex:1;flex-wrap:wrap">
+                        <span style="font-size:10px;color:var(--c-muted)">Abre</span>
+                        <input type="text" class="time-input form-input" [(ngModel)]="form.business_hours![d.id].open" [name]="'bh_open_'+d.id" placeholder="08:00" maxlength="5">
+                        <span style="font-size:11px;color:var(--c-muted)">→</span>
+                        <span style="font-size:10px;color:var(--c-muted)">Fecha</span>
+                        <input type="text" class="time-input form-input" [(ngModel)]="form.business_hours![d.id].close" [name]="'bh_close_'+d.id" placeholder="18:00" maxlength="5">
+                      </div>
+                    } @else {
+                      <span class="closed-tag">Fechado</span>
+                    }
+                  </div>
+                }
+              </div>
+              <div style="margin-top:10px;display:flex;justify-content:flex-end">
+                <button type="button" class="copy-schedule-btn" (click)="copyFirstDayToAll()">Copiar segunda para todos os dias →</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-card">
+            <div class="section-header">
+              <div class="icon-wrap"><span class="material-symbols-outlined">image</span></div>
+              <span class="section-title">Logo da empresa</span>
+            </div>
+            <div class="section-body">
+              @if (clinic?.logo_url) {
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+                  <img [src]="clinic?.logo_url ?? ''" alt="Logo" style="height:40px;border-radius:8px;border:1px solid var(--c-border);object-fit:contain;padding:4px;background:var(--c-soft)">
+                  <span style="font-size:12px;color:var(--c-muted)">Logo atual</span>
+                </div>
+              }
+              <div class="upload-zone" (click)="logoInput.click()">
+                <span class="material-symbols-outlined">upload_file</span>
+                <div class="upload-label">Arraste sua logo aqui ou <span style="color:var(--c-primary)">clique para escolher</span></div>
+                <div class="upload-hint">PNG, JPG ou SVG • Recomendado: 512×512px • Máx 2MB</div>
+              </div>
+              <input #logoInput type="file" accept="image/*" class="sr-only" (change)="onLogoChange($event)">
+              @if (logoFile) {
+                <p class="text-xs mt-2" style="color:var(--c-muted)">Arquivo selecionado: {{ logoFile.name }}</p>
+              }
+            </div>
+          </div>
+        </div>
+
+        <!-- Painel Tema Visual -->
+        <div id="panel-visual" class="config-panel" [class.active]="activeTab === 'visual'" role="tabpanel">
+          <div class="section-card">
+            <div class="section-header">
+              <div class="icon-wrap"><span class="material-symbols-outlined">palette</span></div>
+              <span class="section-title">Tema de Cores</span>
+              <span style="margin-left:auto;font-size:11px;color:var(--c-muted)">Aplicado para todos os usuários</span>
+            </div>
+            <div class="section-body">
+              <div class="theme-grid">
+                @for (key of themeKeys; track key) {
+                  @let meta = availableThemes[key];
+                  @let primary = meta?.primary ?? '#2563eb';
+                  @let bg = primary + '22';
+                  <label class="theme-card" [class.selected]="form.theme === key">
+                    <input type="radio" [value]="key" [(ngModel)]="form.theme" [name]="'theme'" class="sr-only">
+                    <div class="theme-preview" [style.background]="bg">
+                      <div class="bar" [style.background]="primary" style="height:12px;border-radius:2px;width:5px;flex-shrink:0"></div>
+                      <div class="bar" [style.background]="primary" style="height:18px;border-radius:2px;width:5px;flex-shrink:0"></div>
+                      <div class="bar" [style.background]="primary" style="height:24px;border-radius:2px;width:5px;flex-shrink:0"></div>
+                    </div>
+                    <div class="theme-dot" [style.background]="primary"></div>
+                    <div class="theme-name">{{ meta?.label ?? key }}</div>
+                  </label>
+                }
+              </div>
+            </div>
+          </div>
+          <div class="section-card">
+            <div class="section-header">
+              <div class="icon-wrap"><span class="material-symbols-outlined">dark_mode</span></div>
+              <span class="section-title">Modo Escuro</span>
+            </div>
+            <div class="section-body">
+              <div class="dark-toggle-card">
+                <div class="dark-toggle-info">
+                  <div class="dtitle">Ativar modo escuro</div>
+                  <div class="dsub">Fundo escuro profundo, independente do tema de cor selecionado.</div>
+                </div>
+                <label class="toggle-wrap" style="position:relative;width:44px;height:24px;flex-shrink:0">
+                  <input type="checkbox" [(ngModel)]="form.dark_mode" name="dark_mode" style="opacity:0;width:0;height:0">
+                  <span class="toggle-track" style="position:absolute;inset:0;background:var(--c-border);border-radius:999px"></span>
+                  <span class="toggle-thumb" style="position:absolute;top:3px;left:3px;width:18px;height:18px;background:#fff;border-radius:50%;box-shadow:0 1px 3px rgba(0,0,0,.2)"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        @if (showStickyFooter) {
+          <div class="sticky-footer-spacer" aria-hidden="true"></div>
+        }
+        @if (showStickyFooter) {
+          <div class="sticky-footer">
+            <div style="font-size:12px;color:var(--c-muted)">Alterações não salvas</div>
+            <div class="footer-btns">
+              <a routerLink="/dashboard" class="btn-secondary">
+                <span class="material-symbols-outlined" style="font-size:16px">close</span>
+                Cancelar
+              </a>
+              <button type="submit" class="btn-primary" [disabled]="salvando">
+                <span class="material-symbols-outlined" style="font-size:16px">save</span>
+                {{ salvando ? 'Salvando…' : 'Salvar configurações' }}
+              </button>
+            </div>
+          </div>
+        }
+      </form>
+
+      <!-- Painel Empresas (fora do form principal) -->
+      @if (canAddMultiEmpresa) {
+        <div id="panel-empresas" class="config-panel" [class.active]="activeTab === 'empresas'" role="tabpanel">
+          <div class="section-card">
+            <div class="section-header">
+              <div class="icon-wrap"><span class="material-symbols-outlined">business_center</span></div>
+              <span class="section-title">Empresas do grupo</span>
+              <span style="margin-left:auto;font-size:11px;color:var(--c-muted)">Disponível no plano Enterprise</span>
+            </div>
+            <div class="section-body">
+              @if (tenantClinics.length === 0) {
+                <p style="font-size:13px;color:var(--c-muted);margin-bottom:16px">Esta é a única empresa do grupo. Adicione filiais abaixo.</p>
+              } @else {
+                <ul style="list-style:none;padding:0;margin:0 0 20px 0">
+                  @for (tc of tenantClinics; track tc.id) {
+                    <li style="display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--c-border)">
+                      <span class="material-symbols-outlined" style="font-size:20px;color:var(--c-muted)">business</span>
+                      <span style="flex:1;font-weight:500;color:var(--c-text)">{{ tc.name }}</span>
+                      @if (tc.id === clinic?.id) {
+                        <span style="font-size:11px;font-weight:600;color:var(--c-primary);background:color-mix(in srgb, var(--c-primary) 12%, transparent);padding:4px 8px;border-radius:6px">Atual</span>
+                      } @else {
+                        <a routerLink="/clinica/escolher" style="font-size:12px;color:var(--c-primary)">Trocar para esta</a>
+                      }
+                      <span style="font-size:11px;color:var(--c-muted)">{{ tc.users_count ?? 0 }} usuário(s)</span>
+                    </li>
+                  }
+                </ul>
+              }
+              <div style="border-top:1px solid var(--c-border);padding-top:20px;margin-top:8px">
+                <p style="font-size:12px;font-weight:600;color:var(--c-muted);margin-bottom:12px;text-transform:uppercase;letter-spacing:0.05em">Adicionar empresa ou filial</p>
+                <p style="font-size:13px;color:var(--c-muted)">Use o painel web para adicionar novas empresas ao grupo.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Painel Assinatura -->
+      <div id="panel-assinatura" class="config-panel" [class.active]="activeTab === 'assinatura'" role="tabpanel">
+        <div class="section-card">
+          <div class="section-header">
+            <div class="icon-wrap"><span class="material-symbols-outlined">payments</span></div>
+            <span class="section-title">Planos</span>
+          </div>
+          <div class="section-body">
+            <p style="font-size:13px;color:var(--c-muted);margin-bottom:12px">Assine durante o trial — sua cobrança inicia na confirmação.</p>
+            @if (firstPlan) {
+              <div class="card" style="background: var(--c-surface); border-radius: 14px; padding: 20px; display:flex;justify-content:space-between;align-items:center;gap:16px;">
+                <div>
+                  <p style="font-size:11px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--c-muted);margin:0 0 4px 0">Plano</p>
+                  <p style="font-size:18px;font-weight:700;color:var(--c-text);margin:0 0 6px 0">{{ firstPlan.name ?? firstPlanKey }}</p>
+                  <p style="font-size:14px;font-weight:700;color:var(--c-primary);margin:0">
+                    R$ {{ (firstPlan.value ?? 0) | number:'1.2-2':'pt-BR' }} <span style="font-size:12px;font-weight:500;color:var(--c-muted)">/mês</span>
+                  </p>
+                </div>
+                <a routerLink="/billing" class="btn-primary">
+                  <span class="material-symbols-outlined" style="font-size:16px">payments</span>
+                  Assinar {{ firstPlan.name ?? 'plano' }}
+                </a>
+              </div>
+            } @else {
+              <p style="font-size:13px;color:var(--c-muted)">Planos indisponíveis no momento. Acesse a página de assinatura para mais detalhes.</p>
+              <a routerLink="/billing" class="btn-primary">
+                <span class="material-symbols-outlined" style="font-size:16px">open_in_new</span>
+                Ir para Assinatura
+              </a>
+            }
+          </div>
+        </div>
+
+        <div class="section-card">
+          <div class="section-header">
+            <div class="icon-wrap"><span class="material-symbols-outlined">description</span></div>
+            <span class="section-title">Boletos e Faturas</span>
+            <a routerLink="/billing" style="margin-left:auto;font-size:12px;color:var(--c-primary);text-decoration:none">Ver todas</a>
+          </div>
+          <div class="section-body">
+            @if (!hasPayments) {
+              <p style="font-size:13px;color:var(--c-muted)">Nenhum boleto ou fatura até o momento.</p>
+            } @else {
+              <ul style="list-style:none;padding:0;margin:0">
+                @for (p of pageData!.billing_payments!; track p.id) {
+                  <li style="display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--c-border)">
+                    <span style="font-size:12px;color:var(--c-muted);min-width:80px;font-family:ui-monospace,monospace">
+                      {{ (p.due_date | date:'dd/MM/yyyy') ?? '-' }}
+                    </span>
+                    <span style="font-size:12px;font-weight:600;color:var(--c-text);flex:1">Fatura</span>
+                    <span style="font-size:13px;font-weight:700;color:var(--c-text);min-width:80px;text-align:right;font-family:ui-monospace,monospace">
+                      R$ {{ p.value | number:'1.2-2':'pt-BR' }}
+                    </span>
+                  </li>
+                }
+              </ul>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Painel Logs (somente informação, sem tabela) -->
+      <div id="panel-logs" class="config-panel" [class.active]="activeTab === 'logs'" role="tabpanel">
+        <div class="page-header mb-4">
+          <div class="page-title">
+            <div class="page-title-icon">
+              <span class="material-symbols-outlined">history</span>
+            </div>
+            <div>
+              <h1>Logs de auditoria</h1>
+              <p class="page-header-subtitle">Ações realizadas nesta empresa</p>
+            </div>
+          </div>
+        </div>
+        @if (logsLoading) {
+          <p class="text-sm" style="color: var(--c-muted)">Carregando logs…</p>
+        } @else if (logsError) {
+          <p class="text-sm" style="color: var(--c-error, #dc2626)">{{ logsError }}</p>
+        } @else {
+          <div class="table-card">
+            <table>
+              <thead>
+                <tr>
+                  <th>Data / Hora</th>
+                  <th>Ação</th>
+                  <th>Usuário</th>
+                  <th>Detalhe</th>
+                </tr>
+              </thead>
+              <tbody>
+                @if (logs.length === 0) {
+                  <tr>
+                    <td colspan="4" style="text-align:center;padding:3rem 1rem">
+                      <span class="material-symbols-outlined" style="font-size:36px;color:var(--c-border);display:block;margin-bottom:8px">history</span>
+                      <span style="font-size:0.875rem;color:var(--c-muted)">Nenhum registro de auditoria ainda.</span>
+                    </td>
+                  </tr>
+                } @else {
+                  @for (log of logs; track log.id) {
+                    <tr>
+                      <td style="white-space:nowrap;color:var(--c-muted);font-size:0.8125rem">
+                        {{ log.created_at | date:'dd/MM/yyyy HH:mm' }}
+                      </td>
+                      <td>
+                        <span style="display:inline-flex;align-items:center;gap:4px;font-size:0.8rem;font-weight:600;color:var(--c-text)">
+                          <span class="material-symbols-outlined" style="font-size:16px;color:var(--c-primary)">info</span>
+                          {{ log.action }}
+                        </span>
+                      </td>
+                      <td style="color:var(--c-text);font-size:0.875rem">
+                        {{ log.user_name ?? '—' }}
+                      </td>
+                      <td style="font-size:0.8125rem;color:var(--c-muted)">
+                        @if (log.entity_type && log.entity_id) {
+                          <span style="margin-right:6px">{{ log.entity_type }} #{{ log.entity_id }}</span>
+                        }
+                      </td>
+                    </tr>
+                  }
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+    </div>
+  }
+  @if (!carregando && !pageData && erro) {
+    <p class="text-sm" style="color: var(--c-error, #dc2626)">{{ erro }}</p>
+  }
+</div>

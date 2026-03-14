@@ -1,0 +1,39 @@
+<div class="billing-page relative min-h-[320px]">
+  @if (carregando) {
+    <app-loading-overlay />
+  }
+  @if (!carregando && erro) {
+    <p class="text-sm" style="color: var(--c-error, #dc2626)">{{ erro }}</p>
+  }
+  @if (!carregando && !erro) {
+  <div class="section-card card rounded-xl overflow-hidden mb-5" style="border: 1px solid var(--c-border)">
+    <div class="section-header flex items-center gap-2.5 px-5 py-4" style="border-bottom: 1px solid var(--c-border)">
+      <div class="icon-wrap w-7 h-7 rounded-lg flex items-center justify-center" style="background: color-mix(in srgb, var(--c-primary) 12%, transparent)">
+        <span class="material-symbols-outlined text-sm" style="color: var(--c-primary)">payments</span>
+      </div>
+      <div>
+        <p class="section-title text-xs font-bold uppercase tracking-wider" style="color: var(--c-muted)">Status da assinatura</p>
+        <p class="mt-1 text-sm" style="color: var(--c-text)">{{ statusAssinatura }}{{ trialAte ? ' · Trial até ' + trialAte : '' }}</p>
+      </div>
+    </div>
+    <div class="section-body p-5">
+      @if (planos.length > 0) {
+        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          @for (plano of planos; track plano.id) {
+            <div class="rounded-xl p-4 border" style="border-color: var(--c-border)">
+              <p class="font-semibold m-0" style="color: var(--c-text)">{{ plano.name }}</p>
+              <p class="text-lg font-bold mt-1 m-0" style="color: var(--c-primary)">R$ {{ plano.value }}</p>
+              @if (plano.description) {
+                <p class="text-sm mt-2 mb-3 m-0" style="color: var(--c-muted)">{{ plano.description }}</p>
+              }
+              <button type="button" class="btn-primary w-full" (click)="checkout(plano.id)">Assinar</button>
+            </div>
+          }
+        </div>
+      } @else {
+        <p class="text-sm m-0" style="color: var(--c-muted)">Nenhum plano disponível no momento.</p>
+      }
+    </div>
+  </div>
+  }
+</div>

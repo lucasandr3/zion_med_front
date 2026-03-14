@@ -1,0 +1,60 @@
+<div class="relative min-h-[320px]">
+  @if (carregando) {
+    <app-loading-overlay />
+  }
+  <div class="page-header mb-6">
+    <div class="page-title flex items-center gap-3">
+      <div class="page-title-icon w-10 h-10 rounded-lg flex items-center justify-center" style="background: var(--c-soft)">
+        <span class="material-symbols-outlined" style="color: var(--c-primary)">inbox</span>
+      </div>
+      <div>
+        <h1 class="text-xl font-semibold m-0" style="color: var(--c-text)">Protocolos</h1>
+        <p class="text-sm mt-1 mb-0" style="color: var(--c-muted)">Listagem e filtros — fiel ao protocolos/index.blade.php</p>
+      </div>
+    </div>
+  </div>
+  @if (!carregando && erro) {
+    <p class="text-sm" style="color: var(--c-error, #dc2626)">{{ erro }}</p>
+  }
+  @if (!carregando && !erro) {
+  <div class="card rounded-xl overflow-hidden" style="border: 1px solid var(--c-border)">
+    @if (protocolos.length === 0) {
+      <div class="p-8 text-center" style="color: var(--c-muted)">Nenhum protocolo encontrado.</div>
+    } @else {
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr style="border-bottom: 1px solid var(--c-border)">
+              <th class="text-left py-3 px-4 font-semibold" style="color: var(--c-text)">Protocolo</th>
+              <th class="text-left py-3 px-4 font-semibold" style="color: var(--c-text)">Template</th>
+              <th class="text-left py-3 px-4 font-semibold" style="color: var(--c-text)">Solicitante</th>
+              <th class="text-left py-3 px-4 font-semibold" style="color: var(--c-text)">Status</th>
+              <th class="text-left py-3 px-4 font-semibold" style="color: var(--c-text)">Data</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (p of protocolos; track p.id) {
+              <tr style="border-bottom: 1px solid var(--c-border)">
+                <td class="py-3 px-4" style="color: var(--c-text)">{{ p.protocol_number }}</td>
+                <td class="py-3 px-4" style="color: var(--c-text)">{{ p.template_name || '—' }}</td>
+                <td class="py-3 px-4" style="color: var(--c-text)">{{ p.submitter_name || '—' }}</td>
+                <td class="py-3 px-4"><span class="badge" [class]="'status-' + p.status">{{ p.status }}</span></td>
+                <td class="py-3 px-4" style="color: var(--c-muted)">{{ p.created_at }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      @if (meta.last_page > 1) {
+        <div class="flex justify-between items-center px-4 py-3" style="border-top: 1px solid var(--c-border)">
+          <span class="text-xs" style="color: var(--c-muted)">Página {{ meta.current_page }} de {{ meta.last_page }} ({{ meta.total }} itens)</span>
+          <div class="flex gap-2">
+            <button type="button" class="btn-ghost btn-default-bg" [disabled]="meta.current_page <= 1" (click)="carregar(meta.current_page - 1)">Anterior</button>
+            <button type="button" class="btn-ghost btn-default-bg" [disabled]="meta.current_page >= meta.last_page" (click)="carregar(meta.current_page + 1)">Próxima</button>
+          </div>
+        </div>
+      }
+    }
+  </div>
+  }
+</div>

@@ -1,0 +1,50 @@
+<div class="relative min-h-[200px]">
+  @if (salvando) {
+    <app-loading-overlay />
+  }
+
+  <div class="page-header mb-5">
+    <div class="page-title">
+      <div class="page-title-icon">
+        <span class="material-symbols-outlined">add_circle</span>
+      </div>
+      <div>
+        <h1>Novo template (em branco)</h1>
+      </div>
+    </div>
+  </div>
+
+  @if (erro) {
+    <p class="text-sm mb-4" style="color: var(--c-error, #dc2626)">{{ erro }}</p>
+  }
+
+  <div class="card">
+    <form (ngSubmit)="salvar()" class="flex flex-col gap-5">
+      <div>
+        <label class="form-label">Nome</label>
+        <input type="text" [(ngModel)]="name" name="name" required class="form-input" placeholder="Ex: Ficha de Anamnese" />
+      </div>
+      <div>
+        <label class="form-label">Descrição</label>
+        <textarea [(ngModel)]="description" name="description" rows="3" class="form-input" placeholder="Breve descrição do template..."></textarea>
+      </div>
+      <div class="flex items-center gap-6">
+        <label class="flex items-center gap-2 cursor-pointer">
+          <input type="checkbox" [(ngModel)]="is_active" name="is_active" class="form-checkbox" />
+          <span class="form-label mb-0">Ativo</span>
+        </label>
+        <label class="flex items-center gap-2 cursor-pointer">
+          <input type="checkbox" [(ngModel)]="public_enabled" name="public_enabled" class="form-checkbox" />
+          <span class="form-label mb-0">Formulário público</span>
+        </label>
+      </div>
+      <div class="flex items-center gap-3 pt-2">
+        <button type="submit" class="btn-primary" [disabled]="salvando || !name.trim()">
+          <span class="material-symbols-outlined text-base">save</span>
+          Criar template
+        </button>
+        <a routerLink="/templates/criar" class="text-sm no-underline" style="color: var(--c-muted)">Cancelar</a>
+      </div>
+    </form>
+  </div>
+</div>

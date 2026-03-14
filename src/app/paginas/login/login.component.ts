@@ -1,0 +1,77 @@
+import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+import { Router, RouterLink } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { AuthService } from '../../core/services/auth.service';
+
+@Component({
+  selector: 'app-pagina-login',
+  standalone: true,
+  imports: [CommonModule, RouterLink, FormsModule],
+  templateUrl: './login.component.html',
+  styleUrl: './login.component.css',
+})
+export class LoginComponent implements OnInit {
+  email = '';
+  senha = '';
+  lembrar = false;
+  mostrarSenha = false;
+  estadoCarregando = false;
+  estadoErro = false;
+  mensagemErro = '';
+  ano = new Date().getFullYear();
+  iconeTema = 'dark_mode';
+
+  constructor(
+    @Inject(PLATFORM_ID) private platformId: object,
+    private router: Router,
+    private auth: AuthService
+  ) {}
+
+  ngOnInit(): void {
+    if (isPlatformBrowser(this.platformId)) {
+      const saved = localStorage.getItem('zionmed_login_email');
+      if (saved) this.email = saved;
+      this.atualizarIconeTema();
+    }
+  }
+
+  alternarTema(): void {
+    if (isPlatformBrowser(this.platformId)) {
+      document.body.classList.toggle('dark');
+      localStorage.setItem('zionmed_dark_mode', document.body.classList.contains('dark') ? '1' : '0');
+      this.atualizarIconeTema();
+    }
+  }
+
+  private atualizarIconeTema(): void {
+    this.iconeTema = document.body.classList.contains('dark') ? 'light_mode' : 'dark_mode';
+  }
+
+  enviar(): void {
+    this.estadoErro = false;
+    this.mensagemErro = '';
+    this.estadoCarregando = true;
+    if (isPlatformBrowser(this.platformId) && this.email) {
+      localStorage.setItem('zionmed_login_email', this.email);
+    }
+    this.auth.login(this.email, this.senha).subscribe({
+      next: (res) => {
+        this.estadoCarregando = false;
+        const hasClinic = res.data.current_clinic_id != null;
+        if (hasClinic) {
+          this.router.navigate(['/dashboard']);
+        } else {
+          this.router.navigate(['/clinica/escolher']);
+        }
+      },
+      error: (err) => {
+        this.estadoCarregando = false;
+        this.estadoErro = true;
+        const msg = err.error?.message ?? err.error?.errors?.email?.[0] ?? 'Credenciais inválidas. Tente novamente.';
+        this.mensagemErro = typeof msg === 'string' ? msg : 'Credenciais inválidas. Tente novamente.';
+      },
+    });
+  }
+}

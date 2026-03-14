@@ -1,0 +1,61 @@
+<div class="relative min-h-[320px]">
+  @if (carregando) {
+    <app-loading-overlay />
+  }
+  <div class="page-header mb-6">
+    <div class="page-title flex items-center gap-3">
+      <div class="page-title-icon w-10 h-10 rounded-lg flex items-center justify-center" style="background: var(--c-soft)">
+        <span class="material-symbols-outlined" style="color: var(--c-primary)">link</span>
+      </div>
+      <div>
+        <h1 class="text-xl font-semibold m-0" style="color: var(--c-text)">Links para enviar</h1>
+        <p class="page-header-subtitle text-sm mt-1 mb-0" style="color: var(--c-muted)">Copie o link do formulário e envie pelo WhatsApp ou outro canal. Apenas templates com link público ativo aparecem aqui.</p>
+      </div>
+    </div>
+  </div>
+  @if (!carregando && erro) {
+    <p class="text-sm" style="color: var(--c-error, #dc2626)">{{ erro }}</p>
+  }
+  @if (!carregando && !erro) {
+<div class="card rounded-xl overflow-hidden" style="padding: 0; border: 1px solid var(--c-border)">
+  @for (t of templates; track t.id) {
+    <div class="flex flex-wrap items-center justify-between gap-4 py-4 px-5" style="border-bottom: 1px solid var(--c-border)">
+      <div class="flex items-center gap-3 min-w-0">
+        <span class="material-symbols-outlined shrink-0 text-xl" style="color: var(--c-muted)">description</span>
+        <div class="min-w-0">
+          <p class="font-medium m-0" style="color: var(--c-text)">{{ t.name }}</p>
+          @if (t.category_label) {
+            <p class="text-xs mt-0.5 mb-0" style="color: var(--c-muted)">{{ t.category_label }}</p>
+          }
+        </div>
+      </div>
+      <div class="flex items-center gap-2 shrink-0">
+        <button type="button" (click)="copiarLink(t.public_url)" class="inline-flex items-center gap-2 bg-green-600 text-white font-semibold px-4 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm">
+          <span class="material-symbols-outlined text-lg">content_copy</span>
+          <span class="copy-label">Copiar link</span>
+        </button>
+        <a [href]="t.public_url" target="_blank" rel="noopener" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium" style="background: var(--c-soft); color: var(--c-muted)">
+          <span class="material-symbols-outlined text-lg">open_in_new</span>
+          Abrir
+        </a>
+        <a routerLink="/templates/{{ t.id }}/campos" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium" style="background: var(--c-soft); color: var(--c-muted)">
+          <span class="material-symbols-outlined text-lg">tune</span>
+        </a>
+      </div>
+    </div>
+  } @empty {
+    <div class="px-5 py-16 text-center">
+      <span class="material-symbols-outlined block mb-3 text-5xl" style="color: var(--c-border)">link_off</span>
+      <p class="font-medium m-0" style="color: var(--c-text)">Nenhum link público ativo</p>
+      <p class="text-sm mt-1 mb-0" style="color: var(--c-muted)">
+        Gere um link público em <strong>Templates</strong> → escolha um template → <strong>Campos</strong> → <strong>Gerar link público</strong>.
+      </p>
+      <a routerLink="/templates" class="inline-flex items-center gap-2 mt-4 btn-primary">
+        <span class="material-symbols-outlined text-base">description</span>
+        Ir para Templates
+      </a>
+    </div>
+  }
+</div>
+  }
+</div>

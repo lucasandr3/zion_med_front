@@ -1,0 +1,145 @@
+<!-- Igual ao backend: overlay hidden por padrão; JS remove "hidden" ao abrir. Sidebar: -translate-x-full removido ao abrir. -->
+<div class="sidebar-overlay-mobile fixed inset-0 z-20 bg-black/55 backdrop-blur-sm cursor-pointer lg:hidden"
+     [class.hidden]="!sidebarOpenMobile"
+     aria-hidden="true"
+     (click)="fecharSidebarMobile()"></div>
+<aside id="sidebar"
+       class="sidebar fixed inset-y-0 left-0 z-30 flex flex-col lg:translate-x-0"
+       [class.-translate-x-full]="!sidebarOpenMobile">
+  <!-- Cabeçalho da sidebar: logo -->
+  <div class="h-14 flex items-center px-3.5 shrink-0" style="border-bottom: 1px solid var(--c-border)">
+    <div class="sidebar-brand flex items-center gap-2.5 min-w-0 w-full">
+      <div class="shrink-0 w-7 h-7 rounded-lg flex items-center justify-center" style="background: var(--c-primary)">
+        <img src="assets/logo/zionmed_logo.png" alt="Zion Med" class="w-full h-full rounded-lg object-contain" style="padding: 2px" onerror="this.style.display='none'">
+      </div>
+      <span class="sidebar-label font-semibold text-sm truncate" style="color: var(--c-text)">Zion Med</span>
+    </div>
+  </div>
+
+  <!-- Empresa atual -->
+  @if (nomeClinica) {
+    <div class="sidebar-clinic px-2 py-2 shrink-0" style="border-bottom: 1px solid var(--c-border)">
+      <div class="flex items-center gap-2.5 min-w-0">
+        <div class="w-9 h-9 rounded-lg shrink-0 flex items-center justify-center text-sm font-bold flex-shrink-0" style="background: var(--c-soft); color: var(--c-primary)">
+          {{ nomeClinica.charAt(0) | uppercase }}
+        </div>
+        <div class="sidebar-label min-w-0 flex-1">
+          <p class="text-xs font-semibold truncate" style="color: var(--c-text)">{{ nomeClinica }}</p>
+          @if (enderecoClinica) {
+            <p class="text-[0.65rem] truncate mt-0.5" style="color: var(--c-muted)">{{ enderecoClinica }}</p>
+          }
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Navegação -->
+  <nav class="flex-1 px-2 py-3 overflow-y-auto space-y-0.5">
+    <p class="sidebar-section-label mt-1 mb-2">MENU</p>
+
+    <a routerLink="/dashboard" routerLinkActive="ativo" [routerLinkActiveOptions]="{ exact: true }" class="nav-link" data-tooltip="Dashboard">
+      <span class="material-symbols-outlined shrink-0" style="font-size: 19px">dashboard</span>
+      <span class="sidebar-label">Dashboard</span>
+    </a>
+
+    @if (podeGerenciarTemplates) {
+      <a routerLink="/templates" routerLinkActive="ativo" class="nav-link" data-tooltip="Templates">
+        <span class="material-symbols-outlined shrink-0" style="font-size: 19px">description</span>
+        <span class="sidebar-label">Templates</span>
+      </a>
+    }
+
+    @if (podeGerenciarTemplates || podeVerSubmissoes) {
+      <a routerLink="/links-publicos" routerLinkActive="ativo" class="nav-link" data-tooltip="Links para enviar">
+        <span class="material-symbols-outlined shrink-0" style="font-size: 19px">link</span>
+        <span class="sidebar-label">Links públicos</span>
+      </a>
+    }
+
+    @if (podeVerSubmissoes) {
+      <a routerLink="/protocolos" routerLinkActive="ativo" class="nav-link" data-tooltip="Protocolos">
+        <span class="material-symbols-outlined shrink-0" style="font-size: 19px">inbox</span>
+        <span class="sidebar-label">Protocolos</span>
+      </a>
+    }
+
+    <a routerLink="/notificacoes" routerLinkActive="ativo" class="nav-link relative" data-tooltip="Notificações">
+      <span class="material-symbols-outlined shrink-0" style="font-size: 19px">notifications</span>
+      <span class="sidebar-label">Notificações</span>
+      @if (notificacoesNaoLidas > 0) {
+        <span class="sidebar-label ml-auto min-w-[18px] h-[18px] rounded-full flex items-center justify-center text-[0.6rem] font-bold px-1" style="background: var(--c-primary); color: #fff">
+          {{ notificacoesNaoLidas > 99 ? '99+' : notificacoesNaoLidas }}
+        </span>
+      }
+    </a>
+
+    @if (podeGerenciarClinica || podeGerenciarUsuarios) {
+      <p class="sidebar-section-label mt-5 mb-2">ADMINISTRAÇÃO</p>
+    }
+
+    @if (podeGerenciarClinica) {
+      <a routerLink="/clinica/configuracoes" routerLinkActive="ativo" class="nav-link" data-tooltip="Empresa">
+        <span class="material-symbols-outlined shrink-0" style="font-size: 19px">business</span>
+        <span class="sidebar-label">Empresa</span>
+      </a>
+      <a routerLink="/link-bio" routerLinkActive="ativo" class="nav-link" data-tooltip="Link Bio">
+        <span class="material-symbols-outlined shrink-0" style="font-size: 19px">link</span>
+        <span class="sidebar-label">Link Bio</span>
+      </a>
+      <a routerLink="/clinica/integracoes" routerLinkActive="ativo" class="nav-link" data-tooltip="Integrações">
+        <span class="material-symbols-outlined shrink-0" style="font-size: 19px">api</span>
+        <span class="sidebar-label">Integrações</span>
+      </a>
+    }
+
+    @if (podeGerenciarUsuarios) {
+      <a routerLink="/usuarios" routerLinkActive="ativo" class="nav-link" data-tooltip="Usuários">
+        <span class="material-symbols-outlined shrink-0" style="font-size: 19px">group</span>
+        <span class="sidebar-label">Usuários</span>
+      </a>
+    }
+  </nav>
+
+  <!-- Rodapé: usuário -->
+  <div class="shrink-0 px-2 py-2 overflow-visible" style="border-top: 1px solid var(--c-border)">
+    <div class="relative" #userMenuContainer>
+      <button type="button" id="user-menu-btn" (click)="alternarMenuUsuario()" class="flex items-center gap-2.5 w-full px-2 py-2 rounded-lg text-left transition-colors hover:bg-[var(--c-soft)] cursor-pointer">
+        <div class="w-7 h-7 rounded-full shrink-0 flex items-center justify-center text-xs font-bold" style="background: var(--c-primary); color: #fff">
+          {{ iniciaisUsuario }}
+        </div>
+        <div class="sidebar-label flex-1 min-w-0">
+          <p class="text-xs font-semibold truncate" style="color: var(--c-text)">{{ nomeUsuario }}</p>
+          <p class="truncate text-[0.7rem]" style="color: var(--c-muted)">{{ emailUsuario }}</p>
+        </div>
+        <span class="material-symbols-outlined sidebar-label shrink-0" style="font-size: 15px; color: var(--c-muted)">unfold_more</span>
+      </button>
+
+      @if (menuUsuarioAberto) {
+        <div class="user-dropdown absolute left-0 right-0 bottom-full mb-1 py-1 rounded-lg shadow-lg z-[100]" style="background: var(--c-elevated); border: 1px solid var(--c-border); min-width: 200px; box-shadow: 0 8px 32px rgba(0,0,0,0.22)">
+          @if (exibirTrocarEmpresa) {
+            <a routerLink="/clinica/escolher" (click)="fecharMenuUsuario()" class="flex items-center gap-2 px-3 py-2 text-sm hover:bg-[var(--c-soft)]" style="color: var(--c-text); text-decoration: none">
+              <span class="material-symbols-outlined" style="font-size: 16px">swap_horiz</span>
+              Trocar empresa
+            </a>
+          }
+          @if (ehAdminPlataforma) {
+            <a routerLink="/plataforma" (click)="fecharMenuUsuario()" class="flex items-center gap-2 px-3 py-2 text-sm hover:bg-[var(--c-soft)]" style="color: var(--c-text); text-decoration: none">
+              <span class="material-symbols-outlined" style="font-size: 16px">admin_panel_settings</span>
+              Admin da plataforma
+            </a>
+          }
+          @if (podeGerenciarClinica) {
+            <a routerLink="/clinica/configuracoes" (click)="fecharMenuUsuario()" class="flex items-center gap-2 px-3 py-2 text-sm hover:bg-[var(--c-soft)]" style="color: var(--c-text); text-decoration: none">
+              <span class="material-symbols-outlined" style="font-size: 16px">settings</span>
+              Configurações
+            </a>
+          }
+          <button type="button" (click)="sair()" class="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-[var(--c-soft)] text-left border-0 bg-transparent cursor-pointer" style="color: var(--c-text)">
+            <span class="material-symbols-outlined" style="font-size: 16px">logout</span>
+            Sair
+          </button>
+        </div>
+      }
+    </div>
+  </div>
+</aside>

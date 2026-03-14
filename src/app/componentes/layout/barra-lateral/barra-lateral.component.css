@@ -1,0 +1,8 @@
+/* Estilos específicos do componente (sidebar usa variáveis globais) */
+.user-dropdown a,
+.user-dropdown button {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+

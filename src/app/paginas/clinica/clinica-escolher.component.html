@@ -1,0 +1,40 @@
+<div class="relative min-h-[320px]">
+  @if (carregando) {
+    <app-loading-overlay />
+  }
+  <div class="page-header mb-6">
+    <div class="page-title flex items-center gap-3">
+      <div class="page-title-icon w-10 h-10 rounded-lg flex items-center justify-center" style="background: var(--c-soft)">
+        <span class="material-symbols-outlined" style="color: var(--c-primary)">swap_horiz</span>
+      </div>
+      <div>
+        <h1 class="text-xl font-semibold m-0" style="color: var(--c-text)">Escolher empresa</h1>
+        <p class="text-sm mt-1 mb-0" style="color: var(--c-muted)">Fiel ao clinica/escolher.blade.php</p>
+      </div>
+    </div>
+  </div>
+  @if (!carregando && erro) {
+    <p class="text-sm" style="color: var(--c-error, #dc2626)">{{ erro }}</p>
+  }
+  @if (!carregando && !erro) {
+  <div class="card rounded-xl overflow-hidden" style="border: 1px solid var(--c-border)">
+    @if (clinicas.length === 0) {
+      <div class="p-8 text-center" style="color: var(--c-muted)">Nenhuma clínica disponível.</div>
+    } @else {
+      <ul class="divide-y" style="border-color: var(--c-border)">
+        @for (c of clinicas; track c.id) {
+          <li class="flex items-center justify-between px-5 py-4">
+            <div>
+              <p class="font-medium m-0" style="color: var(--c-text)">{{ c.name }}</p>
+              @if (c.users_count != null) {
+                <p class="text-xs m-0 mt-0.5" style="color: var(--c-muted)">{{ c.users_count }} usuário(s)</p>
+              }
+            </div>
+            <button type="button" class="btn-primary" [disabled]="salvando" (click)="escolher(c.id)">Selecionar</button>
+          </li>
+        }
+      </ul>
+    }
+  </div>
+  }
+</div>

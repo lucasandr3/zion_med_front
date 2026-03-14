@@ -1,0 +1,90 @@
+<header id="top-header" class="top-header h-14 flex items-center justify-between px-3 lg:px-5 sticky top-0 z-10 shrink-0">
+  <div class="flex items-center gap-3">
+    @if (urlVoltar) {
+      <a [routerLink]="urlVoltar" class="flex items-center justify-center w-8 h-8 rounded-lg transition-colors shrink-0 hover:bg-[var(--c-soft)]" style="color: var(--c-muted)" [attr.aria-label]="labelVoltar">
+        <span class="material-symbols-outlined" style="font-size: 21px">arrow_back</span>
+      </a>
+    }
+    <button type="button" (click)="alternarSidebar()" class="flex items-center justify-center w-8 h-8 rounded-lg transition-colors hover:bg-[var(--c-soft)]" style="color: var(--c-muted)" aria-label="Abrir ou fechar menu">
+      <span class="material-symbols-outlined" style="font-size: 21px">menu</span>
+    </button>
+    <h2 class="font-semibold text-[0.9375rem]" style="color: var(--c-text)">{{ titulo }}</h2>
+  </div>
+
+  <div class="flex items-center gap-2">
+    <!-- Tema (cores + modo escuro): ícone palette abre drawer em mobile e desktop -->
+    <div class="relative" #themePicker>
+      <button type="button" (click)="alternarMenuTema()" class="flex items-center justify-center w-8 h-8 rounded-lg border transition-colors hover:bg-[var(--c-soft)]" style="color: var(--c-muted); border-color: var(--c-border); background: transparent" aria-label="Tema e aparência">
+        <span class="material-symbols-outlined" style="font-size: 22px">palette</span>
+      </button>
+      @if (menuTemaAberto) {
+        <!-- Overlay: fecha ao clicar fora (mobile e desktop) -->
+        <div class="theme-drawer-overlay fixed inset-0 z-[199] bg-black/40" (click)="fecharMenuTema()" aria-hidden="true"></div>
+        <!-- Drawer: tema + modo escuro (mesmo em mobile e desktop) -->
+        <div id="theme-drawer" class="theme-drawer-panel fixed top-0 right-0 bottom-0 z-[200] w-[min(20rem,85vw)] flex flex-col border-l p-4 overflow-y-auto" style="background: var(--c-elevated); border-color: var(--c-border); box-shadow: -8px 0 24px rgba(0,0,0,0.15)" (click)="$event.stopPropagation()">
+          <div class="flex items-center justify-between shrink-0 mb-4">
+            <h3 class="text-sm font-bold uppercase tracking-wide" style="color: var(--c-text)">Tema e aparência</h3>
+            <button type="button" (click)="fecharMenuTema()" class="flex items-center justify-center w-8 h-8 rounded-lg transition-colors hover:bg-[var(--c-soft)]" style="color: var(--c-muted)" aria-label="Fechar">
+              <span class="material-symbols-outlined" style="font-size: 20px">close</span>
+            </button>
+          </div>
+          <!-- Modo escuro / claro -->
+          <p class="text-[0.65rem] font-bold uppercase tracking-wider mb-2" style="color: var(--c-muted)">Modo</p>
+          <div class="flex gap-2 mb-5">
+            <button type="button" (click)="aplicarModoEscuro(false)" class="theme-mode-btn flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg border transition-colors" [class.theme-mode-active]="!modoEscuro" style="border-color: var(--c-border); background: var(--c-soft); color: var(--c-text)" [attr.aria-pressed]="!modoEscuro">
+              <span class="material-symbols-outlined" style="font-size: 18px">light_mode</span>
+              <span class="text-xs font-medium">Claro</span>
+            </button>
+            <button type="button" (click)="aplicarModoEscuro(true)" class="theme-mode-btn flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg border transition-colors" [class.theme-mode-active]="modoEscuro" style="border-color: var(--c-border); background: var(--c-soft); color: var(--c-text)" [attr.aria-pressed]="modoEscuro">
+              <span class="material-symbols-outlined" style="font-size: 18px">dark_mode</span>
+              <span class="text-xs font-medium">Escuro</span>
+            </button>
+          </div>
+          <!-- Cor do tema -->
+          <p class="text-[0.65rem] font-bold uppercase tracking-wider mb-2" style="color: var(--c-muted)">Cor do tema</p>
+          <div class="grid grid-cols-2 gap-x-3 gap-y-0.5">
+            @for (t of temasCol1; track t.key) {
+              <button type="button" class="theme-option flex items-center gap-2.5 justify-between w-full py-2 rounded-md transition-colors" [class.active]="temaAtual === t.key" (click)="aplicarTema(t.key)">
+                <span class="flex items-center gap-2 min-w-0">
+                  <span class="w-4 h-4 shrink-0 inline-block" [style.background]="t.color" style="border-radius: 10px"></span>
+                  <span class="truncate text-xs">{{ t.label }}</span>
+                </span>
+                @if (temaAtual === t.key) {
+                  <span class="material-symbols-outlined shrink-0 text-sm text-[var(--c-primary)]" aria-hidden="true">check</span>
+                }
+              </button>
+            }
+            @for (t of temasCol2; track t.key) {
+              <button type="button" class="theme-option flex items-center gap-2.5 justify-between w-full py-2 rounded-md transition-colors" [class.active]="temaAtual === t.key" (click)="aplicarTema(t.key)">
+                <span class="flex items-center gap-2 min-w-0">
+                  <span class="w-4 h-4 shrink-0 inline-block" [style.background]="t.color" style="border-radius: 10px"></span>
+                  <span class="truncate text-xs">{{ t.label }}</span>
+                </span>
+                @if (temaAtual === t.key) {
+                  <span class="material-symbols-outlined shrink-0 text-sm text-[var(--c-primary)]" aria-hidden="true">check</span>
+                }
+              </button>
+            }
+          </div>
+        </div>
+      }
+    </div>
+
+    <div class="w-px h-5 bg-[var(--c-border)] mx-0.5"></div>
+
+    <!-- Notificações -->
+    <a routerLink="/notificacoes" class="relative flex items-center justify-center w-8 h-8 rounded-lg border transition-colors no-underline hover:bg-[var(--c-soft)]" style="border-color: var(--c-border); background: transparent; color: var(--c-muted)" aria-label="Notificações">
+      <span class="material-symbols-outlined" style="font-size: 19px">notifications</span>
+      @if (notificacoesNaoLidas > 0) {
+        <span class="absolute -top-0.5 -right-0.5 min-w-4 h-4 rounded-full flex items-center justify-center px-1 text-[0.55rem] font-bold leading-none" style="background: var(--c-primary); color: #fff; border: 2px solid var(--c-bg)">
+          {{ notificacoesNaoLidas > 99 ? '99+' : notificacoesNaoLidas }}
+        </span>
+      }
+    </a>
+
+    <!-- Sair -->
+    <button type="button" (click)="sair()" class="flex items-center justify-center w-8 h-8 rounded-lg border transition-colors hover:bg-red-500/10 hover:border-red-500/35 hover:text-red-500" style="border-color: var(--c-border); background: transparent; color: var(--c-muted)" aria-label="Sair">
+      <span class="material-symbols-outlined" style="font-size: 19px">logout</span>
+    </button>
+  </div>
+</header>

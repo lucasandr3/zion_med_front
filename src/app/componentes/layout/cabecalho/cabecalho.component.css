@@ -1,0 +1,24 @@
+/* Estilos do cabeçalho (variáveis globais em styles.css) */
+
+/* Drawer de tema (mobile e desktop): entrada pela direita */
+.theme-drawer-panel {
+  animation: theme-drawer-slide-in 0.25s ease-out;
+}
+
+@keyframes theme-drawer-slide-in {
+  from {
+    transform: translateX(100%);
+    opacity: 0.7;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Botão Modo (Claro/Escuro) ativo */
+.theme-mode-btn.theme-mode-active {
+  border-color: var(--c-primary) !important;
+  background: color-mix(in srgb, var(--c-primary) 14%, var(--c-soft)) !important;
+  color: var(--c-primary) !important;
+}

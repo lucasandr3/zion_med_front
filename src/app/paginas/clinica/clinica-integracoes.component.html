@@ -1,0 +1,238 @@
+<div class="relative min-h-[320px]">
+  <div class="page-header mb-4">
+    <div class="page-title">
+      <div class="page-title-icon">
+        <span class="material-symbols-outlined">api</span>
+      </div>
+      <div>
+        <h1>Integrações</h1>
+        <p class="page-header-subtitle">API, tokens e webhooks</p>
+      </div>
+    </div>
+  </div>
+
+  @if (carregando) {
+    <p class="text-sm" style="color: var(--c-muted)">Carregando integrações…</p>
+  }
+  @if (!carregando && erro) {
+    <p class="text-sm" style="color: var(--c-error, #dc2626)">{{ erro }}</p>
+  }
+
+  @if (!carregando && !erro && state) {
+    <div class="integracoes-page">
+      <!-- Abas -->
+      <div class="config-tabs" role="tablist">
+        <button type="button" class="config-tab" [class.active]="abaAtiva === 'api'" (click)="ativarAba('api')" role="tab">
+          <span class="material-symbols-outlined" style="font-size:1rem;vertical-align:middle;margin-right:4px">key</span>
+          API e tokens
+        </button>
+        <button type="button" class="config-tab" [class.active]="abaAtiva === 'webhooks'" (click)="ativarAba('webhooks')" role="tab">
+          <span class="material-symbols-outlined" style="font-size:1rem;vertical-align:middle;margin-right:4px">webhook</span>
+          Webhooks
+        </button>
+        <button type="button" class="config-tab" [class.active]="abaAtiva === 'entregas'" (click)="ativarAba('entregas')" role="tab">
+          <span class="material-symbols-outlined" style="font-size:1rem;vertical-align:middle;margin-right:4px">history</span>
+          Entregas
+        </button>
+      </div>
+
+      <!-- Painel API e tokens -->
+      <div id="panel-api" class="config-panel" [class.active]="abaAtiva === 'api'" role="tabpanel">
+        <div class="section-card" style="background:color-mix(in srgb, var(--c-primary) 8%, transparent);border-color:var(--c-primary)">
+          <div class="section-header">
+            <div class="icon-wrap">
+              <span class="material-symbols-outlined">menu_book</span>
+            </div>
+            <span class="section-title">Documentação da API</span>
+          </div>
+          <div class="section-body">
+            <p style="margin-bottom:12px">Documentação interativa (Scramble) e especificação OpenAPI para integrar com outros sistemas.</p>
+            <div style="display:flex;gap:12px;flex-wrap:wrap">
+              <a href="/docs/api" target="_blank" rel="noopener" class="btn-primary" style="padding:8px 14px;font-size:0.8rem;text-decoration:none;display:inline-flex;align-items:center;gap:6px">
+                <span class="material-symbols-outlined" style="font-size:16px">menu_book</span>
+                Documentação interativa
+              </a>
+              <a href="/docs/api.json" target="_blank" rel="noopener" class="btn-ghost" style="padding:8px 14px;font-size:0.8rem;text-decoration:none;display:inline-flex;align-items:center;gap:6px">
+                <span class="material-symbols-outlined" style="font-size:16px">download</span>
+                OpenAPI (JSON)
+              </a>
+            </div>
+          </div>
+        </div>
+
+        @if (ultimoTokenGerado) {
+          <div class="section-card" style="border-color:var(--c-primary)">
+            <div class="section-header">
+              <div class="icon-wrap">
+                <span class="material-symbols-outlined">key</span>
+              </div>
+              <span class="section-title">Token criado: {{ ultimoTokenGerado.name }}</span>
+            </div>
+            <div class="section-body">
+              <p class="hint" style="margin-bottom:10px">Copie e guarde em local seguro. Este valor não será exibido novamente.</p>
+              <code id="new-token" style="display:block;padding:12px;background:var(--c-soft);border-radius:8px;word-break:break-all;font-size:0.8rem">{{ ultimoTokenGerado.token }}</code>
+            </div>
+          </div>
+        }
+
+        <div class="section-card">
+          <div class="section-header">
+            <div class="icon-wrap">
+              <span class="material-symbols-outlined">key</span>
+            </div>
+            <span class="section-title">Token de API</span>
+          </div>
+          <div class="section-body">
+            <p style="margin-bottom:8px">Gere um token para acessar a API REST (protocolos, templates).</p>
+            <p class="hint" style="margin-bottom:16px">Use o header: <code style="display:inline-block;margin-top:4px">Authorization: Bearer SEU_TOKEN</code></p>
+            <form (ngSubmit)="criarToken()" style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap">
+              <div class="field" style="margin-bottom:0">
+                <label>Nome do token</label>
+                <input type="text" class="form-input" style="min-width:200px" [(ngModel)]="novoTokenNome" name="novoTokenNome" placeholder="Ex: ERP, Sistema externo" required />
+              </div>
+              <button type="submit" class="btn-primary" style="padding:10px 16px">
+                <span class="material-symbols-outlined" style="font-size:18px">add</span>
+                Criar token
+              </button>
+            </form>
+
+            @if (tokens.length > 0) {
+              <table class="mt-4" style="width:100%;font-size:0.8rem;border-collapse:collapse">
+                <thead>
+                  <tr style="border-bottom:1px solid var(--c-border);text-align:left">
+                    <th style="padding:8px 0">Nome</th>
+                    <th style="padding:8px 0">Criado em</th>
+                    <th style="padding:8px 0"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (t of tokens; track t.id) {
+                    <tr style="border-bottom:1px solid var(--c-border)">
+                      <td style="padding:8px 0">{{ t.name }}</td>
+                      <td style="padding:8px 0;color:var(--c-muted)">{{ t.created_at | date:'dd/MM/yyyy HH:mm' }}</td>
+                      <td style="padding:8px 0">
+                        <button type="button" style="color:var(--c-muted);font-size:0.75rem;background:none;border:none;cursor:pointer;text-decoration:underline" (click)="revogarToken(t)">Revogar</button>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Painel Webhooks -->
+      <div id="panel-webhooks" class="config-panel" [class.active]="abaAtiva === 'webhooks'" role="tabpanel">
+        <div class="section-card">
+          <div class="section-header">
+            <div class="icon-wrap">
+              <span class="material-symbols-outlined">webhook</span>
+            </div>
+            <span class="section-title">Webhooks</span>
+          </div>
+          <div class="section-body">
+            <p style="margin-bottom:8px">Receba notificações em tempo real (POST na URL informada) quando uma submissão for criada, assinada, aprovada ou reprovada.</p>
+            <p class="hint" style="margin-bottom:16px">Cada requisição inclui o header <code>X-Webhook-Signature</code> com assinatura HMAC SHA-256 do corpo (formato: <code>sha256=&lt;hash&gt;</code>).</p>
+            <form (ngSubmit)="criarWebhook()" style="display:flex;flex-direction:column;gap:1rem;max-width:560px;margin-bottom:1.5rem">
+              <div class="field" style="margin-bottom:0">
+                <label>URL</label>
+                <input type="url" class="form-input" [(ngModel)]="novoWebhookUrl" name="novoWebhookUrl" placeholder="https://seu-sistema.com/webhook" required />
+              </div>
+              <div class="field" style="margin-bottom:0">
+                <label>Eventos</label>
+                <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:6px">
+                  @for (ev of availableEvents; track ev) {
+                    <label style="display:flex;align-items:center;gap:6px;font-size:0.8rem;cursor:pointer">
+                      <input type="checkbox" [checked]="novoWebhookEventos.includes(ev)" (change)="toggleEvento(ev, $any($event.target).checked)" />
+                      {{ eventLabels[ev] || ev }}
+                    </label>
+                  }
+                </div>
+              </div>
+              <div class="field" style="margin-bottom:0">
+                <label>Secret <span class="opt" style="font-size:10px;font-weight:400;color:var(--c-muted);margin-left:6px">opcional, para assinatura HMAC</span></label>
+                <input type="text" class="form-input" [(ngModel)]="novoWebhookSecret" name="novoWebhookSecret" placeholder="Chave secreta" style="max-width:280px" />
+              </div>
+              <div class="field" style="margin-bottom:0">
+                <label>Descrição <span class="opt" style="font-size:10px;font-weight:400;color:var(--c-muted);margin-left:6px">opcional</span></label>
+                <input type="text" class="form-input" [(ngModel)]="novoWebhookDescricao" name="novoWebhookDescricao" placeholder="Ex: ERP principal" style="max-width:280px" />
+              </div>
+              <button type="submit" class="btn-primary" style="align-self:flex-start;padding:10px 16px">
+                <span class="material-symbols-outlined" style="font-size:18px">add</span>
+                Adicionar webhook
+              </button>
+            </form>
+
+            @if (webhooks.length > 0) {
+              <div style="display:flex;flex-direction:column;gap:0.75rem">
+                @for (wh of webhooks; track wh.id) {
+                  <div style="padding:12px;border:1px solid var(--c-border);border-radius:8px;font-size:0.8rem">
+                    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px">
+                      <div>
+                        <strong>{{ wh.description || 'Webhook' }}</strong>
+                        <span style="color:var(--c-muted)"> — {{ wh.url }}</span>
+                        @if (!wh.is_active) {
+                          <span style="color:var(--c-muted)"> (inativo)</span>
+                        }
+                        <div style="margin-top:4px;color:var(--c-muted)">
+                          {{ formatarEventosWebhook(wh) }}
+                        </div>
+                      </div>
+                      <div style="display:flex;gap:8px">
+                        <button type="button" style="color:#f87171;font-size:0.75rem;background:none;border:none;cursor:pointer;text-decoration:underline" (click)="removerWebhook(wh)">Excluir</button>
+                      </div>
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Painel Entregas -->
+      <div id="panel-entregas" class="config-panel" [class.active]="abaAtiva === 'entregas'" role="tabpanel">
+        <div class="section-card">
+          <div class="section-header">
+            <div class="icon-wrap">
+              <span class="material-symbols-outlined">history</span>
+            </div>
+            <span class="section-title">Últimas entregas de webhook</span>
+          </div>
+          <div class="section-body">
+            @if (deliveries.length === 0) {
+              <p style="font-size:0.8rem;color:var(--c-muted)">Nenhuma entrega registrada.</p>
+            } @else {
+              <div style="overflow-x:auto">
+                <table style="width:100%;font-size:0.75rem;border-collapse:collapse">
+                  <thead>
+                    <tr style="border-bottom:1px solid var(--c-border);text-align:left">
+                      <th style="padding:6px 8px">Data</th>
+                      <th style="padding:6px 8px">Evento</th>
+                      <th style="padding:6px 8px">Webhook</th>
+                      <th style="padding:6px 8px">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (d of deliveries; track d.id) {
+                      <tr style="border-bottom:1px solid var(--c-border)">
+                        <td style="padding:6px 8px;color:var(--c-muted)">{{ d.created_at | date:'dd/MM/yyyy HH:mm:ss' }}</td>
+                        <td style="padding:6px 8px">{{ eventLabels[d.event] || d.event }}</td>
+                        <td style="padding:6px 8px">{{ d.webhook_id }}</td>
+                        <td style="padding:6px 8px">
+                          <span *ngIf="d.status_code && d.status_code >= 200 && d.status_code < 300" style="color:#22c55e">{{ d.status_code }}</span>
+                          <span *ngIf="!d.status_code || d.status_code < 200 || d.status_code >= 300" style="color:var(--c-muted)">{{ d.status_code || '-' }}</span>
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>

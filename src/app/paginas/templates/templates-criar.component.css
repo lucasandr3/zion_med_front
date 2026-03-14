@@ -1,0 +1,53 @@
+.templates-criar-page .card-criar {
+  transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+}
+.templates-criar-page .card-criar:hover {
+  border-color: var(--c-primary);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px var(--c-focus);
+}
+.templates-criar-page .card-criar:hover .w-9 {
+  background: var(--c-focus);
+  color: var(--c-primary);
+}
+.templates-criar-page .card-criar .use-btn {
+  opacity: 0;
+}
+.templates-criar-page .card-criar:hover .use-btn {
+  opacity: 1;
+}
+
+/* Filtro ativo = fundo primary, texto branco (igual backend) */
+.templates-criar-page .filter-btn {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  color: var(--c-muted);
+  cursor: pointer;
+}
+.templates-criar-page .filter-btn .filter-count {
+  color: inherit;
+}
+.templates-criar-page .filter-btn:hover:not(.active) {
+  border-color: var(--c-primary);
+  color: var(--c-primary);
+  background: var(--c-soft);
+}
+.templates-criar-page .filter-btn.active {
+  background: var(--c-primary);
+  border-color: var(--c-primary);
+  color: #fff;
+}
+.templates-criar-page .filter-btn.active .filter-count {
+  color: #fff;
+}
+
+.templates-criar-page .blank-cta:hover {
+  border-color: var(--c-primary);
+}
+.templates-criar-page .blank-cta:hover .text-sm.font-medium {
+  color: var(--c-text);
+}
+.templates-criar-page .blank-cta:hover .w-8 {
+  border-color: var(--c-primary);
+  color: var(--c-primary);
+}

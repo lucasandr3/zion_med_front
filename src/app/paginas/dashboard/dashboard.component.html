@@ -1,0 +1,150 @@
+<div class="relative min-h-[300px]">
+  @if (estadoCarregando) {
+    <app-loading-overlay />
+  }
+  @if (semClinica) {
+  <div class="card mb-6 flex items-center gap-4 p-4 rounded-xl" style="background: var(--c-soft); border: 1px solid var(--c-border)">
+    <span class="material-symbols-outlined shrink-0 text-[28px]" style="color: var(--c-muted)">business</span>
+    <div class="min-w-0">
+      <p class="text-sm font-medium" style="color: var(--c-text)">Selecione uma clínica para ver o resumo</p>
+      <p class="text-xs mt-0.5" style="color: var(--c-muted)">Os números e atalhos do dashboard são exibidos por clínica.</p>
+    </div>
+    <a routerLink="/clinica/escolher" class="btn-primary shrink-0">Escolher empresa</a>
+  </div>
+  }
+
+  <!-- Cards de estatísticas -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+  <a routerLink="/protocolos" class="card flex items-start justify-between no-underline transition-opacity hover:opacity-90" style="color: inherit; text-decoration: none">
+    <div>
+      <p class="text-xs font-semibold uppercase tracking-wider mb-3" style="color: var(--c-muted)">Pendentes hoje</p>
+      <p class="text-3xl font-bold" style="color: var(--c-text)">{{ pendentesHoje }}</p>
+      <p class="text-xs mt-1" style="color: var(--c-muted)">Protocolos aguardando revisão</p>
+    </div>
+    <div class="w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ml-3 bg-amber-500/10">
+      <span class="material-symbols-outlined text-amber-500 text-lg">pending_actions</span>
+    </div>
+  </a>
+
+  <div class="card flex items-start justify-between">
+    <div>
+      <p class="text-xs font-semibold uppercase tracking-wider mb-3" style="color: var(--c-muted)">Templates</p>
+      <p class="text-3xl font-bold" style="color: var(--c-text)">{{ totalTemplates }}</p>
+      <p class="text-xs mt-1" style="color: var(--c-muted)">Criados recentemente</p>
+    </div>
+    <div class="w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ml-3" style="background: color-mix(in srgb, var(--c-primary) 12%, transparent)">
+      <span class="material-symbols-outlined" style="color: var(--c-primary); font-size: 19px">description</span>
+    </div>
+  </div>
+
+  <a routerLink="/protocolos" class="card flex items-start justify-between no-underline transition-opacity hover:opacity-90" style="color: inherit; text-decoration: none">
+    <div>
+      <p class="text-xs font-semibold uppercase tracking-wider mb-3" style="color: var(--c-muted)">Últimos dias</p>
+      <p class="text-2xl font-bold" style="color: var(--c-text)">{{ ultimos7Dias }} <span class="text-lg font-normal" style="color: var(--c-muted)">/ 7 dias</span></p>
+      <p class="text-sm mt-1" style="color: var(--c-muted)">{{ ultimos30Dias }} nos últimos 30 dias</p>
+    </div>
+    <div class="w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ml-3 bg-blue-500/10">
+      <span class="material-symbols-outlined text-blue-500 text-lg">trending_up</span>
+    </div>
+  </a>
+
+  <a routerLink="/links-publicos" class="card flex items-start justify-between no-underline transition-opacity hover:opacity-90" style="color: inherit; text-decoration: none">
+    <div>
+      <p class="text-xs font-semibold uppercase tracking-wider mb-3" style="color: var(--c-muted)">Links para enviar</p>
+      <p class="text-3xl font-bold" style="color: var(--c-text)">{{ linksPublicosCount }}</p>
+      <p class="text-xs mt-1" style="color: var(--c-muted)">{{ linksPublicosCount ? 'Formulários com link público' : 'Copiar e enviar pelo WhatsApp' }}</p>
+    </div>
+    <div class="w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ml-3" [style.background]="linksPublicosCount ? 'rgba(34,197,94,0.12)' : 'var(--c-soft)'">
+      <span class="material-symbols-outlined text-lg" [style.color]="linksPublicosCount ? '#22c55e' : 'var(--c-muted)'">link</span>
+    </div>
+  </a>
+</div>
+
+<!-- Protocolos por situação -->
+@if (totalStatus > 0) {
+  <div class="card mb-6 p-5 rounded-xl">
+    <div class="flex items-center gap-2 mb-4">
+      <span class="material-symbols-outlined text-xl" style="color: var(--c-muted)">bar_chart</span>
+      <h2 class="text-sm font-semibold" style="color: var(--c-text)">Protocolos por situação</h2>
+    </div>
+    <div class="space-y-3">
+      <div>
+        <div class="flex justify-between text-xs mb-1">
+          <span style="color: var(--c-muted)">Pendente</span>
+          <span style="color: var(--c-text)">{{ porStatus.pending }}</span>
+        </div>
+        <div class="h-2 rounded-full overflow-hidden bg-black/10">
+          <div class="h-full rounded-full bg-amber-500" [style.width.%]="totalStatus ? (porStatus.pending / totalStatus * 100) : 0"></div>
+        </div>
+      </div>
+      <div>
+        <div class="flex justify-between text-xs mb-1">
+          <span style="color: var(--c-muted)">Aprovado</span>
+          <span style="color: var(--c-text)">{{ porStatus.approved }}</span>
+        </div>
+        <div class="h-2 rounded-full overflow-hidden bg-black/10">
+          <div class="h-full rounded-full bg-green-500" [style.width.%]="totalStatus ? (porStatus.approved / totalStatus * 100) : 0"></div>
+        </div>
+      </div>
+      <div>
+        <div class="flex justify-between text-xs mb-1">
+          <span style="color: var(--c-muted)">Reprovado</span>
+          <span style="color: var(--c-text)">{{ porStatus.rejected }}</span>
+        </div>
+        <div class="h-2 rounded-full overflow-hidden bg-black/10">
+          <div class="h-full rounded-full bg-red-500" [style.width.%]="totalStatus ? (porStatus.rejected / totalStatus * 100) : 0"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Acesso rápido -->
+<div class="card w-full mb-6 rounded-xl">
+  <p class="text-xs font-semibold uppercase tracking-wider mb-3" style="color: var(--c-muted)">Acesso rápido</p>
+  <div class="flex flex-wrap gap-2">
+    <a routerLink="/links-publicos" class="btn-ghost btn-default-bg">
+      <span class="material-symbols-outlined text-base">link</span>
+      Links para enviar
+    </a>
+    <a routerLink="/templates/criar" class="btn-primary">
+      <span class="material-symbols-outlined text-base">add</span>
+      Novo template
+    </a>
+    <a routerLink="/protocolos" class="btn-ghost btn-default-bg">
+      <span class="material-symbols-outlined text-base">inbox</span>
+      Protocolos
+    </a>
+  </div>
+</div>
+
+<!-- Últimos templates -->
+<div class="card rounded-xl overflow-hidden" style="padding: 0">
+  <div class="flex items-center justify-between gap-2 px-5 py-3.5" style="border-bottom: 1px solid var(--c-border)">
+    <div class="flex items-center gap-2">
+      <span class="material-symbols-outlined text-lg" style="color: var(--c-muted)">history</span>
+      <h2 class="text-sm font-semibold" style="color: var(--c-text)">Últimos templates</h2>
+    </div>
+    @if (ultimosTemplates.length > 0) {
+      <a routerLink="/templates" class="text-xs font-medium" style="color: var(--c-primary); text-decoration: none">Ver todos</a>
+    }
+  </div>
+  @for (t of ultimosTemplates; track t.id) {
+    <a routerLink="/templates/{{ t.id }}/campos" class="flex items-center justify-between px-5 py-3.5 transition-colors hover:bg-[var(--c-soft)]" style="border-bottom: 1px solid var(--c-border); text-decoration: none; color: inherit">
+      <div class="flex items-center gap-3 min-w-0">
+        <span class="material-symbols-outlined shrink-0 text-[17px]" style="color: var(--c-muted)">description</span>
+        <div class="min-w-0">
+          <span class="text-sm font-medium block truncate" style="color: var(--c-text)">{{ t.name }}</span>
+          <span class="text-xs" style="color: var(--c-muted)">{{ t.created_at }}</span>
+        </div>
+      </div>
+      <span class="material-symbols-outlined shrink-0 text-[17px]" style="color: var(--c-muted)">chevron_right</span>
+    </a>
+  } @empty {
+    <div class="px-5 py-12 text-center">
+      <span class="material-symbols-outlined block mb-2 text-4xl" style="color: var(--c-border)">description</span>
+      <p class="text-sm" style="color: var(--c-muted)">Nenhum template ainda.</p>
+    </div>
+  }
+</div>
+</div>

@@ -1,0 +1,131 @@
+<div class="templates-criar-page min-h-full" style="background: var(--c-bg); color: var(--c-text)">
+  @if (carregando) {
+    <app-loading-overlay />
+  }
+
+  <div class="max-w-5xl mx-auto">
+    <!-- Título + subtítulo (igual backend: ícone circular, "Novo template", descrição) -->
+    <div class="flex items-center gap-3 mb-2">
+      <div class="w-8 h-8 rounded-full border-2 flex items-center justify-center shrink-0" style="border-color: var(--c-primary); color: var(--c-primary)">
+        <span class="material-symbols-outlined text-base">add_circle</span>
+      </div>
+      <h1 class="text-xl font-semibold tracking-tight m-0" style="color: var(--c-text)">Novo template</h1>
+    </div>
+    <p class="text-sm mb-7 ml-11" style="color: var(--c-muted)">Escolha um modelo para começar ou crie um template em branco.</p>
+
+    @if (erro) {
+      <p class="text-sm mb-4" style="color: var(--c-error, #dc2626)">{{ erro }}</p>
+    }
+
+    @if (!carregando) {
+      <!-- Busca -->
+      <div class="mb-4">
+        <div class="relative w-full">
+          <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none text-lg" style="color: var(--c-muted)">search</span>
+          <input type="text" [(ngModel)]="buscaTexto" placeholder="Buscar template..." class="w-full pl-10 pr-4 py-2.5 rounded-lg text-sm min-w-0 border font-sans" style="background: var(--c-surface); border-color: var(--c-border); color: var(--c-text)" />
+        </div>
+      </div>
+
+      <!-- Filtros: ativo = fundo primary e texto branco (igual backend) -->
+      <div class="flex gap-2 flex-wrap mb-6">
+        <button type="button" class="filter-btn text-xs font-medium px-3 py-2 rounded-lg border transition-all" [class.active]="filtroAtual === 'todos'" (click)="setFiltro('todos')">
+          Todos <span class="ml-1 tabular-nums filter-count">{{ contagemFiltro('todos') }}</span>
+        </button>
+        @for (cat of categoryKeys; track cat) {
+          <button type="button" class="filter-btn text-xs font-medium px-3 py-2 rounded-lg border transition-all" [class.active]="filtroAtual === cat" (click)="setFiltro(cat)">
+            {{ categoryLabels[cat] }} <span class="ml-1 tabular-nums filter-count">{{ contagemFiltro(cat) }}</span>
+          </button>
+        }
+      </div>
+
+      <!-- Section -->
+      <div class="flex items-center justify-between mb-4">
+        <span class="text-[11px] font-semibold uppercase tracking-wider" style="color: var(--c-muted)">{{ categoryLabels['geral'] }}</span>
+        <span class="text-xs tabular-nums" style="color: var(--c-muted)">{{ cardsVisiveis.length }} template(s)</span>
+      </div>
+
+      <!-- Grid de cards -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        @for (t of cardsVisiveis; track t.id) {
+          <div class="card-criar rounded-xl p-5 flex flex-col gap-3 cursor-pointer border transition-all" style="background: var(--c-surface); border-color: var(--c-border)">
+            <div class="flex items-start">
+              <div class="w-9 h-9 rounded-lg flex items-center justify-center text-lg transition-all" style="background: var(--c-soft); color: var(--c-muted)">{{ categoryEmoji[t.category || 'geral'] }}</div>
+            </div>
+            <div>
+              <div class="flex items-center gap-2 mb-1">
+                <span class="text-sm font-medium" style="color: var(--c-text)">{{ t.name }}</span>
+              </div>
+              <p class="text-xs leading-relaxed" style="color: var(--c-muted)">{{ descricaoResumo(t) }}</p>
+            </div>
+            <div class="flex gap-1.5 flex-wrap">
+              @if (t.category && categoryLabels[t.category]) {
+                <span class="card-tag px-2 py-0.5 rounded-full text-[10px] font-medium" style="background: var(--c-soft); color: var(--c-muted); border: 1px solid var(--c-border)">{{ categoryLabels[t.category] }}</span>
+              }
+            </div>
+            <div class="flex gap-2 mt-auto pt-1">
+              <button type="button" class="preview-btn flex-1 text-xs py-2 rounded-lg border transition-colors" style="background: transparent; color: var(--c-muted); border-color: var(--c-border)" (click)="abrirPreview(t); $event.stopPropagation()">Pré-visualizar</button>
+              <button type="button" class="use-btn flex-1 text-xs py-2 rounded-lg font-medium border transition-all" style="background: var(--c-primary); color: #fff; border-color: var(--c-primary)" (click)="usarModeloDoCard(t, $event)" [disabled]="usandoModelo">Usar modelo</button>
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Empty state -->
+      @if (cardsVisiveis.length === 0) {
+        <div class="text-center py-16" style="color: var(--c-muted)">
+          <div class="text-4xl mb-3">🔍</div>
+          <p class="text-sm">Nenhum template encontrado.</p>
+        </div>
+      }
+
+      <!-- CTA Criar em branco -->
+      <a routerLink="/templates/criar-em-branco" class="blank-cta mt-6 border border-dashed rounded-xl p-5 flex items-center justify-between transition-colors no-underline block" style="border-color: var(--c-border); color: var(--c-text)">
+        <div>
+          <p class="text-sm font-medium transition-colors" style="color: var(--c-muted)">Criar template em branco</p>
+          <p class="text-xs mt-0.5" style="color: var(--c-muted)">Comece do zero com total liberdade</p>
+        </div>
+        <div class="w-8 h-8 rounded-full border flex items-center justify-center transition-all" style="border-color: var(--c-border); color: var(--c-muted)">
+          <span class="material-symbols-outlined text-sm">add</span>
+        </div>
+      </a>
+    }
+
+  </div>
+
+  <!-- Modal Pré-visualizar -->
+  @if (previewAberto) {
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-4" style="background: rgba(0,0,0,0.7); backdrop-filter: blur(4px)" (click)="fecharPreview()">
+      <div class="modal-box rounded-2xl p-7 w-full max-w-[42rem] max-h-[90vh] flex flex-col border" style="background: var(--c-surface); border-color: var(--c-border)" (click)="$event.stopPropagation()">
+        <div class="flex items-center justify-between mb-4 shrink-0">
+          <h2 class="text-lg font-semibold" style="color: var(--c-text)">{{ previewTemplate?.name ?? 'Template' }}</h2>
+          <button type="button" class="p-1 rounded-lg transition-colors hover:bg-[var(--c-soft)]" style="color: var(--c-muted)" (click)="fecharPreview()" aria-label="Fechar">
+            <span class="material-symbols-outlined text-xl">close</span>
+          </button>
+        </div>
+        <p class="text-sm mb-4 shrink-0" style="color: var(--c-muted)">{{ previewTemplate?.description || '' }}</p>
+        <div class="flex-1 min-h-0 overflow-y-auto pr-1 max-h-[50vh]">
+          @if (previewCarregando) {
+            <p class="text-sm" style="color: var(--c-muted)">Carregando...</p>
+          } @else if (previewTemplate?.fields?.length) {
+            <div class="space-y-4 mb-6">
+              @for (f of previewTemplate!.fields; track f.id) {
+                <div>
+                  <label class="block text-xs font-medium mb-1" style="color: var(--c-muted)">{{ f.label }}{{ f.required ? ' *' : '' }}</label>
+                  <div class="rounded-lg border py-2 px-3 text-sm min-h-[2.25rem]" style="background: var(--c-soft); border-color: var(--c-border); color: var(--c-muted)">{{ previewFieldText(f) }}</div>
+                </div>
+              }
+            </div>
+          } @else {
+            <p class="text-sm" style="color: var(--c-muted)">Este modelo não possui campos definidos.</p>
+          }
+        </div>
+        <div class="flex gap-3 shrink-0 pt-2">
+          <button type="button" class="flex-1 text-sm py-2.5 rounded-lg font-medium border transition-colors" style="background: transparent; color: var(--c-muted); border-color: var(--c-border)" (click)="fecharPreview()">Cancelar</button>
+          @if (previewTemplate) {
+            <button type="button" class="flex-1 text-sm py-2.5 rounded-lg font-medium border transition-all text-white" style="background: var(--c-primary); border-color: var(--c-primary)" (click)="usarModelo(previewTemplate!)" [disabled]="usandoModelo">{{ usandoModelo ? 'Criando…' : 'Usar este modelo' }}</button>
+          }
+        </div>
+      </div>
+    </div>
+  }
+</div>

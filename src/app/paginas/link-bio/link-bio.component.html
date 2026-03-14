@@ -1,0 +1,304 @@
+<div class="relative min-h-[320px]">
+  @if (carregando) {
+    <app-loading-overlay />
+  }
+
+  @if (!carregando && erro) {
+    <p class="text-sm" style="color: var(--c-error, #dc2626)">{{ erro }}</p>
+  }
+
+  @if (!carregando && state) {
+    <!-- Header -->
+    <div class="mb-6">
+      <div class="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <p class="text-[0.6875rem] uppercase tracking-wider mb-1" style="color:var(--c-muted)">Link Bio</p>
+          <h1 class="text-xl font-bold leading-tight" style="color:var(--c-text)">{{ state.clinic.name }}</h1>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="link-bio-badge" style="background:color-mix(in srgb,var(--c-primary) 15%,transparent);color:var(--c-primary)">● Publicado</span>
+          <a [href]="publicUrl" target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm transition-colors" style="background:var(--c-soft);color:var(--c-muted);border:1px solid var(--c-border)">
+            <span class="material-symbols-outlined" style="font-size:16px">open_in_new</span>
+            Ver página
+          </a>
+          <button type="button" class="btn-primary inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm" (click)="copiarLinkPrincipal()">
+            <span class="material-symbols-outlined" style="font-size:16px">content_copy</span>
+            Copiar link
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Barra do link -->
+    <div class="flex flex-wrap items-center gap-2 mb-6">
+      <input type="text" readonly [value]="publicUrl" id="bio-url-input" class="form-input flex-1 min-w-0 max-w-md text-sm cursor-pointer" (click)="$any($event.target).select()" />
+      <button type="button" class="px-3 py-2 rounded-lg text-sm transition-colors whitespace-nowrap" style="background:var(--c-soft);color:var(--c-muted);border:1px solid var(--c-border)" (click)="copiarLinkPrincipal()">
+        Copiar
+      </button>
+    </div>
+
+    <!-- Métricas -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6" *ngIf="metrics">
+      <div class="link-bio-metric">
+        <div class="link-bio-metric-label mb-1.5">Visitas hoje</div>
+        <div class="link-bio-metric-value" style="color:var(--c-primary)">{{ metrics!.visitas_hoje }}</div>
+      </div>
+      <div class="link-bio-metric">
+        <div class="link-bio-metric-label mb-1.5">Cliques totais</div>
+        <div class="link-bio-metric-value">{{ metrics!.total_clicks_last_30 }}</div>
+        <div class="text-[0.6875rem] mt-0.5" style="color:var(--c-muted)">últimos 30 dias</div>
+      </div>
+      <div class="link-bio-metric">
+        <div class="link-bio-metric-label mb-1.5">Taxa de clique</div>
+        <div class="link-bio-metric-value" style="color:var(--c-primary)">{{ metrics!.taxa_clique }}%</div>
+        <div class="text-[0.6875rem] mt-0.5" style="color:var(--c-muted)">CTR</div>
+      </div>
+      <div class="link-bio-metric">
+        <div class="link-bio-metric-label mb-1.5">Formulários</div>
+        <div class="link-bio-metric-value">{{ metrics!.formularios_total }}</div>
+        <div class="text-[0.6875rem] mt-0.5" style="color:var(--c-muted)">{{ metrics!.formularios_ativos }} ativos, {{ metrics!.formularios_draft }} rascunho</div>
+      </div>
+    </div>
+
+    <!-- Conteúdo principal -->
+    <div class="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6">
+      <div>
+        <!-- Tabs -->
+        <div class="flex gap-1 mb-5 p-1 rounded-lg w-fit" style="background:var(--c-surface);border:1px solid var(--c-border)">
+          <button type="button" class="link-bio-tab" [class.active]="abaAtiva === 'links'" (click)="ativarAba('links')">
+            <span class="material-symbols-outlined">link</span> Links
+          </button>
+          <button type="button" class="link-bio-tab" [class.active]="abaAtiva === 'forms'" (click)="ativarAba('forms')">
+            <span class="material-symbols-outlined">description</span> Formulários
+          </button>
+          <button type="button" class="link-bio-tab" [class.active]="abaAtiva === 'stats'" (click)="ativarAba('stats')">
+            <span class="material-symbols-outlined">bar_chart</span> Estatísticas
+          </button>
+          <button type="button" class="link-bio-tab" [class.active]="abaAtiva === 'aparencia'" (click)="ativarAba('aparencia')">
+            <span class="material-symbols-outlined">palette</span> Aparência
+          </button>
+        </div>
+
+        <!-- Aba Links -->
+        <div id="tab-links" class="flex flex-col gap-2.5" *ngIf="abaAtiva === 'links'">
+          <div class="flex flex-wrap justify-between items-center gap-2 mb-1">
+            <p class="text-xs" style="color:var(--c-muted)">Links exibidos na sua página</p>
+            <button type="button" id="btn-add" class="btn-primary text-sm px-3 py-1.5 inline-flex items-center gap-1.5" (click)="toggleFormNovo()">
+              <span class="material-symbols-outlined" style="font-size:16px">{{ mostrarFormNovo ? 'close' : 'add' }}</span>
+              {{ mostrarFormNovo ? 'Cancelar' : 'Adicionar link' }}
+            </button>
+          </div>
+
+          @if (mostrarFormNovo) {
+            <div class="p-4 rounded-xl mb-2" style="background:var(--c-soft);border:1px solid var(--c-border)">
+              <p class="text-sm font-semibold mb-3" style="color:var(--c-text)">Novo link</p>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
+                <div>
+                  <label class="form-label">Título</label>
+                  <input type="text" class="form-input" [(ngModel)]="novoLabel" name="novoLabel" placeholder="Ex: WhatsApp, Instagram…" maxlength="80" />
+                </div>
+                <div>
+                  <label class="form-label">URL</label>
+                  <input type="url" class="form-input" [(ngModel)]="novoUrl" name="novoUrl" placeholder="https://…" maxlength="500" />
+                </div>
+                <div>
+                  <label class="form-label">Ícone</label>
+                  <select class="form-select" [(ngModel)]="novoIcon" name="novoIcon">
+                    @for (iconKey of (availableIcons | keyvalue); track iconKey.key) {
+                      <option [value]="iconKey.key">{{ iconKey.value }}</option>
+                    }
+                  </select>
+                </div>
+              </div>
+              <div class="flex gap-2">
+                <button type="button" class="btn-primary text-sm" (click)="salvarNovoLink()">Salvar</button>
+                <button type="button" class="text-sm px-3 py-1.5 rounded" style="color:var(--c-muted)" (click)="toggleFormNovo()">Cancelar</button>
+              </div>
+            </div>
+          }
+
+          @if (links.length > 0) {
+            <ul class="flex flex-col gap-2.5">
+              @for (lnk of links; track lnk.id) {
+                <li class="link-bio-link-row flex-wrap">
+                  <span class="material-symbols-outlined shrink-0 w-9 h-9 rounded-lg flex items-center justify-center" style="font-size:18px;background:color-mix(in srgb,var(--c-primary) 12%,transparent);color:var(--c-primary)">{{ lnk.icon ?? 'link' }}</span>
+
+                  @if (editandoId === lnk.id) {
+                    <form class="flex-1 min-w-0" (ngSubmit)="salvarEdicao(lnk)">
+                      <div class="grid grid-cols-1 md:grid-cols-3 gap-2 mb-2">
+                        <input type="text" name="label" required maxlength="80" [(ngModel)]="editLabel" class="form-input text-sm" placeholder="Título" />
+                        <input type="url" name="url" required maxlength="500" [(ngModel)]="editUrl" class="form-input text-sm" placeholder="URL" />
+                        <select name="icon" class="form-select text-sm" [(ngModel)]="editIcon">
+                          @for (iconKey of (availableIcons | keyvalue); track iconKey.key) {
+                            <option [value]="iconKey.key">{{ iconKey.value }}</option>
+                          }
+                        </select>
+                      </div>
+                      <div class="flex gap-2">
+                        <button type="submit" class="btn-primary text-xs px-2 py-1">Salvar</button>
+                        <button type="button" class="text-xs px-2 py-1 rounded" style="color:var(--c-muted)" (click)="cancelarEdicao()">Cancelar</button>
+                      </div>
+                    </form>
+                  } @else {
+                    <div class="flex-1 min-w-0 view-mode">
+                      <div class="text-sm font-semibold truncate" style="color:var(--c-text)">{{ lnk.label }}</div>
+                      <div class="text-xs truncate mt-0.5" style="color:var(--c-muted)">{{ lnk.url }}</div>
+                    </div>
+                    <div class="flex items-center gap-2 shrink-0 actions-mode">
+                      <span class="text-xs" style="color:var(--c-primary)">{{ lnk.total_clicks ?? 0 }} cliques</span>
+                      <button type="button" class="px-2.5 py-1 rounded-lg text-xs transition-colors" style="background:var(--c-soft);color:var(--c-muted);border:1px solid var(--c-border)" (click)="iniciarEdicao(lnk)">Editar</button>
+                      <a [href]="lnk.url" target="_blank" rel="noopener" class="p-1.5 rounded-lg" style="color:var(--c-muted)" aria-label="Abrir link">
+                        <span class="material-symbols-outlined" style="font-size:17px">open_in_new</span>
+                      </a>
+                      <button type="button" class="p-1.5 rounded-lg" style="color:var(--c-muted)" aria-label="Remover link" (click)="excluirLink(lnk)">
+                        <span class="material-symbols-outlined" style="font-size:17px">delete</span>
+                      </button>
+                    </div>
+                  }
+                </li>
+              }
+            </ul>
+          } @else {
+            <div class="py-10 text-center rounded-xl" style="background:var(--c-soft);border:1px dashed var(--c-border)">
+              <span class="material-symbols-outlined block mb-2" style="font-size:40px;color:var(--c-muted)">add_link</span>
+              <p class="text-sm font-medium" style="color:var(--c-text)">Nenhum link cadastrado</p>
+              <p class="text-xs mt-1" style="color:var(--c-muted)">Clique em \"Adicionar link\" para começar.</p>
+            </div>
+          }
+        </div>
+
+        <!-- Aba Formulários -->
+        <div id="tab-forms" class="flex flex-col gap-2.5" *ngIf="abaAtiva === 'forms'">
+          <div class="flex flex-wrap justify-between items-center gap-2 mb-1">
+            <p class="text-xs" style="color:var(--c-muted)">Formulários vinculados à página</p>
+          </div>
+          @if (forms.length > 0) {
+            @for (t of forms; track t.id) {
+              <div class="link-bio-form-row">
+                <div class="w-2 h-2 rounded-full shrink-0" style="background:var(--c-primary)"></div>
+                <div class="flex-1 min-w-0">
+                  <div class="text-sm font-semibold" style="color:var(--c-text)">{{ t.name }}</div>
+                  <div class="text-xs mt-0.5" style="color:var(--c-muted)">Respostas: {{ t.submission_count }}</div>
+                </div>
+                <div class="flex gap-2 shrink-0">
+                  <button type="button" class="px-2.5 py-1 rounded-lg text-xs transition-colors" style="background:var(--c-soft);color:var(--c-primary);border:1px solid var(--c-border)" (click)="copiarLinkForm(t)">Copiar link</button>
+                </div>
+              </div>
+            }
+          } @else {
+            <div class="py-8 text-center rounded-xl" style="background:var(--c-soft);border:1px dashed var(--c-border)">
+              <span class="material-symbols-outlined block mb-2" style="font-size:32px;color:var(--c-muted)">link_off</span>
+              <p class="text-sm" style="color:var(--c-text)">Nenhum formulário com link público</p>
+            </div>
+          }
+        </div>
+
+        <!-- Aba Estatísticas -->
+        <div id="tab-stats" *ngIf="abaAtiva === 'stats' && stats">
+          <div class="card p-5">
+            <div class="flex flex-wrap justify-between items-center gap-2 mb-5">
+              <h3 class="text-sm font-bold" style="color:var(--c-text)">Cliques por dia (últimos 7 dias)</h3>
+              <span class="text-xs" style="color:var(--c-muted)">Total: {{ metrics?.total_clicks }}</span>
+            </div>
+            <div class="flex items-end gap-2 h-20">
+              @for (d of diasClicks; track d.date) {
+                <div class="link-bio-bar-wrap">
+                  <div class="link-bio-bar" [style.height.%]="d.percent"></div>
+                  <div class="link-bio-bar-label">{{ d.label }}</div>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+
+        <!-- Aba Aparência -->
+        <div id="tab-aparencia" *ngIf="abaAtiva === 'aparencia' && state">
+          <form class="flex flex-col gap-5" (ngSubmit)="salvarAparencia()">
+            <!-- Tema de cor -->
+            <div class="card p-5">
+              <p class="text-xs font-bold uppercase tracking-wider mb-4" style="color:var(--c-muted)">Tema de cor da página</p>
+              <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:8px">
+                <!-- Padrão -->
+                <button type="button"
+                        class="theme-card"
+                        [class.selected]="aparenciaPublicTheme === ''"
+                        style="border:2px solid var(--c-border);border-radius:10px;padding:10px;cursor:pointer;position:relative;background:var(--c-surface)"
+                        (click)="aparenciaPublicTheme = ''">
+                  <div style="height:28px;border-radius:5px;margin-bottom:7px;background:#f0ede8;display:flex;gap:2px;align-items:flex-end;padding:4px">
+                    <div style="background:#1a1a2e;border-radius:2px;width:5px;height:10px"></div>
+                    <div style="background:#1a1a2e;border-radius:2px;width:5px;height:16px"></div>
+                    <div style="background:#1a1a2e;border-radius:2px;width:5px;height:22px"></div>
+                  </div>
+                  <div style="width:20px;height:20px;border-radius:50%;background:#1a1a2e;margin-bottom:5px"></div>
+                  <div style="font-size:10.5px;font-weight:500;color:var(--c-text)">Padrão</div>
+                </button>
+
+                @for (entry of (availableThemes | keyvalue); track entry.key) {
+                  <button type="button"
+                          class="theme-card"
+                          [class.selected]="aparenciaPublicTheme === entry.key"
+                          style="border:2px solid var(--c-border);border-radius:10px;padding:10px;cursor:pointer;position:relative;background:var(--c-surface)"
+                          (click)="aparenciaPublicTheme = entry.key">
+                    @let p = entry.value.primary;
+                    <div style="height:28px;border-radius:5px;margin-bottom:7px;display:flex;gap:2px;align-items:flex-end;padding:4px" [style.background]="p + '22'">
+                      <div [style.background]="p" style="border-radius:2px;width:5px;height:10px"></div>
+                      <div [style.background]="p" style="border-radius:2px;width:5px;height:16px"></div>
+                      <div [style.background]="p" style="border-radius:2px;width:5px;height:22px"></div>
+                    </div>
+                    <div [style.background]="p" style="width:20px;height:20px;border-radius:50%;margin-bottom:5px"></div>
+                    <div style="font-size:10.5px;font-weight:500;color:var(--c-text)">{{ entry.value.label }}</div>
+                  </button>
+                }
+              </div>
+              <p class="text-[11px] mt-3" style="color:var(--c-muted)">Afeta o logo, botões e indicador de horário aberto. Independente do tema do sistema.</p>
+            </div>
+
+            <!-- Informações exibidas na página -->
+            <div class="card p-5">
+              <p class="text-xs font-bold uppercase tracking-wider mb-4" style="color:var(--c-muted)">Informações exibidas na página</p>
+              <div class="flex flex-col gap-4">
+                <div>
+                  <label class="form-label">Descrição / Slogan</label>
+                  <input type="text" class="form-input" [(ngModel)]="aparenciaShortDescription" name="short_description" placeholder="Ex: Cuidando da sua saúde com excelência" maxlength="200" />
+                </div>
+                <div>
+                  <label class="form-label">Especialidades</label>
+                  <input type="text" class="form-input" [(ngModel)]="aparenciaSpecialties" name="specialties" placeholder="Clínica geral, Pediatria, Dermatologia (vírgula para separar)" />
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label class="form-label">Ano de fundação</label>
+                    <input type="number" class="form-input" [(ngModel)]="aparenciaFoundedYear" name="founded_year" placeholder="2010" min="1900" />
+                  </div>
+                  <div>
+                    <label class="form-label">E-mail de contato público</label>
+                    <input type="email" class="form-input" [(ngModel)]="aparenciaContactEmail" name="contact_email" placeholder="contato@empresa.com" />
+                  </div>
+                </div>
+                <div>
+                  <label class="form-label">Link do Google Maps</label>
+                  <input type="url" class="form-input" [(ngModel)]="aparenciaMapsUrl" name="maps_url" placeholder="https://maps.google.com/..." />
+                </div>
+              </div>
+            </div>
+
+            <div class="flex justify-end gap-2">
+              <button type="submit" class="btn-primary px-5 py-2 text-sm inline-flex items-center gap-2">
+                <span class="material-symbols-outlined" style="font-size:16px">save</span>
+                Salvar aparência
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Preview celular -->
+      <div class="hidden lg:flex flex-col items-center gap-3 sticky top-24">
+        <p class="text-[0.6875rem] uppercase tracking-wider" style="color:var(--c-muted)">Prévia ao vivo</p>
+        <div class="link-bio-phone">
+          <iframe [src]="previewUrlSafe" title="Preview Link Bio" class="link-bio-phone-screen w-full h-full border-0" loading="lazy"></iframe>
+        </div>
+      </div>
+    </div>
+  }
+</div>

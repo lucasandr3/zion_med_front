@@ -1,0 +1,222 @@
+<div class="comece-pagina min-h-screen bg-slate-50 text-slate-900 antialiased">
+  <header class="border-b border-slate-200/80 bg-white/90 backdrop-blur sticky top-0 z-10">
+    <div class="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-4">
+      <a routerLink="/" class="flex items-center gap-3">
+        <div class="h-10 w-10 rounded-xl flex items-center justify-center shrink-0 overflow-hidden bg-indigo-600 p-1">
+          <img src="assets/logo/zionmed_logo.png" alt="Zion Med" class="w-full h-full object-contain rounded-lg" onerror="this.style.display='none'">
+        </div>
+        <div class="leading-tight">
+          <div class="text-sm font-semibold tracking-tight text-slate-900">ZionMed</div>
+          <div class="hidden text-xs text-slate-500 sm:block">Fichas e Consentimentos Digitais</div>
+        </div>
+      </a>
+      <div class="flex items-center gap-2 shrink-0">
+        <a routerLink="/" fragment="precos" class="hidden rounded-lg px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 sm:inline-flex">Ver planos</a>
+        <a routerLink="/autenticacao" class="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">Entrar</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="mx-auto max-w-7xl px-4 py-5 sm:py-7">
+    <div class="mb-5 flex items-center justify-center gap-2 sm:gap-4">
+      <div class="flex items-center gap-2">
+        <span class="flex h-7 w-7 items-center justify-center rounded-full bg-indigo-600 text-xs font-bold text-white">1</span>
+        <span class="text-sm font-semibold text-indigo-700">Cadastro</span>
+      </div>
+      <div class="h-px w-8 sm:w-16 bg-slate-200"></div>
+      <div class="flex items-center gap-2 opacity-40">
+        <span class="flex h-7 w-7 items-center justify-center rounded-full border-2 border-slate-300 text-xs font-bold text-slate-400">2</span>
+        <span class="text-sm font-medium text-slate-400">Configuração</span>
+      </div>
+      <div class="h-px w-8 sm:w-16 bg-slate-200"></div>
+      <div class="flex items-center gap-2 opacity-40">
+        <span class="flex h-7 w-7 items-center justify-center rounded-full border-2 border-slate-300 text-xs font-bold text-slate-400">3</span>
+        <span class="text-sm font-medium text-slate-400">Pronto!</span>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_480px] xl:grid-cols-[1fr_520px]">
+      <div class="flex flex-col gap-6 lg:py-2">
+        <div>
+          <h2 class="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">Fichas e consentimentos digitais para a sua clínica.</h2>
+          <p class="mt-3 text-base text-slate-600 leading-relaxed">
+            O ZionMed digitaliza fichas de cadastro, termos de consentimento e checklists, com assinatura eletrônica, protocolo e PDF automático — sem substituir o ERP ou prontuário que você já usa.
+          </p>
+        </div>
+
+        <div class="space-y-3">
+          @for (b of beneficios; track b.title) {
+            <div class="flex items-start gap-3">
+              <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl" [ngClass]="b.bg">
+                <span class="material-symbols-outlined text-[20px]" [ngClass]="b.color">{{ b.icon }}</span>
+              </span>
+              <div>
+                <p class="text-sm font-semibold text-slate-800">{{ b.title }}</p>
+                <p class="text-sm text-slate-500 mt-0.5">{{ b.desc }}</p>
+              </div>
+            </div>
+          }
+        </div>
+
+        <div class="flex flex-wrap gap-2 pt-2">
+          <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-700 ring-1 ring-inset ring-emerald-200">{{ diasTrial }} dias grátis</span>
+          <span class="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-700 ring-1 ring-inset ring-slate-200">Sem cartão de crédito</span>
+          <span class="inline-flex items-center gap-1.5 rounded-full bg-sky-50 px-3 py-1.5 text-xs font-medium text-sky-700 ring-1 ring-inset ring-sky-200">Acesso liberado na hora</span>
+          <span class="inline-flex items-center gap-1.5 rounded-full bg-violet-50 px-3 py-1.5 text-xs font-medium text-violet-700 ring-1 ring-inset ring-violet-200">Cancele quando quiser</span>
+        </div>
+
+        <details class="rounded-xl border border-amber-200 bg-amber-50">
+          <summary class="flex cursor-pointer items-center justify-between p-4 text-sm font-semibold text-amber-900 select-none">
+            <span class="flex items-center gap-2">Informações sobre implantação</span>
+          </summary>
+          <div class="border-t border-amber-200 px-4 pb-4 pt-3 text-sm text-amber-800 leading-relaxed">
+            A conta e o trial são liberados imediatamente. A implantação inicial varia conforme escopo:
+            <ul class="mt-2 space-y-1 list-none">
+              <li><strong>R$ 500 – R$ 1.500</strong> para clínica pequena</li>
+              <li><strong>R$ 1.500 – R$ 3.000</strong> para operação com fluxos e treinamento</li>
+              <li><strong>R$ 3.000 – R$ 6.000</strong> para multiunidade ou integrações</li>
+            </ul>
+            <a routerLink="/" fragment="precos" class="mt-3 inline-block font-medium text-amber-700 hover:underline">Ver detalhes completos dos planos →</a>
+          </div>
+        </details>
+
+        <div class="rounded-xl border border-sky-100 bg-sky-50 p-4 text-sm text-sky-900">
+          <p class="font-semibold">O que acontece depois do cadastro?</p>
+          <p class="mt-1.5 text-sky-800 leading-relaxed">
+            Sua conta é criada e o trial começa na hora. Se a cobrança não for configurada automaticamente neste passo, você poderá concluir a ativação comercial depois, dentro da plataforma.
+          </p>
+        </div>
+
+        <a href="https://wa.me/5500000000000?text=Ol%C3%A1%2C+tenho+interesse+no+ZionMed+e+gostaria+de+mais+informa%C3%A7%C3%B5es." target="_blank" rel="noopener noreferrer"
+           class="flex items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-left no-underline transition-colors hover:bg-emerald-100 hover:border-emerald-300">
+          <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#25D366] text-white">
+            <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.557 4.126 1.526 5.855L0 24l6.335-1.504A11.943 11.943 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0z"/></svg>
+          </span>
+          <div>
+            <p class="text-sm font-semibold text-slate-800">Prefere falar por WhatsApp?</p>
+            <p class="text-xs text-slate-600 mt-0.5">Dúvidas ou quer ajuda no cadastro? Fale com a equipe.</p>
+          </div>
+          <span class="ml-auto shrink-0 rounded-lg bg-[#25D366] px-3 py-1.5 text-xs font-semibold text-white">Falar agora</span>
+        </a>
+      </div>
+
+      <div class="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-[0_10px_30px_rgba(2,6,23,0.08),0_0_0_1px_rgba(0,0,0,0.04)]">
+        <h1 class="text-xl font-semibold tracking-tight text-slate-900 sm:text-2xl">Criar conta e começar o trial</h1>
+        <p class="mt-1 text-sm text-slate-500">Preencha os dados abaixo. Seu trial de {{ diasTrial }} dias começa imediatamente após o cadastro.</p>
+
+        @if (estadoErro) {
+          <div class="mt-4 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{{ mensagemErro }}</div>
+        }
+
+        <form (ngSubmit)="enviar()" class="mt-5 space-y-5">
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-2">Plano <span class="text-red-500">*</span></label>
+            @if (carregandoPlanos) {
+              <p class="text-sm text-slate-500">Carregando planos…</p>
+            } @else {
+              <div class="space-y-2">
+                @for (p of planos; track p.key) {
+                  <div>
+                    <input type="radio" [id]="'plan_'+p.key" [(ngModel)]="planKey" name="plan_key" [value]="p.key" class="sr-only" required>
+                    <label [for]="'plan_'+p.key" class="flex cursor-pointer items-center justify-between rounded-xl border-2 px-4 py-3 transition-all"
+                      [class.border-indigo-500]="planKey === p.key" [class.bg-indigo-50]="planKey === p.key"
+                      [class.border-slate-200]="planKey !== p.key" [class.bg-white]="planKey !== p.key">
+                      <div class="flex items-center gap-3">
+                        <div class="flex items-center gap-3">
+                          <span class="text-sm font-semibold text-slate-800">{{ p.name }}</span>
+                          @if (p.description) { <span class="text-xs text-slate-500">{{ p.description }}</span> }
+                        </div>
+                      </div>
+                      <p class="text-sm font-bold text-indigo-600 shrink-0 ml-3">R$ {{ p.value | number:'1.2-2':'pt-BR' }}<span class="text-xs font-medium text-slate-400">/mês</span></p>
+                    </label>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+
+          <hr class="border-slate-100">
+
+          <div>
+            <label for="company_name" class="block text-sm font-medium text-slate-700 mb-1">Nome da empresa <span class="text-red-500">*</span></label>
+            <input type="text" id="company_name" [(ngModel)]="companyName" name="company_name" class="w-full rounded-lg border border-slate-200 px-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500" placeholder="Ex.: Clínica São Paulo" required>
+          </div>
+
+          <div>
+            <label for="responsible_name" class="block text-sm font-medium text-slate-700 mb-1">Seu nome (responsável) <span class="text-red-500">*</span></label>
+            <input type="text" id="responsible_name" [(ngModel)]="responsibleName" name="responsible_name" class="w-full rounded-lg border border-slate-200 px-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500" placeholder="Ex.: Dr. João Silva" required>
+          </div>
+
+          <div>
+            <label for="email" class="block text-sm font-medium text-slate-700 mb-1">Seu e-mail <span class="text-red-500">*</span></label>
+            <input type="email" id="email" [(ngModel)]="email" name="email" class="w-full rounded-lg border border-slate-200 px-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500" placeholder="voce@empresa.com" required>
+            <p class="mt-1 text-xs text-slate-500">Usaremos para acesso à conta, trial, cobrança e implantação.</p>
+          </div>
+
+          <div>
+            <label for="phone" class="block text-sm font-medium text-slate-700 mb-1">WhatsApp ou telefone</label>
+            <input type="tel" id="phone" [(ngModel)]="phone" name="phone" class="w-full rounded-lg border border-slate-200 px-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500" placeholder="Ex.: (11) 99999-9999" inputmode="tel" autocomplete="tel">
+            <p class="mt-1 text-xs text-slate-500">Opcional. Para contato da equipe durante implantação e suporte.</p>
+          </div>
+
+          <div>
+            <label for="password" class="block text-sm font-medium text-slate-700 mb-1">Senha <span class="text-red-500">*</span></label>
+            <div class="relative">
+              <input [type]="mostrarSenha ? 'text' : 'password'" id="password" [(ngModel)]="password" (ngModelChange)="atualizarForcaSenha()" name="password" class="w-full rounded-lg border border-slate-200 px-4 py-2.5 pr-11 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500" placeholder="Crie uma senha segura" minlength="8" required>
+              <button type="button" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600" (click)="mostrarSenha = !mostrarSenha" aria-label="Mostrar senha">
+                <span class="material-symbols-outlined text-lg">{{ mostrarSenha ? 'visibility_off' : 'visibility' }}</span>
+              </button>
+            </div>
+            <div class="mt-2">
+              <div class="flex gap-1">
+                <div class="h-1 flex-1 rounded-full bg-slate-200 overflow-hidden"><div class="h-full rounded-full transition-all duration-300" [style.width.%]="forcaSenha >= 1 ? 100 : 0" [ngClass]="forcaSenha >= 1 ? 'bg-red-500' : ''"></div></div>
+                <div class="h-1 flex-1 rounded-full bg-slate-200 overflow-hidden"><div class="h-full rounded-full transition-all duration-300" [style.width.%]="forcaSenha >= 2 ? 100 : 0" [ngClass]="forcaSenha >= 2 ? 'bg-orange-400' : ''"></div></div>
+                <div class="h-1 flex-1 rounded-full bg-slate-200 overflow-hidden"><div class="h-full rounded-full transition-all duration-300" [style.width.%]="forcaSenha >= 3 ? 100 : 0" [ngClass]="forcaSenha >= 3 ? 'bg-yellow-400' : ''"></div></div>
+                <div class="h-1 flex-1 rounded-full bg-slate-200 overflow-hidden"><div class="h-full rounded-full transition-all duration-300" [style.width.%]="forcaSenha >= 4 ? 100 : 0" [ngClass]="forcaSenha >= 4 ? 'bg-emerald-500' : ''"></div></div>
+              </div>
+              <p class="mt-1 text-xs" [ngClass]="forcaSenha ? 'text-slate-600' : 'text-slate-400'">{{ labelForcaSenha }}</p>
+            </div>
+          </div>
+
+          <div>
+            <label for="password_confirmation" class="block text-sm font-medium text-slate-700 mb-1">Confirmar senha <span class="text-red-500">*</span></label>
+            <div class="relative">
+              <input [type]="mostrarSenhaConf ? 'text' : 'password'" id="password_confirmation" [(ngModel)]="passwordConfirmation" name="password_confirmation" class="w-full rounded-lg border border-slate-200 px-4 py-2.5 pr-11 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500" placeholder="Repita a senha" minlength="8" required>
+              <button type="button" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600" (click)="mostrarSenhaConf = !mostrarSenhaConf" aria-label="Mostrar senha">
+                <span class="material-symbols-outlined text-lg">{{ mostrarSenhaConf ? 'visibility_off' : 'visibility' }}</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+            <label for="accepted_terms" class="flex items-start gap-3 text-sm text-slate-600 cursor-pointer">
+              <input type="checkbox" id="accepted_terms" [(ngModel)]="acceptedTerms" name="accepted_terms" value="1" class="mt-0.5 h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" required>
+              <span>
+                Li e concordo com os
+                <a routerLink="/termos-de-uso" target="_blank" rel="noopener noreferrer" class="font-medium text-indigo-600 hover:underline">Termos de Uso</a>
+                e a
+                <a routerLink="/privacidade" target="_blank" rel="noopener noreferrer" class="font-medium text-indigo-600 hover:underline">Política de Privacidade</a>.
+              </span>
+            </label>
+          </div>
+
+          <button type="submit" class="w-full flex items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-3 text-sm font-semibold text-white hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-indigo-300 transition-colors" [disabled]="estadoCarregando">
+            @if (estadoCarregando) {
+              <span class="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
+              <span>Criando conta...</span>
+            } @else {
+              <span>Criar conta e iniciar trial</span>
+            }
+          </button>
+        </form>
+
+        <p class="mt-5 text-center text-sm text-slate-500">Já tem conta? <a routerLink="/autenticacao" class="font-medium text-indigo-600 hover:underline">Entrar</a></p>
+
+        <div class="mt-4 flex items-center justify-center gap-1.5 text-xs text-slate-400">
+          <span class="material-symbols-outlined text-sm">lock</span>
+          Conexão segura · Dados criptografados
+        </div>
+      </div>
+    </div>
+  </main>
+</div>

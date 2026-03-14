@@ -1,13 +1,77 @@
 <!doctype html>
-<html lang="en">
+<html lang="pt-BR" class="scroll-smooth">
 <head>
-  <meta charset="utf-8">
-  <title>ZionMedFront</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ZionMed — Fichas e Consentimentos Digitais para Clínicas</title>
+  <meta name="description" content="Digitalize fichas e consentimentos da sua clínica: pacientes recebem um link, preenchem antes da consulta e assinam digitalmente. Protocolo, PDF automático e histórico organizado. Trial grátis." />
   <base href="/">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="canonical" href="https://zionmed.com.br/" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="ZionMed" />
+  <meta property="og:title" content="ZionMed — Fichas e Consentimentos Digitais para Clínicas" />
+  <meta property="og:description" content="Digitalize fichas e consentimentos da sua clínica: pacientes recebem um link, preenchem antes da consulta e assinam digitalmente. Protocolo, PDF automático e histórico organizado. Trial grátis." />
+  <meta property="og:url" content="https://zionmed.com.br/" />
+  <meta property="og:locale" content="pt_BR" />
+  <meta property="og:image" content="/assets/logo/zionmed_logo.png" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="ZionMed — Fichas e Consentimentos Digitais para Clínicas" />
+  <meta name="twitter:description" content="Digitalize fichas e consentimentos da sua clínica: pacientes recebem um link, preenchem antes da consulta e assinam digitalmente. Protocolo, PDF automático e histórico organizado. Trial grátis." />
+  <meta name="twitter:image" content="/assets/logo/zionmed_logo.png" />
+
+  <!-- Favicons -->
+  <link rel="icon" type="image/png" href="favicon-96x96.png" sizes="96x96" />
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <link rel="shortcut icon" href="favicon.ico" />
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
+  <meta name="apple-mobile-web-app-title" content="ZionMed" />
+  <link rel="manifest" href="site.webmanifest" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+
+  <!-- JSON-LD: Organization + WebSite -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://zionmed.com.br/#organization",
+        "name": "ZionMed",
+        "url": "https://zionmed.com.br/",
+        "logo": "/assets/logo/zionmed_logo.png",
+        "description": "Fichas e consentimentos digitais para clínicas: pacientes preenchem e assinam antes da consulta. Protocolo, PDF automático e histórico organizado."
+      },
+      {
+        "@type": "WebSite",
+        "name": "ZionMed",
+        "url": "https://zionmed.com.br/",
+        "description": "Fichas e consentimentos digitais para clínicas — sem papel na recepção.",
+        "publisher": { "@id": "https://zionmed.com.br/#organization" }
+      }
+    ]
+  }
+  </script>
 </head>
-<body>
+<body class="theme-ocean-blue" style="background-color: var(--c-bg); color: var(--c-text)">
+  <script>
+    (function(){
+      try {
+        var theme = localStorage.getItem('zionmed_theme') || 'ocean-blue';
+        Array.from(document.body.classList).filter(function(c){ return c.startsWith('theme-'); }).forEach(function(c){ document.body.classList.remove(c); });
+        document.body.classList.add('theme-' + theme);
+        if (localStorage.getItem('zionmed_dark_mode') === '1') document.body.classList.add('dark');
+        if (localStorage.getItem('zionmed_sidebar_collapsed') === '1') document.body.classList.add('sidebar-collapsed');
+      } catch(e) {}
+    })();
+  </script>
   <app-root></app-root>
 </body>
 </html>

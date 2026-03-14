@@ -1,0 +1,121 @@
+.integracoes-page {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  width: 100%;
+}
+.integracoes-page .config-tabs {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--c-border);
+  margin-left: -1rem;
+  margin-right: -1rem;
+  margin-top: -1.5rem;
+  margin-bottom: 0;
+  padding: 0 1rem;
+  background: var(--c-surface);
+}
+@media (min-width: 640px) {
+  .integracoes-page .config-tabs {
+    margin-left: -1.5rem;
+    margin-right: -1.5rem;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+@media (min-width: 1024px) {
+  .integracoes-page .config-tabs {
+    margin-left: -2rem;
+    margin-right: -2rem;
+    margin-top: -2rem;
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+.integracoes-page .config-tab {
+  padding: 14px 18px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--c-muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.15s;
+  white-space: nowrap;
+  background: none;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  font-family: inherit;
+}
+.integracoes-page .config-tab:hover {
+  color: var(--c-text);
+}
+.integracoes-page .config-tab.active {
+  color: var(--c-primary);
+  border-bottom-color: var(--c-primary);
+}
+.integracoes-page .config-panel {
+  display: none;
+  margin-top: 1rem;
+}
+.integracoes-page .config-panel.active {
+  display: block;
+}
+.integracoes-page .section-card {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: 14px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+.integracoes-page .section-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--c-border);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.integracoes-page .section-header .icon-wrap {
+  width: 28px;
+  height: 28px;
+  background: color-mix(in srgb, var(--c-primary) 12%, transparent);
+  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.integracoes-page .section-header .icon-wrap .material-symbols-outlined {
+  font-size: 14px;
+  color: var(--c-primary);
+}
+.integracoes-page .section-title {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--c-muted);
+}
+.integracoes-page .section-body {
+  padding: 20px;
+}
+.integracoes-page .field {
+  margin-bottom: 18px;
+}
+.integracoes-page .field:last-child {
+  margin-bottom: 0;
+}
+.integracoes-page .field label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--c-text);
+  margin-bottom: 6px;
+}
+.integracoes-page .field .hint {
+  font-size: 11px;
+  color: var(--c-muted);
+  margin-top: 5px;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+/* Clinica integracoes */
