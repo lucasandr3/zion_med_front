@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'http://zion_med.test',
+  apiUrl: 'https://api.zionmed.com.br',
 };
