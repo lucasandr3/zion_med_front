@@ -5,7 +5,27 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
-import { LandingService, PlanoLanding } from '../../core/services/landing.service';
+import { LandingService, PlanoLanding, ServiceStatusPayload } from '../../core/services/landing.service';
+
+/** Rótulos e classes do status do sistema (igual ao backend landing.blade.php) */
+const STATUS_LABELS: Record<string, string> = {
+  operational: 'Todos os sistemas operacionais',
+  degraded: 'Desempenho degradado',
+  outage: 'Interrupção nos serviços',
+  maintenance: 'Manutenção em andamento',
+};
+const STATUS_DOTS: Record<string, string> = {
+  operational: 'bg-emeraldish-500',
+  degraded: 'bg-yellow-400',
+  outage: 'bg-red-400',
+  maintenance: 'bg-indigo-400',
+};
+const STATUS_BARS: Record<string, string> = {
+  operational: 'bg-accent-600',
+  degraded: 'bg-yellow-600',
+  outage: 'bg-red-600',
+  maintenance: 'bg-indigo-600',
+};
 
 @Component({
   selector: 'app-pagina-inicio',
@@ -21,6 +41,14 @@ export class InicioComponent implements OnInit {
   landingTrialDias = 14;
   planos: PlanoLanding[] = [];
   carregandoLanding = true;
+  /** Status do sistema (banner topo + footer) — default operacional */
+  serviceStatusKey = 'operational';
+  serviceStatusLabel = STATUS_LABELS['operational'];
+  serviceStatusMessage: string | null = null;
+  statusDotClass = STATUS_DOTS['operational'];
+  statusBarClass = STATUS_BARS['operational'];
+  /** URL da página de status no backend */
+  statusPageUrl = environment.apiUrl ? `${environment.apiUrl}/status` : '/status';
   demonstracao = { name: '', clinic: '', email: '', phone: '', message: '' };
   demonstracaoEnviando = false;
   demonstracaoFeedback = '';
@@ -49,6 +77,23 @@ export class InicioComponent implements OnInit {
         this.landingTrialDias = 14;
         this.planos = [];
         this.carregandoLanding = false;
+      },
+    });
+    this.landingService.getStatus().subscribe({
+      next: (payload: ServiceStatusPayload) => {
+        const key = (payload?.status ?? 'operational') as keyof typeof STATUS_LABELS;
+        this.serviceStatusKey = key;
+        this.serviceStatusLabel = STATUS_LABELS[key] ?? STATUS_LABELS['operational'];
+        this.serviceStatusMessage = payload?.message?.trim() || null;
+        this.statusDotClass = STATUS_DOTS[key] ?? STATUS_DOTS['operational'];
+        this.statusBarClass = STATUS_BARS[key] ?? STATUS_BARS['operational'];
+      },
+      error: () => {
+        this.serviceStatusKey = 'operational';
+        this.serviceStatusLabel = STATUS_LABELS['operational'];
+        this.serviceStatusMessage = null;
+        this.statusDotClass = STATUS_DOTS['operational'];
+        this.statusBarClass = STATUS_BARS['operational'];
       },
     });
   }
