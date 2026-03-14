@@ -1,0 +1,77 @@
+<!-- Igual ao backend: platform/tenants/show - visão do dono da plataforma -->
+<div class="relative min-h-[300px]">
+  @if (estadoCarregando) {
+    <app-loading-overlay />
+  }
+  @if (estadoErro) {
+    <div class="card p-4 rounded-xl mb-6" style="background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.3)">
+      <p class="text-sm" style="color: var(--c-text)">Não foi possível carregar o cliente.</p>
+    </div>
+  }
+
+  @if (data && !estadoCarregando) {
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
+    <div class="card">
+      <div class="text-[11px] font-semibold tracking-[0.18em] uppercase mb-1" style="color: var(--c-muted)">
+        Cliente
+      </div>
+      <div class="text-sm font-semibold" style="color: var(--c-text)">{{ data.tenant.name }}</div>
+      <div class="text-[11px] mt-1" style="color: var(--c-muted)">Slug: {{ data.tenant.slug }}</div>
+    </div>
+    <div class="card">
+      <div class="text-[11px] font-semibold tracking-[0.18em] uppercase mb-1" style="color: var(--c-muted)">
+        Empresas
+      </div>
+      <div class="text-2xl font-semibold" style="color: var(--c-text)">{{ data.clinics.length }}</div>
+    </div>
+    <div class="card">
+      <div class="text-[11px] font-semibold tracking-[0.18em] uppercase mb-1" style="color: var(--c-muted)">
+        Atalho
+      </div>
+      <p class="text-[11px]" style="color: var(--c-muted)">
+        Use esta visão apenas para gestão executiva. O acesso operacional às empresas continua sendo feito pelo app do tenant.
+      </p>
+    </div>
+  </div>
+
+  <h2 class="text-xs font-semibold tracking-[0.18em] uppercase mb-3" style="color: var(--c-muted)">
+    Empresas do tenant
+  </h2>
+
+  <div class="overflow-x-auto rounded-xl border" style="border-color: var(--c-border); background: var(--c-surface)">
+    <table class="platform-table">
+      <thead>
+        <tr>
+          <th class="py-2 pr-3">Empresa</th>
+          <th class="py-2 px-3">Plano</th>
+          <th class="py-2 px-3">Status ass.</th>
+          <th class="py-2 px-3">Status cobrança</th>
+          <th class="py-2 pl-3 text-center">Usuários</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (c of data.clinics; track c.id) {
+          <tr>
+            <td class="py-2.5 pr-3">
+              <div class="text-xs font-semibold" style="color: var(--c-text)">{{ c.name }}</div>
+              @if (c.address) {
+                <div class="text-[11px] cell-muted">{{ c.address }}</div>
+              }
+            </td>
+            <td class="py-2.5 px-3">{{ c.plan_key || '—' }}</td>
+            <td class="py-2.5 px-3">{{ c.subscription_status || '—' }}</td>
+            <td class="py-2.5 px-3">{{ c.billing_status || '—' }}</td>
+            <td class="py-2.5 pl-3 text-center">{{ c.users_count }}</td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="5" class="py-6 text-center text-xs cell-muted">
+              Nenhuma empresa vinculada a este tenant.
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+  }
+</div>

@@ -1,46 +1,135 @@
-<div class="relative min-h-[320px]">
-  @if (carregando) {
+<div class="relative min-h-[200px]">
+  @if (carregando && !isPlataforma) {
     <app-loading-overlay />
   }
-  <div class="page-header mb-6">
-    <div class="page-title flex items-center gap-3">
-      <div class="page-title-icon w-10 h-10 rounded-lg flex items-center justify-center" style="background: var(--c-soft)">
-        <span class="material-symbols-outlined" style="color: var(--c-primary)">notifications</span>
+  @if (!isPlataforma) {
+    <div class="page-header mb-6">
+      <div class="page-title flex items-center gap-3">
+        <div class="page-title-icon w-10 h-10 rounded-lg flex items-center justify-center" style="background: var(--c-soft)">
+          <span class="material-symbols-outlined" style="color: var(--c-primary)">notifications</span>
+        </div>
+        <div>
+          <h1 class="text-xl font-semibold m-0" style="color: var(--c-text)">Notificações</h1>
+          <p class="text-sm mt-1 mb-0" style="color: var(--c-muted)">Central de notificações</p>
+        </div>
       </div>
-      <div>
-        <h1 class="text-xl font-semibold m-0" style="color: var(--c-text)">Notificações</h1>
-        <p class="text-sm mt-1 mb-0" style="color: var(--c-muted)">Central de notificações</p>
+      @if (temNaoLidas) {
+        <button type="button" class="btn-ghost btn-default-bg" (click)="marcarTodas()" appTooltip="Marcar todas as notificações como lidas">Marcar todas como lidas</button>
+      }
+    </div>
+  }
+  @if (isPlataforma) {
+    <!-- Cabeçalho da seção + filtros e ações (igual ao backend) -->
+    <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+      <div class="flex items-center gap-2">
+        <div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background: var(--c-soft)">
+          <span class="material-symbols-outlined text-lg" style="color: var(--c-primary)">notifications</span>
+        </div>
+        <h2 class="text-base font-semibold m-0" style="color: var(--c-text)">Notificações</h2>
+      </div>
+      <div class="flex flex-wrap items-center gap-2">
+        <button type="button" class="notif-filtro-btn" [class.ativo]="filtroPlataforma === 'todas'" (click)="filtroPlataforma = 'todas'" appTooltip="Ver todas as notificações">
+          Todas
+        </button>
+        <button type="button" class="notif-filtro-btn notif-filtro-outline" [class.ativo]="filtroPlataforma === 'nao_lidas'" (click)="filtroPlataforma = 'nao_lidas'" appTooltip="Ver apenas não lidas">
+          Não lidas
+          @if (quantidadeNaoLidas > 0) {
+            <span class="notif-badge">{{ quantidadeNaoLidas > 99 ? '99+' : quantidadeNaoLidas }}</span>
+          }
+        </button>
+        <button type="button" class="notif-action-btn" (click)="marcarTodas()" appTooltip="Marcar todas como lidas">
+          <span class="material-symbols-outlined" style="font-size: 18px">check_circle</span>
+          Marcar todas como lidas
+        </button>
+        <button type="button" class="notif-action-btn" (click)="limparTudo()" appTooltip="Excluir todas as notificações">
+          <span class="material-symbols-outlined" style="font-size: 18px">delete</span>
+          Limpar tudo
+        </button>
       </div>
     </div>
-    @if (temNaoLidas) {
-      <button type="button" class="btn-ghost btn-default-bg" (click)="marcarTodas()">Marcar todas como lidas</button>
+
+    @if (carregando) {
+      <div class="flex justify-center py-8">
+        <span class="text-sm" style="color: var(--c-muted)">Carregando…</span>
+      </div>
     }
-  </div>
-  @if (!carregando && erro) {
-    <p class="text-sm" style="color: var(--c-error, #dc2626)">{{ erro }}</p>
-  }
-  @if (!carregando && !erro) {
-<div class="card rounded-xl overflow-hidden" style="border: 1px solid var(--c-border)">
-  @if (notificacoes.length === 0) {
-    <div class="p-8 text-center" style="color: var(--c-muted)">Nenhuma notificação.</div>
-  } @else {
-    <ul class="divide-y" style="border-color: var(--c-border)">
-      @for (n of notificacoes; track n.id) {
-        <li class="flex items-center justify-between gap-4 px-5 py-3" [class.opacity-75]="n.read_at">
-          <div class="min-w-0 flex-1">
-            <p class="text-sm m-0" style="color: var(--c-text)">{{ getNotificacaoMensagem(n) }}</p>
-            <p class="text-xs mt-0.5 m-0" style="color: var(--c-muted)">{{ n.created_at }}</p>
-          </div>
-          <div class="flex items-center gap-2 shrink-0">
-            @if (!n.read_at) {
-              <button type="button" class="btn-ghost btn-default-bg text-sm" (click)="marcarComoLida(n.id)">Marcar lida</button>
-            }
-            <button type="button" class="btn-ghost text-sm" style="color: var(--c-muted)" (click)="excluir(n.id)">Excluir</button>
-          </div>
-        </li>
+    @if (erro) {
+      <div class="card p-4 rounded-xl mb-4" style="background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.3)">
+        <p class="text-sm m-0" style="color: var(--c-text)">{{ erro }}</p>
+      </div>
+    }
+    @if (!carregando && !erro) {
+      @if (notificacoesFiltradas.length === 0) {
+        <div class="notif-card rounded-xl p-6 text-center" style="background: var(--c-soft)">
+          <p class="text-sm m-0" style="color: var(--c-muted)">{{ filtroPlataforma === 'nao_lidas' ? 'Nenhuma notificação não lida.' : 'Nenhuma notificação.' }}</p>
+        </div>
+      } @else {
+        <div class="flex flex-col gap-3">
+          @for (n of notificacoesFiltradas; track n.id) {
+            <article class="notif-card flex relative" [class.notif-card-nao-lida]="!n.read_at" [class.notif-card-com-bar]="!n.read_at">
+              @if (!n.read_at) {
+                <div class="notif-card-bar" style="background: var(--c-primary)"></div>
+              }
+              <div class="notif-card-body flex gap-4 p-4 flex-1 min-w-0">
+                <div class="w-10 h-10 rounded-lg flex items-center justify-center shrink-0" style="background: color-mix(in srgb, var(--c-primary) 14%, transparent)">
+                  <span class="material-symbols-outlined" style="color: var(--c-primary); font-size: 22px">description</span>
+                </div>
+                <div class="min-w-0 flex-1">
+                  <p class="notif-card-titulo">{{ getNotificacaoTitulo(n) }}</p>
+                  <p class="notif-card-detalhe notif-detalhe">{{ getNotificacaoDetalhe(n) }}</p>
+                  <div class="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2">
+                    <span class="text-xs" style="color: var(--c-muted)">{{ tempoRelativo(n.created_at) }}</span>
+                    <a routerLink="/plataforma/leads" class="notif-link-leads">
+                      Ver leads
+                      <span class="material-symbols-outlined align-middle" style="font-size: 14px">arrow_forward</span>
+                    </a>
+                    @if (!n.read_at) {
+                      <button type="button" class="notif-link-lida" (click)="marcarComoLida(n.id)">Marcar como lida</button>
+                    }
+                  </div>
+                </div>
+                <div class="flex items-start gap-1 shrink-0">
+                  @if (!n.read_at) {
+                    <span class="w-2 h-2 rounded-full block mt-1.5 shrink-0" style="background: var(--c-primary)"></span>
+                  }
+                  <button type="button" class="notif-btn-close" (click)="excluir(n.id)" aria-label="Excluir" appTooltip="Excluir notificação">
+                    <span class="material-symbols-outlined" style="font-size: 18px">close</span>
+                  </button>
+                </div>
+              </div>
+            </article>
+          }
+        </div>
       }
-    </ul>
+    }
   }
-</div>
+  @if (!isPlataforma) {
+    @if (!carregando && erro) {
+      <p class="text-sm" style="color: var(--c-error, #dc2626)">{{ erro }}</p>
+    }
+    @if (!carregando && !erro) {
+      <div class="card rounded-xl overflow-hidden" style="border: 1px solid var(--c-border)">
+        @if (notificacoes.length === 0) {
+          <div class="p-8 text-center" style="color: var(--c-muted)">Nenhuma notificação.</div>
+        } @else {
+          <ul class="divide-y" style="border-color: var(--c-border)">
+            @for (n of notificacoes; track n.id) {
+              <li class="flex items-center justify-between gap-4 px-5 py-3" [class.opacity-75]="n.read_at">
+                <div class="min-w-0 flex-1">
+                  <p class="text-sm m-0" style="color: var(--c-text)">{{ getNotificacaoMensagem(n) }}</p>
+                  <p class="text-xs mt-0.5 m-0" style="color: var(--c-muted)">{{ n.created_at }}</p>
+                </div>
+                <div class="flex items-center gap-2 shrink-0">
+                  @if (!n.read_at) {
+                    <button type="button" class="btn-ghost btn-default-bg text-sm" (click)="marcarComoLida(n.id)">Marcar lida</button>
+                  }
+                  <button type="button" class="btn-ghost text-sm" style="color: var(--c-muted)" (click)="excluir(n.id)">Excluir</button>
+                </div>
+              </li>
+            }
+          </ul>
+        }
+      </div>
+    }
   }
 </div>

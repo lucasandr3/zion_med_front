@@ -1,0 +1,69 @@
+<!-- Igual ao backend: platform/logs/index -->
+<div class="relative min-h-[300px]">
+  @if (loading) {
+    <app-loading-overlay />
+  }
+  <div class="flex items-center justify-between mb-4">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background: var(--c-soft)">
+      <span class="material-symbols-outlined" style="color: var(--c-primary)">history</span>
+    </div>
+    <div>
+      <h2 class="text-base font-semibold m-0" style="color: var(--c-text)">Meus logs de auditoria</h2>
+      <p class="text-sm mt-0.5 mb-0" style="color: var(--c-muted)">Ações realizadas por você na plataforma</p>
+    </div>
+  </div>
+</div>
+
+@if (error) {
+  <div class="card p-4 rounded-xl mb-4" style="background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.3)">
+    <p class="text-sm m-0" style="color: var(--c-text)">{{ error }}</p>
+  </div>
+}
+
+<div class="overflow-x-auto rounded-xl border" style="border-color: var(--c-border); background: var(--c-surface)">
+  <table class="platform-table">
+    <thead>
+      <tr>
+        <th class="py-2 pr-3">Data / Hora</th>
+        <th class="py-2 px-3">Ação</th>
+        <th class="py-2 px-3">Empresa</th>
+        <th class="py-2 pl-3">Detalhe</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (log of logs; track log.id) {
+        <tr>
+          <td class="py-2.5 pr-3 whitespace-nowrap cell-muted text-xs">{{ formatarData(log.created_at) }}</td>
+          <td class="py-2.5 px-3">
+            <span class="inline-flex items-center gap-1 text-xs font-semibold" style="color: var(--c-text)">
+              <span class="material-symbols-outlined" style="font-size: 16px; color: var(--c-primary)">info</span>
+              {{ actionLabel(log.action) }}
+            </span>
+          </td>
+          <td class="py-2.5 px-3" style="color: var(--c-text)">{{ log.organization_name ?? '—' }}</td>
+          <td class="py-2.5 pl-3 text-xs cell-muted">{{ detalheTexto(log) }}</td>
+        </tr>
+      } @empty {
+        @if (!loading) {
+          <tr>
+            <td colspan="4" class="py-12 text-center">
+              <span class="material-symbols-outlined block mb-2 text-4xl" style="color: var(--c-border)">history</span>
+              <span class="text-sm" style="color: var(--c-muted)">Nenhum registro de auditoria.</span>
+            </td>
+          </tr>
+        }
+      }
+    </tbody>
+  </table>
+  @if (lastPage > 1) {
+    <div class="px-4 py-3 flex items-center justify-between border-t" style="border-color: var(--c-border)">
+      <span class="text-xs" style="color: var(--c-muted)">Página {{ currentPage }} de {{ lastPage }} ({{ total }} registros)</span>
+      <div class="flex gap-2">
+        <button type="button" class="btn-ghost text-sm px-2 py-1 rounded" [disabled]="currentPage <= 1" (click)="goToPage(currentPage - 1)" title="Página anterior">Anterior</button>
+        <button type="button" class="btn-ghost text-sm px-2 py-1 rounded" [disabled]="currentPage >= lastPage" (click)="goToPage(currentPage + 1)" title="Próxima página">Próxima</button>
+      </div>
+    </div>
+  }
+</div>
+</div>

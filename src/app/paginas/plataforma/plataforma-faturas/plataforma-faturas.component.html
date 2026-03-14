@@ -1,0 +1,56 @@
+<!-- Listagem de faturas e cobranças da plataforma -->
+<div class="relative min-h-[300px]">
+  @if (estadoCarregando) {
+    <app-loading-overlay />
+  }
+  <div class="flex items-center justify-between mb-4">
+  <p class="text-xs" style="color: var(--c-muted)">
+    {{ faturas.length }} {{ faturas.length === 1 ? 'fatura' : 'faturas' }}.
+  </p>
+</div>
+
+<div class="overflow-x-auto rounded-xl border" style="border-color: var(--c-border); background: var(--c-surface)">
+  <table class="platform-table">
+    <thead>
+      <tr>
+        <th class="py-2 pr-3">Cliente</th>
+        <th class="py-2 px-3">Empresa</th>
+        <th class="py-2 px-3">Referência</th>
+        <th class="py-2 px-3 text-right">Valor</th>
+        <th class="py-2 px-3">Vencimento</th>
+        <th class="py-2 px-3">Status</th>
+        <th class="py-2 pl-3">Pago em</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (f of faturas; track f.id) {
+        <tr>
+          <td class="py-2.5 pr-3">
+            <span class="text-xs font-semibold" style="color: var(--c-text)">{{ f.tenant_name }}</span>
+          </td>
+          <td class="py-2.5 px-3 cell-muted">{{ f.clinic_name }}</td>
+          <td class="py-2.5 px-3 cell-muted">{{ f.reference || '—' }}</td>
+          <td class="py-2.5 px-3 text-right cell-muted">{{ formatarValor(f.amount, f.currency) }}</td>
+          <td class="py-2.5 px-3 cell-muted">{{ formatarData(f.due_date) }}</td>
+          <td class="py-2.5 px-3 cell-muted">{{ f.status || '—' }}</td>
+          <td class="py-2.5 pl-3 cell-muted">{{ formatarData(f.paid_at) }}</td>
+        </tr>
+      } @empty {
+        @if (!estadoCarregando && !estadoErro) {
+          <tr>
+            <td colspan="7" class="py-6 text-center text-xs cell-muted">
+              Nenhuma fatura cadastrada.
+            </td>
+          </tr>
+        }
+      }
+    </tbody>
+  </table>
+</div>
+
+@if (estadoErro) {
+  <div class="card p-4 rounded-xl mt-4" style="background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.3)">
+    <p class="text-sm" style="color: var(--c-text)">Não foi possível carregar as faturas.</p>
+  </div>
+}
+</div>

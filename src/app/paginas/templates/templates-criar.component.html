@@ -98,7 +98,7 @@
       <div class="modal-box rounded-2xl p-7 w-full max-w-[42rem] max-h-[90vh] flex flex-col border" style="background: var(--c-surface); border-color: var(--c-border)" (click)="$event.stopPropagation()">
         <div class="flex items-center justify-between mb-4 shrink-0">
           <h2 class="text-lg font-semibold" style="color: var(--c-text)">{{ previewTemplate?.name ?? 'Template' }}</h2>
-          <button type="button" class="p-1 rounded-lg transition-colors hover:bg-[var(--c-soft)]" style="color: var(--c-muted)" (click)="fecharPreview()" aria-label="Fechar">
+          <button type="button" class="p-1 rounded-lg transition-colors hover:bg-[var(--c-soft)]" style="color: var(--c-muted)" (click)="fecharPreview()" aria-label="Fechar" title="Fechar preview">
             <span class="material-symbols-outlined text-xl">close</span>
           </button>
         </div>

@@ -1,0 +1,190 @@
+<div class="relative min-h-[300px]">
+  @if (estadoCarregando) {
+    <app-loading-overlay />
+  }
+  @if (estadoErro) {
+    <div class="card p-4 rounded-xl mb-6" style="background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.3)">
+      <p class="text-sm" style="color: var(--c-text)">Não foi possível carregar os dados. Tente novamente.</p>
+    </div>
+  }
+
+  <!-- KPI Cards -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <a routerLink="/plataforma/clientes" class="dash-kpi-card group" appTooltip="Ver clientes">
+      <div class="dash-kpi-icon" style="background: rgba(99,102,241,0.10)">
+        <span class="material-symbols-outlined" style="color: #6366f1; font-size: 22px">apartment</span>
+      </div>
+      <div class="flex-1 min-w-0">
+        <p class="dash-kpi-label">Tenants</p>
+        <p class="dash-kpi-value">{{ tenantsCount }}</p>
+        <p class="dash-kpi-sub">clientes cadastrados</p>
+      </div>
+      <span class="material-symbols-outlined dash-kpi-arrow">chevron_right</span>
+    </a>
+
+    <div class="dash-kpi-card">
+      <div class="dash-kpi-icon" style="background: rgba(16,185,129,0.10)">
+        <span class="material-symbols-outlined" style="color: #10b981; font-size: 22px">business</span>
+      </div>
+      <div class="flex-1 min-w-0">
+        <p class="dash-kpi-label">Empresas</p>
+        <p class="dash-kpi-value">{{ clinicsCount }}</p>
+        <p class="dash-kpi-sub">clínicas / filiais</p>
+      </div>
+    </div>
+
+    <div class="dash-kpi-card">
+      <div class="dash-kpi-icon" style="background: rgba(59,130,246,0.10)">
+        <span class="material-symbols-outlined" style="color: #3b82f6; font-size: 22px">group</span>
+      </div>
+      <div class="flex-1 min-w-0">
+        <p class="dash-kpi-label">Usuários</p>
+        <p class="dash-kpi-value">{{ usersCount }}</p>
+        <p class="dash-kpi-sub">contas ativas</p>
+      </div>
+    </div>
+
+    <a routerLink="/plataforma/leads" class="dash-kpi-card group" title="Ver leads">
+      <div class="dash-kpi-icon" style="background: rgba(245,158,11,0.10)">
+        <span class="material-symbols-outlined" style="color: #f59e0b; font-size: 22px">request_quote</span>
+      </div>
+      <div class="flex-1 min-w-0">
+        <p class="dash-kpi-label">Leads</p>
+        <p class="dash-kpi-value">{{ leadsCount }}</p>
+        <p class="dash-kpi-sub">da landing page</p>
+      </div>
+      <span class="material-symbols-outlined dash-kpi-arrow">chevron_right</span>
+    </a>
+  </div>
+
+  <!-- Acesso rápido -->
+  <div class="mb-6">
+    <h3 class="text-[11px] font-bold uppercase tracking-[0.15em] mb-3" style="color: var(--c-muted)">Acesso rápido</h3>
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+      <a routerLink="/plataforma/clientes" class="dash-shortcut" appTooltip="Gerenciar clientes">
+        <span class="material-symbols-outlined dash-shortcut-icon">apartment</span>
+        <span class="dash-shortcut-label">Clientes</span>
+      </a>
+      <a routerLink="/plataforma/leads" class="dash-shortcut" appTooltip="Ver leads">
+        <span class="material-symbols-outlined dash-shortcut-icon">request_quote</span>
+        <span class="dash-shortcut-label">Leads</span>
+      </a>
+      <a routerLink="/plataforma/planos" class="dash-shortcut" appTooltip="Gerenciar planos">
+        <span class="material-symbols-outlined dash-shortcut-icon">subscriptions</span>
+        <span class="dash-shortcut-label">Planos</span>
+      </a>
+      <a routerLink="/plataforma/assinaturas" class="dash-shortcut" appTooltip="Ver assinaturas">
+        <span class="material-symbols-outlined dash-shortcut-icon">receipt_long</span>
+        <span class="dash-shortcut-label">Assinaturas</span>
+      </a>
+      <a routerLink="/plataforma/faturas" class="dash-shortcut" appTooltip="Ver faturas">
+        <span class="material-symbols-outlined dash-shortcut-icon">payments</span>
+        <span class="dash-shortcut-label">Faturas</span>
+      </a>
+      <a routerLink="/plataforma/configuracoes" class="dash-shortcut" appTooltip="Configurações da plataforma">
+        <span class="material-symbols-outlined dash-shortcut-icon">settings</span>
+        <span class="dash-shortcut-label">Configurações</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Duas colunas: Últimos clientes + Leads recentes -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+    <!-- Últimos clientes -->
+    <div class="dash-panel">
+      <div class="dash-panel-header">
+        <div class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-lg" style="color: var(--c-primary)">apartment</span>
+          <h3 class="text-sm font-semibold" style="color: var(--c-text)">Últimos clientes</h3>
+        </div>
+        <a routerLink="/plataforma/clientes" class="dash-panel-link" appTooltip="Ver todos os clientes">Ver todos</a>
+      </div>
+      <div class="dash-panel-body">
+        @for (t of ultimosTenants; track t.id) {
+          <a [routerLink]="['/plataforma/clientes', t.id]" class="dash-list-item" appTooltip="Ver detalhes">
+            <div class="dash-avatar" style="background: color-mix(in srgb, var(--c-primary) 18%, transparent); color: var(--c-primary)">
+              {{ (t.name || '').charAt(0) | uppercase }}
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-medium truncate" style="color: var(--c-text)">{{ t.name }}</p>
+              <p class="text-xs truncate" style="color: var(--c-muted)">{{ t.slug }} · {{ t.clinics_count }} {{ t.clinics_count === 1 ? 'empresa' : 'empresas' }}</p>
+            </div>
+            <span class="material-symbols-outlined text-base shrink-0" style="color: var(--c-border)">chevron_right</span>
+          </a>
+        } @empty {
+          <div class="dash-empty">
+            <span class="material-symbols-outlined text-3xl mb-1" style="color: var(--c-border)">apartment</span>
+            <p class="text-xs" style="color: var(--c-muted)">Nenhum cliente.</p>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Leads recentes -->
+    <div class="dash-panel">
+      <div class="dash-panel-header">
+        <div class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-lg" style="color: #f59e0b">request_quote</span>
+          <h3 class="text-sm font-semibold" style="color: var(--c-text)">Leads recentes</h3>
+        </div>
+        <a routerLink="/plataforma/leads" class="dash-panel-link" appTooltip="Ver todos os leads">Ver todos</a>
+      </div>
+      <div class="dash-panel-body">
+        @for (l of ultimosLeads; track l.id) {
+          <div class="dash-list-item" style="cursor: default">
+            <div class="dash-avatar" style="background: rgba(245,158,11,0.12); color: #f59e0b">
+              {{ (l.name || '').charAt(0) | uppercase }}
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-medium truncate" style="color: var(--c-text)">{{ l.name }}</p>
+              <p class="text-xs truncate" style="color: var(--c-muted)">{{ l.email }}{{ l.clinic ? ' · ' + l.clinic : '' }}</p>
+            </div>
+            @if (l.created_at) {
+              <span class="text-[10px] shrink-0 whitespace-nowrap" style="color: var(--c-muted)">{{ formatarData(l.created_at) }}</span>
+            }
+          </div>
+        } @empty {
+          <div class="dash-empty">
+            <span class="material-symbols-outlined text-3xl mb-1" style="color: var(--c-border)">request_quote</span>
+            <p class="text-xs" style="color: var(--c-muted)">Nenhum lead ainda.</p>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- Logs recentes -->
+  <div class="dash-panel">
+    <div class="dash-panel-header">
+      <div class="flex items-center gap-2">
+        <span class="material-symbols-outlined text-lg" style="color: var(--c-muted)">history</span>
+        <h3 class="text-sm font-semibold" style="color: var(--c-text)">Atividade recente</h3>
+      </div>
+      <a routerLink="/plataforma/logs" class="dash-panel-link" appTooltip="Ver todos os logs">Ver todos</a>
+    </div>
+    <div class="dash-panel-body">
+      @for (log of ultimosLogs; track log.id) {
+        <div class="dash-list-item" style="cursor: default">
+          <div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style="background: var(--c-soft)">
+            <span class="material-symbols-outlined" style="font-size: 16px; color: var(--c-primary)">{{ logIcon(log.action) }}</span>
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="text-sm truncate" style="color: var(--c-text)">
+              <span class="font-medium">{{ logActionLabel(log.action) }}</span>
+              @if (log.organization_name) {
+                <span style="color: var(--c-muted)"> · {{ log.organization_name }}</span>
+              }
+            </p>
+            <p class="text-xs truncate" style="color: var(--c-muted)">{{ logDetalhe(log) }}</p>
+          </div>
+          <span class="text-[10px] shrink-0 whitespace-nowrap" style="color: var(--c-muted)">{{ formatarData(log.created_at) }}</span>
+        </div>
+      } @empty {
+        <div class="dash-empty">
+          <span class="material-symbols-outlined text-3xl mb-1" style="color: var(--c-border)">history</span>
+          <p class="text-xs" style="color: var(--c-muted)">Sem atividade recente.</p>
+        </div>
+      }
+    </div>
+  </div>
+</div>

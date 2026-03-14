@@ -1,1 +1,166 @@
-/* Notificações */
+/* Notificações - área plataforma (igual ao backend) */
+
+.notif-filtro-btn {
+  padding: 0.4rem 0.75rem;
+  border-radius: 0.5rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  border: 1px solid var(--c-border);
+  background: var(--c-surface);
+  color: var(--c-text);
+  cursor: pointer;
+  transition: background, border-color, color 0.15s ease;
+  white-space: nowrap;
+}
+
+.notif-filtro-btn.ativo {
+  background: var(--c-primary);
+  border-color: var(--c-primary);
+  color: #fff;
+}
+
+.notif-filtro-outline {
+  position: relative;
+  padding-right: 2.25rem;
+}
+
+.notif-filtro-btn.ativo .notif-badge {
+  background: #fff;
+  color: var(--c-primary);
+}
+
+.notif-badge {
+  position: absolute;
+  top: 50%;
+  right: 0.5rem;
+  transform: translateY(-50%);
+  min-width: 1.25rem;
+  height: 1.25rem;
+  padding: 0 0.35rem;
+  border-radius: 9999px;
+  background: var(--c-primary);
+  color: #fff;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.notif-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.75rem;
+  border-radius: 0.5rem;
+  font-size: 0.8125rem;
+  border: 1px solid var(--c-border);
+  background: var(--c-surface);
+  color: var(--c-text);
+  cursor: pointer;
+  transition: background 0.15s ease;
+  white-space: nowrap;
+}
+
+.notif-action-btn:hover {
+  background: var(--c-soft);
+}
+
+.notif-card {
+  position: relative;
+  border-radius: 1rem;
+}
+
+.notif-card-bar {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  border-radius: 1rem 0 0 1rem;
+}
+
+.notif-card-nao-lida {
+  background: var(--c-soft);
+}
+
+.notif-card-com-bar .notif-card-body {
+  padding-left: 0.5rem;
+}
+
+.notif-card {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  border-radius: 1rem;
+  overflow: hidden;
+}
+
+/* Título e descrição no estilo do backend (azul escuro + azul claro) */
+.notif-card-titulo {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #193D64;
+  margin: 0;
+  line-height: 1.35;
+}
+
+.notif-card-detalhe {
+  font-size: 0.8125rem;
+  font-weight: 400;
+  color: #30699A;
+  margin: 0.25rem 0 0 0;
+  line-height: 1.4;
+}
+
+.notif-detalhe {
+  min-height: 1.25rem;
+}
+
+.notif-link-leads {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--c-primary);
+  text-decoration: underline;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15rem;
+}
+
+.notif-link-leads:hover {
+  opacity: 0.9;
+}
+
+.notif-link-lida {
+  font-size: 0.75rem;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: var(--c-muted);
+  text-decoration: none;
+}
+
+.notif-link-lida:hover {
+  color: var(--c-text);
+  text-decoration: underline;
+}
+
+.notif-btn-close {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--c-muted);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.notif-btn-close:hover {
+  background: var(--c-soft);
+}

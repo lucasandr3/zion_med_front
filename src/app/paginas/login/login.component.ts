@@ -4,11 +4,12 @@ import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../core/services/auth.service';
+import { TooltipDirective } from '../../core/directives/tooltip.directive';
 
 @Component({
   selector: 'app-pagina-login',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule],
+  imports: [CommonModule, RouterLink, FormsModule, TooltipDirective],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css',
 })
@@ -59,6 +60,11 @@ export class LoginComponent implements OnInit {
     this.auth.login(this.email, this.senha).subscribe({
       next: (res) => {
         this.estadoCarregando = false;
+        const isPlatformAdmin = res.data.user?.role === 'platform_admin';
+        if (isPlatformAdmin) {
+          this.router.navigate(['/plataforma']);
+          return;
+        }
         const hasClinic = res.data.current_clinic_id != null;
         if (hasClinic) {
           this.router.navigate(['/dashboard']);

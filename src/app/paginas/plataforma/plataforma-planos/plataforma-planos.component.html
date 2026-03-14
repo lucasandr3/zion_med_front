@@ -1,0 +1,59 @@
+<!-- Igual ao backend: platform/plans/index - grid de cards -->
+<div class="relative min-h-[300px]">
+  @if (estadoCarregando) {
+    <app-loading-overlay />
+  }
+  <div class="flex items-center justify-between mb-4">
+  <p class="text-xs" style="color: var(--c-muted)">
+    {{ planos.length }} {{ planos.length === 1 ? 'plano' : 'planos' }}.
+  </p>
+  <a routerLink="/plataforma/planos/novo" class="btn-primary inline-flex items-center gap-1.5" title="Criar novo plano">
+    <span class="material-symbols-outlined" style="font-size: 18px">add</span>
+    Novo plano
+  </a>
+</div>
+
+@if (estadoErro) {
+  <div class="card p-4 rounded-xl mb-4" style="background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.3)">
+    <p class="text-sm m-0" style="color: var(--c-text)">Não foi possível carregar os planos.</p>
+  </div>
+}
+@if (!estadoCarregando && !estadoErro) {
+  @if (planos.length === 0) {
+    <div class="card text-center py-8 rounded-xl" style="border: 1px solid var(--c-border); color: var(--c-muted)">
+      <p class="text-sm mb-3 m-0">Nenhum plano cadastrado.</p>
+      <a routerLink="/plataforma/planos/novo" class="btn-primary" title="Criar primeiro plano">Criar primeiro plano</a>
+    </div>
+  } @else {
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      @for (p of planos; track p.id) {
+        <div class="card flex flex-col rounded-xl p-4" style="border: 1px solid var(--c-border); background: var(--c-surface)">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-sm font-semibold" style="color: var(--c-text)">{{ p.name }}</span>
+            <span class="text-xs font-medium px-2 py-0.5 rounded" style="background: var(--c-soft); color: var(--c-muted)">{{ p.key }}</span>
+          </div>
+          <p class="text-2xl font-bold mb-1 m-0" style="color: var(--c-primary)">
+            R$ {{ formatarValor(p.value) }}
+            <span class="text-sm font-normal" style="color: var(--c-muted)">/mês</span>
+          </p>
+          @if (p.description) {
+            <p class="text-xs mt-2 leading-relaxed flex-1 m-0" style="color: var(--c-muted)">{{ p.description }}</p>
+          }
+          <div class="flex items-center gap-2 mt-3 pt-3 flex-wrap" style="border-top: 1px solid var(--c-border)">
+            @if (!p.is_active) {
+              <span class="text-xs px-2 py-0.5 rounded" style="background: var(--c-soft); color: var(--c-muted)">Inativo</span>
+            }
+            <a [routerLink]="['/plataforma/planos', p.id, 'editar']" class="btn-cell text-xs inline-flex items-center gap-1" title="Editar plano">
+              <span class="material-symbols-outlined" style="font-size: 14px">edit</span>
+              Editar
+            </a>
+            <button type="button" class="text-xs px-2 py-1 rounded transition-colors border" style="color: var(--c-muted); border-color: var(--c-border); background: transparent" (click)="excluir(p)" (mouseenter)="btnExcluirHover($event, true)" (mouseleave)="btnExcluirHover($event, false)" title="Excluir plano">
+              Excluir
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+}
+</div>

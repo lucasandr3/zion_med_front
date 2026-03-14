@@ -4,11 +4,12 @@ import { CommonModule } from '@angular/common';
 import { UsuariosService, Usuario } from '../../core/services/usuarios.service';
 import { LoadingOverlayComponent } from '../../componentes/ui/loading-overlay/loading-overlay.component';
 import { AuthService } from '../../core/services/auth.service';
+import { TooltipDirective } from '../../core/directives/tooltip.directive';
 
 @Component({
   selector: 'app-usuarios-listagem',
   standalone: true,
-  imports: [CommonModule, RouterLink, LoadingOverlayComponent],
+  imports: [CommonModule, RouterLink, LoadingOverlayComponent, TooltipDirective],
   templateUrl: './usuarios-listagem.component.html',
   styleUrl: './usuarios-listagem.component.css',
 })

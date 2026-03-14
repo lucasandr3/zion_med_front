@@ -3,6 +3,7 @@ import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../core/services/auth.service';
 import { SidebarMobileService } from '../../../core/services/sidebar-mobile.service';
+import { TooltipDirective } from '../../../core/directives/tooltip.directive';
 
 export const TEMAS: { key: string; label: string; color: string }[] = [
   { key: 'zion-blue', label: 'Zion Blue', color: '#1e40af' },
@@ -21,15 +22,19 @@ export const TEMAS: { key: string; label: string; color: string }[] = [
 @Component({
   selector: 'app-cabecalho',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, TooltipDirective],
   templateUrl: './cabecalho.component.html',
   styleUrl: './cabecalho.component.css',
 })
 export class CabecalhoComponent implements OnInit {
   @Input() titulo = 'Zion Med';
+  /** Subtítulo exibido abaixo do título no header (ex.: "Visão geral dos clientes utilizando o Zion Med."). */
+  @Input() subtitulo: string | null = null;
   @Input() urlVoltar: string | null = null;
   @Input() labelVoltar = 'Voltar';
   @Input() notificacoesNaoLidas = 0;
+  /** Quando informado, o ícone de notificações no header usa esta rota (ex.: /plataforma/notificacoes). */
+  @Input() notificacoesRouterLink = '/notificacoes';
 
   temas = TEMAS;
   /** Coluna esquerda: Zion Blue, Indigo Night, Rose Elegant, Violet Dream, Slate Pro, Fuchsia Bold */

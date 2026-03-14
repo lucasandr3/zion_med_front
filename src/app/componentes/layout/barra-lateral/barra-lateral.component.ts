@@ -4,11 +4,12 @@ import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../core/services/auth.service';
 import { ClinicaService } from '../../../core/services/clinica.service';
 import { SidebarMobileService } from '../../../core/services/sidebar-mobile.service';
+import { TooltipDirective } from '../../../core/directives/tooltip.directive';
 
 @Component({
   selector: 'app-barra-lateral',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive],
+  imports: [CommonModule, RouterLink, RouterLinkActive, TooltipDirective],
   templateUrl: './barra-lateral.component.html',
   styleUrl: './barra-lateral.component.css',
 })

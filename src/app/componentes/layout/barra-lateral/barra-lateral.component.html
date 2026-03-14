@@ -37,33 +37,33 @@
   <nav class="flex-1 px-2 py-3 overflow-y-auto space-y-0.5">
     <p class="sidebar-section-label mt-1 mb-2">MENU</p>
 
-    <a routerLink="/dashboard" routerLinkActive="ativo" [routerLinkActiveOptions]="{ exact: true }" class="nav-link" data-tooltip="Dashboard">
+    <a routerLink="/dashboard" routerLinkActive="ativo" [routerLinkActiveOptions]="{ exact: true }" class="nav-link" appTooltip="Dashboard">
       <span class="material-symbols-outlined shrink-0" style="font-size: 19px">dashboard</span>
       <span class="sidebar-label">Dashboard</span>
     </a>
 
     @if (podeGerenciarTemplates) {
-      <a routerLink="/templates" routerLinkActive="ativo" class="nav-link" data-tooltip="Templates">
+      <a routerLink="/templates" routerLinkActive="ativo" class="nav-link" appTooltip="Templates">
         <span class="material-symbols-outlined shrink-0" style="font-size: 19px">description</span>
         <span class="sidebar-label">Templates</span>
       </a>
     }
 
     @if (podeGerenciarTemplates || podeVerSubmissoes) {
-      <a routerLink="/links-publicos" routerLinkActive="ativo" class="nav-link" data-tooltip="Links para enviar">
+      <a routerLink="/links-publicos" routerLinkActive="ativo" class="nav-link" appTooltip="Links para enviar">
         <span class="material-symbols-outlined shrink-0" style="font-size: 19px">link</span>
         <span class="sidebar-label">Links públicos</span>
       </a>
     }
 
     @if (podeVerSubmissoes) {
-      <a routerLink="/protocolos" routerLinkActive="ativo" class="nav-link" data-tooltip="Protocolos">
+      <a routerLink="/protocolos" routerLinkActive="ativo" class="nav-link" appTooltip="Protocolos">
         <span class="material-symbols-outlined shrink-0" style="font-size: 19px">inbox</span>
         <span class="sidebar-label">Protocolos</span>
       </a>
     }
 
-    <a routerLink="/notificacoes" routerLinkActive="ativo" class="nav-link relative" data-tooltip="Notificações">
+    <a routerLink="/notificacoes" routerLinkActive="ativo" class="nav-link relative" appTooltip="Notificações">
       <span class="material-symbols-outlined shrink-0" style="font-size: 19px">notifications</span>
       <span class="sidebar-label">Notificações</span>
       @if (notificacoesNaoLidas > 0) {
@@ -78,22 +78,22 @@
     }
 
     @if (podeGerenciarClinica) {
-      <a routerLink="/clinica/configuracoes" routerLinkActive="ativo" class="nav-link" data-tooltip="Empresa">
+      <a routerLink="/clinica/configuracoes" routerLinkActive="ativo" class="nav-link" appTooltip="Empresa">
         <span class="material-symbols-outlined shrink-0" style="font-size: 19px">business</span>
         <span class="sidebar-label">Empresa</span>
       </a>
-      <a routerLink="/link-bio" routerLinkActive="ativo" class="nav-link" data-tooltip="Link Bio">
+      <a routerLink="/link-bio" routerLinkActive="ativo" class="nav-link" appTooltip="Link Bio">
         <span class="material-symbols-outlined shrink-0" style="font-size: 19px">link</span>
         <span class="sidebar-label">Link Bio</span>
       </a>
-      <a routerLink="/clinica/integracoes" routerLinkActive="ativo" class="nav-link" data-tooltip="Integrações">
+      <a routerLink="/clinica/integracoes" routerLinkActive="ativo" class="nav-link" appTooltip="Integrações">
         <span class="material-symbols-outlined shrink-0" style="font-size: 19px">api</span>
         <span class="sidebar-label">Integrações</span>
       </a>
     }
 
     @if (podeGerenciarUsuarios) {
-      <a routerLink="/usuarios" routerLinkActive="ativo" class="nav-link" data-tooltip="Usuários">
+      <a routerLink="/usuarios" routerLinkActive="ativo" class="nav-link" appTooltip="Usuários">
         <span class="material-symbols-outlined shrink-0" style="font-size: 19px">group</span>
         <span class="sidebar-label">Usuários</span>
       </a>
@@ -103,7 +103,7 @@
   <!-- Rodapé: usuário -->
   <div class="shrink-0 px-2 py-2 overflow-visible" style="border-top: 1px solid var(--c-border)">
     <div class="relative" #userMenuContainer>
-      <button type="button" id="user-menu-btn" (click)="alternarMenuUsuario()" class="flex items-center gap-2.5 w-full px-2 py-2 rounded-lg text-left transition-colors hover:bg-[var(--c-soft)] cursor-pointer">
+      <button type="button" id="user-menu-btn" (click)="alternarMenuUsuario()" class="flex items-center gap-2.5 w-full px-2 py-2 rounded-lg text-left transition-colors hover:bg-[var(--c-soft)] cursor-pointer" appTooltip="Menu do usuário" aria-label="Menu do usuário">
         <div class="w-7 h-7 rounded-full shrink-0 flex items-center justify-center text-xs font-bold" style="background: var(--c-primary); color: #fff">
           {{ iniciaisUsuario }}
         </div>
@@ -117,24 +117,24 @@
       @if (menuUsuarioAberto) {
         <div class="user-dropdown absolute left-0 right-0 bottom-full mb-1 py-1 rounded-lg shadow-lg z-[100]" style="background: var(--c-elevated); border: 1px solid var(--c-border); min-width: 200px; box-shadow: 0 8px 32px rgba(0,0,0,0.22)">
           @if (exibirTrocarEmpresa) {
-            <a routerLink="/clinica/escolher" (click)="fecharMenuUsuario()" class="flex items-center gap-2 px-3 py-2 text-sm hover:bg-[var(--c-soft)]" style="color: var(--c-text); text-decoration: none">
+            <a routerLink="/clinica/escolher" (click)="fecharMenuUsuario()" class="flex items-center gap-2 px-3 py-2 text-sm hover:bg-[var(--c-soft)]" style="color: var(--c-text); text-decoration: none" appTooltip="Trocar empresa">
               <span class="material-symbols-outlined" style="font-size: 16px">swap_horiz</span>
               Trocar empresa
             </a>
           }
           @if (ehAdminPlataforma) {
-            <a routerLink="/plataforma" (click)="fecharMenuUsuario()" class="flex items-center gap-2 px-3 py-2 text-sm hover:bg-[var(--c-soft)]" style="color: var(--c-text); text-decoration: none">
+            <a routerLink="/plataforma" (click)="fecharMenuUsuario()" class="flex items-center gap-2 px-3 py-2 text-sm hover:bg-[var(--c-soft)]" style="color: var(--c-text); text-decoration: none" appTooltip="Admin da plataforma">
               <span class="material-symbols-outlined" style="font-size: 16px">admin_panel_settings</span>
               Admin da plataforma
             </a>
           }
           @if (podeGerenciarClinica) {
-            <a routerLink="/clinica/configuracoes" (click)="fecharMenuUsuario()" class="flex items-center gap-2 px-3 py-2 text-sm hover:bg-[var(--c-soft)]" style="color: var(--c-text); text-decoration: none">
+            <a routerLink="/clinica/configuracoes" (click)="fecharMenuUsuario()" class="flex items-center gap-2 px-3 py-2 text-sm hover:bg-[var(--c-soft)]" style="color: var(--c-text); text-decoration: none" appTooltip="Configurações">
               <span class="material-symbols-outlined" style="font-size: 16px">settings</span>
               Configurações
             </a>
           }
-          <button type="button" (click)="sair()" class="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-[var(--c-soft)] text-left border-0 bg-transparent cursor-pointer" style="color: var(--c-text)">
+          <button type="button" (click)="sair()" class="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-[var(--c-soft)] text-left border-0 bg-transparent cursor-pointer" style="color: var(--c-text)" appTooltip="Sair">
             <span class="material-symbols-outlined" style="font-size: 16px">logout</span>
             Sair
           </button>

@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
+import { platformGuard } from './core/guards/platform.guard';
 
 export const routes: Routes = [
   { path: '', loadComponent: () => import('./paginas/inicio/inicio.component').then(m => m.InicioComponent) },
@@ -30,6 +31,25 @@ export const routes: Routes = [
       { path: 'link-bio', loadComponent: () => import('./paginas/link-bio/link-bio.component').then(m => m.LinkBioComponent), data: { titulo: 'Link Bio' } },
       { path: 'usuarios', loadComponent: () => import('./paginas/usuarios/usuarios-listagem.component').then(m => m.UsuariosListagemComponent), data: { titulo: 'Usuários' } },
       { path: 'usuarios/criar', loadComponent: () => import('./paginas/usuarios/usuarios-criar.component').then(m => m.UsuariosCriarComponent), data: { titulo: 'Novo usuário' } },
+    ],
+  },
+  {
+    path: 'plataforma',
+    loadComponent: () => import('./componentes/layout/layout-plataforma/layout-plataforma.component').then(m => m.LayoutPlataformaComponent),
+    canActivate: [authGuard, platformGuard],
+    children: [
+      { path: '', loadComponent: () => import('./paginas/plataforma/plataforma-dashboard/plataforma-dashboard.component').then(m => m.PlataformaDashboardComponent), data: { titulo: 'Visão geral' } },
+      { path: 'clientes', loadComponent: () => import('./paginas/plataforma/plataforma-clientes/plataforma-clientes.component').then(m => m.PlataformaClientesComponent), data: { titulo: 'Clientes (tenants)', subtitulo: 'Visão geral dos clientes utilizando o Zion Med.' } },
+      { path: 'clientes/:id', loadComponent: () => import('./paginas/plataforma/plataforma-cliente-detalhe/plataforma-cliente-detalhe.component').then(m => m.PlataformaClienteDetalheComponent), data: { titulo: 'Cliente', urlVoltar: '/plataforma/clientes', labelVoltar: 'Voltar para Clientes' } },
+      { path: 'leads', loadComponent: () => import('./paginas/plataforma/plataforma-leads/plataforma-leads.component').then(m => m.PlataformaLeadsComponent), data: { titulo: 'Leads', subtitulo: 'Solicitações de demonstração da landing.' } },
+      { path: 'notificacoes', loadComponent: () => import('./paginas/notificacoes/notificacoes.component').then(m => m.NotificacoesComponent), data: { titulo: 'Notificações', subtitulo: 'Central de notificações.' } },
+      { path: 'assinaturas', loadComponent: () => import('./paginas/plataforma/plataforma-assinaturas/plataforma-assinaturas.component').then(m => m.PlataformaAssinaturasComponent), data: { titulo: 'Assinaturas', subtitulo: 'Visão geral das assinaturas por cliente e empresa.' } },
+      { path: 'faturas', loadComponent: () => import('./paginas/plataforma/plataforma-faturas/plataforma-faturas.component').then(m => m.PlataformaFaturasComponent), data: { titulo: 'Faturas / cobranças', subtitulo: 'Visão geral das faturas e cobranças por cliente e empresa.' } },
+      { path: 'planos', loadComponent: () => import('./paginas/plataforma/plataforma-planos/plataforma-planos.component').then(m => m.PlataformaPlanosComponent), data: { titulo: 'Planos' } },
+      { path: 'planos/novo', loadComponent: () => import('./paginas/plataforma/plataforma-plano-form/plataforma-plano-form.component').then(m => m.PlataformaPlanoFormComponent), data: { titulo: 'Novo plano', urlVoltar: '/plataforma/planos', labelVoltar: 'Voltar para Planos' } },
+      { path: 'planos/:id/editar', loadComponent: () => import('./paginas/plataforma/plataforma-plano-form/plataforma-plano-form.component').then(m => m.PlataformaPlanoFormComponent), data: { titulo: 'Editar plano', urlVoltar: '/plataforma/planos', labelVoltar: 'Voltar para Planos' } },
+      { path: 'configuracoes', loadComponent: () => import('./paginas/plataforma/plataforma-configuracoes/plataforma-configuracoes.component').then(m => m.PlataformaConfiguracoesComponent), data: { titulo: 'Configurações da plataforma', subtitulo: 'Parâmetros editáveis (banco). API e URL continuam no .env.' } },
+      { path: 'logs', loadComponent: () => import('./paginas/plataforma/plataforma-logs/plataforma-logs.component').then(m => m.PlataformaLogsComponent), data: { titulo: 'Meus logs de auditoria', subtitulo: 'Ações realizadas por você na plataforma' } },
     ],
   },
   { path: '404', loadComponent: () => import('./paginas/erro/erro-404.component').then(m => m.Erro404Component) },

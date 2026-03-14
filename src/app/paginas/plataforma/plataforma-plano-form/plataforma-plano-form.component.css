@@ -1,0 +1,5 @@
+/* Usa classes globais: .card, .form-input, .btn-primary, .btn-ghost */
+
+.space-y-4 > * + * {
+  margin-top: 1rem;
+}

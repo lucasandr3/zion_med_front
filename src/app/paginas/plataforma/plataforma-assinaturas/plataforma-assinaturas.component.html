@@ -1,0 +1,54 @@
+<!-- Listagem de assinaturas da plataforma -->
+<div class="relative min-h-[300px]">
+  @if (estadoCarregando) {
+    <app-loading-overlay />
+  }
+  <div class="flex items-center justify-between mb-4">
+  <p class="text-xs" style="color: var(--c-muted)">
+    {{ assinaturas.length }} {{ assinaturas.length === 1 ? 'assinatura' : 'assinaturas' }}.
+  </p>
+</div>
+
+<div class="overflow-x-auto rounded-xl border" style="border-color: var(--c-border); background: var(--c-surface)">
+  <table class="platform-table">
+    <thead>
+      <tr>
+        <th class="py-2 pr-3">Cliente</th>
+        <th class="py-2 px-3">Empresa</th>
+        <th class="py-2 px-3">Plano</th>
+        <th class="py-2 px-3">Status assinatura</th>
+        <th class="py-2 px-3">Status cobrança</th>
+        <th class="py-2 pl-3">Próximo ciclo</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (a of assinaturas; track a.clinic_id + '_' + a.tenant_id) {
+        <tr>
+          <td class="py-2.5 pr-3">
+            <span class="text-xs font-semibold" style="color: var(--c-text)">{{ a.tenant_name }}</span>
+          </td>
+          <td class="py-2.5 px-3 cell-muted">{{ a.clinic_name }}</td>
+          <td class="py-2.5 px-3 cell-muted">{{ a.plan_key || '—' }}</td>
+          <td class="py-2.5 px-3 cell-muted">{{ a.subscription_status || '—' }}</td>
+          <td class="py-2.5 px-3 cell-muted">{{ a.billing_status ?? '—' }}</td>
+          <td class="py-2.5 pl-3 cell-muted">{{ formatarData(a.current_period_end) }}</td>
+        </tr>
+      } @empty {
+        @if (!estadoCarregando && !estadoErro) {
+          <tr>
+            <td colspan="6" class="py-6 text-center text-xs cell-muted">
+              Nenhuma assinatura cadastrada.
+            </td>
+          </tr>
+        }
+      }
+    </tbody>
+  </table>
+</div>
+
+@if (estadoErro) {
+  <div class="card p-4 rounded-xl mt-4" style="background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.3)">
+    <p class="text-sm" style="color: var(--c-text)">Não foi possível carregar as assinaturas.</p>
+  </div>
+}
+</div>

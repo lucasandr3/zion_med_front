@@ -1,0 +1,57 @@
+<!-- Igual ao backend: platform/plans/edit - formulário novo/editar -->
+<div class="relative min-h-[300px] w-full max-w-4xl">
+  @if (loading) {
+    <app-loading-overlay />
+  }
+  @if (!loading) {
+    <form (ngSubmit)="submit()" class="card space-y-4 rounded-xl p-4" style="border: 1px solid var(--c-border)">
+      @if (error) {
+        <p class="text-xs m-0" style="color: var(--c-primary)">{{ error }}</p>
+      }
+
+      <div>
+        <label for="key" class="block text-xs font-medium mb-1" style="color: var(--c-text)">Chave (única, ex: core, enterprise)</label>
+        <input type="text" id="key" [(ngModel)]="key" name="key" class="form-input" maxlength="64" required
+               pattern="[a-z0-9_-]+" placeholder="Ex: core, enterprise"
+               [readonly]="isEdit">
+        @if (isEdit) {
+          <p class="text-xs mt-1 m-0" style="color: var(--c-muted)">A chave não pode ser alterada após criação.</p>
+        }
+      </div>
+
+      <div>
+        <label for="name" class="block text-xs font-medium mb-1" style="color: var(--c-text)">Nome</label>
+        <input type="text" id="name" [(ngModel)]="name" name="name" class="form-input" maxlength="128" required
+               placeholder="Ex: Core">
+      </div>
+
+      <div>
+        <label for="value_display" class="block text-xs font-medium mb-1" style="color: var(--c-text)">Valor (R$/mês)</label>
+        <input type="text" id="value_display" class="form-input w-40" placeholder="0,00" inputmode="decimal" autocomplete="off"
+               [ngModel]="valueDisplay" (ngModelChange)="onValueInput($event)" name="value_display"
+               (blur)="onValueBlur()">
+      </div>
+
+      <div>
+        <label for="description" class="block text-xs font-medium mb-1" style="color: var(--c-text)">Descrição</label>
+        <textarea id="description" [(ngModel)]="description" name="description" rows="3" class="form-input" maxlength="500"
+                  placeholder="Ex: Para clínicas pequenas e médias que precisam padronizar formulários..."></textarea>
+      </div>
+
+      <div>
+        <label for="sort_order" class="block text-xs font-medium mb-1" style="color: var(--c-text)">Ordem de exibição</label>
+        <input type="number" id="sort_order" [(ngModel)]="sortOrder" name="sort_order" class="form-input w-24" min="0" placeholder="0">
+      </div>
+
+      <div class="flex items-center gap-2">
+        <input type="checkbox" id="is_active" [(ngModel)]="isActive" name="is_active">
+        <label for="is_active" class="text-sm" style="color: var(--c-text)">Plano ativo (disponível para assinatura)</label>
+      </div>
+
+      <div class="flex gap-2 pt-2">
+        <button type="submit" class="btn-primary" [disabled]="saving">{{ isEdit ? 'Salvar' : 'Criar plano' }}</button>
+        <a routerLink="/plataforma/planos" class="btn-ghost">Cancelar</a>
+      </div>
+    </form>
+  }
+</div>

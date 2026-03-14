@@ -163,7 +163,7 @@
             <label for="password" class="block text-sm font-medium text-slate-700 mb-1">Senha <span class="text-red-500">*</span></label>
             <div class="relative">
               <input [type]="mostrarSenha ? 'text' : 'password'" id="password" [(ngModel)]="password" (ngModelChange)="atualizarForcaSenha()" name="password" class="w-full rounded-lg border border-slate-200 px-4 py-2.5 pr-11 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500" placeholder="Crie uma senha segura" minlength="8" required>
-              <button type="button" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600" (click)="mostrarSenha = !mostrarSenha" aria-label="Mostrar senha">
+              <button type="button" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600" (click)="mostrarSenha = !mostrarSenha" aria-label="Mostrar senha" title="Mostrar ou ocultar senha">
                 <span class="material-symbols-outlined text-lg">{{ mostrarSenha ? 'visibility_off' : 'visibility' }}</span>
               </button>
             </div>
@@ -182,7 +182,7 @@
             <label for="password_confirmation" class="block text-sm font-medium text-slate-700 mb-1">Confirmar senha <span class="text-red-500">*</span></label>
             <div class="relative">
               <input [type]="mostrarSenhaConf ? 'text' : 'password'" id="password_confirmation" [(ngModel)]="passwordConfirmation" name="password_confirmation" class="w-full rounded-lg border border-slate-200 px-4 py-2.5 pr-11 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500" placeholder="Repita a senha" minlength="8" required>
-              <button type="button" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600" (click)="mostrarSenhaConf = !mostrarSenhaConf" aria-label="Mostrar senha">
+              <button type="button" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600" (click)="mostrarSenhaConf = !mostrarSenhaConf" aria-label="Mostrar senha" title="Mostrar ou ocultar senha">
                 <span class="material-symbols-outlined text-lg">{{ mostrarSenhaConf ? 'visibility_off' : 'visibility' }}</span>
               </button>
             </div>

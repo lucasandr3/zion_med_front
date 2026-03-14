@@ -147,10 +147,10 @@
                 </td>
                 <td>
                   <div class="campos-actions">
-                    <button type="button" class="campos-icon-btn" aria-label="Editar campo" (click)="abrirModalEditar(c)">
+                    <button type="button" class="campos-icon-btn" aria-label="Editar campo" (click)="abrirModalEditar(c)" title="Editar campo">
                       <span class="material-symbols-outlined" style="font-size:13px">edit</span>
                     </button>
-                    <button type="button" class="campos-icon-btn danger" aria-label="Remover campo" [disabled]="removendoId === c.id" (click)="removerCampo(c)">
+                    <button type="button" class="campos-icon-btn danger" aria-label="Remover campo" [disabled]="removendoId === c.id" (click)="removerCampo(c)" title="Remover campo">
                       <span class="material-symbols-outlined" style="font-size:13px">delete</span>
                     </button>
                   </div>
@@ -174,7 +174,7 @@
     <div class="rounded-xl border w-full max-w-lg overflow-hidden" style="background: var(--c-surface); border-color: var(--c-border); box-shadow: 0 10px 40px rgba(0,0,0,0.2); color: var(--c-text);" (click)="$event.stopPropagation()">
       <div class="flex items-center justify-between p-4 border-b" style="border-color: var(--c-border);">
         <h2 class="font-semibold text-lg">Editar campo</h2>
-        <button type="button" class="p-2 rounded-lg transition-colors hover:bg-bg-soft" style="color: var(--c-muted);" aria-label="Fechar" (click)="fecharModal()">
+        <button type="button" class="p-2 rounded-lg transition-colors hover:bg-bg-soft" style="color: var(--c-muted);" aria-label="Fechar" (click)="fecharModal()" title="Fechar">
           <span class="material-symbols-outlined" style="font-size:22px">close</span>
         </button>
       </div>

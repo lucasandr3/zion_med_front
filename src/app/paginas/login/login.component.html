@@ -1,4 +1,4 @@
-<button type="button" id="login-dark-btn" (click)="alternarTema()" aria-label="Alternar modo escuro">
+<button type="button" id="login-dark-btn" (click)="alternarTema()" aria-label="Alternar modo escuro" appTooltip="Alternar modo escuro">
   <span class="material-symbols-outlined" [textContent]="iconeTema" style="font-size:17px"></span>
 </button>
 
@@ -60,7 +60,7 @@
               <input [type]="mostrarSenha ? 'text' : 'password'" name="password" id="login-password" [(ngModel)]="senha"
                      class="login-input pr" placeholder="••••••••" required>
               <span class="material-symbols-outlined login-input-icon-r" (click)="mostrarSenha = !mostrarSenha"
-                    role="button" aria-label="Mostrar ou ocultar senha" tabindex="0">{{ mostrarSenha ? 'visibility_off' : 'visibility' }}</span>
+                    role="button" aria-label="Mostrar ou ocultar senha" tabindex="0" appTooltip="Mostrar ou ocultar senha">{{ mostrarSenha ? 'visibility_off' : 'visibility' }}</span>
             </div>
           </div>
 

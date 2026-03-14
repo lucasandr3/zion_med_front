@@ -147,10 +147,10 @@
                     <div class="flex items-center gap-2 shrink-0 actions-mode">
                       <span class="text-xs" style="color:var(--c-primary)">{{ lnk.total_clicks ?? 0 }} cliques</span>
                       <button type="button" class="px-2.5 py-1 rounded-lg text-xs transition-colors" style="background:var(--c-soft);color:var(--c-muted);border:1px solid var(--c-border)" (click)="iniciarEdicao(lnk)">Editar</button>
-                      <a [href]="lnk.url" target="_blank" rel="noopener" class="p-1.5 rounded-lg" style="color:var(--c-muted)" aria-label="Abrir link">
+                      <a [href]="lnk.url" target="_blank" rel="noopener" class="p-1.5 rounded-lg" style="color:var(--c-muted)" aria-label="Abrir link" title="Abrir link">
                         <span class="material-symbols-outlined" style="font-size:17px">open_in_new</span>
                       </a>
-                      <button type="button" class="p-1.5 rounded-lg" style="color:var(--c-muted)" aria-label="Remover link" (click)="excluirLink(lnk)">
+                      <button type="button" class="p-1.5 rounded-lg" style="color:var(--c-muted)" aria-label="Remover link" (click)="excluirLink(lnk)" title="Remover link">
                         <span class="material-symbols-outlined" style="font-size:17px">delete</span>
                       </button>
                     </div>

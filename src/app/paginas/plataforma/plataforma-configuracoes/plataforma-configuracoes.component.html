@@ -1,0 +1,127 @@
+<!-- Igual ao backend: platform/settings/index -->
+<div class="relative min-h-[300px] w-full space-y-4">
+  @if (loading) {
+    <app-loading-overlay />
+  }
+  @if (!loading) {
+    @if (error) {
+      <p class="text-xs m-0" style="color: var(--c-primary)">{{ error }}</p>
+    }
+
+    <!-- Card 1: Asaas (somente leitura) -->
+    <div class="card rounded-xl p-4" style="border: 1px solid var(--c-border)">
+      <h3 class="text-xs font-semibold tracking-wider uppercase mb-3 m-0" style="color: var(--c-muted)">Asaas — ambiente (.env)</h3>
+      <dl class="space-y-2 text-sm m-0">
+        <div class="flex justify-between gap-4">
+          <dt style="color: var(--c-muted)">URL da API</dt>
+          <dd class="font-mono text-xs truncate max-w-[240px] m-0" style="color: var(--c-text)" [title]="baseUrl">{{ baseUrl || '—' }}</dd>
+        </div>
+        <div class="flex justify-between gap-4">
+          <dt style="color: var(--c-muted)">API configurada</dt>
+          <dd class="font-medium m-0" style="color: var(--c-text)">{{ apiConfigured ? 'Sim' : 'Não' }}</dd>
+        </div>
+      </dl>
+      <p class="text-xs mt-3 m-0" style="color: var(--c-muted)">Para alterar base URL e chave da API, edite o <code class="px-1 rounded" style="background: var(--c-soft); color: var(--c-text)">.env</code>.</p>
+    </div>
+
+    <!-- Card 2: Parâmetros da plataforma -->
+    <form (ngSubmit)="submitSettings()" class="card space-y-4 rounded-xl p-4" style="border: 1px solid var(--c-border)">
+      <h3 class="text-xs font-semibold tracking-wider uppercase mb-3 m-0" style="color: var(--c-muted)">Parâmetros da plataforma (banco)</h3>
+
+      <div>
+        <label for="product_name" class="block text-xs font-medium mb-1" style="color: var(--c-text)">Nome do produto</label>
+        <input type="text" id="product_name" [(ngModel)]="productName" name="product_name" class="form-input w-full max-w-md" required maxlength="128" placeholder="Ex: ZionMed">
+      </div>
+
+      <div class="flex flex-wrap gap-6">
+        <div>
+          <label for="trial_days" class="block text-xs font-medium mb-1" style="color: var(--c-text)">Trial (dias)</label>
+          <input type="number" id="trial_days" [(ngModel)]="trialDays" name="trial_days" class="form-input w-24" min="0" max="365" required placeholder="14">
+        </div>
+        <div>
+          <label for="grace_days" class="block text-xs font-medium mb-1" style="color: var(--c-text)">Grace (dias)</label>
+          <input type="number" id="grace_days" [(ngModel)]="graceDays" name="grace_days" class="form-input w-24" min="0" max="90" required placeholder="7">
+        </div>
+      </div>
+
+      <div>
+        <label for="block_mode" class="block text-xs font-medium mb-1" style="color: var(--c-text)">Modo de bloqueio</label>
+        <select id="block_mode" [(ngModel)]="blockMode" name="block_mode" class="form-select w-40">
+          <option value="soft">soft</option>
+          <option value="hard">hard</option>
+        </select>
+        <p class="text-xs mt-1 m-0" style="color: var(--c-muted)">soft = bloqueia app e libera /billing; hard = bloqueia tudo exceto logout.</p>
+      </div>
+
+      <div>
+        <label for="multi_empresa_plan" class="block text-xs font-medium mb-1" style="color: var(--c-text)">Plano multi-empresa (chave do plano)</label>
+        <input type="text" id="multi_empresa_plan" [(ngModel)]="multiEmpresaPlan" name="multi_empresa_plan" class="form-input w-48" maxlength="64" required placeholder="ex: enterprise">
+      </div>
+
+      @if (successSettings) {
+        <p class="text-xs rounded px-3 py-2 m-0" style="background: var(--c-soft); color: var(--c-text)">{{ successSettings }}</p>
+      }
+      <button type="submit" class="btn-primary" [disabled]="savingSettings">{{ savingSettings ? 'Salvando…' : 'Salvar configurações' }}</button>
+    </form>
+
+    <!-- Card 3: Status do serviço -->
+    <form (ngSubmit)="submitStatus()" class="card space-y-4 rounded-xl p-4" style="border: 1px solid var(--c-border)">
+      <h3 class="text-xs font-semibold tracking-wider uppercase mb-3 m-0" style="color: var(--c-muted)">Status do serviço (/status)</h3>
+      <p class="text-xs m-0" style="color: var(--c-muted)">
+        O status, criticidade e componentes são exibidos na página pública em
+        <a [href]="statusPageUrl" target="_blank" rel="noopener" class="underline" style="color: var(--c-primary)">{{ statusPageUrl }}</a>
+        e no banner da landing page.
+      </p>
+
+      @if (successStatus) {
+        <p class="text-xs rounded px-3 py-2 m-0" style="background: var(--c-soft); color: var(--c-text)">{{ successStatus }}</p>
+      }
+
+      <div class="flex flex-wrap gap-6">
+        <div>
+          <label for="service_status" class="block text-xs font-medium mb-1" style="color: var(--c-text)">Status geral</label>
+          <select id="service_status" [(ngModel)]="serviceStatus" name="status" class="form-select w-48">
+            <option value="operational">Operacional</option>
+            <option value="degraded">Degradado</option>
+            <option value="outage">Indisponível</option>
+            <option value="maintenance">Manutenção</option>
+          </select>
+        </div>
+        <div>
+          <label for="service_severity" class="block text-xs font-medium mb-1" style="color: var(--c-text)">Criticidade</label>
+          <select id="service_severity" [(ngModel)]="serviceStatusSeverity" name="severity" class="form-select w-40">
+            <option value="none">Nenhuma</option>
+            <option value="low">Baixa</option>
+            <option value="medium">Média</option>
+            <option value="high">Alta</option>
+            <option value="critical">Crítica</option>
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <label for="service_status_message" class="block text-xs font-medium mb-1" style="color: var(--c-text)">Mensagem (opcional)</label>
+        <textarea id="service_status_message" [(ngModel)]="serviceStatusMessage" name="message" rows="2" class="form-input w-full max-w-md" maxlength="500" placeholder="Ex: Manutenção programada amanhã 2h–4h"></textarea>
+      </div>
+
+      <div>
+        <p class="block text-xs font-medium mb-2 m-0" style="color: var(--c-text)">Componentes</p>
+        <div class="space-y-2">
+          @for (key of getComponentKeys(); track key) {
+            <div class="flex items-center gap-3">
+              <span class="text-xs w-40" style="color: var(--c-text)">{{ componentOptions[key] }}</span>
+              <select [(ngModel)]="serviceComponents[key]" [name]="'comp_' + key" class="form-select text-xs w-40">
+                <option value="operational">Operacional</option>
+                <option value="degraded">Degradado</option>
+                <option value="outage">Indisponível</option>
+                <option value="maintenance">Manutenção</option>
+              </select>
+            </div>
+          }
+        </div>
+      </div>
+
+      <button type="submit" class="btn-primary" [disabled]="savingStatus">{{ savingStatus ? 'Atualizando…' : 'Atualizar status' }}</button>
+    </form>
+  }
+</div>

@@ -49,8 +49,8 @@
         <div class="flex justify-between items-center px-4 py-3" style="border-top: 1px solid var(--c-border)">
           <span class="text-xs" style="color: var(--c-muted)">Página {{ meta.current_page }} de {{ meta.last_page }} ({{ meta.total }} itens)</span>
           <div class="flex gap-2">
-            <button type="button" class="btn-ghost btn-default-bg" [disabled]="meta.current_page <= 1" (click)="carregar(meta.current_page - 1)">Anterior</button>
-            <button type="button" class="btn-ghost btn-default-bg" [disabled]="meta.current_page >= meta.last_page" (click)="carregar(meta.current_page + 1)">Próxima</button>
+            <button type="button" class="btn-ghost btn-default-bg" [disabled]="meta.current_page <= 1" (click)="carregar(meta.current_page - 1)" title="Página anterior">Anterior</button>
+            <button type="button" class="btn-ghost btn-default-bg" [disabled]="meta.current_page >= meta.last_page" (click)="carregar(meta.current_page + 1)" title="Próxima página">Próxima</button>
           </div>
         </div>
       }

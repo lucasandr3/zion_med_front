@@ -18,12 +18,12 @@
     <div class="flex items-center gap-2 flex-wrap">
       @if (templates.length > 0) {
         <div class="templates-filter-wrap flex gap-0.5 rounded-lg border p-0.5" style="background: var(--c-surface); border-color: var(--c-border)">
-          <button type="button" class="templates-filter-btn rounded-md text-xs font-medium px-3 py-1 transition-all" [class.active]="filtroAtual === 'all'" (click)="setFiltro('all')">Todos</button>
-          <button type="button" class="templates-filter-btn rounded-md text-xs font-medium px-3 py-1 transition-all" [class.active]="filtroAtual === 'ativo'" (click)="setFiltro('ativo')">Ativos</button>
-          <button type="button" class="templates-filter-btn rounded-md text-xs font-medium px-3 py-1 transition-all" [class.active]="filtroAtual === 'publico'" (click)="setFiltro('publico')">Públicos</button>
+          <button type="button" class="templates-filter-btn rounded-md text-xs font-medium px-3 py-1 transition-all" [class.active]="filtroAtual === 'all'" (click)="setFiltro('all')" title="Mostrar todos os templates">Todos</button>
+          <button type="button" class="templates-filter-btn rounded-md text-xs font-medium px-3 py-1 transition-all" [class.active]="filtroAtual === 'ativo'" (click)="setFiltro('ativo')" title="Mostrar apenas ativos">Ativos</button>
+          <button type="button" class="templates-filter-btn rounded-md text-xs font-medium px-3 py-1 transition-all" [class.active]="filtroAtual === 'publico'" (click)="setFiltro('publico')" title="Mostrar apenas com link público">Públicos</button>
         </div>
       }
-      <a routerLink="/templates/criar" class="btn-primary">
+      <a routerLink="/templates/criar" class="btn-primary" title="Criar novo template">
         <span class="material-symbols-outlined" style="font-size: 16px">add</span>
         Novo template
       </a>

@@ -1,5 +1,10 @@
 /* Estilos do cabeçalho (variáveis globais em styles.css) */
 
+/* Quando o drawer de tema está aberto, header (e overlay/drawer) ficam acima da sidebar */
+.theme-drawer-open {
+  z-index: 300;
+}
+
 /* Drawer de tema (mobile e desktop): entrada pela direita */
 .theme-drawer-panel {
   animation: theme-drawer-slide-in 0.25s ease-out;

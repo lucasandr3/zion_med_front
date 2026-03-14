@@ -70,11 +70,11 @@
               </td>
               <td>
                 <div style="display:flex;align-items:center;justify-content:flex-end;gap:2px">
-                  <a [routerLink]="['/usuarios', u.id, 'editar']" data-tooltip="Editar" aria-label="Editar usuário" class="action-btn">
+                  <a [routerLink]="['/usuarios', u.id, 'editar']" aria-label="Editar usuário" class="action-btn" appTooltip="Editar usuário">
                     <span class="material-symbols-outlined" style="font-size:18px">edit</span>
                   </a>
                   @if (podeDesativar(u)) {
-                    <button type="button" class="action-btn danger" data-tooltip="Desativar" aria-label="Desativar usuário" (click)="desativar(u)">
+                    <button type="button" class="action-btn danger" aria-label="Desativar usuário" (click)="desativar(u)" appTooltip="Desativar usuário">
                       <span class="material-symbols-outlined" style="font-size:18px">person_off</span>
                     </button>
                   }

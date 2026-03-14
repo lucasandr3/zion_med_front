@@ -30,7 +30,7 @@
                 <p class="text-xs m-0 mt-0.5" style="color: var(--c-muted)">{{ c.users_count }} usuário(s)</p>
               }
             </div>
-            <button type="button" class="btn-primary" [disabled]="salvando" (click)="escolher(c.id)">Selecionar</button>
+            <button type="button" class="btn-primary" [disabled]="salvando" (click)="escolher(c.id)" title="Selecionar esta empresa">Selecionar</button>
           </li>
         }
       </ul>
