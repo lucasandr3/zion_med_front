@@ -91,4 +91,12 @@ export class TemplatesService {
   desativarLink(templateId: number): Observable<void> {
     return this.api.delete(`/templates/${templateId}/link-publico`).pipe(map(() => undefined));
   }
+
+  /** Envia link do documento por e-mail ou WhatsApp (body: channel?, recipient_email ou recipient_phone, expires_at?). */
+  enviarDocumento(
+    templateId: number,
+    payload: { channel?: 'email' | 'whatsapp'; recipient_email?: string; recipient_phone?: string; expires_at?: string }
+  ): Observable<{ data: { message: string; id: number; sent_at: string } }> {
+    return this.api.post<{ data: { message: string; id: number; sent_at: string } }>(`/templates/${templateId}/enviar`, payload);
+  }
 }

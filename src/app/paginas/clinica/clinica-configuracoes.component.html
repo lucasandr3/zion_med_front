@@ -163,10 +163,32 @@
                     @if (isScheduleActive(d.id)) {
                       <div style="display:flex;align-items:center;gap:6px;flex:1;flex-wrap:wrap">
                         <span style="font-size:10px;color:var(--c-muted)">Abre</span>
-                        <input type="text" class="time-input form-input" [(ngModel)]="form.business_hours![d.id].open" [name]="'bh_open_'+d.id" placeholder="08:00" maxlength="5">
+                        <input type="text"
+                          class="time-input form-input"
+                          mwlFlatpickr
+                          [(ngModel)]="form.business_hours![d.id].open"
+                          (flatpickrChange)="setTime(d.id, 'open', $event.selectedDates)"
+                          [name]="'bh_open_'+d.id"
+                          placeholder="08:00"
+                          [enableTime]="true"
+                          [noCalendar]="true"
+                          [dateFormat]="'H:i'"
+                          [time24hr]="true"
+                          [static]="true">
                         <span style="font-size:11px;color:var(--c-muted)">→</span>
                         <span style="font-size:10px;color:var(--c-muted)">Fecha</span>
-                        <input type="text" class="time-input form-input" [(ngModel)]="form.business_hours![d.id].close" [name]="'bh_close_'+d.id" placeholder="18:00" maxlength="5">
+                        <input type="text"
+                          class="time-input form-input"
+                          mwlFlatpickr
+                          [(ngModel)]="form.business_hours![d.id].close"
+                          (flatpickrChange)="setTime(d.id, 'close', $event.selectedDates)"
+                          [name]="'bh_close_'+d.id"
+                          placeholder="18:00"
+                          [enableTime]="true"
+                          [noCalendar]="true"
+                          [dateFormat]="'H:i'"
+                          [time24hr]="true"
+                          [static]="true">
                       </div>
                     } @else {
                       <span class="closed-tag">Fechado</span>

@@ -1,0 +1,53 @@
+<div class="auth-page">
+  <div class="auth-bg-gradient"></div>
+  <div class="auth-blob-tr"></div>
+  <div class="auth-blob-bl"></div>
+  <div class="auth-wrap">
+    <div class="auth-brand">
+      <div class="auth-brand-logo">
+        <div class="auth-brand-logo-icon">
+          <img src="assets/logo/zionmed_logo.png" alt="Zion Med">
+        </div>
+        <span class="auth-brand-logo-name">Zion Med</span>
+      </div>
+      <div class="auth-brand-text">
+        <h1>Recuperar <span class="hl">senha</span></h1>
+        <p>Informe seu e-mail e enviaremos um link para redefinir sua senha.</p>
+      </div>
+      <p class="auth-brand-footer">© {{ ano }} Zion Med.</p>
+    </div>
+    <div class="auth-card">
+      <div class="auth-card-inner">
+        @if (enviado) {
+          <h2 class="auth-card-title">E-mail enviado</h2>
+          <p class="auth-card-subtitle">
+            Se existir uma conta com o e-mail informado, você receberá um link para redefinir sua senha. Verifique também a pasta de spam.
+          </p>
+          <a routerLink="/autenticacao" class="auth-btn">Voltar ao login</a>
+        } @else {
+          <h2 class="auth-card-title">Esqueceu a senha?</h2>
+          <p class="auth-card-subtitle">Digite seu e-mail e enviaremos um link para redefinir.</p>
+          @if (erro) {
+            <div class="auth-error"><p>{{ erro }}</p></div>
+          }
+          <form (ngSubmit)="enviar()" class="auth-form">
+            <div class="auth-field">
+              <label class="auth-label" for="esqueci-email">E-mail</label>
+              <div class="auth-input-wrap">
+                <span class="material-symbols-outlined auth-input-icon-l">mail</span>
+                <input type="email" id="esqueci-email" [(ngModel)]="email" name="email"
+                       class="auth-input" placeholder="seu@email.com" required autofocus>
+              </div>
+            </div>
+            <button type="submit" class="auth-btn" [disabled]="carregando">
+              {{ carregando ? 'Enviando…' : 'Enviar link' }}
+            </button>
+          </form>
+          <p class="auth-register">
+            <a routerLink="/autenticacao">Voltar ao login</a>
+          </p>
+        }
+      </div>
+    </div>
+  </div>
+</div>

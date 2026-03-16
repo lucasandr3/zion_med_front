@@ -61,7 +61,7 @@
     </div>
 
     <!-- Conteúdo principal -->
-    <div class="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-[1fr_360px] gap-6">
       <div>
         <!-- Tabs -->
         <div class="flex gap-1 mb-5 p-1 rounded-lg w-fit" style="background:var(--c-surface);border:1px solid var(--c-border)">
@@ -292,11 +292,18 @@
         </div>
       </div>
 
-      <!-- Preview celular -->
-      <div class="hidden lg:flex flex-col items-center gap-3 sticky top-24">
+      <!-- Preview celular (visível em todas as telas; à direita a partir de md) -->
+      <div class="flex flex-col items-center gap-3 md:sticky md:top-24">
         <p class="text-[0.6875rem] uppercase tracking-wider" style="color:var(--c-muted)">Prévia ao vivo</p>
-        <div class="link-bio-phone">
-          <iframe [src]="previewUrlSafe" title="Preview Link Bio" class="link-bio-phone-screen w-full h-full border-0" loading="lazy"></iframe>
+        <div class="link-bio-phone w-full max-w-[320px] md:max-w-none">
+          @if (previewUrlSafe) {
+            <iframe [src]="previewUrlSafe" title="Preview Link Bio" class="link-bio-phone-screen w-full h-full border-0" loading="lazy"></iframe>
+          } @else {
+            <div class="link-bio-phone-screen w-full h-full min-h-[400px] flex flex-col items-center justify-center rounded-xl text-sm" style="background:var(--c-soft);color:var(--c-muted);border:1px dashed var(--c-border)">
+              <span class="material-symbols-outlined mb-2" style="font-size:32px">smartphone</span>
+              <span>Carregando prévia…</span>
+            </div>
+          }
         </div>
       </div>
     </div>

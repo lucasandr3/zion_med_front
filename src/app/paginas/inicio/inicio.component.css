@@ -1,1 +1,31 @@
 /* Página inicial (landing) - usa variáveis globais */
+
+/* FAQ accordion: chevron animado */
+details.landing-details summary::-webkit-details-marker {
+  display: none;
+}
+details.landing-details summary {
+  list-style: none;
+}
+details.landing-details[open] summary svg {
+  transform: rotate(180deg);
+}
+
+/* Sticky CTA mobile: padding-bottom para não sobrepor conteúdo */
+@media (max-width: 767px) {
+  .scroll-smooth {
+    padding-bottom: 72px;
+  }
+}
+
+/* Animação de entrada suave nos cards */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Hover nos steps do "Como funciona" */
+.step-hover:hover {
+  transform: translateY(-2px);
+  transition: transform 0.2s ease;
+}

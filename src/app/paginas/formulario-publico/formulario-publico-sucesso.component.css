@@ -1,1 +1,97 @@
-/* Formulario publico sucesso */
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=Jost:wght@300;400;500&display=swap');
+
+:host {
+  display: block;
+  font-family: 'Jost', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.sucesso-page {
+  min-height: 100vh;
+  background: #f7f5f2;
+}
+.sucesso-page.dark {
+  background: #0f0f14;
+}
+
+.sucesso-page h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 400;
+}
+
+.bio-text { color: #1a1a2e; }
+.sucesso-page.dark .bio-text { color: #e8e8f0; }
+.bio-muted { color: #9e9b96; }
+.sucesso-page.dark .bio-muted { color: #8a8a96; }
+.bio-border { border-color: #e8e4de; }
+.sucesso-page.dark .bio-border { border-color: #2a2a3e; }
+.bio-bg { background: #fff; }
+.sucesso-page.dark .bio-bg { background: #16161e; }
+.bio-bg-soft { background: #f0ede8; }
+.sucesso-page.dark .bio-bg-soft { background: #1a1a24; }
+
+.success-icon-wrap {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: #e8f5e9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.25rem;
+}
+.success-icon-wrap .material-symbols-outlined {
+  font-size: 32px;
+  color: #2e7d32;
+}
+.sucesso-page.dark .success-icon-wrap {
+  background: rgba(76, 175, 80, 0.2);
+}
+.sucesso-page.dark .success-icon-wrap .material-symbols-outlined {
+  color: #81c784;
+}
+
+.sucesso-title {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.logo-wrap {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: #1a1a2e;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.sucesso-page.dark .logo-wrap { background: #2a2a3e; }
+.logo-initial {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: #f7f5f2;
+}
+
+.btn-primary {
+  background: #1a1a2e;
+  color: #f7f5f2;
+  border: none;
+  padding: 0.875rem 1.25rem;
+  border-radius: 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.sucesso-page.dark .btn-primary {
+  background: #2a2a3e;
+  color: #e8e8f0;
+}
+.btn-primary:hover {
+  background: #2c2c4a;
+}
+.sucesso-page.dark .btn-primary:hover {
+  background: #3a3a52;
+}

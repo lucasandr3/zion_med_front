@@ -1,0 +1,41 @@
+<div class="auth-page">
+  <div class="auth-bg-gradient"></div>
+  <div class="auth-blob-tr"></div>
+  <div class="auth-blob-bl"></div>
+  <div class="auth-wrap">
+    <div class="auth-brand">
+      <div class="auth-brand-logo">
+        <div class="auth-brand-logo-icon">
+          <img src="assets/logo/zionmed_logo.png" alt="Zion Med">
+        </div>
+        <span class="auth-brand-logo-name">Zion Med</span>
+      </div>
+      <div class="auth-brand-text">
+        <h1>Confirme seu <span class="hl">e-mail</span></h1>
+        <p>Para acessar o sistema, confirme seu endereço de e-mail. Enviamos um link de verificação no momento do cadastro.</p>
+      </div>
+      <p class="auth-brand-footer">© {{ ano }} Zion Med.</p>
+    </div>
+    <div class="auth-card">
+      <div class="auth-card-inner">
+        @if (enviado) {
+          <h2 class="auth-card-title">E-mail reenviado</h2>
+          <p class="auth-card-subtitle">Verifique sua caixa de entrada (e a pasta de spam) e clique no link para confirmar seu e-mail.</p>
+          <a routerLink="/autenticacao" class="auth-btn">Voltar ao login</a>
+        } @else {
+          <h2 class="auth-card-title">E-mail não verificado</h2>
+          <p class="auth-card-subtitle">Clique no botão abaixo para receber novamente o link de verificação.</p>
+          @if (erro) {
+            <div class="auth-error"><p>{{ erro }}</p></div>
+          }
+          <button type="button" class="auth-btn" [disabled]="carregando" (click)="reenviar()">
+            {{ carregando ? 'Enviando…' : 'Reenviar e-mail de verificação' }}
+          </button>
+          <p class="auth-register">
+            <a routerLink="/autenticacao">Voltar ao login</a>
+          </p>
+        }
+      </div>
+    </div>
+  </div>
+</div>

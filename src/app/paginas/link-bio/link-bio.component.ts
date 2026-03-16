@@ -1,5 +1,5 @@
-import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LinkBioService, LinkBioState, LinkBioLink, LinkBioFormLink } from '../../core/services/link-bio.service';
 import { LoadingOverlayComponent } from '../../componentes/ui/loading-overlay/loading-overlay.component';
@@ -45,6 +45,7 @@ export class LinkBioComponent implements OnInit {
 
   private linkBioService = inject(LinkBioService);
   private sanitizer = inject(DomSanitizer);
+  private platformId = inject(PLATFORM_ID);
 
   get links(): LinkBioLink[] {
     return this.state?.links ?? [];
@@ -74,6 +75,23 @@ export class LinkBioComponent implements OnInit {
     return this.state?.stats;
   }
 
+  /** URL para o iframe de preview: mesma origem + rota /l/:slug (layout do próprio projeto). */
+  private getPreviewUrl(cacheBust?: boolean): string | null {
+    const slug = this.state?.clinic?.slug;
+    if (!slug) return this.publicUrl || null;
+    if (!isPlatformBrowser(this.platformId)) return this.publicUrl || null;
+    const origin = typeof window !== 'undefined' ? window.location.origin : '';
+    if (!origin) return this.publicUrl || null;
+    const base = `${origin}/l/${encodeURIComponent(slug)}`;
+    return cacheBust ? `${base}?t=${Date.now()}` : base;
+  }
+
+  /** Atualiza o iframe de preview (ex.: após salvar aparência). */
+  private atualizarPreviewUrl(): void {
+    const url = this.getPreviewUrl(true);
+    this.previewUrlSafe = url ? this.sanitizer.bypassSecurityTrustResourceUrl(url) : null;
+  }
+
   ngOnInit(): void {
     this.carregar();
   }
@@ -91,7 +109,9 @@ export class LinkBioComponent implements OnInit {
         this.aparenciaFoundedYear = (c.founded_year as number | null) ?? null;
         this.aparenciaContactEmail = c.contact_email ?? '';
         this.aparenciaMapsUrl = c.maps_url ?? '';
-        this.previewUrlSafe = this.publicUrl ? this.sanitizer.bypassSecurityTrustResourceUrl(this.publicUrl) : null;
+        // Preview no iframe usa a rota do próprio app (/l/:slug) para exibir o layout real do projeto
+        const previewUrl = this.getPreviewUrl(true);
+        this.previewUrlSafe = previewUrl ? this.sanitizer.bypassSecurityTrustResourceUrl(previewUrl) : null;
         this.carregando = false;
       },
       error: () => {
@@ -183,6 +203,7 @@ export class LinkBioComponent implements OnInit {
         if (this.state) {
           this.state.clinic = { ...this.state.clinic, ...clinic };
         }
+        this.atualizarPreviewUrl();
       },
     });
   }

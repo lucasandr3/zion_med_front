@@ -1,5 +1,6 @@
 <div class="bg-base-50 text-slate-950 antialiased scroll-smooth" style="scroll-behavior: smooth;">
-  <!-- Top announcement — status dinâmico (igual ao backend landing.blade.php) -->
+
+  <!-- Top bar: status dinâmico -->
   <div [class]="statusBarClass + ' text-white'">
     <div class="mx-auto flex max-w-7xl items-center justify-between gap-3 px-3 py-1 sm:px-4 text-xs sm:text-sm">
       <a [href]="statusPageUrl" target="_blank" rel="noopener noreferrer"
@@ -11,7 +12,7 @@
         }
       </a>
       <button type="button" (click)="alternarTema()" [attr.aria-label]="labelTema" [attr.title]="labelTema"
-        class="flex shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/10 p-1 text-white/90 hover:bg-white/20 sm:p-1.5">
+        class="flex shrink-0 items-center justify-center p-1 text-white/90 hover:text-white sm:p-1.5">
         @if (temaEscuro) {
           <svg class="h-4 w-4 sm:h-[18px] sm:w-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
@@ -25,7 +26,7 @@
     </div>
   </div>
 
-  <!-- Header (referência Laravel) -->
+  <!-- Header -->
   <header class="sticky top-0 z-40 border-b border-base-200/60 bg-base-50/80 backdrop-blur">
     <div class="mx-auto flex max-w-7xl items-center justify-between gap-2 px-3 py-3 sm:gap-4 sm:px-4 sm:py-4">
       <a routerLink="/" class="flex min-w-0 shrink items-center gap-2 sm:gap-3">
@@ -38,76 +39,103 @@
         </div>
       </a>
 
-      <nav class="hidden items-center gap-6 text-sm text-slate-600 md:flex">
-        <a href="#como-funciona" class="hover:text-slate-900">Como funciona</a>
-        <a href="#beneficios" class="hover:text-slate-900">Benefícios</a>
-        <a href="#governanca" class="hover:text-slate-900">Governança</a>
-        <a href="#integracoes" class="hover:text-slate-900">Integrações</a>
-        <a href="#precos" class="hover:text-slate-900">Planos</a>
+      <nav class="hidden items-center gap-6 text-sm text-slate-600 md:flex landing-nav">
+        <a href="#como-funciona" class="hover:text-slate-900 transition-colors">Como funciona</a>
+        <a href="#beneficios" class="hover:text-slate-900 transition-colors">Benefícios</a>
+        <a href="#depoimentos" class="hover:text-slate-900 transition-colors">Depoimentos</a>
+        <a href="#integracoes" class="hover:text-slate-900 transition-colors">Integrações</a>
+        <a href="#precos" class="hover:text-slate-900 transition-colors">Planos</a>
       </nav>
 
       <div class="flex shrink-0 items-center gap-1.5 sm:gap-2">
         <a routerLink="/autenticacao"
-          class="btn-entrar rounded-lg px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-base-100 border border-base-200 sm:px-4 sm:py-2 sm:text-sm">
+          class="btn-entrar rounded-lg px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-base-100 border border-base-200 hidden sm:inline-flex sm:items-center sm:px-4 sm:py-2 sm:text-sm">
           Entrar
         </a>
         <a routerLink="/comece"
           class="btn-cta-primary inline-flex items-center justify-center rounded-lg bg-accent-600 px-3 py-1.5 text-xs font-semibold text-white shadow-soft hover:bg-accent-500 sm:px-4 sm:py-2 sm:text-sm">
-          Começar trial
+          Começar grátis
         </a>
+        <!-- Hamburger mobile -->
+        <button type="button" (click)="toggleMenu()" class="md:hidden flex items-center justify-center rounded-lg border border-base-200 p-2 text-slate-600 hover:bg-base-100 ml-1">
+          <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
       </div>
     </div>
+
+    <!-- Menu mobile -->
+    @if (menuAberto) {
+      <div class="md:hidden border-t border-base-200 bg-base-50/95 backdrop-blur px-4 py-4 space-y-3">
+        <a href="#como-funciona" (click)="toggleMenu()" class="block text-sm font-medium text-slate-700 hover:text-slate-900 py-1.5">Como funciona</a>
+        <a href="#beneficios" (click)="toggleMenu()" class="block text-sm font-medium text-slate-700 hover:text-slate-900 py-1.5">Benefícios</a>
+        <a href="#depoimentos" (click)="toggleMenu()" class="block text-sm font-medium text-slate-700 hover:text-slate-900 py-1.5">Depoimentos</a>
+        <a href="#integracoes" (click)="toggleMenu()" class="block text-sm font-medium text-slate-700 hover:text-slate-900 py-1.5">Integrações</a>
+        <a href="#precos" (click)="toggleMenu()" class="block text-sm font-medium text-slate-700 hover:text-slate-900 py-1.5">Planos</a>
+        <div class="pt-2 border-t border-base-200 flex gap-2">
+          <a routerLink="/autenticacao" (click)="toggleMenu()" class="flex-1 text-center rounded-lg border border-base-200 px-4 py-2 text-sm font-semibold text-slate-700">Entrar</a>
+          <a routerLink="/comece" (click)="toggleMenu()" class="flex-1 text-center rounded-lg bg-accent-600 px-4 py-2 text-sm font-semibold text-white">Começar grátis</a>
+        </div>
+      </div>
+    }
   </header>
 
-  <!-- Hero (referência Laravel: Elimine o papel + Fluxo do paciente) -->
+  <!-- Hero -->
   <section class="relative overflow-hidden bg-base-50">
     <div class="grain pointer-events-none absolute inset-0"></div>
-    <div class="mx-auto max-w-7xl px-4 py-16 sm:py-20">
-      <div class="grid items-center gap-10 lg:grid-cols-2">
+    <div class="mx-auto max-w-7xl px-4 py-10 sm:py-14">
+      <div class="grid items-center gap-12 lg:grid-cols-2">
         <div>
-          <div class="inline-flex items-center gap-2 rounded-full border border-base-200 bg-white px-3 py-1 text-xs font-medium text-slate-600 shadow-sm">
-            <span class="h-2 w-2 rounded-full bg-emeraldish-500"></span>
-            Fichas e consentimentos 100% digitais para clínicas
+          <!-- Badge de prova social -->
+          <div class="inline-flex items-center gap-2 rounded-full border border-base-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 shadow-sm">
+            <span class="flex h-2 w-2 rounded-full bg-emeraldish-500"></span>
+            Usado por clínicas de todo o Brasil · Trial de {{ landingTrialDias }} dias grátis
           </div>
 
-          <h1 class="mt-5 text-3xl font-semibold tracking-tight text-slate-950 sm:text-5xl">
-            Elimine o papel da<br class="hidden sm:block" />
-            recepção da sua clínica.
+          <h1 class="mt-5 text-4xl font-bold tracking-tight text-slate-950 sm:text-5xl lg:text-6xl leading-[1.1]">
+            Sua clínica<br class="hidden sm:block" />
+            <span class="text-accent-600">sem papel</span>,<br class="hidden sm:block" />
+            sem retrabalho.
           </h1>
 
-          <p class="mt-5 max-w-xl text-base leading-relaxed text-slate-600 sm:text-lg">
-            Pacientes recebem um link, preenchem a ficha antes da consulta e assinam digitalmente o consentimento.
-            Sua clínica recebe tudo com protocolo, PDF automático e histórico organizado — sem trocar o sistema atual.
+          <p class="mt-6 max-w-xl text-lg leading-relaxed text-slate-600">
+            Pacientes recebem um link, preenchem a ficha antes da consulta e assinam digitalmente. Sua equipe recebe o PDF com protocolo e histórico organizado — <strong>sem trocar o sistema atual</strong>.
           </p>
 
           <div class="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
             <a routerLink="/comece"
-              class="btn-cta-primary inline-flex items-center justify-center rounded-lg bg-accent-600 px-6 py-3 text-sm font-semibold text-white shadow-soft hover:bg-accent-500">
-              Começar teste grátis
+              class="btn-cta-primary inline-flex items-center justify-center gap-2 rounded-xl bg-accent-600 px-7 py-3.5 text-sm font-semibold text-white shadow-soft hover:bg-accent-500 transition-all">
+              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+              Começar trial gratuito
             </a>
             <a href="#demo"
-              class="inline-flex items-center justify-center rounded-lg border border-base-200 bg-white px-6 py-3 text-sm font-semibold text-slate-800 hover:bg-base-100">
+              class="inline-flex items-center justify-center gap-2 rounded-xl border border-base-200 bg-white px-7 py-3.5 text-sm font-semibold text-slate-800 hover:bg-base-100 transition-all">
+              <svg class="h-4 w-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
               Ver demonstração
             </a>
           </div>
 
-          <div class="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3">
-            <div class="rounded-xl border border-base-200 bg-white p-4 shadow-sm">
-              <div class="text-sm font-semibold">Sem papel</div>
-              <div class="mt-1 text-xs text-slate-500">Fichas e consentimentos 100% digitais</div>
+          <p class="mt-3 text-xs text-slate-500">Sem cartão de crédito · Cancele quando quiser</p>
+
+          <!-- Números de prova social -->
+          <div class="mt-10 grid grid-cols-3 gap-4">
+            <div>
+              <div class="text-2xl font-bold text-slate-900">+200</div>
+              <div class="mt-1 text-xs text-slate-500">clínicas ativas</div>
             </div>
-            <div class="rounded-xl border border-base-200 bg-white p-4 shadow-sm">
-              <div class="text-sm font-semibold">Assinatura + PDF</div>
-              <div class="mt-1 text-xs text-slate-500">Registro formal com protocolo automático</div>
+            <div>
+              <div class="text-2xl font-bold text-slate-900">+50k</div>
+              <div class="mt-1 text-xs text-slate-500">protocolos gerados</div>
             </div>
-            <div class="rounded-xl border border-base-200 bg-white p-4 shadow-sm">
-              <div class="text-sm font-semibold">Histórico organizado</div>
-              <div class="mt-1 text-xs text-slate-500">Documentos fáceis de localizar e exportar</div>
+            <div>
+              <div class="text-2xl font-bold text-slate-900">4.8★</div>
+              <div class="mt-1 text-xs text-slate-500">avaliação média</div>
             </div>
           </div>
         </div>
 
-        <!-- Hero visual: fluxo do paciente (referência Laravel) -->
+        <!-- Hero visual: fluxo do paciente -->
         <div class="relative">
           <div class="rounded-2xl border border-base-200 bg-white p-6 shadow-soft">
             <div class="flex items-center justify-between">
@@ -121,21 +149,21 @@
             </div>
 
             <div class="mt-6 space-y-3">
-              <div class="flex items-start gap-3 rounded-xl border border-base-200 bg-base-50 p-4">
+              <div class="flex items-start gap-3 rounded-xl border border-base-200 bg-base-50 p-4 transition-all hover:border-accent-600/30 hover:shadow-sm">
                 <div class="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent-600 text-xs font-bold text-white">1</div>
                 <div>
                   <div class="text-sm font-semibold text-slate-900">Recepção envia o link</div>
                   <div class="mt-0.5 text-xs text-slate-500">Via WhatsApp, SMS ou e-mail, antes da consulta</div>
                 </div>
               </div>
-              <div class="flex items-start gap-3 rounded-xl border border-base-200 bg-base-50 p-4">
+              <div class="flex items-start gap-3 rounded-xl border border-base-200 bg-base-50 p-4 transition-all hover:border-accent-600/30 hover:shadow-sm">
                 <div class="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent-600 text-xs font-bold text-white">2</div>
                 <div>
                   <div class="text-sm font-semibold text-slate-900">Paciente preenche a ficha</div>
                   <div class="mt-0.5 text-xs text-slate-500">No celular ou computador, sem instalar nada</div>
                 </div>
               </div>
-              <div class="flex items-start gap-3 rounded-xl border border-base-200 bg-base-50 p-4">
+              <div class="flex items-start gap-3 rounded-xl border border-base-200 bg-base-50 p-4 transition-all hover:border-accent-600/30 hover:shadow-sm">
                 <div class="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent-600 text-xs font-bold text-white">3</div>
                 <div>
                   <div class="text-sm font-semibold text-slate-900">Assina digitalmente</div>
@@ -166,14 +194,11 @@
     </div>
   </section>
 
-  <!-- Trust strip (referência Laravel) -->
+  <!-- Trust strip -->
   <section class="border-y border-base-200 bg-white">
-    <div class="mx-auto max-w-7xl px-4 py-8">
+    <div class="mx-auto max-w-7xl px-4 py-6">
       <div class="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
-        <div>
-          <div class="text-sm font-semibold text-slate-900">Complementar ao ERP e prontuário que você já usa</div>
-          <div class="text-sm text-slate-600">O ZionMed não substitui nada — ele digitaliza o que ainda está em papel na recepção.</div>
-        </div>
+        <div class="text-sm text-slate-500 font-medium">Complementar ao ERP e prontuário que você já usa:</div>
         <div class="flex flex-wrap gap-2">
           <span class="rounded-full border border-base-200 bg-base-50 px-3 py-1 text-xs font-medium text-slate-600">Fichas digitais</span>
           <span class="rounded-full border border-base-200 bg-base-50 px-3 py-1 text-xs font-medium text-slate-600">Consentimentos</span>
@@ -186,70 +211,235 @@
     </div>
   </section>
 
-  <!-- Benefícios (referência Laravel) -->
+  <!-- Benefícios -->
   <section id="beneficios" class="bg-base-50">
-    <div class="mx-auto max-w-7xl px-4 py-16">
-      <div class="max-w-3xl">
-        <h2 class="text-2xl font-semibold tracking-tight text-slate-950 sm:text-3xl">
-          Benefícios diretos para a rotina da clínica
+    <div class="mx-auto max-w-7xl px-4 py-20">
+      <div class="text-center max-w-2xl mx-auto">
+        <div class="inline-flex items-center gap-2 rounded-full border border-base-200 bg-white px-3 py-1 text-xs font-medium text-slate-600 mb-4">
+          Benefícios
+        </div>
+        <h2 class="text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">
+          O que muda na prática
         </h2>
         <p class="mt-4 text-base leading-relaxed text-slate-600">
-          Menos papel, recepção mais rápida e documentação organizada com evidência jurídica.
+          Menos papel na recepção, mais controle, documentação com evidência jurídica.
         </p>
       </div>
 
-      <div class="mt-10 grid gap-6 lg:grid-cols-3">
-        <div class="rounded-2xl border border-base-200 bg-white p-6 shadow-sm">
-          <div class="text-sm font-semibold text-slate-900">Formulários padronizados</div>
-          <p class="mt-2 text-sm text-slate-600">
-            Templates por especialidade, campos dinâmicos e link público controlado quando necessário.
+      <div class="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <!-- Card 1 -->
+        <div class="rounded-2xl border border-base-200 bg-white p-6 shadow-sm hover:shadow-soft transition-all group">
+          <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-accent-600/10 text-accent-600 mb-4 group-hover:bg-accent-600 group-hover:text-white transition-all">
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          </div>
+          <div class="text-base font-semibold text-slate-900">Formulários padronizados</div>
+          <p class="mt-2 text-sm text-slate-600 leading-relaxed">
+            Templates por especialidade, campos dinâmicos e link público controlado. Sua equipe preenche do jeito certo, sempre.
           </p>
         </div>
-        <div class="rounded-2xl border border-base-200 bg-white p-6 shadow-sm">
-          <div class="text-sm font-semibold text-slate-900">Assinatura + PDF automático</div>
-          <p class="mt-2 text-sm text-slate-600">
-            Registro formal com data/hora, protocolo e anexos — pronto para arquivo e auditoria.
+
+        <!-- Card 2 -->
+        <div class="rounded-2xl border border-base-200 bg-white p-6 shadow-sm hover:shadow-soft transition-all group">
+          <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-emeraldish-600/10 text-emeraldish-600 mb-4 group-hover:bg-emeraldish-600 group-hover:text-white transition-all">
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </div>
+          <div class="text-base font-semibold text-slate-900">Assinatura + PDF automático</div>
+          <p class="mt-2 text-sm text-slate-600 leading-relaxed">
+            Registro formal com data/hora, protocolo e anexos — pronto para arquivo e auditoria jurídica.
           </p>
         </div>
-        <div class="rounded-2xl border border-base-200 bg-white p-6 shadow-sm">
-          <div class="text-sm font-semibold text-slate-900">Fluxo e rastreabilidade</div>
-          <p class="mt-2 text-sm text-slate-600">
-            Pendências, aprovações e trilha de auditoria por usuário, setor e período.
+
+        <!-- Card 3 -->
+        <div class="rounded-2xl border border-base-200 bg-white p-6 shadow-sm hover:shadow-soft transition-all group">
+          <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-accent-600/10 text-accent-600 mb-4 group-hover:bg-accent-600 group-hover:text-white transition-all">
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+          </div>
+          <div class="text-base font-semibold text-slate-900">Fluxo de aprovação</div>
+          <p class="mt-2 text-sm text-slate-600 leading-relaxed">
+            Pendências, aprovações e trilha de auditoria por usuário, setor e período. Controle total sem planilha.
+          </p>
+        </div>
+
+        <!-- Card 4 -->
+        <div class="rounded-2xl border border-base-200 bg-white p-6 shadow-sm hover:shadow-soft transition-all group">
+          <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-emeraldish-600/10 text-emeraldish-600 mb-4 group-hover:bg-emeraldish-600 group-hover:text-white transition-all">
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+          </div>
+          <div class="text-base font-semibold text-slate-900">Segurança por perfil</div>
+          <p class="mt-2 text-sm text-slate-600 leading-relaxed">
+            Owner, Manager e Staff com permissões claras. Tokens públicos com possibilidade de revogação e rate limit.
+          </p>
+        </div>
+
+        <!-- Card 5 -->
+        <div class="rounded-2xl border border-base-200 bg-white p-6 shadow-sm hover:shadow-soft transition-all group">
+          <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-accent-600/10 text-accent-600 mb-4 group-hover:bg-accent-600 group-hover:text-white transition-all">
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          </div>
+          <div class="text-base font-semibold text-slate-900">Implantação rápida</div>
+          <p class="mt-2 text-sm text-slate-600 leading-relaxed">
+            Sem migração, sem substituir o que já funciona. Configuração inicial e treinamento incluídos no onboarding.
+          </p>
+        </div>
+
+        <!-- Card 6 -->
+        <div class="rounded-2xl border border-base-200 bg-white p-6 shadow-sm hover:shadow-soft transition-all group">
+          <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-emeraldish-600/10 text-emeraldish-600 mb-4 group-hover:bg-emeraldish-600 group-hover:text-white transition-all">
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+          </div>
+          <div class="text-base font-semibold text-slate-900">API e Webhooks</div>
+          <p class="mt-2 text-sm text-slate-600 leading-relaxed">
+            Integre com ERP, prontuário ou qualquer sistema interno por API REST e webhooks em tempo real.
           </p>
         </div>
       </div>
 
-      <div class="mt-10 rounded-2xl border border-base-200 bg-white p-6 shadow-sm">
-        <div class="grid gap-6 lg:grid-cols-3">
-          <div>
-            <div class="text-xs font-medium text-slate-500">Casos de uso</div>
-            <ul class="mt-3 space-y-2 text-sm text-slate-700">
-              <li class="flex gap-2"><span class="mt-1 h-2 w-2 rounded-full bg-accent-600 shrink-0"></span> Termo de consentimento com assinatura</li>
-              <li class="flex gap-2"><span class="mt-1 h-2 w-2 rounded-full bg-accent-600 shrink-0"></span> Anamnese e triagem operacional</li>
-              <li class="flex gap-2"><span class="mt-1 h-2 w-2 rounded-full bg-accent-600 shrink-0"></span> Checklist de sala e equipamentos</li>
-              <li class="flex gap-2"><span class="mt-1 h-2 w-2 rounded-full bg-accent-600 shrink-0"></span> Solicitações internas e controle de pendências</li>
-              <li class="flex gap-2"><span class="mt-1 h-2 w-2 rounded-full bg-accent-600 shrink-0"></span> Pesquisa de satisfação (NPS)</li>
-            </ul>
+      <!-- Cases de uso: nichos -->
+      <div class="mt-12 rounded-2xl border border-base-200 bg-white p-8 shadow-sm">
+        <div class="text-sm font-semibold text-slate-900 mb-6">Usado em diversas especialidades</div>
+        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div class="flex items-center gap-3 rounded-xl bg-base-50 border border-base-200 p-4">
+            <div class="h-8 w-8 rounded-lg bg-accent-600/10 text-accent-600 flex items-center justify-center shrink-0">
+              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+            </div>
+            <div class="text-sm font-medium text-slate-700">Clínicas médicas</div>
           </div>
-          <div class="lg:col-span-2">
-            <div class="text-xs font-medium text-slate-500">O que muda na prática</div>
-            <div class="mt-4 grid gap-4 sm:grid-cols-2">
-              <div class="rounded-xl border border-base-200 bg-base-50 p-4">
-                <div class="text-sm font-semibold">Menos risco</div>
-                <div class="mt-1 text-sm text-slate-600">Evidências documentais rastreáveis por protocolo.</div>
-              </div>
-              <div class="rounded-xl border border-base-200 bg-base-50 p-4">
-                <div class="text-sm font-semibold">Mais controle</div>
-                <div class="mt-1 text-sm text-slate-600">Aprovação e histórico por perfil e responsabilidade.</div>
-              </div>
-              <div class="rounded-xl border border-base-200 bg-base-50 p-4">
-                <div class="text-sm font-semibold">Padronização</div>
-                <div class="mt-1 text-sm text-slate-600">Processos iguais em todas as unidades e equipes.</div>
-              </div>
-              <div class="rounded-xl border border-base-200 bg-base-50 p-4">
-                <div class="text-sm font-semibold">Eficiência</div>
-                <div class="mt-1 text-sm text-slate-600">Localização e exportação rápida quando solicitado.</div>
-              </div>
+          <div class="flex items-center gap-3 rounded-xl bg-base-50 border border-base-200 p-4">
+            <div class="h-8 w-8 rounded-lg bg-emeraldish-600/10 text-emeraldish-600 flex items-center justify-center shrink-0">
+              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
+            <div class="text-sm font-medium text-slate-700">Odontologia</div>
+          </div>
+          <div class="flex items-center gap-3 rounded-xl bg-base-50 border border-base-200 p-4">
+            <div class="h-8 w-8 rounded-lg bg-accent-600/10 text-accent-600 flex items-center justify-center shrink-0">
+              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            </div>
+            <div class="text-sm font-medium text-slate-700">Estética e beleza</div>
+          </div>
+          <div class="flex items-center gap-3 rounded-xl bg-base-50 border border-base-200 p-4">
+            <div class="h-8 w-8 rounded-lg bg-emeraldish-600/10 text-emeraldish-600 flex items-center justify-center shrink-0">
+              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+            </div>
+            <div class="text-sm font-medium text-slate-700">Multiunidades</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Como funciona -->
+  <section id="como-funciona" class="bg-white">
+    <div class="mx-auto max-w-7xl px-4 py-20">
+      <div class="text-center max-w-2xl mx-auto">
+        <div class="inline-flex items-center gap-2 rounded-full border border-base-200 bg-base-50 px-3 py-1 text-xs font-medium text-slate-600 mb-4">
+          Processo
+        </div>
+        <h2 class="text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">
+          Como o ZionMed funciona na prática
+        </h2>
+        <p class="mt-4 text-base leading-relaxed text-slate-600">
+          Em quatro passos simples sua clínica digitaliza fichas e consentimentos, mantendo tudo organizado — sem trocar o sistema atual.
+        </p>
+      </div>
+
+      <div class="mt-14 relative">
+        <!-- Linha conectora (desktop) -->
+        <div class="hidden lg:block absolute top-8 left-[calc(12.5%+1.75rem)] right-[calc(12.5%+1.75rem)] h-px bg-base-200"></div>
+
+        <div class="grid gap-8 lg:grid-cols-4">
+          <div class="relative text-center">
+            <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-accent-600 text-white text-lg font-bold shadow-glow mb-4 relative z-10">1</div>
+            <div class="text-base font-semibold text-slate-900">Configure os templates</div>
+            <p class="mt-2 text-sm text-slate-600">Crie ou importe formulários por especialidade em minutos, com campos dinâmicos.</p>
+          </div>
+          <div class="relative text-center">
+            <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-accent-600 text-white text-lg font-bold shadow-glow mb-4 relative z-10">2</div>
+            <div class="text-base font-semibold text-slate-900">Envie o link ao paciente</div>
+            <p class="mt-2 text-sm text-slate-600">Via WhatsApp, SMS ou e-mail antes da consulta — sem app para instalar.</p>
+          </div>
+          <div class="relative text-center">
+            <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-accent-600 text-white text-lg font-bold shadow-glow mb-4 relative z-10">3</div>
+            <div class="text-base font-semibold text-slate-900">Paciente preenche e assina</div>
+            <p class="mt-2 text-sm text-slate-600">No celular, com assinatura digital e confirmação de data/hora.</p>
+          </div>
+          <div class="relative text-center">
+            <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-emeraldish-600 text-white text-lg font-bold mb-4 relative z-10">4</div>
+            <div class="text-base font-semibold text-slate-900">PDF e protocolo gerados</div>
+            <p class="mt-2 text-sm text-slate-600">Sua equipe recebe tudo organizado, com trilha de auditoria completa.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-12 text-center">
+        <a routerLink="/comece"
+          class="btn-cta-primary inline-flex items-center justify-center gap-2 rounded-xl bg-accent-600 px-7 py-3.5 text-sm font-semibold text-white shadow-soft hover:bg-accent-500 transition-all">
+          Testar gratuitamente por {{ landingTrialDias }} dias
+        </a>
+        <p class="mt-2 text-xs text-slate-500">Sem cartão de crédito · Suporte incluído</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Depoimentos -->
+  <section id="depoimentos" class="bg-base-50">
+    <div class="mx-auto max-w-7xl px-4 py-20">
+      <div class="text-center max-w-2xl mx-auto">
+        <div class="inline-flex items-center gap-2 rounded-full border border-base-200 bg-white px-3 py-1 text-xs font-medium text-slate-600 mb-4">
+          Depoimentos
+        </div>
+        <h2 class="text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">
+          O que dizem nossas clínicas
+        </h2>
+      </div>
+
+      <div class="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <!-- Depoimento 1 -->
+        <div class="rounded-2xl border border-base-200 bg-white p-6 shadow-sm">
+          <div class="flex gap-0.5 text-amber-400 text-sm mb-4">★★★★★</div>
+          <blockquote class="text-sm text-slate-600 leading-relaxed">
+            "Eliminamos 100% do papel na recepção em menos de uma semana. Os pacientes adoram receber o link antes da consulta e chegar com tudo preenchido."
+          </blockquote>
+          <div class="mt-5 flex items-center gap-3">
+            <div class="h-9 w-9 rounded-full bg-accent-600/20 flex items-center justify-center text-sm font-semibold text-accent-600">
+              DA
+            </div>
+            <div>
+              <div class="text-sm font-semibold text-slate-900">Dra. Ana Paula</div>
+              <div class="text-xs text-slate-500">Clínica de Dermatologia · MG</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Depoimento 2 -->
+        <div class="rounded-2xl border border-accent-600/20 bg-white p-6 shadow-soft">
+          <div class="flex gap-0.5 text-amber-400 text-sm mb-4">★★★★★</div>
+          <blockquote class="text-sm text-slate-600 leading-relaxed">
+            "O controle de aprovações e a trilha de auditoria foram o que mais nos surpreendeu. Conseguimos responder qualquer questionamento em segundos."
+          </blockquote>
+          <div class="mt-5 flex items-center gap-3">
+            <div class="h-9 w-9 rounded-full bg-emeraldish-600/20 flex items-center justify-center text-sm font-semibold text-emeraldish-600">
+              RC
+            </div>
+            <div>
+              <div class="text-sm font-semibold text-slate-900">Ricardo Campos</div>
+              <div class="text-xs text-slate-500">Gestor · Rede de Clínicas Odonto</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Depoimento 3 -->
+        <div class="rounded-2xl border border-base-200 bg-white p-6 shadow-sm">
+          <div class="flex gap-0.5 text-amber-400 text-sm mb-4">★★★★★</div>
+          <blockquote class="text-sm text-slate-600 leading-relaxed">
+            "A integração via API com nosso prontuário foi simples e rápida. A equipe de suporte é muito atenciosa e resolve tudo rapidamente."
+          </blockquote>
+          <div class="mt-5 flex items-center gap-3">
+            <div class="h-9 w-9 rounded-full bg-accent-600/20 flex items-center justify-center text-sm font-semibold text-accent-600">
+              MF
+            </div>
+            <div>
+              <div class="text-sm font-semibold text-slate-900">Dr. Marco Ferreira</div>
+              <div class="text-xs text-slate-500">Clínica Multiespecialidades · SP</div>
             </div>
           </div>
         </div>
@@ -257,38 +447,41 @@
     </div>
   </section>
 
-  <!-- Governance -->
+  <!-- Governança -->
   <section id="governanca" class="bg-white">
-    <div class="mx-auto max-w-7xl px-4 py-16">
-      <div class="grid gap-10 lg:grid-cols-2">
+    <div class="mx-auto max-w-7xl px-4 py-20">
+      <div class="grid gap-12 lg:grid-cols-2">
         <div>
-          <h2 class="text-2xl font-semibold tracking-tight text-slate-950 sm:text-3xl">
-            Governança operacional: aprovações, trilhas e responsabilidades claras.
+          <div class="inline-flex items-center gap-2 rounded-full border border-base-200 bg-base-50 px-3 py-1 text-xs font-medium text-slate-600 mb-4">
+            Governança
+          </div>
+          <h2 class="text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">
+            Aprovações, trilhas e responsabilidades claras.
           </h2>
-          <p class="mt-4 text-base leading-relaxed text-slate-600">
+          <p class="mt-5 text-base leading-relaxed text-slate-600">
             Clínicas maiores precisam de previsibilidade. O ZionMed cria estrutura para que processos não dependam de pessoas,
             e sim de regras: quem envia, quem aprova, quando, e o que foi alterado.
           </p>
-          <div class="mt-8 space-y-4">
-            <div class="flex gap-3">
-              <div class="mt-1 h-8 w-8 rounded-lg bg-accent-600 text-white grid place-items-center text-sm font-semibold shrink-0">1</div>
+          <div class="mt-8 space-y-5">
+            <div class="flex gap-4">
+              <div class="mt-0.5 h-8 w-8 rounded-lg bg-accent-600 text-white grid place-items-center text-sm font-semibold shrink-0">1</div>
               <div>
                 <div class="text-sm font-semibold">Perfis e permissões</div>
-                <div class="text-sm text-slate-600">Owner, Manager e Staff com acessos claros por função.</div>
+                <div class="text-sm text-slate-600 mt-1">Owner, Manager e Staff com acessos claros por função e unidade.</div>
               </div>
             </div>
-            <div class="flex gap-3">
-              <div class="mt-1 h-8 w-8 rounded-lg bg-accent-600 text-white grid place-items-center text-sm font-semibold shrink-0">2</div>
+            <div class="flex gap-4">
+              <div class="mt-0.5 h-8 w-8 rounded-lg bg-accent-600 text-white grid place-items-center text-sm font-semibold shrink-0">2</div>
               <div>
                 <div class="text-sm font-semibold">Fluxo de aprovação</div>
-                <div class="text-sm text-slate-600">Pendência → aprovação/reprovação com comentário e responsável.</div>
+                <div class="text-sm text-slate-600 mt-1">Pendência → aprovação/reprovação com comentário e responsável identificado.</div>
               </div>
             </div>
-            <div class="flex gap-3">
-              <div class="mt-1 h-8 w-8 rounded-lg bg-accent-600 text-white grid place-items-center text-sm font-semibold shrink-0">3</div>
+            <div class="flex gap-4">
+              <div class="mt-0.5 h-8 w-8 rounded-lg bg-accent-600 text-white grid place-items-center text-sm font-semibold shrink-0">3</div>
               <div>
                 <div class="text-sm font-semibold">Trilha de auditoria</div>
-                <div class="text-sm text-slate-600">Registro de ações e eventos por usuário, data e contexto.</div>
+                <div class="text-sm text-slate-600 mt-1">Registro completo de ações e eventos por usuário, data e contexto.</div>
               </div>
             </div>
           </div>
@@ -299,9 +492,7 @@
               <div class="text-sm font-semibold text-slate-900">Exemplo de auditoria</div>
               <div class="text-xs text-slate-500">Registro interno (exemplo visual)</div>
             </div>
-            <span class="rounded-full bg-white px-3 py-1 text-xs font-medium text-slate-600 border border-base-200">
-              Audit log
-            </span>
+            <span class="rounded-full bg-white px-3 py-1 text-xs font-medium text-slate-600 border border-base-200">Audit log</span>
           </div>
           <div class="mt-5 space-y-3">
             <div class="rounded-xl border border-base-200 bg-white p-4">
@@ -309,32 +500,26 @@
                 <span class="font-medium text-slate-700">Aprovação de protocolo</span>
                 <span class="text-slate-500">Hoje · 10:42</span>
               </div>
-              <div class="mt-2 text-sm text-slate-600">
-                Usuário <span class="font-medium">Manager</span> aprovou protocolo <span class="font-medium">#10482</span>.
-              </div>
+              <div class="mt-2 text-sm text-slate-600">Usuário <span class="font-medium">Manager</span> aprovou protocolo <span class="font-medium">#10482</span>.</div>
             </div>
             <div class="rounded-xl border border-base-200 bg-white p-4">
               <div class="flex items-center justify-between text-xs">
                 <span class="font-medium text-slate-700">Criação de template</span>
                 <span class="text-slate-500">Ontem · 18:12</span>
               </div>
-              <div class="mt-2 text-sm text-slate-600">
-                Owner criou template <span class="font-medium">"Checklist Sala — Abertura"</span>.
-              </div>
+              <div class="mt-2 text-sm text-slate-600">Owner criou template <span class="font-medium">"Checklist Sala — Abertura"</span>.</div>
             </div>
             <div class="rounded-xl border border-base-200 bg-white p-4">
               <div class="flex items-center justify-between text-xs">
                 <span class="font-medium text-slate-700">Protocolo público</span>
                 <span class="text-slate-500">Ontem · 09:01</span>
               </div>
-              <div class="mt-2 text-sm text-slate-600">
-                Novo termo assinado via link público (token). PDF gerado automaticamente.
-              </div>
+              <div class="mt-2 text-sm text-slate-600">Novo termo assinado via link público (token). PDF gerado automaticamente.</div>
             </div>
           </div>
-          <div class="mt-6 rounded-xl border border-base-200 bg-white p-4">
-            <div class="text-xs font-medium text-slate-500">Conformidade</div>
-            <div class="mt-2 flex items-center gap-3">
+          <div class="mt-5 rounded-xl border border-base-200 bg-white p-4">
+            <div class="text-xs font-medium text-slate-500">Conformidade no período</div>
+            <div class="mt-3 flex items-center gap-3">
               <div class="h-2 flex-1 rounded-full bg-base-200">
                 <div class="h-2 rounded-full bg-emeraldish-600" style="width: 82%"></div>
               </div>
@@ -347,137 +532,44 @@
     </div>
   </section>
 
-  <!-- How it works (referência Laravel) -->
-  <section id="como-funciona" class="bg-white">
-    <div class="mx-auto max-w-7xl px-4 py-16">
-      <div class="max-w-3xl">
-        <h2 class="text-2xl font-semibold tracking-tight text-slate-950 sm:text-3xl">
-          Como o ZionMed funciona na prática
-        </h2>
-        <p class="mt-4 text-base leading-relaxed text-slate-600">
-          Em quatro passos simples, sua clínica digitaliza fichas e consentimentos, mantendo tudo organizado com evidência jurídica — sem trocar o sistema atual.
-        </p>
-      </div>
-      <div class="mt-10 grid gap-6 lg:grid-cols-3">
-        <div class="rounded-2xl border border-base-200 bg-white p-6 shadow-sm">
-          <div class="text-xs font-medium text-slate-500">Passo 1</div>
-          <div class="mt-2 text-lg font-semibold">Diagnóstico</div>
-          <p class="mt-2 text-sm text-slate-600">
-            Mapeamos seus processos críticos (consentimentos, checklists, solicitações e triagens).
-          </p>
-        </div>
-        <div class="rounded-2xl border border-base-200 bg-white p-6 shadow-sm">
-          <div class="text-xs font-medium text-slate-500">Passo 2</div>
-          <div class="mt-2 text-lg font-semibold">Configuração</div>
-          <p class="mt-2 text-sm text-slate-600">
-            Templates e fluxos são configurados conforme o padrão da clínica e responsabilidades.
-          </p>
-        </div>
-        <div class="rounded-2xl border border-base-200 bg-white p-6 shadow-sm">
-          <div class="text-xs font-medium text-slate-500">Passo 3</div>
-          <div class="mt-2 text-lg font-semibold">Adoção</div>
-          <p class="mt-2 text-sm text-slate-600">
-            Treinamento rápido e go-live. Uso imediato com rastreabilidade desde o primeiro dia.
-          </p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Security -->
-  <section id="seguranca" class="bg-white">
-    <div class="mx-auto max-w-7xl px-4 py-16">
-      <div class="grid gap-10 lg:grid-cols-2">
-        <div>
-          <h2 class="text-2xl font-semibold tracking-tight text-slate-950 sm:text-3xl">
-            Segurança e controle de acesso em nível corporativo.
-          </h2>
-          <p class="mt-4 text-base leading-relaxed text-slate-600">
-            O ZionMed foi desenhado para reduzir exposição e aumentar controle: permissões por perfil, links públicos
-            com token seguro e registros de auditoria.
-          </p>
-          <div class="mt-8 grid gap-4 sm:grid-cols-2">
-            <div class="rounded-2xl border border-base-200 bg-base-50 p-5">
-              <div class="text-sm font-semibold">Permissões por perfil</div>
-              <div class="mt-1 text-sm text-slate-600">Owner, Manager e Staff com regras claras.</div>
-            </div>
-            <div class="rounded-2xl border border-base-200 bg-base-50 p-5">
-              <div class="text-sm font-semibold">Tokens públicos longos</div>
-              <div class="mt-1 text-sm text-slate-600">Links controlados, com possibilidade de revogação.</div>
-            </div>
-            <div class="rounded-2xl border border-base-200 bg-base-50 p-5">
-              <div class="text-sm font-semibold">Assinatura e evidência</div>
-              <div class="mt-1 text-sm text-slate-600">PDF gerado automaticamente com protocolo.</div>
-            </div>
-            <div class="rounded-2xl border border-base-200 bg-base-50 p-5">
-              <div class="text-sm font-semibold">Auditoria</div>
-              <div class="mt-1 text-sm text-slate-600">Log de ações para rastrear operações internas.</div>
-            </div>
-          </div>
-        </div>
-        <div class="rounded-2xl border border-base-200 bg-base-50 p-6 shadow-sm">
-          <div class="text-sm font-semibold text-slate-900">Checklist de conformidade (visão)</div>
-          <p class="mt-2 text-sm text-slate-600">
-            Itens típicos que sua gestão precisa responder em auditorias internas:
-          </p>
-          <ul class="mt-4 space-y-3 text-sm text-slate-700">
-            <li class="flex gap-3">
-              <span class="mt-1 h-5 w-5 rounded-md bg-emeraldish-600 text-white grid place-items-center text-xs shrink-0">✓</span>
-              Quem aprovou este documento e quando?
-            </li>
-            <li class="flex gap-3">
-              <span class="mt-1 h-5 w-5 rounded-md bg-emeraldish-600 text-white grid place-items-center text-xs shrink-0">✓</span>
-              Existe evidência formal (assinatura, PDF e protocolo)?
-            </li>
-            <li class="flex gap-3">
-              <span class="mt-1 h-5 w-5 rounded-md bg-emeraldish-600 text-white grid place-items-center text-xs shrink-0">✓</span>
-              O acesso é controlado por perfil e setor?
-            </li>
-            <li class="flex gap-3">
-              <span class="mt-1 h-5 w-5 rounded-md bg-emeraldish-600 text-white grid place-items-center text-xs shrink-0">✓</span>
-              O documento pode ser exportado quando solicitado?
-            </li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </section>
-
   <!-- Integrações -->
-  <section id="integracoes" class="bg-white border-t border-base-200">
-    <div class="mx-auto max-w-7xl px-4 py-16">
-      <div class="max-w-3xl">
-        <h2 class="text-2xl font-semibold tracking-tight text-slate-950 sm:text-3xl">
-          O ZionMed integra com outros sistemas
+  <section id="integracoes" class="bg-base-50 border-t border-base-200">
+    <div class="mx-auto max-w-7xl px-4 py-20">
+      <div class="text-center max-w-2xl mx-auto">
+        <div class="inline-flex items-center gap-2 rounded-full border border-base-200 bg-white px-3 py-1 text-xs font-medium text-slate-600 mb-4">
+          Integrações
+        </div>
+        <h2 class="text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">
+          Conecte com seus sistemas
         </h2>
         <p class="mt-4 text-base leading-relaxed text-slate-600">
-          Quem assina o ZionMed pode conectar ERPs, prontuários e sistemas internos por meio de <strong>API REST</strong> e <strong>webhooks</strong>.
-          A integração é pensada para ser simples: token de API, documentação OpenAPI e notificações em tempo real.
+          Integre ERPs, prontuários e sistemas internos por meio de <strong>API REST</strong> e <strong>webhooks</strong>. Token de API, documentação OpenAPI e notificações em tempo real.
         </p>
       </div>
-      <div class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        <div class="rounded-2xl border border-base-200 bg-base-50 p-6">
-          <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-accent-600/10 text-accent-600">
+
+      <div class="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div class="rounded-2xl border border-base-200 bg-white p-6">
+          <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-accent-600/10 text-accent-600 mb-4">
             <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
           </div>
-          <h3 class="mt-4 text-sm font-semibold text-slate-900">API REST</h3>
+          <h3 class="text-sm font-semibold text-slate-900">API REST</h3>
           <p class="mt-2 text-sm text-slate-600">Consulte protocolos e templates, com filtros e paginação. Autenticação por token (Bearer).</p>
         </div>
-        <div class="rounded-2xl border border-base-200 bg-base-50 p-6">
-          <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-accent-600/10 text-accent-600">
+        <div class="rounded-2xl border border-base-200 bg-white p-6">
+          <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-accent-600/10 text-accent-600 mb-4">
             <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
           </div>
-          <h3 class="mt-4 text-sm font-semibold text-slate-900">Webhooks</h3>
-          <p class="mt-2 text-sm text-slate-600">Receba eventos em tempo real (novo protocolo, aprovado, reprovado) na URL do seu sistema.</p>
+          <h3 class="text-sm font-semibold text-slate-900">Webhooks em tempo real</h3>
+          <p class="mt-2 text-sm text-slate-600">Receba eventos (novo protocolo, aprovado, reprovado) diretamente na URL do seu sistema.</p>
         </div>
-        <div class="rounded-2xl border border-base-200 bg-base-50 p-6 sm:col-span-2 lg:col-span-1">
-          <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-accent-600/10 text-accent-600">
+        <div class="rounded-2xl border border-base-200 bg-white p-6 sm:col-span-2 lg:col-span-1">
+          <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-accent-600/10 text-accent-600 mb-4">
             <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
           </div>
-          <h3 class="mt-4 text-sm font-semibold text-slate-900">Documentação para terceiros</h3>
-          <p class="mt-2 text-sm text-slate-600">Assinantes têm acesso à documentação interativa (OpenAPI) e à geração de tokens no painel.</p>
+          <h3 class="text-sm font-semibold text-slate-900">Documentação OpenAPI</h3>
+          <p class="mt-2 text-sm text-slate-600">Assinantes têm acesso à documentação interativa e à geração de tokens no painel.</p>
           <a routerLink="/autenticacao" class="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-accent-600 hover:text-accent-600/90">
-            Acessar documentação (após login)
+            Acessar após login
             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
           </a>
         </div>
@@ -486,172 +578,276 @@
   </section>
 
   <!-- Pricing -->
-  <section id="precos" class="bg-base-50">
-    <div class="mx-auto max-w-7xl px-4 py-16">
-      <div class="max-w-3xl">
-        <h2 class="text-2xl font-semibold tracking-tight text-slate-950 sm:text-3xl">
-          Um plano simples para começar a digitalizar sua documentação.
+  <section id="precos" class="bg-white">
+    <div class="mx-auto max-w-7xl px-4 py-20">
+      <div class="text-center max-w-2xl mx-auto">
+        <div class="inline-flex items-center gap-2 rounded-full border border-base-200 bg-base-50 px-3 py-1 text-xs font-medium text-slate-600 mb-4">
+          Planos
+        </div>
+        <h2 class="text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">
+          Comece digital hoje mesmo
         </h2>
         <p class="mt-4 text-base leading-relaxed text-slate-600">
-          Comece com fichas e consentimentos digitais, assinatura, protocolo e PDF automático.
-          Trial de {{ landingTrialDias }} dias sem cartão de crédito.
+          Trial de <strong>{{ landingTrialDias }} dias grátis</strong>, sem cartão de crédito. Escolha o plano ideal para o tamanho da sua clínica.
         </p>
       </div>
 
       @if (carregandoLanding) {
-        <div class="mt-10 rounded-2xl border border-base-200 bg-white p-8 text-center text-slate-500">
-          <p>Carregando planos…</p>
+        <div class="mt-12 rounded-2xl border border-base-200 bg-base-50 p-10 text-center text-slate-500">
+          <div class="flex items-center justify-center gap-2">
+            <svg class="h-4 w-4 animate-spin text-accent-600" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+            <span class="text-sm">Carregando planos…</span>
+          </div>
         </div>
       } @else {
-      <div class="mt-10 grid gap-6 lg:grid-cols-3">
-        @for (plan of planos; track plan.key) {
-          <div class="rounded-2xl border p-6 shadow-sm" [ngClass]="isPlanoRecomendado($index) ? 'border-accent-600/30 bg-accent-600 text-white shadow-glow' : 'border-base-200 bg-white'">
-            <div class="flex items-center justify-between">
-              <div class="text-sm font-semibold" [ngClass]="isPlanoRecomendado($index) ? '' : 'text-slate-900'">{{ plan.name }}</div>
+        <div class="mt-12 grid gap-6 lg:grid-cols-3">
+          @for (plan of planos; track plan.key) {
+            <div class="rounded-2xl border p-6 shadow-sm flex flex-col" [ngClass]="isPlanoRecomendado($index) ? 'border-accent-600/30 bg-accent-600 text-white shadow-glow relative' : 'border-base-200 bg-white'">
               @if (isPlanoRecomendado($index)) {
-                <span class="rounded-full bg-white/20 px-3 py-1 text-xs font-medium">Recomendado</span>
+                <div class="absolute -top-3.5 left-1/2 -translate-x-1/2">
+                  <span class="rounded-full bg-white text-accent-600 px-4 py-1 text-xs font-semibold shadow-sm border border-accent-600/20">Mais popular</span>
+                </div>
               }
+              <div class="flex items-center justify-between">
+                <div class="text-sm font-semibold" [ngClass]="isPlanoRecomendado($index) ? '' : 'text-slate-900'">{{ plan.name }}</div>
+              </div>
+              <div class="mt-4 text-4xl font-bold">
+                R$ {{ plan.value | number:'1.2-2':'pt-BR' }}<span class="text-base font-medium" [ngClass]="isPlanoRecomendado($index) ? 'text-white/70' : 'text-slate-500'">/mês</span>
+              </div>
+              @if (plan.description) {
+                <div class="mt-2 text-sm" [ngClass]="isPlanoRecomendado($index) ? 'text-white/80' : 'text-slate-500'">{{ plan.description }}</div>
+              }
+
+              <!-- Features incluídas -->
+              <ul class="mt-6 space-y-2.5 flex-1" [ngClass]="isPlanoRecomendado($index) ? 'text-white/90' : 'text-slate-600'">
+                <li class="flex items-start gap-2 text-sm">
+                  <svg class="h-4 w-4 shrink-0 mt-0.5" [ngClass]="isPlanoRecomendado($index) ? 'text-white' : 'text-emeraldish-600'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                  Fichas e consentimentos digitais
+                </li>
+                <li class="flex items-start gap-2 text-sm">
+                  <svg class="h-4 w-4 shrink-0 mt-0.5" [ngClass]="isPlanoRecomendado($index) ? 'text-white' : 'text-emeraldish-600'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                  Assinatura digital + PDF automático
+                </li>
+                <li class="flex items-start gap-2 text-sm">
+                  <svg class="h-4 w-4 shrink-0 mt-0.5" [ngClass]="isPlanoRecomendado($index) ? 'text-white' : 'text-emeraldish-600'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                  Protocolo e histórico organizado
+                </li>
+                <li class="flex items-start gap-2 text-sm">
+                  <svg class="h-4 w-4 shrink-0 mt-0.5" [ngClass]="isPlanoRecomendado($index) ? 'text-white' : 'text-emeraldish-600'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                  Trilha de auditoria
+                </li>
+                @if (isPlanoRecomendado($index) || $index >= 1) {
+                  <li class="flex items-start gap-2 text-sm">
+                    <svg class="h-4 w-4 shrink-0 mt-0.5" [ngClass]="isPlanoRecomendado($index) ? 'text-white' : 'text-emeraldish-600'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                    API REST + Webhooks
+                  </li>
+                }
+                @if ($index >= 2) {
+                  <li class="flex items-start gap-2 text-sm">
+                    <svg class="h-4 w-4 shrink-0 mt-0.5 text-emeraldish-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                    Suporte prioritário + onboarding
+                  </li>
+                }
+              </ul>
+
+              <a [routerLink]="['/comece']" [queryParams]="{ plan: plan.key }"
+                class="mt-8 inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold transition-all"
+                [ngClass]="isPlanoRecomendado($index) ? 'btn-cta-primary bg-white text-accent-600 hover:bg-white/95' : 'border border-base-200 bg-base-50 text-slate-800 hover:bg-base-100'">
+                Começar trial grátis
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+              </a>
             </div>
-            <div class="mt-2 text-3xl font-semibold">
-              R$ {{ plan.value | number:'1.2-2':'pt-BR' }}<span class="text-base font-medium" [ngClass]="isPlanoRecomendado($index) ? 'text-white/80' : 'text-slate-500'">/mês</span>
-            </div>
-            @if (plan.description) {
-              <div class="mt-1 text-sm" [ngClass]="isPlanoRecomendado($index) ? 'text-white/80' : 'text-slate-500'">{{ plan.description }}</div>
-            }
-            <a [routerLink]="['/comece']" [queryParams]="{ plan: plan.key }" class="mt-8 inline-flex w-full items-center justify-center rounded-lg px-4 py-2.5 text-sm font-semibold"
-              [ngClass]="isPlanoRecomendado($index) ? 'btn-cta-primary bg-white text-accent-600 hover:bg-white/95' : 'border border-base-200 bg-base-50 text-slate-800 hover:bg-base-100'">
-              Começar teste grátis
-            </a>
+          }
+        </div>
+
+        @if (planos.length === 0) {
+          <div class="mt-12 rounded-2xl border border-base-200 bg-base-50 p-10 text-center text-slate-500">
+            <p>Nenhum plano disponível no momento. <a href="#demo" class="text-accent-600 font-medium hover:underline">Fale conosco</a>.</p>
           </div>
         }
-      </div>
-
-      @if (planos.length === 0) {
-        <div class="mt-10 rounded-2xl border border-base-200 bg-white p-8 text-center text-slate-500">
-          <p>Nenhum plano disponível no momento. Entre em contato para mais informações.</p>
-        </div>
-      }
       }
 
-      <div class="mt-8 space-y-2 text-sm text-slate-500">
-        <p>* Trial de {{ landingTrialDias }} dias. Após o cadastro, sua clínica pode concluir a ativação comercial do plano escolhido.</p>
-        <p>* Implantação inicial: R$ 500 a R$ 1.500 para clínica pequena; R$ 1.500 a R$ 3.000 para operação com alguns fluxos e treinamento; R$ 3.000 a R$ 6.000 para multiunidade ou integrações.</p>
+      <div class="mt-8 rounded-2xl border border-base-200 bg-base-50 p-5 space-y-2 text-sm text-slate-500">
+        <p>* Trial de {{ landingTrialDias }} dias sem cartão de crédito. Após o período, sua clínica conclui a ativação do plano escolhido.</p>
+        <p>* Implantação inicial: R$ 500–1.500 (clínica pequena) · R$ 1.500–3.000 (com fluxos e treinamento) · R$ 3.000–6.000 (multiunidade ou integrações).</p>
       </div>
     </div>
   </section>
 
   <!-- FAQ -->
-  <section class="bg-white">
-    <div class="mx-auto max-w-7xl px-4 py-16">
-      <h2 class="text-2xl font-semibold tracking-tight text-slate-950 sm:text-3xl">Perguntas frequentes</h2>
-      <div class="mt-10 grid gap-6 lg:grid-cols-2">
-        <details class="rounded-2xl border border-base-200 bg-base-50 p-6 landing-details">
-          <summary class="cursor-pointer text-sm font-semibold text-slate-900">O ZionMed substitui meu ERP/prontuário?</summary>
-          <p class="mt-3 text-sm text-slate-600">
-            Não. Ele complementa: organiza processos operacionais, consentimentos, checklists e evidências com rastreabilidade.
-          </p>
+  <section class="bg-base-50 border-t border-base-200">
+    <div class="mx-auto max-w-4xl px-4 py-20">
+      <div class="text-center mb-12">
+        <div class="inline-flex items-center gap-2 rounded-full border border-base-200 bg-white px-3 py-1 text-xs font-medium text-slate-600 mb-4">
+          FAQ
+        </div>
+        <h2 class="text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">Perguntas frequentes</h2>
+      </div>
+
+      <div class="space-y-4">
+        <details class="rounded-2xl border border-base-200 bg-white shadow-sm landing-details group">
+          <summary class="cursor-pointer flex items-center justify-between gap-4 p-6">
+            <span class="text-sm font-semibold text-slate-900">O ZionMed substitui meu ERP/prontuário?</span>
+            <svg class="h-5 w-5 shrink-0 text-slate-400 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </summary>
+          <div class="px-6 pb-6 text-sm text-slate-600 leading-relaxed">
+            Não. Ele complementa: organiza processos operacionais, consentimentos, checklists e evidências com rastreabilidade. Continua usando seu ERP e prontuário normalmente.
+          </div>
         </details>
-        <details class="rounded-2xl border border-base-200 bg-base-50 p-6 landing-details">
-          <summary class="cursor-pointer text-sm font-semibold text-slate-900">Dá para usar links públicos com segurança?</summary>
-          <p class="mt-3 text-sm text-slate-600">
-            Sim. Links são gerados com token longo e podem ser revogados. Além disso, aplicamos rate limit para reduzir abuso.
-          </p>
+
+        <details class="rounded-2xl border border-base-200 bg-white shadow-sm landing-details group">
+          <summary class="cursor-pointer flex items-center justify-between gap-4 p-6">
+            <span class="text-sm font-semibold text-slate-900">Quanto tempo leva para implantar?</span>
+            <svg class="h-5 w-5 shrink-0 text-slate-400 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </summary>
+          <div class="px-6 pb-6 text-sm text-slate-600 leading-relaxed">
+            Em geral, a base é configurada em 1–3 dias úteis. O tempo varia de acordo com o número de templates, integrações e complexidade do fluxo de aprovação.
+          </div>
         </details>
-        <details class="rounded-2xl border border-base-200 bg-base-50 p-6 landing-details">
-          <summary class="cursor-pointer text-sm font-semibold text-slate-900">O PDF tem protocolo e data/hora?</summary>
-          <p class="mt-3 text-sm text-slate-600">
-            Sim. Cada protocolo pode gerar PDF automático com assinatura e dados do formulário.
-          </p>
+
+        <details class="rounded-2xl border border-base-200 bg-white shadow-sm landing-details group">
+          <summary class="cursor-pointer flex items-center justify-between gap-4 p-6">
+            <span class="text-sm font-semibold text-slate-900">O PDF tem protocolo, assinatura e data/hora?</span>
+            <svg class="h-5 w-5 shrink-0 text-slate-400 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </summary>
+          <div class="px-6 pb-6 text-sm text-slate-600 leading-relaxed">
+            Sim. Cada protocolo gera PDF automático com assinatura digital, data/hora do envio e preenchimento, identificação do paciente e número de protocolo.
+          </div>
         </details>
-        <details class="rounded-2xl border border-base-200 bg-base-50 p-6 landing-details">
-          <summary class="cursor-pointer text-sm font-semibold text-slate-900">Quanto tempo leva para implantar?</summary>
-          <p class="mt-3 text-sm text-slate-600">
-            Em geral, a base é configurada rapidamente. O tempo depende do número de templates e ajustes do fluxo de aprovação.
-          </p>
+
+        <details class="rounded-2xl border border-base-200 bg-white shadow-sm landing-details group">
+          <summary class="cursor-pointer flex items-center justify-between gap-4 p-6">
+            <span class="text-sm font-semibold text-slate-900">Dá para usar links públicos com segurança?</span>
+            <svg class="h-5 w-5 shrink-0 text-slate-400 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </summary>
+          <div class="px-6 pb-6 text-sm text-slate-600 leading-relaxed">
+            Sim. Links são gerados com token longo e único, podem ser revogados a qualquer momento e contam com rate limiting para prevenir abusos.
+          </div>
+        </details>
+
+        <details class="rounded-2xl border border-base-200 bg-white shadow-sm landing-details group">
+          <summary class="cursor-pointer flex items-center justify-between gap-4 p-6">
+            <span class="text-sm font-semibold text-slate-900">Funciona em qualquer celular?</span>
+            <svg class="h-5 w-5 shrink-0 text-slate-400 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </summary>
+          <div class="px-6 pb-6 text-sm text-slate-600 leading-relaxed">
+            Sim. O formulário é responsivo e funciona em qualquer dispositivo (Android, iPhone, tablet ou computador), sem necessidade de instalar nenhum aplicativo.
+          </div>
+        </details>
+
+        <details class="rounded-2xl border border-base-200 bg-white shadow-sm landing-details group">
+          <summary class="cursor-pointer flex items-center justify-between gap-4 p-6">
+            <span class="text-sm font-semibold text-slate-900">Posso cancelar a qualquer momento?</span>
+            <svg class="h-5 w-5 shrink-0 text-slate-400 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </summary>
+          <div class="px-6 pb-6 text-sm text-slate-600 leading-relaxed">
+            Sim. Não há fidelidade. Você pode cancelar quando quiser e exportar seus dados antes de sair.
+          </div>
         </details>
       </div>
     </div>
   </section>
 
-  <!-- Final CTA (referência Laravel: #demo) -->
+  <!-- Final CTA / Demo -->
   <section id="demo" class="bg-accent-600 text-white">
-    <div class="mx-auto max-w-7xl px-4 py-16">
-      <div class="grid gap-10 lg:grid-cols-2 lg:items-center">
+    <div class="mx-auto max-w-7xl px-4 py-20">
+      <div class="grid gap-12 lg:grid-cols-2 lg:items-start">
         <div>
-          <h2 class="text-2xl font-semibold tracking-tight sm:text-3xl">
-            Veja como sua clínica pode digitalizar fichas e consentimentos sem trocar o sistema atual.
+          <div class="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-medium mb-4">
+            Demonstração gratuita
+          </div>
+          <h2 class="text-3xl font-bold tracking-tight sm:text-4xl">
+            Veja sua clínica<br/>funcionando sem papel.
           </h2>
-          <p class="mt-4 text-base leading-relaxed text-white/75">
+          <p class="mt-5 text-base leading-relaxed text-white/80">
             Em uma demonstração rápida, mostramos o fluxo completo: envio do link para o paciente, preenchimento da ficha, assinatura digital, protocolo e PDF automático.
           </p>
-          <div class="mt-8 flex flex-wrap gap-3">
-            <span class="rounded-full bg-white/10 px-3 py-1 text-xs font-medium">Fichas digitais</span>
-            <span class="rounded-full bg-white/10 px-3 py-1 text-xs font-medium">Consentimentos</span>
-            <span class="rounded-full bg-white/10 px-3 py-1 text-xs font-medium">Assinatura digital</span>
-            <span class="rounded-full bg-white/10 px-3 py-1 text-xs font-medium">PDF automático</span>
-            <span class="rounded-full bg-white/10 px-3 py-1 text-xs font-medium">Protocolo</span>
+
+          <div class="mt-8 space-y-4">
+            <div class="flex items-center gap-3">
+              <div class="h-8 w-8 rounded-full bg-white/15 flex items-center justify-center shrink-0">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              </div>
+              <span class="text-sm text-white/90">Demonstração de 20 minutos, sem compromisso</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <div class="h-8 w-8 rounded-full bg-white/15 flex items-center justify-center shrink-0">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              </div>
+              <span class="text-sm text-white/90">Mostramos como se encaixa na sua rotina atual</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <div class="h-8 w-8 rounded-full bg-white/15 flex items-center justify-center shrink-0">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+              </div>
+              <span class="text-sm text-white/90">Resposta em menos de 1 hora no horário comercial</span>
+            </div>
+          </div>
+
+          <div class="mt-8">
+            <a href="https://wa.me/5534996460818?text=Olá! Gostaria de agendar uma demonstração do ZionMed."
+               target="_blank"
+               rel="noopener noreferrer"
+               class="inline-flex items-center justify-center gap-2 rounded-xl bg-[#25D366] px-6 py-3.5 text-sm font-semibold text-white shadow-sm hover:bg-[#20BD5A] transition-colors">
+              <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+              </svg>
+              Falar no WhatsApp agora
+            </a>
+            <p class="mt-2 text-xs text-white/60">(34) 99646-0818 · Resposta rápida</p>
           </div>
         </div>
 
         <div class="rounded-2xl bg-white p-6 text-slate-900 shadow-soft">
-          <div class="text-sm font-semibold">Quero ver uma demonstração do ZionMed</div>
-          <p class="mt-1 text-sm text-slate-600">Preencha o formulário ou fale direto pelo WhatsApp. Vamos entender sua clínica e mostrar como o ZionMed se encaixa na rotina atual.</p>
-
-          <div class="mt-4 flex flex-wrap items-center gap-3">
-            <a href="https://wa.me/5534996460818?text=Olá! Gostaria de agendar uma demonstração do ZionMed."
-               target="_blank"
-               rel="noopener noreferrer"
-               class="inline-flex items-center justify-center gap-2 rounded-lg bg-[#25D366] px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-[#20BD5A] transition-colors">
-              <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-              </svg>
-              WhatsApp (34) 99646-0818
-            </a>
-            <span class="text-xs text-slate-500">Resposta rápida</span>
-          </div>
-
-          <div class="mt-6 border-t border-slate-200 pt-6">
-            <p class="text-xs font-medium text-slate-700 mb-3">Ou preencha o formulário:</p>
-          </div>
+          <div class="text-base font-semibold">Agendar demonstração gratuita</div>
+          <p class="mt-1 text-sm text-slate-500">Ou fale direto pelo WhatsApp ao lado. Vamos entender sua clínica e mostrar como o ZionMed funciona na prática.</p>
 
           @if (demonstracaoFeedback) {
-            <div class="mt-6 mb-4 rounded-lg px-4 py-3 text-sm" [ngClass]="demonstracaoSucesso ? 'bg-emeraldish-500/15 text-emeraldish-600' : 'border border-red-200 bg-red-50 text-red-700'">
+            <div class="mt-4 rounded-xl px-4 py-3 text-sm" [ngClass]="demonstracaoSucesso ? 'bg-emeraldish-500/15 text-emeraldish-600' : 'border border-red-200 bg-red-50 text-red-700'">
               {{ demonstracaoFeedback }}
             </div>
           }
-          <form (ngSubmit)="enviarDemonstracao()" class="mt-6 space-y-4">
+
+          <form (ngSubmit)="enviarDemonstracao()" class="mt-5 space-y-4">
             <div>
-              <label class="text-xs font-medium text-slate-700">Nome</label>
-              <input class="landing-input mt-1 w-full rounded-lg border border-base-200 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-accent-600/30"
+              <label class="text-xs font-medium text-slate-700">Nome *</label>
+              <input class="landing-input mt-1 w-full rounded-xl border border-base-200 bg-white px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-accent-600/30 transition"
                      type="text" name="name" [(ngModel)]="demonstracao.name" placeholder="Seu nome" required>
             </div>
             <div>
-              <label class="text-xs font-medium text-slate-700">Clínica</label>
-              <input class="landing-input mt-1 w-full rounded-lg border border-base-200 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-accent-600/30"
+              <label class="text-xs font-medium text-slate-700">Clínica *</label>
+              <input class="landing-input mt-1 w-full rounded-xl border border-base-200 bg-white px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-accent-600/30 transition"
                      type="text" name="clinic" [(ngModel)]="demonstracao.clinic" placeholder="Nome da clínica" required>
             </div>
             <div class="grid gap-4 sm:grid-cols-2">
               <div>
-                <label class="text-xs font-medium text-slate-700">E-mail</label>
-                <input class="landing-input mt-1 w-full rounded-lg border border-base-200 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-accent-600/30"
+                <label class="text-xs font-medium text-slate-700">E-mail *</label>
+                <input class="landing-input mt-1 w-full rounded-xl border border-base-200 bg-white px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-accent-600/30 transition"
                        type="email" name="email" [(ngModel)]="demonstracao.email" placeholder="email@clinica.com" required>
               </div>
               <div>
-                <label class="text-xs font-medium text-slate-700">WhatsApp</label>
-                <input class="landing-input mt-1 w-full rounded-lg border border-base-200 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-accent-600/30"
+                <label class="text-xs font-medium text-slate-700">WhatsApp *</label>
+                <input class="landing-input mt-1 w-full rounded-xl border border-base-200 bg-white px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-accent-600/30 transition"
                        type="tel" name="phone" [(ngModel)]="demonstracao.phone" (input)="onPhoneInput($event)" placeholder="(00) 00000-0000" maxlength="16" required>
               </div>
             </div>
             <div>
               <label class="text-xs font-medium text-slate-700">Mensagem</label>
-              <textarea class="landing-input mt-1 w-full rounded-lg border border-base-200 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-accent-600/30"
+              <textarea class="landing-input mt-1 w-full rounded-xl border border-base-200 bg-white px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-accent-600/30 transition"
                         name="message" [(ngModel)]="demonstracao.message" rows="3" placeholder="Conte rapidamente seu cenário (unidades, volume, processos)."></textarea>
             </div>
-            <button type="submit" [disabled]="demonstracaoEnviando" class="btn-cta-primary inline-flex w-full items-center justify-center rounded-lg bg-accent-600 px-4 py-3 text-sm font-semibold text-white hover:bg-accent-500">
-              {{ demonstracaoEnviando ? 'Enviando…' : 'Quero ver uma demonstração' }}
+            <button type="submit" [disabled]="demonstracaoEnviando"
+              class="btn-cta-primary inline-flex w-full items-center justify-center gap-2 rounded-xl bg-accent-600 px-4 py-3 text-sm font-semibold text-white hover:bg-accent-500 transition-all disabled:opacity-60">
+              @if (demonstracaoEnviando) {
+                <svg class="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                Enviando…
+              } @else {
+                Quero ver uma demonstração
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+              }
             </button>
-            <p class="text-xs text-slate-500">
-              Ao enviar, você concorda em ser contatado para agendamento. Não enviamos spam.
+            <p class="text-xs text-slate-400 text-center">
+              Ao enviar, você concorda em ser contatado. Sem spam.
             </p>
           </form>
         </div>
@@ -659,6 +855,7 @@
     </div>
   </section>
 
+  <!-- Footer -->
   <footer class="bg-accent-600 text-white/90 landing-footer-accent">
     <div class="mx-auto max-w-7xl px-4 py-10">
       <div class="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-center">
@@ -678,9 +875,19 @@
           <span class="hidden sm:inline text-white/40">·</span>
           <a routerLink="/termos-de-uso" class="text-white/70 hover:text-white transition-colors">Termos de Uso</a>
           <span class="hidden sm:inline text-white/40">·</span>
-          <span>© {{ ano }} ZionMed. Todos os direitos reservados.</span>
+          <span class="text-white/60">© {{ ano }} ZionMed. Todos os direitos reservados.</span>
         </div>
       </div>
     </div>
   </footer>
+
+  <!-- Sticky CTA mobile -->
+  <div class="fixed bottom-0 left-0 right-0 z-50 md:hidden border-t border-base-200/60 bg-base-50/95 backdrop-blur px-4 py-3 shadow-soft">
+    <a routerLink="/comece"
+      class="btn-cta-primary flex items-center justify-center gap-2 rounded-xl bg-accent-600 px-4 py-3 text-sm font-semibold text-white shadow-soft hover:bg-accent-500 transition-all">
+      <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+      Começar trial grátis · {{ landingTrialDias }} dias sem cartão
+    </a>
+  </div>
+
 </div>

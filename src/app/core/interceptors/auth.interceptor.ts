@@ -29,6 +29,8 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
       if (err.status === 401) {
         auth.clearSession();
         router.navigate(['/autenticacao']);
+      } else if (err.status === 403 && token && req.url.includes('/api/v1/') && !req.url.includes('auth/send-verification-email')) {
+        router.navigate(['/verificacao-pendente']);
       }
       return throwError(() => err);
     })

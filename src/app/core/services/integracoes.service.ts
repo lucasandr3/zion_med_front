@@ -21,7 +21,8 @@ export interface IntegracoesDelivery {
   id: number;
   webhook_id: number;
   event: string;
-  status_code?: number | null;
+  response_code?: number | null;
+  error_message?: string | null;
   created_at?: string;
 }
 
@@ -61,6 +62,11 @@ export class IntegracoesService {
 
   removerWebhook(id: number): Observable<void> {
     return this.api.delete(`/clinica/integracoes/webhooks/${id}`).pipe(map(() => undefined));
+  }
+
+  /** Reenvia uma entrega de webhook falha. */
+  reenviarDelivery(deliveryId: number): Observable<{ data?: { message?: string } }> {
+    return this.api.post<{ data?: { message?: string } }>(`/clinica/integracoes/webhook-deliveries/${deliveryId}/retry`, {});
   }
 }
 

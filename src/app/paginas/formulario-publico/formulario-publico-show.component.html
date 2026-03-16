@@ -1,87 +1,164 @@
-<div class="min-h-screen p-4 relative" style="background: var(--c-bg); color: var(--c-text)">
-  <div class="max-w-2xl mx-auto relative min-h-[280px]">
+<div class="form-publico-page" [class.dark]="dark">
+  <div class="form-publico-header-actions">
+    <button type="button" (click)="toggleDark()" class="btn-theme" aria-label="Alternar tema">
+      <span class="material-symbols-outlined" style="font-size:20px">dark_mode</span>
+    </button>
+  </div>
+
+  <div class="form-publico-inner max-w-4xl mx-auto px-1 sm:px-4 md:px-6 pt-14 pb-24 md:pb-12">
     @if (carregando) {
       <app-loading-overlay mensagem="Carregando..." />
     }
     @if (!carregando && erro && !data) {
-      <div class="card rounded-xl p-5" style="border: 1px solid var(--c-border)">
-        <p class="text-sm" style="color: var(--c-error, #dc2626)">{{ erro }}</p>
+      <div class="form-card bio-bg bio-border rounded-2xl p-6">
+        <p class="text-sm bio-muted">{{ erro }}</p>
       </div>
     }
     @if (!carregando && data) {
-      <h1 class="text-xl font-semibold mb-1" style="color: var(--c-text)">{{ data.template.name }}</h1>
-      @if (data.clinic_name) {
-        <p class="text-sm mb-4" style="color: var(--c-muted)">{{ data.clinic_name }}</p>
-      }
-      @if (data.template.description) {
-        <p class="text-sm mb-4" style="color: var(--c-muted)">{{ data.template.description }}</p>
-      }
-
-      @if (erro) {
-        <div class="mb-4 p-3 rounded-lg text-sm" style="background: rgba(220,38,38,0.1); color: var(--c-error, #dc2626)">{{ erro }}</div>
-      }
-
-      <form (ngSubmit)="enviar()" class="card rounded-xl p-5 space-y-4" style="border: 1px solid var(--c-border)">
-        <div>
-          <label class="block text-sm font-medium mb-1" style="color: var(--c-text)">Seu nome</label>
-          <input type="text" [(ngModel)]="submitterName" name="submitterName" class="input-default w-full" placeholder="Opcional">
-        </div>
-        <div>
-          <label class="block text-sm font-medium mb-1" style="color: var(--c-text)">Seu e-mail</label>
-          <input type="email" [(ngModel)]="submitterEmail" name="submitterEmail" class="input-default w-full" placeholder="Opcional">
-        </div>
-
-        @for (f of data.fields; track trackByKey($index, f)) {
-          <div>
-            <label class="block text-sm font-medium mb-1" style="color: var(--c-text)">
-              {{ f.label }}{{ f.required ? ' *' : '' }}
-            </label>
-            @switch (f.type) {
-              @case ('text') {
-                <input type="text" [(ngModel)]="valores[f.name_key]" [name]="f.name_key" class="input-default w-full" [required]="f.required">
-              }
-              @case ('textarea') {
-                <textarea [(ngModel)]="valores[f.name_key]" [name]="f.name_key" class="input-default w-full" rows="3" [required]="f.required"></textarea>
-              }
-              @case ('number') {
-                <input type="number" [(ngModel)]="valores[f.name_key]" [name]="f.name_key" class="input-default w-full" [required]="f.required">
-              }
-              @case ('date') {
-                <input type="date" [(ngModel)]="valores[f.name_key]" [name]="f.name_key" class="input-default w-full" [required]="f.required">
-              }
-              @case ('checkbox') {
-                <label class="inline-flex items-center gap-2">
-                  <input type="checkbox" [(ngModel)]="valores[f.name_key]" [name]="f.name_key">
-                  <span class="text-sm" style="color: var(--c-text)">Sim</span>
-                </label>
-              }
-              @case ('select') {
-                <select [(ngModel)]="valores[f.name_key]" [name]="f.name_key" class="input-default w-full" [required]="f.required">
-                  <option value="">Selecione</option>
-                  @for (opt of (f.options || []); track $index) {
-                    <option [value]="opt">{{ opt }}</option>
-                  }
-                </select>
-              }
-              @case ('radio') {
-                <div class="space-y-2">
-                  @for (opt of (f.options || []); track $index) {
-                    <label class="inline-flex items-center gap-2 mr-4">
-                      <input type="radio" [(ngModel)]="valores[f.name_key]" [name]="f.name_key" [value]="opt" [required]="f.required">
-                      <span class="text-sm" style="color: var(--c-text)">{{ opt }}</span>
-                    </label>
-                  }
-                </div>
-              }
-              @default {
-                <input type="text" [(ngModel)]="valores[f.name_key]" [name]="f.name_key" class="input-default w-full" [required]="f.required">
-              }
-            }
+      <div class="form-card bio-bg bio-border rounded-2xl p-6 md:p-8">
+        <div class="form-card-header flex items-center gap-3 mb-6 pb-4 bio-border" style="border-bottom-width:1px">
+          <div class="logo-wrap shrink-0">
+            <span class="logo-initial">Z</span>
           </div>
+          <div>
+            <h1 class="text-xl font-light bio-text tracking-wide">{{ data.clinic_name ?? 'Clínica' }}</h1>
+            <p class="text-xs bio-muted tracking-wide">Formulário por Zion Med</p>
+          </div>
+        </div>
+
+        <h2 class="text-lg font-medium bio-text mb-1">{{ data.template.name }}</h2>
+        @if (data.template.description) {
+          <p class="bio-muted text-sm mb-4">{{ data.template.description }}</p>
+        }
+        <p class="text-xs bio-muted mb-6">
+          Seus dados serão utilizados apenas para as finalidades deste formulário e em conformidade com a LGPD.
+          <a routerLink="/privacidade" target="_blank" rel="noopener" class="bio-text underline hover:no-underline">Política de Privacidade</a>.
+        </p>
+
+        @if (erro) {
+          <div class="mb-4 p-3 rounded-lg text-sm bg-red-500/10 text-red-600 dark:text-red-400">{{ erro }}</div>
         }
 
-        <button type="submit" class="btn-primary w-full" [disabled]="enviando">{{ enviando ? 'Enviando…' : 'Enviar' }}</button>
-      </form>
+        <form #publicForm="ngForm" (ngSubmit)="enviar()" class="space-y-5">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 rounded-xl bio-bg-soft bio-border" style="border-width:1px">
+            <div>
+              <label for="submitterName" class="form-label">
+                <span class="inline-flex items-center gap-1.5">
+                  <span class="material-symbols-outlined" style="font-size:15px">person</span>
+                  Seu nome <span class="bio-muted font-normal">(opcional)</span>
+                </span>
+              </label>
+              <input id="submitterName" type="text" [(ngModel)]="submitterName" name="submitterName" class="form-input" />
+            </div>
+            <div>
+              <label for="submitterEmail" class="form-label">
+                <span class="inline-flex items-center gap-1.5">
+                  <span class="material-symbols-outlined" style="font-size:15px">mail</span>
+                  Seu e-mail <span class="bio-muted font-normal">(opcional)</span>
+                </span>
+              </label>
+              <input id="submitterEmail" type="email" [(ngModel)]="submitterEmail" name="submitterEmail" class="form-input" />
+            </div>
+          </div>
+
+          @for (f of data.fields; track trackByKey($index, f)) {
+            <div>
+              <label [for]="'field_' + f.name_key" class="form-label">{{ f.label }}{{ f.required ? ' *' : '' }}</label>
+              @switch (fieldType(f)) {
+                @case ('text') {
+                  <input [id]="'field_' + f.name_key" type="text" [(ngModel)]="valores[f.name_key]" [name]="f.name_key" class="form-input" [required]="f.required">
+                }
+                @case ('textarea') {
+                  <textarea [id]="'field_' + f.name_key" [(ngModel)]="valores[f.name_key]" [name]="f.name_key" class="form-input" rows="3" [required]="f.required"></textarea>
+                }
+                @case ('number') {
+                  <input [id]="'field_' + f.name_key" type="number" [(ngModel)]="valores[f.name_key]" [name]="f.name_key" class="form-input" [required]="f.required">
+                }
+                @case ('date') {
+                  <input [id]="'field_' + f.name_key"
+                    type="text"
+                    mwlFlatpickr
+                    [(ngModel)]="valores[f.name_key]"
+                    [name]="f.name_key"
+                    class="form-input"
+                    [required]="f.required"
+                    placeholder="dd/mm/aaaa"
+                    [altInput]="true"
+                    [convertModelValue]="true">
+                }
+                @case ('checkbox') {
+                  <label class="inline-flex items-center gap-2">
+                    <input type="checkbox" [(ngModel)]="valores[f.name_key]" [name]="f.name_key">
+                    <span class="text-sm bio-text">Sim</span>
+                  </label>
+                }
+                @case ('select') {
+                  <select [id]="'field_' + f.name_key" [(ngModel)]="valores[f.name_key]" [name]="f.name_key" class="form-input form-select form-select-options" [required]="f.required">
+                    <option value="">Selecione</option>
+                    @for (opt of getFieldOptions(f); track opt.value) {
+                      <option [value]="opt.value">{{ opt.label }}</option>
+                    }
+                  </select>
+                }
+                @case ('radio') {
+                  <div class="space-y-2">
+                    @for (opt of getFieldOptions(f); track opt.value) {
+                      <label class="inline-flex items-center gap-2 mr-4">
+                        <input type="radio" [(ngModel)]="valores[f.name_key]" [name]="f.name_key" [value]="opt.value" [required]="f.required">
+                        <span class="text-sm bio-text">{{ opt.label }}</span>
+                      </label>
+                    }
+                  </div>
+                }
+                @case ('signature') {
+                  <div class="signature-field">
+                    <canvas [id]="'signature_' + f.name_key"
+                      width="400"
+                      height="150"
+                      class="signature-canvas"
+                      (mousedown)="startSignature($event, f.name_key)"
+                      (mousemove)="moveSignature($event, f.name_key)"
+                      (mouseup)="endSignature(f.name_key)"
+                      (mouseleave)="endSignature(f.name_key)"
+                      (touchstart)="startSignature($event, f.name_key)"
+                      (touchmove)="moveSignature($event, f.name_key); $event.preventDefault()"
+                      (touchend)="endSignature(f.name_key)"
+                    ></canvas>
+                    <input type="hidden" [name]="f.name_key" [ngModel]="valores[f.name_key]" [required]="f.required">
+                    <div class="flex gap-2 mt-2">
+                      <button type="button" class="text-sm px-3 py-1.5 rounded bio-border border" style="color:var(--c-muted)" (click)="clearSignature(f.name_key)">
+                        Limpar
+                      </button>
+                    </div>
+                  </div>
+                }
+                @default {
+                  <input [id]="'field_' + f.name_key" type="text" [(ngModel)]="valores[f.name_key]" [name]="f.name_key" class="form-input" [required]="f.required">
+                }
+              }
+            </div>
+          }
+
+          <div class="pt-4 hidden md:block">
+            <button type="submit" class="btn-primary w-full" [disabled]="enviando">
+              <span class="material-symbols-outlined" style="font-size:20px">send</span>
+              {{ enviando ? 'Enviando…' : 'Enviar formulário' }}
+            </button>
+          </div>
+        </form>
+      </div>
     }
   </div>
+
+  @if (!carregando && data) {
+    <div class="form-bottom-bar md:hidden">
+      <button type="button" (click)="enviar()" class="btn-primary flex-1 min-w-0" [disabled]="enviando">
+        <span class="material-symbols-outlined" style="font-size:20px">send</span>
+        {{ enviando ? 'Enviando…' : 'Enviar formulário' }}
+      </button>
+      <button type="button" (click)="toggleDark()" class="btn-theme shrink-0 w-11 h-11 rounded-xl flex items-center justify-center" aria-label="Alternar tema">
+        <span class="material-symbols-outlined" style="font-size:20px">dark_mode</span>
+      </button>
+    </div>
+  }
 </div>

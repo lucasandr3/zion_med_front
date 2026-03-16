@@ -38,7 +38,6 @@ export class InicioComponent implements OnInit {
   ano = new Date().getFullYear();
   temaEscuro = false;
   labelTema = 'Modo escuro';
-  menuAberto = false;
   landingTrialDias = 14;
   planos: PlanoLanding[] = [];
   carregandoLanding = true;
@@ -97,10 +96,6 @@ export class InicioComponent implements OnInit {
         this.statusBarClass = STATUS_BARS['operational'];
       },
     });
-  }
-
-  toggleMenu(): void {
-    this.menuAberto = !this.menuAberto;
   }
 
   alternarTema(): void {

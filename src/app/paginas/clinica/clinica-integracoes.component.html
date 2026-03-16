@@ -1,16 +1,4 @@
 <div class="relative min-h-[320px]">
-  <div class="page-header mb-4">
-    <div class="page-title">
-      <div class="page-title-icon">
-        <span class="material-symbols-outlined">api</span>
-      </div>
-      <div>
-        <h1>Integrações</h1>
-        <p class="page-header-subtitle">API, tokens e webhooks</p>
-      </div>
-    </div>
-  </div>
-
   @if (carregando) {
     <p class="text-sm" style="color: var(--c-muted)">Carregando integrações…</p>
   }
@@ -19,7 +7,7 @@
   }
 
   @if (!carregando && !erro && state) {
-    <div class="integracoes-page">
+    <div class="clinica-config integracoes-page">
       <!-- Abas -->
       <div class="config-tabs" role="tablist">
         <button type="button" class="config-tab" [class.active]="abaAtiva === 'api'" (click)="ativarAba('api')" role="tab">
@@ -38,7 +26,7 @@
 
       <!-- Painel API e tokens -->
       <div id="panel-api" class="config-panel" [class.active]="abaAtiva === 'api'" role="tabpanel">
-        <div class="section-card" style="background:color-mix(in srgb, var(--c-primary) 8%, transparent);border-color:var(--c-primary)">
+        <div class="section-card section-card-docs">
           <div class="section-header">
             <div class="icon-wrap">
               <span class="material-symbols-outlined">menu_book</span>
@@ -46,13 +34,13 @@
             <span class="section-title">Documentação da API</span>
           </div>
           <div class="section-body">
-            <p style="margin-bottom:12px">Documentação interativa (Scramble) e especificação OpenAPI para integrar com outros sistemas.</p>
-            <div style="display:flex;gap:12px;flex-wrap:wrap">
-              <a href="/docs/api" target="_blank" rel="noopener" class="btn-primary" style="padding:8px 14px;font-size:0.8rem;text-decoration:none;display:inline-flex;align-items:center;gap:6px">
+            <p class="section-body-p">Documentação interativa (Scramble) e especificação OpenAPI para integrar com outros sistemas.</p>
+            <div class="section-actions">
+              <a href="/docs/api" target="_blank" rel="noopener" class="btn-primary btn-docs-primary">
                 <span class="material-symbols-outlined" style="font-size:16px">menu_book</span>
                 Documentação interativa
               </a>
-              <a href="/docs/api.json" target="_blank" rel="noopener" class="btn-ghost" style="padding:8px 14px;font-size:0.8rem;text-decoration:none;display:inline-flex;align-items:center;gap:6px">
+              <a href="/docs/api.json" target="_blank" rel="noopener" class="btn-ghost btn-docs-secondary">
                 <span class="material-symbols-outlined" style="font-size:16px">download</span>
                 OpenAPI (JSON)
               </a>
@@ -61,7 +49,7 @@
         </div>
 
         @if (ultimoTokenGerado) {
-          <div class="section-card" style="border-color:var(--c-primary)">
+          <div class="section-card section-card-token-created">
             <div class="section-header">
               <div class="icon-wrap">
                 <span class="material-symbols-outlined">key</span>
@@ -212,17 +200,26 @@
                       <th style="padding:6px 8px">Evento</th>
                       <th style="padding:6px 8px">Webhook</th>
                       <th style="padding:6px 8px">Status</th>
+                      <th style="padding:6px 8px"></th>
                     </tr>
                   </thead>
                   <tbody>
                     @for (d of deliveries; track d.id) {
-                      <tr style="border-bottom:1px solid var(--c-border)">
-                        <td style="padding:6px 8px;color:var(--c-muted)">{{ d.created_at | date:'dd/MM/yyyy HH:mm:ss' }}</td>
+                    <tr style="border-bottom:1px solid var(--c-border)">
+                      <td style="padding:6px 8px;color:var(--c-muted)">{{ d.created_at | date:'dd/MM/yyyy HH:mm:ss' }}</td>
                         <td style="padding:6px 8px">{{ eventLabels[d.event] || d.event }}</td>
                         <td style="padding:6px 8px">{{ d.webhook_id }}</td>
                         <td style="padding:6px 8px">
-                          <span *ngIf="d.status_code && d.status_code >= 200 && d.status_code < 300" style="color:#22c55e">{{ d.status_code }}</span>
-                          <span *ngIf="!d.status_code || d.status_code < 200 || d.status_code >= 300" style="color:var(--c-muted)">{{ d.status_code || '-' }}</span>
+                          @if (d.response_code != null && d.response_code >= 200 && d.response_code < 300) {
+                            <span style="color:#22c55e">{{ d.response_code }}</span>
+                          } @else {
+                            <span style="color:var(--c-muted)">{{ d.response_code ?? (d.error_message || '-') }}</span>
+                          }
+                        </td>
+                        <td style="padding:6px 8px">
+                          @if ((d.response_code == null || d.response_code < 200 || d.response_code >= 300) && d.id) {
+                            <button type="button" class="btn-ghost text-sm" (click)="reenviar(d)" [disabled]="reenviandoId === d.id">Reenviar</button>
+                          }
                         </td>
                       </tr>
                     }

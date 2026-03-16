@@ -29,9 +29,15 @@ export interface LinkBioClinic {
   cover_color?: string | null;
   short_description?: string | null;
   specialties?: string | null;
+  specialties_list?: string[];
   founded_year?: number | null;
   contact_email?: string | null;
+  phone?: string | null;
+  meta_description?: string | null;
   maps_url?: string | null;
+  accent_hex?: string | null;
+  is_open_now?: boolean | null;
+  business_hours_grid?: Record<string, { label: string; text: string }>;
 }
 
 export interface LinkBioMetrics {
@@ -50,6 +56,13 @@ export interface LinkBioStats {
   views_per_day: Record<string, number>;
   most_clicked_link?: LinkBioLink | null;
   peak_day_label?: string | null;
+}
+
+/** Resposta do endpoint público GET /link-bio/public/:slug */
+export interface LinkBioPublicData {
+  clinic: LinkBioClinic;
+  links: LinkBioLink[];
+  form_links: { id: number; name: string; public_url: string }[];
 }
 
 export interface LinkBioState {
@@ -147,5 +160,12 @@ export class LinkBioService {
           return (typeof d === 'object' && d && 'clinic' in d ? d.clinic : d) as LinkBioClinic;
         })
       );
+  }
+
+  /** Página pública do Link Bio por slug (sem autenticação). */
+  getPublicBySlug(slug: string): Observable<LinkBioPublicData> {
+    return this.api
+      .get<{ data: LinkBioPublicData }>(`/link-bio/public/${encodeURIComponent(slug)}`)
+      .pipe(map((r) => r.data));
   }
 }

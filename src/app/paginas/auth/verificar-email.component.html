@@ -1,0 +1,32 @@
+<div class="auth-page">
+  <div class="auth-bg-gradient"></div>
+  <div class="auth-blob-tr"></div>
+  <div class="auth-blob-bl"></div>
+  <div class="auth-wrap">
+    <div class="auth-brand">
+      <div class="auth-brand-logo">
+        <div class="auth-brand-logo-icon">
+          <img src="assets/logo/zionmed_logo.png" alt="Zion Med">
+        </div>
+        <span class="auth-brand-logo-name">Zion Med</span>
+      </div>
+      <div class="auth-brand-text">
+        <h1>Verificação de <span class="hl">e-mail</span></h1>
+        <p>Confirmando seu endereço de e-mail.</p>
+      </div>
+      <p class="auth-brand-footer">© {{ ano }} Zion Med.</p>
+    </div>
+    <div class="auth-card">
+      <div class="auth-card-inner">
+        @if (carregando) {
+          <h2 class="auth-card-title">Aguarde…</h2>
+          <p class="auth-card-subtitle">Verificando seu e-mail.</p>
+        } @else {
+          <h2 class="auth-card-title">{{ sucesso ? 'E-mail verificado' : 'Falha na verificação' }}</h2>
+          <p class="auth-card-subtitle">{{ mensagem }}</p>
+          <a routerLink="/autenticacao" class="auth-btn">Ir para o login</a>
+        }
+      </div>
+    </div>
+  </div>
+</div>

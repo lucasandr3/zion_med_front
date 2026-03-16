@@ -1,0 +1,245 @@
+<div class="protocolo-detalhe relative min-h-[320px]">
+  @if (carregando && !protocolo) {
+    <app-loading-overlay />
+  }
+
+  <div class="mb-4">
+    <a routerLink="/protocolos" class="inline-flex items-center gap-2 text-sm no-underline" style="color: var(--c-primary)">
+      <span class="material-symbols-outlined text-lg">arrow_back</span>
+      Voltar para Protocolos
+    </a>
+  </div>
+
+  @if (erro) {
+    <p class="text-sm mb-4" style="color: var(--c-error, #dc2626)">{{ erro }}</p>
+  }
+  @if (mensagemSucesso) {
+    <p class="text-sm mb-4" style="color: var(--c-success, #16a34a)">{{ mensagemSucesso }}</p>
+  }
+
+  @if (!carregando && !erro && protocolo) {
+    <div class="space-y-6">
+      <!-- Header da página (igual à view antiga) -->
+      <div class="flex flex-wrap items-start justify-between gap-4">
+        <div class="flex items-start gap-3">
+          <div class="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0" style="background: var(--c-soft)">
+            <span class="material-symbols-outlined" style="color: var(--c-primary)">article</span>
+          </div>
+          <div>
+            <h1 class="text-xl font-semibold m-0" style="color: var(--c-text)">Protocolo {{ protocolo.protocol_number || protocolo.id }}</h1>
+            <p class="text-sm mt-1 mb-0" style="color: var(--c-muted)">
+              {{ templateNome() }}
+              @if (isPending) {
+                <span class="inline-flex items-center gap-1 ml-2">
+                  <span class="material-symbols-outlined text-base">schedule</span>
+                  {{ statusLabel() }}
+                </span>
+              } @else if (protocolo.status && protocolo.status.toLowerCase() === 'approved') {
+                <span class="inline-flex items-center gap-1 ml-2" style="color: #22c55e">
+                  <span class="material-symbols-outlined text-base">check_circle</span>
+                  {{ statusLabel() }}
+                </span>
+              } @else {
+                <span class="inline-flex items-center gap-1 ml-2" style="color: #dc2626">
+                  <span class="material-symbols-outlined text-base">cancel</span>
+                  {{ statusLabel() }}
+                </span>
+              }
+            </p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 flex-wrap">
+          <button type="button" class="btn-ghost btn-default-bg inline-flex items-center gap-2" (click)="baixarPdf()" title="Baixar PDF">
+            <span class="material-symbols-outlined text-lg">picture_as_pdf</span>
+            Baixar PDF
+          </button>
+          @if (isPending) {
+            <button type="button" class="btn-primary inline-flex items-center gap-2" (click)="toggleFormRevisao()" id="btn-aprovar-reprovar" title="Aprovar / Reprovar">
+              <span class="material-symbols-outlined text-lg">rate_review</span>
+              Aprovar / Reprovar
+            </button>
+          }
+        </div>
+      </div>
+
+      <!-- Dados do protocolo -->
+      <div class="card rounded-xl overflow-hidden" style="border: 1px solid var(--c-border)">
+        <div class="flex items-center gap-2 px-5 py-4" style="border-bottom: 1px solid var(--c-border)">
+          <span class="material-symbols-outlined" style="color: var(--c-primary)">info</span>
+          <h2 class="text-base font-semibold m-0" style="color: var(--c-text)">Dados do protocolo</h2>
+        </div>
+        <dl class="grid gap-3 p-5 text-sm">
+          <div>
+            <dt class="font-semibold uppercase tracking-wider mb-0.5" style="color: var(--c-muted)">Data de submissão</dt>
+            <dd class="m-0" style="color: var(--c-text)">{{ dataFormatada(protocolo.submitted_at || protocolo.created_at) }}</dd>
+          </div>
+          <div>
+            <dt class="font-semibold uppercase tracking-wider mb-0.5" style="color: var(--c-muted)">Submetente</dt>
+            <dd class="m-0" style="color: var(--c-text)">{{ protocolo.submitter_name || '—' }}</dd>
+            @if (protocolo.submitter_email) {
+              <dd class="m-0 text-xs mt-0.5" style="color: var(--c-muted)">{{ protocolo.submitter_email }}</dd>
+            }
+          </div>
+          @if (protocolo.approved_at || protocolo.approved_by_name) {
+            <div>
+              <dt class="font-semibold uppercase tracking-wider mb-0.5" style="color: var(--c-muted)">Revisado em</dt>
+              <dd class="m-0" style="color: var(--c-text)">{{ dataFormatada(protocolo.approved_at) }}</dd>
+            </div>
+            <div>
+              <dt class="font-semibold uppercase tracking-wider mb-0.5" style="color: var(--c-muted)">Revisado por</dt>
+              <dd class="m-0" style="color: var(--c-text)">{{ protocolo.approved_by_name || '—' }}</dd>
+            </div>
+          }
+        </dl>
+      </div>
+
+      <!-- Histórico -->
+      <div class="card rounded-xl overflow-hidden" style="border: 1px solid var(--c-border)">
+        <div class="flex items-center gap-2 px-5 py-4" style="border-bottom: 1px solid var(--c-border)">
+          <span class="material-symbols-outlined" style="color: var(--c-primary)">history</span>
+          <h2 class="text-base font-semibold m-0" style="color: var(--c-text)">Histórico por data</h2>
+        </div>
+        <ul class="p-5 space-y-3 list-none m-0">
+          @for (event of eventosTimeline(); track $index) {
+            <li class="text-sm border-l-2 pl-4 py-1" style="border-color: var(--c-border)">
+              <span class="font-medium" style="color: var(--c-text)">{{ event.type_label || 'Comentário' }}</span>
+              @if (event.body) {
+                <span style="color: var(--c-text)"> — {{ event.body }}</span>
+              }
+              @if (event.user?.name || event.created_at) {
+                <p class="text-xs mt-0.5 mb-0" style="color: var(--c-muted)">
+                  @if (event.user?.name) {
+                    {{ event.user?.name }}
+                    @if (event.created_at) { · }
+                  }
+                  @if (event.created_at) {
+                    {{ dataFormatada(event.created_at) }}
+                  }
+                </p>
+              }
+            </li>
+          }
+        </ul>
+      </div>
+
+      <!-- Novo comentário interno -->
+      <div class="card rounded-xl overflow-hidden" style="border: 1px solid var(--c-border)">
+        <div class="px-5 py-4" style="border-bottom: 1px solid var(--c-border)">
+          <h2 class="text-base font-semibold m-0" style="color: var(--c-text)">Novo comentário interno</h2>
+        </div>
+        <div class="p-5">
+          <textarea [(ngModel)]="novoComentario" rows="3" class="w-full py-2 px-3 text-sm border rounded-lg mb-3" style="border-color: var(--c-border); background: var(--c-surface); color: var(--c-text)" placeholder="Digite seu comentário..."></textarea>
+          <button type="button" class="btn-primary inline-flex items-center gap-2" (click)="enviarComentario()" [disabled]="!novoComentario.trim() || acaoEmAndamento">
+            <span class="material-symbols-outlined text-lg">add_comment</span>
+            Adicionar comentário
+          </button>
+        </div>
+      </div>
+
+      <!-- Formulário de revisão (se pendente) -->
+      @if (isPending && revisaoFormVisible) {
+        <div class="card rounded-xl overflow-hidden" id="revisao_form" style="border: 1px solid var(--c-border)">
+          <div class="flex items-center gap-2 px-5 py-4" style="border-bottom: 1px solid var(--c-border)">
+            <span class="material-symbols-outlined" style="color: var(--c-primary)">rate_review</span>
+            <h2 class="text-base font-semibold m-0" style="color: var(--c-text)">Revisar protocolo</h2>
+          </div>
+          <div class="p-5 space-y-4">
+            <div>
+              <label class="block text-xs font-semibold uppercase tracking-wider mb-1.5" style="color: var(--c-muted)">Situação</label>
+              <select [(ngModel)]="revisaoAprovado" class="w-full py-2 px-3 text-sm border rounded-lg" style="border-color: var(--c-border); background: var(--c-surface); color: var(--c-text)">
+                <option [ngValue]="true">Aprovado</option>
+                <option [ngValue]="false">Reprovado</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold uppercase tracking-wider mb-1.5" style="color: var(--c-muted)">Comentário (opcional)</label>
+              <textarea [(ngModel)]="comentarioRevisao" rows="3" class="w-full py-2 px-3 text-sm border rounded-lg" style="border-color: var(--c-border); background: var(--c-surface); color: var(--c-text)" placeholder="Comentário da revisão..."></textarea>
+            </div>
+            <button type="button" class="btn-primary inline-flex items-center gap-2" (click)="enviarRevisao()" [disabled]="acaoEmAndamento">
+              <span class="material-symbols-outlined text-lg">send</span>
+              Enviar revisão
+            </button>
+          </div>
+        </div>
+      }
+
+      <!-- Comentário da revisão -->
+      @if (protocolo.review_comment) {
+        <div class="card rounded-xl overflow-hidden" style="border: 1px solid var(--c-border)">
+          <div class="flex items-center gap-2 px-5 py-4" style="border-bottom: 1px solid var(--c-border)">
+            <span class="material-symbols-outlined" style="color: var(--c-primary)">comment</span>
+            <h2 class="text-base font-semibold m-0" style="color: var(--c-text)">Comentário da revisão</h2>
+          </div>
+          <div class="p-5 text-sm">
+            <p class="m-0" style="color: var(--c-text)">{{ protocolo.review_comment }}</p>
+            @if (protocolo.approved_by_name || protocolo.approved_at) {
+              <p class="text-xs mt-2 mb-0" style="color: var(--c-muted)">
+                Por {{ protocolo.approved_by_name || '—' }} em {{ dataFormatada(protocolo.approved_at) }}
+              </p>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- Tabela Campo / Resposta -->
+      @if (camposTemplate().length > 0) {
+        <div class="card rounded-xl overflow-hidden" style="border: 1px solid var(--c-border)">
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm border-collapse">
+              <thead>
+                <tr style="border-bottom: 1px solid var(--c-border)">
+                  <th class="text-left py-3 px-4 font-semibold" style="color: var(--c-text)">Campo</th>
+                  <th class="text-left py-3 px-4 font-semibold" style="color: var(--c-text)">Resposta</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (field of camposTemplate(); track field.name_key) {
+                  <tr style="border-bottom: 1px solid var(--c-border)">
+                    <td class="py-3 px-4 font-medium" style="color: var(--c-text)">{{ field.label }}</td>
+                    <td class="py-3 px-4" style="color: var(--c-text)">{{ valorCampo(field) }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      }
+
+      <!-- Assinatura(s) -->
+      @if (protocolo.signatures && protocolo.signatures.length > 0) {
+        <div class="card rounded-xl overflow-hidden" style="border: 1px solid var(--c-border)">
+          <div class="flex items-center gap-2 px-5 py-4" style="border-bottom: 1px solid var(--c-border)">
+            <span class="material-symbols-outlined" style="color: var(--c-primary)">draw</span>
+            <h2 class="text-base font-semibold m-0" style="color: var(--c-text)">Assinatura(s)</h2>
+          </div>
+          <div class="p-5">
+            @for (sig of protocolo.signatures; track $index) {
+              <div class="text-sm" style="color: var(--c-text)">Assinatura registrada</div>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- Anexos -->
+      @if (protocolo.attachments && protocolo.attachments.length > 0) {
+        <div class="card rounded-xl overflow-hidden" style="border: 1px solid var(--c-border)">
+          <div class="flex items-center gap-2 px-5 py-4" style="border-bottom: 1px solid var(--c-border)">
+            <span class="material-symbols-outlined" style="color: var(--c-primary)">attach_file</span>
+            <h2 class="text-base font-semibold m-0" style="color: var(--c-text)">Anexos</h2>
+          </div>
+          <ul class="p-5 space-y-2 list-none m-0">
+            @for (att of protocolo.attachments; track $index) {
+              <li class="flex items-center gap-2 text-sm">
+                <span class="material-symbols-outlined text-lg" style="color: var(--c-muted)">description</span>
+                <span style="color: var(--c-text)">{{ att.original_name || 'Anexo' }}</span>
+                @if (att.size != null) {
+                  <span class="text-xs" style="color: var(--c-muted)">{{ (att.size / 1024).toFixed(1) }} KB</span>
+                }
+              </li>
+            }
+          </ul>
+        </div>
+      }
+    </div>
+  }
+</div>

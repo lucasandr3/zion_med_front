@@ -12,6 +12,7 @@ export interface Protocolo {
   submitter_email?: string;
   submitted_at?: string;
   approved_at?: string;
+  approved_by_name?: string;
   review_comment?: string;
   created_at: string;
   updated_at: string;
@@ -27,8 +28,36 @@ interface ListResponse {
   };
 }
 
+export interface ProtocoloEvent {
+  type?: string;
+  type_label?: string;
+  body?: string;
+  user?: { name?: string };
+  created_at?: string;
+}
+
+export interface ProtocoloAttachment {
+  original_name?: string;
+  size?: number;
+}
+
+export interface ProtocoloField {
+  name_key: string;
+  label: string;
+  type: string;
+}
+
+export type ProtocoloDetalheData = Protocolo & {
+  template?: { name?: string; fields?: ProtocoloField[] };
+  form_data?: Record<string, unknown>;
+  values_keyed?: Record<string, { value_text?: string; value_json?: unknown }>;
+  events?: ProtocoloEvent[];
+  signatures?: unknown[];
+  attachments?: ProtocoloAttachment[];
+};
+
 interface OneResponse {
-  data: Protocolo & { template?: unknown; form_data?: unknown };
+  data: ProtocoloDetalheData;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -54,7 +83,7 @@ export class ProtocolosService {
     );
   }
 
-  get(id: number): Observable<Protocolo & { template?: unknown; form_data?: unknown }> {
+  get(id: number): Observable<OneResponse['data']> {
     return this.api.get<OneResponse>(`/protocols/${id}`).pipe(map((r) => r.data));
   }
 
@@ -72,5 +101,11 @@ export class ProtocolosService {
 
   exportarCsv(params?: { template_id?: number; status?: string; data_inicio?: string; data_fim?: string }): Observable<Blob> {
     return this.api.getBlob('/protocols/exportar', params as Record<string, string>);
+  }
+
+  /** Exportar PDF em lote (até 50). Backend pode expor GET /protocols/exportar-pdf?limit=50 */
+  exportarPdf(params?: { template_id?: number; status?: string; data_inicio?: string; data_fim?: string; limit?: number }): Observable<Blob> {
+    const p = { ...params, limit: params?.limit ?? 50 } as Record<string, string | number>;
+    return this.api.getBlob('/protocols/exportar-pdf', p);
   }
 }

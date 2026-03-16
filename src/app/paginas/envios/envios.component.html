@@ -1,0 +1,137 @@
+<div class="relative min-h-[320px]">
+  @if (carregando && envios.length === 0) {
+    <app-loading-overlay />
+  }
+
+  <div class="page-header mb-5">
+    <div class="page-title flex items-center gap-3">
+      <div class="page-title-icon w-10 h-10 rounded-lg flex items-center justify-center" style="background: var(--c-soft)">
+        <span class="material-symbols-outlined" style="color: var(--c-primary)">send</span>
+      </div>
+      <div>
+        <h1 class="text-xl font-semibold m-0" style="color: var(--c-text)">Envios de documento</h1>
+        <p class="page-header-subtitle text-sm mt-1 mb-0" style="color: var(--c-muted)">Links enviados por e-mail ou WhatsApp. Reenvie ou cancele envios pendentes.</p>
+      </div>
+    </div>
+    <button type="button" class="btn-primary inline-flex items-center gap-2" (click)="abrirNovoEnvio()" title="Novo envio">
+      <span class="material-symbols-outlined" style="font-size: 18px">add</span>
+      Novo envio
+    </button>
+  </div>
+
+  @if (mostrarNovoEnvio) {
+    <div class="card rounded-xl p-5 mb-5" style="border: 1px solid var(--c-border)">
+      <h3 class="text-base font-semibold m-0 mb-4" style="color: var(--c-text)">Enviar link do documento</h3>
+      @if (erroNovo) {
+        <p class="text-sm mb-3" style="color: var(--c-error, #dc2626)">{{ erroNovo }}</p>
+      }
+      <div class="flex flex-wrap gap-4 items-end">
+        <div class="min-w-[200px]">
+          <label class="block text-xs font-medium mb-1" style="color: var(--c-muted)">Template</label>
+          <select [(ngModel)]="novoEnvio.template_id" class="w-full py-2 px-3 text-sm border rounded-lg" style="border-color: var(--c-border); background: var(--c-surface); color: var(--c-text)">
+            @for (t of templates; track t.id) {
+              <option [value]="t.id">{{ t.name }}</option>
+            }
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-medium mb-1" style="color: var(--c-muted)">Canal</label>
+          <div class="flex gap-2">
+            <label class="inline-flex items-center gap-1.5 cursor-pointer">
+              <input type="radio" [(ngModel)]="novoEnvio.channel" name="novoChannel" value="email" />
+              <span class="text-sm" style="color: var(--c-text)">E-mail</span>
+            </label>
+            <label class="inline-flex items-center gap-1.5 cursor-pointer">
+              <input type="radio" [(ngModel)]="novoEnvio.channel" name="novoChannel" value="whatsapp" />
+              <span class="text-sm" style="color: var(--c-text)">WhatsApp</span>
+            </label>
+          </div>
+        </div>
+        @if (novoEnvio.channel === 'email') {
+          <div class="min-w-[220px]">
+            <label class="block text-xs font-medium mb-1" style="color: var(--c-muted)">E-mail do destinatário</label>
+            <input type="email" [(ngModel)]="novoEnvio.recipient_email" placeholder="email@exemplo.com" class="w-full py-2 px-3 text-sm border rounded-lg" style="border-color: var(--c-border); background: var(--c-surface); color: var(--c-text)" />
+          </div>
+        } @else {
+          <div class="min-w-[180px]">
+            <label class="block text-xs font-medium mb-1" style="color: var(--c-muted)">Telefone (WhatsApp)</label>
+            <input type="text" [(ngModel)]="novoEnvio.recipient_phone" placeholder="5511999999999" class="w-full py-2 px-3 text-sm border rounded-lg" style="border-color: var(--c-border); background: var(--c-surface); color: var(--c-text)" />
+          </div>
+        }
+        <div class="flex gap-2">
+          <button type="button" class="btn-primary" (click)="enviarNovo()" [disabled]="enviando">{{ enviando ? 'Enviando…' : 'Enviar' }}</button>
+          <button type="button" class="btn-ghost btn-default-bg" (click)="fecharNovoEnvio()">Cancelar</button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <div class="flex gap-0.5 rounded-lg border p-0.5 mb-4" style="background: var(--c-surface); border-color: var(--c-border); max-width: fit-content">
+    @for (c of caixas; track c.key) {
+      <button type="button" class="envios-tab rounded-md text-sm font-medium px-4 py-2 transition-all" [class.ativo]="caixaAtual === c.key" (click)="setCaixa(c.key)">
+        {{ c.label }}
+      </button>
+    }
+  </div>
+
+  @if (erro) {
+    <p class="text-sm mb-4" style="color: var(--c-error, #dc2626)">{{ erro }}</p>
+  }
+
+  <div class="card rounded-xl overflow-hidden" style="border: 1px solid var(--c-border)">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm border-collapse">
+        <thead>
+          <tr style="border-bottom: 1px solid var(--c-border)">
+            <th class="text-left py-3 px-4 font-semibold" style="color: var(--c-text)">Template</th>
+            <th class="text-left py-3 px-4 font-semibold" style="color: var(--c-text)">Destinatário</th>
+            <th class="text-left py-3 px-4 font-semibold" style="color: var(--c-text)">Canal</th>
+            <th class="text-left py-3 px-4 font-semibold" style="color: var(--c-text)">Enviado em</th>
+            <th class="text-left py-3 px-4 font-semibold" style="color: var(--c-text)">Status</th>
+            @if (caixaAtual === 'pendentes') {
+              <th class="text-right py-3 px-4 font-semibold" style="color: var(--c-text)">Ações</th>
+            }
+          </tr>
+        </thead>
+        <tbody>
+          @for (e of envios; track e.id) {
+            <tr class="border-b transition-colors" style="border-color: var(--c-border)">
+              <td class="py-3 px-4" style="color: var(--c-text)">{{ e.template_name ?? '—' }}</td>
+              <td class="py-3 px-4" style="color: var(--c-text)">{{ destinatario(e) }}</td>
+              <td class="py-3 px-4" style="color: var(--c-muted)">{{ canalLabel(e.channel) }}</td>
+              <td class="py-3 px-4" style="color: var(--c-muted)">{{ dataFormatada(e.sent_at) }}</td>
+              <td class="py-3 px-4">
+                <span class="inline-flex items-center gap-1 text-xs font-medium" [style.color]="e.status === 'assinado' ? '#22c55e' : e.status === 'cancelado' ? '#94a3b8' : e.status === 'expirado' ? '#f59e0b' : 'var(--c-muted)'">
+                  {{ statusLabel(e.status) }}
+                </span>
+              </td>
+              @if (caixaAtual === 'pendentes') {
+                <td class="py-3 px-4 text-right">
+                  <div class="flex items-center justify-end gap-1">
+                    <button type="button" class="p-1.5 rounded-md border-0 cursor-pointer" style="color: var(--c-muted); background: transparent" title="Reenviar" (click)="reenviar(e)" [disabled]="acaoId !== null">
+                      <span class="material-symbols-outlined text-lg">refresh</span>
+                    </button>
+                    <button type="button" class="p-1.5 rounded-md border-0 cursor-pointer" style="color: var(--c-error, #dc2626); background: transparent" title="Cancelar envio" (click)="cancelar(e)" [disabled]="acaoId !== null">
+                      <span class="material-symbols-outlined text-lg">cancel</span>
+                    </button>
+                  </div>
+                </td>
+              }
+            </tr>
+          }
+          @empty {
+            <tr>
+              <td [attr.colspan]="caixaAtual === 'pendentes' ? 6 : 5" class="text-center py-12 px-4" style="color: var(--c-muted)">
+                Nenhum envio nesta caixa.
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  @if (meta.total > 0) {
+    <p class="text-xs mt-3" style="color: var(--c-muted)">{{ meta.total }} envio(s) nesta caixa</p>
+  }
+</div>

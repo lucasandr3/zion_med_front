@@ -1,7 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IntegracoesService, IntegracoesState, IntegracoesWebhook, IntegracoesToken } from '../../core/services/integracoes.service';
+import { IntegracoesService, IntegracoesState, IntegracoesWebhook, IntegracoesToken, IntegracoesDelivery } from '../../core/services/integracoes.service';
 
 type AbaIntegracao = 'api' | 'webhooks' | 'entregas';
 
@@ -118,6 +118,21 @@ export class ClinicaIntegracoesComponent implements OnInit {
   removerWebhook(wh: IntegracoesWebhook): void {
     if (!confirm('Remover este webhook?')) return;
     this.service.removerWebhook(wh.id).subscribe(() => this.carregar());
+  }
+
+  reenviandoId: number | null = null;
+
+  reenviar(d: IntegracoesDelivery): void {
+    this.reenviandoId = d.id;
+    this.service.reenviarDelivery(d.id).subscribe({
+      next: () => {
+        this.reenviandoId = null;
+        this.carregar();
+      },
+      error: () => {
+        this.reenviandoId = null;
+      },
+    });
   }
 
   formatarEventosWebhook(wh: IntegracoesWebhook): string {

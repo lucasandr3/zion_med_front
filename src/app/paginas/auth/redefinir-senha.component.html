@@ -1,0 +1,67 @@
+<div class="auth-page">
+  <div class="auth-bg-gradient"></div>
+  <div class="auth-blob-tr"></div>
+  <div class="auth-blob-bl"></div>
+  <div class="auth-wrap">
+    <div class="auth-brand">
+      <div class="auth-brand-logo">
+        <div class="auth-brand-logo-icon">
+          <img src="assets/logo/zionmed_logo.png" alt="Zion Med">
+        </div>
+        <span class="auth-brand-logo-name">Zion Med</span>
+      </div>
+      <div class="auth-brand-text">
+        <h1>Nova <span class="hl">senha</span></h1>
+        <p>Defina uma nova senha para acessar sua conta.</p>
+      </div>
+      <p class="auth-brand-footer">© {{ ano }} Zion Med.</p>
+    </div>
+    <div class="auth-card">
+      <div class="auth-card-inner">
+        @if (sucesso) {
+          <h2 class="auth-card-title">Senha alterada</h2>
+          <p class="auth-card-subtitle">Sua senha foi redefinida. Faça login com a nova senha.</p>
+          <button type="button" class="auth-btn" (click)="irParaLogin()">Ir para o login</button>
+        } @else {
+          <h2 class="auth-card-title">Redefinir senha</h2>
+          <p class="auth-card-subtitle">Digite sua nova senha abaixo.</p>
+          @if (erro) {
+            <div class="auth-error"><p>{{ erro }}</p></div>
+          }
+          <form (ngSubmit)="enviar()" class="auth-form">
+            @if (email) {
+              <div class="auth-field">
+                <label class="auth-label">E-mail</label>
+                <p class="auth-muted">{{ email }}</p>
+              </div>
+            }
+            <div class="auth-field">
+              <label class="auth-label" for="nova-senha">Nova senha</label>
+              <div class="auth-input-wrap">
+                <span class="material-symbols-outlined auth-input-icon-l">lock</span>
+                <input [type]="mostrarSenha ? 'text' : 'password'" id="nova-senha" [(ngModel)]="senha" name="senha"
+                       class="auth-input pr" placeholder="Mínimo 8 caracteres" required minlength="8">
+                <span class="material-symbols-outlined auth-input-icon-r" (click)="mostrarSenha = !mostrarSenha"
+                      role="button" tabindex="0">{{ mostrarSenha ? 'visibility_off' : 'visibility' }}</span>
+              </div>
+            </div>
+            <div class="auth-field">
+              <label class="auth-label" for="confirma-senha">Confirmar senha</label>
+              <div class="auth-input-wrap">
+                <span class="material-symbols-outlined auth-input-icon-l">lock</span>
+                <input type="password" id="confirma-senha" [(ngModel)]="senhaConfirmacao" name="senhaConfirmacao"
+                       class="auth-input" placeholder="Repita a senha" required>
+              </div>
+            </div>
+            <button type="submit" class="auth-btn" [disabled]="carregando">
+              {{ carregando ? 'Salvando…' : 'Redefinir senha' }}
+            </button>
+          </form>
+          <p class="auth-register">
+            <a routerLink="/autenticacao">Voltar ao login</a>
+          </p>
+        }
+      </div>
+    </div>
+  </div>
+</div>

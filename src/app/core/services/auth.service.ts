@@ -184,4 +184,40 @@ export class AuthService {
       })
     );
   }
+
+  /** Envia link de redefinição de senha para o e-mail. */
+  forgotPassword(email: string): Observable<{ data?: { message?: string } }> {
+    return this.http.post<{ data?: { message?: string } }>(`${this.baseUrl}/api/v1/auth/forgot-password`, { email });
+  }
+
+  /** Redefine a senha com o token recebido por e-mail. */
+  resetPassword(payload: {
+    token: string;
+    email: string;
+    password: string;
+    password_confirmation: string;
+  }): Observable<{ data?: { message?: string } }> {
+    return this.http.post<{ data?: { message?: string } }>(`${this.baseUrl}/api/v1/auth/reset-password`, payload);
+  }
+
+  /** Verifica o e-mail via link. Passar a query string exata da URL (preserva ordem e assinatura). */
+  verifyEmailWithQueryString(queryString: string): Observable<{ data?: { message?: string }; message?: string }> {
+    const q = queryString.startsWith('?') ? queryString.slice(1) : queryString;
+    return this.http.get<{ data?: { message?: string }; message?: string }>(
+      `${this.baseUrl}/api/v1/auth/verify-email?${q}`
+    );
+  }
+
+  /** Verifica o e-mail via link (query params id, hash, expires, signature). Preferir verifyEmailWithQueryString para preservar ordem da assinatura. */
+  verifyEmail(params: { id: string; hash: string; expires: string; signature: string }): Observable<{ data?: { message?: string }; message?: string }> {
+    const searchParams = new URLSearchParams(params);
+    return this.http.get<{ data?: { message?: string }; message?: string }>(
+      `${this.baseUrl}/api/v1/auth/verify-email?${searchParams.toString()}`
+    );
+  }
+
+  /** Reenvia o e-mail de verificação (requer autenticação). */
+  sendVerificationEmail(): Observable<{ data?: { message?: string } }> {
+    return this.http.post<{ data?: { message?: string } }>(`${this.baseUrl}/api/v1/auth/send-verification-email`, {});
+  }
 }

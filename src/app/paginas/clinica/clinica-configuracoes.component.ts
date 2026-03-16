@@ -2,6 +2,8 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { FlatpickrDirective, provideFlatpickrDefaults } from 'angularx-flatpickr';
+import { Portuguese } from 'flatpickr/dist/l10n/pt';
 import { ClinicaService, ClinicaConfig, ClinicaOption, ClinicaAuditLog, ConfigPageData, BusinessHoursSlot } from '../../core/services/clinica.service';
 import { LoadingOverlayComponent } from '../../componentes/ui/loading-overlay/loading-overlay.component';
 
@@ -18,7 +20,15 @@ const DAYS: { id: string; label: string }[] = [
 @Component({
   selector: 'app-clinica-configuracoes',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, LoadingOverlayComponent],
+  imports: [CommonModule, FormsModule, RouterLink, LoadingOverlayComponent, FlatpickrDirective],
+  providers: [
+    provideFlatpickrDefaults({
+      locale: Portuguese,
+      static: true,
+      allowInput: true,
+      disableMobile: true,
+    }),
+  ],
   templateUrl: './clinica-configuracoes.component.html',
   styleUrl: './clinica-configuracoes.component.css',
 })
@@ -169,6 +179,15 @@ export class ClinicaConfiguracoesComponent implements OnInit {
     if (tab === 'logs') {
       this.carregarLogs();
     }
+  }
+
+  /** Atualiza horário (abre/fecha) a partir da seleção do Flatpickr. */
+  setTime(dayId: string, field: 'open' | 'close', dates: Date[]): void {
+    if (!this.form.business_hours || !dates?.length) return;
+    const d = dates[0];
+    const h = d.getHours().toString().padStart(2, '0');
+    const m = d.getMinutes().toString().padStart(2, '0');
+    this.form.business_hours[dayId][field] = `${h}:${m}`;
   }
 
   carregarLogs(page = 1): void {

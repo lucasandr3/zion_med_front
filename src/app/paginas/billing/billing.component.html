@@ -5,7 +5,10 @@
   @if (!carregando && erro) {
     <p class="text-sm" style="color: var(--c-error, #dc2626)">{{ erro }}</p>
   }
-  @if (!carregando && !erro) {
+  @if (mensagemSucesso) {
+    <p class="text-sm mb-4" style="color: var(--c-success, #16a34a)">{{ mensagemSucesso }}</p>
+  }
+  @if (!carregando && !erro && state) {
   <div class="section-card card rounded-xl overflow-hidden mb-5" style="border: 1px solid var(--c-border)">
     <div class="section-header flex items-center gap-2.5 px-5 py-4" style="border-bottom: 1px solid var(--c-border)">
       <div class="icon-wrap w-7 h-7 rounded-lg flex items-center justify-center" style="background: color-mix(in srgb, var(--c-primary) 12%, transparent)">
@@ -17,16 +20,33 @@
       </div>
     </div>
     <div class="section-body p-5">
+      @if (assinaturaAtiva) {
+        <div class="rounded-xl p-4 border mb-5" style="border-color: var(--c-border); background: color-mix(in srgb, var(--c-primary) 6%, transparent)">
+          <p class="font-semibold m-0" style="color: var(--c-text)">Assinatura ativa</p>
+          <p class="text-sm m-0 mt-1" style="color: var(--c-muted)">Plano atual · Próxima cobrança: {{ assinaturaAtiva.next_due_date | date:'dd/MM/yyyy' }}</p>
+          <div class="flex gap-3 mt-3 flex-wrap">
+            <button type="button" class="btn-ghost text-sm" (click)="cancelarAssinatura(assinaturaAtiva)" [disabled]="acaoEmAndamento">
+              Cancelar assinatura
+            </button>
+          </div>
+        </div>
+      }
       @if (planos.length > 0) {
         <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          @for (plano of planos; track plano.id) {
+          @for (plano of planos; track plano.key) {
             <div class="rounded-xl p-4 border" style="border-color: var(--c-border)">
               <p class="font-semibold m-0" style="color: var(--c-text)">{{ plano.name }}</p>
               <p class="text-lg font-bold mt-1 m-0" style="color: var(--c-primary)">R$ {{ plano.value }}</p>
               @if (plano.description) {
                 <p class="text-sm mt-2 mb-3 m-0" style="color: var(--c-muted)">{{ plano.description }}</p>
               }
-              <button type="button" class="btn-primary w-full" (click)="checkout(plano.id)">Assinar</button>
+              @if (assinaturaAtiva && assinaturaAtiva.plan_key === plano.key) {
+                <span class="text-sm" style="color: var(--c-muted)">Plano atual</span>
+              } @else {
+                <button type="button" class="btn-primary w-full" (click)="assinaturaAtiva ? trocarPlano(plano.key) : checkout(plano.key)" [disabled]="acaoEmAndamento">
+                  {{ assinaturaAtiva ? 'Trocar para este plano' : 'Assinar' }}
+                </button>
+              }
             </div>
           }
         </div>
