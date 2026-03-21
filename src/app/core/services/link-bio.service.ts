@@ -27,6 +27,7 @@ export interface LinkBioClinic {
   public_theme?: string | null;
   cover_image_url?: string | null;
   cover_color?: string | null;
+  cover_mode?: 'banner' | 'solid' | 'none' | null;
   short_description?: string | null;
   specialties?: string | null;
   specialties_list?: string[];
@@ -151,7 +152,9 @@ export class LinkBioService {
     return this.api.post('/link-bio/links/reorder', { ids: linkIds });
   }
 
-  updateAparencia(payload: Partial<LinkBioClinic> & { public_theme?: string | null; cover_color?: string | null }): Observable<LinkBioClinic> {
+  updateAparencia(
+    payload: Partial<LinkBioClinic> & { public_theme?: string | null; cover_color?: string | null; cover_mode?: 'banner' | 'solid' | 'none' | null }
+  ): Observable<LinkBioClinic> {
     return this.api
       .put<{ data: { clinic: LinkBioClinic } | LinkBioClinic }>('/link-bio/aparencia', payload)
       .pipe(

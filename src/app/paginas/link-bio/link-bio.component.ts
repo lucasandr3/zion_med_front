@@ -2,6 +2,7 @@ import { Component, OnInit, inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LinkBioService, LinkBioState, LinkBioLink, LinkBioFormLink } from '../../core/services/link-bio.service';
+import { ClinicaService } from '../../core/services/clinica.service';
 import { LoadingOverlayComponent } from '../../componentes/ui/loading-overlay/loading-overlay.component';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
@@ -35,15 +36,19 @@ export class LinkBioComponent implements OnInit {
   // Aparência
   aparenciaPublicTheme = '';
   aparenciaCoverColor = '#1a1a2e';
+  aparenciaCoverMode: 'banner' | 'solid' | 'none' = 'banner';
   aparenciaShortDescription = '';
   aparenciaSpecialties = '';
   aparenciaFoundedYear: number | null = null;
   aparenciaContactEmail = '';
   aparenciaMapsUrl = '';
+  enviandoCover = false;
+  nomeArquivoCover = '';
 
   previewUrlSafe: SafeResourceUrl | null = null;
 
   private linkBioService = inject(LinkBioService);
+  private clinicaService = inject(ClinicaService);
   private sanitizer = inject(DomSanitizer);
   private platformId = inject(PLATFORM_ID);
 
@@ -104,6 +109,7 @@ export class LinkBioComponent implements OnInit {
         const c = s.clinic;
         this.aparenciaPublicTheme = c.public_theme ?? '';
         this.aparenciaCoverColor = c.cover_color ?? '#1a1a2e';
+        this.aparenciaCoverMode = (c.cover_mode as 'banner' | 'solid' | 'none') ?? 'banner';
         this.aparenciaShortDescription = c.short_description ?? '';
         this.aparenciaSpecialties = c.specialties ?? '';
         this.aparenciaFoundedYear = (c.founded_year as number | null) ?? null;
@@ -192,6 +198,7 @@ export class LinkBioComponent implements OnInit {
     const payload = {
       public_theme: this.aparenciaPublicTheme,
       cover_color: this.aparenciaCoverColor || null,
+      cover_mode: this.aparenciaCoverMode,
       short_description: this.aparenciaShortDescription || null,
       specialties: this.aparenciaSpecialties || null,
       founded_year: this.aparenciaFoundedYear || null,
@@ -204,6 +211,31 @@ export class LinkBioComponent implements OnInit {
           this.state.clinic = { ...this.state.clinic, ...clinic };
         }
         this.atualizarPreviewUrl();
+      },
+    });
+  }
+
+  selecionarTema(themeKey: string): void {
+    this.aparenciaPublicTheme = themeKey;
+  }
+
+  onSelecionarCoverImage(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file || !this.state?.clinic?.name) return;
+    this.enviandoCover = true;
+    this.nomeArquivoCover = file.name;
+    this.clinicaService.uploadCoverImage(file, this.state.clinic.name).subscribe({
+      next: (clinic) => {
+        if (this.state) {
+          this.state.clinic = { ...this.state.clinic, ...clinic };
+        }
+        this.aparenciaCoverMode = 'banner';
+        this.atualizarPreviewUrl();
+        this.enviandoCover = false;
+      },
+      error: () => {
+        this.enviandoCover = false;
       },
     });
   }

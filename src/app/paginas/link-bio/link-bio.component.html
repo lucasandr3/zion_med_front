@@ -223,7 +223,7 @@
                         class="theme-card"
                         [class.selected]="aparenciaPublicTheme === ''"
                         style="border:2px solid var(--c-border);border-radius:10px;padding:10px;cursor:pointer;position:relative;background:var(--c-surface)"
-                        (click)="aparenciaPublicTheme = ''">
+                        (click)="selecionarTema('')">
                   <div style="height:28px;border-radius:5px;margin-bottom:7px;background:#f0ede8;display:flex;gap:2px;align-items:flex-end;padding:4px">
                     <div style="background:#1a1a2e;border-radius:2px;width:5px;height:10px"></div>
                     <div style="background:#1a1a2e;border-radius:2px;width:5px;height:16px"></div>
@@ -238,7 +238,7 @@
                           class="theme-card"
                           [class.selected]="aparenciaPublicTheme === entry.key"
                           style="border:2px solid var(--c-border);border-radius:10px;padding:10px;cursor:pointer;position:relative;background:var(--c-surface)"
-                          (click)="aparenciaPublicTheme = entry.key">
+                          (click)="selecionarTema(entry.key)">
                     @let p = entry.value.primary;
                     <div style="height:28px;border-radius:5px;margin-bottom:7px;display:flex;gap:2px;align-items:flex-end;padding:4px" [style.background]="p + '22'">
                       <div [style.background]="p" style="border-radius:2px;width:5px;height:10px"></div>
@@ -251,6 +251,38 @@
                 }
               </div>
               <p class="text-[11px] mt-3" style="color:var(--c-muted)">Afeta o logo, botões e indicador de horário aberto. Independente do tema do sistema.</p>
+            </div>
+
+            <div class="card p-5">
+              <p class="text-xs font-bold uppercase tracking-wider mb-4" style="color:var(--c-muted)">Topo da página pública</p>
+              <div class="cover-mode-grid">
+                <button type="button" class="cover-mode-btn" [class.selected]="aparenciaCoverMode === 'banner'" (click)="aparenciaCoverMode = 'banner'">
+                  Usar banner
+                </button>
+                <button type="button" class="cover-mode-btn" [class.selected]="aparenciaCoverMode === 'solid'" (click)="aparenciaCoverMode = 'solid'">
+                  Cor sólida
+                </button>
+                <button type="button" class="cover-mode-btn" [class.selected]="aparenciaCoverMode === 'none'" (click)="aparenciaCoverMode = 'none'">
+                  Sem banner
+                </button>
+              </div>
+              @if (aparenciaCoverMode === 'solid') {
+                <div class="mt-4">
+                  <label class="form-label">Cor sólida</label>
+                  <input type="color" [(ngModel)]="aparenciaCoverColor" name="cover_color" class="cover-color-input" />
+                </div>
+              }
+              @if (aparenciaCoverMode === 'banner') {
+                <div class="mt-4">
+                  <label class="form-label">Imagem do banner</label>
+                  <input type="file" accept="image/*" class="form-input" (change)="onSelecionarCoverImage($event)" />
+                  @if (nomeArquivoCover) {
+                    <p class="text-[11px] mt-2" style="color:var(--c-muted)">
+                      {{ enviandoCover ? 'Enviando...' : 'Arquivo selecionado' }}: {{ nomeArquivoCover }}
+                    </p>
+                  }
+                </div>
+              }
             </div>
 
             <!-- Informações exibidas na página -->

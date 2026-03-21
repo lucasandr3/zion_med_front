@@ -23,3 +23,58 @@
 .link-bio-bar { background: var(--c-primary); border-radius: 3px 3px 0 0; width: 100%; transition: height 0.3s; }
 .link-bio-bar-label { font-size: 0.5625rem; color: var(--c-muted); }
 .link-bio-badge { font-size: 0.6875rem; font-weight: 600; letter-spacing: 0.04em; padding: 2px 8px; border-radius: 99px; text-transform: uppercase; }
+
+.theme-card {
+  transition: transform 0.12s ease, border-color 0.12s ease, box-shadow 0.12s ease;
+}
+
+.theme-card:hover {
+  transform: translateY(-1px);
+  border-color: color-mix(in srgb, var(--c-primary) 45%, var(--c-border));
+}
+
+.theme-card:active {
+  transform: scale(0.98);
+}
+
+.theme-card.selected {
+  border-color: var(--c-primary) !important;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--c-primary) 25%, transparent);
+}
+
+.cover-mode-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.cover-mode-btn {
+  border: 1px solid var(--c-border);
+  background: var(--c-surface);
+  color: var(--c-muted);
+  border-radius: 0.625rem;
+  padding: 0.625rem 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+
+.cover-mode-btn:hover {
+  border-color: color-mix(in srgb, var(--c-primary) 45%, var(--c-border));
+}
+
+.cover-mode-btn.selected {
+  border-color: var(--c-primary);
+  color: var(--c-primary);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--c-primary) 20%, transparent);
+}
+
+.cover-color-input {
+  width: 56px;
+  height: 40px;
+  border: 1px solid var(--c-border);
+  border-radius: 0.5rem;
+  background: var(--c-surface);
+  padding: 0.25rem;
+}

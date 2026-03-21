@@ -93,7 +93,15 @@ export class LinkBioPublicComponent implements OnInit {
   }
 
   get hasCover(): boolean {
+    if (this.coverMode === 'none') return false;
+    if (this.coverMode === 'solid') return true;
     return this.hasCoverImage || this.hasCoverColor;
+  }
+
+  get coverMode(): 'banner' | 'solid' | 'none' {
+    const mode = this.clinic?.cover_mode;
+    if (mode === 'none' || mode === 'solid' || mode === 'banner') return mode;
+    return 'banner';
   }
 
   coverStyle(): Record<string, string> {
@@ -103,6 +111,11 @@ export class LinkBioPublicComponent implements OnInit {
 
   accentHex(): string {
     return this.clinic?.accent_hex ?? '#1a1a2e';
+  }
+
+  themeVars(): Record<string, string> {
+    const accent = this.accentHex();
+    return { '--accent': accent };
   }
 
   /** Grid de horários em ordem (Seg..Dom). */
@@ -115,6 +128,30 @@ export class LinkBioPublicComponent implements OnInit {
 
   get hasAnyHour(): boolean {
     return this.hoursGridArray.some((d) => d.text !== '–');
+  }
+
+  get weekdayHoursText(): string {
+    const weekdays = this.hoursGridArray.slice(0, 5).map((d) => d.text).filter((t) => t && t !== '–');
+    if (!weekdays.length) return 'Fechado';
+    const first = weekdays[0]!;
+    const allEqual = weekdays.every((h) => h === first);
+    return allEqual ? first : 'Horários variáveis';
+  }
+
+  get weekendHoursText(): string {
+    const weekends = this.hoursGridArray.slice(5, 7).map((d) => d.text).filter((t) => t && t !== '–');
+    if (!weekends.length) return 'Fechado';
+    const first = weekends[0]!;
+    const allEqual = weekends.every((h) => h === first);
+    return allEqual ? first : 'Horários variáveis';
+  }
+
+  get clinicInitials(): string {
+    const name = this.clinic?.name?.trim() ?? '';
+    if (!name) return 'ZM';
+    const parts = name.split(/\s+/).filter(Boolean);
+    if (parts.length === 1) return parts[0]!.slice(0, 2).toUpperCase();
+    return (parts[0]!.charAt(0) + parts[1]!.charAt(0)).toUpperCase();
   }
 
   whatsappUrl(): string {
@@ -180,14 +217,33 @@ export class LinkBioPublicComponent implements OnInit {
   }
 
   private showCopiedFeedback(): void {
-    const btn = document.querySelector('.btn-share');
-    if (!btn) return;
-    const prev = btn.innerHTML;
-    btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:20px">check</span>';
-    btn.setAttribute('title', 'Copiado!');
+    const toast = document.createElement('div');
+    toast.textContent = 'Link copiado!';
+    Object.assign(toast.style, {
+      position: 'fixed',
+      bottom: '24px',
+      left: '50%',
+      transform: 'translateX(-50%) translateY(8px)',
+      background: '#0b1628',
+      color: '#ffffff',
+      fontSize: '13px',
+      fontWeight: '600',
+      padding: '10px 22px',
+      borderRadius: '999px',
+      opacity: '0',
+      transition: 'opacity .2s, transform .2s',
+      zIndex: '9999',
+      whiteSpace: 'nowrap',
+    });
+    document.body.appendChild(toast);
+    requestAnimationFrame(() => {
+      toast.style.opacity = '1';
+      toast.style.transform = 'translateX(-50%) translateY(0)';
+    });
     setTimeout(() => {
-      btn.innerHTML = prev;
-      btn.setAttribute('title', 'Compartilhar');
-    }, 2000);
+      toast.style.opacity = '0';
+      toast.style.transform = 'translateX(-50%) translateY(8px)';
+      setTimeout(() => toast.remove(), 220);
+    }, 2400);
   }
 }

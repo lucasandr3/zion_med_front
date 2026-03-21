@@ -168,4 +168,16 @@ export class ClinicaService {
       })
     );
   }
+
+  uploadCoverImage(coverFile: File, clinicName: string): Observable<ClinicaConfig> {
+    const form = new FormData();
+    form.append('name', clinicName);
+    form.append('cover_image', coverFile, coverFile.name);
+    return this.api.putFormData<ConfigResponse>('/clinica/configuracoes', form).pipe(
+      map((r) => {
+        const d = r.data as { clinic?: ClinicaConfig } | ClinicaConfig;
+        return (typeof d === 'object' && d && 'clinic' in d ? d.clinic : d) as ClinicaConfig;
+      })
+    );
+  }
 }
