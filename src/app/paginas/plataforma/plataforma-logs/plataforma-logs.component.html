@@ -1,8 +1,5 @@
 <!-- Igual ao backend: platform/logs/index -->
 <div class="relative min-h-[300px]">
-  @if (loading) {
-    <app-loading-overlay />
-  }
   <div class="flex items-center justify-between mb-4">
   <div class="flex items-center gap-3">
     <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background: var(--c-soft)">
@@ -15,12 +12,17 @@
   </div>
 </div>
 
+@if (showSkeleton()) {
+  <zm-skeleton-list [rows]="6" />
+} @else if (!listaPronta) {
+} @else {
 @if (error) {
   <div class="card p-4 rounded-xl mb-4" style="background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.3)">
     <p class="text-sm m-0" style="color: var(--c-text)">{{ error }}</p>
   </div>
 }
 
+<div class="zm-content-enter">
 <div class="overflow-x-auto rounded-xl border" style="border-color: var(--c-border); background: var(--c-surface)">
   <table class="platform-table">
     <thead>
@@ -45,14 +47,12 @@
           <td class="py-2.5 pl-3 text-xs cell-muted">{{ detalheTexto(log) }}</td>
         </tr>
       } @empty {
-        @if (!loading) {
-          <tr>
-            <td colspan="4" class="py-12 text-center">
-              <span class="material-symbols-outlined block mb-2 text-4xl" style="color: var(--c-border)">history</span>
-              <span class="text-sm" style="color: var(--c-muted)">Nenhum registro de auditoria.</span>
-            </td>
-          </tr>
-        }
+        <tr>
+          <td colspan="4" class="py-12 text-center">
+            <span class="material-symbols-outlined block mb-2 text-4xl" style="color: var(--c-border)">history</span>
+            <span class="text-sm" style="color: var(--c-muted)">Nenhum registro de auditoria.</span>
+          </td>
+        </tr>
       }
     </tbody>
   </table>
@@ -66,4 +66,6 @@
     </div>
   }
 </div>
+</div>
+}
 </div>

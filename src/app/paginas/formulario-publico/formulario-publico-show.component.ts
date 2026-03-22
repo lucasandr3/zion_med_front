@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, ViewChild } from '@angular/core';
+import { Component, OnInit, inject, ViewChild, Signal, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule, NgForm } from '@angular/forms';
@@ -6,12 +6,14 @@ import { FlatpickrDirective, provideFlatpickrDefaults } from 'angularx-flatpickr
 import { Portuguese } from 'flatpickr/dist/l10n/pt';
 import { RouterLink } from '@angular/router';
 import { FormularioPublicoService, FormularioPublicoData, FormularioPublicoField } from '../../core/services/formulario-publico.service';
-import { LoadingOverlayComponent } from '../../componentes/ui/loading-overlay/loading-overlay.component';
+import { LoadingService } from '../../shared/services/loading.service';
+import { ZmSkeletonListComponent } from '../../shared/components/skeletons';
+import { ToastService } from '../../core/services/toast.service';
 
 @Component({
   selector: 'app-formulario-publico-show',
   standalone: true,
-  imports: [CommonModule, FormsModule, FlatpickrDirective, LoadingOverlayComponent, RouterLink],
+  imports: [CommonModule, FormsModule, FlatpickrDirective, ZmSkeletonListComponent, RouterLink],
   providers: [
     provideFlatpickrDefaults({
       locale: Portuguese,
@@ -79,13 +81,15 @@ export class FormularioPublicoShowComponent implements OnInit {
   }
   submitterName = '';
   submitterEmail = '';
-  carregando = true;
+  showSkeleton!: Signal<boolean>;
   enviando = false;
   erro = '';
   dark = false;
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private formularioService = inject(FormularioPublicoService);
+  private loadingService = inject(LoadingService);
+  private toast = inject(ToastService);
 
   constructor() {
     this.token = this.route.snapshot.paramMap.get('token') ?? '';
@@ -96,21 +100,21 @@ export class FormularioPublicoShowComponent implements OnInit {
       this.dark = localStorage.getItem('zionmed_form_dark_mode') === '1';
     } catch {}
     if (!this.token) {
-      this.carregando = false;
+      this.showSkeleton = signal(false).asReadonly();
       this.erro = 'Link inválido.';
       return;
     }
-    this.formularioService.getByToken(this.token).subscribe({
+    const { data$, showSkeleton } = this.loadingService.loadWithThreshold(this.formularioService.getByToken(this.token));
+    this.showSkeleton = showSkeleton;
+    data$.subscribe({
       next: (d) => {
         this.data = d;
-        this.carregando = false;
         d.fields.forEach((f) => {
           if (f.type === 'checkbox') this.valores[f.name_key] = false;
           else this.valores[f.name_key] = '';
         });
       },
       error: (err) => {
-        this.carregando = false;
         this.erro = err.error?.message ?? 'Formulário não encontrado ou não disponível.';
       },
     });
@@ -142,6 +146,7 @@ export class FormularioPublicoShowComponent implements OnInit {
     this.formularioService.submit(this.token, payload).subscribe({
       next: (r) => {
         this.enviando = false;
+        this.toast.success('Enviado com sucesso', 'Seu formulário foi recebido.');
         this.router.navigate(['/f/sucesso'], {
           state: { protocol_number: r.protocol_number, clinic_name: this.data?.clinic_name },
         });
@@ -149,12 +154,50 @@ export class FormularioPublicoShowComponent implements OnInit {
       error: (err) => {
         this.enviando = false;
         this.erro = err.error?.message ?? (err.error?.errors ? Object.values(err.error.errors).flat().join(' ') : 'Não foi possível enviar. Tente novamente.');
+        this.toast.error('Não foi possível enviar', this.erro);
       },
     });
   }
 
   trackByKey(_index: number, f: FormularioPublicoField): string {
     return f.name_key;
+  }
+
+  /** Campos obrigatórios (para barra de progresso). */
+  get requiredFieldsTotal(): number {
+    return this.data?.fields.filter((f) => f.required).length ?? 0;
+  }
+
+  get requiredFieldsFilled(): number {
+    if (!this.data) return 0;
+    return this.data.fields.filter((f) => f.required && this.isFieldFilled(f)).length;
+  }
+
+  get progressPercent(): number {
+    const t = this.requiredFieldsTotal;
+    if (t <= 0) return 100;
+    return Math.round((this.requiredFieldsFilled / t) * 100);
+  }
+
+  isFieldFilled(f: FormularioPublicoField): boolean {
+    const v = this.valores[f.name_key];
+    const t = this.fieldType(f);
+    switch (t) {
+      case 'checkbox':
+        return v === true;
+      case 'number':
+        if (v === '' || v === null || v === undefined) return false;
+        return !Number.isNaN(Number(v));
+      case 'date':
+        return v instanceof Date || (typeof v === 'string' && v.trim().length > 0);
+      case 'signature':
+        return typeof v === 'string' && v.length > 80;
+      case 'select':
+      case 'radio':
+        return typeof v === 'string' && v.trim().length > 0;
+      default:
+        return String(v ?? '').trim().length > 0;
+    }
   }
 
   /** Inicia desenho da assinatura no canvas. */
@@ -164,8 +207,8 @@ export class FormularioPublicoShowComponent implements OnInit {
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
-    ctx.strokeStyle = this.dark ? '#e8e8f0' : '#1a1a2e';
-    ctx.lineWidth = 2;
+    ctx.strokeStyle = this.dark ? '#d4c9bb' : '#1e1b18';
+    ctx.lineWidth = 2.2;
     ctx.lineCap = 'round';
     const pos = this.getSignaturePoint(e, canvas);
     ctx.beginPath();
@@ -220,5 +263,4 @@ export class FormularioPublicoShowComponent implements OnInit {
     }
     this.valores[key] = '';
   }
-
-  }
+}

@@ -3,12 +3,12 @@ import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TemplatesService } from '../../core/services/templates.service';
-import { LoadingOverlayComponent } from '../../componentes/ui/loading-overlay/loading-overlay.component';
+import { ToastService } from '../../core/services/toast.service';
 
 @Component({
   selector: 'app-templates-criar-em-branco',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule, LoadingOverlayComponent],
+  imports: [CommonModule, RouterLink, FormsModule],
   templateUrl: './templates-criar-em-branco.component.html',
   styleUrl: './templates-criar-em-branco.component.css',
 })
@@ -22,6 +22,7 @@ export class TemplatesCriarEmBrancoComponent {
 
   private templatesService = inject(TemplatesService);
   private router = inject(Router);
+  private toast = inject(ToastService);
 
   salvar(): void {
     if (!this.name.trim()) return;
@@ -37,11 +38,13 @@ export class TemplatesCriarEmBrancoComponent {
       .subscribe({
         next: (t) => {
           this.salvando = false;
+          this.toast.success('Template criado!', `${this.name.trim()} foi criado.`);
           this.router.navigate(['/templates', t.id, 'campos']);
         },
         error: () => {
           this.salvando = false;
           this.erro = 'Não foi possível criar o template.';
+          this.toast.error('Erro ao criar', this.erro);
         },
       });
   }

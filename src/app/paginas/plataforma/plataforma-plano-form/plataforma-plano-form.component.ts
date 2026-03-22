@@ -1,22 +1,25 @@
-import { Component, OnInit, OnDestroy, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, Signal, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { PlataformaService, PlatformPlan } from '../../../core/services/plataforma.service';
 import { PlataformaHeaderService } from '../../../core/services/plataforma-header.service';
-import { LoadingOverlayComponent } from '../../../componentes/ui/loading-overlay/loading-overlay.component';
+import { LoadingService } from '../../../shared/services/loading.service';
+import { ZmSkeletonCardComponent } from '../../../shared/components/skeletons';
+import { ToastService } from '../../../core/services/toast.service';
 
 @Component({
   selector: 'app-plataforma-plano-form',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, LoadingOverlayComponent],
+  imports: [CommonModule, FormsModule, RouterLink, ZmSkeletonCardComponent],
   templateUrl: './plataforma-plano-form.component.html',
   styleUrl: './plataforma-plano-form.component.css',
 })
 export class PlataformaPlanoFormComponent implements OnInit, OnDestroy {
   isEdit = false;
   id: string | null = null;
-  loading = false;
+  showSkeleton!: Signal<boolean>;
+  listaPronta = false;
   saving = false;
   error = '';
 
@@ -32,23 +35,26 @@ export class PlataformaPlanoFormComponent implements OnInit, OnDestroy {
   private router = inject(Router);
   private plataformaService = inject(PlataformaService);
   private headerService = inject(PlataformaHeaderService);
+  private loadingService = inject(LoadingService);
+  private toast = inject(ToastService);
 
   ngOnInit(): void {
     this.id = this.route.snapshot.paramMap.get('id');
     this.isEdit = !!this.id;
     if (this.isEdit && this.id) {
       this.headerService.setHeader('Editar plano', '');
-      this.loading = true;
-      this.plataformaService.getPlan(this.id).subscribe({
+      const { data$, showSkeleton } = this.loadingService.loadWithThreshold(this.plataformaService.getPlan(this.id));
+      this.showSkeleton = showSkeleton;
+      data$.subscribe({
         next: (res) => {
-          this.loading = false;
+          this.listaPronta = true;
           const p = (res as { data?: PlatformPlan }).data ?? (res as unknown as PlatformPlan);
           this.preencherFormulario(p);
         },
         error: () => {
           this.plataformaService.getPlans().subscribe({
             next: (listRes) => {
-              this.loading = false;
+              this.listaPronta = true;
               const list = listRes.data ?? [];
               const idNum = Number(this.id);
               const p = list.find((x) => x.id === this.id || x.id === idNum || String(x.id) === this.id);
@@ -59,13 +65,15 @@ export class PlataformaPlanoFormComponent implements OnInit, OnDestroy {
               }
             },
             error: () => {
-              this.loading = false;
+              this.listaPronta = true;
               this.error = 'Não foi possível carregar o plano.';
             },
           });
         },
       });
     } else {
+      this.showSkeleton = signal(false).asReadonly();
+      this.listaPronta = true;
       this.headerService.setHeader('Novo plano', 'Criar plano de assinatura.');
     }
   }
@@ -142,11 +150,13 @@ export class PlataformaPlanoFormComponent implements OnInit, OnDestroy {
         .subscribe({
           next: () => {
             this.saving = false;
+            this.toast.success('Plano salvo', `${name} foi atualizado.`);
             this.router.navigate(['/plataforma/planos']);
           },
           error: () => {
             this.saving = false;
             this.error = 'Não foi possível salvar o plano.';
+            this.toast.error('Erro', this.error);
           },
         });
     } else {
@@ -162,11 +172,13 @@ export class PlataformaPlanoFormComponent implements OnInit, OnDestroy {
         .subscribe({
           next: () => {
             this.saving = false;
+            this.toast.success('Plano criado', `${name} foi cadastrado.`);
             this.router.navigate(['/plataforma/planos']);
           },
           error: () => {
             this.saving = false;
             this.error = 'Não foi possível criar o plano.';
+            this.toast.error('Erro', this.error);
           },
         });
     }

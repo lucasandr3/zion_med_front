@@ -1,15 +1,17 @@
 <!-- Igual ao backend: platform/tenants/show - visão do dono da plataforma -->
 <div class="relative min-h-[300px]">
-  @if (estadoCarregando) {
-    <app-loading-overlay />
-  }
+  @if (showSkeleton()) {
+    <zm-skeleton-list [rows]="6" />
+  } @else if (!listaPronta) {
+  } @else {
   @if (estadoErro) {
     <div class="card p-4 rounded-xl mb-6" style="background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.3)">
       <p class="text-sm" style="color: var(--c-text)">Não foi possível carregar o cliente.</p>
     </div>
   }
 
-  @if (data && !estadoCarregando) {
+  @if (data) {
+  <div class="zm-content-enter">
   <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
     <div class="card">
       <div class="text-[11px] font-semibold tracking-[0.18em] uppercase mb-1" style="color: var(--c-muted)">
@@ -73,5 +75,7 @@
       </tbody>
     </table>
   </div>
+  </div>
+  }
   }
 </div>

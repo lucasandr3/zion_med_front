@@ -1,9 +1,11 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, Signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PlataformaService, PlatformSettingsData } from '../../../core/services/plataforma.service';
 import { environment } from '../../../../environments/environment';
-import { LoadingOverlayComponent } from '../../../componentes/ui/loading-overlay/loading-overlay.component';
+import { LoadingService } from '../../../shared/services/loading.service';
+import { ZmSkeletonListComponent } from '../../../shared/components/skeletons';
+import { ToastService } from '../../../core/services/toast.service';
 
 const COMPONENT_OPTIONS: Record<string, string> = {
   platform: 'Plataforma (App)',
@@ -15,12 +17,13 @@ const COMPONENT_OPTIONS: Record<string, string> = {
 @Component({
   selector: 'app-plataforma-configuracoes',
   standalone: true,
-  imports: [CommonModule, FormsModule, LoadingOverlayComponent],
+  imports: [CommonModule, FormsModule, ZmSkeletonListComponent],
   templateUrl: './plataforma-configuracoes.component.html',
   styleUrl: './plataforma-configuracoes.component.css',
 })
 export class PlataformaConfiguracoesComponent implements OnInit {
-  loading = false;
+  showSkeleton!: Signal<boolean>;
+  listaPronta = false;
   savingSettings = false;
   savingStatus = false;
   error = '';
@@ -50,12 +53,15 @@ export class PlataformaConfiguracoesComponent implements OnInit {
   }
 
   private plataformaService = inject(PlataformaService);
+  private loadingService = inject(LoadingService);
+  private toast = inject(ToastService);
 
   ngOnInit(): void {
-    this.loading = true;
-    this.plataformaService.getSettings().subscribe({
+    const { data$, showSkeleton } = this.loadingService.loadWithThreshold(this.plataformaService.getSettings());
+    this.showSkeleton = showSkeleton;
+    data$.subscribe({
       next: (res) => {
-        this.loading = false;
+        this.listaPronta = true;
         const d = res.data;
         this.data = d;
         this.productName = d.product_name ?? '';
@@ -74,7 +80,7 @@ export class PlataformaConfiguracoesComponent implements OnInit {
         });
       },
       error: () => {
-        this.loading = false;
+        this.listaPronta = true;
         this.data = null;
         this.serviceComponents = {};
         Object.keys(COMPONENT_OPTIONS).forEach((k) => (this.serviceComponents[k] = 'operational'));
@@ -98,10 +104,12 @@ export class PlataformaConfiguracoesComponent implements OnInit {
         next: () => {
           this.savingSettings = false;
           this.successSettings = 'Configurações salvas.';
+          this.toast.success('Configurações salvas', 'Os parâmetros da plataforma foram atualizados.');
         },
         error: () => {
           this.savingSettings = false;
           this.error = 'Não foi possível salvar as configurações.';
+          this.toast.error('Erro', this.error);
         },
       });
   }
@@ -121,10 +129,12 @@ export class PlataformaConfiguracoesComponent implements OnInit {
         next: () => {
           this.savingStatus = false;
           this.successStatus = 'Status atualizado.';
+          this.toast.success('Status atualizado', 'O status operacional foi gravado.');
         },
         error: () => {
           this.savingStatus = false;
           this.error = 'Não foi possível atualizar o status.';
+          this.toast.error('Erro', this.error);
         },
       });
   }

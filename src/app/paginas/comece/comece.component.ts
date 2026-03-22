@@ -1,18 +1,11 @@
-import { Component, OnInit, inject } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { Component, Inject, OnInit, PLATFORM_ID, inject } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LandingService, PlanoLanding } from '../../core/services/landing.service';
 import { ComeceService } from '../../core/services/comece.service';
 import { AuthService } from '../../core/services/auth.service';
-
-const BENEFICIOS = [
-  { icon: 'description', color: 'text-indigo-500', bg: 'bg-indigo-50', title: 'Fichas e consentimentos sem papel', desc: 'Pacientes recebem um link, preenchem e assinam digitalmente antes da consulta.' },
-  { icon: 'bolt', color: 'text-amber-500', bg: 'bg-amber-50', title: 'Acesso imediato, sem burocracia', desc: 'Sua conta é criada na hora. Comece a usar em minutos, sem instalação.' },
-  { icon: 'assignment', color: 'text-sky-500', bg: 'bg-sky-50', title: 'Templates prontos para clínicas', desc: 'Fichas de cadastro, anamneses e consentimentos prontos para uso desde o primeiro dia.' },
-  { icon: 'picture_as_pdf', color: 'text-rose-500', bg: 'bg-rose-50', title: 'PDF e protocolo automáticos', desc: 'Cada envio gera PDF com protocolo único, data/hora e evidência de assinatura.' },
-  { icon: 'corporate_fare', color: 'text-emerald-500', bg: 'bg-emerald-50', title: 'Multi-unidade e multi-equipe', desc: 'Gerencie várias unidades e equipes com permissões granulares por perfil.' },
-];
 
 @Component({
   selector: 'app-pagina-comece',
@@ -40,20 +33,51 @@ export class ComeceComponent implements OnInit {
   mostrarSenhaConf = false;
   forcaSenha = 0;
   labelForcaSenha = 'Use no mínimo 8 caracteres';
-  beneficios = BENEFICIOS;
+  /** 1 = formulário cadastro; 2 = configuração pós-sucesso (só UI) */
+  uiStep = 1;
+  showSuccessOverlay = false;
+  especialidadePrincipal = '';
+  tamanhoEquipe = 'Só eu (profissional solo)';
+  comoConheceu = '';
+  lpTheme: 'dark' | 'light' = 'dark';
 
+  readonly waCadastroUrl =
+    'https://wa.me/5534996460818?text=' +
+    encodeURIComponent('Olá! Estou criando minha conta no ZionMed e queria tirar uma dúvida.');
+
+  private platformId: object;
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
   private landingService = inject(LandingService);
   private comeceService = inject(ComeceService);
   private auth = inject(AuthService);
 
+  constructor(@Inject(PLATFORM_ID) platformId: object) {
+    this.platformId = platformId;
+  }
+
   ngOnInit(): void {
+    if (isPlatformBrowser(this.platformId)) {
+      const saved = localStorage.getItem('zm-lp-theme') as 'dark' | 'light' | null;
+      if (saved === 'dark' || saved === 'light') {
+        this.lpTheme = saved;
+      } else if (window.matchMedia('(prefers-color-scheme: light)').matches) {
+        this.lpTheme = 'light';
+      }
+    }
+    const qe = this.route.snapshot.queryParamMap.get('email');
+    if (qe?.trim()) this.email = qe.trim();
+    const qp = this.route.snapshot.queryParamMap.get('plan');
+    if (qp?.trim()) this.planKey = qp.trim();
+
     this.landingService.getLanding().subscribe({
       next: (d) => {
         this.diasTrial = d.trial_days ?? 14;
         this.planos = d.plans ?? [];
         this.carregandoPlanos = false;
-        if (this.planos.length && !this.planKey) this.planKey = this.planos[0].key;
+        if (this.planos.length && !this.planos.some((p) => p.key === this.planKey)) {
+          this.planKey = this.planos[0].key;
+        }
       },
       error: () => {
         this.diasTrial = 14;
@@ -61,6 +85,26 @@ export class ComeceComponent implements OnInit {
         this.carregandoPlanos = false;
       },
     });
+  }
+
+  toggleLpTheme(): void {
+    this.lpTheme = this.lpTheme === 'dark' ? 'light' : 'dark';
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.setItem('zm-lp-theme', this.lpTheme);
+    }
+  }
+
+  get progressPct(): number {
+    if (this.showSuccessOverlay) return 100;
+    return this.uiStep === 1 ? 33 : 66;
+  }
+
+  isPlanoGratis(plan: PlanoLanding): boolean {
+    return plan.value <= 0 || /grat/i.test(plan.name) || plan.key === 'free';
+  }
+
+  selecionarPlano(key: string): void {
+    this.planKey = key;
   }
 
   atualizarForcaSenha(): void {
@@ -79,7 +123,15 @@ export class ComeceComponent implements OnInit {
   enviar(): void {
     this.estadoErro = false;
     this.mensagemErro = '';
-    if (!this.planKey || !this.companyName?.trim() || !this.responsibleName?.trim() || !this.email?.trim() || !this.password || this.password !== this.passwordConfirmation || !this.acceptedTerms) {
+    if (
+      !this.planKey ||
+      !this.companyName?.trim() ||
+      !this.responsibleName?.trim() ||
+      !this.email?.trim() ||
+      !this.password ||
+      this.password !== this.passwordConfirmation ||
+      !this.acceptedTerms
+    ) {
       this.estadoErro = true;
       this.mensagemErro = 'Preencha todos os campos obrigatórios, confirme a senha e aceite os termos.';
       return;
@@ -90,29 +142,43 @@ export class ComeceComponent implements OnInit {
       return;
     }
     this.estadoCarregando = true;
-    this.comeceService.store({
-      company_name: this.companyName.trim(),
-      responsible_name: this.responsibleName.trim(),
-      email: this.email.trim(),
-      phone: this.phone.trim() || undefined,
-      password: this.password,
-      password_confirmation: this.passwordConfirmation,
-      plan_key: this.planKey,
-      accepted_terms: this.acceptedTerms,
-    }).subscribe({
-      next: (data) => {
-        this.auth.setSessionFromLoginData(data);
-        this.estadoCarregando = false;
-        this.router.navigate(['/dashboard']);
-      },
-      error: (err) => {
-        this.estadoCarregando = false;
-        this.estadoErro = true;
-        const msg = err.error?.message ?? err.error?.errors
-          ? Object.values(err.error.errors).flat().join(' ')
-          : 'Não foi possível criar a conta. Tente novamente.';
-        this.mensagemErro = typeof msg === 'string' ? msg : 'Não foi possível criar a conta.';
-      },
-    });
+    this.comeceService
+      .store({
+        company_name: this.companyName.trim(),
+        responsible_name: this.responsibleName.trim(),
+        email: this.email.trim(),
+        phone: this.phone.trim() || undefined,
+        password: this.password,
+        password_confirmation: this.passwordConfirmation,
+        plan_key: this.planKey,
+        accepted_terms: this.acceptedTerms,
+      })
+      .subscribe({
+        next: (data) => {
+          this.auth.setSessionFromLoginData(data);
+          this.estadoCarregando = false;
+          this.uiStep = 2;
+          if (isPlatformBrowser(this.platformId)) {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }
+        },
+        error: (err) => {
+          this.estadoCarregando = false;
+          this.estadoErro = true;
+          let msg: string | undefined = err.error?.message;
+          if (!msg && err.error?.errors) {
+            msg = Object.values(err.error.errors).flat().join(' ');
+          }
+          this.mensagemErro =
+            typeof msg === 'string' && msg.trim() ? msg : 'Não foi possível criar a conta. Tente novamente.';
+        },
+      });
+  }
+
+  finalizarConfiguracao(): void {
+    this.showSuccessOverlay = true;
+    if (isPlatformBrowser(this.platformId)) {
+      window.setTimeout(() => void this.router.navigate(['/dashboard']), 1600);
+    }
   }
 }

@@ -1,40 +1,40 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, Signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { catchError } from 'rxjs';
 import { PlataformaService, PlatformSubscription } from '../../../core/services/plataforma.service';
-import { LoadingOverlayComponent } from '../../../componentes/ui/loading-overlay/loading-overlay.component';
+import { LoadingService } from '../../../shared/services/loading.service';
+import { ZmSkeletonListComponent } from '../../../shared/components/skeletons';
 
 @Component({
   selector: 'app-plataforma-assinaturas',
   standalone: true,
-  imports: [CommonModule, LoadingOverlayComponent],
+  imports: [CommonModule, ZmSkeletonListComponent],
   templateUrl: './plataforma-assinaturas.component.html',
   styleUrl: './plataforma-assinaturas.component.css',
 })
 export class PlataformaAssinaturasComponent implements OnInit {
-  estadoCarregando = false;
+  showSkeleton!: Signal<boolean>;
+  listaPronta = false;
   estadoErro = false;
   assinaturas: PlatformSubscription[] = [];
 
   private plataformaService = inject(PlataformaService);
+  private loadingService = inject(LoadingService);
 
   ngOnInit(): void {
-    this.estadoCarregando = true;
-    this.plataformaService.getSubscriptions().subscribe({
+    const load$ = this.plataformaService.getSubscriptions().pipe(
+      catchError(() => this.plataformaService.getSubscriptionsFromTenants()),
+    );
+    const { data$, showSkeleton } = this.loadingService.loadWithThreshold(load$);
+    this.showSkeleton = showSkeleton;
+    data$.subscribe({
       next: (res) => {
-        this.estadoCarregando = false;
+        this.listaPronta = true;
         this.assinaturas = res.data ?? [];
       },
       error: () => {
-        this.plataformaService.getSubscriptionsFromTenants().subscribe({
-          next: (res) => {
-            this.estadoCarregando = false;
-            this.assinaturas = res.data ?? [];
-          },
-          error: () => {
-            this.estadoCarregando = false;
-            this.estadoErro = true;
-          },
-        });
+        this.listaPronta = true;
+        this.estadoErro = true;
       },
     });
   }

@@ -1,8 +1,4 @@
 <div class="templates-criar-page min-h-full" style="background: var(--c-bg); color: var(--c-text)">
-  @if (carregando) {
-    <app-loading-overlay />
-  }
-
   <div class="max-w-5xl mx-auto">
     <!-- Título + subtítulo (igual backend: ícone circular, "Novo template", descrição) -->
     <div class="flex items-center gap-3 mb-2">
@@ -17,7 +13,11 @@
       <p class="text-sm mb-4" style="color: var(--c-error, #dc2626)">{{ erro }}</p>
     }
 
-    @if (!carregando) {
+    @if (showSkeleton()) {
+      <zm-skeleton-list [rows]="6" />
+    } @else if (!listaPronta) {
+    } @else {
+      <div class="zm-content-enter">
       <!-- Busca -->
       <div class="mb-4">
         <div class="relative w-full">
@@ -88,6 +88,7 @@
           <span class="material-symbols-outlined text-sm">add</span>
         </div>
       </a>
+      </div>
     }
 
   </div>

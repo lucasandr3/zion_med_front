@@ -1,9 +1,10 @@
 <!-- Igual ao backend: platform/plans/edit - formulário novo/editar -->
 <div class="relative min-h-[300px] w-full max-w-4xl">
-  @if (loading) {
-    <app-loading-overlay />
-  }
-  @if (!loading) {
+  @if (showSkeleton()) {
+    <zm-skeleton-card [height]="320" />
+  } @else if (!listaPronta) {
+  } @else {
+    <div class="zm-content-enter">
     <form (ngSubmit)="submit()" class="card space-y-4 rounded-xl p-4" style="border: 1px solid var(--c-border)">
       @if (error) {
         <p class="text-xs m-0" style="color: var(--c-primary)">{{ error }}</p>
@@ -49,9 +50,15 @@
       </div>
 
       <div class="flex gap-2 pt-2">
-        <button type="submit" class="btn-primary" [disabled]="saving">{{ isEdit ? 'Salvar' : 'Criar plano' }}</button>
+        <button type="submit" class="btn-primary inline-flex items-center gap-2" [disabled]="saving">
+          @if (saving) {
+            <span class="btn-spinner" aria-hidden="true"></span>
+          }
+          {{ saving ? 'Salvando…' : (isEdit ? 'Salvar' : 'Criar plano') }}
+        </button>
         <a routerLink="/plataforma/planos" class="btn-ghost">Cancelar</a>
       </div>
     </form>
+    </div>
   }
 </div>

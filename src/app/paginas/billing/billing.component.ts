@@ -1,45 +1,52 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, Signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BillingService, BillingState, PlanoComChave, Subscription } from '../../core/services/billing.service';
-import { LoadingOverlayComponent } from '../../componentes/ui/loading-overlay/loading-overlay.component';
+import { LoadingService } from '../../shared/services/loading.service';
+import { ZmSkeletonListComponent } from '../../shared/components/skeletons';
+import { ToastService } from '../../core/services/toast.service';
+import { ConfirmDialogService } from '../../core/services/confirm-dialog.service';
 
 @Component({
   selector: 'app-pagina-billing',
   standalone: true,
-  imports: [CommonModule, LoadingOverlayComponent],
+  imports: [CommonModule, ZmSkeletonListComponent],
   templateUrl: './billing.component.html',
   styleUrl: './billing.component.css',
 })
 export class BillingComponent implements OnInit {
   private billingService = inject(BillingService);
+  private loadingService = inject(LoadingService);
+  private toast = inject(ToastService);
+  private confirm = inject(ConfirmDialogService);
 
   state: BillingState | null = null;
   planos: PlanoComChave[] = [];
   assinaturaAtiva: Subscription | null = null;
-  carregando = false;
+  showSkeleton!: Signal<boolean>;
+  listaPronta = false;
   erro = '';
   acaoEmAndamento = false;
-  mensagemSucesso = '';
 
   ngOnInit(): void {
     this.carregar();
   }
 
   carregar(): void {
-    this.carregando = true;
     this.erro = '';
-    this.billingService.get().subscribe({
+    const { data$, showSkeleton } = this.loadingService.loadWithThreshold(this.billingService.get());
+    this.showSkeleton = showSkeleton;
+    data$.subscribe({
       next: (data: BillingState) => {
+        this.listaPronta = true;
         this.state = data;
         this.planos = Object.entries(data.plans ?? {}).map(([key, p]) => ({ ...p, key }));
         this.assinaturaAtiva =
           data.subscriptions?.find(
             (s) => String(s.status).toLowerCase() === 'active' && s.asaas_subscription_id
           ) ?? null;
-        this.carregando = false;
       },
       error: () => {
-        this.carregando = false;
+        this.listaPronta = true;
         this.erro = 'Não foi possível carregar os dados da assinatura.';
       },
     });
@@ -55,52 +62,65 @@ export class BillingComponent implements OnInit {
 
   checkout(planKey: string): void {
     this.acaoEmAndamento = true;
-    this.mensagemSucesso = '';
+    this.erro = '';
     this.billingService.checkout(planKey).subscribe({
       next: (res) => {
         this.acaoEmAndamento = false;
-        this.mensagemSucesso = res.data?.message ?? 'Assinatura ativa.';
+        this.toast.success('Assinatura', res.data?.message ?? 'Assinatura ativa.');
         this.carregar();
       },
       error: (err) => {
         this.acaoEmAndamento = false;
         this.erro = err.error?.message ?? 'Não foi possível assinar.';
+        this.toast.error('Erro na assinatura', this.erro);
       },
     });
   }
 
-  cancelarAssinatura(sub: Subscription): void {
-    if (!confirm('Tem certeza que deseja cancelar esta assinatura?')) return;
+  async cancelarAssinatura(sub: Subscription): Promise<void> {
+    const ok = await this.confirm.request({
+      title: 'Cancelar assinatura?',
+      message: 'Tem certeza que deseja cancelar esta assinatura? O acesso pode ser encerrado ao fim do período pago.',
+      confirmLabel: 'Sim, cancelar',
+      variant: 'danger',
+    });
+    if (!ok) return;
     this.acaoEmAndamento = true;
-    this.mensagemSucesso = '';
     this.erro = '';
     this.billingService.cancelSubscription(sub.id).subscribe({
       next: (res) => {
         this.acaoEmAndamento = false;
-        this.mensagemSucesso = res.data?.message ?? 'Assinatura cancelada.';
+        this.toast.success('Assinatura cancelada', res.data?.message ?? 'Sua assinatura foi cancelada.');
         this.carregar();
       },
       error: (err) => {
         this.acaoEmAndamento = false;
         this.erro = err.error?.message ?? 'Não foi possível cancelar.';
+        this.toast.error('Erro', this.erro);
       },
     });
   }
 
-  trocarPlano(planKey: string): void {
-    if (!confirm('Deseja trocar para este plano? A assinatura atual será cancelada e uma nova será criada.')) return;
+  async trocarPlano(planKey: string): Promise<void> {
+    const ok = await this.confirm.request({
+      title: 'Trocar de plano?',
+      message: 'A assinatura atual será cancelada e uma nova será criada para o plano selecionado.',
+      confirmLabel: 'Sim, trocar plano',
+      variant: 'neutral',
+    });
+    if (!ok) return;
     this.acaoEmAndamento = true;
-    this.mensagemSucesso = '';
     this.erro = '';
     this.billingService.changePlan(planKey).subscribe({
       next: (res) => {
         this.acaoEmAndamento = false;
-        this.mensagemSucesso = res.data?.message ?? 'Plano alterado.';
+        this.toast.success('Plano alterado', res.data?.message ?? 'O plano foi atualizado.');
         this.carregar();
       },
       error: (err) => {
         this.acaoEmAndamento = false;
         this.erro = err.error?.message ?? 'Não foi possível trocar o plano.';
+        this.toast.error('Erro', this.erro);
       },
     });
   }

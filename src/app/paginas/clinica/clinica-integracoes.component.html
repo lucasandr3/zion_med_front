@@ -78,9 +78,13 @@
                 <label>Nome do token</label>
                 <input type="text" class="form-input" style="min-width:200px" [(ngModel)]="novoTokenNome" name="novoTokenNome" placeholder="Ex: ERP, Sistema externo" required />
               </div>
-              <button type="submit" class="btn-primary" style="padding:10px 16px">
-                <span class="material-symbols-outlined" style="font-size:18px">add</span>
-                Criar token
+              <button type="submit" class="btn-primary inline-flex items-center gap-2" style="padding:10px 16px" [disabled]="tokenCriando">
+                @if (tokenCriando) {
+                  <span class="btn-spinner" aria-hidden="true"></span>
+                } @else {
+                  <span class="material-symbols-outlined" style="font-size:18px">add</span>
+                }
+                {{ tokenCriando ? 'Criando…' : 'Criar token' }}
               </button>
             </form>
 
@@ -146,9 +150,13 @@
                 <label>Descrição <span class="opt" style="font-size:10px;font-weight:400;color:var(--c-muted);margin-left:6px">opcional</span></label>
                 <input type="text" class="form-input" [(ngModel)]="novoWebhookDescricao" name="novoWebhookDescricao" placeholder="Ex: ERP principal" style="max-width:280px" />
               </div>
-              <button type="submit" class="btn-primary" style="align-self:flex-start;padding:10px 16px">
-                <span class="material-symbols-outlined" style="font-size:18px">add</span>
-                Adicionar webhook
+              <button type="submit" class="btn-primary inline-flex items-center gap-2" style="align-self:flex-start;padding:10px 16px" [disabled]="webhookCriando">
+                @if (webhookCriando) {
+                  <span class="btn-spinner" aria-hidden="true"></span>
+                } @else {
+                  <span class="material-symbols-outlined" style="font-size:18px">add</span>
+                }
+                {{ webhookCriando ? 'Salvando…' : 'Adicionar webhook' }}
               </button>
             </form>
 
@@ -218,7 +226,12 @@
                         </td>
                         <td style="padding:6px 8px">
                           @if ((d.response_code == null || d.response_code < 200 || d.response_code >= 300) && d.id) {
-                            <button type="button" class="btn-ghost text-sm" (click)="reenviar(d)" [disabled]="reenviandoId === d.id">Reenviar</button>
+                            <button type="button" class="btn-ghost text-sm inline-flex items-center gap-2" (click)="reenviar(d)" [disabled]="reenviandoId === d.id">
+                              @if (reenviandoId === d.id) {
+                                <span class="btn-spinner" style="width:12px;height:12px;border-width:2px"></span>
+                              }
+                              {{ reenviandoId === d.id ? 'Reenviando…' : 'Reenviar' }}
+                            </button>
                           }
                         </td>
                       </tr>

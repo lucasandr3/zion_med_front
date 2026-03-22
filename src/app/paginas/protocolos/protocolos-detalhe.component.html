@@ -1,8 +1,4 @@
 <div class="protocolo-detalhe relative min-h-[320px]">
-  @if (carregando && !protocolo) {
-    <app-loading-overlay />
-  }
-
   <div class="mb-4">
     <a routerLink="/protocolos" class="inline-flex items-center gap-2 text-sm no-underline" style="color: var(--c-primary)">
       <span class="material-symbols-outlined text-lg">arrow_back</span>
@@ -13,12 +9,17 @@
   @if (erro) {
     <p class="text-sm mb-4" style="color: var(--c-error, #dc2626)">{{ erro }}</p>
   }
-  @if (mensagemSucesso) {
-    <p class="text-sm mb-4" style="color: var(--c-success, #16a34a)">{{ mensagemSucesso }}</p>
+
+  @if (showSkeleton() && !protocolo) {
+    <div class="space-y-4">
+      <zm-skeleton-card [height]="56" />
+      <zm-skeleton-card [height]="200" />
+      <zm-skeleton-card [height]="160" />
+    </div>
   }
 
-  @if (!carregando && !erro && protocolo) {
-    <div class="space-y-6">
+  @if (!erro && protocolo) {
+    <div class="zm-content-enter space-y-6">
       <!-- Header da página (igual à view antiga) -->
       <div class="flex flex-wrap items-start justify-between gap-4">
         <div class="flex items-start gap-3">
@@ -129,9 +130,13 @@
         </div>
         <div class="p-5">
           <textarea [(ngModel)]="novoComentario" rows="3" class="w-full py-2 px-3 text-sm border rounded-lg mb-3" style="border-color: var(--c-border); background: var(--c-surface); color: var(--c-text)" placeholder="Digite seu comentário..."></textarea>
-          <button type="button" class="btn-primary inline-flex items-center gap-2" (click)="enviarComentario()" [disabled]="!novoComentario.trim() || acaoEmAndamento">
-            <span class="material-symbols-outlined text-lg">add_comment</span>
-            Adicionar comentário
+          <button type="button" class="btn-primary inline-flex items-center gap-2" (click)="enviarComentario()" [disabled]="!novoComentario.trim() || comentarioEnviando">
+            @if (comentarioEnviando) {
+              <span class="btn-spinner" aria-hidden="true"></span>
+            } @else {
+              <span class="material-symbols-outlined text-lg">add_comment</span>
+            }
+            {{ comentarioEnviando ? 'Enviando…' : 'Adicionar comentário' }}
           </button>
         </div>
       </div>
@@ -155,9 +160,13 @@
               <label class="block text-xs font-semibold uppercase tracking-wider mb-1.5" style="color: var(--c-muted)">Comentário (opcional)</label>
               <textarea [(ngModel)]="comentarioRevisao" rows="3" class="w-full py-2 px-3 text-sm border rounded-lg" style="border-color: var(--c-border); background: var(--c-surface); color: var(--c-text)" placeholder="Comentário da revisão..."></textarea>
             </div>
-            <button type="button" class="btn-primary inline-flex items-center gap-2" (click)="enviarRevisao()" [disabled]="acaoEmAndamento">
-              <span class="material-symbols-outlined text-lg">send</span>
-              Enviar revisão
+            <button type="button" class="btn-primary inline-flex items-center gap-2" (click)="enviarRevisao()" [disabled]="revisaoEnviando">
+              @if (revisaoEnviando) {
+                <span class="btn-spinner" aria-hidden="true"></span>
+              } @else {
+                <span class="material-symbols-outlined text-lg">send</span>
+              }
+              {{ revisaoEnviando ? 'Enviando…' : 'Enviar revisão' }}
             </button>
           </div>
         </div>

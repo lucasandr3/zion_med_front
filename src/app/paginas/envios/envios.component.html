@@ -1,8 +1,4 @@
 <div class="relative min-h-[320px]">
-  @if (carregando && envios.length === 0) {
-    <app-loading-overlay />
-  }
-
   <div class="page-header mb-5">
     <div class="page-title flex items-center gap-3">
       <div class="page-title-icon w-10 h-10 rounded-lg flex items-center justify-center" style="background: var(--c-soft)">
@@ -59,7 +55,12 @@
           </div>
         }
         <div class="flex gap-2">
-          <button type="button" class="btn-primary" (click)="enviarNovo()" [disabled]="enviando">{{ enviando ? 'Enviando…' : 'Enviar' }}</button>
+          <button type="button" class="btn-primary inline-flex items-center gap-2" (click)="enviarNovo()" [disabled]="enviando">
+            @if (enviando) {
+              <span class="btn-spinner" aria-hidden="true"></span>
+            }
+            {{ enviando ? 'Enviando…' : 'Enviar' }}
+          </button>
           <button type="button" class="btn-ghost btn-default-bg" (click)="fecharNovoEnvio()">Cancelar</button>
         </div>
       </div>
@@ -78,6 +79,11 @@
     <p class="text-sm mb-4" style="color: var(--c-error, #dc2626)">{{ erro }}</p>
   }
 
+  @if (showSkeleton()) {
+    <zm-skeleton-list [rows]="6" />
+  } @else if (!listaPronta) {
+  } @else {
+    <div class="zm-content-enter">
   <div class="card rounded-xl overflow-hidden" style="border: 1px solid var(--c-border)">
     <div class="overflow-x-auto">
       <table class="w-full text-sm border-collapse">
@@ -133,5 +139,7 @@
 
   @if (meta.total > 0) {
     <p class="text-xs mt-3" style="color: var(--c-muted)">{{ meta.total }} envio(s) nesta caixa</p>
+  }
+    </div>
   }
 </div>

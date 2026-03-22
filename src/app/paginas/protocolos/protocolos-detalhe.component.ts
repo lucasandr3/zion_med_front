@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, Signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -8,21 +8,24 @@ import {
   ProtocoloEvent,
   ProtocoloField,
 } from '../../core/services/protocolos.service';
-import { LoadingOverlayComponent } from '../../componentes/ui/loading-overlay/loading-overlay.component';
+import { LoadingService } from '../../shared/services/loading.service';
+import { ZmSkeletonCardComponent } from '../../shared/components/skeletons';
+import { ToastService } from '../../core/services/toast.service';
+import { ConfirmDialogService } from '../../core/services/confirm-dialog.service';
 
 @Component({
   selector: 'app-protocolos-detalhe',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, LoadingOverlayComponent],
+  imports: [CommonModule, FormsModule, RouterLink, ZmSkeletonCardComponent],
   templateUrl: './protocolos-detalhe.component.html',
   styleUrl: './protocolos-detalhe.component.css',
 })
 export class ProtocolosDetalheComponent implements OnInit {
   protocolo: ProtocoloDetalheData | null = null;
-  carregando = false;
+  showSkeleton!: Signal<boolean>;
   erro = '';
-  acaoEmAndamento = false;
-  mensagemSucesso = '';
+  comentarioEnviando = false;
+  revisaoEnviando = false;
 
   revisaoFormVisible = false;
   revisaoAprovado = true;
@@ -31,6 +34,9 @@ export class ProtocolosDetalheComponent implements OnInit {
 
   private route = inject(ActivatedRoute);
   private protocolosService = inject(ProtocolosService);
+  private loadingService = inject(LoadingService);
+  private toast = inject(ToastService);
+  private confirm = inject(ConfirmDialogService);
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
@@ -39,15 +45,14 @@ export class ProtocolosDetalheComponent implements OnInit {
   }
 
   carregar(id: number): void {
-    this.carregando = true;
     this.erro = '';
-    this.protocolosService.get(id).subscribe({
+    const { data$, showSkeleton } = this.loadingService.loadWithThreshold(this.protocolosService.get(id));
+    this.showSkeleton = showSkeleton;
+    data$.subscribe({
       next: (p) => {
         this.protocolo = p;
-        this.carregando = false;
       },
       error: () => {
-        this.carregando = false;
         this.erro = 'Não foi possível carregar o protocolo.';
       },
     });
@@ -106,40 +111,52 @@ export class ProtocolosDetalheComponent implements OnInit {
     });
   }
 
-  enviarRevisao(): void {
+  async enviarRevisao(): Promise<void> {
     if (!this.protocolo) return;
-    if (this.revisaoAprovado === false && !confirm('Tem certeza que deseja reprovar este protocolo? O submetente pode ser notificado.')) {
-      return;
+    if (this.revisaoAprovado === false) {
+      const ok = await this.confirm.request({
+        title: 'Reprovar protocolo?',
+        message: 'Tem certeza que deseja reprovar este protocolo? O submetente pode ser notificado.',
+        confirmLabel: 'Sim, reprovar',
+        variant: 'danger',
+      });
+      if (!ok) return;
     }
-    this.acaoEmAndamento = true;
+    this.revisaoEnviando = true;
     this.protocolosService.aprovar(this.protocolo.id, this.revisaoAprovado, this.comentarioRevisao || undefined).subscribe({
       next: () => {
-        this.acaoEmAndamento = false;
+        this.revisaoEnviando = false;
         this.revisaoFormVisible = false;
         this.comentarioRevisao = '';
-        this.mensagemSucesso = this.revisaoAprovado ? 'Protocolo aprovado.' : 'Protocolo reprovado.';
+        if (this.revisaoAprovado) {
+          this.toast.success('Protocolo aprovado', 'A revisão foi registrada.');
+        } else {
+          this.toast.warning('Protocolo reprovado', 'A revisão foi registrada.');
+        }
         this.carregar(this.protocolo!.id);
       },
       error: () => {
-        this.acaoEmAndamento = false;
+        this.revisaoEnviando = false;
         this.erro = 'Não foi possível enviar a revisão.';
+        this.toast.error('Erro', this.erro);
       },
     });
   }
 
   enviarComentario(): void {
     if (!this.protocolo || !this.novoComentario.trim()) return;
-    this.acaoEmAndamento = true;
+    this.comentarioEnviando = true;
     this.protocolosService.comentario(this.protocolo.id, this.novoComentario.trim()).subscribe({
       next: () => {
-        this.acaoEmAndamento = false;
+        this.comentarioEnviando = false;
         this.novoComentario = '';
-        this.mensagemSucesso = 'Comentário adicionado.';
+        this.toast.success('Comentário adicionado', 'Seu comentário foi publicado.');
         this.carregar(this.protocolo!.id);
       },
       error: () => {
-        this.acaoEmAndamento = false;
+        this.comentarioEnviando = false;
         this.erro = 'Não foi possível adicionar o comentário.';
+        this.toast.error('Erro', this.erro);
       },
     });
   }

@@ -1,11 +1,13 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, Signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { FlatpickrDirective, provideFlatpickrDefaults } from 'angularx-flatpickr';
 import { Portuguese } from 'flatpickr/dist/l10n/pt';
 import { ClinicaService, ClinicaConfig, ClinicaOption, ClinicaAuditLog, ConfigPageData, BusinessHoursSlot } from '../../core/services/clinica.service';
-import { LoadingOverlayComponent } from '../../componentes/ui/loading-overlay/loading-overlay.component';
+import { LoadingService } from '../../shared/services/loading.service';
+import { ZmSkeletonListComponent } from '../../shared/components/skeletons';
+import { ToastService } from '../../core/services/toast.service';
 
 const DAYS: { id: string; label: string }[] = [
   { id: '1', label: 'Segunda' },
@@ -20,7 +22,7 @@ const DAYS: { id: string; label: string }[] = [
 @Component({
   selector: 'app-clinica-configuracoes',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, LoadingOverlayComponent, FlatpickrDirective],
+  imports: [CommonModule, FormsModule, RouterLink, ZmSkeletonListComponent, FlatpickrDirective],
   providers: [
     provideFlatpickrDefaults({
       locale: Portuguese,
@@ -37,7 +39,8 @@ export class ClinicaConfiguracoesComponent implements OnInit {
   form: Partial<ClinicaConfig> & {
     business_hours?: Record<string, { open: string; close: string }>;
   } = {};
-  carregando = false;
+  showSkeleton!: Signal<boolean>;
+  listaPronta = false;
   salvando = false;
   erro = '';
   sucesso = false;
@@ -55,6 +58,8 @@ export class ClinicaConfiguracoesComponent implements OnInit {
   logsTotal = 0;
 
   private clinicaService = inject(ClinicaService);
+  private loadingService = inject(LoadingService);
+  private toast = inject(ToastService);
 
   get clinic(): ClinicaConfig | undefined {
     return this.pageData?.clinic;
@@ -130,16 +135,17 @@ export class ClinicaConfiguracoesComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.carregando = true;
-    this.clinicaService.getConfiguracoesPage().subscribe({
+    const { data$, showSkeleton } = this.loadingService.loadWithThreshold(this.clinicaService.getConfiguracoesPage());
+    this.showSkeleton = showSkeleton;
+    data$.subscribe({
       next: (data) => {
+        this.listaPronta = true;
         this.pageData = data;
         this.activeTab = data.active_config_tab ?? 'dados';
         this.patchFormFromClinic(data.clinic);
-        this.carregando = false;
       },
       error: () => {
-        this.carregando = false;
+        this.listaPronta = true;
         this.erro = 'Não foi possível carregar as configurações.';
       },
     });
@@ -279,10 +285,12 @@ export class ClinicaConfiguracoesComponent implements OnInit {
         this.logoFile = null;
         if (this.pageData) this.pageData.clinic = { ...this.pageData.clinic, ...updated };
         this.patchFormFromClinic(updated);
+        this.toast.success('Configurações salvas', 'As alterações da empresa foram gravadas.');
       },
       error: () => {
         this.salvando = false;
         this.erro = 'Não foi possível salvar.';
+        this.toast.error('Erro ao salvar', this.erro);
       },
     });
   }

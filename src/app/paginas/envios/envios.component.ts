@@ -1,16 +1,19 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, Signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DocumentSendsService, DocumentSendItem } from '../../core/services/document-sends.service';
 import { TemplatesService, Template } from '../../core/services/templates.service';
-import { LoadingOverlayComponent } from '../../componentes/ui/loading-overlay/loading-overlay.component';
+import { LoadingService } from '../../shared/services/loading.service';
+import { ZmSkeletonListComponent } from '../../shared/components/skeletons';
+import { ToastService } from '../../core/services/toast.service';
+import { ConfirmDialogService } from '../../core/services/confirm-dialog.service';
 
 type Caixa = 'pendentes' | 'assinados' | 'expirados' | 'cancelados';
 
 @Component({
   selector: 'app-envios',
   standalone: true,
-  imports: [CommonModule, FormsModule, LoadingOverlayComponent],
+  imports: [CommonModule, FormsModule, ZmSkeletonListComponent],
   templateUrl: './envios.component.html',
   styleUrl: './envios.component.css',
 })
@@ -19,7 +22,8 @@ export class EnviosComponent implements OnInit {
   templates: Template[] = [];
   caixaAtual: Caixa = 'pendentes';
   meta = { current_page: 1, last_page: 1, per_page: 20, total: 0 };
-  carregando = false;
+  showSkeleton!: Signal<boolean>;
+  listaPronta = false;
   erro = '';
   acaoId: number | null = null;
 
@@ -30,6 +34,9 @@ export class EnviosComponent implements OnInit {
 
   private documentSendsService = inject(DocumentSendsService);
   private templatesService = inject(TemplatesService);
+  private loadingService = inject(LoadingService);
+  private toast = inject(ToastService);
+  private confirm = inject(ConfirmDialogService);
 
   readonly caixas: { key: Caixa; label: string }[] = [
     { key: 'pendentes', label: 'Pendentes' },
@@ -49,16 +56,19 @@ export class EnviosComponent implements OnInit {
   }
 
   carregar(page = 1): void {
-    this.carregando = true;
     this.erro = '';
-    this.documentSendsService.list({ caixa: this.caixaAtual, per_page: 20, page }).subscribe({
+    const { data$, showSkeleton } = this.loadingService.loadWithThreshold(
+      this.documentSendsService.list({ caixa: this.caixaAtual, per_page: 20, page }),
+    );
+    this.showSkeleton = showSkeleton;
+    data$.subscribe({
       next: (res) => {
+        this.listaPronta = true;
         this.envios = res.data;
         this.meta = res.meta;
-        this.carregando = false;
       },
       error: () => {
-        this.carregando = false;
+        this.listaPronta = true;
         this.erro = 'Não foi possível carregar os envios.';
       },
     });
@@ -88,17 +98,26 @@ export class EnviosComponent implements OnInit {
     return item.recipient_email ?? '—';
   }
 
-  cancelar(item: DocumentSendItem): void {
+  async cancelar(item: DocumentSendItem): Promise<void> {
     if (item.status !== 'pendente') return;
+    const ok = await this.confirm.request({
+      title: 'Cancelar envio?',
+      message: 'O destinatário não poderá mais usar o link deste envio.',
+      confirmLabel: 'Sim, cancelar',
+      variant: 'danger',
+    });
+    if (!ok) return;
     this.acaoId = item.id;
     this.documentSendsService.cancel(item.id).subscribe({
       next: () => {
         this.acaoId = null;
         this.carregar();
+        this.toast.success('Envio cancelado', 'O link foi invalidado.');
       },
       error: (err) => {
         this.acaoId = null;
         this.erro = err.error?.message ?? 'Não foi possível cancelar.';
+        this.toast.error('Erro', this.erro);
       },
     });
   }
@@ -110,10 +129,12 @@ export class EnviosComponent implements OnInit {
       next: () => {
         this.acaoId = null;
         this.carregar();
+        this.toast.success('Link reenviado', 'Uma nova tentativa foi registrada.');
       },
       error: (err) => {
         this.acaoId = null;
         this.erro = err.error?.message ?? 'Não foi possível reenviar.';
+        this.toast.error('Erro', this.erro);
       },
     });
   }
@@ -158,10 +179,12 @@ export class EnviosComponent implements OnInit {
         this.enviando = false;
         this.fecharNovoEnvio();
         this.setCaixa('pendentes');
+        this.toast.success('Envio criado', 'O link do documento foi enviado.');
       },
       error: (err) => {
         this.enviando = false;
         this.erroNovo = err.error?.message ?? 'Não foi possível enviar.';
+        this.toast.error('Erro no envio', this.erroNovo);
       },
     });
   }

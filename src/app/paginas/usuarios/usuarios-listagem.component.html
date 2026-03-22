@@ -1,7 +1,4 @@
 <div class="relative min-h-[320px]">
-  @if (carregando) {
-    <app-loading-overlay />
-  }
   <div class="page-header">
     <div class="page-title">
       <div class="page-title-icon">
@@ -16,10 +13,13 @@
       Novo usuário
     </a>
   </div>
-  @if (!carregando && erro) {
+  @if (showSkeleton()) {
+    <zm-skeleton-list [rows]="5" />
+  } @else if (!listaPronta) {
+  } @else if (erro) {
     <p class="text-sm" style="color: var(--c-error, #dc2626)">{{ erro }}</p>
-  }
-  @if (!carregando && !erro) {
+  } @else {
+  <div class="zm-content-enter">
   <div class="table-card">
     <table>
       <thead>
@@ -74,8 +74,12 @@
                     <span class="material-symbols-outlined" style="font-size:18px">edit</span>
                   </a>
                   @if (podeDesativar(u)) {
-                    <button type="button" class="action-btn danger" aria-label="Desativar usuário" (click)="desativar(u)" appTooltip="Desativar usuário">
-                      <span class="material-symbols-outlined" style="font-size:18px">person_off</span>
+                    <button type="button" class="action-btn danger" aria-label="Desativar usuário" [disabled]="desativandoId === u.id" (click)="desativar(u)" appTooltip="Desativar usuário">
+                      @if (desativandoId === u.id) {
+                        <span class="btn-spinner" style="width:16px;height:16px;border-width:2px"></span>
+                      } @else {
+                        <span class="material-symbols-outlined" style="font-size:18px">person_off</span>
+                      }
                     </button>
                   }
                 </div>
@@ -85,6 +89,7 @@
         }
       </tbody>
     </table>
+  </div>
   </div>
   }
 </div>

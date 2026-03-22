@@ -2,6 +2,8 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IntegracoesService, IntegracoesState, IntegracoesWebhook, IntegracoesToken, IntegracoesDelivery } from '../../core/services/integracoes.service';
+import { ToastService } from '../../core/services/toast.service';
+import { ConfirmDialogService } from '../../core/services/confirm-dialog.service';
 
 type AbaIntegracao = 'api' | 'webhooks' | 'entregas';
 
@@ -14,6 +16,8 @@ type AbaIntegracao = 'api' | 'webhooks' | 'entregas';
 })
 export class ClinicaIntegracoesComponent implements OnInit {
   private service = inject(IntegracoesService);
+  private toast = inject(ToastService);
+  private confirm = inject(ConfirmDialogService);
 
   state: IntegracoesState | null = null;
   carregando = false;
@@ -29,6 +33,8 @@ export class ClinicaIntegracoesComponent implements OnInit {
   novoWebhookEventos: string[] = [];
   novoWebhookSecret = '';
   novoWebhookDescricao = '';
+  tokenCriando = false;
+  webhookCriando = false;
 
   ngOnInit(): void {
     this.carregar();
@@ -74,18 +80,39 @@ export class ClinicaIntegracoesComponent implements OnInit {
 
   criarToken(): void {
     if (!this.novoTokenNome.trim()) return;
+    this.tokenCriando = true;
     this.service.criarToken(this.novoTokenNome.trim()).subscribe({
       next: (res) => {
+        this.tokenCriando = false;
         this.ultimoTokenGerado = { token: res.token, name: res.name };
         this.novoTokenNome = '';
         this.carregar();
+        this.toast.success('Token criado', 'Guarde o token com segurança; ele não será exibido novamente.');
+      },
+      error: () => {
+        this.tokenCriando = false;
+        this.toast.error('Erro', 'Não foi possível criar o token.');
       },
     });
   }
 
-  revogarToken(token: IntegracoesToken): void {
-    if (!confirm('Revogar este token?')) return;
-    this.service.revogarToken(token.id).subscribe(() => this.carregar());
+  async revogarToken(token: IntegracoesToken): Promise<void> {
+    const ok = await this.confirm.request({
+      title: 'Revogar token?',
+      messageBefore: 'O token ',
+      emphasis: token.name ?? `#${token.id}`,
+      messageAfter: ' deixará de funcionar imediatamente.',
+      confirmLabel: 'Sim, revogar',
+      variant: 'danger',
+    });
+    if (!ok) return;
+    this.service.revogarToken(token.id).subscribe({
+      next: () => {
+        this.carregar();
+        this.toast.success('Token revogado', 'O acesso por esse token foi encerrado.');
+      },
+      error: () => this.toast.error('Erro', 'Não foi possível revogar o token.'),
+    });
   }
 
   toggleEvento(ev: string, checked: boolean): void {
@@ -98,6 +125,7 @@ export class ClinicaIntegracoesComponent implements OnInit {
 
   criarWebhook(): void {
     if (!this.novoWebhookUrl.trim() || this.novoWebhookEventos.length === 0) return;
+    this.webhookCriando = true;
     const payload = {
       url: this.novoWebhookUrl.trim(),
       events: this.novoWebhookEventos,
@@ -106,18 +134,41 @@ export class ClinicaIntegracoesComponent implements OnInit {
     };
     this.service.criarWebhook(payload).subscribe({
       next: () => {
+        this.webhookCriando = false;
         this.novoWebhookUrl = '';
         this.novoWebhookEventos = [];
         this.novoWebhookSecret = '';
         this.novoWebhookDescricao = '';
         this.carregar();
+        this.toast.success('Webhook criado', 'O endpoint foi registrado.');
+      },
+      error: () => {
+        this.webhookCriando = false;
+        this.toast.error('Erro', 'Não foi possível criar o webhook.');
       },
     });
   }
 
-  removerWebhook(wh: IntegracoesWebhook): void {
-    if (!confirm('Remover este webhook?')) return;
-    this.service.removerWebhook(wh.id).subscribe(() => this.carregar());
+  async removerWebhook(wh: IntegracoesWebhook): Promise<void> {
+    const url = wh.url?.trim() ?? '';
+    const emphasis =
+      url.length > 48 ? `${url.slice(0, 48)}…` : url.length > 0 ? url : `#${wh.id}`;
+    const ok = await this.confirm.request({
+      title: 'Remover webhook?',
+      messageBefore: 'O webhook ',
+      emphasis,
+      messageAfter: ' será removido.',
+      confirmLabel: 'Sim, remover',
+      variant: 'danger',
+    });
+    if (!ok) return;
+    this.service.removerWebhook(wh.id).subscribe({
+      next: () => {
+        this.carregar();
+        this.toast.success('Webhook removido', 'O endpoint foi excluído.');
+      },
+      error: () => this.toast.error('Erro', 'Não foi possível remover o webhook.'),
+    });
   }
 
   reenviandoId: number | null = null;
@@ -128,9 +179,11 @@ export class ClinicaIntegracoesComponent implements OnInit {
       next: () => {
         this.reenviandoId = null;
         this.carregar();
+        this.toast.success('Reenvio solicitado', 'A entrega foi colocada na fila novamente.');
       },
       error: () => {
         this.reenviandoId = null;
+        this.toast.error('Erro', 'Não foi possível reenviar.');
       },
     });
   }

@@ -1,31 +1,49 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, PLATFORM_ID, Signal, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { CommonModule } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { Title, Meta } from '@angular/platform-browser';
-import { LinkBioService, LinkBioPublicData, LinkBioClinic, LinkBioLink } from '../../core/services/link-bio.service';
-import { LoadingOverlayComponent } from '../../componentes/ui/loading-overlay/loading-overlay.component';
-
-type BioLinkItem = { type: 'bio'; item: LinkBioLink } | { type: 'form'; item: { id: number; name: string; public_url: string } };
+import {
+  LinkBioService,
+  LinkBioPublicData,
+  LinkBioClinic,
+  LinkBioLink,
+  LinkBioPublicDocItem,
+} from '../../core/services/link-bio.service';
+import { LoadingService } from '../../shared/services/loading.service';
+import { ZmSkeletonListComponent } from '../../shared/components/skeletons';
+import { LinkBioPublicLayoutsComponent } from './link-bio-public-layouts.component';
+import { LinkBioPublicLayoutVetComponent } from './link-bio-public-layout-vet.component';
+import { LinkBioPublicLayoutPediaComponent } from './link-bio-public-layout-pedia.component';
+import type { LinkBioLayoutModel } from '../../core/services/link-bio.service';
 
 @Component({
   selector: 'app-link-bio-public',
   standalone: true,
-  imports: [CommonModule, RouterLink, LoadingOverlayComponent],
+  imports: [
+    CommonModule,
+    RouterLink,
+    ZmSkeletonListComponent,
+    LinkBioPublicLayoutsComponent,
+    LinkBioPublicLayoutVetComponent,
+    LinkBioPublicLayoutPediaComponent,
+  ],
   templateUrl: './link-bio-public.component.html',
   styleUrl: './link-bio-public.component.css',
 })
 export class LinkBioPublicComponent implements OnInit {
   slug = '';
   data: LinkBioPublicData | null = null;
-  carregando = true;
+  showSkeleton!: Signal<boolean>;
   erro = '';
   dark = false;
 
   private route = inject(ActivatedRoute);
   private linkBioService = inject(LinkBioService);
+  private loadingService = inject(LoadingService);
   private title = inject(Title);
   private meta = inject(Meta);
+  private platformId = inject(PLATFORM_ID);
 
   ngOnInit(): void {
     try {
@@ -34,27 +52,56 @@ export class LinkBioPublicComponent implements OnInit {
     const slug = this.route.snapshot.paramMap.get('slug') ?? '';
     this.slug = slug;
     if (!slug) {
-      this.carregando = false;
+      this.showSkeleton = signal(false).asReadonly();
       this.erro = 'Link inválido.';
       return;
     }
-    this.linkBioService.getPublicBySlug(slug).subscribe({
+    const { data$, showSkeleton } = this.loadingService.loadWithThreshold(this.linkBioService.getPublicBySlug(slug));
+    this.showSkeleton = showSkeleton;
+    data$.subscribe({
       next: (d) => {
-        this.data = d;
-        this.carregando = false;
+        const clinic = { ...d.clinic };
+        this.data = { ...d, clinic };
+        this.applyPreviewFromAdminSession();
         this.updateMeta();
       },
       error: () => {
-        this.carregando = false;
         this.erro = 'Link Bio não encontrado.';
       },
     });
   }
 
+  /** Prévia no painel: ?preview=1&preview_model=1..7 + sessionStorage (JSON extra). */
+  private applyPreviewFromAdminSession(): void {
+    if (!isPlatformBrowser(this.platformId) || !this.data?.clinic) return;
+    const q = this.route.snapshot.queryParamMap;
+    if (q.get('preview') !== '1') return;
+    const pm = q.get('preview_model');
+    if (pm && ['1', '2', '3', '4', '5', '6', '7'].includes(pm)) {
+      this.data.clinic.link_bio_model = Number(pm) as LinkBioLayoutModel;
+    }
+    try {
+      const raw = sessionStorage.getItem('zm_link_bio_preview');
+      if (!raw?.trim()) return;
+      const o = JSON.parse(raw) as { link_bio_extra?: unknown };
+      if (
+        o?.link_bio_extra != null &&
+        typeof o.link_bio_extra === 'object' &&
+        !Array.isArray(o.link_bio_extra)
+      ) {
+        this.data.clinic.link_bio_extra = o.link_bio_extra as LinkBioClinic['link_bio_extra'];
+      }
+    } catch {
+      /* JSON inválido na sessão — ignora */
+    }
+  }
+
   private updateMeta(): void {
     const c = this.clinic;
     if (!c) return;
-    const title = c.short_description ? `${c.name} – ${(c.short_description as string).slice(0, 50)}` : c.name;
+    const isPv = isPlatformBrowser(this.platformId) && this.route.snapshot.queryParamMap.get('preview') === '1';
+    const suffix = isPv ? ' (prévia)' : '';
+    const title = c.short_description ? `${c.name} – ${(c.short_description as string).slice(0, 50)}${suffix}` : `${c.name}${suffix}`;
     this.title.setTitle(title);
     const desc = c.meta_description ?? (c.short_description ?? `Links e informações de ${c.name}`);
     this.meta.updateTag({ name: 'description', content: desc });
@@ -69,6 +116,18 @@ export class LinkBioPublicComponent implements OnInit {
     return this.data?.clinic ?? null;
   }
 
+  get model(): LinkBioLayoutModel {
+    const value = this.clinic?.link_bio_model;
+    return value && [1, 2, 3, 4, 5, 6, 7].includes(value) ? value : 1;
+  }
+
+  /** Para o componente de layouts 2–5 (só usar quando model ∈ {2,3,4,5}). */
+  layoutModelLegacy(): 2 | 3 | 4 | 5 {
+    const v = this.model;
+    if (v === 2 || v === 3 || v === 4 || v === 5) return v;
+    return 2;
+  }
+
   get links(): LinkBioLink[] {
     return this.data?.links ?? [];
   }
@@ -78,8 +137,8 @@ export class LinkBioPublicComponent implements OnInit {
   }
 
   /** Lista unificada: bio links primeiro, depois formulários (como no Blade). */
-  get allLinks(): BioLinkItem[] {
-    const items: BioLinkItem[] = this.links.map((item) => ({ type: 'bio', item }));
+  get allLinks(): LinkBioPublicDocItem[] {
+    const items: LinkBioPublicDocItem[] = this.links.map((item) => ({ type: 'bio', item }));
     this.formLinks.forEach((item) => items.push({ type: 'form', item }));
     return items;
   }

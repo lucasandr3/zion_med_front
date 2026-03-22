@@ -1,9 +1,11 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, Signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TemplatesService, Template, TemplateCampo } from '../../core/services/templates.service';
-import { LoadingOverlayComponent } from '../../componentes/ui/loading-overlay/loading-overlay.component';
+import { LoadingService } from '../../shared/services/loading.service';
+import { ZmSkeletonListComponent } from '../../shared/components/skeletons';
+import { ToastService } from '../../core/services/toast.service';
 
 /** Rótulos de categoria (igual ao backend) */
 const CATEGORY_LABELS: Record<string, string> = {
@@ -37,14 +39,15 @@ const CATEGORY_EMOJI: Record<string, string> = {
 @Component({
   selector: 'app-templates-criar',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule, LoadingOverlayComponent],
+  imports: [CommonModule, RouterLink, FormsModule, ZmSkeletonListComponent],
   templateUrl: './templates-criar.component.html',
   styleUrl: './templates-criar.component.css',
 })
 export class TemplatesCriarComponent implements OnInit {
   /** Todos os templates com categoria (modelos) */
   modelos: Template[] = [];
-  carregando = true;
+  showSkeleton!: Signal<boolean>;
+  listaPronta = false;
   erro = '';
 
   buscaTexto = '';
@@ -60,18 +63,22 @@ export class TemplatesCriarComponent implements OnInit {
   usandoModelo = false;
 
   private templatesService = inject(TemplatesService);
+  private loadingService = inject(LoadingService);
   private router = inject(Router);
+  private toast = inject(ToastService);
 
   ngOnInit(): void {
-    this.templatesService.list().subscribe({
+    const { data$, showSkeleton } = this.loadingService.loadWithThreshold(this.templatesService.list());
+    this.showSkeleton = showSkeleton;
+    data$.subscribe({
       next: (list) => {
+        this.listaPronta = true;
         this.modelos = list.filter((t) => t.category != null && t.category !== '');
         const keys = [...new Set(this.modelos.map((t) => t.category!).filter(Boolean))].sort();
         this.categoryKeys = keys;
-        this.carregando = false;
       },
       error: () => {
-        this.carregando = false;
+        this.listaPronta = true;
         this.erro = 'Não foi possível carregar os modelos.';
       },
     });
@@ -122,7 +129,7 @@ export class TemplatesCriarComponent implements OnInit {
       },
       error: () => {
         this.usandoModelo = false;
-        alert('Não foi possível criar o template a partir do modelo.');
+        this.toast.error('Erro', 'Não foi possível criar o template a partir do modelo.');
       },
     });
   }
@@ -139,7 +146,7 @@ export class TemplatesCriarComponent implements OnInit {
       },
       error: () => {
         this.usandoModelo = false;
-        alert('Não foi possível criar o template a partir do modelo.');
+        this.toast.error('Erro', 'Não foi possível criar o template a partir do modelo.');
       },
     });
   }

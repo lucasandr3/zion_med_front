@@ -1,14 +1,16 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, Signal, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TemplatesService, Template } from '../../core/services/templates.service';
-import { LoadingOverlayComponent } from '../../componentes/ui/loading-overlay/loading-overlay.component';
+import { LoadingService } from '../../shared/services/loading.service';
+import { ZmSkeletonCardComponent } from '../../shared/components/skeletons';
+import { ToastService } from '../../core/services/toast.service';
 
 @Component({
   selector: 'app-templates-editar',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule, LoadingOverlayComponent],
+  imports: [CommonModule, RouterLink, FormsModule, ZmSkeletonCardComponent],
   templateUrl: './templates-editar.component.html',
   styleUrl: './templates-editar.component.css',
 })
@@ -18,32 +20,38 @@ export class TemplatesEditarComponent implements OnInit {
   description = '';
   is_active = true;
   public_enabled = false;
-  carregando = true;
+  showSkeleton!: Signal<boolean>;
+  listaPronta = false;
   salvando = false;
   erro = '';
 
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private templatesService = inject(TemplatesService);
+  private loadingService = inject(LoadingService);
+  private toast = inject(ToastService);
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
     if (!id) {
-      this.carregando = false;
+      this.showSkeleton = signal(false).asReadonly();
+      this.listaPronta = true;
       this.erro = 'ID inválido';
       return;
     }
-    this.templatesService.get(Number(id)).subscribe({
+    const { data$, showSkeleton } = this.loadingService.loadWithThreshold(this.templatesService.get(Number(id)));
+    this.showSkeleton = showSkeleton;
+    data$.subscribe({
       next: (t) => {
+        this.listaPronta = true;
         this.template = t;
         this.name = t.name ?? '';
         this.description = t.description ?? '';
         this.is_active = t.is_active ?? true;
         this.public_enabled = t.public_enabled ?? false;
-        this.carregando = false;
       },
       error: () => {
-        this.carregando = false;
+        this.listaPronta = true;
         this.erro = 'Template não encontrado.';
       },
     });
@@ -63,11 +71,14 @@ export class TemplatesEditarComponent implements OnInit {
       .subscribe({
         next: () => {
           this.salvando = false;
+          const label = this.name.trim();
+          this.toast.success('Template salvo!', `${label} foi salvo com sucesso.`);
           this.router.navigate(['/templates']);
         },
         error: () => {
           this.salvando = false;
           this.erro = 'Não foi possível salvar.';
+          this.toast.error('Erro ao salvar', 'Não foi possível salvar as alterações.');
         },
       });
   }

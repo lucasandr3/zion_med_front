@@ -1,8 +1,4 @@
 <div class="relative min-h-[200px]">
-  @if (salvando) {
-    <app-loading-overlay />
-  }
-
   <div class="page-header mb-5">
     <div class="page-title">
       <div class="page-title-icon">
@@ -40,8 +36,13 @@
       </div>
       <div class="flex items-center gap-3 pt-2">
         <button type="submit" class="btn-primary" [disabled]="salvando || !name.trim()">
-          <span class="material-symbols-outlined text-base">save</span>
-          Criar template
+          @if (salvando) {
+            <span class="btn-spinner" aria-hidden="true"></span>
+            Criando…
+          } @else {
+            <span class="material-symbols-outlined text-base">save</span>
+            Criar template
+          }
         </button>
         <a routerLink="/templates/criar" class="text-sm no-underline" style="color: var(--c-muted)" title="Voltar à escolha de modelo">Cancelar</a>
       </div>

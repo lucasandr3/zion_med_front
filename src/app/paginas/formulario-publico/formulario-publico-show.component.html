@@ -1,164 +1,242 @@
 <div class="form-publico-page" [class.dark]="dark">
-  <div class="form-publico-header-actions">
-    <button type="button" (click)="toggleDark()" class="btn-theme" aria-label="Alternar tema">
-      <span class="material-symbols-outlined" style="font-size:20px">dark_mode</span>
-    </button>
-  </div>
+  @if (!showSkeleton() && data) {
+    <header class="fp-sticky-header">
+      <div class="fp-header-inner">
+        <div class="fp-header-row">
+          <div class="fp-brand">
+            <div class="fp-logo" aria-hidden="true">Z</div>
+            <div>
+              <p class="fp-clinic-name">{{ data.clinic_name ?? 'Clínica' }}</p>
+              <p class="fp-sub">Formulário por Zion Med</p>
+            </div>
+          </div>
+          <button type="button" (click)="toggleDark()" class="fp-icon-btn" aria-label="Alternar tema claro ou escuro">
+            @if (dark) {
+              <svg class="fp-theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <circle cx="12" cy="12" r="5" />
+                <line x1="12" y1="1" x2="12" y2="3" />
+                <line x1="12" y1="21" x2="12" y2="23" />
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+                <line x1="1" y1="12" x2="3" y2="12" />
+                <line x1="21" y1="12" x2="23" y2="12" />
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+              </svg>
+            } @else {
+              <svg class="fp-theme-icon fp-theme-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
+              </svg>
+            }
+          </button>
+        </div>
+        <div class="fp-progress-block">
+          <div class="fp-progress-labels">
+            <span class="fp-progress-hint">Progresso</span>
+            <span class="fp-progress-count">
+              @if (requiredFieldsTotal > 0) {
+                {{ requiredFieldsFilled }} de {{ requiredFieldsTotal }} obrigatórios
+              } @else {
+                Nenhum campo obrigatório
+              }
+            </span>
+          </div>
+          <div class="fp-progress-track">
+            <div class="fp-progress-fill" [style.width.%]="progressPercent"></div>
+          </div>
+        </div>
+      </div>
+    </header>
+  }
 
-  <div class="form-publico-inner max-w-4xl mx-auto px-1 sm:px-4 md:px-6 pt-14 pb-24 md:pb-12">
-    @if (carregando) {
-      <app-loading-overlay mensagem="Carregando..." />
-    }
-    @if (!carregando && erro && !data) {
-      <div class="form-card bio-bg bio-border rounded-2xl p-6">
-        <p class="text-sm bio-muted">{{ erro }}</p>
+  <div class="fp-scroll">
+    @if (showSkeleton()) {
+      <div class="fp-container">
+        <zm-skeleton-list [rows]="8" />
       </div>
     }
-    @if (!carregando && data) {
-      <div class="form-card bio-bg bio-border rounded-2xl p-6 md:p-8">
-        <div class="form-card-header flex items-center gap-3 mb-6 pb-4 bio-border" style="border-bottom-width:1px">
-          <div class="logo-wrap shrink-0">
-            <span class="logo-initial">Z</span>
-          </div>
-          <div>
-            <h1 class="text-xl font-light bio-text tracking-wide">{{ data.clinic_name ?? 'Clínica' }}</h1>
-            <p class="text-xs bio-muted tracking-wide">Formulário por Zion Med</p>
+    @if (!showSkeleton() && erro && !data) {
+      <div class="fp-container">
+        <div class="fp-error-card">
+          <p class="fp-error-text">{{ erro }}</p>
+        </div>
+      </div>
+    }
+    @if (!showSkeleton() && data) {
+      <div class="fp-container zm-content-enter">
+        <div class="fp-title-block">
+          <h1 class="fp-title">{{ data.template.name }}</h1>
+          @if (data.template.description) {
+            <p class="fp-lead">{{ data.template.description }}</p>
+          }
+          <p class="fp-lgpd-note">
+            Seus dados serão utilizados apenas para as finalidades deste formulário e em conformidade com a LGPD.
+            <a routerLink="/privacidade" target="_blank" rel="noopener" class="fp-link">Política de Privacidade</a>.
+          </p>
+          <div class="fp-required-legend">
+            <span class="fp-asterisk">*</span>
+            <span>Campos obrigatórios</span>
           </div>
         </div>
 
-        <h2 class="text-lg font-medium bio-text mb-1">{{ data.template.name }}</h2>
-        @if (data.template.description) {
-          <p class="bio-muted text-sm mb-4">{{ data.template.description }}</p>
-        }
-        <p class="text-xs bio-muted mb-6">
-          Seus dados serão utilizados apenas para as finalidades deste formulário e em conformidade com a LGPD.
-          <a routerLink="/privacidade" target="_blank" rel="noopener" class="bio-text underline hover:no-underline">Política de Privacidade</a>.
-        </p>
-
         @if (erro) {
-          <div class="mb-4 p-3 rounded-lg text-sm bg-red-500/10 text-red-600 dark:text-red-400">{{ erro }}</div>
+          <div class="fp-banner-error">{{ erro }}</div>
         }
 
-        <form #publicForm="ngForm" (ngSubmit)="enviar()" class="space-y-5">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 rounded-xl bio-bg-soft bio-border" style="border-width:1px">
-            <div>
-              <label for="submitterName" class="form-label">
-                <span class="inline-flex items-center gap-1.5">
-                  <span class="material-symbols-outlined" style="font-size:15px">person</span>
-                  Seu nome <span class="bio-muted font-normal">(opcional)</span>
-                </span>
-              </label>
-              <input id="submitterName" type="text" [(ngModel)]="submitterName" name="submitterName" class="form-input" />
-            </div>
-            <div>
-              <label for="submitterEmail" class="form-label">
-                <span class="inline-flex items-center gap-1.5">
-                  <span class="material-symbols-outlined" style="font-size:15px">mail</span>
-                  Seu e-mail <span class="bio-muted font-normal">(opcional)</span>
-                </span>
-              </label>
-              <input id="submitterEmail" type="email" [(ngModel)]="submitterEmail" name="submitterEmail" class="form-input" />
+        <form #publicForm="ngForm" id="formulario-publico-form" (ngSubmit)="enviar()" class="fp-form">
+          <div class="fp-preenchedora">
+            <p class="fp-preenchedora-title">Identificação de quem envia <span class="fp-optional">(opcional)</span></p>
+            <div class="fp-preenchedora-grid">
+              <div class="fp-field-group">
+                <label for="submitterName" class="fp-field-label">Seu nome</label>
+                <input id="submitterName" type="text" [(ngModel)]="submitterName" name="submitterName" class="fp-input" placeholder="Nome para contato" autocomplete="name" />
+              </div>
+              <div class="fp-field-group">
+                <label for="submitterEmail" class="fp-field-label">Seu e-mail</label>
+                <input id="submitterEmail" type="email" [(ngModel)]="submitterEmail" name="submitterEmail" class="fp-input" placeholder="email@exemplo.com" autocomplete="email" />
+              </div>
             </div>
           </div>
 
+          <div class="fp-section-div" aria-hidden="true"></div>
+
           @for (f of data.fields; track trackByKey($index, f)) {
-            <div>
-              <label [for]="'field_' + f.name_key" class="form-label">{{ f.label }}{{ f.required ? ' *' : '' }}</label>
+            <div class="fp-field-group fp-field-animate">
+              @if (fieldType(f) !== 'checkbox') {
+                <label [for]="'field_' + f.name_key" class="fp-field-label">
+                  {{ f.label }}
+                  @if (f.required) {
+                    <span class="fp-required" aria-hidden="true">*</span>
+                  }
+                </label>
+              }
+
               @switch (fieldType(f)) {
                 @case ('text') {
-                  <input [id]="'field_' + f.name_key" type="text" [(ngModel)]="valores[f.name_key]" [name]="f.name_key" class="form-input" [required]="f.required">
+                  <input [id]="'field_' + f.name_key" type="text" [(ngModel)]="valores[f.name_key]" [name]="f.name_key" class="fp-input" [required]="f.required" />
                 }
                 @case ('textarea') {
-                  <textarea [id]="'field_' + f.name_key" [(ngModel)]="valores[f.name_key]" [name]="f.name_key" class="form-input" rows="3" [required]="f.required"></textarea>
+                  <textarea [id]="'field_' + f.name_key" [(ngModel)]="valores[f.name_key]" [name]="f.name_key" class="fp-input fp-textarea" rows="4" [required]="f.required"></textarea>
                 }
                 @case ('number') {
-                  <input [id]="'field_' + f.name_key" type="number" [(ngModel)]="valores[f.name_key]" [name]="f.name_key" class="form-input" [required]="f.required">
+                  <input [id]="'field_' + f.name_key" type="number" [(ngModel)]="valores[f.name_key]" [name]="f.name_key" class="fp-input" [required]="f.required" />
                 }
                 @case ('date') {
-                  <input [id]="'field_' + f.name_key"
+                  <input
+                    [id]="'field_' + f.name_key"
                     type="text"
                     mwlFlatpickr
                     [(ngModel)]="valores[f.name_key]"
                     [name]="f.name_key"
-                    class="form-input"
+                    class="fp-input"
                     [required]="f.required"
                     placeholder="dd/mm/aaaa"
                     [altInput]="true"
-                    [convertModelValue]="true">
+                    [convertModelValue]="true"
+                  />
                 }
                 @case ('checkbox') {
-                  <label class="inline-flex items-center gap-2">
-                    <input type="checkbox" [(ngModel)]="valores[f.name_key]" [name]="f.name_key">
-                    <span class="text-sm bio-text">Sim</span>
+                  <label class="fp-check-row">
+                    <input [id]="'field_' + f.name_key" type="checkbox" [(ngModel)]="valores[f.name_key]" [name]="f.name_key" class="fp-check-native" [required]="f.required" />
+                    <span class="fp-check-box" aria-hidden="true">
+                      <svg class="fp-check-svg" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <polyline points="2 6 5 9 10 3" />
+                      </svg>
+                    </span>
+                    <span class="fp-check-label">
+                      {{ f.label }}
+                      @if (f.required) {
+                        <span class="fp-required" aria-hidden="true">*</span>
+                      }
+                    </span>
                   </label>
                 }
                 @case ('select') {
-                  <select [id]="'field_' + f.name_key" [(ngModel)]="valores[f.name_key]" [name]="f.name_key" class="form-input form-select form-select-options" [required]="f.required">
-                    <option value="">Selecione</option>
-                    @for (opt of getFieldOptions(f); track opt.value) {
-                      <option [value]="opt.value">{{ opt.label }}</option>
-                    }
-                  </select>
+                  <div class="fp-select-wrap">
+                    <select
+                      [id]="'field_' + f.name_key"
+                      [(ngModel)]="valores[f.name_key]"
+                      [name]="f.name_key"
+                      class="fp-input fp-select"
+                      [required]="f.required"
+                      spellcheck="false"
+                      autocomplete="off"
+                    >
+                      <option value="">Selecione</option>
+                      @for (opt of getFieldOptions(f); track opt.value) {
+                        <option [value]="opt.value">{{ opt.label }}</option>
+                      }
+                    </select>
+                  </div>
                 }
                 @case ('radio') {
-                  <div class="space-y-2">
+                  <div class="fp-radio-grid" [class.fp-radio-grid-single]="getFieldOptions(f).length === 1">
                     @for (opt of getFieldOptions(f); track opt.value) {
-                      <label class="inline-flex items-center gap-2 mr-4">
-                        <input type="radio" [(ngModel)]="valores[f.name_key]" [name]="f.name_key" [value]="opt.value" [required]="f.required">
-                        <span class="text-sm bio-text">{{ opt.label }}</span>
+                      <label class="fp-radio-option" [class.fp-radio-selected]="valores[f.name_key] === opt.value">
+                        <input
+                          type="radio"
+                          [(ngModel)]="valores[f.name_key]"
+                          [name]="f.name_key"
+                          [value]="opt.value"
+                          [required]="f.required"
+                          class="fp-visually-hidden"
+                        />
+                        <span class="fp-radio-dot" aria-hidden="true"><span class="fp-radio-dot-inner"></span></span>
+                        <span class="fp-radio-label-text">{{ opt.label }}</span>
                       </label>
                     }
                   </div>
                 }
                 @case ('signature') {
-                  <div class="signature-field">
-                    <canvas [id]="'signature_' + f.name_key"
-                      width="400"
-                      height="150"
-                      class="signature-canvas"
-                      (mousedown)="startSignature($event, f.name_key)"
-                      (mousemove)="moveSignature($event, f.name_key)"
-                      (mouseup)="endSignature(f.name_key)"
-                      (mouseleave)="endSignature(f.name_key)"
-                      (touchstart)="startSignature($event, f.name_key)"
-                      (touchmove)="moveSignature($event, f.name_key); $event.preventDefault()"
-                      (touchend)="endSignature(f.name_key)"
-                    ></canvas>
-                    <input type="hidden" [name]="f.name_key" [ngModel]="valores[f.name_key]" [required]="f.required">
-                    <div class="flex gap-2 mt-2">
-                      <button type="button" class="text-sm px-3 py-1.5 rounded bio-border border" style="color:var(--c-muted)" (click)="clearSignature(f.name_key)">
-                        Limpar
-                      </button>
-                    </div>
+                  <p class="fp-sig-help">Assine com o dedo (celular) ou mouse (computador) no espaço abaixo.</p>
+                  <canvas
+                    [id]="'signature_' + f.name_key"
+                    width="400"
+                    height="120"
+                    class="fp-sig-canvas"
+                    (mousedown)="startSignature($event, f.name_key)"
+                    (mousemove)="moveSignature($event, f.name_key)"
+                    (mouseup)="endSignature(f.name_key)"
+                    (mouseleave)="endSignature(f.name_key)"
+                    (touchstart)="startSignature($event, f.name_key)"
+                    (touchmove)="moveSignature($event, f.name_key); $event.preventDefault()"
+                    (touchend)="endSignature(f.name_key)"
+                  ></canvas>
+                  <input type="hidden" [name]="f.name_key" [ngModel]="valores[f.name_key]" [required]="f.required" />
+                  <div class="fp-sig-footer">
+                    <span class="fp-field-hint">Escreva sua assinatura no campo acima</span>
+                    <button type="button" class="fp-link-btn" (click)="clearSignature(f.name_key)">Limpar</button>
                   </div>
                 }
                 @default {
-                  <input [id]="'field_' + f.name_key" type="text" [(ngModel)]="valores[f.name_key]" [name]="f.name_key" class="form-input" [required]="f.required">
+                  <input [id]="'field_' + f.name_key" type="text" [(ngModel)]="valores[f.name_key]" [name]="f.name_key" class="fp-input" [required]="f.required" />
                 }
               }
             </div>
           }
-
-          <div class="pt-4 hidden md:block">
-            <button type="submit" class="btn-primary w-full" [disabled]="enviando">
-              <span class="material-symbols-outlined" style="font-size:20px">send</span>
-              {{ enviando ? 'Enviando…' : 'Enviar formulário' }}
-            </button>
-          </div>
         </form>
       </div>
     }
   </div>
 
-  @if (!carregando && data) {
-    <div class="form-bottom-bar md:hidden">
-      <button type="button" (click)="enviar()" class="btn-primary flex-1 min-w-0" [disabled]="enviando">
-        <span class="material-symbols-outlined" style="font-size:20px">send</span>
-        {{ enviando ? 'Enviando…' : 'Enviar formulário' }}
-      </button>
-      <button type="button" (click)="toggleDark()" class="btn-theme shrink-0 w-11 h-11 rounded-xl flex items-center justify-center" aria-label="Alternar tema">
-        <span class="material-symbols-outlined" style="font-size:20px">dark_mode</span>
-      </button>
-    </div>
+  @if (!showSkeleton() && data) {
+    <footer class="fp-footer">
+      <div class="fp-footer-inner">
+        <button type="submit" form="formulario-publico-form" class="fp-submit-btn" [disabled]="enviando">
+          @if (enviando) {
+            <svg class="fp-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" opacity=".25" />
+              <path d="M21 12a9 9 0 00-9-9" />
+            </svg>
+            Enviando…
+          } @else {
+            <svg class="fp-submit-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
+            Enviar formulário
+          }
+        </button>
+      </div>
+    </footer>
   }
 </div>

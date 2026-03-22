@@ -1,15 +1,16 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, Signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProtocolosService, Protocolo } from '../../core/services/protocolos.service';
 import { TemplatesService, Template } from '../../core/services/templates.service';
-import { LoadingOverlayComponent } from '../../componentes/ui/loading-overlay/loading-overlay.component';
+import { LoadingService } from '../../shared/services/loading.service';
+import { ZmSkeletonListComponent } from '../../shared/components/skeletons';
 
 @Component({
   selector: 'app-protocolos-listagem',
   standalone: true,
-  imports: [CommonModule, FormsModule, LoadingOverlayComponent],
+  imports: [CommonModule, FormsModule, ZmSkeletonListComponent],
   templateUrl: './protocolos-listagem.component.html',
   styleUrl: './protocolos-listagem.component.css',
 })
@@ -22,7 +23,8 @@ export class ProtocolosListagemComponent implements OnInit {
     per_page: 20,
     total: 0,
   };
-  carregando = false;
+  showSkeleton!: Signal<boolean>;
+  listaPronta = false;
   erro = '';
   exportando = false;
 
@@ -35,6 +37,7 @@ export class ProtocolosListagemComponent implements OnInit {
 
   private protocolosService = inject(ProtocolosService);
   private templatesService = inject(TemplatesService);
+  private loadingService = inject(LoadingService);
   private router = inject(Router);
 
   ngOnInit(): void {
@@ -61,7 +64,6 @@ export class ProtocolosListagemComponent implements OnInit {
   }
 
   carregar(page = 1): void {
-    this.carregando = true;
     const params: Parameters<ProtocolosService['list']>[0] = { per_page: 20, page };
     if (this.busca?.trim()) params.busca = this.busca.trim();
     if (this.template_id !== '') params.template_id = Number(this.template_id);
@@ -69,14 +71,16 @@ export class ProtocolosListagemComponent implements OnInit {
     if (this.data_inicio) params.data_inicio = this.data_inicio;
     if (this.data_fim) params.data_fim = this.data_fim;
 
-    this.protocolosService.list(params).subscribe({
+    const { data$, showSkeleton } = this.loadingService.loadWithThreshold(this.protocolosService.list(params));
+    this.showSkeleton = showSkeleton;
+    data$.subscribe({
       next: (res) => {
+        this.listaPronta = true;
         this.protocolos = res.data;
         this.meta = res.meta;
-        this.carregando = false;
       },
       error: () => {
-        this.carregando = false;
+        this.listaPronta = true;
         this.erro = 'Não foi possível carregar os protocolos.';
       },
     });

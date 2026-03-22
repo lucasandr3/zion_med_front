@@ -1,0 +1,27 @@
+:host {
+  display: block;
+}
+
+.zm-top-progress-host {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  z-index: 99999;
+  pointer-events: none;
+  opacity: 1;
+  transition: opacity 0.35s ease;
+}
+
+.zm-top-progress-host--fade {
+  opacity: 0;
+}
+
+.zm-top-progress-bar {
+  height: 100%;
+  width: 0%;
+  background: var(--primary-color, var(--c-primary));
+  box-shadow: 0 0 10px color-mix(in srgb, var(--primary-color, var(--c-primary)) 45%, transparent);
+  transition: width 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}

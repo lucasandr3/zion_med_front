@@ -1,26 +1,31 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, Signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { LinksPublicosService, LinkPublico } from '../../core/services/links-publicos.service';
-import { LoadingOverlayComponent } from '../../componentes/ui/loading-overlay/loading-overlay.component';
+import { LoadingService } from '../../shared/services/loading.service';
+import { ZmSkeletonListComponent } from '../../shared/components/skeletons';
 
 @Component({
   selector: 'app-pagina-links-publicos',
   standalone: true,
-  imports: [CommonModule, RouterLink, LoadingOverlayComponent],
+  imports: [CommonModule, RouterLink, ZmSkeletonListComponent],
   templateUrl: './links-publicos.component.html',
   styleUrl: './links-publicos.component.css',
 })
 export class LinksPublicosComponent implements OnInit {
   templates: { id: number; name: string; category_label?: string; public_url: string; public_token?: string }[] = [];
-  carregando = false;
+  showSkeleton!: Signal<boolean>;
+  listaPronta = false;
   erro = '';
   private linksService = inject(LinksPublicosService);
+  private loadingService = inject(LoadingService);
 
   ngOnInit(): void {
-    this.carregando = true;
-    this.linksService.list().subscribe({
+    const { data$, showSkeleton } = this.loadingService.loadWithThreshold(this.linksService.list());
+    this.showSkeleton = showSkeleton;
+    data$.subscribe({
       next: (list) => {
+        this.listaPronta = true;
         const base = typeof window !== 'undefined' ? window.location.origin : '';
         this.templates = list.map((t: LinkPublico) => ({
           id: t.id,
@@ -29,10 +34,9 @@ export class LinksPublicosComponent implements OnInit {
           public_url: (t as { public_url?: string }).public_url ?? (t.public_token ? `${base}/f/${t.public_token}` : ''),
           public_token: t.public_token,
         }));
-        this.carregando = false;
       },
       error: () => {
-        this.carregando = false;
+        this.listaPronta = true;
         this.erro = 'Não foi possível carregar os links.';
       },
     });

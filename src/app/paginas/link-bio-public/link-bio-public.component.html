@@ -1,15 +1,18 @@
-<div class="page" [class.dark]="dark" [ngStyle]="themeVars()">
-  @if (carregando) {
-    <app-loading-overlay mensagem="Carregando..." />
+<div [class.page]="model === 1" [class.dark]="model === 1 && dark" [ngStyle]="model === 1 ? themeVars() : {}">
+  @if (showSkeleton()) {
+    <div class="max-w-md mx-auto p-6">
+      <zm-skeleton-list [rows]="6" />
+    </div>
   }
 
-  @if (!carregando && erro && !data) {
+  @if (!showSkeleton() && erro && !data) {
     <div class="max-w-md mx-auto p-6 text-center">
       <p class="muted">{{ erro }}</p>
     </div>
   }
 
-  @if (!carregando && data && clinic) {
+  @if (!showSkeleton() && data && clinic && model === 1) {
+    <div class="zm-content-enter">
     <div class="topbar" [class.topbar-no-cover]="!hasCover">
       <button type="button" class="icon-pill" (click)="toggleDark()" aria-label="Alternar tema">
         <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -180,6 +183,47 @@
         <span class="muted">·</span>
         <a routerLink="/privacidade" target="_blank" rel="noopener noreferrer" class="muted">Privacidade</a>
       </div>
+    </div>
+    </div>
+  }
+
+  @if (!showSkeleton() && data && clinic && model >= 2 && model <= 5) {
+    <div class="zm-content-enter">
+    <app-link-bio-public-layouts
+      [model]="layoutModelLegacy()"
+      [clinic]="clinic"
+      [bioLinks]="links"
+      [dark]="dark"
+      [allDocs]="allLinks"
+      (toggleDark)="toggleDark()"
+      (share)="sharePage()"
+    />
+    </div>
+  }
+
+  @if (!showSkeleton() && data && clinic && model === 6) {
+    <div class="zm-content-enter">
+    <app-link-bio-public-layout-vet
+      [clinic]="clinic"
+      [bioLinks]="links"
+      [dark]="dark"
+      [allDocs]="allLinks"
+      (toggleDark)="toggleDark()"
+      (share)="sharePage()"
+    />
+    </div>
+  }
+
+  @if (!showSkeleton() && data && clinic && model === 7) {
+    <div class="zm-content-enter">
+    <app-link-bio-public-layout-pedia
+      [clinic]="clinic"
+      [bioLinks]="links"
+      [dark]="dark"
+      [allDocs]="allLinks"
+      (toggleDark)="toggleDark()"
+      (share)="sharePage()"
+    />
     </div>
   }
 </div>

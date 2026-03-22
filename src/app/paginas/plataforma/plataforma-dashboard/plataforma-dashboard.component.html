@@ -1,13 +1,15 @@
 <div class="relative min-h-[300px]">
-  @if (estadoCarregando) {
-    <app-loading-overlay />
-  }
+  @if (showSkeleton()) {
+    <zm-skeleton-list [rows]="6" />
+  } @else if (!listaPronta) {
+  } @else {
   @if (estadoErro) {
     <div class="card p-4 rounded-xl mb-6" style="background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.3)">
       <p class="text-sm" style="color: var(--c-text)">Não foi possível carregar os dados. Tente novamente.</p>
     </div>
   }
 
+  <div class="zm-content-enter">
   <!-- KPI Cards -->
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
     <a routerLink="/plataforma/clientes" class="dash-kpi-card group" appTooltip="Ver clientes">
@@ -187,4 +189,6 @@
       }
     </div>
   </div>
+  </div>
+  }
 </div>

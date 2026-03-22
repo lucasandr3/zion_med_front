@@ -5,19 +5,34 @@ import { AuthService } from '../../../core/services/auth.service';
 import { SidebarMobileService } from '../../../core/services/sidebar-mobile.service';
 import { TooltipDirective } from '../../../core/directives/tooltip.directive';
 
-export const TEMAS: { key: string; label: string; color: string }[] = [
-  { key: 'zion-blue', label: 'Zion Blue', color: '#1e40af' },
-  { key: 'ocean-blue', label: 'Ocean Blue', color: '#2563eb' },
-  { key: 'indigo-night', label: 'Indigo Night', color: '#4f46e5' },
-  { key: 'emerald-fresh', label: 'Emerald Fresh', color: '#10b981' },
-  { key: 'rose-elegant', label: 'Rose Elegant', color: '#f43f5e' },
-  { key: 'amber-warm', label: 'Amber Warm', color: '#f59e0b' },
-  { key: 'violet-dream', label: 'Violet Dream', color: '#8b5cf6' },
-  { key: 'teal-ocean', label: 'Teal Ocean', color: '#14b8a6' },
-  { key: 'slate-pro', label: 'Slate Pro', color: '#475569' },
-  { key: 'cyan-tech', label: 'Cyan Tech', color: '#06b6d4' },
-  { key: 'fuchsia-bold', label: 'Fuchsia Bold', color: '#d946ef' },
+export const TEMAS: { key: string; label: string; labelPt: string; color: string }[] = [
+  { key: 'zion-blue', label: 'Zion Blue', labelPt: 'Azul royal', color: '#1e40af' },
+  { key: 'ocean-blue', label: 'Ocean Blue', labelPt: 'Azul oceano', color: '#2563eb' },
+  { key: 'indigo-night', label: 'Indigo Night', labelPt: 'Anil', color: '#4f46e5' },
+  { key: 'emerald-fresh', label: 'Emerald Fresh', labelPt: 'Esmeralda', color: '#10b981' },
+  { key: 'rose-elegant', label: 'Rose Elegant', labelPt: 'Rosa', color: '#f43f5e' },
+  { key: 'amber-warm', label: 'Amber Warm', labelPt: 'Âmbar', color: '#f59e0b' },
+  { key: 'violet-dream', label: 'Violet Dream', labelPt: 'Violeta', color: '#8b5cf6' },
+  { key: 'teal-ocean', label: 'Teal Ocean', labelPt: 'Verde-água', color: '#14b8a6' },
+  { key: 'slate-pro', label: 'Slate Pro', labelPt: 'Ardósia', color: '#475569' },
+  { key: 'cyan-tech', label: 'Cyan Tech', labelPt: 'Ciano', color: '#06b6d4' },
+  { key: 'fuchsia-bold', label: 'Fuchsia Bold', labelPt: 'Magenta', color: '#d946ef' },
 ];
+
+/** Ordem na grade 6+5 (alinhada ao painel visual de referência). */
+const TEMAS_GRADE_ORDER = [
+  'zion-blue',
+  'indigo-night',
+  'rose-elegant',
+  'violet-dream',
+  'slate-pro',
+  'fuchsia-bold',
+  'ocean-blue',
+  'emerald-fresh',
+  'amber-warm',
+  'teal-ocean',
+  'cyan-tech',
+] as const;
 
 @Component({
   selector: 'app-cabecalho',
@@ -37,13 +52,15 @@ export class CabecalhoComponent implements OnInit {
   @Input() notificacoesRouterLink = '/notificacoes';
 
   temas = TEMAS;
-  /** Coluna esquerda: Zion Blue, Indigo Night, Rose Elegant, Violet Dream, Slate Pro, Fuchsia Bold */
-  get temasCol1() {
-    return [this.temas[0], this.temas[2], this.temas[4], this.temas[6], this.temas[8], this.temas[10]];
+
+  /** Temas na ordem da grade de círculos (6 + 5). */
+  get temasOrdemGrade(): { key: string; label: string; labelPt: string; color: string }[] {
+    const byKey = new Map(this.temas.map((t) => [t.key, t]));
+    return TEMAS_GRADE_ORDER.map((k) => byKey.get(k)).filter((t): t is (typeof TEMAS)[number] => t != null);
   }
-  /** Coluna direita: Ocean Blue, Emerald Fresh, Amber Warm, Teal Ocean, Cyan Tech */
-  get temasCol2() {
-    return [this.temas[1], this.temas[3], this.temas[5], this.temas[7], this.temas[9]];
+
+  get temaAtualMeta(): (typeof TEMAS)[number] | undefined {
+    return this.temas.find((t) => t.key === this.temaAtual);
   }
   temaAtual = 'ocean-blue';
   modoEscuro = false;
@@ -112,7 +129,6 @@ export class CabecalhoComponent implements OnInit {
     list.forEach((c) => document.body.classList.remove(c));
     document.body.classList.add('theme-' + key);
     this.temaAtual = key;
-    this.menuTemaAberto = false;
     try {
       localStorage.setItem('zionmed_theme', key);
     } catch {}

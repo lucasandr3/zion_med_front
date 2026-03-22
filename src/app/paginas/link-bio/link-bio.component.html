@@ -1,13 +1,12 @@
 <div class="relative min-h-[320px]">
-  @if (carregando) {
-    <app-loading-overlay />
-  }
-
-  @if (!carregando && erro) {
-    <p class="text-sm" style="color: var(--c-error, #dc2626)">{{ erro }}</p>
-  }
-
-  @if (!carregando && state) {
+  @if (showSkeleton()) {
+    <zm-skeleton-list [rows]="8" />
+  } @else {
+    @if (erro) {
+      <p class="text-sm" style="color: var(--c-error, #dc2626)">{{ erro }}</p>
+    }
+    @if (state) {
+    <div class="zm-content-enter">
     <!-- Header -->
     <div class="mb-6">
       <div class="flex flex-wrap items-center justify-between gap-4">
@@ -62,9 +61,15 @@
 
     <!-- Conteúdo principal -->
     <div class="grid grid-cols-1 md:grid-cols-[1fr_360px] gap-6">
-      <div>
+      <div [class.md:col-span-2]="abaAtiva === 'modelos' || abaAtiva === 'conteudoExtra'">
         <!-- Tabs -->
-        <div class="flex gap-1 mb-5 p-1 rounded-lg w-fit" style="background:var(--c-surface);border:1px solid var(--c-border)">
+        <div class="flex flex-wrap gap-1 mb-5 p-1 rounded-lg w-fit max-w-full" style="background:var(--c-surface);border:1px solid var(--c-border)">
+          <button type="button" class="link-bio-tab" [class.active]="abaAtiva === 'modelos'" (click)="ativarAba('modelos')">
+            <span class="material-symbols-outlined">dashboard</span> Modelos
+          </button>
+          <button type="button" class="link-bio-tab" [class.active]="abaAtiva === 'conteudoExtra'" (click)="ativarAba('conteudoExtra')">
+            <span class="material-symbols-outlined">tune</span> Conteúdo extra
+          </button>
           <button type="button" class="link-bio-tab" [class.active]="abaAtiva === 'links'" (click)="ativarAba('links')">
             <span class="material-symbols-outlined">link</span> Links
           </button>
@@ -111,7 +116,12 @@
                 </div>
               </div>
               <div class="flex gap-2">
-                <button type="button" class="btn-primary text-sm" (click)="salvarNovoLink()">Salvar</button>
+                <button type="button" class="btn-primary text-sm inline-flex items-center gap-2" [disabled]="salvandoNovoLink" (click)="salvarNovoLink()">
+                  @if (salvandoNovoLink) {
+                    <span class="btn-spinner" aria-hidden="true"></span>
+                  }
+                  {{ salvandoNovoLink ? 'Salvando…' : 'Salvar' }}
+                </button>
                 <button type="button" class="text-sm px-3 py-1.5 rounded" style="color:var(--c-muted)" (click)="toggleFormNovo()">Cancelar</button>
               </div>
             </div>
@@ -135,7 +145,12 @@
                         </select>
                       </div>
                       <div class="flex gap-2">
-                        <button type="submit" class="btn-primary text-xs px-2 py-1">Salvar</button>
+                        <button type="submit" class="btn-primary text-xs px-2 py-1 inline-flex items-center gap-1.5" [disabled]="salvandoEdicaoId === lnk.id">
+                          @if (salvandoEdicaoId === lnk.id) {
+                            <span class="btn-spinner" style="width:12px;height:12px;border-width:2px" aria-hidden="true"></span>
+                          }
+                          {{ salvandoEdicaoId === lnk.id ? 'Salvando…' : 'Salvar' }}
+                        </button>
                         <button type="button" class="text-xs px-2 py-1 rounded" style="color:var(--c-muted)" (click)="cancelarEdicao()">Cancelar</button>
                       </div>
                     </form>
@@ -150,8 +165,12 @@
                       <a [href]="lnk.url" target="_blank" rel="noopener" class="p-1.5 rounded-lg" style="color:var(--c-muted)" aria-label="Abrir link" title="Abrir link">
                         <span class="material-symbols-outlined" style="font-size:17px">open_in_new</span>
                       </a>
-                      <button type="button" class="p-1.5 rounded-lg" style="color:var(--c-muted)" aria-label="Remover link" (click)="excluirLink(lnk)" title="Remover link">
-                        <span class="material-symbols-outlined" style="font-size:17px">delete</span>
+                      <button type="button" class="p-1.5 rounded-lg inline-flex items-center justify-center" style="color:var(--c-muted)" aria-label="Remover link" [disabled]="excluindoLinkId === lnk.id" (click)="excluirLink(lnk)" title="Remover link">
+                        @if (excluindoLinkId === lnk.id) {
+                          <span class="btn-spinner" style="width:14px;height:14px;border-width:2px"></span>
+                        } @else {
+                          <span class="material-symbols-outlined" style="font-size:17px">delete</span>
+                        }
                       </button>
                     </div>
                   }
@@ -200,14 +219,29 @@
               <h3 class="text-sm font-bold" style="color:var(--c-text)">Cliques por dia (últimos 7 dias)</h3>
               <span class="text-xs" style="color:var(--c-muted)">Total: {{ metrics?.total_clicks }}</span>
             </div>
-            <div class="flex items-end gap-2 h-20">
-              @for (d of diasClicks; track d.date) {
-                <div class="link-bio-bar-wrap">
-                  <div class="link-bio-bar" [style.height.%]="d.percent"></div>
-                  <div class="link-bio-bar-label">{{ d.label }}</div>
-                </div>
+            @if (diasClicks.length === 0) {
+              <p class="text-xs py-6 text-center" style="color:var(--c-muted)">Nenhum dado de cliques por dia neste período.</p>
+            } @else {
+              @if (diasClicks[0]?.ghost) {
+                <p class="text-[11px] mb-2" style="color:var(--c-muted)">
+                  Nenhum clique nos últimos dias — barras apenas para referência visual.
+                </p>
               }
-            </div>
+              <div class="link-bio-chart-row">
+                @for (d of diasClicks; track d.date) {
+                  <div class="link-bio-bar-wrap">
+                    <div class="link-bio-bar-stack">
+                      <div
+                        class="link-bio-bar"
+                        [class.link-bio-bar--ghost]="d.ghost"
+                        [style.height.%]="d.percent"
+                      ></div>
+                    </div>
+                    <div class="link-bio-bar-label">{{ d.label }}</div>
+                  </div>
+                }
+              </div>
+            }
           </div>
         </div>
 
@@ -275,10 +309,13 @@
               @if (aparenciaCoverMode === 'banner') {
                 <div class="mt-4">
                   <label class="form-label">Imagem do banner</label>
-                  <input type="file" accept="image/*" class="form-input" (change)="onSelecionarCoverImage($event)" />
+                  <input type="file" accept="image/*" class="form-input" [disabled]="enviandoCover" (change)="onSelecionarCoverImage($event)" />
                   @if (nomeArquivoCover) {
-                    <p class="text-[11px] mt-2" style="color:var(--c-muted)">
-                      {{ enviandoCover ? 'Enviando...' : 'Arquivo selecionado' }}: {{ nomeArquivoCover }}
+                    <p class="text-[11px] mt-2 inline-flex items-center gap-2" style="color:var(--c-muted)">
+                      @if (enviandoCover) {
+                        <span class="btn-spinner" style="width:12px;height:12px;border-width:2px"></span>
+                      }
+                      {{ enviandoCover ? 'Enviando…' : 'Arquivo selecionado' }}: {{ nomeArquivoCover }}
                     </p>
                   }
                 </div>
@@ -315,16 +352,243 @@
             </div>
 
             <div class="flex justify-end gap-2">
-              <button type="submit" class="btn-primary px-5 py-2 text-sm inline-flex items-center gap-2">
-                <span class="material-symbols-outlined" style="font-size:16px">save</span>
-                Salvar aparência
+              <button type="submit" class="btn-primary px-5 py-2 text-sm inline-flex items-center gap-2" [disabled]="salvandoAparencia">
+                @if (salvandoAparencia) {
+                  <span class="btn-spinner" aria-hidden="true"></span>
+                } @else {
+                  <span class="material-symbols-outlined" style="font-size:16px">save</span>
+                }
+                {{ salvandoAparencia ? 'Salvando…' : 'Salvar aparência' }}
               </button>
             </div>
           </form>
         </div>
+
+        <!-- Aba Modelos -->
+        @if (abaAtiva === 'modelos' && state) {
+          <div id="tab-modelos" class="flex flex-col gap-6">
+            <form class="flex flex-col gap-5" (ngSubmit)="salvarModelos()">
+              <div class="card p-5">
+                <p class="text-xs font-bold uppercase tracking-wider mb-4" style="color:var(--c-muted)">Modelo publicado</p>
+                <p class="text-[11px] mb-3 leading-relaxed" style="color:var(--c-muted)">
+                  Escolha qual layout os visitantes veem no link público. Textos específicos, convênios, modalidades e equipe ficam na aba <strong>Conteúdo extra</strong>. As prévias abaixo usam esses dados ao voltar para esta aba.
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <label class="inline-flex items-center gap-2 text-sm" style="color:var(--c-text)">
+                    <input type="radio" name="modelos_modelo" [value]="1" [(ngModel)]="aparenciaModelo" />
+                    {{ linkBioModelLabels[1] }}
+                  </label>
+                  <label class="inline-flex items-center gap-2 text-sm" style="color:var(--c-text)">
+                    <input type="radio" name="modelos_modelo" [value]="2" [(ngModel)]="aparenciaModelo" />
+                    {{ linkBioModelLabels[2] }}
+                  </label>
+                  <label class="inline-flex items-center gap-2 text-sm" style="color:var(--c-text)">
+                    <input type="radio" name="modelos_modelo" [value]="3" [(ngModel)]="aparenciaModelo" />
+                    {{ linkBioModelLabels[3] }}
+                  </label>
+                  <label class="inline-flex items-center gap-2 text-sm" style="color:var(--c-text)">
+                    <input type="radio" name="modelos_modelo" [value]="4" [(ngModel)]="aparenciaModelo" />
+                    {{ linkBioModelLabels[4] }}
+                  </label>
+                  <label class="inline-flex items-center gap-2 text-sm" style="color:var(--c-text)">
+                    <input type="radio" name="modelos_modelo" [value]="5" [(ngModel)]="aparenciaModelo" />
+                    {{ linkBioModelLabels[5] }}
+                  </label>
+                  <label class="inline-flex items-center gap-2 text-sm" style="color:var(--c-text)">
+                    <input type="radio" name="modelos_modelo" [value]="6" [(ngModel)]="aparenciaModelo" />
+                    {{ linkBioModelLabels[6] }}
+                  </label>
+                  <label class="inline-flex items-center gap-2 text-sm md:col-span-2" style="color:var(--c-text)">
+                    <input type="radio" name="modelos_modelo" [value]="7" [(ngModel)]="aparenciaModelo" />
+                    {{ linkBioModelLabels[7] }}
+                  </label>
+                </div>
+              </div>
+
+              <div class="flex justify-end gap-2">
+                <button type="submit" class="btn-primary px-5 py-2 text-sm inline-flex items-center gap-2" [disabled]="salvandoModelos">
+                  @if (salvandoModelos) {
+                    <span class="btn-spinner" aria-hidden="true"></span>
+                  } @else {
+                    <span class="material-symbols-outlined" style="font-size:16px">save</span>
+                  }
+                  {{ salvandoModelos ? 'Salvando…' : 'Salvar modelos' }}
+                </button>
+              </div>
+            </form>
+
+            <div>
+              <p class="text-[0.6875rem] uppercase tracking-wider mb-3" style="color:var(--c-muted)">Prévia dos layouts</p>
+              <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 justify-items-center">
+                @for (m of previewModelIds; track m) {
+                  <div class="flex flex-col items-center gap-2 w-full max-w-[300px]">
+                    <span class="text-xs font-semibold text-center leading-snug" style="color:var(--c-text)">{{ linkBioModelLabels[m] }}</span>
+                    <div class="link-bio-phone link-bio-phone--mini w-full">
+                      @if (modelPreviewUrlSafe(m); as src) {
+                        <iframe [src]="src" [title]="'Prévia: ' + linkBioModelLabels[m]" class="link-bio-phone-screen w-full h-full border-0" loading="lazy"></iframe>
+                      } @else {
+                        <div class="link-bio-phone-screen w-full h-full min-h-[200px] flex items-center justify-center text-xs" style="background:var(--c-soft);color:var(--c-muted)">…</div>
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        }
+
+        <!-- Aba Conteúdo extra (formulário — modelos 2–5) -->
+        @if (abaAtiva === 'conteudoExtra' && state) {
+          <div id="tab-conteudo-extra" class="flex flex-col gap-5">
+            <p class="text-xs leading-relaxed" style="color:var(--c-muted)">
+              Preencha só o que fizer sentido para o seu layout. Campos vazios são ignorados. Deixe tudo em branco e salve para limpar os dados extras da página pública.
+            </p>
+
+            <form class="flex flex-col gap-5" (ngSubmit)="salvarConteudoExtra()">
+              <div class="card p-5">
+                <p class="text-xs font-bold uppercase tracking-wider mb-1" style="color:var(--c-muted)">Textos e links</p>
+                <p class="text-[11px] mb-4" style="color:var(--c-muted)">Usados nos layouts temáticos (2 a 7). Veterinária e pediatria também leem registro (CRM/CRMV), convênios e textos aqui quando aplicável.</p>
+                <div class="flex flex-col gap-4">
+                  <div>
+                    <label class="form-label">Frase de destaque (hero)</label>
+                    <input type="text" class="form-input" [(ngModel)]="extraHeroTagline" name="extra_hero_tagline" maxlength="300" placeholder="Ex.: Psicologia clínica e organizacional" />
+                  </div>
+                  <div>
+                    <label class="form-label">Registro profissional (CRO, CRM, CRP…)</label>
+                    <input type="text" class="form-input" [(ngModel)]="extraCouncilRegistration" name="extra_council" maxlength="120" placeholder="Ex.: CRO-SP 12345" />
+                  </div>
+                  <div>
+                    <label class="form-label">Subtítulo da marca (estética)</label>
+                    <input type="text" class="form-input" [(ngModel)]="extraBrandSubtitle" name="extra_brand_sub" maxlength="200" placeholder="Ex.: Estética avançada · Desde 2015" />
+                  </div>
+                  <div>
+                    <label class="form-label">Instagram (URL completa)</label>
+                    <input type="url" class="form-input" [(ngModel)]="extraInstagramUrl" name="extra_ig" maxlength="500" placeholder="https://instagram.com/sua_clinica" />
+                  </div>
+                </div>
+              </div>
+
+              <div class="card p-5">
+                <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+                  <div>
+                    <p class="text-xs font-bold uppercase tracking-wider" style="color:var(--c-muted)">Convênios aceitos</p>
+                    <p class="text-[11px] mt-1" style="color:var(--c-muted)">Layout odontologia (4)</p>
+                  </div>
+                  <button type="button" class="text-sm px-3 py-1.5 rounded-lg inline-flex items-center gap-1" style="background:var(--c-soft);color:var(--c-primary);border:1px solid var(--c-border)" (click)="adicionarConvenioLinha()">
+                    <span class="material-symbols-outlined" style="font-size:16px">add</span> Adicionar
+                  </button>
+                </div>
+                <div class="flex flex-col gap-2">
+                  @for (linha of extraConveniosLinhas; track $index) {
+                    <div class="flex gap-2 items-center">
+                      <input type="text" class="form-input flex-1 text-sm" [(ngModel)]="extraConveniosLinhas[$index]" [name]="'extra_conv_' + $index" maxlength="120" placeholder="Ex.: Unimed" />
+                      <button type="button" class="p-2 rounded-lg shrink-0" style="color:var(--c-muted);border:1px solid var(--c-border)" (click)="removerConvenioLinha($index)" title="Remover linha" aria-label="Remover convênio">
+                        <span class="material-symbols-outlined" style="font-size:18px">close</span>
+                      </button>
+                    </div>
+                  }
+                </div>
+              </div>
+
+              <div class="card p-5">
+                <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+                  <div>
+                    <p class="text-xs font-bold uppercase tracking-wider" style="color:var(--c-muted)">Modalidades de atendimento</p>
+                    <p class="text-[11px] mt-1" style="color:var(--c-muted)">Layout profissional solo (2). Se vazio, a página usa padrão (Online / Presencial).</p>
+                  </div>
+                  <button type="button" class="text-sm px-3 py-1.5 rounded-lg inline-flex items-center gap-1" style="background:var(--c-soft);color:var(--c-primary);border:1px solid var(--c-border)" (click)="adicionarModalidade()">
+                    <span class="material-symbols-outlined" style="font-size:16px">add</span> Adicionar
+                  </button>
+                </div>
+                @if (extraModalidades.length === 0) {
+                  <p class="text-xs py-2" style="color:var(--c-muted)">Nenhuma modalidade personalizada. Clique em Adicionar para criar (ex.: Online, Presencial).</p>
+                }
+                <div class="flex flex-col gap-4">
+                  @for (mod of extraModalidades; track $index) {
+                    <div class="p-4 rounded-xl flex flex-col gap-3" style="background:var(--c-soft);border:1px solid var(--c-border)">
+                      <div class="flex justify-between items-start gap-2">
+                        <span class="text-xs font-semibold" style="color:var(--c-text)">Modalidade {{ $index + 1 }}</span>
+                        <button type="button" class="text-xs px-2 py-1 rounded" style="color:var(--c-muted)" (click)="removerModalidade($index)">Remover</button>
+                      </div>
+                      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div>
+                          <label class="form-label">Título</label>
+                          <input type="text" class="form-input text-sm" [(ngModel)]="mod.title" [name]="'mod_t_' + $index" maxlength="80" placeholder="Ex.: Online" />
+                        </div>
+                        <div>
+                          <label class="form-label">Subtítulo</label>
+                          <input type="text" class="form-input text-sm" [(ngModel)]="mod.subtitle" [name]="'mod_s_' + $index" maxlength="120" placeholder="Ex.: Atendimento remoto" />
+                        </div>
+                      </div>
+                      <label class="inline-flex items-center gap-2 text-sm cursor-pointer" style="color:var(--c-text)">
+                        <input type="checkbox" [(ngModel)]="mod.available" [name]="'mod_a_' + $index" />
+                        Disponível (exibir na página)
+                      </label>
+                    </div>
+                  }
+                </div>
+              </div>
+
+              <div class="card p-5">
+                <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+                  <div>
+                    <p class="text-xs font-bold uppercase tracking-wider" style="color:var(--c-muted)">Equipe</p>
+                    <p class="text-[11px] mt-1" style="color:var(--c-muted)">Layout multi profissionais (5)</p>
+                  </div>
+                  <button type="button" class="text-sm px-3 py-1.5 rounded-lg inline-flex items-center gap-1" style="background:var(--c-soft);color:var(--c-primary);border:1px solid var(--c-border)" (click)="adicionarMembroEquipe()">
+                    <span class="material-symbols-outlined" style="font-size:16px">person_add</span> Adicionar pessoa
+                  </button>
+                </div>
+                @if (extraEquipe.length === 0) {
+                  <p class="text-xs py-2" style="color:var(--c-muted)">Nenhum membro. Adicione para listar na página pública.</p>
+                }
+                <div class="flex flex-col gap-4">
+                  @for (mem of extraEquipe; track $index) {
+                    <div class="p-4 rounded-xl flex flex-col gap-3" style="background:var(--c-soft);border:1px solid var(--c-border)">
+                      <div class="flex justify-between items-start gap-2">
+                        <span class="text-xs font-semibold" style="color:var(--c-text)">Pessoa {{ $index + 1 }}</span>
+                        <button type="button" class="text-xs px-2 py-1 rounded" style="color:var(--c-muted)" (click)="removerMembroEquipe($index)">Remover</button>
+                      </div>
+                      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div class="md:col-span-2">
+                          <label class="form-label">Nome</label>
+                          <input type="text" class="form-input text-sm" [(ngModel)]="mem.name" [name]="'team_n_' + $index" maxlength="120" placeholder="Dra. Maria Silva" />
+                        </div>
+                        <div>
+                          <label class="form-label">Registro / credencial</label>
+                          <input type="text" class="form-input text-sm" [(ngModel)]="mem.credential" [name]="'team_c_' + $index" maxlength="80" placeholder="CRP 06/12345" />
+                        </div>
+                        <div>
+                          <label class="form-label">Observação</label>
+                          <input type="text" class="form-input text-sm" [(ngModel)]="mem.notes" [name]="'team_o_' + $index" maxlength="120" placeholder="Ex.: Atende online" />
+                        </div>
+                        <div class="md:col-span-2">
+                          <label class="form-label">WhatsApp (só números ou com DDD)</label>
+                          <input type="text" class="form-input text-sm" [(ngModel)]="mem.whatsapp" [name]="'team_w_' + $index" maxlength="20" placeholder="5511999999999" />
+                        </div>
+                      </div>
+                    </div>
+                  }
+                </div>
+              </div>
+
+              <div class="flex justify-end gap-2">
+                <button type="submit" class="btn-primary px-5 py-2 text-sm inline-flex items-center gap-2" [disabled]="salvandoExtra">
+                  @if (salvandoExtra) {
+                    <span class="btn-spinner" aria-hidden="true"></span>
+                  } @else {
+                    <span class="material-symbols-outlined" style="font-size:16px">save</span>
+                  }
+                  {{ salvandoExtra ? 'Salvando…' : 'Salvar conteúdo extra' }}
+                </button>
+              </div>
+            </form>
+          </div>
+        }
       </div>
 
-      <!-- Preview celular (visível em todas as telas; à direita a partir de md) -->
+      <!-- Preview celular (visível nas abas exceto Modelos e Conteúdo extra) -->
+      @if (abaAtiva !== 'modelos' && abaAtiva !== 'conteudoExtra') {
       <div class="flex flex-col items-center gap-3 md:sticky md:top-24">
         <p class="text-[0.6875rem] uppercase tracking-wider" style="color:var(--c-muted)">Prévia ao vivo</p>
         <div class="link-bio-phone w-full max-w-[320px] md:max-w-none">
@@ -338,6 +602,9 @@
           }
         </div>
       </div>
+      }
     </div>
+    </div>
+  }
   }
 </div>

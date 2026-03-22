@@ -1,97 +1,156 @@
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=Jost:wght@300;400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600&family=Instrument+Serif:ital,wght@0,400&display=swap');
 
 :host {
   display: block;
-  font-family: 'Jost', sans-serif;
+  font-family: 'DM Sans', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 
 .sucesso-page {
   min-height: 100vh;
-  background: #f7f5f2;
+  background: #faf8f4;
+  color: #1e1b18;
 }
+
 .sucesso-page.dark {
-  background: #0f0f14;
+  background: #0f0e0c;
+  color: #f0ebe3;
 }
 
-.sucesso-page h1 {
-  font-family: 'Cormorant Garamond', serif;
-  font-weight: 400;
+.sucesso-inner {
+  padding-top: 4rem;
+  padding-bottom: 3rem;
 }
 
-.bio-text { color: #1a1a2e; }
-.sucesso-page.dark .bio-text { color: #e8e8f0; }
-.bio-muted { color: #9e9b96; }
-.sucesso-page.dark .bio-muted { color: #8a8a96; }
-.bio-border { border-color: #e8e4de; }
-.sucesso-page.dark .bio-border { border-color: #2a2a3e; }
-.bio-bg { background: #fff; }
-.sucesso-page.dark .bio-bg { background: #16161e; }
-.bio-bg-soft { background: #f0ede8; }
-.sucesso-page.dark .bio-bg-soft { background: #1a1a24; }
+.sucesso-card {
+  border-radius: 1rem;
+  padding: 2rem 1.5rem;
+  text-align: center;
+  background: #fff;
+  border: 1px solid #e8dece;
+}
+
+.sucesso-page.dark .sucesso-card {
+  background: #1a1814;
+  border-color: #2e2a24;
+}
 
 .success-icon-wrap {
-  width: 64px;
-  height: 64px;
+  width: 5rem;
+  height: 5rem;
   border-radius: 50%;
-  background: #e8f5e9;
+  background: #3a6b5d;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 auto 1.25rem;
+  margin: 0 auto 1.5rem;
+  box-shadow: 0 10px 30px rgba(58, 107, 93, 0.25);
+  animation: sucessoPop 0.5s ease both;
 }
+
 .success-icon-wrap .material-symbols-outlined {
-  font-size: 32px;
-  color: #2e7d32;
+  font-size: 2.25rem;
+  color: #fff;
 }
+
 .sucesso-page.dark .success-icon-wrap {
-  background: rgba(76, 175, 80, 0.2);
+  background: #4a7c6e;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
 }
-.sucesso-page.dark .success-icon-wrap .material-symbols-outlined {
-  color: #81c784;
+
+@keyframes sucessoPop {
+  0% {
+    transform: scale(0) rotate(-12deg);
+  }
+  70% {
+    transform: scale(1.08) rotate(4deg);
+  }
+  100% {
+    transform: scale(1) rotate(0);
+  }
 }
 
 .sucesso-title {
-  font-size: 1.5rem;
-  margin-bottom: 0.5rem;
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-size: 1.75rem;
+  font-weight: 400;
+  font-style: normal;
+  font-synthesis: none;
+  margin: 0 0 0.5rem;
+  color: #1e1b18;
+}
+
+.sucesso-page.dark .sucesso-title {
+  color: #faf8f4;
+}
+
+.bio-text {
+  color: #1e1b18;
+}
+.sucesso-page.dark .bio-text {
+  color: #f0ebe3;
+}
+.bio-muted {
+  color: #9e7f5e;
+}
+.sucesso-page.dark .bio-muted {
+  color: #a89880;
+}
+.bio-border {
+  border-color: #e8dece;
+}
+.sucesso-page.dark .bio-border {
+  border-color: #2e2a24;
+}
+.bio-bg-soft {
+  background: #f3ede3;
+}
+.sucesso-page.dark .bio-bg-soft {
+  background: #161814;
 }
 
 .logo-wrap {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
-  background: #1a1a2e;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 0.75rem;
+  background: #110f0d;
   display: flex;
   align-items: center;
   justify-content: center;
 }
-.sucesso-page.dark .logo-wrap { background: #2a2a3e; }
+.sucesso-page.dark .logo-wrap {
+  background: #f3ede3;
+}
 .logo-initial {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 1.25rem;
-  font-weight: 500;
-  color: #f7f5f2;
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #faf8f4;
+}
+.sucesso-page.dark .logo-initial {
+  color: #110f0d;
 }
 
 .btn-primary {
-  background: #1a1a2e;
-  color: #f7f5f2;
+  background: #1e1b18;
+  color: #fff;
   border: none;
   padding: 0.875rem 1.25rem;
-  border-radius: 0.75rem;
+  border-radius: 0.875rem;
   font-size: 0.875rem;
-  font-weight: 500;
+  font-weight: 600;
+  font-family: inherit;
   text-decoration: none;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: background 0.15s;
 }
 .sucesso-page.dark .btn-primary {
-  background: #2a2a3e;
-  color: #e8e8f0;
+  background: #f0ebe3;
+  color: #110f0d;
 }
 .btn-primary:hover {
-  background: #2c2c4a;
+  background: #2d2a26;
 }
 .sucesso-page.dark .btn-primary:hover {
-  background: #3a3a52;
+  background: #fff;
 }

@@ -1,9 +1,10 @@
 <!-- Igual ao backend: platform/settings/index -->
 <div class="relative min-h-[300px] w-full space-y-4">
-  @if (loading) {
-    <app-loading-overlay />
-  }
-  @if (!loading) {
+  @if (showSkeleton()) {
+    <zm-skeleton-list [rows]="8" />
+  } @else if (!listaPronta) {
+  } @else {
+    <div class="zm-content-enter space-y-4">
     @if (error) {
       <p class="text-xs m-0" style="color: var(--c-primary)">{{ error }}</p>
     }
@@ -61,7 +62,12 @@
       @if (successSettings) {
         <p class="text-xs rounded px-3 py-2 m-0" style="background: var(--c-soft); color: var(--c-text)">{{ successSettings }}</p>
       }
-      <button type="submit" class="btn-primary" [disabled]="savingSettings">{{ savingSettings ? 'Salvando…' : 'Salvar configurações' }}</button>
+      <button type="submit" class="btn-primary inline-flex items-center gap-2" [disabled]="savingSettings">
+        @if (savingSettings) {
+          <span class="btn-spinner" aria-hidden="true"></span>
+        }
+        {{ savingSettings ? 'Salvando…' : 'Salvar configurações' }}
+      </button>
     </form>
 
     <!-- Card 3: Status do serviço -->
@@ -121,7 +127,13 @@
         </div>
       </div>
 
-      <button type="submit" class="btn-primary" [disabled]="savingStatus">{{ savingStatus ? 'Atualizando…' : 'Atualizar status' }}</button>
+      <button type="submit" class="btn-primary inline-flex items-center gap-2" [disabled]="savingStatus">
+        @if (savingStatus) {
+          <span class="btn-spinner" aria-hidden="true"></span>
+        }
+        {{ savingStatus ? 'Atualizando…' : 'Atualizar status' }}
+      </button>
     </form>
+    </div>
   }
 </div>

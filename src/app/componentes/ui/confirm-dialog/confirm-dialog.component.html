@@ -1,0 +1,33 @@
+@if (state(); as opts) {
+  <div class="confirm-backdrop" (click)="onBackdrop($event)" role="presentation">
+    <div
+      class="confirm-panel"
+      role="alertdialog"
+      aria-modal="true"
+      [attr.aria-labelledby]="'confirm-title'"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="confirm-icon-wrap" [class.danger]="opts.variant === 'danger'">
+        <span class="material-symbols-outlined confirm-icon">{{ opts.variant === 'danger' ? 'delete' : 'help' }}</span>
+      </div>
+      <h2 id="confirm-title" class="confirm-title">{{ opts.title }}</h2>
+      <p class="confirm-message">
+        @if (opts.message) {
+          {{ opts.message }}
+        } @else {
+          {{ opts.messageBefore ?? '' }}@if (opts.emphasis) {
+            <strong>{{ opts.emphasis }}</strong>
+          }{{ opts.messageAfter ?? '' }}
+        }
+      </p>
+      <div class="confirm-actions">
+        <button type="button" class="confirm-btn confirm-btn-secondary" (click)="cancel()">
+          {{ opts.cancelLabel }}
+        </button>
+        <button type="button" class="confirm-btn confirm-btn-primary" (click)="confirm()">
+          {{ opts.confirmLabel }}
+        </button>
+      </div>
+    </div>
+  </div>
+}

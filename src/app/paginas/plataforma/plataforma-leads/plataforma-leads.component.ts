@@ -1,31 +1,35 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, Signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { PlataformaService, PlatformLead } from '../../../core/services/plataforma.service';
-import { LoadingOverlayComponent } from '../../../componentes/ui/loading-overlay/loading-overlay.component';
+import { LoadingService } from '../../../shared/services/loading.service';
+import { ZmSkeletonListComponent } from '../../../shared/components/skeletons';
 
 @Component({
   selector: 'app-plataforma-leads',
   standalone: true,
-  imports: [CommonModule, LoadingOverlayComponent],
+  imports: [CommonModule, ZmSkeletonListComponent],
   templateUrl: './plataforma-leads.component.html',
   styleUrl: './plataforma-leads.component.css',
 })
 export class PlataformaLeadsComponent implements OnInit {
-  estadoCarregando = false;
+  showSkeleton!: Signal<boolean>;
+  listaPronta = false;
   estadoErro = false;
   leads: PlatformLead[] = [];
 
   private plataformaService = inject(PlataformaService);
+  private loadingService = inject(LoadingService);
 
   ngOnInit(): void {
-    this.estadoCarregando = true;
-    this.plataformaService.getLeads().subscribe({
+    const { data$, showSkeleton } = this.loadingService.loadWithThreshold(this.plataformaService.getLeads());
+    this.showSkeleton = showSkeleton;
+    data$.subscribe({
       next: (res) => {
-        this.estadoCarregando = false;
+        this.listaPronta = true;
         this.leads = res.data ?? [];
       },
       error: () => {
-        this.estadoCarregando = false;
+        this.listaPronta = true;
         this.estadoErro = true;
       },
     });

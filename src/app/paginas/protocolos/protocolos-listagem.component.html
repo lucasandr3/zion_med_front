@@ -1,8 +1,4 @@
 <div class="protocolos-page relative min-h-[320px]">
-  @if (carregando && protocolos.length === 0) {
-    <app-loading-overlay />
-  }
-
   <div class="page-header mb-5">
     <div class="page-title flex items-center gap-3">
       <div class="page-title-icon w-10 h-10 rounded-lg flex items-center justify-center" style="background: var(--c-soft)">
@@ -38,7 +34,7 @@
     </button>
   </div>
 
-  @if (!carregando && !erro) {
+  @if (listaPronta && !erro) {
     <p class="text-sm mb-3" style="color: var(--c-muted)">{{ contagemTexto() }}</p>
   }
 
@@ -46,7 +42,11 @@
     <p class="text-sm mb-4" style="color: var(--c-error, #dc2626)">{{ erro }}</p>
   }
 
-  @if (!carregando && !erro) {
+  @if (showSkeleton()) {
+    <zm-skeleton-list [rows]="6" />
+  } @else if (!listaPronta && !erro) {
+  } @else if (!erro) {
+    <div class="zm-content-enter">
     <div class="card rounded-xl overflow-hidden" style="border: 1px solid var(--c-border)">
       <div class="overflow-x-auto">
         <table class="w-full text-sm border-collapse">
@@ -116,6 +116,7 @@
           </div>
         </div>
       }
+    </div>
     </div>
   }
 

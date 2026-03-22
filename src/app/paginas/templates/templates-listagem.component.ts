@@ -1,9 +1,12 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, Signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TemplatesService, Template } from '../../core/services/templates.service';
-import { LoadingOverlayComponent } from '../../componentes/ui/loading-overlay/loading-overlay.component';
+import { LoadingService } from '../../shared/services/loading.service';
+import { ZmSkeletonListComponent } from '../../shared/components/skeletons';
+import { ToastService } from '../../core/services/toast.service';
+import { ConfirmDialogService } from '../../core/services/confirm-dialog.service';
 
 /** Rótulos de categoria (igual ao backend FormTemplate::categoryLabels) */
 const CATEGORY_LABELS: Record<string, string> = {
@@ -24,13 +27,14 @@ const CATEGORY_LABELS: Record<string, string> = {
 @Component({
   selector: 'app-templates-listagem',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule, LoadingOverlayComponent],
+  imports: [CommonModule, RouterLink, FormsModule, ZmSkeletonListComponent],
   templateUrl: './templates-listagem.component.html',
   styleUrl: './templates-listagem.component.css',
 })
 export class TemplatesListagemComponent implements OnInit {
   templates: Template[] = [];
-  carregando = false;
+  showSkeleton!: Signal<boolean>;
+  listaPronta = false;
   erro = '';
 
   /** Filtro: 'all' | 'ativo' | 'publico' */
@@ -44,18 +48,24 @@ export class TemplatesListagemComponent implements OnInit {
 
   readonly categoryLabels = CATEGORY_LABELS;
 
+  removendoId: number | null = null;
+
   private templatesService = inject(TemplatesService);
+  private loadingService = inject(LoadingService);
+  private toast = inject(ToastService);
+  private confirm = inject(ConfirmDialogService);
 
   ngOnInit(): void {
-    this.carregando = true;
-    this.templatesService.list().subscribe({
+    const { data$, showSkeleton } = this.loadingService.loadWithThreshold(this.templatesService.list());
+    this.showSkeleton = showSkeleton;
+    data$.subscribe({
       next: (list) => {
+        this.listaPronta = true;
         this.templates = list;
         this.montarGrupos();
-        this.carregando = false;
       },
       error: () => {
-        this.carregando = false;
+        this.listaPronta = true;
         this.erro = 'Não foi possível carregar os templates.';
       },
     });
@@ -106,16 +116,31 @@ export class TemplatesListagemComponent implements OnInit {
     return this.itensVisiveis(grupo).length > 0;
   }
 
-  remover(t: Template, event: Event): void {
+  async remover(t: Template, event: Event): Promise<void> {
     event.preventDefault();
     event.stopPropagation();
-    if (!confirm('Remover este template?')) return;
+    const nome = t.name?.trim() || 'este template';
+    const ok = await this.confirm.request({
+      title: 'Deletar template?',
+      messageBefore: 'O template ',
+      emphasis: nome,
+      messageAfter: ' será removido permanentemente. Esta ação não pode ser desfeita.',
+      confirmLabel: 'Sim, deletar',
+      variant: 'danger',
+    });
+    if (!ok) return;
+    this.removendoId = t.id;
     this.templatesService.delete(t.id).subscribe({
       next: () => {
+        this.removendoId = null;
         this.templates = this.templates.filter((x) => x.id !== t.id);
         this.montarGrupos();
+        this.toast.success('Template removido', `${nome} foi excluído.`);
       },
-      error: () => alert('Não foi possível remover o template.'),
+      error: () => {
+        this.removendoId = null;
+        this.toast.error('Erro ao remover', 'Não foi possível remover o template.');
+      },
     });
   }
 }

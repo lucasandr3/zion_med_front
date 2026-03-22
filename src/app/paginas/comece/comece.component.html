@@ -1,222 +1,330 @@
-<div class="comece-pagina min-h-screen bg-slate-50 text-slate-900 antialiased">
-  <header class="border-b border-slate-200/80 bg-white/90 backdrop-blur sticky top-0 z-10">
-    <div class="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-4">
-      <a routerLink="/" class="flex items-center gap-3">
-        <div class="h-10 w-10 rounded-xl flex items-center justify-center shrink-0 overflow-hidden bg-indigo-600 p-1">
-          <img src="assets/logo/zionmed_logo.png" alt="Zion Med" class="w-full h-full object-contain rounded-lg" onerror="this.style.display='none'">
+<div class="comece-page" [attr.data-theme]="lpTheme">
+  <div class="grid-bg"></div>
+  <div class="progress-bar" [style.width.%]="progressPct"></div>
+
+  <div class="success-screen" [class.show]="showSuccessOverlay">
+    <div class="success-check">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <h2 class="success-h">Conta criada com <em>sucesso!</em></h2>
+    <p class="success-p">Seu trial de {{ diasTrial }} dias começa agora. Redirecionando para o dashboard…</p>
+  </div>
+
+  <nav>
+    <div class="nav-inner">
+      <a routerLink="/" class="nav-logo">
+        <div class="logo-mark">
+          <img src="assets/logo/zionmed_logo.png" alt="ZionMed" width="24" height="24" />
         </div>
-        <div class="leading-tight">
-          <div class="text-sm font-semibold tracking-tight text-slate-900">ZionMed</div>
-          <div class="hidden text-xs text-slate-500 sm:block">Fichas e Consentimentos Digitais</div>
-        </div>
+        <span class="logo-name">ZionMed</span>
       </a>
-      <div class="flex items-center gap-2 shrink-0">
-        <a routerLink="/" fragment="precos" class="hidden rounded-lg px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 sm:inline-flex">Ver planos</a>
-        <a routerLink="/autenticacao" class="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">Entrar</a>
+      <div class="nav-right">
+        <button type="button" class="theme-btn" (click)="toggleLpTheme()" aria-label="Alternar tema">
+          <svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+          <svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </button>
+        <a routerLink="/autenticacao" class="nav-login">Entrar</a>
       </div>
     </div>
-  </header>
+  </nav>
 
-  <main class="mx-auto max-w-7xl px-4 py-5 sm:py-7">
-    <div class="mb-5 flex items-center justify-center gap-2 sm:gap-4">
-      <div class="flex items-center gap-2">
-        <span class="flex h-7 w-7 items-center justify-center rounded-full bg-indigo-600 text-xs font-bold text-white">1</span>
-        <span class="text-sm font-semibold text-indigo-700">Cadastro</span>
-      </div>
-      <div class="h-px w-8 sm:w-16 bg-slate-200"></div>
-      <div class="flex items-center gap-2 opacity-40">
-        <span class="flex h-7 w-7 items-center justify-center rounded-full border-2 border-slate-300 text-xs font-bold text-slate-400">2</span>
-        <span class="text-sm font-medium text-slate-400">Configuração</span>
-      </div>
-      <div class="h-px w-8 sm:w-16 bg-slate-200"></div>
-      <div class="flex items-center gap-2 opacity-40">
-        <span class="flex h-7 w-7 items-center justify-center rounded-full border-2 border-slate-300 text-xs font-bold text-slate-400">3</span>
-        <span class="text-sm font-medium text-slate-400">Pronto!</span>
-      </div>
-    </div>
-
-    <div class="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_480px] xl:grid-cols-[1fr_520px]">
-      <div class="flex flex-col gap-6 lg:py-2">
-        <div>
-          <h2 class="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">Fichas e consentimentos digitais para a sua clínica.</h2>
-          <p class="mt-3 text-base text-slate-600 leading-relaxed">
-            O ZionMed digitaliza fichas de cadastro, termos de consentimento e checklists, com assinatura eletrônica, protocolo e PDF automático — sem substituir o ERP ou prontuário que você já usa.
-          </p>
+  <div class="page">
+    <div class="main">
+      <div class="left">
+        <div class="left-eyebrow">
+          <div class="left-eyebrow-dot"></div>
+          {{ diasTrial }} dias grátis · Sem cartão
         </div>
+        <h1>Comece com sua<br />clínica <em>sem papel</em><br />agora mesmo.</h1>
+        <p class="left-sub">
+          Fichas digitais, assinatura eletrônica e PDF automático — tudo no <strong>link da bio</strong> da sua clínica. O paciente preenche antes de chegar.
+        </p>
 
-        <div class="space-y-3">
-          @for (b of beneficios; track b.title) {
-            <div class="flex items-start gap-3">
-              <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl" [ngClass]="b.bg">
-                <span class="material-symbols-outlined text-[20px]" [ngClass]="b.color">{{ b.icon }}</span>
-              </span>
-              <div>
-                <p class="text-sm font-semibold text-slate-800">{{ b.title }}</p>
-                <p class="text-sm text-slate-500 mt-0.5">{{ b.desc }}</p>
-              </div>
+        <div class="benefits">
+          <div class="benefit">
+            <div class="benefit-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V9z"/><polyline points="13 2 13 9 20 9"/></svg></div>
+            <div>
+              <div class="benefit-title">86+ templates prontos</div>
+              <div class="benefit-desc">Fichas de anamnese, termos e acompanhamentos para 11 especialidades, prontos para usar.</div>
             </div>
-          }
-        </div>
-
-        <div class="flex flex-wrap gap-2 pt-2">
-          <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-700 ring-1 ring-inset ring-emerald-200">{{ diasTrial }} dias grátis</span>
-          <span class="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-700 ring-1 ring-inset ring-slate-200">Sem cartão de crédito</span>
-          <span class="inline-flex items-center gap-1.5 rounded-full bg-sky-50 px-3 py-1.5 text-xs font-medium text-sky-700 ring-1 ring-inset ring-sky-200">Acesso liberado na hora</span>
-          <span class="inline-flex items-center gap-1.5 rounded-full bg-violet-50 px-3 py-1.5 text-xs font-medium text-violet-700 ring-1 ring-inset ring-violet-200">Cancele quando quiser</span>
-        </div>
-
-        <details class="rounded-xl border border-amber-200 bg-amber-50">
-          <summary class="flex cursor-pointer items-center justify-between p-4 text-sm font-semibold text-amber-900 select-none">
-            <span class="flex items-center gap-2">Informações sobre implantação</span>
-          </summary>
-          <div class="border-t border-amber-200 px-4 pb-4 pt-3 text-sm text-amber-800 leading-relaxed">
-            A conta e o trial são liberados imediatamente. A implantação inicial varia conforme escopo:
-            <ul class="mt-2 space-y-1 list-none">
-              <li><strong>R$ 500 – R$ 1.500</strong> para clínica pequena</li>
-              <li><strong>R$ 1.500 – R$ 3.000</strong> para operação com fluxos e treinamento</li>
-              <li><strong>R$ 3.000 – R$ 6.000</strong> para multiunidade ou integrações</li>
-            </ul>
-            <a routerLink="/" fragment="precos" class="mt-3 inline-block font-medium text-amber-700 hover:underline">Ver detalhes completos dos planos →</a>
           </div>
-        </details>
-
-        <div class="rounded-xl border border-sky-100 bg-sky-50 p-4 text-sm text-sky-900">
-          <p class="font-semibold">O que acontece depois do cadastro?</p>
-          <p class="mt-1.5 text-sky-800 leading-relaxed">
-            Sua conta é criada e o trial começa na hora. Se a cobrança não for configurada automaticamente neste passo, você poderá concluir a ativação comercial depois, dentro da plataforma.
-          </p>
+          <div class="benefit">
+            <div class="benefit-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>
+            <div>
+              <div class="benefit-title">Assinatura digital com validade legal</div>
+              <div class="benefit-desc">O paciente assina com o dedo no celular. Conformidade LGPD e CFM desde o dia 1.</div>
+            </div>
+          </div>
+          <div class="benefit">
+            <div class="benefit-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg></div>
+            <div>
+              <div class="benefit-title">Link na bio que substitui o Linktree</div>
+              <div class="benefit-desc">Página pública profissional com vários modelos de layout — muito mais que um simples link na bio.</div>
+            </div>
+          </div>
+          <div class="benefit">
+            <div class="benefit-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
+            <div>
+              <div class="benefit-title">PDF automático a cada resposta</div>
+              <div class="benefit-desc">Cada ficha preenchida gera um PDF formatado. Zero digitação, zero formatação manual.</div>
+            </div>
+          </div>
         </div>
 
-        <a href="https://wa.me/5500000000000?text=Ol%C3%A1%2C+tenho+interesse+no+ZionMed+e+gostaria+de+mais+informa%C3%A7%C3%B5es." target="_blank" rel="noopener noreferrer"
-           class="flex items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-left no-underline transition-colors hover:bg-emerald-100 hover:border-emerald-300">
-          <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#25D366] text-white">
-            <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.557 4.126 1.526 5.855L0 24l6.335-1.504A11.943 11.943 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0z"/></svg>
-          </span>
-          <div>
-            <p class="text-sm font-semibold text-slate-800">Prefere falar por WhatsApp?</p>
-            <p class="text-xs text-slate-600 mt-0.5">Dúvidas ou quer ajuda no cadastro? Fale com a equipe.</p>
+        <div class="trust-pills">
+          <span class="trust-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>{{ diasTrial }} dias grátis</span>
+          <span class="trust-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Sem cartão de crédito</span>
+          <span class="trust-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Acesso imediato</span>
+          <span class="trust-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Cancele quando quiser</span>
+          <span class="trust-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>100% LGPD</span>
+        </div>
+
+        <a [href]="waCadastroUrl" target="_blank" rel="noopener noreferrer" class="wpp-strip">
+          <div class="wpp-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.108.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
           </div>
-          <span class="ml-auto shrink-0 rounded-lg bg-[#25D366] px-3 py-1.5 text-xs font-semibold text-white">Falar agora</span>
+          <div class="wpp-text">
+            <div class="wpp-title">Prefere falar por WhatsApp?</div>
+            <div class="wpp-sub">Dúvidas ou quer ajuda no cadastro? Fale com a equipe.</div>
+          </div>
+          <span class="wpp-btn">Falar agora</span>
         </a>
       </div>
 
-      <div class="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-[0_10px_30px_rgba(2,6,23,0.08),0_0_0_1px_rgba(0,0,0,0.04)]">
-        <h1 class="text-xl font-semibold tracking-tight text-slate-900 sm:text-2xl">Criar conta e começar o trial</h1>
-        <p class="mt-1 text-sm text-slate-500">Preencha os dados abaixo. Seu trial de {{ diasTrial }} dias começa imediatamente após o cadastro.</p>
-
-        @if (estadoErro) {
-          <div class="mt-4 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{{ mensagemErro }}</div>
+      <div class="right">
+        @if (uiStep === 1) {
+          <a [href]="waCadastroUrl" target="_blank" rel="noopener noreferrer" class="wpp-strip wpp-strip--mobile">
+            <div class="wpp-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.108.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+            </div>
+            <div class="wpp-text">
+              <div class="wpp-title">Prefere falar por WhatsApp?</div>
+              <div class="wpp-sub">Dúvidas ou ajuda no cadastro? Fale com a equipe.</div>
+            </div>
+            <span class="wpp-btn">Falar agora</span>
+          </a>
         }
+        <div class="stepper">
+          <div class="step-item" [class.active]="uiStep === 1" [class.done]="uiStep >= 2">
+            <div class="step-circle">
+              @if (uiStep >= 2) {
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+              } @else {
+                1
+              }
+            </div>
+            <span>Cadastro</span>
+          </div>
+          <div class="step-line" [class.done]="uiStep >= 2"></div>
+          <div class="step-item" [class.active]="uiStep === 2 && !showSuccessOverlay" [class.done]="showSuccessOverlay">
+            <div class="step-circle">
+              @if (showSuccessOverlay) {
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+              } @else {
+                2
+              }
+            </div>
+            <span>Configuração</span>
+          </div>
+          <div class="step-line" [class.done]="showSuccessOverlay"></div>
+          <div class="step-item" [class.active]="showSuccessOverlay">
+            <div class="step-circle">
+              @if (showSuccessOverlay) {
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+              } @else {
+                3
+              }
+            </div>
+            <span>Pronto!</span>
+          </div>
+        </div>
 
-        <form (ngSubmit)="enviar()" class="mt-5 space-y-5">
-          <div>
-            <label class="block text-sm font-medium text-slate-700 mb-2">Plano <span class="text-red-500">*</span></label>
-            @if (carregandoPlanos) {
-              <p class="text-sm text-slate-500">Carregando planos…</p>
-            } @else {
-              <div class="space-y-2">
-                @for (p of planos; track p.key) {
-                  <div>
-                    <input type="radio" [id]="'plan_'+p.key" [(ngModel)]="planKey" name="plan_key" [value]="p.key" class="sr-only" required>
-                    <label [for]="'plan_'+p.key" class="flex cursor-pointer items-center justify-between rounded-xl border-2 px-4 py-3 transition-all"
-                      [class.border-indigo-500]="planKey === p.key" [class.bg-indigo-50]="planKey === p.key"
-                      [class.border-slate-200]="planKey !== p.key" [class.bg-white]="planKey !== p.key">
-                      <div class="flex items-center gap-3">
-                        <div class="flex items-center gap-3">
-                          <span class="text-sm font-semibold text-slate-800">{{ p.name }}</span>
-                          @if (p.description) { <span class="text-xs text-slate-500">{{ p.description }}</span> }
-                        </div>
+        @if (uiStep === 1) {
+          <div class="form-card">
+            <div class="form-title">Criar conta</div>
+            <div class="form-sub">Seu trial de {{ diasTrial }} dias começa imediatamente após o cadastro — sem cartão.</div>
+
+            @if (estadoErro) {
+              <div class="alert-err">{{ mensagemErro }}</div>
+            }
+
+            <form (ngSubmit)="enviar()">
+              <div class="plan-selector">
+                <div class="plan-label">Plano <span class="req">*</span></div>
+                @if (carregandoPlanos) {
+                  <p class="plans-loading">Carregando planos…</p>
+                } @else if (planos.length === 0) {
+                  <p class="plans-loading">Nenhum plano disponível. Tente mais tarde ou fale pelo WhatsApp.</p>
+                } @else {
+                  @for (p of planos; track p.key) {
+                    <button type="button" class="plan-option" [class.selected]="planKey === p.key" (click)="selecionarPlano(p.key)">
+                      <div class="plan-radio"><div class="plan-radio-inner"></div></div>
+                      <div class="plan-info">
+                        <div class="plan-name">{{ p.name }}</div>
+                        @if (p.description) {
+                          <div class="plan-desc">{{ p.description }}</div>
+                        }
                       </div>
-                      <p class="text-sm font-bold text-indigo-600 shrink-0 ml-3">R$ {{ p.value | number:'1.2-2':'pt-BR' }}<span class="text-xs font-medium text-slate-400">/mês</span></p>
-                    </label>
-                  </div>
+                      <div class="plan-price">
+                        @if (isPlanoGratis(p)) {
+                          R$0<span>/mês</span>
+                        } @else {
+                          R$ {{ p.value | number: '1.0-0' : 'pt-BR' }}<span>/mês</span>
+                        }
+                      </div>
+                    </button>
+                  }
                 }
               </div>
-            }
-          </div>
 
-          <hr class="border-slate-100">
-
-          <div>
-            <label for="company_name" class="block text-sm font-medium text-slate-700 mb-1">Nome da empresa <span class="text-red-500">*</span></label>
-            <input type="text" id="company_name" [(ngModel)]="companyName" name="company_name" class="w-full rounded-lg border border-slate-200 px-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500" placeholder="Ex.: Clínica São Paulo" required>
-          </div>
-
-          <div>
-            <label for="responsible_name" class="block text-sm font-medium text-slate-700 mb-1">Seu nome (responsável) <span class="text-red-500">*</span></label>
-            <input type="text" id="responsible_name" [(ngModel)]="responsibleName" name="responsible_name" class="w-full rounded-lg border border-slate-200 px-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500" placeholder="Ex.: Dr. João Silva" required>
-          </div>
-
-          <div>
-            <label for="email" class="block text-sm font-medium text-slate-700 mb-1">Seu e-mail <span class="text-red-500">*</span></label>
-            <input type="email" id="email" [(ngModel)]="email" name="email" class="w-full rounded-lg border border-slate-200 px-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500" placeholder="voce@empresa.com" required>
-            <p class="mt-1 text-xs text-slate-500">Usaremos para acesso à conta, trial, cobrança e implantação.</p>
-          </div>
-
-          <div>
-            <label for="phone" class="block text-sm font-medium text-slate-700 mb-1">WhatsApp ou telefone</label>
-            <input type="tel" id="phone" [(ngModel)]="phone" name="phone" class="w-full rounded-lg border border-slate-200 px-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500" placeholder="Ex.: (11) 99999-9999" inputmode="tel" autocomplete="tel">
-            <p class="mt-1 text-xs text-slate-500">Opcional. Para contato da equipe durante implantação e suporte.</p>
-          </div>
-
-          <div>
-            <label for="password" class="block text-sm font-medium text-slate-700 mb-1">Senha <span class="text-red-500">*</span></label>
-            <div class="relative">
-              <input [type]="mostrarSenha ? 'text' : 'password'" id="password" [(ngModel)]="password" (ngModelChange)="atualizarForcaSenha()" name="password" class="w-full rounded-lg border border-slate-200 px-4 py-2.5 pr-11 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500" placeholder="Crie uma senha segura" minlength="8" required>
-              <button type="button" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600" (click)="mostrarSenha = !mostrarSenha" aria-label="Mostrar senha" title="Mostrar ou ocultar senha">
-                <span class="material-symbols-outlined text-lg">{{ mostrarSenha ? 'visibility_off' : 'visibility' }}</span>
-              </button>
-            </div>
-            <div class="mt-2">
-              <div class="flex gap-1">
-                <div class="h-1 flex-1 rounded-full bg-slate-200 overflow-hidden"><div class="h-full rounded-full transition-all duration-300" [style.width.%]="forcaSenha >= 1 ? 100 : 0" [ngClass]="forcaSenha >= 1 ? 'bg-red-500' : ''"></div></div>
-                <div class="h-1 flex-1 rounded-full bg-slate-200 overflow-hidden"><div class="h-full rounded-full transition-all duration-300" [style.width.%]="forcaSenha >= 2 ? 100 : 0" [ngClass]="forcaSenha >= 2 ? 'bg-orange-400' : ''"></div></div>
-                <div class="h-1 flex-1 rounded-full bg-slate-200 overflow-hidden"><div class="h-full rounded-full transition-all duration-300" [style.width.%]="forcaSenha >= 3 ? 100 : 0" [ngClass]="forcaSenha >= 3 ? 'bg-yellow-400' : ''"></div></div>
-                <div class="h-1 flex-1 rounded-full bg-slate-200 overflow-hidden"><div class="h-full rounded-full transition-all duration-300" [style.width.%]="forcaSenha >= 4 ? 100 : 0" [ngClass]="forcaSenha >= 4 ? 'bg-emerald-500' : ''"></div></div>
+              <div class="form-row">
+                <div class="field">
+                  <label class="field-label" for="company_name">Nome da clínica <span class="req">*</span></label>
+                  <input class="fi" id="company_name" type="text" [(ngModel)]="companyName" name="company_name" placeholder="Ex.: Clínica São Paulo" required autocomplete="organization" />
+                </div>
+                <div class="field">
+                  <label class="field-label" for="responsible_name">Seu nome <span class="req">*</span></label>
+                  <input class="fi" id="responsible_name" type="text" [(ngModel)]="responsibleName" name="responsible_name" placeholder="Ex.: Dr. João Silva" required autocomplete="name" />
+                </div>
               </div>
-              <p class="mt-1 text-xs" [ngClass]="forcaSenha ? 'text-slate-600' : 'text-slate-400'">{{ labelForcaSenha }}</p>
-            </div>
-          </div>
 
-          <div>
-            <label for="password_confirmation" class="block text-sm font-medium text-slate-700 mb-1">Confirmar senha <span class="text-red-500">*</span></label>
-            <div class="relative">
-              <input [type]="mostrarSenhaConf ? 'text' : 'password'" id="password_confirmation" [(ngModel)]="passwordConfirmation" name="password_confirmation" class="w-full rounded-lg border border-slate-200 px-4 py-2.5 pr-11 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500" placeholder="Repita a senha" minlength="8" required>
-              <button type="button" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600" (click)="mostrarSenhaConf = !mostrarSenhaConf" aria-label="Mostrar senha" title="Mostrar ou ocultar senha">
-                <span class="material-symbols-outlined text-lg">{{ mostrarSenhaConf ? 'visibility_off' : 'visibility' }}</span>
+              <div class="field">
+                <label class="field-label" for="email">E-mail <span class="req">*</span></label>
+                <input class="fi" id="email" type="email" [(ngModel)]="email" name="email" placeholder="voce@clinica.com.br" required autocomplete="email" />
+                <div class="field-hint">Usado para acesso, cobrança e comunicações importantes.</div>
+              </div>
+
+              <div class="field">
+                <label class="field-label" for="phone">WhatsApp</label>
+                <input class="fi" id="phone" type="tel" [(ngModel)]="phone" name="phone" placeholder="(11) 99999-9999" autocomplete="tel" />
+                <div class="field-hint">Opcional — para suporte durante o onboarding.</div>
+              </div>
+
+              <div class="form-row">
+                <div class="field">
+                  <label class="field-label" for="password">Senha <span class="req">*</span></label>
+                  <div class="pw-wrap">
+                    <input class="fi" [type]="mostrarSenha ? 'text' : 'password'" id="password" [(ngModel)]="password" (ngModelChange)="atualizarForcaSenha()" name="password" placeholder="Mínimo 8 caracteres" required minlength="8" autocomplete="new-password" />
+                    <button type="button" class="pw-toggle" (click)="mostrarSenha = !mostrarSenha" [attr.aria-label]="mostrarSenha ? 'Ocultar senha' : 'Mostrar senha'">
+                      @if (mostrarSenha) {
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                      } @else {
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                      }
+                    </button>
+                  </div>
+                  <div class="pw-strength">
+                    <div class="pw-bar" [class.on1]="forcaSenha >= 1"></div>
+                    <div class="pw-bar" [class.on2]="forcaSenha >= 2"></div>
+                    <div class="pw-bar" [class.on3]="forcaSenha >= 3"></div>
+                    <div class="pw-bar" [class.on4]="forcaSenha >= 4"></div>
+                  </div>
+                  <div class="field-hint">{{ labelForcaSenha }}</div>
+                </div>
+                <div class="field">
+                  <label class="field-label" for="password_confirmation">Confirmar senha <span class="req">*</span></label>
+                  <div class="pw-wrap">
+                    <input class="fi" [type]="mostrarSenhaConf ? 'text' : 'password'" id="password_confirmation" [(ngModel)]="passwordConfirmation" name="password_confirmation" placeholder="Repita a senha" required minlength="8" autocomplete="new-password" />
+                    <button type="button" class="pw-toggle" (click)="mostrarSenhaConf = !mostrarSenhaConf" [attr.aria-label]="mostrarSenhaConf ? 'Ocultar senha' : 'Mostrar senha'">
+                      @if (mostrarSenhaConf) {
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                      } @else {
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                      }
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <label class="check-row" for="accepted_terms">
+                <input type="checkbox" id="accepted_terms" [(ngModel)]="acceptedTerms" name="accepted_terms" class="sr-only" />
+                <span class="check-box" [class.checked]="acceptedTerms" aria-hidden="true">
+                  <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="2 6 5 9 10 3"/></svg>
+                </span>
+                <span class="check-text">
+                  Li e concordo com os
+                  <a routerLink="/termos-de-uso" target="_blank" rel="noopener noreferrer" (click)="$event.stopPropagation()">Termos de Uso</a>
+                  e a
+                  <a routerLink="/privacidade" target="_blank" rel="noopener noreferrer" (click)="$event.stopPropagation()">Política de Privacidade</a>.
+                </span>
+              </label>
+
+              <button type="submit" class="submit-btn" [disabled]="estadoCarregando || carregandoPlanos || planos.length === 0">
+                @if (estadoCarregando) {
+                  <svg class="spinner" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" opacity=".2"/><path d="M21 12a9 9 0 00-9-9"/></svg>
+                  Criando conta…
+                } @else {
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/></svg>
+                  Criar conta e iniciar trial
+                }
               </button>
+
+              <div class="form-bottom">
+                <div class="form-login">Já tem conta? <a routerLink="/autenticacao">Entrar</a></div>
+                <div class="form-secure">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+                  Conexão segura · Dados criptografados
+                </div>
+              </div>
+            </form>
+          </div>
+        }
+
+        @if (uiStep === 2) {
+          <div class="form-card">
+            <div class="form-title">Configuração inicial</div>
+            <div class="form-sub">Conta criada! Agora vamos preparar sua clínica (opcional — você pode ajustar depois no painel).</div>
+
+            <div class="field">
+              <label class="field-label" for="esp">Especialidade principal</label>
+              <select class="fi" id="esp" [(ngModel)]="especialidadePrincipal" name="esp" style="cursor: pointer">
+                <option value="">Selecione sua especialidade</option>
+                <option value="geral">Clínica Geral</option>
+                <option value="estetica">Estética & Harmonização</option>
+                <option value="odonto">Odontologia</option>
+                <option value="psi">Psicologia & Psiquiatria</option>
+                <option value="ped">Pediatria</option>
+                <option value="vet">Veterinária</option>
+                <option value="fisio">Fisioterapia</option>
+                <option value="derma">Dermatologia</option>
+                <option value="oftalmo">Oftalmologia</option>
+                <option value="outra">Outra</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label class="field-label" for="equipe">Tamanho da equipe</label>
+              <select class="fi" id="equipe" [(ngModel)]="tamanhoEquipe" name="equipe" style="cursor: pointer">
+                <option>Só eu (profissional solo)</option>
+                <option>2 a 5 profissionais</option>
+                <option>6 a 20 profissionais</option>
+                <option>Mais de 20</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label class="field-label" for="origem">Como ficou sabendo do ZionMed?</label>
+              <select class="fi" id="origem" [(ngModel)]="comoConheceu" name="origem" style="cursor: pointer">
+                <option value="">Opcional</option>
+                <option value="ig">Instagram</option>
+                <option value="google">Google</option>
+                <option value="indica">Indicação de colega</option>
+                <option value="in">LinkedIn</option>
+                <option value="outro">Outro</option>
+              </select>
+            </div>
+
+            <button type="button" class="submit-btn" (click)="finalizarConfiguracao()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/></svg>
+              Ir para o dashboard
+            </button>
+
+            <div class="form-bottom">
+              <a routerLink="/dashboard" class="form-login" style="font-size: 12px">Pular e ir direto ao painel →</a>
             </div>
           </div>
-
-          <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
-            <label for="accepted_terms" class="flex items-start gap-3 text-sm text-slate-600 cursor-pointer">
-              <input type="checkbox" id="accepted_terms" [(ngModel)]="acceptedTerms" name="accepted_terms" value="1" class="mt-0.5 h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" required>
-              <span>
-                Li e concordo com os
-                <a routerLink="/termos-de-uso" target="_blank" rel="noopener noreferrer" class="font-medium text-indigo-600 hover:underline">Termos de Uso</a>
-                e a
-                <a routerLink="/privacidade" target="_blank" rel="noopener noreferrer" class="font-medium text-indigo-600 hover:underline">Política de Privacidade</a>.
-              </span>
-            </label>
-          </div>
-
-          <button type="submit" class="w-full flex items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-3 text-sm font-semibold text-white hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-indigo-300 transition-colors" [disabled]="estadoCarregando">
-            @if (estadoCarregando) {
-              <span class="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
-              <span>Criando conta...</span>
-            } @else {
-              <span>Criar conta e iniciar trial</span>
-            }
-          </button>
-        </form>
-
-        <p class="mt-5 text-center text-sm text-slate-500">Já tem conta? <a routerLink="/autenticacao" class="font-medium text-indigo-600 hover:underline">Entrar</a></p>
-
-        <div class="mt-4 flex items-center justify-center gap-1.5 text-xs text-slate-400">
-          <span class="material-symbols-outlined text-sm">lock</span>
-          Conexão segura · Dados criptografados
-        </div>
+        }
       </div>
     </div>
-  </main>
+  </div>
 </div>

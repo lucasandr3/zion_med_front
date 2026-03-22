@@ -21,9 +21,188 @@
   }
 }
 
-/* Botão Modo (Claro/Escuro) ativo */
-.theme-mode-btn.theme-mode-active {
-  border-color: var(--c-primary) !important;
-  background: color-mix(in srgb, var(--c-primary) 14%, var(--c-soft)) !important;
-  color: var(--c-primary) !important;
+/* Painel “Tema e aparência” — segue tokens do tema (claro/escuro + cor primária) */
+.theme-drawer-shell {
+  width: min(22rem, 92vw);
+  padding: 1.25rem 1.25rem 1.5rem;
+  background: var(--c-elevated);
+  border-left: 1px solid var(--c-border);
+  border-top-left-radius: 1rem;
+  border-bottom-left-radius: 1rem;
+  box-shadow: -8px 0 32px rgba(15, 23, 42, 0.12);
+  color: var(--c-text);
+}
+
+.dark .theme-drawer-shell {
+  box-shadow: -12px 0 40px rgba(0, 0, 0, 0.45);
+}
+
+.theme-drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding-bottom: 1rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--c-border);
+  flex-shrink: 0;
+}
+
+.theme-drawer-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--c-text);
+  line-height: 1.25;
+}
+
+.theme-drawer-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  border-radius: 0.5rem;
+  border: 1px solid var(--c-border);
+  background: transparent;
+  color: var(--c-muted);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.theme-drawer-close:hover {
+  background: var(--c-soft);
+  color: var(--c-text);
+  border-color: var(--c-muted);
+}
+
+.theme-drawer-section-label {
+  margin: 0 0 0.625rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--c-muted);
+}
+
+.theme-drawer-section-label--mt {
+  margin-top: 1.25rem;
+}
+
+.theme-drawer-mode-row {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.theme-drawer-mode-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.625rem;
+  border: 1px solid var(--c-border);
+  background: var(--c-soft);
+  color: var(--c-text);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.theme-drawer-mode-btn:hover {
+  background: color-mix(in srgb, var(--c-primary) 8%, var(--c-soft));
+  border-color: color-mix(in srgb, var(--c-primary) 35%, var(--c-border));
+}
+
+.theme-drawer-mode-btn--active {
+  border-color: var(--c-primary);
+  background: color-mix(in srgb, var(--c-primary) 14%, var(--c-soft));
+  color: var(--c-primary);
+}
+
+.theme-drawer-mode-icon {
+  font-size: 1.125rem;
+  font-variation-settings: 'FILL' 0;
+}
+
+.theme-drawer-mode-text {
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+/* Grade de cores: 6 colunas */
+.theme-swatch-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 0.625rem 0.375rem;
+  justify-items: center;
+  margin-bottom: 1.25rem;
+}
+
+.theme-swatch {
+  padding: 0.1875rem;
+  border: none;
+  border-radius: 50%;
+  background: none;
+  cursor: pointer;
+  line-height: 0;
+  transition: transform 0.12s ease;
+}
+
+.theme-swatch:hover {
+  transform: scale(1.06);
+}
+
+.theme-swatch:focus-visible {
+  outline: 2px solid var(--c-focus, var(--c-primary));
+  outline-offset: 2px;
+}
+
+.theme-swatch-inner {
+  width: 2.375rem;
+  height: 2.375rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  transition: box-shadow 0.15s ease;
+}
+
+.theme-swatch--selected .theme-swatch-inner {
+  box-shadow: 0 0 0 3px var(--c-primary);
+}
+
+.theme-swatch-check {
+  font-size: 1rem;
+  color: #ffffff;
+  font-variation-settings: 'FILL' 1, 'wght' 600;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.45));
+}
+
+.theme-drawer-footer {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: auto;
+  padding-top: 0.25rem;
+  font-size: 0.8125rem;
+  color: var(--c-muted);
+}
+
+.theme-drawer-footer-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 0 0 1px var(--c-border);
+}
+
+.theme-drawer-footer-text strong {
+  color: var(--c-text);
+  font-weight: 600;
 }

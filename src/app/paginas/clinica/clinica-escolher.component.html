@@ -1,7 +1,4 @@
 <div class="relative min-h-[320px]">
-  @if (carregando) {
-    <app-loading-overlay />
-  }
   <div class="page-header mb-6">
     <div class="page-title flex items-center gap-3">
       <div class="page-title-icon w-10 h-10 rounded-lg flex items-center justify-center" style="background: var(--c-soft)">
@@ -13,10 +10,13 @@
       </div>
     </div>
   </div>
-  @if (!carregando && erro) {
+  @if (showSkeleton()) {
+    <zm-skeleton-list [rows]="5" />
+  } @else if (!listaPronta) {
+  } @else if (erro) {
     <p class="text-sm" style="color: var(--c-error, #dc2626)">{{ erro }}</p>
-  }
-  @if (!carregando && !erro) {
+  } @else {
+    <div class="zm-content-enter">
   <div class="card rounded-xl overflow-hidden" style="border: 1px solid var(--c-border)">
     @if (clinicas.length === 0) {
       <div class="p-8 text-center" style="color: var(--c-muted)">Nenhuma clínica disponível.</div>
@@ -30,11 +30,19 @@
                 <p class="text-xs m-0 mt-0.5" style="color: var(--c-muted)">{{ c.users_count }} usuário(s)</p>
               }
             </div>
-            <button type="button" class="btn-primary" [disabled]="salvando" (click)="escolher(c.id)" title="Selecionar esta empresa">Selecionar</button>
+            <button type="button" class="btn-primary inline-flex items-center gap-2" [disabled]="escolhendoId !== null" (click)="escolher(c.id)" title="Selecionar esta empresa">
+              @if (escolhendoId === c.id) {
+                <span class="btn-spinner" aria-hidden="true"></span>
+                Selecionando…
+              } @else {
+                Selecionar
+              }
+            </button>
           </li>
         }
       </ul>
     }
   </div>
+    </div>
   }
 </div>

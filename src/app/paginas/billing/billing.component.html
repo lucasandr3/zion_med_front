@@ -1,14 +1,11 @@
 <div class="billing-page relative min-h-[320px]">
-  @if (carregando) {
-    <app-loading-overlay />
-  }
-  @if (!carregando && erro) {
+  @if (showSkeleton()) {
+    <zm-skeleton-list [rows]="5" />
+  } @else if (!listaPronta) {
+  } @else if (erro) {
     <p class="text-sm" style="color: var(--c-error, #dc2626)">{{ erro }}</p>
-  }
-  @if (mensagemSucesso) {
-    <p class="text-sm mb-4" style="color: var(--c-success, #16a34a)">{{ mensagemSucesso }}</p>
-  }
-  @if (!carregando && !erro && state) {
+  } @else if (state) {
+  <div class="zm-content-enter">
   <div class="section-card card rounded-xl overflow-hidden mb-5" style="border: 1px solid var(--c-border)">
     <div class="section-header flex items-center gap-2.5 px-5 py-4" style="border-bottom: 1px solid var(--c-border)">
       <div class="icon-wrap w-7 h-7 rounded-lg flex items-center justify-center" style="background: color-mix(in srgb, var(--c-primary) 12%, transparent)">
@@ -25,7 +22,10 @@
           <p class="font-semibold m-0" style="color: var(--c-text)">Assinatura ativa</p>
           <p class="text-sm m-0 mt-1" style="color: var(--c-muted)">Plano atual · Próxima cobrança: {{ assinaturaAtiva.next_due_date | date:'dd/MM/yyyy' }}</p>
           <div class="flex gap-3 mt-3 flex-wrap">
-            <button type="button" class="btn-ghost text-sm" (click)="cancelarAssinatura(assinaturaAtiva)" [disabled]="acaoEmAndamento">
+            <button type="button" class="btn-ghost text-sm inline-flex items-center gap-2" (click)="cancelarAssinatura(assinaturaAtiva)" [disabled]="acaoEmAndamento">
+              @if (acaoEmAndamento) {
+                <span class="btn-spinner" aria-hidden="true"></span>
+              }
               Cancelar assinatura
             </button>
           </div>
@@ -43,8 +43,11 @@
               @if (assinaturaAtiva && assinaturaAtiva.plan_key === plano.key) {
                 <span class="text-sm" style="color: var(--c-muted)">Plano atual</span>
               } @else {
-                <button type="button" class="btn-primary w-full" (click)="assinaturaAtiva ? trocarPlano(plano.key) : checkout(plano.key)" [disabled]="acaoEmAndamento">
-                  {{ assinaturaAtiva ? 'Trocar para este plano' : 'Assinar' }}
+                <button type="button" class="btn-primary w-full inline-flex items-center justify-center gap-2" (click)="assinaturaAtiva ? trocarPlano(plano.key) : checkout(plano.key)" [disabled]="acaoEmAndamento">
+                  @if (acaoEmAndamento) {
+                    <span class="btn-spinner" aria-hidden="true"></span>
+                  }
+                  {{ acaoEmAndamento ? 'Processando…' : (assinaturaAtiva ? 'Trocar para este plano' : 'Assinar') }}
                 </button>
               }
             </div>
@@ -54,6 +57,7 @@
         <p class="text-sm m-0" style="color: var(--c-muted)">Nenhum plano disponível no momento.</p>
       }
     </div>
+  </div>
   </div>
   }
 </div>

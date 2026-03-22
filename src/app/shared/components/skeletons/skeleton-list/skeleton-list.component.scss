@@ -1,0 +1,53 @@
+.zm-skeleton-list {
+  border-radius: 0.75rem;
+  border: 1px solid var(--c-border);
+  background: var(--c-surface);
+  overflow: hidden;
+}
+
+.zm-skeleton-list__row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--c-border);
+}
+
+.zm-skeleton-list__row:last-child {
+  border-bottom: none;
+}
+
+.zm-skeleton-list__icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 0.5rem;
+  flex-shrink: 0;
+}
+
+.zm-skeleton-list__text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.zm-skeleton-list__line {
+  height: 0.8125rem;
+  border-radius: 4px;
+}
+
+.zm-skeleton-list__line--lg {
+  width: min(65%, 280px);
+}
+
+.zm-skeleton-list__line--sm {
+  width: 38%;
+}
+
+.zm-skeleton-list__badge {
+  width: 3.5rem;
+  height: 1.25rem;
+  border-radius: 9999px;
+  flex-shrink: 0;
+}

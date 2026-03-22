@@ -1,20 +1,22 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, Signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { forkJoin } from 'rxjs';
 import { PlataformaService, PlatformTenant, PlatformLead, PlatformAuditLog } from '../../../core/services/plataforma.service';
-import { LoadingOverlayComponent } from '../../../componentes/ui/loading-overlay/loading-overlay.component';
+import { LoadingService } from '../../../shared/services/loading.service';
+import { ZmSkeletonListComponent } from '../../../shared/components/skeletons';
 import { TooltipDirective } from '../../../core/directives/tooltip.directive';
 
 @Component({
   selector: 'app-plataforma-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterLink, LoadingOverlayComponent, TooltipDirective],
+  imports: [CommonModule, RouterLink, ZmSkeletonListComponent, TooltipDirective],
   templateUrl: './plataforma-dashboard.component.html',
   styleUrl: './plataforma-dashboard.component.css',
 })
 export class PlataformaDashboardComponent implements OnInit {
-  estadoCarregando = false;
+  showSkeleton!: Signal<boolean>;
+  listaPronta = false;
   estadoErro = false;
   tenantsCount = 0;
   clinicsCount = 0;
@@ -26,18 +28,20 @@ export class PlataformaDashboardComponent implements OnInit {
   ultimosLogs: PlatformAuditLog[] = [];
 
   private plataformaService = inject(PlataformaService);
+  private loadingService = inject(LoadingService);
 
   ngOnInit(): void {
-    this.estadoCarregando = true;
-
-    forkJoin({
+    const load$ = forkJoin({
       dashboard: this.plataformaService.getDashboard(),
       tenants: this.plataformaService.getTenants(),
       leads: this.plataformaService.getLeads(),
       logs: this.plataformaService.getPlatformLogs(1),
-    }).subscribe({
+    });
+    const { data$, showSkeleton } = this.loadingService.loadWithThreshold(load$);
+    this.showSkeleton = showSkeleton;
+    data$.subscribe({
       next: ({ dashboard, tenants, leads, logs }) => {
-        this.estadoCarregando = false;
+        this.listaPronta = true;
         this.tenantsCount = dashboard.data.tenants_count ?? 0;
         this.clinicsCount = dashboard.data.clinics_count ?? 0;
         this.usersCount = dashboard.data.users_count ?? 0;
@@ -48,7 +52,7 @@ export class PlataformaDashboardComponent implements OnInit {
         this.ultimosLogs = (logs.data ?? []).slice(0, 5);
       },
       error: () => {
-        this.estadoCarregando = false;
+        this.listaPronta = true;
         this.estadoErro = true;
       },
     });

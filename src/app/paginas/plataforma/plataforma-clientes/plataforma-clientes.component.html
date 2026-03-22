@@ -1,14 +1,21 @@
 <!-- Igual ao backend: platform/tenants/index - visão do dono da plataforma -->
 <div class="relative min-h-[300px]">
-  @if (estadoCarregando) {
-    <app-loading-overlay />
-  }
   <div class="flex items-center justify-between mb-4">
   <p class="text-xs" style="color: var(--c-muted)">
     {{ tenants.length }} {{ tenants.length === 1 ? 'cliente' : 'clientes' }} cadastrados.
   </p>
 </div>
 
+@if (showSkeleton()) {
+  <zm-skeleton-list [rows]="6" />
+} @else if (!listaPronta) {
+} @else {
+@if (estadoErro) {
+  <div class="card p-4 rounded-xl mt-4" style="background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.3)">
+    <p class="text-sm" style="color: var(--c-text)">Não foi possível carregar os clientes.</p>
+  </div>
+} @else {
+<div class="zm-content-enter">
 <div class="overflow-x-auto rounded-xl border" style="border-color: var(--c-border); background: var(--c-surface)">
   <table class="platform-table">
     <thead>
@@ -41,21 +48,16 @@
           </td>
         </tr>
       } @empty {
-        @if (!estadoCarregando && !estadoErro) {
-          <tr>
-            <td colspan="4" class="py-6 text-center text-xs cell-muted">
-              Nenhum tenant cadastrado.
-            </td>
-          </tr>
-        }
+        <tr>
+          <td colspan="4" class="py-6 text-center text-xs cell-muted">
+            Nenhum tenant cadastrado.
+          </td>
+        </tr>
       }
     </tbody>
   </table>
 </div>
-
-@if (estadoErro) {
-  <div class="card p-4 rounded-xl mt-4" style="background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.3)">
-    <p class="text-sm" style="color: var(--c-text)">Não foi possível carregar os clientes.</p>
-  </div>
+</div>
+}
 }
 </div>

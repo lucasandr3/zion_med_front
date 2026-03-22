@@ -1,7 +1,4 @@
 <div class="relative min-h-[320px]">
-  @if (carregando) {
-    <app-loading-overlay />
-  }
   <div class="page-header mb-6">
     <div class="page-title flex items-center gap-3">
       <div class="page-title-icon w-10 h-10 rounded-lg flex items-center justify-center" style="background: var(--c-soft)">
@@ -13,10 +10,13 @@
       </div>
     </div>
   </div>
-  @if (!carregando && erro) {
+  @if (showSkeleton()) {
+    <zm-skeleton-list [rows]="5" />
+  } @else if (!listaPronta) {
+  } @else if (erro) {
     <p class="text-sm" style="color: var(--c-error, #dc2626)">{{ erro }}</p>
-  }
-  @if (!carregando && !erro) {
+  } @else {
+    <div class="zm-content-enter">
 <div class="card rounded-xl overflow-hidden" style="padding: 0; border: 1px solid var(--c-border)">
   @for (t of templates; track t.id) {
     <div class="flex flex-wrap items-center justify-between gap-4 py-4 px-5" style="border-bottom: 1px solid var(--c-border)">
@@ -57,5 +57,6 @@
     </div>
   }
 </div>
+    </div>
   }
 </div>

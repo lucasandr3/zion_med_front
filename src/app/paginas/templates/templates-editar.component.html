@@ -1,8 +1,4 @@
 <div class="relative min-h-[200px]">
-  @if (carregando) {
-    <app-loading-overlay />
-  }
-
   <div class="page-header mb-5">
     <div class="page-title">
       <div class="page-title-icon">
@@ -14,11 +10,13 @@
     </div>
   </div>
 
-  @if (erro && !carregando) {
+  @if (showSkeleton()) {
+    <zm-skeleton-card [height]="280" />
+  } @else if (!listaPronta) {
+  } @else if (erro) {
     <p class="text-sm mb-4" style="color: var(--c-error, #dc2626)">{{ erro }}</p>
-  }
-
-  @if (!carregando && template) {
+  } @else if (template) {
+    <div class="zm-content-enter">
     <div class="card">
       <form (ngSubmit)="salvar()" class="flex flex-col gap-5">
         <div>
@@ -41,12 +39,18 @@
         </div>
         <div class="flex items-center gap-3 pt-2">
           <button type="submit" class="btn-primary" [disabled]="salvando || !name.trim()">
-            <span class="material-symbols-outlined text-base">save</span>
-            Salvar alterações
+            @if (salvando) {
+              <span class="btn-spinner" aria-hidden="true"></span>
+              Salvando…
+            } @else {
+              <span class="material-symbols-outlined text-base">save</span>
+              Salvar alterações
+            }
           </button>
           <a routerLink="/templates" class="text-sm no-underline" style="color: var(--c-muted)" title="Voltar para Templates">Cancelar</a>
         </div>
       </form>
+    </div>
     </div>
   }
 </div>

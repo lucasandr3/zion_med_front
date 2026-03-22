@@ -1,8 +1,5 @@
 <!-- Igual ao backend: platform/plans/index - grid de cards -->
 <div class="relative min-h-[300px]">
-  @if (estadoCarregando) {
-    <app-loading-overlay />
-  }
   <div class="flex items-center justify-between mb-4">
   <p class="text-xs" style="color: var(--c-muted)">
     {{ planos.length }} {{ planos.length === 1 ? 'plano' : 'planos' }}.
@@ -13,12 +10,17 @@
   </a>
 </div>
 
+@if (showSkeleton()) {
+  <zm-skeleton-list [rows]="6" />
+} @else if (!listaPronta) {
+} @else {
 @if (estadoErro) {
   <div class="card p-4 rounded-xl mb-4" style="background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.3)">
     <p class="text-sm m-0" style="color: var(--c-text)">Não foi possível carregar os planos.</p>
   </div>
 }
-@if (!estadoCarregando && !estadoErro) {
+@if (!estadoErro) {
+  <div class="zm-content-enter">
   @if (planos.length === 0) {
     <div class="card text-center py-8 rounded-xl" style="border: 1px solid var(--c-border); color: var(--c-muted)">
       <p class="text-sm mb-3 m-0">Nenhum plano cadastrado.</p>
@@ -47,13 +49,18 @@
               <span class="material-symbols-outlined" style="font-size: 14px">edit</span>
               Editar
             </a>
-            <button type="button" class="text-xs px-2 py-1 rounded transition-colors border" style="color: var(--c-muted); border-color: var(--c-border); background: transparent" (click)="excluir(p)" (mouseenter)="btnExcluirHover($event, true)" (mouseleave)="btnExcluirHover($event, false)" title="Excluir plano">
-              Excluir
+            <button type="button" class="text-xs px-2 py-1 rounded transition-colors border inline-flex items-center gap-1.5" style="color: var(--c-muted); border-color: var(--c-border); background: transparent" [disabled]="excluindoId === p.id" (click)="excluir(p)" (mouseenter)="btnExcluirHover($event, true)" (mouseleave)="btnExcluirHover($event, false)" title="Excluir plano">
+              @if (excluindoId === p.id) {
+                <span class="btn-spinner" style="width:12px;height:12px;border-width:2px"></span>
+              }
+              {{ excluindoId === p.id ? 'Removendo…' : 'Excluir' }}
             </button>
           </div>
         </div>
       }
     </div>
   }
+  </div>
+}
 }
 </div>

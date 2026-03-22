@@ -1,8 +1,9 @@
 <div class="relative min-h-[320px]">
-  @if (carregando) {
-    <app-loading-overlay />
-  }
-  @if (!carregando && pageData) {
+  @if (showSkeleton()) {
+    <zm-skeleton-list [rows]="8" />
+  } @else if (!listaPronta) {
+  } @else if (pageData) {
+    <div class="zm-content-enter">
     <div class="clinica-config">
       <div class="config-tabs" role="tablist">
         <button type="button" class="config-tab" [class.active]="activeTab === 'dados'" (click)="setTab('dados')" role="tab">
@@ -287,8 +288,12 @@
                 <span class="material-symbols-outlined" style="font-size:16px">close</span>
                 Cancelar
               </a>
-              <button type="submit" class="btn-primary" [disabled]="salvando">
-                <span class="material-symbols-outlined" style="font-size:16px">save</span>
+              <button type="submit" class="btn-primary inline-flex items-center gap-2" [disabled]="salvando">
+                @if (salvando) {
+                  <span class="btn-spinner" aria-hidden="true"></span>
+                } @else {
+                  <span class="material-symbols-outlined" style="font-size:16px">save</span>
+                }
                 {{ salvando ? 'Salvando…' : 'Salvar configurações' }}
               </button>
             </div>
@@ -459,8 +464,9 @@
         }
       </div>
     </div>
+    </div>
   }
-  @if (!carregando && !pageData && erro) {
+  @if (listaPronta && !pageData && erro) {
     <p class="text-sm" style="color: var(--c-error, #dc2626)">{{ erro }}</p>
   }
 </div>

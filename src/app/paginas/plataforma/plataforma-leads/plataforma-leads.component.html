@@ -1,14 +1,21 @@
 <!-- Igual ao backend: listagem de leads da plataforma -->
 <div class="relative min-h-[300px]">
-  @if (estadoCarregando) {
-    <app-loading-overlay />
-  }
   <div class="flex items-center justify-between mb-4">
   <p class="text-xs" style="color: var(--c-muted)">
     {{ leads.length }} {{ leads.length === 1 ? 'lead' : 'leads' }} cadastrados.
   </p>
 </div>
 
+@if (showSkeleton()) {
+  <zm-skeleton-list [rows]="6" />
+} @else if (!listaPronta) {
+} @else {
+@if (estadoErro) {
+  <div class="card p-4 rounded-xl mt-4" style="background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.3)">
+    <p class="text-sm" style="color: var(--c-text)">Não foi possível carregar os leads.</p>
+  </div>
+} @else {
+<div class="zm-content-enter">
 <div class="overflow-x-auto rounded-xl border" style="border-color: var(--c-border); background: var(--c-surface)">
   <table class="platform-table">
     <thead>
@@ -34,21 +41,16 @@
           <td class="py-2.5 pl-3 cell-muted">{{ formatarData(lead.created_at) }}</td>
         </tr>
       } @empty {
-        @if (!estadoCarregando && !estadoErro) {
-          <tr>
-            <td colspan="6" class="py-6 text-center text-xs cell-muted">
-              Nenhum lead cadastrado.
-            </td>
-          </tr>
-        }
+        <tr>
+          <td colspan="6" class="py-6 text-center text-xs cell-muted">
+            Nenhum lead cadastrado.
+          </td>
+        </tr>
       }
     </tbody>
   </table>
 </div>
-
-@if (estadoErro) {
-  <div class="card p-4 rounded-xl mt-4" style="background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.3)">
-    <p class="text-sm" style="color: var(--c-text)">Não foi possível carregar os leads.</p>
-  </div>
+</div>
+}
 }
 </div>

@@ -1,7 +1,4 @@
 <div class="relative min-h-[200px]">
-  @if (carregando && !isPlataforma) {
-    <app-loading-overlay />
-  }
   @if (!isPlataforma) {
     <div class="page-header mb-6">
       <div class="page-title flex items-center gap-3">
@@ -14,7 +11,12 @@
         </div>
       </div>
       @if (temNaoLidas) {
-        <button type="button" class="btn-ghost btn-default-bg" (click)="marcarTodas()" appTooltip="Marcar todas as notificações como lidas">Marcar todas como lidas</button>
+        <button type="button" class="btn-ghost btn-default-bg inline-flex items-center gap-2" [disabled]="marcandoTodas" (click)="marcarTodas()" appTooltip="Marcar todas as notificações como lidas">
+          @if (marcandoTodas) {
+            <span class="btn-spinner" aria-hidden="true"></span>
+          }
+          {{ marcandoTodas ? 'Marcando…' : 'Marcar todas como lidas' }}
+        </button>
       }
     </div>
   }
@@ -37,28 +39,34 @@
             <span class="notif-badge">{{ quantidadeNaoLidas > 99 ? '99+' : quantidadeNaoLidas }}</span>
           }
         </button>
-        <button type="button" class="notif-action-btn" (click)="marcarTodas()" appTooltip="Marcar todas como lidas">
-          <span class="material-symbols-outlined" style="font-size: 18px">check_circle</span>
-          Marcar todas como lidas
+        <button type="button" class="notif-action-btn inline-flex items-center gap-2" [disabled]="marcandoTodas" (click)="marcarTodas()" appTooltip="Marcar todas como lidas">
+          @if (marcandoTodas) {
+            <span class="btn-spinner" style="width:14px;height:14px;border-width:2px"></span>
+          } @else {
+            <span class="material-symbols-outlined" style="font-size: 18px">check_circle</span>
+          }
+          {{ marcandoTodas ? 'Marcando…' : 'Marcar todas como lidas' }}
         </button>
-        <button type="button" class="notif-action-btn" (click)="limparTudo()" appTooltip="Excluir todas as notificações">
-          <span class="material-symbols-outlined" style="font-size: 18px">delete</span>
-          Limpar tudo
+        <button type="button" class="notif-action-btn inline-flex items-center gap-2" [disabled]="limpandoTudo" (click)="limparTudo()" appTooltip="Excluir todas as notificações">
+          @if (limpandoTudo) {
+            <span class="btn-spinner" style="width:14px;height:14px;border-width:2px"></span>
+          } @else {
+            <span class="material-symbols-outlined" style="font-size: 18px">delete</span>
+          }
+          {{ limpandoTudo ? 'Limpando…' : 'Limpar tudo' }}
         </button>
       </div>
     </div>
 
-    @if (carregando) {
-      <div class="flex justify-center py-8">
-        <span class="text-sm" style="color: var(--c-muted)">Carregando…</span>
-      </div>
-    }
-    @if (erro) {
+    @if (showSkeleton()) {
+      <zm-skeleton-list [rows]="5" />
+    } @else if (!listaPronta) {
+    } @else if (erro) {
       <div class="card p-4 rounded-xl mb-4" style="background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.3)">
         <p class="text-sm m-0" style="color: var(--c-text)">{{ erro }}</p>
       </div>
-    }
-    @if (!carregando && !erro) {
+    } @else {
+      <div class="zm-content-enter">
       @if (notificacoesFiltradas.length === 0) {
         <div class="notif-card rounded-xl p-6 text-center" style="background: var(--c-soft)">
           <p class="text-sm m-0" style="color: var(--c-muted)">{{ filtroPlataforma === 'nao_lidas' ? 'Nenhuma notificação não lida.' : 'Nenhuma notificação.' }}</p>
@@ -92,8 +100,12 @@
                   @if (!n.read_at) {
                     <span class="w-2 h-2 rounded-full block mt-1.5 shrink-0" style="background: var(--c-primary)"></span>
                   }
-                  <button type="button" class="notif-btn-close" (click)="excluir(n.id)" aria-label="Excluir" appTooltip="Excluir notificação">
-                    <span class="material-symbols-outlined" style="font-size: 18px">close</span>
+                  <button type="button" class="notif-btn-close inline-flex items-center justify-center" [disabled]="excluindoId === n.id" (click)="excluir(n.id)" aria-label="Excluir" appTooltip="Excluir notificação">
+                    @if (excluindoId === n.id) {
+                      <span class="btn-spinner" style="width:14px;height:14px;border-width:2px"></span>
+                    } @else {
+                      <span class="material-symbols-outlined" style="font-size: 18px">close</span>
+                    }
                   </button>
                 </div>
               </div>
@@ -101,13 +113,17 @@
           }
         </div>
       }
+      </div>
     }
   }
   @if (!isPlataforma) {
-    @if (!carregando && erro) {
+    @if (showSkeleton()) {
+      <zm-skeleton-list [rows]="5" />
+    } @else if (!listaPronta) {
+    } @else if (erro) {
       <p class="text-sm" style="color: var(--c-error, #dc2626)">{{ erro }}</p>
-    }
-    @if (!carregando && !erro) {
+    } @else {
+      <div class="zm-content-enter">
       <div class="card rounded-xl overflow-hidden" style="border: 1px solid var(--c-border)">
         @if (notificacoes.length === 0) {
           <div class="p-8 text-center" style="color: var(--c-muted)">Nenhuma notificação.</div>
@@ -123,12 +139,18 @@
                   @if (!n.read_at) {
                     <button type="button" class="btn-ghost btn-default-bg text-sm" (click)="marcarComoLida(n.id)">Marcar lida</button>
                   }
-                  <button type="button" class="btn-ghost text-sm" style="color: var(--c-muted)" (click)="excluir(n.id)">Excluir</button>
+                  <button type="button" class="btn-ghost text-sm inline-flex items-center gap-2" style="color: var(--c-muted)" [disabled]="excluindoId === n.id" (click)="excluir(n.id)">
+                    @if (excluindoId === n.id) {
+                      <span class="btn-spinner" style="width:12px;height:12px;border-width:2px"></span>
+                    }
+                    {{ excluindoId === n.id ? 'Excluindo…' : 'Excluir' }}
+                  </button>
                 </div>
               </li>
             }
           </ul>
         }
+      </div>
       </div>
     }
   }

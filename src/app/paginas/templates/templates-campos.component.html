@@ -1,8 +1,9 @@
 <div class="relative min-h-[320px]">
-  @if (carregando) {
-    <app-loading-overlay />
-  }
-  @if (!carregando && template) {
+  @if (showSkeleton()) {
+    <zm-skeleton-list [rows]="6" />
+  } @else if (!listaPronta) {
+  } @else if (template) {
+    <div class="zm-content-enter">
     <div class="page-header mb-6">
       <div class="page-title">
         <div class="page-title-icon">
@@ -28,12 +29,20 @@
             Abrir
           </a>
           <button type="button" class="btn btn-ghost" [disabled]="desativandoLink" (click)="desativarLink()">
-            <span class="material-symbols-outlined" style="font-size:14px">link_off</span>
-            Desativar link
+            @if (desativandoLink) {
+              <span class="btn-spinner" aria-hidden="true"></span>
+            } @else {
+              <span class="material-symbols-outlined" style="font-size:14px">link_off</span>
+            }
+            {{ desativandoLink ? 'Desativando…' : 'Desativar link' }}
           </button>
         } @else {
           <button type="button" class="btn btn-primary" [disabled]="gerandoLink" (click)="gerarLink()">
-            <span class="material-symbols-outlined" style="font-size:14px">link</span>
+            @if (gerandoLink) {
+              <span class="btn-spinner" aria-hidden="true"></span>
+            } @else {
+              <span class="material-symbols-outlined" style="font-size:14px">link</span>
+            }
             {{ gerandoLink ? 'Gerando…' : 'Gerar link público' }}
           </button>
         }
@@ -85,8 +94,12 @@
             <label for="new_required" class="campos-toggle-label">Campo obrigatório</label>
           </div>
           <button type="button" class="campos-btn-add" [disabled]="salvandoCampo || !novoLabel.trim() || !novoNameKey.trim()" (click)="adicionarCampo()">
-            <span class="material-symbols-outlined" style="font-size:14px">add</span>
-            Adicionar campo
+            @if (salvandoCampo) {
+              <span class="btn-spinner" aria-hidden="true"></span>
+            } @else {
+              <span class="material-symbols-outlined" style="font-size:14px">add</span>
+            }
+            {{ salvandoCampo ? 'Salvando…' : 'Adicionar campo' }}
           </button>
         </div>
       </div>
@@ -151,7 +164,11 @@
                       <span class="material-symbols-outlined" style="font-size:13px">edit</span>
                     </button>
                     <button type="button" class="campos-icon-btn danger" aria-label="Remover campo" [disabled]="removendoId === c.id" (click)="removerCampo(c)" title="Remover campo">
-                      <span class="material-symbols-outlined" style="font-size:13px">delete</span>
+                      @if (removendoId === c.id) {
+                        <span class="btn-spinner" style="width:13px;height:13px;border-width:2px"></span>
+                      } @else {
+                        <span class="material-symbols-outlined" style="font-size:13px">delete</span>
+                      }
                     </button>
                   </div>
                 </td>
@@ -161,9 +178,10 @@
         </tbody>
       </table>
     </div>
+    </div>
   }
 
-  @if (!carregando && !template && erro) {
+  @if (listaPronta && !template && erro) {
     <p class="text-sm" style="color: var(--c-error, #dc2626)">{{ erro }}</p>
   }
 </div>
@@ -210,7 +228,12 @@
       </div>
       <div class="flex justify-end gap-2 p-4 border-t" style="border-color: var(--c-border);">
         <button type="button" class="px-4 py-2 rounded-lg font-medium transition-colors" style="background: var(--c-soft); color: var(--c-text);" (click)="fecharModal()">Cancelar</button>
-        <button type="button" class="px-4 py-2 rounded-lg font-medium text-white transition-colors" style="background: var(--c-primary);" [disabled]="salvandoCampo" (click)="salvarEdicao()">Salvar</button>
+        <button type="button" class="px-4 py-2 rounded-lg font-medium text-white transition-colors inline-flex items-center gap-2" style="background: var(--c-primary);" [disabled]="salvandoCampo" (click)="salvarEdicao()">
+          @if (salvandoCampo) {
+            <span class="btn-spinner" aria-hidden="true"></span>
+          }
+          {{ salvandoCampo ? 'Salvando…' : 'Salvar' }}
+        </button>
       </div>
     </div>
   </div>

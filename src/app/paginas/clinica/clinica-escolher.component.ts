@@ -1,48 +1,56 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, Signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ClinicaService, ClinicaOption } from '../../core/services/clinica.service';
-import { LoadingOverlayComponent } from '../../componentes/ui/loading-overlay/loading-overlay.component';
+import { LoadingService } from '../../shared/services/loading.service';
+import { ZmSkeletonListComponent } from '../../shared/components/skeletons';
+import { ToastService } from '../../core/services/toast.service';
 
 @Component({
   selector: 'app-clinica-escolher',
   standalone: true,
-  imports: [CommonModule, LoadingOverlayComponent],
+  imports: [CommonModule, ZmSkeletonListComponent],
   templateUrl: './clinica-escolher.component.html',
   styleUrl: './clinica-escolher.component.css',
 })
 export class ClinicaEscolherComponent implements OnInit {
   clinicas: ClinicaOption[] = [];
-  carregando = false;
+  showSkeleton!: Signal<boolean>;
+  listaPronta = false;
   erro = '';
-  salvando = false;
+  escolhendoId: number | null = null;
   private clinicaService = inject(ClinicaService);
+  private loadingService = inject(LoadingService);
   private router = inject(Router);
+  private toast = inject(ToastService);
 
   ngOnInit(): void {
-    this.carregando = true;
-    this.clinicaService.listParaEscolher().subscribe({
+    const { data$, showSkeleton } = this.loadingService.loadWithThreshold(this.clinicaService.listParaEscolher());
+    this.showSkeleton = showSkeleton;
+    data$.subscribe({
       next: (list) => {
+        this.listaPronta = true;
         this.clinicas = list;
-        this.carregando = false;
       },
       error: () => {
-        this.carregando = false;
+        this.listaPronta = true;
         this.erro = 'Não foi possível carregar as clínicas.';
       },
     });
   }
 
   escolher(clinicId: number): void {
-    this.salvando = true;
+    this.escolhendoId = clinicId;
     this.clinicaService.escolher(clinicId).subscribe({
       next: () => {
-        this.salvando = false;
+        this.escolhendoId = null;
+        this.toast.success('Empresa selecionada', 'Redirecionando…');
         this.router.navigate(['/dashboard']);
       },
       error: () => {
-        this.salvando = false;
+        this.escolhendoId = null;
         this.erro = 'Não foi possível trocar de clínica.';
+        this.toast.error('Erro', this.erro);
       },
     });
   }

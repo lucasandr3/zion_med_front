@@ -1,0 +1,314 @@
+<div class="lb-m7-root min-h-screen" [class.dark]="dark">
+  <div class="flex justify-end gap-2 px-4 pt-4 absolute top-0 right-0 z-30">
+    <button
+      type="button"
+      (click)="onToggleDark()"
+      class="lb-m7-icon-pill flex items-center px-3 py-2 rounded-full bg-white/15 backdrop-blur-sm border border-white/20"
+      aria-label="Alternar tema"
+    >
+      <svg class="hidden dark:block w-[14px] h-[14px] text-amber-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="5" />
+        <line x1="12" y1="1" x2="12" y2="3" />
+        <line x1="12" y1="21" x2="12" y2="23" />
+        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+        <line x1="1" y1="12" x2="3" y2="12" />
+        <line x1="21" y1="12" x2="23" y2="12" />
+        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+      </svg>
+      <svg class="block dark:hidden w-[14px] h-[14px] text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
+      </svg>
+    </button>
+    <button
+      type="button"
+      (click)="onShare()"
+      class="lb-m7-icon-pill flex items-center px-3 py-2 rounded-full bg-white/15 backdrop-blur-sm border border-white/20"
+      aria-label="Compartilhar"
+    >
+      <svg class="w-[14px] h-[14px] text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="18" cy="5" r="3" />
+        <circle cx="6" cy="12" r="3" />
+        <circle cx="18" cy="19" r="3" />
+        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+        <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+      </svg>
+    </button>
+  </div>
+
+  <div class="lb-m7-cover pt-16 pb-12 px-5 lb-m7-a1 relative">
+    <div class="lb-m7-blob1"></div>
+    <div class="lb-m7-blob2"></div>
+    <div class="lb-m7-blob3"></div>
+    <div class="max-w-lg mx-auto relative z-10">
+      <div class="flex items-center gap-4 mb-4">
+        <div class="w-[72px] h-[72px] rounded-2xl bg-white flex items-center justify-center shadow-lg flex-shrink-0 overflow-hidden">
+          @if (clinic.logo_url) {
+            <img [src]="clinic.logo_url" [alt]="clinic.name" class="w-full h-full object-cover" />
+          } @else {
+            <span class="text-3xl lb-m7-float" aria-hidden="true">⭐</span>
+          }
+        </div>
+        <div>
+          <p class="text-[10px] font-bold tracking-[0.18em] uppercase text-white/55 mb-0.5">{{ coverKicker }}</p>
+          <h1 class="lb-m7-fredoka text-[30px] sm:text-[36px] text-white leading-tight font-semibold">
+            {{ clinic.name }}
+          </h1>
+          <p class="text-[13px] text-white/65 font-medium">{{ taglineUnderTitle }}</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-3 flex-wrap">
+        @if (clinic.is_open_now === true) {
+          <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-black bg-white/20 text-white">
+            <span class="w-[6px] h-[6px] rounded-full bg-[#4ade80] lb-m7-pulse-dot inline-block"></span>
+            Aberto agora
+          </span>
+        } @else if (clinic.is_open_now === false) {
+          <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-black bg-white/10 text-white/50">
+            <span class="w-[6px] h-[6px] rounded-full bg-white/30 inline-block"></span>
+            Fechado agora
+          </span>
+        }
+        @if (councilMetaLine) {
+          <span class="text-[11px] text-white/40 font-medium">{{ councilMetaLine }}</span>
+        }
+      </div>
+    </div>
+  </div>
+
+  <div class="w-full max-w-lg mx-auto px-4 sm:px-6 pb-14 pt-5">
+    @if (whatsappUrl()) {
+      <div class="lb-m7-a2">
+        <a
+          [href]="whatsappUrl()"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="lb-m7-wpp w-full flex items-center justify-center gap-3 py-4 rounded-2xl bg-[#22c55e] hover:bg-[#16a34a] text-white font-bold text-[15px] no-underline"
+        >
+          <svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="white">
+            <path
+              d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413z"
+            />
+            <path
+              d="M12 0C5.373 0 0 5.373 0 12c0 2.108.549 4.09 1.508 5.814L0 24l6.335-1.489A11.926 11.926 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.89 0-3.663-.5-5.198-1.375l-.372-.22-3.862.908.979-3.763-.242-.386A9.944 9.944 0 012 12C2 6.486 6.486 2 12 2s10 4.486 10 10-4.486 10-10 10z"
+            />
+          </svg>
+          {{ waCtaLabel }}
+        </a>
+      </div>
+    }
+
+    <div class="grid grid-cols-2 gap-2.5 mt-2.5 lb-m7-a2">
+      @if (clinic.maps_url) {
+        <a
+          [href]="clinic.maps_url"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="lb-m7-sec flex items-center justify-center gap-2 py-3 px-3 rounded-xl bg-white dark:bg-white/[0.05] border border-[#ddf2fd] dark:border-white/[0.06] hover:bg-[#f0f9ff] dark:hover:bg-white/[0.08] text-[#0284c7] dark:text-[#38bdf8] text-[13px] font-bold no-underline"
+        >
+          <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" />
+            <circle cx="12" cy="10" r="3" />
+          </svg>
+          Como chegar
+        </a>
+      }
+      @if (telHref()) {
+        <a
+          [href]="telHref()"
+          class="lb-m7-sec flex items-center justify-center gap-2 py-3 px-3 rounded-xl bg-rose-50 dark:bg-rose-900/10 border border-rose-100 dark:border-rose-600/20 hover:bg-rose-100 dark:hover:bg-rose-900/15 text-rose-600 dark:text-rose-400 text-[13px] font-bold no-underline"
+        >
+          <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path
+              d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 10.8 19.79 19.79 0 01.22 2.18 2 2 0 012.18 0h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.91 7.91a16 16 0 006.1 6.1l1.27-.72a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"
+            />
+          </svg>
+          Emergência
+        </a>
+      }
+    </div>
+
+    <div class="lb-m7-resp mt-5 lb-m7-a3">
+      <div class="flex items-start gap-3">
+        <div class="w-9 h-9 rounded-xl bg-amber-400/30 flex items-center justify-center flex-shrink-0 text-lg">👪</div>
+        <div>
+          <p class="text-[12px] font-black text-amber-800 dark:text-amber-400 uppercase tracking-wide">{{ parentNoticeTitle }}</p>
+          <p class="text-[12px] text-amber-700 dark:text-amber-500 mt-1 leading-relaxed font-medium">{{ parentNoticeBody }}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-5 lb-m7-a3">
+      <div class="flex items-center gap-3 mb-3">
+        <p class="text-[10px] font-black tracking-[0.1em] uppercase text-[#0284c7] dark:text-[#38bdf8] whitespace-nowrap">Primeira consulta</p>
+        <div class="flex-1 h-px bg-[#ddf2fd] dark:bg-white/[0.06]"></div>
+      </div>
+      <div class="flex flex-col gap-2.5">
+        @for (st of firstVisitSteps; track $index) {
+          <div
+            class="flex items-start gap-3 py-3 px-3.5 rounded-2xl bg-white dark:bg-white/[0.03] border border-[#ddf2fd] dark:border-sky-500/15"
+          >
+            <div
+              class="w-7 h-7 rounded-full flex items-center justify-center text-[13px] font-extrabold lb-m7-fredoka shrink-0"
+              [ngClass]="stepNumClass(st.tone)"
+            >
+              {{ $index + 1 }}
+            </div>
+            <div>
+              <p class="text-[13px] font-bold text-gray-800 dark:text-gray-200">{{ st.title }}</p>
+              <p class="text-[11px] text-gray-400 dark:text-gray-600 mt-0.5">{{ st.subtitle }}</p>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+
+    <div class="mt-5 rounded-2xl bg-white dark:bg-white/[0.03] border border-[#ddf2fd] dark:border-white/[0.05] px-4 pt-4 pb-3 lb-m7-a3">
+      <p class="text-[10px] font-black tracking-[0.1em] uppercase text-[#0284c7] dark:text-[#38bdf8] mb-3">Faixas etárias atendidas</p>
+      <div class="grid grid-cols-3 gap-2">
+        @for (ab of ageBands; track ab.title) {
+          <div
+            class="text-center py-3 px-2 rounded-xl border"
+            [class.bg-sky-50]="ab.theme === 'sky'"
+            [class.dark:bg-sky-900/10]="ab.theme === 'sky'"
+            [class.border-sky-100]="ab.theme === 'sky'"
+            [class.dark:border-sky-700/20]="ab.theme === 'sky'"
+            [class.bg-amber-50]="ab.theme === 'lemon'"
+            [class.dark:bg-amber-400/10]="ab.theme === 'lemon'"
+            [class.border-amber-100]="ab.theme === 'lemon'"
+            [class.dark:border-amber-400/20]="ab.theme === 'lemon'"
+            [class.bg-rose-50]="ab.theme === 'coral'"
+            [class.dark:bg-rose-900/10]="ab.theme === 'coral'"
+            [class.border-rose-100]="ab.theme === 'coral'"
+            [class.dark:border-rose-600/20]="ab.theme === 'coral'"
+          >
+            <p class="text-lg mb-1">{{ ab.emoji }}</p>
+            <p
+              class="text-[11px] font-bold"
+              [class.text-sky-700]="ab.theme === 'sky'"
+              [class.dark:text-sky-400]="ab.theme === 'sky'"
+              [class.text-amber-700]="ab.theme === 'lemon'"
+              [class.dark:text-amber-400]="ab.theme === 'lemon'"
+              [class.text-rose-600]="ab.theme === 'coral'"
+              [class.dark:text-rose-400]="ab.theme === 'coral'"
+            >
+              {{ ab.title }}
+            </p>
+            <p
+              class="text-[10px]"
+              [class.text-sky-500]="ab.theme === 'sky'"
+              [class.text-amber-500]="ab.theme === 'lemon'"
+              [class.text-rose-400]="ab.theme === 'coral'"
+            >
+              {{ ab.range }}
+            </p>
+          </div>
+        }
+      </div>
+    </div>
+
+    <div class="mt-4 rounded-2xl bg-white dark:bg-white/[0.03] border border-[#ddf2fd] dark:border-white/[0.05] px-4 pt-4 pb-3 lb-m7-a3">
+      <p class="text-[10px] font-black tracking-[0.1em] uppercase text-[#0284c7] dark:text-[#38bdf8] mb-3">Convênios aceitos</p>
+      <div class="flex flex-wrap gap-2">
+        @for (c of conveniosList; track c) {
+          <span
+            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold border"
+            [class.bg-sky-50]="c !== '+ Particular'"
+            [class.dark:bg-sky-900/15]="c !== '+ Particular'"
+            [class.text-sky-600]="c !== '+ Particular'"
+            [class.dark:text-sky-400]="c !== '+ Particular'"
+            [class.border-sky-100]="c !== '+ Particular'"
+            [class.dark:border-sky-700/25]="c !== '+ Particular'"
+            [class.bg-emerald-50]="c === '+ Particular'"
+            [class.dark:bg-emerald-900/10]="c === '+ Particular'"
+            [class.text-emerald-600]="c === '+ Particular'"
+            [class.dark:text-emerald-400]="c === '+ Particular'"
+            [class.border-emerald-100]="c === '+ Particular'"
+            [class.dark:border-emerald-500/20]="c === '+ Particular'"
+            >{{ c }}</span>
+        }
+      </div>
+    </div>
+
+    @if (hasAnyHour) {
+      <div class="mt-4 rounded-2xl bg-white dark:bg-white/[0.03] border border-[#ddf2fd] dark:border-white/[0.05] px-4 pt-4 pb-3 lb-m7-a4">
+        <p class="text-[10px] font-black tracking-[0.1em] uppercase text-[#0284c7] dark:text-[#38bdf8] mb-3">Funcionamento</p>
+        @for (row of hoursGridArray; track row.label) {
+          @if (row.text !== '–') {
+            <div class="flex justify-between text-[13px] py-2 border-b border-sky-50 dark:border-white/[0.04] last:border-0 first:pt-0">
+              <span class="font-bold text-gray-700 dark:text-gray-300">{{ row.label }}</span>
+              <span class="font-black text-[#0ea5e9] dark:text-[#38bdf8]">{{ row.text }}</span>
+            </div>
+          }
+        }
+      </div>
+    }
+
+    @if (allDocs.length) {
+      <div class="mt-5 lb-m7-a4">
+        <div class="flex items-center gap-3 mb-1.5">
+          <p class="text-[10px] font-black tracking-[0.1em] uppercase text-[#0284c7] dark:text-[#38bdf8] whitespace-nowrap">{{ docsTitle }}</p>
+          <div class="flex-1 h-px bg-[#ddf2fd] dark:bg-white/[0.06]"></div>
+        </div>
+        <p class="text-[12px] text-gray-500 dark:text-gray-600 mb-4 font-medium">{{ docsIntro }}</p>
+        @for (link of allDocs; track trackDoc($index, link)) {
+          @if (link.type === 'bio') {
+            <a
+              [href]="link.item.url"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="lb-m7-doc flex items-center gap-3.5 p-4 rounded-2xl bg-white dark:bg-white/[0.03] border border-[#ddf2fd] dark:border-white/[0.05] mb-3 no-underline group text-inherit"
+            >
+              <div class="w-10 h-10 rounded-xl bg-sky-50 dark:bg-sky-900/15 flex items-center justify-center flex-shrink-0 text-xl">📋</div>
+              <div class="flex-1 min-w-0">
+                <p class="text-[13px] font-bold text-gray-800 dark:text-gray-200">{{ link.item.label }}</p>
+                <p class="text-[11px] text-gray-400 dark:text-gray-600 mt-0.5 truncate">{{ link.item.url }}</p>
+              </div>
+              <svg class="w-4 h-4 text-gray-300 dark:text-gray-700 group-hover:text-sky-400 transition-colors shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9 18 15 12 9 6" />
+              </svg>
+            </a>
+          } @else {
+            <a
+              [routerLink]="['/f', formToken(link.item)]"
+              class="lb-m7-doc flex items-center gap-3.5 p-4 rounded-2xl bg-white dark:bg-white/[0.03] border border-[#ddf2fd] dark:border-white/[0.05] mb-3 no-underline group text-inherit"
+            >
+              <div class="w-10 h-10 rounded-xl bg-sky-50 dark:bg-sky-900/15 flex items-center justify-center flex-shrink-0">
+                <svg class="w-[18px] h-[18px] text-sky-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+                  <polyline points="14 2 14 8 20 8" />
+                </svg>
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="text-[13px] font-bold text-gray-800 dark:text-gray-200">{{ link.item.name }}</p>
+                <p class="text-[11px] text-gray-400 dark:text-gray-600 mt-0.5">Preenchimento online</p>
+              </div>
+              <svg class="w-4 h-4 text-gray-300 dark:text-gray-700 group-hover:text-sky-400 transition-colors shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9 18 15 12 9 6" />
+              </svg>
+            </a>
+          }
+        }
+      </div>
+    }
+
+    @if (clinic.address) {
+      <div class="flex items-center gap-2 mt-5 lb-m7-a5">
+        <svg class="w-[13px] h-[13px] text-sky-400 dark:text-sky-600 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" />
+          <circle cx="12" cy="10" r="3" />
+        </svg>
+        <span class="text-[12px] text-gray-400 dark:text-gray-600 font-medium">{{ clinic.address }}</span>
+      </div>
+    }
+
+    <div class="mt-8 pt-5 border-t border-[#ddf2fd] dark:border-white/[0.05] flex flex-wrap items-center justify-center gap-2 lb-m7-a5">
+      <div class="w-[5px] h-[5px] rounded-full bg-sky-400 opacity-60"></div>
+      <span class="text-[11px] text-gray-400 dark:text-gray-600 font-medium">Fichas digitais por</span>
+      <a href="https://zionmed.com.br" target="_blank" rel="noopener noreferrer" class="text-[11px] font-black text-sky-500 no-underline hover:opacity-75">ZionMed</a>
+      <span class="text-gray-300 dark:text-gray-700 text-[11px]">·</span>
+      <a routerLink="/privacidade" class="text-[11px] text-gray-400 no-underline hover:text-gray-600 transition-colors font-medium">Privacidade</a>
+    </div>
+  </div>
+</div>

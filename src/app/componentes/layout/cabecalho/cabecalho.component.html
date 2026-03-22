@@ -26,50 +26,69 @@
         <!-- Overlay: fecha ao clicar fora (mobile e desktop) -->
         <div class="theme-drawer-overlay fixed inset-0 z-[199] bg-black/40" (click)="fecharMenuTema()" aria-hidden="true"></div>
         <!-- Drawer: tema + modo escuro (mesmo em mobile e desktop) -->
-        <div id="theme-drawer" class="theme-drawer-panel fixed top-0 right-0 bottom-0 z-[200] w-[min(20rem,85vw)] flex flex-col border-l p-4 overflow-y-auto" style="background: var(--c-elevated); border-color: var(--c-border); box-shadow: -8px 0 24px rgba(0,0,0,0.15)" (click)="$event.stopPropagation()">
-          <div class="flex items-center justify-between shrink-0 mb-4">
-            <h3 class="text-sm font-bold uppercase tracking-wide" style="color: var(--c-text)">Tema e aparência</h3>
-            <button type="button" (click)="fecharMenuTema()" class="flex items-center justify-center w-8 h-8 rounded-lg transition-colors hover:bg-[var(--c-soft)]" style="color: var(--c-muted)" aria-label="Fechar" appTooltip="Fechar">
+        <div
+          id="theme-drawer"
+          class="theme-drawer-panel theme-drawer-shell fixed top-0 right-0 bottom-0 z-[200] flex flex-col overflow-y-auto"
+          (click)="$event.stopPropagation()"
+          role="dialog"
+          aria-labelledby="theme-drawer-title"
+        >
+          <div class="theme-drawer-header">
+            <h3 id="theme-drawer-title" class="theme-drawer-title">Tema e aparência</h3>
+            <button type="button" (click)="fecharMenuTema()" class="theme-drawer-close" aria-label="Fechar painel de tema" appTooltip="Fechar">
               <span class="material-symbols-outlined" style="font-size: 20px">close</span>
             </button>
           </div>
-          <!-- Modo escuro / claro -->
-          <p class="text-[0.65rem] font-bold uppercase tracking-wider mb-2" style="color: var(--c-muted)">Modo</p>
-          <div class="flex gap-2 mb-5">
-            <button type="button" (click)="aplicarModoEscuro(false)" class="theme-mode-btn flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg border transition-colors" [class.theme-mode-active]="!modoEscuro" style="border-color: var(--c-border); background: var(--c-soft); color: var(--c-text)" [attr.aria-pressed]="!modoEscuro">
-              <span class="material-symbols-outlined" style="font-size: 18px">light_mode</span>
-              <span class="text-xs font-medium">Claro</span>
+
+          <p class="theme-drawer-section-label">Modo</p>
+          <div class="theme-drawer-mode-row">
+            <button
+              type="button"
+              (click)="aplicarModoEscuro(false)"
+              class="theme-drawer-mode-btn"
+              [class.theme-drawer-mode-btn--active]="!modoEscuro"
+              [attr.aria-pressed]="!modoEscuro"
+            >
+              <span class="material-symbols-outlined theme-drawer-mode-icon">wb_sunny</span>
+              <span class="theme-drawer-mode-text">Claro</span>
             </button>
-            <button type="button" (click)="aplicarModoEscuro(true)" class="theme-mode-btn flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg border transition-colors" [class.theme-mode-active]="modoEscuro" style="border-color: var(--c-border); background: var(--c-soft); color: var(--c-text)" [attr.aria-pressed]="modoEscuro">
-              <span class="material-symbols-outlined" style="font-size: 18px">dark_mode</span>
-              <span class="text-xs font-medium">Escuro</span>
+            <button
+              type="button"
+              (click)="aplicarModoEscuro(true)"
+              class="theme-drawer-mode-btn"
+              [class.theme-drawer-mode-btn--active]="modoEscuro"
+              [attr.aria-pressed]="modoEscuro"
+            >
+              <span class="material-symbols-outlined theme-drawer-mode-icon">dark_mode</span>
+              <span class="theme-drawer-mode-text">Escuro</span>
             </button>
           </div>
-          <!-- Cor do tema -->
-          <p class="text-[0.65rem] font-bold uppercase tracking-wider mb-2" style="color: var(--c-muted)">Cor do tema</p>
-          <div class="grid grid-cols-2 gap-x-3 gap-y-0.5">
-            @for (t of temasCol1; track t.key) {
-              <button type="button" class="theme-option flex items-center gap-2.5 justify-between w-full py-2 rounded-md transition-colors" [class.active]="temaAtual === t.key" (click)="aplicarTema(t.key)">
-                <span class="flex items-center gap-2 min-w-0">
-                  <span class="w-4 h-4 shrink-0 inline-block" [style.background]="t.color" style="border-radius: 10px"></span>
-                  <span class="truncate text-xs">{{ t.label }}</span>
+
+          <p class="theme-drawer-section-label theme-drawer-section-label--mt">Cor do tema</p>
+          <div class="theme-swatch-grid">
+            @for (t of temasOrdemGrade; track t.key) {
+              <button
+                type="button"
+                class="theme-swatch"
+                [class.theme-swatch--selected]="temaAtual === t.key"
+                (click)="aplicarTema(t.key)"
+                [attr.aria-label]="'Cor do tema: ' + t.labelPt"
+                [attr.aria-pressed]="temaAtual === t.key"
+              >
+                <span class="theme-swatch-inner" [style.background]="t.color">
+                  @if (temaAtual === t.key) {
+                    <span class="material-symbols-outlined theme-swatch-check" aria-hidden="true">check</span>
+                  }
                 </span>
-                @if (temaAtual === t.key) {
-                  <span class="material-symbols-outlined shrink-0 text-sm text-[var(--c-primary)]" aria-hidden="true">check</span>
-                }
               </button>
             }
-            @for (t of temasCol2; track t.key) {
-              <button type="button" class="theme-option flex items-center gap-2.5 justify-between w-full py-2 rounded-md transition-colors" [class.active]="temaAtual === t.key" (click)="aplicarTema(t.key)">
-                <span class="flex items-center gap-2 min-w-0">
-                  <span class="w-4 h-4 shrink-0 inline-block" [style.background]="t.color" style="border-radius: 10px"></span>
-                  <span class="truncate text-xs">{{ t.label }}</span>
-                </span>
-                @if (temaAtual === t.key) {
-                  <span class="material-symbols-outlined shrink-0 text-sm text-[var(--c-primary)]" aria-hidden="true">check</span>
-                }
-              </button>
-            }
+          </div>
+
+          <div class="theme-drawer-footer">
+            <span class="theme-drawer-footer-dot" [style.background]="temaAtualMeta?.color ?? '#2563eb'"></span>
+            <span class="theme-drawer-footer-text">
+              Selecionado: <strong>{{ temaAtualMeta?.labelPt ?? '—' }}</strong>
+            </span>
           </div>
         </div>
       }

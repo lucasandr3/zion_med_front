@@ -1,17 +1,19 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, Signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { PlataformaService, PlatformAuditLog } from '../../../core/services/plataforma.service';
-import { LoadingOverlayComponent } from '../../../componentes/ui/loading-overlay/loading-overlay.component';
+import { LoadingService } from '../../../shared/services/loading.service';
+import { ZmSkeletonListComponent } from '../../../shared/components/skeletons';
 
 @Component({
   selector: 'app-plataforma-logs',
   standalone: true,
-  imports: [CommonModule, LoadingOverlayComponent],
+  imports: [CommonModule, ZmSkeletonListComponent],
   templateUrl: './plataforma-logs.component.html',
   styleUrl: './plataforma-logs.component.css',
 })
 export class PlataformaLogsComponent implements OnInit {
-  loading = false;
+  showSkeleton!: Signal<boolean>;
+  listaPronta = false;
   error = '';
   logs: PlatformAuditLog[] = [];
   currentPage = 1;
@@ -19,23 +21,28 @@ export class PlataformaLogsComponent implements OnInit {
   total = 0;
 
   private plataformaService = inject(PlataformaService);
+  private loadingService = inject(LoadingService);
 
   ngOnInit(): void {
     this.carregar();
   }
 
   carregar(): void {
-    this.loading = true;
-    this.plataformaService.getPlatformLogs(this.currentPage).subscribe({
+    const { data$, showSkeleton } = this.loadingService.loadWithThreshold(
+      this.plataformaService.getPlatformLogs(this.currentPage),
+    );
+    this.showSkeleton = showSkeleton;
+    data$.subscribe({
       next: (res) => {
-        this.loading = false;
+        this.listaPronta = true;
+        this.error = '';
         this.logs = res.data ?? [];
         this.currentPage = res.meta?.current_page ?? 1;
         this.lastPage = res.meta?.last_page ?? 1;
         this.total = res.meta?.total ?? 0;
       },
       error: () => {
-        this.loading = false;
+        this.listaPronta = true;
         this.error = 'Não foi possível carregar os logs.';
       },
     });

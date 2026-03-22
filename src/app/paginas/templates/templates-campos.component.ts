@@ -1,9 +1,13 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, Signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { switchMap, map, catchError, of } from 'rxjs';
 import { TemplatesService, Template, TemplateCampo } from '../../core/services/templates.service';
-import { LoadingOverlayComponent } from '../../componentes/ui/loading-overlay/loading-overlay.component';
+import { LoadingService } from '../../shared/services/loading.service';
+import { ZmSkeletonListComponent } from '../../shared/components/skeletons';
+import { ToastService } from '../../core/services/toast.service';
+import { ConfirmDialogService } from '../../core/services/confirm-dialog.service';
 
 const TYPE_OPTIONS: { value: string; label: string }[] = [
   { value: 'text', label: 'Texto curto' },
@@ -32,7 +36,7 @@ const TYPE_ICONS: Record<string, string> = {
 @Component({
   selector: 'app-templates-campos',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule, LoadingOverlayComponent],
+  imports: [CommonModule, RouterLink, FormsModule, ZmSkeletonListComponent],
   templateUrl: './templates-campos.component.html',
   styleUrl: './templates-campos.component.css',
 })
@@ -41,7 +45,8 @@ export class TemplatesCamposComponent implements OnInit {
   template: Template | null = null;
   campos: TemplateCampo[] = [];
   linkPublicoUrl = '';
-  carregando = false;
+  showSkeleton!: Signal<boolean>;
+  listaPronta = false;
   erro = '';
   gerandoLink = false;
   desativandoLink = false;
@@ -69,6 +74,9 @@ export class TemplatesCamposComponent implements OnInit {
 
   private route = inject(ActivatedRoute);
   private templatesService = inject(TemplatesService);
+  private loadingService = inject(LoadingService);
+  private toast = inject(ToastService);
+  private confirm = inject(ConfirmDialogService);
 
   get idNum(): number {
     return parseInt(this.templateId, 10) || 0;
@@ -97,25 +105,26 @@ export class TemplatesCamposComponent implements OnInit {
   carregar(): void {
     const id = this.idNum;
     if (!id) return;
-    this.carregando = true;
     this.erro = '';
-    this.templatesService.get(id).subscribe({
-      next: (t) => {
+    const load$ = this.templatesService.get(id).pipe(
+      switchMap((t) =>
+        this.templatesService.getCampos(id).pipe(
+          map((list) => ({ t, list })),
+          catchError(() => of({ t, list: [] as TemplateCampo[] })),
+        ),
+      ),
+    );
+    const { data$, showSkeleton } = this.loadingService.loadWithThreshold(load$);
+    this.showSkeleton = showSkeleton;
+    data$.subscribe({
+      next: ({ t, list }) => {
+        this.listaPronta = true;
         this.template = t;
         if (t.public_url) this.linkPublicoUrl = t.public_url;
-        this.templatesService.getCampos(id).subscribe({
-          next: (list) => {
-            this.campos = list;
-            this.carregando = false;
-          },
-          error: () => {
-            this.campos = [];
-            this.carregando = false;
-          },
-        });
+        this.campos = list;
       },
       error: () => {
-        this.carregando = false;
+        this.listaPronta = true;
         this.erro = 'Não foi possível carregar o template.';
       },
     });
@@ -148,10 +157,12 @@ export class TemplatesCamposComponent implements OnInit {
         this.novoOptionsText = '';
         this.novoRequired = false;
         this.carregar();
+        this.toast.success('Campo adicionado', 'O novo campo foi salvo.');
       },
       error: (err) => {
         this.salvandoCampo = false;
         this.erro = err?.error?.message ?? 'Não foi possível adicionar o campo.';
+        this.toast.error('Erro', this.erro);
       },
     });
   }
@@ -192,16 +203,26 @@ export class TemplatesCamposComponent implements OnInit {
         this.salvandoCampo = false;
         this.fecharModal();
         this.carregar();
+        this.toast.success('Campo atualizado', 'As alterações foram salvas.');
       },
       error: (err) => {
         this.salvandoCampo = false;
         this.erro = err?.error?.message ?? 'Não foi possível salvar.';
+        this.toast.error('Erro ao salvar', this.erro);
       },
     });
   }
 
-  removerCampo(c: TemplateCampo): void {
-    if (!confirm('Remover este campo?')) return;
+  async removerCampo(c: TemplateCampo): Promise<void> {
+    const ok = await this.confirm.request({
+      title: 'Remover campo?',
+      messageBefore: 'O campo ',
+      emphasis: c.label,
+      messageAfter: ' será removido do template. Esta ação não pode ser desfeita.',
+      confirmLabel: 'Sim, remover',
+      variant: 'danger',
+    });
+    if (!ok) return;
     const id = this.idNum;
     if (!id) return;
     this.removendoId = c.id;
@@ -209,10 +230,12 @@ export class TemplatesCamposComponent implements OnInit {
       next: () => {
         this.removendoId = null;
         this.carregar();
+        this.toast.success('Campo removido', `${c.label} foi excluído.`);
       },
       error: () => {
         this.removendoId = null;
         this.erro = 'Não foi possível remover o campo.';
+        this.toast.error('Erro', this.erro);
       },
     });
   }
@@ -231,16 +254,24 @@ export class TemplatesCamposComponent implements OnInit {
           if (token) this.linkPublicoUrl = `${window.location.origin}/f/${token}`;
         }
         this.carregar();
+        this.toast.success('Link público gerado', 'O link está disponível para copiar.');
       },
       error: () => {
         this.gerandoLink = false;
         this.erro = 'Não foi possível gerar o link.';
+        this.toast.error('Erro', this.erro);
       },
     });
   }
 
-  desativarLink(): void {
-    if (!confirm('Desativar link público?')) return;
+  async desativarLink(): Promise<void> {
+    const ok = await this.confirm.request({
+      title: 'Desativar link público?',
+      message: 'O formulário deixará de ser acessível pelo link atual. Você poderá gerar um novo link depois.',
+      confirmLabel: 'Sim, desativar',
+      variant: 'danger',
+    });
+    if (!ok) return;
     const id = this.idNum;
     if (!id) return;
     this.desativandoLink = true;
@@ -249,10 +280,12 @@ export class TemplatesCamposComponent implements OnInit {
         this.desativandoLink = false;
         this.linkPublicoUrl = '';
         this.carregar();
+        this.toast.success('Link desativado', 'O link público foi removido.');
       },
       error: () => {
         this.desativandoLink = false;
         this.erro = 'Não foi possível desativar o link.';
+        this.toast.error('Erro', this.erro);
       },
     });
   }

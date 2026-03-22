@@ -19,6 +19,39 @@ export interface LinkBioFormLink {
   last_submission_at?: string | null;
 }
 
+/** IDs de layout da página pública (1 = genérico; 2–7 = temas específicos). */
+export type LinkBioLayoutModel = 1 | 2 | 3 | 4 | 5 | 6 | 7;
+
+/** Opcional: convênios, equipe, Instagram, textos, veterinária (6), pediatria (7), etc. */
+export interface LinkBioExtra {
+  hero_tagline?: string;
+  council_registration?: string;
+  brand_subtitle?: string;
+  convenios?: string[];
+  instagram_url?: string;
+  modalities?: { title: string; subtitle?: string; available?: boolean }[];
+  team?: { name: string; credential?: string; notes?: string; whatsapp?: string }[];
+  /** Modelo 6 — rótulo acima do nome (ex.: Medicina veterinária). */
+  layout_cover_kicker?: string;
+  /** Modelo 6 — chips de espécies; `active` destaca o chip. */
+  species_chips?: { label: string; active?: boolean }[];
+  /** Modelo 6 — cards de serviço (emoji + título). */
+  vet_service_cards?: { icon?: string; title: string }[];
+  /** Modelo 6 — texto do botão WhatsApp. */
+  vet_wa_cta_label?: string;
+  vet_docs_section_title?: string;
+  vet_docs_intro?: string;
+  /** Modelo 7 — rótulo da capa (ex.: Pediatria). */
+  ped_cover_kicker?: string;
+  ped_parent_notice_title?: string;
+  ped_parent_notice_body?: string;
+  ped_first_visit_steps?: { title: string; subtitle: string; tone?: 'sky' | 'lemon' | 'mint' }[];
+  ped_age_bands?: { emoji: string; title: string; range: string; theme?: 'sky' | 'lemon' | 'coral' }[];
+  ped_docs_section_title?: string;
+  ped_docs_intro?: string;
+  ped_wa_cta_label?: string;
+}
+
 export interface LinkBioClinic {
   id: number;
   name: string;
@@ -28,6 +61,9 @@ export interface LinkBioClinic {
   cover_image_url?: string | null;
   cover_color?: string | null;
   cover_mode?: 'banner' | 'solid' | 'none' | null;
+  link_bio_model?: LinkBioLayoutModel | null;
+  link_bio_extra?: LinkBioExtra | Record<string, unknown> | null;
+  address?: string | null;
   short_description?: string | null;
   specialties?: string | null;
   specialties_list?: string[];
@@ -40,6 +76,11 @@ export interface LinkBioClinic {
   is_open_now?: boolean | null;
   business_hours_grid?: Record<string, { label: string; text: string }>;
 }
+
+/** Item unificado para documentos / links na página pública */
+export type LinkBioPublicDocItem =
+  | { type: 'bio'; item: LinkBioLink }
+  | { type: 'form'; item: { id: number; name: string; public_url: string } };
 
 export interface LinkBioMetrics {
   visitas_hoje: number;
@@ -153,7 +194,13 @@ export class LinkBioService {
   }
 
   updateAparencia(
-    payload: Partial<LinkBioClinic> & { public_theme?: string | null; cover_color?: string | null; cover_mode?: 'banner' | 'solid' | 'none' | null }
+    payload: Partial<LinkBioClinic> & {
+      public_theme?: string | null;
+      cover_color?: string | null;
+      cover_mode?: 'banner' | 'solid' | 'none' | null;
+      link_bio_model?: LinkBioLayoutModel | null;
+      link_bio_extra?: LinkBioExtra | Record<string, unknown> | null;
+    }
   ): Observable<LinkBioClinic> {
     return this.api
       .put<{ data: { clinic: LinkBioClinic } | LinkBioClinic }>('/link-bio/aparencia', payload)

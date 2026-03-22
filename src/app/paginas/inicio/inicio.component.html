@@ -1,893 +1,537 @@
-<div class="bg-base-50 text-slate-950 antialiased scroll-smooth" style="scroll-behavior: smooth;">
+<div class="lp-page" [attr.data-theme]="lpTheme">
+  <div class="grid-bg"></div>
 
-  <!-- Top bar: status dinâmico -->
-  <div [class]="statusBarClass + ' text-white'">
-    <div class="mx-auto flex max-w-7xl items-center justify-between gap-3 px-3 py-1 sm:px-4 text-xs sm:text-sm">
-      <a [href]="statusPageUrl" target="_blank" rel="noopener noreferrer"
-        class="flex min-w-0 flex-1 items-center gap-2 hover:underline sm:flex-initial">
-        <span class="inline-flex h-2 w-2 shrink-0 rounded-full" [ngClass]="statusDotClass"></span>
-        <span class="truncate">{{ serviceStatusLabel }}</span>
-        @if (serviceStatusKey !== 'operational' && serviceStatusMessage) {
-          <span class="hidden text-white/70 sm:inline">— {{ serviceStatusMessage | slice:0:60 }}{{ serviceStatusMessage.length > 60 ? '…' : '' }}</span>
-        }
-      </a>
-      <button type="button" (click)="alternarTema()" [attr.aria-label]="labelTema" [attr.title]="labelTema"
-        class="flex shrink-0 items-center justify-center p-1 text-white/90 hover:text-white sm:p-1.5">
-        @if (temaEscuro) {
-          <svg class="h-4 w-4 sm:h-[18px] sm:w-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-          </svg>
-        } @else {
-          <svg class="h-4 w-4 sm:h-[18px] sm:w-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-          </svg>
-        }
-      </button>
-    </div>
-  </div>
-
-  <!-- Header -->
-  <header class="sticky top-0 z-40 border-b border-base-200/60 bg-base-50/80 backdrop-blur">
-    <div class="mx-auto flex max-w-7xl items-center justify-between gap-2 px-3 py-3 sm:gap-4 sm:px-4 sm:py-4">
-      <a routerLink="/" class="flex min-w-0 shrink items-center gap-2 sm:gap-3">
-        <div class="h-9 w-9 shrink-0 rounded-xl flex items-center justify-center overflow-hidden bg-accent-600 shadow-glow p-1 sm:h-10 sm:w-10">
-          <img src="assets/logo/zionmed_logo.png" alt="Zion Med" class="w-full h-full object-contain rounded-lg">
-        </div>
-        <div class="min-w-0 leading-tight">
-          <div class="truncate text-sm font-semibold tracking-tight">ZionMed</div>
-          <div class="hidden truncate text-xs text-slate-500 sm:block">Fichas e Consentimentos Digitais</div>
-        </div>
-      </a>
-
-      <nav class="hidden items-center gap-6 text-sm text-slate-600 md:flex landing-nav">
-        <a href="#como-funciona" class="hover:text-slate-900 transition-colors">Como funciona</a>
-        <a href="#beneficios" class="hover:text-slate-900 transition-colors">Benefícios</a>
-        <a href="#depoimentos" class="hover:text-slate-900 transition-colors">Depoimentos</a>
-        <a href="#integracoes" class="hover:text-slate-900 transition-colors">Integrações</a>
-        <a href="#precos" class="hover:text-slate-900 transition-colors">Planos</a>
-      </nav>
-
-      <div class="flex shrink-0 items-center gap-1.5 sm:gap-2">
-        <a routerLink="/autenticacao"
-          class="btn-entrar rounded-lg px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-base-100 border border-base-200 hidden sm:inline-flex sm:items-center sm:px-4 sm:py-2 sm:text-sm">
-          Entrar
-        </a>
-        <a routerLink="/comece"
-          class="btn-cta-primary inline-flex items-center justify-center rounded-lg bg-accent-600 px-3 py-1.5 text-xs font-semibold text-white shadow-soft hover:bg-accent-500 sm:px-4 sm:py-2 sm:text-sm">
-          Começar grátis
-        </a>
-        <!-- Hamburger mobile -->
-        <button type="button" (click)="toggleMenu()" class="md:hidden flex items-center justify-center rounded-lg border border-base-200 p-2 text-slate-600 hover:bg-base-100 ml-1">
-          <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-          </svg>
-        </button>
-      </div>
-    </div>
-
-    <!-- Menu mobile -->
-    @if (menuAberto) {
-      <div class="md:hidden border-t border-base-200 bg-base-50/95 backdrop-blur px-4 py-4 space-y-3">
-        <a href="#como-funciona" (click)="toggleMenu()" class="block text-sm font-medium text-slate-700 hover:text-slate-900 py-1.5">Como funciona</a>
-        <a href="#beneficios" (click)="toggleMenu()" class="block text-sm font-medium text-slate-700 hover:text-slate-900 py-1.5">Benefícios</a>
-        <a href="#depoimentos" (click)="toggleMenu()" class="block text-sm font-medium text-slate-700 hover:text-slate-900 py-1.5">Depoimentos</a>
-        <a href="#integracoes" (click)="toggleMenu()" class="block text-sm font-medium text-slate-700 hover:text-slate-900 py-1.5">Integrações</a>
-        <a href="#precos" (click)="toggleMenu()" class="block text-sm font-medium text-slate-700 hover:text-slate-900 py-1.5">Planos</a>
-        <div class="pt-2 border-t border-base-200 flex gap-2">
-          <a routerLink="/autenticacao" (click)="toggleMenu()" class="flex-1 text-center rounded-lg border border-base-200 px-4 py-2 text-sm font-semibold text-slate-700">Entrar</a>
-          <a routerLink="/comece" (click)="toggleMenu()" class="flex-1 text-center rounded-lg bg-accent-600 px-4 py-2 text-sm font-semibold text-white">Começar grátis</a>
-        </div>
-      </div>
-    }
-  </header>
-
-  <!-- Hero -->
-  <section class="relative overflow-hidden bg-base-50">
-    <div class="grain pointer-events-none absolute inset-0"></div>
-    <div class="mx-auto max-w-7xl px-4 py-10 sm:py-14">
-      <div class="grid items-center gap-12 lg:grid-cols-2">
-        <div>
-          <!-- Badge de prova social -->
-          <div class="inline-flex items-center gap-2 rounded-full border border-base-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 shadow-sm">
-            <span class="flex h-2 w-2 rounded-full bg-emeraldish-500"></span>
-            Usado por clínicas de todo o Brasil · Trial de {{ landingTrialDias }} dias grátis
-          </div>
-
-          <h1 class="mt-5 text-4xl font-bold tracking-tight text-slate-950 sm:text-5xl lg:text-6xl leading-[1.1]">
-            Sua clínica<br class="hidden sm:block" />
-            <span class="text-accent-600">sem papel</span>,<br class="hidden sm:block" />
-            sem retrabalho.
-          </h1>
-
-          <p class="mt-6 max-w-xl text-lg leading-relaxed text-slate-600">
-            Pacientes recebem um link, preenchem a ficha antes da consulta e assinam digitalmente. Sua equipe recebe o PDF com protocolo e histórico organizado — <strong>sem trocar o sistema atual</strong>.
-          </p>
-
-          <div class="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
-            <a routerLink="/comece"
-              class="btn-cta-primary inline-flex items-center justify-center gap-2 rounded-xl bg-accent-600 px-7 py-3.5 text-sm font-semibold text-white shadow-soft hover:bg-accent-500 transition-all">
-              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
-              Começar trial gratuito
-            </a>
-            <a href="#demo"
-              class="inline-flex items-center justify-center gap-2 rounded-xl border border-base-200 bg-white px-7 py-3.5 text-sm font-semibold text-slate-800 hover:bg-base-100 transition-all">
-              <svg class="h-4 w-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-              Ver demonstração
-            </a>
-          </div>
-
-          <p class="mt-3 text-xs text-slate-500">Sem cartão de crédito · Cancele quando quiser</p>
-
-          <!-- Números de prova social -->
-          <div class="mt-10 grid grid-cols-3 gap-4">
-            <div>
-              <div class="text-2xl font-bold text-slate-900">+200</div>
-              <div class="mt-1 text-xs text-slate-500">clínicas ativas</div>
-            </div>
-            <div>
-              <div class="text-2xl font-bold text-slate-900">+50k</div>
-              <div class="mt-1 text-xs text-slate-500">protocolos gerados</div>
-            </div>
-            <div>
-              <div class="text-2xl font-bold text-slate-900">4.8★</div>
-              <div class="mt-1 text-xs text-slate-500">avaliação média</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Hero visual: fluxo do paciente -->
-        <div class="relative">
-          <div class="rounded-2xl border border-base-200 bg-white p-6 shadow-soft">
-            <div class="flex items-center justify-between">
-              <div>
-                <div class="text-sm font-semibold text-slate-900">Fluxo do paciente</div>
-                <div class="text-xs text-slate-500">Do link até o protocolo final</div>
-              </div>
-              <div class="rounded-full border border-base-200 bg-base-50 px-3 py-1 text-xs font-medium text-slate-600">
-                100% digital
-              </div>
-            </div>
-
-            <div class="mt-6 space-y-3">
-              <div class="flex items-start gap-3 rounded-xl border border-base-200 bg-base-50 p-4 transition-all hover:border-accent-600/30 hover:shadow-sm">
-                <div class="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent-600 text-xs font-bold text-white">1</div>
-                <div>
-                  <div class="text-sm font-semibold text-slate-900">Recepção envia o link</div>
-                  <div class="mt-0.5 text-xs text-slate-500">Via WhatsApp, SMS ou e-mail, antes da consulta</div>
-                </div>
-              </div>
-              <div class="flex items-start gap-3 rounded-xl border border-base-200 bg-base-50 p-4 transition-all hover:border-accent-600/30 hover:shadow-sm">
-                <div class="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent-600 text-xs font-bold text-white">2</div>
-                <div>
-                  <div class="text-sm font-semibold text-slate-900">Paciente preenche a ficha</div>
-                  <div class="mt-0.5 text-xs text-slate-500">No celular ou computador, sem instalar nada</div>
-                </div>
-              </div>
-              <div class="flex items-start gap-3 rounded-xl border border-base-200 bg-base-50 p-4 transition-all hover:border-accent-600/30 hover:shadow-sm">
-                <div class="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent-600 text-xs font-bold text-white">3</div>
-                <div>
-                  <div class="text-sm font-semibold text-slate-900">Assina digitalmente</div>
-                  <div class="mt-0.5 text-xs text-slate-500">Consentimento com data/hora e evidência formal</div>
-                </div>
-              </div>
-              <div class="flex items-start gap-3 rounded-xl border border-emeraldish-500/30 bg-emeraldish-500/5 p-4">
-                <div class="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-emeraldish-600 text-xs font-bold text-white">4</div>
-                <div>
-                  <div class="text-sm font-semibold text-slate-900">Clínica recebe protocolo e PDF</div>
-                  <div class="mt-0.5 text-xs text-slate-500">Tudo organizado com trilha de auditoria</div>
-                </div>
-              </div>
-            </div>
-
-            <div class="mt-5 rounded-xl border border-base-200 bg-white p-4">
-              <div class="flex items-center justify-between text-xs text-slate-500">
-                <span>Paciente: A*** S***</span>
-                <span class="rounded-full bg-emeraldish-600/10 px-2 py-0.5 text-xs font-medium text-emeraldish-600">Protocolo #10482 · PDF gerado</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="pointer-events-none absolute -bottom-8 -right-8 hidden h-40 w-40 rounded-full bg-accent-600/10 blur-2xl lg:block"></div>
-          <div class="pointer-events-none absolute -top-10 -left-10 hidden h-40 w-40 rounded-full bg-emeraldish-600/10 blur-2xl lg:block"></div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Trust strip -->
-  <section class="border-y border-base-200 bg-white">
-    <div class="mx-auto max-w-7xl px-4 py-6">
-      <div class="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
-        <div class="text-sm text-slate-500 font-medium">Complementar ao ERP e prontuário que você já usa:</div>
-        <div class="flex flex-wrap gap-2">
-          <span class="rounded-full border border-base-200 bg-base-50 px-3 py-1 text-xs font-medium text-slate-600">Fichas digitais</span>
-          <span class="rounded-full border border-base-200 bg-base-50 px-3 py-1 text-xs font-medium text-slate-600">Consentimentos</span>
-          <span class="rounded-full border border-base-200 bg-base-50 px-3 py-1 text-xs font-medium text-slate-600">Assinatura digital</span>
-          <span class="rounded-full border border-base-200 bg-base-50 px-3 py-1 text-xs font-medium text-slate-600">PDF automático</span>
-          <span class="rounded-full border border-base-200 bg-base-50 px-3 py-1 text-xs font-medium text-slate-600">Protocolo</span>
-          <span class="rounded-full border border-base-200 bg-base-50 px-3 py-1 text-xs font-medium text-slate-600">Auditoria</span>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Benefícios -->
-  <section id="beneficios" class="bg-base-50">
-    <div class="mx-auto max-w-7xl px-4 py-20">
-      <div class="text-center max-w-2xl mx-auto">
-        <div class="inline-flex items-center gap-2 rounded-full border border-base-200 bg-white px-3 py-1 text-xs font-medium text-slate-600 mb-4">
-          Benefícios
-        </div>
-        <h2 class="text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">
-          O que muda na prática
-        </h2>
-        <p class="mt-4 text-base leading-relaxed text-slate-600">
-          Menos papel na recepção, mais controle, documentação com evidência jurídica.
-        </p>
-      </div>
-
-      <div class="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        <!-- Card 1 -->
-        <div class="rounded-2xl border border-base-200 bg-white p-6 shadow-sm hover:shadow-soft transition-all group">
-          <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-accent-600/10 text-accent-600 mb-4 group-hover:bg-accent-600 group-hover:text-white transition-all">
-            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-          </div>
-          <div class="text-base font-semibold text-slate-900">Formulários padronizados</div>
-          <p class="mt-2 text-sm text-slate-600 leading-relaxed">
-            Templates por especialidade, campos dinâmicos e link público controlado. Sua equipe preenche do jeito certo, sempre.
-          </p>
-        </div>
-
-        <!-- Card 2 -->
-        <div class="rounded-2xl border border-base-200 bg-white p-6 shadow-sm hover:shadow-soft transition-all group">
-          <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-emeraldish-600/10 text-emeraldish-600 mb-4 group-hover:bg-emeraldish-600 group-hover:text-white transition-all">
-            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-          </div>
-          <div class="text-base font-semibold text-slate-900">Assinatura + PDF automático</div>
-          <p class="mt-2 text-sm text-slate-600 leading-relaxed">
-            Registro formal com data/hora, protocolo e anexos — pronto para arquivo e auditoria jurídica.
-          </p>
-        </div>
-
-        <!-- Card 3 -->
-        <div class="rounded-2xl border border-base-200 bg-white p-6 shadow-sm hover:shadow-soft transition-all group">
-          <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-accent-600/10 text-accent-600 mb-4 group-hover:bg-accent-600 group-hover:text-white transition-all">
-            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-          </div>
-          <div class="text-base font-semibold text-slate-900">Fluxo de aprovação</div>
-          <p class="mt-2 text-sm text-slate-600 leading-relaxed">
-            Pendências, aprovações e trilha de auditoria por usuário, setor e período. Controle total sem planilha.
-          </p>
-        </div>
-
-        <!-- Card 4 -->
-        <div class="rounded-2xl border border-base-200 bg-white p-6 shadow-sm hover:shadow-soft transition-all group">
-          <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-emeraldish-600/10 text-emeraldish-600 mb-4 group-hover:bg-emeraldish-600 group-hover:text-white transition-all">
-            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-          </div>
-          <div class="text-base font-semibold text-slate-900">Segurança por perfil</div>
-          <p class="mt-2 text-sm text-slate-600 leading-relaxed">
-            Owner, Manager e Staff com permissões claras. Tokens públicos com possibilidade de revogação e rate limit.
-          </p>
-        </div>
-
-        <!-- Card 5 -->
-        <div class="rounded-2xl border border-base-200 bg-white p-6 shadow-sm hover:shadow-soft transition-all group">
-          <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-accent-600/10 text-accent-600 mb-4 group-hover:bg-accent-600 group-hover:text-white transition-all">
-            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-          </div>
-          <div class="text-base font-semibold text-slate-900">Implantação rápida</div>
-          <p class="mt-2 text-sm text-slate-600 leading-relaxed">
-            Sem migração, sem substituir o que já funciona. Configuração inicial e treinamento incluídos no onboarding.
-          </p>
-        </div>
-
-        <!-- Card 6 -->
-        <div class="rounded-2xl border border-base-200 bg-white p-6 shadow-sm hover:shadow-soft transition-all group">
-          <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-emeraldish-600/10 text-emeraldish-600 mb-4 group-hover:bg-emeraldish-600 group-hover:text-white transition-all">
-            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-          </div>
-          <div class="text-base font-semibold text-slate-900">API e Webhooks</div>
-          <p class="mt-2 text-sm text-slate-600 leading-relaxed">
-            Integre com ERP, prontuário ou qualquer sistema interno por API REST e webhooks em tempo real.
-          </p>
-        </div>
-      </div>
-
-      <!-- Cases de uso: nichos -->
-      <div class="mt-12 rounded-2xl border border-base-200 bg-white p-8 shadow-sm">
-        <div class="text-sm font-semibold text-slate-900 mb-6">Usado em diversas especialidades</div>
-        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <div class="flex items-center gap-3 rounded-xl bg-base-50 border border-base-200 p-4">
-            <div class="h-8 w-8 rounded-lg bg-accent-600/10 text-accent-600 flex items-center justify-center shrink-0">
-              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
-            </div>
-            <div class="text-sm font-medium text-slate-700">Clínicas médicas</div>
-          </div>
-          <div class="flex items-center gap-3 rounded-xl bg-base-50 border border-base-200 p-4">
-            <div class="h-8 w-8 rounded-lg bg-emeraldish-600/10 text-emeraldish-600 flex items-center justify-center shrink-0">
-              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-            </div>
-            <div class="text-sm font-medium text-slate-700">Odontologia</div>
-          </div>
-          <div class="flex items-center gap-3 rounded-xl bg-base-50 border border-base-200 p-4">
-            <div class="h-8 w-8 rounded-lg bg-accent-600/10 text-accent-600 flex items-center justify-center shrink-0">
-              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-            </div>
-            <div class="text-sm font-medium text-slate-700">Estética e beleza</div>
-          </div>
-          <div class="flex items-center gap-3 rounded-xl bg-base-50 border border-base-200 p-4">
-            <div class="h-8 w-8 rounded-lg bg-emeraldish-600/10 text-emeraldish-600 flex items-center justify-center shrink-0">
-              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
-            </div>
-            <div class="text-sm font-medium text-slate-700">Multiunidades</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Como funciona -->
-  <section id="como-funciona" class="bg-white">
-    <div class="mx-auto max-w-7xl px-4 py-20">
-      <div class="text-center max-w-2xl mx-auto">
-        <div class="inline-flex items-center gap-2 rounded-full border border-base-200 bg-base-50 px-3 py-1 text-xs font-medium text-slate-600 mb-4">
-          Processo
-        </div>
-        <h2 class="text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">
-          Como o ZionMed funciona na prática
-        </h2>
-        <p class="mt-4 text-base leading-relaxed text-slate-600">
-          Em quatro passos simples sua clínica digitaliza fichas e consentimentos, mantendo tudo organizado — sem trocar o sistema atual.
-        </p>
-      </div>
-
-      <div class="mt-14 relative">
-        <!-- Linha conectora (desktop) -->
-        <div class="hidden lg:block absolute top-8 left-[calc(12.5%+1.75rem)] right-[calc(12.5%+1.75rem)] h-px bg-base-200"></div>
-
-        <div class="grid gap-8 lg:grid-cols-4">
-          <div class="relative text-center">
-            <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-accent-600 text-white text-lg font-bold shadow-glow mb-4 relative z-10">1</div>
-            <div class="text-base font-semibold text-slate-900">Configure os templates</div>
-            <p class="mt-2 text-sm text-slate-600">Crie ou importe formulários por especialidade em minutos, com campos dinâmicos.</p>
-          </div>
-          <div class="relative text-center">
-            <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-accent-600 text-white text-lg font-bold shadow-glow mb-4 relative z-10">2</div>
-            <div class="text-base font-semibold text-slate-900">Envie o link ao paciente</div>
-            <p class="mt-2 text-sm text-slate-600">Via WhatsApp, SMS ou e-mail antes da consulta — sem app para instalar.</p>
-          </div>
-          <div class="relative text-center">
-            <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-accent-600 text-white text-lg font-bold shadow-glow mb-4 relative z-10">3</div>
-            <div class="text-base font-semibold text-slate-900">Paciente preenche e assina</div>
-            <p class="mt-2 text-sm text-slate-600">No celular, com assinatura digital e confirmação de data/hora.</p>
-          </div>
-          <div class="relative text-center">
-            <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-emeraldish-600 text-white text-lg font-bold mb-4 relative z-10">4</div>
-            <div class="text-base font-semibold text-slate-900">PDF e protocolo gerados</div>
-            <p class="mt-2 text-sm text-slate-600">Sua equipe recebe tudo organizado, com trilha de auditoria completa.</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="mt-12 text-center">
-        <a routerLink="/comece"
-          class="btn-cta-primary inline-flex items-center justify-center gap-2 rounded-xl bg-accent-600 px-7 py-3.5 text-sm font-semibold text-white shadow-soft hover:bg-accent-500 transition-all">
-          Testar gratuitamente por {{ landingTrialDias }} dias
-        </a>
-        <p class="mt-2 text-xs text-slate-500">Sem cartão de crédito · Suporte incluído</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- Depoimentos -->
-  <section id="depoimentos" class="bg-base-50">
-    <div class="mx-auto max-w-7xl px-4 py-20">
-      <div class="text-center max-w-2xl mx-auto">
-        <div class="inline-flex items-center gap-2 rounded-full border border-base-200 bg-white px-3 py-1 text-xs font-medium text-slate-600 mb-4">
-          Depoimentos
-        </div>
-        <h2 class="text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">
-          O que dizem nossas clínicas
-        </h2>
-      </div>
-
-      <div class="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        <!-- Depoimento 1 -->
-        <div class="rounded-2xl border border-base-200 bg-white p-6 shadow-sm">
-          <div class="flex gap-0.5 text-amber-400 text-sm mb-4">★★★★★</div>
-          <blockquote class="text-sm text-slate-600 leading-relaxed">
-            "Eliminamos 100% do papel na recepção em menos de uma semana. Os pacientes adoram receber o link antes da consulta e chegar com tudo preenchido."
-          </blockquote>
-          <div class="mt-5 flex items-center gap-3">
-            <div class="h-9 w-9 rounded-full bg-accent-600/20 flex items-center justify-center text-sm font-semibold text-accent-600">
-              DA
-            </div>
-            <div>
-              <div class="text-sm font-semibold text-slate-900">Dra. Ana Paula</div>
-              <div class="text-xs text-slate-500">Clínica de Dermatologia · MG</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Depoimento 2 -->
-        <div class="rounded-2xl border border-accent-600/20 bg-white p-6 shadow-soft">
-          <div class="flex gap-0.5 text-amber-400 text-sm mb-4">★★★★★</div>
-          <blockquote class="text-sm text-slate-600 leading-relaxed">
-            "O controle de aprovações e a trilha de auditoria foram o que mais nos surpreendeu. Conseguimos responder qualquer questionamento em segundos."
-          </blockquote>
-          <div class="mt-5 flex items-center gap-3">
-            <div class="h-9 w-9 rounded-full bg-emeraldish-600/20 flex items-center justify-center text-sm font-semibold text-emeraldish-600">
-              RC
-            </div>
-            <div>
-              <div class="text-sm font-semibold text-slate-900">Ricardo Campos</div>
-              <div class="text-xs text-slate-500">Gestor · Rede de Clínicas Odonto</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Depoimento 3 -->
-        <div class="rounded-2xl border border-base-200 bg-white p-6 shadow-sm">
-          <div class="flex gap-0.5 text-amber-400 text-sm mb-4">★★★★★</div>
-          <blockquote class="text-sm text-slate-600 leading-relaxed">
-            "A integração via API com nosso prontuário foi simples e rápida. A equipe de suporte é muito atenciosa e resolve tudo rapidamente."
-          </blockquote>
-          <div class="mt-5 flex items-center gap-3">
-            <div class="h-9 w-9 rounded-full bg-accent-600/20 flex items-center justify-center text-sm font-semibold text-accent-600">
-              MF
-            </div>
-            <div>
-              <div class="text-sm font-semibold text-slate-900">Dr. Marco Ferreira</div>
-              <div class="text-xs text-slate-500">Clínica Multiespecialidades · SP</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Governança -->
-  <section id="governanca" class="bg-white">
-    <div class="mx-auto max-w-7xl px-4 py-20">
-      <div class="grid gap-12 lg:grid-cols-2">
-        <div>
-          <div class="inline-flex items-center gap-2 rounded-full border border-base-200 bg-base-50 px-3 py-1 text-xs font-medium text-slate-600 mb-4">
-            Governança
-          </div>
-          <h2 class="text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">
-            Aprovações, trilhas e responsabilidades claras.
-          </h2>
-          <p class="mt-5 text-base leading-relaxed text-slate-600">
-            Clínicas maiores precisam de previsibilidade. O ZionMed cria estrutura para que processos não dependam de pessoas,
-            e sim de regras: quem envia, quem aprova, quando, e o que foi alterado.
-          </p>
-          <div class="mt-8 space-y-5">
-            <div class="flex gap-4">
-              <div class="mt-0.5 h-8 w-8 rounded-lg bg-accent-600 text-white grid place-items-center text-sm font-semibold shrink-0">1</div>
-              <div>
-                <div class="text-sm font-semibold">Perfis e permissões</div>
-                <div class="text-sm text-slate-600 mt-1">Owner, Manager e Staff com acessos claros por função e unidade.</div>
-              </div>
-            </div>
-            <div class="flex gap-4">
-              <div class="mt-0.5 h-8 w-8 rounded-lg bg-accent-600 text-white grid place-items-center text-sm font-semibold shrink-0">2</div>
-              <div>
-                <div class="text-sm font-semibold">Fluxo de aprovação</div>
-                <div class="text-sm text-slate-600 mt-1">Pendência → aprovação/reprovação com comentário e responsável identificado.</div>
-              </div>
-            </div>
-            <div class="flex gap-4">
-              <div class="mt-0.5 h-8 w-8 rounded-lg bg-accent-600 text-white grid place-items-center text-sm font-semibold shrink-0">3</div>
-              <div>
-                <div class="text-sm font-semibold">Trilha de auditoria</div>
-                <div class="text-sm text-slate-600 mt-1">Registro completo de ações e eventos por usuário, data e contexto.</div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="rounded-2xl border border-base-200 bg-base-50 p-6 shadow-sm">
-          <div class="flex items-center justify-between">
-            <div>
-              <div class="text-sm font-semibold text-slate-900">Exemplo de auditoria</div>
-              <div class="text-xs text-slate-500">Registro interno (exemplo visual)</div>
-            </div>
-            <span class="rounded-full bg-white px-3 py-1 text-xs font-medium text-slate-600 border border-base-200">Audit log</span>
-          </div>
-          <div class="mt-5 space-y-3">
-            <div class="rounded-xl border border-base-200 bg-white p-4">
-              <div class="flex items-center justify-between text-xs">
-                <span class="font-medium text-slate-700">Aprovação de protocolo</span>
-                <span class="text-slate-500">Hoje · 10:42</span>
-              </div>
-              <div class="mt-2 text-sm text-slate-600">Usuário <span class="font-medium">Manager</span> aprovou protocolo <span class="font-medium">#10482</span>.</div>
-            </div>
-            <div class="rounded-xl border border-base-200 bg-white p-4">
-              <div class="flex items-center justify-between text-xs">
-                <span class="font-medium text-slate-700">Criação de template</span>
-                <span class="text-slate-500">Ontem · 18:12</span>
-              </div>
-              <div class="mt-2 text-sm text-slate-600">Owner criou template <span class="font-medium">"Checklist Sala — Abertura"</span>.</div>
-            </div>
-            <div class="rounded-xl border border-base-200 bg-white p-4">
-              <div class="flex items-center justify-between text-xs">
-                <span class="font-medium text-slate-700">Protocolo público</span>
-                <span class="text-slate-500">Ontem · 09:01</span>
-              </div>
-              <div class="mt-2 text-sm text-slate-600">Novo termo assinado via link público (token). PDF gerado automaticamente.</div>
-            </div>
-          </div>
-          <div class="mt-5 rounded-xl border border-base-200 bg-white p-4">
-            <div class="text-xs font-medium text-slate-500">Conformidade no período</div>
-            <div class="mt-3 flex items-center gap-3">
-              <div class="h-2 flex-1 rounded-full bg-base-200">
-                <div class="h-2 rounded-full bg-emeraldish-600" style="width: 82%"></div>
-              </div>
-              <div class="text-sm font-semibold">82%</div>
-            </div>
-            <div class="mt-2 text-xs text-slate-500">Percentual de checklists completos no período selecionado.</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Integrações -->
-  <section id="integracoes" class="bg-base-50 border-t border-base-200">
-    <div class="mx-auto max-w-7xl px-4 py-20">
-      <div class="text-center max-w-2xl mx-auto">
-        <div class="inline-flex items-center gap-2 rounded-full border border-base-200 bg-white px-3 py-1 text-xs font-medium text-slate-600 mb-4">
-          Integrações
-        </div>
-        <h2 class="text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">
-          Conecte com seus sistemas
-        </h2>
-        <p class="mt-4 text-base leading-relaxed text-slate-600">
-          Integre ERPs, prontuários e sistemas internos por meio de <strong>API REST</strong> e <strong>webhooks</strong>. Token de API, documentação OpenAPI e notificações em tempo real.
-        </p>
-      </div>
-
-      <div class="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        <div class="rounded-2xl border border-base-200 bg-white p-6">
-          <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-accent-600/10 text-accent-600 mb-4">
-            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-          </div>
-          <h3 class="text-sm font-semibold text-slate-900">API REST</h3>
-          <p class="mt-2 text-sm text-slate-600">Consulte protocolos e templates, com filtros e paginação. Autenticação por token (Bearer).</p>
-        </div>
-        <div class="rounded-2xl border border-base-200 bg-white p-6">
-          <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-accent-600/10 text-accent-600 mb-4">
-            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
-          </div>
-          <h3 class="text-sm font-semibold text-slate-900">Webhooks em tempo real</h3>
-          <p class="mt-2 text-sm text-slate-600">Receba eventos (novo protocolo, aprovado, reprovado) diretamente na URL do seu sistema.</p>
-        </div>
-        <div class="rounded-2xl border border-base-200 bg-white p-6 sm:col-span-2 lg:col-span-1">
-          <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-accent-600/10 text-accent-600 mb-4">
-            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
-          </div>
-          <h3 class="text-sm font-semibold text-slate-900">Documentação OpenAPI</h3>
-          <p class="mt-2 text-sm text-slate-600">Assinantes têm acesso à documentação interativa e à geração de tokens no painel.</p>
-          <a routerLink="/autenticacao" class="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-accent-600 hover:text-accent-600/90">
-            Acessar após login
-            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
-          </a>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Pricing -->
-  <section id="precos" class="bg-white">
-    <div class="mx-auto max-w-7xl px-4 py-20">
-      <div class="text-center max-w-2xl mx-auto">
-        <div class="inline-flex items-center gap-2 rounded-full border border-base-200 bg-base-50 px-3 py-1 text-xs font-medium text-slate-600 mb-4">
-          Planos
-        </div>
-        <h2 class="text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">
-          Comece digital hoje mesmo
-        </h2>
-        <p class="mt-4 text-base leading-relaxed text-slate-600">
-          Trial de <strong>{{ landingTrialDias }} dias grátis</strong>, sem cartão de crédito. Escolha o plano ideal para o tamanho da sua clínica.
-        </p>
-      </div>
-
-      @if (carregandoLanding) {
-        <div class="mt-12 rounded-2xl border border-base-200 bg-base-50 p-10 text-center text-slate-500">
-          <div class="flex items-center justify-center gap-2">
-            <svg class="h-4 w-4 animate-spin text-accent-600" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-            <span class="text-sm">Carregando planos…</span>
-          </div>
-        </div>
-      } @else {
-        <div class="mt-12 grid gap-6 lg:grid-cols-3">
-          @for (plan of planos; track plan.key) {
-            <div class="rounded-2xl border p-6 shadow-sm flex flex-col" [ngClass]="isPlanoRecomendado($index) ? 'border-accent-600/30 bg-accent-600 text-white shadow-glow relative' : 'border-base-200 bg-white'">
-              @if (isPlanoRecomendado($index)) {
-                <div class="absolute -top-3.5 left-1/2 -translate-x-1/2">
-                  <span class="rounded-full bg-white text-accent-600 px-4 py-1 text-xs font-semibold shadow-sm border border-accent-600/20">Mais popular</span>
-                </div>
-              }
-              <div class="flex items-center justify-between">
-                <div class="text-sm font-semibold" [ngClass]="isPlanoRecomendado($index) ? '' : 'text-slate-900'">{{ plan.name }}</div>
-              </div>
-              <div class="mt-4 text-4xl font-bold">
-                R$ {{ plan.value | number:'1.2-2':'pt-BR' }}<span class="text-base font-medium" [ngClass]="isPlanoRecomendado($index) ? 'text-white/70' : 'text-slate-500'">/mês</span>
-              </div>
-              @if (plan.description) {
-                <div class="mt-2 text-sm" [ngClass]="isPlanoRecomendado($index) ? 'text-white/80' : 'text-slate-500'">{{ plan.description }}</div>
-              }
-
-              <!-- Features incluídas -->
-              <ul class="mt-6 space-y-2.5 flex-1" [ngClass]="isPlanoRecomendado($index) ? 'text-white/90' : 'text-slate-600'">
-                <li class="flex items-start gap-2 text-sm">
-                  <svg class="h-4 w-4 shrink-0 mt-0.5" [ngClass]="isPlanoRecomendado($index) ? 'text-white' : 'text-emeraldish-600'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
-                  Fichas e consentimentos digitais
-                </li>
-                <li class="flex items-start gap-2 text-sm">
-                  <svg class="h-4 w-4 shrink-0 mt-0.5" [ngClass]="isPlanoRecomendado($index) ? 'text-white' : 'text-emeraldish-600'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
-                  Assinatura digital + PDF automático
-                </li>
-                <li class="flex items-start gap-2 text-sm">
-                  <svg class="h-4 w-4 shrink-0 mt-0.5" [ngClass]="isPlanoRecomendado($index) ? 'text-white' : 'text-emeraldish-600'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
-                  Protocolo e histórico organizado
-                </li>
-                <li class="flex items-start gap-2 text-sm">
-                  <svg class="h-4 w-4 shrink-0 mt-0.5" [ngClass]="isPlanoRecomendado($index) ? 'text-white' : 'text-emeraldish-600'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
-                  Trilha de auditoria
-                </li>
-                @if (isPlanoRecomendado($index) || $index >= 1) {
-                  <li class="flex items-start gap-2 text-sm">
-                    <svg class="h-4 w-4 shrink-0 mt-0.5" [ngClass]="isPlanoRecomendado($index) ? 'text-white' : 'text-emeraldish-600'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
-                    API REST + Webhooks
-                  </li>
-                }
-                @if ($index >= 2) {
-                  <li class="flex items-start gap-2 text-sm">
-                    <svg class="h-4 w-4 shrink-0 mt-0.5 text-emeraldish-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
-                    Suporte prioritário + onboarding
-                  </li>
-                }
-              </ul>
-
-              <a [routerLink]="['/comece']" [queryParams]="{ plan: plan.key }"
-                class="mt-8 inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold transition-all"
-                [ngClass]="isPlanoRecomendado($index) ? 'btn-cta-primary bg-white text-accent-600 hover:bg-white/95' : 'border border-base-200 bg-base-50 text-slate-800 hover:bg-base-100'">
-                Começar trial grátis
-                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
-              </a>
-            </div>
-          }
-        </div>
-
-        @if (planos.length === 0) {
-          <div class="mt-12 rounded-2xl border border-base-200 bg-base-50 p-10 text-center text-slate-500">
-            <p>Nenhum plano disponível no momento. <a href="#demo" class="text-accent-600 font-medium hover:underline">Fale conosco</a>.</p>
-          </div>
-        }
+  <!-- STATUS BAR -->
+  <div class="status-bar" style="margin-top: 58px">
+    <a [href]="statusPageUrl" target="_blank" rel="noopener noreferrer" class="status-inner status-bar-link">
+      <span class="status-dot" [ngClass]="'op-' + serviceStatusKey"></span>
+      <span>{{ serviceStatusLabel }}</span>
+      @if (serviceStatusKey !== 'operational' && serviceStatusMessage) {
+        <span class="status-msg-sep">·</span>
+        <span class="status-msg">{{ serviceStatusMessage | slice: 0 : 80 }}{{ serviceStatusMessage.length > 80 ? '…' : '' }}</span>
       }
-
-      <div class="mt-8 rounded-2xl border border-base-200 bg-base-50 p-5 space-y-2 text-sm text-slate-500">
-        <p>* Trial de {{ landingTrialDias }} dias sem cartão de crédito. Após o período, sua clínica conclui a ativação do plano escolhido.</p>
-        <p>* Implantação inicial: R$ 500–1.500 (clínica pequena) · R$ 1.500–3.000 (com fluxos e treinamento) · R$ 3.000–6.000 (multiunidade ou integrações).</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- FAQ -->
-  <section class="bg-base-50 border-t border-base-200">
-    <div class="mx-auto max-w-4xl px-4 py-20">
-      <div class="text-center mb-12">
-        <div class="inline-flex items-center gap-2 rounded-full border border-base-200 bg-white px-3 py-1 text-xs font-medium text-slate-600 mb-4">
-          FAQ
-        </div>
-        <h2 class="text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">Perguntas frequentes</h2>
-      </div>
-
-      <div class="space-y-4">
-        <details class="rounded-2xl border border-base-200 bg-white shadow-sm landing-details group">
-          <summary class="cursor-pointer flex items-center justify-between gap-4 p-6">
-            <span class="text-sm font-semibold text-slate-900">O ZionMed substitui meu ERP/prontuário?</span>
-            <svg class="h-5 w-5 shrink-0 text-slate-400 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-          </summary>
-          <div class="px-6 pb-6 text-sm text-slate-600 leading-relaxed">
-            Não. Ele complementa: organiza processos operacionais, consentimentos, checklists e evidências com rastreabilidade. Continua usando seu ERP e prontuário normalmente.
-          </div>
-        </details>
-
-        <details class="rounded-2xl border border-base-200 bg-white shadow-sm landing-details group">
-          <summary class="cursor-pointer flex items-center justify-between gap-4 p-6">
-            <span class="text-sm font-semibold text-slate-900">Quanto tempo leva para implantar?</span>
-            <svg class="h-5 w-5 shrink-0 text-slate-400 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-          </summary>
-          <div class="px-6 pb-6 text-sm text-slate-600 leading-relaxed">
-            Em geral, a base é configurada em 1–3 dias úteis. O tempo varia de acordo com o número de templates, integrações e complexidade do fluxo de aprovação.
-          </div>
-        </details>
-
-        <details class="rounded-2xl border border-base-200 bg-white shadow-sm landing-details group">
-          <summary class="cursor-pointer flex items-center justify-between gap-4 p-6">
-            <span class="text-sm font-semibold text-slate-900">O PDF tem protocolo, assinatura e data/hora?</span>
-            <svg class="h-5 w-5 shrink-0 text-slate-400 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-          </summary>
-          <div class="px-6 pb-6 text-sm text-slate-600 leading-relaxed">
-            Sim. Cada protocolo gera PDF automático com assinatura digital, data/hora do envio e preenchimento, identificação do paciente e número de protocolo.
-          </div>
-        </details>
-
-        <details class="rounded-2xl border border-base-200 bg-white shadow-sm landing-details group">
-          <summary class="cursor-pointer flex items-center justify-between gap-4 p-6">
-            <span class="text-sm font-semibold text-slate-900">Dá para usar links públicos com segurança?</span>
-            <svg class="h-5 w-5 shrink-0 text-slate-400 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-          </summary>
-          <div class="px-6 pb-6 text-sm text-slate-600 leading-relaxed">
-            Sim. Links são gerados com token longo e único, podem ser revogados a qualquer momento e contam com rate limiting para prevenir abusos.
-          </div>
-        </details>
-
-        <details class="rounded-2xl border border-base-200 bg-white shadow-sm landing-details group">
-          <summary class="cursor-pointer flex items-center justify-between gap-4 p-6">
-            <span class="text-sm font-semibold text-slate-900">Funciona em qualquer celular?</span>
-            <svg class="h-5 w-5 shrink-0 text-slate-400 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-          </summary>
-          <div class="px-6 pb-6 text-sm text-slate-600 leading-relaxed">
-            Sim. O formulário é responsivo e funciona em qualquer dispositivo (Android, iPhone, tablet ou computador), sem necessidade de instalar nenhum aplicativo.
-          </div>
-        </details>
-
-        <details class="rounded-2xl border border-base-200 bg-white shadow-sm landing-details group">
-          <summary class="cursor-pointer flex items-center justify-between gap-4 p-6">
-            <span class="text-sm font-semibold text-slate-900">Posso cancelar a qualquer momento?</span>
-            <svg class="h-5 w-5 shrink-0 text-slate-400 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-          </summary>
-          <div class="px-6 pb-6 text-sm text-slate-600 leading-relaxed">
-            Sim. Não há fidelidade. Você pode cancelar quando quiser e exportar seus dados antes de sair.
-          </div>
-        </details>
-      </div>
-    </div>
-  </section>
-
-  <!-- Final CTA / Demo -->
-  <section id="demo" class="bg-accent-600 text-white">
-    <div class="mx-auto max-w-7xl px-4 py-20">
-      <div class="grid gap-12 lg:grid-cols-2 lg:items-start">
-        <div>
-          <div class="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-medium mb-4">
-            Demonstração gratuita
-          </div>
-          <h2 class="text-3xl font-bold tracking-tight sm:text-4xl">
-            Veja sua clínica<br/>funcionando sem papel.
-          </h2>
-          <p class="mt-5 text-base leading-relaxed text-white/80">
-            Em uma demonstração rápida, mostramos o fluxo completo: envio do link para o paciente, preenchimento da ficha, assinatura digital, protocolo e PDF automático.
-          </p>
-
-          <div class="mt-8 space-y-4">
-            <div class="flex items-center gap-3">
-              <div class="h-8 w-8 rounded-full bg-white/15 flex items-center justify-center shrink-0">
-                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-              </div>
-              <span class="text-sm text-white/90">Demonstração de 20 minutos, sem compromisso</span>
-            </div>
-            <div class="flex items-center gap-3">
-              <div class="h-8 w-8 rounded-full bg-white/15 flex items-center justify-center shrink-0">
-                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-              </div>
-              <span class="text-sm text-white/90">Mostramos como se encaixa na sua rotina atual</span>
-            </div>
-            <div class="flex items-center gap-3">
-              <div class="h-8 w-8 rounded-full bg-white/15 flex items-center justify-center shrink-0">
-                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
-              </div>
-              <span class="text-sm text-white/90">Resposta em menos de 1 hora no horário comercial</span>
-            </div>
-          </div>
-
-          <div class="mt-8">
-            <a href="https://wa.me/5534996460818?text=Olá! Gostaria de agendar uma demonstração do ZionMed."
-               target="_blank"
-               rel="noopener noreferrer"
-               class="inline-flex items-center justify-center gap-2 rounded-xl bg-[#25D366] px-6 py-3.5 text-sm font-semibold text-white shadow-sm hover:bg-[#20BD5A] transition-colors">
-              <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-              </svg>
-              Falar no WhatsApp agora
-            </a>
-            <p class="mt-2 text-xs text-white/60">(34) 99646-0818 · Resposta rápida</p>
-          </div>
-        </div>
-
-        <div class="rounded-2xl bg-white p-6 text-slate-900 shadow-soft">
-          <div class="text-base font-semibold">Agendar demonstração gratuita</div>
-          <p class="mt-1 text-sm text-slate-500">Ou fale direto pelo WhatsApp ao lado. Vamos entender sua clínica e mostrar como o ZionMed funciona na prática.</p>
-
-          @if (demonstracaoFeedback) {
-            <div class="mt-4 rounded-xl px-4 py-3 text-sm" [ngClass]="demonstracaoSucesso ? 'bg-emeraldish-500/15 text-emeraldish-600' : 'border border-red-200 bg-red-50 text-red-700'">
-              {{ demonstracaoFeedback }}
-            </div>
-          }
-
-          <form (ngSubmit)="enviarDemonstracao()" class="mt-5 space-y-4">
-            <div>
-              <label class="text-xs font-medium text-slate-700">Nome *</label>
-              <input class="landing-input mt-1 w-full rounded-xl border border-base-200 bg-white px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-accent-600/30 transition"
-                     type="text" name="name" [(ngModel)]="demonstracao.name" placeholder="Seu nome" required>
-            </div>
-            <div>
-              <label class="text-xs font-medium text-slate-700">Clínica *</label>
-              <input class="landing-input mt-1 w-full rounded-xl border border-base-200 bg-white px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-accent-600/30 transition"
-                     type="text" name="clinic" [(ngModel)]="demonstracao.clinic" placeholder="Nome da clínica" required>
-            </div>
-            <div class="grid gap-4 sm:grid-cols-2">
-              <div>
-                <label class="text-xs font-medium text-slate-700">E-mail *</label>
-                <input class="landing-input mt-1 w-full rounded-xl border border-base-200 bg-white px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-accent-600/30 transition"
-                       type="email" name="email" [(ngModel)]="demonstracao.email" placeholder="email@clinica.com" required>
-              </div>
-              <div>
-                <label class="text-xs font-medium text-slate-700">WhatsApp *</label>
-                <input class="landing-input mt-1 w-full rounded-xl border border-base-200 bg-white px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-accent-600/30 transition"
-                       type="tel" name="phone" [(ngModel)]="demonstracao.phone" (input)="onPhoneInput($event)" placeholder="(00) 00000-0000" maxlength="16" required>
-              </div>
-            </div>
-            <div>
-              <label class="text-xs font-medium text-slate-700">Mensagem</label>
-              <textarea class="landing-input mt-1 w-full rounded-xl border border-base-200 bg-white px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-accent-600/30 transition"
-                        name="message" [(ngModel)]="demonstracao.message" rows="3" placeholder="Conte rapidamente seu cenário (unidades, volume, processos)."></textarea>
-            </div>
-            <button type="submit" [disabled]="demonstracaoEnviando"
-              class="btn-cta-primary inline-flex w-full items-center justify-center gap-2 rounded-xl bg-accent-600 px-4 py-3 text-sm font-semibold text-white hover:bg-accent-500 transition-all disabled:opacity-60">
-              @if (demonstracaoEnviando) {
-                <svg class="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                Enviando…
-              } @else {
-                Quero ver uma demonstração
-                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
-              }
-            </button>
-            <p class="text-xs text-slate-400 text-center">
-              Ao enviar, você concorda em ser contatado. Sem spam.
-            </p>
-          </form>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Footer -->
-  <footer class="bg-accent-600 text-white/90 landing-footer-accent">
-    <div class="mx-auto max-w-7xl px-4 py-10">
-      <div class="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-center">
-        <div class="flex items-center gap-3">
-          <div class="h-9 w-9 rounded-xl flex items-center justify-center shrink-0 overflow-hidden bg-accent-600 p-1">
-            <img src="assets/logo/zionmed_logo.png" alt="Zion Med" class="w-full h-full object-contain rounded-lg">
-          </div>
-          <div>
-            <div class="text-sm font-semibold text-white">ZionMed</div>
-            <div class="text-xs text-white/60">Fichas e Consentimentos Digitais para Clínicas</div>
-          </div>
-        </div>
-        <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4 text-xs">
-          <a [href]="statusPageUrl" target="_blank" rel="noopener noreferrer" class="text-white/70 hover:text-white transition-colors">Status do serviço</a>
-          <span class="hidden sm:inline text-white/40">·</span>
-          <a routerLink="/privacidade" class="text-white/70 hover:text-white transition-colors">Política de Privacidade</a>
-          <span class="hidden sm:inline text-white/40">·</span>
-          <a routerLink="/termos-de-uso" class="text-white/70 hover:text-white transition-colors">Termos de Uso</a>
-          <span class="hidden sm:inline text-white/40">·</span>
-          <span class="text-white/60">© {{ ano }} ZionMed. Todos os direitos reservados.</span>
-        </div>
-      </div>
-    </div>
-  </footer>
-
-  <!-- Sticky CTA mobile -->
-  <div class="fixed bottom-0 left-0 right-0 z-50 md:hidden border-t border-base-200/60 bg-base-50/95 backdrop-blur px-4 py-3 shadow-soft">
-    <a routerLink="/comece"
-      class="btn-cta-primary flex items-center justify-center gap-2 rounded-xl bg-accent-600 px-4 py-3 text-sm font-semibold text-white shadow-soft hover:bg-accent-500 transition-all">
-      <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
-      Começar trial grátis · {{ landingTrialDias }} dias sem cartão
+      @if (serviceStatusKey === 'operational') {
+        <span class="status-msg-sep">·</span>
+        <span class="status-link">Ver status da plataforma</span>
+      }
     </a>
   </div>
 
+  <!-- NAV -->
+  <nav>
+    <div class="nav-inner">
+      <div class="nav-left">
+        <a routerLink="/" class="nav-logo">
+          <div class="logo-mark">
+            <img src="assets/logo/zionmed_logo.png" alt="ZionMed" width="26" height="26" />
+          </div>
+          <span class="logo-name">ZionMed</span>
+        </a>
+        <div class="nav-links">
+          <a href="#features">Funcionalidades</a>
+          <a href="#especialidades">Especialidades</a>
+          <a href="#pricing">Planos</a>
+          <a href="#faq">FAQ</a>
+          <a href="#demo">Demonstração</a>
+        </div>
+      </div>
+      <div class="nav-right">
+        <button type="button" class="lp-menu-btn" (click)="toggleMenu()" aria-label="Abrir menu">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+        <button type="button" class="theme-toggle" (click)="toggleLpTheme()" aria-label="Alternar tema claro ou escuro">
+          <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </button>
+        <a routerLink="/autenticacao" class="nav-login">Entrar</a>
+        <button type="button" class="nav-cta" (click)="focusCaptureEmail()">Começar grátis</button>
+      </div>
+    </div>
+    <div class="lp-mobile-nav" [class.open]="menuAberto">
+      <a href="#features" (click)="toggleMenu()">Funcionalidades</a>
+      <a href="#especialidades" (click)="toggleMenu()">Especialidades</a>
+      <a href="#pricing" (click)="toggleMenu()">Planos</a>
+      <a href="#faq" (click)="toggleMenu()">FAQ</a>
+      <a href="#demo" (click)="toggleMenu()">Demonstração</a>
+      <a routerLink="/autenticacao" (click)="toggleMenu()">Entrar</a>
+      <button type="button" class="nav-cta" style="width: 100%" (click)="focusCaptureEmail(); toggleMenu()">Começar grátis</button>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-eyebrow anim">
+      <div class="hero-eyebrow-dot"></div>
+      Lançamento · <span>Seja um early adopter</span>
+    </div>
+    <h1 class="anim anim-d1">
+      Fichas digitais que chegam<br /><em>antes do paciente</em>
+    </h1>
+    <p class="hero-sub anim anim-d2">
+      Sua clínica publica um <strong>link na bio</strong>. O paciente preenche a ficha pelo celular antes de chegar. Você atende com tudo pronto — sem papel, sem digitação, sem retrabalho.
+    </p>
+
+    <div class="hero-capture anim anim-d3">
+      <input id="capture-email" class="capture-input" type="email" [(ngModel)]="heroEmail" name="hero_email" placeholder="seu@email.com.br" autocomplete="email" />
+      <button type="button" class="capture-btn" (click)="irComece('hero')">
+        Criar conta grátis
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/></svg>
+      </button>
+    </div>
+    <p class="hero-note anim anim-d3">Sem cartão de crédito · {{ landingTrialDias }} dias grátis · Cancele quando quiser</p>
+
+    <div class="hero-social anim">
+      <div class="hs-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        86+ templates prontos
+      </div>
+      <div class="hs-sep"></div>
+      <div class="hs-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        Assinatura digital com validade legal
+      </div>
+      <div class="hs-sep"></div>
+      <div class="hs-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        LGPD desde o dia 1
+      </div>
+    </div>
+
+    <div class="hero-browser anim">
+      <div class="browser-bar">
+        <div class="b-dots">
+          <div class="b-dot" style="background: #ff5f57"></div>
+          <div class="b-dot" style="background: #ffbd2e"></div>
+          <div class="b-dot" style="background: #28ca41"></div>
+        </div>
+        <div class="b-url">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+          app.zionmed.com.br/dashboard
+        </div>
+      </div>
+      <div class="browser-content">
+        <div class="b-sidebar">
+          <div class="b-sidebar-logo">
+            <div class="b-logo-icon"><img src="assets/logo/zionmed_logo.png" alt="" width="22" height="22" role="presentation" /></div>
+            <span class="b-logo-name">ZionMed</span>
+          </div>
+          <div class="b-nav-section">Menu</div>
+          <div class="b-nav-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Dashboard</div>
+          <div class="b-nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/></svg>Templates</div>
+          <div class="b-nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/></svg>Links públicos</div>
+          <div class="b-nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>Envios</div>
+          <div class="b-nav-section">Admin</div>
+          <div class="b-nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/></svg>Link Bio</div>
+        </div>
+        <div class="b-main">
+          <div class="b-page-title">Dashboard</div>
+          <div class="b-page-sub">Clínica São Paulo · Rua Central, 45</div>
+          <div class="b-cards">
+            <div class="b-card"><div class="b-card-label">Pendentes</div><div class="b-card-val">3</div><div class="b-card-desc">Aguardando revisão</div></div>
+            <div class="b-card"><div class="b-card-label">Templates</div><div class="b-card-val">86</div><div class="b-card-desc">Total na clínica</div></div>
+            <div class="b-card"><div class="b-card-label">Respostas</div><div class="b-card-val" style="color: var(--brand)">24</div><div class="b-card-desc">Últimos 7 dias</div></div>
+          </div>
+          <div class="b-section-title">Últimos templates</div>
+          <div class="b-list-item">
+            <div class="b-list-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+            <div class="b-list-name">Pesquisa de Satisfação</div>
+            <div class="b-list-date">15 mar · 14h02</div>
+            <span class="b-badge">Ativo</span>
+          </div>
+          <div class="b-list-item">
+            <div class="b-list-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+            <div class="b-list-name">Anamnese Básica</div>
+            <div class="b-list-date">14 mar · 09h15</div>
+            <span class="b-badge">Ativo</span>
+          </div>
+          <div class="b-list-item">
+            <div class="b-list-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+            <div class="b-list-name">Termo de Consentimento</div>
+            <div class="b-list-date">14 mar · 09h15</div>
+            <span class="b-badge">Ativo</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="logos">
+    <div class="logos-label">Especialidades atendidas</div>
+    <div style="overflow: hidden">
+      <div class="logos-track">
+        @for (row of lpLogoMarquee; track row.k) {
+          <span class="logo-chip">{{ row.t }}</span>
+        }
+      </div>
+    </div>
+  </div>
+
+  <section class="features" id="features">
+    <div class="container">
+      <div class="section-header anim">
+        <span class="eyebrow">Funcionalidades</span>
+        <h2 class="section-title">Tudo que sua clínica precisa<br /><em>no digital</em></h2>
+        <p class="section-sub">Do link na bio ao PDF assinado — sem papel, sem retrabalho.</p>
+      </div>
+      <div class="feat-grid anim">
+        <div class="feat-card">
+          <div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg></div>
+          <div class="feat-title">Link na bio profissional</div>
+          <div class="feat-desc">Página pública da clínica com identidade visual, horários, WhatsApp e fichas — tudo em um link para o Instagram.</div>
+        </div>
+        <div class="feat-card">
+          <div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
+          <div class="feat-title">86+ templates prontos</div>
+          <div class="feat-desc">Fichas de anamnese, termos e acompanhamentos para 11 especialidades — prontos para usar ou personalizar.</div>
+        </div>
+        <div class="feat-card">
+          <div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>
+          <div class="feat-title">Assinatura digital</div>
+          <div class="feat-desc">O paciente assina com o dedo no celular. Validade jurídica, conformidade LGPD e CFM.</div>
+        </div>
+        <div class="feat-card">
+          <div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
+          <div class="feat-title">PDF automático</div>
+          <div class="feat-desc">Cada ficha preenchida gera um PDF formatado automaticamente. Zero digitação, zero formatação manual.</div>
+        </div>
+        <div class="feat-card">
+          <div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></div>
+          <div class="feat-title">Templates personalizáveis</div>
+          <div class="feat-desc">Adicione campos específicos, reordene perguntas e salve como modelo reutilizável da sua clínica.</div>
+        </div>
+        <div class="feat-card">
+          <div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+          <div class="feat-title">API & Webhooks</div>
+          <div class="feat-desc">Cada ficha recebida dispara um webhook. Integre com prontuário ou CRM via API documentada.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="how">
+    <div class="container">
+      <div class="how-grid">
+        <div>
+          <span class="eyebrow">Como funciona</span>
+          <h2 class="section-title" style="text-align: left; margin-bottom: 32px">4 passos.<br /><em>Zero papel.</em></h2>
+          <div class="how-steps-list">
+            <div class="how-step" [class.active]="howStep === 0" (click)="setHowStep(0)">
+              <div class="how-step-num">1</div>
+              <div class="how-step-body">
+                <div class="how-step-title">Crie seus formulários</div>
+                <div class="how-step-desc">Escolha entre 86 templates ou crie do zero. Personaliza em minutos, sem precisar de TI.</div>
+              </div>
+            </div>
+            <div class="how-step" [class.active]="howStep === 1" (click)="setHowStep(1)">
+              <div class="how-step-num">2</div>
+              <div class="how-step-body">
+                <div class="how-step-title">Publique no seu perfil</div>
+                <div class="how-step-desc">Cole o link na bio do Instagram ou WhatsApp. Página pública no ar em segundos.</div>
+              </div>
+            </div>
+            <div class="how-step" [class.active]="howStep === 2" (click)="setHowStep(2)">
+              <div class="how-step-num">3</div>
+              <div class="how-step-body">
+                <div class="how-step-title">Paciente preenche antes</div>
+                <div class="how-step-desc">Abre pelo celular, preenche e assina digitalmente antes de chegar na clínica.</div>
+              </div>
+            </div>
+            <div class="how-step" [class.active]="howStep === 3" (click)="setHowStep(3)">
+              <div class="how-step-num">4</div>
+              <div class="how-step-body">
+                <div class="how-step-title">PDF gerado na hora</div>
+                <div class="how-step-desc">A ficha chega no painel formatada em PDF, pronta para arquivar ou importar.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="how-visual">
+          <div class="phone-wrap">
+            <div class="phone-frame">
+              <div class="phone-screen">
+                <div class="ph-cover"></div>
+                <div class="ph-avatar">CL</div>
+                <div class="ph-body">
+                  <div class="ph-name">Clínica Exemplo</div>
+                  <div class="ph-tag">Dermatologia · Estética avançada</div>
+                  <div class="ph-wpp">Falar pelo WhatsApp</div>
+                  <div class="ph-link">
+                    <div class="ph-link-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+                    <div><div class="ph-link-title">Ficha do procedimento</div><div class="ph-link-sub">Anamnese clínica</div></div>
+                  </div>
+                  <div class="ph-link">
+                    <div class="ph-link-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+                    <div><div class="ph-link-title">Termo de consentimento</div><div class="ph-link-sub">Procedimentos estéticos</div></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="float-notif">
+              <div class="fn-title">Nova resposta</div>
+              <div class="fn-sub">Ficha do procedimento</div>
+              <div class="fn-green"><div class="fn-dot"></div><span class="fn-label">PDF gerado</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="specs" id="especialidades">
+    <div class="container">
+      <div class="section-header anim">
+        <span class="eyebrow">Especialidades</span>
+        <h2 class="section-title">Feito para <em>sua área</em></h2>
+        <p class="section-sub">Templates específicos para cada especialidade — não é uma solução genérica.</p>
+      </div>
+      <div class="spec-grid anim">
+        <div class="spec-card"><div class="spec-emoji">🩺</div><div class="spec-name">Clínica Geral</div><div class="spec-desc">Anamnese completa, triagem e histórico do paciente.</div><div class="spec-count">8 templates</div></div>
+        <div class="spec-card"><div class="spec-emoji">✨</div><div class="spec-name">Estética & Harmonização</div><div class="spec-desc">Botox, preenchimento, bioestimuladores e mais.</div><div class="spec-count">8 templates</div></div>
+        <div class="spec-card"><div class="spec-emoji">🦷</div><div class="spec-name">Odontologia</div><div class="spec-desc">Anamnese odontológica, ortodontia e implantes.</div><div class="spec-count">8 templates</div></div>
+        <div class="spec-card"><div class="spec-emoji">🧠</div><div class="spec-name">Psicologia & Psiquiatria</div><div class="spec-desc">Anamnese, sigilo e contrato terapêutico.</div><div class="spec-count">8 templates</div></div>
+        <div class="spec-card"><div class="spec-emoji">👶</div><div class="spec-name">Pediatria</div><div class="spec-desc">Ficha da criança, vacinas e autorização legal.</div><div class="spec-count">8 templates</div></div>
+        <div class="spec-card"><div class="spec-emoji">🐾</div><div class="spec-name">Veterinária</div><div class="spec-desc">Ficha do pet, vacinas e autorização cirúrgica.</div><div class="spec-count">8 templates</div></div>
+        <div class="spec-card"><div class="spec-emoji">💪</div><div class="spec-name">Fisioterapia</div><div class="spec-desc">Avaliação postural, RPG e acompanhamento.</div><div class="spec-count">8 templates</div></div>
+        <div class="spec-card" style="border-style: dashed; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center"><div class="spec-emoji">➕</div><div class="spec-name">Sua especialidade</div><div class="spec-desc">Crie templates personalizados para qualquer área.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="numbers">
+    <div class="container">
+      <div class="section-header anim">
+        <span class="eyebrow">Produto</span>
+        <h2 class="section-title">Construído para<br /><em>funcionar de verdade</em></h2>
+        <p class="section-sub">Números do produto — não de marketing.</p>
+      </div>
+      <div class="numbers-grid anim">
+        <div class="num-card">
+          <div class="num-val">86+</div>
+          <div class="num-label">Templates clínicos prontos</div>
+          <div class="num-desc">Criados com profissionais de saúde para cada especialidade. Prontos para usar, editáveis quando quiser.</div>
+        </div>
+        <div class="num-card">
+          <div class="num-val">11</div>
+          <div class="num-label">Especialidades cobertas</div>
+          <div class="num-desc">Da clínica geral à veterinária. Cada área com templates específicos — não adaptações genéricas.</div>
+        </div>
+        <div class="num-card">
+          <div class="num-val">LGPD</div>
+          <div class="num-label">100% em conformidade</div>
+          <div class="num-desc">Assinatura digital com valor legal, política integrada e armazenamento seguro dos dados do paciente.</div>
+        </div>
+      </div>
+      <div class="early-banner anim">
+        <div>
+          <div class="eb-badge">Early adopter</div>
+          <div class="eb-title">Seja um dos primeiros.</div>
+          <div class="eb-desc">Quem entra agora ajuda a moldar o produto e trava o menor preço para sempre. Sem aumento retroativo.</div>
+        </div>
+        <button type="button" class="capture-btn" (click)="focusCaptureEmail()" style="flex-shrink: 0">
+          Garantir minha vaga
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/></svg>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <section class="pricing" id="pricing">
+    <div class="container">
+      <div class="section-header anim">
+        <span class="eyebrow">Planos</span>
+        <h2 class="section-title">Simples, <em>sem surpresas</em></h2>
+        <p class="section-sub">Trial de {{ landingTrialDias }} dias grátis, sem cartão. Cancele quando quiser — sem multa, sem fidelidade mínima.</p>
+      </div>
+
+      @if (carregandoLanding) {
+        <div class="lp-plans-loading anim">
+          <span>Carregando planos…</span>
+        </div>
+      } @else if (planos.length === 0) {
+        <div class="lp-plans-empty anim">
+          Nenhum plano disponível no momento.
+          <a href="#demo" class="status-link" style="margin-left: 6px">Fale conosco</a>
+        </div>
+      } @else {
+        <div class="pricing-grid anim">
+          @for (plan of planos; track plan.key; let i = $index) {
+            <div class="price-card" [class.featured]="isPlanoRecomendado(i)">
+              @if (isPlanoRecomendado(i)) {
+                <span class="price-top-badge">Mais popular</span>
+              }
+              <div class="price-plan">{{ plan.name }}</div>
+              <div class="price-amt">
+                @if (isPlanoGratis(plan)) {
+                  R$0<span>/mês</span>
+                } @else {
+                  R$ {{ plan.value | number: '1.0-0' : 'pt-BR' }}<span>/mês</span>
+                }
+              </div>
+              <div class="price-period">{{ isPlanoGratis(plan) ? 'Para sempre' : 'Cobrança mensal no checkout' }}</div>
+              @if (plan.description) {
+                <div class="price-desc">{{ plan.description }}</div>
+              } @else {
+                <div class="price-desc">{{ isPlanoGratis(plan) ? 'Ideal para testar o produto antes de assinar.' : 'Inclui recursos completos para sua clínica.' }}</div>
+              }
+              <div class="price-feats">
+                <div class="pf"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Fichas e consentimentos digitais</div>
+                <div class="pf"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Assinatura digital + PDF automático</div>
+                <div class="pf"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Protocolo e histórico organizado</div>
+                @if (isPlanoRecomendado(i) || i >= 1) {
+                  <div class="pf"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>API REST + Webhooks</div>
+                } @else {
+                  <div class="pf off"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>API & Webhooks</div>
+                }
+                @if (i >= 2) {
+                  <div class="pf"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Suporte prioritário + onboarding</div>
+                } @else if (!isPlanoGratis(plan)) {
+                  <div class="pf off"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Onboarding dedicado</div>
+                }
+              </div>
+              @if (planos.length >= 3 && i === planos.length - 1) {
+                <button type="button" class="p-btn p-btn-outline" (click)="irComeceComPlano(plan, i)">{{ ctaPlanoLabel(plan, i) }}</button>
+              } @else if (isPlanoRecomendado(i)) {
+                <button type="button" class="p-btn p-btn-green" (click)="irComeceComPlano(plan, i)">{{ ctaPlanoLabel(plan, i) }}</button>
+              } @else {
+                <button type="button" class="p-btn p-btn-outline" (click)="irComeceComPlano(plan, i)">{{ ctaPlanoLabel(plan, i) }}</button>
+              }
+            </div>
+          }
+        </div>
+      }
+
+      <p class="hero-note anim" style="margin-top: 32px; margin-bottom: 0; text-align: center">
+        * Trial de {{ landingTrialDias }} dias sem cartão. Após o período, sua clínica conclui a ativação do plano escolhido.
+      </p>
+    </div>
+  </section>
+
+  <section class="faq" id="faq">
+    <div class="container">
+      <div class="section-header anim">
+        <span class="eyebrow">FAQ</span>
+        <h2 class="section-title">Perguntas <em>frequentes</em></h2>
+      </div>
+      <div class="faq-wrap">
+        <div class="faq-list anim">
+          <div class="faq-item">
+            <button type="button" class="faq-q" [class.open]="faqOpenIndex === 0" (click)="toggleFaq(0)">A assinatura digital tem valor legal?<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+            <div class="faq-a" [class.open]="faqOpenIndex === 0"><p>Sim. A assinatura digital coletada pelo ZionMed atende aos requisitos da MP 2.200-2/2001 e tem validade jurídica equivalente à assinatura manuscrita para prontuário e consentimento informado.</p></div>
+          </div>
+          <div class="faq-item">
+            <button type="button" class="faq-q" [class.open]="faqOpenIndex === 1" (click)="toggleFaq(1)">O sistema é compatível com a LGPD?<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+            <div class="faq-a" [class.open]="faqOpenIndex === 1"><p>Sim. O ZionMed foi desenvolvido com conformidade LGPD desde o início — coleta consentimento explícito, exibe a política de privacidade em cada formulário e permite ao paciente solicitar exclusão dos dados.</p></div>
+          </div>
+          <div class="faq-item">
+            <button type="button" class="faq-q" [class.open]="faqOpenIndex === 2" (click)="toggleFaq(2)">Preciso cancelar meu Linktree para usar?<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+            <div class="faq-a" [class.open]="faqOpenIndex === 2"><p>Não precisa migrar tudo de uma vez. Você pode testar em paralelo. A maioria abandona o Linktree naturalmente na primeira semana — o ZionMed entrega muito mais contexto clínico.</p></div>
+          </div>
+          <div class="faq-item">
+            <button type="button" class="faq-q" [class.open]="faqOpenIndex === 3" (click)="toggleFaq(3)">Quanto tempo leva para configurar?<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+            <div class="faq-a" [class.open]="faqOpenIndex === 3"><p>Menos de 30 minutos. Você cadastra a clínica, escolhe os templates da sua especialidade, personaliza e já tem o link para o Instagram. Os templates já vêm prontos — não precisa criar nada do zero.</p></div>
+          </div>
+          <div class="faq-item">
+            <button type="button" class="faq-q" [class.open]="faqOpenIndex === 4" (click)="toggleFaq(4)">Posso personalizar os formulários?<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+            <div class="faq-a" [class.open]="faqOpenIndex === 4"><p>Sim. Todos os templates são editáveis — adicione, remova e reordene campos. Também pode criar templates do zero para procedimentos específicos e salvá-los como modelos reutilizáveis.</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="final">
+    <div class="anim">
+      <span class="eyebrow" style="display: block; text-align: center">Comece agora</span>
+      <h2>Sua clínica <em>digital</em><br />começa hoje.</h2>
+      <p class="final-sub">{{ landingTrialDias }} dias grátis, sem cartão de crédito. Cancele quando quiser.</p>
+      <div class="final-capture">
+        <input class="capture-input" type="email" [(ngModel)]="finalEmail" name="final_email" placeholder="seu@email.com.br" autocomplete="email" />
+        <button type="button" class="capture-btn" (click)="irComece('final')">
+          Criar conta grátis
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/></svg>
+        </button>
+      </div>
+      <p class="final-note">Sem cartão · {{ landingTrialDias }} dias grátis · Cancele quando quiser</p>
+    </div>
+  </section>
+
+  <section class="lp-demo" id="demo">
+    <div class="container lp-demo-grid">
+      <div>
+        <div class="lp-demo-label">Demonstração</div>
+        <h3>Veja sua clínica funcionando sem papel</h3>
+        <p>Em uma demonstração rápida, mostramos o fluxo completo: envio do link, preenchimento, assinatura digital, protocolo e PDF automático.</p>
+        <a href="https://wa.me/5534996460818?text=Ol%C3%A1!%20Gostaria%20de%20agendar%20uma%20demonstra%C3%A7%C3%A3o%20do%20ZionMed." target="_blank" rel="noopener noreferrer" class="lp-wa">
+          <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          Falar no WhatsApp
+        </a>
+        <p class="hero-note" style="margin-top: 12px">(34) 99646-0818 · Horário comercial</p>
+      </div>
+      <div class="lp-demo-card">
+        <div class="text-base font-semibold mb-1" style="font-size: 16px; font-weight: 600">Agendar demonstração gratuita</div>
+        <p class="section-sub" style="margin: 0 0 16px; font-size: 13px; text-align: left; max-width: none">Ou use o formulário. Resposta em até 1 hora no horário comercial.</p>
+        @if (demonstracaoFeedback) {
+          <div class="mb-4 rounded-xl px-4 py-3 text-sm" [style.border]="'1px solid var(--border2)'" [style.background]="demonstracaoSucesso ? 'var(--brand-bg)' : 'rgba(239,68,68,0.1)'" [style.color]="demonstracaoSucesso ? 'var(--brand)' : '#b91c1c'">
+            {{ demonstracaoFeedback }}
+          </div>
+        }
+        <form (ngSubmit)="enviarDemonstracao()">
+          <div class="mb-3">
+            <label class="lp-form-label">Nome *</label>
+            <input class="lp-form-input" type="text" name="demo_name" [(ngModel)]="demonstracao.name" placeholder="Seu nome" required />
+          </div>
+          <div class="mb-3">
+            <label class="lp-form-label">Clínica *</label>
+            <input class="lp-form-input" type="text" name="demo_clinic" [(ngModel)]="demonstracao.clinic" placeholder="Nome da clínica" required />
+          </div>
+          <div class="grid gap-3 sm:grid-cols-2 mb-3">
+            <div>
+              <label class="lp-form-label">E-mail *</label>
+              <input class="lp-form-input" type="email" name="demo_email" [(ngModel)]="demonstracao.email" placeholder="email@clinica.com" required />
+            </div>
+            <div>
+              <label class="lp-form-label">WhatsApp *</label>
+              <input class="lp-form-input" type="tel" name="demo_phone" [(ngModel)]="demonstracao.phone" (input)="onPhoneInput($event)" placeholder="(00) 00000-0000" maxlength="16" required />
+            </div>
+          </div>
+          <div class="mb-4">
+            <label class="lp-form-label">Mensagem</label>
+            <textarea class="lp-form-input" name="demo_message" [(ngModel)]="demonstracao.message" rows="3" placeholder="Conte rapidamente seu cenário."></textarea>
+          </div>
+          <button type="submit" class="capture-btn w-full justify-center" style="width: 100%" [disabled]="demonstracaoEnviando">
+            @if (demonstracaoEnviando) {
+              Enviando…
+            } @else {
+              Quero ver uma demonstração
+            }
+          </button>
+          <p class="final-note" style="margin-top: 10px; text-align: center">Ao enviar, você concorda em ser contatado. Sem spam.</p>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="footer-inner">
+      <a routerLink="/" class="footer-logo">
+        <div class="fl-icon"><img src="assets/logo/zionmed_logo.png" alt="" width="22" height="22" role="presentation" /></div>
+        <span class="fl-name">ZionMed</span>
+      </a>
+      <div class="footer-links">
+        <a routerLink="/privacidade">Privacidade</a>
+        <a routerLink="/termos-de-uso">Termos</a>
+        <a routerLink="/privacidade">LGPD</a>
+        <a [href]="statusPageUrl" target="_blank" rel="noopener noreferrer">Status</a>
+        <a href="#demo">Contato</a>
+      </div>
+      <span class="footer-copy">© {{ ano }} ZionMed</span>
+    </div>
+  </footer>
+
+  <div class="lp-sticky-cta">
+    <a routerLink="/comece" class="capture-btn">
+      Começar grátis · {{ landingTrialDias }} dias sem cartão
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/></svg>
+    </a>
+  </div>
 </div>

@@ -1,26 +1,37 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, Signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { NotificacoesService, Notificacao } from '../../core/services/notificacoes.service';
-import { LoadingOverlayComponent } from '../../componentes/ui/loading-overlay/loading-overlay.component';
+import { LoadingService } from '../../shared/services/loading.service';
+import { ZmSkeletonListComponent } from '../../shared/components/skeletons';
 import { TooltipDirective } from '../../core/directives/tooltip.directive';
+import { ToastService } from '../../core/services/toast.service';
+import { ConfirmDialogService } from '../../core/services/confirm-dialog.service';
 
 @Component({
   selector: 'app-pagina-notificacoes',
   standalone: true,
-  imports: [CommonModule, LoadingOverlayComponent, RouterLink, TooltipDirective],
+  imports: [CommonModule, ZmSkeletonListComponent, RouterLink, TooltipDirective],
   templateUrl: './notificacoes.component.html',
   styleUrl: './notificacoes.component.css',
 })
 export class NotificacoesComponent implements OnInit {
   notificacoes: Notificacao[] = [];
-  carregando = false;
+  showSkeleton!: Signal<boolean>;
+  listaPronta = false;
   erro = '';
   /** Filtro na área plataforma: todas ou só não lidas */
   filtroPlataforma: 'todas' | 'nao_lidas' = 'todas';
 
+  excluindoId: number | null = null;
+  limpandoTudo = false;
+  marcandoTodas = false;
+
   private notifService = inject(NotificacoesService);
+  private loadingService = inject(LoadingService);
   private router = inject(Router);
+  private toast = inject(ToastService);
+  private confirm = inject(ConfirmDialogService);
 
   /** True quando a página está dentro da área da plataforma (layout já mostra título e subtítulo). */
   get isPlataforma(): boolean {
@@ -44,33 +55,84 @@ export class NotificacoesComponent implements OnInit {
   }
 
   carregar(): void {
-    this.carregando = true;
-    this.notifService.list().subscribe({
+    const { data$, showSkeleton } = this.loadingService.loadWithThreshold(this.notifService.list());
+    this.showSkeleton = showSkeleton;
+    data$.subscribe({
       next: (list) => {
+        this.listaPronta = true;
         this.notificacoes = list;
-        this.carregando = false;
       },
       error: () => {
-        this.carregando = false;
+        this.listaPronta = true;
         this.erro = 'Não foi possível carregar as notificações.';
       },
     });
   }
 
   marcarComoLida(id: number): void {
-    this.notifService.marcarComoLida(id).subscribe(() => this.carregar());
+    this.notifService.marcarComoLida(id).subscribe({
+      next: () => this.carregar(),
+      error: () => this.toast.error('Erro', 'Não foi possível marcar como lida.'),
+    });
   }
 
   marcarTodas(): void {
-    this.notifService.marcarTodasComoLidas().subscribe(() => this.carregar());
+    this.marcandoTodas = true;
+    this.notifService.marcarTodasComoLidas().subscribe({
+      next: () => {
+        this.marcandoTodas = false;
+        this.carregar();
+        this.toast.success('Notificações', 'Todas foram marcadas como lidas.');
+      },
+      error: () => {
+        this.marcandoTodas = false;
+        this.toast.error('Erro', 'Não foi possível marcar todas como lidas.');
+      },
+    });
   }
 
-  excluir(id: number): void {
-    this.notifService.delete(id).subscribe(() => this.carregar());
+  async excluir(id: number): Promise<void> {
+    const ok = await this.confirm.request({
+      title: 'Excluir notificação?',
+      message: 'Esta notificação será removida permanentemente.',
+      confirmLabel: 'Sim, excluir',
+      variant: 'danger',
+    });
+    if (!ok) return;
+    this.excluindoId = id;
+    this.notifService.delete(id).subscribe({
+      next: () => {
+        this.excluindoId = null;
+        this.carregar();
+        this.toast.success('Notificação excluída', 'O item foi removido.');
+      },
+      error: () => {
+        this.excluindoId = null;
+        this.toast.error('Erro', 'Não foi possível excluir.');
+      },
+    });
   }
 
-  limparTudo(): void {
-    this.notifService.limparTudo().subscribe(() => this.carregar());
+  async limparTudo(): Promise<void> {
+    const ok = await this.confirm.request({
+      title: 'Limpar todas as notificações?',
+      message: 'Todas as notificações serão excluídas. Esta ação não pode ser desfeita.',
+      confirmLabel: 'Sim, limpar tudo',
+      variant: 'danger',
+    });
+    if (!ok) return;
+    this.limpandoTudo = true;
+    this.notifService.limparTudo().subscribe({
+      next: () => {
+        this.limpandoTudo = false;
+        this.carregar();
+        this.toast.success('Lista limpa', 'Todas as notificações foram removidas.');
+      },
+      error: () => {
+        this.limpandoTudo = false;
+        this.toast.error('Erro', 'Não foi possível limpar as notificações.');
+      },
+    });
   }
 
   get temNaoLidas(): boolean {
