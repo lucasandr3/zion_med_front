@@ -1929,6 +1929,10 @@
   .lp-page .lp-menu-btn {
     display: flex;
   }
+  .lp-page .nav-right .nav-login,
+  .lp-page .nav-right .nav-cta {
+    display: none;
+  }
   .lp-page .lp-demo-grid {
     grid-template-columns: 1fr;
   }
