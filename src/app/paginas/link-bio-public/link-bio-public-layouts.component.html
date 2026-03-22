@@ -118,7 +118,7 @@
             <p class="text-[12px] text-[#b8865a] dark:text-[#d4a574] mb-3">Preencha antes da primeira consulta</p>
             @for (link of allDocs; track trackDoc($index, link)) {
               @if (link.type === 'bio') {
-                <a [href]="link.item.url" target="_blank" rel="noopener noreferrer" class="lb-link-card flex items-center gap-3.5 p-4 rounded-2xl bg-white dark:bg-white/[.04] border border-[#f0e6d6] dark:border-white/[.06] mb-2.5 no-underline group block text-inherit">
+                <a [href]="hrefBio(link.item)" target="_blank" rel="noopener noreferrer" class="lb-link-card flex items-center gap-3.5 p-4 rounded-2xl bg-white dark:bg-white/[.04] border border-[#f0e6d6] dark:border-white/[.06] mb-2.5 no-underline group block text-inherit">
                   <div class="w-10 h-10 rounded-xl bg-[#f3f7f4] dark:bg-[#3a6b4a]/20 flex items-center justify-center flex-shrink-0">
                     <svg class="w-[18px] h-[18px] text-[#5a9e72]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
                   </div>
@@ -263,7 +263,7 @@
             <p class="text-[12px] text-white/30 font-light mb-3 text-center">Preencha antes do seu procedimento</p>
             @for (link of allDocs; track trackDoc($index, link)) {
               @if (link.type === 'bio') {
-                <a [href]="link.item.url" target="_blank" rel="noopener noreferrer" class="flex items-center gap-3.5 p-4 rounded-2xl border border-[#e8c97a]/10 bg-transparent mb-2.5 no-underline group block text-inherit hover:bg-[#e8c97a]/5 transition-colors">
+                <a [href]="hrefBio(link.item)" target="_blank" rel="noopener noreferrer" class="flex items-center gap-3.5 p-4 rounded-2xl border border-[#e8c97a]/10 bg-transparent mb-2.5 no-underline group block text-inherit hover:bg-[#e8c97a]/5 transition-colors">
                   <div class="w-10 h-10 rounded-xl border border-[#e8c97a]/20 bg-[#e8c97a]/5 flex items-center justify-center flex-shrink-0">
                     <svg class="w-[18px] h-[18px] text-[#e8c97a]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
                   </div>
@@ -419,7 +419,7 @@
             <p class="text-[12px] text-gray-400 dark:text-gray-600 mb-3">Preencha antes da sua consulta</p>
             @for (link of allDocs; track trackDoc($index, link)) {
               @if (link.type === 'bio') {
-                <a [href]="link.item.url" target="_blank" rel="noopener noreferrer" class="flex items-center gap-3.5 p-4 rounded-2xl bg-white dark:bg-white/[.03] border border-gray-100 dark:border-white/[.05] mb-2.5 no-underline group block text-inherit hover:translate-x-[3px] transition-transform">
+                <a [href]="hrefBio(link.item)" target="_blank" rel="noopener noreferrer" class="flex items-center gap-3.5 p-4 rounded-2xl bg-white dark:bg-white/[.03] border border-gray-100 dark:border-white/[.05] mb-2.5 no-underline group block text-inherit hover:translate-x-[3px] transition-transform">
                   <div class="w-10 h-10 rounded-xl bg-sky-50 dark:bg-sky-900/15 flex items-center justify-center flex-shrink-0">
                     <svg class="w-[18px] h-[18px] text-sky-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
                   </div>
@@ -602,7 +602,7 @@
             <p class="text-[12px] text-gray-400 dark:text-gray-600 mb-3">Preencha antes da sua primeira consulta</p>
             @for (link of allDocs; track trackDoc($index, link)) {
               @if (link.type === 'bio') {
-                <a [href]="link.item.url" target="_blank" rel="noopener noreferrer" class="flex items-center gap-3.5 p-4 rounded-2xl bg-white dark:bg-white/[.03] border border-gray-100 dark:border-white/[.05] mb-2.5 no-underline group block text-inherit hover:translate-x-[3px] transition-transform">
+                <a [href]="hrefBio(link.item)" target="_blank" rel="noopener noreferrer" class="flex items-center gap-3.5 p-4 rounded-2xl bg-white dark:bg-white/[.03] border border-gray-100 dark:border-white/[.05] mb-2.5 no-underline group block text-inherit hover:translate-x-[3px] transition-transform">
                   <div class="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center flex-shrink-0">
                     <svg class="w-[18px] h-[18px] text-indigo-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
                   </div>

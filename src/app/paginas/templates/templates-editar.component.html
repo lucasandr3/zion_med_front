@@ -36,7 +36,22 @@
             <input type="checkbox" [(ngModel)]="public_enabled" name="public_enabled" class="form-checkbox" />
             <span class="form-label mb-0">Formulário público</span>
           </label>
+          <label class="flex items-center gap-2 cursor-pointer" [class.opacity-50]="!public_enabled">
+            <input
+              type="checkbox"
+              [(ngModel)]="public_require_person_link"
+              name="public_require_person_link"
+              class="form-checkbox"
+              [disabled]="!public_enabled"
+            />
+            <span class="form-label mb-0">Exigir código + data de nascimento</span>
+          </label>
         </div>
+        @if (public_enabled && public_require_person_link) {
+          <p class="text-xs m-0" style="color: var(--c-muted)">
+            Antes de preencher, a pessoa informa o código da ficha e a data de nascimento (útil para acompanhamentos).
+          </p>
+        }
         <div class="flex items-center gap-3 pt-2">
           <button type="submit" class="btn-primary" [disabled]="salvando || !name.trim()">
             @if (salvando) {

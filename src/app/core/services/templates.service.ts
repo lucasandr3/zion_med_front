@@ -9,6 +9,8 @@ export interface Template {
   category?: string;
   is_active?: boolean;
   public_enabled?: boolean;
+  /** Exige código + data de nascimento no link público (acompanhamento). */
+  public_require_person_link?: boolean;
   /** URL do formulário público quando o link está ativo (API pode retornar no GET template) */
   public_url?: string;
   created_at: string;
@@ -60,7 +62,10 @@ export class TemplatesService {
       .pipe(map((r) => r.data));
   }
 
-  update(id: number, payload: Partial<Template>): Observable<Template> {
+  update(
+    id: number,
+    payload: Partial<Template & { public_require_person_link?: boolean }>
+  ): Observable<Template> {
     return this.api.put<OneResponse>(`/templates/${id}`, payload).pipe(map((r) => r.data));
   }
 

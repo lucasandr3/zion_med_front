@@ -1,0 +1,138 @@
+<div class="pessoa-detalhe relative min-h-[320px]">
+  <div class="mb-4 flex flex-wrap items-center gap-3 justify-between">
+    <a routerLink="/pessoas" class="inline-flex items-center gap-2 text-sm no-underline" style="color: var(--c-primary)">
+      <span class="material-symbols-outlined text-lg">arrow_back</span>
+      Voltar para Pessoas
+    </a>
+    @if (pessoa) {
+      <div class="flex gap-2">
+        <a [routerLink]="['/pessoas', pessoa.id, 'editar']" class="btn-ghost btn-default-bg inline-flex items-center gap-2 text-sm no-underline">
+          <span class="material-symbols-outlined text-lg">edit</span>
+          Editar
+        </a>
+        @if (podeInativar && pessoa.status === 'active') {
+          <button type="button" class="btn-ghost btn-default-bg inline-flex items-center gap-2 text-sm" style="color: var(--c-error, #dc2626)" (click)="inativar()" [disabled]="inativando">
+            {{ inativando ? 'Inativando…' : 'Inativar' }}
+          </button>
+        }
+      </div>
+    }
+  </div>
+
+  @if (erro) {
+    <p class="text-sm mb-4" style="color: var(--c-error, #dc2626)">{{ erro }}</p>
+  }
+
+  @if (showSkeleton() && !pessoa) {
+    <div class="space-y-4">
+      <zm-skeleton-card [height]="56" />
+      <zm-skeleton-card [height]="200" />
+    </div>
+  }
+
+  @if (!erro && pessoa) {
+    <div class="zm-content-enter space-y-6">
+      <div class="flex flex-wrap items-start gap-4">
+        <div class="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 text-lg font-bold" style="background: var(--c-soft); color: var(--c-primary)">
+          {{ pessoa.name.charAt(0) | uppercase }}
+        </div>
+        <div>
+          <h1 class="text-xl font-semibold m-0" style="color: var(--c-text)">{{ pessoa.name }}</h1>
+          <p class="text-sm m-0 mt-1 font-mono" style="color: var(--c-muted)">Código: {{ pessoa.code }}</p>
+          @if (pessoa.status !== 'active') {
+            <span class="inline-block mt-2 text-xs font-medium px-2 py-0.5 rounded" style="background: var(--c-soft); color: var(--c-muted)">Inativa</span>
+          }
+        </div>
+      </div>
+
+      <div class="card rounded-xl overflow-hidden" style="border: 1px solid var(--c-border)">
+        <div class="flex items-center gap-2 px-5 py-4" style="border-bottom: 1px solid var(--c-border)">
+          <span class="material-symbols-outlined" style="color: var(--c-primary)">contact_page</span>
+          <h2 class="text-base font-semibold m-0" style="color: var(--c-text)">Dados da ficha</h2>
+        </div>
+        <dl class="grid gap-3 p-5 text-sm md:grid-cols-2">
+          <div>
+            <dt class="font-semibold uppercase tracking-wider mb-0.5 text-xs" style="color: var(--c-muted)">Telefone</dt>
+            <dd class="m-0" style="color: var(--c-text)">{{ pessoa.phone || '—' }}</dd>
+          </div>
+          <div>
+            <dt class="font-semibold uppercase tracking-wider mb-0.5 text-xs" style="color: var(--c-muted)">E-mail</dt>
+            <dd class="m-0" style="color: var(--c-text)">{{ pessoa.email || '—' }}</dd>
+          </div>
+          <div>
+            <dt class="font-semibold uppercase tracking-wider mb-0.5 text-xs" style="color: var(--c-muted)">Data de nascimento</dt>
+            <dd class="m-0" style="color: var(--c-text)">{{ formatarDataCurta(pessoa.birth_date) }}</dd>
+          </div>
+          <div>
+            <dt class="font-semibold uppercase tracking-wider mb-0.5 text-xs" style="color: var(--c-muted)">CPF</dt>
+            <dd class="m-0" style="color: var(--c-text)">{{ pessoa.cpf || '—' }}</dd>
+          </div>
+          @if (pessoa.notes) {
+            <div class="md:col-span-2">
+              <dt class="font-semibold uppercase tracking-wider mb-0.5 text-xs" style="color: var(--c-muted)">Observações</dt>
+              <dd class="m-0 whitespace-pre-wrap" style="color: var(--c-text)">{{ pessoa.notes }}</dd>
+            </div>
+          }
+        </dl>
+      </div>
+
+      @if (pessoa.stats) {
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div class="card rounded-xl p-4" style="border: 1px solid var(--c-border)">
+            <p class="text-xs m-0 mb-1" style="color: var(--c-muted)">Total</p>
+            <p class="text-2xl font-semibold m-0" style="color: var(--c-text)">{{ pessoa.stats.protocols_count }}</p>
+          </div>
+          <div class="card rounded-xl p-4" style="border: 1px solid var(--c-border)">
+            <p class="text-xs m-0 mb-1" style="color: var(--c-muted)">Pendentes</p>
+            <p class="text-2xl font-semibold m-0" style="color: var(--c-text)">{{ pessoa.stats.pending_protocols }}</p>
+          </div>
+          <div class="card rounded-xl p-4" style="border: 1px solid var(--c-border)">
+            <p class="text-xs m-0 mb-1" style="color: var(--c-muted)">Aprovados</p>
+            <p class="text-2xl font-semibold m-0" style="color: #22c55e">{{ pessoa.stats.approved_protocols }}</p>
+          </div>
+          <div class="card rounded-xl p-4" style="border: 1px solid var(--c-border)">
+            <p class="text-xs m-0 mb-1" style="color: var(--c-muted)">Reprovados</p>
+            <p class="text-2xl font-semibold m-0" style="color: #dc2626">{{ pessoa.stats.rejected_protocols }}</p>
+          </div>
+        </div>
+      }
+
+      <div class="card rounded-xl overflow-hidden" style="border: 1px solid var(--c-border)">
+        <div class="flex items-center gap-2 px-5 py-4" style="border-bottom: 1px solid var(--c-border)">
+          <span class="material-symbols-outlined" style="color: var(--c-primary)">inbox</span>
+          <h2 class="text-base font-semibold m-0" style="color: var(--c-text)">Protocolos recentes</h2>
+        </div>
+        <div class="overflow-x-auto">
+          @if (pessoa.recent_protocols && pessoa.recent_protocols.length > 0) {
+            <table class="w-full text-sm border-collapse">
+              <thead>
+                <tr style="border-bottom: 1px solid var(--c-border)">
+                  <th class="text-left py-3 px-4 font-semibold" style="color: var(--c-text)">Protocolo</th>
+                  <th class="text-left py-3 px-4 font-semibold" style="color: var(--c-text)">Template</th>
+                  <th class="text-left py-3 px-4 font-semibold" style="color: var(--c-text)">Situação</th>
+                  <th class="text-left py-3 px-4 font-semibold" style="color: var(--c-text)">Data</th>
+                  <th class="text-right py-3 px-4 font-semibold" style="color: var(--c-text)"></th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (pr of pessoa.recent_protocols; track pr.id) {
+                  <tr class="border-b" style="border-color: var(--c-border)">
+                    <td class="py-3 px-4 font-medium" style="color: var(--c-text)">{{ pr.protocol_number || pr.id }}</td>
+                    <td class="py-3 px-4" style="color: var(--c-text)">{{ pr.template_name ?? '—' }}</td>
+                    <td class="py-3 px-4" style="color: var(--c-muted)">{{ statusProtocolo(pr.status) }}</td>
+                    <td class="py-3 px-4" style="color: var(--c-muted)">{{ dataFormatada(pr.submitted_at || pr.created_at) }}</td>
+                    <td class="py-3 px-4 text-right">
+                      <a [routerLink]="['/protocolos', pr.id]" class="text-sm no-underline" style="color: var(--c-primary)">Abrir</a>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          } @else {
+            <p class="p-8 text-center text-sm m-0" style="color: var(--c-muted)">Nenhum protocolo ainda.</p>
+          }
+        </div>
+      </div>
+    </div>
+  }
+</div>

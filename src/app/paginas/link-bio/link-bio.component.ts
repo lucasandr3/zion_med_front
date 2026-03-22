@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, PLATFORM_ID, Signal } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import {
   LinkBioService,
   LinkBioState,
@@ -38,7 +39,7 @@ const LINK_BIO_PREVIEW_SESSION_KEY = 'zm_link_bio_preview';
 @Component({
   selector: 'app-pagina-link-bio',
   standalone: true,
-  imports: [CommonModule, FormsModule, ZmSkeletonListComponent],
+  imports: [CommonModule, FormsModule, RouterLink, ZmSkeletonListComponent],
   templateUrl: './link-bio.component.html',
   styleUrl: './link-bio.component.css',
 })
@@ -77,6 +78,7 @@ export class LinkBioComponent implements OnInit {
   salvandoAparencia = false;
   salvandoModelos = false;
   excluindoLinkId: number | null = null;
+  atualizandoStatsRodape = false;
 
   /** Formulário: dados extras para layouts 2–5 (persistidos em `link_bio_extra`). */
   extraHeroTagline = '';
@@ -151,8 +153,8 @@ export class LinkBioComponent implements OnInit {
     if (!isPlatformBrowser(this.platformId)) return this.publicUrl || null;
     const origin = typeof window !== 'undefined' ? window.location.origin : '';
     if (!origin) return this.publicUrl || null;
-    const base = `${origin}/l/${encodeURIComponent(slug)}`;
-    return cacheBust ? `${base}?t=${Date.now()}` : base;
+    const base = `${origin}/l/${encodeURIComponent(slug)}?preview=1`;
+    return cacheBust ? `${base}&t=${Date.now()}` : base;
   }
 
   /** Prévia pública com modelo forçado (aba Modelos). */
@@ -311,26 +313,68 @@ export class LinkBioComponent implements OnInit {
     const { data$, showSkeleton } = this.loadingService.loadWithThreshold(this.linkBioService.get());
     this.showSkeleton = showSkeleton;
     data$.subscribe({
-      next: (s) => {
-        this.state = s;
-        const c = s.clinic;
-        this.aparenciaPublicTheme = c.public_theme ?? '';
-        this.aparenciaCoverColor = c.cover_color ?? '#1a1a2e';
-        this.aparenciaCoverMode = (c.cover_mode as 'banner' | 'solid' | 'none') ?? 'banner';
-        this.aparenciaModelo = (c.link_bio_model as LinkBioLayoutModel) ?? 1;
-        this.aparenciaShortDescription = c.short_description ?? '';
-        this.aparenciaSpecialties = c.specialties ?? '';
-        this.aparenciaFoundedYear = (c.founded_year as number | null) ?? null;
-        this.aparenciaContactEmail = c.contact_email ?? '';
-        this.aparenciaMapsUrl = c.maps_url ?? '';
-        this.aplicarExtraNoFormulario(c.link_bio_extra);
-        this.syncDraftToSessionForPreviews();
-        // Preview no iframe usa a rota do próprio app (/l/:slug) para exibir o layout real do projeto
-        const previewUrl = this.getPreviewUrl(true);
-        this.previewUrlSafe = previewUrl ? this.sanitizer.bypassSecurityTrustResourceUrl(previewUrl) : null;
-      },
+      next: (s) => this.aplicarEstadoLinkBio(s),
       error: () => {
         this.erro = 'Não foi possível carregar o Link Bio.';
+      },
+    });
+  }
+
+  private aplicarEstadoLinkBio(s: LinkBioState): void {
+    this.state = s;
+    const c = s.clinic;
+    this.aparenciaPublicTheme = c.public_theme ?? '';
+    this.aparenciaCoverColor = c.cover_color ?? '#1a1a2e';
+    this.aparenciaCoverMode = (c.cover_mode as 'banner' | 'solid' | 'none') ?? 'banner';
+    this.aparenciaModelo = (c.link_bio_model as LinkBioLayoutModel) ?? 1;
+    this.aparenciaShortDescription = c.short_description ?? '';
+    this.aparenciaSpecialties = c.specialties ?? '';
+    this.aparenciaFoundedYear = (c.founded_year as number | null) ?? null;
+    this.aparenciaContactEmail = c.contact_email ?? '';
+    this.aparenciaMapsUrl = c.maps_url ?? '';
+    this.aplicarExtraNoFormulario(c.link_bio_extra);
+    this.syncDraftToSessionForPreviews();
+    const previewUrl = this.getPreviewUrl(true);
+    this.previewUrlSafe = previewUrl ? this.sanitizer.bypassSecurityTrustResourceUrl(previewUrl) : null;
+  }
+
+  /** Rodapé da aba Links: salvar novo link ou edição em andamento. */
+  get linkBioFooterLinksSaveDisabled(): boolean {
+    if (this.salvandoNovoLink || this.salvandoEdicaoId !== null) return true;
+    if (this.mostrarFormNovo) {
+      return !this.novoLabel.trim() || !this.novoUrl.trim();
+    }
+    if (this.editandoId !== null) {
+      return !this.editLabel.trim() || !this.editUrl.trim();
+    }
+    return true;
+  }
+
+  salvarFooterAbaLinks(): void {
+    if (this.mostrarFormNovo) {
+      this.salvarNovoLink();
+      return;
+    }
+    if (this.editandoId !== null) {
+      const lnk = this.links.find((l) => l.id === this.editandoId);
+      if (lnk) {
+        this.salvarEdicao(lnk);
+      }
+    }
+  }
+
+  atualizarDadosEstatisticas(): void {
+    if (this.atualizandoStatsRodape) return;
+    this.atualizandoStatsRodape = true;
+    this.linkBioService.get().subscribe({
+      next: (s) => {
+        this.atualizandoStatsRodape = false;
+        this.aplicarEstadoLinkBio(s);
+        this.toast.success('Dados atualizados', 'Métricas e estatísticas foram recarregadas.');
+      },
+      error: () => {
+        this.atualizandoStatsRodape = false;
+        this.toast.error('Erro', 'Não foi possível atualizar os dados.');
       },
     });
   }

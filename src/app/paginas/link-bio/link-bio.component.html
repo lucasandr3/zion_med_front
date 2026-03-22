@@ -60,7 +60,7 @@
     </div>
 
     <!-- Conteúdo principal -->
-    <div class="grid grid-cols-1 md:grid-cols-[1fr_360px] gap-6">
+    <div class="link-bio-config grid grid-cols-1 md:grid-cols-[1fr_360px] gap-6">
       <div [class.md:col-span-2]="abaAtiva === 'modelos' || abaAtiva === 'conteudoExtra'">
         <!-- Tabs -->
         <div class="flex flex-wrap gap-1 mb-5 p-1 rounded-lg w-fit max-w-full" style="background:var(--c-surface);border:1px solid var(--c-border)">
@@ -85,7 +85,7 @@
         </div>
 
         <!-- Aba Links -->
-        <div id="tab-links" class="flex flex-col gap-2.5" *ngIf="abaAtiva === 'links'">
+        <div id="tab-links" class="flex flex-col gap-2.5 pb-24" *ngIf="abaAtiva === 'links'">
           <div class="flex flex-wrap justify-between items-center gap-2 mb-1">
             <p class="text-xs" style="color:var(--c-muted)">Links exibidos na sua página</p>
             <button type="button" id="btn-add" class="btn-primary text-sm px-3 py-1.5 inline-flex items-center gap-1.5" (click)="toggleFormNovo()">
@@ -184,10 +184,38 @@
               <p class="text-xs mt-1" style="color:var(--c-muted)">Clique em \"Adicionar link\" para começar.</p>
             </div>
           }
+
+          <div class="sticky-footer-spacer" aria-hidden="true"></div>
+          <div class="sticky-footer">
+            @if (mostrarFormNovo || editandoId !== null) {
+              <div style="font-size:12px;color:var(--c-muted)">Alterações não salvas</div>
+            } @else {
+              <div style="font-size:12px;color:var(--c-muted)">Adicione ou edite um link acima para salvar aqui</div>
+            }
+            <div class="footer-btns">
+              <a routerLink="/dashboard" class="btn-secondary">
+                <span class="material-symbols-outlined" style="font-size:16px">close</span>
+                Cancelar
+              </a>
+              <button
+                type="button"
+                class="btn-primary inline-flex items-center gap-2"
+                [disabled]="linkBioFooterLinksSaveDisabled"
+                (click)="salvarFooterAbaLinks()"
+              >
+                @if (salvandoNovoLink || salvandoEdicaoId !== null) {
+                  <span class="btn-spinner" aria-hidden="true"></span>
+                } @else {
+                  <span class="material-symbols-outlined" style="font-size:16px">save</span>
+                }
+                {{ salvandoNovoLink || salvandoEdicaoId !== null ? 'Salvando…' : 'Salvar configurações' }}
+              </button>
+            </div>
+          </div>
         </div>
 
         <!-- Aba Formulários -->
-        <div id="tab-forms" class="flex flex-col gap-2.5" *ngIf="abaAtiva === 'forms'">
+        <div id="tab-forms" class="flex flex-col gap-2.5 pb-24" *ngIf="abaAtiva === 'forms'">
           <div class="flex flex-wrap justify-between items-center gap-2 mb-1">
             <p class="text-xs" style="color:var(--c-muted)">Formulários vinculados à página</p>
           </div>
@@ -210,10 +238,25 @@
               <p class="text-sm" style="color:var(--c-text)">Nenhum formulário com link público</p>
             </div>
           }
+
+          <div class="sticky-footer-spacer" aria-hidden="true"></div>
+          <div class="sticky-footer">
+            <div style="font-size:12px;color:var(--c-muted)">Formulários são criados e publicados em Templates</div>
+            <div class="footer-btns">
+              <a routerLink="/dashboard" class="btn-secondary">
+                <span class="material-symbols-outlined" style="font-size:16px">close</span>
+                Cancelar
+              </a>
+              <a routerLink="/templates" class="btn-primary inline-flex items-center gap-2">
+                <span class="material-symbols-outlined" style="font-size:16px">description</span>
+                Gerenciar templates
+              </a>
+            </div>
+          </div>
         </div>
 
         <!-- Aba Estatísticas -->
-        <div id="tab-stats" *ngIf="abaAtiva === 'stats' && stats">
+        <div id="tab-stats" class="pb-24" *ngIf="abaAtiva === 'stats' && stats">
           <div class="card p-5">
             <div class="flex flex-wrap justify-between items-center gap-2 mb-5">
               <h3 class="text-sm font-bold" style="color:var(--c-text)">Cliques por dia (últimos 7 dias)</h3>
@@ -243,10 +286,34 @@
               </div>
             }
           </div>
+
+          <div class="sticky-footer-spacer" aria-hidden="true"></div>
+          <div class="sticky-footer">
+            <div style="font-size:12px;color:var(--c-muted)">Dados de visitas e cliques</div>
+            <div class="footer-btns">
+              <a routerLink="/dashboard" class="btn-secondary">
+                <span class="material-symbols-outlined" style="font-size:16px">close</span>
+                Cancelar
+              </a>
+              <button
+                type="button"
+                class="btn-primary inline-flex items-center gap-2"
+                [disabled]="atualizandoStatsRodape"
+                (click)="atualizarDadosEstatisticas()"
+              >
+                @if (atualizandoStatsRodape) {
+                  <span class="btn-spinner" aria-hidden="true"></span>
+                } @else {
+                  <span class="material-symbols-outlined" style="font-size:16px">refresh</span>
+                }
+                {{ atualizandoStatsRodape ? 'Atualizando…' : 'Atualizar dados' }}
+              </button>
+            </div>
+          </div>
         </div>
 
         <!-- Aba Aparência -->
-        <div id="tab-aparencia" *ngIf="abaAtiva === 'aparencia' && state">
+        <div id="tab-aparencia" class="pb-24" *ngIf="abaAtiva === 'aparencia' && state">
           <form class="flex flex-col gap-5" (ngSubmit)="salvarAparencia()">
             <!-- Tema de cor -->
             <div class="card p-5">
@@ -366,7 +433,7 @@
 
         <!-- Aba Modelos -->
         @if (abaAtiva === 'modelos' && state) {
-          <div id="tab-modelos" class="flex flex-col gap-6">
+          <div id="tab-modelos" class="flex flex-col gap-6 pb-24">
             <form class="flex flex-col gap-5" (ngSubmit)="salvarModelos()">
               <div class="card p-5">
                 <p class="text-xs font-bold uppercase tracking-wider mb-4" style="color:var(--c-muted)">Modelo publicado</p>
@@ -405,15 +472,23 @@
                 </div>
               </div>
 
-              <div class="flex justify-end gap-2">
-                <button type="submit" class="btn-primary px-5 py-2 text-sm inline-flex items-center gap-2" [disabled]="salvandoModelos">
-                  @if (salvandoModelos) {
-                    <span class="btn-spinner" aria-hidden="true"></span>
-                  } @else {
-                    <span class="material-symbols-outlined" style="font-size:16px">save</span>
-                  }
-                  {{ salvandoModelos ? 'Salvando…' : 'Salvar modelos' }}
-                </button>
+              <div class="sticky-footer-spacer" aria-hidden="true"></div>
+              <div class="sticky-footer">
+                <div style="font-size:12px;color:var(--c-muted)">Alterações não salvas</div>
+                <div class="footer-btns">
+                  <a routerLink="/dashboard" class="btn-secondary">
+                    <span class="material-symbols-outlined" style="font-size:16px">close</span>
+                    Cancelar
+                  </a>
+                  <button type="submit" class="btn-primary inline-flex items-center gap-2" [disabled]="salvandoModelos">
+                    @if (salvandoModelos) {
+                      <span class="btn-spinner" aria-hidden="true"></span>
+                    } @else {
+                      <span class="material-symbols-outlined" style="font-size:16px">save</span>
+                    }
+                    {{ salvandoModelos ? 'Salvando…' : 'Salvar configurações' }}
+                  </button>
+                </div>
               </div>
             </form>
 
@@ -439,7 +514,7 @@
 
         <!-- Aba Conteúdo extra (formulário — modelos 2–5) -->
         @if (abaAtiva === 'conteudoExtra' && state) {
-          <div id="tab-conteudo-extra" class="flex flex-col gap-5">
+          <div id="tab-conteudo-extra" class="flex flex-col gap-5 pb-24">
             <p class="text-xs leading-relaxed" style="color:var(--c-muted)">
               Preencha só o que fizer sentido para o seu layout. Campos vazios são ignorados. Deixe tudo em branco e salve para limpar os dados extras da página pública.
             </p>
@@ -572,15 +647,23 @@
                 </div>
               </div>
 
-              <div class="flex justify-end gap-2">
-                <button type="submit" class="btn-primary px-5 py-2 text-sm inline-flex items-center gap-2" [disabled]="salvandoExtra">
-                  @if (salvandoExtra) {
-                    <span class="btn-spinner" aria-hidden="true"></span>
-                  } @else {
-                    <span class="material-symbols-outlined" style="font-size:16px">save</span>
-                  }
-                  {{ salvandoExtra ? 'Salvando…' : 'Salvar conteúdo extra' }}
-                </button>
+              <div class="sticky-footer-spacer" aria-hidden="true"></div>
+              <div class="sticky-footer">
+                <div style="font-size:12px;color:var(--c-muted)">Alterações não salvas</div>
+                <div class="footer-btns">
+                  <a routerLink="/dashboard" class="btn-secondary">
+                    <span class="material-symbols-outlined" style="font-size:16px">close</span>
+                    Cancelar
+                  </a>
+                  <button type="submit" class="btn-primary inline-flex items-center gap-2" [disabled]="salvandoExtra">
+                    @if (salvandoExtra) {
+                      <span class="btn-spinner" aria-hidden="true"></span>
+                    } @else {
+                      <span class="material-symbols-outlined" style="font-size:16px">save</span>
+                    }
+                    {{ salvandoExtra ? 'Salvando…' : 'Salvar configurações' }}
+                  </button>
+                </div>
               </div>
             </form>
           </div>

@@ -74,6 +74,15 @@
             <dt class="font-semibold uppercase tracking-wider mb-0.5" style="color: var(--c-muted)">Data de submissão</dt>
             <dd class="m-0" style="color: var(--c-text)">{{ dataFormatada(protocolo.submitted_at || protocolo.created_at) }}</dd>
           </div>
+          @if (protocolo.person) {
+            <div>
+              <dt class="font-semibold uppercase tracking-wider mb-0.5" style="color: var(--c-muted)">Pessoa (ficha)</dt>
+              <dd class="m-0">
+                <a [routerLink]="['/pessoas', protocolo.person.id]" class="text-sm font-medium no-underline" style="color: var(--c-primary)">{{ protocolo.person.name }}</a>
+              </dd>
+              <dd class="m-0 text-xs mt-0.5 font-mono" style="color: var(--c-muted)">{{ protocolo.person.code }}</dd>
+            </div>
+          }
           <div>
             <dt class="font-semibold uppercase tracking-wider mb-0.5" style="color: var(--c-muted)">Submetente</dt>
             <dd class="m-0" style="color: var(--c-text)">{{ protocolo.submitter_name || '—' }}</dd>

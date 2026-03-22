@@ -17,7 +17,6 @@
 /* Zion Blue — alinhado à landing (.theme-zion-blue) */
 .comece-page {
   --sans: 'Geist', system-ui, sans-serif;
-  --serif: 'Instrument Serif', Georgia, serif;
   font-family: var(--sans);
   background: var(--bg);
   color: var(--text);
@@ -284,9 +283,9 @@
 }
 
 .comece-page .left h1 em {
-  font-family: var(--serif);
-  font-style: italic;
-  font-weight: 400;
+  font-family: inherit;
+  font-style: normal;
+  font-weight: 700;
   color: var(--brand);
 }
 
@@ -968,9 +967,9 @@
 }
 
 .comece-page .success-h em {
-  font-family: var(--serif);
-  font-style: italic;
-  font-weight: 400;
+  font-family: inherit;
+  font-style: normal;
+  font-weight: 700;
   color: var(--brand);
 }
 

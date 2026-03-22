@@ -1,9 +1,11 @@
 import { Component, OnInit, inject, Signal } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { FlatpickrDirective, provideFlatpickrDefaults } from 'angularx-flatpickr';
 import { Portuguese } from 'flatpickr/dist/l10n/pt';
+import { finalize } from 'rxjs';
 import { ClinicaService, ClinicaConfig, ClinicaOption, ClinicaAuditLog, ConfigPageData, BusinessHoursSlot } from '../../core/services/clinica.service';
 import { LoadingService } from '../../shared/services/loading.service';
 import { ZmSkeletonListComponent } from '../../shared/components/skeletons';
@@ -47,6 +49,10 @@ export class ClinicaConfiguracoesComponent implements OnInit {
   activeTab = 'dados';
   logoFile: File | null = null;
   readonly days = DAYS;
+
+  novaEmpresaNome = '';
+  salvandoNovaEmpresa = false;
+  erroNovaEmpresa = '';
 
   // Logs
   logs: ClinicaAuditLog[] = [];
@@ -248,6 +254,42 @@ export class ClinicaConfiguracoesComponent implements OnInit {
   onLogoChange(event: Event): void {
     const input = event.target as HTMLInputElement;
     this.logoFile = input.files?.[0] ?? null;
+  }
+
+  criarNovaEmpresa(): void {
+    const nome = this.novaEmpresaNome.trim();
+    if (!nome || this.salvandoNovaEmpresa) return;
+    this.erroNovaEmpresa = '';
+    this.salvandoNovaEmpresa = true;
+    this.clinicaService
+      .createClinicInTenant(nome)
+      .pipe(finalize(() => (this.salvandoNovaEmpresa = false)))
+      .subscribe({
+        next: (data) => {
+          this.pageData = data;
+          this.novaEmpresaNome = '';
+          this.patchFormFromClinic(data.clinic);
+          this.toast.success('Empresa criada', 'A nova empresa foi adicionada ao grupo. Você pode trocar para ela em "Escolher empresa".');
+        },
+        error: (err: unknown) => {
+          const msg = this.mensagemErroApi(err);
+          this.erroNovaEmpresa = msg;
+          this.toast.error('Não foi possível criar', msg);
+        },
+      });
+  }
+
+  private mensagemErroApi(err: unknown): string {
+    if (err instanceof HttpErrorResponse) {
+      const b = err.error as { message?: string; errors?: Record<string, string[]> } | null;
+      if (b?.errors) {
+        const first = Object.values(b.errors)[0];
+        if (Array.isArray(first) && first[0]) return String(first[0]);
+      }
+      if (typeof b?.message === 'string' && b.message.trim()) return b.message;
+      if (err.status === 404) return 'Endpoint não encontrado. Confirme no backend a rota POST /api/v1/clinica/clinics.';
+    }
+    return 'Não foi possível criar a empresa.';
   }
 
   salvar(): void {

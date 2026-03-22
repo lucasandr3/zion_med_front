@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { ApiService } from './api.service';
 import { AuthService } from './auth.service';
-import { map, Observable, tap } from 'rxjs';
+import { map, Observable, Subject, switchMap, tap } from 'rxjs';
 
 export interface ClinicaOption {
   id: number;
@@ -96,6 +96,19 @@ export class ClinicaService {
   private api = inject(ApiService);
   private auth = inject(AuthService);
 
+  /** Emite após logo/capa/dados visuais da clínica mudarem (sidebar e outros ouvintes). */
+  private readonly brandingUpdated = new Subject<void>();
+  readonly clinicBrandingUpdated$ = this.brandingUpdated.asObservable();
+
+  private emitBrandingUpdated(): void {
+    this.brandingUpdated.next();
+  }
+
+  private mapConfigResponse(r: ConfigResponse): ClinicaConfig {
+    const d = r.data as { clinic?: ClinicaConfig } | ClinicaConfig;
+    return (typeof d === 'object' && d && 'clinic' in d ? d.clinic : d) as ClinicaConfig;
+  }
+
   listParaEscolher(): Observable<ClinicaOption[]> {
     return this.api.get<EscolherListResponse>('/clinica/escolher').pipe(
       map((r) => {
@@ -108,7 +121,20 @@ export class ClinicaService {
 
   escolher(clinicId: number): Observable<unknown> {
     return this.api.post('/clinica/escolher', { clinic_id: clinicId }).pipe(
-      tap(() => this.auth.setCurrentClinicId(clinicId))
+      tap(() => {
+        this.auth.setCurrentClinicId(clinicId);
+        this.emitBrandingUpdated();
+      })
+    );
+  }
+
+  /**
+   * Cria nova empresa/filial no mesmo tenant (plano multi-empresa).
+   * Backend: POST /clinica/clinics — ajuste o path se a API usar outro endpoint.
+   */
+  createClinicInTenant(name: string): Observable<ConfigPageData> {
+    return this.api.post<unknown>('/clinica/clinics', { name: name.trim() }).pipe(
+      switchMap(() => this.getConfiguracoesPage())
     );
   }
 
@@ -155,18 +181,11 @@ export class ClinicaService {
       }
       form.append('logo', logoFile, logoFile.name);
       return this.api.putFormData<ConfigResponse>('/clinica/configuracoes', form).pipe(
-        map((r) => {
-          const d = r.data as { clinic?: ClinicaConfig } | ClinicaConfig;
-          return (typeof d === 'object' && d && 'clinic' in d ? d.clinic : d) as ClinicaConfig;
-        })
+        map((r) => this.mapConfigResponse(r)),
+        tap(() => this.emitBrandingUpdated())
       );
     }
-    return this.api.put<ConfigResponse>('/clinica/configuracoes', payload).pipe(
-      map((r) => {
-        const d = r.data as { clinic?: ClinicaConfig } | ClinicaConfig;
-        return (typeof d === 'object' && d && 'clinic' in d ? d.clinic : d) as ClinicaConfig;
-      })
-    );
+    return this.api.put<ConfigResponse>('/clinica/configuracoes', payload).pipe(map((r) => this.mapConfigResponse(r)));
   }
 
   uploadCoverImage(coverFile: File, clinicName: string): Observable<ClinicaConfig> {
@@ -174,10 +193,8 @@ export class ClinicaService {
     form.append('name', clinicName);
     form.append('cover_image', coverFile, coverFile.name);
     return this.api.putFormData<ConfigResponse>('/clinica/configuracoes', form).pipe(
-      map((r) => {
-        const d = r.data as { clinic?: ClinicaConfig } | ClinicaConfig;
-        return (typeof d === 'object' && d && 'clinic' in d ? d.clinic : d) as ClinicaConfig;
-      })
+      map((r) => this.mapConfigResponse(r)),
+      tap(() => this.emitBrandingUpdated())
     );
   }
 }

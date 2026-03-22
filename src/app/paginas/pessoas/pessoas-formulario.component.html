@@ -1,0 +1,132 @@
+<div class="relative min-h-[200px]">
+  <div class="page-header mb-5">
+    <div class="page-title">
+      <div class="page-title-icon">
+        <span class="material-symbols-outlined">{{ editMode ? 'edit_note' : 'person_add' }}</span>
+      </div>
+      <div>
+        <h1>{{ editMode ? 'Editar pessoa' : 'Nova pessoa' }}</h1>
+        <p class="page-header-subtitle text-sm m-0 mt-1" style="color: var(--c-muted)">
+          O código de acesso (ex.: P-000001) é gerado automaticamente ao salvar.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  @if (showSkeleton() && editMode) {
+    <zm-skeleton-card [height]="360" />
+  } @else if (!listaPronta) {
+  } @else if (erro && editMode) {
+    <p class="text-sm mb-4" style="color: var(--c-error, #dc2626)">{{ erro }}</p>
+  } @else {
+    <div class="zm-content-enter">
+      <div class="card">
+        @if (erro && !editMode) {
+          <p class="text-sm mb-4" style="color: var(--c-error, #dc2626)">{{ erro }}</p>
+        }
+        <form (ngSubmit)="salvar()" class="flex flex-col gap-5">
+          <div>
+            <label class="form-label">Nome completo *</label>
+            <input
+              type="text"
+              [(ngModel)]="name"
+              name="name"
+              required
+              class="form-input"
+              placeholder="Ex.: Maria da Silva"
+              autocomplete="name"
+            />
+          </div>
+          <div class="grid md:grid-cols-2 gap-4">
+            <div>
+              <label class="form-label">Telefone / WhatsApp</label>
+              <input
+                type="tel"
+                inputmode="numeric"
+                autocomplete="tel-national"
+                class="form-input"
+                [ngModel]="phoneDisplay"
+                (ngModelChange)="onPhoneModelChange($event)"
+                name="phone"
+                placeholder="(11) 98765-4321"
+              />
+            </div>
+            <div>
+              <label class="form-label">E-mail</label>
+              <input
+                type="email"
+                [(ngModel)]="email"
+                name="email"
+                class="form-input"
+                placeholder="nome@exemplo.com"
+                autocomplete="email"
+              />
+            </div>
+          </div>
+          <div class="grid md:grid-cols-2 gap-4">
+            <div>
+              <label class="form-label">Data de nascimento</label>
+              <input
+                type="text"
+                mwlFlatpickr
+                [(ngModel)]="birth_date"
+                name="birth_date"
+                class="form-input pf-fp-input"
+                placeholder="dd/mm/aaaa"
+                [altInput]="true"
+                [convertModelValue]="true"
+                autocomplete="bday"
+              />
+              <p class="text-xs m-0 mt-1" style="color: var(--c-muted)">Necessária para validar o código em formulários de acompanhamento.</p>
+            </div>
+            <div>
+              <label class="form-label">CPF</label>
+              <input
+                type="text"
+                inputmode="numeric"
+                autocomplete="off"
+                class="form-input"
+                name="cpf"
+                placeholder="000.000.000-00"
+                maxlength="14"
+                [ngModel]="cpfDisplay"
+                (ngModelChange)="onCpfModelChange($event)"
+              />
+            </div>
+          </div>
+          @if (editMode) {
+            <div>
+              <label class="form-label">Situação</label>
+              <select [(ngModel)]="status" name="status" class="form-input">
+                <option value="active">Ativa</option>
+                <option value="inactive">Inativa</option>
+              </select>
+            </div>
+          }
+          <div>
+            <label class="form-label">Observações</label>
+            <textarea
+              [(ngModel)]="notes"
+              name="notes"
+              rows="3"
+              class="form-input"
+              placeholder="Anotações internas (opcional)"
+            ></textarea>
+          </div>
+          <div class="flex items-center gap-3 pt-2">
+            <button type="submit" class="btn-primary" [disabled]="salvando || !name.trim()">
+              @if (salvando) {
+                <span class="btn-spinner" aria-hidden="true"></span>
+                Salvando…
+              } @else {
+                <span class="material-symbols-outlined text-base">save</span>
+                {{ editMode ? 'Salvar alterações' : 'Cadastrar' }}
+              }
+            </button>
+            <a [routerLink]="editMode && pessoaId ? ['/pessoas', pessoaId] : '/pessoas'" class="text-sm no-underline" style="color: var(--c-muted)">Cancelar</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+</div>

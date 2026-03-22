@@ -6,6 +6,9 @@ export interface DocumentSendItem {
   id: number;
   form_template_id: number;
   template_name: string | null;
+  person_id?: number | null;
+  recipient_name?: string | null;
+  person?: { id: number; code: string; name: string } | null;
   recipient_email: string | null;
   recipient_phone: string | null;
   channel: string;
@@ -49,15 +52,21 @@ export class DocumentSendsService {
   store(payload: {
     template_id: number;
     channel: 'email' | 'whatsapp';
+    person_id?: number | null;
     recipient_email?: string | null;
     recipient_phone?: string | null;
     expires_at?: string;
   }): Observable<{ data: { message: string; id: number; sent_at: string } }> {
-    const body = {
+    const body: Record<string, unknown> = {
       template_id: payload.template_id,
       channel: payload.channel,
-      ...(payload.channel === 'email' && payload.recipient_email != null ? { recipient_email: payload.recipient_email } : {}),
-      ...(payload.channel === 'whatsapp' && payload.recipient_phone != null ? { recipient_phone: payload.recipient_phone } : {}),
+      ...(payload.person_id != null ? { person_id: payload.person_id } : {}),
+      ...(payload.channel === 'email' && payload.recipient_email != null && String(payload.recipient_email).trim() !== ''
+        ? { recipient_email: payload.recipient_email }
+        : {}),
+      ...(payload.channel === 'whatsapp' && payload.recipient_phone != null && String(payload.recipient_phone).trim() !== ''
+        ? { recipient_phone: payload.recipient_phone }
+        : {}),
       ...(payload.expires_at ? { expires_at: payload.expires_at } : {}),
     };
     return this.api.post<{ data: { message: string; id: number; sent_at: string } }>('/document-sends', body);

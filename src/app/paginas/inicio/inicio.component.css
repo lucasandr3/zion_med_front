@@ -6,7 +6,6 @@
 /* Cores alinhadas a .theme-zion-blue (styles.css) */
 .lp-page {
   --sans: 'Geist', system-ui, sans-serif;
-  --serif: 'Instrument Serif', Georgia, serif;
   --radius: 12px;
   font-family: var(--sans);
   background: var(--bg);
@@ -459,9 +458,9 @@
 }
 
 .lp-page .hero h1 em {
-  font-family: var(--serif);
-  font-style: italic;
-  font-weight: 400;
+  font-family: inherit;
+  font-style: normal;
+  font-weight: 700;
   color: var(--brand);
 }
 
@@ -924,9 +923,9 @@
 }
 
 .lp-page .section-title em {
-  font-family: var(--serif);
-  font-style: italic;
-  font-weight: 400;
+  font-family: inherit;
+  font-style: normal;
+  font-weight: 700;
 }
 
 .lp-page .section-sub {
@@ -1633,9 +1632,9 @@
 }
 
 .lp-page .final h2 em {
-  font-family: var(--serif);
-  font-style: italic;
-  font-weight: 400;
+  font-family: inherit;
+  font-style: normal;
+  font-weight: 700;
   color: var(--brand);
 }
 

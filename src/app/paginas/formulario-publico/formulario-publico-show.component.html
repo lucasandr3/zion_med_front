@@ -4,7 +4,13 @@
       <div class="fp-header-inner">
         <div class="fp-header-row">
           <div class="fp-brand">
-            <div class="fp-logo" aria-hidden="true">Z</div>
+            @if (clinicLogoDisplayUrl()) {
+              <div class="fp-logo fp-logo--img">
+                <img [src]="clinicLogoDisplayUrl()!" [alt]="''" loading="lazy" (error)="onClinicLogoError()" />
+              </div>
+            } @else {
+              <div class="fp-logo" aria-hidden="true">{{ clinicNameInitial() }}</div>
+            }
             <div>
               <p class="fp-clinic-name">{{ data.clinic_name ?? 'Clínica' }}</p>
               <p class="fp-sub">Formulário por Zion Med</p>
@@ -30,21 +36,23 @@
             }
           </button>
         </div>
-        <div class="fp-progress-block">
-          <div class="fp-progress-labels">
-            <span class="fp-progress-hint">Progresso</span>
-            <span class="fp-progress-count">
-              @if (requiredFieldsTotal > 0) {
-                {{ requiredFieldsFilled }} de {{ requiredFieldsTotal }} obrigatórios
-              } @else {
-                Nenhum campo obrigatório
-              }
-            </span>
+        @if (personFormUnlocked()) {
+          <div class="fp-progress-block">
+            <div class="fp-progress-labels">
+              <span class="fp-progress-hint">Progresso</span>
+              <span class="fp-progress-count">
+                @if (requiredFieldsTotal > 0) {
+                  {{ requiredFieldsFilled }} de {{ requiredFieldsTotal }} obrigatórios
+                } @else {
+                  Nenhum campo obrigatório
+                }
+              </span>
+            </div>
+            <div class="fp-progress-track">
+              <div class="fp-progress-fill" [style.width.%]="progressPercent"></div>
+            </div>
           </div>
-          <div class="fp-progress-track">
-            <div class="fp-progress-fill" [style.width.%]="progressPercent"></div>
-          </div>
-        </div>
+        }
       </div>
     </header>
   }
@@ -64,10 +72,46 @@
     }
     @if (!showSkeleton() && data) {
       <div class="fp-container zm-content-enter">
+        @if (personLinkRequired() && !personGateOk) {
+          <div class="fp-title-block">
+            <h1 class="fp-title">{{ data.template.name }}</h1>
+            @if (data.person_link && data.person_link.description) {
+              <p class="fp-lead">{{ data.person_link.description }}</p>
+            } @else {
+              <p class="fp-lead">Informe seu código de acesso e data de nascimento para continuar.</p>
+            }
+          </div>
+          @if (personGateErro) {
+            <div class="fp-banner-error">{{ personGateErro }}</div>
+          }
+          <div class="fp-field-group fp-field-animate">
+            <label class="fp-field-label" for="fpPersonCode">Código da pessoa</label>
+            <input id="fpPersonCode" type="text" [(ngModel)]="personCode" name="fpPersonCode" [ngModelOptions]="{ standalone: true }" class="fp-input" placeholder="Ex.: P-000001" autocomplete="off" />
+          </div>
+          <div class="fp-field-group fp-field-animate">
+            <label class="fp-field-label" for="fpPersonBirth">Data de nascimento</label>
+            <input id="fpPersonBirth" type="date" [(ngModel)]="personBirthDate" name="fpPersonBirth" [ngModelOptions]="{ standalone: true }" class="fp-input" />
+          </div>
+          <div class="fp-section-div" aria-hidden="true"></div>
+          <button type="button" class="fp-submit-btn" style="margin-top: 0.5rem" (click)="validarIdentificacao()" [disabled]="validandoPerson">
+            @if (validandoPerson) {
+              <svg class="fp-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" opacity=".25" />
+                <path d="M21 12a9 9 0 00-9-9" />
+              </svg>
+              Validando…
+            } @else {
+              Continuar para o formulário
+            }
+          </button>
+        } @else {
         <div class="fp-title-block">
           <h1 class="fp-title">{{ data.template.name }}</h1>
           @if (data.template.description) {
             <p class="fp-lead">{{ data.template.description }}</p>
+          }
+          @if (personValidatedName) {
+            <p class="fp-lead" style="font-size: 0.95rem">Olá, <strong>{{ personValidatedName }}</strong>. Preencha os campos abaixo.</p>
           }
           <p class="fp-lgpd-note">
             Seus dados serão utilizados apenas para as finalidades deste formulário e em conformidade com a LGPD.
@@ -215,11 +259,12 @@
             </div>
           }
         </form>
+        }
       </div>
     }
   </div>
 
-  @if (!showSkeleton() && data) {
+  @if (!showSkeleton() && data && personFormUnlocked()) {
     <footer class="fp-footer">
       <div class="fp-footer-inner">
         <button type="submit" form="formulario-publico-form" class="fp-submit-btn" [disabled]="enviando">

@@ -1,0 +1,171 @@
+<div class="pessoas-page relative min-h-[320px]">
+  <div class="page-header mb-5">
+    <div class="page-title flex items-center gap-3">
+      <div class="page-title-icon w-10 h-10 rounded-lg flex items-center justify-center" style="background: var(--c-soft)">
+        <span class="material-symbols-outlined" style="color: var(--c-primary)">group</span>
+      </div>
+      <div>
+        <h1 class="text-xl font-semibold m-0" style="color: var(--c-text)">Pessoas</h1>
+        <p class="text-sm m-0 mt-0.5" style="color: var(--c-muted)">Fichas com protocolos e código de acesso para formulários.</p>
+      </div>
+    </div>
+    <a routerLink="/pessoas/criar" class="btn-primary inline-flex items-center gap-2 no-underline" title="Nova pessoa">
+      <span class="material-symbols-outlined" style="font-size: 18px">person_add</span>
+      Nova pessoa
+    </a>
+  </div>
+
+  <div class="flex flex-wrap items-center gap-3 mb-4">
+    <div class="flex-1 min-w-[200px] relative">
+      <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-lg pointer-events-none" style="color: var(--c-muted)">search</span>
+      <input
+        type="text"
+        [(ngModel)]="busca"
+        (keydown.enter)="carregar(1)"
+        placeholder="Nome, código, telefone, e-mail ou CPF…"
+        class="w-full py-2 pl-10 pr-3 text-sm border rounded-lg"
+        style="border-color: var(--c-border); background: var(--c-surface); color: var(--c-text)"
+        aria-label="Buscar pessoas"
+      />
+    </div>
+    <button type="button" class="btn-ghost btn-default-bg inline-flex items-center gap-2" (click)="openFilterDrawer()" [class.ring-2]="temFiltrosAtivos" title="Filtros">
+      <span class="material-symbols-outlined text-lg">tune</span>
+      Filtros
+      @if (temFiltrosAtivos) {
+        <span class="text-xs rounded-full px-1.5 py-0.5 font-medium" style="background: var(--c-primary); color: white">{{ quantidadeFiltrosAtivos }}</span>
+      }
+    </button>
+  </div>
+
+  @if (listaPronta && !erro) {
+    <p class="text-sm mb-3" style="color: var(--c-muted)">{{ contagemTexto() }}</p>
+  }
+
+  @if (erro) {
+    <p class="text-sm mb-4" style="color: var(--c-error, #dc2626)">{{ erro }}</p>
+  }
+
+  @if (showSkeleton()) {
+    <zm-skeleton-list [rows]="6" />
+  } @else if (!listaPronta && !erro) {
+  } @else if (!erro) {
+    <div class="zm-content-enter">
+      <div class="card rounded-xl overflow-hidden" style="border: 1px solid var(--c-border)">
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm border-collapse">
+            <thead>
+              <tr style="border-bottom: 1px solid var(--c-border)">
+                <th class="text-left py-3 px-4 font-semibold" style="color: var(--c-text)">Pessoa / Código</th>
+                <th class="text-left py-3 px-4 font-semibold" style="color: var(--c-text)">Contato</th>
+                <th class="text-left py-3 px-4 font-semibold" style="color: var(--c-text)">Nascimento</th>
+                <th class="text-left py-3 px-4 font-semibold" style="color: var(--c-text)">Protocolos</th>
+                <th class="text-left py-3 px-4 font-semibold" style="color: var(--c-text)">Última resposta</th>
+                <th class="text-left py-3 px-4 font-semibold" style="color: var(--c-text)">Situação</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (p of pessoas; track p.id) {
+                <tr class="pessoa-row cursor-pointer border-b transition-colors" style="border-color: var(--c-border)" (click)="irParaDetalhe(p, $event)">
+                  <td class="py-3 px-4">
+                    <div class="font-medium" style="color: var(--c-text)">{{ p.name }}</div>
+                    <div class="text-xs mt-0.5 font-mono" style="color: var(--c-muted)">{{ p.code }}</div>
+                  </td>
+                  <td class="py-3 px-4" style="color: var(--c-text)">
+                    @if (p.phone) {
+                      <div>{{ p.phone }}</div>
+                    }
+                    @if (p.email) {
+                      <div class="text-xs" style="color: var(--c-muted)">{{ p.email }}</div>
+                    }
+                    @if (!p.phone && !p.email) {
+                      <span style="color: var(--c-muted)">—</span>
+                    }
+                  </td>
+                  <td class="py-3 px-4" style="color: var(--c-muted)">{{ formatarDataCurta(p.birth_date) }}</td>
+                  <td class="py-3 px-4" style="color: var(--c-text)">{{ p.protocols_count ?? 0 }}</td>
+                  <td class="py-3 px-4" style="color: var(--c-muted)">{{ dataFormatada(p.last_protocol_at) }}</td>
+                  <td class="py-3 px-4">
+                    @if (p.status === 'active') {
+                      <span class="text-xs font-medium" style="color: #22c55e">Ativa</span>
+                    } @else {
+                      <span class="text-xs font-medium" style="color: var(--c-muted)">Inativa</span>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        @if (pessoas.length === 0) {
+          <div class="p-12 text-center" style="color: var(--c-muted)">
+            <span class="material-symbols-outlined block text-4xl mb-3" style="color: var(--c-border)">group</span>
+            <p class="m-0 text-sm">Nenhuma pessoa encontrada.</p>
+            <a routerLink="/pessoas/criar" class="inline-block mt-3 text-sm" style="color: var(--c-primary)">Cadastrar primeira pessoa</a>
+          </div>
+        }
+
+        @if (pessoas.length > 0 && meta.last_page > 1) {
+          <div class="flex justify-between items-center px-4 py-3" style="border-top: 1px solid var(--c-border)">
+            <span class="text-xs" style="color: var(--c-muted)">Página {{ meta.current_page }} de {{ meta.last_page }}</span>
+            <div class="flex gap-2">
+              <button type="button" class="btn-ghost btn-default-bg text-sm" [disabled]="meta.current_page <= 1" (click)="carregar(meta.current_page - 1)">Anterior</button>
+              <button type="button" class="btn-ghost btn-default-bg text-sm" [disabled]="meta.current_page >= meta.last_page" (click)="carregar(meta.current_page + 1)">Próxima</button>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  @if (filterDrawerOpen) {
+    <div class="drawer-overlay fixed inset-0 z-40 bg-black/30" (click)="closeFilterDrawer()" aria-hidden="true"></div>
+    <div class="filter-drawer fixed top-0 right-0 h-full w-full max-w-sm z-50 shadow-xl flex flex-col" style="background: var(--c-surface); border-left: 1px solid var(--c-border)">
+      <div class="flex items-center justify-between px-5 py-4" style="border-bottom: 1px solid var(--c-border)">
+        <div class="flex items-center gap-2">
+          <span class="material-symbols-outlined" style="color: var(--c-primary)">tune</span>
+          <h2 class="text-lg font-semibold m-0" style="color: var(--c-text)">Filtros</h2>
+        </div>
+        <button type="button" class="p-2 rounded-lg hover:bg-[var(--c-soft)]" (click)="closeFilterDrawer()" aria-label="Fechar">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <div class="flex-1 overflow-auto p-5 space-y-4">
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider mb-1.5" style="color: var(--c-muted)">Situação</label>
+          <select [(ngModel)]="status" class="w-full py-2 px-3 text-sm border rounded-lg" style="border-color: var(--c-border); background: var(--c-surface); color: var(--c-text)">
+            <option value="">Todas</option>
+            <option value="active">Ativa</option>
+            <option value="inactive">Inativa</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider mb-1.5" style="color: var(--c-muted)">Protocolos</label>
+          <select [(ngModel)]="has_protocols" class="w-full py-2 px-3 text-sm border rounded-lg" style="border-color: var(--c-border); background: var(--c-surface); color: var(--c-text)">
+            <option value="">Todos</option>
+            <option value="1">Com protocolos</option>
+            <option value="0">Sem protocolos</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider mb-1.5" style="color: var(--c-muted)">Cadastro a partir de</label>
+          <input type="date" [(ngModel)]="created_from" class="w-full py-2 px-3 text-sm border rounded-lg" style="border-color: var(--c-border); background: var(--c-surface); color: var(--c-text)" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider mb-1.5" style="color: var(--c-muted)">Cadastro até</label>
+          <input type="date" [(ngModel)]="created_to" class="w-full py-2 px-3 text-sm border rounded-lg" style="border-color: var(--c-border); background: var(--c-surface); color: var(--c-text)" />
+        </div>
+      </div>
+      <div class="flex gap-2 p-5" style="border-top: 1px solid var(--c-border)">
+        <button type="button" class="btn-ghost btn-default-bg flex-1 inline-flex items-center justify-center gap-2" (click)="limparFiltros()">
+          <span class="material-symbols-outlined text-lg">filter_alt_off</span>
+          Limpar
+        </button>
+        <button type="button" class="btn-primary flex-1 inline-flex items-center justify-center gap-2" (click)="aplicarFiltros()">
+          <span class="material-symbols-outlined text-lg">check</span>
+          Aplicar
+        </button>
+      </div>
+    </div>
+  }
+</div>

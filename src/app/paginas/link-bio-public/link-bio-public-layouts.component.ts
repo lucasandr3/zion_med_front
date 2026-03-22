@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import {
@@ -6,6 +6,7 @@ import {
   LinkBioExtra,
   LinkBioLink,
   LinkBioPublicDocItem,
+  LinkBioService,
 } from '../../core/services/link-bio.service';
 
 @Component({
@@ -16,11 +17,15 @@ import {
   styleUrl: './link-bio-public-layouts.component.css',
 })
 export class LinkBioPublicLayoutsComponent {
+  private linkBio = inject(LinkBioService);
+
   @Input({ required: true }) model!: 2 | 3 | 4 | 5;
   @Input({ required: true }) clinic!: LinkBioClinic;
   @Input({ required: true }) bioLinks: LinkBioLink[] = [];
   @Input() dark = false;
   @Input() allDocs: LinkBioPublicDocItem[] = [];
+  @Input() publicSlug = '';
+  @Input() linkBioPreview = false;
 
   @Output() toggleDark = new EventEmitter<void>();
   @Output() share = new EventEmitter<void>();
@@ -175,6 +180,10 @@ export class LinkBioPublicLayoutsComponent {
 
   trackDoc(_i: number, link: LinkBioPublicDocItem): string {
     return link.type === 'bio' ? `b-${link.item.id}` : `f-${link.item.id}`;
+  }
+
+  hrefBio(link: LinkBioLink): string {
+    return this.linkBio.outboundBioLinkUrl(this.publicSlug, link, this.linkBioPreview);
   }
 
   teamAvatarColor(index: number): string {

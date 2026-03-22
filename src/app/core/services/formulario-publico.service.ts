@@ -1,10 +1,135 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
+import { catchError, map, switchMap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
+import { absoluteMediaUrl } from '../utils/absolute-media-url';
+import { LinkBioService } from './link-bio.service';
 
 const BASE = `${environment.apiUrl}/api/v1`;
+
+/** String, caminho ou objeto com URL (Laravel / Spatie Media / MinIO). */
+function extractLogoHref(v: unknown): string | null {
+  if (v == null) return null;
+  if (typeof v === 'string') {
+    const s = v.trim();
+    return s || null;
+  }
+  if (Array.isArray(v)) {
+    for (const item of v) {
+      const x = extractLogoHref(item);
+      if (x) return x;
+    }
+    return null;
+  }
+  if (typeof v === 'object') {
+    const o = v as Record<string, unknown>;
+    for (const k of ['original_url', 'url', 'href', 'full_url', 'fullUrl', 'path', 'logo_url', 'logoUrl']) {
+      const x = o[k];
+      if (typeof x === 'string' && x.trim()) return x.trim();
+    }
+  }
+  return null;
+}
+
+function nestRecord(v: unknown): Record<string, unknown> | null {
+  return v && typeof v === 'object' && !Array.isArray(v) ? (v as Record<string, unknown>) : null;
+}
+
+function pushClinicLogoCandidates(candidates: unknown[], obj: Record<string, unknown> | null): void {
+  if (!obj) return;
+  candidates.push(
+    obj['logo_url'],
+    obj['logo'],
+    obj['logo_path'],
+    obj['clinic_logo'],
+    obj['clinic_logo_url'],
+    obj['clinic_logo_path'],
+    obj['logoUrl'],
+    obj['clinicLogoUrl'],
+    obj['brand_logo'],
+    obj['brand_logo_url'],
+  );
+  const media = obj['media'];
+  if (Array.isArray(media)) candidates.push(...media);
+}
+
+/** Extrai logo da resposta da API (vários formatos de recurso / aninhamento). */
+function pickPublicFormLogoUrl(d: Record<string, unknown>): string | null {
+  const candidates: unknown[] = [
+    d['logo_url'],
+    d['clinic_logo_url'],
+    d['clinic_logo'],
+    d['clinic_logo_path'],
+    d['logo'],
+    d['logoUrl'],
+    d['clinicLogoUrl'],
+  ];
+  pushClinicLogoCandidates(candidates, nestRecord(d['clinic']));
+  pushClinicLogoCandidates(candidates, nestRecord(d['clinica']));
+  pushClinicLogoCandidates(candidates, nestRecord(d['company']));
+  pushClinicLogoCandidates(candidates, nestRecord(d['empresa']));
+  const template = nestRecord(d['template']);
+  if (template) {
+    candidates.push(template['clinic_logo_url'], template['logo_url'], template['logo']);
+    pushClinicLogoCandidates(candidates, nestRecord(template['clinic']));
+    pushClinicLogoCandidates(candidates, nestRecord(template['clinica']));
+  }
+  const attrs = nestRecord(d['attributes']);
+  if (attrs) {
+    pushClinicLogoCandidates(candidates, attrs);
+  }
+  for (const v of candidates) {
+    const href = extractLogoHref(v);
+    if (href) {
+      return absoluteMediaUrl(href) ?? href;
+    }
+  }
+  return null;
+}
+
+/**
+ * Slug público do Link Bio (`/l/:slug`), mesma origem de `clinic.logo_url` na página pública.
+ * Usado quando o show do formulário não traz logo mas expõe o slug.
+ */
+function extractPublicLinkBioSlug(d: Record<string, unknown>): string | null {
+  const tryStr = (v: unknown): string | null =>
+    typeof v === 'string' && v.trim() ? v.trim() : null;
+
+  const fromClinicLike = (r: Record<string, unknown> | null): string | null => {
+    if (!r) return null;
+    return (
+      tryStr(r['link_bio_slug']) ??
+      tryStr(r['clinic_slug']) ??
+      tryStr(r['public_slug']) ??
+      tryStr(r['public_link_slug']) ??
+      tryStr(r['bio_slug']) ??
+      tryStr(r['slug'])
+    );
+  };
+
+  const nested = [
+    nestRecord(d['clinic']),
+    nestRecord(d['clinica']),
+    nestRecord(d['organization']),
+    nestRecord(d['empresa']),
+    nestRecord(d['attributes']),
+    nestRecord(nestRecord(d['template'])?.['clinic'] as unknown),
+    nestRecord(nestRecord(d['template'])?.['clinica'] as unknown),
+  ];
+  for (const r of nested) {
+    const s = fromClinicLike(r);
+    if (s) return s;
+  }
+  return (
+    tryStr(d['link_bio_slug']) ??
+    tryStr(d['clinic_slug']) ??
+    tryStr(d['public_slug']) ??
+    tryStr(d['public_link_slug']) ??
+    tryStr(d['bio_slug']) ??
+    tryStr(d['slug'])
+  );
+}
 
 export interface FormularioPublicoField {
   id: number;
@@ -16,9 +141,20 @@ export interface FormularioPublicoField {
   sort_order: number;
 }
 
+export interface FormularioPersonLink {
+  enabled: boolean;
+  mode: string;
+  title?: string;
+  description?: string;
+}
+
 export interface FormularioPublicoData {
   template: { id: number; name: string; description?: string };
   clinic_name?: string;
+  /** URL absoluta da logo (preenchida pelo service a partir da API). */
+  logo_url?: string | null;
+  /** Quando ativo, exige código + data de nascimento antes do preenchimento. */
+  person_link?: FormularioPersonLink;
   fields: FormularioPublicoField[];
 }
 
@@ -30,19 +166,52 @@ interface SubmitResponse {
   data: { message: string; protocol_number: string };
 }
 
+interface ValidatePersonResponse {
+  data: { person_id: number; code: string; name: string };
+}
+
 @Injectable({ providedIn: 'root' })
 export class FormularioPublicoService {
   private http = inject(HttpClient);
+  private linkBio = inject(LinkBioService);
 
   getByToken(token: string): Observable<FormularioPublicoData> {
-    return this.http
-      .get<ShowResponse>(`${BASE}/formulario-publico/${encodeURIComponent(token)}`)
-      .pipe(map((r) => r.data));
+    return this.http.get<ShowResponse>(`${BASE}/formulario-publico/${encodeURIComponent(token)}`).pipe(
+      switchMap((r) => {
+        const raw = r.data as FormularioPublicoData & Record<string, unknown>;
+        const rec = raw as Record<string, unknown>;
+        const picked = pickPublicFormLogoUrl(rec);
+        const slug = extractPublicLinkBioSlug(rec);
+        if (picked) {
+          return of({ ...raw, logo_url: picked } as FormularioPublicoData);
+        }
+        if (!slug) {
+          return of({ ...raw, logo_url: null } as FormularioPublicoData);
+        }
+        return this.linkBio.getPublicBySlug(slug).pipe(
+          map((pub) => {
+            const lu = pub.clinic?.logo_url;
+            const resolved =
+              lu != null && String(lu).trim() !== ''
+                ? absoluteMediaUrl(String(lu).trim()) ?? String(lu).trim()
+                : null;
+            return { ...raw, logo_url: resolved } as FormularioPublicoData;
+          }),
+          catchError(() => of({ ...raw, logo_url: null } as FormularioPublicoData))
+        );
+      })
+    );
   }
 
   submit(token: string, payload: Record<string, unknown>): Observable<SubmitResponse['data']> {
     return this.http
       .post<SubmitResponse>(`${BASE}/formulario-publico/${encodeURIComponent(token)}/submit`, payload)
+      .pipe(map((r) => r.data));
+  }
+
+  validatePerson(token: string, body: { code: string; birth_date: string }): Observable<ValidatePersonResponse['data']> {
+    return this.http
+      .post<ValidatePersonResponse>(`${BASE}/formulario-publico/${encodeURIComponent(token)}/validate-person`, body)
       .pipe(map((r) => r.data));
   }
 }

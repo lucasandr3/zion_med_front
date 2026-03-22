@@ -1345,14 +1345,13 @@ body.dark .flatpickr-calendar .flatpickr-weekwrapper span.flatpickr-day { color:
     animation: zm-fade-in 0.25s ease both;
 }
 
+/* Sem transform: ancestrais com transform quebram position:fixed (ex.: rodapé em Configurações da empresa). */
 @keyframes zm-fade-in {
     from {
         opacity: 0;
-        transform: translateY(6px);
     }
     to {
         opacity: 1;
-        transform: translateY(0);
     }
 }
 
@@ -1580,22 +1579,34 @@ body.dark .flatpickr-calendar .flatpickr-weekwrapper span.flatpickr-day { color:
 }
 .clinica-config .dark-toggle-info .dtitle { font-size: 13px; font-weight: 600; color: var(--c-text); }
 .clinica-config .dark-toggle-info .dsub { font-size: 11.5px; color: var(--c-muted); margin-top: 2px; }
-.clinica-config .sticky-footer-spacer { height: 4rem; flex-shrink: 0; }
-.clinica-config .sticky-footer {
-  position: fixed; bottom: 0; left: 0; right: 0; min-height: 4rem; height: 4rem;
-  background: var(--c-surface); border-top: 1px solid var(--c-border); padding: 0 1rem; margin: 0;
-  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; z-index: 50;
+.clinica-config .sticky-footer-spacer,
+.link-bio-config .sticky-footer-spacer { min-height: 4.5rem; flex-shrink: 0; }
+.clinica-config .sticky-footer,
+.link-bio-config .sticky-footer {
+  position: fixed; bottom: 0; left: 0; right: 0; min-height: 4rem;
+  background: var(--c-surface); border-top: 1px solid var(--c-border);
+  padding: 0.65rem 1rem max(0.65rem, env(safe-area-inset-bottom, 0px)); margin: 0;
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; z-index: 100;
+  box-shadow: 0 -4px 24px rgba(15, 23, 42, 0.06);
+}
+.dark .clinica-config .sticky-footer,
+.dark .link-bio-config .sticky-footer {
+  box-shadow: 0 -4px 28px rgba(0, 0, 0, 0.35);
 }
 @media (min-width: 1024px) {
-  .clinica-config .sticky-footer { left: var(--sidebar-w); padding-left: 2rem; padding-right: 2rem; }
+  .clinica-config .sticky-footer,
+  .link-bio-config .sticky-footer { left: var(--sidebar-w); padding-left: 2rem; padding-right: 2rem; }
 }
-.clinica-config .footer-btns { display: flex; gap: 10px; }
-.clinica-config .btn-secondary {
+.clinica-config .footer-btns,
+.link-bio-config .footer-btns { display: flex; gap: 10px; }
+.clinica-config .btn-secondary,
+.link-bio-config .btn-secondary {
   padding: 9px 20px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer;
   border: 1px solid var(--c-border); background: transparent; color: var(--c-muted); font-family: inherit;
   text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: all 0.15s;
 }
-.clinica-config .btn-secondary:hover { color: var(--c-text); }
+.clinica-config .btn-secondary:hover,
+.link-bio-config .btn-secondary:hover { color: var(--c-text); }
 
 /* Espaço extra nas abas Assinatura e Logs (igual backend) */
 #panel-assinatura,

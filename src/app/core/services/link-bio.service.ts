@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { ApiService } from './api.service';
 import { map, Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 export interface LinkBioLink {
   id: number;
@@ -212,10 +213,23 @@ export class LinkBioService {
       );
   }
 
+  /**
+   * URL de saída para link da bio: em prévia usa o destino direto (não conta clique).
+   * Fora da prévia passa pela API, que registra o clique e redireciona.
+   */
+  outboundBioLinkUrl(slug: string, link: LinkBioLink, isPreview: boolean): string {
+    if (isPreview || !slug) {
+      return link.url;
+    }
+    const root = environment.apiUrl.replace(/\/+$/, '');
+    return `${root}/api/v1/link-bio/public/${encodeURIComponent(slug)}/go/${link.id}`;
+  }
+
   /** Página pública do Link Bio por slug (sem autenticação). */
-  getPublicBySlug(slug: string): Observable<LinkBioPublicData> {
+  getPublicBySlug(slug: string, opts?: { preview?: boolean }): Observable<LinkBioPublicData> {
+    const params = opts?.preview ? { preview: '1' as const } : undefined;
     return this.api
-      .get<{ data: LinkBioPublicData }>(`/link-bio/public/${encodeURIComponent(slug)}`)
+      .get<{ data: LinkBioPublicData }>(`/link-bio/public/${encodeURIComponent(slug)}`, params)
       .pipe(map((r) => r.data));
   }
 }

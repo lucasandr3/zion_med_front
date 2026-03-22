@@ -14,14 +14,20 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   let clone = req;
   const isPublicForm = req.url.includes('formulario-publico');
   if (token && req.url.includes('/api/') && !isPublicForm) {
-    clone = req.clone({
-      setHeaders: {
-        Authorization: `Bearer ${token}`,
-        ...(clinicId != null && clinicId !== '' ? { 'X-Clinic-Id': String(clinicId) } : {}),
-        Accept: 'application/json',
-        'Content-Type': req.headers.get('Content-Type') ?? 'application/json',
-      },
-    });
+    const isMultipart = req.body instanceof FormData;
+    const headers: Record<string, string> = {
+      Authorization: `Bearer ${token}`,
+      Accept: 'application/json',
+    };
+    if (clinicId != null && clinicId !== '') {
+      headers['X-Clinic-Id'] = String(clinicId);
+    }
+    // FormData: não definir Content-Type — o browser envia multipart/form-data com boundary.
+    // Forçar application/json aqui impede o Laravel de receber logo/capa e gravar no storage/bucket.
+    if (!isMultipart) {
+      headers['Content-Type'] = req.headers.get('Content-Type') ?? 'application/json';
+    }
+    clone = req.clone({ setHeaders: headers });
   }
 
   return next(clone).pipe(

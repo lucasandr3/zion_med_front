@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, PLATFORM_ID, Signal, signal } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject, PLATFORM_ID, Signal, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterLink } from '@angular/router';
@@ -10,6 +10,8 @@ import {
   LinkBioLink,
   LinkBioPublicDocItem,
 } from '../../core/services/link-bio.service';
+import { absoluteMediaUrl } from '../../core/utils/absolute-media-url';
+import { PublicPageBodyService } from '../../core/services/public-page-body.service';
 import { LoadingService } from '../../shared/services/loading.service';
 import { ZmSkeletonListComponent } from '../../shared/components/skeletons';
 import { LinkBioPublicLayoutsComponent } from './link-bio-public-layouts.component';
@@ -31,7 +33,7 @@ import type { LinkBioLayoutModel } from '../../core/services/link-bio.service';
   templateUrl: './link-bio-public.component.html',
   styleUrl: './link-bio-public.component.css',
 })
-export class LinkBioPublicComponent implements OnInit {
+export class LinkBioPublicComponent implements OnInit, OnDestroy {
   slug = '';
   data: LinkBioPublicData | null = null;
   showSkeleton!: Signal<boolean>;
@@ -44,8 +46,10 @@ export class LinkBioPublicComponent implements OnInit {
   private title = inject(Title);
   private meta = inject(Meta);
   private platformId = inject(PLATFORM_ID);
+  private publicPageBody = inject(PublicPageBodyService);
 
   ngOnInit(): void {
+    this.publicPageBody.enterPublicPage();
     try {
       this.dark = localStorage.getItem('zionmed_bio_dark') === '1';
     } catch {}
@@ -56,11 +60,20 @@ export class LinkBioPublicComponent implements OnInit {
       this.erro = 'Link inválido.';
       return;
     }
-    const { data$, showSkeleton } = this.loadingService.loadWithThreshold(this.linkBioService.getPublicBySlug(slug));
+    const preview = this.route.snapshot.queryParamMap.get('preview') === '1';
+    const { data$, showSkeleton } = this.loadingService.loadWithThreshold(
+      this.linkBioService.getPublicBySlug(slug, { preview })
+    );
     this.showSkeleton = showSkeleton;
     data$.subscribe({
       next: (d) => {
         const clinic = { ...d.clinic };
+        if (clinic.logo_url != null && String(clinic.logo_url).trim() !== '') {
+          clinic.logo_url = absoluteMediaUrl(String(clinic.logo_url)) ?? clinic.logo_url;
+        }
+        if (clinic.cover_image_url != null && String(clinic.cover_image_url).trim() !== '') {
+          clinic.cover_image_url = absoluteMediaUrl(String(clinic.cover_image_url)) ?? clinic.cover_image_url;
+        }
         this.data = { ...d, clinic };
         this.applyPreviewFromAdminSession();
         this.updateMeta();
@@ -114,6 +127,15 @@ export class LinkBioPublicComponent implements OnInit {
 
   get clinic(): LinkBioClinic | null {
     return this.data?.clinic ?? null;
+  }
+
+  /** Prévia no painel admin: não contabiliza visitas/cliques externos. */
+  get linkBioPreview(): boolean {
+    return isPlatformBrowser(this.platformId) && this.route.snapshot.queryParamMap.get('preview') === '1';
+  }
+
+  hrefBioLink(link: LinkBioLink): string {
+    return this.linkBioService.outboundBioLinkUrl(this.slug, link, this.linkBioPreview);
   }
 
   get model(): LinkBioLayoutModel {
@@ -304,5 +326,9 @@ export class LinkBioPublicComponent implements OnInit {
       toast.style.transform = 'translateX(-50%) translateY(8px)';
       setTimeout(() => toast.remove(), 220);
     }, 2400);
+  }
+
+  ngOnDestroy(): void {
+    this.publicPageBody.leavePublicPage();
   }
 }

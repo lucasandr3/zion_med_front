@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import {
@@ -6,6 +6,7 @@ import {
   LinkBioExtra,
   LinkBioLink,
   LinkBioPublicDocItem,
+  LinkBioService,
 } from '../../core/services/link-bio.service';
 
 const DEFAULT_SPECIES: { label: string; active: boolean }[] = [
@@ -34,11 +35,15 @@ const DEFAULT_VET_SERVICES: { icon: string; title: string }[] = [
   styleUrl: './link-bio-public-layout-vet.component.css',
 })
 export class LinkBioPublicLayoutVetComponent {
+  private linkBio = inject(LinkBioService);
+
   @Input({ required: true }) clinic!: LinkBioClinic;
   /** Reservado (links bio); a lista unificada vem em `allDocs`. */
   @Input() bioLinks: LinkBioLink[] = [];
   @Input() dark = false;
   @Input() allDocs: LinkBioPublicDocItem[] = [];
+  @Input() publicSlug = '';
+  @Input() linkBioPreview = false;
 
   @Output() toggleDark = new EventEmitter<void>();
   @Output() share = new EventEmitter<void>();
@@ -132,6 +137,10 @@ export class LinkBioPublicLayoutVetComponent {
 
   trackDoc(_i: number, link: LinkBioPublicDocItem): string {
     return link.type === 'bio' ? `b-${link.item.id}` : `f-${link.item.id}`;
+  }
+
+  hrefBio(link: LinkBioLink): string {
+    return this.linkBio.outboundBioLinkUrl(this.publicSlug, link, this.linkBioPreview);
   }
 
   onToggleDark(): void {

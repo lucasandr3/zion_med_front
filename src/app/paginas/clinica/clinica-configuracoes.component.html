@@ -331,7 +331,39 @@
               }
               <div style="border-top:1px solid var(--c-border);padding-top:20px;margin-top:8px">
                 <p style="font-size:12px;font-weight:600;color:var(--c-muted);margin-bottom:12px;text-transform:uppercase;letter-spacing:0.05em">Adicionar empresa ou filial</p>
-                <p style="font-size:13px;color:var(--c-muted)">Use o painel web para adicionar novas empresas ao grupo.</p>
+                <div class="field" style="margin-bottom:12px">
+                  <label for="nova-empresa-nome">Nome da nova empresa</label>
+                  <input
+                    id="nova-empresa-nome"
+                    type="text"
+                    [(ngModel)]="novaEmpresaNome"
+                    name="novaEmpresaNome"
+                    class="form-input"
+                    maxlength="120"
+                    placeholder="Ex.: Filial Centro"
+                    autocomplete="organization"
+                    (keydown.enter)="$event.preventDefault(); criarNovaEmpresa()"
+                  />
+                </div>
+                @if (erroNovaEmpresa) {
+                  <p class="text-sm mb-3" style="color: var(--c-error, #dc2626)">{{ erroNovaEmpresa }}</p>
+                }
+                <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center">
+                  <button
+                    type="button"
+                    class="btn-primary inline-flex items-center gap-2"
+                    (click)="criarNovaEmpresa()"
+                    [disabled]="salvandoNovaEmpresa || !novaEmpresaNome.trim()"
+                  >
+                    @if (salvandoNovaEmpresa) {
+                      <span class="btn-spinner" aria-hidden="true"></span>
+                    } @else {
+                      <span class="material-symbols-outlined" style="font-size:16px">add_business</span>
+                    }
+                    {{ salvandoNovaEmpresa ? 'Criando…' : 'Cadastrar nova empresa' }}
+                  </button>
+                  <a routerLink="/clinica/escolher" class="text-sm" style="color:var(--c-primary);text-decoration:none">Ver lista para trocar de empresa →</a>
+                </div>
               </div>
             </div>
           </div>

@@ -54,6 +54,7 @@
             <tr style="border-bottom: 1px solid var(--c-border)">
               <th class="text-left py-3 px-4 font-semibold" style="color: var(--c-text)">Protocolo / Data</th>
               <th class="text-left py-3 px-4 font-semibold" style="color: var(--c-text)">Template</th>
+              <th class="text-left py-3 px-4 font-semibold" style="color: var(--c-text)">Pessoa</th>
               <th class="text-left py-3 px-4 font-semibold" style="color: var(--c-text)">Situação</th>
               <th class="text-left py-3 px-4 font-semibold" style="color: var(--c-text)">Submetente</th>
               <th class="text-left py-3 px-4 font-semibold" style="color: var(--c-text)">Revisado em</th>
@@ -68,6 +69,14 @@
                   <div class="text-xs mt-0.5" style="color: var(--c-muted)">{{ dataFormatada(p.submitted_at || p.created_at) }}</div>
                 </td>
                 <td class="py-3 px-4" style="color: var(--c-text)">{{ p.template_name ?? '—' }}</td>
+                <td class="py-3 px-4" (click)="$event.stopPropagation()">
+                  @if (p.person) {
+                    <a [routerLink]="['/pessoas', p.person.id]" class="text-sm no-underline font-medium" style="color: var(--c-primary)">{{ p.person.name }}</a>
+                    <div class="text-xs font-mono mt-0.5" style="color: var(--c-muted)">{{ p.person.code }}</div>
+                  } @else {
+                    <span style="color: var(--c-muted)">—</span>
+                  }
+                </td>
                 <td class="py-3 px-4">
                   @if (p.status === 'pending' || (p.status && p.status.toLowerCase() === 'pending')) {
                     <span class="inline-flex items-center gap-1 text-xs font-medium" style="color: var(--c-muted)">

@@ -43,14 +43,82 @@
             </label>
           </div>
         </div>
-        @if (novoEnvio.channel === 'email') {
+        <div class="w-full min-w-[200px]">
+          <label class="block text-xs font-medium mb-1" style="color: var(--c-muted)">Destinatário</label>
+          <div class="flex gap-3 flex-wrap">
+            <label class="inline-flex items-center gap-1.5 cursor-pointer">
+              <input type="radio" [(ngModel)]="novoEnvio.destino" name="novoDestino" value="manual" (change)="limparPessoa()" />
+              <span class="text-sm" style="color: var(--c-text)">Manual</span>
+            </label>
+            <label class="inline-flex items-center gap-1.5 cursor-pointer">
+              <input type="radio" [(ngModel)]="novoEnvio.destino" name="novoDestino" value="pessoa" />
+              <span class="text-sm" style="color: var(--c-text)">Pessoa cadastrada</span>
+            </label>
+          </div>
+        </div>
+        @if (novoEnvio.destino === 'pessoa') {
+          <div class="w-full min-w-[260px] max-w-md relative">
+            <label class="block text-xs font-medium mb-1" style="color: var(--c-muted)">Buscar pessoa</label>
+            <div class="flex gap-2">
+              <input
+                type="text"
+                [(ngModel)]="pessoaBusca"
+                (keyup.enter)="buscarPessoas()"
+                placeholder="Nome, código ou telefone…"
+                class="flex-1 py-2 px-3 text-sm border rounded-lg"
+                style="border-color: var(--c-border); background: var(--c-surface); color: var(--c-text)"
+              />
+              <button type="button" class="btn-ghost btn-default-bg text-sm shrink-0" (click)="buscarPessoas()" [disabled]="buscandoPessoas">Buscar</button>
+              @if (pessoaSelecionada) {
+                <button type="button" class="btn-ghost btn-default-bg text-sm shrink-0" (click)="limparPessoa()">Limpar</button>
+              }
+            </div>
+            @if (pessoaSugestoes.length > 0) {
+              <ul class="absolute z-10 left-0 right-0 mt-1 max-h-48 overflow-auto rounded-lg border text-sm shadow-lg m-0 p-0 list-none" style="background: var(--c-surface); border-color: var(--c-border)">
+                @for (p of pessoaSugestoes; track p.id) {
+                  <li>
+                    <button type="button" class="w-full text-left px-3 py-2 border-0 cursor-pointer hover:bg-[var(--c-soft)]" style="background: transparent; color: var(--c-text)" (click)="selecionarPessoa(p)">
+                      {{ p.name }} · <span class="font-mono text-xs">{{ p.code }}</span>
+                    </button>
+                  </li>
+                }
+              </ul>
+            }
+            @if (pessoaSelecionada) {
+              <p class="text-xs mt-2 mb-0" style="color: var(--c-muted)">
+                @if (novoEnvio.channel === 'email') {
+                  E-mail: {{ pessoaSelecionada.email || '—' }}
+                } @else {
+                  Telefone: {{ pessoaSelecionada.phone || '—' }}
+                }
+              </p>
+              @if ((novoEnvio.channel === 'email' && !pessoaSelecionada.email) || (novoEnvio.channel === 'whatsapp' && !pessoaSelecionada.phone)) {
+                <p class="text-xs mt-1 mb-0" style="color: var(--c-muted)">Você pode informar manualmente abaixo se faltar dado na ficha.</p>
+              }
+            }
+          </div>
+        }
+        @if (novoEnvio.destino === 'manual' && novoEnvio.channel === 'email') {
           <div class="min-w-[220px]">
             <label class="block text-xs font-medium mb-1" style="color: var(--c-muted)">E-mail do destinatário</label>
             <input type="email" [(ngModel)]="novoEnvio.recipient_email" placeholder="email@exemplo.com" class="w-full py-2 px-3 text-sm border rounded-lg" style="border-color: var(--c-border); background: var(--c-surface); color: var(--c-text)" />
           </div>
-        } @else {
+        }
+        @if (novoEnvio.destino === 'manual' && novoEnvio.channel === 'whatsapp') {
           <div class="min-w-[180px]">
             <label class="block text-xs font-medium mb-1" style="color: var(--c-muted)">Telefone (WhatsApp)</label>
+            <input type="text" [(ngModel)]="novoEnvio.recipient_phone" placeholder="5511999999999" class="w-full py-2 px-3 text-sm border rounded-lg" style="border-color: var(--c-border); background: var(--c-surface); color: var(--c-text)" />
+          </div>
+        }
+        @if (novoEnvio.destino === 'pessoa' && novoEnvio.channel === 'email' && pessoaSelecionada && !pessoaSelecionada.email) {
+          <div class="min-w-[220px]">
+            <label class="block text-xs font-medium mb-1" style="color: var(--c-muted)">E-mail (obrigatório)</label>
+            <input type="email" [(ngModel)]="novoEnvio.recipient_email" placeholder="email@exemplo.com" class="w-full py-2 px-3 text-sm border rounded-lg" style="border-color: var(--c-border); background: var(--c-surface); color: var(--c-text)" />
+          </div>
+        }
+        @if (novoEnvio.destino === 'pessoa' && novoEnvio.channel === 'whatsapp' && pessoaSelecionada && !pessoaSelecionada.phone) {
+          <div class="min-w-[180px]">
+            <label class="block text-xs font-medium mb-1" style="color: var(--c-muted)">Telefone (obrigatório)</label>
             <input type="text" [(ngModel)]="novoEnvio.recipient_phone" placeholder="5511999999999" class="w-full py-2 px-3 text-sm border rounded-lg" style="border-color: var(--c-border); background: var(--c-surface); color: var(--c-text)" />
           </div>
         }

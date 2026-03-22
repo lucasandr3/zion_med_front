@@ -2,6 +2,7 @@ import { Component, OnInit, inject, Signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DocumentSendsService, DocumentSendItem } from '../../core/services/document-sends.service';
+import { PessoasService, Pessoa } from '../../core/services/pessoas.service';
 import { TemplatesService, Template } from '../../core/services/templates.service';
 import { LoadingService } from '../../shared/services/loading.service';
 import { ZmSkeletonListComponent } from '../../shared/components/skeletons';
@@ -28,11 +29,23 @@ export class EnviosComponent implements OnInit {
   acaoId: number | null = null;
 
   mostrarNovoEnvio = false;
-  novoEnvio = { template_id: 0, channel: 'email' as 'email' | 'whatsapp', recipient_email: '', recipient_phone: '' };
+  novoEnvio = {
+    template_id: 0,
+    channel: 'email' as 'email' | 'whatsapp',
+    destino: 'manual' as 'manual' | 'pessoa',
+    person_id: null as number | null,
+    recipient_email: '',
+    recipient_phone: '',
+  };
+  pessoaBusca = '';
+  pessoaSugestoes: Pessoa[] = [];
+  pessoaSelecionada: Pessoa | null = null;
+  buscandoPessoas = false;
   enviando = false;
   erroNovo = '';
 
   private documentSendsService = inject(DocumentSendsService);
+  private pessoasService = inject(PessoasService);
   private templatesService = inject(TemplatesService);
   private loadingService = inject(LoadingService);
   private toast = inject(ToastService);
@@ -142,7 +155,50 @@ export class EnviosComponent implements OnInit {
   abrirNovoEnvio(): void {
     this.mostrarNovoEnvio = true;
     this.erroNovo = '';
-    this.novoEnvio = { template_id: this.templates[0]?.id ?? 0, channel: 'email', recipient_email: '', recipient_phone: '' };
+    this.pessoaBusca = '';
+    this.pessoaSugestoes = [];
+    this.pessoaSelecionada = null;
+    this.novoEnvio = {
+      template_id: this.templates[0]?.id ?? 0,
+      channel: 'email',
+      destino: 'manual',
+      person_id: null,
+      recipient_email: '',
+      recipient_phone: '',
+    };
+  }
+
+  buscarPessoas(): void {
+    const q = this.pessoaBusca.trim();
+    if (q.length < 2) {
+      this.pessoaSugestoes = [];
+      return;
+    }
+    this.buscandoPessoas = true;
+    this.pessoasService.list({ search: q, per_page: 15, page: 1 }).subscribe({
+      next: (res) => {
+        this.buscandoPessoas = false;
+        this.pessoaSugestoes = res.data.filter((p) => p.status === 'active');
+      },
+      error: () => {
+        this.buscandoPessoas = false;
+        this.pessoaSugestoes = [];
+      },
+    });
+  }
+
+  selecionarPessoa(p: Pessoa): void {
+    this.pessoaSelecionada = p;
+    this.novoEnvio.person_id = p.id;
+    this.pessoaSugestoes = [];
+    this.pessoaBusca = `${p.name} · ${p.code}`;
+  }
+
+  limparPessoa(): void {
+    this.pessoaSelecionada = null;
+    this.novoEnvio.person_id = null;
+    this.pessoaBusca = '';
+    this.pessoaSugestoes = [];
   }
 
   fecharNovoEnvio(): void {
@@ -155,25 +211,52 @@ export class EnviosComponent implements OnInit {
       this.erroNovo = 'Selecione um template.';
       return;
     }
-    if (this.novoEnvio.channel === 'email') {
-      if (!this.novoEnvio.recipient_email?.trim()) {
-        this.erroNovo = 'Informe o e-mail do destinatário.';
+    if (this.novoEnvio.destino === 'pessoa') {
+      if (!this.novoEnvio.person_id) {
+        this.erroNovo = 'Busque e selecione uma pessoa.';
+        return;
+      }
+      if (this.novoEnvio.channel === 'email' && !this.pessoaSelecionada?.email && !this.novoEnvio.recipient_email?.trim()) {
+        this.erroNovo = 'A pessoa não tem e-mail cadastrado. Informe manualmente ou cadastre o e-mail na ficha.';
+        return;
+      }
+      if (this.novoEnvio.channel === 'whatsapp' && !this.pessoaSelecionada?.phone && !this.novoEnvio.recipient_phone?.trim()) {
+        this.erroNovo = 'A pessoa não tem telefone cadastrado. Informe manualmente ou cadastre na ficha.';
         return;
       }
     } else {
-      if (!this.novoEnvio.recipient_phone?.trim()) {
-        this.erroNovo = 'Informe o telefone (WhatsApp).';
-        return;
+      if (this.novoEnvio.channel === 'email') {
+        if (!this.novoEnvio.recipient_email?.trim()) {
+          this.erroNovo = 'Informe o e-mail do destinatário.';
+          return;
+        }
+      } else {
+        if (!this.novoEnvio.recipient_phone?.trim()) {
+          this.erroNovo = 'Informe o telefone (WhatsApp).';
+          return;
+        }
       }
     }
     this.enviando = true;
-    const payload = {
+    const payload: Parameters<DocumentSendsService['store']>[0] = {
       template_id: this.novoEnvio.template_id,
       channel: this.novoEnvio.channel,
-      ...(this.novoEnvio.channel === 'email'
-        ? { recipient_email: this.novoEnvio.recipient_email.trim() }
-        : { recipient_phone: this.novoEnvio.recipient_phone.trim() }),
     };
+    if (this.novoEnvio.destino === 'pessoa' && this.novoEnvio.person_id) {
+      payload.person_id = this.novoEnvio.person_id;
+      if (this.novoEnvio.channel === 'email' && this.novoEnvio.recipient_email?.trim()) {
+        payload.recipient_email = this.novoEnvio.recipient_email.trim();
+      }
+      if (this.novoEnvio.channel === 'whatsapp' && this.novoEnvio.recipient_phone?.trim()) {
+        payload.recipient_phone = this.novoEnvio.recipient_phone.trim();
+      }
+    } else {
+      if (this.novoEnvio.channel === 'email') {
+        payload.recipient_email = this.novoEnvio.recipient_email.trim();
+      } else {
+        payload.recipient_phone = this.novoEnvio.recipient_phone.trim();
+      }
+    }
     this.documentSendsService.store(payload).subscribe({
       next: () => {
         this.enviando = false;

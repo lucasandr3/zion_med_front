@@ -1,10 +1,11 @@
-import { Component, OnInit, inject, ViewChild, Signal, signal } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject, ViewChild, Signal, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule, NgForm } from '@angular/forms';
 import { FlatpickrDirective, provideFlatpickrDefaults } from 'angularx-flatpickr';
 import { Portuguese } from 'flatpickr/dist/l10n/pt';
 import { RouterLink } from '@angular/router';
+import { PublicPageBodyService } from '../../core/services/public-page-body.service';
 import { FormularioPublicoService, FormularioPublicoData, FormularioPublicoField } from '../../core/services/formulario-publico.service';
 import { LoadingService } from '../../shared/services/loading.service';
 import { ZmSkeletonListComponent } from '../../shared/components/skeletons';
@@ -28,7 +29,7 @@ import { ToastService } from '../../core/services/toast.service';
   templateUrl: './formulario-publico-show.component.html',
   styleUrl: './formulario-publico-show.component.css',
 })
-export class FormularioPublicoShowComponent implements OnInit {
+export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
   @ViewChild('publicForm') ngForm!: NgForm;
   token = '';
   data: FormularioPublicoData | null = null;
@@ -81,21 +82,32 @@ export class FormularioPublicoShowComponent implements OnInit {
   }
   submitterName = '';
   submitterEmail = '';
+  /** Formulários com vínculo à ficha (código + nascimento). */
+  personGateOk = false;
+  personCode = '';
+  personBirthDate = '';
+  personGateErro = '';
+  validandoPerson = false;
+  personValidatedName: string | null = null;
   showSkeleton!: Signal<boolean>;
   enviando = false;
   erro = '';
   dark = false;
+  /** Se a URL da logo existir mas a imagem falhar (404, CORS, host interno). */
+  logoImageFailed = signal(false);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private formularioService = inject(FormularioPublicoService);
   private loadingService = inject(LoadingService);
   private toast = inject(ToastService);
+  private publicPageBody = inject(PublicPageBodyService);
 
   constructor() {
     this.token = this.route.snapshot.paramMap.get('token') ?? '';
   }
 
   ngOnInit(): void {
+    this.publicPageBody.enterPublicPage();
     try {
       this.dark = localStorage.getItem('zionmed_form_dark_mode') === '1';
     } catch {}
@@ -108,7 +120,13 @@ export class FormularioPublicoShowComponent implements OnInit {
     this.showSkeleton = showSkeleton;
     data$.subscribe({
       next: (d) => {
+        this.logoImageFailed.set(false);
         this.data = d;
+        this.personGateOk = !d.person_link?.enabled;
+        this.personCode = '';
+        this.personBirthDate = '';
+        this.personGateErro = '';
+        this.personValidatedName = null;
         d.fields.forEach((f) => {
           if (f.type === 'checkbox') this.valores[f.name_key] = false;
           else this.valores[f.name_key] = '';
@@ -127,8 +145,40 @@ export class FormularioPublicoShowComponent implements OnInit {
     } catch {}
   }
 
+  personLinkRequired(): boolean {
+    return !!this.data?.person_link?.enabled;
+  }
+
+  personFormUnlocked(): boolean {
+    return !this.personLinkRequired() || this.personGateOk;
+  }
+
+  validarIdentificacao(): void {
+    this.personGateErro = '';
+    if (!this.personCode.trim() || !this.personBirthDate) {
+      this.personGateErro = 'Preencha o código e a data de nascimento.';
+      return;
+    }
+    this.validandoPerson = true;
+    this.formularioService
+      .validatePerson(this.token, { code: this.personCode.trim(), birth_date: this.personBirthDate })
+      .subscribe({
+        next: (r) => {
+          this.validandoPerson = false;
+          this.personGateOk = true;
+          this.personValidatedName = r.name;
+        },
+        error: (err) => {
+          this.validandoPerson = false;
+          const msg = err.error?.errors ? Object.values(err.error.errors).flat().join(' ') : err.error?.message;
+          this.personGateErro = msg ?? 'Código ou data de nascimento não conferem.';
+        },
+      });
+  }
+
   enviar(): void {
     if (!this.data || this.enviando) return;
+    if (!this.personFormUnlocked()) return;
     if (this.ngForm && !this.ngForm.valid) return;
     this.enviando = true;
     this.erro = '';
@@ -143,12 +193,20 @@ export class FormularioPublicoShowComponent implements OnInit {
       _submitter_email: this.submitterEmail || undefined,
       ...normalized,
     };
+    if (this.personLinkRequired()) {
+      payload['_person_code'] = this.personCode.trim();
+      payload['_person_birth_date'] = this.personBirthDate;
+    }
     this.formularioService.submit(this.token, payload).subscribe({
       next: (r) => {
         this.enviando = false;
         this.toast.success('Enviado com sucesso', 'Seu formulário foi recebido.');
         this.router.navigate(['/f/sucesso'], {
-          state: { protocol_number: r.protocol_number, clinic_name: this.data?.clinic_name },
+          state: {
+            protocol_number: r.protocol_number,
+            clinic_name: this.data?.clinic_name,
+            clinic_logo_url: this.data?.logo_url ?? null,
+          },
         });
       },
       error: (err) => {
@@ -161,6 +219,21 @@ export class FormularioPublicoShowComponent implements OnInit {
 
   trackByKey(_index: number, f: FormularioPublicoField): string {
     return f.name_key;
+  }
+
+  clinicLogoDisplayUrl(): string | null {
+    if (this.logoImageFailed()) return null;
+    const u = this.data?.logo_url;
+    return u != null && String(u).trim() !== '' ? String(u) : null;
+  }
+
+  onClinicLogoError(): void {
+    this.logoImageFailed.set(true);
+  }
+
+  clinicNameInitial(): string {
+    const n = (this.data?.clinic_name ?? 'Z').trim();
+    return n ? n.charAt(0).toUpperCase() : 'Z';
   }
 
   /** Campos obrigatórios (para barra de progresso). */
@@ -262,5 +335,9 @@ export class FormularioPublicoShowComponent implements OnInit {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
     this.valores[key] = '';
+  }
+
+  ngOnDestroy(): void {
+    this.publicPageBody.leavePublicPage();
   }
 }

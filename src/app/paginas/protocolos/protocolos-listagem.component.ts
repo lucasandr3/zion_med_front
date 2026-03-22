@@ -1,5 +1,5 @@
 import { Component, OnInit, inject, Signal } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProtocolosService, Protocolo } from '../../core/services/protocolos.service';
@@ -10,7 +10,7 @@ import { ZmSkeletonListComponent } from '../../shared/components/skeletons';
 @Component({
   selector: 'app-protocolos-listagem',
   standalone: true,
-  imports: [CommonModule, FormsModule, ZmSkeletonListComponent],
+  imports: [CommonModule, FormsModule, RouterLink, ZmSkeletonListComponent],
   templateUrl: './protocolos-listagem.component.html',
   styleUrl: './protocolos-listagem.component.css',
 })

@@ -178,7 +178,7 @@
         @for (link of allDocs; track trackDoc($index, link)) {
           @if (link.type === 'bio') {
             <a
-              [href]="link.item.url"
+              [href]="hrefBio(link.item)"
               target="_blank"
               rel="noopener noreferrer"
               class="lb-m6-doc flex items-center gap-3.5 p-4 rounded-2xl bg-white dark:bg-white/[0.03] border border-[#d8f3e3] dark:border-white/[0.05] mb-3 no-underline group text-inherit"

@@ -1,0 +1,16 @@
+.pessoa-row:hover {
+  background: var(--c-soft);
+}
+
+.filter-drawer {
+  animation: drawer-in 0.2s ease-out;
+}
+
+@keyframes drawer-in {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}

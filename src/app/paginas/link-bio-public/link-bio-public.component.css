@@ -16,11 +16,42 @@
   background: #f9fafb;
   color: #111827;
   font-family: "Geist Sans", ui-sans-serif, system-ui, sans-serif;
+  /* Isola do body.dark do app: zm-skeleton e utilitários Tailwind dark: */
+  --c-border: #e5e7eb;
+  --c-surface: #ffffff;
+  --c-soft: #f3f4f6;
+  --skeleton-base: #e2e8f0;
+  --skeleton-highlight: #f8fafc;
 }
 
 .page.dark {
   background: #0a0c0f;
   color: #f9fafb;
+  --c-border: rgba(255, 255, 255, 0.1);
+  --c-surface: #13161c;
+  --c-soft: #0d1016;
+  --skeleton-base: #252b36;
+  --skeleton-highlight: #3d4654;
+}
+
+/* Carregamento: mesmo quando ainda não há .page (modelo 1) ou fora do fluxo principal */
+.lb-bio-skeleton {
+  min-height: min(72vh, 560px);
+  padding-top: 0.75rem;
+  --c-border: #e5e7eb;
+  --c-surface: #ffffff;
+  --c-soft: #f3f4f6;
+  --skeleton-base: #e2e8f0;
+  --skeleton-highlight: #f8fafc;
+}
+
+.page.dark .lb-bio-skeleton,
+.lb-bio-skeleton.lb-bio-skeleton--dark {
+  --c-border: rgba(255, 255, 255, 0.1);
+  --c-surface: #13161c;
+  --c-soft: #0d1016;
+  --skeleton-base: #252b36;
+  --skeleton-highlight: #3d4654;
 }
 
 .topbar {

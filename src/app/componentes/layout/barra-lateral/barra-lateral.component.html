@@ -20,8 +20,12 @@
   @if (nomeClinica) {
     <div class="sidebar-clinic px-2 py-2 shrink-0" style="border-bottom: 1px solid var(--c-border)">
       <div class="flex items-center gap-2.5 min-w-0">
-        <div class="w-9 h-9 rounded-lg shrink-0 flex items-center justify-center text-sm font-bold flex-shrink-0" style="background: var(--c-soft); color: var(--c-primary)">
-          {{ nomeClinica.charAt(0) | uppercase }}
+        <div class="w-9 h-9 rounded-lg shrink-0 overflow-hidden flex items-center justify-center text-sm font-bold flex-shrink-0" style="background: var(--c-soft); color: var(--c-primary)">
+          @if (logoUrlClinica) {
+            <img [src]="logoUrlClinica" [alt]="'Logo ' + nomeClinica" class="w-full h-full object-cover" loading="lazy" />
+          } @else {
+            {{ nomeClinica.charAt(0) | uppercase }}
+          }
         </div>
         <div class="sidebar-label min-w-0 flex-1">
           <p class="text-xs font-semibold truncate" style="color: var(--c-text)">{{ nomeClinica }}</p>
@@ -64,6 +68,10 @@
       <a routerLink="/protocolos" routerLinkActive="ativo" class="nav-link" appTooltip="Protocolos">
         <span class="material-symbols-outlined shrink-0" style="font-size: 19px">inbox</span>
         <span class="sidebar-label">Protocolos</span>
+      </a>
+      <a routerLink="/pessoas" routerLinkActive="ativo" class="nav-link" appTooltip="Pessoas">
+        <span class="material-symbols-outlined shrink-0" style="font-size: 19px">group</span>
+        <span class="sidebar-label">Pessoas</span>
       </a>
     }
 

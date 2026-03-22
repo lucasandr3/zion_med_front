@@ -8,6 +8,8 @@ export interface Protocolo {
   status: string;
   template_id: number;
   template_name?: string;
+  person_id?: number | null;
+  person?: { id: number; code: string; name: string } | null;
   submitter_name?: string;
   submitter_email?: string;
   submitted_at?: string;

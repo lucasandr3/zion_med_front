@@ -20,6 +20,7 @@ export class TemplatesEditarComponent implements OnInit {
   description = '';
   is_active = true;
   public_enabled = false;
+  public_require_person_link = false;
   showSkeleton!: Signal<boolean>;
   listaPronta = false;
   salvando = false;
@@ -49,6 +50,7 @@ export class TemplatesEditarComponent implements OnInit {
         this.description = t.description ?? '';
         this.is_active = t.is_active ?? true;
         this.public_enabled = t.public_enabled ?? false;
+        this.public_require_person_link = t.public_require_person_link ?? false;
       },
       error: () => {
         this.listaPronta = true;
@@ -67,6 +69,7 @@ export class TemplatesEditarComponent implements OnInit {
         description: this.description.trim() || undefined,
         is_active: this.is_active,
         public_enabled: this.public_enabled,
+        public_require_person_link: this.public_enabled ? this.public_require_person_link : false,
       })
       .subscribe({
         next: () => {
