@@ -473,6 +473,43 @@
   line-height: 1.45;
 }
 
+.fp-file-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.fp-file-input {
+  padding: 0.55rem 0.75rem;
+  cursor: pointer;
+}
+
+.fp-file-input::file-selector-button {
+  margin-right: 0.75rem;
+  padding: 0.4rem 0.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--fp-cream-200);
+  background: var(--fp-cream-50, #faf8f5);
+  font-family: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--fp-ink-800);
+  cursor: pointer;
+}
+
+.form-publico-page.dark .fp-file-input::file-selector-button {
+  border-color: #2e2a24;
+  background: #25221c;
+  color: #f0ebe3;
+}
+
+.fp-file-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+}
+
 .form-publico-page.dark .fp-input {
   background-color: #1a1814;
   border-color: #2e2a24;

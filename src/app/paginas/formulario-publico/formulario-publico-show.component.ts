@@ -78,7 +78,9 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
 
   /** Tipo do campo normalizado (minúsculo) para o template. */
   fieldType(f: FormularioPublicoField): string {
-    return (f.type ?? '').toLowerCase();
+    const t = (f.type ?? '').toLowerCase();
+    if (t === 'anexo' || t === 'attachment') return 'file';
+    return t;
   }
   submitterName = '';
   submitterEmail = '';
@@ -128,7 +130,8 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
         this.personGateErro = '';
         this.personValidatedName = null;
         d.fields.forEach((f) => {
-          if (f.type === 'checkbox') this.valores[f.name_key] = false;
+          const ft = this.fieldType(f);
+          if (ft === 'checkbox') this.valores[f.name_key] = false;
           else this.valores[f.name_key] = '';
         });
       },
@@ -265,6 +268,8 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
         return v instanceof Date || (typeof v === 'string' && v.trim().length > 0);
       case 'signature':
         return typeof v === 'string' && v.length > 80;
+      case 'file':
+        return typeof v === 'string' && v.startsWith('data:') && v.length > 64;
       case 'select':
       case 'radio':
         return typeof v === 'string' && v.trim().length > 0;
@@ -324,6 +329,40 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
     }
     const me = e as MouseEvent;
     return { x: (me.clientX - rect.left) * scaleX, y: (me.clientY - rect.top) * scaleY };
+  }
+
+  private static readonly FILE_MAX_BYTES = 15 * 1024 * 1024;
+
+  onFileSelected(event: Event, key: string): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) {
+      this.valores[key] = '';
+      return;
+    }
+    if (file.size > FormularioPublicoShowComponent.FILE_MAX_BYTES) {
+      this.toast.error('Arquivo grande demais', 'Escolha um arquivo de até 15 MB.');
+      input.value = '';
+      this.valores[key] = '';
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      const r = reader.result;
+      this.valores[key] = typeof r === 'string' ? r : '';
+    };
+    reader.onerror = () => {
+      this.toast.error('Erro ao ler arquivo', 'Tente outro arquivo.');
+      input.value = '';
+      this.valores[key] = '';
+    };
+    reader.readAsDataURL(file);
+  }
+
+  clearFile(key: string): void {
+    this.valores[key] = '';
+    const el = typeof document !== 'undefined' ? (document.getElementById('field_' + key) as HTMLInputElement | null) : null;
+    if (el?.type === 'file') el.value = '';
   }
 
   /** Limpa o canvas e atualiza o valor da assinatura. */

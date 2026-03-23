@@ -195,6 +195,22 @@
               </div>
 
               <div class="field">
+                <label class="field-label" for="billing_document">CPF ou CNPJ <span class="req">*</span></label>
+                <input
+                  class="fi"
+                  id="billing_document"
+                  type="text"
+                  [(ngModel)]="billingDocument"
+                  name="billing_document"
+                  placeholder="000.000.000-00 ou 00.000.000/0001-00"
+                  required
+                  autocomplete="off"
+                  inputmode="numeric"
+                />
+                <div class="field-hint">Documento da clínica ou do responsável legal — necessário para gerar a assinatura e o boleto no sistema de pagamento.</div>
+              </div>
+
+              <div class="field">
                 <label class="field-label" for="phone">WhatsApp</label>
                 <input class="fi" id="phone" type="tel" [(ngModel)]="phone" name="phone" placeholder="(11) 99999-9999" autocomplete="tel" />
                 <div class="field-hint">Opcional — para suporte durante o onboarding.</div>

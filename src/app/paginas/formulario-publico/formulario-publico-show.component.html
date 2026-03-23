@@ -231,6 +231,24 @@
                     }
                   </div>
                 }
+                @case ('file') {
+                  <div class="fp-file-wrap">
+                    <input
+                      type="file"
+                      [id]="'field_' + f.name_key"
+                      class="fp-input fp-file-input"
+                      (change)="onFileSelected($event, f.name_key)"
+                      accept="image/*,application/pdf,.pdf,.doc,.docx,.heic,.heif"
+                    />
+                    @if (valores[f.name_key]) {
+                      <div class="fp-file-actions">
+                        <span class="fp-field-hint">Arquivo selecionado — enviaremos junto com o formulário.</span>
+                        <button type="button" class="fp-link-btn" (click)="clearFile(f.name_key)">Remover</button>
+                      </div>
+                    }
+                  </div>
+                  <input type="hidden" [name]="f.name_key" [ngModel]="valores[f.name_key]" [required]="f.required" />
+                }
                 @case ('signature') {
                   <p class="fp-sig-help">Assine com o dedo (celular) ou mouse (computador) no espaço abaixo.</p>
                   <canvas

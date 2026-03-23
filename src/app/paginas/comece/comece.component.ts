@@ -22,6 +22,8 @@ export class ComeceComponent implements OnInit {
   companyName = '';
   responsibleName = '';
   email = '';
+  /** CPF ou CNPJ para faturamento / Asaas (com ou sem máscara). */
+  billingDocument = '';
   phone = '';
   password = '';
   passwordConfirmation = '';
@@ -107,6 +109,16 @@ export class ComeceComponent implements OnInit {
     this.planKey = key;
   }
 
+  private billingDocDigits(): string {
+    return (this.billingDocument || '').replace(/\D/g, '');
+  }
+
+  /** Alinhado à API: 11 (CPF) ou 14 (CNPJ) dígitos. */
+  private billingDocValid(): boolean {
+    const d = this.billingDocDigits();
+    return d.length === 11 || d.length === 14;
+  }
+
   atualizarForcaSenha(): void {
     const p = this.password || '';
     let score = 0;
@@ -141,12 +153,19 @@ export class ComeceComponent implements OnInit {
       this.mensagemErro = 'A senha deve ter no mínimo 8 caracteres.';
       return;
     }
+    if (!this.billingDocValid()) {
+      this.estadoErro = true;
+      this.mensagemErro =
+        'Informe um CPF (11 dígitos) ou CNPJ (14 dígitos) válido para faturamento e emissão do boleto.';
+      return;
+    }
     this.estadoCarregando = true;
     this.comeceService
       .store({
         company_name: this.companyName.trim(),
         responsible_name: this.responsibleName.trim(),
         email: this.email.trim(),
+        billing_document: this.billingDocument.trim(),
         phone: this.phone.trim() || undefined,
         password: this.password,
         password_confirmation: this.passwordConfirmation,

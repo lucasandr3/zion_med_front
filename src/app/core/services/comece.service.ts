@@ -11,6 +11,8 @@ export interface ComecePayload {
   company_name: string;
   responsible_name: string;
   email: string;
+  /** CPF (11) ou CNPJ (14) dígitos — obrigatório quando a API exige faturamento (Asaas). */
+  billing_document: string;
   phone?: string;
   password: string;
   password_confirmation: string;
@@ -31,6 +33,7 @@ export class ComeceService {
       company_name: payload.company_name,
       responsible_name: payload.responsible_name,
       email: payload.email,
+      billing_document: payload.billing_document.trim(),
       password: payload.password,
       password_confirmation: payload.password_confirmation,
       plan_key: payload.plan_key,
