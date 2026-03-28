@@ -48,9 +48,9 @@
     --skeleton-base: var(--c-soft);
     --skeleton-highlight: var(--c-surface);
 
-    --c-primary:  #2563eb;
+    --c-primary:  #1d4ed8;
     --c-accent:   #3b82f6;
-    --c-focus:    rgba(37,99,235,0.18);
+    --c-focus:    rgba(29,78,216,0.18);
 
     --c-bg:       #f4f6f9;
     --c-surface:  #ffffff;
@@ -69,18 +69,18 @@
     --sidebar-w:  15rem;
 }
 
-/* Temas claro */
+/* Temas claro — primary/accent com contraste WCAG AA mínimo 4.5:1 em fundo branco */
 .theme-zion-blue     { --c-primary: #1e40af; --c-accent: #2563eb; --c-focus: rgba(30,64,175,.18); }
-.theme-ocean-blue    { --c-primary: #2563eb; --c-accent: #3b82f6; --c-focus: rgba(37,99,235,.18); }
-.theme-indigo-night  { --c-primary: #4f46e5; --c-accent: #6366f1; --c-focus: rgba(79,70,229,.18); }
-.theme-emerald-fresh { --c-primary: #10b981; --c-accent: #34d399; --c-focus: rgba(16,185,129,.18); }
-.theme-rose-elegant  { --c-primary: #f43f5e; --c-accent: #fb7185; --c-focus: rgba(244,63,94,.18); }
-.theme-amber-warm    { --c-primary: #f59e0b; --c-accent: #fbbf24; --c-focus: rgba(245,158,11,.18); }
-.theme-violet-dream  { --c-primary: #8b5cf6; --c-accent: #a78bfa; --c-focus: rgba(139,92,246,.18); }
-.theme-teal-ocean    { --c-primary: #14b8a6; --c-accent: #2dd4bf; --c-focus: rgba(20,184,166,.18); }
-.theme-slate-pro     { --c-primary: #475569; --c-accent: #64748b; --c-focus: rgba(71,85,105,.18); }
-.theme-cyan-tech     { --c-primary: #06b6d4; --c-accent: #22d3ee; --c-focus: rgba(6,182,212,.18); }
-.theme-fuchsia-bold  { --c-primary: #d946ef; --c-accent: #e879f9; --c-focus: rgba(217,70,239,.18); }
+.theme-ocean-blue    { --c-primary: #1d4ed8; --c-accent: #3b82f6; --c-focus: rgba(29,78,216,.18); }
+.theme-indigo-night  { --c-primary: #3730a3; --c-accent: #4f46e5; --c-focus: rgba(55,48,163,.18); }
+.theme-emerald-fresh { --c-primary: #15803d; --c-accent: #16a34a; --c-focus: rgba(21,128,61,.18); }
+.theme-rose-elegant  { --c-primary: #be185d; --c-accent: #db2777; --c-focus: rgba(190,24,93,.18); }
+.theme-amber-warm    { --c-primary: #b45309; --c-accent: #d97706; --c-focus: rgba(180,83,9,.18); }
+.theme-violet-dream  { --c-primary: #6d28d9; --c-accent: #7c3aed; --c-focus: rgba(109,40,217,.18); }
+.theme-teal-ocean    { --c-primary: #0f766e; --c-accent: #0d9488; --c-focus: rgba(15,118,110,.18); }
+.theme-slate-pro     { --c-primary: #334155; --c-accent: #475569; --c-focus: rgba(51,65,85,.18); }
+.theme-cyan-tech     { --c-primary: #0369a1; --c-accent: #0284c7; --c-focus: rgba(3,105,161,.18); }
+.theme-fuchsia-bold  { --c-primary: #a21caf; --c-accent: #c026d3; --c-focus: rgba(162,28,175,.18); }
 
 /* ══════════════════════════════════════════════════════════════════════════
    MODO ESCURO — valores diretos
@@ -102,18 +102,18 @@
     --c-focus:    rgba(96,165,250,0.2);
 }
 
-/* Cada tema ajusta apenas o primary/accent no dark */
-.dark.theme-zion-blue     { --c-primary: #2563eb; --c-accent: #3b82f6; }
-.dark.theme-ocean-blue    { --c-primary: #3b82f6; --c-accent: #60a5fa; }
-.dark.theme-indigo-night  { --c-primary: #6366f1; --c-accent: #818cf8; }
-.dark.theme-emerald-fresh { --c-primary: #34d399; --c-accent: #6ee7b7; }
-.dark.theme-rose-elegant  { --c-primary: #fb7185; --c-accent: #fda4af; }
-.dark.theme-amber-warm    { --c-primary: #fbbf24; --c-accent: #fcd34d; }
-.dark.theme-violet-dream  { --c-primary: #a78bfa; --c-accent: #c4b5fd; }
-.dark.theme-teal-ocean    { --c-primary: #2dd4bf; --c-accent: #5eead4; }
-.dark.theme-slate-pro     { --c-primary: #94a3b8; --c-accent: #cbd5e1; }
-.dark.theme-cyan-tech     { --c-primary: #22d3ee; --c-accent: #67e8f9; }
-.dark.theme-fuchsia-bold  { --c-primary: #e879f9; --c-accent: #f0abfc; }
+/* Cada tema ajusta primary/accent/focus no dark — shade-400/300 para luminosidade adequada */
+.dark.theme-zion-blue     { --c-primary: #60a5fa; --c-accent: #93c5fd; --c-focus: rgba(96,165,250,.2); }
+.dark.theme-ocean-blue    { --c-primary: #3b82f6; --c-accent: #60a5fa; --c-focus: rgba(59,130,246,.2); }
+.dark.theme-indigo-night  { --c-primary: #818cf8; --c-accent: #a5b4fc; --c-focus: rgba(129,140,248,.2); }
+.dark.theme-emerald-fresh { --c-primary: #4ade80; --c-accent: #86efac; --c-focus: rgba(74,222,128,.2); }
+.dark.theme-rose-elegant  { --c-primary: #fb7185; --c-accent: #fda4af; --c-focus: rgba(251,113,133,.2); }
+.dark.theme-amber-warm    { --c-primary: #fbbf24; --c-accent: #fde68a; --c-focus: rgba(251,191,36,.2); }
+.dark.theme-violet-dream  { --c-primary: #a78bfa; --c-accent: #c4b5fd; --c-focus: rgba(167,139,250,.2); }
+.dark.theme-teal-ocean    { --c-primary: #2dd4bf; --c-accent: #5eead4; --c-focus: rgba(45,212,191,.2); }
+.dark.theme-slate-pro     { --c-primary: #94a3b8; --c-accent: #cbd5e1; --c-focus: rgba(148,163,184,.2); }
+.dark.theme-cyan-tech     { --c-primary: #38bdf8; --c-accent: #7dd3fc; --c-focus: rgba(56,189,248,.2); }
+.dark.theme-fuchsia-bold  { --c-primary: #e879f9; --c-accent: #f0abfc; --c-focus: rgba(232,121,249,.2); }
 
 /* ══════════════════════════════════════════════════════════════════════════
    BASE

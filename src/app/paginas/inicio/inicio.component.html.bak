@@ -30,10 +30,10 @@
     <div class="mx-auto flex max-w-7xl items-center justify-between gap-2 px-3 py-3 sm:gap-4 sm:px-4 sm:py-4">
       <a routerLink="/" class="flex min-w-0 shrink items-center gap-2 sm:gap-3">
         <div class="h-9 w-9 shrink-0 rounded-xl flex items-center justify-center overflow-hidden bg-accent-600 shadow-glow p-1 sm:h-10 sm:w-10">
-          <img src="assets/logo/zionmed_logo.png" alt="Zion Med" class="w-full h-full object-contain rounded-lg">
+          <img src="assets/logo/logo.png" alt="Gestgo" class="w-full h-full object-contain rounded-lg">
         </div>
         <div class="min-w-0 leading-tight">
-          <div class="truncate text-sm font-semibold tracking-tight">ZionMed</div>
+          <div class="truncate text-sm font-semibold tracking-tight">Gestgo</div>
           <div class="hidden truncate text-xs text-slate-500 sm:block">Fichas e Consentimentos Digitais</div>
         </div>
       </a>
@@ -172,7 +172,7 @@
       <div class="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
         <div>
           <div class="text-sm font-semibold text-slate-900">Complementar ao ERP e prontuário que você já usa</div>
-          <div class="text-sm text-slate-600">O ZionMed não substitui nada — ele digitaliza o que ainda está em papel na recepção.</div>
+          <div class="text-sm text-slate-600">O Gestgo não substitui nada — ele digitaliza o que ainda está em papel na recepção.</div>
         </div>
         <div class="flex flex-wrap gap-2">
           <span class="rounded-full border border-base-200 bg-base-50 px-3 py-1 text-xs font-medium text-slate-600">Fichas digitais</span>
@@ -266,7 +266,7 @@
             Governança operacional: aprovações, trilhas e responsabilidades claras.
           </h2>
           <p class="mt-4 text-base leading-relaxed text-slate-600">
-            Clínicas maiores precisam de previsibilidade. O ZionMed cria estrutura para que processos não dependam de pessoas,
+            Clínicas maiores precisam de previsibilidade. O Gestgo cria estrutura para que processos não dependam de pessoas,
             e sim de regras: quem envia, quem aprova, quando, e o que foi alterado.
           </p>
           <div class="mt-8 space-y-4">
@@ -352,7 +352,7 @@
     <div class="mx-auto max-w-7xl px-4 py-16">
       <div class="max-w-3xl">
         <h2 class="text-2xl font-semibold tracking-tight text-slate-950 sm:text-3xl">
-          Como o ZionMed funciona na prática
+          Como o Gestgo funciona na prática
         </h2>
         <p class="mt-4 text-base leading-relaxed text-slate-600">
           Em quatro passos simples, sua clínica digitaliza fichas e consentimentos, mantendo tudo organizado com evidência jurídica — sem trocar o sistema atual.
@@ -393,7 +393,7 @@
             Segurança e controle de acesso em nível corporativo.
           </h2>
           <p class="mt-4 text-base leading-relaxed text-slate-600">
-            O ZionMed foi desenhado para reduzir exposição e aumentar controle: permissões por perfil, links públicos
+            O Gestgo foi desenhado para reduzir exposição e aumentar controle: permissões por perfil, links públicos
             com token seguro e registros de auditoria.
           </p>
           <div class="mt-8 grid gap-4 sm:grid-cols-2">
@@ -448,10 +448,10 @@
     <div class="mx-auto max-w-7xl px-4 py-16">
       <div class="max-w-3xl">
         <h2 class="text-2xl font-semibold tracking-tight text-slate-950 sm:text-3xl">
-          O ZionMed integra com outros sistemas
+          O Gestgo integra com outros sistemas
         </h2>
         <p class="mt-4 text-base leading-relaxed text-slate-600">
-          Quem assina o ZionMed pode conectar ERPs, prontuários e sistemas internos por meio de <strong>API REST</strong> e <strong>webhooks</strong>.
+          Quem assina o Gestgo pode conectar ERPs, prontuários e sistemas internos por meio de <strong>API REST</strong> e <strong>webhooks</strong>.
           A integração é pensada para ser simples: token de API, documentação OpenAPI e notificações em tempo real.
         </p>
       </div>
@@ -546,7 +546,7 @@
       <h2 class="text-2xl font-semibold tracking-tight text-slate-950 sm:text-3xl">Perguntas frequentes</h2>
       <div class="mt-10 grid gap-6 lg:grid-cols-2">
         <details class="rounded-2xl border border-base-200 bg-base-50 p-6 landing-details">
-          <summary class="cursor-pointer text-sm font-semibold text-slate-900">O ZionMed substitui meu ERP/prontuário?</summary>
+          <summary class="cursor-pointer text-sm font-semibold text-slate-900">O Gestgo substitui meu ERP/prontuário?</summary>
           <p class="mt-3 text-sm text-slate-600">
             Não. Ele complementa: organiza processos operacionais, consentimentos, checklists e evidências com rastreabilidade.
           </p>
@@ -594,11 +594,11 @@
         </div>
 
         <div class="rounded-2xl bg-white p-6 text-slate-900 shadow-soft">
-          <div class="text-sm font-semibold">Quero ver uma demonstração do ZionMed</div>
-          <p class="mt-1 text-sm text-slate-600">Preencha o formulário ou fale direto pelo WhatsApp. Vamos entender sua clínica e mostrar como o ZionMed se encaixa na rotina atual.</p>
+          <div class="text-sm font-semibold">Quero ver uma demonstração do Gestgo</div>
+          <p class="mt-1 text-sm text-slate-600">Preencha o formulário ou fale direto pelo WhatsApp. Vamos entender sua clínica e mostrar como o Gestgo se encaixa na rotina atual.</p>
 
           <div class="mt-4 flex flex-wrap items-center gap-3">
-            <a href="https://wa.me/5534996460818?text=Olá! Gostaria de agendar uma demonstração do ZionMed."
+            <a href="https://wa.me/5534996460818?text=Olá! Gostaria de agendar uma demonstração do Gestgo."
                target="_blank"
                rel="noopener noreferrer"
                class="inline-flex items-center justify-center gap-2 rounded-lg bg-[#25D366] px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-[#20BD5A] transition-colors">
@@ -664,10 +664,10 @@
       <div class="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-center">
         <div class="flex items-center gap-3">
           <div class="h-9 w-9 rounded-xl flex items-center justify-center shrink-0 overflow-hidden bg-accent-600 p-1">
-            <img src="assets/logo/zionmed_logo.png" alt="Zion Med" class="w-full h-full object-contain rounded-lg">
+            <img src="assets/logo/logo.png" alt="Gestgo" class="w-full h-full object-contain rounded-lg">
           </div>
           <div>
-            <div class="text-sm font-semibold text-white">ZionMed</div>
+            <div class="text-sm font-semibold text-white">Gestgo</div>
             <div class="text-xs text-white/60">Fichas e Consentimentos Digitais para Clínicas</div>
           </div>
         </div>
@@ -678,7 +678,7 @@
           <span class="hidden sm:inline text-white/40">·</span>
           <a routerLink="/termos-de-uso" class="text-white/70 hover:text-white transition-colors">Termos de Uso</a>
           <span class="hidden sm:inline text-white/40">·</span>
-          <span>© {{ ano }} ZionMed. Todos os direitos reservados.</span>
+          <span>© {{ ano }} Gestgo. Todos os direitos reservados.</span>
         </div>
       </div>
     </div>

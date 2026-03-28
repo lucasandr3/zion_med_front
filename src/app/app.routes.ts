@@ -50,7 +50,7 @@ export const routes: Routes = [
     canActivate: [authGuard, platformGuard],
     children: [
       { path: '', loadComponent: () => import('./paginas/plataforma/plataforma-dashboard/plataforma-dashboard.component').then(m => m.PlataformaDashboardComponent), data: { titulo: 'Visão geral' } },
-      { path: 'clientes', loadComponent: () => import('./paginas/plataforma/plataforma-clientes/plataforma-clientes.component').then(m => m.PlataformaClientesComponent), data: { titulo: 'Clientes (tenants)', subtitulo: 'Visão geral dos clientes utilizando o Zion Med.' } },
+      { path: 'clientes', loadComponent: () => import('./paginas/plataforma/plataforma-clientes/plataforma-clientes.component').then(m => m.PlataformaClientesComponent), data: { titulo: 'Clientes (tenants)', subtitulo: 'Visão geral dos clientes utilizando o Gestgo.' } },
       { path: 'clientes/:id', loadComponent: () => import('./paginas/plataforma/plataforma-cliente-detalhe/plataforma-cliente-detalhe.component').then(m => m.PlataformaClienteDetalheComponent), data: { titulo: 'Cliente', urlVoltar: '/plataforma/clientes', labelVoltar: 'Voltar para Clientes' } },
       { path: 'leads', loadComponent: () => import('./paginas/plataforma/plataforma-leads/plataforma-leads.component').then(m => m.PlataformaLeadsComponent), data: { titulo: 'Leads', subtitulo: 'Solicitações de demonstração da landing.' } },
       { path: 'notificacoes', loadComponent: () => import('./paginas/notificacoes/notificacoes.component').then(m => m.NotificacoesComponent), data: { titulo: 'Notificações', subtitulo: 'Central de notificações.' } },

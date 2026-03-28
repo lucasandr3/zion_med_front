@@ -111,7 +111,7 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.publicPageBody.enterPublicPage();
     try {
-      this.dark = localStorage.getItem('zionmed_form_dark_mode') === '1';
+      this.dark = localStorage.getItem('gestgo_form_dark_mode') === '1';
     } catch {}
     if (!this.token) {
       this.showSkeleton = signal(false).asReadonly();
@@ -144,7 +144,7 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
   toggleDark(): void {
     this.dark = !this.dark;
     try {
-      localStorage.setItem('zionmed_form_dark_mode', this.dark ? '1' : '0');
+      localStorage.setItem('gestgo_form_dark_mode', this.dark ? '1' : '0');
     } catch {}
   }
 

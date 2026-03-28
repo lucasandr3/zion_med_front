@@ -32,7 +32,7 @@ export class LoginComponent implements OnInit {
 
   ngOnInit(): void {
     if (isPlatformBrowser(this.platformId)) {
-      const saved = localStorage.getItem('zionmed_login_email');
+      const saved = localStorage.getItem('gestgo_login_email');
       if (saved) this.email = saved;
       this.atualizarIconeTema();
     }
@@ -41,7 +41,7 @@ export class LoginComponent implements OnInit {
   alternarTema(): void {
     if (isPlatformBrowser(this.platformId)) {
       document.body.classList.toggle('dark');
-      localStorage.setItem('zionmed_dark_mode', document.body.classList.contains('dark') ? '1' : '0');
+      localStorage.setItem('gestgo_dark_mode', document.body.classList.contains('dark') ? '1' : '0');
       this.atualizarIconeTema();
     }
   }
@@ -55,7 +55,7 @@ export class LoginComponent implements OnInit {
     this.mensagemErro = '';
     this.estadoCarregando = true;
     if (isPlatformBrowser(this.platformId) && this.email) {
-      localStorage.setItem('zionmed_login_email', this.email);
+      localStorage.setItem('gestgo_login_email', this.email);
     }
     this.auth.login(this.email, this.senha).subscribe({
       next: (res) => {

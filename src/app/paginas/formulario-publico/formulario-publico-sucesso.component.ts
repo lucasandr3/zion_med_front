@@ -32,7 +32,7 @@ export class FormularioPublicoSucessoComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.publicPageBody.enterPublicPage();
     try {
-      this.dark = localStorage.getItem('zionmed_form_dark_mode') === '1';
+      this.dark = localStorage.getItem('gestgo_form_dark_mode') === '1';
     } catch {}
   }
 

@@ -63,7 +63,7 @@ export class InicioComponent implements OnInit {
 
   ngOnInit(): void {
     if (isPlatformBrowser(this.platformId)) {
-      this.temaEscuro = localStorage.getItem('zionmed_dark_mode') === '1';
+      this.temaEscuro = localStorage.getItem('gestgo_dark_mode') === '1';
       this.atualizarLabelTema();
       document.body.classList.toggle('dark', this.temaEscuro);
     }
@@ -101,7 +101,7 @@ export class InicioComponent implements OnInit {
   alternarTema(): void {
     this.temaEscuro = !this.temaEscuro;
     if (isPlatformBrowser(this.platformId)) {
-      localStorage.setItem('zionmed_dark_mode', this.temaEscuro ? '1' : '0');
+      localStorage.setItem('gestgo_dark_mode', this.temaEscuro ? '1' : '0');
       document.body.classList.toggle('dark', this.temaEscuro);
     }
     this.atualizarLabelTema();

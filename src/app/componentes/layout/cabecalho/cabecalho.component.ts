@@ -7,16 +7,16 @@ import { TooltipDirective } from '../../../core/directives/tooltip.directive';
 
 export const TEMAS: { key: string; label: string; labelPt: string; color: string }[] = [
   { key: 'zion-blue', label: 'Zion Blue', labelPt: 'Azul royal', color: '#1e40af' },
-  { key: 'ocean-blue', label: 'Ocean Blue', labelPt: 'Azul oceano', color: '#2563eb' },
-  { key: 'indigo-night', label: 'Indigo Night', labelPt: 'Anil', color: '#4f46e5' },
-  { key: 'emerald-fresh', label: 'Emerald Fresh', labelPt: 'Esmeralda', color: '#10b981' },
-  { key: 'rose-elegant', label: 'Rose Elegant', labelPt: 'Rosa', color: '#f43f5e' },
-  { key: 'amber-warm', label: 'Amber Warm', labelPt: 'Âmbar', color: '#f59e0b' },
-  { key: 'violet-dream', label: 'Violet Dream', labelPt: 'Violeta', color: '#8b5cf6' },
-  { key: 'teal-ocean', label: 'Teal Ocean', labelPt: 'Verde-água', color: '#14b8a6' },
-  { key: 'slate-pro', label: 'Slate Pro', labelPt: 'Ardósia', color: '#475569' },
-  { key: 'cyan-tech', label: 'Cyan Tech', labelPt: 'Ciano', color: '#06b6d4' },
-  { key: 'fuchsia-bold', label: 'Fuchsia Bold', labelPt: 'Magenta', color: '#d946ef' },
+  { key: 'ocean-blue', label: 'Ocean Blue', labelPt: 'Azul oceano', color: '#1d4ed8' },
+  { key: 'indigo-night', label: 'Indigo Night', labelPt: 'Anil', color: '#3730a3' },
+  { key: 'emerald-fresh', label: 'Emerald Fresh', labelPt: 'Esmeralda', color: '#15803d' },
+  { key: 'rose-elegant', label: 'Rose Elegant', labelPt: 'Rosa', color: '#be185d' },
+  { key: 'amber-warm', label: 'Amber Warm', labelPt: 'Âmbar', color: '#b45309' },
+  { key: 'violet-dream', label: 'Violet Dream', labelPt: 'Violeta', color: '#6d28d9' },
+  { key: 'teal-ocean', label: 'Teal Ocean', labelPt: 'Verde-água', color: '#0f766e' },
+  { key: 'slate-pro', label: 'Slate Pro', labelPt: 'Ardósia', color: '#334155' },
+  { key: 'cyan-tech', label: 'Cyan Tech', labelPt: 'Ciano', color: '#0369a1' },
+  { key: 'fuchsia-bold', label: 'Fuchsia Bold', labelPt: 'Magenta', color: '#a21caf' },
 ];
 
 /** Ordem na grade 6+5 (alinhada ao painel visual de referência). */
@@ -42,8 +42,8 @@ const TEMAS_GRADE_ORDER = [
   styleUrl: './cabecalho.component.css',
 })
 export class CabecalhoComponent implements OnInit {
-  @Input() titulo = 'Zion Med';
-  /** Subtítulo exibido abaixo do título no header (ex.: "Visão geral dos clientes utilizando o Zion Med."). */
+  @Input() titulo = 'Gestgo';
+  /** Subtítulo exibido abaixo do título no header (ex.: "Visão geral dos clientes utilizando o Gestgo."). */
   @Input() subtitulo: string | null = null;
   @Input() urlVoltar: string | null = null;
   @Input() labelVoltar = 'Voltar';
@@ -83,13 +83,13 @@ export class CabecalhoComponent implements OnInit {
 
   ngOnInit(): void {
     try {
-      const saved = localStorage.getItem('zionmed_theme');
+      const saved = localStorage.getItem('gestgo_theme');
       if (saved) this.temaAtual = saved;
       else {
         const m = document.body.className.match(/theme-([a-z-]+)/);
         if (m) this.temaAtual = m[1];
       }
-      this.modoEscuro = document.body.classList.contains('dark') || localStorage.getItem('zionmed_dark_mode') === '1';
+      this.modoEscuro = document.body.classList.contains('dark') || localStorage.getItem('gestgo_dark_mode') === '1';
     } catch {}
   }
 
@@ -103,7 +103,7 @@ export class CabecalhoComponent implements OnInit {
     this.sidebarColapsada = !this.sidebarColapsada;
     document.body.classList.toggle('sidebar-collapsed', this.sidebarColapsada);
     try {
-      localStorage.setItem('zionmed_sidebar_collapsed', this.sidebarColapsada ? '1' : '0');
+      localStorage.setItem('gestgo_sidebar_collapsed', this.sidebarColapsada ? '1' : '0');
     } catch {}
   }
 
@@ -112,7 +112,7 @@ export class CabecalhoComponent implements OnInit {
     this.modoEscuro = escuro;
     document.body.classList.toggle('dark', this.modoEscuro);
     try {
-      localStorage.setItem('zionmed_dark_mode', this.modoEscuro ? '1' : '0');
+      localStorage.setItem('gestgo_dark_mode', this.modoEscuro ? '1' : '0');
     } catch {}
   }
 
@@ -130,7 +130,7 @@ export class CabecalhoComponent implements OnInit {
     document.body.classList.add('theme-' + key);
     this.temaAtual = key;
     try {
-      localStorage.setItem('zionmed_theme', key);
+      localStorage.setItem('gestgo_theme', key);
     } catch {}
   }
 

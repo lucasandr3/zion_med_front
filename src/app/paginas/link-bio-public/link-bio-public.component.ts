@@ -51,7 +51,7 @@ export class LinkBioPublicComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.publicPageBody.enterPublicPage();
     try {
-      this.dark = localStorage.getItem('zionmed_bio_dark') === '1';
+      this.dark = localStorage.getItem('gestgo_bio_dark') === '1';
     } catch {}
     const slug = this.route.snapshot.paramMap.get('slug') ?? '';
     this.slug = slug;
@@ -253,7 +253,7 @@ export class LinkBioPublicComponent implements OnInit, OnDestroy {
   toggleDark(): void {
     this.dark = !this.dark;
     try {
-      localStorage.setItem('zionmed_bio_dark', this.dark ? '1' : '0');
+      localStorage.setItem('gestgo_bio_dark', this.dark ? '1' : '0');
     } catch {}
   }
 

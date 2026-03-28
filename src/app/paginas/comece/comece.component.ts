@@ -45,7 +45,7 @@ export class ComeceComponent implements OnInit {
 
   readonly waCadastroUrl =
     'https://wa.me/5534996460818?text=' +
-    encodeURIComponent('Olá! Estou criando minha conta no ZionMed e queria tirar uma dúvida.');
+    encodeURIComponent('Olá! Estou criando minha conta no Gestgo e queria tirar uma dúvida.');
 
   private platformId: object;
   private router = inject(Router);

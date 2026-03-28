@@ -3,7 +3,7 @@
 }
 
 /* ── TOKENS (escopo landing) ─── */
-/* Cores alinhadas a .theme-zion-blue (styles.css) */
+/* Cores alinhadas a .theme-ocean-blue (styles.css) */
 .lp-page {
   --sans: 'Geist', system-ui, sans-serif;
   --radius: 12px;
@@ -32,7 +32,7 @@
   --feat-bg: #111113;
   --grid-line: rgba(255, 255, 255, 0.04);
   --brand: #3b82f6;
-  --brand-dark: #2563eb;
+  --brand-dark: #1d4ed8;
   --brand-bg: rgba(59, 130, 246, 0.12);
   --brand-bd: rgba(59, 130, 246, 0.28);
   --hero-glow: rgba(59, 130, 246, 0.1);
@@ -54,12 +54,12 @@
   --card-bg: #ffffff;
   --feat-bg: #f8f8fa;
   --grid-line: rgba(0, 0, 0, 0.04);
-  --brand: #2563eb;
+  --brand: #1d4ed8;
   --brand-dark: #1e40af;
-  --brand-bg: rgba(37, 99, 235, 0.1);
+  --brand-bg: rgba(29, 78, 216, 0.1);
   --brand-bd: rgba(30, 64, 175, 0.22);
-  --hero-glow: rgba(37, 99, 235, 0.08);
-  --brand-pulse: rgba(37, 99, 235, 0.4);
+  --hero-glow: rgba(29, 78, 216, 0.08);
+  --brand-pulse: rgba(29, 78, 216, 0.4);
 }
 
 .lp-page *,

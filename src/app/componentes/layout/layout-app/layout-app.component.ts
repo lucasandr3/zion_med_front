@@ -29,7 +29,7 @@ export class LayoutAppComponent implements OnInit {
       const child = e.urlAfterRedirects.split('?')[0];
       const route = this.router.config.flatMap((c) => (c.children ?? [])).find((r) => r.path && child.includes(r.path));
       const data = (route?.data ?? {}) as { titulo?: string; urlVoltar?: string; labelVoltar?: string };
-      this.tituloPagina = data.titulo ?? 'Zion Med';
+      this.tituloPagina = data.titulo ?? 'Gestgo';
       this.urlVoltar = data.urlVoltar ?? null;
       this.labelVoltar = data.labelVoltar ?? null;
     });

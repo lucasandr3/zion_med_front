@@ -1,4 +1,4 @@
-# Diagnóstico — Migração Blade → Angular (Zion Med)
+# Diagnóstico — Migração Blade → Angular (Gestgo)
 
 ## 1. Aviso sobre contexto.md
 O arquivo `contexto.md` não foi encontrado na raiz do workspace. A migração foi realizada com base na análise direta dos projetos Blade e Angular.
@@ -10,7 +10,7 @@ O arquivo `contexto.md` não foi encontrado na raiz do workspace. A migração f
 ### Públicas (sem autenticação)
 | Rota/View | Descrição |
 |-----------|-----------|
-| `landing.blade.php` | Página inicial (home) — ZionMed governança documental, hero, seções, planos, FAQ, CTA, formulário demonstração |
+| `landing.blade.php` | Página inicial (home) — Gestgo governança documental, hero, seções, planos, FAQ, CTA, formulário demonstração |
 | `auth/login.blade.php` | Login — card com email, senha, lembrar, link "Começar trial" |
 | `comece.blade.php` | Cadastro trial — stepper 1/2/3, seleção de plano, empresa, responsável, email, senha, termos |
 | `legal/termos.blade.php` | Termos de uso |

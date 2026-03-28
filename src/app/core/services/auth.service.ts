@@ -4,10 +4,10 @@ import { Router } from '@angular/router';
 import { Observable, tap, catchError, of } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
-const TOKEN_KEY = 'zionmed_token';
-const USER_KEY = 'zionmed_user';
-const CLINICS_KEY = 'zionmed_clinics';
-const CURRENT_CLINIC_KEY = 'zionmed_clinic_id';
+const TOKEN_KEY = 'gestgo_token';
+const USER_KEY = 'gestgo_user';
+const CLINICS_KEY = 'gestgo_clinics';
+const CURRENT_CLINIC_KEY = 'gestgo_clinic_id';
 
 export interface User {
   id: number;

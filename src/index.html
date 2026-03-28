@@ -3,32 +3,32 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>ZionMed — Fichas e Consentimentos Digitais para Clínicas</title>
+  <title>Gestgo — Fichas e Consentimentos Digitais para Clínicas</title>
   <meta name="description" content="Digitalize fichas e consentimentos da sua clínica: pacientes recebem um link, preenchem antes da consulta e assinam digitalmente. Protocolo, PDF automático e histórico organizado. Trial grátis." />
   <base href="/">
-  <link rel="canonical" href="https://zionmed.com.br/" />
+  <link rel="canonical" href="https://gestgo.com.br/" />
 
   <!-- Open Graph -->
   <meta property="og:type" content="website" />
-  <meta property="og:site_name" content="ZionMed" />
-  <meta property="og:title" content="ZionMed — Fichas e Consentimentos Digitais para Clínicas" />
+  <meta property="og:site_name" content="Gestgo" />
+  <meta property="og:title" content="Gestgo — Fichas e Consentimentos Digitais para Clínicas" />
   <meta property="og:description" content="Digitalize fichas e consentimentos da sua clínica: pacientes recebem um link, preenchem antes da consulta e assinam digitalmente. Protocolo, PDF automático e histórico organizado. Trial grátis." />
-  <meta property="og:url" content="https://zionmed.com.br/" />
+  <meta property="og:url" content="https://gestgo.com.br/" />
   <meta property="og:locale" content="pt_BR" />
-  <meta property="og:image" content="/assets/logo/zionmed_logo.png" />
+  <meta property="og:image" content="/assets/logo/logo.png" />
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="ZionMed — Fichas e Consentimentos Digitais para Clínicas" />
+  <meta name="twitter:title" content="Gestgo — Fichas e Consentimentos Digitais para Clínicas" />
   <meta name="twitter:description" content="Digitalize fichas e consentimentos da sua clínica: pacientes recebem um link, preenchem antes da consulta e assinam digitalmente. Protocolo, PDF automático e histórico organizado. Trial grátis." />
-  <meta name="twitter:image" content="/assets/logo/zionmed_logo.png" />
+  <meta name="twitter:image" content="/assets/logo/logo.png" />
 
   <!-- Favicons -->
   <link rel="icon" type="image/png" href="favicon-96x96.png" sizes="96x96" />
   <link rel="icon" type="image/svg+xml" href="favicon.svg" />
   <link rel="shortcut icon" href="favicon.ico" />
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
-  <meta name="apple-mobile-web-app-title" content="ZionMed" />
+  <meta name="apple-mobile-web-app-title" content="Gestgo" />
   <link rel="manifest" href="site.webmanifest" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -43,18 +43,18 @@
     "@graph": [
       {
         "@type": "Organization",
-        "@id": "https://zionmed.com.br/#organization",
-        "name": "ZionMed",
-        "url": "https://zionmed.com.br/",
-        "logo": "/assets/logo/zionmed_logo.png",
+        "@id": "https://gestgo.com.br/#organization",
+        "name": "Gestgo",
+        "url": "https://gestgo.com.br/",
+        "logo": "/assets/logo/logo.png",
         "description": "Fichas e consentimentos digitais para clínicas: pacientes preenchem e assinam antes da consulta. Protocolo, PDF automático e histórico organizado."
       },
       {
         "@type": "WebSite",
-        "name": "ZionMed",
-        "url": "https://zionmed.com.br/",
+        "name": "Gestgo",
+        "url": "https://gestgo.com.br/",
         "description": "Fichas e consentimentos digitais para clínicas — sem papel na recepção.",
-        "publisher": { "@id": "https://zionmed.com.br/#organization" }
+        "publisher": { "@id": "https://gestgo.com.br/#organization" }
       }
     ]
   }
@@ -64,11 +64,11 @@
   <script>
     (function(){
       try {
-        var theme = localStorage.getItem('zionmed_theme') || 'ocean-blue';
+        var theme = localStorage.getItem('gestgo_theme') || 'ocean-blue';
         Array.from(document.body.classList).filter(function(c){ return c.startsWith('theme-'); }).forEach(function(c){ document.body.classList.remove(c); });
         document.body.classList.add('theme-' + theme);
-        if (localStorage.getItem('zionmed_dark_mode') === '1') document.body.classList.add('dark');
-        if (localStorage.getItem('zionmed_sidebar_collapsed') === '1') document.body.classList.add('sidebar-collapsed');
+        if (localStorage.getItem('gestgo_dark_mode') === '1') document.body.classList.add('dark');
+        if (localStorage.getItem('gestgo_sidebar_collapsed') === '1') document.body.classList.add('sidebar-collapsed');
       } catch(e) {}
     })();
   </script>

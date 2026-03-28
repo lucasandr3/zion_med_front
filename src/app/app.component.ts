@@ -11,5 +11,5 @@ import { ZmTopProgressBarComponent } from './shared/components/top-progress-bar/
   styleUrl: './app.component.css'
 })
 export class AppComponent {
-  title = 'zion_med_front';
+  title = 'Gestgo';
 }
