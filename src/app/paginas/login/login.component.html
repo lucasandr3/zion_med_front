@@ -17,11 +17,11 @@
       </div>
       <div class="login-brand-text">
         <h1>
-          Cuidando da saúde<br>
-          <span class="hl">com inteligência.</span>
+          Fichas digitais que chegam<br>
+          <span class="hl">antes do paciente.</span>
         </h1>
         <p>
-          A plataforma líder para gestão de clínicas e protocolos que impulsionam o crescimento e a eficiência operacional.
+          Fichas e consentimentos digitais para sua clínica: o paciente preenche pelo link antes da consulta — protocolo, PDF automático e histórico organizados.
         </p>
       </div>
       <p class="login-brand-footer">© {{ ano }} Gestgo. Todos os direitos reservados.</p>
@@ -30,7 +30,7 @@
     <div class="login-card">
       <div class="login-card-inner">
         <h2 class="login-card-title">Bem-vindo de volta</h2>
-        <p class="login-card-subtitle">Entre na sua conta para continuar sua análise.</p>
+        <p class="login-card-subtitle">Entre para acessar o painel da sua clínica, fichas e protocolos.</p>
 
         @if (estadoErro) {
           <div class="login-error" style="margin-bottom:1.5rem">
@@ -41,18 +41,18 @@
         <form (ngSubmit)="enviar()" class="login-form" #formLogin="ngForm">
           <div class="login-field">
             <div class="login-label-row">
-              <label class="login-label" for="login-email">Usuário</label>
+              <label class="login-label" for="login-email">E-mail</label>
             </div>
             <div class="login-input-wrap">
-              <span class="material-symbols-outlined login-input-icon-l">person</span>
+              <span class="material-symbols-outlined login-input-icon-l">mail</span>
               <input type="email" name="email" id="login-email" [(ngModel)]="email"
-                     class="login-input" placeholder="Seu nome de usuário" required autofocus>
+                     class="login-input" placeholder="seu@email.com.br" required autofocus>
             </div>
           </div>
 
           <div class="login-field">
             <div class="login-label-row">
-              <label class="login-label" for="login-password">Sua Senha</label>
+              <label class="login-label" for="login-password">Senha</label>
               <a routerLink="/esqueci-a-senha" class="login-forgot">Esqueceu a senha?</a>
             </div>
             <div class="login-input-wrap">
@@ -71,7 +71,7 @@
 
           <button type="submit" class="login-btn" [disabled]="estadoCarregando">
             @if (estadoCarregando) {
-              <span>Enviando…</span>
+              <span>Entrando…</span>
             } @else {
               <span>Acessar</span>
               <span class="material-symbols-outlined btn-arrow">arrow_forward</span>
@@ -79,7 +79,7 @@
           </button>
 
           <p class="login-register">
-            Ainda não tem conta? <a routerLink="/comece">Começar trial</a>
+            Ainda não tem conta? <a routerLink="/comece">Criar conta grátis</a>
           </p>
         </form>
       </div>

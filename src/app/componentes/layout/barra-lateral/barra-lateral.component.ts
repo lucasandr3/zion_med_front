@@ -26,10 +26,15 @@ export class BarraLateralComponent implements OnInit {
   menuUsuarioAberto = false;
   exibirTrocarEmpresa = false;
   ehAdminPlataforma = false;
-  podeGerenciarClinica = true;
-  podeGerenciarTemplates = true;
-  podeVerSubmissoes = true;
+  podeVerDashboard = false;
+  podeVerNotificacoes = false;
+  podeVerBilling = false;
+  podeGerenciarClinica = false;
+  podeGerenciarTemplates = false;
+  podeVerSubmissoes = false;
   podeGerenciarUsuarios = false;
+  /** Links públicos / envios: templates ou ao menos ver submissões. */
+  podeAcessarLinksEEnvios = false;
 
   @ViewChild('userMenuContainer') userMenuContainer?: ElementRef<HTMLElement>;
 
@@ -66,10 +71,25 @@ export class BarraLateralComponent implements OnInit {
       this.nomeUsuario = u.name || 'Usuário';
       this.emailUsuario = u.email || '';
       this.iniciaisUsuario = this.nomeUsuario.slice(0, 2).toUpperCase() || 'U';
-      this.podeGerenciarClinica = ['owner', 'admin'].includes(u.role);
-      this.podeGerenciarUsuarios = ['owner', 'admin'].includes(u.role);
-      this.podeGerenciarTemplates = true;
-      this.podeVerSubmissoes = true;
+      this.ehAdminPlataforma = u.role === 'platform_admin';
+      this.podeVerDashboard = this.auth.hasPermission('dashboard.access');
+      this.podeVerNotificacoes = this.auth.hasPermission('notifications.access');
+      this.podeVerBilling = this.auth.hasPermission('billing.manage');
+      this.podeGerenciarClinica = this.auth.hasPermission('organization.manage');
+      this.podeGerenciarUsuarios = this.auth.hasPermission('users.manage');
+      this.podeGerenciarTemplates = this.auth.hasPermission('templates.manage');
+      this.podeVerSubmissoes = this.auth.hasPermission('submissions.view');
+      this.podeAcessarLinksEEnvios =
+        this.auth.hasPermission('templates.manage') || this.auth.hasPermission('submissions.view');
+    } else {
+      this.podeVerDashboard = false;
+      this.podeVerNotificacoes = false;
+      this.podeVerBilling = false;
+      this.podeGerenciarClinica = false;
+      this.podeGerenciarUsuarios = false;
+      this.podeGerenciarTemplates = false;
+      this.podeVerSubmissoes = false;
+      this.podeAcessarLinksEEnvios = false;
     }
     this.exibirTrocarEmpresa = this.auth.canSwitchClinic();
     const clinic = this.auth.getCurrentClinic();

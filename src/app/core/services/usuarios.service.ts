@@ -9,8 +9,28 @@ export interface Usuario {
   role: string;
   role_label?: string;
   active?: boolean;
+  can_switch_clinic?: boolean;
   created_at?: string;
   updated_at?: string;
+}
+
+export interface UsuarioCreatePayload {
+  name: string;
+  email: string;
+  password: string;
+  password_confirmation: string;
+  role: string;
+  can_switch_clinic?: boolean;
+}
+
+export interface UsuarioUpdatePayload {
+  name: string;
+  email: string;
+  role: string;
+  active: boolean;
+  password?: string;
+  password_confirmation?: string;
+  can_switch_clinic?: boolean;
 }
 
 export interface Role {
@@ -53,11 +73,11 @@ export class UsuariosService {
     );
   }
 
-  create(payload: { name: string; email: string; password: string; role: string }): Observable<Usuario> {
+  create(payload: UsuarioCreatePayload): Observable<Usuario> {
     return this.api.post<OneResponse>('/usuarios', payload).pipe(map((r) => r.data));
   }
 
-  update(id: number, payload: Partial<Usuario> & { password?: string }): Observable<Usuario> {
+  update(id: number, payload: UsuarioUpdatePayload): Observable<Usuario> {
     return this.api.put<OneResponse>(`/usuarios/${id}`, payload).pipe(map((r) => r.data));
   }
 

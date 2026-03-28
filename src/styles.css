@@ -45,8 +45,9 @@
    ══════════════════════════════════════════════════════════════════════════ */
 :root {
     --primary-color: var(--c-primary);
-    --skeleton-base: var(--c-soft);
-    --skeleton-highlight: var(--c-surface);
+    /* Shimmer: base mais escuro que o highlight — soft/surface no claro eram quase brancos */
+    --skeleton-base: #d8dee8;
+    --skeleton-highlight: #f1f4f8;
 
     --c-primary:  #1d4ed8;
     --c-accent:   #3b82f6;
@@ -86,6 +87,9 @@
    MODO ESCURO — valores diretos
    ══════════════════════════════════════════════════════════════════════════ */
 .dark {
+    --skeleton-base: #1a1a24;
+    --skeleton-highlight: #2c2c3a;
+
     --c-bg:       #09090f;
     --c-surface:  #111118;
     --c-elevated: #18181f;

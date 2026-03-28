@@ -31,7 +31,7 @@ export class PessoasDetalheComponent implements OnInit {
   private auth = inject(AuthService);
 
   get podeInativar(): boolean {
-    return ['owner', 'admin'].includes(this.auth.getUser()?.role ?? '');
+    return this.auth.hasPermission('people.deactivate');
   }
 
   ngOnInit(): void {

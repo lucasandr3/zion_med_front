@@ -20,10 +20,12 @@
             Empresas
           </button>
         }
-        <button type="button" class="config-tab" [class.active]="activeTab === 'assinatura'" (click)="setTab('assinatura')" role="tab">
-          <span class="material-symbols-outlined" style="font-size:1rem;vertical-align:middle;margin-right:4px">payments</span>
-          Assinatura
-        </button>
+        @if (podeGerenciarAssinatura) {
+          <button type="button" class="config-tab" [class.active]="activeTab === 'assinatura'" (click)="setTab('assinatura')" role="tab">
+            <span class="material-symbols-outlined" style="font-size:1rem;vertical-align:middle;margin-right:4px">payments</span>
+            Assinatura
+          </button>
+        }
         <button type="button" class="config-tab" [class.active]="activeTab === 'logs'" (click)="setTab('logs')" role="tab" style="text-decoration:none">
           <span class="material-symbols-outlined" style="font-size:1rem;vertical-align:middle;margin-right:4px">history</span>
           Logs
@@ -370,66 +372,68 @@
         </div>
       }
 
-      <!-- Painel Assinatura -->
-      <div id="panel-assinatura" class="config-panel" [class.active]="activeTab === 'assinatura'" role="tabpanel">
-        <div class="section-card">
-          <div class="section-header">
-            <div class="icon-wrap"><span class="material-symbols-outlined">payments</span></div>
-            <span class="section-title">Planos</span>
-          </div>
-          <div class="section-body">
-            <p style="font-size:13px;color:var(--c-muted);margin-bottom:12px">Assine durante o trial — sua cobrança inicia na confirmação.</p>
-            @if (firstPlan) {
-              <div class="card" style="background: var(--c-surface); border-radius: 14px; padding: 20px; display:flex;justify-content:space-between;align-items:center;gap:16px;">
-                <div>
-                  <p style="font-size:11px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--c-muted);margin:0 0 4px 0">Plano</p>
-                  <p style="font-size:18px;font-weight:700;color:var(--c-text);margin:0 0 6px 0">{{ firstPlan.name ?? firstPlanKey }}</p>
-                  <p style="font-size:14px;font-weight:700;color:var(--c-primary);margin:0">
-                    R$ {{ (firstPlan.value ?? 0) | number:'1.2-2':'pt-BR' }} <span style="font-size:12px;font-weight:500;color:var(--c-muted)">/mês</span>
-                  </p>
+      @if (podeGerenciarAssinatura) {
+        <!-- Painel Assinatura -->
+        <div id="panel-assinatura" class="config-panel" [class.active]="activeTab === 'assinatura'" role="tabpanel">
+          <div class="section-card">
+            <div class="section-header">
+              <div class="icon-wrap"><span class="material-symbols-outlined">payments</span></div>
+              <span class="section-title">Planos</span>
+            </div>
+            <div class="section-body">
+              <p style="font-size:13px;color:var(--c-muted);margin-bottom:12px">Assine durante o trial — sua cobrança inicia na confirmação.</p>
+              @if (firstPlan) {
+                <div class="card" style="background: var(--c-surface); border-radius: 14px; padding: 20px; display:flex;justify-content:space-between;align-items:center;gap:16px;">
+                  <div>
+                    <p style="font-size:11px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--c-muted);margin:0 0 4px 0">Plano</p>
+                    <p style="font-size:18px;font-weight:700;color:var(--c-text);margin:0 0 6px 0">{{ firstPlan.name ?? firstPlanKey }}</p>
+                    <p style="font-size:14px;font-weight:700;color:var(--c-primary);margin:0">
+                      R$ {{ (firstPlan.value ?? 0) | number:'1.2-2':'pt-BR' }} <span style="font-size:12px;font-weight:500;color:var(--c-muted)">/mês</span>
+                    </p>
+                  </div>
+                  <a routerLink="/billing" class="btn-primary">
+                    <span class="material-symbols-outlined" style="font-size:16px">payments</span>
+                    Assinar {{ firstPlan.name ?? 'plano' }}
+                  </a>
                 </div>
+              } @else {
+                <p style="font-size:13px;color:var(--c-muted)">Planos indisponíveis no momento. Acesse a página de assinatura para mais detalhes.</p>
                 <a routerLink="/billing" class="btn-primary">
-                  <span class="material-symbols-outlined" style="font-size:16px">payments</span>
-                  Assinar {{ firstPlan.name ?? 'plano' }}
+                  <span class="material-symbols-outlined" style="font-size:16px">open_in_new</span>
+                  Ir para Assinatura
                 </a>
-              </div>
-            } @else {
-              <p style="font-size:13px;color:var(--c-muted)">Planos indisponíveis no momento. Acesse a página de assinatura para mais detalhes.</p>
-              <a routerLink="/billing" class="btn-primary">
-                <span class="material-symbols-outlined" style="font-size:16px">open_in_new</span>
-                Ir para Assinatura
-              </a>
-            }
+              }
+            </div>
           </div>
-        </div>
 
-        <div class="section-card">
-          <div class="section-header">
-            <div class="icon-wrap"><span class="material-symbols-outlined">description</span></div>
-            <span class="section-title">Boletos e Faturas</span>
-            <a routerLink="/billing" style="margin-left:auto;font-size:12px;color:var(--c-primary);text-decoration:none">Ver todas</a>
-          </div>
-          <div class="section-body">
-            @if (!hasPayments) {
-              <p style="font-size:13px;color:var(--c-muted)">Nenhum boleto ou fatura até o momento.</p>
-            } @else {
-              <ul style="list-style:none;padding:0;margin:0">
-                @for (p of pageData!.billing_payments!; track p.id) {
-                  <li style="display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--c-border)">
-                    <span style="font-size:12px;color:var(--c-muted);min-width:80px;font-family:ui-monospace,monospace">
-                      {{ (p.due_date | date:'dd/MM/yyyy') ?? '-' }}
-                    </span>
-                    <span style="font-size:12px;font-weight:600;color:var(--c-text);flex:1">Fatura</span>
-                    <span style="font-size:13px;font-weight:700;color:var(--c-text);min-width:80px;text-align:right;font-family:ui-monospace,monospace">
-                      R$ {{ p.value | number:'1.2-2':'pt-BR' }}
-                    </span>
-                  </li>
-                }
-              </ul>
-            }
+          <div class="section-card">
+            <div class="section-header">
+              <div class="icon-wrap"><span class="material-symbols-outlined">description</span></div>
+              <span class="section-title">Boletos e Faturas</span>
+              <a routerLink="/billing" style="margin-left:auto;font-size:12px;color:var(--c-primary);text-decoration:none">Ver todas</a>
+            </div>
+            <div class="section-body">
+              @if (!hasPayments) {
+                <p style="font-size:13px;color:var(--c-muted)">Nenhum boleto ou fatura até o momento.</p>
+              } @else {
+                <ul style="list-style:none;padding:0;margin:0">
+                  @for (p of pageData!.billing_payments!; track p.id) {
+                    <li style="display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--c-border)">
+                      <span style="font-size:12px;color:var(--c-muted);min-width:80px;font-family:ui-monospace,monospace">
+                        {{ (p.due_date | date:'dd/MM/yyyy') ?? '-' }}
+                      </span>
+                      <span style="font-size:12px;font-weight:600;color:var(--c-text);flex:1">Fatura</span>
+                      <span style="font-size:13px;font-weight:700;color:var(--c-text);min-width:80px;text-align:right;font-family:ui-monospace,monospace">
+                        R$ {{ p.value | number:'1.2-2':'pt-BR' }}
+                      </span>
+                    </li>
+                  }
+                </ul>
+              }
+            </div>
           </div>
         </div>
-      </div>
+      }
 
       <!-- Painel Logs (somente informação, sem tabela) -->
       <div id="panel-logs" class="config-panel" [class.active]="activeTab === 'logs'" role="tabpanel">

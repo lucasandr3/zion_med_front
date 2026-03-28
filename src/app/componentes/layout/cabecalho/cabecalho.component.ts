@@ -1,7 +1,9 @@
-import { Component, Input, OnInit, inject, HostListener, ElementRef, ViewChild } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy, inject, HostListener, ElementRef, ViewChild } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../core/services/auth.service';
+import { UserAppearanceService } from '../../../core/services/user-appearance.service';
 import { SidebarMobileService } from '../../../core/services/sidebar-mobile.service';
 import { TooltipDirective } from '../../../core/directives/tooltip.directive';
 
@@ -41,7 +43,7 @@ const TEMAS_GRADE_ORDER = [
   templateUrl: './cabecalho.component.html',
   styleUrl: './cabecalho.component.css',
 })
-export class CabecalhoComponent implements OnInit {
+export class CabecalhoComponent implements OnInit, OnDestroy {
   @Input() titulo = 'Gestgo';
   /** Subtítulo exibido abaixo do título no header (ex.: "Visão geral dos clientes utilizando o Gestgo."). */
   @Input() subtitulo: string | null = null;
@@ -62,14 +64,22 @@ export class CabecalhoComponent implements OnInit {
   get temaAtualMeta(): (typeof TEMAS)[number] | undefined {
     return this.temas.find((t) => t.key === this.temaAtual);
   }
+
+  /** Ícone de notificações só para quem tem permissão no contexto atual (tenant ou plataforma). */
+  get podeVerNotificacoesNoHeader(): boolean {
+    return this.auth.hasPermission('notifications.access');
+  }
   temaAtual = 'ocean-blue';
   modoEscuro = false;
   sidebarColapsada = false;
   menuTemaAberto = false;
 
+  private appearanceSub?: Subscription;
+
   @ViewChild('themePicker') themePickerRef?: ElementRef<HTMLElement>;
 
   private auth = inject(AuthService);
+  private appearance = inject(UserAppearanceService);
   private router = inject(Router);
   private sidebarMobile = inject(SidebarMobileService);
 
@@ -82,6 +92,16 @@ export class CabecalhoComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.syncTemaControlsFromBrowser();
+    this.appearanceSub = this.auth.appearanceApplied$.subscribe(() => this.syncTemaControlsFromBrowser());
+  }
+
+  ngOnDestroy(): void {
+    this.appearanceSub?.unsubscribe();
+  }
+
+  /** Alinha estado do drawer com `body`/`localStorage` (inclui após `/me`). */
+  private syncTemaControlsFromBrowser(): void {
     try {
       const saved = localStorage.getItem('gestgo_theme');
       if (saved) this.temaAtual = saved;
@@ -114,6 +134,9 @@ export class CabecalhoComponent implements OnInit {
     try {
       localStorage.setItem('gestgo_dark_mode', this.modoEscuro ? '1' : '0');
     } catch {}
+    if (this.auth.isAuthenticated()) {
+      this.appearance.patchAppearance({ ui_dark_mode: escuro }).subscribe({ error: () => {} });
+    }
   }
 
   alternarMenuTema(): void {
@@ -132,6 +155,9 @@ export class CabecalhoComponent implements OnInit {
     try {
       localStorage.setItem('gestgo_theme', key);
     } catch {}
+    if (this.auth.isAuthenticated()) {
+      this.appearance.patchAppearance({ ui_theme: key }).subscribe({ error: () => {} });
+    }
   }
 
   sair(): void {

@@ -1,6 +1,8 @@
 import { Component, OnInit, inject, Signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { switchMap } from 'rxjs';
+import { AuthService } from '../../core/services/auth.service';
 import { ClinicaService, ClinicaOption } from '../../core/services/clinica.service';
 import { LoadingService } from '../../shared/services/loading.service';
 import { ZmSkeletonListComponent } from '../../shared/components/skeletons';
@@ -19,6 +21,7 @@ export class ClinicaEscolherComponent implements OnInit {
   listaPronta = false;
   erro = '';
   escolhendoId: number | null = null;
+  private auth = inject(AuthService);
   private clinicaService = inject(ClinicaService);
   private loadingService = inject(LoadingService);
   private router = inject(Router);
@@ -41,11 +44,14 @@ export class ClinicaEscolherComponent implements OnInit {
 
   escolher(clinicId: number): void {
     this.escolhendoId = clinicId;
-    this.clinicaService.escolher(clinicId).subscribe({
+    this.clinicaService
+      .escolher(clinicId)
+      .pipe(switchMap(() => this.auth.me()))
+      .subscribe({
       next: () => {
         this.escolhendoId = null;
         this.toast.success('Empresa selecionada', 'Redirecionando…');
-        this.router.navigate(['/dashboard']);
+        this.router.navigateByUrl(this.auth.getDefaultTenantPath());
       },
       error: () => {
         this.escolhendoId = null;

@@ -1,8 +1,9 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { Observable, tap, catchError, of } from 'rxjs';
+import { Observable, Subject, tap, catchError, of } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { applyUserAppearanceToBrowser } from './user-appearance.sync';
 
 const TOKEN_KEY = 'gestgo_token';
 const USER_KEY = 'gestgo_user';
@@ -17,6 +18,11 @@ export interface User {
   role_label: string;
   active: boolean;
   can_switch_clinic: boolean;
+  /** Permissões efetivas no contexto da organização atual (API v1). */
+  permissions?: string[];
+  /** Preferências de UI persistidas no servidor (`null` = ainda não salvo). */
+  ui_theme?: string | null;
+  ui_dark_mode?: boolean | null;
   created_at?: string;
   updated_at?: string;
 }
@@ -55,8 +61,17 @@ export class AuthService {
   private _clinics: Clinic[] = [];
   private _currentClinicId: string | null = null;
 
+  /** Emite após tema/modo ser aplicados a partir da API (ex.: pós-`/me`). */
+  private appearanceAppliedSubject = new Subject<void>();
+  readonly appearanceApplied$ = this.appearanceAppliedSubject.asObservable();
+
   constructor() {
     this.loadFromStorage();
+  }
+
+  /** Para o cabeçalho reler `localStorage`/`body` quando a sessão sincronizar com o servidor. */
+  notifyAppearanceApplied(): void {
+    this.appearanceAppliedSubject.next();
   }
 
   private loadFromStorage(): void {
@@ -88,6 +103,15 @@ export class AuthService {
     this._user = data.user;
     this._clinics = data.clinics ?? [];
     this._currentClinicId = data.current_clinic_id != null ? String(data.current_clinic_id) : null;
+    this.persist();
+    applyUserAppearanceToBrowser(data.user);
+    this.notifyAppearanceApplied();
+  }
+
+  /** Mescla resposta da API (ex.: PATCH aparência) no usuário em memória e no localStorage. */
+  mergeUserFromApi(u: User): void {
+    if (!this._user || this._user.id !== u.id) return;
+    this._user = { ...this._user, ...u };
     this.persist();
   }
 
@@ -126,6 +150,61 @@ export class AuthService {
     return this._user?.can_switch_clinic ?? false;
   }
 
+  /** Verifica permissão no contexto atual (usa `user.permissions` ou fallback por `role` legado). */
+  hasPermission(key: string): boolean {
+    const u = this._user;
+    if (!u) return false;
+    if (Array.isArray(u.permissions)) {
+      return u.permissions.includes(key);
+    }
+    return this.permissionFallbackByRole(u.role, key);
+  }
+
+  private permissionFallbackByRole(role: string | undefined, key: string): boolean {
+    if (!role) return false;
+    if (role === 'owner' || role === 'super_admin') return true;
+    if (role === 'platform_admin') return true;
+    if (role === 'manager') {
+      return [
+        'dashboard.access',
+        'notifications.access',
+        'billing.manage',
+        'templates.manage',
+        'submissions.view',
+        'submissions.approve',
+        'people.deactivate',
+      ].includes(key);
+    }
+    if (role === 'staff') {
+      return ['dashboard.access', 'notifications.access', 'submissions.view'].includes(key);
+    }
+    return false;
+  }
+
+  /** Primeira rota do app tenant que o usuário pode abrir (pós-login ou após bloqueio de guard). */
+  getDefaultTenantPath(): string {
+    const routes: [string, () => boolean][] = [
+      ['/dashboard', () => this.hasPermission('dashboard.access')],
+      ['/notificacoes', () => this.hasPermission('notifications.access')],
+      ['/protocolos', () => this.hasPermission('submissions.view')],
+      ['/pessoas', () => this.hasPermission('submissions.view')],
+      ['/templates', () => this.hasPermission('templates.manage')],
+      ['/links-publicos', () => this.hasPermission('templates.manage') || this.hasPermission('submissions.view')],
+      ['/envios', () => this.hasPermission('templates.manage') || this.hasPermission('submissions.view')],
+      ['/billing', () => this.hasPermission('billing.manage')],
+      ['/link-bio', () => this.hasPermission('organization.manage')],
+      ['/clinica/configuracoes', () => this.hasPermission('organization.manage')],
+      ['/clinica/integracoes', () => this.hasPermission('organization.manage')],
+      ['/usuarios', () => this.hasPermission('users.manage')],
+      ['/organizacao/permissoes', () => this.hasPermission('users.manage')],
+    ];
+    for (const [path, ok] of routes) {
+      if (ok()) return path;
+    }
+    if (this.canSwitchClinic()) return '/clinica/escolher';
+    return '/404';
+  }
+
   login(email: string, password: string): Observable<LoginResponse> {
     return this.http
       .post<LoginResponse>(`${this.baseUrl}/api/v1/auth/login`, { email, password })
@@ -139,6 +218,8 @@ export class AuthService {
           this._clinics = d.clinics ?? [];
           this._currentClinicId = d.current_clinic_id != null ? String(d.current_clinic_id) : null;
           this.persist();
+          applyUserAppearanceToBrowser(d.user);
+          this.notifyAppearanceApplied();
         })
       );
   }
@@ -181,6 +262,8 @@ export class AuthService {
           else this._clinics.push(res.data.clinic);
         }
         this.persist();
+        applyUserAppearanceToBrowser(res.data.user);
+        this.notifyAppearanceApplied();
       })
     );
   }

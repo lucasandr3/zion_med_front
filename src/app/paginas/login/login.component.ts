@@ -67,7 +67,7 @@ export class LoginComponent implements OnInit {
         }
         const hasClinic = res.data.current_clinic_id != null;
         if (hasClinic) {
-          this.router.navigate(['/dashboard']);
+          void this.router.navigateByUrl(this.auth.getDefaultTenantPath());
         } else {
           this.router.navigate(['/clinica/escolher']);
         }

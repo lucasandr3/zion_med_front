@@ -7,6 +7,7 @@ import { CommonModule } from '@angular/common';
 import { NotificacoesService } from '../../../core/services/notificacoes.service';
 import { SidebarMobileService } from '../../../core/services/sidebar-mobile.service';
 import { PlataformaHeaderService } from '../../../core/services/plataforma-header.service';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-layout-plataforma',
@@ -25,6 +26,7 @@ export class LayoutPlataformaComponent implements OnInit, OnDestroy {
   private notif = inject(NotificacoesService);
   private sidebarMobile = inject(SidebarMobileService);
   private headerService = inject(PlataformaHeaderService);
+  private auth = inject(AuthService);
   private headerSub?: Subscription;
 
   private updateFromActivatedRoute(): void {
@@ -40,6 +42,9 @@ export class LayoutPlataformaComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    if (this.auth.isAuthenticated()) {
+      this.auth.me().subscribe({ error: () => {} });
+    }
     this.headerSub = this.headerService.getOverride().subscribe((override) => {
       if (override) {
         this.tituloPagina = override.titulo;

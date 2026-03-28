@@ -1,0 +1,12 @@
+.perm-group-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--c-muted);
+  margin-bottom: 0.5rem;
+}
+
+.perm-list input[type='checkbox'] {
+  margin-top: 0.2rem;
+}

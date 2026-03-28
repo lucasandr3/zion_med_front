@@ -197,7 +197,7 @@ export class ComeceComponent implements OnInit {
   finalizarConfiguracao(): void {
     this.showSuccessOverlay = true;
     if (isPlatformBrowser(this.platformId)) {
-      window.setTimeout(() => void this.router.navigate(['/dashboard']), 1600);
+      window.setTimeout(() => void this.router.navigateByUrl(this.auth.getDefaultTenantPath()), 1600);
     }
   }
 }

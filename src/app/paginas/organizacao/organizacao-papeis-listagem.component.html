@@ -1,0 +1,94 @@
+<div class="relative min-h-[320px]">
+  <div class="page-header">
+    <div class="page-title">
+      <div class="page-title-icon">
+        <span class="material-symbols-outlined">admin_panel_settings</span>
+      </div>
+      <div>
+        <h1>Permissões</h1>
+        <p class="page-header-subtitle m-0 mt-1">Perfis padrão da organização e perfis personalizados.</p>
+      </div>
+    </div>
+    <a routerLink="/organizacao/permissoes/novo" class="btn-primary">
+      <span class="material-symbols-outlined" style="font-size:16px">add</span>
+      Novo perfil
+    </a>
+  </div>
+  @if (showSkeleton()) {
+    <zm-skeleton-list [rows]="5" />
+  } @else if (!listaPronta) {
+  } @else if (erro) {
+    <p class="text-sm" style="color: var(--c-error, #dc2626)">{{ erro }}</p>
+  } @else {
+    <div class="zm-content-enter">
+      <div class="table-card">
+        <table>
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>Identificador</th>
+              <th>Usuários</th>
+              <th>Origem</th>
+              <th style="text-align:right">Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            @if (papeis.length === 0) {
+              <tr>
+                <td colspan="5" style="text-align:center;padding:3rem 1rem">
+                  <span class="material-symbols-outlined" style="font-size:36px;color:var(--c-border);display:block;margin-bottom:8px">admin_panel_settings</span>
+                  <span style="font-size:0.875rem;color:var(--c-muted)">Nenhum perfil de permissões cadastrado.</span>
+                </td>
+              </tr>
+            } @else {
+              @for (p of papeis; track p.slug) {
+                <tr>
+                  <td>
+                    <span style="font-weight:500;color:var(--c-text)">{{ p.label }}</span>
+                  </td>
+                  <td style="color:var(--c-muted)"><code class="text-xs">{{ p.slug }}</code></td>
+                  <td style="color:var(--c-muted)">{{ p.user_count }}</td>
+                  <td>
+                    @if (p.is_system) {
+                      <span style="display:inline-flex;align-items:center;gap:4px;font-size:0.7rem;font-weight:600;padding:2px 8px;border-radius:9999px;background:var(--c-soft);color:var(--c-muted)">
+                        <span class="material-symbols-outlined" style="font-size:12px">verified_user</span>
+                        Padrão
+                      </span>
+                    } @else {
+                      <span style="display:inline-flex;align-items:center;gap:4px;font-size:0.7rem;font-weight:600;padding:2px 8px;border-radius:9999px;background:var(--c-soft);color:var(--c-muted)">
+                        <span class="material-symbols-outlined" style="font-size:12px">tune</span>
+                        Personalizado
+                      </span>
+                    }
+                  </td>
+                  <td>
+                    <div style="display:flex;align-items:center;justify-content:flex-end;gap:2px">
+                      <a [routerLink]="['/organizacao/permissoes', p.slug]" class="action-btn" aria-label="Editar perfil" appTooltip="Editar perfil">
+                        <span class="material-symbols-outlined" style="font-size:18px">edit</span>
+                      </a>
+                      @if (!p.is_system) {
+                        <button
+                          type="button"
+                          class="action-btn danger"
+                          aria-label="Excluir perfil"
+                          [disabled]="excluindoSlug === p.slug"
+                          (click)="excluir(p)"
+                          appTooltip="Excluir perfil">
+                          @if (excluindoSlug === p.slug) {
+                            <span class="btn-spinner" style="width:16px;height:16px;border-width:2px"></span>
+                          } @else {
+                            <span class="material-symbols-outlined" style="font-size:18px">delete</span>
+                          }
+                        </button>
+                      }
+                    </div>
+                  </td>
+                </tr>
+              }
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+</div>

@@ -1,10 +1,6 @@
 <div class="pessoa-detalhe relative min-h-[320px]">
-  <div class="mb-4 flex flex-wrap items-center gap-3 justify-between">
-    <a routerLink="/pessoas" class="inline-flex items-center gap-2 text-sm no-underline" style="color: var(--c-primary)">
-      <span class="material-symbols-outlined text-lg">arrow_back</span>
-      Voltar para Pessoas
-    </a>
-    @if (pessoa) {
+  @if (pessoa) {
+    <div class="mb-4 flex flex-wrap items-center gap-3 justify-end">
       <div class="flex gap-2">
         <a [routerLink]="['/pessoas', pessoa.id, 'editar']" class="btn-ghost btn-default-bg inline-flex items-center gap-2 text-sm no-underline">
           <span class="material-symbols-outlined text-lg">edit</span>
@@ -16,8 +12,8 @@
           </button>
         }
       </div>
-    }
-  </div>
+    </div>
+  }
 
   @if (erro) {
     <p class="text-sm mb-4" style="color: var(--c-error, #dc2626)">{{ erro }}</p>

@@ -1,11 +1,4 @@
 <div class="protocolo-detalhe relative min-h-[320px]">
-  <div class="mb-4">
-    <a routerLink="/protocolos" class="inline-flex items-center gap-2 text-sm no-underline" style="color: var(--c-primary)">
-      <span class="material-symbols-outlined text-lg">arrow_back</span>
-      Voltar para Protocolos
-    </a>
-  </div>
-
   @if (erro) {
     <p class="text-sm mb-4" style="color: var(--c-error, #dc2626)">{{ erro }}</p>
   }
@@ -54,7 +47,7 @@
             <span class="material-symbols-outlined text-lg">picture_as_pdf</span>
             Baixar PDF
           </button>
-          @if (isPending) {
+          @if (isPending && podeRevisarProtocolo) {
             <button type="button" class="btn-primary inline-flex items-center gap-2" (click)="toggleFormRevisao()" id="btn-aprovar-reprovar" title="Aprovar / Reprovar">
               <span class="material-symbols-outlined text-lg">rate_review</span>
               Aprovar / Reprovar
@@ -151,7 +144,7 @@
       </div>
 
       <!-- Formulário de revisão (se pendente) -->
-      @if (isPending && revisaoFormVisible) {
+      @if (isPending && revisaoFormVisible && podeRevisarProtocolo) {
         <div class="card rounded-xl overflow-hidden" id="revisao_form" style="border: 1px solid var(--c-border)">
           <div class="flex items-center gap-2 px-5 py-4" style="border-bottom: 1px solid var(--c-border)">
             <span class="material-symbols-outlined" style="color: var(--c-primary)">rate_review</span>

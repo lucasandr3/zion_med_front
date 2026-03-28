@@ -6,6 +6,7 @@ import { RouterLink } from '@angular/router';
 import { FlatpickrDirective, provideFlatpickrDefaults } from 'angularx-flatpickr';
 import { Portuguese } from 'flatpickr/dist/l10n/pt';
 import { finalize } from 'rxjs';
+import { AuthService } from '../../core/services/auth.service';
 import { ClinicaService, ClinicaConfig, ClinicaOption, ClinicaAuditLog, ConfigPageData, BusinessHoursSlot } from '../../core/services/clinica.service';
 import { LoadingService } from '../../shared/services/loading.service';
 import { ZmSkeletonListComponent } from '../../shared/components/skeletons';
@@ -63,9 +64,14 @@ export class ClinicaConfiguracoesComponent implements OnInit {
   logsLastPage = 1;
   logsTotal = 0;
 
+  private auth = inject(AuthService);
   private clinicaService = inject(ClinicaService);
   private loadingService = inject(LoadingService);
   private toast = inject(ToastService);
+
+  get podeGerenciarAssinatura(): boolean {
+    return this.auth.hasPermission('billing.manage');
+  }
 
   get clinic(): ClinicaConfig | undefined {
     return this.pageData?.clinic;
@@ -147,7 +153,9 @@ export class ClinicaConfiguracoesComponent implements OnInit {
       next: (data) => {
         this.listaPronta = true;
         this.pageData = data;
-        this.activeTab = data.active_config_tab ?? 'dados';
+        let tab = data.active_config_tab ?? 'dados';
+        if (tab === 'assinatura' && !this.podeGerenciarAssinatura) tab = 'dados';
+        this.activeTab = tab;
         this.patchFormFromClinic(data.clinic);
       },
       error: () => {
@@ -187,6 +195,10 @@ export class ClinicaConfiguracoesComponent implements OnInit {
   }
 
   setTab(tab: string): void {
+    if (tab === 'assinatura' && !this.podeGerenciarAssinatura) {
+      this.activeTab = 'dados';
+      return;
+    }
     this.activeTab = tab;
     if (tab === 'logs') {
       this.carregarLogs();

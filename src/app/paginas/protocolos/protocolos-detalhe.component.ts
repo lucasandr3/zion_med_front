@@ -12,6 +12,7 @@ import { LoadingService } from '../../shared/services/loading.service';
 import { ZmSkeletonCardComponent } from '../../shared/components/skeletons';
 import { ToastService } from '../../core/services/toast.service';
 import { ConfirmDialogService } from '../../core/services/confirm-dialog.service';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-protocolos-detalhe',
@@ -37,6 +38,11 @@ export class ProtocolosDetalheComponent implements OnInit {
   private loadingService = inject(LoadingService);
   private toast = inject(ToastService);
   private confirm = inject(ConfirmDialogService);
+  private auth = inject(AuthService);
+
+  get podeRevisarProtocolo(): boolean {
+    return this.auth.hasPermission('submissions.approve');
+  }
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
@@ -94,6 +100,7 @@ export class ProtocolosDetalheComponent implements OnInit {
   }
 
   toggleFormRevisao(): void {
+    if (!this.podeRevisarProtocolo) return;
     this.revisaoFormVisible = !this.revisaoFormVisible;
   }
 
@@ -112,7 +119,7 @@ export class ProtocolosDetalheComponent implements OnInit {
   }
 
   async enviarRevisao(): Promise<void> {
-    if (!this.protocolo) return;
+    if (!this.protocolo || !this.podeRevisarProtocolo) return;
     if (this.revisaoAprovado === false) {
       const ok = await this.confirm.request({
         title: 'Reprovar protocolo?',

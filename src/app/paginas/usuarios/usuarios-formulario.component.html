@@ -1,0 +1,158 @@
+<div class="relative min-h-[200px]">
+  <div class="page-header mb-5">
+    <div class="page-title">
+      <div class="page-title-icon">
+        <span class="material-symbols-outlined">{{ editMode ? 'edit_note' : 'person_add' }}</span>
+      </div>
+      <div>
+        <h1>{{ editMode ? 'Editar usuário' : 'Novo usuário' }}</h1>
+        <p class="page-header-subtitle text-sm m-0 mt-1" style="color: var(--c-muted)">
+          Escolha o perfil de permissões do usuário (conforme o que foi configurado na organização).
+        </p>
+      </div>
+    </div>
+  </div>
+
+  @if (showSkeleton() && editMode) {
+    <zm-skeleton-card [height]="420" />
+  } @else if (!listaPronta) {
+  } @else if (rolesList.length === 0) {
+    <p class="text-sm mb-4" style="color: var(--c-error, #dc2626)">{{ erro || 'Não foi possível carregar os dados.' }}</p>
+  } @else {
+    <div class="zm-content-enter">
+      <div class="card">
+        @if (erro) {
+          <p class="text-sm mb-4" style="color: var(--c-error, #dc2626)">{{ erro }}</p>
+        }
+        <form (ngSubmit)="salvar()" class="flex flex-col gap-5">
+          <div>
+            <label class="form-label">Nome *</label>
+            <input
+              type="text"
+              [(ngModel)]="name"
+              name="name"
+              required
+              class="form-input"
+              placeholder="Nome completo"
+              autocomplete="name"
+            />
+          </div>
+          <div>
+            <label class="form-label">E-mail *</label>
+            <input
+              type="email"
+              [(ngModel)]="email"
+              name="email"
+              required
+              class="form-input"
+              placeholder="nome@exemplo.com"
+              autocomplete="email"
+            />
+          </div>
+          <div>
+            <label class="form-label">Permissões (perfil) *</label>
+            <select [(ngModel)]="role" name="role" class="form-input" required>
+              @for (r of rolesList; track r.value) {
+                <option [ngValue]="r.value">{{ r.label }}</option>
+              }
+            </select>
+          </div>
+
+          @if (!editMode) {
+            <div class="grid md:grid-cols-2 gap-4">
+              <div>
+                <label class="form-label">Senha *</label>
+                <input
+                  type="password"
+                  [(ngModel)]="password"
+                  name="password"
+                  required
+                  class="form-input"
+                  placeholder="Mínimo exigido pelo sistema"
+                  autocomplete="new-password"
+                />
+              </div>
+              <div>
+                <label class="form-label">Confirmar senha *</label>
+                <input
+                  type="password"
+                  [(ngModel)]="passwordConfirm"
+                  name="passwordConfirm"
+                  required
+                  class="form-input"
+                  placeholder="Repita a senha"
+                  autocomplete="new-password"
+                />
+              </div>
+            </div>
+          } @else {
+            <div class="grid md:grid-cols-2 gap-4">
+              <div>
+                <label class="form-label">Nova senha</label>
+                <input
+                  type="password"
+                  [(ngModel)]="newPassword"
+                  name="newPassword"
+                  class="form-input"
+                  placeholder="Deixe em branco para manter"
+                  autocomplete="new-password"
+                />
+              </div>
+              <div>
+                <label class="form-label">Confirmar nova senha</label>
+                <input
+                  type="password"
+                  [(ngModel)]="newPasswordConfirm"
+                  name="newPasswordConfirm"
+                  class="form-input"
+                  placeholder="Se alterar a senha"
+                  autocomplete="new-password"
+                />
+              </div>
+            </div>
+            <div>
+              <label class="form-label">Situação</label>
+              <label class="flex items-center gap-2 cursor-pointer select-none" style="color: var(--c-text)">
+                <input type="checkbox" [(ngModel)]="active" name="active" class="rounded border" style="accent-color: var(--c-primary)" />
+                <span class="text-sm">Usuário ativo (pode acessar o sistema)</span>
+              </label>
+            </div>
+          }
+
+          @if (podeConcederTrocaClinica) {
+            <div>
+              <label class="flex items-center gap-2 cursor-pointer select-none" style="color: var(--c-text)">
+                <input
+                  type="checkbox"
+                  [(ngModel)]="canSwitchClinic"
+                  name="canSwitchClinic"
+                  class="rounded border"
+                  style="accent-color: var(--c-primary)"
+                />
+                <span class="text-sm">Pode acessar todas as clínicas da conta</span>
+              </label>
+              <p class="text-xs m-0 mt-1" style="color: var(--c-muted)">Somente proprietários podem conceder esta permissão.</p>
+            </div>
+          }
+
+          <div class="flex items-center gap-3 pt-2">
+            <button
+              type="submit"
+              class="btn-primary"
+              [disabled]="salvando || !name.trim() || !email.trim() || !role || (!editMode && (!password || !passwordConfirm))"
+            >
+              @if (salvando) {
+                <span class="btn-spinner" aria-hidden="true"></span>
+                Salvando…
+              } @else {
+                <span class="material-symbols-outlined text-base">save</span>
+                {{ editMode ? 'Salvar alterações' : 'Cadastrar usuário' }}
+              }
+            </button>
+            <a routerLink="/usuarios" class="text-sm no-underline" style="color: var(--c-muted)">Cancelar</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+</div>
