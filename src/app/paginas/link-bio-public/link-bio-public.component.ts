@@ -17,6 +17,7 @@ import { ZmSkeletonListComponent } from '../../shared/components/skeletons';
 import { LinkBioPublicLayoutsComponent } from './link-bio-public-layouts.component';
 import { LinkBioPublicLayoutVetComponent } from './link-bio-public-layout-vet.component';
 import { LinkBioPublicLayoutPediaComponent } from './link-bio-public-layout-pedia.component';
+import { LinkBioPublicLayoutNutriComponent } from './link-bio-public-layout-nutri.component';
 import type { LinkBioLayoutModel } from '../../core/services/link-bio.service';
 
 @Component({
@@ -29,6 +30,7 @@ import type { LinkBioLayoutModel } from '../../core/services/link-bio.service';
     LinkBioPublicLayoutsComponent,
     LinkBioPublicLayoutVetComponent,
     LinkBioPublicLayoutPediaComponent,
+    LinkBioPublicLayoutNutriComponent,
   ],
   templateUrl: './link-bio-public.component.html',
   styleUrl: './link-bio-public.component.css',
@@ -84,13 +86,13 @@ export class LinkBioPublicComponent implements OnInit, OnDestroy {
     });
   }
 
-  /** Prévia no painel: ?preview=1&preview_model=1..7 + sessionStorage (JSON extra). */
+  /** Prévia no painel: ?preview=1&preview_model=1..8 + sessionStorage (JSON extra). */
   private applyPreviewFromAdminSession(): void {
     if (!isPlatformBrowser(this.platformId) || !this.data?.clinic) return;
     const q = this.route.snapshot.queryParamMap;
     if (q.get('preview') !== '1') return;
     const pm = q.get('preview_model');
-    if (pm && ['1', '2', '3', '4', '5', '6', '7'].includes(pm)) {
+    if (pm && ['1', '2', '3', '4', '5', '6', '7', '8'].includes(pm)) {
       this.data.clinic.link_bio_model = Number(pm) as LinkBioLayoutModel;
     }
     try {
@@ -140,7 +142,7 @@ export class LinkBioPublicComponent implements OnInit, OnDestroy {
 
   get model(): LinkBioLayoutModel {
     const value = this.clinic?.link_bio_model;
-    return value && [1, 2, 3, 4, 5, 6, 7].includes(value) ? value : 1;
+    return value && [1, 2, 3, 4, 5, 6, 7, 8].includes(value) ? value : 1;
   }
 
   /** Para o componente de layouts 2–5 (só usar quando model ∈ {2,3,4,5}). */

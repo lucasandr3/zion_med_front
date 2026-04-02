@@ -1,0 +1,235 @@
+- generic [ref=e521]:
+  - complementary [ref=e522]:
+    - generic [ref=e524]:
+      - img "Gestgo" [ref=e526]
+      - generic [ref=e527]: Gestgo
+    - generic [ref=e529]:
+      - generic [ref=e530]: C
+      - paragraph [ref=e532]: Clínica São Paulo
+    - navigation [ref=e533]:
+      - paragraph [ref=e534]: MENU
+      - link "dashboard Dashboard" [ref=e535] [cursor=pointer]:
+        - /url: /dashboard
+        - generic [ref=e536]: dashboard
+        - generic [ref=e537]: Dashboard
+      - link "description Templates" [ref=e538] [cursor=pointer]:
+        - /url: /templates
+        - generic [ref=e539]: description
+        - generic [ref=e540]: Templates
+      - link "link Links públicos" [ref=e541] [cursor=pointer]:
+        - /url: /links-publicos
+        - generic [ref=e542]: link
+        - generic [ref=e543]: Links públicos
+      - link "send Envios" [ref=e544] [cursor=pointer]:
+        - /url: /envios
+        - generic [ref=e545]: send
+        - generic [ref=e546]: Envios
+      - link "inbox Protocolos" [ref=e547] [cursor=pointer]:
+        - /url: /protocolos
+        - generic [ref=e548]: inbox
+        - generic [ref=e549]: Protocolos
+      - link "group Pessoas" [ref=e550] [cursor=pointer]:
+        - /url: /pessoas
+        - generic [ref=e551]: group
+        - generic [ref=e552]: Pessoas
+      - link "notifications Notificações" [ref=e553] [cursor=pointer]:
+        - /url: /notificacoes
+        - generic [ref=e554]: notifications
+        - generic [ref=e555]: Notificações
+      - paragraph [ref=e556]: ADMINISTRAÇÃO
+      - link "business Empresa" [ref=e557] [cursor=pointer]:
+        - /url: /clinica/configuracoes
+        - generic [ref=e558]: business
+        - generic [ref=e559]: Empresa
+      - link "link Link Bio" [ref=e560] [cursor=pointer]:
+        - /url: /link-bio
+        - generic [ref=e561]: link
+        - generic [ref=e562]: Link Bio
+      - link "api Integrações" [ref=e563] [cursor=pointer]:
+        - /url: /clinica/integracoes
+        - generic [ref=e564]: api
+        - generic [ref=e565]: Integrações
+      - link "group Usuários" [ref=e566] [cursor=pointer]:
+        - /url: /usuarios
+        - generic [ref=e567]: group
+        - generic [ref=e568]: Usuários
+      - link "admin_panel_settings Permissões" [ref=e569] [cursor=pointer]:
+        - /url: /organizacao/permissoes
+        - generic [ref=e570]: admin_panel_settings
+        - generic [ref=e571]: Permissões
+    - button "Menu do usuário" [ref=e574] [cursor=pointer]:
+      - generic [ref=e575]: LU
+      - generic [ref=e576]:
+        - paragraph [ref=e577]: Lucas Vieira
+        - paragraph [ref=e578]: lucasvieiraandrade58@gmail.com
+      - generic [ref=e579]: unfold_more
+  - generic [ref=e580]:
+    - banner [ref=e582]:
+      - generic [ref=e583]:
+        - button "Abrir ou fechar menu" [ref=e584] [cursor=pointer]:
+          - generic [ref=e585]: menu
+        - heading "Dashboard" [level=2] [ref=e587]
+      - generic [ref=e588]:
+        - button "Tema e aparência" [ref=e590] [cursor=pointer]:
+          - generic [ref=e591]: palette
+        - link "Notificações" [ref=e593] [cursor=pointer]:
+          - /url: /notificacoes
+          - generic [ref=e594]: notifications
+        - button "Sair" [ref=e595] [cursor=pointer]:
+          - generic [ref=e596]: logout
+    - main [ref=e597]:
+      - generic [ref=e600]:
+        - generic [ref=e601]:
+          - link "Pendentes hoje 0 Aguardando revisão" [ref=e602] [cursor=pointer]:
+            - /url: /protocolos
+            - paragraph [ref=e603]: Pendentes hoje
+            - paragraph [ref=e604]: "0"
+            - paragraph [ref=e605]: Aguardando revisão
+          - generic [ref=e606]:
+            - paragraph [ref=e607]: Templates
+            - paragraph [ref=e608]: "87"
+            - paragraph [ref=e609]: Total na clínica
+          - link "Respostas 0 Últimos 7 dias" [ref=e610] [cursor=pointer]:
+            - /url: /protocolos
+            - paragraph [ref=e611]: Respostas
+            - paragraph [ref=e612]: "0"
+            - paragraph [ref=e613]: Últimos 7 dias
+        - generic [ref=e614]:
+          - generic [ref=e615]:
+            - generic [ref=e616]: bar_chart
+            - heading "Protocolos por situação" [level=2] [ref=e617]
+          - generic [ref=e618]:
+            - generic [ref=e620]:
+              - generic [ref=e621]: Pendente
+              - generic [ref=e622]: "1"
+            - generic [ref=e626]:
+              - generic [ref=e627]: Aprovado
+              - generic [ref=e628]: "0"
+            - generic [ref=e631]:
+              - generic [ref=e632]: Reprovado
+              - generic [ref=e633]: "0"
+        - generic [ref=e635]:
+          - paragraph [ref=e636]: Acesso rápido
+          - generic [ref=e637]:
+            - link "link Links para enviar 1" [ref=e638] [cursor=pointer]:
+              - /url: /links-publicos
+              - generic [ref=e639]: link
+              - text: Links para enviar
+              - generic [ref=e640]: "1"
+            - link "add Novo template" [ref=e641] [cursor=pointer]:
+              - /url: /templates/criar
+              - generic [ref=e642]: add
+              - text: Novo template
+            - link "inbox Protocolos" [ref=e643] [cursor=pointer]:
+              - /url: /protocolos
+              - generic [ref=e644]: inbox
+              - text: Protocolos
+          - paragraph [ref=e645]: 1 respostas nos últimos 30 dias
+        - generic [ref=e646]:
+          - generic [ref=e647]:
+            - heading "Últimos templates" [level=2] [ref=e648]
+            - link "Ver todos" [ref=e649] [cursor=pointer]:
+              - /url: /templates
+          - link "Teste 22 de mar. · 22:00 Ativo" [ref=e650] [cursor=pointer]:
+            - /url: /templates/173/campos
+            - generic [ref=e651]:
+              - generic [ref=e653]: description
+              - generic [ref=e654]:
+                - generic [ref=e655]: Teste
+                - text: 22 de mar. · 22:00
+            - generic [ref=e656]: Ativo
+          - link "Pesquisa de Satisfação 22 de mar. · 16:19 Ativo" [ref=e657] [cursor=pointer]:
+            - /url: /templates/172/campos
+            - generic [ref=e658]:
+              - generic [ref=e660]: description
+              - generic [ref=e661]:
+                - generic [ref=e662]: Pesquisa de Satisfação
+                - text: 22 de mar. · 16:19
+            - generic [ref=e663]: Ativo
+          - link "Entrega de Resultado 22 de mar. · 16:19 Ativo" [ref=e664] [cursor=pointer]:
+            - /url: /templates/171/campos
+            - generic [ref=e665]:
+              - generic [ref=e667]: description
+              - generic [ref=e668]:
+                - generic [ref=e669]: Entrega de Resultado
+                - text: 22 de mar. · 16:19
+            - generic [ref=e670]: Ativo
+          - link "Controle de Estoque de Materiais 22 de mar. · 16:19 Ativo" [ref=e671] [cursor=pointer]:
+            - /url: /templates/170/campos
+            - generic [ref=e672]:
+              - generic [ref=e674]: description
+              - generic [ref=e675]:
+                - generic [ref=e676]: Controle de Estoque de Materiais
+                - text: 22 de mar. · 16:19
+            - generic [ref=e677]: Ativo
+          - link "Controle de Temperatura 22 de mar. · 16:19 Ativo" [ref=e678] [cursor=pointer]:
+            - /url: /templates/169/campos
+            - generic [ref=e679]:
+              - generic [ref=e681]: description
+              - generic [ref=e682]:
+                - generic [ref=e683]: Controle de Temperatura
+                - text: 22 de mar. · 16:19
+            - generic [ref=e684]: Ativo
+        - generic [ref=e685]:
+          - heading "Templates por categoria" [level=2] [ref=e687]
+          - generic [ref=e688]:
+            - link "8 Dermatologia chevron_right" [ref=e689] [cursor=pointer]:
+              - /url: /templates
+              - generic [ref=e690]: "8"
+              - generic [ref=e691]: Dermatologia
+              - generic [ref=e692]: chevron_right
+            - link "8 Estética / Harmonização chevron_right" [ref=e693] [cursor=pointer]:
+              - /url: /templates
+              - generic [ref=e694]: "8"
+              - generic [ref=e695]: Estética / Harmonização
+              - generic [ref=e696]: chevron_right
+            - link "8 Oftalmologia chevron_right" [ref=e697] [cursor=pointer]:
+              - /url: /templates
+              - generic [ref=e698]: "8"
+              - generic [ref=e699]: Oftalmologia
+              - generic [ref=e700]: chevron_right
+            - link "8 Ginecologia / Obstetrícia chevron_right" [ref=e701] [cursor=pointer]:
+              - /url: /templates
+              - generic [ref=e702]: "8"
+              - generic [ref=e703]: Ginecologia / Obstetrícia
+              - generic [ref=e704]: chevron_right
+            - link "8 Geral chevron_right" [ref=e705] [cursor=pointer]:
+              - /url: /templates
+              - generic [ref=e706]: "8"
+              - generic [ref=e707]: Geral
+              - generic [ref=e708]: chevron_right
+            - link "8 Psicologia / Psiquiatria chevron_right" [ref=e709] [cursor=pointer]:
+              - /url: /templates
+              - generic [ref=e710]: "8"
+              - generic [ref=e711]: Psicologia / Psiquiatria
+              - generic [ref=e712]: chevron_right
+            - link "8 Odontologia chevron_right" [ref=e713] [cursor=pointer]:
+              - /url: /templates
+              - generic [ref=e714]: "8"
+              - generic [ref=e715]: Odontologia
+              - generic [ref=e716]: chevron_right
+            - link "8 Pediatria chevron_right" [ref=e717] [cursor=pointer]:
+              - /url: /templates
+              - generic [ref=e718]: "8"
+              - generic [ref=e719]: Pediatria
+              - generic [ref=e720]: chevron_right
+            - link "8 Fisioterapia chevron_right" [ref=e721] [cursor=pointer]:
+              - /url: /templates
+              - generic [ref=e722]: "8"
+              - generic [ref=e723]: Fisioterapia
+              - generic [ref=e724]: chevron_right
+            - link "8 Laboratório / Coleta chevron_right" [ref=e725] [cursor=pointer]:
+              - /url: /templates
+              - generic [ref=e726]: "8"
+              - generic [ref=e727]: Laboratório / Coleta
+              - generic [ref=e728]: chevron_right
+            - link "6 Clínica médica chevron_right" [ref=e729] [cursor=pointer]:
+              - /url: /templates
+              - generic [ref=e730]: "6"
+              - generic [ref=e731]: Clínica médica
+              - generic [ref=e732]: chevron_right
+            - link "1 Personalizado chevron_right" [ref=e733] [cursor=pointer]:
+              - /url: /templates
+              - generic [ref=e734]: "1"
+              - generic [ref=e735]: Personalizado
+              - generic [ref=e736]: chevron_right

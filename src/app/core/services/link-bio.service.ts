@@ -20,10 +20,10 @@ export interface LinkBioFormLink {
   last_submission_at?: string | null;
 }
 
-/** IDs de layout da página pública (1 = genérico; 2–7 = temas específicos). */
-export type LinkBioLayoutModel = 1 | 2 | 3 | 4 | 5 | 6 | 7;
+/** IDs de layout da página pública (1 = genérico; 2–8 = temas específicos). */
+export type LinkBioLayoutModel = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
 
-/** Opcional: convênios, equipe, Instagram, textos, veterinária (6), pediatria (7), etc. */
+/** Opcional: convênios, equipe, Instagram, textos, veterinária (6), pediatria (7), nutrição (8), etc. */
 export interface LinkBioExtra {
   hero_tagline?: string;
   council_registration?: string;

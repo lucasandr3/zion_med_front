@@ -1,0 +1,9 @@
+- generic [ref=e2]:
+  - generic:
+    - progressbar
+  - generic [ref=e5]:
+    - generic [ref=e6]: search_off
+    - heading "Página não encontrada" [level=1] [ref=e7]
+    - paragraph [ref=e8]: Fiel ao errors/404.blade.php
+    - link "Voltar ao início" [ref=e9] [cursor=pointer]:
+      - /url: /

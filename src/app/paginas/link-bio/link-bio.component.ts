@@ -130,7 +130,7 @@ export class LinkBioComponent implements OnInit {
   }
 
   /** IDs dos modelos para grade de prévia na aba Modelos. */
-  readonly previewModelIds: readonly LinkBioLayoutModel[] = [1, 2, 3, 4, 5, 6, 7];
+  readonly previewModelIds: readonly LinkBioLayoutModel[] = [1, 2, 3, 4, 5, 6, 7, 8];
 
   /** Nome exibido de cada layout (substitui “Modelo N”). */
   readonly linkBioModelLabels: Record<LinkBioLayoutModel, string> = {
@@ -141,6 +141,7 @@ export class LinkBioComponent implements OnInit {
     5: 'Multi profissionais',
     6: 'Clínica veterinária',
     7: 'Pediatria',
+    8: 'Nutricionista',
   };
 
   /** Bust de cache dos iframes da aba Modelos. */

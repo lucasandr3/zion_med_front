@@ -1,0 +1,46 @@
+- generic [ref=e475]:
+  - button "Alternar modo escuro" [ref=e476] [cursor=pointer]:
+    - generic [ref=e477]: dark_mode
+  - generic [ref=e482]:
+    - generic [ref=e483]:
+      - generic [ref=e484]:
+        - img "Gestgo" [ref=e486]
+        - generic [ref=e487]: Gestgo
+      - generic [ref=e488]:
+        - heading "Fichas digitais que chegam antes do paciente." [level=1] [ref=e489]:
+          - text: Fichas digitais que chegam
+          - text: antes do paciente.
+        - paragraph [ref=e490]: "Fichas e consentimentos digitais para sua clínica: o paciente preenche pelo link antes da consulta — protocolo, PDF automático e histórico organizados."
+      - paragraph [ref=e491]: © 2026 Gestgo. Todos os direitos reservados.
+    - generic [ref=e493]:
+      - heading "Bem-vindo de volta" [level=2] [ref=e494]
+      - paragraph [ref=e495]: Entre para acessar o painel da sua clínica, fichas e protocolos.
+      - paragraph [ref=e518]: O campo e-mail é obrigatório.
+      - generic [ref=e496]:
+        - generic [ref=e497]:
+          - generic [ref=e499]: E-mail
+          - generic [ref=e500]:
+            - generic: mail
+            - textbox "E-mail" [ref=e501]:
+              - /placeholder: seu@email.com.br
+        - generic [ref=e502]:
+          - generic [ref=e503]:
+            - generic [ref=e504]: Senha
+            - link "Esqueceu a senha?" [ref=e505] [cursor=pointer]:
+              - /url: /esqueci-a-senha
+          - generic [ref=e506]:
+            - generic: lock
+            - textbox "Senha" [ref=e507]:
+              - /placeholder: ••••••••
+              - text: lucasvieiraandrade58@gmail.com12345678
+            - button "Mostrar ou ocultar senha" [ref=e508] [cursor=pointer]: visibility
+        - generic [ref=e509] [cursor=pointer]:
+          - checkbox "Lembrar neste dispositivo" [ref=e510]
+          - generic [ref=e511]: Lembrar neste dispositivo
+        - button "Acessar arrow_forward" [ref=e512] [cursor=pointer]:
+          - generic [ref=e519]: Acessar
+          - generic [ref=e520]: arrow_forward
+        - paragraph [ref=e515]:
+          - text: Ainda não tem conta?
+          - link "Criar conta grátis" [ref=e516] [cursor=pointer]:
+            - /url: /comece

@@ -234,4 +234,19 @@
     />
     </div>
   }
+
+  @if (!showSkeleton() && data && clinic && model === 8) {
+    <div class="zm-content-enter">
+    <app-link-bio-public-layout-nutri
+      [clinic]="clinic"
+      [bioLinks]="links"
+      [dark]="dark"
+      [allDocs]="allLinks"
+      [publicSlug]="slug"
+      [linkBioPreview]="linkBioPreview"
+      (toggleDark)="toggleDark()"
+      (share)="sharePage()"
+    />
+    </div>
+  }
 </div>

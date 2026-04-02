@@ -469,6 +469,10 @@
                     <input type="radio" name="modelos_modelo" [value]="7" [(ngModel)]="aparenciaModelo" />
                     {{ linkBioModelLabels[7] }}
                   </label>
+                  <label class="inline-flex items-center gap-2 text-sm md:col-span-2" style="color:var(--c-text)">
+                    <input type="radio" name="modelos_modelo" [value]="8" [(ngModel)]="aparenciaModelo" />
+                    {{ linkBioModelLabels[8] }}
+                  </label>
                 </div>
               </div>
 
@@ -522,7 +526,7 @@
             <form class="flex flex-col gap-5" (ngSubmit)="salvarConteudoExtra()">
               <div class="card p-5">
                 <p class="text-xs font-bold uppercase tracking-wider mb-1" style="color:var(--c-muted)">Textos e links</p>
-                <p class="text-[11px] mb-4" style="color:var(--c-muted)">Usados nos layouts temáticos (2 a 7). Veterinária e pediatria também leem registro (CRM/CRMV), convênios e textos aqui quando aplicável.</p>
+                <p class="text-[11px] mb-4" style="color:var(--c-muted)">Usados nos layouts temáticos (2 a 8). Veterinária, pediatria e nutrição também leem registro profissional, convênios, modalidades e textos aqui quando aplicável.</p>
                 <div class="flex flex-col gap-4">
                   <div>
                     <label class="form-label">Frase de destaque (hero)</label>

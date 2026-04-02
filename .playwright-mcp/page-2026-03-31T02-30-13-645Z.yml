@@ -1,0 +1,415 @@
+- generic [ref=e11]:
+  - link "Todos os sistemas operacionais · Ver status da plataforma" [ref=e13] [cursor=pointer]:
+    - /url: http://zion_med.test/status
+    - generic [ref=e15]: Todos os sistemas operacionais
+    - generic [ref=e16]: ·
+    - generic [ref=e17]: Ver status da plataforma
+  - navigation [ref=e18]:
+    - generic [ref=e19]:
+      - generic [ref=e20]:
+        - link "Gestgo Gestgo" [ref=e21] [cursor=pointer]:
+          - /url: /
+          - img "Gestgo" [ref=e23]
+          - generic [ref=e24]: Gestgo
+        - generic [ref=e25]:
+          - link "Funcionalidades" [ref=e26] [cursor=pointer]:
+            - /url: "#features"
+          - link "Especialidades" [ref=e27] [cursor=pointer]:
+            - /url: "#especialidades"
+          - link "Planos" [ref=e28] [cursor=pointer]:
+            - /url: "#pricing"
+          - link "FAQ" [ref=e29] [cursor=pointer]:
+            - /url: "#faq"
+          - link "Demonstração" [ref=e30] [cursor=pointer]:
+            - /url: "#demo"
+      - generic [ref=e31]:
+        - button "Alternar tema claro ou escuro" [ref=e32] [cursor=pointer]:
+          - img [ref=e33]
+        - link "Entrar" [ref=e39] [cursor=pointer]:
+          - /url: /autenticacao
+        - button "Começar grátis" [ref=e40] [cursor=pointer]
+  - generic [ref=e41]:
+    - generic [ref=e42]:
+      - text: Lançamento ·
+      - generic [ref=e44]: Seja um early adopter
+    - heading "Fichas digitais que chegam antes do paciente" [level=1] [ref=e45]:
+      - text: Fichas digitais que chegam
+      - emphasis [ref=e46]: antes do paciente
+    - paragraph [ref=e47]:
+      - text: Sua clínica publica um
+      - strong [ref=e48]: link na bio
+      - text: . O paciente preenche a ficha pelo celular antes de chegar. Você atende com tudo pronto — sem papel, sem digitação, sem retrabalho.
+    - generic [ref=e49]:
+      - textbox "seu@email.com.br" [ref=e50]
+      - button "Criar conta grátis" [ref=e51] [cursor=pointer]:
+        - text: Criar conta grátis
+        - img [ref=e52]
+    - paragraph [ref=e55]: Sem cartão de crédito · 14 dias grátis · Cancele quando quiser
+    - generic [ref=e56]:
+      - generic [ref=e57]:
+        - img [ref=e58]
+        - text: 86+ templates prontos
+      - generic [ref=e61]:
+        - img [ref=e62]
+        - text: Assinatura digital com validade legal
+      - generic [ref=e65]:
+        - img [ref=e66]
+        - text: LGPD desde o dia 1
+    - generic [ref=e68]:
+      - generic [ref=e74]:
+        - img [ref=e75]
+        - text: app.gestgo.com.br/dashboard
+      - generic [ref=e78]:
+        - generic [ref=e79]:
+          - generic [ref=e82]: Gestgo
+          - generic [ref=e83]: Menu
+          - generic [ref=e84]:
+            - img [ref=e85]
+            - text: Dashboard
+          - generic [ref=e90]:
+            - img [ref=e91]
+            - text: Templates
+          - generic [ref=e93]:
+            - img [ref=e94]
+            - text: Links públicos
+          - generic [ref=e96]:
+            - img [ref=e97]
+            - text: Envios
+          - generic [ref=e100]: Admin
+          - generic [ref=e101]:
+            - img [ref=e102]
+            - text: Link Bio
+        - generic [ref=e106]:
+          - generic [ref=e107]: Dashboard
+          - generic [ref=e108]: Clínica São Paulo · Rua Central, 45
+          - generic [ref=e109]:
+            - generic [ref=e110]:
+              - generic [ref=e111]: Pendentes
+              - generic [ref=e112]: "3"
+              - generic [ref=e113]: Aguardando revisão
+            - generic [ref=e114]:
+              - generic [ref=e115]: Templates
+              - generic [ref=e116]: "86"
+              - generic [ref=e117]: Total na clínica
+            - generic [ref=e118]:
+              - generic [ref=e119]: Respostas
+              - generic [ref=e120]: "24"
+              - generic [ref=e121]: Últimos 7 dias
+          - generic [ref=e122]: Últimos templates
+          - generic [ref=e123]:
+            - img [ref=e125]
+            - generic [ref=e128]: Pesquisa de Satisfação
+            - generic [ref=e129]: 15 mar · 14h02
+            - generic [ref=e130]: Ativo
+          - generic [ref=e131]:
+            - img [ref=e133]
+            - generic [ref=e136]: Anamnese Básica
+            - generic [ref=e137]: 14 mar · 09h15
+            - generic [ref=e138]: Ativo
+          - generic [ref=e139]:
+            - img [ref=e141]
+            - generic [ref=e144]: Termo de Consentimento
+            - generic [ref=e145]: 14 mar · 09h15
+            - generic [ref=e146]: Ativo
+  - generic [ref=e147]:
+    - generic [ref=e148]: Especialidades atendidas
+    - generic [ref=e150]:
+      - generic [ref=e151]: 🩺 Clínica Geral
+      - generic [ref=e152]: ✨ Estética & Harmonização
+      - generic [ref=e153]: 🦷 Odontologia
+      - generic [ref=e154]: 🧠 Psicologia
+      - generic [ref=e155]: 👶 Pediatria
+      - generic [ref=e156]: 🐾 Veterinária
+      - generic [ref=e157]: 💪 Fisioterapia
+      - generic [ref=e158]: 👁️ Oftalmologia
+      - generic [ref=e159]: 🧬 Dermatologia
+      - generic [ref=e160]: 🔬 Laboratório
+      - generic [ref=e161]: 🩺 Clínica Geral
+      - generic [ref=e162]: ✨ Estética & Harmonização
+      - generic [ref=e163]: 🦷 Odontologia
+      - generic [ref=e164]: 🧠 Psicologia
+      - generic [ref=e165]: 👶 Pediatria
+      - generic [ref=e166]: 🐾 Veterinária
+      - generic [ref=e167]: 💪 Fisioterapia
+      - generic [ref=e168]: 👁️ Oftalmologia
+      - generic [ref=e169]: 🧬 Dermatologia
+      - generic [ref=e170]: 🔬 Laboratório
+  - generic [ref=e172]:
+    - generic [ref=e173]:
+      - generic [ref=e174]: Funcionalidades
+      - heading "Tudo que sua clínica precisa no digital" [level=2] [ref=e175]:
+        - text: Tudo que sua clínica precisa
+        - emphasis [ref=e176]: no digital
+      - paragraph [ref=e177]: Do link na bio ao PDF assinado — sem papel, sem retrabalho.
+    - generic [ref=e178]:
+      - generic [ref=e179]:
+        - img [ref=e181]
+        - generic [ref=e184]: Link na bio profissional
+        - generic [ref=e185]: Página pública da clínica com identidade visual, horários, WhatsApp e fichas — tudo em um link para o Instagram.
+      - generic [ref=e186]:
+        - img [ref=e188]
+        - generic [ref=e191]: 86+ templates prontos
+        - generic [ref=e192]: Fichas de anamnese, termos e acompanhamentos para 11 especialidades — prontos para usar ou personalizar.
+      - generic [ref=e193]:
+        - img [ref=e195]
+        - generic [ref=e198]: Assinatura digital
+        - generic [ref=e199]: O paciente assina com o dedo no celular. Validade jurídica, conformidade LGPD e CFM.
+      - generic [ref=e200]:
+        - img [ref=e202]
+        - generic [ref=e205]: PDF automático
+        - generic [ref=e206]: Cada ficha preenchida gera um PDF formatado automaticamente. Zero digitação, zero formatação manual.
+      - generic [ref=e207]:
+        - img [ref=e209]
+        - generic [ref=e211]: Templates personalizáveis
+        - generic [ref=e212]: Adicione campos específicos, reordene perguntas e salve como modelo reutilizável da sua clínica.
+      - generic [ref=e213]:
+        - img [ref=e215]
+        - generic [ref=e217]: API & Webhooks
+        - generic [ref=e218]: Cada ficha recebida dispara um webhook. Integre com prontuário ou CRM via API documentada.
+  - generic [ref=e221]:
+    - generic [ref=e222]:
+      - generic [ref=e223]: Como funciona
+      - heading "4 passos. Zero papel." [level=2] [ref=e224]:
+        - text: 4 passos.
+        - emphasis [ref=e225]: Zero papel.
+      - generic [ref=e226]:
+        - generic [ref=e227] [cursor=pointer]:
+          - generic [ref=e228]: "1"
+          - generic [ref=e229]:
+            - generic [ref=e230]: Crie seus formulários
+            - generic [ref=e231]: Escolha entre 86 templates ou crie do zero. Personaliza em minutos, sem precisar de TI.
+        - generic [ref=e232] [cursor=pointer]:
+          - generic [ref=e233]: "2"
+          - generic [ref=e234]:
+            - generic [ref=e235]: Publique no seu perfil
+            - generic [ref=e236]: Cole o link na bio do Instagram ou WhatsApp. Página pública no ar em segundos.
+        - generic [ref=e237] [cursor=pointer]:
+          - generic [ref=e238]: "3"
+          - generic [ref=e239]:
+            - generic [ref=e240]: Paciente preenche antes
+            - generic [ref=e241]: Abre pelo celular, preenche e assina digitalmente antes de chegar na clínica.
+        - generic [ref=e242] [cursor=pointer]:
+          - generic [ref=e243]: "4"
+          - generic [ref=e244]:
+            - generic [ref=e245]: PDF gerado na hora
+            - generic [ref=e246]: A ficha chega no painel formatada em PDF, pronta para arquivar ou importar.
+    - generic [ref=e248]:
+      - generic [ref=e250]:
+        - generic [ref=e252]: CL
+        - generic [ref=e253]:
+          - generic [ref=e254]: Clínica Exemplo
+          - generic [ref=e255]: Dermatologia · Estética avançada
+          - generic [ref=e256]: Falar pelo WhatsApp
+          - generic [ref=e257]:
+            - img [ref=e259]
+            - generic [ref=e262]:
+              - generic [ref=e263]: Ficha do procedimento
+              - generic [ref=e264]: Anamnese clínica
+          - generic [ref=e265]:
+            - img [ref=e267]
+            - generic [ref=e269]:
+              - generic [ref=e270]: Termo de consentimento
+              - generic [ref=e271]: Procedimentos estéticos
+      - generic [ref=e272]:
+        - generic [ref=e273]: Nova resposta
+        - generic [ref=e274]: Ficha do procedimento
+        - generic [ref=e277]: PDF gerado
+  - generic [ref=e279]:
+    - generic [ref=e280]:
+      - generic [ref=e281]: Especialidades
+      - heading "Feito para sua área" [level=2] [ref=e282]:
+        - text: Feito para
+        - emphasis [ref=e283]: sua área
+      - paragraph [ref=e284]: Templates específicos para cada especialidade — não é uma solução genérica.
+    - generic [ref=e285]:
+      - generic [ref=e286]:
+        - generic [ref=e287]: 🩺
+        - generic [ref=e288]: Clínica Geral
+        - generic [ref=e289]: Anamnese completa, triagem e histórico do paciente.
+        - generic [ref=e290]: 8 templates
+      - generic [ref=e291]:
+        - generic [ref=e292]: ✨
+        - generic [ref=e293]: Estética & Harmonização
+        - generic [ref=e294]: Botox, preenchimento, bioestimuladores e mais.
+        - generic [ref=e295]: 8 templates
+      - generic [ref=e296]:
+        - generic [ref=e297]: 🦷
+        - generic [ref=e298]: Odontologia
+        - generic [ref=e299]: Anamnese odontológica, ortodontia e implantes.
+        - generic [ref=e300]: 8 templates
+      - generic [ref=e301]:
+        - generic [ref=e302]: 🧠
+        - generic [ref=e303]: Psicologia & Psiquiatria
+        - generic [ref=e304]: Anamnese, sigilo e contrato terapêutico.
+        - generic [ref=e305]: 8 templates
+      - generic [ref=e306]:
+        - generic [ref=e307]: 👶
+        - generic [ref=e308]: Pediatria
+        - generic [ref=e309]: Ficha da criança, vacinas e autorização legal.
+        - generic [ref=e310]: 8 templates
+      - generic [ref=e311]:
+        - generic [ref=e312]: 🐾
+        - generic [ref=e313]: Veterinária
+        - generic [ref=e314]: Ficha do pet, vacinas e autorização cirúrgica.
+        - generic [ref=e315]: 8 templates
+      - generic [ref=e316]:
+        - generic [ref=e317]: 💪
+        - generic [ref=e318]: Fisioterapia
+        - generic [ref=e319]: Avaliação postural, RPG e acompanhamento.
+        - generic [ref=e320]: 8 templates
+      - generic [ref=e321]:
+        - generic [ref=e322]: ➕
+        - generic [ref=e323]: Sua especialidade
+        - generic [ref=e324]: Crie templates personalizados para qualquer área.
+  - generic [ref=e326]:
+    - generic [ref=e327]:
+      - generic [ref=e328]: Produto
+      - heading "Construído para funcionar de verdade" [level=2] [ref=e329]:
+        - text: Construído para
+        - emphasis [ref=e330]: funcionar de verdade
+      - paragraph [ref=e331]: Números do produto — não de marketing.
+    - generic [ref=e332]:
+      - generic [ref=e333]:
+        - generic [ref=e334]: 86+
+        - generic [ref=e335]: Templates clínicos prontos
+        - generic [ref=e336]: Criados com profissionais de saúde para cada especialidade. Prontos para usar, editáveis quando quiser.
+      - generic [ref=e337]:
+        - generic [ref=e338]: "11"
+        - generic [ref=e339]: Especialidades cobertas
+        - generic [ref=e340]: Da clínica geral à veterinária. Cada área com templates específicos — não adaptações genéricas.
+      - generic [ref=e341]:
+        - generic [ref=e342]: LGPD
+        - generic [ref=e343]: 100% em conformidade
+        - generic [ref=e344]: Assinatura digital com valor legal, política integrada e armazenamento seguro dos dados do paciente.
+    - generic [ref=e345]:
+      - generic [ref=e346]:
+        - generic [ref=e347]: Early adopter
+        - generic [ref=e348]: Seja um dos primeiros.
+        - generic [ref=e349]: Quem entra agora ajuda a moldar o produto e trava o menor preço para sempre. Sem aumento retroativo.
+      - button "Garantir minha vaga" [ref=e350] [cursor=pointer]:
+        - text: Garantir minha vaga
+        - img [ref=e351]
+  - generic [ref=e355]:
+    - generic [ref=e356]:
+      - generic [ref=e357]: Planos
+      - heading "Simples, sem surpresas" [level=2] [ref=e358]:
+        - text: Simples,
+        - emphasis [ref=e359]: sem surpresas
+      - paragraph [ref=e360]: Trial de 14 dias grátis, sem cartão. Cancele quando quiser — sem multa, sem fidelidade mínima.
+    - generic [ref=e362]:
+      - generic [ref=e363]: ZionMed Clínica
+      - generic [ref=e364]: R$ 247/mês
+      - generic [ref=e365]: Cobrança mensal no checkout
+      - generic [ref=e366]: Plano único com fichas e consentimentos digitais, assinatura, protocolo automático, PDF e templates prontos.
+      - generic [ref=e367]:
+        - generic [ref=e368]:
+          - img [ref=e369]
+          - text: Fichas e consentimentos digitais
+        - generic [ref=e371]:
+          - img [ref=e372]
+          - text: Assinatura digital + PDF automático
+        - generic [ref=e374]:
+          - img [ref=e375]
+          - text: Protocolo e histórico organizado
+        - generic [ref=e377]:
+          - img [ref=e378]
+          - text: API & Webhooks
+        - generic [ref=e381]:
+          - img [ref=e382]
+          - text: Onboarding dedicado
+      - button "Começar trial grátis" [ref=e385] [cursor=pointer]
+    - paragraph [ref=e386]: "* Trial de 14 dias sem cartão. Após o período, sua clínica conclui a ativação do plano escolhido."
+  - generic [ref=e388]:
+    - generic [ref=e389]:
+      - generic [ref=e390]: FAQ
+      - heading "Perguntas frequentes" [level=2] [ref=e391]:
+        - text: Perguntas
+        - emphasis [ref=e392]: frequentes
+    - generic [ref=e394]:
+      - generic [ref=e395]:
+        - button "A assinatura digital tem valor legal?" [ref=e396] [cursor=pointer]:
+          - text: A assinatura digital tem valor legal?
+          - img [ref=e397]
+        - paragraph [ref=e401]: Sim. A assinatura digital coletada pelo Gestgo atende aos requisitos da MP 2.200-2/2001 e tem validade jurídica equivalente à assinatura manuscrita para prontuário e consentimento informado.
+      - generic [ref=e402]:
+        - button "O sistema é compatível com a LGPD?" [ref=e403] [cursor=pointer]:
+          - text: O sistema é compatível com a LGPD?
+          - img [ref=e404]
+        - paragraph [ref=e405]: Sim. O Gestgo foi desenvolvido com conformidade LGPD desde o início — coleta consentimento explícito, exibe a política de privacidade em cada formulário e permite ao paciente solicitar exclusão dos dados.
+      - generic [ref=e406]:
+        - button "Preciso cancelar meu Linktree para usar?" [ref=e407] [cursor=pointer]:
+          - text: Preciso cancelar meu Linktree para usar?
+          - img [ref=e408]
+        - paragraph [ref=e409]: Não precisa migrar tudo de uma vez. Você pode testar em paralelo. A maioria abandona o Linktree naturalmente na primeira semana — o Gestgo entrega muito mais contexto clínico.
+      - generic [ref=e410]:
+        - button "Quanto tempo leva para configurar?" [ref=e411] [cursor=pointer]:
+          - text: Quanto tempo leva para configurar?
+          - img [ref=e412]
+        - paragraph [ref=e413]: Menos de 30 minutos. Você cadastra a clínica, escolhe os templates da sua especialidade, personaliza e já tem o link para o Instagram. Os templates já vêm prontos — não precisa criar nada do zero.
+      - generic [ref=e414]:
+        - button "Posso personalizar os formulários?" [ref=e415] [cursor=pointer]:
+          - text: Posso personalizar os formulários?
+          - img [ref=e416]
+        - paragraph [ref=e417]: Sim. Todos os templates são editáveis — adicione, remova e reordene campos. Também pode criar templates do zero para procedimentos específicos e salvá-los como modelos reutilizáveis.
+  - generic [ref=e419]:
+    - generic [ref=e420]: Comece agora
+    - heading "Sua clínica digital começa hoje." [level=2] [ref=e421]:
+      - text: Sua clínica
+      - emphasis [ref=e422]: digital
+      - text: começa hoje.
+    - paragraph [ref=e423]: 14 dias grátis, sem cartão de crédito. Cancele quando quiser.
+    - generic [ref=e424]:
+      - textbox "seu@email.com.br" [ref=e425]
+      - button "Criar conta grátis" [ref=e426] [cursor=pointer]:
+        - text: Criar conta grátis
+        - img [ref=e427]
+    - paragraph [ref=e430]: Sem cartão · 14 dias grátis · Cancele quando quiser
+  - generic [ref=e432]:
+    - generic [ref=e433]:
+      - generic [ref=e434]: Demonstração
+      - heading "Veja sua clínica funcionando sem papel" [level=3] [ref=e435]
+      - paragraph [ref=e436]: "Em uma demonstração rápida, mostramos o fluxo completo: envio do link, preenchimento, assinatura digital, protocolo e PDF automático."
+      - link "Falar no WhatsApp" [ref=e437] [cursor=pointer]:
+        - /url: https://wa.me/5534996460818?text=Ol%C3%A1!%20Gostaria%20de%20agendar%20uma%20demonstra%C3%A7%C3%A3o%20do%20Gestgo.
+        - img [ref=e438]
+        - text: Falar no WhatsApp
+      - paragraph [ref=e440]: (34) 99646-0818 · Horário comercial
+    - generic [ref=e441]:
+      - generic [ref=e442]: Agendar demonstração gratuita
+      - paragraph [ref=e443]: Ou use o formulário. Resposta em até 1 hora no horário comercial.
+      - generic [ref=e444]:
+        - generic [ref=e445]:
+          - generic [ref=e446]: Nome *
+          - textbox "Seu nome" [ref=e447]
+        - generic [ref=e448]:
+          - generic [ref=e449]: Clínica *
+          - textbox "Nome da clínica" [ref=e450]
+        - generic [ref=e451]:
+          - generic [ref=e452]:
+            - generic [ref=e453]: E-mail *
+            - textbox "email@clinica.com" [ref=e454]
+          - generic [ref=e455]:
+            - generic [ref=e456]: WhatsApp *
+            - textbox "(00) 00000-0000" [ref=e457]
+        - generic [ref=e458]:
+          - generic [ref=e459]: Mensagem
+          - textbox "Conte rapidamente seu cenário." [ref=e460]
+        - button "Quero ver uma demonstração" [ref=e461] [cursor=pointer]
+        - paragraph [ref=e462]: Ao enviar, você concorda em ser contatado. Sem spam.
+  - contentinfo [ref=e463]:
+    - generic [ref=e464]:
+      - link "Gestgo" [ref=e465] [cursor=pointer]:
+        - /url: /
+        - generic [ref=e467]: Gestgo
+      - generic [ref=e468]:
+        - link "Privacidade" [ref=e469] [cursor=pointer]:
+          - /url: /privacidade
+        - link "Termos" [ref=e470] [cursor=pointer]:
+          - /url: /termos-de-uso
+        - link "LGPD" [ref=e471] [cursor=pointer]:
+          - /url: /privacidade
+        - link "Status" [ref=e472] [cursor=pointer]:
+          - /url: http://zion_med.test/status
+        - link "Contato" [ref=e473] [cursor=pointer]:
+          - /url: "#demo"
+      - generic [ref=e474]: © 2026 Gestgo
