@@ -39,7 +39,7 @@
           <td class="py-2.5 px-3 cell-muted">{{ f.reference || '—' }}</td>
           <td class="py-2.5 px-3 text-right cell-muted">{{ formatarValor(f.amount, f.currency) }}</td>
           <td class="py-2.5 px-3 cell-muted">{{ formatarData(f.due_date) }}</td>
-          <td class="py-2.5 px-3 cell-muted">{{ f.status || '—' }}</td>
+          <td class="py-2.5 px-3 cell-muted">{{ rotuloStatusFatura(f.status) }}</td>
           <td class="py-2.5 pl-3 cell-muted">{{ formatarData(f.paid_at) }}</td>
         </tr>
       } @empty {

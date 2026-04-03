@@ -2,9 +2,11 @@ import { Component, OnInit, inject, Signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { switchMap, map, catchError, of } from 'rxjs';
+import { isBillingBlockedError } from '../../core/utils/billing-blocked-error';
 import { DashboardService } from '../../core/services/dashboard.service';
 import { TemplatesService, Template } from '../../core/services/templates.service';
 import { LoadingService } from '../../shared/services/loading.service';
+import { ZmAssinaturaBloqueadaCardComponent } from '../../shared/components/ui/zm-assinatura-bloqueada-card/zm-assinatura-bloqueada-card.component';
 import { ZmSkeletonDashboardComponent } from '../../shared/components/skeletons';
 import { AuthService } from '../../core/services/auth.service';
 
@@ -35,7 +37,7 @@ export interface UltimoTemplateRow {
 @Component({
   selector: 'app-pagina-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterLink, ZmSkeletonDashboardComponent],
+  imports: [CommonModule, RouterLink, ZmSkeletonDashboardComponent, ZmAssinaturaBloqueadaCardComponent],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css',
 })
@@ -44,6 +46,8 @@ export class DashboardComponent implements OnInit {
   dashReady = false;
   estadoErro = false;
   mensagemErro = '';
+  /** 403 billing_blocked no GET do painel (cartão local; banner global não aparece nesta rota). */
+  painelBloqueadoCobranca = false;
   semClinica = false;
   pendentesHoje = 0;
   totalTemplates = 0;
@@ -106,6 +110,7 @@ export class DashboardComponent implements OnInit {
       next: ({ dash, templates }) => {
         this.dashReady = true;
         this.estadoErro = false;
+        this.painelBloqueadoCobranca = false;
         this.semClinica = dash.sem_clinica;
         this.pendentesHoje = dash.pendentes_hoje ?? 0;
         this.ultimos7Dias = dash.ultimos_7_dias ?? 0;
@@ -133,10 +138,16 @@ export class DashboardComponent implements OnInit {
           rejected: Number(ps['rejected'] ?? ps['Rejected'] ?? 0),
         };
       },
-      error: () => {
+      error: (err: unknown) => {
         this.dashReady = true;
+        if (isBillingBlockedError(err)) {
+          this.painelBloqueadoCobranca = true;
+          this.estadoErro = false;
+          return;
+        }
+        this.painelBloqueadoCobranca = false;
         this.estadoErro = true;
-        this.mensagemErro = 'Não foi possível carregar o dashboard.';
+        this.mensagemErro = 'Não foi possível carregar o painel.';
       },
     });
   }

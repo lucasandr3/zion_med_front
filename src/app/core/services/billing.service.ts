@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { ApiService } from './api.service';
 import { map, Observable } from 'rxjs';
+import { BillingUi, normalizeBillingUi } from '../utils/billing-ui';
 
 export interface Plano {
   name: string;
@@ -22,24 +23,42 @@ export interface Subscription {
   created_at?: string;
 }
 
-export interface BillingClinic {
+export interface BillingOrganization {
   id: number;
   plan_key: string | null;
   subscription_status: string | null;
   billing_status: string | null;
+  trial_ends_at?: string | null;
+  /** Trial em andamento (API pode enviar mesmo com subscription_status active após cadastro). */
+  is_on_trial?: boolean;
+}
+
+/** @deprecated Use BillingOrganization */
+export type BillingClinic = BillingOrganization;
+
+export interface BillingPayment {
+  id: number;
+  status: string;
+  due_date: string;
+  paid_at?: string;
+  value: number;
+  bank_slip_url?: string | null;
 }
 
 export interface BillingState {
-  clinic: BillingClinic | null;
+  organization: BillingOrganization | null;
+  /** @deprecated Use organization */
+  clinic?: BillingOrganization | null;
+  billing_ui: BillingUi;
   /** Planos: objeto com chave = plan_key. Normalize para array com .key no componente. */
   plans: Record<string, Plano>;
   subscriptions: Subscription[];
-  payments: unknown[];
+  payments: BillingPayment[];
   asaas_configured: boolean;
 }
 
 interface ApiResponse {
-  data: BillingState;
+  data: BillingState & { billing_ui?: BillingUi };
 }
 
 @Injectable({ providedIn: 'root' })
@@ -47,7 +66,21 @@ export class BillingService {
   private api = inject(ApiService);
 
   get(): Observable<BillingState> {
-    return this.api.get<ApiResponse>('/billing').pipe(map((r) => r.data));
+    return this.api.get<ApiResponse>('/billing').pipe(
+      map((r) => {
+        const d = r.data as BillingState & { clinic?: BillingOrganization | null; billing_ui?: BillingUi };
+        const organization = d.organization ?? d.clinic ?? null;
+        const subscriptions = d.subscriptions ?? [];
+        const billing_ui = normalizeBillingUi(d.billing_ui, subscriptions);
+        return {
+          ...d,
+          organization,
+          subscriptions,
+          payments: (d.payments ?? []) as BillingPayment[],
+          billing_ui,
+        };
+      })
+    );
   }
 
   /** Cria assinatura para o plano (plan_key). */

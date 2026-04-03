@@ -1,5 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { ApiService } from './api.service';
 
 export interface PlatformDashboardData {
@@ -132,11 +133,58 @@ export class PlataformaService {
   }
 
   getSubscriptions(): Observable<{ data: PlatformSubscription[] }> {
-    return this.api.get<{ data: PlatformSubscription[] }>('/platform/subscriptions');
+    return this.api.get<{ data: Record<string, unknown>[] }>('/platform/subscriptions').pipe(
+      map((res) => ({
+        data: (res.data ?? []).map((row) => {
+          const org = (row['organization'] ?? row['clinic']) as
+            | {
+                id?: number;
+                name?: string;
+                tenant_id?: number;
+                plan_key?: string | null;
+                subscription_status?: string | null;
+                billing_status?: string | null;
+              }
+            | null
+            | undefined;
+          return {
+            id: row['id'] as number | undefined,
+            tenant_id: org?.tenant_id ?? 0,
+            tenant_name: '',
+            clinic_id: org?.id ?? 0,
+            clinic_name: org?.name ?? '—',
+            plan_key: (row['plan_key'] as string | null | undefined) ?? org?.plan_key ?? null,
+            subscription_status: org?.subscription_status ?? null,
+            billing_status: org?.billing_status ?? null,
+            current_period_end: row['current_period_end'] as string | null | undefined,
+          };
+        }),
+      }))
+    );
   }
 
   getInvoices(): Observable<{ data: PlatformInvoice[] }> {
-    return this.api.get<{ data: PlatformInvoice[] }>('/platform/invoices');
+    return this.api.get<{ data: Record<string, unknown>[] }>('/platform/invoices').pipe(
+      map((res) => ({
+        data: (res.data ?? []).map((row) => {
+          const org = (row['organization'] ?? row['clinic']) as { id?: number; name?: string; tenant_id?: number } | null | undefined;
+          return {
+            id: row['id'] as number | string,
+            tenant_id: org?.tenant_id,
+            tenant_name: '',
+            clinic_id: org?.id,
+            clinic_name: org?.name ?? '—',
+            reference: row['asaas_payment_id'] as string | null | undefined,
+            amount: row['value'] as number | null | undefined,
+            currency: 'BRL',
+            status: row['status'] as string | null,
+            due_date: row['due_date'] as string | null | undefined,
+            paid_at: row['paid_at'] as string | null | undefined,
+            created_at: row['created_at'] as string | null | undefined,
+          };
+        }),
+      }))
+    );
   }
 
   getPlans(): Observable<{ data: PlatformPlan[]; trial_days?: number }> {

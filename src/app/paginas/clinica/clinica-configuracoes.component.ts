@@ -2,13 +2,14 @@ import { Component, OnInit, inject, Signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FlatpickrDirective, provideFlatpickrDefaults } from 'angularx-flatpickr';
 import { Portuguese } from 'flatpickr/dist/l10n/pt';
 import { finalize } from 'rxjs';
-import { AuthService } from '../../core/services/auth.service';
+import { isBillingBlockedError } from '../../core/utils/billing-blocked-error';
 import { ClinicaService, ClinicaConfig, ClinicaOption, ClinicaAuditLog, ConfigPageData, BusinessHoursSlot } from '../../core/services/clinica.service';
 import { LoadingService } from '../../shared/services/loading.service';
+import { ZmAssinaturaBloqueadaCardComponent } from '../../shared/components/ui/zm-assinatura-bloqueada-card/zm-assinatura-bloqueada-card.component';
 import { ZmSkeletonListComponent } from '../../shared/components/skeletons';
 import { ToastService } from '../../core/services/toast.service';
 
@@ -25,7 +26,14 @@ const DAYS: { id: string; label: string }[] = [
 @Component({
   selector: 'app-clinica-configuracoes',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, ZmSkeletonListComponent, FlatpickrDirective],
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterLink,
+    ZmSkeletonListComponent,
+    ZmAssinaturaBloqueadaCardComponent,
+    FlatpickrDirective,
+  ],
   providers: [
     provideFlatpickrDefaults({
       locale: Portuguese,
@@ -60,21 +68,19 @@ export class ClinicaConfiguracoesComponent implements OnInit {
   logsLoading = false;
   logsLoaded = false;
   logsError = '';
+  /** API retornou 403 billing_blocked — assinatura/pagamento pendente. */
+  logsErroCobranca = false;
   logsPage = 1;
   logsLastPage = 1;
   logsTotal = 0;
 
-  private auth = inject(AuthService);
+  private route = inject(ActivatedRoute);
   private clinicaService = inject(ClinicaService);
   private loadingService = inject(LoadingService);
   private toast = inject(ToastService);
 
-  get podeGerenciarAssinatura(): boolean {
-    return this.auth.hasPermission('billing.manage');
-  }
-
   get clinic(): ClinicaConfig | undefined {
-    return this.pageData?.clinic;
+    return this.pageData?.organization ?? this.pageData?.clinic;
   }
 
   get availableThemes(): Record<string, { label?: string; primary?: string }> {
@@ -86,33 +92,15 @@ export class ClinicaConfiguracoesComponent implements OnInit {
   }
 
   get tenantClinics(): ClinicaOption[] {
-    return this.pageData?.tenant_clinics ?? [];
+    return this.pageData?.tenant_organizations ?? this.pageData?.tenant_clinics ?? [];
   }
 
   get showStickyFooter(): boolean {
-    return this.activeTab !== 'assinatura' && this.activeTab !== 'empresas' && this.activeTab !== 'logs';
+    return this.activeTab !== 'empresas' && this.activeTab !== 'logs';
   }
 
   get themeKeys(): string[] {
     return Object.keys(this.availableThemes);
-  }
-
-  /** Primeiro plano disponível (para card principal da aba Assinatura). */
-  get firstPlanKey(): string | null {
-    const plans = this.pageData?.billing_plans ?? {};
-    const keys = Object.keys(plans);
-    return keys.length ? keys[0] : null;
-  }
-
-  get firstPlan(): { name?: string; value?: number } | null {
-    const key = this.firstPlanKey;
-    if (!key) return null;
-    const plans = this.pageData?.billing_plans ?? {};
-    return (plans as Record<string, { name?: string; value?: number }>)[key] ?? null;
-  }
-
-  get hasPayments(): boolean {
-    return (this.pageData?.billing_payments?.length ?? 0) > 0;
   }
 
   private traduzirAcao(action?: string | null): string {
@@ -122,9 +110,9 @@ export class ClinicaConfiguracoesComponent implements OnInit {
       'clinic.updated': 'Empresa atualizada',
       'user.created': 'Usuário criado',
       'user.deactivated': 'Usuário desativado',
-      'template.created': 'Template criado',
-      'template.updated': 'Template atualizado',
-      'template.deleted': 'Template excluído',
+      'template.created': 'Modelo criado',
+      'template.updated': 'Modelo atualizado',
+      'template.deleted': 'Modelo excluído',
       'submission.created': 'Protocolo criado',
       'submission.reviewed': 'Protocolo revisado',
       'submission.comment': 'Comentário em protocolo',
@@ -139,7 +127,7 @@ export class ClinicaConfiguracoesComponent implements OnInit {
     const map: Record<string, string> = {
       FormSubmission: 'Protocolo',
       User: 'Usuário',
-      FormTemplate: 'Template',
+      FormTemplate: 'Modelo de formulário',
       Clinic: 'Empresa',
       Organization: 'Empresa',
     };
@@ -147,16 +135,19 @@ export class ClinicaConfiguracoesComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    const { data$, showSkeleton } = this.loadingService.loadWithThreshold(this.clinicaService.getConfiguracoesPage());
+    const rawTab = this.route.snapshot.queryParamMap.get('tab');
+    const tabQ = rawTab === 'assinatura' ? null : rawTab;
+    const pageQuery = tabQ ? { tab: tabQ } : undefined;
+    const { data$, showSkeleton } = this.loadingService.loadWithThreshold(this.clinicaService.getConfiguracoesPage(pageQuery));
     this.showSkeleton = showSkeleton;
     data$.subscribe({
       next: (data) => {
         this.listaPronta = true;
         this.pageData = data;
         let tab = data.active_config_tab ?? 'dados';
-        if (tab === 'assinatura' && !this.podeGerenciarAssinatura) tab = 'dados';
+        if (tab === 'assinatura') tab = 'dados';
         this.activeTab = tab;
-        this.patchFormFromClinic(data.clinic);
+        this.patchFormFromClinic(data.organization ?? data.clinic!);
       },
       error: () => {
         this.listaPronta = true;
@@ -195,10 +186,6 @@ export class ClinicaConfiguracoesComponent implements OnInit {
   }
 
   setTab(tab: string): void {
-    if (tab === 'assinatura' && !this.podeGerenciarAssinatura) {
-      this.activeTab = 'dados';
-      return;
-    }
     this.activeTab = tab;
     if (tab === 'logs') {
       this.carregarLogs();
@@ -217,10 +204,12 @@ export class ClinicaConfiguracoesComponent implements OnInit {
   carregarLogs(page = 1): void {
     this.logsLoading = true;
     this.logsError = '';
+    this.logsErroCobranca = false;
     this.clinicaService.getClinicaLogs(page).subscribe({
       next: (res) => {
         this.logsLoading = false;
         this.logsLoaded = true;
+        this.logsErroCobranca = false;
         this.logs = (res.data ?? []).map((log) => ({
           ...log,
           action: this.traduzirAcao(log.action),
@@ -230,9 +219,21 @@ export class ClinicaConfiguracoesComponent implements OnInit {
         this.logsLastPage = res.meta?.last_page ?? 1;
         this.logsTotal = res.meta?.total ?? this.logs.length;
       },
-      error: () => {
+      error: (err: unknown) => {
         this.logsLoading = false;
-        this.logsError = 'Não foi possível carregar os logs.';
+        this.logsLoaded = true;
+        if (isBillingBlockedError(err)) {
+          this.logsErroCobranca = true;
+          this.logsError = '';
+          return;
+        }
+        this.logsErroCobranca = false;
+        const http = err instanceof HttpErrorResponse ? err : null;
+        const apiMsg = (http?.error as { message?: string } | null)?.message;
+        this.logsError =
+          typeof apiMsg === 'string' && apiMsg.trim()
+            ? apiMsg.trim()
+            : 'Não foi possível carregar os logs. Tente novamente em instantes.';
       },
     });
   }
@@ -280,7 +281,7 @@ export class ClinicaConfiguracoesComponent implements OnInit {
         next: (data) => {
           this.pageData = data;
           this.novaEmpresaNome = '';
-          this.patchFormFromClinic(data.clinic);
+          this.patchFormFromClinic(data.organization ?? data.clinic!);
           this.toast.success('Empresa criada', 'A nova empresa foi adicionada ao grupo. Você pode trocar para ela em "Escolher empresa".');
         },
         error: (err: unknown) => {
@@ -337,7 +338,10 @@ export class ClinicaConfiguracoesComponent implements OnInit {
         this.salvando = false;
         this.sucesso = true;
         this.logoFile = null;
-        if (this.pageData) this.pageData.clinic = { ...this.pageData.clinic, ...updated };
+        if (this.pageData) {
+          const cur = this.pageData.organization ?? this.pageData.clinic;
+          if (cur) this.pageData.organization = { ...cur, ...updated };
+        }
         this.patchFormFromClinic(updated);
         this.toast.success('Configurações salvas', 'As alterações da empresa foram gravadas.');
       },

@@ -61,8 +61,8 @@
               }
             </td>
             <td class="py-2.5 px-3">{{ c.plan_key || '—' }}</td>
-            <td class="py-2.5 px-3">{{ c.subscription_status || '—' }}</td>
-            <td class="py-2.5 px-3">{{ c.billing_status || '—' }}</td>
+            <td class="py-2.5 px-3">{{ rotuloStatusAssinaturaCobranca(c.subscription_status) }}</td>
+            <td class="py-2.5 px-3">{{ rotuloStatusAssinaturaCobranca(c.billing_status) }}</td>
             <td class="py-2.5 pl-3 text-center">{{ c.users_count }}</td>
           </tr>
         } @empty {

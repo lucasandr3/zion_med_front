@@ -1,0 +1,23 @@
+<div
+  class="zm-ab-card"
+  [class.zm-ab-card--compact]="variant === 'compact'"
+  role="status"
+  [attr.aria-label]="titulo"
+>
+  <p class="zm-ab-card__title">{{ titulo }}</p>
+  <p class="zm-ab-card__desc">{{ descricao }}</p>
+  @if (permitirIrAssinatura && temPermissaoAssinatura()) {
+    <a routerLink="/assinatura" class="zm-ab-card__btn">
+      <span class="material-symbols-outlined" style="font-size: 18px" aria-hidden="true">payments</span>
+      Ir para assinatura
+    </a>
+  } @else if (!permitirIrAssinatura) {
+    <p class="zm-ab-card__hint">
+      Se o pagamento já foi identificado, aguarde alguns minutos e atualize a página.
+    </p>
+  } @else {
+    <p class="zm-ab-card__hint">
+      Peça a um administrador com permissão de assinatura para regularizar o pagamento.
+    </p>
+  }
+</div>

@@ -2,6 +2,11 @@
   @if (showSkeleton()) {
     <zm-skeleton-dashboard />
   } @else if (!dashReady) {
+  } @else if (painelBloqueadoCobranca) {
+    <zm-assinatura-bloqueada-card
+      titulo="Painel indisponível até regularizar a cobrança"
+      descricao="Com assinatura pendente ou conta bloqueada por pagamento, o resumo e as métricas do painel não são carregados. Após a confirmação do pagamento, tudo volta a aparecer aqui."
+    />
   } @else if (estadoErro) {
     <p class="text-sm mb-4" style="color: var(--c-error, #dc2626)">{{ mensagemErro }}</p>
   } @else {
@@ -11,9 +16,9 @@
           <span class="material-symbols-outlined shrink-0 text-[28px]" style="color: var(--c-muted)">business</span>
           <div class="min-w-0">
             <p class="text-sm font-medium" style="color: var(--c-text)">Selecione uma clínica para ver o resumo</p>
-            <p class="text-xs mt-0.5" style="color: var(--c-muted)">Os números e atalhos do dashboard são exibidos por clínica.</p>
+            <p class="text-xs mt-0.5" style="color: var(--c-muted)">Os números e atalhos do painel são exibidos por clínica.</p>
           </div>
-          <a routerLink="/clinica/escolher" class="btn-primary shrink-0" title="Escolher empresa para visualizar o dashboard">Escolher empresa</a>
+          <a routerLink="/clinica/escolher" class="btn-primary shrink-0" title="Escolher empresa para visualizar o painel">Escolher empresa</a>
         </div>
       }
 
@@ -34,7 +39,7 @@
           </a>
 
           <div class="dash-metric-card">
-            <p class="dash-metric-label">Templates</p>
+            <p class="dash-metric-label">Modelos</p>
             <p class="dash-metric-value">{{ totalTemplates }}</p>
             <p class="dash-metric-sub">Total na clínica</p>
           </div>
@@ -97,7 +102,7 @@
             </a>
             <a routerLink="/templates/criar" class="btn-primary inline-flex items-center gap-1.5">
               <span class="material-symbols-outlined text-base">add</span>
-              Novo template
+              Novo modelo
             </a>
             <a routerLink="/protocolos" class="btn-ghost btn-default-bg inline-flex items-center gap-1.5">
               <span class="material-symbols-outlined text-base">inbox</span>
@@ -109,10 +114,10 @@
           }
         </div>
 
-        <!-- Últimos templates -->
+        <!-- Últimos modelos -->
         <div class="dash-panel mb-5">
           <div class="dash-panel__head">
-            <h2 class="dash-panel__title">Últimos templates</h2>
+            <h2 class="dash-panel__title">Últimos modelos</h2>
             @if (ultimosTemplates.length > 0) {
               <a routerLink="/templates" class="dash-link-all">Ver todos</a>
             }
@@ -135,20 +140,20 @@
           } @empty {
             <div class="px-5 py-12 text-center">
               <span class="material-symbols-outlined block mb-2 text-4xl" style="color: var(--c-border)">description</span>
-              <p class="text-sm m-0" style="color: var(--c-muted)">Nenhum template ainda.</p>
+              <p class="text-sm m-0" style="color: var(--c-muted)">Nenhum modelo ainda.</p>
             </div>
           }
         </div>
 
-        <!-- Templates por categoria -->
+        <!-- Modelos por categoria -->
         @if (categoriasResumo.length > 0) {
           <div class="dash-panel mb-2">
             <div class="dash-panel__head" style="border-bottom: 1px solid var(--c-border)">
-              <h2 class="dash-panel__title">Templates por categoria</h2>
+              <h2 class="dash-panel__title">Modelos por categoria</h2>
             </div>
             <div class="p-2 flex flex-col gap-2">
               @for (c of categoriasResumo; track c.key) {
-                <a routerLink="/templates" class="dash-category-card" [title]="'Ver templates em ' + c.label">
+                <a routerLink="/templates" class="dash-category-card" [title]="'Ver modelos em ' + c.label">
                   <div class="dash-category-count">{{ c.count }}</div>
                   <span class="dash-category-label truncate">{{ c.label }}</span>
                   <span class="material-symbols-outlined dash-category-chevron">chevron_right</span>

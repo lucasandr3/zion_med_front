@@ -7,8 +7,11 @@ import { applyUserAppearanceToBrowser } from './user-appearance.sync';
 
 const TOKEN_KEY = 'gestgo_token';
 const USER_KEY = 'gestgo_user';
-const CLINICS_KEY = 'gestgo_clinics';
-const CURRENT_CLINIC_KEY = 'gestgo_clinic_id';
+const ORGANIZATIONS_KEY = 'gestgo_organizations';
+const CURRENT_ORG_KEY = 'gestgo_organization_id';
+/** @deprecated Migrado para ORGANIZATIONS_KEY / CURRENT_ORG_KEY */
+const CLINICS_KEY_LEGACY = 'gestgo_clinics';
+const CLINIC_ID_KEY_LEGACY = 'gestgo_clinic_id';
 
 export interface User {
   id: number;
@@ -27,27 +30,43 @@ export interface User {
   updated_at?: string;
 }
 
-export interface Clinic {
+export interface Organization {
   id: number;
   name: string;
   address?: string;
   [key: string]: unknown;
 }
 
+/** @deprecated Use Organization */
+export type Clinic = Organization;
+
 export interface LoginResponse {
   data: {
     token: string;
     token_type: string;
     user: User;
-    current_clinic_id: number | null;
-    clinics: Clinic[];
+    current_organization_id: number | null;
+    organizations: Organization[];
+    /** Legado */
+    current_clinic_id?: number | null;
+    clinics?: Organization[];
   };
+}
+
+export interface TrialNotice {
+  visible: boolean;
+  days_remaining: number;
+  trial_ends_at: string;
+  message: string;
 }
 
 export interface MeResponse {
   data: {
     user: User;
-    clinic: Clinic | null;
+    organization: Organization | null;
+    /** Legado */
+    clinic?: Organization | null;
+    trial_notice?: TrialNotice | null;
   };
 }
 
@@ -58,8 +77,10 @@ export class AuthService {
   private baseUrl = environment.apiUrl;
 
   private _user: User | null = null;
-  private _clinics: Clinic[] = [];
-  private _currentClinicId: string | null = null;
+  private _organizations: Organization[] = [];
+  private _currentOrganizationId: string | null = null;
+  /** Aviso de fim de trial (preenchido após `/me`). */
+  private _trialNotice: TrialNotice | null = null;
 
   /** Emite após tema/modo ser aplicados a partir da API (ex.: pós-`/me`). */
   private appearanceAppliedSubject = new Subject<void>();
@@ -78,20 +99,24 @@ export class AuthService {
     if (typeof localStorage === 'undefined') return;
     try {
       const u = localStorage.getItem(USER_KEY);
-      const c = localStorage.getItem(CLINICS_KEY);
-      const cid = localStorage.getItem(CURRENT_CLINIC_KEY);
+      let orgsJson = localStorage.getItem(ORGANIZATIONS_KEY);
+      if (!orgsJson) orgsJson = localStorage.getItem(CLINICS_KEY_LEGACY);
+      let oid = localStorage.getItem(CURRENT_ORG_KEY);
+      if (!oid) oid = localStorage.getItem(CLINIC_ID_KEY_LEGACY);
       if (u) this._user = JSON.parse(u);
-      if (c) this._clinics = JSON.parse(c);
-      if (cid) this._currentClinicId = cid;
+      if (orgsJson) this._organizations = JSON.parse(orgsJson);
+      if (oid) this._currentOrganizationId = oid;
     } catch {}
   }
 
   private persist(): void {
     try {
       if (this._user) localStorage.setItem(USER_KEY, JSON.stringify(this._user));
-      localStorage.setItem(CLINICS_KEY, JSON.stringify(this._clinics));
-      if (this._currentClinicId != null) localStorage.setItem(CURRENT_CLINIC_KEY, this._currentClinicId);
-      else localStorage.removeItem(CURRENT_CLINIC_KEY);
+      localStorage.setItem(ORGANIZATIONS_KEY, JSON.stringify(this._organizations));
+      localStorage.removeItem(CLINICS_KEY_LEGACY);
+      if (this._currentOrganizationId != null) localStorage.setItem(CURRENT_ORG_KEY, this._currentOrganizationId);
+      else localStorage.removeItem(CURRENT_ORG_KEY);
+      localStorage.removeItem(CLINIC_ID_KEY_LEGACY);
     } catch {}
   }
 
@@ -101,8 +126,9 @@ export class AuthService {
       localStorage.setItem(TOKEN_KEY, data.token);
     }
     this._user = data.user;
-    this._clinics = data.clinics ?? [];
-    this._currentClinicId = data.current_clinic_id != null ? String(data.current_clinic_id) : null;
+    this._organizations = data.organizations ?? data.clinics ?? [];
+    const cid = data.current_organization_id ?? data.current_clinic_id;
+    this._currentOrganizationId = cid != null ? String(cid) : null;
     this.persist();
     applyUserAppearanceToBrowser(data.user);
     this.notifyAppearanceApplied();
@@ -123,23 +149,47 @@ export class AuthService {
     return this._user;
   }
 
-  getClinics(): Clinic[] {
-    return this._clinics;
+  getTrialNotice(): TrialNotice | null {
+    return this._trialNotice;
   }
 
+  getOrganizations(): Organization[] {
+    return this._organizations;
+  }
+
+  /** @deprecated Use getOrganizations() */
+  getClinics(): Organization[] {
+    return this._organizations;
+  }
+
+  getCurrentOrganizationId(): string | null {
+    return this._currentOrganizationId;
+  }
+
+  /** @deprecated Use getCurrentOrganizationId() */
   getCurrentClinicId(): string | null {
-    return this._currentClinicId;
+    return this._currentOrganizationId;
   }
 
-  getCurrentClinic(): Clinic | null {
-    const id = this._currentClinicId;
+  getCurrentOrganization(): Organization | null {
+    const id = this._currentOrganizationId;
     if (!id) return null;
-    return this._clinics.find((c) => String(c.id) === id) ?? null;
+    return this._organizations.find((o) => String(o.id) === id) ?? null;
   }
 
-  setCurrentClinicId(id: number | string | null): void {
-    this._currentClinicId = id != null ? String(id) : null;
+  /** @deprecated Use getCurrentOrganization() */
+  getCurrentClinic(): Organization | null {
+    return this.getCurrentOrganization();
+  }
+
+  setCurrentOrganizationId(id: number | string | null): void {
+    this._currentOrganizationId = id != null ? String(id) : null;
     this.persist();
+  }
+
+  /** @deprecated Use setCurrentOrganizationId() */
+  setCurrentClinicId(id: number | string | null): void {
+    this.setCurrentOrganizationId(id);
   }
 
   isAuthenticated(): boolean {
@@ -191,7 +241,7 @@ export class AuthService {
       ['/templates', () => this.hasPermission('templates.manage')],
       ['/links-publicos', () => this.hasPermission('templates.manage') || this.hasPermission('submissions.view')],
       ['/envios', () => this.hasPermission('templates.manage') || this.hasPermission('submissions.view')],
-      ['/billing', () => this.hasPermission('billing.manage')],
+      ['/assinatura', () => this.hasPermission('billing.manage')],
       ['/link-bio', () => this.hasPermission('organization.manage')],
       ['/clinica/configuracoes', () => this.hasPermission('organization.manage')],
       ['/clinica/integracoes', () => this.hasPermission('organization.manage')],
@@ -215,8 +265,9 @@ export class AuthService {
             localStorage.setItem(TOKEN_KEY, d.token);
           }
           this._user = d.user;
-          this._clinics = d.clinics ?? [];
-          this._currentClinicId = d.current_clinic_id != null ? String(d.current_clinic_id) : null;
+          this._organizations = d.organizations ?? d.clinics ?? [];
+          const cid = d.current_organization_id ?? d.current_clinic_id;
+          this._currentOrganizationId = cid != null ? String(cid) : null;
           this.persist();
           applyUserAppearanceToBrowser(d.user);
           this.notifyAppearanceApplied();
@@ -243,24 +294,29 @@ export class AuthService {
     if (typeof localStorage !== 'undefined') {
       localStorage.removeItem(TOKEN_KEY);
       localStorage.removeItem(USER_KEY);
-      localStorage.removeItem(CLINICS_KEY);
-      localStorage.removeItem(CURRENT_CLINIC_KEY);
+      localStorage.removeItem(ORGANIZATIONS_KEY);
+      localStorage.removeItem(CURRENT_ORG_KEY);
+      localStorage.removeItem(CLINICS_KEY_LEGACY);
+      localStorage.removeItem(CLINIC_ID_KEY_LEGACY);
     }
     this._user = null;
-    this._clinics = [];
-    this._currentClinicId = null;
+    this._organizations = [];
+    this._currentOrganizationId = null;
+    this._trialNotice = null;
   }
 
   me(): Observable<MeResponse> {
     return this.http.get<MeResponse>(`${this.baseUrl}/api/v1/me`).pipe(
       tap((res) => {
         this._user = res.data.user;
-        if (res.data.clinic) {
-          this._currentClinicId = String(res.data.clinic.id);
-          const idx = this._clinics.findIndex((c) => c.id === res.data.clinic!.id);
-          if (idx >= 0) this._clinics[idx] = res.data.clinic;
-          else this._clinics.push(res.data.clinic);
+        const org = res.data.organization ?? res.data.clinic;
+        if (org) {
+          this._currentOrganizationId = String(org.id);
+          const idx = this._organizations.findIndex((o) => o.id === org.id);
+          if (idx >= 0) this._organizations[idx] = org;
+          else this._organizations.push(org);
         }
+        this._trialNotice = res.data.trial_notice?.visible ? res.data.trial_notice : null;
         this.persist();
         applyUserAppearanceToBrowser(res.data.user);
         this.notifyAppearanceApplied();

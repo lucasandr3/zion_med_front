@@ -1,0 +1,62 @@
+.zm-ab-card {
+  border-radius: 0.75rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid color-mix(in srgb, var(--c-warning, #ca8a04) 35%, var(--c-border));
+  background: color-mix(in srgb, var(--c-warning, #ca8a04) 8%, transparent);
+  color: var(--c-text);
+}
+
+.zm-ab-card--compact {
+  padding: 0.75rem 1rem;
+  border-radius: 0.625rem;
+}
+
+.zm-ab-card__title {
+  font-weight: 600;
+  margin: 0 0 0.5rem;
+  font-size: 0.9375rem;
+  color: var(--c-text);
+}
+
+.zm-ab-card--compact .zm-ab-card__title {
+  font-size: 0.875rem;
+  margin-bottom: 0.35rem;
+}
+
+.zm-ab-card__desc {
+  margin: 0 0 0.75rem;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--c-muted);
+}
+
+.zm-ab-card--compact .zm-ab-card__desc {
+  font-size: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.zm-ab-card__hint {
+  margin: 0;
+  font-size: 0.6875rem;
+  color: var(--c-muted);
+}
+
+.zm-ab-card__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-decoration: none;
+  background: var(--c-primary);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.zm-ab-card__btn:hover {
+  filter: brightness(1.06);
+}

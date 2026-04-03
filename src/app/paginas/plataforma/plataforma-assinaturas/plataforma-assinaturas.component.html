@@ -36,8 +36,8 @@
           </td>
           <td class="py-2.5 px-3 cell-muted">{{ a.clinic_name }}</td>
           <td class="py-2.5 px-3 cell-muted">{{ a.plan_key || '—' }}</td>
-          <td class="py-2.5 px-3 cell-muted">{{ a.subscription_status || '—' }}</td>
-          <td class="py-2.5 px-3 cell-muted">{{ a.billing_status ?? '—' }}</td>
+          <td class="py-2.5 px-3 cell-muted">{{ rotuloStatusAssinaturaCobranca(a.subscription_status) }}</td>
+          <td class="py-2.5 px-3 cell-muted">{{ rotuloStatusAssinaturaCobranca(a.billing_status) }}</td>
           <td class="py-2.5 pl-3 cell-muted">{{ formatarData(a.current_period_end) }}</td>
         </tr>
       } @empty {

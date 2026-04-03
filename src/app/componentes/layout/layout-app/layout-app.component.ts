@@ -1,31 +1,42 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { Router, RouterOutlet, NavigationEnd } from '@angular/router';
+import { Router, RouterLink, RouterOutlet, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs';
 import { BarraLateralComponent } from '../barra-lateral/barra-lateral.component';
 import { CabecalhoComponent } from '../cabecalho/cabecalho.component';
 import { CommonModule } from '@angular/common';
 import { NotificacoesService } from '../../../core/services/notificacoes.service';
 import { SidebarMobileService } from '../../../core/services/sidebar-mobile.service';
-import { AuthService } from '../../../core/services/auth.service';
+import { BillingBlockedStateService } from '../../../core/services/billing-blocked-state.service';
+import { AuthService, TrialNotice } from '../../../core/services/auth.service';
+import { ZmAssinaturaBloqueadaCardComponent } from '../../../shared/components/ui/zm-assinatura-bloqueada-card/zm-assinatura-bloqueada-card.component';
 import type { AppBreadcrumb } from '../cabecalho/cabecalho.component';
 
 @Component({
   selector: 'app-layout-app',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, BarraLateralComponent, CabecalhoComponent],
+  imports: [
+    CommonModule,
+    RouterLink,
+    RouterOutlet,
+    BarraLateralComponent,
+    CabecalhoComponent,
+    ZmAssinaturaBloqueadaCardComponent,
+  ],
   templateUrl: './layout-app.component.html',
   styleUrl: './layout-app.component.css',
 })
 export class LayoutAppComponent implements OnInit {
-  tituloPagina = 'Dashboard';
+  tituloPagina = 'Painel';
   breadcrumbs: AppBreadcrumb[] = [];
   urlVoltar: string | null = null;
   labelVoltar: string | null = null;
   notificacoesNaoLidas = 0;
+  trialNotice: TrialNotice | null = null;
   private router = inject(Router);
   private notif = inject(NotificacoesService);
   private sidebarMobile = inject(SidebarMobileService);
   private auth = inject(AuthService);
+  private billingBlockedState = inject(BillingBlockedStateService);
 
   private updateFromActivatedRoute(): void {
     let route = this.router.routerState.snapshot.root;
@@ -47,12 +58,25 @@ export class LayoutAppComponent implements OnInit {
     }
   }
 
+  /** Aviso global de cobrança (exceto na própria página de assinatura). */
+  mostrarAvisoCobrancaGlobal(): boolean {
+    if (!this.billingBlockedState.isActive()) return false;
+    const path = this.router.url.split('?')[0].replace(/\/$/, '') || '/';
+    return path !== '/assinatura';
+  }
+
   ngOnInit(): void {
     if (this.auth.isAuthenticated()) {
-      this.auth.me().subscribe({ error: () => {} });
+      this.auth.me().subscribe({
+        next: () => {
+          this.trialNotice = this.auth.getTrialNotice();
+        },
+        error: () => {},
+      });
     }
     this.router.events.pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd)).subscribe(() => {
       this.sidebarMobile.setOpen(false);
+      this.billingBlockedState.clear();
       this.updateFromActivatedRoute();
     });
     this.updateFromActivatedRoute();

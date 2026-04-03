@@ -1822,8 +1822,7 @@ body.dark .flatpickr-calendar .flatpickr-weekwrapper span.flatpickr-day { color:
 .clinica-config .btn-secondary:hover,
 .link-bio-config .btn-secondary:hover { color: var(--c-text); }
 
-/* Espaço extra nas abas Assinatura e Logs (igual backend) */
-#panel-assinatura,
+/* Espaço extra na aba Logs (igual backend) */
 #panel-logs {
     padding-top: 1.5rem;
 }

@@ -5,7 +5,7 @@
       <div class="w-8 h-8 rounded-full border-2 flex items-center justify-center shrink-0" style="border-color: var(--c-primary); color: var(--c-primary)">
         <span class="material-symbols-outlined text-base">add_circle</span>
       </div>
-      <h1 class="text-xl font-semibold tracking-tight m-0" style="color: var(--c-text)">Novo template</h1>
+      <h1 class="text-xl font-semibold tracking-tight m-0" style="color: var(--c-text)">Novo modelo</h1>
     </div>
     <p class="text-sm mb-7 ml-11" style="color: var(--c-muted)">Escolha um modelo para começar ou crie um template em branco.</p> -->
 
@@ -22,7 +22,7 @@
       <div class="mb-4">
         <div class="relative w-full">
           <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none text-lg" style="color: var(--c-muted)">search</span>
-          <input type="text" [(ngModel)]="buscaTexto" placeholder="Buscar template..." class="w-full pl-10 pr-4 py-2.5 rounded-lg text-sm min-w-0 border font-sans" style="background: var(--c-surface); border-color: var(--c-border); color: var(--c-text)" />
+          <input type="text" [(ngModel)]="buscaTexto" placeholder="Buscar modelo..." class="w-full pl-10 pr-4 py-2.5 rounded-lg text-sm min-w-0 border font-sans" style="background: var(--c-surface); border-color: var(--c-border); color: var(--c-text)" />
         </div>
       </div>
 
@@ -41,7 +41,7 @@
       <!-- Section -->
       <div class="flex items-center justify-between mb-4">
         <span class="text-[11px] font-semibold uppercase tracking-wider" style="color: var(--c-muted)">{{ categoryLabels['geral'] }}</span>
-        <span class="text-xs tabular-nums" style="color: var(--c-muted)">{{ cardsVisiveis.length }} template(s)</span>
+        <span class="text-xs tabular-nums" style="color: var(--c-muted)">{{ cardsVisiveis.length }} {{ cardsVisiveis.length === 1 ? 'modelo' : 'modelos' }}</span>
       </div>
 
       <!-- Grid de cards -->
@@ -74,14 +74,14 @@
       @if (cardsVisiveis.length === 0) {
         <div class="text-center py-16" style="color: var(--c-muted)">
           <div class="text-4xl mb-3">🔍</div>
-          <p class="text-sm">Nenhum template encontrado.</p>
+          <p class="text-sm">Nenhum modelo encontrado.</p>
         </div>
       }
 
       <!-- CTA Criar em branco -->
       <a routerLink="/templates/criar-em-branco" class="blank-cta mt-6 border border-dashed rounded-xl p-5 flex items-center justify-between transition-colors no-underline block" style="border-color: var(--c-border); color: var(--c-text)">
         <div>
-          <p class="text-sm font-medium transition-colors" style="color: var(--c-muted)">Criar template em branco</p>
+          <p class="text-sm font-medium transition-colors" style="color: var(--c-muted)">Criar modelo em branco</p>
           <p class="text-xs mt-0.5" style="color: var(--c-muted)">Comece do zero com total liberdade</p>
         </div>
         <div class="w-8 h-8 rounded-full border flex items-center justify-center transition-all" style="border-color: var(--c-border); color: var(--c-muted)">
@@ -98,7 +98,7 @@
     <div class="fixed inset-0 z-50 flex items-center justify-center p-4" style="background: rgba(0,0,0,0.7); backdrop-filter: blur(4px)" (click)="fecharPreview()">
       <div class="modal-box rounded-2xl p-7 w-full max-w-[42rem] max-h-[90vh] flex flex-col border" style="background: var(--c-surface); border-color: var(--c-border)" (click)="$event.stopPropagation()">
         <div class="flex items-center justify-between mb-4 shrink-0">
-          <h2 class="text-lg font-semibold" style="color: var(--c-text)">{{ previewTemplate?.name ?? 'Template' }}</h2>
+          <h2 class="text-lg font-semibold" style="color: var(--c-text)">{{ previewTemplate?.name ?? 'Modelo' }}</h2>
           <button type="button" class="p-1 rounded-lg transition-colors hover:bg-[var(--c-soft)]" style="color: var(--c-muted)" (click)="fecharPreview()" aria-label="Fechar" title="Fechar preview">
             <span class="material-symbols-outlined text-xl">close</span>
           </button>

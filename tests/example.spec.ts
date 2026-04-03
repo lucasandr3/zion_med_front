@@ -88,7 +88,7 @@ test.describe('Sessão autenticada', () => {
     const billingLink = page.getByRole('link', { name: 'Assinatura' });
     if (await billingLink.isVisible()) {
       await billingLink.click();
-      await expect(page).toHaveURL(/\/billing$/);
+      await expect(page).toHaveURL(/\/assinatura$/);
       await expectAuthenticatedShell(page, 'Assinatura');
     } else {
       await page.getByRole('button', { name: 'Menu do usuário' }).click();

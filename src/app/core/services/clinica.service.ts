@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { ApiService } from './api.service';
 import { AuthService } from './auth.service';
 import { map, Observable, Subject, switchMap, tap } from 'rxjs';
+import { BillingUi, normalizeBillingUi } from '../utils/billing-ui';
 
 export interface ClinicaOption {
   id: number;
@@ -50,14 +51,19 @@ export interface ThemeOption {
 }
 
 export interface ConfigPageData {
-  clinic: ClinicaConfig;
+  organization: ClinicaConfig;
+  /** @deprecated Use organization */
+  clinic?: ClinicaConfig;
   available_themes?: Record<string, ThemeOption>;
   billing_plans?: Record<string, { name?: string; value?: number }>;
-  billing_subscriptions?: unknown[];
+  billing_ui?: BillingUi;
+  billing_subscriptions?: Array<{ status?: string; asaas_subscription_id?: string | null }>;
   billing_payments?: { id: number; status: string; due_date: string; paid_at?: string; value: number; bank_slip_url?: string }[];
   asaas_configured?: boolean;
   active_config_tab?: string;
   can_add_multi_empresa?: boolean;
+  tenant_organizations?: ClinicaOption[];
+  /** @deprecated Use tenant_organizations */
   tenant_clinics?: ClinicaOption[];
 }
 
@@ -80,7 +86,7 @@ interface LogsResponse {
 }
 
 interface EscolherListResponse {
-  data: { clinics?: ClinicaOption[] } | ClinicaOption[];
+  data: { organizations?: ClinicaOption[]; clinics?: ClinicaOption[] } | ClinicaOption[];
 }
 
 interface ConfigResponse {
@@ -105,7 +111,10 @@ export class ClinicaService {
   }
 
   private mapConfigResponse(r: ConfigResponse): ClinicaConfig {
-    const d = r.data as { clinic?: ClinicaConfig } | ClinicaConfig;
+    const d = r.data as { organization?: ClinicaConfig; clinic?: ClinicaConfig } | ClinicaConfig;
+    if (typeof d === 'object' && d && 'organization' in d && d.organization) {
+      return d.organization as ClinicaConfig;
+    }
     return (typeof d === 'object' && d && 'clinic' in d ? d.clinic : d) as ClinicaConfig;
   }
 
@@ -114,15 +123,17 @@ export class ClinicaService {
       map((r) => {
         const d = r.data;
         if (Array.isArray(d)) return d as ClinicaOption[];
-        return (d?.clinics ?? []) as ClinicaOption[];
+        return ((d as { organizations?: ClinicaOption[] }).organizations ??
+          (d as { clinics?: ClinicaOption[] }).clinics ??
+          []) as ClinicaOption[];
       })
     );
   }
 
-  escolher(clinicId: number): Observable<unknown> {
-    return this.api.post('/clinica/escolher', { clinic_id: clinicId }).pipe(
+  escolher(organizationId: number): Observable<unknown> {
+    return this.api.post('/clinica/escolher', { organization_id: organizationId }).pipe(
       tap(() => {
-        this.auth.setCurrentClinicId(clinicId);
+        this.auth.setCurrentOrganizationId(organizationId);
         this.emitBrandingUpdated();
       })
     );
@@ -139,18 +150,25 @@ export class ClinicaService {
   }
 
   getConfiguracoes(): Observable<ClinicaConfig> {
-    return this.api.get<ConfigResponse>('/clinica/configuracoes').pipe(
-      map((r) => {
-        const d = r.data as { clinic?: ClinicaConfig };
-        return (d?.clinic ?? d) as ClinicaConfig;
-      })
-    );
+    return this.api.get<ConfigResponse>('/clinica/configuracoes').pipe(map((r) => this.mapConfigResponse(r)));
   }
 
-  /** Retorna a resposta completa da página de configurações (clinic + themes + billing + tenant_clinics). */
-  getConfiguracoesPage(): Observable<ConfigPageData> {
-    return this.api.get<ConfigPageResponse>('/clinica/configuracoes').pipe(
-      map((r) => r.data)
+  /** Retorna a resposta completa da página de configurações. */
+  getConfiguracoesPage(query?: Record<string, string>): Observable<ConfigPageData> {
+    return this.api.get<ConfigPageResponse>('/clinica/configuracoes', query).pipe(
+      map((r) => {
+        const raw = r.data as ConfigPageData & { clinic?: ClinicaConfig; tenant_clinics?: ClinicaOption[] };
+        const organization = raw.organization ?? raw.clinic;
+        const tenant_organizations = raw.tenant_organizations ?? raw.tenant_clinics;
+        const subs = raw.billing_subscriptions ?? [];
+        const billing_ui = normalizeBillingUi(raw.billing_ui, subs);
+        return {
+          ...raw,
+          organization: organization as ClinicaConfig,
+          tenant_organizations,
+          billing_ui,
+        };
+      })
     );
   }
 

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { PlataformaService, PlatformInvoice } from '../../../core/services/plataforma.service';
 import { LoadingService } from '../../../shared/services/loading.service';
 import { ZmSkeletonListComponent } from '../../../shared/components/skeletons';
+import { statusFaturaPt } from '../../../core/utils/status-labels-pt';
 
 @Component({
   selector: 'app-plataforma-faturas',
@@ -12,6 +13,8 @@ import { ZmSkeletonListComponent } from '../../../shared/components/skeletons';
   styleUrl: './plataforma-faturas.component.css',
 })
 export class PlataformaFaturasComponent implements OnInit {
+  protected readonly rotuloStatusFatura = statusFaturaPt;
+
   showSkeleton!: Signal<boolean>;
   listaPronta = false;
   estadoErro = false;

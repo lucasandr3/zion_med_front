@@ -5,6 +5,7 @@ import { PlataformaService, PlatformTenantDetail } from '../../../core/services/
 import { PlataformaHeaderService } from '../../../core/services/plataforma-header.service';
 import { LoadingService } from '../../../shared/services/loading.service';
 import { ZmSkeletonListComponent } from '../../../shared/components/skeletons';
+import { statusAssinaturaOuCobrancaPt } from '../../../core/utils/status-labels-pt';
 
 @Component({
   selector: 'app-plataforma-cliente-detalhe',
@@ -14,6 +15,8 @@ import { ZmSkeletonListComponent } from '../../../shared/components/skeletons';
   styleUrl: './plataforma-cliente-detalhe.component.css',
 })
 export class PlataformaClienteDetalheComponent implements OnInit, OnDestroy {
+  protected readonly rotuloStatusAssinaturaCobranca = statusAssinaturaOuCobrancaPt;
+
   showSkeleton!: Signal<boolean>;
   listaPronta = false;
   estadoErro = false;
@@ -35,7 +38,7 @@ export class PlataformaClienteDetalheComponent implements OnInit, OnDestroy {
         this.data = res.data;
         if (res.data?.tenant) {
           this.headerService.setHeader(
-            'Tenant: ' + res.data.tenant.name,
+            'Cliente: ' + res.data.tenant.name,
             'Detalhes do cliente e empresas vinculadas.',
           );
         }

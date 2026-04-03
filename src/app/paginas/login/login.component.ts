@@ -65,8 +65,8 @@ export class LoginComponent implements OnInit {
           this.router.navigate(['/plataforma']);
           return;
         }
-        const hasClinic = res.data.current_clinic_id != null;
-        if (hasClinic) {
+        const hasOrg = res.data.current_organization_id != null || res.data.current_clinic_id != null;
+        if (hasOrg) {
           void this.router.navigateByUrl(this.auth.getDefaultTenantPath());
         } else {
           this.router.navigate(['/clinica/escolher']);
