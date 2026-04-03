@@ -6,11 +6,12 @@ import { ProtocolosService, Protocolo } from '../../core/services/protocolos.ser
 import { TemplatesService, Template } from '../../core/services/templates.service';
 import { LoadingService } from '../../shared/services/loading.service';
 import { ZmSkeletonListComponent } from '../../shared/components/skeletons';
+import { ZmPaginationComponent, ZmEmptyStateComponent } from '../../shared/components/ui';
 
 @Component({
   selector: 'app-protocolos-listagem',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, ZmSkeletonListComponent],
+  imports: [CommonModule, FormsModule, RouterLink, ZmSkeletonListComponent, ZmPaginationComponent, ZmEmptyStateComponent],
   templateUrl: './protocolos-listagem.component.html',
   styleUrl: './protocolos-listagem.component.css',
 })

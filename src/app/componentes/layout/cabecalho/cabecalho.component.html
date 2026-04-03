@@ -8,8 +8,23 @@
     <button type="button" (click)="alternarSidebar()" class="flex items-center justify-center w-8 h-8 rounded-lg transition-colors hover:bg-[var(--c-soft)]" style="color: var(--c-muted)" aria-label="Abrir ou fechar menu" appTooltip="Abrir ou fechar menu">
       <span class="material-symbols-outlined" style="font-size: 21px">menu</span>
     </button>
-    <div>
-      <h2 class="font-semibold text-[0.9375rem]" style="color: var(--c-text)">{{ titulo }}</h2>
+    <div class="min-w-0">
+      @if (breadcrumbs?.length) {
+        <h2 class="font-semibold text-[0.9375rem]" style="color: var(--c-text)">{{ titulo }}</h2>
+        <nav class="app-breadcrumbs" aria-label="Navegação estrutural">
+          @for (c of breadcrumbs!; track $index; let i = $index) {
+            @if (i > 0) {
+              <span class="app-breadcrumbs__sep" aria-hidden="true">/</span>
+            }
+            @if (c.url) {
+              <a [routerLink]="c.url" class="app-breadcrumbs__link">{{ c.label }}</a>
+            } @else {
+              <span class="app-breadcrumbs__current">{{ c.label }}</span>
+            }
+          }
+        </nav>
+      }
+      <!-- <h2 class="font-semibold text-[0.9375rem]" style="color: var(--c-text)">{{ titulo }}</h2> -->
       @if (subtitulo) {
         <p class="text-xs mt-0.5 truncate" style="color: var(--c-muted)">{{ subtitulo }}</p>
       }
@@ -19,7 +34,7 @@
   <div class="flex items-center gap-2">
     <!-- Tema (cores + modo escuro): ícone palette abre drawer em mobile e desktop -->
     <div class="relative" #themePicker>
-      <button type="button" (click)="alternarMenuTema()" class="flex items-center justify-center w-8 h-8 rounded-lg border transition-colors hover:bg-[var(--c-soft)]" style="color: var(--c-muted); border-color: var(--c-border); background: transparent" aria-label="Tema e aparência" appTooltip="Tema e aparência">
+      <button type="button" (click)="alternarMenuTema()" class="flex items-center justify-center w-8 h-8 rounded-md border transition-colors hover:bg-[var(--c-soft)]" style="color: var(--c-muted); border-color: var(--c-border); background: transparent" aria-label="Tema e aparência" appTooltip="Tema e aparência">
         <span class="material-symbols-outlined" style="font-size: 22px">palette</span>
       </button>
       @if (menuTemaAberto) {
@@ -96,7 +111,7 @@
 
     @if (podeVerNotificacoesNoHeader) {
       <div class="w-px h-5 bg-[var(--c-border)] mx-0.5"></div>
-      <a [routerLink]="notificacoesRouterLink" class="relative flex items-center justify-center w-8 h-8 rounded-lg border transition-colors no-underline hover:bg-[var(--c-soft)]" style="border-color: var(--c-border); background: transparent; color: var(--c-muted)" aria-label="Notificações" appTooltip="Notificações">
+      <a [routerLink]="notificacoesRouterLink" class="relative flex items-center justify-center w-8 h-8 rounded-md border transition-colors no-underline hover:bg-[var(--c-soft)]" style="border-color: var(--c-border); background: transparent; color: var(--c-muted)" aria-label="Notificações" appTooltip="Notificações">
         <span class="material-symbols-outlined" style="font-size: 19px">notifications</span>
         @if (notificacoesNaoLidas > 0) {
           <span class="absolute -top-0.5 -right-0.5 min-w-4 h-4 rounded-full flex items-center justify-center px-1 text-[0.55rem] font-bold leading-none" style="background: var(--c-primary); color: #fff; border: 2px solid var(--c-bg)">
@@ -105,10 +120,5 @@
         }
       </a>
     }
-
-    <!-- Sair -->
-    <button type="button" (click)="sair()" class="flex items-center justify-center w-8 h-8 rounded-lg border transition-colors hover:bg-red-500/10 hover:border-red-500/35 hover:text-red-500" style="border-color: var(--c-border); background: transparent; color: var(--c-muted)" aria-label="Sair" appTooltip="Sair">
-      <span class="material-symbols-outlined" style="font-size: 19px">logout</span>
-    </button>
   </div>
 </header>

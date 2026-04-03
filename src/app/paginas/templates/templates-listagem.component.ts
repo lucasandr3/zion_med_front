@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { TemplatesService, Template } from '../../core/services/templates.service';
 import { LoadingService } from '../../shared/services/loading.service';
 import { ZmSkeletonListComponent } from '../../shared/components/skeletons';
+import { ZmEmptyStateComponent } from '../../shared/components/ui';
 import { ToastService } from '../../core/services/toast.service';
 import { ConfirmDialogService } from '../../core/services/confirm-dialog.service';
 
@@ -27,7 +28,7 @@ const CATEGORY_LABELS: Record<string, string> = {
 @Component({
   selector: 'app-templates-listagem',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule, ZmSkeletonListComponent],
+  imports: [CommonModule, RouterLink, FormsModule, ZmSkeletonListComponent, ZmEmptyStateComponent],
   templateUrl: './templates-listagem.component.html',
   styleUrl: './templates-listagem.component.css',
 })

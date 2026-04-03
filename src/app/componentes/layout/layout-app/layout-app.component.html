@@ -1,6 +1,6 @@
 <app-barra-lateral />
 <div class="main-wrapper flex flex-col min-h-screen">
-  <app-cabecalho [titulo]="tituloPagina" [urlVoltar]="urlVoltar" [labelVoltar]="labelVoltar ?? 'Voltar'" [notificacoesNaoLidas]="notificacoesNaoLidas" />
+  <app-cabecalho [titulo]="tituloPagina" [breadcrumbs]="breadcrumbs" [urlVoltar]="urlVoltar" [labelVoltar]="labelVoltar ?? 'Voltar'" [notificacoesNaoLidas]="notificacoesNaoLidas" />
   <main class="flex-1 px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
     <router-outlet />
   </main>

@@ -1,12 +1,19 @@
 <div class="relative min-h-[320px]">
   <div class="page-header mb-5">
     <div class="page-title flex items-center gap-3">
-      <div class="page-title-icon w-10 h-10 rounded-lg flex items-center justify-center" style="background: var(--c-soft)">
+      <!-- <div class="page-title-icon w-10 h-10 rounded-lg flex items-center justify-center" style="background: var(--c-soft)">
         <span class="material-symbols-outlined" style="color: var(--c-primary)">send</span>
       </div>
       <div>
         <h1 class="text-xl font-semibold m-0" style="color: var(--c-text)">Envios de documento</h1>
         <p class="page-header-subtitle text-sm mt-1 mb-0" style="color: var(--c-muted)">Links enviados por e-mail ou WhatsApp. Reenvie ou cancele envios pendentes.</p>
+      </div> -->
+      <div class="flex gap-0.5 rounded-lg border p-0.5 mb-4" style="background: var(--c-surface); border-color: var(--c-border); max-width: fit-content">
+        @for (c of caixas; track c.key) {
+          <button type="button" class="envios-tab rounded-md text-sm font-medium px-4 py-2 transition-all" [class.ativo]="caixaAtual === c.key" (click)="setCaixa(c.key)">
+            {{ c.label }}
+          </button>
+        }
       </div>
     </div>
     <button type="button" class="btn-primary inline-flex items-center gap-2" (click)="abrirNovoEnvio()" title="Novo envio">
@@ -135,13 +142,13 @@
     </div>
   }
 
-  <div class="flex gap-0.5 rounded-lg border p-0.5 mb-4" style="background: var(--c-surface); border-color: var(--c-border); max-width: fit-content">
+  <!-- <div class="flex gap-0.5 rounded-lg border p-0.5 mb-4" style="background: var(--c-surface); border-color: var(--c-border); max-width: fit-content">
     @for (c of caixas; track c.key) {
       <button type="button" class="envios-tab rounded-md text-sm font-medium px-4 py-2 transition-all" [class.ativo]="caixaAtual === c.key" (click)="setCaixa(c.key)">
         {{ c.label }}
       </button>
     }
-  </div>
+  </div> -->
 
   @if (erro) {
     <p class="text-sm mb-4" style="color: var(--c-error, #dc2626)">{{ erro }}</p>
@@ -152,62 +159,60 @@
   } @else if (!listaPronta) {
   } @else {
     <div class="zm-content-enter">
-  <div class="card rounded-xl overflow-hidden" style="border: 1px solid var(--c-border)">
-    <div class="overflow-x-auto">
-      <table class="w-full text-sm border-collapse">
-        <thead>
-          <tr style="border-bottom: 1px solid var(--c-border)">
-            <th class="text-left py-3 px-4 font-semibold" style="color: var(--c-text)">Template</th>
-            <th class="text-left py-3 px-4 font-semibold" style="color: var(--c-text)">Destinatário</th>
-            <th class="text-left py-3 px-4 font-semibold" style="color: var(--c-text)">Canal</th>
-            <th class="text-left py-3 px-4 font-semibold" style="color: var(--c-text)">Enviado em</th>
-            <th class="text-left py-3 px-4 font-semibold" style="color: var(--c-text)">Status</th>
-            @if (caixaAtual === 'pendentes') {
-              <th class="text-right py-3 px-4 font-semibold" style="color: var(--c-text)">Ações</th>
-            }
-          </tr>
-        </thead>
-        <tbody>
-          @for (e of envios; track e.id) {
-            <tr class="border-b transition-colors" style="border-color: var(--c-border)">
-              <td class="py-3 px-4" style="color: var(--c-text)">{{ e.template_name ?? '—' }}</td>
-              <td class="py-3 px-4" style="color: var(--c-text)">{{ destinatario(e) }}</td>
-              <td class="py-3 px-4" style="color: var(--c-muted)">{{ canalLabel(e.channel) }}</td>
-              <td class="py-3 px-4" style="color: var(--c-muted)">{{ dataFormatada(e.sent_at) }}</td>
-              <td class="py-3 px-4">
-                <span class="inline-flex items-center gap-1 text-xs font-medium" [style.color]="e.status === 'assinado' ? '#22c55e' : e.status === 'cancelado' ? '#94a3b8' : e.status === 'expirado' ? '#f59e0b' : 'var(--c-muted)'">
-                  {{ statusLabel(e.status) }}
-                </span>
-              </td>
-              @if (caixaAtual === 'pendentes') {
-                <td class="py-3 px-4 text-right">
-                  <div class="flex items-center justify-end gap-1">
-                    <button type="button" class="p-1.5 rounded-md border-0 cursor-pointer" style="color: var(--c-muted); background: transparent" title="Reenviar" (click)="reenviar(e)" [disabled]="acaoId !== null">
-                      <span class="material-symbols-outlined text-lg">refresh</span>
-                    </button>
-                    <button type="button" class="p-1.5 rounded-md border-0 cursor-pointer" style="color: var(--c-error, #dc2626); background: transparent" title="Cancelar envio" (click)="cancelar(e)" [disabled]="acaoId !== null">
-                      <span class="material-symbols-outlined text-lg">cancel</span>
-                    </button>
-                  </div>
-                </td>
-              }
-            </tr>
-          }
-          @empty {
-            <tr>
-              <td [attr.colspan]="caixaAtual === 'pendentes' ? 6 : 5" class="text-center py-12 px-4" style="color: var(--c-muted)">
-                Nenhum envio nesta caixa.
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
-    </div>
-  </div>
+      <div class="data-table-wrap rounded-xl">
+        @if (envios.length === 0) {
+          <zm-empty-state icon="send" title="Nenhum envio nesta caixa." />
+        } @else {
+          <div class="overflow-x-auto">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Template</th>
+                  <th>Destinatário</th>
+                  <th>Canal</th>
+                  <th>Enviado em</th>
+                  <th>Status</th>
+                  @if (caixaAtual === 'pendentes') {
+                    <th class="text-right">Ações</th>
+                  }
+                </tr>
+              </thead>
+              <tbody>
+                @for (e of envios; track e.id) {
+                  <tr>
+                    <td style="color: var(--c-text)">{{ e.template_name ?? '—' }}</td>
+                    <td style="color: var(--c-text)">{{ destinatario(e) }}</td>
+                    <td style="color: var(--c-muted)">{{ canalLabel(e.channel) }}</td>
+                    <td style="color: var(--c-muted)">{{ dataFormatada(e.sent_at) }}</td>
+                    <td>
+                      <span class="inline-flex items-center gap-1 text-xs font-semibold" [style.color]="corStatusEnvio(e.status)">
+                        {{ statusLabel(e.status) }}
+                      </span>
+                    </td>
+                    @if (caixaAtual === 'pendentes') {
+                      <td class="text-right">
+                        <div class="flex items-center justify-end gap-1">
+                          <button type="button" class="p-1.5 rounded-md border-0 cursor-pointer" style="color: var(--c-muted); background: transparent" title="Reenviar" (click)="reenviar(e)" [disabled]="acaoId !== null">
+                            <span class="material-symbols-outlined text-lg">refresh</span>
+                          </button>
+                          <button type="button" class="p-1.5 rounded-md border-0 cursor-pointer" style="color: var(--c-danger); background: transparent" title="Cancelar envio" (click)="cancelar(e)" [disabled]="acaoId !== null">
+                            <span class="material-symbols-outlined text-lg">cancel</span>
+                          </button>
+                        </div>
+                      </td>
+                    }
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+          <zm-pagination [currentPage]="meta.current_page" [lastPage]="meta.last_page" (pageChange)="carregar($event)" />
+        }
+      </div>
 
-  @if (meta.total > 0) {
-    <p class="text-xs mt-3" style="color: var(--c-muted)">{{ meta.total }} envio(s) nesta caixa</p>
-  }
+      @if (meta.total > 0) {
+        <p class="text-xs mt-3" style="color: var(--c-muted)">{{ meta.total }} envio(s) nesta caixa</p>
+      }
     </div>
   }
 </div>

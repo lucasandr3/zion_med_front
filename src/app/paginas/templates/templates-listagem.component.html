@@ -1,7 +1,7 @@
 <div class="relative min-h-[320px]">
   <div class="page-header mb-5">
     <div class="page-title">
-      <div class="page-title-icon">
+      <!-- <div class="page-title-icon">
         <span class="material-symbols-outlined">description</span>
       </div>
       <div>
@@ -9,7 +9,19 @@
         @if (templates.length > 0) {
           <p class="page-header-subtitle">{{ templates.length }} template(s)</p>
         }
-      </div>
+      </div> -->
+      @if (templates.length > 0) {
+        <div class="form-search-wrap mb-3 max-w-xs">
+          <span class="material-symbols-outlined form-search-icon">search</span>
+          <input
+            type="text"
+            [(ngModel)]="buscaTexto"
+            placeholder="Buscar por nome..."
+            class="form-input form-search-input text-sm"
+            aria-label="Buscar template por nome"
+          />
+        </div>
+      }
     </div>
     <div class="flex items-center gap-2 flex-wrap">
       @if (templates.length > 0) {
@@ -35,27 +47,41 @@
   } @else if (!listaPronta) {
   } @else {
     <div class="zm-content-enter">
-      @if (templates.length > 0) {
-        <div class="mb-3 max-w-xs relative">
-          <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-lg pointer-events-none" style="color: var(--c-muted)">search</span>
-          <input type="text" [(ngModel)]="buscaTexto" placeholder="Buscar por nome..." class="w-full py-2 pl-10 pr-3 text-sm border rounded-lg font-sans" style="border-color: var(--c-border); background: var(--c-surface); color: var(--c-text)" aria-label="Buscar template por nome" />
+      <!-- @if (templates.length > 0) {
+        <div class="form-search-wrap mb-3 max-w-xs">
+          <span class="material-symbols-outlined form-search-icon">search</span>
+          <input
+            type="text"
+            [(ngModel)]="buscaTexto"
+            placeholder="Buscar por nome..."
+            class="form-input form-search-input text-sm"
+            aria-label="Buscar template por nome"
+          />
         </div>
-      }
+      } -->
 
-      <div class="table-card rounded-2xl overflow-hidden" style="border: 1px solid var(--c-border)">
-        <table class="templates-table w-full border-collapse">
+      <div class="data-table-wrap rounded-2xl">
+        @if (grupos.length === 0) {
+          <zm-empty-state
+            icon="description"
+            title="Nenhum template cadastrado."
+            actionLabel="Criar template"
+            actionLink="/templates/criar"
+          />
+        } @else {
+        <table class="data-table templates-table w-full border-collapse">
           <thead>
-            <tr style="border-bottom: 1px solid var(--c-border)">
-              <th class="text-left text-[0.7rem] font-bold uppercase tracking-wider py-3 px-5 w-1/2" style="color: var(--c-muted)">Nome</th>
-              <th class="text-left text-[0.7rem] font-bold uppercase tracking-wider py-3 px-4" style="color: var(--c-muted)">Status</th>
-              <th class="text-right text-[0.7rem] font-bold uppercase tracking-wider py-3 px-5" style="color: var(--c-muted)">Ações</th>
+            <tr>
+              <th class="w-1/2">Nome</th>
+              <th>Status</th>
+              <th class="text-right">Ações</th>
             </tr>
           </thead>
           <tbody>
             @for (grupo of grupos; track grupo.key) {
               @if (grupoVisivel(grupo)) {
                 <tr class="templates-group-header cursor-pointer select-none border-t transition-colors" style="border-color: var(--c-border)" (click)="toggleGrupo(grupo.key)" [class.collapsed]="collapsed[grupo.key]">
-                  <td colspan="3" class="py-2 px-5">
+                  <td colspan="3" class="py-2 px-5 !bg-[var(--c-soft)]">
                     <div class="flex items-center gap-2">
                       <span class="material-symbols-outlined templates-chevron text-sm transition-transform" style="color: var(--c-muted)">expand_more</span>
                       <span class="text-xs font-semibold uppercase tracking-wide" style="color: var(--c-muted)">{{ grupo.label }}</span>
@@ -107,16 +133,9 @@
                 }
               }
             }
-            @if (grupos.length === 0) {
-              <tr>
-                <td colspan="3" class="text-center py-12 px-4">
-                  <span class="material-symbols-outlined block text-4xl mb-2" style="color: var(--c-border)">description</span>
-                  <span class="text-sm" style="color: var(--c-muted)">Nenhum template cadastrado.</span>
-                </td>
-              </tr>
-            }
           </tbody>
         </table>
+        }
       </div>
 
       @if (templates.length > 0) {

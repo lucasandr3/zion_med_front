@@ -6,6 +6,7 @@ import { DashboardService } from '../../core/services/dashboard.service';
 import { TemplatesService, Template } from '../../core/services/templates.service';
 import { LoadingService } from '../../shared/services/loading.service';
 import { ZmSkeletonDashboardComponent } from '../../shared/components/skeletons';
+import { AuthService } from '../../core/services/auth.service';
 
 /** Rótulos de categoria (alinhado a templates-listagem) */
 const CATEGORY_LABELS: Record<string, string> = {
@@ -57,6 +58,29 @@ export class DashboardComponent implements OnInit {
   private dashboardService = inject(DashboardService);
   private templatesService = inject(TemplatesService);
   private loadingService = inject(LoadingService);
+  private auth = inject(AuthService);
+
+  get saudacao(): string {
+    const h = new Date().getHours();
+    if (h < 12) return 'Bom dia';
+    if (h < 18) return 'Boa tarde';
+    return 'Boa noite';
+  }
+
+  get primeiroNome(): string {
+    const n = this.auth.getUser()?.name?.trim();
+    if (!n) return '';
+    return n.split(/\s+/)[0] ?? '';
+  }
+
+  get dataHojeLegivel(): string {
+    return new Date().toLocaleDateString('pt-BR', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    });
+  }
 
   get totalStatus(): number {
     return this.porStatus.pending + this.porStatus.approved + this.porStatus.rejected;

@@ -6,6 +6,7 @@ import { PessoasService, Pessoa } from '../../core/services/pessoas.service';
 import { TemplatesService, Template } from '../../core/services/templates.service';
 import { LoadingService } from '../../shared/services/loading.service';
 import { ZmSkeletonListComponent } from '../../shared/components/skeletons';
+import { ZmPaginationComponent, ZmEmptyStateComponent } from '../../shared/components/ui';
 import { ToastService } from '../../core/services/toast.service';
 import { ConfirmDialogService } from '../../core/services/confirm-dialog.service';
 
@@ -14,7 +15,7 @@ type Caixa = 'pendentes' | 'assinados' | 'expirados' | 'cancelados';
 @Component({
   selector: 'app-envios',
   standalone: true,
-  imports: [CommonModule, FormsModule, ZmSkeletonListComponent],
+  imports: [CommonModule, FormsModule, ZmSkeletonListComponent, ZmPaginationComponent, ZmEmptyStateComponent],
   templateUrl: './envios.component.html',
   styleUrl: './envios.component.css',
 })
@@ -100,6 +101,19 @@ export class EnviosComponent implements OnInit {
   statusLabel(status: string): string {
     const map: Record<string, string> = { pendente: 'Pendente', assinado: 'Assinado', expirado: 'Expirado', cancelado: 'Cancelado' };
     return map[status] ?? status;
+  }
+
+  corStatusEnvio(status: string): string {
+    switch (status) {
+      case 'assinado':
+        return 'var(--c-success)';
+      case 'expirado':
+        return 'var(--c-warning)';
+      case 'cancelado':
+        return 'var(--c-muted)';
+      default:
+        return 'var(--c-muted)';
+    }
   }
 
   canalLabel(channel: string): string {

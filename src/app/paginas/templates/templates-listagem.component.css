@@ -6,6 +6,15 @@
   gap: 1rem;
 }
 
+.data-table.templates-table th:last-child,
+.data-table.templates-table td:last-child {
+  text-align: right;
+}
+
+.data-table.templates-table tr.templates-group-header td {
+  text-align: left;
+}
+
 .templates-filter-btn {
   background: transparent;
   color: var(--c-muted);

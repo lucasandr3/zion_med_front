@@ -5,11 +5,12 @@ import { FormsModule } from '@angular/forms';
 import { PessoasService, Pessoa } from '../../core/services/pessoas.service';
 import { LoadingService } from '../../shared/services/loading.service';
 import { ZmSkeletonListComponent } from '../../shared/components/skeletons';
+import { ZmPaginationComponent, ZmEmptyStateComponent } from '../../shared/components/ui';
 
 @Component({
   selector: 'app-pessoas-listagem',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, ZmSkeletonListComponent],
+  imports: [CommonModule, FormsModule, RouterLink, ZmSkeletonListComponent, ZmPaginationComponent, ZmEmptyStateComponent],
   templateUrl: './pessoas-listagem.component.html',
   styleUrl: './pessoas-listagem.component.css',
 })

@@ -18,6 +18,13 @@
       }
 
       @if (!semClinica) {
+        <div class="dashboard-greeting mb-5">
+          <p class="dashboard-greeting__title m-0">
+            {{ saudacao }}@if (primeiroNome) {, {{ primeiroNome }}}
+          </p>
+          <p class="dashboard-greeting__date m-0 mt-1">{{ dataHojeLegivel }}</p>
+        </div>
+
         <!-- Métricas (referência: 3 cards) -->
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
           <a routerLink="/protocolos" class="dash-metric-card">
@@ -52,7 +59,7 @@
                   <span style="color: var(--c-text)">{{ porStatus.pending }}</span>
                 </div>
                 <div class="h-2 rounded-full overflow-hidden" style="background: color-mix(in srgb, var(--c-border) 80%, transparent)">
-                  <div class="h-full rounded-full bg-amber-500" [style.width.%]="totalStatus ? (porStatus.pending / totalStatus * 100) : 0"></div>
+                  <div class="h-full rounded-full bar-fill bar-fill--warning" [style.width.%]="totalStatus ? (porStatus.pending / totalStatus * 100) : 0"></div>
                 </div>
               </div>
               <div>
@@ -61,7 +68,7 @@
                   <span style="color: var(--c-text)">{{ porStatus.approved }}</span>
                 </div>
                 <div class="h-2 rounded-full overflow-hidden" style="background: color-mix(in srgb, var(--c-border) 80%, transparent)">
-                  <div class="h-full rounded-full" style="background: var(--dash-mint-text, #14b8a6)" [style.width.%]="totalStatus ? (porStatus.approved / totalStatus * 100) : 0"></div>
+                  <div class="h-full rounded-full bar-fill bar-fill--success" [style.width.%]="totalStatus ? (porStatus.approved / totalStatus * 100) : 0"></div>
                 </div>
               </div>
               <div>
@@ -70,7 +77,7 @@
                   <span style="color: var(--c-text)">{{ porStatus.rejected }}</span>
                 </div>
                 <div class="h-2 rounded-full overflow-hidden" style="background: color-mix(in srgb, var(--c-border) 80%, transparent)">
-                  <div class="h-full rounded-full bg-red-500" [style.width.%]="totalStatus ? (porStatus.rejected / totalStatus * 100) : 0"></div>
+                  <div class="h-full rounded-full bar-fill bar-fill--danger" [style.width.%]="totalStatus ? (porStatus.rejected / totalStatus * 100) : 0"></div>
                 </div>
               </div>
             </div>
@@ -85,7 +92,7 @@
               <span class="material-symbols-outlined text-base">link</span>
               Links para enviar
               @if (linksPublicosCount > 0) {
-                <span class="text-[0.65rem] font-semibold px-1.5 py-0.5 rounded-md" style="background: var(--dash-mint-dim); color: var(--dash-mint-text)">{{ linksPublicosCount }}</span>
+                <span class="text-[0.65rem] font-semibold px-1.5 py-0.5 rounded-md" style="background: var(--c-kpi-accent-soft); color: var(--c-kpi-accent-text)">{{ linksPublicosCount }}</span>
               }
             </a>
             <a routerLink="/templates/criar" class="btn-primary inline-flex items-center gap-1.5">

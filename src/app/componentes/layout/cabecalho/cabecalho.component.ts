@@ -1,6 +1,6 @@
 import { Component, Input, OnInit, OnDestroy, inject, HostListener, ElementRef, ViewChild } from '@angular/core';
 import { Subscription } from 'rxjs';
-import { Router, RouterLink } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../core/services/auth.service';
 import { UserAppearanceService } from '../../../core/services/user-appearance.service';
@@ -36,6 +36,11 @@ const TEMAS_GRADE_ORDER = [
   'cyan-tech',
 ] as const;
 
+export interface AppBreadcrumb {
+  label: string;
+  url: string | null;
+}
+
 @Component({
   selector: 'app-cabecalho',
   standalone: true,
@@ -47,6 +52,8 @@ export class CabecalhoComponent implements OnInit, OnDestroy {
   @Input() titulo = 'Gestgo';
   /** Subtítulo exibido abaixo do título no header (ex.: "Visão geral dos clientes utilizando o Gestgo."). */
   @Input() subtitulo: string | null = null;
+  /** Trilha opcional (Início → página atual). */
+  @Input() breadcrumbs: AppBreadcrumb[] | null = null;
   @Input() urlVoltar: string | null = null;
   @Input() labelVoltar = 'Voltar';
   @Input() notificacoesNaoLidas = 0;
@@ -80,7 +87,6 @@ export class CabecalhoComponent implements OnInit, OnDestroy {
 
   private auth = inject(AuthService);
   private appearance = inject(UserAppearanceService);
-  private router = inject(Router);
   private sidebarMobile = inject(SidebarMobileService);
 
   @HostListener('document:click', ['$event'])
@@ -158,9 +164,5 @@ export class CabecalhoComponent implements OnInit, OnDestroy {
     if (this.auth.isAuthenticated()) {
       this.appearance.patchAppearance({ ui_theme: key }).subscribe({ error: () => {} });
     }
-  }
-
-  sair(): void {
-    this.auth.logout().subscribe(() => this.router.navigate(['/autenticacao']));
   }
 }

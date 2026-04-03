@@ -7,6 +7,7 @@ import { CommonModule } from '@angular/common';
 import { NotificacoesService } from '../../../core/services/notificacoes.service';
 import { SidebarMobileService } from '../../../core/services/sidebar-mobile.service';
 import { AuthService } from '../../../core/services/auth.service';
+import type { AppBreadcrumb } from '../cabecalho/cabecalho.component';
 
 @Component({
   selector: 'app-layout-app',
@@ -17,6 +18,7 @@ import { AuthService } from '../../../core/services/auth.service';
 })
 export class LayoutAppComponent implements OnInit {
   tituloPagina = 'Dashboard';
+  breadcrumbs: AppBreadcrumb[] = [];
   urlVoltar: string | null = null;
   labelVoltar: string | null = null;
   notificacoesNaoLidas = 0;
@@ -34,6 +36,15 @@ export class LayoutAppComponent implements OnInit {
     this.tituloPagina = data.titulo ?? 'Gestgo';
     this.urlVoltar = data.urlVoltar ?? null;
     this.labelVoltar = data.labelVoltar ?? null;
+    const path = this.router.url.split('?')[0].replace(/\/$/, '') || '/';
+    if (path === '/dashboard') {
+      this.breadcrumbs = [{ label: this.tituloPagina, url: null }];
+    } else {
+      this.breadcrumbs = [
+        { label: 'Início', url: '/dashboard' },
+        { label: this.tituloPagina, url: null },
+      ];
+    }
   }
 
   ngOnInit(): void {

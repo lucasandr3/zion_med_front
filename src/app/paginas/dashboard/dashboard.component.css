@@ -1,15 +1,30 @@
-/* Dashboard — referência: cards métricas, teal/mint, cantos arredondados, Geist via global */
+/* Dashboard — acentos via tokens globais (--c-kpi-*) */
 .dashboard-ref {
-  --dash-mint: #2dd4bf;
-  --dash-mint-dim: rgba(45, 212, 191, 0.14);
-  --dash-mint-text: #0d9488;
-  --dash-card-radius: 1rem;
+  --dash-card-radius: var(--radius-xl, 1rem);
 }
 
-:host-context(.dark) .dashboard-ref {
-  --dash-mint: #5eead4;
-  --dash-mint-dim: rgba(94, 234, 212, 0.12);
-  --dash-mint-text: #5eead4;
+.dashboard-greeting__title {
+  font-size: var(--text-lg);
+  font-weight: 600;
+  color: var(--c-text);
+  letter-spacing: -0.02em;
+}
+
+.dashboard-greeting__date {
+  font-size: var(--text-sm);
+  color: var(--c-muted);
+}
+
+.bar-fill--warning {
+  background: var(--c-warning);
+}
+
+.bar-fill--success {
+  background: var(--c-success);
+}
+
+.bar-fill--danger {
+  background: var(--c-danger);
 }
 
 .dash-metric-card {
@@ -25,7 +40,7 @@
 
 a.dash-metric-card:hover {
   border-color: color-mix(in srgb, var(--c-primary) 35%, var(--c-border));
-  box-shadow: 0 1px 0 color-mix(in srgb, var(--dash-mint) 8%, transparent);
+  box-shadow: 0 1px 0 color-mix(in srgb, var(--c-kpi-accent) 10%, transparent);
 }
 
 div.dash-metric-card {
@@ -52,7 +67,7 @@ div.dash-metric-card {
 }
 
 .dash-metric-value--accent {
-  color: var(--dash-mint);
+  color: var(--c-kpi-accent-text);
 }
 
 .dash-metric-sub {
@@ -67,8 +82,8 @@ div.dash-metric-card {
   width: 2.5rem;
   height: 2.5rem;
   border-radius: 0.625rem;
-  background: var(--dash-mint-dim);
-  color: var(--dash-mint-text);
+  background: var(--c-kpi-accent-soft);
+  color: var(--c-kpi-accent-text);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -89,8 +104,8 @@ div.dash-metric-card {
 }
 
 .dash-badge--ativo {
-  background: var(--dash-mint-dim);
-  color: var(--dash-mint-text);
+  background: var(--c-kpi-accent-soft);
+  color: var(--c-kpi-accent-text);
 }
 
 .dash-badge--inativo {
@@ -114,7 +129,7 @@ div.dash-metric-card {
 
 a.dash-category-card:hover {
   background: color-mix(in srgb, var(--c-soft) 70%, var(--c-elevated));
-  border-color: color-mix(in srgb, var(--dash-mint) 22%, var(--c-border));
+  border-color: color-mix(in srgb, var(--c-kpi-accent) 22%, var(--c-border));
 }
 
 .dash-category-count {
@@ -128,7 +143,7 @@ a.dash-category-card:hover {
   justify-content: center;
   font-size: 0.8125rem;
   font-weight: 700;
-  color: var(--dash-mint-text);
+  color: var(--c-kpi-accent-text);
   flex-shrink: 0;
 }
 
@@ -174,7 +189,7 @@ a.dash-category-card:hover {
 .dash-link-all {
   font-size: 0.75rem;
   font-weight: 600;
-  color: var(--dash-mint-text);
+  color: var(--c-kpi-accent-text);
   text-decoration: none;
 }
 

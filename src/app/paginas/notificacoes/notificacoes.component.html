@@ -1,6 +1,6 @@
 <div class="relative min-h-[200px]">
   @if (!isPlataforma) {
-    <div class="page-header mb-6">
+    <!-- <div class="page-header mb-6">
       <div class="page-title flex items-center gap-3">
         <div class="page-title-icon w-10 h-10 rounded-lg flex items-center justify-center" style="background: var(--c-soft)">
           <span class="material-symbols-outlined" style="color: var(--c-primary)">notifications</span>
@@ -18,7 +18,15 @@
           {{ marcandoTodas ? 'Marcando…' : 'Marcar todas como lidas' }}
         </button>
       }
-    </div>
+    </div> -->
+    @if (temNaoLidas) {
+      <button type="button" class="btn-ghost btn-default-bg inline-flex items-center gap-2" [disabled]="marcandoTodas" (click)="marcarTodas()" appTooltip="Marcar todas as notificações como lidas">
+        @if (marcandoTodas) {
+          <span class="btn-spinner" aria-hidden="true"></span>
+        }
+        {{ marcandoTodas ? 'Marcando…' : 'Marcar todas como lidas' }}
+      </button>
+    }
   }
   @if (isPlataforma) {
     <!-- Cabeçalho da seção + filtros e ações (igual ao backend) -->

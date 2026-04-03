@@ -1,0 +1,30 @@
+@if (lastPage > 1) {
+  <div class="zm-pagination">
+    <span class="zm-pagination__meta">Página {{ currentPage }} de {{ lastPage }}</span>
+    <div class="zm-pagination__actions">
+      <button type="button" class="btn-ghost btn-default-bg zm-pagination__nav" [disabled]="currentPage <= 1" (click)="prev()">
+        Anterior
+      </button>
+      <div class="zm-pagination__pages">
+        @for (b of blocks(); track $index) {
+          @if (b === 'ellipsis') {
+            <span class="zm-pagination__ellipsis" aria-hidden="true">…</span>
+          } @else {
+            <button
+              type="button"
+              class="zm-pagination__page"
+              [class.zm-pagination__page--active]="b === currentPage"
+              [attr.aria-current]="b === currentPage ? 'page' : null"
+              (click)="goPage(b)"
+            >
+              {{ b }}
+            </button>
+          }
+        }
+      </div>
+      <button type="button" class="btn-ghost btn-default-bg zm-pagination__nav" [disabled]="currentPage >= lastPage" (click)="next()">
+        Próxima
+      </button>
+    </div>
+  </div>
+}

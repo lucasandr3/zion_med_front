@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { UsuariosService, Usuario } from '../../core/services/usuarios.service';
 import { LoadingService } from '../../shared/services/loading.service';
 import { ZmSkeletonListComponent } from '../../shared/components/skeletons';
+import { ZmEmptyStateComponent } from '../../shared/components/ui';
 import { AuthService } from '../../core/services/auth.service';
 import { ToastService } from '../../core/services/toast.service';
 import { ConfirmDialogService } from '../../core/services/confirm-dialog.service';
@@ -12,7 +13,7 @@ import { TooltipDirective } from '../../core/directives/tooltip.directive';
 @Component({
   selector: 'app-usuarios-listagem',
   standalone: true,
-  imports: [CommonModule, RouterLink, ZmSkeletonListComponent, TooltipDirective],
+  imports: [CommonModule, RouterLink, ZmSkeletonListComponent, ZmEmptyStateComponent, TooltipDirective],
   templateUrl: './usuarios-listagem.component.html',
   styleUrl: './usuarios-listagem.component.css',
 })
