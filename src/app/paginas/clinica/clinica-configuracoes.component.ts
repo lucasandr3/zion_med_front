@@ -12,6 +12,8 @@ import { LoadingService } from '../../shared/services/loading.service';
 import { ZmAssinaturaBloqueadaCardComponent } from '../../shared/components/ui/zm-assinatura-bloqueada-card/zm-assinatura-bloqueada-card.component';
 import { ZmSkeletonListComponent } from '../../shared/components/skeletons';
 import { ToastService } from '../../core/services/toast.service';
+import { WhatsappEvolutionService, WhatsappEvolutionState } from '../../core/services/whatsapp-evolution.service';
+import { ConfirmDialogService } from '../../core/services/confirm-dialog.service';
 
 const DAYS: { id: string; label: string }[] = [
   { id: '1', label: 'Segunda' },
@@ -74,10 +76,33 @@ export class ClinicaConfiguracoesComponent implements OnInit {
   logsLastPage = 1;
   logsTotal = 0;
 
+  /** Aba WhatsApp (Evolution Go) */
+  waState: WhatsappEvolutionState | null = null;
+  waLoading = false;
+  waError = '';
+  waCriandoInstancia = false;
+  waTokenExibicaoUnica: string | null = null;
+  waPhoneConectar = '';
+  waWebhookUrl = '';
+  waConectando = false;
+  waQrSrc: string | null = null;
+  waQrLinkCode: string | null = null;
+  waQrCarregando = false;
+  waPhonePair = '';
+  waPairCarregando = false;
+  waPairingCode: string | null = null;
+  waDesconectando = false;
+  waRemovendo = false;
+  waTestPhone = '';
+  waTestText = '';
+  waTestEnviando = false;
+
   private route = inject(ActivatedRoute);
   private clinicaService = inject(ClinicaService);
   private loadingService = inject(LoadingService);
   private toast = inject(ToastService);
+  private waService = inject(WhatsappEvolutionService);
+  private confirm = inject(ConfirmDialogService);
 
   get clinic(): ClinicaConfig | undefined {
     return this.pageData?.organization ?? this.pageData?.clinic;
@@ -96,7 +121,16 @@ export class ClinicaConfiguracoesComponent implements OnInit {
   }
 
   get showStickyFooter(): boolean {
-    return this.activeTab !== 'empresas' && this.activeTab !== 'logs';
+    return this.activeTab !== 'empresas' && this.activeTab !== 'logs' && this.activeTab !== 'whatsapp';
+  }
+
+  /** Footer fixo na aba WhatsApp (mesmo padrão visual das outras abas com ações). */
+  get showWhatsappStickyFooter(): boolean {
+    return this.activeTab === 'whatsapp' && this.listaPronta && !!this.pageData;
+  }
+
+  get waPodeEnviarTesteNoFooter(): boolean {
+    return this.waTestPhone.replace(/\D/g, '').length >= 10;
   }
 
   get themeKeys(): string[] {
@@ -190,6 +224,216 @@ export class ClinicaConfiguracoesComponent implements OnInit {
     if (tab === 'logs') {
       this.carregarLogs();
     }
+    if (tab === 'whatsapp') {
+      this.carregarWhatsapp();
+    }
+  }
+
+  carregarWhatsapp(): void {
+    this.waLoading = true;
+    this.waError = '';
+    this.waService.getState().subscribe({
+      next: (s) => {
+        this.waState = s;
+        this.waLoading = false;
+      },
+      error: (err: unknown) => {
+        this.waLoading = false;
+        this.waError = this.mensagemErroWhatsapp(err);
+      },
+    });
+  }
+
+  criarInstanciaWhatsapp(): void {
+    if (this.waCriandoInstancia) return;
+    this.waCriandoInstancia = true;
+    this.waError = '';
+    this.waService
+      .createInstance()
+      .pipe(finalize(() => (this.waCriandoInstancia = false)))
+      .subscribe({
+        next: (res) => {
+          this.waTokenExibicaoUnica = res.instance_token;
+          this.toast.success('Instância criada', 'Guarde o token com segurança. Ele não será exibido de novo nesta tela.');
+          this.carregarWhatsapp();
+        },
+        error: (err: unknown) => {
+          this.waError = this.mensagemErroWhatsapp(err);
+          this.toast.error('Erro', this.waError);
+        },
+      });
+  }
+
+  iniciarConexaoWhatsapp(): void {
+    if (this.waConectando) return;
+    this.waConectando = true;
+    this.waError = '';
+    const phone = this.waPhoneConectar.replace(/\D/g, '');
+    const webhook = this.waWebhookUrl.trim();
+    this.waService
+      .connect({
+        phone: phone || undefined,
+        webhook_url: webhook || undefined,
+      })
+      .pipe(finalize(() => (this.waConectando = false)))
+      .subscribe({
+        next: () => {
+          this.toast.success('Conexão iniciada', 'Obtenha o QR Code ou o código de pareamento abaixo.');
+          this.carregarWhatsapp();
+        },
+        error: (err: unknown) => {
+          this.waError = this.mensagemErroWhatsapp(err);
+          this.toast.error('Erro', this.waError);
+        },
+      });
+  }
+
+  buscarQrWhatsapp(): void {
+    if (this.waQrCarregando) return;
+    this.waQrCarregando = true;
+    this.waQrSrc = null;
+    this.waQrLinkCode = null;
+    this.waError = '';
+    this.waService
+      .getQr()
+      .pipe(finalize(() => (this.waQrCarregando = false)))
+      .subscribe({
+        next: (d) => {
+          this.waQrSrc = this.normalizarQrDataUrl(d.qrcode);
+          this.waQrLinkCode = d.link_code ?? null;
+          if (!this.waQrSrc && d.link_code) {
+            this.toast.success('Código obtido', 'Use o código no WhatsApp se o QR não estiver disponível.');
+          }
+        },
+        error: (err: unknown) => {
+          this.waError = this.mensagemErroWhatsapp(err);
+          this.toast.error('Erro', this.waError);
+        },
+      });
+  }
+
+  solicitarPairWhatsapp(): void {
+    const phone = this.waPhonePair.replace(/\D/g, '');
+    if (phone.length < 10) {
+      this.toast.error('Número inválido', 'Informe DDI + DDD + número (ex.: 5511999999999).');
+      return;
+    }
+    if (this.waPairCarregando) return;
+    this.waPairCarregando = true;
+    this.waPairingCode = null;
+    this.waError = '';
+    this.waService
+      .requestPair(phone)
+      .pipe(finalize(() => (this.waPairCarregando = false)))
+      .subscribe({
+        next: (r) => {
+          this.waPairingCode = r.pairing_code;
+          if (!r.pairing_code) {
+            this.toast.success('Solicitação enviada', 'Verifique a resposta no servidor ou tente novamente.');
+          }
+        },
+        error: (err: unknown) => {
+          this.waError = this.mensagemErroWhatsapp(err);
+          this.toast.error('Erro', this.waError);
+        },
+      });
+  }
+
+  async copiarTextoWhatsapp(text: string): Promise<void> {
+    try {
+      await navigator.clipboard.writeText(text);
+      this.toast.success('Copiado', 'Conteúdo copiado para a área de transferência.');
+    } catch {
+      this.toast.error('Não foi possível copiar', 'Copie manualmente.');
+    }
+  }
+
+  desconectarWhatsapp(): void {
+    if (this.waDesconectando) return;
+    this.waDesconectando = true;
+    this.waError = '';
+    this.waService
+      .disconnect()
+      .pipe(finalize(() => (this.waDesconectando = false)))
+      .subscribe({
+        next: () => {
+          this.waQrSrc = null;
+          this.waPairingCode = null;
+          this.toast.success('Desconectado', 'A sessão WhatsApp foi encerrada na Evolution Go.');
+          this.carregarWhatsapp();
+        },
+        error: (err: unknown) => {
+          this.waError = this.mensagemErroWhatsapp(err);
+          this.toast.error('Erro', this.waError);
+        },
+      });
+  }
+
+  async removerIntegracaoWhatsapp(): Promise<void> {
+    const ok = await this.confirm.request({
+      title: 'Remover integração WhatsApp',
+      messageBefore: 'A instância será excluída na Evolution Go e os dados de conexão desta empresa serão apagados.',
+      variant: 'danger',
+      confirmLabel: 'Remover',
+    });
+    if (!ok || this.waRemovendo) return;
+    this.waRemovendo = true;
+    this.waError = '';
+    this.waService
+      .destroyInstance()
+      .pipe(finalize(() => (this.waRemovendo = false)))
+      .subscribe({
+        next: () => {
+          this.waTokenExibicaoUnica = null;
+          this.waQrSrc = null;
+          this.waPairingCode = null;
+          this.waState = null;
+          this.toast.success('Removido', 'Integração WhatsApp removida.');
+          this.carregarWhatsapp();
+        },
+        error: (err: unknown) => {
+          this.waError = this.mensagemErroWhatsapp(err);
+          this.toast.error('Erro', this.waError);
+        },
+      });
+  }
+
+  enviarTesteWhatsapp(): void {
+    const phone = this.waTestPhone.replace(/\D/g, '');
+    if (phone.length < 10) {
+      this.toast.error('Número inválido', 'Informe o destino com DDI e DDD.');
+      return;
+    }
+    if (this.waTestEnviando) return;
+    this.waTestEnviando = true;
+    this.waError = '';
+    const text = this.waTestText.trim();
+    this.waService
+      .sendTest(phone, text || undefined)
+      .pipe(finalize(() => (this.waTestEnviando = false)))
+      .subscribe({
+        next: () => this.toast.success('Enviado', 'Mensagem de teste enviada.'),
+        error: (err: unknown) => {
+          this.waError = this.mensagemErroWhatsapp(err);
+          this.toast.error('Erro', this.waError);
+        },
+      });
+  }
+
+  private normalizarQrDataUrl(raw: string | null): string | null {
+    if (!raw) return null;
+    const t = raw.trim();
+    if (t.startsWith('data:')) return t;
+    return `data:image/png;base64,${t}`;
+  }
+
+  private mensagemErroWhatsapp(err: unknown): string {
+    if (err instanceof HttpErrorResponse) {
+      const b = err.error as { message?: string } | null;
+      if (typeof b?.message === 'string' && b.message.trim()) return b.message.trim();
+      if (err.status === 503) return 'Servidor Evolution Go não configurado. Contate o administrador.';
+    }
+    return 'Não foi possível concluir a operação. Tente novamente.';
   }
 
   /** Atualiza horário (abre/fecha) a partir da seleção do Flatpickr. */

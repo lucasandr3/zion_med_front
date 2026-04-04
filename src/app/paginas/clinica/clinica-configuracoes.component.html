@@ -14,6 +14,10 @@
           <span class="material-symbols-outlined" style="font-size:1rem;vertical-align:middle;margin-right:4px">palette</span>
           Tema Visual
         </button>
+        <button type="button" class="config-tab" [class.active]="activeTab === 'whatsapp'" (click)="setTab('whatsapp')" role="tab">
+          <span class="material-symbols-outlined" style="font-size:1rem;vertical-align:middle;margin-right:4px">chat</span>
+          WhatsApp
+        </button>
         @if (canAddMultiEmpresa) {
           <button type="button" class="config-tab" [class.active]="activeTab === 'empresas'" (click)="setTab('empresas')" role="tab">
             <span class="material-symbols-outlined" style="font-size:1rem;vertical-align:middle;margin-right:4px">business_center</span>
@@ -366,9 +370,268 @@
         </div>
       }
 
+      <!-- Painel WhatsApp (Evolution Go) -->
+      <div id="panel-whatsapp" class="config-panel mt-8" [class.active]="activeTab === 'whatsapp'" role="tabpanel">
+        <!-- <div class="page-header mb-4">
+          <div class="page-title">
+            <div class="page-title-icon">
+              <span class="material-symbols-outlined">chat</span>
+            </div>
+            <div>
+              <h1>WhatsApp (Evolution Go)</h1>
+              <p class="page-header-subtitle">Conecte o número da empresa e envie uma mensagem de teste</p>
+            </div>
+          </div>
+        </div> -->
+        @if (waLoading) {
+          <zm-skeleton-list [rows]="6" />
+        } @else if (waError && !waState) {
+          <p class="text-sm mb-4" style="color: var(--c-error, #dc2626)">{{ waError }}</p>
+          <button type="button" class="btn-secondary" (click)="carregarWhatsapp()">Tentar novamente</button>
+        } @else if (waState) {
+          @if (waError) {
+            <p class="text-sm mb-4" style="color: var(--c-error, #dc2626)">{{ waError }}</p>
+          }
+          @if (!waState.server_configured) {
+            <div class="section-card mb-4">
+              <div class="section-body">
+                <p style="font-size:14px;color:var(--c-text);margin:0 0 8px 0">
+                  A API Evolution Go não está configurada no servidor. Peça ao administrador para definir
+                  <code style="font-size:12px">EVOLUTION_GO_BASE_URL</code> e
+                  <code style="font-size:12px">EVOLUTION_GO_API_KEY</code> (GLOBAL_API_KEY do container) no backend.
+                </p>
+              </div>
+            </div>
+          } @else if (!waState.instance_configured) {
+            <div class="section-card mb-4">
+              <div class="section-header">
+                <div class="icon-wrap"><span class="material-symbols-outlined">add_circle</span></div>
+                <span class="section-title">Criar instância</span>
+              </div>
+              <div class="section-body">
+                <p style="font-size:13px;color:var(--c-muted);margin-bottom:16px">
+                  O sistema gera automaticamente o nome da instância (<code style="font-size:12px">zion_org_</code> + id da empresa) e um token (UUID) antes de registrar na Evolution Go — necessário em ambientes onde a API não gera o token sozinha.
+                </p>
+                <button type="button" class="btn-primary inline-flex items-center gap-2" (click)="criarInstanciaWhatsapp()" [disabled]="waCriandoInstancia">
+                  @if (waCriandoInstancia) {
+                    <span class="btn-spinner" aria-hidden="true"></span>
+                  } @else {
+                    <span class="material-symbols-outlined" style="font-size:16px">bolt</span>
+                  }
+                  {{ waCriandoInstancia ? 'Criando…' : 'Criar instância' }}
+                </button>
+              </div>
+            </div>
+          } @else {
+            @if (waTokenExibicaoUnica) {
+              <div class="section-card mb-4" style="border-color: color-mix(in srgb, var(--c-success, #22c55e) 35%, var(--c-border))">
+                <div class="section-header">
+                  <div class="icon-wrap"><span class="material-symbols-outlined" style="color:var(--c-success,#22c55e)">key</span></div>
+                  <span class="section-title">Token da instância (guarde agora)</span>
+                </div>
+                <div class="section-body">
+                  <p style="font-size:12px;color:var(--c-muted);margin-bottom:8px">Este valor não será mostrado novamente nesta tela.</p>
+                  <code style="display:block;font-size:12px;word-break:break-all;padding:10px;background:var(--c-soft);border-radius:8px;margin-bottom:10px">{{ waTokenExibicaoUnica }}</code>
+                  <button type="button" class="btn-secondary" (click)="copiarTextoWhatsapp(waTokenExibicaoUnica!)">Copiar token</button>
+                </div>
+              </div>
+            }
+            <div class="section-card mb-4">
+              <div class="section-header">
+                <div class="icon-wrap"><span class="material-symbols-outlined">info</span></div>
+                <span class="section-title">Status</span>
+              </div>
+              <div class="section-body">
+                <p style="font-size:14px;margin:0 0 8px 0"><strong>Instância:</strong> {{ waState.instance_name ?? '—' }}</p>
+                <p style="font-size:13px;color:var(--c-muted);margin:0 0 8px 0">
+                  Conectado:
+                  @if (waState.connected === true) {
+                    <span style="color:var(--c-success,#22c55e);font-weight:600">sim</span>
+                  } @else if (waState.connected === false) {
+                    <span style="font-weight:600">não</span>
+                  } @else {
+                    —
+                  }
+                  · Sessão ativa:
+                  @if (waState.logged_in === true) {
+                    <span style="color:var(--c-success,#22c55e);font-weight:600">sim</span>
+                  } @else if (waState.logged_in === false) {
+                    <span style="font-weight:600">não</span>
+                  } @else {
+                    —
+                  }
+                </p>
+                @if (waState.remote_error) {
+                  <p style="font-size:12px;color:var(--c-error,#dc2626);margin:0">API: {{ waState.remote_error }}</p>
+                }
+              </div>
+            </div>
+            <div class="section-card mb-4">
+              <div class="section-header">
+                <div class="icon-wrap"><span class="material-symbols-outlined">link</span></div>
+                <span class="section-title">Conectar dispositivo</span>
+              </div>
+              <div class="section-body">
+                <p style="font-size:13px;color:var(--c-muted);margin-bottom:12px">
+                  Número opcional para código de pareamento (somente dígitos, com DDI). Depois use “Obter QR Code” ou “Obter código de pareamento”.
+                </p>
+                <div class="field" style="margin-bottom:12px">
+                  <label for="wa-phone-conectar">Telefone (pareamento)</label>
+                  <input id="wa-phone-conectar" type="text" class="form-input" [(ngModel)]="waPhoneConectar" name="waPhoneConectar" placeholder="5511999999999" autocomplete="tel" />
+                </div>
+                <div class="field" style="margin-bottom:16px">
+                  <label for="wa-webhook">Webhook URL <span class="opt">opcional</span></label>
+                  <input id="wa-webhook" type="url" class="form-input" [(ngModel)]="waWebhookUrl" name="waWebhookUrl" placeholder="https://…" />
+                </div>
+                <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:20px">
+                  <button type="button" class="btn-primary inline-flex items-center gap-2" (click)="iniciarConexaoWhatsapp()" [disabled]="waConectando">
+                    @if (waConectando) {
+                      <span class="btn-spinner" aria-hidden="true"></span>
+                    } @else {
+                      <span class="material-symbols-outlined" style="font-size:16px">power_settings_new</span>
+                    }
+                    {{ waConectando ? 'Iniciando…' : 'Iniciar conexão' }}
+                  </button>
+                  <button type="button" class="btn-secondary inline-flex items-center gap-2" (click)="buscarQrWhatsapp()" [disabled]="waQrCarregando">
+                    @if (waQrCarregando) {
+                      <span class="btn-spinner" aria-hidden="true"></span>
+                    } @else {
+                      <span class="material-symbols-outlined" style="font-size:16px">qr_code_2</span>
+                    }
+                    {{ waQrCarregando ? 'Carregando…' : 'Obter QR Code' }}
+                  </button>
+                </div>
+                @if (waQrSrc) {
+                  <div style="margin-bottom:16px">
+                    <p style="font-size:12px;font-weight:600;color:var(--c-muted);margin-bottom:8px">Escaneie no WhatsApp · Dispositivos conectados</p>
+                    <img [src]="waQrSrc" alt="QR Code WhatsApp" style="max-width:260px;height:auto;border-radius:8px;border:1px solid var(--c-border)" />
+                  </div>
+                }
+                @if (waQrLinkCode) {
+                  <p style="font-size:12px;color:var(--c-muted);margin-bottom:4px">Código de vinculação (QR)</p>
+                  <code style="display:block;font-size:11px;word-break:break-all;padding:8px;background:var(--c-soft);border-radius:8px">{{ waQrLinkCode }}</code>
+                }
+                <div style="border-top:1px solid var(--c-border);padding-top:16px;margin-top:16px">
+                  <p style="font-size:12px;font-weight:600;color:var(--c-muted);margin-bottom:8px">Pareamento por código (8 dígitos)</p>
+                  <div class="field" style="margin-bottom:12px">
+                    <label for="wa-phone-pair">Telefone do aparelho</label>
+                    <input id="wa-phone-pair" type="text" class="form-input" [(ngModel)]="waPhonePair" name="waPhonePair" placeholder="5511999999999" autocomplete="tel" />
+                  </div>
+                  <button type="button" class="btn-secondary inline-flex items-center gap-2 mb-3" (click)="solicitarPairWhatsapp()" [disabled]="waPairCarregando">
+                    @if (waPairCarregando) {
+                      <span class="btn-spinner" aria-hidden="true"></span>
+                    }
+                    {{ waPairCarregando ? 'Solicitando…' : 'Obter código de pareamento' }}
+                  </button>
+                  @if (waPairingCode) {
+                    <p style="font-size:24px;font-weight:700;letter-spacing:0.2em;font-family:monospace;margin:8px 0 0 0">{{ waPairingCode }}</p>
+                  }
+                </div>
+              </div>
+            </div>
+            <div class="section-card mb-4">
+              <div class="section-header">
+                <div class="icon-wrap"><span class="material-symbols-outlined">send</span></div>
+                <span class="section-title">Mensagem de teste</span>
+              </div>
+              <div class="section-body">
+                <div class="field" style="margin-bottom:12px">
+                  <label for="wa-test-phone">Número destino (DDI + DDD + número)</label>
+                  <input id="wa-test-phone" type="text" class="form-input" [(ngModel)]="waTestPhone" name="waTestPhone" placeholder="5511987654321" autocomplete="tel" />
+                </div>
+                <div class="field" style="margin-bottom:16px">
+                  <label for="wa-test-text">Texto <span class="opt">opcional</span></label>
+                  <textarea id="wa-test-text" class="form-input" rows="2" [(ngModel)]="waTestText" name="waTestText" placeholder="Mensagem de teste — Zion Med"></textarea>
+                </div>
+                <button type="button" class="btn-primary inline-flex items-center gap-2" (click)="enviarTesteWhatsapp()" [disabled]="waTestEnviando">
+                  @if (waTestEnviando) {
+                    <span class="btn-spinner" aria-hidden="true"></span>
+                  } @else {
+                    <span class="material-symbols-outlined" style="font-size:16px">send</span>
+                  }
+                  {{ waTestEnviando ? 'Enviando…' : 'Enviar teste' }}
+                </button>
+              </div>
+            </div>
+            <div style="display:flex;flex-wrap:wrap;gap:10px">
+              <button type="button" class="btn-secondary" (click)="desconectarWhatsapp()" [disabled]="waDesconectando">
+                {{ waDesconectando ? 'Desconectando…' : 'Desconectar sessão' }}
+              </button>
+              <button type="button" class="btn-secondary" style="color:var(--c-error,#dc2626);border-color:color-mix(in srgb,var(--c-error) 40%,var(--c-border))" (click)="removerIntegracaoWhatsapp()" [disabled]="waRemovendo">
+                {{ waRemovendo ? 'Removendo…' : 'Remover integração' }}
+              </button>
+            </div>
+          }
+        }
+        @if (showWhatsappStickyFooter) {
+          <div class="sticky-footer-spacer" aria-hidden="true"></div>
+          <div class="sticky-footer">
+            <div style="font-size:12px;color:var(--c-muted)">
+              @if (waLoading) {
+                Carregando integração…
+              } @else if (waError && !waState) {
+                Não foi possível carregar o estado da integração.
+              } @else {
+                WhatsApp · Evolution Go
+              }
+            </div>
+            <div class="footer-btns">
+              <a routerLink="/dashboard" class="btn-secondary">
+                <span class="material-symbols-outlined" style="font-size:16px">close</span>
+                Cancelar
+              </a>
+              @if (waError && !waState && !waLoading) {
+                <button type="button" class="btn-primary inline-flex items-center gap-2" (click)="carregarWhatsapp()">
+                  <span class="material-symbols-outlined" style="font-size:16px">refresh</span>
+                  Tentar novamente
+                </button>
+              }
+              @if (waState && !waLoading) {
+                @if (waState.instance_configured) {
+                  <button type="button" class="btn-secondary inline-flex items-center gap-2" (click)="carregarWhatsapp()">
+                    <span class="material-symbols-outlined" style="font-size:16px">sync</span>
+                    Atualizar status
+                  </button>
+                }
+                @if (waState.server_configured && !waState.instance_configured) {
+                  <button
+                    type="button"
+                    class="btn-primary inline-flex items-center gap-2"
+                    (click)="criarInstanciaWhatsapp()"
+                    [disabled]="waCriandoInstancia"
+                  >
+                    @if (waCriandoInstancia) {
+                      <span class="btn-spinner" aria-hidden="true"></span>
+                    } @else {
+                      <span class="material-symbols-outlined" style="font-size:16px">bolt</span>
+                    }
+                    {{ waCriandoInstancia ? 'Criando…' : 'Criar instância' }}
+                  </button>
+                }
+                @if (waState.instance_configured && waPodeEnviarTesteNoFooter) {
+                  <button
+                    type="button"
+                    class="btn-primary inline-flex items-center gap-2"
+                    (click)="enviarTesteWhatsapp()"
+                    [disabled]="waTestEnviando"
+                  >
+                    @if (waTestEnviando) {
+                      <span class="btn-spinner" aria-hidden="true"></span>
+                    } @else {
+                      <span class="material-symbols-outlined" style="font-size:16px">send</span>
+                    }
+                    {{ waTestEnviando ? 'Enviando…' : 'Enviar teste' }}
+                  </button>
+                }
+              }
+            </div>
+          </div>
+        }
+      </div>
+
       <!-- Painel Logs (somente informação, sem tabela) -->
-      <div id="panel-logs" class="config-panel" [class.active]="activeTab === 'logs'" role="tabpanel">
-        <div class="page-header mb-4">
+      <div id="panel-logs" class="config-panel mt-2" [class.active]="activeTab === 'logs'" role="tabpanel">
+        <!-- <div class="page-header mb-4">
           <div class="page-title">
             <div class="page-title-icon">
               <span class="material-symbols-outlined">history</span>
@@ -378,7 +641,7 @@
               <p class="page-header-subtitle">Ações realizadas nesta empresa</p>
             </div>
           </div>
-        </div>
+        </div> -->
         @if (logsLoading) {
           <p class="text-sm" style="color: var(--c-muted)">Carregando logs…</p>
         } @else if (logsErroCobranca) {
