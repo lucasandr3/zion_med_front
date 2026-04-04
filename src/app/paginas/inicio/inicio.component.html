@@ -12,7 +12,7 @@
       }
       @if (serviceStatusKey === 'operational') {
         <span class="status-msg-sep">·</span>
-        <span class="status-link">Ver status da plataforma</span>
+        <span class="status-link">Ver status</span>
       }
     </a>
   </div>
@@ -22,24 +22,21 @@
     <div class="nav-inner">
       <div class="nav-left">
         <a routerLink="/" class="nav-logo">
-          <div class="logo-mark">
-            <img src="assets/logo/logo.png" alt="Gestgo" width="26" height="26" />
-          </div>
+          <div class="logo-mark"><img src="assets/logo/logo.png" alt="Gestgo" width="26" height="26" /></div>
           <span class="logo-name">Gestgo</span>
         </a>
         <div class="nav-links">
-          <a href="#features">Funcionalidades</a>
-          <a href="#especialidades">Especialidades</a>
+          <a href="#features">Produto</a>
+          <a href="#preview">Demonstração</a>
           <a href="#pricing">Planos</a>
           <a href="#faq">FAQ</a>
-          <a href="#demo">Demonstração</a>
         </div>
       </div>
       <div class="nav-right">
         <button type="button" class="lp-menu-btn" (click)="toggleMenu()" aria-label="Abrir menu">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
         </button>
-        <button type="button" class="theme-toggle" (click)="toggleLpTheme()" aria-label="Alternar tema claro ou escuro">
+        <button type="button" class="theme-toggle" (click)="toggleLpTheme()" aria-label="Alternar tema">
           <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
           <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
         </button>
@@ -48,113 +45,127 @@
       </div>
     </div>
     <div class="lp-mobile-nav" [class.open]="menuAberto">
-      <a href="#features" (click)="toggleMenu()">Funcionalidades</a>
-      <a href="#especialidades" (click)="toggleMenu()">Especialidades</a>
+      <a href="#features" (click)="toggleMenu()">Produto</a>
+      <a href="#preview" (click)="toggleMenu()">Demonstração</a>
       <a href="#pricing" (click)="toggleMenu()">Planos</a>
       <a href="#faq" (click)="toggleMenu()">FAQ</a>
-      <a href="#demo" (click)="toggleMenu()">Demonstração</a>
       <a routerLink="/autenticacao" (click)="toggleMenu()">Entrar</a>
       <button type="button" class="nav-cta" style="width: 100%" (click)="focusCaptureEmail(); toggleMenu()">Começar grátis</button>
     </div>
   </nav>
 
-  <!-- HERO -->
+  <!-- ═══════════════ HERO ═══════════════ -->
   <section class="hero">
-    <div class="hero-eyebrow anim">
-      <div class="hero-eyebrow-dot"></div>
-      Lançamento · <span>Seja um early adopter</span>
-    </div>
-    <h1 class="anim anim-d1">
-      Fichas digitais que chegam<br /><em>antes do paciente</em>
-    </h1>
-    <p class="hero-sub anim anim-d2">
-      Sua clínica publica um <strong>link na bio</strong>. O paciente preenche a ficha pelo celular antes de chegar. Você atende com tudo pronto — sem papel, sem digitação, sem retrabalho.
-    </p>
-
-    <div class="hero-capture anim anim-d3">
-      <input id="capture-email" class="capture-input" type="email" [(ngModel)]="heroEmail" name="hero_email" placeholder="seu@email.com.br" autocomplete="email" />
-      <button type="button" class="capture-btn" (click)="irComece('hero')">
-        Criar conta grátis
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/></svg>
-      </button>
-    </div>
-    <p class="hero-note anim anim-d3">Sem cartão de crédito · {{ landingTrialDias }} dias grátis · Cancele quando quiser</p>
-
-    <div class="hero-social anim">
-      <div class="hs-item">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-        86+ templates prontos
-      </div>
-      <div class="hs-sep"></div>
-      <div class="hs-item">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-        Assinatura digital com validade legal
-      </div>
-      <div class="hs-sep"></div>
-      <div class="hs-item">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-        LGPD desde o dia 1
-      </div>
-    </div>
-
-    <div class="hero-browser anim">
-      <div class="browser-bar">
-        <div class="b-dots">
-          <div class="b-dot" style="background: #ff5f57"></div>
-          <div class="b-dot" style="background: #ffbd2e"></div>
-          <div class="b-dot" style="background: #28ca41"></div>
+    <div class="hero-grid">
+      <div class="hero-text">
+        <div class="hero-eyebrow anim">
+          <div class="hero-eyebrow-dot"></div>
+          Lançamento · <span>Seja um early adopter</span>
         </div>
-        <div class="b-url">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
-          app.gestgo.com.br/dashboard
+        <h1 class="anim anim-d1">
+          Fichas digitais que chegam<br /><em>antes do paciente</em>
+        </h1>
+        <p class="hero-sub anim anim-d2">
+          Sua clínica publica um <strong>link na bio</strong>. O paciente preenche a ficha pelo celular. Você atende com tudo pronto — sem papel, sem retrabalho.
+        </p>
+        <div class="hero-capture anim anim-d3">
+          <input id="capture-email" class="capture-input" type="email" [(ngModel)]="heroEmail" name="hero_email" placeholder="seu@email.com.br" autocomplete="email" />
+          <button type="button" class="capture-btn" (click)="irComece()">
+            Criar conta grátis
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="13 17 18 12 13 7"/></svg>
+          </button>
+        </div>
+        <p class="hero-note anim anim-d3">Sem cartão · {{ landingTrialDias }} dias grátis · Cancele quando quiser</p>
+        <div class="hero-social anim">
+          <div class="hs-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            86+ templates prontos
+          </div>
+          <div class="hs-sep"></div>
+          <div class="hs-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            Assinatura digital
+          </div>
+          <div class="hs-sep"></div>
+          <div class="hs-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            LGPD nativo
+          </div>
         </div>
       </div>
-      <div class="browser-content">
-        <div class="b-sidebar">
-          <div class="b-sidebar-logo">
-            <div class="b-logo-icon"><img src="assets/logo/logo.png" alt="" width="22" height="22" role="presentation" /></div>
-            <span class="b-logo-name">Gestgo</span>
+      <div class="hero-visual anim">
+        <div class="hero-browser">
+          <div class="browser-bar">
+            <div class="b-dots">
+              <div class="b-dot" style="background: #ff5f57"></div>
+              <div class="b-dot" style="background: #ffbd2e"></div>
+              <div class="b-dot" style="background: #28ca41"></div>
+            </div>
+            <div class="b-url">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+              app.gestgo.com.br
+            </div>
           </div>
-          <div class="b-nav-section">Menu</div>
-          <div class="b-nav-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Painel</div>
-          <div class="b-nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/></svg>Templates</div>
-          <div class="b-nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/></svg>Links públicos</div>
-          <div class="b-nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>Envios</div>
-          <div class="b-nav-section">Admin</div>
-          <div class="b-nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/></svg>Link Bio</div>
-        </div>
-        <div class="b-main">
-          <div class="b-page-title">Painel</div>
-          <div class="b-page-sub">Clínica São Paulo · Rua Central, 45</div>
-          <div class="b-cards">
-            <div class="b-card"><div class="b-card-label">Pendentes</div><div class="b-card-val">3</div><div class="b-card-desc">Aguardando revisão</div></div>
-            <div class="b-card"><div class="b-card-label">Templates</div><div class="b-card-val">86</div><div class="b-card-desc">Total na clínica</div></div>
-            <div class="b-card"><div class="b-card-label">Respostas</div><div class="b-card-val" style="color: var(--brand)">24</div><div class="b-card-desc">Últimos 7 dias</div></div>
+          <div class="browser-slides">
+            <div class="browser-slide" [class.active]="heroSlide === 0">
+              <div class="b-slide-header">
+                <div class="b-slide-title">Painel</div>
+                <div class="b-slide-sub">Clínica São Paulo</div>
+              </div>
+              <div class="b-kpi-row">
+                <div class="b-kpi"><div class="b-kpi-val">3</div><div class="b-kpi-label">Pendentes</div></div>
+                <div class="b-kpi"><div class="b-kpi-val">86</div><div class="b-kpi-label">Templates</div></div>
+                <div class="b-kpi"><div class="b-kpi-val" style="color: var(--brand)">24</div><div class="b-kpi-label">Respostas</div></div>
+              </div>
+              <div class="b-list">
+                <div class="b-list-row"><div class="b-list-dot"></div><span>Pesquisa de Satisfação</span><span class="b-badge">Ativo</span></div>
+                <div class="b-list-row"><div class="b-list-dot"></div><span>Anamnese Básica</span><span class="b-badge">Ativo</span></div>
+                <div class="b-list-row"><div class="b-list-dot"></div><span>Termo de Consentimento</span><span class="b-badge">Ativo</span></div>
+              </div>
+            </div>
+            <div class="browser-slide" [class.active]="heroSlide === 1">
+              <div class="b-slide-header">
+                <div class="b-slide-title">Templates</div>
+                <div class="b-slide-sub">11 especialidades · 86 modelos</div>
+              </div>
+              <div class="b-template-grid">
+                <div class="b-template-card"><div class="b-tc-icon">🩺</div><div class="b-tc-name">Anamnese Geral</div><div class="b-tc-cat">Clínica Geral</div></div>
+                <div class="b-template-card"><div class="b-tc-icon">✨</div><div class="b-tc-name">Ficha Estética</div><div class="b-tc-cat">Harmonização</div></div>
+                <div class="b-template-card"><div class="b-tc-icon">🦷</div><div class="b-tc-name">Anamnese Odonto</div><div class="b-tc-cat">Odontologia</div></div>
+                <div class="b-template-card"><div class="b-tc-icon">🧠</div><div class="b-tc-name">Contrato Terapêutico</div><div class="b-tc-cat">Psicologia</div></div>
+              </div>
+            </div>
+            <div class="browser-slide" [class.active]="heroSlide === 2">
+              <div class="b-slide-header">
+                <div class="b-slide-title">Protocolo #247</div>
+                <div class="b-slide-sub">Ficha preenchida · PDF gerado</div>
+              </div>
+              <div class="b-pdf-preview">
+                <div class="b-pdf-line w80"></div>
+                <div class="b-pdf-line w60"></div>
+                <div class="b-pdf-spacer"></div>
+                <div class="b-pdf-field"><div class="b-pdf-field-label">Nome completo</div><div class="b-pdf-field-val">Maria Fernanda Silva</div></div>
+                <div class="b-pdf-field"><div class="b-pdf-field-label">Data de nascimento</div><div class="b-pdf-field-val">12/05/1988</div></div>
+                <div class="b-pdf-field"><div class="b-pdf-field-label">Alergias</div><div class="b-pdf-field-val">Nenhuma conhecida</div></div>
+                <div class="b-pdf-spacer"></div>
+                <div class="b-pdf-sig">
+                  <div class="b-pdf-sig-label">Assinatura digital</div>
+                  <div class="b-pdf-sig-line"></div>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="b-section-title">Últimos templates</div>
-          <div class="b-list-item">
-            <div class="b-list-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
-            <div class="b-list-name">Pesquisa de Satisfação</div>
-            <div class="b-list-date">15 mar · 14h02</div>
-            <span class="b-badge">Ativo</span>
-          </div>
-          <div class="b-list-item">
-            <div class="b-list-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
-            <div class="b-list-name">Anamnese Básica</div>
-            <div class="b-list-date">14 mar · 09h15</div>
-            <span class="b-badge">Ativo</span>
-          </div>
-          <div class="b-list-item">
-            <div class="b-list-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
-            <div class="b-list-name">Termo de Consentimento</div>
-            <div class="b-list-date">14 mar · 09h15</div>
-            <span class="b-badge">Ativo</span>
+          <div class="browser-dots">
+            <button type="button" class="bd" [class.active]="heroSlide === 0" (click)="heroSlide = 0" aria-label="Slide 1"></button>
+            <button type="button" class="bd" [class.active]="heroSlide === 1" (click)="heroSlide = 1" aria-label="Slide 2"></button>
+            <button type="button" class="bd" [class.active]="heroSlide === 2" (click)="heroSlide = 2" aria-label="Slide 3"></button>
           </div>
         </div>
       </div>
     </div>
   </section>
 
+  <!-- LOGOS MARQUEE -->
   <div class="logos">
     <div class="logos-label">Especialidades atendidas</div>
     <div style="overflow: hidden">
@@ -166,10 +177,11 @@
     </div>
   </div>
 
+  <!-- ═══════════════ FEATURES ═══════════════ -->
   <section class="features" id="features">
     <div class="container">
       <div class="section-header anim">
-        <span class="eyebrow">Funcionalidades</span>
+        <span class="eyebrow">Produto</span>
         <h2 class="section-title">Tudo que sua clínica precisa<br /><em>no digital</em></h2>
         <p class="section-sub">Do link na bio ao PDF assinado — sem papel, sem retrabalho.</p>
       </div>
@@ -177,99 +189,113 @@
         <div class="feat-card">
           <div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg></div>
           <div class="feat-title">Link na bio profissional</div>
-          <div class="feat-desc">Página pública da clínica com identidade visual, horários, WhatsApp e fichas — tudo em um link para o Instagram.</div>
+          <div class="feat-desc">Página pública com identidade visual, horários, WhatsApp e fichas — tudo em um link.</div>
         </div>
         <div class="feat-card">
           <div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
           <div class="feat-title">86+ templates prontos</div>
-          <div class="feat-desc">Fichas de anamnese, termos e acompanhamentos para 11 especialidades — prontos para usar ou personalizar.</div>
+          <div class="feat-desc">Fichas de anamnese, termos e acompanhamentos para 11 especialidades.</div>
         </div>
         <div class="feat-card">
           <div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>
           <div class="feat-title">Assinatura digital</div>
-          <div class="feat-desc">O paciente assina com o dedo no celular. Validade jurídica, conformidade LGPD e CFM.</div>
+          <div class="feat-desc">Paciente assina com o dedo no celular. Validade jurídica, LGPD e CFM.</div>
         </div>
         <div class="feat-card">
           <div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
           <div class="feat-title">PDF automático</div>
-          <div class="feat-desc">Cada ficha preenchida gera um PDF formatado automaticamente. Zero digitação, zero formatação manual.</div>
+          <div class="feat-desc">Cada ficha preenchida gera um PDF formatado. Zero digitação manual.</div>
         </div>
         <div class="feat-card">
           <div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></div>
           <div class="feat-title">Templates personalizáveis</div>
-          <div class="feat-desc">Adicione campos específicos, reordene perguntas e salve como modelo reutilizável da sua clínica.</div>
+          <div class="feat-desc">Adicione campos, reordene perguntas e salve como modelo reutilizável.</div>
         </div>
         <div class="feat-card">
           <div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
           <div class="feat-title">API & Webhooks</div>
-          <div class="feat-desc">Cada ficha recebida dispara um webhook. Integre com prontuário ou CRM via API documentada.</div>
+          <div class="feat-desc">Integre com prontuário ou CRM via API documentada e webhooks.</div>
         </div>
       </div>
     </div>
   </section>
 
+  <!-- ═══════════════ COMO FUNCIONA ═══════════════ -->
   <section class="how">
     <div class="container">
-      <div class="how-grid">
-        <div>
-          <span class="eyebrow">Como funciona</span>
-          <h2 class="section-title" style="text-align: left; margin-bottom: 32px">4 passos.<br /><em>Zero papel.</em></h2>
-          <div class="how-steps-list">
-            <div class="how-step" [class.active]="howStep === 0" (click)="setHowStep(0)">
-              <div class="how-step-num">1</div>
+      <div class="section-header anim">
+        <span class="eyebrow">Como funciona</span>
+        <h2 class="section-title">4 passos. <em>Zero papel.</em></h2>
+      </div>
+      <div class="how-grid anim">
+        <div class="how-steps-list">
+          @for (step of howSteps; track $index) {
+            <div class="how-step" [class.active]="howStep === $index" (click)="setHowStep($index)">
+              <div class="how-step-num">{{ $index + 1 }}</div>
               <div class="how-step-body">
-                <div class="how-step-title">Crie seus formulários</div>
-                <div class="how-step-desc">Escolha entre 86 templates ou crie do zero. Personaliza em minutos, sem precisar de TI.</div>
+                <div class="how-step-title">{{ step.title }}</div>
+                <div class="how-step-desc">{{ step.desc }}</div>
               </div>
             </div>
-            <div class="how-step" [class.active]="howStep === 1" (click)="setHowStep(1)">
-              <div class="how-step-num">2</div>
-              <div class="how-step-body">
-                <div class="how-step-title">Publique no seu perfil</div>
-                <div class="how-step-desc">Cole o link na bio do Instagram ou WhatsApp. Página pública no ar em segundos.</div>
-              </div>
-            </div>
-            <div class="how-step" [class.active]="howStep === 2" (click)="setHowStep(2)">
-              <div class="how-step-num">3</div>
-              <div class="how-step-body">
-                <div class="how-step-title">Paciente preenche antes</div>
-                <div class="how-step-desc">Abre pelo celular, preenche e assina digitalmente antes de chegar na clínica.</div>
-              </div>
-            </div>
-            <div class="how-step" [class.active]="howStep === 3" (click)="setHowStep(3)">
-              <div class="how-step-num">4</div>
-              <div class="how-step-body">
-                <div class="how-step-title">PDF gerado na hora</div>
-                <div class="how-step-desc">A ficha chega no painel formatada em PDF, pronta para arquivar ou importar.</div>
-              </div>
-            </div>
-          </div>
+          }
         </div>
         <div class="how-visual">
           <div class="phone-wrap">
             <div class="phone-frame">
               <div class="phone-screen">
-                <div class="ph-cover"></div>
-                <div class="ph-avatar">CL</div>
-                <div class="ph-body">
-                  <div class="ph-name">Clínica Exemplo</div>
-                  <div class="ph-tag">Dermatologia · Estética avançada</div>
-                  <div class="ph-wpp">Falar pelo WhatsApp</div>
-                  <div class="ph-link">
-                    <div class="ph-link-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
-                    <div><div class="ph-link-title">Ficha do procedimento</div><div class="ph-link-sub">Anamnese clínica</div></div>
+                <div class="ph-screen-slide" [class.active]="howStep === 0">
+                  <div class="ph-header-bar">Gestgo</div>
+                  <div class="ph-body-inner">
+                    <div class="ph-template-item">🩺 Anamnese Geral</div>
+                    <div class="ph-template-item">✨ Ficha Estética</div>
+                    <div class="ph-template-item">🦷 Odonto Completa</div>
+                    <div class="ph-template-item ph-template-add">+ Criar template</div>
                   </div>
-                  <div class="ph-link">
-                    <div class="ph-link-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
-                    <div><div class="ph-link-title">Termo de consentimento</div><div class="ph-link-sub">Procedimentos estéticos</div></div>
+                </div>
+                <div class="ph-screen-slide" [class.active]="howStep === 1">
+                  <div class="ph-cover-demo"></div>
+                  <div class="ph-avatar-demo">CL</div>
+                  <div class="ph-body-inner" style="padding-top: 8px">
+                    <div class="ph-clinic-name">Clínica Exemplo</div>
+                    <div class="ph-clinic-tag">Dermatologia · Estética</div>
+                    <div class="ph-wpp-btn">Falar pelo WhatsApp</div>
+                    <div class="ph-doc-link">📋 Ficha do procedimento</div>
+                    <div class="ph-doc-link">📝 Termo de consentimento</div>
+                  </div>
+                </div>
+                <div class="ph-screen-slide" [class.active]="howStep === 2">
+                  <div class="ph-header-bar">Ficha do Procedimento</div>
+                  <div class="ph-body-inner">
+                    <div class="ph-form-field"><label>Nome completo</label><div class="ph-input-mock">Maria Fernanda</div></div>
+                    <div class="ph-form-field"><label>Alergias</label><div class="ph-input-mock">Nenhuma</div></div>
+                    <div class="ph-form-field"><label>Assinatura</label><div class="ph-sig-mock"></div></div>
+                    <div class="ph-submit-btn">Enviar</div>
+                  </div>
+                </div>
+                <div class="ph-screen-slide" [class.active]="howStep === 3">
+                  <div class="ph-header-bar">Protocolo #247</div>
+                  <div class="ph-body-inner">
+                    <div class="ph-proto-status">
+                      <div class="ph-proto-dot"></div>
+                      PDF gerado com sucesso
+                    </div>
+                    <div class="ph-proto-pdf">
+                      <div class="ph-pdf-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                      </div>
+                      <div>
+                        <div class="ph-pdf-name">ficha_procedimento.pdf</div>
+                        <div class="ph-pdf-size">42 KB · Assinado digitalmente</div>
+                      </div>
+                    </div>
+                    <div class="ph-proto-timeline">
+                      <div class="ph-tl-item"><div class="ph-tl-dot green"></div>PDF gerado</div>
+                      <div class="ph-tl-item"><div class="ph-tl-dot blue"></div>Assinado digitalmente</div>
+                      <div class="ph-tl-item"><div class="ph-tl-dot gray"></div>Formulário preenchido</div>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-            <div class="float-notif">
-              <div class="fn-title">Nova resposta</div>
-              <div class="fn-sub">Ficha do procedimento</div>
-              <div class="fn-green"><div class="fn-dot"></div><span class="fn-label">PDF gerado</span></div>
             </div>
           </div>
         </div>
@@ -277,81 +303,196 @@
     </div>
   </section>
 
-  <section class="specs" id="especialidades">
+  <!-- ═══════════════ EXPERIMENTE AO VIVO ═══════════════ -->
+  <section class="preview-section" id="preview">
     <div class="container">
       <div class="section-header anim">
-        <span class="eyebrow">Especialidades</span>
-        <h2 class="section-title">Feito para <em>sua área</em></h2>
-        <p class="section-sub">Templates específicos para cada especialidade — não é uma solução genérica.</p>
+        <span class="eyebrow">Experimente ao vivo</span>
+        <h2 class="section-title">Veja como sua clínica<br /><em>aparece para o paciente</em></h2>
+        <p class="section-sub">Escolha um layout, escaneie o QR code no celular e veja a página funcionando.</p>
       </div>
-      <div class="spec-grid anim">
-        <div class="spec-card"><div class="spec-emoji">🩺</div><div class="spec-name">Clínica Geral</div><div class="spec-desc">Anamnese completa, triagem e histórico do paciente.</div><div class="spec-count">8 templates</div></div>
-        <div class="spec-card"><div class="spec-emoji">✨</div><div class="spec-name">Estética & Harmonização</div><div class="spec-desc">Botox, preenchimento, bioestimuladores e mais.</div><div class="spec-count">8 templates</div></div>
-        <div class="spec-card"><div class="spec-emoji">🦷</div><div class="spec-name">Odontologia</div><div class="spec-desc">Anamnese odontológica, ortodontia e implantes.</div><div class="spec-count">8 templates</div></div>
-        <div class="spec-card"><div class="spec-emoji">🧠</div><div class="spec-name">Psicologia & Psiquiatria</div><div class="spec-desc">Anamnese, sigilo e contrato terapêutico.</div><div class="spec-count">8 templates</div></div>
-        <div class="spec-card"><div class="spec-emoji">👶</div><div class="spec-name">Pediatria</div><div class="spec-desc">Ficha da criança, vacinas e autorização legal.</div><div class="spec-count">8 templates</div></div>
-        <div class="spec-card"><div class="spec-emoji">🐾</div><div class="spec-name">Veterinária</div><div class="spec-desc">Ficha do pet, vacinas e autorização cirúrgica.</div><div class="spec-count">8 templates</div></div>
-        <div class="spec-card"><div class="spec-emoji">💪</div><div class="spec-name">Fisioterapia</div><div class="spec-desc">Avaliação postural, RPG e acompanhamento.</div><div class="spec-count">8 templates</div></div>
-        <div class="spec-card" style="border-style: dashed; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center"><div class="spec-emoji">➕</div><div class="spec-name">Sua especialidade</div><div class="spec-desc">Crie templates personalizados para qualquer área.</div></div>
+
+      <div class="preview-grid anim">
+        <div class="preview-layouts">
+          <div class="preview-layouts-label">Escolha o layout</div>
+          @for (layout of demoLayouts; track layout.model) {
+            <button type="button" class="preview-layout-card" [class.active]="selectedLayout === $index" (click)="selectLayout($index)">
+              <div class="plc-emoji">{{ layout.emoji }}</div>
+              <div class="plc-body">
+                <div class="plc-name">{{ layout.name }}</div>
+                <div class="plc-specialty">{{ layout.specialty }}</div>
+              </div>
+              <div class="plc-check" [class.visible]="selectedLayout === $index">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>
+            </button>
+          }
+        </div>
+
+        <div class="preview-phone-col">
+          <div class="phone-wrap preview-phone">
+            <div class="phone-frame">
+              <div class="phone-screen">
+                <div class="ph-demo-cover" [style.background]="'linear-gradient(135deg, ' + selectedDemoLayout.accentDark + '22, ' + selectedDemoLayout.accentDark + '08)'"></div>
+                <div class="ph-demo-avatar" [style.background]="selectedDemoLayout.accentLight">{{ selectedDemoLayout.clinicName.charAt(0) }}</div>
+                <div class="ph-body-inner">
+                  <div class="ph-demo-clinic-name">{{ selectedDemoLayout.clinicName }}</div>
+                  <div class="ph-demo-specialty" [style.color]="selectedDemoLayout.accentDark">{{ selectedDemoLayout.specialty }}</div>
+                  <div class="ph-wpp-btn" style="margin-top: 8px">Falar pelo WhatsApp</div>
+                  <div class="ph-doc-link">📋 Ficha de Anamnese</div>
+                  <div class="ph-doc-link">📝 Termo de Consentimento</div>
+                  <div class="ph-doc-link">📊 Pesquisa de Satisfação</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="preview-qr-wrap">
+            @if (qrCodeDataUrl) {
+              <img [src]="qrCodeDataUrl" alt="QR Code para preview no celular" class="preview-qr-img" />
+            }
+            <div class="preview-qr-label">Escaneie para ver no celular</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FORMS DEMO -->
+      <div class="demo-forms-section anim">
+        <div class="demo-forms-header">
+          <div>
+            <div class="eyebrow" style="text-align: left">Formulários</div>
+            <h3 class="demo-forms-title">Veja como o paciente preenche</h3>
+          </div>
+          <div class="demo-form-tabs">
+            @for (form of demoForms; track form.key) {
+              <button type="button" class="demo-form-tab" [class.active]="selectedFormIdx === $index" (click)="selectForm($index)">{{ form.title }}</button>
+            }
+          </div>
+        </div>
+
+        <div class="demo-form-card">
+          <div class="demo-form-card-header">
+            <div class="demo-form-card-logo">
+              <img src="assets/logo/logo.png" alt="" width="20" height="20" />
+            </div>
+            <div>
+              <div class="demo-form-card-title">{{ selectedDemoForm.title }}</div>
+              <div class="demo-form-card-sub">{{ selectedDemoForm.description }}</div>
+            </div>
+          </div>
+
+          @if (demoFormSubmitted) {
+            <div class="demo-form-success">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+              <div>
+                <div class="demo-form-success-title">Formulário enviado com sucesso</div>
+                <div class="demo-form-success-sub">Este é apenas um exemplo. Em produção, os dados seriam salvos e o PDF gerado automaticamente.</div>
+              </div>
+            </div>
+          } @else {
+            <div class="demo-form-fields">
+              @for (field of selectedDemoForm.fields; track field.label) {
+                <div class="demo-form-group">
+                  <label>{{ field.label }}</label>
+                  @switch (field.type) {
+                    @case ('textarea') {
+                      <textarea class="demo-input" [placeholder]="field.placeholder ?? ''" [(ngModel)]="demoFormValues[field.label]" [name]="field.label" rows="2"></textarea>
+                    }
+                    @case ('select') {
+                      <select class="demo-input" [(ngModel)]="demoFormValues[field.label]" [name]="field.label">
+                        <option value="" disabled selected>Selecione</option>
+                        @for (opt of field.options; track opt) {
+                          <option [value]="opt">{{ opt }}</option>
+                        }
+                      </select>
+                    }
+                    @case ('checkbox') {
+                      <label class="demo-checkbox">
+                        <input type="checkbox" [(ngModel)]="demoFormValues[field.label]" [name]="field.label" />
+                        <span>{{ field.label }}</span>
+                      </label>
+                    }
+                    @case ('signature') {
+                      <div class="demo-sig-area">
+                        <div class="demo-sig-placeholder">Toque aqui para assinar</div>
+                      </div>
+                    }
+                    @default {
+                      <input class="demo-input" [type]="field.type" [placeholder]="field.placeholder ?? ''" [(ngModel)]="demoFormValues[field.label]" [name]="field.label" />
+                    }
+                  }
+                </div>
+              }
+              <button type="button" class="capture-btn demo-submit-btn" (click)="submitDemoForm()">
+                Enviar formulário (demo)
+              </button>
+              <p class="demo-form-note">Este formulário é apenas uma demonstração. Nenhum dado é enviado.</p>
+            </div>
+          }
+        </div>
       </div>
     </div>
   </section>
 
-  <section class="numbers">
+  <!-- ═══════════════ SOCIAL PROOF ═══════════════ -->
+  <section class="social-proof">
     <div class="container">
       <div class="section-header anim">
-        <span class="eyebrow">Produto</span>
-        <h2 class="section-title">Construído para<br /><em>funcionar de verdade</em></h2>
-        <p class="section-sub">Números do produto — não de marketing.</p>
+        <span class="eyebrow">Depoimentos</span>
+        <h2 class="section-title">Quem usa, <em>recomenda</em></h2>
       </div>
+      <div class="testimonials-grid anim">
+        @for (t of testimonials; track t.name) {
+          <div class="testimonial-card">
+            <div class="tc-text">"{{ t.text }}"</div>
+            <div class="tc-author">
+              <div class="tc-avatar" [style.background]="'var(--brand)'">{{ t.initials }}</div>
+              <div>
+                <div class="tc-name">{{ t.name }}</div>
+                <div class="tc-role">{{ t.clinic }} · {{ t.specialty }}</div>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ NÚMEROS ═══════════════ -->
+  <section class="numbers">
+    <div class="container">
       <div class="numbers-grid anim">
+        <div class="num-card">
+          <div class="num-val">&lt;30<span class="num-unit">min</span></div>
+          <div class="num-label">Para configurar tudo</div>
+          <div class="num-desc">Cadastre a clínica, escolha templates e publique. Sem TI, sem treinamento.</div>
+        </div>
         <div class="num-card">
           <div class="num-val">86+</div>
           <div class="num-label">Templates clínicos prontos</div>
-          <div class="num-desc">Criados com profissionais de saúde para cada especialidade. Prontos para usar, editáveis quando quiser.</div>
+          <div class="num-desc">Criados com profissionais de saúde para 11 especialidades.</div>
         </div>
         <div class="num-card">
-          <div class="num-val">11</div>
-          <div class="num-label">Especialidades cobertas</div>
-          <div class="num-desc">Da clínica geral à veterinária. Cada área com templates específicos — não adaptações genéricas.</div>
+          <div class="num-val">0</div>
+          <div class="num-label">Papel necessário</div>
+          <div class="num-desc">Fichas, termos e consentimentos 100% digitais com assinatura válida.</div>
         </div>
-        <div class="num-card">
-          <div class="num-val">LGPD</div>
-          <div class="num-label">100% em conformidade</div>
-          <div class="num-desc">Assinatura digital com valor legal, política integrada e armazenamento seguro dos dados do paciente.</div>
-        </div>
-      </div>
-      <div class="early-banner anim">
-        <div>
-          <div class="eb-badge">Early adopter</div>
-          <div class="eb-title">Seja um dos primeiros.</div>
-          <div class="eb-desc">Quem entra agora ajuda a moldar o produto e trava o menor preço para sempre. Sem aumento retroativo.</div>
-        </div>
-        <button type="button" class="capture-btn" (click)="focusCaptureEmail()" style="flex-shrink: 0">
-          Garantir minha vaga
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/></svg>
-        </button>
       </div>
     </div>
   </section>
 
+  <!-- ═══════════════ PRICING ═══════════════ -->
   <section class="pricing" id="pricing">
     <div class="container">
       <div class="section-header anim">
         <span class="eyebrow">Planos</span>
         <h2 class="section-title">Simples, <em>sem surpresas</em></h2>
-        <p class="section-sub">Trial de {{ landingTrialDias }} dias grátis, sem cartão. Cancele quando quiser — sem multa, sem fidelidade mínima.</p>
+        <p class="section-sub">Trial de {{ landingTrialDias }} dias grátis, sem cartão. Cancele quando quiser.</p>
       </div>
 
       @if (carregandoLanding) {
-        <div class="lp-plans-loading anim">
-          <span>Carregando planos…</span>
-        </div>
+        <div class="lp-plans-loading anim"><span>Carregando planos…</span></div>
       } @else if (planos.length === 0) {
-        <div class="lp-plans-empty anim">
-          Nenhum plano disponível no momento.
-          <a href="#demo" class="status-link" style="margin-left: 6px">Fale conosco</a>
-        </div>
+        <div class="lp-plans-empty anim">Nenhum plano disponível no momento. <a href="#demo" class="status-link" style="margin-left: 6px">Fale conosco</a></div>
       } @else {
         <div class="pricing-grid anim">
           @for (plan of planos; track plan.key; let i = $index) {
@@ -367,30 +508,23 @@
                   R$ {{ plan.value | number: '1.0-0' : 'pt-BR' }}<span>/mês</span>
                 }
               </div>
-              <div class="price-period">{{ isPlanoGratis(plan) ? 'Para sempre' : 'Cobrança mensal no checkout' }}</div>
+              <div class="price-period">{{ isPlanoGratis(plan) ? 'Para sempre' : 'Cobrança mensal' }}</div>
               @if (plan.description) {
                 <div class="price-desc">{{ plan.description }}</div>
               } @else {
-                <div class="price-desc">{{ isPlanoGratis(plan) ? 'Ideal para testar o produto antes de assinar.' : 'Inclui recursos completos para sua clínica.' }}</div>
+                <div class="price-desc">{{ isPlanoGratis(plan) ? 'Ideal para testar o produto.' : 'Recursos completos para sua clínica.' }}</div>
               }
               <div class="price-feats">
                 <div class="pf"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Fichas e consentimentos digitais</div>
-                <div class="pf"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Assinatura digital + PDF automático</div>
-                <div class="pf"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Protocolo e histórico organizado</div>
+                <div class="pf"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Assinatura digital + PDF</div>
+                <div class="pf"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Protocolo e histórico</div>
                 @if (isPlanoRecomendado(i) || i >= 1) {
                   <div class="pf"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>API REST + Webhooks</div>
                 } @else {
                   <div class="pf off"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>API & Webhooks</div>
                 }
-                @if (i >= 2) {
-                  <div class="pf"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Suporte prioritário + onboarding</div>
-                } @else if (!isPlanoGratis(plan)) {
-                  <div class="pf off"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Onboarding dedicado</div>
-                }
               </div>
-              @if (planos.length >= 3 && i === planos.length - 1) {
-                <button type="button" class="p-btn p-btn-outline" (click)="irComeceComPlano(plan, i)">{{ ctaPlanoLabel(plan, i) }}</button>
-              } @else if (isPlanoRecomendado(i)) {
+              @if (isPlanoRecomendado(i)) {
                 <button type="button" class="p-btn p-btn-green" (click)="irComeceComPlano(plan, i)">{{ ctaPlanoLabel(plan, i) }}</button>
               } @else {
                 <button type="button" class="p-btn p-btn-outline" (click)="irComeceComPlano(plan, i)">{{ ctaPlanoLabel(plan, i) }}</button>
@@ -399,13 +533,13 @@
           }
         </div>
       }
-
       <p class="hero-note anim" style="margin-top: 32px; margin-bottom: 0; text-align: center">
-        * Trial de {{ landingTrialDias }} dias sem cartão. Após o período, sua clínica conclui a ativação do plano escolhido.
+        * Trial de {{ landingTrialDias }} dias sem cartão. Após o período, ative o plano escolhido.
       </p>
     </div>
   </section>
 
+  <!-- ═══════════════ FAQ ═══════════════ -->
   <section class="faq" id="faq">
     <div class="container">
       <div class="section-header anim">
@@ -416,122 +550,117 @@
         <div class="faq-list anim">
           <div class="faq-item">
             <button type="button" class="faq-q" [class.open]="faqOpenIndex === 0" (click)="toggleFaq(0)">A assinatura digital tem valor legal?<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
-            <div class="faq-a" [class.open]="faqOpenIndex === 0"><p>Sim. A assinatura digital coletada pelo Gestgo atende aos requisitos da MP 2.200-2/2001 e tem validade jurídica equivalente à assinatura manuscrita para prontuário e consentimento informado.</p></div>
+            <div class="faq-a" [class.open]="faqOpenIndex === 0"><p>Sim. Atende aos requisitos da MP 2.200-2/2001 e tem validade jurídica equivalente à assinatura manuscrita para prontuário e consentimento informado.</p></div>
           </div>
           <div class="faq-item">
             <button type="button" class="faq-q" [class.open]="faqOpenIndex === 1" (click)="toggleFaq(1)">O sistema é compatível com a LGPD?<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
-            <div class="faq-a" [class.open]="faqOpenIndex === 1"><p>Sim. O Gestgo foi desenvolvido com conformidade LGPD desde o início — coleta consentimento explícito, exibe a política de privacidade em cada formulário e permite ao paciente solicitar exclusão dos dados.</p></div>
+            <div class="faq-a" [class.open]="faqOpenIndex === 1"><p>Sim. Conformidade LGPD desde o início — coleta consentimento explícito, exibe política de privacidade e permite exclusão dos dados.</p></div>
           </div>
           <div class="faq-item">
-            <button type="button" class="faq-q" [class.open]="faqOpenIndex === 2" (click)="toggleFaq(2)">Preciso cancelar meu Linktree para usar?<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
-            <div class="faq-a" [class.open]="faqOpenIndex === 2"><p>Não precisa migrar tudo de uma vez. Você pode testar em paralelo. A maioria abandona o Linktree naturalmente na primeira semana — o Gestgo entrega muito mais contexto clínico.</p></div>
+            <button type="button" class="faq-q" [class.open]="faqOpenIndex === 2" (click)="toggleFaq(2)">Quanto tempo leva para configurar?<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+            <div class="faq-a" [class.open]="faqOpenIndex === 2"><p>Menos de 30 minutos. Cadastre a clínica, escolha templates e já tem o link para o Instagram.</p></div>
           </div>
           <div class="faq-item">
-            <button type="button" class="faq-q" [class.open]="faqOpenIndex === 3" (click)="toggleFaq(3)">Quanto tempo leva para configurar?<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
-            <div class="faq-a" [class.open]="faqOpenIndex === 3"><p>Menos de 30 minutos. Você cadastra a clínica, escolhe os templates da sua especialidade, personaliza e já tem o link para o Instagram. Os templates já vêm prontos — não precisa criar nada do zero.</p></div>
+            <button type="button" class="faq-q" [class.open]="faqOpenIndex === 3" (click)="toggleFaq(3)">Posso personalizar os formulários?<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+            <div class="faq-a" [class.open]="faqOpenIndex === 3"><p>Sim. Todos os templates são editáveis. Também pode criar do zero para procedimentos específicos.</p></div>
           </div>
           <div class="faq-item">
-            <button type="button" class="faq-q" [class.open]="faqOpenIndex === 4" (click)="toggleFaq(4)">Posso personalizar os formulários?<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
-            <div class="faq-a" [class.open]="faqOpenIndex === 4"><p>Sim. Todos os templates são editáveis — adicione, remova e reordene campos. Também pode criar templates do zero para procedimentos específicos e salvá-los como modelos reutilizáveis.</p></div>
+            <button type="button" class="faq-q" [class.open]="faqOpenIndex === 4" (click)="toggleFaq(4)">Preciso cancelar meu Linktree?<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+            <div class="faq-a" [class.open]="faqOpenIndex === 4"><p>Não. Pode testar em paralelo. A maioria migra naturalmente na primeira semana.</p></div>
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <section class="final">
-    <div class="anim">
-      <span class="eyebrow" style="display: block; text-align: center">Comece agora</span>
-      <h2>Sua clínica <em>digital</em><br />começa hoje.</h2>
-      <p class="final-sub">{{ landingTrialDias }} dias grátis, sem cartão de crédito. Cancele quando quiser.</p>
-      <div class="final-capture">
-        <input class="capture-input" type="email" [(ngModel)]="finalEmail" name="final_email" placeholder="seu@email.com.br" autocomplete="email" />
-        <button type="button" class="capture-btn" (click)="irComece('final')">
-          Criar conta grátis
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/></svg>
-        </button>
-      </div>
-      <p class="final-note">Sem cartão · {{ landingTrialDias }} dias grátis · Cancele quando quiser</p>
-    </div>
-  </section>
-
+  <!-- ═══════════════ DEMO / CONTATO ═══════════════ -->
   <section class="lp-demo" id="demo">
     <div class="container lp-demo-grid">
       <div>
-        <div class="lp-demo-label">Demonstração</div>
-        <h3>Veja sua clínica funcionando sem papel</h3>
-        <p>Em uma demonstração rápida, mostramos o fluxo completo: envio do link, preenchimento, assinatura digital, protocolo e PDF automático.</p>
-        <a href="https://wa.me/5534996460818?text=Ol%C3%A1!%20Gostaria%20de%20agendar%20uma%20demonstra%C3%A7%C3%A3o%20do%20Gestgo." target="_blank" rel="noopener noreferrer" class="lp-wa">
+        <div class="lp-demo-label">Contato</div>
+        <h3>Ficou com alguma dúvida?</h3>
+        <p>Fale com a gente pelo WhatsApp ou preencha o formulário. Respondemos em até 1 hora no horário comercial.</p>
+        <a href="https://wa.me/5534996460818?text=Ol%C3%A1!%20Gostaria%20de%20saber%20mais%20sobre%20o%20Gestgo." target="_blank" rel="noopener noreferrer" class="lp-wa">
           <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
           Falar no WhatsApp
         </a>
-        <p class="hero-note" style="margin-top: 12px">(34) 99646-0818 · Horário comercial</p>
       </div>
       <div class="lp-demo-card">
-        <div class="text-base font-semibold mb-1" style="font-size: 16px; font-weight: 600">Agendar demonstração gratuita</div>
-        <p class="section-sub" style="margin: 0 0 16px; font-size: 13px; text-align: left; max-width: none">Ou use o formulário. Resposta em até 1 hora no horário comercial.</p>
+        <div class="demo-card-title">Agendar demonstração</div>
+        <p class="demo-card-sub">Resposta em até 1 hora no horário comercial.</p>
         @if (demonstracaoFeedback) {
-          <div class="mb-4 rounded-xl px-4 py-3 text-sm" [style.border]="'1px solid var(--border2)'" [style.background]="demonstracaoSucesso ? 'var(--brand-bg)' : 'rgba(239,68,68,0.1)'" [style.color]="demonstracaoSucesso ? 'var(--brand)' : '#b91c1c'">
-            {{ demonstracaoFeedback }}
-          </div>
+          <div class="demo-feedback" [class.success]="demonstracaoSucesso" [class.error]="!demonstracaoSucesso">{{ demonstracaoFeedback }}</div>
         }
         <form (ngSubmit)="enviarDemonstracao()">
-          <div class="mb-3">
+          <div class="demo-field">
             <label class="lp-form-label">Nome *</label>
             <input class="lp-form-input" type="text" name="demo_name" [(ngModel)]="demonstracao.name" placeholder="Seu nome" required />
           </div>
-          <div class="mb-3">
+          <div class="demo-field">
             <label class="lp-form-label">Clínica *</label>
             <input class="lp-form-input" type="text" name="demo_clinic" [(ngModel)]="demonstracao.clinic" placeholder="Nome da clínica" required />
           </div>
-          <div class="grid gap-3 sm:grid-cols-2 mb-3">
-            <div>
+          <div class="demo-row">
+            <div class="demo-field">
               <label class="lp-form-label">E-mail *</label>
-              <input class="lp-form-input" type="email" name="demo_email" [(ngModel)]="demonstracao.email" placeholder="email@clinica.com" required />
+              <input class="lp-form-input" type="email" name="demo_email" [(ngModel)]="demonstracao.email" placeholder="email&#64;clinica.com" required />
             </div>
-            <div>
+            <div class="demo-field">
               <label class="lp-form-label">WhatsApp *</label>
               <input class="lp-form-input" type="tel" name="demo_phone" [(ngModel)]="demonstracao.phone" (input)="onPhoneInput($event)" placeholder="(00) 00000-0000" maxlength="16" required />
             </div>
           </div>
-          <div class="mb-4">
+          <div class="demo-field">
             <label class="lp-form-label">Mensagem</label>
             <textarea class="lp-form-input" name="demo_message" [(ngModel)]="demonstracao.message" rows="3" placeholder="Conte rapidamente seu cenário."></textarea>
           </div>
-          <button type="submit" class="capture-btn w-full justify-center" style="width: 100%" [disabled]="demonstracaoEnviando">
-            @if (demonstracaoEnviando) {
-              Enviando…
-            } @else {
-              Quero ver uma demonstração
-            }
+          <button type="submit" class="capture-btn" style="width: 100%; justify-content: center; margin-top: 4px" [disabled]="demonstracaoEnviando">
+            @if (demonstracaoEnviando) { Enviando… } @else { Quero uma demonstração }
           </button>
-          <p class="final-note" style="margin-top: 10px; text-align: center">Ao enviar, você concorda em ser contatado. Sem spam.</p>
+          <p class="demo-form-note" style="margin-top: 10px; text-align: center">Ao enviar, você concorda em ser contatado.</p>
         </form>
       </div>
     </div>
   </section>
 
+  <!-- ═══════════════ FOOTER ═══════════════ -->
   <footer>
     <div class="footer-inner">
-      <a routerLink="/" class="footer-logo">
-        <div class="fl-icon"><img src="assets/logo/logo.png" alt="" width="22" height="22" role="presentation" /></div>
-        <span class="fl-name">Gestgo</span>
-      </a>
-      <div class="footer-links">
-        <a routerLink="/privacidade">Privacidade</a>
-        <a routerLink="/termos-de-uso">Termos</a>
-        <a routerLink="/privacidade">LGPD</a>
-        <a [href]="statusPageUrl" target="_blank" rel="noopener noreferrer">Status</a>
-        <a href="#demo">Contato</a>
+      <div class="footer-col">
+        <a routerLink="/" class="footer-logo">
+          <div class="fl-icon"><img src="assets/logo/logo.png" alt="" width="22" height="22" role="presentation" /></div>
+          <span class="fl-name">Gestgo</span>
+        </a>
+        <p class="footer-tagline">Fichas digitais que chegam antes do paciente.</p>
       </div>
-      <span class="footer-copy">© {{ ano }} Gestgo</span>
+      <div class="footer-col">
+        <div class="footer-col-title">Produto</div>
+        <a href="#features">Funcionalidades</a>
+        <a href="#preview">Demonstração</a>
+        <a href="#pricing">Planos</a>
+        <a href="#faq">FAQ</a>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-title">Legal</div>
+        <a routerLink="/privacidade">Privacidade</a>
+        <a routerLink="/termos-de-uso">Termos de uso</a>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-title">Suporte</div>
+        <a href="#demo">Contato</a>
+        <a [href]="statusPageUrl" target="_blank" rel="noopener noreferrer">Status</a>
+        <a href="https://wa.me/5534996460818" target="_blank" rel="noopener noreferrer">WhatsApp</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span class="footer-copy">© {{ ano }} Gestgo. Todos os direitos reservados.</span>
     </div>
   </footer>
 
   <div class="lp-sticky-cta">
     <a routerLink="/comece" class="capture-btn">
-      Começar grátis · {{ landingTrialDias }} dias sem cartão
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/></svg>
+      Começar grátis · {{ landingTrialDias }} dias
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="13 17 18 12 13 7"/></svg>
     </a>
   </div>
 </div>

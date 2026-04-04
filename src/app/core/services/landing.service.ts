@@ -31,6 +31,20 @@ interface ApiResponse {
   data: LandingData;
 }
 
+export interface DemonstracaoPayload {
+  name: string;
+  clinic: string;
+  email: string;
+  phone: string;
+  message: string;
+}
+
+export interface DemonstracaoResponse {
+  success: boolean;
+  message: string;
+  errors?: Record<string, string[]>;
+}
+
 @Injectable({ providedIn: 'root' })
 export class LandingService {
   private http = inject(HttpClient);
@@ -39,8 +53,11 @@ export class LandingService {
     return this.http.get<ApiResponse>(`${BASE}/landing`).pipe(map((r) => r.data));
   }
 
-  /** Status do sistema (público, mesma fonte que o banner da landing no backend) */
   getStatus(): Observable<ServiceStatusPayload> {
     return this.http.get<ServiceStatusPayload>(`${BASE}/status`);
+  }
+
+  enviarDemonstracao(payload: DemonstracaoPayload): Observable<DemonstracaoResponse> {
+    return this.http.post<DemonstracaoResponse>(`${BASE}/demonstracao`, payload);
   }
 }
