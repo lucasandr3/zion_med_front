@@ -35,9 +35,9 @@
           <div class="left-eyebrow-dot"></div>
           {{ diasTrial }} dias grátis · Sem cartão
         </div>
-        <h1>Comece com sua<br />clínica <em>sem papel</em><br />agora mesmo.</h1>
+        <h1>Comece com seu<br />negócio <em>sem papel</em><br />agora mesmo.</h1>
         <p class="left-sub">
-          Fichas digitais, assinatura eletrônica e PDF automático — tudo no <strong>link da bio</strong> da sua clínica. O paciente preenche antes de chegar.
+          Fichas digitais, assinatura eletrônica e PDF automático — tudo no <strong>link da bio</strong> do seu negócio. O cliente preenche antes de chegar.
         </p>
 
         <div class="benefits">
@@ -52,7 +52,7 @@
             <div class="benefit-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>
             <div>
               <div class="benefit-title">Assinatura digital com validade legal</div>
-              <div class="benefit-desc">O paciente assina com o dedo no celular. Conformidade LGPD e CFM desde o dia 1.</div>
+              <div class="benefit-desc">Assinatura com o dedo no celular. Conformidade LGPD e exigências do conselho de classe desde o dia 1.</div>
             </div>
           </div>
           <div class="benefit">
@@ -179,8 +179,8 @@
 
               <div class="form-row">
                 <div class="field">
-                  <label class="field-label" for="company_name">Nome da clínica <span class="req">*</span></label>
-                  <input class="fi" id="company_name" type="text" [(ngModel)]="companyName" name="company_name" placeholder="Ex.: Clínica São Paulo" required autocomplete="organization" />
+                  <label class="field-label" for="company_name">Nome do negócio <span class="req">*</span></label>
+                  <input class="fi" id="company_name" type="text" [(ngModel)]="companyName" name="company_name" placeholder="Ex.: Studio Belle, Dr. João Silva" required autocomplete="organization" />
                 </div>
                 <div class="field">
                   <label class="field-label" for="responsible_name">Seu nome <span class="req">*</span></label>
@@ -200,6 +200,8 @@
                   class="fi"
                   id="billing_document"
                   type="text"
+                  mask="000.000.000-00||00.000.000/0000-00"
+                  [dropSpecialCharacters]="true"
                   [(ngModel)]="billingDocument"
                   name="billing_document"
                   placeholder="000.000.000-00 ou 00.000.000/0001-00"
@@ -207,12 +209,23 @@
                   autocomplete="off"
                   inputmode="numeric"
                 />
-                <div class="field-hint">Documento da clínica ou do responsável legal — necessário para gerar a assinatura e o boleto no sistema de pagamento.</div>
+                <div class="field-hint">Documento da empresa ou do responsável legal — necessário para gerar a assinatura e o boleto no sistema de pagamento.</div>
               </div>
 
               <div class="field">
                 <label class="field-label" for="phone">WhatsApp</label>
-                <input class="fi" id="phone" type="tel" [(ngModel)]="phone" name="phone" placeholder="(11) 99999-9999" autocomplete="tel" />
+                <input
+                  class="fi"
+                  id="phone"
+                  type="tel"
+                  mask="(00) 0000-0000||(00) 00000-0000"
+                  [dropSpecialCharacters]="true"
+                  [(ngModel)]="phone"
+                  name="phone"
+                  placeholder="(11) 99999-9999"
+                  inputmode="numeric"
+                  autocomplete="tel"
+                />
                 <div class="field-hint">Opcional — para suporte durante o onboarding.</div>
               </div>
 
@@ -289,7 +302,7 @@
         @if (uiStep === 2) {
           <div class="form-card">
             <div class="form-title">Configuração inicial</div>
-            <div class="form-sub">Conta criada! Agora vamos preparar sua clínica (opcional — você pode ajustar depois no painel).</div>
+            <div class="form-sub">Conta criada! Agora vamos preparar seu perfil (opcional — você pode ajustar depois no painel).</div>
 
             <div class="field">
               <label class="field-label" for="esp">Especialidade principal</label>

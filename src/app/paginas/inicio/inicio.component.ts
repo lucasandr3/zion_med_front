@@ -8,10 +8,11 @@ import {
   PLATFORM_ID,
   inject,
 } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
-import { CommonModule } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { NgxMaskDirective } from 'ngx-mask';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { environment } from '../../../environments/environment';
 import {
   LandingService,
@@ -28,11 +29,21 @@ const STATUS_LABELS: Record<string, string> = {
   maintenance: 'Manutenção em andamento',
 };
 
+/** Hashes antigos (inglês) → fragmentos em português na URL da landing. */
+const LANDING_HASH_LEGACY: Record<string, string> = {
+  '#features': '#funcionalidades',
+  '#preview': '#demonstracao',
+  '#pricing': '#planos',
+  '#faq': '#duvidas',
+  '#demo': '#contato',
+};
+
 interface DemoLayout {
   model: number;
   name: string;
   specialty: string;
-  emoji: string;
+  /** Ícone Material Symbols Outlined (ligature), exibido em monocromático na landing */
+  materialIcon: string;
   clinicName: string;
   description: string;
   accentLight: string;
@@ -57,7 +68,7 @@ interface Testimonial {
 @Component({
   selector: 'app-pagina-inicio',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule],
+  imports: [CommonModule, RouterLink, FormsModule, NgxMaskDirective],
   templateUrl: './inicio.component.html',
   styleUrl: './inicio.component.css',
 })
@@ -81,33 +92,39 @@ export class InicioComponent implements OnInit, AfterViewInit, OnDestroy {
   faqOpenIndex = 0;
   heroSlide = 0;
   selectedLayout = 0;
+  /** URL sanitizada para iframe da prévia real (/l/demo/:id?embed=1) */
+  previewIframeUrl: SafeResourceUrl | null = null;
+  previewIframeLoading = true;
   qrCodeDataUrl = '';
   selectedFormIdx = 0;
-  demoFormValues: Record<string, string> = {};
+  demoFormValues: Record<string, string | boolean> = {};
   demoFormSubmitted = false;
 
   readonly lpLogoMarquee: { k: string; t: string }[];
 
   readonly demoLayouts: DemoLayout[] = [
-    { model: 1, name: 'Genérico', specialty: 'Clínica Geral', emoji: '🩺', clinicName: 'Clínica São Paulo', description: 'Versátil para qualquer área', accentLight: '#3b82f6', accentDark: '#60a5fa' },
-    { model: 2, name: 'Perfil Solo', specialty: 'Dermatologia', emoji: '✨', clinicName: 'Dra. Ana Costa', description: 'Ideal para profissional solo', accentLight: '#5a9e72', accentDark: '#9ec9aa' },
-    { model: 3, name: 'Estética', specialty: 'Harmonização', emoji: '💎', clinicName: 'Studio Belle', description: 'Premium e sofisticado', accentLight: '#e8c97a', accentDark: '#e8c97a' },
-    { model: 4, name: 'Odontologia', specialty: 'Odontologia', emoji: '🦷', clinicName: 'OdontoSmile', description: 'Convênios e especialidades', accentLight: '#0ea5e9', accentDark: '#38bdf8' },
-    { model: 5, name: 'Equipe', specialty: 'Multidisciplinar', emoji: '👥', clinicName: 'Instituto Saúde', description: 'Destaque para a equipe', accentLight: '#6366f1', accentDark: '#818cf8' },
+    { model: 1, name: 'Genérico', specialty: 'Clínica Geral', materialIcon: 'view_quilt', clinicName: 'Clínica São Paulo', description: 'Versátil para qualquer área', accentLight: '#3b82f6', accentDark: '#60a5fa' },
+    { model: 2, name: 'Perfil Solo', specialty: 'Dermatologia', materialIcon: 'person', clinicName: 'Dra. Ana Costa', description: 'Ideal para profissional solo', accentLight: '#5a9e72', accentDark: '#9ec9aa' },
+    { model: 3, name: 'Estética', specialty: 'Harmonização', materialIcon: 'diamond', clinicName: 'Studio Belle', description: 'Premium e sofisticado', accentLight: '#e8c97a', accentDark: '#e8c97a' },
+    { model: 4, name: 'Odontologia', specialty: 'Odontologia', materialIcon: 'dentistry', clinicName: 'OdontoSmile', description: 'Convênios e especialidades', accentLight: '#0ea5e9', accentDark: '#38bdf8' },
+    { model: 5, name: 'Equipe', specialty: 'Multidisciplinar', materialIcon: 'groups', clinicName: 'Instituto Saúde', description: 'Destaque para a equipe', accentLight: '#6366f1', accentDark: '#818cf8' },
+    { model: 6, name: 'Veterinária', specialty: 'Pets', materialIcon: 'pets', clinicName: 'VetCare Animal', description: 'Foco em tutores e pets', accentLight: '#0d9488', accentDark: '#2dd4bf' },
+    { model: 7, name: 'Pediatria', specialty: 'Crianças', materialIcon: 'child_care', clinicName: 'Crescer Pediatria', description: 'Acolhimento para famílias', accentLight: '#38bdf8', accentDark: '#7dd3fc' },
+    { model: 8, name: 'Nutrição', specialty: 'Nutrição clínica', materialIcon: 'nutrition', clinicName: 'Nutri Vida', description: 'Áreas e convênios', accentLight: '#65a30d', accentDark: '#a3e635' },
   ];
 
   readonly demoForms: DemoForm[] = [
     {
       key: 'anamnese',
       title: 'Anamnese Clínica',
-      description: 'Ficha de anamnese geral para primeira consulta',
+      description: 'Ficha de anamnese geral para primeiro atendimento',
       fields: [
         { label: 'Nome completo', type: 'text', placeholder: 'Ex: Maria Fernanda Silva' },
         { label: 'Data de nascimento', type: 'date' },
         { label: 'Alergias conhecidas', type: 'textarea', placeholder: 'Descreva alergias a medicamentos, alimentos...' },
         { label: 'Medicamentos em uso', type: 'textarea', placeholder: 'Liste medicamentos e dosagens...' },
         { label: 'Possui plano de saúde?', type: 'select', options: ['Sim', 'Não'] },
-        { label: 'Motivo da consulta', type: 'textarea', placeholder: 'Descreva brevemente o motivo...' },
+        { label: 'Motivo do atendimento', type: 'textarea', placeholder: 'Descreva brevemente o motivo...' },
       ],
     },
     {
@@ -116,7 +133,7 @@ export class InicioComponent implements OnInit, AfterViewInit, OnDestroy {
       description: 'Consentimento informado para procedimentos',
       fields: [
         { label: 'Nome completo', type: 'text', placeholder: 'Nome conforme documento' },
-        { label: 'CPF', type: 'text', placeholder: '000.000.000-00' },
+        { label: 'CPF', type: 'cpf', placeholder: '000.000.000-00' },
         { label: 'Procedimento', type: 'select', options: ['Botox', 'Preenchimento', 'Peeling', 'Limpeza de pele', 'Outro'] },
         { label: 'Li e compreendi os riscos', type: 'checkbox' },
         { label: 'Assinatura', type: 'signature' },
@@ -136,32 +153,42 @@ export class InicioComponent implements OnInit, AfterViewInit, OnDestroy {
   ];
 
   readonly testimonials: Testimonial[] = [
-    { name: 'Dra. Camila Rêgo', clinic: 'Estética Avançada', specialty: 'Harmonização', text: 'Eliminamos 100% do papel na recepção. O paciente chega com a ficha pronta e a assinatura digital já feita.', initials: 'CR' },
+    { name: 'Dra. Camila Rêgo', clinic: 'Estética Avançada', specialty: 'Harmonização', text: 'Eliminamos 100% do papel na recepção. Quem chega já traz a ficha pronta e a assinatura digital feita.', initials: 'CR' },
     { name: 'Dr. Rafael Mendes', clinic: 'OdontoCenter', specialty: 'Odontologia', text: 'A equipe parou de perder tempo digitando fichas. Agora é tudo automático — do link no Instagram ao PDF no prontuário.', initials: 'RM' },
-    { name: 'Dra. Juliana Alves', clinic: 'Clínica Integrar', specialty: 'Psicologia', text: 'O contrato terapêutico digital é perfeito. O paciente assina antes da primeira sessão, sem constrangimento.', initials: 'JA' },
+    { name: 'Dra. Juliana Alves', clinic: 'Clínica Integrar', specialty: 'Psicologia', text: 'O contrato terapêutico digital é perfeito. A pessoa assina antes da primeira sessão, sem constrangimento.', initials: 'JA' },
   ];
 
   readonly howSteps = [
     { title: 'Crie seus formulários', desc: 'Escolha entre 86 templates ou crie do zero. Personaliza em minutos.', icon: 'edit_document' },
     { title: 'Publique no seu perfil', desc: 'Cole o link na bio do Instagram ou WhatsApp. No ar em segundos.', icon: 'link' },
-    { title: 'Paciente preenche antes', desc: 'Abre pelo celular, preenche e assina digitalmente.', icon: 'smartphone' },
+    { title: 'Cliente preenche antes', desc: 'Abre pelo celular, preenche e assina digitalmente.', icon: 'smartphone' },
     { title: 'PDF gerado na hora', desc: 'A ficha chega formatada em PDF, pronta para arquivar.', icon: 'picture_as_pdf' },
   ];
 
   private platformId: object;
+  private sanitizer = inject(DomSanitizer);
   private landingService = inject(LandingService);
   private router = inject(Router);
   private host = inject(ElementRef<HTMLElement>);
   private animObserver: IntersectionObserver | null = null;
   private animFallbackId: ReturnType<typeof setTimeout> | null = null;
   private heroInterval: ReturnType<typeof setInterval> | null = null;
+  /** Se o evento load do iframe não disparar (ex.: app Angular aninhado), libera a prévia. */
+  private previewIframeLoadFallbackId: ReturnType<typeof setTimeout> | null = null;
 
   constructor(@Inject(PLATFORM_ID) platformId: object) {
     this.platformId = platformId;
     const chips = [
-      '🩺 Clínica Geral', '✨ Estética', '🦷 Odontologia', '🧠 Psicologia',
-      '👶 Pediatria', '🐾 Veterinária', '💪 Fisioterapia', '👁️ Oftalmologia',
-      '🧬 Dermatologia', '🔬 Laboratório',
+      'Clínica Geral',
+      'Estética',
+      'Odontologia',
+      'Psicologia',
+      'Pediatria',
+      'Veterinária',
+      'Fisioterapia',
+      'Oftalmologia',
+      'Dermatologia',
+      'Laboratório',
     ];
     this.lpLogoMarquee = [
       ...chips.map((t, i) => ({ k: 'a' + i, t })),
@@ -171,7 +198,15 @@ export class InicioComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnInit(): void {
     if (isPlatformBrowser(this.platformId)) {
-      const saved = localStorage.getItem('zm-lp-theme') as 'dark' | 'light' | null;
+      let saved = localStorage.getItem('gestgo-lp-theme') as 'dark' | 'light' | null;
+      if (saved !== 'dark' && saved !== 'light') {
+        const legacy = localStorage.getItem('zm-lp-theme') as 'dark' | 'light' | null;
+        if (legacy === 'dark' || legacy === 'light') {
+          saved = legacy;
+          localStorage.setItem('gestgo-lp-theme', legacy);
+          localStorage.removeItem('zm-lp-theme');
+        }
+      }
       if (saved === 'dark' || saved === 'light') {
         this.lpTheme = saved;
       } else if (window.matchMedia('(prefers-color-scheme: light)').matches) {
@@ -209,11 +244,13 @@ export class InicioComponent implements OnInit, AfterViewInit, OnDestroy {
     });
 
     this.selectLayout(0);
+    this.initDemoFormValues();
   }
 
   ngAfterViewInit(): void {
     this.scheduleObserveAnims();
     if (isPlatformBrowser(this.platformId)) {
+      this.migrarHashLegadoLanding();
       this.heroInterval = setInterval(() => {
         this.heroSlide = (this.heroSlide + 1) % 3;
       }, 4000);
@@ -231,6 +268,21 @@ export class InicioComponent implements OnInit, AfterViewInit, OnDestroy {
       clearInterval(this.heroInterval);
       this.heroInterval = null;
     }
+    if (this.previewIframeLoadFallbackId != null) {
+      clearTimeout(this.previewIframeLoadFallbackId);
+      this.previewIframeLoadFallbackId = null;
+    }
+  }
+
+  /** Atualiza URL e rolagem quando o usuário abre links antigos (#features, #pricing, etc.). */
+  private migrarHashLegadoLanding(): void {
+    const hash = window.location.hash;
+    const next = LANDING_HASH_LEGACY[hash];
+    if (!next) return;
+    const { pathname, search } = window.location;
+    window.history.replaceState(null, '', `${pathname}${search}${next}`);
+    const id = next.slice(1);
+    document.getElementById(id)?.scrollIntoView({ behavior: 'auto', block: 'start' });
   }
 
   private scheduleObserveAnims(): void {
@@ -286,7 +338,8 @@ export class InicioComponent implements OnInit, AfterViewInit, OnDestroy {
   toggleLpTheme(): void {
     this.lpTheme = this.lpTheme === 'dark' ? 'light' : 'dark';
     if (isPlatformBrowser(this.platformId)) {
-      localStorage.setItem('zm-lp-theme', this.lpTheme);
+      localStorage.setItem('gestgo-lp-theme', this.lpTheme);
+      localStorage.removeItem('zm-lp-theme');
     }
   }
 
@@ -326,7 +379,7 @@ export class InicioComponent implements OnInit, AfterViewInit, OnDestroy {
   irComeceComPlano(plan: PlanoLanding, index: number): void {
     if (this.planos.length >= 3 && index === this.planos.length - 1) {
       if (isPlatformBrowser(this.platformId)) {
-        document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' });
+        document.getElementById('contato')?.scrollIntoView({ behavior: 'smooth' });
       }
       return;
     }
@@ -343,28 +396,162 @@ export class InicioComponent implements OnInit, AfterViewInit, OnDestroy {
 
   selectLayout(idx: number): void {
     this.selectedLayout = idx;
+    this.previewIframeLoading = true;
     this.generateQrCode();
+    this.syncPreviewIframe();
+  }
+
+  onPreviewIframeLoad(): void {
+    if (this.previewIframeLoadFallbackId != null) {
+      clearTimeout(this.previewIframeLoadFallbackId);
+      this.previewIframeLoadFallbackId = null;
+    }
+    this.previewIframeLoading = false;
+  }
+
+  private syncPreviewIframe(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+    if (this.previewIframeLoadFallbackId != null) {
+      clearTimeout(this.previewIframeLoadFallbackId);
+      this.previewIframeLoadFallbackId = null;
+    }
+    const layout = this.demoLayouts[this.selectedLayout];
+    const path = this.router.serializeUrl(
+      this.router.createUrlTree(['/l', 'demo', String(layout.model)], { queryParams: { embed: '1' } }),
+    );
+    const url = `${window.location.origin}${path}`;
+    this.previewIframeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(url);
+    this.previewIframeLoadFallbackId = setTimeout(() => {
+      this.previewIframeLoadFallbackId = null;
+      this.previewIframeLoading = false;
+    }, 3500);
   }
 
   selectForm(idx: number): void {
     this.selectedFormIdx = idx;
-    this.demoFormValues = {};
     this.demoFormSubmitted = false;
+    this.initDemoFormValues();
   }
 
   submitDemoForm(): void {
     this.demoFormSubmitted = true;
+    this.scrollLandingElementIntoView('lp-demo-form-card');
     setTimeout(() => {
       this.demoFormSubmitted = false;
-      this.demoFormValues = {};
+      this.initDemoFormValues();
     }, 3000);
+  }
+
+  /** Evita “sumir” o feedback quando a altura da página muda após enviar (demo ou contato). */
+  private scrollLandingElementIntoView(elementId: string): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+    setTimeout(() => {
+      document.getElementById(elementId)?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+        inline: 'nearest',
+      });
+    }, 0);
+  }
+
+  /** Valores iniciais por tipo (checkbox boolean, data string vazia para máscara dd/mm/aaaa). */
+  private initDemoFormValues(): void {
+    const form = this.demoForms[this.selectedFormIdx];
+    if (!form) {
+      this.demoFormValues = {};
+      return;
+    }
+    const next: Record<string, string | boolean> = {};
+    for (const f of form.fields) {
+      if (f.type === 'checkbox') {
+        next[f.label] = false;
+      } else if (f.type === 'date') {
+        next[f.label] = '';
+      } else {
+        next[f.label] = '';
+      }
+    }
+    this.demoFormValues = next;
+  }
+
+  /** Id estável do canvas de assinatura (demo landing), por índice do campo. */
+  signatureDemoCanvasId(idx: number): string {
+    return `lpdemo_sig_${this.selectedFormIdx}_${idx}`;
+  }
+
+  startDemoSignature(e: MouseEvent | TouchEvent, idx: number): void {
+    e.preventDefault();
+    const canvas = this.getDemoSignatureCanvas(idx);
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    ctx.strokeStyle = this.lpTheme === 'dark' ? '#d4c9bb' : '#1e1b18';
+    ctx.lineWidth = 2.2;
+    ctx.lineCap = 'round';
+    const pos = this.getDemoSignaturePoint(e, canvas);
+    ctx.beginPath();
+    ctx.moveTo(pos.x, pos.y);
+    (canvas as unknown as { _signing: boolean })._signing = true;
+  }
+
+  moveDemoSignature(e: MouseEvent | TouchEvent, idx: number): void {
+    e.preventDefault();
+    const canvas = this.getDemoSignatureCanvas(idx);
+    if (!canvas || !(canvas as unknown as { _signing?: boolean })._signing) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    const pos = this.getDemoSignaturePoint(e, canvas);
+    ctx.lineTo(pos.x, pos.y);
+    ctx.stroke();
+  }
+
+  endDemoSignature(idx: number): void {
+    const canvas = this.getDemoSignatureCanvas(idx);
+    const field = this.demoForms[this.selectedFormIdx]?.fields[idx];
+    if (canvas) {
+      (canvas as unknown as { _signing: boolean })._signing = false;
+      if (field) {
+        this.demoFormValues[field.label] = canvas.toDataURL('image/png');
+      }
+    }
+  }
+
+  clearDemoSignature(idx: number): void {
+    const canvas = this.getDemoSignatureCanvas(idx);
+    const field = this.demoForms[this.selectedFormIdx]?.fields[idx];
+    if (canvas) {
+      const ctx = canvas.getContext('2d');
+      if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+    if (field) {
+      this.demoFormValues[field.label] = '';
+    }
+  }
+
+  private getDemoSignatureCanvas(idx: number): HTMLCanvasElement | null {
+    if (!isPlatformBrowser(this.platformId)) return null;
+    return document.getElementById(this.signatureDemoCanvasId(idx)) as HTMLCanvasElement | null;
+  }
+
+  private getDemoSignaturePoint(e: MouseEvent | TouchEvent, canvas: HTMLCanvasElement): { x: number; y: number } {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    if (e instanceof TouchEvent && e.touches.length) {
+      return {
+        x: (e.touches[0].clientX - rect.left) * scaleX,
+        y: (e.touches[0].clientY - rect.top) * scaleY,
+      };
+    }
+    const me = e as MouseEvent;
+    return { x: (me.clientX - rect.left) * scaleX, y: (me.clientY - rect.top) * scaleY };
   }
 
   private generateQrCode(): void {
     if (!isPlatformBrowser(this.platformId)) return;
     const layout = this.demoLayouts[this.selectedLayout];
-    const baseUrl = window.location.origin;
-    const url = `${baseUrl}/l/demo-${layout.model}`;
+    const path = this.router.serializeUrl(this.router.createUrlTree(['/l', 'demo', String(layout.model)]));
+    const url = `${window.location.origin}${path}`;
     QRCode.toDataURL(url, {
       width: 160,
       margin: 1,
@@ -377,23 +564,6 @@ export class InicioComponent implements OnInit, AfterViewInit, OnDestroy {
     }).catch(() => {
       this.qrCodeDataUrl = '';
     });
-  }
-
-  formatarPhone(value: string): string {
-    const digits = (value || '').replace(/\D/g, '').slice(0, 11);
-    if (digits.length <= 2) return digits ? '(' + digits : '';
-    if (digits.length <= 7) return '(' + digits.slice(0, 2) + ') ' + digits.slice(2);
-    return '(' + digits.slice(0, 2) + ') ' + digits.slice(2, 7) + '-' + digits.slice(7);
-  }
-
-  onPhoneInput(e: Event): void {
-    const el = e.target as HTMLInputElement;
-    const start = el.selectionStart ?? 0;
-    const prevLen = el.value.length;
-    const digits = el.value.replace(/\D/g, '').slice(0, 11);
-    el.value = this.formatarPhone(digits);
-    const newLen = el.value.length;
-    el.setSelectionRange(start + (newLen - prevLen), start + (newLen - prevLen));
   }
 
   enviarDemonstracao(): void {
@@ -413,10 +583,12 @@ export class InicioComponent implements OnInit, AfterViewInit, OnDestroy {
         } else {
           this.demonstracaoFeedback = data.message || 'Não foi possível enviar. Tente novamente.';
         }
+        this.scrollLandingElementIntoView('lp-demo-contato-card');
       },
       error: () => {
         this.demonstracaoEnviando = false;
         this.demonstracaoFeedback = 'Erro de conexão. Você pode enviar direto pelo WhatsApp.';
+        this.scrollLandingElementIntoView('lp-demo-contato-card');
       },
     });
   }

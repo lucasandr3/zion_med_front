@@ -22,6 +22,7 @@
     "angularx-flatpickr": "^8.1.0",
     "flatpickr": "^4.6.13",
     "geist": "^1.7.0",
+    "ngx-mask": "^19.0.7",
     "postcss": "^8.5.8",
     "qrcode": "^1.5.4",
     "rxjs": "~7.8.0",

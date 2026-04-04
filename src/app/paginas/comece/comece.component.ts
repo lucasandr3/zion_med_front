@@ -3,6 +3,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { NgxMaskDirective } from 'ngx-mask';
 import { LandingService, PlanoLanding } from '../../core/services/landing.service';
 import { ComeceService } from '../../core/services/comece.service';
 import { AuthService } from '../../core/services/auth.service';
@@ -10,7 +11,7 @@ import { AuthService } from '../../core/services/auth.service';
 @Component({
   selector: 'app-pagina-comece',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule],
+  imports: [CommonModule, RouterLink, FormsModule, NgxMaskDirective],
   templateUrl: './comece.component.html',
   styleUrl: './comece.component.css',
 })
@@ -60,7 +61,15 @@ export class ComeceComponent implements OnInit {
 
   ngOnInit(): void {
     if (isPlatformBrowser(this.platformId)) {
-      const saved = localStorage.getItem('zm-lp-theme') as 'dark' | 'light' | null;
+      let saved = localStorage.getItem('gestgo-lp-theme') as 'dark' | 'light' | null;
+      if (saved !== 'dark' && saved !== 'light') {
+        const legacy = localStorage.getItem('zm-lp-theme') as 'dark' | 'light' | null;
+        if (legacy === 'dark' || legacy === 'light') {
+          saved = legacy;
+          localStorage.setItem('gestgo-lp-theme', legacy);
+          localStorage.removeItem('zm-lp-theme');
+        }
+      }
       if (saved === 'dark' || saved === 'light') {
         this.lpTheme = saved;
       } else if (window.matchMedia('(prefers-color-scheme: light)').matches) {
@@ -92,7 +101,8 @@ export class ComeceComponent implements OnInit {
   toggleLpTheme(): void {
     this.lpTheme = this.lpTheme === 'dark' ? 'light' : 'dark';
     if (isPlatformBrowser(this.platformId)) {
-      localStorage.setItem('zm-lp-theme', this.lpTheme);
+      localStorage.setItem('gestgo-lp-theme', this.lpTheme);
+      localStorage.removeItem('zm-lp-theme');
     }
   }
 

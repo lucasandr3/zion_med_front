@@ -2,8 +2,11 @@ import { Component, OnInit, OnDestroy, inject, PLATFORM_ID } from '@angular/core
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { LinkBioPublicLayoutsComponent } from '../link-bio-public/link-bio-public-layouts.component';
+import { LinkBioPublicLayoutGenericComponent } from '../link-bio-public/link-bio-public-layout-generic.component';
+import { LinkBioPublicLayoutVetComponent } from '../link-bio-public/link-bio-public-layout-vet.component';
+import { LinkBioPublicLayoutPediaComponent } from '../link-bio-public/link-bio-public-layout-pedia.component';
+import { LinkBioPublicLayoutNutriComponent } from '../link-bio-public/link-bio-public-layout-nutri.component';
 import type { LinkBioClinic, LinkBioLink, LinkBioPublicDocItem } from '../../core/services/link-bio.service';
-import type { LinkBioLayoutModel } from '../../core/services/link-bio.service';
 import { PublicPageBodyService } from '../../core/services/public-page-body.service';
 
 const MOCK_CLINICS: Record<number, Partial<LinkBioClinic> & { id: number; name: string; slug: string }> = {
@@ -14,6 +17,10 @@ const MOCK_CLINICS: Record<number, Partial<LinkBioClinic> & { id: number; name: 
     short_description: 'Clínica geral multidisciplinar',
     logo_url: null,
     cover_image_url: null,
+    /** Sem faixa hero — alinhado ao layout genérico “limpo” na prévia da landing */
+    cover_mode: 'none',
+    cover_color: null,
+    accent_hex: '#1e293b',
     phone: '11999999999',
     contact_email: 'contato@clinicasp.com.br',
     address: 'Rua Central, 45 · São Paulo, SP',
@@ -22,7 +29,16 @@ const MOCK_CLINICS: Record<number, Partial<LinkBioClinic> & { id: number; name: 
     link_bio_model: 1,
     link_bio_extra: {},
     specialties_list: ['Clínica Geral', 'Cardiologia', 'Endocrinologia'],
-    business_hours_grid: { '1': { label: 'Seg', text: '08:00–18:00' }, '2': { label: 'Ter', text: '08:00–18:00' }, '3': { label: 'Qua', text: '08:00–18:00' }, '4': { label: 'Qui', text: '08:00–18:00' }, '5': { label: 'Sex', text: '08:00–17:00' } },
+    business_hours_grid: {
+      '1': { label: 'Seg', text: '08:00–18:00' },
+      '2': { label: 'Ter', text: '08:00–18:00' },
+      '3': { label: 'Qua', text: '08:00–18:00' },
+      '4': { label: 'Qui', text: '08:00–18:00' },
+      '5': { label: 'Sex', text: '08:00–17:00' },
+      '6': { label: 'Sáb', text: '–' },
+      '7': { label: 'Dom', text: '–' },
+    },
+    founded_year: 2010,
   },
   2: {
     id: 9002,
@@ -94,13 +110,101 @@ const MOCK_CLINICS: Record<number, Partial<LinkBioClinic> & { id: number; name: 
     business_hours_grid: { '1': { label: 'Seg', text: '07:00–20:00' }, '2': { label: 'Ter', text: '07:00–20:00' }, '3': { label: 'Qua', text: '07:00–20:00' }, '4': { label: 'Qui', text: '07:00–20:00' }, '5': { label: 'Sex', text: '07:00–19:00' }, '6': { label: 'Sáb', text: '08:00–13:00' } },
     founded_year: 2018,
   },
+  6: {
+    id: 9006,
+    name: 'VetCare Animal',
+    slug: 'demo-6',
+    short_description: 'Clínica veterinária para cães e gatos',
+    logo_url: null,
+    cover_image_url: null,
+    phone: '11999999999',
+    contact_email: 'contato@vetcare.com.br',
+    address: 'Rua dos Bichos, 200 · São Paulo, SP',
+    maps_url: '#',
+    is_open_now: true,
+    link_bio_model: 6,
+    link_bio_extra: {},
+    specialties_list: ['Clínica Geral', 'Cirurgia'],
+    business_hours_grid: {
+      '1': { label: 'Seg', text: '09:00–19:00' },
+      '2': { label: 'Ter', text: '09:00–19:00' },
+      '3': { label: 'Qua', text: '09:00–19:00' },
+      '4': { label: 'Qui', text: '09:00–19:00' },
+      '5': { label: 'Sex', text: '09:00–18:00' },
+      '6': { label: 'Sáb', text: '09:00–14:00' },
+      '7': { label: 'Dom', text: '–' },
+    },
+    founded_year: 2014,
+  },
+  7: {
+    id: 9007,
+    name: 'Crescer Pediatria',
+    slug: 'demo-7',
+    short_description: 'Saúde infantil com carinho e evidência',
+    logo_url: null,
+    cover_image_url: null,
+    phone: '11999999999',
+    contact_email: 'contato@crescerpedia.com.br',
+    address: 'Alameda Infância, 88 · São Paulo, SP',
+    maps_url: '#',
+    is_open_now: true,
+    link_bio_model: 7,
+    link_bio_extra: {},
+    specialties_list: ['Pediatria', 'Puericultura'],
+    business_hours_grid: {
+      '1': { label: 'Seg', text: '08:00–18:00' },
+      '2': { label: 'Ter', text: '08:00–18:00' },
+      '3': { label: 'Qua', text: '08:00–18:00' },
+      '4': { label: 'Qui', text: '08:00–18:00' },
+      '5': { label: 'Sex', text: '08:00–17:00' },
+      '6': { label: 'Sáb', text: '08:00–12:00' },
+      '7': { label: 'Dom', text: '–' },
+    },
+    founded_year: 2016,
+  },
+  8: {
+    id: 9008,
+    name: 'Nutri Vida',
+    slug: 'demo-8',
+    short_description: 'Nutrição clínica e funcional',
+    logo_url: null,
+    cover_image_url: null,
+    phone: '11999999999',
+    contact_email: 'ola@nutrivida.com.br',
+    address: 'Rua Bem-Estar, 150 · São Paulo, SP',
+    maps_url: '#',
+    is_open_now: true,
+    link_bio_model: 8,
+    link_bio_extra: {},
+    specialties_list: ['Nutrição clínica', 'Emagrecimento', 'Esportiva'],
+    business_hours_grid: {
+      '1': { label: 'Seg', text: '09:00–19:00' },
+      '2': { label: 'Ter', text: '09:00–19:00' },
+      '3': { label: 'Qua', text: '09:00–19:00' },
+      '4': { label: 'Qui', text: '09:00–19:00' },
+      '5': { label: 'Sex', text: '09:00–18:00' },
+      '6': { label: 'Sáb', text: '–' },
+      '7': { label: 'Dom', text: '–' },
+    },
+    founded_year: 2019,
+  },
 };
 
 const MOCK_BIO_LINKS: LinkBioLink[] = [];
 
 const MOCK_DOCS: LinkBioPublicDocItem[] = [
-  { type: 'form', item: { id: 1, name: 'Ficha de Anamnese', public_url: '#' } },
-  { type: 'form', item: { id: 2, name: 'Termo de Consentimento', public_url: '#' } },
+  {
+    type: 'form',
+    item: { id: 1, name: 'Ficha de Anamnese', public_url: 'https://gestgo.com.br/f/demo-anamnese' },
+  },
+  {
+    type: 'form',
+    item: { id: 2, name: 'Termo de Consentimento', public_url: 'https://gestgo.com.br/f/demo-consentimento' },
+  },
+  {
+    type: 'form',
+    item: { id: 3, name: 'Pesquisa de Satisfação', public_url: 'https://gestgo.com.br/f/demo-pesquisa' },
+  },
 ];
 
 @Component({
@@ -109,46 +213,36 @@ const MOCK_DOCS: LinkBioPublicDocItem[] = [
   imports: [
     CommonModule,
     RouterLink,
+    LinkBioPublicLayoutGenericComponent,
     LinkBioPublicLayoutsComponent,
+    LinkBioPublicLayoutVetComponent,
+    LinkBioPublicLayoutPediaComponent,
+    LinkBioPublicLayoutNutriComponent,
   ],
   template: `
-    <div class="demo-banner">
-      <div class="demo-banner-inner">
-        <span class="demo-badge">DEMONSTRAÇÃO</span>
-        <span>Esta é uma página de exemplo do Gestgo.</span>
-        <a routerLink="/" class="demo-back">← Voltar ao site</a>
+    @if (!embedMode) {
+      <div class="demo-banner">
+        <div class="demo-banner-inner">
+          <span class="demo-badge">DEMONSTRAÇÃO</span>
+          <span>Esta é uma página de exemplo do Gestgo.</span>
+          <a routerLink="/" class="demo-back">← Voltar ao site</a>
+        </div>
       </div>
-    </div>
+    }
 
     @if (clinic) {
       @switch (modelNum) {
         @case (1) {
-          <div class="lb-public-root" [class.dark]="dark">
-            <div class="lb-topbar">
-              <button type="button" (click)="toggleDark()" class="lb-tb-btn" aria-label="Alternar tema">🌓</button>
-            </div>
-            <div class="lb-cover-wrap">
-              <div class="lb-cover-img lb-cover-default"></div>
-            </div>
-            <div class="lb-avatar-wrap">
-              <div class="lb-avatar">{{ clinic.name!.charAt(0) }}</div>
-            </div>
-            <div class="lb-content">
-              <h1 class="lb-name">{{ clinic.name }}</h1>
-              <p class="lb-desc" *ngIf="clinic.short_description">{{ clinic.short_description }}</p>
-              <div class="lb-links">
-                @for (doc of allDocs; track $index) {
-                  <div class="lb-link-item">
-                    <span class="lb-link-icon">📋</span>
-                    <div class="lb-link-body">
-                      <span class="lb-link-title">{{ $any(doc.item).name }}</span>
-                      <span class="lb-link-sub">Preenchimento online</span>
-                    </div>
-                  </div>
-                }
-              </div>
-            </div>
-          </div>
+          <app-link-bio-public-layout-generic
+            [clinic]="clinic"
+            [allLinks]="allDocs"
+            [publicSlug]="clinic.slug!"
+            [linkBioPreview]="false"
+            [dark]="dark"
+            [embedMode]="embedMode"
+            (toggleDark)="toggleDark()"
+            (share)="onShare()"
+          />
         }
         @case (2) {
           <app-link-bio-public-layouts
@@ -178,6 +272,27 @@ const MOCK_DOCS: LinkBioPublicDocItem[] = [
             [dark]="dark" (toggleDark)="toggleDark()" (share)="onShare()"
           />
         }
+        @case (6) {
+          <app-link-bio-public-layout-vet
+            [clinic]="clinic" [bioLinks]="bioLinks" [allDocs]="allDocs"
+            [publicSlug]="clinic.slug!" [linkBioPreview]="false"
+            [dark]="dark" (toggleDark)="toggleDark()" (share)="onShare()"
+          />
+        }
+        @case (7) {
+          <app-link-bio-public-layout-pedia
+            [clinic]="clinic" [bioLinks]="bioLinks" [allDocs]="allDocs"
+            [publicSlug]="clinic.slug!" [linkBioPreview]="false"
+            [dark]="dark" (toggleDark)="toggleDark()" (share)="onShare()"
+          />
+        }
+        @case (8) {
+          <app-link-bio-public-layout-nutri
+            [clinic]="clinic" [bioLinks]="bioLinks" [allDocs]="allDocs"
+            [publicSlug]="clinic.slug!" [linkBioPreview]="false"
+            [dark]="dark" (toggleDark)="toggleDark()" (share)="onShare()"
+          />
+        }
         @default {
           <div style="text-align: center; padding: 100px 24px; color: #888">
             Layout não encontrado. <a routerLink="/" style="color: #3b82f6">Voltar ao site</a>
@@ -196,29 +311,13 @@ const MOCK_DOCS: LinkBioPublicDocItem[] = [
     .demo-banner-inner { max-width: 600px; margin: 0 auto; display: flex; align-items: center; gap: 10px; justify-content: center; flex-wrap: wrap; }
     .demo-badge { font-size: 10px; font-weight: 700; background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 4px; letter-spacing: 0.05em; }
     .demo-back { color: #fff; text-decoration: underline; text-underline-offset: 2px; font-weight: 500; }
-    .lb-public-root { padding-top: 40px; min-height: 100vh; background: #09090b; color: #fafafa; }
-    .lb-public-root.dark { background: #09090b; color: #fafafa; }
-    .lb-topbar { display: flex; justify-content: flex-end; padding: 12px 16px; }
-    .lb-tb-btn { background: none; border: none; font-size: 16px; cursor: pointer; padding: 6px; border-radius: 8px; }
-    .lb-cover-wrap { max-width: 500px; margin: 0 auto; padding: 0 16px; }
-    .lb-cover-default { height: 80px; background: linear-gradient(135deg, #0b1628, #1a2540); border-radius: 16px; margin-bottom: -20px; }
-    .lb-avatar-wrap { max-width: 500px; margin: 0 auto; padding: 0 16px; }
-    .lb-avatar { width: 48px; height: 48px; border-radius: 14px; background: #3b82f6; border: 3px solid #09090b; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 800; color: #fff; position: relative; z-index: 2; }
-    .lb-content { max-width: 500px; margin: 0 auto; padding: 16px 16px 40px; }
-    .lb-name { font-size: 20px; font-weight: 700; margin: 10px 0 4px; }
-    .lb-desc { font-size: 13px; color: #a1a1aa; margin-bottom: 20px; }
-    .lb-links { display: flex; flex-direction: column; gap: 8px; }
-    .lb-link-item { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; cursor: pointer; }
-    .lb-link-item:hover { border-color: rgba(255,255,255,0.2); }
-    .lb-link-icon { font-size: 18px; }
-    .lb-link-body { flex: 1; }
-    .lb-link-title { font-size: 13px; font-weight: 600; display: block; }
-    .lb-link-sub { font-size: 11px; color: #52525b; display: block; }
   `],
 })
 export class DemoLinkBioComponent implements OnInit, OnDestroy {
   clinic: LinkBioClinic | null = null;
   modelNum = 1;
+  /** Oculta faixa fixa quando aberto dentro do iframe da landing (query embed=1) */
+  embedMode = false;
   dark = true;
   bioLinks = MOCK_BIO_LINKS;
   allDocs = MOCK_DOCS;
@@ -229,9 +328,10 @@ export class DemoLinkBioComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.publicPageBody.enterPublicPage();
+    this.embedMode = this.route.snapshot.queryParamMap.get('embed') === '1';
     const modelParam = this.route.snapshot.paramMap.get('model') ?? '1';
     this.modelNum = parseInt(modelParam, 10) || 1;
-    if (this.modelNum < 1 || this.modelNum > 5) this.modelNum = 1;
+    if (this.modelNum < 1 || this.modelNum > 8) this.modelNum = 1;
 
     const mock = MOCK_CLINICS[this.modelNum];
     if (mock) {

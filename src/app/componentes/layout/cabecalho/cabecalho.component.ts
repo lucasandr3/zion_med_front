@@ -8,7 +8,7 @@ import { SidebarMobileService } from '../../../core/services/sidebar-mobile.serv
 import { TooltipDirective } from '../../../core/directives/tooltip.directive';
 
 export const TEMAS: { key: string; label: string; labelPt: string; color: string }[] = [
-  { key: 'zion-blue', label: 'Zion Blue', labelPt: 'Azul royal', color: '#1e40af' },
+  { key: 'zion-blue', label: 'Royal blue', labelPt: 'Azul royal', color: '#1e40af' },
   { key: 'ocean-blue', label: 'Ocean Blue', labelPt: 'Azul oceano', color: '#1d4ed8' },
   { key: 'indigo-night', label: 'Indigo Night', labelPt: 'Anil', color: '#3730a3' },
   { key: 'emerald-fresh', label: 'Emerald Fresh', labelPt: 'Esmeralda', color: '#15803d' },

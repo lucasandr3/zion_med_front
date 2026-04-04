@@ -2,6 +2,7 @@ import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideFlatpickrDefaults } from 'angularx-flatpickr';
+import { provideEnvironmentNgxMask } from 'ngx-mask';
 import { Portuguese } from 'flatpickr/dist/l10n/pt';
 
 import { routes } from './app.routes';
@@ -20,6 +21,10 @@ export const appConfig: ApplicationConfig = {
       allowInput: true,
       disableMobile: true,
       static: true,
+    }),
+    provideEnvironmentNgxMask({
+      validation: false,
+      dropSpecialCharacters: false,
     }),
   ],
 };

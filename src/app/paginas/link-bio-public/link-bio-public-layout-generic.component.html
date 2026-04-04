@@ -1,0 +1,177 @@
+<div class="page" [class.dark]="dark" [class.page-embed]="embedMode" [ngStyle]="themeVars()">
+  <div class="topbar" [class.topbar-no-cover]="!hasCover">
+    <button type="button" class="icon-pill" (click)="onToggleDark()" aria-label="Alternar tema">
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
+      </svg>
+    </button>
+    <button type="button" class="icon-pill" (click)="onShare()" aria-label="Compartilhar">
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="18" cy="5" r="3" />
+        <circle cx="6" cy="12" r="3" />
+        <circle cx="18" cy="19" r="3" />
+        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+        <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+      </svg>
+    </button>
+  </div>
+
+  @if (hasCover) {
+    <div class="cover">
+      @if (coverMode === 'banner' && hasCoverImage && clinic.cover_image_url) {
+        <img [src]="clinic.cover_image_url" [alt]="clinic.name" class="cover-img" />
+      } @else {
+        <div class="cover-fill" [ngStyle]="coverStyle()"></div>
+      }
+      <div class="cover-pattern"></div>
+      <div class="cover-line"></div>
+    </div>
+  }
+
+  <div class="content">
+    <div class="avatar-wrap" [class.avatar-over-cover]="hasCover">
+      @if (clinic.logo_url) {
+        <img [src]="clinic.logo_url" [alt]="clinic.name" class="avatar-img" />
+      } @else {
+        <div class="avatar-fallback">{{ clinicInitials }}</div>
+      }
+    </div>
+
+    <div class="head">
+      <h1>{{ clinic.name }}</h1>
+      @if (clinic.short_description) {
+        <p class="subtitle">{{ clinic.short_description }}</p>
+      }
+    </div>
+
+    <div class="meta">
+      @if (clinic.specialties_list?.length) {
+        <span class="chip">{{ clinic.specialties_list![0] }}</span>
+      } @else {
+        <span class="chip">Clínica</span>
+      }
+      @if (clinic.is_open_now !== null && clinic.is_open_now !== undefined) {
+        <span class="status" [class.closed]="!clinic.is_open_now">
+          <span class="dot" [class.closed]="!clinic.is_open_now"></span>
+          {{ clinic.is_open_now ? 'Aberta agora' : 'Fechada agora' }}
+        </span>
+      }
+      @if (clinic.founded_year) {
+        <span class="meta-year">Desde {{ clinic.founded_year }}</span>
+      }
+    </div>
+
+    <div class="divider"></div>
+
+    @if (clinic.phone) {
+      <a [href]="whatsappUrl()" target="_blank" rel="noopener noreferrer" class="btn-wa">
+        <svg class="wa-icon" viewBox="0 0 24 24" fill="currentColor">
+          <path
+            d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413z"
+          />
+          <path
+            d="M12 0C5.373 0 0 5.373 0 12c0 2.108.549 4.09 1.508 5.814L0 24l6.335-1.489A11.926 11.926 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zM12 22c-1.89 0-3.663-.5-5.198-1.375l-.372-.22-3.862.908.979-3.763-.242-.386A9.944 9.944 0 012 12C2 6.486 6.486 2 12 2s10 4.486 10 10-4.486 10-10 10z"
+          />
+        </svg>
+        Falar pelo WhatsApp
+      </a>
+    }
+
+    @if (clinic.maps_url || clinic.contact_email) {
+      <div class="secondary">
+        @if (clinic.maps_url) {
+          <a [href]="clinic.maps_url" target="_blank" rel="noopener noreferrer" class="sec-btn">
+            <svg class="sec-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" />
+              <circle cx="12" cy="10" r="3" />
+            </svg>
+            Como chegar
+          </a>
+        }
+        @if (clinic.contact_email) {
+          <a [href]="'mailto:' + clinic.contact_email" class="sec-btn">
+            <svg class="sec-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+              <polyline points="22,6 12,13 2,6" />
+            </svg>
+            Contato
+          </a>
+        }
+      </div>
+    }
+
+    @if (hasAnyHour) {
+      <div class="hours">
+        <p class="section-title">Horário de funcionamento</p>
+        <div class="hour-row">
+          <span class="hour-label strong">Segunda a Sexta</span>
+          <span class="hour-value">{{ weekdayHoursText }}</span>
+        </div>
+        <div class="hour-row muted-row">
+          <span class="hour-label">Sábado e Domingo</span>
+          <span class="hour-value muted-value">{{ weekendHoursText }}</span>
+        </div>
+      </div>
+    }
+
+    @if (allLinks.length) {
+      <div class="docs">
+        <div class="docs-head">
+          <p class="section-title">Documentos</p>
+          <div class="line"></div>
+        </div>
+        <p class="docs-sub">Preencha antes do seu atendimento ou procedimento</p>
+
+        @for (link of allLinks; track trackDoc($index, link)) {
+          @if (link.type === 'bio') {
+            <a [href]="hrefBioLink(link.item)" target="_blank" rel="noopener noreferrer" class="doc-card">
+              <div class="doc-icon-wrap">
+                <svg class="doc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+                  <polyline points="14 2 14 8 20 8" />
+                  <line x1="16" y1="13" x2="8" y2="13" />
+                  <line x1="16" y1="17" x2="8" y2="17" />
+                </svg>
+              </div>
+              <div class="doc-text">
+                <p class="doc-title">{{ link.item.label }}</p>
+                <p class="doc-sub">Abrir documento</p>
+              </div>
+              <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9 18 15 12 9 6" />
+              </svg>
+            </a>
+          } @else {
+            <a [routerLink]="['/f', formToken(link.item)]" class="doc-card">
+              <div class="doc-icon-wrap">
+                <svg class="doc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+                  <polyline points="14 2 14 8 20 8" />
+                  <line x1="12" y1="18" x2="12" y2="12" />
+                  <line x1="9" y1="15" x2="15" y2="15" />
+                </svg>
+              </div>
+              <div class="doc-text">
+                <p class="doc-title">{{ link.item.name }}</p>
+                <p class="doc-sub">Preenchimento online</p>
+              </div>
+              <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9 18 15 12 9 6" />
+              </svg>
+            </a>
+          }
+        }
+      </div>
+    } @else {
+      <p class="muted empty">Nenhum link disponível no momento.</p>
+    }
+
+    <div class="footer">
+      <span class="dot-static"></span>
+      <span class="muted">Fichas digitais por</span>
+      <a href="https://gestgo.com.br" target="_blank" rel="noopener noreferrer">Gestgo</a>
+      <span class="muted">·</span>
+      <a routerLink="/privacidade" target="_blank" rel="noopener noreferrer" class="muted">Privacidade</a>
+    </div>
+  </div>
+</div>

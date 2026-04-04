@@ -48,7 +48,7 @@ export class LinkBioPublicLayoutsComponent {
 
   get clinicInitials(): string {
     const name = this.clinic.name?.trim() ?? '';
-    if (!name) return 'ZM';
+    if (!name) return 'GG';
     const parts = name.split(/\s+/).filter(Boolean);
     if (parts.length === 1) return parts[0]!.slice(0, 2).toUpperCase();
     return (parts[0]!.charAt(0) + parts[1]!.charAt(0)).toUpperCase();
