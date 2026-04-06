@@ -65,6 +65,7 @@
     (function(){
       try {
         var theme = localStorage.getItem('gestgo_theme') || 'ocean-blue';
+        if (theme === 'zion-blue') theme = 'gestgo-blue';
         Array.from(document.body.classList).filter(function(c){ return c.startsWith('theme-'); }).forEach(function(c){ document.body.classList.remove(c); });
         document.body.classList.add('theme-' + theme);
         if (localStorage.getItem('gestgo_dark_mode') === '1') document.body.classList.add('dark');

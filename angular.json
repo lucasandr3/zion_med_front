@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "zion_med_front": {
+    "gestgo_front": {
       "projectType": "application",
       "schematics": {},
       "root": "",
@@ -13,7 +13,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "outputPath": "dist/zion_med_front",
+            "outputPath": "dist/gestgo_front",
             "index": "src/index.html",
             "browser": "src/main.ts",
             "polyfills": [
@@ -79,10 +79,10 @@
           },
           "configurations": {
             "production": {
-              "buildTarget": "zion_med_front:build:production"
+              "buildTarget": "gestgo_front:build:production"
             },
             "development": {
-              "buildTarget": "zion_med_front:build:development"
+              "buildTarget": "gestgo_front:build:development"
             }
           },
           "defaultConfiguration": "development"

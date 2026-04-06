@@ -410,7 +410,7 @@
               </div>
               <div class="section-body">
                 <p style="font-size:13px;color:var(--c-muted);margin-bottom:16px">
-                  O sistema gera automaticamente o nome da instância (<code style="font-size:12px">zion_org_</code> + id da empresa) e um token (UUID) antes de registrar na Evolution Go — necessário em ambientes onde a API não gera o token sozinha.
+                  O sistema gera automaticamente o nome da instância (<code style="font-size:12px">gestgo_org_</code> + id da empresa) e um token (UUID) antes de registrar na Evolution Go — necessário em ambientes onde a API não gera o token sozinha.
                 </p>
                 <button type="button" class="btn-primary inline-flex items-center gap-2" (click)="criarInstanciaWhatsapp()" [disabled]="waCriandoInstancia">
                   @if (waCriandoInstancia) {
@@ -541,7 +541,7 @@
                 </div>
                 <div class="field" style="margin-bottom:16px">
                   <label for="wa-test-text">Texto <span class="opt">opcional</span></label>
-                  <textarea id="wa-test-text" class="form-input" rows="2" [(ngModel)]="waTestText" name="waTestText" placeholder="Mensagem de teste — Zion Med"></textarea>
+                  <textarea id="wa-test-text" class="form-input" rows="2" [(ngModel)]="waTestText" name="waTestText" placeholder="Mensagem de teste — Gestgo"></textarea>
                 </div>
                 <button type="button" class="btn-primary inline-flex items-center gap-2" (click)="enviarTesteWhatsapp()" [disabled]="waTestEnviando">
                   @if (waTestEnviando) {

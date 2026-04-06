@@ -121,6 +121,8 @@
 }
 
 /* Temas claro — primary/accent com contraste WCAG AA mínimo 4.5:1 em fundo branco */
+/* Canônico: gestgo-blue (zion-blue mantido como alias legado — mesmas variáveis) */
+.theme-gestgo-blue,
 .theme-zion-blue     { --c-primary: #1e40af; --c-accent: #2563eb; --c-focus: rgba(30,64,175,.18); }
 .theme-ocean-blue    { --c-primary: #1d4ed8; --c-accent: #3b82f6; --c-focus: rgba(29,78,216,.18); }
 .theme-indigo-night  { --c-primary: #3730a3; --c-accent: #4f46e5; --c-focus: rgba(55,48,163,.18); }
@@ -176,6 +178,7 @@
 }
 
 /* Cada tema ajusta primary/accent/focus no dark — shade-400/300 para luminosidade adequada */
+.dark.theme-gestgo-blue,
 .dark.theme-zion-blue     { --c-primary: #60a5fa; --c-accent: #93c5fd; --c-focus: rgba(96,165,250,.2); }
 .dark.theme-ocean-blue    { --c-primary: #3b82f6; --c-accent: #60a5fa; --c-focus: rgba(59,130,246,.2); }
 .dark.theme-indigo-night  { --c-primary: #818cf8; --c-accent: #a5b4fc; --c-focus: rgba(129,140,248,.2); }

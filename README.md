@@ -1,59 +1,53 @@
-# Gestgo — front-end
+# Gestgo — front-end (Angular)
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.15.
+SPA do produto **Gestgo**, gerado com [Angular CLI](https://github.com/angular/angular-cli). Nome do projeto Angular: **`gestgo_front`** (artefatos em `dist/gestgo_front`).
 
-## Development server
+## Requisitos
 
-To start a local development server, run:
+- Node.js LTS (compatível com o `package.json`)
+- npm
 
-```bash
-ng serve
-```
-
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+## Setup
 
 ```bash
-ng generate component component-name
+npm install
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+## Variáveis de ambiente
+
+Edite `src/environments/environment.ts` (dev) e `environment.prod.ts` (produção):
+
+| Campo   | Exemplo dev              | Observação        |
+|---------|--------------------------|-------------------|
+| `apiUrl` | `http://zion_med.test` ou `http://localhost:8000` | URL base da API Laravel, **sem** `/api/v1` no final |
+
+O proxy de desenvolvimento está em `proxy.conf.json` (recomendado alinhar com o host da API).
+
+## Desenvolvimento
 
 ```bash
-ng generate --help
+npm start
+# ou: ng serve --host 0.0.0.0
 ```
 
-## Building
+Abra `http://localhost:4200/`.
 
-To build the project run:
+## Build
 
 ```bash
-ng build
+npm run build        # development
+npm run build:prod   # produção → dist/gestgo_front/browser
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+## Docker
 
-## Running unit tests
+O `Dockerfile` copia `dist/gestgo_front/browser` para Nginx. O build da imagem deve rodar `npm run build:prod` antes (já incluído no estágio `build`).
 
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+## Tema
 
-```bash
-ng test
-```
+O tema corporativo padrão é **`gestgo-blue`** (classe `theme-gestgo-blue`). Valores antigos `zion-blue` no `localStorage` são normalizados para `gestgo-blue` (ver `user-appearance.sync.ts`).
 
-## Running end-to-end tests
+## Testes
 
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+- Unitários: `npm test`
+- E2E (Playwright): `npx playwright test` (com app em `localhost:4200`)

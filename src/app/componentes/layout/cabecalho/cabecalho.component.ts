@@ -6,9 +6,10 @@ import { AuthService } from '../../../core/services/auth.service';
 import { UserAppearanceService } from '../../../core/services/user-appearance.service';
 import { SidebarMobileService } from '../../../core/services/sidebar-mobile.service';
 import { TooltipDirective } from '../../../core/directives/tooltip.directive';
+import { normalizeThemeKey } from '../../../core/services/user-appearance.sync';
 
 export const TEMAS: { key: string; label: string; labelPt: string; color: string }[] = [
-  { key: 'zion-blue', label: 'Royal blue', labelPt: 'Azul royal', color: '#1e40af' },
+  { key: 'gestgo-blue', label: 'Royal blue', labelPt: 'Azul Gestgo', color: '#1e40af' },
   { key: 'ocean-blue', label: 'Ocean Blue', labelPt: 'Azul oceano', color: '#1d4ed8' },
   { key: 'indigo-night', label: 'Indigo Night', labelPt: 'Anil', color: '#3730a3' },
   { key: 'emerald-fresh', label: 'Emerald Fresh', labelPt: 'Esmeralda', color: '#15803d' },
@@ -23,7 +24,7 @@ export const TEMAS: { key: string; label: string; labelPt: string; color: string
 
 /** Ordem na grade 6+5 (alinhada ao painel visual de referência). */
 const TEMAS_GRADE_ORDER = [
-  'zion-blue',
+  'gestgo-blue',
   'indigo-night',
   'rose-elegant',
   'violet-dream',
@@ -110,10 +111,10 @@ export class CabecalhoComponent implements OnInit, OnDestroy {
   private syncTemaControlsFromBrowser(): void {
     try {
       const saved = localStorage.getItem('gestgo_theme');
-      if (saved) this.temaAtual = saved;
+      if (saved) this.temaAtual = normalizeThemeKey(saved);
       else {
         const m = document.body.className.match(/theme-([a-z-]+)/);
-        if (m) this.temaAtual = m[1];
+        if (m) this.temaAtual = normalizeThemeKey(m[1]);
       }
       this.modoEscuro = document.body.classList.contains('dark') || localStorage.getItem('gestgo_dark_mode') === '1';
     } catch {}
@@ -154,15 +155,16 @@ export class CabecalhoComponent implements OnInit, OnDestroy {
   }
 
   aplicarTema(key: string): void {
+    const canonical = normalizeThemeKey(key);
     const list = Array.from(document.body.classList).filter((c) => c.startsWith('theme-'));
     list.forEach((c) => document.body.classList.remove(c));
-    document.body.classList.add('theme-' + key);
-    this.temaAtual = key;
+    document.body.classList.add('theme-' + canonical);
+    this.temaAtual = canonical;
     try {
-      localStorage.setItem('gestgo_theme', key);
+      localStorage.setItem('gestgo_theme', canonical);
     } catch {}
     if (this.auth.isAuthenticated()) {
-      this.appearance.patchAppearance({ ui_theme: key }).subscribe({ error: () => {} });
+      this.appearance.patchAppearance({ ui_theme: canonical }).subscribe({ error: () => {} });
     }
   }
 }
