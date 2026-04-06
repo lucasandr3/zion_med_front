@@ -383,8 +383,12 @@
 }
 
 .hour-label.strong {
-  color: #e5e7eb;
+  color: #374151;
   font-weight: 700;
+}
+
+.page.dark .hour-label.strong {
+  color: #e5e7eb;
 }
 
 .hour-value {

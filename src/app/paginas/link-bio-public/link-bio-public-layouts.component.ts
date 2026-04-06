@@ -144,6 +144,19 @@ export class LinkBioPublicLayoutsComponent {
     return Math.max(0, this.teamM5.length - 3);
   }
 
+  /** Modelo 5: lista colapsada (3) ou expandida (até 8). */
+  teamExpanded = false;
+
+  get visibleTeamM5(): { name: string; credential?: string; notes?: string; whatsapp?: string }[] {
+    const t = this.teamM5;
+    if (t.length <= 3) return t;
+    return this.teamExpanded ? t.slice(0, 8) : t.slice(0, 3);
+  }
+
+  toggleTeamExpanded(): void {
+    this.teamExpanded = !this.teamExpanded;
+  }
+
   initialsFromName(name: string): string {
     const p = name.trim().split(/\s+/).filter(Boolean);
     if (!p.length) return '?';
