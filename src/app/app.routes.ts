@@ -5,7 +5,6 @@ import { permissionGuard } from './core/guards/permission.guard';
 import { canSwitchOrganizationGuard } from './core/guards/can-switch-organization.guard';
 
 export const routes: Routes = [
-  { path: '', loadComponent: () => import('./paginas/inicio/inicio.component').then(m => m.InicioComponent) },
   { path: 'autenticacao', loadComponent: () => import('./paginas/login/login.component').then(m => m.LoginComponent) },
   { path: 'esqueci-a-senha', loadComponent: () => import('./paginas/auth/esqueci-senha.component').then(m => m.EsqueciSenhaComponent) },
   { path: 'redefinir-senha', loadComponent: () => import('./paginas/auth/redefinir-senha.component').then(m => m.RedefinirSenhaComponent) },
@@ -23,6 +22,7 @@ export const routes: Routes = [
     loadComponent: () => import('./componentes/layout/layout-app/layout-app.component').then(m => m.LayoutAppComponent),
     canActivate: [authGuard],
     children: [
+      { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
       { path: 'dashboard', canActivate: [permissionGuard], loadComponent: () => import('./paginas/dashboard/dashboard.component').then(m => m.DashboardComponent), data: { titulo: 'Painel', permission: 'dashboard.access' } },
       { path: 'billing', redirectTo: 'assinatura', pathMatch: 'full' },
       {
