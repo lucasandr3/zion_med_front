@@ -14,7 +14,6 @@ import { FormsModule } from '@angular/forms';
 import { NgxMaskDirective } from 'ngx-mask';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { environment } from '../../../environments/environment';
-import { loginPlataformaHref } from '../../core/util/plataforma-url';
 import {
   LandingService,
   PlanoLanding,
@@ -74,9 +73,6 @@ interface Testimonial {
   styleUrl: './inicio.component.css',
 })
 export class InicioComponent implements OnInit, AfterViewInit, OnDestroy {
-  /** Login no app (absoluto em produção quando a landing fica em outro domínio). */
-  readonly urlLoginPlataforma = loginPlataformaHref();
-
   ano = new Date().getFullYear();
   lpTheme: 'dark' | 'light' = 'dark';
   menuAberto = false;

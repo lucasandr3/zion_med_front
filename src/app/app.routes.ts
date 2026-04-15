@@ -3,14 +3,9 @@ import { authGuard } from './core/guards/auth.guard';
 import { platformGuard } from './core/guards/platform.guard';
 import { permissionGuard } from './core/guards/permission.guard';
 import { canSwitchOrganizationGuard } from './core/guards/can-switch-organization.guard';
-import { skipLandingOnAppHostGuard } from './core/guards/skip-landing-on-app-host.guard';
 
 export const routes: Routes = [
-  {
-    path: '',
-    canActivate: [skipLandingOnAppHostGuard],
-    loadComponent: () => import('./paginas/inicio/inicio.component').then(m => m.InicioComponent),
-  },
+  { path: '', loadComponent: () => import('./paginas/inicio/inicio.component').then(m => m.InicioComponent) },
   { path: 'autenticacao', loadComponent: () => import('./paginas/login/login.component').then(m => m.LoginComponent) },
   { path: 'esqueci-a-senha', loadComponent: () => import('./paginas/auth/esqueci-senha.component').then(m => m.EsqueciSenhaComponent) },
   { path: 'redefinir-senha', loadComponent: () => import('./paginas/auth/redefinir-senha.component').then(m => m.RedefinirSenhaComponent) },
