@@ -7,6 +7,7 @@ import { NgxMaskDirective } from 'ngx-mask';
 import { LandingService, PlanoLanding } from '../../core/services/landing.service';
 import { ComeceService } from '../../core/services/comece.service';
 import { AuthService } from '../../core/services/auth.service';
+import { loginPlataformaHref } from '../../core/util/plataforma-url';
 
 @Component({
   selector: 'app-pagina-comece',
@@ -16,6 +17,8 @@ import { AuthService } from '../../core/services/auth.service';
   styleUrl: './comece.component.css',
 })
 export class ComeceComponent implements OnInit {
+  readonly urlLoginPlataforma = loginPlataformaHref();
+
   planos: PlanoLanding[] = [];
   diasTrial = 14;
   carregandoPlanos = true;
