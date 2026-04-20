@@ -354,7 +354,17 @@ export class InicioComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   isPlanoRecomendado(index: number): boolean {
+    if (this.planos.length === 1) {
+      return index === 0;
+    }
     return this.planos.length >= 2 && index === 1;
+  }
+
+  planoTemApiWebhooks(index: number): boolean {
+    if (this.planos.length === 1) {
+      return index === 0;
+    }
+    return this.isPlanoRecomendado(index) || index >= 1;
   }
 
   isPlanoGratis(plan: PlanoLanding): boolean {
