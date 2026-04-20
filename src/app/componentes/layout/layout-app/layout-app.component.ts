@@ -1,4 +1,5 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, HostListener, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { Router, RouterLink, RouterOutlet, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs';
 import { BarraLateralComponent } from '../barra-lateral/barra-lateral.component';
@@ -8,6 +9,7 @@ import { NotificacoesService } from '../../../core/services/notificacoes.service
 import { SidebarMobileService } from '../../../core/services/sidebar-mobile.service';
 import { BillingBlockedStateService } from '../../../core/services/billing-blocked-state.service';
 import { AuthService, TrialNotice } from '../../../core/services/auth.service';
+import { OrganizationPresenceService } from '../../../core/services/organization-presence.service';
 import { ZmAssinaturaBloqueadaCardComponent } from '../../../shared/components/ui/zm-assinatura-bloqueada-card/zm-assinatura-bloqueada-card.component';
 import type { AppBreadcrumb } from '../cabecalho/cabecalho.component';
 
@@ -37,6 +39,16 @@ export class LayoutAppComponent implements OnInit {
   private sidebarMobile = inject(SidebarMobileService);
   private auth = inject(AuthService);
   private billingBlockedState = inject(BillingBlockedStateService);
+  private organizationPresence = inject(OrganizationPresenceService);
+  private platformId = inject(PLATFORM_ID);
+
+  @HostListener('window:pagehide')
+  onWindowPageHide(): void {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+    this.organizationPresence.sendLeaveBeaconIfTenantSession();
+  }
 
   private updateFromActivatedRoute(): void {
     let route = this.router.routerState.snapshot.root;

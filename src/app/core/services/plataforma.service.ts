@@ -95,6 +95,13 @@ export interface PlatformSettingsData {
   component_options?: Record<string, string>;
 }
 
+export interface PlatformOrganizationPresence {
+  organization_id: number;
+  organization_name: string;
+  active_sessions: number;
+  last_seen_at: string | null;
+}
+
 export interface PlatformAuditLog {
   id: number;
   action: string;
@@ -118,6 +125,10 @@ export class PlataformaService {
 
   getDashboard(): Observable<{ data: PlatformDashboardData }> {
     return this.api.get<{ data: PlatformDashboardData }>('/platform/dashboard');
+  }
+
+  getOrganizationPresences(): Observable<{ data: PlatformOrganizationPresence[] }> {
+    return this.api.get<{ data: PlatformOrganizationPresence[] }>('/platform/organization-presences');
   }
 
   getTenants(): Observable<{ data: PlatformTenant[] }> {

@@ -1,0 +1,53 @@
+<div class="relative min-h-[300px]">
+  <p class="text-xs mb-4" style="color: var(--c-muted)">
+    Empresas com pelo menos uma sessão ativa no app (login ou troca de empresa). Ao sair ou fechar a aba, a linha some quando o contador chega a zero.
+  </p>
+
+  @if (showSkeleton()) {
+    <zm-skeleton-list [rows]="6" />
+  } @else if (!listaPronta) {
+  } @else {
+    @if (estadoErro) {
+      <div class="card p-4 rounded-xl mt-4" style="background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.3)">
+        <p class="text-sm" style="color: var(--c-text)">Não foi possível carregar a lista.</p>
+      </div>
+    } @else {
+      <div class="zm-content-enter">
+        <div class="overflow-x-auto rounded-xl border" style="border-color: var(--c-border); background: var(--c-surface)">
+          <table class="platform-table">
+            <thead>
+              <tr>
+                <th class="py-2 pr-3">Empresa</th>
+                <th class="py-2 px-3 text-center">ID</th>
+                <th class="py-2 px-3 text-center">Sessões</th>
+                <th class="py-2 pl-3">Última atividade</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of linhas; track row.organization_id) {
+                <tr>
+                  <td class="py-2.5 pr-3">
+                    <span class="text-xs font-semibold" style="color: var(--c-text)">{{ row.organization_name }}</span>
+                  </td>
+                  <td class="py-2.5 px-3 text-center cell-muted">{{ row.organization_id }}</td>
+                  <td class="py-2.5 px-3 text-center">{{ row.active_sessions }}</td>
+                  <td class="py-2.5 pl-3 cell-muted text-xs">
+                    @if (row.last_seen_at) {
+                      {{ row.last_seen_at | date: 'dd/MM/yyyy HH:mm' }}
+                    } @else {
+                      —
+                    }
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="4" class="py-6 text-center text-xs cell-muted">Nenhuma empresa com sessão ativa no momento.</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    }
+  }
+</div>

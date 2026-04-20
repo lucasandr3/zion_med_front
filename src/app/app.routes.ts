@@ -73,6 +73,14 @@ export const routes: Routes = [
       { path: 'planos/:id/editar', loadComponent: () => import('./paginas/plataforma/plataforma-plano-form/plataforma-plano-form.component').then(m => m.PlataformaPlanoFormComponent), data: { titulo: 'Editar plano', urlVoltar: '/plataforma/planos', labelVoltar: 'Voltar para Planos' } },
       { path: 'configuracoes', loadComponent: () => import('./paginas/plataforma/plataforma-configuracoes/plataforma-configuracoes.component').then(m => m.PlataformaConfiguracoesComponent), data: { titulo: 'Configurações da plataforma', subtitulo: 'Parâmetros editáveis (banco). API e URL continuam no .env.' } },
       { path: 'logs', loadComponent: () => import('./paginas/plataforma/plataforma-logs/plataforma-logs.component').then(m => m.PlataformaLogsComponent), data: { titulo: 'Meus logs de auditoria', subtitulo: 'Ações realizadas por você na plataforma' } },
+      {
+        path: 'organizacoes-online',
+        loadComponent: () =>
+          import('./paginas/plataforma/plataforma-organizacoes-online/plataforma-organizacoes-online.component').then(
+            (m) => m.PlataformaOrganizacoesOnlineComponent
+          ),
+        data: { titulo: 'Empresas online', subtitulo: 'Organizações com sessão ativa no app neste momento.' },
+      },
     ],
   },
   { path: '404', loadComponent: () => import('./paginas/erro/erro-404.component').then(m => m.Erro404Component) },

@@ -196,6 +196,10 @@ export class AuthService {
     return !!this.getToken();
   }
 
+  isPlatformAdmin(): boolean {
+    return this._user?.role === 'platform_admin';
+  }
+
   canSwitchClinic(): boolean {
     return this._user?.can_switch_clinic ?? false;
   }

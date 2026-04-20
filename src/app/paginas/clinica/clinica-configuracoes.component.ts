@@ -25,6 +25,26 @@ const DAYS: { id: string; label: string }[] = [
   { id: '7', label: 'Domingo' },
 ];
 
+const UI_TO_API_DAY_MAP: Record<string, string> = {
+  '1': '0',
+  '2': '1',
+  '3': '2',
+  '4': '3',
+  '5': '4',
+  '6': '5',
+  '7': '6',
+};
+
+const API_TO_UI_DAY_MAP: Record<string, string> = {
+  '0': '1',
+  '1': '2',
+  '2': '3',
+  '3': '4',
+  '4': '5',
+  '5': '6',
+  '6': '7',
+};
+
 @Component({
   selector: 'app-clinica-configuracoes',
   standalone: true,
@@ -192,9 +212,10 @@ export class ClinicaConfiguracoesComponent implements OnInit {
 
   private patchFormFromClinic(c: ClinicaConfig): void {
     const bh = (c.business_hours ?? {}) as Record<string, BusinessHoursSlot>;
+    const normalizedBusinessHours = this.normalizeBusinessHoursFromApi(bh);
     const businessHours: Record<string, { open: string; close: string }> = {};
     DAYS.forEach((d) => {
-      const slot = bh[d.id] ?? bh[d.id as unknown as number];
+      const slot = normalizedBusinessHours[d.id];
       businessHours[d.id] = {
         open: (slot?.open as string) ?? '',
         close: (slot?.close as string) ?? '',
@@ -217,6 +238,18 @@ export class ClinicaConfiguracoesComponent implements OnInit {
       theme: c.theme ?? 'ocean-blue',
       dark_mode: c.dark_mode ?? false,
     };
+  }
+
+  private normalizeBusinessHoursFromApi(
+    businessHours: Record<string, BusinessHoursSlot>
+  ): Record<string, BusinessHoursSlot> {
+    const normalized: Record<string, BusinessHoursSlot> = {};
+    Object.entries(businessHours).forEach(([dayKey, slot]) => {
+      const uiDayKey = API_TO_UI_DAY_MAP[dayKey] ?? dayKey;
+      if (!uiDayKey || !slot) return;
+      normalized[uiDayKey] = slot;
+    });
+    return normalized;
   }
 
   setTab(tab: string): void {
@@ -569,7 +602,7 @@ export class ClinicaConfiguracoesComponent implements OnInit {
       billing_name: this.form.billing_name ?? null,
       billing_email: this.form.billing_email ?? null,
       billing_document: this.form.billing_document ?? null,
-      business_hours: Object.keys(cleaned).length ? cleaned : null,
+      business_hours: Object.keys(cleaned).length ? this.mapBusinessHoursToApi(cleaned) : null,
       whatsapp_notifications_enabled: !!this.form.whatsapp_notifications_enabled,
       whatsapp_notify_cobranca: !!this.form.whatsapp_notify_cobranca,
       whatsapp_notify_faturas_boleto: !!this.form.whatsapp_notify_faturas_boleto,
@@ -595,6 +628,17 @@ export class ClinicaConfiguracoesComponent implements OnInit {
         this.toast.error('Erro ao salvar', this.erro);
       },
     });
+  }
+
+  private mapBusinessHoursToApi(
+    businessHours: Record<string, { open: string; close: string }>
+  ): Record<string, { open: string; close: string }> {
+    const mapped: Record<string, { open: string; close: string }> = {};
+    Object.entries(businessHours).forEach(([uiDay, slot]) => {
+      const apiDay = UI_TO_API_DAY_MAP[uiDay] ?? uiDay;
+      mapped[apiDay] = slot;
+    });
+    return mapped;
   }
 
   progressFilled(): number {
