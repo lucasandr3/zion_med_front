@@ -199,6 +199,15 @@ export class LinkBioPublicLayoutsComponent {
     return this.linkBio.outboundBioLinkUrl(this.publicSlug, link, this.linkBioPreview);
   }
 
+  accentHex(): string {
+    const accent = this.clinic?.accent_hex?.trim();
+    return accent || '#e8c97a';
+  }
+
+  themeVarsM3(): Record<string, string> {
+    return { '--m3-accent': this.accentHex() };
+  }
+
   teamAvatarColor(index: number): string {
     const colors = ['bg-indigo-500', 'bg-emerald-500', 'bg-orange-500', 'bg-pink-500', 'bg-cyan-500'];
     return colors[index % colors.length]!;

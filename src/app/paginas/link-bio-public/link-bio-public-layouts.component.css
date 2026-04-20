@@ -167,9 +167,15 @@
 /* —— Modelo 3 —— */
 .lb-m3-root {
   font-family: 'Outfit', ui-sans-serif, system-ui, sans-serif;
+  background: #faf6f1;
+  color: #4c3a2f;
+  min-height: 100vh;
+  --m3-accent: #e8c97a;
+}
+
+.lb-m3-root.dark {
   background: #080608;
   color: #e8e0d4;
-  min-height: 100vh;
 }
 
 .lb-m3-root h1,
@@ -179,27 +185,35 @@
 
 .lb-m3-grid-bg {
   background-image:
-    linear-gradient(rgba(200, 162, 64, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(200, 162, 64, 0.04) 1px, transparent 1px);
+    linear-gradient(rgba(200, 162, 64, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(200, 162, 64, 0.08) 1px, transparent 1px);
   background-size: 40px 40px;
 }
 
 .lb-m3-cover {
-  background: linear-gradient(180deg, #1a1720 0%, #080608 100%);
+  background: linear-gradient(180deg, #f7efe1 0%, #faf6f1 100%);
   position: relative;
   overflow: hidden;
+}
+
+.lb-m3-root.dark .lb-m3-cover {
+  background: linear-gradient(180deg, #1a1720 0%, #080608 100%);
 }
 
 .lb-m3-cover::before {
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse 80% 50% at 50% 0%, rgba(200, 162, 64, 0.12) 0%, transparent 70%);
+  background: radial-gradient(ellipse 80% 50% at 50% 0%, rgba(200, 162, 64, 0.16) 0%, transparent 70%);
   pointer-events: none;
 }
 
+.lb-m3-root.dark .lb-m3-cover::before {
+  background: radial-gradient(ellipse 80% 50% at 50% 0%, rgba(200, 162, 64, 0.12) 0%, transparent 70%);
+}
+
 .lb-gold-text {
-  background: linear-gradient(90deg, #c8a240, #f0d080, #c8a240, #f0d080);
+  background: linear-gradient(90deg, color-mix(in srgb, var(--m3-accent) 80%, #8f6c27), color-mix(in srgb, var(--m3-accent) 90%, #fff5cc), color-mix(in srgb, var(--m3-accent) 80%, #8f6c27), color-mix(in srgb, var(--m3-accent) 90%, #fff5cc));
   background-size: 300% auto;
   -webkit-background-clip: text;
   background-clip: text;
@@ -211,17 +225,23 @@
   width: 80px;
   height: 80px;
   border-radius: 20px;
-  border: 1px solid rgba(200, 162, 64, 0.35);
-  background: #1a1720;
+  border: 1px solid color-mix(in srgb, var(--m3-accent) 40%, transparent);
+  background: #fff6e7;
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: 'Cormorant Garamond', serif;
   font-size: 28px;
   font-weight: 600;
-  color: #c8a240;
+  color: color-mix(in srgb, var(--m3-accent) 74%, #6d4d12);
   letter-spacing: 1px;
   overflow: hidden;
+}
+
+.lb-m3-root.dark .lb-logo-ring-m3 {
+  border: 1px solid color-mix(in srgb, var(--m3-accent) 35%, transparent);
+  background: #1a1720;
+  color: var(--m3-accent);
 }
 
 .lb-logo-ring-m3 img {
@@ -232,25 +252,82 @@
 
 .lb-gold-line {
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(200, 162, 64, 0.4), transparent);
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--m3-accent) 40%, transparent), transparent);
 }
 
 .lb-service-card-m3 {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(200, 162, 64, 0.12);
+  background: #fff;
+  border: 1px solid color-mix(in srgb, var(--m3-accent) 22%, transparent);
   border-radius: 16px;
   transition:
     border-color 0.2s,
     transform 0.15s;
 }
 
+.lb-m3-root.dark .lb-service-card-m3 {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid color-mix(in srgb, var(--m3-accent) 14%, transparent);
+}
+
 .lb-service-card-m3:hover {
-  border-color: rgba(200, 162, 64, 0.3);
+  border-color: color-mix(in srgb, var(--m3-accent) 35%, transparent);
   transform: translateY(-2px);
 }
 
+.lb-m3-root.light .lb-icon-pill {
+  color: #7a4f2e;
+}
+
+.lb-m3-root.light .bg-white\/\[\.05\] {
+  background: rgba(122, 79, 46, 0.08) !important;
+}
+
+.lb-m3-root.light .border-white\/10 {
+  border-color: rgba(122, 79, 46, 0.2) !important;
+}
+
+.lb-m3-root.light .text-white\/80 {
+  color: rgba(76, 58, 47, 0.9) !important;
+}
+
+.lb-m3-root.light .text-white\/70 {
+  color: rgba(76, 58, 47, 0.78) !important;
+}
+
+.lb-m3-root.light .text-white\/60 {
+  color: rgba(76, 58, 47, 0.72) !important;
+}
+
+.lb-m3-root.light .text-white\/50 {
+  color: rgba(76, 58, 47, 0.66) !important;
+}
+
+.lb-m3-root.light .text-white\/40 {
+  color: rgba(76, 58, 47, 0.58) !important;
+}
+
+.lb-m3-root.light .text-white\/30 {
+  color: rgba(76, 58, 47, 0.52) !important;
+}
+
+.lb-m3-root.light .text-white\/25 {
+  color: rgba(76, 58, 47, 0.46) !important;
+}
+
+.lb-m3-root.light .text-white\/20 {
+  color: rgba(76, 58, 47, 0.4) !important;
+}
+
+.lb-m3-root.light .text-white\/15 {
+  color: rgba(76, 58, 47, 0.34) !important;
+}
+
+.lb-m3-root.light .lb-serif-m3 span:not(.lb-gold-text) {
+  color: #5a4638 !important;
+}
+
 .lb-cta-gold {
-  background: linear-gradient(135deg, #c8a240, #e8c97a, #c8a240);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--m3-accent) 78%, #7f5b1f), var(--m3-accent), color-mix(in srgb, var(--m3-accent) 78%, #7f5b1f));
   background-size: 200% auto;
   color: #080608;
   transition:
@@ -270,6 +347,42 @@
 
 .lb-pulse-dot {
   animation: lb-pulse-dot 2s ease-in-out infinite;
+}
+
+.lb-m3-accent-text {
+  color: var(--m3-accent) !important;
+}
+
+.lb-m3-accent-muted {
+  color: color-mix(in srgb, var(--m3-accent) 62%, transparent) !important;
+}
+
+.lb-m3-accent-bg {
+  background: var(--m3-accent) !important;
+}
+
+.lb-m3-accent-bg-soft {
+  background: color-mix(in srgb, var(--m3-accent) 10%, transparent) !important;
+}
+
+.lb-m3-accent-border {
+  border-color: color-mix(in srgb, var(--m3-accent) 14%, transparent) !important;
+}
+
+.lb-m3-accent-border-strong {
+  border-color: color-mix(in srgb, var(--m3-accent) 22%, transparent) !important;
+}
+
+.lb-m3-root .group:hover .group-hover\:lb-m3-accent-text {
+  color: var(--m3-accent) !important;
+}
+
+.lb-m3-root .hover\:lb-m3-accent-text:hover {
+  color: var(--m3-accent) !important;
+}
+
+.lb-m3-accent-hover-bg:hover {
+  background: color-mix(in srgb, var(--m3-accent) 10%, transparent) !important;
 }
 
 /* —— Modelo 4 —— */
