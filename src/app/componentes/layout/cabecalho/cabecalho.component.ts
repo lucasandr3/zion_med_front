@@ -7,7 +7,7 @@ import { UserAppearanceService } from '../../../core/services/user-appearance.se
 import { SidebarMobileService } from '../../../core/services/sidebar-mobile.service';
 import { ClinicaService } from '../../../core/services/clinica.service';
 import { TooltipDirective } from '../../../core/directives/tooltip.directive';
-import { normalizeThemeKey } from '../../../core/services/user-appearance.sync';
+import { GESTGO_APPEARANCE_MODE_LS, normalizeThemeKey } from '../../../core/services/user-appearance.sync';
 import { absoluteMediaUrl } from '../../../core/utils/absolute-media-url';
 
 export const TEMAS: { key: string; label: string; labelPt: string; color: string }[] = [
@@ -129,6 +129,9 @@ export class CabecalhoComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.syncTemaControlsFromBrowser();
+    if (this.themeDrawerMode === 'auto') {
+      this._applyAutoMode();
+    }
     this.appearanceSub = this.auth.appearanceApplied$.subscribe(() => this.syncTemaControlsFromBrowser());
     this.syncClinicInfo();
     this.clinicaSub = this.clinicaService.clinicBrandingUpdated$.subscribe(() => this.syncClinicInfo());
@@ -173,17 +176,29 @@ export class CabecalhoComponent implements OnInit, OnDestroy {
         if (m) this.temaAtual = normalizeThemeKey(m[1]);
       }
       this.modoEscuro = document.body.classList.contains('dark') || localStorage.getItem('gestgo_dark_mode') === '1';
-      this.themeDrawerMode = this.modoEscuro ? 'dark' : 'light';
+      const preferAuto = localStorage.getItem(GESTGO_APPEARANCE_MODE_LS) === 'auto';
+      if (preferAuto) {
+        this.themeDrawerMode = 'auto';
+        this._ensureAutoListener();
+      } else {
+        this.themeDrawerMode = this.modoEscuro ? 'dark' : 'light';
+        this._removeSysListener();
+      }
     } catch {}
   }
 
   aplicarModoTema(mode: 'light' | 'dark' | 'auto'): void {
     this.themeDrawerMode = mode;
     if (mode === 'auto') {
-      this._sysDarkMql = window.matchMedia('(prefers-color-scheme: dark)');
-      this._sysDarkMql.addEventListener('change', this._sysListener);
+      try {
+        localStorage.setItem(GESTGO_APPEARANCE_MODE_LS, 'auto');
+      } catch {}
+      this._ensureAutoListener();
       this._applyAutoMode();
     } else {
+      try {
+        localStorage.removeItem(GESTGO_APPEARANCE_MODE_LS);
+      } catch {}
       this._removeSysListener();
       this.aplicarModoEscuro(mode === 'dark');
     }
@@ -197,6 +212,12 @@ export class CabecalhoComponent implements OnInit, OnDestroy {
     if (this.auth.isAuthenticated()) {
       this.appearance.patchAppearance({ ui_dark_mode: dark }).subscribe({ error: () => {} });
     }
+  }
+
+  private _ensureAutoListener(): void {
+    if (this._sysDarkMql != null) return;
+    this._sysDarkMql = window.matchMedia('(prefers-color-scheme: dark)');
+    this._sysDarkMql.addEventListener('change', this._sysListener);
   }
 
   private _removeSysListener(): void {

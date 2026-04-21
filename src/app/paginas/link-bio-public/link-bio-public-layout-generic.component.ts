@@ -2,6 +2,7 @@ import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import {
+  LinkBioCtaChannel,
   LinkBioClinic,
   LinkBioLink,
   LinkBioPublicDocItem,
@@ -38,7 +39,19 @@ export class LinkBioPublicLayoutGenericComponent {
   }
 
   hrefBioLink(link: LinkBioLink): string {
-    return this.linkBioService.outboundBioLinkUrl(this.publicSlug, link, this.linkBioPreview);
+    return this.linkBioService.outboundBioLinkUrl(this.publicSlug, link, this.linkBioPreview, this.clinic?.slug);
+  }
+
+  trackCta(channel: LinkBioCtaChannel, directUrl: string, teamRef?: number): string {
+    if (!directUrl) return '';
+    const u = this.linkBioService.outboundCtaUrl(
+      this.publicSlug,
+      channel,
+      this.linkBioPreview,
+      this.clinic?.slug,
+      teamRef
+    );
+    return u ?? directUrl;
   }
 
   formToken(f: { public_url: string }): string {

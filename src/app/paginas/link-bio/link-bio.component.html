@@ -6,95 +6,131 @@
       <p class="text-sm" style="color: var(--c-error, #dc2626)">{{ erro }}</p>
     }
     @if (state) {
-    <div class="zm-content-enter">
-    <!-- Header -->
-    <div class="mb-6">
-      <div class="flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <p class="text-[0.6875rem] uppercase tracking-wider mb-1" style="color:var(--c-muted)">Link Bio</p>
-          <h1 class="text-xl font-bold leading-tight" style="color:var(--c-text)">{{ state.clinic.name }}</h1>
+    <div class="zm-content-enter link-bio-page">
+    <!-- Cabeçalho da página -->
+    <div class="link-bio-fade-in mb-7">
+      <p class="link-bio-eyebrow text-[11px] font-semibold uppercase tracking-wider mb-1">Link Bio</p>
+      <div class="flex flex-wrap items-center gap-3 mb-2">
+        <h1 class="link-bio-page-title text-[22px] font-semibold m-0">{{ state.clinic.name }}</h1>
+        <span class="link-bio-status-published inline-flex items-center gap-1.5 text-[11px] font-medium px-2.5 py-1 rounded-full">
+          <span class="w-1.5 h-1.5 rounded-full bg-current opacity-80 inline-block shrink-0"></span>
+          Publicado
+        </span>
+      </div>
+      <div class="flex flex-wrap items-center gap-2 sm:gap-3 gap-y-2">
+        <div class="link-bio-url-chip min-w-0 flex-1 basis-full sm:basis-[min(100%,28rem)] sm:max-w-[min(100%,42rem)]">
+          <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" class="link-bio-icon-muted shrink-0" aria-hidden="true">
+            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+          </svg>
+          <span class="link-bio-text-muted font-mono text-[12px] truncate min-w-0">{{ publicUrl }}</span>
         </div>
-        <div class="flex flex-wrap items-center gap-2">
-          <span class="link-bio-badge" style="background:color-mix(in srgb,var(--c-primary) 15%,transparent);color:var(--c-primary)">● Publicado</span>
-          <a [href]="publicUrl" target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm transition-colors" style="background:var(--c-soft);color:var(--c-muted);border:1px solid var(--c-border)">
-            <span class="material-symbols-outlined" style="font-size:16px">open_in_new</span>
+        <button
+          type="button"
+          class="link-bio-btn-ghost shrink-0"
+          (click)="copiarLinkPrincipal()"
+          title="Copiar link"
+        >
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+          </svg>
+          Copiar
+        </button>
+        <div class="flex items-center gap-2 shrink-0 flex-1 sm:flex-initial justify-end sm:justify-start min-w-0">
+          <a [href]="publicUrlAbrirNoNavegador" target="_blank" rel="noopener" class="link-bio-btn-ghost no-underline" title="Abre o link público neste ambiente (dev) ou o URL oficial">
+            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+              <polyline points="15 3 21 3 21 9"/>
+              <line x1="10" y1="14" x2="21" y2="3"/>
+            </svg>
             Ver página
           </a>
-          <button type="button" class="btn-primary inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm" (click)="copiarLinkPrincipal()">
-            <span class="material-symbols-outlined" style="font-size:16px">content_copy</span>
-            Copiar link
+          <button type="button" class="link-bio-btn-primary" (click)="ativarAba('conteudoExtra')">
+            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+              <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            Editar conteúdo
           </button>
         </div>
       </div>
-    </div>
-
-    <!-- Barra do link -->
-    <div class="flex flex-wrap items-center gap-2 mb-6">
-      <input type="text" readonly [value]="publicUrl" id="bio-url-input" class="form-input flex-1 min-w-0 max-w-md text-sm cursor-pointer" (click)="$any($event.target).select()" />
-      <button type="button" class="px-3 py-2 rounded-lg text-sm transition-colors whitespace-nowrap" style="background:var(--c-soft);color:var(--c-muted);border:1px solid var(--c-border)" (click)="copiarLinkPrincipal()">
-        Copiar
-      </button>
     </div>
 
     <!-- Métricas -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6" *ngIf="metrics">
+    <div class="link-bio-fade-in-2 grid grid-cols-2 lg:grid-cols-4 gap-3 mb-7" *ngIf="metrics">
       <div class="link-bio-metric">
-        <div class="link-bio-metric-label mb-1.5">Visitas hoje</div>
-        <div class="link-bio-metric-value" style="color:var(--c-primary)">{{ metrics!.visitas_hoje }}</div>
+        <p class="link-bio-metric-label">Visitas hoje</p>
+        <p class="link-bio-metric-value link-bio-metric-value--accent">{{ metrics!.visitas_hoje }}</p>
+        <p class="link-bio-metric-sub">acesso à página hoje</p>
       </div>
       <div class="link-bio-metric">
-        <div class="link-bio-metric-label mb-1.5">Cliques totais</div>
-        <div class="link-bio-metric-value">{{ metrics!.total_clicks_last_30 }}</div>
-        <div class="text-[0.6875rem] mt-0.5" style="color:var(--c-muted)">últimos 30 dias</div>
+        <p class="link-bio-metric-label">Cliques totais</p>
+        <p class="link-bio-metric-value">{{ metrics!.total_clicks_last_30 }}</p>
+        <p class="link-bio-metric-sub">últimos 30 dias</p>
       </div>
       <div class="link-bio-metric">
-        <div class="link-bio-metric-label mb-1.5">Taxa de clique</div>
-        <div class="link-bio-metric-value" style="color:var(--c-primary)">{{ metrics!.taxa_clique }}%</div>
-        <div class="text-[0.6875rem] mt-0.5" style="color:var(--c-muted)">CTR</div>
+        <p class="link-bio-metric-label">Taxa de clique</p>
+        <p class="link-bio-metric-value link-bio-metric-value--accent">{{ metrics!.taxa_clique }}%</p>
+        <p class="link-bio-metric-sub">CTR</p>
       </div>
       <div class="link-bio-metric">
-        <div class="link-bio-metric-label mb-1.5">Formulários</div>
-        <div class="link-bio-metric-value">{{ metrics!.formularios_total }}</div>
-        <div class="text-[0.6875rem] mt-0.5" style="color:var(--c-muted)">{{ metrics!.formularios_ativos }} ativos, {{ metrics!.formularios_draft }} rascunho</div>
+        <p class="link-bio-metric-label">Formulários</p>
+        <p class="link-bio-metric-value">{{ metrics!.formularios_total }}</p>
+        <p class="link-bio-metric-sub">
+          <span class="text-amber-500 font-medium">{{ metrics!.formularios_ativos }} ativo<span *ngIf="metrics!.formularios_ativos !== 1">s</span></span>
+          <span class="link-bio-text-muted font-normal"> · {{ metrics!.formularios_draft }} rascunho</span>
+        </p>
       </div>
     </div>
 
-    <!-- Conteúdo principal -->
-    <div class="link-bio-config grid grid-cols-1 md:grid-cols-[1fr_360px] gap-6">
-      <div [class.md:col-span-2]="abaAtiva === 'modelos' || abaAtiva === 'conteudoExtra'">
-        <!-- Tabs -->
-        <div class="flex flex-wrap gap-1 mb-5 p-1 rounded-lg w-fit max-w-full" style="background:var(--c-surface);border:1px solid var(--c-border)">
-          <button type="button" class="link-bio-tab" [class.active]="abaAtiva === 'modelos'" (click)="ativarAba('modelos')">
-            <span class="material-symbols-outlined">dashboard</span> Modelos
-          </button>
-          <button type="button" class="link-bio-tab" [class.active]="abaAtiva === 'conteudoExtra'" (click)="ativarAba('conteudoExtra')">
-            <span class="material-symbols-outlined">tune</span> Conteúdo extra
-          </button>
-          <button type="button" class="link-bio-tab" [class.active]="abaAtiva === 'links'" (click)="ativarAba('links')">
-            <span class="material-symbols-outlined">link</span> Links
-          </button>
-          <button type="button" class="link-bio-tab" [class.active]="abaAtiva === 'forms'" (click)="ativarAba('forms')">
-            <span class="material-symbols-outlined">description</span> Formulários
-          </button>
-          <button type="button" class="link-bio-tab" [class.active]="abaAtiva === 'stats'" (click)="ativarAba('stats')">
-            <span class="material-symbols-outlined">bar_chart</span> Estatísticas
-          </button>
-          <button type="button" class="link-bio-tab" [class.active]="abaAtiva === 'aparencia'" (click)="ativarAba('aparencia')">
-            <span class="material-symbols-outlined">palette</span> Aparência
-          </button>
-        </div>
+    <!-- Abas em largura total; em Links/Formulários a prévia fica ao lado só do conteúdo da aba -->
+    <div class="link-bio-fade-in-3 mb-6">
+      <div class="link-bio-tabs-wrap">
+        <button type="button" class="link-bio-tab" [class.active]="abaAtiva === 'modelos'" (click)="ativarAba('modelos')">
+          <span class="material-symbols-outlined" aria-hidden="true">dashboard_customize</span>
+          Modelos
+        </button>
+        <button type="button" class="link-bio-tab" [class.active]="abaAtiva === 'conteudoExtra'" (click)="ativarAba('conteudoExtra')">
+          <span class="material-symbols-outlined" aria-hidden="true">article</span>
+          Conteúdo extra
+        </button>
+        <button type="button" class="link-bio-tab" [class.active]="abaAtiva === 'links'" (click)="ativarAba('links')">
+          <span class="material-symbols-outlined" aria-hidden="true">link</span>
+          Links
+          <span class="link-bio-tab-badge link-bio-tab-badge--brand">{{ links.length }}</span>
+        </button>
+        <button type="button" class="link-bio-tab" [class.active]="abaAtiva === 'forms'" (click)="ativarAba('forms')">
+          <span class="material-symbols-outlined" aria-hidden="true">assignment</span>
+          Formulários
+          <span class="link-bio-tab-badge link-bio-tab-badge--amber" *ngIf="metrics">{{ metrics!.formularios_draft }}</span>
+        </button>
+        <button type="button" class="link-bio-tab" [class.active]="abaAtiva === 'stats'" (click)="ativarAba('stats')">
+          <span class="material-symbols-outlined" aria-hidden="true">query_stats</span>
+          Estatísticas
+        </button>
+        <button type="button" class="link-bio-tab" [class.active]="abaAtiva === 'aparencia'" (click)="ativarAba('aparencia')">
+          <span class="material-symbols-outlined" aria-hidden="true">palette</span>
+          Aparência
+        </button>
+      </div>
+    </div>
+
+    @if (previewAoLado) {
+    <div class="link-bio-config grid grid-cols-1 gap-6 link-bio-config--side-preview">
+      <div class="min-w-0">
 
         <!-- Aba Links -->
-        <div id="tab-links" class="flex flex-col gap-2.5 pb-24" *ngIf="abaAtiva === 'links'">
-          <div class="flex flex-wrap justify-between items-center gap-2 mb-1">
-            <p class="text-xs" style="color:var(--c-muted)">Links exibidos na sua página</p>
-            <button type="button" id="btn-add" class="btn-primary text-sm px-3 py-1.5 inline-flex items-center gap-1.5" (click)="toggleFormNovo()">
-              <span class="material-symbols-outlined" style="font-size:16px">{{ mostrarFormNovo ? 'close' : 'add' }}</span>
-              {{ mostrarFormNovo ? 'Cancelar' : 'Adicionar link' }}
-            </button>
-          </div>
+        <div id="tab-links" class="flex flex-col gap-6 pb-24" *ngIf="abaAtiva === 'links'">
+          <div class="link-bio-panel-card p-6">
+            <div class="flex flex-wrap justify-between items-center gap-2 mb-1">
+              <p class="text-xs" style="color:var(--c-muted)">Links exibidos na sua página</p>
+              <button type="button" id="btn-add" class="btn-primary text-sm px-3 py-1.5 inline-flex items-center gap-1.5" (click)="toggleFormNovo()">
+                <span class="material-symbols-outlined" style="font-size:16px">{{ mostrarFormNovo ? 'close' : 'add' }}</span>
+                {{ mostrarFormNovo ? 'Cancelar' : 'Adicionar link' }}
+              </button>
+            </div>
 
-          @if (mostrarFormNovo) {
+            @if (mostrarFormNovo) {
             <div class="p-4 rounded-xl mb-2" style="background:var(--c-soft);border:1px solid var(--c-border)">
               <p class="text-sm font-semibold mb-3" style="color:var(--c-text)">Novo link</p>
               <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
@@ -184,14 +220,11 @@
               <p class="text-xs mt-1" style="color:var(--c-muted)">Clique em \"Adicionar link\" para começar.</p>
             </div>
           }
+          </div>
 
           <div class="sticky-footer-spacer" aria-hidden="true"></div>
           <div class="sticky-footer">
-            @if (mostrarFormNovo || editandoId !== null) {
-              <div style="font-size:12px;color:var(--c-muted)">Alterações não salvas</div>
-            } @else {
-              <div style="font-size:12px;color:var(--c-muted)">Adicione ou edite um link acima para salvar aqui</div>
-            }
+            <div style="font-size:12px;color:var(--c-muted)">Alterações não salvas</div>
             <div class="footer-btns">
               <a routerLink="/dashboard" class="btn-secondary">
                 <span class="material-symbols-outlined" style="font-size:16px">close</span>
@@ -241,7 +274,7 @@
 
           <div class="sticky-footer-spacer" aria-hidden="true"></div>
           <div class="sticky-footer">
-            <div style="font-size:12px;color:var(--c-muted)">Formulários são criados e publicados em Templates</div>
+            <div style="font-size:12px;color:var(--c-muted)">Alterações não salvas</div>
             <div class="footer-btns">
               <a routerLink="/dashboard" class="btn-secondary">
                 <span class="material-symbols-outlined" style="font-size:16px">close</span>
@@ -255,103 +288,46 @@
           </div>
         </div>
 
-        <!-- Aba Estatísticas -->
-        <div id="tab-stats" class="pb-24" *ngIf="abaAtiva === 'stats' && stats">
-          <div class="card p-5">
-            <div class="flex flex-wrap justify-between items-center gap-2 mb-5">
-              <h3 class="text-sm font-bold" style="color:var(--c-text)">Cliques por dia (últimos 7 dias)</h3>
-              <span class="text-xs" style="color:var(--c-muted)">Total: {{ metrics?.total_clicks }}</span>
-            </div>
-            @if (diasClicks.length === 0) {
-              <p class="text-xs py-6 text-center" style="color:var(--c-muted)">Nenhum dado de cliques por dia neste período.</p>
-            } @else {
-              @if (diasClicks[0]?.ghost) {
-                <p class="text-[11px] mb-2" style="color:var(--c-muted)">
-                  Nenhum clique nos últimos dias — barras apenas para referência visual.
-                </p>
-              }
-              <div class="link-bio-chart-row">
-                @for (d of diasClicks; track d.date) {
-                  <div class="link-bio-bar-wrap">
-                    <div class="link-bio-bar-stack">
-                      <div
-                        class="link-bio-bar"
-                        [class.link-bio-bar--ghost]="d.ghost"
-                        [style.height.%]="d.percent"
-                      ></div>
-                    </div>
-                    <div class="link-bio-bar-label">{{ d.label }}</div>
-                  </div>
-                }
-              </div>
-            }
-          </div>
-
-          <div class="sticky-footer-spacer" aria-hidden="true"></div>
-          <div class="sticky-footer">
-            <div style="font-size:12px;color:var(--c-muted)">Dados de visitas e cliques</div>
-            <div class="footer-btns">
-              <a routerLink="/dashboard" class="btn-secondary">
-                <span class="material-symbols-outlined" style="font-size:16px">close</span>
-                Cancelar
-              </a>
-              <button
-                type="button"
-                class="btn-primary inline-flex items-center gap-2"
-                [disabled]="atualizandoStatsRodape"
-                (click)="atualizarDadosEstatisticas()"
-              >
-                @if (atualizandoStatsRodape) {
-                  <span class="btn-spinner" aria-hidden="true"></span>
-                } @else {
-                  <span class="material-symbols-outlined" style="font-size:16px">refresh</span>
-                }
-                {{ atualizandoStatsRodape ? 'Atualizando…' : 'Atualizar dados' }}
-              </button>
-            </div>
-          </div>
-        </div>
-
         <!-- Aba Aparência -->
-        <div id="tab-aparencia" class="pb-24" *ngIf="abaAtiva === 'aparencia' && state">
-          <form class="flex flex-col gap-5" (ngSubmit)="salvarAparencia()">
-            <!-- Tema de cor -->
-            <div class="card p-5">
-              <p class="text-xs font-bold uppercase tracking-wider mb-4" style="color:var(--c-muted)">Tema de cor da página</p>
-              <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:8px">
-                <!-- Padrão -->
-                <button type="button"
-                        class="theme-card"
-                        [class.selected]="aparenciaPublicTheme === ''"
-                        style="border:2px solid var(--c-border);border-radius:10px;padding:10px;cursor:pointer;position:relative;background:var(--c-surface)"
-                        (click)="selecionarTema('')">
-                  <div style="height:28px;border-radius:5px;margin-bottom:7px;background:#f0ede8;display:flex;gap:2px;align-items:flex-end;padding:4px">
-                    <div style="background:#1a1a2e;border-radius:2px;width:5px;height:10px"></div>
-                    <div style="background:#1a1a2e;border-radius:2px;width:5px;height:16px"></div>
-                    <div style="background:#1a1a2e;border-radius:2px;width:5px;height:22px"></div>
-                  </div>
-                  <div style="width:20px;height:20px;border-radius:50%;background:#1a1a2e;margin-bottom:5px"></div>
-                  <div style="font-size:10.5px;font-weight:500;color:var(--c-text)">Padrão</div>
-                </button>
-
-                @for (entry of (availableThemes | keyvalue); track entry.key) {
-                  <button type="button"
-                          class="theme-card"
-                          [class.selected]="aparenciaPublicTheme === entry.key"
-                          style="border:2px solid var(--c-border);border-radius:10px;padding:10px;cursor:pointer;position:relative;background:var(--c-surface)"
-                          (click)="selecionarTema(entry.key)">
-                    @let p = entry.value.primary;
-                    <div style="height:28px;border-radius:5px;margin-bottom:7px;display:flex;gap:2px;align-items:flex-end;padding:4px" [style.background]="p + '22'">
-                      <div [style.background]="p" style="border-radius:2px;width:5px;height:10px"></div>
-                      <div [style.background]="p" style="border-radius:2px;width:5px;height:16px"></div>
-                      <div [style.background]="p" style="border-radius:2px;width:5px;height:22px"></div>
-                    </div>
-                    <div [style.background]="p" style="width:20px;height:20px;border-radius:50%;margin-bottom:5px"></div>
-                    <div style="font-size:10.5px;font-weight:500;color:var(--c-text)">{{ entry.value.label }}</div>
-                  </button>
-                }
+        <div id="tab-aparencia" class="flex flex-col gap-6 pb-24" *ngIf="abaAtiva === 'aparencia' && state">
+          <form id="link-bio-form-aparencia" class="flex flex-col gap-5" (ngSubmit)="salvarAparencia()">
+            <!-- Tema de cor: mesma paleta que Configurações → Tema visual (quadrados sólidos) -->
+            <div class="section-card">
+              <div class="section-header">
+                <div class="icon-wrap"><span class="material-symbols-outlined">palette</span></div>
+                <span class="section-title">Tema de cor da página</span>
               </div>
-              <p class="text-[11px] mt-3" style="color:var(--c-muted)">Afeta o logo, botões e indicador de horário aberto. Independente do tema do sistema.</p>
+              <div class="section-body">
+                <div class="visual-subtitle link-bio-appearance-visual-subtitle">
+                  <div class="vtitle">Cor do tema público</div>
+                  <div class="vsub">Mesmas opções de cor da configuração da empresa</div>
+                </div>
+                <div class="theme-grid palette-grid link-bio-theme-palette">
+                  <button
+                    type="button"
+                    class="theme-card palette-card"
+                    [class.selected]="aparenciaPublicTheme === ''"
+                    [attr.aria-label]="'Padrão'"
+                    (click)="selecionarTema('')"
+                  >
+                    <div class="theme-preview palette-preview" style="background: #1a1a2e"></div>
+                  </button>
+                  @for (key of themeKeys; track key) {
+                    @let meta = availableThemes[key];
+                    @let primary = meta?.primary ?? '#2563eb';
+                    <button
+                      type="button"
+                      class="theme-card palette-card"
+                      [class.selected]="aparenciaPublicTheme === key"
+                      [attr.aria-label]="meta?.label ?? key"
+                      (click)="selecionarTema(key)"
+                    >
+                      <div class="theme-preview palette-preview" [style.background]="primary"></div>
+                    </button>
+                  }
+                </div>
+                <p class="hint" style="font-size: 11px; color: var(--c-muted); margin: 16px 0 0">Afeta o logo, botões e indicador de horário aberto. Independente do tema do sistema.</p>
+              </div>
             </div>
 
             <div class="card p-5">
@@ -417,9 +393,22 @@
                 </div>
               </div>
             </div>
+          </form>
 
-            <div class="flex justify-end gap-2">
-              <button type="submit" class="btn-primary px-5 py-2 text-sm inline-flex items-center gap-2" [disabled]="salvandoAparencia">
+          <div class="sticky-footer-spacer" aria-hidden="true"></div>
+          <div class="sticky-footer">
+            <div style="font-size:12px;color:var(--c-muted)">Alterações não salvas</div>
+            <div class="footer-btns">
+              <a routerLink="/dashboard" class="btn-secondary">
+                <span class="material-symbols-outlined" style="font-size:16px">close</span>
+                Cancelar
+              </a>
+              <button
+                type="submit"
+                form="link-bio-form-aparencia"
+                class="btn-primary px-5 py-2 text-sm inline-flex items-center gap-2 mb-2"
+                [disabled]="salvandoAparencia"
+              >
                 @if (salvandoAparencia) {
                   <span class="btn-spinner" aria-hidden="true"></span>
                 } @else {
@@ -428,105 +417,241 @@
                 {{ salvandoAparencia ? 'Salvando…' : 'Salvar aparência' }}
               </button>
             </div>
-          </form>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="link-bio-side-preview-col flex flex-col items-center min-w-0 self-start w-full max-lg:max-w-[360px] max-lg:mx-auto">
+        <div class="link-bio-phone link-bio-phone--side w-full max-w-[320px] lg:max-w-none">
+          @if (previewUrlSafe) {
+            <iframe [src]="previewUrlSafe" title="Preview Link Bio" class="link-bio-phone-screen w-full h-full border-0" loading="lazy"></iframe>
+          } @else {
+            <div class="link-bio-phone-screen w-full h-full min-h-[400px] flex flex-col items-center justify-center rounded-xl text-sm" style="background:var(--c-soft);color:var(--c-muted);border:1px dashed var(--c-border)">
+              <span class="material-symbols-outlined mb-2" style="font-size:32px">smartphone</span>
+              <span>Carregando prévia…</span>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+    } @else {
+    <!-- Necessário .link-bio-config para .sticky-footer (styles.css) em Modelos / Stats / Conteúdo extra -->
+    <div class="link-bio-config min-w-0">
+
+        <!-- Aba Estatísticas (não exigir `stats` truthy: objeto vazio ainda é válido) -->
+        <div id="tab-stats" class="pb-24" *ngIf="abaAtiva === 'stats' && state">
+          <div class="card p-5">
+            <div class="flex flex-wrap justify-between items-center gap-2 mb-5">
+              <h3 class="text-sm font-bold" style="color:var(--c-text)">Cliques por dia (últimos 7 dias)</h3>
+              <span class="text-xs" style="color:var(--c-muted)">Total: {{ metrics?.total_clicks }}</span>
+            </div>
+            <p class="text-[11px] mb-4 leading-relaxed" style="color:var(--c-muted)">
+              Inclui links da aba <strong class="font-medium" style="color:var(--c-text)">Links</strong> e botões da página (WhatsApp, maps, e-mail, etc.).
+              Prévia com <code class="text-[10px] px-1 rounded" style="background:var(--c-soft)">?preview=1</code> não registra cliques — use &quot;Ver página&quot; para testar.
+            </p>
+            @if (stats.click_breakdown.length > 0) {
+              <div class="mb-6 overflow-x-auto rounded-xl border" style="border-color:var(--c-border)">
+                <table class="w-full text-left text-xs min-w-[320px]">
+                  <thead>
+                    <tr style="background:var(--c-soft);color:var(--c-muted)">
+                      <th class="px-3 py-2.5 font-semibold">Origem do clique</th>
+                      <th class="px-3 py-2.5 font-semibold text-right w-24">Total</th>
+                      <th class="px-3 py-2.5 font-semibold text-right w-28">30 dias</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (row of stats.click_breakdown; track $index) {
+                      <tr class="border-t" style="border-color:var(--c-border);color:var(--c-text)">
+                        <td class="px-3 py-2">
+                          @if (row.kind === 'bio_link') {
+                            <span class="inline-flex items-center gap-1.5">
+                              <span class="material-symbols-outlined text-[16px] shrink-0" style="color:var(--c-primary)">link</span>
+                              <span>{{ row.label }}</span>
+                            </span>
+                          } @else {
+                            <span class="inline-flex items-center gap-1.5">
+                              <span class="material-symbols-outlined text-[16px] shrink-0" style="color:var(--c-primary)">touch_app</span>
+                              <span>{{ row.label }}</span>
+                            </span>
+                          }
+                        </td>
+                        <td class="px-3 py-2 text-right font-medium tabular-nums">{{ row.total_clicks }}</td>
+                        <td class="px-3 py-2 text-right tabular-nums" style="color:var(--c-muted)">{{ row.total_last_30 }}</td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            }
+            @if (diasClicks.length === 0) {
+              <p class="text-xs py-6 text-center" style="color:var(--c-muted)">Nenhum dado de cliques por dia neste período.</p>
+            } @else {
+              @if (diasClicks[0]?.ghost) {
+                <p class="text-[11px] mb-2" style="color:var(--c-muted)">
+                  Nenhum clique nos últimos dias — barras apenas para referência visual.
+                </p>
+              }
+              <div class="link-bio-chart-row">
+                @for (d of diasClicks; track d.date) {
+                  <div class="link-bio-bar-wrap">
+                    <div class="link-bio-bar-stack">
+                      <div
+                        class="link-bio-bar"
+                        [class.link-bio-bar--ghost]="d.ghost"
+                        [style.height.%]="d.percent"
+                      ></div>
+                    </div>
+                    <div class="link-bio-bar-label">{{ d.label }}</div>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+
+          <div class="sticky-footer-spacer" aria-hidden="true"></div>
+          <div class="sticky-footer">
+            <div style="font-size:12px;color:var(--c-muted)">Alterações não salvas</div>
+            <div class="footer-btns">
+              <a routerLink="/dashboard" class="btn-secondary">
+                <span class="material-symbols-outlined" style="font-size:16px">close</span>
+                Cancelar
+              </a>
+              <button
+                type="button"
+                class="btn-primary inline-flex items-center gap-2"
+                [disabled]="atualizandoStatsRodape"
+                (click)="atualizarDadosEstatisticas()"
+              >
+                @if (atualizandoStatsRodape) {
+                  <span class="btn-spinner" aria-hidden="true"></span>
+                } @else {
+                  <span class="material-symbols-outlined" style="font-size:16px">refresh</span>
+                }
+                {{ atualizandoStatsRodape ? 'Atualizando…' : 'Atualizar dados' }}
+              </button>
+            </div>
+          </div>
         </div>
 
         <!-- Aba Modelos -->
         @if (abaAtiva === 'modelos' && state) {
-          <div id="tab-modelos" class="flex flex-col gap-6 pb-24">
-            <form class="flex flex-col gap-5" (ngSubmit)="salvarModelos()">
-              <div class="card p-5">
-                <p class="text-xs font-bold uppercase tracking-wider mb-4" style="color:var(--c-muted)">Modelo publicado</p>
-                <p class="text-[11px] mb-3 leading-relaxed" style="color:var(--c-muted)">
-                  Escolha qual layout os visitantes veem no link público. Textos específicos, convênios, modalidades e equipe ficam na aba <strong>Conteúdo extra</strong>. As prévias abaixo usam esses dados ao voltar para esta aba.
-                </p>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <label class="inline-flex items-center gap-2 text-sm" style="color:var(--c-text)">
-                    <input type="radio" name="modelos_modelo" [value]="1" [(ngModel)]="aparenciaModelo" />
-                    {{ linkBioModelLabels[1] }}
-                  </label>
-                  <label class="inline-flex items-center gap-2 text-sm" style="color:var(--c-text)">
-                    <input type="radio" name="modelos_modelo" [value]="2" [(ngModel)]="aparenciaModelo" />
-                    {{ linkBioModelLabels[2] }}
-                  </label>
-                  <label class="inline-flex items-center gap-2 text-sm" style="color:var(--c-text)">
-                    <input type="radio" name="modelos_modelo" [value]="3" [(ngModel)]="aparenciaModelo" />
-                    {{ linkBioModelLabels[3] }}
-                  </label>
-                  <label class="inline-flex items-center gap-2 text-sm" style="color:var(--c-text)">
-                    <input type="radio" name="modelos_modelo" [value]="4" [(ngModel)]="aparenciaModelo" />
-                    {{ linkBioModelLabels[4] }}
-                  </label>
-                  <label class="inline-flex items-center gap-2 text-sm" style="color:var(--c-text)">
-                    <input type="radio" name="modelos_modelo" [value]="5" [(ngModel)]="aparenciaModelo" />
-                    {{ linkBioModelLabels[5] }}
-                  </label>
-                  <label class="inline-flex items-center gap-2 text-sm" style="color:var(--c-text)">
-                    <input type="radio" name="modelos_modelo" [value]="6" [(ngModel)]="aparenciaModelo" />
-                    {{ linkBioModelLabels[6] }}
-                  </label>
-                  <label class="inline-flex items-center gap-2 text-sm md:col-span-2" style="color:var(--c-text)">
-                    <input type="radio" name="modelos_modelo" [value]="7" [(ngModel)]="aparenciaModelo" />
-                    {{ linkBioModelLabels[7] }}
-                  </label>
-                  <label class="inline-flex items-center gap-2 text-sm md:col-span-2" style="color:var(--c-text)">
-                    <input type="radio" name="modelos_modelo" [value]="8" [(ngModel)]="aparenciaModelo" />
-                    {{ linkBioModelLabels[8] }}
-                  </label>
+          <div id="tab-modelos" class="link-bio-fade-in-4 flex flex-col gap-6 pb-24">
+            <div class="link-bio-panel-card p-6">
+              <div class="mb-1">
+                <div class="min-w-0">
+                  <h2 class="link-bio-section-h2 text-[15px] font-semibold m-0">Modelo publicado</h2>
+                  <p class="link-bio-section-p text-[13px] mt-0.5 mb-0">
+                    Escolha o layout que os visitantes veem no link público. Textos específicos ficam na aba
+                    <button type="button" class="font-medium border-0 bg-transparent p-0 cursor-pointer" style="color:var(--c-primary)" (click)="ativarAba('conteudoExtra')">Conteúdo extra</button>.
+                  </p>
                 </div>
               </div>
-
-              <div class="sticky-footer-spacer" aria-hidden="true"></div>
-              <div class="sticky-footer">
-                <div style="font-size:12px;color:var(--c-muted)">Alterações não salvas</div>
-                <div class="footer-btns">
-                  <a routerLink="/dashboard" class="btn-secondary">
-                    <span class="material-symbols-outlined" style="font-size:16px">close</span>
-                    Cancelar
-                  </a>
-                  <button type="submit" class="btn-primary inline-flex items-center gap-2" [disabled]="salvandoModelos">
-                    @if (salvandoModelos) {
-                      <span class="btn-spinner" aria-hidden="true"></span>
-                    } @else {
-                      <span class="material-symbols-outlined" style="font-size:16px">save</span>
-                    }
-                    {{ salvandoModelos ? 'Salvando…' : 'Salvar configurações' }}
-                  </button>
+              <div class="link-bio-hr my-5" role="separator" aria-hidden="true"></div>
+              <div class="link-bio-modelos-layout">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 min-w-0">
+                  @for (m of previewModelIds; track m) {
+                    <div
+                      class="link-bio-model-card"
+                      [class.selected]="aparenciaModelo === m"
+                      role="button"
+                      tabindex="0"
+                      (click)="selecionarModelo(m)"
+                      (keydown.enter)="selecionarModelo(m)"
+                      (keydown.space)="$event.preventDefault(); selecionarModelo(m)"
+                    >
+                      <div class="flex items-start gap-3">
+                        <div class="link-bio-model-radio" aria-hidden="true">
+                          <div class="link-bio-model-dot"></div>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                          <div class="flex flex-wrap items-center gap-2">
+                            <p class="link-bio-card-title text-[13px] font-semibold m-0">{{ linkBioModelLabels[m] }}</p>
+                            @if (m === modeloPersistido) {
+                              <span class="text-[10px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-100 px-1.5 py-0.5 rounded-full shrink-0">Ativo</span>
+                            }
+                          </div>
+                          <p class="link-bio-card-caption text-[11px] mt-0.5 mb-0">{{ linkBioModelSubtitles[m] }}</p>
+                        </div>
+                      </div>
+                    </div>
+                  }
                 </div>
-              </div>
-            </form>
-
-            <div>
-              <p class="text-[0.6875rem] uppercase tracking-wider mb-3" style="color:var(--c-muted)">Prévia dos layouts</p>
-              <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 justify-items-center">
-                @for (m of previewModelIds; track m) {
-                  <div class="flex flex-col items-center gap-2 w-full max-w-[300px]">
-                    <span class="text-xs font-semibold text-center leading-snug" style="color:var(--c-text)">{{ linkBioModelLabels[m] }}</span>
-                    <div class="link-bio-phone link-bio-phone--mini w-full">
-                      @if (modelPreviewUrlSafe(m); as src) {
-                        <iframe [src]="src" [title]="'Prévia: ' + linkBioModelLabels[m]" class="link-bio-phone-screen w-full h-full border-0" loading="lazy"></iframe>
+                <aside class="link-bio-modelos-preview" aria-label="Prévia do layout selecionado — {{ linkBioModelLabels[aparenciaModelo] }}">
+                  <div class="flex justify-center lg:justify-start">
+                    <div class="link-bio-phone link-bio-phone--mini w-full max-w-[320px]">
+                      @if (modelPreviewUrlSafe(aparenciaModelo); as src) {
+                        <iframe [src]="src" [title]="'Prévia: ' + linkBioModelLabels[aparenciaModelo]" class="link-bio-phone-screen w-full h-full border-0" loading="lazy"></iframe>
                       } @else {
-                        <div class="link-bio-phone-screen w-full h-full min-h-[200px] flex items-center justify-center text-xs" style="background:var(--c-soft);color:var(--c-muted)">…</div>
+                        <div class="link-bio-phone-screen link-bio-text-muted w-full h-full min-h-[280px] flex items-center justify-center text-xs">Carregando prévia…</div>
                       }
                     </div>
                   </div>
-                }
+                </aside>
+              </div>
+            </div>
+
+            <div class="sticky-footer-spacer" aria-hidden="true"></div>
+            <div class="sticky-footer">
+              <div style="font-size:12px;color:var(--c-muted)">Alterações não salvas</div>
+              <div class="footer-btns">
+                <a routerLink="/dashboard" class="btn-secondary">
+                  <span class="material-symbols-outlined" style="font-size:16px">close</span>
+                  Cancelar
+                </a>
+                <button
+                  type="button"
+                  class="btn-primary inline-flex items-center gap-2"
+                  [disabled]="salvandoModelos || !modeloDirty"
+                  (click)="salvarModelos()"
+                >
+                  @if (salvandoModelos) {
+                    <span class="btn-spinner" aria-hidden="true"></span>
+                  } @else {
+                    <span class="material-symbols-outlined" style="font-size:16px">save</span>
+                  }
+                  {{ salvandoModelos ? 'Salvando…' : 'Salvar configurações' }}
+                </button>
               </div>
             </div>
           </div>
         }
 
-        <!-- Aba Conteúdo extra (formulário — modelos 2–5) -->
+        <!-- Aba Conteúdo extra (layouts temáticos) -->
         @if (abaAtiva === 'conteudoExtra' && state) {
           <div id="tab-conteudo-extra" class="flex flex-col gap-5 pb-24">
-            <p class="text-xs leading-relaxed" style="color:var(--c-muted)">
-              Preencha só o que fizer sentido para o seu layout. Campos vazios são ignorados. Deixe tudo em branco e salve para limpar os dados extras da página pública.
-            </p>
+            <div class="rounded-xl border px-3 py-3 text-xs leading-relaxed" style="background:var(--c-soft);border-color:var(--c-border);color:var(--c-muted)">
+              <strong style="color:var(--c-text)">Aviso:</strong> este conteúdo extra aparece nos layouts
+              <strong style="color:var(--c-text)">Profissional solo</strong>,
+              <strong style="color:var(--c-text)">Estética e beleza</strong>,
+              <strong style="color:var(--c-text)">Odontologia</strong>,
+              <strong style="color:var(--c-text)">Multi profissionais</strong>,
+              <strong style="color:var(--c-text)">Clínica veterinária</strong>,
+              <strong style="color:var(--c-text)">Pediatria</strong> e
+              <strong style="color:var(--c-text)">Nutricionista</strong>.
+              @if (conteudoExtraApareceNoPublico) {
+                <span>
+                  Seu layout publicado hoje é <strong style="color:var(--c-text)">{{ layoutPublicadoLabel }}</strong>, então estes campos podem aparecer na página pública conforme o layout.
+                </span>
+              } @else {
+                <span>
+                  Seu layout publicado hoje é <strong style="color:var(--c-text)">{{ layoutPublicadoLabel }}</strong>, então estes campos <strong style="color:var(--c-text)">não aparecem</strong> na página pública (mesmo que estejam preenchidos aqui).
+                  O layout <strong style="color:var(--c-text)">Genérico atual</strong> não usa estes campos.
+                </span>
+              }
+              @if (modeloDirty) {
+                <span class="block mt-2 pt-2 border-t" style="border-color:var(--c-border)">
+                  Há alterações não salvas na aba <strong style="color:var(--c-text)">Modelos</strong>: você está vendo a prévia de
+                  <strong style="color:var(--c-text)">{{ layoutSelecionadoLabel }}</strong>, mas o público ainda segue
+                  <strong style="color:var(--c-text)">{{ layoutPublicadoLabel }}</strong> até salvar.
+                </span>
+              }
+            </div>
 
             <form class="flex flex-col gap-5" (ngSubmit)="salvarConteudoExtra()">
               <div class="card p-5">
                 <p class="text-xs font-bold uppercase tracking-wider mb-1" style="color:var(--c-muted)">Textos e links</p>
-                <p class="text-[11px] mb-4" style="color:var(--c-muted)">Usados nos layouts temáticos (2 a 8). Veterinária, pediatria e nutrição também leem registro profissional, convênios, modalidades e textos aqui quando aplicável.</p>
+                <p class="text-[11px] mb-4" style="color:var(--c-muted)">Usados nos layouts temáticos. Veterinária, pediatria e nutrição também leem registro profissional, convênios, modalidades e textos aqui quando aplicável.</p>
                 <div class="flex flex-col gap-4">
                   <div>
                     <label class="form-label">Frase de destaque (hero)</label>
@@ -672,25 +797,9 @@
             </form>
           </div>
         }
-      </div>
 
-      <!-- Preview celular (visível nas abas exceto Modelos e Conteúdo extra) -->
-      @if (abaAtiva !== 'modelos' && abaAtiva !== 'conteudoExtra') {
-      <div class="flex flex-col items-center gap-3 md:sticky md:top-24">
-        <p class="text-[0.6875rem] uppercase tracking-wider" style="color:var(--c-muted)">Prévia ao vivo</p>
-        <div class="link-bio-phone w-full max-w-[320px] md:max-w-none">
-          @if (previewUrlSafe) {
-            <iframe [src]="previewUrlSafe" title="Preview Link Bio" class="link-bio-phone-screen w-full h-full border-0" loading="lazy"></iframe>
-          } @else {
-            <div class="link-bio-phone-screen w-full h-full min-h-[400px] flex flex-col items-center justify-center rounded-xl text-sm" style="background:var(--c-soft);color:var(--c-muted);border:1px dashed var(--c-border)">
-              <span class="material-symbols-outlined mb-2" style="font-size:32px">smartphone</span>
-              <span>Carregando prévia…</span>
-            </div>
-          }
-        </div>
-      </div>
-      }
     </div>
+    }
     </div>
   }
   }

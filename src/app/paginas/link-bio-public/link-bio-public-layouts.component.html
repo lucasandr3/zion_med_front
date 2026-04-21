@@ -54,7 +54,7 @@
 
         @if (whatsappUrl()) {
           <div class="lb-anim-f2">
-            <a [href]="whatsappUrl()" target="_blank" rel="noopener noreferrer" class="lb-wpp-btn w-full flex items-center justify-center gap-3 py-4 rounded-2xl bg-[#22c55e] hover:bg-[#16a34a] text-white font-semibold text-[15px] no-underline shadow-sm">
+            <a [href]="trackCta('whatsapp', whatsappUrl())" target="_blank" rel="noopener noreferrer" class="lb-wpp-btn w-full flex items-center justify-center gap-3 py-4 rounded-2xl bg-[#22c55e] hover:bg-[#16a34a] text-white font-semibold text-[15px] no-underline shadow-sm">
               <svg class="w-5 h-5" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.108.549 4.09 1.508 5.814L0 24l6.335-1.489A11.926 11.926 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.89 0-3.663-.5-5.198-1.375l-.372-.22-3.862.908.979-3.763-.242-.386A9.944 9.944 0 012 12C2 6.486 6.486 2 12 2s10 4.486 10 10-4.486 10-10 10z"/></svg>
               Agendar pelo WhatsApp
             </a>
@@ -63,13 +63,13 @@
 
         <div class="grid grid-cols-2 gap-2.5 mt-2.5 lb-anim-f2">
           @if (clinic.contact_email) {
-            <a [href]="'mailto:' + clinic.contact_email" class="flex items-center justify-center gap-2 py-3 rounded-xl bg-[#f0e6d6] dark:bg-white/[.05] hover:bg-[#e8dcc8] dark:hover:bg-white/[.08] text-[#7a4f2e] dark:text-[#f0e6d6] text-[13px] font-semibold no-underline transition-colors">
+            <a [href]="trackCta('email', 'mailto:' + clinic.contact_email)" class="flex items-center justify-center gap-2 py-3 rounded-xl bg-[#f0e6d6] dark:bg-white/[.05] hover:bg-[#e8dcc8] dark:hover:bg-white/[.08] text-[#7a4f2e] dark:text-[#f0e6d6] text-[13px] font-semibold no-underline transition-colors">
               <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
               E-mail
             </a>
           }
           @if (clinic.maps_url) {
-            <a [href]="clinic.maps_url" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 py-3 rounded-xl bg-[#f0e6d6] dark:bg-white/[.05] hover:bg-[#e8dcc8] dark:hover:bg-white/[.08] text-[#7a4f2e] dark:text-[#f0e6d6] text-[13px] font-semibold no-underline transition-colors">
+            <a [href]="trackCta('maps', clinic.maps_url!)" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 py-3 rounded-xl bg-[#f0e6d6] dark:bg-white/[.05] hover:bg-[#e8dcc8] dark:hover:bg-white/[.08] text-[#7a4f2e] dark:text-[#f0e6d6] text-[13px] font-semibold no-underline transition-colors">
               <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
               Localização
             </a>
@@ -209,7 +209,7 @@
 
         @if (whatsappUrl()) {
           <div class="lb-anim-f2">
-            <a [href]="whatsappUrl()" target="_blank" rel="noopener noreferrer" class="lb-cta-gold w-full flex items-center justify-center gap-3 py-4 rounded-2xl font-semibold text-[15px] no-underline tracking-wide">
+            <a [href]="trackCta('whatsapp', whatsappUrl())" target="_blank" rel="noopener noreferrer" class="lb-cta-gold w-full flex items-center justify-center gap-3 py-4 rounded-2xl font-semibold text-[15px] no-underline tracking-wide">
               <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.108.549 4.09 1.508 5.814L0 24l6.335-1.489A11.926 11.926 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.89 0-3.663-.5-5.198-1.375l-.372-.22-3.862.908.979-3.763-.242-.386A9.944 9.944 0 012 12C2 6.486 6.486 2 12 2s10 4.486 10 10-4.486 10-10 10z"/></svg>
               Agendar consulta
             </a>
@@ -218,13 +218,13 @@
 
         <div class="grid grid-cols-2 gap-2.5 mt-2.5 lb-anim-f2">
           @if (clinic.maps_url) {
-            <a [href]="clinic.maps_url" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 py-3 px-3 rounded-xl bg-white/[.05] border border-white/10 text-white/60 text-[13px] font-medium no-underline hover:bg-white/[.08]">
+            <a [href]="trackCta('maps', clinic.maps_url!)" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 py-3 px-3 rounded-xl bg-white/[.05] border border-white/10 text-white/60 text-[13px] font-medium no-underline hover:bg-white/[.08]">
               <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
               Localização
             </a>
           }
           @if (instagramUrl) {
-            <a [href]="instagramUrl" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 py-3 px-3 rounded-xl bg-white/[.05] border border-white/10 text-white/60 text-[13px] font-medium no-underline hover:bg-white/[.08]">
+            <a [href]="trackCta('instagram', instagramUrl)" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 py-3 px-3 rounded-xl bg-white/[.05] border border-white/10 text-white/60 text-[13px] font-medium no-underline hover:bg-white/[.08]">
               <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
               Instagram
             </a>
@@ -353,7 +353,7 @@
 
       <div class="w-full max-w-lg mx-auto px-4 sm:px-6 pb-14 pt-5 lb-anim-f2">
         @if (whatsappUrl()) {
-          <a [href]="whatsappUrl()" target="_blank" rel="noopener noreferrer" class="lb-wpp-btn w-full flex items-center justify-center gap-3 py-4 rounded-2xl bg-[#22c55e] hover:bg-[#16a34a] text-white font-bold text-[15px] no-underline">
+          <a [href]="trackCta('whatsapp', whatsappUrl())" target="_blank" rel="noopener noreferrer" class="lb-wpp-btn w-full flex items-center justify-center gap-3 py-4 rounded-2xl bg-[#22c55e] hover:bg-[#16a34a] text-white font-bold text-[15px] no-underline">
             <svg class="w-5 h-5" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.108.549 4.09 1.508 5.814L0 24l6.335-1.489A11.926 11.926 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.89 0-3.663-.5-5.198-1.375l-.372-.22-3.862.908.979-3.763-.242-.386A9.944 9.944 0 012 12C2 6.486 6.486 2 12 2s10 4.486 10 10-4.486 10-10 10z"/></svg>
             Marcar consulta
           </a>
@@ -361,13 +361,13 @@
 
         <div class="grid grid-cols-2 gap-2.5 mt-2.5">
           @if (clinic.maps_url) {
-            <a [href]="clinic.maps_url" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 py-3 px-3 rounded-xl bg-white dark:bg-white/[.05] border border-sky-100 dark:border-white/[.06] hover:bg-sky-50 dark:hover:bg-white/[.08] text-sky-700 dark:text-sky-400 text-[13px] font-semibold no-underline">
+            <a [href]="trackCta('maps', clinic.maps_url!)" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 py-3 px-3 rounded-xl bg-white dark:bg-white/[.05] border border-sky-100 dark:border-white/[.06] hover:bg-sky-50 dark:hover:bg-white/[.08] text-sky-700 dark:text-sky-400 text-[13px] font-semibold no-underline">
               <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
               Como chegar
             </a>
           }
           @if (clinic.contact_email) {
-            <a [href]="'mailto:' + clinic.contact_email" class="flex items-center justify-center gap-2 py-3 px-3 rounded-xl bg-white dark:bg-white/[.05] border border-sky-100 dark:border-white/[.06] hover:bg-sky-50 dark:hover:bg-white/[.08] text-sky-700 dark:text-sky-400 text-[13px] font-semibold no-underline">
+            <a [href]="trackCta('email', 'mailto:' + clinic.contact_email)" class="flex items-center justify-center gap-2 py-3 px-3 rounded-xl bg-white dark:bg-white/[.05] border border-sky-100 dark:border-white/[.06] hover:bg-sky-50 dark:hover:bg-white/[.08] text-sky-700 dark:text-sky-400 text-[13px] font-semibold no-underline">
               <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
               Contato
             </a>
@@ -538,7 +538,7 @@
 
       <div class="w-full max-w-lg mx-auto px-4 sm:px-6 pb-14 pt-5">
         @if (whatsappUrl()) {
-          <a [href]="whatsappUrl()" target="_blank" rel="noopener noreferrer" class="lb-wpp-btn w-full flex items-center justify-center gap-3 py-4 rounded-2xl bg-[#22c55e] hover:bg-[#16a34a] text-white font-bold text-[15px] no-underline">
+          <a [href]="trackCta('whatsapp', whatsappUrl())" target="_blank" rel="noopener noreferrer" class="lb-wpp-btn w-full flex items-center justify-center gap-3 py-4 rounded-2xl bg-[#22c55e] hover:bg-[#16a34a] text-white font-bold text-[15px] no-underline">
             <svg class="w-5 h-5" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.108.549 4.09 1.508 5.814L0 24l6.335-1.489A11.926 11.926 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.89 0-3.663-.5-5.198-1.375l-.372-.22-3.862.908.979-3.763-.242-.386A9.944 9.944 0 012 12C2 6.486 6.486 2 12 2s10 4.486 10 10-4.486 10-10 10z"/></svg>
             Falar com a recepção
           </a>
@@ -546,13 +546,13 @@
 
         <div class="grid grid-cols-2 gap-2.5 mt-2.5">
           @if (clinic.maps_url) {
-            <a [href]="clinic.maps_url" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 py-3 px-3 rounded-xl bg-white dark:bg-white/[.05] border border-gray-100 dark:border-white/[.06] hover:bg-gray-50 dark:hover:bg-white/[.08] text-gray-600 dark:text-gray-400 text-[13px] font-semibold no-underline">
+            <a [href]="trackCta('maps', clinic.maps_url!)" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 py-3 px-3 rounded-xl bg-white dark:bg-white/[.05] border border-gray-100 dark:border-white/[.06] hover:bg-gray-50 dark:hover:bg-white/[.08] text-gray-600 dark:text-gray-400 text-[13px] font-semibold no-underline">
               <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
               Como chegar
             </a>
           }
           @if (clinic.contact_email) {
-            <a [href]="'mailto:' + clinic.contact_email" class="flex items-center justify-center gap-2 py-3 px-3 rounded-xl bg-white dark:bg-white/[.05] border border-gray-100 dark:border-white/[.06] hover:bg-gray-50 dark:hover:bg-white/[.08] text-gray-600 dark:text-gray-400 text-[13px] font-semibold no-underline">
+            <a [href]="trackCta('email', 'mailto:' + clinic.contact_email)" class="flex items-center justify-center gap-2 py-3 px-3 rounded-xl bg-white dark:bg-white/[.05] border border-gray-100 dark:border-white/[.06] hover:bg-gray-50 dark:hover:bg-white/[.08] text-gray-600 dark:text-gray-400 text-[13px] font-semibold no-underline">
               <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
               Contato
             </a>
@@ -565,9 +565,9 @@
               <p class="text-[10px] font-bold tracking-[.1em] uppercase text-gray-400 dark:text-gray-600 whitespace-nowrap">Nossa equipe</p>
               <div class="flex-1 h-px bg-gray-200 dark:bg-white/[.06]"></div>
             </div>
-            @for (m of visibleTeamM5; track $index) {
+            @for (m of visibleTeamM5; track $index; let teamIdx = $index) {
               <div class="lb-pro-card flex items-center gap-3.5 p-4 rounded-2xl bg-white dark:bg-white/[.03] border border-gray-100 dark:border-white/[.05] mb-2.5">
-                <div class="lb-pro-avatar" [ngClass]="teamAvatarColor($index)">{{ initialsFromName(m.name) }}</div>
+                <div class="lb-pro-avatar" [ngClass]="teamAvatarColor(teamIdx)">{{ initialsFromName(m.name) }}</div>
                 <div class="flex-1 min-w-0">
                   <p class="text-[13px] font-bold text-gray-800 dark:text-gray-200">{{ m.name }}</p>
                   @if (m.credential) {
@@ -578,7 +578,7 @@
                   }
                 </div>
                 @if (waUrlForMember(m.whatsapp)) {
-                  <a [href]="waUrlForMember(m.whatsapp)" target="_blank" rel="noopener noreferrer" class="flex-shrink-0 w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center no-underline hover:bg-emerald-100 transition-colors">
+                  <a [href]="trackCta('team_whatsapp', waUrlForMember(m.whatsapp), teamIdx)" target="_blank" rel="noopener noreferrer" class="flex-shrink-0 w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center no-underline hover:bg-emerald-100 transition-colors">
                     <svg class="w-4 h-4 text-emerald-500" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.108.549 4.09 1.508 5.814L0 24l6.335-1.489A11.926 11.926 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.89 0-3.663-.5-5.198-1.375l-.372-.22-3.862.908.979-3.763-.242-.386A9.944 9.944 0 012 12C2 6.486 6.486 2 12 2s10 4.486 10 10-4.486 10-10 10z"/></svg>
                   </a>
                 }

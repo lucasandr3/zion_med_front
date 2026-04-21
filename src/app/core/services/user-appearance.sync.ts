@@ -1,6 +1,8 @@
 /** Chaves alinhadas ao cabeçalho e ao `index.html`. */
 export const GESTGO_THEME_LS = 'gestgo_theme';
 export const GESTGO_DARK_LS = 'gestgo_dark_mode';
+/** Quando `'auto'`, o modo claro/escuro segue `prefers-color-scheme` (drawer do cabeçalho). */
+export const GESTGO_APPEARANCE_MODE_LS = 'gestgo_appearance_mode';
 
 /** Alinhado ao backend (`ThemeService::LEGACY_THEME_ALIASES`). */
 const LEGACY_THEME_ALIASES: Record<string, string> = {

@@ -94,11 +94,31 @@ export interface LinkBioMetrics {
   formularios_draft: number;
 }
 
+export type LinkBioCtaChannel =
+  | 'whatsapp'
+  | 'maps'
+  | 'email'
+  | 'phone'
+  | 'instagram'
+  | 'team_whatsapp';
+
+/** Discriminação de cliques (links da bio + CTAs da página). */
+export interface LinkBioClickBreakdownRow {
+  kind: 'bio_link' | 'cta';
+  id?: number;
+  channel?: string;
+  ref?: string | null;
+  label: string;
+  total_clicks: number;
+  total_last_30: number;
+}
+
 export interface LinkBioStats {
   clicks_per_day: Record<string, number>;
   views_per_day: Record<string, number>;
   most_clicked_link?: LinkBioLink | null;
   peak_day_label?: string | null;
+  click_breakdown: LinkBioClickBreakdownRow[];
 }
 
 /** Resposta do endpoint público GET /link-bio/public/:slug */
@@ -139,6 +159,7 @@ interface ApiResponse {
     views_per_day: Record<string, number>;
     most_clicked_link: LinkBioLink | null;
     peak_day_label: string | null;
+    click_breakdown: LinkBioClickBreakdownRow[];
   };
 }
 
@@ -172,6 +193,7 @@ export class LinkBioService {
             views_per_day: d.views_per_day ?? {},
             most_clicked_link: d.most_clicked_link,
             peak_day_label: d.peak_day_label,
+            click_breakdown: d.click_breakdown ?? [],
           },
         } as LinkBioState;
       })
@@ -216,13 +238,50 @@ export class LinkBioService {
   /**
    * URL de saída para link da bio: em prévia usa o destino direto (não conta clique).
    * Fora da prévia passa pela API, que registra o clique e redireciona.
+   *
+   * Sempre usa `environment.apiUrl` (o mesmo host que o `ApiService`), para bater no mesmo
+   * Laravel que grava views/cliques. Path relativo no SPA + proxy costuma apontar para outra
+   * porta/instância e os números não atualizam.
    */
-  outboundBioLinkUrl(slug: string, link: LinkBioLink, isPreview: boolean): string {
-    if (isPreview || !slug) {
+  /**
+   * @param clinicSlugFallback ex.: `clinic.slug` da API quando `publicSlug` da rota vier vazio no binding
+   */
+  outboundBioLinkUrl(
+    routeSlug: string,
+    link: LinkBioLink,
+    isPreview: boolean,
+    clinicSlugFallback?: string | null
+  ): string {
+    const slug = (routeSlug || clinicSlugFallback || '').trim();
+    const linkId = link?.id;
+    if (isPreview || !slug || linkId == null || Number.isNaN(Number(linkId))) {
       return link.url;
     }
     const root = environment.apiUrl.replace(/\/+$/, '');
-    return `${root}/api/v1/link-bio/public/${encodeURIComponent(slug)}/go/${link.id}`;
+    return `${root}/api/v1/link-bio/public/${encodeURIComponent(slug)}/go/${Number(linkId)}`;
+  }
+
+  /**
+   * URL que registra clique em CTA (WhatsApp, maps, etc.) e redireciona.
+   * Em prévia retorna null — o chamador usa o href direto.
+   */
+  outboundCtaUrl(
+    routeSlug: string,
+    channel: LinkBioCtaChannel,
+    isPreview: boolean,
+    clinicSlugFallback?: string | null,
+    teamRef?: number | null
+  ): string | null {
+    const slug = (routeSlug || clinicSlugFallback || '').trim();
+    if (isPreview || !slug) {
+      return null;
+    }
+    const root = environment.apiUrl.replace(/\/+$/, '');
+    let url = `${root}/api/v1/link-bio/public/${encodeURIComponent(slug)}/cta/${channel}`;
+    if (channel === 'team_whatsapp' && teamRef != null && !Number.isNaN(Number(teamRef))) {
+      url += `?ref=${Number(teamRef)}`;
+    }
+    return url;
   }
 
   /** Página pública do Link Bio por slug (sem autenticação). */

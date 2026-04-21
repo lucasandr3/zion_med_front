@@ -9,6 +9,7 @@ import {
   LinkBioFormLink,
   LinkBioExtra,
   LinkBioLayoutModel,
+  LinkBioStats,
 } from '../../core/services/link-bio.service';
 import { ClinicaService } from '../../core/services/clinica.service';
 import { LoadingService } from '../../shared/services/loading.service';
@@ -16,6 +17,8 @@ import { ZmSkeletonListComponent } from '../../shared/components/skeletons';
 import { ToastService } from '../../core/services/toast.service';
 import { ConfirmDialogService } from '../../core/services/confirm-dialog.service';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { normalizeThemeKey } from '../../core/services/user-appearance.sync';
+import { environment } from '../../../environments/environment';
 
 type Aba = 'links' | 'forms' | 'stats' | 'aparencia' | 'modelos' | 'conteudoExtra';
 
@@ -80,7 +83,7 @@ export class LinkBioComponent implements OnInit {
   excluindoLinkId: number | null = null;
   atualizandoStatsRodape = false;
 
-  /** Formulário: dados extras para layouts 2–5 (persistidos em `link_bio_extra`). */
+  /** Formulário: dados extras para layouts temáticos (persistidos em `link_bio_extra`). */
   extraHeroTagline = '';
   extraCouncilRegistration = '';
   extraBrandSubtitle = '';
@@ -113,6 +116,30 @@ export class LinkBioComponent implements OnInit {
     return this.state?.public_url ?? '';
   }
 
+  /**
+   * Link aberto por &quot;Ver página&quot;. Em dev, se o `public_url` da API tiver outro origin
+   * que o painel (ex.: FRONTEND_URL=zion_med.test e `ng serve` em localhost:4200), abre o SPA
+   * no host atual para a página pública chamar a mesma API e as métricas baterem.
+   */
+  get publicUrlAbrirNoNavegador(): string {
+    const canonical = this.publicUrl;
+    const slug = this.state?.clinic?.slug;
+    if (!canonical || !slug) return canonical;
+    if (environment.production || !isPlatformBrowser(this.platformId)) {
+      return canonical;
+    }
+    try {
+      const spaOrigin = window.location.origin;
+      const linkOrigin = new URL(canonical).origin;
+      if (linkOrigin !== spaOrigin) {
+        return `${spaOrigin}/l/${encodeURIComponent(slug)}`;
+      }
+    } catch {
+      /* URL inválida — mantém canonical */
+    }
+    return canonical;
+  }
+
   get availableIcons(): Record<string, string> {
     return this.state?.available_icons ?? {};
   }
@@ -121,12 +148,38 @@ export class LinkBioComponent implements OnInit {
     return this.state?.available_themes ?? {};
   }
 
+  /** Mesma ordem que Configurações → Tema visual (`Object.keys`, não ordenação alfabética do keyvalue). */
+  get themeKeys(): string[] {
+    return Object.keys(this.availableThemes);
+  }
+
   get metrics() {
     return this.state?.metrics;
   }
 
-  get stats() {
-    return this.state?.stats;
+  get stats(): LinkBioStats {
+    return (
+      this.state?.stats ?? {
+        clicks_per_day: {},
+        views_per_day: {},
+        most_clicked_link: null,
+        peak_day_label: null,
+        click_breakdown: [],
+      }
+    );
+  }
+
+  /** Iframe de prévia visível (fora de Modelos e Conteúdo extra). */
+  get previewVisivel(): boolean {
+    return this.abaAtiva !== 'modelos' && this.abaAtiva !== 'conteudoExtra';
+  }
+
+  /** Prévia na coluna direita (lg+) — Links, Formulários e Aparência (faixa de abas em cima; conteúdo | prévia). */
+  get previewAoLado(): boolean {
+    return (
+      this.previewVisivel &&
+      (this.abaAtiva === 'links' || this.abaAtiva === 'forms' || this.abaAtiva === 'aparencia')
+    );
   }
 
   /** IDs dos modelos para grade de prévia na aba Modelos. */
@@ -143,6 +196,37 @@ export class LinkBioComponent implements OnInit {
     7: 'Pediatria',
     8: 'Nutricionista',
   };
+
+  /** Subtítulo curto nos cards de modelo (layout). */
+  readonly linkBioModelSubtitles: Record<LinkBioLayoutModel, string> = {
+    1: 'Layout multipropósito',
+    2: 'Perfil + contato direto',
+    3: 'Agendamento + portfólio',
+    4: 'Convênios + serviços',
+    5: 'Equipe em destaque',
+    6: 'Pets + agendamento',
+    7: 'Agenda + info para pais',
+    8: 'Planos + consulta online',
+  };
+
+  /** Modelo salvo na API (para barra “alterações não salvas”). */
+  modeloPersistido: LinkBioLayoutModel = 1;
+
+  get modeloDirty(): boolean {
+    return this.state != null && this.aparenciaModelo !== this.modeloPersistido;
+  }
+
+  get layoutPublicadoLabel(): string {
+    return this.linkBioModelLabels[this.modeloPersistido] ?? '—';
+  }
+
+  get layoutSelecionadoLabel(): string {
+    return this.linkBioModelLabels[this.aparenciaModelo] ?? '—';
+  }
+
+  get conteudoExtraApareceNoPublico(): boolean {
+    return this.modeloPersistido !== 1;
+  }
 
   /** Bust de cache dos iframes da aba Modelos. */
   private previewModelsTimestamp = Date.now();
@@ -324,10 +408,13 @@ export class LinkBioComponent implements OnInit {
   private aplicarEstadoLinkBio(s: LinkBioState): void {
     this.state = s;
     const c = s.clinic;
-    this.aparenciaPublicTheme = c.public_theme ?? '';
+    this.aparenciaPublicTheme = c.public_theme
+      ? normalizeThemeKey(String(c.public_theme))
+      : '';
     this.aparenciaCoverColor = c.cover_color ?? '#1a1a2e';
     this.aparenciaCoverMode = (c.cover_mode as 'banner' | 'solid' | 'none') ?? 'banner';
     this.aparenciaModelo = (c.link_bio_model as LinkBioLayoutModel) ?? 1;
+    this.modeloPersistido = this.aparenciaModelo;
     this.aparenciaShortDescription = c.short_description ?? '';
     this.aparenciaSpecialties = c.specialties ?? '';
     this.aparenciaFoundedYear = (c.founded_year as number | null) ?? null;
@@ -387,9 +474,16 @@ export class LinkBioComponent implements OnInit {
     }
   }
 
+  selecionarModelo(m: LinkBioLayoutModel): void {
+    this.aparenciaModelo = m;
+  }
+
   copiarLinkPrincipal(): void {
     if (!this.publicUrl) return;
-    navigator.clipboard.writeText(this.publicUrl);
+    navigator.clipboard.writeText(this.publicUrl).then(
+      () => this.toast.success('Link copiado', 'Você já pode colar e compartilhar.'),
+      () => this.toast.error('Não foi possível copiar', 'Tente novamente.')
+    );
   }
 
   toggleFormNovo(): void {
@@ -514,6 +608,7 @@ export class LinkBioComponent implements OnInit {
   /** Apenas o layout publicado (dados extras ficam na aba Conteúdo extra). */
   salvarModelos(): void {
     if (!this.state) return;
+    if (!this.modeloDirty) return;
     this.salvandoModelos = true;
     this.linkBioService.updateAparencia({ link_bio_model: this.aparenciaModelo }).subscribe({
       next: (clinic) => {
@@ -521,6 +616,7 @@ export class LinkBioComponent implements OnInit {
         if (this.state) {
           this.state.clinic = { ...this.state.clinic, ...clinic };
         }
+        this.modeloPersistido = this.aparenciaModelo;
         this.syncDraftToSessionForPreviews();
         this.previewModelsTimestamp = Date.now();
         this.atualizarPreviewUrl();
@@ -534,7 +630,7 @@ export class LinkBioComponent implements OnInit {
   }
 
   selecionarTema(themeKey: string): void {
-    this.aparenciaPublicTheme = themeKey;
+    this.aparenciaPublicTheme = themeKey === '' ? '' : normalizeThemeKey(themeKey);
   }
 
   onSelecionarCoverImage(event: Event): void {

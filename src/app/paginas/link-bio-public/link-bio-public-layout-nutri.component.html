@@ -86,7 +86,7 @@
     @if (whatsappUrl()) {
       <div class="lb-m8-a2">
         <a
-          [href]="whatsappUrl()"
+          [href]="trackCta('whatsapp', whatsappUrl())"
           target="_blank"
           rel="noopener noreferrer"
           class="lb-m8-wpp w-full flex items-center justify-center gap-2 no-underline"
@@ -103,7 +103,7 @@
     <div class="grid grid-cols-2 gap-2.5 mt-2.5 lb-m8-a2">
       @if (clinic.maps_url) {
         <a
-          [href]="clinic.maps_url"
+          [href]="trackCta('maps', clinic.maps_url!)"
           target="_blank"
           rel="noopener noreferrer"
           class="lb-m8-secondary bg-sage-100 dark:bg-white/4 hover:bg-sage-200 dark:hover:bg-white/[0.07] text-sage-700 dark:text-sage-300 no-underline"
@@ -117,7 +117,7 @@
       }
       @if (telHref()) {
         <a
-          [href]="telHref()"
+          [href]="trackCta('phone', telHref())"
           class="lb-m8-secondary bg-sage-100 dark:bg-white/4 hover:bg-sage-200 dark:hover:bg-white/[0.07] text-sage-700 dark:text-sage-300 no-underline"
         >
           <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
