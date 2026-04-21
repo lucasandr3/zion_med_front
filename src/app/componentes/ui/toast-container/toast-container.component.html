@@ -17,13 +17,14 @@
           <div class="toast-desc">{{ t.desc }}</div>
         }
       </div>
-      <button type="button" class="toast-close" (click)="dismiss(t.id)" aria-label="Fechar notificação">
-        <span class="material-symbols-outlined">close</span>
-      </button>
-      <div
-        class="toast-progress"
-        [style.animation-duration]="t.duration + 'ms'"
-      ></div>
+      <div class="toast-actions">
+        <button type="button" class="toast-btn toast-btn-ghost" (click)="dismiss(t.id)">Dispensar</button>
+        @if (t.actionLabel) {
+          <button type="button" class="toast-btn toast-btn-solid" (click)="runAction(t.id, t.onAction)">
+            {{ t.actionLabel }}
+          </button>
+        }
+      </div>
     </div>
   }
 </div>

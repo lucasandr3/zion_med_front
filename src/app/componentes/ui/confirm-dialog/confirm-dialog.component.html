@@ -24,7 +24,13 @@
         <button type="button" class="confirm-btn confirm-btn-secondary" (click)="cancel()">
           {{ opts.cancelLabel }}
         </button>
-        <button type="button" class="confirm-btn confirm-btn-primary" (click)="confirm()">
+        <button
+          type="button"
+          class="confirm-btn confirm-btn-primary"
+          [class.confirm-btn-danger]="opts.variant === 'danger'"
+          [class.confirm-btn-brand]="opts.variant !== 'danger'"
+          (click)="confirm()"
+        >
           {{ opts.confirmLabel }}
         </button>
       </div>

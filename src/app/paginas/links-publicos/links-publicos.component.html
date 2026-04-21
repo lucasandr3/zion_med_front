@@ -1,25 +1,20 @@
 <div class="relative min-h-[320px]">
-  <!-- <div class="page-header mb-6">
-    <div class="page-title flex items-center gap-3">
-      <div class="page-title-icon w-10 h-10 rounded-lg flex items-center justify-center" style="background: var(--c-soft)">
-        <span class="material-symbols-outlined" style="color: var(--c-primary)">link</span>
-      </div>
-      <div>
-        <h1 class="text-xl font-semibold m-0" style="color: var(--c-text)">Links para enviar</h1>
-        <p class="page-header-subtitle text-sm mt-1 mb-0" style="color: var(--c-muted)">Copie o link do formulário e envie pelo WhatsApp ou outro canal. Apenas templates com link público ativo aparecem aqui.</p>
-      </div>
-    </div>
-  </div> -->
   @if (showSkeleton()) {
     <zm-skeleton-list [rows]="5" />
   } @else if (!listaPronta) {
   } @else if (erro) {
-    <p class="text-sm" style="color: var(--c-error, #dc2626)">{{ erro }}</p>
+    <div class="card rounded-xl p-5 flex flex-wrap items-center justify-between gap-3" style="border: 1px solid var(--c-border)">
+      <p class="text-sm m-0" style="color: var(--c-error, #dc2626)">{{ erro }}</p>
+      <button type="button" class="btn-ghost btn-default-bg inline-flex items-center gap-2" (click)="carregar()">
+        <span class="material-symbols-outlined text-base">refresh</span>
+        Tentar novamente
+      </button>
+    </div>
   } @else {
     <div class="zm-content-enter">
 <div class="card rounded-xl overflow-hidden" style="padding: 0; border: 1px solid var(--c-border)">
   @for (t of templates; track t.id) {
-    <div class="flex flex-wrap items-center justify-between gap-4 py-4 px-5" style="border-bottom: 1px solid var(--c-border)">
+    <div class="template-row flex flex-wrap items-center justify-between gap-4 py-4 px-5" style="border-bottom: 1px solid var(--c-border)">
       <div class="flex items-center gap-3 min-w-0">
         <span class="material-symbols-outlined shrink-0 text-xl" style="color: var(--c-muted)">description</span>
         <div class="min-w-0">
@@ -27,19 +22,21 @@
           @if (t.category_label) {
             <p class="text-xs mt-0.5 mb-0" style="color: var(--c-muted)">{{ t.category_label }}</p>
           }
+          <p class="text-xs mt-1 mb-0 template-link-preview">{{ t.public_url }}</p>
         </div>
       </div>
-      <div class="flex items-center gap-2 shrink-0">
-        <button type="button" (click)="copiarLink(t.public_url)" class="inline-flex items-center gap-2 bg-green-600 text-white font-semibold px-4 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm" title="Copiar link do formulário">
+      <div class="template-actions flex items-center gap-2 shrink-0">
+        <button type="button" (click)="copiarLink(t.id, t.public_url)" class="template-action-btn template-action-btn--primary" title="Copiar link do formulário">
           <span class="material-symbols-outlined text-lg">content_copy</span>
-          <span class="copy-label">Copiar link</span>
+          <span class="copy-label">{{ copiedTemplateId === t.id ? 'Copiado!' : 'Copiar link' }}</span>
         </button>
-        <a [href]="t.public_url" target="_blank" rel="noopener" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium" style="background: var(--c-soft); color: var(--c-muted)" title="Abrir formulário em nova aba">
+        <a [href]="t.public_url" target="_blank" rel="noopener" class="template-action-btn" title="Abrir formulário em nova aba">
           <span class="material-symbols-outlined text-lg">open_in_new</span>
           Abrir
         </a>
-        <a routerLink="/templates/{{ t.id }}/campos" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium" style="background: var(--c-soft); color: var(--c-muted)" title="Campos do template">
+        <a routerLink="/templates/{{ t.id }}/campos" class="template-action-btn" title="Campos do template">
           <span class="material-symbols-outlined text-lg">tune</span>
+          Campos
         </a>
       </div>
     </div>

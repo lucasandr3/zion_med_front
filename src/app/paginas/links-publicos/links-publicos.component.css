@@ -1,1 +1,66 @@
-/* Links para enviar - fiel ao Blade */
+.template-row:last-child {
+  border-bottom: 0 !important;
+}
+
+.template-link-preview {
+  color: var(--c-muted);
+  max-width: 52ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.template-actions a,
+.template-actions button {
+  min-height: 32px;
+}
+
+.template-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 0.45rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  background: var(--c-soft);
+  color: var(--c-muted);
+  border: 1px solid transparent;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.template-action-btn:hover {
+  background: var(--c-border);
+}
+
+.template-action-btn .material-symbols-outlined {
+  font-size: 1rem;
+}
+
+.template-action-btn--primary {
+  background: var(--c-primary);
+  color: #fff;
+}
+
+.template-action-btn--primary:hover {
+  background: color-mix(in srgb, var(--c-primary) 88%, #000);
+}
+
+.template-actions a:focus-visible,
+.template-actions button:focus-visible {
+  outline: 2px solid var(--c-primary);
+  outline-offset: 2px;
+}
+
+@media (max-width: 768px) {
+  .template-actions {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .template-actions a,
+  .template-actions button {
+    justify-content: center;
+    flex: 1 1 calc(50% - 0.5rem);
+  }
+}

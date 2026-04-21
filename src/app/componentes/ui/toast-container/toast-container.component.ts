@@ -15,12 +15,19 @@ export class ToastContainerComponent {
 
   icon(type: ToastType): string {
     const m: Record<ToastType, string> = {
-      success: 'check',
+      success: 'check_circle',
       error: 'error',
       warning: 'warning',
       info: 'info',
     };
     return m[type];
+  }
+
+  runAction(id: number, action?: () => void): void {
+    if (action) {
+      action();
+    }
+    this.dismiss(id);
   }
 
   dismiss(id: number): void {

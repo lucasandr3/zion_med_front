@@ -8,6 +8,8 @@ export interface Toast {
   title: string;
   desc?: string;
   duration: number;
+  actionLabel?: string;
+  onAction?: () => void;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -15,8 +17,8 @@ export class ToastService {
   private _id = 0;
   toasts = signal<Toast[]>([]);
 
-  show(type: ToastType, title: string, desc?: string, duration = 4000) {
-    const toast: Toast = { id: ++this._id, type, title, desc, duration };
+  show(type: ToastType, title: string, desc?: string, duration = 4000, actionLabel?: string, onAction?: () => void) {
+    const toast: Toast = { id: ++this._id, type, title, desc, duration, actionLabel, onAction };
     this.toasts.update((t) => [...t, toast]);
     setTimeout(() => this.remove(toast.id), duration);
   }

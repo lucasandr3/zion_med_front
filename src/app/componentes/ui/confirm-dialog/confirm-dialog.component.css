@@ -15,9 +15,9 @@
   max-width: 22rem;
   padding: 1.25rem 1.25rem 1rem;
   border-radius: 0.875rem;
-  background: var(--c-elevated, #1e293b);
-  border: 1px solid var(--c-border, #334155);
-  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.35);
+  background: var(--c-elevated, #ffffff);
+  border: 1px solid var(--c-border, #e2e8f0);
+  box-shadow: var(--shadow-lg, 0 24px 48px rgba(0, 0, 0, 0.24));
 }
 
 .confirm-icon-wrap {
@@ -28,13 +28,13 @@
   align-items: center;
   justify-content: center;
   margin-bottom: 0.75rem;
-  background: rgba(148, 163, 184, 0.2);
-  color: var(--c-muted, #94a3b8);
+  background: color-mix(in srgb, var(--c-primary, #1d4ed8) 14%, transparent);
+  color: var(--c-primary, #1d4ed8);
 }
 
 .confirm-icon-wrap.danger {
-  background: rgba(244, 63, 94, 0.18);
-  color: #fb7185;
+  background: var(--c-danger-soft, rgba(239, 68, 68, 0.1));
+  color: var(--c-danger, #dc2626);
 }
 
 .confirm-icon {
@@ -82,15 +82,42 @@
   cursor: pointer;
   border: 1px solid var(--c-border, #475569);
   background: var(--c-soft, #1e293b);
-  color: var(--c-text, #f8fafc);
-  transition: background 0.15s, border-color 0.15s;
+  color: var(--c-text, #0f172a);
+  transition: background 0.15s, border-color 0.15s, color 0.15s, filter 0.15s;
 }
 
 .confirm-btn:hover {
-  background: var(--c-bg-soft, #334155);
+  background: color-mix(in srgb, var(--c-primary, #1d4ed8) 10%, var(--c-soft, #eef0f5));
   border-color: var(--c-muted, #64748b);
 }
 
-.confirm-btn-primary {
-  border-color: var(--c-border, #475569);
+.confirm-btn-secondary {
+  color: var(--c-text, #0f172a);
+}
+
+.confirm-btn-brand {
+  background: var(--c-primary, #1d4ed8);
+  border-color: var(--c-primary, #1d4ed8);
+  color: #ffffff;
+}
+
+.confirm-btn-brand:hover {
+  background: color-mix(in srgb, var(--c-primary, #1d4ed8) 90%, #000);
+  border-color: color-mix(in srgb, var(--c-primary, #1d4ed8) 90%, #000);
+}
+
+.confirm-btn-danger {
+  background: var(--c-danger, #dc2626);
+  border-color: var(--c-danger, #dc2626);
+  color: #ffffff;
+}
+
+.confirm-btn-danger:hover {
+  background: color-mix(in srgb, var(--c-danger, #dc2626) 90%, #000);
+  border-color: color-mix(in srgb, var(--c-danger, #dc2626) 90%, #000);
+}
+
+.confirm-btn:focus-visible {
+  outline: 2px solid var(--c-focus, rgba(29, 78, 216, 0.18));
+  outline-offset: 2px;
 }

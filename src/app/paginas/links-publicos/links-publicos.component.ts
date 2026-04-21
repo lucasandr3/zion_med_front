@@ -2,6 +2,7 @@ import { Component, OnInit, inject, Signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { LinksPublicosService, LinkPublico } from '../../core/services/links-publicos.service';
+import { ToastService } from '../../core/services/toast.service';
 import { LoadingService } from '../../shared/services/loading.service';
 import { ZmSkeletonListComponent } from '../../shared/components/skeletons';
 
@@ -17,10 +18,18 @@ export class LinksPublicosComponent implements OnInit {
   showSkeleton!: Signal<boolean>;
   listaPronta = false;
   erro = '';
+  copiedTemplateId: number | null = null;
   private linksService = inject(LinksPublicosService);
   private loadingService = inject(LoadingService);
+  private toast = inject(ToastService);
 
   ngOnInit(): void {
+    this.carregar();
+  }
+
+  carregar(): void {
+    this.erro = '';
+    this.listaPronta = false;
     const { data$, showSkeleton } = this.loadingService.loadWithThreshold(this.linksService.list());
     this.showSkeleton = showSkeleton;
     data$.subscribe({
@@ -38,13 +47,34 @@ export class LinksPublicosComponent implements OnInit {
       error: () => {
         this.listaPronta = true;
         this.erro = 'Não foi possível carregar os links.';
+        this.toast.error('Erro ao carregar', this.erro);
       },
     });
   }
 
-  copiarLink(url: string): void {
-    if (typeof navigator !== 'undefined' && navigator.clipboard) {
-      navigator.clipboard.writeText(url).then(() => {});
+  copiarLink(templateId: number, url: string): void {
+    if (!url) {
+      this.toast.warning('Link indisponível', 'Este template ainda não possui URL pública.');
+      return;
     }
+    if (typeof navigator !== 'undefined' && navigator.clipboard) {
+      navigator.clipboard
+        .writeText(url)
+        .then(() => {
+          this.copiedTemplateId = templateId;
+          this.toast.success('Link copiado', 'Você já pode colar e enviar para o cliente.');
+          setTimeout(() => {
+            if (this.copiedTemplateId === templateId) {
+              this.copiedTemplateId = null;
+            }
+          }, 2000);
+        })
+        .catch(() => {
+          this.toast.error('Não foi possível copiar', 'Tente novamente ou use a opção abrir.');
+        });
+      return;
+    }
+    this.toast.error('Navegador incompatível', 'Seu navegador não permite copiar automaticamente.');
   }
+
 }
