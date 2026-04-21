@@ -74,9 +74,18 @@ export class LayoutPlataformaComponent implements OnInit, OnDestroy {
       this.sidebarMobile.setOpen(false);
       this.headerService.clearHeader();
       this.updateFromActivatedRoute();
+      this.atualizarBadgeNotificacoes();
     });
 
     this.updateFromActivatedRoute();
+    this.atualizarBadgeNotificacoes();
+  }
+
+  private atualizarBadgeNotificacoes(): void {
+    if (!this.auth.hasPermission('notifications.access')) {
+      this.notificacoesNaoLidas = 0;
+      return;
+    }
     this.notif.getNaoLidasCount().subscribe((n) => (this.notificacoesNaoLidas = n));
   }
 

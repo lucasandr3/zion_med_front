@@ -13,10 +13,11 @@
 
   @if (!erro && protocolo) {
     <div class="zm-content-enter space-y-6">
-      <!-- Header da página (igual à view antiga) -->
+
+      <!-- Header da página -->
       <div class="flex flex-wrap items-start justify-between gap-4">
         <div class="flex items-start gap-3">
-          <div class="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0" style="background: var(--c-soft)">
+          <div class="w-10 h-10 rounded-lg flex items-center justify-center shrink-0" style="background: var(--c-soft)">
             <span class="material-symbols-outlined" style="color: var(--c-primary)">article</span>
           </div>
           <div>
@@ -48,13 +49,87 @@
             Baixar PDF
           </button>
           @if (isPending && podeRevisarProtocolo) {
-            <button type="button" class="btn-primary inline-flex items-center gap-2" (click)="toggleFormRevisao()" id="btn-aprovar-reprovar" title="Aprovar / Reprovar">
-              <span class="material-symbols-outlined text-lg">rate_review</span>
-              Aprovar / Reprovar
+            <button
+              type="button"
+              class="inline-flex items-center gap-2 btn-revisao-aprovar"
+              [class.btn-revisao-ativo]="revisaoFormVisible && revisaoAprovado"
+              (click)="abrirRevisao(true)"
+              title="Aprovar protocolo">
+              <span class="material-symbols-outlined text-lg">check_circle</span>
+              Aprovar
+            </button>
+            <button
+              type="button"
+              class="btn-danger inline-flex items-center gap-2"
+              [class.btn-revisao-ativo-danger]="revisaoFormVisible && !revisaoAprovado"
+              (click)="abrirRevisao(false)"
+              title="Reprovar protocolo">
+              <span class="material-symbols-outlined text-lg">cancel</span>
+              Reprovar
             </button>
           }
         </div>
       </div>
+
+      <!-- Formulário de revisão (logo abaixo do header) -->
+      @if (isPending && revisaoFormVisible && podeRevisarProtocolo) {
+        <div class="card rounded-xl overflow-hidden" id="revisao_form" style="border: 1px solid var(--c-border)">
+          <div class="flex items-center justify-between gap-2 px-5 py-4" style="border-bottom: 1px solid var(--c-border); background: var(--c-soft)">
+            <div class="flex items-center gap-2">
+              <span class="material-symbols-outlined" style="color: var(--c-primary)">rate_review</span>
+              <h2 class="text-base font-semibold m-0" style="color: var(--c-text)">Revisar protocolo</h2>
+            </div>
+            <button type="button" class="btn-ghost btn-default-bg py-1! px-2! text-xs" (click)="fecharRevisao()">
+              <span class="material-symbols-outlined text-base">close</span>
+            </button>
+          </div>
+          <div class="p-5 space-y-4">
+            <!-- Toggle visual Aprovar / Reprovar -->
+            <div>
+              <label class="block text-xs font-semibold uppercase tracking-wider mb-2" style="color: var(--c-muted)">Decisão</label>
+              <div class="flex gap-2">
+                <button
+                  type="button"
+                  class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold border-2 transition-all"
+                  [style]="revisaoAprovado
+                    ? 'background:var(--c-success-soft); color:var(--c-success); border-color:var(--c-success)'
+                    : 'background:var(--c-soft); color:var(--c-muted); border-color:var(--c-border)'"
+                  (click)="revisaoAprovado = true">
+                  <span class="material-symbols-outlined text-base">check_circle</span>
+                  Aprovar
+                </button>
+                <button
+                  type="button"
+                  class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold border-2 transition-all"
+                  [style]="!revisaoAprovado
+                    ? 'background:var(--c-danger-soft); color:var(--c-danger); border-color:var(--c-danger)'
+                    : 'background:var(--c-soft); color:var(--c-muted); border-color:var(--c-border)'"
+                  (click)="revisaoAprovado = false">
+                  <span class="material-symbols-outlined text-base">cancel</span>
+                  Reprovar
+                </button>
+              </div>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold uppercase tracking-wider mb-1.5" style="color: var(--c-muted)">Comentário (opcional)</label>
+              <textarea [(ngModel)]="comentarioRevisao" rows="3" class="w-full py-2 px-3 text-sm border rounded-lg" style="border-color: var(--c-border); background: var(--c-surface); color: var(--c-text)" placeholder="Comentário da revisão..."></textarea>
+            </div>
+            <div class="flex items-center gap-2">
+              <button type="button" class="btn-primary inline-flex items-center gap-2" (click)="enviarRevisao()" [disabled]="revisaoEnviando">
+                @if (revisaoEnviando) {
+                  <span class="btn-spinner" aria-hidden="true"></span>
+                } @else {
+                  <span class="material-symbols-outlined text-lg">send</span>
+                }
+                {{ revisaoEnviando ? 'Enviando…' : 'Confirmar revisão' }}
+              </button>
+              <button type="button" class="btn-ghost btn-default-bg inline-flex items-center gap-2" (click)="fecharRevisao()" [disabled]="revisaoEnviando">
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      }
 
       <!-- Dados do protocolo -->
       <div class="card rounded-xl overflow-hidden" style="border: 1px solid var(--c-border)">
@@ -124,55 +199,6 @@
           }
         </ul>
       </div>
-
-      <!-- Novo comentário interno -->
-      <div class="card rounded-xl overflow-hidden" style="border: 1px solid var(--c-border)">
-        <div class="px-5 py-4" style="border-bottom: 1px solid var(--c-border)">
-          <h2 class="text-base font-semibold m-0" style="color: var(--c-text)">Novo comentário interno</h2>
-        </div>
-        <div class="p-5">
-          <textarea [(ngModel)]="novoComentario" rows="3" class="w-full py-2 px-3 text-sm border rounded-lg mb-3" style="border-color: var(--c-border); background: var(--c-surface); color: var(--c-text)" placeholder="Digite seu comentário..."></textarea>
-          <button type="button" class="btn-primary inline-flex items-center gap-2" (click)="enviarComentario()" [disabled]="!novoComentario.trim() || comentarioEnviando">
-            @if (comentarioEnviando) {
-              <span class="btn-spinner" aria-hidden="true"></span>
-            } @else {
-              <span class="material-symbols-outlined text-lg">add_comment</span>
-            }
-            {{ comentarioEnviando ? 'Enviando…' : 'Adicionar comentário' }}
-          </button>
-        </div>
-      </div>
-
-      <!-- Formulário de revisão (se pendente) -->
-      @if (isPending && revisaoFormVisible && podeRevisarProtocolo) {
-        <div class="card rounded-xl overflow-hidden" id="revisao_form" style="border: 1px solid var(--c-border)">
-          <div class="flex items-center gap-2 px-5 py-4" style="border-bottom: 1px solid var(--c-border)">
-            <span class="material-symbols-outlined" style="color: var(--c-primary)">rate_review</span>
-            <h2 class="text-base font-semibold m-0" style="color: var(--c-text)">Revisar protocolo</h2>
-          </div>
-          <div class="p-5 space-y-4">
-            <div>
-              <label class="block text-xs font-semibold uppercase tracking-wider mb-1.5" style="color: var(--c-muted)">Situação</label>
-              <select [(ngModel)]="revisaoAprovado" class="w-full py-2 px-3 text-sm border rounded-lg" style="border-color: var(--c-border); background: var(--c-surface); color: var(--c-text)">
-                <option [ngValue]="true">Aprovado</option>
-                <option [ngValue]="false">Reprovado</option>
-              </select>
-            </div>
-            <div>
-              <label class="block text-xs font-semibold uppercase tracking-wider mb-1.5" style="color: var(--c-muted)">Comentário (opcional)</label>
-              <textarea [(ngModel)]="comentarioRevisao" rows="3" class="w-full py-2 px-3 text-sm border rounded-lg" style="border-color: var(--c-border); background: var(--c-surface); color: var(--c-text)" placeholder="Comentário da revisão..."></textarea>
-            </div>
-            <button type="button" class="btn-primary inline-flex items-center gap-2" (click)="enviarRevisao()" [disabled]="revisaoEnviando">
-              @if (revisaoEnviando) {
-                <span class="btn-spinner" aria-hidden="true"></span>
-              } @else {
-                <span class="material-symbols-outlined text-lg">send</span>
-              }
-              {{ revisaoEnviando ? 'Enviando…' : 'Enviar revisão' }}
-            </button>
-          </div>
-        </div>
-      }
 
       <!-- Comentário da revisão -->
       @if (protocolo.review_comment) {
@@ -251,6 +277,25 @@
           </ul>
         </div>
       }
+
+      <!-- Novo comentário interno -->
+      <div class="card rounded-xl overflow-hidden" style="border: 1px solid var(--c-border)">
+        <div class="px-5 py-4" style="border-bottom: 1px solid var(--c-border)">
+          <h2 class="text-base font-semibold m-0" style="color: var(--c-text)">Novo comentário interno</h2>
+        </div>
+        <div class="p-5">
+          <textarea [(ngModel)]="novoComentario" rows="3" class="w-full py-2 px-3 text-sm border rounded-lg mb-3" style="border-color: var(--c-border); background: var(--c-surface); color: var(--c-text)" placeholder="Digite seu comentário..."></textarea>
+          <button type="button" class="btn-primary inline-flex items-center gap-2" (click)="enviarComentario()" [disabled]="!novoComentario.trim() || comentarioEnviando">
+            @if (comentarioEnviando) {
+              <span class="btn-spinner" aria-hidden="true"></span>
+            } @else {
+              <span class="material-symbols-outlined text-lg">add_comment</span>
+            }
+            {{ comentarioEnviando ? 'Enviando…' : 'Adicionar comentário' }}
+          </button>
+        </div>
+      </div>
+
     </div>
   }
 </div>

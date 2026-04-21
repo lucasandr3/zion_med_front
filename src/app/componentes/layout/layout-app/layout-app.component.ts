@@ -90,8 +90,17 @@ export class LayoutAppComponent implements OnInit {
       this.sidebarMobile.setOpen(false);
       this.billingBlockedState.clear();
       this.updateFromActivatedRoute();
+      this.atualizarBadgeNotificacoes();
     });
     this.updateFromActivatedRoute();
+    this.atualizarBadgeNotificacoes();
+  }
+
+  private atualizarBadgeNotificacoes(): void {
+    if (!this.auth.hasPermission('notifications.access')) {
+      this.notificacoesNaoLidas = 0;
+      return;
+    }
     this.notif.getNaoLidasCount().subscribe((n) => (this.notificacoesNaoLidas = n));
   }
 }

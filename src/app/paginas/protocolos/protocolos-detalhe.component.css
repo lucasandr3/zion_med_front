@@ -1,1 +1,33 @@
-/* Protocolos detalhe */
+/* Botão de aprovar no header — segue o mesmo padrão de btn-primary/btn-danger */
+.btn-revisao-aprovar {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: var(--c-success);
+  color: #ffffff;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-md);
+  border: none;
+  cursor: pointer;
+  transition: filter 0.15s, transform 0.1s;
+  white-space: nowrap;
+}
+
+.btn-revisao-aprovar:hover {
+  filter: brightness(0.92);
+}
+
+.btn-revisao-aprovar:active {
+  transform: scale(0.98);
+}
+
+/* Estado ativo: formulário aberto com a decisão correspondente */
+.btn-revisao-aprovar.btn-revisao-ativo {
+  filter: brightness(0.88);
+}
+
+.btn-danger.btn-revisao-ativo-danger {
+  filter: brightness(0.88);
+}

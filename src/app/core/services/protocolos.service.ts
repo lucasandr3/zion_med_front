@@ -94,11 +94,14 @@ export class ProtocolosService {
   }
 
   aprovar(id: number, aprovado: boolean, comentario?: string): Observable<unknown> {
-    return this.api.post(`/protocols/${id}/revisao`, { approved: aprovado, comment: comentario });
+    const status = aprovado ? 'approved' : 'rejected';
+    const body: { status: string; review_comment?: string } = { status };
+    if (comentario?.trim()) body.review_comment = comentario.trim();
+    return this.api.post(`/protocols/${id}/revisao`, body);
   }
 
   comentario(id: number, comentario: string): Observable<unknown> {
-    return this.api.post(`/protocols/${id}/comentario`, { comment: comentario });
+    return this.api.post(`/protocols/${id}/comentario`, { body: comentario });
   }
 
   exportarCsv(params?: { template_id?: number; status?: string; data_inicio?: string; data_fim?: string }): Observable<Blob> {

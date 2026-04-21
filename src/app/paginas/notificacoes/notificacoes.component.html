@@ -1,52 +1,23 @@
 <div class="relative min-h-[200px]">
-  @if (!isPlataforma) {
-    <!-- <div class="page-header mb-6">
-      <div class="page-title flex items-center gap-3">
-        <div class="page-title-icon w-10 h-10 rounded-lg flex items-center justify-center" style="background: var(--c-soft)">
-          <span class="material-symbols-outlined" style="color: var(--c-primary)">notifications</span>
-        </div>
-        <div>
-          <h1 class="text-xl font-semibold m-0" style="color: var(--c-text)">Notificações</h1>
-          <p class="text-sm mt-1 mb-0" style="color: var(--c-muted)">Central de notificações</p>
-        </div>
+  <!-- Cabeçalho da seção + filtros e ações (mesmo layout usado na plataforma) -->
+  <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+    <div class="flex items-center gap-2">
+      <div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background: var(--c-soft)">
+        <span class="material-symbols-outlined text-lg" style="color: var(--c-primary)">notifications</span>
       </div>
-      @if (temNaoLidas) {
-        <button type="button" class="btn-ghost btn-default-bg inline-flex items-center gap-2" [disabled]="marcandoTodas" (click)="marcarTodas()" appTooltip="Marcar todas as notificações como lidas">
-          @if (marcandoTodas) {
-            <span class="btn-spinner" aria-hidden="true"></span>
-          }
-          {{ marcandoTodas ? 'Marcando…' : 'Marcar todas como lidas' }}
-        </button>
-      }
-    </div> -->
-    @if (temNaoLidas) {
-      <button type="button" class="btn-ghost btn-default-bg inline-flex items-center gap-2" [disabled]="marcandoTodas" (click)="marcarTodas()" appTooltip="Marcar todas as notificações como lidas">
-        @if (marcandoTodas) {
-          <span class="btn-spinner" aria-hidden="true"></span>
-        }
-        {{ marcandoTodas ? 'Marcando…' : 'Marcar todas como lidas' }}
+      <h2 class="text-base font-semibold m-0" style="color: var(--c-text)">Notificações</h2>
+    </div>
+    <div class="flex flex-wrap items-center gap-2">
+      <button type="button" class="notif-filtro-btn" [class.ativo]="filtroPlataforma === 'todas'" (click)="filtroPlataforma = 'todas'" appTooltip="Ver todas as notificações">
+        Todas
       </button>
-    }
-  }
-  @if (isPlataforma) {
-    <!-- Cabeçalho da seção + filtros e ações (igual ao backend) -->
-    <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
-      <div class="flex items-center gap-2">
-        <div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background: var(--c-soft)">
-          <span class="material-symbols-outlined text-lg" style="color: var(--c-primary)">notifications</span>
-        </div>
-        <h2 class="text-base font-semibold m-0" style="color: var(--c-text)">Notificações</h2>
-      </div>
-      <div class="flex flex-wrap items-center gap-2">
-        <button type="button" class="notif-filtro-btn" [class.ativo]="filtroPlataforma === 'todas'" (click)="filtroPlataforma = 'todas'" appTooltip="Ver todas as notificações">
-          Todas
-        </button>
-        <button type="button" class="notif-filtro-btn notif-filtro-outline" [class.ativo]="filtroPlataforma === 'nao_lidas'" (click)="filtroPlataforma = 'nao_lidas'" appTooltip="Ver apenas não lidas">
-          Não lidas
-          @if (quantidadeNaoLidas > 0) {
-            <span class="notif-badge">{{ quantidadeNaoLidas > 99 ? '99+' : quantidadeNaoLidas }}</span>
-          }
-        </button>
+      <button type="button" class="notif-filtro-btn notif-filtro-outline" [class.ativo]="filtroPlataforma === 'nao_lidas'" (click)="filtroPlataforma = 'nao_lidas'" appTooltip="Ver apenas não lidas">
+        Não lidas
+        @if (quantidadeNaoLidas > 0) {
+          <span class="notif-badge">{{ quantidadeNaoLidas > 99 ? '99+' : quantidadeNaoLidas }}</span>
+        }
+      </button>
+      @if (temNaoLidas) {
         <button type="button" class="notif-action-btn inline-flex items-center gap-2" [disabled]="marcandoTodas" (click)="marcarTodas()" appTooltip="Marcar todas como lidas">
           @if (marcandoTodas) {
             <span class="btn-spinner" style="width:14px;height:14px;border-width:2px"></span>
@@ -55,6 +26,8 @@
           }
           {{ marcandoTodas ? 'Marcando…' : 'Marcar todas como lidas' }}
         </button>
+      }
+      @if (notificacoes.length > 0) {
         <button type="button" class="notif-action-btn inline-flex items-center gap-2" [disabled]="limpandoTudo" (click)="limparTudo()" appTooltip="Excluir todas as notificações">
           @if (limpandoTudo) {
             <span class="btn-spinner" style="width:14px;height:14px;border-width:2px"></span>
@@ -63,18 +36,19 @@
           }
           {{ limpandoTudo ? 'Limpando…' : 'Limpar tudo' }}
         </button>
-      </div>
+      }
     </div>
+  </div>
 
-    @if (showSkeleton()) {
-      <zm-skeleton-list [rows]="5" />
-    } @else if (!listaPronta) {
-    } @else if (erro) {
-      <div class="card p-4 rounded-xl mb-4" style="background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.3)">
-        <p class="text-sm m-0" style="color: var(--c-text)">{{ erro }}</p>
-      </div>
-    } @else {
-      <div class="zm-content-enter">
+  @if (showSkeleton()) {
+    <zm-skeleton-list [rows]="5" />
+  } @else if (!listaPronta) {
+  } @else if (erro) {
+    <div class="card p-4 rounded-xl mb-4" style="background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.3)">
+      <p class="text-sm m-0" style="color: var(--c-text)">{{ erro }}</p>
+    </div>
+  } @else {
+    <div class="zm-content-enter">
       @if (notificacoesFiltradas.length === 0) {
         <zm-empty-state
           [title]="filtroPlataforma === 'nao_lidas' ? 'Nenhuma notificação não lida.' : 'Nenhuma notificação.'"
@@ -89,17 +63,29 @@
               }
               <div class="notif-card-body flex gap-4 p-4 flex-1 min-w-0">
                 <div class="w-10 h-10 rounded-lg flex items-center justify-center shrink-0" style="background: color-mix(in srgb, var(--c-primary) 14%, transparent)">
-                  <span class="material-symbols-outlined" style="color: var(--c-primary); font-size: 22px">description</span>
+                  <span class="material-symbols-outlined" style="color: var(--c-primary); font-size: 22px">{{ iconeNotificacao(n) }}</span>
                 </div>
                 <div class="min-w-0 flex-1">
                   <p class="notif-card-titulo">{{ getNotificacaoTitulo(n) }}</p>
                   <p class="notif-card-detalhe notif-detalhe">{{ getNotificacaoDetalhe(n) }}</p>
                   <div class="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2">
                     <span class="text-xs" style="color: var(--c-muted)">{{ tempoRelativo(n.created_at) }}</span>
-                    <a routerLink="/plataforma/leads" class="notif-link-leads">
-                      Ver leads
-                      <span class="material-symbols-outlined align-middle" style="font-size: 14px">arrow_forward</span>
-                    </a>
+                    @if (notificacaoLinkAcao(n); as acao) {
+                      @switch (acao.kind) {
+                        @case ('router') {
+                          <a [routerLink]="acao.commands" class="notif-link-leads">
+                            {{ acao.label }}
+                            <span class="material-symbols-outlined align-middle" style="font-size: 14px">arrow_forward</span>
+                          </a>
+                        }
+                        @case ('href') {
+                          <a [href]="acao.url" class="notif-link-leads" target="_blank" rel="noopener noreferrer">
+                            {{ acao.label }}
+                            <span class="material-symbols-outlined align-middle" style="font-size: 14px">arrow_forward</span>
+                          </a>
+                        }
+                      }
+                    }
                     @if (!n.read_at) {
                       <button type="button" class="notif-link-lida" (click)="marcarComoLida(n.id)">Marcar como lida</button>
                     }
@@ -122,48 +108,6 @@
           }
         </div>
       }
-      </div>
-    }
-  }
-  @if (!isPlataforma) {
-    @if (showSkeleton()) {
-      <zm-skeleton-list [rows]="5" />
-    } @else if (!listaPronta) {
-    } @else if (erro) {
-      <p class="text-sm" style="color: var(--c-error, #dc2626)">{{ erro }}</p>
-    } @else {
-      <div class="zm-content-enter">
-      <div class="card rounded-xl overflow-hidden" style="border: 1px solid var(--c-border)">
-        @if (notificacoes.length === 0) {
-          <zm-empty-state
-            title="Nenhuma notificação."
-            description="As notificações enviadas para sua conta aparecerão aqui."
-          ></zm-empty-state>
-        } @else {
-          <ul class="divide-y" style="border-color: var(--c-border)">
-            @for (n of notificacoes; track n.id) {
-              <li class="flex items-center justify-between gap-4 px-5 py-3" [class.opacity-75]="n.read_at">
-                <div class="min-w-0 flex-1">
-                  <p class="text-sm m-0" style="color: var(--c-text)">{{ getNotificacaoMensagem(n) }}</p>
-                  <p class="text-xs mt-0.5 m-0" style="color: var(--c-muted)">{{ n.created_at }}</p>
-                </div>
-                <div class="flex items-center gap-2 shrink-0">
-                  @if (!n.read_at) {
-                    <button type="button" class="btn-ghost btn-default-bg text-sm" (click)="marcarComoLida(n.id)">Marcar lida</button>
-                  }
-                  <button type="button" class="btn-ghost text-sm inline-flex items-center gap-2" style="color: var(--c-muted)" [disabled]="excluindoId === n.id" (click)="excluir(n.id)">
-                    @if (excluindoId === n.id) {
-                      <span class="btn-spinner" style="width:12px;height:12px;border-width:2px"></span>
-                    }
-                    {{ excluindoId === n.id ? 'Excluindo…' : 'Excluir' }}
-                  </button>
-                </div>
-              </li>
-            }
-          </ul>
-        }
-      </div>
-      </div>
-    }
+    </div>
   }
 </div>

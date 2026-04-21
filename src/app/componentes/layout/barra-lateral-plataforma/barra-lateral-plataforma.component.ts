@@ -1,9 +1,8 @@
-import { Component, OnInit, OnDestroy, inject, HostListener, ViewChild, ElementRef, PLATFORM_ID } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy, inject, HostListener, ViewChild, ElementRef, PLATFORM_ID } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { AuthService } from '../../../core/services/auth.service';
 import { SidebarMobileService } from '../../../core/services/sidebar-mobile.service';
-import { NotificacoesService } from '../../../core/services/notificacoes.service';
 import { TooltipDirective } from '../../../core/directives/tooltip.directive';
 
 @Component({
@@ -14,10 +13,11 @@ import { TooltipDirective } from '../../../core/directives/tooltip.directive';
   styleUrl: './barra-lateral-plataforma.component.css',
 })
 export class BarraLateralPlataformaComponent implements OnInit, OnDestroy {
+  /** Contador vindo do layout (mesmo valor do cabeçalho). */
+  @Input() notificacoesNaoLidas = 0;
   nomeUsuario = 'Usuário';
   iniciaisUsuario = 'U';
   emailUsuario = '';
-  notificacoesNaoLidas = 0;
   menuUsuarioAberto = false;
 
   @ViewChild('userMenuContainer') userMenuContainer?: ElementRef<HTMLElement>;
@@ -25,7 +25,6 @@ export class BarraLateralPlataformaComponent implements OnInit, OnDestroy {
   private auth = inject(AuthService);
   private router = inject(Router);
   private sidebarMobile = inject(SidebarMobileService);
-  private notif = inject(NotificacoesService);
 
   sidebarOpenMobile = false;
   sidebarColapsada = false;
@@ -49,7 +48,6 @@ export class BarraLateralPlataformaComponent implements OnInit, OnDestroy {
         document.body.style.overflow = open ? 'hidden' : '';
       }
     });
-    this.notif.getNaoLidasCount().subscribe((n) => (this.notificacoesNaoLidas = n));
   }
 
   ngOnDestroy(): void {

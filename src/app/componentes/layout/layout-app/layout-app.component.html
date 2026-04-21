@@ -1,4 +1,4 @@
-<app-barra-lateral />
+<app-barra-lateral [notificacoesNaoLidas]="notificacoesNaoLidas" />
 <div class="main-wrapper flex flex-col min-h-screen">
   <app-cabecalho [titulo]="tituloPagina" [breadcrumbs]="breadcrumbs" [urlVoltar]="urlVoltar" [labelVoltar]="labelVoltar ?? 'Voltar'" [notificacoesNaoLidas]="notificacoesNaoLidas" />
   @if (trialNotice) {

@@ -1,4 +1,5 @@
 import { Component, OnInit, inject, Signal } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -99,6 +100,25 @@ export class ProtocolosDetalheComponent implements OnInit {
     });
   }
 
+  abrirRevisao(aprovado: boolean): void {
+    if (!this.podeRevisarProtocolo) return;
+    const jaMostrandoMesmaDecisao = this.revisaoFormVisible && this.revisaoAprovado === aprovado;
+    if (jaMostrandoMesmaDecisao) {
+      this.revisaoFormVisible = false;
+      return;
+    }
+    this.revisaoAprovado = aprovado;
+    this.revisaoFormVisible = true;
+    setTimeout(() => {
+      document.getElementById('revisao_form')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 50);
+  }
+
+  fecharRevisao(): void {
+    this.revisaoFormVisible = false;
+    this.comentarioRevisao = '';
+  }
+
   toggleFormRevisao(): void {
     if (!this.podeRevisarProtocolo) return;
     this.revisaoFormVisible = !this.revisaoFormVisible;
@@ -142,9 +162,9 @@ export class ProtocolosDetalheComponent implements OnInit {
         }
         this.carregar(this.protocolo!.id);
       },
-      error: () => {
+      error: (err) => {
         this.revisaoEnviando = false;
-        this.erro = 'Não foi possível enviar a revisão.';
+        this.erro = this.mensagemErroApi(err, 'Não foi possível enviar a revisão.');
         this.toast.error('Erro', this.erro);
       },
     });
@@ -160,9 +180,9 @@ export class ProtocolosDetalheComponent implements OnInit {
         this.toast.success('Comentário adicionado', 'Seu comentário foi publicado.');
         this.carregar(this.protocolo!.id);
       },
-      error: () => {
+      error: (err) => {
         this.comentarioEnviando = false;
-        this.erro = 'Não foi possível adicionar o comentário.';
+        this.erro = this.mensagemErroApi(err, 'Não foi possível adicionar o comentário.');
         this.toast.error('Erro', this.erro);
       },
     });
@@ -204,5 +224,17 @@ export class ProtocolosDetalheComponent implements OnInit {
     if (typeof val === 'string') return val;
     if (Array.isArray(val)) return val.join(', ');
     return String(val);
+  }
+
+  private mensagemErroApi(err: unknown, fallback: string): string {
+    if (!(err instanceof HttpErrorResponse)) return fallback;
+    const e = err.error as { message?: string; errors?: Record<string, string[]> } | null;
+    if (e?.errors) {
+      for (const msgs of Object.values(e.errors)) {
+        if (msgs?.length) return msgs[0];
+      }
+    }
+    if (typeof e?.message === 'string' && e.message.trim()) return e.message.trim();
+    return fallback;
   }
 }

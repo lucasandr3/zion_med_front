@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject, HostListener, ViewChild, ElementRef, PLATFORM_ID } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy, inject, HostListener, ViewChild, ElementRef, PLATFORM_ID } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { AuthService } from '../../../core/services/auth.service';
@@ -13,10 +13,11 @@ import { TooltipDirective } from '../../../core/directives/tooltip.directive';
   styleUrl: './barra-lateral.component.css',
 })
 export class BarraLateralComponent implements OnInit, OnDestroy {
+  /** Contador vindo do layout (fonte única com o cabeçalho). */
+  @Input() notificacoesNaoLidas = 0;
   nomeUsuario = 'Usuário';
   iniciaisUsuario = 'U';
   emailUsuario = '';
-  notificacoesNaoLidas = 0;
   menuUsuarioAberto = false;
   exibirTrocarEmpresa = false;
   ehAdminPlataforma = false;

@@ -1,6 +1,6 @@
 import { Component, OnInit, inject, Signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterLink } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { NotificacoesService, Notificacao } from '../../core/services/notificacoes.service';
 import { LoadingService } from '../../shared/services/loading.service';
 import { ZmSkeletonListComponent } from '../../shared/components/skeletons';
@@ -21,25 +21,19 @@ export class NotificacoesComponent implements OnInit {
   showSkeleton!: Signal<boolean>;
   listaPronta = false;
   erro = '';
-  /** Filtro na área plataforma: todas ou só não lidas */
+  /** Filtro "todas" ou só "não lidas" (comum à área clínica e plataforma). */
   filtroPlataforma: 'todas' | 'nao_lidas' = 'todas';
 
-  excluindoId: number | null = null;
+  excluindoId: string | null = null;
   limpandoTudo = false;
   marcandoTodas = false;
 
   private notifService = inject(NotificacoesService);
   private loadingService = inject(LoadingService);
-  private router = inject(Router);
   private toast = inject(ToastService);
   private confirm = inject(ConfirmDialogService);
 
-  /** True quando a página está dentro da área da plataforma (layout já mostra título e subtítulo). */
-  get isPlataforma(): boolean {
-    return this.router.url.includes('/plataforma');
-  }
-
-  /** Lista filtrada para a área plataforma (Todas ou Não lidas). */
+  /** Lista filtrada pelo seletor "Todas / Não lidas". */
   get notificacoesFiltradas(): Notificacao[] {
     if (this.filtroPlataforma === 'nao_lidas') {
       return this.notificacoes.filter((n) => !n.read_at);
@@ -70,7 +64,7 @@ export class NotificacoesComponent implements OnInit {
     });
   }
 
-  marcarComoLida(id: number): void {
+  marcarComoLida(id: string): void {
     this.notifService.marcarComoLida(id).subscribe({
       next: () => this.carregar(),
       error: () => this.toast.error('Erro', 'Não foi possível marcar como lida.'),
@@ -92,7 +86,7 @@ export class NotificacoesComponent implements OnInit {
     });
   }
 
-  async excluir(id: number): Promise<void> {
+  async excluir(id: string): Promise<void> {
     const ok = await this.confirm.request({
       title: 'Excluir notificação?',
       message: 'Esta notificação será removida permanentemente.',
@@ -204,6 +198,28 @@ export class NotificacoesComponent implements OnInit {
     }
   }
 
+  /** Ícone material conforme tipo da notificação (fallback: `description`). */
+  iconeNotificacao(n: Notificacao): string {
+    const d = this.normalizeData(n.data);
+    if (d && typeof d === 'object') {
+      const obj = d as Record<string, unknown>;
+      const icon = obj['icon'];
+      if (typeof icon === 'string' && icon.trim()) return icon.trim();
+      const tipo = typeof obj['type'] === 'string' ? obj['type'] : '';
+      const mapa: Record<string, string> = {
+        novo_protocolo: 'inbox',
+        novo_comentario: 'chat',
+        protocolo_aprovado: 'check_circle',
+        protocolo_reprovado: 'cancel',
+        novo_lead: 'request_quote',
+        faturas_vencidas: 'payments',
+        assinaturas_pendentes: 'receipt_long',
+      };
+      if (mapa[tipo]) return mapa[tipo];
+    }
+    return 'notifications';
+  }
+
   formatarData(iso?: string | null): string {
     if (!iso) return '—';
     try {
@@ -212,5 +228,36 @@ export class NotificacoesComponent implements OnInit {
     } catch {
       return iso;
     }
+  }
+
+  /**
+   * Ação contextual na listagem da plataforma (protocolo clínica vs leads vs cobranças).
+   */
+  notificacaoLinkAcao(
+    n: Notificacao
+  ): { kind: 'router'; commands: string[]; label: string } | { kind: 'href'; url: string; label: string } | null {
+    const d = this.normalizeData(n.data);
+    if (!d || typeof d !== 'object') return null;
+    const obj = d as Record<string, unknown>;
+    const tipo = typeof obj['type'] === 'string' ? obj['type'] : '';
+
+    const sid = obj['submission_id'];
+    if (sid != null && !Number.isNaN(Number(sid))) {
+      return { kind: 'router', commands: ['/protocolos', String(sid)], label: 'Ver protocolo' };
+    }
+    if (tipo === 'novo_lead') {
+      return { kind: 'router', commands: ['/plataforma/leads'], label: 'Ver leads' };
+    }
+    if (tipo === 'faturas_vencidas') {
+      return { kind: 'router', commands: ['/plataforma/faturas'], label: 'Ver faturas' };
+    }
+    if (tipo === 'assinaturas_pendentes') {
+      return { kind: 'router', commands: ['/plataforma/assinaturas'], label: 'Ver assinaturas' };
+    }
+    const url = obj['url'];
+    if (typeof url === 'string' && url.trim()) {
+      return { kind: 'href', url: url.trim(), label: 'Abrir' };
+    }
+    return null;
   }
 }

@@ -2,8 +2,9 @@ import { Injectable, inject } from '@angular/core';
 import { ApiService } from './api.service';
 import { map, Observable } from 'rxjs';
 
+/** `id` é UUID (string) no Laravel `notifications`. */
 export interface Notificacao {
-  id: number;
+  id: string;
   type?: string;
   data?: unknown;
   read_at?: string | null;
@@ -26,8 +27,8 @@ export class NotificacoesService {
     return this.list().pipe(map((list) => list.filter((n) => !n.read_at).length));
   }
 
-  marcarComoLida(id: number): Observable<unknown> {
-    return this.api.patch(`/notificacoes/${id}/lida`, {});
+  marcarComoLida(id: string): Observable<unknown> {
+    return this.api.patch(`/notificacoes/${encodeURIComponent(id)}/lida`, {});
   }
 
   marcarTodasComoLidas(): Observable<unknown> {
@@ -38,7 +39,7 @@ export class NotificacoesService {
     return this.api.delete('/notificacoes/limpar-tudo');
   }
 
-  delete(id: number): Observable<void> {
-    return this.api.delete(`/notificacoes/${id}`).pipe(map(() => undefined));
+  delete(id: string): Observable<void> {
+    return this.api.delete(`/notificacoes/${encodeURIComponent(id)}`).pipe(map(() => undefined));
   }
 }
