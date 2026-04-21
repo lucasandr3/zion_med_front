@@ -44,8 +44,11 @@
         </tr>
       } @empty {
         <tr>
-          <td colspan="7" class="py-6 text-center text-xs cell-muted">
-            Nenhuma fatura cadastrada.
+          <td colspan="7" class="py-0">
+            <zm-empty-state
+              title="Nenhuma fatura cadastrada."
+              description="As faturas geradas para os clientes serão exibidas aqui."
+            />
           </td>
         </tr>
       }

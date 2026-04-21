@@ -48,9 +48,11 @@
         </tr>
       } @empty {
         <tr>
-          <td colspan="4" class="py-12 text-center">
-            <span class="material-symbols-outlined block mb-2 text-4xl" style="color: var(--c-border)">history</span>
-            <span class="text-sm" style="color: var(--c-muted)">Nenhum registro de auditoria.</span>
+          <td colspan="4" class="py-0">
+            <zm-empty-state
+              title="Nenhum registro de auditoria."
+              description="As ações realizadas na plataforma serão registradas aqui."
+            />
           </td>
         </tr>
       }

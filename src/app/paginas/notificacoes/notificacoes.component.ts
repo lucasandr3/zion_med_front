@@ -4,6 +4,7 @@ import { Router, RouterLink } from '@angular/router';
 import { NotificacoesService, Notificacao } from '../../core/services/notificacoes.service';
 import { LoadingService } from '../../shared/services/loading.service';
 import { ZmSkeletonListComponent } from '../../shared/components/skeletons';
+import { ZmEmptyStateComponent } from '../../shared/components/ui';
 import { TooltipDirective } from '../../core/directives/tooltip.directive';
 import { ToastService } from '../../core/services/toast.service';
 import { ConfirmDialogService } from '../../core/services/confirm-dialog.service';
@@ -11,7 +12,7 @@ import { ConfirmDialogService } from '../../core/services/confirm-dialog.service
 @Component({
   selector: 'app-pagina-notificacoes',
   standalone: true,
-  imports: [CommonModule, ZmSkeletonListComponent, RouterLink, TooltipDirective],
+  imports: [CommonModule, ZmSkeletonListComponent, ZmEmptyStateComponent, RouterLink, TooltipDirective],
   templateUrl: './notificacoes.component.html',
   styleUrl: './notificacoes.component.css',
 })

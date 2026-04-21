@@ -5,12 +5,13 @@ import { forkJoin } from 'rxjs';
 import { PlataformaService, PlatformTenant, PlatformLead, PlatformAuditLog } from '../../../core/services/plataforma.service';
 import { LoadingService } from '../../../shared/services/loading.service';
 import { ZmSkeletonListComponent } from '../../../shared/components/skeletons';
+import { ZmEmptyStateComponent } from '../../../shared/components/ui';
 import { TooltipDirective } from '../../../core/directives/tooltip.directive';
 
 @Component({
   selector: 'app-plataforma-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterLink, ZmSkeletonListComponent, TooltipDirective],
+  imports: [CommonModule, RouterLink, ZmSkeletonListComponent, ZmEmptyStateComponent, TooltipDirective],
   templateUrl: './plataforma-dashboard.component.html',
   styleUrl: './plataforma-dashboard.component.css',
 })

@@ -76,9 +76,10 @@
     } @else {
       <div class="zm-content-enter">
       @if (notificacoesFiltradas.length === 0) {
-        <div class="notif-card rounded-xl p-6 text-center" style="background: var(--c-soft)">
-          <p class="text-sm m-0" style="color: var(--c-muted)">{{ filtroPlataforma === 'nao_lidas' ? 'Nenhuma notificação não lida.' : 'Nenhuma notificação.' }}</p>
-        </div>
+        <zm-empty-state
+          [title]="filtroPlataforma === 'nao_lidas' ? 'Nenhuma notificação não lida.' : 'Nenhuma notificação.'"
+          description="As novas notificações aparecerão aqui assim que chegarem."
+        ></zm-empty-state>
       } @else {
         <div class="flex flex-col gap-3">
           @for (n of notificacoesFiltradas; track n.id) {
@@ -134,7 +135,10 @@
       <div class="zm-content-enter">
       <div class="card rounded-xl overflow-hidden" style="border: 1px solid var(--c-border)">
         @if (notificacoes.length === 0) {
-          <div class="p-8 text-center" style="color: var(--c-muted)">Nenhuma notificação.</div>
+          <zm-empty-state
+            title="Nenhuma notificação."
+            description="As notificações enviadas para sua conta aparecerão aqui."
+          ></zm-empty-state>
         } @else {
           <ul class="divide-y" style="border-color: var(--c-border)">
             @for (n of notificacoes; track n.id) {

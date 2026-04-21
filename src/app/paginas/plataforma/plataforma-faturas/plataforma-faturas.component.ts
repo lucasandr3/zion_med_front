@@ -3,12 +3,13 @@ import { CommonModule } from '@angular/common';
 import { PlataformaService, PlatformInvoice } from '../../../core/services/plataforma.service';
 import { LoadingService } from '../../../shared/services/loading.service';
 import { ZmSkeletonListComponent } from '../../../shared/components/skeletons';
+import { ZmEmptyStateComponent } from '../../../shared/components/ui';
 import { statusFaturaPt } from '../../../core/utils/status-labels-pt';
 
 @Component({
   selector: 'app-plataforma-faturas',
   standalone: true,
-  imports: [CommonModule, ZmSkeletonListComponent],
+  imports: [CommonModule, ZmSkeletonListComponent, ZmEmptyStateComponent],
   templateUrl: './plataforma-faturas.component.html',
   styleUrl: './plataforma-faturas.component.css',
 })

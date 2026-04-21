@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { PlataformaService, PlatformOrganizationPresence } from '../../../core/services/plataforma.service';
 import { LoadingService } from '../../../shared/services/loading.service';
 import { ZmSkeletonListComponent } from '../../../shared/components/skeletons';
+import { ZmEmptyStateComponent } from '../../../shared/components/ui';
 
 @Component({
   selector: 'app-plataforma-organizacoes-online',
   standalone: true,
-  imports: [CommonModule, ZmSkeletonListComponent],
+  imports: [CommonModule, ZmSkeletonListComponent, ZmEmptyStateComponent],
   templateUrl: './plataforma-organizacoes-online.component.html',
   styleUrl: './plataforma-organizacoes-online.component.css',
 })

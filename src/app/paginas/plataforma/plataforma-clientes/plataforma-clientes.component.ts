@@ -4,11 +4,12 @@ import { CommonModule } from '@angular/common';
 import { PlataformaService, PlatformTenant } from '../../../core/services/plataforma.service';
 import { LoadingService } from '../../../shared/services/loading.service';
 import { ZmSkeletonListComponent } from '../../../shared/components/skeletons';
+import { ZmEmptyStateComponent } from '../../../shared/components/ui';
 
 @Component({
   selector: 'app-plataforma-clientes',
   standalone: true,
-  imports: [CommonModule, RouterLink, ZmSkeletonListComponent],
+  imports: [CommonModule, RouterLink, ZmSkeletonListComponent, ZmEmptyStateComponent],
   templateUrl: './plataforma-clientes.component.html',
   styleUrl: './plataforma-clientes.component.css',
 })

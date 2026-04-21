@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { PlataformaService, PlatformAuditLog } from '../../../core/services/plataforma.service';
 import { LoadingService } from '../../../shared/services/loading.service';
 import { ZmSkeletonListComponent } from '../../../shared/components/skeletons';
+import { ZmEmptyStateComponent } from '../../../shared/components/ui';
 
 @Component({
   selector: 'app-plataforma-logs',
   standalone: true,
-  imports: [CommonModule, ZmSkeletonListComponent],
+  imports: [CommonModule, ZmSkeletonListComponent, ZmEmptyStateComponent],
   templateUrl: './plataforma-logs.component.html',
   styleUrl: './plataforma-logs.component.css',
 })

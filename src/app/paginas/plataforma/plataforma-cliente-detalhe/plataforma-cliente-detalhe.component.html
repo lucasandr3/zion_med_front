@@ -67,8 +67,11 @@
           </tr>
         } @empty {
           <tr>
-            <td colspan="5" class="py-6 text-center text-xs cell-muted">
-              Nenhuma empresa vinculada a este tenant.
+            <td colspan="5" class="py-0">
+              <zm-empty-state
+                title="Nenhuma empresa vinculada a este tenant."
+                description="Quando houver vínculo de empresas, elas serão listadas aqui."
+              />
             </td>
           </tr>
         }

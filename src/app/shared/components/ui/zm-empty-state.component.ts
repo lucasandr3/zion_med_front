@@ -10,10 +10,9 @@ import { RouterLink } from '@angular/router';
   styleUrl: './zm-empty-state.component.css',
 })
 export class ZmEmptyStateComponent {
-  /** Nome do ícone Material Symbols Outlined */
-  @Input({ required: true }) icon!: string;
   @Input({ required: true }) title!: string;
   @Input() description: string | null = null;
   @Input() actionLabel: string | null = null;
   @Input() actionLink: string | null = null;
+  @Input() actionIcon: string | null = 'add_circle';
 }

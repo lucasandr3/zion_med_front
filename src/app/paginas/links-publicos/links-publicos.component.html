@@ -41,17 +41,13 @@
       </div>
     </div>
   } @empty {
-    <div class="px-5 py-16 text-center">
-      <span class="material-symbols-outlined block mb-3 text-5xl" style="color: var(--c-border)">link_off</span>
-      <p class="font-medium m-0" style="color: var(--c-text)">Nenhum link público ativo</p>
-      <p class="text-sm mt-1 mb-0" style="color: var(--c-muted)">
-        Gere um link público em <strong>Templates</strong> → escolha um template → <strong>Campos</strong> → <strong>Gerar link público</strong>.
-      </p>
-      <a routerLink="/templates" class="inline-flex items-center gap-2 mt-4 btn-primary" title="Ir para Templates">
-        <span class="material-symbols-outlined text-base">description</span>
-        Ir para Templates
-      </a>
-    </div>
+    <zm-empty-state
+      title="Nenhum link público ativo"
+      description="Gere um link público em Templates, escolha um template e acesse Campos para publicar."
+      actionLabel="Ir para Templates"
+      actionLink="/templates"
+      actionIcon="description"
+    />
   }
 </div>
     </div>

@@ -1,31 +1,56 @@
 .zm-empty-state {
-  padding: var(--space-10) var(--space-4);
+  padding: 3rem 1.25rem;
   text-align: center;
 }
 
 .zm-empty-state__icon {
   display: block;
-  margin: 0 auto var(--space-3);
-  font-size: 2.75rem;
+  margin: 0 auto 0.75rem;
+  font-size: 2.25rem;
   color: var(--c-muted);
-  opacity: 0.85;
+  opacity: 0.8;
 }
 
 .zm-empty-state__title {
   margin: 0;
-  font-size: var(--text-sm);
-  font-weight: 500;
+  font-size: 1.25rem;
+  line-height: 1.3;
+  font-weight: 700;
   color: var(--c-text);
 }
 
 .zm-empty-state__desc {
-  margin: var(--space-2) auto 0;
-  max-width: 22rem;
-  font-size: var(--text-xs);
-  line-height: 1.5;
+  margin: 0.5rem auto 0;
+  max-width: 38rem;
+  font-size: 0.95rem;
+  line-height: 1.45;
   color: var(--c-muted);
 }
 
 .zm-empty-state__action {
-  margin-top: var(--space-3);
+  margin-top: 1.1rem;
+  padding: 0.65rem 1.15rem;
+  border-radius: 0.65rem;
+  border: 1px solid color-mix(in srgb, var(--c-primary) 28%, var(--c-border));
+  background: color-mix(in srgb, var(--c-primary) 10%, var(--c-surface));
+  color: var(--c-primary);
+  font-size: 0.875rem;
+  font-weight: 600;
+  transition: border-color 160ms ease, background-color 160ms ease, color 160ms ease;
+}
+
+.zm-empty-state__action .material-symbols-outlined {
+  color: currentColor;
+  font-size: 1.125rem;
+}
+
+.zm-empty-state__action:hover {
+  border-color: color-mix(in srgb, var(--c-primary) 45%, var(--c-border));
+  background: color-mix(in srgb, var(--c-primary) 16%, var(--c-surface));
+  color: var(--c-primary);
+}
+
+.zm-empty-state__action:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--c-primary) 45%, transparent);
+  outline-offset: 2px;
 }

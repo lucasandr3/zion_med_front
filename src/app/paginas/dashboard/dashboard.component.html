@@ -174,10 +174,10 @@
                     [states]="barChart.states"
                   />
                 } @else {
-                  <div class="dash-empty">
-                    <span class="material-symbols-outlined">monitoring</span>
-                    <p>Sem respostas registradas ainda.</p>
-                  </div>
+                  <zm-empty-state
+                    title="Sem respostas registradas ainda."
+                    description="Assim que houver respostas, os modelos mais respondidos aparecem aqui."
+                  />
                 }
               </div>
             </div>
@@ -203,10 +203,10 @@
                   </a>
                 }
               } @else {
-                <div class="dash-empty dash-empty--panel">
-                  <span class="material-symbols-outlined">inbox</span>
-                  <p>Nenhuma submissão recente.</p>
-                </div>
+                <zm-empty-state
+                  title="Nenhuma submissão recente."
+                  description="Novos protocolos submetidos serão exibidos nesta lista."
+                />
               }
             </div>
           </div>
@@ -281,10 +281,13 @@
                 </span>
               </a>
             } @empty {
-              <div class="dash-empty dash-empty--panel">
-                <span class="material-symbols-outlined">description</span>
-                <p>Nenhum modelo ainda.</p>
-              </div>
+              <zm-empty-state
+                title="Nenhum modelo ainda."
+                description="Crie seu primeiro modelo para começar a coletar respostas."
+                actionLabel="Criar modelo"
+                actionLink="/templates/criar"
+                actionIcon="add"
+              />
             }
           </div>
 

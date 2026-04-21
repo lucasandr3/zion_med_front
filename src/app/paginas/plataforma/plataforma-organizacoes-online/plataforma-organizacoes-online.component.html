@@ -41,7 +41,12 @@
                 </tr>
               } @empty {
                 <tr>
-                  <td colspan="4" class="py-6 text-center text-xs cell-muted">Nenhuma empresa com sessão ativa no momento.</td>
+                  <td colspan="4" class="py-0">
+                    <zm-empty-state
+                      title="Nenhuma empresa com sessão ativa no momento."
+                      description="Quando houver atividade de sessão, as empresas aparecerão aqui."
+                    />
+                  </td>
                 </tr>
               }
             </tbody>

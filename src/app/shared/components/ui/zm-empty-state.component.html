@@ -1,11 +1,14 @@
 <div class="zm-empty-state" role="status">
-  <span class="material-symbols-outlined zm-empty-state__icon" aria-hidden="true">{{ icon }}</span>
+  <span class="material-symbols-outlined zm-empty-state__icon" aria-hidden="true">folder_open</span>
   <p class="zm-empty-state__title">{{ title }}</p>
   @if (description) {
     <p class="zm-empty-state__desc">{{ description }}</p>
   }
   @if (actionLabel && actionLink) {
-    <a [routerLink]="actionLink" class="btn-primary zm-empty-state__action inline-flex items-center gap-2 no-underline mt-2">
+    <a [routerLink]="actionLink" class="zm-empty-state__action inline-flex items-center gap-2 no-underline mt-2">
+      @if (actionIcon) {
+        <span class="material-symbols-outlined text-base">{{ actionIcon }}</span>
+      }
       {{ actionLabel }}
     </a>
   }

@@ -5,11 +5,12 @@ import { LinksPublicosService, LinkPublico } from '../../core/services/links-pub
 import { ToastService } from '../../core/services/toast.service';
 import { LoadingService } from '../../shared/services/loading.service';
 import { ZmSkeletonListComponent } from '../../shared/components/skeletons';
+import { ZmEmptyStateComponent } from '../../shared/components/ui';
 
 @Component({
   selector: 'app-pagina-links-publicos',
   standalone: true,
-  imports: [CommonModule, RouterLink, ZmSkeletonListComponent],
+  imports: [CommonModule, RouterLink, ZmSkeletonListComponent, ZmEmptyStateComponent],
   templateUrl: './links-publicos.component.html',
   styleUrl: './links-publicos.component.css',
 })

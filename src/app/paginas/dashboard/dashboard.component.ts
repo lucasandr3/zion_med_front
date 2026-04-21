@@ -25,6 +25,7 @@ import { TemplatesService, Template } from '../../core/services/templates.servic
 import { LoadingService } from '../../shared/services/loading.service';
 import { ZmAssinaturaBloqueadaCardComponent } from '../../shared/components/ui/zm-assinatura-bloqueada-card/zm-assinatura-bloqueada-card.component';
 import { ZmSkeletonDashboardComponent } from '../../shared/components/skeletons';
+import { ZmEmptyStateComponent } from '../../shared/components/ui';
 
 /** Rótulos de categoria (alinhado a templates-listagem) */
 const CATEGORY_LABELS: Record<string, string> = {
@@ -118,6 +119,7 @@ type BarChartOptions = {
     ChartComponent,
     ZmSkeletonDashboardComponent,
     ZmAssinaturaBloqueadaCardComponent,
+    ZmEmptyStateComponent,
   ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css',

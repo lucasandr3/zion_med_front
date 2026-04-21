@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { PlataformaService, PlatformLead } from '../../../core/services/plataforma.service';
 import { LoadingService } from '../../../shared/services/loading.service';
 import { ZmSkeletonListComponent } from '../../../shared/components/skeletons';
+import { ZmEmptyStateComponent } from '../../../shared/components/ui';
 
 @Component({
   selector: 'app-plataforma-leads',
   standalone: true,
-  imports: [CommonModule, ZmSkeletonListComponent],
+  imports: [CommonModule, ZmSkeletonListComponent, ZmEmptyStateComponent],
   templateUrl: './plataforma-leads.component.html',
   styleUrl: './plataforma-leads.component.css',
 })

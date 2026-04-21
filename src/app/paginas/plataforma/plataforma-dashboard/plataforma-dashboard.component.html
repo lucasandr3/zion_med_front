@@ -114,10 +114,10 @@
             <span class="material-symbols-outlined text-base shrink-0" style="color: var(--c-border)">chevron_right</span>
           </a>
         } @empty {
-          <div class="dash-empty">
-            <span class="material-symbols-outlined text-3xl mb-1" style="color: var(--c-border)">apartment</span>
-            <p class="text-xs" style="color: var(--c-muted)">Nenhum cliente.</p>
-          </div>
+          <zm-empty-state
+            title="Nenhum cliente."
+            description="Quando houver clientes cadastrados, eles aparecerão aqui."
+          />
         }
       </div>
     </div>
@@ -146,10 +146,10 @@
             }
           </div>
         } @empty {
-          <div class="dash-empty">
-            <span class="material-symbols-outlined text-3xl mb-1" style="color: var(--c-border)">request_quote</span>
-            <p class="text-xs" style="color: var(--c-muted)">Nenhum lead ainda.</p>
-          </div>
+          <zm-empty-state
+            title="Nenhum lead ainda."
+            description="Novos leads da landing page aparecerão nesta seção."
+          />
         }
       </div>
     </div>
@@ -182,10 +182,10 @@
           <span class="text-[10px] shrink-0 whitespace-nowrap" style="color: var(--c-muted)">{{ formatarData(log.created_at) }}</span>
         </div>
       } @empty {
-        <div class="dash-empty">
-          <span class="material-symbols-outlined text-3xl mb-1" style="color: var(--c-border)">history</span>
-          <p class="text-xs" style="color: var(--c-muted)">Sem atividade recente.</p>
-        </div>
+        <zm-empty-state
+          title="Sem atividade recente."
+          description="As ações realizadas na plataforma aparecerão aqui."
+        />
       }
     </div>
   </div>

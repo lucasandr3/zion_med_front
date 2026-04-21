@@ -4,12 +4,13 @@ import { catchError } from 'rxjs';
 import { PlataformaService, PlatformSubscription } from '../../../core/services/plataforma.service';
 import { LoadingService } from '../../../shared/services/loading.service';
 import { ZmSkeletonListComponent } from '../../../shared/components/skeletons';
+import { ZmEmptyStateComponent } from '../../../shared/components/ui';
 import { statusAssinaturaOuCobrancaPt } from '../../../core/utils/status-labels-pt';
 
 @Component({
   selector: 'app-plataforma-assinaturas',
   standalone: true,
-  imports: [CommonModule, ZmSkeletonListComponent],
+  imports: [CommonModule, ZmSkeletonListComponent, ZmEmptyStateComponent],
   templateUrl: './plataforma-assinaturas.component.html',
   styleUrl: './plataforma-assinaturas.component.css',
 })
