@@ -1,4 +1,4 @@
-<div class="dashboard-ref relative min-h-[300px]">
+<div class="dashboard-ref dashboard-bleed relative min-h-[300px]">
   @if (showSkeleton()) {
     <zm-skeleton-dashboard />
   } @else if (!dashReady) {
@@ -23,145 +23,288 @@
       }
 
       @if (!semClinica) {
-        <div class="dashboard-greeting mb-5">
-          <p class="dashboard-greeting__title m-0">
-            {{ saudacao }}@if (primeiroNome) {, {{ primeiroNome }}}
-          </p>
-          <p class="dashboard-greeting__date m-0 mt-1">{{ dataHojeLegivel }}</p>
-        </div>
-
-        <!-- Métricas (referência: 3 cards) -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
-          <a routerLink="/protocolos" class="dash-metric-card">
-            <p class="dash-metric-label">Pendentes hoje</p>
-            <p class="dash-metric-value">{{ pendentesHoje }}</p>
-            <p class="dash-metric-sub">Aguardando revisão</p>
-          </a>
-
-          <div class="dash-metric-card">
-            <p class="dash-metric-label">Modelos</p>
-            <p class="dash-metric-value">{{ totalTemplates }}</p>
-            <p class="dash-metric-sub">Total na clínica</p>
+        <!-- Filtro de período -->
+        <section class="dash-period-bar" aria-label="Filtro de período do painel">
+          <div class="min-w-0">
+            <p class="dash-period-bar__kicker">Período</p>
+            <p class="dash-period-bar__subtitle">Métricas e gráficos do intervalo selecionado</p>
           </div>
-
-          <a routerLink="/protocolos" class="dash-metric-card">
-            <p class="dash-metric-label">Respostas</p>
-            <p class="dash-metric-value dash-metric-value--accent">{{ ultimos7Dias }}</p>
-            <p class="dash-metric-sub">Últimos 7 dias</p>
-          </a>
-        </div>
-
-        @if (totalStatus > 0) {
-          <div class="card mb-5 p-5 rounded-2xl">
-            <div class="flex items-center gap-2 mb-4">
-              <span class="material-symbols-outlined text-xl" style="color: var(--c-muted)">bar_chart</span>
-              <h2 class="text-sm font-semibold m-0" style="color: var(--c-text)">Protocolos por situação</h2>
-            </div>
-            <div class="space-y-3">
-              <div>
-                <div class="flex justify-between text-xs mb-1">
-                  <span style="color: var(--c-muted)">Pendente</span>
-                  <span style="color: var(--c-text)">{{ porStatus.pending }}</span>
-                </div>
-                <div class="h-2 rounded-full overflow-hidden" style="background: color-mix(in srgb, var(--c-border) 80%, transparent)">
-                  <div class="h-full rounded-full bar-fill bar-fill--warning" [style.width.%]="totalStatus ? (porStatus.pending / totalStatus * 100) : 0"></div>
-                </div>
-              </div>
-              <div>
-                <div class="flex justify-between text-xs mb-1">
-                  <span style="color: var(--c-muted)">Aprovado</span>
-                  <span style="color: var(--c-text)">{{ porStatus.approved }}</span>
-                </div>
-                <div class="h-2 rounded-full overflow-hidden" style="background: color-mix(in srgb, var(--c-border) 80%, transparent)">
-                  <div class="h-full rounded-full bar-fill bar-fill--success" [style.width.%]="totalStatus ? (porStatus.approved / totalStatus * 100) : 0"></div>
-                </div>
-              </div>
-              <div>
-                <div class="flex justify-between text-xs mb-1">
-                  <span style="color: var(--c-muted)">Reprovado</span>
-                  <span style="color: var(--c-text)">{{ porStatus.rejected }}</span>
-                </div>
-                <div class="h-2 rounded-full overflow-hidden" style="background: color-mix(in srgb, var(--c-border) 80%, transparent)">
-                  <div class="h-full rounded-full bar-fill bar-fill--danger" [style.width.%]="totalStatus ? (porStatus.rejected / totalStatus * 100) : 0"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-        }
-
-        <!-- Acesso rápido -->
-        <div class="card w-full mb-5 rounded-2xl p-4">
-          <p class="text-xs font-semibold uppercase tracking-wider mb-3 m-0" style="color: var(--c-muted)">Acesso rápido</p>
-          <div class="flex flex-wrap gap-2">
-            <a routerLink="/links-publicos" class="btn-ghost btn-default-bg inline-flex items-center gap-1.5">
-              <span class="material-symbols-outlined text-base">link</span>
-              Links para enviar
-              @if (linksPublicosCount > 0) {
-                <span class="text-[0.65rem] font-semibold px-1.5 py-0.5 rounded-md" style="background: var(--c-kpi-accent-soft); color: var(--c-kpi-accent-text)">{{ linksPublicosCount }}</span>
-              }
-            </a>
-            <a routerLink="/templates/criar" class="btn-primary inline-flex items-center gap-1.5">
-              <span class="material-symbols-outlined text-base">add</span>
-              Novo modelo
-            </a>
-            <a routerLink="/protocolos" class="btn-ghost btn-default-bg inline-flex items-center gap-1.5">
-              <span class="material-symbols-outlined text-base">inbox</span>
-              Protocolos
-            </a>
-          </div>
-          @if (ultimos30Dias > 0) {
-            <p class="text-xs mt-3 mb-0" style="color: var(--c-muted)">{{ ultimos30Dias }} respostas nos últimos 30 dias</p>
-          }
-        </div>
-
-        <!-- Últimos modelos -->
-        <div class="dash-panel mb-5">
-          <div class="dash-panel__head">
-            <h2 class="dash-panel__title">Últimos modelos</h2>
-            @if (ultimosTemplates.length > 0) {
-              <a routerLink="/templates" class="dash-link-all">Ver todos</a>
+          <div class="dash-period-tabs" role="group" aria-label="Intervalo em dias">
+            @for (p of periodOptions; track p.days) {
+              <button type="button" class="dash-period-tab" [class.dash-period-tab--on]="periodoSelecionado === p.days" (click)="selecionarPeriodo(p.days)">
+                {{ p.label }}
+              </button>
             }
           </div>
-          @for (t of ultimosTemplates; track t.id) {
-            <a routerLink="/templates/{{ t.id }}/campos" class="dash-row">
-              <div class="flex items-center gap-3 min-w-0">
-                <div class="dash-doc-icon" aria-hidden="true">
+        </section>
+
+        <div class="space-y-6">
+          <!-- KPI Cards -->
+          <div class="grid grid-cols-2 gap-4 lg:grid-cols-4">
+            <a routerLink="/protocolos" class="card-fade-in dash-kpi dash-kpi--warning">
+              <div class="dash-kpi__head">
+                <span class="dash-kpi__label">Pendentes hoje</span>
+                <span class="dash-kpi__icon" aria-hidden="true">
+                  <span class="material-symbols-outlined">hourglass_top</span>
+                </span>
+              </div>
+              <p class="dash-kpi__value">{{ pendentesHoje }}</p>
+              <p class="dash-kpi__sub">Aguardando revisão</p>
+            </a>
+
+            <div class="card-fade-in dash-kpi">
+              <div class="dash-kpi__head">
+                <span class="dash-kpi__label">Modelos</span>
+                <span class="dash-kpi__icon dash-kpi__icon--neutral" aria-hidden="true">
                   <span class="material-symbols-outlined">description</span>
-                </div>
+                </span>
+              </div>
+              <p class="dash-kpi__value">{{ totalTemplates }}</p>
+              <p class="dash-kpi__sub">Total na clínica</p>
+            </div>
+
+            <a routerLink="/protocolos" class="card-fade-in dash-kpi dash-kpi--highlight">
+              <div class="dash-kpi__head">
+                <span class="dash-kpi__label">Respostas</span>
+                <span class="dash-kpi__icon dash-kpi__icon--accent" aria-hidden="true">
+                  <span class="material-symbols-outlined">query_stats</span>
+                </span>
+              </div>
+              <p class="dash-kpi__value dash-kpi__value--accent">{{ respostasPeriodoSelecionado }}</p>
+              <div class="dash-kpi__trend" [class.dash-kpi__trend--down]="!variacaoRespostasPositiva">
+                <span class="material-symbols-outlined">{{ variacaoRespostasPositiva ? 'trending_up' : 'trending_down' }}</span>
+                {{ variacaoRespostasPositiva ? '+' : '' }}{{ variacaoRespostas7DiasPercentual }}%
+                <span class="dash-kpi__trend-label">vs 30d</span>
+              </div>
+            </a>
+
+            <a routerLink="/links-publicos" class="card-fade-in dash-kpi">
+              <div class="dash-kpi__head">
+                <span class="dash-kpi__label">Links públicos</span>
+                <span class="dash-kpi__icon dash-kpi__icon--primary" aria-hidden="true">
+                  <span class="material-symbols-outlined">link</span>
+                </span>
+              </div>
+              <p class="dash-kpi__value">{{ linksPublicosCount }}</p>
+              <p class="dash-kpi__sub">Ativos para envio</p>
+            </a>
+          </div>
+
+          <!-- Gráficos principais: Área + Donut -->
+          <div class="grid grid-cols-1 gap-4 lg:grid-cols-5">
+            <div class="dash-chart-card lg:col-span-3">
+              <div class="dash-chart-card__head">
                 <div class="min-w-0">
-                  <span class="text-sm font-semibold block truncate" style="color: var(--c-text)">{{ t.name }}</span>
-                  <span class="text-xs" style="color: var(--c-muted)">{{ t.created_label }}</span>
+                  <h2 class="dash-chart-card__title">Evolução de respostas</h2>
+                  <p class="dash-chart-card__subtitle">
+                    Total no período: <span class="font-mono font-semibold" style="color: var(--c-text)">{{ respostasPeriodoSelecionado }}</span>
+                  </p>
+                </div>
+                <span class="dash-chart-card__pill">{{ periodRangeLabel() }}</span>
+              </div>
+              <div class="dash-chart-card__body">
+                <apx-chart
+                  [series]="areaChart.series"
+                  [chart]="areaChart.chart"
+                  [xaxis]="areaChart.xaxis"
+                  [yaxis]="areaChart.yaxis"
+                  [stroke]="areaChart.stroke"
+                  [fill]="areaChart.fill"
+                  [dataLabels]="areaChart.dataLabels"
+                  [grid]="areaChart.grid"
+                  [tooltip]="areaChart.tooltip"
+                  [colors]="areaChart.colors"
+                  [legend]="areaChart.legend"
+                  [markers]="areaChart.markers"
+                  [states]="areaChart.states"
+                />
+              </div>
+            </div>
+
+            <div class="dash-chart-card lg:col-span-2">
+              <div class="dash-chart-card__head">
+                <div class="min-w-0">
+                  <h2 class="dash-chart-card__title">Distribuição por status</h2>
+                  <p class="dash-chart-card__subtitle">Taxa de aprovação: <span class="font-mono font-semibold" style="color: var(--c-success)">{{ taxaAprovacao }}%</span></p>
                 </div>
               </div>
-              <span [class]="t.is_active ? 'dash-badge dash-badge--ativo' : 'dash-badge dash-badge--inativo'">
-                {{ t.is_active ? 'Ativo' : 'Inativo' }}
-              </span>
-            </a>
-          } @empty {
-            <div class="px-5 py-12 text-center">
-              <span class="material-symbols-outlined block mb-2 text-4xl" style="color: var(--c-border)">description</span>
-              <p class="text-sm m-0" style="color: var(--c-muted)">Nenhum modelo ainda.</p>
+              <div class="dash-chart-card__body">
+                <apx-chart
+                  [series]="donutChart.series"
+                  [chart]="donutChart.chart"
+                  [labels]="donutChart.labels"
+                  [colors]="donutChart.colors"
+                  [legend]="donutChart.legend"
+                  [dataLabels]="donutChart.dataLabels"
+                  [plotOptions]="donutChart.plotOptions"
+                  [stroke]="donutChart.stroke"
+                  [responsive]="donutChart.responsive"
+                  [tooltip]="donutChart.tooltip"
+                  [states]="donutChart.states"
+                />
+              </div>
             </div>
-          }
-        </div>
+          </div>
 
-        <!-- Modelos por categoria -->
-        @if (categoriasResumo.length > 0) {
-          <div class="dash-panel mb-2">
-            <div class="dash-panel__head" style="border-bottom: 1px solid var(--c-border)">
-              <h2 class="dash-panel__title">Modelos por categoria</h2>
+          <!-- Gráfico horizontal: modelos mais usados + Últimas submissões -->
+          <div class="grid grid-cols-1 gap-4 lg:grid-cols-5">
+            <div class="dash-chart-card lg:col-span-3">
+              <div class="dash-chart-card__head">
+                <div class="min-w-0">
+                  <h2 class="dash-chart-card__title">Modelos mais respondidos</h2>
+                  <p class="dash-chart-card__subtitle">Top 5 por volume de respostas</p>
+                </div>
+                @if (modelosMaisUsados.length > 0) {
+                  <a routerLink="/templates" class="dash-link-all">Ver todos</a>
+                }
+              </div>
+              <div class="dash-chart-card__body">
+                @if (modelosMaisUsados.length > 0) {
+                  <apx-chart
+                    [series]="barChart.series"
+                    [chart]="barChart.chart"
+                    [xaxis]="barChart.xaxis"
+                    [yaxis]="barChart.yaxis"
+                    [plotOptions]="barChart.plotOptions"
+                    [dataLabels]="barChart.dataLabels"
+                    [grid]="barChart.grid"
+                    [tooltip]="barChart.tooltip"
+                    [colors]="barChart.colors"
+                    [legend]="barChart.legend"
+                    [states]="barChart.states"
+                  />
+                } @else {
+                  <div class="dash-empty">
+                    <span class="material-symbols-outlined">monitoring</span>
+                    <p>Sem respostas registradas ainda.</p>
+                  </div>
+                }
+              </div>
             </div>
-            <div class="p-2 flex flex-col gap-2">
-              @for (c of categoriasResumo; track c.key) {
-                <a routerLink="/templates" class="dash-category-card" [title]="'Ver modelos em ' + c.label">
-                  <div class="dash-category-count">{{ c.count }}</div>
-                  <span class="dash-category-label truncate">{{ c.label }}</span>
-                  <span class="material-symbols-outlined dash-category-chevron">chevron_right</span>
-                </a>
+
+            <div class="dash-panel lg:col-span-2">
+              <div class="dash-panel__head">
+                <h2 class="dash-panel__title">Últimas submissões</h2>
+                <a routerLink="/protocolos" class="dash-link-all">Ver protocolos</a>
+              </div>
+              @if (ultimasSubmissoes.length > 0) {
+                @for (item of ultimasSubmissoes; track item.id) {
+                  <a routerLink="/protocolos/{{ item.id }}" class="dash-row">
+                    <div class="min-w-0">
+                      <span class="text-sm font-semibold block truncate" style="color: var(--c-text)">{{ item.paciente }}</span>
+                      <span class="text-xs block truncate" style="color: var(--c-muted)">{{ item.modelo }} · {{ item.dataLabel }}</span>
+                    </div>
+                    <span class="dash-badge"
+                          [class.dash-badge--pending]="item.status === 'Pendente'"
+                          [class.dash-badge--ativo]="item.status === 'Aprovado'"
+                          [class.dash-badge--danger]="item.status === 'Reprovado'">
+                      {{ item.status }}
+                    </span>
+                  </a>
+                }
+              } @else {
+                <div class="dash-empty dash-empty--panel">
+                  <span class="material-symbols-outlined">inbox</span>
+                  <p>Nenhuma submissão recente.</p>
+                </div>
               }
             </div>
           </div>
-        }
+
+          <!-- Ações rápidas contextuais -->
+          <section class="dash-quick-actions">
+            <div class="dash-quick-actions__head">
+              <p class="dash-quick-actions__kicker">Acesso rápido</p>
+              @if (ultimos30Dias > 0) {
+                <p class="dash-quick-actions__hint">{{ ultimos30Dias }} respostas nos últimos 30 dias</p>
+              }
+            </div>
+            <div class="flex flex-wrap gap-2">
+              @if (pendentesHoje > 0) {
+                <a routerLink="/protocolos" class="btn-primary inline-flex items-center gap-1.5">
+                  <span class="material-symbols-outlined text-base">pending_actions</span>
+                  Revisar {{ pendentesHoje }} pendente@if (pendentesHoje > 1) {s}
+                </a>
+              } @else {
+                <a routerLink="/protocolos" class="btn-ghost btn-default-bg inline-flex items-center gap-1.5">
+                  <span class="material-symbols-outlined text-base">inbox</span>
+                  Ver protocolos
+                </a>
+              }
+              @if (totalTemplates === 0) {
+                <a routerLink="/templates/criar" class="btn-primary inline-flex items-center gap-1.5">
+                  <span class="material-symbols-outlined text-base">add</span>
+                  Criar primeiro modelo
+                </a>
+              } @else {
+                <a routerLink="/templates/criar" class="btn-ghost btn-default-bg inline-flex items-center gap-1.5">
+                  <span class="material-symbols-outlined text-base">add</span>
+                  Novo modelo
+                </a>
+              }
+              <a routerLink="/links-publicos" class="btn-ghost btn-default-bg inline-flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-base">link</span>
+                Links para enviar
+                @if (linksPublicosCount > 0) {
+                  <span class="text-[0.65rem] font-semibold px-1.5 py-0.5 rounded-md" style="background: var(--c-kpi-accent-soft); color: var(--c-kpi-accent-text)">{{ linksPublicosCount }}</span>
+                }
+              </a>
+            </div>
+          </section>
+
+          <!-- Últimos modelos -->
+          <div class="dash-panel">
+            <div class="dash-panel__head">
+              <h2 class="dash-panel__title">Últimos modelos</h2>
+              @if (ultimosTemplates.length > 0) {
+                <a routerLink="/templates" class="dash-link-all">Ver todos</a>
+              }
+            </div>
+            @for (t of ultimosTemplates; track t.id) {
+              <a routerLink="/templates/{{ t.id }}/campos" class="dash-row">
+                <div class="flex items-center gap-3 min-w-0">
+                  <div class="dash-doc-icon" aria-hidden="true">
+                    <span class="material-symbols-outlined">description</span>
+                  </div>
+                  <div class="min-w-0">
+                    <span class="text-sm font-semibold block truncate" style="color: var(--c-text)">{{ t.name }}</span>
+                    <span class="text-xs" style="color: var(--c-muted)">
+                      {{ t.created_label }}
+                      @if (t.respostas_count > 0) {
+                        · {{ t.respostas_count }} resposta@if (t.respostas_count > 1) {s}
+                      }
+                    </span>
+                  </div>
+                </div>
+                <span [class]="t.is_active ? 'dash-badge dash-badge--ativo' : 'dash-badge dash-badge--inativo'">
+                  {{ t.is_active ? 'Ativo' : 'Inativo' }}
+                </span>
+              </a>
+            } @empty {
+              <div class="dash-empty dash-empty--panel">
+                <span class="material-symbols-outlined">description</span>
+                <p>Nenhum modelo ainda.</p>
+              </div>
+            }
+          </div>
+
+          @if (categoriasResumo.length > 0) {
+            <div class="dash-panel">
+              <div class="dash-panel__head">
+                <h2 class="dash-panel__title">Modelos por categoria</h2>
+              </div>
+              <div class="p-3 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                @for (c of categoriasResumo; track c.key) {
+                  <a routerLink="/templates" class="dash-category-card" [title]="'Ver modelos em ' + c.label">
+                    <div class="dash-category-count">{{ c.count }}</div>
+                    <span class="dash-category-label truncate">{{ c.label }}</span>
+                    <span class="material-symbols-outlined dash-category-chevron">chevron_right</span>
+                  </a>
+                }
+              </div>
+            </div>
+          }
+        </div>
       }
     </div>
   }

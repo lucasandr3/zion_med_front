@@ -104,4 +104,71 @@
   word-break: break-word;
   overflow-wrap: break-word;
 }
+
+.integracoes-page .sistemas-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 12px;
+}
+
+.integracoes-page .sistema-card {
+  display: block;
+  padding: 14px;
+  border: 1px solid var(--c-border);
+  border-radius: 10px;
+  text-decoration: none;
+  background: var(--c-surface);
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.integracoes-page .sistema-card:hover {
+  border-color: var(--c-primary);
+  background: color-mix(in srgb, var(--c-primary) 4%, var(--c-surface));
+}
+
+.integracoes-page .sistema-logo-wrap {
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.integracoes-page .sistema-logo {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+}
+
+.integracoes-page .sistema-status {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  border-radius: 999px;
+  padding: 0.2rem 0.5rem;
+  border: 1px solid transparent;
+}
+
+.integracoes-page .sistema-status.ok {
+  color: #166534;
+  border-color: #86efac;
+  background: #dcfce7;
+}
+
+.integracoes-page .sistema-status.error {
+  color: #991b1b;
+  border-color: #fca5a5;
+  background: #fee2e2;
+}
+
+.integracoes-page .sistema-status.disabled,
+.integracoes-page .sistema-status.not_configured,
+.integracoes-page .sistema-status.unknown {
+  color: var(--c-muted);
+  border-color: var(--c-border);
+  background: var(--c-soft);
+}
 /* Clinica integracoes */

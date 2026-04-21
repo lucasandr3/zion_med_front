@@ -1,9 +1,7 @@
-import { Component, OnInit, inject, HostListener, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, HostListener, ViewChild, ElementRef, PLATFORM_ID } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
-import { CommonModule } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { AuthService } from '../../../core/services/auth.service';
-import { ClinicaService } from '../../../core/services/clinica.service';
-import { absoluteMediaUrl } from '../../../core/utils/absolute-media-url';
 import { SidebarMobileService } from '../../../core/services/sidebar-mobile.service';
 import { TooltipDirective } from '../../../core/directives/tooltip.directive';
 
@@ -14,14 +12,10 @@ import { TooltipDirective } from '../../../core/directives/tooltip.directive';
   templateUrl: './barra-lateral.component.html',
   styleUrl: './barra-lateral.component.css',
 })
-export class BarraLateralComponent implements OnInit {
+export class BarraLateralComponent implements OnInit, OnDestroy {
   nomeUsuario = 'Usuário';
   iniciaisUsuario = 'U';
   emailUsuario = '';
-  nomeClinica: string | null = null;
-  enderecoClinica: string | null = null;
-  /** URL absoluta da logo da empresa (API pode devolver /storage/...). */
-  logoUrlClinica: string | null = null;
   notificacoesNaoLidas = 0;
   menuUsuarioAberto = false;
   exibirTrocarEmpresa = false;
@@ -40,10 +34,12 @@ export class BarraLateralComponent implements OnInit {
 
   private auth = inject(AuthService);
   private router = inject(Router);
-  private clinicaService = inject(ClinicaService);
   private sidebarMobile = inject(SidebarMobileService);
 
   sidebarOpenMobile = false;
+  sidebarColapsada = false;
+  private sidebarObserver: MutationObserver | null = null;
+  private platformId = inject(PLATFORM_ID);
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(e: Event): void {
@@ -55,7 +51,7 @@ export class BarraLateralComponent implements OnInit {
 
   ngOnInit(): void {
     this.atualizarDados();
-    this.clinicaService.clinicBrandingUpdated$.subscribe(() => this.atualizarDados());
+    this.sincronizarEstadoSidebar();
     this.sidebarMobile.getOpen().subscribe((open) => {
       this.sidebarOpenMobile = open;
       // Igual ao backend: bloquear scroll do body quando sidebar aberta no mobile
@@ -63,6 +59,10 @@ export class BarraLateralComponent implements OnInit {
         document.body.style.overflow = open ? 'hidden' : '';
       }
     });
+  }
+
+  ngOnDestroy(): void {
+    this.sidebarObserver?.disconnect();
   }
 
   private atualizarDados(): void {
@@ -92,29 +92,6 @@ export class BarraLateralComponent implements OnInit {
       this.podeAcessarLinksEEnvios = false;
     }
     this.exibirTrocarEmpresa = this.auth.canSwitchClinic();
-    const clinic = this.auth.getCurrentClinic();
-    this.logoUrlClinica = null;
-    if (clinic) {
-      this.nomeClinica = clinic.name ?? null;
-      this.enderecoClinica = (clinic as { address?: string }).address ?? null;
-    }
-    // Nome, endereço e logo atualizados (storage pode ser path relativo à API)
-    if (this.auth.getCurrentClinicId()) {
-      this.clinicaService.getConfiguracoes().subscribe({
-        next: (config) => {
-          this.nomeClinica = config.name ?? this.nomeClinica;
-          this.enderecoClinica = config.address ?? this.enderecoClinica ?? null;
-          const raw = config.logo_url;
-          if (raw != null && String(raw).trim() !== '') {
-            const abs = absoluteMediaUrl(String(raw));
-            this.logoUrlClinica = abs ?? String(raw);
-          } else {
-            this.logoUrlClinica = null;
-          }
-        },
-        error: () => {}
-      });
-    }
   }
 
   alternarMenuUsuario(): void {
@@ -132,5 +109,21 @@ export class BarraLateralComponent implements OnInit {
   sair(): void {
     this.menuUsuarioAberto = false;
     this.auth.logout().subscribe(() => this.router.navigate(['/autenticacao']));
+  }
+
+  tooltipQuandoColapsada(texto: string): string {
+    return this.sidebarColapsada ? texto : '';
+  }
+
+  private sincronizarEstadoSidebar(): void {
+    if (!isPlatformBrowser(this.platformId) || typeof document === 'undefined') return;
+
+    const atualizar = () => {
+      this.sidebarColapsada = document.body.classList.contains('sidebar-collapsed');
+    };
+
+    atualizar();
+    this.sidebarObserver = new MutationObserver(atualizar);
+    this.sidebarObserver.observe(document.body, { attributes: true, attributeFilter: ['class'] });
   }
 }

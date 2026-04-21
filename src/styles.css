@@ -947,7 +947,7 @@ body.sidebar-collapsed .clinic-switcher-link {
 .nav-link.active,
 .nav-link.ativo {
     color: var(--c-primary);
-    background-color: color-mix(in srgb, var(--c-primary) 10%, var(--c-soft));
+    background-color: color-mix(in srgb, var(--c-primary) 4%, var(--c-soft));
     font-weight: 600;
     box-shadow: inset 2px 0 0 var(--c-primary);
 }
@@ -955,6 +955,11 @@ body.sidebar-collapsed .clinic-switcher-link {
 .nav-link.active .material-symbols-outlined,
 .nav-link.ativo .material-symbols-outlined {
     font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+.dark .nav-link.active,
+.dark .nav-link.ativo {
+    background-color: color-mix(in srgb, var(--c-primary) 15%, var(--c-soft));
 }
 
 body.sidebar-collapsed .nav-link.active,
@@ -1706,23 +1711,34 @@ body.dark .flatpickr-calendar .flatpickr-weekwrapper span.flatpickr-day { color:
    ══════════════════════════════════════════════════════════════════════════ */
 .clinica-config { display: flex; flex-direction: column; min-height: 0; width: 100%; }
 .clinica-config .config-tabs {
-  display: flex; gap: 4px;
-  margin-left: -1rem; margin-right: -1rem; margin-top: -1.5rem; margin-bottom: 0;
+  display: flex; gap: 0;
+  margin-left: -1rem; margin-right: -1rem; margin-top: -1.5rem; margin-bottom: 20px;
   padding: 0 1rem; background: var(--c-surface);
+  border-bottom: 2px solid var(--c-border);
+  overflow-x: auto; -webkit-overflow-scrolling: touch;
 }
 @media (min-width: 640px) {
-  .clinica-config .config-tabs { margin-left: -1.5rem; margin-right: -1.5rem; margin-top: -1.5rem; padding-left: 1.5rem; padding-right: 1.5rem; }
+  .clinica-config .config-tabs {
+    margin-left: -1.5rem; margin-right: -1.5rem; margin-top: -1.5rem; padding-left: 1.5rem; padding-right: 1.5rem;
+    overflow-x: visible; flex-wrap: wrap;
+  }
 }
 @media (min-width: 1024px) {
-  .clinica-config .config-tabs { margin-left: -2rem; margin-right: -2rem; margin-top: -2rem; padding-left: 2rem; padding-right: 2rem; }
+  .clinica-config .config-tabs { margin-left: -2rem; margin-right: -2rem; margin-top: -1.5rem; padding-left: 2rem; padding-right: 2rem; }
 }
 .clinica-config .config-tab {
-  padding: 14px 18px; font-size: 13px; font-weight: 700; color: var(--c-muted);
-  cursor: pointer; transition: color 0.15s;
+  padding: 13px 16px; font-size: 13px; font-weight: 600; color: var(--c-muted);
+  cursor: pointer; transition: color 0.15s, box-shadow 0.15s;
   white-space: nowrap; background: none; border: none; font-family: inherit;
+  border-bottom: 2px solid transparent; margin-bottom: -2px;
+  display: inline-flex; align-items: center; gap: 5px;
 }
 .clinica-config .config-tab:hover { color: var(--c-text); }
-.clinica-config .config-tab.active { color: var(--c-primary); }
+.clinica-config .config-tab.active {
+  color: var(--c-primary);
+  border-bottom-color: transparent;
+  font-weight: 700;
+}
 .clinica-config .config-panel { display: none; }
 .clinica-config .config-panel.active { display: block; }
 .clinica-config .config-progress { margin-bottom: 20px; margin-top: 24px; }
@@ -1824,8 +1840,3 @@ body.dark .flatpickr-calendar .flatpickr-weekwrapper span.flatpickr-day { color:
 }
 .clinica-config .btn-secondary:hover,
 .link-bio-config .btn-secondary:hover { color: var(--c-text); }
-
-/* Espaço extra na aba Logs (igual backend) */
-#panel-logs {
-    padding-top: 1.5rem;
-}

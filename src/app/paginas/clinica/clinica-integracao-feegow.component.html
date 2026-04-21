@@ -1,0 +1,66 @@
+<div class="feegow-page">
+  <div class="page-head">
+    <a routerLink="/clinica/integracoes" class="back-link">
+      <span class="material-symbols-outlined" style="font-size:16px">arrow_back</span>
+      Voltar para integrações
+    </a>
+    <h2>Integração Feegow</h2>
+  </div>
+
+  @if (carregando) {
+    <p class="muted">Carregando configuração…</p>
+  } @else if (erro) {
+    <p class="error">{{ erro }}</p>
+  } @else {
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="title">Status da integração</div>
+          <p class="muted">Validação por `x-access-token` na API Feegow.</p>
+        </div>
+        <span class="badge" [class]="'badge ' + (state?.status || 'unknown')">{{ statusLabel(state?.status) }}</span>
+      </div>
+      @if (state?.last_check_at) {
+        <p class="muted">Última verificação: {{ state?.last_check_at | date:'dd/MM/yyyy HH:mm' }}</p>
+      }
+      @if (state?.last_error) {
+        <p class="error">{{ state?.last_error }}</p>
+      }
+    </div>
+
+    <div class="card">
+      <div class="field">
+        <label class="switch-row">
+          <span>Ativar integração Feegow</span>
+          <input type="checkbox" [(ngModel)]="form.enabled" />
+        </label>
+      </div>
+
+      <div class="field">
+        <label>Base URL</label>
+        <input type="url" class="form-input" [(ngModel)]="form.base_url" placeholder="https://api.feegow.com/v1/api" />
+      </div>
+
+      <div class="field">
+        <label>Token de acesso (x-access-token)</label>
+        <input type="password" class="form-input" [(ngModel)]="form.token" placeholder="Cole um novo token para atualizar" />
+        <p class="muted small">
+          @if (state?.has_token) {
+            Token já configurado. Preencha apenas se quiser trocar.
+          } @else {
+            Nenhum token salvo ainda.
+          }
+        </p>
+      </div>
+
+      <div class="actions">
+        <button type="button" class="btn-primary" (click)="salvar()" [disabled]="salvando">
+          {{ salvando ? 'Salvando…' : 'Salvar configuração' }}
+        </button>
+        <button type="button" class="btn-ghost" (click)="testarConexao()" [disabled]="testando">
+          {{ testando ? 'Testando…' : 'Testar conexão' }}
+        </button>
+      </div>
+    </div>
+  }
+</div>

@@ -1,0 +1,109 @@
+.feegow-page {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.page-head h2 {
+  margin: 8px 0 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--c-text);
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.85rem;
+  color: var(--c-primary);
+  text-decoration: none;
+}
+
+.card {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--c-text);
+}
+
+.field {
+  margin-bottom: 12px;
+}
+
+.field:last-child {
+  margin-bottom: 0;
+}
+
+.field label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--c-text);
+}
+
+.switch-row {
+  display: flex !important;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.muted {
+  color: var(--c-muted);
+  font-size: 0.8rem;
+  margin: 4px 0 0;
+}
+
+.small {
+  font-size: 0.75rem;
+}
+
+.error {
+  color: var(--c-error, #dc2626);
+  font-size: 0.8rem;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.25rem 0.5rem;
+  border-radius: 999px;
+  border: 1px solid var(--c-border);
+  color: var(--c-muted);
+  background: var(--c-soft);
+}
+
+.badge.ok {
+  color: #166534;
+  border-color: #86efac;
+  background: #dcfce7;
+}
+
+.badge.error {
+  color: #991b1b;
+  border-color: #fca5a5;
+  background: #fee2e2;
+}

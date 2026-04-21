@@ -9,7 +9,27 @@ export interface DashboardData {
   por_status: Record<string, number>;
   ultimos_7_dias: number;
   ultimos_30_dias: number;
+  media_semanal_ultimos_30_dias?: number;
+  comparativo_semana_anterior?: {
+    delta_absoluto: number;
+    delta_percentual: number;
+    positiva: boolean;
+  };
+  taxa_aprovacao?: number;
   links_publicos_count: number;
+  ultimas_submissoes?: Array<{
+    id: number;
+    paciente: string;
+    modelo: string;
+    status: string;
+    data: string | null;
+  }>;
+  modelos_mais_usados?: Array<{
+    template_id: number;
+    template_nome: string;
+    total: number;
+  }>;
+  respostas_por_template?: Record<number, number>;
 }
 
 interface ApiResponse {

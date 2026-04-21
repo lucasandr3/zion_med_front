@@ -33,7 +33,7 @@
 
   <div class="flex items-center gap-2">
     <!-- Tema (cores + modo escuro): ícone palette abre drawer em mobile e desktop -->
-    <div class="relative" #themePicker>
+    <div class="relative header-desktop-only-block" #themePicker>
       <button type="button" (click)="alternarMenuTema()" class="flex items-center justify-center w-8 h-8 rounded-md border transition-colors hover:bg-[var(--c-soft)]" style="color: var(--c-muted); border-color: var(--c-border); background: transparent" aria-label="Tema e aparência" appTooltip="Tema e aparência">
         <span class="material-symbols-outlined" style="font-size: 22px">palette</span>
       </button>
@@ -59,23 +59,33 @@
           <div class="theme-drawer-mode-row">
             <button
               type="button"
-              (click)="aplicarModoEscuro(false)"
+              (click)="aplicarModoTema('light')"
               class="theme-drawer-mode-btn"
-              [class.theme-drawer-mode-btn--active]="!modoEscuro"
-              [attr.aria-pressed]="!modoEscuro"
+              [class.theme-drawer-mode-btn--active]="themeDrawerMode === 'light'"
+              [attr.aria-pressed]="themeDrawerMode === 'light'"
             >
-              <span class="material-symbols-outlined theme-drawer-mode-icon">wb_sunny</span>
+              <span class="material-symbols-outlined theme-drawer-mode-icon">light_mode</span>
               <span class="theme-drawer-mode-text">Claro</span>
             </button>
             <button
               type="button"
-              (click)="aplicarModoEscuro(true)"
+              (click)="aplicarModoTema('dark')"
               class="theme-drawer-mode-btn"
-              [class.theme-drawer-mode-btn--active]="modoEscuro"
-              [attr.aria-pressed]="modoEscuro"
+              [class.theme-drawer-mode-btn--active]="themeDrawerMode === 'dark'"
+              [attr.aria-pressed]="themeDrawerMode === 'dark'"
             >
               <span class="material-symbols-outlined theme-drawer-mode-icon">dark_mode</span>
               <span class="theme-drawer-mode-text">Escuro</span>
+            </button>
+            <button
+              type="button"
+              (click)="aplicarModoTema('auto')"
+              class="theme-drawer-mode-btn"
+              [class.theme-drawer-mode-btn--active]="themeDrawerMode === 'auto'"
+              [attr.aria-pressed]="themeDrawerMode === 'auto'"
+            >
+              <span class="material-symbols-outlined theme-drawer-mode-icon">brightness_auto</span>
+              <span class="theme-drawer-mode-text">Automático</span>
             </button>
           </div>
 
@@ -98,20 +108,17 @@
               </button>
             }
           </div>
+          <p class="theme-drawer-selected-label">
+            Selecionado: <strong>{{ temaAtualMeta?.labelPt ?? '—' }}</strong>
+          </p>
 
-          <div class="theme-drawer-footer">
-            <span class="theme-drawer-footer-dot" [style.background]="temaAtualMeta?.color ?? '#2563eb'"></span>
-            <span class="theme-drawer-footer-text">
-              Selecionado: <strong>{{ temaAtualMeta?.labelPt ?? '—' }}</strong>
-            </span>
-          </div>
         </div>
       }
     </div>
 
     @if (podeVerNotificacoesNoHeader) {
-      <div class="w-px h-5 bg-[var(--c-border)] mx-0.5"></div>
-      <a [routerLink]="notificacoesRouterLink" class="relative flex items-center justify-center w-8 h-8 rounded-md border transition-colors no-underline hover:bg-[var(--c-soft)]" style="border-color: var(--c-border); background: transparent; color: var(--c-muted)" aria-label="Notificações" appTooltip="Notificações">
+      <div class="w-px h-5 bg-[var(--c-border)] mx-0.5 header-desktop-only-block"></div>
+      <a [routerLink]="notificacoesRouterLink" class="relative header-desktop-only-flex items-center justify-center w-8 h-8 rounded-md border transition-colors no-underline hover:bg-[var(--c-soft)]" style="border-color: var(--c-border); background: transparent; color: var(--c-muted)" aria-label="Notificações" appTooltip="Notificações">
         <span class="material-symbols-outlined" style="font-size: 19px">notifications</span>
         @if (notificacoesNaoLidas > 0) {
           <span class="absolute -top-0.5 -right-0.5 min-w-4 h-4 rounded-full flex items-center justify-center px-1 text-[0.55rem] font-bold leading-none" style="background: var(--c-primary); color: #fff; border: 2px solid var(--c-bg)">
@@ -119,6 +126,62 @@
           </span>
         }
       </a>
+    }
+
+    @if (nomeClinica) {
+      <div class="w-px h-5 bg-[var(--c-border)] mx-0.5 hidden lg:block"></div>
+      <div class="relative" #clinicMenuContainer>
+        <button
+          type="button"
+          class="header-clinic-chip header-clinic-chip--clickable"
+          [attr.aria-expanded]="menuEmpresaAberto"
+          aria-haspopup="menu"
+          aria-label="Menu da empresa selecionada"
+          (click)="alternarMenuEmpresa()"
+        >
+          <span class="header-clinic-avatar" aria-hidden="true">
+            @if (logoUrlClinica) {
+              <img [src]="logoUrlClinica" [alt]="'Logo ' + nomeClinica" class="header-clinic-avatar__img" loading="lazy" />
+            } @else {
+              {{ nomeClinica.charAt(0) | uppercase }}
+            }
+          </span>
+          <span class="header-clinic-meta">
+            <span class="header-clinic-name">{{ nomeClinica }}</span>
+            @if (emailClinica) {
+              <span class="header-clinic-email">{{ emailClinica }}</span>
+            }
+          </span>
+          <span class="material-symbols-outlined header-clinic-action" aria-hidden="true">
+            {{ menuEmpresaAberto ? 'expand_less' : 'unfold_more' }}
+          </span>
+        </button>
+
+        @if (menuEmpresaAberto) {
+          <div class="header-clinic-dropdown" role="menu" aria-label="Ações da empresa">
+            @if (exibirTrocarEmpresa) {
+              <a routerLink="/clinica/escolher" (click)="fecharMenuEmpresa()" class="header-clinic-dropdown-item" role="menuitem" appTooltip="Trocar empresa">
+                <span class="material-symbols-outlined" aria-hidden="true">swap_horiz</span>
+                Trocar empresa
+              </a>
+            }
+            <a routerLink="/clinica/configuracoes" (click)="fecharMenuEmpresa()" class="header-clinic-dropdown-item" role="menuitem" appTooltip="Configurações da empresa">
+              <span class="material-symbols-outlined" aria-hidden="true">settings</span>
+              Configurações
+            </a>
+            @if (podeVerBillingNoHeader) {
+              <a routerLink="/assinatura" (click)="fecharMenuEmpresa()" class="header-clinic-dropdown-item" role="menuitem" appTooltip="Assinatura">
+                <span class="material-symbols-outlined" aria-hidden="true">credit_card</span>
+                Assinatura
+              </a>
+            }
+            <button type="button" (click)="sair()" class="header-clinic-dropdown-item header-clinic-dropdown-item--button" role="menuitem" appTooltip="Sair">
+              <span class="material-symbols-outlined" aria-hidden="true">logout</span>
+              Sair
+            </button>
+          </div>
+        }
+      </div>
     }
   </div>
 </header>

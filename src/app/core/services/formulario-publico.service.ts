@@ -148,6 +148,24 @@ export interface FormularioPersonLink {
   description?: string;
 }
 
+export interface FeegowSimpleOption {
+  id?: number | string;
+  [key: string]: unknown;
+}
+
+export interface FormularioPublicoFeegowMeta {
+  enabled: boolean;
+  requires_fields?: string[];
+  professionals?: FeegowSimpleOption[];
+  procedures?: FeegowSimpleOption[];
+  specialties?: FeegowSimpleOption[];
+  insurances?: FeegowSimpleOption[];
+  units?: FeegowSimpleOption[];
+  locals?: FeegowSimpleOption[];
+  channels?: FeegowSimpleOption[];
+  warning?: string;
+}
+
 export interface FormularioPublicoData {
   template: { id: number; name: string; description?: string };
   clinic_name?: string;
@@ -155,6 +173,8 @@ export interface FormularioPublicoData {
   logo_url?: string | null;
   /** Quando ativo, exige código + data de nascimento antes do preenchimento. */
   person_link?: FormularioPersonLink;
+  /** Integração Feegow para este formulário/empresa. */
+  feegow?: FormularioPublicoFeegowMeta;
   fields: FormularioPublicoField[];
 }
 
@@ -168,6 +188,10 @@ interface SubmitResponse {
 
 interface ValidatePersonResponse {
   data: { person_id: number; code: string; name: string };
+}
+
+interface FeegowDisponibilidadeResponse {
+  data: { schedule: unknown; raw: unknown };
 }
 
 @Injectable({ providedIn: 'root' })
@@ -212,6 +236,28 @@ export class FormularioPublicoService {
   validatePerson(token: string, body: { code: string; birth_date: string }): Observable<ValidatePersonResponse['data']> {
     return this.http
       .post<ValidatePersonResponse>(`${BASE}/formulario-publico/${encodeURIComponent(token)}/validate-person`, body)
+      .pipe(map((r) => r.data));
+  }
+
+  getFeegowDisponibilidade(
+    token: string,
+    params: {
+      tipo: 'E' | 'P';
+      data_start: string;
+      data_end: string;
+      especialidade_id?: number;
+      procedimento_id?: number;
+      unidade_id?: number;
+      profissional_id?: number;
+      convenio_id?: number;
+    }
+  ): Observable<FeegowDisponibilidadeResponse['data']> {
+    const query = new URLSearchParams();
+    Object.entries(params).forEach(([k, v]) => {
+      if (v !== undefined && v !== null && String(v) !== '') query.set(k, String(v));
+    });
+    return this.http
+      .get<FeegowDisponibilidadeResponse>(`${BASE}/formulario-publico/${encodeURIComponent(token)}/feegow/disponibilidade?${query.toString()}`)
       .pipe(map((r) => r.data));
   }
 }

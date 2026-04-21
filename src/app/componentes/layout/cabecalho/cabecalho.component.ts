@@ -1,12 +1,14 @@
 import { Component, Input, OnInit, OnDestroy, inject, HostListener, ElementRef, ViewChild } from '@angular/core';
 import { Subscription } from 'rxjs';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../core/services/auth.service';
 import { UserAppearanceService } from '../../../core/services/user-appearance.service';
 import { SidebarMobileService } from '../../../core/services/sidebar-mobile.service';
+import { ClinicaService } from '../../../core/services/clinica.service';
 import { TooltipDirective } from '../../../core/directives/tooltip.directive';
 import { normalizeThemeKey } from '../../../core/services/user-appearance.sync';
+import { absoluteMediaUrl } from '../../../core/utils/absolute-media-url';
 
 export const TEMAS: { key: string; label: string; labelPt: string; color: string }[] = [
   { key: 'gestgo-blue', label: 'Royal blue', labelPt: 'Azul Gestgo', color: '#1e40af' },
@@ -60,6 +62,11 @@ export class CabecalhoComponent implements OnInit, OnDestroy {
   @Input() notificacoesNaoLidas = 0;
   /** Quando informado, o ícone de notificações no header usa esta rota (ex.: /plataforma/notificacoes). */
   @Input() notificacoesRouterLink = '/notificacoes';
+  nomeClinica: string | null = null;
+  emailClinica: string | null = null;
+  logoUrlClinica: string | null = null;
+  exibirTrocarEmpresa = false;
+  menuEmpresaAberto = false;
 
   temas = TEMAS;
 
@@ -77,34 +84,83 @@ export class CabecalhoComponent implements OnInit, OnDestroy {
   get podeVerNotificacoesNoHeader(): boolean {
     return this.auth.hasPermission('notifications.access');
   }
+
+  get podeVerBillingNoHeader(): boolean {
+    return this.auth.hasPermission('billing.manage');
+  }
   temaAtual = 'ocean-blue';
   modoEscuro = false;
+  themeDrawerMode: 'light' | 'dark' | 'auto' = 'light';
   sidebarColapsada = false;
   menuTemaAberto = false;
 
   private appearanceSub?: Subscription;
+  private clinicaSub?: Subscription;
+  private _sysDarkMql: MediaQueryList | null = null;
+  private _sysListener = () => this._applyAutoMode();
 
   @ViewChild('themePicker') themePickerRef?: ElementRef<HTMLElement>;
+  @ViewChild('clinicMenuContainer') clinicMenuContainer?: ElementRef<HTMLElement>;
 
   private auth = inject(AuthService);
+  private router = inject(Router);
   private appearance = inject(UserAppearanceService);
   private sidebarMobile = inject(SidebarMobileService);
+  private clinicaService = inject(ClinicaService);
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(e: Event): void {
-    if (!this.menuTemaAberto) return;
-    const el = this.themePickerRef?.nativeElement;
-    if (el && el.contains(e.target as Node)) return;
-    this.fecharMenuTema();
+    const target = e.target as Node;
+
+    if (this.menuTemaAberto) {
+      const themeEl = this.themePickerRef?.nativeElement;
+      if (!themeEl || !themeEl.contains(target)) {
+        this.fecharMenuTema();
+      }
+    }
+
+    if (this.menuEmpresaAberto) {
+      const clinicEl = this.clinicMenuContainer?.nativeElement;
+      if (!clinicEl || !clinicEl.contains(target)) {
+        this.fecharMenuEmpresa();
+      }
+    }
   }
 
   ngOnInit(): void {
     this.syncTemaControlsFromBrowser();
     this.appearanceSub = this.auth.appearanceApplied$.subscribe(() => this.syncTemaControlsFromBrowser());
+    this.syncClinicInfo();
+    this.clinicaSub = this.clinicaService.clinicBrandingUpdated$.subscribe(() => this.syncClinicInfo());
   }
 
   ngOnDestroy(): void {
     this.appearanceSub?.unsubscribe();
+    this.clinicaSub?.unsubscribe();
+    this._removeSysListener();
+  }
+
+  private syncClinicInfo(): void {
+    this.exibirTrocarEmpresa = this.auth.canSwitchClinic();
+    const clinic = this.auth.getCurrentClinic();
+    this.nomeClinica = clinic?.name ?? null;
+    this.emailClinica = null;
+    this.logoUrlClinica = null;
+    if (!this.auth.getCurrentClinicId()) return;
+    this.clinicaService.getConfiguracoes().subscribe({
+      next: (config) => {
+        this.nomeClinica = config.name ?? this.nomeClinica;
+        this.emailClinica = config.contact_email ?? config.notification_email ?? config.email ?? null;
+        const raw = config.logo_url;
+        if (raw != null && String(raw).trim() !== '') {
+          const abs = absoluteMediaUrl(String(raw));
+          this.logoUrlClinica = abs ?? String(raw);
+        } else {
+          this.logoUrlClinica = null;
+        }
+      },
+      error: () => {}
+    });
   }
 
   /** Alinha estado do drawer com `body`/`localStorage` (inclui após `/me`). */
@@ -117,7 +173,35 @@ export class CabecalhoComponent implements OnInit, OnDestroy {
         if (m) this.temaAtual = normalizeThemeKey(m[1]);
       }
       this.modoEscuro = document.body.classList.contains('dark') || localStorage.getItem('gestgo_dark_mode') === '1';
+      this.themeDrawerMode = this.modoEscuro ? 'dark' : 'light';
     } catch {}
+  }
+
+  aplicarModoTema(mode: 'light' | 'dark' | 'auto'): void {
+    this.themeDrawerMode = mode;
+    if (mode === 'auto') {
+      this._sysDarkMql = window.matchMedia('(prefers-color-scheme: dark)');
+      this._sysDarkMql.addEventListener('change', this._sysListener);
+      this._applyAutoMode();
+    } else {
+      this._removeSysListener();
+      this.aplicarModoEscuro(mode === 'dark');
+    }
+  }
+
+  private _applyAutoMode(): void {
+    const dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    this.modoEscuro = dark;
+    document.body.classList.toggle('dark', dark);
+    try { localStorage.setItem('gestgo_dark_mode', dark ? '1' : '0'); } catch {}
+    if (this.auth.isAuthenticated()) {
+      this.appearance.patchAppearance({ ui_dark_mode: dark }).subscribe({ error: () => {} });
+    }
+  }
+
+  private _removeSysListener(): void {
+    this._sysDarkMql?.removeEventListener('change', this._sysListener);
+    this._sysDarkMql = null;
   }
 
   alternarSidebar(): void {
@@ -152,6 +236,19 @@ export class CabecalhoComponent implements OnInit, OnDestroy {
 
   fecharMenuTema(): void {
     this.menuTemaAberto = false;
+  }
+
+  alternarMenuEmpresa(): void {
+    this.menuEmpresaAberto = !this.menuEmpresaAberto;
+  }
+
+  fecharMenuEmpresa(): void {
+    this.menuEmpresaAberto = false;
+  }
+
+  sair(): void {
+    this.menuEmpresaAberto = false;
+    this.auth.logout().subscribe(() => this.router.navigate(['/autenticacao']));
   }
 
   aplicarTema(key: string): void {

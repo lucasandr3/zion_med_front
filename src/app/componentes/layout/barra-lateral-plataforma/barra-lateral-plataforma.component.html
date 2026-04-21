@@ -17,22 +17,22 @@
   <nav class="flex-1 px-2 py-3 overflow-y-auto space-y-0.5">
     <p class="sidebar-section-label mt-1 mb-2">MENU</p>
 
-    <a routerLink="/plataforma" routerLinkActive="ativo" [routerLinkActiveOptions]="{ exact: true }" class="nav-link" appTooltip="Visão geral">
+    <a routerLink="/plataforma" routerLinkActive="ativo" [routerLinkActiveOptions]="{ exact: true }" class="nav-link" [appTooltip]="tooltipQuandoColapsada('Visão geral')">
       <span class="material-symbols-outlined shrink-0" style="font-size: 19px">analytics</span>
       <span class="sidebar-label">Visão geral</span>
     </a>
 
-    <a routerLink="/plataforma/clientes" routerLinkActive="ativo" class="nav-link" appTooltip="Clientes (tenants)">
+    <a routerLink="/plataforma/clientes" routerLinkActive="ativo" class="nav-link" [appTooltip]="tooltipQuandoColapsada('Clientes (tenants)')">
       <span class="material-symbols-outlined shrink-0" style="font-size: 19px">apartment</span>
       <span class="sidebar-label">Clientes (tenants)</span>
     </a>
 
-    <a routerLink="/plataforma/organizacoes-online" routerLinkActive="ativo" class="nav-link" appTooltip="Empresas com sessão ativa">
+    <a routerLink="/plataforma/organizacoes-online" routerLinkActive="ativo" class="nav-link" [appTooltip]="tooltipQuandoColapsada('Empresas com sessão ativa')">
       <span class="material-symbols-outlined shrink-0" style="font-size: 19px">sensors</span>
       <span class="sidebar-label">Empresas online</span>
     </a>
 
-    <a routerLink="/plataforma/leads" routerLinkActive="ativo" class="nav-link" appTooltip="Leads">
+    <a routerLink="/plataforma/leads" routerLinkActive="ativo" class="nav-link" [appTooltip]="tooltipQuandoColapsada('Leads')">
       <span class="material-symbols-outlined shrink-0" style="font-size: 19px">request_quote</span>
       <span class="sidebar-label">Leads</span>
     </a>
@@ -42,12 +42,12 @@
       <span class="sidebar-label">Assinaturas</span>
     </a>
 
-    <a routerLink="/plataforma/faturas" routerLinkActive="ativo" class="nav-link" appTooltip="Faturas / cobranças">
+    <a routerLink="/plataforma/faturas" routerLinkActive="ativo" class="nav-link" [appTooltip]="tooltipQuandoColapsada('Faturas / cobranças')">
       <span class="material-symbols-outlined shrink-0" style="font-size: 19px">payments</span>
       <span class="sidebar-label">Faturas / cobranças</span>
     </a>
 
-    <a routerLink="/plataforma/notificacoes" routerLinkActive="ativo" class="nav-link relative" appTooltip="Notificações">
+    <a routerLink="/plataforma/notificacoes" routerLinkActive="ativo" class="nav-link relative" [appTooltip]="tooltipQuandoColapsada('Notificações')">
       <span class="material-symbols-outlined shrink-0" style="font-size: 19px">notifications</span>
       <span class="sidebar-label">Notificações</span>
       @if (notificacoesNaoLidas > 0) {
@@ -59,17 +59,17 @@
 
     <p class="sidebar-section-label mt-5 mb-2">PLATAFORMA</p>
 
-    <a routerLink="/plataforma/planos" routerLinkActive="ativo" class="nav-link" appTooltip="Planos">
+    <a routerLink="/plataforma/planos" routerLinkActive="ativo" class="nav-link" [appTooltip]="tooltipQuandoColapsada('Planos')">
       <span class="material-symbols-outlined shrink-0" style="font-size: 19px">subscriptions</span>
       <span class="sidebar-label">Planos</span>
     </a>
 
-    <a routerLink="/plataforma/configuracoes" routerLinkActive="ativo" class="nav-link" appTooltip="Configurações da plataforma">
+    <a routerLink="/plataforma/configuracoes" routerLinkActive="ativo" class="nav-link" [appTooltip]="tooltipQuandoColapsada('Configurações da plataforma')">
       <span class="material-symbols-outlined shrink-0" style="font-size: 19px">settings</span>
       <span class="sidebar-label">Configurações</span>
     </a>
 
-    <a routerLink="/plataforma/logs" routerLinkActive="ativo" class="nav-link" appTooltip="Logs">
+    <a routerLink="/plataforma/logs" routerLinkActive="ativo" class="nav-link" [appTooltip]="tooltipQuandoColapsada('Logs')">
       <span class="material-symbols-outlined shrink-0" style="font-size: 19px">history</span>
       <span class="sidebar-label">Logs</span>
     </a>
@@ -77,7 +77,7 @@
 
   <div class="shrink-0 px-2 py-2 overflow-visible" style="border-top: 1px solid var(--c-border)">
     <div class="relative" #userMenuContainer>
-      <button type="button" (click)="alternarMenuUsuario()" class="flex items-center gap-2.5 w-full px-2 py-2 rounded-lg text-left transition-colors hover:bg-[var(--c-soft)] cursor-pointer" appTooltip="Menu do usuário" aria-label="Menu do usuário">
+      <button type="button" (click)="alternarMenuUsuario()" class="flex items-center gap-2.5 w-full px-2 py-2 rounded-lg text-left transition-colors hover:bg-[var(--c-soft)] cursor-pointer" [appTooltip]="tooltipQuandoColapsada('Menu do usuário')" aria-label="Menu do usuário">
         <div class="w-7 h-7 rounded-full shrink-0 flex items-center justify-center text-xs font-bold" style="background: var(--c-primary); color: #fff">
           {{ iniciaisUsuario }}
         </div>
@@ -90,7 +90,7 @@
 
       @if (menuUsuarioAberto) {
         <div class="user-dropdown absolute left-0 right-0 bottom-full mb-1 py-1 rounded-lg shadow-lg z-[100]" style="background: var(--c-elevated); border: 1px solid var(--c-border); min-width: 200px; box-shadow: 0 8px 32px rgba(0,0,0,0.22)">
-          <button type="button" (click)="sair()" class="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-[var(--c-soft)] text-left border-0 bg-transparent cursor-pointer" style="color: var(--c-text)" appTooltip="Sair">
+          <button type="button" (click)="sair()" class="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-[var(--c-soft)] text-left border-0 bg-transparent cursor-pointer" style="color: var(--c-text)" [appTooltip]="tooltipQuandoColapsada('Sair')">
             <span class="material-symbols-outlined" style="font-size: 16px">logout</span>
             Sair
           </button>

@@ -30,7 +30,7 @@ export class TooltipDirective implements OnInit, OnDestroy {
   private hideTimer: ReturnType<typeof setTimeout> | null = null;
 
   ngOnInit(): void {
-    if (!isPlatformBrowser(this.platformId) || !this.appTooltip?.trim()) return;
+    if (!isPlatformBrowser(this.platformId)) return;
 
     const host = this.el.nativeElement;
     host.addEventListener('mouseenter', this.onEnter);

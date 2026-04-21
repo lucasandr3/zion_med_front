@@ -16,6 +16,16 @@ export interface BusinessHoursSlot {
   close: string;
 }
 
+export interface OrganizationAddressData {
+  cep?: string | null;
+  logradouro?: string | null;
+  numero?: string | null;
+  complemento?: string | null;
+  bairro?: string | null;
+  cidade?: string | null;
+  uf?: string | null;
+}
+
 export interface ClinicaConfig {
   id?: number;
   name: string;
@@ -23,6 +33,7 @@ export interface ClinicaConfig {
   contact_email?: string;
   phone?: string;
   address?: string;
+  address_data?: OrganizationAddressData | null;
   /** E-mail (alias para notification_email no form antigo) */
   email?: string;
   theme?: string;
@@ -181,8 +192,9 @@ export class ClinicaService {
     if (logoFile) {
       const form = new FormData();
       const bh = payload.business_hours as Record<string, { open: string; close: string }> | undefined;
+      const addressData = payload.address_data as OrganizationAddressData | undefined;
       Object.entries(payload).forEach(([k, v]) => {
-        if (k === 'business_hours' || v === null || v === undefined) return;
+        if (k === 'business_hours' || k === 'address_data' || v === null || v === undefined) return;
         if (typeof v === 'boolean') {
           form.append(k, v ? '1' : '0');
         } else {
@@ -195,6 +207,12 @@ export class ClinicaService {
             form.append(`business_hours[${day}][open]`, slot.open);
             form.append(`business_hours[${day}][close]`, slot.close);
           }
+        });
+      }
+      if (addressData && typeof addressData === 'object') {
+        Object.entries(addressData).forEach(([key, value]) => {
+          if (value === null || value === undefined || value === '') return;
+          form.append(`address_data[${key}]`, String(value));
         });
       }
       form.append('logo', logoFile, logoFile.name);

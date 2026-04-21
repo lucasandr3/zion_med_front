@@ -347,6 +347,62 @@
   gap: 0;
 }
 
+.fp-feegow-card {
+  border-radius: 0.875rem;
+  padding: 0.875rem 1rem;
+  background: var(--fp-cream-100);
+  border: 1.5px solid var(--fp-cream-200);
+  margin-bottom: 0.25rem;
+  animation: fpFadeUp 0.4s 0.04s ease both;
+}
+
+.form-publico-page.dark .fp-feegow-card {
+  background: #1a1814;
+  border-color: #2e2a24;
+}
+
+.fp-feegow-title {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--fp-cream-600);
+  margin: 0 0 0.5rem;
+}
+
+.form-publico-page.dark .fp-feegow-title {
+  color: #a89880;
+}
+
+.fp-feegow-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.25rem 0.75rem;
+}
+
+@media (min-width: 560px) {
+  .fp-feegow-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.fp-feegow-actions {
+  margin-top: 0.25rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.35rem;
+}
+
+.fp-feegow-error {
+  font-size: 0.75rem;
+  color: #c62828;
+}
+
+.form-publico-page.dark .fp-feegow-error {
+  color: #ff8a80;
+}
+
 .fp-preenchedora {
   border-radius: 0.875rem;
   padding: 0.875rem 1rem;

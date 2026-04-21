@@ -1,6 +1,6 @@
-import { Component, OnInit, inject, HostListener, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, HostListener, ViewChild, ElementRef, PLATFORM_ID } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
-import { CommonModule } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { AuthService } from '../../../core/services/auth.service';
 import { SidebarMobileService } from '../../../core/services/sidebar-mobile.service';
 import { NotificacoesService } from '../../../core/services/notificacoes.service';
@@ -13,7 +13,7 @@ import { TooltipDirective } from '../../../core/directives/tooltip.directive';
   templateUrl: './barra-lateral-plataforma.component.html',
   styleUrl: './barra-lateral-plataforma.component.css',
 })
-export class BarraLateralPlataformaComponent implements OnInit {
+export class BarraLateralPlataformaComponent implements OnInit, OnDestroy {
   nomeUsuario = 'Usuário';
   iniciaisUsuario = 'U';
   emailUsuario = '';
@@ -28,6 +28,9 @@ export class BarraLateralPlataformaComponent implements OnInit {
   private notif = inject(NotificacoesService);
 
   sidebarOpenMobile = false;
+  sidebarColapsada = false;
+  private sidebarObserver: MutationObserver | null = null;
+  private platformId = inject(PLATFORM_ID);
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(e: Event): void {
@@ -39,6 +42,7 @@ export class BarraLateralPlataformaComponent implements OnInit {
 
   ngOnInit(): void {
     this.atualizarDados();
+    this.sincronizarEstadoSidebar();
     this.sidebarMobile.getOpen().subscribe((open) => {
       this.sidebarOpenMobile = open;
       if (typeof document !== 'undefined') {
@@ -46,6 +50,10 @@ export class BarraLateralPlataformaComponent implements OnInit {
       }
     });
     this.notif.getNaoLidasCount().subscribe((n) => (this.notificacoesNaoLidas = n));
+  }
+
+  ngOnDestroy(): void {
+    this.sidebarObserver?.disconnect();
   }
 
   private atualizarDados(): void {
@@ -72,5 +80,21 @@ export class BarraLateralPlataformaComponent implements OnInit {
   sair(): void {
     this.menuUsuarioAberto = false;
     this.auth.logout().subscribe(() => this.router.navigate(['/autenticacao']));
+  }
+
+  tooltipQuandoColapsada(texto: string): string {
+    return this.sidebarColapsada ? texto : '';
+  }
+
+  private sincronizarEstadoSidebar(): void {
+    if (!isPlatformBrowser(this.platformId) || typeof document === 'undefined') return;
+
+    const atualizar = () => {
+      this.sidebarColapsada = document.body.classList.contains('sidebar-collapsed');
+    };
+
+    atualizar();
+    this.sidebarObserver = new MutationObserver(atualizar);
+    this.sidebarObserver.observe(document.body, { attributes: true, attributeFilter: ['class'] });
   }
 }

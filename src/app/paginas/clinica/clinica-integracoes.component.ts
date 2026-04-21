@@ -1,16 +1,25 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IntegracoesService, IntegracoesState, IntegracoesWebhook, IntegracoesToken, IntegracoesDelivery } from '../../core/services/integracoes.service';
+import { RouterLink } from '@angular/router';
+import {
+  IntegracoesService,
+  IntegracoesState,
+  IntegracoesWebhook,
+  IntegracoesToken,
+  IntegracoesDelivery,
+  IntegracaoSistemaItem,
+  IntegracaoSistemaStatus,
+} from '../../core/services/integracoes.service';
 import { ToastService } from '../../core/services/toast.service';
 import { ConfirmDialogService } from '../../core/services/confirm-dialog.service';
 
-type AbaIntegracao = 'api' | 'webhooks' | 'entregas';
+type AbaIntegracao = 'api' | 'webhooks' | 'entregas' | 'sistemas';
 
 @Component({
   selector: 'app-clinica-integracoes',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './clinica-integracoes.component.html',
   styleUrl: './clinica-integracoes.component.css',
 })
@@ -23,6 +32,8 @@ export class ClinicaIntegracoesComponent implements OnInit {
   carregando = false;
   erro = '';
   abaAtiva: AbaIntegracao = 'api';
+  carregandoSistemas = false;
+  sistemas: IntegracaoSistemaItem[] = [];
 
   // token
   novoTokenNome = '';
@@ -38,6 +49,7 @@ export class ClinicaIntegracoesComponent implements OnInit {
 
   ngOnInit(): void {
     this.carregar();
+    this.carregarSistemas();
   }
 
   get tokens(): IntegracoesToken[] {
@@ -62,6 +74,9 @@ export class ClinicaIntegracoesComponent implements OnInit {
 
   ativarAba(aba: AbaIntegracao): void {
     this.abaAtiva = aba;
+    if (aba === 'sistemas') {
+      this.carregarSistemas();
+    }
   }
 
   carregar(): void {
@@ -191,6 +206,51 @@ export class ClinicaIntegracoesComponent implements OnInit {
   formatarEventosWebhook(wh: IntegracoesWebhook): string {
     if (!wh?.events?.length) return '';
     return wh.events.map((ev) => this.eventLabels[ev] || ev).join(', ');
+  }
+
+  carregarSistemas(): void {
+    this.carregandoSistemas = true;
+    this.service.getSistemas().subscribe({
+      next: (sistemas) => {
+        this.sistemas = sistemas;
+        this.carregandoSistemas = false;
+      },
+      error: () => {
+        this.carregandoSistemas = false;
+        this.toast.error('Erro', 'Não foi possível carregar os sistemas de integração.');
+      },
+    });
+  }
+
+  statusSistemaLabel(status: IntegracaoSistemaStatus): string {
+    switch (status) {
+      case 'ok':
+        return 'Funcionando';
+      case 'error':
+        return 'Com erro';
+      case 'disabled':
+        return 'Desativado';
+      case 'not_configured':
+        return 'Não configurado';
+      default:
+        return 'Pendente';
+    }
+  }
+
+  sistemaLink(sistema: IntegracaoSistemaItem): string[] | null {
+    if (sistema.key === 'feegow') {
+      return ['/clinica/integracoes/sistemas/feegow'];
+    }
+
+    return null;
+  }
+
+  sistemaLogoSrc(sistema: IntegracaoSistemaItem): string | null {
+    if (sistema.key === 'feegow') {
+      return 'assets/sistemas/feegow.png';
+    }
+
+    return null;
   }
 }
 

@@ -38,16 +38,6 @@
       }
 
       <form (ngSubmit)="salvar()" id="clinica-config-form">
-        @if (showStickyFooter) {
-          <div class="config-progress" id="config-progress-block">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-              <span style="font-size:12px;font-weight:600;color:var(--c-muted)">Perfil da empresa</span>
-              <span style="font-size:11px;color:var(--c-primary)" id="progress-text">{{ progressFilled() }} de 8 campos preenchidos</span>
-            </div>
-            <div class="config-progress-bar"><div class="fill" [style.width.%]="(progressFilled() / 8) * 100"></div></div>
-          </div>
-        }
-
         <!-- Painel Dados Gerais -->
         <div id="panel-dados" class="config-panel" [class.active]="activeTab === 'dados'" role="tabpanel">
           <div class="section-card">
@@ -67,13 +57,74 @@
                 </div>
                 <div class="field">
                   <label>Telefone / WhatsApp</label>
-                  <input type="text" [(ngModel)]="form.phone" name="phone" class="form-input" placeholder="(11) 99999-9999" maxlength="16">
+                  <input
+                    type="text"
+                    [ngModel]="form.phone"
+                    (ngModelChange)="onPhoneInput($event)"
+                    name="phone"
+                    class="form-input"
+                    placeholder="(11) 99999-9999"
+                    maxlength="16"
+                  >
                 </div>
               </div>
               <div class="field">
                 <label>Endereço</label>
-                <input type="text" [(ngModel)]="form.address" name="address" class="form-input" placeholder="Endereço completo">
-                <div class="hint">Aparece no cabeçalho dos PDFs e na página do Link Bio.</div>
+                <div class="address-grid">
+                  <div class="field">
+                    <label>CEP</label>
+                    <div class="cep-row">
+                      <input
+                        type="text"
+                        [ngModel]="enderecoForm.cep"
+                        (ngModelChange)="onCepInput($event)"
+                        (blur)="buscarEnderecoPorCep()"
+                        name="address_cep"
+                        class="form-input"
+                        placeholder="00000-000"
+                        maxlength="9"
+                      >
+                      @if (enderecoLoading) {
+                        <span class="status-chip">Buscando...</span>
+                      }
+                    </div>
+                  </div>
+                  <div class="field">
+                    <label>Logradouro</label>
+                    <input type="text" [(ngModel)]="enderecoForm.logradouro" name="address_logradouro" class="form-input" placeholder="Rua, avenida, etc.">
+                  </div>
+                  <div class="field-row">
+                    <div class="field">
+                      <label>Número</label>
+                      <input type="text" [(ngModel)]="enderecoForm.numero" name="address_numero" class="form-input" placeholder="123">
+                    </div>
+                    <div class="field">
+                      <label>Complemento <span class="opt">opcional</span></label>
+                      <input type="text" [(ngModel)]="enderecoForm.complemento" name="address_complemento" class="form-input" placeholder="Sala, bloco, apto">
+                    </div>
+                  </div>
+                  <div class="field-row">
+                    <div class="field">
+                      <label>Bairro</label>
+                      <input type="text" [(ngModel)]="enderecoForm.bairro" name="address_bairro" class="form-input" placeholder="Bairro">
+                    </div>
+                    <div class="field">
+                      <label>Cidade</label>
+                      <input type="text" [(ngModel)]="enderecoForm.cidade" name="address_cidade" class="form-input" placeholder="Cidade">
+                    </div>
+                    <div class="field field-uf">
+                      <label>UF</label>
+                      <input type="text" [(ngModel)]="enderecoForm.uf" name="address_uf" class="form-input" placeholder="SP" maxlength="2">
+                    </div>
+                  </div>
+                </div>
+                @if (enderecoErro) {
+                  <div class="hint" style="color:var(--c-error, #dc2626)">{{ enderecoErro }}</div>
+                } @else if (enderecoSucesso) {
+                  <div class="hint" style="color:var(--c-success, #22c55e)">Endereço preenchido automaticamente pelo CEP.</div>
+                } @else {
+                  <div class="hint">Aparece no cabeçalho dos PDFs e na página do Link Bio.</div>
+                }
               </div>
               <div class="field">
                 <label>E-mail de contato público <span class="opt">opcional</span></label>
@@ -102,7 +153,15 @@
               </div>
               <div class="field">
                 <label>CPF ou CNPJ <span class="req">*</span> <span class="opt">para assinatura</span></label>
-                <input type="text" [(ngModel)]="form.billing_document" name="billing_document" class="form-input" placeholder="000.000.000-00 ou 00.000.000/0001-00" maxlength="18">
+                <input
+                  type="text"
+                  [ngModel]="form.billing_document"
+                  (ngModelChange)="onBillingDocumentInput($event)"
+                  name="billing_document"
+                  class="form-input"
+                  placeholder="000.000.000-00 ou 00.000.000/0001-00"
+                  maxlength="18"
+                >
                 <div class="hint">Obrigatório para gerar boletos. Apenas números ou com pontuação.</div>
               </div>
             </div>
@@ -139,7 +198,7 @@
                 </label>
                 <label style="display:flex;align-items:center;gap:8px;margin-bottom:0;cursor:pointer;font-size:13px;color:var(--c-text)">
                   <input type="checkbox" [(ngModel)]="form.whatsapp_notify_avisos" name="whatsapp_notify_avisos">
-                  Avisos gerais da loja
+                  Avisos gerais
                 </label>
               </div>
             </div>
@@ -233,45 +292,39 @@
           <div class="section-card">
             <div class="section-header">
               <div class="icon-wrap"><span class="material-symbols-outlined">palette</span></div>
-              <span class="section-title">Tema de Cores</span>
-              <span style="margin-left:auto;font-size:11px;color:var(--c-muted)">Aplicado para todos os usuários</span>
+              <span class="section-title">Personalização</span>
             </div>
             <div class="section-body">
-              <div class="theme-grid">
+              <div class="visual-subtitle">
+                <div class="vtitle">Cor do Tema:</div>
+                <div class="vsub">Escolha a cor principal do tema da extensão</div>
+              </div>
+              <div class="theme-grid palette-grid">
                 @for (key of themeKeys; track key) {
                   @let meta = availableThemes[key];
                   @let primary = meta?.primary ?? '#2563eb';
-                  @let bg = primary + '22';
-                  <label class="theme-card" [class.selected]="form.theme === key">
-                    <input type="radio" [value]="key" [(ngModel)]="form.theme" [name]="'theme'" class="sr-only">
-                    <div class="theme-preview" [style.background]="bg">
-                      <div class="bar" [style.background]="primary" style="height:12px;border-radius:2px;width:5px;flex-shrink:0"></div>
-                      <div class="bar" [style.background]="primary" style="height:18px;border-radius:2px;width:5px;flex-shrink:0"></div>
-                      <div class="bar" [style.background]="primary" style="height:24px;border-radius:2px;width:5px;flex-shrink:0"></div>
-                    </div>
-                    <div class="theme-dot" [style.background]="primary"></div>
-                    <div class="theme-name">{{ meta?.label ?? key }}</div>
+                  <label class="theme-card palette-card" [class.selected]="form.theme === key" [attr.aria-label]="getThemeLabel(key)">
+                    <input type="radio" [value]="key" [(ngModel)]="form.theme" (ngModelChange)="onThemeChanged($event)" [name]="'theme'" class="sr-only">
+                    <div class="theme-preview palette-preview" [style.background]="primary"></div>
                   </label>
                 }
               </div>
-            </div>
-          </div>
-          <div class="section-card">
-            <div class="section-header">
-              <div class="icon-wrap"><span class="material-symbols-outlined">dark_mode</span></div>
-              <span class="section-title">Modo Escuro</span>
-            </div>
-            <div class="section-body">
-              <div class="dark-toggle-card">
-                <div class="dark-toggle-info">
-                  <div class="dtitle">Ativar modo escuro</div>
-                  <div class="dsub">Fundo escuro profundo, independente do tema de cor selecionado.</div>
-                </div>
-                <label class="toggle-wrap" style="position:relative;width:44px;height:24px;flex-shrink:0">
-                  <input type="checkbox" [(ngModel)]="form.dark_mode" name="dark_mode" style="opacity:0;width:0;height:0">
-                  <span class="toggle-track" style="position:absolute;inset:0;background:var(--c-border);border-radius:999px"></span>
-                  <span class="toggle-thumb" style="position:absolute;top:3px;left:3px;width:18px;height:18px;background:#fff;border-radius:50%;box-shadow:0 1px 3px rgba(0,0,0,.2)"></span>
-                </label>
+              <div class="visual-subtitle mode-subtitle">
+                <div class="vtitle">Modo de Tema:</div>
+              </div>
+              <div class="mode-grid">
+                <button type="button" class="mode-card" [class.selected]="themeMode === 'light'" (click)="onThemeModeChanged('light')">
+                  <span class="material-symbols-outlined">light_mode</span>
+                  <span>Claro</span>
+                </button>
+                <button type="button" class="mode-card" [class.selected]="themeMode === 'dark'" (click)="onThemeModeChanged('dark')">
+                  <span class="material-symbols-outlined">dark_mode</span>
+                  <span>Escuro</span>
+                </button>
+                <button type="button" class="mode-card" [class.selected]="themeMode === 'auto'" (click)="onThemeModeChanged('auto')">
+                  <span class="material-symbols-outlined">brightness_auto</span>
+                  <span>Automático</span>
+                </button>
               </div>
             </div>
           </div>
@@ -371,7 +424,7 @@
       }
 
       <!-- Painel WhatsApp (Evolution Go) -->
-      <div id="panel-whatsapp" class="config-panel mt-8" [class.active]="activeTab === 'whatsapp'" role="tabpanel">
+      <div id="panel-whatsapp" class="config-panel" [class.active]="activeTab === 'whatsapp'" role="tabpanel">
         <!-- <div class="page-header mb-4">
           <div class="page-title">
             <div class="page-title-icon">
@@ -441,94 +494,103 @@
                 <div class="icon-wrap"><span class="material-symbols-outlined">info</span></div>
                 <span class="section-title">Status</span>
               </div>
-              <div class="section-body">
-                <p style="font-size:14px;margin:0 0 8px 0"><strong>Instância:</strong> {{ waState.instance_name ?? '—' }}</p>
-                <p style="font-size:13px;color:var(--c-muted);margin:0 0 8px 0">
-                  Conectado:
-                  @if (waState.connected === true) {
-                    <span style="color:var(--c-success,#22c55e);font-weight:600">sim</span>
-                  } @else if (waState.connected === false) {
-                    <span style="font-weight:600">não</span>
-                  } @else {
-                    —
-                  }
-                  · Sessão ativa:
-                  @if (waState.logged_in === true) {
-                    <span style="color:var(--c-success,#22c55e);font-weight:600">sim</span>
-                  } @else if (waState.logged_in === false) {
-                    <span style="font-weight:600">não</span>
-                  } @else {
-                    —
-                  }
-                </p>
+              <div class="section-body wa-status-body">
+                <div class="wa-status-instance">
+                  <span class="wa-status-label">Instância</span>
+                  <code class="wa-instance-chip">{{ waState.instance_name ?? '—' }}</code>
+                </div>
+                <div class="wa-status-grid">
+                  <div class="wa-status-item">
+                    <span class="wa-status-label">Conectado</span>
+                    @if (waState.connected === true) {
+                      <span class="wa-badge wa-badge--success">Sim</span>
+                    } @else if (waState.connected === false) {
+                      <span class="wa-badge wa-badge--neutral">Não</span>
+                    } @else {
+                      <span class="wa-badge wa-badge--neutral">—</span>
+                    }
+                  </div>
+                  <div class="wa-status-item">
+                    <span class="wa-status-label">Sessão ativa</span>
+                    @if (waState.logged_in === true) {
+                      <span class="wa-badge wa-badge--success">Sim</span>
+                    } @else if (waState.logged_in === false) {
+                      <span class="wa-badge wa-badge--neutral">Não</span>
+                    } @else {
+                      <span class="wa-badge wa-badge--neutral">—</span>
+                    }
+                  </div>
+                </div>
                 @if (waState.remote_error) {
                   <p style="font-size:12px;color:var(--c-error,#dc2626);margin:0">API: {{ waState.remote_error }}</p>
                 }
               </div>
             </div>
-            <div class="section-card mb-4">
-              <div class="section-header">
-                <div class="icon-wrap"><span class="material-symbols-outlined">link</span></div>
-                <span class="section-title">Conectar dispositivo</span>
-              </div>
-              <div class="section-body">
-                <p style="font-size:13px;color:var(--c-muted);margin-bottom:12px">
-                  Número opcional para código de pareamento (somente dígitos, com DDI). Depois use “Obter QR Code” ou “Obter código de pareamento”.
-                </p>
-                <div class="field" style="margin-bottom:12px">
-                  <label for="wa-phone-conectar">Telefone (pareamento)</label>
-                  <input id="wa-phone-conectar" type="text" class="form-input" [(ngModel)]="waPhoneConectar" name="waPhoneConectar" placeholder="5511999999999" autocomplete="tel" />
+            @if (!(waState.connected === true || waState.logged_in === true)) {
+              <div class="section-card mb-4">
+                <div class="section-header">
+                  <div class="icon-wrap"><span class="material-symbols-outlined">link</span></div>
+                  <span class="section-title">Conectar dispositivo</span>
                 </div>
-                <div class="field" style="margin-bottom:16px">
-                  <label for="wa-webhook">Webhook URL <span class="opt">opcional</span></label>
-                  <input id="wa-webhook" type="url" class="form-input" [(ngModel)]="waWebhookUrl" name="waWebhookUrl" placeholder="https://…" />
-                </div>
-                <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:20px">
-                  <button type="button" class="btn-primary inline-flex items-center gap-2" (click)="iniciarConexaoWhatsapp()" [disabled]="waConectando">
-                    @if (waConectando) {
-                      <span class="btn-spinner" aria-hidden="true"></span>
-                    } @else {
-                      <span class="material-symbols-outlined" style="font-size:16px">power_settings_new</span>
-                    }
-                    {{ waConectando ? 'Iniciando…' : 'Iniciar conexão' }}
-                  </button>
-                  <button type="button" class="btn-secondary inline-flex items-center gap-2" (click)="buscarQrWhatsapp()" [disabled]="waQrCarregando">
-                    @if (waQrCarregando) {
-                      <span class="btn-spinner" aria-hidden="true"></span>
-                    } @else {
-                      <span class="material-symbols-outlined" style="font-size:16px">qr_code_2</span>
-                    }
-                    {{ waQrCarregando ? 'Carregando…' : 'Obter QR Code' }}
-                  </button>
-                </div>
-                @if (waQrSrc) {
-                  <div style="margin-bottom:16px">
-                    <p style="font-size:12px;font-weight:600;color:var(--c-muted);margin-bottom:8px">Escaneie no WhatsApp · Dispositivos conectados</p>
-                    <img [src]="waQrSrc" alt="QR Code WhatsApp" style="max-width:260px;height:auto;border-radius:8px;border:1px solid var(--c-border)" />
-                  </div>
-                }
-                @if (waQrLinkCode) {
-                  <p style="font-size:12px;color:var(--c-muted);margin-bottom:4px">Código de vinculação (QR)</p>
-                  <code style="display:block;font-size:11px;word-break:break-all;padding:8px;background:var(--c-soft);border-radius:8px">{{ waQrLinkCode }}</code>
-                }
-                <div style="border-top:1px solid var(--c-border);padding-top:16px;margin-top:16px">
-                  <p style="font-size:12px;font-weight:600;color:var(--c-muted);margin-bottom:8px">Pareamento por código (8 dígitos)</p>
+                <div class="section-body">
+                  <p style="font-size:13px;color:var(--c-muted);margin-bottom:12px">
+                    Número opcional para código de pareamento (somente dígitos, com DDI). Depois use “Obter QR Code” ou “Obter código de pareamento”.
+                  </p>
                   <div class="field" style="margin-bottom:12px">
-                    <label for="wa-phone-pair">Telefone do aparelho</label>
-                    <input id="wa-phone-pair" type="text" class="form-input" [(ngModel)]="waPhonePair" name="waPhonePair" placeholder="5511999999999" autocomplete="tel" />
+                    <label for="wa-phone-conectar">Telefone (pareamento)</label>
+                    <input id="wa-phone-conectar" type="text" class="form-input" [(ngModel)]="waPhoneConectar" name="waPhoneConectar" placeholder="5511999999999" autocomplete="tel" />
                   </div>
-                  <button type="button" class="btn-secondary inline-flex items-center gap-2 mb-3" (click)="solicitarPairWhatsapp()" [disabled]="waPairCarregando">
-                    @if (waPairCarregando) {
-                      <span class="btn-spinner" aria-hidden="true"></span>
-                    }
-                    {{ waPairCarregando ? 'Solicitando…' : 'Obter código de pareamento' }}
-                  </button>
-                  @if (waPairingCode) {
-                    <p style="font-size:24px;font-weight:700;letter-spacing:0.2em;font-family:monospace;margin:8px 0 0 0">{{ waPairingCode }}</p>
+                  <div class="field" style="margin-bottom:16px">
+                    <label for="wa-webhook">Webhook URL <span class="opt">opcional</span></label>
+                    <input id="wa-webhook" type="url" class="form-input" [(ngModel)]="waWebhookUrl" name="waWebhookUrl" placeholder="https://…" />
+                  </div>
+                  <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:20px">
+                    <button type="button" class="btn-primary inline-flex items-center gap-2" (click)="iniciarConexaoWhatsapp()" [disabled]="waConectando">
+                      @if (waConectando) {
+                        <span class="btn-spinner" aria-hidden="true"></span>
+                      } @else {
+                        <span class="material-symbols-outlined" style="font-size:16px">power_settings_new</span>
+                      }
+                      {{ waConectando ? 'Iniciando…' : 'Iniciar conexão' }}
+                    </button>
+                    <button type="button" class="btn-secondary inline-flex items-center gap-2" (click)="buscarQrWhatsapp()" [disabled]="waQrCarregando">
+                      @if (waQrCarregando) {
+                        <span class="btn-spinner" aria-hidden="true"></span>
+                      } @else {
+                        <span class="material-symbols-outlined" style="font-size:16px">qr_code_2</span>
+                      }
+                      {{ waQrCarregando ? 'Carregando…' : 'Obter QR Code' }}
+                    </button>
+                  </div>
+                  @if (waQrSrc) {
+                    <div style="margin-bottom:16px">
+                      <p style="font-size:12px;font-weight:600;color:var(--c-muted);margin-bottom:8px">Escaneie no WhatsApp · Dispositivos conectados</p>
+                      <img [src]="waQrSrc" alt="QR Code WhatsApp" style="max-width:260px;height:auto;border-radius:8px;border:1px solid var(--c-border)" />
+                    </div>
                   }
+                  @if (waQrLinkCode) {
+                    <p style="font-size:12px;color:var(--c-muted);margin-bottom:4px">Código de vinculação (QR)</p>
+                    <code style="display:block;font-size:11px;word-break:break-all;padding:8px;background:var(--c-soft);border-radius:8px">{{ waQrLinkCode }}</code>
+                  }
+                  <div style="border-top:1px solid var(--c-border);padding-top:16px;margin-top:16px">
+                    <p style="font-size:12px;font-weight:600;color:var(--c-muted);margin-bottom:8px">Pareamento por código (8 dígitos)</p>
+                    <div class="field" style="margin-bottom:12px">
+                      <label for="wa-phone-pair">Telefone do aparelho</label>
+                      <input id="wa-phone-pair" type="text" class="form-input" [(ngModel)]="waPhonePair" name="waPhonePair" placeholder="5511999999999" autocomplete="tel" />
+                    </div>
+                    <button type="button" class="btn-secondary inline-flex items-center gap-2 mb-3" (click)="solicitarPairWhatsapp()" [disabled]="waPairCarregando">
+                      @if (waPairCarregando) {
+                        <span class="btn-spinner" aria-hidden="true"></span>
+                      }
+                      {{ waPairCarregando ? 'Solicitando…' : 'Obter código de pareamento' }}
+                    </button>
+                    @if (waPairingCode) {
+                      <p style="font-size:24px;font-weight:700;letter-spacing:0.2em;font-family:monospace;margin:8px 0 0 0">{{ waPairingCode }}</p>
+                    }
+                  </div>
                 </div>
               </div>
-            </div>
+            }
             <div class="section-card mb-4">
               <div class="section-header">
                 <div class="icon-wrap"><span class="material-symbols-outlined">send</span></div>
@@ -543,23 +605,8 @@
                   <label for="wa-test-text">Texto <span class="opt">opcional</span></label>
                   <textarea id="wa-test-text" class="form-input" rows="2" [(ngModel)]="waTestText" name="waTestText" placeholder="Mensagem de teste — Gestgo"></textarea>
                 </div>
-                <button type="button" class="btn-primary inline-flex items-center gap-2" (click)="enviarTesteWhatsapp()" [disabled]="waTestEnviando">
-                  @if (waTestEnviando) {
-                    <span class="btn-spinner" aria-hidden="true"></span>
-                  } @else {
-                    <span class="material-symbols-outlined" style="font-size:16px">send</span>
-                  }
-                  {{ waTestEnviando ? 'Enviando…' : 'Enviar teste' }}
-                </button>
+                <p style="font-size:12px;color:var(--c-muted);margin:0">Use o botão "Enviar teste" no footer para disparar a mensagem.</p>
               </div>
-            </div>
-            <div style="display:flex;flex-wrap:wrap;gap:10px">
-              <button type="button" class="btn-secondary" (click)="desconectarWhatsapp()" [disabled]="waDesconectando">
-                {{ waDesconectando ? 'Desconectando…' : 'Desconectar sessão' }}
-              </button>
-              <button type="button" class="btn-secondary" style="color:var(--c-error,#dc2626);border-color:color-mix(in srgb,var(--c-error) 40%,var(--c-border))" (click)="removerIntegracaoWhatsapp()" [disabled]="waRemovendo">
-                {{ waRemovendo ? 'Removendo…' : 'Remover integração' }}
-              </button>
             </div>
           }
         }
@@ -592,6 +639,21 @@
                     <span class="material-symbols-outlined" style="font-size:16px">sync</span>
                     Atualizar status
                   </button>
+                  @if (waState.connected === true || waState.logged_in === true) {
+                    <button
+                      type="button"
+                      class="btn-secondary inline-flex items-center gap-2"
+                      (click)="desconectarWhatsapp()"
+                      [disabled]="waDesconectando"
+                    >
+                      @if (waDesconectando) {
+                        <span class="btn-spinner" aria-hidden="true"></span>
+                      } @else {
+                        <span class="material-symbols-outlined" style="font-size:16px">link_off</span>
+                      }
+                      {{ waDesconectando ? 'Desconectando…' : 'Desconectar sessão' }}
+                    </button>
+                  }
                 }
                 @if (waState.server_configured && !waState.instance_configured) {
                   <button
@@ -623,6 +685,22 @@
                     {{ waTestEnviando ? 'Enviando…' : 'Enviar teste' }}
                   </button>
                 }
+                @if (waState.instance_configured) {
+                  <button
+                    type="button"
+                    class="btn-secondary inline-flex items-center gap-2"
+                    style="color:var(--c-error,#dc2626);border-color:color-mix(in srgb,var(--c-error) 40%,var(--c-border))"
+                    (click)="removerIntegracaoWhatsapp()"
+                    [disabled]="waRemovendo"
+                  >
+                    @if (waRemovendo) {
+                      <span class="btn-spinner" aria-hidden="true"></span>
+                    } @else {
+                      <span class="material-symbols-outlined" style="font-size:16px">delete</span>
+                    }
+                    {{ waRemovendo ? 'Removendo…' : 'Remover integração' }}
+                  </button>
+                }
               }
             </div>
           </div>
@@ -630,7 +708,7 @@
       </div>
 
       <!-- Painel Logs (somente informação, sem tabela) -->
-      <div id="panel-logs" class="config-panel mt-2" [class.active]="activeTab === 'logs'" role="tabpanel">
+      <div id="panel-logs" class="config-panel" [class.active]="activeTab === 'logs'" role="tabpanel">
         <!-- <div class="page-header mb-4">
           <div class="page-title">
             <div class="page-title-icon">

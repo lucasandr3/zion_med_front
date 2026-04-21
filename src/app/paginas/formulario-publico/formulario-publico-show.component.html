@@ -128,6 +128,109 @@
         }
 
         <form #publicForm="ngForm" id="formulario-publico-form" (ngSubmit)="enviar()" class="fp-form">
+          @if (feegowEnabled()) {
+            <div class="fp-feegow-card">
+              <p class="fp-feegow-title">Agendamento Feegow</p>
+              <p class="fp-field-hint" style="margin-top:0">Esta seção aparece apenas para empresas com integração Feegow ativa.</p>
+
+              @if (feegowMeta()?.warning) {
+                <div class="fp-banner-error" style="margin-top:0.75rem">{{ feegowMeta()?.warning }}</div>
+              }
+
+              <div class="fp-feegow-grid">
+                <div class="fp-field-group">
+                  <label class="fp-field-label" for="feegow_paciente_id">Paciente ID (Feegow) *</label>
+                  <input id="feegow_paciente_id" type="number" [(ngModel)]="valores['feegow_paciente_id']" name="feegow_paciente_id" class="fp-input" required />
+                </div>
+                <div class="fp-field-group">
+                  <label class="fp-field-label" for="feegow_profissional_id">Profissional *</label>
+                  @if (hasFeegowProfessionalOptions()) {
+                    <select id="feegow_profissional_id" [(ngModel)]="valores['feegow_profissional_id']" name="feegow_profissional_id" class="fp-input fp-select" (ngModelChange)="onFeegowProfissionalChange()" required>
+                      <option value="">Selecione</option>
+                      @for (opt of feegowProfessionalsOptions(); track opt.value) {
+                        <option [value]="opt.value">{{ opt.label }}</option>
+                      }
+                    </select>
+                  } @else {
+                    <input id="feegow_profissional_id" type="number" [(ngModel)]="valores['feegow_profissional_id']" name="feegow_profissional_id" class="fp-input" required />
+                  }
+                </div>
+                <div class="fp-field-group">
+                  <label class="fp-field-label" for="feegow_especialidade_id">Especialidade *</label>
+                  <select id="feegow_especialidade_id" [(ngModel)]="valores['feegow_especialidade_id']" name="feegow_especialidade_id" class="fp-input fp-select" required>
+                    <option value="">Selecione</option>
+                    @for (opt of feegowSpecialtiesOptions(); track opt.value) {
+                      <option [value]="opt.value">{{ opt.label }}</option>
+                    }
+                  </select>
+                </div>
+                <div class="fp-field-group">
+                  <label class="fp-field-label" for="feegow_procedimento_id">Procedimento *</label>
+                  @if (hasFeegowProcedureOptions()) {
+                    <select id="feegow_procedimento_id" [(ngModel)]="valores['feegow_procedimento_id']" name="feegow_procedimento_id" class="fp-input fp-select" required>
+                      <option value="">Selecione</option>
+                      @for (opt of feegowProceduresOptions(); track opt.value) {
+                        <option [value]="opt.value">{{ opt.label }}</option>
+                      }
+                    </select>
+                  } @else {
+                    <input id="feegow_procedimento_id" type="number" [(ngModel)]="valores['feegow_procedimento_id']" name="feegow_procedimento_id" class="fp-input" required />
+                  }
+                </div>
+                <div class="fp-field-group">
+                  <label class="fp-field-label" for="feegow_local_id">Local *</label>
+                  <select id="feegow_local_id" [(ngModel)]="valores['feegow_local_id']" name="feegow_local_id" class="fp-input fp-select" required>
+                    <option value="">Selecione</option>
+                    @for (opt of feegowLocalsOptions(); track opt.value) {
+                      <option [value]="opt.value">{{ opt.label }}</option>
+                    }
+                  </select>
+                </div>
+                <div class="fp-field-group">
+                  <label class="fp-field-label" for="feegow_convenio_id">Convênio</label>
+                  <select id="feegow_convenio_id" [(ngModel)]="valores['feegow_convenio_id']" name="feegow_convenio_id" class="fp-input fp-select">
+                    <option value="">Não informado</option>
+                    @for (opt of feegowInsurancesOptions(); track opt.value) {
+                      <option [value]="opt.value">{{ opt.label }}</option>
+                    }
+                  </select>
+                </div>
+                <div class="fp-field-group">
+                  <label class="fp-field-label" for="feegow_data">Data *</label>
+                  <input id="feegow_data" type="date" [(ngModel)]="valores['feegow_data']" name="feegow_data" class="fp-input" required />
+                </div>
+                <div class="fp-field-group">
+                  <label class="fp-field-label" for="feegow_horario">Horário *</label>
+                  <select id="feegow_horario" [(ngModel)]="valores['feegow_horario']" name="feegow_horario" class="fp-input fp-select" required>
+                    <option value="">Selecione</option>
+                    @for (hr of feegowHorariosDisponiveis; track hr) {
+                      <option [value]="hr">{{ hr }}</option>
+                    }
+                  </select>
+                </div>
+                <div class="fp-field-group">
+                  <label class="fp-field-label" for="feegow_canal_id">Canal</label>
+                  <select id="feegow_canal_id" [(ngModel)]="valores['feegow_canal_id']" name="feegow_canal_id" class="fp-input fp-select">
+                    <option value="">Não informado</option>
+                    @for (opt of feegowChannelsOptions(); track opt.value) {
+                      <option [value]="opt.value">{{ opt.label }}</option>
+                    }
+                  </select>
+                </div>
+              </div>
+
+              <div class="fp-feegow-actions">
+                <button type="button" class="fp-link-btn" (click)="consultarDisponibilidadeFeegow()" [disabled]="feegowBuscandoDisponibilidade">
+                  {{ feegowBuscandoDisponibilidade ? 'Consultando horários…' : 'Consultar horários disponíveis' }}
+                </button>
+                @if (feegowDisponibilidadeErro) {
+                  <span class="fp-feegow-error">{{ feegowDisponibilidadeErro }}</span>
+                }
+              </div>
+            </div>
+            <div class="fp-section-div" aria-hidden="true"></div>
+          }
+
           <div class="fp-preenchedora">
             <p class="fp-preenchedora-title">Identificação de quem envia <span class="fp-optional">(opcional)</span></p>
             <div class="fp-preenchedora-grid">

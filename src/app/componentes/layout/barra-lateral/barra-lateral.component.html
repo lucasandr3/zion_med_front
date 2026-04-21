@@ -12,73 +12,52 @@
       <div class="shrink-0 w-7 h-7 rounded-md flex items-center justify-center" style="background: var(--c-primary)">
         <img src="assets/logo/logo.png" alt="Gestgo" class="w-full h-full rounded-md object-contain" style="padding: 2px" onerror="this.style.display='none'">
       </div>
-      <span class="sidebar-label font-semibold text-sm truncate" style="color: var(--c-text)">Gestgo</span>
+      <span class="sidebar-label truncate" style="color: var(--c-text); font-weight: 800; font-size: 1.08em; letter-spacing: 0.035em">Gestgo</span>
     </div>
   </div>
-
-  <!-- Empresa atual -->
-  @if (nomeClinica) {
-    <div class="sidebar-clinic px-2 py-2 shrink-0" style="border-bottom: 1px solid var(--c-border)">
-      <div class="flex items-center gap-2.5 min-w-0">
-        <div class="w-9 h-9 rounded-lg shrink-0 overflow-hidden flex items-center justify-center text-sm font-bold flex-shrink-0" style="background: var(--c-soft); color: var(--c-primary)">
-          @if (logoUrlClinica) {
-            <img [src]="logoUrlClinica" [alt]="'Logo ' + nomeClinica" class="w-full h-full object-cover" loading="lazy" />
-          } @else {
-            {{ nomeClinica.charAt(0) | uppercase }}
-          }
-        </div>
-        <div class="sidebar-label min-w-0 flex-1">
-          <p class="text-xs font-semibold truncate" style="color: var(--c-text)">{{ nomeClinica }}</p>
-          @if (enderecoClinica) {
-            <p class="text-[0.65rem] truncate mt-0.5" style="color: var(--c-muted)">{{ enderecoClinica }}</p>
-          }
-        </div>
-      </div>
-    </div>
-  }
 
   <!-- Navegação -->
   <nav class="flex-1 px-2 py-3 overflow-y-auto space-y-0.5">
     <p class="sidebar-section-label mt-1 mb-2">MENU</p>
 
     @if (podeVerDashboard) {
-      <a routerLink="/dashboard" routerLinkActive="ativo" [routerLinkActiveOptions]="{ exact: true }" class="nav-link" appTooltip="Painel">
+      <a routerLink="/dashboard" routerLinkActive="ativo" [routerLinkActiveOptions]="{ exact: true }" class="nav-link" [appTooltip]="tooltipQuandoColapsada('Painel')">
         <span class="material-symbols-outlined shrink-0" style="font-size: 19px">dashboard</span>
         <span class="sidebar-label">Painel</span>
       </a>
     }
 
     @if (podeGerenciarTemplates) {
-      <a routerLink="/templates" routerLinkActive="ativo" class="nav-link" appTooltip="Modelos de formulário">
+      <a routerLink="/templates" routerLinkActive="ativo" class="nav-link" [appTooltip]="tooltipQuandoColapsada('Modelos de fichas')">
         <span class="material-symbols-outlined shrink-0" style="font-size: 19px">description</span>
-        <span class="sidebar-label">Modelos</span>
+        <span class="sidebar-label">Modelos de fichas</span>
       </a>
     }
 
     @if (podeAcessarLinksEEnvios) {
-      <a routerLink="/links-publicos" routerLinkActive="ativo" class="nav-link" appTooltip="Links para enviar">
+      <a routerLink="/links-publicos" routerLinkActive="ativo" class="nav-link" [appTooltip]="tooltipQuandoColapsada('Links para enviar')">
         <span class="material-symbols-outlined shrink-0" style="font-size: 19px">link</span>
-        <span class="sidebar-label">Links públicos</span>
+        <span class="sidebar-label">Links para enviar</span>
       </a>
-      <a routerLink="/envios" routerLinkActive="ativo" class="nav-link" appTooltip="Envios de documento">
+      <a routerLink="/envios" routerLinkActive="ativo" class="nav-link" [appTooltip]="tooltipQuandoColapsada('Envios de documento')">
         <span class="material-symbols-outlined shrink-0" style="font-size: 19px">send</span>
-        <span class="sidebar-label">Envios</span>
+        <span class="sidebar-label">Envios de documento</span>
       </a>
     }
 
     @if (podeVerSubmissoes) {
-      <a routerLink="/protocolos" routerLinkActive="ativo" class="nav-link" appTooltip="Protocolos">
+      <a routerLink="/protocolos" routerLinkActive="ativo" class="nav-link" [appTooltip]="tooltipQuandoColapsada('Protocolos')">
         <span class="material-symbols-outlined shrink-0" style="font-size: 19px">inbox</span>
         <span class="sidebar-label">Protocolos</span>
       </a>
-      <a routerLink="/pessoas" routerLinkActive="ativo" class="nav-link" appTooltip="Pessoas">
+      <a routerLink="/pessoas" routerLinkActive="ativo" class="nav-link" [appTooltip]="tooltipQuandoColapsada('Pessoas')">
         <span class="material-symbols-outlined shrink-0" style="font-size: 19px">group</span>
         <span class="sidebar-label">Pessoas</span>
       </a>
     }
 
     @if (podeVerNotificacoes) {
-      <a routerLink="/notificacoes" routerLinkActive="ativo" class="nav-link relative" appTooltip="Notificações">
+      <a routerLink="/notificacoes" routerLinkActive="ativo" class="nav-link relative" [appTooltip]="tooltipQuandoColapsada('Notificações')">
         <span class="material-symbols-outlined shrink-0" style="font-size: 19px">notifications</span>
         <span class="sidebar-label">Notificações</span>
         @if (notificacoesNaoLidas > 0) {
@@ -94,26 +73,26 @@
     }
 
     @if (podeGerenciarClinica) {
-      <a routerLink="/clinica/configuracoes" routerLinkActive="ativo" class="nav-link" appTooltip="Empresa">
+      <a routerLink="/clinica/configuracoes" routerLinkActive="ativo" class="nav-link" [appTooltip]="tooltipQuandoColapsada('Empresa')">
         <span class="material-symbols-outlined shrink-0" style="font-size: 19px">business</span>
         <span class="sidebar-label">Empresa</span>
       </a>
-      <a routerLink="/link-bio" routerLinkActive="ativo" class="nav-link" appTooltip="Página de links (bio)">
+      <a routerLink="/link-bio" routerLinkActive="ativo" class="nav-link" [appTooltip]="tooltipQuandoColapsada('Página de links (bio)')">
         <span class="material-symbols-outlined shrink-0" style="font-size: 19px">link</span>
-        <span class="sidebar-label">Página de links</span>
+        <span class="sidebar-label">Página de links (bio)</span>
       </a>
-      <a routerLink="/clinica/integracoes" routerLinkActive="ativo" class="nav-link" appTooltip="Integrações">
+      <a routerLink="/clinica/integracoes" routerLinkActive="ativo" class="nav-link" [appTooltip]="tooltipQuandoColapsada('Integrações')">
         <span class="material-symbols-outlined shrink-0" style="font-size: 19px">api</span>
         <span class="sidebar-label">Integrações</span>
       </a>
     }
 
     @if (podeGerenciarUsuarios) {
-      <a routerLink="/usuarios" routerLinkActive="ativo" class="nav-link" appTooltip="Usuários">
+      <a routerLink="/usuarios" routerLinkActive="ativo" class="nav-link" [appTooltip]="tooltipQuandoColapsada('Usuários')">
         <span class="material-symbols-outlined shrink-0" style="font-size: 19px">group</span>
         <span class="sidebar-label">Usuários</span>
       </a>
-      <a routerLink="/organizacao/permissoes" routerLinkActive="ativo" class="nav-link" appTooltip="Permissões">
+      <a routerLink="/organizacao/permissoes" routerLinkActive="ativo" class="nav-link" [appTooltip]="tooltipQuandoColapsada('Permissões')">
         <span class="material-symbols-outlined shrink-0" style="font-size: 19px">admin_panel_settings</span>
         <span class="sidebar-label">Permissões</span>
       </a>
@@ -137,30 +116,30 @@
       @if (menuUsuarioAberto) {
         <div class="user-dropdown absolute left-0 right-0 bottom-full mb-1 py-1 rounded-lg shadow-lg z-[100]" style="background: var(--c-elevated); border: 1px solid var(--c-border); min-width: 200px; box-shadow: 0 8px 32px rgba(0,0,0,0.22)">
           @if (exibirTrocarEmpresa) {
-            <a routerLink="/clinica/escolher" (click)="fecharMenuUsuario()" class="flex items-center gap-2 px-3 py-2 text-sm hover:bg-[var(--c-soft)]" style="color: var(--c-text); text-decoration: none" appTooltip="Trocar empresa">
+            <a routerLink="/clinica/escolher" (click)="fecharMenuUsuario()" class="flex items-center gap-2 px-3 py-2 text-sm hover:bg-[var(--c-soft)]" style="color: var(--c-text); text-decoration: none" [appTooltip]="tooltipQuandoColapsada('Trocar empresa')">
               <span class="material-symbols-outlined" style="font-size: 16px">swap_horiz</span>
               Trocar empresa
             </a>
           }
           @if (ehAdminPlataforma) {
-            <a routerLink="/plataforma" (click)="fecharMenuUsuario()" class="flex items-center gap-2 px-3 py-2 text-sm hover:bg-[var(--c-soft)]" style="color: var(--c-text); text-decoration: none" appTooltip="Admin da plataforma">
+            <a routerLink="/plataforma" (click)="fecharMenuUsuario()" class="flex items-center gap-2 px-3 py-2 text-sm hover:bg-[var(--c-soft)]" style="color: var(--c-text); text-decoration: none" [appTooltip]="tooltipQuandoColapsada('Admin da plataforma')">
               <span class="material-symbols-outlined" style="font-size: 16px">admin_panel_settings</span>
               Admin da plataforma
             </a>
           }
           @if (podeGerenciarClinica) {
-            <a routerLink="/clinica/configuracoes" (click)="fecharMenuUsuario()" class="flex items-center gap-2 px-3 py-2 text-sm hover:bg-[var(--c-soft)]" style="color: var(--c-text); text-decoration: none" appTooltip="Configurações">
+            <a routerLink="/clinica/configuracoes" (click)="fecharMenuUsuario()" class="flex items-center gap-2 px-3 py-2 text-sm hover:bg-[var(--c-soft)]" style="color: var(--c-text); text-decoration: none" [appTooltip]="tooltipQuandoColapsada('Configurações')">
               <span class="material-symbols-outlined" style="font-size: 16px">settings</span>
               Configurações
             </a>
           }
           @if (podeVerBilling) {
-            <a routerLink="/assinatura" (click)="fecharMenuUsuario()" class="flex items-center gap-2 px-3 py-2 text-sm hover:bg-[var(--c-soft)]" style="color: var(--c-text); text-decoration: none" appTooltip="Assinatura">
+            <a routerLink="/assinatura" (click)="fecharMenuUsuario()" class="flex items-center gap-2 px-3 py-2 text-sm hover:bg-[var(--c-soft)]" style="color: var(--c-text); text-decoration: none" [appTooltip]="tooltipQuandoColapsada('Assinatura')">
               <span class="material-symbols-outlined" style="font-size: 16px">credit_card</span>
               Assinatura
             </a>
           }
-          <button type="button" (click)="sair()" class="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-[var(--c-soft)] text-left border-0 bg-transparent cursor-pointer" style="color: var(--c-text)" appTooltip="Sair">
+          <button type="button" (click)="sair()" class="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-[var(--c-soft)] text-left border-0 bg-transparent cursor-pointer" style="color: var(--c-text)" [appTooltip]="tooltipQuandoColapsada('Sair')">
             <span class="material-symbols-outlined" style="font-size: 16px">logout</span>
             Sair
           </button>

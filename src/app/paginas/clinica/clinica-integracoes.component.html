@@ -22,6 +22,10 @@
           <span class="material-symbols-outlined" style="font-size:1rem;vertical-align:middle;margin-right:4px">history</span>
           Entregas
         </button>
+        <button type="button" class="config-tab" [class.active]="abaAtiva === 'sistemas'" (click)="ativarAba('sistemas')" role="tab">
+          <span class="material-symbols-outlined" style="font-size:1rem;vertical-align:middle;margin-right:4px">computer</span>
+          Sistemas
+        </button>
       </div>
 
       <!-- Painel API e tokens -->
@@ -238,6 +242,58 @@
                     }
                   </tbody>
                 </table>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Painel Sistemas -->
+      <div id="panel-sistemas" class="config-panel" [class.active]="abaAtiva === 'sistemas'" role="tabpanel">
+        <div class="section-card">
+          <div class="section-header">
+            <div class="icon-wrap">
+              <span class="material-symbols-outlined">computer</span>
+            </div>
+            <span class="section-title">Sistemas integrados</span>
+          </div>
+          <div class="section-body">
+            @if (carregandoSistemas) {
+              <p style="font-size:0.85rem;color:var(--c-muted)">Carregando sistemas…</p>
+            } @else if (sistemas.length === 0) {
+              <p style="font-size:0.85rem;color:var(--c-muted)">Nenhum sistema encontrado.</p>
+            } @else {
+              <div class="sistemas-grid">
+                @for (s of sistemas; track s.key) {
+                  @let link = sistemaLink(s);
+                  <a class="sistema-card" [routerLink]="link ?? ['/clinica/integracoes']">
+                    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+                      <div style="display:flex;align-items:center;gap:10px;min-width:0">
+                        @if (sistemaLogoSrc(s); as logoSrc) {
+                          <span class="sistema-logo-wrap">
+                            <img [src]="logoSrc" [alt]="'Logo ' + s.name" class="sistema-logo" />
+                          </span>
+                        } @else {
+                          <span class="sistema-logo-wrap">
+                            <span class="material-symbols-outlined" style="font-size:16px;color:var(--c-primary)">computer</span>
+                          </span>
+                        }
+                        <div style="min-width:0">
+                          <div style="font-size:0.95rem;font-weight:700;color:var(--c-text)">{{ s.name }}</div>
+                          <div style="font-size:0.75rem;color:var(--c-muted);margin-top:2px;max-width:220px">{{ s.description || 'Configuração da integração' }}</div>
+                        </div>
+                      </div>
+                      <span class="sistema-status" [class]="'sistema-status ' + s.status">
+                        {{ statusSistemaLabel(s.status) }}
+                      </span>
+                    </div>
+                    @if (s.last_check_at) {
+                      <div style="font-size:0.72rem;color:var(--c-muted);margin-top:10px">
+                        Última verificação: {{ s.last_check_at | date:'dd/MM/yyyy HH:mm' }}
+                      </div>
+                    }
+                  </a>
+                }
               </div>
             }
           </div>

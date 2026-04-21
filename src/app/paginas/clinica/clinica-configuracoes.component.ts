@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, Signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, Signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -7,13 +7,23 @@ import { FlatpickrDirective, provideFlatpickrDefaults } from 'angularx-flatpickr
 import { Portuguese } from 'flatpickr/dist/l10n/pt';
 import { finalize } from 'rxjs';
 import { isBillingBlockedError } from '../../core/utils/billing-blocked-error';
-import { ClinicaService, ClinicaConfig, ClinicaOption, ClinicaAuditLog, ConfigPageData, BusinessHoursSlot } from '../../core/services/clinica.service';
+import {
+  ClinicaService,
+  ClinicaConfig,
+  ClinicaOption,
+  ClinicaAuditLog,
+  ConfigPageData,
+  BusinessHoursSlot,
+  OrganizationAddressData,
+} from '../../core/services/clinica.service';
+import { ViaCepService } from '../../core/services/via-cep.service';
 import { LoadingService } from '../../shared/services/loading.service';
 import { ZmAssinaturaBloqueadaCardComponent } from '../../shared/components/ui/zm-assinatura-bloqueada-card/zm-assinatura-bloqueada-card.component';
 import { ZmSkeletonListComponent } from '../../shared/components/skeletons';
 import { ToastService } from '../../core/services/toast.service';
 import { WhatsappEvolutionService, WhatsappEvolutionState } from '../../core/services/whatsapp-evolution.service';
 import { ConfirmDialogService } from '../../core/services/confirm-dialog.service';
+import { applyUserAppearanceToBrowser, normalizeThemeKey } from '../../core/services/user-appearance.sync';
 
 const DAYS: { id: string; label: string }[] = [
   { id: '1', label: 'Segunda' },
@@ -45,6 +55,20 @@ const API_TO_UI_DAY_MAP: Record<string, string> = {
   '6': '7',
 };
 
+const TEMA_LABEL_PT_MAP: Record<string, string> = {
+  'gestgo-blue': 'Azul Gestgo',
+  'ocean-blue': 'Azul oceano',
+  'indigo-night': 'Anil',
+  'emerald-fresh': 'Esmeralda',
+  'rose-elegant': 'Rosa',
+  'amber-warm': 'Âmbar',
+  'violet-dream': 'Violeta',
+  'teal-ocean': 'Verde-água',
+  'slate-pro': 'Ardósia',
+  'cyan-tech': 'Ciano',
+  'fuchsia-bold': 'Magenta',
+};
+
 @Component({
   selector: 'app-clinica-configuracoes',
   standalone: true,
@@ -67,12 +91,15 @@ const API_TO_UI_DAY_MAP: Record<string, string> = {
   templateUrl: './clinica-configuracoes.component.html',
   styleUrl: './clinica-configuracoes.component.css',
 })
-export class ClinicaConfiguracoesComponent implements OnInit {
+export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
   pageData: ConfigPageData | null = null;
   form: Partial<ClinicaConfig> & {
     business_hours?: Record<string, { open: string; close: string }>;
   } = {};
   showSkeleton!: Signal<boolean>;
+  themeMode: 'light' | 'dark' | 'auto' = 'light';
+  private _sysDarkMql: MediaQueryList | null = null;
+  private _sysListener = () => this._applyAutoTheme();
   listaPronta = false;
   salvando = false;
   erro = '';
@@ -116,9 +143,22 @@ export class ClinicaConfiguracoesComponent implements OnInit {
   waTestPhone = '';
   waTestText = '';
   waTestEnviando = false;
+  enderecoForm = {
+    cep: '',
+    logradouro: '',
+    numero: '',
+    complemento: '',
+    bairro: '',
+    cidade: '',
+    uf: '',
+  };
+  enderecoLoading = false;
+  enderecoErro = '';
+  enderecoSucesso = false;
 
   private route = inject(ActivatedRoute);
   private clinicaService = inject(ClinicaService);
+  private viaCepService = inject(ViaCepService);
   private loadingService = inject(LoadingService);
   private toast = inject(ToastService);
   private waService = inject(WhatsappEvolutionService);
@@ -155,6 +195,51 @@ export class ClinicaConfiguracoesComponent implements OnInit {
 
   get themeKeys(): string[] {
     return Object.keys(this.availableThemes);
+  }
+
+  getThemeLabel(themeKey: string): string {
+    const canonicalThemeKey = normalizeThemeKey(themeKey);
+    return TEMA_LABEL_PT_MAP[canonicalThemeKey] ?? this.availableThemes[themeKey]?.label ?? themeKey;
+  }
+
+  onThemeChanged(value: string): void {
+    const canonicalThemeKey = normalizeThemeKey(value);
+    this.form.theme = canonicalThemeKey;
+    applyUserAppearanceToBrowser({ ui_theme: canonicalThemeKey });
+  }
+
+  onThemeModeChanged(mode: 'light' | 'dark' | 'auto'): void {
+    this.themeMode = mode;
+    if (mode === 'auto') {
+      this._sysDarkMql = window.matchMedia('(prefers-color-scheme: dark)');
+      this._sysDarkMql.addEventListener('change', this._sysListener);
+      this._applyAutoTheme();
+    } else {
+      this._removeSysListener();
+      const dark = mode === 'dark';
+      this.form.dark_mode = dark;
+      applyUserAppearanceToBrowser({ ui_dark_mode: dark });
+    }
+  }
+
+  private _applyAutoTheme(): void {
+    const dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    this.form.dark_mode = dark;
+    applyUserAppearanceToBrowser({ ui_dark_mode: dark });
+  }
+
+  private _removeSysListener(): void {
+    this._sysDarkMql?.removeEventListener('change', this._sysListener);
+    this._sysDarkMql = null;
+  }
+
+  onDarkModeChanged(value: boolean): void {
+    this.form.dark_mode = value;
+    applyUserAppearanceToBrowser({ ui_dark_mode: value });
+  }
+
+  ngOnDestroy(): void {
+    this._removeSysListener();
   }
 
   private traduzirAcao(action?: string | null): string {
@@ -225,11 +310,11 @@ export class ClinicaConfiguracoesComponent implements OnInit {
       name: c.name ?? '',
       notification_email: c.notification_email ?? '',
       contact_email: c.contact_email ?? '',
-      phone: c.phone ?? '',
+      phone: this.maskPhone(c.phone ?? ''),
       address: c.address ?? '',
       billing_name: c.billing_name ?? '',
       billing_email: c.billing_email ?? '',
-      billing_document: c.billing_document ?? '',
+      billing_document: this.maskBillingDocument(c.billing_document ?? ''),
       business_hours: businessHours,
       whatsapp_notifications_enabled: c.whatsapp_notifications_enabled ?? false,
       whatsapp_notify_cobranca: c.whatsapp_notify_cobranca ?? true,
@@ -238,6 +323,146 @@ export class ClinicaConfiguracoesComponent implements OnInit {
       theme: c.theme ?? 'ocean-blue',
       dark_mode: c.dark_mode ?? false,
     };
+    this.themeMode = (c.dark_mode ?? false) ? 'dark' : 'light';
+    if (c.address_data) {
+      this.patchEnderecoFromAddressData(c.address_data);
+    } else {
+      this.patchEnderecoFromAddress(c.address ?? '');
+    }
+  }
+
+  private patchEnderecoFromAddressData(addressData: OrganizationAddressData): void {
+    this.enderecoErro = '';
+    this.enderecoSucesso = false;
+    this.enderecoForm = {
+      cep: this.maskCep(addressData.cep ?? ''),
+      logradouro: (addressData.logradouro ?? '').trim(),
+      numero: (addressData.numero ?? '').trim(),
+      complemento: (addressData.complemento ?? '').trim(),
+      bairro: (addressData.bairro ?? '').trim(),
+      cidade: (addressData.cidade ?? '').trim(),
+      uf: (addressData.uf ?? '').trim().toUpperCase(),
+    };
+  }
+
+  private patchEnderecoFromAddress(address: string): void {
+    const value = (address ?? '').trim();
+    this.enderecoErro = '';
+    this.enderecoSucesso = false;
+    if (!value) {
+      this.enderecoForm = {
+        cep: '',
+        logradouro: '',
+        numero: '',
+        complemento: '',
+        bairro: '',
+        cidade: '',
+        uf: '',
+      };
+      return;
+    }
+    const parts = value.split(' - ').map((part) => part.trim()).filter(Boolean);
+    this.enderecoForm = {
+      cep: '',
+      logradouro: parts[0] ?? value,
+      numero: '',
+      complemento: '',
+      bairro: parts[1] ?? '',
+      cidade: parts[2] ?? '',
+      uf: parts[3] ?? '',
+    };
+  }
+
+  onCepInput(value: string): void {
+    this.enderecoForm.cep = this.maskCep(value);
+    if (this.enderecoErro) this.enderecoErro = '';
+    this.enderecoSucesso = false;
+  }
+
+  onPhoneInput(value: string): void {
+    this.form.phone = this.maskPhone(value);
+  }
+
+  onBillingDocumentInput(value: string): void {
+    this.form.billing_document = this.maskBillingDocument(value);
+  }
+
+  private maskCep(value: string): string {
+    const digits = value.replace(/\D/g, '').slice(0, 8);
+    return digits.length > 5 ? `${digits.slice(0, 5)}-${digits.slice(5)}` : digits;
+  }
+
+  private maskPhone(value: string): string {
+    const digits = value.replace(/\D/g, '').slice(0, 11);
+    if (digits.length <= 2) return digits ? `(${digits}` : '';
+    if (digits.length <= 6) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
+    if (digits.length <= 10) return `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`;
+    return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
+  }
+
+  private maskBillingDocument(value: string): string {
+    const digits = value.replace(/\D/g, '').slice(0, 14);
+    if (digits.length <= 11) {
+      if (digits.length <= 3) return digits;
+      if (digits.length <= 6) return `${digits.slice(0, 3)}.${digits.slice(3)}`;
+      if (digits.length <= 9) return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6)}`;
+      return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6, 9)}-${digits.slice(9)}`;
+    }
+    if (digits.length <= 2) return digits;
+    if (digits.length <= 5) return `${digits.slice(0, 2)}.${digits.slice(2)}`;
+    if (digits.length <= 8) return `${digits.slice(0, 2)}.${digits.slice(2, 5)}.${digits.slice(5)}`;
+    if (digits.length <= 12) return `${digits.slice(0, 2)}.${digits.slice(2, 5)}.${digits.slice(5, 8)}/${digits.slice(8)}`;
+    return `${digits.slice(0, 2)}.${digits.slice(2, 5)}.${digits.slice(5, 8)}/${digits.slice(8, 12)}-${digits.slice(12)}`;
+  }
+
+  buscarEnderecoPorCep(): void {
+    const cep = this.enderecoForm.cep.replace(/\D/g, '');
+    this.enderecoErro = '';
+    this.enderecoSucesso = false;
+    if (!cep) return;
+    if (cep.length !== 8) {
+      this.enderecoErro = 'CEP inválido. Informe 8 dígitos.';
+      return;
+    }
+    if (this.enderecoLoading) return;
+    this.enderecoLoading = true;
+    this.viaCepService
+      .consultarCep(cep)
+      .pipe(finalize(() => (this.enderecoLoading = false)))
+      .subscribe({
+        next: (res) => {
+          if (res.erro) {
+            this.enderecoErro = 'CEP não encontrado.';
+            return;
+          }
+          this.enderecoForm = {
+            ...this.enderecoForm,
+            cep: res.cep ?? this.enderecoForm.cep,
+            logradouro: res.logradouro ?? this.enderecoForm.logradouro,
+            bairro: res.bairro ?? this.enderecoForm.bairro,
+            cidade: res.localidade ?? this.enderecoForm.cidade,
+            uf: res.uf ?? this.enderecoForm.uf,
+          };
+          this.enderecoSucesso = true;
+        },
+        error: () => {
+          this.enderecoErro = 'Não foi possível consultar o CEP no momento.';
+        },
+      });
+  }
+
+  private mountAddressFromEndereco(): string {
+    const cep = this.enderecoForm.cep.trim();
+    const logradouro = this.enderecoForm.logradouro.trim();
+    const numero = this.enderecoForm.numero.trim();
+    const complemento = this.enderecoForm.complemento.trim();
+    const bairro = this.enderecoForm.bairro.trim();
+    const cidade = this.enderecoForm.cidade.trim();
+    const uf = this.enderecoForm.uf.trim().toUpperCase();
+    const logradouroNumero = [logradouro, numero].filter(Boolean).join(', ');
+    const local = [bairro, cidade, uf].filter(Boolean).join(' - ');
+    const base = [logradouroNumero, complemento, local].filter(Boolean).join(' - ');
+    return [base, cep].filter(Boolean).join(' - ');
   }
 
   private normalizeBusinessHoursFromApi(
@@ -598,7 +823,16 @@ export class ClinicaConfiguracoesComponent implements OnInit {
       notification_email: this.form.notification_email ?? null,
       contact_email: this.form.contact_email ?? null,
       phone: this.form.phone ?? null,
-      address: this.form.address ?? null,
+      address: this.mountAddressFromEndereco() || this.form.address || null,
+      address_data: {
+        cep: this.enderecoForm.cep.replace(/\D/g, '') || null,
+        logradouro: this.enderecoForm.logradouro.trim() || null,
+        numero: this.enderecoForm.numero.trim() || null,
+        complemento: this.enderecoForm.complemento.trim() || null,
+        bairro: this.enderecoForm.bairro.trim() || null,
+        cidade: this.enderecoForm.cidade.trim() || null,
+        uf: this.enderecoForm.uf.trim().toUpperCase() || null,
+      },
       billing_name: this.form.billing_name ?? null,
       billing_email: this.form.billing_email ?? null,
       billing_document: this.form.billing_document ?? null,
@@ -620,6 +854,10 @@ export class ClinicaConfiguracoesComponent implements OnInit {
           if (cur) this.pageData.organization = { ...cur, ...updated };
         }
         this.patchFormFromClinic(updated);
+        applyUserAppearanceToBrowser({
+          ui_theme: normalizeThemeKey(String(updated.theme ?? this.form.theme ?? 'ocean-blue')),
+          ui_dark_mode: updated.dark_mode ?? !!this.form.dark_mode,
+        });
         this.toast.success('Configurações salvas', 'As alterações da empresa foram gravadas.');
       },
       error: () => {
@@ -646,7 +884,7 @@ export class ClinicaConfiguracoesComponent implements OnInit {
     let n = 0;
     if ((f.name ?? '').trim()) n++;
     if ((f.notification_email ?? '').trim()) n++;
-    if ((f.address ?? '').trim()) n++;
+    if (this.mountAddressFromEndereco().trim()) n++;
     if ((f.phone ?? '').trim()) n++;
     if ((f.contact_email ?? '').trim()) n++;
     return Math.min(8, n);

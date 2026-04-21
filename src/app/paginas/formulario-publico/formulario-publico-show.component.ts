@@ -6,7 +6,13 @@ import { FlatpickrDirective, provideFlatpickrDefaults } from 'angularx-flatpickr
 import { Portuguese } from 'flatpickr/dist/l10n/pt';
 import { RouterLink } from '@angular/router';
 import { PublicPageBodyService } from '../../core/services/public-page-body.service';
-import { FormularioPublicoService, FormularioPublicoData, FormularioPublicoField } from '../../core/services/formulario-publico.service';
+import {
+  FormularioPublicoService,
+  FormularioPublicoData,
+  FormularioPublicoField,
+  FormularioPublicoFeegowMeta,
+  FeegowSimpleOption,
+} from '../../core/services/formulario-publico.service';
 import { LoadingService } from '../../shared/services/loading.service';
 import { ZmSkeletonListComponent } from '../../shared/components/skeletons';
 import { ToastService } from '../../core/services/toast.service';
@@ -91,6 +97,11 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
   personGateErro = '';
   validandoPerson = false;
   personValidatedName: string | null = null;
+  feegowBuscandoDisponibilidade = false;
+  feegowDisponibilidadeErro = '';
+  feegowHorariosDisponiveis: string[] = [];
+  feegowProfissionaisDisponiveis: { value: string; label: string }[] = [];
+  feegowHorasPorProfissional: Record<string, string[]> = {};
   showSkeleton!: Signal<boolean>;
   enviando = false;
   erro = '';
@@ -129,11 +140,19 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
         this.personBirthDate = '';
         this.personGateErro = '';
         this.personValidatedName = null;
+        this.feegowBuscandoDisponibilidade = false;
+        this.feegowDisponibilidadeErro = '';
+        this.feegowHorariosDisponiveis = [];
+        this.feegowProfissionaisDisponiveis = [];
+        this.feegowHorasPorProfissional = {};
         d.fields.forEach((f) => {
           const ft = this.fieldType(f);
           if (ft === 'checkbox') this.valores[f.name_key] = false;
           else this.valores[f.name_key] = '';
         });
+        if (this.feegowEnabled()) {
+          this.initFeegowValues();
+        }
       },
       error: (err) => {
         this.erro = err.error?.message ?? 'Formulário não encontrado ou não disponível.';
@@ -218,6 +237,199 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
         this.toast.error('Não foi possível enviar', this.erro);
       },
     });
+  }
+
+  feegowEnabled(): boolean {
+    return !!this.data?.feegow?.enabled;
+  }
+
+  feegowMeta(): FormularioPublicoFeegowMeta | null {
+    return this.data?.feegow ?? null;
+  }
+
+  private initFeegowValues(): void {
+    const defaults: Record<string, string> = {
+      feegow_paciente_id: '',
+      feegow_profissional_id: '',
+      feegow_especialidade_id: '',
+      feegow_procedimento_id: '',
+      feegow_local_id: '',
+      feegow_convenio_id: '',
+      feegow_canal_id: '',
+      feegow_data: '',
+      feegow_horario: '',
+      feegow_notas: '',
+      feegow_celular: '',
+      feegow_telefone: '',
+      feegow_email: '',
+    };
+    Object.entries(defaults).forEach(([key, value]) => {
+      if (!(key in this.valores)) this.valores[key] = value;
+    });
+  }
+
+  optionsFromList(list: FeegowSimpleOption[] | undefined, labelKeys: string[], idKeys: string[] = ['id']): { value: string; label: string }[] {
+    if (!Array.isArray(list)) return [];
+    return list
+      .map((item) => {
+        const value =
+          idKeys.map((k) => item[k]).find((v) => v !== null && v !== undefined && String(v).trim() !== '') ?? null;
+        const label = labelKeys
+          .map((k) => item[k])
+          .find((v) => typeof v === 'string' && v.trim().length > 0) as string | undefined;
+        if (value === null || value === undefined) return null;
+        return { value: String(value), label: label ?? `ID ${String(value)}` };
+      })
+      .filter((v): v is { value: string; label: string } => v !== null);
+  }
+
+  feegowSpecialtiesOptions(): { value: string; label: string }[] {
+    return this.optionsFromList(this.feegowMeta()?.specialties, ['nome', 'name'], ['especialidade_id', 'id']);
+  }
+
+  feegowInsurancesOptions(): { value: string; label: string }[] {
+    return this.optionsFromList(this.feegowMeta()?.insurances, ['nome', 'convenio', 'name'], ['convenio_id', 'id']);
+  }
+
+  feegowLocalsOptions(): { value: string; label: string }[] {
+    return this.optionsFromList(this.feegowMeta()?.locals, ['local', 'nome', 'name'], ['id', 'local_id']);
+  }
+
+  feegowChannelsOptions(): { value: string; label: string }[] {
+    return this.optionsFromList(this.feegowMeta()?.channels, ['canal', 'nome', 'name'], ['id', 'canal_id']);
+  }
+
+  feegowProceduresOptions(): { value: string; label: string }[] {
+    return this.optionsFromList(this.feegowMeta()?.procedures, ['procedimento', 'nome', 'name'], ['procedimento_id', 'id']);
+  }
+
+  feegowProfessionalsOptions(): { value: string; label: string }[] {
+    const fromMeta = this.optionsFromList(
+      this.feegowMeta()?.professionals,
+      ['nome', 'name'],
+      ['profissional_id', 'id', 'sys_user']
+    );
+    const merged = new Map<string, { value: string; label: string }>();
+    [...fromMeta, ...this.feegowProfissionaisDisponiveis].forEach((opt) => merged.set(opt.value, opt));
+    return Array.from(merged.values());
+  }
+
+  hasFeegowProcedureOptions(): boolean {
+    return this.feegowProceduresOptions().length > 0;
+  }
+
+  hasFeegowProfessionalOptions(): boolean {
+    return this.feegowProfessionalsOptions().length > 0;
+  }
+
+  onFeegowProfissionalChange(): void {
+    const selected = String(this.valores['feegow_profissional_id'] || '');
+    if (selected && this.feegowHorasPorProfissional[selected]?.length) {
+      this.feegowHorariosDisponiveis = this.feegowHorasPorProfissional[selected];
+      const current = String(this.valores['feegow_horario'] || '');
+      if (current && !this.feegowHorariosDisponiveis.includes(current)) {
+        this.valores['feegow_horario'] = '';
+      }
+      return;
+    }
+    const all = Array.from(new Set(Object.values(this.feegowHorasPorProfissional).flat())).sort();
+    if (all.length > 0) {
+      this.feegowHorariosDisponiveis = all;
+    }
+  }
+
+  consultarDisponibilidadeFeegow(): void {
+    if (!this.feegowEnabled() || !this.data) return;
+
+    const especialidadeId = Number(this.valores['feegow_especialidade_id'] || 0);
+    const procedimentoId = Number(this.valores['feegow_procedimento_id'] || 0);
+    const dataRaw = String(this.valores['feegow_data'] || '');
+    if (!especialidadeId || !procedimentoId || !dataRaw) {
+      this.feegowDisponibilidadeErro = 'Informe especialidade, procedimento e data para consultar horários.';
+      return;
+    }
+
+    this.feegowBuscandoDisponibilidade = true;
+    this.feegowDisponibilidadeErro = '';
+    this.feegowHorariosDisponiveis = [];
+
+    const [yyyy, mm, dd] = dataRaw.split('-');
+    const dateBr = yyyy && mm && dd ? `${dd}-${mm}-${yyyy}` : '';
+    this.formularioService
+      .getFeegowDisponibilidade(this.token, {
+        tipo: 'P',
+        procedimento_id: procedimentoId,
+        especialidade_id: especialidadeId,
+        data_start: dateBr,
+        data_end: dateBr,
+        convenio_id: this.valores['feegow_convenio_id'] ? Number(this.valores['feegow_convenio_id']) : undefined,
+      })
+      .subscribe({
+        next: (resp) => {
+          this.feegowBuscandoDisponibilidade = false;
+          const availability = this.extractAvailabilityByProfessional(resp.schedule);
+          this.feegowHorasPorProfissional = availability.hoursByProfessional;
+          this.feegowProfissionaisDisponiveis = availability.professionals;
+          this.feegowHorariosDisponiveis = availability.allHours;
+          this.onFeegowProfissionalChange();
+          if (this.feegowHorariosDisponiveis.length === 0) {
+            this.feegowDisponibilidadeErro = 'Nenhum horário disponível para os filtros informados.';
+          }
+        },
+        error: (err) => {
+          this.feegowBuscandoDisponibilidade = false;
+          this.feegowDisponibilidadeErro = err?.error?.message ?? 'Não foi possível consultar a disponibilidade.';
+        },
+      });
+  }
+
+  private extractScheduleHours(input: unknown): string[] {
+    const out: string[] = [];
+    const walk = (v: unknown): void => {
+      if (Array.isArray(v)) {
+        v.forEach(walk);
+        return;
+      }
+      if (v && typeof v === 'object') {
+        Object.values(v as Record<string, unknown>).forEach(walk);
+        return;
+      }
+      if (typeof v === 'string' && /^\d{2}:\d{2}(:\d{2})?$/.test(v.trim())) {
+        out.push(v.trim().length === 5 ? `${v.trim()}:00` : v.trim());
+      }
+    };
+    walk(input);
+    return out.sort();
+  }
+
+  private extractAvailabilityByProfessional(input: unknown): {
+    professionals: { value: string; label: string }[];
+    hoursByProfessional: Record<string, string[]>;
+    allHours: string[];
+  } {
+    const hoursByProfessional: Record<string, string[]> = {};
+    const root = input && typeof input === 'object' ? (input as Record<string, unknown>) : null;
+    const byProfessional =
+      root && root['profissional_id'] && typeof root['profissional_id'] === 'object'
+        ? (root['profissional_id'] as Record<string, unknown>)
+        : null;
+
+    if (!byProfessional) {
+      const fallbackHours = this.extractScheduleHours(input);
+      return { professionals: [], hoursByProfessional: {}, allHours: fallbackHours };
+    }
+
+    const professionals: { value: string; label: string }[] = [];
+    Object.entries(byProfessional).forEach(([profId, data]) => {
+      const hours = Array.from(new Set(this.extractScheduleHours(data))).sort();
+      if (hours.length > 0) {
+        hoursByProfessional[profId] = hours;
+        professionals.push({ value: profId, label: `Profissional ${profId}` });
+      }
+    });
+
+    const allHours = Array.from(new Set(Object.values(hoursByProfessional).flat())).sort();
+    return { professionals, hoursByProfessional, allHours };
   }
 
   trackByKey(_index: number, f: FormularioPublicoField): string {
