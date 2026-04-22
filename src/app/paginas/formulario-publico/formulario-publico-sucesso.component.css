@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600&family=Instrument+Serif:ital,wght@0,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=Playfair+Display:ital,wght@0,400..800;1,400..800&display=swap');
 
 :host {
   display: block;
@@ -8,13 +8,13 @@
 
 .sucesso-page {
   min-height: 100vh;
-  background: #faf8f4;
-  color: #1e1b18;
+  background: #fafafa;
+  color: #0a0a0a;
 }
 
 .sucesso-page.dark {
-  background: #0f0e0c;
-  color: #f0ebe3;
+  background: #0a0a0a;
+  color: #fafafa;
 }
 
 .sucesso-inner {
@@ -27,93 +27,82 @@
   padding: 2rem 1.5rem;
   text-align: center;
   background: #fff;
-  border: 1px solid #e8dece;
+  border: 1px solid #d4d4d0;
 }
 
 .sucesso-page.dark .sucesso-card {
-  background: #1a1814;
-  border-color: #2e2a24;
+  background: #141414;
+  border-color: #2a2a2a;
 }
 
 .success-icon-wrap {
-  width: 5rem;
-  height: 5rem;
-  border-radius: 0.5rem;
-  background: #3a6b5d;
+  width: 4rem;
+  height: 4rem;
+  border-radius: 50%;
+  border: 1.5px solid #0a0a0a;
+  background: transparent;
   display: flex;
   align-items: center;
   justify-content: center;
   margin: 0 auto 1.5rem;
-  box-shadow: 0 10px 30px rgba(58, 107, 93, 0.25);
+  color: #0a0a0a;
   animation: sucessoPop 0.5s ease both;
 }
 
-.success-icon-wrap .material-symbols-outlined {
-  font-size: 2.25rem;
-  color: #fff;
-}
-
 .sucesso-page.dark .success-icon-wrap {
-  background: #4a7c6e;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  border-color: #fafafa;
+  color: #fafafa;
 }
 
-@keyframes sucessoPop {
-  0% {
-    transform: scale(0) rotate(-12deg);
-  }
-  70% {
-    transform: scale(1.08) rotate(4deg);
-  }
-  100% {
-    transform: scale(1) rotate(0);
-  }
+.success-icon-wrap svg {
+  stroke: currentColor;
 }
 
 .sucesso-title {
-  font-family: 'Instrument Serif', Georgia, serif;
-  font-size: 1.75rem;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: clamp(1.625rem, 4.5vw, 2rem);
   font-weight: 400;
   font-style: normal;
   font-synthesis: none;
+  letter-spacing: -0.02em;
   margin: 0 0 0.5rem;
-  color: #1e1b18;
+  color: #0a0a0a;
 }
 
 .sucesso-page.dark .sucesso-title {
-  color: #faf8f4;
+  color: #fafafa;
 }
 
 .bio-text {
-  color: #1e1b18;
+  color: #0a0a0a;
 }
 .sucesso-page.dark .bio-text {
-  color: #f0ebe3;
+  color: #fafafa;
 }
 .bio-muted {
-  color: #9e7f5e;
+  color: #5c5c58;
 }
 .sucesso-page.dark .bio-muted {
-  color: #a89880;
+  color: #a3a3a3;
 }
 .bio-border {
-  border-color: #e8dece;
+  border-color: #d4d4d0;
 }
 .sucesso-page.dark .bio-border {
-  border-color: #2e2a24;
+  border-color: #2a2a2a;
 }
 .bio-bg-soft {
-  background: #f3ede3;
+  background: #f2f2f0;
 }
 .sucesso-page.dark .bio-bg-soft {
-  background: #161814;
+  background: #1a1a1a;
 }
 
 .logo-wrap {
   width: 3rem;
   height: 3rem;
   border-radius: 0.5rem;
-  background: #110f0d;
+  background: #0a0a0a;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -122,7 +111,7 @@
   padding: 2px;
   background: #fff;
   overflow: hidden;
-  border: 1px solid #e8dece;
+  border: 1px solid #d4d4d0;
 }
 .logo-wrap--img img {
   width: 100%;
@@ -132,42 +121,29 @@
   border-radius: 0.5rem;
 }
 .sucesso-page.dark .logo-wrap {
-  background: #f3ede3;
+  background: #fafafa;
 }
 .sucesso-page.dark .logo-wrap--img {
   background: rgba(255, 255, 255, 0.08);
-  border-color: #2e2a24;
+  border-color: #2a2a2a;
 }
 .logo-initial {
-  font-family: 'Instrument Serif', Georgia, serif;
+  font-family: 'Playfair Display', Georgia, serif;
   font-size: 1.125rem;
   font-weight: 600;
-  color: #faf8f4;
+  color: #fafafa;
 }
 .sucesso-page.dark .logo-initial {
-  color: #110f0d;
+  color: #0a0a0a;
 }
 
-.btn-primary {
-  background: #1e1b18;
-  color: #fff;
-  border: none;
-  padding: 0.875rem 1.25rem;
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
-  font-weight: 600;
-  font-family: inherit;
-  text-decoration: none;
-  cursor: pointer;
-  transition: background 0.15s;
-}
-.sucesso-page.dark .btn-primary {
-  background: #f0ebe3;
-  color: #110f0d;
-}
-.btn-primary:hover {
-  background: #2d2a26;
-}
-.sucesso-page.dark .btn-primary:hover {
-  background: #fff;
+@keyframes sucessoPop {
+  0% {
+    transform: scale(0.85);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }

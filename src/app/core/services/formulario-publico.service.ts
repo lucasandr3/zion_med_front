@@ -143,7 +143,12 @@ export interface FormularioPublicoField {
 
 export interface FormularioPersonLink {
   enabled: boolean;
-  mode: string;
+  /**
+   * Como validar antes do formulário:
+   * - omitido / `code`: código da pessoa + data de nascimento (padrão)
+   * - `cpf`: apenas CPF (11 dígitos), validado no endpoint validate-person
+   */
+  mode?: string;
   title?: string;
   description?: string;
 }
@@ -171,8 +176,10 @@ export interface FormularioPublicoData {
   clinic_name?: string;
   /** URL absoluta da logo (preenchida pelo service a partir da API). */
   logo_url?: string | null;
-  /** Quando ativo, exige código + data de nascimento antes do preenchimento. */
+  /** Quando ativo, exige identificação antes do preenchimento (ver `person_link.mode`). */
   person_link?: FormularioPersonLink;
+  /** Algumas APIs enviam o modo de identificação neste campo (ex.: `cpf`). */
+  public_person_link_mode?: string;
   /** Integração Feegow para este formulário/empresa. */
   feegow?: FormularioPublicoFeegowMeta;
   fields: FormularioPublicoField[];
@@ -233,7 +240,10 @@ export class FormularioPublicoService {
       .pipe(map((r) => r.data));
   }
 
-  validatePerson(token: string, body: { code: string; birth_date: string }): Observable<ValidatePersonResponse['data']> {
+  validatePerson(
+    token: string,
+    body: { code?: string; birth_date?: string; cpf?: string }
+  ): Observable<ValidatePersonResponse['data']> {
     return this.http
       .post<ValidatePersonResponse>(`${BASE}/formulario-publico/${encodeURIComponent(token)}/validate-person`, body)
       .pipe(map((r) => r.data));

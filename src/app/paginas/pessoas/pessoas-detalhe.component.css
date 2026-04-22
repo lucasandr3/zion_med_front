@@ -124,7 +124,7 @@
 
 .pessoa-stat-card {
   border: 1px solid var(--c-border);
-  border-radius: 0.75rem;
+  border-radius: 0.5rem;
   padding: 0.95rem 1rem;
   background: var(--c-surface);
   position: relative;

@@ -14,28 +14,35 @@ import {
   FeegowSimpleOption,
 } from '../../core/services/formulario-publico.service';
 import { LoadingService } from '../../shared/services/loading.service';
-import { ZmSkeletonListComponent } from '../../shared/components/skeletons';
 import { ToastService } from '../../core/services/toast.service';
+import { digitsOnlyCpf, formatCpfDisplay, isValidCpfDigits } from '../../core/utils/cpf';
 
 @Component({
   selector: 'app-formulario-publico-show',
   standalone: true,
-  imports: [CommonModule, FormsModule, FlatpickrDirective, ZmSkeletonListComponent, RouterLink],
+  imports: [CommonModule, FormsModule, FlatpickrDirective, RouterLink],
   providers: [
     provideFlatpickrDefaults({
       locale: Portuguese,
       dateFormat: 'Y-m-d',
       altInput: true,
       altFormat: 'd/m/Y',
+      altInputClass: 'fp-input',
       allowInput: true,
       disableMobile: true,
-      static: true,
+      static: false,
     }),
   ],
   templateUrl: './formulario-publico-show.component.html',
   styleUrl: './formulario-publico-show.component.css',
 })
 export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
+  /** Lembra nome/e-mail opcionais do preenchedor entre formulários públicos (mesmo navegador). */
+  private static readonly LS_SUBMITTER_NAME = 'gestgo_public_form_submitter_name';
+  private static readonly LS_SUBMITTER_EMAIL = 'gestgo_public_form_submitter_email';
+  /** CPF já autorizado para este token (evita pedir de novo ao recarregar a mesma página). */
+  private static readonly LS_CPF_AUTH_PREFIX = 'gestgo_public_form_cpf_auth_';
+
   @ViewChild('publicForm') ngForm!: NgForm;
   token = '';
   data: FormularioPublicoData | null = null;
@@ -88,12 +95,47 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
     if (t === 'anexo' || t === 'attachment') return 'file';
     return t;
   }
+
+  /**
+   * Placeholder contextual para inputs genéricos (text, textarea, number, email, tel).
+   * Usa heurística leve no label para oferecer um exemplo útil sem poluir o layout.
+   */
+  fieldPlaceholder(f: FormularioPublicoField): string {
+    const t = this.fieldType(f);
+    const label = (f.label ?? '').trim();
+    const l = label.toLowerCase();
+
+    if (t === 'number') return 'Ex.: 0';
+    if (t === 'textarea') return label ? `Escreva aqui sobre "${label.toLowerCase()}"...` : 'Escreva aqui...';
+
+    if (l.includes('e-mail') || l.includes('email')) return 'email@exemplo.com';
+    if (l.includes('cpf')) return '000.000.000-00';
+    if (l.includes('cnpj')) return '00.000.000/0000-00';
+    if (l.includes('telefone') || l.includes('celular') || l.includes('whatsapp') || l.includes('fone')) {
+      return '(00) 00000-0000';
+    }
+    if (l.includes('cep')) return '00000-000';
+    if (l.includes('nome')) return 'Digite seu nome completo';
+    if (l.includes('idade')) return 'Ex.: 30';
+    if (l.includes('peso')) return 'Ex.: 70';
+    if (l.includes('altura')) return 'Ex.: 1.70';
+    if (l.includes('endere')) return 'Rua, número, complemento';
+    if (l.includes('cidade')) return 'Sua cidade';
+    if (l.includes('estado')) return 'UF';
+    if (l.includes('profiss')) return 'Sua profissão';
+    if (l.includes('observa') || l.includes('coment')) return 'Escreva aqui...';
+
+    return label ? `Informe ${label.toLowerCase()}` : 'Digite aqui';
+  }
   submitterName = '';
   submitterEmail = '';
   /** Formulários com vínculo à ficha (código + nascimento). */
   personGateOk = false;
   personCode = '';
   personBirthDate = '';
+  /** Gate por CPF (`person_link.mode === 'cpf'`). */
+  personCpfDigits = '';
+  personCpfDisplay = '';
   personGateErro = '';
   validandoPerson = false;
   personValidatedName: string | null = null;
@@ -121,9 +163,11 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.publicPageBody.enterPublicPage();
+    this.restoreSubmitterIdentity();
     try {
       this.dark = localStorage.getItem('gestgo_form_dark_mode') === '1';
     } catch {}
+    this.applyPublicDarkBodyClass();
     if (!this.token) {
       this.showSkeleton = signal(false).asReadonly();
       this.erro = 'Link inválido.';
@@ -135,9 +179,11 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
       next: (d) => {
         this.logoImageFailed.set(false);
         this.data = d;
-        this.personGateOk = !d.person_link?.enabled;
+        this.personGateOk = false;
         this.personCode = '';
         this.personBirthDate = '';
+        this.personCpfDigits = '';
+        this.personCpfDisplay = '';
         this.personGateErro = '';
         this.personValidatedName = null;
         this.feegowBuscandoDisponibilidade = false;
@@ -153,6 +199,7 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
         if (this.feegowEnabled()) {
           this.initFeegowValues();
         }
+        this.restoreCpfGateAuthorization();
       },
       error: (err) => {
         this.erro = err.error?.message ?? 'Formulário não encontrado ou não disponível.';
@@ -165,6 +212,92 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
     try {
       localStorage.setItem('gestgo_form_dark_mode', this.dark ? '1' : '0');
     } catch {}
+    this.applyPublicDarkBodyClass();
+  }
+
+  /** Sincroniza a classe `gestgo-public-dark` no <body> — necessária para estilizar o popup do Flatpickr (anexado ao body). */
+  private applyPublicDarkBodyClass(): void {
+    if (typeof document === 'undefined' || !document.body) return;
+    document.body.classList.toggle('gestgo-public-dark', this.dark);
+  }
+
+  /** Chamado ao digitar nome/e-mail opcionais — persiste para o próximo link de formulário público. */
+  onSubmitterIdentityChange(): void {
+    this.persistSubmitterIdentity();
+  }
+
+  private restoreSubmitterIdentity(): void {
+    try {
+      const n = localStorage.getItem(FormularioPublicoShowComponent.LS_SUBMITTER_NAME);
+      const e = localStorage.getItem(FormularioPublicoShowComponent.LS_SUBMITTER_EMAIL);
+      if (n != null && n !== '') this.submitterName = n;
+      if (e != null && e !== '') this.submitterEmail = e;
+    } catch {
+      /* private mode / quota */
+    }
+  }
+
+  private cpfAuthStorageKey(): string {
+    return `${FormularioPublicoShowComponent.LS_CPF_AUTH_PREFIX}${encodeURIComponent(this.token)}`;
+  }
+
+  /** Salva CPF autorizado para este link (recarregar não volta ao gate). */
+  private persistCpfGateAuthorization(): void {
+    const cpf = this.personCpfDigits;
+    if (cpf.length !== 11 || !isValidCpfDigits(cpf)) return;
+    try {
+      localStorage.setItem(this.cpfAuthStorageKey(), cpf);
+    } catch {
+      /* private mode / quota */
+    }
+  }
+
+  /** Recupera CPF já autorizado nesta sessão de navegador para o mesmo token. */
+  private restoreCpfGateAuthorization(): void {
+    if (!this.token) return;
+    try {
+      const raw = localStorage.getItem(this.cpfAuthStorageKey());
+      if (!raw) return;
+      const cpf = digitsOnlyCpf(raw);
+      if (cpf.length !== 11 || !isValidCpfDigits(cpf)) {
+        localStorage.removeItem(this.cpfAuthStorageKey());
+        return;
+      }
+      this.personCpfDigits = cpf;
+      this.personCpfDisplay = formatCpfDisplay(cpf);
+      this.personGateOk = true;
+    } catch {
+      /* private mode */
+    }
+  }
+
+  /** Remove após envio com sucesso (próxima visita exige CPF de novo). */
+  private clearCpfGateAuthorization(): void {
+    if (!this.token) return;
+    try {
+      localStorage.removeItem(this.cpfAuthStorageKey());
+    } catch {
+      /* private mode */
+    }
+  }
+
+  private persistSubmitterIdentity(): void {
+    try {
+      const n = this.submitterName.trim();
+      const e = this.submitterEmail.trim();
+      if (n) {
+        localStorage.setItem(FormularioPublicoShowComponent.LS_SUBMITTER_NAME, n);
+      } else {
+        localStorage.removeItem(FormularioPublicoShowComponent.LS_SUBMITTER_NAME);
+      }
+      if (e) {
+        localStorage.setItem(FormularioPublicoShowComponent.LS_SUBMITTER_EMAIL, e);
+      } else {
+        localStorage.removeItem(FormularioPublicoShowComponent.LS_SUBMITTER_EMAIL);
+      }
+    } catch {
+      /* private mode / quota */
+    }
   }
 
   personLinkRequired(): boolean {
@@ -172,36 +305,58 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
   }
 
   personFormUnlocked(): boolean {
-    return !this.personLinkRequired() || this.personGateOk;
+    return this.personGateOk;
+  }
+
+  /** Fluxo público usa gate por CPF antes de exibir o formulário. */
+  personLinkUsesCpf(): boolean {
+    return true;
+  }
+
+  onPersonCpfChange(raw: string): void {
+    this.personCpfDigits = digitsOnlyCpf(raw);
+    this.personCpfDisplay = formatCpfDisplay(this.personCpfDigits);
   }
 
   validarIdentificacao(): void {
     this.personGateErro = '';
-    if (!this.personCode.trim() || !this.personBirthDate) {
-      this.personGateErro = 'Preencha o código e a data de nascimento.';
+    const cpf = this.personCpfDigits;
+    if (cpf.length !== 11) {
+      this.personGateErro = 'Informe o CPF completo (11 dígitos).';
+      return;
+    }
+    if (!isValidCpfDigits(cpf)) {
+      this.personGateErro = 'CPF inválido. Verifique os números.';
+      return;
+    }
+    if (!this.personLinkRequired()) {
+      this.personGateOk = true;
+      this.persistCpfGateAuthorization();
       return;
     }
     this.validandoPerson = true;
-    this.formularioService
-      .validatePerson(this.token, { code: this.personCode.trim(), birth_date: this.personBirthDate })
-      .subscribe({
-        next: (r) => {
-          this.validandoPerson = false;
-          this.personGateOk = true;
-          this.personValidatedName = r.name;
-        },
-        error: (err) => {
-          this.validandoPerson = false;
-          const msg = err.error?.errors ? Object.values(err.error.errors).flat().join(' ') : err.error?.message;
-          this.personGateErro = msg ?? 'Código ou data de nascimento não conferem.';
-        },
-      });
+    this.formularioService.validatePerson(this.token, { cpf }).subscribe({
+      next: (r) => {
+        this.validandoPerson = false;
+        this.personGateOk = true;
+        this.personValidatedName = r.name;
+        this.persistCpfGateAuthorization();
+      },
+      error: (err) => {
+        this.validandoPerson = false;
+        const msg = err.error?.errors ? Object.values(err.error.errors).flat().join(' ') : err.error?.message;
+        this.personGateErro = msg ?? 'CPF não autorizado para este formulário.';
+      },
+    });
   }
 
   enviar(): void {
     if (!this.data || this.enviando) return;
     if (!this.personFormUnlocked()) return;
-    if (this.ngForm && !this.ngForm.valid) return;
+    if (this.ngForm && !this.ngForm.valid) {
+      this.toast.warning('Campos obrigatórios', 'Preencha ou corrija os campos marcados com * antes de enviar.');
+      return;
+    }
     this.enviando = true;
     this.erro = '';
     const normalized = Object.fromEntries(
@@ -227,14 +382,14 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
     if (Object.keys(signatures).length > 0) {
       payload['_signature'] = signatures;
     }
-    if (this.personLinkRequired()) {
-      payload['_person_code'] = this.personCode.trim();
-      payload['_person_birth_date'] = this.personBirthDate;
+    if (this.personCpfDigits) {
+      payload['_person_cpf'] = this.personCpfDigits;
     }
     this.formularioService.submit(this.token, payload).subscribe({
       next: (r) => {
         this.enviando = false;
-        this.toast.success('Enviado com sucesso', 'Seu formulário foi recebido.');
+        this.clearCpfGateAuthorization();
+        this.persistSubmitterIdentity();
         this.router.navigate(['/f/sucesso'], {
           state: {
             protocol_number: r.protocol_number,
@@ -502,6 +657,11 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
     }
   }
 
+  /** Cor do traço da assinatura conforme o tema ativo. */
+  private signatureStrokeColor(): string {
+    return this.dark ? '#fafafa' : '#0a0a0a';
+  }
+
   /** Inicia desenho da assinatura no canvas. */
   startSignature(e: MouseEvent | TouchEvent, key: string): void {
     e.preventDefault();
@@ -509,9 +669,10 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
-    ctx.strokeStyle = this.dark ? '#d4c9bb' : '#1e1b18';
+    ctx.strokeStyle = this.signatureStrokeColor();
     ctx.lineWidth = 2.2;
     ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
     const pos = this.getSignaturePoint(e, canvas);
     ctx.beginPath();
     ctx.moveTo(pos.x, pos.y);
@@ -525,6 +686,10 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
     if (!canvas || !(canvas as unknown as { _signing?: boolean })._signing) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
+    ctx.strokeStyle = this.signatureStrokeColor();
+    ctx.lineWidth = 2.2;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
     const pos = this.getSignaturePoint(e, canvas);
     ctx.lineTo(pos.x, pos.y);
     ctx.stroke();
@@ -602,5 +767,8 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.publicPageBody.leavePublicPage();
+    if (typeof document !== 'undefined' && document.body) {
+      document.body.classList.remove('gestgo-public-dark');
+    }
   }
 }

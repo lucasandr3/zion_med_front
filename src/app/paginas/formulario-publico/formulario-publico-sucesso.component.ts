@@ -1,12 +1,12 @@
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { PublicPageBodyService } from '../../core/services/public-page-body.service';
 
 @Component({
   selector: 'app-formulario-publico-sucesso',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule],
   templateUrl: './formulario-publico-sucesso.component.html',
   styleUrl: './formulario-publico-sucesso.component.css',
 })

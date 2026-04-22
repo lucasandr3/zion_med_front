@@ -25,6 +25,17 @@
 @theme {
     --font-sans: "Geist Sans", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
     --font-mono: "Geist Mono", ui-monospace, monospace;
+
+    /* Cantos da UI: 0,5rem em todos os utilitários rounded-* (rounded-full segue círculo). */
+    --radius: 0.5rem;
+    --radius-xs: 0.5rem;
+    --radius-sm: 0.5rem;
+    --radius-md: 0.5rem;
+    --radius-lg: 0.5rem;
+    --radius-xl: 0.5rem;
+    --radius-2xl: 0.5rem;
+    --radius-3xl: 0.5rem;
+    --radius-4xl: 0.5rem;
 }
 
 /* ─── Utilities dos tokens CSS ───────────────────────────────────────────── */
@@ -308,27 +319,70 @@ textarea.form-input::placeholder { color: var(--c-muted); opacity: 0.7; }
     border-color: var(--c-primary) !important;
 }
 
+/* Formulário público — tamanho/fonte/radius unificado para inputs e Flatpickr (corrige encapsulation) */
+.form-publico-page input.fp-input,
+.form-publico-page input.flatpickr-input,
+.form-publico-page .flatpickr-wrapper input {
+    width: 100% !important;
+    padding: 0.75rem 0.875rem !important;
+    border-radius: 0.5rem !important;
+    border-width: 1.5px !important;
+    border-style: solid !important;
+    font-family: inherit !important;
+    font-size: 1rem !important;
+    font-weight: 400 !important;
+    line-height: 1.5 !important;
+    box-sizing: border-box !important;
+    -webkit-appearance: none !important;
+    outline: none !important;
+    transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s !important;
+}
+.form-publico-page .flatpickr-wrapper {
+    display: block !important;
+    width: 100% !important;
+}
+
 /* Formulário público em modo claro: inputs e Flatpickr sempre claros (ignora body.dark) */
 .form-publico-page:not(.dark) input.form-input,
 .form-publico-page:not(.dark) input.fp-input,
 .form-publico-page:not(.dark) input.flatpickr-input,
 .form-publico-page:not(.dark) .flatpickr-wrapper input {
     background-color: #fff !important;
-    border-color: #e8e4de !important;
-    color: #1a1a2e !important;
+    border-color: #d4d4d0 !important;
+    color: #0a0a0a !important;
 }
 .form-publico-page:not(.dark) input.form-input::placeholder,
 .form-publico-page:not(.dark) input.fp-input::placeholder,
 .form-publico-page:not(.dark) input.flatpickr-input::placeholder,
 .form-publico-page:not(.dark) .flatpickr-wrapper input::placeholder {
-    color: #9e9b96 !important;
+    color: #a3a3a3 !important;
 }
 .form-publico-page:not(.dark) input.form-input:focus,
 .form-publico-page:not(.dark) input.fp-input:focus,
 .form-publico-page:not(.dark) input.flatpickr-input:focus,
 .form-publico-page:not(.dark) .flatpickr-wrapper input:focus {
-    border-color: #3a6b5d !important;
-    box-shadow: 0 0 0 3px rgba(58, 107, 93, 0.12) !important;
+    border-color: #0a0a0a !important;
+    box-shadow: 0 0 0 3px rgba(10, 10, 10, 0.08) !important;
+}
+
+/* Formulário público em modo escuro */
+.form-publico-page.dark input.fp-input,
+.form-publico-page.dark input.flatpickr-input,
+.form-publico-page.dark .flatpickr-wrapper input {
+    background-color: #141414 !important;
+    border-color: #2a2a2a !important;
+    color: #fafafa !important;
+}
+.form-publico-page.dark input.fp-input::placeholder,
+.form-publico-page.dark input.flatpickr-input::placeholder,
+.form-publico-page.dark .flatpickr-wrapper input::placeholder {
+    color: #737373 !important;
+}
+.form-publico-page.dark input.fp-input:focus,
+.form-publico-page.dark input.flatpickr-input:focus,
+.form-publico-page.dark .flatpickr-wrapper input:focus {
+    border-color: #fafafa !important;
+    box-shadow: 0 0 0 3px rgba(250, 250, 250, 0.15) !important;
 }
 
 .form-label {
@@ -1363,64 +1417,64 @@ a.btn-cell:hover, .btn-cell:hover {
 .form-publico-page:not(.dark) .flatpickr-calendar,
 .form-publico-page:not(.dark) .flatpickr-calendar.open {
   background: #fff !important;
-  border: 1px solid #e8e4de !important;
+  border: 1px solid #d4d4d0 !important;
   box-shadow: 0 10px 40px rgba(0,0,0,0.12) !important;
 }
-.form-publico-page:not(.dark) .flatpickr-calendar.arrowTop:before { border-bottom-color: #e8e4de !important; }
+.form-publico-page:not(.dark) .flatpickr-calendar.arrowTop:before { border-bottom-color: #d4d4d0 !important; }
 .form-publico-page:not(.dark) .flatpickr-calendar.arrowTop:after { border-bottom-color: #fff !important; }
-.form-publico-page:not(.dark) .flatpickr-calendar.arrowBottom:before { border-top-color: #e8e4de !important; }
+.form-publico-page:not(.dark) .flatpickr-calendar.arrowBottom:before { border-top-color: #d4d4d0 !important; }
 .form-publico-page:not(.dark) .flatpickr-calendar.arrowBottom:after { border-top-color: #fff !important; }
 .form-publico-page:not(.dark) .flatpickr-calendar .flatpickr-months .flatpickr-month,
 .form-publico-page:not(.dark) .flatpickr-calendar .flatpickr-current-month .flatpickr-monthDropdown-months,
 .form-publico-page:not(.dark) .flatpickr-calendar .flatpickr-current-month .flatpickr-monthDropdown-months .flatpickr-monthDropdown-month {
-  background: #f0ede8 !important;
-  color: #1a1a2e !important;
-  fill: #1a1a2e !important;
+  background: #f2f2f0 !important;
+  color: #0a0a0a !important;
+  fill: #0a0a0a !important;
 }
 .form-publico-page:not(.dark) .flatpickr-calendar .flatpickr-months .flatpickr-prev-month,
 .form-publico-page:not(.dark) .flatpickr-calendar .flatpickr-months .flatpickr-next-month {
-  color: #1a1a2e !important;
-  fill: #1a1a2e !important;
+  color: #0a0a0a !important;
+  fill: #0a0a0a !important;
 }
 .form-publico-page:not(.dark) .flatpickr-calendar .flatpickr-months .flatpickr-prev-month:hover,
 .form-publico-page:not(.dark) .flatpickr-calendar .flatpickr-months .flatpickr-next-month:hover { color: #000 !important; }
 .form-publico-page:not(.dark) .flatpickr-calendar .flatpickr-current-month input.cur-year {
-  color: #1a1a2e !important;
-  background: #f0ede8 !important;
+  color: #0a0a0a !important;
+  background: #f2f2f0 !important;
   border-color: transparent !important;
 }
-.form-publico-page:not(.dark) .flatpickr-calendar .numInputWrapper span.arrowUp:after { border-bottom-color: #6b6560 !important; }
-.form-publico-page:not(.dark) .flatpickr-calendar .numInputWrapper span.arrowDown:after { border-top-color: #6b6560 !important; }
+.form-publico-page:not(.dark) .flatpickr-calendar .numInputWrapper span.arrowUp:after { border-bottom-color: #5c5c58 !important; }
+.form-publico-page:not(.dark) .flatpickr-calendar .numInputWrapper span.arrowDown:after { border-top-color: #5c5c58 !important; }
 .form-publico-page:not(.dark) .flatpickr-calendar .flatpickr-weekdays,
 .form-publico-page:not(.dark) .flatpickr-calendar span.flatpickr-weekday {
-  background: #f0ede8 !important;
-  color: #6b6560 !important;
+  background: #f2f2f0 !important;
+  color: #5c5c58 !important;
 }
 .form-publico-page:not(.dark) .flatpickr-calendar .flatpickr-days {
-  border-left: 1px solid #e8e4de;
-  border-right: 1px solid #e8e4de;
+  border-left: 1px solid #d4d4d0;
+  border-right: 1px solid #d4d4d0;
 }
 .form-publico-page:not(.dark) .flatpickr-calendar .flatpickr-innerContainer {
   background: #fff !important;
-  border-bottom: 1px solid #e8e4de !important;
+  border-bottom: 1px solid #d4d4d0 !important;
 }
 .form-publico-page:not(.dark) .flatpickr-calendar .flatpickr-day {
-  color: #1a1a2e !important;
+  color: #0a0a0a !important;
 }
 .form-publico-page:not(.dark) .flatpickr-calendar .flatpickr-day:hover,
 .form-publico-page:not(.dark) .flatpickr-calendar .flatpickr-day.prevMonthDay:hover,
 .form-publico-page:not(.dark) .flatpickr-calendar .flatpickr-day.nextMonthDay:hover {
-  background: #f0ede8 !important;
-  border-color: #f0ede8 !important;
+  background: #f2f2f0 !important;
+  border-color: #f2f2f0 !important;
 }
 .form-publico-page:not(.dark) .flatpickr-calendar .flatpickr-day.today {
-  border-color: #1a1a2e !important;
+  border-color: #0a0a0a !important;
 }
 .form-publico-page:not(.dark) .flatpickr-calendar .flatpickr-day.today:hover,
 .form-publico-page:not(.dark) .flatpickr-calendar .flatpickr-day.today:focus {
-  background: #f0ede8 !important;
-  border-color: #1a1a2e !important;
-  color: #1a1a2e !important;
+  background: #f2f2f0 !important;
+  border-color: #0a0a0a !important;
+  color: #0a0a0a !important;
 }
 .form-publico-page:not(.dark) .flatpickr-calendar .flatpickr-day.selected,
 .form-publico-page:not(.dark) .flatpickr-calendar .flatpickr-day.startRange,
@@ -1428,14 +1482,100 @@ a.btn-cell:hover, .btn-cell:hover {
 .form-publico-page:not(.dark) .flatpickr-calendar .flatpickr-day.selected:hover,
 .form-publico-page:not(.dark) .flatpickr-calendar .flatpickr-day.startRange:hover,
 .form-publico-page:not(.dark) .flatpickr-calendar .flatpickr-day.endRange:hover {
-  background: #1a1a2e !important;
-  border-color: #1a1a2e !important;
+  background: #0a0a0a !important;
+  border-color: #0a0a0a !important;
   color: #fff !important;
 }
 .form-publico-page:not(.dark) .flatpickr-calendar .flatpickr-day.flatpickr-disabled,
 .form-publico-page:not(.dark) .flatpickr-calendar .flatpickr-day.prevMonthDay,
 .form-publico-page:not(.dark) .flatpickr-calendar .flatpickr-day.nextMonthDay {
   color: #b0aca6 !important;
+  background: transparent !important;
+  border-color: transparent !important;
+}
+
+/* Formulário público — calendário Flatpickr em modo ESCURO (preto e branco)
+   O calendário é anexado ao <body>, fora do .form-publico-page, por isso
+   usamos a classe `gestgo-public-dark` que o componente adiciona no <body>. */
+body.gestgo-public-dark .flatpickr-calendar,
+body.gestgo-public-dark .flatpickr-calendar.open {
+  background: #141414 !important;
+  border: 1px solid #2a2a2a !important;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6) !important;
+  color: #fafafa !important;
+}
+body.gestgo-public-dark .flatpickr-calendar.arrowTop:before { border-bottom-color: #2a2a2a !important; }
+body.gestgo-public-dark .flatpickr-calendar.arrowTop:after { border-bottom-color: #141414 !important; }
+body.gestgo-public-dark .flatpickr-calendar.arrowBottom:before { border-top-color: #2a2a2a !important; }
+body.gestgo-public-dark .flatpickr-calendar.arrowBottom:after { border-top-color: #141414 !important; }
+body.gestgo-public-dark .flatpickr-calendar .flatpickr-months .flatpickr-month,
+body.gestgo-public-dark .flatpickr-calendar .flatpickr-current-month .flatpickr-monthDropdown-months,
+body.gestgo-public-dark .flatpickr-calendar .flatpickr-current-month .flatpickr-monthDropdown-months .flatpickr-monthDropdown-month {
+  background: #141414 !important;
+  color: #fafafa !important;
+  fill: #fafafa !important;
+}
+body.gestgo-public-dark .flatpickr-calendar .flatpickr-months .flatpickr-prev-month,
+body.gestgo-public-dark .flatpickr-calendar .flatpickr-months .flatpickr-next-month {
+  color: #a3a3a3 !important;
+  fill: #a3a3a3 !important;
+}
+body.gestgo-public-dark .flatpickr-calendar .flatpickr-months .flatpickr-prev-month:hover,
+body.gestgo-public-dark .flatpickr-calendar .flatpickr-months .flatpickr-next-month:hover { color: #fafafa !important; fill: #fafafa !important; }
+body.gestgo-public-dark .flatpickr-calendar .flatpickr-current-month input.cur-year {
+  color: #fafafa !important;
+  background: transparent !important;
+}
+body.gestgo-public-dark .flatpickr-calendar .numInputWrapper span.arrowUp:after { border-bottom-color: #a3a3a3 !important; }
+body.gestgo-public-dark .flatpickr-calendar .numInputWrapper span.arrowDown:after { border-top-color: #a3a3a3 !important; }
+body.gestgo-public-dark .flatpickr-calendar .flatpickr-weekdays,
+body.gestgo-public-dark .flatpickr-calendar span.flatpickr-weekday {
+  background: #141414 !important;
+  color: #8a8a8a !important;
+}
+body.gestgo-public-dark .flatpickr-calendar .flatpickr-days {
+  border-left: 1px solid #2a2a2a !important;
+  border-right: 1px solid #2a2a2a !important;
+}
+body.gestgo-public-dark .flatpickr-calendar .flatpickr-innerContainer {
+  background: #141414 !important;
+  border-bottom: 1px solid #2a2a2a !important;
+}
+body.gestgo-public-dark .flatpickr-calendar .flatpickr-day {
+  color: #fafafa !important;
+}
+body.gestgo-public-dark .flatpickr-calendar .flatpickr-day:hover,
+body.gestgo-public-dark .flatpickr-calendar .flatpickr-day.prevMonthDay:hover,
+body.gestgo-public-dark .flatpickr-calendar .flatpickr-day.nextMonthDay:hover {
+  background: #2a2a2a !important;
+  border-color: #2a2a2a !important;
+  color: #fafafa !important;
+}
+body.gestgo-public-dark .flatpickr-calendar .flatpickr-day.today {
+  border-color: #fafafa !important;
+  color: #fafafa !important;
+}
+body.gestgo-public-dark .flatpickr-calendar .flatpickr-day.today:hover,
+body.gestgo-public-dark .flatpickr-calendar .flatpickr-day.today:focus {
+  background: #2a2a2a !important;
+  border-color: #fafafa !important;
+  color: #fafafa !important;
+}
+body.gestgo-public-dark .flatpickr-calendar .flatpickr-day.selected,
+body.gestgo-public-dark .flatpickr-calendar .flatpickr-day.startRange,
+body.gestgo-public-dark .flatpickr-calendar .flatpickr-day.endRange,
+body.gestgo-public-dark .flatpickr-calendar .flatpickr-day.selected:hover,
+body.gestgo-public-dark .flatpickr-calendar .flatpickr-day.startRange:hover,
+body.gestgo-public-dark .flatpickr-calendar .flatpickr-day.endRange:hover {
+  background: #fafafa !important;
+  border-color: #fafafa !important;
+  color: #0a0a0a !important;
+}
+body.gestgo-public-dark .flatpickr-calendar .flatpickr-day.flatpickr-disabled,
+body.gestgo-public-dark .flatpickr-calendar .flatpickr-day.flatpickr-disabled:hover,
+body.gestgo-public-dark .flatpickr-calendar .flatpickr-day.prevMonthDay,
+body.gestgo-public-dark .flatpickr-calendar .flatpickr-day.nextMonthDay {
+  color: #4a4a4a !important;
   background: transparent !important;
   border-color: transparent !important;
 }

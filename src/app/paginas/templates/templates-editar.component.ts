@@ -21,6 +21,8 @@ export class TemplatesEditarComponent implements OnInit {
   is_active = true;
   public_enabled = false;
   public_require_person_link = false;
+  /** Só usado se exigir vínculo com pessoa no link público. */
+  public_person_link_mode: 'code' | 'cpf' = 'code';
   showSkeleton!: Signal<boolean>;
   listaPronta = false;
   salvando = false;
@@ -51,6 +53,8 @@ export class TemplatesEditarComponent implements OnInit {
         this.is_active = t.is_active ?? true;
         this.public_enabled = t.public_enabled ?? false;
         this.public_require_person_link = t.public_require_person_link ?? false;
+        const mode = (t.public_person_link_mode ?? 'code').toString().toLowerCase();
+        this.public_person_link_mode = mode === 'cpf' ? 'cpf' : 'code';
       },
       error: () => {
         this.listaPronta = true;
@@ -70,6 +74,8 @@ export class TemplatesEditarComponent implements OnInit {
         is_active: this.is_active,
         public_enabled: this.public_enabled,
         public_require_person_link: this.public_enabled ? this.public_require_person_link : false,
+        public_person_link_mode:
+          this.public_enabled && this.public_require_person_link ? this.public_person_link_mode : undefined,
       })
       .subscribe({
         next: () => {

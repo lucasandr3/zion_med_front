@@ -44,12 +44,27 @@
               class="form-checkbox"
               [disabled]="!public_enabled"
             />
-            <span class="form-label mb-0">Exigir código + data de nascimento</span>
+            <span class="form-label mb-0">Exigir identificação antes do formulário</span>
           </label>
         </div>
         @if (public_enabled && public_require_person_link) {
+          <div class="flex flex-col gap-2">
+            <span class="form-label mb-0">Como a pessoa se identifica</span>
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="radio" name="public_person_link_mode" value="code" [(ngModel)]="public_person_link_mode" />
+              <span class="text-sm" style="color: var(--c-text)">Código da ficha + data de nascimento</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="radio" name="public_person_link_mode" value="cpf" [(ngModel)]="public_person_link_mode" />
+              <span class="text-sm" style="color: var(--c-text)">CPF</span>
+            </label>
+          </div>
           <p class="text-xs m-0" style="color: var(--c-muted)">
-            Antes de preencher, a pessoa informa o código da ficha e a data de nascimento (útil para acompanhamentos).
+            @if (public_person_link_mode === 'cpf') {
+              Antes de preencher, a pessoa informa o CPF para autorizacao de acesso ao formulario.
+            } @else {
+              Antes de preencher, a pessoa informa o código da ficha e a data de nascimento (útil para acompanhamentos).
+            }
           </p>
         }
         <div class="flex items-center gap-3 pt-2">

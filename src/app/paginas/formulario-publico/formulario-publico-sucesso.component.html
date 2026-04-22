@@ -2,7 +2,7 @@
   <div class="sucesso-inner max-w-md mx-auto px-4">
     <div class="sucesso-card" style="border-width: 1px">
       <div class="success-icon-wrap" aria-hidden="true">
-        <svg class="w-10 h-10 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <svg class="w-9 h-9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <polyline points="20 6 9 17 4 12" />
         </svg>
       </div>
@@ -11,7 +11,11 @@
         <div class="flex items-center justify-center gap-2 mb-3">
           <div class="logo-wrap shrink-0" [class.logo-wrap--img]="!!clinicLogoUrl">
             @if (clinicLogoUrl) {
-              <img [src]="clinicLogoUrl" alt="" loading="lazy" />
+              <img
+                [src]="clinicLogoUrl"
+                [alt]="clinicName ? 'Logo ' + clinicName : 'Logo da clínica'"
+                loading="lazy"
+              />
             } @else {
               <span class="logo-initial">{{ clinicName.charAt(0) | uppercase }}</span>
             }
@@ -27,14 +31,7 @@
           <p class="text-xs bio-muted uppercase tracking-wider mb-1 font-semibold">Protocolo</p>
           <p class="text-xl font-mono font-semibold bio-text">{{ protocolNumber }}</p>
         </div>
-        <p class="text-xs bio-muted mt-3 flex items-center justify-center gap-1">
-          <span class="material-symbols-outlined" style="font-size: 14px">info</span>
-          Guarde este número para acompanhamento.
-        </p>
       }
-      <div class="mt-6">
-        <a routerLink="/" class="btn-primary inline-flex items-center justify-center gap-2">Voltar ao início</a>
-      </div>
     </div>
   </div>
 </div>

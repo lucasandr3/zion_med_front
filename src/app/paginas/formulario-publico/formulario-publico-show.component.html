@@ -6,7 +6,12 @@
           <div class="fp-brand">
             @if (clinicLogoDisplayUrl()) {
               <div class="fp-logo fp-logo--img">
-                <img [src]="clinicLogoDisplayUrl()!" [alt]="''" loading="lazy" (error)="onClinicLogoError()" />
+                <img
+                  [src]="clinicLogoDisplayUrl()!"
+                  [alt]="data.clinic_name ? 'Logo ' + data.clinic_name : 'Logo da clínica'"
+                  loading="lazy"
+                  (error)="onClinicLogoError()"
+                />
               </div>
             } @else {
               <div class="fp-logo" aria-hidden="true">{{ clinicNameInitial() }}</div>
@@ -37,7 +42,7 @@
           </button>
         </div>
         @if (personFormUnlocked()) {
-          <div class="fp-progress-block">
+          <div class="fp-progress-block" role="region" aria-label="Progresso do preenchimento dos campos obrigatórios">
             <div class="fp-progress-labels">
               <span class="fp-progress-hint">Progresso</span>
               <span class="fp-progress-count">
@@ -59,8 +64,32 @@
 
   <div class="fp-scroll">
     @if (showSkeleton()) {
-      <div class="fp-container">
-        <zm-skeleton-list [rows]="8" />
+      <div class="fp-container fp-skeleton" aria-busy="true" aria-label="Carregando formulário">
+        <div class="fp-skel-title-block">
+          <div class="fp-skel fp-skel-title"></div>
+          <div class="fp-skel fp-skel-lead"></div>
+          <div class="fp-skel fp-skel-lead fp-skel-lead-short"></div>
+        </div>
+
+        <div class="fp-skel-progress">
+          <div class="fp-skel fp-skel-progress-track"></div>
+        </div>
+
+        @for (i of [1, 2, 3, 4]; track i) {
+          <div class="fp-skel-field">
+            <div class="fp-skel fp-skel-label"></div>
+            <div class="fp-skel fp-skel-input"></div>
+          </div>
+        }
+
+        <div class="fp-skel-field">
+          <div class="fp-skel fp-skel-label"></div>
+          <div class="fp-skel fp-skel-textarea"></div>
+        </div>
+
+        <div class="fp-skel-footer">
+          <div class="fp-skel fp-skel-button"></div>
+        </div>
       </div>
     }
     @if (!showSkeleton() && erro && !data) {
@@ -72,28 +101,30 @@
     }
     @if (!showSkeleton() && data) {
       <div class="fp-container zm-content-enter">
-        @if (personLinkRequired() && !personGateOk) {
+        @if (!personGateOk) {
           <div class="fp-title-block">
             <h1 class="fp-title">{{ data.template.name }}</h1>
-            @if (data.person_link && data.person_link.description) {
-              <p class="fp-lead">{{ data.person_link.description }}</p>
-            } @else {
-              <p class="fp-lead">Informe seu código de acesso e data de nascimento para continuar.</p>
-            }
+            <p class="fp-lead">Para iniciar o preenchimento, informe seu CPF para autorizacao de acesso ao formulario.</p>
           </div>
           @if (personGateErro) {
             <div class="fp-banner-error">{{ personGateErro }}</div>
           }
           <div class="fp-field-group fp-field-animate">
-            <label class="fp-field-label" for="fpPersonCode">Código da pessoa</label>
-            <input id="fpPersonCode" type="text" [(ngModel)]="personCode" name="fpPersonCode" [ngModelOptions]="{ standalone: true }" class="fp-input" placeholder="Ex.: P-000001" autocomplete="off" />
+            <label class="fp-field-label" for="fpPersonCpf">CPF</label>
+            <input
+              id="fpPersonCpf"
+              type="text"
+              inputmode="numeric"
+              autocomplete="off"
+              [ngModel]="personCpfDisplay"
+              (ngModelChange)="onPersonCpfChange($event)"
+              name="fpPersonCpf"
+              [ngModelOptions]="{ standalone: true }"
+              class="fp-input"
+              placeholder="000.000.000-00"
+            />
           </div>
-          <div class="fp-field-group fp-field-animate">
-            <label class="fp-field-label" for="fpPersonBirth">Data de nascimento</label>
-            <input id="fpPersonBirth" type="date" [(ngModel)]="personBirthDate" name="fpPersonBirth" [ngModelOptions]="{ standalone: true }" class="fp-input" />
-          </div>
-          <div class="fp-section-div" aria-hidden="true"></div>
-          <button type="button" class="fp-submit-btn" style="margin-top: 0.5rem" (click)="validarIdentificacao()" [disabled]="validandoPerson">
+          <button type="button" class="fp-submit-btn" style="margin-top: 1.25rem" (click)="validarIdentificacao()" [disabled]="validandoPerson">
             @if (validandoPerson) {
               <svg class="fp-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                 <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" opacity=".25" />
@@ -197,7 +228,18 @@
                 </div>
                 <div class="fp-field-group">
                   <label class="fp-field-label" for="feegow_data">Data *</label>
-                  <input id="feegow_data" type="date" [(ngModel)]="valores['feegow_data']" name="feegow_data" class="fp-input" required />
+                  <input
+                    id="feegow_data"
+                    type="text"
+                    mwlFlatpickr
+                    [(ngModel)]="valores['feegow_data']"
+                    name="feegow_data"
+                    class="fp-input"
+                    placeholder="dd/mm/aaaa"
+                    [altInput]="true"
+                    [altInputClass]="'fp-input'"
+                    required
+                  />
                 </div>
                 <div class="fp-field-group">
                   <label class="fp-field-label" for="feegow_horario">Horário *</label>
@@ -236,11 +278,29 @@
             <div class="fp-preenchedora-grid">
               <div class="fp-field-group">
                 <label for="submitterName" class="fp-field-label">Seu nome</label>
-                <input id="submitterName" type="text" [(ngModel)]="submitterName" name="submitterName" class="fp-input" placeholder="Nome para contato" autocomplete="name" />
+                <input
+                  id="submitterName"
+                  type="text"
+                  [(ngModel)]="submitterName"
+                  (ngModelChange)="onSubmitterIdentityChange()"
+                  name="submitterName"
+                  class="fp-input"
+                  placeholder="Nome para contato"
+                  autocomplete="name"
+                />
               </div>
               <div class="fp-field-group">
                 <label for="submitterEmail" class="fp-field-label">Seu e-mail</label>
-                <input id="submitterEmail" type="email" [(ngModel)]="submitterEmail" name="submitterEmail" class="fp-input" placeholder="email@exemplo.com" autocomplete="email" />
+                <input
+                  id="submitterEmail"
+                  type="email"
+                  [(ngModel)]="submitterEmail"
+                  (ngModelChange)="onSubmitterIdentityChange()"
+                  name="submitterEmail"
+                  class="fp-input"
+                  placeholder="email@exemplo.com"
+                  autocomplete="email"
+                />
               </div>
             </div>
           </div>
@@ -260,13 +320,38 @@
 
               @switch (fieldType(f)) {
                 @case ('text') {
-                  <input [id]="'field_' + f.name_key" type="text" [(ngModel)]="valores[f.name_key]" [name]="f.name_key" class="fp-input" [required]="f.required" />
+                  <input
+                    [id]="'field_' + f.name_key"
+                    type="text"
+                    [(ngModel)]="valores[f.name_key]"
+                    [name]="f.name_key"
+                    class="fp-input"
+                    [required]="f.required"
+                    [placeholder]="fieldPlaceholder(f)"
+                  />
                 }
                 @case ('textarea') {
-                  <textarea [id]="'field_' + f.name_key" [(ngModel)]="valores[f.name_key]" [name]="f.name_key" class="fp-input fp-textarea" rows="4" [required]="f.required"></textarea>
+                  <textarea
+                    [id]="'field_' + f.name_key"
+                    [(ngModel)]="valores[f.name_key]"
+                    [name]="f.name_key"
+                    class="fp-input fp-textarea"
+                    rows="4"
+                    [required]="f.required"
+                    [placeholder]="fieldPlaceholder(f)"
+                  ></textarea>
                 }
                 @case ('number') {
-                  <input [id]="'field_' + f.name_key" type="number" [(ngModel)]="valores[f.name_key]" [name]="f.name_key" class="fp-input" [required]="f.required" />
+                  <input
+                    [id]="'field_' + f.name_key"
+                    type="number"
+                    [(ngModel)]="valores[f.name_key]"
+                    [name]="f.name_key"
+                    class="fp-input"
+                    [required]="f.required"
+                    [placeholder]="fieldPlaceholder(f)"
+                    inputmode="numeric"
+                  />
                 }
                 @case ('date') {
                   <input
@@ -279,6 +364,7 @@
                     [required]="f.required"
                     placeholder="dd/mm/aaaa"
                     [altInput]="true"
+                    [altInputClass]="'fp-input'"
                     [convertModelValue]="true"
                   />
                 }
@@ -359,6 +445,8 @@
                     width="400"
                     height="120"
                     class="fp-sig-canvas"
+                    role="img"
+                    [attr.aria-label]="'Área de assinatura: ' + f.label"
                     (mousedown)="startSignature($event, f.name_key)"
                     (mousemove)="moveSignature($event, f.name_key)"
                     (mouseup)="endSignature(f.name_key)"
@@ -388,7 +476,13 @@
   @if (!showSkeleton() && data && personFormUnlocked()) {
     <footer class="fp-footer">
       <div class="fp-footer-inner">
-        <button type="submit" form="formulario-publico-form" class="fp-submit-btn" [disabled]="enviando">
+        <button
+          type="submit"
+          form="formulario-publico-form"
+          class="fp-submit-btn"
+          [disabled]="enviando"
+          [attr.aria-busy]="enviando"
+        >
           @if (enviando) {
             <svg class="fp-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
               <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" opacity=".25" />
