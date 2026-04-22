@@ -159,37 +159,43 @@
   }
 
   @case (3) {
-    <div class="lb-m3-root lb-m3-grid-bg" [class.dark]="dark" [class.light]="!dark" [ngStyle]="themeVarsM3()">
-      <div class="flex justify-end gap-2 px-4 pt-4 absolute top-0 right-0 z-30">
-        <button type="button" (click)="onToggleDark()" class="lb-icon-pill flex items-center px-3 py-2 rounded-full border border-white/10 backdrop-blur-sm bg-white/[.05]" aria-label="Alternar tema">
-          @if (dark) {
-            <svg class="w-[14px] h-[14px] text-amber-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-          } @else {
-            <svg class="w-[14px] h-[14px] text-[#7a4f2e]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
-          }
-        </button>
-        <button type="button" (click)="onShare()" class="lb-icon-pill flex items-center px-3 py-2 rounded-full border border-white/10 backdrop-blur-sm bg-white/[.05]" aria-label="Compartilhar">
-          <svg class="w-[14px] h-[14px] lb-m3-accent-text" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-        </button>
-      </div>
+    <div class="lb-m3-root" [class.dark]="dark" [class.light]="!dark" [ngStyle]="themeVarsM3()">
+      <div class="lb-m3-noise" aria-hidden="true"></div>
 
-      <div class="lb-m3-cover pt-16 pb-12 px-6 flex flex-col items-center text-center relative lb-anim-f1">
-        <div class="logo-ring mb-5 lb-logo-ring-m3 relative z-[1]">
+      <div class="lb-m3-cover pb-12 px-6 flex flex-col items-center text-center relative lb-anim-f1">
+        <div class="lb-m3-topbar self-stretch flex justify-end items-center gap-3 pt-5 pb-6 relative z-30">
+          <button type="button" (click)="onToggleDark()" class="lb-m3-top-btn" aria-label="Alternar tema">
+            @if (dark) {
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+            } @else {
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+            }
+          </button>
+          <button type="button" (click)="onShare()" class="lb-m3-top-btn" aria-label="Compartilhar">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+          </button>
+        </div>
+        <div class="logo-ring mb-3 lb-logo-ring-m3 relative z-[1]">
           @if (clinic.logo_url) {
             <img [src]="clinic.logo_url" [alt]="clinic.name" />
           } @else {
             {{ clinicInitials }}
           }
         </div>
-        <p class="text-[10px] tracking-[.25em] uppercase lb-m3-accent-muted mb-3 font-light relative z-[1]">{{ brandSubtitleM3 }}</p>
-        <h1 class="lb-serif-m3 text-[38px] sm:text-[48px] leading-[1.05] font-semibold relative z-[1]">
-          <span class="lb-gold-text">{{ m3BrandParts.gold }}</span><br />
+        @if (clinic.founded_year) {
+          <span class="lb-m3-since relative z-[1] mb-3">Desde {{ clinic.founded_year }}</span>
+        } @else {
+          <span class="relative z-[1] mb-3"></span>
+        }
+        <p class="text-[10px] tracking-[.28em] uppercase lb-m3-accent-muted mb-4 font-light relative z-[1]">{{ brandSubtitleM3 }}</p>
+        <h1 class="lb-serif-m3 text-[44px] sm:text-[52px] leading-[1.05] relative z-[1]">
+          <span class="lb-m3-serif-italic lb-gold-text">{{ m3BrandParts.gold }}</span><br />
           @if (m3BrandParts.plain) {
-            <span class="text-[#e8e0d4]">{{ m3BrandParts.plain }}</span>
+            <span class="lb-m3-serif-plain text-[#1a1410] dark:text-[#e8e0d4]">{{ m3BrandParts.plain }}</span>
           }
         </h1>
         @if (clinic.short_description) {
-          <p class="text-[13px] text-white/40 mt-4 max-w-xs leading-relaxed font-light tracking-wide relative z-[1]">{{ clinic.short_description }}</p>
+          <p class="text-[13px] text-white/50 mt-4 max-w-xs leading-relaxed font-light tracking-wide relative z-[1]">{{ clinic.short_description }}</p>
         }
         <div class="lb-gold-line w-24 mt-6 relative z-[1]"></div>
       </div>
@@ -197,112 +203,125 @@
       <div class="w-full max-w-lg mx-auto px-4 sm:px-6 pb-14">
         <div class="flex justify-center mb-5 lb-anim-f1">
           @if (clinic.is_open_now === true) {
-            <span class="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-[11px] font-medium border lb-m3-accent-border lb-m3-accent-bg-soft lb-m3-accent-text">
-              <span class="w-[5px] h-[5px] rounded-full lb-m3-accent-bg lb-pulse-dot inline-block"></span>Aberto para consultas
+            <span class="lb-m3-status inline-flex items-center gap-2 px-4 py-1.5 rounded-full border lb-m3-accent-border lb-m3-accent-bg-soft lb-m3-accent-text">
+              <span class="w-[6px] h-[6px] rounded-full lb-m3-accent-bg lb-pulse-dot inline-block"></span>Aberto para consultas
             </span>
           } @else {
-            <span class="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-[11px] font-light border border-white/10 text-white/30">
-              <span class="w-[5px] h-[5px] rounded-full bg-white/20 inline-block"></span>Fechado · Consulte horários
+            <span class="lb-m3-status inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/10 text-white/40">
+              <span class="w-[6px] h-[6px] rounded-full bg-white/25 inline-block"></span>Fechado · Consulte horários
             </span>
           }
         </div>
 
         @if (whatsappUrl()) {
           <div class="lb-anim-f2">
-            <a [href]="trackCta('whatsapp', whatsappUrl())" target="_blank" rel="noopener noreferrer" class="lb-cta-gold w-full flex items-center justify-center gap-3 py-4 rounded-2xl font-semibold text-[15px] no-underline tracking-wide">
-              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.108.549 4.09 1.508 5.814L0 24l6.335-1.489A11.926 11.926 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.89 0-3.663-.5-5.198-1.375l-.372-.22-3.862.908.979-3.763-.242-.386A9.944 9.944 0 012 12C2 6.486 6.486 2 12 2s10 4.486 10 10-4.486 10-10 10z"/></svg>
-              Agendar consulta
+            <a [href]="trackCta('whatsapp', whatsappUrl())" target="_blank" rel="noopener noreferrer" class="lb-cta-gold lb-m3-cta w-full flex items-center justify-center gap-3 no-underline">
+              <svg class="w-[18px] h-[18px] relative z-[1]" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.108.549 4.09 1.508 5.814L0 24l6.335-1.489A11.926 11.926 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.89 0-3.663-.5-5.198-1.375l-.372-.22-3.862.908.979-3.763-.242-.386A9.944 9.944 0 012 12C2 6.486 6.486 2 12 2s10 4.486 10 10-4.486 10-10 10z"/></svg>
+              <span class="relative z-[1]">Agendar consulta</span>
             </a>
           </div>
         }
 
         <div class="grid grid-cols-2 gap-2.5 mt-2.5 lb-anim-f2">
           @if (clinic.maps_url) {
-            <a [href]="trackCta('maps', clinic.maps_url!)" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 py-3 px-3 rounded-xl bg-white/[.05] border border-white/10 text-white/60 text-[13px] font-medium no-underline hover:bg-white/[.08]">
-              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            <a [href]="trackCta('maps', clinic.maps_url!)" target="_blank" rel="noopener noreferrer" class="lb-m3-btn-ghost flex items-center justify-center gap-2 py-3 px-3 bg-white/[.05] border border-white/10 text-white/60 no-underline">
+              <svg class="w-4 h-4 lb-m3-accent-text" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
               Localização
             </a>
           }
           @if (instagramUrl) {
-            <a [href]="trackCta('instagram', instagramUrl)" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 py-3 px-3 rounded-xl bg-white/[.05] border border-white/10 text-white/60 text-[13px] font-medium no-underline hover:bg-white/[.08]">
-              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+            <a [href]="trackCta('instagram', instagramUrl)" target="_blank" rel="noopener noreferrer" class="lb-m3-btn-ghost flex items-center justify-center gap-2 py-3 px-3 bg-white/[.05] border border-white/10 text-white/60 no-underline">
+              <svg class="w-4 h-4 lb-m3-accent-text" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
               Instagram
             </a>
           }
         </div>
 
-        <div class="mt-6 lb-anim-f3">
+        <div class="mt-7 lb-anim-f3">
           <div class="flex items-center gap-3 mb-3">
             <div class="lb-gold-line flex-1"></div>
-            <p class="text-[10px] tracking-[.15em] uppercase lb-m3-accent-muted font-light px-2">Procedimentos</p>
+            <p class="text-[9px] tracking-[.35em] uppercase lb-m3-accent-muted font-light px-2">Procedimentos</p>
             <div class="lb-gold-line flex-1"></div>
           </div>
-          <div class="grid grid-cols-3 gap-2.5">
-            @for (proc of proceduresM3; track proc) {
-              <div class="lb-service-card-m3 p-3 text-center">
-                <p class="text-[11px] font-medium text-white/80">{{ proc }}</p>
+          <div class="grid grid-cols-3 gap-2">
+            @for (proc of proceduresM3; track proc; let i = $index) {
+              <div class="lb-service-card-m3">
+                <div class="lb-m3-proc-icon">{{ iconForProcedure(proc, i) }}</div>
+                <p class="lb-m3-proc-name">{{ proc }}</p>
               </div>
             }
           </div>
         </div>
 
         @if (hasAnyHour) {
-          <div class="mt-5 rounded-2xl border lb-m3-accent-border bg-white/[.02] px-4 pt-4 pb-3 lb-anim-f3">
-            <p class="text-[10px] tracking-[.15em] uppercase lb-m3-accent-muted font-light mb-3">Funcionamento</p>
-            @for (row of hoursGridArray; track row.label) {
-              @if (row.text !== '–') {
-                <div class="flex justify-between text-[13px] py-2 border-b border-white/[.05] last:border-0">
-                  <span class="text-white/70 font-light">{{ row.label }}</span>
-                  <span class="lb-m3-accent-text font-medium">{{ row.text }}</span>
-                </div>
+          <div class="mt-7 lb-anim-f3">
+            <div class="flex items-center gap-3 mb-3">
+              <div class="lb-gold-line flex-1"></div>
+              <p class="text-[9px] tracking-[.35em] uppercase lb-m3-accent-muted font-light px-2 inline-flex items-center gap-1.5">
+                <svg class="w-[11px] h-[11px] lb-m3-accent-text" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                Funcionamento
+              </p>
+              <div class="lb-gold-line flex-1"></div>
+            </div>
+            <div class="lb-m3-hours-card">
+              @for (row of hoursGridArray; track row.label; let i = $index) {
+                @if (row.text !== '–') {
+                  <div class="lb-m3-hour-row" [class.today]="i === todayIndexInHoursGrid">
+                    <span class="lb-m3-day-name">{{ row.label }}</span>
+                    @if (i === todayIndexInHoursGrid) {
+                      <span class="lb-m3-today-badge">hoje</span>
+                    }
+                    <span class="lb-m3-day-hours">{{ row.text }}</span>
+                  </div>
+                }
               }
-            }
+            </div>
           </div>
         }
 
         @if (allDocs.length) {
-          <div class="mt-6 lb-anim-f4">
+          <div class="mt-7 lb-anim-f4">
             <div class="flex items-center gap-3 mb-3">
               <div class="lb-gold-line flex-1"></div>
-              <p class="text-[10px] tracking-[.15em] uppercase lb-m3-accent-muted font-light px-2">Documentos</p>
+              <p class="text-[9px] tracking-[.35em] uppercase lb-m3-accent-muted font-light px-2">Documentos</p>
               <div class="lb-gold-line flex-1"></div>
             </div>
-            <p class="text-[12px] text-white/30 font-light mb-3 text-center">Preencha antes do seu procedimento</p>
+            <p class="text-[11px] tracking-[.1em] uppercase text-white/40 font-light mb-3 text-center">Preencha antes do seu procedimento</p>
             @for (link of allDocs; track trackDoc($index, link)) {
               @if (link.type === 'bio') {
-                <a [href]="hrefBio(link.item)" target="_blank" rel="noopener noreferrer" class="flex items-center gap-3.5 p-4 rounded-2xl border lb-m3-accent-border bg-transparent mb-2.5 no-underline group block text-inherit lb-m3-accent-hover-bg transition-colors">
-                  <div class="w-10 h-10 rounded-xl border lb-m3-accent-border-strong lb-m3-accent-bg-soft flex items-center justify-center flex-shrink-0">
-                    <svg class="w-[18px] h-[18px] lb-m3-accent-text" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                <a [href]="hrefBio(link.item)" target="_blank" rel="noopener noreferrer" class="lb-m3-doc-card flex items-center gap-3.5 p-4 border lb-m3-accent-border bg-transparent mb-2.5 no-underline group block text-inherit lb-m3-accent-hover-bg">
+                  <div class="w-10 h-10 rounded-full border lb-m3-accent-border-strong lb-m3-accent-bg-soft flex items-center justify-center flex-shrink-0">
+                    <svg class="w-[16px] h-[16px] lb-m3-accent-text" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
                   </div>
                   <div class="flex-1 min-w-0">
-                    <p class="text-[13px] font-medium text-white/80">{{ link.item.label }}</p>
-                    <p class="text-[11px] text-white/30 font-light mt-0.5">Abrir documento</p>
+                    <p class="lb-m3-doc-title text-[13px] font-normal">{{ link.item.label }}</p>
+                    <p class="lb-m3-doc-sub text-[10px] tracking-[.12em] uppercase font-light mt-0.5">Abrir documento</p>
                   </div>
-                  <svg class="w-4 h-4 text-white/20 group-hover:lb-m3-accent-text transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                  <svg class="w-4 h-4 lb-m3-accent-text opacity-50 group-hover:opacity-100 transition-opacity" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="9 18 15 12 9 6"/></svg>
                 </a>
               } @else {
-                <a [routerLink]="['/f', formToken(link.item)]" class="flex items-center gap-3.5 p-4 rounded-2xl border lb-m3-accent-border bg-transparent mb-2.5 no-underline group block text-inherit lb-m3-accent-hover-bg transition-colors">
-                  <div class="w-10 h-10 rounded-xl border lb-m3-accent-border-strong lb-m3-accent-bg-soft flex items-center justify-center flex-shrink-0">
-                    <svg class="w-[18px] h-[18px] lb-m3-accent-text" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                <a [routerLink]="['/f', formToken(link.item)]" class="lb-m3-doc-card flex items-center gap-3.5 p-4 border lb-m3-accent-border bg-transparent mb-2.5 no-underline group block text-inherit lb-m3-accent-hover-bg">
+                  <div class="w-10 h-10 rounded-full border lb-m3-accent-border-strong lb-m3-accent-bg-soft flex items-center justify-center flex-shrink-0">
+                    <svg class="w-[16px] h-[16px] lb-m3-accent-text" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
                   </div>
                   <div class="flex-1 min-w-0">
-                    <p class="text-[13px] font-medium text-white/80">{{ link.item.name }}</p>
-                    <p class="text-[11px] text-white/30 font-light mt-0.5">Preenchimento online</p>
+                    <p class="lb-m3-doc-title text-[13px] font-normal">{{ link.item.name }}</p>
+                    <p class="lb-m3-doc-sub text-[10px] tracking-[.12em] uppercase font-light mt-0.5">Preenchimento online</p>
                   </div>
-                  <svg class="w-4 h-4 text-white/20 group-hover:lb-m3-accent-text transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                  <svg class="w-4 h-4 lb-m3-accent-text opacity-50 group-hover:opacity-100 transition-opacity" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="9 18 15 12 9 6"/></svg>
                 </a>
               }
             }
           </div>
         }
 
-        <div class="mt-8 pt-5 flex flex-col items-center gap-2 lb-anim-f5">
+        <div class="mt-10 pt-5 flex flex-col items-center gap-2 lb-anim-f5">
           <div class="lb-gold-line w-16 mb-1"></div>
           <div class="flex flex-wrap items-center justify-center gap-2">
-            <span class="text-[11px] text-white/25 font-light">Fichas digitais por</span>
-            <a href="https://gestgo.com.br" target="_blank" rel="noopener noreferrer" class="text-[11px] font-medium lb-m3-accent-muted no-underline hover:lb-m3-accent-text transition-colors">Gestgo</a>
-            <span class="text-white/15 text-[11px]">·</span>
-            <a routerLink="/privacidade" class="text-[11px] text-white/25 no-underline hover:text-white/50 transition-colors font-light">Privacidade</a>
+            <span class="text-[10px] tracking-[.15em] uppercase text-white/30 font-light">Fichas digitais por</span>
+            <a href="https://gestgo.com.br" target="_blank" rel="noopener noreferrer" class="text-[10px] tracking-[.15em] uppercase font-normal lb-m3-accent-muted no-underline hover:lb-m3-accent-text transition-colors">Gestgo</a>
+            <span class="text-white/20 text-[10px]">·</span>
+            <a routerLink="/privacidade" class="text-[10px] tracking-[.15em] uppercase text-white/30 no-underline hover:text-white/50 transition-colors font-light">Privacidade</a>
           </div>
         </div>
       </div>

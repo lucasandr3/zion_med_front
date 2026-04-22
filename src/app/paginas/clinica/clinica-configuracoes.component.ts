@@ -67,6 +67,8 @@ const TEMA_LABEL_PT_MAP: Record<string, string> = {
   'slate-pro': 'Ardósia',
   'cyan-tech': 'Ciano',
   'fuchsia-bold': 'Magenta',
+  'onyx-black': 'Preto',
+  custom: 'Personalizada',
 };
 
 @Component({

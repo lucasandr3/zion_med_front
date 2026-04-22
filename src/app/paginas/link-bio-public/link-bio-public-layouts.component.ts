@@ -47,6 +47,49 @@ export class LinkBioPublicLayoutsComponent {
     return this.hoursGridArray.some((d) => d.text !== '–');
   }
 
+  /**
+   * Índice do dia atual dentro de `hoursGridArray` (segunda=0 … domingo=6).
+   * O grid usa chaves '1'..'7' (seg..dom) e JS `Date.getDay()` retorna 0=dom..6=sáb.
+   * Retorna -1 quando o dia não está visível no array.
+   */
+  get todayIndexInHoursGrid(): number {
+    const jsDay = new Date().getDay();
+    const idx = (jsDay + 6) % 7;
+    const arr = this.hoursGridArray;
+    return idx < arr.length ? idx : -1;
+  }
+
+  /** Glifos delicados para os cards de procedimento (fallback por posição). */
+  private readonly procedureIconMap: Record<string, string> = {
+    botox: '✦',
+    preenchimento: '◈',
+    skincare: '✿',
+    bioestimulador: '⬡',
+    'bioestimulador de colágeno': '⬡',
+    laser: '◉',
+    'fios pdo': '⌇',
+    'fios de sustentação': '⌇',
+    peeling: '✧',
+    limpeza: '❂',
+    'limpeza de pele': '❂',
+    microagulhamento: '⁘',
+    harmonização: '❖',
+    'harmonização facial': '❖',
+    criolipólise: '❄',
+    massagem: '◊',
+    drenagem: '◊',
+    'radiofrequência': '◉',
+    depilação: '⌇',
+  };
+
+  private readonly procedureIconFallback = ['✦', '◈', '✿', '⬡', '◉', '⌇', '✧', '❖', '◊'];
+
+  iconForProcedure(name: string, index: number): string {
+    const key = (name ?? '').trim().toLowerCase();
+    if (this.procedureIconMap[key]) return this.procedureIconMap[key]!;
+    return this.procedureIconFallback[index % this.procedureIconFallback.length]!;
+  }
+
   get clinicInitials(): string {
     const name = this.clinic.name?.trim() ?? '';
     if (!name) return 'GG';
@@ -213,12 +256,34 @@ export class LinkBioPublicLayoutsComponent {
   }
 
   accentHex(): string {
+    const theme = this.clinic?.public_theme?.trim();
     const accent = this.clinic?.accent_hex?.trim();
-    return accent || '#e8c97a';
+    if (theme === 'custom' && accent) return accent;
+    if (theme === 'onyx-black') return '#1a1410';
+    return accent || '#c9a84c';
   }
 
   themeVarsM3(): Record<string, string> {
-    return { '--m3-accent': this.accentHex() };
+    const accent = this.accentHex();
+    return {
+      '--m3-accent': accent,
+      '--m3-on-accent': this.onAccentColor(accent),
+    };
+  }
+
+  /**
+   * Calcula a cor de texto ideal (claro ou escuro) sobre o accent, usando luminância relativa.
+   * Evita botões com texto ilegível quando a cor do tema é muito escura (ex.: onyx-black).
+   */
+  private onAccentColor(hex: string): string {
+    const h = (hex || '').replace('#', '').trim();
+    if (h.length !== 6) return '#0b0b0b';
+    const r = parseInt(h.substring(0, 2), 16) / 255;
+    const g = parseInt(h.substring(2, 4), 16) / 255;
+    const b = parseInt(h.substring(4, 6), 16) / 255;
+    // Luminância percebida (aprox. Rec. 709)
+    const l = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    return l > 0.55 ? '#0b0b0b' : '#faf7f2';
   }
 
   teamAvatarColor(index: number): string {

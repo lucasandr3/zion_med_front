@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=DM+Sans:wght@400;500;600&family=Manrope:wght@400;500;600;700;800&family=Outfit:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,700;0,800;1,700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500;1,600&family=DM+Sans:wght@400;500;600&family=Jost:wght@200;300;400;500;600&family=Manrope:wght@400;500;600;700;800&family=Outfit:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,700;0,800;1,700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
 :host {
   display: block;
@@ -164,17 +164,35 @@
   animation: lb-fade-in 0.6s 0.4s ease both;
 }
 
-/* —— Modelo 3 —— */
+/* —— Modelo 3 (Estética premium) —— */
 .lb-m3-root {
-  font-family: 'Outfit', ui-sans-serif, system-ui, sans-serif;
-  background: #faf6f1;
-  color: #4c3a2f;
+  font-family: 'Jost', ui-sans-serif, system-ui, sans-serif;
+  font-weight: 400;
+  background: #faf7f2;
+  color: #3d3028;
   min-height: 100vh;
-  --m3-accent: #e8c97a;
+  --m3-accent: #c9a84c;
+  --m3-ink: #1a1410;
+  --m3-ink-soft: #3d3028;
+  --m3-ink-muted: #8a7a6a;
+  --m3-cream: #faf7f2;
+  --m3-cream-dark: #f0eae0;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Sobe o "font-light" do Tailwind em todo o modelo 3 (legibilidade) */
+.lb-m3-root .font-light {
+  font-weight: 400 !important;
 }
 
 .lb-m3-root.dark {
-  background: #080608;
+  --m3-ink: #e8e0d4;
+  --m3-ink-soft: #cfc5b5;
+  --m3-ink-muted: #8a7a6a;
+  --m3-cream: #0d0a08;
+  --m3-cream-dark: #161210;
+  background: #0d0a08;
   color: #e8e0d4;
 }
 
@@ -183,64 +201,140 @@
   font-family: 'Cormorant Garamond', ui-serif, Georgia, serif;
 }
 
-.lb-m3-grid-bg {
-  background-image:
-    linear-gradient(rgba(200, 162, 64, 0.08) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(200, 162, 64, 0.08) 1px, transparent 1px);
-  background-size: 40px 40px;
+/* Linhas decorativas laterais (substituem o grid) */
+.lb-m3-root::before,
+.lb-m3-root::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: linear-gradient(
+    180deg,
+    transparent,
+    color-mix(in srgb, var(--m3-accent) 14%, transparent),
+    transparent
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+.lb-m3-root::before {
+  left: 15%;
+}
+
+.lb-m3-root::after {
+  right: 15%;
+}
+
+.lb-m3-root > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Textura de ruído sutil (tipo papel/mármore) */
+.lb-m3-noise {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+  opacity: 0.35;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  mix-blend-mode: multiply;
+}
+
+.lb-m3-root.dark .lb-m3-noise {
+  mix-blend-mode: screen;
+  opacity: 0.25;
 }
 
 .lb-m3-cover {
-  background: linear-gradient(180deg, #f7efe1 0%, #faf6f1 100%);
+  background: linear-gradient(180deg, #f5edd5 0%, #faf7f2 100%);
   position: relative;
   overflow: hidden;
 }
 
 .lb-m3-root.dark .lb-m3-cover {
-  background: linear-gradient(180deg, #1a1720 0%, #080608 100%);
+  background: linear-gradient(180deg, #161210 0%, #0d0a08 100%);
 }
 
 .lb-m3-cover::before {
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse 80% 50% at 50% 0%, rgba(200, 162, 64, 0.16) 0%, transparent 70%);
+  background: radial-gradient(
+    ellipse 80% 50% at 50% 0%,
+    color-mix(in srgb, var(--m3-accent) 18%, transparent) 0%,
+    transparent 70%
+  );
   pointer-events: none;
 }
 
 .lb-m3-root.dark .lb-m3-cover::before {
-  background: radial-gradient(ellipse 80% 50% at 50% 0%, rgba(200, 162, 64, 0.12) 0%, transparent 70%);
+  background: radial-gradient(
+    ellipse 80% 50% at 50% 0%,
+    color-mix(in srgb, var(--m3-accent) 14%, transparent) 0%,
+    transparent 70%
+  );
+}
+
+.lb-m3-serif-italic {
+  font-family: 'Cormorant Garamond', ui-serif, Georgia, serif;
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+
+.lb-m3-serif-plain {
+  font-family: 'Cormorant Garamond', ui-serif, Georgia, serif;
+  font-style: normal;
+  font-weight: 600;
+  letter-spacing: 0.04em;
 }
 
 .lb-gold-text {
-  background: linear-gradient(90deg, color-mix(in srgb, var(--m3-accent) 80%, #8f6c27), color-mix(in srgb, var(--m3-accent) 90%, #fff5cc), color-mix(in srgb, var(--m3-accent) 80%, #8f6c27), color-mix(in srgb, var(--m3-accent) 90%, #fff5cc));
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--m3-accent) 80%, #8f6c27),
+    color-mix(in srgb, var(--m3-accent) 92%, #fff5cc),
+    color-mix(in srgb, var(--m3-accent) 80%, #8f6c27),
+    color-mix(in srgb, var(--m3-accent) 92%, #fff5cc)
+  );
   background-size: 300% auto;
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  animation: lb-shimmer 4s linear infinite;
+  animation: lb-shimmer 6s linear infinite;
 }
 
 .lb-logo-ring-m3 {
-  width: 80px;
-  height: 80px;
-  border-radius: 0.5rem;
-  border: 1px solid color-mix(in srgb, var(--m3-accent) 40%, transparent);
-  background: #fff6e7;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  border: 1.5px solid color-mix(in srgb, var(--m3-accent) 50%, transparent);
+  background: linear-gradient(135deg, var(--m3-cream) 0%, color-mix(in srgb, var(--m3-accent) 18%, #fff6e7) 100%);
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: 'Cormorant Garamond', serif;
-  font-size: 28px;
-  font-weight: 600;
-  color: color-mix(in srgb, var(--m3-accent) 74%, #6d4d12);
+  font-size: 26px;
+  font-weight: 500;
+  font-style: italic;
+  color: color-mix(in srgb, var(--m3-accent) 78%, #6d4d12);
   letter-spacing: 1px;
   overflow: hidden;
+  position: relative;
+  animation: lb-m3-halo 8s ease-in-out infinite;
+}
+
+@keyframes lb-m3-halo {
+  0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--m3-accent) 18%, transparent); }
+  50%      { box-shadow: 0 0 24px 6px color-mix(in srgb, var(--m3-accent) 22%, transparent); }
 }
 
 .lb-m3-root.dark .lb-logo-ring-m3 {
-  border: 1px solid color-mix(in srgb, var(--m3-accent) 35%, transparent);
-  background: #1a1720;
+  border: 1.5px solid color-mix(in srgb, var(--m3-accent) 40%, transparent);
+  background: linear-gradient(135deg, #161210 0%, #1f1813 100%);
   color: var(--m3-accent);
 }
 
@@ -248,20 +342,91 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  border-radius: 50%;
+}
+
+.lb-m3-since {
+  font-size: 9px;
+  letter-spacing: 0.3em;
+  font-weight: 500;
+  text-transform: uppercase;
+  color: var(--m3-accent);
+  display: block;
+  margin-top: 8px;
 }
 
 .lb-gold-line {
   height: 1px;
-  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--m3-accent) 40%, transparent), transparent);
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--m3-accent) 50%, transparent), transparent);
 }
 
+/* CTA esguia "premium" */
+.lb-m3-cta {
+  padding: 18px 24px !important;
+  border-radius: 2px !important;
+  font-family: 'Jost', ui-sans-serif, system-ui, sans-serif !important;
+  font-weight: 500 !important;
+  font-size: 12.5px !important;
+  letter-spacing: 0.22em !important;
+  text-transform: uppercase !important;
+  position: relative;
+  overflow: hidden;
+}
+
+.lb-m3-cta::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.16) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+.lb-m3-cta:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 32px color-mix(in srgb, var(--m3-accent) 35%, transparent);
+}
+
+/* Botões secundários (Localização, Instagram, etc) */
+.lb-m3-btn-ghost {
+  border-radius: 2px !important;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-size: 11.5px !important;
+  font-weight: 500 !important;
+  transition: all 0.3s ease;
+}
+
+.lb-m3-btn-ghost:hover {
+  border-color: color-mix(in srgb, var(--m3-accent) 60%, transparent) !important;
+  background: color-mix(in srgb, var(--m3-accent) 10%, transparent) !important;
+}
+
+/* Status badge (aberto/fechado) */
+.lb-m3-status {
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  font-size: 10.5px !important;
+  backdrop-filter: blur(8px);
+}
+
+/* Cards de procedimento */
 .lb-service-card-m3 {
-  background: #fff;
-  border: 1px solid color-mix(in srgb, var(--m3-accent) 22%, transparent);
-  border-radius: 0.5rem;
+  background: color-mix(in srgb, var(--m3-cream) 60%, transparent);
+  border: 1px solid color-mix(in srgb, var(--m3-accent) 18%, transparent);
+  border-radius: 2px;
+  padding: 20px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  position: relative;
+  overflow: hidden;
   transition:
-    border-color 0.2s,
-    transform 0.15s;
+    border-color 0.35s ease,
+    background 0.35s ease,
+    transform 0.35s ease,
+    box-shadow 0.35s ease;
 }
 
 .lb-m3-root.dark .lb-service-card-m3 {
@@ -269,9 +434,221 @@
   border: 1px solid color-mix(in srgb, var(--m3-accent) 14%, transparent);
 }
 
+.lb-service-card-m3::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    var(--m3-accent),
+    color-mix(in srgb, var(--m3-accent) 50%, #fff5cc)
+  );
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.35s ease;
+}
+
 .lb-service-card-m3:hover {
-  border-color: color-mix(in srgb, var(--m3-accent) 35%, transparent);
+  border-color: color-mix(in srgb, var(--m3-accent) 55%, transparent);
+  background: color-mix(in srgb, #fff 85%, var(--m3-cream));
   transform: translateY(-2px);
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--m3-accent) 14%, transparent);
+}
+
+.lb-m3-root.dark .lb-service-card-m3:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.lb-service-card-m3:hover::before {
+  transform: scaleX(1);
+}
+
+.lb-m3-proc-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--m3-accent) 20%, transparent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--m3-accent);
+  font-size: 16px;
+  line-height: 1;
+  font-family: 'Cormorant Garamond', serif;
+}
+
+.lb-m3-proc-name {
+  font-family: 'Jost', sans-serif;
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 500;
+  color: color-mix(in srgb, var(--m3-ink-soft) 90%, transparent);
+  text-align: center;
+  line-height: 1.3;
+}
+
+.lb-m3-root.dark .lb-m3-proc-name {
+  color: color-mix(in srgb, var(--m3-ink) 80%, transparent);
+}
+
+/* Horários */
+.lb-m3-hours-card {
+  border: 1px solid color-mix(in srgb, var(--m3-accent) 18%, transparent);
+  border-radius: 2px;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--m3-cream) 60%, transparent);
+}
+
+.lb-m3-root.dark .lb-m3-hours-card {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.lb-m3-hour-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 20px;
+  border-bottom: 1px solid color-mix(in srgb, var(--m3-accent) 10%, transparent);
+  transition: background 0.2s ease;
+  font-family: 'Jost', sans-serif;
+}
+
+.lb-m3-hour-row:last-child {
+  border-bottom: none;
+}
+
+.lb-m3-hour-row:hover {
+  background: color-mix(in srgb, var(--m3-accent) 6%, transparent);
+}
+
+.lb-m3-hour-row.today {
+  background: color-mix(in srgb, var(--m3-accent) 9%, transparent);
+}
+
+.lb-m3-day-name {
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--m3-ink-soft) 90%, transparent);
+  font-weight: 500;
+  flex: 1;
+}
+
+.lb-m3-root.dark .lb-m3-day-name {
+  color: color-mix(in srgb, var(--m3-ink) 78%, transparent);
+}
+
+.lb-m3-hour-row.today .lb-m3-day-name {
+  color: var(--m3-accent);
+  font-weight: 600;
+}
+
+.lb-m3-day-hours {
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: var(--m3-accent);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+.lb-m3-today-badge {
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 600;
+  background: color-mix(in srgb, var(--m3-accent) 18%, transparent);
+  color: var(--m3-accent);
+  padding: 2px 8px;
+  border-radius: 100px;
+  border: 1px solid color-mix(in srgb, var(--m3-accent) 40%, transparent);
+  margin: 0 10px;
+  font-weight: 500;
+}
+
+/* Documentos do modelo 3 */
+.lb-m3-doc-card {
+  border-radius: 2px !important;
+  transition:
+    border-color 0.3s ease,
+    background 0.3s ease,
+    transform 0.3s ease;
+}
+
+.lb-m3-doc-card:hover {
+  transform: translateX(3px);
+  border-color: color-mix(in srgb, var(--m3-accent) 50%, transparent) !important;
+}
+
+.lb-m3-doc-title {
+  color: var(--m3-ink);
+  letter-spacing: 0.02em;
+  font-weight: 500;
+}
+
+.lb-m3-doc-sub {
+  color: var(--m3-ink-muted);
+  font-weight: 500;
+}
+
+.lb-m3-root.dark .lb-m3-doc-title {
+  color: color-mix(in srgb, var(--m3-ink) 92%, transparent);
+}
+
+.lb-m3-root.dark .lb-m3-doc-sub {
+  color: color-mix(in srgb, var(--m3-ink-muted) 90%, transparent);
+}
+
+/* Topbar botões circulares estilo referência */
+.lb-m3-topbar {
+  pointer-events: none;
+}
+
+.lb-m3-topbar > * {
+  pointer-events: auto;
+}
+
+.lb-m3-top-btn {
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--m3-accent) 32%, transparent);
+  background: color-mix(in srgb, var(--m3-cream) 60%, transparent);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--m3-ink-muted);
+  transition:
+    border-color 0.3s ease,
+    color 0.3s ease,
+    background 0.3s ease,
+    transform 0.2s ease;
+}
+
+.lb-m3-top-btn:hover {
+  border-color: var(--m3-accent);
+  color: var(--m3-accent);
+  background: color-mix(in srgb, var(--m3-accent) 10%, transparent);
+  transform: translateY(-1px);
+}
+
+.lb-m3-root.dark .lb-m3-top-btn {
+  background: color-mix(in srgb, #000 40%, transparent);
+  border-color: color-mix(in srgb, var(--m3-accent) 28%, transparent);
+  color: color-mix(in srgb, var(--m3-ink) 60%, transparent);
+}
+
+.lb-m3-root.dark .lb-m3-top-btn:hover {
+  border-color: var(--m3-accent);
+  color: var(--m3-accent);
+  background: color-mix(in srgb, var(--m3-accent) 14%, transparent);
 }
 
 .lb-m3-root.light .lb-icon-pill {
@@ -286,24 +663,48 @@
   border-color: rgba(122, 79, 46, 0.2) !important;
 }
 
+.lb-m3-root.light .text-white\/85 {
+  color: rgba(76, 58, 47, 0.92) !important;
+}
+
 .lb-m3-root.light .text-white\/80 {
   color: rgba(76, 58, 47, 0.9) !important;
+}
+
+.lb-m3-root.light .text-white\/75 {
+  color: rgba(76, 58, 47, 0.84) !important;
 }
 
 .lb-m3-root.light .text-white\/70 {
   color: rgba(76, 58, 47, 0.78) !important;
 }
 
+.lb-m3-root.light .text-white\/65 {
+  color: rgba(76, 58, 47, 0.75) !important;
+}
+
 .lb-m3-root.light .text-white\/60 {
   color: rgba(76, 58, 47, 0.72) !important;
+}
+
+.lb-m3-root.light .text-white\/55 {
+  color: rgba(76, 58, 47, 0.69) !important;
 }
 
 .lb-m3-root.light .text-white\/50 {
   color: rgba(76, 58, 47, 0.66) !important;
 }
 
+.lb-m3-root.light .text-white\/45 {
+  color: rgba(76, 58, 47, 0.62) !important;
+}
+
 .lb-m3-root.light .text-white\/40 {
   color: rgba(76, 58, 47, 0.58) !important;
+}
+
+.lb-m3-root.light .text-white\/35 {
+  color: rgba(76, 58, 47, 0.55) !important;
 }
 
 .lb-m3-root.light .text-white\/30 {
@@ -327,9 +728,14 @@
 }
 
 .lb-cta-gold {
-  background: linear-gradient(135deg, color-mix(in srgb, var(--m3-accent) 78%, #7f5b1f), var(--m3-accent), color-mix(in srgb, var(--m3-accent) 78%, #7f5b1f));
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--m3-accent) 82%, #000),
+    var(--m3-accent),
+    color-mix(in srgb, var(--m3-accent) 82%, #000)
+  );
   background-size: 200% auto;
-  color: #080608;
+  color: var(--m3-on-accent, #0b0b0b);
   transition:
     background-position 0.4s,
     transform 0.1s,
@@ -338,11 +744,17 @@
 
 .lb-cta-gold:hover {
   background-position: right center;
-  filter: brightness(1.05);
+  filter: brightness(1.08);
 }
 
 .lb-cta-gold:active {
   transform: scale(0.98);
+}
+
+/* Quando o accent é muito escuro (ex.: onyx-black), cria contorno sutil claro para destacar
+   o botão do fundo e garante legibilidade do texto via --m3-on-accent. */
+.lb-m3-cta.lb-cta-gold {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--m3-on-accent, #fff) 22%, transparent);
 }
 
 .lb-pulse-dot {

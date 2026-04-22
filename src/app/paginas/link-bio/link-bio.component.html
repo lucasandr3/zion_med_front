@@ -308,9 +308,20 @@
                     class="theme-card palette-card"
                     [class.selected]="aparenciaPublicTheme === ''"
                     [attr.aria-label]="'Padrão'"
+                    title="Padrão"
                     (click)="selecionarTema('')"
                   >
                     <div class="theme-preview palette-preview" style="background: #1a1a2e"></div>
+                  </button>
+                  <button
+                    type="button"
+                    class="theme-card palette-card"
+                    [class.selected]="aparenciaPublicTheme === 'onyx-black'"
+                    [attr.aria-label]="'Preto'"
+                    title="Preto"
+                    (click)="selecionarTema('onyx-black')"
+                  >
+                    <div class="theme-preview palette-preview" style="background: #0a0a0a"></div>
                   </button>
                   @for (key of themeKeys; track key) {
                     @let meta = availableThemes[key];
@@ -320,12 +331,54 @@
                       class="theme-card palette-card"
                       [class.selected]="aparenciaPublicTheme === key"
                       [attr.aria-label]="meta?.label ?? key"
+                      [title]="meta?.label ?? key"
                       (click)="selecionarTema(key)"
                     >
                       <div class="theme-preview palette-preview" [style.background]="primary"></div>
                     </button>
                   }
+                  <button
+                    type="button"
+                    class="theme-card palette-card palette-card-custom"
+                    [class.selected]="aparenciaPublicTheme === 'custom'"
+                    [attr.aria-label]="'Personalizada'"
+                    title="Escolher minha cor"
+                    (click)="selecionarTema('custom')"
+                  >
+                    <div
+                      class="theme-preview palette-preview"
+                      [style.background]="aparenciaPublicTheme === 'custom' ? aparenciaCustomAccent : 'conic-gradient(from 180deg, #ef4444, #f59e0b, #eab308, #22c55e, #06b6d4, #3b82f6, #8b5cf6, #ec4899, #ef4444)'"
+                    ></div>
+                  </button>
                 </div>
+                @if (aparenciaPublicTheme === 'custom') {
+                  <div class="custom-accent-wrap">
+                    <label class="form-label" for="custom-accent-color">Cor personalizada</label>
+                    <div class="custom-accent-row">
+                      <input
+                        id="custom-accent-color"
+                        type="color"
+                        class="custom-accent-picker"
+                        [value]="aparenciaCustomAccent"
+                        (input)="onCustomAccentChange($any($event.target).value)"
+                      />
+                      <input
+                        type="text"
+                        class="form-input custom-accent-hex"
+                        [value]="aparenciaCustomAccent"
+                        (input)="onCustomAccentChange($any($event.target).value)"
+                        maxlength="7"
+                        placeholder="#c9a84c"
+                        spellcheck="false"
+                        aria-label="Código hexadecimal"
+                      />
+                      <span class="custom-accent-swatch" [style.background]="aparenciaCustomAccent" aria-hidden="true"></span>
+                    </div>
+                    <p class="hint" style="font-size: 11px; color: var(--c-muted); margin: 8px 0 0">
+                      Escolha qualquer cor para o detalhe da página pública (logo, botões, destaques).
+                    </p>
+                  </div>
+                }
                 <p class="hint" style="font-size: 11px; color: var(--c-muted); margin: 16px 0 0">Afeta o logo, botões e indicador de horário aberto. Independente do tema do sistema.</p>
               </div>
             </div>

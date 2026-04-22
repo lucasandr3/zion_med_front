@@ -10,6 +10,7 @@ import {
   LinkBioExtra,
   LinkBioLayoutModel,
   LinkBioStats,
+  LinkBioClinic,
 } from '../../core/services/link-bio.service';
 import { ClinicaService } from '../../core/services/clinica.service';
 import { LoadingService } from '../../shared/services/loading.service';
@@ -66,6 +67,7 @@ export class LinkBioComponent implements OnInit {
 
   // Aparência
   aparenciaPublicTheme = '';
+  aparenciaCustomAccent = '#c9a84c';
   aparenciaCoverColor = '#1a1a2e';
   aparenciaCoverMode: 'banner' | 'solid' | 'none' = 'banner';
   aparenciaModelo: LinkBioLayoutModel = 1;
@@ -411,6 +413,7 @@ export class LinkBioComponent implements OnInit {
     this.aparenciaPublicTheme = c.public_theme
       ? normalizeThemeKey(String(c.public_theme))
       : '';
+    this.aparenciaCustomAccent = this.normalizarHex(c.accent_hex) ?? '#c9a84c';
     this.aparenciaCoverColor = c.cover_color ?? '#1a1a2e';
     this.aparenciaCoverMode = (c.cover_mode as 'banner' | 'solid' | 'none') ?? 'banner';
     this.aparenciaModelo = (c.link_bio_model as LinkBioLayoutModel) ?? 1;
@@ -579,7 +582,8 @@ export class LinkBioComponent implements OnInit {
   salvarAparencia(): void {
     if (!this.state) return;
     this.salvandoAparencia = true;
-    const payload = {
+    const isCustom = this.aparenciaPublicTheme === 'custom';
+    const payload: Partial<LinkBioClinic> & Record<string, unknown> = {
       public_theme: this.aparenciaPublicTheme,
       cover_color: this.aparenciaCoverColor || null,
       cover_mode: this.aparenciaCoverMode,
@@ -588,6 +592,7 @@ export class LinkBioComponent implements OnInit {
       founded_year: this.aparenciaFoundedYear || null,
       contact_email: this.aparenciaContactEmail || null,
       maps_url: this.aparenciaMapsUrl || null,
+      accent_hex: isCustom ? this.aparenciaCustomAccent : null,
     };
     this.linkBioService.updateAparencia(payload).subscribe({
       next: (clinic) => {
@@ -631,6 +636,25 @@ export class LinkBioComponent implements OnInit {
 
   selecionarTema(themeKey: string): void {
     this.aparenciaPublicTheme = themeKey === '' ? '' : normalizeThemeKey(themeKey);
+  }
+
+  /** Normaliza hex no formato #RRGGBB (ou #RGB → #RRGGBB). Retorna null se inválido. */
+  private normalizarHex(value: string | null | undefined): string | null {
+    const v = (value ?? '').trim();
+    if (!v) return null;
+    const short = /^#([0-9a-f]{3})$/i.exec(v);
+    if (short) {
+      const [r, g, b] = short[1]!.split('');
+      return `#${r}${r}${g}${g}${b}${b}`.toLowerCase();
+    }
+    const long = /^#([0-9a-f]{6})$/i.exec(v);
+    if (long) return v.toLowerCase();
+    return null;
+  }
+
+  onCustomAccentChange(value: string): void {
+    const hex = this.normalizarHex(value);
+    if (hex) this.aparenciaCustomAccent = hex;
   }
 
   onSelecionarCoverImage(event: Event): void {
