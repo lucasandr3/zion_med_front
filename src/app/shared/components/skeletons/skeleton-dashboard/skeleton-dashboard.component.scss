@@ -17,7 +17,7 @@
 }
 
 .skel-dash__metric {
-  border-radius: var(--skel-radius);
+  border-radius: 0.5rem;
   padding: 1.125rem 1.25rem;
   background: var(--c-surface);
   border: 1px solid var(--c-border);
@@ -41,7 +41,7 @@
 }
 
 .skel-dash__panel {
-  border-radius: var(--skel-radius);
+  border-radius: 0.5rem;
   overflow: hidden;
   background: var(--c-surface);
   border: 1px solid var(--c-border);
@@ -73,7 +73,7 @@
 .skel-dash__icon {
   width: 2.5rem;
   height: 2.5rem;
-  border-radius: 0.625rem;
+  border-radius: 0.5rem;
   flex-shrink: 0;
 }
 
@@ -98,6 +98,6 @@
 .skel-dash__badge {
   width: 3.25rem;
   height: 1.375rem;
-  border-radius: 9999px;
+  border-radius: 0.5rem;
   flex-shrink: 0;
 }

@@ -36,7 +36,7 @@
   gap: 1rem;
   padding: 0.85rem 1rem;
   margin-bottom: 1.5rem;
-  border-radius: var(--dash-card-radius);
+  border-radius: 0.5rem;
   background: var(--c-surface);
   border: 1px solid var(--c-border);
   box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
@@ -63,7 +63,7 @@
   align-items: center;
   gap: 0.25rem;
   padding: 0.25rem;
-  border-radius: 0.75rem;
+  border-radius: 0.5rem;
   background: var(--c-soft);
   border: 1px solid var(--c-border);
 }
@@ -72,7 +72,7 @@
   border: 0;
   background: transparent;
   color: var(--c-muted);
-  border-radius: 0.55rem;
+  border-radius: 0.5rem;
   padding: 0.45rem 0.9rem;
   font-size: 0.75rem;
   font-weight: 600;
@@ -116,7 +116,7 @@
   position: relative;
   display: block;
   padding: 1.125rem 1.25rem 1.25rem;
-  border-radius: var(--dash-card-radius);
+  border-radius: 0.5rem;
   background: var(--c-surface);
   border: 1px solid var(--c-border);
   text-decoration: none;
@@ -174,7 +174,7 @@ a.dash-kpi:hover::before {
 .dash-kpi__icon {
   width: 2.25rem;
   height: 2.25rem;
-  border-radius: 0.65rem;
+  border-radius: 0.5rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -232,7 +232,7 @@ a.dash-kpi:hover::before {
   font-weight: 700;
   color: var(--c-success);
   padding: 0.2rem 0.55rem;
-  border-radius: 9999px;
+  border-radius: 0.5rem;
   background: color-mix(in srgb, var(--c-success) 12%, transparent);
 }
 
@@ -255,7 +255,7 @@ a.dash-kpi:hover::before {
 .dash-chart-card {
   background: var(--c-surface);
   border: 1px solid var(--c-border);
-  border-radius: var(--dash-card-radius);
+  border-radius: 0.5rem;
   overflow: hidden;
   animation: dash-fade-up 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
 }
@@ -288,7 +288,7 @@ a.dash-kpi:hover::before {
   display: inline-flex;
   align-items: center;
   padding: 0.28rem 0.7rem;
-  border-radius: 9999px;
+  border-radius: 0.5rem;
   background: var(--c-soft);
   color: var(--c-muted);
   font-size: 0.68rem;
@@ -305,7 +305,7 @@ a.dash-kpi:hover::before {
 .dash-chart-card :global(.apexcharts-tooltip) {
   box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12) !important;
   border: 1px solid var(--c-border) !important;
-  border-radius: 0.65rem !important;
+  border-radius: 0.5rem;
 }
 
 .dash-chart-card :global(.apexcharts-tooltip-title) {
@@ -323,7 +323,7 @@ a.dash-kpi:hover::before {
 .dash-quick-actions {
   background: var(--c-surface);
   border: 1px solid var(--c-border);
-  border-radius: var(--dash-card-radius);
+  border-radius: 0.5rem;
   padding: 1rem 1.125rem 1.125rem;
 }
 
@@ -377,7 +377,7 @@ a.dash-kpi:hover::before {
 
 /* -------- Panel genérico (listas) -------- */
 .dash-panel {
-  border-radius: var(--dash-card-radius);
+  border-radius: 0.5rem;
   overflow: hidden;
   background: var(--c-surface);
   border: 1px solid var(--c-border);
@@ -437,7 +437,7 @@ a.dash-row:hover {
 .dash-doc-icon {
   width: 2.5rem;
   height: 2.5rem;
-  border-radius: 0.65rem;
+  border-radius: 0.5rem;
   background: var(--c-kpi-accent-soft);
   color: var(--c-kpi-accent-text);
   display: flex;
@@ -455,7 +455,7 @@ a.dash-row:hover {
   font-size: 0.6875rem;
   font-weight: 600;
   padding: 0.25rem 0.65rem;
-  border-radius: 9999px;
+  border-radius: 0.5rem;
   flex-shrink: 0;
   letter-spacing: 0.01em;
 }
@@ -486,7 +486,7 @@ a.dash-row:hover {
   align-items: center;
   gap: 0.85rem;
   padding: 0.8rem 1rem;
-  border-radius: 0.8rem;
+  border-radius: 0.5rem;
   background: var(--c-soft);
   border: 1px solid var(--c-border);
   text-decoration: none;
@@ -503,7 +503,7 @@ a.dash-category-card:hover {
 .dash-category-count {
   width: 2rem;
   height: 2rem;
-  border-radius: 9999px;
+  border-radius: 0.5rem;
   background: var(--c-surface);
   border: 1px solid var(--c-border);
   display: flex;

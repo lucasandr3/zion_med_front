@@ -23,7 +23,7 @@
 }
 
 .sucesso-card {
-  border-radius: 1rem;
+  border-radius: 0.5rem;
   padding: 2rem 1.5rem;
   text-align: center;
   background: #fff;
@@ -38,7 +38,7 @@
 .success-icon-wrap {
   width: 5rem;
   height: 5rem;
-  border-radius: 50%;
+  border-radius: 0.5rem;
   background: #3a6b5d;
   display: flex;
   align-items: center;
@@ -112,7 +112,7 @@
 .logo-wrap {
   width: 3rem;
   height: 3rem;
-  border-radius: 0.75rem;
+  border-radius: 0.5rem;
   background: #110f0d;
   display: flex;
   align-items: center;
@@ -129,7 +129,7 @@
   height: 100%;
   object-fit: contain;
   display: block;
-  border-radius: 0.55rem;
+  border-radius: 0.5rem;
 }
 .sucesso-page.dark .logo-wrap {
   background: #f3ede3;
@@ -153,7 +153,7 @@
   color: #fff;
   border: none;
   padding: 0.875rem 1.25rem;
-  border-radius: 0.875rem;
+  border-radius: 0.5rem;
   font-size: 0.875rem;
   font-weight: 600;
   font-family: inherit;

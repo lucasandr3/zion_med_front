@@ -39,8 +39,12 @@ export interface ProtocoloEvent {
 }
 
 export interface ProtocoloAttachment {
+  id?: number;
+  field_key?: string;
   original_name?: string;
+  mime?: string;
   size?: number;
+  url?: string;
 }
 
 export interface ProtocoloField {
@@ -49,12 +53,30 @@ export interface ProtocoloField {
   type: string;
 }
 
+export interface ProtocoloSignature {
+  id?: number;
+  field_key?: string;
+  url?: string;
+  signed_name?: string;
+  signed_ip?: string;
+  signed_user_agent?: string;
+  signed_hash?: string;
+  document_hash?: string;
+  evidence_hash?: string;
+  channel?: string;
+  status?: string;
+  locale?: string;
+  timezone?: string;
+  accepted_text_at?: string;
+  signed_at?: string;
+}
+
 export type ProtocoloDetalheData = Protocolo & {
   template?: { name?: string; fields?: ProtocoloField[] };
   form_data?: Record<string, unknown>;
   values_keyed?: Record<string, { value_text?: string; value_json?: unknown }>;
   events?: ProtocoloEvent[];
-  signatures?: unknown[];
+  signatures?: ProtocoloSignature[];
   attachments?: ProtocoloAttachment[];
 };
 

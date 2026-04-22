@@ -33,7 +33,7 @@
   width: 110%;
   height: 60px;
   background: #faf6f1;
-  border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+  border-radius: 0.5rem;
 }
 
 .lb-m2-root.dark .lb-wavy-top::after {
@@ -43,7 +43,7 @@
 .lb-photo-ring {
   width: 110px;
   height: 110px;
-  border-radius: 50%;
+  border-radius: 0.5rem;
   background: linear-gradient(135deg, #9ec9aa, #d4a574);
   padding: 3px;
   flex-shrink: 0;
@@ -52,7 +52,7 @@
 .lb-photo-inner {
   width: 100%;
   height: 100%;
-  border-radius: 50%;
+  border-radius: 0.5rem;
   background: #c8a882;
   display: flex;
   align-items: center;
@@ -69,7 +69,7 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  border-radius: 50%;
+  border-radius: 0.5rem;
 }
 
 .lb-link-card {
@@ -224,7 +224,7 @@
 .lb-logo-ring-m3 {
   width: 80px;
   height: 80px;
-  border-radius: 20px;
+  border-radius: 0.5rem;
   border: 1px solid color-mix(in srgb, var(--m3-accent) 40%, transparent);
   background: #fff6e7;
   display: flex;
@@ -258,7 +258,7 @@
 .lb-service-card-m3 {
   background: #fff;
   border: 1px solid color-mix(in srgb, var(--m3-accent) 22%, transparent);
-  border-radius: 16px;
+  border-radius: 0.5rem;
   transition:
     border-color 0.2s,
     transform 0.15s;
@@ -404,7 +404,7 @@
   right: -60px;
   width: 200px;
   height: 200px;
-  border-radius: 50%;
+  border-radius: 0.5rem;
   background: rgba(255, 255, 255, 0.06);
 }
 
@@ -415,7 +415,7 @@
   left: -30px;
   width: 140px;
   height: 140px;
-  border-radius: 50%;
+  border-radius: 0.5rem;
   background: rgba(255, 255, 255, 0.04);
 }
 
@@ -423,7 +423,7 @@
   width: 68px;
   height: 68px;
   background: #fff;
-  border-radius: 18px;
+  border-radius: 0.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -437,7 +437,7 @@
   width: 28px;
   height: 9px;
   background: #1565c0;
-  border-radius: 3px;
+  border-radius: 0.5rem;
 }
 
 .lb-cross-logo::after {
@@ -446,7 +446,7 @@
   width: 9px;
   height: 28px;
   background: #1565c0;
-  border-radius: 3px;
+  border-radius: 0.5rem;
 }
 
 .lb-m4-root.dark .lb-cross-logo {
@@ -463,7 +463,7 @@
   align-items: center;
   gap: 8px;
   padding: 8px 12px;
-  border-radius: 12px;
+  border-radius: 0.5rem;
   background: #fff;
   border: 1px solid #dbeffe;
   font-size: 12px;
@@ -504,7 +504,7 @@
   right: -80px;
   width: 220px;
   height: 220px;
-  border-radius: 50%;
+  border-radius: 0.5rem;
   background: rgba(99, 102, 241, 0.2);
 }
 
@@ -515,14 +515,14 @@
   left: 40%;
   width: 160px;
   height: 160px;
-  border-radius: 50%;
+  border-radius: 0.5rem;
   background: rgba(99, 102, 241, 0.1);
 }
 
 .lb-pro-avatar {
   width: 48px;
   height: 48px;
-  border-radius: 14px;
+  border-radius: 0.5rem;
   display: flex;
   align-items: center;
   justify-content: center;

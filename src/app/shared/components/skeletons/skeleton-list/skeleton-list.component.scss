@@ -1,5 +1,5 @@
 .zm-skeleton-list {
-  border-radius: 0.75rem;
+  border-radius: 0.5rem;
   border: 1px solid var(--c-border);
   background: var(--c-surface);
   overflow: hidden;
@@ -34,7 +34,7 @@
 
 .zm-skeleton-list__line {
   height: 0.8125rem;
-  border-radius: 4px;
+  border-radius: 0.5rem;
 }
 
 .zm-skeleton-list__line--lg {
@@ -48,6 +48,6 @@
 .zm-skeleton-list__badge {
   width: 3.5rem;
   height: 1.25rem;
-  border-radius: 9999px;
+  border-radius: 0.5rem;
   flex-shrink: 0;
 }

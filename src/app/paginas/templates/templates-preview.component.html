@@ -1,0 +1,153 @@
+<div class="form-publico-page preview-draft-page" [class.dark]="dark">
+  @if (showSkeleton()) {
+    <div class="fp-container">
+      <zm-skeleton-list [rows]="6" />
+    </div>
+  } @else if (!listaPronta) {
+  } @else if (template) {
+    <header class="fp-sticky-header">
+      <div class="fp-header-inner">
+        <div class="fp-header-row">
+          <div class="fp-brand">
+            <div class="fp-logo" aria-hidden="true">R</div>
+            <div>
+              <p class="fp-clinic-name">Modo rascunho</p>
+              <p class="fp-sub">Pre-visualizacao interna da clinica</p>
+            </div>
+          </div>
+          <button type="button" (click)="toggleDark()" class="fp-icon-btn" aria-label="Alternar tema claro ou escuro">
+            @if (dark) {
+              <span class="material-symbols-outlined">light_mode</span>
+            } @else {
+              <span class="material-symbols-outlined">dark_mode</span>
+            }
+          </button>
+        </div>
+        <div class="fp-progress-block">
+          <div class="fp-progress-labels">
+            <span class="fp-progress-hint">Progresso</span>
+            <span class="fp-progress-count">
+              @if (requiredFieldsTotal > 0) {
+                {{ requiredFieldsFilled }} de {{ requiredFieldsTotal }} obrigatorios
+              } @else {
+                Nenhum campo obrigatorio
+              }
+            </span>
+          </div>
+          <div class="fp-progress-track">
+            <div class="fp-progress-fill" [style.width.%]="progressPercent"></div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="fp-scroll">
+      <div class="fp-container zm-content-enter">
+        <div class="fp-title-block">
+          <h1 class="fp-title">{{ template.name }}</h1>
+          @if (template.description) {
+            <p class="fp-lead">{{ template.description }}</p>
+          }
+          <div class="preview-draft-note">
+            <span class="material-symbols-outlined">visibility</span>
+            Simulacao fiel do formulario. Este modo nao publica e nao envia dados.
+          </div>
+          <div class="fp-required-legend">
+            <span class="fp-asterisk">*</span>
+            <span>Campos obrigatorios</span>
+          </div>
+        </div>
+
+        @if (campos.length === 0) {
+          <div class="fp-banner-error">Este modelo ainda nao possui campos configurados.</div>
+        } @else {
+          <form class="fp-form" novalidate>
+            @for (campo of campos; track trackCampo($index, campo)) {
+              <div class="fp-field-group fp-field-animate">
+                @if (fieldType(campo) !== 'checkbox') {
+                  <label class="fp-field-label" [for]="'preview_' + campo.name_key">
+                    {{ campo.label }}
+                    @if (campo.required) {
+                      <span class="fp-required">*</span>
+                    }
+                  </label>
+                }
+
+                @switch (fieldType(campo)) {
+                  @case ('text') {
+                    <input [id]="'preview_' + campo.name_key" type="text" [(ngModel)]="valores[campo.name_key]" [name]="'preview_' + campo.name_key" class="fp-input" [required]="!!campo.required" />
+                  }
+                  @case ('textarea') {
+                    <textarea [id]="'preview_' + campo.name_key" [(ngModel)]="valores[campo.name_key]" [name]="'preview_' + campo.name_key" class="fp-input fp-textarea" rows="4" [required]="!!campo.required"></textarea>
+                  }
+                  @case ('number') {
+                    <input [id]="'preview_' + campo.name_key" type="number" [(ngModel)]="valores[campo.name_key]" [name]="'preview_' + campo.name_key" class="fp-input" [required]="!!campo.required" />
+                  }
+                  @case ('date') {
+                    <input [id]="'preview_' + campo.name_key" type="date" [(ngModel)]="valores[campo.name_key]" [name]="'preview_' + campo.name_key" class="fp-input" [required]="!!campo.required" />
+                  }
+                  @case ('select') {
+                    <select [id]="'preview_' + campo.name_key" [(ngModel)]="valores[campo.name_key]" [name]="'preview_' + campo.name_key" class="fp-input fp-select" [required]="!!campo.required">
+                      <option value="">Selecione</option>
+                      @for (opt of getFieldOptions(campo); track opt.value) {
+                        <option [value]="opt.value">{{ opt.label }}</option>
+                      }
+                    </select>
+                  }
+                  @case ('radio') {
+                    <div class="fp-radio-grid">
+                      @for (opt of getFieldOptions(campo); track opt.value) {
+                        <label class="fp-radio-option" [class.fp-radio-selected]="valores[campo.name_key] === opt.value">
+                          <input type="radio" [(ngModel)]="valores[campo.name_key]" [name]="'preview_' + campo.name_key" [value]="opt.value" [required]="!!campo.required" class="fp-visually-hidden" />
+                          <span class="fp-radio-dot" aria-hidden="true"><span class="fp-radio-dot-inner"></span></span>
+                          <span class="fp-radio-label-text">{{ opt.label }}</span>
+                        </label>
+                      }
+                    </div>
+                  }
+                  @case ('checkbox') {
+                    <label class="fp-check-row">
+                      <input [id]="'preview_' + campo.name_key" type="checkbox" [(ngModel)]="valores[campo.name_key]" [name]="'preview_' + campo.name_key" [required]="!!campo.required" class="fp-check-native" />
+                      <span class="fp-check-box" aria-hidden="true">
+                        <svg class="fp-check-svg" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5">
+                          <polyline points="2 6 5 9 10 3" />
+                        </svg>
+                      </span>
+                      <span class="fp-check-label">
+                        {{ campo.label }}
+                        @if (campo.required) {
+                          <span class="fp-required">*</span>
+                        }
+                      </span>
+                    </label>
+                  }
+                  @case ('file') {
+                    <input [id]="'preview_' + campo.name_key" type="file" class="fp-input fp-file-input" [name]="'preview_' + campo.name_key" />
+                  }
+                  @case ('signature') {
+                    <p class="fp-sig-help">Assine com o dedo (celular) ou mouse (computador) no espaco abaixo.</p>
+                    <div class="preview-signature">Area de assinatura (rascunho)</div>
+                  }
+                  @default {
+                    <input [id]="'preview_' + campo.name_key" type="text" [(ngModel)]="valores[campo.name_key]" [name]="'preview_' + campo.name_key" class="fp-input" [required]="!!campo.required" />
+                  }
+                }
+              </div>
+            }
+          </form>
+        }
+      </div>
+    </div>
+
+    <footer class="fp-footer">
+      <div class="fp-footer-inner">
+        <button type="button" class="fp-submit-btn preview-submit-disabled" title="Rascunho nao envia dados">
+          <span class="material-symbols-outlined" style="font-size: 16px">draft</span>
+          Rascunho (sem envio)
+        </button>
+      </div>
+    </footer>
+  } @else if (erro) {
+    <p class="text-sm" style="color: var(--c-error, #dc2626)">{{ erro }}</p>
+  }
+</div>

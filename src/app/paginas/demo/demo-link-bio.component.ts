@@ -309,7 +309,7 @@ const MOCK_DOCS: LinkBioPublicDocItem[] = [
     :host { display: block; }
     .demo-banner { position: fixed; top: 0; left: 0; right: 0; z-index: 9999; background: #1d4ed8; color: #fff; font-size: 13px; padding: 8px 16px; }
     .demo-banner-inner { max-width: 600px; margin: 0 auto; display: flex; align-items: center; gap: 10px; justify-content: center; flex-wrap: wrap; }
-    .demo-badge { font-size: 10px; font-weight: 700; background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 4px; letter-spacing: 0.05em; }
+    .demo-badge { font-size: 10px; font-weight: 700; background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 0.5rem; letter-spacing: 0.05em; }
     .demo-back { color: #fff; text-decoration: underline; text-underline-offset: 2px; font-weight: 500; }
   `],
 })

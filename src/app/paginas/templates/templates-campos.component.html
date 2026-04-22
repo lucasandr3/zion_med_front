@@ -19,6 +19,10 @@
           <span class="material-symbols-outlined" style="font-size:14px">edit</span>
           Editar modelo
         </a>
+        <a [routerLink]="['/templates', templateId, 'preview']" target="_blank" rel="noopener noreferrer" class="btn btn-ghost">
+          <span class="material-symbols-outlined" style="font-size:14px">visibility</span>
+          Pre-visualizar
+        </a>
         @if (linkPublicoUrl) {
           <button type="button" (click)="copiarLink($event)" class="btn btn-primary">
             <span class="material-symbols-outlined" style="font-size:14px">content_copy</span>

@@ -1,5 +1,5 @@
 .zm-ab-card {
-  border-radius: 0.75rem;
+  border-radius: 0.5rem;
   padding: 1rem 1.25rem;
   border: 1px solid color-mix(in srgb, var(--c-warning, #ca8a04) 35%, var(--c-border));
   background: color-mix(in srgb, var(--c-warning, #ca8a04) 8%, transparent);
@@ -8,7 +8,7 @@
 
 .zm-ab-card--compact {
   padding: 0.75rem 1rem;
-  border-radius: 0.625rem;
+  border-radius: 0.5rem;
 }
 
 .zm-ab-card__title {

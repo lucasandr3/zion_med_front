@@ -35,7 +35,7 @@
   position: absolute;
   width: 160px;
   height: 160px;
-  border-radius: 50%;
+  border-radius: 0.5rem;
   background: rgba(250, 204, 21, 0.25);
   top: -40px;
   right: -30px;
@@ -45,7 +45,7 @@
   position: absolute;
   width: 100px;
   height: 100px;
-  border-radius: 50%;
+  border-radius: 0.5rem;
   background: rgba(244, 63, 94, 0.2);
   bottom: -20px;
   left: 30%;
@@ -55,7 +55,7 @@
   position: absolute;
   width: 70px;
   height: 70px;
-  border-radius: 50%;
+  border-radius: 0.5rem;
   background: rgba(74, 222, 128, 0.2);
   top: 20px;
   left: 20px;
@@ -97,7 +97,7 @@
 }
 
 .lb-m7-resp {
-  border-radius: 20px;
+  border-radius: 0.5rem;
   padding: 14px 16px;
   background: linear-gradient(135deg, #fef9c3, #fef3c7);
   border: 2px solid #fde68a;

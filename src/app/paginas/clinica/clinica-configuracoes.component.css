@@ -25,7 +25,7 @@
   gap: 8px;
   padding: 10px 12px;
   border: 1px solid var(--c-border);
-  border-radius: 10px;
+  border-radius: 0.5rem;
   background: color-mix(in srgb, var(--c-soft) 70%, transparent);
 }
 
@@ -40,7 +40,7 @@
   align-items: center;
   font-size: 12px;
   padding: 6px 8px;
-  border-radius: 8px;
+  border-radius: 0.5rem;
   background: var(--c-soft);
   border: 1px solid var(--c-border);
 }
@@ -51,7 +51,7 @@
   justify-content: center;
   min-width: 52px;
   padding: 4px 8px;
-  border-radius: 999px;
+  border-radius: 0.5rem;
   font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
@@ -89,7 +89,7 @@
   display: inline-flex;
   align-items: center;
   padding: 4px 8px;
-  border-radius: 999px;
+  border-radius: 0.5rem;
   border: 1px solid var(--c-border);
   background: var(--c-soft);
   font-size: 11px;
@@ -100,7 +100,7 @@
 /* Aba Tema Visual */
 #panel-visual .section-card {
   border: 1px solid var(--c-border);
-  border-radius: 16px;
+  border-radius: 0.5rem;
   background: var(--c-elevated, var(--c-bg));
   box-shadow: 0 8px 24px color-mix(in srgb, var(--c-primary) 8%, transparent);
 }
@@ -141,7 +141,7 @@
 #panel-visual .theme-card.palette-card {
   padding: 0;
   border: 2px solid transparent;
-  border-radius: 10px;
+  border-radius: 0.5rem;
   background: transparent;
   min-height: 54px;
   overflow: hidden;
@@ -167,7 +167,7 @@
   align-items: flex-start;
   gap: 10px;
   padding: 12px;
-  border-radius: 12px;
+  border-radius: 0.5rem;
   border: 1px solid var(--c-border);
   background: var(--c-soft);
   cursor: pointer;
@@ -189,7 +189,7 @@
 #panel-visual .theme-preview {
   width: 100%;
   min-height: 44px;
-  border-radius: 10px;
+  border-radius: 0.5rem;
   display: flex;
   align-items: flex-end;
   justify-content: center;
@@ -199,14 +199,14 @@
 
 #panel-visual .palette-preview {
   min-height: 60px;
-  border-radius: 8px;
+  border-radius: 0.5rem;
   padding: 0;
 }
 
 #panel-visual .theme-dot {
   width: 10px;
   height: 10px;
-  border-radius: 50%;
+  border-radius: 0.5rem;
   box-shadow: 0 0 0 2px var(--c-elevated, var(--c-bg));
 }
 
@@ -252,7 +252,7 @@
 
 #panel-visual .mode-card {
   border: 1px solid var(--c-border);
-  border-radius: 10px;
+  border-radius: 0.5rem;
   background: var(--c-soft);
   min-height: 64px;
   display: flex;
@@ -293,7 +293,7 @@
   justify-content: space-between;
   gap: 12px;
   padding: 14px 14px;
-  border-radius: 12px;
+  border-radius: 0.5rem;
   border: 1px solid var(--c-border);
   background: var(--c-soft);
 }

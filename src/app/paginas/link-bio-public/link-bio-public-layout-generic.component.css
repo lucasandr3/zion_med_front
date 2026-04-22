@@ -72,7 +72,7 @@
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(8px);
   color: rgba(255, 255, 255, 0.9);
-  border-radius: 999px;
+  border-radius: 0.5rem;
   width: 36px;
   height: 36px;
   display: flex;
@@ -148,7 +148,7 @@
 .avatar-img {
   width: 72px;
   height: 72px;
-  border-radius: 18px;
+  border-radius: 0.5rem;
   border: 4px solid #f9fafb;
   box-shadow: 0 8px 28px rgba(0, 0, 0, .2);
 }
@@ -207,7 +207,7 @@
 .status {
   display: inline-flex;
   align-items: center;
-  border-radius: 999px;
+  border-radius: 0.5rem;
   padding: .3rem .75rem;
   font-size: 11px;
   font-weight: 600;
@@ -247,7 +247,7 @@
 .dot {
   width: 6px;
   height: 6px;
-  border-radius: 99px;
+  border-radius: 0.5rem;
   background: #10b981;
   animation: pulse-dot 2s ease-in-out infinite;
 }
@@ -281,7 +281,7 @@
   background: #22c55e;
   color: #fff;
   text-decoration: none;
-  border-radius: 18px;
+  border-radius: 0.5rem;
   padding: .95rem 1rem;
   display: flex;
   align-items: center;
@@ -314,7 +314,7 @@
 
 .sec-btn {
   text-decoration: none;
-  border-radius: 12px;
+  border-radius: 0.5rem;
   background: #f3f4f6;
   color: #4b5563;
   padding: .75rem .5rem;
@@ -338,7 +338,7 @@
 
 .hours {
   margin-top: 1.2rem;
-  border-radius: 16px;
+  border-radius: 0.5rem;
   border: 1px solid #f1f5f9;
   background: #fff;
   padding: 1rem;
@@ -452,7 +452,7 @@
   display: flex;
   align-items: center;
   gap: .85rem;
-  border-radius: 16px;
+  border-radius: 0.5rem;
   border: 1px solid #f1f5f9;
   background: #fff;
   padding: .85rem .95rem;
@@ -474,7 +474,7 @@
 .doc-icon-wrap {
   width: 40px;
   height: 40px;
-  border-radius: 12px;
+  border-radius: 0.5rem;
   background: #e8f3fd;
   display: flex;
   align-items: center;
@@ -564,7 +564,7 @@
 .dot-static {
   width: 5px;
   height: 5px;
-  border-radius: 999px;
+  border-radius: 0.5rem;
   background: var(--accent);
   opacity: .5;
 }

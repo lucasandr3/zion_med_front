@@ -1,20 +1,4 @@
 <div class="pessoa-detalhe relative min-h-[320px]">
-  @if (pessoa) {
-    <div class="mb-4 flex flex-wrap items-center gap-3 justify-end">
-      <div class="flex gap-2">
-        <a [routerLink]="['/pessoas', pessoa.id, 'editar']" class="btn-ghost btn-default-bg inline-flex items-center gap-2 text-sm no-underline">
-          <span class="material-symbols-outlined text-lg">edit</span>
-          Editar
-        </a>
-        @if (podeInativar && pessoa.status === 'active') {
-          <button type="button" class="btn-ghost btn-default-bg inline-flex items-center gap-2 text-sm" style="color: var(--c-error, #dc2626)" (click)="inativar()" [disabled]="inativando">
-            {{ inativando ? 'Inativando…' : 'Inativar' }}
-          </button>
-        }
-      </div>
-    </div>
-  }
-
   @if (erro) {
     <p class="text-sm mb-4" style="color: var(--c-error, #dc2626)">{{ erro }}</p>
   }
@@ -28,104 +12,170 @@
 
   @if (!erro && pessoa) {
     <div class="zm-content-enter space-y-6">
-      <div class="flex flex-wrap items-start gap-4">
-        <div class="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 text-lg font-bold" style="background: var(--c-soft); color: var(--c-primary)">
-          {{ pessoa.name.charAt(0) | uppercase }}
-        </div>
-        <div>
-          <h1 class="text-xl font-semibold m-0" style="color: var(--c-text)">{{ pessoa.name }}</h1>
-          <p class="text-sm m-0 mt-1 font-mono" style="color: var(--c-muted)">Código: {{ pessoa.code }}</p>
-          @if (pessoa.status !== 'active') {
-            <span class="inline-block mt-2 text-xs font-medium px-2 py-0.5 rounded" style="background: var(--c-soft); color: var(--c-muted)">Inativa</span>
-          }
-        </div>
-      </div>
 
-      <div class="card rounded-xl overflow-hidden" style="border: 1px solid var(--c-border)">
-        <div class="flex items-center gap-2 px-5 py-4" style="border-bottom: 1px solid var(--c-border)">
-          <span class="material-symbols-outlined" style="color: var(--c-primary)">contact_page</span>
-          <h2 class="text-base font-semibold m-0" style="color: var(--c-text)">Dados da ficha</h2>
-        </div>
-        <dl class="grid gap-3 p-5 text-sm md:grid-cols-2">
-          <div>
-            <dt class="font-semibold uppercase tracking-wider mb-0.5 text-xs" style="color: var(--c-muted)">Telefone</dt>
-            <dd class="m-0" style="color: var(--c-text)">{{ pessoa.phone || '—' }}</dd>
-          </div>
-          <div>
-            <dt class="font-semibold uppercase tracking-wider mb-0.5 text-xs" style="color: var(--c-muted)">E-mail</dt>
-            <dd class="m-0" style="color: var(--c-text)">{{ pessoa.email || '—' }}</dd>
-          </div>
-          <div>
-            <dt class="font-semibold uppercase tracking-wider mb-0.5 text-xs" style="color: var(--c-muted)">Data de nascimento</dt>
-            <dd class="m-0" style="color: var(--c-text)">{{ formatarDataCurta(pessoa.birth_date) }}</dd>
-          </div>
-          <div>
-            <dt class="font-semibold uppercase tracking-wider mb-0.5 text-xs" style="color: var(--c-muted)">CPF</dt>
-            <dd class="m-0" style="color: var(--c-text)">{{ pessoa.cpf || '—' }}</dd>
-          </div>
-          @if (pessoa.notes) {
-            <div class="md:col-span-2">
-              <dt class="font-semibold uppercase tracking-wider mb-0.5 text-xs" style="color: var(--c-muted)">Observações</dt>
-              <dd class="m-0 whitespace-pre-wrap" style="color: var(--c-text)">{{ pessoa.notes }}</dd>
+      <div class="card rounded-xl p-5" style="border: 1px solid var(--c-border)">
+        <div class="flex flex-wrap items-start justify-between gap-4">
+          <div class="flex items-start gap-3">
+            <div class="w-10 h-10 rounded-lg flex items-center justify-center shrink-0" style="background: var(--c-soft); color: var(--c-primary)">
+              <span class="pessoa-avatar">{{ pessoa!.name.charAt(0) | uppercase }}</span>
             </div>
-          }
-        </dl>
+            <div>
+              <h1 class="pessoa-header__title">{{ pessoa!.name }}</h1>
+              <div class="pessoa-header__meta">
+                <span class="pessoa-header__code">{{ pessoa!.code }}</span>
+                <span class="status-pill" [class.status-pill--inactive]="pessoa!.status !== 'active'" [class.status-pill--active]="pessoa!.status === 'active'">
+                  {{ pessoa!.status === 'active' ? 'Ativa' : 'Inativa' }}
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <a [routerLink]="['/pessoas', pessoa!.id, 'editar']" class="btn-ghost btn-default-bg inline-flex items-center gap-2 text-sm no-underline">
+              <span class="material-symbols-outlined text-lg">edit</span>
+              Editar
+            </a>
+            @if (podeInativar && pessoa!.status === 'active') {
+              <button type="button" class="btn-danger btn-revisao-reprovar inline-flex items-center gap-2 text-sm" (click)="inativar()" [disabled]="inativando">
+                <span class="material-symbols-outlined text-lg">person_off</span>
+                {{ inativando ? 'Inativando…' : 'Inativar' }}
+              </button>
+            }
+          </div>
+        </div>
       </div>
 
-      @if (pessoa.stats) {
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <div class="card rounded-xl p-4" style="border: 1px solid var(--c-border)">
-            <p class="text-xs m-0 mb-1" style="color: var(--c-muted)">Total</p>
-            <p class="text-2xl font-semibold m-0" style="color: var(--c-text)">{{ pessoa.stats.protocols_count }}</p>
-          </div>
-          <div class="card rounded-xl p-4" style="border: 1px solid var(--c-border)">
-            <p class="text-xs m-0 mb-1" style="color: var(--c-muted)">Pendentes</p>
-            <p class="text-2xl font-semibold m-0" style="color: var(--c-text)">{{ pessoa.stats.pending_protocols }}</p>
-          </div>
-          <div class="card rounded-xl p-4" style="border: 1px solid var(--c-border)">
-            <p class="text-xs m-0 mb-1" style="color: var(--c-muted)">Aprovados</p>
-            <p class="text-2xl font-semibold m-0" style="color: #22c55e">{{ pessoa.stats.approved_protocols }}</p>
-          </div>
-          <div class="card rounded-xl p-4" style="border: 1px solid var(--c-border)">
-            <p class="text-xs m-0 mb-1" style="color: var(--c-muted)">Reprovados</p>
-            <p class="text-2xl font-semibold m-0" style="color: #dc2626">{{ pessoa.stats.rejected_protocols }}</p>
-          </div>
+      <div class="pessoa-tabs-wrap card rounded-xl overflow-hidden" style="border: 1px solid var(--c-border)">
+        <div class="pessoa-tabs-header">
+          <button type="button" class="pessoa-tab" [class.pessoa-tab--active]="abaAtiva === 'dados'" (click)="setAbaAtiva('dados')">
+            <span class="material-symbols-outlined pessoa-tab__icon">contact_page</span>
+            Dados
+          </button>
+          <button type="button" class="pessoa-tab" [class.pessoa-tab--active]="abaAtiva === 'estatisticas'" (click)="setAbaAtiva('estatisticas')">
+            <span class="material-symbols-outlined pessoa-tab__icon">monitoring</span>
+            Estatísticas
+          </button>
+          <button type="button" class="pessoa-tab" [class.pessoa-tab--active]="abaAtiva === 'protocolos'" (click)="setAbaAtiva('protocolos')">
+            <span class="material-symbols-outlined pessoa-tab__icon">inbox</span>
+            Protocolos
+            <span class="pessoa-tab__count">{{ pessoa!.recent_protocols?.length || 0 }}</span>
+          </button>
         </div>
-      }
 
-      <div class="card rounded-xl overflow-hidden" style="border: 1px solid var(--c-border)">
-        <div class="flex items-center gap-2 px-5 py-4" style="border-bottom: 1px solid var(--c-border)">
-          <span class="material-symbols-outlined" style="color: var(--c-primary)">inbox</span>
-          <h2 class="text-base font-semibold m-0" style="color: var(--c-text)">Protocolos recentes</h2>
-        </div>
-        <div class="overflow-x-auto">
-          @if (pessoa.recent_protocols && pessoa.recent_protocols.length > 0) {
-            <table class="w-full text-sm border-collapse">
-              <thead>
-                <tr style="border-bottom: 1px solid var(--c-border)">
-                  <th class="text-left py-3 px-4 font-semibold" style="color: var(--c-text)">Protocolo</th>
-                  <th class="text-left py-3 px-4 font-semibold" style="color: var(--c-text)">Template</th>
-                  <th class="text-left py-3 px-4 font-semibold" style="color: var(--c-text)">Situação</th>
-                  <th class="text-left py-3 px-4 font-semibold" style="color: var(--c-text)">Data</th>
-                  <th class="text-right py-3 px-4 font-semibold" style="color: var(--c-text)"></th>
-                </tr>
-              </thead>
-              <tbody>
-                @for (pr of pessoa.recent_protocols; track pr.id) {
-                  <tr class="border-b" style="border-color: var(--c-border)">
-                    <td class="py-3 px-4 font-medium" style="color: var(--c-text)">{{ pr.protocol_number || pr.id }}</td>
-                    <td class="py-3 px-4" style="color: var(--c-text)">{{ pr.template_name ?? '—' }}</td>
-                    <td class="py-3 px-4" style="color: var(--c-muted)">{{ statusProtocolo(pr.status) }}</td>
-                    <td class="py-3 px-4" style="color: var(--c-muted)">{{ dataFormatada(pr.submitted_at || pr.created_at) }}</td>
-                    <td class="py-3 px-4 text-right">
-                      <a [routerLink]="['/protocolos', pr.id]" class="text-sm no-underline" style="color: var(--c-primary)">Abrir</a>
-                    </td>
-                  </tr>
-                }
-              </tbody>
-            </table>
-          } @else {
-            <p class="p-8 text-center text-sm m-0" style="color: var(--c-muted)">Nenhum protocolo ainda.</p>
+        <div class="pessoa-tab-panel p-6">
+          @if (abaAtiva === 'dados') {
+            <div class="pessoa-grid">
+              <div>
+                <p class="pessoa-field-label">Telefone</p>
+                <p class="pessoa-field-value">{{ pessoa!.phone || '—' }}</p>
+              </div>
+              <div>
+                <p class="pessoa-field-label">E-mail</p>
+                <p class="pessoa-field-value">{{ pessoa!.email || '—' }}</p>
+              </div>
+              <div>
+                <p class="pessoa-field-label">Data de nascimento</p>
+                <p class="pessoa-field-value">{{ formatarDataCurta(pessoa!.birth_date) }}</p>
+              </div>
+              <div>
+                <p class="pessoa-field-label">CPF</p>
+                <p class="pessoa-field-value">{{ pessoa!.cpf || '—' }}</p>
+              </div>
+              <div>
+                <p class="pessoa-field-label">Criado em</p>
+                <p class="pessoa-field-value">{{ dataFormatada(pessoa!.created_at) }}</p>
+              </div>
+              <div>
+                <p class="pessoa-field-label">Atualizado em</p>
+                <p class="pessoa-field-value">{{ dataFormatada(pessoa!.updated_at) }}</p>
+              </div>
+            </div>
+
+            @if (pessoa!.notes) {
+              <div class="pessoa-notes">
+                <p class="pessoa-field-label">Observações</p>
+                <p class="pessoa-field-value whitespace-pre-wrap">{{ pessoa!.notes }}</p>
+              </div>
+            }
+          }
+
+          @if (abaAtiva === 'estatisticas') {
+            @if (pessoa!.stats; as stats) {
+              <div class="pessoa-stats-grid">
+                <div class="pessoa-stat-card pessoa-stat-card--total">
+                  <div class="pessoa-stat-card__head">
+                    <p class="pessoa-field-label">Total</p>
+                    <span class="material-symbols-outlined pessoa-stat-card__icon">stacked_bar_chart</span>
+                  </div>
+                  <p class="pessoa-stat-card__value">{{ stats.protocols_count }}</p>
+                </div>
+                <div class="pessoa-stat-card pessoa-stat-card--pending">
+                  <div class="pessoa-stat-card__head">
+                    <p class="pessoa-field-label">Pendentes</p>
+                    <span class="material-symbols-outlined pessoa-stat-card__icon">schedule</span>
+                  </div>
+                  <p class="pessoa-stat-card__value">{{ stats.pending_protocols }}</p>
+                </div>
+                <div class="pessoa-stat-card pessoa-stat-card--success">
+                  <div class="pessoa-stat-card__head">
+                    <p class="pessoa-field-label">Aprovados</p>
+                    <span class="material-symbols-outlined pessoa-stat-card__icon">check_circle</span>
+                  </div>
+                  <p class="pessoa-stat-card__value pessoa-stat-card__value--success">{{ stats.approved_protocols }}</p>
+                </div>
+                <div class="pessoa-stat-card pessoa-stat-card--danger">
+                  <div class="pessoa-stat-card__head">
+                    <p class="pessoa-field-label">Reprovados</p>
+                    <span class="material-symbols-outlined pessoa-stat-card__icon">cancel</span>
+                  </div>
+                  <p class="pessoa-stat-card__value pessoa-stat-card__value--danger">{{ stats.rejected_protocols }}</p>
+                </div>
+              </div>
+            } @else {
+              <div class="pessoa-vazio">
+                <span class="material-symbols-outlined">monitoring</span>
+                <p>Sem estatísticas disponíveis.</p>
+              </div>
+            }
+          }
+
+          @if (abaAtiva === 'protocolos') {
+            <div class="overflow-x-auto">
+              @if (pessoa!.recent_protocols && pessoa!.recent_protocols.length > 0) {
+                <table class="pessoa-table">
+                  <thead>
+                    <tr>
+                      <th>Protocolo</th>
+                      <th>Template</th>
+                      <th>Situação</th>
+                      <th>Data</th>
+                      <th class="pessoa-table__actions"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (pr of pessoa!.recent_protocols!; track pr.id) {
+                      <tr>
+                        <td class="pessoa-table__mono">{{ pr.protocol_number || pr.id }}</td>
+                        <td>{{ pr.template_name ?? '—' }}</td>
+                        <td>
+                          <span class="status-pill status-pill--sm" [class.status-pill--pending]="pr.status === 'pending'" [class.status-pill--done]="pr.status !== 'pending'">
+                            {{ statusProtocolo(pr.status) }}
+                          </span>
+                        </td>
+                        <td class="pessoa-table__muted">{{ dataFormatada(pr.submitted_at || pr.created_at) }}</td>
+                        <td class="pessoa-table__actions">
+                          <a [routerLink]="['/protocolos', pr.id]" class="pessoa-field-link">Abrir</a>
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              } @else {
+                <div class="pessoa-vazio">
+                  <span class="material-symbols-outlined">inbox</span>
+                  <p>Nenhum protocolo ainda.</p>
+                </div>
+              }
+            </div>
           }
         </div>
       </div>

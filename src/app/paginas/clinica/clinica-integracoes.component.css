@@ -14,7 +14,7 @@
 .integracoes-page .section-card {
   background: var(--c-surface);
   border: 1px solid var(--c-border);
-  border-radius: 14px;
+  border-radius: 0.5rem;
   overflow: hidden;
   margin-bottom: 20px;
 }
@@ -65,7 +65,7 @@
   width: 28px;
   height: 28px;
   background: color-mix(in srgb, var(--c-primary) 12%, transparent);
-  border-radius: 7px;
+  border-radius: 0.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -115,7 +115,7 @@
   display: block;
   padding: 14px;
   border: 1px solid var(--c-border);
-  border-radius: 10px;
+  border-radius: 0.5rem;
   text-decoration: none;
   background: var(--c-surface);
   transition: border-color 0.2s ease, background 0.2s ease;
@@ -147,7 +147,7 @@
   font-size: 0.68rem;
   font-weight: 700;
   letter-spacing: 0.03em;
-  border-radius: 999px;
+  border-radius: 0.5rem;
   padding: 0.2rem 0.5rem;
   border: 1px solid transparent;
 }

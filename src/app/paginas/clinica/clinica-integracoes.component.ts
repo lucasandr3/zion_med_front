@@ -2,6 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { ZmSkeletonListComponent } from '../../shared/components/skeletons';
 import {
   IntegracoesService,
   IntegracoesState,
@@ -19,7 +20,7 @@ type AbaIntegracao = 'api' | 'webhooks' | 'entregas' | 'sistemas';
 @Component({
   selector: 'app-clinica-integracoes',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, ZmSkeletonListComponent],
   templateUrl: './clinica-integracoes.component.html',
   styleUrl: './clinica-integracoes.component.css',
 })

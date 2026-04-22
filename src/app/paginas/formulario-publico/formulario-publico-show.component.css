@@ -78,7 +78,7 @@
 .fp-logo {
   width: 2.25rem;
   height: 2.25rem;
-  border-radius: 0.75rem;
+  border-radius: 0.5rem;
   background: var(--fp-ink-900);
   color: #fff;
   font-family: 'Instrument Serif', Georgia, serif;
@@ -101,7 +101,7 @@
   height: 100%;
   object-fit: contain;
   display: block;
-  border-radius: 0.55rem;
+  border-radius: 0.5rem;
 }
 
 .form-publico-page.dark .fp-logo--img {
@@ -144,7 +144,7 @@
   border: none;
   background: transparent;
   padding: 0.5rem;
-  border-radius: 9999px;
+  border-radius: 0.5rem;
   cursor: pointer;
   color: var(--fp-cream-600);
   transition: background 0.15s, opacity 0.15s;
@@ -204,7 +204,7 @@
 
 .fp-progress-track {
   height: 0.375rem;
-  border-radius: 9999px;
+  border-radius: 0.5rem;
   background: var(--fp-cream-200);
   overflow: hidden;
 }
@@ -215,7 +215,7 @@
 
 .fp-progress-fill {
   height: 100%;
-  border-radius: 9999px;
+  border-radius: 0.5rem;
   background: var(--fp-brand-500);
   transition: width 0.35s ease;
 }
@@ -236,7 +236,7 @@
 }
 
 .fp-error-card {
-  border-radius: 1rem;
+  border-radius: 0.5rem;
   padding: 1.5rem;
   background: #fff;
   border: 1px solid var(--fp-border);
@@ -329,7 +329,7 @@
 .fp-banner-error {
   margin-bottom: 1rem;
   padding: 0.75rem 1rem;
-  border-radius: 0.75rem;
+  border-radius: 0.5rem;
   font-size: 0.875rem;
   background: rgba(229, 115, 115, 0.12);
   color: #c62828;
@@ -348,7 +348,7 @@
 }
 
 .fp-feegow-card {
-  border-radius: 0.875rem;
+  border-radius: 0.5rem;
   padding: 0.875rem 1rem;
   background: var(--fp-cream-100);
   border: 1.5px solid var(--fp-cream-200);
@@ -404,7 +404,7 @@
 }
 
 .fp-preenchedora {
-  border-radius: 0.875rem;
+  border-radius: 0.5rem;
   padding: 0.875rem 1rem;
   background: var(--fp-cream-100);
   border: 1.5px solid var(--fp-cream-200);
@@ -509,7 +509,7 @@
 .fp-select {
   width: 100%;
   padding: 0.75rem 0.875rem;
-  border-radius: 0.75rem;
+  border-radius: 0.5rem;
   border: 1.5px solid var(--fp-cream-200);
   font-family: inherit;
   font-size: 0.875rem;
@@ -645,7 +645,7 @@
   align-items: center;
   gap: 0.625rem;
   padding: 0.6875rem 0.875rem;
-  border-radius: 0.75rem;
+  border-radius: 0.5rem;
   cursor: pointer;
   border: 1.5px solid var(--fp-cream-200);
   background: #fff;
@@ -687,7 +687,7 @@
 .fp-radio-dot {
   width: 1.125rem;
   height: 1.125rem;
-  border-radius: 50%;
+  border-radius: 0.5rem;
   border: 2px solid var(--fp-cream-400);
   display: flex;
   align-items: center;
@@ -702,7 +702,7 @@
 .fp-radio-dot-inner {
   width: 0.5rem;
   height: 0.5rem;
-  border-radius: 50%;
+  border-radius: 0.5rem;
   background: var(--fp-brand-500);
   opacity: 0;
   transform: scale(0);
@@ -742,7 +742,7 @@
 .fp-check-box {
   width: 1.25rem;
   height: 1.25rem;
-  border-radius: 0.375rem;
+  border-radius: 0.5rem;
   border: 2px solid var(--fp-cream-400);
   flex-shrink: 0;
   margin-top: 0.125rem;
@@ -803,7 +803,7 @@
   width: 100%;
   max-width: 100%;
   height: 7.5rem;
-  border-radius: 0.75rem;
+  border-radius: 0.5rem;
   border: 1.5px solid var(--fp-cream-200);
   background: #fff;
   cursor: crosshair;
@@ -869,7 +869,7 @@
   width: 100%;
   padding: 0.9375rem 1rem;
   border: none;
-  border-radius: 0.875rem;
+  border-radius: 0.5rem;
   background: var(--fp-ink-800);
   color: #fff;
   font-family: inherit;

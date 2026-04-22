@@ -1,0 +1,38 @@
+@import '../formulario-publico/formulario-publico-show.component.css';
+
+.preview-draft-page .fp-sub {
+  margin-bottom: 0;
+}
+
+.preview-draft-note {
+  margin-top: 0.85rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border-radius: 0.5rem;
+  font-size: 0.76rem;
+  padding: 0.35rem 0.7rem;
+  background: color-mix(in srgb, var(--c-primary) 13%, transparent);
+  color: var(--c-primary);
+}
+
+.preview-draft-actions {
+  margin-top: 0.9rem;
+}
+
+.preview-signature {
+  border: 1px dashed var(--c-border);
+  border-radius: 0.5rem;
+  min-height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--c-muted);
+  font-size: 0.85rem;
+  background: var(--c-surface);
+}
+
+.preview-submit-disabled {
+  opacity: 0.9;
+  cursor: default;
+}

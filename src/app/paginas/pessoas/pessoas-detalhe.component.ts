@@ -21,6 +21,7 @@ export class PessoasDetalheComponent implements OnInit {
   listaPronta = false;
   erro = '';
   inativando = false;
+  abaAtiva: 'dados' | 'estatisticas' | 'protocolos' = 'dados';
 
   private route = inject(ActivatedRoute);
   private router = inject(Router);
@@ -73,6 +74,10 @@ export class PessoasDetalheComponent implements OnInit {
   statusProtocolo(s: string): string {
     const map: Record<string, string> = { pending: 'Pendente', approved: 'Aprovado', rejected: 'Reprovado' };
     return map[s?.toLowerCase()] ?? s;
+  }
+
+  setAbaAtiva(aba: 'dados' | 'estatisticas' | 'protocolos'): void {
+    this.abaAtiva = aba;
   }
 
   async inativar(): Promise<void> {

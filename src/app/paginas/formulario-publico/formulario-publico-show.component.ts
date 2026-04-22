@@ -210,11 +210,23 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
         v instanceof Date ? v.toISOString().slice(0, 10) : v,
       ])
     );
+    const signatures = this.data.fields
+      .filter((f) => this.fieldType(f) === 'signature')
+      .reduce<Record<string, string>>((acc, f) => {
+        const value = normalized[f.name_key];
+        if (typeof value === 'string' && value.trim().length > 0) {
+          acc[f.name_key] = value;
+        }
+        return acc;
+      }, {});
     const payload: Record<string, unknown> = {
       _submitter_name: this.submitterName || undefined,
       _submitter_email: this.submitterEmail || undefined,
       ...normalized,
     };
+    if (Object.keys(signatures).length > 0) {
+      payload['_signature'] = signatures;
+    }
     if (this.personLinkRequired()) {
       payload['_person_code'] = this.personCode.trim();
       payload['_person_birth_date'] = this.personBirthDate;

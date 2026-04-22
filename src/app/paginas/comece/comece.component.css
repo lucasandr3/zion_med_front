@@ -140,7 +140,7 @@
 .comece-page .logo-mark {
   width: 32px;
   height: 32px;
-  border-radius: 8px;
+  border-radius: 0.5rem;
   background: var(--brand);
   border: 1px solid rgba(255, 255, 255, 0.22);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
@@ -176,7 +176,7 @@
 .comece-page .theme-btn {
   width: 34px;
   height: 34px;
-  border-radius: 8px;
+  border-radius: 0.5rem;
   border: 1px solid var(--border2);
   background: transparent;
   cursor: pointer;
@@ -217,7 +217,7 @@
   font-size: 13px;
   color: var(--text2);
   padding: 7px 16px;
-  border-radius: 8px;
+  border-radius: 0.5rem;
   border: 1px solid var(--border2);
   transition: all 0.15s;
 }
@@ -270,7 +270,7 @@
 .comece-page .left-eyebrow-dot {
   width: 5px;
   height: 5px;
-  border-radius: 50%;
+  border-radius: 0.5rem;
   background: var(--brand);
 }
 
@@ -318,7 +318,7 @@
 .comece-page .benefit-icon {
   width: 32px;
   height: 32px;
-  border-radius: 8px;
+  border-radius: 0.5rem;
   background: var(--brand-bg);
   border: 1px solid var(--brand-bd);
   display: flex;
@@ -361,7 +361,7 @@
   font-weight: 500;
   color: var(--text2);
   padding: 5px 12px;
-  border-radius: 20px;
+  border-radius: 0.5rem;
   border: 1px solid var(--border2);
   background: var(--card);
 }
@@ -379,7 +379,7 @@
   align-items: center;
   gap: 14px;
   padding: 16px 18px;
-  border-radius: 12px;
+  border-radius: 0.5rem;
   border: 1px solid var(--wpp-strip-border);
   background: var(--wpp-strip-bg);
   text-decoration: none;
@@ -397,7 +397,7 @@
 .comece-page .wpp-icon {
   width: 44px;
   height: 44px;
-  border-radius: 50%;
+  border-radius: 0.5rem;
   background: #22c55e;
   display: flex;
   align-items: center;
@@ -433,7 +433,7 @@
 
 .comece-page .wpp-btn {
   padding: 9px 18px;
-  border-radius: 999px;
+  border-radius: 0.5rem;
   background: #22c55e;
   color: #fff;
   font-size: 13px;
@@ -485,7 +485,7 @@
 .comece-page .step-circle {
   width: 26px;
   height: 26px;
-  border-radius: 50%;
+  border-radius: 0.5rem;
   border: 1.5px solid var(--border2);
   display: flex;
   align-items: center;
@@ -528,7 +528,7 @@
 .comece-page .form-card {
   background: var(--surface);
   border: 1px solid var(--border2);
-  border-radius: 16px;
+  border-radius: 0.5rem;
   padding: 32px;
   transition:
     background 0.25s,
@@ -570,7 +570,7 @@
   align-items: center;
   gap: 14px;
   padding: 14px 16px;
-  border-radius: 12px;
+  border-radius: 0.5rem;
   border: 1.5px solid var(--border);
   background: transparent;
   cursor: pointer;
@@ -594,7 +594,7 @@
 .comece-page .plan-radio {
   width: 18px;
   height: 18px;
-  border-radius: 50%;
+  border-radius: 0.5rem;
   border: 2px solid var(--border2);
   display: flex;
   align-items: center;
@@ -610,7 +610,7 @@
 .comece-page .plan-radio-inner {
   width: 8px;
   height: 8px;
-  border-radius: 50%;
+  border-radius: 0.5rem;
   background: var(--brand);
   opacity: 0;
   transform: scale(0);
@@ -681,7 +681,7 @@
 .comece-page .fi {
   width: 100%;
   padding: 11px 14px;
-  border-radius: 10px;
+  border-radius: 0.5rem;
   border: 1.5px solid var(--input-border);
   background: var(--input-bg);
   color: var(--text);
@@ -741,7 +741,7 @@
 
 .comece-page .pw-bar {
   height: 3px;
-  border-radius: 2px;
+  border-radius: 0.5rem;
   flex: 1;
   background: var(--border2);
   transition: background 0.3s;
@@ -774,7 +774,7 @@
 .comece-page .check-box {
   width: 18px;
   height: 18px;
-  border-radius: 5px;
+  border-radius: 0.5rem;
   border: 1.5px solid var(--border2);
   background: transparent;
   display: flex;
@@ -818,7 +818,7 @@
 .comece-page .submit-btn {
   width: 100%;
   padding: 14px;
-  border-radius: 12px;
+  border-radius: 0.5rem;
   background: var(--brand);
   color: #fff;
   border: none;
@@ -887,7 +887,7 @@
 .comece-page .alert-err {
   margin-bottom: 20px;
   padding: 14px 16px;
-  border-radius: 12px;
+  border-radius: 0.5rem;
   border: 1px solid rgba(239, 68, 68, 0.35);
   background: rgba(239, 68, 68, 0.1);
   color: #f87171;
@@ -944,7 +944,7 @@
 .comece-page .success-check {
   width: 72px;
   height: 72px;
-  border-radius: 50%;
+  border-radius: 0.5rem;
   background: var(--brand);
   display: flex;
   align-items: center;

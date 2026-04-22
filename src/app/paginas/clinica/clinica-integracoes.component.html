@@ -1,6 +1,6 @@
 <div class="relative min-h-[320px]">
   @if (carregando) {
-    <p class="text-sm" style="color: var(--c-muted)">Carregando integrações…</p>
+    <zm-skeleton-list [rows]="6"></zm-skeleton-list>
   }
   @if (!carregando && erro) {
     <p class="text-sm" style="color: var(--c-error, #dc2626)">{{ erro }}</p>
@@ -62,7 +62,7 @@
             </div>
             <div class="section-body">
               <p class="hint" style="margin-bottom:10px">Copie e guarde em local seguro. Este valor não será exibido novamente.</p>
-              <code id="new-token" style="display:block;padding:12px;background:var(--c-soft);border-radius:8px;word-break:break-all;font-size:0.8rem">{{ ultimoTokenGerado.token }}</code>
+              <code id="new-token" style="display:block;padding:12px;background:var(--c-soft);border-radius: 0.5rem;word-break:break-all;font-size:0.8rem">{{ ultimoTokenGerado.token }}</code>
             </div>
           </div>
         }
@@ -167,7 +167,7 @@
             @if (webhooks.length > 0) {
               <div style="display:flex;flex-direction:column;gap:0.75rem">
                 @for (wh of webhooks; track wh.id) {
-                  <div style="padding:12px;border:1px solid var(--c-border);border-radius:8px;font-size:0.8rem">
+                  <div style="padding:12px;border:1px solid var(--c-border);border-radius: 0.5rem;font-size:0.8rem">
                     <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px">
                       <div>
                         <strong>{{ wh.description || 'Webhook' }}</strong>
@@ -259,7 +259,7 @@
           </div>
           <div class="section-body">
             @if (carregandoSistemas) {
-              <p style="font-size:0.85rem;color:var(--c-muted)">Carregando sistemas…</p>
+              <zm-skeleton-list [rows]="3"></zm-skeleton-list>
             } @else if (sistemas.length === 0) {
               <p style="font-size:0.85rem;color:var(--c-muted)">Nenhum sistema encontrado.</p>
             } @else {

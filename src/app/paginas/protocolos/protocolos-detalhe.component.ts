@@ -23,6 +23,7 @@ import { AuthService } from '../../core/services/auth.service';
   styleUrl: './protocolos-detalhe.component.css',
 })
 export class ProtocolosDetalheComponent implements OnInit {
+  abaAtiva: 'visao-geral' | 'historico' | 'assinaturas' | 'comentarios' = 'visao-geral';
   protocolo: ProtocoloDetalheData | null = null;
   showSkeleton!: Signal<boolean>;
   erro = '';
@@ -79,6 +80,36 @@ export class ProtocolosDetalheComponent implements OnInit {
       rejected: 'Reprovado',
     };
     return map[s.toLowerCase()] ?? s;
+  }
+
+  assinaturaStatusLabel(status: string | undefined): string {
+    if (!status) return '—';
+    const map: Record<string, string> = {
+      pending: 'Pendente',
+      approved: 'Aprovada',
+      rejected: 'Reprovada',
+      completed: 'Concluida',
+      signed: 'Assinada',
+    };
+    return map[status.toLowerCase()] ?? status;
+  }
+
+  assinaturaCanalLabel(canal: string | undefined): string {
+    if (!canal) return '—';
+    const map: Record<string, string> = {
+      web: 'Site',
+      email: 'E-mail',
+      whatsapp: 'WhatsApp',
+    };
+    return map[canal.toLowerCase()] ?? canal;
+  }
+
+  setAbaAtiva(aba: 'visao-geral' | 'historico' | 'assinaturas' | 'comentarios'): void {
+    this.abaAtiva = aba;
+  }
+
+  totalComentarios(): number {
+    return this.eventosTimeline().filter((event) => event.type?.toLowerCase() === 'comment' || !!event.body).length;
   }
 
   templateNome(): string {

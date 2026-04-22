@@ -113,6 +113,17 @@
                     </td>
                     <td class="py-3 px-5 text-right">
                       <div class="flex items-center justify-end gap-0.5">
+                        <a
+                          [routerLink]="['/templates', t.id, 'preview']"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          class="templates-action-btn p-1 rounded-md inline-flex items-center justify-center no-underline"
+                          style="color: var(--c-muted)"
+                          title="Pre-visualizar modelo"
+                          aria-label="Pre-visualizar modelo"
+                        >
+                          <span class="material-symbols-outlined text-lg">open_in_new</span>
+                        </a>
                         <a [routerLink]="['/templates', t.id, 'campos']" class="templates-action-btn p-1 rounded-md inline-flex items-center justify-center no-underline" style="color: var(--c-muted)" title="Campos" aria-label="Campos do modelo">
                           <span class="material-symbols-outlined text-lg">tune</span>
                         </a>

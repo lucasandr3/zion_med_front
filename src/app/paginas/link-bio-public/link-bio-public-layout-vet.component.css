@@ -28,7 +28,7 @@
 .lb-m6-pet-ring {
   width: 88px;
   height: 88px;
-  border-radius: 50%;
+  border-radius: 0.5rem;
   border: 4px solid #fff;
   background: #aee4c5;
   display: flex;
@@ -48,7 +48,7 @@
   align-items: center;
   gap: 5px;
   padding: 6px 14px;
-  border-radius: 20px;
+  border-radius: 0.5rem;
   font-size: 12px;
   font-weight: 700;
   border: 2px solid transparent;
@@ -73,7 +73,7 @@
 }
 
 .lb-m6-svc {
-  border-radius: 16px;
+  border-radius: 0.5rem;
   padding: 14px;
   background: #fff;
   border: 1.5px solid #d8f3e3;
