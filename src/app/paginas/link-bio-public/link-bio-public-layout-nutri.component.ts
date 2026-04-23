@@ -9,6 +9,7 @@ import {
   LinkBioPublicDocItem,
   LinkBioService,
 } from '../../core/services/link-bio.service';
+import { linkBioHeroPortraitUrl } from '../../core/utils/link-bio-public-assets';
 
 const DEFAULT_AREAS: { icon: string; title: string; description: string }[] = [
   {
@@ -56,6 +57,10 @@ export class LinkBioPublicLayoutNutriComponent {
   get extra(): LinkBioExtra {
     const e = this.clinic.link_bio_extra;
     return e && typeof e === 'object' ? (e as LinkBioExtra) : {};
+  }
+
+  get heroPortraitUrl(): string | null {
+    return linkBioHeroPortraitUrl(this.clinic);
   }
 
   get hoursGridArray(): { label: string; text: string }[] {

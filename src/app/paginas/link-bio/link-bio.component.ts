@@ -1,4 +1,5 @@
 import { Component, OnInit, inject, PLATFORM_ID, Signal } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -40,6 +41,9 @@ interface LinkBioTeamFormRow {
 
 const LINK_BIO_PREVIEW_SESSION_KEY = 'zm_link_bio_preview';
 
+/** Mesmo limite do Laravel `max:2048` (kilobytes) na rota de upload. */
+const LINK_BIO_FOTO_PROFISSIONAL_MAX_BYTES = 2048 * 1024;
+
 @Component({
   selector: 'app-pagina-link-bio',
   standalone: true,
@@ -77,6 +81,8 @@ export class LinkBioComponent implements OnInit {
   aparenciaContactEmail = '';
   aparenciaMapsUrl = '';
   enviandoCover = false;
+  enviandoFotoProfissionalLinkBio = false;
+  nomeArquivoFotoProfissional = '';
   salvandoExtra = false;
   salvandoNovoLink = false;
   salvandoEdicaoId: number | null = null;
@@ -678,6 +684,76 @@ export class LinkBioComponent implements OnInit {
         this.toast.error('Erro no upload', 'Não foi possível enviar a imagem.');
       },
     });
+  }
+
+  onSelecionarFotoProfissionalLinkBio(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file || !this.state) return;
+
+    if (file.size > LINK_BIO_FOTO_PROFISSIONAL_MAX_BYTES) {
+      const mb = (file.size / (1024 * 1024)).toFixed(1);
+      this.toast.error(
+        'Arquivo muito grande',
+        `Esta imagem tem cerca de ${mb} MB. O tamanho máximo permitido é 2 MB. Comprima ou redimensione a foto e tente novamente.`
+      );
+      input.value = '';
+      return;
+    }
+
+    this.enviandoFotoProfissionalLinkBio = true;
+    this.nomeArquivoFotoProfissional = file.name;
+    this.linkBioService.uploadProfessionalPhoto(file).subscribe({
+      next: (clinic) => {
+        if (this.state) {
+          this.state.clinic = { ...this.state.clinic, ...clinic };
+        }
+        this.atualizarPreviewUrl();
+        this.previewModelsTimestamp = Date.now();
+        this.enviandoFotoProfissionalLinkBio = false;
+        this.toast.success('Foto enviada', 'A foto do profissional foi atualizada no Link Bio.');
+      },
+      error: (err: unknown) => {
+        this.enviandoFotoProfissionalLinkBio = false;
+        const detalhe = this.mensagemErroUploadFotoProfissional(err);
+        this.toast.error('Não foi possível enviar a foto', detalhe);
+      },
+    });
+    input.value = '';
+  }
+
+  /** Mensagem legível para falhas de upload (tamanho, tipo, limite do servidor). */
+  private mensagemErroUploadFotoProfissional(err: unknown): string {
+    if (err instanceof HttpErrorResponse) {
+      if (err.status === 413) {
+        return 'O servidor recusou o arquivo por ser muito grande. Use uma imagem de até 2 MB ou comprima o arquivo antes de enviar.';
+      }
+      const body = err.error as
+        | { message?: string; errors?: Record<string, string[] | string> }
+        | null
+        | undefined;
+      const fromErrors = body?.errors?.['professional_photo'];
+      if (Array.isArray(fromErrors) && fromErrors.length) {
+        return String(fromErrors[0]).trim();
+      }
+      if (typeof fromErrors === 'string' && fromErrors.trim()) {
+        return fromErrors.trim();
+      }
+      if (body?.errors && typeof body.errors === 'object') {
+        const first = Object.values(body.errors).flat()[0];
+        if (typeof first === 'string' && first.trim()) {
+          return first.trim();
+        }
+      }
+      if (typeof body?.message === 'string' && body.message.trim()) {
+        const m = body.message.trim();
+        if (/greater than|too large|exceeds|413/i.test(m)) {
+          return 'A foto é muito grande. O tamanho máximo permitido é 2 MB. Reduza a imagem e tente novamente.';
+        }
+        return m;
+      }
+    }
+    return 'Verifique sua conexão e tente de novo. Se o arquivo for grande, use no máximo 2 MB.';
   }
 
   // Helpers para estatísticas

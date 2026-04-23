@@ -64,16 +64,22 @@
 .lb-m8-avatar-ring {
   width: 88px;
   height: 88px;
-  border-radius: 0.5rem;
+  border-radius: 9999px;
+  overflow: hidden;
   background: linear-gradient(135deg, #9dbd8e, #d0a87a);
   padding: 3px;
   flex-shrink: 0;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.22);
+}
+
+.lb-m8-root.dark .lb-m8-avatar-ring {
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.45);
 }
 
 .lb-m8-avatar-inner {
   width: 100%;
   height: 100%;
-  border-radius: 0.5rem;
+  border-radius: 9999px;
   background: #6e9458;
   display: flex;
   align-items: center;

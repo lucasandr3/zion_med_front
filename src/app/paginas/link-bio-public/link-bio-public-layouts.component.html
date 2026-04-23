@@ -1,494 +1,682 @@
 @switch (model) {
   @case (2) {
     <div class="lb-m2-root" [class.dark]="dark">
-      <div class="flex justify-end gap-2 px-4 pt-4 absolute top-0 right-0 z-30">
-        <button type="button" (click)="onToggleDark()" class="lb-icon-pill flex items-center px-3 py-2 rounded-full bg-black/10 dark:bg-white/10 backdrop-blur-sm" aria-label="Alternar tema">
-          @if (dark) {
-            <svg class="w-[14px] h-[14px] text-amber-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-          } @else {
-            <svg class="w-[14px] h-[14px] text-[#7a4f2e]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
-          }
-        </button>
-        <button type="button" (click)="onShare()" class="lb-icon-pill flex items-center px-3 py-2 rounded-full bg-black/10 dark:bg-white/10 backdrop-blur-sm" aria-label="Compartilhar">
-          <svg class="w-[14px] h-[14px] text-[#7a4f2e] dark:text-white/70" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-        </button>
-      </div>
-
-      <div class="lb-wavy-top bg-[#f0e6d6] dark:bg-[#1a130b] pt-16 pb-16 px-6 flex flex-col items-center text-center lb-anim-scale">
-        <div class="mb-5 shadow-lg lb-photo-ring">
-          <div class="lb-photo-inner">
-            @if (clinic.logo_url) {
-              <img [src]="clinic.logo_url" [alt]="clinic.name" />
-            } @else {
-              {{ clinicInitials }}
-            }
-          </div>
-        </div>
-        @if (heroTaglineM2) {
-          <p class="text-[11px] font-semibold tracking-[.15em] uppercase text-[#5a9e72] dark:text-[#9ec9aa] mb-2">{{ heroTaglineM2 }}</p>
-        }
-        <h1 class="lb-serif text-[30px] sm:text-[36px] text-[#7a4f2e] dark:text-[#f0e6d6] leading-tight">
-          @if (soloNameParts.emphasis) {
-            {{ soloNameParts.line1 }}<br /><em>{{ soloNameParts.emphasis }}</em>
-          } @else {
-            {{ clinic.name }}
-          }
-        </h1>
-        @if (clinic.short_description) {
-          <p class="text-[14px] text-[#b8865a] dark:text-[#d4a574] mt-3 max-w-xs leading-relaxed">{{ clinic.short_description }}</p>
-        }
-      </div>
-
-      <div class="w-full max-w-lg mx-auto px-4 sm:px-6 pb-14 -mt-2">
-        <div class="flex justify-center mb-5 lb-anim-f1">
-          @if (clinic.is_open_now === true) {
-            <span class="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400">
-              <span class="w-[6px] h-[6px] rounded-full bg-emerald-500 inline-block"></span>Disponível para agendamento
-            </span>
-          } @else if (clinic.is_open_now === false) {
-            <span class="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-[11px] font-semibold bg-[#f0e6d6] text-[#b8865a] dark:bg-white/[.05] dark:text-[#d4a574]">
-              <span class="w-[6px] h-[6px] rounded-full bg-[#d4a574] inline-block"></span>Fora do horário de atendimento
-            </span>
-          }
-        </div>
-
-        @if (whatsappUrl()) {
-          <div class="lb-anim-f2">
-            <a [href]="trackCta('whatsapp', whatsappUrl())" target="_blank" rel="noopener noreferrer" class="lb-wpp-btn w-full flex items-center justify-center gap-3 py-4 rounded-2xl bg-[#22c55e] hover:bg-[#16a34a] text-white font-semibold text-[15px] no-underline shadow-sm">
-              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.108.549 4.09 1.508 5.814L0 24l6.335-1.489A11.926 11.926 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.89 0-3.663-.5-5.198-1.375l-.372-.22-3.862.908.979-3.763-.242-.386A9.944 9.944 0 012 12C2 6.486 6.486 2 12 2s10 4.486 10 10-4.486 10-10 10z"/></svg>
-              Agendar pelo WhatsApp
-            </a>
-          </div>
-        }
-
-        <div class="grid grid-cols-2 gap-2.5 mt-2.5 lb-anim-f2">
-          @if (clinic.contact_email) {
-            <a [href]="trackCta('email', 'mailto:' + clinic.contact_email)" class="flex items-center justify-center gap-2 py-3 rounded-xl bg-[#f0e6d6] dark:bg-white/[.05] hover:bg-[#e8dcc8] dark:hover:bg-white/[.08] text-[#7a4f2e] dark:text-[#f0e6d6] text-[13px] font-semibold no-underline transition-colors">
-              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-              E-mail
-            </a>
-          }
-          @if (clinic.maps_url) {
-            <a [href]="trackCta('maps', clinic.maps_url!)" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 py-3 rounded-xl bg-[#f0e6d6] dark:bg-white/[.05] hover:bg-[#e8dcc8] dark:hover:bg-white/[.08] text-[#7a4f2e] dark:text-[#f0e6d6] text-[13px] font-semibold no-underline transition-colors">
-              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-              Localização
-            </a>
-          }
-        </div>
-
-        <div class="mt-5 rounded-2xl bg-white dark:bg-white/[.04] border border-[#f0e6d6] dark:border-white/[.06] px-4 pt-4 pb-3 lb-anim-f3">
-          <p class="text-[10px] font-semibold tracking-[.12em] uppercase text-[#b8865a] dark:text-[#d4a574] mb-3">Modalidades de atendimento</p>
-          <div class="flex flex-col gap-2">
-            @for (mod of modalitiesM2; track mod.title) {
-              <div class="flex items-center gap-3 py-2 border-b border-[#f0e6d6] dark:border-white/[.05] last:border-0">
-                <div class="w-8 h-8 rounded-lg bg-[#deeee2] dark:bg-[#3a6b4a]/20 flex items-center justify-center flex-shrink-0">
-                  <svg class="w-4 h-4 text-[#5a9e72]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-                </div>
-                <div class="flex-1 min-w-0">
-                  <p class="text-[13px] font-semibold text-[#7a4f2e] dark:text-[#f0e6d6]">{{ mod.title }}</p>
-                  @if (mod.subtitle) {
-                    <p class="text-[11px] text-[#b8865a] dark:text-[#d4a574]">{{ mod.subtitle }}</p>
-                  }
-                </div>
-                <span class="text-[11px] font-semibold text-[#5a9e72] bg-[#f3f7f4] dark:bg-[#3a6b4a]/20 px-2 py-0.5 rounded-full">{{ mod.available ? 'Disponível' : 'Indisponível' }}</span>
-              </div>
-            }
-          </div>
-        </div>
-
-        @if (hasAnyHour) {
-          <div class="mt-3 rounded-2xl bg-white dark:bg-white/[.04] border border-[#f0e6d6] dark:border-white/[.06] px-4 pt-4 pb-3 lb-anim-f3">
-            <p class="text-[10px] font-semibold tracking-[.12em] uppercase text-[#b8865a] dark:text-[#d4a574] mb-3">Agenda</p>
-            <div class="grid grid-cols-1 gap-1 text-[12px]">
-              @for (row of hoursGridArray; track row.label) {
-                @if (row.text !== '–') {
-                  <div class="flex justify-between py-1.5 border-b border-[#f0e6d6] dark:border-white/[.05] last:border-0">
-                    <span class="text-[#7a4f2e] dark:text-[#d4a574] font-medium">{{ row.label }}</span>
-                    <span class="text-[#5a9e72] font-semibold">{{ row.text }}</span>
-                  </div>
-                }
+      <header class="lb-m2-header">
+        <div class="lb-m2-header-inner">
+          <div class="lb-m2-header-brand">
+            <div class="lb-m2-avatar">
+              @if (m2HeaderAvatarUrl) {
+                <img [src]="m2HeaderAvatarUrl" [alt]="clinic.name" />
+              } @else {
+                <span class="lb-m2-avatar-fallback">{{ clinicInitials }}</span>
               }
             </div>
+            <h1 class="lb-m2-header-title">{{ clinic.name }}</h1>
           </div>
+          <div class="lb-m2-header-actions">
+            <button type="button" (click)="onToggleDark()" class="lb-m2-icon-btn" aria-label="Alternar tema">
+              @if (dark) {
+                <svg class="lb-m2-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="5" />
+                  <line x1="12" y1="1" x2="12" y2="3" />
+                  <line x1="12" y1="21" x2="12" y2="23" />
+                  <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+                  <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+                  <line x1="1" y1="12" x2="3" y2="12" />
+                  <line x1="21" y1="12" x2="23" y2="12" />
+                  <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+                  <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+                </svg>
+              } @else {
+                <svg class="lb-m2-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
+                </svg>
+              }
+            </button>
+            <button type="button" (click)="onShare()" class="lb-m2-icon-btn" aria-label="Compartilhar">
+              <svg class="lb-m2-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="18" cy="5" r="3" />
+                <circle cx="6" cy="12" r="3" />
+                <circle cx="18" cy="19" r="3" />
+                <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+                <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <main class="lb-m2-main lb-anim-scale">
+        <section class="lb-m2-hero" aria-labelledby="lb-m2-hero-title">
+          @if (clinic.is_open_now === true) {
+            <div class="lb-m2-pill lb-m2-pill--live">
+              <span class="lb-m2-ping-wrap" aria-hidden="true">
+                <span class="lb-m2-ping"></span>
+                <span class="lb-m2-ping-dot"></span>
+              </span>
+              <span class="lb-m2-pill-text">Disponível para agendamento</span>
+            </div>
+          } @else if (clinic.is_open_now === false) {
+            <div class="lb-m2-pill lb-m2-pill--muted">
+              <span class="lb-m2-pill-text">Fora do horário de atendimento</span>
+            </div>
+          } @else {
+            <div class="lb-m2-pill lb-m2-pill--muted">
+              <span class="lb-m2-pill-text">Agende sua consulta</span>
+            </div>
+          }
+
+          <div class="lb-m2-hero-copy">
+            <h2 id="lb-m2-hero-title" class="lb-m2-hero-title">{{ m2HeroHeadline }}</h2>
+            <p class="lb-m2-hero-sub">{{ m2HeroSubline }}</p>
+          </div>
+
+          @if (whatsappUrl()) {
+            <a
+              [href]="trackCta('whatsapp', whatsappUrl())"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="lb-m2-cta"
+            >
+              <svg class="lb-m2-cta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="4" width="18" height="18" rx="2" />
+                <line x1="16" y1="2" x2="16" y2="6" />
+                <line x1="8" y1="2" x2="8" y2="6" />
+                <line x1="3" y1="10" x2="21" y2="10" />
+              </svg>
+              Agendar Consulta
+            </a>
+          }
+        </section>
+
+        @if (clinic.contact_email || clinic.maps_url) {
+          <section
+            class="lb-m2-quick"
+            [class.lb-m2-quick--single]="(clinic.contact_email ? 1 : 0) + (clinic.maps_url ? 1 : 0) === 1"
+            aria-label="Contato rápido"
+          >
+            @if (clinic.contact_email) {
+              <a [href]="trackCta('email', 'mailto:' + clinic.contact_email)" class="lb-m2-quick-card">
+                <svg class="lb-m2-quick-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                  <polyline points="22,6 12,13 2,6" />
+                </svg>
+                <span class="lb-m2-quick-label">E-mail</span>
+              </a>
+            }
+            @if (clinic.maps_url) {
+              <a [href]="trackCta('maps', clinic.maps_url!)" target="_blank" rel="noopener noreferrer" class="lb-m2-quick-card">
+                <svg class="lb-m2-quick-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" />
+                  <circle cx="12" cy="10" r="3" />
+                </svg>
+                <span class="lb-m2-quick-label">Localização</span>
+              </a>
+            }
+          </section>
+        }
+
+        @if (hasHoursM2) {
+          <section class="lb-m2-hours" aria-labelledby="lb-m2-hours-title">
+            <div class="lb-m2-hours-head">
+              <svg class="lb-m2-hours-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10" />
+                <polyline points="12 6 12 12 16 14" />
+              </svg>
+              <h3 id="lb-m2-hours-title" class="lb-m2-hours-title">Horário de Atendimento</h3>
+            </div>
+            <div class="lb-m2-hours-body">
+              @for (row of hoursRowsM2; track $index) {
+                <div class="lb-m2-hour-row">
+                  <span class="lb-m2-hour-label">{{ row.label }}</span>
+                  <span class="lb-m2-hour-val">{{ row.text }}</span>
+                </div>
+              }
+            </div>
+          </section>
         }
 
         @if (allDocs.length) {
-          <div class="mt-5 lb-anim-f4">
-            <div class="flex items-center gap-3 mb-1.5">
-              <p class="text-[10px] font-semibold tracking-[.12em] uppercase text-[#b8865a] dark:text-[#d4a574] whitespace-nowrap">Documentos</p>
-              <div class="flex-1 h-px bg-[#f0e6d6] dark:bg-white/[.06]"></div>
-            </div>
-            <p class="text-[12px] text-[#b8865a] dark:text-[#d4a574] mb-3">Preencha antes da primeira consulta</p>
-            @for (link of allDocs; track trackDoc($index, link)) {
-              @if (link.type === 'bio') {
-                <a [href]="hrefBio(link.item)" target="_blank" rel="noopener noreferrer" class="lb-link-card flex items-center gap-3.5 p-4 rounded-2xl bg-white dark:bg-white/[.04] border border-[#f0e6d6] dark:border-white/[.06] mb-2.5 no-underline group block text-inherit">
-                  <div class="w-10 h-10 rounded-xl bg-[#f3f7f4] dark:bg-[#3a6b4a]/20 flex items-center justify-center flex-shrink-0">
-                    <svg class="w-[18px] h-[18px] text-[#5a9e72]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-                  </div>
-                  <div class="flex-1 min-w-0">
-                    <p class="text-[13px] font-semibold text-[#7a4f2e] dark:text-[#f0e6d6]">{{ link.item.label }}</p>
-                    <p class="text-[11px] text-[#b8865a] dark:text-[#d4a574] mt-0.5">Abrir documento</p>
-                  </div>
-                  <svg class="w-4 h-4 text-[#e8dcc8] dark:text-[#7a4f2e] group-hover:text-[#5a9e72] transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-                </a>
-              } @else {
-                <a [routerLink]="['/f', formToken(link.item)]" class="lb-link-card flex items-center gap-3.5 p-4 rounded-2xl bg-white dark:bg-white/[.04] border border-[#f0e6d6] dark:border-white/[.06] mb-2.5 no-underline group block text-inherit">
-                  <div class="w-10 h-10 rounded-xl bg-[#f3f7f4] dark:bg-[#3a6b4a]/20 flex items-center justify-center flex-shrink-0">
-                    <svg class="w-[18px] h-[18px] text-[#5a9e72]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                  </div>
-                  <div class="flex-1 min-w-0">
-                    <p class="text-[13px] font-semibold text-[#7a4f2e] dark:text-[#f0e6d6]">{{ link.item.name }}</p>
-                    <p class="text-[11px] text-[#b8865a] dark:text-[#d4a574] mt-0.5">Preenchimento online</p>
-                  </div>
-                  <svg class="w-4 h-4 text-[#e8dcc8] dark:text-[#7a4f2e] group-hover:text-[#5a9e72] transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-                </a>
+          <section class="lb-m2-docs" aria-labelledby="lb-m2-docs-title">
+            <h3 id="lb-m2-docs-title" class="lb-m2-docs-label">Recursos Digitais</h3>
+            <div class="lb-m2-docs-list">
+              @for (link of allDocs; track trackDoc($index, link)) {
+                @if (link.type === 'bio') {
+                  <a [href]="hrefBio(link.item)" target="_blank" rel="noopener noreferrer" class="lb-m2-doc-card">
+                    <div class="lb-m2-doc-left">
+                      <div class="lb-m2-doc-icon-wrap">
+                        <svg class="lb-m2-doc-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+                          <polyline points="14 2 14 8 20 8" />
+                          <line x1="16" y1="13" x2="8" y2="13" />
+                          <line x1="16" y1="17" x2="8" y2="17" />
+                        </svg>
+                      </div>
+                      <span class="lb-m2-doc-name">{{ link.item.label }}</span>
+                    </div>
+                    <svg class="lb-m2-doc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="9 18 15 12 9 6" />
+                    </svg>
+                  </a>
+                } @else {
+                  <a [routerLink]="['/f', formToken(link.item)]" class="lb-m2-doc-card">
+                    <div class="lb-m2-doc-left">
+                      <div class="lb-m2-doc-icon-wrap">
+                        <svg class="lb-m2-doc-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+                          <polyline points="14 2 14 8 20 8" />
+                          <line x1="12" y1="18" x2="12" y2="12" />
+                          <line x1="9" y1="15" x2="15" y2="15" />
+                        </svg>
+                      </div>
+                      <span class="lb-m2-doc-name">{{ link.item.name }}</span>
+                    </div>
+                    <svg class="lb-m2-doc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="9 18 15 12 9 6" />
+                    </svg>
+                  </a>
+                }
               }
-            }
-          </div>
+            </div>
+          </section>
         }
 
-        <div class="mt-8 pt-5 border-t border-[#f0e6d6] dark:border-white/[.05] flex flex-wrap items-center justify-center gap-2 lb-anim-f5">
-          <div class="w-[5px] h-[5px] rounded-full bg-[#5a9e72] opacity-60"></div>
-          <span class="text-[11px] text-[#b8865a] dark:text-[#7a5c45]">Fichas digitais por</span>
-          <a href="https://gestgo.com.br" target="_blank" rel="noopener noreferrer" class="text-[11px] font-bold text-[#5a9e72] no-underline hover:opacity-75">Gestgo</a>
-          <span class="text-[#e8dcc8] dark:text-[#7a4f2e] text-[11px]">·</span>
-          <a routerLink="/privacidade" class="text-[11px] text-[#b8865a] no-underline hover:text-[#7a4f2e] transition-colors">Privacidade</a>
+        <section class="lb-m2-quote-wrap" aria-label="Mensagem">
+          <blockquote class="lb-m2-quote">{{ m2SignatureText }}</blockquote>
+        </section>
+      </main>
+
+      <footer class="lb-m2-footer lb-anim-f5">
+        <div class="lb-m2-footer-inner">
+          <div class="lb-m2-footer-row">
+            <span class="lb-m2-footer-name">{{ clinic.name }}</span>
+            <span class="lb-m2-footer-sep" aria-hidden="true">|</span>
+            <p class="lb-m2-footer-by">Fichas digitais por Gestgo</p>
+          </div>
+          <div class="lb-m2-footer-links">
+            <a routerLink="/privacidade" class="lb-m2-footer-link">Privacidade</a>
+            <a href="https://gestgo.com.br" target="_blank" rel="noopener noreferrer" class="lb-m2-footer-link">Gestgo</a>
+          </div>
         </div>
-      </div>
+      </footer>
     </div>
   }
 
   @case (3) {
-    <div class="lb-m3-root" [class.dark]="dark" [class.light]="!dark" [ngStyle]="themeVarsM3()">
-      <div class="lb-m3-noise" aria-hidden="true"></div>
+    <div class="lb-m3-root" [class.dark]="dark" [ngStyle]="themeVarsM3()">
+      <header class="lb-m3p-topbar">
+        <div class="lb-m3p-topbar-inner">
+          <div class="lb-m3p-topbar-brand">
+            <div class="lb-m3p-top-logo">
+              @if (headerBrandImageUrl) {
+                <img [src]="headerBrandImageUrl" [alt]="clinic.name" />
+              } @else {
+                <span class="lb-m3p-top-logo-fallback">{{ clinicInitials }}</span>
+              }
+            </div>
+            <span class="lb-m3p-topbar-name">{{ m3HeaderShortLabel }}</span>
+          </div>
+          <div class="lb-m3p-topbar-actions">
+            <button type="button" (click)="onToggleDark()" class="lb-m3p-icon-btn" aria-label="Alternar tema">
+              @if (dark) {
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="5" />
+                  <line x1="12" y1="1" x2="12" y2="3" />
+                  <line x1="12" y1="21" x2="12" y2="23" />
+                  <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+                  <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+                  <line x1="1" y1="12" x2="3" y2="12" />
+                  <line x1="21" y1="12" x2="23" y2="12" />
+                  <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+                  <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+                </svg>
+              } @else {
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
+                </svg>
+              }
+            </button>
+            <button type="button" (click)="onShare()" class="lb-m3p-icon-btn" aria-label="Compartilhar">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="18" cy="5" r="3" />
+                <circle cx="6" cy="12" r="3" />
+                <circle cx="18" cy="19" r="3" />
+                <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+                <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </header>
 
-      <div class="lb-m3-cover pb-12 px-6 flex flex-col items-center text-center relative lb-anim-f1">
-        <div class="lb-m3-topbar self-stretch flex justify-end items-center gap-3 pt-5 pb-6 relative z-30">
-          <button type="button" (click)="onToggleDark()" class="lb-m3-top-btn" aria-label="Alternar tema">
-            @if (dark) {
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      <main class="lb-m3p-main lb-anim-scale">
+        <div class="lb-m3p-profile">
+          <div class="lb-m3p-avatar-wrap">
+            <div class="lb-m3p-avatar-glow" aria-hidden="true"></div>
+            <div class="lb-m3p-avatar-ring">
+              @if (heroPortraitUrl) {
+                <img [src]="heroPortraitUrl" [alt]="clinic.name" />
+              } @else {
+                <span class="lb-m3p-avatar-fallback-lg">{{ clinicInitials }}</span>
+              }
+            </div>
+          </div>
+          @if (clinic.founded_year) {
+            <p class="lb-m3p-kicker">Desde {{ clinic.founded_year }}</p>
+          }
+          <h1 class="lb-m3p-title">{{ clinic.name }}</h1>
+          <p class="lb-m3p-tagline">{{ m3ProfileTagline }}</p>
+          <div class="lb-m3p-status-pill">
+            @if (clinic.is_open_now === true) {
+              <span class="lb-m3p-status-dot lb-pulse-dot" aria-hidden="true"></span>
+              <span class="lb-m3p-status-text">Aberto para consultas</span>
+            } @else if (clinic.is_open_now === false) {
+              <span class="lb-m3p-status-dot lb-m3p-status-dot--muted" aria-hidden="true"></span>
+              <span class="lb-m3p-status-text">Fechado · Consulte horários</span>
             } @else {
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+              <span class="lb-m3p-status-dot lb-m3p-status-dot--muted" aria-hidden="true"></span>
+              <span class="lb-m3p-status-text">Consulte horários</span>
             }
-          </button>
-          <button type="button" (click)="onShare()" class="lb-m3-top-btn" aria-label="Compartilhar">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-          </button>
-        </div>
-        <div class="logo-ring mb-3 lb-logo-ring-m3 relative z-[1]">
-          @if (clinic.logo_url) {
-            <img [src]="clinic.logo_url" [alt]="clinic.name" />
-          } @else {
-            {{ clinicInitials }}
-          }
-        </div>
-        @if (clinic.founded_year) {
-          <span class="lb-m3-since relative z-[1] mb-3">Desde {{ clinic.founded_year }}</span>
-        } @else {
-          <span class="relative z-[1] mb-3"></span>
-        }
-        <p class="text-[10px] tracking-[.28em] uppercase lb-m3-accent-muted mb-4 font-light relative z-[1]">{{ brandSubtitleM3 }}</p>
-        <h1 class="lb-serif-m3 text-[44px] sm:text-[52px] leading-[1.05] relative z-[1]">
-          <span class="lb-m3-serif-italic lb-gold-text">{{ m3BrandParts.gold }}</span><br />
-          @if (m3BrandParts.plain) {
-            <span class="lb-m3-serif-plain text-[#1a1410] dark:text-[#e8e0d4]">{{ m3BrandParts.plain }}</span>
-          }
-        </h1>
-        @if (clinic.short_description) {
-          <p class="text-[13px] text-white/50 mt-4 max-w-xs leading-relaxed font-light tracking-wide relative z-[1]">{{ clinic.short_description }}</p>
-        }
-        <div class="lb-gold-line w-24 mt-6 relative z-[1]"></div>
-      </div>
-
-      <div class="w-full max-w-lg mx-auto px-4 sm:px-6 pb-14">
-        <div class="flex justify-center mb-5 lb-anim-f1">
-          @if (clinic.is_open_now === true) {
-            <span class="lb-m3-status inline-flex items-center gap-2 px-4 py-1.5 rounded-full border lb-m3-accent-border lb-m3-accent-bg-soft lb-m3-accent-text">
-              <span class="w-[6px] h-[6px] rounded-full lb-m3-accent-bg lb-pulse-dot inline-block"></span>Aberto para consultas
-            </span>
-          } @else {
-            <span class="lb-m3-status inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/10 text-white/40">
-              <span class="w-[6px] h-[6px] rounded-full bg-white/25 inline-block"></span>Fechado · Consulte horários
-            </span>
-          }
+          </div>
         </div>
 
         @if (whatsappUrl()) {
-          <div class="lb-anim-f2">
-            <a [href]="trackCta('whatsapp', whatsappUrl())" target="_blank" rel="noopener noreferrer" class="lb-cta-gold lb-m3-cta w-full flex items-center justify-center gap-3 no-underline">
-              <svg class="w-[18px] h-[18px] relative z-[1]" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.108.549 4.09 1.508 5.814L0 24l6.335-1.489A11.926 11.926 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.89 0-3.663-.5-5.198-1.375l-.372-.22-3.862.908.979-3.763-.242-.386A9.944 9.944 0 012 12C2 6.486 6.486 2 12 2s10 4.486 10 10-4.486 10-10 10z"/></svg>
-              <span class="relative z-[1]">Agendar consulta</span>
-            </a>
+          <a
+            [href]="trackCta('whatsapp', whatsappUrl())"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="lb-m3p-wa"
+          >
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413z"
+              />
+              <path
+                d="M12 0C5.373 0 0 5.373 0 12c0 2.108.549 4.09 1.508 5.814L0 24l6.335-1.489A11.926 11.926 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.89 0-3.663-.5-5.198-1.375l-.372-.22-3.862.908.979-3.763-.242-.386A9.944 9.944 0 012 12C2 6.486 6.486 2 12 2s10 4.486 10 10-4.486 10-10 10z"
+              />
+            </svg>
+            Agendar consulta
+          </a>
+        }
+
+        @if (clinic.maps_url || instagramUrl) {
+          <div
+            class="lb-m3p-quick"
+            [class.lb-m3p-quick--single]="(clinic.maps_url ? 1 : 0) + (instagramUrl ? 1 : 0) === 1"
+          >
+            @if (clinic.maps_url) {
+              <a [href]="trackCta('maps', clinic.maps_url!)" target="_blank" rel="noopener noreferrer" class="lb-m3p-quick-card">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" />
+                  <circle cx="12" cy="10" r="3" />
+                </svg>
+                Localização
+              </a>
+            }
+            @if (instagramUrl) {
+              <a [href]="trackCta('instagram', instagramUrl)" target="_blank" rel="noopener noreferrer" class="lb-m3p-quick-card">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="2" y="2" width="20" height="20" rx="5" />
+                  <path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z" />
+                  <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+                </svg>
+                Instagram
+              </a>
+            }
           </div>
         }
 
-        <div class="grid grid-cols-2 gap-2.5 mt-2.5 lb-anim-f2">
-          @if (clinic.maps_url) {
-            <a [href]="trackCta('maps', clinic.maps_url!)" target="_blank" rel="noopener noreferrer" class="lb-m3-btn-ghost flex items-center justify-center gap-2 py-3 px-3 bg-white/[.05] border border-white/10 text-white/60 no-underline">
-              <svg class="w-4 h-4 lb-m3-accent-text" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-              Localização
-            </a>
-          }
-          @if (instagramUrl) {
-            <a [href]="trackCta('instagram', instagramUrl)" target="_blank" rel="noopener noreferrer" class="lb-m3-btn-ghost flex items-center justify-center gap-2 py-3 px-3 bg-white/[.05] border border-white/10 text-white/60 no-underline">
-              <svg class="w-4 h-4 lb-m3-accent-text" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
-              Instagram
-            </a>
-          }
-        </div>
-
-        <div class="mt-7 lb-anim-f3">
-          <div class="flex items-center gap-3 mb-3">
-            <div class="lb-gold-line flex-1"></div>
-            <p class="text-[9px] tracking-[.35em] uppercase lb-m3-accent-muted font-light px-2">Procedimentos</p>
-            <div class="lb-gold-line flex-1"></div>
-          </div>
-          <div class="grid grid-cols-3 gap-2">
-            @for (proc of proceduresM3; track proc; let i = $index) {
-              <div class="lb-service-card-m3">
-                <div class="lb-m3-proc-icon">{{ iconForProcedure(proc, i) }}</div>
-                <p class="lb-m3-proc-name">{{ proc }}</p>
-              </div>
-            }
-          </div>
-        </div>
-
-        @if (hasAnyHour) {
-          <div class="mt-7 lb-anim-f3">
-            <div class="flex items-center gap-3 mb-3">
-              <div class="lb-gold-line flex-1"></div>
-              <p class="text-[9px] tracking-[.35em] uppercase lb-m3-accent-muted font-light px-2 inline-flex items-center gap-1.5">
-                <svg class="w-[11px] h-[11px] lb-m3-accent-text" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                Funcionamento
-              </p>
-              <div class="lb-gold-line flex-1"></div>
+        @if (proceduresM3.length) {
+          <section class="lb-m3p-proc" aria-labelledby="lb-m3p-proc-title">
+            <div class="lb-m3p-proc-head">
+              <h2 id="lb-m3p-proc-title">Procedimentos</h2>
+              <div class="lb-m3p-proc-line" aria-hidden="true"></div>
             </div>
-            <div class="lb-m3-hours-card">
-              @for (row of hoursGridArray; track row.label; let i = $index) {
-                @if (row.text !== '–') {
-                  <div class="lb-m3-hour-row" [class.today]="i === todayIndexInHoursGrid">
-                    <span class="lb-m3-day-name">{{ row.label }}</span>
-                    @if (i === todayIndexInHoursGrid) {
-                      <span class="lb-m3-today-badge">hoje</span>
-                    }
-                    <span class="lb-m3-day-hours">{{ row.text }}</span>
+            <div class="lb-m3p-proc-grid">
+              @for (proc of proceduresM3; track proc) {
+                <div class="lb-m3p-proc-card">
+                  <div class="lb-m3p-proc-text">
+                    <h3 class="lb-m3p-proc-title">{{ proc }}</h3>
                   </div>
-                }
+                </div>
               }
             </div>
-          </div>
+          </section>
+        }
+
+        @if (hasAnyHour) {
+          <section class="lb-m3p-hours-wrap" aria-labelledby="lb-m3p-hours-heading">
+            <div class="lb-m3p-hours-card">
+              <div class="lb-m3p-hours-head">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10" />
+                  <polyline points="12 6 12 12 16 14" />
+                </svg>
+                <h2 id="lb-m3p-hours-heading" class="lb-m3p-hours-label">Funcionamento</h2>
+              </div>
+              <ul class="lb-m3p-hours-list">
+                @for (row of hoursGridArray; track $index; let i = $index) {
+                  @if (row.text !== '–') {
+                    <li
+                      class="lb-m3p-hour-li"
+                      [class.lb-m3p-hour-li--accent-border]="i === todayIndexInHoursGrid"
+                    >
+                      <div class="lb-m3p-hour-left">
+                        <span
+                          class="lb-m3p-hour-day"
+                          [class.lb-m3p-hour-day--today]="i === todayIndexInHoursGrid"
+                        >{{ row.label }}</span>
+                        @if (i === todayIndexInHoursGrid) {
+                          <span class="lb-m3p-hour-today-badge">HOJE</span>
+                        }
+                      </div>
+                      <span
+                        class="lb-m3p-hour-time"
+                        [class.lb-m3p-hour-time--today]="i === todayIndexInHoursGrid"
+                      >{{ row.text }}</span>
+                    </li>
+                  }
+                }
+              </ul>
+            </div>
+          </section>
         }
 
         @if (allDocs.length) {
-          <div class="mt-7 lb-anim-f4">
-            <div class="flex items-center gap-3 mb-3">
-              <div class="lb-gold-line flex-1"></div>
-              <p class="text-[9px] tracking-[.35em] uppercase lb-m3-accent-muted font-light px-2">Documentos</p>
-              <div class="lb-gold-line flex-1"></div>
+          <section class="lb-m3p-docs" aria-labelledby="lb-m3p-docs-heading">
+            <div class="lb-m3p-docs-head">
+              <p class="lb-m3p-docs-eyebrow">Documentos</p>
+              <h2 id="lb-m3p-docs-heading" class="lb-m3p-docs-title">Preencha antes do seu procedimento</h2>
             </div>
-            <p class="text-[11px] tracking-[.1em] uppercase text-white/40 font-light mb-3 text-center">Preencha antes do seu procedimento</p>
             @for (link of allDocs; track trackDoc($index, link)) {
               @if (link.type === 'bio') {
-                <a [href]="hrefBio(link.item)" target="_blank" rel="noopener noreferrer" class="lb-m3-doc-card flex items-center gap-3.5 p-4 border lb-m3-accent-border bg-transparent mb-2.5 no-underline group block text-inherit lb-m3-accent-hover-bg">
-                  <div class="w-10 h-10 rounded-full border lb-m3-accent-border-strong lb-m3-accent-bg-soft flex items-center justify-center flex-shrink-0">
-                    <svg class="w-[16px] h-[16px] lb-m3-accent-text" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                <a [href]="hrefBio(link.item)" target="_blank" rel="noopener noreferrer" class="lb-m3p-doc-link">
+                  <div class="lb-m3p-doc-row">
+                    <span class="lb-m3p-doc-label">{{ link.item.label }}</span>
+                    <svg class="lb-m3p-doc-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <line x1="5" y1="12" x2="19" y2="12" />
+                      <polyline points="12 5 19 12 12 19" />
+                    </svg>
                   </div>
-                  <div class="flex-1 min-w-0">
-                    <p class="lb-m3-doc-title text-[13px] font-normal">{{ link.item.label }}</p>
-                    <p class="lb-m3-doc-sub text-[10px] tracking-[.12em] uppercase font-light mt-0.5">Abrir documento</p>
-                  </div>
-                  <svg class="w-4 h-4 lb-m3-accent-text opacity-50 group-hover:opacity-100 transition-opacity" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="9 18 15 12 9 6"/></svg>
                 </a>
               } @else {
-                <a [routerLink]="['/f', formToken(link.item)]" class="lb-m3-doc-card flex items-center gap-3.5 p-4 border lb-m3-accent-border bg-transparent mb-2.5 no-underline group block text-inherit lb-m3-accent-hover-bg">
-                  <div class="w-10 h-10 rounded-full border lb-m3-accent-border-strong lb-m3-accent-bg-soft flex items-center justify-center flex-shrink-0">
-                    <svg class="w-[16px] h-[16px] lb-m3-accent-text" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                <a [routerLink]="['/f', formToken(link.item)]" class="lb-m3p-doc-link">
+                  <div class="lb-m3p-doc-row">
+                    <span class="lb-m3p-doc-label">{{ link.item.name }}</span>
+                    <svg class="lb-m3p-doc-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <line x1="5" y1="12" x2="19" y2="12" />
+                      <polyline points="12 5 19 12 12 19" />
+                    </svg>
                   </div>
-                  <div class="flex-1 min-w-0">
-                    <p class="lb-m3-doc-title text-[13px] font-normal">{{ link.item.name }}</p>
-                    <p class="lb-m3-doc-sub text-[10px] tracking-[.12em] uppercase font-light mt-0.5">Preenchimento online</p>
-                  </div>
-                  <svg class="w-4 h-4 lb-m3-accent-text opacity-50 group-hover:opacity-100 transition-opacity" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="9 18 15 12 9 6"/></svg>
                 </a>
               }
             }
-          </div>
+          </section>
         }
+      </main>
 
-        <div class="mt-10 pt-5 flex flex-col items-center gap-2 lb-anim-f5">
-          <div class="lb-gold-line w-16 mb-1"></div>
-          <div class="flex flex-wrap items-center justify-center gap-2">
-            <span class="text-[10px] tracking-[.15em] uppercase text-white/30 font-light">Fichas digitais por</span>
-            <a href="https://gestgo.com.br" target="_blank" rel="noopener noreferrer" class="text-[10px] tracking-[.15em] uppercase font-normal lb-m3-accent-muted no-underline hover:lb-m3-accent-text transition-colors">Gestgo</a>
-            <span class="text-white/20 text-[10px]">·</span>
-            <a routerLink="/privacidade" class="text-[10px] tracking-[.15em] uppercase text-white/30 no-underline hover:text-white/50 transition-colors font-light">Privacidade</a>
+      <footer class="lb-m3p-footer lb-anim-f5">
+        <div class="lb-m3p-footer-inner">
+          <span class="lb-m3p-footer-brand">{{ clinic.name }}</span>
+          <div class="lb-m3p-footer-links">
+            <a routerLink="/privacidade" class="lb-m3p-footer-link">Privacidade</a>
+            <a href="https://gestgo.com.br" target="_blank" rel="noopener noreferrer" class="lb-m3p-footer-link">Termos</a>
+          </div>
+          <p class="lb-m3p-footer-by">Fichas digitais por Gestgo</p>
+          <div class="lb-m3p-footer-icons" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+              <path d="M9 12l2 2 4-4" />
+            </svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M12 15l-3-3h6l-3 3z" />
+              <path d="M5 6h14v12H5z" />
+              <path d="M9 6V4h6v2" />
+            </svg>
           </div>
         </div>
-      </div>
+      </footer>
     </div>
   }
 
   @case (4) {
-    <div class="lb-m4-root bg-gray-50 dark:bg-[#0c0f14]" [class.dark]="dark">
-      <div class="flex justify-end gap-2 px-4 pt-4 absolute top-0 right-0 z-30">
-        <button type="button" (click)="onToggleDark()" class="lb-icon-pill flex items-center px-3 py-2 rounded-full bg-white/15 backdrop-blur-sm border border-white/15" aria-label="Alternar tema">
-          @if (dark) {
-            <svg class="w-[14px] h-[14px] text-amber-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-          } @else {
-            <svg class="w-[14px] h-[14px] text-white/80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
-          }
-        </button>
-        <button type="button" (click)="onShare()" class="lb-icon-pill flex items-center px-3 py-2 rounded-full bg-white/15 backdrop-blur-sm border border-white/15" aria-label="Compartilhar">
-          <svg class="w-[14px] h-[14px] text-white/80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-        </button>
-      </div>
-
-      <div class="lb-m4-cover pt-16 pb-8 px-5 relative z-[1] lb-anim-f1">
-        <div class="flex items-center gap-4 max-w-lg mx-auto relative z-[1]">
-          <div class="cross-logo shadow-lg lb-cross-logo"></div>
-          <div>
-            <p class="text-[10px] font-semibold tracking-[.15em] uppercase text-white/50 mb-1">Odontologia</p>
-            <h1 class="text-[26px] sm:text-[30px] font-extrabold text-white leading-tight tracking-tight">{{ clinic.name }}</h1>
-            @if (clinic.short_description) {
-              <p class="text-[13px] text-white/60 mt-0.5 font-light">{{ clinic.short_description }}</p>
-            }
+    <div class="lb-d4-root" [class.dark]="dark" [ngStyle]="themeVarsM4()">
+      <header class="lb-d4-header">
+        <div class="lb-d4-header-inner">
+          <div class="lb-d4-header-brand">
+            <div class="lb-d4-header-logo">
+              @if (headerBrandImageUrl) {
+                <img [src]="headerBrandImageUrl" [alt]="clinic.name" />
+              } @else {
+                <span class="lb-d4-header-logo-fallback">{{ clinicInitials }}</span>
+              }
+            </div>
+            <span class="lb-d4-header-name">{{ clinic.name }}</span>
+          </div>
+          <div class="lb-d4-header-tools">
+            <button type="button" (click)="onToggleDark()" class="lb-d4-icon-btn" aria-label="Alternar tema">
+              @if (dark) {
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="5" />
+                  <line x1="12" y1="1" x2="12" y2="3" />
+                  <line x1="12" y1="21" x2="12" y2="23" />
+                  <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+                  <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+                  <line x1="1" y1="12" x2="3" y2="12" />
+                  <line x1="21" y1="12" x2="23" y2="12" />
+                  <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+                  <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+                </svg>
+              } @else {
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
+                </svg>
+              }
+            </button>
+            <button type="button" (click)="onShare()" class="lb-d4-icon-btn" aria-label="Compartilhar">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="18" cy="5" r="3" />
+                <circle cx="6" cy="12" r="3" />
+                <circle cx="18" cy="19" r="3" />
+                <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+                <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+              </svg>
+            </button>
           </div>
         </div>
-        <div class="flex flex-wrap items-center gap-3 mt-4 max-w-lg mx-auto relative z-[1]">
-          @if (clinic.is_open_now === true) {
-            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-emerald-500/15 text-emerald-300">
-              <span class="w-[5px] h-[5px] rounded-full bg-emerald-400 lb-pulse-dot inline-block"></span>Aberto agora
-            </span>
-          } @else if (clinic.is_open_now === false) {
-            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-medium bg-white/10 text-white/50">
-              <span class="w-[5px] h-[5px] rounded-full bg-white/30 inline-block"></span>Fechado
-            </span>
-          }
-          @if (councilLineM4 || clinic.founded_year) {
-            <span class="text-[11px] text-white/40 font-light">{{ councilLineM4 }}{{ councilLineM4 && clinic.founded_year ? ' · ' : '' }}@if (clinic.founded_year) { Desde {{ clinic.founded_year }} }</span>
-          }
-        </div>
-      </div>
+      </header>
 
-      <div class="w-full max-w-lg mx-auto px-4 sm:px-6 pb-14 pt-5 lb-anim-f2">
+      <main class="lb-d4-main lb-anim-f1">
+        <section class="lb-d4-hero" aria-labelledby="lb-d4-hero-title">
+          <div class="lb-d4-hero-photo-wrap">
+            <div class="lb-d4-hero-photo-ring">
+              @if (heroPortraitUrl) {
+                <img [src]="heroPortraitUrl" [alt]="clinic.name" class="lb-d4-hero-photo" />
+              } @else {
+                <span class="lb-d4-hero-photo-fallback">{{ clinicInitials }}</span>
+              }
+            </div>
+            <div class="lb-d4-hero-dot" aria-hidden="true"></div>
+          </div>
+          <h1 id="lb-d4-hero-title" class="lb-d4-hero-title">{{ dentalHeroHeadline }}</h1>
+          <p class="lb-d4-hero-sub">{{ dentalHeroSub }}</p>
+          <div class="lb-d4-verified-pill">
+            <svg class="lb-d4-verified-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 2l7 3v7c0 5-3.5 9.5-7 11-3.5-1.5-7-6-7-11V5l7-3z" />
+              <path d="M9 12l2 2 4-4" />
+            </svg>
+            <span>{{ dentalVerifiedLine }}</span>
+          </div>
+        </section>
+
         @if (whatsappUrl()) {
-          <a [href]="trackCta('whatsapp', whatsappUrl())" target="_blank" rel="noopener noreferrer" class="lb-wpp-btn w-full flex items-center justify-center gap-3 py-4 rounded-2xl bg-[#22c55e] hover:bg-[#16a34a] text-white font-bold text-[15px] no-underline">
-            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.108.549 4.09 1.508 5.814L0 24l6.335-1.489A11.926 11.926 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.89 0-3.663-.5-5.198-1.375l-.372-.22-3.862.908.979-3.763-.242-.386A9.944 9.944 0 012 12C2 6.486 6.486 2 12 2s10 4.486 10 10-4.486 10-10 10z"/></svg>
-            Marcar consulta
-          </a>
+          <section class="lb-d4-cta-wrap" aria-label="Agendamento">
+            <a
+              [href]="trackCta('whatsapp', whatsappUrl())"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="lb-d4-cta-primary"
+            >
+              <span class="lb-d4-cta-shine" aria-hidden="true"></span>
+              <svg class="lb-d4-cta-cal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="4" width="18" height="18" rx="2" />
+                <line x1="16" y1="2" x2="16" y2="6" />
+                <line x1="8" y1="2" x2="8" y2="6" />
+                <line x1="3" y1="10" x2="21" y2="10" />
+              </svg>
+              <span class="lb-d4-cta-label">Agende sua consulta</span>
+              <svg class="lb-d4-cta-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="9 18 15 12 9 6" />
+              </svg>
+            </a>
+          </section>
         }
 
-        <div class="grid grid-cols-2 gap-2.5 mt-2.5">
-          @if (clinic.maps_url) {
-            <a [href]="trackCta('maps', clinic.maps_url!)" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 py-3 px-3 rounded-xl bg-white dark:bg-white/[.05] border border-sky-100 dark:border-white/[.06] hover:bg-sky-50 dark:hover:bg-white/[.08] text-sky-700 dark:text-sky-400 text-[13px] font-semibold no-underline">
-              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-              Como chegar
-            </a>
-          }
-          @if (clinic.contact_email) {
-            <a [href]="trackCta('email', 'mailto:' + clinic.contact_email)" class="flex items-center justify-center gap-2 py-3 px-3 rounded-xl bg-white dark:bg-white/[.05] border border-sky-100 dark:border-white/[.06] hover:bg-sky-50 dark:hover:bg-white/[.08] text-sky-700 dark:text-sky-400 text-[13px] font-semibold no-underline">
-              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-              Contato
-            </a>
-          }
-        </div>
-
-        <div class="mt-5">
-          <div class="flex items-center gap-3 mb-3">
-            <p class="text-[10px] font-bold tracking-[.1em] uppercase text-gray-400 dark:text-gray-600 whitespace-nowrap">Convênios aceitos</p>
-            <div class="flex-1 h-px bg-gray-200 dark:bg-white/[.06]"></div>
-          </div>
-          <div class="grid grid-cols-2 gap-2">
-            @for (c of conveniosM4; track c) {
-              <div class="lb-conv-badge">
-                <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                {{ c }}
-              </div>
-            }
-            <div class="lb-conv-badge col-span-2 justify-center">
-              <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
-              Particular e outros convênios
-            </div>
-          </div>
-        </div>
-
-        @if (clinic.specialties_list?.length) {
-          <div class="mt-5 rounded-2xl bg-white dark:bg-white/[.03] border border-gray-100 dark:border-white/[.05] px-4 pt-4 pb-3">
-            <p class="text-[10px] font-bold tracking-[.1em] uppercase text-gray-400 dark:text-gray-600 mb-3">Especialidades</p>
-            <div class="grid grid-cols-3 gap-2">
-              @for (spec of clinic.specialties_list!; track spec) {
-                <div class="text-center py-2.5 px-1 rounded-xl bg-sky-50 dark:bg-sky-900/10">
-                  <p class="text-[11px] font-semibold text-sky-700 dark:text-sky-400">{{ spec }}</p>
+        <section class="lb-d4-section" aria-labelledby="lb-d4-spec-title">
+          <h2 id="lb-d4-spec-title" class="lb-d4-section-kicker">Nossas especialidades</h2>
+          <div class="lb-d4-bento">
+            @for (b of dentalBento; track $index) {
+              @if (b.layout === 'sm') {
+                <div class="lb-d4-bento-sm">
+                  <h3 class="lb-d4-bento-title">{{ b.title }}</h3>
                 </div>
               }
-            </div>
-          </div>
-        }
-
-        @if (hasAnyHour) {
-          <div class="mt-3 rounded-2xl bg-white dark:bg-white/[.03] border border-gray-100 dark:border-white/[.05] px-4 pt-4 pb-3">
-            <p class="text-[10px] font-bold tracking-[.1em] uppercase text-gray-400 dark:text-gray-600 mb-3">Funcionamento</p>
-            @for (row of hoursGridArray; track row.label) {
-              @if (row.text !== '–') {
-                <div class="flex justify-between text-[13px] py-2 border-b border-gray-100 dark:border-white/[.05] last:border-0">
-                  <span class="font-medium text-gray-700 dark:text-gray-300">{{ row.label }}</span>
-                  <span class="font-semibold text-sky-600 dark:text-sky-400">{{ row.text }}</span>
+            }
+            @for (b of dentalBento; track $index) {
+              @if (b.layout === 'wide') {
+                <div class="lb-d4-bento-wide">
+                  <h3 class="lb-d4-bento-title">{{ b.title }}</h3>
                 </div>
               }
             }
           </div>
-        }
+        </section>
 
         @if (allDocs.length) {
-          <div class="mt-5">
-            <div class="flex items-center gap-3 mb-1.5">
-              <p class="text-[10px] font-bold tracking-[.1em] uppercase text-gray-400 dark:text-gray-600 whitespace-nowrap">Documentos</p>
-              <div class="flex-1 h-px bg-gray-200 dark:bg-white/[.06]"></div>
-            </div>
-            <p class="text-[12px] text-gray-400 dark:text-gray-600 mb-3">Preencha antes da sua consulta</p>
-            @for (link of allDocs; track trackDoc($index, link)) {
-              @if (link.type === 'bio') {
-                <a [href]="hrefBio(link.item)" target="_blank" rel="noopener noreferrer" class="flex items-center gap-3.5 p-4 rounded-2xl bg-white dark:bg-white/[.03] border border-gray-100 dark:border-white/[.05] mb-2.5 no-underline group block text-inherit hover:translate-x-[3px] transition-transform">
-                  <div class="w-10 h-10 rounded-xl bg-sky-50 dark:bg-sky-900/15 flex items-center justify-center flex-shrink-0">
-                    <svg class="w-[18px] h-[18px] text-sky-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-                  </div>
-                  <div class="flex-1 min-w-0">
-                    <p class="text-[13px] font-semibold text-gray-800 dark:text-gray-200">{{ link.item.label }}</p>
-                    <p class="text-[11px] text-gray-400 dark:text-gray-600 mt-0.5">Abrir documento</p>
-                  </div>
-                  <svg class="w-4 h-4 text-gray-300 dark:text-gray-700 group-hover:text-sky-400 transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-                </a>
-              } @else {
-                <a [routerLink]="['/f', formToken(link.item)]" class="flex items-center gap-3.5 p-4 rounded-2xl bg-white dark:bg-white/[.03] border border-gray-100 dark:border-white/[.05] mb-2.5 no-underline group block text-inherit hover:translate-x-[3px] transition-transform">
-                  <div class="w-10 h-10 rounded-xl bg-sky-50 dark:bg-sky-900/15 flex items-center justify-center flex-shrink-0">
-                    <svg class="w-[18px] h-[18px] text-sky-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-                  </div>
-                  <div class="flex-1 min-w-0">
-                    <p class="text-[13px] font-semibold text-gray-800 dark:text-gray-200">{{ link.item.name }}</p>
-                    <p class="text-[11px] text-gray-400 dark:text-gray-600 mt-0.5">Preenchimento online</p>
-                  </div>
-                  <svg class="w-4 h-4 text-gray-300 dark:text-gray-700 group-hover:text-sky-400 transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-                </a>
+          <section class="lb-d4-section" [attr.aria-label]="'Formulários digitais'">
+            <h2 class="lb-d4-section-kicker">Formulários digitais</h2>
+            <div class="lb-d4-doc-list">
+              @for (link of allDocs; track trackDoc($index, link)) {
+                @if (link.type === 'bio') {
+                  <a [href]="hrefBio(link.item)" target="_blank" rel="noopener noreferrer" class="lb-d4-doc-row">
+                    <span class="lb-d4-doc-name">{{ link.item.label }}</span>
+                    <svg class="lb-d4-doc-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <polyline points="9 18 15 12 9 6" />
+                    </svg>
+                  </a>
+                } @else {
+                  <a [routerLink]="['/f', formToken(link.item)]" class="lb-d4-doc-row">
+                    <span class="lb-d4-doc-name">{{ link.item.name }}</span>
+                    <svg class="lb-d4-doc-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <polyline points="9 18 15 12 9 6" />
+                    </svg>
+                  </a>
+                }
               }
+            </div>
+          </section>
+        }
+
+        <section class="lb-d4-triptych" aria-label="Informações">
+          <div class="lb-d4-conv-card">
+            <h4 class="lb-d4-card-kicker">Convênio aceito</h4>
+            <p class="lb-d4-conv-text">{{ dentalConvenioLine }}</p>
+          </div>
+
+          @if (hasAnyHour && dentalHoursPair) {
+            <div class="lb-d4-hours-card">
+              <div class="lb-d4-hours-head">
+                <svg class="lb-d4-hours-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10" />
+                  <polyline points="12 6 12 12 16 14" />
+                </svg>
+                <h4 class="lb-d4-hours-title">Horário de atendimento</h4>
+              </div>
+              <div class="lb-d4-hours-grid">
+                <div>
+                  <span class="lb-d4-hours-label">{{ dentalHoursPair.a.label }}</span>
+                  <span class="lb-d4-hours-val">{{ dentalHoursPair.a.text }}</span>
+                </div>
+                <div>
+                  <span class="lb-d4-hours-label">{{ dentalHoursPair.b.label }}</span>
+                  <span class="lb-d4-hours-val">{{ dentalHoursPair.b.text }}</span>
+                </div>
+              </div>
+            </div>
+          }
+
+          @if (clinic.maps_url) {
+            <a
+              [href]="trackCta('maps', clinic.maps_url!)"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="lb-d4-map-card"
+            >
+              <div class="lb-d4-map-row">
+                <div>
+                  <p class="lb-d4-map-kicker">Localização</p>
+                  <p class="lb-d4-map-addr">{{ clinic.address || 'Ver no mapa' }}</p>
+                </div>
+                <svg class="lb-d4-map-dir" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <polyline points="9 18 15 12 9 6" />
+                </svg>
+              </div>
+            </a>
+          }
+        </section>
+
+        @if (instagramUrl || whatsappUrl()) {
+          <section class="lb-d4-social" aria-label="Redes sociais">
+            @if (instagramUrl) {
+              <a
+                [href]="trackCta('instagram', instagramUrl)"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="lb-d4-soc-btn"
+                aria-label="Instagram"
+              >
+                <svg viewBox="0 0 24 24" class="lb-d4-soc-svg" aria-hidden="true">
+                  <path
+                    d="M12 2.163c3.204 0 3.584.012 4.85.07 1.366.062 2.633.332 3.608 1.308.975.975 1.245 2.242 1.308 3.608.058 1.266.07 1.646.07 4.85s-.012 3.584-.07 4.85c-.062 1.366-.332 2.633-1.308 3.608-.975.975-2.242 1.245-3.608 1.308-1.266.058-1.646.07-4.85.07s-3.584-.012-4.85-.07c-1.366-.062-2.633-.332-3.608-1.308-.975-.975-1.245-2.242-1.308-3.608-.058-1.266-.07-1.646-.07-4.85s.012-3.584.07-4.85c.062-1.366.332-2.633 1.308-3.608.975-.975 2.242-1.245 3.608-1.308 1.266-.058 1.646-.07 4.85-.07zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"
+                  />
+                </svg>
+              </a>
             }
-          </div>
+            @if (whatsappUrl()) {
+              <a
+                [href]="trackCta('whatsapp', whatsappUrl())"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="lb-d4-soc-btn"
+                aria-label="WhatsApp"
+              >
+                <svg viewBox="0 0 24 24" class="lb-d4-soc-svg" aria-hidden="true">
+                  <path
+                    d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413z"
+                  />
+                  <path
+                    d="M12 0C5.373 0 0 5.373 0 12c0 2.108.549 4.09 1.508 5.814L0 24l6.335-1.489A11.926 11.926 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.89 0-3.663-.5-5.198-1.375l-.372-.22-3.862.908.979-3.763-.242-.386A9.944 9.944 0 012 12C2 6.486 6.486 2 12 2s10 4.486 10 10-4.486 10-10 10z"
+                  />
+                </svg>
+              </a>
+            }
+          </section>
         }
+      </main>
 
-        @if (clinic.address) {
-          <div class="flex items-center gap-2 mt-5">
-            <svg class="w-[13px] h-[13px] text-gray-400 dark:text-gray-600 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-            <span class="text-[12px] text-gray-400 dark:text-gray-600">{{ clinic.address }}</span>
+      <footer class="lb-d4-footer lb-anim-f2">
+        <div class="lb-d4-footer-inner">
+          <p class="lb-d4-footer-copy">© {{ clinic.name }}. Fichas por Gestgo.</p>
+          <div class="lb-d4-footer-links">
+            <a routerLink="/privacidade" class="lb-d4-footer-link">
+              Privacidade
+              <svg class="lb-d4-footer-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="9 18 15 12 9 6" />
+              </svg>
+            </a>
           </div>
-        }
-
-        <div class="mt-8 pt-5 border-t border-gray-200 dark:border-white/[.05] flex flex-wrap items-center justify-center gap-2">
-          <div class="w-[5px] h-[5px] rounded-full bg-sky-500 opacity-50"></div>
-          <span class="text-[11px] text-gray-400 dark:text-gray-600">Fichas digitais por</span>
-          <a href="https://gestgo.com.br" target="_blank" rel="noopener noreferrer" class="text-[11px] font-bold text-sky-500 no-underline hover:opacity-75">Gestgo</a>
-          <span class="text-gray-300 dark:text-gray-700 text-[11px]">·</span>
-          <a routerLink="/privacidade" class="text-[11px] text-gray-400 no-underline hover:text-gray-600 transition-colors">Privacidade</a>
         </div>
-      </div>
+      </footer>
     </div>
   }
 

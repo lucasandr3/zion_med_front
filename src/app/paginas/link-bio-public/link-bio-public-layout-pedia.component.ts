@@ -9,6 +9,7 @@ import {
   LinkBioPublicDocItem,
   LinkBioService,
 } from '../../core/services/link-bio.service';
+import { linkBioHeaderBrandImageUrl, linkBioHeroPortraitUrl } from '../../core/utils/link-bio-public-assets';
 
 const DEFAULT_STEPS: { title: string; subtitle: string; tone: 'sky' | 'lemon' | 'mint' }[] = [
   {
@@ -138,6 +139,122 @@ export class LinkBioPublicLayoutPediaComponent {
     return this.extra.ped_wa_cta_label?.trim() || 'Marcar consulta';
   }
 
+  get headerInitial(): string {
+    const n = this.clinic.name?.trim();
+    return n ? n.charAt(0).toUpperCase() : 'P';
+  }
+
+  get headerBrandImageUrl(): string | null {
+    return linkBioHeaderBrandImageUrl(this.clinic);
+  }
+
+  get heroPortraitUrl(): string | null {
+    return linkBioHeroPortraitUrl(this.clinic);
+  }
+
+  get clinicInitials(): string {
+    const n = this.clinic.name?.trim() || 'P';
+    const parts = n.split(/\s+/).filter(Boolean);
+    if (parts.length >= 2) {
+      return (parts[0]!.charAt(0) + parts[parts.length - 1]!.charAt(0)).toUpperCase();
+    }
+    return n.slice(0, 2).toUpperCase() || 'P';
+  }
+
+  /** Título do herói (Stitch: “Cuidado com carinho”). */
+  get heroHeadlineP7(): string {
+    return this.extra.hero_tagline?.trim() || 'Cuidado com carinho';
+  }
+
+  /** Subtítulo curto abaixo do herói. */
+  get heroSubP7(): string {
+    return (
+      this.clinic.short_description?.trim() ||
+      'Excelência em pediatria para o seu maior tesouro.'
+    );
+  }
+
+  get conveniosLine(): string {
+    const list = this.conveniosList.filter((c) => c !== '+ Particular');
+    const partic = this.conveniosList.some((c) => c === '+ Particular');
+    const joined = list.join(' e ');
+    if (joined && partic) return `${joined} e particular`;
+    if (joined) return joined;
+    if (partic) return 'Particular';
+    return 'Consulte na recepção';
+  }
+
+  get hoursSummaryLines(): string[] {
+    return this.hoursGridArray
+      .filter((d) => d.text && d.text !== '–')
+      .slice(0, 4)
+      .map((r) => `${r.label}: ${r.text}`);
+  }
+
+  /**
+   * Cor de destaque da página pública (`accent_hex`), com fallback ao azul pediatria.
+   */
+  themeVarsP7(): Record<string, string> {
+    const accent = this.normalizeAccentHex();
+    const soft = this.mixHex(accent, '#ffffff', 0.42);
+    const deep = this.mixHex(accent, '#04121f', 0.36);
+    const headerDark = this.mixHex(accent, '#020617', 0.58);
+    const rgb = this.hexToRgbTuple(accent) ?? { r: 0, g: 123, b: 185 };
+    return {
+      '--p7-accent': accent,
+      '--p7-on-accent': this.onAccentForHex(accent),
+      '--p7-accent-soft': soft,
+      '--p7-accent-deep': deep,
+      '--p7-header-bg-dark': headerDark,
+      '--p7-on-header-dark': this.onAccentForHex(headerDark),
+      '--p7-accent-rgb': `${rgb.r},${rgb.g},${rgb.b}`,
+    };
+  }
+
+  private normalizeAccentHex(): string {
+    let h = (this.clinic?.accent_hex ?? '').trim();
+    if (!h) return '#007bb9';
+    if (!h.startsWith('#')) h = `#${h}`;
+    if (h.length === 4 && /^#[0-9a-fA-F]{3}$/.test(h)) {
+      h = `#${h[1]}${h[1]}${h[2]}${h[2]}${h[3]}${h[3]}`;
+    }
+    if (!/^#[0-9a-fA-F]{6}$/.test(h)) return '#007bb9';
+    return h.toLowerCase();
+  }
+
+  private hexToRgbTuple(hex: string): { r: number; g: number; b: number } | null {
+    const h = hex.replace('#', '').trim();
+    if (h.length !== 6) return null;
+    const r = parseInt(h.slice(0, 2), 16);
+    const g = parseInt(h.slice(2, 4), 16);
+    const b = parseInt(h.slice(4, 6), 16);
+    if ([r, g, b].some((n) => Number.isNaN(n))) return null;
+    return { r, g, b };
+  }
+
+  private mixHex(from: string, to: string, t: number): string {
+    const a = this.hexToRgbTuple(from);
+    const b = this.hexToRgbTuple(to);
+    if (!a || !b) return from;
+    const ch = (x: number, y: number) => Math.round(x + (y - x) * t);
+    const r = ch(a.r, b.r);
+    const g = ch(a.g, b.g);
+    const bl = ch(a.b, b.b);
+    const x = (n: number) => n.toString(16).padStart(2, '0');
+    return `#${x(r)}${x(g)}${x(bl)}`;
+  }
+
+  /** Texto legível sobre fundo `hex` (preto ou off-white). */
+  private onAccentForHex(hex: string): string {
+    const h = hex.replace('#', '').trim();
+    if (h.length !== 6) return '#fafafa';
+    const r = parseInt(h.substring(0, 2), 16) / 255;
+    const g = parseInt(h.substring(2, 4), 16) / 255;
+    const b = parseInt(h.substring(4, 6), 16) / 255;
+    const l = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    return l > 0.55 ? '#0b0b0b' : '#fafafa';
+  }
+
   whatsappUrl(): string {
     const phone = this.clinic.phone?.replace(/\D/g, '') ?? '';
     const wa = phone.length >= 10 && phone.length <= 11 ? '55' + phone : phone;
@@ -177,12 +294,6 @@ export class LinkBioPublicLayoutPediaComponent {
       teamRef
     );
     return u ?? directUrl;
-  }
-
-  stepNumClass(tone: string): string {
-    if (tone === 'lemon') return 'bg-[#facc15] text-[#7c5f00]';
-    if (tone === 'mint') return 'bg-[#22c55e] text-white';
-    return 'bg-[#0ea5e9] text-white';
   }
 
   onToggleDark(): void {

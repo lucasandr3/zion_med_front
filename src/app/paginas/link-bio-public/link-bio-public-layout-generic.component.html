@@ -44,8 +44,8 @@
 
   <div class="content">
     <div class="avatar-wrap" [class.avatar-over-cover]="hasCover">
-      @if (clinic.logo_url) {
-        <img [src]="clinic.logo_url" [alt]="clinic.name" class="avatar-img" />
+      @if (brandLogoUrl) {
+        <img [src]="brandLogoUrl" [alt]="clinic.name" class="avatar-img" />
       } @else {
         <div class="avatar-fallback">{{ clinicInitials }}</div>
       }

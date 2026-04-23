@@ -73,6 +73,13 @@ export class LinkBioPublicComponent implements OnInit, OnDestroy {
         if (clinic.logo_url != null && String(clinic.logo_url).trim() !== '') {
           clinic.logo_url = absoluteMediaUrl(String(clinic.logo_url)) ?? clinic.logo_url;
         }
+        if (clinic.company_logo_url != null && String(clinic.company_logo_url).trim() !== '') {
+          clinic.company_logo_url = absoluteMediaUrl(String(clinic.company_logo_url)) ?? clinic.company_logo_url;
+        }
+        if (clinic.professional_photo_url != null && String(clinic.professional_photo_url).trim() !== '') {
+          clinic.professional_photo_url =
+            absoluteMediaUrl(String(clinic.professional_photo_url)) ?? clinic.professional_photo_url;
+        }
         if (clinic.cover_image_url != null && String(clinic.cover_image_url).trim() !== '') {
           clinic.cover_image_url = absoluteMediaUrl(String(clinic.cover_image_url)) ?? clinic.cover_image_url;
         }
@@ -124,7 +131,10 @@ export class LinkBioPublicComponent implements OnInit, OnDestroy {
     this.meta.updateTag({ property: 'og:description', content: desc });
     this.meta.updateTag({ property: 'og:type', content: 'website' });
     if (c.cover_image_url) this.meta.updateTag({ property: 'og:image', content: c.cover_image_url });
+    else if (c.professional_photo_url)
+      this.meta.updateTag({ property: 'og:image', content: c.professional_photo_url });
     else if (c.logo_url) this.meta.updateTag({ property: 'og:image', content: c.logo_url });
+    else if (c.company_logo_url) this.meta.updateTag({ property: 'og:image', content: c.company_logo_url });
   }
 
   get clinic(): LinkBioClinic | null {

@@ -42,9 +42,9 @@
 
   <div class="lb-m8-cover pt-16 pb-16 px-5 lb-m8-a1">
     <div class="relative z-10 max-w-lg mx-auto flex flex-col items-center text-center">
-      <div class="lb-m8-avatar-ring mb-5 shadow-xl">
-        @if (clinic.logo_url) {
-          <img [src]="clinic.logo_url" [alt]="clinic.name" class="w-full h-full rounded-full object-cover" />
+      <div class="lb-m8-avatar-ring mb-5">
+        @if (heroPortraitUrl) {
+          <img [src]="heroPortraitUrl" [alt]="clinic.name" class="w-full h-full rounded-full object-cover" />
         } @else {
           <div class="lb-m8-avatar-inner">N</div>
         }

@@ -149,13 +149,7 @@
   width: 72px;
   height: 72px;
   border-radius: 0.5rem;
-  border: 4px solid #f9fafb;
   box-shadow: 0 8px 28px rgba(0, 0, 0, .2);
-}
-
-.page.dark .avatar-fallback,
-.page.dark .avatar-img {
-  border-color: #0a0c0f;
 }
 
 .avatar-fallback {
@@ -173,7 +167,7 @@
   background: #fff;
   object-fit: contain;
   object-position: center;
-  padding: 6px;
+  padding: 0;
   display: block;
 }
 

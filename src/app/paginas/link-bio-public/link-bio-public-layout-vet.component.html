@@ -43,8 +43,8 @@
   <div class="lb-m6-paw-bg pt-16 pb-10 px-5 lb-m6-a1">
     <div class="max-w-lg mx-auto flex items-center gap-5">
       <div class="lb-m6-pet-ring shadow-lg">
-        @if (clinic.logo_url) {
-          <img [src]="clinic.logo_url" [alt]="clinic.name" class="w-full h-full rounded-full object-cover" />
+        @if (heroPortraitUrl) {
+          <img [src]="heroPortraitUrl" [alt]="clinic.name" class="w-full h-full rounded-full object-cover" />
         } @else {
           <span class="lb-m6-bounce" aria-hidden="true">🐾</span>
         }

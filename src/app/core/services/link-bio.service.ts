@@ -58,6 +58,10 @@ export interface LinkBioClinic {
   name: string;
   slug: string;
   logo_url?: string | null;
+  /** Logo da empresa (topo / header) quando separada da foto do profissional. */
+  company_logo_url?: string | null;
+  /** Foto do profissional na área principal (avatar grande). */
+  professional_photo_url?: string | null;
   public_theme?: string | null;
   cover_image_url?: string | null;
   cover_color?: string | null;
@@ -233,6 +237,15 @@ export class LinkBioService {
           return (typeof d === 'object' && d && 'clinic' in d ? d.clinic : d) as LinkBioClinic;
         })
       );
+  }
+
+  /** Upload da foto do profissional (aba Conteúdo extra do Link Bio). */
+  uploadProfessionalPhoto(file: File): Observable<LinkBioClinic> {
+    const form = new FormData();
+    form.append('professional_photo', file, file.name);
+    return this.api.postFormData<{ data: LinkBioClinic }>('/link-bio/professional-photo', form).pipe(
+      map((r) => r.data as LinkBioClinic)
+    );
   }
 
   /**

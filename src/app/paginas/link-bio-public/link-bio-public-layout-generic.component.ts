@@ -8,6 +8,7 @@ import {
   LinkBioPublicDocItem,
   LinkBioService,
 } from '../../core/services/link-bio.service';
+import { linkBioHeaderBrandImageUrl } from '../../core/utils/link-bio-public-assets';
 
 @Component({
   selector: 'app-link-bio-public-layout-generic',
@@ -131,6 +132,14 @@ export class LinkBioPublicLayoutGenericComponent {
     const parts = name.split(/\s+/).filter(Boolean);
     if (parts.length === 1) return parts[0]!.slice(0, 2).toUpperCase();
     return (parts[0]!.charAt(0) + parts[1]!.charAt(0)).toUpperCase();
+  }
+
+  /**
+   * Modelo 1 (genérico): único avatar = marca da empresa (`company_logo_url` ou `logo_url`).
+   * Não usa `professional_photo_url` (essa é só para layouts temáticos com foto grande separada).
+   */
+  get brandLogoUrl(): string | null {
+    return linkBioHeaderBrandImageUrl(this.clinic);
   }
 
   whatsappUrl(): string {

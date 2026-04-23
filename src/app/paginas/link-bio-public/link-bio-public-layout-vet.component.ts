@@ -9,6 +9,7 @@ import {
   LinkBioPublicDocItem,
   LinkBioService,
 } from '../../core/services/link-bio.service';
+import { linkBioHeroPortraitUrl } from '../../core/utils/link-bio-public-assets';
 
 const DEFAULT_SPECIES: { label: string; active: boolean }[] = [
   { label: '🐕 Cães', active: true },
@@ -52,6 +53,10 @@ export class LinkBioPublicLayoutVetComponent {
   get extra(): LinkBioExtra {
     const e = this.clinic.link_bio_extra;
     return e && typeof e === 'object' ? (e as LinkBioExtra) : {};
+  }
+
+  get heroPortraitUrl(): string | null {
+    return linkBioHeroPortraitUrl(this.clinic);
   }
 
   get hoursGridArray(): { label: string; text: string }[] {
