@@ -400,7 +400,7 @@ input[type="checkbox"]:not(.sr-only),
     -webkit-appearance: none;
     width: 1.125rem;
     height: 1.125rem;
-    border-radius: 0.5rem;
+    border-radius: 0.25rem;
     border: 1.5px solid var(--c-border);
     background-color: var(--c-surface);
     cursor: pointer;

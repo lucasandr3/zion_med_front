@@ -165,7 +165,7 @@
 
 .avatar-img {
   background: #fff;
-  object-fit: contain;
+  object-fit: cover;
   object-position: center;
   padding: 0;
   display: block;

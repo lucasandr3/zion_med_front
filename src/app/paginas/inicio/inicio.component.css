@@ -476,7 +476,7 @@
 .lp-page .demo-form-card .fp-check-box {
   width: 1.25rem;
   height: 1.25rem;
-  border-radius: 0.5rem;
+  border-radius: 0.25rem;
   border: 2px solid var(--border3);
   flex-shrink: 0;
   margin-top: 0.125rem;

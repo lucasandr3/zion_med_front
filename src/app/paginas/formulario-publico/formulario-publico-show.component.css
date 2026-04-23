@@ -25,12 +25,6 @@
   min-height: 100vh;
   background: var(--fp-bg-page);
   color: var(--fp-ink-800);
-  /* Skeleton (zm-skeleton-list) — evita herdar tokens do body.dark do app */
-  --c-border: var(--fp-border);
-  --c-surface: #ffffff;
-  --c-soft: var(--fp-cream-100);
-  --skeleton-base: #e0e0de;
-  --skeleton-highlight: #ececea;
 }
 
 .form-publico-page.dark {
@@ -38,11 +32,6 @@
   --fp-bg-header: color-mix(in srgb, #0a0a0a 94%, transparent);
   --fp-border: #2a2a2a;
   color: #fafafa;
-  --c-border: #2a2a2a;
-  --c-surface: #141414;
-  --c-soft: #1a1a1a;
-  --skeleton-base: #262626;
-  --skeleton-highlight: #333333;
 }
 
 /* ── Header ── */
@@ -808,7 +797,7 @@
 .fp-check-box {
   width: 1.25rem;
   height: 1.25rem;
-  border-radius: 0.5rem;
+  border-radius: 0.25rem;
   border: 2px solid var(--fp-cream-400);
   flex-shrink: 0;
   margin-top: 0.125rem;
@@ -1006,112 +995,42 @@
   }
 }
 
-/* ── Skeleton do formulário público (shimmer independente do tema) ─────── */
-.fp-skeleton {
-  padding-top: 1.25rem;
-  animation: fpSkelFadeIn 0.4s ease-out;
-}
-
-.fp-skel {
-  display: block;
-  border-radius: 0.5rem;
-  background: linear-gradient(
-    90deg,
-    #ececea 0%,
-    #f5f5f3 50%,
-    #ececea 100%
-  );
-  background-size: 200% 100%;
-  animation: fpSkelShimmer 1.4s ease-in-out infinite;
-}
-
-.form-publico-page.dark .fp-skel {
-  background: linear-gradient(
-    90deg,
-    #1a1a1a 0%,
-    #262626 50%,
-    #1a1a1a 100%
-  );
-  background-size: 200% 100%;
-}
-
-.fp-skel-title-block {
+/* ── Carregamento inicial (sem skeleton) ─────────────────────────────── */
+.fp-loading-shell {
   display: flex;
   flex-direction: column;
-  gap: 0.625rem;
-  margin-bottom: 1.75rem;
+  align-items: center;
+  justify-content: center;
+  min-height: min(70vh, 480px);
+  padding: 2rem 1.25rem 3rem;
+  animation: fpSkelFadeIn 0.35s ease-out;
 }
 
-.fp-skel-title {
-  height: 1.5rem;
-  width: min(60%, 260px);
-  border-radius: 0.375rem;
+.fp-loading-ring {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  border: 3px solid rgba(0, 0, 0, 0.08);
+  border-top-color: rgba(0, 0, 0, 0.38);
+  animation: fpSpin 0.78s linear infinite;
 }
 
-.fp-skel-lead {
-  height: 0.875rem;
-  width: 100%;
-  max-width: 520px;
+.form-publico-page.dark .fp-loading-ring {
+  border-color: rgba(255, 255, 255, 0.12);
+  border-top-color: rgba(255, 255, 255, 0.55);
 }
 
-.fp-skel-lead-short {
-  width: 60%;
+.fp-loading-hint {
+  margin: 1.125rem 0 0;
+  font-size: 0.875rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  color: #73736e;
+  text-align: center;
 }
 
-.fp-skel-progress {
-  margin: 0 0 2rem;
-}
-
-.fp-skel-progress-track {
-  height: 0.375rem;
-  width: 100%;
-  border-radius: 0.5rem;
-}
-
-.fp-skel-field {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  margin-bottom: 1.25rem;
-}
-
-.fp-skel-label {
-  height: 0.75rem;
-  width: min(40%, 160px);
-  border-radius: 0.25rem;
-}
-
-.fp-skel-input {
-  height: 3rem;
-  width: 100%;
-  border-radius: 0.5rem;
-}
-
-.fp-skel-textarea {
-  height: 6rem;
-  width: 100%;
-  border-radius: 0.5rem;
-}
-
-.fp-skel-footer {
-  margin-top: 2rem;
-  display: flex;
-  justify-content: flex-end;
-}
-
-.fp-skel-button {
-  height: 3rem;
-  width: min(40%, 200px);
-  border-radius: 0.5rem;
-}
-
-@keyframes fpSkelShimmer {
-  0% {
-    background-position: 200% 0;
-  }
-  100% {
-    background-position: -200% 0;
-  }
+.form-publico-page.dark .fp-loading-hint {
+  color: #a3a39a;
 }
 
 @keyframes fpSkelFadeIn {

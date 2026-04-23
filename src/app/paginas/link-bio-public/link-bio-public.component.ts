@@ -12,7 +12,6 @@ import {
 import { absoluteMediaUrl } from '../../core/utils/absolute-media-url';
 import { PublicPageBodyService } from '../../core/services/public-page-body.service';
 import { LoadingService } from '../../shared/services/loading.service';
-import { ZmSkeletonListComponent } from '../../shared/components/skeletons';
 import { LinkBioPublicLayoutsComponent } from './link-bio-public-layouts.component';
 import { LinkBioPublicLayoutGenericComponent } from './link-bio-public-layout-generic.component';
 import { LinkBioPublicLayoutVetComponent } from './link-bio-public-layout-vet.component';
@@ -25,7 +24,6 @@ import type { LinkBioLayoutModel } from '../../core/services/link-bio.service';
   standalone: true,
   imports: [
     CommonModule,
-    ZmSkeletonListComponent,
     LinkBioPublicLayoutGenericComponent,
     LinkBioPublicLayoutsComponent,
     LinkBioPublicLayoutVetComponent,

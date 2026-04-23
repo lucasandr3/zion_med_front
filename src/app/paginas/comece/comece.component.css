@@ -774,7 +774,7 @@
 .comece-page .check-box {
   width: 18px;
   height: 18px;
-  border-radius: 0.5rem;
+  border-radius: 0.25rem;
   border: 1.5px solid var(--border2);
   background: transparent;
   display: flex;

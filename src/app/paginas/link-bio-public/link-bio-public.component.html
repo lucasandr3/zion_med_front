@@ -1,8 +1,15 @@
 <div>
   @if (showSkeleton()) {
-    <div class="lb-bio-skeleton" [class.lb-bio-skeleton--dark]="dark">
-      <div class="max-w-md mx-auto p-6">
-        <zm-skeleton-list [rows]="6" />
+    <div
+      class="lb-bio-loading"
+      [class.lb-bio-loading--dark]="dark"
+      role="status"
+      aria-live="polite"
+      aria-busy="true"
+    >
+      <div class="lb-bio-loading__inner">
+        <span class="lb-bio-loading__ring" aria-hidden="true"></span>
+        <span class="lb-bio-loading__label">Carregando…</span>
       </div>
     </div>
   }

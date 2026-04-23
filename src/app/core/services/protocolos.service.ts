@@ -51,6 +51,9 @@ export interface ProtocoloField {
   name_key: string;
   label: string;
   type: string;
+  sort_order?: number;
+  required?: boolean;
+  options?: string[];
 }
 
 export interface ProtocoloSignature {

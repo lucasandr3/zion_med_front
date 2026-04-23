@@ -123,6 +123,13 @@
             <span class="material-symbols-outlined protocolo-tab__icon">info</span>
             Dados
           </button>
+          <button type="button" class="protocolo-tab" [class.protocolo-tab--active]="abaAtiva === 'respostas'" (click)="setAbaAtiva('respostas')">
+            <span class="material-symbols-outlined protocolo-tab__icon">assignment</span>
+            Respostas
+            @if (camposRespostas().length > 0) {
+              <span class="protocolo-tab__count">{{ camposRespostas().length }}</span>
+            }
+          </button>
           <button type="button" class="protocolo-tab" [class.protocolo-tab--active]="abaAtiva === 'historico'" (click)="setAbaAtiva('historico')">
             <span class="material-symbols-outlined protocolo-tab__icon">history</span>
             Histórico
@@ -138,9 +145,6 @@
             <span class="protocolo-tab__count">{{ totalComentarios() }}</span>
           </button>
         </div>
-        <p class="protocolo-tabs-reference">
-          Referência visual aplicada conforme imagem enviada.
-        </p>
         <div class="protocolo-tab-panel p-6">
           @if (abaAtiva === 'visao-geral') {
             <div class="protocolo-grid">
@@ -182,6 +186,54 @@
                 <p class="protocolo-field-mono">{{ protocolo.protocol_number || protocolo.id }}</p>
               </div>
             </div>
+          }
+
+          @if (abaAtiva === 'respostas') {
+            @if (camposRespostas().length === 0) {
+              <div class="comentario-vazio">
+                <span class="material-symbols-outlined">assignment</span>
+                <p>Não há campos do modelo disponíveis para exibir as respostas.</p>
+                <p class="protocolo-field-muted m-0 text-sm">Se o protocolo for antigo, atualize a página após deploy do sistema.</p>
+              </div>
+            } @else {
+              <div class="protocolo-respostas-grid" role="list">
+                @for (campo of camposRespostas(); track campo.name_key) {
+                  <div
+                    class="protocolo-resposta-cell"
+                    [class.protocolo-resposta-cell--full]="respostaEmLinhaCompleta(campo)"
+                    role="listitem">
+                    <div class="protocolo-resposta-pair">
+                      <span class="protocolo-resposta-k">{{ campo.label }}:</span>
+                      @if (campo.type === 'file') {
+                        @if (anexoParaDownload(campo.name_key); as anexo) {
+                          <span class="protocolo-resposta-v">
+                            <a [href]="anexo.url" target="_blank" rel="noopener noreferrer" class="protocolo-field-link protocolo-resposta-link">
+                              {{ anexo.original_name || 'Abrir anexo' }}
+                              <span class="material-symbols-outlined protocolo-resposta-link__icon" aria-hidden="true">open_in_new</span>
+                            </a>
+                          </span>
+                        } @else {
+                          <span class="protocolo-resposta-v">—</span>
+                        }
+                      } @else if (campo.type === 'signature') {
+                        @if (assinaturaParaCampo(campo.name_key)) {
+                          <span class="protocolo-resposta-v">
+                            <button type="button" class="protocolo-field-link protocolo-resposta-link-btn" (click)="setAbaAtiva('assinaturas')">
+                              Ver assinatura
+                              <span class="material-symbols-outlined protocolo-resposta-link__icon" aria-hidden="true">draw</span>
+                            </button>
+                          </span>
+                        } @else {
+                          <span class="protocolo-resposta-v">—</span>
+                        }
+                      } @else {
+                        <span class="protocolo-resposta-v protocolo-resposta-v--texto">{{ textoRespostaCampo(campo) }}</span>
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+            }
           }
 
           @if (abaAtiva === 'historico') {

@@ -5,9 +5,11 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
   ProtocolosService,
+  ProtocoloAttachment,
   ProtocoloDetalheData,
   ProtocoloEvent,
   ProtocoloField,
+  ProtocoloSignature,
 } from '../../core/services/protocolos.service';
 import { LoadingService } from '../../shared/services/loading.service';
 import { ZmSkeletonCardComponent } from '../../shared/components/skeletons';
@@ -23,7 +25,7 @@ import { AuthService } from '../../core/services/auth.service';
   styleUrl: './protocolos-detalhe.component.css',
 })
 export class ProtocolosDetalheComponent implements OnInit {
-  abaAtiva: 'visao-geral' | 'historico' | 'assinaturas' | 'comentarios' = 'visao-geral';
+  abaAtiva: 'visao-geral' | 'respostas' | 'historico' | 'assinaturas' | 'comentarios' = 'visao-geral';
   protocolo: ProtocoloDetalheData | null = null;
   showSkeleton!: Signal<boolean>;
   erro = '';
@@ -104,8 +106,47 @@ export class ProtocolosDetalheComponent implements OnInit {
     return map[canal.toLowerCase()] ?? canal;
   }
 
-  setAbaAtiva(aba: 'visao-geral' | 'historico' | 'assinaturas' | 'comentarios'): void {
+  setAbaAtiva(aba: 'visao-geral' | 'respostas' | 'historico' | 'assinaturas' | 'comentarios'): void {
     this.abaAtiva = aba;
+  }
+
+  camposRespostas(): ProtocoloField[] {
+    const fields = this.protocolo?.template?.fields;
+    if (!fields?.length) return [];
+    return [...fields].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+  }
+
+  anexoParaCampo(nameKey: string): ProtocoloAttachment | undefined {
+    return this.protocolo?.attachments?.find((a) => a.field_key === nameKey);
+  }
+
+  /** Anexo com URL garantida (para o template da aba Respostas). */
+  anexoParaDownload(nameKey: string): (ProtocoloAttachment & { url: string }) | null {
+    const a = this.anexoParaCampo(nameKey);
+    if (!a?.url) return null;
+    return { ...a, url: a.url };
+  }
+
+  assinaturaParaCampo(nameKey: string): ProtocoloSignature | undefined {
+    return this.protocolo?.signatures?.find((s) => s.field_key === nameKey);
+  }
+
+  /** Campos longos ocupam a linha inteira da grade (como na referência de editais). */
+  respostaEmLinhaCompleta(field: ProtocoloField): boolean {
+    return field.type === 'textarea';
+  }
+
+  /** Texto para exibição na aba Respostas (exceto anexo/assinatura, tratados no template). */
+  textoRespostaCampo(field: ProtocoloField): string {
+    if (field.type === 'file' || field.type === 'signature') return '';
+    const raw = this.valorCampo(field);
+    if (field.type === 'checkbox') {
+      const n = raw.trim().toLowerCase();
+      if (raw === '—' || raw === '') return '—';
+      if (n === 'true' || n === '1' || n === 'sim') return 'Sim';
+      if (n === 'false' || n === '0' || n === 'não' || n === 'nao') return 'Não';
+    }
+    return raw;
   }
 
   totalComentarios(): number {

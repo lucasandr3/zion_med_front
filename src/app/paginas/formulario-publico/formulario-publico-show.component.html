@@ -64,32 +64,9 @@
 
   <div class="fp-scroll">
     @if (showSkeleton()) {
-      <div class="fp-container fp-skeleton" aria-busy="true" aria-label="Carregando formulário">
-        <div class="fp-skel-title-block">
-          <div class="fp-skel fp-skel-title"></div>
-          <div class="fp-skel fp-skel-lead"></div>
-          <div class="fp-skel fp-skel-lead fp-skel-lead-short"></div>
-        </div>
-
-        <div class="fp-skel-progress">
-          <div class="fp-skel fp-skel-progress-track"></div>
-        </div>
-
-        @for (i of [1, 2, 3, 4]; track i) {
-          <div class="fp-skel-field">
-            <div class="fp-skel fp-skel-label"></div>
-            <div class="fp-skel fp-skel-input"></div>
-          </div>
-        }
-
-        <div class="fp-skel-field">
-          <div class="fp-skel fp-skel-label"></div>
-          <div class="fp-skel fp-skel-textarea"></div>
-        </div>
-
-        <div class="fp-skel-footer">
-          <div class="fp-skel fp-skel-button"></div>
-        </div>
+      <div class="fp-container fp-loading-shell" role="status" aria-live="polite" aria-busy="true">
+        <span class="fp-loading-ring" aria-hidden="true"></span>
+        <p class="fp-loading-hint">Carregando formulário…</p>
       </div>
     }
     @if (!showSkeleton() && erro && !data) {
