@@ -118,6 +118,11 @@ export class ProtocolosService {
     return this.api.getBlob(`/protocols/${id}/pdf`);
   }
 
+  /** ZIP com PDF do protocolo + JSON de evidências (dossiê). */
+  dossie(id: number): Observable<Blob> {
+    return this.api.getBlob(`/protocols/${id}/dossie`);
+  }
+
   aprovar(id: number, aprovado: boolean, comentario?: string): Observable<unknown> {
     const status = aprovado ? 'approved' : 'rejected';
     const body: { status: string; review_comment?: string } = { status };

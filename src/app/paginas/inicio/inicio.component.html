@@ -62,12 +62,8 @@
           <div class="hero-eyebrow-dot"></div>
           Lançamento · <span>Seja um early adopter</span>
         </div>
-        <h1 class="anim anim-d1">
-          Fichas digitais que chegam<br /><em>antes do atendimento</em>
-        </h1>
-        <p class="hero-sub anim anim-d2">
-          Você publica um <strong>link na bio</strong>. O cliente preenche a ficha pelo celular. Você atende com tudo pronto — sem papel, sem retrabalho.
-        </p>
+        <h1 class="anim anim-d1">{{ landingTitle }}</h1>
+        <p class="hero-sub anim anim-d2">{{ landingSubtitle }}</p>
         <div class="hero-capture anim anim-d3">
           <input id="capture-email" class="capture-input" type="email" [(ngModel)]="heroEmail" name="hero_email" placeholder="seu@email.com.br" autocomplete="email" />
           <button type="button" class="capture-btn" (click)="irComece()">
@@ -77,20 +73,15 @@
         </div>
         <p class="hero-note anim anim-d3">Sem cartão · {{ landingTrialDias }} dias grátis · Cancele quando quiser</p>
         <div class="hero-social anim">
-          <div class="hs-item">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-            86+ templates prontos
-          </div>
-          <div class="hs-sep"></div>
-          <div class="hs-item">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-            Assinatura digital
-          </div>
-          <div class="hs-sep"></div>
-          <div class="hs-item">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-            LGPD nativo
-          </div>
+          @for (chip of trustChips; track chip; let last = $last) {
+            <div class="hs-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              {{ chip }}
+            </div>
+            @if (!last) {
+              <div class="hs-sep"></div>
+            }
+          }
         </div>
       </div>
       <div class="hero-visual anim">
@@ -215,6 +206,45 @@
           <div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
           <div class="feat-title">API & Webhooks</div>
           <div class="feat-desc">Integre com prontuário ou CRM via API documentada e webhooks.</div>
+        </div>
+        <div class="feat-card">
+          <div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><polyline points="7.5 4.21 12 6.81 16.5 4.21"/><polyline points="7.5 19.79 7.5 14.6 3 12"/><polyline points="21 12 16.5 14.6 16.5 19.79"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg></div>
+          <div class="feat-title">Dossiê ZIP</div>
+          <div class="feat-desc">Baixe PDF do protocolo mais pacote JSON de evidências (hashes, canal, carimbo de tempo do envio).</div>
+        </div>
+        <div class="feat-card">
+          <div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/></svg></div>
+          <div class="feat-title">OTP WhatsApp e quiosque</div>
+          <div class="feat-desc">Código por e-mail ou WhatsApp (Evolution) no modo reforçado. Totem: página da clínica <code>/l/seu-slug?kiosk=1</code> (lista de fichas) ou ficha direta <code>/f/token?kiosk=1</code>.</div>
+        </div>
+        <div class="feat-card">
+          <div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg></div>
+          <div class="feat-title">App instalável (PWA)</div>
+          <div class="feat-desc">Adicione o painel à tela inicial no celular ou tablet — abre rápido, útil na recepção e fora do consultório.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="features lp-sec-seguranca" id="seguranca-juridica">
+    <div class="container">
+      <div class="section-header anim">
+        <span class="eyebrow">Confiança</span>
+        <h2 class="section-title">Segurança e validade jurídica</h2>
+        <p class="section-sub">Evidências técnicas no PDF, consentimento explícito e trilha para auditoria.</p>
+      </div>
+      <div class="feat-grid anim" style="grid-template-columns: repeat(auto-fit, minmax(240px, 1fr))">
+        <div class="feat-card">
+          <div class="feat-title">Evidências no documento</div>
+          <div class="feat-desc">IP, navegador, hashes do pacote de assinatura e do snapshot do formulário ajudam a comprovar integridade.</div>
+        </div>
+        <div class="feat-card">
+          <div class="feat-title">LGPD na prática</div>
+          <div class="feat-desc">Finalidade clara, aviso no formulário público, dados de pacientes protegidos com criptografia em repouso quando aplicável.</div>
+        </div>
+        <div class="feat-card">
+          <div class="feat-title">MP 2.200-2 / ICP-Brasil</div>
+          <div class="feat-desc">Assinatura eletrônica simples com valor jurídico para documentação clínica; integração ICP-Brasil é roteiro futuro opcional.</div>
         </div>
       </div>
     </div>
@@ -651,6 +681,18 @@
           <div class="faq-item">
             <button type="button" class="faq-q" [class.open]="faqOpenIndex === 4" (click)="toggleFaq(4)">Preciso cancelar meu Linktree?<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
             <div class="faq-a" [class.open]="faqOpenIndex === 4"><p>Não. Pode testar em paralelo. A maioria migra naturalmente na primeira semana.</p></div>
+          </div>
+          <div class="faq-item">
+            <button type="button" class="faq-q" [class.open]="faqOpenIndex === 5" (click)="toggleFaq(5)">Como funciona o OTP por WhatsApp?<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+            <div class="faq-a" [class.open]="faqOpenIndex === 5"><p>No modo de segurança reforçada, a clínica pode exigir um código de 6 dígitos enviado ao e-mail do preenchedor ou ao celular via WhatsApp (integração Evolution). Só após validar o código o envio com assinatura é aceito.</p></div>
+          </div>
+          <div class="faq-item">
+            <button type="button" class="faq-q" [class.open]="faqOpenIndex === 6" (click)="toggleFaq(6)">O que vem no dossiê ZIP?<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+            <div class="faq-a" [class.open]="faqOpenIndex === 6"><p>O arquivo compactado inclui o PDF do protocolo (com dados e assinaturas) e um JSON com metadados de evidência — útil para auditoria ou integrações.</p></div>
+          </div>
+          <div class="faq-item">
+            <button type="button" class="faq-q" [class.open]="faqOpenIndex === 7" (click)="toggleFaq(7)">Os dados de CPF e contato ficam protegidos?<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+            <div class="faq-a" [class.open]="faqOpenIndex === 7"><p>Campos sensíveis das fichas podem ser armazenados criptografados; buscas internas usam derivações seguras (hash) para localizar pacientes sem expor valores em texto puro no banco.</p></div>
           </div>
         </div>
       </div>

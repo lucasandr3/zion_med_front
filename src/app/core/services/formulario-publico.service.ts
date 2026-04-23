@@ -176,6 +176,10 @@ export interface FormularioPublicoData {
   clinic_name?: string;
   /** URL absoluta da logo (preenchida pelo service a partir da API). */
   logo_url?: string | null;
+  /** `basic` ou `reinforced` (OTP antes de assinar). */
+  signing_security_level?: string;
+  /** Evolution configurado para OTP por WhatsApp. */
+  otp_whatsapp_available?: boolean;
   /** Quando ativo, exige identificação antes do preenchimento (ver `person_link.mode`). */
   person_link?: FormularioPersonLink;
   /** Algumas APIs enviam o modo de identificação neste campo (ex.: `cpf`). */
@@ -199,6 +203,14 @@ interface ValidatePersonResponse {
 
 interface FeegowDisponibilidadeResponse {
   data: { schedule: unknown; raw: unknown };
+}
+
+interface OtpSendResponse {
+  data: { message: string; expires_in_minutes: number };
+}
+
+interface OtpVerifyResponse {
+  data: { message: string };
 }
 
 @Injectable({ providedIn: 'root' })
@@ -246,6 +258,24 @@ export class FormularioPublicoService {
   ): Observable<ValidatePersonResponse['data']> {
     return this.http
       .post<ValidatePersonResponse>(`${BASE}/formulario-publico/${encodeURIComponent(token)}/validate-person`, body)
+      .pipe(map((r) => r.data));
+  }
+
+  sendOtp(
+    token: string,
+    body: { channel: 'email' | 'whatsapp'; email?: string; phone?: string }
+  ): Observable<OtpSendResponse['data']> {
+    return this.http
+      .post<OtpSendResponse>(`${BASE}/formulario-publico/${encodeURIComponent(token)}/otp/send`, body)
+      .pipe(map((r) => r.data));
+  }
+
+  verifyOtp(
+    token: string,
+    body: { channel: 'email' | 'whatsapp'; email?: string; phone?: string; code: string }
+  ): Observable<OtpVerifyResponse['data']> {
+    return this.http
+      .post<OtpVerifyResponse>(`${BASE}/formulario-publico/${encodeURIComponent(token)}/otp/verify`, body)
       .pipe(map((r) => r.data));
   }
 

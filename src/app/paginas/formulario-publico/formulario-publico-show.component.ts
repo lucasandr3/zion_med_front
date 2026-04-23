@@ -139,6 +139,16 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
   personGateErro = '';
   validandoPerson = false;
   personValidatedName: string | null = null;
+  /** Modo totem: URL `?kiosk=1` — sem cabeçalho completo e volta ao gate após envio. */
+  kioskMode = false;
+  acceptTerms = false;
+  otpChannel: 'email' | 'whatsapp' = 'email';
+  otpPhone = '';
+  otpCode = '';
+  otpVerified = false;
+  otpSending = false;
+  otpVerifying = false;
+  otpErro = '';
   feegowBuscandoDisponibilidade = false;
   feegowDisponibilidadeErro = '';
   feegowHorariosDisponiveis: string[] = [];
@@ -159,6 +169,7 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
 
   constructor() {
     this.token = this.route.snapshot.paramMap.get('token') ?? '';
+    this.kioskMode = this.route.snapshot.queryParamMap.get('kiosk') === '1';
   }
 
   ngOnInit(): void {
@@ -186,6 +197,12 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
         this.personCpfDisplay = '';
         this.personGateErro = '';
         this.personValidatedName = null;
+        this.acceptTerms = false;
+        this.otpVerified = false;
+        this.otpCode = '';
+        this.otpPhone = '';
+        this.otpErro = '';
+        this.otpChannel = d.otp_whatsapp_available ? 'whatsapp' : 'email';
         this.feegowBuscandoDisponibilidade = false;
         this.feegowDisponibilidadeErro = '';
         this.feegowHorariosDisponiveis = [];
@@ -350,11 +367,119 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
     });
   }
 
+  signingSecurityReinforced(): boolean {
+    return (this.data?.signing_security_level ?? 'basic') === 'reinforced';
+  }
+
+  templateHasSignatureFields(): boolean {
+    return !!this.data?.fields.some((f) => this.fieldType(f) === 'signature');
+  }
+
+  hasFilledSignatures(): boolean {
+    if (!this.data) return false;
+    return this.data.fields.some(
+      (f) => this.fieldType(f) === 'signature' && typeof this.valores[f.name_key] === 'string' && String(this.valores[f.name_key]).length > 80
+    );
+  }
+
+  enviarOtp(): void {
+    if (!this.token || !this.data || this.otpSending) return;
+    this.otpErro = '';
+    this.otpSending = true;
+    if (this.otpChannel === 'email') {
+      const em = this.submitterEmail.trim();
+      if (!em) {
+        this.otpSending = false;
+        this.otpErro = 'Informe seu e-mail acima para receber o código.';
+        return;
+      }
+      this.formularioService.sendOtp(this.token, { channel: 'email', email: em }).subscribe({
+        next: (r) => {
+          this.otpSending = false;
+          this.toast.success('Código enviado', r.message);
+          this.otpVerified = false;
+        },
+        error: (err) => {
+          this.otpSending = false;
+          this.otpErro = err.error?.message ?? 'Não foi possível enviar o código.';
+        },
+      });
+      return;
+    }
+    const ph = this.otpPhone.trim();
+    if (ph.replace(/\D/g, '').length < 10) {
+      this.otpSending = false;
+      this.otpErro = 'Informe o celular com DDD para receber o código no WhatsApp.';
+      return;
+    }
+    this.formularioService.sendOtp(this.token, { channel: 'whatsapp', phone: ph }).subscribe({
+      next: (r) => {
+        this.otpSending = false;
+        this.toast.success('Código enviado', r.message);
+        this.otpVerified = false;
+      },
+      error: (err) => {
+        this.otpSending = false;
+        this.otpErro = err.error?.message ?? 'Não foi possível enviar o código.';
+      },
+    });
+  }
+
+  verificarOtp(): void {
+    if (!this.token || this.otpVerifying) return;
+    const code = this.otpCode.replace(/\D/g, '');
+    if (code.length !== 6) {
+      this.otpErro = 'Digite o código de 6 dígitos.';
+      return;
+    }
+    this.otpErro = '';
+    this.otpVerifying = true;
+    if (this.otpChannel === 'email') {
+      const em = this.submitterEmail.trim();
+      this.formularioService.verifyOtp(this.token, { channel: 'email', email: em, code }).subscribe({
+        next: () => {
+          this.otpVerifying = false;
+          this.otpVerified = true;
+          this.toast.success('Verificado', 'Código confirmado.');
+        },
+        error: (err) => {
+          this.otpVerifying = false;
+          this.otpErro = err.error?.message ?? 'Código inválido.';
+        },
+      });
+      return;
+    }
+    this.formularioService.verifyOtp(this.token, { channel: 'whatsapp', phone: this.otpPhone.trim(), code }).subscribe({
+      next: () => {
+        this.otpVerifying = false;
+        this.otpVerified = true;
+        this.toast.success('Verificado', 'Código confirmado.');
+      },
+      error: (err) => {
+        this.otpVerifying = false;
+        this.otpErro = err.error?.message ?? 'Código inválido.';
+      },
+    });
+  }
+
   enviar(): void {
     if (!this.data || this.enviando) return;
     if (!this.personFormUnlocked()) return;
     if (this.ngForm && !this.ngForm.valid) {
       this.toast.warning('Campos obrigatórios', 'Preencha ou corrija os campos marcados com * antes de enviar.');
+      return;
+    }
+    if (this.templateHasSignatureFields() && this.hasFilledSignatures() && !this.acceptTerms) {
+      this.toast.warning('Termo de ciência', 'Marque a caixa confirmando que leu o aviso antes de assinar e enviar.');
+      return;
+    }
+    if (
+      this.signingSecurityReinforced() &&
+      this.templateHasSignatureFields() &&
+      this.hasFilledSignatures() &&
+      !this.otpVerified
+    ) {
+      this.toast.warning('Verificação', 'Envie e confirme o código OTP (e-mail ou WhatsApp) antes de enviar o formulário.');
       return;
     }
     this.enviando = true;
@@ -382,12 +507,40 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
     if (Object.keys(signatures).length > 0) {
       payload['_signature'] = signatures;
     }
+    if (this.templateHasSignatureFields() && this.hasFilledSignatures()) {
+      payload['_accept_terms'] = true;
+      payload['_accepted_text_at'] = new Date().toISOString();
+    }
+    if (this.signingSecurityReinforced() && this.templateHasSignatureFields() && this.hasFilledSignatures()) {
+      payload['_otp_channel'] = this.otpChannel;
+      if (this.otpChannel === 'whatsapp') {
+        payload['_otp_recipient'] = this.otpPhone.trim();
+      }
+    }
     if (this.personCpfDigits) {
       payload['_person_cpf'] = this.personCpfDigits;
     }
     this.formularioService.submit(this.token, payload).subscribe({
       next: (r) => {
         this.enviando = false;
+        if (this.kioskMode) {
+          this.toast.success('Enviado', `Protocolo ${r.protocol_number ?? ''} registrado.`);
+          this.clearCpfGateAuthorization();
+          this.personGateOk = false;
+          this.personCpfDigits = '';
+          this.personCpfDisplay = '';
+          this.acceptTerms = false;
+          this.otpVerified = false;
+          this.otpCode = '';
+          if (this.data) {
+            this.data.fields.forEach((f) => {
+              const ft = this.fieldType(f);
+              if (ft === 'checkbox') this.valores[f.name_key] = false;
+              else this.valores[f.name_key] = '';
+            });
+          }
+          return;
+        }
         this.clearCpfGateAuthorization();
         this.persistSubmitterIdentity();
         this.router.navigate(['/f/sucesso'], {

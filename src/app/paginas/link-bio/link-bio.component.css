@@ -114,6 +114,37 @@
   background: var(--c-soft);
 }
 
+/* Grupo: abrir modo recepção + copiar link */
+.link-bio-recepcao-wrap {
+  display: inline-flex;
+  align-items: stretch;
+  border-radius: 0.5rem;
+  border: 1px solid var(--c-border);
+  background: var(--c-surface);
+  overflow: hidden;
+}
+.link-bio-recepcao-wrap .link-bio-btn-ghost {
+  border: none;
+  border-radius: 0;
+  background: transparent;
+}
+.link-bio-recepcao-wrap .link-bio-btn-ghost:hover {
+  background: var(--c-soft);
+}
+.link-bio-recepcao-wrap .link-bio-btn-recepcao {
+  border-right: 1px solid var(--c-border);
+}
+.link-bio-recepcao-wrap .link-bio-recepcao-menu {
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+  min-width: 2.25rem;
+  justify-content: center;
+}
+.link-bio-recepcao-ic {
+  font-size: 16px;
+  line-height: 1;
+}
+
 .link-bio-btn-primary {
   display: inline-flex;
   align-items: center;

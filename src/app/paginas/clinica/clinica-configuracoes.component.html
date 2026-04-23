@@ -205,6 +205,36 @@
 
           <div class="section-card">
             <div class="section-header">
+              <div class="icon-wrap"><span class="material-symbols-outlined">verified_user</span></div>
+              <span class="section-title">Assinatura e retenção de dados</span>
+            </div>
+            <div class="section-body">
+              <div class="field">
+                <label>Segurança da assinatura pública</label>
+                <select [(ngModel)]="form.signing_security_level" name="signing_security_level" class="form-input">
+                  <option value="basic">Básica — somente evidências (IP, navegador, hashes)</option>
+                  <option value="reinforced">Reforçada — exige OTP por e-mail ou WhatsApp antes de enviar com assinatura</option>
+                </select>
+                <div class="hint">No modo reforçado, configure o WhatsApp (Evolution) na aba correspondente para oferecer OTP por mensagem.</div>
+              </div>
+              <div class="field">
+                <label>Exclusão automática de fichas sem protocolo (anos) <span class="opt">opcional</span></label>
+                <input
+                  type="number"
+                  min="1"
+                  max="50"
+                  [(ngModel)]="form.data_retention_years"
+                  name="data_retention_years"
+                  class="form-input"
+                  placeholder="Ex.: 7 — deixe vazio para desativar"
+                />
+                <div class="hint">Remove apenas cadastros (fichas) sem nenhum protocolo vinculado, mais antigos que o prazo. Job diário no servidor.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-card">
+            <div class="section-header">
               <div class="icon-wrap"><span class="material-symbols-outlined">schedule</span></div>
               <span class="section-title">Horário de Atendimento</span>
               <span style="margin-left:auto;font-size:11px;color:var(--c-muted)">Deixe vazio para "Fechado"</span>

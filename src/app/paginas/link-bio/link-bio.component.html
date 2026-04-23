@@ -37,7 +37,7 @@
           </svg>
           Copiar
         </button>
-        <div class="flex items-center gap-2 shrink-0 flex-1 sm:flex-initial justify-end sm:justify-start min-w-0">
+        <div class="flex items-center gap-2 shrink-0 flex-1 sm:flex-initial justify-end sm:justify-start min-w-0 flex-wrap">
           <a [href]="publicUrlAbrirNoNavegador" target="_blank" rel="noopener" class="link-bio-btn-ghost no-underline" title="Abre o link público neste ambiente (dev) ou o URL oficial">
             <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">
               <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
@@ -46,6 +46,29 @@
             </svg>
             Ver página
           </a>
+          @if (recepcaoKioskUrl) {
+            <div class="link-bio-recepcao-wrap relative inline-flex">
+              <a
+                [href]="recepcaoKioskUrl"
+                target="_blank"
+                rel="noopener"
+                class="link-bio-btn-ghost no-underline link-bio-btn-recepcao"
+                title="Lista grande de fichas para tablet ou totem na recepção"
+              >
+                <span class="material-symbols-outlined link-bio-recepcao-ic" aria-hidden="true">tablet_mac</span>
+                Modo recepção
+              </a>
+              <button
+                type="button"
+                class="link-bio-btn-ghost link-bio-recepcao-menu"
+                (click)="copiarLinkRecepcao()"
+                title="Copiar link do modo recepção"
+                aria-label="Copiar link do modo recepção"
+              >
+                <span class="material-symbols-outlined" style="font-size: 18px" aria-hidden="true">content_copy</span>
+              </button>
+            </div>
+          }
           <button type="button" class="link-bio-btn-primary" (click)="ativarAba('conteudoExtra')">
             <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
               <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>

@@ -1033,6 +1033,69 @@
   color: #a3a39a;
 }
 
+.fp-kiosk .fp-scroll {
+  padding-top: 0.5rem;
+}
+
+.fp-otp-card {
+  margin: 1rem 0;
+  padding: 1.25rem 1rem;
+  border-radius: 12px;
+  border: 1px solid var(--fp-border);
+  background: color-mix(in srgb, var(--fp-cream-100) 35%, transparent);
+}
+
+.form-publico-page.dark .fp-otp-card {
+  background: #141414;
+}
+
+.fp-otp-title {
+  margin: 0 0 0.35rem;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.fp-otp-actions {
+  margin: 0.5rem 0 0.75rem;
+}
+
+.fp-otp-verify {
+  width: 100%;
+  margin-top: 0.5rem;
+  padding: 0.65rem 1rem;
+  font-size: 0.95rem;
+}
+
+.fp-otp-ok {
+  margin: 0.75rem 0 0;
+  font-size: 0.875rem;
+  color: #15803d;
+}
+
+.form-publico-page.dark .fp-otp-ok {
+  color: #4ade80;
+}
+
+.fp-consent-block {
+  margin: 1.5rem 0 0.5rem;
+  padding: 1rem;
+  border-radius: 10px;
+  border: 1px dashed var(--fp-border);
+}
+
+.fp-check-row {
+  display: flex;
+  gap: 0.65rem;
+  align-items: flex-start;
+  cursor: pointer;
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.fp-check-label-inline .fp-link {
+  margin-left: 0.25rem;
+}
+
 @keyframes fpSkelFadeIn {
   from {
     opacity: 0;

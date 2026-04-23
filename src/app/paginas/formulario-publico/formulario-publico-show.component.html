@@ -1,5 +1,5 @@
-<div class="form-publico-page" [class.dark]="dark">
-  @if (!showSkeleton() && data) {
+<div class="form-publico-page" [class.dark]="dark" [class.fp-kiosk]="kioskMode">
+  @if (!showSkeleton() && data && !kioskMode) {
     <header class="fp-sticky-header">
       <div class="fp-header-inner">
         <div class="fp-header-row">
@@ -282,6 +282,47 @@
             </div>
           </div>
 
+          @if (signingSecurityReinforced() && templateHasSignatureFields()) {
+            <div class="fp-section-div" aria-hidden="true"></div>
+            <div class="fp-otp-card">
+              <p class="fp-otp-title">Confirmar identidade para assinar</p>
+              <p class="fp-field-hint">Com o modo reforçado, enviamos um código de 6 dígitos antes do envio com assinatura.</p>
+              <div class="fp-field-group">
+                <label class="fp-field-label" for="fpOtpChannel">Canal</label>
+                <select id="fpOtpChannel" class="fp-input fp-select" [(ngModel)]="otpChannel" name="fpOtpChannel" [ngModelOptions]="{ standalone: true }">
+                  <option value="email">E-mail (use o campo “Seu e-mail” acima)</option>
+                  @if (data.otp_whatsapp_available) {
+                    <option value="whatsapp">WhatsApp</option>
+                  }
+                </select>
+              </div>
+              @if (otpChannel === 'whatsapp') {
+                <div class="fp-field-group">
+                  <label class="fp-field-label" for="fpOtpPhone">Celular (DDD + número)</label>
+                  <input id="fpOtpPhone" type="tel" class="fp-input" [(ngModel)]="otpPhone" name="fpOtpPhone" [ngModelOptions]="{ standalone: true }" placeholder="11999998888" autocomplete="tel" />
+                </div>
+              }
+              <div class="fp-otp-actions">
+                <button type="button" class="fp-link-btn" (click)="enviarOtp()" [disabled]="otpSending">
+                  {{ otpSending ? 'Enviando…' : 'Enviar código' }}
+                </button>
+              </div>
+              <div class="fp-field-group">
+                <label class="fp-field-label" for="fpOtpCode">Código de 6 dígitos</label>
+                <input id="fpOtpCode" type="text" inputmode="numeric" maxlength="6" class="fp-input" [(ngModel)]="otpCode" name="fpOtpCode" [ngModelOptions]="{ standalone: true }" autocomplete="one-time-code" />
+              </div>
+              <button type="button" class="fp-submit-btn fp-otp-verify" (click)="verificarOtp()" [disabled]="otpVerifying">
+                {{ otpVerifying ? 'Verificando…' : 'Validar código' }}
+              </button>
+              @if (otpVerified) {
+                <p class="fp-otp-ok">Código confirmado. Você pode enviar o formulário.</p>
+              }
+              @if (otpErro) {
+                <p class="fp-banner-error" style="margin-top: 0.75rem">{{ otpErro }}</p>
+              }
+            </div>
+          }
+
           <div class="fp-section-div" aria-hidden="true"></div>
 
           @for (f of data.fields; track trackByKey($index, f)) {
@@ -442,6 +483,17 @@
                   <input [id]="'field_' + f.name_key" type="text" [(ngModel)]="valores[f.name_key]" [name]="f.name_key" class="fp-input" [required]="f.required" />
                 }
               }
+            </div>
+          }
+          @if (templateHasSignatureFields()) {
+            <div class="fp-consent-block">
+              <label class="fp-check-row">
+                <input type="checkbox" [(ngModel)]="acceptTerms" name="fpAcceptTerms" [ngModelOptions]="{ standalone: true }" class="fp-check-native" />
+                <span class="fp-check-label-inline">
+                  Declaro que li o aviso sobre uso dos dados e a política de privacidade, e estou ciente de que minha assinatura eletrônica integra este documento.
+                  <a routerLink="/privacidade" target="_blank" rel="noopener" class="fp-link">Privacidade</a>
+                </span>
+              </label>
             </div>
           }
         </form>

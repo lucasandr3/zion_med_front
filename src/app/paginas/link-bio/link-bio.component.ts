@@ -148,6 +148,32 @@ export class LinkBioComponent implements OnInit {
     return canonical;
   }
 
+  /**
+   * Página pública em modo totem/recepção (`?kiosk=1`): só lista de links, ideal para tablet.
+   * Mesma regra de origem que {@link publicUrlAbrirNoNavegador} em desenvolvimento.
+   */
+  get recepcaoKioskUrl(): string {
+    const base = this.publicUrlAbrirNoNavegador;
+    if (!base?.trim()) return '';
+    try {
+      const u = new URL(base);
+      u.searchParams.set('kiosk', '1');
+      return u.toString();
+    } catch {
+      const sep = base.includes('?') ? '&' : '?';
+      return `${base}${sep}kiosk=1`;
+    }
+  }
+
+  copiarLinkRecepcao(): void {
+    const url = this.recepcaoKioskUrl;
+    if (!url) return;
+    navigator.clipboard.writeText(url).then(
+      () => this.toast.success('Copiado', 'Link do modo recepção na área de transferência.'),
+      () => this.toast.error('Não foi possível copiar', 'Tente selecionar o link manualmente.')
+    );
+  }
+
   get availableIcons(): Record<string, string> {
     return this.state?.available_icons ?? {};
   }

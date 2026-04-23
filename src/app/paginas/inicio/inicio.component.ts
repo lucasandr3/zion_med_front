@@ -88,6 +88,16 @@ export class InicioComponent implements OnInit, AfterViewInit, OnDestroy {
   demonstracaoFeedback = '';
   demonstracaoSucesso = false;
   heroEmail = '';
+  /** Textos da API `/landing` (fallback abaixo). */
+  landingTitle = 'Fichas digitais que chegam antes do atendimento';
+  landingSubtitle =
+    'Você publica um link na bio. O cliente preenche pelo celular com assinatura, evidências e opcionalmente OTP — você atende com protocolo e PDF prontos.';
+  trustChips: string[] = [
+    '86+ templates prontos',
+    'Assinatura com evidências',
+    'OTP e dossiê ZIP',
+    'LGPD e rastreabilidade',
+  ];
   howStep = 0;
   faqOpenIndex = 0;
   heroSlide = 0;
@@ -218,6 +228,15 @@ export class InicioComponent implements OnInit, AfterViewInit, OnDestroy {
       next: (data) => {
         this.landingTrialDias = data.trial_days ?? 14;
         this.planos = data.plans ?? [];
+        if (data.headline?.trim()) {
+          this.landingTitle = data.headline.trim();
+        }
+        if (data.subheadline?.trim()) {
+          this.landingSubtitle = data.subheadline.trim();
+        }
+        if (Array.isArray(data.trust_points) && data.trust_points.length > 0) {
+          this.trustChips = data.trust_points.map((s) => String(s).trim()).filter(Boolean);
+        }
         this.carregandoLanding = false;
         this.scheduleObserveAnims();
       },

@@ -210,6 +210,23 @@ export class ProtocolosDetalheComponent implements OnInit {
     });
   }
 
+  baixarDossie(): void {
+    if (!this.protocolo) return;
+    this.protocolosService.dossie(this.protocolo.id).subscribe({
+      next: (blob) => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `dossie-${this.protocolo!.protocol_number || this.protocolo!.id}.zip`;
+        a.click();
+        URL.revokeObjectURL(url);
+      },
+      error: () => {
+        this.toast.error('Download', 'Não foi possível baixar o dossiê.');
+      },
+    });
+  }
+
   async enviarRevisao(): Promise<void> {
     if (!this.protocolo || !this.podeRevisarProtocolo) return;
     if (this.revisaoAprovado === false) {

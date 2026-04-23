@@ -15,6 +15,10 @@ export interface PlanoLanding {
 export interface LandingData {
   trial_days: number;
   plans: PlanoLanding[];
+  headline?: string;
+  subheadline?: string;
+  niches?: string[];
+  trust_points?: string[];
 }
 
 /** Payload do status do serviço (igual ao backend PlatformSetting::getServiceStatusPayload) */

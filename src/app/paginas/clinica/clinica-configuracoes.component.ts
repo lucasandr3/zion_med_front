@@ -97,6 +97,8 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
   pageData: ConfigPageData | null = null;
   form: Partial<ClinicaConfig> & {
     business_hours?: Record<string, { open: string; close: string }>;
+    signing_security_level?: 'basic' | 'reinforced';
+    data_retention_years?: number | null;
   } = {};
   showSkeleton!: Signal<boolean>;
   themeMode: 'light' | 'dark' | 'auto' = 'light';
@@ -322,6 +324,8 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
       whatsapp_notify_cobranca: c.whatsapp_notify_cobranca ?? true,
       whatsapp_notify_faturas_boleto: c.whatsapp_notify_faturas_boleto ?? true,
       whatsapp_notify_avisos: c.whatsapp_notify_avisos ?? true,
+      signing_security_level: (c.signing_security_level as 'basic' | 'reinforced') ?? 'basic',
+      data_retention_years: c.data_retention_years ?? null,
       theme: c.theme ?? 'ocean-blue',
       dark_mode: c.dark_mode ?? false,
     };
@@ -843,6 +847,11 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
       whatsapp_notify_cobranca: !!this.form.whatsapp_notify_cobranca,
       whatsapp_notify_faturas_boleto: !!this.form.whatsapp_notify_faturas_boleto,
       whatsapp_notify_avisos: !!this.form.whatsapp_notify_avisos,
+      signing_security_level: this.form.signing_security_level ?? 'basic',
+      data_retention_years:
+        this.form.data_retention_years === null || this.form.data_retention_years === undefined
+          ? null
+          : Number(this.form.data_retention_years),
       theme: this.form.theme ?? undefined,
       dark_mode: !!this.form.dark_mode,
     };

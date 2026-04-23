@@ -33,6 +33,10 @@
               <span class="material-symbols-outlined text-lg">picture_as_pdf</span>
               Baixar PDF
             </button>
+            <button type="button" class="btn-ghost btn-default-bg inline-flex items-center gap-2" (click)="baixarDossie()" title="Baixar dossiê (ZIP)">
+              <span class="material-symbols-outlined text-lg">folder_zip</span>
+              Baixar dossiê (ZIP)
+            </button>
             @if (isPending && podeRevisarProtocolo) {
               <button
                 type="button"

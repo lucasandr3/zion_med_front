@@ -50,6 +50,8 @@ export interface ClinicaConfig {
   whatsapp_notify_cobranca?: boolean;
   whatsapp_notify_faturas_boleto?: boolean;
   whatsapp_notify_avisos?: boolean;
+  signing_security_level?: 'basic' | 'reinforced';
+  data_retention_years?: number | null;
   plan_key?: string;
   subscription_status?: string;
   billing_status?: string;
