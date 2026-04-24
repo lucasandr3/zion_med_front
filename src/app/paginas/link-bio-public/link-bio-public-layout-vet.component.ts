@@ -120,6 +120,21 @@ export class LinkBioPublicLayoutVetComponent {
     );
   }
 
+  get examResultsUrl(): string {
+    const raw = this.extra.vet_exam_results_url?.trim();
+    if (!raw) return '';
+    if (/^https?:\/\//i.test(raw)) return raw;
+    return `https://${raw}`;
+  }
+
+  get examResultsLabel(): string {
+    return this.extra.vet_exam_results_label?.trim() || 'Consultar resultados';
+  }
+
+  get examResultsSubtitle(): string {
+    return this.extra.vet_exam_results_subtitle?.trim() || 'Acesso ao portal do laboratório';
+  }
+
   /**
    * Cor de destaque da vitrine (`accent_hex`), com fallback ao verde veterinário padrão.
    */

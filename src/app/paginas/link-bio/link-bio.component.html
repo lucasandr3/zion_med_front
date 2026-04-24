@@ -779,6 +779,48 @@
               </div>
 
               <div class="card p-5">
+                <p class="text-xs font-bold uppercase tracking-wider mb-1" style="color:var(--c-muted)">Resultados de exames (veterinária)</p>
+                <p class="text-[11px] mb-4" style="color:var(--c-muted)">
+                  Exibido no layout <strong style="color:var(--c-text)">Clínica veterinária (6)</strong> como botão abaixo do WhatsApp e dos atalhos. Deixe a URL vazia para ocultar o botão na página pública.
+                </p>
+                <div class="flex flex-col gap-4">
+                  <div>
+                    <label class="form-label">URL do portal de exames</label>
+                    <input
+                      type="url"
+                      class="form-input"
+                      [(ngModel)]="extraVetExamResultsUrl"
+                      name="extra_vet_exam_url"
+                      maxlength="500"
+                      placeholder="https://laboratorio.com.br/resultados"
+                    />
+                  </div>
+                  <div>
+                    <label class="form-label">Rótulo do botão (opcional)</label>
+                    <input
+                      type="text"
+                      class="form-input"
+                      [(ngModel)]="extraVetExamResultsLabel"
+                      name="extra_vet_exam_label"
+                      maxlength="120"
+                      placeholder="Consultar resultados"
+                    />
+                  </div>
+                  <div>
+                    <label class="form-label">Subtítulo (opcional)</label>
+                    <input
+                      type="text"
+                      class="form-input"
+                      [(ngModel)]="extraVetExamResultsSubtitle"
+                      name="extra_vet_exam_sub"
+                      maxlength="200"
+                      placeholder="Acesso ao portal do laboratório"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div class="card p-5">
                 <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
                   <div>
                     <p class="text-xs font-bold uppercase tracking-wider" style="color:var(--c-muted)">Convênios aceitos</p>

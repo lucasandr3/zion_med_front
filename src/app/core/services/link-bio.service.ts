@@ -42,6 +42,12 @@ export interface LinkBioExtra {
   vet_wa_cta_label?: string;
   vet_docs_section_title?: string;
   vet_docs_intro?: string;
+  /** Modelo 6 — URL externa para portal de resultados de exames (laboratório parceiro). */
+  vet_exam_results_url?: string;
+  /** Modelo 6 — rótulo do botão de resultados de exames. */
+  vet_exam_results_label?: string;
+  /** Modelo 6 — subtítulo curto exibido sob o rótulo (ex.: "Acesso ao laboratório"). */
+  vet_exam_results_subtitle?: string;
   /** Modelo 7 — rótulo da capa (ex.: Pediatria). */
   ped_cover_kicker?: string;
   ped_parent_notice_title?: string;

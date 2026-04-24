@@ -100,6 +100,10 @@ export class LinkBioComponent implements OnInit {
   extraConveniosLinhas: string[] = [''];
   extraModalidades: LinkBioModalityFormRow[] = [];
   extraEquipe: LinkBioTeamFormRow[] = [];
+  /** Layout veterinário (6): portal de resultados de exames. */
+  extraVetExamResultsUrl = '';
+  extraVetExamResultsLabel = '';
+  extraVetExamResultsSubtitle = '';
   nomeArquivoCover = '';
 
   previewUrlSafe: SafeResourceUrl | null = null;
@@ -305,15 +309,40 @@ export class LinkBioComponent implements OnInit {
     return (s ?? '').trim();
   }
 
-  /** Monta o objeto salvo na API a partir do formulário. */
+  /** Cópia superficial do `link_bio_extra` já salvo (preserva chaves que o formulário não edita). */
+  private getExistingLinkBioExtraRecord(): Record<string, unknown> {
+    const e = this.state?.clinic?.link_bio_extra;
+    return e && typeof e === 'object' && !Array.isArray(e) ? { ...(e as Record<string, unknown>) } : {};
+  }
+
+  /**
+   * Monta o `link_bio_extra` completo para a API: parte do que está salvo + campos desta tela.
+   * Remove chaves quando o usuário limpa o campo (evita “fantasma” no JSON).
+   */
   private montarLinkBioExtraPayload(): LinkBioExtra | null {
-    const o: LinkBioExtra = {};
-    if (this.trim(this.extraHeroTagline)) o.hero_tagline = this.trim(this.extraHeroTagline);
-    if (this.trim(this.extraCouncilRegistration)) o.council_registration = this.trim(this.extraCouncilRegistration);
-    if (this.trim(this.extraBrandSubtitle)) o.brand_subtitle = this.trim(this.extraBrandSubtitle);
-    if (this.trim(this.extraInstagramUrl)) o.instagram_url = this.trim(this.extraInstagramUrl);
+    const merged = this.getExistingLinkBioExtraRecord();
+
+    const setOrDelete = (key: string, value: unknown): void => {
+      if (value === undefined || value === null || value === '') {
+        delete merged[key];
+      } else {
+        merged[key] = value;
+      }
+    };
+
+    const h = this.trim(this.extraHeroTagline);
+    setOrDelete('hero_tagline', h || undefined);
+    const cr = this.trim(this.extraCouncilRegistration);
+    setOrDelete('council_registration', cr || undefined);
+    const bs = this.trim(this.extraBrandSubtitle);
+    setOrDelete('brand_subtitle', bs || undefined);
+    const ig = this.trim(this.extraInstagramUrl);
+    setOrDelete('instagram_url', ig || undefined);
+
     const convenios = this.extraConveniosLinhas.map((x) => this.trim(x)).filter(Boolean);
-    if (convenios.length) o.convenios = convenios;
+    if (convenios.length) merged['convenios'] = convenios;
+    else delete merged['convenios'];
+
     const modalities = this.extraModalidades
       .filter((m) => this.trim(m.title))
       .map((m) => ({
@@ -321,7 +350,9 @@ export class LinkBioComponent implements OnInit {
         subtitle: this.trim(m.subtitle) || undefined,
         available: m.available !== false,
       }));
-    if (modalities.length) o.modalities = modalities;
+    if (modalities.length) merged['modalities'] = modalities;
+    else delete merged['modalities'];
+
     const team = this.extraEquipe
       .filter((m) => this.trim(m.name))
       .map((m) => ({
@@ -330,8 +361,27 @@ export class LinkBioComponent implements OnInit {
         notes: this.trim(m.notes) || undefined,
         whatsapp: this.trim(m.whatsapp) || undefined,
       }));
-    if (team.length) o.team = team;
-    return Object.keys(o).length ? o : null;
+    if (team.length) merged['team'] = team;
+    else delete merged['team'];
+
+    const examUrlRaw = this.trim(this.extraVetExamResultsUrl);
+    if (examUrlRaw) {
+      const normalized =
+        /^https?:\/\//i.test(examUrlRaw) ? examUrlRaw : `https://${examUrlRaw.replace(/^\/+/, '')}`;
+      merged['vet_exam_results_url'] = normalized;
+      const el = this.trim(this.extraVetExamResultsLabel);
+      if (el) merged['vet_exam_results_label'] = el;
+      else delete merged['vet_exam_results_label'];
+      const es = this.trim(this.extraVetExamResultsSubtitle);
+      if (es) merged['vet_exam_results_subtitle'] = es;
+      else delete merged['vet_exam_results_subtitle'];
+    } else {
+      delete merged['vet_exam_results_url'];
+      delete merged['vet_exam_results_label'];
+      delete merged['vet_exam_results_subtitle'];
+    }
+
+    return Object.keys(merged).length ? (merged as LinkBioExtra) : null;
   }
 
   private aplicarExtraNoFormulario(extra: unknown): void {
@@ -360,6 +410,12 @@ export class LinkBioComponent implements OnInit {
           whatsapp: t.whatsapp ?? '',
         }))
       : [];
+    this.extraVetExamResultsUrl =
+      typeof e?.vet_exam_results_url === 'string' ? e.vet_exam_results_url : '';
+    this.extraVetExamResultsLabel =
+      typeof e?.vet_exam_results_label === 'string' ? e.vet_exam_results_label : '';
+    this.extraVetExamResultsSubtitle =
+      typeof e?.vet_exam_results_subtitle === 'string' ? e.vet_exam_results_subtitle : '';
   }
 
   adicionarConvenioLinha(): void {

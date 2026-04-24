@@ -49,28 +49,29 @@
           <span class="lb-m6-bounce" aria-hidden="true">🐾</span>
         }
       </div>
-      <div>
-        <p class="text-[10px] font-bold tracking-[0.18em] uppercase text-white/50 mb-1">{{ coverKicker }}</p>
-        <h1 class="text-[28px] sm:text-[34px] font-black text-white leading-tight tracking-tight">
+      <div class="min-w-0">
+        <p class="text-[11px] font-semibold tracking-[0.22em] uppercase text-white/70 mb-1.5 lb-m6-kicker">{{ coverKicker }}</p>
+        <h1 class="lb-m6-title text-[26px] sm:text-[32px] text-white leading-tight tracking-tight">
           {{ clinic.name }}
         </h1>
-        <p class="text-[13px] text-white/60 mt-0.5 font-medium">{{ taglineUnderTitle }}</p>
+        <span class="lb-m6-divider-gold mt-2.5 mb-2 block" aria-hidden="true"></span>
+        <p class="text-[13px] text-white/75 font-normal lb-m6-tagline">{{ taglineUnderTitle }}</p>
       </div>
     </div>
-    <div class="flex items-center gap-3 mt-4 max-w-lg mx-auto flex-wrap">
+    <div class="flex items-center gap-3 mt-5 max-w-lg mx-auto flex-wrap">
       @if (clinic.is_open_now === true) {
-        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-black bg-white/15 text-white">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-semibold tracking-wide bg-white/15 text-white">
           <span class="w-[6px] h-[6px] rounded-full lb-m6-open-dot lb-m6-pulse-dot inline-block"></span>
           Aberto agora
         </span>
       } @else if (clinic.is_open_now === false) {
-        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-black bg-white/10 text-white/50">
-          <span class="w-[6px] h-[6px] rounded-full bg-white/30 inline-block"></span>
+        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-semibold tracking-wide bg-white/10 text-white/65">
+          <span class="w-[6px] h-[6px] rounded-full bg-white/40 inline-block"></span>
           Fechado agora
         </span>
       }
       @if (councilMetaLine) {
-        <span class="text-[11px] text-white/35 font-medium">{{ councilMetaLine }}</span>
+        <span class="text-[11px] text-white/55 font-medium tracking-wide">{{ councilMetaLine }}</span>
       }
     </div>
   </div>
@@ -82,9 +83,9 @@
           [href]="trackCta('whatsapp', whatsappUrl())"
           target="_blank"
           rel="noopener noreferrer"
-          class="lb-m6-wpp lb-m6-wa-btn w-full flex items-center justify-center gap-3 py-4 rounded-2xl font-black text-[15px] no-underline"
+          class="lb-m6-wpp lb-m6-wa-btn w-full flex items-center justify-center gap-3 py-3.5 rounded-xl font-semibold tracking-wide text-[15px] no-underline"
         >
-          <svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="currentColor">
+          <svg class="w-[18px] h-[18px] shrink-0" viewBox="0 0 24 24" fill="currentColor">
             <path
               d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413z"
             />
@@ -103,9 +104,9 @@
           [href]="trackCta('maps', clinic.maps_url!)"
           target="_blank"
           rel="noopener noreferrer"
-          class="lb-m6-sec lb-m6-outline-cta flex items-center justify-center gap-2 py-3 px-3 rounded-xl bg-white dark:bg-white/[0.05] border text-[13px] font-bold no-underline"
+          class="lb-m6-sec lb-m6-outline-cta flex items-center justify-center gap-2 py-3 px-3 rounded-xl bg-white dark:bg-white/[0.05] border text-[13px] font-semibold no-underline"
         >
-          <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
             <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" />
             <circle cx="12" cy="10" r="3" />
           </svg>
@@ -115,9 +116,9 @@
       @if (telHref()) {
         <a
           [href]="trackCta('phone', telHref())"
-          class="lb-m6-sec lb-m6-outline-cta flex items-center justify-center gap-2 py-3 px-3 rounded-xl bg-white dark:bg-white/[0.05] border text-[13px] font-bold no-underline"
+          class="lb-m6-sec lb-m6-outline-cta flex items-center justify-center gap-2 py-3 px-3 rounded-xl bg-white dark:bg-white/[0.05] border text-[13px] font-semibold no-underline"
         >
-          <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
             <path
               d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 10.8 19.79 19.79 0 01.22 2.18 2 2 0 012.18 0h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.91 7.91a16 16 0 006.1 6.1l1.27-.72a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"
             />
@@ -127,9 +128,41 @@
       }
     </div>
 
-    <div class="mt-5 lb-m6-a3">
+    @if (examResultsUrl) {
+      <section class="mt-7 lb-m6-exam-section lb-m6-a2" aria-labelledby="lb-m6-exam-heading">
+        <div class="flex items-center gap-3 mb-2">
+          <h2 id="lb-m6-exam-heading" class="lb-m6-section-label text-[10.5px] font-semibold tracking-[0.22em] uppercase whitespace-nowrap">
+            Resultados de exames
+          </h2>
+          <div class="lb-m6-section-rule flex-1 h-px" aria-hidden="true"></div>
+        </div>
+        <p class="lb-m6-exam-intro text-[12.5px] mb-4 font-normal">{{ examResultsSubtitle }}</p>
+        <a
+          [href]="examResultsUrl"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="lb-m6-exam-cta flex items-center gap-3 w-full px-4 py-3.5 rounded-xl no-underline text-inherit"
+        >
+          <span class="lb-m6-exam-cta-icon flex items-center justify-center w-10 h-10 rounded-lg shrink-0" aria-hidden="true">
+            <svg class="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 2h6v4l-2 1v3l5 7a3 3 0 0 1-2.5 4.6h-7A3 3 0 0 1 6 17l5-7V7L9 6V2Z" />
+              <path d="M8.5 14h7" />
+            </svg>
+          </span>
+          <span class="flex-1 min-w-0 text-left">
+            <span class="lb-m6-exam-cta-title block text-[14px] font-semibold leading-snug">{{ examResultsLabel }}</span>
+            <span class="lb-m6-exam-cta-hint block text-[11px] mt-0.5 font-normal">Abre em nova aba · portal externo</span>
+          </span>
+          <svg class="lb-m6-exam-cta-chevron w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+            <polyline points="9 18 15 12 9 6" />
+          </svg>
+        </a>
+      </section>
+    }
+
+    <div class="mt-7 lb-m6-a3">
       <div class="flex items-center gap-3 mb-3">
-        <p class="lb-m6-section-label text-[10px] font-black tracking-[0.1em] uppercase whitespace-nowrap">Espécies atendidas</p>
+        <p class="lb-m6-section-label text-[10.5px] font-semibold tracking-[0.22em] uppercase whitespace-nowrap">Espécies atendidas</p>
         <div class="lb-m6-section-rule flex-1 h-px"></div>
       </div>
       <div class="flex flex-wrap gap-2">
@@ -139,32 +172,32 @@
       </div>
     </div>
 
-    <div class="mt-5 lb-m6-a3">
+    <div class="mt-7 lb-m6-a3">
       <div class="flex items-center gap-3 mb-3">
-        <p class="lb-m6-section-label text-[10px] font-black tracking-[0.1em] uppercase whitespace-nowrap">Serviços</p>
+        <p class="lb-m6-section-label text-[10.5px] font-semibold tracking-[0.22em] uppercase whitespace-nowrap">Serviços</p>
         <div class="lb-m6-section-rule flex-1 h-px"></div>
       </div>
-      <div class="grid grid-cols-3 gap-2.5">
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
         @for (svc of serviceCards; track svc.title) {
           <div class="lb-m6-svc">
-            <div class="text-2xl mb-1">{{ svc.icon }}</div>
-            <p class="lb-m6-svc-title text-[11px] font-bold">{{ svc.title }}</p>
+            <div class="text-[22px] mb-1.5 leading-none">{{ svc.icon }}</div>
+            <p class="lb-m6-svc-title text-[12px] font-semibold">{{ svc.title }}</p>
           </div>
         }
       </div>
     </div>
 
     @if (hasAnyHour) {
-      <div class="mt-5 rounded-2xl bg-white dark:bg-white/[0.03] border lb-m6-card-border px-4 pt-4 pb-3 lb-m6-a3">
-        <p class="lb-m6-section-label text-[10px] font-black tracking-[0.1em] uppercase mb-3">Funcionamento</p>
+      <div class="mt-7 rounded-xl bg-white dark:bg-white/[0.04] border lb-m6-card-border px-5 pt-4 pb-3 lb-m6-a3">
+        <p class="lb-m6-section-label text-[10.5px] font-semibold tracking-[0.22em] uppercase mb-3">Horário de atendimento</p>
         @for (row of hoursGridArray; track row.label) {
           @if (row.text !== '–') {
             <div
-              class="flex justify-between text-[13px] py-2 border-b lb-m6-hour-row-border last:border-0"
+              class="flex justify-between text-[13px] py-2.5 border-b lb-m6-hour-row-border last:border-0"
               [class.pt-0]="$first"
             >
-              <span class="font-bold text-gray-700 dark:text-gray-300">{{ row.label }}</span>
-              <span class="lb-m6-hours-value font-black">{{ row.text }}</span>
+              <span class="font-medium text-gray-700 dark:text-gray-300">{{ row.label }}</span>
+              <span class="lb-m6-hours-value font-semibold">{{ row.text }}</span>
             </div>
           }
         }
@@ -172,45 +205,45 @@
     }
 
     @if (allDocs.length) {
-      <div class="mt-5 lb-m6-a4">
-        <div class="flex items-center gap-3 mb-1.5">
-          <p class="lb-m6-section-label text-[10px] font-black tracking-[0.1em] uppercase whitespace-nowrap">{{ docsTitle }}</p>
+      <div class="mt-7 lb-m6-a4">
+        <div class="flex items-center gap-3 mb-2">
+          <p class="lb-m6-section-label text-[10.5px] font-semibold tracking-[0.22em] uppercase whitespace-nowrap">{{ docsTitle }}</p>
           <div class="lb-m6-section-rule flex-1 h-px"></div>
         </div>
-        <p class="text-[12px] text-gray-500 dark:text-gray-600 mb-4 font-medium">{{ docsIntro }}</p>
+        <p class="text-[12.5px] text-gray-500 dark:text-gray-500 mb-4 font-normal">{{ docsIntro }}</p>
         @for (link of allDocs; track trackDoc($index, link)) {
           @if (link.type === 'bio') {
             <a
               [href]="hrefBio(link.item)"
               target="_blank"
               rel="noopener noreferrer"
-              class="lb-m6-doc flex items-center gap-3.5 p-4 rounded-2xl bg-white dark:bg-white/[0.03] border lb-m6-card-border mb-3 no-underline group text-inherit"
+              class="lb-m6-doc flex items-center gap-3.5 p-4 rounded-xl bg-white dark:bg-white/[0.04] border lb-m6-card-border mb-2.5 no-underline group text-inherit"
             >
-              <div class="lb-m6-doc-icon-wrap w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 text-xl">🐾</div>
+              <div class="lb-m6-doc-icon-wrap w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 text-lg">🐾</div>
               <div class="flex-1 min-w-0">
-                <p class="text-[13px] font-bold text-gray-800 dark:text-gray-200">{{ link.item.label }}</p>
-                <p class="text-[11px] text-gray-400 dark:text-gray-600 mt-0.5">Abrir documento</p>
+                <p class="text-[13.5px] font-semibold text-gray-800 dark:text-gray-200">{{ link.item.label }}</p>
+                <p class="text-[11.5px] text-gray-500 dark:text-gray-500 mt-0.5">Abrir documento</p>
               </div>
-              <svg class="lb-m6-doc-chevron w-4 h-4 text-gray-300 dark:text-gray-700 transition-colors shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <svg class="lb-m6-doc-chevron w-4 h-4 text-gray-400 dark:text-gray-600 transition-colors shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
                 <polyline points="9 18 15 12 9 6" />
               </svg>
             </a>
           } @else {
             <a
               [routerLink]="['/f', formToken(link.item)]"
-              class="lb-m6-doc flex items-center gap-3.5 p-4 rounded-2xl bg-white dark:bg-white/[0.03] border lb-m6-card-border mb-3 no-underline group text-inherit"
+              class="lb-m6-doc flex items-center gap-3.5 p-4 rounded-xl bg-white dark:bg-white/[0.04] border lb-m6-card-border mb-2.5 no-underline group text-inherit"
             >
-              <div class="lb-m6-doc-icon-wrap w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0">
-                <svg class="lb-m6-doc-file-icon w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <div class="lb-m6-doc-icon-wrap w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0">
+                <svg class="lb-m6-doc-file-icon w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
                   <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
                   <polyline points="14 2 14 8 20 8" />
                 </svg>
               </div>
               <div class="flex-1 min-w-0">
-                <p class="text-[13px] font-bold text-gray-800 dark:text-gray-200">{{ link.item.name }}</p>
-                <p class="text-[11px] text-gray-400 dark:text-gray-600 mt-0.5">Preenchimento online</p>
+                <p class="text-[13.5px] font-semibold text-gray-800 dark:text-gray-200">{{ link.item.name }}</p>
+                <p class="text-[11.5px] text-gray-500 dark:text-gray-500 mt-0.5">Preenchimento online</p>
               </div>
-              <svg class="lb-m6-doc-chevron w-4 h-4 text-gray-300 dark:text-gray-700 transition-colors shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <svg class="lb-m6-doc-chevron w-4 h-4 text-gray-400 dark:text-gray-600 transition-colors shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
                 <polyline points="9 18 15 12 9 6" />
               </svg>
             </a>
@@ -220,21 +253,21 @@
     }
 
     @if (clinic.address) {
-      <div class="flex items-center gap-2 mt-5 lb-m6-a5">
-        <svg class="lb-m6-icon-accent w-[13px] h-[13px] flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <div class="flex items-center gap-2 mt-7 lb-m6-a5">
+        <svg class="lb-m6-icon-accent w-[13px] h-[13px] flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
           <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" />
           <circle cx="12" cy="10" r="3" />
         </svg>
-        <span class="text-[12px] text-gray-400 dark:text-gray-600 font-medium">{{ clinic.address }}</span>
+        <span class="text-[12.5px] text-gray-600 dark:text-gray-400 font-normal">{{ clinic.address }}</span>
       </div>
     }
 
-    <div class="mt-8 pt-5 border-t lb-m6-footer-border flex flex-wrap items-center justify-center gap-2 lb-m6-a5">
-      <div class="lb-m6-footer-dot w-[5px] h-[5px] rounded-full opacity-50"></div>
-      <span class="text-[11px] text-gray-400 dark:text-gray-600 font-medium">Fichas digitais por</span>
-      <a href="https://gestgo.com.br" target="_blank" rel="noopener noreferrer" class="lb-m6-footer-brand text-[11px] font-black no-underline hover:opacity-75">Gestgo</a>
-      <span class="text-gray-300 dark:text-gray-700 text-[11px]">·</span>
-      <a routerLink="/privacidade" class="text-[11px] text-gray-400 no-underline hover:text-gray-600 transition-colors font-medium">Privacidade</a>
+    <div class="mt-10 pt-5 border-t lb-m6-footer-border flex flex-wrap items-center justify-center gap-2 lb-m6-a5">
+      <div class="lb-m6-footer-dot w-[5px] h-[5px] rounded-full opacity-60"></div>
+      <span class="text-[11px] text-gray-500 dark:text-gray-500 font-normal tracking-wide">Fichas digitais por</span>
+      <a href="https://gestgo.com.br" target="_blank" rel="noopener noreferrer" class="lb-m6-footer-brand text-[11px] font-semibold tracking-wide no-underline hover:opacity-75">Gestgo</a>
+      <span class="text-gray-400 dark:text-gray-700 text-[11px]">·</span>
+      <a routerLink="/privacidade" class="text-[11px] text-gray-500 dark:text-gray-500 no-underline hover:text-gray-700 dark:hover:text-gray-300 transition-colors font-normal tracking-wide">Privacidade</a>
     </div>
   </div>
 </div>
