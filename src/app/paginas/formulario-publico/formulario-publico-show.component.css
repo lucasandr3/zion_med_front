@@ -262,7 +262,6 @@
 }
 
 .fp-title {
-  font-family: 'Playfair Display', Georgia, serif;
   font-size: clamp(1.25rem, 3vw, 1.5rem);
   font-weight: 500;
   font-style: normal;
