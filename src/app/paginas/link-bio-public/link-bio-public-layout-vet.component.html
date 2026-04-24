@@ -1,4 +1,4 @@
-<div class="lb-m6-root min-h-screen" [class.dark]="dark">
+<div class="lb-m6-root min-h-screen" [class.dark]="dark" [ngStyle]="themeVarsM6()">
   <div class="flex justify-end gap-2 px-4 pt-4 absolute top-0 right-0 z-30">
     <button
       type="button"
@@ -60,7 +60,7 @@
     <div class="flex items-center gap-3 mt-4 max-w-lg mx-auto flex-wrap">
       @if (clinic.is_open_now === true) {
         <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-black bg-white/15 text-white">
-          <span class="w-[6px] h-[6px] rounded-full bg-emerald-300 lb-m6-pulse-dot inline-block"></span>
+          <span class="w-[6px] h-[6px] rounded-full lb-m6-open-dot lb-m6-pulse-dot inline-block"></span>
           Aberto agora
         </span>
       } @else if (clinic.is_open_now === false) {
@@ -82,9 +82,9 @@
           [href]="trackCta('whatsapp', whatsappUrl())"
           target="_blank"
           rel="noopener noreferrer"
-          class="lb-m6-wpp w-full flex items-center justify-center gap-3 py-4 rounded-2xl bg-[#22c55e] hover:bg-[#16a34a] text-white font-black text-[15px] no-underline"
+          class="lb-m6-wpp lb-m6-wa-btn w-full flex items-center justify-center gap-3 py-4 rounded-2xl font-black text-[15px] no-underline"
         >
-          <svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="white">
+          <svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="currentColor">
             <path
               d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413z"
             />
@@ -103,7 +103,7 @@
           [href]="trackCta('maps', clinic.maps_url!)"
           target="_blank"
           rel="noopener noreferrer"
-          class="lb-m6-sec flex items-center justify-center gap-2 py-3 px-3 rounded-xl bg-white dark:bg-white/[0.05] border border-[#d8f3e3] dark:border-white/[0.06] hover:bg-[#f0faf4] dark:hover:bg-white/[0.08] text-[#1e7d47] dark:text-[#4dbf82] text-[13px] font-bold no-underline"
+          class="lb-m6-sec lb-m6-outline-cta flex items-center justify-center gap-2 py-3 px-3 rounded-xl bg-white dark:bg-white/[0.05] border text-[13px] font-bold no-underline"
         >
           <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" />
@@ -115,7 +115,7 @@
       @if (telHref()) {
         <a
           [href]="trackCta('phone', telHref())"
-          class="lb-m6-sec flex items-center justify-center gap-2 py-3 px-3 rounded-xl bg-white dark:bg-white/[0.05] border border-[#d8f3e3] dark:border-white/[0.06] hover:bg-[#f0faf4] dark:hover:bg-white/[0.08] text-[#1e7d47] dark:text-[#4dbf82] text-[13px] font-bold no-underline"
+          class="lb-m6-sec lb-m6-outline-cta flex items-center justify-center gap-2 py-3 px-3 rounded-xl bg-white dark:bg-white/[0.05] border text-[13px] font-bold no-underline"
         >
           <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path
@@ -129,8 +129,8 @@
 
     <div class="mt-5 lb-m6-a3">
       <div class="flex items-center gap-3 mb-3">
-        <p class="text-[10px] font-black tracking-[0.1em] uppercase text-[#1e7d47] dark:text-[#4dbf82] whitespace-nowrap">Espécies atendidas</p>
-        <div class="flex-1 h-px bg-[#d8f3e3] dark:bg-white/[0.06]"></div>
+        <p class="lb-m6-section-label text-[10px] font-black tracking-[0.1em] uppercase whitespace-nowrap">Espécies atendidas</p>
+        <div class="lb-m6-section-rule flex-1 h-px"></div>
       </div>
       <div class="flex flex-wrap gap-2">
         @for (sp of speciesChips; track sp.label) {
@@ -141,30 +141,30 @@
 
     <div class="mt-5 lb-m6-a3">
       <div class="flex items-center gap-3 mb-3">
-        <p class="text-[10px] font-black tracking-[0.1em] uppercase text-[#1e7d47] dark:text-[#4dbf82] whitespace-nowrap">Serviços</p>
-        <div class="flex-1 h-px bg-[#d8f3e3] dark:bg-white/[0.06]"></div>
+        <p class="lb-m6-section-label text-[10px] font-black tracking-[0.1em] uppercase whitespace-nowrap">Serviços</p>
+        <div class="lb-m6-section-rule flex-1 h-px"></div>
       </div>
       <div class="grid grid-cols-3 gap-2.5">
         @for (svc of serviceCards; track svc.title) {
           <div class="lb-m6-svc">
             <div class="text-2xl mb-1">{{ svc.icon }}</div>
-            <p class="text-[11px] font-bold text-[#155c34] dark:text-[#aee4c5]">{{ svc.title }}</p>
+            <p class="lb-m6-svc-title text-[11px] font-bold">{{ svc.title }}</p>
           </div>
         }
       </div>
     </div>
 
     @if (hasAnyHour) {
-      <div class="mt-5 rounded-2xl bg-white dark:bg-white/[0.03] border border-[#d8f3e3] dark:border-white/[0.05] px-4 pt-4 pb-3 lb-m6-a3">
-        <p class="text-[10px] font-black tracking-[0.1em] uppercase text-[#1e7d47] dark:text-[#4dbf82] mb-3">Funcionamento</p>
+      <div class="mt-5 rounded-2xl bg-white dark:bg-white/[0.03] border lb-m6-card-border px-4 pt-4 pb-3 lb-m6-a3">
+        <p class="lb-m6-section-label text-[10px] font-black tracking-[0.1em] uppercase mb-3">Funcionamento</p>
         @for (row of hoursGridArray; track row.label) {
           @if (row.text !== '–') {
             <div
-              class="flex justify-between text-[13px] py-2 border-b border-[#f0faf4] dark:border-white/[0.04] last:border-0"
+              class="flex justify-between text-[13px] py-2 border-b lb-m6-hour-row-border last:border-0"
               [class.pt-0]="$first"
             >
               <span class="font-bold text-gray-700 dark:text-gray-300">{{ row.label }}</span>
-              <span class="font-black text-[#2da05e] dark:text-[#4dbf82]">{{ row.text }}</span>
+              <span class="lb-m6-hours-value font-black">{{ row.text }}</span>
             </div>
           }
         }
@@ -174,8 +174,8 @@
     @if (allDocs.length) {
       <div class="mt-5 lb-m6-a4">
         <div class="flex items-center gap-3 mb-1.5">
-          <p class="text-[10px] font-black tracking-[0.1em] uppercase text-[#1e7d47] dark:text-[#4dbf82] whitespace-nowrap">{{ docsTitle }}</p>
-          <div class="flex-1 h-px bg-[#d8f3e3] dark:bg-white/[0.06]"></div>
+          <p class="lb-m6-section-label text-[10px] font-black tracking-[0.1em] uppercase whitespace-nowrap">{{ docsTitle }}</p>
+          <div class="lb-m6-section-rule flex-1 h-px"></div>
         </div>
         <p class="text-[12px] text-gray-500 dark:text-gray-600 mb-4 font-medium">{{ docsIntro }}</p>
         @for (link of allDocs; track trackDoc($index, link)) {
@@ -184,24 +184,24 @@
               [href]="hrefBio(link.item)"
               target="_blank"
               rel="noopener noreferrer"
-              class="lb-m6-doc flex items-center gap-3.5 p-4 rounded-2xl bg-white dark:bg-white/[0.03] border border-[#d8f3e3] dark:border-white/[0.05] mb-3 no-underline group text-inherit"
+              class="lb-m6-doc flex items-center gap-3.5 p-4 rounded-2xl bg-white dark:bg-white/[0.03] border lb-m6-card-border mb-3 no-underline group text-inherit"
             >
-              <div class="w-10 h-10 rounded-xl bg-[#f0faf4] dark:bg-[#1e7d47]/20 flex items-center justify-center flex-shrink-0 text-xl">🐾</div>
+              <div class="lb-m6-doc-icon-wrap w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 text-xl">🐾</div>
               <div class="flex-1 min-w-0">
                 <p class="text-[13px] font-bold text-gray-800 dark:text-gray-200">{{ link.item.label }}</p>
                 <p class="text-[11px] text-gray-400 dark:text-gray-600 mt-0.5">Abrir documento</p>
               </div>
-              <svg class="w-4 h-4 text-gray-300 dark:text-gray-700 group-hover:text-[#4dbf82] transition-colors shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <svg class="lb-m6-doc-chevron w-4 h-4 text-gray-300 dark:text-gray-700 transition-colors shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <polyline points="9 18 15 12 9 6" />
               </svg>
             </a>
           } @else {
             <a
               [routerLink]="['/f', formToken(link.item)]"
-              class="lb-m6-doc flex items-center gap-3.5 p-4 rounded-2xl bg-white dark:bg-white/[0.03] border border-[#d8f3e3] dark:border-white/[0.05] mb-3 no-underline group text-inherit"
+              class="lb-m6-doc flex items-center gap-3.5 p-4 rounded-2xl bg-white dark:bg-white/[0.03] border lb-m6-card-border mb-3 no-underline group text-inherit"
             >
-              <div class="w-10 h-10 rounded-xl bg-[#f0faf4] dark:bg-[#1e7d47]/20 flex items-center justify-center flex-shrink-0">
-                <svg class="w-[18px] h-[18px] text-[#2da05e]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <div class="lb-m6-doc-icon-wrap w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0">
+                <svg class="lb-m6-doc-file-icon w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
                   <polyline points="14 2 14 8 20 8" />
                 </svg>
@@ -210,7 +210,7 @@
                 <p class="text-[13px] font-bold text-gray-800 dark:text-gray-200">{{ link.item.name }}</p>
                 <p class="text-[11px] text-gray-400 dark:text-gray-600 mt-0.5">Preenchimento online</p>
               </div>
-              <svg class="w-4 h-4 text-gray-300 dark:text-gray-700 group-hover:text-[#4dbf82] transition-colors shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <svg class="lb-m6-doc-chevron w-4 h-4 text-gray-300 dark:text-gray-700 transition-colors shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <polyline points="9 18 15 12 9 6" />
               </svg>
             </a>
@@ -221,7 +221,7 @@
 
     @if (clinic.address) {
       <div class="flex items-center gap-2 mt-5 lb-m6-a5">
-        <svg class="w-[13px] h-[13px] text-[#2da05e] dark:text-[#4dbf82] flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <svg class="lb-m6-icon-accent w-[13px] h-[13px] flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" />
           <circle cx="12" cy="10" r="3" />
         </svg>
@@ -229,10 +229,10 @@
       </div>
     }
 
-    <div class="mt-8 pt-5 border-t border-[#d8f3e3] dark:border-white/[0.05] flex flex-wrap items-center justify-center gap-2 lb-m6-a5">
-      <div class="w-[5px] h-[5px] rounded-full bg-[#2da05e] opacity-50"></div>
+    <div class="mt-8 pt-5 border-t lb-m6-footer-border flex flex-wrap items-center justify-center gap-2 lb-m6-a5">
+      <div class="lb-m6-footer-dot w-[5px] h-[5px] rounded-full opacity-50"></div>
       <span class="text-[11px] text-gray-400 dark:text-gray-600 font-medium">Fichas digitais por</span>
-      <a href="https://gestgo.com.br" target="_blank" rel="noopener noreferrer" class="text-[11px] font-black text-[#2da05e] no-underline hover:opacity-75">Gestgo</a>
+      <a href="https://gestgo.com.br" target="_blank" rel="noopener noreferrer" class="lb-m6-footer-brand text-[11px] font-black no-underline hover:opacity-75">Gestgo</a>
       <span class="text-gray-300 dark:text-gray-700 text-[11px]">·</span>
       <a routerLink="/privacidade" class="text-[11px] text-gray-400 no-underline hover:text-gray-600 transition-colors font-medium">Privacidade</a>
     </div>
