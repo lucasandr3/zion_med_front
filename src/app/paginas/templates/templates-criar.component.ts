@@ -10,6 +10,9 @@ import { ToastService } from '../../core/services/toast.service';
 /** Rótulos de categoria (igual ao backend) */
 const CATEGORY_LABELS: Record<string, string> = {
   anamnese: 'Anamnese',
+  anamneses: 'Anamneses',
+  cadastro_documentacao: 'Cadastro & Documentação',
+  acompanhamento_controle: 'Acompanhamento & Controle',
   acompanhamento: 'Acompanhamento',
   evolucao: 'Evolução',
   consentimento: 'Consentimento',
@@ -30,6 +33,9 @@ const CATEGORY_LABELS: Record<string, string> = {
 
 const CATEGORY_EMOJI: Record<string, string> = {
   anamnese: '📝',
+  anamneses: '📋',
+  cadastro_documentacao: '🗂️',
+  acompanhamento_controle: '📅',
   acompanhamento: '📆',
   evolucao: '📈',
   consentimento: '✅',

@@ -31,6 +31,9 @@ import { ZmEmptyStateComponent } from '../../shared/components/ui';
 const CATEGORY_LABELS: Record<string, string> = {
   personalizado: 'Personalizado',
   anamnese: 'Anamnese',
+  anamneses: 'Anamneses',
+  cadastro_documentacao: 'Cadastro & Documentação',
+  acompanhamento_controle: 'Acompanhamento & Controle',
   acompanhamento: 'Acompanhamento',
   evolucao: 'Evolução',
   consentimento: 'Consentimento',

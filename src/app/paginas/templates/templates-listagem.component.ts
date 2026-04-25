@@ -14,6 +14,9 @@ import { ConfirmDialogService } from '../../core/services/confirm-dialog.service
 const CATEGORY_LABELS: Record<string, string> = {
   personalizado: 'Personalizado',
   anamnese: 'Anamnese',
+  anamneses: 'Anamneses',
+  cadastro_documentacao: 'Cadastro & Documentação',
+  acompanhamento_controle: 'Acompanhamento & Controle',
   acompanhamento: 'Acompanhamento',
   evolucao: 'Evolução',
   consentimento: 'Consentimento',
@@ -36,6 +39,9 @@ const CATEGORY_LABELS: Record<string, string> = {
 const CATEGORY_ACCENT: Record<string, string> = {
   personalizado: '#a78bfa',
   anamnese: '#06b6d4',
+  anamneses: '#0891b2',
+  cadastro_documentacao: '#a855f7',
+  acompanhamento_controle: '#0d9488',
   acompanhamento: '#14b8a6',
   evolucao: '#22c55e',
   consentimento: '#6366f1',
