@@ -11,8 +11,8 @@ import { ToastService } from '../../core/services/toast.service';
 const CATEGORY_LABELS: Record<string, string> = {
   anamnese: 'Anamnese',
   anamneses: 'Anamneses',
-  cadastro_documentacao: 'Cadastro & Documentação',
-  acompanhamento_controle: 'Acompanhamento & Controle',
+  cadastro_documentacao: 'Cadastro e Documentação',
+  acompanhamento_controle: 'Acompanhamento e Controle',
   acompanhamento: 'Acompanhamento',
   evolucao: 'Evolução',
   consentimento: 'Consentimento',
@@ -92,7 +92,9 @@ export class TemplatesCriarComponent implements OnInit {
       next: (list) => {
         this.listaPronta = true;
         this.modelos = list.filter((t) => t.category != null && t.category !== '');
-        const keys = [...new Set(this.modelos.map((t) => t.category!).filter(Boolean))].sort();
+        const keys = [
+          ...new Set(this.modelos.map((t) => String(t.category).trim().toLowerCase()).filter(Boolean)),
+        ].sort();
         this.categoryKeys = keys;
       },
       error: () => {
@@ -106,7 +108,11 @@ export class TemplatesCriarComponent implements OnInit {
     const q = this.buscaTexto.trim().toLowerCase();
     return this.modelos.filter((t) => {
       const matchSearch = !q || (t.name ?? '').toLowerCase().includes(q);
-      const matchFilter = this.filtroAtual === 'todos' || (t.category ?? '') === this.filtroAtual;
+      const matchFilter =
+        this.filtroAtual === 'todos' ||
+        String(t.category ?? '')
+          .trim()
+          .toLowerCase() === this.filtroAtual;
       return matchSearch && matchFilter;
     });
   }
@@ -171,7 +177,17 @@ export class TemplatesCriarComponent implements OnInit {
 
   contagemFiltro(cat: string): number {
     if (cat === 'todos') return this.modelos.length;
-    return this.modelos.filter((t) => (t.category ?? '') === cat).length;
+    return this.modelos.filter(
+      (t) => String(t.category ?? '')
+        .trim()
+        .toLowerCase() === cat,
+    ).length;
+  }
+
+  /** Chave de categoria em minúsculas (igual ao agrupamento de pastas). */
+  categoriaKey(t: Template): string {
+    const k = String(t.category ?? '').trim().toLowerCase();
+    return k === '' ? 'geral' : k;
   }
 
   descricaoResumo(t: Template, max = 120): string {

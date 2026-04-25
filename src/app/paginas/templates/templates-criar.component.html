@@ -49,7 +49,7 @@
         @for (t of cardsVisiveis; track t.id) {
           <div class="card-criar rounded-xl p-5 flex flex-col gap-3 cursor-pointer border transition-all" style="background: var(--c-surface); border-color: var(--c-border)">
             <div class="flex items-start">
-              <div class="w-9 h-9 rounded-lg flex items-center justify-center text-lg transition-all" style="background: var(--c-soft); color: var(--c-muted)">{{ categoryEmoji[t.category || 'geral'] }}</div>
+              <div class="w-9 h-9 rounded-lg flex items-center justify-center text-lg transition-all" style="background: var(--c-soft); color: var(--c-muted)">{{ categoryEmoji[categoriaKey(t)] }}</div>
             </div>
             <div>
               <div class="flex items-center gap-2 mb-1">
@@ -58,8 +58,8 @@
               <p class="text-xs leading-relaxed" style="color: var(--c-muted)">{{ descricaoResumo(t) }}</p>
             </div>
             <div class="flex gap-1.5 flex-wrap">
-              @if (t.category && categoryLabels[t.category]) {
-                <span class="card-tag px-2 py-0.5 rounded-full text-[10px] font-medium" style="background: var(--c-soft); color: var(--c-muted); border: 1px solid var(--c-border)">{{ categoryLabels[t.category] }}</span>
+              @if (t.category && categoryLabels[categoriaKey(t)]) {
+                <span class="card-tag px-2 py-0.5 rounded-full text-[10px] font-medium" style="background: var(--c-soft); color: var(--c-muted); border: 1px solid var(--c-border)">{{ categoryLabels[categoriaKey(t)] }}</span>
               }
             </div>
             <div class="flex gap-2 mt-auto pt-1">

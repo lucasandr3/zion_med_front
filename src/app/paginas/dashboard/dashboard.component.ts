@@ -32,8 +32,8 @@ const CATEGORY_LABELS: Record<string, string> = {
   personalizado: 'Personalizado',
   anamnese: 'Anamnese',
   anamneses: 'Anamneses',
-  cadastro_documentacao: 'Cadastro & Documentação',
-  acompanhamento_controle: 'Acompanhamento & Controle',
+  cadastro_documentacao: 'Cadastro e Documentação',
+  acompanhamento_controle: 'Acompanhamento e Controle',
   acompanhamento: 'Acompanhamento',
   evolucao: 'Evolução',
   consentimento: 'Consentimento',
@@ -552,7 +552,8 @@ export class DashboardComponent implements OnInit {
   private aggregateCategories(templates: Template[]): { key: string; label: string; count: number }[] {
     const map = new Map<string, number>();
     for (const t of templates) {
-      const key = (t.category ?? '').trim() || 'personalizado';
+      const raw = (t.category ?? '').trim();
+      const key = raw === '' ? 'personalizado' : raw.toLowerCase();
       map.set(key, (map.get(key) ?? 0) + 1);
     }
     return Array.from(map.entries())

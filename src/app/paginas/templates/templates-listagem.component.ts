@@ -15,8 +15,8 @@ const CATEGORY_LABELS: Record<string, string> = {
   personalizado: 'Personalizado',
   anamnese: 'Anamnese',
   anamneses: 'Anamneses',
-  cadastro_documentacao: 'Cadastro & Documentação',
-  acompanhamento_controle: 'Acompanhamento & Controle',
+  cadastro_documentacao: 'Cadastro e Documentação',
+  acompanhamento_controle: 'Acompanhamento e Controle',
   acompanhamento: 'Acompanhamento',
   evolucao: 'Evolução',
   consentimento: 'Consentimento',
@@ -59,6 +59,14 @@ const CATEGORY_ACCENT: Record<string, string> = {
   dermatologia: '#fb7185',
   laboratorio: '#94a3b8',
 };
+
+/** Chave canônica para agrupar pastas (evita duplicar por typo de maiúsculas na API). */
+function canonicalCategoryKey(raw: string | null | undefined): string {
+  if (raw == null) return 'personalizado';
+  const s = String(raw).trim();
+  if (s === '') return 'personalizado';
+  return s.toLowerCase();
+}
 
 type OrdenacaoColecao = 'fixa' | 'az' | 'recente';
 type ModoDetalhe = 'tabela' | 'cards';
@@ -110,7 +118,8 @@ export class TemplatesListagemComponent implements OnInit {
   constructor() {
     this.route.queryParams.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((q) => {
       const raw = q['categoria'];
-      const next = typeof raw === 'string' && raw.trim() ? raw.trim() : null;
+      const next =
+        typeof raw === 'string' && raw.trim() !== '' ? canonicalCategoryKey(raw.trim()) : null;
       this.categoriaAberta = next;
       if (next) {
         this.filtrosPainelAberto = false;
@@ -143,7 +152,8 @@ export class TemplatesListagemComponent implements OnInit {
 
   get grupoDetalhe(): { key: string; label: string; items: Template[] } | null {
     if (!this.categoriaAberta) return null;
-    return this.grupos.find((g) => g.key === this.categoriaAberta) ?? null;
+    const q = canonicalCategoryKey(this.categoriaAberta);
+    return this.grupos.find((g) => g.key === q) ?? null;
   }
 
   get gruposParaColecao(): { key: string; label: string; items: Template[] }[] {
@@ -192,7 +202,7 @@ export class TemplatesListagemComponent implements OnInit {
   }
 
   corAccent(key: string): string {
-    return CATEGORY_ACCENT[key] ?? '#8b5cf6';
+    return CATEGORY_ACCENT[canonicalCategoryKey(key)] ?? '#8b5cf6';
   }
 
   fecharCategoria(): void {
@@ -294,7 +304,7 @@ export class TemplatesListagemComponent implements OnInit {
   private montarGrupos(): void {
     const byCategory = new Map<string, Template[]>();
     for (const t of this.templates) {
-      const key = t.category ?? 'personalizado';
+      const key = canonicalCategoryKey(t.category);
       if (!byCategory.has(key)) byCategory.set(key, []);
       byCategory.get(key)!.push(t);
     }
@@ -308,15 +318,24 @@ export class TemplatesListagemComponent implements OnInit {
       .filter((key) => byCategory.has(key))
       .map((key) => ({
         key,
-        label: CATEGORY_LABELS[key] ?? key,
+        label: CATEGORY_LABELS[key] ?? this.formatarChaveCategoriaFallback(key),
         items: byCategory.get(key)!,
       }));
   }
 
   /** Remove query inválida ou categoria sem modelos após filtro */
+  private formatarChaveCategoriaFallback(key: string): string {
+    return key
+      .replace(/[_-]+/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .replace(/\b\w/g, (c) => c.toUpperCase());
+  }
+
   private validarCategoriaNaUrl(): void {
     if (!this.categoriaAberta || !this.listaPronta) return;
-    const grupo = this.grupos.find((g) => g.key === this.categoriaAberta);
+    const q = canonicalCategoryKey(this.categoriaAberta);
+    const grupo = this.grupos.find((g) => g.key === q);
     if (!grupo) {
       void this.router.navigate(['/templates'], { replaceUrl: true });
     }
