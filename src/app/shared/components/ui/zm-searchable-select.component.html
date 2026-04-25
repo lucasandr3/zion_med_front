@@ -1,0 +1,46 @@
+<div class="zm-searchable-select">
+  <button type="button" class="zm-searchable-select-trigger" (click)="toggle()" [attr.aria-expanded]="aberto ? 'true' : 'false'">
+    <span class="zm-searchable-select-value">
+      {{ rotuloSelecionado || placeholder }}
+    </span>
+    <span class="material-symbols-outlined zm-searchable-select-chevron" aria-hidden="true">
+      {{ aberto ? 'expand_less' : 'expand_more' }}
+    </span>
+  </button>
+
+  @if (aberto) {
+    <div class="zm-searchable-select-panel">
+      <div class="zm-searchable-select-toolbar">
+        <div class="zm-searchable-select-search-wrap">
+          <span class="material-symbols-outlined zm-searchable-select-search-ico">search</span>
+          <input
+            type="text"
+            class="zm-searchable-select-search-input"
+            [(ngModel)]="busca"
+            [placeholder]="searchPlaceholder"
+            aria-label="Pesquisar opções"
+          />
+        </div>
+
+        @if (createActionLabel) {
+          <button type="button" class="zm-searchable-select-create" (click)="acionarCriacao()">
+            <span class="material-symbols-outlined" aria-hidden="true">add</span>
+            {{ createActionLabel }}
+          </button>
+        }
+      </div>
+
+      <div class="zm-searchable-select-list" role="listbox">
+        @if (opcoesFiltradas.length === 0) {
+          <div class="zm-searchable-select-empty">{{ emptyStateLabel }}</div>
+        } @else {
+          @for (opt of opcoesFiltradas; track opt.key) {
+            <button type="button" class="zm-searchable-select-option" [class.is-active]="opt.key === value" (click)="selecionar(opt.key)">
+              {{ opt.label }}
+            </button>
+          }
+        }
+      </div>
+    </div>
+  }
+</div>

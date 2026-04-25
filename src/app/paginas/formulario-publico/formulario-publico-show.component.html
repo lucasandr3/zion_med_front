@@ -486,9 +486,14 @@
             </div>
           }
           @if (templateHasSignatureFields()) {
-            <div class="fp-consent-block">
+            <div class="fp-consent-block" (click)="toggleAcceptTermsFromBlock($event)">
               <label class="fp-check-row">
                 <input type="checkbox" [(ngModel)]="acceptTerms" name="fpAcceptTerms" [ngModelOptions]="{ standalone: true }" class="fp-check-native" />
+                <span class="fp-check-box" aria-hidden="true">
+                  <svg class="fp-check-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                </span>
                 <span class="fp-check-label-inline">
                   Declaro que li o aviso sobre uso dos dados e a política de privacidade, e estou ciente de que minha assinatura eletrônica integra este documento.
                   <a routerLink="/privacidade" target="_blank" rel="noopener" class="fp-link">Privacidade</a>

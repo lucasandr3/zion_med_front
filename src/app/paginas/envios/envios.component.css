@@ -2,3 +2,102 @@
 .envios-tab { background: transparent; border: none; cursor: pointer; color: var(--c-muted); }
 .envios-tab:hover { color: var(--c-text); }
 .envios-tab.ativo { background: var(--c-soft); color: var(--c-primary); font-weight: 600; }
+
+.novo-envio-card {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--c-surface) 85%, transparent), color-mix(in srgb, var(--c-soft) 35%, transparent));
+}
+
+.novo-envio-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  align-items: end;
+}
+
+.novo-envio-field {
+  min-width: 0;
+}
+
+.novo-envio-field--full {
+  grid-column: 1 / -1;
+}
+
+.novo-envio-choice-box {
+  border: 1px solid var(--c-border);
+  border-radius: 0.75rem;
+  padding: 0.8rem 0.9rem;
+  background: color-mix(in srgb, var(--c-soft) 35%, transparent);
+}
+
+.novo-envio-choice-title {
+  display: block;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--c-muted);
+  margin-bottom: 0.65rem;
+}
+
+.novo-envio-choice-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.novo-envio-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border-radius: 999px;
+  border: 1px solid var(--c-border);
+  background: transparent;
+  color: var(--c-muted);
+  padding: 0.36rem 0.75rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.novo-envio-pill:hover {
+  border-color: color-mix(in srgb, var(--c-primary) 40%, var(--c-border));
+  color: var(--c-text);
+}
+
+.novo-envio-pill--active {
+  border-color: color-mix(in srgb, var(--c-primary) 65%, var(--c-border));
+  background: color-mix(in srgb, var(--c-primary) 18%, transparent);
+  color: var(--c-primary);
+}
+
+.novo-envio-pill-native {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.novo-envio-pill-dot {
+  width: 0.44rem;
+  height: 0.44rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--c-muted) 65%, transparent);
+}
+
+.novo-envio-pill--active .novo-envio-pill-dot {
+  background: var(--c-primary);
+}
+
+.novo-envio-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-start;
+  border-top: 1px solid var(--c-border);
+  margin-top: 0.15rem;
+  padding-top: 1rem;
+}
+
+@media (max-width: 900px) {
+  .novo-envio-grid {
+    grid-template-columns: 1fr;
+  }
+}

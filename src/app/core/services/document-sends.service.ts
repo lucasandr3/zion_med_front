@@ -4,6 +4,8 @@ import { map, Observable } from 'rxjs';
 
 export interface DocumentSendItem {
   id: number;
+  delivery_status?: 'enviado' | 'nao_enviado' | string;
+  signature_status?: 'aguardando_assinatura' | 'assinado' | 'expirado' | 'cancelado' | string;
   form_template_id: number;
   template_name: string | null;
   person_id?: number | null;

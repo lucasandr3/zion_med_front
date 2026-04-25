@@ -29,6 +29,8 @@ export interface OrganizationAddressData {
 export interface ClinicaConfig {
   id?: number;
   name: string;
+  /** Nicho comercial (API v1). */
+  niche?: string;
   notification_email?: string;
   contact_email?: string;
   phone?: string;

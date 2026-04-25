@@ -69,12 +69,36 @@ export class PessoasFormularioComponent implements OnInit {
   phoneDigits = '';
   /** Valor exibido com máscara (sincronizado com phoneDigits). */
   phoneDisplay = '';
+  phoneAltDigits = '';
+  phoneAltDisplay = '';
   email = '';
   /** Data: string Y-m-d ou Date (Flatpickr com convertModelValue). */
   birth_date: string | Date | null = '';
   /** Apenas dígitos do CPF (até 11). */
   cpfDigits = '';
   cpfDisplay = '';
+  rg = '';
+  age: number | null = null;
+  sex: 'F' | 'M' | 'O' | '' = '';
+  marital_status = '';
+  profession = '';
+  referred_by = '';
+  address = '';
+  neighborhood = '';
+  city = '';
+  cep = '';
+  lead_source_instagram = false;
+  lead_source_google = false;
+  lead_source_facebook = false;
+  lead_source_indicacao_amigo = false;
+  lead_source_indicacao_medica = false;
+  lead_source_plano_saude = false;
+  lead_source_outro = '';
+  has_health_plan: 'sim' | 'nao' | '' = '';
+  health_plan_operator = '';
+  health_plan_card_number = '';
+  lgpd_accept_comms = false;
+  lgpd_accept_reminders = false;
   notes = '';
   status: 'active' | 'inactive' = 'active';
 
@@ -102,10 +126,34 @@ export class PessoasFormularioComponent implements OnInit {
           this.name = p.name ?? '';
           this.phoneDigits = digitsOnlyPhone(p.phone ?? '');
           this.phoneDisplay = formatPhoneBrDisplay(this.phoneDigits);
+          this.phoneAltDigits = digitsOnlyPhone(p.phone_alt ?? '');
+          this.phoneAltDisplay = formatPhoneBrDisplay(this.phoneAltDigits);
           this.email = p.email ?? '';
           this.birth_date = p.birth_date ? p.birth_date : '';
           this.cpfDigits = digitsOnlyCpf(p.cpf ?? '');
           this.cpfDisplay = formatCpfDisplay(this.cpfDigits);
+          this.rg = p.rg ?? '';
+          this.age = p.age ?? null;
+          this.sex = (p.sex === 'F' || p.sex === 'M' || p.sex === 'O') ? p.sex : '';
+          this.marital_status = p.marital_status ?? '';
+          this.profession = p.profession ?? '';
+          this.referred_by = p.referred_by ?? '';
+          this.address = p.address ?? '';
+          this.neighborhood = p.neighborhood ?? '';
+          this.city = p.city ?? '';
+          this.cep = p.cep ?? '';
+          this.lead_source_instagram = !!p.lead_source_instagram;
+          this.lead_source_google = !!p.lead_source_google;
+          this.lead_source_facebook = !!p.lead_source_facebook;
+          this.lead_source_indicacao_amigo = !!p.lead_source_indicacao_amigo;
+          this.lead_source_indicacao_medica = !!p.lead_source_indicacao_medica;
+          this.lead_source_plano_saude = !!p.lead_source_plano_saude;
+          this.lead_source_outro = p.lead_source_outro ?? '';
+          this.has_health_plan = p.has_health_plan === 'sim' || p.has_health_plan === 'nao' ? p.has_health_plan : '';
+          this.health_plan_operator = p.health_plan_operator ?? '';
+          this.health_plan_card_number = p.health_plan_card_number ?? '';
+          this.lgpd_accept_comms = !!p.lgpd_accept_comms;
+          this.lgpd_accept_reminders = !!p.lgpd_accept_reminders;
           this.notes = p.notes ?? '';
           this.status = (p.status === 'inactive' ? 'inactive' : 'active') as 'active' | 'inactive';
         },
@@ -126,6 +174,12 @@ export class PessoasFormularioComponent implements OnInit {
     this.phoneDisplay = formatPhoneBrDisplay(d);
   }
 
+  onPhoneAltModelChange(raw: string): void {
+    const d = digitsOnlyPhone(raw);
+    this.phoneAltDigits = d;
+    this.phoneAltDisplay = formatPhoneBrDisplay(d);
+  }
+
   onCpfModelChange(raw: string): void {
     const d = digitsOnlyCpf(raw);
     this.cpfDigits = d;
@@ -141,6 +195,15 @@ export class PessoasFormularioComponent implements OnInit {
   private phoneForApi(): string | null {
     if (!this.phoneDigits) return null;
     let d = this.phoneDigits;
+    if (d.length >= 10 && d.length <= 11 && !d.startsWith('55')) {
+      d = '55' + d;
+    }
+    return d;
+  }
+
+  private phoneAltForApi(): string | null {
+    if (!this.phoneAltDigits) return null;
+    let d = this.phoneAltDigits;
     if (d.length >= 10 && d.length <= 11 && !d.startsWith('55')) {
       d = '55' + d;
     }
@@ -168,9 +231,32 @@ export class PessoasFormularioComponent implements OnInit {
     const body = {
       name: this.name.trim(),
       phone: this.phoneForApi(),
+      phone_alt: this.phoneAltForApi(),
       email: this.email.trim() || null,
       birth_date: this.serializeBirthDate(),
+      age: this.age,
+      sex: this.sex || null,
       cpf: this.cpfForApi(),
+      rg: this.rg.trim() || null,
+      marital_status: this.marital_status || null,
+      profession: this.profession.trim() || null,
+      referred_by: this.referred_by.trim() || null,
+      address: this.address.trim() || null,
+      neighborhood: this.neighborhood.trim() || null,
+      city: this.city.trim() || null,
+      cep: this.cep.trim() || null,
+      lead_source_instagram: this.lead_source_instagram,
+      lead_source_google: this.lead_source_google,
+      lead_source_facebook: this.lead_source_facebook,
+      lead_source_indicacao_amigo: this.lead_source_indicacao_amigo,
+      lead_source_indicacao_medica: this.lead_source_indicacao_medica,
+      lead_source_plano_saude: this.lead_source_plano_saude,
+      lead_source_outro: this.lead_source_outro.trim() || null,
+      has_health_plan: this.has_health_plan || null,
+      health_plan_operator: this.health_plan_operator.trim() || null,
+      health_plan_card_number: this.health_plan_card_number.trim() || null,
+      lgpd_accept_comms: this.lgpd_accept_comms,
+      lgpd_accept_reminders: this.lgpd_accept_reminders,
       notes: this.notes.trim() || null,
       status: this.status,
     };

@@ -30,6 +30,12 @@ import { ZmEmptyStateComponent } from '../../shared/components/ui';
 /** Rótulos de categoria (alinhado a templates-listagem) */
 const CATEGORY_LABELS: Record<string, string> = {
   personalizado: 'Personalizado',
+  anamnese: 'Anamnese',
+  acompanhamento: 'Acompanhamento',
+  evolucao: 'Evolução',
+  consentimento: 'Consentimento',
+  triagem: 'Triagem',
+  procedimento: 'Procedimento',
   geral: 'Geral',
   clinica_medica: 'Clínica médica',
   odontologia: 'Odontologia',

@@ -232,12 +232,12 @@
                 </a>
               }
               @if (totalTemplates === 0) {
-                <a routerLink="/templates/criar" class="btn-primary inline-flex items-center gap-1.5">
+                <a routerLink="/templates/criar-em-branco" class="btn-primary inline-flex items-center gap-1.5">
                   <span class="material-symbols-outlined text-base">add</span>
                   Criar primeiro modelo
                 </a>
               } @else {
-                <a routerLink="/templates/criar" class="btn-ghost btn-default-bg inline-flex items-center gap-1.5">
+                <a routerLink="/templates/criar-em-branco" class="btn-ghost btn-default-bg inline-flex items-center gap-1.5">
                   <span class="material-symbols-outlined text-base">add</span>
                   Novo modelo
                 </a>
@@ -285,7 +285,7 @@
                 title="Nenhum modelo ainda."
                 description="Crie seu primeiro modelo para começar a coletar respostas."
                 actionLabel="Criar modelo"
-                actionLink="/templates/criar"
+                actionLink="/templates/criar-em-branco"
                 actionIcon="add"
               />
             }

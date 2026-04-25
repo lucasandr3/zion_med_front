@@ -19,6 +19,11 @@ export interface Template {
   updated_at: string;
 }
 
+export interface TemplateCategory {
+  key: string;
+  name: string;
+}
+
 export interface TemplateCampo {
   id: number;
   name_key: string;
@@ -31,6 +36,10 @@ export interface TemplateCampo {
 
 interface ListResponse {
   data: Template[];
+}
+
+interface CategoriesResponse {
+  data: TemplateCategory[];
 }
 
 interface OneResponse {
@@ -53,8 +62,21 @@ export class TemplatesService {
     return this.api.get<OneResponse>(`/templates/${id}`).pipe(map((r) => r.data));
   }
 
-  create(payload: { name: string; description?: string; category?: string; is_active?: boolean; public_enabled?: boolean; fields?: unknown[] }): Observable<Template> {
+  create(payload: {
+    name: string;
+    description?: string;
+    category?: string;
+    new_category?: string;
+    is_active?: boolean;
+    public_enabled?: boolean;
+    public_require_person_link?: boolean;
+    fields?: unknown[];
+  }): Observable<Template> {
     return this.api.post<OneResponse>('/templates', payload).pipe(map((r) => r.data));
+  }
+
+  categories(): Observable<TemplateCategory[]> {
+    return this.api.get<CategoriesResponse>('/templates/categories').pipe(map((r) => r.data ?? []));
   }
 
   /** Cria um template a partir de outro (cópia do modelo). */
@@ -66,7 +88,7 @@ export class TemplatesService {
 
   update(
     id: number,
-    payload: Partial<Template & { public_require_person_link?: boolean; public_person_link_mode?: string }>
+    payload: Partial<Template & { public_require_person_link?: boolean; public_person_link_mode?: string; new_category?: string }>
   ): Observable<Template> {
     return this.api.put<OneResponse>(`/templates/${id}`, payload).pipe(map((r) => r.data));
   }

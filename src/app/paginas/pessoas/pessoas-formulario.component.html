@@ -52,6 +52,21 @@
               />
             </div>
             <div>
+              <label class="form-label">Telefone alternativo</label>
+              <input
+                type="tel"
+                inputmode="numeric"
+                autocomplete="tel-national"
+                class="form-input"
+                [ngModel]="phoneAltDisplay"
+                (ngModelChange)="onPhoneAltModelChange($event)"
+                name="phone_alt"
+                placeholder="(11) 3333-4444"
+              />
+            </div>
+          </div>
+          <div class="grid md:grid-cols-2 gap-4">
+            <div>
               <label class="form-label">E-mail</label>
               <input
                 type="email"
@@ -62,8 +77,18 @@
                 autocomplete="email"
               />
             </div>
+            <div>
+              <label class="form-label">Profissão</label>
+              <input
+                type="text"
+                [(ngModel)]="profession"
+                name="profession"
+                class="form-input"
+                placeholder="Ex.: Enfermeira"
+              />
+            </div>
           </div>
-          <div class="grid md:grid-cols-2 gap-4">
+          <div class="grid md:grid-cols-4 gap-4">
             <div>
               <label class="form-label">Data de nascimento</label>
               <input
@@ -77,7 +102,19 @@
                 [convertModelValue]="true"
                 autocomplete="bday"
               />
-              <p class="text-xs m-0 mt-1" style="color: var(--c-muted)">Necessária para validar o código em formulários de acompanhamento.</p>
+            </div>
+            <div>
+              <label class="form-label">Idade</label>
+              <input type="number" [(ngModel)]="age" name="age" class="form-input" min="0" placeholder="Ex.: 30" />
+            </div>
+            <div>
+              <label class="form-label">Sexo</label>
+              <select [(ngModel)]="sex" name="sex" class="form-input">
+                <option value="">Selecione</option>
+                <option value="F">Feminino</option>
+                <option value="M">Masculino</option>
+                <option value="O">Outro</option>
+              </select>
             </div>
             <div>
               <label class="form-label">CPF</label>
@@ -92,6 +129,85 @@
                 [ngModel]="cpfDisplay"
                 (ngModelChange)="onCpfModelChange($event)"
               />
+            </div>
+          </div>
+          <div class="grid md:grid-cols-3 gap-4">
+            <div>
+              <label class="form-label">RG</label>
+              <input type="text" [(ngModel)]="rg" name="rg" class="form-input" />
+            </div>
+            <div>
+              <label class="form-label">Estado civil</label>
+              <select [(ngModel)]="marital_status" name="marital_status" class="form-input">
+                <option value="">Selecione</option>
+                <option value="solteiro">Solteiro(a)</option>
+                <option value="casado">Casado(a)</option>
+                <option value="divorciado">Divorciado(a)</option>
+                <option value="viuvo">Viúvo(a)</option>
+                <option value="uniao_estavel">União estável</option>
+              </select>
+            </div>
+            <div>
+              <label class="form-label">Indicado por</label>
+              <input type="text" [(ngModel)]="referred_by" name="referred_by" class="form-input" />
+            </div>
+          </div>
+          <div class="grid md:grid-cols-2 gap-4">
+            <div>
+              <label class="form-label">Endereço completo</label>
+              <input type="text" [(ngModel)]="address" name="address" class="form-input" />
+            </div>
+            <div>
+              <label class="form-label">Bairro</label>
+              <input type="text" [(ngModel)]="neighborhood" name="neighborhood" class="form-input" />
+            </div>
+          </div>
+          <div class="grid md:grid-cols-2 gap-4">
+            <div>
+              <label class="form-label">Cidade</label>
+              <input type="text" [(ngModel)]="city" name="city" class="form-input" />
+            </div>
+            <div>
+              <label class="form-label">CEP</label>
+              <input type="text" [(ngModel)]="cep" name="cep" class="form-input" placeholder="00000-000" />
+            </div>
+          </div>
+
+          <div class="grid md:grid-cols-2 gap-4">
+            <div>
+              <label class="form-label">Como nos conheceu</label>
+              <div class="flex flex-col gap-2 text-sm" style="color: var(--c-text)">
+                <label class="inline-flex items-center gap-2"><input type="checkbox" [(ngModel)]="lead_source_instagram" name="lead_source_instagram" />Instagram</label>
+                <label class="inline-flex items-center gap-2"><input type="checkbox" [(ngModel)]="lead_source_google" name="lead_source_google" />Google</label>
+                <label class="inline-flex items-center gap-2"><input type="checkbox" [(ngModel)]="lead_source_facebook" name="lead_source_facebook" />Facebook</label>
+                <label class="inline-flex items-center gap-2"><input type="checkbox" [(ngModel)]="lead_source_indicacao_amigo" name="lead_source_indicacao_amigo" />Indicação de amigo/familiar</label>
+                <label class="inline-flex items-center gap-2"><input type="checkbox" [(ngModel)]="lead_source_indicacao_medica" name="lead_source_indicacao_medica" />Indicação médica</label>
+                <label class="inline-flex items-center gap-2"><input type="checkbox" [(ngModel)]="lead_source_plano_saude" name="lead_source_plano_saude" />Plano de saúde</label>
+              </div>
+              <input type="text" [(ngModel)]="lead_source_outro" name="lead_source_outro" class="form-input mt-2" placeholder="Outro" />
+            </div>
+            <div>
+              <label class="form-label">Plano de saúde</label>
+              <select [(ngModel)]="has_health_plan" name="has_health_plan" class="form-input">
+                <option value="">Selecione</option>
+                <option value="sim">Sim</option>
+                <option value="nao">Não</option>
+              </select>
+              <input type="text" [(ngModel)]="health_plan_operator" name="health_plan_operator" class="form-input mt-2" placeholder="Operadora" />
+              <input type="text" [(ngModel)]="health_plan_card_number" name="health_plan_card_number" class="form-input mt-2" placeholder="Número da carteirinha" />
+            </div>
+          </div>
+          <div>
+            <label class="form-label">Autorizações LGPD</label>
+            <div class="flex flex-col gap-2 text-sm" style="color: var(--c-text)">
+              <label class="inline-flex items-center gap-2">
+                <input type="checkbox" [(ngModel)]="lgpd_accept_comms" name="lgpd_accept_comms" />
+                Aceito receber comunicações e promoções por WhatsApp/e-mail
+              </label>
+              <label class="inline-flex items-center gap-2">
+                <input type="checkbox" [(ngModel)]="lgpd_accept_reminders" name="lgpd_accept_reminders" />
+                Aceito receber lembretes de consulta
+              </label>
             </div>
           </div>
           @if (editMode) {

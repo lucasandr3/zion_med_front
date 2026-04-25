@@ -34,6 +34,8 @@ export interface Organization {
   id: number;
   name: string;
   address?: string;
+  /** Segmento da empresa (templates e cadastro). */
+  niche?: string;
   [key: string]: unknown;
 }
 

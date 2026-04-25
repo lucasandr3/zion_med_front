@@ -1,15 +1,4 @@
 <div class="relative min-h-[200px]">
-  <div class="page-header mb-5">
-    <div class="page-title">
-      <div class="page-title-icon">
-        <span class="material-symbols-outlined">add_circle</span>
-      </div>
-      <div>
-        <h1>Novo modelo (em branco)</h1>
-      </div>
-    </div>
-  </div>
-
   @if (erro) {
     <p class="text-sm mb-4" style="color: var(--c-error, #dc2626)">{{ erro }}</p>
   }
@@ -24,6 +13,30 @@
         <label class="form-label">Descrição</label>
         <textarea [(ngModel)]="description" name="description" rows="3" class="form-input" placeholder="Breve descrição do modelo..."></textarea>
       </div>
+      <div>
+        <label class="form-label">Categoria</label>
+        <zm-searchable-select
+          [options]="opcoesCategoria"
+          [value]="categoriaSelecionada"
+          placeholder="Sem categoria"
+          searchPlaceholder="Buscar categoria..."
+          createActionLabel="Nova categoria"
+          (valueChange)="selecionarCategoria($event)"
+          (createAction)="abrirCriacaoCategoria()"
+        ></zm-searchable-select>
+      </div>
+      @if (categoriaSelecionada === '__nova__') {
+        <div>
+          <label class="form-label">Nova categoria</label>
+          <input
+            type="text"
+            [(ngModel)]="novaCategoria"
+            name="novaCategoria"
+            class="form-input"
+            placeholder="Ex: Anamnese, Acompanhamento, Evolução..."
+          />
+        </div>
+      }
       <div class="flex items-center gap-6">
         <label class="flex items-center gap-2 cursor-pointer">
           <input type="checkbox" [(ngModel)]="is_active" name="is_active" class="form-checkbox" />
@@ -33,9 +46,18 @@
           <input type="checkbox" [(ngModel)]="public_enabled" name="public_enabled" class="form-checkbox" />
           <span class="form-label mb-0">Formulário público</span>
         </label>
+        <label class="flex items-center gap-2 cursor-pointer">
+          <input
+            type="checkbox"
+            [(ngModel)]="public_require_person_link"
+            name="public_require_person_link"
+            class="form-checkbox"
+          />
+          <span class="form-label mb-0">Exigir identificação antes do formulário</span>
+        </label>
       </div>
       <div class="flex items-center gap-3 pt-2">
-        <button type="submit" class="btn-primary" [disabled]="salvando || !name.trim()">
+        <button type="submit" class="btn-primary" [disabled]="salvando || !name.trim() || (categoriaSelecionada === '__nova__' && !novaCategoria.trim())">
           @if (salvando) {
             <span class="btn-spinner" aria-hidden="true"></span>
             Criando…
@@ -44,7 +66,7 @@
             Criar modelo
           }
         </button>
-        <a routerLink="/templates/criar" class="text-sm no-underline" style="color: var(--c-muted)" title="Voltar à escolha de modelo">Cancelar</a>
+        <a routerLink="/templates" class="text-sm no-underline" style="color: var(--c-muted)" title="Voltar para modelos">Cancelar</a>
       </div>
     </form>
   </div>

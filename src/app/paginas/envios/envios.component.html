@@ -23,69 +23,78 @@
   </div>
 
   @if (mostrarNovoEnvio) {
-    <div class="card rounded-xl p-5 mb-5" style="border: 1px solid var(--c-border)">
+    <div class="card rounded-xl p-5 mb-5 novo-envio-card" style="border: 1px solid var(--c-border)">
       <h3 class="text-base font-semibold m-0 mb-4" style="color: var(--c-text)">Enviar link do documento</h3>
       @if (erroNovo) {
         <p class="text-sm mb-3" style="color: var(--c-error, #dc2626)">{{ erroNovo }}</p>
       }
-      <div class="flex flex-wrap gap-4 items-end">
-        <div class="min-w-[200px]">
-          <label class="block text-xs font-medium mb-1" style="color: var(--c-muted)">Template</label>
-          <select [(ngModel)]="novoEnvio.template_id" class="w-full py-2 px-3 text-sm border rounded-lg" style="border-color: var(--c-border); background: var(--c-surface); color: var(--c-text)">
-            @for (t of templates; track t.id) {
-              <option [value]="t.id">{{ t.name }}</option>
-            }
-          </select>
+      <div class="novo-envio-grid">
+        <div class="novo-envio-field novo-envio-field--full">
+          <label class="block text-xs font-medium mb-1" style="color: var(--c-muted)">Documento público</label>
+          <zm-searchable-select
+            [options]="opcoesTemplatesPublicos"
+            [value]="templateSelecionadoKey"
+            placeholder="Selecione o documento"
+            searchPlaceholder="Buscar documento público..."
+            emptyStateLabel="Nenhum documento público ativo encontrado."
+            (valueChange)="selecionarTemplatePublico($event)"
+          ></zm-searchable-select>
         </div>
-        <div>
-          <label class="block text-xs font-medium mb-1" style="color: var(--c-muted)">Canal</label>
-          <div class="flex gap-2">
-            <label class="inline-flex items-center gap-1.5 cursor-pointer">
-              <input type="radio" [(ngModel)]="novoEnvio.channel" name="novoChannel" value="email" />
-              <span class="text-sm" style="color: var(--c-text)">E-mail</span>
+        <div class="novo-envio-field novo-envio-choice-box">
+          <label class="novo-envio-choice-title">Canal de envio</label>
+          <div class="novo-envio-choice-group">
+            <label class="novo-envio-pill" [class.novo-envio-pill--active]="novoEnvio.channel === 'email'">
+              <input type="radio" [(ngModel)]="novoEnvio.channel" name="novoChannel" value="email" class="novo-envio-pill-native" />
+              <span class="novo-envio-pill-dot" aria-hidden="true"></span>
+              <span class="text-sm">E-mail</span>
             </label>
-            <label class="inline-flex items-center gap-1.5 cursor-pointer">
-              <input type="radio" [(ngModel)]="novoEnvio.channel" name="novoChannel" value="whatsapp" />
-              <span class="text-sm" style="color: var(--c-text)">WhatsApp</span>
+            <label class="novo-envio-pill" [class.novo-envio-pill--active]="novoEnvio.channel === 'whatsapp'">
+              <input type="radio" [(ngModel)]="novoEnvio.channel" name="novoChannel" value="whatsapp" class="novo-envio-pill-native" />
+              <span class="novo-envio-pill-dot" aria-hidden="true"></span>
+              <span class="text-sm">WhatsApp</span>
             </label>
           </div>
         </div>
-        <div class="w-full min-w-[200px]">
-          <label class="block text-xs font-medium mb-1" style="color: var(--c-muted)">Destinatário</label>
-          <div class="flex gap-3 flex-wrap">
-            <label class="inline-flex items-center gap-1.5 cursor-pointer">
-              <input type="radio" [(ngModel)]="novoEnvio.destino" name="novoDestino" value="manual" (change)="limparPessoa()" />
-              <span class="text-sm" style="color: var(--c-text)">Manual</span>
+        <div class="novo-envio-field novo-envio-choice-box">
+          <label class="novo-envio-choice-title">Destinatário</label>
+          <div class="novo-envio-choice-group">
+            <label class="novo-envio-pill" [class.novo-envio-pill--active]="novoEnvio.destino === 'manual'">
+              <input type="radio" [(ngModel)]="novoEnvio.destino" name="novoDestino" value="manual" (change)="limparPessoa()" class="novo-envio-pill-native" />
+              <span class="novo-envio-pill-dot" aria-hidden="true"></span>
+              <span class="text-sm">Manual</span>
             </label>
-            <label class="inline-flex items-center gap-1.5 cursor-pointer">
-              <input type="radio" [(ngModel)]="novoEnvio.destino" name="novoDestino" value="pessoa" />
-              <span class="text-sm" style="color: var(--c-text)">Pessoa cadastrada</span>
+            <label class="novo-envio-pill" [class.novo-envio-pill--active]="novoEnvio.destino === 'pessoa'">
+              <input type="radio" [(ngModel)]="novoEnvio.destino" name="novoDestino" value="pessoa" class="novo-envio-pill-native" />
+              <span class="novo-envio-pill-dot" aria-hidden="true"></span>
+              <span class="text-sm">Pessoa cadastrada</span>
             </label>
           </div>
         </div>
         @if (novoEnvio.destino === 'pessoa') {
-          <div class="w-full min-w-[260px] max-w-md relative">
+          <div class="novo-envio-field novo-envio-field--full relative">
             <label class="block text-xs font-medium mb-1" style="color: var(--c-muted)">Buscar pessoa</label>
             <div class="flex gap-2">
               <input
                 type="text"
                 [(ngModel)]="pessoaBusca"
+                (ngModelChange)="onPessoaBuscaChange($event)"
                 (keyup.enter)="buscarPessoas()"
                 placeholder="Nome, código ou telefone…"
-                class="flex-1 py-2 px-3 text-sm border rounded-lg"
-                style="border-color: var(--c-border); background: var(--c-surface); color: var(--c-text)"
+                class="form-input flex-1"
               />
-              <button type="button" class="btn-ghost btn-default-bg text-sm shrink-0" (click)="buscarPessoas()" [disabled]="buscandoPessoas">Buscar</button>
+              <button type="button" class="btn-ghost btn-default-bg text-sm shrink-0" (click)="buscarPessoas()" [disabled]="buscandoPessoas">
+                {{ buscandoPessoas ? 'Buscando...' : 'Buscar' }}
+              </button>
               @if (pessoaSelecionada) {
                 <button type="button" class="btn-ghost btn-default-bg text-sm shrink-0" (click)="limparPessoa()">Limpar</button>
               }
             </div>
             @if (pessoaSugestoes.length > 0) {
-              <ul class="absolute z-10 left-0 right-0 mt-1 max-h-48 overflow-auto rounded-lg border text-sm shadow-lg m-0 p-0 list-none" style="background: var(--c-surface); border-color: var(--c-border)">
+              <ul class="absolute z-10 left-0 right-0 mt-1 max-h-48 overflow-auto rounded-md border text-sm shadow-lg m-0 p-0 list-none" style="background: var(--c-surface); border-color: var(--c-border)">
                 @for (p of pessoaSugestoes; track p.id) {
                   <li>
-                    <button type="button" class="w-full text-left px-3 py-2 border-0 cursor-pointer hover:bg-[var(--c-soft)]" style="background: transparent; color: var(--c-text)" (click)="selecionarPessoa(p)">
-                      {{ p.name }} · <span class="font-mono text-xs">{{ p.code }}</span>
+                    <button type="button" class="w-full text-left px-3 py-2 border-0 cursor-pointer hover:bg-bg-soft" style="background: transparent; color: var(--c-text)" (click)="selecionarPessoa(p)">
+                      {{ p.name }} · <span class="font-mono text-xs">{{ documentoPessoaDisplay(p) }}</span>
                     </button>
                   </li>
                 }
@@ -106,30 +115,30 @@
           </div>
         }
         @if (novoEnvio.destino === 'manual' && novoEnvio.channel === 'email') {
-          <div class="min-w-[220px]">
+          <div class="novo-envio-field">
             <label class="block text-xs font-medium mb-1" style="color: var(--c-muted)">E-mail do destinatário</label>
-            <input type="email" [(ngModel)]="novoEnvio.recipient_email" placeholder="email@exemplo.com" class="w-full py-2 px-3 text-sm border rounded-lg" style="border-color: var(--c-border); background: var(--c-surface); color: var(--c-text)" />
+            <input type="email" [(ngModel)]="novoEnvio.recipient_email" placeholder="email@exemplo.com" class="form-input w-full" />
           </div>
         }
         @if (novoEnvio.destino === 'manual' && novoEnvio.channel === 'whatsapp') {
-          <div class="min-w-[180px]">
+          <div class="novo-envio-field">
             <label class="block text-xs font-medium mb-1" style="color: var(--c-muted)">Telefone (WhatsApp)</label>
-            <input type="text" [(ngModel)]="novoEnvio.recipient_phone" placeholder="5511999999999" class="w-full py-2 px-3 text-sm border rounded-lg" style="border-color: var(--c-border); background: var(--c-surface); color: var(--c-text)" />
+            <input type="text" [(ngModel)]="novoEnvio.recipient_phone" (ngModelChange)="onRecipientPhoneChange($event)" placeholder="(11) 99999-9999" class="form-input w-full" />
           </div>
         }
         @if (novoEnvio.destino === 'pessoa' && novoEnvio.channel === 'email' && pessoaSelecionada && !pessoaSelecionada.email) {
-          <div class="min-w-[220px]">
+          <div class="novo-envio-field">
             <label class="block text-xs font-medium mb-1" style="color: var(--c-muted)">E-mail (obrigatório)</label>
-            <input type="email" [(ngModel)]="novoEnvio.recipient_email" placeholder="email@exemplo.com" class="w-full py-2 px-3 text-sm border rounded-lg" style="border-color: var(--c-border); background: var(--c-surface); color: var(--c-text)" />
+            <input type="email" [(ngModel)]="novoEnvio.recipient_email" placeholder="email@exemplo.com" class="form-input w-full" />
           </div>
         }
         @if (novoEnvio.destino === 'pessoa' && novoEnvio.channel === 'whatsapp' && pessoaSelecionada && !pessoaSelecionada.phone) {
-          <div class="min-w-[180px]">
+          <div class="novo-envio-field">
             <label class="block text-xs font-medium mb-1" style="color: var(--c-muted)">Telefone (obrigatório)</label>
-            <input type="text" [(ngModel)]="novoEnvio.recipient_phone" placeholder="5511999999999" class="w-full py-2 px-3 text-sm border rounded-lg" style="border-color: var(--c-border); background: var(--c-surface); color: var(--c-text)" />
+            <input type="text" [(ngModel)]="novoEnvio.recipient_phone" (ngModelChange)="onRecipientPhoneChange($event)" placeholder="(11) 99999-9999" class="form-input w-full" />
           </div>
         }
-        <div class="flex gap-2">
+        <div class="novo-envio-actions">
           <button type="button" class="btn-primary inline-flex items-center gap-2" (click)="enviarNovo()" [disabled]="enviando">
             @if (enviando) {
               <span class="btn-spinner" aria-hidden="true"></span>
@@ -185,9 +194,14 @@
                     <td style="color: var(--c-muted)">{{ canalLabel(e.channel) }}</td>
                     <td style="color: var(--c-muted)">{{ dataFormatada(e.sent_at) }}</td>
                     <td>
-                      <span class="inline-flex items-center gap-1 text-xs font-semibold" [style.color]="corStatusEnvio(e.status)">
-                        {{ statusLabel(e.status) }}
-                      </span>
+                      <div class="flex flex-col gap-1">
+                        <span class="inline-flex items-center gap-1 text-xs font-semibold" [style.color]="corEntrega(e)">
+                          {{ entregaLabel(e) }}
+                        </span>
+                        <span class="inline-flex items-center gap-1 text-xs font-semibold" [style.color]="corStatusEnvio(e.status)">
+                          {{ assinaturaLabel(e) }}
+                        </span>
+                      </div>
                     </td>
                     @if (caixaAtual === 'pendentes') {
                       <td class="text-right">
@@ -212,6 +226,11 @@
 
       @if (meta.total > 0) {
         <p class="text-xs mt-3" style="color: var(--c-muted)">{{ meta.total }} envio(s) nesta caixa</p>
+        @if (caixaAtual === 'pendentes') {
+          <p class="text-xs mt-1 mb-0" style="color: var(--c-muted)">
+            "Aguardando assinatura" significa que o link já foi enviado e ainda não foi assinado.
+          </p>
+        }
       }
     </div>
   }

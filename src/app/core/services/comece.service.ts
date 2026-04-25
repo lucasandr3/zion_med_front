@@ -17,6 +17,8 @@ export interface ComecePayload {
   password: string;
   password_confirmation: string;
   plan_key: string;
+  /** Nicho alinhado a `FormTemplate::category` (ex.: estetica, odontologia). */
+  niche: string;
   accepted_terms: boolean;
 }
 
@@ -37,6 +39,7 @@ export class ComeceService {
       password: payload.password,
       password_confirmation: payload.password_confirmation,
       plan_key: payload.plan_key,
+      niche: payload.niche,
       accepted_terms: payload.accepted_terms ? '1' : '',
     };
     if (payload.phone?.trim()) body['phone'] = payload.phone.trim();

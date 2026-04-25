@@ -1080,6 +1080,7 @@
   padding: 1rem;
   border-radius: 10px;
   border: 1px dashed var(--fp-border);
+  cursor: pointer;
 }
 
 .fp-check-row {
@@ -1089,6 +1090,7 @@
   cursor: pointer;
   font-size: 0.9rem;
   line-height: 1.45;
+  width: 100%;
 }
 
 .fp-check-label-inline .fp-link {

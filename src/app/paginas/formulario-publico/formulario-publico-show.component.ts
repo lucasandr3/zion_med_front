@@ -243,6 +243,14 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
     this.persistSubmitterIdentity();
   }
 
+  /** Permite marcar/desmarcar ao clicar no card pontilhado inteiro. */
+  toggleAcceptTermsFromBlock(event: MouseEvent): void {
+    const target = event.target as HTMLElement | null;
+    if (!target) return;
+    if (target.closest('a') || target.closest('input') || target.closest('label')) return;
+    this.acceptTerms = !this.acceptTerms;
+  }
+
   private restoreSubmitterIdentity(): void {
     try {
       const n = localStorage.getItem(FormularioPublicoShowComponent.LS_SUBMITTER_NAME);

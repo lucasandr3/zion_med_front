@@ -1849,7 +1849,8 @@ body.dark .flatpickr-calendar .flatpickr-weekwrapper span.flatpickr-day { color:
 /* ══════════════════════════════════════════════════════════════════════════
    CONFIGURAÇÕES DA EMPRESA (clinica-config)
    ══════════════════════════════════════════════════════════════════════════ */
-.clinica-config { display: flex; flex-direction: column; min-height: 0; width: 100%; }
+.clinica-config,
+.templates-listagem-layout { display: flex; flex-direction: column; min-height: 0; width: 100%; }
 .clinica-config .config-tabs {
   display: flex; gap: 0;
   margin-left: -1rem; margin-right: -1rem; margin-top: -1.5rem; margin-bottom: 20px;
@@ -1972,9 +1973,11 @@ body.dark .flatpickr-calendar .flatpickr-weekwrapper span.flatpickr-day { color:
 .clinica-config .dark-toggle-info .dtitle { font-size: 13px; font-weight: 600; color: var(--c-text); }
 .clinica-config .dark-toggle-info .dsub { font-size: 11.5px; color: var(--c-muted); margin-top: 2px; }
 .clinica-config .sticky-footer-spacer,
-.link-bio-config .sticky-footer-spacer { min-height: 4.5rem; flex-shrink: 0; }
+.link-bio-config .sticky-footer-spacer,
+.templates-listagem-layout .sticky-footer-spacer { min-height: 4.5rem; flex-shrink: 0; }
 .clinica-config .sticky-footer,
-.link-bio-config .sticky-footer {
+.link-bio-config .sticky-footer,
+.templates-listagem-layout .sticky-footer {
   position: fixed; bottom: 0; left: 0; right: 0; min-height: 4rem;
   background: var(--c-surface); border-top: 1px solid var(--c-border);
   padding: 0.65rem 1rem max(0.65rem, env(safe-area-inset-bottom, 0px)); margin: 0;
@@ -1982,12 +1985,18 @@ body.dark .flatpickr-calendar .flatpickr-weekwrapper span.flatpickr-day { color:
   box-shadow: 0 -4px 24px rgba(15, 23, 42, 0.06);
 }
 .dark .clinica-config .sticky-footer,
-.dark .link-bio-config .sticky-footer {
+.dark .link-bio-config .sticky-footer,
+.dark .templates-listagem-layout .sticky-footer {
   box-shadow: 0 -4px 28px rgba(0, 0, 0, 0.35);
 }
 @media (min-width: 1024px) {
   .clinica-config .sticky-footer,
-  .link-bio-config .sticky-footer { left: var(--sidebar-w); padding-left: 2rem; padding-right: 2rem; }
+  .link-bio-config .sticky-footer,
+  .templates-listagem-layout .sticky-footer { left: var(--sidebar-w); padding-left: 2rem; padding-right: 2rem; }
+}
+/* Rodapé de métricas — herda fundo/sombra do sticky-footer; conteúdo ocupa a largura toda */
+.templates-listagem-layout .sticky-footer.templates-stats-footer {
+  justify-content: flex-start;
 }
 .clinica-config .footer-btns,
 .link-bio-config .footer-btns { display: flex; gap: 10px; }
@@ -1999,3 +2008,26 @@ body.dark .flatpickr-calendar .flatpickr-weekwrapper span.flatpickr-day { color:
 }
 .clinica-config .btn-secondary:hover,
 .link-bio-config .btn-secondary:hover { color: var(--c-text); }
+
+/* Impressão: quando em aba de documento, imprime somente a ficha. */
+@media print {
+  body.print-document-only * {
+    visibility: hidden !important;
+  }
+
+  body.print-document-only #documento-impressao,
+  body.print-document-only #documento-impressao * {
+    visibility: visible !important;
+  }
+
+  body.print-document-only #documento-impressao {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    z-index: 9999 !important;
+    background: #fff !important;
+  }
+}

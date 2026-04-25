@@ -14,15 +14,18 @@
           <p class="page-header-subtitle">Gerencie os campos do seu formulário</p>
         </div>
       </div> -->
-      <div style="display: flex; gap: 0.625rem; flex-wrap: wrap; align-items: center;">
-        <a [routerLink]="['/templates', templateId, 'editar']" class="btn btn-ghost">
-          <span class="material-symbols-outlined" style="font-size:14px">edit</span>
-          Editar modelo
-        </a>
-        <a [routerLink]="['/templates', templateId, 'preview']" target="_blank" rel="noopener noreferrer" class="btn btn-ghost">
-          <span class="material-symbols-outlined" style="font-size:14px">visibility</span>
-          Pre-visualizar
-        </a>
+      <div style="display: flex; gap: 0.625rem; flex-wrap: wrap; align-items: center; width: 100%;">
+        <div style="display: flex; gap: 0.625rem; flex-wrap: wrap; align-items: center;">
+          <a [routerLink]="['/templates', templateId, 'editar']" class="btn btn-ghost">
+            <span class="material-symbols-outlined" style="font-size:14px">edit</span>
+            Editar modelo
+          </a>
+          <a [routerLink]="['/templates', templateId, 'preview']" target="_blank" rel="noopener noreferrer" class="btn btn-ghost">
+            <span class="material-symbols-outlined" style="font-size:14px">visibility</span>
+            Pre-visualizar
+          </a>
+        </div>
+        <div style="display: flex; gap: 0.625rem; flex-wrap: wrap; align-items: center; margin-left: auto;">
         @if (linkPublicoUrl) {
           <button type="button" (click)="copiarLink($event)" class="btn btn-primary">
             <span class="material-symbols-outlined" style="font-size:14px">content_copy</span>
@@ -47,9 +50,10 @@
             } @else {
               <span class="material-symbols-outlined" style="font-size:14px">link</span>
             }
-            {{ gerandoLink ? 'Gerando…' : 'Gerar link público' }}
+            {{ gerandoLink ? 'Publicando…' : 'Publicar link' }}
           </button>
         }
+        </div>
       </div>
     </div>
 
@@ -67,7 +71,7 @@
       <div class="campos-form-body">
         <div class="campos-form-grid">
           <div class="campos-form-field">
-            <label class="campos-form-label" for="new_type">Tipo <span class="required">*</span></label>
+            <label class="campos-form-label" for="new_type">Formato da resposta <span class="required">*</span></label>
             <select id="new_type" class="form-select" [(ngModel)]="novoType">
               @for (opt of typeOptions; track opt.value) {
                 <option [value]="opt.value">{{ opt.label }}</option>
@@ -75,15 +79,26 @@
             </select>
           </div>
           <div class="campos-form-field">
-            <label class="campos-form-label" for="new_label">Rótulo <span class="required">*</span></label>
+            <div class="campos-form-label-row">
+              <label class="campos-form-label" for="new_label">Pergunta <span class="required">*</span></label>
+              <button type="button" class="campos-link-btn" (click)="alternarOpcoesAvancadas()">
+                {{ novoMostrarOpcoesAvancadas ? 'Ocultar opções avançadas' : 'Mostrar opções avançadas' }}
+              </button>
+            </div>
             <input type="text" id="new_label" class="form-input" placeholder="Ex: Nome completo" [(ngModel)]="novoLabel" />
+            <p class="text-xs mt-1" style="color: var(--c-muted);">
+              Identificador interno: <span class="campos-key-chip">{{ previewNameKey() || 'sera_gerado_automaticamente' }}</span>
+            </p>
           </div>
-          <div class="campos-form-field">
-            <label class="campos-form-label" for="new_name_key">Chave (name_key) <span class="required">*</span></label>
-            <input type="text" id="new_name_key" class="form-input" placeholder="ex: nome_completo" maxlength="80"
-                   pattern="[a-z0-9_]+" style="font-family: ui-monospace, monospace; font-size: 0.8125rem;"
-                   [(ngModel)]="novoNameKey" />
-          </div>
+          @if (novoMostrarOpcoesAvancadas) {
+            <div class="campos-form-field">
+              <label class="campos-form-label" for="new_name_key">Identificador interno (opcional)</label>
+              <input type="text" id="new_name_key" class="form-input" placeholder="ex: nome_completo" maxlength="80"
+                    pattern="[a-z0-9_]+" style="font-family: ui-monospace, monospace; font-size: 0.8125rem;"
+                    [(ngModel)]="novoNameKey" />
+              <p class="text-xs mt-1" style="color: var(--c-muted);">Use apenas se quiser sobrescrever o nome automático.</p>
+            </div>
+          }
         </div>
         @if (showNovoOptions) {
           <div class="campos-form-field" style="margin-bottom: 1rem;">
@@ -97,7 +112,7 @@
             <input type="checkbox" id="new_required" class="form-checkbox" [(ngModel)]="novoRequired" />
             <label for="new_required" class="campos-toggle-label">Campo obrigatório</label>
           </div>
-          <button type="button" class="campos-btn-add" [disabled]="salvandoCampo || !novoLabel.trim() || !novoNameKey.trim()" (click)="adicionarCampo()">
+          <button type="button" class="campos-btn-add" [disabled]="salvandoCampo || !novoLabel.trim()" (click)="adicionarCampo()">
             @if (salvandoCampo) {
               <span class="btn-spinner" aria-hidden="true"></span>
             } @else {
@@ -122,9 +137,9 @@
           <tr>
             <th style="width:50px"></th>
             <th style="width:60px">Ordem</th>
-            <th>Tipo</th>
-            <th>Rótulo</th>
-            <th>Chave</th>
+            <th>Formato</th>
+            <th>Pergunta</th>
+            <th>ID interno</th>
             <th style="width:100px; text-align:center">Req.</th>
             <th style="width:110px; text-align:center">Ações</th>
           </tr>
@@ -202,7 +217,7 @@
       </div>
       <div class="p-4 space-y-4">
         <div>
-          <label class="campos-form-label" for="edit_type">Tipo</label>
+          <label class="campos-form-label" for="edit_type">Formato da resposta</label>
           <select id="edit_type" class="form-select w-full" [(ngModel)]="editType">
             @for (opt of typeOptions; track opt.value) {
               <option [value]="opt.value">{{ opt.label }}</option>
@@ -210,11 +225,11 @@
           </select>
         </div>
         <div>
-          <label class="campos-form-label" for="edit_label">Rótulo</label>
+          <label class="campos-form-label" for="edit_label">Pergunta</label>
           <input type="text" id="edit_label" class="form-input w-full" placeholder="Ex: Nome completo" [(ngModel)]="editLabel" />
         </div>
         <div>
-          <label class="campos-form-label" for="edit_name_key">Chave (name_key)</label>
+          <label class="campos-form-label" for="edit_name_key">Identificador interno</label>
           <input type="text" id="edit_name_key" class="form-input w-full" placeholder="ex: nome_completo" maxlength="80" style="font-family: ui-monospace, monospace;" [(ngModel)]="editNameKey" />
           <p class="text-xs mt-1" style="color: var(--c-muted);">Apenas letras minúsculas, números e underscore.</p>
         </div>

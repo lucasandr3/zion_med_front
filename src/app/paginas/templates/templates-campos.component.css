@@ -1,1 +1,22 @@
 /* Templates campos */
+
+.campos-form-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.campos-link-btn {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--c-primary);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.campos-link-btn:hover {
+  text-decoration: underline;
+}

@@ -1,43 +1,4 @@
-<div class="relative min-h-[320px]">
-  <div class="page-header mb-5">
-    <div class="page-title">
-      <!-- <div class="page-title-icon">
-        <span class="material-symbols-outlined">description</span>
-      </div>
-      <div>
-        <h1>Modelos de formulário</h1>
-        @if (templates.length > 0) {
-          <p class="page-header-subtitle">{{ templates.length }} {{ templates.length === 1 ? 'modelo' : 'modelos' }}</p>
-        }
-      </div> -->
-      @if (templates.length > 0) {
-        <div class="form-search-wrap mb-3 max-w-xs">
-          <span class="material-symbols-outlined form-search-icon">search</span>
-          <input
-            type="text"
-            [(ngModel)]="buscaTexto"
-            placeholder="Buscar por nome..."
-            class="form-input form-search-input text-sm"
-            aria-label="Buscar modelo por nome"
-          />
-        </div>
-      }
-    </div>
-    <div class="flex items-center gap-2 flex-wrap">
-      @if (templates.length > 0) {
-        <div class="templates-filter-wrap flex gap-0.5 rounded-lg border p-0.5" style="background: var(--c-surface); border-color: var(--c-border)">
-          <button type="button" class="templates-filter-btn rounded-md text-xs font-medium px-3 py-1 transition-all" [class.active]="filtroAtual === 'all'" (click)="setFiltro('all')" title="Mostrar todos os modelos">Todos</button>
-          <button type="button" class="templates-filter-btn rounded-md text-xs font-medium px-3 py-1 transition-all" [class.active]="filtroAtual === 'ativo'" (click)="setFiltro('ativo')" title="Mostrar apenas ativos">Ativos</button>
-          <button type="button" class="templates-filter-btn rounded-md text-xs font-medium px-3 py-1 transition-all" [class.active]="filtroAtual === 'publico'" (click)="setFiltro('publico')" title="Mostrar apenas com link público">Públicos</button>
-        </div>
-      }
-      <a routerLink="/templates/criar" class="btn-primary" title="Criar novo modelo">
-        <span class="material-symbols-outlined" style="font-size: 16px">add</span>
-        Novo modelo
-      </a>
-    </div>
-  </div>
-
+<div class="templates-colecao templates-listagem-layout relative min-h-[320px]">
   @if (erro) {
     <p class="text-sm mb-4" style="color: var(--c-error, #dc2626)">{{ erro }}</p>
   }
@@ -45,51 +6,278 @@
   @if (showSkeleton()) {
     <zm-skeleton-list [rows]="6" />
   } @else if (!listaPronta) {
-  } @else {
+  } @else if (modoColecao) {
     <div class="zm-content-enter">
-      <!-- @if (templates.length > 0) {
-        <div class="form-search-wrap mb-3 max-w-xs">
-          <span class="material-symbols-outlined form-search-icon">search</span>
-          <input
-            type="text"
-            [(ngModel)]="buscaTexto"
-            placeholder="Buscar por nome..."
-            class="form-input form-search-input text-sm"
-            aria-label="Buscar modelo por nome"
-          />
+      <header class="templates-colecao-header">
+        <div class="templates-colecao-header-actions">
+          <button
+            type="button"
+            class="templates-colecao-chip"
+            [attr.title]="tituloOrdenacao()"
+            (click)="ciclarOrdenacao()"
+          >
+            <span class="material-symbols-outlined" aria-hidden="true">sort</span>
+            Ordenar
+            <span class="templates-colecao-chip-meta">{{ rotuloOrdenacao() }}</span>
+          </button>
+          <button
+            type="button"
+            class="templates-colecao-chip"
+            [class.templates-colecao-chip--active]="filtrosPainelAberto"
+            (click)="toggleFiltrosPainel()"
+            [attr.aria-expanded]="filtrosPainelAberto ? 'true' : 'false'"
+            aria-controls="templates-filtros-panel"
+          >
+            <span class="material-symbols-outlined" aria-hidden="true">filter_alt</span>
+            Filtros
+          </button>
+          <div class="templates-view-toggle" role="tablist" aria-label="Visualização da coleção">
+            <button
+              type="button"
+              class="templates-view-btn"
+              [class.active]="modoColecaoVisual === 'cards'"
+              (click)="setModoColecaoVisual('cards')"
+              title="Visualizar em cards"
+            >
+              <span class="material-symbols-outlined" aria-hidden="true">grid_view</span>
+              Cards
+            </button>
+            <button
+              type="button"
+              class="templates-view-btn"
+              [class.active]="modoColecaoVisual === 'lista'"
+              (click)="setModoColecaoVisual('lista')"
+              title="Visualizar como pastas"
+            >
+              <span class="material-symbols-outlined" aria-hidden="true">folder</span>
+              Pastas
+            </button>
+          </div>
+          <a routerLink="/templates/criar-em-branco" class="btn-primary templates-colecao-btn-novo" title="Criar novo modelo">
+            <span class="material-symbols-outlined" style="font-size: 16px">add</span>
+            Novo modelo
+          </a>
         </div>
-      } -->
+      </header>
 
-      <div class="data-table-wrap rounded-2xl">
-        @if (grupos.length === 0) {
-          <zm-empty-state
-            title="Nenhum modelo cadastrado."
-            actionLabel="Criar modelo"
-            actionLink="/templates/criar"
-          />
-        } @else {
-        <table class="data-table templates-table w-full border-collapse">
-          <thead>
-            <tr>
-              <th class="w-1/2">Nome</th>
-              <th>Status</th>
-              <th class="text-right">Ações</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (grupo of grupos; track grupo.key) {
-              @if (grupoVisivel(grupo)) {
-                <tr class="templates-group-header cursor-pointer select-none border-t transition-colors" style="border-color: var(--c-border)" (click)="toggleGrupo(grupo.key)" [class.collapsed]="collapsed[grupo.key]">
-                  <td colspan="3" class="py-2 px-5 !bg-[var(--c-soft)]">
-                    <div class="flex items-center gap-2">
-                      <span class="material-symbols-outlined templates-chevron text-sm transition-transform" style="color: var(--c-muted)">expand_more</span>
-                      <span class="text-xs font-semibold uppercase tracking-wide" style="color: var(--c-muted)">{{ grupo.label }}</span>
-                      <span class="text-xs rounded px-1.5 py-0.5 font-medium" style="background: color-mix(in srgb, var(--c-primary) 14%, transparent); color: var(--c-primary)">{{ grupo.items.length }}</span>
-                    </div>
-                  </td>
+      @if (filtrosPainelAberto) {
+        <div id="templates-filtros-panel" class="templates-filtros-panel" role="region" aria-label="Filtros da coleção">
+          <div class="form-search-wrap templates-filtros-busca">
+            <span class="material-symbols-outlined form-search-icon">search</span>
+            <input
+              type="text"
+              [(ngModel)]="buscaTexto"
+              placeholder="Buscar por nome do modelo..."
+              class="form-input form-search-input text-sm"
+              aria-label="Buscar modelo por nome"
+            />
+          </div>
+          <div class="templates-filter-wrap flex gap-0.5 rounded-lg border p-0.5" style="background: var(--c-surface); border-color: var(--c-border)">
+            <button type="button" class="templates-filter-btn rounded-md text-xs font-medium px-3 py-1 transition-all" [class.active]="filtroAtual === 'all'" (click)="setFiltro('all')">Todos</button>
+            <button type="button" class="templates-filter-btn rounded-md text-xs font-medium px-3 py-1 transition-all" [class.active]="filtroAtual === 'ativo'" (click)="setFiltro('ativo')">Ativos</button>
+            <button type="button" class="templates-filter-btn rounded-md text-xs font-medium px-3 py-1 transition-all" [class.active]="filtroAtual === 'publico'" (click)="setFiltro('publico')">Públicos</button>
+          </div>
+        </div>
+      }
+
+      @if (templates.length === 0) {
+        <div class="templates-colecao-empty-wrap">
+          <zm-empty-state title="Nenhum modelo cadastrado." actionLabel="Criar modelo" actionLink="/templates/criar-em-branco" />
+        </div>
+      } @else if (gruposParaColecao.length === 0) {
+        <div class="templates-colecao-vazio-filtro rounded-2xl p-8 text-center" style="border: 1px dashed var(--c-border); background: var(--c-soft)">
+          <p class="text-sm m-0" style="color: var(--c-text)">Nenhum modelo corresponde aos filtros atuais.</p>
+          <button type="button" class="mt-3 text-sm font-medium border-0 bg-transparent cursor-pointer underline p-0" style="color: var(--c-primary)" (click)="setFiltro('all'); buscaTexto = ''">
+            Limpar filtros
+          </button>
+        </div>
+      } @else if (modoColecaoVisual === 'cards') {
+        <div class="templates-colecao-grid">
+          @for (grupo of gruposParaColecao; track grupo.key) {
+            <a
+              class="templates-cat-card"
+              [style.--cat-accent]="corAccent(grupo.key)"
+              [routerLink]="['/templates']"
+              [queryParams]="{ categoria: grupo.key }"
+              [attr.aria-label]="'Abrir categoria ' + grupo.label"
+            >
+              <div class="templates-cat-card-top">
+                <div class="templates-cat-icon-wrap">
+                  <span class="material-symbols-outlined" aria-hidden="true">folder</span>
+                </div>
+                <h2 class="templates-cat-card-title">{{ grupo.label }}</h2>
+                <p class="templates-cat-card-count">
+                  <span class="material-symbols-outlined templates-cat-count-ico" aria-hidden="true">assignment</span>
+                  {{ itensVisiveis(grupo).length }}
+                  {{ itensVisiveis(grupo).length === 1 ? 'ficha' : 'fichas' }}
+                </p>
+              </div>
+              <div class="templates-cat-card-foot">
+                <span class="templates-cat-updated">{{ rotuloAtualizacaoGrupo(grupo) }}</span>
+                <span class="material-symbols-outlined templates-cat-arrow" aria-hidden="true">arrow_forward</span>
+              </div>
+            </a>
+          }
+
+          <a routerLink="/templates/criar-em-branco" class="templates-cat-card templates-cat-card--novo" aria-label="Criar novo modelo em branco">
+            <span class="material-symbols-outlined templates-cat-novo-ico" aria-hidden="true">create_new_folder</span>
+            <span class="templates-cat-novo-label">Novo modelo</span>
+            <span class="templates-cat-novo-hint">A partir da biblioteca ou em branco</span>
+          </a>
+        </div>
+      } @else {
+        <div class="templates-colecao-pastas-card">
+          <div class="templates-colecao-pastas">
+            @for (grupo of gruposParaColecao; track grupo.key) {
+              <a
+                class="templates-folder-item"
+                [style.--cat-accent]="corAccent(grupo.key)"
+                [routerLink]="['/templates']"
+                [queryParams]="{ categoria: grupo.key }"
+                [attr.aria-label]="'Abrir categoria ' + grupo.label"
+              >
+                <div class="templates-folder-icon">
+                  <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" class="templates-folder-svg">
+                    <path class="templates-folder-svg-main" d="M10 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-8l-2-2z" />
+                  </svg>
+                </div>
+                <h2 class="templates-folder-title">{{ grupo.label }}</h2>
+                <p class="templates-folder-meta">
+                  {{ itensVisiveis(grupo).length }}
+                  {{ itensVisiveis(grupo).length === 1 ? 'ficha' : 'fichas' }}
+                </p>
+              </a>
+            }
+
+            <a routerLink="/templates/criar-em-branco" class="templates-folder-item templates-folder-item--novo" aria-label="Criar novo modelo em branco">
+              <div class="templates-folder-icon">
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" class="templates-folder-svg">
+                  <path class="templates-folder-svg-main" d="M10 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-8l-2-2z" />
+                </svg>
+              </div>
+              <h2 class="templates-folder-title">Novo modelo</h2>
+              <p class="templates-folder-meta">Criar em branco</p>
+            </a>
+          </div>
+        </div>
+      }
+
+      @if (templates.length > 0) {
+        <div class="sticky-footer-spacer" aria-hidden="true"></div>
+        <footer class="sticky-footer templates-stats-footer" aria-label="Resumo da coleção">
+          <div class="templates-stats-footer-inner">
+            <div class="templates-stat-block">
+              <span class="templates-stat-value templates-stat-value--light">{{ templates.length }}</span>
+              <span class="templates-stat-label">Modelos</span>
+            </div>
+            <div class="templates-stat-block">
+              <span class="templates-stat-value templates-stat-value--amber">{{ totalCategoriasComModelos }}</span>
+              <span class="templates-stat-label">Categorias</span>
+            </div>
+            <div class="templates-stat-block">
+              <span class="templates-stat-value templates-stat-value--emerald">{{ totalAtivos }}</span>
+              <span class="templates-stat-label">Ativos</span>
+            </div>
+            <div class="templates-stat-block">
+              <span class="templates-stat-value templates-stat-value--sky">{{ totalPublicos }}</span>
+              <span class="templates-stat-label">Públicos</span>
+            </div>
+          </div>
+        </footer>
+      }
+    </div>
+  } @else {
+    <div class="zm-content-enter templates-detalhe">
+      <div class="templates-detalhe-toolbar">
+        <div class="templates-detalhe-head">
+          <div class="templates-detalhe-toolbar-top">
+            <button type="button" class="templates-detalhe-voltar" (click)="fecharCategoria()">
+              <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span>
+              Voltar para coleção
+            </button>
+
+            <div class="templates-detalhe-toolbar-actions-right">
+              <button
+                type="button"
+                class="templates-colecao-chip"
+                [class.templates-colecao-chip--active]="filtrosPainelAberto"
+                (click)="toggleFiltrosPainel()"
+                [attr.aria-expanded]="filtrosPainelAberto ? 'true' : 'false'"
+                aria-controls="templates-detalhe-filtros"
+              >
+                <span class="material-symbols-outlined" aria-hidden="true">filter_alt</span>
+                Filtros
+              </button>
+
+              <div class="templates-view-toggle" role="tablist" aria-label="Modo de visualização">
+                <button
+                  type="button"
+                  class="templates-view-btn"
+                  [class.active]="modoDetalhe === 'tabela'"
+                  (click)="setModoDetalhe('tabela')"
+                  title="Visualizar em tabela"
+                >
+                  <span class="material-symbols-outlined" aria-hidden="true">table_rows</span>
+                  Tabela
+                </button>
+                <button
+                  type="button"
+                  class="templates-view-btn"
+                  [class.active]="modoDetalhe === 'cards'"
+                  (click)="setModoDetalhe('cards')"
+                  title="Visualizar em cards"
+                >
+                  <span class="material-symbols-outlined" aria-hidden="true">grid_view</span>
+                  Cards
+                </button>
+              </div>
+              <a routerLink="/templates/criar-em-branco" class="btn-primary shrink-0">
+                <span class="material-symbols-outlined" style="font-size: 16px">add</span>
+                Novo modelo
+              </a>
+            </div>
+          </div>
+        </div>
+
+        @if (filtrosPainelAberto) {
+          <div id="templates-detalhe-filtros" class="templates-detalhe-filtros">
+            <div class="form-search-wrap templates-detalhe-busca">
+              <span class="material-symbols-outlined form-search-icon">search</span>
+              <input
+                type="text"
+                [(ngModel)]="buscaTexto"
+                placeholder="Buscar nesta categoria..."
+                class="form-input form-search-input text-sm"
+                aria-label="Buscar modelo por nome"
+              />
+            </div>
+            <div class="templates-filter-wrap flex gap-0.5 rounded-lg border p-0.5" style="background: var(--c-surface); border-color: var(--c-border)">
+              <button type="button" class="templates-filter-btn rounded-md text-xs font-medium px-3 py-1 transition-all" [class.active]="filtroAtual === 'all'" (click)="setFiltro('all')">Todos</button>
+              <button type="button" class="templates-filter-btn rounded-md text-xs font-medium px-3 py-1 transition-all" [class.active]="filtroAtual === 'ativo'" (click)="setFiltro('ativo')">Ativos</button>
+              <button type="button" class="templates-filter-btn rounded-md text-xs font-medium px-3 py-1 transition-all" [class.active]="filtroAtual === 'publico'" (click)="setFiltro('publico')">Públicos</button>
+            </div>
+          </div>
+        }
+      </div>
+
+      @if (grupoDetalhe) {
+        @if (itensVisiveis(grupoDetalhe).length === 0) {
+          <div class="data-table-wrap rounded-2xl">
+            <div class="p-8 text-center text-sm" style="color: var(--c-muted)">Nenhum modelo nesta categoria com os filtros atuais.</div>
+          </div>
+        } @else if (modoDetalhe === 'tabela') {
+          <div class="data-table-wrap rounded-2xl">
+            <table class="data-table templates-table w-full border-collapse">
+              <thead>
+                <tr>
+                  <th class="w-1/2">Nome</th>
+                  <th>Status</th>
+                  <th class="text-right">Ações</th>
                 </tr>
-                @for (t of itensVisiveis(grupo); track t.id) {
-                  <tr class="templates-group-rows border-t transition-colors hover:bg-[var(--c-soft)]" style="border-color: var(--c-border)" [style.display]="collapsed[grupo.key] ? 'none' : ''">
+              </thead>
+              <tbody>
+                @for (t of itensVisiveis(grupoDetalhe); track t.id) {
+                  <tr class="templates-group-rows border-t transition-colors hover:bg-bg-soft" style="border-color: var(--c-border)">
                     <td class="py-3 px-5 text-[0.8125rem]">
                       <span class="font-medium" style="color: var(--c-text)">{{ t.name }}</span>
                     </td>
@@ -119,8 +307,8 @@
                           rel="noopener noreferrer"
                           class="templates-action-btn p-1 rounded-md inline-flex items-center justify-center no-underline"
                           style="color: var(--c-muted)"
-                          title="Pre-visualizar modelo"
-                          aria-label="Pre-visualizar modelo"
+                          title="Pré-visualizar modelo"
+                          aria-label="Pré-visualizar modelo"
                         >
                           <span class="material-symbols-outlined text-lg">open_in_new</span>
                         </a>
@@ -132,7 +320,7 @@
                         </a>
                         <button type="button" class="templates-action-btn danger p-1 rounded-md border-0 cursor-pointer inline-flex items-center justify-center bg-transparent" style="color: var(--c-muted)" title="Remover" aria-label="Remover modelo" [disabled]="removendoId === t.id" (click)="remover(t, $event)">
                           @if (removendoId === t.id) {
-                            <span class="btn-spinner" style="width:18px;height:18px;border-width:2px"></span>
+                            <span class="btn-spinner" style="width: 18px; height: 18px; border-width: 2px"></span>
                           } @else {
                             <span class="material-symbols-outlined text-lg">delete</span>
                           }
@@ -141,15 +329,56 @@
                     </td>
                   </tr>
                 }
-              }
+              </tbody>
+            </table>
+          </div>
+        } @else {
+          <div class="templates-detalhe-grid">
+            @for (t of itensVisiveis(grupoDetalhe); track t.id) {
+              <article class="templates-model-card">
+                <div class="templates-model-card-icon" [style.--cat-accent]="corAccent(grupoDetalhe.key)">
+                  <span class="material-symbols-outlined" aria-hidden="true">article</span>
+                </div>
+                <h3 class="templates-model-card-title">{{ t.name }}</h3>
+                <p class="templates-model-card-desc">{{ descricaoCurta(t) }}</p>
+                <div class="templates-model-card-tags">
+                  <span class="templates-badge-ativo text-[0.6875rem] font-semibold py-0.5 px-2 rounded-full" *ngIf="t.is_active">Ativo</span>
+                  <span class="templates-badge-inativo text-[0.6875rem] font-semibold py-0.5 px-2 rounded-full" style="background: var(--c-soft); color: var(--c-muted)" *ngIf="!t.is_active">Inativo</span>
+                  <span class="templates-badge-publico inline-flex items-center gap-1 text-[0.6875rem] font-semibold py-0.5 px-2 rounded-full" *ngIf="t.public_enabled">
+                    <span class="material-symbols-outlined text-xs">public</span>
+                    Público
+                  </span>
+                </div>
+                <div class="templates-model-card-actions">
+                  <a
+                    [routerLink]="['/templates', t.id, 'preview']"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="templates-card-btn"
+                    title="Pré-visualizar modelo"
+                    aria-label="Pré-visualizar modelo"
+                  >
+                    <span class="material-symbols-outlined">open_in_new</span>
+                    Pré-visualizar
+                  </a>
+                  <a [routerLink]="['/templates', t.id, 'campos']" class="templates-card-icon-btn" title="Campos" aria-label="Campos do modelo">
+                    <span class="material-symbols-outlined">tune</span>
+                  </a>
+                  <a [routerLink]="['/templates', t.id, 'editar']" class="templates-card-icon-btn" title="Editar" aria-label="Editar modelo">
+                    <span class="material-symbols-outlined">edit</span>
+                  </a>
+                  <button type="button" class="templates-card-icon-btn danger" title="Remover" aria-label="Remover modelo" [disabled]="removendoId === t.id" (click)="remover(t, $event)">
+                    @if (removendoId === t.id) {
+                      <span class="btn-spinner" style="width: 16px; height: 16px; border-width: 2px"></span>
+                    } @else {
+                      <span class="material-symbols-outlined">delete</span>
+                    }
+                  </button>
+                </div>
+              </article>
             }
-          </tbody>
-        </table>
+          </div>
         }
-      </div>
-
-      @if (templates.length > 0) {
-        <p class="text-xs mt-3 text-center" style="color: var(--c-muted)">Clique no grupo para expandir ou recolher</p>
       }
     </div>
   }

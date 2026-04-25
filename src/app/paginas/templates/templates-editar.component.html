@@ -27,6 +27,30 @@
           <label class="form-label">Descrição</label>
           <textarea [(ngModel)]="description" name="description" rows="3" class="form-input"></textarea>
         </div>
+        <div>
+          <label class="form-label">Categoria</label>
+          <zm-searchable-select
+            [options]="opcoesCategoria"
+            [value]="categoriaSelecionada"
+            placeholder="Sem categoria"
+            searchPlaceholder="Buscar categoria..."
+            createActionLabel="Nova categoria"
+            (valueChange)="selecionarCategoria($event)"
+            (createAction)="abrirCriacaoCategoria()"
+          ></zm-searchable-select>
+        </div>
+        @if (categoriaSelecionada === '__nova__') {
+          <div>
+            <label class="form-label">Nova categoria</label>
+            <input
+              type="text"
+              [(ngModel)]="novaCategoria"
+              name="novaCategoria"
+              class="form-input"
+              placeholder="Ex: Anamnese, Acompanhamento, Evolução..."
+            />
+          </div>
+        }
         <div class="flex items-center gap-6">
           <label class="flex items-center gap-2 cursor-pointer">
             <input type="checkbox" [(ngModel)]="is_active" name="is_active" class="form-checkbox" />
@@ -36,18 +60,17 @@
             <input type="checkbox" [(ngModel)]="public_enabled" name="public_enabled" class="form-checkbox" />
             <span class="form-label mb-0">Formulário público</span>
           </label>
-          <label class="flex items-center gap-2 cursor-pointer" [class.opacity-50]="!public_enabled">
+          <label class="flex items-center gap-2 cursor-pointer">
             <input
               type="checkbox"
               [(ngModel)]="public_require_person_link"
               name="public_require_person_link"
               class="form-checkbox"
-              [disabled]="!public_enabled"
             />
             <span class="form-label mb-0">Exigir identificação antes do formulário</span>
           </label>
         </div>
-        @if (public_enabled && public_require_person_link) {
+        @if (public_require_person_link) {
           <div class="flex flex-col gap-2">
             <span class="form-label mb-0">Como a pessoa se identifica</span>
             <label class="flex items-center gap-2 cursor-pointer">
@@ -68,7 +91,7 @@
           </p>
         }
         <div class="flex items-center gap-3 pt-2">
-          <button type="submit" class="btn-primary" [disabled]="salvando || !name.trim()">
+          <button type="submit" class="btn-primary" [disabled]="salvando || !name.trim() || (categoriaSelecionada === '__nova__' && !novaCategoria.trim())">
             @if (salvando) {
               <span class="btn-spinner" aria-hidden="true"></span>
               Salvando…

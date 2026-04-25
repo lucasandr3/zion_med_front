@@ -14,9 +14,9 @@ const TYPE_OPTIONS: { value: string; label: string }[] = [
   { value: 'textarea', label: 'Texto longo' },
   { value: 'number', label: 'Número' },
   { value: 'date', label: 'Data' },
-  { value: 'select', label: 'Select' },
-  { value: 'radio', label: 'Radio' },
-  { value: 'checkbox', label: 'Checkbox' },
+  { value: 'select', label: 'Lista de opções' },
+  { value: 'radio', label: 'Escolha única' },
+  { value: 'checkbox', label: 'Caixa de seleção' },
   { value: 'file', label: 'Anexo' },
   { value: 'signature', label: 'Assinatura' },
 ];
@@ -57,6 +57,7 @@ export class TemplatesCamposComponent implements OnInit {
   novoType = 'text';
   novoLabel = '';
   novoNameKey = '';
+  novoMostrarOpcoesAvancadas = false;
   novoOptionsText = '';
   novoRequired = false;
 
@@ -134,7 +135,11 @@ export class TemplatesCamposComponent implements OnInit {
     const id = this.idNum;
     if (!id) return;
     const label = this.novoLabel?.trim();
-    const nameKey = this.novoNameKey?.trim().toLowerCase().replace(/\s+/g, '_');
+    const manualKey = this.novoNameKey?.trim();
+    const generatedKey = this.gerarNameKey(label);
+    const nameKey = this.novoMostrarOpcoesAvancadas && manualKey
+      ? this.normalizarNameKey(manualKey)
+      : generatedKey;
     if (!label || !nameKey) return;
     const payload: { type: string; label: string; name_key: string; required: boolean; options?: string[] } = {
       type: this.novoType,
@@ -154,6 +159,7 @@ export class TemplatesCamposComponent implements OnInit {
         this.salvandoCampo = false;
         this.novoLabel = '';
         this.novoNameKey = '';
+        this.novoMostrarOpcoesAvancadas = false;
         this.novoOptionsText = '';
         this.novoRequired = false;
         this.carregar();
@@ -305,5 +311,40 @@ export class TemplatesCamposComponent implements OnInit {
 
   ordemFormatada(sortOrder: number): string {
     return String(sortOrder).padStart(2, '0');
+  }
+
+  alternarOpcoesAvancadas(): void {
+    this.novoMostrarOpcoesAvancadas = !this.novoMostrarOpcoesAvancadas;
+    if (!this.novoMostrarOpcoesAvancadas) {
+      this.novoNameKey = '';
+    }
+  }
+
+  previewNameKey(): string {
+    if (this.novoMostrarOpcoesAvancadas && this.novoNameKey?.trim()) {
+      return this.normalizarNameKey(this.novoNameKey);
+    }
+    return this.gerarNameKey(this.novoLabel);
+  }
+
+  private gerarNameKey(label: string): string {
+    const base = this.normalizarNameKey(label);
+    if (!base) return `campo_${Date.now()}`;
+    const existentes = new Set(this.campos.map((c) => c.name_key));
+    if (!existentes.has(base)) return base;
+    let idx = 2;
+    while (existentes.has(`${base}_${idx}`)) idx += 1;
+    return `${base}_${idx}`;
+  }
+
+  private normalizarNameKey(value: string): string {
+    return (value ?? '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .replace(/[^a-z0-9_ ]/g, '')
+      .trim()
+      .replace(/\s+/g, '_')
+      .replace(/_+/g, '_');
   }
 }

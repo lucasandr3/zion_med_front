@@ -44,6 +44,25 @@ export class ComeceComponent implements OnInit {
   comoConheceu = '';
   lpTheme: 'dark' | 'light' = 'dark';
 
+  /** Chaves vindas de `GET /landing` (`niches`). */
+  niches: string[] = [];
+  /** Nicho selecionado (enviado no cadastro). */
+  nicheKey = 'estetica';
+
+  readonly nicheLabels: Record<string, string> = {
+    estetica: 'Estética / Harmonização',
+    odontologia: 'Odontologia',
+    clinica_medica: 'Clínica Médica',
+    fisioterapia: 'Fisioterapia',
+    psicologia: 'Psicologia / Psiquiatria',
+    pediatria: 'Pediatria',
+    ginecologia: 'Ginecologia / Obstetrícia',
+    oftalmologia: 'Oftalmologia',
+    dermatologia: 'Dermatologia',
+    laboratorio: 'Laboratório / Coleta',
+    geral: 'Geral',
+  };
+
   readonly waCadastroUrl =
     'https://wa.me/5534996460818?text=' +
     encodeURIComponent('Olá! Estou criando minha conta no Gestgo e queria tirar uma dúvida.');
@@ -85,6 +104,13 @@ export class ComeceComponent implements OnInit {
       next: (d) => {
         this.diasTrial = d.trial_days ?? 14;
         this.planos = d.plans ?? [];
+        this.niches = d.niches?.length ? d.niches.map(String) : ['estetica', 'odontologia'];
+        const qn = this.route.snapshot.queryParamMap.get('niche');
+        if (qn && this.niches.includes(qn)) {
+          this.nicheKey = qn;
+        } else if (!this.niches.includes(this.nicheKey)) {
+          this.nicheKey = this.niches[0] ?? 'estetica';
+        }
         this.carregandoPlanos = false;
         if (this.planos.length && !this.planos.some((p) => p.key === this.planKey)) {
           this.planKey = this.planos[0].key;
@@ -93,6 +119,8 @@ export class ComeceComponent implements OnInit {
       error: () => {
         this.diasTrial = 14;
         this.planos = [];
+        this.niches = ['estetica', 'odontologia'];
+        this.nicheKey = 'estetica';
         this.carregandoPlanos = false;
       },
     });
@@ -117,6 +145,14 @@ export class ComeceComponent implements OnInit {
 
   selecionarPlano(key: string): void {
     this.planKey = key;
+  }
+
+  selecionarNicho(key: string): void {
+    this.nicheKey = key;
+  }
+
+  labelNicho(key: string): string {
+    return this.nicheLabels[key] ?? key;
   }
 
   private billingDocDigits(): string {
@@ -147,6 +183,7 @@ export class ComeceComponent implements OnInit {
     this.mensagemErro = '';
     if (
       !this.planKey ||
+      !this.nicheKey ||
       !this.companyName?.trim() ||
       !this.responsibleName?.trim() ||
       !this.email?.trim() ||
@@ -180,6 +217,7 @@ export class ComeceComponent implements OnInit {
         password: this.password,
         password_confirmation: this.passwordConfirmation,
         plan_key: this.planKey,
+        niche: this.nicheKey,
         accepted_terms: this.acceptedTerms,
       })
       .subscribe({

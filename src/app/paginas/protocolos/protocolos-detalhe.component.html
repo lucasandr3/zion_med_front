@@ -1,4 +1,13 @@
 <div class="protocolo-detalhe relative min-h-[320px]">
+  @if (gerandoPdf) {
+    <div class="dp-generating-overlay" aria-live="polite" aria-busy="true">
+      <div class="dp-generating-card">
+        <span class="btn-spinner" aria-hidden="true"></span>
+        <span>Gerando PDF...</span>
+      </div>
+    </div>
+  }
+
   @if (erro) {
     <p class="text-sm mb-4" style="color: var(--c-error, #dc2626)">{{ erro }}</p>
   }
@@ -29,9 +38,13 @@
             </div>
           </div>
           <div class="flex items-center gap-2 flex-wrap">
-            <button type="button" class="btn-ghost btn-default-bg inline-flex items-center gap-2" (click)="baixarPdf()" title="Baixar PDF">
-              <span class="material-symbols-outlined text-lg">picture_as_pdf</span>
-              Baixar PDF
+            <button type="button" class="btn-ghost btn-default-bg inline-flex items-center gap-2" (click)="baixarFichaPdf()" title="Baixar PDF" [disabled]="gerandoPdf">
+              @if (gerandoPdf) {
+                <span class="btn-spinner" aria-hidden="true"></span>
+              } @else {
+                <span class="material-symbols-outlined text-lg">picture_as_pdf</span>
+              }
+              {{ gerandoPdf ? 'Gerando PDF...' : 'Baixar PDF' }}
             </button>
             <button type="button" class="btn-ghost btn-default-bg inline-flex items-center gap-2" (click)="baixarDossie()" title="Baixar dossiê (ZIP)">
               <span class="material-symbols-outlined text-lg">folder_zip</span>
@@ -147,6 +160,10 @@
             <span class="material-symbols-outlined protocolo-tab__icon">forum</span>
             Comentários
             <span class="protocolo-tab__count">{{ totalComentarios() }}</span>
+          </button>
+          <button type="button" class="protocolo-tab" [class.protocolo-tab--active]="abaAtiva === 'impressao'" (click)="setAbaAtiva('impressao')">
+            <span class="material-symbols-outlined protocolo-tab__icon">print</span>
+            Impressão
           </button>
         </div>
         <div class="protocolo-tab-panel p-6">
@@ -373,6 +390,259 @@
                   {{ comentarioEnviando ? 'Enviando…' : 'Adicionar comentário' }}
                 </button>
               </div>
+            </div>
+          }
+
+          @if (abaAtiva === 'impressao') {
+            <div class="protocolo-print-toolbar">
+              <button type="button" class="btn-ghost btn-default-bg inline-flex items-center gap-2" (click)="visualizarFichaPdf()" [disabled]="gerandoPdf">
+                <span class="material-symbols-outlined text-lg">visibility</span>
+                Visualizar PDF
+              </button>
+              <button type="button" class="btn-ghost btn-default-bg inline-flex items-center gap-2" (click)="baixarFichaPdf()" [disabled]="gerandoPdf">
+                @if (gerandoPdf) {
+                  <span class="btn-spinner" aria-hidden="true"></span>
+                } @else {
+                  <span class="material-symbols-outlined text-lg">picture_as_pdf</span>
+                }
+                {{ gerandoPdf ? 'Gerando PDF...' : 'Baixar PDF' }}
+              </button>
+              <button type="button" class="btn-primary inline-flex items-center gap-2" (click)="imprimirFicha()">
+                <span class="material-symbols-outlined text-lg">print</span>
+                Imprimir
+              </button>
+            </div>
+            <div id="documento-impressao" class="protocolo-print-sheet documento">
+              <header class="dp-header">
+                <div class="dp-header-brand">
+                  @if (clinicaLogo) {
+                    <div class="dp-logo-wrap">
+                      <img class="dp-logo" [src]="clinicaLogo" [alt]="clinicaNome()" />
+                    </div>
+                  }
+                  <div class="dp-header-brand-text">
+                    <div class="dp-clinic-name">{{ clinicaNome() }}</div>
+                    @if (clinicaSubtitulo()) {
+                      <div class="dp-clinic-sub">{{ clinicaSubtitulo() }}</div>
+                    }
+                    <div class="dp-clinic-meta">
+                      @if (clinicaCnpj) {
+                        <div class="dp-clinic-meta-line">
+                          <span class="dp-clinic-meta-item">CNPJ {{ clinicaCnpj }}</span>
+                        </div>
+                      }
+                      @if (clinicaEndereco) {
+                        <div class="dp-clinic-meta-line">
+                          <span class="dp-clinic-meta-item">{{ clinicaEndereco }}</span>
+                        </div>
+                      }
+                      @if (clinicaTelefone || clinicaEmail) {
+                        <div class="dp-clinic-meta-line">
+                          @if (clinicaTelefone) { <span class="dp-clinic-meta-item">Tel. {{ clinicaTelefone }}</span> }
+                          @if (clinicaEmail) { <span class="dp-clinic-meta-item">{{ clinicaEmail }}</span> }
+                        </div>
+                      }
+                    </div>
+                  </div>
+                </div>
+                <div class="dp-header-doc">
+                  <div class="dp-form-title">{{ tituloDocumento() }}</div>
+                  <div class="dp-form-number">
+                    Protocolo Nº <strong>{{ protocolo.protocol_number || protocolo.id }}</strong>
+                  </div>
+                  <div class="dp-form-number">
+                    Emitido em {{ dataDocumentoPorExtenso() }}
+                  </div>
+                </div>
+              </header>
+
+              @if (protocolo.person || protocolo.submitter_name) {
+                <h2 class="dp-section-heading">Identificação</h2>
+                <div class="dp-id-card">
+                  <div class="dp-id-grid">
+                    @if (protocolo.person) {
+                      <div class="dp-id-item dp-id-item--wide">
+                        <span class="dp-id-label">Nome</span>
+                        <span class="dp-id-value">{{ protocolo.person.name }}</span>
+                      </div>
+                    }
+                    @if (formatarCpf(pessoaCompleta?.cpf)) {
+                      <div class="dp-id-item">
+                        <span class="dp-id-label">CPF</span>
+                        <span class="dp-id-value">{{ formatarCpf(pessoaCompleta?.cpf) }}</span>
+                      </div>
+                    }
+                    @if (pessoaCompleta?.rg) {
+                      <div class="dp-id-item">
+                        <span class="dp-id-label">RG</span>
+                        <span class="dp-id-value">{{ pessoaCompleta?.rg }}</span>
+                      </div>
+                    }
+                    @if (pessoaCompleta?.birth_date) {
+                      <div class="dp-id-item">
+                        <span class="dp-id-label">Nascimento</span>
+                        <span class="dp-id-value">
+                          {{ formatarDataCurta(pessoaCompleta?.birth_date) }}@if (calcularIdade(pessoaCompleta?.birth_date)) { ({{ calcularIdade(pessoaCompleta?.birth_date) }} anos) }
+                        </span>
+                      </div>
+                    }
+                    @if (pessoaCompleta?.sex) {
+                      <div class="dp-id-item">
+                        <span class="dp-id-label">Sexo</span>
+                        <span class="dp-id-value">{{ formatarSexo(pessoaCompleta?.sex) }}</span>
+                      </div>
+                    }
+                    @if (pessoaCompleta?.phone) {
+                      <div class="dp-id-item">
+                        <span class="dp-id-label">Telefone</span>
+                        <span class="dp-id-value">{{ formatarTelefone(pessoaCompleta?.phone) }}</span>
+                      </div>
+                    }
+                    @if (pessoaCompleta?.email) {
+                      <div class="dp-id-item dp-id-item--wide">
+                        <span class="dp-id-label">E-mail</span>
+                        <span class="dp-id-value">{{ pessoaCompleta?.email }}</span>
+                      </div>
+                    }
+                    @if (protocolo.person?.code) {
+                      <div class="dp-id-item">
+                        <span class="dp-id-label">Código</span>
+                        <span class="dp-id-value">{{ protocolo.person?.code }}</span>
+                      </div>
+                    }
+                    @if (protocolo.submitter_name) {
+                      <div class="dp-id-item dp-id-item--wide">
+                        <span class="dp-id-label">Responsável pelo preenchimento</span>
+                        <span class="dp-id-value">{{ protocolo.submitter_name }}</span>
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+
+              @if (camposCorpoDocumento().length === 0) {
+                <p class="dp-empty">Este protocolo não possui campos preenchidos para exibir.</p>
+              } @else {
+                <div class="dp-section">
+                  <h2 class="dp-section-heading">Conteúdo do protocolo</h2>
+                  <div class="dp-grid">
+                    @for (linha of linhasDocumento(); track $index) {
+                      @for (cell of linha.campos; track cell.field.name_key) {
+                        @if (mostrarCampoNoDocumento(cell.field)) {
+                          <div [class]="classeLarguraCampo(cell.field)">
+                            <label class="dp-label">{{ cell.field.label }}</label>
+
+                            @if (cell.field.type === 'radio' && cell.field.options && cell.field.options.length > 0) {
+                              <div class="dp-radio-group">
+                                @for (opcao of cell.field.options; track opcao) {
+                                  <span [class.dp-checked]="opcaoSelecionadaRadio(cell.field, opcao)">{{ opcao }}</span>
+                                }
+                              </div>
+                            } @else if (cell.field.type === 'checkbox' && cell.field.options && cell.field.options.length > 0) {
+                              <div class="dp-checkbox-group">
+                                @for (opcao of cell.field.options; track opcao) {
+                                  <span [class.dp-checked]="opcaoSelecionadaCheckbox(cell.field, opcao)">{{ opcao }}</span>
+                                }
+                              </div>
+                            } @else if (cell.field.type === 'checkbox') {
+                              <div class="dp-checkbox-group">
+                                <span [class.dp-checked]="checkboxBooleanoMarcado(cell.field)">{{ cell.field.label }}</span>
+                              </div>
+                            } @else if (cell.field.type === 'file') {
+                              @if (anexoParaDownload(cell.field.name_key); as anexo) {
+                                <div class="dp-value">{{ anexo.original_name || 'Anexo enviado' }}</div>
+                              } @else {
+                                <div class="dp-value dp-empty-value">—</div>
+                              }
+                            } @else if (cell.field.type === 'textarea') {
+                              <div class="dp-value dp-value--textarea">{{ valorCampoDocumento(cell.field) || '—' }}</div>
+                            } @else {
+                              <div class="dp-value">{{ valorCampoDocumento(cell.field) || '—' }}</div>
+                            }
+                          </div>
+                        }
+                      }
+                    }
+                  </div>
+                </div>
+              }
+
+              <h2 class="dp-section-heading">Assinaturas</h2>
+              @if (camposAssinaturaDocumento().length > 0) {
+                <div class="dp-signature-area">
+                  @for (sigField of camposAssinaturaDocumento(); track sigField.name_key) {
+                    <div class="dp-sig-block">
+                      <div class="dp-sig-line">
+                        @if (assinaturaDocumento(sigField.name_key); as imgUrl) {
+                          <img [src]="imgUrl" [alt]="sigField.label" />
+                        }
+                      </div>
+                      <div class="dp-sig-name">{{ assinaturaParaCampo(sigField.name_key)?.signed_name || '—' }}</div>
+                      <div class="dp-sig-label">{{ sigField.label }}</div>
+                    </div>
+                  }
+                  <div class="dp-sig-block">
+                    <div class="dp-sig-line dp-sig-date">{{ dataDocumentoPorExtenso() }}</div>
+                    <div class="dp-sig-name">&nbsp;</div>
+                    <div class="dp-sig-label">Data</div>
+                  </div>
+                </div>
+              } @else {
+                <div class="dp-signature-area">
+                  <div class="dp-sig-block">
+                    <div class="dp-sig-line"></div>
+                    <div class="dp-sig-name">{{ protocolo.submitter_name || '—' }}</div>
+                    <div class="dp-sig-label">Assinatura do responsável</div>
+                  </div>
+                  <div class="dp-sig-block">
+                    <div class="dp-sig-line dp-sig-date">{{ dataDocumentoPorExtenso() }}</div>
+                    <div class="dp-sig-name">&nbsp;</div>
+                    <div class="dp-sig-label">Data</div>
+                  </div>
+                </div>
+              }
+
+              <section class="dp-auth">
+                <div class="dp-auth-text">
+                  <p class="dp-auth-legal">
+                    Documento assinado eletronicamente nos termos da MP nº 2.200-2/2001 e da Lei nº 14.063/2020.
+                    A autenticidade pode ser verificada utilizando o código abaixo no portal da clínica.
+                  </p>
+                  @if (docCode) {
+                    <div class="dp-auth-row">
+                      <span class="dp-auth-label">Código de verificação</span>
+                      <span class="dp-auth-value">{{ docCode }}</span>
+                    </div>
+                  }
+                  @if (docVerifyUrl) {
+                    <div class="dp-auth-row">
+                      <span class="dp-auth-label">Verificar autenticidade</span>
+                      <span class="dp-auth-value dp-auth-value--mono">{{ docVerifyUrl }}</span>
+                    </div>
+                  }
+                  @if (docHash) {
+                    <div class="dp-auth-row">
+                      <span class="dp-auth-label">Hash SHA-256</span>
+                      <span class="dp-auth-value dp-auth-value--mono dp-auth-hash">{{ docHash }}</span>
+                    </div>
+                  }
+                </div>
+                @if (docQrDataUrl) {
+                  <div class="dp-auth-qr">
+                    <img [src]="docQrDataUrl" alt="QR de verificação do documento" />
+                    <span class="dp-auth-qr-label">Escaneie para validar</span>
+                  </div>
+                }
+              </section>
+
+              <footer class="dp-footer">
+                <div class="dp-footer__left">
+                  {{ clinicaNome() }} · Protocolo {{ protocolo.protocol_number || protocolo.id }}
+                </div>
+                <div class="dp-footer__right">
+                  Documento gerado em {{ dataDocumentoPorExtenso() }}
+                </div>
+              </footer>
             </div>
           }
         </div>

@@ -1,12 +1,14 @@
 import { Component, OnInit, inject, Signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 import { DocumentSendsService, DocumentSendItem } from '../../core/services/document-sends.service';
 import { PessoasService, Pessoa } from '../../core/services/pessoas.service';
 import { TemplatesService, Template } from '../../core/services/templates.service';
 import { LoadingService } from '../../shared/services/loading.service';
 import { ZmSkeletonListComponent } from '../../shared/components/skeletons';
 import { ZmPaginationComponent, ZmEmptyStateComponent } from '../../shared/components/ui';
+import { ZmSearchableSelectComponent, ZmSearchableSelectOption } from '../../shared/components/ui/zm-searchable-select.component';
 import { ToastService } from '../../core/services/toast.service';
 import { ConfirmDialogService } from '../../core/services/confirm-dialog.service';
 
@@ -15,7 +17,7 @@ type Caixa = 'pendentes' | 'assinados' | 'expirados' | 'cancelados';
 @Component({
   selector: 'app-envios',
   standalone: true,
-  imports: [CommonModule, FormsModule, ZmSkeletonListComponent, ZmPaginationComponent, ZmEmptyStateComponent],
+  imports: [CommonModule, FormsModule, ZmSkeletonListComponent, ZmPaginationComponent, ZmEmptyStateComponent, ZmSearchableSelectComponent],
   templateUrl: './envios.component.html',
   styleUrl: './envios.component.css',
 })
@@ -44,6 +46,8 @@ export class EnviosComponent implements OnInit {
   buscandoPessoas = false;
   enviando = false;
   erroNovo = '';
+  private pessoaBusca$ = new Subject<string>();
+  private suprimirBuscaAutomatica = false;
 
   private documentSendsService = inject(DocumentSendsService);
   private pessoasService = inject(PessoasService);
@@ -59,8 +63,34 @@ export class EnviosComponent implements OnInit {
     { key: 'cancelados', label: 'Cancelados' },
   ];
 
+  get templatesPublicos(): Template[] {
+    return this.templates.filter((template) => template.is_active !== false && template.public_enabled === true);
+  }
+
+  get opcoesTemplatesPublicos(): ZmSearchableSelectOption[] {
+    return this.templatesPublicos.map((template) => ({
+      key: String(template.id),
+      label: template.name,
+    }));
+  }
+
+  get templateSelecionadoKey(): string {
+    return this.novoEnvio.template_id ? `${this.novoEnvio.template_id}` : '';
+  }
+
   ngOnInit(): void {
-    this.templatesService.list({ is_active: true }).subscribe({ next: (t) => (this.templates = t) });
+    this.templatesService.list({ is_active: true }).subscribe({
+      next: (templates) => {
+        this.templates = templates;
+        const primeiroTemplatePublico = this.templatesPublicos[0];
+        if (primeiroTemplatePublico && this.novoEnvio.template_id <= 0) {
+          this.novoEnvio.template_id = primeiroTemplatePublico.id;
+        }
+      },
+    });
+    this.pessoaBusca$
+      .pipe(debounceTime(280), distinctUntilChanged())
+      .subscribe((termo) => this.buscarPessoasPorTermo(termo));
     this.carregar();
   }
 
@@ -99,7 +129,31 @@ export class EnviosComponent implements OnInit {
   }
 
   statusLabel(status: string): string {
-    const map: Record<string, string> = { pendente: 'Pendente', assinado: 'Assinado', expirado: 'Expirado', cancelado: 'Cancelado' };
+    const map: Record<string, string> = {
+      pendente: 'Aguardando assinatura',
+      assinado: 'Assinado',
+      expirado: 'Expirado',
+      cancelado: 'Cancelado',
+    };
+    return map[status] ?? status;
+  }
+
+  entregaLabel(item: DocumentSendItem): string {
+    const status = item.delivery_status ?? 'enviado';
+    if (status === 'enviado') return 'Enviado';
+    if (status === 'nao_enviado') return 'Não enviado';
+    return status;
+  }
+
+  assinaturaLabel(item: DocumentSendItem): string {
+    const status = item.signature_status;
+    if (!status) return this.statusLabel(item.status);
+    const map: Record<string, string> = {
+      aguardando_assinatura: 'Aguardando assinatura',
+      assinado: 'Assinado',
+      expirado: 'Expirado',
+      cancelado: 'Cancelado',
+    };
     return map[status] ?? status;
   }
 
@@ -114,6 +168,10 @@ export class EnviosComponent implements OnInit {
       default:
         return 'var(--c-muted)';
     }
+  }
+
+  corEntrega(item: DocumentSendItem): string {
+    return item.delivery_status === 'nao_enviado' ? 'var(--c-danger)' : 'var(--c-success)';
   }
 
   canalLabel(channel: string): string {
@@ -172,8 +230,9 @@ export class EnviosComponent implements OnInit {
     this.pessoaBusca = '';
     this.pessoaSugestoes = [];
     this.pessoaSelecionada = null;
+    const primeiroTemplatePublico = this.templatesPublicos[0];
     this.novoEnvio = {
-      template_id: this.templates[0]?.id ?? 0,
+      template_id: primeiroTemplatePublico?.id ?? 0,
       channel: 'email',
       destino: 'manual',
       person_id: null,
@@ -183,29 +242,15 @@ export class EnviosComponent implements OnInit {
   }
 
   buscarPessoas(): void {
-    const q = this.pessoaBusca.trim();
-    if (q.length < 2) {
-      this.pessoaSugestoes = [];
-      return;
-    }
-    this.buscandoPessoas = true;
-    this.pessoasService.list({ search: q, per_page: 15, page: 1 }).subscribe({
-      next: (res) => {
-        this.buscandoPessoas = false;
-        this.pessoaSugestoes = res.data.filter((p) => p.status === 'active');
-      },
-      error: () => {
-        this.buscandoPessoas = false;
-        this.pessoaSugestoes = [];
-      },
-    });
+    this.buscarPessoasPorTermo(this.pessoaBusca.trim());
   }
 
   selecionarPessoa(p: Pessoa): void {
     this.pessoaSelecionada = p;
     this.novoEnvio.person_id = p.id;
     this.pessoaSugestoes = [];
-    this.pessoaBusca = `${p.name} · ${p.code}`;
+    this.suprimirBuscaAutomatica = true;
+    this.pessoaBusca = `${p.name} · ${this.documentoPessoaDisplay(p)}`;
   }
 
   limparPessoa(): void {
@@ -215,6 +260,111 @@ export class EnviosComponent implements OnInit {
     this.pessoaSugestoes = [];
   }
 
+  onPessoaBuscaChange(value: string): void {
+    if (this.suprimirBuscaAutomatica) {
+      this.suprimirBuscaAutomatica = false;
+      return;
+    }
+    if (this.pessoaSelecionada && this.pessoaBusca !== `${this.pessoaSelecionada.name} · ${this.documentoPessoaDisplay(this.pessoaSelecionada)}`) {
+      this.pessoaSelecionada = null;
+      this.novoEnvio.person_id = null;
+    }
+    this.pessoaBusca$.next(value.trim());
+  }
+
+  onRecipientPhoneChange(value: string): void {
+    this.novoEnvio.recipient_phone = this.formatPhoneMask(value);
+  }
+
+  documentoPessoaDisplay(pessoa: Pessoa): string {
+    const cpf = (pessoa.cpf ?? '').replace(/\D/g, '');
+    if (cpf.length === 11) {
+      return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+    }
+    if ((pessoa.rg ?? '').trim()) return pessoa.rg!.trim();
+    if ((pessoa.code ?? '').trim()) return pessoa.code.trim();
+    return 'Sem documento';
+  }
+
+  private buscarPessoasPorTermo(termo: string): void {
+    if (termo.length < 2) {
+      this.pessoaSugestoes = [];
+      this.buscandoPessoas = false;
+      return;
+    }
+    this.buscandoPessoas = true;
+    const termoCapitalizado = termo.charAt(0).toUpperCase() + termo.slice(1);
+    this.pessoasService.list({ search: termo, per_page: 15, page: 1 }).subscribe({
+      next: (res) => {
+        const ativos = res.data.filter((p) => p.status === 'active');
+        if (ativos.length > 0 || termoCapitalizado === termo) {
+          this.buscandoPessoas = false;
+          this.pessoaSugestoes = this.filtrarPessoasCaseInsensitive(ativos, termo);
+          return;
+        }
+        this.pessoasService.list({ search: termoCapitalizado, per_page: 15, page: 1 }).subscribe({
+          next: (fallbackRes) => {
+            this.buscandoPessoas = false;
+            const fallbackAtivos = fallbackRes.data.filter((p) => p.status === 'active');
+            this.pessoaSugestoes = this.filtrarPessoasCaseInsensitive(fallbackAtivos, termo);
+          },
+          error: () => {
+            this.buscandoPessoas = false;
+            this.pessoaSugestoes = [];
+          },
+        });
+      },
+      error: () => {
+        this.buscandoPessoas = false;
+        this.pessoaSugestoes = [];
+      },
+    });
+  }
+
+  private filtrarPessoasCaseInsensitive(pessoas: Pessoa[], termo: string): Pessoa[] {
+    const normalized = termo.trim().toLocaleLowerCase('pt-BR');
+    if (!normalized) return pessoas;
+    return pessoas.filter((pessoa) => {
+      const name = (pessoa.name ?? '').toLocaleLowerCase('pt-BR');
+      const code = (pessoa.code ?? '').toLocaleLowerCase('pt-BR');
+      const cpf = (pessoa.cpf ?? '').toLocaleLowerCase('pt-BR');
+      const rg = (pessoa.rg ?? '').toLocaleLowerCase('pt-BR');
+      return name.includes(normalized) || code.includes(normalized) || cpf.includes(normalized) || rg.includes(normalized);
+    });
+  }
+
+  private formatPhoneMask(raw: string): string {
+    const digits = (raw ?? '').replace(/\D/g, '').slice(0, 13);
+    if (!digits) return '';
+
+    let country = '';
+    let local = digits;
+    if (digits.length > 11) {
+      country = digits.slice(0, digits.length - 11);
+      local = digits.slice(-11);
+    }
+
+    const ddd = local.slice(0, 2);
+    const number = local.slice(2);
+    let formatted = '';
+
+    if (ddd) formatted += `(${ddd}`;
+    if (ddd.length === 2) formatted += ') ';
+    if (number.length <= 4) {
+      formatted += number;
+    } else if (number.length <= 8) {
+      formatted += `${number.slice(0, 4)}-${number.slice(4)}`;
+    } else {
+      formatted += `${number.slice(0, 5)}-${number.slice(5, 9)}`;
+    }
+
+    return country ? `+${country} ${formatted}`.trim() : formatted.trim();
+  }
+
+  private phoneDigits(value: string): string {
+    return (value ?? '').replace(/\D/g, '');
+  }
+
   fecharNovoEnvio(): void {
     this.mostrarNovoEnvio = false;
   }
@@ -222,7 +372,12 @@ export class EnviosComponent implements OnInit {
   enviarNovo(): void {
     this.erroNovo = '';
     if (this.novoEnvio.template_id <= 0) {
-      this.erroNovo = 'Selecione um template.';
+      this.erroNovo = 'Selecione um documento público.';
+      return;
+    }
+    const templateSelecionadoEhPublico = this.templatesPublicos.some((template) => template.id === this.novoEnvio.template_id);
+    if (!templateSelecionadoEhPublico) {
+      this.erroNovo = 'Selecione um documento público válido da clínica.';
       return;
     }
     if (this.novoEnvio.destino === 'pessoa') {
@@ -238,6 +393,10 @@ export class EnviosComponent implements OnInit {
         this.erroNovo = 'A pessoa não tem telefone cadastrado. Informe manualmente ou cadastre na ficha.';
         return;
       }
+      if (this.novoEnvio.channel === 'whatsapp' && !this.pessoaSelecionada?.phone && this.phoneDigits(this.novoEnvio.recipient_phone).length < 10) {
+        this.erroNovo = 'A pessoa não tem telefone cadastrado. Informe manualmente ou cadastre na ficha.';
+        return;
+      }
     } else {
       if (this.novoEnvio.channel === 'email') {
         if (!this.novoEnvio.recipient_email?.trim()) {
@@ -245,7 +404,7 @@ export class EnviosComponent implements OnInit {
           return;
         }
       } else {
-        if (!this.novoEnvio.recipient_phone?.trim()) {
+        if (this.phoneDigits(this.novoEnvio.recipient_phone).length < 10) {
           this.erroNovo = 'Informe o telefone (WhatsApp).';
           return;
         }
@@ -262,13 +421,13 @@ export class EnviosComponent implements OnInit {
         payload.recipient_email = this.novoEnvio.recipient_email.trim();
       }
       if (this.novoEnvio.channel === 'whatsapp' && this.novoEnvio.recipient_phone?.trim()) {
-        payload.recipient_phone = this.novoEnvio.recipient_phone.trim();
+        payload.recipient_phone = this.phoneDigits(this.novoEnvio.recipient_phone);
       }
     } else {
       if (this.novoEnvio.channel === 'email') {
         payload.recipient_email = this.novoEnvio.recipient_email.trim();
       } else {
-        payload.recipient_phone = this.novoEnvio.recipient_phone.trim();
+        payload.recipient_phone = this.phoneDigits(this.novoEnvio.recipient_phone);
       }
     }
     this.documentSendsService.store(payload).subscribe({
@@ -284,5 +443,9 @@ export class EnviosComponent implements OnInit {
         this.toast.error('Erro no envio', this.erroNovo);
       },
     });
+  }
+
+  selecionarTemplatePublico(templateId: string): void {
+    this.novoEnvio.template_id = Number(templateId) || 0;
   }
 }

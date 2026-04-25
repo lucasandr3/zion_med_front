@@ -177,6 +177,23 @@
                 }
               </div>
 
+              <div class="plan-selector">
+                <div class="plan-label">Segmento do negócio <span class="req">*</span></div>
+                @if (carregandoPlanos) {
+                  <p class="plans-loading">Carregando…</p>
+                } @else {
+                  @for (n of niches; track n) {
+                    <button type="button" class="plan-option" [class.selected]="nicheKey === n" (click)="selecionarNicho(n)">
+                      <div class="plan-radio"><div class="plan-radio-inner"></div></div>
+                      <div class="plan-info">
+                        <div class="plan-name">{{ labelNicho(n) }}</div>
+                        <div class="plan-desc">Modelos de fichas sugeridos para este segmento.</div>
+                      </div>
+                    </button>
+                  }
+                }
+              </div>
+
               <div class="form-row">
                 <div class="field">
                   <label class="field-label" for="company_name">Nome do negócio <span class="req">*</span></label>

@@ -1,0 +1,122 @@
+.zm-searchable-select {
+  position: relative;
+}
+
+.zm-searchable-select-trigger {
+  width: 100%;
+  min-height: 42px;
+  border: 1px solid var(--c-border);
+  background: var(--c-surface);
+  color: var(--c-text);
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.zm-searchable-select-value {
+  text-align: left;
+  font-size: 0.925rem;
+}
+
+.zm-searchable-select-chevron {
+  font-size: 18px;
+  color: var(--c-muted);
+}
+
+.zm-searchable-select-panel {
+  position: absolute;
+  z-index: 40;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  border: 1px solid var(--c-border);
+  background: var(--c-surface);
+  border-radius: 12px;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.28);
+  padding: 10px;
+}
+
+.zm-searchable-select-search-wrap {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+
+.zm-searchable-select-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.zm-searchable-select-search-ico {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 18px;
+  color: var(--c-muted);
+}
+
+.zm-searchable-select-search-input {
+  width: 100%;
+  min-height: 38px;
+  border: 1px solid var(--c-border);
+  background: var(--c-soft);
+  color: var(--c-text);
+  border-radius: 10px;
+  padding: 8px 10px 8px 34px;
+  outline: none;
+}
+
+.zm-searchable-select-create {
+  margin: 0;
+  border: 1px solid var(--c-border);
+  background: var(--c-soft);
+  color: var(--c-primary);
+  border-radius: 10px;
+  min-height: 38px;
+  padding: 6px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  white-space: nowrap;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.zm-searchable-select-list {
+  max-height: 260px;
+  overflow: auto;
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.zm-searchable-select-option {
+  width: 100%;
+  text-align: left;
+  border: 0;
+  background: transparent;
+  color: var(--c-text);
+  min-height: 34px;
+  border-radius: 8px;
+  padding: 8px 10px;
+  cursor: pointer;
+}
+
+.zm-searchable-select-option:hover,
+.zm-searchable-select-option.is-active {
+  background: var(--c-soft);
+}
+
+.zm-searchable-select-empty {
+  color: var(--c-muted);
+  font-size: 0.85rem;
+  padding: 10px 8px;
+}
