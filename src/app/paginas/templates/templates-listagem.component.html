@@ -312,6 +312,21 @@
                         >
                           <span class="material-symbols-outlined text-lg">open_in_new</span>
                         </a>
+                        <button
+                          type="button"
+                          class="templates-action-btn p-1 rounded-md border-0 cursor-pointer inline-flex items-center justify-center bg-transparent"
+                          style="color: var(--c-muted)"
+                          [title]="t.public_enabled ? 'Copiar' : 'Publicar'"
+                          [attr.aria-label]="t.public_enabled ? 'Copiar' : 'Publicar'"
+                          [disabled]="publicandoId === t.id"
+                          (click)="publicarOuCopiarLink(t, $event)"
+                        >
+                          @if (publicandoId === t.id) {
+                            <span class="btn-spinner" style="width: 18px; height: 18px; border-width: 2px"></span>
+                          } @else {
+                            <span class="material-symbols-outlined text-lg">{{ t.public_enabled ? 'content_copy' : 'public' }}</span>
+                          }
+                        </button>
                         <a [routerLink]="['/templates', t.id, 'campos']" class="templates-action-btn p-1 rounded-md inline-flex items-center justify-center no-underline" style="color: var(--c-muted)" title="Campos" aria-label="Campos do modelo">
                           <span class="material-symbols-outlined text-lg">tune</span>
                         </a>
@@ -336,8 +351,25 @@
           <div class="templates-detalhe-grid">
             @for (t of itensVisiveis(grupoDetalhe); track t.id) {
               <article class="templates-model-card">
-                <div class="templates-model-card-icon" [style.--cat-accent]="corAccent(grupoDetalhe.key)">
-                  <span class="material-symbols-outlined" aria-hidden="true">article</span>
+                <div class="templates-model-card-head">
+                  <div class="templates-model-card-icon" [style.--cat-accent]="corAccent(grupoDetalhe.key)">
+                    <span class="material-symbols-outlined" aria-hidden="true">article</span>
+                  </div>
+                  <div class="templates-model-card-quick-actions">
+                    <a [routerLink]="['/templates', t.id, 'campos']" class="templates-card-icon-btn" title="Campos" aria-label="Campos do modelo">
+                      <span class="material-symbols-outlined">tune</span>
+                    </a>
+                    <a [routerLink]="['/templates', t.id, 'editar']" class="templates-card-icon-btn" title="Editar" aria-label="Editar modelo">
+                      <span class="material-symbols-outlined">edit</span>
+                    </a>
+                    <button type="button" class="templates-card-icon-btn danger" title="Remover" aria-label="Remover modelo" [disabled]="removendoId === t.id" (click)="remover(t, $event)">
+                      @if (removendoId === t.id) {
+                        <span class="btn-spinner" style="width: 16px; height: 16px; border-width: 2px"></span>
+                      } @else {
+                        <span class="material-symbols-outlined">delete</span>
+                      }
+                    </button>
+                  </div>
                 </div>
                 <h3 class="templates-model-card-title">{{ t.name }}</h3>
                 <p class="templates-model-card-desc">{{ descricaoCurta(t) }}</p>
@@ -361,17 +393,20 @@
                     <span class="material-symbols-outlined">open_in_new</span>
                     Pré-visualizar
                   </a>
-                  <a [routerLink]="['/templates', t.id, 'campos']" class="templates-card-icon-btn" title="Campos" aria-label="Campos do modelo">
-                    <span class="material-symbols-outlined">tune</span>
-                  </a>
-                  <a [routerLink]="['/templates', t.id, 'editar']" class="templates-card-icon-btn" title="Editar" aria-label="Editar modelo">
-                    <span class="material-symbols-outlined">edit</span>
-                  </a>
-                  <button type="button" class="templates-card-icon-btn danger" title="Remover" aria-label="Remover modelo" [disabled]="removendoId === t.id" (click)="remover(t, $event)">
-                    @if (removendoId === t.id) {
+                  <button
+                    type="button"
+                    class="templates-card-btn"
+                    [class.templates-card-btn--published]="t.public_enabled"
+                    [title]="t.public_enabled ? 'Copiar' : 'Publicar'"
+                    [attr.aria-label]="t.public_enabled ? 'Copiar' : 'Publicar'"
+                    [disabled]="publicandoId === t.id"
+                    (click)="publicarOuCopiarLink(t, $event)"
+                  >
+                    @if (publicandoId === t.id) {
                       <span class="btn-spinner" style="width: 16px; height: 16px; border-width: 2px"></span>
                     } @else {
-                      <span class="material-symbols-outlined">delete</span>
+                      <span class="material-symbols-outlined">{{ t.public_enabled ? 'content_copy' : 'public' }}</span>
+                      {{ t.public_enabled ? 'Copiar' : 'Publicar' }}
                     }
                   </button>
                 </div>

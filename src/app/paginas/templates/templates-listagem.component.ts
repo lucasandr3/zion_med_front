@@ -106,6 +106,7 @@ export class TemplatesListagemComponent implements OnInit {
   readonly categoryLabels = CATEGORY_LABELS;
 
   removendoId: number | null = null;
+  publicandoId: number | null = null;
 
   private templatesService = inject(TemplatesService);
   private loadingService = inject(LoadingService);
@@ -301,6 +302,40 @@ export class TemplatesListagemComponent implements OnInit {
     });
   }
 
+  publicarOuCopiarLink(t: Template, event: Event): void {
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (this.publicandoId === t.id) return;
+
+    if (t.public_enabled && (t.public_url ?? '').trim() !== '') {
+      void this.copiarLinkPublico(t);
+      return;
+    }
+
+    this.publicandoId = t.id;
+    this.templatesService.gerarLink(t.id).subscribe({
+      next: async (resp) => {
+        this.publicandoId = null;
+        const publicUrl = String(resp?.data?.public_url ?? t.public_url ?? '').trim();
+        this.marcarTemplateComoPublico(t.id, publicUrl);
+
+        if (publicUrl !== '') {
+          const copied = await this.copiarTexto(publicUrl);
+          if (copied) {
+            this.toast.success('Link publicado', 'Link público copiado para a área de transferência.');
+            return;
+          }
+        }
+        this.toast.success('Link publicado', 'O link público foi ativado para este modelo.');
+      },
+      error: () => {
+        this.publicandoId = null;
+        this.toast.error('Erro ao publicar', 'Não foi possível publicar o link deste modelo.');
+      },
+    });
+  }
+
   private montarGrupos(): void {
     const byCategory = new Map<string, Template[]>();
     for (const t of this.templates) {
@@ -321,6 +356,38 @@ export class TemplatesListagemComponent implements OnInit {
         label: CATEGORY_LABELS[key] ?? this.formatarChaveCategoriaFallback(key),
         items: byCategory.get(key)!,
       }));
+  }
+
+  private async copiarLinkPublico(t: Template): Promise<void> {
+    const url = String(t.public_url ?? '').trim();
+    if (!url) {
+      this.toast.error('Link indisponível', 'Este modelo está público, mas o link ainda não foi carregado.');
+      return;
+    }
+    const copied = await this.copiarTexto(url);
+    if (copied) {
+      this.toast.success('Link copiado', 'Link público copiado para a área de transferência.');
+    } else {
+      this.toast.error('Falha ao copiar', 'Não foi possível copiar o link automaticamente.');
+    }
+  }
+
+  private marcarTemplateComoPublico(templateId: number, publicUrl: string): void {
+    for (const item of this.templates) {
+      if (item.id !== templateId) continue;
+      item.public_enabled = true;
+      if (publicUrl !== '') item.public_url = publicUrl;
+    }
+  }
+
+  private async copiarTexto(text: string): Promise<boolean> {
+    if (!text) return false;
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch {
+      return false;
+    }
   }
 
   /** Remove query inválida ou categoria sem modelos após filtro */
