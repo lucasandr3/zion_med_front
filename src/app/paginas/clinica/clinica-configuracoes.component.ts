@@ -197,6 +197,14 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
     return this.waTestPhone.replace(/\D/g, '').length >= 10;
   }
 
+  get waSessaoAtiva(): boolean {
+    return this.waState?.logged_in === true;
+  }
+
+  get waConectadoDeFato(): boolean {
+    return this.waState?.connected === true && this.waSessaoAtiva;
+  }
+
   get themeKeys(): string[] {
     return Object.keys(this.availableThemes);
   }
@@ -518,7 +526,11 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (res) => {
           this.waTokenExibicaoUnica = res.instance_token;
+          this.waQrSrc = null;
+          this.waQrLinkCode = null;
+          this.waPairingCode = null;
           this.toast.success('Instância criada', 'Guarde o token com segurança. Ele não será exibido de novo nesta tela.');
+          this.iniciarConexaoWhatsapp();
           this.carregarWhatsapp();
         },
         error: (err: unknown) => {

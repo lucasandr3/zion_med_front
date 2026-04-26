@@ -529,8 +529,10 @@
                 <div class="wa-status-grid">
                   <div class="wa-status-item">
                     <span class="wa-status-label">Conectado</span>
-                    @if (waState.connected === true) {
+                    @if (waConectadoDeFato) {
                       <span class="wa-badge wa-badge--success">Sim</span>
+                    } @else if (waState.connected === true && waState.logged_in === false) {
+                      <span class="wa-badge wa-badge--neutral">Pendente</span>
                     } @else if (waState.connected === false) {
                       <span class="wa-badge wa-badge--neutral">Não</span>
                     } @else {
@@ -551,9 +553,26 @@
                 @if (waState.remote_error) {
                   <p style="font-size:12px;color:var(--c-error,#dc2626);margin:0">API: {{ waState.remote_error }}</p>
                 }
+                @if (!waSessaoAtiva) {
+                  <div style="display:flex;justify-content:flex-start;margin-top:12px">
+                    <button
+                      type="button"
+                      class="btn-secondary inline-flex items-center gap-2"
+                      (click)="buscarQrWhatsapp()"
+                      [disabled]="waQrCarregando"
+                    >
+                      @if (waQrCarregando) {
+                        <span class="btn-spinner" aria-hidden="true"></span>
+                      } @else {
+                        <span class="material-symbols-outlined" style="font-size:16px">qr_code_2</span>
+                      }
+                      {{ waQrCarregando ? 'Solicitando QR…' : 'Solicitar QR agora' }}
+                    </button>
+                  </div>
+                }
               </div>
             </div>
-            @if (!(waState.connected === true || waState.logged_in === true)) {
+            @if (!waSessaoAtiva) {
               <div class="section-card mb-4">
                 <div class="section-header">
                   <div class="icon-wrap"><span class="material-symbols-outlined">link</span></div>
@@ -561,7 +580,7 @@
                 </div>
                 <div class="section-body">
                   <p style="font-size:13px;color:var(--c-muted);margin-bottom:12px">
-                    Número opcional para código de pareamento (somente dígitos, com DDI). Depois use “Obter QR Code” ou “Obter código de pareamento”.
+                    Número opcional para código de pareamento (somente dígitos, com DDI). O QR Code expira, então gere um novo sempre que precisar conectar o aparelho.
                   </p>
                   <div class="field" style="margin-bottom:12px">
                     <label for="wa-phone-conectar">Telefone (pareamento)</label>
