@@ -17,6 +17,29 @@ import { LoadingService } from '../../shared/services/loading.service';
 import { ToastService } from '../../core/services/toast.service';
 import { digitsOnlyCpf, formatCpfDisplay, isValidCpfDigits } from '../../core/utils/cpf';
 
+interface PersonPrefill {
+  name?: string;
+  cpf?: string | null;
+  rg?: string | null;
+  email?: string | null;
+  phone?: string | null;
+  phone_alt?: string | null;
+  birth_date?: string | null;
+  age?: number | null;
+  sex?: string | null;
+  marital_status?: string | null;
+  profession?: string | null;
+  address?: string | null;
+  neighborhood?: string | null;
+  city?: string | null;
+  cep?: string | null;
+  referred_by?: string | null;
+  notes?: string | null;
+  has_health_plan?: string | null;
+  health_plan_operator?: string | null;
+  health_plan_card_number?: string | null;
+}
+
 @Component({
   selector: 'app-formulario-publico-show',
   standalone: true,
@@ -37,6 +60,28 @@ import { digitsOnlyCpf, formatCpfDisplay, isValidCpfDigits } from '../../core/ut
   styleUrl: './formulario-publico-show.component.css',
 })
 export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
+  private static readonly PERSON_PREFILL_KEY_ALIASES: Record<string, string[]> = {
+    name: ['nome', 'name', 'paciente', 'cliente'],
+    cpf: ['cpf'],
+    rg: ['rg'],
+    email: ['email', 'e-mail', 'mail'],
+    phone: ['telefone', 'celular', 'whatsapp', 'fone', 'phone', 'contato'],
+    birth_date: ['nascimento', 'birth', 'data_nascimento'],
+    age: ['idade', 'age'],
+    sex: ['sexo', 'genero', 'gênero', 'sex'],
+    marital_status: ['estado_civil', 'marital'],
+    profession: ['profissao', 'profissão', 'profession'],
+    address: ['endereco', 'endereço', 'logradouro', 'rua', 'address'],
+    neighborhood: ['bairro', 'neighborhood'],
+    city: ['cidade', 'city'],
+    cep: ['cep'],
+    referred_by: ['indicacao', 'indicação', 'referencia', 'referência', 'referred'],
+    notes: ['observacao', 'observação', 'anotacao', 'anotação', 'notas', 'notes'],
+    has_health_plan: ['plano_saude', 'plano de saude', 'plano de saúde', 'convenio', 'convênio'],
+    health_plan_operator: ['operadora', 'health_plan_operator'],
+    health_plan_card_number: ['carteirinha', 'numero_carteirinha', 'nro_carteirinha', 'health_plan_card_number'],
+  };
+
   /** Lembra nome/e-mail opcionais do preenchedor entre formulários públicos (mesmo navegador). */
   private static readonly LS_SUBMITTER_NAME = 'gestgo_public_form_submitter_name';
   private static readonly LS_SUBMITTER_EMAIL = 'gestgo_public_form_submitter_email';
@@ -174,7 +219,6 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.publicPageBody.enterPublicPage();
-    this.restoreSubmitterIdentity();
     try {
       this.dark = localStorage.getItem('gestgo_form_dark_mode') === '1';
     } catch {}
@@ -203,6 +247,13 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
         this.otpPhone = '';
         this.otpErro = '';
         this.otpChannel = d.otp_whatsapp_available ? 'whatsapp' : 'email';
+        if (d.person_link?.enabled) {
+          this.submitterName = '';
+          this.submitterEmail = '';
+          this.clearSubmitterIdentity();
+        } else {
+          this.restoreSubmitterIdentity();
+        }
         this.feegowBuscandoDisponibilidade = false;
         this.feegowDisponibilidadeErro = '';
         this.feegowHorariosDisponiveis = [];
@@ -240,6 +291,13 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
 
   /** Chamado ao digitar nome/e-mail opcionais — persiste para o próximo link de formulário público. */
   onSubmitterIdentityChange(): void {
+    // Em formulários com identificação obrigatória, não reaproveitar identidade antiga.
+    if (this.personLinkRequired() && !this.personGateOk) {
+      this.submitterName = '';
+      this.submitterEmail = '';
+      this.clearSubmitterIdentity();
+      return;
+    }
     this.persistSubmitterIdentity();
   }
 
@@ -325,12 +383,21 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
     }
   }
 
+  private clearSubmitterIdentity(): void {
+    try {
+      localStorage.removeItem(FormularioPublicoShowComponent.LS_SUBMITTER_NAME);
+      localStorage.removeItem(FormularioPublicoShowComponent.LS_SUBMITTER_EMAIL);
+    } catch {
+      /* private mode / quota */
+    }
+  }
+
   personLinkRequired(): boolean {
     return !!this.data?.person_link?.enabled;
   }
 
   personFormUnlocked(): boolean {
-    return this.personGateOk;
+    return !this.personLinkRequired() || this.personGateOk;
   }
 
   /** Fluxo público usa gate por CPF antes de exibir o formulário. */
@@ -366,6 +433,7 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
         this.personGateOk = true;
         this.personValidatedName = r.name;
         this.persistCpfGateAuthorization();
+        this.applyPersonPrefill(r.prefill, r.name);
       },
       error: (err) => {
         this.validandoPerson = false;
@@ -373,6 +441,72 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
         this.personGateErro = msg ?? 'CPF não autorizado para este formulário.';
       },
     });
+  }
+
+  private normalizeText(value: string): string {
+    return value
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, ' ')
+      .trim();
+  }
+
+  private resolvePersonPrefillValue(
+    key: string,
+    prefill: PersonPrefill
+  ): string | number | boolean | null {
+    const normalizedKey = this.normalizeText(key).replace(/\s+/g, '_');
+    const direct = (prefill as Record<string, unknown>)[normalizedKey];
+    if (direct !== undefined && direct !== null && String(direct).trim() !== '') {
+      return direct as string | number | boolean;
+    }
+
+    for (const [prefillKey, aliases] of Object.entries(FormularioPublicoShowComponent.PERSON_PREFILL_KEY_ALIASES)) {
+      const matched = aliases.some((alias) => normalizedKey.includes(this.normalizeText(alias).replace(/\s+/g, '_')));
+      if (!matched) continue;
+      const value = (prefill as Record<string, unknown>)[prefillKey];
+      if (value !== undefined && value !== null && String(value).trim() !== '') {
+        return value as string | number | boolean;
+      }
+    }
+
+    return null;
+  }
+
+  private applyPersonPrefill(
+    prefill: PersonPrefill | undefined,
+    validatedName?: string
+  ): void {
+    if (!this.data) return;
+
+    this.data.fields.forEach((field) => {
+      const fieldKey = field.name_key;
+      const currentValue = this.valores[fieldKey];
+      if (String(currentValue ?? '').trim() !== '') return;
+
+      const byNameKey = prefill ? this.resolvePersonPrefillValue(fieldKey, prefill) : null;
+      const byLabel = prefill ? this.resolvePersonPrefillValue(field.label, prefill) : null;
+      const nextValue = byNameKey ?? byLabel;
+      if (nextValue === null || nextValue === undefined) return;
+
+      if (this.fieldType(field) === 'number') {
+        const n = Number(nextValue);
+        if (!Number.isNaN(n)) this.valores[fieldKey] = n;
+        return;
+      }
+
+      this.valores[fieldKey] = String(nextValue);
+    });
+
+    // Ao localizar pessoa no backend, não reaproveita localStorage:
+    // usa os dados do backend (ou vazio quando não houver dado).
+    const backendName = prefill?.name && String(prefill.name).trim() ? String(prefill.name).trim() : '';
+    const backendEmail = prefill?.email && String(prefill.email).trim() ? String(prefill.email).trim() : '';
+    const fallbackValidatedName = validatedName && String(validatedName).trim() ? String(validatedName).trim() : '';
+    this.submitterName = backendName || fallbackValidatedName;
+    this.submitterEmail = backendEmail;
+    this.persistSubmitterIdentity();
   }
 
   signingSecurityReinforced(): boolean {
@@ -818,9 +952,9 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
     }
   }
 
-  /** Cor do traço da assinatura conforme o tema ativo. */
+  /** Usa traço escuro para manter legibilidade da assinatura no protocolo/PDF. */
   private signatureStrokeColor(): string {
-    return this.dark ? '#fafafa' : '#0a0a0a';
+    return '#0a0a0a';
   }
 
   /** Inicia desenho da assinatura no canvas. */

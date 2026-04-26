@@ -198,7 +198,35 @@ interface SubmitResponse {
 }
 
 interface ValidatePersonResponse {
-  data: { person_id: number; code: string; name: string };
+  data: {
+    person_id: number;
+    code: string;
+    name: string;
+    prefill?: {
+      id?: number;
+      code?: string;
+      name?: string;
+      cpf?: string | null;
+      rg?: string | null;
+      email?: string | null;
+      phone?: string | null;
+      phone_alt?: string | null;
+      birth_date?: string | null;
+      age?: number | null;
+      sex?: string | null;
+      marital_status?: string | null;
+      profession?: string | null;
+      address?: string | null;
+      neighborhood?: string | null;
+      city?: string | null;
+      cep?: string | null;
+      referred_by?: string | null;
+      notes?: string | null;
+      has_health_plan?: string | null;
+      health_plan_operator?: string | null;
+      health_plan_card_number?: string | null;
+    };
+  };
 }
 
 interface FeegowDisponibilidadeResponse {

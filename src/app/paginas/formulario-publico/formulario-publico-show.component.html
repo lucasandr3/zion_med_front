@@ -78,7 +78,7 @@
     }
     @if (!showSkeleton() && data) {
       <div class="fp-container zm-content-enter">
-        @if (!personGateOk) {
+        @if (personLinkRequired() && !personGateOk) {
           <div class="fp-title-block">
             <h1 class="fp-title">{{ data.template.name }}</h1>
             <p class="fp-lead">Para iniciar o preenchimento, informe seu CPF para autorizacao de acesso ao formulario.</p>
@@ -250,37 +250,39 @@
             <div class="fp-section-div" aria-hidden="true"></div>
           }
 
-          <div class="fp-preenchedora">
-            <p class="fp-preenchedora-title">Identificação de quem envia <span class="fp-optional">(opcional)</span></p>
-            <div class="fp-preenchedora-grid">
-              <div class="fp-field-group">
-                <label for="submitterName" class="fp-field-label">Seu nome</label>
-                <input
-                  id="submitterName"
-                  type="text"
-                  [(ngModel)]="submitterName"
-                  (ngModelChange)="onSubmitterIdentityChange()"
-                  name="submitterName"
-                  class="fp-input"
-                  placeholder="Nome para contato"
-                  autocomplete="name"
-                />
-              </div>
-              <div class="fp-field-group">
-                <label for="submitterEmail" class="fp-field-label">Seu e-mail</label>
-                <input
-                  id="submitterEmail"
-                  type="email"
-                  [(ngModel)]="submitterEmail"
-                  (ngModelChange)="onSubmitterIdentityChange()"
-                  name="submitterEmail"
-                  class="fp-input"
-                  placeholder="email@exemplo.com"
-                  autocomplete="email"
-                />
+          @if (!personLinkRequired()) {
+            <div class="fp-preenchedora">
+              <p class="fp-preenchedora-title">Identificação de quem envia <span class="fp-optional">(opcional)</span></p>
+              <div class="fp-preenchedora-grid">
+                <div class="fp-field-group">
+                  <label for="submitterName" class="fp-field-label">Seu nome</label>
+                  <input
+                    id="submitterName"
+                    type="text"
+                    [(ngModel)]="submitterName"
+                    (ngModelChange)="onSubmitterIdentityChange()"
+                    name="submitterName"
+                    class="fp-input"
+                    placeholder="Nome para contato"
+                    [attr.autocomplete]="personLinkRequired() ? 'off' : 'name'"
+                  />
+                </div>
+                <div class="fp-field-group">
+                  <label for="submitterEmail" class="fp-field-label">Seu e-mail</label>
+                  <input
+                    id="submitterEmail"
+                    type="email"
+                    [(ngModel)]="submitterEmail"
+                    (ngModelChange)="onSubmitterIdentityChange()"
+                    name="submitterEmail"
+                    class="fp-input"
+                    placeholder="email@exemplo.com"
+                    [attr.autocomplete]="personLinkRequired() ? 'off' : 'email'"
+                  />
+                </div>
               </div>
             </div>
-          </div>
+          }
 
           @if (signingSecurityReinforced() && templateHasSignatureFields()) {
             <div class="fp-section-div" aria-hidden="true"></div>
@@ -290,12 +292,28 @@
               <div class="fp-field-group">
                 <label class="fp-field-label" for="fpOtpChannel">Canal</label>
                 <select id="fpOtpChannel" class="fp-input fp-select" [(ngModel)]="otpChannel" name="fpOtpChannel" [ngModelOptions]="{ standalone: true }">
-                  <option value="email">E-mail (use o campo “Seu e-mail” acima)</option>
+                  <option value="email">E-mail</option>
                   @if (data.otp_whatsapp_available) {
                     <option value="whatsapp">WhatsApp</option>
                   }
                 </select>
               </div>
+              @if (otpChannel === 'email' && personLinkRequired()) {
+                <div class="fp-field-group">
+                  <label class="fp-field-label" for="fpOtpEmail">E-mail para receber o código</label>
+                  <input
+                    id="fpOtpEmail"
+                    type="email"
+                    class="fp-input"
+                    [(ngModel)]="submitterEmail"
+                    (ngModelChange)="onSubmitterIdentityChange()"
+                    name="fpOtpEmail"
+                    [ngModelOptions]="{ standalone: true }"
+                    placeholder="email@exemplo.com"
+                    [attr.autocomplete]="personLinkRequired() ? 'off' : 'email'"
+                  />
+                </div>
+              }
               @if (otpChannel === 'whatsapp') {
                 <div class="fp-field-group">
                   <label class="fp-field-label" for="fpOtpPhone">Celular (DDD + número)</label>
