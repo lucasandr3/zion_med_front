@@ -14,7 +14,7 @@
   border: 0;
 }
 
-/* Ocean Blue — alinhado à landing (.theme-ocean-blue) */
+/* Verde marca — alinhado ao tema padrão (.theme-ocean-blue) */
 .comece-page {
   --sans: 'Geist', system-ui, sans-serif;
   font-family: var(--sans);

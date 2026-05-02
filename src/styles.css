@@ -21,10 +21,10 @@
 /* ─── Dark mode via classe .dark (não media query) ───────────────────────── */
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* ─── Tipografia: Inter (base) + Space Grotesk (títulos) ─────────────────── */
+/* ─── Tipografia: Inter ───────────────────────────────────────────────────── */
 @theme {
     --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-    --font-heading: "Space Grotesk", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    --font-heading: "Inter", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
     --font-mono: "Geist Mono", ui-monospace, monospace;
 
     /* Cantos da UI: 0,5rem em todos os utilitários rounded-* (rounded-full segue círculo). */
@@ -56,28 +56,42 @@
    MODO CLARO — base
    ══════════════════════════════════════════════════════════════════════════ */
 :root {
+    /* Marca — paleta (o utilitário Tailwind `--color-primary` vem de `@theme inline` → `var(--c-primary)`) */
+    --color-primary-dark:   #0a6647;
+    --color-primary-darker: #0a3d2b;
+    --color-primary-light:  #9fe1cb;
+    --color-primary-muted:  #e6f5ef;
+
+    --color-text-primary:   #0d1410;
+    --color-text-secondary: #3d4d46;
+    --color-text-muted:     #8fa89f;
+
+    --color-bg:             #ffffff;
+    --color-bg-surface:     #f4faf7;
+    --color-border:         #dde8e3;
+
     --primary-color: var(--c-primary);
-    /* Shimmer: base mais escuro que o highlight — soft/surface no claro eram quase brancos */
-    --skeleton-base: #d8dee8;
-    --skeleton-highlight: #f1f4f8;
+    /* Shimmer — tons alinhados ao fundo verde-acinzentado */
+    --skeleton-base: #d0e0da;
+    --skeleton-highlight: #ecf8f3;
 
-    --c-primary:  #1d4ed8;
-    --c-accent:   #3b82f6;
-    --c-focus:    rgba(29,78,216,0.18);
+    --c-primary:  #16a874;
+    --c-accent:   var(--color-primary-light);
+    --c-focus:    rgba(22, 168, 116, 0.18);
 
-    --c-bg:       #f4f6f9;
-    --c-surface:  #ffffff;
-    --c-elevated: #ffffff;
-    --c-soft:     #eef0f5;
+    --c-bg:       var(--color-bg-surface);
+    --c-surface:  var(--color-bg);
+    --c-elevated: var(--color-bg);
+    --c-soft:     var(--color-primary-muted);
 
-    --c-text:     #0f172a;
-    --c-muted:    #64748b;
-    --c-border:   #e2e8f0;
+    --c-text:     var(--color-text-primary);
+    --c-muted:    var(--color-text-secondary);
+    --c-border:   var(--color-border);
 
     /* Botão default/ghost (ref. default-bg) */
-    --c-btn-default-bg:    #eef2f6;
-    --c-btn-default-text: #475569;
-    --c-btn-default-border: #cbd5e1;
+    --c-btn-default-bg:    var(--color-primary-muted);
+    --c-btn-default-text: var(--color-text-secondary);
+    --c-btn-default-border: var(--color-border);
 
     --sidebar-w:  15rem;
 
@@ -92,10 +106,10 @@
     --c-info-soft: color-mix(in srgb, #0369a1 14%, transparent);
     --c-error: var(--c-danger);
 
-    /* KPI / dashboard — acento teal alinhado à identidade clínica */
-    --c-kpi-accent: #0f766e;
-    --c-kpi-accent-soft: color-mix(in srgb, #0f766e 14%, transparent);
-    --c-kpi-accent-text: #0d9488;
+    /* KPI / dashboard — acento alinhado ao primário */
+    --c-kpi-accent: var(--color-primary-dark);
+    --c-kpi-accent-soft: color-mix(in srgb, var(--c-primary) 14%, transparent);
+    --c-kpi-accent-text: var(--c-primary);
 
     /* Escala de espaçamento (base 4px) */
     --space-1: 0.25rem;
@@ -115,10 +129,10 @@
     --radius-2xl: 1.25rem;
 
     /* Sombras */
-    --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
-    --shadow-md: 0 4px 14px rgba(15, 23, 42, 0.08);
-    --shadow-lg: 0 12px 40px rgba(15, 23, 42, 0.12);
-    --shadow-drawer: -8px 0 32px rgba(15, 23, 42, 0.12);
+    --shadow-sm: 0 1px 2px rgba(13, 20, 16, 0.06);
+    --shadow-md: 0 4px 14px rgba(13, 20, 16, 0.08);
+    --shadow-lg: 0 12px 40px rgba(13, 20, 16, 0.12);
+    --shadow-drawer: -8px 0 32px rgba(13, 20, 16, 0.12);
 
     /* Tipografia (rem) */
     --text-xs: 0.6875rem;
@@ -136,7 +150,7 @@
 /* Canônico: gestgo-blue (zion-blue mantido como alias legado — mesmas variáveis) */
 .theme-gestgo-blue,
 .theme-zion-blue     { --c-primary: #1e40af; --c-accent: #2563eb; --c-focus: rgba(30,64,175,.18); }
-.theme-ocean-blue    { --c-primary: #1d4ed8; --c-accent: #3b82f6; --c-focus: rgba(29,78,216,.18); }
+.theme-ocean-blue    { --c-primary: #16a874; --c-accent: #9fe1cb; --c-focus: rgba(22,168,116,.18); }
 .theme-indigo-night  { --c-primary: #3730a3; --c-accent: #4f46e5; --c-focus: rgba(55,48,163,.18); }
 .theme-emerald-fresh { --c-primary: #15803d; --c-accent: #16a34a; --c-focus: rgba(21,128,61,.18); }
 .theme-rose-elegant  { --c-primary: #be185d; --c-accent: #db2777; --c-focus: rgba(190,24,93,.18); }
@@ -192,7 +206,7 @@
 /* Cada tema ajusta primary/accent/focus no dark — shade-400/300 para luminosidade adequada */
 .dark.theme-gestgo-blue,
 .dark.theme-zion-blue     { --c-primary: #60a5fa; --c-accent: #93c5fd; --c-focus: rgba(96,165,250,.2); }
-.dark.theme-ocean-blue    { --c-primary: #3b82f6; --c-accent: #60a5fa; --c-focus: rgba(59,130,246,.2); }
+.dark.theme-ocean-blue    { --c-primary: #34d399; --c-accent: #6ee7b7; --c-focus: rgba(52,211,153,.22); }
 .dark.theme-indigo-night  { --c-primary: #818cf8; --c-accent: #a5b4fc; --c-focus: rgba(129,140,248,.2); }
 .dark.theme-emerald-fresh { --c-primary: #4ade80; --c-accent: #86efac; --c-focus: rgba(74,222,128,.2); }
 .dark.theme-rose-elegant  { --c-primary: #fb7185; --c-accent: #fda4af; --c-focus: rgba(251,113,133,.2); }

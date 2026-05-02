@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 :host {
   display: block;
@@ -59,7 +59,7 @@
 }
 
 .sucesso-title {
-  font-family: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
+  font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
   font-size: clamp(1.625rem, 4.5vw, 2rem);
   font-weight: 400;
   font-style: normal;
@@ -128,7 +128,7 @@
   border-color: #2a2a2a;
 }
 .logo-initial {
-  font-family: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
+  font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
   font-size: 1.125rem;
   font-weight: 600;
   color: #fafafa;
