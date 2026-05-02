@@ -50,6 +50,10 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
   comentarioRevisao = '';
   novoComentario = '';
 
+  /** Rascunho dos campos internos da equipe (modelos Estética). */
+  staffDraft: Record<string, unknown> = {};
+  staffSalvando = false;
+
   clinicaConfig: ClinicaConfig | null = null;
   pessoaCompleta: Pessoa | null = null;
   docHash = '';
@@ -152,11 +156,53 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
     data$.subscribe({
       next: (p) => {
         this.protocolo = p;
+        this.initStaffDraft();
         this.carregarPessoaCompleta();
         void this.gerarAutenticacaoDocumento();
       },
       error: () => {
         this.erro = 'Não foi possível carregar o protocolo.';
+      },
+    });
+  }
+
+  private initStaffDraft(): void {
+    this.staffDraft = {};
+    const p = this.protocolo;
+    if (!p?.staff_fields?.length) {
+      return;
+    }
+    const src = p.values ?? p.form_data ?? {};
+    for (const f of p.staff_fields) {
+      const k = f.name_key;
+      if (Object.prototype.hasOwnProperty.call(src, k) && src[k] !== undefined && src[k] !== null) {
+        this.staffDraft[k] = src[k] as unknown;
+      } else {
+        this.staffDraft[k] = f.type === 'checkbox' ? false : '';
+      }
+    }
+  }
+
+  temCamposEquipe(): boolean {
+    return (this.protocolo?.staff_fields?.length ?? 0) > 0;
+  }
+
+  salvarRegistroEquipe(): void {
+    if (!this.protocolo?.id || !this.temCamposEquipe()) {
+      return;
+    }
+    this.staffSalvando = true;
+    this.protocolosService.saveStaffValues(this.protocolo.id, { ...this.staffDraft }).subscribe({
+      next: (p) => {
+        this.protocolo = p;
+        this.initStaffDraft();
+        this.toast.success('Registro salvo', 'Dados da equipe atualizados no protocolo.');
+      },
+      error: () => {
+        this.toast.error('Erro', 'Não foi possível salvar o registro da equipe.');
+      },
+      complete: () => {
+        this.staffSalvando = false;
       },
     });
   }

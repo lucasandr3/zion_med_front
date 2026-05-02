@@ -255,6 +255,99 @@
                 }
               </div>
             }
+
+            @if (temCamposEquipe()) {
+              <div class="mt-8 rounded-xl border p-5" style="border-color: var(--c-border); background: var(--c-soft)">
+                <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+                  <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-xl" style="color: var(--c-primary)">badge</span>
+                    <h3 class="text-base font-semibold m-0" style="color: var(--c-text)">Registro da equipe (clínica)</h3>
+                  </div>
+                  <button
+                    type="button"
+                    class="btn-primary inline-flex items-center gap-2 text-sm"
+                    (click)="salvarRegistroEquipe()"
+                    [disabled]="staffSalvando">
+                    @if (staffSalvando) {
+                      <span class="btn-spinner" aria-hidden="true"></span>
+                    } @else {
+                      <span class="material-symbols-outlined text-base">save</span>
+                    }
+                    {{ staffSalvando ? 'Salvando…' : 'Salvar registro da equipe' }}
+                  </button>
+                </div>
+                <p class="text-sm mb-4 m-0" style="color: var(--c-muted)">
+                  Estes campos não aparecem no formulário público; preencha aqui após revisar o protocolo.
+                </p>
+                <div class="grid gap-4 md:grid-cols-2">
+                  @for (sf of protocolo!.staff_fields!; track sf.name_key) {
+                    <div class="md:col-span-2" [class.md:col-span-1]="sf.type !== 'textarea'">
+                      <label class="block text-xs font-semibold uppercase tracking-wider mb-1.5" style="color: var(--c-muted)">{{ sf.label }}</label>
+                      @switch (sf.type) {
+                        @case ('textarea') {
+                          <textarea
+                            rows="3"
+                            class="w-full py-2 px-3 text-sm border rounded-lg"
+                            style="border-color: var(--c-border); background: var(--c-surface); color: var(--c-text)"
+                            [(ngModel)]="staffDraft[sf.name_key]"
+                            [name]="'staff_' + sf.name_key"></textarea>
+                        }
+                        @case ('number') {
+                          <input
+                            type="number"
+                            class="w-full py-2 px-3 text-sm border rounded-lg"
+                            style="border-color: var(--c-border); background: var(--c-surface); color: var(--c-text)"
+                            [(ngModel)]="staffDraft[sf.name_key]"
+                            [name]="'staff_' + sf.name_key" />
+                        }
+                        @case ('date') {
+                          <input
+                            type="date"
+                            class="w-full py-2 px-3 text-sm border rounded-lg"
+                            style="border-color: var(--c-border); background: var(--c-surface); color: var(--c-text)"
+                            [(ngModel)]="staffDraft[sf.name_key]"
+                            [name]="'staff_' + sf.name_key" />
+                        }
+                        @case ('select') {
+                          <select
+                            class="w-full py-2 px-3 text-sm border rounded-lg"
+                            style="border-color: var(--c-border); background: var(--c-surface); color: var(--c-text)"
+                            [(ngModel)]="staffDraft[sf.name_key]"
+                            [name]="'staff_' + sf.name_key">
+                            <option value="">Selecione</option>
+                            @for (opt of sf.options ?? []; track opt) {
+                              <option [value]="opt">{{ opt }}</option>
+                            }
+                          </select>
+                        }
+                        @case ('radio') {
+                          <div class="flex flex-col gap-2">
+                            @for (opt of sf.options ?? []; track opt) {
+                              <label class="inline-flex items-center gap-2 text-sm cursor-pointer" style="color: var(--c-text)">
+                                <input
+                                  type="radio"
+                                  [name]="'staff_' + sf.name_key"
+                                  [value]="opt"
+                                  [(ngModel)]="staffDraft[sf.name_key]" />
+                                {{ opt }}
+                              </label>
+                            }
+                          </div>
+                        }
+                        @default {
+                          <input
+                            type="text"
+                            class="w-full py-2 px-3 text-sm border rounded-lg"
+                            style="border-color: var(--c-border); background: var(--c-surface); color: var(--c-text)"
+                            [(ngModel)]="staffDraft[sf.name_key]"
+                            [name]="'staff_' + sf.name_key" />
+                        }
+                      }
+                    </div>
+                  }
+                </div>
+              </div>
+            }
           }
 
           @if (abaAtiva === 'historico') {

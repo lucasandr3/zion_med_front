@@ -76,8 +76,12 @@ export interface ProtocoloSignature {
 
 export type ProtocoloDetalheData = Protocolo & {
   template?: { name?: string; fields?: ProtocoloField[] };
+  /** Valores agregados (chave do campo → valor exibido). Inclui respostas do paciente e do registro da equipe. */
+  values?: Record<string, unknown>;
   form_data?: Record<string, unknown>;
   values_keyed?: Record<string, { value_text?: string; value_json?: unknown }>;
+  /** Definição dos campos preenchidos só pela equipe (modelos Estética). */
+  staff_fields?: ProtocoloField[];
   events?: ProtocoloEvent[];
   signatures?: ProtocoloSignature[];
   attachments?: ProtocoloAttachment[];
@@ -132,6 +136,13 @@ export class ProtocolosService {
 
   comentario(id: number, comentario: string): Observable<unknown> {
     return this.api.post(`/protocols/${id}/comentario`, { body: comentario });
+  }
+
+  /** Salva campos internos da equipe (definidos no backend para modelos Estética). */
+  saveStaffValues(id: number, values: Record<string, unknown>): Observable<ProtocoloDetalheData> {
+    return this.api
+      .patch<OneResponse>(`/protocols/${id}/staff-values`, { values })
+      .pipe(map((r) => r.data));
   }
 
   exportarCsv(params?: { template_id?: number; status?: string; data_inicio?: string; data_fim?: string }): Observable<Blob> {
