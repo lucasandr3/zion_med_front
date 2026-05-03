@@ -834,4 +834,51 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
     if (typeof e?.message === 'string' && e.message.trim()) return e.message.trim();
     return fallback;
   }
+
+  /** Destaque visual nas células de resposta (preenchido vs vazio). */
+  campoRespostaEmDestaque(field: ProtocoloField): boolean {
+    if (field.type === 'file') {
+      return !!this.anexoParaDownload(field.name_key);
+    }
+    if (field.type === 'signature') {
+      return !!this.assinaturaParaCampo(field.name_key);
+    }
+    const t = this.textoRespostaCampo(field);
+    return t !== '—' && t.trim().length > 0;
+  }
+
+  /** Texto do banner superior na aba Respostas (padrão visual do protocolo). */
+  mensagemBannerTopo(): string {
+    const s = this.protocolo?.status?.toLowerCase();
+    if (s === 'approved' || s === 'aprovado') {
+      return 'Protocolo aprovado — registro concluído.';
+    }
+    if (s === 'rejected' || s === 'reprovado') {
+      return 'Este protocolo foi reprovado na revisão.';
+    }
+    if (s === 'pending' || s === 'pendente') {
+      return 'Aguardando revisão da equipe.';
+    }
+    return 'Detalhes do protocolo e respostas do formulário.';
+  }
+
+  dataBannerTopo(): string {
+    const raw = this.protocolo?.approved_at || this.protocolo?.submitted_at || this.protocolo?.created_at;
+    return raw ? this.formatarDataCurta(raw) : '';
+  }
+
+  statusBadgeTone(): 'green' | 'red' | 'amber' | 'gray' {
+    const s = this.protocolo?.status?.toLowerCase();
+    if (s === 'approved' || s === 'aprovado') return 'green';
+    if (s === 'rejected' || s === 'reprovado') return 'red';
+    if (s === 'pending' || s === 'pendente') return 'amber';
+    return 'gray';
+  }
+
+  iniciaisNome(nome: string | null | undefined): string {
+    if (!nome?.trim()) return '?';
+    const partes = nome.trim().split(/\s+/).filter(Boolean);
+    if (partes.length === 1) return partes[0].slice(0, 2).toUpperCase();
+    return (partes[0][0] + partes[partes.length - 1][0]).toUpperCase();
+  }
 }

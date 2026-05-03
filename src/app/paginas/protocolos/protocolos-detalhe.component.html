@@ -1,4 +1,4 @@
-<div class="protocolo-detalhe relative min-h-[320px]">
+<div class="pd-root protocolo-detalhe relative min-h-[320px]">
   @if (gerandoPdf) {
     <div class="dp-generating-overlay" aria-live="polite" aria-busy="true">
       <div class="dp-generating-card">
@@ -9,11 +9,11 @@
   }
 
   @if (erro) {
-    <p class="text-sm mb-4" style="color: var(--c-error, #dc2626)">{{ erro }}</p>
+    <p class="pd-text-error text-sm mb-4">{{ erro }}</p>
   }
 
   @if (showSkeleton() && !protocolo) {
-    <div class="space-y-4">
+    <div class="pd-content space-y-4">
       <zm-skeleton-card [height]="56" />
       <zm-skeleton-card [height]="200" />
       <zm-skeleton-card [height]="160" />
@@ -21,391 +21,384 @@
   }
 
   @if (!erro && protocolo) {
-    <div class="zm-content-enter space-y-6">
+    <div class="zm-content-enter pd-layout">
 
-      <!-- Header da página -->
-      <div class="card rounded-xl p-5" style="border: 1px solid var(--c-border)">
-        <div class="flex flex-wrap items-start justify-between gap-4">
-          <div class="flex items-start gap-3">
-            <div class="w-10 h-10 rounded-lg flex items-center justify-center shrink-0" style="background: var(--c-soft)">
-              <span class="material-symbols-outlined" style="color: var(--c-primary)">article</span>
-            </div>
-            <div>
-              <h1 class="protocolo-header__title">Protocolo {{ protocolo.protocol_number || protocolo.id }}</h1>
-              <div class="protocolo-header__meta">
-                <span class="protocolo-header__template">{{ templateNome() }}</span>
-              </div>
-            </div>
+      <!-- Cabeçalho fixo -->
+      <div class="pd-header-bar">
+        <div>
+          <div class="pd-header-kicker">
+            <span class="pd-mono pd-header-code">{{ protocolo.protocol_number || protocolo.id }}</span>
+            <span class="pd-badge" [ngClass]="'pd-badge--' + statusBadgeTone()">{{ statusLabel() }}</span>
           </div>
-          <div class="flex items-center gap-2 flex-wrap">
-            <button type="button" class="btn-ghost btn-default-bg inline-flex items-center gap-2" (click)="baixarFichaPdf()" title="Baixar PDF" [disabled]="gerandoPdf">
-              @if (gerandoPdf) {
-                <span class="btn-spinner" aria-hidden="true"></span>
-              } @else {
-                <span class="material-symbols-outlined text-lg">picture_as_pdf</span>
-              }
-              {{ gerandoPdf ? 'Gerando PDF...' : 'Baixar PDF' }}
-            </button>
-            <button type="button" class="btn-ghost btn-default-bg inline-flex items-center gap-2" (click)="baixarDossie()" title="Baixar dossiê (ZIP)">
-              <span class="material-symbols-outlined text-lg">folder_zip</span>
-              Baixar dossiê (ZIP)
-            </button>
-            @if (isPending && podeRevisarProtocolo) {
-              <button
-                type="button"
-                class="inline-flex items-center gap-2 btn-revisao-aprovar"
-                [class.btn-revisao-ativo]="revisaoFormVisible && revisaoAprovado"
-                (click)="abrirRevisao(true)"
-                title="Aprovar protocolo">
-                <span class="material-symbols-outlined text-lg">check_circle</span>
-                Aprovar
-              </button>
-              <button
-                type="button"
-                class="btn-danger btn-revisao-reprovar inline-flex items-center gap-2"
-                [class.btn-revisao-ativo-danger]="revisaoFormVisible && !revisaoAprovado"
-                (click)="abrirRevisao(false)"
-                title="Reprovar protocolo">
-                <span class="material-symbols-outlined text-lg">cancel</span>
-                Reprovar
-              </button>
+          <h1 class="pd-header-title">{{ templateNome() }}</h1>
+        </div>
+        <div class="pd-header-actions">
+          <button
+            type="button"
+            class="btn-ghost btn-default-bg btn-sm inline-flex items-center gap-2"
+            (click)="baixarFichaPdf()"
+            title="Baixar PDF"
+            [disabled]="gerandoPdf">
+            @if (gerandoPdf) {
+              <span class="btn-spinner" aria-hidden="true"></span>
+            } @else {
+              <span class="material-symbols-outlined text-base" aria-hidden="true">download</span>
             }
-          </div>
+            {{ gerandoPdf ? 'Gerando…' : 'Baixar PDF' }}
+          </button>
+          <button
+            type="button"
+            class="btn-ghost btn-default-bg btn-sm inline-flex items-center gap-2"
+            (click)="baixarDossie()"
+            title="Baixar dossiê (ZIP)">
+            <span class="material-symbols-outlined text-base" aria-hidden="true">inventory_2</span>
+            Dossiê ZIP
+          </button>
+          @if (isPending && podeRevisarProtocolo) {
+            <button
+              type="button"
+              class="btn-primary btn-sm inline-flex items-center gap-2"
+              [class.ring-2]="revisaoFormVisible && revisaoAprovado"
+              (click)="abrirRevisao(true)"
+              title="Aprovar protocolo">
+              <span class="material-symbols-outlined text-base" aria-hidden="true">check_circle</span>
+              Aprovar
+            </button>
+            <button
+              type="button"
+              class="btn-danger btn-sm inline-flex items-center gap-2"
+              [class.ring-2]="revisaoFormVisible && !revisaoAprovado"
+              (click)="abrirRevisao(false)"
+              title="Reprovar protocolo">
+              <span class="material-symbols-outlined text-base" aria-hidden="true">cancel</span>
+              Reprovar
+            </button>
+          } @else if (!isPending) {
+            <span class="pd-badge" [ngClass]="'pd-badge--' + statusBadgeTone()">✓ {{ statusLabel() }}</span>
+          } @else if (isPending) {
+            <span class="pd-badge pd-badge--amber">Pendente</span>
+          }
         </div>
       </div>
 
-      <!-- Formulário de revisão (logo abaixo do header) -->
       @if (isPending && revisaoFormVisible && podeRevisarProtocolo) {
-        <div class="card rounded-xl overflow-hidden" id="revisao_form" style="border: 1px solid var(--c-border)">
-          <div class="flex items-center justify-between gap-2 px-5 py-4" style="border-bottom: 1px solid var(--c-border); background: var(--c-soft)">
-            <div class="flex items-center gap-2">
-              <span class="material-symbols-outlined" style="color: var(--c-primary)">rate_review</span>
-              <h2 class="text-base font-semibold m-0" style="color: var(--c-text)">Revisar protocolo</h2>
-            </div>
-            <button type="button" class="btn-ghost btn-default-bg py-1! px-2! text-xs" (click)="fecharRevisao()">
+        <div class="pd-section-card pd-fade-up pd-revisao-card" id="revisao_form">
+          <div class="pd-section-head">
+            <span class="pd-section-head__label">Revisar protocolo</span>
+            <button type="button" class="pd-icon-btn" (click)="fecharRevisao()" aria-label="Fechar">
               <span class="material-symbols-outlined text-base">close</span>
             </button>
           </div>
-          <div class="p-5 space-y-4">
-            <!-- Toggle visual Aprovar / Reprovar -->
+          <div class="pd-section-body pd-revisao-body">
             <div>
-              <label class="block text-xs font-semibold uppercase tracking-wider mb-2" style="color: var(--c-muted)">Decisão</label>
-              <div class="flex gap-2">
+              <p class="pd-field-label">Decisão</p>
+              <div class="pd-revisao-toggle">
                 <button
                   type="button"
-                  class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold border-2 transition-all"
-                  [style]="revisaoAprovado
-                    ? 'background:var(--c-success-soft); color:var(--c-success); border-color:var(--c-success)'
-                    : 'background:var(--c-soft); color:var(--c-muted); border-color:var(--c-border)'"
+                  class="pd-revisao-opt"
+                  [class.pd-revisao-opt--on]="revisaoAprovado"
                   (click)="revisaoAprovado = true">
-                  <span class="material-symbols-outlined text-base">check_circle</span>
                   Aprovar
                 </button>
                 <button
                   type="button"
-                  class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold border-2 transition-all"
-                  [style]="!revisaoAprovado
-                    ? 'background:var(--c-danger-soft); color:var(--c-danger); border-color:var(--c-danger)'
-                    : 'background:var(--c-soft); color:var(--c-muted); border-color:var(--c-border)'"
+                  class="pd-revisao-opt"
+                  [class.pd-revisao-opt--on-danger]="!revisaoAprovado"
                   (click)="revisaoAprovado = false">
-                  <span class="material-symbols-outlined text-base">cancel</span>
                   Reprovar
                 </button>
               </div>
             </div>
             <div>
-              <label class="block text-xs font-semibold uppercase tracking-wider mb-1.5" style="color: var(--c-muted)">Comentário (opcional)</label>
-              <textarea [(ngModel)]="comentarioRevisao" rows="3" class="w-full py-2 px-3 text-sm border rounded-lg" style="border-color: var(--c-border); background: var(--c-surface); color: var(--c-text)" placeholder="Comentário da revisão..."></textarea>
+              <label class="pd-field-label" for="comentario_revisao">Comentário (opcional)</label>
+              <textarea
+                id="comentario_revisao"
+                [(ngModel)]="comentarioRevisao"
+                rows="3"
+                class="pd-textarea"
+                placeholder="Comentário da revisão..."></textarea>
             </div>
-            <div class="flex items-center gap-2">
+            <div class="pd-revisao-actions">
               <button type="button" class="btn-primary inline-flex items-center gap-2" (click)="enviarRevisao()" [disabled]="revisaoEnviando">
                 @if (revisaoEnviando) {
                   <span class="btn-spinner" aria-hidden="true"></span>
-                } @else {
-                  <span class="material-symbols-outlined text-lg">send</span>
                 }
                 {{ revisaoEnviando ? 'Enviando…' : 'Confirmar revisão' }}
               </button>
-              <button type="button" class="btn-ghost btn-default-bg inline-flex items-center gap-2" (click)="fecharRevisao()" [disabled]="revisaoEnviando">
-                Cancelar
-              </button>
+              <button type="button" class="btn-ghost btn-default-bg" (click)="fecharRevisao()" [disabled]="revisaoEnviando">Cancelar</button>
             </div>
           </div>
         </div>
       }
 
-      <div class="protocolo-tabs-wrap card rounded-xl overflow-hidden" style="border: 1px solid var(--c-border)">
-        <div class="protocolo-tabs-header">
-          <button type="button" class="protocolo-tab" [class.protocolo-tab--active]="abaAtiva === 'visao-geral'" (click)="setAbaAtiva('visao-geral')">
-            <span class="material-symbols-outlined protocolo-tab__icon">info</span>
-            Dados
-          </button>
-          <button type="button" class="protocolo-tab" [class.protocolo-tab--active]="abaAtiva === 'respostas'" (click)="setAbaAtiva('respostas')">
-            <span class="material-symbols-outlined protocolo-tab__icon">assignment</span>
-            Respostas
-            @if (camposRespostas().length > 0) {
-              <span class="protocolo-tab__count">{{ camposRespostas().length }}</span>
-            }
-          </button>
-          <button type="button" class="protocolo-tab" [class.protocolo-tab--active]="abaAtiva === 'historico'" (click)="setAbaAtiva('historico')">
-            <span class="material-symbols-outlined protocolo-tab__icon">history</span>
-            Histórico
-          </button>
-          <button type="button" class="protocolo-tab" [class.protocolo-tab--active]="abaAtiva === 'assinaturas'" (click)="setAbaAtiva('assinaturas')">
-            <span class="material-symbols-outlined protocolo-tab__icon">draw</span>
-            Assinaturas
-            <span class="protocolo-tab__count">{{ protocolo.signatures?.length || 0 }}</span>
-          </button>
-          <button type="button" class="protocolo-tab" [class.protocolo-tab--active]="abaAtiva === 'comentarios'" (click)="setAbaAtiva('comentarios')">
-            <span class="material-symbols-outlined protocolo-tab__icon">forum</span>
-            Comentários
-            <span class="protocolo-tab__count">{{ totalComentarios() }}</span>
-          </button>
-          <button type="button" class="protocolo-tab" [class.protocolo-tab--active]="abaAtiva === 'impressao'" (click)="setAbaAtiva('impressao')">
-            <span class="material-symbols-outlined protocolo-tab__icon">print</span>
-            Impressão
-          </button>
-        </div>
-        <div class="protocolo-tab-panel p-6">
-          @if (abaAtiva === 'visao-geral') {
-            <div class="protocolo-grid">
-              <div>
-                <p class="protocolo-field-label">Data de submissão</p>
-                <p class="protocolo-field-value">{{ dataFormatada(protocolo.submitted_at || protocolo.created_at) }}</p>
-              </div>
-              <div>
-                <p class="protocolo-field-label">Pessoa (ficha)</p>
-                @if (protocolo.person) {
-                  <a [routerLink]="['/pessoas', protocolo.person.id]" class="protocolo-field-link">{{ protocolo.person.name }}</a>
-                  <p class="protocolo-field-muted">{{ protocolo.person.code }}</p>
-                } @else {
-                  <p class="protocolo-field-value">—</p>
-                }
-              </div>
-              <div>
-                <p class="protocolo-field-label">Submetente</p>
-                <p class="protocolo-field-value">{{ protocolo.submitter_name || '—' }}</p>
-                @if (protocolo.submitter_email) {
-                  <p class="protocolo-field-muted">{{ protocolo.submitter_email }}</p>
-                }
-              </div>
-            </div>
+      <!-- Abas -->
+      <div class="pd-tabs-row">
+        <button type="button" class="pd-tab" [class.pd-tab--active]="abaAtiva === 'visao-geral'" (click)="setAbaAtiva('visao-geral')">Dados</button>
+        <button type="button" class="pd-tab" [class.pd-tab--active]="abaAtiva === 'respostas'" (click)="setAbaAtiva('respostas')">
+          Respostas
+          @if (camposRespostas().length > 0) {
+            <span class="pd-tab-count pd-tab-count--teal">{{ camposRespostas().length }}</span>
+          }
+        </button>
+        <button type="button" class="pd-tab" [class.pd-tab--active]="abaAtiva === 'historico'" (click)="setAbaAtiva('historico')">Histórico</button>
+        <button type="button" class="pd-tab" [class.pd-tab--active]="abaAtiva === 'assinaturas'" (click)="setAbaAtiva('assinaturas')">
+          Assinaturas
+          <span class="pd-tab-count">{{ protocolo.signatures?.length || 0 }}</span>
+        </button>
+        <button type="button" class="pd-tab" [class.pd-tab--active]="abaAtiva === 'comentarios'" (click)="setAbaAtiva('comentarios')">
+          Comentários
+          <span class="pd-tab-count">{{ totalComentarios() }}</span>
+        </button>
+        <button type="button" class="pd-tab" [class.pd-tab--active]="abaAtiva === 'impressao'" (click)="setAbaAtiva('impressao')">Impressão</button>
+      </div>
 
-            <div class="protocolo-grid protocolo-grid--spaced">
-              <div>
-                <p class="protocolo-field-label">Tipo de protocolo</p>
-                <p class="protocolo-field-value">{{ templateNome() }}</p>
+      <div class="pd-content">
+        <div class="pd-tab-panel">
+          @if (abaAtiva === 'visao-geral') {
+            <div class="pd-section-card pd-fade-up">
+              <div class="pd-section-head">
+                <svg class="pd-section-icon" fill="none" viewBox="0 0 16 16" aria-hidden="true">
+                  <rect x="1.5" y="1.5" width="13" height="13" rx="2.5" stroke="currentColor" stroke-width="1.5" />
+                  <path d="M5 8h6M5 5.5h6M5 10.5h3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                </svg>
+                <span class="pd-section-head__label">Identificação</span>
               </div>
-              <div>
-                <p class="protocolo-field-label">Status</p>
-                <span class="status-pill" [class.status-pill--pending]="isPending" [class.status-pill--done]="!isPending">
-                  {{ statusLabel() }}
-                </span>
-              </div>
-              <div>
-                <p class="protocolo-field-label">Código</p>
-                <p class="protocolo-field-mono">{{ protocolo.protocol_number || protocolo.id }}</p>
+              <div class="pd-section-body">
+                <div class="pd-field-grid pd-field-grid--3">
+                  <div>
+                    <p class="pd-field-label">Data de submissão</p>
+                    <p class="pd-field-value">{{ dataFormatada(protocolo.submitted_at || protocolo.created_at) }}</p>
+                  </div>
+                  <div>
+                    <p class="pd-field-label">Pessoa (ficha)</p>
+                    @if (protocolo.person) {
+                      <div class="pd-inline-avatar">
+                        <span class="pd-avatar">{{ iniciaisNome(protocolo.person.name) }}</span>
+                        <div>
+                          <a [routerLink]="['/pessoas', protocolo.person.id]" class="pd-link">{{ protocolo.person.name }}</a>
+                          <p class="pd-muted">{{ protocolo.person.code }}</p>
+                        </div>
+                      </div>
+                    } @else {
+                      <p class="pd-field-value pd-muted2">—</p>
+                    }
+                  </div>
+                  <div>
+                    <p class="pd-field-label">Submetente</p>
+                    <p class="pd-field-value">{{ protocolo.submitter_name || '—' }}</p>
+                    @if (protocolo.submitter_email) {
+                      <p class="pd-muted">{{ protocolo.submitter_email }}</p>
+                    }
+                  </div>
+                  <div>
+                    <p class="pd-field-label">Tipo de protocolo</p>
+                    <p class="pd-field-value">{{ templateNome() }}</p>
+                  </div>
+                  <div>
+                    <p class="pd-field-label">Status</p>
+                    <span class="pd-badge" [ngClass]="'pd-badge--' + statusBadgeTone()">{{ statusLabel() }}</span>
+                  </div>
+                  <div>
+                    <p class="pd-field-label">Código</p>
+                    <p class="pd-mono pd-field-value">{{ protocolo.protocol_number || protocolo.id }}</p>
+                  </div>
+                </div>
               </div>
             </div>
           }
 
           @if (abaAtiva === 'respostas') {
+            <div class="pd-alert-top pd-fade-up" role="status">
+              <div class="pd-alert-dot"></div>
+              <p class="pd-alert-text">{{ mensagemBannerTopo() }}</p>
+              @if (dataBannerTopo()) {
+                <span class="pd-alert-date pd-mono">{{ dataBannerTopo() }}</span>
+              }
+            </div>
+
             @if (camposRespostas().length === 0) {
-              <div class="comentario-vazio">
-                <span class="material-symbols-outlined">assignment</span>
+              <div class="pd-empty-state pd-section-card pd-fade-up">
+                <span class="material-symbols-outlined pd-empty-icon">assignment</span>
                 <p>Não há campos do modelo disponíveis para exibir as respostas.</p>
-                <p class="protocolo-field-muted m-0 text-sm">Se o protocolo for antigo, atualize a página após deploy do sistema.</p>
+                <p class="pd-muted m-0 text-sm">Se o protocolo for antigo, atualize a página após deploy do sistema.</p>
               </div>
             } @else {
-              <div class="protocolo-respostas-grid" role="list">
-                @for (campo of camposRespostas(); track campo.name_key) {
-                  <div
-                    class="protocolo-resposta-cell"
-                    [class.protocolo-resposta-cell--full]="respostaEmLinhaCompleta(campo)"
-                    role="listitem">
-                    <div class="protocolo-resposta-pair">
-                      <span class="protocolo-resposta-k">{{ campo.label }}:</span>
-                      @if (campo.type === 'file') {
-                        @if (anexoParaDownload(campo.name_key); as anexo) {
-                          <span class="protocolo-resposta-v">
-                            <a [href]="anexo.url" target="_blank" rel="noopener noreferrer" class="protocolo-field-link protocolo-resposta-link">
-                              {{ anexo.original_name || 'Abrir anexo' }}
-                              <span class="material-symbols-outlined protocolo-resposta-link__icon" aria-hidden="true">open_in_new</span>
-                            </a>
-                          </span>
+              <div class="pd-section-card pd-fade-up pd-fade-delay-1">
+                <div class="pd-section-head">
+                  <svg class="pd-section-icon" fill="none" viewBox="0 0 16 16" aria-hidden="true">
+                    <path d="M2 12l4-5 3.5 3.5L14 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                  <span class="pd-section-head__label">Respostas do formulário</span>
+                </div>
+                <div class="pd-section-body">
+                  <div class="pd-resp-grid" role="list">
+                    @for (campo of camposRespostas(); track campo.name_key) {
+                      <div
+                        class="pd-resp-cell"
+                        [class.pd-resp-cell--full]="respostaEmLinhaCompleta(campo) || campo.type === 'textarea'"
+                        [class.pd-resp-cell--filled]="campoRespostaEmDestaque(campo)"
+                        role="listitem">
+                        <p class="pd-resp-label">{{ campo.label }}</p>
+                        @if (campo.type === 'file') {
+                          @if (anexoParaDownload(campo.name_key); as anexo) {
+                            <a [href]="anexo.url" target="_blank" rel="noopener noreferrer" class="pd-sig-link">{{ anexo.original_name || 'Abrir anexo' }} ↗</a>
+                          } @else {
+                            <p class="pd-resp-value pd-muted2">—</p>
+                          }
+                        } @else if (campo.type === 'signature') {
+                          @if (assinaturaParaCampo(campo.name_key)) {
+                            <button type="button" class="pd-sig-link pd-sig-link--btn" (click)="setAbaAtiva('assinaturas')">Ver assinatura ↗</button>
+                          } @else {
+                            <p class="pd-resp-value pd-muted2">—</p>
+                          }
                         } @else {
-                          <span class="protocolo-resposta-v">—</span>
+                          <p class="pd-resp-value" [class.pd-muted2]="textoRespostaCampo(campo) === '—'">{{ textoRespostaCampo(campo) }}</p>
                         }
-                      } @else if (campo.type === 'signature') {
-                        @if (assinaturaParaCampo(campo.name_key)) {
-                          <span class="protocolo-resposta-v">
-                            <button type="button" class="protocolo-field-link protocolo-resposta-link-btn" (click)="setAbaAtiva('assinaturas')">
-                              Ver assinatura
-                              <span class="material-symbols-outlined protocolo-resposta-link__icon" aria-hidden="true">draw</span>
-                            </button>
-                          </span>
-                        } @else {
-                          <span class="protocolo-resposta-v">—</span>
-                        }
-                      } @else {
-                        <span class="protocolo-resposta-v protocolo-resposta-v--texto">{{ textoRespostaCampo(campo) }}</span>
-                      }
-                    </div>
+                      </div>
+                    }
                   </div>
-                }
+                </div>
               </div>
             }
 
             @if (temCamposEquipe()) {
-              <div class="mt-8 rounded-xl border p-5" style="border-color: var(--c-border); background: var(--c-soft)">
-                <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
-                  <div class="flex items-center gap-2">
-                    <span class="material-symbols-outlined text-xl" style="color: var(--c-primary)">badge</span>
-                    <h3 class="text-base font-semibold m-0" style="color: var(--c-text)">Registro da equipe (clínica)</h3>
-                  </div>
+              <div class="pd-section-card pd-fade-up pd-fade-delay-2 pd-staff-card">
+                <div class="pd-section-head">
+                  <svg class="pd-section-icon" fill="none" viewBox="0 0 16 16" aria-hidden="true">
+                    <path d="M2.5 8.5L6 12l7.5-8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                  <span class="pd-section-head__label">Registro da equipe (clínica)</span>
                   <button
                     type="button"
-                    class="btn-primary inline-flex items-center gap-2 text-sm"
+                    class="btn-primary btn-sm inline-flex items-center gap-2 pd-section-head__action"
                     (click)="salvarRegistroEquipe()"
                     [disabled]="staffSalvando">
                     @if (staffSalvando) {
                       <span class="btn-spinner" aria-hidden="true"></span>
-                    } @else {
-                      <span class="material-symbols-outlined text-base">save</span>
                     }
-                    {{ staffSalvando ? 'Salvando…' : 'Salvar registro da equipe' }}
+                    {{ staffSalvando ? 'Salvando…' : 'Salvar' }}
                   </button>
                 </div>
-                <p class="text-sm mb-4 m-0" style="color: var(--c-muted)">
-                  Estes campos não aparecem no formulário público; preencha aqui após revisar o protocolo.
-                </p>
-                <div class="grid gap-4 md:grid-cols-2">
-                  @for (sf of protocolo!.staff_fields!; track sf.name_key) {
-                    <div class="md:col-span-2" [class.md:col-span-1]="sf.type !== 'textarea'">
-                      <label class="block text-xs font-semibold uppercase tracking-wider mb-1.5" style="color: var(--c-muted)">{{ sf.label }}</label>
-                      @switch (sf.type) {
-                        @case ('textarea') {
-                          <textarea
-                            rows="3"
-                            class="w-full py-2 px-3 text-sm border rounded-lg"
-                            style="border-color: var(--c-border); background: var(--c-surface); color: var(--c-text)"
-                            [(ngModel)]="staffDraft[sf.name_key]"
-                            [name]="'staff_' + sf.name_key"></textarea>
+                <div class="pd-section-body">
+                  <p class="pd-staff-hint">Campos internos; não aparecem no formulário público.</p>
+                  <div class="pd-staff-grid">
+                    @for (sf of protocolo!.staff_fields!; track sf.name_key) {
+                      <div class="pd-staff-field" [class.pd-staff-field--full]="sf.type === 'textarea'">
+                        <label class="pd-field-label" [for]="'staff_' + sf.name_key">{{ sf.label }}</label>
+                        @switch (sf.type) {
+                          @case ('textarea') {
+                            <textarea
+                              [id]="'staff_' + sf.name_key"
+                              rows="3"
+                              class="pd-textarea"
+                              [(ngModel)]="staffDraft[sf.name_key]"
+                              [name]="'staff_' + sf.name_key"></textarea>
+                          }
+                          @case ('number') {
+                            <input
+                              type="number"
+                              class="pd-input"
+                              [(ngModel)]="staffDraft[sf.name_key]"
+                              [name]="'staff_' + sf.name_key" />
+                          }
+                          @case ('date') {
+                            <input type="date" class="pd-input" [(ngModel)]="staffDraft[sf.name_key]" [name]="'staff_' + sf.name_key" />
+                          }
+                          @case ('select') {
+                            <select class="pd-input" [(ngModel)]="staffDraft[sf.name_key]" [name]="'staff_' + sf.name_key">
+                              <option value="">Selecione</option>
+                              @for (opt of sf.options ?? []; track opt) {
+                                <option [value]="opt">{{ opt }}</option>
+                              }
+                            </select>
+                          }
+                          @case ('radio') {
+                            <div class="pd-radio-stack">
+                              @for (opt of sf.options ?? []; track opt) {
+                                <label class="pd-radio-line">
+                                  <input type="radio" [name]="'staff_' + sf.name_key" [value]="opt" [(ngModel)]="staffDraft[sf.name_key]" />
+                                  {{ opt }}
+                                </label>
+                              }
+                            </div>
+                          }
+                          @default {
+                            <input type="text" class="pd-input" [(ngModel)]="staffDraft[sf.name_key]" [name]="'staff_' + sf.name_key" />
+                          }
                         }
-                        @case ('number') {
-                          <input
-                            type="number"
-                            class="w-full py-2 px-3 text-sm border rounded-lg"
-                            style="border-color: var(--c-border); background: var(--c-surface); color: var(--c-text)"
-                            [(ngModel)]="staffDraft[sf.name_key]"
-                            [name]="'staff_' + sf.name_key" />
-                        }
-                        @case ('date') {
-                          <input
-                            type="date"
-                            class="w-full py-2 px-3 text-sm border rounded-lg"
-                            style="border-color: var(--c-border); background: var(--c-surface); color: var(--c-text)"
-                            [(ngModel)]="staffDraft[sf.name_key]"
-                            [name]="'staff_' + sf.name_key" />
-                        }
-                        @case ('select') {
-                          <select
-                            class="w-full py-2 px-3 text-sm border rounded-lg"
-                            style="border-color: var(--c-border); background: var(--c-surface); color: var(--c-text)"
-                            [(ngModel)]="staffDraft[sf.name_key]"
-                            [name]="'staff_' + sf.name_key">
-                            <option value="">Selecione</option>
-                            @for (opt of sf.options ?? []; track opt) {
-                              <option [value]="opt">{{ opt }}</option>
-                            }
-                          </select>
-                        }
-                        @case ('radio') {
-                          <div class="flex flex-col gap-2">
-                            @for (opt of sf.options ?? []; track opt) {
-                              <label class="inline-flex items-center gap-2 text-sm cursor-pointer" style="color: var(--c-text)">
-                                <input
-                                  type="radio"
-                                  [name]="'staff_' + sf.name_key"
-                                  [value]="opt"
-                                  [(ngModel)]="staffDraft[sf.name_key]" />
-                                {{ opt }}
-                              </label>
-                            }
-                          </div>
-                        }
-                        @default {
-                          <input
-                            type="text"
-                            class="w-full py-2 px-3 text-sm border rounded-lg"
-                            style="border-color: var(--c-border); background: var(--c-surface); color: var(--c-text)"
-                            [(ngModel)]="staffDraft[sf.name_key]"
-                            [name]="'staff_' + sf.name_key" />
-                        }
-                      }
-                    </div>
-                  }
+                      </div>
+                    }
+                  </div>
                 </div>
               </div>
             }
           }
 
           @if (abaAtiva === 'historico') {
-            <div class="timeline-list">
-              @for (event of eventosTimeline(); track $index) {
-                <div class="timeline-item">
-                  <div class="timeline-marker">
-                    <span class="timeline-dot"></span>
-                    @if (!$last) {
-                      <span class="timeline-line"></span>
-                    }
-                  </div>
-                  <div class="timeline-content">
-                    <p class="timeline-title">{{ event.type_label || 'Comentário' }}</p>
-                    @if (event.body) {
-                      <p class="timeline-body">{{ event.body }}</p>
-                    }
-                    <p class="timeline-meta">
-                      @if (event.user?.name) {
-                        {{ event.user?.name }} ·
-                      }
-                      {{ dataFormatada(event.created_at) }}
-                    </p>
-                  </div>
+            <div class="pd-section-card pd-fade-up">
+              <div class="pd-section-head">
+                <svg class="pd-section-icon" fill="none" viewBox="0 0 16 16" aria-hidden="true">
+                  <circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.5" />
+                  <path d="M8 4.5V8l2.5 1.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                </svg>
+                <span class="pd-section-head__label">Histórico</span>
+              </div>
+              <div class="pd-section-body pd-hist-body">
+                <div class="pd-timeline">
+                  @for (event of eventosTimeline(); track $index) {
+                    <div class="pd-tl-item">
+                      <div class="pd-tl-marker">
+                        <span class="pd-tl-dot"></span>
+                        @if (!$last) {
+                          <span class="pd-tl-line"></span>
+                        }
+                      </div>
+                      <div>
+                        <p class="pd-tl-title">{{ event.type_label || 'Evento' }}</p>
+                        @if (event.body) {
+                          <p class="pd-tl-body">{{ event.body }}</p>
+                        }
+                        <p class="pd-tl-meta">
+                          @if (event.user?.name) {
+                            {{ event.user?.name }} ·
+                          }
+                          {{ dataFormatada(event.created_at) }}
+                        </p>
+                      </div>
+                    </div>
+                  }
                 </div>
-              }
+              </div>
             </div>
           }
 
           @if (abaAtiva === 'assinaturas' && protocolo.signatures && protocolo.signatures.length > 0) {
-            <div class="space-y-4">
-              @for (sig of protocolo.signatures; track $index) {
-                <div class="assinatura-card">
-                  <div class="assinatura-card__header">
-                    <div class="assinatura-card__title">
-                      Assinatura {{ $index + 1 }} — {{ sig.signed_name || 'Não informado' }}
+            <div class="pd-section-card pd-fade-up">
+              <div class="pd-section-head">
+                <svg class="pd-section-icon" fill="none" viewBox="0 0 16 16" aria-hidden="true">
+                  <path d="M2 13c2-2 4-4 4-6a2 2 0 114 0c0 2 2 4 4 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                </svg>
+                <span class="pd-section-head__label">Assinaturas</span>
+                <span class="pd-badge pd-badge--green pd-section-head__badge">{{ protocolo.signatures.length }} assinada(s)</span>
+              </div>
+              <div class="pd-section-body pd-assin-list">
+                @for (sig of protocolo.signatures; track $index) {
+                  <div class="pd-assin-block">
+                    <div class="pd-assin-block__head">
+                      <span class="pd-field-value">Assinatura {{ $index + 1 }} — {{ sig.signed_name || 'Não informado' }}</span>
+                      @if (sig.status) {
+                        <span class="pd-badge pd-badge--green">{{ assinaturaStatusLabel(sig.status) }}</span>
+                      }
                     </div>
-                    @if (sig.status) {
-                      <span class="assinatura-card__status">
-                        {{ assinaturaStatusLabel(sig.status) }}
-                      </span>
-                    }
-                  </div>
-
-                  <div class="assinatura-card__body">
-                    <div class="assinatura-card__left">
-                      <div class="assinatura-card__image-wrap">
+                    <div class="pd-assin-block__grid">
+                      <div class="pd-assin-img-wrap">
                         @if (sig.url) {
-                          <img [src]="sig.url" alt="Assinatura do cliente" class="assinatura-card__image" />
+                          <img [src]="sig.url" alt="Assinatura" class="pd-assin-img" />
                         } @else {
-                          <div class="assinatura-card__empty">Imagem indisponível</div>
+                          <div class="pd-assin-empty">Imagem indisponível</div>
                         }
                       </div>
-                      <div class="assinatura-card__legend">Assinado digitalmente</div>
-                    </div>
-
-                    <div class="assinatura-card__right">
-                      <dl class="assinatura-card__meta-grid">
+                      <dl class="pd-assin-meta">
                         <div>
                           <dt>Data / hora</dt>
                           <dd>{{ dataFormatada(sig.signed_at) }}</dd>
@@ -418,90 +411,104 @@
                           <dt>IP</dt>
                           <dd>{{ sig.signed_ip || '—' }}</dd>
                         </div>
-                        <div class="assinatura-card__meta-wide">
+                        <div class="pd-assin-meta--wide">
                           <dt>Navegador / dispositivo</dt>
                           <dd>{{ sig.signed_user_agent || '—' }}</dd>
                         </div>
                       </dl>
-
-                      <dl class="assinatura-card__hashes">
-                        <div>
-                          <dt>Hash da assinatura</dt>
-                          <dd>{{ sig.signed_hash || '—' }}</dd>
-                        </div>
-                        <div>
-                          <dt>Hash do documento</dt>
-                          <dd>{{ sig.document_hash || '—' }}</dd>
-                        </div>
-                        <div>
-                          <dt>Hash da evidência</dt>
-                          <dd>{{ sig.evidence_hash || '—' }}</dd>
-                        </div>
-                      </dl>
                     </div>
+                    <dl class="pd-assin-hashes">
+                      <div>
+                        <dt>Hash da assinatura</dt>
+                        <dd>{{ sig.signed_hash || '—' }}</dd>
+                      </div>
+                      <div>
+                        <dt>Hash do documento</dt>
+                        <dd>{{ sig.document_hash || '—' }}</dd>
+                      </div>
+                      <div>
+                        <dt>Hash da evidência</dt>
+                        <dd>{{ sig.evidence_hash || '—' }}</dd>
+                      </div>
+                    </dl>
                   </div>
-                </div>
-              }
+                }
+              </div>
             </div>
           } @else if (abaAtiva === 'assinaturas') {
-            <div class="comentario-vazio">
-              <span class="material-symbols-outlined">draw</span>
+            <div class="pd-empty-state pd-section-card pd-fade-up">
+              <span class="material-symbols-outlined pd-empty-icon">draw</span>
               <p>Nenhuma assinatura disponível.</p>
             </div>
           }
 
           @if (abaAtiva === 'comentarios') {
-            @if (totalComentarios() === 0 && !protocolo.review_comment) {
-              <div class="comentario-vazio">
-                <span class="material-symbols-outlined">forum</span>
-                <p>Nenhum comentário ainda</p>
+            <div class="pd-section-card pd-fade-up">
+              <div class="pd-section-head">
+                <svg class="pd-section-icon" fill="none" viewBox="0 0 16 16" aria-hidden="true">
+                  <path d="M3 12h10M5 8h6M5 4h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                </svg>
+                <span class="pd-section-head__label">Comentários</span>
               </div>
-            }
-
-            @if (protocolo.review_comment) {
-              <div class="comentario-revisao">
-                <p class="protocolo-field-label">Comentário da revisão</p>
-                <p class="protocolo-field-value">{{ protocolo.review_comment }}</p>
-                @if (protocolo.approved_by_name || protocolo.approved_at) {
-                  <p class="protocolo-field-muted">
-                    Por {{ protocolo.approved_by_name || '—' }} em {{ dataFormatada(protocolo.approved_at) }}
-                  </p>
+              <div class="pd-section-body">
+                @if (totalComentarios() === 0 && !protocolo.review_comment) {
+                  <div class="pd-empty-inline">
+                    <p class="pd-muted m-0">Nenhum comentário ainda.</p>
+                  </div>
                 }
-              </div>
-            }
 
-            <div class="comentario-form">
-              <p class="comentario-form__title">Novo comentário interno</p>
-              <textarea [(ngModel)]="novoComentario" rows="4" class="comentario-textarea" placeholder="Digite seu comentário..."></textarea>
-              <div class="comentario-form__actions">
-                <button type="button" class="btn-primary inline-flex items-center gap-2" (click)="enviarComentario()" [disabled]="!novoComentario.trim() || comentarioEnviando">
-                  @if (comentarioEnviando) {
-                    <span class="btn-spinner" aria-hidden="true"></span>
-                  } @else {
-                    <span class="material-symbols-outlined text-lg">add_comment</span>
-                  }
-                  {{ comentarioEnviando ? 'Enviando…' : 'Adicionar comentário' }}
-                </button>
+                @if (protocolo.review_comment) {
+                  <div class="pd-quote">
+                    <p class="pd-field-label">Comentário da revisão</p>
+                    <p class="pd-field-value">{{ protocolo.review_comment }}</p>
+                    @if (protocolo.approved_by_name || protocolo.approved_at) {
+                      <p class="pd-muted text-sm mt-1">
+                        Por {{ protocolo.approved_by_name || '—' }} em {{ dataFormatada(protocolo.approved_at) }}
+                      </p>
+                    }
+                  </div>
+                }
+
+                <div class="pd-coment-form">
+                  <p class="pd-field-label">Novo comentário interno</p>
+                  <textarea [(ngModel)]="novoComentario" rows="4" class="pd-textarea" placeholder="Digite seu comentário..."></textarea>
+                  <div class="pd-coment-actions">
+                    <button type="button" class="btn-primary inline-flex items-center gap-2" (click)="enviarComentario()" [disabled]="!novoComentario.trim() || comentarioEnviando">
+                      @if (comentarioEnviando) {
+                        <span class="btn-spinner" aria-hidden="true"></span>
+                      }
+                      {{ comentarioEnviando ? 'Enviando…' : 'Adicionar comentário' }}
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           }
 
           @if (abaAtiva === 'impressao') {
-            <div class="protocolo-print-toolbar">
-              <button type="button" class="btn-ghost btn-default-bg inline-flex items-center gap-2" (click)="visualizarFichaPdf()" [disabled]="gerandoPdf">
-                <span class="material-symbols-outlined text-lg">visibility</span>
+            <div class="pd-print-toolbar">
+              <button
+                type="button"
+                class="btn-ghost btn-default-bg btn-sm inline-flex items-center gap-2"
+                (click)="visualizarFichaPdf()"
+                [disabled]="gerandoPdf">
+                <span class="material-symbols-outlined text-base" aria-hidden="true">visibility</span>
                 Visualizar PDF
               </button>
-              <button type="button" class="btn-ghost btn-default-bg inline-flex items-center gap-2" (click)="baixarFichaPdf()" [disabled]="gerandoPdf">
+              <button
+                type="button"
+                class="btn-ghost btn-default-bg btn-sm inline-flex items-center gap-2"
+                (click)="baixarFichaPdf()"
+                [disabled]="gerandoPdf">
                 @if (gerandoPdf) {
                   <span class="btn-spinner" aria-hidden="true"></span>
                 } @else {
-                  <span class="material-symbols-outlined text-lg">picture_as_pdf</span>
+                  <span class="material-symbols-outlined text-base" aria-hidden="true">download</span>
                 }
-                {{ gerandoPdf ? 'Gerando PDF...' : 'Baixar PDF' }}
+                {{ gerandoPdf ? 'Gerando…' : 'Baixar PDF' }}
               </button>
-              <button type="button" class="btn-primary inline-flex items-center gap-2" (click)="imprimirFicha()">
-                <span class="material-symbols-outlined text-lg">print</span>
+              <button type="button" class="btn-primary btn-sm inline-flex items-center gap-2" (click)="imprimirFicha()">
+                <span class="material-symbols-outlined text-base" aria-hidden="true">print</span>
                 Imprimir
               </button>
             </div>
@@ -531,8 +538,12 @@
                       }
                       @if (clinicaTelefone || clinicaEmail) {
                         <div class="dp-clinic-meta-line">
-                          @if (clinicaTelefone) { <span class="dp-clinic-meta-item">Tel. {{ clinicaTelefone }}</span> }
-                          @if (clinicaEmail) { <span class="dp-clinic-meta-item">{{ clinicaEmail }}</span> }
+                          @if (clinicaTelefone) {
+                            <span class="dp-clinic-meta-item">Tel. {{ clinicaTelefone }}</span>
+                          }
+                          @if (clinicaEmail) {
+                            <span class="dp-clinic-meta-item">{{ clinicaEmail }}</span>
+                          }
                         </div>
                       }
                     </div>
@@ -543,9 +554,7 @@
                   <div class="dp-form-number">
                     Protocolo Nº <strong>{{ protocolo.protocol_number || protocolo.id }}</strong>
                   </div>
-                  <div class="dp-form-number">
-                    Emitido em {{ dataDocumentoPorExtenso() }}
-                  </div>
+                  <div class="dp-form-number">Emitido em {{ dataDocumentoPorExtenso() }}</div>
                 </div>
               </header>
 
@@ -575,7 +584,10 @@
                       <div class="dp-id-item">
                         <span class="dp-id-label">Nascimento</span>
                         <span class="dp-id-value">
-                          {{ formatarDataCurta(pessoaCompleta?.birth_date) }}@if (calcularIdade(pessoaCompleta?.birth_date)) { ({{ calcularIdade(pessoaCompleta?.birth_date) }} anos) }
+                          {{ formatarDataCurta(pessoaCompleta?.birth_date) }}
+                          @if (calcularIdade(pessoaCompleta?.birth_date)) {
+                            ({{ calcularIdade(pessoaCompleta?.birth_date) }} anos)
+                          }
                         </span>
                       </div>
                     }
@@ -698,8 +710,7 @@
               <section class="dp-auth">
                 <div class="dp-auth-text">
                   <p class="dp-auth-legal">
-                    Documento assinado eletronicamente nos termos da MP nº 2.200-2/2001 e da Lei nº 14.063/2020.
-                    A autenticidade pode ser verificada utilizando o código abaixo no portal da clínica.
+                    Documento assinado eletronicamente nos termos da MP nº 2.200-2/2001 e da Lei nº 14.063/2020. A autenticidade pode ser verificada utilizando o código abaixo no portal da clínica.
                   </p>
                   @if (docCode) {
                     <div class="dp-auth-row">
@@ -729,18 +740,13 @@
               </section>
 
               <footer class="dp-footer">
-                <div class="dp-footer__left">
-                  {{ clinicaNome() }} · Protocolo {{ protocolo.protocol_number || protocolo.id }}
-                </div>
-                <div class="dp-footer__right">
-                  Documento gerado em {{ dataDocumentoPorExtenso() }}
-                </div>
+                <div class="dp-footer__left">{{ clinicaNome() }} · Protocolo {{ protocolo.protocol_number || protocolo.id }}</div>
+                <div class="dp-footer__right">Documento gerado em {{ dataDocumentoPorExtenso() }}</div>
               </footer>
             </div>
           }
         </div>
       </div>
-
     </div>
   }
 </div>

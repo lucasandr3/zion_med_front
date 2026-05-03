@@ -3,7 +3,7 @@
 /* Usa exatamente a paleta do formulário público para manter identidade visual */
 :host {
   display: block;
-  font-family: 'DM Sans', system-ui, sans-serif;
+  font-family: 'Inter', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   --fp-cream-50: #fafafa;
   --fp-cream-100: #f2f2f0;

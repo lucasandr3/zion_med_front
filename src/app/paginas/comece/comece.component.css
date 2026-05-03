@@ -16,7 +16,7 @@
 
 /* Verde marca — alinhado ao tema padrão (.theme-ocean-blue) */
 .comece-page {
-  --sans: 'Geist', system-ui, sans-serif;
+  --sans: 'Inter', system-ui, sans-serif;
   font-family: var(--sans);
   background: var(--bg);
   color: var(--text);
