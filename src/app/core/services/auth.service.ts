@@ -26,6 +26,9 @@ export interface User {
   /** Preferências de UI persistidas no servidor (`null` = ainda não salvo). */
   ui_theme?: string | null;
   ui_dark_mode?: boolean | null;
+  /** URL assinada temporária (API) quando existe assinatura guardada no servidor. */
+  electronic_signature_url?: string | null;
+  electronic_signature_updated_at?: string | null;
   created_at?: string;
   updated_at?: string;
 }

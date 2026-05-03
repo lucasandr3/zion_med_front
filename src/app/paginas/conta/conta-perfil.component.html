@@ -1,0 +1,163 @@
+<div class="relative min-h-[280px] w-full">
+  @if (carregandoMe && !usuarioAtual()) {
+    <p class="text-sm mb-4" style="color: var(--c-muted)">Carregando…</p>
+  }
+
+  @if (usuarioAtual(); as u) {
+    <div class="zm-content-enter w-full">
+      <!-- Dados básicos -->
+      <div class="rounded-xl overflow-hidden mb-5" style="border: 1px solid var(--c-border); background: var(--c-surface)">
+        <div class="flex items-center gap-2.5 px-5 py-4" style="border-bottom: 1px solid var(--c-border)">
+          <div class="w-7 h-7 rounded-lg flex shrink-0 items-center justify-center" style="background: color-mix(in srgb, var(--c-primary) 12%, transparent)">
+            <span class="material-symbols-outlined text-sm" style="color: var(--c-primary)">badge</span>
+          </div>
+          <p class="text-xs font-bold uppercase tracking-wider m-0" style="color: var(--c-muted)">Dados básicos</p>
+        </div>
+        <div class="p-5">
+          <dl class="perfil-dados m-0">
+            <div>
+              <dt>Nome</dt>
+              <dd>{{ u.name }}</dd>
+            </div>
+            <div>
+              <dt>E-mail</dt>
+              <dd>{{ u.email }}</dd>
+            </div>
+            <div>
+              <dt>Papel</dt>
+              <dd>{{ u.role_label || u.role }}</dd>
+            </div>
+          </dl>
+          <p class="perfil-hint m-0 mt-4">
+            Para alterar nome ou e-mail, um administrador da empresa pode atualizar seu usuário em
+            @if (podeGerenciarUsuarios()) {
+              <a routerLink="/usuarios" class="perfil-link">Usuários</a>.
+            } @else {
+              <span>Usuários</span>.
+            }
+          </p>
+        </div>
+      </div>
+
+      <!-- Assinatura -->
+      <div class="rounded-xl overflow-hidden mb-5" style="border: 1px solid var(--c-border); background: var(--c-surface)">
+        <div class="flex items-center gap-2.5 px-5 py-4" style="border-bottom: 1px solid var(--c-border)">
+          <div class="w-7 h-7 rounded-lg flex shrink-0 items-center justify-center" style="background: color-mix(in srgb, var(--c-primary) 12%, transparent)">
+            <span class="material-symbols-outlined text-sm" style="color: var(--c-primary)">draw</span>
+          </div>
+          <p class="text-xs font-bold uppercase tracking-wider m-0" style="color: var(--c-muted)">Assinatura eletrônica</p>
+        </div>
+        <div class="p-5">
+          <p class="text-sm m-0 mb-5 leading-relaxed" style="color: var(--c-muted)">
+            Crie sua assinatura uma vez; o sistema aplicará automaticamente em protocolos ao aprovar, quando houver espaço de assinatura do profissional no modelo.
+          </p>
+
+          @if (previewUrlServidor()) {
+            <div class="mb-5">
+              <span class="perfil-label">Assinatura salva</span>
+              <div class="perfil-preview-box">
+                <img [src]="previewUrlServidor()!" alt="Pré-visualização da assinatura salva no servidor" width="280" height="84" />
+              </div>
+            </div>
+          }
+
+          <div class="sig-tabs" role="tablist">
+            <button
+              type="button"
+              role="tab"
+              class="sig-tab"
+              [class.active]="modo === 'desenhar'"
+              [attr.aria-selected]="modo === 'desenhar'"
+              (click)="setModo('desenhar')"
+            >
+              Desenhar
+            </button>
+            <button
+              type="button"
+              role="tab"
+              class="sig-tab"
+              [class.active]="modo === 'modelo'"
+              [attr.aria-selected]="modo === 'modelo'"
+              (click)="setModo('modelo')"
+            >
+              Modelo com meu nome
+            </button>
+          </div>
+
+          @if (modo === 'desenhar') {
+            <div role="tabpanel" class="sig-panel">
+              <p class="text-sm m-0 mb-3" style="color: var(--c-muted)">Use o mouse ou o dedo (celular) no quadro branco.</p>
+              <canvas
+                #canvasDesenho
+                width="400"
+                height="120"
+                class="sig-canvas"
+                role="img"
+                aria-label="Área para desenhar sua assinatura"
+                (mousedown)="startDesenho($event)"
+                (mousemove)="moveDesenho($event)"
+                (mouseup)="endDesenho()"
+                (mouseleave)="endDesenho()"
+                (touchstart)="startDesenho($event)"
+                (touchmove)="moveDesenho($event); $event.preventDefault()"
+                (touchend)="endDesenho()"
+              ></canvas>
+              <div class="sig-actions">
+                <button type="button" class="btn-ghost btn-sm" (click)="limparDesenho()" [disabled]="salvando">Limpar</button>
+                <button type="button" class="btn-primary btn-sm" (click)="salvarDesenho()" [disabled]="salvando">
+                  {{ salvando ? 'Salvando…' : 'Salvar assinatura' }}
+                </button>
+              </div>
+            </div>
+          }
+
+          @if (modo === 'modelo') {
+            <div role="tabpanel" class="sig-panel">
+              <label class="perfil-field block mb-4">
+                <span class="perfil-label">Nome na assinatura</span>
+                <input
+                  type="text"
+                  [(ngModel)]="nomeTextoAssinatura"
+                  (ngModelChange)="nomeAssinaturaChange()"
+                  name="nomeTextoAssinatura"
+                  class="perfil-input w-full max-w-md"
+                  [attr.placeholder]="'Ex.: ' + nomeExibicao()"
+                  autocomplete="name"
+                  maxlength="120"
+                />
+              </label>
+              <label class="perfil-field block mb-4">
+                <span class="perfil-label">Estilo da assinatura</span>
+                <select [(ngModel)]="fonteSelecionadaId" (change)="onFonteChange()" class="perfil-select w-full max-w-md" name="fonteAssinatura">
+                  <option [value]="fonteOpcaoPlaceholder" disabled>Escolha o tipo de assinatura</option>
+                  @for (f of fontes; track f.id) {
+                    <option [value]="f.id">{{ f.label }}</option>
+                  }
+                </select>
+              </label>
+              <canvas
+                #canvasModelo
+                width="400"
+                height="120"
+                class="sig-canvas"
+                role="img"
+                aria-label="Pré-visualização da assinatura tipográfica"
+              ></canvas>
+              <div class="sig-actions">
+                <button type="button" class="btn-primary btn-sm" (click)="salvarModelo()" [disabled]="salvando">
+                  {{ salvando ? 'Salvando…' : 'Salvar assinatura' }}
+                </button>
+              </div>
+            </div>
+          }
+
+          <div class="sig-footer-actions">
+            <button type="button" class="btn-text-danger text-left" (click)="removerDoServidor()" [disabled]="salvando">
+              Remover assinatura do servidor
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>

@@ -32,6 +32,11 @@ export const routes: Routes = [
         loadComponent: () => import('./paginas/billing/billing.component').then(m => m.BillingComponent),
         data: { titulo: 'Assinatura', permission: 'billing.manage' },
       },
+      {
+        path: 'conta/perfil',
+        loadComponent: () => import('./paginas/conta/conta-perfil.component').then((m) => m.ContaPerfilComponent),
+        data: { titulo: 'Meu perfil' },
+      },
       { path: 'links-publicos', canActivate: [permissionGuard], loadComponent: () => import('./paginas/links-publicos/links-publicos.component').then(m => m.LinksPublicosComponent), data: { titulo: 'Links para enviar', permissionAny: ['templates.manage', 'submissions.view'] } },
       { path: 'envios', canActivate: [permissionGuard], loadComponent: () => import('./paginas/envios/envios.component').then(m => m.EnviosComponent), data: { titulo: 'Envios de documento', permissionAny: ['templates.manage', 'submissions.view'] } },
       { path: 'protocolos', canActivate: [permissionGuard], loadComponent: () => import('./paginas/protocolos/protocolos-listagem.component').then(m => m.ProtocolosListagemComponent), data: { titulo: 'Protocolos', permission: 'submissions.view' } },

@@ -121,6 +121,10 @@
               Trocar empresa
             </a>
           }
+          <a routerLink="/conta/perfil" (click)="fecharMenuUsuario()" class="flex items-center gap-2 px-3 py-2 text-sm hover:bg-[var(--c-soft)]" style="color: var(--c-text); text-decoration: none" [appTooltip]="tooltipQuandoColapsada('Meu perfil')">
+            <span class="material-symbols-outlined" style="font-size: 16px">person</span>
+            Meu perfil
+          </a>
           @if (ehAdminPlataforma) {
             <a routerLink="/plataforma" (click)="fecharMenuUsuario()" class="flex items-center gap-2 px-3 py-2 text-sm hover:bg-[var(--c-soft)]" style="color: var(--c-text); text-decoration: none" [appTooltip]="tooltipQuandoColapsada('Admin da plataforma')">
               <span class="material-symbols-outlined" style="font-size: 16px">admin_panel_settings</span>

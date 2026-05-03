@@ -90,6 +90,10 @@
 
       @if (menuUsuarioAberto) {
         <div class="user-dropdown absolute left-0 right-0 bottom-full mb-1 py-1 rounded-lg shadow-lg z-[100]" style="background: var(--c-elevated); border: 1px solid var(--c-border); min-width: 200px; box-shadow: 0 8px 32px rgba(0,0,0,0.22)">
+          <a routerLink="/conta/perfil" (click)="fecharMenuUsuario()" class="flex items-center gap-2 px-3 py-2 text-sm hover:bg-[var(--c-soft)]" style="color: var(--c-text); text-decoration: none" [appTooltip]="tooltipQuandoColapsada('Meu perfil')">
+            <span class="material-symbols-outlined" style="font-size: 16px">person</span>
+            Meu perfil
+          </a>
           <button type="button" (click)="sair()" class="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-[var(--c-soft)] text-left border-0 bg-transparent cursor-pointer" style="color: var(--c-text)" [appTooltip]="tooltipQuandoColapsada('Sair')">
             <span class="material-symbols-outlined" style="font-size: 16px">logout</span>
             Sair
