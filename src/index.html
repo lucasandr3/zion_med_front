@@ -75,6 +75,9 @@
         document.body.classList.add('theme-' + theme);
         if (localStorage.getItem('gestgo_dark_mode') === '1') document.body.classList.add('dark');
         if (localStorage.getItem('gestgo_sidebar_collapsed') === '1') document.body.classList.add('sidebar-collapsed');
+        var shell = localStorage.getItem('gestgo_shell_preset') || 'default';
+        if (shell === 'tinted') document.body.classList.add('shell-preset-tinted');
+        else if (shell === 'sidebar_dark') document.body.classList.add('shell-preset-sidebar-dark');
       } catch(e) {}
     })();
   </script>

@@ -78,6 +78,10 @@
 
     --sidebar-w:  15rem;
 
+    /* Shell — topo fixo + barra lateral (presets via body.shell-preset-*) */
+    --shell-header-bg: var(--c-surface);
+    --shell-sidebar-bg: var(--c-surface);
+
     /* Semânticas (estado / feedback) — independentes do tema de marca */
     --c-success: #15803d;
     --c-success-soft: color-mix(in srgb, #15803d 14%, transparent);
@@ -129,6 +133,11 @@
     --tracking-wide: 0.06em;
 }
 
+/* "Topo e marca" (shell-preset-tinted): cor primária só no header e na faixa do logo; sidebar abaixo segue superfície normal */
+body.shell-preset-tinted {
+    --shell-header-bg: var(--c-primary);
+}
+
 /* Temas claro — primary/accent com contraste WCAG AA mínimo 4.5:1 em fundo branco */
 /* Canônico: gestgo-blue (zion-blue mantido como alias legado — mesmas variáveis) */
 .theme-gestgo-blue,
@@ -159,6 +168,9 @@
     --c-text:     #e8e8f0;
     --c-muted:    #7c7c96;
     --c-border:   #1e1e2a;
+
+    --shell-header-bg: var(--c-surface);
+    --shell-sidebar-bg: var(--c-surface);
 
     --c-btn-default-bg:    #1e2530;
     --c-btn-default-text: #94a3b8;
@@ -896,7 +908,7 @@ table.data-table {
 #sidebar,
 .sidebar {
     width: var(--sidebar-w);
-    background-color: var(--c-surface);
+    background-color: var(--shell-sidebar-bg);
     border-right: 1px solid var(--c-border);
     transition: width 0.25s cubic-bezier(0.4,0,0.2,1),
                 transform 0.3s ease;
@@ -1046,8 +1058,137 @@ body.sidebar-collapsed .nav-link.ativo {
    ══════════════════════════════════════════════════════════════════════════ */
 #top-header,
 .top-header {
-    background-color: var(--c-surface);
+    background-color: var(--shell-header-bg);
     border-bottom: 1px solid var(--c-border);
+}
+
+body.shell-preset-tinted #top-header,
+body.shell-preset-tinted .top-header {
+    background-color: var(--c-primary);
+    --c-text: #ffffff;
+    --c-muted: rgba(255, 255, 255, 0.82);
+    --c-border: rgba(255, 255, 255, 0.22);
+    --c-soft: rgba(255, 255, 255, 0.14);
+}
+
+/* Linha inferior igual ao header em modo padrão (não misturar com a cor primária) */
+body.shell-preset-tinted:not(.dark) #top-header,
+body.shell-preset-tinted:not(.dark) .top-header {
+    border-bottom: 1px solid var(--color-border);
+}
+
+body.dark.shell-preset-tinted #top-header,
+body.dark.shell-preset-tinted .top-header {
+    border-bottom: 1px solid #1e1e2a;
+}
+
+body.shell-preset-tinted #top-header .app-breadcrumbs__link {
+    color: rgba(255, 255, 255, 0.72);
+}
+
+body.shell-preset-tinted #top-header .app-breadcrumbs__link:hover {
+    color: #ffffff;
+}
+
+body.shell-preset-tinted #top-header .app-breadcrumbs__current {
+    color: rgba(255, 255, 255, 0.95);
+}
+
+body.shell-preset-tinted #top-header .app-breadcrumbs__sep {
+    color: rgba(255, 255, 255, 0.35);
+}
+
+body.shell-preset-tinted #sidebar > .sidebar-brand-strip,
+body.shell-preset-tinted .sidebar > .sidebar-brand-strip {
+    background-color: var(--c-primary);
+    border-bottom-color: rgba(255, 255, 255, 0.24) !important;
+    --c-text: #ffffff;
+    --c-muted: rgba(255, 255, 255, 0.88);
+}
+
+body.shell-preset-tinted .sidebar-brand-strip .sidebar-logo-chip {
+    background: rgba(255, 255, 255, 0.94) !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+body.shell-preset-tinted #top-header .header-notify-dot {
+    border-color: rgba(255, 255, 255, 0.92) !important;
+}
+
+/*
+  Dropdown da empresa no header: com «Topo e marca», #top-header define --c-text branco.
+  O painel tem fundo claro — precisa reset global (fora do encapsulamento do componente).
+*/
+body.shell-preset-tinted:not(.dark) #top-header .header-clinic-dropdown {
+    --c-text: #0d1410;
+    --c-muted: #3d4d46;
+    --c-border: #dde8e3;
+    --c-soft: #e6f5ef;
+    --c-elevated: #ffffff;
+    color: #0d1410;
+    background: #ffffff;
+    border-color: #dde8e3;
+}
+
+body.shell-preset-tinted:not(.dark) #top-header .header-clinic-dropdown .header-clinic-dropdown-item {
+    color: #0d1410;
+}
+
+body.shell-preset-tinted:not(.dark) #top-header .header-clinic-dropdown .header-clinic-dropdown-item .material-symbols-outlined {
+    color: #3d4d46;
+}
+
+body.dark.shell-preset-tinted #top-header .header-clinic-dropdown {
+    --c-text: #e8e8f0;
+    --c-muted: #7c7c96;
+    --c-border: #1e1e2a;
+    --c-soft: #0d0d14;
+    --c-elevated: #18181f;
+    color: #e8e8f0;
+    background: #18181f;
+    border-color: #1e1e2a;
+}
+
+body.dark.shell-preset-tinted #top-header .header-clinic-dropdown .header-clinic-dropdown-item {
+    color: #e8e8f0;
+}
+
+body.dark.shell-preset-tinted #top-header .header-clinic-dropdown .header-clinic-dropdown-item .material-symbols-outlined {
+    color: #7c7c96;
+}
+
+/* Sidebar escura (modo claro): rail com tokens locais na barra */
+body.shell-preset-sidebar-dark:not(.dark) #sidebar,
+body.shell-preset-sidebar-dark:not(.dark) .sidebar {
+    --shell-sidebar-bg: #0f172a;
+    background-color: var(--shell-sidebar-bg);
+    border-right-color: rgba(148, 163, 184, 0.18);
+    --c-text: #f1f5f9;
+    --c-muted: #94a3b8;
+    --c-border: rgba(148, 163, 184, 0.22);
+    --c-soft: rgba(255, 255, 255, 0.07);
+    --c-elevated: #1e293b;
+}
+
+body.shell-preset-sidebar-dark:not(.dark) #sidebar .nav-link.active,
+body.shell-preset-sidebar-dark:not(.dark) #sidebar .nav-link.ativo,
+body.shell-preset-sidebar-dark:not(.dark) .sidebar .nav-link.active,
+body.shell-preset-sidebar-dark:not(.dark) .sidebar .nav-link.ativo {
+    background-color: color-mix(in srgb, var(--c-primary) 22%, rgba(255, 255, 255, 0.04));
+    color: #f8fafc;
+    box-shadow: inset 2px 0 0 var(--c-primary);
+}
+
+body.shell-preset-sidebar-dark:not(.dark) #sidebar .nav-link.active .material-symbols-outlined,
+body.shell-preset-sidebar-dark:not(.dark) .sidebar .nav-link.active .material-symbols-outlined {
+    color: var(--c-primary);
+}
+
+/* Modo escuro + menu escuro: separa levemente a rail do canvas */
+body.dark.shell-preset-sidebar-dark #sidebar,
+body.dark.shell-preset-sidebar-dark .sidebar {
+    --shell-sidebar-bg: color-mix(in srgb, var(--c-bg) 42%, var(--c-surface));
+    background-color: var(--shell-sidebar-bg);
 }
 
 /* ══════════════════════════════════════════════════════════════════════════

@@ -5,10 +5,10 @@
 <aside id="sidebar"
        class="sidebar fixed inset-y-0 left-0 z-30 flex flex-col lg:translate-x-0"
        [class.-translate-x-full]="!sidebarOpenMobile">
-  <div class="h-14 flex items-center px-3.5 shrink-0" style="border-bottom: 1px solid var(--c-border)">
+  <div class="sidebar-brand-strip h-14 flex items-center px-3.5 shrink-0" style="border-bottom: 1px solid var(--c-border)">
     <div class="sidebar-brand flex items-center gap-2.5 min-w-0 w-full">
-      <div class="shrink-0 w-7 h-7 rounded-lg flex items-center justify-center" style="background: var(--c-primary)">
-        <img src="assets/logo/logo.png" alt="Gestgo" class="w-full h-full rounded-lg object-contain" style="padding: 2px" onerror="this.style.display='none'">
+      <div class="sidebar-logo-chip shrink-0 w-7 h-7 rounded-lg flex items-center justify-center" style="background: var(--c-primary)">
+        <img [src]="sidebarLogoSrc" alt="Gestgo" class="w-full h-full rounded-lg object-contain" style="padding: 2px" onerror="this.style.display='none'">
       </div>
       <span class="sidebar-label font-semibold text-sm truncate" style="color: var(--c-text); font-family: var(--font-heading)">Gestgo — Plataforma</span>
     </div>

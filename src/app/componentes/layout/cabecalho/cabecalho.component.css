@@ -1,6 +1,6 @@
 /* Estilos do cabeçalho (variáveis globais em styles.css) */
 
-/* Quando o drawer de tema está aberto, header (e overlay/drawer) ficam acima da sidebar */
+/* Com drawer aberto, o shell do cabeçalho (wrap do header) sobe acima da sidebar */
 .theme-drawer-open {
   z-index: 300;
 }
@@ -89,6 +89,34 @@
 
 .theme-drawer-section-label--mt {
   margin-top: 1.25rem;
+}
+
+.theme-drawer-shell-hint {
+  margin: 0 0 0.625rem;
+  font-size: 0.72rem;
+  line-height: 1.35;
+  color: var(--c-muted);
+}
+
+.theme-drawer-cor-hint {
+  margin-bottom: 0.5rem;
+}
+
+.theme-drawer-shell-row {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.theme-drawer-shell-btn {
+  min-height: 4.25rem;
+  padding-left: 0.2rem;
+  padding-right: 0.2rem;
+}
+
+.theme-drawer-shell-footnote {
+  margin-top: 0.35rem;
+  font-size: 0.7rem;
+  line-height: 1.35;
+  color: var(--c-muted);
 }
 
 .theme-drawer-mode-row {

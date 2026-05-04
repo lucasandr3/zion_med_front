@@ -1,7 +1,20 @@
-import { Component, Input, OnInit, OnDestroy, inject, HostListener, ViewChild, ElementRef, PLATFORM_ID } from '@angular/core';
+import {
+  Component,
+  Input,
+  OnInit,
+  OnDestroy,
+  inject,
+  HostListener,
+  ViewChild,
+  ElementRef,
+  PLATFORM_ID,
+  NgZone,
+} from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { Subscription } from 'rxjs';
 import { AuthService } from '../../../core/services/auth.service';
+import { resolveSidebarLogoSrc } from '../../../core/utils/sidebar-logo.util';
 import { SidebarMobileService } from '../../../core/services/sidebar-mobile.service';
 import { TooltipDirective } from '../../../core/directives/tooltip.directive';
 
@@ -31,6 +44,9 @@ export class BarraLateralComponent implements OnInit, OnDestroy {
   /** Links públicos / envios: templates ou ao menos ver submissões. */
   podeAcessarLinksEEnvios = false;
 
+  /** Com «Topo e marca», variante do logo em `assets/logo` conforme o tema. */
+  sidebarLogoSrc = '/assets/logo/logo.png';
+
   @ViewChild('userMenuContainer') userMenuContainer?: ElementRef<HTMLElement>;
 
   private auth = inject(AuthService);
@@ -40,7 +56,9 @@ export class BarraLateralComponent implements OnInit, OnDestroy {
   sidebarOpenMobile = false;
   sidebarColapsada = false;
   private sidebarObserver: MutationObserver | null = null;
+  private appearanceSub?: Subscription;
   private platformId = inject(PLATFORM_ID);
+  private ngZone = inject(NgZone);
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(e: Event): void {
@@ -53,6 +71,9 @@ export class BarraLateralComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.atualizarDados();
     this.sincronizarEstadoSidebar();
+    this.appearanceSub = this.auth.appearanceApplied$.subscribe(() => {
+      this.ngZone.run(() => this.refreshSidebarLogo());
+    });
     this.sidebarMobile.getOpen().subscribe((open) => {
       this.sidebarOpenMobile = open;
       // Igual ao backend: bloquear scroll do body quando sidebar aberta no mobile
@@ -64,6 +85,7 @@ export class BarraLateralComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.sidebarObserver?.disconnect();
+    this.appearanceSub?.unsubscribe();
   }
 
   private atualizarDados(): void {
@@ -116,11 +138,19 @@ export class BarraLateralComponent implements OnInit, OnDestroy {
     return this.sidebarColapsada ? texto : '';
   }
 
+  private refreshSidebarLogo(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+    this.sidebarLogoSrc = resolveSidebarLogoSrc();
+  }
+
   private sincronizarEstadoSidebar(): void {
     if (!isPlatformBrowser(this.platformId) || typeof document === 'undefined') return;
 
-    const atualizar = () => {
-      this.sidebarColapsada = document.body.classList.contains('sidebar-collapsed');
+    const atualizar = (): void => {
+      this.ngZone.run(() => {
+        this.sidebarColapsada = document.body.classList.contains('sidebar-collapsed');
+        this.refreshSidebarLogo();
+      });
     };
 
     atualizar();

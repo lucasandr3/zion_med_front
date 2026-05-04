@@ -14,7 +14,11 @@ export class UserAppearanceService {
   private auth = inject(AuthService);
 
   /** PATCH parcial; atualiza sessão local e DOM se a API devolver o usuário. */
-  patchAppearance(body: { ui_theme?: string | null; ui_dark_mode?: boolean | null }): Observable<AppearancePatchResponse> {
+  patchAppearance(body: {
+    ui_theme?: string | null;
+    ui_dark_mode?: boolean | null;
+    ui_shell_preset?: string | null;
+  }): Observable<AppearancePatchResponse> {
     return this.api.patch<AppearancePatchResponse>('/me/appearance', body).pipe(
       tap((res) => {
         const u = res.data?.user;

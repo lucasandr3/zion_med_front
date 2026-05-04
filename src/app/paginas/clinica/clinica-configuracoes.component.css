@@ -276,6 +276,10 @@
   color: #fff;
 }
 
+#panel-visual .mode-card.selected .material-symbols-outlined {
+  color: #fff;
+}
+
 #panel-visual .mode-card .material-symbols-outlined {
   font-size: 20px;
 }
@@ -283,6 +287,22 @@
 #panel-visual .mode-card small {
   font-size: 11px;
   font-weight: 500;
+  color: var(--c-muted);
+}
+
+#panel-visual .shell-preset-grid {
+  margin-top: 10px;
+}
+
+#panel-visual .shell-preset-card {
+  min-height: 72px;
+  font-size: 12px;
+}
+
+#panel-visual .shell-preset-footnote {
+  margin: 10px 0 0;
+  font-size: 12px;
+  line-height: 1.45;
   color: var(--c-muted);
 }
 

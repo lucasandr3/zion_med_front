@@ -326,7 +326,10 @@
             <div class="section-body">
               <div class="visual-subtitle">
                 <div class="vtitle">Cor do Tema:</div>
-                <div class="vsub">Escolha a cor principal do tema da extensão</div>
+                <div class="vsub">
+                  Define botões, links e o item ativo do menu. O fundo branco do topo e da lateral continua neutro, salvo se você usar
+                  <strong>Barra lateral e topo</strong> abaixo. Salve as configurações da empresa para gravar esta cor para todos da empresa.
+                </div>
               </div>
               <div class="theme-grid palette-grid">
                 @for (key of themeKeys; track key) {
@@ -355,6 +358,31 @@
                   <span>Automático</span>
                 </button>
               </div>
+
+              <div class="visual-subtitle mode-subtitle">
+                <div class="vtitle">Barra lateral e topo</div>
+                <div class="vsub">
+                  Preferência <strong>pessoal</strong> (salva na sua conta ao clicar). Use <strong>Topo e marca</strong> para pintar com a cor primária só o cabeçalho e a faixa do nome Gestgo,
+                  ou <strong>Menu escuro</strong> para contraste tipo painel no modo claro.
+                </div>
+              </div>
+              <div class="mode-grid shell-preset-grid">
+                @for (opt of shellPresetOptions; track opt.id) {
+                  <button
+                    type="button"
+                    class="mode-card shell-preset-card"
+                    [class.selected]="shellPresetAtual === opt.id"
+                    (click)="onShellPresetPainel(opt.id)"
+                    [attr.title]="opt.description"
+                    [attr.aria-pressed]="shellPresetAtual === opt.id"
+                    [attr.aria-label]="opt.label + ': ' + opt.description"
+                  >
+                    <span class="material-symbols-outlined">{{ opt.icon }}</span>
+                    <span>{{ opt.label }}</span>
+                  </button>
+                }
+              </div>
+              <p class="shell-preset-footnote">{{ shellPresetMeta?.description ?? '—' }}</p>
             </div>
           </div>
         </div>

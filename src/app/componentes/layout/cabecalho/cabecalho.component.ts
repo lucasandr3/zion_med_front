@@ -7,7 +7,15 @@ import { UserAppearanceService } from '../../../core/services/user-appearance.se
 import { SidebarMobileService } from '../../../core/services/sidebar-mobile.service';
 import { ClinicaService } from '../../../core/services/clinica.service';
 import { TooltipDirective } from '../../../core/directives/tooltip.directive';
-import { GESTGO_APPEARANCE_MODE_LS, normalizeThemeKey } from '../../../core/services/user-appearance.sync';
+import {
+  applyShellPresetToDom,
+  GESTGO_APPEARANCE_MODE_LS,
+  GESTGO_SHELL_PRESET_LS,
+  normalizeShellPreset,
+  normalizeThemeKey,
+  SHELL_PRESET_UI_OPTIONS,
+  type ShellPreset,
+} from '../../../core/services/user-appearance.sync';
 import { absoluteMediaUrl } from '../../../core/utils/absolute-media-url';
 
 export const TEMAS: { key: string; label: string; labelPt: string; color: string }[] = [
@@ -80,6 +88,10 @@ export class CabecalhoComponent implements OnInit, OnDestroy {
     return this.temas.find((t) => t.key === this.temaAtual);
   }
 
+  get shellPresetMeta(): (typeof SHELL_PRESET_UI_OPTIONS)[number] | undefined {
+    return this.shellPresetOptions.find((o) => o.id === this.shellPresetAtual);
+  }
+
   /** Ícone de notificações só para quem tem permissão no contexto atual (tenant ou plataforma). */
   get podeVerNotificacoesNoHeader(): boolean {
     return this.auth.hasPermission('notifications.access');
@@ -90,6 +102,8 @@ export class CabecalhoComponent implements OnInit, OnDestroy {
   }
   temaAtual = 'ocean-blue';
   modoEscuro = false;
+  shellPresetAtual: ShellPreset = 'default';
+  readonly shellPresetOptions = SHELL_PRESET_UI_OPTIONS;
   themeDrawerMode: 'light' | 'dark' | 'auto' = 'light';
   sidebarColapsada = false;
   menuTemaAberto = false;
@@ -100,6 +114,8 @@ export class CabecalhoComponent implements OnInit, OnDestroy {
   private _sysListener = () => this._applyAutoMode();
 
   @ViewChild('themePicker') themePickerRef?: ElementRef<HTMLElement>;
+  /** Painel do drawer de tema (fora do `#themePicker` no DOM — usar no click-outside). */
+  @ViewChild('themeDrawer') themeDrawerRef?: ElementRef<HTMLElement>;
   @ViewChild('clinicMenuContainer') clinicMenuContainer?: ElementRef<HTMLElement>;
 
   private auth = inject(AuthService);
@@ -114,7 +130,9 @@ export class CabecalhoComponent implements OnInit, OnDestroy {
 
     if (this.menuTemaAberto) {
       const themeEl = this.themePickerRef?.nativeElement;
-      if (!themeEl || !themeEl.contains(target)) {
+      const drawerEl = this.themeDrawerRef?.nativeElement;
+      const inside = (themeEl?.contains(target) ?? false) || (drawerEl?.contains(target) ?? false);
+      if (!inside) {
         this.fecharMenuTema();
       }
     }
@@ -184,7 +202,24 @@ export class CabecalhoComponent implements OnInit, OnDestroy {
         this.themeDrawerMode = this.modoEscuro ? 'dark' : 'light';
         this._removeSysListener();
       }
+      this.syncShellPresetFromBrowser();
     } catch {}
+  }
+
+  /** Alinha preset do shell com usuário logado ou localStorage. */
+  private syncShellPresetFromBrowser(): void {
+    const u = this.auth.getUser();
+    let preset: ShellPreset = 'default';
+    if (this.auth.isAuthenticated() && u && u.ui_shell_preset !== undefined) {
+      preset = normalizeShellPreset(u.ui_shell_preset);
+    } else {
+      try {
+        const ls = localStorage.getItem(GESTGO_SHELL_PRESET_LS);
+        if (ls) preset = normalizeShellPreset(ls);
+      } catch {}
+    }
+    this.shellPresetAtual = preset;
+    applyShellPresetToDom(preset);
   }
 
   aplicarModoTema(mode: 'light' | 'dark' | 'auto'): void {
@@ -283,6 +318,21 @@ export class CabecalhoComponent implements OnInit, OnDestroy {
     } catch {}
     if (this.auth.isAuthenticated()) {
       this.appearance.patchAppearance({ ui_theme: canonical }).subscribe({ error: () => {} });
+    }
+    this.auth.notifyAppearanceApplied();
+  }
+
+  aplicarShellPreset(preset: ShellPreset): void {
+    const canonical = normalizeShellPreset(preset);
+    this.shellPresetAtual = canonical;
+    applyShellPresetToDom(canonical);
+    this.auth.notifyAppearanceApplied();
+    if (this.auth.isAuthenticated()) {
+      this.appearance
+        .patchAppearance({
+          ui_shell_preset: canonical === 'default' ? null : canonical,
+        })
+        .subscribe({ error: () => {} });
     }
   }
 }

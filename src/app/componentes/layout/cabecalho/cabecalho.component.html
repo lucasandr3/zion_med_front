@@ -1,4 +1,5 @@
-<header id="top-header" class="top-header h-14 flex items-center justify-between px-3 lg:px-5 sticky top-0 z-10 shrink-0" [class.theme-drawer-open]="menuTemaAberto">
+<div class="cabecalho-shell sticky top-0 z-10 shrink-0 w-full" [class.theme-drawer-open]="menuTemaAberto">
+<header id="top-header" class="top-header h-14 flex items-center justify-between px-3 lg:px-5 shrink-0">
   <div class="flex items-center gap-3">
     @if (urlVoltar) {
       <a [routerLink]="urlVoltar" class="flex items-center justify-center w-8 h-8 rounded-lg transition-colors shrink-0 hover:bg-[var(--c-soft)]" style="color: var(--c-muted)" [attr.aria-label]="labelVoltar" [appTooltip]="labelVoltar">
@@ -37,83 +38,6 @@
       <button type="button" (click)="alternarMenuTema()" class="flex items-center justify-center w-8 h-8 rounded-md transition-colors hover:bg-[var(--c-soft)]" style="color: var(--c-muted); background: transparent" aria-label="Tema e aparência" appTooltip="Tema e aparência">
         <span class="material-symbols-outlined" style="font-size: 22px">palette</span>
       </button>
-      @if (menuTemaAberto) {
-        <!-- Overlay: fecha ao clicar fora (mobile e desktop) -->
-        <div class="theme-drawer-overlay fixed inset-0 z-[199] bg-black/40" (click)="fecharMenuTema()" aria-hidden="true"></div>
-        <!-- Drawer: tema + modo escuro (mesmo em mobile e desktop) -->
-        <div
-          id="theme-drawer"
-          class="theme-drawer-panel theme-drawer-shell fixed top-0 right-0 bottom-0 z-[200] flex flex-col overflow-y-auto"
-          (click)="$event.stopPropagation()"
-          role="dialog"
-          aria-labelledby="theme-drawer-title"
-        >
-          <div class="theme-drawer-header">
-            <h3 id="theme-drawer-title" class="theme-drawer-title">Tema e aparência</h3>
-            <button type="button" (click)="fecharMenuTema()" class="theme-drawer-close" aria-label="Fechar painel de tema" appTooltip="Fechar">
-              <span class="material-symbols-outlined" style="font-size: 20px">close</span>
-            </button>
-          </div>
-
-          <p class="theme-drawer-section-label">Modo</p>
-          <div class="theme-drawer-mode-row">
-            <button
-              type="button"
-              (click)="aplicarModoTema('light')"
-              class="theme-drawer-mode-btn"
-              [class.theme-drawer-mode-btn--active]="themeDrawerMode === 'light'"
-              [attr.aria-pressed]="themeDrawerMode === 'light'"
-            >
-              <span class="material-symbols-outlined theme-drawer-mode-icon">light_mode</span>
-              <span class="theme-drawer-mode-text">Claro</span>
-            </button>
-            <button
-              type="button"
-              (click)="aplicarModoTema('dark')"
-              class="theme-drawer-mode-btn"
-              [class.theme-drawer-mode-btn--active]="themeDrawerMode === 'dark'"
-              [attr.aria-pressed]="themeDrawerMode === 'dark'"
-            >
-              <span class="material-symbols-outlined theme-drawer-mode-icon">dark_mode</span>
-              <span class="theme-drawer-mode-text">Escuro</span>
-            </button>
-            <button
-              type="button"
-              (click)="aplicarModoTema('auto')"
-              class="theme-drawer-mode-btn"
-              [class.theme-drawer-mode-btn--active]="themeDrawerMode === 'auto'"
-              [attr.aria-pressed]="themeDrawerMode === 'auto'"
-            >
-              <span class="material-symbols-outlined theme-drawer-mode-icon">brightness_auto</span>
-              <span class="theme-drawer-mode-text">Automático</span>
-            </button>
-          </div>
-
-          <p class="theme-drawer-section-label theme-drawer-section-label--mt">Cor do tema</p>
-          <div class="theme-swatch-grid">
-            @for (t of temasOrdemGrade; track t.key) {
-              <button
-                type="button"
-                class="theme-swatch"
-                [class.theme-swatch--selected]="temaAtual === t.key"
-                (click)="aplicarTema(t.key)"
-                [attr.aria-label]="'Cor do tema: ' + t.labelPt"
-                [attr.aria-pressed]="temaAtual === t.key"
-              >
-                <span class="theme-swatch-inner" [style.background]="t.color">
-                  @if (temaAtual === t.key) {
-                    <span class="material-symbols-outlined theme-swatch-check" aria-hidden="true">check</span>
-                  }
-                </span>
-              </button>
-            }
-          </div>
-          <p class="theme-drawer-selected-label">
-            Selecionado: <strong>{{ temaAtualMeta?.labelPt ?? '—' }}</strong>
-          </p>
-
-        </div>
-      }
     </div>
 
     @if (podeVerNotificacoesNoHeader) {
@@ -121,7 +45,7 @@
       <a [routerLink]="notificacoesRouterLink" class="relative header-desktop-only-flex items-center justify-center w-8 h-8 rounded-md transition-colors no-underline hover:bg-[var(--c-soft)]" style="background: transparent; color: var(--c-muted)" aria-label="Notificações" appTooltip="Notificações">
         <span class="material-symbols-outlined" style="font-size: 19px">notifications</span>
         @if (notificacoesNaoLidas > 0) {
-          <span class="absolute -top-0.5 -right-0.5 min-w-4 h-4 rounded-full flex items-center justify-center px-1 text-[0.55rem] font-bold leading-none" style="background: var(--c-primary); color: #fff; border: 2px solid var(--c-bg)">
+          <span class="header-notify-dot absolute -top-0.5 -right-0.5 min-w-4 h-4 rounded-full flex items-center justify-center px-1 text-[0.55rem] font-bold leading-none" style="background: var(--c-primary); color: #fff; border: 2px solid var(--c-bg)">
             {{ notificacoesNaoLidas > 99 ? '99+' : notificacoesNaoLidas }}
           </span>
         }
@@ -186,3 +110,103 @@
     }
   </div>
 </header>
+
+@if (menuTemaAberto) {
+  <!-- Fora do #top-header: evita herdar tokens de texto do modo «Topo e marca» -->
+  <div class="theme-drawer-overlay fixed inset-0 z-[199] bg-black/40" (click)="fecharMenuTema()" aria-hidden="true"></div>
+  <div
+    #themeDrawer
+    id="theme-drawer"
+    class="theme-drawer-panel theme-drawer-shell fixed top-0 right-0 bottom-0 z-[200] flex flex-col overflow-y-auto"
+    (click)="$event.stopPropagation()"
+    role="dialog"
+    aria-labelledby="theme-drawer-title"
+  >
+    <div class="theme-drawer-header">
+      <h3 id="theme-drawer-title" class="theme-drawer-title">Tema e aparência</h3>
+      <button type="button" (click)="fecharMenuTema()" class="theme-drawer-close" aria-label="Fechar painel de tema" appTooltip="Fechar">
+        <span class="material-symbols-outlined" style="font-size: 20px">close</span>
+      </button>
+    </div>
+
+    <p class="theme-drawer-section-label">Modo</p>
+    <div class="theme-drawer-mode-row">
+      <button
+        type="button"
+        (click)="aplicarModoTema('light')"
+        class="theme-drawer-mode-btn"
+        [class.theme-drawer-mode-btn--active]="themeDrawerMode === 'light'"
+        [attr.aria-pressed]="themeDrawerMode === 'light'"
+      >
+        <span class="material-symbols-outlined theme-drawer-mode-icon">light_mode</span>
+        <span class="theme-drawer-mode-text">Claro</span>
+      </button>
+      <button
+        type="button"
+        (click)="aplicarModoTema('dark')"
+        class="theme-drawer-mode-btn"
+        [class.theme-drawer-mode-btn--active]="themeDrawerMode === 'dark'"
+        [attr.aria-pressed]="themeDrawerMode === 'dark'"
+      >
+        <span class="material-symbols-outlined theme-drawer-mode-icon">dark_mode</span>
+        <span class="theme-drawer-mode-text">Escuro</span>
+      </button>
+      <button
+        type="button"
+        (click)="aplicarModoTema('auto')"
+        class="theme-drawer-mode-btn"
+        [class.theme-drawer-mode-btn--active]="themeDrawerMode === 'auto'"
+        [attr.aria-pressed]="themeDrawerMode === 'auto'"
+      >
+        <span class="material-symbols-outlined theme-drawer-mode-icon">brightness_auto</span>
+        <span class="theme-drawer-mode-text">Automático</span>
+      </button>
+    </div>
+
+    <p class="theme-drawer-section-label theme-drawer-section-label--mt">Barra lateral e topo</p>
+    <p class="theme-drawer-shell-hint"><strong>Topo e marca</strong> aplica a cor primária só no cabeçalho e na faixa do Gestgo; <strong>Menu escuro</strong> escurece a lateral inteira.</p>
+    <div class="theme-drawer-mode-row theme-drawer-shell-row">
+      @for (opt of shellPresetOptions; track opt.id) {
+        <button
+          type="button"
+          (click)="aplicarShellPreset(opt.id)"
+          class="theme-drawer-mode-btn theme-drawer-shell-btn"
+          [class.theme-drawer-mode-btn--active]="shellPresetAtual === opt.id"
+          [attr.aria-pressed]="shellPresetAtual === opt.id"
+          [attr.title]="opt.description"
+        >
+          <span class="material-symbols-outlined theme-drawer-mode-icon">{{ opt.icon }}</span>
+          <span class="theme-drawer-mode-text">{{ opt.label }}</span>
+        </button>
+      }
+    </div>
+    <p class="theme-drawer-selected-label theme-drawer-shell-footnote">
+      {{ shellPresetMeta?.description ?? '—' }}
+    </p>
+
+    <p class="theme-drawer-section-label theme-drawer-section-label--mt">Cor do tema</p>
+    <p class="theme-drawer-shell-hint theme-drawer-cor-hint">Afeta botões, links e item ativo. O fundo do topo e do menu é controlado por <strong>Barra lateral e topo</strong> acima.</p>
+    <div class="theme-swatch-grid">
+      @for (t of temasOrdemGrade; track t.key) {
+        <button
+          type="button"
+          class="theme-swatch"
+          [class.theme-swatch--selected]="temaAtual === t.key"
+          (click)="aplicarTema(t.key)"
+          [attr.aria-label]="'Cor do tema: ' + t.labelPt"
+          [attr.aria-pressed]="temaAtual === t.key"
+        >
+          <span class="theme-swatch-inner" [style.background]="t.color">
+            @if (temaAtual === t.key) {
+              <span class="material-symbols-outlined theme-swatch-check" aria-hidden="true">check</span>
+            }
+          </span>
+        </button>
+      }
+    </div>
+    <p class="theme-drawer-selected-label">
+      Selecionado: <strong>{{ temaAtualMeta?.labelPt ?? '—' }}</strong>
+    </p>
+  </div>
+}
+</div>

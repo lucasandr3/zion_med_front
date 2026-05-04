@@ -5,7 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FlatpickrDirective, provideFlatpickrDefaults } from 'angularx-flatpickr';
 import { Portuguese } from 'flatpickr/dist/l10n/pt';
-import { finalize } from 'rxjs';
+import { finalize, Subscription } from 'rxjs';
 import { isBillingBlockedError } from '../../core/utils/billing-blocked-error';
 import {
   ClinicaService,
@@ -23,7 +23,17 @@ import { ZmSkeletonListComponent } from '../../shared/components/skeletons';
 import { ToastService } from '../../core/services/toast.service';
 import { WhatsappEvolutionService, WhatsappEvolutionState } from '../../core/services/whatsapp-evolution.service';
 import { ConfirmDialogService } from '../../core/services/confirm-dialog.service';
-import { applyUserAppearanceToBrowser, normalizeThemeKey } from '../../core/services/user-appearance.sync';
+import {
+  applyShellPresetToDom,
+  applyUserAppearanceToBrowser,
+  GESTGO_SHELL_PRESET_LS,
+  normalizeShellPreset,
+  normalizeThemeKey,
+  SHELL_PRESET_UI_OPTIONS,
+  type ShellPreset,
+} from '../../core/services/user-appearance.sync';
+import { AuthService } from '../../core/services/auth.service';
+import { UserAppearanceService } from '../../core/services/user-appearance.service';
 
 const DAYS: { id: string; label: string }[] = [
   { id: '1', label: 'Segunda' },
@@ -102,8 +112,12 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
   } = {};
   showSkeleton!: Signal<boolean>;
   themeMode: 'light' | 'dark' | 'auto' = 'light';
+  /** Preferência do usuário (header/sidebar); não faz parte do payload da empresa. */
+  shellPresetAtual: ShellPreset = 'default';
+  readonly shellPresetOptions = SHELL_PRESET_UI_OPTIONS;
   private _sysDarkMql: MediaQueryList | null = null;
   private _sysListener = () => this._applyAutoTheme();
+  private appearanceSub?: Subscription;
   listaPronta = false;
   salvando = false;
   erro = '';
@@ -161,6 +175,8 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
   enderecoSucesso = false;
 
   private route = inject(ActivatedRoute);
+  private auth = inject(AuthService);
+  private userAppearance = inject(UserAppearanceService);
   private clinicaService = inject(ClinicaService);
   private viaCepService = inject(ViaCepService);
   private loadingService = inject(LoadingService);
@@ -209,6 +225,10 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
     return Object.keys(this.availableThemes);
   }
 
+  get shellPresetMeta(): (typeof SHELL_PRESET_UI_OPTIONS)[number] | undefined {
+    return this.shellPresetOptions.find((o) => o.id === this.shellPresetAtual);
+  }
+
   getThemeLabel(themeKey: string): string {
     const canonicalThemeKey = normalizeThemeKey(themeKey);
     return TEMA_LABEL_PT_MAP[canonicalThemeKey] ?? this.availableThemes[themeKey]?.label ?? themeKey;
@@ -250,8 +270,38 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
     applyUserAppearanceToBrowser({ ui_dark_mode: value });
   }
 
+  /** Ajuste imediato do shell + PATCH em `/me/appearance` (preferência pessoal). */
+  onShellPresetPainel(preset: ShellPreset): void {
+    const canonical = normalizeShellPreset(preset);
+    this.shellPresetAtual = canonical;
+    applyShellPresetToDom(canonical);
+    if (this.auth.isAuthenticated()) {
+      this.userAppearance
+        .patchAppearance({
+          ui_shell_preset: canonical === 'default' ? null : canonical,
+        })
+        .subscribe({ error: () => {} });
+    }
+  }
+
+  private syncShellPresetFromUser(): void {
+    const u = this.auth.getUser();
+    let preset: ShellPreset = 'default';
+    if (this.auth.isAuthenticated() && u && u.ui_shell_preset !== undefined) {
+      preset = normalizeShellPreset(u.ui_shell_preset);
+    } else {
+      try {
+        const ls = localStorage.getItem(GESTGO_SHELL_PRESET_LS);
+        if (ls) preset = normalizeShellPreset(ls);
+      } catch {}
+    }
+    this.shellPresetAtual = preset;
+    applyShellPresetToDom(preset);
+  }
+
   ngOnDestroy(): void {
     this._removeSysListener();
+    this.appearanceSub?.unsubscribe();
   }
 
   private traduzirAcao(action?: string | null): string {
@@ -286,6 +336,7 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.appearanceSub = this.auth.appearanceApplied$.subscribe(() => this.syncShellPresetFromUser());
     const rawTab = this.route.snapshot.queryParamMap.get('tab');
     const tabQ = rawTab === 'assinatura' ? null : rawTab;
     const pageQuery = tabQ ? { tab: tabQ } : undefined;
@@ -299,6 +350,7 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
         if (tab === 'assinatura') tab = 'dados';
         this.activeTab = tab;
         this.patchFormFromClinic(data.organization ?? data.clinic!);
+        this.syncShellPresetFromUser();
       },
       error: () => {
         this.listaPronta = true;
