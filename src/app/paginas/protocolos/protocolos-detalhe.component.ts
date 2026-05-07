@@ -310,7 +310,7 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                font-family: Inter, Arial, sans-serif;
+                font-family: Roboto, Arial, sans-serif;
                 background: #f8fafc;
                 color: #0f172a;
               }
