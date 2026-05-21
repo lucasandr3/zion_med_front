@@ -1,12 +1,22 @@
+.permissao-form-label {
+  display: block;
+  margin-bottom: 0.375rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--foreground, var(--c-text));
+}
+
 .perm-group-title {
   font-size: 0.75rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: var(--c-muted);
-  margin-bottom: 0.5rem;
+  color: var(--muted-foreground, var(--c-muted));
+  margin-bottom: 0.75rem;
 }
 
-.perm-list input[type='checkbox'] {
-  margin-top: 0.2rem;
+.perm-list z-checkbox {
+  align-items: flex-start;
 }
+

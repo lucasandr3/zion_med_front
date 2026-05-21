@@ -1,12 +1,11 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { ToastContainerComponent } from './componentes/ui/toast-container/toast-container.component';
-import { ConfirmDialogComponent } from './componentes/ui/confirm-dialog/confirm-dialog.component';
 import { ZmTopProgressBarComponent } from './shared/components/top-progress-bar/top-progress-bar.component';
+import { ZardToastComponent } from './shared/components/toast';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, ZmTopProgressBarComponent, ToastContainerComponent, ConfirmDialogComponent],
+  imports: [RouterOutlet, ZmTopProgressBarComponent, ZardToastComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })

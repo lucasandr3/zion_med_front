@@ -1,14 +1,17 @@
 import { Component, Input } from '@angular/core';
 
+import { ZardSkeletonComponent } from '@/shared/components/skeleton';
+
 @Component({
   selector: 'zm-skeleton-card',
   standalone: true,
+  imports: [ZardSkeletonComponent],
   template: `
-    <div
-      class="zm-skeleton w-full rounded-xl"
+    <z-skeleton
+      class="w-full rounded-xl border border-border"
       [style.height.px]="height"
-      [style.border]="'1px solid var(--c-border)'"
-    ></div>
+      aria-hidden="true"
+    />
   `,
 })
 export class ZmSkeletonCardComponent {

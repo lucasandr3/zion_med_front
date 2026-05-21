@@ -5,9 +5,13 @@ import { FormsModule } from '@angular/forms';
 import { forkJoin } from 'rxjs';
 import { UsuariosService, Role, Usuario, UsuarioUpdatePayload } from '../../core/services/usuarios.service';
 import { LoadingService } from '../../shared/services/loading.service';
-import { ZmSkeletonCardComponent } from '../../shared/components/skeletons';
+import { ZmSkeletonUsuarioFormularioComponent } from '../../shared/components/skeletons';
 import { ToastService } from '../../core/services/toast.service';
 import { AuthService } from '../../core/services/auth.service';
+import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
+import { ZardCardComponent } from '@/shared/components/card/card.component';
+import { ZardButtonComponent } from '@/shared/components/button/button.component';
+import { ZardComboboxComponent, type ZardComboboxOption } from '@/shared/components/combobox';
 
 function mensagemErroApi(err: { error?: { message?: string; errors?: Record<string, string[]> } }): string {
   const e = err.error;
@@ -20,7 +24,16 @@ function mensagemErroApi(err: { error?: { message?: string; errors?: Record<stri
 @Component({
   selector: 'app-usuarios-formulario',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule, ZmSkeletonCardComponent],
+  imports: [
+    ...ZARD_FORM_CONTROL_IMPORTS,
+    CommonModule,
+    RouterLink,
+    FormsModule,
+    ZmSkeletonUsuarioFormularioComponent,
+    ZardCardComponent,
+    ZardButtonComponent,
+    ZardComboboxComponent,
+  ],
   templateUrl: './usuarios-formulario.component.html',
   styleUrl: './usuarios-formulario.component.css',
 })
@@ -53,6 +66,10 @@ export class UsuariosFormularioComponent implements OnInit {
 
   get podeConcederTrocaClinica(): boolean {
     return this.auth.getUser()?.role === 'owner';
+  }
+
+  get opcoesRoles(): ZardComboboxOption[] {
+    return this.rolesList.map((r) => ({ value: r.value, label: r.label }));
   }
 
   ngOnInit(): void {
@@ -94,6 +111,10 @@ export class UsuariosFormularioComponent implements OnInit {
         },
       });
     }
+  }
+
+  selecionarRole(value: string | null): void {
+    this.role = value ?? '';
   }
 
   private patchFromUser(u: Usuario): void {

@@ -4,12 +4,23 @@ import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../core/services/auth.service';
-import { TooltipDirective } from '../../core/directives/tooltip.directive';
+import { ZardButtonComponent } from '@/shared/components/button';
+import { ZardCheckboxComponent } from '@/shared/components/checkbox';
+import { ZardInputDirective } from '@/shared/components/input/input.directive';
+import { ZardTooltipImports } from '@/shared/components/tooltip';
 
 @Component({
   selector: 'app-pagina-login',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule, TooltipDirective],
+  imports: [
+    CommonModule,
+    RouterLink,
+    FormsModule,
+    ZardButtonComponent,
+    ZardInputDirective,
+    ZardCheckboxComponent,
+    ...ZardTooltipImports,
+  ],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css',
 })

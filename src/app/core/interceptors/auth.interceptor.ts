@@ -19,7 +19,10 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     const isMultipart = req.body instanceof FormData;
     const headers: Record<string, string> = {
       Authorization: `Bearer ${token}`,
-      Accept: 'application/json',
+      Accept:
+        req.responseType === 'blob'
+          ? 'application/pdf, application/zip, application/octet-stream, application/json'
+          : 'application/json',
     };
     if (organizationId != null && organizationId !== '') {
       headers['X-Organization-Id'] = String(organizationId);

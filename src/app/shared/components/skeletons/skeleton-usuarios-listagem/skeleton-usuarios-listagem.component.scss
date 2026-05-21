@@ -1,0 +1,24 @@
+.usuarios-listagem-skeleton {
+  width: 100%;
+}
+
+.usuarios-listagem-skeleton__actions-head {
+  width: 3rem;
+  margin-left: auto;
+}
+
+.usuarios-listagem-skeleton__email {
+  width: 10rem;
+  flex-shrink: 0;
+}
+
+@media (max-width: 767px) {
+  .usuarios-listagem-skeleton z-card {
+    overflow-x: auto;
+  }
+
+  .usuarios-listagem-skeleton__head,
+  .usuarios-listagem-skeleton__row {
+    min-width: 36rem;
+  }
+}

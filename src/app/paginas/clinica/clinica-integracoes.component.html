@@ -1,303 +1,319 @@
-<div class="relative min-h-[320px]">
+<div class="integracoes-page relative">
   @if (carregando) {
-    <zm-skeleton-list [rows]="6"></zm-skeleton-list>
-  }
-  @if (!carregando && erro) {
-    <p class="text-sm" style="color: var(--c-error, #dc2626)">{{ erro }}</p>
-  }
+    <div class="integracoes-shell">
+      <zm-skeleton-integracoes />
+    </div>
+  } @else if (erro) {
+    <p class="integracoes-alerts text-sm" style="color: var(--c-error, #dc2626)">{{ erro }}</p>
+  } @else if (state) {
+    <div class="integracoes-shell zm-content-enter">
+      <div class="clinica-config integracoes-config">
+        <z-tab-group
+          class="config-zard-tabs config-zard-tabs--layout config-zard-tabs--no-nav-rule w-full"
+          zNavWrapperClass="integracoes-tabs-bar border-b border-border bg-card"
+          zNavClass="!mb-0 !border-0 !px-0 pt-2"
+          [zShowArrow]="false"
+          (zTabChange)="onZardTabChange($event)"
+        >
+          <z-tab label="API e tokens" icon="key">
+            <div class="config-tab-panel">
+              <z-card
+                class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0"
+                style="border-color: color-mix(in srgb, var(--primary) 35%, var(--border))"
+              >
+                <div class="section-header">
+                  <div class="icon-wrap"><span class="material-symbols-outlined">menu_book</span></div>
+                  <span class="section-title">Documentação da API</span>
+                </div>
+                <div class="section-body">
+                  <p class="hint mb-4">Documentação interativa (Scramble) e especificação OpenAPI para integrar com outros sistemas.</p>
+                  <div class="flex flex-wrap gap-3">
+                    <a href="/docs/api" target="_blank" rel="noopener" z-button zSize="sm" class="inline-flex items-center gap-2 no-underline">
+                      <span class="material-symbols-outlined" style="font-size:16px">menu_book</span>
+                      Documentação interativa
+                    </a>
+                    <a href="/docs/api.json" target="_blank" rel="noopener" z-button zType="outline" zSize="sm" class="inline-flex items-center gap-2 no-underline">
+                      <span class="material-symbols-outlined" style="font-size:16px">download</span>
+                      OpenAPI (JSON)
+                    </a>
+                  </div>
+                </div>
+              </z-card>
 
-  @if (!carregando && !erro && state) {
-    <div class="clinica-config integracoes-page">
-      <!-- Abas -->
-      <div class="config-tabs" role="tablist">
-        <button type="button" class="config-tab" [class.active]="abaAtiva === 'api'" (click)="ativarAba('api')" role="tab">
-          <span class="material-symbols-outlined" style="font-size:1rem;vertical-align:middle;margin-right:4px">key</span>
-          API e tokens
-        </button>
-        <button type="button" class="config-tab" [class.active]="abaAtiva === 'webhooks'" (click)="ativarAba('webhooks')" role="tab">
-          <span class="material-symbols-outlined" style="font-size:1rem;vertical-align:middle;margin-right:4px">webhook</span>
-          Webhooks
-        </button>
-        <button type="button" class="config-tab" [class.active]="abaAtiva === 'entregas'" (click)="ativarAba('entregas')" role="tab">
-          <span class="material-symbols-outlined" style="font-size:1rem;vertical-align:middle;margin-right:4px">history</span>
-          Entregas
-        </button>
-        <button type="button" class="config-tab" [class.active]="abaAtiva === 'sistemas'" (click)="ativarAba('sistemas')" role="tab">
-          <span class="material-symbols-outlined" style="font-size:1rem;vertical-align:middle;margin-right:4px">computer</span>
-          Sistemas
-        </button>
-      </div>
+              @if (ultimoTokenGerado) {
+                <z-card
+                  class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0"
+                  style="border-color: color-mix(in srgb, var(--primary) 35%, var(--border))"
+                >
+                  <div class="section-header">
+                    <div class="icon-wrap"><span class="material-symbols-outlined">key</span></div>
+                    <span class="section-title">Token criado: {{ ultimoTokenGerado.name }}</span>
+                  </div>
+                  <div class="section-body">
+                    <p class="hint mb-3">Copie e guarde em local seguro. Este valor não será exibido novamente.</p>
+                    <code class="block break-all rounded-md bg-muted p-3 text-xs">{{ ultimoTokenGerado.token }}</code>
+                  </div>
+                </z-card>
+              }
 
-      <!-- Painel API e tokens -->
-      <div id="panel-api" class="config-panel" [class.active]="abaAtiva === 'api'" role="tabpanel">
-        <div class="section-card section-card-docs">
-          <div class="section-header">
-            <div class="icon-wrap">
-              <span class="material-symbols-outlined">menu_book</span>
-            </div>
-            <span class="section-title">Documentação da API</span>
-          </div>
-          <div class="section-body">
-            <p class="section-body-p">Documentação interativa (Scramble) e especificação OpenAPI para integrar com outros sistemas.</p>
-            <div class="section-actions">
-              <a href="/docs/api" target="_blank" rel="noopener" class="btn-primary btn-docs-primary">
-                <span class="material-symbols-outlined" style="font-size:16px">menu_book</span>
-                Documentação interativa
-              </a>
-              <a href="/docs/api.json" target="_blank" rel="noopener" class="btn-ghost btn-docs-secondary">
-                <span class="material-symbols-outlined" style="font-size:16px">download</span>
-                OpenAPI (JSON)
-              </a>
-            </div>
-          </div>
-        </div>
+              <z-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
+                <div class="section-header">
+                  <div class="icon-wrap"><span class="material-symbols-outlined">key</span></div>
+                  <span class="section-title">Token de API</span>
+                </div>
+                <div class="section-body">
+                  <p class="mb-2 text-sm">Gere um token para acessar a API REST (protocolos, templates).</p>
+                  <p class="hint mb-4">Use o header: <code class="mt-1 inline-block text-xs">Authorization: Bearer SEU_TOKEN</code></p>
+                  <form (ngSubmit)="criarToken()" class="max-w-2xl">
+                    <div class="field mb-0">
+                      <label for="novo-token-nome">Nome do token</label>
+                      <div class="flex flex-wrap items-center gap-3">
+                        <input
+                          id="novo-token-nome"
+                          type="text"
+                          z-input
+                          zSize="sm"
+                          class="min-w-[200px] flex-1"
+                          [(ngModel)]="novoTokenNome"
+                          name="novoTokenNome"
+                          placeholder="Ex: ERP, Sistema externo"
+                          required
+                        />
+                        <button type="submit" z-button zSize="sm" class="inline-flex shrink-0 items-center gap-2" [disabled]="tokenCriando">
+                          @if (tokenCriando) {
+                            <span class="btn-spinner" aria-hidden="true"></span>
+                          } @else {
+                            <span class="material-symbols-outlined" style="font-size:16px">add</span>
+                          }
+                          {{ tokenCriando ? 'Criando…' : 'Criar token' }}
+                        </button>
+                      </div>
+                    </div>
+                  </form>
 
-        @if (ultimoTokenGerado) {
-          <div class="section-card section-card-token-created">
-            <div class="section-header">
-              <div class="icon-wrap">
-                <span class="material-symbols-outlined">key</span>
-              </div>
-              <span class="section-title">Token criado: {{ ultimoTokenGerado.name }}</span>
-            </div>
-            <div class="section-body">
-              <p class="hint" style="margin-bottom:10px">Copie e guarde em local seguro. Este valor não será exibido novamente.</p>
-              <code id="new-token" style="display:block;padding:12px;background:var(--c-soft);border-radius: 0.5rem;word-break:break-all;font-size:0.8rem">{{ ultimoTokenGerado.token }}</code>
-            </div>
-          </div>
-        }
-
-        <div class="section-card">
-          <div class="section-header">
-            <div class="icon-wrap">
-              <span class="material-symbols-outlined">key</span>
-            </div>
-            <span class="section-title">Token de API</span>
-          </div>
-          <div class="section-body">
-            <p style="margin-bottom:8px">Gere um token para acessar a API REST (protocolos, templates).</p>
-            <p class="hint" style="margin-bottom:16px">Use o header: <code style="display:inline-block;margin-top:4px">Authorization: Bearer SEU_TOKEN</code></p>
-            <form (ngSubmit)="criarToken()" style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap">
-              <div class="field" style="margin-bottom:0">
-                <label>Nome do token</label>
-                <input type="text" class="form-input" style="min-width:200px" [(ngModel)]="novoTokenNome" name="novoTokenNome" placeholder="Ex: ERP, Sistema externo" required />
-              </div>
-              <button type="submit" class="btn-primary inline-flex items-center gap-2" style="padding:10px 16px" [disabled]="tokenCriando">
-                @if (tokenCriando) {
-                  <span class="btn-spinner" aria-hidden="true"></span>
-                } @else {
-                  <span class="material-symbols-outlined" style="font-size:18px">add</span>
-                }
-                {{ tokenCriando ? 'Criando…' : 'Criar token' }}
-              </button>
-            </form>
-
-            @if (tokens.length > 0) {
-              <table class="mt-4" style="width:100%;font-size:0.8rem;border-collapse:collapse">
-                <thead>
-                  <tr style="border-bottom:1px solid var(--c-border);text-align:left">
-                    <th style="padding:8px 0">Nome</th>
-                    <th style="padding:8px 0">Criado em</th>
-                    <th style="padding:8px 0"></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  @for (t of tokens; track t.id) {
-                    <tr style="border-bottom:1px solid var(--c-border)">
-                      <td style="padding:8px 0">{{ t.name }}</td>
-                      <td style="padding:8px 0;color:var(--c-muted)">{{ t.created_at | date:'dd/MM/yyyy HH:mm' }}</td>
-                      <td style="padding:8px 0">
-                        <button type="button" style="color:var(--c-muted);font-size:0.75rem;background:none;border:none;cursor:pointer;text-decoration:underline" (click)="revogarToken(t)">Revogar</button>
-                      </td>
-                    </tr>
-                  }
-                </tbody>
-              </table>
-            }
-          </div>
-        </div>
-      </div>
-
-      <!-- Painel Webhooks -->
-      <div id="panel-webhooks" class="config-panel" [class.active]="abaAtiva === 'webhooks'" role="tabpanel">
-        <div class="section-card">
-          <div class="section-header">
-            <div class="icon-wrap">
-              <span class="material-symbols-outlined">webhook</span>
-            </div>
-            <span class="section-title">Webhooks</span>
-          </div>
-          <div class="section-body">
-            <p style="margin-bottom:8px">Receba notificações em tempo real (POST na URL informada) quando uma submissão for criada, assinada, aprovada ou reprovada.</p>
-            <p class="hint" style="margin-bottom:16px">Cada requisição inclui o header <code>X-Webhook-Signature</code> com assinatura HMAC SHA-256 do corpo (formato: <code>sha256=&lt;hash&gt;</code>).</p>
-            <form (ngSubmit)="criarWebhook()" style="display:flex;flex-direction:column;gap:1rem;max-width:560px;margin-bottom:1.5rem">
-              <div class="field" style="margin-bottom:0">
-                <label>URL</label>
-                <input type="url" class="form-input" [(ngModel)]="novoWebhookUrl" name="novoWebhookUrl" placeholder="https://seu-sistema.com/webhook" required />
-              </div>
-              <div class="field" style="margin-bottom:0">
-                <label>Eventos</label>
-                <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:6px">
-                  @for (ev of availableEvents; track ev) {
-                    <label style="display:flex;align-items:center;gap:6px;font-size:0.8rem;cursor:pointer">
-                      <input type="checkbox" [checked]="novoWebhookEventos.includes(ev)" (change)="toggleEvento(ev, $any($event.target).checked)" />
-                      {{ eventLabels[ev] || ev }}
-                    </label>
+                  @if (tokens.length > 0) {
+                    <table z-table zSize="compact" class="mt-4 text-sm">
+                      <thead z-table-header>
+                        <tr z-table-row>
+                          <th z-table-head>Nome</th>
+                          <th z-table-head>Criado em</th>
+                          <th z-table-head class="text-right"></th>
+                        </tr>
+                      </thead>
+                      <tbody z-table-body>
+                        @for (t of tokens; track t.id) {
+                          <tr z-table-row>
+                            <td z-table-cell>{{ t.name }}</td>
+                            <td z-table-cell class="text-muted-foreground">{{ t.created_at | date:'dd/MM/yyyy HH:mm' }}</td>
+                            <td z-table-cell class="text-right">
+                              <button type="button" z-button zType="link" zSize="sm" class="px-0" (click)="revogarToken(t)">
+                                Revogar
+                              </button>
+                            </td>
+                          </tr>
+                        }
+                      </tbody>
+                    </table>
                   }
                 </div>
-              </div>
-              <div class="field" style="margin-bottom:0">
-                <label>Secret <span class="opt" style="font-size:10px;font-weight:400;color:var(--c-muted);margin-left:6px">opcional, para assinatura HMAC</span></label>
-                <input type="text" class="form-input" [(ngModel)]="novoWebhookSecret" name="novoWebhookSecret" placeholder="Chave secreta" style="max-width:280px" />
-              </div>
-              <div class="field" style="margin-bottom:0">
-                <label>Descrição <span class="opt" style="font-size:10px;font-weight:400;color:var(--c-muted);margin-left:6px">opcional</span></label>
-                <input type="text" class="form-input" [(ngModel)]="novoWebhookDescricao" name="novoWebhookDescricao" placeholder="Ex: ERP principal" style="max-width:280px" />
-              </div>
-              <button type="submit" class="btn-primary inline-flex items-center gap-2" style="align-self:flex-start;padding:10px 16px" [disabled]="webhookCriando">
-                @if (webhookCriando) {
-                  <span class="btn-spinner" aria-hidden="true"></span>
-                } @else {
-                  <span class="material-symbols-outlined" style="font-size:18px">add</span>
-                }
-                {{ webhookCriando ? 'Salvando…' : 'Adicionar webhook' }}
-              </button>
-            </form>
+              </z-card>
+            </div>
+          </z-tab>
 
-            @if (webhooks.length > 0) {
-              <div style="display:flex;flex-direction:column;gap:0.75rem">
-                @for (wh of webhooks; track wh.id) {
-                  <div style="padding:12px;border:1px solid var(--c-border);border-radius: 0.5rem;font-size:0.8rem">
-                    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px">
-                      <div>
-                        <strong>{{ wh.description || 'Webhook' }}</strong>
-                        <span style="color:var(--c-muted)"> — {{ wh.url }}</span>
-                        @if (!wh.is_active) {
-                          <span style="color:var(--c-muted)"> (inativo)</span>
+          <z-tab label="Webhooks" icon="webhook">
+            <div class="config-tab-panel">
+              <z-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
+                <div class="section-header">
+                  <div class="icon-wrap"><span class="material-symbols-outlined">webhook</span></div>
+                  <span class="section-title">Webhooks</span>
+                </div>
+                <div class="section-body">
+                  <p class="mb-2 text-sm">Receba notificações em tempo real (POST na URL informada) quando uma submissão for criada, assinada, aprovada ou reprovada.</p>
+                  <p class="hint mb-4">
+                    Cada requisição inclui o header <code class="text-xs">X-Webhook-Signature</code> com assinatura HMAC SHA-256 do corpo (formato: <code class="text-xs">sha256=&lt;hash&gt;</code>).
+                  </p>
+                  <form (ngSubmit)="criarWebhook()" class="mb-6 flex max-w-xl flex-col gap-4">
+                    <div class="field mb-0">
+                      <label>URL</label>
+                      <input type="url" z-input zSize="sm" class="w-full" [(ngModel)]="novoWebhookUrl" name="novoWebhookUrl" placeholder="https://seu-sistema.com/webhook" required />
+                    </div>
+                    <div class="field mb-0">
+                      <label>Eventos</label>
+                      <div class="mt-2 flex flex-wrap gap-3">
+                        @for (ev of availableEvents; track ev) {
+                          <z-checkbox
+                            [ngModel]="novoWebhookEventos.includes(ev)"
+                            (ngModelChange)="toggleEvento(ev, $event)"
+                            [name]="'webhook_ev_' + ev"
+                          >
+                            {{ eventLabels[ev] || ev }}
+                          </z-checkbox>
                         }
-                        <div style="margin-top:4px;color:var(--c-muted)">
-                          {{ formatarEventosWebhook(wh) }}
-                        </div>
-                      </div>
-                      <div style="display:flex;gap:8px">
-                        <button type="button" style="color:#f87171;font-size:0.75rem;background:none;border:none;cursor:pointer;text-decoration:underline" (click)="removerWebhook(wh)">Excluir</button>
                       </div>
                     </div>
-                  </div>
-                }
-              </div>
-            }
-          </div>
-        </div>
-      </div>
+                    <div class="field mb-0">
+                      <label>Secret <span class="opt">opcional, para assinatura HMAC</span></label>
+                      <input type="text" z-input zSize="sm" class="max-w-xs w-full" [(ngModel)]="novoWebhookSecret" name="novoWebhookSecret" placeholder="Chave secreta" />
+                    </div>
+                    <div class="field mb-0">
+                      <label>Descrição <span class="opt">opcional</span></label>
+                      <input type="text" z-input zSize="sm" class="max-w-xs w-full" [(ngModel)]="novoWebhookDescricao" name="novoWebhookDescricao" placeholder="Ex: ERP principal" />
+                    </div>
+                    <button type="submit" z-button zSize="sm" class="inline-flex w-fit items-center gap-2" [disabled]="webhookCriando">
+                      @if (webhookCriando) {
+                        <span class="btn-spinner" aria-hidden="true"></span>
+                      } @else {
+                        <span class="material-symbols-outlined" style="font-size:16px">add</span>
+                      }
+                      {{ webhookCriando ? 'Salvando…' : 'Adicionar webhook' }}
+                    </button>
+                  </form>
 
-      <!-- Painel Entregas -->
-      <div id="panel-entregas" class="config-panel" [class.active]="abaAtiva === 'entregas'" role="tabpanel">
-        <div class="section-card">
-          <div class="section-header">
-            <div class="icon-wrap">
-              <span class="material-symbols-outlined">history</span>
-            </div>
-            <span class="section-title">Últimas entregas de webhook</span>
-          </div>
-          <div class="section-body">
-            @if (deliveries.length === 0) {
-              <p style="font-size:0.8rem;color:var(--c-muted)">Nenhuma entrega registrada.</p>
-            } @else {
-              <div style="overflow-x:auto">
-                <table style="width:100%;font-size:0.75rem;border-collapse:collapse">
-                  <thead>
-                    <tr style="border-bottom:1px solid var(--c-border);text-align:left">
-                      <th style="padding:6px 8px">Data</th>
-                      <th style="padding:6px 8px">Evento</th>
-                      <th style="padding:6px 8px">Webhook</th>
-                      <th style="padding:6px 8px">Status</th>
-                      <th style="padding:6px 8px"></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    @for (d of deliveries; track d.id) {
-                    <tr style="border-bottom:1px solid var(--c-border)">
-                      <td style="padding:6px 8px;color:var(--c-muted)">{{ d.created_at | date:'dd/MM/yyyy HH:mm:ss' }}</td>
-                        <td style="padding:6px 8px">{{ eventLabels[d.event] || d.event }}</td>
-                        <td style="padding:6px 8px">{{ d.webhook_id }}</td>
-                        <td style="padding:6px 8px">
-                          @if (d.response_code != null && d.response_code >= 200 && d.response_code < 300) {
-                            <span style="color:#22c55e">{{ d.response_code }}</span>
-                          } @else {
-                            <span style="color:var(--c-muted)">{{ d.response_code ?? (d.error_message || '-') }}</span>
-                          }
-                        </td>
-                        <td style="padding:6px 8px">
-                          @if ((d.response_code == null || d.response_code < 200 || d.response_code >= 300) && d.id) {
-                            <button type="button" class="btn-ghost text-sm inline-flex items-center gap-2" (click)="reenviar(d)" [disabled]="reenviandoId === d.id">
-                              @if (reenviandoId === d.id) {
-                                <span class="btn-spinner" style="width:12px;height:12px;border-width:2px"></span>
-                              }
-                              {{ reenviandoId === d.id ? 'Reenviando…' : 'Reenviar' }}
+                  @if (webhooks.length > 0) {
+                    <div class="flex flex-col gap-3">
+                      @for (wh of webhooks; track wh.id) {
+                        <z-card class="webhook-item-card gap-0 overflow-hidden rounded-lg border-border bg-card py-0 shadow-none **:data-[slot=card-content]:p-0">
+                          <div class="flex flex-wrap items-start justify-between gap-3 p-4 text-sm">
+                            <div class="min-w-0 flex-1">
+                              <div class="flex flex-wrap items-center gap-2">
+                                <strong>{{ wh.description || 'Webhook' }}</strong>
+                                @if (!wh.is_active) {
+                                  <z-badge zType="outline" zShape="pill">Inativo</z-badge>
+                                }
+                              </div>
+                              <p class="mt-1 break-all text-muted-foreground">{{ wh.url }}</p>
+                              <p class="mt-1 text-xs text-muted-foreground">{{ formatarEventosWebhook(wh) }}</p>
+                            </div>
+                            <button type="button" z-button zType="link" zSize="sm" class="shrink-0 px-0 text-destructive" (click)="removerWebhook(wh)">
+                              Excluir
                             </button>
-                          }
-                        </td>
-                      </tr>
-                    }
-                  </tbody>
-                </table>
-              </div>
-            }
-          </div>
-        </div>
-      </div>
-
-      <!-- Painel Sistemas -->
-      <div id="panel-sistemas" class="config-panel" [class.active]="abaAtiva === 'sistemas'" role="tabpanel">
-        <div class="section-card">
-          <div class="section-header">
-            <div class="icon-wrap">
-              <span class="material-symbols-outlined">computer</span>
-            </div>
-            <span class="section-title">Sistemas integrados</span>
-          </div>
-          <div class="section-body">
-            @if (carregandoSistemas) {
-              <zm-skeleton-list [rows]="3"></zm-skeleton-list>
-            } @else if (sistemas.length === 0) {
-              <p style="font-size:0.85rem;color:var(--c-muted)">Nenhum sistema encontrado.</p>
-            } @else {
-              <div class="sistemas-grid">
-                @for (s of sistemas; track s.key) {
-                  @let link = sistemaLink(s);
-                  <a class="sistema-card" [routerLink]="link ?? ['/clinica/integracoes']">
-                    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
-                      <div style="display:flex;align-items:center;gap:10px;min-width:0">
-                        @if (sistemaLogoSrc(s); as logoSrc) {
-                          <span class="sistema-logo-wrap">
-                            <img [src]="logoSrc" [alt]="'Logo ' + s.name" class="sistema-logo" />
-                          </span>
-                        } @else {
-                          <span class="sistema-logo-wrap">
-                            <span class="material-symbols-outlined" style="font-size:16px;color:var(--c-primary)">computer</span>
-                          </span>
-                        }
-                        <div style="min-width:0">
-                          <div style="font-size:0.95rem;font-weight:700;color:var(--c-text)">{{ s.name }}</div>
-                          <div style="font-size:0.75rem;color:var(--c-muted);margin-top:2px;max-width:220px">{{ s.description || 'Configuração da integração' }}</div>
-                        </div>
-                      </div>
-                      <span class="sistema-status" [class]="'sistema-status ' + s.status">
-                        {{ statusSistemaLabel(s.status) }}
-                      </span>
+                          </div>
+                        </z-card>
+                      }
                     </div>
-                    @if (s.last_check_at) {
-                      <div style="font-size:0.72rem;color:var(--c-muted);margin-top:10px">
-                        Última verificação: {{ s.last_check_at | date:'dd/MM/yyyy HH:mm' }}
-                      </div>
-                    }
-                  </a>
-                }
-              </div>
-            }
-          </div>
-        </div>
+                  }
+                </div>
+              </z-card>
+            </div>
+          </z-tab>
+
+          <z-tab label="Entregas" icon="history">
+            <div class="config-tab-panel">
+              <z-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
+                <div class="section-header">
+                  <div class="icon-wrap"><span class="material-symbols-outlined">history</span></div>
+                  <span class="section-title">Últimas entregas de webhook</span>
+                </div>
+                <div class="section-body">
+                  @if (deliveries.length === 0) {
+                    <p class="text-sm text-muted-foreground">Nenhuma entrega registrada.</p>
+                  } @else {
+                    <div class="overflow-x-auto">
+                      <table z-table zSize="compact" class="text-xs">
+                        <thead z-table-header>
+                          <tr z-table-row>
+                            <th z-table-head>Data</th>
+                            <th z-table-head>Evento</th>
+                            <th z-table-head>Webhook</th>
+                            <th z-table-head>Status</th>
+                            <th z-table-head class="text-right"></th>
+                          </tr>
+                        </thead>
+                        <tbody z-table-body>
+                          @for (d of deliveries; track d.id) {
+                            <tr z-table-row>
+                              <td z-table-cell class="text-muted-foreground">{{ d.created_at | date:'dd/MM/yyyy HH:mm:ss' }}</td>
+                              <td z-table-cell>{{ eventLabels[d.event] || d.event }}</td>
+                              <td z-table-cell>{{ d.webhook_id }}</td>
+                              <td z-table-cell>
+                                @if (d.response_code != null && d.response_code >= 200 && d.response_code < 300) {
+                                  <z-badge zType="default" zShape="pill">{{ d.response_code }}</z-badge>
+                                } @else {
+                                  <span class="text-muted-foreground">{{ d.response_code ?? (d.error_message || '-') }}</span>
+                                }
+                              </td>
+                              <td z-table-cell class="text-right">
+                                @if ((d.response_code == null || d.response_code < 200 || d.response_code >= 300) && d.id) {
+                                  <button
+                                    type="button"
+                                    z-button
+                                    zType="outline"
+                                    zSize="sm"
+                                    class="inline-flex items-center gap-2"
+                                    (click)="reenviar(d)"
+                                    [disabled]="reenviandoId === d.id"
+                                  >
+                                    @if (reenviandoId === d.id) {
+                                      <span class="btn-spinner" style="width:12px;height:12px;border-width:2px" aria-hidden="true"></span>
+                                    }
+                                    {{ reenviandoId === d.id ? 'Reenviando…' : 'Reenviar' }}
+                                  </button>
+                                }
+                              </td>
+                            </tr>
+                          }
+                        </tbody>
+                      </table>
+                    </div>
+                  }
+                </div>
+              </z-card>
+            </div>
+          </z-tab>
+
+          <z-tab label="Sistemas" icon="computer">
+            <div class="config-tab-panel">
+              <z-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
+                <div class="section-header">
+                  <div class="icon-wrap"><span class="material-symbols-outlined">computer</span></div>
+                  <span class="section-title">Sistemas integrados</span>
+                </div>
+                <div class="section-body">
+                  @if (carregandoSistemas) {
+                    <zm-skeleton-integracoes-sistemas />
+                  } @else if (sistemas.length === 0) {
+                    <p class="text-sm text-muted-foreground">Nenhum sistema encontrado.</p>
+                  } @else {
+                    <div class="sistemas-grid">
+                      @for (s of sistemas; track s.key) {
+                        @let link = sistemaLink(s);
+                        <a class="sistema-card" [routerLink]="link ?? ['/clinica/integracoes']">
+                          <div class="flex items-start justify-between gap-2">
+                            <div class="flex min-w-0 items-center gap-2.5">
+                              @if (sistemaLogoSrc(s); as logoSrc) {
+                                <span class="sistema-logo-wrap">
+                                  <img [src]="logoSrc" [alt]="'Logo ' + s.name" class="sistema-logo" />
+                                </span>
+                              } @else {
+                                <span class="sistema-logo-wrap">
+                                  <span class="material-symbols-outlined text-primary" style="font-size:16px">computer</span>
+                                </span>
+                              }
+                              <div class="min-w-0">
+                                <div class="text-sm font-semibold text-foreground">{{ s.name }}</div>
+                                <div class="mt-0.5 max-w-[220px] truncate text-xs text-muted-foreground">
+                                  {{ s.description || 'Configuração da integração' }}
+                                </div>
+                              </div>
+                            </div>
+                            <z-badge [zType]="statusBadgeType(s.status)" zShape="pill" class="shrink-0">
+                              {{ statusSistemaLabel(s.status) }}
+                            </z-badge>
+                          </div>
+                          @if (s.last_check_at) {
+                            <p class="mt-2.5 text-xs text-muted-foreground">
+                              Última verificação: {{ s.last_check_at | date:'dd/MM/yyyy HH:mm' }}
+                            </p>
+                          }
+                        </a>
+                      }
+                    </div>
+                  }
+                </div>
+              </z-card>
+            </div>
+          </z-tab>
+        </z-tab-group>
       </div>
     </div>
   }

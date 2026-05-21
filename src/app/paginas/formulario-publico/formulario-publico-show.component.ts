@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule, NgForm } from '@angular/forms';
 import { FlatpickrDirective, provideFlatpickrDefaults } from 'angularx-flatpickr';
+
+import { ZardCheckboxComponent } from '@/shared/components/checkbox';
 import { Portuguese } from 'flatpickr/dist/l10n/pt';
 import { RouterLink } from '@angular/router';
 import { PublicPageBodyService } from '../../core/services/public-page-body.service';
@@ -43,7 +45,7 @@ interface PersonPrefill {
 @Component({
   selector: 'app-formulario-publico-show',
   standalone: true,
-  imports: [CommonModule, FormsModule, FlatpickrDirective, RouterLink],
+  imports: [CommonModule, FormsModule, FlatpickrDirective, RouterLink, ZardCheckboxComponent],
   providers: [
     provideFlatpickrDefaults({
       locale: Portuguese,

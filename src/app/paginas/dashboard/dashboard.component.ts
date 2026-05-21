@@ -26,6 +26,8 @@ import { LoadingService } from '../../shared/services/loading.service';
 import { ZmAssinaturaBloqueadaCardComponent } from '../../shared/components/ui/zm-assinatura-bloqueada-card/zm-assinatura-bloqueada-card.component';
 import { ZmSkeletonDashboardComponent } from '../../shared/components/skeletons';
 import { ZmEmptyStateComponent } from '../../shared/components/ui';
+import { ZardCardComponent } from '@/shared/components/card/card.component';
+import { ZardButtonComponent } from '@/shared/components/button/button.component';
 
 /** Rótulos de categoria (alinhado a templates-listagem) */
 const CATEGORY_LABELS: Record<string, string> = {
@@ -129,6 +131,8 @@ type BarChartOptions = {
     ZmSkeletonDashboardComponent,
     ZmAssinaturaBloqueadaCardComponent,
     ZmEmptyStateComponent,
+    ZardCardComponent,
+    ZardButtonComponent,
   ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css',

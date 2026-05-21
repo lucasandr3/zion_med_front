@@ -5,7 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { switchMap, map, catchError, of } from 'rxjs';
 import { TemplatesService, Template, TemplateCampo } from '../../core/services/templates.service';
 import { LoadingService } from '../../shared/services/loading.service';
-import { ZmSkeletonListComponent } from '../../shared/components/skeletons';
+import { ZmSkeletonTemplateCamposComponent } from '../../shared/components/skeletons';
 import { ToastService } from '../../core/services/toast.service';
 import { ConfirmDialogService } from '../../core/services/confirm-dialog.service';
 
@@ -33,10 +33,30 @@ const TYPE_ICONS: Record<string, string> = {
   signature: 'draw',
 };
 
+import { ZardTableImports } from '@/shared/components/table';
+import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
+import { ZardCardComponent } from '@/shared/components/card/card.component';
+import { ZardButtonComponent } from '@/shared/components/button/button.component';
+import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
+import { ZardComboboxComponent, type ZardComboboxOption } from '@/shared/components/combobox';
+import { ZardTooltipImports } from '@/shared/components/tooltip';
+
 @Component({
   selector: 'app-templates-campos',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule, ZmSkeletonListComponent],
+  imports: [
+    ...ZARD_FORM_CONTROL_IMPORTS,
+    ...ZardTableImports,
+    ...ZardTooltipImports,
+    CommonModule,
+    RouterLink,
+    FormsModule,
+    ZmSkeletonTemplateCamposComponent,
+    ZardCardComponent,
+    ZardButtonComponent,
+    ZardBadgeComponent,
+    ZardComboboxComponent,
+  ],
   templateUrl: './templates-campos.component.html',
   styleUrl: './templates-campos.component.css',
 })
@@ -81,6 +101,10 @@ export class TemplatesCamposComponent implements OnInit {
 
   get idNum(): number {
     return parseInt(this.templateId, 10) || 0;
+  }
+
+  get opcoesTipo(): ZardComboboxOption[] {
+    return this.typeOptions.map((opt) => ({ value: opt.value, label: opt.label }));
   }
 
   get showNovoOptions(): boolean {
@@ -318,6 +342,14 @@ export class TemplatesCamposComponent implements OnInit {
     if (!this.novoMostrarOpcoesAvancadas) {
       this.novoNameKey = '';
     }
+  }
+
+  selecionarNovoType(value: string | null): void {
+    this.novoType = value ?? 'text';
+  }
+
+  selecionarEditType(value: string | null): void {
+    this.editType = value ?? 'text';
   }
 
   previewNameKey(): string {

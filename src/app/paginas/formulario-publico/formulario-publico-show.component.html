@@ -405,20 +405,17 @@
                   />
                 }
                 @case ('checkbox') {
-                  <label class="fp-check-row">
-                    <input [id]="'field_' + f.name_key" type="checkbox" [(ngModel)]="valores[f.name_key]" [name]="f.name_key" class="fp-check-native" [required]="f.required" />
-                    <span class="fp-check-box" aria-hidden="true">
-                      <svg class="fp-check-svg" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5">
-                        <polyline points="2 6 5 9 10 3" />
-                      </svg>
-                    </span>
-                    <span class="fp-check-label">
-                      {{ f.label }}
-                      @if (f.required) {
-                        <span class="fp-required" aria-hidden="true">*</span>
-                      }
-                    </span>
-                  </label>
+                  <z-checkbox
+                    class="fp-field-checkbox"
+                    [(ngModel)]="valores[f.name_key]"
+                    [name]="f.name_key"
+                    [attr.required]="f.required ? true : null"
+                  >
+                    {{ f.label }}
+                    @if (f.required) {
+                      <span class="fp-required" aria-hidden="true">*</span>
+                    }
+                  </z-checkbox>
                 }
                 @case ('select') {
                   <div class="fp-select-wrap">
@@ -505,18 +502,18 @@
           }
           @if (templateHasSignatureFields()) {
             <div class="fp-consent-block" (click)="toggleAcceptTermsFromBlock($event)">
-              <label class="fp-check-row">
-                <input type="checkbox" [(ngModel)]="acceptTerms" name="fpAcceptTerms" [ngModelOptions]="{ standalone: true }" class="fp-check-native" />
-                <span class="fp-check-box" aria-hidden="true">
-                  <svg class="fp-check-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-                    <polyline points="20 6 9 17 4 12" />
-                  </svg>
-                </span>
+              <z-checkbox
+                class="fp-consent-checkbox"
+                [(ngModel)]="acceptTerms"
+                name="fpAcceptTerms"
+                [ngModelOptions]="{ standalone: true }"
+                (click)="$event.stopPropagation()"
+              >
                 <span class="fp-check-label-inline">
                   Declaro que li o aviso sobre uso dos dados e a política de privacidade, e estou ciente de que minha assinatura eletrônica integra este documento.
                   <a routerLink="/privacidade" target="_blank" rel="noopener" class="fp-link">Privacidade</a>
                 </span>
-              </label>
+              </z-checkbox>
             </div>
           }
         </form>

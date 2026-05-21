@@ -1,72 +1,70 @@
 <div class="protocolos-page relative min-h-[320px]">
-  <div class="page-header mb-5">
-    <div class="page-title flex items-center gap-3">
-      <!-- <div class="page-title-icon w-10 h-10 rounded-lg flex items-center justify-center" style="background: var(--c-soft)">
-        <span class="material-symbols-outlined" style="color: var(--c-primary)">inbox</span>
-      </div>
-      <div>
-        <h1 class="text-xl font-semibold m-0" style="color: var(--c-text)">Protocolos</h1>
-      </div> -->
-      <div class="flex flex-wrap items-center gap-3 mb-4">
-        <div class="form-search-wrap flex-1 min-w-[200px]">
-          <span class="material-symbols-outlined form-search-icon">search</span>
-          <input
-            type="text"
-            [(ngModel)]="busca"
-            (keydown.enter)="carregar(1)"
-            placeholder="Buscar..."
-            class="form-input form-search-input text-sm"
-            aria-label="Buscar protocolos"
-          />
-        </div>
-        <button type="button" class="btn-ghost btn-default-bg inline-flex items-center gap-2" (click)="openFilterDrawer()" [class.ring-2]="temFiltrosAtivos" title="Filtros">
-          <span class="material-symbols-outlined text-lg">tune</span>
-          Filtros
-          @if (temFiltrosAtivos) {
-            <span class="text-xs rounded-full px-1.5 py-0.5 font-medium" style="background: var(--c-primary); color: white">{{ quantidadeFiltrosAtivos }}</span>
-          }
-        </button>
-      </div>
-    </div>
-    <div class="flex items-center gap-2 flex-wrap">
-      <button type="button" class="btn-ghost btn-default-bg inline-flex items-center gap-2" (click)="exportarCsv()" [disabled]="exportando" title="Exportar CSV">
-        <span class="material-symbols-outlined text-lg">download</span>
-        Exportar CSV
-      </button>
-      <button type="button" class="btn-ghost btn-default-bg inline-flex items-center gap-2" (click)="exportarPdf()" [disabled]="exportando" title="Exportar PDF (até 50)">
-        <span class="material-symbols-outlined text-lg">picture_as_pdf</span>
-        Exportar PDF (até 50)
-      </button>
-    </div>
-  </div>
-
-  <!-- <div class="flex flex-wrap items-center gap-3 mb-4">
-    <div class="form-search-wrap flex-1 min-w-[200px]">
+  <div class="protocolos-toolbar mb-6 flex flex-wrap items-center gap-3">
+    <div class="form-search-wrap protocolos-toolbar__search">
       <span class="material-symbols-outlined form-search-icon">search</span>
       <input
         type="text"
         [(ngModel)]="busca"
         (keydown.enter)="carregar(1)"
         placeholder="Buscar..."
-        class="form-input form-search-input text-sm"
+        z-input
+        class="form-search-input w-full text-sm"
         aria-label="Buscar protocolos"
       />
     </div>
-    <button type="button" class="btn-ghost btn-default-bg inline-flex items-center gap-2" (click)="openFilterDrawer()" [class.ring-2]="temFiltrosAtivos" title="Filtros">
-      <span class="material-symbols-outlined text-lg">tune</span>
-      Filtros
-      @if (temFiltrosAtivos) {
-        <span class="text-xs rounded-full px-1.5 py-0.5 font-medium" style="background: var(--c-primary); color: white">{{ quantidadeFiltrosAtivos }}</span>
-      }
-    </button>
-  </div> -->
-
+    <div class="protocolos-toolbar__actions flex flex-wrap items-center gap-2">
+      <button
+        z-button
+        zType="default"
+        zSize="sm"
+        type="button"
+        class="protocolos-btn protocolos-btn--csv shrink-0 gap-2"
+        (click)="exportarCsv()"
+        [disabled]="exportando"
+        title="Exportar CSV"
+      >
+        <span class="material-symbols-outlined text-lg">download</span>
+        Exportar CSV
+      </button>
+      <button
+        z-button
+        zType="default"
+        zSize="sm"
+        type="button"
+        class="protocolos-btn protocolos-btn--pdf shrink-0 gap-2"
+        (click)="exportarPdf()"
+        [disabled]="exportando"
+        title="Exportar PDF (até 50)"
+      >
+        <span class="material-symbols-outlined text-lg">picture_as_pdf</span>
+        Exportar PDF (até 50)
+      </button>
+      <button
+        z-button
+        zType="default"
+        zSize="sm"
+        type="button"
+        class="protocolos-btn protocolos-btn--filtros shrink-0 gap-2"
+        (click)="openFilterDrawer()"
+        [attr.aria-expanded]="filterDrawerOpen ? 'true' : 'false'"
+        [class.ring-2]="temFiltrosAtivos"
+        [class.ring-ring]="temFiltrosAtivos"
+        title="Filtros"
+      >
+        <span class="material-symbols-outlined text-lg">tune</span>
+        Filtros
+        @if (temFiltrosAtivos) {
+          <z-badge zShape="pill" class="!h-5 !min-w-[1.25rem] !border-white/30 !bg-white/20 !px-1.5 !py-0 !text-[0.65rem] !leading-none font-semibold !text-white">{{ quantidadeFiltrosAtivos }}</z-badge>
+        }
+      </button>
+    </div>
+  </div>
   @if (listaPronta && !erro) {
-    <p class="text-sm mb-3" style="color: var(--c-muted)">{{ contagemTexto() }}</p>
+    <p class="mb-3 text-sm text-muted-foreground">{{ contagemTexto() }}</p>
   }
 
   @if (erro) {
-    <p class="text-sm mb-4" style="color: var(--c-error, #dc2626)">{{ erro }}</p>
+    <p class="mb-4 text-sm text-destructive">{{ erro }}</p>
   }
 
   @if (showSkeleton()) {
@@ -74,40 +72,42 @@
   } @else if (!listaPronta && !erro) {
   } @else if (!erro) {
     <div class="zm-content-enter">
-      <div class="data-table-wrap">
+      <z-card class="gap-0 overflow-hidden rounded-[8px] py-0 **:data-[slot=card-content]:p-0">
         @if (protocolos.length === 0) {
-          <zm-empty-state title="Nenhum protocolo encontrado." />
+          <div class="p-10">
+            <zm-empty-state title="Nenhum protocolo encontrado." />
+          </div>
         } @else {
           <div class="overflow-x-auto">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Protocolo / Data</th>
-                  <th>Template</th>
-                  <th>Pessoa</th>
-                  <th>Situação</th>
-                  <th>Submetente</th>
-                  <th>Revisado em</th>
-                  <th>Revisado por</th>
+            <table z-table>
+              <thead z-table-header>
+                <tr z-table-row>
+                  <th z-table-head>Protocolo / Data</th>
+                  <th z-table-head>Template</th>
+                  <th z-table-head>Pessoa</th>
+                  <th z-table-head>Situação</th>
+                  <th z-table-head>Submetente</th>
+                  <th z-table-head>Revisado em</th>
+                  <th z-table-head>Revisado por</th>
                 </tr>
               </thead>
-              <tbody id="protocolos-tbody">
+              <tbody z-table-body id="protocolos-tbody">
                 @for (p of protocolos; track p.id) {
-                  <tr class="protocolo-row cursor-pointer" (click)="irParaDetalhe(p, $event)">
-                    <td>
-                      <div class="font-medium" style="color: var(--c-text)">{{ p.protocol_number || p.id }}</div>
-                      <div class="text-xs mt-0.5" style="color: var(--c-muted)">{{ dataFormatada(p.submitted_at || p.created_at) }}</div>
+                  <tr z-table-row class="protocolo-row cursor-pointer hover:bg-muted/60" (click)="irParaDetalhe(p, $event)">
+                    <td z-table-cell>
+                      <div class="font-medium text-foreground">{{ p.protocol_number || p.id }}</div>
+                      <div class="mt-0.5 text-xs text-muted-foreground">{{ dataFormatada(p.submitted_at || p.created_at) }}</div>
                     </td>
-                    <td style="color: var(--c-text)">{{ p.template_name ?? '—' }}</td>
-                    <td (click)="$event.stopPropagation()">
+                    <td z-table-cell class="text-foreground">{{ p.template_name ?? '—' }}</td>
+                    <td z-table-cell (click)="$event.stopPropagation()">
                       @if (p.person) {
-                        <a [routerLink]="['/pessoas', p.person.id]" class="text-sm no-underline font-medium" style="color: var(--c-primary)">{{ p.person.name }}</a>
-                        <div class="text-xs font-mono mt-0.5" style="color: var(--c-muted)">{{ p.person.code }}</div>
+                        <a [routerLink]="['/pessoas', p.person.id]" class="text-sm font-medium text-primary no-underline hover:underline">{{ p.person.name }}</a>
+                        <div class="mt-0.5 font-mono text-xs text-muted-foreground">{{ p.person.code }}</div>
                       } @else {
-                        <span style="color: var(--c-muted)">—</span>
+                        <span class="text-muted-foreground">—</span>
                       }
                     </td>
-                    <td>
+                    <td z-table-cell>
                       @if (p.status === 'pending' || (p.status && p.status.toLowerCase() === 'pending')) {
                         <span class="inline-flex items-center gap-1 text-xs font-medium" style="color: var(--c-warning)">
                           <span class="material-symbols-outlined text-base">schedule</span>
@@ -119,81 +119,128 @@
                           {{ statusLabel(p.status) }}
                         </span>
                       } @else {
-                        <span class="inline-flex items-center gap-1 text-xs font-semibold" style="color: var(--c-danger)">
+                        <span class="inline-flex items-center gap-1 text-xs font-semibold text-destructive">
                           <span class="material-symbols-outlined text-base">cancel</span>
                           {{ statusLabel(p.status) }}
                         </span>
                       }
                     </td>
-                    <td>
-                      <div style="color: var(--c-text)">{{ p.submitter_name ?? '—' }}</div>
+                    <td z-table-cell>
+                      <div class="text-foreground">{{ p.submitter_name ?? '—' }}</div>
                       @if (p.submitter_email) {
-                        <div class="text-xs" style="color: var(--c-muted)">{{ p.submitter_email }}</div>
+                        <div class="text-xs text-muted-foreground">{{ p.submitter_email }}</div>
                       }
                     </td>
-                    <td style="color: var(--c-muted)">{{ dataFormatada(p.approved_at) }}</td>
-                    <td style="color: var(--c-text)">{{ p.approved_by_name ?? '—' }}</td>
+                    <td z-table-cell class="text-muted-foreground">{{ dataFormatada(p.approved_at) }}</td>
+                    <td z-table-cell class="text-foreground">{{ p.approved_by_name ?? '—' }}</td>
                   </tr>
                 }
               </tbody>
             </table>
           </div>
-          <zm-pagination [currentPage]="meta.current_page" [lastPage]="meta.last_page" (pageChange)="carregar($event)" />
+          @if (meta.last_page > 1) {
+            <zm-pagination [currentPage]="meta.current_page" [lastPage]="meta.last_page" (pageChange)="carregar($event)" />
+          }
         }
-      </div>
+      </z-card>
     </div>
   }
 
-  @if (filterDrawerOpen) {
-    <div class="drawer-overlay fixed inset-0 z-40 bg-black/30" (click)="closeFilterDrawer()" aria-hidden="true"></div>
-    <div class="filter-drawer fixed top-0 right-0 h-full w-full max-w-sm z-50 shadow-xl flex flex-col" style="background: var(--c-surface); border-left: 1px solid var(--c-border)">
-      <div class="flex items-center justify-between px-5 py-4" style="border-bottom: 1px solid var(--c-border)">
-        <div class="flex items-center gap-2">
-          <span class="material-symbols-outlined" style="color: var(--c-primary)">tune</span>
-          <h2 class="text-lg font-semibold m-0" style="color: var(--c-text)">Filtros</h2>
+  <ng-template #protocolosFiltrosTpl>
+    <div class="protocolos-filtros-sheet zm-filter-sheet">
+      <div class="zm-filter-sheet__body">
+        <div class="zm-filter-sheet__fields">
+          <div class="zm-filter-field">
+            <label class="zm-filter-label" id="protocolos-filtro-template-label">Template</label>
+            <z-combobox
+              class="w-full"
+              zWidth="full"
+              [options]="opcoesTemplateFiltro"
+              [value]="templateFiltroKey"
+              placeholder="Todos"
+              searchPlaceholder="Buscar template..."
+              emptyText="Nenhum template encontrado."
+              ariaLabel="Template"
+              ariaDescribedBy="protocolos-filtro-template-label"
+              (zValueChange)="selecionarTemplateFiltro($event)"
+            />
+          </div>
+          <div class="zm-filter-field">
+            <label class="zm-filter-label" id="protocolos-filtro-status-label">Situação</label>
+            <z-combobox
+              class="w-full"
+              zWidth="full"
+              [options]="opcoesStatusFiltro"
+              [value]="status || null"
+              placeholder="Todas"
+              [searchable]="false"
+              ariaLabel="Situação"
+              ariaDescribedBy="protocolos-filtro-status-label"
+              (zValueChange)="selecionarStatusFiltro($event)"
+            />
+          </div>
+          <div class="zm-filter-sheet__dates">
+            <div class="zm-filter-field">
+              <label class="zm-filter-label" for="protocolos-filtro-inicio">Data início</label>
+              <input
+                id="protocolos-filtro-inicio"
+                type="text"
+                mwlFlatpickr
+                [(ngModel)]="data_inicio"
+                name="protocolos_filtro_inicio"
+                z-input
+                class="w-full text-sm"
+                placeholder="dd/mm/aaaa"
+                [altInput]="true"
+                [appendTo]="flatpickrAppendTo"
+                [static]="false"
+                autocomplete="off"
+              />
+            </div>
+            <div class="zm-filter-field">
+              <label class="zm-filter-label" for="protocolos-filtro-fim">Data fim</label>
+              <input
+                id="protocolos-filtro-fim"
+                type="text"
+                mwlFlatpickr
+                [(ngModel)]="data_fim"
+                name="protocolos_filtro_fim"
+                z-input
+                class="w-full text-sm"
+                placeholder="dd/mm/aaaa"
+                [altInput]="true"
+                [appendTo]="flatpickrAppendTo"
+                [static]="false"
+                autocomplete="off"
+              />
+            </div>
+          </div>
         </div>
-        <button type="button" class="p-2 rounded-lg hover:bg-[var(--c-soft)]" (click)="closeFilterDrawer()" aria-label="Fechar">
-          <span class="material-symbols-outlined">close</span>
-        </button>
       </div>
-      <div class="flex-1 overflow-auto p-5 space-y-4">
-        <div>
-          <label class="block text-xs font-semibold uppercase tracking-wider mb-1.5" style="color: var(--c-muted)">Template</label>
-          <select [(ngModel)]="template_id" class="form-select text-sm">
-            <option value="">Todos</option>
-            @for (t of templates; track t.id) {
-              <option [value]="t.id">{{ t.name }}</option>
-            }
-          </select>
-        </div>
-        <div>
-          <label class="block text-xs font-semibold uppercase tracking-wider mb-1.5" style="color: var(--c-muted)">Situação</label>
-          <select [(ngModel)]="status" class="form-select text-sm">
-            <option value="">Todas</option>
-            <option value="pending">Pendente</option>
-            <option value="approved">Aprovado</option>
-            <option value="rejected">Reprovado</option>
-          </select>
-        </div>
-        <div>
-          <label class="block text-xs font-semibold uppercase tracking-wider mb-1.5" style="color: var(--c-muted)">Data início</label>
-          <input type="date" [(ngModel)]="data_inicio" class="form-input text-sm" />
-        </div>
-        <div>
-          <label class="block text-xs font-semibold uppercase tracking-wider mb-1.5" style="color: var(--c-muted)">Data fim</label>
-          <input type="date" [(ngModel)]="data_fim" class="form-input text-sm" />
-        </div>
-      </div>
-      <div class="flex gap-2 p-5" style="border-top: 1px solid var(--c-border)">
-        <button type="button" class="btn-ghost btn-default-bg flex-1 inline-flex items-center justify-center gap-2" (click)="limparFiltros()">
-          <span class="material-symbols-outlined text-lg">filter_alt_off</span>
+      <footer class="zm-filter-sheet__footer">
+        <button
+          z-button
+          zType="default"
+          zSize="sm"
+          type="button"
+          class="zm-filter-btn zm-filter-btn--limpar min-w-0 flex-1 gap-2"
+          (click)="limparFiltros()"
+        >
+          <span class="material-symbols-outlined shrink-0 text-lg">filter_alt_off</span>
           Limpar
         </button>
-        <button type="button" class="btn-primary flex-1 inline-flex items-center justify-center gap-2" (click)="aplicarFiltros()">
-          <span class="material-symbols-outlined text-lg">check</span>
+        <button
+          z-button
+          zType="default"
+          zSize="sm"
+          type="button"
+          class="zm-filter-btn zm-filter-btn--aplicar min-w-0 flex-1 gap-2"
+          (click)="aplicarFiltros()"
+        >
+          <span class="material-symbols-outlined shrink-0 text-lg">check</span>
           Aplicar
         </button>
-      </div>
+      </footer>
     </div>
-  }
+  </ng-template>
 </div>

@@ -1,5 +1,14 @@
-<button type="button" id="login-dark-btn" (click)="alternarTema()" aria-label="Alternar modo escuro" appTooltip="Alternar modo escuro">
-  <span class="material-symbols-outlined" [textContent]="iconeTema" style="font-size:17px"></span>
+<button
+  type="button"
+  id="login-dark-btn"
+  z-button
+  zType="outline"
+  zSize="icon-sm"
+  (click)="alternarTema()"
+  aria-label="Alternar modo escuro"
+  zTooltip="Alternar modo escuro"
+>
+  <span class="material-symbols-outlined text-[17px]" [textContent]="iconeTema"></span>
 </button>
 
 <div class="login-page">
@@ -33,9 +42,7 @@
         <p class="login-card-subtitle">Entre para acessar o painel da sua clínica, fichas e protocolos.</p>
 
         @if (estadoErro) {
-          <div class="login-error" style="margin-bottom:1.5rem">
-            <p>{{ mensagemErro }}</p>
-          </div>
+          <p class="login-error mb-6 text-sm text-destructive" role="alert">{{ mensagemErro }}</p>
         }
 
         <form (ngSubmit)="enviar()" class="login-form" #formLogin="ngForm">
@@ -43,10 +50,22 @@
             <div class="login-label-row">
               <label class="login-label" for="login-email">E-mail</label>
             </div>
-            <div class="login-input-wrap">
+            <div class="login-input-wrap group">
               <span class="material-symbols-outlined login-input-icon-l">mail</span>
-              <input type="email" name="email" id="login-email" [(ngModel)]="email"
-                     class="login-input" placeholder="seu@email.com.br" required autofocus>
+              <input
+                type="email"
+                name="email"
+                id="login-email"
+                [(ngModel)]="email"
+                z-input
+                zSize="sm"
+                class="w-full pl-9"
+                [zStatus]="estadoErro ? 'error' : undefined"
+                placeholder="seu@email.com.br"
+                required
+                autofocus
+                autocomplete="email"
+              >
             </div>
           </div>
 
@@ -55,26 +74,51 @@
               <label class="login-label" for="login-password">Senha</label>
               <a routerLink="/esqueci-a-senha" class="login-forgot">Esqueceu a senha?</a>
             </div>
-            <div class="login-input-wrap">
+            <div class="login-input-wrap group">
               <span class="material-symbols-outlined login-input-icon-l">lock</span>
-              <input [type]="mostrarSenha ? 'text' : 'password'" name="password" id="login-password" [(ngModel)]="senha"
-                     class="login-input pr" placeholder="••••••••" required>
-              <span class="material-symbols-outlined login-input-icon-r" (click)="mostrarSenha = !mostrarSenha"
-                    role="button" aria-label="Mostrar ou ocultar senha" tabindex="0" appTooltip="Mostrar ou ocultar senha">{{ mostrarSenha ? 'visibility_off' : 'visibility' }}</span>
+              <input
+                [type]="mostrarSenha ? 'text' : 'password'"
+                name="password"
+                id="login-password"
+                [(ngModel)]="senha"
+                z-input
+                zSize="sm"
+                class="w-full pl-9 pr-9"
+                [zStatus]="estadoErro ? 'error' : undefined"
+                placeholder="••••••••"
+                required
+                autocomplete="current-password"
+              >
+              <button
+                type="button"
+                z-button
+                zType="ghost"
+                zSize="icon-sm"
+                class="login-input-toggle"
+                (click)="mostrarSenha = !mostrarSenha"
+                aria-label="Mostrar ou ocultar senha"
+                zTooltip="Mostrar ou ocultar senha"
+              >
+                <span class="material-symbols-outlined text-lg">{{ mostrarSenha ? 'visibility_off' : 'visibility' }}</span>
+              </button>
             </div>
           </div>
 
-          <label class="login-remember">
-            <input type="checkbox" name="remember" [(ngModel)]="lembrar">
-            <span>Lembrar neste dispositivo</span>
-          </label>
+          <z-checkbox class="login-remember" name="remember" [(ngModel)]="lembrar">Lembrar neste dispositivo</z-checkbox>
 
-          <button type="submit" class="login-btn" [disabled]="estadoCarregando">
-            @if (estadoCarregando) {
-              <span>Entrando…</span>
-            } @else {
+          <button
+            type="submit"
+            z-button
+            zFull
+            class="login-submit-btn inline-flex items-center gap-2"
+            [zLoading]="estadoCarregando"
+            [zDisabled]="estadoCarregando"
+          >
+            @if (!estadoCarregando) {
               <span>Acessar</span>
-              <span class="material-symbols-outlined btn-arrow">arrow_forward</span>
+              <span class="material-symbols-outlined login-submit-icon transition-transform group-hover/button:translate-x-0.5">arrow_forward</span>
+            } @else {
+              <span>Entrando…</span>
             }
           </button>
 

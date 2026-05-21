@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, OnDestroy, inject, HostListener, ElementRef, ViewChild } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy, inject, ViewChild, TemplateRef, ViewContainerRef } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -6,7 +6,6 @@ import { AuthService } from '../../../core/services/auth.service';
 import { UserAppearanceService } from '../../../core/services/user-appearance.service';
 import { SidebarMobileService } from '../../../core/services/sidebar-mobile.service';
 import { ClinicaService } from '../../../core/services/clinica.service';
-import { TooltipDirective } from '../../../core/directives/tooltip.directive';
 import {
   applyShellPresetToDom,
   GESTGO_APPEARANCE_MODE_LS,
@@ -17,6 +16,12 @@ import {
   type ShellPreset,
 } from '../../../core/services/user-appearance.sync';
 import { absoluteMediaUrl } from '../../../core/utils/absolute-media-url';
+import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
+import { ZardButtonComponent } from '@/shared/components/button/button.component';
+import { ZardMenuImports } from '../../../shared/components/menu/menu.imports';
+import { ZardAvatarComponent } from '@/shared/components/avatar/avatar.component';
+import { ZardSheetService } from '@/shared/components/sheet/sheet.service';
+import type { ZardSheetRef } from '@/shared/components/sheet/sheet-ref';
 
 export const TEMAS: { key: string; label: string; labelPt: string; color: string }[] = [
   { key: 'gestgo-blue', label: 'Royal blue', labelPt: 'Azul Gestgo', color: '#1e40af' },
@@ -47,15 +52,10 @@ const TEMAS_GRADE_ORDER = [
   'cyan-tech',
 ] as const;
 
-export interface AppBreadcrumb {
-  label: string;
-  url: string | null;
-}
-
 @Component({
   selector: 'app-cabecalho',
   standalone: true,
-  imports: [CommonModule, RouterLink, TooltipDirective],
+  imports: [CommonModule, RouterLink, ZardButtonComponent, ZardBadgeComponent, ZardAvatarComponent, ...ZardMenuImports],
   templateUrl: './cabecalho.component.html',
   styleUrl: './cabecalho.component.css',
 })
@@ -63,8 +63,6 @@ export class CabecalhoComponent implements OnInit, OnDestroy {
   @Input() titulo = 'Gestgo';
   /** Subtítulo exibido abaixo do título no header (ex.: "Visão geral dos clientes utilizando o Gestgo."). */
   @Input() subtitulo: string | null = null;
-  /** Trilha opcional (Início → página atual). */
-  @Input() breadcrumbs: AppBreadcrumb[] | null = null;
   @Input() urlVoltar: string | null = null;
   @Input() labelVoltar = 'Voltar';
   @Input() notificacoesNaoLidas = 0;
@@ -74,7 +72,8 @@ export class CabecalhoComponent implements OnInit, OnDestroy {
   emailClinica: string | null = null;
   logoUrlClinica: string | null = null;
   exibirTrocarEmpresa = false;
-  menuEmpresaAberto = false;
+  ehAdminPlataforma = false;
+  podeGerenciarClinica = false;
 
   temas = TEMAS;
 
@@ -100,50 +99,33 @@ export class CabecalhoComponent implements OnInit, OnDestroy {
   get podeVerBillingNoHeader(): boolean {
     return this.auth.hasPermission('billing.manage');
   }
+
+  get iniciaisClinica(): string {
+    const nome = this.nomeClinica?.trim();
+    return nome ? nome.charAt(0).toUpperCase() : '?';
+  }
   temaAtual = 'ocean-blue';
   modoEscuro = false;
   shellPresetAtual: ShellPreset = 'default';
   readonly shellPresetOptions = SHELL_PRESET_UI_OPTIONS;
   themeDrawerMode: 'light' | 'dark' | 'auto' = 'light';
   sidebarColapsada = false;
-  menuTemaAberto = false;
 
   private appearanceSub?: Subscription;
   private clinicaSub?: Subscription;
   private _sysDarkMql: MediaQueryList | null = null;
   private _sysListener = () => this._applyAutoMode();
 
-  @ViewChild('themePicker') themePickerRef?: ElementRef<HTMLElement>;
-  /** Painel do drawer de tema (fora do `#themePicker` no DOM — usar no click-outside). */
-  @ViewChild('themeDrawer') themeDrawerRef?: ElementRef<HTMLElement>;
-  @ViewChild('clinicMenuContainer') clinicMenuContainer?: ElementRef<HTMLElement>;
+  @ViewChild('temaSheetContent') temaSheetTpl?: TemplateRef<void>;
 
   private auth = inject(AuthService);
   private router = inject(Router);
   private appearance = inject(UserAppearanceService);
   private sidebarMobile = inject(SidebarMobileService);
   private clinicaService = inject(ClinicaService);
-
-  @HostListener('document:click', ['$event'])
-  onDocumentClick(e: Event): void {
-    const target = e.target as Node;
-
-    if (this.menuTemaAberto) {
-      const themeEl = this.themePickerRef?.nativeElement;
-      const drawerEl = this.themeDrawerRef?.nativeElement;
-      const inside = (themeEl?.contains(target) ?? false) || (drawerEl?.contains(target) ?? false);
-      if (!inside) {
-        this.fecharMenuTema();
-      }
-    }
-
-    if (this.menuEmpresaAberto) {
-      const clinicEl = this.clinicMenuContainer?.nativeElement;
-      if (!clinicEl || !clinicEl.contains(target)) {
-        this.fecharMenuEmpresa();
-      }
-    }
-  }
+  private readonly vcr = inject(ViewContainerRef);
+  private readonly zardSheet = inject(ZardSheetService);
+  private temaSheetRef?: ZardSheetRef<void>;
 
   ngOnInit(): void {
     this.syncTemaControlsFromBrowser();
@@ -151,14 +133,22 @@ export class CabecalhoComponent implements OnInit, OnDestroy {
       this._applyAutoMode();
     }
     this.appearanceSub = this.auth.appearanceApplied$.subscribe(() => this.syncTemaControlsFromBrowser());
+    this.syncMenuPermissoes();
     this.syncClinicInfo();
     this.clinicaSub = this.clinicaService.clinicBrandingUpdated$.subscribe(() => this.syncClinicInfo());
   }
 
   ngOnDestroy(): void {
+    this.temaSheetRef?.close();
     this.appearanceSub?.unsubscribe();
     this.clinicaSub?.unsubscribe();
     this._removeSysListener();
+  }
+
+  private syncMenuPermissoes(): void {
+    const u = this.auth.getUser();
+    this.ehAdminPlataforma = u?.role === 'platform_admin';
+    this.podeGerenciarClinica = u ? this.auth.hasPermission('organization.manage') : false;
   }
 
   private syncClinicInfo(): void {
@@ -287,23 +277,30 @@ export class CabecalhoComponent implements OnInit, OnDestroy {
   }
 
   alternarMenuTema(): void {
-    this.menuTemaAberto = !this.menuTemaAberto;
-  }
-
-  fecharMenuTema(): void {
-    this.menuTemaAberto = false;
-  }
-
-  alternarMenuEmpresa(): void {
-    this.menuEmpresaAberto = !this.menuEmpresaAberto;
-  }
-
-  fecharMenuEmpresa(): void {
-    this.menuEmpresaAberto = false;
+    if (this.temaSheetRef) {
+      this.temaSheetRef.close();
+      return;
+    }
+    if (!this.temaSheetTpl) {
+      return;
+    }
+    this.temaSheetRef = this.zardSheet.create<void, void>({
+      zContent: this.temaSheetTpl,
+      zViewContainerRef: this.vcr,
+      zSide: 'right',
+      zSize: 'lg',
+      zTitle: 'Tema e aparência',
+      zHideFooter: true,
+      zOkText: null,
+      zCancelText: null,
+      zMaskClosable: true,
+      zAfterClose: () => {
+        this.temaSheetRef = undefined;
+      },
+    });
   }
 
   sair(): void {
-    this.menuEmpresaAberto = false;
     this.auth.logout().subscribe(() => this.router.navigate(['/autenticacao']));
   }
 

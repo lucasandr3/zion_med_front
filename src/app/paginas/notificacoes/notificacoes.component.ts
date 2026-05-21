@@ -5,14 +5,14 @@ import { NotificacoesService, Notificacao } from '../../core/services/notificaco
 import { LoadingService } from '../../shared/services/loading.service';
 import { ZmSkeletonListComponent } from '../../shared/components/skeletons';
 import { ZmEmptyStateComponent } from '../../shared/components/ui';
-import { TooltipDirective } from '../../core/directives/tooltip.directive';
+import { ZardTooltipImports } from '@/shared/components/tooltip';
 import { ToastService } from '../../core/services/toast.service';
 import { ConfirmDialogService } from '../../core/services/confirm-dialog.service';
 
 @Component({
   selector: 'app-pagina-notificacoes',
   standalone: true,
-  imports: [CommonModule, ZmSkeletonListComponent, ZmEmptyStateComponent, RouterLink, TooltipDirective],
+  imports: [CommonModule, ZmSkeletonListComponent, ZmEmptyStateComponent, RouterLink, ...ZardTooltipImports],
   templateUrl: './notificacoes.component.html',
   styleUrl: './notificacoes.component.css',
 })

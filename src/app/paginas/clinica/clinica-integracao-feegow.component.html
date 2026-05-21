@@ -1,65 +1,79 @@
-<div class="feegow-page">
-  <div class="page-head">
-    <a routerLink="/clinica/integracoes" class="back-link">
-      <span class="material-symbols-outlined" style="font-size:16px">arrow_back</span>
-      Voltar para integrações
-    </a>
-    <h2>Integração Feegow</h2>
-  </div>
-
+<div class="feegow-page relative">
   @if (carregando) {
-    <p class="muted">Carregando configuração…</p>
-  } @else if (erro) {
-    <p class="error">{{ erro }}</p>
-  } @else {
-    <div class="card">
-      <div class="card-head">
-        <div>
-          <div class="title">Status da integração</div>
-          <p class="muted">Validação por `x-access-token` na API Feegow.</p>
-        </div>
-        <span class="badge" [class]="'badge ' + (state?.status || 'unknown')">{{ statusLabel(state?.status) }}</span>
-      </div>
-      @if (state?.last_check_at) {
-        <p class="muted">Última verificação: {{ state?.last_check_at | date:'dd/MM/yyyy HH:mm' }}</p>
-      }
-      @if (state?.last_error) {
-        <p class="error">{{ state?.last_error }}</p>
-      }
+    <div class="feegow-shell">
+      <zm-skeleton-integracao-feegow />
     </div>
+  } @else if (erro) {
+    <p class="feegow-alerts text-sm" style="color: var(--c-error, #dc2626)">{{ erro }}</p>
+  } @else {
+    <div class="feegow-shell zm-content-enter">
+      <div class="clinica-config feegow-config">
+        <z-card class="section-card mb-4 gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
+          <div class="section-header">
+            <div class="icon-wrap">
+              <img src="assets/sistemas/feegow.png" alt="" class="sistema-logo-header" width="20" height="20" />
+            </div>
+            <span class="section-title">Status da integração</span>
+            <z-badge [zType]="statusBadgeType(state?.status)" zShape="pill" class="ml-auto shrink-0">
+              {{ statusLabel(state?.status) }}
+            </z-badge>
+          </div>
+          <div class="section-body">
+            <p class="hint">Validação por <code class="text-xs">x-access-token</code> na API Feegow.</p>
+            @if (state?.last_check_at) {
+              <p class="mt-2 text-sm text-muted-foreground">
+                Última verificação: {{ state?.last_check_at | date:'dd/MM/yyyy HH:mm' }}
+              </p>
+            }
+            @if (state?.last_error) {
+              <p class="mt-2 text-sm" style="color: var(--c-error, #dc2626)">{{ state?.last_error }}</p>
+            }
+          </div>
+        </z-card>
 
-    <div class="card">
-      <div class="field">
-        <label class="switch-row">
-          <span>Ativar integração Feegow</span>
-          <input type="checkbox" [(ngModel)]="form.enabled" />
-        </label>
-      </div>
+        <z-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
+          <div class="section-header">
+            <div class="icon-wrap"><span class="material-symbols-outlined">settings</span></div>
+            <span class="section-title">Configuração Feegow</span>
+          </div>
+          <div class="section-body">
+            <div class="field">
+              <z-switch [(ngModel)]="form.enabled" name="feegow_enabled">Ativar integração Feegow</z-switch>
+            </div>
 
-      <div class="field">
-        <label>Base URL</label>
-        <input type="url" class="form-input" [(ngModel)]="form.base_url" placeholder="https://api.feegow.com/v1/api" />
-      </div>
+            <div class="field">
+              <label>Base URL</label>
+              <input type="url" z-input zSize="sm" class="w-full" [(ngModel)]="form.base_url" name="feegow_base_url" placeholder="https://api.feegow.com/v1/api" />
+            </div>
 
-      <div class="field">
-        <label>Token de acesso (x-access-token)</label>
-        <input type="password" class="form-input" [(ngModel)]="form.token" placeholder="Cole um novo token para atualizar" />
-        <p class="muted small">
-          @if (state?.has_token) {
-            Token já configurado. Preencha apenas se quiser trocar.
-          } @else {
-            Nenhum token salvo ainda.
-          }
-        </p>
-      </div>
+            <div class="field">
+              <label>Token de acesso (x-access-token)</label>
+              <input type="password" z-input zSize="sm" class="w-full" [(ngModel)]="form.token" name="feegow_token" placeholder="Cole um novo token para atualizar" />
+              <p class="hint">
+                @if (state?.has_token) {
+                  Token já configurado. Preencha apenas se quiser trocar.
+                } @else {
+                  Nenhum token salvo ainda.
+                }
+              </p>
+            </div>
 
-      <div class="actions">
-        <button type="button" class="btn-primary" (click)="salvar()" [disabled]="salvando">
-          {{ salvando ? 'Salvando…' : 'Salvar configuração' }}
-        </button>
-        <button type="button" class="btn-ghost" (click)="testarConexao()" [disabled]="testando">
-          {{ testando ? 'Testando…' : 'Testar conexão' }}
-        </button>
+            <div class="flex flex-wrap gap-3">
+              <button type="button" z-button zSize="sm" class="inline-flex items-center gap-2" (click)="salvar()" [disabled]="salvando">
+                @if (salvando) {
+                  <span class="btn-spinner" aria-hidden="true"></span>
+                }
+                {{ salvando ? 'Salvando…' : 'Salvar configuração' }}
+              </button>
+              <button type="button" z-button zType="outline" zSize="sm" class="inline-flex items-center gap-2" (click)="testarConexao()" [disabled]="testando">
+                @if (testando) {
+                  <span class="btn-spinner" aria-hidden="true"></span>
+                }
+                {{ testando ? 'Testando…' : 'Testar conexão' }}
+              </button>
+            </div>
+          </div>
+        </z-card>
       </div>
     </div>
   }

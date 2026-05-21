@@ -8,8 +8,6 @@ import { NotificacoesService } from '../../../core/services/notificacoes.service
 import { SidebarMobileService } from '../../../core/services/sidebar-mobile.service';
 import { PlataformaHeaderService } from '../../../core/services/plataforma-header.service';
 import { AuthService } from '../../../core/services/auth.service';
-import type { AppBreadcrumb } from '../cabecalho/cabecalho.component';
-
 @Component({
   selector: 'app-layout-plataforma',
   standalone: true,
@@ -20,7 +18,6 @@ import type { AppBreadcrumb } from '../cabecalho/cabecalho.component';
 export class LayoutPlataformaComponent implements OnInit, OnDestroy {
   tituloPagina = 'Plataforma';
   subtituloPagina: string | null = null;
-  breadcrumbs: AppBreadcrumb[] = [];
   urlVoltar: string | null = null;
   labelVoltar = 'Voltar';
   notificacoesNaoLidas = 0;
@@ -41,19 +38,6 @@ export class LayoutPlataformaComponent implements OnInit, OnDestroy {
     this.subtituloPagina = data.subtitulo ?? null;
     this.urlVoltar = data.urlVoltar ?? null;
     this.labelVoltar = data.labelVoltar ?? this.labelVoltar;
-    this.recomputeBreadcrumbs();
-  }
-
-  private recomputeBreadcrumbs(): void {
-    const path = this.router.url.split('?')[0].replace(/\/$/, '') || '/plataforma';
-    if (path === '/plataforma') {
-      this.breadcrumbs = [{ label: this.tituloPagina, url: null }];
-    } else {
-      this.breadcrumbs = [
-        { label: 'Plataforma', url: '/plataforma' },
-        { label: this.tituloPagina, url: null },
-      ];
-    }
   }
 
   ngOnInit(): void {
@@ -64,7 +48,6 @@ export class LayoutPlataformaComponent implements OnInit, OnDestroy {
       if (override) {
         this.tituloPagina = override.titulo;
         this.subtituloPagina = override.subtitulo;
-        this.recomputeBreadcrumbs();
       } else {
         this.updateFromActivatedRoute();
       }

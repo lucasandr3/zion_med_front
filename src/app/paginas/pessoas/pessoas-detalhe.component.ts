@@ -3,15 +3,27 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { PessoasService, PessoaDetalhe } from '../../core/services/pessoas.service';
 import { LoadingService } from '../../shared/services/loading.service';
-import { ZmSkeletonCardComponent } from '../../shared/components/skeletons';
+import { ZmSkeletonPessoaDetalheComponent } from '../../shared/components/skeletons';
 import { ToastService } from '../../core/services/toast.service';
 import { ConfirmDialogService } from '../../core/services/confirm-dialog.service';
 import { AuthService } from '../../core/services/auth.service';
 
+import { ZardCardComponent } from '@/shared/components/card/card.component';
+import { ZardButtonComponent } from '@/shared/components/button/button.component';
+import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
+import { ZardTableImports } from '@/shared/components/table';
 @Component({
   selector: 'app-pessoas-detalhe',
   standalone: true,
-  imports: [CommonModule, RouterLink, ZmSkeletonCardComponent],
+  imports: [
+    ...ZardTableImports,
+    CommonModule,
+    RouterLink,
+    ZmSkeletonPessoaDetalheComponent,
+    ZardCardComponent,
+    ZardButtonComponent,
+    ZardBadgeComponent,
+  ],
   templateUrl: './pessoas-detalhe.component.html',
   styleUrl: './pessoas-detalhe.component.css',
 })
@@ -74,6 +86,24 @@ export class PessoasDetalheComponent implements OnInit {
   statusProtocolo(s: string): string {
     const map: Record<string, string> = { pending: 'Pendente', approved: 'Aprovado', rejected: 'Reprovado' };
     return map[s?.toLowerCase()] ?? s;
+  }
+
+  statusPessoaBadgeClass(): string {
+    if (this.pessoa?.status === 'active') {
+      return 'border-transparent bg-[color-mix(in_srgb,var(--c-success)_14%,transparent)] text-[var(--c-success)]';
+    }
+    return 'border-transparent bg-[color-mix(in_srgb,var(--c-error)_14%,transparent)] text-[var(--c-error)]';
+  }
+
+  statusProtocoloBadgeClass(status: string): string {
+    const s = status?.toLowerCase();
+    if (s === 'pending') {
+      return 'border-transparent bg-[color-mix(in_srgb,var(--c-warning)_14%,transparent)] text-[var(--c-warning)]';
+    }
+    if (s === 'rejected') {
+      return 'border-transparent bg-[color-mix(in_srgb,var(--c-error)_14%,transparent)] text-[var(--c-error)]';
+    }
+    return 'border-transparent bg-[color-mix(in_srgb,var(--c-success)_14%,transparent)] text-[var(--c-success)]';
   }
 
   setAbaAtiva(aba: 'dados' | 'estatisticas' | 'protocolos'): void {

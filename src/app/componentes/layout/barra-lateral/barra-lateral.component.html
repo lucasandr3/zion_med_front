@@ -1,154 +1,247 @@
-<!-- Igual ao backend: overlay hidden por padrão; JS remove "hidden" ao abrir. Sidebar: -translate-x-full removido ao abrir. -->
-<div class="sidebar-overlay-mobile fixed inset-0 z-20 bg-black/55 backdrop-blur-sm cursor-pointer lg:hidden"
+<!-- Overlay e sidebar mobile alinhados ao layout legado Django -->
+<div class="sidebar-overlay-mobile fixed inset-0 z-20 cursor-pointer bg-black/55 backdrop-blur-sm lg:hidden"
      [class.hidden]="!sidebarOpenMobile"
      aria-hidden="true"
      (click)="fecharSidebarMobile()"></div>
 <aside id="sidebar"
+       data-shell="app"
        class="sidebar fixed inset-y-0 left-0 z-30 flex flex-col lg:translate-x-0"
        [class.-translate-x-full]="!sidebarOpenMobile">
-  <!-- Cabeçalho da sidebar: logo -->
-  <div class="sidebar-brand-strip h-14 flex items-center px-3.5 shrink-0" style="border-bottom: 1px solid var(--c-border)">
-    <div class="sidebar-brand flex items-center gap-2.5 min-w-0 w-full">
-      <div class="sidebar-logo-chip shrink-0 w-7 h-7 rounded-md flex items-center justify-center" style="background: var(--c-primary)">
-        <img [src]="sidebarLogoSrc" alt="Gestgo" class="w-full h-full rounded-md object-contain" style="padding: 2px" onerror="this.style.display='none'">
+  <div class="sidebar-brand-strip flex h-14 shrink-0 items-center border-b border-sidebar-border bg-sidebar px-3.5">
+    <div class="sidebar-brand flex w-full min-w-0 items-center gap-2.5">
+      <div class="sidebar-logo-chip flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-primary p-0.5">
+        <img [src]="sidebarLogoSrc" alt="Gestgo" class="h-full w-full rounded-md object-contain" onerror="this.style.display='none'">
       </div>
-      <span class="sidebar-label truncate" style="color: var(--c-text); font-weight: 800; font-size: 1.08em; letter-spacing: 0.035em; font-family: var(--font-heading)">Gestgo</span>
+      <span class="sidebar-label truncate text-[1.08em] font-extrabold tracking-wide text-sidebar-foreground">
+        Gestgo
+      </span>
     </div>
   </div>
 
-  <!-- Navegação -->
-  <nav class="flex-1 px-2 py-3 overflow-y-auto space-y-0.5">
-    <p class="sidebar-section-label mt-1 mb-2">MENU</p>
+  <nav class="flex-1 space-y-0.5 overflow-y-auto px-2 py-3">
+    <span z-menu-label class="sidebar-label !py-2 !text-[0.65rem] !font-bold !uppercase !tracking-[0.09em]">Menu</span>
 
     @if (podeVerDashboard) {
-      <a routerLink="/dashboard" routerLinkActive="ativo" [routerLinkActiveOptions]="{ exact: true }" class="nav-link" [appTooltip]="tooltipQuandoColapsada('Painel')">
-        <span class="material-symbols-outlined shrink-0" style="font-size: 19px">dashboard</span>
+      <a routerLink="/dashboard"
+         routerLinkActive="router-link-active"
+         [routerLinkActiveOptions]="{ exact: true }"
+         z-button
+         zType="ghost"
+         class="shell-sidebar-nav w-full justify-start gap-2 px-2.5 font-normal text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground [&.router-link-active]:border-none [&.router-link-active]:bg-sidebar-primary/14 [&.router-link-active]:font-semibold [&.router-link-active]:text-sidebar-primary"
+         [zTooltip]="tooltipQuandoColapsada('Painel')"
+      >
+        <span class="material-symbols-outlined shrink-0 text-[19px]">dashboard</span>
         <span class="sidebar-label">Painel</span>
       </a>
     }
 
     @if (podeGerenciarTemplates) {
-      <a routerLink="/templates" routerLinkActive="ativo" class="nav-link" [appTooltip]="tooltipQuandoColapsada('Modelos de fichas')">
-        <span class="material-symbols-outlined shrink-0" style="font-size: 19px">description</span>
+      <a routerLink="/templates"
+         routerLinkActive="router-link-active"
+         z-button
+         zType="ghost"
+         class="shell-sidebar-nav w-full justify-start gap-2 px-2.5 font-normal text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground [&.router-link-active]:border-none [&.router-link-active]:bg-sidebar-primary/14 [&.router-link-active]:font-semibold [&.router-link-active]:text-sidebar-primary"
+         [zTooltip]="tooltipQuandoColapsada('Modelos de fichas')"
+      >
+        <span class="material-symbols-outlined shrink-0 text-[19px]">description</span>
         <span class="sidebar-label">Modelos de fichas</span>
       </a>
     }
 
     @if (podeAcessarLinksEEnvios) {
-      <a routerLink="/links-publicos" routerLinkActive="ativo" class="nav-link" [appTooltip]="tooltipQuandoColapsada('Links para enviar')">
-        <span class="material-symbols-outlined shrink-0" style="font-size: 19px">link</span>
+      <a routerLink="/links-publicos"
+         routerLinkActive="router-link-active"
+         z-button
+         zType="ghost"
+         class="shell-sidebar-nav w-full justify-start gap-2 px-2.5 font-normal text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground [&.router-link-active]:border-none [&.router-link-active]:bg-sidebar-primary/14 [&.router-link-active]:font-semibold [&.router-link-active]:text-sidebar-primary"
+         [zTooltip]="tooltipQuandoColapsada('Links para enviar')"
+      >
+        <span class="material-symbols-outlined shrink-0 text-[19px]">link</span>
         <span class="sidebar-label">Links para enviar</span>
       </a>
-      <a routerLink="/envios" routerLinkActive="ativo" class="nav-link" [appTooltip]="tooltipQuandoColapsada('Envios de documento')">
-        <span class="material-symbols-outlined shrink-0" style="font-size: 19px">send</span>
+      <a routerLink="/envios"
+         routerLinkActive="router-link-active"
+         z-button
+         zType="ghost"
+         class="shell-sidebar-nav w-full justify-start gap-2 px-2.5 font-normal text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground [&.router-link-active]:border-none [&.router-link-active]:bg-sidebar-primary/14 [&.router-link-active]:font-semibold [&.router-link-active]:text-sidebar-primary"
+         [zTooltip]="tooltipQuandoColapsada('Envios de documento')"
+      >
+        <span class="material-symbols-outlined shrink-0 text-[19px]">send</span>
         <span class="sidebar-label">Envios de documento</span>
       </a>
     }
 
     @if (podeVerSubmissoes) {
-      <a routerLink="/protocolos" routerLinkActive="ativo" class="nav-link" [appTooltip]="tooltipQuandoColapsada('Protocolos')">
-        <span class="material-symbols-outlined shrink-0" style="font-size: 19px">inbox</span>
+      <a routerLink="/protocolos"
+         routerLinkActive="router-link-active"
+         z-button
+         zType="ghost"
+         class="shell-sidebar-nav w-full justify-start gap-2 px-2.5 font-normal text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground [&.router-link-active]:border-none [&.router-link-active]:bg-sidebar-primary/14 [&.router-link-active]:font-semibold [&.router-link-active]:text-sidebar-primary"
+         [zTooltip]="tooltipQuandoColapsada('Protocolos')"
+      >
+        <span class="material-symbols-outlined shrink-0 text-[19px]">inbox</span>
         <span class="sidebar-label">Protocolos</span>
       </a>
-      <a routerLink="/pessoas" routerLinkActive="ativo" class="nav-link" [appTooltip]="tooltipQuandoColapsada('Pessoas')">
-        <span class="material-symbols-outlined shrink-0" style="font-size: 19px">group</span>
+      <a routerLink="/pessoas"
+         routerLinkActive="router-link-active"
+         z-button
+         zType="ghost"
+         class="shell-sidebar-nav w-full justify-start gap-2 px-2.5 font-normal text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground [&.router-link-active]:border-none [&.router-link-active]:bg-sidebar-primary/14 [&.router-link-active]:font-semibold [&.router-link-active]:text-sidebar-primary"
+         [zTooltip]="tooltipQuandoColapsada('Pessoas')"
+      >
+        <span class="material-symbols-outlined shrink-0 text-[19px]">group</span>
         <span class="sidebar-label">Pessoas</span>
       </a>
     }
 
     @if (podeVerNotificacoes) {
-      <a routerLink="/notificacoes" routerLinkActive="ativo" class="nav-link relative" [appTooltip]="tooltipQuandoColapsada('Notificações')">
-        <span class="material-symbols-outlined shrink-0" style="font-size: 19px">notifications</span>
+      <a routerLink="/notificacoes"
+         routerLinkActive="router-link-active"
+         z-button
+         zType="ghost"
+         class="shell-sidebar-nav relative w-full justify-start gap-2 px-2.5 font-normal text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground [&.router-link-active]:border-none [&.router-link-active]:bg-sidebar-primary/14 [&.router-link-active]:font-semibold [&.router-link-active]:text-sidebar-primary"
+         [zTooltip]="tooltipQuandoColapsada('Notificações')"
+      >
+        <span class="material-symbols-outlined shrink-0 text-[19px]">notifications</span>
         <span class="sidebar-label">Notificações</span>
         @if (notificacoesNaoLidas > 0) {
-          <span class="sidebar-label ml-auto min-w-[18px] h-[18px] rounded-full flex items-center justify-center text-[0.6rem] font-bold px-1" style="background: var(--c-primary); color: #fff">
+          <z-badge zShape="pill" class="sidebar-label ml-auto !h-[18px] !min-w-[18px] !px-1 !py-0 !text-[0.6rem] !leading-none">
             {{ notificacoesNaoLidas > 99 ? '99+' : notificacoesNaoLidas }}
-          </span>
+          </z-badge>
         }
       </a>
     }
 
     @if (podeGerenciarClinica || podeGerenciarUsuarios) {
-      <p class="sidebar-section-label mt-5 mb-2">ADMINISTRAÇÃO</p>
+      <span z-menu-label class="sidebar-label mb-2 mt-5 !py-2 !text-[0.65rem] !font-bold !uppercase !tracking-[0.09em]">Administração</span>
     }
 
     @if (podeGerenciarClinica) {
-      <a routerLink="/clinica/configuracoes" routerLinkActive="ativo" class="nav-link" [appTooltip]="tooltipQuandoColapsada('Empresa')">
-        <span class="material-symbols-outlined shrink-0" style="font-size: 19px">business</span>
+      <a routerLink="/clinica/configuracoes"
+         routerLinkActive="router-link-active"
+         z-button
+         zType="ghost"
+         class="shell-sidebar-nav w-full justify-start gap-2 px-2.5 font-normal text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground [&.router-link-active]:border-none [&.router-link-active]:bg-sidebar-primary/14 [&.router-link-active]:font-semibold [&.router-link-active]:text-sidebar-primary"
+         [zTooltip]="tooltipQuandoColapsada('Empresa')"
+      >
+        <span class="material-symbols-outlined shrink-0 text-[19px]">business</span>
         <span class="sidebar-label">Empresa</span>
       </a>
-      <a routerLink="/link-bio" routerLinkActive="ativo" class="nav-link" [appTooltip]="tooltipQuandoColapsada('Página de links (bio)')">
-        <span class="material-symbols-outlined shrink-0" style="font-size: 19px">link</span>
+      <a routerLink="/link-bio"
+         routerLinkActive="router-link-active"
+         z-button
+         zType="ghost"
+         class="shell-sidebar-nav w-full justify-start gap-2 px-2.5 font-normal text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground [&.router-link-active]:border-none [&.router-link-active]:bg-sidebar-primary/14 [&.router-link-active]:font-semibold [&.router-link-active]:text-sidebar-primary"
+         [zTooltip]="tooltipQuandoColapsada('Página de links (bio)')"
+      >
+        <span class="material-symbols-outlined shrink-0 text-[19px]">link</span>
         <span class="sidebar-label">Página de links (bio)</span>
       </a>
-      <a routerLink="/clinica/integracoes" routerLinkActive="ativo" class="nav-link" [appTooltip]="tooltipQuandoColapsada('Integrações')">
-        <span class="material-symbols-outlined shrink-0" style="font-size: 19px">api</span>
+      <a routerLink="/clinica/integracoes"
+         routerLinkActive="router-link-active"
+         z-button
+         zType="ghost"
+         class="shell-sidebar-nav w-full justify-start gap-2 px-2.5 font-normal text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground [&.router-link-active]:border-none [&.router-link-active]:bg-sidebar-primary/14 [&.router-link-active]:font-semibold [&.router-link-active]:text-sidebar-primary"
+         [zTooltip]="tooltipQuandoColapsada('Integrações')"
+      >
+        <span class="material-symbols-outlined shrink-0 text-[19px]">api</span>
         <span class="sidebar-label">Integrações</span>
       </a>
     }
 
     @if (podeGerenciarUsuarios) {
-      <a routerLink="/usuarios" routerLinkActive="ativo" class="nav-link" [appTooltip]="tooltipQuandoColapsada('Usuários')">
-        <span class="material-symbols-outlined shrink-0" style="font-size: 19px">group</span>
+      <a routerLink="/usuarios"
+         routerLinkActive="router-link-active"
+         z-button
+         zType="ghost"
+         class="shell-sidebar-nav w-full justify-start gap-2 px-2.5 font-normal text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground [&.router-link-active]:border-none [&.router-link-active]:bg-sidebar-primary/14 [&.router-link-active]:font-semibold [&.router-link-active]:text-sidebar-primary"
+         [zTooltip]="tooltipQuandoColapsada('Usuários')"
+      >
+        <span class="material-symbols-outlined shrink-0 text-[19px]">group</span>
         <span class="sidebar-label">Usuários</span>
       </a>
-      <a routerLink="/organizacao/permissoes" routerLinkActive="ativo" class="nav-link" [appTooltip]="tooltipQuandoColapsada('Permissões')">
-        <span class="material-symbols-outlined shrink-0" style="font-size: 19px">admin_panel_settings</span>
+      <a routerLink="/organizacao/permissoes"
+         routerLinkActive="router-link-active"
+         z-button
+         zType="ghost"
+         class="shell-sidebar-nav w-full justify-start gap-2 px-2.5 font-normal text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground [&.router-link-active]:border-none [&.router-link-active]:bg-sidebar-primary/14 [&.router-link-active]:font-semibold [&.router-link-active]:text-sidebar-primary"
+         [zTooltip]="tooltipQuandoColapsada('Permissões')"
+      >
+        <span class="material-symbols-outlined shrink-0 text-[19px]">admin_panel_settings</span>
         <span class="sidebar-label">Permissões</span>
       </a>
     }
   </nav>
 
-  <!-- Rodapé: usuário -->
-  <div class="shrink-0 px-2 py-2 overflow-visible" style="border-top: 1px solid var(--c-border)">
-    <div class="relative" #userMenuContainer>
-      <button type="button" id="user-menu-btn" (click)="alternarMenuUsuario()" class="flex items-center gap-2.5 w-full px-2 py-2 rounded-lg text-left transition-colors hover:bg-[var(--c-soft)] cursor-pointer" aria-label="Menu do usuário">
-        <div class="w-7 h-7 rounded-full shrink-0 flex items-center justify-center text-xs font-bold" style="background: var(--c-primary); color: #fff">
-          {{ iniciaisUsuario }}
+  <div class="shrink-0 overflow-visible border-t border-border px-2 py-2">
+    <div class="relative">
+      <button
+        z-menu
+        type="button"
+        [zMenuTriggerFor]="usuarioSidebarMenuTpl"
+        zPlacement="topLeft"
+        class="sidebar-user-trigger shell-profile-chip"
+        [zTooltip]="tooltipQuandoColapsada('Menu do usuário')"
+        aria-label="Menu do usuário"
+      >
+        <z-avatar
+          zSize="sm"
+          zShape="circle"
+          [zFallback]="iniciaisUsuario"
+          [zAlt]="nomeUsuario"
+          class="shrink-0 !bg-primary !text-primary-foreground [&>span]:text-[0.65rem] [&>span]:font-bold"
+        />
+        <div class="shell-profile-chip__meta sidebar-label">
+          <p class="truncate text-left text-xs font-semibold text-foreground">{{ nomeUsuario }}</p>
+          <p class="truncate text-left text-[0.7rem] text-muted-foreground">{{ emailUsuario }}</p>
         </div>
-        <div class="sidebar-label flex-1 min-w-0">
-          <p class="text-xs font-semibold truncate" style="color: var(--c-text)">{{ nomeUsuario }}</p>
-          <p class="truncate text-[0.7rem]" style="color: var(--c-muted)">{{ emailUsuario }}</p>
-        </div>
-        <span class="material-symbols-outlined sidebar-label shrink-0" style="font-size: 15px; color: var(--c-muted)">unfold_more</span>
+        <span class="sidebar-label material-symbols-outlined shrink-0 text-base text-muted-foreground">unfold_more</span>
       </button>
 
-      @if (menuUsuarioAberto) {
-        <div class="user-dropdown absolute left-0 right-0 bottom-full mb-1 py-1 rounded-lg shadow-lg z-[100]" style="background: var(--c-elevated); border: 1px solid var(--c-border); min-width: 200px; box-shadow: 0 8px 32px rgba(0,0,0,0.22)">
+      <ng-template #usuarioSidebarMenuTpl>
+        <div z-menu-content class="sidebar-shell-menu-popover min-w-52 rounded-lg border border-border bg-popover p-1.5 text-popover-foreground shadow-lg">
           @if (exibirTrocarEmpresa) {
-            <a routerLink="/clinica/escolher" (click)="fecharMenuUsuario()" class="flex items-center gap-2 px-3 py-2 text-sm hover:bg-[var(--c-soft)]" style="color: var(--c-text); text-decoration: none" [appTooltip]="tooltipQuandoColapsada('Trocar empresa')">
-              <span class="material-symbols-outlined" style="font-size: 16px">swap_horiz</span>
+            <a
+              z-menu-item
+              routerLink="/clinica/escolher"
+              class="gap-2 text-inherit no-underline"
+            >
+              <span class="material-symbols-outlined shrink-0 text-base" aria-hidden="true">swap_horiz</span>
               Trocar empresa
             </a>
           }
-          <a routerLink="/conta/perfil" (click)="fecharMenuUsuario()" class="flex items-center gap-2 px-3 py-2 text-sm hover:bg-[var(--c-soft)]" style="color: var(--c-text); text-decoration: none" [appTooltip]="tooltipQuandoColapsada('Meu perfil')">
-            <span class="material-symbols-outlined" style="font-size: 16px">person</span>
+          <a
+            z-menu-item
+            routerLink="/conta/perfil"
+            class="gap-2 text-inherit no-underline"
+          >
+            <span class="material-symbols-outlined shrink-0 text-base" aria-hidden="true">person</span>
             Meu perfil
           </a>
           @if (ehAdminPlataforma) {
-            <a routerLink="/plataforma" (click)="fecharMenuUsuario()" class="flex items-center gap-2 px-3 py-2 text-sm hover:bg-[var(--c-soft)]" style="color: var(--c-text); text-decoration: none" [appTooltip]="tooltipQuandoColapsada('Admin da plataforma')">
-              <span class="material-symbols-outlined" style="font-size: 16px">admin_panel_settings</span>
+            <a z-menu-item routerLink="/plataforma" class="gap-2 text-inherit no-underline">
+              <span class="material-symbols-outlined shrink-0 text-base" aria-hidden="true">admin_panel_settings</span>
               Admin da plataforma
             </a>
           }
           @if (podeGerenciarClinica) {
-            <a routerLink="/clinica/configuracoes" (click)="fecharMenuUsuario()" class="flex items-center gap-2 px-3 py-2 text-sm hover:bg-[var(--c-soft)]" style="color: var(--c-text); text-decoration: none" [appTooltip]="tooltipQuandoColapsada('Configurações')">
-              <span class="material-symbols-outlined" style="font-size: 16px">settings</span>
+            <a z-menu-item routerLink="/clinica/configuracoes" class="gap-2 text-inherit no-underline" [zTooltip]="tooltipQuandoColapsada('Configurações')">
+              <span class="material-symbols-outlined shrink-0 text-base" aria-hidden="true">settings</span>
               Configurações
             </a>
           }
           @if (podeVerBilling) {
-            <a routerLink="/assinatura" (click)="fecharMenuUsuario()" class="flex items-center gap-2 px-3 py-2 text-sm hover:bg-[var(--c-soft)]" style="color: var(--c-text); text-decoration: none" [appTooltip]="tooltipQuandoColapsada('Assinatura')">
-              <span class="material-symbols-outlined" style="font-size: 16px">credit_card</span>
+            <a z-menu-item routerLink="/assinatura" class="gap-2 text-inherit no-underline">
+              <span class="material-symbols-outlined shrink-0 text-base" aria-hidden="true">credit_card</span>
               Assinatura
             </a>
           }
-          <button type="button" (click)="sair()" class="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-[var(--c-soft)] text-left border-0 bg-transparent cursor-pointer" style="color: var(--c-text)" [appTooltip]="tooltipQuandoColapsada('Sair')">
-            <span class="material-symbols-outlined" style="font-size: 16px">logout</span>
+          <button type="button" z-menu-item zType="destructive" class="w-full gap-2" (click)="sair()">
+            <span class="material-symbols-outlined shrink-0 text-base" aria-hidden="true">logout</span>
             Sair
           </button>
         </div>
-      }
+      </ng-template>
     </div>
   </div>
 </aside>

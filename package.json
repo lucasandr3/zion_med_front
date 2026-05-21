@@ -11,6 +11,7 @@
   },
   "private": true,
   "dependencies": {
+    "@angular/cdk": "^20.2.14",
     "@angular/common": "^20.0.0",
     "@angular/compiler": "^20.0.0",
     "@angular/core": "^20.0.0",
@@ -19,17 +20,23 @@
     "@angular/platform-browser-dynamic": "^20.0.0",
     "@angular/router": "^20.0.0",
     "@angular/service-worker": "^20.0.0",
+    "@ng-icons/core": "^32.5.0",
+    "@ng-icons/lucide": "^32.5.0",
     "@tailwindcss/postcss": "^4.2.1",
     "angularx-flatpickr": "^8.1.0",
     "apexcharts": "^5.10.6",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
     "flatpickr": "^4.6.13",
     "geist": "^1.7.0",
     "html2pdf.js": "^0.14.0",
     "ng-apexcharts": "^2.4.0",
     "ngx-mask": "^19.0.7",
+    "ngx-sonner": "^3.1.0",
     "postcss": "^8.5.8",
     "qrcode": "^1.5.4",
     "rxjs": "~7.8.0",
+    "tailwind-merge": "^3.6.0",
     "tailwindcss": "^4.2.1",
     "tslib": "^2.6.0",
     "zone.js": "~0.15.0"
@@ -48,6 +55,8 @@
     "karma-coverage": "~2.2.0",
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.1.0",
-    "typescript": "~5.8.0"
+    "tailwindcss-animate": "^1.0.7",
+    "typescript": "~5.8.0",
+    "zard-cli": "^1.0.0-beta.70"
   }
 }

@@ -8,16 +8,31 @@ import { TemplatesService, Template } from '../../core/services/templates.servic
 import { LoadingService } from '../../shared/services/loading.service';
 import { ZmSkeletonListComponent } from '../../shared/components/skeletons';
 import { ZmPaginationComponent, ZmEmptyStateComponent } from '../../shared/components/ui';
-import { ZmSearchableSelectComponent, ZmSearchableSelectOption } from '../../shared/components/ui/zm-searchable-select.component';
+import { ZardComboboxComponent, type ZardComboboxOption } from '@/shared/components/combobox';
 import { ToastService } from '../../core/services/toast.service';
 import { ConfirmDialogService } from '../../core/services/confirm-dialog.service';
+import { ZardCardComponent } from '@/shared/components/card/card.component';
+import { ZardButtonComponent } from '@/shared/components/button/button.component';
 
 type Caixa = 'pendentes' | 'assinados' | 'expirados' | 'cancelados';
 
+import { ZardTableImports } from '@/shared/components/table';
+import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
 @Component({
   selector: 'app-envios',
   standalone: true,
-  imports: [CommonModule, FormsModule, ZmSkeletonListComponent, ZmPaginationComponent, ZmEmptyStateComponent, ZmSearchableSelectComponent],
+  imports: [
+    ...ZARD_FORM_CONTROL_IMPORTS,
+    ...ZardTableImports,
+    CommonModule,
+    FormsModule,
+    ZmSkeletonListComponent,
+    ZmPaginationComponent,
+    ZmEmptyStateComponent,
+    ZardComboboxComponent,
+    ZardCardComponent,
+    ZardButtonComponent,
+  ],
   templateUrl: './envios.component.html',
   styleUrl: './envios.component.css',
 })
@@ -67,9 +82,9 @@ export class EnviosComponent implements OnInit {
     return this.templates.filter((template) => template.is_active !== false && template.public_enabled === true);
   }
 
-  get opcoesTemplatesPublicos(): ZmSearchableSelectOption[] {
+  get opcoesTemplatesPublicos(): ZardComboboxOption[] {
     return this.templatesPublicos.map((template) => ({
-      key: String(template.id),
+      value: String(template.id),
       label: template.name,
     }));
   }
@@ -445,7 +460,7 @@ export class EnviosComponent implements OnInit {
     });
   }
 
-  selecionarTemplatePublico(templateId: string): void {
-    this.novoEnvio.template_id = Number(templateId) || 0;
+  selecionarTemplatePublico(templateId: string | null): void {
+    this.novoEnvio.template_id = Number(templateId ?? '') || 0;
   }
 }

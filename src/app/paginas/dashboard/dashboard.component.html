@@ -8,35 +8,40 @@
       descricao="Com assinatura pendente ou conta bloqueada por pagamento, o resumo e as métricas do painel não são carregados. Após a confirmação do pagamento, tudo volta a aparecer aqui."
     />
   } @else if (estadoErro) {
-    <p class="text-sm mb-4" style="color: var(--c-error, #dc2626)">{{ mensagemErro }}</p>
+    <p class="text-sm mb-4 text-destructive">{{ mensagemErro }}</p>
   } @else {
     <div class="zm-content-enter">
       @if (semClinica) {
-        <div class="card mb-6 flex items-center gap-4 p-4 rounded-xl" style="background: var(--c-soft); border: 1px solid var(--c-border)">
-          <span class="material-symbols-outlined shrink-0 text-[28px]" style="color: var(--c-muted)">business</span>
-          <div class="min-w-0">
-            <p class="text-sm font-medium" style="color: var(--c-text)">Selecione uma clínica para ver o resumo</p>
-            <p class="text-xs mt-0.5" style="color: var(--c-muted)">Os números e atalhos do painel são exibidos por clínica.</p>
+        <z-card class="mb-6 border-dashed border-border bg-muted/40 py-5 shadow-none **:data-[slot=card-content]:px-5">
+          <div class="flex flex-col gap-4 sm:flex-row sm:items-center">
+            <span class="material-symbols-outlined shrink-0 text-[28px] text-muted-foreground">business</span>
+            <div class="min-w-0 flex-1">
+              <p class="text-sm font-medium text-foreground">Selecione uma clínica para ver o resumo</p>
+              <p class="text-xs mt-0.5 text-muted-foreground">Os números e atalhos do painel são exibidos por clínica.</p>
+            </div>
+            <a z-button routerLink="/clinica/escolher" class="sm:ml-auto shrink-0 no-underline" title="Escolher empresa para visualizar o painel">
+              Escolher empresa
+            </a>
           </div>
-          <a routerLink="/clinica/escolher" class="btn-primary shrink-0" title="Escolher empresa para visualizar o painel">Escolher empresa</a>
-        </div>
+        </z-card>
       }
 
       @if (!semClinica) {
-        <!-- Filtro de período -->
-        <section class="dash-period-bar" aria-label="Filtro de período do painel">
-          <div class="min-w-0">
-            <p class="dash-period-bar__kicker">Período</p>
-            <p class="dash-period-bar__subtitle">Métricas e gráficos do intervalo selecionado</p>
-          </div>
-          <div class="dash-period-tabs" role="group" aria-label="Intervalo em dias">
-            @for (p of periodOptions; track p.days) {
-              <button type="button" class="dash-period-tab" [class.dash-period-tab--on]="periodoSelecionado === p.days" (click)="selecionarPeriodo(p.days)">
-                {{ p.label }}
-              </button>
-            }
-          </div>
-        </section>
+        <z-card class="mb-6 gap-0 py-4 shadow-sm **:data-[slot=card-content]:px-5">
+          <section class="flex flex-wrap items-center justify-between gap-4" aria-label="Filtro de período do painel">
+            <div class="min-w-0">
+              <p class="dash-period-bar__kicker">Período</p>
+              <p class="dash-period-bar__subtitle">Métricas e gráficos do intervalo selecionado</p>
+            </div>
+            <div class="dash-period-tabs" role="group" aria-label="Intervalo em dias">
+              @for (p of periodOptions; track p.days) {
+                <button type="button" class="dash-period-tab" [class.dash-period-tab--on]="periodoSelecionado === p.days" (click)="selecionarPeriodo(p.days)">
+                  {{ p.label }}
+                </button>
+              }
+            </div>
+          </section>
+        </z-card>
 
         <div class="space-y-6">
           <!-- KPI Cards -->
@@ -92,12 +97,12 @@
 
           <!-- Gráficos principais: Área + Donut -->
           <div class="grid grid-cols-1 gap-4 lg:grid-cols-5">
-            <div class="dash-chart-card lg:col-span-3">
+            <z-card class="dash-z-chart lg:col-span-3 gap-0 overflow-hidden rounded-lg py-0 shadow-sm **:data-[slot=card-content]:px-0">
               <div class="dash-chart-card__head">
                 <div class="min-w-0">
                   <h2 class="dash-chart-card__title">Evolução de respostas</h2>
                   <p class="dash-chart-card__subtitle">
-                    Total no período: <span class="font-mono font-semibold" style="color: var(--c-text)">{{ respostasPeriodoSelecionado }}</span>
+                    Total no período: <span class="font-mono font-semibold text-foreground">{{ respostasPeriodoSelecionado }}</span>
                   </p>
                 </div>
                 <span class="dash-chart-card__pill">{{ periodRangeLabel() }}</span>
@@ -119,13 +124,15 @@
                   [states]="areaChart.states"
                 />
               </div>
-            </div>
+            </z-card>
 
-            <div class="dash-chart-card lg:col-span-2">
+            <z-card class="dash-z-chart lg:col-span-2 gap-0 overflow-hidden rounded-lg py-0 shadow-sm **:data-[slot=card-content]:px-0">
               <div class="dash-chart-card__head">
                 <div class="min-w-0">
                   <h2 class="dash-chart-card__title">Distribuição por status</h2>
-                  <p class="dash-chart-card__subtitle">Taxa de aprovação: <span class="font-mono font-semibold" style="color: var(--c-success)">{{ taxaAprovacao }}%</span></p>
+                  <p class="dash-chart-card__subtitle">
+                    Taxa de aprovação: <span class="font-mono font-semibold" style="color: var(--c-success)">{{ taxaAprovacao }}%</span>
+                  </p>
                 </div>
               </div>
               <div class="dash-chart-card__body">
@@ -143,12 +150,12 @@
                   [states]="donutChart.states"
                 />
               </div>
-            </div>
+            </z-card>
           </div>
 
-          <!-- Gráfico horizontal: modelos mais usados + Últimas submissões -->
+          <!-- Gráfico horizontal + Últimas submissões -->
           <div class="grid grid-cols-1 gap-4 lg:grid-cols-5">
-            <div class="dash-chart-card lg:col-span-3">
+            <z-card class="dash-z-chart lg:col-span-3 gap-0 overflow-hidden rounded-lg py-0 shadow-sm **:data-[slot=card-content]:px-0">
               <div class="dash-chart-card__head">
                 <div class="min-w-0">
                   <h2 class="dash-chart-card__title">Modelos mais respondidos</h2>
@@ -180,9 +187,9 @@
                   />
                 }
               </div>
-            </div>
+            </z-card>
 
-            <div class="dash-panel lg:col-span-2">
+            <z-card class="dash-z-panel lg:col-span-2 gap-0 overflow-hidden rounded-lg py-0 shadow-sm **:data-[slot=card-content]:px-0">
               <div class="dash-panel__head">
                 <h2 class="dash-panel__title">Últimas submissões</h2>
                 <a routerLink="/protocolos" class="dash-link-all">Ver protocolos</a>
@@ -191,69 +198,68 @@
                 @for (item of ultimasSubmissoes; track item.id) {
                   <a routerLink="/protocolos/{{ item.id }}" class="dash-row">
                     <div class="min-w-0">
-                      <span class="text-sm font-semibold block truncate" style="color: var(--c-text)">{{ item.paciente }}</span>
-                      <span class="text-xs block truncate" style="color: var(--c-muted)">{{ item.modelo }} · {{ item.dataLabel }}</span>
+                      <span class="text-sm font-semibold block truncate text-foreground">{{ item.paciente }}</span>
+                      <span class="text-xs block truncate text-muted-foreground">{{ item.modelo }} · {{ item.dataLabel }}</span>
                     </div>
-                    <span class="dash-badge"
-                          [class.dash-badge--pending]="item.status === 'Pendente'"
-                          [class.dash-badge--ativo]="item.status === 'Aprovado'"
-                          [class.dash-badge--danger]="item.status === 'Reprovado'">
+                    <span
+                      class="dash-badge"
+                      [class.dash-badge--pending]="item.status === 'Pendente'"
+                      [class.dash-badge--ativo]="item.status === 'Aprovado'"
+                      [class.dash-badge--danger]="item.status === 'Reprovado'"
+                    >
                       {{ item.status }}
                     </span>
                   </a>
                 }
               } @else {
-                <zm-empty-state
-                  title="Nenhuma submissão recente."
-                  description="Novos protocolos submetidos serão exibidos nesta lista."
-                />
+                <zm-empty-state title="Nenhuma submissão recente." description="Novos protocolos submetidos serão exibidos nesta lista." />
               }
-            </div>
+            </z-card>
           </div>
 
-          <!-- Ações rápidas contextuais -->
-          <section class="dash-quick-actions">
-            <div class="dash-quick-actions__head">
-              <p class="dash-quick-actions__kicker">Acesso rápido</p>
-              @if (ultimos30Dias > 0) {
-                <p class="dash-quick-actions__hint">{{ ultimos30Dias }} respostas nos últimos 30 dias</p>
-              }
-            </div>
-            <div class="flex flex-wrap gap-2">
-              @if (pendentesHoje > 0) {
-                <a routerLink="/protocolos" class="btn-primary inline-flex items-center gap-1.5">
-                  <span class="material-symbols-outlined text-base">pending_actions</span>
-                  Revisar {{ pendentesHoje }} pendente@if (pendentesHoje > 1) {s}
-                </a>
-              } @else {
-                <a routerLink="/protocolos" class="btn-ghost btn-default-bg inline-flex items-center gap-1.5">
-                  <span class="material-symbols-outlined text-base">inbox</span>
-                  Ver protocolos
-                </a>
-              }
-              @if (totalTemplates === 0) {
-                <a routerLink="/templates/criar-em-branco" class="btn-primary inline-flex items-center gap-1.5">
-                  <span class="material-symbols-outlined text-base">add</span>
-                  Criar primeiro modelo
-                </a>
-              } @else {
-                <a routerLink="/templates/criar-em-branco" class="btn-ghost btn-default-bg inline-flex items-center gap-1.5">
-                  <span class="material-symbols-outlined text-base">add</span>
-                  Novo modelo
-                </a>
-              }
-              <a routerLink="/links-publicos" class="btn-ghost btn-default-bg inline-flex items-center gap-1.5">
-                <span class="material-symbols-outlined text-base">link</span>
-                Links para enviar
-                @if (linksPublicosCount > 0) {
-                  <span class="text-[0.65rem] font-semibold px-1.5 py-0.5 rounded-md" style="background: var(--c-kpi-accent-soft); color: var(--c-kpi-accent-text)">{{ linksPublicosCount }}</span>
+          <z-card class="gap-4 py-5 shadow-sm **:data-[slot=card-content]:px-5">
+            <section class="dash-quick-actions" aria-label="Acesso rápido">
+              <div class="dash-quick-actions__head">
+                <p class="dash-quick-actions__kicker">Acesso rápido</p>
+                @if (ultimos30Dias > 0) {
+                  <p class="dash-quick-actions__hint">{{ ultimos30Dias }} respostas nos últimos 30 dias</p>
                 }
-              </a>
-            </div>
-          </section>
+              </div>
+              <div class="flex flex-wrap gap-2">
+                @if (pendentesHoje > 0) {
+                  <a z-button routerLink="/protocolos" class="no-underline">
+                    <span class="material-symbols-outlined text-base">pending_actions</span>
+                    Revisar {{ pendentesHoje }} pendente@if (pendentesHoje > 1) {s}
+                  </a>
+                } @else {
+                  <a z-button zType="outline" routerLink="/protocolos" class="no-underline">
+                    <span class="material-symbols-outlined text-base">inbox</span>
+                    Ver protocolos
+                  </a>
+                }
+                @if (totalTemplates === 0) {
+                  <a z-button routerLink="/templates/criar-em-branco" class="no-underline">
+                    <span class="material-symbols-outlined text-base">add</span>
+                    Criar primeiro modelo
+                  </a>
+                } @else {
+                  <a z-button zType="outline" routerLink="/templates/criar-em-branco" class="no-underline">
+                    <span class="material-symbols-outlined text-base">add</span>
+                    Novo modelo
+                  </a>
+                }
+                <a z-button zType="outline" routerLink="/links-publicos" class="no-underline">
+                  <span class="material-symbols-outlined text-base">link</span>
+                  Links para enviar
+                  @if (linksPublicosCount > 0) {
+                    <span class="text-[0.65rem] font-semibold px-1.5 py-0.5 rounded-md" style="background: var(--c-kpi-accent-soft); color: var(--c-kpi-accent-text)">{{ linksPublicosCount }}</span>
+                  }
+                </a>
+              </div>
+            </section>
+          </z-card>
 
-          <!-- Últimos modelos -->
-          <div class="dash-panel">
+          <z-card class="dash-z-panel gap-0 overflow-hidden rounded-lg py-0 shadow-sm **:data-[slot=card-content]:px-0">
             <div class="dash-panel__head">
               <h2 class="dash-panel__title">Últimos modelos</h2>
               @if (ultimosTemplates.length > 0) {
@@ -267,8 +273,8 @@
                     <span class="material-symbols-outlined">description</span>
                   </div>
                   <div class="min-w-0">
-                    <span class="text-sm font-semibold block truncate" style="color: var(--c-text)">{{ t.name }}</span>
-                    <span class="text-xs" style="color: var(--c-muted)">
+                    <span class="text-sm font-semibold block truncate text-foreground">{{ t.name }}</span>
+                    <span class="text-xs text-muted-foreground">
                       {{ t.created_label }}
                       @if (t.respostas_count > 0) {
                         · {{ t.respostas_count }} resposta@if (t.respostas_count > 1) {s}
@@ -289,10 +295,10 @@
                 actionIcon="add"
               />
             }
-          </div>
+          </z-card>
 
           @if (categoriasResumo.length > 0) {
-            <div class="dash-panel">
+            <z-card class="dash-z-panel gap-0 overflow-hidden rounded-lg py-0 shadow-sm **:data-[slot=card-content]:px-0">
               <div class="dash-panel__head">
                 <h2 class="dash-panel__title">Modelos por categoria</h2>
               </div>
@@ -305,7 +311,7 @@
                   </a>
                 }
               </div>
-            </div>
+            </z-card>
           }
         </div>
       }

@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ToastService, ToastType } from '../../../core/services/toast.service';
 
+/** @deprecated Use `<z-toaster />` + `ToastService` (ngx-sonner via Zard). */
 @Component({
   selector: 'app-toast-container',
   standalone: true,

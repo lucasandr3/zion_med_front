@@ -1,15 +1,100 @@
-/* Protocolos listagem — fiel à view protocolos/index.blade.php */
-.protocolo-row:hover {
-  background-color: var(--c-soft);
+.protocolos-toolbar {
+  justify-content: space-between;
 }
-.filter-drawer {
-  animation: proto-drawer-in 0.2s ease-out;
+
+.protocolos-toolbar__search {
+  width: min(100%, 20rem);
+  max-width: 20rem;
+  flex: 0 1 20rem;
 }
-@keyframes proto-drawer-in {
-  from {
-    transform: translateX(100%);
+
+.protocolos-toolbar__actions {
+  margin-left: auto;
+  justify-content: flex-end;
+}
+
+@media (max-width: 768px) {
+  .protocolos-toolbar__search {
+    width: 100%;
+    max-width: 100%;
+    flex: 1 1 100%;
   }
-  to {
-    transform: translateX(0);
+
+  .protocolos-toolbar__actions {
+    width: 100%;
+    margin-left: 0;
+    justify-content: flex-start;
   }
+}
+
+/* Toolbar — botões sólidos por ação */
+.protocolos-toolbar .protocolos-btn {
+  border-color: transparent;
+  color: #fff;
+}
+
+.protocolos-toolbar .protocolos-btn--filtros {
+  background: var(--c-info);
+}
+
+.protocolos-toolbar .protocolos-btn--filtros:hover:not(:disabled),
+.protocolos-toolbar .protocolos-btn--filtros:focus-visible {
+  background: color-mix(in srgb, var(--c-info) 88%, #000);
+  color: #fff;
+}
+
+.protocolos-toolbar .protocolos-btn--csv {
+  background: var(--c-success);
+}
+
+.protocolos-toolbar .protocolos-btn--csv:hover:not(:disabled),
+.protocolos-toolbar .protocolos-btn--csv:focus-visible {
+  background: color-mix(in srgb, var(--c-success) 88%, #000);
+  color: #fff;
+}
+
+.protocolos-toolbar .protocolos-btn--pdf {
+  background: var(--c-success);
+}
+
+.protocolos-toolbar .protocolos-btn--pdf:hover:not(:disabled),
+.protocolos-toolbar .protocolos-btn--pdf:focus-visible {
+  background: color-mix(in srgb, var(--c-success) 88%, #000);
+  color: #fff;
+}
+
+.protocolos-toolbar .protocolos-btn:disabled {
+  opacity: 0.55;
+}
+
+/* Sheet de filtros — botões sólidos */
+.protocolos-filtros-sheet .zm-filter-btn {
+  border-color: transparent;
+  color: #fff;
+}
+
+.protocolos-filtros-sheet .zm-filter-btn--limpar {
+  background: color-mix(in srgb, var(--c-muted) 42%, var(--c-border));
+  color: var(--c-text);
+}
+
+.protocolos-filtros-sheet .zm-filter-btn--limpar:hover:not(:disabled),
+.protocolos-filtros-sheet .zm-filter-btn--limpar:focus-visible {
+  background: color-mix(in srgb, var(--c-muted) 55%, var(--c-border));
+  color: var(--c-text);
+}
+
+.protocolos-filtros-sheet .zm-filter-btn--aplicar {
+  background: var(--c-primary);
+}
+
+.protocolos-filtros-sheet .zm-filter-btn--aplicar:hover:not(:disabled),
+.protocolos-filtros-sheet .zm-filter-btn--aplicar:focus-visible {
+  background: color-mix(in srgb, var(--c-primary) 88%, #000);
+  color: #fff;
+}
+
+:host-context(.dark) .protocolos-filtros-sheet .zm-filter-btn--limpar {
+  background: color-mix(in srgb, var(--c-muted) 28%, #1e2530);
+  color: var(--c-text);
 }

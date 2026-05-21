@@ -460,21 +460,12 @@
                       </div>
                     }
                     @case ('checkbox') {
-                      <label class="fp-check-row">
-                        <input
-                          [id]="'lpDemoField_' + selectedFormIdx + '_' + idx"
-                          type="checkbox"
-                          [(ngModel)]="demoFormValues[field.label]"
-                          [name]="'demo_' + field.label"
-                          class="fp-check-native"
-                        />
-                        <span class="fp-check-box" aria-hidden="true">
-                          <svg class="fp-check-svg" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5">
-                            <polyline points="2 6 5 9 10 3" />
-                          </svg>
-                        </span>
-                        <span class="fp-check-label">{{ field.label }}</span>
-                      </label>
+                      <z-checkbox
+                        [(ngModel)]="demoFormValues[field.label]"
+                        [name]="'demo_' + field.label"
+                      >
+                        {{ field.label }}
+                      </z-checkbox>
                     }
                     @case ('signature') {
                       <p class="fp-sig-help">Assine com o dedo (celular) ou mouse (computador) no espaço abaixo.</p>
@@ -720,21 +711,21 @@
         <form (ngSubmit)="enviarDemonstracao()">
           <div class="demo-field">
             <label class="lp-form-label">Nome *</label>
-            <input class="lp-form-input" type="text" name="demo_name" [(ngModel)]="demonstracao.name" placeholder="Seu nome" required />
+            <input z-input class="lp-form-input w-full" type="text" name="demo_name" [(ngModel)]="demonstracao.name" placeholder="Seu nome" required />
           </div>
           <div class="demo-field">
             <label class="lp-form-label">Negócio ou marca *</label>
-            <input class="lp-form-input" type="text" name="demo_clinic" [(ngModel)]="demonstracao.clinic" placeholder="Nome fantasia, marca ou consultório" required />
+            <input z-input class="lp-form-input w-full" type="text" name="demo_clinic" [(ngModel)]="demonstracao.clinic" placeholder="Nome fantasia, marca ou consultório" required />
           </div>
           <div class="demo-row">
             <div class="demo-field">
               <label class="lp-form-label">E-mail *</label>
-              <input class="lp-form-input" type="email" name="demo_email" [(ngModel)]="demonstracao.email" placeholder="email&#64;seunegocio.com.br" required />
+              <input z-input class="lp-form-input w-full" type="email" name="demo_email" [(ngModel)]="demonstracao.email" placeholder="email&#64;seunegocio.com.br" required />
             </div>
             <div class="demo-field">
               <label class="lp-form-label">WhatsApp *</label>
               <input
-                class="lp-form-input"
+                z-input class="lp-form-input w-full"
                 type="tel"
                 name="demo_phone"
                 mask="(00) 0000-0000||(00) 00000-0000"
@@ -749,7 +740,7 @@
           </div>
           <div class="demo-field">
             <label class="lp-form-label">Mensagem</label>
-            <textarea class="lp-form-input" name="demo_message" [(ngModel)]="demonstracao.message" rows="3" placeholder="Conte rapidamente seu cenário."></textarea>
+            <textarea z-input class="lp-form-input w-full" name="demo_message" [(ngModel)]="demonstracao.message" rows="3" placeholder="Conte rapidamente seu cenário."></textarea>
           </div>
           <button type="submit" class="capture-btn" style="width: 100%; justify-content: center; margin-top: 4px" [disabled]="demonstracaoEnviando">
             @if (demonstracaoEnviando) { Enviando… } @else { Quero uma demonstração }

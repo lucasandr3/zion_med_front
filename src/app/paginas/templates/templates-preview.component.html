@@ -106,20 +106,12 @@
                     </div>
                   }
                   @case ('checkbox') {
-                    <label class="fp-check-row">
-                      <input [id]="'preview_' + campo.name_key" type="checkbox" [(ngModel)]="valores[campo.name_key]" [name]="'preview_' + campo.name_key" [required]="!!campo.required" class="fp-check-native" />
-                      <span class="fp-check-box" aria-hidden="true">
-                        <svg class="fp-check-svg" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5">
-                          <polyline points="2 6 5 9 10 3" />
-                        </svg>
-                      </span>
-                      <span class="fp-check-label">
-                        {{ campo.label }}
-                        @if (campo.required) {
-                          <span class="fp-required">*</span>
-                        }
-                      </span>
-                    </label>
+                    <z-checkbox [(ngModel)]="valores[campo.name_key]" [name]="'preview_' + campo.name_key">
+                      {{ campo.label }}
+                      @if (campo.required) {
+                        <span class="fp-required">*</span>
+                      }
+                    </z-checkbox>
                   }
                   @case ('file') {
                     <input [id]="'preview_' + campo.name_key" type="file" class="fp-input fp-file-input" [name]="'preview_' + campo.name_key" />

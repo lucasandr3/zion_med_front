@@ -1,61 +1,63 @@
 <!-- Listagem de faturas e cobranças da plataforma -->
-<div class="relative min-h-[300px]">
-  <div class="flex items-center justify-between mb-4">
-  <p class="text-xs" style="color: var(--c-muted)">
-    {{ faturas.length }} {{ faturas.length === 1 ? 'fatura' : 'faturas' }}.
-  </p>
-</div>
-
-@if (showSkeleton()) {
-  <zm-skeleton-list [rows]="6" />
-} @else if (!listaPronta) {
-} @else {
-@if (estadoErro) {
-  <div class="card p-4 rounded-xl mt-4" style="background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.3)">
-    <p class="text-sm" style="color: var(--c-text)">Não foi possível carregar as faturas.</p>
+<div class="relative min-h-[300px] space-y-4">
+  <div class="flex items-center justify-between">
+    <p class="text-xs text-muted-foreground">
+      {{ faturas.length }} {{ faturas.length === 1 ? 'fatura' : 'faturas' }}.
+    </p>
   </div>
-} @else {
-<div class="zm-content-enter">
-<div class="overflow-x-auto rounded-xl border" style="border-color: var(--c-border); background: var(--c-surface)">
-  <table class="platform-table">
-    <thead>
-      <tr>
-        <th class="py-2 pr-3">Cliente</th>
-        <th class="py-2 px-3">Empresa</th>
-        <th class="py-2 px-3">Referência</th>
-        <th class="py-2 px-3 text-right">Valor</th>
-        <th class="py-2 px-3">Vencimento</th>
-        <th class="py-2 px-3">Status</th>
-        <th class="py-2 pl-3">Pago em</th>
-      </tr>
-    </thead>
-    <tbody>
-      @for (f of faturas; track f.id) {
-        <tr>
-          <td class="py-2.5 pr-3">
-            <span class="text-xs font-semibold" style="color: var(--c-text)">{{ f.tenant_name }}</span>
-          </td>
-          <td class="py-2.5 px-3 cell-muted">{{ f.clinic_name }}</td>
-          <td class="py-2.5 px-3 cell-muted">{{ f.reference || '—' }}</td>
-          <td class="py-2.5 px-3 text-right cell-muted">{{ formatarValor(f.amount, f.currency) }}</td>
-          <td class="py-2.5 px-3 cell-muted">{{ formatarData(f.due_date) }}</td>
-          <td class="py-2.5 px-3 cell-muted">{{ rotuloStatusFatura(f.status) }}</td>
-          <td class="py-2.5 pl-3 cell-muted">{{ formatarData(f.paid_at) }}</td>
-        </tr>
-      } @empty {
-        <tr>
-          <td colspan="7" class="py-0">
-            <zm-empty-state
-              title="Nenhuma fatura cadastrada."
-              description="As faturas geradas para os clientes serão exibidas aqui."
-            />
-          </td>
-        </tr>
-      }
-    </tbody>
-  </table>
-</div>
-</div>
-}
-}
+
+  @if (showSkeleton()) {
+    <zm-skeleton-list [rows]="6" />
+  } @else if (!listaPronta) {
+  } @else {
+    @if (estadoErro) {
+      <div class="rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-foreground">
+        Não foi possível carregar as faturas.
+      </div>
+    } @else {
+      <div class="zm-content-enter">
+        <z-card class="gap-0 overflow-hidden py-0 shadow-sm **:data-[slot=card-content]:p-0">
+          <div class="overflow-x-auto">
+            <table z-table zSize="compact" class="text-xs">
+              <thead z-table-header>
+                <tr z-table-row>
+                  <th z-table-head class="py-2 pr-3">Cliente</th>
+                  <th z-table-head class="py-2 px-3">Empresa</th>
+                  <th z-table-head class="py-2 px-3">Referência</th>
+                  <th z-table-head class="py-2 px-3 text-right">Valor</th>
+                  <th z-table-head class="py-2 px-3">Vencimento</th>
+                  <th z-table-head class="py-2 px-3">Status</th>
+                  <th z-table-head class="py-2 pl-3">Pago em</th>
+                </tr>
+              </thead>
+              <tbody z-table-body>
+                @for (f of faturas; track f.id) {
+                  <tr z-table-row>
+                    <td z-table-cell class="py-2.5 pr-3">
+                      <span class="text-xs font-semibold text-foreground">{{ f.tenant_name }}</span>
+                    </td>
+                    <td z-table-cell class="text-muted-foreground py-2.5 px-3">{{ f.clinic_name }}</td>
+                    <td z-table-cell class="text-muted-foreground py-2.5 px-3">{{ f.reference || '—' }}</td>
+                    <td z-table-cell class="text-muted-foreground py-2.5 px-3 text-right">{{ formatarValor(f.amount, f.currency) }}</td>
+                    <td z-table-cell class="text-muted-foreground py-2.5 px-3">{{ formatarData(f.due_date) }}</td>
+                    <td z-table-cell class="text-muted-foreground py-2.5 px-3">{{ rotuloStatusFatura(f.status) }}</td>
+                    <td z-table-cell class="text-muted-foreground py-2.5 pl-3">{{ formatarData(f.paid_at) }}</td>
+                  </tr>
+                } @empty {
+                  <tr z-table-row>
+                    <td z-table-cell colspan="7" class="py-0">
+                      <zm-empty-state
+                        title="Nenhuma fatura cadastrada."
+                        description="As faturas geradas para os clientes serão exibidas aqui."
+                      />
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </z-card>
+      </div>
+    }
+  }
 </div>

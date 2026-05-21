@@ -8,17 +8,17 @@
       <h2 class="text-base font-semibold m-0" style="color: var(--c-text)">Notificações</h2>
     </div>
     <div class="flex flex-wrap items-center gap-2">
-      <button type="button" class="notif-filtro-btn" [class.ativo]="filtroPlataforma === 'todas'" (click)="filtroPlataforma = 'todas'" appTooltip="Ver todas as notificações">
+      <button type="button" class="notif-filtro-btn" [class.ativo]="filtroPlataforma === 'todas'" (click)="filtroPlataforma = 'todas'" zTooltip="Ver todas as notificações">
         Todas
       </button>
-      <button type="button" class="notif-filtro-btn notif-filtro-outline" [class.ativo]="filtroPlataforma === 'nao_lidas'" (click)="filtroPlataforma = 'nao_lidas'" appTooltip="Ver apenas não lidas">
+      <button type="button" class="notif-filtro-btn notif-filtro-outline" [class.ativo]="filtroPlataforma === 'nao_lidas'" (click)="filtroPlataforma = 'nao_lidas'" zTooltip="Ver apenas não lidas">
         Não lidas
         @if (quantidadeNaoLidas > 0) {
           <span class="notif-badge">{{ quantidadeNaoLidas > 99 ? '99+' : quantidadeNaoLidas }}</span>
         }
       </button>
       @if (temNaoLidas) {
-        <button type="button" class="notif-action-btn inline-flex items-center gap-2" [disabled]="marcandoTodas" (click)="marcarTodas()" appTooltip="Marcar todas como lidas">
+        <button type="button" class="notif-action-btn inline-flex items-center gap-2" [disabled]="marcandoTodas" (click)="marcarTodas()" zTooltip="Marcar todas como lidas">
           @if (marcandoTodas) {
             <span class="btn-spinner" style="width:14px;height:14px;border-width:2px"></span>
           } @else {
@@ -28,7 +28,7 @@
         </button>
       }
       @if (notificacoes.length > 0) {
-        <button type="button" class="notif-action-btn inline-flex items-center gap-2" [disabled]="limpandoTudo" (click)="limparTudo()" appTooltip="Excluir todas as notificações">
+        <button type="button" class="notif-action-btn inline-flex items-center gap-2" [disabled]="limpandoTudo" (click)="limparTudo()" zTooltip="Excluir todas as notificações">
           @if (limpandoTudo) {
             <span class="btn-spinner" style="width:14px;height:14px;border-width:2px"></span>
           } @else {
@@ -95,7 +95,7 @@
                   @if (!n.read_at) {
                     <span class="w-2 h-2 rounded-full block mt-1.5 shrink-0" style="background: var(--c-primary)"></span>
                   }
-                  <button type="button" class="notif-btn-close inline-flex items-center justify-center" [disabled]="excluindoId === n.id" (click)="excluir(n.id)" aria-label="Excluir" appTooltip="Excluir notificação">
+                  <button type="button" class="notif-btn-close inline-flex items-center justify-center" [disabled]="excluindoId === n.id" (click)="excluir(n.id)" aria-label="Excluir" zTooltip="Excluir notificação">
                     @if (excluindoId === n.id) {
                       <span class="btn-spinner" style="width:14px;height:14px;border-width:2px"></span>
                     } @else {

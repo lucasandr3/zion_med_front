@@ -11,8 +11,7 @@ import { BillingBlockedStateService } from '../../../core/services/billing-block
 import { AuthService, TrialNotice } from '../../../core/services/auth.service';
 import { OrganizationPresenceService } from '../../../core/services/organization-presence.service';
 import { ZmAssinaturaBloqueadaCardComponent } from '../../../shared/components/ui/zm-assinatura-bloqueada-card/zm-assinatura-bloqueada-card.component';
-import type { AppBreadcrumb } from '../cabecalho/cabecalho.component';
-
+import { ZardButtonComponent } from '@/shared/components/button/button.component';
 @Component({
   selector: 'app-layout-app',
   standalone: true,
@@ -23,13 +22,13 @@ import type { AppBreadcrumb } from '../cabecalho/cabecalho.component';
     BarraLateralComponent,
     CabecalhoComponent,
     ZmAssinaturaBloqueadaCardComponent,
+    ZardButtonComponent,
   ],
   templateUrl: './layout-app.component.html',
   styleUrl: './layout-app.component.css',
 })
 export class LayoutAppComponent implements OnInit {
   tituloPagina = 'Painel';
-  breadcrumbs: AppBreadcrumb[] = [];
   urlVoltar: string | null = null;
   labelVoltar: string | null = null;
   notificacoesNaoLidas = 0;
@@ -61,14 +60,6 @@ export class LayoutAppComponent implements OnInit {
     this.tituloPagina = this.resolvePageTitle(path, categoriaAtual, data.titulo);
     this.urlVoltar = data.urlVoltar ?? null;
     this.labelVoltar = data.labelVoltar ?? null;
-    if (path === '/dashboard') {
-      this.breadcrumbs = [{ label: this.tituloPagina, url: null }];
-    } else {
-      this.breadcrumbs = [
-        { label: 'Início', url: '/dashboard' },
-        { label: this.tituloPagina, url: null },
-      ];
-    }
   }
 
   private resolvePageTitle(path: string, categoria: string | null, fallbackTitle?: string): string {

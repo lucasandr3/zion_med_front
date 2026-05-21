@@ -1,66 +1,80 @@
-.template-row:last-child {
-  border-bottom: 0 !important;
+:host ::ng-deep .links-publicos-card {
+  gap: 0;
+  padding-block: 0;
 }
 
-.template-link-preview {
-  color: var(--c-muted);
-  max-width: 52ch;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+:host ::ng-deep .links-publicos-card [data-slot='card-content'] {
+  padding: 0.5rem 0.75rem;
 }
 
-.template-actions a,
-.template-actions button {
-  min-height: 32px;
+.links-publicos-card__title {
+  margin-top: 0;
 }
 
-.template-action-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.35rem 0.75rem;
-  border-radius: 0.5rem;
-  font-size: 0.8125rem;
-  font-weight: 600;
-  background: var(--c-soft);
-  color: var(--c-muted);
-  border: 1px solid transparent;
-  transition: background-color 0.2s ease, color 0.2s ease;
+.links-publicos-card__inner {
+  min-height: var(--button-height);
+  gap: 0.625rem;
 }
 
-.template-action-btn:hover {
-  background: var(--c-border);
+.links-publicos-actions .links-publicos-btn.links-publicos-btn--copiar {
+  border-color: color-mix(in srgb, var(--c-success) 38%, var(--border));
+  background: var(--c-success-soft);
+  color: var(--c-success);
 }
 
-.template-action-btn .material-symbols-outlined {
-  font-size: 1rem;
+.links-publicos-actions .links-publicos-btn.links-publicos-btn--copiar:hover,
+.links-publicos-actions .links-publicos-btn.links-publicos-btn--copiar:focus-visible {
+  border-color: color-mix(in srgb, var(--c-success) 52%, var(--border));
+  background: color-mix(in srgb, var(--c-success) 22%, transparent);
+  color: var(--c-success);
 }
 
-.template-action-btn--primary {
-  background: var(--c-primary);
-  color: #fff;
+.links-publicos-actions .links-publicos-btn.links-publicos-btn--abrir {
+  border-color: color-mix(in srgb, var(--c-info) 38%, var(--border));
+  background: var(--c-info-soft);
+  color: var(--c-info);
 }
 
-.template-action-btn--primary:hover {
-  background: color-mix(in srgb, var(--c-primary) 88%, #000);
+.links-publicos-actions .links-publicos-btn.links-publicos-btn--abrir:hover,
+.links-publicos-actions .links-publicos-btn.links-publicos-btn--abrir:focus-visible {
+  border-color: color-mix(in srgb, var(--c-info) 52%, var(--border));
+  background: color-mix(in srgb, var(--c-info) 22%, transparent);
+  color: var(--c-info);
 }
 
-.template-actions a:focus-visible,
-.template-actions button:focus-visible {
-  outline: 2px solid var(--c-primary);
-  outline-offset: 2px;
+.links-publicos-actions .links-publicos-btn.links-publicos-btn--campos {
+  --lp-campos: #6d28d9;
+  border-color: color-mix(in srgb, var(--lp-campos) 35%, var(--border));
+  background: color-mix(in srgb, var(--lp-campos) 12%, transparent);
+  color: var(--lp-campos);
+}
+
+.links-publicos-actions .links-publicos-btn.links-publicos-btn--campos:hover,
+.links-publicos-actions .links-publicos-btn.links-publicos-btn--campos:focus-visible {
+  border-color: color-mix(in srgb, var(--lp-campos) 48%, var(--border));
+  background: color-mix(in srgb, var(--lp-campos) 20%, transparent);
+  color: var(--lp-campos);
+}
+
+:host-context(.dark) .links-publicos-actions .links-publicos-btn.links-publicos-btn--campos {
+  --lp-campos: #a78bfa;
 }
 
 @media (max-width: 768px) {
-  .template-actions {
-    width: 100%;
-    flex-wrap: wrap;
+  .links-publicos-card__inner {
+    flex-direction: column;
+    align-items: stretch;
   }
 
-  .template-actions a,
-  .template-actions button {
+  .links-publicos-actions {
+    width: 100%;
+    align-self: stretch;
+    justify-content: flex-start;
+  }
+
+  .links-publicos-actions a,
+  .links-publicos-actions button {
+    flex: 1 1 calc(50% - 0.25rem);
     justify-content: center;
-    flex: 1 1 calc(50% - 0.5rem);
   }
 }

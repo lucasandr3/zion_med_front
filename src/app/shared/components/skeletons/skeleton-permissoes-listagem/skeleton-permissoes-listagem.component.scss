@@ -1,0 +1,19 @@
+.permissoes-listagem-skeleton {
+  width: 100%;
+}
+
+.permissoes-listagem-skeleton__actions-head {
+  width: 3rem;
+  margin-left: auto;
+}
+
+@media (max-width: 767px) {
+  .permissoes-listagem-skeleton z-card {
+    overflow-x: auto;
+  }
+
+  .permissoes-listagem-skeleton__head,
+  .permissoes-listagem-skeleton__row {
+    min-width: 32rem;
+  }
+}

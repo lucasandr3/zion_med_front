@@ -1,5 +1,169 @@
 /* Clinica configuracoes */
 
+:host {
+  display: block;
+  width: 100%;
+  margin-top: -1.5rem;
+}
+
+/* Compensa padding do <main> — barra de abas até as bordas */
+.clinica-config-page {
+  width: calc(100% + 2rem);
+  max-width: none;
+  margin-left: -1rem;
+  margin-right: -1rem;
+  color: var(--foreground);
+}
+
+@media (min-width: 640px) {
+  .clinica-config-page {
+    width: calc(100% + 3rem);
+    margin-left: -1.5rem;
+    margin-right: -1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .clinica-config-page {
+    width: calc(100% + 4rem);
+    margin-left: -2rem;
+    margin-right: -2rem;
+  }
+}
+
+.clinica-config-shell {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  background: var(--background);
+}
+
+.clinica-config-shell .clinica-config,
+.clinica-config-shell .clinica-config form {
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 auto;
+  width: 100%;
+}
+
+/* Barra de abas fixa no topo — mesmo fundo dos cards (como protocolo detalhe) */
+:host ::ng-deep .clinica-config-shell .clinica-config-tabs-bar,
+:host ::ng-deep .clinica-config-shell .config-zard-tabs--layout > .grid {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  flex-shrink: 0;
+  width: 100%;
+  background: var(--card) !important;
+  box-sizing: border-box;
+  border-top: none !important;
+  border-bottom: 1px solid var(--border, var(--c-border)) !important;
+}
+
+:host ::ng-deep .clinica-config-shell .config-zard-tabs--no-nav-rule nav[role='tablist'] {
+  flex-shrink: 0;
+  width: 100%;
+  margin: 0 !important;
+  margin-bottom: 0 !important;
+  padding: 0.5rem 1rem 0;
+  background: var(--card);
+  border-top: none !important;
+  border-bottom: none !important;
+}
+
+.clinica-config-alerts {
+  padding: 0 1.25rem;
+}
+
+:host ::ng-deep .config-zard-tabs nav[role='tablist'] button[role='tab'][aria-selected='true'] {
+  color: var(--primary);
+  border-bottom-color: var(--primary) !important;
+}
+
+.config-zard-tabs--layout {
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 auto;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  background: var(--background);
+  border: none;
+}
+
+/* Evita faixa vazia: o .flex-1 do z-tab-group não deve crescer além do conteúdo */
+:host ::ng-deep .clinica-config-shell .config-zard-tabs--layout > .flex-1 {
+  display: block;
+  flex: 0 0 auto !important;
+  width: 100%;
+  min-height: 0 !important;
+  height: auto !important;
+  background: var(--background);
+}
+
+:host ::ng-deep .clinica-config-shell .config-zard-tabs--layout > .flex-1 [role='tabpanel'] {
+  display: block;
+  width: 100%;
+  outline: none;
+}
+
+:host ::ng-deep .clinica-config-shell .config-zard-tabs--layout > .flex-1 [role='tabpanel'][hidden] {
+  display: none !important;
+}
+
+.clinica-config .config-tab-panel {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 1.25rem;
+  padding-bottom: 0;
+  background: var(--background);
+}
+
+.clinica-config-shell zm-skeleton-configuracoes {
+  display: block;
+  width: 100%;
+}
+
+@media (min-width: 640px) {
+  .clinica-config .config-tab-panel {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+
+  .clinica-config-alerts {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .clinica-config .config-tab-panel {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+
+  .clinica-config-alerts {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+.clinica-config .config-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem;
+  margin-bottom: 1.25rem;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.25rem;
+}
+
+.clinica-config .config-tab.config-tab--active {
+  color: var(--primary);
+  background: var(--card);
+  box-shadow: var(--shadow-sm);
+}
+
 .wa-status-body {
   display: grid;
   gap: 12px;
@@ -24,14 +188,14 @@
   justify-content: space-between;
   gap: 8px;
   padding: 10px 12px;
-  border: 1px solid var(--c-border);
-  border-radius: 0.5rem;
-  background: color-mix(in srgb, var(--c-soft) 70%, transparent);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--muted);
 }
 
 .wa-status-label {
   font-size: 12px;
-  color: var(--c-muted);
+  color: var(--muted-foreground);
   font-weight: 600;
 }
 
@@ -40,9 +204,10 @@
   align-items: center;
   font-size: 12px;
   padding: 6px 8px;
-  border-radius: 0.5rem;
-  background: var(--c-soft);
-  border: 1px solid var(--c-border);
+  border-radius: var(--radius);
+  background: var(--muted);
+  border: 1px solid var(--border);
+  color: var(--foreground);
 }
 
 .wa-badge {
@@ -89,25 +254,18 @@
   display: inline-flex;
   align-items: center;
   padding: 4px 8px;
-  border-radius: 0.5rem;
-  border: 1px solid var(--c-border);
-  background: var(--c-soft);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--muted);
   font-size: 11px;
-  color: var(--c-muted);
+  color: var(--muted-foreground);
   white-space: nowrap;
 }
 
-/* Aba Tema Visual */
-#panel-visual .section-card {
-  border: 1px solid var(--c-border);
-  border-radius: 0.5rem;
-  background: var(--c-elevated, var(--c-bg));
-  box-shadow: 0 8px 24px color-mix(in srgb, var(--c-primary) 8%, transparent);
-}
-
+/* Aba Tema Visual — herda bg-card do z-card; só ajustes de layout */
 #panel-visual .section-header {
   padding: 16px 18px 14px;
-  border-bottom: 1px solid color-mix(in srgb, var(--c-border) 85%, transparent);
+  border-bottom: 1px solid var(--border);
 }
 
 #panel-visual .section-body {
@@ -123,13 +281,13 @@
 #panel-visual .visual-subtitle .vtitle {
   font-size: 18px;
   font-weight: 700;
-  color: var(--c-text);
+  color: var(--foreground);
 }
 
 #panel-visual .visual-subtitle .vsub {
   margin-top: 4px;
   font-size: 14px;
-  color: var(--c-muted);
+  color: var(--muted-foreground);
 }
 
 #panel-visual .palette-grid {
@@ -167,23 +325,23 @@
   align-items: flex-start;
   gap: 10px;
   padding: 12px;
-  border-radius: 0.5rem;
-  border: 1px solid var(--c-border);
-  background: var(--c-soft);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--muted);
   cursor: pointer;
   transition: all 0.16s ease;
 }
 
 #panel-visual .theme-card:hover {
   transform: translateY(-1px);
-  border-color: color-mix(in srgb, var(--c-primary) 45%, var(--c-border));
-  box-shadow: 0 6px 14px color-mix(in srgb, var(--c-primary) 16%, transparent);
+  border-color: color-mix(in srgb, var(--primary) 45%, var(--border));
+  box-shadow: 0 6px 14px color-mix(in srgb, var(--primary) 16%, transparent);
 }
 
 #panel-visual .theme-card.selected {
-  border-color: var(--c-primary);
-  background: color-mix(in srgb, var(--c-primary) 10%, var(--c-soft));
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--c-primary) 24%, transparent);
+  border-color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 10%, var(--muted));
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 24%, transparent);
 }
 
 #panel-visual .theme-preview {
@@ -206,19 +364,19 @@
 #panel-visual .theme-dot {
   width: 10px;
   height: 10px;
-  border-radius: 0.5rem;
-  box-shadow: 0 0 0 2px var(--c-elevated, var(--c-bg));
+  border-radius: var(--radius);
+  box-shadow: 0 0 0 2px var(--card);
 }
 
 #panel-visual .theme-name {
   font-size: 12px;
   font-weight: 600;
-  color: var(--c-text);
+  color: var(--foreground);
   line-height: 1.2;
 }
 
 #panel-visual .theme-card.selected .theme-name {
-  color: var(--c-primary);
+  color: var(--primary);
 }
 
 #panel-visual .theme-card.selected::after {
@@ -229,7 +387,7 @@
   position: absolute;
   top: 8px;
   right: 8px;
-  color: var(--c-primary);
+  color: var(--primary);
   font-variation-settings: 'FILL' 1, 'wght' 600;
 }
 
@@ -251,29 +409,31 @@
 }
 
 #panel-visual .mode-card {
-  border: 1px solid var(--c-border);
-  border-radius: 0.5rem;
-  background: var(--c-soft);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--muted);
   min-height: 64px;
+  padding: 10px 8px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 4px;
-  color: var(--c-text);
+  gap: 6px;
+  text-align: center;
+  color: var(--foreground);
   font-weight: 600;
   font-size: 13px;
   transition: all 0.18s ease;
 }
 
 #panel-visual .mode-card:hover:not(:disabled) {
-  border-color: color-mix(in srgb, var(--c-primary) 45%, var(--c-border));
+  border-color: color-mix(in srgb, var(--primary) 45%, var(--border));
 }
 
 #panel-visual .mode-card.selected {
-  background: color-mix(in srgb, var(--c-primary) 88%, white 12%);
-  border-color: var(--c-primary);
-  color: #fff;
+  background: var(--primary);
+  border-color: var(--primary);
+  color: var(--primary-foreground);
 }
 
 #panel-visual .mode-card.selected .material-symbols-outlined {
@@ -282,6 +442,12 @@
 
 #panel-visual .mode-card .material-symbols-outlined {
   font-size: 20px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+#panel-visual .mode-card > span:last-child {
+  line-height: 1.25;
 }
 
 #panel-visual .mode-card small {
@@ -303,7 +469,7 @@
   margin: 10px 0 0;
   font-size: 12px;
   line-height: 1.45;
-  color: var(--c-muted);
+  color: var(--muted-foreground);
 }
 
 
@@ -313,21 +479,21 @@
   justify-content: space-between;
   gap: 12px;
   padding: 14px 14px;
-  border-radius: 0.5rem;
-  border: 1px solid var(--c-border);
-  background: var(--c-soft);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--muted);
 }
 
 #panel-visual .dark-toggle-info .dtitle {
   font-size: 14px;
   font-weight: 700;
-  color: var(--c-text);
+  color: var(--foreground);
 }
 
 #panel-visual .dark-toggle-info .dsub {
   margin-top: 3px;
   font-size: 12px;
-  color: var(--c-muted);
+  color: var(--muted-foreground);
 }
 
 @media (max-width: 640px) {
@@ -345,4 +511,405 @@
   #panel-visual .mode-grid {
     grid-template-columns: 1fr;
   }
+}
+
+/* —— Horário de atendimento —— */
+.clinica-config .schedule-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.clinica-config .schedule-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.625rem;
+  padding: 0.45rem 0.65rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--card);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.clinica-config .schedule-row--active {
+  border-color: color-mix(in srgb, var(--primary) 32%, var(--border));
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--primary) 10%, transparent);
+}
+
+.clinica-config .schedule-row__day {
+  flex: 0 0 4.5rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.clinica-config .schedule-row__switch {
+  flex-shrink: 0;
+}
+
+.clinica-config .schedule-row__switch > span.flex {
+  gap: 0;
+}
+
+.clinica-config .schedule-row__switch label {
+  display: none;
+}
+
+.clinica-config .schedule-row__times {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.5rem;
+  min-width: 0;
+}
+
+.clinica-config .schedule-time-field {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.clinica-config .schedule-time-field__label {
+  flex-shrink: 0;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--muted-foreground);
+}
+
+.clinica-config .schedule-time-input {
+  width: 4.5rem;
+  max-width: 100%;
+  min-width: 0;
+  padding-left: 0.35rem;
+  padding-right: 0.35rem;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+
+.clinica-config .schedule-row .flatpickr-wrapper {
+  display: inline-block;
+  width: auto;
+  max-width: 100%;
+  vertical-align: middle;
+}
+
+.clinica-config .schedule-row .flatpickr-wrapper input.schedule-time-input {
+  width: 4.5rem;
+  min-width: 4.5rem;
+  max-width: 100%;
+}
+
+.clinica-config .schedule-row__sep {
+  flex-shrink: 0;
+  font-size: 0.875rem;
+  line-height: 1;
+  color: var(--muted-foreground);
+}
+
+.clinica-config .schedule-row__closed {
+  margin-left: 0.15rem;
+}
+
+.clinica-config .schedule-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 0.75rem;
+}
+
+.clinica-config .schedule-copy-btn {
+  gap: 0.35rem;
+  font-weight: 600;
+}
+
+.clinica-config .schedule-copy-btn .material-symbols-outlined {
+  font-size: 1rem;
+}
+
+@media (max-width: 540px) {
+  .clinica-config .schedule-row__day {
+    flex: 0 0 100%;
+  }
+
+  .clinica-config .schedule-row__times {
+    flex: 1 1 100%;
+  }
+}
+
+/* —— Identidade visual: logo —— */
+.clinica-config .logo-upload-intro {
+  margin: 0 0 1rem;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--muted-foreground);
+}
+
+.clinica-config .logo-upload-layout {
+  display: grid;
+  grid-template-columns: minmax(9.5rem, 11.5rem) minmax(0, 1fr);
+  gap: 1.25rem;
+  align-items: stretch;
+}
+
+@media (max-width: 640px) {
+  .clinica-config .logo-upload-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.clinica-config .logo-preview-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.clinica-config .logo-preview-card__label {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+}
+
+.clinica-config .logo-preview-frame {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 9.5rem;
+  aspect-ratio: 1;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--muted) 55%, var(--card));
+  overflow: hidden;
+}
+
+.clinica-config .logo-preview-frame--pending {
+  border-color: color-mix(in srgb, var(--primary) 45%, var(--border));
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 14%, transparent);
+}
+
+.clinica-config .logo-preview-frame--empty {
+  border-style: dashed;
+}
+
+.clinica-config .logo-preview-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  padding: 0.75rem;
+  box-sizing: border-box;
+}
+
+.clinica-config .logo-preview-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--muted-foreground);
+}
+
+.clinica-config .logo-preview-placeholder .material-symbols-outlined {
+  font-size: 2rem;
+  opacity: 0.55;
+}
+
+.clinica-config .logo-preview-status {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--muted-foreground);
+}
+
+.clinica-config .logo-preview-status--pending {
+  color: var(--primary);
+}
+
+.clinica-config .logo-upload-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  min-width: 0;
+}
+
+.clinica-config .logo-upload-zone {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 9.5rem;
+  padding: 1.25rem 1rem;
+  border: 2px dashed var(--border);
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--muted) 35%, transparent);
+  cursor: pointer;
+  text-align: center;
+  transition: border-color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.clinica-config .logo-upload-zone:hover,
+.clinica-config .logo-upload-zone:focus-visible {
+  border-color: color-mix(in srgb, var(--primary) 55%, var(--border));
+  background: color-mix(in srgb, var(--primary) 6%, var(--muted));
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 12%, transparent);
+}
+
+.clinica-config .logo-upload-zone--dragging {
+  border-color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 10%, var(--card));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 18%, transparent);
+}
+
+.clinica-config .logo-upload-zone__icon {
+  font-size: 2rem;
+  color: var(--primary);
+}
+
+.clinica-config .logo-upload-zone__title {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.45;
+  color: var(--foreground);
+}
+
+.clinica-config .logo-upload-zone__link {
+  color: var(--primary);
+}
+
+.clinica-config .logo-upload-zone__hint {
+  margin: 0;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: var(--muted-foreground);
+}
+
+.clinica-config .logo-upload-file {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.625rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--card);
+}
+
+.clinica-config .logo-upload-file__icon {
+  font-size: 1.125rem;
+  color: var(--primary);
+  flex-shrink: 0;
+}
+
+.clinica-config .logo-upload-file__name {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--foreground);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* —— Aba Empresas —— */
+.clinica-config .empresas-plan-hint {
+  margin-left: auto;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--muted-foreground);
+}
+
+.clinica-config .empresas-empty-hint {
+  margin: 0 0 1rem;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--muted-foreground);
+}
+
+.clinica-config .empresas-trocar-link {
+  display: inline-block;
+  margin-top: 0.25rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--primary);
+  text-decoration: none;
+}
+
+.clinica-config .empresas-trocar-link:hover {
+  text-decoration: underline;
+}
+
+.clinica-config .tenant-clinics-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1rem;
+}
+
+.clinica-config .tenant-clinic-item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.625rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.clinica-config .tenant-clinic-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.clinica-config .tenant-clinic-item__icon {
+  font-size: 1.25rem;
+  color: var(--muted-foreground);
+}
+
+.clinica-config .tenant-clinic-item__name {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.clinica-config .tenant-clinic-item__meta {
+  font-size: 0.6875rem;
+  color: var(--muted-foreground);
+}
+
+.clinica-config .tenant-clinic-badge {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 12%, transparent);
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.5rem;
+}
+
+/* —— Aba Logs / tabela em card —— */
+.clinica-config .section-body--flush {
+  padding: 0;
+}
+
+.clinica-config .config-table-wrap {
+  overflow-x: auto;
+}
+
+.clinica-config .config-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 3rem 1.25rem;
+  text-align: center;
+}
+
+.clinica-config .config-empty-state .material-symbols-outlined {
+  font-size: 2.5rem;
+  color: var(--border);
 }

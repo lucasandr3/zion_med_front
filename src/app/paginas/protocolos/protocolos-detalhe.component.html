@@ -1,4 +1,4 @@
-<div class="pd-root protocolo-detalhe relative min-h-[320px]">
+<div class="protocolo-detalhe-page relative min-h-[320px]">
   @if (gerandoPdf) {
     <div class="dp-generating-overlay" aria-live="polite" aria-busy="true">
       <div class="dp-generating-card">
@@ -9,101 +9,120 @@
   }
 
   @if (erro) {
-    <p class="pd-text-error text-sm mb-4">{{ erro }}</p>
+    <p class="mb-4 text-sm text-destructive">{{ erro }}</p>
   }
 
   @if (showSkeleton() && !protocolo) {
-    <div class="pd-content space-y-4">
-      <zm-skeleton-card [height]="56" />
-      <zm-skeleton-card [height]="200" />
-      <zm-skeleton-card [height]="160" />
-    </div>
+    <zm-skeleton-protocolo-detalhe />
   }
 
   @if (!erro && protocolo) {
-    <div class="zm-content-enter pd-layout">
+    <div class="protocolo-detalhe-shell zm-content-enter">
 
-      <!-- Cabeçalho fixo -->
-      <div class="pd-header-bar">
+      <div class="protocolo-detalhe-sticky-top">
+        <div class="protocolo-detalhe-header">
         <div>
-          <div class="pd-header-kicker">
-            <span class="pd-mono pd-header-code">{{ protocolo.protocol_number || protocolo.id }}</span>
-            <span class="pd-badge" [ngClass]="'pd-badge--' + statusBadgeTone()">{{ statusLabel() }}</span>
+          <div class="mb-1 flex flex-wrap items-center gap-2">
+            <span class="font-mono text-xs text-muted-foreground">{{ protocolo.protocol_number || protocolo.id }}</span>
+            <z-badge zShape="pill" [zType]="statusBadgeType()" [class]="statusBadgeClass()">{{ statusLabel() }}</z-badge>
           </div>
-          <h1 class="pd-header-title">{{ templateNome() }}</h1>
+          <h1 class="m-0 text-base font-semibold leading-snug text-foreground">{{ templateNome() }}</h1>
         </div>
-        <div class="pd-header-actions">
+        <div class="protocolo-detalhe-header__actions flex flex-wrap items-center gap-2">
           <button
+            z-button
+            zType="outline"
+            zSize="sm"
             type="button"
-            class="btn-ghost btn-default-bg btn-sm inline-flex items-center gap-2"
+            class="protocolo-btn-pdf gap-2"
             (click)="baixarFichaPdf()"
             title="Baixar PDF"
-            [disabled]="gerandoPdf">
-            @if (gerandoPdf) {
-              <span class="btn-spinner" aria-hidden="true"></span>
-            } @else {
-              <span class="material-symbols-outlined text-base" aria-hidden="true">download</span>
-            }
+            [zLoading]="gerandoPdf"
+            [zDisabled]="gerandoPdf">
+            <span class="material-symbols-outlined text-base" aria-hidden="true">download</span>
             {{ gerandoPdf ? 'Gerando…' : 'Baixar PDF' }}
           </button>
           <button
+            z-button
+            zType="outline"
+            zSize="sm"
             type="button"
-            class="btn-ghost btn-default-bg btn-sm inline-flex items-center gap-2"
+            class="protocolo-btn-zip gap-2"
             (click)="baixarDossie()"
-            title="Baixar dossiê (ZIP)">
+            title="Baixar dossiê (ZIP)"
+            [zLoading]="gerandoDossie"
+            [zDisabled]="gerandoDossie">
             <span class="material-symbols-outlined text-base" aria-hidden="true">inventory_2</span>
-            Dossiê ZIP
+            {{ gerandoDossie ? 'Gerando…' : 'Dossiê ZIP' }}
           </button>
           @if (isPending && podeRevisarProtocolo) {
             <button
+              z-button
+              zType="default"
+              zSize="sm"
               type="button"
-              class="btn-primary btn-sm inline-flex items-center gap-2"
+              class="gap-2"
               [class.ring-2]="revisaoFormVisible && revisaoAprovado"
+              [class.ring-ring]="revisaoFormVisible && revisaoAprovado"
               (click)="abrirRevisao(true)"
               title="Aprovar protocolo">
               <span class="material-symbols-outlined text-base" aria-hidden="true">check_circle</span>
               Aprovar
             </button>
             <button
+              z-button
+              zType="destructive"
+              zSize="sm"
               type="button"
-              class="btn-danger btn-sm inline-flex items-center gap-2"
+              class="gap-2 bg-destructive! text-destructive-foreground! hover:bg-destructive/90!"
               [class.ring-2]="revisaoFormVisible && !revisaoAprovado"
+              [class.ring-destructive]="revisaoFormVisible && !revisaoAprovado"
               (click)="abrirRevisao(false)"
               title="Reprovar protocolo">
               <span class="material-symbols-outlined text-base" aria-hidden="true">cancel</span>
               Reprovar
             </button>
           } @else if (!isPending) {
-            <span class="pd-badge" [ngClass]="'pd-badge--' + statusBadgeTone()">✓ {{ statusLabel() }}</span>
+            <z-badge zShape="pill" [zType]="statusBadgeType()" [class]="statusBadgeClass()">✓ {{ statusLabel() }}</z-badge>
           } @else if (isPending) {
-            <span class="pd-badge pd-badge--amber">Pendente</span>
+            <z-badge zShape="pill" zType="outline" [class]="statusBadgeClass()">Pendente</z-badge>
           }
+        </div>
         </div>
       </div>
 
       @if (isPending && revisaoFormVisible && podeRevisarProtocolo) {
-        <div class="pd-section-card pd-fade-up pd-revisao-card" id="revisao_form">
-          <div class="pd-section-head">
-            <span class="pd-section-head__label">Revisar protocolo</span>
-            <button type="button" class="pd-icon-btn" (click)="fecharRevisao()" aria-label="Fechar">
+        <z-card class="section-card pd-revisao-card shrink-0" id="revisao_form">
+          <div class="section-header">
+            <div class="icon-wrap">
+              <span class="material-symbols-outlined" aria-hidden="true">rate_review</span>
+            </div>
+            <span class="section-title">Revisar protocolo</span>
+            <button z-button zType="ghost" zSize="icon-sm" type="button" class="section-header__action" (click)="fecharRevisao()" aria-label="Fechar">
               <span class="material-symbols-outlined text-base">close</span>
             </button>
           </div>
-          <div class="pd-section-body pd-revisao-body">
+          <div class="section-body pd-revisao-body">
             <div>
               <p class="pd-field-label">Decisão</p>
               <div class="pd-revisao-toggle">
                 <button
+                  z-button
+                  zType="outline"
+                  zSize="sm"
                   type="button"
-                  class="pd-revisao-opt"
-                  [class.pd-revisao-opt--on]="revisaoAprovado"
+                  [class.ring-2]="revisaoAprovado"
+                  [class.ring-primary]="revisaoAprovado"
                   (click)="revisaoAprovado = true">
                   Aprovar
                 </button>
                 <button
+                  z-button
+                  zType="outline"
+                  zSize="sm"
                   type="button"
-                  class="pd-revisao-opt"
-                  [class.pd-revisao-opt--on-danger]="!revisaoAprovado"
+                  [class.ring-2]="!revisaoAprovado"
+                  [class.ring-destructive]="!revisaoAprovado"
                   (click)="revisaoAprovado = false">
                   Reprovar
                 </button>
@@ -113,101 +132,85 @@
               <label class="pd-field-label" for="comentario_revisao">Comentário (opcional)</label>
               <textarea
                 id="comentario_revisao"
+                z-input
                 [(ngModel)]="comentarioRevisao"
                 rows="3"
-                class="pd-textarea"
+                class="w-full"
                 placeholder="Comentário da revisão..."></textarea>
             </div>
             <div class="pd-revisao-actions">
-              <button type="button" class="btn-primary inline-flex items-center gap-2" (click)="enviarRevisao()" [disabled]="revisaoEnviando">
-                @if (revisaoEnviando) {
-                  <span class="btn-spinner" aria-hidden="true"></span>
-                }
+              <button z-button zType="default" type="button" class="gap-2" (click)="enviarRevisao()" [zLoading]="revisaoEnviando" [zDisabled]="revisaoEnviando">
                 {{ revisaoEnviando ? 'Enviando…' : 'Confirmar revisão' }}
               </button>
-              <button type="button" class="btn-ghost btn-default-bg" (click)="fecharRevisao()" [disabled]="revisaoEnviando">Cancelar</button>
+              <button z-button zType="outline" type="button" (click)="fecharRevisao()" [zDisabled]="revisaoEnviando">Cancelar</button>
             </div>
           </div>
-        </div>
+        </z-card>
       }
 
-      <!-- Abas -->
-      <div class="pd-tabs-row">
-        <button type="button" class="pd-tab" [class.pd-tab--active]="abaAtiva === 'visao-geral'" (click)="setAbaAtiva('visao-geral')">Dados</button>
-        <button type="button" class="pd-tab" [class.pd-tab--active]="abaAtiva === 'respostas'" (click)="setAbaAtiva('respostas')">
-          Respostas
-          @if (camposRespostas().length > 0) {
-            <span class="pd-tab-count pd-tab-count--teal">{{ camposRespostas().length }}</span>
-          }
-        </button>
-        <button type="button" class="pd-tab" [class.pd-tab--active]="abaAtiva === 'historico'" (click)="setAbaAtiva('historico')">Histórico</button>
-        <button type="button" class="pd-tab" [class.pd-tab--active]="abaAtiva === 'assinaturas'" (click)="setAbaAtiva('assinaturas')">
-          Assinaturas
-          <span class="pd-tab-count">{{ protocolo.signatures?.length || 0 }}</span>
-        </button>
-        <button type="button" class="pd-tab" [class.pd-tab--active]="abaAtiva === 'comentarios'" (click)="setAbaAtiva('comentarios')">
-          Comentários
-          <span class="pd-tab-count">{{ totalComentarios() }}</span>
-        </button>
-        <button type="button" class="pd-tab" [class.pd-tab--active]="abaAtiva === 'impressao'" (click)="setAbaAtiva('impressao')">Impressão</button>
-      </div>
-
-      <div class="pd-content">
-        <div class="pd-tab-panel">
-          @if (abaAtiva === 'visao-geral') {
-            <div class="pd-section-card pd-fade-up">
-              <div class="pd-section-head">
-                <svg class="pd-section-icon" fill="none" viewBox="0 0 16 16" aria-hidden="true">
-                  <rect x="1.5" y="1.5" width="13" height="13" rx="2.5" stroke="currentColor" stroke-width="1.5" />
-                  <path d="M5 8h6M5 5.5h6M5 10.5h3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-                </svg>
-                <span class="pd-section-head__label">Identificação</span>
+      <z-tab-group
+        #protocoloTabGroup
+        class="protocolo-zard-tabs protocolo-zard-tabs--layout protocolo-zard-tabs--no-nav-rule"
+        zNavWrapperClass="protocolo-detalhe-tabs-bar border-y border-border bg-card"
+        zNavClass="!mb-0 !border-0 px-5 pt-2"
+        [zShowArrow]="false"
+        (zTabChange)="onZardTabChange($event)">
+        <z-tab label="Dados" icon="description">
+          <div class="protocolo-tab-panel">
+            <z-card class="section-card">
+              <div class="section-header">
+                <div class="icon-wrap">
+                  <span class="material-symbols-outlined" aria-hidden="true">description</span>
+                </div>
+                <span class="section-title">Identificação</span>
               </div>
-              <div class="pd-section-body">
-                <div class="pd-field-grid pd-field-grid--3">
-                  <div>
-                    <p class="pd-field-label">Data de submissão</p>
-                    <p class="pd-field-value">{{ dataFormatada(protocolo.submitted_at || protocolo.created_at) }}</p>
+              <div class="section-body">
+                <div class="protocolo-detail-grid">
+                  <div class="protocolo-detail-field">
+                    <p class="protocolo-detail-label">Data de submissão</p>
+                    <p class="protocolo-detail-value">{{ dataFormatada(protocolo.submitted_at || protocolo.created_at) }}</p>
                   </div>
-                  <div>
-                    <p class="pd-field-label">Pessoa (ficha)</p>
+                  <div class="protocolo-detail-field">
+                    <p class="protocolo-detail-label">Pessoa (ficha)</p>
                     @if (protocolo.person) {
-                      <div class="pd-inline-avatar">
-                        <span class="pd-avatar">{{ iniciaisNome(protocolo.person.name) }}</span>
-                        <div>
-                          <a [routerLink]="['/pessoas', protocolo.person.id]" class="pd-link">{{ protocolo.person.name }}</a>
-                          <p class="pd-muted">{{ protocolo.person.code }}</p>
+                      <div class="protocolo-detail-person">
+                        <z-avatar zSize="sm" [zFallback]="iniciaisNome(protocolo.person.name)" />
+                        <div class="min-w-0">
+                          <a [routerLink]="['/pessoas', protocolo.person.id]" class="protocolo-detail-value block truncate text-primary no-underline hover:underline">{{ protocolo.person.name }}</a>
+                          <p class="protocolo-detail-muted font-mono">{{ protocolo.person.code }}</p>
                         </div>
                       </div>
                     } @else {
-                      <p class="pd-field-value pd-muted2">—</p>
+                      <p class="protocolo-detail-value text-muted-foreground">—</p>
                     }
                   </div>
-                  <div>
-                    <p class="pd-field-label">Submetente</p>
-                    <p class="pd-field-value">{{ protocolo.submitter_name || '—' }}</p>
+                  <div class="protocolo-detail-field">
+                    <p class="protocolo-detail-label">Submetente</p>
+                    <p class="protocolo-detail-value">{{ protocolo.submitter_name || '—' }}</p>
                     @if (protocolo.submitter_email) {
-                      <p class="pd-muted">{{ protocolo.submitter_email }}</p>
+                      <p class="protocolo-detail-muted">{{ protocolo.submitter_email }}</p>
                     }
                   </div>
-                  <div>
-                    <p class="pd-field-label">Tipo de protocolo</p>
-                    <p class="pd-field-value">{{ templateNome() }}</p>
+                  <div class="protocolo-detail-field">
+                    <p class="protocolo-detail-label">Tipo de protocolo</p>
+                    <p class="protocolo-detail-value">{{ templateNome() }}</p>
                   </div>
-                  <div>
-                    <p class="pd-field-label">Status</p>
-                    <span class="pd-badge" [ngClass]="'pd-badge--' + statusBadgeTone()">{{ statusLabel() }}</span>
+                  <div class="protocolo-detail-field protocolo-detail-field--status">
+                    <p class="protocolo-detail-label">Status</p>
+                    <z-badge zShape="pill" [zType]="statusBadgeType()" [class]="statusBadgeClass()">{{ statusLabel() }}</z-badge>
                   </div>
-                  <div>
-                    <p class="pd-field-label">Código</p>
-                    <p class="pd-mono pd-field-value">{{ protocolo.protocol_number || protocolo.id }}</p>
+                  <div class="protocolo-detail-field">
+                    <p class="protocolo-detail-label">Código</p>
+                    <p class="protocolo-detail-value font-mono tabular-nums">{{ protocolo.protocol_number || protocolo.id }}</p>
                   </div>
                 </div>
               </div>
-            </div>
-          }
+            </z-card>
+          </div>
+        </z-tab>
 
-          @if (abaAtiva === 'respostas') {
+        <z-tab [label]="tabLabelRespostas()" icon="assignment">
+          <div class="protocolo-tab-panel">
             <div class="pd-alert-top pd-fade-up" role="status">
               <div class="pd-alert-dot"></div>
               <p class="pd-alert-text">{{ mensagemBannerTopo() }}</p>
@@ -217,20 +220,20 @@
             </div>
 
             @if (camposRespostas().length === 0) {
-              <div class="pd-empty-state pd-section-card pd-fade-up">
-                <span class="material-symbols-outlined pd-empty-icon">assignment</span>
-                <p>Não há campos do modelo disponíveis para exibir as respostas.</p>
-                <p class="pd-muted m-0 text-sm">Se o protocolo for antigo, atualize a página após deploy do sistema.</p>
-              </div>
+              <z-card class="section-card">
+                <zm-empty-state
+                  title="Não há campos do modelo disponíveis para exibir as respostas."
+                  description="Se o protocolo for antigo, atualize a página após deploy do sistema." />
+              </z-card>
             } @else {
-              <div class="pd-section-card pd-fade-up pd-fade-delay-1">
-                <div class="pd-section-head">
-                  <svg class="pd-section-icon" fill="none" viewBox="0 0 16 16" aria-hidden="true">
-                    <path d="M2 12l4-5 3.5 3.5L14 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                  </svg>
-                  <span class="pd-section-head__label">Respostas do formulário</span>
+              <z-card class="section-card">
+                <div class="section-header">
+                  <div class="icon-wrap">
+                    <span class="material-symbols-outlined" aria-hidden="true">assignment</span>
+                  </div>
+                  <span class="section-title">Respostas do formulário</span>
                 </div>
-                <div class="pd-section-body">
+                <div class="section-body">
                   <div class="pd-resp-grid" role="list">
                     @for (campo of camposRespostas(); track campo.name_key) {
                       <div
@@ -258,28 +261,29 @@
                     }
                   </div>
                 </div>
-              </div>
+              </z-card>
             }
 
             @if (temCamposEquipe()) {
-              <div class="pd-section-card pd-fade-up pd-fade-delay-2 pd-staff-card">
-                <div class="pd-section-head">
-                  <svg class="pd-section-icon" fill="none" viewBox="0 0 16 16" aria-hidden="true">
-                    <path d="M2.5 8.5L6 12l7.5-8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                  </svg>
-                  <span class="pd-section-head__label">Registro da equipe (clínica)</span>
+              <z-card class="section-card pd-staff-card">
+                <div class="section-header">
+                  <div class="icon-wrap">
+                    <span class="material-symbols-outlined" aria-hidden="true">groups</span>
+                  </div>
+                  <span class="section-title">Registro da equipe (clínica)</span>
                   <button
+                    z-button
+                    zType="default"
+                    zSize="sm"
                     type="button"
-                    class="btn-primary btn-sm inline-flex items-center gap-2 pd-section-head__action"
+                    class="section-header__action gap-2"
                     (click)="salvarRegistroEquipe()"
-                    [disabled]="staffSalvando">
-                    @if (staffSalvando) {
-                      <span class="btn-spinner" aria-hidden="true"></span>
-                    }
+                    [zLoading]="staffSalvando"
+                    [zDisabled]="staffSalvando">
                     {{ staffSalvando ? 'Salvando…' : 'Salvar' }}
                   </button>
                 </div>
-                <div class="pd-section-body">
+                <div class="section-body">
                   <p class="pd-staff-hint">Campos internos; não aparecem no formulário público.</p>
                   <div class="pd-staff-grid">
                     @for (sf of protocolo!.staff_fields!; track sf.name_key) {
@@ -289,23 +293,25 @@
                           @case ('textarea') {
                             <textarea
                               [id]="'staff_' + sf.name_key"
+                              z-input
                               rows="3"
-                              class="pd-textarea"
+                              class="w-full"
                               [(ngModel)]="staffDraft[sf.name_key]"
                               [name]="'staff_' + sf.name_key"></textarea>
                           }
                           @case ('number') {
                             <input
                               type="number"
-                              class="pd-input"
+                              z-input
+                              class="w-full"
                               [(ngModel)]="staffDraft[sf.name_key]"
                               [name]="'staff_' + sf.name_key" />
                           }
                           @case ('date') {
-                            <input type="date" class="pd-input" [(ngModel)]="staffDraft[sf.name_key]" [name]="'staff_' + sf.name_key" />
+                            <input type="date" z-input class="w-full" [(ngModel)]="staffDraft[sf.name_key]" [name]="'staff_' + sf.name_key" />
                           }
                           @case ('select') {
-                            <select class="pd-input" [(ngModel)]="staffDraft[sf.name_key]" [name]="'staff_' + sf.name_key">
+                            <select z-input class="w-full" [(ngModel)]="staffDraft[sf.name_key]" [name]="'staff_' + sf.name_key">
                               <option value="">Selecione</option>
                               @for (opt of sf.options ?? []; track opt) {
                                 <option [value]="opt">{{ opt }}</option>
@@ -323,27 +329,28 @@
                             </div>
                           }
                           @default {
-                            <input type="text" class="pd-input" [(ngModel)]="staffDraft[sf.name_key]" [name]="'staff_' + sf.name_key" />
+                            <input type="text" z-input class="w-full" [(ngModel)]="staffDraft[sf.name_key]" [name]="'staff_' + sf.name_key" />
                           }
                         }
                       </div>
                     }
                   </div>
                 </div>
-              </div>
+              </z-card>
             }
-          }
+          </div>
+        </z-tab>
 
-          @if (abaAtiva === 'historico') {
-            <div class="pd-section-card pd-fade-up">
-              <div class="pd-section-head">
-                <svg class="pd-section-icon" fill="none" viewBox="0 0 16 16" aria-hidden="true">
-                  <circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.5" />
-                  <path d="M8 4.5V8l2.5 1.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-                </svg>
-                <span class="pd-section-head__label">Histórico</span>
+        <z-tab label="Histórico" icon="history">
+          <div class="protocolo-tab-panel">
+            <z-card class="section-card">
+              <div class="section-header">
+                <div class="icon-wrap">
+                  <span class="material-symbols-outlined" aria-hidden="true">history</span>
+                </div>
+                <span class="section-title">Histórico</span>
               </div>
-              <div class="pd-section-body pd-hist-body">
+              <div class="section-body pd-hist-body">
                 <div class="pd-timeline">
                   @for (event of eventosTimeline(); track $index) {
                     <div class="pd-tl-item">
@@ -369,25 +376,28 @@
                   }
                 </div>
               </div>
-            </div>
-          }
+            </z-card>
+          </div>
+        </z-tab>
 
-          @if (abaAtiva === 'assinaturas' && protocolo.signatures && protocolo.signatures.length > 0) {
-            <div class="pd-section-card pd-fade-up">
-              <div class="pd-section-head">
-                <svg class="pd-section-icon" fill="none" viewBox="0 0 16 16" aria-hidden="true">
-                  <path d="M2 13c2-2 4-4 4-6a2 2 0 114 0c0 2 2 4 4 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-                </svg>
-                <span class="pd-section-head__label">Assinaturas</span>
-                <span class="pd-badge pd-badge--green pd-section-head__badge">{{ protocolo.signatures.length }} assinada(s)</span>
+        <z-tab [label]="tabLabelAssinaturas()" icon="draw">
+          <div class="protocolo-tab-panel">
+          @if (protocolo.signatures && protocolo.signatures.length > 0) {
+            <z-card class="section-card">
+              <div class="section-header">
+                <div class="icon-wrap">
+                  <span class="material-symbols-outlined" aria-hidden="true">draw</span>
+                </div>
+                <span class="section-title">Assinaturas</span>
+                <z-badge zShape="pill" zType="secondary" class="section-header__badge">{{ protocolo.signatures.length }} assinada(s)</z-badge>
               </div>
-              <div class="pd-section-body pd-assin-list">
+              <div class="section-body pd-assin-list">
                 @for (sig of protocolo.signatures; track $index) {
                   <div class="pd-assin-block">
                     <div class="pd-assin-block__head">
                       <span class="pd-field-value">Assinatura {{ $index + 1 }} — {{ sig.signed_name || 'Não informado' }}</span>
                       @if (sig.status) {
-                        <span class="pd-badge pd-badge--green">{{ assinaturaStatusLabel(sig.status) }}</span>
+                        <z-badge zShape="pill" zType="secondary">{{ assinaturaStatusLabel(sig.status) }}</z-badge>
                       }
                     </div>
                     <div class="pd-assin-block__grid">
@@ -434,23 +444,25 @@
                   </div>
                 }
               </div>
-            </div>
-          } @else if (abaAtiva === 'assinaturas') {
-            <div class="pd-empty-state pd-section-card pd-fade-up">
-              <span class="material-symbols-outlined pd-empty-icon">draw</span>
-              <p>Nenhuma assinatura disponível.</p>
-            </div>
+            </z-card>
+          } @else {
+            <z-card class="section-card">
+              <zm-empty-state title="Nenhuma assinatura disponível." />
+            </z-card>
           }
+          </div>
+        </z-tab>
 
-          @if (abaAtiva === 'comentarios') {
-            <div class="pd-section-card pd-fade-up">
-              <div class="pd-section-head">
-                <svg class="pd-section-icon" fill="none" viewBox="0 0 16 16" aria-hidden="true">
-                  <path d="M3 12h10M5 8h6M5 4h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-                </svg>
-                <span class="pd-section-head__label">Comentários</span>
+        <z-tab [label]="tabLabelComentarios()" icon="comment">
+          <div class="protocolo-tab-panel">
+            <z-card class="section-card">
+              <div class="section-header">
+                <div class="icon-wrap">
+                  <span class="material-symbols-outlined" aria-hidden="true">comment</span>
+                </div>
+                <span class="section-title">Comentários</span>
               </div>
-              <div class="pd-section-body">
+              <div class="section-body">
                 @if (totalComentarios() === 0 && !protocolo.review_comment) {
                   <div class="pd-empty-inline">
                     <p class="pd-muted m-0">Nenhum comentário ainda.</p>
@@ -471,47 +483,57 @@
 
                 <div class="pd-coment-form">
                   <p class="pd-field-label">Novo comentário interno</p>
-                  <textarea [(ngModel)]="novoComentario" rows="4" class="pd-textarea" placeholder="Digite seu comentário..."></textarea>
+                  <textarea z-input [(ngModel)]="novoComentario" rows="4" class="w-full" placeholder="Digite seu comentário..."></textarea>
                   <div class="pd-coment-actions">
-                    <button type="button" class="btn-primary inline-flex items-center gap-2" (click)="enviarComentario()" [disabled]="!novoComentario.trim() || comentarioEnviando">
-                      @if (comentarioEnviando) {
-                        <span class="btn-spinner" aria-hidden="true"></span>
-                      }
+                    <button
+                      z-button
+                      zType="default"
+                      type="button"
+                      class="gap-2"
+                      (click)="enviarComentario()"
+                      [zDisabled]="!novoComentario.trim() || comentarioEnviando"
+                      [zLoading]="comentarioEnviando">
                       {{ comentarioEnviando ? 'Enviando…' : 'Adicionar comentário' }}
                     </button>
                   </div>
                 </div>
               </div>
-            </div>
-          }
+            </z-card>
+          </div>
+        </z-tab>
 
-          @if (abaAtiva === 'impressao') {
+        <z-tab label="Impressão" icon="print">
+          <div class="protocolo-tab-panel protocolo-tab-panel--impressao">
             <div class="pd-print-toolbar">
               <button
+                z-button
+                zType="outline"
+                zSize="sm"
                 type="button"
-                class="btn-ghost btn-default-bg btn-sm inline-flex items-center gap-2"
+                class="gap-2"
                 (click)="visualizarFichaPdf()"
-                [disabled]="gerandoPdf">
+                [zDisabled]="gerandoPdf">
                 <span class="material-symbols-outlined text-base" aria-hidden="true">visibility</span>
                 Visualizar PDF
               </button>
               <button
+                z-button
+                zType="outline"
+                zSize="sm"
                 type="button"
-                class="btn-ghost btn-default-bg btn-sm inline-flex items-center gap-2"
+                class="gap-2"
                 (click)="baixarFichaPdf()"
-                [disabled]="gerandoPdf">
-                @if (gerandoPdf) {
-                  <span class="btn-spinner" aria-hidden="true"></span>
-                } @else {
-                  <span class="material-symbols-outlined text-base" aria-hidden="true">download</span>
-                }
+                [zLoading]="gerandoPdf"
+                [zDisabled]="gerandoPdf">
+                <span class="material-symbols-outlined text-base" aria-hidden="true">download</span>
                 {{ gerandoPdf ? 'Gerando…' : 'Baixar PDF' }}
               </button>
-              <button type="button" class="btn-primary btn-sm inline-flex items-center gap-2" (click)="imprimirFicha()">
+              <button z-button zType="default" zSize="sm" type="button" class="gap-2" (click)="imprimirFicha()">
                 <span class="material-symbols-outlined text-base" aria-hidden="true">print</span>
                 Imprimir
               </button>
             </div>
+            <div class="protocolo-print-preview">
             <div id="documento-impressao" class="protocolo-print-sheet documento">
               <header class="dp-header">
                 <div class="dp-header-brand">
@@ -744,9 +766,10 @@
                 <div class="dp-footer__right">Documento gerado em {{ dataDocumentoPorExtenso() }}</div>
               </footer>
             </div>
-          }
-        </div>
-      </div>
+            </div>
+          </div>
+        </z-tab>
+      </z-tab-group>
     </div>
   }
 </div>

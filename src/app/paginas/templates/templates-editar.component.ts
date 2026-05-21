@@ -4,14 +4,26 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TemplatesService, Template, TemplateCategory } from '../../core/services/templates.service';
 import { LoadingService } from '../../shared/services/loading.service';
-import { ZmSkeletonCardComponent } from '../../shared/components/skeletons';
+import { ZmSkeletonTemplateFormularioComponent } from '../../shared/components/skeletons';
 import { ToastService } from '../../core/services/toast.service';
-import { ZmSearchableSelectComponent, ZmSearchableSelectOption } from '../../shared/components/ui';
+import { ZardComboboxComponent, type ZardComboboxOption } from '@/shared/components/combobox';
+import { ZardCardComponent } from '@/shared/components/card/card.component';
+import { ZardButtonComponent } from '@/shared/components/button/button.component';
+import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
 
 @Component({
   selector: 'app-templates-editar',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule, ZmSkeletonCardComponent, ZmSearchableSelectComponent],
+  imports: [
+    ...ZARD_FORM_CONTROL_IMPORTS,
+    CommonModule,
+    RouterLink,
+    FormsModule,
+    ZmSkeletonTemplateFormularioComponent,
+    ZardComboboxComponent,
+    ZardCardComponent,
+    ZardButtonComponent,
+  ],
   templateUrl: './templates-editar.component.html',
   styleUrl: './templates-editar.component.css',
 })
@@ -38,10 +50,11 @@ export class TemplatesEditarComponent implements OnInit {
   private loadingService = inject(LoadingService);
   private toast = inject(ToastService);
 
-  get opcoesCategoria(): ZmSearchableSelectOption[] {
+  get opcoesCategoria(): ZardComboboxOption[] {
     return [
-      { key: '', label: 'Sem categoria' },
-      ...this.categorias.map((cat) => ({ key: cat.key, label: cat.name })),
+      { value: '', label: 'Sem categoria' },
+      ...this.categorias.map((cat) => ({ value: cat.key, label: cat.name })),
+      { value: '__nova__', label: 'Nova categoria…' },
     ];
   }
 
@@ -115,14 +128,10 @@ export class TemplatesEditarComponent implements OnInit {
       });
   }
 
-  selecionarCategoria(value: string): void {
-    this.categoriaSelecionada = value;
-    if (value !== '__nova__') {
+  selecionarCategoria(value: string | null): void {
+    this.categoriaSelecionada = value ?? '';
+    if (this.categoriaSelecionada !== '__nova__') {
       this.novaCategoria = '';
     }
-  }
-
-  abrirCriacaoCategoria(): void {
-    this.categoriaSelecionada = '__nova__';
   }
 }

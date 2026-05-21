@@ -3,17 +3,29 @@ import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { UsuariosService, Usuario } from '../../core/services/usuarios.service';
 import { LoadingService } from '../../shared/services/loading.service';
-import { ZmSkeletonListComponent } from '../../shared/components/skeletons';
+import { ZmSkeletonUsuariosListagemComponent } from '../../shared/components/skeletons';
 import { ZmEmptyStateComponent } from '../../shared/components/ui';
+import { ZardCardComponent } from '@/shared/components/card/card.component';
+import { ZardButtonComponent } from '@/shared/components/button/button.component';
 import { AuthService } from '../../core/services/auth.service';
 import { ToastService } from '../../core/services/toast.service';
 import { ConfirmDialogService } from '../../core/services/confirm-dialog.service';
-import { TooltipDirective } from '../../core/directives/tooltip.directive';
+import { ZardTooltipImports } from '@/shared/components/tooltip';
 
+import { ZardTableImports } from '@/shared/components/table';
 @Component({
   selector: 'app-usuarios-listagem',
   standalone: true,
-  imports: [CommonModule, RouterLink, ZmSkeletonListComponent, ZmEmptyStateComponent, TooltipDirective],
+  imports: [
+    ...ZardTableImports,
+    CommonModule,
+    RouterLink,
+    ZmSkeletonUsuariosListagemComponent,
+    ZmEmptyStateComponent,
+    ...ZardTooltipImports,
+    ZardCardComponent,
+    ZardButtonComponent,
+  ],
   templateUrl: './usuarios-listagem.component.html',
   styleUrl: './usuarios-listagem.component.css',
 })

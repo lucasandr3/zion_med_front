@@ -1,12 +1,21 @@
-import { Component, OnInit, AfterViewInit, ViewChild, ElementRef, inject, signal, DestroyRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, inject, signal, DestroyRef, Signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
 import { AuthService, User } from '../../core/services/auth.service';
 import { ContaPerfilService } from '../../core/services/conta-perfil.service';
+import { ConfirmDialogService } from '../../core/services/confirm-dialog.service';
 import { ToastService } from '../../core/services/toast.service';
+import { LoadingService } from '../../shared/services/loading.service';
+import { ZmSkeletonContaPerfilComponent } from '../../shared/components/skeletons';
+import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
+import { ZardCardComponent } from '@/shared/components/card/card.component';
+import { ZardButtonComponent } from '@/shared/components/button/button.component';
+import { ZardTabComponent, ZardTabGroupComponent } from '@/shared/components/tabs';
+import { ZardComboboxComponent, type ZardComboboxOption } from '@/shared/components/combobox';
+import { ZardCheckboxComponent } from '@/shared/components/checkbox';
 
 type ModoAssinatura = 'desenhar' | 'modelo';
 
@@ -42,23 +51,42 @@ function mensagemErroApi(err: { error?: { message?: string; errors?: Record<stri
 @Component({
   selector: 'app-conta-perfil',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule],
+  imports: [
+    ...ZARD_FORM_CONTROL_IMPORTS,
+    CommonModule,
+    RouterLink,
+    FormsModule,
+    ZardCardComponent,
+    ZardButtonComponent,
+    ZardTabComponent,
+    ZardTabGroupComponent,
+    ZardComboboxComponent,
+    ZardCheckboxComponent,
+    ZmSkeletonContaPerfilComponent,
+  ],
   templateUrl: './conta-perfil.component.html',
   styleUrl: './conta-perfil.component.css',
 })
-export class ContaPerfilComponent implements OnInit, AfterViewInit {
+export class ContaPerfilComponent implements OnInit {
   @ViewChild('canvasDesenho') canvasDesenhoRef?: ElementRef<HTMLCanvasElement>;
   @ViewChild('canvasModelo') canvasModeloRef?: ElementRef<HTMLCanvasElement>;
 
   private auth = inject(AuthService);
   private contaPerfil = inject(ContaPerfilService);
+  private confirm = inject(ConfirmDialogService);
   private toast = inject(ToastService);
+  private loadingService = inject(LoadingService);
+  private router = inject(Router);
   private destroyRef = inject(DestroyRef);
 
-  readonly previewUrlServidor = signal<string | null>(null);
+  showSkeleton!: Signal<boolean>;
+  listaPronta = false;
 
-  /** Placeholder textual do tipo de fonte — valor vazio no `<select>` */
-  readonly fonteOpcaoPlaceholder = '';
+  readonly previewUrlServidor = signal<string | null>(null);
+  readonly opcoesFontes: ZardComboboxOption[] = FONTES_ASSINATURA.map((f) => ({
+    value: f.id,
+    label: f.label,
+  }));
 
   usuarioAtual(): User | null {
     return this.auth.getUser();
@@ -72,44 +100,70 @@ export class ContaPerfilComponent implements OnInit, AfterViewInit {
     return this.auth.hasPermission('users.manage');
   }
 
+  podeGerenciarClinica(): boolean {
+    return this.auth.hasPermission('organization.manage');
+  }
+
+  podeGerenciarBilling(): boolean {
+    return this.auth.hasPermission('billing.manage');
+  }
+
+  onPageTabChange(ev: { index: number }): void {
+    if (ev.index === 1) {
+      queueMicrotask(() => {
+        this.initCanvasDesenho();
+        this.desenharModeloNoCanvas();
+      });
+    }
+  }
+
   modo: ModoAssinatura = 'desenhar';
-  fontes = FONTES_ASSINATURA;
 
   /** Nome livre para o modelo tipográfico (pré-preenche com o nome do perfil ao carregar). */
   nomeTextoAssinatura = '';
 
-  /** Nenhuma fonte até o usuário escolher (“Escolha o tipo…”). */
+  /** Nenhuma fonte até o usuário escolher. */
   fonteSelecionadaId = '';
 
-  carregandoMe = false;
   salvando = false;
+  senhaExclusao = '';
+  confirmouExclusao = false;
+  excluindoConta = false;
+  exportandoDados = false;
 
   ngOnInit(): void {
-    this.carregandoMe = true;
-    this.auth
-      .me()
-      .pipe(
-        finalize(() => {
-          this.carregandoMe = false;
-        }),
-        takeUntilDestroyed(this.destroyRef)
-      )
-      .subscribe({
-        next: () => {
-          this.syncPreviewFromUser();
-          this.prefillNomeAssinaturaSeVazio();
-        },
-        error: () => {
-          this.syncPreviewFromUser();
-          this.prefillNomeAssinaturaSeVazio();
-        },
-      });
+    const { data$, showSkeleton } = this.loadingService.loadWithThreshold(this.auth.me());
+    this.showSkeleton = showSkeleton;
+    data$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: () => {
+        this.listaPronta = true;
+        this.syncPreviewFromUser();
+        this.prefillNomeAssinaturaSeVazio();
+        this.scheduleInitAssinatura();
+      },
+      error: () => {
+        this.listaPronta = true;
+        this.syncPreviewFromUser();
+        this.prefillNomeAssinaturaSeVazio();
+        this.scheduleInitAssinatura();
+      },
+    });
   }
 
-  ngAfterViewInit(): void {
-    this.initCanvasDesenho();
-    this.syncPreviewFromUser();
-    queueMicrotask(() => this.desenharModeloNoCanvas());
+  private scheduleInitAssinatura(): void {
+    queueMicrotask(() => {
+      this.initCanvasDesenho();
+      this.desenharModeloNoCanvas();
+    });
+  }
+
+  onSigTabChange(ev: { index: number }): void {
+    this.setModo(ev.index === 0 ? 'desenhar' : 'modelo');
+  }
+
+  onFonteComboboxChange(value: string | null): void {
+    this.fonteSelecionadaId = value ?? '';
+    this.onFonteChange();
   }
 
   setModo(m: ModoAssinatura): void {
@@ -335,6 +389,73 @@ export class ContaPerfilComponent implements OnInit, AfterViewInit {
         },
         error: (err: unknown) => {
           this.toast.error('Erro ao salvar', mensagemErroApi(err as Parameters<typeof mensagemErroApi>[0]));
+        },
+      });
+  }
+
+  exportarMeusDados(): void {
+    this.exportandoDados = true;
+    this.contaPerfil
+      .exportPersonalData()
+      .pipe(
+        finalize(() => {
+          this.exportandoDados = false;
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: (res) => {
+          const payload = res.data;
+          const json = JSON.stringify(payload, null, 2);
+          const blob = new Blob([json], { type: 'application/json;charset=utf-8' });
+          const url = URL.createObjectURL(blob);
+          const stamp = (payload.exported_at ?? new Date().toISOString()).slice(0, 10);
+          const anchor = document.createElement('a');
+          anchor.href = url;
+          anchor.download = `gestgo-meus-dados-${stamp}.json`;
+          anchor.click();
+          URL.revokeObjectURL(url);
+          this.toast.success('Download iniciado', 'Arquivo JSON com os dados da sua conta.');
+        },
+        error: (err: unknown) => {
+          this.toast.error('Erro na exportação', mensagemErroApi(err as Parameters<typeof mensagemErroApi>[0]));
+        },
+      });
+  }
+
+  async excluirMinhaConta(): Promise<void> {
+    const email = this.usuarioAtual()?.email ?? '';
+    const ok = await this.confirm.request({
+      title: 'Excluir sua conta?',
+      messageBefore: 'A conta ',
+      emphasis: email,
+      messageAfter: ' será encerrada permanentemente. Você perderá o acesso ao Gestgo.',
+      confirmLabel: 'Sim, excluir conta',
+      variant: 'danger',
+    });
+    if (!ok) return;
+
+    this.excluindoConta = true;
+    this.contaPerfil
+      .deleteAccount(this.senhaExclusao)
+      .pipe(
+        finalize(() => {
+          this.excluindoConta = false;
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: (res) => {
+          const msg = res.data?.message ?? 'Conta excluída.';
+          const titulo = res.data?.billing_canceled ? 'Conta e assinatura canceladas' : 'Conta excluída';
+          this.toast.success(titulo, msg);
+          this.auth.logout().subscribe({
+            next: () => this.router.navigate(['/autenticacao']),
+            error: () => this.router.navigate(['/autenticacao']),
+          });
+        },
+        error: (err: unknown) => {
+          this.toast.error('Não foi possível excluir', mensagemErroApi(err as Parameters<typeof mensagemErroApi>[0]));
         },
       });
   }

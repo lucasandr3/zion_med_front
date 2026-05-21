@@ -4,12 +4,23 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TemplatesService, TemplateCategory } from '../../core/services/templates.service';
 import { ToastService } from '../../core/services/toast.service';
-import { ZmSearchableSelectComponent, ZmSearchableSelectOption } from '../../shared/components/ui';
+import { ZardComboboxComponent, type ZardComboboxOption } from '@/shared/components/combobox';
+import { ZardCardComponent } from '@/shared/components/card/card.component';
+import { ZardButtonComponent } from '@/shared/components/button/button.component';
+import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
 
 @Component({
   selector: 'app-templates-criar-em-branco',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule, ZmSearchableSelectComponent],
+  imports: [
+    ...ZARD_FORM_CONTROL_IMPORTS,
+    CommonModule,
+    RouterLink,
+    FormsModule,
+    ZardComboboxComponent,
+    ZardCardComponent,
+    ZardButtonComponent,
+  ],
   templateUrl: './templates-criar-em-branco.component.html',
   styleUrl: './templates-criar-em-branco.component.css',
 })
@@ -25,10 +36,11 @@ export class TemplatesCriarEmBrancoComponent {
   erro = '';
   categorias: TemplateCategory[] = [];
 
-  get opcoesCategoria(): ZmSearchableSelectOption[] {
+  get opcoesCategoria(): ZardComboboxOption[] {
     return [
-      { key: '', label: 'Sem categoria' },
-      ...this.categorias.map((cat) => ({ key: cat.key, label: cat.name })),
+      { value: '', label: 'Sem categoria' },
+      ...this.categorias.map((cat) => ({ value: cat.key, label: cat.name })),
+      { value: '__nova__', label: 'Nova categoria…' },
     ];
   }
 
@@ -77,14 +89,10 @@ export class TemplatesCriarEmBrancoComponent {
       });
   }
 
-  selecionarCategoria(value: string): void {
-    this.categoriaSelecionada = value;
-    if (value !== '__nova__') {
+  selecionarCategoria(value: string | null): void {
+    this.categoriaSelecionada = value ?? '';
+    if (this.categoriaSelecionada !== '__nova__') {
       this.novaCategoria = '';
     }
-  }
-
-  abrirCriacaoCategoria(): void {
-    this.categoriaSelecionada = '__nova__';
   }
 }

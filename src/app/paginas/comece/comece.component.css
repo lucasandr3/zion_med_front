@@ -763,6 +763,11 @@
   background: var(--brand);
 }
 
+.comece-page .comece-terms-check {
+  align-items: flex-start;
+}
+
+
 .comece-page .check-row {
   display: flex;
   align-items: flex-start;

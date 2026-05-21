@@ -1,17 +1,16 @@
 <app-barra-lateral [notificacoesNaoLidas]="notificacoesNaoLidas" />
-<div class="main-wrapper flex flex-col min-h-screen">
-  <app-cabecalho [titulo]="tituloPagina" [breadcrumbs]="breadcrumbs" [urlVoltar]="urlVoltar" [labelVoltar]="labelVoltar ?? 'Voltar'" [notificacoesNaoLidas]="notificacoesNaoLidas" />
+<div class="main-wrapper flex flex-col min-h-screen bg-background">
+  <app-cabecalho [titulo]="tituloPagina" [urlVoltar]="urlVoltar" [labelVoltar]="labelVoltar ?? 'Voltar'" [notificacoesNaoLidas]="notificacoesNaoLidas" />
   @if (trialNotice) {
     <div
-      class="trial-banner px-4 sm:px-6 lg:px-8 py-3 text-sm flex flex-wrap items-center justify-between gap-3"
-      style="background: color-mix(in srgb, var(--c-primary) 14%, transparent); border-bottom: 1px solid var(--c-border); color: var(--c-text)"
+      class="trial-banner px-4 sm:px-6 lg:px-8 py-3 text-sm flex flex-wrap items-center justify-between gap-3 border-b bg-muted/35 text-foreground border-border"
       role="status"
     >
-      <span class="flex items-center gap-2">
-        <span class="material-symbols-outlined text-lg" style="color: var(--c-primary)" aria-hidden="true">schedule</span>
+      <span class="flex items-center gap-2 text-muted-foreground">
+        <span class="material-symbols-outlined text-lg text-primary" aria-hidden="true">schedule</span>
         {{ trialNotice.message }}
       </span>
-      <a routerLink="/assinatura" class="font-semibold shrink-0" style="color: var(--c-primary)">Ver assinatura</a>
+      <a routerLink="/assinatura" z-button zType="link" class="shrink-0 font-semibold">Ver assinatura</a>
     </div>
   }
   @if (mostrarAvisoCobrancaGlobal()) {
@@ -19,7 +18,7 @@
       <zm-assinatura-bloqueada-card variant="compact" />
     </div>
   }
-  <main class="flex-1 px-4 sm:px-6 lg:px-8 py-6 lg:py-6">
+  <main class="flex-1 px-4 sm:px-6 lg:px-8 py-6 lg:py-6 bg-background">
     <router-outlet />
   </main>
 </div>

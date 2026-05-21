@@ -1,16 +1,88 @@
-.pessoa-row:hover {
-  background: var(--c-soft);
+.pessoas-toolbar {
+  justify-content: space-between;
 }
 
-.filter-drawer {
-  animation: drawer-in 0.2s ease-out;
+.pessoas-toolbar__search {
+  width: min(100%, 28rem);
+  max-width: 28rem;
+  flex: 0 1 28rem;
 }
 
-@keyframes drawer-in {
-  from {
-    transform: translateX(100%);
+.pessoas-toolbar__actions {
+  margin-left: auto;
+  justify-content: flex-end;
+}
+
+@media (max-width: 768px) {
+  .pessoas-toolbar__search {
+    width: 100%;
+    max-width: 100%;
+    flex: 1 1 100%;
   }
-  to {
-    transform: translateX(0);
+
+  .pessoas-toolbar__actions {
+    width: 100%;
+    margin-left: 0;
+    justify-content: flex-start;
   }
 }
+
+/* Toolbar — botões sólidos (igual protocolos) */
+.pessoas-toolbar .pessoas-btn {
+  border-color: transparent;
+  color: #fff;
+}
+
+.pessoas-toolbar .pessoas-btn--filtros {
+  background: var(--c-info);
+}
+
+.pessoas-toolbar .pessoas-btn--filtros:hover:not(:disabled),
+.pessoas-toolbar .pessoas-btn--filtros:focus-visible {
+  background: color-mix(in srgb, var(--c-info) 88%, #000);
+  color: #fff;
+}
+
+.pessoas-toolbar .pessoas-btn--nova {
+  background: var(--c-primary);
+}
+
+.pessoas-toolbar .pessoas-btn--nova:hover:not(:disabled),
+.pessoas-toolbar .pessoas-btn--nova:focus-visible {
+  background: color-mix(in srgb, var(--c-primary) 88%, #000);
+  color: #fff;
+}
+
+/* Sheet de filtros — botões sólidos (igual protocolos) */
+.pessoas-filtros-sheet .zm-filter-btn {
+  border-color: transparent;
+  color: #fff;
+}
+
+.pessoas-filtros-sheet .zm-filter-btn--limpar {
+  background: color-mix(in srgb, var(--c-muted) 42%, var(--c-border));
+  color: var(--c-text);
+}
+
+.pessoas-filtros-sheet .zm-filter-btn--limpar:hover:not(:disabled),
+.pessoas-filtros-sheet .zm-filter-btn--limpar:focus-visible {
+  background: color-mix(in srgb, var(--c-muted) 55%, var(--c-border));
+  color: var(--c-text);
+}
+
+.pessoas-filtros-sheet .zm-filter-btn--aplicar {
+  background: var(--c-primary);
+}
+
+.pessoas-filtros-sheet .zm-filter-btn--aplicar:hover:not(:disabled),
+.pessoas-filtros-sheet .zm-filter-btn--aplicar:focus-visible {
+  background: color-mix(in srgb, var(--c-primary) 88%, #000);
+  color: #fff;
+}
+
+:host-context(.dark) .pessoas-filtros-sheet .zm-filter-btn--limpar {
+  background: color-mix(in srgb, var(--c-muted) 28%, #1e2530);
+  color: var(--c-text);
+}
+
+/* Hover da linha via Tailwind no template (.hover:bg-muted/60). */

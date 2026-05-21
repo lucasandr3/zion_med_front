@@ -1,109 +1,142 @@
-<div class="relative min-h-[200px]">
-  <!-- <div class="page-header mb-5">
-    <div class="page-title">
-      <div class="page-title-icon">
-        <span class="material-symbols-outlined">edit_note</span>
-      </div>
-      <div>
-        <h1>Editar modelo</h1>
-      </div>
-    </div>
-  </div> -->
-
+<div class="templates-editar relative min-h-[200px]">
   @if (showSkeleton()) {
-    <zm-skeleton-card [height]="280" />
+    <zm-skeleton-template-formulario [editMode]="true" />
   } @else if (!listaPronta) {
-  } @else if (erro) {
-    <p class="text-sm mb-4" style="color: var(--c-error, #dc2626)">{{ erro }}</p>
+  } @else if (erro && !template) {
+    <p class="text-sm text-destructive">{{ erro }}</p>
   } @else if (template) {
     <div class="zm-content-enter">
-    <div class="card">
-      <form (ngSubmit)="salvar()" class="flex flex-col gap-5">
-        <div>
-          <label class="form-label">Nome</label>
-          <input type="text" [(ngModel)]="name" name="name" required class="form-input" />
-        </div>
-        <div>
-          <label class="form-label">Descrição</label>
-          <textarea [(ngModel)]="description" name="description" rows="3" class="form-input"></textarea>
-        </div>
-        <div>
-          <label class="form-label">Categoria</label>
-          <zm-searchable-select
-            [options]="opcoesCategoria"
-            [value]="categoriaSelecionada"
-            placeholder="Sem categoria"
-            searchPlaceholder="Buscar categoria..."
-            createActionLabel="Nova categoria"
-            (valueChange)="selecionarCategoria($event)"
-            (createAction)="abrirCriacaoCategoria()"
-          ></zm-searchable-select>
-        </div>
-        @if (categoriaSelecionada === '__nova__') {
+      <z-card class="gap-0 border-border bg-card py-5 shadow-sm **:data-[slot=card-content]:px-5">
+        <p class="mb-5 text-sm text-muted-foreground">
+          Atualize os dados básicos do modelo. As alterações nos campos do formulário são feitas na tela de campos.
+        </p>
+
+        @if (erro) {
+          <p class="mb-4 text-sm text-destructive">{{ erro }}</p>
+        }
+
+        <form (ngSubmit)="salvar()" class="flex flex-col gap-5">
           <div>
-            <label class="form-label">Nova categoria</label>
+            <label class="templates-form-label" for="template-edit-name">Nome</label>
             <input
+              id="template-edit-name"
               type="text"
-              [(ngModel)]="novaCategoria"
-              name="novaCategoria"
-              class="form-input"
-              placeholder="Ex: Anamnese, Acompanhamento, Evolução..."
+              [(ngModel)]="name"
+              name="name"
+              required
+              z-input
+              zSize="sm"
+              class="w-full"
             />
           </div>
-        }
-        <div class="flex items-center gap-6">
-          <label class="flex items-center gap-2 cursor-pointer">
-            <input type="checkbox" [(ngModel)]="is_active" name="is_active" class="form-checkbox" />
-            <span class="form-label mb-0">Ativo</span>
-          </label>
-          <label class="flex items-center gap-2 cursor-pointer">
-            <input type="checkbox" [(ngModel)]="public_enabled" name="public_enabled" class="form-checkbox" />
-            <span class="form-label mb-0">Formulário público</span>
-          </label>
-          <label class="flex items-center gap-2 cursor-pointer">
-            <input
-              type="checkbox"
-              [(ngModel)]="public_require_person_link"
-              name="public_require_person_link"
-              class="form-checkbox"
-            />
-            <span class="form-label mb-0">Exigir identificação antes do formulário</span>
-          </label>
-        </div>
-        @if (public_require_person_link) {
-          <div class="flex flex-col gap-2">
-            <span class="form-label mb-0">Como a pessoa se identifica</span>
-            <label class="flex items-center gap-2 cursor-pointer">
-              <input type="radio" name="public_person_link_mode" value="code" [(ngModel)]="public_person_link_mode" />
-              <span class="text-sm" style="color: var(--c-text)">Código da ficha + data de nascimento</span>
-            </label>
-            <label class="flex items-center gap-2 cursor-pointer">
-              <input type="radio" name="public_person_link_mode" value="cpf" [(ngModel)]="public_person_link_mode" />
-              <span class="text-sm" style="color: var(--c-text)">CPF</span>
-            </label>
+
+          <div>
+            <label class="templates-form-label" for="template-edit-description">Descrição</label>
+            <textarea
+              id="template-edit-description"
+              [(ngModel)]="description"
+              name="description"
+              rows="3"
+              z-input
+              zSize="sm"
+              class="w-full"
+              placeholder="Breve descrição do modelo..."
+            ></textarea>
           </div>
-          <p class="text-xs m-0" style="color: var(--c-muted)">
-            @if (public_person_link_mode === 'cpf') {
-              Antes de preencher, a pessoa informa o CPF para autorizacao de acesso ao formulario.
-            } @else {
-              Antes de preencher, a pessoa informa o código da ficha e a data de nascimento (útil para acompanhamentos).
-            }
-          </p>
-        }
-        <div class="flex items-center gap-3 pt-2">
-          <button type="submit" class="btn-primary" [disabled]="salvando || !name.trim() || (categoriaSelecionada === '__nova__' && !novaCategoria.trim())">
-            @if (salvando) {
-              <span class="btn-spinner" aria-hidden="true"></span>
-              Salvando…
-            } @else {
-              <span class="material-symbols-outlined text-base">save</span>
-              Salvar alterações
-            }
-          </button>
-          <a routerLink="/templates" class="text-sm no-underline" style="color: var(--c-muted)" title="Voltar para modelos">Cancelar</a>
-        </div>
-      </form>
-    </div>
+
+          <div>
+            <label class="templates-form-label" id="template-edit-category-label">Categoria</label>
+            <z-combobox
+              class="w-full"
+              zWidth="full"
+              [options]="opcoesCategoria"
+              [value]="categoriaSelecionada || null"
+              placeholder="Sem categoria"
+              searchPlaceholder="Buscar categoria..."
+              emptyText="Nenhuma categoria encontrada."
+              ariaLabel="Categoria"
+              ariaDescribedBy="template-edit-category-label"
+              (zValueChange)="selecionarCategoria($event)"
+            />
+          </div>
+
+          @if (categoriaSelecionada === '__nova__') {
+            <div>
+              <label class="templates-form-label" for="template-edit-nova-categoria">Nova categoria</label>
+              <input
+                id="template-edit-nova-categoria"
+                type="text"
+                [(ngModel)]="novaCategoria"
+                name="novaCategoria"
+                z-input
+                zSize="sm"
+                class="w-full"
+                placeholder="Ex: Anamnese, Acompanhamento, Evolução..."
+              />
+            </div>
+          }
+
+          <div class="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-6">
+            <z-checkbox [(ngModel)]="is_active" name="is_active">Ativo</z-checkbox>
+            <z-checkbox [(ngModel)]="public_enabled" name="public_enabled">Formulário público</z-checkbox>
+            <z-checkbox [(ngModel)]="public_require_person_link" name="public_require_person_link">
+              Exigir identificação antes do formulário
+            </z-checkbox>
+          </div>
+
+          @if (public_require_person_link) {
+            <fieldset class="m-0 flex flex-col gap-2 border-0 p-0">
+              <legend class="templates-form-label mb-1">Como a pessoa se identifica</legend>
+              <label class="flex cursor-pointer items-center gap-2">
+                <input
+                  type="radio"
+                  name="public_person_link_mode"
+                  value="code"
+                  [(ngModel)]="public_person_link_mode"
+                  class="accent-primary"
+                />
+                <span class="text-sm text-foreground">Código da ficha + data de nascimento</span>
+              </label>
+              <label class="flex cursor-pointer items-center gap-2">
+                <input
+                  type="radio"
+                  name="public_person_link_mode"
+                  value="cpf"
+                  [(ngModel)]="public_person_link_mode"
+                  class="accent-primary"
+                />
+                <span class="text-sm text-foreground">CPF</span>
+              </label>
+            </fieldset>
+            <p class="m-0 text-xs text-muted-foreground">
+              @if (public_person_link_mode === 'cpf') {
+                Antes de preencher, a pessoa informa o CPF para autorização de acesso ao formulário.
+              } @else {
+                Antes de preencher, a pessoa informa o código da ficha e a data de nascimento (útil para acompanhamentos).
+              }
+            </p>
+          }
+
+          <div class="flex flex-wrap items-center gap-3 pt-2">
+            <button
+              type="submit"
+              z-button
+              zSize="sm"
+              class="inline-flex items-center gap-2"
+              [zLoading]="salvando"
+              [zDisabled]="salvando || !name.trim() || (categoriaSelecionada === '__nova__' && !novaCategoria.trim())"
+            >
+              @if (!salvando) {
+                <span class="material-symbols-outlined text-base" aria-hidden="true">save</span>
+              }
+              {{ salvando ? 'Salvando…' : 'Salvar alterações' }}
+            </button>
+            <a routerLink="/templates" z-button zType="outline" zSize="sm" class="no-underline" title="Voltar para modelos">
+              Cancelar
+            </a>
+          </div>
+        </form>
+      </z-card>
     </div>
   }
 </div>

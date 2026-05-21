@@ -1,55 +1,86 @@
-<div class="relative min-h-[320px]">
+<div class="links-publicos relative min-h-[320px]">
   @if (showSkeleton()) {
-    <zm-skeleton-list [rows]="5" />
+    <zm-skeleton-links-publicos [rows]="3" />
   } @else if (!listaPronta) {
   } @else if (erro) {
-    <div class="card rounded-xl p-5 flex flex-wrap items-center justify-between gap-3" style="border: 1px solid var(--c-border)">
-      <p class="text-sm m-0" style="color: var(--c-error, #dc2626)">{{ erro }}</p>
-      <button type="button" class="btn-ghost btn-default-bg inline-flex items-center gap-2" (click)="carregar()">
-        <span class="material-symbols-outlined text-base">refresh</span>
+    <z-card class="flex flex-wrap items-center justify-between gap-3 border-border py-5 shadow-sm **:data-[slot=card-content]:px-5">
+      <p class="m-0 text-sm text-destructive">{{ erro }}</p>
+      <button z-button zType="outline" zSize="sm" type="button" class="gap-2" (click)="carregar()">
+        <span class="material-symbols-outlined text-base" aria-hidden="true">refresh</span>
         Tentar novamente
       </button>
-    </div>
+    </z-card>
   } @else {
-    <div class="zm-content-enter">
-<div class="card rounded-xl overflow-hidden" style="padding: 0; border: 1px solid var(--c-border)">
-  @for (t of templates; track t.id) {
-    <div class="template-row flex flex-wrap items-center justify-between gap-4 py-4 px-5" style="border-bottom: 1px solid var(--c-border)">
-      <div class="flex items-center gap-3 min-w-0">
-        <span class="material-symbols-outlined shrink-0 text-xl" style="color: var(--c-muted)">description</span>
-        <div class="min-w-0">
-          <p class="font-medium m-0" style="color: var(--c-text)">{{ t.name }}</p>
-          @if (t.category_label) {
-            <p class="text-xs mt-0.5 mb-0" style="color: var(--c-muted)">{{ t.category_label }}</p>
-          }
-          <p class="text-xs mt-1 mb-0 template-link-preview">{{ t.public_url }}</p>
-        </div>
-      </div>
-      <div class="template-actions flex items-center gap-2 shrink-0">
-        <button type="button" (click)="copiarLink(t.id, t.public_url)" class="template-action-btn template-action-btn--primary" title="Copiar link do formulário">
-          <span class="material-symbols-outlined text-lg">content_copy</span>
-          <span class="copy-label">{{ copiedTemplateId === t.id ? 'Copiado!' : 'Copiar link' }}</span>
-        </button>
-        <a [href]="t.public_url" target="_blank" rel="noopener" class="template-action-btn" title="Abrir formulário em nova aba">
-          <span class="material-symbols-outlined text-lg">open_in_new</span>
-          Abrir
-        </a>
-        <a routerLink="/templates/{{ t.id }}/campos" class="template-action-btn" title="Campos do template">
-          <span class="material-symbols-outlined text-lg">tune</span>
-          Campos
-        </a>
-      </div>
-    </div>
-  } @empty {
-    <zm-empty-state
-      title="Nenhum link público ativo"
-      description="Gere um link público em Templates, escolha um template e acesse Campos para publicar."
-      actionLabel="Ir para Templates"
-      actionLink="/templates"
-      actionIcon="description"
-    />
-  }
-</div>
+    <div class="zm-content-enter flex flex-col gap-4">
+      @for (t of templates; track t.id) {
+        <z-card class="links-publicos-card !gap-0 !py-0 border-border bg-card shadow-sm">
+          <div class="links-publicos-card__inner flex flex-wrap items-center gap-3">
+            <div class="links-publicos-card__title flex min-w-0 flex-1 items-center gap-3">
+              <span class="material-symbols-outlined shrink-0 text-[1.35rem] text-primary" aria-hidden="true">description</span>
+              <div class="flex min-w-0 flex-wrap items-center gap-2">
+                <h3 class="m-0 truncate text-base font-semibold text-foreground" [attr.title]="t.public_url">{{ t.name }}</h3>
+                <z-badge
+                  zType="outline"
+                  zShape="pill"
+                  class="border-primary/25 bg-primary/10 px-2 py-0 text-[0.65rem] font-semibold uppercase tracking-wide text-primary"
+                >
+                  público
+                </z-badge>
+              </div>
+            </div>
+            <div class="links-publicos-actions flex shrink-0 flex-wrap items-center justify-center gap-2 self-center">
+              <button
+                z-button
+                zType="outline"
+                zSize="sm"
+                type="button"
+                class="gap-2 links-publicos-btn links-publicos-btn--copiar"
+                [title]="copiedTemplateId === t.id ? 'Link copiado' : 'Copiar link do formulário'"
+                (click)="copiarLink(t.id, t.public_url)"
+              >
+                <span class="material-symbols-outlined text-base" aria-hidden="true">
+                  {{ copiedTemplateId === t.id ? 'check' : 'content_copy' }}
+                </span>
+                {{ copiedTemplateId === t.id ? 'Copiado!' : 'Copiar link' }}
+              </button>
+              <a
+                z-button
+                zType="outline"
+                zSize="sm"
+                [href]="t.public_url"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="gap-2 no-underline links-publicos-btn links-publicos-btn--abrir"
+                title="Abrir formulário em nova aba"
+              >
+                <span class="material-symbols-outlined text-base" aria-hidden="true">open_in_new</span>
+                Abrir
+              </a>
+              <a
+                z-button
+                zType="outline"
+                zSize="sm"
+                routerLink="/templates/{{ t.id }}/campos"
+                class="gap-2 no-underline links-publicos-btn links-publicos-btn--campos"
+                title="Campos do template"
+              >
+                <span class="material-symbols-outlined text-base" aria-hidden="true">tune</span>
+                Campos
+              </a>
+            </div>
+          </div>
+        </z-card>
+      } @empty {
+        <z-card class="border-border py-10 shadow-sm **:data-[slot=card-content]:px-5">
+          <zm-empty-state
+            title="Nenhum link público ativo"
+            description="Gere um link público em Templates, escolha um template e acesse Campos para publicar."
+            actionLabel="Ir para Templates"
+            actionLink="/templates"
+            actionIcon="description"
+          />
+        </z-card>
+      }
     </div>
   }
 </div>

@@ -1,22 +1,108 @@
-/* Templates campos */
-
-.campos-form-label-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-}
-
-.campos-link-btn {
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: var(--c-primary);
+.templates-campos-form-label {
+  display: block;
+  margin-bottom: 0.375rem;
   font-size: 0.75rem;
   font-weight: 600;
-  cursor: pointer;
+  line-height: 1.2;
+  color: var(--foreground, var(--c-text));
 }
 
-.campos-link-btn:hover {
-  text-decoration: underline;
+.templates-campos-form-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  align-items: start;
+}
+
+@media (min-width: 768px) {
+  .templates-campos-form-grid {
+    grid-template-columns: 11.25rem minmax(0, 1fr);
+    column-gap: 1rem;
+    row-gap: 1rem;
+  }
+}
+
+.templates-campos-field {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.templates-campos-field--pergunta {
+  grid-column: 1 / -1;
+}
+
+@media (min-width: 768px) {
+  .templates-campos-field--pergunta {
+    grid-column: 2;
+    grid-row: 1;
+  }
+}
+
+.templates-campos-field--full {
+  grid-column: 1 / -1;
+}
+
+.templates-campos-field-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+}
+
+.templates-campos-field .templates-campos-form-label {
+  margin-bottom: 0;
+  min-height: 1.125rem;
+}
+
+.templates-campos z-combobox button[z-button] {
+  height: var(--control-height);
+  min-height: var(--control-height);
+}
+
+.templates-campos z-checkbox {
+  align-items: flex-start;
+}
+
+.templates-campos-key-chip {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-variant-numeric: tabular-nums;
+  font-size: 0.75rem;
+  color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 14%, transparent);
+  padding: 0.25rem 0.625rem;
+  border-radius: 0.5rem;
+  display: inline-block;
+}
+
+.templates-campos-type-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3125rem;
+  background: var(--muted);
+  color: var(--muted-foreground);
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 0.25rem 0.625rem;
+  border-radius: 0.5rem;
+}
+
+.templates-campos-required-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 9999px;
+  background: var(--destructive, #ef4444);
+  display: inline-block;
+}
+
+.templates-campos-drag {
+  cursor: grab;
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.templates-campos-drag:hover {
+  color: var(--muted-foreground);
 }

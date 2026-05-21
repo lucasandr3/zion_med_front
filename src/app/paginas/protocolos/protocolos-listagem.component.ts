@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, Signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, Signal, ViewChild, TemplateRef, ViewContainerRef } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -7,15 +7,39 @@ import { TemplatesService, Template } from '../../core/services/templates.servic
 import { LoadingService } from '../../shared/services/loading.service';
 import { ZmSkeletonListComponent } from '../../shared/components/skeletons';
 import { ZmPaginationComponent, ZmEmptyStateComponent } from '../../shared/components/ui';
+import { ZardCardComponent } from '@/shared/components/card/card.component';
+import { ZardButtonComponent } from '@/shared/components/button/button.component';
+import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
+import { ZardSheetService } from '@/shared/components/sheet/sheet.service';
+import type { ZardSheetRef } from '@/shared/components/sheet/sheet-ref';
 
+import { FlatpickrDirective } from 'angularx-flatpickr';
+
+import { ZardComboboxComponent, type ZardComboboxOption } from '@/shared/components/combobox';
+import { ZardTableImports } from '@/shared/components/table';
+import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
 @Component({
   selector: 'app-protocolos-listagem',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, ZmSkeletonListComponent, ZmPaginationComponent, ZmEmptyStateComponent],
+  imports: [
+    ...ZARD_FORM_CONTROL_IMPORTS,
+    ...ZardTableImports,
+    FlatpickrDirective,
+    CommonModule,
+    FormsModule,
+    RouterLink,
+    ZmSkeletonListComponent,
+    ZmPaginationComponent,
+    ZmEmptyStateComponent,
+    ZardCardComponent,
+    ZardButtonComponent,
+    ZardBadgeComponent,
+    ZardComboboxComponent,
+  ],
   templateUrl: './protocolos-listagem.component.html',
   styleUrl: './protocolos-listagem.component.css',
 })
-export class ProtocolosListagemComponent implements OnInit {
+export class ProtocolosListagemComponent implements OnInit, OnDestroy {
   protocolos: Protocolo[] = [];
   templates: Template[] = [];
   meta: { current_page: number; last_page: number; per_page: number; total: number } = {
@@ -35,13 +59,55 @@ export class ProtocolosListagemComponent implements OnInit {
   data_inicio = '';
   data_fim = '';
   filterDrawerOpen = false;
+  /** Calendário no body para não ser cortado pelo overflow do sheet. */
+  flatpickrAppendTo!: HTMLElement;
+
+  @ViewChild('protocolosFiltrosTpl') protocolosFiltrosTpl?: TemplateRef<void>;
+
+  private filtrosSheetRef?: ZardSheetRef<void>;
 
   private protocolosService = inject(ProtocolosService);
   private templatesService = inject(TemplatesService);
   private loadingService = inject(LoadingService);
   private router = inject(Router);
+  private readonly vcr = inject(ViewContainerRef);
+  private readonly zardSheet = inject(ZardSheetService);
 
+  readonly opcoesStatusFiltro: ZardComboboxOption[] = [
+    { value: '', label: 'Todas' },
+    { value: 'pending', label: 'Pendente' },
+    { value: 'approved', label: 'Aprovado' },
+    { value: 'rejected', label: 'Reprovado' },
+  ];
+
+  get opcoesTemplateFiltro(): ZardComboboxOption[] {
+    return [
+      { value: '', label: 'Todos' },
+      ...this.templates.map((t) => ({ value: String(t.id), label: t.name })),
+    ];
+  }
+
+  get templateFiltroKey(): string {
+    return this.template_id === '' ? '' : String(this.template_id);
+  }
+
+  selecionarTemplateFiltro(key: string | null): void {
+    if (!key) {
+      this.template_id = '';
+      return;
+    }
+    this.template_id = key === '' ? '' : Number(key);
+  }
+
+  selecionarStatusFiltro(key: string | null): void {
+    this.status = key ?? '';
+  }
+
+  ngOnDestroy(): void {
+    this.filtrosSheetRef?.close();
+  }
   ngOnInit(): void {
+    this.flatpickrAppendTo = document.body;
     this.templatesService.list().subscribe({ next: (t) => (this.templates = t) });
     this.carregar();
   }
@@ -88,8 +154,8 @@ export class ProtocolosListagemComponent implements OnInit {
   }
 
   aplicarFiltros(): void {
-    this.filterDrawerOpen = false;
     this.carregar(1);
+    this.filtrosSheetRef?.close();
   }
 
   limparFiltros(): void {
@@ -97,16 +163,33 @@ export class ProtocolosListagemComponent implements OnInit {
     this.status = '';
     this.data_inicio = '';
     this.data_fim = '';
-    this.filterDrawerOpen = false;
     this.carregar(1);
+    this.filtrosSheetRef?.close();
   }
 
   openFilterDrawer(): void {
+    if (this.filtrosSheetRef) {
+      this.filtrosSheetRef.close();
+      return;
+    }
+    if (!this.protocolosFiltrosTpl) {
+      return;
+    }
     this.filterDrawerOpen = true;
-  }
-
-  closeFilterDrawer(): void {
-    this.filterDrawerOpen = false;
+    this.filtrosSheetRef = this.zardSheet.create<void, void>({
+      zContent: this.protocolosFiltrosTpl,
+      zViewContainerRef: this.vcr,
+      zSide: 'right',
+      zSize: 'lg',
+      zTitle: 'Filtros',
+      zHideFooter: true,
+      zOkText: null,
+      zCancelText: null,
+      zAfterClose: () => {
+        this.filtrosSheetRef = undefined;
+        this.filterDrawerOpen = false;
+      },
+    });
   }
 
   irParaDetalhe(p: Protocolo, event: Event): void {

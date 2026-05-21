@@ -4,16 +4,17 @@
 
 .zm-searchable-select-trigger {
   width: 100%;
-  min-height: 42px;
+  min-height: var(--control-height, 43px);
   border: 1px solid var(--c-border);
   background: var(--c-surface);
   color: var(--c-text);
-  border-radius: 10px;
-  padding: 10px 12px;
+  border-radius: var(--radius, 0.5rem);
+  padding: 0 0.75rem;
+  box-sizing: border-box;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
+  gap: 0.5rem;
   cursor: pointer;
 }
 
@@ -63,12 +64,14 @@
 
 .zm-searchable-select-search-input {
   width: 100%;
-  min-height: 38px;
+  height: var(--control-height, 43px);
+  min-height: var(--control-height, 43px);
+  box-sizing: border-box;
   border: 1px solid var(--c-border);
   background: var(--c-soft);
   color: var(--c-text);
-  border-radius: 10px;
-  padding: 8px 10px 8px 34px;
+  border-radius: var(--radius, 0.5rem);
+  padding: 0 0.625rem 0 2.125rem;
   outline: none;
 }
 
@@ -77,9 +80,11 @@
   border: 1px solid var(--c-border);
   background: var(--c-soft);
   color: var(--c-primary);
-  border-radius: 10px;
-  min-height: 38px;
-  padding: 6px 12px;
+  border-radius: var(--radius, 0.5rem);
+  height: var(--control-height, 43px);
+  min-height: var(--control-height, 43px);
+  padding: 0 0.75rem;
+  box-sizing: border-box;
   display: flex;
   align-items: center;
   justify-content: center;

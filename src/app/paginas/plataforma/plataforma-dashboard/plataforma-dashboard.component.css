@@ -5,16 +5,16 @@
   gap: 0.875rem;
   padding: 1.125rem 1.25rem;
   border-radius: 0.5rem;
-  background: var(--c-surface);
-  border: 1px solid var(--c-border);
+  background: var(--card, var(--c-surface));
+  border: 1px solid var(--border, var(--c-border));
   text-decoration: none;
   color: inherit;
   transition: border-color 0.18s, box-shadow 0.18s, transform 0.18s;
 }
 
 a.dash-kpi-card:hover {
-  border-color: var(--c-primary);
-  box-shadow: 0 2px 12px color-mix(in srgb, var(--c-primary) 12%, transparent);
+  border-color: var(--primary, var(--c-primary));
+  box-shadow: 0 2px 12px color-mix(in oklch, var(--primary, var(--c-primary)) 12%, transparent);
   transform: translateY(-1px);
 }
 
@@ -33,7 +33,7 @@ a.dash-kpi-card:hover {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.14em;
-  color: var(--c-muted);
+  color: var(--muted-foreground, var(--c-muted));
   margin: 0 0 0.125rem;
 }
 
@@ -41,25 +41,25 @@ a.dash-kpi-card:hover {
   font-size: 1.625rem;
   font-weight: 700;
   line-height: 1.1;
-  color: var(--c-text);
+  color: var(--foreground, var(--c-text));
   margin: 0;
 }
 
 .dash-kpi-sub {
   font-size: 0.7rem;
-  color: var(--c-muted);
+  color: var(--muted-foreground, var(--c-muted));
   margin: 0.125rem 0 0;
 }
 
 .dash-kpi-arrow {
   font-size: 18px;
-  color: var(--c-border);
+  color: var(--border, var(--c-border));
   flex-shrink: 0;
   transition: color 0.15s, transform 0.15s;
 }
 
 a.dash-kpi-card:hover .dash-kpi-arrow {
-  color: var(--c-primary);
+  color: var(--primary, var(--c-primary));
   transform: translateX(2px);
 }
 
@@ -71,45 +71,45 @@ a.dash-kpi-card:hover .dash-kpi-arrow {
   gap: 0.5rem;
   padding: 1rem 0.5rem;
   border-radius: 0.5rem;
-  background: var(--c-surface);
-  border: 1px solid var(--c-border);
+  background: var(--card, var(--c-surface));
+  border: 1px solid var(--border, var(--c-border));
   text-decoration: none;
   color: inherit;
   transition: border-color 0.18s, box-shadow 0.18s, transform 0.18s;
 }
 
 .dash-shortcut:hover {
-  border-color: var(--c-primary);
-  box-shadow: 0 2px 10px color-mix(in srgb, var(--c-primary) 10%, transparent);
+  border-color: var(--primary, var(--c-primary));
+  box-shadow: 0 2px 10px color-mix(in oklch, var(--primary, var(--c-primary)) 10%, transparent);
   transform: translateY(-1px);
 }
 
 .dash-shortcut-icon {
   font-size: 24px;
-  color: var(--c-muted);
+  color: var(--muted-foreground, var(--c-muted));
   transition: color 0.15s;
 }
 
 .dash-shortcut:hover .dash-shortcut-icon {
-  color: var(--c-primary);
+  color: var(--primary, var(--c-primary));
 }
 
 .dash-shortcut-label {
   font-size: 0.7rem;
   font-weight: 600;
-  color: var(--c-muted);
+  color: var(--muted-foreground, var(--c-muted));
   transition: color 0.15s;
 }
 
 .dash-shortcut:hover .dash-shortcut-label {
-  color: var(--c-text);
+  color: var(--foreground, var(--c-text));
 }
 
 /* ── Panel (cards de lista) ──────────────────────────────── */
 .dash-panel {
-  border-radius: 0.5rem;
-  background: var(--c-surface);
-  border: 1px solid var(--c-border);
+  border-radius: 0.75rem;
+  background: var(--card, var(--c-surface));
+  border: 1px solid var(--border, var(--c-border));
   overflow: hidden;
 }
 
@@ -118,13 +118,13 @@ a.dash-kpi-card:hover .dash-kpi-arrow {
   align-items: center;
   justify-content: space-between;
   padding: 0.875rem 1.125rem;
-  border-bottom: 1px solid var(--c-border);
+  border-bottom: 1px solid var(--border, var(--c-border));
 }
 
 .dash-panel-link {
   font-size: 0.75rem;
   font-weight: 500;
-  color: var(--c-primary);
+  color: var(--primary, var(--c-primary));
   text-decoration: none;
   transition: opacity 0.15s;
 }
@@ -144,14 +144,14 @@ a.dash-kpi-card:hover .dash-kpi-arrow {
   align-items: center;
   gap: 0.75rem;
   padding: 0.75rem 1.125rem;
-  border-bottom: 1px solid var(--c-border);
+  border-bottom: 1px solid var(--border, var(--c-border));
   text-decoration: none;
   color: inherit;
   transition: background-color 0.12s;
 }
 
 a.dash-list-item:hover {
-  background-color: var(--c-soft);
+  background-color: var(--muted, var(--c-soft));
 }
 
 .dash-list-item:last-child {

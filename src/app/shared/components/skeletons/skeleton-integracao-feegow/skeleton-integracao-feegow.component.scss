@@ -1,0 +1,16 @@
+.feegow-skeleton {
+  width: 100%;
+  min-height: min(18rem, 40dvh);
+}
+
+.feegow-skeleton .section-header {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.feegow-skeleton .section-body {
+  padding: 1.25rem;
+}

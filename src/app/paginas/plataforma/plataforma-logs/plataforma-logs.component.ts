@@ -1,14 +1,18 @@
 import { Component, OnInit, inject, Signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ZardCardComponent } from '@/shared/components/card/card.component';
+import { ZardButtonComponent } from '@/shared/components/button/button.component';
 import { PlataformaService, PlatformAuditLog } from '../../../core/services/plataforma.service';
 import { LoadingService } from '../../../shared/services/loading.service';
 import { ZmSkeletonListComponent } from '../../../shared/components/skeletons';
 import { ZmEmptyStateComponent } from '../../../shared/components/ui';
 
+import { ZardTableImports } from '@/shared/components/table';
 @Component({
   selector: 'app-plataforma-logs',
   standalone: true,
-  imports: [CommonModule, ZmSkeletonListComponent, ZmEmptyStateComponent],
+  imports: [
+    ...ZardTableImports,CommonModule, ZardCardComponent, ZardButtonComponent, ZmSkeletonListComponent, ZmEmptyStateComponent],
   templateUrl: './plataforma-logs.component.html',
   styleUrl: './plataforma-logs.component.css',
 })

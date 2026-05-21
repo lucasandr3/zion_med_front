@@ -1,6 +1,9 @@
 import { Component, OnInit, OnDestroy, inject, Signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { ZardCardComponent } from '@/shared/components/card/card.component';
+import { ZardButtonComponent } from '@/shared/components/button/button.component';
+import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
 import { PlataformaService, PlatformPlan } from '../../../core/services/plataforma.service';
 import { PlataformaHeaderService } from '../../../core/services/plataforma-header.service';
 import { LoadingService } from '../../../shared/services/loading.service';
@@ -11,7 +14,7 @@ import { ConfirmDialogService } from '../../../core/services/confirm-dialog.serv
 @Component({
   selector: 'app-plataforma-planos',
   standalone: true,
-  imports: [CommonModule, RouterLink, ZmSkeletonListComponent],
+  imports: [CommonModule, RouterLink, ZardCardComponent, ZardButtonComponent, ZardBadgeComponent, ZmSkeletonListComponent],
   templateUrl: './plataforma-planos.component.html',
   styleUrl: './plataforma-planos.component.css',
 })
@@ -38,17 +41,6 @@ export class PlataformaPlanosComponent implements OnInit, OnDestroy {
 
   formatarValor(valor: number): string {
     return valor.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  }
-
-  btnExcluirHover(el: Event, enter: boolean): void {
-    const target = el.target as HTMLElement;
-    if (enter) {
-      target.style.color = '#ef4444';
-      target.style.borderColor = '#ef4444';
-    } else {
-      target.style.color = 'var(--c-muted)';
-      target.style.borderColor = 'var(--c-border)';
-    }
   }
 
   async excluir(p: PlatformPlan): Promise<void> {

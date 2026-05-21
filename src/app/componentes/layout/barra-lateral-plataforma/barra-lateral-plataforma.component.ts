@@ -4,9 +4,6 @@ import {
   OnInit,
   OnDestroy,
   inject,
-  HostListener,
-  ViewChild,
-  ElementRef,
   PLATFORM_ID,
   NgZone,
 } from '@angular/core';
@@ -16,12 +13,27 @@ import { Subscription } from 'rxjs';
 import { AuthService } from '../../../core/services/auth.service';
 import { resolveSidebarLogoSrc } from '../../../core/utils/sidebar-logo.util';
 import { SidebarMobileService } from '../../../core/services/sidebar-mobile.service';
-import { TooltipDirective } from '../../../core/directives/tooltip.directive';
+import { ZardTooltipImports } from '@/shared/components/tooltip';
+import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
+import { ZardButtonComponent } from '@/shared/components/button/button.component';
+import { ZardMenuLabelComponent } from '../../../shared/components/menu/menu-label.component';
+import { ZardMenuImports } from '../../../shared/components/menu/menu.imports';
+import { ZardAvatarComponent } from '@/shared/components/avatar/avatar.component';
 
 @Component({
   selector: 'app-barra-lateral-plataforma',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive, TooltipDirective],
+  imports: [
+    CommonModule,
+    RouterLink,
+    RouterLinkActive,
+    ...ZardTooltipImports,
+    ZardBadgeComponent,
+    ZardButtonComponent,
+    ZardMenuLabelComponent,
+    ...ZardMenuImports,
+    ZardAvatarComponent,
+  ],
   templateUrl: './barra-lateral-plataforma.component.html',
   styleUrl: './barra-lateral-plataforma.component.css',
 })
@@ -31,12 +43,9 @@ export class BarraLateralPlataformaComponent implements OnInit, OnDestroy {
   nomeUsuario = 'Usuário';
   iniciaisUsuario = 'U';
   emailUsuario = '';
-  menuUsuarioAberto = false;
 
   /** Com «Topo e marca», variante do logo em `assets/logo` conforme o tema. */
   sidebarLogoSrc = '/assets/logo/logo.png';
-
-  @ViewChild('userMenuContainer') userMenuContainer?: ElementRef<HTMLElement>;
 
   private auth = inject(AuthService);
   private router = inject(Router);
@@ -48,14 +57,6 @@ export class BarraLateralPlataformaComponent implements OnInit, OnDestroy {
   private appearanceSub?: Subscription;
   private platformId = inject(PLATFORM_ID);
   private ngZone = inject(NgZone);
-
-  @HostListener('document:click', ['$event'])
-  onDocumentClick(e: Event): void {
-    if (!this.menuUsuarioAberto) return;
-    const el = this.userMenuContainer?.nativeElement;
-    if (el && el.contains(e.target as Node)) return;
-    this.fecharMenuUsuario();
-  }
 
   ngOnInit(): void {
     this.atualizarDados();
@@ -85,20 +86,11 @@ export class BarraLateralPlataformaComponent implements OnInit, OnDestroy {
     }
   }
 
-  alternarMenuUsuario(): void {
-    this.menuUsuarioAberto = !this.menuUsuarioAberto;
-  }
-
-  fecharMenuUsuario(): void {
-    this.menuUsuarioAberto = false;
-  }
-
   fecharSidebarMobile(): void {
     this.sidebarMobile.setOpen(false);
   }
 
   sair(): void {
-    this.menuUsuarioAberto = false;
     this.auth.logout().subscribe(() => this.router.navigate(['/autenticacao']));
   }
 

@@ -4,6 +4,8 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgxMaskDirective } from 'ngx-mask';
+
+import { ZardCheckboxComponent } from '@/shared/components/checkbox';
 import { LandingService, PlanoLanding } from '../../core/services/landing.service';
 import { ComeceService } from '../../core/services/comece.service';
 import { AuthService } from '../../core/services/auth.service';
@@ -11,7 +13,7 @@ import { AuthService } from '../../core/services/auth.service';
 @Component({
   selector: 'app-pagina-comece',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule, NgxMaskDirective],
+  imports: [CommonModule, RouterLink, FormsModule, NgxMaskDirective, ZardCheckboxComponent],
   templateUrl: './comece.component.html',
   styleUrl: './comece.component.css',
 })

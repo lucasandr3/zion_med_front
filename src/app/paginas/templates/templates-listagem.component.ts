@@ -5,8 +5,15 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TemplatesService, Template } from '../../core/services/templates.service';
 import { LoadingService } from '../../shared/services/loading.service';
-import { ZmSkeletonListComponent } from '../../shared/components/skeletons';
+import {
+  ZmSkeletonTemplatesColecaoComponent,
+  ZmSkeletonTemplatesDetalheComponent,
+} from '../../shared/components/skeletons';
 import { ZmEmptyStateComponent } from '../../shared/components/ui';
+import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
+import { ZardButtonComponent } from '@/shared/components/button/button.component';
+import { ZardCardComponent } from '@/shared/components/card/card.component';
+import { ZardInputDirective } from '@/shared/components/input/input.directive';
 import { ToastService } from '../../core/services/toast.service';
 import { ConfirmDialogService } from '../../core/services/confirm-dialog.service';
 
@@ -72,10 +79,25 @@ type OrdenacaoColecao = 'fixa' | 'az' | 'recente';
 type ModoDetalhe = 'tabela' | 'cards';
 type ModoColecao = 'cards' | 'lista';
 
+import { ZardTableImports } from '@/shared/components/table';
+import { ZardTooltipImports } from '@/shared/components/tooltip';
 @Component({
   selector: 'app-templates-listagem',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule, ZmSkeletonListComponent, ZmEmptyStateComponent],
+  imports: [
+    ...ZardTableImports,
+    ...ZardTooltipImports,
+    CommonModule,
+    RouterLink,
+    FormsModule,
+    ZmSkeletonTemplatesColecaoComponent,
+    ZmSkeletonTemplatesDetalheComponent,
+    ZmEmptyStateComponent,
+    ZardCardComponent,
+    ZardButtonComponent,
+    ZardBadgeComponent,
+    ZardInputDirective,
+  ],
   templateUrl: './templates-listagem.component.html',
   styleUrl: './templates-listagem.component.css',
 })
@@ -172,18 +194,6 @@ export class TemplatesListagemComponent implements OnInit {
     return copy;
   }
 
-  get totalAtivos(): number {
-    return this.templates.filter((t) => t.is_active).length;
-  }
-
-  get totalPublicos(): number {
-    return this.templates.filter((t) => t.public_enabled).length;
-  }
-
-  get totalCategoriasComModelos(): number {
-    return this.grupos.filter((g) => g.items.length > 0).length;
-  }
-
   rotuloOrdenacao(): string {
     if (this.ordenacao === 'az') return 'A–Z';
     if (this.ordenacao === 'recente') return 'Recentes';
@@ -252,6 +262,22 @@ export class TemplatesListagemComponent implements OnInit {
     return max ?? null;
   }
 
+  subtituloModelo(t: Template): string {
+    const raw = (t.description ?? '').trim();
+    if (raw) {
+      return raw.length > 90 ? `${raw.slice(0, 87)}...` : raw;
+    }
+    return 'Modelo de ficha';
+  }
+
+  rotuloCriadoEm(t: Template): string {
+    const iso = t.created_at;
+    if (!iso) return '';
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return '';
+    return d.toLocaleDateString('pt-BR', { day: 'numeric', month: 'short', year: 'numeric' });
+  }
+
   rotuloAtualizacaoGrupo(grupo: { items: Template[] }): string {
     const iso = this.isoMaisRecente(grupo.items);
     if (!iso) return '';
@@ -265,12 +291,6 @@ export class TemplatesListagemComponent implements OnInit {
     if (diffDays === 1) return 'Atualizado ontem';
     if (diffDays > 1 && diffDays < 7) return `Atualizado há ${diffDays} dias`;
     return `Atualizado em ${d.toLocaleDateString('pt-BR')}`;
-  }
-
-  descricaoCurta(t: Template): string {
-    const raw = (t.description ?? '').trim();
-    if (!raw) return 'Modelo sem descrição.';
-    return raw.length > 110 ? `${raw.slice(0, 107)}...` : raw;
   }
 
   async remover(t: Template, event: Event): Promise<void> {

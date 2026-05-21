@@ -1,212 +1,224 @@
-<div class="cabecalho-shell sticky top-0 z-10 shrink-0 w-full" [class.theme-drawer-open]="menuTemaAberto">
-<header id="top-header" class="top-header h-14 flex items-center justify-between px-3 lg:px-5 shrink-0">
+<div class="cabecalho-shell sticky top-0 z-10 w-full shrink-0">
+<header id="top-header"
+        class="top-header flex h-[length:var(--shell-header-height)] min-h-[length:var(--shell-header-height)] w-full shrink-0 items-center justify-between px-3 lg:px-5">
   <div class="flex items-center gap-3">
     @if (urlVoltar) {
-      <a [routerLink]="urlVoltar" class="flex items-center justify-center w-8 h-8 rounded-lg transition-colors shrink-0 hover:bg-[var(--c-soft)]" style="color: var(--c-muted)" [attr.aria-label]="labelVoltar" [appTooltip]="labelVoltar">
-        <span class="material-symbols-outlined" style="font-size: 21px">arrow_back</span>
+      <a z-button zType="ghost" zSize="icon" class="cabecalho-toolbar-action shrink-0 rounded-lg" [routerLink]="urlVoltar"
+         [attr.aria-label]="labelVoltar">
+        <span class="material-symbols-outlined text-[21px]">arrow_back</span>
       </a>
     }
-    <button type="button" (click)="alternarSidebar()" class="flex items-center justify-center w-8 h-8 rounded-lg transition-colors hover:bg-[var(--c-soft)]" style="color: var(--c-muted)" aria-label="Abrir ou fechar menu" appTooltip="Abrir ou fechar menu">
-      <span class="material-symbols-outlined" style="font-size: 21px">menu</span>
+    <button z-button zType="ghost" zSize="icon" type="button" (click)="alternarSidebar()" class="cabecalho-toolbar-action rounded-lg"
+            aria-label="Abrir ou fechar menu">
+      <span class="material-symbols-outlined text-[21px]">menu</span>
     </button>
     <div class="min-w-0">
-      @if (breadcrumbs?.length) {
-        <h2 class="font-semibold text-[0.9375rem]" style="color: var(--c-text)">{{ titulo }}</h2>
-        <nav class="app-breadcrumbs" aria-label="Navegação estrutural">
-          @for (c of breadcrumbs!; track $index; let i = $index) {
-            @if (i > 0) {
-              <span class="app-breadcrumbs__sep" aria-hidden="true">/</span>
-            }
-            @if (c.url) {
-              <a [routerLink]="c.url" class="app-breadcrumbs__link">{{ c.label }}</a>
-            } @else {
-              <span class="app-breadcrumbs__current">{{ c.label }}</span>
-            }
-          }
-        </nav>
-      }
-      <!-- <h2 class="font-semibold text-[0.9375rem]" style="color: var(--c-text)">{{ titulo }}</h2> -->
+      <h2 class="truncate text-[0.9375rem] font-semibold text-foreground">{{ titulo }}</h2>
       @if (subtitulo) {
-        <p class="text-xs mt-0.5 truncate" style="color: var(--c-muted)">{{ subtitulo }}</p>
+        <p class="mt-0.5 truncate text-xs text-muted-foreground">{{ subtitulo }}</p>
       }
     </div>
   </div>
 
   <div class="flex items-center gap-2">
-    <!-- Tema (cores + modo escuro): ícone palette abre drawer em mobile e desktop -->
-    <div class="relative header-desktop-only-block" #themePicker>
-      <button type="button" (click)="alternarMenuTema()" class="flex items-center justify-center w-8 h-8 rounded-md transition-colors hover:bg-[var(--c-soft)]" style="color: var(--c-muted); background: transparent" aria-label="Tema e aparência" appTooltip="Tema e aparência">
-        <span class="material-symbols-outlined" style="font-size: 22px">palette</span>
+    <div class="relative header-desktop-only-block">
+      <button z-button zType="ghost" zSize="icon" type="button" (click)="alternarMenuTema()" class="cabecalho-toolbar-action rounded-md"
+              aria-label="Tema e aparência">
+        <span class="material-symbols-outlined text-[22px]">palette</span>
       </button>
     </div>
 
     @if (podeVerNotificacoesNoHeader) {
-      <div class="w-px h-5 bg-[var(--c-border)] mx-0.5 header-desktop-only-block"></div>
-      <a [routerLink]="notificacoesRouterLink" class="relative header-desktop-only-flex items-center justify-center w-8 h-8 rounded-md transition-colors no-underline hover:bg-[var(--c-soft)]" style="background: transparent; color: var(--c-muted)" aria-label="Notificações" appTooltip="Notificações">
-        <span class="material-symbols-outlined" style="font-size: 19px">notifications</span>
+      <div class="mx-0.5 h-5 w-px bg-border header-desktop-only-block"></div>
+      <a z-button zType="ghost" zSize="icon" [routerLink]="notificacoesRouterLink"
+         class="cabecalho-toolbar-action relative rounded-md no-underline header-desktop-only-flex"
+         aria-label="Notificações">
+        <span class="material-symbols-outlined text-[19px]">notifications</span>
         @if (notificacoesNaoLidas > 0) {
-          <span class="header-notify-dot absolute -top-0.5 -right-0.5 min-w-4 h-4 rounded-full flex items-center justify-center px-1 text-[0.55rem] font-bold leading-none" style="background: var(--c-primary); color: #fff; border: 2px solid var(--c-bg)">
+          <z-badge zShape="pill" class="header-notify-dot absolute -top-0.5 -right-0.5 min-w-[1rem] border-2 border-background font-bold !h-4 !px-1 !py-0 !text-[0.55rem] !leading-none">
             {{ notificacoesNaoLidas > 99 ? '99+' : notificacoesNaoLidas }}
-          </span>
+          </z-badge>
         }
       </a>
-      <div class="w-px h-5 bg-[var(--c-border)] mx-0.5 header-desktop-only-block"></div>
     }
 
     @if (nomeClinica) {
-      <div class="w-px h-5 bg-[var(--c-border)] mx-0.5 hidden lg:block"></div>
-      <div class="relative" #clinicMenuContainer>
+      <div class="mx-0.5 hidden h-5 w-px bg-border lg:block"></div>
+      <div class="relative">
         <button
+          z-menu
           type="button"
-          class="header-clinic-chip header-clinic-chip--clickable"
-          [attr.aria-expanded]="menuEmpresaAberto"
-          aria-haspopup="menu"
+          [zMenuTriggerFor]="empresaMenuTpl"
+          zPlacement="bottomRight"
+          class="shell-profile-chip shell-profile-chip--header"
           aria-label="Menu da empresa selecionada"
-          (click)="alternarMenuEmpresa()"
         >
-          <span class="header-clinic-avatar" aria-hidden="true">
-            @if (logoUrlClinica) {
-              <img [src]="logoUrlClinica" [alt]="'Logo ' + nomeClinica" class="header-clinic-avatar__img" loading="lazy" />
-            } @else {
-              {{ nomeClinica.charAt(0) | uppercase }}
-            }
-          </span>
-          <span class="header-clinic-meta">
-            <span class="header-clinic-name">{{ nomeClinica }}</span>
+          <z-avatar
+            zSize="sm"
+            zShape="circle"
+            [zSrc]="logoUrlClinica ?? ''"
+            [zFallback]="iniciaisClinica"
+            [zAlt]="logoUrlClinica ? 'Logo ' + nomeClinica : nomeClinica"
+            [zPriority]="!!logoUrlClinica"
+            class="shrink-0 !bg-primary !text-primary-foreground [&>img]:object-cover [&>span]:text-[0.65rem] [&>span]:font-bold"
+          />
+          <div class="shell-profile-chip__meta">
+            <p class="truncate text-left text-xs font-semibold text-foreground">{{ nomeClinica }}</p>
             @if (emailClinica) {
-              <span class="header-clinic-email">{{ emailClinica }}</span>
+              <p class="truncate text-left text-[0.7rem] text-muted-foreground">{{ emailClinica }}</p>
             }
-          </span>
-          <span class="material-symbols-outlined header-clinic-action" aria-hidden="true">
-            {{ menuEmpresaAberto ? 'expand_less' : 'unfold_more' }}
-          </span>
+          </div>
+          <span class="material-symbols-outlined shrink-0 text-base text-muted-foreground" aria-hidden="true">unfold_more</span>
         </button>
 
-        @if (menuEmpresaAberto) {
-          <div class="header-clinic-dropdown" role="menu" aria-label="Ações da empresa">
+        <ng-template #empresaMenuTpl>
+          <div z-menu-content class="empresa-menu-popover min-w-52 rounded-lg border border-border bg-popover p-1.5 text-popover-foreground shadow-lg">
             @if (exibirTrocarEmpresa) {
-              <a routerLink="/clinica/escolher" (click)="fecharMenuEmpresa()" class="header-clinic-dropdown-item" role="menuitem" appTooltip="Trocar empresa">
-                <span class="material-symbols-outlined" aria-hidden="true">swap_horiz</span>
+              <a
+                z-menu-item
+                routerLink="/clinica/escolher"
+                class="gap-2 text-inherit no-underline"
+              >
+                <span class="material-symbols-outlined shrink-0 text-base" aria-hidden="true">swap_horiz</span>
                 Trocar empresa
               </a>
             }
-            <a routerLink="/clinica/configuracoes" (click)="fecharMenuEmpresa()" class="header-clinic-dropdown-item" role="menuitem" appTooltip="Configurações da empresa">
-              <span class="material-symbols-outlined" aria-hidden="true">settings</span>
-              Configurações
+            <a z-menu-item routerLink="/conta/perfil" class="gap-2 text-inherit no-underline">
+              <span class="material-symbols-outlined shrink-0 text-base" aria-hidden="true">person</span>
+              Meu perfil
             </a>
+            @if (ehAdminPlataforma) {
+              <a z-menu-item routerLink="/plataforma" class="gap-2 text-inherit no-underline">
+                <span class="material-symbols-outlined shrink-0 text-base" aria-hidden="true">admin_panel_settings</span>
+                Admin da plataforma
+              </a>
+            }
+            @if (podeGerenciarClinica) {
+              <a z-menu-item routerLink="/clinica/configuracoes" class="gap-2 text-inherit no-underline">
+                <span class="material-symbols-outlined shrink-0 text-base" aria-hidden="true">settings</span>
+                Configurações
+              </a>
+            }
             @if (podeVerBillingNoHeader) {
-              <a routerLink="/assinatura" (click)="fecharMenuEmpresa()" class="header-clinic-dropdown-item" role="menuitem" appTooltip="Assinatura">
-                <span class="material-symbols-outlined" aria-hidden="true">credit_card</span>
+              <a z-menu-item routerLink="/assinatura" class="gap-2 text-inherit no-underline">
+                <span class="material-symbols-outlined shrink-0 text-base" aria-hidden="true">credit_card</span>
                 Assinatura
               </a>
             }
-            <button type="button" (click)="sair()" class="header-clinic-dropdown-item header-clinic-dropdown-item--button" role="menuitem" appTooltip="Sair">
-              <span class="material-symbols-outlined" aria-hidden="true">logout</span>
+            <button type="button" z-menu-item zType="destructive" class="w-full gap-2" (click)="sair()">
+              <span class="material-symbols-outlined shrink-0 text-base" aria-hidden="true">logout</span>
               Sair
             </button>
           </div>
-        }
+        </ng-template>
       </div>
     }
   </div>
 </header>
 
-@if (menuTemaAberto) {
-  <!-- Fora do #top-header: evita herdar tokens de texto do modo «Topo e marca» -->
-  <div class="theme-drawer-overlay fixed inset-0 z-[199] bg-black/40" (click)="fecharMenuTema()" aria-hidden="true"></div>
-  <div
-    #themeDrawer
-    id="theme-drawer"
-    class="theme-drawer-panel theme-drawer-shell fixed top-0 right-0 bottom-0 z-[200] flex flex-col overflow-y-auto"
-    (click)="$event.stopPropagation()"
-    role="dialog"
-    aria-labelledby="theme-drawer-title"
-  >
-    <div class="theme-drawer-header">
-      <h3 id="theme-drawer-title" class="theme-drawer-title">Tema e aparência</h3>
-      <button type="button" (click)="fecharMenuTema()" class="theme-drawer-close" aria-label="Fechar painel de tema" appTooltip="Fechar">
-        <span class="material-symbols-outlined" style="font-size: 20px">close</span>
-      </button>
-    </div>
-
-    <p class="theme-drawer-section-label">Modo</p>
-    <div class="theme-drawer-mode-row">
-      <button
-        type="button"
-        (click)="aplicarModoTema('light')"
-        class="theme-drawer-mode-btn"
-        [class.theme-drawer-mode-btn--active]="themeDrawerMode === 'light'"
-        [attr.aria-pressed]="themeDrawerMode === 'light'"
-      >
-        <span class="material-symbols-outlined theme-drawer-mode-icon">light_mode</span>
-        <span class="theme-drawer-mode-text">Claro</span>
-      </button>
-      <button
-        type="button"
-        (click)="aplicarModoTema('dark')"
-        class="theme-drawer-mode-btn"
-        [class.theme-drawer-mode-btn--active]="themeDrawerMode === 'dark'"
-        [attr.aria-pressed]="themeDrawerMode === 'dark'"
-      >
-        <span class="material-symbols-outlined theme-drawer-mode-icon">dark_mode</span>
-        <span class="theme-drawer-mode-text">Escuro</span>
-      </button>
-      <button
-        type="button"
-        (click)="aplicarModoTema('auto')"
-        class="theme-drawer-mode-btn"
-        [class.theme-drawer-mode-btn--active]="themeDrawerMode === 'auto'"
-        [attr.aria-pressed]="themeDrawerMode === 'auto'"
-      >
-        <span class="material-symbols-outlined theme-drawer-mode-icon">brightness_auto</span>
-        <span class="theme-drawer-mode-text">Automático</span>
-      </button>
-    </div>
-
-    <p class="theme-drawer-section-label theme-drawer-section-label--mt">Barra lateral e topo</p>
-    <p class="theme-drawer-shell-hint"><strong>Topo e marca</strong> aplica a cor primária só no cabeçalho e na faixa do Gestgo; <strong>Menu escuro</strong> escurece a lateral inteira.</p>
-    <div class="theme-drawer-mode-row theme-drawer-shell-row">
-      @for (opt of shellPresetOptions; track opt.id) {
+<ng-template #temaSheetContent>
+  <div class="cabecalho-theme-sheet">
+    <section class="cabecalho-theme-sheet__section" aria-labelledby="theme-sheet-modo">
+      <p id="theme-sheet-modo" class="theme-drawer-section-label">Modo</p>
+      <div class="theme-drawer-option-grid">
         <button
           type="button"
-          (click)="aplicarShellPreset(opt.id)"
-          class="theme-drawer-mode-btn theme-drawer-shell-btn"
-          [class.theme-drawer-mode-btn--active]="shellPresetAtual === opt.id"
-          [attr.aria-pressed]="shellPresetAtual === opt.id"
-          [attr.title]="opt.description"
+          z-button
+          zFull
+          [zType]="themeDrawerMode === 'light' ? 'default' : 'outline'"
+          class="theme-drawer-pick-btn"
+          (click)="aplicarModoTema('light')"
+          [attr.aria-pressed]="themeDrawerMode === 'light'"
         >
-          <span class="material-symbols-outlined theme-drawer-mode-icon">{{ opt.icon }}</span>
-          <span class="theme-drawer-mode-text">{{ opt.label }}</span>
+          <span class="material-symbols-outlined theme-drawer-pick-icon">light_mode</span>
+          <span class="theme-drawer-pick-label">Claro</span>
         </button>
-      }
-    </div>
-    <p class="theme-drawer-selected-label theme-drawer-shell-footnote">
-      {{ shellPresetMeta?.description ?? '—' }}
-    </p>
-
-    <p class="theme-drawer-section-label theme-drawer-section-label--mt">Cor do tema</p>
-    <p class="theme-drawer-shell-hint theme-drawer-cor-hint">Afeta botões, links e item ativo. O fundo do topo e do menu é controlado por <strong>Barra lateral e topo</strong> acima.</p>
-    <div class="theme-swatch-grid">
-      @for (t of temasOrdemGrade; track t.key) {
         <button
           type="button"
-          class="theme-swatch"
-          [class.theme-swatch--selected]="temaAtual === t.key"
-          (click)="aplicarTema(t.key)"
-          [attr.aria-label]="'Cor do tema: ' + t.labelPt"
-          [attr.aria-pressed]="temaAtual === t.key"
+          z-button
+          zFull
+          [zType]="themeDrawerMode === 'dark' ? 'default' : 'outline'"
+          class="theme-drawer-pick-btn"
+          (click)="aplicarModoTema('dark')"
+          [attr.aria-pressed]="themeDrawerMode === 'dark'"
         >
-          <span class="theme-swatch-inner" [style.background]="t.color">
-            @if (temaAtual === t.key) {
-              <span class="material-symbols-outlined theme-swatch-check" aria-hidden="true">check</span>
-            }
-          </span>
+          <span class="material-symbols-outlined theme-drawer-pick-icon">dark_mode</span>
+          <span class="theme-drawer-pick-label">Escuro</span>
         </button>
-      }
-    </div>
-    <p class="theme-drawer-selected-label">
-      Selecionado: <strong>{{ temaAtualMeta?.labelPt ?? '—' }}</strong>
-    </p>
+        <button
+          type="button"
+          z-button
+          zFull
+          [zType]="themeDrawerMode === 'auto' ? 'default' : 'outline'"
+          class="theme-drawer-pick-btn"
+          (click)="aplicarModoTema('auto')"
+          [attr.aria-pressed]="themeDrawerMode === 'auto'"
+        >
+          <span class="material-symbols-outlined theme-drawer-pick-icon">brightness_auto</span>
+          <span class="theme-drawer-pick-label">Automático</span>
+        </button>
+      </div>
+    </section>
+
+    <section class="cabecalho-theme-sheet__section" aria-labelledby="theme-sheet-shell">
+      <p id="theme-sheet-shell" class="theme-drawer-section-label">Barra lateral e topo</p>
+      <p class="theme-drawer-shell-hint">
+        <strong>Topo e marca</strong> aplica a cor primária só no cabeçalho e na faixa do Gestgo;
+        <strong>Menu escuro</strong> escurece a lateral inteira.
+      </p>
+      <div class="theme-drawer-option-grid theme-drawer-option-grid--shell">
+        @for (opt of shellPresetOptions; track opt.id) {
+          <button
+            type="button"
+            z-button
+            zFull
+            [zType]="shellPresetAtual === opt.id ? 'default' : 'outline'"
+            class="theme-drawer-pick-btn theme-drawer-pick-btn--tall"
+            (click)="aplicarShellPreset(opt.id)"
+            [attr.aria-pressed]="shellPresetAtual === opt.id"
+            [attr.title]="opt.description"
+          >
+            <span class="material-symbols-outlined theme-drawer-pick-icon">{{ opt.icon }}</span>
+            <span class="theme-drawer-pick-label">{{ opt.label }}</span>
+          </button>
+        }
+      </div>
+      <p class="theme-drawer-footnote">
+        {{ shellPresetMeta?.description ?? '—' }}
+      </p>
+    </section>
+
+    <section class="cabecalho-theme-sheet__section" aria-labelledby="theme-sheet-cor">
+      <p id="theme-sheet-cor" class="theme-drawer-section-label">Cor do tema</p>
+      <p class="theme-drawer-shell-hint">
+        Afeta botões, links e item ativo. O fundo do topo e do menu é controlado por
+        <strong>Barra lateral e topo</strong> acima.
+      </p>
+      <div class="theme-swatch-grid" role="list">
+        @for (t of temasOrdemGrade; track t.key) {
+          <button
+            type="button"
+            z-button
+            zType="ghost"
+            class="theme-swatch-btn"
+            [class.theme-swatch-btn--selected]="temaAtual === t.key"
+            (click)="aplicarTema(t.key)"
+            [attr.aria-label]="'Cor do tema: ' + t.labelPt"
+            [attr.aria-pressed]="temaAtual === t.key"
+            role="listitem"
+          >
+            <span class="theme-swatch-inner" [style.background]="t.color">
+              @if (temaAtual === t.key) {
+                <span class="material-symbols-outlined theme-swatch-check" aria-hidden="true">check</span>
+              }
+            </span>
+          </button>
+        }
+      </div>
+      <p class="theme-drawer-footnote theme-drawer-footnote--selected">
+        Selecionado: <strong>{{ temaAtualMeta?.labelPt ?? '—' }}</strong>
+      </p>
+    </section>
   </div>
-}
+</ng-template>
 </div>

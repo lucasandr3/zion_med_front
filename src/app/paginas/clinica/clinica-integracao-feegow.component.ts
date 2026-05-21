@@ -1,15 +1,28 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 import { IntegracoesService, FeegowConfigState } from '../../core/services/integracoes.service';
 import { ToastService } from '../../core/services/toast.service';
+import { ZmSkeletonIntegracaoFeegowComponent } from '../../shared/components/skeletons';
+import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
+import { ZardCardComponent } from '@/shared/components/card/card.component';
+import { ZardButtonComponent } from '@/shared/components/button/button.component';
+import { ZardBadgeComponent } from '@/shared/components/badge';
+import type { ZardBadgeTypeVariants } from '@/shared/components/badge/badge.variants';
 
 @Component({
   selector: 'app-clinica-integracao-feegow',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [
+    ...ZARD_FORM_CONTROL_IMPORTS,
+    CommonModule,
+    FormsModule,
+    ZmSkeletonIntegracaoFeegowComponent,
+    ZardCardComponent,
+    ZardButtonComponent,
+    ZardBadgeComponent,
+  ],
   templateUrl: './clinica-integracao-feegow.component.html',
   styleUrl: './clinica-integracao-feegow.component.css',
 })
@@ -114,6 +127,17 @@ export class ClinicaIntegracaoFeegowComponent implements OnInit {
         return 'Não configurado';
       default:
         return 'Pendente';
+    }
+  }
+
+  statusBadgeType(status: FeegowConfigState['status'] | undefined): ZardBadgeTypeVariants {
+    switch (status) {
+      case 'ok':
+        return 'default';
+      case 'error':
+        return 'destructive';
+      default:
+        return 'outline';
     }
   }
 }

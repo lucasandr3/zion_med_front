@@ -14,6 +14,7 @@ const TOOLTIP_ID = 'global-tooltip';
 const SHOW_DELAY_MS = 400;
 const HIDE_DELAY_MS = 50;
 
+/** @deprecated Use `[zTooltip]` (`ZardTooltipImports` de `@/shared/components/tooltip`). */
 @Directive({
   selector: '[appTooltip]',
   standalone: true,

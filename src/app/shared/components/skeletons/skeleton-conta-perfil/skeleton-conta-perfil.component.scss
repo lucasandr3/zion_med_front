@@ -1,0 +1,70 @@
+.conta-perfil-skeleton {
+  width: 100%;
+  min-height: min(20rem, 45dvh);
+}
+
+.conta-perfil-skeleton__tabs {
+  flex-shrink: 0;
+  min-height: 2.75rem;
+  scrollbar-width: none;
+}
+
+.conta-perfil-skeleton__tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.conta-perfil-skeleton__tab-pill {
+  flex: 0 0 auto;
+  height: 2rem;
+  overflow: hidden;
+  border-radius: 0.5rem;
+}
+
+.conta-perfil-skeleton__tab-pill z-skeleton {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.conta-perfil-skeleton__tab-pill [data-slot='skeleton'] {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.conta-perfil-skeleton .section-header {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border, var(--c-border));
+}
+
+.conta-perfil-skeleton .section-body {
+  padding: 1.25rem;
+}
+
+.conta-perfil-skeleton__dados {
+  display: grid;
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .conta-perfil-skeleton__dados {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem 1.5rem;
+  }
+}
+
+.conta-perfil-skeleton__canvas {
+  border: 1px dashed var(--border, var(--c-border));
+}
+
+.conta-perfil-skeleton z-card.section-card {
+  margin-bottom: 0;
+}
+
+.conta-perfil-skeleton z-card.section-card [data-slot='card-content'] {
+  padding: 0;
+  gap: 0;
+}

@@ -2,7 +2,10 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { ZmSkeletonListComponent } from '../../shared/components/skeletons';
+import {
+  ZmSkeletonIntegracoesComponent,
+  ZmSkeletonIntegracoesSistemasComponent,
+} from '../../shared/components/skeletons';
 import {
   IntegracoesService,
   IntegracoesState,
@@ -14,13 +17,33 @@ import {
 } from '../../core/services/integracoes.service';
 import { ToastService } from '../../core/services/toast.service';
 import { ConfirmDialogService } from '../../core/services/confirm-dialog.service';
+import { ZardTableImports } from '@/shared/components/table';
+import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
+import { ZardCardComponent } from '@/shared/components/card/card.component';
+import { ZardButtonComponent } from '@/shared/components/button/button.component';
+import { ZardTabComponent, ZardTabGroupComponent } from '@/shared/components/tabs';
+import { ZardBadgeComponent } from '@/shared/components/badge';
+import type { ZardBadgeTypeVariants } from '@/shared/components/badge/badge.variants';
 
 type AbaIntegracao = 'api' | 'webhooks' | 'entregas' | 'sistemas';
 
 @Component({
   selector: 'app-clinica-integracoes',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, ZmSkeletonListComponent],
+  imports: [
+    ...ZARD_FORM_CONTROL_IMPORTS,
+    ...ZardTableImports,
+    CommonModule,
+    FormsModule,
+    RouterLink,
+    ZmSkeletonIntegracoesComponent,
+    ZmSkeletonIntegracoesSistemasComponent,
+    ZardCardComponent,
+    ZardButtonComponent,
+    ZardTabComponent,
+    ZardTabGroupComponent,
+    ZardBadgeComponent,
+  ],
   templateUrl: './clinica-integracoes.component.html',
   styleUrl: './clinica-integracoes.component.css',
 })
@@ -29,6 +52,8 @@ export class ClinicaIntegracoesComponent implements OnInit {
   private toast = inject(ToastService);
   private confirm = inject(ConfirmDialogService);
 
+  private readonly tabIds: AbaIntegracao[] = ['api', 'webhooks', 'entregas', 'sistemas'];
+
   state: IntegracoesState | null = null;
   carregando = false;
   erro = '';
@@ -36,17 +61,16 @@ export class ClinicaIntegracoesComponent implements OnInit {
   carregandoSistemas = false;
   sistemas: IntegracaoSistemaItem[] = [];
 
-  // token
   novoTokenNome = '';
   ultimoTokenGerado: { token: string; name: string } | null = null;
 
-  // webhooks
   novoWebhookUrl = '';
   novoWebhookEventos: string[] = [];
   novoWebhookSecret = '';
   novoWebhookDescricao = '';
   tokenCriando = false;
   webhookCriando = false;
+  reenviandoId: number | null = null;
 
   ngOnInit(): void {
     this.carregar();
@@ -71,6 +95,13 @@ export class ClinicaIntegracoesComponent implements OnInit {
 
   get availableEvents(): string[] {
     return this.state?.available_events ?? [];
+  }
+
+  onZardTabChange(event: { index: number }): void {
+    const tab = this.tabIds[event.index];
+    if (tab) {
+      this.ativarAba(tab);
+    }
   }
 
   ativarAba(aba: AbaIntegracao): void {
@@ -187,8 +218,6 @@ export class ClinicaIntegracoesComponent implements OnInit {
     });
   }
 
-  reenviandoId: number | null = null;
-
   reenviar(d: IntegracoesDelivery): void {
     this.reenviandoId = d.id;
     this.service.reenviarDelivery(d.id).subscribe({
@@ -238,6 +267,17 @@ export class ClinicaIntegracoesComponent implements OnInit {
     }
   }
 
+  statusBadgeType(status: IntegracaoSistemaStatus): ZardBadgeTypeVariants {
+    switch (status) {
+      case 'ok':
+        return 'default';
+      case 'error':
+        return 'destructive';
+      default:
+        return 'outline';
+    }
+  }
+
   sistemaLink(sistema: IntegracaoSistemaItem): string[] | null {
     if (sistema.key === 'feegow') {
       return ['/clinica/integracoes/sistemas/feegow'];
@@ -254,4 +294,3 @@ export class ClinicaIntegracoesComponent implements OnInit {
     return null;
   }
 }
-

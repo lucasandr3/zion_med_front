@@ -1,105 +1,191 @@
-<div class="sidebar-overlay-mobile fixed inset-0 z-20 bg-black/55 backdrop-blur-sm cursor-pointer lg:hidden"
+<div class="sidebar-overlay-mobile fixed inset-0 z-20 cursor-pointer bg-black/55 backdrop-blur-sm lg:hidden"
      [class.hidden]="!sidebarOpenMobile"
      aria-hidden="true"
      (click)="fecharSidebarMobile()"></div>
 <aside id="sidebar"
+       data-shell="plataforma"
        class="sidebar fixed inset-y-0 left-0 z-30 flex flex-col lg:translate-x-0"
        [class.-translate-x-full]="!sidebarOpenMobile">
-  <div class="sidebar-brand-strip h-14 flex items-center px-3.5 shrink-0" style="border-bottom: 1px solid var(--c-border)">
-    <div class="sidebar-brand flex items-center gap-2.5 min-w-0 w-full">
-      <div class="sidebar-logo-chip shrink-0 w-7 h-7 rounded-lg flex items-center justify-center" style="background: var(--c-primary)">
-        <img [src]="sidebarLogoSrc" alt="Gestgo" class="w-full h-full rounded-lg object-contain" style="padding: 2px" onerror="this.style.display='none'">
+  <div class="sidebar-brand-strip flex h-14 shrink-0 items-center border-b border-sidebar-border bg-sidebar px-3.5">
+    <div class="sidebar-brand flex w-full min-w-0 items-center gap-2.5">
+      <div class="sidebar-logo-chip flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-primary p-0.5">
+        <img [src]="sidebarLogoSrc" alt="Gestgo" class="h-full w-full rounded-md object-contain" onerror="this.style.display='none'">
       </div>
-      <span class="sidebar-label font-semibold text-sm truncate" style="color: var(--c-text); font-family: var(--font-heading)">Gestgo — Plataforma</span>
+      <span class="sidebar-label truncate text-sm font-semibold text-sidebar-foreground">
+        Gestgo — Plataforma
+      </span>
     </div>
   </div>
 
-  <nav class="flex-1 px-2 py-3 overflow-y-auto space-y-0.5">
-    <p class="sidebar-section-label mt-1 mb-2">MENU</p>
+  <nav class="flex-1 space-y-0.5 overflow-y-auto px-2 py-3">
+    <span z-menu-label class="sidebar-label !py-2 !text-[0.65rem] !font-bold !uppercase !tracking-[0.09em]">Menu</span>
 
-    <a routerLink="/plataforma" routerLinkActive="ativo" [routerLinkActiveOptions]="{ exact: true }" class="nav-link" [appTooltip]="tooltipQuandoColapsada('Visão geral')">
-      <span class="material-symbols-outlined shrink-0" style="font-size: 19px">analytics</span>
+    <a routerLink="/plataforma"
+       routerLinkActive="router-link-active"
+       [routerLinkActiveOptions]="{ exact: true }"
+       z-button
+       zType="ghost"
+       class="shell-sidebar-nav w-full justify-start gap-2 px-2.5 font-normal text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground [&.router-link-active]:border-none [&.router-link-active]:bg-sidebar-primary/14 [&.router-link-active]:font-semibold [&.router-link-active]:text-sidebar-primary"
+       [zTooltip]="tooltipQuandoColapsada('Visão geral')"
+    >
+      <span class="material-symbols-outlined shrink-0 text-[19px]">analytics</span>
       <span class="sidebar-label">Visão geral</span>
     </a>
 
-    <a routerLink="/plataforma/clientes" routerLinkActive="ativo" class="nav-link" [appTooltip]="tooltipQuandoColapsada('Clientes (tenants)')">
-      <span class="material-symbols-outlined shrink-0" style="font-size: 19px">apartment</span>
+    <a routerLink="/plataforma/clientes"
+       routerLinkActive="router-link-active"
+       z-button
+       zType="ghost"
+       class="shell-sidebar-nav w-full justify-start gap-2 px-2.5 font-normal text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground [&.router-link-active]:border-none [&.router-link-active]:bg-sidebar-primary/14 [&.router-link-active]:font-semibold [&.router-link-active]:text-sidebar-primary"
+       [zTooltip]="tooltipQuandoColapsada('Clientes (tenants)')"
+    >
+      <span class="material-symbols-outlined shrink-0 text-[19px]">apartment</span>
       <span class="sidebar-label">Clientes (tenants)</span>
     </a>
 
-    <a routerLink="/plataforma/organizacoes-online" routerLinkActive="ativo" class="nav-link" [appTooltip]="tooltipQuandoColapsada('Empresas com sessão ativa')">
-      <span class="material-symbols-outlined shrink-0" style="font-size: 19px">sensors</span>
+    <a routerLink="/plataforma/organizacoes-online"
+       routerLinkActive="router-link-active"
+       z-button
+       zType="ghost"
+       class="shell-sidebar-nav w-full justify-start gap-2 px-2.5 font-normal text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground [&.router-link-active]:border-none [&.router-link-active]:bg-sidebar-primary/14 [&.router-link-active]:font-semibold [&.router-link-active]:text-sidebar-primary"
+       [zTooltip]="tooltipQuandoColapsada('Empresas com sessão ativa')"
+    >
+      <span class="material-symbols-outlined shrink-0 text-[19px]">sensors</span>
       <span class="sidebar-label">Empresas online</span>
     </a>
 
-    <a routerLink="/plataforma/leads" routerLinkActive="ativo" class="nav-link" [appTooltip]="tooltipQuandoColapsada('Leads')">
-      <span class="material-symbols-outlined shrink-0" style="font-size: 19px">request_quote</span>
+    <a routerLink="/plataforma/leads"
+       routerLinkActive="router-link-active"
+       z-button
+       zType="ghost"
+       class="shell-sidebar-nav w-full justify-start gap-2 px-2.5 font-normal text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground [&.router-link-active]:border-none [&.router-link-active]:bg-sidebar-primary/14 [&.router-link-active]:font-semibold [&.router-link-active]:text-sidebar-primary"
+       [zTooltip]="tooltipQuandoColapsada('Leads')"
+    >
+      <span class="material-symbols-outlined shrink-0 text-[19px]">request_quote</span>
       <span class="sidebar-label">Leads</span>
     </a>
 
-    <a routerLink="/plataforma/assinaturas" routerLinkActive="ativo" class="nav-link" data-tooltip="Assinaturas" title="Assinaturas">
-      <span class="material-symbols-outlined shrink-0" style="font-size: 19px">receipt_long</span>
+    <a routerLink="/plataforma/trafego-landing"
+       routerLinkActive="router-link-active"
+       z-button
+       zType="ghost"
+       class="shell-sidebar-nav w-full justify-start gap-2 px-2.5 font-normal text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground [&.router-link-active]:border-none [&.router-link-active]:bg-sidebar-primary/14 [&.router-link-active]:font-semibold [&.router-link-active]:text-sidebar-primary"
+       [zTooltip]="tooltipQuandoColapsada('Tráfego da landing')"
+    >
+      <span class="material-symbols-outlined shrink-0 text-[19px]">monitoring</span>
+      <span class="sidebar-label">Tráfego da landing</span>
+    </a>
+
+    <a routerLink="/plataforma/assinaturas"
+       routerLinkActive="router-link-active"
+       z-button
+       zType="ghost"
+       class="shell-sidebar-nav w-full justify-start gap-2 px-2.5 font-normal text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground [&.router-link-active]:border-none [&.router-link-active]:bg-sidebar-primary/14 [&.router-link-active]:font-semibold [&.router-link-active]:text-sidebar-primary"
+       data-tooltip="Assinaturas"
+       title="Assinaturas"
+    >
+      <span class="material-symbols-outlined shrink-0 text-[19px]">receipt_long</span>
       <span class="sidebar-label">Assinaturas</span>
     </a>
 
-    <a routerLink="/plataforma/faturas" routerLinkActive="ativo" class="nav-link" [appTooltip]="tooltipQuandoColapsada('Faturas / cobranças')">
-      <span class="material-symbols-outlined shrink-0" style="font-size: 19px">payments</span>
+    <a routerLink="/plataforma/faturas"
+       routerLinkActive="router-link-active"
+       z-button
+       zType="ghost"
+       class="shell-sidebar-nav w-full justify-start gap-2 px-2.5 font-normal text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground [&.router-link-active]:border-none [&.router-link-active]:bg-sidebar-primary/14 [&.router-link-active]:font-semibold [&.router-link-active]:text-sidebar-primary"
+       [zTooltip]="tooltipQuandoColapsada('Faturas / cobranças')"
+    >
+      <span class="material-symbols-outlined shrink-0 text-[19px]">payments</span>
       <span class="sidebar-label">Faturas / cobranças</span>
     </a>
 
-    <a routerLink="/plataforma/notificacoes" routerLinkActive="ativo" class="nav-link relative" [appTooltip]="tooltipQuandoColapsada('Notificações')">
-      <span class="material-symbols-outlined shrink-0" style="font-size: 19px">notifications</span>
+    <a routerLink="/plataforma/notificacoes"
+       routerLinkActive="router-link-active"
+       z-button
+       zType="ghost"
+       class="shell-sidebar-nav relative w-full justify-start gap-2 px-2.5 font-normal text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground [&.router-link-active]:border-none [&.router-link-active]:bg-sidebar-primary/14 [&.router-link-active]:font-semibold [&.router-link-active]:text-sidebar-primary"
+       [zTooltip]="tooltipQuandoColapsada('Notificações')"
+    >
+      <span class="material-symbols-outlined shrink-0 text-[19px]">notifications</span>
       <span class="sidebar-label">Notificações</span>
       @if (notificacoesNaoLidas > 0) {
-        <span class="sidebar-label ml-auto min-w-[18px] h-[18px] rounded-full flex items-center justify-center text-[0.6rem] font-bold px-1" style="background: var(--c-primary); color: #fff">
+        <z-badge zShape="pill" class="sidebar-label ml-auto !h-[18px] !min-w-[18px] !px-1 !py-0 !text-[0.6rem] !leading-none">
           {{ notificacoesNaoLidas > 99 ? '99+' : notificacoesNaoLidas }}
-        </span>
+        </z-badge>
       }
     </a>
 
-    <p class="sidebar-section-label mt-5 mb-2">PLATAFORMA</p>
+    <span z-menu-label class="sidebar-label mb-2 mt-5 !py-2 !text-[0.65rem] !font-bold !uppercase !tracking-[0.09em]">Plataforma</span>
 
-    <a routerLink="/plataforma/planos" routerLinkActive="ativo" class="nav-link" [appTooltip]="tooltipQuandoColapsada('Planos')">
-      <span class="material-symbols-outlined shrink-0" style="font-size: 19px">subscriptions</span>
+    <a routerLink="/plataforma/planos"
+       routerLinkActive="router-link-active"
+       z-button
+       zType="ghost"
+       class="shell-sidebar-nav w-full justify-start gap-2 px-2.5 font-normal text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground [&.router-link-active]:border-none [&.router-link-active]:bg-sidebar-primary/14 [&.router-link-active]:font-semibold [&.router-link-active]:text-sidebar-primary"
+       [zTooltip]="tooltipQuandoColapsada('Planos')"
+    >
+      <span class="material-symbols-outlined shrink-0 text-[19px]">subscriptions</span>
       <span class="sidebar-label">Planos</span>
     </a>
 
-    <a routerLink="/plataforma/configuracoes" routerLinkActive="ativo" class="nav-link" [appTooltip]="tooltipQuandoColapsada('Configurações da plataforma')">
-      <span class="material-symbols-outlined shrink-0" style="font-size: 19px">settings</span>
+    <a routerLink="/plataforma/configuracoes"
+       routerLinkActive="router-link-active"
+       z-button
+       zType="ghost"
+       class="shell-sidebar-nav w-full justify-start gap-2 px-2.5 font-normal text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground [&.router-link-active]:border-none [&.router-link-active]:bg-sidebar-primary/14 [&.router-link-active]:font-semibold [&.router-link-active]:text-sidebar-primary"
+       [zTooltip]="tooltipQuandoColapsada('Configurações da plataforma')"
+    >
+      <span class="material-symbols-outlined shrink-0 text-[19px]">settings</span>
       <span class="sidebar-label">Configurações</span>
     </a>
 
-    <a routerLink="/plataforma/logs" routerLinkActive="ativo" class="nav-link" [appTooltip]="tooltipQuandoColapsada('Logs')">
-      <span class="material-symbols-outlined shrink-0" style="font-size: 19px">history</span>
+    <a routerLink="/plataforma/logs"
+       routerLinkActive="router-link-active"
+       z-button
+       zType="ghost"
+       class="shell-sidebar-nav w-full justify-start gap-2 px-2.5 font-normal text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground [&.router-link-active]:border-none [&.router-link-active]:bg-sidebar-primary/14 [&.router-link-active]:font-semibold [&.router-link-active]:text-sidebar-primary"
+       [zTooltip]="tooltipQuandoColapsada('Logs')"
+    >
+      <span class="material-symbols-outlined shrink-0 text-[19px]">history</span>
       <span class="sidebar-label">Logs</span>
     </a>
   </nav>
 
-  <div class="shrink-0 px-2 py-2 overflow-visible" style="border-top: 1px solid var(--c-border)">
-    <div class="relative" #userMenuContainer>
-      <button type="button" (click)="alternarMenuUsuario()" class="flex items-center gap-2.5 w-full px-2 py-2 rounded-lg text-left transition-colors hover:bg-[var(--c-soft)] cursor-pointer" [appTooltip]="tooltipQuandoColapsada('Menu do usuário')" aria-label="Menu do usuário">
-        <div class="w-7 h-7 rounded-full shrink-0 flex items-center justify-center text-xs font-bold" style="background: var(--c-primary); color: #fff">
-          {{ iniciaisUsuario }}
+  <div class="shrink-0 overflow-visible border-t border-border px-2 py-2">
+    <div class="relative">
+      <button z-menu type="button"
+              [zMenuTriggerFor]="usuarioPlataformaMenuTpl"
+              zPlacement="topLeft"
+              class="sidebar-user-trigger shell-profile-chip"
+              [zTooltip]="tooltipQuandoColapsada('Menu do usuário')"
+              aria-label="Menu do usuário"
+      >
+        <z-avatar
+          zSize="sm"
+          zShape="circle"
+          [zFallback]="iniciaisUsuario"
+          [zAlt]="nomeUsuario"
+          class="shrink-0 !bg-primary !text-primary-foreground [&>span]:text-[0.65rem] [&>span]:font-bold"
+        />
+        <div class="shell-profile-chip__meta sidebar-label">
+          <p class="truncate text-left text-xs font-semibold text-foreground">{{ nomeUsuario }}</p>
+          <p class="truncate text-left text-[0.7rem] text-muted-foreground">{{ emailUsuario }}</p>
         </div>
-        <div class="sidebar-label flex-1 min-w-0">
-          <p class="text-xs font-semibold truncate" style="color: var(--c-text)">{{ nomeUsuario }}</p>
-          <p class="truncate text-[0.7rem]" style="color: var(--c-muted)">{{ emailUsuario }}</p>
-        </div>
-        <span class="material-symbols-outlined sidebar-label shrink-0" style="font-size: 15px; color: var(--c-muted)">unfold_more</span>
+        <span class="sidebar-label material-symbols-outlined shrink-0 text-base text-muted-foreground">unfold_more</span>
       </button>
 
-      @if (menuUsuarioAberto) {
-        <div class="user-dropdown absolute left-0 right-0 bottom-full mb-1 py-1 rounded-lg shadow-lg z-[100]" style="background: var(--c-elevated); border: 1px solid var(--c-border); min-width: 200px; box-shadow: 0 8px 32px rgba(0,0,0,0.22)">
-          <a routerLink="/conta/perfil" (click)="fecharMenuUsuario()" class="flex items-center gap-2 px-3 py-2 text-sm hover:bg-[var(--c-soft)]" style="color: var(--c-text); text-decoration: none" [appTooltip]="tooltipQuandoColapsada('Meu perfil')">
-            <span class="material-symbols-outlined" style="font-size: 16px">person</span>
+      <ng-template #usuarioPlataformaMenuTpl>
+        <div z-menu-content class="sidebar-shell-menu-popover min-w-52 rounded-lg border border-border bg-popover p-1.5 text-popover-foreground shadow-lg">
+          <a z-menu-item routerLink="/conta/perfil" class="gap-2 text-inherit no-underline">
+            <span class="material-symbols-outlined shrink-0 text-base" aria-hidden="true">person</span>
             Meu perfil
           </a>
-          <button type="button" (click)="sair()" class="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-[var(--c-soft)] text-left border-0 bg-transparent cursor-pointer" style="color: var(--c-text)" [appTooltip]="tooltipQuandoColapsada('Sair')">
-            <span class="material-symbols-outlined" style="font-size: 16px">logout</span>
+          <button type="button" z-menu-item zType="destructive" class="w-full gap-2" (click)="sair()">
+            <span class="material-symbols-outlined shrink-0 text-base" aria-hidden="true">logout</span>
             Sair
           </button>
         </div>
-      }
+      </ng-template>
     </div>
   </div>
 </aside>

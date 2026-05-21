@@ -4,13 +4,23 @@ import { CommonModule } from '@angular/common';
 import { LinksPublicosService, LinkPublico } from '../../core/services/links-publicos.service';
 import { ToastService } from '../../core/services/toast.service';
 import { LoadingService } from '../../shared/services/loading.service';
-import { ZmSkeletonListComponent } from '../../shared/components/skeletons';
+import { ZmSkeletonLinksPublicosComponent } from '../../shared/components/skeletons';
 import { ZmEmptyStateComponent } from '../../shared/components/ui';
-
+import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
+import { ZardButtonComponent } from '@/shared/components/button/button.component';
+import { ZardCardComponent } from '@/shared/components/card/card.component';
 @Component({
   selector: 'app-pagina-links-publicos',
   standalone: true,
-  imports: [CommonModule, RouterLink, ZmSkeletonListComponent, ZmEmptyStateComponent],
+  imports: [
+    CommonModule,
+    RouterLink,
+    ZmSkeletonLinksPublicosComponent,
+    ZmEmptyStateComponent,
+    ZardBadgeComponent,
+    ZardButtonComponent,
+    ZardCardComponent,
+  ],
   templateUrl: './links-publicos.component.html',
   styleUrl: './links-publicos.component.css',
 })

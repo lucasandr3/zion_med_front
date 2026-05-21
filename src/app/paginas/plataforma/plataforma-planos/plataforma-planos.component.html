@@ -1,66 +1,72 @@
 <!-- Igual ao backend: platform/plans/index - grid de cards -->
-<div class="relative min-h-[300px]">
-  <div class="flex items-center justify-between mb-4">
-  <p class="text-xs" style="color: var(--c-muted)">
-    {{ planos.length }} {{ planos.length === 1 ? 'plano' : 'planos' }}.
-  </p>
-  <a routerLink="/plataforma/planos/novo" class="btn-primary inline-flex items-center gap-1.5" title="Criar novo plano">
-    <span class="material-symbols-outlined" style="font-size: 18px">add</span>
-    Novo plano
-  </a>
-</div>
+<div class="relative min-h-[300px] space-y-4">
+  <div class="flex items-center justify-between gap-3">
+    <p class="text-xs text-muted-foreground">
+      {{ planos.length }} {{ planos.length === 1 ? 'plano' : 'planos' }}.
+    </p>
+    <a routerLink="/plataforma/planos/novo" z-button title="Criar novo plano">
+      <span class="material-symbols-outlined text-lg">add</span>
+      Novo plano
+    </a>
+  </div>
 
-@if (showSkeleton()) {
-  <zm-skeleton-list [rows]="6" />
-} @else if (!listaPronta) {
-} @else {
-@if (estadoErro) {
-  <div class="card p-4 rounded-xl mb-4" style="background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.3)">
-    <p class="text-sm m-0" style="color: var(--c-text)">Não foi possível carregar os planos.</p>
-  </div>
-}
-@if (!estadoErro) {
-  <div class="zm-content-enter">
-  @if (planos.length === 0) {
-    <div class="card text-center py-8 rounded-xl" style="border: 1px solid var(--c-border); color: var(--c-muted)">
-      <p class="text-sm mb-3 m-0">Nenhum plano cadastrado.</p>
-      <a routerLink="/plataforma/planos/novo" class="btn-primary" title="Criar primeiro plano">Criar primeiro plano</a>
-    </div>
+  @if (showSkeleton()) {
+    <zm-skeleton-list [rows]="6" />
+  } @else if (!listaPronta) {
   } @else {
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      @for (p of planos; track p.id) {
-        <div class="card flex flex-col rounded-xl p-4" style="border: 1px solid var(--c-border); background: var(--c-surface)">
-          <div class="flex items-center justify-between mb-2">
-            <span class="text-sm font-semibold" style="color: var(--c-text)">{{ p.name }}</span>
-            <span class="text-xs font-medium px-2 py-0.5 rounded" style="background: var(--c-soft); color: var(--c-muted)">{{ p.key }}</span>
-          </div>
-          <p class="text-2xl font-bold mb-1 m-0" style="color: var(--c-primary)">
-            R$ {{ formatarValor(p.value) }}
-            <span class="text-sm font-normal" style="color: var(--c-muted)">/mês</span>
-          </p>
-          @if (p.description) {
-            <p class="text-xs mt-2 leading-relaxed flex-1 m-0" style="color: var(--c-muted)">{{ p.description }}</p>
-          }
-          <div class="flex items-center gap-2 mt-3 pt-3 flex-wrap" style="border-top: 1px solid var(--c-border)">
-            @if (!p.is_active) {
-              <span class="text-xs px-2 py-0.5 rounded" style="background: var(--c-soft); color: var(--c-muted)">Inativo</span>
+    @if (estadoErro) {
+      <div class="rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-foreground">
+        Não foi possível carregar os planos.
+      </div>
+    }
+    @if (!estadoErro) {
+      <div class="zm-content-enter">
+        @if (planos.length === 0) {
+          <z-card class="items-center gap-3 py-8 text-center">
+            <p class="text-muted-foreground m-0 text-sm">Nenhum plano cadastrado.</p>
+            <a routerLink="/plataforma/planos/novo" z-button title="Criar primeiro plano">Criar primeiro plano</a>
+          </z-card>
+        } @else {
+          <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+            @for (p of planos; track p.id) {
+              <z-card class="gap-3 py-4">
+                <div class="flex items-center justify-between gap-2">
+                  <span class="text-foreground text-sm font-semibold">{{ p.name }}</span>
+                  <z-badge zType="secondary">{{ p.key }}</z-badge>
+                </div>
+                <p class="text-primary m-0 text-2xl font-bold">
+                  R$ {{ formatarValor(p.value) }}
+                  <span class="text-muted-foreground text-sm font-normal">/mês</span>
+                </p>
+                @if (p.description) {
+                  <p class="text-muted-foreground m-0 mt-2 flex-1 text-xs leading-relaxed">{{ p.description }}</p>
+                }
+                <div class="border-border mt-3 flex flex-wrap items-center gap-2 border-t pt-3">
+                  @if (!p.is_active) {
+                    <z-badge zType="outline">Inativo</z-badge>
+                  }
+                  <a [routerLink]="['/plataforma/planos', p.id, 'editar']" z-button zType="outline" zSize="xs" title="Editar plano">
+                    <span class="material-symbols-outlined text-sm">edit</span>
+                    Editar
+                  </a>
+                  <button
+                    type="button"
+                    z-button
+                    zType="destructive"
+                    zSize="xs"
+                    [zDisabled]="excluindoId === p.id"
+                    [zLoading]="excluindoId === p.id"
+                    (click)="excluir(p)"
+                    title="Excluir plano"
+                  >
+                    Excluir
+                  </button>
+                </div>
+              </z-card>
             }
-            <a [routerLink]="['/plataforma/planos', p.id, 'editar']" class="btn-cell text-xs inline-flex items-center gap-1" title="Editar plano">
-              <span class="material-symbols-outlined" style="font-size: 14px">edit</span>
-              Editar
-            </a>
-            <button type="button" class="text-xs px-2 py-1 rounded transition-colors border inline-flex items-center gap-1.5" style="color: var(--c-muted); border-color: var(--c-border); background: transparent" [disabled]="excluindoId === p.id" (click)="excluir(p)" (mouseenter)="btnExcluirHover($event, true)" (mouseleave)="btnExcluirHover($event, false)" title="Excluir plano">
-              @if (excluindoId === p.id) {
-                <span class="btn-spinner" style="width:12px;height:12px;border-width:2px"></span>
-              }
-              {{ excluindoId === p.id ? 'Removendo…' : 'Excluir' }}
-            </button>
           </div>
-        </div>
-      }
-    </div>
+        }
+      </div>
+    }
   }
-  </div>
-}
-}
 </div>

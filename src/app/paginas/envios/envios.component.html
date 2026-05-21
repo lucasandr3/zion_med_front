@@ -1,44 +1,38 @@
 <div class="relative min-h-[320px]">
-  <div class="page-header mb-5">
-    <div class="page-title flex items-center gap-3">
-      <!-- <div class="page-title-icon w-10 h-10 rounded-lg flex items-center justify-center" style="background: var(--c-soft)">
-        <span class="material-symbols-outlined" style="color: var(--c-primary)">send</span>
-      </div>
-      <div>
-        <h1 class="text-xl font-semibold m-0" style="color: var(--c-text)">Envios de documento</h1>
-        <p class="page-header-subtitle text-sm mt-1 mb-0" style="color: var(--c-muted)">Links enviados por e-mail ou WhatsApp. Reenvie ou cancele envios pendentes.</p>
-      </div> -->
-      <div class="flex gap-0.5 rounded-lg border p-0.5 mb-4" style="background: var(--c-surface); border-color: var(--c-border); max-width: fit-content">
-        @for (c of caixas; track c.key) {
-          <button type="button" class="envios-tab rounded-md text-sm font-medium px-4 py-2 transition-all" [class.ativo]="caixaAtual === c.key" (click)="setCaixa(c.key)">
-            {{ c.label }}
-          </button>
-        }
-      </div>
+  <div class="envios-toolbar mb-6 flex flex-wrap items-center justify-between gap-3">
+    <div class="flex gap-0.5 rounded-lg border border-border bg-background p-0.5" style="max-width: fit-content">
+      @for (c of caixas; track c.key) {
+        <button type="button" class="envios-tab rounded-md px-4 py-2 text-sm font-medium transition-all" [class.ativo]="caixaAtual === c.key" (click)="setCaixa(c.key)">
+          {{ c.label }}
+        </button>
+      }
     </div>
-    <button type="button" class="btn-primary inline-flex items-center gap-2" (click)="abrirNovoEnvio()" title="Novo envio">
-      <span class="material-symbols-outlined" style="font-size: 18px">add</span>
+    <button z-button type="button" title="Novo envio" (click)="abrirNovoEnvio()">
+      <span class="material-symbols-outlined text-base">add</span>
       Novo envio
     </button>
   </div>
 
   @if (mostrarNovoEnvio) {
-    <div class="card rounded-xl p-5 mb-5 novo-envio-card" style="border: 1px solid var(--c-border)">
-      <h3 class="text-base font-semibold m-0 mb-4" style="color: var(--c-text)">Enviar link do documento</h3>
+    <z-card class="mb-6 gap-4 py-5 shadow-md **:data-[slot=card-content]:px-6">
+      <h3 class="m-0 mb-4 text-base font-semibold text-foreground">Enviar link do documento</h3>
       @if (erroNovo) {
-        <p class="text-sm mb-3" style="color: var(--c-error, #dc2626)">{{ erroNovo }}</p>
+        <p class="mb-3 text-sm text-destructive">{{ erroNovo }}</p>
       }
       <div class="novo-envio-grid">
         <div class="novo-envio-field novo-envio-field--full">
-          <label class="block text-xs font-medium mb-1" style="color: var(--c-muted)">Documento público</label>
-          <zm-searchable-select
+          <label class="mb-1 block text-xs font-medium text-muted-foreground">Documento público</label>
+          <z-combobox
+            class="w-full"
+            zWidth="full"
             [options]="opcoesTemplatesPublicos"
-            [value]="templateSelecionadoKey"
+            [value]="templateSelecionadoKey || null"
             placeholder="Selecione o documento"
             searchPlaceholder="Buscar documento público..."
-            emptyStateLabel="Nenhum documento público ativo encontrado."
-            (valueChange)="selecionarTemplatePublico($event)"
-          ></zm-searchable-select>
+            emptyText="Nenhum documento público ativo encontrado."
+            ariaLabel="Documento público"
+            (zValueChange)="selecionarTemplatePublico($event)"
+          />
         </div>
         <div class="novo-envio-field novo-envio-choice-box">
           <label class="novo-envio-choice-title">Canal de envio</label>
@@ -80,13 +74,13 @@
                 (ngModelChange)="onPessoaBuscaChange($event)"
                 (keyup.enter)="buscarPessoas()"
                 placeholder="Nome, código ou telefone…"
-                class="form-input flex-1"
+                z-input class="flex-1"
               />
-              <button type="button" class="btn-ghost btn-default-bg text-sm shrink-0" (click)="buscarPessoas()" [disabled]="buscandoPessoas">
+              <button z-button zType="outline" type="button" class="text-sm shrink-0" (click)="buscarPessoas()" [disabled]="buscandoPessoas">
                 {{ buscandoPessoas ? 'Buscando...' : 'Buscar' }}
               </button>
               @if (pessoaSelecionada) {
-                <button type="button" class="btn-ghost btn-default-bg text-sm shrink-0" (click)="limparPessoa()">Limpar</button>
+                <button z-button zType="outline" type="button" class="text-sm shrink-0" (click)="limparPessoa()">Limpar</button>
               }
             </div>
             @if (pessoaSugestoes.length > 0) {
@@ -117,50 +111,42 @@
         @if (novoEnvio.destino === 'manual' && novoEnvio.channel === 'email') {
           <div class="novo-envio-field">
             <label class="block text-xs font-medium mb-1" style="color: var(--c-muted)">E-mail do destinatário</label>
-            <input type="email" [(ngModel)]="novoEnvio.recipient_email" placeholder="email@exemplo.com" class="form-input w-full" />
+            <input type="email" [(ngModel)]="novoEnvio.recipient_email" placeholder="email@exemplo.com" z-input class="w-full" />
           </div>
         }
         @if (novoEnvio.destino === 'manual' && novoEnvio.channel === 'whatsapp') {
           <div class="novo-envio-field">
             <label class="block text-xs font-medium mb-1" style="color: var(--c-muted)">Telefone (WhatsApp)</label>
-            <input type="text" [(ngModel)]="novoEnvio.recipient_phone" (ngModelChange)="onRecipientPhoneChange($event)" placeholder="(11) 99999-9999" class="form-input w-full" />
+            <input type="text" [(ngModel)]="novoEnvio.recipient_phone" (ngModelChange)="onRecipientPhoneChange($event)" placeholder="(11) 99999-9999" z-input class="w-full" />
           </div>
         }
         @if (novoEnvio.destino === 'pessoa' && novoEnvio.channel === 'email' && pessoaSelecionada && !pessoaSelecionada.email) {
           <div class="novo-envio-field">
             <label class="block text-xs font-medium mb-1" style="color: var(--c-muted)">E-mail (obrigatório)</label>
-            <input type="email" [(ngModel)]="novoEnvio.recipient_email" placeholder="email@exemplo.com" class="form-input w-full" />
+            <input type="email" [(ngModel)]="novoEnvio.recipient_email" placeholder="email@exemplo.com" z-input class="w-full" />
           </div>
         }
         @if (novoEnvio.destino === 'pessoa' && novoEnvio.channel === 'whatsapp' && pessoaSelecionada && !pessoaSelecionada.phone) {
           <div class="novo-envio-field">
             <label class="block text-xs font-medium mb-1" style="color: var(--c-muted)">Telefone (obrigatório)</label>
-            <input type="text" [(ngModel)]="novoEnvio.recipient_phone" (ngModelChange)="onRecipientPhoneChange($event)" placeholder="(11) 99999-9999" class="form-input w-full" />
+            <input type="text" [(ngModel)]="novoEnvio.recipient_phone" (ngModelChange)="onRecipientPhoneChange($event)" placeholder="(11) 99999-9999" z-input class="w-full" />
           </div>
         }
         <div class="novo-envio-actions">
-          <button type="button" class="btn-primary inline-flex items-center gap-2" (click)="enviarNovo()" [disabled]="enviando">
+          <button z-button type="button" class="gap-2" (click)="enviarNovo()" [disabled]="enviando">
             @if (enviando) {
               <span class="btn-spinner" aria-hidden="true"></span>
             }
             {{ enviando ? 'Enviando…' : 'Enviar' }}
           </button>
-          <button type="button" class="btn-ghost btn-default-bg" (click)="fecharNovoEnvio()">Cancelar</button>
+          <button z-button zType="outline" type="button" (click)="fecharNovoEnvio()">Cancelar</button>
         </div>
       </div>
-    </div>
+    </z-card>
   }
 
-  <!-- <div class="flex gap-0.5 rounded-lg border p-0.5 mb-4" style="background: var(--c-surface); border-color: var(--c-border); max-width: fit-content">
-    @for (c of caixas; track c.key) {
-      <button type="button" class="envios-tab rounded-md text-sm font-medium px-4 py-2 transition-all" [class.ativo]="caixaAtual === c.key" (click)="setCaixa(c.key)">
-        {{ c.label }}
-      </button>
-    }
-  </div> -->
-
   @if (erro) {
-    <p class="text-sm mb-4" style="color: var(--c-error, #dc2626)">{{ erro }}</p>
+    <p class="mb-4 text-sm text-destructive">{{ erro }}</p>
   }
 
   @if (showSkeleton()) {
@@ -168,32 +154,34 @@
   } @else if (!listaPronta) {
   } @else {
     <div class="zm-content-enter">
-      <div class="data-table-wrap rounded-xl">
+      <z-card class="gap-0 overflow-hidden rounded-[8px] py-0 shadow-sm **:data-[slot=card-content]:p-0">
         @if (envios.length === 0) {
-          <zm-empty-state title="Nenhum envio nesta caixa." />
+          <div class="p-10">
+            <zm-empty-state title="Nenhum envio nesta caixa." />
+          </div>
         } @else {
           <div class="overflow-x-auto">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Template</th>
-                  <th>Destinatário</th>
-                  <th>Canal</th>
-                  <th>Enviado em</th>
-                  <th>Status</th>
+            <table z-table>
+              <thead z-table-header>
+                <tr z-table-row>
+                  <th z-table-head>Template</th>
+                  <th z-table-head>Destinatário</th>
+                  <th z-table-head>Canal</th>
+                  <th z-table-head>Enviado em</th>
+                  <th z-table-head>Status</th>
                   @if (caixaAtual === 'pendentes') {
-                    <th class="text-right">Ações</th>
+                    <th z-table-head class="text-right">Ações</th>
                   }
                 </tr>
               </thead>
-              <tbody>
+              <tbody z-table-body>
                 @for (e of envios; track e.id) {
-                  <tr>
-                    <td style="color: var(--c-text)">{{ e.template_name ?? '—' }}</td>
-                    <td style="color: var(--c-text)">{{ destinatario(e) }}</td>
-                    <td style="color: var(--c-muted)">{{ canalLabel(e.channel) }}</td>
-                    <td style="color: var(--c-muted)">{{ dataFormatada(e.sent_at) }}</td>
-                    <td>
+                  <tr z-table-row>
+                    <td z-table-cell class="text-foreground">{{ e.template_name ?? '—' }}</td>
+                    <td z-table-cell class="text-foreground">{{ destinatario(e) }}</td>
+                    <td z-table-cell class="text-muted-foreground">{{ canalLabel(e.channel) }}</td>
+                    <td z-table-cell class="text-muted-foreground">{{ dataFormatada(e.sent_at) }}</td>
+                    <td z-table-cell>
                       <div class="flex flex-col gap-1">
                         <span class="inline-flex items-center gap-1 text-xs font-semibold" [style.color]="corEntrega(e)">
                           {{ entregaLabel(e) }}
@@ -204,7 +192,7 @@
                       </div>
                     </td>
                     @if (caixaAtual === 'pendentes') {
-                      <td class="text-right">
+                      <td z-table-cell class="text-right">
                         <div class="flex items-center justify-end gap-1">
                           <button type="button" class="p-1.5 rounded-md border-0 cursor-pointer" style="color: var(--c-muted); background: transparent" title="Reenviar" (click)="reenviar(e)" [disabled]="acaoId !== null">
                             <span class="material-symbols-outlined text-lg">refresh</span>
@@ -220,14 +208,16 @@
               </tbody>
             </table>
           </div>
-          <zm-pagination [currentPage]="meta.current_page" [lastPage]="meta.last_page" (pageChange)="carregar($event)" />
+          @if (meta.last_page > 1) {
+            <zm-pagination [currentPage]="meta.current_page" [lastPage]="meta.last_page" (pageChange)="carregar($event)" />
+          }
         }
-      </div>
+      </z-card>
 
       @if (meta.total > 0) {
-        <p class="text-xs mt-3" style="color: var(--c-muted)">{{ meta.total }} envio(s) nesta caixa</p>
+        <p class="mt-3 text-xs text-muted-foreground">{{ meta.total }} envio(s) nesta caixa</p>
         @if (caixaAtual === 'pendentes') {
-          <p class="text-xs mt-1 mb-0" style="color: var(--c-muted)">
+          <p class="mt-1 mb-0 text-xs text-muted-foreground">
             "Aguardando assinatura" significa que o link já foi enviado e ainda não foi assinado.
           </p>
         }

@@ -54,13 +54,13 @@ export const routes: Routes = [
       { path: 'clinica/configuracoes', canActivate: [permissionGuard], loadComponent: () => import('./paginas/clinica/clinica-configuracoes.component').then(m => m.ClinicaConfiguracoesComponent), data: { titulo: 'Configurações', permission: 'organization.manage' } },
       { path: 'clinica/escolher', canActivate: [canSwitchOrganizationGuard], loadComponent: () => import('./paginas/clinica/clinica-escolher.component').then(m => m.ClinicaEscolherComponent), data: { titulo: 'Escolher empresa', urlVoltar: '/dashboard', labelVoltar: 'Painel' } },
       { path: 'clinica/integracoes', canActivate: [permissionGuard], loadComponent: () => import('./paginas/clinica/clinica-integracoes.component').then(m => m.ClinicaIntegracoesComponent), data: { titulo: 'Integrações', permission: 'organization.manage', urlVoltar: '/clinica/configuracoes', labelVoltar: 'Empresa' } },
-      { path: 'clinica/integracoes/sistemas/feegow', canActivate: [permissionGuard], loadComponent: () => import('./paginas/clinica/clinica-integracao-feegow.component').then(m => m.ClinicaIntegracaoFeegowComponent), data: { titulo: 'Integração Feegow', permission: 'organization.manage', urlVoltar: '/clinica/integracoes', labelVoltar: 'Integrações' } },
+      { path: 'clinica/integracoes/sistemas/feegow', canActivate: [permissionGuard], loadComponent: () => import('./paginas/clinica/clinica-integracao-feegow.component').then(m => m.ClinicaIntegracaoFeegowComponent), data: { titulo: 'Integração Feegow', permission: 'organization.manage', urlVoltar: '/clinica/integracoes', labelVoltar: 'Voltar para integrações' } },
       { path: 'link-bio', canActivate: [permissionGuard], loadComponent: () => import('./paginas/link-bio/link-bio.component').then(m => m.LinkBioComponent), data: { titulo: 'Página de links', permission: 'organization.manage', urlVoltar: '/clinica/configuracoes', labelVoltar: 'Empresa' } },
       { path: 'usuarios', canActivate: [permissionGuard], loadComponent: () => import('./paginas/usuarios/usuarios-listagem.component').then(m => m.UsuariosListagemComponent), data: { titulo: 'Usuários', permission: 'users.manage' } },
       { path: 'usuarios/criar', canActivate: [permissionGuard], loadComponent: () => import('./paginas/usuarios/usuarios-formulario.component').then(m => m.UsuariosFormularioComponent), data: { titulo: 'Novo usuário', permission: 'users.manage', urlVoltar: '/usuarios', labelVoltar: 'Voltar para Usuários' } },
       { path: 'usuarios/:id/editar', canActivate: [permissionGuard], loadComponent: () => import('./paginas/usuarios/usuarios-formulario.component').then(m => m.UsuariosFormularioComponent), data: { titulo: 'Editar usuário', permission: 'users.manage', urlVoltar: '/usuarios', labelVoltar: 'Voltar para Usuários' } },
       { path: 'organizacao/permissoes', canActivate: [permissionGuard], loadComponent: () => import('./paginas/organizacao/organizacao-papeis-listagem.component').then(m => m.OrganizacaoPapeisListagemComponent), data: { titulo: 'Permissões', permission: 'users.manage', urlVoltar: '/usuarios', labelVoltar: 'Usuários' } },
-      { path: 'organizacao/permissoes/:slug', canActivate: [permissionGuard], loadComponent: () => import('./paginas/organizacao/organizacao-papel-formulario.component').then(m => m.OrganizacaoPapelFormularioComponent), data: { titulo: 'Permissões', permission: 'users.manage', urlVoltar: '/organizacao/permissoes', labelVoltar: 'Voltar às permissões' } },
+      { path: 'organizacao/permissoes/:slug', canActivate: [permissionGuard], loadComponent: () => import('./paginas/organizacao/organizacao-papel-formulario.component').then(m => m.OrganizacaoPapelFormularioComponent), data: { titulo: 'Perfil de permissões', permission: 'users.manage', urlVoltar: '/organizacao/permissoes', labelVoltar: 'Voltar às permissões' } },
     ],
   },
   {
@@ -72,6 +72,14 @@ export const routes: Routes = [
       { path: 'clientes', loadComponent: () => import('./paginas/plataforma/plataforma-clientes/plataforma-clientes.component').then(m => m.PlataformaClientesComponent), data: { titulo: 'Clientes (tenants)', subtitulo: 'Visão geral dos clientes utilizando o Gestgo.' } },
       { path: 'clientes/:id', loadComponent: () => import('./paginas/plataforma/plataforma-cliente-detalhe/plataforma-cliente-detalhe.component').then(m => m.PlataformaClienteDetalheComponent), data: { titulo: 'Cliente', urlVoltar: '/plataforma/clientes', labelVoltar: 'Voltar para Clientes' } },
       { path: 'leads', loadComponent: () => import('./paginas/plataforma/plataforma-leads/plataforma-leads.component').then(m => m.PlataformaLeadsComponent), data: { titulo: 'Leads', subtitulo: 'Solicitações de demonstração da landing.' } },
+      {
+        path: 'trafego-landing',
+        loadComponent: () =>
+          import('./paginas/plataforma/plataforma-trafico-landing/plataforma-trafico-landing.component').then(
+            (m) => m.PlataformaTraficoLandingComponent
+          ),
+        data: { titulo: 'Tráfego da landing', subtitulo: 'Visitantes únicos e cliques no site de marketing.' },
+      },
       { path: 'notificacoes', loadComponent: () => import('./paginas/notificacoes/notificacoes.component').then(m => m.NotificacoesComponent), data: { titulo: 'Notificações', subtitulo: 'Central de notificações.' } },
       { path: 'assinaturas', loadComponent: () => import('./paginas/plataforma/plataforma-assinaturas/plataforma-assinaturas.component').then(m => m.PlataformaAssinaturasComponent), data: { titulo: 'Assinaturas', subtitulo: 'Visão geral das assinaturas por cliente e empresa.' } },
       { path: 'faturas', loadComponent: () => import('./paginas/plataforma/plataforma-faturas/plataforma-faturas.component').then(m => m.PlataformaFaturasComponent), data: { titulo: 'Faturas / cobranças', subtitulo: 'Visão geral das faturas e cobranças por cliente e empresa.' } },

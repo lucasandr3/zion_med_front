@@ -1,4 +1,14 @@
-import { Component, OnInit, inject, PLATFORM_ID, Signal } from '@angular/core';
+import {
+  afterNextRender,
+  Component,
+  inject,
+  Injector,
+  OnInit,
+  PLATFORM_ID,
+  runInInjectionContext,
+  Signal,
+  ViewChild,
+} from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -15,13 +25,14 @@ import {
 } from '../../core/services/link-bio.service';
 import { ClinicaService } from '../../core/services/clinica.service';
 import { LoadingService } from '../../shared/services/loading.service';
-import { ZmSkeletonListComponent } from '../../shared/components/skeletons';
+import { ZmSkeletonLinkBioComponent } from '../../shared/components/skeletons';
 import { ToastService } from '../../core/services/toast.service';
 import { ConfirmDialogService } from '../../core/services/confirm-dialog.service';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { normalizeThemeKey } from '../../core/services/user-appearance.sync';
 import { environment } from '../../../environments/environment';
 
+type AbaPrincipal = 'visaoGeral' | 'conteudo';
 type Aba = 'links' | 'forms' | 'stats' | 'aparencia' | 'modelos' | 'conteudoExtra';
 
 /** Linha do formulário — modalidades (modelo 2). */
@@ -44,10 +55,29 @@ const LINK_BIO_PREVIEW_SESSION_KEY = 'zm_link_bio_preview';
 /** Mesmo limite do Laravel `max:2048` (kilobytes) na rota de upload. */
 const LINK_BIO_FOTO_PROFISSIONAL_MAX_BYTES = 2048 * 1024;
 
+import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
+import { ZardBadgeComponent } from '@/shared/components/badge';
+import { ZardButtonComponent } from '@/shared/components/button/button.component';
+import { ZardCardComponent } from '@/shared/components/card/card.component';
+import { ZardTabComponent, ZardTabGroupComponent } from '@/shared/components/tabs';
+import { ZardComboboxComponent, type ZardComboboxOption } from '@/shared/components/combobox';
+
 @Component({
   selector: 'app-pagina-link-bio',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, ZmSkeletonListComponent],
+  imports: [
+    ...ZARD_FORM_CONTROL_IMPORTS,
+    CommonModule,
+    FormsModule,
+    RouterLink,
+    ZmSkeletonLinkBioComponent,
+    ZardBadgeComponent,
+    ZardButtonComponent,
+    ZardCardComponent,
+    ZardTabComponent,
+    ZardTabGroupComponent,
+    ZardComboboxComponent,
+  ],
   templateUrl: './link-bio.component.html',
   styleUrl: './link-bio.component.css',
 })
@@ -55,7 +85,12 @@ export class LinkBioComponent implements OnInit {
   state: LinkBioState | null = null;
   showSkeleton!: Signal<boolean>;
   erro = '';
+  abaPrincipal: AbaPrincipal = 'visaoGeral';
   abaAtiva: Aba = 'modelos';
+
+  @ViewChild('mainTabGroup') mainTabGroup?: ZardTabGroupComponent;
+
+  private readonly injector = inject(Injector);
 
   // Form novo link
   mostrarFormNovo = false;
@@ -105,8 +140,12 @@ export class LinkBioComponent implements OnInit {
   extraVetExamResultsLabel = '';
   extraVetExamResultsSubtitle = '';
   nomeArquivoCover = '';
+  copiedFormId: number | null = null;
 
   previewUrlSafe: SafeResourceUrl | null = null;
+
+  /** URLs sanitizadas por modelo — mesma referência entre ciclos de CD (evita reload do iframe no scroll). */
+  private readonly modelPreviewUrlByModel = new Map<LinkBioLayoutModel, SafeResourceUrl>();
 
   private linkBioService = inject(LinkBioService);
   private loadingService = inject(LoadingService);
@@ -182,6 +221,11 @@ export class LinkBioComponent implements OnInit {
     return this.state?.available_icons ?? {};
   }
 
+  /** Opções do z-combobox de ícone (Links). */
+  get iconComboboxOptions(): ZardComboboxOption[] {
+    return Object.entries(this.availableIcons).map(([value, label]) => ({ value, label }));
+  }
+
   get availableThemes(): Record<string, { label: string; primary: string }> {
     return this.state?.available_themes ?? {};
   }
@@ -207,17 +251,9 @@ export class LinkBioComponent implements OnInit {
     );
   }
 
-  /** Iframe de prévia visível (fora de Modelos e Conteúdo extra). */
-  get previewVisivel(): boolean {
-    return this.abaAtiva !== 'modelos' && this.abaAtiva !== 'conteudoExtra';
-  }
-
-  /** Prévia na coluna direita (lg+) — Links, Formulários e Aparência (faixa de abas em cima; conteúdo | prévia). */
+  /** Prévia na coluna direita (lg+) — Links, Formulários e Aparência. */
   get previewAoLado(): boolean {
-    return (
-      this.previewVisivel &&
-      (this.abaAtiva === 'links' || this.abaAtiva === 'forms' || this.abaAtiva === 'aparencia')
-    );
+    return this.abaAtiva === 'links' || this.abaAtiva === 'forms' || this.abaAtiva === 'aparencia';
   }
 
   /** IDs dos modelos para grade de prévia na aba Modelos. */
@@ -280,13 +316,22 @@ export class LinkBioComponent implements OnInit {
     return cacheBust ? `${base}&t=${Date.now()}` : base;
   }
 
-  /** Prévia pública com modelo forçado (aba Modelos). */
-  modelPreviewUrlSafe(model: LinkBioLayoutModel): SafeResourceUrl | null {
+  /** Prévia do iframe na aba Modelos (referência estável — não chamar método no template). */
+  get aparenciaModeloIframeSrc(): SafeResourceUrl | null {
+    return this.modelPreviewUrlByModel.get(this.aparenciaModelo) ?? null;
+  }
+
+  /** Recria cache de URLs dos iframes de modelo (após salvar ou bust de rascunho). */
+  private rebuildModelPreviewUrls(): void {
+    this.modelPreviewUrlByModel.clear();
     const slug = this.state?.clinic?.slug;
-    if (!slug || !isPlatformBrowser(this.platformId)) return null;
+    if (!slug || !isPlatformBrowser(this.platformId)) return;
     const origin = window.location.origin;
-    const u = `${origin}/l/${encodeURIComponent(slug)}?preview=1&preview_model=${model}&t=${this.previewModelsTimestamp}`;
-    return this.sanitizer.bypassSecurityTrustResourceUrl(u);
+    const t = this.previewModelsTimestamp;
+    for (const model of this.previewModelIds) {
+      const u = `${origin}/l/${encodeURIComponent(slug)}?preview=1&preview_model=${model}&t=${t}`;
+      this.modelPreviewUrlByModel.set(model, this.sanitizer.bypassSecurityTrustResourceUrl(u));
+    }
   }
 
   /** Grava rascunho do formulário extra na sessão para os iframes de prévia (?preview=1). */
@@ -303,6 +348,7 @@ export class LinkBioComponent implements OnInit {
       /* ignore */
     }
     this.previewModelsTimestamp = Date.now();
+    this.rebuildModelPreviewUrls();
   }
 
   private trim(s: string): string {
@@ -558,11 +604,32 @@ export class LinkBioComponent implements OnInit {
     });
   }
 
-  ativarAba(aba: Aba): void {
+  onMainTabChange(event: { index: number }): void {
+    this.abaPrincipal = event.index === 0 ? 'visaoGeral' : 'conteudo';
+  }
+
+  editarConteudo(): void {
+    this.ativarAba('conteudoExtra', true);
+  }
+
+  ativarAba(aba: Aba, irParaAbaConteudo = false): void {
     this.abaAtiva = aba;
+    this.abaPrincipal = 'conteudo';
+    if (irParaAbaConteudo) {
+      this.syncMainTabGroup();
+    }
     if (aba === 'modelos') {
       this.syncDraftToSessionForPreviews();
     }
+  }
+
+  private syncMainTabGroup(): void {
+    runInInjectionContext(this.injector, () => {
+      afterNextRender(() => {
+        const index = this.abaPrincipal === 'visaoGeral' ? 0 : 1;
+        this.mainTabGroup?.selectTabByIndex(index);
+      });
+    });
   }
 
   selecionarModelo(m: LinkBioLayoutModel): void {
@@ -664,7 +731,19 @@ export class LinkBioComponent implements OnInit {
   }
 
   copiarLinkForm(f: LinkBioFormLink): void {
-    navigator.clipboard.writeText(f.public_url);
+    if (!f.public_url) return;
+    navigator.clipboard.writeText(f.public_url).then(
+      () => {
+        this.copiedFormId = f.id;
+        this.toast.success('Link copiado', 'Cole e compartilhe o formulário.');
+        window.setTimeout(() => {
+          if (this.copiedFormId === f.id) {
+            this.copiedFormId = null;
+          }
+        }, 2000);
+      },
+      () => this.toast.error('Não foi possível copiar', 'Tente novamente.')
+    );
   }
 
   salvarAparencia(): void {
@@ -711,7 +790,6 @@ export class LinkBioComponent implements OnInit {
         }
         this.modeloPersistido = this.aparenciaModelo;
         this.syncDraftToSessionForPreviews();
-        this.previewModelsTimestamp = Date.now();
         this.atualizarPreviewUrl();
         this.toast.success('Modelo publicado', 'O layout do link público foi atualizado.');
       },

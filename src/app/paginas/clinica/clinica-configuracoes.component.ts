@@ -1,4 +1,14 @@
-import { Component, OnInit, OnDestroy, inject, Signal } from '@angular/core';
+import {
+  afterNextRender,
+  Component,
+  OnInit,
+  OnDestroy,
+  inject,
+  Injector,
+  runInInjectionContext,
+  Signal,
+  ViewChild,
+} from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -19,7 +29,13 @@ import {
 import { ViaCepService } from '../../core/services/via-cep.service';
 import { LoadingService } from '../../shared/services/loading.service';
 import { ZmAssinaturaBloqueadaCardComponent } from '../../shared/components/ui/zm-assinatura-bloqueada-card/zm-assinatura-bloqueada-card.component';
-import { ZmSkeletonListComponent } from '../../shared/components/skeletons';
+import { ZmSkeletonConfiguracoesComponent, ZmSkeletonListComponent } from '../../shared/components/skeletons';
+import { ZardBadgeComponent } from '@/shared/components/badge';
+import { ZardButtonComponent } from '@/shared/components/button/button.component';
+import { ZardCheckboxComponent } from '@/shared/components/checkbox';
+import { ZardInputDirective } from '@/shared/components/input/input.directive';
+import { ZardSwitchComponent } from '@/shared/components/switch';
+import { ZardTabComponent, ZardTabGroupComponent } from '@/shared/components/tabs';
 import { ToastService } from '../../core/services/toast.service';
 import { WhatsappEvolutionService, WhatsappEvolutionState } from '../../core/services/whatsapp-evolution.service';
 import { ConfirmDialogService } from '../../core/services/confirm-dialog.service';
@@ -81,23 +97,37 @@ const TEMA_LABEL_PT_MAP: Record<string, string> = {
   custom: 'Personalizada',
 };
 
+import { ZardCardComponent } from '@/shared/components/card/card.component';
+import { ZardComboboxComponent, type ZardComboboxOption } from '@/shared/components/combobox';
+import { ZardTableImports } from '@/shared/components/table';
 @Component({
   selector: 'app-clinica-configuracoes',
   standalone: true,
   imports: [
+    ...ZardTableImports,
     CommonModule,
     FormsModule,
     RouterLink,
+    ZmSkeletonConfiguracoesComponent,
     ZmSkeletonListComponent,
     ZmAssinaturaBloqueadaCardComponent,
+    ZardCardComponent,
+    ZardComboboxComponent,
+    ZardButtonComponent,
+    ZardInputDirective,
+    ZardTabComponent,
+    ZardTabGroupComponent,
     FlatpickrDirective,
+    ZardCheckboxComponent,
+    ZardSwitchComponent,
+    ZardBadgeComponent,
   ],
   providers: [
     provideFlatpickrDefaults({
       locale: Portuguese,
-      static: true,
       allowInput: true,
-      disableMobile: true,
+      clickOpens: true,
+      disableMobile: false,
     }),
   ],
   templateUrl: './clinica-configuracoes.component.html',
@@ -124,7 +154,23 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
   sucesso = false;
   activeTab = 'dados';
   logoFile: File | null = null;
+  logoDragOver = false;
+  private logoObjectUrl: string | null = null;
+  flatpickrAppendTo: HTMLElement =
+    typeof document !== 'undefined' ? document.body : (null as unknown as HTMLElement);
   readonly days = DAYS;
+
+  readonly opcoesSigningSecurityLevel: ZardComboboxOption[] = [
+    { value: 'basic', label: 'Básica — somente evidências (IP, navegador, hashes)' },
+    {
+      value: 'reinforced',
+      label: 'Reforçada — exige OTP por e-mail ou WhatsApp antes de enviar com assinatura',
+    },
+  ];
+
+  private readonly configTabIds = ['dados', 'identidade', 'visual', 'whatsapp', 'empresas', 'logs'] as const;
+
+  @ViewChild('configTabGroup') configTabGroup?: ZardTabGroupComponent;
 
   novaEmpresaNome = '';
   salvandoNovaEmpresa = false;
@@ -174,6 +220,7 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
   enderecoErro = '';
   enderecoSucesso = false;
 
+  private readonly injector = inject(Injector);
   private route = inject(ActivatedRoute);
   private auth = inject(AuthService);
   private userAppearance = inject(UserAppearanceService);
@@ -183,6 +230,13 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
   private toast = inject(ToastService);
   private waService = inject(WhatsappEvolutionService);
   private confirm = inject(ConfirmDialogService);
+
+  get logoDisplayUrl(): string | null {
+    if (this.logoObjectUrl) {
+      return this.logoObjectUrl;
+    }
+    return this.clinic?.logo_url ?? null;
+  }
 
   get clinic(): ClinicaConfig | undefined {
     return this.pageData?.organization ?? this.pageData?.clinic;
@@ -302,6 +356,7 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this._removeSysListener();
     this.appearanceSub?.unsubscribe();
+    this.revokeLogoObjectUrl();
   }
 
   private traduzirAcao(action?: string | null): string {
@@ -351,6 +406,7 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
         this.activeTab = tab;
         this.patchFormFromClinic(data.organization ?? data.clinic!);
         this.syncShellPresetFromUser();
+        this.syncTabGroupFromActiveTab();
       },
       error: () => {
         this.listaPronta = true;
@@ -449,6 +505,10 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
     this.form.phone = this.maskPhone(value);
   }
 
+  onSigningSecurityLevelChange(value: string | null): void {
+    this.form.signing_security_level = value === 'reinforced' ? 'reinforced' : 'basic';
+  }
+
   onBillingDocumentInput(value: string): void {
     this.form.billing_document = this.maskBillingDocument(value);
   }
@@ -541,6 +601,32 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
       normalized[uiDayKey] = slot;
     });
     return normalized;
+  }
+
+  private getTabIdOrder(): string[] {
+    return this.configTabIds.filter((id) => id !== 'empresas' || this.canAddMultiEmpresa);
+  }
+
+  private tabIndexFromId(tabId: string): number {
+    return this.getTabIdOrder().indexOf(tabId);
+  }
+
+  onZardTabChange(event: { index: number }): void {
+    const tabId = this.getTabIdOrder()[event.index];
+    if (tabId) {
+      this.setTab(tabId);
+    }
+  }
+
+  private syncTabGroupFromActiveTab(): void {
+    runInInjectionContext(this.injector, () => {
+      afterNextRender(() => {
+        const index = this.tabIndexFromId(this.activeTab);
+        if (index >= 0) {
+          this.configTabGroup?.selectTabByIndex(index);
+        }
+      });
+    });
   }
 
   setTab(tab: string): void {
@@ -764,9 +850,10 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
     return 'Não foi possível concluir a operação. Tente novamente.';
   }
 
-  /** Atualiza horário (abre/fecha) a partir da seleção do Flatpickr. */
   setTime(dayId: string, field: 'open' | 'close', dates: Date[]): void {
-    if (!this.form.business_hours || !dates?.length) return;
+    if (!this.form.business_hours || !dates?.length) {
+      return;
+    }
     const d = dates[0];
     const h = d.getHours().toString().padStart(2, '0');
     const m = d.getMinutes().toString().padStart(2, '0');
@@ -838,7 +925,63 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
 
   onLogoChange(event: Event): void {
     const input = event.target as HTMLInputElement;
-    this.logoFile = input.files?.[0] ?? null;
+    const file = input.files?.[0] ?? null;
+    this.setLogoFile(file);
+    input.value = '';
+  }
+
+  onLogoDragOver(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.logoDragOver = true;
+  }
+
+  onLogoDragLeave(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.logoDragOver = false;
+  }
+
+  onLogoDrop(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.logoDragOver = false;
+    const file = event.dataTransfer?.files?.[0];
+    if (!file) {
+      return;
+    }
+    if (!file.type.startsWith('image/')) {
+      this.toast.error('Arquivo inválido', 'Envie uma imagem PNG, JPG, SVG ou WebP.');
+      return;
+    }
+    this.setLogoFile(file);
+  }
+
+  limparLogoSelecionada(): void {
+    this.setLogoFile(null);
+  }
+
+  private setLogoFile(file: File | null): void {
+    this.revokeLogoObjectUrl();
+    if (!file) {
+      this.logoFile = null;
+      return;
+    }
+    const maxBytes = 2 * 1024 * 1024;
+    if (file.size > maxBytes) {
+      this.toast.error('Arquivo grande demais', 'A logo deve ter no máximo 2 MB.');
+      this.logoFile = null;
+      return;
+    }
+    this.logoFile = file;
+    this.logoObjectUrl = URL.createObjectURL(file);
+  }
+
+  private revokeLogoObjectUrl(): void {
+    if (this.logoObjectUrl) {
+      URL.revokeObjectURL(this.logoObjectUrl);
+      this.logoObjectUrl = null;
+    }
   }
 
   criarNovaEmpresa(): void {
@@ -923,7 +1066,7 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
       next: (updated) => {
         this.salvando = false;
         this.sucesso = true;
-        this.logoFile = null;
+        this.setLogoFile(null);
         if (this.pageData) {
           const cur = this.pageData.organization ?? this.pageData.clinic;
           if (cur) this.pageData.organization = { ...cur, ...updated };

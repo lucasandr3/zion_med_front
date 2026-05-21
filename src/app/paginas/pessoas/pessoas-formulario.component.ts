@@ -6,8 +6,11 @@ import { FlatpickrDirective, provideFlatpickrDefaults } from 'angularx-flatpickr
 import { Portuguese } from 'flatpickr/dist/l10n/pt';
 import { PessoasService } from '../../core/services/pessoas.service';
 import { LoadingService } from '../../shared/services/loading.service';
-import { ZmSkeletonCardComponent } from '../../shared/components/skeletons';
+import { ZmSkeletonPessoaFormularioComponent } from '../../shared/components/skeletons';
 import { ToastService } from '../../core/services/toast.service';
+import { ZardCardComponent } from '@/shared/components/card/card.component';
+import { ZardButtonComponent } from '@/shared/components/button/button.component';
+import { ZardComboboxComponent, type ZardComboboxOption } from '@/shared/components/combobox';
 
 /** Formata dígitos para exibição: +55 (11) 98765-4321 ou (11) 98765-4321 */
 function formatPhoneBrDisplay(digits: string): string {
@@ -42,10 +45,21 @@ function formatCpfDisplay(digits: string): string {
   return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6, 9)}-${digits.slice(9, 11)}`;
 }
 
+import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
 @Component({
   selector: 'app-pessoas-formulario',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule, ZmSkeletonCardComponent, FlatpickrDirective],
+  imports: [
+    ...ZARD_FORM_CONTROL_IMPORTS,
+    CommonModule,
+    RouterLink,
+    FormsModule,
+    ZmSkeletonPessoaFormularioComponent,
+    FlatpickrDirective,
+    ZardCardComponent,
+    ZardButtonComponent,
+    ZardComboboxComponent,
+  ],
   providers: [
     provideFlatpickrDefaults({
       locale: Portuguese,
@@ -106,6 +120,34 @@ export class PessoasFormularioComponent implements OnInit {
   listaPronta = false;
   salvando = false;
   erro = '';
+  flatpickrAppendTo!: HTMLElement;
+
+  readonly opcoesSexo: ZardComboboxOption[] = [
+    { value: '', label: 'Selecione' },
+    { value: 'F', label: 'Feminino' },
+    { value: 'M', label: 'Masculino' },
+    { value: 'O', label: 'Outro' },
+  ];
+
+  readonly opcoesEstadoCivil: ZardComboboxOption[] = [
+    { value: '', label: 'Selecione' },
+    { value: 'solteiro', label: 'Solteiro(a)' },
+    { value: 'casado', label: 'Casado(a)' },
+    { value: 'divorciado', label: 'Divorciado(a)' },
+    { value: 'viuvo', label: 'Viúvo(a)' },
+    { value: 'uniao_estavel', label: 'União estável' },
+  ];
+
+  readonly opcoesPlanoSaude: ZardComboboxOption[] = [
+    { value: '', label: 'Selecione' },
+    { value: 'sim', label: 'Sim' },
+    { value: 'nao', label: 'Não' },
+  ];
+
+  readonly opcoesStatus: ZardComboboxOption[] = [
+    { value: 'active', label: 'Ativa' },
+    { value: 'inactive', label: 'Inativa' },
+  ];
 
   private route = inject(ActivatedRoute);
   private router = inject(Router);
@@ -114,6 +156,7 @@ export class PessoasFormularioComponent implements OnInit {
   private toast = inject(ToastService);
 
   ngOnInit(): void {
+    this.flatpickrAppendTo = document.body;
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.editMode = true;
@@ -184,6 +227,22 @@ export class PessoasFormularioComponent implements OnInit {
     const d = digitsOnlyCpf(raw);
     this.cpfDigits = d;
     this.cpfDisplay = formatCpfDisplay(d);
+  }
+
+  selecionarSexo(key: string | null): void {
+    this.sex = key === 'F' || key === 'M' || key === 'O' ? key : '';
+  }
+
+  selecionarEstadoCivil(key: string | null): void {
+    this.marital_status = key ?? '';
+  }
+
+  selecionarPlanoSaude(key: string | null): void {
+    this.has_health_plan = key === 'sim' || key === 'nao' ? key : '';
+  }
+
+  selecionarStatus(key: string | null): void {
+    this.status = key === 'inactive' ? 'inactive' : 'active';
   }
 
   /** API: só dígitos ou null (backend costuma normalizar). */

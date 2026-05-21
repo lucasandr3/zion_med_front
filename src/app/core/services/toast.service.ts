@@ -1,42 +1,62 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable } from '@angular/core';
+import { toast } from 'ngx-sonner';
 
 export type ToastType = 'success' | 'error' | 'warning' | 'info';
 
-export interface Toast {
-  id: number;
-  type: ToastType;
-  title: string;
-  desc?: string;
-  duration: number;
-  actionLabel?: string;
-  onAction?: () => void;
-}
-
 @Injectable({ providedIn: 'root' })
 export class ToastService {
-  private _id = 0;
-  toasts = signal<Toast[]>([]);
+  show(
+    type: ToastType,
+    title: string,
+    desc?: string,
+    duration = 4000,
+    actionLabel?: string,
+    onAction?: () => void,
+  ): void {
+    const description = desc?.trim() || undefined;
+    const action =
+      actionLabel && onAction
+        ? {
+            label: actionLabel,
+            onClick: () => onAction(),
+          }
+        : undefined;
 
-  show(type: ToastType, title: string, desc?: string, duration = 4000, actionLabel?: string, onAction?: () => void) {
-    const toast: Toast = { id: ++this._id, type, title, desc, duration, actionLabel, onAction };
-    this.toasts.update((t) => [...t, toast]);
-    setTimeout(() => this.remove(toast.id), duration);
+    const options = { duration, description, action };
+
+    switch (type) {
+      case 'success':
+        toast.success(title, options);
+        break;
+      case 'error':
+        toast.error(title, options);
+        break;
+      case 'warning':
+        toast.warning(title, options);
+        break;
+      case 'info':
+        toast.info(title, options);
+        break;
+    }
   }
 
-  success(title: string, desc?: string) {
+  success(title: string, desc?: string): void {
     this.show('success', title, desc);
   }
-  error(title: string, desc?: string) {
+
+  error(title: string, desc?: string): void {
     this.show('error', title, desc);
   }
-  warning(title: string, desc?: string) {
+
+  warning(title: string, desc?: string): void {
     this.show('warning', title, desc);
   }
-  info(title: string, desc?: string) {
+
+  info(title: string, desc?: string): void {
     this.show('info', title, desc);
   }
 
-  remove(id: number) {
-    this.toasts.update((t) => t.filter((x) => x.id !== id));
+  remove(id: number | string): void {
+    toast.dismiss(id);
   }
 }

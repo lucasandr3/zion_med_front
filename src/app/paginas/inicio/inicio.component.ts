@@ -65,10 +65,12 @@ interface Testimonial {
   initials: string;
 }
 
+import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
 @Component({
   selector: 'app-pagina-inicio',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule, NgxMaskDirective],
+  imports: [
+    ...ZARD_FORM_CONTROL_IMPORTS,CommonModule, RouterLink, FormsModule, NgxMaskDirective],
   templateUrl: './inicio.component.html',
   styleUrl: './inicio.component.css',
 })

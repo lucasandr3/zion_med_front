@@ -1,132 +1,164 @@
-.integracoes-page {
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
+/* Integrações — layout alinhado à tela Empresa (configurações) */
+
+:host {
+  display: block;
   width: 100%;
-}
-.integracoes-page .config-panel {
-  display: none;
-  margin-top: 1rem;
-}
-.integracoes-page .config-panel.active {
-  display: block;
-}
-.integracoes-page .section-card {
-  background: var(--c-surface);
-  border: 1px solid var(--c-border);
-  border-radius: 0.5rem;
-  overflow: hidden;
-  margin-bottom: 20px;
-}
-.integracoes-page .section-card-docs {
-  border-left: 3px solid var(--c-primary);
-}
-.integracoes-page .section-card-token-created {
-  border-left: 3px solid var(--c-primary);
-}
-.integracoes-page .section-body-p {
-  margin-bottom: 1rem;
-  color: var(--c-text);
-  font-size: 0.875rem;
-  line-height: 1.5;
-}
-.integracoes-page .section-actions {
-  display: flex;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-}
-.integracoes-page .btn-docs-primary,
-.integracoes-page .btn-docs-secondary {
-  padding: 0.5rem 0.875rem;
-  font-size: 0.8125rem;
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.375rem;
-  border-radius: 0.5rem;
-}
-.integracoes-page .btn-docs-secondary {
-  border: 1px solid var(--c-border);
-  color: var(--c-primary);
-  background: var(--c-surface);
-}
-.integracoes-page .btn-docs-secondary:hover {
-  background: var(--c-soft);
-  border-color: var(--c-primary);
-}
-.integracoes-page .section-header {
-  padding: 16px 20px;
-  border-bottom: 1px solid var(--c-border);
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.integracoes-page .section-header .icon-wrap {
-  width: 28px;
-  height: 28px;
-  background: color-mix(in srgb, var(--c-primary) 12%, transparent);
-  border-radius: 0.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.integracoes-page .section-header .icon-wrap .material-symbols-outlined {
-  font-size: 14px;
-  color: var(--c-primary);
-}
-.integracoes-page .section-title {
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--c-muted);
-}
-.integracoes-page .section-body {
-  padding: 20px;
-}
-.integracoes-page .field {
-  margin-bottom: 18px;
-}
-.integracoes-page .field:last-child {
-  margin-bottom: 0;
-}
-.integracoes-page .field label {
-  display: block;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--c-text);
-  margin-bottom: 6px;
-}
-.integracoes-page .field .hint {
-  font-size: 11px;
-  color: var(--c-muted);
-  margin-top: 5px;
-  word-break: break-word;
-  overflow-wrap: break-word;
+  margin-top: -1.5rem;
 }
 
-.integracoes-page .sistemas-grid {
+.integracoes-page {
+  width: calc(100% + 2rem);
+  max-width: none;
+  margin-left: -1rem;
+  margin-right: -1rem;
+  color: var(--foreground);
+}
+
+@media (min-width: 640px) {
+  .integracoes-page {
+    width: calc(100% + 3rem);
+    margin-left: -1.5rem;
+    margin-right: -1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .integracoes-page {
+    width: calc(100% + 4rem);
+    margin-left: -2rem;
+    margin-right: -2rem;
+  }
+}
+
+.integracoes-shell {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  background: var(--background);
+}
+
+.integracoes-alerts {
+  padding: 0 1.25rem;
+}
+
+:host ::ng-deep .integracoes-shell .integracoes-tabs-bar,
+:host ::ng-deep .integracoes-shell .config-zard-tabs--layout > .grid {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  flex-shrink: 0;
+  width: 100%;
+  background: var(--card) !important;
+  box-sizing: border-box;
+  border-top: none !important;
+  border-bottom: 1px solid var(--border, var(--c-border)) !important;
+}
+
+:host ::ng-deep .integracoes-shell .config-zard-tabs--no-nav-rule nav[role='tablist'] {
+  flex-shrink: 0;
+  width: 100%;
+  margin: 0 !important;
+  margin-bottom: 0 !important;
+  padding: 0.5rem 1rem 0;
+  background: var(--card);
+  border-top: none !important;
+  border-bottom: none !important;
+}
+
+:host ::ng-deep .config-zard-tabs nav[role='tablist'] button[role='tab'][aria-selected='true'] {
+  color: var(--primary);
+  border-bottom-color: var(--primary) !important;
+}
+
+.config-zard-tabs--layout {
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 auto;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  background: var(--background);
+  border: none;
+}
+
+:host ::ng-deep .integracoes-shell .config-zard-tabs--layout > .flex-1 {
+  display: block;
+  flex: 0 0 auto !important;
+  width: 100%;
+  min-height: 0 !important;
+  height: auto !important;
+  background: var(--background);
+}
+
+:host ::ng-deep .integracoes-shell .config-zard-tabs--layout > .flex-1 [role='tabpanel'] {
+  display: block;
+  width: 100%;
+  outline: none;
+}
+
+:host ::ng-deep .integracoes-shell .config-zard-tabs--layout > .flex-1 [role='tabpanel'][hidden] {
+  display: none !important;
+}
+
+.clinica-config .config-tab-panel {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 1.25rem;
+  padding-bottom: 0;
+  background: var(--background);
+}
+
+@media (min-width: 640px) {
+  .clinica-config .config-tab-panel {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+
+  .integracoes-alerts {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .clinica-config .config-tab-panel {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+
+  .integracoes-alerts {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+.integracoes-config .webhook-item-card {
+  margin-bottom: 0;
+  border: 1px solid var(--border);
+}
+
+.integracoes-config .sistemas-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 12px;
 }
 
-.integracoes-page .sistema-card {
+.integracoes-config .sistema-card {
   display: block;
   padding: 14px;
-  border: 1px solid var(--c-border);
-  border-radius: 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
   text-decoration: none;
-  background: var(--c-surface);
+  background: var(--card);
   transition: border-color 0.2s ease, background 0.2s ease;
 }
 
-.integracoes-page .sistema-card:hover {
-  border-color: var(--c-primary);
-  background: color-mix(in srgb, var(--c-primary) 4%, var(--c-surface));
+.integracoes-config .sistema-card:hover {
+  border-color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 4%, var(--card));
 }
 
-.integracoes-page .sistema-logo-wrap {
+.integracoes-config .sistema-logo-wrap {
   width: 44px;
   height: 44px;
   display: inline-flex;
@@ -135,40 +167,8 @@
   flex-shrink: 0;
 }
 
-.integracoes-page .sistema-logo {
+.integracoes-config .sistema-logo {
   width: 34px;
   height: 34px;
   object-fit: contain;
 }
-
-.integracoes-page .sistema-status {
-  display: inline-flex;
-  align-items: center;
-  font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 0.03em;
-  border-radius: 0.5rem;
-  padding: 0.2rem 0.5rem;
-  border: 1px solid transparent;
-}
-
-.integracoes-page .sistema-status.ok {
-  color: #166534;
-  border-color: #86efac;
-  background: #dcfce7;
-}
-
-.integracoes-page .sistema-status.error {
-  color: #991b1b;
-  border-color: #fca5a5;
-  background: #fee2e2;
-}
-
-.integracoes-page .sistema-status.disabled,
-.integracoes-page .sistema-status.not_configured,
-.integracoes-page .sistema-status.unknown {
-  color: var(--c-muted);
-  border-color: var(--c-border);
-  background: var(--c-soft);
-}
-/* Clinica integracoes */

@@ -1,15 +1,18 @@
 import { Component, OnInit, inject, Signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ZardCardComponent } from '@/shared/components/card/card.component';
 import { PlataformaService, PlatformInvoice } from '../../../core/services/plataforma.service';
 import { LoadingService } from '../../../shared/services/loading.service';
 import { ZmSkeletonListComponent } from '../../../shared/components/skeletons';
 import { ZmEmptyStateComponent } from '../../../shared/components/ui';
 import { statusFaturaPt } from '../../../core/utils/status-labels-pt';
 
+import { ZardTableImports } from '@/shared/components/table';
 @Component({
   selector: 'app-plataforma-faturas',
   standalone: true,
-  imports: [CommonModule, ZmSkeletonListComponent, ZmEmptyStateComponent],
+  imports: [
+    ...ZardTableImports,CommonModule, ZardCardComponent, ZmSkeletonListComponent, ZmEmptyStateComponent],
   templateUrl: './plataforma-faturas.component.html',
   styleUrl: './plataforma-faturas.component.css',
 })

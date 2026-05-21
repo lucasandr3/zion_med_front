@@ -1,8 +1,1 @@
-/* Estilos específicos do componente (sidebar usa variáveis globais) */
-.user-dropdown a,
-.user-dropdown button {
-  display: flex;
-  align-items: center;
-  width: 100%;
-}
-
+/* Sidebar: shell e nav usam tokens Zard/globals em styles.css */

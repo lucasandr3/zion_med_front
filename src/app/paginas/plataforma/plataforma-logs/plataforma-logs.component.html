@@ -1,73 +1,95 @@
 <!-- Igual ao backend: platform/logs/index -->
-<div class="relative min-h-[300px]">
-  <div class="flex items-center justify-between mb-4">
-  <div class="flex items-center gap-3">
-    <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background: var(--c-soft)">
-      <span class="material-symbols-outlined" style="color: var(--c-primary)">history</span>
-    </div>
-    <div>
-      <h2 class="text-base font-semibold m-0" style="color: var(--c-text)">Meus logs de auditoria</h2>
-      <p class="text-sm mt-0.5 mb-0" style="color: var(--c-muted)">Ações realizadas por você na plataforma</p>
-    </div>
-  </div>
-</div>
-
-@if (showSkeleton()) {
-  <zm-skeleton-list [rows]="6" />
-} @else if (!listaPronta) {
-} @else {
-@if (error) {
-  <div class="card p-4 rounded-xl mb-4" style="background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.3)">
-    <p class="text-sm m-0" style="color: var(--c-text)">{{ error }}</p>
-  </div>
-}
-
-<div class="zm-content-enter">
-<div class="overflow-x-auto rounded-xl border" style="border-color: var(--c-border); background: var(--c-surface)">
-  <table class="platform-table">
-    <thead>
-      <tr>
-        <th class="py-2 pr-3">Data / Hora</th>
-        <th class="py-2 px-3">Ação</th>
-        <th class="py-2 px-3">Empresa</th>
-        <th class="py-2 pl-3">Detalhe</th>
-      </tr>
-    </thead>
-    <tbody>
-      @for (log of logs; track log.id) {
-        <tr>
-          <td class="py-2.5 pr-3 whitespace-nowrap cell-muted text-xs">{{ formatarData(log.created_at) }}</td>
-          <td class="py-2.5 px-3">
-            <span class="inline-flex items-center gap-1 text-xs font-semibold" style="color: var(--c-text)">
-              <span class="material-symbols-outlined" style="font-size: 16px; color: var(--c-primary)">info</span>
-              {{ actionLabel(log.action) }}
-            </span>
-          </td>
-          <td class="py-2.5 px-3" style="color: var(--c-text)">{{ log.organization_name ?? '—' }}</td>
-          <td class="py-2.5 pl-3 text-xs cell-muted">{{ detalheTexto(log) }}</td>
-        </tr>
-      } @empty {
-        <tr>
-          <td colspan="4" class="py-0">
-            <zm-empty-state
-              title="Nenhum registro de auditoria."
-              description="As ações realizadas na plataforma serão registradas aqui."
-            />
-          </td>
-        </tr>
-      }
-    </tbody>
-  </table>
-  @if (lastPage > 1) {
-    <div class="px-4 py-3 flex items-center justify-between border-t" style="border-color: var(--c-border)">
-      <span class="text-xs" style="color: var(--c-muted)">Página {{ currentPage }} de {{ lastPage }} ({{ total }} registros)</span>
-      <div class="flex gap-2">
-        <button type="button" class="btn-ghost text-sm px-2 py-1 rounded" [disabled]="currentPage <= 1" (click)="goToPage(currentPage - 1)" title="Página anterior">Anterior</button>
-        <button type="button" class="btn-ghost text-sm px-2 py-1 rounded" [disabled]="currentPage >= lastPage" (click)="goToPage(currentPage + 1)" title="Próxima página">Próxima</button>
+<div class="relative min-h-[300px] space-y-4">
+  <div class="flex items-center justify-between gap-3">
+    <div class="flex items-center gap-3">
+      <div class="bg-muted flex h-10 w-10 shrink-0 items-center justify-center rounded-lg">
+        <span class="material-symbols-outlined text-primary text-xl">history</span>
+      </div>
+      <div>
+        <h2 class="text-foreground m-0 text-base font-semibold">Meus logs de auditoria</h2>
+        <p class="text-muted-foreground mt-0.5 mb-0 text-sm">Ações realizadas por você na plataforma</p>
       </div>
     </div>
+  </div>
+
+  @if (showSkeleton()) {
+    <zm-skeleton-list [rows]="6" />
+  } @else if (!listaPronta) {
+  } @else {
+    @if (error) {
+      <div class="rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-foreground">
+        {{ error }}
+      </div>
+    }
+
+    <div class="zm-content-enter">
+      <z-card class="gap-0 overflow-hidden py-0 shadow-sm **:data-[slot=card-content]:p-0">
+        <div class="overflow-x-auto">
+          <table z-table zSize="compact" class="text-xs">
+            <thead z-table-header>
+              <tr z-table-row>
+                <th z-table-head class="py-2 pr-3">Data / Hora</th>
+                <th z-table-head class="py-2 px-3">Ação</th>
+                <th z-table-head class="py-2 px-3">Empresa</th>
+                <th z-table-head class="py-2 pl-3">Detalhe</th>
+              </tr>
+            </thead>
+            <tbody z-table-body>
+              @for (log of logs; track log.id) {
+                <tr z-table-row>
+                  <td z-table-cell class="text-muted-foreground whitespace-nowrap py-2.5 pr-3 text-xs">{{ formatarData(log.created_at) }}</td>
+                  <td z-table-cell class="py-2.5 px-3">
+                    <span class="text-foreground inline-flex items-center gap-1 text-xs font-semibold">
+                      <span class="material-symbols-outlined text-primary text-base">info</span>
+                      {{ actionLabel(log.action) }}
+                    </span>
+                  </td>
+                  <td z-table-cell class="text-foreground py-2.5 px-3">{{ log.organization_name ?? '—' }}</td>
+                  <td z-table-cell class="text-muted-foreground py-2.5 pl-3 text-xs">{{ detalheTexto(log) }}</td>
+                </tr>
+              } @empty {
+                <tr z-table-row>
+                  <td z-table-cell colspan="4" class="py-0">
+                    <zm-empty-state
+                      title="Nenhum registro de auditoria."
+                      description="As ações realizadas na plataforma serão registradas aqui."
+                    />
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        @if (lastPage > 1) {
+          <div card-footer class="border-border flex items-center justify-between gap-3 border-t px-4 py-3">
+            <span class="text-muted-foreground text-xs">Página {{ currentPage }} de {{ lastPage }} ({{ total }} registros)</span>
+            <div class="flex gap-2">
+              <button
+                z-button
+                zType="outline"
+                zSize="sm"
+                type="button"
+                [zDisabled]="currentPage <= 1"
+                (click)="goToPage(currentPage - 1)"
+                title="Página anterior"
+              >
+                Anterior
+              </button>
+              <button
+                z-button
+                zType="outline"
+                zSize="sm"
+                type="button"
+                [zDisabled]="currentPage >= lastPage"
+                (click)="goToPage(currentPage + 1)"
+                title="Próxima página"
+              >
+                Próxima
+              </button>
+            </div>
+          </div>
+        }
+      </z-card>
+    </div>
   }
-</div>
-</div>
-}
 </div>

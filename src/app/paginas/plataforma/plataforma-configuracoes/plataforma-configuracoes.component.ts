@@ -4,8 +4,11 @@ import { FormsModule } from '@angular/forms';
 import { PlataformaService, PlatformSettingsData } from '../../../core/services/plataforma.service';
 import { environment } from '../../../../environments/environment';
 import { LoadingService } from '../../../shared/services/loading.service';
-import { ZmSkeletonListComponent } from '../../../shared/components/skeletons';
+import { ZmSkeletonConfiguracoesComponent } from '../../../shared/components/skeletons';
 import { ToastService } from '../../../core/services/toast.service';
+import { ZardCardComponent } from '@/shared/components/card/card.component';
+import { ZardButtonComponent } from '@/shared/components/button/button.component';
+import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
 
 const COMPONENT_OPTIONS: Record<string, string> = {
   platform: 'Plataforma (App)',
@@ -17,7 +20,14 @@ const COMPONENT_OPTIONS: Record<string, string> = {
 @Component({
   selector: 'app-plataforma-configuracoes',
   standalone: true,
-  imports: [CommonModule, FormsModule, ZmSkeletonListComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    ZardCardComponent,
+    ZardButtonComponent,
+    ...ZARD_FORM_CONTROL_IMPORTS,
+    ZmSkeletonConfiguracoesComponent,
+  ],
   templateUrl: './plataforma-configuracoes.component.html',
   styleUrl: './plataforma-configuracoes.component.css',
 })

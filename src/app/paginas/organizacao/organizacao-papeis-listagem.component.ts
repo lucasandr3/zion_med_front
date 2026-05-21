@@ -3,15 +3,30 @@ import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { OrganizationRolesService, OrganizationRoleListItem } from '../../core/services/organization-roles.service';
 import { LoadingService } from '../../shared/services/loading.service';
-import { ZmSkeletonListComponent } from '../../shared/components/skeletons';
+import { ZmSkeletonPermissoesListagemComponent } from '../../shared/components/skeletons';
+import { ZmEmptyStateComponent } from '../../shared/components/ui';
 import { ToastService } from '../../core/services/toast.service';
 import { ConfirmDialogService } from '../../core/services/confirm-dialog.service';
-import { TooltipDirective } from '../../core/directives/tooltip.directive';
+import { ZardTooltipImports } from '@/shared/components/tooltip';
+import { ZardCardComponent } from '@/shared/components/card/card.component';
+import { ZardButtonComponent } from '@/shared/components/button/button.component';
+import { ZardBadgeComponent } from '@/shared/components/badge';
+import { ZardTableImports } from '@/shared/components/table';
 
 @Component({
   selector: 'app-organizacao-papeis-listagem',
   standalone: true,
-  imports: [CommonModule, RouterLink, ZmSkeletonListComponent, TooltipDirective],
+  imports: [
+    ...ZardTableImports,
+    CommonModule,
+    RouterLink,
+    ZmSkeletonPermissoesListagemComponent,
+    ZmEmptyStateComponent,
+    ...ZardTooltipImports,
+    ZardCardComponent,
+    ZardButtonComponent,
+    ZardBadgeComponent,
+  ],
   templateUrl: './organizacao-papeis-listagem.component.html',
 })
 export class OrganizacaoPapeisListagemComponent implements OnInit {

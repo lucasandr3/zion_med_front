@@ -1,15 +1,26 @@
 import { Component, OnInit, inject, Signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { ZardButtonComponent } from '@/shared/components/button/button.component';
+import { ZardCardComponent } from '@/shared/components/card/card.component';
 import { PlataformaService, PlatformTenant } from '../../../core/services/plataforma.service';
 import { LoadingService } from '../../../shared/services/loading.service';
 import { ZmSkeletonListComponent } from '../../../shared/components/skeletons';
 import { ZmEmptyStateComponent } from '../../../shared/components/ui';
 
+import { ZardTableImports } from '@/shared/components/table';
 @Component({
   selector: 'app-plataforma-clientes',
   standalone: true,
-  imports: [CommonModule, RouterLink, ZmSkeletonListComponent, ZmEmptyStateComponent],
+  imports: [
+    ...ZardTableImports,
+    CommonModule,
+    RouterLink,
+    ZardButtonComponent,
+    ZardCardComponent,
+    ZmSkeletonListComponent,
+    ZmEmptyStateComponent,
+  ],
   templateUrl: './plataforma-clientes.component.html',
   styleUrl: './plataforma-clientes.component.css',
 })

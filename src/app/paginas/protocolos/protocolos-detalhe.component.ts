@@ -1,4 +1,14 @@
-import { Component, OnDestroy, OnInit, inject, Signal } from '@angular/core';
+import {
+  afterNextRender,
+  Component,
+  Injector,
+  OnDestroy,
+  OnInit,
+  inject,
+  runInInjectionContext,
+  Signal,
+  ViewChild,
+} from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -12,12 +22,20 @@ import {
   ProtocoloSignature,
 } from '../../core/services/protocolos.service';
 import { LoadingService } from '../../shared/services/loading.service';
-import { ZmSkeletonCardComponent } from '../../shared/components/skeletons';
+import { ZmSkeletonProtocoloDetalheComponent } from '../../shared/components/skeletons';
+import { ZmEmptyStateComponent } from '../../shared/components/ui';
 import { ToastService } from '../../core/services/toast.service';
 import { ConfirmDialogService } from '../../core/services/confirm-dialog.service';
 import { AuthService } from '../../core/services/auth.service';
 import { ClinicaService, ClinicaConfig } from '../../core/services/clinica.service';
 import { PessoasService, Pessoa } from '../../core/services/pessoas.service';
+import { ZardButtonComponent } from '@/shared/components/button/button.component';
+import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
+import type { ZardBadgeTypeVariants } from '@/shared/components/badge/badge.variants';
+import { ZardCardComponent } from '@/shared/components/card/card.component';
+import { ZardTabComponent, ZardTabGroupComponent } from '@/shared/components/tabs';
+import { ZardAvatarComponent } from '@/shared/components/avatar/avatar.component';
+import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
 
 /** Linha do documento de impressão: agrupamento dinâmico de campos do template. */
 interface DocLinhaCampo {
@@ -29,21 +47,48 @@ interface DocLinha {
   campos: DocLinhaCampo[];
 }
 
+type ProtocoloAbaId = 'visao-geral' | 'respostas' | 'historico' | 'assinaturas' | 'comentarios' | 'impressao';
+
+const PROTOCOLO_ABA_IDS: ProtocoloAbaId[] = [
+  'visao-geral',
+  'respostas',
+  'historico',
+  'assinaturas',
+  'comentarios',
+  'impressao',
+];
+
 @Component({
   selector: 'app-protocolos-detalhe',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, ZmSkeletonCardComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterLink,
+    ZmSkeletonProtocoloDetalheComponent,
+    ZmEmptyStateComponent,
+    ZardButtonComponent,
+    ZardBadgeComponent,
+    ZardCardComponent,
+    ZardTabComponent,
+    ZardTabGroupComponent,
+    ZardAvatarComponent,
+    ...ZARD_FORM_CONTROL_IMPORTS,
+  ],
   templateUrl: './protocolos-detalhe.component.html',
   styleUrl: './protocolos-detalhe.component.css',
 })
 export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
-  abaAtiva: 'visao-geral' | 'respostas' | 'historico' | 'assinaturas' | 'comentarios' | 'impressao' = 'visao-geral';
+  abaAtiva: ProtocoloAbaId = 'visao-geral';
+
+  @ViewChild('protocoloTabGroup') protocoloTabGroup?: ZardTabGroupComponent;
   protocolo: ProtocoloDetalheData | null = null;
   showSkeleton!: Signal<boolean>;
   erro = '';
   comentarioEnviando = false;
   revisaoEnviando = false;
   gerandoPdf = false;
+  gerandoDossie = false;
 
   revisaoFormVisible = false;
   revisaoAprovado = true;
@@ -61,14 +106,15 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
   docVerifyUrl = '';
   docQrDataUrl = '';
 
-  private route = inject(ActivatedRoute);
-  private protocolosService = inject(ProtocolosService);
-  private loadingService = inject(LoadingService);
-  private toast = inject(ToastService);
-  private confirm = inject(ConfirmDialogService);
-  private auth = inject(AuthService);
-  private clinicaService = inject(ClinicaService);
-  private pessoasService = inject(PessoasService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly protocolosService = inject(ProtocolosService);
+  private readonly loadingService = inject(LoadingService);
+  private readonly toast = inject(ToastService);
+  private readonly confirm = inject(ConfirmDialogService);
+  private readonly auth = inject(AuthService);
+  private readonly clinicaService = inject(ClinicaService);
+  private readonly pessoasService = inject(PessoasService);
+  private readonly injector = inject(Injector);
 
   get podeRevisarProtocolo(): boolean {
     return this.auth.hasPermission('submissions.approve');
@@ -159,6 +205,7 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
         this.initStaffDraft();
         this.carregarPessoaCompleta();
         void this.gerarAutenticacaoDocumento();
+        this.syncTabGroupFromAba();
       },
       error: () => {
         this.erro = 'Não foi possível carregar o protocolo.';
@@ -245,9 +292,62 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
     return map[canal.toLowerCase()] ?? canal;
   }
 
-  setAbaAtiva(aba: 'visao-geral' | 'respostas' | 'historico' | 'assinaturas' | 'comentarios' | 'impressao'): void {
+  setAbaAtiva(aba: ProtocoloAbaId): void {
     this.abaAtiva = aba;
     this.aplicarClasseImpressaoSomenteDocumento(aba === 'impressao');
+    this.syncTabGroupFromAba();
+  }
+
+  onZardTabChange(event: { index: number }): void {
+    const aba = PROTOCOLO_ABA_IDS[event.index];
+    if (aba) {
+      this.abaAtiva = aba;
+      this.aplicarClasseImpressaoSomenteDocumento(aba === 'impressao');
+    }
+  }
+
+  private syncTabGroupFromAba(): void {
+    runInInjectionContext(this.injector, () => {
+      afterNextRender(() => {
+        const index = PROTOCOLO_ABA_IDS.indexOf(this.abaAtiva);
+        if (index >= 0) {
+          this.protocoloTabGroup?.selectTabByIndex(index);
+        }
+      });
+    });
+  }
+
+  tabLabelRespostas(): string {
+    const n = this.camposRespostas().length;
+    return n > 0 ? `Respostas (${n})` : 'Respostas';
+  }
+
+  tabLabelAssinaturas(): string {
+    const n = this.protocolo?.signatures?.length ?? 0;
+    return n > 0 ? `Assinaturas (${n})` : 'Assinaturas';
+  }
+
+  tabLabelComentarios(): string {
+    const n = this.totalComentarios();
+    return n > 0 ? `Comentários (${n})` : 'Comentários';
+  }
+
+  statusBadgeType(): ZardBadgeTypeVariants {
+    const tone = this.statusBadgeTone();
+    if (tone === 'red') return 'destructive';
+    if (tone === 'green') return 'secondary';
+    return 'outline';
+  }
+
+  statusBadgeClass(): string {
+    const tone = this.statusBadgeTone();
+    if (tone === 'amber') {
+      return 'border-transparent bg-[color-mix(in_srgb,var(--c-warning)_14%,transparent)] text-[var(--c-warning)]';
+    }
+    if (tone === 'green') {
+      return 'border-transparent bg-[color-mix(in_srgb,var(--c-success)_14%,transparent)] text-[var(--c-success)]';
+    }
+    return '';
   }
 
   imprimirFicha(): void {
@@ -260,130 +360,147 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
     document.body.classList.toggle('print-document-only', ativo);
   }
 
-  /** Gera PDF de verdade a partir do nó renderizado da ficha. */
-  async baixarFichaPdf(): Promise<void> {
+  /** Baixa o PDF gerado no backend (DomPDF). */
+  baixarFichaPdf(): void {
     if (!this.protocolo || this.gerandoPdf) return;
     this.gerandoPdf = true;
-    try {
-      if (this.abaAtiva !== 'impressao') {
-        this.setAbaAtiva('impressao');
-        await this.aguardarRenderDocumento();
-      }
-      const node = document.getElementById('documento-impressao');
-      if (!node) return;
-      const mod: any = await import('html2pdf.js');
-      const html2pdf = mod.default ?? mod;
-      const filename = `documento-${this.protocolo.protocol_number || this.protocolo.id}.pdf`;
-      await html2pdf()
-        .set({
-          margin: [6, 6, 8, 6],
-          filename,
-          image: { type: 'jpeg', quality: 0.98 },
-          html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
-          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-          pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
-        })
-        .from(node)
-        .save();
-    } catch (e) {
-      this.toast.error('PDF', 'Não foi possível gerar o PDF do documento.');
-    } finally {
-      this.gerandoPdf = false;
-    }
+    const arquivo = this.nomeArquivoPdf();
+    this.protocolosService.pdf(this.protocolo.id).subscribe({
+      next: (blob) => {
+        if (!this.eBlobPdf(blob)) {
+          this.gerandoPdf = false;
+          return;
+        }
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = arquivo;
+        a.click();
+        URL.revokeObjectURL(url);
+        this.gerandoPdf = false;
+      },
+      error: (err) => {
+        this.gerandoPdf = false;
+        void this.tratarErroPdf(err);
+      },
+    });
   }
 
-  async visualizarFichaPdf(): Promise<void> {
+  /** Abre o PDF do backend em nova aba. */
+  visualizarFichaPdf(): void {
     if (!this.protocolo || this.gerandoPdf) return;
     const previewWindow = window.open('', '_blank');
-    if (previewWindow) {
-      previewWindow.document.write(`
-        <!doctype html>
-        <html lang="pt-BR">
-          <head>
-            <meta charset="utf-8" />
-            <meta name="viewport" content="width=device-width, initial-scale=1" />
-            <title>Gerando documento...</title>
-            <style>
-              body {
-                margin: 0;
-                min-height: 100vh;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-family: Roboto, Arial, sans-serif;
-                background: #f8fafc;
-                color: #0f172a;
-              }
-              .box {
-                display: inline-flex;
-                align-items: center;
-                gap: 10px;
-                background: #fff;
-                border: 1px solid #e2e8f0;
-                border-radius: 10px;
-                padding: 14px 16px;
-                font-weight: 600;
-              }
-              .spinner {
-                width: 16px;
-                height: 16px;
-                border: 2px solid #cbd5e1;
-                border-top-color: #7c3aed;
-                border-radius: 50%;
-                animation: spin 0.8s linear infinite;
-              }
-              @keyframes spin { to { transform: rotate(360deg); } }
-            </style>
-          </head>
-          <body>
-            <div class="box">
-              <span class="spinner" aria-hidden="true"></span>
-              <span>Gerando documento...</span>
-            </div>
-          </body>
-        </html>
-      `);
-      previewWindow.document.close();
+    if (!previewWindow) {
+      this.toast.error('PDF', 'Permita pop-ups neste site para visualizar o PDF.');
+      return;
     }
+    this.escreverCarregandoPdf(previewWindow);
     this.gerandoPdf = true;
+    this.protocolosService.pdf(this.protocolo.id).subscribe({
+      next: (blob) => {
+        if (!this.eBlobPdf(blob)) {
+          if (!previewWindow.closed) previewWindow.close();
+          this.gerandoPdf = false;
+          return;
+        }
+        const url = URL.createObjectURL(blob);
+        previewWindow.location.replace(url);
+        setTimeout(() => URL.revokeObjectURL(url), 120_000);
+        this.gerandoPdf = false;
+      },
+      error: (err) => {
+        if (!previewWindow.closed) previewWindow.close();
+        this.gerandoPdf = false;
+        void this.tratarErroPdf(err);
+      },
+    });
+  }
+
+  private nomeArquivoPdf(): string {
+    const p = this.protocolo;
+    return `protocolo-${p?.protocol_number || p?.id || 'documento'}.pdf`;
+  }
+
+  private eBlobPdf(blob: Blob): boolean {
+    if (blob.size === 0) {
+      this.toast.error('PDF', 'O servidor retornou um arquivo vazio.');
+      return false;
+    }
+    const type = (blob.type || '').toLowerCase();
+    if (type.includes('json')) {
+      void this.exibirErroPdfDeBlob(blob);
+      return false;
+    }
+    return true;
+  }
+
+  private async exibirErroPdfDeBlob(blob: Blob): Promise<void> {
     try {
-      if (this.abaAtiva !== 'impressao') {
-        this.setAbaAtiva('impressao');
-        await this.aguardarRenderDocumento();
-      }
-      const node = document.getElementById('documento-impressao');
-      if (!node) return;
-      const mod: any = await import('html2pdf.js');
-      const html2pdf = mod.default ?? mod;
-      const worker = html2pdf()
-        .set({
-          margin: [6, 6, 8, 6],
-          image: { type: 'jpeg', quality: 0.98 },
-          html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
-          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-          pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
-        })
-        .from(node)
-        .toPdf();
-      const pdf = await worker.get('pdf');
-      const blobUrl = pdf.output('bloburl');
-      if (previewWindow) {
-        previewWindow.location.href = blobUrl;
-      } else {
-        window.open(blobUrl, '_blank');
-      }
+      const body = JSON.parse(await blob.text()) as { message?: string };
+      this.toast.error('PDF', body.message?.trim() || 'Não foi possível gerar o PDF.');
     } catch {
-      this.toast.error('PDF', 'Não foi possível gerar a visualização do PDF.');
-      if (previewWindow && !previewWindow.closed) {
-        previewWindow.close();
-      }
-    } finally {
-      this.gerandoPdf = false;
+      this.toast.error('PDF', 'Não foi possível gerar o PDF.');
     }
   }
 
-  private aguardarRenderDocumento(): Promise<void> {
-    return new Promise((resolve) => setTimeout(resolve, 120));
+  private async tratarErroPdf(err: unknown): Promise<void> {
+    const fallback = 'Não foi possível obter o PDF do protocolo.';
+    if (err instanceof HttpErrorResponse && err.error instanceof Blob) {
+      await this.exibirErroPdfDeBlob(err.error);
+      return;
+    }
+    this.toast.error('PDF', this.mensagemErroApi(err, fallback));
+  }
+
+  private escreverCarregandoPdf(janela: Window): void {
+    janela.document.write(`
+      <!doctype html>
+      <html lang="pt-BR">
+        <head>
+          <meta charset="utf-8" />
+          <meta name="viewport" content="width=device-width, initial-scale=1" />
+          <title>Carregando PDF...</title>
+          <style>
+            body {
+              margin: 0;
+              min-height: 100vh;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              font-family: Roboto, Arial, sans-serif;
+              background: #f8fafc;
+              color: #0f172a;
+            }
+            .box {
+              display: inline-flex;
+              align-items: center;
+              gap: 10px;
+              background: #fff;
+              border: 1px solid #e2e8f0;
+              border-radius: 10px;
+              padding: 14px 16px;
+              font-weight: 600;
+            }
+            .spinner {
+              width: 16px;
+              height: 16px;
+              border: 2px solid #cbd5e1;
+              border-top-color: #7c3aed;
+              border-radius: 50%;
+              animation: spin 0.8s linear infinite;
+            }
+            @keyframes spin { to { transform: rotate(360deg); } }
+          </style>
+        </head>
+        <body>
+          <div class="box">
+            <span class="spinner" aria-hidden="true"></span>
+            <span>Carregando PDF...</span>
+          </div>
+        </body>
+      </html>
+    `);
+    janela.document.close();
   }
 
   /** Nome da clínica/empresa atual para o cabeçalho do documento. */
@@ -719,7 +836,8 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
   }
 
   baixarDossie(): void {
-    if (!this.protocolo) return;
+    if (!this.protocolo || this.gerandoDossie) return;
+    this.gerandoDossie = true;
     this.protocolosService.dossie(this.protocolo.id).subscribe({
       next: (blob) => {
         const url = URL.createObjectURL(blob);
@@ -728,8 +846,10 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
         a.download = `dossie-${this.protocolo!.protocol_number || this.protocolo!.id}.zip`;
         a.click();
         URL.revokeObjectURL(url);
+        this.gerandoDossie = false;
       },
       error: () => {
+        this.gerandoDossie = false;
         this.toast.error('Download', 'Não foi possível baixar o dossiê.');
       },
     });

@@ -1,75 +1,87 @@
-<div class="relative min-h-[320px]">
-  <!-- <div class="page-header mb-5">
-    <div class="page-title">
-      <div class="page-title-icon">
-        <span class="material-symbols-outlined">{{ novo ? 'add' : 'edit_note' }}</span>
-      </div>
-      <div>
-        <h1>{{ novo ? 'Novo perfil de permissões' : 'Editar perfil de permissões' }}</h1>
-        <p class="page-header-subtitle text-sm m-0 mt-1">
-          {{ novo ? 'Defina um identificador, o nome e quais acessos este perfil terá na organização.' : 'Ajuste o nome e as permissões associadas a este perfil.' }}
-        </p>
-      </div>
-    </div>
-  </div> -->
-
+<div class="permissao-formulario-page relative min-h-[320px]">
   @if (showSkeleton()) {
-    <zm-skeleton-card [height]="420" />
+    <zm-skeleton-permissao-formulario [novo]="novo" />
   } @else if (!listaPronta) {
   } @else if (erro) {
-    <p class="text-sm" style="color: var(--c-error, #dc2626)">{{ erro }}</p>
+    <p class="text-sm text-destructive">{{ erro }}</p>
   } @else {
     <div class="zm-content-enter">
-      <div class="card flex flex-col gap-5">
+      <z-card class="gap-0 py-5 shadow-sm **:data-[slot=card-content]:px-5">
+        <p class="mb-5 text-sm text-muted-foreground">
+          @if (novo) {
+            Defina um identificador, o nome e quais acessos este perfil terá na organização.
+          } @else {
+            Ajuste o nome e as permissões associadas a este perfil.
+          }
+        </p>
+
         @if (novo) {
-          <div>
-            <label class="form-label">Identificador (slug)</label>
-            <input type="text" [(ngModel)]="slugNovo" name="slugNovo" class="form-input" placeholder="ex.: recepcao" autocomplete="off" />
-            <p class="text-xs m-0 mt-1" style="color: var(--c-muted)">Minúsculas, números e underscore. Não pode ser alterado depois.</p>
+          <div class="mb-5">
+            <label class="permissao-form-label" for="perfil-slug">Identificador (slug) <span class="text-destructive">*</span></label>
+            <input
+              id="perfil-slug"
+              type="text"
+              [(ngModel)]="slugNovo"
+              name="slugNovo"
+              z-input
+              zSize="sm"
+              class="w-full"
+              placeholder="ex.: recepcao"
+              autocomplete="off"
+            />
+            <p class="m-0 mt-1 text-xs text-muted-foreground">Minúsculas, números e underscore. Não pode ser alterado depois.</p>
           </div>
         } @else {
-          <p class="text-sm m-0" style="color: var(--c-muted)">
-            Identificador: <code>{{ slugParam }}</code>
+          <p class="mb-5 text-sm text-muted-foreground">
+            Identificador: <code class="text-xs">{{ slugParam }}</code>
             @if (detalhe?.is_system) {
               <span class="ml-2 text-xs">(perfil padrão do sistema)</span>
             }
           </p>
         }
 
-        <div>
-          <label class="form-label">Nome exibido</label>
-          <input type="text" [(ngModel)]="label" name="label" class="form-input" required />
+        <div class="mb-5">
+          <label class="permissao-form-label" for="perfil-label">Nome exibido <span class="text-destructive">*</span></label>
+          <input
+            id="perfil-label"
+            type="text"
+            [(ngModel)]="label"
+            name="label"
+            z-input
+            zSize="sm"
+            class="w-full"
+            required
+          />
         </div>
 
         @if (permissoesBloqueadas) {
-          <p class="text-sm m-0 p-3 rounded-lg" style="background: var(--c-soft); color: var(--c-text)">
+          <p class="mb-5 rounded-lg border border-border bg-muted p-3 text-sm text-foreground">
             O perfil <strong>Proprietário</strong> sempre inclui todas as permissões. Você pode alterar apenas o nome exibido.
           </p>
         }
 
         <div class="flex flex-col gap-4">
-          <p class="form-label m-0">Permissões concedidas</p>
+          <p class="permissao-form-label m-0">Permissões concedidas</p>
           @for (g of grupos; track g.label) {
-            <div class="perm-group">
+            <div class="perm-group rounded-lg border border-border p-4">
               <p class="perm-group-title m-0">{{ g.label }}</p>
-              <ul class="perm-list m-0 p-0 list-none space-y-2">
+              <ul class="perm-list m-0 list-none space-y-2 p-0">
                 @for (item of g.items; track item.key) {
                   <li>
-                    <label class="flex items-start gap-2 cursor-pointer select-none" style="color: var(--c-text)">
-                      <input
-                        type="checkbox"
-                        class="rounded border mt-0.5"
-                        style="accent-color: var(--c-primary)"
-                        [checked]="isOn(item.key)"
-                        [disabled]="permissoesBloqueadas"
-                        (change)="toggle(item.key)" />
+                    <z-checkbox
+                      class="items-start"
+                      [ngModel]="isOn(item.key)"
+                      (ngModelChange)="setPerm(item.key, $event)"
+                      [zDisabled]="permissoesBloqueadas"
+                      [name]="'perm_' + item.key"
+                    >
                       <span>
-                        <span class="font-medium text-sm">{{ item.label }}</span>
+                        <span class="text-sm font-medium">{{ item.label }}</span>
                         @if (item.description) {
-                          <span class="block text-xs mt-0.5" style="color: var(--c-muted)">{{ item.description }}</span>
+                          <span class="mt-0.5 block text-xs text-muted-foreground">{{ item.description }}</span>
                         }
                       </span>
-                    </label>
+                    </z-checkbox>
                   </li>
                 }
               </ul>
@@ -77,19 +89,25 @@
           }
         </div>
 
-        <div class="flex items-center gap-3 pt-2">
-          <button type="button" class="btn-primary" [disabled]="salvando || !label.trim()" (click)="salvar()">
+        <div class="mt-5 flex flex-wrap items-center gap-3 pt-2">
+          <button
+            type="button"
+            z-button
+            zSize="sm"
+            class="inline-flex items-center gap-2"
+            [disabled]="salvando || !label.trim()"
+            (click)="salvar()"
+          >
             @if (salvando) {
               <span class="btn-spinner" aria-hidden="true"></span>
-              Salvando…
             } @else {
               <span class="material-symbols-outlined text-base">save</span>
-              Salvar
             }
+            {{ salvando ? 'Salvando…' : 'Salvar' }}
           </button>
-          <a routerLink="/organizacao/permissoes" class="text-sm no-underline" style="color: var(--c-muted)">Cancelar</a>
+          <a routerLink="/organizacao/permissoes" z-button zType="outline" zSize="sm" class="no-underline">Cancelar</a>
         </div>
-      </div>
+      </z-card>
     </div>
   }
 </div>

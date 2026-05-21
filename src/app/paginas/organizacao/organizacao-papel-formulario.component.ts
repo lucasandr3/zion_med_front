@@ -9,13 +9,24 @@ import {
   OrganizationRoleDetail,
 } from '../../core/services/organization-roles.service';
 import { LoadingService } from '../../shared/services/loading.service';
-import { ZmSkeletonCardComponent } from '../../shared/components/skeletons';
+import { ZmSkeletonPermissaoFormularioComponent } from '../../shared/components/skeletons';
 import { ToastService } from '../../core/services/toast.service';
+import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
+import { ZardCardComponent } from '@/shared/components/card/card.component';
+import { ZardButtonComponent } from '@/shared/components/button/button.component';
 
 @Component({
   selector: 'app-organizacao-papel-formulario',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule, ZmSkeletonCardComponent],
+  imports: [
+    ...ZARD_FORM_CONTROL_IMPORTS,
+    CommonModule,
+    RouterLink,
+    FormsModule,
+    ZmSkeletonPermissaoFormularioComponent,
+    ZardCardComponent,
+    ZardButtonComponent,
+  ],
   templateUrl: './organizacao-papel-formulario.component.html',
   styleUrl: './organizacao-papel-formulario.component.css',
 })
@@ -95,10 +106,10 @@ export class OrganizacaoPapelFormularioComponent implements OnInit {
     });
   }
 
-  toggle(key: string): void {
+  setPerm(key: string, checked: boolean): void {
     if (this.permissoesBloqueadas) return;
-    if (this.selecionadas.has(key)) this.selecionadas.delete(key);
-    else this.selecionadas.add(key);
+    if (checked) this.selecionadas.add(key);
+    else this.selecionadas.delete(key);
   }
 
   isOn(key: string): boolean {

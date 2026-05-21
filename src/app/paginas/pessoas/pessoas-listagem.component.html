@@ -1,67 +1,56 @@
 <div class="pessoas-page relative min-h-[320px]">
-  <div class="page-header mb-5">
-    <div class="page-title flex items-center gap-3">
-      <!-- <div class="page-title-icon w-10 h-10 rounded-lg flex items-center justify-center" style="background: var(--c-soft)">
-        <span class="material-symbols-outlined" style="color: var(--c-primary)">group</span>
-      </div>
-      <div>
-        <h1 class="text-xl font-semibold m-0" style="color: var(--c-text)">Pessoas</h1>
-        <p class="text-sm m-0 mt-0.5" style="color: var(--c-muted)">Fichas com protocolos e código de acesso para formulários.</p>
-      </div> -->
-      <div class="flex flex-wrap items-center gap-3 mb-4">
-        <div class="form-search-wrap flex-1 min-w-[300px]">
-          <span class="material-symbols-outlined form-search-icon">search</span>
-          <input
-            type="text"
-            [(ngModel)]="busca"
-            (keydown.enter)="carregar(1)"
-            placeholder="Nome, código, telefone, e-mail ou CPF…"
-            class="form-input form-search-input text-sm"
-            aria-label="Buscar pessoas"
-          />
-        </div>
-        <button type="button" class="btn-ghost btn-default-bg inline-flex items-center gap-2" (click)="openFilterDrawer()" [class.ring-2]="temFiltrosAtivos" title="Filtros">
-          <span class="material-symbols-outlined text-lg">tune</span>
-          Filtros
-          @if (temFiltrosAtivos) {
-            <span class="text-xs rounded-full px-1.5 py-0.5 font-medium" style="background: var(--c-primary); color: white">{{ quantidadeFiltrosAtivos }}</span>
-          }
-        </button>
-      </div>
-    </div>
-    <a routerLink="/pessoas/criar" class="btn-primary inline-flex items-center gap-2 no-underline" title="Nova pessoa">
-      <span class="material-symbols-outlined" style="font-size: 18px">person_add</span>
-      Nova pessoa
-    </a>
-  </div>
-
-  <!-- <div class="flex flex-wrap items-center gap-3 mb-4">
-    <div class="form-search-wrap flex-1 min-w-[200px]">
+  <div class="pessoas-toolbar mb-6 flex flex-wrap items-center gap-3">
+    <div class="form-search-wrap pessoas-toolbar__search">
       <span class="material-symbols-outlined form-search-icon">search</span>
       <input
         type="text"
         [(ngModel)]="busca"
         (keydown.enter)="carregar(1)"
         placeholder="Nome, código, telefone, e-mail ou CPF…"
-        class="form-input form-search-input text-sm"
+        z-input
+        class="form-search-input w-full text-sm"
         aria-label="Buscar pessoas"
       />
     </div>
-    <button type="button" class="btn-ghost btn-default-bg inline-flex items-center gap-2" (click)="openFilterDrawer()" [class.ring-2]="temFiltrosAtivos" title="Filtros">
-      <span class="material-symbols-outlined text-lg">tune</span>
-      Filtros
-      @if (temFiltrosAtivos) {
-        <span class="text-xs rounded-full px-1.5 py-0.5 font-medium" style="background: var(--c-primary); color: white">{{ quantidadeFiltrosAtivos }}</span>
-      }
-    </button>
-  </div> -->
+    <div class="pessoas-toolbar__actions flex flex-wrap items-center gap-2">
+      <button
+        z-button
+        zType="default"
+        zSize="sm"
+        type="button"
+        class="pessoas-btn pessoas-btn--filtros shrink-0 gap-2"
+        (click)="openFilterDrawer()"
+        [attr.aria-expanded]="filterDrawerOpen ? 'true' : 'false'"
+        [class.ring-2]="temFiltrosAtivos"
+        [class.ring-ring]="temFiltrosAtivos"
+        title="Filtros"
+      >
+        <span class="material-symbols-outlined text-lg">tune</span>
+        Filtros
+        @if (temFiltrosAtivos) {
+          <z-badge zShape="pill" class="!h-5 !min-w-[1.25rem] !border-white/30 !bg-white/20 !px-1.5 !py-0 !text-[0.65rem] !leading-none font-semibold !text-white">{{ quantidadeFiltrosAtivos }}</z-badge>
+        }
+      </button>
+      <a
+        z-button
+        zType="default"
+        zSize="sm"
+        routerLink="/pessoas/criar"
+        class="pessoas-btn pessoas-btn--nova shrink-0 gap-2 no-underline"
+        title="Nova pessoa"
+      >
+        <span class="material-symbols-outlined text-lg">person_add</span>
+        Nova pessoa
+      </a>
+    </div>
+  </div>
 
   @if (listaPronta && !erro) {
-    <p class="text-sm mb-3" style="color: var(--c-muted)">{{ contagemTexto() }}</p>
+    <p class="mb-3 text-sm text-muted-foreground">{{ contagemTexto() }}</p>
   }
 
   @if (erro) {
-    <p class="text-sm mb-4" style="color: var(--c-error, #dc2626)">{{ erro }}</p>
+    <p class="mb-4 text-sm text-destructive">{{ erro }}</p>
   }
 
   @if (showSkeleton()) {
@@ -69,52 +58,50 @@
   } @else if (!listaPronta && !erro) {
   } @else if (!erro) {
     <div class="zm-content-enter">
-      <div class="data-table-wrap">
+      <z-card class="gap-0 overflow-hidden rounded-[8px] py-0 shadow-sm **:data-[slot=card-content]:p-0">
         @if (pessoas.length === 0) {
-          <zm-empty-state
-            title="Nenhuma pessoa encontrada."
-            actionLabel="Cadastrar primeira pessoa"
-            actionLink="/pessoas/criar"
-          />
+          <div class="p-10">
+            <zm-empty-state title="Nenhuma pessoa encontrada." actionLabel="Cadastrar primeira pessoa" actionLink="/pessoas/criar" />
+          </div>
         } @else {
           <div class="overflow-x-auto">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Pessoa / Código</th>
-                  <th>Contato</th>
-                  <th>Nascimento</th>
-                  <th>Protocolos</th>
-                  <th>Última resposta</th>
-                  <th>Situação</th>
+            <table z-table>
+              <thead z-table-header>
+                <tr z-table-row>
+                  <th z-table-head>Pessoa / Código</th>
+                  <th z-table-head>Contato</th>
+                  <th z-table-head>Nascimento</th>
+                  <th z-table-head>Protocolos</th>
+                  <th z-table-head>Última resposta</th>
+                  <th z-table-head>Situação</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody z-table-body>
                 @for (p of pessoas; track p.id) {
-                  <tr class="pessoa-row cursor-pointer" (click)="irParaDetalhe(p, $event)">
-                    <td>
-                      <div class="font-medium" style="color: var(--c-text)">{{ p.name }}</div>
-                      <div class="text-xs mt-0.5 font-mono" style="color: var(--c-muted)">{{ p.code }}</div>
+                  <tr z-table-row class="pessoa-row cursor-pointer hover:bg-muted/60" (click)="irParaDetalhe(p, $event)">
+                    <td z-table-cell>
+                      <div class="font-medium text-foreground">{{ p.name }}</div>
+                      <div class="mt-0.5 font-mono text-xs text-muted-foreground">{{ p.code }}</div>
                     </td>
-                    <td style="color: var(--c-text)">
+                    <td z-table-cell class="text-foreground">
                       @if (p.phone) {
                         <div>{{ p.phone }}</div>
                       }
                       @if (p.email) {
-                        <div class="text-xs" style="color: var(--c-muted)">{{ p.email }}</div>
+                        <div class="text-xs text-muted-foreground">{{ p.email }}</div>
                       }
                       @if (!p.phone && !p.email) {
-                        <span style="color: var(--c-muted)">—</span>
+                        <span class="text-muted-foreground">—</span>
                       }
                     </td>
-                    <td style="color: var(--c-muted)">{{ formatarDataCurta(p.birth_date) }}</td>
-                    <td style="color: var(--c-text)">{{ p.protocols_count ?? 0 }}</td>
-                    <td style="color: var(--c-muted)">{{ dataFormatada(p.last_protocol_at) }}</td>
-                    <td>
+                    <td z-table-cell class="text-muted-foreground">{{ formatarDataCurta(p.birth_date) }}</td>
+                    <td z-table-cell class="text-foreground">{{ p.protocols_count ?? 0 }}</td>
+                    <td z-table-cell class="text-muted-foreground">{{ dataFormatada(p.last_protocol_at) }}</td>
+                    <td z-table-cell>
                       @if (p.status === 'active') {
                         <span class="text-xs font-semibold" style="color: var(--c-success)">Ativa</span>
                       } @else {
-                        <span class="text-xs font-medium" style="color: var(--c-muted)">Inativa</span>
+                        <span class="text-xs font-medium text-muted-foreground">Inativa</span>
                       }
                     </td>
                   </tr>
@@ -122,60 +109,108 @@
               </tbody>
             </table>
           </div>
-          <zm-pagination [currentPage]="meta.current_page" [lastPage]="meta.last_page" (pageChange)="carregar($event)" />
+          @if (meta.last_page > 1) {
+            <zm-pagination [currentPage]="meta.current_page" [lastPage]="meta.last_page" (pageChange)="carregar($event)" />
+          }
         }
-      </div>
+      </z-card>
     </div>
   }
 
-  @if (filterDrawerOpen) {
-    <div class="drawer-overlay fixed inset-0 z-40 bg-black/30" (click)="closeFilterDrawer()" aria-hidden="true"></div>
-    <div class="filter-drawer fixed top-0 right-0 h-full w-full max-w-sm z-50 shadow-xl flex flex-col" style="background: var(--c-surface); border-left: 1px solid var(--c-border)">
-      <div class="flex items-center justify-between px-5 py-4" style="border-bottom: 1px solid var(--c-border)">
-        <div class="flex items-center gap-2">
-          <span class="material-symbols-outlined" style="color: var(--c-primary)">tune</span>
-          <h2 class="text-lg font-semibold m-0" style="color: var(--c-text)">Filtros</h2>
+  <ng-template #pessoasFiltrosTpl>
+    <div class="pessoas-filtros-sheet zm-filter-sheet">
+      <div class="zm-filter-sheet__body">
+        <div class="zm-filter-sheet__fields">
+          <div class="zm-filter-field">
+            <label class="zm-filter-label" id="pessoas-filtro-status-label">Situação</label>
+            <z-combobox
+              class="w-full"
+              zWidth="full"
+              [options]="opcoesStatusFiltro"
+              [value]="status || null"
+              placeholder="Todas"
+              [searchable]="false"
+              ariaLabel="Situação"
+              ariaDescribedBy="pessoas-filtro-status-label"
+              (zValueChange)="selecionarStatusFiltro($event)"
+            />
+          </div>
+          <div class="zm-filter-field">
+            <label class="zm-filter-label" id="pessoas-filtro-protocolos-label">Protocolos</label>
+            <z-combobox
+              class="w-full"
+              zWidth="full"
+              [options]="opcoesProtocolosFiltro"
+              [value]="has_protocols || null"
+              placeholder="Todos"
+              [searchable]="false"
+              ariaLabel="Protocolos"
+              ariaDescribedBy="pessoas-filtro-protocolos-label"
+              (zValueChange)="selecionarProtocolosFiltro($event)"
+            />
+          </div>
+          <div class="zm-filter-sheet__dates">
+            <div class="zm-filter-field">
+              <label class="zm-filter-label" for="pessoas-filtro-inicio">Cadastro a partir de</label>
+              <input
+                id="pessoas-filtro-inicio"
+                type="text"
+                mwlFlatpickr
+                [(ngModel)]="created_from"
+                name="pessoas_filtro_inicio"
+                z-input
+                class="w-full text-sm"
+                placeholder="dd/mm/aaaa"
+                [altInput]="true"
+                [appendTo]="flatpickrAppendTo"
+                [static]="false"
+                autocomplete="off"
+              />
+            </div>
+            <div class="zm-filter-field">
+              <label class="zm-filter-label" for="pessoas-filtro-fim">Cadastro até</label>
+              <input
+                id="pessoas-filtro-fim"
+                type="text"
+                mwlFlatpickr
+                [(ngModel)]="created_to"
+                name="pessoas_filtro_fim"
+                z-input
+                class="w-full text-sm"
+                placeholder="dd/mm/aaaa"
+                [altInput]="true"
+                [appendTo]="flatpickrAppendTo"
+                [static]="false"
+                autocomplete="off"
+              />
+            </div>
+          </div>
         </div>
-        <button type="button" class="p-2 rounded-lg hover:bg-[var(--c-soft)]" (click)="closeFilterDrawer()" aria-label="Fechar">
-          <span class="material-symbols-outlined">close</span>
-        </button>
       </div>
-      <div class="flex-1 overflow-auto p-5 space-y-4">
-        <div>
-          <label class="block text-xs font-semibold uppercase tracking-wider mb-1.5" style="color: var(--c-muted)">Situação</label>
-          <select [(ngModel)]="status" class="form-select text-sm">
-            <option value="">Todas</option>
-            <option value="active">Ativa</option>
-            <option value="inactive">Inativa</option>
-          </select>
-        </div>
-        <div>
-          <label class="block text-xs font-semibold uppercase tracking-wider mb-1.5" style="color: var(--c-muted)">Protocolos</label>
-          <select [(ngModel)]="has_protocols" class="form-select text-sm">
-            <option value="">Todos</option>
-            <option value="1">Com protocolos</option>
-            <option value="0">Sem protocolos</option>
-          </select>
-        </div>
-        <div>
-          <label class="block text-xs font-semibold uppercase tracking-wider mb-1.5" style="color: var(--c-muted)">Cadastro a partir de</label>
-          <input type="date" [(ngModel)]="created_from" class="form-input text-sm" />
-        </div>
-        <div>
-          <label class="block text-xs font-semibold uppercase tracking-wider mb-1.5" style="color: var(--c-muted)">Cadastro até</label>
-          <input type="date" [(ngModel)]="created_to" class="form-input text-sm" />
-        </div>
-      </div>
-      <div class="flex gap-2 p-5" style="border-top: 1px solid var(--c-border)">
-        <button type="button" class="btn-ghost btn-default-bg flex-1 inline-flex items-center justify-center gap-2" (click)="limparFiltros()">
-          <span class="material-symbols-outlined text-lg">filter_alt_off</span>
+      <footer class="zm-filter-sheet__footer">
+        <button
+          z-button
+          zType="default"
+          zSize="sm"
+          type="button"
+          class="zm-filter-btn zm-filter-btn--limpar min-w-0 flex-1 gap-2"
+          (click)="limparFiltros()"
+        >
+          <span class="material-symbols-outlined shrink-0 text-lg">filter_alt_off</span>
           Limpar
         </button>
-        <button type="button" class="btn-primary flex-1 inline-flex items-center justify-center gap-2" (click)="aplicarFiltros()">
-          <span class="material-symbols-outlined text-lg">check</span>
+        <button
+          z-button
+          zType="default"
+          zSize="sm"
+          type="button"
+          class="zm-filter-btn zm-filter-btn--aplicar min-w-0 flex-1 gap-2"
+          (click)="aplicarFiltros()"
+        >
+          <span class="material-symbols-outlined shrink-0 text-lg">check</span>
           Aplicar
         </button>
-      </div>
+      </footer>
     </div>
-  }
+  </ng-template>
 </div>

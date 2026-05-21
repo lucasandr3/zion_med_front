@@ -1,1 +1,17 @@
-/* Usa classes globais: .page-header, .page-title, .page-title-icon, .form-label, .form-input, .form-checkbox, .btn-primary, .card */
+.templates-form-label {
+  display: block;
+  margin-bottom: 0.375rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--foreground, var(--c-text));
+}
+
+.templates-criar-em-branco z-combobox button[z-button] {
+  height: var(--control-height);
+  min-height: var(--control-height);
+}
+
+.templates-criar-em-branco z-checkbox {
+  align-items: flex-start;
+}

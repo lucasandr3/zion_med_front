@@ -282,18 +282,14 @@
                 </div>
               </div>
 
-              <label class="check-row" for="accepted_terms">
-                <input type="checkbox" id="accepted_terms" [(ngModel)]="acceptedTerms" name="accepted_terms" class="sr-only" />
-                <span class="check-box" [class.checked]="acceptedTerms" aria-hidden="true">
-                  <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="2 6 5 9 10 3"/></svg>
-                </span>
+              <z-checkbox class="comece-terms-check" [(ngModel)]="acceptedTerms" name="accepted_terms">
                 <span class="check-text">
                   Li e concordo com os
                   <a routerLink="/termos-de-uso" target="_blank" rel="noopener noreferrer" (click)="$event.stopPropagation()">Termos de Uso</a>
                   e a
                   <a routerLink="/privacidade" target="_blank" rel="noopener noreferrer" (click)="$event.stopPropagation()">Política de Privacidade</a>.
                 </span>
-              </label>
+              </z-checkbox>
 
               <button type="submit" class="submit-btn" [disabled]="estadoCarregando || carregandoPlanos || planos.length === 0">
                 @if (estadoCarregando) {
