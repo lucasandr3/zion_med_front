@@ -62,6 +62,7 @@ export class ComeceComponent implements OnInit {
     oftalmologia: 'Oftalmologia',
     dermatologia: 'Dermatologia',
     laboratorio: 'Laboratório / Coleta',
+    veterinaria: 'Veterinária',
     geral: 'Geral',
   };
 

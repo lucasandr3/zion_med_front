@@ -93,6 +93,7 @@ export class LayoutAppComponent implements OnInit {
       oftalmologia: 'Oftalmologia',
       dermatologia: 'Dermatologia',
       laboratorio: 'Laboratório / Coleta',
+      veterinaria: 'Veterinária',
     };
     if (labels[categoria]) {
       return labels[categoria];

@@ -29,6 +29,7 @@ const CATEGORY_LABELS: Record<string, string> = {
   oftalmologia: 'Oftalmologia',
   dermatologia: 'Dermatologia',
   laboratorio: 'Laboratório / Coleta',
+  veterinaria: 'Veterinária',
 };
 
 const CATEGORY_EMOJI: Record<string, string> = {
@@ -52,6 +53,7 @@ const CATEGORY_EMOJI: Record<string, string> = {
   oftalmologia: '👁️',
   dermatologia: '🧴',
   laboratorio: '🔬',
+  veterinaria: '🐾',
 };
 
 @Component({

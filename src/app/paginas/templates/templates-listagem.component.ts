@@ -40,6 +40,7 @@ const CATEGORY_LABELS: Record<string, string> = {
   oftalmologia: 'Oftalmologia',
   dermatologia: 'Dermatologia',
   laboratorio: 'Laboratório / Coleta',
+  veterinaria: 'Veterinária',
 };
 
 /** Cor de destaque do ícone por categoria (apenas UI) */
@@ -65,6 +66,7 @@ const CATEGORY_ACCENT: Record<string, string> = {
   oftalmologia: '#22d3ee',
   dermatologia: '#fb7185',
   laboratorio: '#94a3b8',
+  veterinaria: '#0d9488',
 };
 
 /** Chave canônica para agrupar pastas (evita duplicar por typo de maiúsculas na API). */

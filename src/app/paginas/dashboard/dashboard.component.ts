@@ -52,6 +52,7 @@ const CATEGORY_LABELS: Record<string, string> = {
   oftalmologia: 'Oftalmologia',
   dermatologia: 'Dermatologia',
   laboratorio: 'Laboratório / Coleta',
+  veterinaria: 'Veterinária',
 };
 
 export interface UltimoTemplateRow {
