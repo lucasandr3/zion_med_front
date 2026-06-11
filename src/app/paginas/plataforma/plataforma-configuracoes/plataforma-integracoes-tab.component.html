@@ -1,0 +1,159 @@
+<div class="integracoes-tab">
+  @if (carregando()) {
+    <div class="space-y-4 px-1">
+      @for (i of [1, 2, 3]; track i) {
+        <div class="h-24 animate-pulse rounded-2xl bg-muted"></div>
+      }
+    </div>
+  } @else if (erro()) {
+    <p class="px-1 text-sm text-destructive">{{ erro() }}</p>
+  } @else {
+    <div class="config-tab-panel">
+      <z-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
+        <div class="section-header">
+          <div class="icon-wrap"><span class="material-symbols-outlined">hub</span></div>
+          <span class="section-title">Integrações disponíveis</span>
+        </div>
+        <div class="section-body">
+          <p class="hint mb-4">
+            Conecte sistemas externos ao app Business Hub. Cadastre a URL base e o token no aplicativo gestor.
+          </p>
+          <div class="sistemas-grid">
+            @for (item of integracoes(); track item.key) {
+              <button
+                type="button"
+                class="sistema-card text-left"
+                [class.sistema-card--active]="selecionada() === item.key"
+                (click)="selecionar(item)"
+              >
+                <div class="flex items-start justify-between gap-2">
+                  <div class="flex min-w-0 items-center gap-2.5">
+                    <span class="sistema-logo-wrap">
+                      <span class="material-symbols-outlined text-primary" style="font-size:18px">smartphone</span>
+                    </span>
+                    <div class="min-w-0">
+                      <div class="text-sm font-semibold text-foreground">{{ item.name }}</div>
+                      <div class="mt-0.5 line-clamp-2 text-xs text-muted-foreground">{{ item.description }}</div>
+                    </div>
+                  </div>
+                  <z-badge [zType]="statusBadgeType(item.status)" zShape="pill" class="shrink-0">
+                    {{ statusLabel(item.status) }}
+                  </z-badge>
+                </div>
+                <p class="mt-2.5 truncate font-mono text-xs text-muted-foreground">{{ item.base_url }}</p>
+              </button>
+            }
+          </div>
+        </div>
+      </z-card>
+
+      @if (selecionada() === 'business_hub' && businessHub(); as hub) {
+        <form (ngSubmit)="salvarBusinessHub()" class="space-y-4">
+          <z-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
+            <div class="section-header">
+              <div class="icon-wrap"><span class="material-symbols-outlined">settings</span></div>
+              <span class="section-title">Business Hub — configuração</span>
+            </div>
+            <div class="section-body space-y-4">
+              <label class="flex items-center justify-between gap-4">
+                <div>
+                  <p class="text-sm font-medium text-foreground">Integração ativa</p>
+                  <p class="text-xs text-muted-foreground">Quando desativada, o app gestor não consegue sincronizar dados.</p>
+                </div>
+                <button
+                  type="button"
+                  role="switch"
+                  [attr.aria-checked]="enabled"
+                  (click)="enabled = !enabled"
+                  [class]="enabled ? 'bg-primary' : 'bg-border'"
+                  class="relative h-6 w-11 shrink-0 rounded-full transition-colors"
+                >
+                  <span
+                    [class]="enabled ? 'translate-x-5' : 'translate-x-0.5'"
+                    class="absolute top-0.5 block h-5 w-5 rounded-full bg-white transition-transform"
+                  ></span>
+                </button>
+              </label>
+
+              <div class="grid gap-4 md:grid-cols-2">
+                <div>
+                  <label for="bh-type" class="mb-1 block text-xs font-medium text-muted-foreground">Tipo do conector</label>
+                  <select id="bh-type" [(ngModel)]="connectorType" name="connectorType" z-input class="w-full">
+                    @for (tipo of connectorTypes; track tipo.value) {
+                      <option [value]="tipo.value">{{ tipo.label }}</option>
+                    }
+                  </select>
+                </div>
+                <div>
+                  <label for="bh-version" class="mb-1 block text-xs font-medium text-muted-foreground">Versão da API</label>
+                  <input id="bh-version" type="text" [(ngModel)]="version" name="version" z-input zSize="sm" class="w-full" maxlength="32" />
+                </div>
+              </div>
+
+              <div>
+                <label for="bh-system" class="mb-1 block text-xs font-medium text-muted-foreground">Nome do sistema</label>
+                <input id="bh-system" type="text" [(ngModel)]="systemName" name="systemName" z-input zSize="sm" class="w-full max-w-md" maxlength="128" />
+                <p class="mt-1 text-xs text-muted-foreground">Exibido no health check e no app gestor como origem dos dados.</p>
+              </div>
+
+              <div>
+                <label class="mb-1 block text-xs font-medium text-muted-foreground">Base URL (cadastrar no app gestor)</label>
+                <div class="flex flex-wrap items-center gap-2">
+                  <code class="block min-w-0 flex-1 break-all rounded-md bg-muted px-3 py-2 text-xs">{{ hub.base_url }}</code>
+                  <button type="button" z-button zType="outline" zSize="sm" (click)="copiar(hub.base_url)">Copiar</button>
+                </div>
+              </div>
+
+              <div>
+                <label class="mb-1 block text-xs font-medium text-muted-foreground">Token de autenticação</label>
+                <p class="hint mb-3">
+                  Use no Business Hub como Bearer token. Header obrigatório no conector:
+                  <code class="text-xs">Authorization: Bearer SEU_TOKEN</code>
+                </p>
+                @if (ultimoTokenGerado()) {
+                  <div class="mb-3 rounded-md border border-primary/30 bg-primary/5 p-3">
+                    <p class="mb-2 text-xs font-medium text-primary">Token gerado — copie agora. Não será exibido novamente.</p>
+                    <code class="block break-all text-xs">{{ ultimoTokenGerado() }}</code>
+                    <button type="button" z-button zType="outline" zSize="sm" class="mt-3" (click)="copiar(ultimoTokenGerado()!)">
+                      Copiar token
+                    </button>
+                  </div>
+                } @else if (hub.token_preview) {
+                  <p class="text-sm text-muted-foreground">Token configurado: <code>{{ hub.token_preview }}</code></p>
+                } @else {
+                  <p class="text-sm text-muted-foreground">Nenhum token configurado. Gere um token para conectar o app.</p>
+                }
+                <div class="mt-3 flex flex-wrap gap-2">
+                  <button type="button" z-button zSize="sm" [zDisabled]="regenerando()" [zLoading]="regenerando()" (click)="regenerarToken()">
+                    {{ hub.token_configured ? 'Regenerar token' : 'Gerar token' }}
+                  </button>
+                  <button type="button" z-button zType="outline" zSize="sm" [zDisabled]="testando()" [zLoading]="testando()" (click)="testarConexao()">
+                    Testar conexão
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <p class="mb-2 text-xs font-medium text-muted-foreground">Endpoints expostos ao app</p>
+                <div class="grid gap-2 sm:grid-cols-2">
+                  @for (entry of hub.endpoints | keyvalue; track entry.key) {
+                    <div class="rounded-md border border-border px-3 py-2 text-xs">
+                      <span class="font-medium text-foreground">{{ entry.key }}</span>
+                      <span class="text-muted-foreground"> → {{ entry.value }}</span>
+                    </div>
+                  }
+                </div>
+              </div>
+
+              <div class="flex flex-wrap gap-2 pt-2">
+                <button type="submit" z-button zSize="sm" [zDisabled]="salvando()" [zLoading]="salvando()">
+                  Salvar integração
+                </button>
+              </div>
+            </div>
+          </z-card>
+        </form>
+      }
+    </div>
+  }
+</div>

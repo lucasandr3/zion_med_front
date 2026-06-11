@@ -9,6 +9,8 @@ import { ToastService } from '../../../core/services/toast.service';
 import { ZardCardComponent } from '@/shared/components/card/card.component';
 import { ZardButtonComponent } from '@/shared/components/button/button.component';
 import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
+import { ZardTabComponent, ZardTabGroupComponent } from '@/shared/components/tabs';
+import { PlataformaIntegracoesTabComponent } from './plataforma-integracoes-tab.component';
 
 const COMPONENT_OPTIONS: Record<string, string> = {
   platform: 'Plataforma (App)',
@@ -27,6 +29,9 @@ const COMPONENT_OPTIONS: Record<string, string> = {
     ZardButtonComponent,
     ...ZARD_FORM_CONTROL_IMPORTS,
     ZmSkeletonConfiguracoesComponent,
+    ZardTabComponent,
+    ZardTabGroupComponent,
+    PlataformaIntegracoesTabComponent,
   ],
   templateUrl: './plataforma-configuracoes.component.html',
   styleUrl: './plataforma-configuracoes.component.css',

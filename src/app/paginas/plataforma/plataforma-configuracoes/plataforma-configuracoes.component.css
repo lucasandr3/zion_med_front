@@ -1,3 +1,81 @@
+:host {
+  display: block;
+  width: 100%;
+  margin-top: -1.5rem;
+}
+
+.plataforma-config-page {
+  width: calc(100% + 2rem);
+  max-width: none;
+  margin-left: -1rem;
+  margin-right: -1rem;
+}
+
+@media (min-width: 640px) {
+  .plataforma-config-page {
+    width: calc(100% + 3rem);
+    margin-left: -1.5rem;
+    margin-right: -1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .plataforma-config-page {
+    width: calc(100% + 4rem);
+    margin-left: -2rem;
+    margin-right: -2rem;
+  }
+}
+
+.plataforma-config-shell {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  background: var(--background);
+}
+
+.plataforma-config {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+:host ::ng-deep .plataforma-config-shell .plataforma-config-tabs-bar,
+:host ::ng-deep .plataforma-config-shell .config-zard-tabs--layout > .grid {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  flex-shrink: 0;
+  width: 100%;
+  background: var(--card) !important;
+  box-sizing: border-box;
+  border-top: none !important;
+  border-bottom: 1px solid var(--border, var(--c-border)) !important;
+}
+
+:host ::ng-deep .plataforma-config-shell .config-zard-tabs--no-nav-rule nav[role='tablist'] {
+  flex-shrink: 0;
+  width: 100%;
+  margin: 0 !important;
+  margin-bottom: 0 !important;
+  padding: 0.5rem 1rem 0;
+  background: var(--card);
+  border-top: none !important;
+  border-bottom: none !important;
+}
+
+:host ::ng-deep .config-zard-tabs nav[role='tablist'] button[role='tab'][aria-selected='true'] {
+  color: var(--primary);
+  border-bottom-color: var(--primary) !important;
+}
+
+.config-tab-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem 1.25rem 1.5rem;
+}
+
 .space-y-4 > * + * {
   margin-top: 1rem;
 }
