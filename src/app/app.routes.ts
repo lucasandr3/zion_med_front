@@ -81,12 +81,18 @@ export const routes: Routes = [
         data: { titulo: 'Tráfego da landing', subtitulo: 'Visitantes únicos e cliques no site de marketing.' },
       },
       { path: 'notificacoes', loadComponent: () => import('./paginas/notificacoes/notificacoes.component').then(m => m.NotificacoesComponent), data: { titulo: 'Notificações', subtitulo: 'Central de notificações.' } },
+      {
+        path: 'emails',
+        loadComponent: () =>
+          import('./paginas/plataforma/plataforma-emails/plataforma-emails.component').then((m) => m.PlataformaEmailsComponent),
+        data: { titulo: 'E-mails', subtitulo: 'Envio manual de contato, cobrança e avisos para clientes e leads.' },
+      },
       { path: 'assinaturas', loadComponent: () => import('./paginas/plataforma/plataforma-assinaturas/plataforma-assinaturas.component').then(m => m.PlataformaAssinaturasComponent), data: { titulo: 'Assinaturas', subtitulo: 'Visão geral das assinaturas por cliente e empresa.' } },
       { path: 'faturas', loadComponent: () => import('./paginas/plataforma/plataforma-faturas/plataforma-faturas.component').then(m => m.PlataformaFaturasComponent), data: { titulo: 'Faturas / cobranças', subtitulo: 'Visão geral das faturas e cobranças por cliente e empresa.' } },
       { path: 'planos', loadComponent: () => import('./paginas/plataforma/plataforma-planos/plataforma-planos.component').then(m => m.PlataformaPlanosComponent), data: { titulo: 'Planos' } },
       { path: 'planos/novo', loadComponent: () => import('./paginas/plataforma/plataforma-plano-form/plataforma-plano-form.component').then(m => m.PlataformaPlanoFormComponent), data: { titulo: 'Novo plano', urlVoltar: '/plataforma/planos', labelVoltar: 'Voltar para Planos' } },
       { path: 'planos/:id/editar', loadComponent: () => import('./paginas/plataforma/plataforma-plano-form/plataforma-plano-form.component').then(m => m.PlataformaPlanoFormComponent), data: { titulo: 'Editar plano', urlVoltar: '/plataforma/planos', labelVoltar: 'Voltar para Planos' } },
-      { path: 'configuracoes', loadComponent: () => import('./paginas/plataforma/plataforma-configuracoes/plataforma-configuracoes.component').then(m => m.PlataformaConfiguracoesComponent), data: { titulo: 'Configurações da plataforma', subtitulo: 'Parâmetros editáveis (banco). API e URL continuam no .env.' } },
+      { path: 'configuracoes', loadComponent: () => import('./paginas/plataforma/plataforma-configuracoes/plataforma-configuracoes.component').then(m => m.PlataformaConfiguracoesComponent), data: { titulo: 'Configurações da plataforma', subtitulo: 'Parâmetros, integrações e serviços de infraestrutura.' } },
       { path: 'logs', loadComponent: () => import('./paginas/plataforma/plataforma-logs/plataforma-logs.component').then(m => m.PlataformaLogsComponent), data: { titulo: 'Meus logs de auditoria', subtitulo: 'Ações realizadas por você na plataforma' } },
       {
         path: 'organizacoes-online',

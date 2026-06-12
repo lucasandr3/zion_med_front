@@ -2,7 +2,6 @@ import { Component, OnInit, inject, Signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PlataformaService, PlatformSettingsData } from '../../../core/services/plataforma.service';
-import { environment } from '../../../../environments/environment';
 import { LoadingService } from '../../../shared/services/loading.service';
 import { ZmSkeletonConfiguracoesComponent } from '../../../shared/components/skeletons';
 import { ToastService } from '../../../core/services/toast.service';
@@ -11,13 +10,7 @@ import { ZardButtonComponent } from '@/shared/components/button/button.component
 import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
 import { ZardTabComponent, ZardTabGroupComponent } from '@/shared/components/tabs';
 import { PlataformaIntegracoesTabComponent } from './plataforma-integracoes-tab.component';
-
-const COMPONENT_OPTIONS: Record<string, string> = {
-  platform: 'Plataforma (App)',
-  api: 'API REST',
-  forms: 'Formulários Públicos',
-  billing: 'Pagamentos & Billing',
-};
+import { PlataformaServicosTabComponent } from './plataforma-servicos-tab.component';
 
 @Component({
   selector: 'app-plataforma-configuracoes',
@@ -32,6 +25,7 @@ const COMPONENT_OPTIONS: Record<string, string> = {
     ZardTabComponent,
     ZardTabGroupComponent,
     PlataformaIntegracoesTabComponent,
+    PlataformaServicosTabComponent,
   ],
   templateUrl: './plataforma-configuracoes.component.html',
   styleUrl: './plataforma-configuracoes.component.css',
@@ -40,36 +34,30 @@ export class PlataformaConfiguracoesComponent implements OnInit {
   showSkeleton!: Signal<boolean>;
   listaPronta = false;
   savingSettings = false;
-  savingStatus = false;
   error = '';
   successSettings = '';
-  successStatus = '';
 
   data: PlatformSettingsData | null = null;
-  componentOptions = COMPONENT_OPTIONS;
 
   productName = '';
   trialDays = 14;
   graceDays = 7;
   blockMode = 'soft';
   multiEmpresaPlan = '';
-  baseUrl = '';
-  apiConfigured = false;
-
-  serviceStatus = 'operational';
-  serviceStatusSeverity = 'none';
-  serviceStatusMessage = '';
-  serviceComponents: Record<string, string> = {};
-
-  /** URL da página pública de status no backend (abre em nova aba; não é rota do Angular). */
-  get statusPageUrl(): string {
-    const base = (environment.apiUrl || '').replace(/\/$/, '');
-    return base ? `${base}/status` : '#';
-  }
 
   private plataformaService = inject(PlataformaService);
   private loadingService = inject(LoadingService);
   private toast = inject(ToastService);
+
+  get platformParams() {
+    return {
+      product_name: this.productName.trim(),
+      trial_days: this.trialDays,
+      grace_days: this.graceDays,
+      block_mode: this.blockMode,
+      multi_empresa_plan: this.multiEmpresaPlan.trim(),
+    };
+  }
 
   ngOnInit(): void {
     const { data$, showSkeleton } = this.loadingService.loadWithThreshold(this.plataformaService.getSettings());
@@ -77,84 +65,78 @@ export class PlataformaConfiguracoesComponent implements OnInit {
     data$.subscribe({
       next: (res) => {
         this.listaPronta = true;
-        const d = res.data;
-        this.data = d;
-        this.productName = d.product_name ?? '';
-        this.trialDays = d.trial_days ?? 14;
-        this.graceDays = d.grace_days ?? 7;
-        this.blockMode = d.block_mode ?? 'soft';
-        this.multiEmpresaPlan = d.multi_empresa_plan ?? '';
-        this.baseUrl = d.base_url ?? '';
-        this.apiConfigured = d.api_configured ?? false;
-        this.serviceStatus = d.service_status ?? 'operational';
-        this.serviceStatusSeverity = d.service_status_severity ?? 'none';
-        this.serviceStatusMessage = d.service_status_message ?? '';
-        this.serviceComponents = { ...(d.service_status_components ?? {}) };
-        Object.keys(COMPONENT_OPTIONS).forEach((k) => {
-          if (!(k in this.serviceComponents)) this.serviceComponents[k] = 'operational';
-        });
+        this.applySettingsData(res.data);
       },
       error: () => {
         this.listaPronta = true;
         this.data = null;
-        this.serviceComponents = {};
-        Object.keys(COMPONENT_OPTIONS).forEach((k) => (this.serviceComponents[k] = 'operational'));
       },
     });
   }
 
-  submitSettings(): void {
+  submitPlatformParams(): void {
+    if (!this.data) {
+      this.error = 'Carregue as configurações antes de salvar.';
+      return;
+    }
+
     this.error = '';
     this.successSettings = '';
     this.savingSettings = true;
+
     this.plataformaService
       .updateSettings({
-        product_name: this.productName.trim(),
-        trial_days: this.trialDays,
-        grace_days: this.graceDays,
-        block_mode: this.blockMode,
-        multi_empresa_plan: this.multiEmpresaPlan.trim(),
+        ...this.platformParams,
+        asaas_base_url: this.data.base_url ?? '',
+        asaas_api_key: null,
+        asaas_webhook_secret: null,
+        minio_endpoint: this.data.minio?.endpoint ?? '',
+        minio_access_key: this.data.minio?.access_key ?? '',
+        minio_secret_key: null,
+        minio_region: this.data.minio?.region ?? 'us-east-1',
+        minio_submissions_bucket: this.data.minio?.submissions_bucket ?? '',
+        minio_attachments_bucket: this.data.minio?.attachments_bucket ?? '',
+        minio_assets_bucket: this.data.minio?.assets_bucket ?? '',
+        minio_invoices_bucket: this.data.minio?.invoices_bucket ?? '',
+        mail_mailer: this.data.resend?.mailer === 'log' ? 'log' : 'resend',
+        resend_api_key: null,
+        mail_from_address: this.data.resend?.from_address ?? '',
+        mail_from_name: this.data.resend?.from_name ?? '',
+        mail_support_email: this.data.resend?.support_email ?? null,
+        mail_logo_url: this.data.resend?.logo_url ?? null,
+        mail_sender_name: this.data.resend?.sender_name ?? null,
+        mail_sender_role: this.data.resend?.sender_role ?? null,
+        mail_whatsapp_number: this.data.resend?.whatsapp_number ?? null,
+        mail_primary_color: this.data.resend?.primary_color ?? null,
+        mail_product_name: this.data.resend?.product_name ?? null,
       })
       .subscribe({
-        next: () => {
+        next: (res) => {
           this.savingSettings = false;
-          this.successSettings = 'Configurações salvas.';
-          this.toast.success('Configurações salvas', 'Os parâmetros da plataforma foram atualizados.');
+          this.successSettings = 'Parâmetros salvos.';
+          this.toast.success('Parâmetros salvos', 'As configurações da plataforma foram atualizadas.');
+          if (res.data) {
+            this.applySettingsData(res.data);
+          }
         },
         error: () => {
           this.savingSettings = false;
-          this.error = 'Não foi possível salvar as configurações.';
+          this.error = 'Não foi possível salvar os parâmetros.';
           this.toast.error('Erro', this.error);
         },
       });
   }
 
-  submitStatus(): void {
-    this.error = '';
-    this.successStatus = '';
-    this.savingStatus = true;
-    this.plataformaService
-      .updateStatus({
-        status: this.serviceStatus,
-        severity: this.serviceStatusSeverity,
-        message: this.serviceStatusMessage.trim() || null,
-        components: this.serviceComponents,
-      })
-      .subscribe({
-        next: () => {
-          this.savingStatus = false;
-          this.successStatus = 'Status atualizado.';
-          this.toast.success('Status atualizado', 'O status operacional foi gravado.');
-        },
-        error: () => {
-          this.savingStatus = false;
-          this.error = 'Não foi possível atualizar o status.';
-          this.toast.error('Erro', this.error);
-        },
-      });
+  onSettingsUpdated(data: PlatformSettingsData): void {
+    this.applySettingsData(data);
   }
 
-  getComponentKeys(): string[] {
-    return Object.keys(this.componentOptions);
+  private applySettingsData(d: PlatformSettingsData): void {
+    this.data = d;
+    this.productName = d.product_name ?? '';
+    this.trialDays = d.trial_days ?? 14;
+    this.graceDays = d.grace_days ?? 7;
+    this.blockMode = d.block_mode ?? 'soft';
+    this.multiEmpresaPlan = d.multi_empresa_plan ?? '';
   }
 }

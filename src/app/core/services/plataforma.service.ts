@@ -80,6 +80,37 @@ export interface PlatformPlan {
   updated_at?: string | null;
 }
 
+export interface PlatformMinioSettings {
+  endpoint?: string | null;
+  access_key?: string | null;
+  region?: string;
+  submissions_bucket?: string;
+  attachments_bucket?: string;
+  assets_bucket?: string;
+  invoices_bucket?: string;
+  configured?: boolean;
+  secret_key_preview?: string | null;
+}
+
+export interface PlatformResendSettings {
+  mailer?: 'resend' | 'log';
+  from_address?: string;
+  from_name?: string;
+  support_email?: string | null;
+  logo_url?: string | null;
+  logo_path?: string | null;
+  logo_preview_url?: string | null;
+  signature_photo_path?: string | null;
+  signature_photo_preview_url?: string | null;
+  sender_name?: string | null;
+  sender_role?: string | null;
+  whatsapp_number?: string | null;
+  primary_color?: string;
+  product_name?: string | null;
+  configured?: boolean;
+  api_key_preview?: string | null;
+}
+
 export interface PlatformSettingsData {
   product_name: string;
   base_url?: string | null;
@@ -88,6 +119,10 @@ export interface PlatformSettingsData {
   block_mode: string;
   multi_empresa_plan: string;
   api_configured: boolean;
+  api_key_preview?: string | null;
+  webhook_secret_preview?: string | null;
+  minio?: PlatformMinioSettings;
+  resend?: PlatformResendSettings;
   service_status: string;
   service_status_severity: string;
   service_status_message: string;
@@ -117,6 +152,62 @@ export interface PlatformLogsResponse {
   data: PlatformAuditLog[];
   meta: { current_page: number; last_page: number; per_page: number; total: number };
   links: { first: string; last: string; prev: string | null; next: string | null };
+}
+
+export type PlatformManualEmailCategory = 'contact' | 'billing' | 'general' | 'support';
+
+export interface PlatformManualEmailCategoryOption {
+  value: PlatformManualEmailCategory;
+  label: string;
+}
+
+export interface PlatformManualEmailRecipient {
+  id: string;
+  type: 'organization' | 'lead';
+  email: string;
+  name?: string | null;
+  label: string;
+  group?: string;
+  tenant_id?: number;
+  tenant_name?: string;
+  organization_id?: number;
+  organization_name?: string;
+  email_type?: string;
+  email_type_label?: string;
+  lead_id?: number;
+}
+
+export interface PlatformManualEmailRecipientsData {
+  categories: PlatformManualEmailCategoryOption[];
+  recipients: PlatformManualEmailRecipient[];
+  mail_configured: boolean;
+  mailer: 'resend' | 'log';
+  from_address: string;
+  from_name: string;
+  whatsapp_number?: string | null;
+}
+
+export interface PlatformManualEmail {
+  id: number;
+  category: PlatformManualEmailCategory;
+  category_label: string;
+  recipient_email: string;
+  recipient_name?: string | null;
+  subject: string;
+  body_preview?: string;
+  tenant_id?: number | null;
+  tenant_name?: string | null;
+  organization_id?: number | null;
+  organization_name?: string | null;
+  lead_id?: number | null;
+  lead_name?: string | null;
+  sent_at?: string | null;
+  created_at?: string | null;
+}
+
+export interface PlatformManualEmailsResponse {
+  data: PlatformManualEmail[];
+  meta: { current_page: number; last_page: number; per_page: number; total: number };
 }
 
 @Injectable({ providedIn: 'root' })
@@ -228,8 +319,40 @@ export class PlataformaService {
     grace_days: number;
     block_mode: string;
     multi_empresa_plan: string;
-  }): Observable<unknown> {
-    return this.api.put('/platform/settings', payload);
+    asaas_base_url: string;
+    asaas_api_key?: string | null;
+    asaas_webhook_secret?: string | null;
+    minio_endpoint: string;
+    minio_access_key: string;
+    minio_secret_key?: string | null;
+    minio_region: string;
+    minio_submissions_bucket: string;
+    minio_attachments_bucket: string;
+    minio_assets_bucket: string;
+    minio_invoices_bucket: string;
+    mail_mailer: 'resend' | 'log';
+    resend_api_key?: string | null;
+    mail_from_address: string;
+    mail_from_name: string;
+    mail_support_email?: string | null;
+    mail_logo_url?: string | null;
+    mail_sender_name?: string | null;
+    mail_sender_role?: string | null;
+    mail_whatsapp_number?: string | null;
+    mail_primary_color?: string | null;
+    mail_product_name?: string | null;
+  }): Observable<{ data?: PlatformSettingsData; message?: string }> {
+    return this.api.put<{ data?: PlatformSettingsData; message?: string }>('/platform/settings', payload);
+  }
+
+  uploadEmailBranding(
+    type: 'logo' | 'signature',
+    file: File
+  ): Observable<{ message?: string; data?: { type: string; path: string; url?: string | null; resend?: PlatformResendSettings } }> {
+    const form = new FormData();
+    form.append('type', type);
+    form.append('file', file);
+    return this.api.postFormData('/platform/settings/email-branding/upload', form);
   }
 
   updateStatus(payload: {
@@ -243,6 +366,27 @@ export class PlataformaService {
 
   getPlatformLogs(page = 1): Observable<PlatformLogsResponse> {
     return this.api.get<PlatformLogsResponse>('/platform/logs', { page });
+  }
+
+  getManualEmailRecipients(): Observable<{ data: PlatformManualEmailRecipientsData }> {
+    return this.api.get<{ data: PlatformManualEmailRecipientsData }>('/platform/emails/recipients');
+  }
+
+  getManualEmails(page = 1): Observable<PlatformManualEmailsResponse> {
+    return this.api.get<PlatformManualEmailsResponse>('/platform/emails', { page });
+  }
+
+  sendManualEmail(payload: {
+    category: PlatformManualEmailCategory;
+    to_email: string;
+    to_name?: string | null;
+    subject: string;
+    body: string;
+    tenant_id?: number | null;
+    organization_id?: number | null;
+    lead_id?: number | null;
+  }): Observable<{ data: PlatformManualEmail; message?: string }> {
+    return this.api.post<{ data: PlatformManualEmail; message?: string }>('/platform/emails/send', payload);
   }
 
   /**

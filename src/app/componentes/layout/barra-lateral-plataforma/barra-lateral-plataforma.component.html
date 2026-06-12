@@ -37,10 +37,10 @@
        z-button
        zType="ghost"
        class="shell-sidebar-nav w-full justify-start gap-2 px-2.5 font-normal text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground [&.router-link-active]:border-none [&.router-link-active]:bg-sidebar-primary/14 [&.router-link-active]:font-semibold [&.router-link-active]:text-sidebar-primary"
-       [zTooltip]="tooltipQuandoColapsada('Clientes (tenants)')"
+       [zTooltip]="tooltipQuandoColapsada('Clientes')"
     >
       <span class="material-symbols-outlined shrink-0 text-[19px]">apartment</span>
-      <span class="sidebar-label">Clientes (tenants)</span>
+      <span class="sidebar-label">Clientes</span>
     </a>
 
     <a routerLink="/plataforma/organizacoes-online"
@@ -97,6 +97,17 @@
     >
       <span class="material-symbols-outlined shrink-0 text-[19px]">payments</span>
       <span class="sidebar-label">Faturas / cobranças</span>
+    </a>
+
+    <a routerLink="/plataforma/emails"
+       routerLinkActive="router-link-active"
+       z-button
+       zType="ghost"
+       class="shell-sidebar-nav w-full justify-start gap-2 px-2.5 font-normal text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground [&.router-link-active]:border-none [&.router-link-active]:bg-sidebar-primary/14 [&.router-link-active]:font-semibold [&.router-link-active]:text-sidebar-primary"
+       [zTooltip]="tooltipQuandoColapsada('E-mails')"
+    >
+      <span class="material-symbols-outlined shrink-0 text-[19px]">mail</span>
+      <span class="sidebar-label">E-mails</span>
     </a>
 
     <a routerLink="/plataforma/notificacoes"

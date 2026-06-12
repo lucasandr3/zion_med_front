@@ -1,0 +1,347 @@
+<div class="servicos-tab">
+  <div class="config-tab-panel">
+    @if (activeServico() === null) {
+      <z-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
+        <div class="section-header">
+          <div class="icon-wrap"><span class="material-symbols-outlined">dns</span></div>
+          <div>
+            <span class="section-title">Serviços da plataforma</span>
+            <p class="section-subtitle">Infraestrutura e integrações de infra. Selecione um serviço para configurar.</p>
+          </div>
+        </div>
+        <div class="section-body">
+          <div class="servicos-grid">
+            @for (item of serviceCards; track item.id) {
+              <button type="button" class="servico-card text-left" (click)="selecionarServico(item.id)">
+                <div class="flex items-start justify-between gap-2">
+                  <div class="flex min-w-0 items-center gap-2.5">
+                    <span class="servico-icon-wrap">
+                      <span class="material-symbols-outlined text-primary" style="font-size: 20px">{{ item.icon }}</span>
+                    </span>
+                    <div class="min-w-0">
+                      <div class="text-sm font-semibold text-foreground">{{ item.name }}</div>
+                      <div class="mt-0.5 line-clamp-2 text-xs text-muted-foreground">{{ item.description }}</div>
+                    </div>
+                  </div>
+                  <z-badge [zType]="statusBadgeType(item.status)" zShape="pill" class="shrink-0">
+                    {{ item.statusLabel }}
+                  </z-badge>
+                </div>
+                @if (item.meta) {
+                  <p class="mt-2.5 truncate font-mono text-xs text-muted-foreground">{{ item.meta }}</p>
+                }
+                <span class="servico-card__action mt-3 inline-flex items-center gap-1 text-xs font-medium text-primary">
+                  Configurar
+                  <span class="material-symbols-outlined" style="font-size: 16px">chevron_right</span>
+                </span>
+              </button>
+            }
+          </div>
+        </div>
+      </z-card>
+    } @else {
+      <div class="servico-detail">
+        <button type="button" class="servico-back" (click)="voltarLista()">
+          <span class="material-symbols-outlined" style="font-size: 18px">arrow_back</span>
+          Voltar aos serviços
+        </button>
+
+        @if (error) {
+          <p class="settings-alert settings-alert--error">{{ error }}</p>
+        }
+
+        @switch (activeServico()) {
+          @case ('asaas') {
+            <form class="settings-form" (ngSubmit)="submitSettings()">
+              <z-card class="settings-card">
+                <header class="settings-card__header">
+                  <h3 class="settings-card__title">Asaas</h3>
+                  <p class="settings-card__subtitle">
+                    Pagamentos e assinaturas.
+                    @if (apiConfigured) {
+                      <span class="settings-badge settings-badge--ok">API configurada</span>
+                    } @else {
+                      <span class="settings-badge settings-badge--warn">API não configurada</span>
+                    }
+                  </p>
+                </header>
+                <div class="settings-fields">
+                  <div class="settings-field settings-field--wide">
+                    <label for="asaas_base_url" class="settings-label">URL da API</label>
+                    <input type="url" id="asaas_base_url" [(ngModel)]="asaasBaseUrl" name="asaas_base_url" z-input zSize="sm" class="w-full font-mono text-xs" required maxlength="255" placeholder="https://sandbox.asaas.com/api/v3" />
+                  </div>
+                  <div class="settings-field-row">
+                    <div class="settings-field">
+                      <label for="asaas_api_key" class="settings-label">Chave da API</label>
+                      <input type="password" id="asaas_api_key" [(ngModel)]="asaasApiKey" name="asaas_api_key" z-input zSize="sm" class="w-full font-mono text-xs" maxlength="512" autocomplete="new-password" [placeholder]="asaasApiKeyPreview ? 'Atual: ' + asaasApiKeyPreview : 'Cole a chave de acesso'" />
+                      <p class="settings-hint">Deixe em branco para manter a chave atual.</p>
+                    </div>
+                    <div class="settings-field">
+                      <label for="asaas_webhook_secret" class="settings-label">Segredo do webhook</label>
+                      <input type="password" id="asaas_webhook_secret" [(ngModel)]="asaasWebhookSecret" name="asaas_webhook_secret" z-input zSize="sm" class="w-full font-mono text-xs" maxlength="512" autocomplete="new-password" [placeholder]="asaasWebhookPreview ? 'Atual: ' + asaasWebhookPreview : 'Opcional'" />
+                      <p class="settings-hint">Deixe em branco para manter o valor atual.</p>
+                    </div>
+                  </div>
+                </div>
+                @if (successSettings) {
+                  <p class="settings-alert settings-alert--success">{{ successSettings }}</p>
+                }
+                <div class="settings-form-actions settings-form-actions--inline">
+                  <button type="submit" z-button zSize="sm" [zDisabled]="savingSettings" [zLoading]="savingSettings">
+                    {{ savingSettings ? 'Salvando…' : 'Salvar Asaas' }}
+                  </button>
+                </div>
+              </z-card>
+            </form>
+          }
+
+          @case ('resend') {
+            <form class="settings-form" (ngSubmit)="submitSettings()">
+              <z-card class="settings-card">
+                <header class="settings-card__header">
+                  <h3 class="settings-card__title">Resend (e-mail)</h3>
+                  <p class="settings-card__subtitle">
+                    E-mails transacionais.
+                    @if (resendConfigured) {
+                      <span class="settings-badge settings-badge--ok">{{ mailMailer === 'log' ? 'Modo log' : 'Configurado' }}</span>
+                    } @else {
+                      <span class="settings-badge settings-badge--warn">Incompleto</span>
+                    }
+                  </p>
+                </header>
+                <div class="settings-fields">
+                  <div class="settings-field-row">
+                    <div class="settings-field">
+                      <label for="mail_mailer" class="settings-label">Driver</label>
+                      <select id="mail_mailer" [(ngModel)]="mailMailer" name="mail_mailer" z-input class="w-full">
+                        <option value="resend">Resend (produção)</option>
+                        <option value="log">Log (desenvolvimento)</option>
+                      </select>
+                    </div>
+                    <div class="settings-field">
+                      <label for="resend_api_key" class="settings-label">Chave da API</label>
+                      <input type="password" id="resend_api_key" [(ngModel)]="resendApiKey" name="resend_api_key" z-input zSize="sm" class="w-full font-mono text-xs" maxlength="512" autocomplete="new-password" [placeholder]="resendApiKeyPreview ? 'Atual: ' + resendApiKeyPreview : 're_...'" [disabled]="mailMailer === 'log'" />
+                    </div>
+                  </div>
+                  <div class="settings-field-row">
+                    <div class="settings-field">
+                      <label for="mail_from_address" class="settings-label">Remetente (e-mail)</label>
+                      <input type="email" id="mail_from_address" [(ngModel)]="mailFromAddress" name="mail_from_address" z-input zSize="sm" class="w-full font-mono text-xs" required maxlength="255" />
+                    </div>
+                    <div class="settings-field">
+                      <label for="mail_from_name" class="settings-label">Remetente (nome)</label>
+                      <input type="text" id="mail_from_name" [(ngModel)]="mailFromName" name="mail_from_name" z-input zSize="sm" class="w-full" required maxlength="128" />
+                    </div>
+                  </div>
+                  <div class="settings-field-row">
+                    <div class="settings-field">
+                      <label for="mail_support_email" class="settings-label">E-mail de suporte</label>
+                      <input type="email" id="mail_support_email" [(ngModel)]="mailSupportEmail" name="mail_support_email" z-input zSize="sm" class="w-full font-mono text-xs" maxlength="255" />
+                    </div>
+                    <div class="settings-field">
+                      <label for="mail_product_name" class="settings-label">Nome nos e-mails</label>
+                      <input type="text" id="mail_product_name" [(ngModel)]="mailProductName" name="mail_product_name" z-input zSize="sm" class="w-full" maxlength="128" />
+                    </div>
+                  </div>
+                  <div class="settings-field-row">
+                    <div class="settings-field">
+                      <label for="mail_sender_name" class="settings-label">Nome na assinatura</label>
+                      <input type="text" id="mail_sender_name" [(ngModel)]="mailSenderName" name="mail_sender_name" z-input zSize="sm" class="w-full" maxlength="128" placeholder="Ex: Lucas Vieira" />
+                    </div>
+                    <div class="settings-field">
+                      <label for="mail_sender_role" class="settings-label">Cargo na assinatura</label>
+                      <input type="text" id="mail_sender_role" [(ngModel)]="mailSenderRole" name="mail_sender_role" z-input zSize="sm" class="w-full" maxlength="128" placeholder="Ex: Suporte Gestgo" />
+                    </div>
+                  </div>
+                  <div class="settings-field-row">
+                    <div class="settings-field">
+                      <label for="mail_whatsapp_number" class="settings-label">WhatsApp (botão no e-mail)</label>
+                      <input type="text" id="mail_whatsapp_number" [(ngModel)]="mailWhatsappNumber" name="mail_whatsapp_number" z-input zSize="sm" class="w-full font-mono text-xs" maxlength="32" placeholder="5511999999999" />
+                    </div>
+                    <div class="settings-field settings-field--narrow">
+                      <label for="mail_primary_color" class="settings-label">Cor primária</label>
+                      <input type="text" id="mail_primary_color" [(ngModel)]="mailPrimaryColor" name="mail_primary_color" z-input zSize="sm" class="w-full font-mono text-xs" maxlength="7" />
+                    </div>
+                  </div>
+                  <div class="settings-field-row mail-branding-upload-row">
+                    <div class="settings-field">
+                      <label class="settings-label">Logo da empresa</label>
+                      <div class="mail-branding-preview">
+                        @if (mailLogoPreviewUrl) {
+                          <img [src]="mailLogoPreviewUrl" alt="Logo nos e-mails" class="mail-branding-preview__logo" />
+                        } @else {
+                          <span class="mail-branding-preview__empty">Nenhum logo enviado</span>
+                        }
+                      </div>
+                      <label class="mail-branding-upload-btn">
+                        <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" class="sr-only" (change)="onMailLogoSelected($event)" [disabled]="uploadingLogo" />
+                        <span z-button zType="outline" zSize="sm">{{ uploadingLogo ? 'Enviando…' : 'Enviar logo' }}</span>
+                      </label>
+                      <p class="settings-hint">PNG, JPG ou WebP. Máx. 2 MB. Também pode usar URL pública abaixo.</p>
+                    </div>
+                    <div class="settings-field">
+                      <label class="settings-label">Foto de assinatura</label>
+                      <div class="mail-branding-preview mail-branding-preview--avatar">
+                        @if (mailSignaturePreviewUrl) {
+                          <img [src]="mailSignaturePreviewUrl" alt="Foto de assinatura" class="mail-branding-preview__avatar" />
+                        } @else {
+                          <span class="mail-branding-preview__empty">Nenhuma foto enviada</span>
+                        }
+                      </div>
+                      <label class="mail-branding-upload-btn">
+                        <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" class="sr-only" (change)="onMailSignatureSelected($event)" [disabled]="uploadingSignature" />
+                        <span z-button zType="outline" zSize="sm">{{ uploadingSignature ? 'Enviando…' : 'Enviar foto' }}</span>
+                      </label>
+                      <p class="settings-hint">Aparece na assinatura do e-mail (60×60 px).</p>
+                    </div>
+                  </div>
+                  <div class="settings-field settings-field--wide">
+                    <label for="mail_logo_url" class="settings-label">Logo (URL pública alternativa)</label>
+                    <input type="url" id="mail_logo_url" [(ngModel)]="mailLogoUrl" name="mail_logo_url" z-input zSize="sm" class="w-full font-mono text-xs" maxlength="512" placeholder="https://..." />
+                  </div>
+                </div>
+                @if (successSettings) {
+                  <p class="settings-alert settings-alert--success">{{ successSettings }}</p>
+                }
+                <div class="settings-form-actions settings-form-actions--inline">
+                  <button type="submit" z-button zSize="sm" [zDisabled]="savingSettings" [zLoading]="savingSettings">
+                    {{ savingSettings ? 'Salvando…' : 'Salvar Resend' }}
+                  </button>
+                </div>
+              </z-card>
+            </form>
+          }
+
+          @case ('minio') {
+            <form class="settings-form" (ngSubmit)="submitSettings()">
+              <z-card class="settings-card">
+                <header class="settings-card__header">
+                  <h3 class="settings-card__title">MinIO</h3>
+                  <p class="settings-card__subtitle">
+                    Armazenamento S3-compatível.
+                    @if (minioConfigured) {
+                      <span class="settings-badge settings-badge--ok">Configurado</span>
+                    } @else {
+                      <span class="settings-badge settings-badge--warn">Incompleto</span>
+                    }
+                  </p>
+                </header>
+                <div class="settings-fields">
+                  <div class="settings-field settings-field--wide">
+                    <label for="minio_endpoint" class="settings-label">Endpoint</label>
+                    <input type="url" id="minio_endpoint" [(ngModel)]="minioEndpoint" name="minio_endpoint" z-input zSize="sm" class="w-full font-mono text-xs" required maxlength="255" />
+                  </div>
+                  <div class="settings-field-row">
+                    <div class="settings-field">
+                      <label for="minio_access_key" class="settings-label">Access key</label>
+                      <input type="text" id="minio_access_key" [(ngModel)]="minioAccessKey" name="minio_access_key" z-input zSize="sm" class="w-full font-mono text-xs" required maxlength="128" autocomplete="off" />
+                    </div>
+                    <div class="settings-field">
+                      <label for="minio_secret_key" class="settings-label">Secret key</label>
+                      <input type="password" id="minio_secret_key" [(ngModel)]="minioSecretKey" name="minio_secret_key" z-input zSize="sm" class="w-full font-mono text-xs" maxlength="512" autocomplete="new-password" [placeholder]="minioSecretPreview ? 'Atual: ' + minioSecretPreview : 'Secret key'" />
+                    </div>
+                  </div>
+                  <div class="settings-field settings-field--narrow">
+                    <label for="minio_region" class="settings-label">Região</label>
+                    <input type="text" id="minio_region" [(ngModel)]="minioRegion" name="minio_region" z-input zSize="sm" class="w-full" required maxlength="64" />
+                  </div>
+                  <div class="settings-field-row settings-field-row--quad">
+                    <div class="settings-field">
+                      <label for="minio_submissions_bucket" class="settings-label">Bucket submissões</label>
+                      <input type="text" id="minio_submissions_bucket" [(ngModel)]="minioSubmissionsBucket" name="minio_submissions_bucket" z-input zSize="sm" class="w-full font-mono text-xs" required maxlength="128" />
+                    </div>
+                    <div class="settings-field">
+                      <label for="minio_attachments_bucket" class="settings-label">Bucket anexos</label>
+                      <input type="text" id="minio_attachments_bucket" [(ngModel)]="minioAttachmentsBucket" name="minio_attachments_bucket" z-input zSize="sm" class="w-full font-mono text-xs" required maxlength="128" />
+                    </div>
+                    <div class="settings-field">
+                      <label for="minio_assets_bucket" class="settings-label">Bucket assets</label>
+                      <input type="text" id="minio_assets_bucket" [(ngModel)]="minioAssetsBucket" name="minio_assets_bucket" z-input zSize="sm" class="w-full font-mono text-xs" required maxlength="128" />
+                    </div>
+                    <div class="settings-field">
+                      <label for="minio_invoices_bucket" class="settings-label">Bucket faturas</label>
+                      <input type="text" id="minio_invoices_bucket" [(ngModel)]="minioInvoicesBucket" name="minio_invoices_bucket" z-input zSize="sm" class="w-full font-mono text-xs" required maxlength="128" />
+                    </div>
+                  </div>
+                </div>
+                @if (successSettings) {
+                  <p class="settings-alert settings-alert--success">{{ successSettings }}</p>
+                }
+                <div class="settings-form-actions settings-form-actions--inline">
+                  <button type="submit" z-button zSize="sm" [zDisabled]="savingSettings" [zLoading]="savingSettings">
+                    {{ savingSettings ? 'Salvando…' : 'Salvar MinIO' }}
+                  </button>
+                </div>
+              </z-card>
+            </form>
+          }
+
+          @case ('status') {
+            <form class="settings-form" (ngSubmit)="submitStatus()">
+              <z-card class="settings-card">
+                <header class="settings-card__header">
+                  <h3 class="settings-card__title">Status do serviço</h3>
+                  <p class="settings-card__subtitle">
+                    Exibido em
+                    <a [href]="statusPageUrl" target="_blank" rel="noopener" class="text-primary underline">{{ statusPageUrl }}</a>
+                  </p>
+                </header>
+                <div class="settings-fields">
+                  <div class="settings-field-row">
+                    <div class="settings-field">
+                      <label for="service_status" class="settings-label">Status geral</label>
+                      <select id="service_status" [(ngModel)]="serviceStatus" name="status" z-input class="w-full">
+                        <option value="operational">Operacional</option>
+                        <option value="degraded">Degradado</option>
+                        <option value="outage">Indisponível</option>
+                        <option value="maintenance">Manutenção</option>
+                      </select>
+                    </div>
+                    <div class="settings-field">
+                      <label for="service_severity" class="settings-label">Criticidade</label>
+                      <select id="service_severity" [(ngModel)]="serviceStatusSeverity" name="severity" z-input class="w-full">
+                        <option value="none">Nenhuma</option>
+                        <option value="low">Baixa</option>
+                        <option value="medium">Média</option>
+                        <option value="high">Alta</option>
+                        <option value="critical">Crítica</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="settings-field settings-field--wide">
+                    <label for="service_status_message" class="settings-label">Mensagem (opcional)</label>
+                    <textarea id="service_status_message" [(ngModel)]="serviceStatusMessage" name="message" rows="2" z-input class="w-full" maxlength="500"></textarea>
+                  </div>
+                  <div class="settings-field settings-field--wide">
+                    <p class="settings-label">Componentes</p>
+                    <div class="settings-components">
+                      @for (key of getComponentKeys(); track key) {
+                        <div class="settings-component-row">
+                          <span class="settings-component-label">{{ componentOptions[key] }}</span>
+                          <select [(ngModel)]="serviceComponents[key]" [name]="'comp_' + key" z-input class="settings-component-select text-xs">
+                            <option value="operational">Operacional</option>
+                            <option value="degraded">Degradado</option>
+                            <option value="outage">Indisponível</option>
+                            <option value="maintenance">Manutenção</option>
+                          </select>
+                        </div>
+                      }
+                    </div>
+                  </div>
+                </div>
+                @if (successStatus) {
+                  <p class="settings-alert settings-alert--success">{{ successStatus }}</p>
+                }
+                <div class="settings-form-actions settings-form-actions--inline">
+                  <button type="submit" z-button [zDisabled]="savingStatus" [zLoading]="savingStatus">
+                    {{ savingStatus ? 'Atualizando…' : 'Atualizar status' }}
+                  </button>
+                </div>
+              </z-card>
+            </form>
+          }
+        }
+      </div>
+    }
+  </div>
+</div>

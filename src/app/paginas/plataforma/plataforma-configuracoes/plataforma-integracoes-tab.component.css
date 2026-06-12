@@ -2,13 +2,6 @@
   width: 100%;
 }
 
-.config-tab-panel {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  padding: 1rem 1.25rem 1.5rem;
-}
-
 .section-card {
   border: 1px solid color-mix(in srgb, var(--primary) 20%, var(--border));
 }
@@ -55,6 +48,12 @@
 @media (min-width: 768px) {
   .sistemas-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1280px) {
+  .sistemas-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
