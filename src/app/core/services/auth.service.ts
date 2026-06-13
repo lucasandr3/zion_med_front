@@ -28,6 +28,8 @@ export interface User {
   ui_dark_mode?: boolean | null;
   /** `null` = padrão (header/sidebar como superfície). `tinted` | `sidebar_dark` persistidos na API. */
   ui_shell_preset?: string | null;
+  /** `null` = lateral. `horizontal` = menu no topo. */
+  ui_nav_layout?: string | null;
   /** URL assinada temporária (API) quando existe assinatura guardada no servidor. */
   electronic_signature_url?: string | null;
   electronic_signature_updated_at?: string | null;

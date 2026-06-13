@@ -536,7 +536,7 @@ export class LinkBioComponent implements OnInit {
     data$.subscribe({
       next: (s) => this.aplicarEstadoLinkBio(s),
       error: () => {
-        this.erro = 'Não foi possível carregar o Link Bio.';
+        this.erro = 'Não foi possível carregar o link na bio.';
       },
     });
   }
@@ -871,7 +871,7 @@ export class LinkBioComponent implements OnInit {
         this.atualizarPreviewUrl();
         this.previewModelsTimestamp = Date.now();
         this.enviandoFotoProfissionalLinkBio = false;
-        this.toast.success('Foto enviada', 'A foto do profissional foi atualizada no Link Bio.');
+        this.toast.success('Foto enviada', 'A foto do profissional foi atualizada no link na bio.');
       },
       error: (err: unknown) => {
         this.enviandoFotoProfissionalLinkBio = false;

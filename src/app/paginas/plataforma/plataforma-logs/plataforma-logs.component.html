@@ -23,29 +23,35 @@
     }
 
     <div class="zm-content-enter">
-      <z-card class="gap-0 overflow-hidden py-0 shadow-sm **:data-[slot=card-content]:p-0">
-        <div class="overflow-x-auto">
+      <z-card class="zm-table-card gap-0 py-0 shadow-sm **:data-[slot=card-content]:p-0">
+        <div class="zm-table-wrap">
           <table z-table zSize="compact" class="text-xs">
             <thead z-table-header>
               <tr z-table-row>
-                <th z-table-head class="py-2 pr-3">Data / Hora</th>
-                <th z-table-head class="py-2 px-3">Ação</th>
-                <th z-table-head class="py-2 px-3">Empresa</th>
-                <th z-table-head class="py-2 pl-3">Detalhe</th>
+                <th z-table-head>Data / Hora</th>
+                <th z-table-head>Ação</th>
+                <th z-table-head>Empresa</th>
+                <th z-table-head>Detalhe</th>
               </tr>
             </thead>
             <tbody z-table-body>
               @for (log of logs; track log.id) {
                 <tr z-table-row>
-                  <td z-table-cell class="text-muted-foreground whitespace-nowrap py-2.5 pr-3 text-xs">{{ formatarData(log.created_at) }}</td>
-                  <td z-table-cell class="py-2.5 px-3">
-                    <span class="text-foreground inline-flex items-center gap-1 text-xs font-semibold">
+                  <td z-table-cell>
+                    <span class="zm-cell-muted whitespace-nowrap">{{ formatarData(log.created_at) }}</span>
+                  </td>
+                  <td z-table-cell>
+                    <span class="zm-row-title inline-flex items-center gap-1">
                       <span class="material-symbols-outlined text-primary text-base">info</span>
                       {{ actionLabel(log.action) }}
                     </span>
                   </td>
-                  <td z-table-cell class="text-foreground py-2.5 px-3">{{ log.organization_name ?? '—' }}</td>
-                  <td z-table-cell class="text-muted-foreground py-2.5 pl-3 text-xs">{{ detalheTexto(log) }}</td>
+                  <td z-table-cell>
+                    <span class="zm-cell-muted">{{ log.organization_name ?? '—' }}</span>
+                  </td>
+                  <td z-table-cell>
+                    <span class="zm-cell-muted">{{ detalheTexto(log) }}</span>
+                  </td>
                 </tr>
               } @empty {
                 <tr z-table-row>

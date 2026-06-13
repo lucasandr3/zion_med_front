@@ -154,14 +154,14 @@
   } @else if (!listaPronta) {
   } @else {
     <div class="zm-content-enter">
-      <z-card class="gap-0 overflow-hidden rounded-[8px] py-0 shadow-sm **:data-[slot=card-content]:p-0">
+      <z-card class="zm-table-card gap-0 overflow-hidden rounded-[8px] py-0 shadow-sm **:data-[slot=card-content]:p-0">
         @if (envios.length === 0) {
           <div class="p-10">
             <zm-empty-state title="Nenhum envio nesta caixa." />
           </div>
         } @else {
-          <div class="overflow-x-auto">
-            <table z-table>
+          <div class="zm-table-wrap">
+            <table z-table zSize="compact">
               <thead z-table-header>
                 <tr z-table-row>
                   <th z-table-head>Template</th>
@@ -177,10 +177,10 @@
               <tbody z-table-body>
                 @for (e of envios; track e.id) {
                   <tr z-table-row>
-                    <td z-table-cell class="text-foreground">{{ e.template_name ?? '—' }}</td>
-                    <td z-table-cell class="text-foreground">{{ destinatario(e) }}</td>
-                    <td z-table-cell class="text-muted-foreground">{{ canalLabel(e.channel) }}</td>
-                    <td z-table-cell class="text-muted-foreground">{{ dataFormatada(e.sent_at) }}</td>
+                    <td z-table-cell class="zm-row-title">{{ e.template_name ?? '—' }}</td>
+                    <td z-table-cell>{{ destinatario(e) }}</td>
+                    <td z-table-cell class="zm-cell-muted">{{ canalLabel(e.channel) }}</td>
+                    <td z-table-cell class="zm-cell-muted">{{ dataFormatada(e.sent_at) }}</td>
                     <td z-table-cell>
                       <div class="flex flex-col gap-1">
                         <span class="inline-flex items-center gap-1 text-xs font-semibold" [style.color]="corEntrega(e)">

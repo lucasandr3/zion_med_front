@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, Signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ZardCardComponent } from '@/shared/components/card/card.component';
+import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
 import { PlataformaService, PlatformOrganizationPresence } from '../../../core/services/plataforma.service';
 import { LoadingService } from '../../../shared/services/loading.service';
 import { ZmSkeletonListComponent } from '../../../shared/components/skeletons';
@@ -11,7 +12,7 @@ import { ZardTableImports } from '@/shared/components/table';
   selector: 'app-plataforma-organizacoes-online',
   standalone: true,
   imports: [
-    ...ZardTableImports,CommonModule, ZardCardComponent, ZmSkeletonListComponent, ZmEmptyStateComponent],
+    ...ZardTableImports,CommonModule, ZardCardComponent, ZardBadgeComponent, ZmSkeletonListComponent, ZmEmptyStateComponent],
   templateUrl: './plataforma-organizacoes-online.component.html',
   styleUrl: './plataforma-organizacoes-online.component.css',
 })

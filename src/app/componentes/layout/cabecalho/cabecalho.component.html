@@ -1,26 +1,47 @@
-<div class="cabecalho-shell sticky top-0 z-10 w-full shrink-0">
+<div class="cabecalho-shell sticky top-0 z-10 w-full shrink-0" [class.cabecalho-shell--horizontal]="navLayoutAtual === 'horizontal'">
 <header id="top-header"
-        class="top-header flex h-[length:var(--shell-header-height)] min-h-[length:var(--shell-header-height)] w-full shrink-0 items-center justify-between px-3 lg:px-5">
-  <div class="flex items-center gap-3">
-    @if (urlVoltar) {
-      <a z-button zType="ghost" zSize="icon" class="cabecalho-toolbar-action shrink-0 rounded-lg" [routerLink]="urlVoltar"
-         [attr.aria-label]="labelVoltar">
-        <span class="material-symbols-outlined text-[21px]">arrow_back</span>
+        class="top-header flex h-[length:var(--shell-header-height)] min-h-[length:var(--shell-header-height)] w-full shrink-0 items-center justify-between gap-3 px-3 lg:px-5"
+        [class.top-header--horizontal]="navLayoutAtual === 'horizontal'">
+  <div class="top-header__start flex min-w-0 flex-1 items-center gap-2 lg:gap-3">
+    @if (navLayoutAtual === 'horizontal') {
+      <a
+        [routerLink]="homeRouterLink"
+        class="shell-horizontal-brand shell-horizontal-brand--desktop shell-horizontal-brand--gestgo"
+      >
+        <span class="shell-horizontal-brand__logo shell-horizontal-brand__logo--gestgo">
+          <img [src]="sidebarLogoSrc" alt="Gestgo" onerror="this.style.display='none'">
+        </span>
+        <span class="shell-horizontal-brand__text">
+          <span class="shell-horizontal-brand__title">Gestgo</span>
+          <span class="shell-horizontal-brand__tag">{{ brandTag }}</span>
+        </span>
       </a>
+      <span class="shell-horizontal-divider shell-horizontal-divider--desktop" aria-hidden="true"></span>
+      <app-barra-nav-horizontal
+        class="top-header__nav"
+        [context]="shellContext"
+        [notificacoesNaoLidas]="notificacoesNaoLidas"
+      />
     }
-    <button z-button zType="ghost" zSize="icon" type="button" (click)="alternarSidebar()" class="cabecalho-toolbar-action rounded-lg"
-            aria-label="Abrir ou fechar menu">
-      <span class="material-symbols-outlined text-[21px]">menu</span>
-    </button>
-    <div class="min-w-0">
-      <h2 class="truncate text-[0.9375rem] font-semibold text-foreground">{{ titulo }}</h2>
-      @if (subtitulo) {
-        <p class="mt-0.5 truncate text-xs text-muted-foreground">{{ subtitulo }}</p>
-      }
+
+    <div class="top-header__page-meta flex min-w-0 items-center gap-3"
+         [class.top-header__page-meta--compact]="navLayoutAtual === 'horizontal'">
+      <button z-button zType="ghost" zSize="icon" type="button" (click)="alternarSidebar()"
+              class="cabecalho-toolbar-action cabecalho-menu-btn shrink-0 rounded-lg"
+              [class.cabecalho-menu-btn--hidden-desktop]="navLayoutAtual === 'horizontal'"
+              aria-label="Abrir ou fechar menu">
+        <span class="material-symbols-outlined text-[21px]">menu</span>
+      </button>
+      <div class="min-w-0" [class.lg:hidden]="navLayoutAtual === 'horizontal'">
+        <h2 class="truncate text-[0.9375rem] font-semibold text-foreground">{{ titulo }}</h2>
+        @if (subtitulo) {
+          <p class="mt-0.5 truncate text-xs text-muted-foreground">{{ subtitulo }}</p>
+        }
+      </div>
     </div>
   </div>
 
-  <div class="flex items-center gap-2">
+  <div class="top-header__end flex shrink-0 items-center gap-2">
     <div class="relative header-desktop-only-block">
       <button z-button zType="ghost" zSize="icon" type="button" (click)="alternarMenuTema()" class="cabecalho-toolbar-action rounded-md"
               aria-label="Tema e aparência">
@@ -51,6 +72,7 @@
           [zMenuTriggerFor]="empresaMenuTpl"
           zPlacement="bottomRight"
           class="shell-profile-chip shell-profile-chip--header"
+          [attr.title]="nomeClinica"
           aria-label="Menu da empresa selecionada"
         >
           <z-avatar
@@ -60,19 +82,38 @@
             [zFallback]="iniciaisClinica"
             [zAlt]="logoUrlClinica ? 'Logo ' + nomeClinica : nomeClinica"
             [zPriority]="!!logoUrlClinica"
-            class="shrink-0 !bg-primary !text-primary-foreground [&>img]:object-cover [&>span]:text-[0.65rem] [&>span]:font-bold"
+            [class]="avatarChipClass"
           />
           <div class="shell-profile-chip__meta">
-            <p class="truncate text-left text-xs font-semibold text-foreground">{{ nomeClinica }}</p>
+            <p class="shell-profile-chip__title truncate text-foreground">{{ nomeClinica }}</p>
             @if (emailClinica) {
-              <p class="truncate text-left text-[0.7rem] text-muted-foreground">{{ emailClinica }}</p>
+              <p class="shell-profile-chip__sub truncate text-muted-foreground">{{ emailClinica }}</p>
             }
           </div>
-          <span class="material-symbols-outlined shrink-0 text-base text-muted-foreground" aria-hidden="true">unfold_more</span>
+          <span class="shell-profile-chip__chevron material-symbols-outlined" aria-hidden="true">expand_more</span>
         </button>
 
         <ng-template #empresaMenuTpl>
-          <div z-menu-content class="empresa-menu-popover min-w-52 rounded-lg border border-border bg-popover p-1.5 text-popover-foreground shadow-lg">
+          <div z-menu-content class="empresa-menu-popover">
+            <div class="empresa-menu-popover__header">
+              <z-avatar
+                zSize="sm"
+                zShape="circle"
+                [zSrc]="logoUrlClinica ?? ''"
+                [zFallback]="iniciaisClinica"
+                [zAlt]="logoUrlClinica ? 'Logo ' + nomeClinica : nomeClinica"
+                [zPriority]="!!logoUrlClinica"
+                [class]="avatarChipClass"
+              />
+              <div class="empresa-menu-popover__header-text">
+                <p class="empresa-menu-popover__title">{{ nomeClinica }}</p>
+                @if (emailClinica) {
+                  <p class="empresa-menu-popover__sub">{{ emailClinica }}</p>
+                }
+              </div>
+            </div>
+            <div class="empresa-menu-popover__divider" role="separator"></div>
+            <div class="empresa-menu-popover__items">
             @if (exibirTrocarEmpresa) {
               <a
                 z-menu-item
@@ -109,6 +150,64 @@
               <span class="material-symbols-outlined shrink-0 text-base" aria-hidden="true">logout</span>
               Sair
             </button>
+            </div>
+          </div>
+        </ng-template>
+      </div>
+    }
+
+    @if (navLayoutAtual === 'horizontal' && shellContext === 'plataforma' && !nomeClinica) {
+      <div class="mx-0.5 hidden h-5 w-px bg-border lg:block"></div>
+      <div class="relative hidden lg:block">
+        <button
+          z-menu
+          type="button"
+          [zMenuTriggerFor]="usuarioHeaderMenuTpl"
+          zPlacement="bottomRight"
+          class="shell-profile-chip shell-profile-chip--header"
+          [attr.title]="nomeUsuario"
+          aria-label="Menu do usuário"
+        >
+          <z-avatar
+            zSize="sm"
+            zShape="circle"
+            [zFallback]="iniciaisUsuario"
+            [zAlt]="nomeUsuario"
+            [class]="avatarChipClass"
+          />
+          <div class="shell-profile-chip__meta">
+            <p class="shell-profile-chip__title truncate text-foreground">{{ nomeUsuario }}</p>
+            <p class="shell-profile-chip__sub truncate text-muted-foreground">{{ emailUsuario }}</p>
+          </div>
+          <span class="shell-profile-chip__chevron material-symbols-outlined" aria-hidden="true">expand_more</span>
+        </button>
+
+        <ng-template #usuarioHeaderMenuTpl>
+          <div z-menu-content class="empresa-menu-popover">
+            <div class="empresa-menu-popover__header">
+              <z-avatar
+                zSize="sm"
+                zShape="circle"
+                [zFallback]="iniciaisUsuario"
+                [zAlt]="nomeUsuario"
+                [class]="avatarChipClass"
+              />
+              <div class="empresa-menu-popover__header-text">
+                <p class="empresa-menu-popover__title">{{ nomeUsuario }}</p>
+                <p class="empresa-menu-popover__sub">{{ emailUsuario }}</p>
+              </div>
+            </div>
+            <div class="empresa-menu-popover__divider" role="separator"></div>
+            <div class="empresa-menu-popover__items">
+            <a z-menu-item routerLink="/conta/perfil" class="gap-2 text-inherit no-underline">
+              <span class="material-symbols-outlined shrink-0 text-base" aria-hidden="true">person</span>
+              Meu perfil
+            </a>
+            <button type="button" z-menu-item zType="destructive" class="w-full gap-2" (click)="sair()">
+              <span class="material-symbols-outlined shrink-0 text-base" aria-hidden="true">logout</span>
+              Sair
+            </button>
+            </div>
           </div>
         </ng-template>
       </div>
@@ -157,6 +256,31 @@
           <span class="material-symbols-outlined theme-drawer-pick-icon">brightness_auto</span>
           <span class="theme-drawer-pick-label">Automático</span>
         </button>
+      </div>
+    </section>
+
+    <section class="cabecalho-theme-sheet__section" aria-labelledby="theme-sheet-nav-layout">
+      <p id="theme-sheet-nav-layout" class="theme-drawer-section-label">Disposição do menu</p>
+      <p class="theme-drawer-shell-hint">
+        <strong>Lateral:</strong> barra esquerda.
+        <strong>Horizontal:</strong> marca, menu e usuário no topo.
+      </p>
+      <div class="theme-drawer-option-grid theme-drawer-option-grid--duo">
+        @for (opt of navLayoutOptions; track opt.id) {
+          <button
+            type="button"
+            z-button
+            zFull
+            [zType]="navLayoutAtual === opt.id ? 'default' : 'outline'"
+            class="theme-drawer-pick-btn"
+            (click)="aplicarNavLayout(opt.id)"
+            [attr.aria-pressed]="navLayoutAtual === opt.id"
+            [attr.title]="opt.description"
+          >
+            <span class="material-symbols-outlined theme-drawer-pick-icon">{{ opt.icon }}</span>
+            <span class="theme-drawer-pick-label">{{ opt.label }}</span>
+          </button>
+        }
       </div>
     </section>
 

@@ -1,5 +1,6 @@
 <div class="permissoes-page relative min-h-[320px]">
-  <div class="mb-6 flex flex-wrap items-center justify-end gap-3">
+  <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
+    <zm-page-back-link />
     <a z-button zSize="sm" routerLink="/organizacao/permissoes/novo" class="no-underline" title="Criar novo perfil de permissões">
       <span class="material-symbols-outlined text-base">add</span>
       Novo perfil
@@ -13,9 +14,9 @@
     <p class="text-sm text-destructive">{{ erro }}</p>
   } @else {
     <div class="zm-content-enter">
-      <z-card class="gap-0 overflow-hidden rounded-lg py-0 shadow-sm **:data-[slot=card-content]:p-0">
-        <div class="overflow-x-auto">
-          <table z-table>
+      <z-card class="zm-table-card gap-0 overflow-hidden rounded-lg py-0 shadow-sm **:data-[slot=card-content]:p-0">
+        <div class="zm-table-wrap">
+          <table z-table zSize="compact">
             <thead z-table-header>
               <tr z-table-row>
                 <th z-table-head>Nome</th>
@@ -38,14 +39,14 @@
                 </tr>
               } @else {
                 @for (p of papeis; track p.slug) {
-                  <tr z-table-row class="hover:bg-muted/50">
+                  <tr z-table-row>
                     <td z-table-cell>
-                      <span class="font-medium text-foreground">{{ p.label }}</span>
+                      <span class="zm-row-title">{{ p.label }}</span>
                     </td>
                     <td z-table-cell>
-                      <code class="text-xs text-muted-foreground">{{ p.slug }}</code>
+                      <code class="zm-cell-mono zm-cell-muted">{{ p.slug }}</code>
                     </td>
-                    <td z-table-cell class="text-muted-foreground">{{ p.user_count }}</td>
+                    <td z-table-cell class="zm-cell-muted">{{ p.user_count }}</td>
                     <td z-table-cell>
                       @if (p.is_system) {
                         <z-badge zType="outline" zShape="pill" class="inline-flex items-center gap-1">

@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { TemplatesService, Template, TemplateCategory } from '../../core/services/templates.service';
 import { LoadingService } from '../../shared/services/loading.service';
 import { ZmSkeletonTemplateFormularioComponent } from '../../shared/components/skeletons';
+import { ZmPageBackLinkComponent } from '../../shared/components/ui';
 import { ToastService } from '../../core/services/toast.service';
 import { ZardComboboxComponent, type ZardComboboxOption } from '@/shared/components/combobox';
 import { ZardCardComponent } from '@/shared/components/card/card.component';
@@ -20,6 +21,7 @@ import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
     RouterLink,
     FormsModule,
     ZmSkeletonTemplateFormularioComponent,
+    ZmPageBackLinkComponent,
     ZardComboboxComponent,
     ZardCardComponent,
     ZardButtonComponent,

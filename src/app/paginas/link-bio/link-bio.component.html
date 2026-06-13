@@ -18,7 +18,7 @@
         <z-tab label="Visão geral" icon="insights">
           <div class="link-bio-tab-panel link-bio-fade-in">
             <z-card class="link-bio-header-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-5 shadow-sm **:data-[slot=card-content]:px-5">
-              <p class="link-bio-eyebrow text-[11px] font-semibold uppercase tracking-wider mb-2">Link Bio</p>
+              <p class="link-bio-eyebrow text-[11px] font-semibold uppercase tracking-wider mb-2">Link na bio</p>
               <div class="flex flex-wrap items-center gap-3 mb-4">
                 <h1 class="link-bio-page-title text-[22px] font-semibold m-0">{{ state.clinic.name }}</h1>
                 <z-badge zShape="pill" zType="outline" class="link-bio-status-published gap-1.5">
@@ -655,7 +655,7 @@
       <div class="link-bio-side-preview-col flex flex-col items-center min-w-0 self-start w-full max-lg:max-w-[360px] max-lg:mx-auto">
         <div class="link-bio-phone link-bio-phone--side w-full max-w-[320px] lg:max-w-none">
           @if (previewUrlSafe) {
-            <iframe [src]="previewUrlSafe" title="Preview Link Bio" class="link-bio-phone-screen w-full h-full border-0" loading="lazy"></iframe>
+            <iframe [src]="previewUrlSafe" title="Preview do link na bio" class="link-bio-phone-screen w-full h-full border-0" loading="lazy"></iframe>
           } @else {
             <div class="link-bio-phone-screen w-full h-full min-h-[400px] flex flex-col items-center justify-center rounded-xl text-sm" style="background:var(--c-soft);color:var(--c-muted);border:1px dashed var(--c-border)">
               <span class="material-symbols-outlined mb-2" style="font-size:32px">smartphone</span>

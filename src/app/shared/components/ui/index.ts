@@ -3,6 +3,7 @@ export { ZmPaginationComponent } from './zm-pagination.component';
 export { ZmEmptyStateComponent } from './zm-empty-state.component';
 export { ZardEmptyComponent } from '../empty';
 export { ZmAssinaturaBloqueadaCardComponent } from './zm-assinatura-bloqueada-card/zm-assinatura-bloqueada-card.component';
+export { ZmPageBackLinkComponent } from './zm-page-back-link.component';
 /** @deprecated Use `ZardComboboxComponent` de `@/shared/components/combobox` */
 export { ZmSearchableSelectComponent } from './zm-searchable-select.component';
 /** @deprecated Use `ZardComboboxOption` */

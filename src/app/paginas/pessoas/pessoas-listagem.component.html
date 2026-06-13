@@ -1,6 +1,6 @@
 <div class="pessoas-page relative min-h-[320px]">
-  <div class="pessoas-toolbar mb-6 flex flex-wrap items-center gap-3">
-    <div class="form-search-wrap pessoas-toolbar__search">
+  <div class="zm-list-toolbar zm-list-toolbar--search-wide">
+    <div class="form-search-wrap zm-list-toolbar__search">
       <span class="material-symbols-outlined form-search-icon">search</span>
       <input
         type="text"
@@ -12,41 +12,40 @@
         aria-label="Buscar pessoas"
       />
     </div>
-    <div class="pessoas-toolbar__actions flex flex-wrap items-center gap-2">
+    <div class="zm-list-toolbar__actions">
       <button
         z-button
-        zType="default"
+        zType="outline"
         zSize="sm"
         type="button"
-        class="pessoas-btn pessoas-btn--filtros shrink-0 gap-2"
+        class="shrink-0 gap-1.5"
         (click)="openFilterDrawer()"
         [attr.aria-expanded]="filterDrawerOpen ? 'true' : 'false'"
         [class.ring-2]="temFiltrosAtivos"
         [class.ring-ring]="temFiltrosAtivos"
         title="Filtros"
       >
-        <span class="material-symbols-outlined text-lg">tune</span>
+        <span class="material-symbols-outlined text-base" aria-hidden="true">tune</span>
         Filtros
         @if (temFiltrosAtivos) {
-          <z-badge zShape="pill" class="!h-5 !min-w-[1.25rem] !border-white/30 !bg-white/20 !px-1.5 !py-0 !text-[0.65rem] !leading-none font-semibold !text-white">{{ quantidadeFiltrosAtivos }}</z-badge>
+          <z-badge zType="secondary" zShape="pill">{{ quantidadeFiltrosAtivos }}</z-badge>
         }
       </button>
       <a
         z-button
-        zType="default"
         zSize="sm"
         routerLink="/pessoas/criar"
-        class="pessoas-btn pessoas-btn--nova shrink-0 gap-2 no-underline"
+        class="shrink-0 gap-1.5 no-underline"
         title="Nova pessoa"
       >
-        <span class="material-symbols-outlined text-lg">person_add</span>
+        <span class="material-symbols-outlined text-base" aria-hidden="true">person_add</span>
         Nova pessoa
       </a>
     </div>
   </div>
 
   @if (listaPronta && !erro) {
-    <p class="mb-3 text-sm text-muted-foreground">{{ contagemTexto() }}</p>
+    <p class="zm-count-label mb-3">{{ contagemTexto() }}</p>
   }
 
   @if (erro) {
@@ -58,14 +57,14 @@
   } @else if (!listaPronta && !erro) {
   } @else if (!erro) {
     <div class="zm-content-enter">
-      <z-card class="gap-0 overflow-hidden rounded-[8px] py-0 shadow-sm **:data-[slot=card-content]:p-0">
+      <z-card class="zm-table-card gap-0 overflow-hidden rounded-[8px] py-0 shadow-sm **:data-[slot=card-content]:p-0">
         @if (pessoas.length === 0) {
           <div class="p-10">
             <zm-empty-state title="Nenhuma pessoa encontrada." actionLabel="Cadastrar primeira pessoa" actionLink="/pessoas/criar" />
           </div>
         } @else {
-          <div class="overflow-x-auto">
-            <table z-table>
+          <div class="zm-table-wrap">
+            <table z-table zSize="compact">
               <thead z-table-header>
                 <tr z-table-row>
                   <th z-table-head>Pessoa / Código</th>
@@ -78,25 +77,25 @@
               </thead>
               <tbody z-table-body>
                 @for (p of pessoas; track p.id) {
-                  <tr z-table-row class="pessoa-row cursor-pointer hover:bg-muted/60" (click)="irParaDetalhe(p, $event)">
+                  <tr z-table-row class="zm-row-clickable" (click)="irParaDetalhe(p, $event)">
                     <td z-table-cell>
-                      <div class="font-medium text-foreground">{{ p.name }}</div>
-                      <div class="mt-0.5 font-mono text-xs text-muted-foreground">{{ p.code }}</div>
+                      <div class="zm-row-title">{{ p.name }}</div>
+                      <div class="zm-row-sub zm-cell-mono">{{ p.code }}</div>
                     </td>
-                    <td z-table-cell class="text-foreground">
+                    <td z-table-cell>
                       @if (p.phone) {
-                        <div>{{ p.phone }}</div>
+                        <div class="zm-row-title">{{ p.phone }}</div>
                       }
                       @if (p.email) {
-                        <div class="text-xs text-muted-foreground">{{ p.email }}</div>
+                        <div class="zm-row-sub">{{ p.email }}</div>
                       }
                       @if (!p.phone && !p.email) {
-                        <span class="text-muted-foreground">—</span>
+                        <span class="zm-cell-muted">—</span>
                       }
                     </td>
-                    <td z-table-cell class="text-muted-foreground">{{ formatarDataCurta(p.birth_date) }}</td>
-                    <td z-table-cell class="text-foreground">{{ p.protocols_count ?? 0 }}</td>
-                    <td z-table-cell class="text-muted-foreground">{{ dataFormatada(p.last_protocol_at) }}</td>
+                    <td z-table-cell class="zm-cell-muted">{{ formatarDataCurta(p.birth_date) }}</td>
+                    <td z-table-cell>{{ p.protocols_count ?? 0 }}</td>
+                    <td z-table-cell class="zm-cell-muted">{{ dataFormatada(p.last_protocol_at) }}</td>
                     <td z-table-cell>
                       @if (p.status === 'active') {
                         <span class="text-xs font-semibold" style="color: var(--c-success)">Ativa</span>
@@ -190,10 +189,10 @@
       <footer class="zm-filter-sheet__footer">
         <button
           z-button
-          zType="default"
+          zType="outline"
           zSize="sm"
           type="button"
-          class="zm-filter-btn zm-filter-btn--limpar min-w-0 flex-1 gap-2"
+          class="min-w-0 flex-1 gap-2"
           (click)="limparFiltros()"
         >
           <span class="material-symbols-outlined shrink-0 text-lg">filter_alt_off</span>
@@ -201,10 +200,9 @@
         </button>
         <button
           z-button
-          zType="default"
           zSize="sm"
           type="button"
-          class="zm-filter-btn zm-filter-btn--aplicar min-w-0 flex-1 gap-2"
+          class="min-w-0 flex-1 gap-2"
           (click)="aplicarFiltros()"
         >
           <span class="material-symbols-outlined shrink-0 text-lg">check</span>

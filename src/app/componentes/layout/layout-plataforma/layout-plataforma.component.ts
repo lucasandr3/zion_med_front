@@ -8,10 +8,11 @@ import { NotificacoesService } from '../../../core/services/notificacoes.service
 import { SidebarMobileService } from '../../../core/services/sidebar-mobile.service';
 import { PlataformaHeaderService } from '../../../core/services/plataforma-header.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { ZmPageBackLinkComponent } from '../../../shared/components/ui';
 @Component({
   selector: 'app-layout-plataforma',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, BarraLateralPlataformaComponent, CabecalhoComponent],
+  imports: [CommonModule, RouterOutlet, BarraLateralPlataformaComponent, CabecalhoComponent, ZmPageBackLinkComponent],
   templateUrl: './layout-plataforma.component.html',
   styleUrl: './layout-plataforma.component.css',
 })
@@ -20,6 +21,7 @@ export class LayoutPlataformaComponent implements OnInit, OnDestroy {
   subtituloPagina: string | null = null;
   urlVoltar: string | null = null;
   labelVoltar = 'Voltar';
+  voltarIntegrado = false;
   notificacoesNaoLidas = 0;
   private router = inject(Router);
   private notif = inject(NotificacoesService);
@@ -33,11 +35,18 @@ export class LayoutPlataformaComponent implements OnInit, OnDestroy {
     while (route.firstChild) {
       route = route.firstChild;
     }
-    const data = (route.data ?? {}) as { titulo?: string; subtitulo?: string; urlVoltar?: string; labelVoltar?: string };
+    const data = (route.data ?? {}) as {
+      titulo?: string;
+      subtitulo?: string;
+      urlVoltar?: string;
+      labelVoltar?: string;
+      voltarIntegrado?: boolean;
+    };
     this.tituloPagina = data.titulo ?? 'Plataforma';
     this.subtituloPagina = data.subtitulo ?? null;
     this.urlVoltar = data.urlVoltar ?? null;
     this.labelVoltar = data.labelVoltar ?? this.labelVoltar;
+    this.voltarIntegrado = data.voltarIntegrado === true;
   }
 
   ngOnInit(): void {

@@ -1,0 +1,64 @@
+<nav class="shell-horizontal-nav" aria-label="Menu principal">
+  @for (secao of secoesVisiveis; track secao.id) {
+    @if (secao.visibleItems.length === 1) {
+      @let item = secao.visibleItems[0];
+      <a
+        [routerLink]="item.route"
+        routerLinkActive="shell-horizontal-nav__trigger--active"
+        [routerLinkActiveOptions]="{ exact: !!item.exact }"
+        class="shell-horizontal-nav__trigger shell-horizontal-nav__trigger--link"
+      >
+        <span class="material-symbols-outlined shell-horizontal-nav__icon">{{ secao.icon }}</span>
+        <span class="shell-horizontal-nav__label">{{ secao.label }}</span>
+      </a>
+    } @else {
+      <div class="shell-horizontal-nav__group">
+        <button
+          type="button"
+          z-menu
+          [zMenuTriggerFor]="secaoMenuTpl"
+          zPlacement="bottomLeft"
+          class="shell-horizontal-nav__trigger"
+          [class.shell-horizontal-nav__trigger--active]="secaoAtiva(secao)"
+          [attr.aria-label]="'Menu ' + secao.label"
+        >
+          <span class="material-symbols-outlined shell-horizontal-nav__icon">{{ secao.icon }}</span>
+          <span class="shell-horizontal-nav__label">{{ secao.label }}</span>
+          <span class="material-symbols-outlined shell-horizontal-nav__chevron">expand_more</span>
+        </button>
+
+        <ng-template #secaoMenuTpl>
+          <div z-menu-content class="shell-horizontal-nav__dropdown">
+            @for (item of secao.visibleItems; track item.route) {
+              <a
+                z-menu-item
+                [routerLink]="item.route"
+                class="shell-horizontal-nav__dropdown-item gap-2 text-inherit no-underline"
+                [class.shell-horizontal-nav__dropdown-item--active]="linkAtivo(item)"
+              >
+                <span class="material-symbols-outlined shell-horizontal-nav__dropdown-icon">{{ item.icon }}</span>
+                <span>{{ item.label }}</span>
+              </a>
+            }
+          </div>
+        </ng-template>
+      </div>
+    }
+  }
+
+  @for (item of avulsosVisiveis; track item.route) {
+    <a
+      [routerLink]="item.route"
+      routerLinkActive="shell-horizontal-nav__trigger--active"
+      class="shell-horizontal-nav__trigger shell-horizontal-nav__trigger--link"
+    >
+      <span class="material-symbols-outlined shell-horizontal-nav__icon">{{ item.icon }}</span>
+      <span class="shell-horizontal-nav__label">{{ item.label }}</span>
+      @if (item.badge === 'notifications' && notificacoesNaoLidas > 0) {
+        <z-badge zShape="pill" class="shell-horizontal-nav__badge">
+          {{ notificacoesNaoLidas > 99 ? '99+' : notificacoesNaoLidas }}
+        </z-badge>
+      }
+    </a>
+  }
+</nav>

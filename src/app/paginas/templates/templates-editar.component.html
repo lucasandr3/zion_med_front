@@ -118,6 +118,7 @@
           }
 
           <div class="flex flex-wrap items-center gap-3 pt-2">
+            <zm-page-back-link />
             <button
               type="submit"
               z-button
@@ -131,7 +132,7 @@
               }
               {{ salvando ? 'Salvando…' : 'Salvar alterações' }}
             </button>
-            <a routerLink="/templates" z-button zType="outline" zSize="sm" class="no-underline" title="Voltar para modelos">
+            <a routerLink="/templates" z-button zType="ghost" zSize="sm" class="no-underline" title="Cancelar edição">
               Cancelar
             </a>
           </div>

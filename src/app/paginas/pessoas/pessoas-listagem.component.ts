@@ -36,7 +36,6 @@ import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
     ZardComboboxComponent,
   ],
   templateUrl: './pessoas-listagem.component.html',
-  styleUrl: './pessoas-listagem.component.css',
 })
 export class PessoasListagemComponent implements OnInit, OnDestroy {
   pessoas: Pessoa[] = [];

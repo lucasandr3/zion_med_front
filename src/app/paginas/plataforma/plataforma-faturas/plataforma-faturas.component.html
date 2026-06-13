@@ -1,10 +1,7 @@
-<!-- Listagem de faturas e cobranças da plataforma -->
 <div class="relative min-h-[300px] space-y-4">
-  <div class="flex items-center justify-between">
-    <p class="text-xs text-muted-foreground">
-      {{ faturas.length }} {{ faturas.length === 1 ? 'fatura' : 'faturas' }}.
-    </p>
-  </div>
+  <p class="zm-count-label">
+    {{ faturas.length }} {{ faturas.length === 1 ? 'fatura' : 'faturas' }}
+  </p>
 
   @if (showSkeleton()) {
     <zm-skeleton-list [rows]="6" />
@@ -16,36 +13,45 @@
       </div>
     } @else {
       <div class="zm-content-enter">
-        <z-card class="gap-0 overflow-hidden py-0 shadow-sm **:data-[slot=card-content]:p-0">
-          <div class="overflow-x-auto">
+        <z-card class="zm-table-card gap-0 py-0 shadow-sm **:data-[slot=card-content]:p-0">
+          <div class="zm-table-wrap">
             <table z-table zSize="compact" class="text-xs">
               <thead z-table-header>
                 <tr z-table-row>
-                  <th z-table-head class="py-2 pr-3">Cliente</th>
-                  <th z-table-head class="py-2 px-3">Empresa</th>
-                  <th z-table-head class="py-2 px-3">Referência</th>
-                  <th z-table-head class="py-2 px-3 text-right">Valor</th>
-                  <th z-table-head class="py-2 px-3">Vencimento</th>
-                  <th z-table-head class="py-2 px-3">Status</th>
-                  <th z-table-head class="py-2 pl-3">Pago em</th>
+                  <th z-table-head>Empresa</th>
+                  <th z-table-head class="text-right">Valor</th>
+                  <th z-table-head>Vencimento</th>
+                  <th z-table-head>Status</th>
                 </tr>
               </thead>
               <tbody z-table-body>
                 @for (f of faturas; track f.id) {
                   <tr z-table-row>
-                    <td z-table-cell class="py-2.5 pr-3">
-                      <span class="text-xs font-semibold text-foreground">{{ f.tenant_name }}</span>
+                    <td z-table-cell>
+                      <div class="zm-row-title">{{ f.clinic_name }}</div>
+                      @if (f.tenant_name) {
+                        <div class="zm-row-sub">{{ f.tenant_name }}</div>
+                      }
                     </td>
-                    <td z-table-cell class="text-muted-foreground py-2.5 px-3">{{ f.clinic_name }}</td>
-                    <td z-table-cell class="text-muted-foreground py-2.5 px-3">{{ f.reference || '—' }}</td>
-                    <td z-table-cell class="text-muted-foreground py-2.5 px-3 text-right">{{ formatarValor(f.amount, f.currency) }}</td>
-                    <td z-table-cell class="text-muted-foreground py-2.5 px-3">{{ formatarData(f.due_date) }}</td>
-                    <td z-table-cell class="text-muted-foreground py-2.5 px-3">{{ rotuloStatusFatura(f.status) }}</td>
-                    <td z-table-cell class="text-muted-foreground py-2.5 pl-3">{{ formatarData(f.paid_at) }}</td>
+                    <td z-table-cell class="text-right">
+                      <span class="zm-row-title">{{ formatarValor(f.amount, f.currency) }}</span>
+                    </td>
+                    <td z-table-cell>
+                      <span class="zm-cell-muted whitespace-nowrap">{{ formatarData(f.due_date) }}</span>
+                    </td>
+                    <td z-table-cell>
+                      @if (f.status) {
+                        <z-badge [zType]="badgeTipoStatus(f.status)" zShape="pill">
+                          {{ rotuloStatusFatura(f.status) }}
+                        </z-badge>
+                      } @else {
+                        <span class="zm-cell-muted">—</span>
+                      }
+                    </td>
                   </tr>
                 } @empty {
                   <tr z-table-row>
-                    <td z-table-cell colspan="7" class="py-0">
+                    <td z-table-cell colspan="4" class="py-0">
                       <zm-empty-state
                         title="Nenhuma fatura cadastrada."
                         description="As faturas geradas para os clientes serão exibidas aqui."

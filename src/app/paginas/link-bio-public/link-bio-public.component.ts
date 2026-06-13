@@ -91,7 +91,7 @@ export class LinkBioPublicComponent implements OnInit, OnDestroy {
         this.updateMeta();
       },
       error: () => {
-        this.erro = 'Link Bio não encontrado.';
+        this.erro = 'Link na bio não encontrado.';
       },
     });
   }

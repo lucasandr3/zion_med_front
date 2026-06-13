@@ -6,15 +6,16 @@
        data-shell="plataforma"
        class="sidebar fixed inset-y-0 left-0 z-30 flex flex-col lg:translate-x-0"
        [class.-translate-x-full]="!sidebarOpenMobile">
-  <div class="sidebar-brand-strip flex h-14 shrink-0 items-center border-b border-sidebar-border bg-sidebar px-3.5">
-    <div class="sidebar-brand flex w-full min-w-0 items-center gap-2.5">
-      <div class="sidebar-logo-chip flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-primary p-0.5">
-        <img [src]="sidebarLogoSrc" alt="Gestgo" class="h-full w-full rounded-md object-contain" onerror="this.style.display='none'">
+  <div class="sidebar-brand-strip sidebar-brand-strip--gestgo flex h-14 shrink-0 items-center border-b px-3.5">
+    <a routerLink="/plataforma" class="sidebar-brand sidebar-brand--gestgo flex w-full min-w-0 items-center gap-2.5 no-underline">
+      <div class="sidebar-logo-chip sidebar-logo-chip--gestgo flex shrink-0 items-center justify-center">
+        <img [src]="sidebarLogoSrc" alt="Gestgo" class="sidebar-logo-chip__img" onerror="this.style.display='none'">
       </div>
-      <span class="sidebar-label truncate text-sm font-semibold text-sidebar-foreground">
-        Gestgo — Plataforma
+      <span class="sidebar-brand__text sidebar-label min-w-0">
+        <span class="sidebar-brand__title">Gestgo</span>
+        <span class="sidebar-brand__tag">Plataforma</span>
       </span>
-    </div>
+    </a>
   </div>
 
   <nav class="flex-1 space-y-0.5 overflow-y-auto px-2 py-3">

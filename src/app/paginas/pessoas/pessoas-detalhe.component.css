@@ -228,41 +228,8 @@
   color: var(--c-error);
 }
 
-.pessoa-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.84rem;
-}
-
-.pessoa-table th,
-.pessoa-table td {
-  padding: 0.72rem 0.95rem;
-  text-align: left;
-}
-
-.pessoa-table thead tr {
-  border-bottom: 1px solid var(--c-border);
-}
-
-.pessoa-table th {
-  color: var(--c-text);
-  font-size: 0.79rem;
-  font-weight: 700;
-}
-
-.pessoa-table tbody tr {
-  border-bottom: 1px solid var(--c-border);
-}
-
-.pessoa-table tbody tr:last-child {
-  border-bottom: none;
-}
-
-.pessoa-table td {
-  color: var(--c-text);
-}
-
-.pessoa-table__mono {
+.pessoa-table__mono,
+.pessoa-table .zm-cell-mono {
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
   font-size: 0.78rem;
 }

@@ -346,9 +346,9 @@
             <div class="p-10 text-center text-sm text-muted-foreground">Nenhum modelo nesta categoria com os filtros atuais.</div>
           </z-card>
         } @else if (modoDetalhe === 'tabela') {
-          <z-card class="gap-0 overflow-hidden rounded-[8px] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
-            <div class="overflow-x-auto">
-              <table z-table class="templates-table w-full text-sm">
+          <z-card class="zm-table-card gap-0 overflow-hidden rounded-[8px] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
+            <div class="zm-table-wrap">
+              <table z-table zSize="compact" class="templates-table w-full text-sm">
                 <thead z-table-header>
                   <tr z-table-row>
                     <th z-table-head class="w-1/2">Nome</th>
@@ -358,11 +358,11 @@
                 </thead>
                 <tbody z-table-body>
                   @for (t of itensVisiveis(grupoDetalhe); track t.id) {
-                    <tr z-table-row class="border-t border-border transition-colors hover:bg-muted/60">
-                      <td z-table-cell class="px-5 py-3 text-[0.8125rem]">
-                        <span class="font-medium text-foreground">{{ t.name }}</span>
+                    <tr z-table-row>
+                      <td z-table-cell>
+                        <span class="zm-row-title">{{ t.name }}</span>
                       </td>
-                      <td z-table-cell class="px-4 py-3">
+                      <td z-table-cell>
                         <div class="flex flex-wrap items-center gap-1.5">
                           @if (t.is_active) {
                             <z-badge zType="default" zShape="pill">Ativo</z-badge>

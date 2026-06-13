@@ -9,6 +9,7 @@ import { ConfirmDialogService } from '../../core/services/confirm-dialog.service
 import { AuthService } from '../../core/services/auth.service';
 
 import { ZardCardComponent } from '@/shared/components/card/card.component';
+import { ZmPageBackLinkComponent } from '../../shared/components/ui';
 import { ZardButtonComponent } from '@/shared/components/button/button.component';
 import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
 import { ZardTableImports } from '@/shared/components/table';
@@ -21,6 +22,7 @@ import { ZardTableImports } from '@/shared/components/table';
     RouterLink,
     ZmSkeletonPessoaDetalheComponent,
     ZardCardComponent,
+    ZmPageBackLinkComponent,
     ZardButtonComponent,
     ZardBadgeComponent,
   ],

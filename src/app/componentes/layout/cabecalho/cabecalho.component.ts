@@ -6,16 +6,25 @@ import { AuthService } from '../../../core/services/auth.service';
 import { UserAppearanceService } from '../../../core/services/user-appearance.service';
 import { SidebarMobileService } from '../../../core/services/sidebar-mobile.service';
 import { ClinicaService } from '../../../core/services/clinica.service';
+import { ShellNavLayoutService } from '../../../core/services/shell-nav-layout.service';
 import {
+  applyNavLayoutToDom,
   applyShellPresetToDom,
   GESTGO_APPEARANCE_MODE_LS,
+  GESTGO_NAV_LAYOUT_LS,
   GESTGO_SHELL_PRESET_LS,
+  NAV_LAYOUT_UI_OPTIONS,
+  normalizeNavLayout,
   normalizeShellPreset,
   normalizeThemeKey,
+  readNavLayoutFromDom,
   SHELL_PRESET_UI_OPTIONS,
+  type NavLayout,
   type ShellPreset,
 } from '../../../core/services/user-appearance.sync';
 import { absoluteMediaUrl } from '../../../core/utils/absolute-media-url';
+import { resolveSidebarLogoSrc } from '../../../core/utils/sidebar-logo.util';
+import { BarraNavHorizontalComponent } from '../barra-nav-horizontal/barra-nav-horizontal.component';
 import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
 import { ZardButtonComponent } from '@/shared/components/button/button.component';
 import { ZardMenuImports } from '../../../shared/components/menu/menu.imports';
@@ -55,7 +64,7 @@ const TEMAS_GRADE_ORDER = [
 @Component({
   selector: 'app-cabecalho',
   standalone: true,
-  imports: [CommonModule, RouterLink, ZardButtonComponent, ZardBadgeComponent, ZardAvatarComponent, ...ZardMenuImports],
+  imports: [CommonModule, RouterLink, ZardButtonComponent, ZardBadgeComponent, ZardAvatarComponent, BarraNavHorizontalComponent, ...ZardMenuImports],
   templateUrl: './cabecalho.component.html',
   styleUrl: './cabecalho.component.css',
 })
@@ -63,11 +72,11 @@ export class CabecalhoComponent implements OnInit, OnDestroy {
   @Input() titulo = 'Gestgo';
   /** Subtítulo exibido abaixo do título no header (ex.: "Visão geral dos clientes utilizando o Gestgo."). */
   @Input() subtitulo: string | null = null;
-  @Input() urlVoltar: string | null = null;
-  @Input() labelVoltar = 'Voltar';
   @Input() notificacoesNaoLidas = 0;
   /** Quando informado, o ícone de notificações no header usa esta rota (ex.: /plataforma/notificacoes). */
   @Input() notificacoesRouterLink = '/notificacoes';
+  /** Contexto do shell: tenant (`app`) ou plataforma. */
+  @Input() shellContext: 'app' | 'plataforma' = 'app';
   nomeClinica: string | null = null;
   emailClinica: string | null = null;
   logoUrlClinica: string | null = null;
@@ -91,6 +100,18 @@ export class CabecalhoComponent implements OnInit, OnDestroy {
     return this.shellPresetOptions.find((o) => o.id === this.shellPresetAtual);
   }
 
+  get homeRouterLink(): string {
+    return this.shellContext === 'plataforma' ? '/plataforma' : '/dashboard';
+  }
+
+  get brandTitulo(): string {
+    return 'Gestgo';
+  }
+
+  get brandTag(): string {
+    return 'Plataforma';
+  }
+
   /** Ícone de notificações só para quem tem permissão no contexto atual (tenant ou plataforma). */
   get podeVerNotificacoesNoHeader(): boolean {
     return this.auth.hasPermission('notifications.access');
@@ -107,9 +128,18 @@ export class CabecalhoComponent implements OnInit, OnDestroy {
   temaAtual = 'ocean-blue';
   modoEscuro = false;
   shellPresetAtual: ShellPreset = 'default';
+  navLayoutAtual: NavLayout = 'sidebar';
   readonly shellPresetOptions = SHELL_PRESET_UI_OPTIONS;
+  readonly navLayoutOptions = NAV_LAYOUT_UI_OPTIONS;
+  /** Classes padrão do `z-avatar` (Zard) nos chips de perfil do header. */
+  readonly avatarChipClass =
+    'shrink-0 !bg-primary !text-primary-foreground [&>img]:object-cover [&>span]:text-[0.65rem] [&>span]:font-bold';
   themeDrawerMode: 'light' | 'dark' | 'auto' = 'light';
   sidebarColapsada = false;
+  sidebarLogoSrc = '/assets/logo/logo.png';
+  nomeUsuario = 'Usuário';
+  iniciaisUsuario = 'U';
+  emailUsuario = '';
 
   private appearanceSub?: Subscription;
   private clinicaSub?: Subscription;
@@ -123,6 +153,7 @@ export class CabecalhoComponent implements OnInit, OnDestroy {
   private appearance = inject(UserAppearanceService);
   private sidebarMobile = inject(SidebarMobileService);
   private clinicaService = inject(ClinicaService);
+  private readonly shellNavLayout = inject(ShellNavLayoutService);
   private readonly vcr = inject(ViewContainerRef);
   private readonly zardSheet = inject(ZardSheetService);
   private temaSheetRef?: ZardSheetRef<void>;
@@ -132,8 +163,12 @@ export class CabecalhoComponent implements OnInit, OnDestroy {
     if (this.themeDrawerMode === 'auto') {
       this._applyAutoMode();
     }
-    this.appearanceSub = this.auth.appearanceApplied$.subscribe(() => this.syncTemaControlsFromBrowser());
+    this.appearanceSub = this.auth.appearanceApplied$.subscribe(() => {
+      this.syncTemaControlsFromBrowser();
+      this.shellNavLayout.refresh();
+    });
     this.syncMenuPermissoes();
+    this.syncUsuarioInfo();
     this.syncClinicInfo();
     this.clinicaSub = this.clinicaService.clinicBrandingUpdated$.subscribe(() => this.syncClinicInfo());
   }
@@ -143,6 +178,16 @@ export class CabecalhoComponent implements OnInit, OnDestroy {
     this.appearanceSub?.unsubscribe();
     this.clinicaSub?.unsubscribe();
     this._removeSysListener();
+  }
+
+  private syncUsuarioInfo(): void {
+    const u = this.auth.getUser();
+    if (u) {
+      this.nomeUsuario = u.name || 'Usuário';
+      this.emailUsuario = u.email || '';
+      this.iniciaisUsuario = this.nomeUsuario.slice(0, 2).toUpperCase() || 'U';
+    }
+    this.sidebarLogoSrc = resolveSidebarLogoSrc();
   }
 
   private syncMenuPermissoes(): void {
@@ -193,7 +238,33 @@ export class CabecalhoComponent implements OnInit, OnDestroy {
         this._removeSysListener();
       }
       this.syncShellPresetFromBrowser();
+      this.syncNavLayoutFromBrowser();
     } catch {}
+  }
+
+  /** Alinha disposição do menu com localStorage (prioridade) ou API quando persistido. */
+  private syncNavLayoutFromBrowser(): void {
+    let layout: NavLayout = 'sidebar';
+    try {
+      const ls = localStorage.getItem(GESTGO_NAV_LAYOUT_LS);
+      if (ls) {
+        layout = normalizeNavLayout(ls);
+      } else {
+        layout = readNavLayoutFromDom();
+      }
+    } catch {
+      layout = readNavLayoutFromDom();
+    }
+
+    const u = this.auth.getUser();
+    const apiLayout = u?.ui_nav_layout;
+    if (apiLayout != null && String(apiLayout).trim() !== '') {
+      layout = normalizeNavLayout(apiLayout);
+    }
+
+    this.navLayoutAtual = layout;
+    applyNavLayoutToDom(layout);
+    this.shellNavLayout.refresh();
   }
 
   /** Alinha preset do shell com usuário logado ou localStorage. */
@@ -252,6 +323,9 @@ export class CabecalhoComponent implements OnInit, OnDestroy {
 
   alternarSidebar(): void {
     const isMobile = typeof window !== 'undefined' && window.innerWidth < 1024;
+    if (!isMobile && this.navLayoutAtual === 'horizontal') {
+      return;
+    }
     if (isMobile) {
       /* Igual ao backend: apenas alternar estado; sidebar/overlay reagem por classe no elemento */
       this.sidebarMobile.setOpen(!this.sidebarMobile.isOpen);
@@ -288,8 +362,10 @@ export class CabecalhoComponent implements OnInit, OnDestroy {
       zContent: this.temaSheetTpl,
       zViewContainerRef: this.vcr,
       zSide: 'right',
-      zSize: 'lg',
+      zSize: 'custom',
+      zWidth: '22.5rem',
       zTitle: 'Tema e aparência',
+      zCustomClasses: 'cabecalho-theme-sheet-panel',
       zHideFooter: true,
       zOkText: null,
       zCancelText: null,
@@ -328,6 +404,20 @@ export class CabecalhoComponent implements OnInit, OnDestroy {
       this.appearance
         .patchAppearance({
           ui_shell_preset: canonical === 'default' ? null : canonical,
+        })
+        .subscribe({ error: () => {} });
+    }
+  }
+
+  aplicarNavLayout(layout: NavLayout): void {
+    const canonical = normalizeNavLayout(layout);
+    this.navLayoutAtual = canonical;
+    applyNavLayoutToDom(canonical);
+    this.shellNavLayout.refresh();
+    if (this.auth.isAuthenticated()) {
+      this.appearance
+        .patchAppearance({
+          ui_nav_layout: canonical === 'sidebar' ? null : canonical,
         })
         .subscribe({ error: () => {} });
     }

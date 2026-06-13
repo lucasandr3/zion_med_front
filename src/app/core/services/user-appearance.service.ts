@@ -18,6 +18,7 @@ export class UserAppearanceService {
     ui_theme?: string | null;
     ui_dark_mode?: boolean | null;
     ui_shell_preset?: string | null;
+    ui_nav_layout?: string | null;
   }): Observable<AppearancePatchResponse> {
     return this.api.patch<AppearancePatchResponse>('/me/appearance', body).pipe(
       tap((res) => {

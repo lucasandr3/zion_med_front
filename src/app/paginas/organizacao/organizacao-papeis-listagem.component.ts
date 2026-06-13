@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { OrganizationRolesService, OrganizationRoleListItem } from '../../core/services/organization-roles.service';
 import { LoadingService } from '../../shared/services/loading.service';
 import { ZmSkeletonPermissoesListagemComponent } from '../../shared/components/skeletons';
-import { ZmEmptyStateComponent } from '../../shared/components/ui';
+import { ZmEmptyStateComponent, ZmPageBackLinkComponent } from '../../shared/components/ui';
 import { ToastService } from '../../core/services/toast.service';
 import { ConfirmDialogService } from '../../core/services/confirm-dialog.service';
 import { ZardTooltipImports } from '@/shared/components/tooltip';
@@ -22,6 +22,7 @@ import { ZardTableImports } from '@/shared/components/table';
     RouterLink,
     ZmSkeletonPermissoesListagemComponent,
     ZmEmptyStateComponent,
+    ZmPageBackLinkComponent,
     ...ZardTooltipImports,
     ZardCardComponent,
     ZardButtonComponent,

@@ -6,7 +6,7 @@ const PASSWORD = '12345678';
 const TENANT_NAV_ITEMS = [
   { label: 'Dashboard', path: '/dashboard', heading: 'Dashboard' },
   { label: 'Templates', path: '/templates', heading: 'Templates' },
-  { label: 'Links públicos', path: '/links-publicos', heading: 'Links para enviar' },
+  { label: 'Formulários públicos', path: '/links-publicos', heading: 'Formulários públicos' },
   { label: 'Envios', path: '/envios', heading: 'Envios de documento' },
   { label: 'Protocolos', path: '/protocolos', heading: 'Protocolos' },
   { label: 'Pessoas', path: '/pessoas', heading: 'Pessoas' },

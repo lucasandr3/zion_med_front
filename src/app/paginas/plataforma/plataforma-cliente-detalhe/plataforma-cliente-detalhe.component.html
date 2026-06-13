@@ -1,7 +1,6 @@
-<!-- Igual ao backend: platform/tenants/show - visão do dono da plataforma -->
 <div class="relative min-h-[300px] space-y-4">
   @if (showSkeleton()) {
-    <zm-skeleton-list [rows]="6" />
+    <zm-skeleton-list [rows]="8" />
   } @else if (!listaPronta) {
   } @else {
     @if (estadoErro) {
@@ -11,70 +10,269 @@
     }
 
     @if (data) {
-      <div class="zm-content-enter space-y-5">
-        <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
-          <z-card class="gap-2 py-4">
-            <div class="text-muted-foreground text-[11px] font-semibold uppercase tracking-[0.18em]">Cliente</div>
-            <div class="text-foreground text-sm font-semibold">{{ data.tenant.name }}</div>
-            <div class="text-muted-foreground mt-1 text-[11px]">Slug: {{ data.tenant.slug }}</div>
-          </z-card>
-          <z-card class="gap-2 py-4">
-            <div class="text-muted-foreground text-[11px] font-semibold uppercase tracking-[0.18em]">Empresas</div>
-            <div class="text-foreground text-2xl font-semibold">{{ data.clinics.length }}</div>
-          </z-card>
-          <z-card class="gap-2 py-4">
-            <div class="text-muted-foreground text-[11px] font-semibold uppercase tracking-[0.18em]">Atalho</div>
-            <p class="text-muted-foreground m-0 text-[11px] leading-relaxed">
-              Use esta visão apenas para gestão executiva. O acesso operacional às empresas continua sendo feito pelo app do tenant.
-            </p>
-          </z-card>
+      <div class="zm-content-enter tenant-detail space-y-5">
+        <!-- KPIs -->
+        <div class="tenant-kpi-grid">
+          <div class="tenant-kpi-card">
+            <div class="tenant-kpi-icon bg-chart-4/15">
+              <span class="material-symbols-outlined text-chart-4 text-[20px]">business</span>
+            </div>
+            <div>
+              <p class="tenant-kpi-label">Empresas</p>
+              <p class="tenant-kpi-value">{{ data.summary?.clinics_count ?? data.clinics.length }}</p>
+            </div>
+          </div>
+          <div class="tenant-kpi-card">
+            <div class="tenant-kpi-icon bg-chart-1/15">
+              <span class="material-symbols-outlined text-chart-1 text-[20px]">group</span>
+            </div>
+            <div>
+              <p class="tenant-kpi-label">Usuários</p>
+              <p class="tenant-kpi-value">{{ data.summary?.users_count ?? '—' }}</p>
+            </div>
+          </div>
+          <div class="tenant-kpi-card">
+            <div class="tenant-kpi-icon bg-chart-2/15">
+              <span class="material-symbols-outlined text-chart-2 text-[20px]">person</span>
+            </div>
+            <div>
+              <p class="tenant-kpi-label">Pessoas</p>
+              <p class="tenant-kpi-value">{{ data.summary?.people_count ?? '—' }}</p>
+            </div>
+          </div>
+          <div class="tenant-kpi-card tenant-kpi-card--accent">
+            <div class="tenant-kpi-icon bg-chart-5/15">
+              <span class="material-symbols-outlined text-chart-5 text-[20px]">assignment</span>
+            </div>
+            <div>
+              <p class="tenant-kpi-label">Protocolos</p>
+              <p class="tenant-kpi-value">{{ data.summary?.form_submissions_count ?? '—' }}</p>
+            </div>
+          </div>
         </div>
 
-        <div>
-          <h2 class="text-muted-foreground mb-3 text-xs font-semibold uppercase tracking-[0.18em]">
-            Empresas do tenant
-          </h2>
-          <z-card class="gap-0 overflow-hidden py-0 shadow-sm **:data-[slot=card-content]:p-0">
-            <div class="overflow-x-auto">
-              <table z-table zSize="compact" class="text-xs">
-                <thead z-table-header>
-                  <tr z-table-row>
-                    <th z-table-head class="py-2 pr-3">Empresa</th>
-                    <th z-table-head class="py-2 px-3">Plano</th>
-                    <th z-table-head class="py-2 px-3">Status ass.</th>
-                    <th z-table-head class="py-2 px-3">Status cobrança</th>
-                    <th z-table-head class="py-2 pl-3 text-center">Usuários</th>
-                  </tr>
-                </thead>
-                <tbody z-table-body>
-                  @for (c of data.clinics; track c.id) {
-                    <tr z-table-row>
-                      <td z-table-cell class="py-2.5 pr-3">
-                        <div class="text-xs font-semibold text-foreground">{{ c.name }}</div>
-                        @if (c.address) {
-                          <div class="text-[11px] cell-muted">{{ c.address }}</div>
-                        }
-                      </td>
-                      <td z-table-cell class="py-2.5 px-3">{{ c.plan_key || '—' }}</td>
-                      <td z-table-cell class="py-2.5 px-3">{{ rotuloStatusAssinaturaCobranca(c.subscription_status) }}</td>
-                      <td z-table-cell class="py-2.5 px-3">{{ rotuloStatusAssinaturaCobranca(c.billing_status) }}</td>
-                      <td z-table-cell class="py-2.5 pl-3 text-center">{{ c.users_count }}</td>
-                    </tr>
-                  } @empty {
-                    <tr z-table-row>
-                      <td z-table-cell colspan="5" class="py-0">
-                        <zm-empty-state
-                          title="Nenhuma empresa vinculada a este tenant."
-                          description="Quando houver vínculo de empresas, elas serão listadas aqui."
-                        />
-                      </td>
-                    </tr>
-                  }
-                </tbody>
-              </table>
+        <!-- Cabeçalho do cliente -->
+        <z-card class="tenant-hero gap-0 py-0">
+          <div class="tenant-hero-inner">
+            <div class="tenant-hero-avatar" aria-hidden="true">
+              {{ iniciais(data.tenant.name) }}
             </div>
-          </z-card>
-        </div>
+            <div class="tenant-hero-body">
+              <h2 class="tenant-hero-title">{{ data.tenant.name }}</h2>
+              <p class="tenant-hero-sub">{{ data.tenant.slug }} · #{{ data.tenant.id }}</p>
+              <div class="tenant-hero-meta">
+                <span class="tenant-hero-meta-item">
+                  <span class="material-symbols-outlined">calendar_today</span>
+                  Cadastro {{ formatarDataHora(data.tenant.created_at) }}
+                </span>
+                <span class="tenant-hero-meta-item">
+                  <span class="material-symbols-outlined">update</span>
+                  Atualizado {{ formatarDataHora(data.tenant.updated_at) }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </z-card>
+
+        <!-- Empresas -->
+        <section>
+          <h2 class="tenant-section-title">Empresas vinculadas ({{ data.clinics.length }})</h2>
+
+          @if (data.clinics.length === 0) {
+            <z-card class="py-6">
+              <zm-empty-state
+                title="Nenhuma empresa vinculada a este tenant."
+                description="Quando houver vínculo de empresas, elas serão listadas aqui."
+              />
+            </z-card>
+          } @else {
+            <div class="tenant-clinic-list">
+              @for (c of data.clinics; track c.id) {
+                <z-card class="tenant-clinic-card gap-0 py-0">
+                  <!-- Cabeçalho da empresa -->
+                  <div class="tenant-clinic-header">
+                    <div class="min-w-0">
+                      <h3 class="tenant-clinic-name">{{ c.name }}</h3>
+                      <p class="tenant-clinic-sub">#{{ c.id }} · {{ c.slug || '—' }}</p>
+                    </div>
+                    <div class="tenant-clinic-badges">
+                      <z-badge [zType]="badgeTipoStatus(c.subscription_status)" zShape="pill">
+                        {{ rotuloStatusAssinaturaCobranca(c.subscription_status) }}
+                      </z-badge>
+                      <z-badge [zType]="badgeTipoStatus(c.billing_status)" zShape="pill">
+                        {{ rotuloStatusAssinaturaCobranca(c.billing_status) }}
+                      </z-badge>
+                    </div>
+                  </div>
+
+                  <!-- Grid de informações -->
+                  <div class="tenant-clinic-grid">
+                    <div class="tenant-clinic-field">
+                      <span class="tenant-field-label">Contato</span>
+                      @if (c.phone) {
+                        <div class="tenant-field-row">
+                          <span class="material-symbols-outlined tenant-field-icon">call</span>
+                          <span>{{ c.phone }}</span>
+                        </div>
+                      }
+                      @if (c.contact_email) {
+                        <div class="tenant-field-row">
+                          <span class="material-symbols-outlined tenant-field-icon">mail</span>
+                          <a class="tenant-field-link" [href]="'mailto:' + c.contact_email">{{ c.contact_email }}</a>
+                        </div>
+                      }
+                      @if (!c.phone && !c.contact_email) {
+                        <span class="tenant-field-empty">—</span>
+                      }
+                    </div>
+
+                    <div class="tenant-clinic-field">
+                      <span class="tenant-field-label">Cobrança</span>
+                      @if (c.billing_name) {
+                        <div class="tenant-field-line">{{ c.billing_name }}</div>
+                      }
+                      @if (c.billing_document) {
+                        <div class="tenant-field-line">{{ formatarDocumento(c.billing_document) }}</div>
+                      }
+                      @if (c.asaas_customer_id) {
+                        <div class="tenant-field-line tenant-field-mono">Asaas: {{ c.asaas_customer_id }}</div>
+                      }
+                      @if (!c.billing_name && !c.billing_document && !c.asaas_customer_id) {
+                        <span class="tenant-field-empty">—</span>
+                      }
+                    </div>
+
+                    <div class="tenant-clinic-field">
+                      <span class="tenant-field-label">Plano</span>
+                      <div class="tenant-field-line font-medium">{{ planoRotulo(c) }}</div>
+                      @if (c.plan_value != null) {
+                        <div class="tenant-field-line">{{ formatarValor(c.plan_value) }}/mês</div>
+                      }
+                    </div>
+
+                    <div class="tenant-clinic-field">
+                      <span class="tenant-field-label">Ciclo de cobrança</span>
+                      @if (c.trial_ends_at) {
+                        <div class="tenant-field-line">
+                          Trial até <strong>{{ formatarData(c.trial_ends_at) }}</strong>
+                        </div>
+                      }
+                      @if (c.latest_subscription?.next_due_date || c.latest_subscription?.current_period_end) {
+                        <div class="tenant-field-line tenant-field-muted">
+                          Próx. venc. {{ formatarData(c.latest_subscription?.next_due_date ?? c.latest_subscription?.current_period_end) }}
+                          @if (c.latest_subscription?.status) {
+                            · Gateway {{ rotuloStatusAssinaturaCobranca(c.latest_subscription?.status).toLowerCase() }}
+                          }
+                        </div>
+                      }
+                      @if (c.grace_ends_at) {
+                        <div class="tenant-field-line tenant-field-muted">
+                          Carência até {{ formatarData(c.grace_ends_at) }}
+                        </div>
+                      }
+                      @if (!c.trial_ends_at && !c.latest_subscription?.next_due_date && !c.latest_subscription?.current_period_end && !c.grace_ends_at) {
+                        <span class="tenant-field-empty">—</span>
+                      }
+                    </div>
+                  </div>
+
+                  <!-- Rodapé -->
+                  <div class="tenant-clinic-footer">
+                    <div class="tenant-clinic-stats">
+                      <span class="tenant-stat">
+                        <span class="material-symbols-outlined">group</span>
+                        {{ c.users_count }} {{ c.users_count === 1 ? 'usuário' : 'usuários' }}
+                      </span>
+                      <span class="tenant-stat">
+                        <span class="material-symbols-outlined">person</span>
+                        {{ c.people_count ?? 0 }} {{ (c.people_count ?? 0) === 1 ? 'pessoa' : 'pessoas' }}
+                      </span>
+                      <span class="tenant-stat">
+                        <span class="material-symbols-outlined">assignment</span>
+                        {{ c.form_submissions_count ?? 0 }} {{ (c.form_submissions_count ?? 0) === 1 ? 'protocolo' : 'protocolos' }}
+                      </span>
+                    </div>
+
+                    <div class="tenant-clinic-integrations">
+                      @if (c.whatsapp_notifications_enabled) {
+                        <span class="tenant-integration tenant-integration--whatsapp">
+                          <span class="material-symbols-outlined">chat</span>
+                          WhatsApp
+                        </span>
+                      }
+                      @if (c.feegow_enabled) {
+                        <span class="tenant-integration">
+                          <span class="material-symbols-outlined">sync</span>
+                          Feegow
+                        </span>
+                      }
+                      @if (!c.whatsapp_notifications_enabled && !c.feegow_enabled) {
+                        <span class="tenant-field-empty text-xs">Sem integrações</span>
+                      }
+                    </div>
+
+                    <button
+                      type="button"
+                      z-button
+                      zType="outline"
+                      zSize="sm"
+                      class="tenant-clinic-toggle"
+                      (click)="alternarDetalhes(c.id)"
+                    >
+                      <span class="material-symbols-outlined">
+                        {{ detalheExpandido(c.id) ? 'expand_less' : 'open_in_new' }}
+                      </span>
+                      {{ detalheExpandido(c.id) ? 'Ocultar' : 'Ver detalhes' }}
+                    </button>
+                  </div>
+
+                  @if (detalheExpandido(c.id)) {
+                    <div class="tenant-clinic-extra">
+                      @if (c.address) {
+                        <div class="tenant-extra-item">
+                          <span class="tenant-field-label">Endereço</span>
+                          <span>{{ c.address }}</span>
+                        </div>
+                      }
+                      @if (c.niche) {
+                        <div class="tenant-extra-item">
+                          <span class="tenant-field-label">Nicho</span>
+                          <span>{{ c.niche }}</span>
+                        </div>
+                      }
+                      @if (c.billing_email) {
+                        <div class="tenant-extra-item">
+                          <span class="tenant-field-label">E-mail de cobrança</span>
+                          <a class="tenant-field-link" [href]="'mailto:' + c.billing_email">{{ c.billing_email }}</a>
+                        </div>
+                      }
+                      @if (c.notification_email && c.notification_email !== c.contact_email) {
+                        <div class="tenant-extra-item">
+                          <span class="tenant-field-label">E-mail de notificação</span>
+                          <span>{{ c.notification_email }}</span>
+                        </div>
+                      }
+                      <div class="tenant-extra-item">
+                        <span class="tenant-field-label">Limite de usuários</span>
+                        <span>{{ limiteUsuarios(c) }}</span>
+                      </div>
+                      <div class="tenant-extra-item">
+                        <span class="tenant-field-label">Acesso ao app</span>
+                        <z-badge [zType]="badgeTipoAcesso(c.can_access_app)" zShape="pill">
+                          {{ c.can_access_app ? 'Liberado' : 'Bloqueado' }}
+                        </z-badge>
+                      </div>
+                      <div class="tenant-extra-item">
+                        <span class="tenant-field-label">Cadastro da empresa</span>
+                        <span>{{ formatarDataHora(c.created_at) }}</span>
+                      </div>
+                    </div>
+                  }
+                </z-card>
+              }
+            </div>
+          }
+        </section>
       </div>
     }
   }

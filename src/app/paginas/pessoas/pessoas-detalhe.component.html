@@ -27,6 +27,7 @@
             </div>
           </div>
           <div class="flex flex-wrap items-center gap-2">
+            <zm-page-back-link />
             <a
               z-button
               zType="outline"
@@ -161,9 +162,9 @@
           }
 
           @if (abaAtiva === 'protocolos') {
-            <div class="overflow-x-auto">
+            <div class="zm-table-wrap">
               @if (pessoa!.recent_protocols && pessoa!.recent_protocols.length > 0) {
-                <table z-table class="pessoa-table text-sm">
+                <table z-table zSize="compact" class="pessoa-table text-sm">
                   <thead z-table-header>
                     <tr z-table-row>
                       <th z-table-head>Protocolo</th>

@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, Signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ZardCardComponent } from '@/shared/components/card/card.component';
+import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
 import { catchError } from 'rxjs';
 import { PlataformaService, PlatformSubscription } from '../../../core/services/plataforma.service';
 import { LoadingService } from '../../../shared/services/loading.service';
@@ -13,7 +14,7 @@ import { ZardTableImports } from '@/shared/components/table';
   selector: 'app-plataforma-assinaturas',
   standalone: true,
   imports: [
-    ...ZardTableImports,CommonModule, ZardCardComponent, ZmSkeletonListComponent, ZmEmptyStateComponent],
+    ...ZardTableImports,CommonModule, ZardCardComponent, ZardBadgeComponent, ZmSkeletonListComponent, ZmEmptyStateComponent],
   templateUrl: './plataforma-assinaturas.component.html',
   styleUrl: './plataforma-assinaturas.component.css',
 })
@@ -54,5 +55,13 @@ export class PlataformaAssinaturasComponent implements OnInit {
     } catch {
       return iso;
     }
+  }
+
+  badgeTipoStatus(status?: string | null): 'default' | 'secondary' | 'destructive' | 'outline' {
+    const k = (status ?? '').toLowerCase();
+    if (['active', 'ok'].includes(k)) return 'default';
+    if (['trial', 'attention', 'past_due'].includes(k)) return 'secondary';
+    if (['blocked', 'inactive'].includes(k)) return 'destructive';
+    return 'outline';
   }
 }

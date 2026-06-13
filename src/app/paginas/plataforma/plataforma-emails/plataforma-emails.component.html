@@ -204,36 +204,36 @@
                     <zm-skeleton-list [rows]="4" />
                   </div>
                 } @else {
-                  <div class="overflow-x-auto">
+                  <div class="overflow-x-auto zm-table-wrap">
                     <table z-table zSize="compact" class="text-xs">
                       <thead z-table-header>
                         <tr z-table-row>
-                          <th z-table-head class="py-2 pr-3">Data</th>
-                          <th z-table-head class="py-2 px-3">Categoria</th>
-                          <th z-table-head class="py-2 px-3">Destinatário</th>
-                          <th z-table-head class="py-2 px-3">Assunto</th>
-                          <th z-table-head class="py-2 pl-3">Cliente / lead</th>
+                          <th z-table-head>Data</th>
+                          <th z-table-head>Categoria</th>
+                          <th z-table-head>Destinatário</th>
+                          <th z-table-head>Assunto</th>
+                          <th z-table-head>Cliente / lead</th>
                         </tr>
                       </thead>
                       <tbody z-table-body>
                         @for (email of emails; track email.id) {
                           <tr z-table-row>
-                            <td z-table-cell class="text-muted-foreground whitespace-nowrap py-2.5 pr-3">
+                            <td z-table-cell class="zm-cell-muted whitespace-nowrap">
                               {{ formatarData(email.sent_at ?? email.created_at) }}
                             </td>
-                            <td z-table-cell class="py-2.5 px-3">
+                            <td z-table-cell>
                               <z-badge zShape="pill" zType="secondary">{{ email.category_label }}</z-badge>
                             </td>
-                            <td z-table-cell class="py-2.5 px-3">
-                              <span class="text-foreground">{{ destinatarioResumo(email) }}</span>
+                            <td z-table-cell>
+                              <span class="zm-row-title">{{ destinatarioResumo(email) }}</span>
                             </td>
-                            <td z-table-cell class="py-2.5 px-3">
-                              <span class="text-foreground">{{ email.subject }}</span>
+                            <td z-table-cell>
+                              <span class="zm-row-title">{{ email.subject }}</span>
                               @if (email.body_preview) {
-                                <p class="text-muted-foreground mt-0.5 mb-0 line-clamp-1 text-[0.6875rem]">{{ email.body_preview }}</p>
+                                <p class="zm-row-sub mb-0 line-clamp-1">{{ email.body_preview }}</p>
                               }
                             </td>
-                            <td z-table-cell class="text-muted-foreground py-2.5 pl-3">
+                            <td z-table-cell class="zm-cell-muted">
                               @if (email.tenant_name || email.organization_name) {
                                 {{ email.tenant_name ?? '—' }}@if (email.organization_name) { · {{ email.organization_name }} }
                               } @else if (email.lead_name) {

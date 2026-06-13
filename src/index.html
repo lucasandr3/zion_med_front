@@ -78,6 +78,8 @@
         var shell = localStorage.getItem('gestgo_shell_preset') || 'default';
         if (shell === 'tinted') document.body.classList.add('shell-preset-tinted');
         else if (shell === 'sidebar_dark') document.body.classList.add('shell-preset-sidebar-dark');
+        var nav = localStorage.getItem('gestgo_nav_layout') || 'sidebar';
+        if (nav === 'horizontal') document.body.classList.add('shell-nav-horizontal');
       } catch(e) {}
     })();
   </script>

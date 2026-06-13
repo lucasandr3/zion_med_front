@@ -23,7 +23,7 @@ import {
 } from '../../core/services/protocolos.service';
 import { LoadingService } from '../../shared/services/loading.service';
 import { ZmSkeletonProtocoloDetalheComponent } from '../../shared/components/skeletons';
-import { ZmEmptyStateComponent } from '../../shared/components/ui';
+import { ZmEmptyStateComponent, ZmPageBackLinkComponent } from '../../shared/components/ui';
 import { ToastService } from '../../core/services/toast.service';
 import { ConfirmDialogService } from '../../core/services/confirm-dialog.service';
 import { AuthService } from '../../core/services/auth.service';
@@ -67,6 +67,7 @@ const PROTOCOLO_ABA_IDS: ProtocoloAbaId[] = [
     RouterLink,
     ZmSkeletonProtocoloDetalheComponent,
     ZmEmptyStateComponent,
+    ZmPageBackLinkComponent,
     ZardButtonComponent,
     ZardBadgeComponent,
     ZardCardComponent,
@@ -98,6 +99,7 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
   /** Rascunho dos campos internos da equipe (modelos Estética). */
   staffDraft: Record<string, unknown> = {};
   staffSalvando = false;
+  mostrarCamposVazios = false;
 
   clinicaConfig: ClinicaConfig | null = null;
   pessoaCompleta: Pessoa | null = null;
@@ -318,8 +320,10 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
   }
 
   tabLabelRespostas(): string {
-    const n = this.camposRespostas().length;
-    return n > 0 ? `Respostas (${n})` : 'Respostas';
+    const total = this.camposRespostas().length;
+    const preenchidos = this.quantidadeCamposPreenchidos();
+    if (total <= 0) return 'Respostas';
+    return preenchidos > 0 ? `Respostas (${preenchidos}/${total})` : `Respostas (${total})`;
   }
 
   tabLabelAssinaturas(): string {
@@ -751,6 +755,22 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
     return [...fields].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
   }
 
+  camposRespostasPreenchidos(): ProtocoloField[] {
+    return this.camposRespostas().filter((f) => this.campoRespostaEmDestaque(f));
+  }
+
+  camposRespostasVazios(): ProtocoloField[] {
+    return this.camposRespostas().filter((f) => !this.campoRespostaEmDestaque(f));
+  }
+
+  quantidadeCamposPreenchidos(): number {
+    return this.camposRespostasPreenchidos().length;
+  }
+
+  alternarCamposVazios(): void {
+    this.mostrarCamposVazios = !this.mostrarCamposVazios;
+  }
+
   anexoParaCampo(nameKey: string): ProtocoloAttachment | undefined {
     return this.protocolo?.attachments?.find((a) => a.field_key === nameKey);
   }
@@ -766,9 +786,12 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
     return this.protocolo?.signatures?.find((s) => s.field_key === nameKey);
   }
 
-  /** Campos longos ocupam a linha inteira da grade (como na referência de editais). */
+  /** Campos longos ocupam a linha inteira da grade. */
   respostaEmLinhaCompleta(field: ProtocoloField): boolean {
-    return field.type === 'textarea';
+    if (field.type === 'textarea' || field.type === 'file' || field.type === 'signature') {
+      return true;
+    }
+    return this.textoRespostaCampo(field).length > 72;
   }
 
   /** Texto para exibição na aba Respostas (exceto anexo/assinatura, tratados no template). */
@@ -785,7 +808,25 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
   }
 
   totalComentarios(): number {
-    return this.eventosTimeline().filter((event) => event.type?.toLowerCase() === 'comment' || !!event.body).length;
+    let total = this.eventosComentarios().length;
+    if (this.protocolo?.review_comment?.trim()) total += 1;
+    return total;
+  }
+
+  eventosComentarios(): ProtocoloEvent[] {
+    return this.eventosTimeline()
+      .filter((event) => this.ehEventoComentario(event))
+      .slice()
+      .reverse();
+  }
+
+  private ehEventoComentario(event: ProtocoloEvent): boolean {
+    const type = (event.type ?? '').toLowerCase();
+    if (type === 'comment' || type === 'comentario' || type === 'internal_comment') {
+      return true;
+    }
+    const label = (event.type_label ?? '').toLowerCase();
+    return (label.includes('coment') || label.includes('comment')) && !!event.body?.trim();
   }
 
   templateNome(): string {

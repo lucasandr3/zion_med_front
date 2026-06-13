@@ -1,6 +1,5 @@
-import { Component, Input, ViewEncapsulation } from '@angular/core';
-
-import { ZardSkeletonComponent } from '@/shared/components/skeleton';
+import { Component, Input } from '@angular/core';
+import { ZardSkeletonComponent } from '@/shared/components/skeleton/skeleton.component';
 
 @Component({
   selector: 'zm-skeleton-links-publicos',
@@ -8,32 +7,37 @@ import { ZardSkeletonComponent } from '@/shared/components/skeleton';
   imports: [ZardSkeletonComponent],
   template: `
     <div class="skel-links-publicos" aria-hidden="true">
-      @for (i of indices; track i) {
+      @for (row of rowsArray; track row) {
         <div class="skel-links-publicos__card">
-          <div class="skel-links-publicos__inner">
-            <div class="skel-links-publicos__title">
+          <div class="skel-links-publicos__head">
+            <div class="skel-links-publicos__lead">
               <z-skeleton class="skel-links-publicos__icon" />
-              <z-skeleton class="skel-links-publicos__name" />
-              <z-skeleton class="skel-links-publicos__badge" />
+              <div class="skel-links-publicos__identity">
+                <z-skeleton class="skel-links-publicos__name" />
+                <z-skeleton class="skel-links-publicos__badge" />
+              </div>
             </div>
-            <div class="skel-links-publicos__actions">
-              <z-skeleton class="skel-links-publicos__btn" />
-              <z-skeleton class="skel-links-publicos__btn" />
-              <z-skeleton class="skel-links-publicos__btn" />
+            <div class="skel-links-publicos__aside">
+              <z-skeleton class="skel-links-publicos__sub" />
+              <z-skeleton class="skel-links-publicos__menu" />
             </div>
+          </div>
+          <div class="skel-links-publicos__actions">
+            <z-skeleton class="skel-links-publicos__action" />
+            <z-skeleton class="skel-links-publicos__action" />
+            <z-skeleton class="skel-links-publicos__action" />
+            <z-skeleton class="skel-links-publicos__action" />
           </div>
         </div>
       }
     </div>
   `,
   styleUrl: './skeleton-links-publicos.component.scss',
-  encapsulation: ViewEncapsulation.None,
 })
 export class ZmSkeletonLinksPublicosComponent {
   @Input() rows = 3;
 
-  get indices(): number[] {
-    const n = Math.max(0, this.rows);
-    return Array.from({ length: n }, (_, index) => index);
+  get rowsArray(): number[] {
+    return Array.from({ length: this.rows }, (_, i) => i);
   }
 }

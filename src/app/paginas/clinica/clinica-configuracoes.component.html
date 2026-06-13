@@ -109,13 +109,13 @@
                 } @else if (enderecoSucesso) {
                   <div class="hint" style="color:var(--c-success, #22c55e)">Endereço preenchido automaticamente pelo CEP.</div>
                 } @else {
-                  <div class="hint">Aparece no cabeçalho dos PDFs e na página do Link Bio.</div>
+                  <div class="hint">Aparece no cabeçalho dos PDFs e no link na bio.</div>
                 }
               </div>
               <div class="field">
                 <label>E-mail de contato público <span class="opt">opcional</span></label>
                 <input type="email" [(ngModel)]="form.contact_email" name="contact_email" z-input zSize="sm" class="w-full" placeholder="contato@empresa.com">
-                <div class="hint">Exibido na página do Link Bio. Diferente do e-mail de notificações.</div>
+                <div class="hint">Exibido no link na bio. Diferente do e-mail de notificações.</div>
               </div>
             </div>
           </z-card>
@@ -283,7 +283,7 @@
             </div>
             <div class="section-body">
               <p class="logo-upload-intro">
-                Usada no menu lateral, PDFs, Link Bio e documentos da empresa. Prefira imagem quadrada com fundo transparente.
+                Usada no menu lateral, PDFs, link na bio e documentos da empresa. Prefira imagem quadrada com fundo transparente.
               </p>
               <div class="logo-upload-layout">
                 <div class="logo-preview-card">
@@ -883,8 +883,8 @@
                   </div>
                 } @else {
                   <div class="section-body section-body--flush">
-                    <div class="config-table-wrap">
-                      <table z-table class="w-full text-sm">
+                    <div class="config-table-wrap zm-table-wrap">
+                      <table z-table zSize="compact" class="w-full text-sm">
                         <thead z-table-header>
                           <tr z-table-row>
                             <th z-table-head>Data / Hora</th>
@@ -895,12 +895,12 @@
                         </thead>
                         <tbody z-table-body>
                           @for (log of logs; track log.id) {
-                            <tr z-table-row class="border-t border-border transition-colors hover:bg-muted/60">
-                              <td z-table-cell class="whitespace-nowrap text-sm text-muted-foreground">
+                            <tr z-table-row>
+                              <td z-table-cell class="zm-cell-muted whitespace-nowrap">
                                 {{ log.created_at | date:'dd/MM/yyyy HH:mm' }}
                               </td>
                               <td z-table-cell>
-                                <span class="inline-flex items-center gap-1 text-sm font-semibold text-foreground">
+                                <span class="zm-row-title inline-flex items-center gap-1">
                                   <span class="material-symbols-outlined text-base text-primary">info</span>
                                   {{ log.action }}
                                 </span>

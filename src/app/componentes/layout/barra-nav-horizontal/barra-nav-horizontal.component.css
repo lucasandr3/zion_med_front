@@ -1,0 +1,125 @@
+:host {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+}
+
+.shell-horizontal-nav {
+  align-items: center;
+  display: flex;
+  flex: 1;
+  gap: 0.25rem;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+  width: 100%;
+}
+
+.shell-horizontal-nav::-webkit-scrollbar {
+  display: none;
+}
+
+.shell-horizontal-nav__group {
+  flex-shrink: 0;
+  position: relative;
+}
+
+.shell-horizontal-nav__trigger {
+  align-items: center;
+  background: transparent;
+  border: none;
+  border-radius: 0.4375rem;
+  color: var(--muted-foreground);
+  cursor: pointer;
+  display: inline-flex;
+  flex-shrink: 0;
+  font-family: inherit;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  gap: 0.375rem;
+  height: 2.125rem;
+  line-height: 1.2;
+  padding: 0 0.625rem;
+  text-decoration: none;
+  transition: background-color 0.15s ease, color 0.15s ease;
+  white-space: nowrap;
+}
+
+.shell-horizontal-nav__trigger:hover,
+.shell-horizontal-nav__trigger[aria-expanded='true'] {
+  background: var(--accent);
+  color: var(--foreground);
+}
+
+.shell-horizontal-nav__trigger--active,
+.shell-horizontal-nav__trigger.router-link-active {
+  background: color-mix(in oklch, var(--primary) 14%, transparent);
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.shell-horizontal-nav__trigger--link.shell-horizontal-nav__trigger--active {
+  background: var(--primary);
+  color: var(--primary-foreground);
+}
+
+.shell-horizontal-nav__icon {
+  align-items: center;
+  display: inline-flex;
+  flex-shrink: 0;
+  font-size: 1.0625rem;
+  height: 1.0625rem;
+  justify-content: center;
+  line-height: 1;
+  width: 1.0625rem;
+}
+
+.shell-horizontal-nav__chevron {
+  font-size: 1.125rem;
+  height: 1.125rem;
+  margin-left: -0.125rem;
+  opacity: 0.72;
+  width: 1.125rem;
+}
+
+.shell-horizontal-nav__label {
+  line-height: 1.2;
+}
+
+.shell-horizontal-nav__badge {
+  height: 1rem !important;
+  min-width: 1rem !important;
+  padding: 0 0.25rem !important;
+  font-size: 0.55rem !important;
+  line-height: 1 !important;
+}
+
+.shell-horizontal-nav__dropdown {
+  min-width: 13.5rem;
+  padding: 0.375rem;
+}
+
+.shell-horizontal-nav__dropdown-item {
+  align-items: center;
+  border-radius: 0.375rem;
+  display: flex;
+  font-size: 0.8125rem;
+  width: 100%;
+}
+
+.shell-horizontal-nav__dropdown-item--active {
+  background: color-mix(in oklch, var(--primary) 12%, transparent);
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.shell-horizontal-nav__dropdown-icon {
+  align-items: center;
+  display: inline-flex;
+  flex-shrink: 0;
+  font-size: 1.0625rem;
+  height: 1.0625rem;
+  justify-content: center;
+  line-height: 1;
+  width: 1.0625rem;
+}

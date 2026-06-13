@@ -15,20 +15,76 @@ export interface PlatformTenant {
   name: string;
   slug: string;
   clinics_count: number;
+  users_count?: number;
   created_at?: string;
+  updated_at?: string;
+  subscription_status?: string | null;
+  billing_status?: string | null;
+  active_plans?: string[];
+}
+
+export interface PlatformTenantClinicSubscription {
+  id: number;
+  asaas_subscription_id?: string | null;
+  plan_key?: string | null;
+  status?: string | null;
+  current_period_end?: string | null;
+  next_due_date?: string | null;
+  created_at?: string | null;
+}
+
+export interface PlatformTenantClinic {
+  id: number;
+  name: string;
+  slug?: string;
+  niche?: string | null;
+  address?: string | null;
+  phone?: string | null;
+  contact_email?: string | null;
+  notification_email?: string | null;
+  billing_name?: string | null;
+  billing_email?: string | null;
+  billing_document?: string | null;
+  asaas_customer_id?: string | null;
+  plan_key?: string | null;
+  plan_name?: string | null;
+  plan_value?: number | null;
+  subscription_status?: string | null;
+  billing_status?: string | null;
+  trial_ends_at?: string | null;
+  grace_ends_at?: string | null;
+  can_access_app?: boolean;
+  is_on_trial?: boolean;
+  users_count: number;
+  people_count?: number;
+  form_submissions_count?: number;
+  max_users?: number | null;
+  max_organizations_per_tenant?: number | null;
+  whatsapp_notifications_enabled?: boolean;
+  feegow_enabled?: boolean;
+  feegow_last_status?: string | null;
+  created_at?: string | null;
+  updated_at?: string | null;
+  latest_subscription?: PlatformTenantClinicSubscription | null;
+}
+
+export interface PlatformTenantSummary {
+  clinics_count: number;
+  users_count: number;
+  people_count: number;
+  form_submissions_count: number;
 }
 
 export interface PlatformTenantDetail {
-  tenant: { id: number; name: string; slug: string; created_at?: string };
-  clinics: {
+  tenant: {
     id: number;
     name: string;
-    address?: string;
-    plan_key?: string | null;
-    subscription_status?: string | null;
-    billing_status?: string | null;
-    users_count: number;
-  }[];
+    slug: string;
+    created_at?: string;
+    updated_at?: string;
+  };
+  summary?: PlatformTenantSummary;
+  clinics: PlatformTenantClinic[];
 }
 
 export interface PlatformLead {

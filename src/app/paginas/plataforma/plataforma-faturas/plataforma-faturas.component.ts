@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, Signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ZardCardComponent } from '@/shared/components/card/card.component';
+import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
 import { PlataformaService, PlatformInvoice } from '../../../core/services/plataforma.service';
 import { LoadingService } from '../../../shared/services/loading.service';
 import { ZmSkeletonListComponent } from '../../../shared/components/skeletons';
@@ -12,7 +13,7 @@ import { ZardTableImports } from '@/shared/components/table';
   selector: 'app-plataforma-faturas',
   standalone: true,
   imports: [
-    ...ZardTableImports,CommonModule, ZardCardComponent, ZmSkeletonListComponent, ZmEmptyStateComponent],
+    ...ZardTableImports,CommonModule, ZardCardComponent, ZardBadgeComponent, ZmSkeletonListComponent, ZmEmptyStateComponent],
   templateUrl: './plataforma-faturas.component.html',
   styleUrl: './plataforma-faturas.component.css',
 })
@@ -56,5 +57,13 @@ export class PlataformaFaturasComponent implements OnInit {
     if (valor == null) return '—';
     const symbol = moeda === 'BRL' || !moeda ? 'R$' : moeda;
     return symbol + ' ' + valor.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  badgeTipoStatus(status?: string | null): 'default' | 'secondary' | 'destructive' | 'outline' {
+    const k = (status ?? '').toLowerCase();
+    if (['received', 'confirmed', 'paid', 'received_in_cash'].includes(k)) return 'default';
+    if (['pending', 'awaiting_risk_analysis'].includes(k)) return 'secondary';
+    if (['overdue', 'deleted', 'unpaid'].includes(k)) return 'destructive';
+    return 'outline';
   }
 }

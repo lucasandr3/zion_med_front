@@ -35,6 +35,7 @@ const TYPE_ICONS: Record<string, string> = {
 
 import { ZardTableImports } from '@/shared/components/table';
 import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
+import { ZmPageBackLinkComponent } from '../../shared/components/ui';
 import { ZardCardComponent } from '@/shared/components/card/card.component';
 import { ZardButtonComponent } from '@/shared/components/button/button.component';
 import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
@@ -52,6 +53,7 @@ import { ZardTooltipImports } from '@/shared/components/tooltip';
     RouterLink,
     FormsModule,
     ZmSkeletonTemplateCamposComponent,
+    ZmPageBackLinkComponent,
     ZardCardComponent,
     ZardButtonComponent,
     ZardBadgeComponent,

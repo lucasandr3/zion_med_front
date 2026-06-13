@@ -5,6 +5,10 @@ export const GESTGO_DARK_LS = 'gestgo_dark_mode';
 export const GESTGO_APPEARANCE_MODE_LS = 'gestgo_appearance_mode';
 /** Preset visual do shell (header + sidebar): `default` | `tinted` | `sidebar_dark`. */
 export const GESTGO_SHELL_PRESET_LS = 'gestgo_shell_preset';
+/** Disposição do menu: `sidebar` (padrão) | `horizontal`. */
+export const GESTGO_NAV_LAYOUT_LS = 'gestgo_nav_layout';
+
+export type NavLayout = 'sidebar' | 'horizontal';
 
 /** Alinhado ao backend (`ThemeService::LEGACY_THEME_ALIASES`). */
 const LEGACY_THEME_ALIASES: Record<string, string> = {
@@ -45,13 +49,58 @@ export const SHELL_PRESET_UI_OPTIONS: ReadonlyArray<{
   },
 ];
 
+/** Opções de disposição do menu (drawer do header). */
+export const NAV_LAYOUT_UI_OPTIONS: ReadonlyArray<{
+  id: NavLayout;
+  label: string;
+  icon: string;
+  description: string;
+}> = [
+  {
+    id: 'sidebar',
+    label: 'Lateral',
+    icon: 'dock_to_right',
+    description: 'Barra de navegação fixa à esquerda.',
+  },
+  {
+    id: 'horizontal',
+    label: 'Horizontal',
+    icon: 'view_day',
+    description: 'Marca, menu e ações no topo.',
+  },
+];
+
 const SHELL_BODY_CLASSES = ['shell-preset-tinted', 'shell-preset-sidebar-dark'] as const;
+const NAV_LAYOUT_BODY_CLASS = 'shell-nav-horizontal';
 
 /** Normaliza valor da API ou localStorage para um preset do shell. */
 export function normalizeShellPreset(raw: string | null | undefined): ShellPreset {
   const s = String(raw ?? '').trim();
   if (s === 'tinted' || s === 'sidebar_dark') return s;
   return 'default';
+}
+
+/** Normaliza valor da API ou localStorage para disposição do menu. */
+export function normalizeNavLayout(raw: string | null | undefined): NavLayout {
+  return String(raw ?? '').trim() === 'horizontal' ? 'horizontal' : 'sidebar';
+}
+
+/** Lê disposição atual do `body` (após boot ou apply). */
+export function readNavLayoutFromDom(): NavLayout {
+  if (typeof document === 'undefined') return 'sidebar';
+  return document.body.classList.contains(NAV_LAYOUT_BODY_CLASS) ? 'horizontal' : 'sidebar';
+}
+
+/**
+ * Aplica classe `body.shell-nav-horizontal` e persiste em localStorage.
+ */
+export function applyNavLayoutToDom(layout: NavLayout): void {
+  if (typeof document === 'undefined') return;
+  document.body.classList.toggle(NAV_LAYOUT_BODY_CLASS, layout === 'horizontal');
+  if (typeof localStorage === 'undefined') return;
+  try {
+    localStorage.setItem(GESTGO_NAV_LAYOUT_LS, layout);
+  } catch {}
 }
 
 /**
@@ -72,6 +121,8 @@ export interface UserAppearanceFields {
   ui_theme?: string | null;
   ui_dark_mode?: boolean | null;
   ui_shell_preset?: string | null;
+  /** `null` = lateral (padrão). `horizontal` = menu no topo. */
+  ui_nav_layout?: string | null;
 }
 
 /**
@@ -102,5 +153,9 @@ export function applyUserAppearanceToBrowser(fields: UserAppearanceFields): void
   if (fields.ui_shell_preset !== undefined) {
     const p = normalizeShellPreset(fields.ui_shell_preset);
     applyShellPresetToDom(p);
+  }
+
+  if (fields.ui_nav_layout != null && String(fields.ui_nav_layout).trim() !== '') {
+    applyNavLayoutToDom(normalizeNavLayout(fields.ui_nav_layout));
   }
 }

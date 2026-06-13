@@ -1,10 +1,7 @@
-<!-- Igual ao backend: platform/tenants/index - visão do dono da plataforma -->
 <div class="relative min-h-[300px] space-y-4">
-  <div class="flex items-center justify-between">
-    <p class="text-xs text-muted-foreground">
-      {{ tenants.length }} {{ tenants.length === 1 ? 'cliente' : 'clientes' }} cadastrados.
-    </p>
-  </div>
+  <p class="zm-count-label">
+    {{ tenants.length }} {{ tenants.length === 1 ? 'cliente' : 'clientes' }} cadastrados
+  </p>
 
   @if (showSkeleton()) {
     <zm-skeleton-list [rows]="6" />
@@ -16,44 +13,53 @@
       </div>
     } @else {
       <div class="zm-content-enter">
-        <z-card class="gap-0 overflow-hidden py-0 shadow-sm **:data-[slot=card-content]:p-0">
-          <div class="overflow-x-auto">
+        <z-card class="zm-table-card gap-0 py-0 shadow-sm **:data-[slot=card-content]:p-0">
+          <div class="zm-table-wrap">
             <table z-table zSize="compact" class="text-xs">
               <thead z-table-header>
                 <tr z-table-row>
-                  <th z-table-head class="py-2 pr-3">Cliente</th>
-                  <th z-table-head class="py-2 px-3">Slug</th>
-                  <th z-table-head class="py-2 px-3 text-center">Empresas</th>
-                  <th z-table-head class="py-2 pl-3 text-right">Ações</th>
+                  <th z-table-head>Cliente</th>
+                  <th z-table-head>Plano</th>
+                  <th z-table-head>Assinatura</th>
+                  <th z-table-head class="zm-action-cell"></th>
                 </tr>
               </thead>
               <tbody z-table-body>
                 @for (tenant of tenants; track tenant.id) {
-                  <tr z-table-row>
-                    <td z-table-cell class="py-2.5 pr-3">
-                      <div class="flex items-center gap-2">
-                        <div
-                          class="bg-primary/15 text-primary flex h-7 w-7 items-center justify-center rounded-lg text-[11px] font-semibold"
-                        >
-                          {{ (tenant.name || '').charAt(0) | uppercase }}
+                  <tr
+                    z-table-row
+                    class="zm-row-clickable"
+                    [routerLink]="['/plataforma/clientes', tenant.id]"
+                    title="Ver detalhes de {{ tenant.name }}"
+                  >
+                    <td z-table-cell>
+                      <div class="flex items-center gap-3">
+                        <div class="zm-row-avatar">{{ iniciais(tenant.name) }}</div>
+                        <div class="min-w-0">
+                          <div class="zm-row-title">{{ tenant.name }}</div>
+                          <div class="zm-row-sub">
+                            {{ tenant.clinics_count }} {{ tenant.clinics_count === 1 ? 'empresa' : 'empresas' }}
+                            @if (tenant.users_count != null) {
+                              · {{ tenant.users_count }} {{ tenant.users_count === 1 ? 'usuário' : 'usuários' }}
+                            }
+                          </div>
                         </div>
-                        <div class="text-xs font-semibold text-foreground">{{ tenant.name }}</div>
                       </div>
                     </td>
-                    <td z-table-cell class="text-muted-foreground py-2.5 px-3">{{ tenant.slug }}</td>
-                    <td z-table-cell class="py-2.5 px-3 text-center">{{ tenant.clinics_count }}</td>
-                    <td z-table-cell class="py-2.5 pl-3 text-right">
-                      <a
-                        z-button
-                        zType="outline"
-                        zSize="sm"
-                        class="no-underline gap-1"
-                        [routerLink]="['/plataforma/clientes', tenant.id]"
-                        title="Ver detalhes do cliente"
-                      >
-                        <span class="material-symbols-outlined text-sm">open_in_new</span>
-                        Ver detalhes
-                      </a>
+                    <td z-table-cell>
+                      <span class="zm-cell-muted">{{ planosRotulo(tenant) }}</span>
+                    </td>
+                    <td z-table-cell>
+                      @if (tenant.subscription_status) {
+                        <z-badge [zType]="badgeTipoStatus(tenant.subscription_status)" zShape="pill">
+                          {{ rotuloStatusAssinaturaCobranca(tenant.subscription_status) }}
+                        </z-badge>
+                      } @else {
+                        <span class="zm-cell-muted">—</span>
+                      }
+                    </td>
+                    <td z-table-cell class="zm-action-cell">
+                      <span class="material-symbols-outlined zm-action-icon text-lg">chevron_right</span>
                     </td>
                   </tr>
                 } @empty {

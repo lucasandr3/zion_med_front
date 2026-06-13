@@ -16,14 +16,14 @@
     <p class="text-sm text-destructive">{{ erro }}</p>
   } @else {
     <div class="zm-content-enter">
-      <z-card class="gap-0 overflow-hidden rounded-[8px] py-0 shadow-sm **:data-[slot=card-content]:p-0">
+      <z-card class="zm-table-card gap-0 overflow-hidden rounded-[8px] py-0 shadow-sm **:data-[slot=card-content]:p-0">
         @if (usuarios.length === 0) {
           <div class="p-10">
             <zm-empty-state title="Nenhum usuário cadastrado." actionLabel="Novo usuário" actionLink="/usuarios/criar" />
           </div>
         } @else {
-          <div class="overflow-x-auto">
-            <table z-table>
+          <div class="zm-table-wrap">
+            <table z-table zSize="compact">
               <thead z-table-header>
                 <tr z-table-row>
                   <th z-table-head>Nome</th>
@@ -35,16 +35,14 @@
               </thead>
               <tbody z-table-body>
                 @for (u of usuarios; track u.id) {
-                  <tr z-table-row class="hover:bg-muted/50">
+                  <tr z-table-row>
                     <td z-table-cell>
-                      <div class="flex items-center gap-2.5">
-                        <div class="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-full bg-primary/15 text-xs font-bold text-primary">
-                          {{ inicial(u.name) }}
-                        </div>
-                        <span class="font-medium text-foreground">{{ u.name }}</span>
+                      <div class="flex items-center gap-3">
+                        <div class="zm-row-avatar">{{ inicial(u.name) }}</div>
+                        <span class="zm-row-title">{{ u.name }}</span>
                       </div>
                     </td>
-                    <td z-table-cell class="text-muted-foreground">{{ u.email }}</td>
+                    <td z-table-cell class="zm-cell-muted">{{ u.email }}</td>
                     <td z-table-cell>
                       <span class="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-[0.7rem] font-semibold text-muted-foreground">
                         <span class="material-symbols-outlined text-xs">badge</span>

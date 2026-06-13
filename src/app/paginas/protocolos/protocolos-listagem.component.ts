@@ -37,7 +37,6 @@ import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
     ZardComboboxComponent,
   ],
   templateUrl: './protocolos-listagem.component.html',
-  styleUrl: './protocolos-listagem.component.css',
 })
 export class ProtocolosListagemComponent implements OnInit, OnDestroy {
   protocolos: Protocolo[] = [];

@@ -1,80 +1,217 @@
 :host ::ng-deep .links-publicos-card {
   gap: 0;
+  overflow: hidden;
   padding-block: 0;
 }
 
-:host ::ng-deep .links-publicos-card [data-slot='card-content'] {
-  padding: 0.5rem 0.75rem;
+.links-publicos-card__head {
+  align-items: flex-start;
+  display: flex;
+  gap: 0.75rem;
+  justify-content: space-between;
+  padding: 1rem 1rem 0.875rem;
+}
+
+.links-publicos-card__lead {
+  align-items: flex-start;
+  display: flex;
+  flex: 1;
+  gap: 0.875rem;
+  min-width: 0;
+}
+
+.links-publicos-card__identity {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.375rem;
+  min-width: 0;
+}
+
+.links-publicos-card__aside {
+  align-items: flex-end;
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  max-width: min(100%, 14rem);
+  text-align: right;
+}
+
+.links-publicos-card__icon {
+  align-items: center;
+  background: color-mix(in srgb, var(--c-primary) 14%, transparent);
+  border-radius: 0.625rem;
+  color: var(--c-primary);
+  display: flex;
+  flex-shrink: 0;
+  height: 2.5rem;
+  justify-content: center;
+  width: 2.5rem;
+}
+
+.links-publicos-card__icon .material-symbols-outlined {
+  font-size: 1.25rem;
 }
 
 .links-publicos-card__title {
-  margin-top: 0;
+  color: var(--foreground, var(--c-text));
+  font-size: 0.9375rem;
+  font-weight: 700;
+  line-height: 1.25;
+  margin: 0;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.links-publicos-card__inner {
-  min-height: var(--button-height);
-  gap: 0.625rem;
+:host ::ng-deep .links-publicos-card__badge {
+  background: color-mix(in srgb, var(--c-success) 14%, transparent) !important;
+  border: 1px solid color-mix(in srgb, var(--c-success) 28%, transparent) !important;
+  color: var(--c-success) !important;
+  flex-shrink: 0;
+  font-size: 0.625rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.06em;
+  padding: 0.125rem 0.5rem !important;
+  text-transform: uppercase;
 }
 
-.links-publicos-actions .links-publicos-btn.links-publicos-btn--copiar {
-  border-color: color-mix(in srgb, var(--c-success) 38%, var(--border));
-  background: var(--c-success-soft);
-  color: var(--c-success);
+.links-publicos-card__sub {
+  color: var(--muted-foreground, var(--c-muted));
+  font-size: 0.75rem;
+  line-height: 1.35;
+  margin: 0;
+  text-align: right;
+  white-space: nowrap;
 }
 
-.links-publicos-actions .links-publicos-btn.links-publicos-btn--copiar:hover,
-.links-publicos-actions .links-publicos-btn.links-publicos-btn--copiar:focus-visible {
-  border-color: color-mix(in srgb, var(--c-success) 52%, var(--border));
-  background: color-mix(in srgb, var(--c-success) 22%, transparent);
-  color: var(--c-success);
+.links-publicos-card__menu-btn {
+  color: var(--muted-foreground, var(--c-muted));
 }
 
-.links-publicos-actions .links-publicos-btn.links-publicos-btn--abrir {
-  border-color: color-mix(in srgb, var(--c-info) 38%, var(--border));
-  background: var(--c-info-soft);
-  color: var(--c-info);
+.links-publicos-card__actions {
+  border-top: 1px solid var(--border, var(--c-border));
+  display: grid;
+  gap: 0;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
-.links-publicos-actions .links-publicos-btn.links-publicos-btn--abrir:hover,
-.links-publicos-actions .links-publicos-btn.links-publicos-btn--abrir:focus-visible {
-  border-color: color-mix(in srgb, var(--c-info) 52%, var(--border));
-  background: color-mix(in srgb, var(--c-info) 22%, transparent);
-  color: var(--c-info);
+.links-publicos-card__action {
+  border-radius: 0 !important;
+  border-width: 0 !important;
+  box-shadow: none !important;
+  flex-direction: column;
+  font-size: 0.6875rem !important;
+  font-weight: 600 !important;
+  gap: 0.25rem !important;
+  height: auto !important;
+  min-height: 3.25rem !important;
+  padding: 0.625rem 0.375rem !important;
 }
 
-.links-publicos-actions .links-publicos-btn.links-publicos-btn--campos {
-  --lp-campos: #6d28d9;
-  border-color: color-mix(in srgb, var(--lp-campos) 35%, var(--border));
-  background: color-mix(in srgb, var(--lp-campos) 12%, transparent);
-  color: var(--lp-campos);
+.links-publicos-card__action:not(:last-child) {
+  border-right: 1px solid var(--border, var(--c-border)) !important;
 }
 
-.links-publicos-actions .links-publicos-btn.links-publicos-btn--campos:hover,
-.links-publicos-actions .links-publicos-btn.links-publicos-btn--campos:focus-visible {
-  border-color: color-mix(in srgb, var(--lp-campos) 48%, var(--border));
-  background: color-mix(in srgb, var(--lp-campos) 20%, transparent);
-  color: var(--lp-campos);
+.links-publicos-card__action:hover,
+.links-publicos-card__action:focus-visible {
+  background: var(--muted, color-mix(in srgb, var(--c-muted) 10%, transparent)) !important;
 }
 
-:host-context(.dark) .links-publicos-actions .links-publicos-btn.links-publicos-btn--campos {
-  --lp-campos: #a78bfa;
+.links-publicos-qr-backdrop {
+  background: rgba(0, 0, 0, 0.45);
+  inset: 0;
+  position: fixed;
+  z-index: 40;
+}
+
+.links-publicos-qr-dialog {
+  background: var(--card, var(--c-surface));
+  border: 1px solid var(--border, var(--c-border));
+  border-radius: 0.75rem;
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  left: 50%;
+  max-width: min(22rem, calc(100vw - 2rem));
+  padding: 1rem;
+  position: fixed;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  z-index: 50;
+}
+
+.links-publicos-qr-dialog__head {
+  align-items: flex-start;
+  display: flex;
+  gap: 0.75rem;
+  justify-content: space-between;
+}
+
+.links-publicos-qr-dialog__title {
+  color: var(--foreground, var(--c-text));
+  font-size: 0.9375rem;
+  font-weight: 700;
+  line-height: 1.25;
+  margin: 0;
+}
+
+.links-publicos-qr-dialog__sub {
+  color: var(--muted-foreground, var(--c-muted));
+  font-size: 0.75rem;
+  margin: 0.25rem 0 0;
+}
+
+.links-publicos-qr-dialog__body {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  min-height: 13.75rem;
+  padding: 0.5rem;
+}
+
+.links-publicos-qr-dialog__img {
+  border: 1px solid var(--border, var(--c-border));
+  border-radius: 0.5rem;
+  display: block;
+  height: auto;
+  max-width: 100%;
+  width: 13.75rem;
+}
+
+:host ::ng-deep .links-publicos-qr-dialog__skeleton {
+  border-radius: 0.5rem;
+  display: block;
+  height: 13.75rem;
+  width: 13.75rem;
+}
+
+.links-publicos-qr-dialog__actions {
+  display: grid;
+  gap: 0.5rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (max-width: 480px) {
+  .links-publicos-qr-dialog__actions {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 768px) {
-  .links-publicos-card__inner {
-    flex-direction: column;
-    align-items: stretch;
+  .links-publicos-card__actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .links-publicos-actions {
-    width: 100%;
-    align-self: stretch;
-    justify-content: flex-start;
+  .links-publicos-card__action:nth-child(2) {
+    border-right: 0 !important;
   }
 
-  .links-publicos-actions a,
-  .links-publicos-actions button {
-    flex: 1 1 calc(50% - 0.25rem);
-    justify-content: center;
+  .links-publicos-card__action:nth-child(1),
+  .links-publicos-card__action:nth-child(2) {
+    border-bottom: 1px solid var(--border, var(--c-border)) !important;
   }
 }

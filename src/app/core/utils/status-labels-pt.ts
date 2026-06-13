@@ -26,6 +26,8 @@ const ASSINATURA_OU_COBRANCA: Record<string, string> = {
   ativo: 'Ativo',
   inativo: 'Inativo',
   blocked: 'Cobrança bloqueada',
+  ok: 'Regular',
+  attention: 'Atenção',
 };
 
 /** Fatura / pagamento — comuns em Asaas e similares. */

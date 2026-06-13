@@ -5,6 +5,7 @@
   } @else if (template) {
     <div class="zm-content-enter">
       <div class="mb-6 flex flex-wrap items-center gap-2.5">
+        <zm-page-back-link />
         <div class="flex flex-wrap items-center gap-2.5">
           <a
             z-button
@@ -204,8 +205,8 @@
           </div>
         </div>
 
-        <div class="overflow-x-auto">
-          <table z-table class="w-full text-sm">
+        <div class="zm-table-wrap">
+          <table z-table zSize="compact" class="w-full text-sm">
             <thead z-table-header>
               <tr z-table-row>
                 <th z-table-head class="w-[50px]"></th>

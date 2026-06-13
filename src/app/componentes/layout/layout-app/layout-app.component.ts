@@ -10,7 +10,7 @@ import { SidebarMobileService } from '../../../core/services/sidebar-mobile.serv
 import { BillingBlockedStateService } from '../../../core/services/billing-blocked-state.service';
 import { AuthService, TrialNotice } from '../../../core/services/auth.service';
 import { OrganizationPresenceService } from '../../../core/services/organization-presence.service';
-import { ZmAssinaturaBloqueadaCardComponent } from '../../../shared/components/ui/zm-assinatura-bloqueada-card/zm-assinatura-bloqueada-card.component';
+import { ZmAssinaturaBloqueadaCardComponent, ZmPageBackLinkComponent } from '../../../shared/components/ui';
 import { ZardButtonComponent } from '@/shared/components/button/button.component';
 @Component({
   selector: 'app-layout-app',
@@ -22,6 +22,7 @@ import { ZardButtonComponent } from '@/shared/components/button/button.component
     BarraLateralComponent,
     CabecalhoComponent,
     ZmAssinaturaBloqueadaCardComponent,
+    ZmPageBackLinkComponent,
     ZardButtonComponent,
   ],
   templateUrl: './layout-app.component.html',
@@ -31,6 +32,7 @@ export class LayoutAppComponent implements OnInit {
   tituloPagina = 'Painel';
   urlVoltar: string | null = null;
   labelVoltar: string | null = null;
+  voltarIntegrado = false;
   notificacoesNaoLidas = 0;
   trialNotice: TrialNotice | null = null;
   private router = inject(Router);
@@ -54,12 +56,18 @@ export class LayoutAppComponent implements OnInit {
     while (route.firstChild) {
       route = route.firstChild;
     }
-    const data = (route.data ?? {}) as { titulo?: string; urlVoltar?: string; labelVoltar?: string };
+    const data = (route.data ?? {}) as {
+      titulo?: string;
+      urlVoltar?: string;
+      labelVoltar?: string;
+      voltarIntegrado?: boolean;
+    };
     const path = this.router.url.split('?')[0].replace(/\/$/, '') || '/';
     const categoriaAtual = typeof route.queryParams['categoria'] === 'string' ? route.queryParams['categoria'] : null;
     this.tituloPagina = this.resolvePageTitle(path, categoriaAtual, data.titulo);
     this.urlVoltar = data.urlVoltar ?? null;
     this.labelVoltar = data.labelVoltar ?? null;
+    this.voltarIntegrado = data.voltarIntegrado === true;
   }
 
   private resolvePageTitle(path: string, categoria: string | null, fallbackTitle?: string): string {
