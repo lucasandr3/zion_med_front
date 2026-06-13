@@ -5,14 +5,23 @@ import { NotificacoesService, Notificacao } from '../../core/services/notificaco
 import { LoadingService } from '../../shared/services/loading.service';
 import { ZmSkeletonListComponent } from '../../shared/components/skeletons';
 import { ZmEmptyStateComponent } from '../../shared/components/ui';
-import { ZardTooltipImports } from '@/shared/components/tooltip';
+import { ZardButtonComponent } from '@/shared/components/button/button.component';
 import { ToastService } from '../../core/services/toast.service';
 import { ConfirmDialogService } from '../../core/services/confirm-dialog.service';
+
+interface NotificacaoGrupo {
+  label: string;
+  items: Notificacao[];
+}
+
+const LIMITE_INICIAL = 15;
+const LIMITE_INCREMENTO = 15;
+const ORDEM_GRUPOS = ['Hoje', 'Esta semana', 'Este mês', 'Anteriores'] as const;
 
 @Component({
   selector: 'app-pagina-notificacoes',
   standalone: true,
-  imports: [CommonModule, ZmSkeletonListComponent, ZmEmptyStateComponent, RouterLink, ...ZardTooltipImports],
+  imports: [CommonModule, ZmSkeletonListComponent, ZmEmptyStateComponent, RouterLink, ZardButtonComponent],
   templateUrl: './notificacoes.component.html',
   styleUrl: './notificacoes.component.css',
 })
@@ -21,8 +30,8 @@ export class NotificacoesComponent implements OnInit {
   showSkeleton!: Signal<boolean>;
   listaPronta = false;
   erro = '';
-  /** Filtro "todas" ou só "não lidas" (comum à área clínica e plataforma). */
   filtroPlataforma: 'todas' | 'nao_lidas' = 'todas';
+  limiteVisivel = LIMITE_INICIAL;
 
   excluindoId: string | null = null;
   limpandoTudo = false;
@@ -43,6 +52,37 @@ export class NotificacoesComponent implements OnInit {
 
   get quantidadeNaoLidas(): number {
     return this.notificacoes.filter((n) => !n.read_at).length;
+  }
+
+  get notificacoesExibidas(): Notificacao[] {
+    return this.notificacoesFiltradas.slice(0, this.limiteVisivel);
+  }
+
+  alterarFiltro(filtro: 'todas' | 'nao_lidas'): void {
+    this.filtroPlataforma = filtro;
+    this.limiteVisivel = LIMITE_INICIAL;
+  }
+
+  carregarMais(): void {
+    this.limiteVisivel += LIMITE_INCREMENTO;
+  }
+
+  podeCarregarMais(): boolean {
+    return this.notificacoesFiltradas.length > this.limiteVisivel;
+  }
+
+  notificacoesAgrupadas(): NotificacaoGrupo[] {
+    const mapa = new Map<string, Notificacao[]>();
+    for (const notificacao of this.notificacoesExibidas) {
+      const label = this.grupoTemporal(notificacao.created_at);
+      const lista = mapa.get(label) ?? [];
+      lista.push(notificacao);
+      mapa.set(label, lista);
+    }
+    return ORDEM_GRUPOS.filter((label) => mapa.has(label)).map((label) => ({
+      label,
+      items: mapa.get(label) ?? [],
+    }));
   }
 
   ngOnInit(): void {
@@ -214,6 +254,7 @@ export class NotificacoesComponent implements OnInit {
         novo_lead: 'request_quote',
         faturas_vencidas: 'payments',
         assinaturas_pendentes: 'receipt_long',
+        novo_usuario: 'person_add',
       };
       if (mapa[tipo]) return mapa[tipo];
     }
@@ -228,6 +269,68 @@ export class NotificacoesComponent implements OnInit {
     } catch {
       return iso;
     }
+  }
+
+  formatarDataCurta(iso?: string | null): string {
+    if (!iso) return '—';
+    try {
+      const d = new Date(iso);
+      return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    } catch {
+      return iso;
+    }
+  }
+
+  notificacaoCategoria(n: Notificacao): string | null {
+    const d = this.normalizeData(n.data);
+    if (d && typeof d === 'object') {
+      const obj = d as Record<string, unknown>;
+      const badge = obj['badge'] ?? obj['category'] ?? obj['label'];
+      if (typeof badge === 'string' && badge.trim()) {
+        return badge.trim();
+      }
+    }
+
+    const tipo = this.tipoNotificacao(n);
+    const mapa: Record<string, string> = {
+      novo_protocolo: 'Formulário público',
+      novo_comentario: 'Comentário',
+      protocolo_aprovado: 'Protocolo',
+      protocolo_reprovado: 'Protocolo',
+      novo_lead: 'Lead',
+      faturas_vencidas: 'Cobrança',
+      assinaturas_pendentes: 'Assinatura',
+      novo_usuario: 'Usuário',
+    };
+    return mapa[tipo] ?? null;
+  }
+
+  private tipoNotificacao(n: Notificacao): string {
+    const d = this.normalizeData(n.data);
+    if (d && typeof d === 'object') {
+      const obj = d as Record<string, unknown>;
+      if (typeof obj['type'] === 'string' && obj['type'].trim()) {
+        return obj['type'].trim();
+      }
+    }
+    return (n.type ?? '').trim();
+  }
+
+  private grupoTemporal(iso?: string | null): string {
+    if (!iso) return 'Anteriores';
+    const data = new Date(iso);
+    if (Number.isNaN(data.getTime())) return 'Anteriores';
+
+    const agora = new Date();
+    const inicioHoje = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate());
+    const inicioSemana = new Date(inicioHoje);
+    inicioSemana.setDate(inicioSemana.getDate() - 6);
+    const inicioMes = new Date(agora.getFullYear(), agora.getMonth(), 1);
+
+    if (data >= inicioHoje) return 'Hoje';
+    if (data >= inicioSemana) return 'Esta semana';
+    if (data >= inicioMes) return 'Este mês';
+    return 'Anteriores';
   }
 
   /**

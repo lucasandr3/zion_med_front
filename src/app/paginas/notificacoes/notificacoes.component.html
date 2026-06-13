@@ -1,39 +1,57 @@
-<div class="relative min-h-[200px]">
-  <!-- Cabeçalho da seção + filtros e ações (mesmo layout usado na plataforma) -->
-  <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
-    <div class="flex items-center gap-2">
-      <div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background: var(--c-soft)">
-        <span class="material-symbols-outlined text-lg" style="color: var(--c-primary)">notifications</span>
-      </div>
-      <h2 class="text-base font-semibold m-0" style="color: var(--c-text)">Notificações</h2>
-    </div>
-    <div class="flex flex-wrap items-center gap-2">
-      <button type="button" class="notif-filtro-btn" [class.ativo]="filtroPlataforma === 'todas'" (click)="filtroPlataforma = 'todas'" zTooltip="Ver todas as notificações">
+<div class="notif-page relative min-h-[200px]">
+  <div class="notif-page__toolbar">
+    <div class="notif-filtros" role="tablist" aria-label="Filtrar notificações">
+      <button
+        type="button"
+        class="notif-filtro-btn"
+        role="tab"
+        [class.ativo]="filtroPlataforma === 'todas'"
+        [attr.aria-selected]="filtroPlataforma === 'todas'"
+        (click)="alterarFiltro('todas')">
         Todas
       </button>
-      <button type="button" class="notif-filtro-btn notif-filtro-outline" [class.ativo]="filtroPlataforma === 'nao_lidas'" (click)="filtroPlataforma = 'nao_lidas'" zTooltip="Ver apenas não lidas">
+      <button
+        type="button"
+        class="notif-filtro-btn"
+        role="tab"
+        [class.ativo]="filtroPlataforma === 'nao_lidas'"
+        [attr.aria-selected]="filtroPlataforma === 'nao_lidas'"
+        (click)="alterarFiltro('nao_lidas')">
         Não lidas
         @if (quantidadeNaoLidas > 0) {
-          <span class="notif-badge">{{ quantidadeNaoLidas > 99 ? '99+' : quantidadeNaoLidas }}</span>
+          <span class="notif-filtro-badge">{{ quantidadeNaoLidas > 99 ? '99+' : quantidadeNaoLidas }}</span>
         }
       </button>
+    </div>
+
+    <div class="notif-page__toolbar-actions">
       @if (temNaoLidas) {
-        <button type="button" class="notif-action-btn inline-flex items-center gap-2" [disabled]="marcandoTodas" (click)="marcarTodas()" zTooltip="Marcar todas como lidas">
-          @if (marcandoTodas) {
-            <span class="btn-spinner" style="width:14px;height:14px;border-width:2px"></span>
-          } @else {
-            <span class="material-symbols-outlined" style="font-size: 18px">check_circle</span>
-          }
-          {{ marcandoTodas ? 'Marcando…' : 'Marcar todas como lidas' }}
+        <button
+          z-button
+          zType="outline"
+          zSize="sm"
+          type="button"
+          class="gap-1.5"
+          [zDisabled]="marcandoTodas"
+          [zLoading]="marcandoTodas"
+          (click)="marcarTodas()"
+          title="Marcar todas como lidas">
+          <span class="material-symbols-outlined text-base" aria-hidden="true">done_all</span>
+          {{ marcandoTodas ? 'Marcando…' : 'Marcar todas' }}
         </button>
       }
       @if (notificacoes.length > 0) {
-        <button type="button" class="notif-action-btn inline-flex items-center gap-2" [disabled]="limpandoTudo" (click)="limparTudo()" zTooltip="Excluir todas as notificações">
-          @if (limpandoTudo) {
-            <span class="btn-spinner" style="width:14px;height:14px;border-width:2px"></span>
-          } @else {
-            <span class="material-symbols-outlined" style="font-size: 18px">delete</span>
-          }
+        <button
+          z-button
+          zType="outline"
+          zSize="sm"
+          type="button"
+          class="gap-1.5"
+          [zDisabled]="limpandoTudo"
+          [zLoading]="limpandoTudo"
+          (click)="limparTudo()"
+          title="Excluir todas as notificações">
+          <span class="material-symbols-outlined text-base" aria-hidden="true">delete_sweep</span>
           {{ limpandoTudo ? 'Limpando…' : 'Limpar tudo' }}
         </button>
       }
@@ -44,69 +62,95 @@
     <zm-skeleton-list [rows]="5" />
   } @else if (!listaPronta) {
   } @else if (erro) {
-    <div class="card p-4 rounded-xl mb-4" style="background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.3)">
-      <p class="text-sm m-0" style="color: var(--c-text)">{{ erro }}</p>
-    </div>
+    <p class="mb-4 text-sm text-destructive">{{ erro }}</p>
   } @else {
     <div class="zm-content-enter">
       @if (notificacoesFiltradas.length === 0) {
         <zm-empty-state
           [title]="filtroPlataforma === 'nao_lidas' ? 'Nenhuma notificação não lida.' : 'Nenhuma notificação.'"
           description="As novas notificações aparecerão aqui assim que chegarem."
-        ></zm-empty-state>
+        />
       } @else {
-        <div class="flex flex-col gap-3">
-          @for (n of notificacoesFiltradas; track n.id) {
-            <article class="notif-card flex relative" [class.notif-card-nao-lida]="!n.read_at" [class.notif-card-com-bar]="!n.read_at">
-              @if (!n.read_at) {
-                <div class="notif-card-bar" style="background: var(--c-primary)"></div>
-              }
-              <div class="notif-card-body flex gap-4 p-4 flex-1 min-w-0">
-                <div class="w-10 h-10 rounded-lg flex items-center justify-center shrink-0" style="background: color-mix(in srgb, var(--c-primary) 14%, transparent)">
-                  <span class="material-symbols-outlined" style="color: var(--c-primary); font-size: 22px">{{ iconeNotificacao(n) }}</span>
-                </div>
-                <div class="min-w-0 flex-1">
-                  <p class="notif-card-titulo">{{ getNotificacaoTitulo(n) }}</p>
-                  <p class="notif-card-detalhe notif-detalhe">{{ getNotificacaoDetalhe(n) }}</p>
-                  <div class="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2">
-                    <span class="text-xs" style="color: var(--c-muted)">{{ tempoRelativo(n.created_at) }}</span>
-                    @if (notificacaoLinkAcao(n); as acao) {
-                      @switch (acao.kind) {
-                        @case ('router') {
-                          <a [routerLink]="acao.commands" class="notif-link-leads">
-                            {{ acao.label }}
-                            <span class="material-symbols-outlined align-middle" style="font-size: 14px">arrow_forward</span>
-                          </a>
-                        }
-                        @case ('href') {
-                          <a [href]="acao.url" class="notif-link-leads" target="_blank" rel="noopener noreferrer">
-                            {{ acao.label }}
-                            <span class="material-symbols-outlined align-middle" style="font-size: 14px">arrow_forward</span>
-                          </a>
-                        }
-                      }
-                    }
-                    @if (!n.read_at) {
-                      <button type="button" class="notif-link-lida" (click)="marcarComoLida(n.id)">Marcar como lida</button>
-                    }
-                  </div>
-                </div>
-                <div class="flex items-start gap-1 shrink-0">
+        @for (grupo of notificacoesAgrupadas(); track grupo.label) {
+          <section class="notif-grupo">
+            <h3 class="notif-grupo__label">{{ grupo.label }}</h3>
+            <div class="notif-lista">
+              @for (n of grupo.items; track n.id) {
+                <article
+                  class="notif-card"
+                  [class.notif-card--unread]="!n.read_at"
+                  [class.notif-card--read]="!!n.read_at">
                   @if (!n.read_at) {
-                    <span class="w-2 h-2 rounded-full block mt-1.5 shrink-0" style="background: var(--c-primary)"></span>
+                    <div class="notif-card__bar" aria-hidden="true"></div>
                   }
-                  <button type="button" class="notif-btn-close inline-flex items-center justify-center" [disabled]="excluindoId === n.id" (click)="excluir(n.id)" aria-label="Excluir" zTooltip="Excluir notificação">
-                    @if (excluindoId === n.id) {
-                      <span class="btn-spinner" style="width:14px;height:14px;border-width:2px"></span>
-                    } @else {
-                      <span class="material-symbols-outlined" style="font-size: 18px">close</span>
-                    }
-                  </button>
-                </div>
-              </div>
-            </article>
-          }
-        </div>
+                  <div class="notif-card__body">
+                    <div class="notif-card__icon" aria-hidden="true">
+                      <span class="material-symbols-outlined">{{ iconeNotificacao(n) }}</span>
+                    </div>
+                    <div class="notif-card__main">
+                      <div class="notif-card__head">
+                        <div class="notif-card__head-main">
+                          <h4 class="notif-card__title">{{ getNotificacaoTitulo(n) }}</h4>
+                          @if (notificacaoCategoria(n); as categoria) {
+                            <span class="notif-card__badge">{{ categoria }}</span>
+                          }
+                        </div>
+                        <time class="notif-card__date" [attr.datetime]="n.created_at">{{ formatarDataCurta(n.created_at) }}</time>
+                      </div>
+                      @if (getNotificacaoDetalhe(n)) {
+                        <p class="notif-card__detail">{{ getNotificacaoDetalhe(n) }}</p>
+                      }
+                      <div class="notif-card__actions">
+                        @if (notificacaoLinkAcao(n); as acao) {
+                          @switch (acao.kind) {
+                            @case ('router') {
+                              <a [routerLink]="acao.commands" class="notif-card__link">
+                                {{ acao.label }}
+                                <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+                              </a>
+                            }
+                            @case ('href') {
+                              <a [href]="acao.url" class="notif-card__link" target="_blank" rel="noopener noreferrer">
+                                {{ acao.label }}
+                                <span class="material-symbols-outlined" aria-hidden="true">open_in_new</span>
+                              </a>
+                            }
+                          }
+                        }
+                        @if (!n.read_at) {
+                          <button type="button" class="notif-card__mark" (click)="marcarComoLida(n.id)">Marcar como lida</button>
+                        } @else {
+                          <span class="text-xs text-muted-foreground">{{ tempoRelativo(n.created_at) }}</span>
+                        }
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      class="notif-card__dismiss"
+                      [disabled]="excluindoId === n.id"
+                      (click)="excluir(n.id)"
+                      aria-label="Excluir notificação"
+                      title="Excluir notificação">
+                      @if (excluindoId === n.id) {
+                        <span class="btn-spinner" style="width: 14px; height: 14px; border-width: 2px"></span>
+                      } @else {
+                        <span class="material-symbols-outlined" style="font-size: 18px">close</span>
+                      }
+                    </button>
+                  </div>
+                </article>
+              }
+            </div>
+          </section>
+        }
+
+        @if (podeCarregarMais()) {
+          <div class="notif-load-more">
+            <button z-button zType="outline" zSize="sm" type="button" (click)="carregarMais()">
+              Carregar mais notificações
+            </button>
+          </div>
+        }
       }
     </div>
   }
