@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { Observable, Subject, tap, catchError, of } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { applyUserAppearanceToBrowser } from './user-appearance.sync';
+import { AppUpdateService } from './app-update.service';
 
 const TOKEN_KEY = 'gestgo_token';
 const USER_KEY = 'gestgo_user';
@@ -83,6 +84,7 @@ export interface MeResponse {
 export class AuthService {
   private http = inject(HttpClient);
   private router = inject(Router);
+  private appUpdate = inject(AppUpdateService);
   private baseUrl = environment.apiUrl;
 
   private _user: User | null = null;
@@ -141,6 +143,7 @@ export class AuthService {
     this.persist();
     applyUserAppearanceToBrowser(data.user);
     this.notifyAppearanceApplied();
+    this.appUpdate.checkNow();
   }
 
   /** Mescla resposta da API (ex.: PATCH aparência) no usuário em memória e no localStorage. */
@@ -284,6 +287,7 @@ export class AuthService {
           this.persist();
           applyUserAppearanceToBrowser(d.user);
           this.notifyAppearanceApplied();
+          this.appUpdate.checkNow();
         })
       );
   }

@@ -1,21 +1,21 @@
-import { ApplicationRef, inject, Injectable, PLATFORM_ID } from '@angular/core';
+import { ApplicationRef, inject, Injectable, PLATFORM_ID, signal } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { SwUpdate, VersionReadyEvent } from '@angular/service-worker';
 import { filter, first, interval } from 'rxjs';
 
-import { ToastService } from './toast.service';
-
+/** Verificação periódica em segundo plano (1 h). */
 const CHECK_INTERVAL_MS = 60 * 60 * 1000;
+const BODY_BANNER_CLASS = 'app-update-banner-visible';
 
 @Injectable({ providedIn: 'root' })
 export class AppUpdateService {
   private readonly platformId = inject(PLATFORM_ID);
   private readonly appRef = inject(ApplicationRef);
-  private readonly toast = inject(ToastService);
   private readonly swUpdate = inject(SwUpdate, { optional: true });
 
-  private promptShown = false;
-  private updating = false;
+  readonly updateReady = signal(false);
+  readonly updateBlocked = signal(false);
+  readonly applying = signal(false);
 
   init(): void {
     if (!isPlatformBrowser(this.platformId) || !this.swUpdate?.isEnabled) {
@@ -24,17 +24,11 @@ export class AppUpdateService {
 
     this.swUpdate.versionUpdates
       .pipe(filter((event): event is VersionReadyEvent => event.type === 'VERSION_READY'))
-      .subscribe(() => this.notifyUpdateReady());
+      .subscribe(() => this.markUpdateReady());
 
     this.swUpdate.unrecoverable.subscribe(() => {
-      this.toast.show(
-        'warning',
-        'Atualização necessária',
-        'Não foi possível carregar a versão mais recente. Recarregue a página.',
-        Number.POSITIVE_INFINITY,
-        'Recarregar',
-        () => this.reloadPage(),
-      );
+      this.updateBlocked.set(true);
+      this.syncBannerBodyClass();
     });
 
     this.appRef.isStable.pipe(first((stable) => stable)).subscribe(() => {
@@ -44,60 +38,59 @@ export class AppUpdateService {
     interval(CHECK_INTERVAL_MS).subscribe(() => {
       void this.checkForUpdate();
     });
-
-    window.addEventListener('focus', this.onWindowFocus);
-    document.addEventListener('visibilitychange', this.onVisibilityChange);
   }
 
-  private readonly onWindowFocus = (): void => {
+  /** Disparado após login/cadastro para buscar versão nova imediatamente. */
+  checkNow(): void {
     void this.checkForUpdate();
-  };
+  }
 
-  private readonly onVisibilityChange = (): void => {
-    if (document.visibilityState === 'visible') {
-      void this.checkForUpdate();
-    }
-  };
+  applyUpdate(): void {
+    void this.applyUpdateInternal();
+  }
 
-  private notifyUpdateReady(): void {
-    if (this.promptShown || this.updating) {
+  private markUpdateReady(): void {
+    this.updateReady.set(true);
+    this.syncBannerBodyClass();
+  }
+
+  private syncBannerBodyClass(): void {
+    if (!isPlatformBrowser(this.platformId)) {
       return;
     }
-    this.promptShown = true;
-
-    this.toast.show(
-      'info',
-      'Nova versão disponível',
-      'Uma atualização do sistema está pronta. Clique para aplicar agora.',
-      Number.POSITIVE_INFINITY,
-      'Atualizar',
-      () => void this.applyUpdate(),
-    );
+    const visible = this.updateReady() || this.updateBlocked();
+    document.body.classList.toggle(BODY_BANNER_CLASS, visible);
   }
 
   private async checkForUpdate(): Promise<void> {
-    if (!this.swUpdate?.isEnabled || this.updating) {
+    if (!this.swUpdate?.isEnabled || this.applying()) {
       return;
     }
     try {
-      await this.swUpdate.checkForUpdate();
+      const hasUpdate = await this.swUpdate.checkForUpdate();
+      if (hasUpdate) {
+        // VERSION_READY dispara quando o download terminar; banner aparece nesse momento.
+      }
     } catch {
       // Rede indisponível ou SW ainda inicializando.
     }
   }
 
-  private async applyUpdate(): Promise<void> {
-    if (!this.swUpdate?.isEnabled || this.updating) {
-      this.reloadPage();
+  private async applyUpdateInternal(): Promise<void> {
+    if (this.applying()) {
       return;
     }
 
-    this.updating = true;
-    try {
-      await this.swUpdate.activateUpdate();
-    } catch {
-      // Mesmo com falha na ativação, recarrega para buscar assets novos.
+    this.applying.set(true);
+
+    if (this.swUpdate?.isEnabled) {
+      try {
+        await this.swUpdate.activateUpdate();
+      } catch {
+        // Recarrega mesmo assim para buscar assets novos no origin.
+      }
     }
+
     this.reloadPage();
   }
 

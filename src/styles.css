@@ -322,6 +322,10 @@ body.dark {
   --sidebar-primary-foreground: oklch(0.992 0.01 145);
 }
 
+body.app-update-banner-visible {
+  padding-top: 4.25rem;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
