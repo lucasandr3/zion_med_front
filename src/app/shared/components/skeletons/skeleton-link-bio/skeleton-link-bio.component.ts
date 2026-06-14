@@ -14,7 +14,7 @@ import { ZardSkeletonComponent } from '@/shared/components/skeleton';
       aria-busy="true"
     >
       <div
-        class="link-bio-skeleton__tabs flex shrink-0 flex-nowrap items-center gap-2.5 overflow-x-auto border-b border-border bg-card px-4 pb-3 pt-2"
+        class="link-bio-skeleton__tabs flex shrink-0 flex-nowrap items-center gap-2.5 overflow-x-auto border-b border-border bg-card"
         role="presentation"
       >
         @for (tab of mainTabSkeletons; track tab.width) {
@@ -26,18 +26,22 @@ import { ZardSkeletonComponent } from '@/shared/components/skeleton';
 
       <div class="link-bio-tab-panel flex flex-col gap-5">
         <z-card
-          class="link-bio-header-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:px-5"
+          class="section-card link-bio-header-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0"
         >
-          <z-skeleton class="mb-3 h-3 w-14 rounded-md" />
-          <div class="mb-4 flex flex-wrap items-center gap-3">
-            <z-skeleton class="h-7 w-52 max-w-full rounded-md" />
-            <z-skeleton class="h-6 w-[5.5rem] shrink-0 rounded-full" />
+          <div class="section-header">
+            <z-skeleton class="mb-3 h-3 w-14 rounded-md" />
+            <div class="flex flex-wrap items-center gap-3">
+              <z-skeleton class="h-7 w-52 max-w-full rounded-md" />
+              <z-skeleton class="h-6 w-[5.5rem] shrink-0 rounded-full" />
+            </div>
           </div>
-          <div class="flex flex-wrap items-center gap-2">
-            <z-skeleton class="link-bio-skeleton__url h-[length:var(--control-height)] min-h-[length:var(--control-height)] min-w-0 flex-1 basis-full rounded-lg sm:max-w-md" />
-            <z-skeleton class="h-[length:var(--button-height)] w-[4.75rem] shrink-0 rounded-lg" />
-            <z-skeleton class="h-[length:var(--button-height)] w-[6.25rem] shrink-0 rounded-lg" />
-            <z-skeleton class="h-[length:var(--button-height)] w-[8.5rem] shrink-0 rounded-lg" />
+          <div class="section-body">
+            <div class="flex flex-wrap items-center gap-2">
+              <z-skeleton class="link-bio-skeleton__url h-[length:var(--control-height)] min-h-[length:var(--control-height)] min-w-0 flex-1 basis-full rounded-lg sm:max-w-md" />
+              <z-skeleton class="h-[length:var(--button-height)] w-[4.75rem] shrink-0 rounded-lg" />
+              <z-skeleton class="h-[length:var(--button-height)] w-[6.25rem] shrink-0 rounded-lg" />
+              <z-skeleton class="h-[length:var(--button-height)] w-[8.5rem] shrink-0 rounded-lg" />
+            </div>
           </div>
         </z-card>
 

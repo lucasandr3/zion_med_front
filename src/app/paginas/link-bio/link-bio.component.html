@@ -3,7 +3,7 @@
     <zm-skeleton-link-bio />
   } @else {
     @if (erro) {
-      <p class="text-sm" style="color: var(--c-error, #dc2626)">{{ erro }}</p>
+      <p class="px-4 sm:px-6 lg:px-8 text-sm" style="color: var(--c-error, #dc2626)">{{ erro }}</p>
     }
     @if (state) {
     <div class="zm-content-enter link-bio-page link-bio-shell">
@@ -17,15 +17,18 @@
       >
         <z-tab label="Visão geral" icon="insights">
           <div class="link-bio-tab-panel link-bio-fade-in">
-            <z-card class="link-bio-header-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-5 shadow-sm **:data-[slot=card-content]:px-5">
-              <p class="link-bio-eyebrow text-[11px] font-semibold uppercase tracking-wider mb-2">Link na bio</p>
-              <div class="flex flex-wrap items-center gap-3 mb-4">
-                <h1 class="link-bio-page-title text-[22px] font-semibold m-0">{{ state.clinic.name }}</h1>
-                <z-badge zShape="pill" zType="outline" class="link-bio-status-published gap-1.5">
-                  <span class="link-bio-status-dot" aria-hidden="true"></span>
-                  Publicado
-                </z-badge>
+            <z-card class="section-card link-bio-header-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
+              <div class="section-header">
+                <p class="link-bio-eyebrow text-[11px] font-semibold uppercase tracking-wider mb-2">Link na bio</p>
+                <div class="flex flex-wrap items-center gap-3">
+                  <h1 class="link-bio-page-title text-[22px] font-semibold m-0">{{ state.clinic.name }}</h1>
+                  <z-badge zShape="pill" zType="outline" class="link-bio-status-published gap-1.5">
+                    <span class="link-bio-status-dot" aria-hidden="true"></span>
+                    Publicado
+                  </z-badge>
+                </div>
               </div>
+              <div class="section-body">
               <div class="flex flex-wrap items-center gap-2 sm:gap-3 gap-y-2">
                 <div class="link-bio-url-field relative min-w-0 flex-1 basis-full sm:basis-[min(100%,28rem)] sm:max-w-[min(100%,42rem)]">
                   <span class="material-symbols-outlined pointer-events-none absolute left-2.5 top-1/2 z-10 -translate-y-1/2 text-base text-muted-foreground" aria-hidden="true">link</span>
@@ -65,6 +68,7 @@
                     Editar conteúdo
                   </button>
                 </div>
+              </div>
               </div>
             </z-card>
 

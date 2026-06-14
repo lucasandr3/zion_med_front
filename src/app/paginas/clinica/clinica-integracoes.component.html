@@ -1,7 +1,9 @@
 <div class="integracoes-page relative">
   @if (carregando) {
     <div class="integracoes-shell">
-      <zm-skeleton-integracoes />
+      <div class="clinica-config integracoes-config">
+        <zm-skeleton-integracoes />
+      </div>
     </div>
   } @else if (erro) {
     <p class="integracoes-alerts text-sm" style="color: var(--c-error, #dc2626)">{{ erro }}</p>

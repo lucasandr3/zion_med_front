@@ -29,7 +29,22 @@
 .link-bio-skeleton__tabs {
   flex-shrink: 0;
   min-height: 2.75rem;
+  padding: 0.5rem 1rem 0.75rem;
   scrollbar-width: none;
+}
+
+@media (min-width: 640px) {
+  .link-bio-skeleton__tabs {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .link-bio-skeleton__tabs {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
 }
 
 .link-bio-skeleton__tabs::-webkit-scrollbar {
@@ -56,6 +71,16 @@
   padding: 1.25rem;
   padding-bottom: 0;
   background: var(--background, var(--c-bg));
+}
+
+.link-bio-skeleton .link-bio-header-card .section-header {
+  display: block;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border, var(--c-border));
+}
+
+.link-bio-skeleton .link-bio-header-card .section-body {
+  padding: 1.25rem;
 }
 
 .link-bio-skeleton .link-bio-metric-card {

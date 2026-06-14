@@ -88,12 +88,46 @@
   background: var(--background, var(--c-bg));
 }
 
+@media (min-width: 640px) {
+  .link-bio-tab-panel {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+
+  :host ::ng-deep .link-bio-shell .config-zard-tabs--no-nav-rule nav[role='tablist'] {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .link-bio-tab-panel {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+
+  :host ::ng-deep .link-bio-shell .config-zard-tabs--no-nav-rule nav[role='tablist'] {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
 .link-bio-conteudo-panel {
-  padding-top: 1rem;
+  padding-top: 1.25rem;
 }
 
 .link-bio-header-card {
   margin-bottom: 1.25rem;
+}
+
+.link-bio-header-card .section-header {
+  display: block;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border, var(--c-border));
+}
+
+.link-bio-header-card .section-body {
+  padding: 1.25rem;
 }
 
 .link-bio-status-dot {
