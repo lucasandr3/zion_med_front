@@ -59,6 +59,11 @@
           {{ notificacoesNaoLidas > 99 ? '99+' : notificacoesNaoLidas }}
         </z-badge>
       }
+      @if (item.badge === 'novidades' && novidadesNaoVistas > 0) {
+        <z-badge zShape="pill" class="shell-horizontal-nav__badge">
+          {{ novidadesNaoVistas > 99 ? '99+' : novidadesNaoVistas }}
+        </z-badge>
+      }
     </a>
   }
 </nav>

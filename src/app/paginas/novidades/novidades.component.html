@@ -1,0 +1,155 @@
+<div class="novidades-page relative min-h-[200px]">
+  <div class="novidades-page__toolbar zm-list-toolbar">
+    <div class="form-search-wrap zm-list-toolbar__search">
+      <span class="material-symbols-outlined form-search-icon" aria-hidden="true">search</span>
+      <input
+        type="search"
+        [(ngModel)]="busca"
+        (ngModelChange)="onBuscaChange()"
+        placeholder="Buscar por versão, título ou conteúdo..."
+        z-input
+        class="form-search-input w-full text-sm"
+        aria-label="Buscar novidades"
+      />
+      @if (buscaAtiva) {
+        <button
+          type="button"
+          class="novidades-page__clear-search"
+          aria-label="Limpar busca"
+          (click)="limparBusca()"
+        >
+          <span class="material-symbols-outlined text-base">close</span>
+        </button>
+      }
+    </div>
+    @if (listaPronta && total > 0) {
+      <p class="novidades-page__count text-xs text-muted-foreground">
+        {{ total }} {{ total === 1 ? 'versão' : 'versões' }}
+        @if (buscaAtiva) {
+          encontrada{{ total === 1 ? '' : 's' }}
+        }
+      </p>
+    }
+  </div>
+
+  @if (showSkeleton()) {
+    <zm-skeleton-list [rows]="4" />
+  } @else if (!listaPronta) {
+  } @else if (erro && notas.length === 0) {
+    <p class="mb-4 text-sm text-destructive">{{ erro }}</p>
+  } @else {
+    <div class="zm-content-enter">
+      @if (notas.length === 0) {
+        <zm-empty-state
+          [title]="buscaAtiva ? 'Nenhum resultado para esta busca.' : 'Nenhuma novidade publicada ainda.'"
+          [description]="buscaAtiva ? 'Tente outro termo ou limpe o filtro.' : 'Quando houver uma nova versão, ela aparecerá aqui.'"
+        />
+      } @else if (buscaAtiva) {
+        <div class="novidades-lista">
+          @for (nota of notas; track nota.id) {
+            <ng-container
+              *ngTemplateOutlet="cardCompleto; context: { $implicit: nota, destaque: false }"
+            />
+          }
+        </div>
+      } @else {
+        @if (notaRecente; as recente) {
+          <section class="novidades-destaque" aria-labelledby="novidades-recente-label">
+            <p id="novidades-recente-label" class="novidades-secao-label">Versão mais recente</p>
+            <ng-container
+              *ngTemplateOutlet="cardCompleto; context: { $implicit: recente, destaque: true }"
+            />
+          </section>
+        }
+
+        @if (notasAnteriores.length > 0) {
+          <section class="novidades-anteriores" aria-labelledby="novidades-anteriores-label">
+            <p id="novidades-anteriores-label" class="novidades-secao-label">Versões anteriores</p>
+            <div class="novidades-lista novidades-lista--compacta">
+              @for (nota of notasAnteriores; track nota.id) {
+                <details class="novidades-card novidades-card--compact">
+                  <summary class="novidades-card__summary">
+                    <div class="novidades-card__summary-main">
+                      <z-badge zShape="pill" class="novidades-card__version">v{{ nota.version }}</z-badge>
+                      <span class="novidades-card__summary-titulo">{{ nota.title }}</span>
+                    </div>
+                    <div class="novidades-card__summary-meta">
+                      <time [attr.datetime]="nota.released_at">{{ formatarDataCurta(nota.released_at) }}</time>
+                      <span class="novidades-card__summary-count">
+                        {{ contagemItens(nota) }} {{ contagemItens(nota) === 1 ? 'item' : 'itens' }}
+                      </span>
+                      <span class="material-symbols-outlined novidades-card__chevron" aria-hidden="true">expand_more</span>
+                    </div>
+                  </summary>
+                  <div class="novidades-card__body">
+                    @if (nota.summary) {
+                      <p class="novidades-card__resumo">{{ nota.summary }}</p>
+                    }
+                    <ul class="novidades-card__itens">
+                      @for (item of nota.items; track $index) {
+                        <li class="novidades-item novidades-item--{{ item.type }}">
+                          <span class="material-symbols-outlined novidades-item__icone" aria-hidden="true">
+                            {{ iconeTipo(item.type) }}
+                          </span>
+                          <span class="novidades-item__tipo">{{ labelTipo(item.type) }}</span>
+                          <span class="novidades-item__texto">{{ item.text }}</span>
+                        </li>
+                      }
+                    </ul>
+                  </div>
+                </details>
+              }
+            </div>
+          </section>
+        }
+      }
+
+      @if (podeCarregarMais) {
+        <div class="novidades-page__load-more">
+          <button
+            z-button
+            zType="outline"
+            zSize="sm"
+            type="button"
+            [zLoading]="carregandoMais"
+            [zDisabled]="carregandoMais"
+            (click)="carregar(false)"
+          >
+            Carregar versões anteriores
+          </button>
+        </div>
+      }
+    </div>
+  }
+</div>
+
+<ng-template #cardCompleto let-nota let-destaque="destaque">
+  <article class="novidades-card" [class.novidades-card--destaque]="destaque">
+    <header class="novidades-card__header">
+      <div class="novidades-card__meta">
+        <z-badge zShape="pill" class="novidades-card__version">v{{ nota.version }}</z-badge>
+        @if (ehNova(nota)) {
+          <z-badge zShape="pill" class="novidades-card__badge-nova">Nova</z-badge>
+        }
+        <time class="novidades-card__data" [attr.datetime]="nota.released_at">
+          {{ formatarData(nota.released_at) }}
+        </time>
+      </div>
+      <h2 class="novidades-card__titulo">{{ nota.title }}</h2>
+      @if (nota.summary) {
+        <p class="novidades-card__resumo">{{ nota.summary }}</p>
+      }
+    </header>
+    <ul class="novidades-card__itens">
+      @for (item of nota.items; track $index) {
+        <li class="novidades-item novidades-item--{{ item.type }}">
+          <span class="material-symbols-outlined novidades-item__icone" aria-hidden="true">
+            {{ iconeTipo(item.type) }}
+          </span>
+          <span class="novidades-item__tipo">{{ labelTipo(item.type) }}</span>
+          <span class="novidades-item__texto">{{ item.text }}</span>
+        </li>
+      }
+    </ul>
+  </article>
+</ng-template>

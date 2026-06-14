@@ -40,6 +40,7 @@ import { ZardAvatarComponent } from '@/shared/components/avatar/avatar.component
 export class BarraLateralComponent implements OnInit, OnDestroy {
   /** Contador vindo do layout (fonte única com o cabeçalho). */
   @Input() notificacoesNaoLidas = 0;
+  @Input() novidadesNaoVistas = 0;
   nomeUsuario = 'Usuário';
   iniciaisUsuario = 'U';
   emailUsuario = '';

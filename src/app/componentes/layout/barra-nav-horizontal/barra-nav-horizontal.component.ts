@@ -24,6 +24,7 @@ import {
 export class BarraNavHorizontalComponent implements OnInit, OnChanges, OnDestroy {
   @Input() context: 'app' | 'plataforma' = 'app';
   @Input() notificacoesNaoLidas = 0;
+  @Input() novidadesNaoVistas = 0;
 
   secoesVisiveis: ShellNavSectionView[] = [];
   avulsosVisiveis: ShellNavItem[] = [];

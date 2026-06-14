@@ -73,6 +73,8 @@ export class CabecalhoComponent implements OnInit, OnDestroy {
   /** Subtítulo exibido abaixo do título no header (ex.: "Visão geral dos clientes utilizando o Gestgo."). */
   @Input() subtitulo: string | null = null;
   @Input() notificacoesNaoLidas = 0;
+  /** Badge de novidades não vistas (release notes). */
+  @Input() novidadesNaoVistas = 0;
   /** Quando informado, o ícone de notificações no header usa esta rota (ex.: /plataforma/notificacoes). */
   @Input() notificacoesRouterLink = '/notificacoes';
   /** Contexto do shell: tenant (`app`) ou plataforma. */

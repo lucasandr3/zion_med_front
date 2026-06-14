@@ -140,6 +140,17 @@
       <span class="sidebar-label">Planos</span>
     </a>
 
+    <a routerLink="/plataforma/novidades"
+       routerLinkActive="router-link-active"
+       z-button
+       zType="ghost"
+       class="shell-sidebar-nav w-full justify-start gap-2 px-2.5 font-normal text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground [&.router-link-active]:border-none [&.router-link-active]:bg-sidebar-primary/14 [&.router-link-active]:font-semibold [&.router-link-active]:text-sidebar-primary"
+       [zTooltip]="tooltipQuandoColapsada('Novidades e versão')"
+    >
+      <span class="material-symbols-outlined shrink-0 text-[19px]">new_releases</span>
+      <span class="sidebar-label">Novidades</span>
+    </a>
+
     <a routerLink="/plataforma/configuracoes"
        routerLinkActive="router-link-active"
        z-button
@@ -187,7 +198,7 @@
       </button>
 
       <ng-template #usuarioPlataformaMenuTpl>
-        <div z-menu-content class="sidebar-shell-menu-popover min-w-52 rounded-lg border border-border bg-popover p-1.5 text-popover-foreground shadow-lg">
+        <div z-menu-content class="sidebar-shell-menu-popover min-w-52 rounded-lg border border-border bg-popover p-1.5 text-popover-foreground">
           <a z-menu-item routerLink="/conta/perfil" class="gap-2 text-inherit no-underline">
             <span class="material-symbols-outlined shrink-0 text-base" aria-hidden="true">person</span>
             Meu perfil

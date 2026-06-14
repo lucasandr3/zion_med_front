@@ -1,6 +1,6 @@
-<app-barra-lateral [notificacoesNaoLidas]="notificacoesNaoLidas" />
+<app-barra-lateral [notificacoesNaoLidas]="notificacoesNaoLidas" [novidadesNaoVistas]="novidadesNaoVistas" />
 <div class="main-wrapper flex flex-col min-h-screen bg-background">
-  <app-cabecalho [titulo]="tituloPagina" [notificacoesNaoLidas]="notificacoesNaoLidas" shellContext="app" />
+  <app-cabecalho [titulo]="tituloPagina" [notificacoesNaoLidas]="notificacoesNaoLidas" [novidadesNaoVistas]="novidadesNaoVistas" shellContext="app" />
   @if (trialNotice) {
     <div
       class="trial-banner px-4 sm:px-6 lg:px-8 py-3 text-sm flex flex-wrap items-center justify-between gap-3 border-b bg-muted/35 text-foreground border-border"

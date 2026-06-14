@@ -7,7 +7,7 @@ export interface ShellNavItem {
   permission?: string;
   /** Exibe se o usuário tiver ao menos uma das permissões. */
   permissionsAny?: string[];
-  badge?: 'notifications';
+  badge?: 'notifications' | 'novidades';
 }
 
 export interface ShellNavSection {
@@ -75,6 +75,7 @@ export const SHELL_NAV_APP_SECTIONS: ShellNavSection[] = [
 
 /** Itens avulsos no menu horizontal tenant (fora de seções). */
 export const SHELL_NAV_APP_STANDALONE: ShellNavItem[] = [
+  { route: '/novidades', label: 'Novidades', icon: 'new_releases', badge: 'novidades' },
   { route: '/notificacoes', label: 'Notificações', icon: 'notifications', permission: 'notifications.access', badge: 'notifications' },
 ];
 
@@ -131,6 +132,7 @@ export const SHELL_NAV_PLATAFORMA_SECTIONS: ShellNavSection[] = [
     icon: 'settings',
     items: [
       { route: '/plataforma/planos', label: 'Planos', icon: 'subscriptions' },
+      { route: '/plataforma/novidades', label: 'Novidades', icon: 'new_releases' },
       { route: '/plataforma/configuracoes', label: 'Configurações', icon: 'settings' },
       { route: '/plataforma/logs', label: 'Logs', icon: 'history' },
     ],

@@ -1,6 +1,6 @@
 <app-barra-lateral-plataforma [notificacoesNaoLidas]="notificacoesNaoLidas" />
 <div class="main-wrapper flex flex-col min-h-screen bg-background">
-  <app-cabecalho [titulo]="tituloPagina" [subtitulo]="subtituloPagina" [notificacoesNaoLidas]="notificacoesNaoLidas" notificacoesRouterLink="/plataforma/notificacoes" shellContext="plataforma" />
+  <app-cabecalho [titulo]="tituloPagina" [subtitulo]="subtituloPagina" [notificacoesNaoLidas]="notificacoesNaoLidas" [novidadesNaoVistas]="novidadesNaoVistas" notificacoesRouterLink="/plataforma/notificacoes" shellContext="plataforma" />
   <main class="flex-1 px-4 sm:px-6 lg:px-8 py-6 lg:py-6 bg-background">
     @if (urlVoltar && !voltarIntegrado) {
       <div class="zm-page-back-bar mb-4">

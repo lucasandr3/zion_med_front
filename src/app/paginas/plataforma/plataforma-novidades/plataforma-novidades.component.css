@@ -1,0 +1,165 @@
+.plat-novidades__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.plat-novidades__hint {
+  max-width: 36rem;
+}
+
+.plat-novidades-form {
+  margin-bottom: 1.5rem;
+  padding: 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  background: var(--card);
+}
+
+.plat-novidades-form__titulo {
+  margin-bottom: 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.plat-novidades-form__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.85rem;
+}
+
+.plat-novidades-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.8125rem;
+  color: var(--muted-foreground);
+}
+
+.plat-novidades-field--full {
+  grid-column: 1 / -1;
+}
+
+.plat-novidades-field--checkbox {
+  grid-column: 1 / -1;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--foreground);
+}
+
+.plat-novidades-field input[type='text'],
+.plat-novidades-field input[type='date'],
+.plat-novidades-field textarea,
+.plat-novidades-form-item select,
+.plat-novidades-form-item input {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  background: var(--background);
+  color: var(--foreground);
+  padding: 0.5rem 0.65rem;
+  font-size: 0.875rem;
+}
+
+.plat-novidades-form__itens {
+  margin-top: 1.25rem;
+}
+
+.plat-novidades-form__itens-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.plat-novidades-form__itens-header h3 {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.plat-novidades-form-item {
+  display: grid;
+  grid-template-columns: 8.5rem 1fr auto;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.plat-novidades-form__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.plat-novidades-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.plat-novidades-card {
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  background: var(--card);
+  padding: 1rem 1.15rem;
+}
+
+.plat-novidades-card__top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.plat-novidades-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+  margin-bottom: 0.35rem;
+}
+
+.plat-novidades-card__rascunho {
+  background: color-mix(in srgb, var(--muted-foreground) 16%, var(--card)) !important;
+  color: var(--muted-foreground) !important;
+}
+
+.plat-novidades-card__titulo {
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+.plat-novidades-card__resumo {
+  margin-top: 0.25rem;
+  font-size: 0.8125rem;
+  color: var(--muted-foreground);
+}
+
+.plat-novidades-card__actions {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.plat-novidades-card__itens {
+  margin: 0.85rem 0 0;
+  padding-left: 1.1rem;
+  font-size: 0.8125rem;
+  color: var(--foreground);
+  line-height: 1.45;
+}
+
+@media (max-width: 640px) {
+  .plat-novidades-form__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .plat-novidades-form-item {
+    grid-template-columns: 1fr;
+  }
+}

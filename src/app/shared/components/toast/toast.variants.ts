@@ -1,7 +1,7 @@
 import { cva, type VariantProps } from 'class-variance-authority';
 
 export const toastVariants = cva(
-  'group group-[.toaster]:bg-background group-[.toaster]:text-foreground group-[.toaster]:border-border group-[.toaster]:shadow-lg',
+  'group group-[.toaster]:bg-background group-[.toaster]:text-foreground group-[.toaster]:border-border',
   {
     variants: {
       variant: {

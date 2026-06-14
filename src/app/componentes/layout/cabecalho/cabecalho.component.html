@@ -21,6 +21,7 @@
         class="top-header__nav"
         [context]="shellContext"
         [notificacoesNaoLidas]="notificacoesNaoLidas"
+        [novidadesNaoVistas]="novidadesNaoVistas"
       />
     }
 
@@ -48,6 +49,17 @@
         <span class="material-symbols-outlined text-[22px]">palette</span>
       </button>
     </div>
+
+    <a z-button zType="ghost" zSize="icon" routerLink="/novidades"
+       class="cabecalho-toolbar-action relative rounded-md no-underline header-desktop-only-flex"
+       aria-label="Novidades e versão">
+      <span class="material-symbols-outlined text-[19px]">new_releases</span>
+      @if (novidadesNaoVistas > 0) {
+        <z-badge zShape="pill" class="header-notify-dot absolute -top-0.5 -right-0.5 min-w-[1rem] border-2 border-background font-bold !h-4 !px-1 !py-0 !text-[0.55rem] !leading-none">
+          {{ novidadesNaoVistas > 99 ? '99+' : novidadesNaoVistas }}
+        </z-badge>
+      }
+    </a>
 
     @if (podeVerNotificacoesNoHeader) {
       <div class="mx-0.5 h-5 w-px bg-border header-desktop-only-block"></div>

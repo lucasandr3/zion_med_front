@@ -46,6 +46,7 @@ export const routes: Routes = [
       { path: 'pessoas/:id/editar', canActivate: [permissionGuard], loadComponent: () => import('./paginas/pessoas/pessoas-formulario.component').then(m => m.PessoasFormularioComponent), data: { titulo: 'Editar pessoa', permission: 'submissions.view', urlVoltar: '/pessoas', labelVoltar: 'Voltar para Pessoas' } },
       { path: 'pessoas/:id', canActivate: [permissionGuard], loadComponent: () => import('./paginas/pessoas/pessoas-detalhe.component').then(m => m.PessoasDetalheComponent), data: { titulo: 'Ficha da pessoa', permission: 'submissions.view', urlVoltar: '/pessoas', labelVoltar: 'Voltar para Pessoas', voltarIntegrado: true } },
       { path: 'notificacoes', canActivate: [permissionGuard], loadComponent: () => import('./paginas/notificacoes/notificacoes.component').then(m => m.NotificacoesComponent), data: { titulo: 'Notificações', permission: 'notifications.access' } },
+      { path: 'novidades', loadComponent: () => import('./paginas/novidades/novidades.component').then(m => m.NovidadesComponent), data: { titulo: 'Novidades' } },
       { path: 'templates', canActivate: [permissionGuard], loadComponent: () => import('./paginas/templates/templates-listagem.component').then(m => m.TemplatesListagemComponent), data: { titulo: 'Modelos de fichas', permission: 'templates.manage' } },
       { path: 'templates/criar', canActivate: [permissionGuard], loadComponent: () => import('./paginas/templates/templates-criar.component').then(m => m.TemplatesCriarComponent), data: { titulo: 'Novo modelo', permission: 'templates.manage', urlVoltar: '/templates', labelVoltar: 'Voltar para modelos' } },
       { path: 'templates/criar-em-branco', canActivate: [permissionGuard], loadComponent: () => import('./paginas/templates/templates-criar-em-branco.component').then(m => m.TemplatesCriarEmBrancoComponent), data: { titulo: 'Novo modelo (em branco)', permission: 'templates.manage', urlVoltar: '/templates', labelVoltar: 'Voltar para modelos', voltarIntegrado: true } },
@@ -81,6 +82,14 @@ export const routes: Routes = [
         data: { titulo: 'Tráfego da landing', subtitulo: 'Visitantes únicos e cliques no site de marketing.' },
       },
       { path: 'notificacoes', loadComponent: () => import('./paginas/notificacoes/notificacoes.component').then(m => m.NotificacoesComponent), data: { titulo: 'Notificações', subtitulo: 'Central de notificações.' } },
+      {
+        path: 'novidades',
+        loadComponent: () =>
+          import('./paginas/plataforma/plataforma-novidades/plataforma-novidades.component').then(
+            (m) => m.PlataformaNovidadesComponent
+          ),
+        data: { titulo: 'Novidades e versão', subtitulo: 'Gerencie o changelog exibido aos usuários.' },
+      },
       {
         path: 'emails',
         loadComponent: () =>

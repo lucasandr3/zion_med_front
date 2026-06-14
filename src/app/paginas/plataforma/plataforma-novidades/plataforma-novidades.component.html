@@ -1,0 +1,132 @@
+<div class="plat-novidades relative min-h-[200px]">
+  <div class="plat-novidades__toolbar">
+    <p class="plat-novidades__hint text-sm text-muted-foreground">
+      Cadastre uma release por versão. Itens aparecem na área de Novidades para todos os usuários autenticados.
+    </p>
+    @if (!exibirFormulario) {
+      <button z-button zType="default" zSize="sm" type="button" class="gap-1.5 shrink-0" (click)="abrirNovo()">
+        <span class="material-symbols-outlined text-base" aria-hidden="true">add</span>
+        Nova release
+      </button>
+    }
+  </div>
+
+  @if (exibirFormulario) {
+    <section class="plat-novidades-form">
+      <h2 class="plat-novidades-form__titulo">{{ editandoId ? 'Editar release' : 'Nova release' }}</h2>
+      <div class="plat-novidades-form__grid">
+        <label class="plat-novidades-field">
+          <span>Versão</span>
+          <input type="text" [(ngModel)]="formVersion" placeholder="Ex.: 1.2.0" maxlength="32" />
+        </label>
+        <label class="plat-novidades-field">
+          <span>Data de release</span>
+          <input type="date" [(ngModel)]="formReleasedAt" />
+        </label>
+        <label class="plat-novidades-field plat-novidades-field--full">
+          <span>Título</span>
+          <input type="text" [(ngModel)]="formTitle" placeholder="Ex.: Integrações e melhorias" maxlength="255" />
+        </label>
+        <label class="plat-novidades-field plat-novidades-field--full">
+          <span>Resumo (opcional)</span>
+          <textarea [(ngModel)]="formSummary" rows="2" placeholder="Breve descrição da release"></textarea>
+        </label>
+        <label class="plat-novidades-field plat-novidades-field--checkbox">
+          <input type="checkbox" [(ngModel)]="formPublished" />
+          <span>Publicada (visível aos usuários)</span>
+        </label>
+      </div>
+
+      <div class="plat-novidades-form__itens">
+        <div class="plat-novidades-form__itens-header">
+          <h3>Itens do changelog</h3>
+          <button z-button zType="outline" zSize="sm" type="button" (click)="adicionarItem()">Adicionar item</button>
+        </div>
+        @for (item of formItems; track $index) {
+          <div class="plat-novidades-form-item">
+            <select [(ngModel)]="item.type" [name]="'tipo-' + $index">
+              @for (t of tipos; track t.value) {
+                <option [ngValue]="t.value">{{ t.label }}</option>
+              }
+            </select>
+            <input type="text" [(ngModel)]="item.text" [name]="'texto-' + $index" placeholder="Descreva a mudança" />
+            <button
+              z-button
+              zType="ghost"
+              zSize="icon"
+              type="button"
+              aria-label="Remover item"
+              [zDisabled]="formItems.length <= 1"
+              (click)="removerItem($index)"
+            >
+              <span class="material-symbols-outlined text-base">close</span>
+            </button>
+          </div>
+        }
+      </div>
+
+      <div class="plat-novidades-form__actions">
+        <button z-button zType="outline" type="button" (click)="cancelarFormulario()">Cancelar</button>
+        <button z-button zType="default" type="button" [zLoading]="salvando" [zDisabled]="salvando" (click)="salvar()">
+          {{ editandoId ? 'Salvar alterações' : 'Publicar release' }}
+        </button>
+      </div>
+    </section>
+  }
+
+  @if (showSkeleton()) {
+    <zm-skeleton-list [rows]="4" />
+  } @else if (!listaPronta) {
+  } @else if (erro) {
+    <p class="text-sm text-destructive">Não foi possível carregar as releases.</p>
+  } @else if (notas.length === 0 && !exibirFormulario) {
+    <zm-empty-state
+      title="Nenhuma release cadastrada."
+      description="Crie a primeira release para informar os usuários sobre as novidades."
+    />
+  } @else {
+    <div class="plat-novidades-lista">
+      @for (nota of notas; track nota.id) {
+        <article class="plat-novidades-card">
+          <div class="plat-novidades-card__top">
+            <div>
+              <div class="plat-novidades-card__meta">
+                <z-badge zShape="pill">v{{ nota.version }}</z-badge>
+                @if (nota.is_published === false) {
+                  <z-badge zShape="pill" class="plat-novidades-card__rascunho">Rascunho</z-badge>
+                }
+                <span class="text-xs text-muted-foreground">{{ formatarData(nota.released_at) }}</span>
+              </div>
+              <h3 class="plat-novidades-card__titulo">{{ nota.title }}</h3>
+              @if (nota.summary) {
+                <p class="plat-novidades-card__resumo">{{ nota.summary }}</p>
+              }
+            </div>
+            <div class="plat-novidades-card__actions">
+              <button z-button zType="outline" zSize="sm" type="button" (click)="editar(nota)">Editar</button>
+              <button
+                z-button
+                zType="outline"
+                zSize="sm"
+                type="button"
+                class="text-destructive"
+                [zLoading]="excluindoId === nota.id"
+                [zDisabled]="excluindoId === nota.id"
+                (click)="excluir(nota)"
+              >
+                Excluir
+              </button>
+            </div>
+          </div>
+          <ul class="plat-novidades-card__itens">
+            @for (item of nota.items; track $index) {
+              <li>
+                <strong>{{ labelTipo(item.type) }}:</strong> {{ item.text }}
+              </li>
+            }
+          </ul>
+        </article>
+      }
+    </div>
+  }
+</div>

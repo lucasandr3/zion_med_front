@@ -6,6 +6,7 @@ import { BarraLateralComponent } from '../barra-lateral/barra-lateral.component'
 import { CabecalhoComponent } from '../cabecalho/cabecalho.component';
 import { CommonModule } from '@angular/common';
 import { NotificacoesService } from '../../../core/services/notificacoes.service';
+import { NovidadesService } from '../../../core/services/novidades.service';
 import { SidebarMobileService } from '../../../core/services/sidebar-mobile.service';
 import { BillingBlockedStateService } from '../../../core/services/billing-blocked-state.service';
 import { AuthService, TrialNotice } from '../../../core/services/auth.service';
@@ -34,9 +35,11 @@ export class LayoutAppComponent implements OnInit {
   labelVoltar: string | null = null;
   voltarIntegrado = false;
   notificacoesNaoLidas = 0;
+  novidadesNaoVistas = 0;
   trialNotice: TrialNotice | null = null;
   private router = inject(Router);
   private notif = inject(NotificacoesService);
+  private novidades = inject(NovidadesService);
   private sidebarMobile = inject(SidebarMobileService);
   private auth = inject(AuthService);
   private billingBlockedState = inject(BillingBlockedStateService);
@@ -134,9 +137,15 @@ export class LayoutAppComponent implements OnInit {
       this.billingBlockedState.clear();
       this.updateFromActivatedRoute();
       this.atualizarBadgeNotificacoes();
+      this.atualizarBadgeNovidades();
     });
     this.updateFromActivatedRoute();
     this.atualizarBadgeNotificacoes();
+    this.atualizarBadgeNovidades();
+  }
+
+  private atualizarBadgeNovidades(): void {
+    this.novidades.getNaoVistasCount().subscribe((n) => (this.novidadesNaoVistas = n));
   }
 
   private atualizarBadgeNotificacoes(): void {

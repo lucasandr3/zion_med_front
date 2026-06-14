@@ -72,8 +72,7 @@
     --gestgo-brand-border: var(--sidebar-border, var(--border, var(--c-border)));
     --gestgo-brand-title: var(--sidebar-foreground, var(--foreground, var(--c-text)));
     --gestgo-brand-tag: var(--muted-foreground, var(--c-muted));
-    --gestgo-brand-logo-shadow: 0 0 0 1px color-mix(in srgb, var(--c-primary) 18%, transparent),
-        0 2px 8px color-mix(in srgb, var(--c-primary) 24%, transparent);
+    --gestgo-brand-logo-shadow: none;
 
     /* Shell — alinhado aos tokens Zard (presets via body.shell-preset-* podem sobrescrever) */
     --shell-header-height: 3.5rem; /* h-14 — #top-header */
@@ -121,11 +120,11 @@
     --radius-xl: 1rem;
     --radius-2xl: 1.25rem;
 
-    /* Sombras */
-    --shadow-sm: 0 1px 2px rgba(13, 20, 16, 0.06);
-    --shadow-md: 0 4px 14px rgba(13, 20, 16, 0.08);
-    --shadow-lg: 0 12px 40px rgba(13, 20, 16, 0.12);
-    --shadow-drawer: -8px 0 32px rgba(13, 20, 16, 0.12);
+    /* Sombras — desativadas globalmente (sem box-shadow no sistema) */
+    --shadow-sm: none;
+    --shadow-md: none;
+    --shadow-lg: none;
+    --shadow-drawer: none;
 
     /* Tipografia (rem) */
     --text-xs: 0.6875rem;
@@ -200,17 +199,16 @@ body.shell-preset-tinted {
     --c-kpi-accent-soft: rgba(94, 234, 212, 0.12);
     --c-kpi-accent-text: #5eead4;
 
-    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
-    --shadow-md: 0 4px 18px rgba(0, 0, 0, 0.28);
-    --shadow-lg: 0 12px 48px rgba(0, 0, 0, 0.45);
-    --shadow-drawer: -12px 0 40px rgba(0, 0, 0, 0.45);
+    --shadow-sm: none;
+    --shadow-md: none;
+    --shadow-lg: none;
+    --shadow-drawer: none;
 
     --gestgo-brand-bg: var(--sidebar, var(--c-elevated, #25262b));
     --gestgo-brand-border: var(--sidebar-border, rgba(255, 255, 255, 0.08));
     --gestgo-brand-title: var(--sidebar-foreground, var(--c-text, #ffffff));
     --gestgo-brand-tag: color-mix(in srgb, var(--gestgo-brand-title) 52%, transparent);
-    --gestgo-brand-logo-shadow: 0 0 0 1px rgba(0, 0, 0, 0.12),
-        0 2px 8px color-mix(in srgb, var(--c-primary) 35%, transparent);
+    --gestgo-brand-logo-shadow: none;
 }
 
 /* Cada tema ajusta primary/accent/focus no dark — shade-400/300 para luminosidade adequada */
@@ -2030,9 +2028,7 @@ body.shell-preset-tinted #top-header .shell-profile-chip--header .material-symbo
     border: 1px solid var(--border);
     background: var(--popover);
     color: var(--popover-foreground);
-    box-shadow:
-        0 4px 16px color-mix(in srgb, var(--foreground) 10%, transparent),
-        0 1px 3px color-mix(in srgb, var(--foreground) 6%, transparent);
+    box-shadow: none;
 }
 
 .empresa-menu-popover__header {
@@ -2209,8 +2205,7 @@ body.shell-preset-sidebar-dark:not(.dark) .sidebar {
     --gestgo-brand-border: var(--sidebar-border);
     --gestgo-brand-title: var(--sidebar-foreground);
     --gestgo-brand-tag: color-mix(in srgb, var(--sidebar-foreground) 52%, transparent);
-    --gestgo-brand-logo-shadow: 0 0 0 1px rgba(0, 0, 0, 0.12),
-        0 2px 8px color-mix(in srgb, var(--c-primary) 35%, transparent);
+    --gestgo-brand-logo-shadow: none;
     /* fallback; cada `body.theme-*` sobrescreve com a primária do modo escuro */
     --sidebar-primary: oklch(0.488 0.243 264.376);
     --sidebar-primary-foreground: oklch(0.985 0 0);
@@ -3169,8 +3164,8 @@ body.dark .flatpickr-calendar .flatpickr-weekwrapper span.flatpickr-day { color:
 .bg-emeraldish-600 { background-color: #10b981; }
 .bg-emeraldish-600\/10 { background-color: rgba(16, 185, 129, 0.1); }
 .text-emeraldish-600 { color: #10b981; }
-.shadow-soft { box-shadow: 0 10px 30px rgba(2, 6, 23, 0.12); }
-.shadow-glow { box-shadow: 0 0 0 1px rgba(30, 64, 175, 0.25), 0 10px 30px rgba(30, 64, 175, 0.12); }
+.shadow-soft { box-shadow: none; }
+.shadow-glow { box-shadow: none; }
 .grain::before {
   content: "";
   position: absolute;
@@ -3753,7 +3748,7 @@ body.dark .flatpickr-calendar.hasTime.noCalendar .flatpickr-time input:focus {
   background: var(--popover) !important;
   border: 1px solid var(--border) !important;
   color: var(--popover-foreground) !important;
-  box-shadow: var(--shadow-md) !important;
+  box-shadow: none !important;
 }
 
 [data-sonner-toast] [data-description] {
@@ -3774,4 +3769,33 @@ body.dark .flatpickr-calendar.hasTime.noCalendar .flatpickr-time input:focus {
   border-color: var(--border) !important;
   background: var(--background) !important;
   color: var(--muted-foreground) !important;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   SEM BOX-SHADOW — regra global (menus, modais, cards, focus ring, Tailwind)
+   ══════════════════════════════════════════════════════════════════════════ */
+*,
+*::before,
+*::after {
+  box-shadow: none !important;
+}
+
+.shadow-sm,
+.shadow,
+.shadow-md,
+.shadow-lg,
+.shadow-xl,
+.shadow-2xl,
+.shadow-inner,
+.shadow-none,
+.shadow-soft,
+.shadow-glow,
+[class*='shadow-'] {
+  box-shadow: none !important;
+}
+
+/* Foco acessível sem box-shadow (substitui ring/shadow de focus) */
+:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--ring, var(--c-primary, #2563eb)) 70%, transparent);
+  outline-offset: 2px;
 }

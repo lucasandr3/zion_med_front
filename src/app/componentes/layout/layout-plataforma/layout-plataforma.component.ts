@@ -5,6 +5,7 @@ import { BarraLateralPlataformaComponent } from '../barra-lateral-plataforma/bar
 import { CabecalhoComponent } from '../cabecalho/cabecalho.component';
 import { CommonModule } from '@angular/common';
 import { NotificacoesService } from '../../../core/services/notificacoes.service';
+import { NovidadesService } from '../../../core/services/novidades.service';
 import { SidebarMobileService } from '../../../core/services/sidebar-mobile.service';
 import { PlataformaHeaderService } from '../../../core/services/plataforma-header.service';
 import { AuthService } from '../../../core/services/auth.service';
@@ -23,8 +24,10 @@ export class LayoutPlataformaComponent implements OnInit, OnDestroy {
   labelVoltar = 'Voltar';
   voltarIntegrado = false;
   notificacoesNaoLidas = 0;
+  novidadesNaoVistas = 0;
   private router = inject(Router);
   private notif = inject(NotificacoesService);
+  private novidades = inject(NovidadesService);
   private sidebarMobile = inject(SidebarMobileService);
   private headerService = inject(PlataformaHeaderService);
   private auth = inject(AuthService);
@@ -67,10 +70,16 @@ export class LayoutPlataformaComponent implements OnInit, OnDestroy {
       this.headerService.clearHeader();
       this.updateFromActivatedRoute();
       this.atualizarBadgeNotificacoes();
+      this.atualizarBadgeNovidades();
     });
 
     this.updateFromActivatedRoute();
     this.atualizarBadgeNotificacoes();
+    this.atualizarBadgeNovidades();
+  }
+
+  private atualizarBadgeNovidades(): void {
+    this.novidades.getNaoVistasCount().subscribe((n) => (this.novidadesNaoVistas = n));
   }
 
   private atualizarBadgeNotificacoes(): void {

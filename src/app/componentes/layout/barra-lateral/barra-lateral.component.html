@@ -95,6 +95,22 @@
       </a>
     }
 
+    <a routerLink="/novidades"
+       routerLinkActive="router-link-active"
+       z-button
+       zType="ghost"
+       class="shell-sidebar-nav relative w-full justify-start gap-2 px-2.5 font-normal text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground [&.router-link-active]:border-none [&.router-link-active]:bg-sidebar-primary/14 [&.router-link-active]:font-semibold [&.router-link-active]:text-sidebar-primary"
+       [zTooltip]="tooltipQuandoColapsada('Novidades')"
+    >
+      <span class="material-symbols-outlined shrink-0 text-[19px]">new_releases</span>
+      <span class="sidebar-label">Novidades</span>
+      @if (novidadesNaoVistas > 0) {
+        <z-badge zShape="pill" class="sidebar-label ml-auto !h-[18px] !min-w-[18px] !px-1 !py-0 !text-[0.6rem] !leading-none">
+          {{ novidadesNaoVistas > 99 ? '99+' : novidadesNaoVistas }}
+        </z-badge>
+      }
+    </a>
+
     @if (podeVerNotificacoes) {
       <a routerLink="/notificacoes"
          routerLinkActive="router-link-active"
@@ -200,7 +216,7 @@
       </button>
 
       <ng-template #usuarioSidebarMenuTpl>
-        <div z-menu-content class="sidebar-shell-menu-popover min-w-52 rounded-lg border border-border bg-popover p-1.5 text-popover-foreground shadow-lg">
+        <div z-menu-content class="sidebar-shell-menu-popover min-w-52 rounded-lg border border-border bg-popover p-1.5 text-popover-foreground">
           @if (exibirTrocarEmpresa) {
             <a
               z-menu-item
