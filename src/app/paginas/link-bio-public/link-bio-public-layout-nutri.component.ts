@@ -8,8 +8,11 @@ import {
   LinkBioLink,
   LinkBioPublicDocItem,
   LinkBioService,
+  LinkBioGoogleReviews,
 } from '../../core/services/link-bio.service';
 import { linkBioHeroPortraitUrl } from '../../core/utils/link-bio-public-assets';
+import { linkBioSpecialtiesList, parseLinkBioExtra } from '../../core/utils/link-bio-clinic-normalize.util';
+import { LinkBioPublicGoogleReviewsComponent } from './link-bio-public-google-reviews.component';
 
 const DEFAULT_AREAS: { icon: string; title: string; description: string }[] = [
   {
@@ -37,7 +40,7 @@ const DEFAULT_AREAS: { icon: string; title: string; description: string }[] = [
 @Component({
   selector: 'app-link-bio-public-layout-nutri',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, LinkBioPublicGoogleReviewsComponent],
   templateUrl: './link-bio-public-layout-nutri.component.html',
   styleUrl: './link-bio-public-layout-nutri.component.css',
 })
@@ -46,6 +49,7 @@ export class LinkBioPublicLayoutNutriComponent {
 
   @Input({ required: true }) clinic!: LinkBioClinic;
   @Input() bioLinks: LinkBioLink[] = [];
+  @Input() googleReviews: LinkBioGoogleReviews | null = null;
   @Input() dark = false;
   @Input() allDocs: LinkBioPublicDocItem[] = [];
   @Input() publicSlug = '';
@@ -55,12 +59,20 @@ export class LinkBioPublicLayoutNutriComponent {
   @Output() share = new EventEmitter<void>();
 
   get extra(): LinkBioExtra {
-    const e = this.clinic.link_bio_extra;
-    return e && typeof e === 'object' ? (e as LinkBioExtra) : {};
+    return parseLinkBioExtra(this.clinic.link_bio_extra);
   }
 
   get heroPortraitUrl(): string | null {
     return linkBioHeroPortraitUrl(this.clinic);
+  }
+
+  get clinicInitials(): string {
+    return (this.clinic.name ?? '')
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((w) => w[0].toUpperCase())
+      .join('');
   }
 
   get hoursGridArray(): { label: string; text: string }[] {
@@ -75,7 +87,7 @@ export class LinkBioPublicLayoutNutriComponent {
   }
 
   get specialtiesChips(): string[] {
-    const list = this.clinic.specialties_list?.map((item) => item.trim()).filter(Boolean) ?? [];
+    const list = linkBioSpecialtiesList(this.clinic);
     return list.length ? list.slice(0, 6) : ['Funcional', 'Emagrecimento', 'Esportiva', 'Intestino'];
   }
 
@@ -127,7 +139,7 @@ export class LinkBioPublicLayoutNutriComponent {
   }
 
   get areas(): { icon: string; title: string; description: string }[] {
-    const list = this.clinic.specialties_list?.map((item) => item.trim()).filter(Boolean) ?? [];
+    const list = linkBioSpecialtiesList(this.clinic);
     if (!list.length) return DEFAULT_AREAS;
 
     return list.slice(0, 4).map((title, index) => ({
@@ -141,6 +153,61 @@ export class LinkBioPublicLayoutNutriComponent {
     if (this.clinic.is_open_now === true) return 'Aberta para consultas';
     if (this.clinic.is_open_now === false) return 'Atendimento sob agendamento';
     return 'Agenda disponível';
+  }
+
+  /** Cor de destaque — lê `accent_hex`, fallback ao verde-sálvia (#527a42). */
+  m8AccentHex(): string {
+    let h = (this.clinic?.accent_hex ?? '').trim();
+    if (!h) return '#527a42';
+    if (!h.startsWith('#')) h = `#${h}`;
+    if (h.length === 4 && /^#[0-9a-fA-F]{3}$/.test(h)) {
+      h = `#${h[1]}${h[1]}${h[2]}${h[2]}${h[3]}${h[3]}`;
+    }
+    return /^#[0-9a-fA-F]{6}$/.test(h) ? h.toLowerCase() : '#527a42';
+  }
+
+  /** Variáveis CSS para Nutricionista (M8) — torna o accent personalizável. */
+  themeVarsM8(): Record<string, string> {
+    const accent = this.m8AccentHex();
+    const coverBg = this.mixHex(accent, '#000000', 0.42);
+    const coverBgDark = this.mixHex(accent, '#000000', 0.65);
+    const onAccent = this.onAccentForHex(accent);
+    const rgb = this.hexToRgbTuple(accent);
+    const rgbStr = rgb ? `${rgb.r},${rgb.g},${rgb.b}` : '82,122,66';
+    return {
+      '--m8-accent': accent,
+      '--m8-on-accent': onAccent,
+      '--m8-cover-bg': coverBg,
+      '--m8-cover-bg-dark': coverBgDark,
+      '--m8-page-bg': '#f9fafb',
+      '--m8-page-bg-dark': '#121212',
+      '--m8-accent-rgb': rgbStr,
+    };
+  }
+
+  private hexToRgbTuple(hex: string): { r: number; g: number; b: number } | null {
+    const h = hex.replace('#', '').trim();
+    if (h.length !== 6) return null;
+    return { r: parseInt(h.slice(0, 2), 16), g: parseInt(h.slice(2, 4), 16), b: parseInt(h.slice(4, 6), 16) };
+  }
+
+  private mixHex(from: string, to: string, t: number): string {
+    const a = this.hexToRgbTuple(from);
+    const b = this.hexToRgbTuple(to);
+    if (!a || !b) return from;
+    const ch = (x: number, y: number) => Math.round(x + (y - x) * t);
+    const x = (n: number) => n.toString(16).padStart(2, '0');
+    return `#${x(ch(a.r, b.r))}${x(ch(a.g, b.g))}${x(ch(a.b, b.b))}`;
+  }
+
+  private onAccentForHex(hex: string): string {
+    const h = hex.replace('#', '').trim();
+    if (h.length !== 6) return '#fafafa';
+    const r = parseInt(h.substring(0, 2), 16) / 255;
+    const g = parseInt(h.substring(2, 4), 16) / 255;
+    const b = parseInt(h.substring(4, 6), 16) / 255;
+    const l = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    return l > 0.55 ? '#0b0b0b' : '#fafafa';
   }
 
   get weekdayRows(): { label: string; text: string }[] {

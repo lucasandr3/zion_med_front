@@ -75,6 +75,22 @@
       </a>
     }
 
+    @if (shellContext === 'plataforma') {
+      <div class="mx-0.5 h-5 w-px bg-border"></div>
+      <button
+        z-button
+        zType="ghost"
+        zSize="sm"
+        type="button"
+        class="cabecalho-toolbar-action cabecalho-logout-btn rounded-md"
+        (click)="sair()"
+        aria-label="Sair da plataforma"
+      >
+        <span class="material-symbols-outlined text-[19px]" aria-hidden="true">logout</span>
+        <span class="cabecalho-logout-btn__label">Sair</span>
+      </button>
+    }
+
     @if (nomeClinica) {
       <div class="mx-0.5 hidden h-5 w-px bg-border lg:block"></div>
       <div class="relative">

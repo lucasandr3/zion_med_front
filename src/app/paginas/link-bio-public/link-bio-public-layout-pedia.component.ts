@@ -8,8 +8,11 @@ import {
   LinkBioLink,
   LinkBioPublicDocItem,
   LinkBioService,
+  LinkBioGoogleReviews,
 } from '../../core/services/link-bio.service';
 import { linkBioHeaderBrandImageUrl, linkBioHeroPortraitUrl } from '../../core/utils/link-bio-public-assets';
+import { parseLinkBioExtra } from '../../core/utils/link-bio-clinic-normalize.util';
+import { LinkBioPublicGoogleReviewsComponent } from './link-bio-public-google-reviews.component';
 
 const DEFAULT_STEPS: { title: string; subtitle: string; tone: 'sky' | 'lemon' | 'mint' }[] = [
   {
@@ -38,7 +41,7 @@ const DEFAULT_AGE_BANDS: { emoji: string; title: string; range: string; theme: '
 @Component({
   selector: 'app-link-bio-public-layout-pedia',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, LinkBioPublicGoogleReviewsComponent],
   templateUrl: './link-bio-public-layout-pedia.component.html',
   styleUrl: './link-bio-public-layout-pedia.component.css',
 })
@@ -47,6 +50,7 @@ export class LinkBioPublicLayoutPediaComponent {
 
   @Input({ required: true }) clinic!: LinkBioClinic;
   @Input() bioLinks: LinkBioLink[] = [];
+  @Input() googleReviews: LinkBioGoogleReviews | null = null;
   @Input() dark = false;
   @Input() allDocs: LinkBioPublicDocItem[] = [];
   @Input() publicSlug = '';
@@ -56,8 +60,7 @@ export class LinkBioPublicLayoutPediaComponent {
   @Output() share = new EventEmitter<void>();
 
   get extra(): LinkBioExtra {
-    const e = this.clinic.link_bio_extra;
-    return e && typeof e === 'object' ? (e as LinkBioExtra) : {};
+    return parseLinkBioExtra(this.clinic.link_bio_extra);
   }
 
   get hoursGridArray(): { label: string; text: string }[] {
@@ -163,13 +166,13 @@ export class LinkBioPublicLayoutPediaComponent {
 
   /** Título do herói (Stitch: “Cuidado com carinho”). */
   get heroHeadlineP7(): string {
-    return this.extra.hero_tagline?.trim() || 'Cuidado com carinho';
+    return this.clinic.name?.trim() || this.extra.hero_tagline?.trim() || 'Cuidado com carinho';
   }
 
   /** Subtítulo curto abaixo do herói. */
   get heroSubP7(): string {
     return (
-      this.clinic.short_description?.trim() ||
+      this.taglineUnderTitle ||
       'Excelência em pediatria para o seu maior tesouro.'
     );
   }

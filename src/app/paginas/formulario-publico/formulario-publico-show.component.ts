@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, inject, ViewChild, Signal, signal } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject, ViewChild, Signal, signal, ChangeDetectorRef, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule, NgForm } from '@angular/forms';
@@ -18,6 +18,7 @@ import {
 import { LoadingService } from '../../shared/services/loading.service';
 import { ToastService } from '../../core/services/toast.service';
 import { digitsOnlyCpf, formatCpfDisplay, isValidCpfDigits } from '../../core/utils/cpf';
+import { buildFormFieldSteps, isTrackableFormField } from './formulario-publico-steps.util';
 
 interface PersonPrefill {
   name?: string;
@@ -91,6 +92,7 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
   private static readonly LS_CPF_AUTH_PREFIX = 'gestgo_public_form_cpf_auth_';
 
   @ViewChild('publicForm') ngForm!: NgForm;
+  @ViewChild('fpScroll') fpScrollRef?: ElementRef<HTMLElement>;
   token = '';
   data: FormularioPublicoData | null = null;
   valores: Record<string, string | number | boolean | Date> = {};
@@ -207,7 +209,10 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
   dark = false;
   /** Se a URL da logo existir mas a imagem falhar (404, CORS, host interno). */
   logoImageFailed = signal(false);
+  /** Índice da etapa atual (0-based) em formulários longos. */
+  currentStepIndex = 0;
   private route = inject(ActivatedRoute);
+  private cdr = inject(ChangeDetectorRef);
   private router = inject(Router);
   private formularioService = inject(FormularioPublicoService);
   private loadingService = inject(LoadingService);
@@ -221,6 +226,7 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.publicPageBody.enterPublicPage();
+    this.lockPageScroll();
     try {
       this.dark = localStorage.getItem('gestgo_form_dark_mode') === '1';
     } catch {}
@@ -269,6 +275,7 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
         if (this.feegowEnabled()) {
           this.initFeegowValues();
         }
+        this.resetFormSteps();
         this.restoreCpfGateAuthorization();
       },
       error: (err) => {
@@ -609,6 +616,11 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
   enviar(): void {
     if (!this.data || this.enviando) return;
     if (!this.personFormUnlocked()) return;
+    if (this.usesFormSteps && !this.isLastFormStep) {
+      this.avancarEtapa();
+      return;
+    }
+    if (!this.validarCamposObrigatorios(this.data.fields)) return;
     if (this.ngForm && !this.ngForm.valid) {
       this.toast.warning('Campos obrigatórios', 'Preencha ou corrija os campos marcados com * antes de enviar.');
       return;
@@ -683,6 +695,7 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
               else this.valores[f.name_key] = '';
             });
           }
+          this.resetFormSteps();
           return;
         }
         this.clearCpfGateAuthorization();
@@ -915,7 +928,66 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
     return n ? n.charAt(0).toUpperCase() : 'Z';
   }
 
-  /** Campos obrigatórios (para barra de progresso). */
+  /** Etapas do formulário (uma etapa = todos os campos em formulários curtos). */
+  get formFieldSteps(): FormularioPublicoField[][] {
+    if (!this.data?.fields.length) return [];
+    return buildFormFieldSteps(this.data.fields);
+  }
+
+  get usesFormSteps(): boolean {
+    return this.formFieldSteps.length > 1;
+  }
+
+  get totalFormSteps(): number {
+    return this.formFieldSteps.length;
+  }
+
+  get currentStepNumber(): number {
+    return this.currentStepIndex + 1;
+  }
+
+  get isFirstFormStep(): boolean {
+    return this.currentStepIndex <= 0;
+  }
+
+  get isLastFormStep(): boolean {
+    return this.currentStepIndex >= this.totalFormSteps - 1;
+  }
+
+  get currentStepFields(): FormularioPublicoField[] {
+    return this.formFieldSteps[this.currentStepIndex] ?? [];
+  }
+
+  get showFeegowOnCurrentStep(): boolean {
+    return this.feegowEnabled() && this.isFirstFormStep;
+  }
+
+  get showPreenchedoraOnCurrentStep(): boolean {
+    return !this.personLinkRequired() && this.isFirstFormStep;
+  }
+
+  get showOtpOnCurrentStep(): boolean {
+    return this.signingSecurityReinforced() && this.templateHasSignatureFields() && this.isLastFormStep;
+  }
+
+  get showConsentOnCurrentStep(): boolean {
+    return this.templateHasSignatureFields() && this.isLastFormStep;
+  }
+
+  /** Campos contabilizados na barra de progresso. */
+  get trackableFields(): FormularioPublicoField[] {
+    return this.data?.fields.filter((f) => isTrackableFormField(f)) ?? [];
+  }
+
+  get trackableFieldsTotal(): number {
+    return this.trackableFields.length;
+  }
+
+  get filledFieldsCount(): number {
+    return this.trackableFields.filter((f) => this.isFieldFilled(f)).length;
+  }
+
+  /** Campos obrigatórios (validação de envio). */
   get requiredFieldsTotal(): number {
     return this.data?.fields.filter((f) => f.required).length ?? 0;
   }
@@ -926,9 +998,97 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
   }
 
   get progressPercent(): number {
-    const t = this.requiredFieldsTotal;
-    if (t <= 0) return 100;
-    return Math.round((this.requiredFieldsFilled / t) * 100);
+    const total = this.trackableFieldsTotal;
+    if (total <= 0) return 0;
+    return Math.round((this.filledFieldsCount / total) * 100);
+  }
+
+  get progressCountLabel(): string {
+    const filled = this.filledFieldsCount;
+    const total = this.trackableFieldsTotal;
+    if (this.usesFormSteps) {
+      return `Etapa ${this.currentStepNumber} de ${this.totalFormSteps} · ${filled} de ${total}`;
+    }
+    if (this.requiredFieldsTotal > 0) {
+      return `${this.requiredFieldsFilled} de ${this.requiredFieldsTotal} obrigatórios · ${filled} de ${total}`;
+    }
+    return `${filled} de ${total} preenchidos`;
+  }
+
+  /** Atualiza a barra de progresso após alteração de campo (ex.: z-checkbox). */
+  onCampoAlterado(): void {
+    this.cdr.markForCheck();
+  }
+
+  avancarEtapa(): void {
+    if (!this.validarEtapaAtual()) return;
+    if (!this.isLastFormStep) {
+      this.currentStepIndex++;
+      this.scrollToFormTop();
+    }
+  }
+
+  voltarEtapa(): void {
+    if (!this.isFirstFormStep) {
+      this.currentStepIndex--;
+      this.scrollToFormTop();
+    }
+  }
+
+  private validarEtapaAtual(): boolean {
+    return this.validarCamposObrigatorios(this.currentStepFields);
+  }
+
+  private validarCamposObrigatorios(fields: FormularioPublicoField[]): boolean {
+    if (!this.data) return false;
+    const pendentes = fields.filter((f) => f.required && !this.isFieldFilled(f));
+    if (pendentes.length) {
+      if (this.usesFormSteps) {
+        const stepIndex = this.formFieldSteps.findIndex((step) => step.some((f) => f.name_key === pendentes[0]!.name_key));
+        if (stepIndex >= 0 && stepIndex !== this.currentStepIndex) {
+          this.currentStepIndex = stepIndex;
+          this.scrollToFormTop();
+        }
+      }
+      this.toast.warning(
+        'Campos obrigatórios',
+        this.usesFormSteps
+          ? 'Preencha os campos marcados com * nesta etapa antes de continuar.'
+          : 'Preencha os campos marcados com * antes de enviar.'
+      );
+      return false;
+    }
+    return true;
+  }
+
+  private scrollToFormTop(): void {
+    if (typeof document === 'undefined') return;
+    const el = this.fpScrollRef?.nativeElement;
+    if (el) {
+      el.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  private lockPageScroll(): void {
+    if (typeof document === 'undefined') return;
+    document.documentElement.style.overflow = 'hidden';
+    document.documentElement.style.height = '100dvh';
+    document.body.style.overflow = 'hidden';
+    document.body.style.height = '100dvh';
+  }
+
+  private unlockPageScroll(): void {
+    if (typeof document === 'undefined') return;
+    document.documentElement.style.overflow = '';
+    document.documentElement.style.height = '';
+    document.body.style.overflow = '';
+    document.body.style.height = '';
+  }
+
+  private resetFormSteps(): void {
+    this.currentStepIndex = 0;
   }
 
   isFieldFilled(f: FormularioPublicoField): boolean {
@@ -1063,6 +1223,7 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.unlockPageScroll();
     this.publicPageBody.leavePublicPage();
     if (typeof document !== 'undefined' && document.body) {
       document.body.classList.remove('gestgo-public-dark');

@@ -7,13 +7,15 @@ import {
   LinkBioLink,
   LinkBioPublicDocItem,
   LinkBioService,
+  LinkBioGoogleReviews,
 } from '../../core/services/link-bio.service';
 import { linkBioHeaderBrandImageUrl } from '../../core/utils/link-bio-public-assets';
+import { LinkBioPublicGoogleReviewsComponent } from './link-bio-public-google-reviews.component';
 
 @Component({
   selector: 'app-link-bio-public-layout-generic',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, LinkBioPublicGoogleReviewsComponent],
   templateUrl: './link-bio-public-layout-generic.component.html',
   styleUrl: './link-bio-public-layout-generic.component.css',
 })
@@ -22,6 +24,7 @@ export class LinkBioPublicLayoutGenericComponent {
 
   @Input({ required: true }) clinic!: LinkBioClinic;
   @Input({ required: true }) allLinks: LinkBioPublicDocItem[] = [];
+  @Input() googleReviews: LinkBioGoogleReviews | null = null;
   @Input() publicSlug = '';
   @Input() linkBioPreview = false;
   @Input() dark = false;

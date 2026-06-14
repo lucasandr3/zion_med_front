@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { ApiService } from './api.service';
 import { map, Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { normalizeLinkBioClinic } from '../utils/link-bio-clinic-normalize.util';
 
 export interface LinkBioLink {
   id: number;
@@ -83,6 +84,8 @@ export interface LinkBioClinic {
   phone?: string | null;
   meta_description?: string | null;
   maps_url?: string | null;
+  google_place_id?: string | null;
+  google_reviews_enabled?: boolean;
   accent_hex?: string | null;
   is_open_now?: boolean | null;
   business_hours_grid?: Record<string, { label: string; text: string }>;
@@ -131,11 +134,29 @@ export interface LinkBioStats {
   click_breakdown: LinkBioClickBreakdownRow[];
 }
 
+export interface LinkBioGoogleReview {
+  author_name: string;
+  rating: number;
+  text: string;
+  relative_time: string;
+  profile_photo_url?: string | null;
+}
+
+export interface LinkBioGoogleReviews {
+  place_id?: string;
+  rating?: number | null;
+  user_ratings_total?: number | null;
+  write_review_url?: string | null;
+  maps_url?: string | null;
+  reviews: LinkBioGoogleReview[];
+}
+
 /** Resposta do endpoint público GET /link-bio/public/:slug */
 export interface LinkBioPublicData {
   clinic: LinkBioClinic;
   links: LinkBioLink[];
   form_links: { id: number; name: string; public_url: string }[];
+  google_reviews?: LinkBioGoogleReviews | null;
 }
 
 export interface LinkBioState {
@@ -182,7 +203,7 @@ export class LinkBioService {
       map((r) => {
         const d = r.data;
         return {
-          clinic: d.clinic,
+          clinic: normalizeLinkBioClinic(d.clinic),
           public_url: d.public_url,
           links: d.bio_links ?? [],
           forms: d.form_links_public ?? [],
@@ -240,7 +261,8 @@ export class LinkBioService {
       .pipe(
         map((r) => {
           const d = r.data as { clinic?: LinkBioClinic } | LinkBioClinic;
-          return (typeof d === 'object' && d && 'clinic' in d ? d.clinic : d) as LinkBioClinic;
+          const clinic = (typeof d === 'object' && d && 'clinic' in d ? d.clinic : d) as LinkBioClinic;
+          return normalizeLinkBioClinic(clinic);
         })
       );
   }
@@ -308,6 +330,11 @@ export class LinkBioService {
     const params = opts?.preview ? { preview: '1' as const } : undefined;
     return this.api
       .get<{ data: LinkBioPublicData }>(`/link-bio/public/${encodeURIComponent(slug)}`, params)
-      .pipe(map((r) => r.data));
+      .pipe(
+        map((r) => ({
+          ...r.data,
+          clinic: normalizeLinkBioClinic(r.data.clinic),
+        }))
+      );
   }
 }

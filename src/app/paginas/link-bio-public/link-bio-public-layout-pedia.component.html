@@ -1,17 +1,5 @@
 <div class="lb-p7-root" [class.dark]="dark" [ngStyle]="themeVarsP7()">
-  <header class="lb-p7-header">
-    <div class="lb-p7-header-inner">
-      <div class="lb-p7-header-brand">
-        <div class="lb-p7-header-avatar" aria-hidden="true">
-          @if (headerBrandImageUrl) {
-            <img [src]="headerBrandImageUrl" [alt]="clinic.name" class="lb-p7-header-avatar-img" />
-          } @else {
-            {{ headerInitial }}
-          }
-        </div>
-        <h1 class="lb-p7-header-title">{{ clinic.name }}</h1>
-      </div>
-      <div class="lb-p7-header-actions">
+  <div class="lb-p7-float-toolbar" role="toolbar" aria-label="Ações da página">
         <button type="button" class="lb-p7-icon-btn" (click)="onToggleDark()" aria-label="Alternar tema">
           @if (dark) {
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -40,9 +28,7 @@
             <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
           </svg>
         </button>
-      </div>
-    </div>
-  </header>
+  </div>
 
   <main class="lb-p7-main">
     <section class="lb-p7-hero lb-p7-a1">
@@ -60,6 +46,9 @@
           </svg>
         </div>
       </div>
+      @if (coverKicker) {
+        <p class="lb-p7-hero-kicker">{{ coverKicker }}</p>
+      }
       <h2 class="lb-p7-hero-title">{{ heroHeadlineP7 }}</h2>
       <p class="lb-p7-hero-sub">{{ heroSubP7 }}</p>
       @if (clinic.is_open_now === true) {
@@ -261,17 +250,26 @@
 
     @if (clinic.address) {
       <p class="lb-p7-address lb-p7-a5">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
           <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" />
           <circle cx="12" cy="10" r="3" />
         </svg>
-        {{ clinic.address }}
+        @if (clinic.maps_url) {
+          <a [href]="trackCta('maps', clinic.maps_url!)" target="_blank" rel="noopener noreferrer" class="lb-p7-address-link">{{ clinic.address }}</a>
+        } @else {
+          <span>{{ clinic.address }}</span>
+        }
       </p>
     }
   </main>
 
+  @if (googleReviews) {
+    <app-link-bio-public-google-reviews [reviews]="googleReviews" [dark]="dark" />
+  }
+
   <footer class="lb-p7-footer lb-p7-a5">
-    <div class="lb-p7-footer-name">{{ clinic.name }}</div>
+    <p class="lb-p7-footer-name">{{ clinic.name }}</p>
+    <p class="lb-p7-footer-copy">Fichas digitais por Gestgo</p>
     <div class="lb-p7-footer-links">
       <a href="https://gestgo.com.br" target="_blank" rel="noopener noreferrer" class="lb-p7-footer-link">Gestgo</a>
       <a routerLink="/privacidade" class="lb-p7-footer-link">Privacidade</a>
@@ -282,6 +280,5 @@
         <a [href]="trackCta('email', 'mailto:' + clinic.contact_email)" class="lb-p7-footer-link">Contato</a>
       }
     </div>
-    <p class="lb-p7-footer-copy">Fichas digitais por Gestgo · Cuidado pediátrico com excelência.</p>
   </footer>
 </div>

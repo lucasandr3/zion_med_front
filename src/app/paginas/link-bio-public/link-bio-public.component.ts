@@ -8,8 +8,10 @@ import {
   LinkBioClinic,
   LinkBioLink,
   LinkBioPublicDocItem,
+  LinkBioGoogleReviews,
 } from '../../core/services/link-bio.service';
 import { absoluteMediaUrl } from '../../core/utils/absolute-media-url';
+import { normalizeLinkBioClinic, parseLinkBioExtra } from '../../core/utils/link-bio-clinic-normalize.util';
 import { PublicPageBodyService } from '../../core/services/public-page-body.service';
 import { LoadingService } from '../../shared/services/loading.service';
 import { LinkBioPublicLayoutsComponent } from './link-bio-public-layouts.component';
@@ -88,6 +90,9 @@ export class LinkBioPublicComponent implements OnInit, OnDestroy {
         }
         this.data = { ...d, clinic };
         this.applyPreviewFromAdminSession();
+        if (this.data?.clinic) {
+          this.data.clinic = normalizeLinkBioClinic(this.data.clinic);
+        }
         this.updateMeta();
       },
       error: () => {
@@ -114,7 +119,7 @@ export class LinkBioPublicComponent implements OnInit, OnDestroy {
         typeof o.link_bio_extra === 'object' &&
         !Array.isArray(o.link_bio_extra)
       ) {
-        this.data.clinic.link_bio_extra = o.link_bio_extra as LinkBioClinic['link_bio_extra'];
+        this.data.clinic.link_bio_extra = parseLinkBioExtra(o.link_bio_extra);
       }
     } catch {
       /* JSON inválido na sessão — ignora */
@@ -167,6 +172,10 @@ export class LinkBioPublicComponent implements OnInit, OnDestroy {
 
   get formLinks(): { id: number; name: string; public_url: string }[] {
     return this.data?.form_links ?? [];
+  }
+
+  get googleReviews(): LinkBioGoogleReviews | null {
+    return this.data?.google_reviews ?? null;
   }
 
   /** Lista unificada: bio links primeiro, depois formulários (como no Blade). */

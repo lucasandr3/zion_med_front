@@ -282,6 +282,28 @@
 
 /* Chip empresa no header: estilos em .shell-profile-chip / .shell-profile-chip--header (styles.css) */
 
+.cabecalho-logout-btn {
+  gap: 0.35rem;
+  padding-inline: 0.5rem;
+  color: var(--muted-foreground);
+}
+
+.cabecalho-logout-btn:hover {
+  color: var(--destructive);
+}
+
+.cabecalho-logout-btn__label {
+  display: none;
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+
+@media (min-width: 640px) {
+  .cabecalho-logout-btn__label {
+    display: inline;
+  }
+}
+
 @media (max-width: 767px) {
   .header-desktop-only-block,
   .header-desktop-only-flex {

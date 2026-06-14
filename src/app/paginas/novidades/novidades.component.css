@@ -76,12 +76,7 @@
 
 .novidades-card--destaque {
   border-color: color-mix(in srgb, var(--primary) 35%, var(--border));
-  background:
-    linear-gradient(
-      135deg,
-      color-mix(in srgb, var(--primary) 7%, var(--card)) 0%,
-      var(--card) 55%
-    );
+  background: var(--card);
 }
 
 .novidades-card--compact {

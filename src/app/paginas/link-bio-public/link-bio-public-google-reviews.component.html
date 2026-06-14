@@ -1,0 +1,68 @@
+<section class="lb-google-reviews" [class.lb-google-reviews--dark]="dark" aria-label="Avaliações no Google">
+  <div class="lb-google-reviews__head">
+    <p class="lb-google-reviews__title">Avaliações no Google</p>
+    @if (reviews.rating != null) {
+      <div class="lb-google-reviews__summary">
+        <span class="lb-google-reviews__rating">{{ reviews.rating | number: '1.1-1' }}</span>
+        <span class="lb-google-reviews__stars" aria-hidden="true">
+          @for (s of stars(reviews.rating); track s) {
+            <span class="lb-google-reviews__star lb-google-reviews__star--on">★</span>
+          }
+          @for (s of emptyStars(reviews.rating); track s) {
+            <span class="lb-google-reviews__star">★</span>
+          }
+        </span>
+        @if (reviews.user_ratings_total != null) {
+          <span class="lb-google-reviews__count">({{ reviews.user_ratings_total }} avaliações)</span>
+        }
+      </div>
+    }
+  </div>
+
+  @if (reviews.reviews.length) {
+    <ul class="lb-google-reviews__list">
+      @for (review of reviews.reviews; track $index) {
+        <li class="lb-google-reviews__item">
+          <div class="lb-google-reviews__item-head">
+            @if (review.profile_photo_url) {
+              <img [src]="review.profile_photo_url" [alt]="" class="lb-google-reviews__avatar" loading="lazy" />
+            } @else {
+              <span class="lb-google-reviews__avatar lb-google-reviews__avatar--fallback" aria-hidden="true">
+                {{ review.author_name.charAt(0) }}
+              </span>
+            }
+            <div class="lb-google-reviews__meta">
+              <span class="lb-google-reviews__author">{{ review.author_name }}</span>
+              @if (review.relative_time) {
+                <span class="lb-google-reviews__time">{{ review.relative_time }}</span>
+              }
+            </div>
+            @if (review.rating > 0) {
+              <span class="lb-google-reviews__item-stars" [attr.aria-label]="review.rating + ' estrelas'">
+                @for (s of stars(review.rating); track s) {
+                  <span class="lb-google-reviews__star lb-google-reviews__star--on">★</span>
+                }
+              </span>
+            }
+          </div>
+          @if (review.text) {
+            <p class="lb-google-reviews__text">{{ review.text }}</p>
+          }
+        </li>
+      }
+    </ul>
+  }
+
+  @if (reviews.write_review_url) {
+    <a
+      [href]="reviews.write_review_url"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="lb-google-reviews__cta"
+    >
+      Avaliar no Google
+    </a>
+  }
+
+  <p class="lb-google-reviews__attribution">Dados fornecidos pelo Google</p>
+</section>

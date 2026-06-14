@@ -1953,7 +1953,7 @@ body.sidebar-collapsed #sidebar[data-shell] .sidebar-brand__text {
     color: var(--gestgo-brand-title);
     font-size: 0.9375rem;
     font-weight: 800;
-    letter-spacing: -0.01em;
+    letter-spacing: 0.10em;
 }
 
 #sidebar[data-shell] .sidebar-brand__tag {

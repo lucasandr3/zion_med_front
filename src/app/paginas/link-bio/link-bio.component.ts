@@ -12,7 +12,7 @@ import {
 import { HttpErrorResponse } from '@angular/common/http';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { RouterLink, Router } from '@angular/router';
 import {
   LinkBioService,
   LinkBioState,
@@ -22,6 +22,7 @@ import {
   LinkBioLayoutModel,
   LinkBioStats,
   LinkBioClinic,
+  LinkBioClickBreakdownRow,
 } from '../../core/services/link-bio.service';
 import { ClinicaService } from '../../core/services/clinica.service';
 import { LoadingService } from '../../shared/services/loading.service';
@@ -31,9 +32,32 @@ import { ConfirmDialogService } from '../../core/services/confirm-dialog.service
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { normalizeThemeKey } from '../../core/services/user-appearance.sync';
 import { environment } from '../../../environments/environment';
+import { normalizeLinkBioClinic, parseLinkBioExtra } from '../../core/utils/link-bio-clinic-normalize.util';
+import {
+  linkBioExtraHasAnySection,
+  linkBioExtraModelLabel,
+  linkBioExtraSectionVisible,
+  LinkBioExtraSection,
+} from './link-bio-extra-fields.util';
 
 type AbaPrincipal = 'visaoGeral' | 'conteudo';
-type Aba = 'links' | 'forms' | 'stats' | 'aparencia' | 'modelos' | 'conteudoExtra';
+type Aba = 'links' | 'forms' | 'aparencia' | 'modelos' | 'conteudoExtra';
+type LinkBioStatsPeriodo = '7d' | '30d' | '90d';
+
+import {
+  buildLinkBioOverviewSuggestions,
+  type LinkBioOverviewSuggestion,
+} from './link-bio-overview-suggestions.util';
+import {
+  buildGoogleWriteReviewUrl,
+  extractPlaceIdFromMapsUrl,
+  GOOGLE_REVIEW_LINK_ICON,
+  GOOGLE_REVIEW_LINK_LABEL,
+  hasGoogleReviewLink,
+  isShortGoogleMapsShareUrl,
+  normalizeGooglePlaceId,
+  resolveGoogleWriteReviewUrl,
+} from './link-bio-google-review-link.util';
 
 /** Linha do formulário — modalidades (modelo 2). */
 interface LinkBioModalityFormRow {
@@ -50,6 +74,31 @@ interface LinkBioTeamFormRow {
   whatsapp: string;
 }
 
+/** Linha do formulário — chip de espécie (modelo 6 vet). */
+interface LinkBioSpeciesChipFormRow {
+  label: string;
+  active: boolean;
+}
+
+/** Linha do formulário — card de serviço vet (modelo 6). */
+interface LinkBioVetServiceCardFormRow {
+  icon: string;
+  title: string;
+}
+
+/** Linha do formulário — passo da primeira visita (modelo 7 pedia). */
+interface LinkBioPedStepFormRow {
+  title: string;
+  subtitle: string;
+}
+
+/** Linha do formulário — faixa etária pediátrica (modelo 7). */
+interface LinkBioPedAgeBandFormRow {
+  emoji: string;
+  title: string;
+  range: string;
+}
+
 const LINK_BIO_PREVIEW_SESSION_KEY = 'zm_link_bio_preview';
 
 /** Mesmo limite do Laravel `max:2048` (kilobytes) na rota de upload. */
@@ -61,6 +110,13 @@ import { ZardButtonComponent } from '@/shared/components/button/button.component
 import { ZardCardComponent } from '@/shared/components/card/card.component';
 import { ZardTabComponent, ZardTabGroupComponent } from '@/shared/components/tabs';
 import { ZardComboboxComponent, type ZardComboboxOption } from '@/shared/components/combobox';
+import { ZardMenuImports } from '../../shared/components/menu/menu.imports';
+import { ZardSkeletonComponent } from '@/shared/components/skeleton/skeleton.component';
+import {
+  downloadPublicFormQrPng,
+  getOrCreatePublicFormQrDataUrl,
+  prefetchPublicFormQr,
+} from '../../core/utils/public-form-qr.util';
 
 @Component({
   selector: 'app-pagina-link-bio',
@@ -77,6 +133,8 @@ import { ZardComboboxComponent, type ZardComboboxOption } from '@/shared/compone
     ZardTabComponent,
     ZardTabGroupComponent,
     ZardComboboxComponent,
+    ZardSkeletonComponent,
+    ...ZardMenuImports,
   ],
   templateUrl: './link-bio.component.html',
   styleUrl: './link-bio.component.css',
@@ -115,6 +173,9 @@ export class LinkBioComponent implements OnInit {
   aparenciaFoundedYear: number | null = null;
   aparenciaContactEmail = '';
   aparenciaMapsUrl = '';
+  /** Place ID manual para gerar o link «Avalie no Google» (aba Links). */
+  linkAvaliePlaceIdManual = '';
+  salvandoLinkAvalieGoogle = false;
   enviandoCover = false;
   enviandoFotoProfissionalLinkBio = false;
   nomeArquivoFotoProfissional = '';
@@ -139,8 +200,39 @@ export class LinkBioComponent implements OnInit {
   extraVetExamResultsUrl = '';
   extraVetExamResultsLabel = '';
   extraVetExamResultsSubtitle = '';
+
+  /** Layout veterinário (6): campos extras. */
+  extraVetCoverKicker = '';
+  extraVetWaCtaLabel = '';
+  extraVetDocsSectionTitle = '';
+  extraVetDocsIntro = '';
+  extraSpeciesChips: LinkBioSpeciesChipFormRow[] = [];
+  extraVetServiceCards: LinkBioVetServiceCardFormRow[] = [];
+
+  /** Layout pediatria (7): campos extras. */
+  extraPedCoverKicker = '';
+  extraPedWaCtaLabel = '';
+  extraPedDocsSectionTitle = '';
+  extraPedDocsIntro = '';
+  extraPedParentNoticeTitle = '';
+  extraPedParentNoticeBody = '';
+  extraPedFirstVisitSteps: LinkBioPedStepFormRow[] = [];
+  extraPedAgeBands: LinkBioPedAgeBandFormRow[] = [];
   nomeArquivoCover = '';
   copiedFormId: number | null = null;
+  copiedPrincipalLink = false;
+  qrAberto = false;
+  qrCarregando = false;
+  qrDataUrl = '';
+  statsPeriodo: LinkBioStatsPeriodo = '7d';
+  insightBannerFechado = false;
+
+  readonly ctrMediaSetor = 5;
+  readonly statsPeriodos: readonly { id: LinkBioStatsPeriodo; label: string }[] = [
+    { id: '7d', label: '7d' },
+    { id: '30d', label: '30d' },
+    { id: '90d', label: '90d' },
+  ];
 
   previewUrlSafe: SafeResourceUrl | null = null;
 
@@ -154,6 +246,7 @@ export class LinkBioComponent implements OnInit {
   private confirm = inject(ConfirmDialogService);
   private sanitizer = inject(DomSanitizer);
   private platformId = inject(PLATFORM_ID);
+  private router = inject(Router);
 
   get links(): LinkBioLink[] {
     return this.state?.links ?? [];
@@ -302,6 +395,32 @@ export class LinkBioComponent implements OnInit {
     return this.modeloPersistido !== 1;
   }
 
+  /** Modelo usado para filtrar campos na aba Conteúdo extra (o selecionado em Modelos). */
+  get conteudoExtraModeloAtivo(): LinkBioLayoutModel {
+    return this.aparenciaModelo;
+  }
+
+  get conteudoExtraModeloAtivoLabel(): string {
+    return linkBioExtraModelLabel(this.conteudoExtraModeloAtivo);
+  }
+
+  get conteudoExtraTemCamposParaModelo(): boolean {
+    return linkBioExtraHasAnySection(this.conteudoExtraModeloAtivo);
+  }
+
+  extraMostraSecao(section: LinkBioExtraSection): boolean {
+    return linkBioExtraSectionVisible(this.conteudoExtraModeloAtivo, section);
+  }
+
+  get extraMostraTextosLinks(): boolean {
+    return (
+      this.extraMostraSecao('hero_tagline') ||
+      this.extraMostraSecao('council') ||
+      this.extraMostraSecao('brand_subtitle') ||
+      this.extraMostraSecao('instagram')
+    );
+  }
+
   /** Bust de cache dos iframes da aba Modelos. */
   private previewModelsTimestamp = Date.now();
 
@@ -357,8 +476,8 @@ export class LinkBioComponent implements OnInit {
 
   /** Cópia superficial do `link_bio_extra` já salvo (preserva chaves que o formulário não edita). */
   private getExistingLinkBioExtraRecord(): Record<string, unknown> {
-    const e = this.state?.clinic?.link_bio_extra;
-    return e && typeof e === 'object' && !Array.isArray(e) ? { ...(e as Record<string, unknown>) } : {};
+    const e = parseLinkBioExtra(this.state?.clinic?.link_bio_extra);
+    return Object.keys(e).length ? { ...(e as Record<string, unknown>) } : {};
   }
 
   /**
@@ -427,19 +546,48 @@ export class LinkBioComponent implements OnInit {
       delete merged['vet_exam_results_subtitle'];
     }
 
+    // --- Veterinária (M6) ---
+    setOrDelete('layout_cover_kicker', this.trim(this.extraVetCoverKicker) || undefined);
+    setOrDelete('vet_wa_cta_label', this.trim(this.extraVetWaCtaLabel) || undefined);
+    setOrDelete('vet_docs_section_title', this.trim(this.extraVetDocsSectionTitle) || undefined);
+    setOrDelete('vet_docs_intro', this.trim(this.extraVetDocsIntro) || undefined);
+
+    const speciesChips = this.extraSpeciesChips.filter((s) => this.trim(s.label));
+    if (speciesChips.length) merged['species_chips'] = speciesChips.map((s) => ({ label: this.trim(s.label), active: s.active !== false }));
+    else delete merged['species_chips'];
+
+    const vetServiceCards = this.extraVetServiceCards.filter((c) => this.trim(c.title));
+    if (vetServiceCards.length) merged['vet_service_cards'] = vetServiceCards.map((c) => ({ icon: this.trim(c.icon) || '💉', title: this.trim(c.title) }));
+    else delete merged['vet_service_cards'];
+
+    // --- Pediatria (M7) ---
+    setOrDelete('ped_cover_kicker', this.trim(this.extraPedCoverKicker) || undefined);
+    setOrDelete('ped_wa_cta_label', this.trim(this.extraPedWaCtaLabel) || undefined);
+    setOrDelete('ped_docs_section_title', this.trim(this.extraPedDocsSectionTitle) || undefined);
+    setOrDelete('ped_docs_intro', this.trim(this.extraPedDocsIntro) || undefined);
+    setOrDelete('ped_parent_notice_title', this.trim(this.extraPedParentNoticeTitle) || undefined);
+    setOrDelete('ped_parent_notice_body', this.trim(this.extraPedParentNoticeBody) || undefined);
+
+    const pedSteps = this.extraPedFirstVisitSteps.filter((s) => this.trim(s.title));
+    if (pedSteps.length) merged['ped_first_visit_steps'] = pedSteps.map((s) => ({ title: this.trim(s.title), subtitle: this.trim(s.subtitle) }));
+    else delete merged['ped_first_visit_steps'];
+
+    const pedAgeBands = this.extraPedAgeBands.filter((b) => this.trim(b.title));
+    if (pedAgeBands.length) merged['ped_age_bands'] = pedAgeBands.map((b) => ({ emoji: this.trim(b.emoji) || '👶', title: this.trim(b.title), range: this.trim(b.range) }));
+    else delete merged['ped_age_bands'];
+
     return Object.keys(merged).length ? (merged as LinkBioExtra) : null;
   }
 
   private aplicarExtraNoFormulario(extra: unknown): void {
-    const e =
-      extra && typeof extra === 'object' && !Array.isArray(extra) ? (extra as LinkBioExtra) : null;
-    this.extraHeroTagline = e?.hero_tagline ?? '';
-    this.extraCouncilRegistration = e?.council_registration ?? '';
-    this.extraBrandSubtitle = e?.brand_subtitle ?? '';
-    this.extraInstagramUrl = e?.instagram_url ?? '';
-    const conv = e?.convenios?.filter((x) => this.trim(String(x))) ?? [];
+    const e = parseLinkBioExtra(extra);
+    this.extraHeroTagline = e.hero_tagline ?? '';
+    this.extraCouncilRegistration = e.council_registration ?? '';
+    this.extraBrandSubtitle = e.brand_subtitle ?? '';
+    this.extraInstagramUrl = e.instagram_url ?? '';
+    const conv = e.convenios?.filter((x) => this.trim(String(x))) ?? [];
     this.extraConveniosLinhas = conv.length ? [...conv] : [''];
-    const mods = e?.modalities ?? [];
+    const mods = e.modalities ?? [];
     this.extraModalidades = mods.length
       ? mods.map((m) => ({
           title: m.title ?? '',
@@ -447,7 +595,7 @@ export class LinkBioComponent implements OnInit {
           available: m.available !== false,
         }))
       : [];
-    const team = e?.team ?? [];
+    const team = e.team ?? [];
     this.extraEquipe = team.length
       ? team.map((t) => ({
           name: t.name ?? '',
@@ -457,11 +605,41 @@ export class LinkBioComponent implements OnInit {
         }))
       : [];
     this.extraVetExamResultsUrl =
-      typeof e?.vet_exam_results_url === 'string' ? e.vet_exam_results_url : '';
+      typeof e.vet_exam_results_url === 'string' ? e.vet_exam_results_url : '';
     this.extraVetExamResultsLabel =
-      typeof e?.vet_exam_results_label === 'string' ? e.vet_exam_results_label : '';
+      typeof e.vet_exam_results_label === 'string' ? e.vet_exam_results_label : '';
     this.extraVetExamResultsSubtitle =
-      typeof e?.vet_exam_results_subtitle === 'string' ? e.vet_exam_results_subtitle : '';
+      typeof e.vet_exam_results_subtitle === 'string' ? e.vet_exam_results_subtitle : '';
+
+    // Veterinária extras
+    this.extraVetCoverKicker = e.layout_cover_kicker ?? '';
+    this.extraVetWaCtaLabel = e.vet_wa_cta_label ?? '';
+    this.extraVetDocsSectionTitle = e.vet_docs_section_title ?? '';
+    this.extraVetDocsIntro = e.vet_docs_intro ?? '';
+    const speciesChips = e.species_chips ?? [];
+    this.extraSpeciesChips = speciesChips.length
+      ? speciesChips.map((s) => ({ label: s.label ?? '', active: s.active !== false }))
+      : [];
+    const vetServiceCards = e.vet_service_cards ?? [];
+    this.extraVetServiceCards = vetServiceCards.length
+      ? vetServiceCards.map((c) => ({ icon: c.icon ?? '', title: c.title ?? '' }))
+      : [];
+
+    // Pediatria extras
+    this.extraPedCoverKicker = e.ped_cover_kicker ?? '';
+    this.extraPedWaCtaLabel = e.ped_wa_cta_label ?? '';
+    this.extraPedDocsSectionTitle = e.ped_docs_section_title ?? '';
+    this.extraPedDocsIntro = e.ped_docs_intro ?? '';
+    this.extraPedParentNoticeTitle = e.ped_parent_notice_title ?? '';
+    this.extraPedParentNoticeBody = e.ped_parent_notice_body ?? '';
+    const pedSteps = e.ped_first_visit_steps ?? [];
+    this.extraPedFirstVisitSteps = pedSteps.length
+      ? pedSteps.map((s) => ({ title: s.title ?? '', subtitle: s.subtitle ?? '' }))
+      : [];
+    const pedAgeBands = e.ped_age_bands ?? [];
+    this.extraPedAgeBands = pedAgeBands.length
+      ? pedAgeBands.map((b) => ({ emoji: b.emoji ?? '', title: b.title ?? '', range: b.range ?? '' }))
+      : [];
   }
 
   adicionarConvenioLinha(): void {
@@ -492,6 +670,38 @@ export class LinkBioComponent implements OnInit {
     this.extraEquipe.splice(index, 1);
   }
 
+  adicionarSpeciesChip(): void {
+    this.extraSpeciesChips.push({ label: '', active: true });
+  }
+
+  removerSpeciesChip(index: number): void {
+    this.extraSpeciesChips.splice(index, 1);
+  }
+
+  adicionarVetServiceCard(): void {
+    this.extraVetServiceCards.push({ icon: '💉', title: '' });
+  }
+
+  removerVetServiceCard(index: number): void {
+    this.extraVetServiceCards.splice(index, 1);
+  }
+
+  adicionarPedStep(): void {
+    this.extraPedFirstVisitSteps.push({ title: '', subtitle: '' });
+  }
+
+  removerPedStep(index: number): void {
+    this.extraPedFirstVisitSteps.splice(index, 1);
+  }
+
+  adicionarPedAgeBand(): void {
+    this.extraPedAgeBands.push({ emoji: '👶', title: '', range: '' });
+  }
+
+  removerPedAgeBand(index: number): void {
+    this.extraPedAgeBands.splice(index, 1);
+  }
+
   salvarConteudoExtra(): void {
     if (!this.state) return;
     this.salvandoExtra = true;
@@ -500,7 +710,8 @@ export class LinkBioComponent implements OnInit {
       next: (clinic) => {
         this.salvandoExtra = false;
         if (this.state) {
-          this.state.clinic = { ...this.state.clinic, ...clinic };
+          this.state.clinic = normalizeLinkBioClinic({ ...this.state.clinic, ...clinic });
+          this.aplicarExtraNoFormulario(this.state.clinic.link_bio_extra);
         }
         if (isPlatformBrowser(this.platformId)) {
           try {
@@ -542,8 +753,11 @@ export class LinkBioComponent implements OnInit {
   }
 
   private aplicarEstadoLinkBio(s: LinkBioState): void {
-    this.state = s;
-    const c = s.clinic;
+    this.state = {
+      ...s,
+      clinic: normalizeLinkBioClinic(s.clinic),
+    };
+    const c = this.state.clinic;
     this.aparenciaPublicTheme = c.public_theme
       ? normalizeThemeKey(String(c.public_theme))
       : '';
@@ -557,10 +771,12 @@ export class LinkBioComponent implements OnInit {
     this.aparenciaFoundedYear = (c.founded_year as number | null) ?? null;
     this.aparenciaContactEmail = c.contact_email ?? '';
     this.aparenciaMapsUrl = c.maps_url ?? '';
+    this.linkAvaliePlaceIdManual = normalizeGooglePlaceId(c.google_place_id) ?? '';
     this.aplicarExtraNoFormulario(c.link_bio_extra);
     this.syncDraftToSessionForPreviews();
     const previewUrl = this.getPreviewUrl(true);
     this.previewUrlSafe = previewUrl ? this.sanitizer.bypassSecurityTrustResourceUrl(previewUrl) : null;
+    if (s.public_url) prefetchPublicFormQr(s.public_url);
   }
 
   /** Rodapé da aba Links: salvar novo link ou edição em andamento. */
@@ -639,9 +855,54 @@ export class LinkBioComponent implements OnInit {
   copiarLinkPrincipal(): void {
     if (!this.publicUrl) return;
     navigator.clipboard.writeText(this.publicUrl).then(
-      () => this.toast.success('Link copiado', 'Você já pode colar e compartilhar.'),
+      () => {
+        this.copiedPrincipalLink = true;
+        this.toast.success('Link copiado', 'Você já pode colar e compartilhar.');
+        window.setTimeout(() => {
+          this.copiedPrincipalLink = false;
+        }, 2000);
+      },
       () => this.toast.error('Não foi possível copiar', 'Tente novamente.')
     );
+  }
+
+  headerMetaLinha(): string | null {
+    const m = this.metrics;
+    if (!m) return null;
+    const partes: string[] = [];
+    partes.push(`${m.visitas_hoje} ${m.visitas_hoje === 1 ? 'visita hoje' : 'visitas hoje'}`);
+    partes.push(`${m.total_clicks_last_30} cliques`);
+    return partes.join(' · ');
+  }
+
+  async abrirQrPrincipal(): Promise<void> {
+    if (!this.publicUrl) {
+      this.toast.warning('Link indisponível', 'A página pública ainda não possui URL.');
+      return;
+    }
+    this.qrAberto = true;
+    this.qrCarregando = true;
+    this.qrDataUrl = '';
+    try {
+      this.qrDataUrl = await getOrCreatePublicFormQrDataUrl(this.publicUrl);
+    } catch {
+      this.toast.error('QR code', 'Não foi possível gerar o QR code deste link.');
+      this.fecharQr();
+    } finally {
+      this.qrCarregando = false;
+    }
+  }
+
+  baixarQrPrincipal(): void {
+    if (!this.qrDataUrl || !this.state) return;
+    downloadPublicFormQrPng(this.qrDataUrl, this.state.clinic.name);
+    this.toast.success('Download iniciado', 'O QR code foi salvo no seu dispositivo.');
+  }
+
+  fecharQr(): void {
+    this.qrAberto = false;
+    this.qrCarregando = false;
+    this.qrDataUrl = '';
   }
 
   toggleFormNovo(): void {
@@ -668,6 +929,70 @@ export class LinkBioComponent implements OnInit {
         this.toast.error('Erro', 'Não foi possível adicionar o link.');
       },
     });
+  }
+
+  get temLinkAvalieGoogle(): boolean {
+    return hasGoogleReviewLink(this.links);
+  }
+
+  get faltaLinkGoogleMaps(): boolean {
+    return !(this.state?.clinic?.maps_url ?? '').trim();
+  }
+
+  /** Link curto do Maps não gera botão de avaliação automaticamente. */
+  get mapsUrlCurtoSemPlaceId(): boolean {
+    const url = this.state?.clinic?.maps_url;
+    if (!url?.trim()) return false;
+    return (
+      isShortGoogleMapsShareUrl(url) &&
+      !extractPlaceIdFromMapsUrl(url) &&
+      !normalizeGooglePlaceId(this.linkAvaliePlaceIdManual)
+    );
+  }
+
+  /** URL sugerida para o botão «Avalie no Google», com base no Maps / Place ID. */
+  get urlAvalieGoogleSugerida(): string | null {
+    if (!this.state?.clinic) return null;
+
+    const manual = normalizeGooglePlaceId(this.linkAvaliePlaceIdManual);
+    if (manual) {
+      return buildGoogleWriteReviewUrl(manual);
+    }
+
+    return resolveGoogleWriteReviewUrl(this.state.clinic);
+  }
+
+  adicionarLinkAvalieGoogle(): void {
+    if (this.temLinkAvalieGoogle) {
+      this.toast.info('Link já existe', 'Sua página já possui um botão de avaliação no Google.');
+      return;
+    }
+    const url = this.urlAvalieGoogleSugerida;
+    if (!url) {
+      this.toast.warning(
+        'Configure o Google Maps',
+        'Informe o link do Maps em Aparência ou cole o Place ID abaixo (formato ChIJ…).'
+      );
+      return;
+    }
+    this.salvandoLinkAvalieGoogle = true;
+    this.linkBioService
+      .createLink({
+        label: GOOGLE_REVIEW_LINK_LABEL,
+        url,
+        icon: GOOGLE_REVIEW_LINK_ICON,
+      })
+      .subscribe({
+        next: () => {
+          this.salvandoLinkAvalieGoogle = false;
+          this.carregar();
+          this.toast.success('Link adicionado', 'O botão «Avalie no Google» já aparece na sua página pública.');
+        },
+        error: () => {
+          this.salvandoLinkAvalieGoogle = false;
+          this.toast.error('Erro', 'Não foi possível adicionar o link.');
+        },
+      });
   }
 
   iniciarEdicao(link: LinkBioLink): void {
@@ -750,6 +1075,11 @@ export class LinkBioComponent implements OnInit {
     if (!this.state) return;
     this.salvandoAparencia = true;
     const isCustom = this.aparenciaPublicTheme === 'custom';
+    const mapsUrl = this.aparenciaMapsUrl?.trim() || null;
+    const placeId =
+      normalizeGooglePlaceId(this.linkAvaliePlaceIdManual) ||
+      extractPlaceIdFromMapsUrl(mapsUrl) ||
+      null;
     const payload: Partial<LinkBioClinic> & Record<string, unknown> = {
       public_theme: this.aparenciaPublicTheme,
       cover_color: this.aparenciaCoverColor || null,
@@ -758,14 +1088,15 @@ export class LinkBioComponent implements OnInit {
       specialties: this.aparenciaSpecialties || null,
       founded_year: this.aparenciaFoundedYear || null,
       contact_email: this.aparenciaContactEmail || null,
-      maps_url: this.aparenciaMapsUrl || null,
+      maps_url: mapsUrl,
+      google_place_id: placeId,
       accent_hex: isCustom ? this.aparenciaCustomAccent : null,
     };
     this.linkBioService.updateAparencia(payload).subscribe({
       next: (clinic) => {
         this.salvandoAparencia = false;
         if (this.state) {
-          this.state.clinic = { ...this.state.clinic, ...clinic };
+          this.state.clinic = normalizeLinkBioClinic({ ...this.state.clinic, ...clinic });
         }
         this.atualizarPreviewUrl();
         this.toast.success('Aparência salva', 'As configurações visuais foram atualizadas.');
@@ -917,6 +1248,122 @@ export class LinkBioComponent implements OnInit {
   }
 
   // Helpers para estatísticas
+  selecionarPeriodoStats(periodo: LinkBioStatsPeriodo): void {
+    this.statsPeriodo = periodo;
+  }
+
+  fecharInsightBanner(): void {
+    this.insightBannerFechado = true;
+  }
+
+  aplicarSugestao(sugestao: LinkBioOverviewSuggestion): void {
+    if (sugestao.rota) {
+      void this.router.navigateByUrl(sugestao.rota);
+      return;
+    }
+    if (sugestao.aba) {
+      this.ativarAba(sugestao.aba, true);
+    }
+  }
+
+  get visitasOntem(): number {
+    const ontem = this.formatYmd(this.addDays(new Date(), -1));
+    return Number(this.stats.views_per_day?.[ontem]) || 0;
+  }
+
+  get visitasTrendPercent(): number | null {
+    const hoje = this.metrics?.visitas_hoje ?? 0;
+    const ontem = this.visitasOntem;
+    if (hoje === 0 && ontem === 0) return null;
+    if (ontem === 0) return hoje > 0 ? 100 : null;
+    return Math.round(((hoje - ontem) / ontem) * 100);
+  }
+
+  get cliquesTrendPercent(): number | null {
+    const entries = this.sortedDayEntries(this.stats.clicks_per_day ?? {});
+    if (entries.length < 14) return null;
+    const recent = entries.slice(-7).reduce((sum, [, v]) => sum + (Number(v) || 0), 0);
+    const previous = entries.slice(-14, -7).reduce((sum, [, v]) => sum + (Number(v) || 0), 0);
+    if (recent === 0 && previous === 0) return null;
+    if (previous === 0) return recent > 0 ? 100 : null;
+    return Math.round(((recent - previous) / previous) * 100);
+  }
+
+  get ctrBarPercent(): number {
+    const ctr = this.metrics?.taxa_clique ?? 0;
+    return Math.min(100, Math.round((ctr / this.ctrMediaSetor) * 100));
+  }
+
+  get ctrAbaixoDaMedia(): boolean {
+    return (this.metrics?.taxa_clique ?? 0) < this.ctrMediaSetor && (this.metrics?.total_views ?? 0) > 0;
+  }
+
+  get mostrarInsightBanner(): boolean {
+    return this.ctrAbaixoDaMedia && !this.insightBannerFechado;
+  }
+
+  get insightBannerTexto(): string {
+    const visitas = this.metrics?.visitas_hoje ?? 0;
+    const cliques = this.metrics?.total_clicks ?? 0;
+    const cliqueLabel = cliques === 1 ? '1 clique' : `${cliques} cliques`;
+    return `Seu CTR está abaixo da média. Com ${visitas} visitas e ${cliqueLabel}, considere adicionar um botão de agendamento online para converter mais visitantes.`;
+  }
+
+  get totalCliquesPeriodo(): number {
+    return this.chartCliques.reduce((sum, bar) => sum + bar.count, 0);
+  }
+
+  get chartCliques(): { label: string; count: number; percent: number; ghost: boolean }[] {
+    const raw = this.stats.clicks_per_day ?? {};
+    if (this.statsPeriodo === '7d') {
+      const days = this.lastNDays(7);
+      return this.barsFromCounts(
+        days.map((date) => ({
+          label: this.dayLabelShort(date),
+          count: Number(raw[date]) || 0,
+        }))
+      );
+    }
+    if (this.statsPeriodo === '30d') {
+      return this.barsFromCounts(this.aggregateByWeek(raw, 30));
+    }
+    return this.barsFromCounts(this.aggregateByMonth(raw, 90));
+  }
+
+  get origensClique(): { row: LinkBioClickBreakdownRow; percent: number; icon: string }[] {
+    const rows = this.stats.click_breakdown ?? [];
+    const max = Math.max(...rows.map((r) => r.total_last_30), 1);
+    return rows.map((row) => ({
+      row,
+      percent: Math.round((row.total_last_30 / max) * 100),
+      icon: this.iconeOrigemClique(row),
+    }));
+  }
+
+  get sugestoesMelhoria(): LinkBioOverviewSuggestion[] {
+    if (!this.state) return [];
+    return buildLinkBioOverviewSuggestions({
+      clinic: this.state.clinic,
+      links: this.links,
+      forms: this.forms,
+      layoutModel: this.aparenciaModelo,
+      metrics: this.metrics,
+      ctrMediaSetor: this.ctrMediaSetor,
+    });
+  }
+
+  iconeOrigemClique(row: LinkBioClickBreakdownRow): string {
+    if (row.kind === 'bio_link') return 'link';
+    const label = row.label.toLowerCase();
+    const channel = (row.channel ?? '').toLowerCase();
+    if (channel.includes('whatsapp') || label.includes('whatsapp')) return 'chat';
+    if (channel.includes('maps') || label.includes('maps') || label.includes('chegar')) return 'location_on';
+    if (channel.includes('email') || label.includes('e-mail') || label.includes('email')) return 'mail';
+    if (channel.includes('instagram')) return 'photo_camera';
+    if (channel.includes('phone') || label.includes('telefone')) return 'call';
+    return 'touch_app';
+  }
+
   get diasClicks(): { date: string; label: string; count: number; percent: number; ghost: boolean }[] {
     const s = this.stats;
     if (!s) return [];
@@ -944,5 +1391,80 @@ export class LinkBioComponent implements OnInit {
       return new Date(`${date}T12:00:00`);
     }
     return new Date(date);
+  }
+
+  private formatYmd(date: Date): string {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
+
+  private addDays(date: Date, days: number): Date {
+    const next = new Date(date);
+    next.setDate(next.getDate() + days);
+    return next;
+  }
+
+  private lastNDays(n: number): string[] {
+    const today = new Date();
+    return Array.from({ length: n }, (_, index) => this.formatYmd(this.addDays(today, index - (n - 1))));
+  }
+
+  private sortedDayEntries(data: Record<string, number>): [string, number][] {
+    return Object.entries(data).sort(([a], [b]) => a.localeCompare(b));
+  }
+
+  private dayLabelShort(date: string): string {
+    const dayLabels = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+    const d = this.parseStatsDate(date);
+    return dayLabels[d.getDay()] ?? date;
+  }
+
+  private monthLabel(date: string): string {
+    const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+    const d = this.parseStatsDate(`${date.slice(0, 7)}-01`);
+    return months[d.getMonth()] ?? date.slice(0, 7);
+  }
+
+  private barsFromCounts(items: { label: string; count: number }[]): {
+    label: string;
+    count: number;
+    percent: number;
+    ghost: boolean;
+  }[] {
+    if (!items.length) return [];
+    const maxVal = Math.max(...items.map((item) => item.count), 0);
+    const ghost = maxVal === 0;
+    return items.map((item) => ({
+      label: item.label,
+      count: item.count,
+      percent: ghost ? 18 : Math.round((item.count / maxVal) * 100),
+      ghost,
+    }));
+  }
+
+  private aggregateByWeek(data: Record<string, number>, days: number): { label: string; count: number }[] {
+    const dates = this.lastNDays(days);
+    const weeks: { label: string; count: number }[] = [];
+    for (let i = 0; i < dates.length; i += 7) {
+      const chunk = dates.slice(i, i + 7);
+      const count = chunk.reduce((sum, date) => sum + (Number(data[date]) || 0), 0);
+      weeks.push({ label: `Sem ${weeks.length + 1}`, count });
+    }
+    return weeks;
+  }
+
+  private aggregateByMonth(data: Record<string, number>, days: number): { label: string; count: number }[] {
+    const dates = this.lastNDays(days);
+    const buckets = new Map<string, number>();
+    for (const date of dates) {
+      const key = date.slice(0, 7);
+      buckets.set(key, (buckets.get(key) ?? 0) + (Number(data[date]) || 0));
+    }
+    return Array.from(buckets.entries()).map(([key, count]) => ({
+      label: this.monthLabel(key),
+      count,
+    }));
   }
 }

@@ -42,15 +42,11 @@
           </button>
         </div>
         @if (personFormUnlocked()) {
-          <div class="fp-progress-block" role="region" aria-label="Progresso do preenchimento dos campos obrigatórios">
+          <div class="fp-progress-block" role="region" aria-label="Progresso do preenchimento do formulário">
             <div class="fp-progress-labels">
               <span class="fp-progress-hint">Progresso</span>
               <span class="fp-progress-count">
-                @if (requiredFieldsTotal > 0) {
-                  {{ requiredFieldsFilled }} de {{ requiredFieldsTotal }} obrigatórios
-                } @else {
-                  Nenhum campo obrigatório
-                }
+                {{ progressCountLabel }}
               </span>
             </div>
             <div class="fp-progress-track">
@@ -62,7 +58,7 @@
     </header>
   }
 
-  <div class="fp-scroll">
+  <div class="fp-scroll" #fpScroll>
     @if (showSkeleton()) {
       <div class="fp-container fp-loading-shell" role="status" aria-live="polite" aria-busy="true">
         <span class="fp-loading-ring" aria-hidden="true"></span>
@@ -136,7 +132,7 @@
         }
 
         <form #publicForm="ngForm" id="formulario-publico-form" (ngSubmit)="enviar()" class="fp-form">
-          @if (feegowEnabled()) {
+          @if (showFeegowOnCurrentStep) {
             <div class="fp-feegow-card">
               <p class="fp-feegow-title">Agendamento Feegow</p>
               <p class="fp-field-hint" style="margin-top:0">Esta seção aparece apenas para empresas com integração Feegow ativa.</p>
@@ -250,7 +246,7 @@
             <div class="fp-section-div" aria-hidden="true"></div>
           }
 
-          @if (!personLinkRequired()) {
+          @if (showPreenchedoraOnCurrentStep) {
             <div class="fp-preenchedora">
               <p class="fp-preenchedora-title">Identificação de quem envia <span class="fp-optional">(opcional)</span></p>
               <div class="fp-preenchedora-grid">
@@ -284,7 +280,7 @@
             </div>
           }
 
-          @if (signingSecurityReinforced() && templateHasSignatureFields()) {
+          @if (showOtpOnCurrentStep) {
             <div class="fp-section-div" aria-hidden="true"></div>
             <div class="fp-otp-card">
               <p class="fp-otp-title">Confirmar identidade para assinar</p>
@@ -343,7 +339,7 @@
 
           <div class="fp-section-div" aria-hidden="true"></div>
 
-          @for (f of data.fields; track trackByKey($index, f)) {
+          @for (f of currentStepFields; track trackByKey($index, f)) {
             <div class="fp-field-group fp-field-animate">
               @if (fieldType(f) !== 'checkbox') {
                 <label [for]="'field_' + f.name_key" class="fp-field-label">
@@ -360,6 +356,7 @@
                     [id]="'field_' + f.name_key"
                     type="text"
                     [(ngModel)]="valores[f.name_key]"
+                    (ngModelChange)="onCampoAlterado()"
                     [name]="f.name_key"
                     class="fp-input"
                     [required]="f.required"
@@ -370,6 +367,7 @@
                   <textarea
                     [id]="'field_' + f.name_key"
                     [(ngModel)]="valores[f.name_key]"
+                    (ngModelChange)="onCampoAlterado()"
                     [name]="f.name_key"
                     class="fp-input fp-textarea"
                     rows="4"
@@ -382,6 +380,7 @@
                     [id]="'field_' + f.name_key"
                     type="number"
                     [(ngModel)]="valores[f.name_key]"
+                    (ngModelChange)="onCampoAlterado()"
                     [name]="f.name_key"
                     class="fp-input"
                     [required]="f.required"
@@ -395,6 +394,7 @@
                     type="text"
                     mwlFlatpickr
                     [(ngModel)]="valores[f.name_key]"
+                    (ngModelChange)="onCampoAlterado()"
                     [name]="f.name_key"
                     class="fp-input"
                     [required]="f.required"
@@ -408,6 +408,7 @@
                   <z-checkbox
                     class="fp-field-checkbox"
                     [(ngModel)]="valores[f.name_key]"
+                    (ngModelChange)="onCampoAlterado()"
                     [name]="f.name_key"
                     [attr.required]="f.required ? true : null"
                   >
@@ -422,6 +423,7 @@
                     <select
                       [id]="'field_' + f.name_key"
                       [(ngModel)]="valores[f.name_key]"
+                      (ngModelChange)="onCampoAlterado()"
                       [name]="f.name_key"
                       class="fp-input fp-select"
                       [required]="f.required"
@@ -442,6 +444,7 @@
                         <input
                           type="radio"
                           [(ngModel)]="valores[f.name_key]"
+                          (ngModelChange)="onCampoAlterado()"
                           [name]="f.name_key"
                           [value]="opt.value"
                           [required]="f.required"
@@ -500,7 +503,7 @@
               }
             </div>
           }
-          @if (templateHasSignatureFields()) {
+          @if (showConsentOnCurrentStep) {
             <div class="fp-consent-block" (click)="toggleAcceptTermsFromBlock($event)">
               <z-checkbox
                 class="fp-consent-checkbox"
@@ -524,27 +527,42 @@
 
   @if (!showSkeleton() && data && personFormUnlocked()) {
     <footer class="fp-footer">
-      <div class="fp-footer-inner">
-        <button
-          type="submit"
-          form="formulario-publico-form"
-          class="fp-submit-btn"
-          [disabled]="enviando"
-          [attr.aria-busy]="enviando"
-        >
-          @if (enviando) {
-            <svg class="fp-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-              <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" opacity=".25" />
-              <path d="M21 12a9 9 0 00-9-9" />
-            </svg>
-            Enviando…
-          } @else {
+      <div class="fp-footer-inner" [class.fp-footer-inner--steps]="usesFormSteps">
+        @if (usesFormSteps && !isFirstFormStep) {
+          <button type="button" class="fp-step-btn fp-step-btn--back" (click)="voltarEtapa()">
+            Anterior
+          </button>
+        }
+        @if (usesFormSteps && !isLastFormStep) {
+          <button type="button" class="fp-step-btn fp-step-btn--next" (click)="avancarEtapa()">
+            Continuar
             <svg class="fp-submit-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
-              <polyline points="20 6 9 17 4 12" />
+              <polyline points="9 18 15 12 9 6" />
             </svg>
-            Enviar formulário
-          }
-        </button>
+          </button>
+        } @else {
+          <button
+            type="submit"
+            form="formulario-publico-form"
+            class="fp-submit-btn"
+            [class.fp-submit-btn--solo]="!usesFormSteps || isFirstFormStep"
+            [disabled]="enviando"
+            [attr.aria-busy]="enviando"
+          >
+            @if (enviando) {
+              <svg class="fp-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" opacity=".25" />
+                <path d="M21 12a9 9 0 00-9-9" />
+              </svg>
+              Enviando…
+            } @else {
+              <svg class="fp-submit-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+              Enviar formulário
+            }
+          </button>
+        }
       </div>
     </footer>
   }

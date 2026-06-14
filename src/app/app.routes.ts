@@ -24,7 +24,7 @@ export const routes: Routes = [
     canActivate: [authGuard],
     children: [
       { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
-      { path: 'dashboard', canActivate: [permissionGuard], loadComponent: () => import('./paginas/dashboard/dashboard.component').then(m => m.DashboardComponent), data: { titulo: 'Painel', permission: 'dashboard.access' } },
+      { path: 'dashboard', canActivate: [permissionGuard], loadComponent: () => import('./paginas/dashboard/dashboard.component').then(m => m.DashboardComponent), data: { titulo: 'Dashboard', permission: 'dashboard.access' } },
       { path: 'billing', redirectTo: 'assinatura', pathMatch: 'full' },
       {
         path: 'assinatura',
@@ -69,8 +69,8 @@ export const routes: Routes = [
     loadComponent: () => import('./componentes/layout/layout-plataforma/layout-plataforma.component').then(m => m.LayoutPlataformaComponent),
     canActivate: [authGuard, platformGuard],
     children: [
-      { path: '', loadComponent: () => import('./paginas/plataforma/plataforma-dashboard/plataforma-dashboard.component').then(m => m.PlataformaDashboardComponent), data: { titulo: 'Visão geral' } },
-      { path: 'clientes', loadComponent: () => import('./paginas/plataforma/plataforma-clientes/plataforma-clientes.component').then(m => m.PlataformaClientesComponent), data: { titulo: 'Clientes (tenants)', subtitulo: 'Visão geral dos clientes utilizando o Gestgo.' } },
+      { path: '', loadComponent: () => import('./paginas/plataforma/plataforma-dashboard/plataforma-dashboard.component').then(m => m.PlataformaDashboardComponent), data: { titulo: 'Dashboard' } },
+      { path: 'clientes', loadComponent: () => import('./paginas/plataforma/plataforma-clientes/plataforma-clientes.component').then(m => m.PlataformaClientesComponent), data: { titulo: 'Clientes', subtitulo: 'Visão geral dos clientes utilizando o Gestgo.' } },
       { path: 'clientes/:id', loadComponent: () => import('./paginas/plataforma/plataforma-cliente-detalhe/plataforma-cliente-detalhe.component').then(m => m.PlataformaClienteDetalheComponent), data: { titulo: 'Cliente', urlVoltar: '/plataforma/clientes', labelVoltar: 'Voltar para Clientes' } },
       { path: 'leads', loadComponent: () => import('./paginas/plataforma/plataforma-leads/plataforma-leads.component').then(m => m.PlataformaLeadsComponent), data: { titulo: 'Leads', subtitulo: 'Solicitações de demonstração da landing.' } },
       {

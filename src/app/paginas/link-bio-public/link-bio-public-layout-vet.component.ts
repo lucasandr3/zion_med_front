@@ -8,8 +8,11 @@ import {
   LinkBioLink,
   LinkBioPublicDocItem,
   LinkBioService,
+  LinkBioGoogleReviews,
 } from '../../core/services/link-bio.service';
 import { linkBioHeroPortraitUrl } from '../../core/utils/link-bio-public-assets';
+import { parseLinkBioExtra } from '../../core/utils/link-bio-clinic-normalize.util';
+import { LinkBioPublicGoogleReviewsComponent } from './link-bio-public-google-reviews.component';
 
 const DEFAULT_SPECIES: { label: string; active: boolean }[] = [
   { label: '🐕 Cães', active: true },
@@ -32,7 +35,7 @@ const DEFAULT_VET_SERVICES: { icon: string; title: string }[] = [
 @Component({
   selector: 'app-link-bio-public-layout-vet',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, LinkBioPublicGoogleReviewsComponent],
   templateUrl: './link-bio-public-layout-vet.component.html',
   styleUrl: './link-bio-public-layout-vet.component.css',
 })
@@ -42,6 +45,7 @@ export class LinkBioPublicLayoutVetComponent {
   @Input({ required: true }) clinic!: LinkBioClinic;
   /** Reservado (links bio); a lista unificada vem em `allDocs`. */
   @Input() bioLinks: LinkBioLink[] = [];
+  @Input() googleReviews: LinkBioGoogleReviews | null = null;
   @Input() dark = false;
   @Input() allDocs: LinkBioPublicDocItem[] = [];
   @Input() publicSlug = '';
@@ -51,8 +55,7 @@ export class LinkBioPublicLayoutVetComponent {
   @Output() share = new EventEmitter<void>();
 
   get extra(): LinkBioExtra {
-    const e = this.clinic.link_bio_extra;
-    return e && typeof e === 'object' ? (e as LinkBioExtra) : {};
+    return parseLinkBioExtra(this.clinic.link_bio_extra);
   }
 
   get heroPortraitUrl(): string | null {
@@ -146,7 +149,6 @@ export class LinkBioPublicLayoutVetComponent {
     const textBody = this.mixHex(accent, '#020806', 0.52);
     const borderLight = this.mixHex(accent, '#ffffff', 0.78);
     const pawDark = this.mixHex(accent, '#000000', 0.74);
-    const pageDark = this.mixHex(accent, '#040604', 0.88);
     const textOnDark = this.mixHex(accent, '#ffffff', 0.42);
     const rootTextDark = this.mixHex(accent, '#ecfdf5', 0.48);
     const chipInactiveDarkBg = this.mixHex(accent, '#000000', 0.8);
@@ -163,7 +165,8 @@ export class LinkBioPublicLayoutVetComponent {
       '--m6-text-body': textBody,
       '--m6-border-light': borderLight,
       '--m6-paw-dark': pawDark,
-      '--m6-page-dark': pageDark,
+      '--m6-page-bg': '#f9fafb',
+      '--m6-page-dark': '#121212',
       '--m6-text-on-dark': textOnDark,
       '--m6-root-text-dark': rootTextDark,
       '--m6-chip-dark-bg': chipInactiveDarkBg,

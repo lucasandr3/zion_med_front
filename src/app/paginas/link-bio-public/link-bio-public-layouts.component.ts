@@ -8,13 +8,17 @@ import {
   LinkBioLink,
   LinkBioPublicDocItem,
   LinkBioService,
+  LinkBioGoogleReviews,
 } from '../../core/services/link-bio.service';
 import { linkBioHeaderBrandImageUrl, linkBioHeroPortraitUrl } from '../../core/utils/link-bio-public-assets';
+import { linkBioSpecialtiesList, parseLinkBioExtra } from '../../core/utils/link-bio-clinic-normalize.util';
+import { isTrivialSignatureText } from './link-bio-bottom-meta.util';
+import { LinkBioPublicGoogleReviewsComponent } from './link-bio-public-google-reviews.component';
 
 @Component({
   selector: 'app-link-bio-public-layouts',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, LinkBioPublicGoogleReviewsComponent],
   templateUrl: './link-bio-public-layouts.component.html',
   styleUrl: './link-bio-public-layouts.component.css',
 })
@@ -24,6 +28,7 @@ export class LinkBioPublicLayoutsComponent {
   @Input({ required: true }) model!: 2 | 3 | 4 | 5;
   @Input({ required: true }) clinic!: LinkBioClinic;
   @Input({ required: true }) bioLinks: LinkBioLink[] = [];
+  @Input() googleReviews: LinkBioGoogleReviews | null = null;
   @Input() dark = false;
   @Input() allDocs: LinkBioPublicDocItem[] = [];
   @Input() publicSlug = '';
@@ -33,8 +38,7 @@ export class LinkBioPublicLayoutsComponent {
   @Output() share = new EventEmitter<void>();
 
   get extra(): LinkBioExtra {
-    const e = this.clinic.link_bio_extra;
-    return e && typeof e === 'object' ? (e as LinkBioExtra) : {};
+    return parseLinkBioExtra(this.clinic.link_bio_extra);
   }
 
   get hoursGridArray(): { label: string; text: string }[] {
@@ -57,8 +61,36 @@ export class LinkBioPublicLayoutsComponent {
     return this.hoursRowsM2.length > 0;
   }
 
+  /** Modelo 2: foto grande no hero (mesmo que o avatar do header). */
+  get m2HeroPhotoUrl(): string | null {
+    return this.m2HeaderAvatarUrl;
+  }
+
+  /** Modelo 2: chips de especialidades (até 4 itens). */
+  get m2SpecialtiesChips(): string[] {
+    return linkBioSpecialtiesList(this.clinic).slice(0, 4);
+  }
+
+  /** Modelo 2: endereço formatado. */
+  get m2AddressText(): string {
+    return this.clinic.address?.trim() ?? '';
+  }
+
+  /** Modelo 2: link tel: para o número de telefone. */
+  m2TelHref(): string {
+    const raw = this.clinic.phone?.trim() ?? '';
+    if (!raw) return '';
+    if (raw.startsWith('+')) return `tel:${raw}`;
+    const d = raw.replace(/\D/g, '');
+    if (!d) return '';
+    const intl = d.length <= 11 && !d.startsWith('55') ? '55' + d : d;
+    return `tel:+${intl}`;
+  }
+
   /** Título editorial do hero (referência Stitch). */
   get m2HeroHeadline(): string {
+    const name = this.clinic.name?.trim();
+    if (name) return name;
     const t = this.extra.hero_tagline?.trim();
     if (t) return t;
     return 'Cuidando da sua saúde com excelência';
@@ -66,8 +98,10 @@ export class LinkBioPublicLayoutsComponent {
 
   /** Subtítulo abaixo do título. */
   get m2HeroSubline(): string {
+    const tagline = this.extra.hero_tagline?.trim();
     const s = this.clinic.short_description?.trim();
     if (s) return s;
+    if (tagline) return tagline;
     const meta = this.clinic.meta_description?.trim();
     if (meta) return meta;
     return 'Atendimento especializado focado no bem-estar integral e resultados duradouros.';
@@ -79,6 +113,81 @@ export class LinkBioPublicLayoutsComponent {
       this.extra.brand_subtitle?.trim() ||
       'Nosso compromisso é com a excelência técnica aliada a um atendimento humanizado e exclusivo.'
     );
+  }
+
+  /** Oculta citação quando o subtítulo é só "Desde 20XX" (já aparece no registro). */
+  get m2ShowSignatureQuote(): boolean {
+    const custom = this.extra.brand_subtitle?.trim();
+    if (!custom) return true;
+    return !isTrivialSignatureText(custom);
+  }
+
+  get m2ShowBottomContact(): boolean {
+    return !!(this.m2AddressText || this.m2TelHref());
+  }
+
+  /** Modelo 2: linha de registro profissional + ano de fundação. */
+  get m2CouncilMetaLine(): string {
+    const parts: string[] = [];
+    if (this.extra.council_registration?.trim()) parts.push(this.extra.council_registration.trim());
+    if (this.clinic.founded_year) parts.push(`Desde ${this.clinic.founded_year}`);
+    return parts.join(' · ');
+  }
+
+  /** Modelo 2: cor de destaque — lê `accent_hex` com fallback ao verde padrão (#00714d). */
+  m2AccentHex(): string {
+    return this.normalizeAccentHex(this.clinic?.accent_hex, '#00714d');
+  }
+
+  /** Variáveis CSS para Profissional Solo (M2) — torna o accent personalizável. */
+  themeVarsM2(): Record<string, string> {
+    const accent = this.m2AccentHex();
+    const accentDark = this.mixHex(accent, '#000000', 0.22);
+    return {
+      '--m2-accent': accent,
+      '--m2-cta-bg': accent,
+      '--m2-cta-fg': this.onAccentColor(accent),
+      '--m2-on-sec-container': accentDark,
+    };
+  }
+
+  /** Modelo 5: cor de destaque — lê `accent_hex` com fallback ao índigo (#4f46e5). */
+  m5AccentHex(): string {
+    return this.normalizeAccentHex(this.clinic?.accent_hex, '#4f46e5');
+  }
+
+  /** Variáveis CSS para Multi Profissionais (M5) — cor da capa e botão WA personalizáveis. */
+  themeVarsM5(): Record<string, string> {
+    const accent = this.m5AccentHex();
+    const coverBg = this.mixHex(accent, '#000000', 0.62);
+    const coverGlow = this.hexToRgbCssVar(accent);
+    return {
+      '--m5-accent': accent,
+      '--m5-cover-bg': coverBg,
+      '--m5-cover-glow': coverGlow,
+      '--m5-on-accent': this.onAccentColor(accent),
+    };
+  }
+
+  /** Converte hex para string RGB para uso em rgba(). */
+  private hexToRgbCssVar(hex: string): string {
+    const h = (hex || '').replace('#', '').trim();
+    if (h.length !== 6) return '99,102,241';
+    const r = parseInt(h.slice(0, 2), 16);
+    const g = parseInt(h.slice(2, 4), 16);
+    const b = parseInt(h.slice(4, 6), 16);
+    return `${r},${g},${b}`;
+  }
+
+  /** Normaliza e valida hex (#RRGGBB ou #RGB), retornando fallback se inválido. */
+  private normalizeAccentHex(raw: string | null | undefined, fallback: string): string {
+    let h = (raw ?? '').trim();
+    if (!h) return fallback;
+    if (!h.startsWith('#')) h = `#${h}`;
+    if (h.length === 4 && /^#[0-9a-fA-F]{3}$/.test(h)) {
+      h = `#${h[1]}${h[1]}${h[2]}${h[2]}${h[3]}${h[3]}`;
+    }
+    return /^#[0-9a-fA-F]{6}$/.test(h) ? h.toLowerCase() : fallback;
   }
 
   /**
@@ -135,8 +244,13 @@ export class LinkBioPublicLayoutsComponent {
     );
   }
 
+  /** Modelo 3: registro profissional (CRM, RQE…). */
+  get m3CouncilMetaLine(): string {
+    return this.extra.council_registration?.trim() || '';
+  }
+
   get proceduresM3(): string[] {
-    const list = this.clinic.specialties_list ?? [];
+    const list = linkBioSpecialtiesList(this.clinic);
     if (list.length) return list.slice(0, 12);
     return ['Botox', 'Preenchimento', 'Skincare', 'Bioestimulador', 'Laser', 'Fios PDO'];
   }
@@ -171,24 +285,10 @@ export class LinkBioPublicLayoutsComponent {
   }
 
   /**
-   * Cards do bento “Nossas especialidades”: `modalities` (3 itens) ou `specialties_list`, com fallback.
+   * Cards do bento “Nossas especialidades”: `specialties_list` da clínica, com fallback.
    */
   get dentalBento(): { title: string; layout: 'sm' | 'wide' }[] {
-    const mods = this.extra.modalities?.map((m) => ({ title: m.title?.trim() || '' })).filter((m) => m.title);
-    if (mods && mods.length >= 3) {
-      return [
-        { title: mods[0]!.title, layout: 'sm' },
-        { title: mods[1]!.title, layout: 'sm' },
-        { title: mods[2]!.title, layout: 'wide' },
-      ];
-    }
-    if (mods && mods.length === 2) {
-      return [
-        { title: mods[0]!.title, layout: 'sm' },
-        { title: mods[1]!.title, layout: 'sm' },
-      ];
-    }
-    const specs = (this.clinic.specialties_list ?? []).map((s) => s.trim()).filter(Boolean);
+    const specs = linkBioSpecialtiesList(this.clinic);
     if (specs.length >= 3) {
       return [
         { title: specs[0]!, layout: 'sm' },
@@ -210,6 +310,40 @@ export class LinkBioPublicLayoutsComponent {
       { title: 'Implantes', layout: 'sm' },
       { title: 'Ortodontia', layout: 'wide' },
     ];
+  }
+
+  /** Modalidades de atendimento (Online / Presencial) — modelo 4. */
+  get dentalModalities(): { title: string; subtitle?: string; available: boolean; icon: 'place' | 'computer' }[] {
+    const custom = this.extra.modalities?.filter((m) => m.title?.trim());
+    if (custom?.length) {
+      return custom.map((item, index) => ({
+        title: item.title.trim(),
+        subtitle: item.subtitle?.trim(),
+        available: item.available !== false,
+        icon: this.dentalModalityIcon(item.title, index),
+      }));
+    }
+    return [
+      {
+        title: 'Presencial',
+        subtitle: this.clinic.address?.trim() || 'Consultório',
+        available: true,
+        icon: 'place',
+      },
+      {
+        title: 'Online',
+        subtitle: 'Via videochamada',
+        available: true,
+        icon: 'computer',
+      },
+    ];
+  }
+
+  private dentalModalityIcon(title: string, index: number): 'place' | 'computer' {
+    const t = title.toLowerCase();
+    if (/online|remot|tele|vídeo|video/.test(t)) return 'computer';
+    if (/presencial|consultório|consultorio|clínica|clinica/.test(t)) return 'place';
+    return index % 2 === 0 ? 'place' : 'computer';
   }
 
   /** Resumo SEG–SEX e sábado para o card de horários (modelo 4). */
@@ -400,7 +534,7 @@ export class LinkBioPublicLayoutsComponent {
       return {
         ...base,
         '--m3-navy': '#e8edf5',
-        '--m3-bg': '#0c1018',
+        '--m3-bg': '#121212',
         '--m3-surface': '#151b26',
         '--m3-muted': '#9ca3af',
       };
@@ -408,7 +542,7 @@ export class LinkBioPublicLayoutsComponent {
     return {
       ...base,
       '--m3-navy': '#0a192f',
-      '--m3-bg': '#fcf9f4',
+      '--m3-bg': '#f9fafb',
       '--m3-surface': '#ffffff',
       '--m3-muted': '#4a4a4a',
     };

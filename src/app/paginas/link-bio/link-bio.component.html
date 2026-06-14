@@ -15,88 +15,303 @@
         [zShowArrow]="false"
         (zTabChange)="onMainTabChange($event)"
       >
-        <z-tab label="Visão geral" icon="insights">
+        <z-tab label="Visão geral" icon="bar_chart">
           <div class="link-bio-tab-panel link-bio-fade-in">
-            <z-card class="section-card link-bio-header-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
-              <div class="section-header">
-                <p class="link-bio-eyebrow text-[11px] font-semibold uppercase tracking-wider mb-2">Link na bio</p>
-                <div class="flex flex-wrap items-center gap-3">
-                  <h1 class="link-bio-page-title text-[22px] font-semibold m-0">{{ state.clinic.name }}</h1>
-                  <z-badge zShape="pill" zType="outline" class="link-bio-status-published gap-1.5">
+            <z-card class="link-bio-header-card border-border bg-card shadow-sm **:data-[slot=card-content]:p-0">
+              <div class="link-bio-header-card__head">
+                <div class="link-bio-header-card__lead">
+                  <div class="link-bio-header-card__icon" aria-hidden="true">
+                    <span class="material-symbols-outlined">link</span>
+                  </div>
+                  <div class="link-bio-header-card__identity min-w-0">
+                    <p class="link-bio-header-card__eyebrow">Link na bio</p>
+                    <h1 class="link-bio-header-card__title">{{ state.clinic.name }}</h1>
+                    <p class="link-bio-header-card__url m-0 truncate" [attr.title]="publicUrl">{{ publicUrl }}</p>
+                  </div>
+                </div>
+                <div class="link-bio-header-card__aside shrink-0">
+                  <z-badge zShape="pill" class="link-bio-header-card__badge link-bio-status-published gap-1.5">
                     <span class="link-bio-status-dot" aria-hidden="true"></span>
                     Publicado
                   </z-badge>
-                </div>
-              </div>
-              <div class="section-body">
-              <div class="flex flex-wrap items-center gap-2 sm:gap-3 gap-y-2">
-                <div class="link-bio-url-field relative min-w-0 flex-1 basis-full sm:basis-[min(100%,28rem)] sm:max-w-[min(100%,42rem)]">
-                  <span class="material-symbols-outlined pointer-events-none absolute left-2.5 top-1/2 z-10 -translate-y-1/2 text-base text-muted-foreground" aria-hidden="true">link</span>
-                  <input
-                    type="url"
-                    z-input
-                    zSize="sm"
-                    class="w-full pl-9 font-mono text-xs"
-                    [value]="publicUrl"
-                    readonly
-                    tabindex="-1"
-                    aria-label="Link público da página"
-                  />
-                </div>
-                <button type="button" z-button zType="outline" zSize="sm" class="shrink-0 gap-1.5" (click)="copiarLinkPrincipal()" title="Copiar link">
-                  <span class="material-symbols-outlined text-base" aria-hidden="true">content_copy</span>
-                  Copiar
-                </button>
-                <div class="flex items-center gap-2 shrink-0 flex-1 sm:flex-initial justify-end sm:justify-start min-w-0 flex-wrap">
-                  <a [href]="publicUrlAbrirNoNavegador" target="_blank" rel="noopener" z-button zType="outline" zSize="sm" class="gap-1.5 no-underline" title="Abre o link público neste ambiente (dev) ou o URL oficial">
-                    <span class="material-symbols-outlined text-base" aria-hidden="true">open_in_new</span>
-                    Ver página
-                  </a>
-                  @if (recepcaoKioskUrl) {
-                    <div class="link-bio-recepcao-wrap relative inline-flex">
-                      <a [href]="recepcaoKioskUrl" target="_blank" rel="noopener" z-button zType="outline" zSize="sm" class="link-bio-btn-recepcao gap-1.5 no-underline !rounded-r-none !border-r-0" title="Lista grande de fichas para tablet ou totem na recepção">
-                        <span class="material-symbols-outlined text-base" aria-hidden="true">tablet_mac</span>
-                        Modo recepção
-                      </a>
-                      <button type="button" z-button zType="outline" zSize="sm" class="link-bio-recepcao-menu !rounded-l-none min-w-9 px-2" (click)="copiarLinkRecepcao()" title="Copiar link do modo recepção" aria-label="Copiar link do modo recepção">
-                        <span class="material-symbols-outlined text-base" aria-hidden="true">content_copy</span>
-                      </button>
-                    </div>
+                  @if (headerMetaLinha()) {
+                    <p class="link-bio-header-card__sub">{{ headerMetaLinha() }}</p>
                   }
-                  <button type="button" z-button zSize="sm" class="gap-1.5" (click)="editarConteudo()">
-                    <span class="material-symbols-outlined text-base" aria-hidden="true">add</span>
-                    Editar conteúdo
-                  </button>
+                  @if (recepcaoKioskUrl) {
+                    <button
+                      z-menu
+                      type="button"
+                      [zMenuTriggerFor]="headerMenuTpl"
+                      zPlacement="bottomRight"
+                      z-button
+                      zType="ghost"
+                      zSize="icon-sm"
+                      class="link-bio-header-card__menu-btn"
+                      aria-label="Mais opções do modo recepção"
+                    >
+                      <span class="material-symbols-outlined text-[1.125rem]">more_vert</span>
+                    </button>
+                  }
                 </div>
               </div>
+              <div
+                class="link-bio-header-card__actions"
+                [class.link-bio-header-card__actions--with-recepcao]="!!recepcaoKioskUrl"
+              >
+                <button
+                  z-button
+                  zType="outline"
+                  zSize="sm"
+                  type="button"
+                  class="link-bio-header-card__action"
+                  [title]="copiedPrincipalLink ? 'Link copiado' : 'Copiar link público'"
+                  (click)="copiarLinkPrincipal()"
+                >
+                  <span class="material-symbols-outlined text-base" aria-hidden="true">
+                    {{ copiedPrincipalLink ? 'check' : 'content_copy' }}
+                  </span>
+                  {{ copiedPrincipalLink ? 'Copiado!' : 'Copiar link' }}
+                </button>
+                <a
+                  [href]="publicUrlAbrirNoNavegador"
+                  target="_blank"
+                  rel="noopener"
+                  z-button
+                  zType="outline"
+                  zSize="sm"
+                  class="link-bio-header-card__action no-underline"
+                  title="Abre o link público neste ambiente (dev) ou o URL oficial"
+                >
+                  <span class="material-symbols-outlined text-base" aria-hidden="true">open_in_new</span>
+                  Abrir
+                </a>
+                @if (recepcaoKioskUrl) {
+                  <a
+                    [href]="recepcaoKioskUrl"
+                    target="_blank"
+                    rel="noopener"
+                    z-button
+                    zType="outline"
+                    zSize="sm"
+                    class="link-bio-header-card__action no-underline"
+                    title="Lista grande de fichas para tablet ou totem na recepção"
+                  >
+                    <span class="material-symbols-outlined text-base" aria-hidden="true">tablet_mac</span>
+                    Modo recepção
+                  </a>
+                }
+                <button
+                  z-button
+                  zType="outline"
+                  zSize="sm"
+                  type="button"
+                  class="link-bio-header-card__action"
+                  title="Ver QR code da página"
+                  (click)="abrirQrPrincipal()"
+                >
+                  <span class="material-symbols-outlined text-base" aria-hidden="true">qr_code_2</span>
+                  QR code
+                </button>
+                <button
+                  z-button
+                  zType="outline"
+                  zSize="sm"
+                  type="button"
+                  class="link-bio-header-card__action"
+                  title="Editar conteúdo da página"
+                  (click)="editarConteudo()"
+                >
+                  <span class="material-symbols-outlined text-base" aria-hidden="true">edit</span>
+                  Editar
+                </button>
               </div>
             </z-card>
 
             @if (metrics) {
-              <div class="link-bio-metrics-grid link-bio-fade-in-2">
-                <z-card class="link-bio-metric-card gap-0 rounded-lg py-0 shadow-none **:data-[slot=card-content]:p-4">
-                  <p class="link-bio-metric-label">Visitas hoje</p>
-                  <p class="link-bio-metric-value link-bio-metric-value--accent">{{ metrics.visitas_hoje }}</p>
-                  <p class="link-bio-metric-sub">acesso à página hoje</p>
+              <div class="link-bio-overview-grid link-bio-fade-in-2">
+                <z-card class="link-bio-kpi-card gap-0 rounded-xl border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-4">
+                  <div class="link-bio-kpi-card__head">
+                    <p class="link-bio-kpi-card__label">Visitas hoje</p>
+                    @if (visitasTrendPercent !== null) {
+                      <span
+                        class="link-bio-kpi-trend"
+                        [class.link-bio-kpi-trend--up]="visitasTrendPercent >= 0"
+                        [class.link-bio-kpi-trend--down]="visitasTrendPercent < 0"
+                      >
+                        {{ visitasTrendPercent >= 0 ? '+' : '' }}{{ visitasTrendPercent }}%
+                      </span>
+                    }
+                  </div>
+                  <p class="link-bio-kpi-card__value link-bio-kpi-card__value--accent">{{ metrics.visitas_hoje }}</p>
+                  <p class="link-bio-kpi-card__sub">vs. ontem: {{ visitasOntem }} visita@if (visitasOntem !== 1) {s}</p>
                 </z-card>
-                <z-card class="link-bio-metric-card gap-0 rounded-lg py-0 shadow-none **:data-[slot=card-content]:p-4">
-                  <p class="link-bio-metric-label">Cliques totais</p>
-                  <p class="link-bio-metric-value">{{ metrics.total_clicks_last_30 }}</p>
-                  <p class="link-bio-metric-sub">últimos 30 dias</p>
+
+                <z-card class="link-bio-kpi-card gap-0 rounded-xl border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-4">
+                  <div class="link-bio-kpi-card__head">
+                    <p class="link-bio-kpi-card__label">Taxa de clique</p>
+                  </div>
+                  <p class="link-bio-kpi-card__value">{{ metrics.taxa_clique | number:'1.1-1' }}% <span class="link-bio-kpi-card__suffix">— média</span></p>
+                  <div class="link-bio-kpi-progress" role="presentation" aria-hidden="true">
+                    <div class="link-bio-kpi-progress__fill" [style.width.%]="ctrBarPercent"></div>
+                  </div>
+                  <p class="link-bio-kpi-card__sub">Média do setor: {{ ctrMediaSetor }}%</p>
                 </z-card>
-                <z-card class="link-bio-metric-card gap-0 rounded-lg py-0 shadow-none **:data-[slot=card-content]:p-4">
-                  <p class="link-bio-metric-label">Taxa de clique</p>
-                  <p class="link-bio-metric-value link-bio-metric-value--accent">{{ metrics.taxa_clique }}%</p>
-                  <p class="link-bio-metric-sub">CTR</p>
+
+                <z-card class="link-bio-kpi-card gap-0 rounded-xl border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-4">
+                  <div class="link-bio-kpi-card__head">
+                    <p class="link-bio-kpi-card__label">Cliques totais</p>
+                    @if (cliquesTrendPercent !== null) {
+                      <span
+                        class="link-bio-kpi-trend"
+                        [class.link-bio-kpi-trend--up]="cliquesTrendPercent >= 0"
+                        [class.link-bio-kpi-trend--down]="cliquesTrendPercent < 0"
+                      >
+                        {{ cliquesTrendPercent >= 0 ? '+' : '' }}{{ cliquesTrendPercent }}%
+                      </span>
+                    }
+                  </div>
+                  <p class="link-bio-kpi-card__value">{{ metrics.total_clicks_last_30 }}</p>
+                  <p class="link-bio-kpi-card__sub">últimos 30 dias</p>
                 </z-card>
-                <z-card class="link-bio-metric-card gap-0 rounded-lg py-0 shadow-none **:data-[slot=card-content]:p-4">
-                  <p class="link-bio-metric-label">Formulários</p>
-                  <p class="link-bio-metric-value">{{ metrics.formularios_total }}</p>
-                  <p class="link-bio-metric-sub">
-                    <span class="link-bio-metric-highlight">{{ metrics.formularios_ativos }} ativo@if (metrics.formularios_ativos !== 1) {s}</span>
-                    <span class="link-bio-text-muted font-normal"> · {{ metrics.formularios_draft }} rascunho</span>
+
+                <z-card class="link-bio-kpi-card gap-0 rounded-xl border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-4">
+                  <div class="link-bio-kpi-card__head">
+                    <p class="link-bio-kpi-card__label">Formulários</p>
+                  </div>
+                  <p class="link-bio-kpi-card__value">{{ metrics.formularios_total }}</p>
+                  <p class="link-bio-kpi-card__sub">
+                    <span class="link-bio-kpi-card__highlight">{{ metrics.formularios_ativos }} ativo@if (metrics.formularios_ativos !== 1) {s}</span>
+                    <span class="link-bio-text-muted"> · {{ metrics.formularios_draft }} rascunho</span>
                   </p>
                 </z-card>
+              </div>
+            }
+
+            @if (mostrarInsightBanner) {
+              <div class="link-bio-insight link-bio-fade-in-2" role="note">
+                <span class="material-symbols-outlined link-bio-insight__icon" aria-hidden="true">lightbulb</span>
+                <p class="link-bio-insight__text">{{ insightBannerTexto }}</p>
+                <button
+                  type="button"
+                  z-button
+                  zType="ghost"
+                  zSize="icon-sm"
+                  class="link-bio-insight__close shrink-0"
+                  aria-label="Fechar dica"
+                  (click)="fecharInsightBanner()"
+                >
+                  <span class="material-symbols-outlined text-base">close</span>
+                </button>
+              </div>
+            }
+
+            @if (state) {
+              <div class="link-bio-overview-panels link-bio-fade-in-3">
+                <z-card class="link-bio-panel-card gap-0 overflow-hidden rounded-xl border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-5">
+                  <div class="link-bio-panel-card__head">
+                    <div>
+                      <h3 class="link-bio-panel-card__title">Cliques por dia</h3>
+                      <p class="link-bio-panel-card__meta">Total: {{ totalCliquesPeriodo }} clique@if (totalCliquesPeriodo !== 1) {s}</p>
+                    </div>
+                    <div class="link-bio-period-toggle" role="group" aria-label="Período do gráfico">
+                      @for (p of statsPeriodos; track p.id) {
+                        <button
+                          type="button"
+                          z-button
+                          zType="ghost"
+                          zSize="sm"
+                          class="link-bio-period-toggle__btn"
+                          [class.link-bio-period-toggle__btn--active]="statsPeriodo === p.id"
+                          (click)="selecionarPeriodoStats(p.id)"
+                        >
+                          {{ p.label }}
+                        </button>
+                      }
+                      <button
+                        type="button"
+                        z-button
+                        zType="ghost"
+                        zSize="icon-sm"
+                        class="shrink-0"
+                        aria-label="Atualizar estatísticas"
+                        [zDisabled]="atualizandoStatsRodape"
+                        [zLoading]="atualizandoStatsRodape"
+                        (click)="atualizarDadosEstatisticas()"
+                      >
+                        <span class="material-symbols-outlined text-base">refresh</span>
+                      </button>
+                    </div>
+                  </div>
+                  @if (chartCliques.length === 0) {
+                    <p class="link-bio-panel-empty">Nenhum dado de cliques neste período.</p>
+                  } @else {
+                    @if (chartCliques[0]?.ghost) {
+                      <p class="link-bio-panel-hint">Nenhum clique registrado — barras apenas para referência visual.</p>
+                    }
+                    <div class="link-bio-chart-row link-bio-chart-row--overview">
+                      @for (d of chartCliques; track d.label) {
+                        <div class="link-bio-bar-wrap">
+                          <div class="link-bio-bar-stack">
+                            <div
+                              class="link-bio-bar"
+                              [class.link-bio-bar--ghost]="d.ghost"
+                              [style.height.%]="d.percent"
+                            ></div>
+                          </div>
+                          <div class="link-bio-bar-label">{{ d.label }}</div>
+                        </div>
+                      }
+                    </div>
+                  }
+                </z-card>
+
+                <z-card class="link-bio-panel-card gap-0 overflow-hidden rounded-xl border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-5">
+                  <h3 class="link-bio-panel-card__title m-0 mb-4">Origem dos cliques</h3>
+                  @if (origensClique.length === 0) {
+                    <p class="link-bio-panel-empty m-0">Nenhum clique registrado ainda.</p>
+                  } @else {
+                    <ul class="link-bio-origin-list m-0 p-0 list-none">
+                      @for (item of origensClique; track $index) {
+                        <li class="link-bio-origin-item">
+                          <div class="link-bio-origin-item__head">
+                            <span class="link-bio-origin-item__icon material-symbols-outlined" aria-hidden="true">{{ item.icon }}</span>
+                            <span class="link-bio-origin-item__label">{{ item.row.label }}</span>
+                            <span class="link-bio-origin-item__count tabular-nums">{{ item.row.total_last_30 }}</span>
+                          </div>
+                          <div class="link-bio-origin-item__track" role="presentation" aria-hidden="true">
+                            <div class="link-bio-origin-item__fill" [style.width.%]="item.percent"></div>
+                          </div>
+                        </li>
+                      }
+                    </ul>
+                  }
+                </z-card>
+
+                @if (sugestoesMelhoria.length > 0) {
+                  <z-card class="link-bio-panel-card link-bio-panel-card--suggestions gap-0 overflow-hidden rounded-xl border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-5">
+                    <h3 class="link-bio-panel-card__title m-0 mb-1">Sugestões para melhorar</h3>
+                    <p class="link-bio-panel-card__meta m-0 mb-3">Com base no que sua página pública já exibe hoje</p>
+                    <ul class="link-bio-suggestion-list m-0 p-0 list-none">
+                      @for (s of sugestoesMelhoria; track s.id) {
+                        <li>
+                          <button
+                            type="button"
+                            class="link-bio-suggestion-item"
+                            [attr.data-tone]="s.tone"
+                            (click)="aplicarSugestao(s)"
+                          >
+                            <span class="link-bio-suggestion-item__icon material-symbols-outlined" aria-hidden="true">{{ s.icon }}</span>
+                            <span class="link-bio-suggestion-item__body">
+                              <span class="link-bio-suggestion-item__title">{{ s.title }}</span>
+                              <span class="link-bio-suggestion-item__sub">{{ s.subtitle }}</span>
+                            </span>
+                            <span class="material-symbols-outlined link-bio-suggestion-item__chevron" aria-hidden="true">chevron_right</span>
+                          </button>
+                        </li>
+                      }
+                    </ul>
+                  </z-card>
+                }
               </div>
             }
           </div>
@@ -173,20 +388,6 @@
                   type="button"
                   class="z-segment-btn gap-1.5"
                   role="tab"
-                  [class.z-segment-btn--active]="abaAtiva === 'stats'"
-                  [attr.aria-selected]="abaAtiva === 'stats'"
-                  (click)="ativarAba('stats')"
-                >
-                  <span class="material-symbols-outlined text-base" aria-hidden="true">query_stats</span>
-                  Estatísticas
-                </button>
-                <button
-                  z-button
-                  zType="ghost"
-                  zSize="sm"
-                  type="button"
-                  class="z-segment-btn gap-1.5"
-                  role="tab"
                   [class.z-segment-btn--active]="abaAtiva === 'aparencia'"
                   [attr.aria-selected]="abaAtiva === 'aparencia'"
                   (click)="ativarAba('aparencia')"
@@ -210,6 +411,80 @@
               {{ mostrarFormNovo ? 'Cancelar' : 'Adicionar link' }}
             </button>
           </div>
+
+          <z-card class="link-bio-google-review-helper gap-0 rounded-[0.875rem] border-border bg-muted/20 py-0 shadow-sm **:data-[slot=card-content]:p-0">
+            <div class="section-body">
+              <div class="link-bio-google-review-helper__head">
+                <span class="material-symbols-outlined link-bio-google-review-helper__icon" aria-hidden="true">star</span>
+                <div>
+                  <p class="text-sm font-semibold text-foreground m-0">Avalie no Google</p>
+                  <p class="text-xs text-muted-foreground m-0 mt-0.5">Botão pronto para pedir avaliações — sem configuração técnica</p>
+                </div>
+              </div>
+
+              <ol class="link-bio-google-review-helper__steps m-0 mt-4 pl-4 text-sm text-muted-foreground">
+                <li class="mb-2">No Google Maps (computador), abra seu negócio e copie a <strong class="text-foreground font-medium">URL longa</strong> da barra do navegador (<code class="text-xs">google.com/maps/place/…</code>). O link curto <code class="text-xs">maps.app.goo.gl</code> serve só para «Como chegar».</li>
+                <li class="mb-2">Cole em <button type="button" class="link-bio-inline-link" (click)="ativarAba('aparencia')">Aparência → Link do Google Maps</button> e salve.</li>
+                <li>Volte aqui e clique em <strong class="text-foreground font-medium">Adicionar link</strong> abaixo.</li>
+              </ol>
+
+              @if (mapsUrlCurtoSemPlaceId) {
+                <p class="m-0 mt-3 text-xs text-amber-700 dark:text-amber-400">
+                  O link curto do Maps não gera avaliações automaticamente. Use a URL longa do navegador ou informe o Place ID abaixo.
+                </p>
+              }
+
+              @if (!urlAvalieGoogleSugerida && !temLinkAvalieGoogle) {
+                <div class="field mt-4 mb-0">
+                  <label class="form-label">Place ID (se o link curto do Maps não funcionar)</label>
+                  <input
+                    type="text"
+                    z-input
+                    zSize="sm"
+                    class="w-full"
+                    [(ngModel)]="linkAvaliePlaceIdManual"
+                    name="linkAvaliePlaceIdManual"
+                    placeholder="g/11x2kkkqf0 ou ChIJ…"
+                  />
+                  <p class="form-hint m-0 mt-1.5">
+                    No link longo do Maps, procure <code class="text-xs">g/11x…</code> ou <code class="text-xs">ChIJ…</code> e cole aqui. Salve em Aparência antes de adicionar o link.
+                  </p>
+                </div>
+              }
+
+              @if (urlAvalieGoogleSugerida; as previewUrl) {
+                <p class="link-bio-google-review-helper__preview m-0 mt-4 text-xs text-muted-foreground break-all">
+                  Link gerado: <span class="text-foreground">{{ previewUrl }}</span>
+                </p>
+              }
+
+              <div class="flex flex-wrap gap-2 mt-4">
+                @if (temLinkAvalieGoogle) {
+                  <z-badge zShape="pill" zType="outline" class="border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400">
+                    Já adicionado na página
+                  </z-badge>
+                } @else {
+                  <button
+                    type="button"
+                    z-button
+                    zSize="sm"
+                    class="gap-1.5"
+                    [zLoading]="salvandoLinkAvalieGoogle"
+                    [zDisabled]="salvandoLinkAvalieGoogle || !urlAvalieGoogleSugerida"
+                    (click)="adicionarLinkAvalieGoogle()"
+                  >
+                    <span class="material-symbols-outlined text-base" aria-hidden="true">add_link</span>
+                    Adicionar link «Avalie no Google»
+                  </button>
+                }
+                @if (faltaLinkGoogleMaps) {
+                  <button type="button" z-button zType="outline" zSize="sm" (click)="ativarAba('aparencia')">
+                    Configurar Google Maps
+                  </button>
+                }
+              </div>
+            </div>
+          </z-card>
 
           @if (mostrarFormNovo) {
             <z-card class="link-bio-novo-link-card gap-0 rounded-[0.875rem] border-border bg-muted/30 py-0 shadow-sm **:data-[slot=card-content]:p-0">
@@ -625,6 +900,7 @@
                 <div class="field">
                   <label class="form-label">Link do Google Maps</label>
                   <input type="url" z-input zSize="sm" class="w-full" [(ngModel)]="aparenciaMapsUrl" name="maps_url" placeholder="https://maps.google.com/..." />
+                  <p class="form-hint m-0 mt-1.5">Usado no botão «Como chegar». Para «Avalie no Google», prefira a URL longa (<code class="text-xs">google.com/maps/place/…</code>); links <code class="text-xs">maps.app.goo.gl</code> não geram avaliações sozinhos.</p>
                 </div>
               </div>
             </z-card>
@@ -670,102 +946,8 @@
       </div>
     </div>
     } @else {
-    <!-- Necessário .link-bio-config para .sticky-footer (styles.css) em Modelos / Stats / Conteúdo extra -->
+    <!-- Necessário .link-bio-config para .sticky-footer (styles.css) em Modelos / Conteúdo extra -->
     <div class="link-bio-config min-w-0">
-
-        <!-- Aba Estatísticas (não exigir `stats` truthy: objeto vazio ainda é válido) -->
-        <div id="tab-stats" class="pb-24" *ngIf="abaAtiva === 'stats' && state">
-          <z-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-5">
-            <div class="flex flex-wrap justify-between items-center gap-2 mb-5">
-              <h3 class="text-sm font-bold" style="color:var(--c-text)">Cliques por dia (últimos 7 dias)</h3>
-              <span class="text-xs" style="color:var(--c-muted)">Total: {{ metrics?.total_clicks }}</span>
-            </div>
-            <p class="text-[11px] mb-4 leading-relaxed" style="color:var(--c-muted)">
-              Inclui links da aba <strong class="font-medium" style="color:var(--c-text)">Links</strong> e botões da página (WhatsApp, maps, e-mail, etc.).
-              Prévia com <code class="text-[10px] px-1 rounded" style="background:var(--c-soft)">?preview=1</code> não registra cliques — use &quot;Ver página&quot; para testar.
-            </p>
-            @if (stats.click_breakdown.length > 0) {
-              <div class="mb-6 overflow-x-auto rounded-xl border" style="border-color:var(--c-border)">
-                <table class="w-full text-left text-xs min-w-[320px]">
-                  <thead>
-                    <tr style="background:var(--c-soft);color:var(--c-muted)">
-                      <th class="px-3 py-2.5 font-semibold">Origem do clique</th>
-                      <th class="px-3 py-2.5 font-semibold text-right w-24">Total</th>
-                      <th class="px-3 py-2.5 font-semibold text-right w-28">30 dias</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    @for (row of stats.click_breakdown; track $index) {
-                      <tr class="border-t" style="border-color:var(--c-border);color:var(--c-text)">
-                        <td class="px-3 py-2">
-                          @if (row.kind === 'bio_link') {
-                            <span class="inline-flex items-center gap-1.5">
-                              <span class="material-symbols-outlined text-[16px] shrink-0" style="color:var(--c-primary)">link</span>
-                              <span>{{ row.label }}</span>
-                            </span>
-                          } @else {
-                            <span class="inline-flex items-center gap-1.5">
-                              <span class="material-symbols-outlined text-[16px] shrink-0" style="color:var(--c-primary)">touch_app</span>
-                              <span>{{ row.label }}</span>
-                            </span>
-                          }
-                        </td>
-                        <td class="px-3 py-2 text-right font-medium tabular-nums">{{ row.total_clicks }}</td>
-                        <td class="px-3 py-2 text-right tabular-nums" style="color:var(--c-muted)">{{ row.total_last_30 }}</td>
-                      </tr>
-                    }
-                  </tbody>
-                </table>
-              </div>
-            }
-            @if (diasClicks.length === 0) {
-              <p class="text-xs py-6 text-center" style="color:var(--c-muted)">Nenhum dado de cliques por dia neste período.</p>
-            } @else {
-              @if (diasClicks[0]?.ghost) {
-                <p class="text-[11px] mb-2" style="color:var(--c-muted)">
-                  Nenhum clique nos últimos dias — barras apenas para referência visual.
-                </p>
-              }
-              <div class="link-bio-chart-row">
-                @for (d of diasClicks; track d.date) {
-                  <div class="link-bio-bar-wrap">
-                    <div class="link-bio-bar-stack">
-                      <div
-                        class="link-bio-bar"
-                        [class.link-bio-bar--ghost]="d.ghost"
-                        [style.height.%]="d.percent"
-                      ></div>
-                    </div>
-                    <div class="link-bio-bar-label">{{ d.label }}</div>
-                  </div>
-                }
-              </div>
-            }
-          </z-card>
-
-          <div class="sticky-footer-spacer" aria-hidden="true"></div>
-          <div class="sticky-footer">
-            <div class="text-xs text-muted-foreground">Alterações não salvas</div>
-            <div class="footer-btns">
-              <a routerLink="/dashboard" z-button zType="outline" zSize="sm" class="gap-2 no-underline">
-                <span class="material-symbols-outlined text-base">close</span>
-                Cancelar
-              </a>
-              <button
-                type="button"
-                z-button
-                zSize="sm"
-                class="gap-2"
-                [zDisabled]="atualizandoStatsRodape"
-                [zLoading]="atualizandoStatsRodape"
-                (click)="atualizarDadosEstatisticas()"
-              >
-                <span class="material-symbols-outlined text-base">refresh</span>
-                {{ atualizandoStatsRodape ? 'Atualizando…' : 'Atualizar dados' }}
-              </button>
-            </div>
-          </div>
-        </div>
 
         <!-- Aba Modelos -->
         @if (abaAtiva === 'modelos' && state) {
@@ -853,34 +1035,57 @@
         @if (abaAtiva === 'conteudoExtra' && state) {
           <div id="tab-conteudo-extra" class="flex flex-col gap-5 pb-24">
             <z-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-4 text-xs leading-relaxed text-muted-foreground">
-              <strong class="text-foreground">Aviso:</strong> este conteúdo extra aparece nos layouts
-              <strong class="text-foreground">Profissional solo</strong>,
-              <strong class="text-foreground">Estética e beleza</strong>,
-              <strong class="text-foreground">Odontologia</strong>,
-              <strong class="text-foreground">Multi profissionais</strong>,
-              <strong class="text-foreground">Clínica veterinária</strong>,
-              <strong class="text-foreground">Pediatria</strong> e
-              <strong class="text-foreground">Nutricionista</strong>.
-              @if (conteudoExtraApareceNoPublico) {
+              @if (conteudoExtraTemCamposParaModelo) {
                 <span>
-                  Seu layout publicado hoje é <strong class="text-foreground">{{ layoutPublicadoLabel }}</strong>, então estes campos podem aparecer na página pública conforme o layout.
+                  Campos abaixo correspondem ao layout selecionado:
+                  <strong class="text-foreground">{{ conteudoExtraModeloAtivoLabel }}</strong>.
                 </span>
+                @if (conteudoExtraApareceNoPublico) {
+                  <span class="block mt-1">
+                    Seu layout <strong class="text-foreground">publicado</strong> hoje é
+                    <strong class="text-foreground">{{ layoutPublicadoLabel }}</strong>.
+                    @if (modeloDirty) {
+                      Os campos refletem a prévia de <strong class="text-foreground">{{ layoutSelecionadoLabel }}</strong>.
+                    } @else {
+                      O que você preencher aqui pode aparecer na página pública.
+                    }
+                  </span>
+                } @else {
+                  <span class="block mt-1">
+                    Seu layout publicado hoje é <strong class="text-foreground">{{ layoutPublicadoLabel }}</strong> (genérico), então estes campos
+                    <strong class="text-foreground">não aparecem</strong> na página pública até você publicar um layout temático na aba Modelos.
+                  </span>
+                }
               } @else {
                 <span>
-                  Seu layout publicado hoje é <strong class="text-foreground">{{ layoutPublicadoLabel }}</strong>, então estes campos <strong class="text-foreground">não aparecem</strong> na página pública (mesmo que estejam preenchidos aqui).
-                  O layout <strong class="text-foreground">Genérico atual</strong> não usa estes campos.
+                  O layout <strong class="text-foreground">{{ conteudoExtraModeloAtivoLabel }}</strong> não usa conteúdo extra.
+                  Escolha um layout temático (2 a 8) na aba <strong class="text-foreground">Modelos</strong> para ver os campos correspondentes.
                 </span>
               }
-              @if (modeloDirty) {
+              @if (modeloDirty && conteudoExtraTemCamposParaModelo) {
                 <span class="block mt-2 pt-2 border-t border-border">
-                  Há alterações não salvas na aba <strong class="text-foreground">Modelos</strong>: você está vendo a prévia de
+                  Há alterações não salvas na aba <strong class="text-foreground">Modelos</strong>: a prévia usa
                   <strong class="text-foreground">{{ layoutSelecionadoLabel }}</strong>, mas o público ainda segue
                   <strong class="text-foreground">{{ layoutPublicadoLabel }}</strong> até salvar.
                 </span>
               }
             </z-card>
 
+            @if (!conteudoExtraTemCamposParaModelo) {
+              <z-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-8 text-center">
+                <span class="material-symbols-outlined text-4xl mb-3 block mx-auto" style="color:var(--c-muted)">dashboard_customize</span>
+                <p class="text-sm font-medium mb-1" style="color:var(--c-text)">Nenhum campo para este layout</p>
+                <p class="text-xs mb-5 max-w-md mx-auto" style="color:var(--c-muted)">
+                  Selecione um modelo temático na aba Modelos para personalizar foto, textos e seções específicas da sua página pública.
+                </p>
+                <button type="button" z-button zSize="sm" class="gap-2 mx-auto" (click)="ativarAba('modelos')">
+                  <span class="material-symbols-outlined text-base">palette</span>
+                  Ir para Modelos
+                </button>
+              </z-card>
+            } @else {
             <form class="flex flex-col gap-5" (ngSubmit)="salvarConteudoExtra()">
+              @if (extraMostraSecao('foto')) {
               <z-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-5">
                 <p class="text-xs font-bold uppercase tracking-wider mb-1" style="color:var(--c-muted)">Foto do profissional</p>
                 <p class="text-[11px] mb-4" style="color:var(--c-muted)">
@@ -910,30 +1115,42 @@
                   </div>
                 </div>
               </z-card>
+              }
 
+              @if (extraMostraTextosLinks) {
               <z-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-5">
                 <p class="text-xs font-bold uppercase tracking-wider mb-1" style="color:var(--c-muted)">Textos e links</p>
-                <p class="text-[11px] mb-4" style="color:var(--c-muted)">Usados nos layouts temáticos. Veterinária, pediatria e nutrição também leem registro profissional, convênios, modalidades e textos aqui quando aplicável.</p>
+                <p class="text-[11px] mb-4" style="color:var(--c-muted)">Campos usados no layout <strong style="color:var(--c-text)">{{ conteudoExtraModeloAtivoLabel }}</strong>.</p>
                 <div class="flex flex-col gap-4">
+                  @if (extraMostraSecao('hero_tagline')) {
                   <div>
                     <label class="form-label">Frase de destaque (hero)</label>
-                    <input type="text" z-input zSize="sm" class="w-full" [(ngModel)]="extraHeroTagline" name="extra_hero_tagline" maxlength="300" placeholder="Ex.: Psicologia clínica e organizacional" />
+                    <input type="text" z-input zSize="sm" class="w-full" [(ngModel)]="extraHeroTagline" name="extra_hero_tagline" maxlength="300" placeholder="Ex.: Psicologia clínica e organizacional" (ngModelChange)="syncDraftToSessionForPreviews()" />
                   </div>
+                  }
+                  @if (extraMostraSecao('council')) {
                   <div>
-                    <label class="form-label">Registro profissional (CRO, CRM, CRP…)</label>
-                    <input type="text" z-input zSize="sm" class="w-full" [(ngModel)]="extraCouncilRegistration" name="extra_council" maxlength="120" placeholder="Ex.: CRO-SP 12345" />
+                    <label class="form-label">Registro profissional (CRM, CRO, CRP, RQE…)</label>
+                    <input type="text" z-input zSize="sm" class="w-full" [(ngModel)]="extraCouncilRegistration" name="extra_council" maxlength="120" placeholder="Ex.: CRMMG 49642 | RQE 60046" (ngModelChange)="syncDraftToSessionForPreviews()" />
                   </div>
+                  }
+                  @if (extraMostraSecao('brand_subtitle')) {
                   <div>
                     <label class="form-label">Subtítulo da marca (estética)</label>
-                    <input type="text" z-input zSize="sm" class="w-full" [(ngModel)]="extraBrandSubtitle" name="extra_brand_sub" maxlength="200" placeholder="Ex.: Estética avançada · Desde 2015" />
+                    <input type="text" z-input zSize="sm" class="w-full" [(ngModel)]="extraBrandSubtitle" name="extra_brand_sub" maxlength="200" placeholder="Ex.: Estética avançada · Desde 2015" (ngModelChange)="syncDraftToSessionForPreviews()" />
                   </div>
+                  }
+                  @if (extraMostraSecao('instagram')) {
                   <div>
                     <label class="form-label">Instagram (URL completa)</label>
-                    <input type="url" z-input zSize="sm" class="w-full" [(ngModel)]="extraInstagramUrl" name="extra_ig" maxlength="500" placeholder="https://instagram.com/sua_clinica" />
+                    <input type="url" z-input zSize="sm" class="w-full" [(ngModel)]="extraInstagramUrl" name="extra_ig" maxlength="500" placeholder="https://instagram.com/sua_clinica" (ngModelChange)="syncDraftToSessionForPreviews()" />
                   </div>
+                  }
                 </div>
               </z-card>
+              }
 
+              @if (extraMostraSecao('vet_exam')) {
               <z-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-5">
                 <p class="text-xs font-bold uppercase tracking-wider mb-1" style="color:var(--c-muted)">Resultados de exames (veterinária)</p>
                 <p class="text-[11px] mb-4" style="color:var(--c-muted)">
@@ -975,12 +1192,210 @@
                   </div>
                 </div>
               </z-card>
+              }
 
+              @if (extraMostraSecao('vet_cover')) {
+              <!-- ══ VETERINÁRIA (M6) ══ -->
+              <z-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-5">
+                <p class="text-xs font-bold uppercase tracking-wider mb-1" style="color:var(--c-muted)">Clínica veterinária — textos da capa</p>
+                <p class="text-[11px] mb-4" style="color:var(--c-muted)">Campos do layout <strong style="color:var(--c-text)">Clínica veterinária (6)</strong>. Deixe vazio para usar o texto padrão.</p>
+                <div class="flex flex-col gap-4">
+                  <div>
+                    <label class="form-label">Rótulo acima do nome (kicker da capa)</label>
+                    <input type="text" z-input zSize="sm" class="w-full" [(ngModel)]="extraVetCoverKicker" name="extra_vet_kicker" maxlength="80" placeholder="Ex.: Medicina veterinária" (ngModelChange)="syncDraftToSessionForPreviews()" />
+                  </div>
+                  <div>
+                    <label class="form-label">Texto do botão WhatsApp</label>
+                    <input type="text" z-input zSize="sm" class="w-full" [(ngModel)]="extraVetWaCtaLabel" name="extra_vet_wa" maxlength="80" placeholder="Ex.: Marcar consulta para o pet" (ngModelChange)="syncDraftToSessionForPreviews()" />
+                  </div>
+                  <div>
+                    <label class="form-label">Título da seção de fichas</label>
+                    <input type="text" z-input zSize="sm" class="w-full" [(ngModel)]="extraVetDocsSectionTitle" name="extra_vet_docs_title" maxlength="80" placeholder="Ex.: Fichas do pet" (ngModelChange)="syncDraftToSessionForPreviews()" />
+                  </div>
+                  <div>
+                    <label class="form-label">Introdução da seção de fichas</label>
+                    <input type="text" z-input zSize="sm" class="w-full" [(ngModel)]="extraVetDocsIntro" name="extra_vet_docs_intro" maxlength="200" placeholder="Ex.: Preencha antes da consulta do seu bichinho" (ngModelChange)="syncDraftToSessionForPreviews()" />
+                  </div>
+                </div>
+              </z-card>
+              }
+
+              @if (extraMostraSecao('vet_species')) {
+              <z-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-5">
+                <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+                  <div>
+                    <p class="text-xs font-bold uppercase tracking-wider" style="color:var(--c-muted)">Espécies atendidas</p>
+                    <p class="text-[11px] mt-1" style="color:var(--c-muted)">Layout veterinária (6). Se vazio, usa padrão (Cães, Gatos, Coelhos…).</p>
+                  </div>
+                  <button type="button" z-button zType="outline" zSize="sm" class="gap-1.5" (click)="adicionarSpeciesChip()">
+                    <span class="material-symbols-outlined text-base">add</span>
+                    Adicionar
+                  </button>
+                </div>
+                @if (extraSpeciesChips.length === 0) {
+                  <p class="text-xs py-2" style="color:var(--c-muted)">Nenhuma espécie personalizada. Clique em Adicionar para criar.</p>
+                }
+                <div class="flex flex-col gap-3">
+                  @for (chip of extraSpeciesChips; track $index) {
+                    <div class="flex gap-2 items-center">
+                      <input type="text" z-input zSize="sm" class="w-full flex-1 min-w-0" [(ngModel)]="extraSpeciesChips[$index].label" [name]="'sp_label_' + $index" maxlength="40" placeholder="Ex.: 🐕 Cães" />
+                      <z-checkbox [(ngModel)]="extraSpeciesChips[$index].active" [name]="'sp_active_' + $index" title="Ativa (chip destacado)">Ativa</z-checkbox>
+                      <button type="button" z-button zType="ghost" zSize="sm" class="shrink-0 min-w-9 px-2" (click)="removerSpeciesChip($index)" aria-label="Remover espécie">
+                        <span class="material-symbols-outlined text-base">close</span>
+                      </button>
+                    </div>
+                  }
+                </div>
+              </z-card>
+              }
+
+              @if (extraMostraSecao('vet_services')) {
+              <z-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-5">
+                <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+                  <div>
+                    <p class="text-xs font-bold uppercase tracking-wider" style="color:var(--c-muted)">Serviços da clínica veterinária</p>
+                    <p class="text-[11px] mt-1" style="color:var(--c-muted)">Layout veterinária (6). Se vazio, usa padrão (Vacinas, Exames, Cirurgia…).</p>
+                  </div>
+                  <button type="button" z-button zType="outline" zSize="sm" class="gap-1.5" (click)="adicionarVetServiceCard()">
+                    <span class="material-symbols-outlined text-base">add</span>
+                    Adicionar
+                  </button>
+                </div>
+                @if (extraVetServiceCards.length === 0) {
+                  <p class="text-xs py-2" style="color:var(--c-muted)">Nenhum serviço personalizado. Clique em Adicionar para criar.</p>
+                }
+                <div class="flex flex-col gap-2">
+                  @for (svc of extraVetServiceCards; track $index) {
+                    <div class="flex gap-2 items-center">
+                      <input type="text" z-input zSize="sm" class="w-18 shrink-0" [(ngModel)]="extraVetServiceCards[$index].icon" [name]="'vsvc_icon_' + $index" maxlength="4" placeholder="💉" />
+                      <input type="text" z-input zSize="sm" class="w-full flex-1 min-w-0" [(ngModel)]="extraVetServiceCards[$index].title" [name]="'vsvc_title_' + $index" maxlength="60" placeholder="Ex.: Vacinas" />
+                      <button type="button" z-button zType="ghost" zSize="sm" class="shrink-0 min-w-9 px-2" (click)="removerVetServiceCard($index)" aria-label="Remover serviço">
+                        <span class="material-symbols-outlined text-base">close</span>
+                      </button>
+                    </div>
+                  }
+                </div>
+              </z-card>
+              }
+
+              @if (extraMostraSecao('ped_texts')) {
+              <!-- ══ PEDIATRIA (M7) ══ -->
+              <z-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-5">
+                <p class="text-xs font-bold uppercase tracking-wider mb-1" style="color:var(--c-muted)">Pediatria — textos e alertas</p>
+                <p class="text-[11px] mb-4" style="color:var(--c-muted)">Campos do layout <strong style="color:var(--c-text)">Pediatria (7)</strong>. Deixe vazio para usar o texto padrão.</p>
+                <div class="flex flex-col gap-4">
+                  <div>
+                    <label class="form-label">Rótulo da capa (kicker)</label>
+                    <input type="text" z-input zSize="sm" class="w-full" [(ngModel)]="extraPedCoverKicker" name="extra_ped_kicker" maxlength="60" placeholder="Ex.: Pediatria" (ngModelChange)="syncDraftToSessionForPreviews()" />
+                  </div>
+                  <div>
+                    <label class="form-label">Texto do botão WhatsApp</label>
+                    <input type="text" z-input zSize="sm" class="w-full" [(ngModel)]="extraPedWaCtaLabel" name="extra_ped_wa" maxlength="80" placeholder="Ex.: Marcar consulta" (ngModelChange)="syncDraftToSessionForPreviews()" />
+                  </div>
+                  <div>
+                    <label class="form-label">Título da seção de fichas</label>
+                    <input type="text" z-input zSize="sm" class="w-full" [(ngModel)]="extraPedDocsSectionTitle" name="extra_ped_docs_title" maxlength="80" placeholder="Ex.: Fichas e documentos" (ngModelChange)="syncDraftToSessionForPreviews()" />
+                  </div>
+                  <div>
+                    <label class="form-label">Introdução da seção de fichas</label>
+                    <input type="text" z-input zSize="sm" class="w-full" [(ngModel)]="extraPedDocsIntro" name="extra_ped_docs_intro" maxlength="200" placeholder="Ex.: Preencha com os dados da criança antes da consulta" (ngModelChange)="syncDraftToSessionForPreviews()" />
+                  </div>
+                  <div>
+                    <label class="form-label">Título do alerta para responsáveis</label>
+                    <input type="text" z-input zSize="sm" class="w-full" [(ngModel)]="extraPedParentNoticeTitle" name="extra_ped_notice_title" maxlength="120" placeholder="Ex.: Importante para os pais" (ngModelChange)="syncDraftToSessionForPreviews()" />
+                  </div>
+                  <div>
+                    <label class="form-label">Texto do alerta para responsáveis</label>
+                    <textarea z-input zSize="sm" class="w-full" rows="3" [(ngModel)]="extraPedParentNoticeBody" name="extra_ped_notice_body" maxlength="400" placeholder="Ex.: As fichas devem ser assinadas pelo responsável legal da criança…" (ngModelChange)="syncDraftToSessionForPreviews()"></textarea>
+                  </div>
+                </div>
+              </z-card>
+              }
+
+              @if (extraMostraSecao('ped_steps')) {
+              <z-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-5">
+                <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+                  <div>
+                    <p class="text-xs font-bold uppercase tracking-wider" style="color:var(--c-muted)">Passos da primeira consulta</p>
+                    <p class="text-[11px] mt-1" style="color:var(--c-muted)">Layout pediatria (7). Se vazio, usa padrão (3 passos).</p>
+                  </div>
+                  <button type="button" z-button zType="outline" zSize="sm" class="gap-1.5" (click)="adicionarPedStep()">
+                    <span class="material-symbols-outlined text-base">add</span>
+                    Adicionar passo
+                  </button>
+                </div>
+                @if (extraPedFirstVisitSteps.length === 0) {
+                  <p class="text-xs py-2" style="color:var(--c-muted)">Nenhum passo personalizado. Clique em Adicionar para criar.</p>
+                }
+                <div class="flex flex-col gap-4">
+                  @for (step of extraPedFirstVisitSteps; track $index) {
+                    <div class="p-4 rounded-xl flex flex-col gap-3" style="background:var(--c-soft);border:1px solid var(--c-border)">
+                      <div class="flex justify-between items-start gap-2">
+                        <span class="text-xs font-semibold" style="color:var(--c-text)">Passo {{ $index + 1 }}</span>
+                        <button type="button" z-button zType="ghost" zSize="sm" (click)="removerPedStep($index)">Remover</button>
+                      </div>
+                      <div>
+                        <label class="form-label">Título</label>
+                        <input type="text" z-input zSize="sm" class="w-full" [(ngModel)]="extraPedFirstVisitSteps[$index].title" [name]="'ped_step_t_' + $index" maxlength="80" placeholder="Ex.: Preencha as fichas abaixo" />
+                      </div>
+                      <div>
+                        <label class="form-label">Subtítulo</label>
+                        <input type="text" z-input zSize="sm" class="w-full" [(ngModel)]="extraPedFirstVisitSteps[$index].subtitle" [name]="'ped_step_s_' + $index" maxlength="120" placeholder="Ex.: Antes de vir à clínica, economiza tempo na recepção" />
+                      </div>
+                    </div>
+                  }
+                </div>
+              </z-card>
+              }
+
+              @if (extraMostraSecao('ped_age_bands')) {
+              <z-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-5">
+                <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+                  <div>
+                    <p class="text-xs font-bold uppercase tracking-wider" style="color:var(--c-muted)">Faixas etárias atendidas</p>
+                    <p class="text-[11px] mt-1" style="color:var(--c-muted)">Layout pediatria (7). Se vazio, usa padrão (Recém-nascido, Criança, Adolescente).</p>
+                  </div>
+                  <button type="button" z-button zType="outline" zSize="sm" class="gap-1.5" (click)="adicionarPedAgeBand()">
+                    <span class="material-symbols-outlined text-base">add</span>
+                    Adicionar faixa
+                  </button>
+                </div>
+                @if (extraPedAgeBands.length === 0) {
+                  <p class="text-xs py-2" style="color:var(--c-muted)">Nenhuma faixa personalizada. Clique em Adicionar para criar.</p>
+                }
+                <div class="flex flex-col gap-4">
+                  @for (band of extraPedAgeBands; track $index) {
+                    <div class="p-4 rounded-xl flex flex-col gap-3" style="background:var(--c-soft);border:1px solid var(--c-border)">
+                      <div class="flex justify-between items-start gap-2">
+                        <span class="text-xs font-semibold" style="color:var(--c-text)">Faixa {{ $index + 1 }}</span>
+                        <button type="button" z-button zType="ghost" zSize="sm" (click)="removerPedAgeBand($index)">Remover</button>
+                      </div>
+                      <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <div>
+                          <label class="form-label">Emoji</label>
+                          <input type="text" z-input zSize="sm" class="w-full" [(ngModel)]="extraPedAgeBands[$index].emoji" [name]="'ped_band_e_' + $index" maxlength="4" placeholder="👶" />
+                        </div>
+                        <div>
+                          <label class="form-label">Título</label>
+                          <input type="text" z-input zSize="sm" class="w-full" [(ngModel)]="extraPedAgeBands[$index].title" [name]="'ped_band_t_' + $index" maxlength="40" placeholder="Ex.: Recém-nascido" />
+                        </div>
+                        <div>
+                          <label class="form-label">Faixa de idade</label>
+                          <input type="text" z-input zSize="sm" class="w-full" [(ngModel)]="extraPedAgeBands[$index].range" [name]="'ped_band_r_' + $index" maxlength="30" placeholder="Ex.: 0 – 28 dias" />
+                        </div>
+                      </div>
+                    </div>
+                  }
+                </div>
+              </z-card>
+              }
+
+              @if (extraMostraSecao('convenios')) {
               <z-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-5">
                 <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
                   <div>
                     <p class="text-xs font-bold uppercase tracking-wider" style="color:var(--c-muted)">Convênios aceitos</p>
-                    <p class="text-[11px] mt-1" style="color:var(--c-muted)">Layout odontologia (4)</p>
+                    <p class="text-[11px] mt-1" style="color:var(--c-muted)">Layouts: odontologia (4), pediatria (7) e nutricionista (8)</p>
                   </div>
                   <button type="button" z-button zType="outline" zSize="sm" class="gap-1.5" (click)="adicionarConvenioLinha()">
                     <span class="material-symbols-outlined text-base">add</span>
@@ -998,12 +1413,14 @@
                   }
                 </div>
               </z-card>
+              }
 
+              @if (extraMostraSecao('modalidades')) {
               <z-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-5">
                 <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
                   <div>
                     <p class="text-xs font-bold uppercase tracking-wider" style="color:var(--c-muted)">Modalidades de atendimento</p>
-                    <p class="text-[11px] mt-1" style="color:var(--c-muted)">Layout profissional solo (2). Se vazio, a página usa padrão (Online / Presencial).</p>
+                    <p class="text-[11px] mt-1" style="color:var(--c-muted)">Layouts: odontologia (4) e nutricionista (8). Se vazio, a página usa padrão (Online / Presencial).</p>
                   </div>
                   <button type="button" z-button zType="outline" zSize="sm" class="gap-1.5" (click)="adicionarModalidade()">
                     <span class="material-symbols-outlined text-base">add</span>
@@ -1037,7 +1454,9 @@
                   }
                 </div>
               </z-card>
+              }
 
+              @if (extraMostraSecao('equipe')) {
               <z-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-5">
                 <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
                   <div>
@@ -1081,6 +1500,7 @@
                   }
                 </div>
               </z-card>
+              }
 
               <div class="sticky-footer-spacer" aria-hidden="true"></div>
               <div class="sticky-footer">
@@ -1097,6 +1517,7 @@
                 </div>
               </div>
             </form>
+            }
           </div>
         }
 
@@ -1107,5 +1528,65 @@
       </z-tab-group>
     </div>
   }
+  }
+
+  <ng-template #headerMenuTpl>
+    <div z-menu-content class="min-w-48">
+      @if (recepcaoKioskUrl) {
+        <button type="button" z-menu-item class="w-full gap-2" (click)="copiarLinkRecepcao()">
+          <span class="material-symbols-outlined shrink-0 text-base" aria-hidden="true">content_copy</span>
+          Copiar link do modo recepção
+        </button>
+      }
+    </div>
+  </ng-template>
+
+  @if (qrAberto) {
+    <div class="link-bio-qr-backdrop" role="presentation" (click)="fecharQr()"></div>
+    <div
+      class="link-bio-qr-dialog"
+      role="dialog"
+      aria-modal="true"
+      [attr.aria-label]="'QR code — ' + (state?.clinic?.name ?? 'link na bio')"
+    >
+      <div class="link-bio-qr-dialog__head">
+        <div class="min-w-0">
+          <p class="link-bio-qr-dialog__title">{{ state?.clinic?.name }}</p>
+          <p class="link-bio-qr-dialog__sub">Escaneie para abrir a página pública</p>
+        </div>
+        <button
+          z-button
+          zType="ghost"
+          zSize="icon-sm"
+          type="button"
+          class="shrink-0"
+          aria-label="Fechar"
+          (click)="fecharQr()"
+        >
+          <span class="material-symbols-outlined text-[1.125rem]">close</span>
+        </button>
+      </div>
+      <div class="link-bio-qr-dialog__body">
+        @if (qrCarregando) {
+          <z-skeleton class="link-bio-qr-dialog__skeleton" />
+        } @else if (qrDataUrl) {
+          <img [src]="qrDataUrl" alt="" class="link-bio-qr-dialog__img" />
+        }
+      </div>
+      <div class="link-bio-qr-dialog__actions">
+        <button
+          z-button
+          zType="outline"
+          zSize="sm"
+          type="button"
+          class="gap-2"
+          [disabled]="!qrDataUrl"
+          (click)="baixarQrPrincipal()"
+        >
+          <span class="material-symbols-outlined text-base" aria-hidden="true">download</span>
+          Baixar QR code
+        </button>
+      </div>
+    </div>
   }
 </div>

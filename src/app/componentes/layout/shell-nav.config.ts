@@ -41,10 +41,10 @@ export const SHELL_NAV_APP: ShellNavItem[] = [
 export const SHELL_NAV_APP_SECTIONS: ShellNavSection[] = [
   {
     id: 'inicio',
-    label: 'Início',
-    icon: 'dashboard',
+    label: 'Dashboard',
+    icon: 'bar_chart',
     items: [
-      { route: '/dashboard', label: 'Painel', icon: 'dashboard', permission: 'dashboard.access', exact: true },
+      { route: '/dashboard', label: 'Dashboard', icon: 'bar_chart', permission: 'dashboard.access', exact: true },
     ],
   },
   {
@@ -52,10 +52,10 @@ export const SHELL_NAV_APP_SECTIONS: ShellNavSection[] = [
     label: 'Operação',
     icon: 'work',
     items: [
-      { route: '/templates', label: 'Modelos de fichas', icon: 'description', permission: 'templates.manage' },
-      { route: '/links-publicos', label: 'Formulários públicos', icon: 'link', permissionsAny: ['templates.manage', 'submissions.view'] },
+      { route: '/templates', label: 'Modelos de fichas', icon: 'app_registration', permission: 'templates.manage' },
+      { route: '/links-publicos', label: 'Formulários públicos', icon: 'list_alt', permissionsAny: ['templates.manage', 'submissions.view'] },
       { route: '/envios', label: 'Envios de documento', icon: 'send', permissionsAny: ['templates.manage', 'submissions.view'] },
-      { route: '/protocolos', label: 'Protocolos', icon: 'inbox', permission: 'submissions.view' },
+      { route: '/protocolos', label: 'Protocolos', icon: 'article_person', permission: 'submissions.view' },
       { route: '/pessoas', label: 'Pessoas', icon: 'group', permission: 'submissions.view' },
     ],
   },
@@ -64,9 +64,9 @@ export const SHELL_NAV_APP_SECTIONS: ShellNavSection[] = [
     label: 'Admin',
     icon: 'admin_panel_settings',
     items: [
-      { route: '/clinica/configuracoes', label: 'Empresa', icon: 'business', permission: 'organization.manage' },
-      { route: '/link-bio', label: 'Link na bio', icon: 'link', permission: 'organization.manage' },
-      { route: '/clinica/integracoes', label: 'Integrações', icon: 'api', permission: 'organization.manage' },
+      { route: '/clinica/configuracoes', label: 'Empresa', icon: 'emoji_transportation', permission: 'organization.manage' },
+      { route: '/link-bio', label: 'Link na bio', icon: 'nest_heat_link_gen_3', permission: 'organization.manage' },
+      { route: '/clinica/integracoes', label: 'Integrações', icon: 'linked_services', permission: 'organization.manage' },
       { route: '/usuarios', label: 'Usuários', icon: 'group', permission: 'users.manage' },
       { route: '/organizacao/permissoes', label: 'Permissões', icon: 'admin_panel_settings', permission: 'users.manage' },
     ],
@@ -99,20 +99,20 @@ export const SHELL_NAV_PLATAFORMA: ShellNavItem[] = [
 export const SHELL_NAV_PLATAFORMA_SECTIONS: ShellNavSection[] = [
   {
     id: 'inicio',
-    label: 'Início',
-    icon: 'analytics',
+    label: 'Dashboard',
+    icon: 'bar_chart',
     items: [
-      { route: '/plataforma', label: 'Visão geral', icon: 'analytics', exact: true },
+      { route: '/plataforma', label: 'Dashboard', icon: 'bar_chart', exact: true },
     ],
   },
   {
     id: 'clientes',
     label: 'Clientes',
-    icon: 'apartment',
+    icon: 'emoji_transportation',
     items: [
-      { route: '/plataforma/clientes', label: 'Clientes', icon: 'apartment' },
+      { route: '/plataforma/clientes', label: 'Clientes', icon: 'emoji_transportation' },
       { route: '/plataforma/organizacoes-online', label: 'Empresas online', icon: 'sensors' },
-      { route: '/plataforma/leads', label: 'Leads', icon: 'request_quote' },
+      { route: '/plataforma/leads', label: 'Leads', icon: '3p' },
     ],
   },
   {
@@ -121,7 +121,7 @@ export const SHELL_NAV_PLATAFORMA_SECTIONS: ShellNavSection[] = [
     icon: 'monitoring',
     items: [
       { route: '/plataforma/trafego-landing', label: 'Tráfego da landing', icon: 'monitoring' },
-      { route: '/plataforma/assinaturas', label: 'Assinaturas', icon: 'receipt_long' },
+      { route: '/plataforma/assinaturas', label: 'Assinaturas', icon: 'add_card' },
       { route: '/plataforma/faturas', label: 'Faturas / cobranças', icon: 'payments' },
       { route: '/plataforma/emails', label: 'E-mails', icon: 'mail' },
     ],
@@ -131,7 +131,7 @@ export const SHELL_NAV_PLATAFORMA_SECTIONS: ShellNavSection[] = [
     label: 'Admin',
     icon: 'settings',
     items: [
-      { route: '/plataforma/planos', label: 'Planos', icon: 'subscriptions' },
+      { route: '/plataforma/planos', label: 'Planos', icon: 'featured_play_list' },
       { route: '/plataforma/novidades', label: 'Novidades', icon: 'new_releases' },
       { route: '/plataforma/configuracoes', label: 'Configurações', icon: 'settings' },
       { route: '/plataforma/logs', label: 'Logs', icon: 'history' },

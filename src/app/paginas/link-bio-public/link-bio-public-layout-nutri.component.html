@@ -1,4 +1,4 @@
-<div class="lb-m8-root min-h-screen" [class.dark]="dark">
+<div class="lb-m8-root min-h-screen" [class.dark]="dark" [ngStyle]="themeVarsM8()">
   <div class="flex justify-end gap-2 px-4 pt-4 absolute top-0 right-0 z-30">
     <button
       type="button"
@@ -46,7 +46,7 @@
         @if (heroPortraitUrl) {
           <img [src]="heroPortraitUrl" [alt]="clinic.name" class="w-full h-full rounded-full object-cover" />
         } @else {
-          <div class="lb-m8-avatar-inner">N</div>
+          <div class="lb-m8-avatar-inner">{{ clinicInitials }}</div>
         }
       </div>
 
@@ -279,23 +279,36 @@
     }
 
     @if (clinic.address) {
-      <div class="flex items-center gap-2 mt-5 lb-m8-a6">
-        <svg class="w-[13px] h-[13px] text-sage-500 dark:text-sage-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" />
-          <circle cx="12" cy="10" r="3" />
-        </svg>
-        <span class="text-[12px] text-gray-400 dark:text-gray-600 font-medium">{{ clinic.address }}</span>
+      <div class="lb-bottom-contact lb-bottom-contact--m8">
+        @if (clinic.maps_url) {
+          <a [href]="trackCta('maps', clinic.maps_url!)" target="_blank" rel="noopener noreferrer" class="lb-bottom-contact__item lb-bottom-contact__address">
+            <svg class="lb-bottom-contact__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" />
+              <circle cx="12" cy="10" r="3" />
+            </svg>
+            <span>{{ clinic.address }}</span>
+          </a>
+        } @else {
+          <span class="lb-bottom-contact__item lb-bottom-contact__address">
+            <svg class="lb-bottom-contact__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" />
+              <circle cx="12" cy="10" r="3" />
+            </svg>
+            <span>{{ clinic.address }}</span>
+          </span>
+        }
       </div>
     }
 
-    <div class="mt-8 pt-5 border-t border-sage-100 dark:border-white/5 flex items-center justify-center gap-2 flex-wrap lb-m8-a6">
-      <div class="w-[5px] h-[5px] rounded-full bg-sage-500 opacity-60"></div>
-      <span class="text-[11px] text-gray-400 dark:text-gray-600 font-medium">Fichas digitais por</span>
-      <a href="https://gestgo.com.br" target="_blank" rel="noopener noreferrer" class="text-[11px] font-bold text-sage-600 dark:text-sage-400 no-underline hover:opacity-75 transition-opacity">
-        Gestgo
-      </a>
-      <span class="text-gray-300 dark:text-gray-700 text-[11px]">·</span>
-      <a routerLink="/privacidade" class="text-[11px] text-gray-400 dark:text-gray-600 no-underline hover:text-gray-600 dark:hover:text-gray-400 transition-colors font-medium">Privacidade</a>
+    @if (googleReviews) {
+      <app-link-bio-public-google-reviews [reviews]="googleReviews" [dark]="dark" />
+    }
+
+    <div class="lb-page-footer lb-page-footer--m8">
+      <span class="lb-page-footer__muted">Fichas digitais por</span>
+      <a href="https://gestgo.com.br" target="_blank" rel="noopener noreferrer" class="lb-page-footer__brand">Gestgo</a>
+      <span class="lb-page-footer__sep" aria-hidden="true">·</span>
+      <a routerLink="/privacidade" class="lb-page-footer__link">Privacidade</a>
     </div>
   </div>
 </div>

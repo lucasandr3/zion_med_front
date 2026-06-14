@@ -1,5 +1,7 @@
 :host {
   display: block;
+  height: 100dvh;
+  min-height: 100dvh;
   font-family: 'Roboto', ui-sans-serif, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -24,7 +26,11 @@
 }
 
 .form-publico-page {
-  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 100dvh;
+  overflow: hidden;
   background: var(--fp-bg-page);
   color: var(--fp-ink-800);
 }
@@ -38,8 +44,8 @@
 
 /* ── Header ── */
 .fp-sticky-header {
-  position: sticky;
-  top: 0;
+  position: relative;
+  flex-shrink: 0;
   z-index: 20;
   background: var(--fp-bg-header);
   backdrop-filter: blur(8px);
@@ -228,15 +234,21 @@
   background: #fafafa;
 }
 
-/* ── Scroll area (espaço para footer fixo) ── */
+/* ── Área rolável (entre header e footer) ── */
 .fp-scroll {
-  padding-bottom: 6.5rem;
+  flex: 1;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+  padding-bottom: 1.25rem;
 }
 
 .fp-container {
   max-width: 32rem;
   margin: 0 auto;
-  padding: 1.5rem 1rem 0;
+  padding: 1.5rem 1rem 2rem;
 }
 
 .fp-error-card {
@@ -918,10 +930,8 @@
 
 /* Footer */
 .fp-footer {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  flex-shrink: 0;
+  position: relative;
   z-index: 30;
   background: var(--fp-bg-header);
   backdrop-filter: blur(8px);
@@ -934,6 +944,63 @@
 .fp-footer-inner {
   max-width: 32rem;
   margin: 0 auto;
+}
+
+.fp-footer-inner--steps {
+  display: flex;
+  gap: 0.625rem;
+  align-items: stretch;
+}
+
+.fp-step-btn {
+  font-family: 'Roboto', ui-sans-serif, system-ui, sans-serif;
+  flex: 1;
+  min-height: 3rem;
+  padding: 0.875rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  transition: background 0.15s, border-color 0.15s, transform 0.1s;
+}
+
+.fp-step-btn--back {
+  border: 1px solid var(--fp-border);
+  background: transparent;
+  color: var(--fp-ink-800);
+}
+
+.form-publico-page.dark .fp-step-btn--back {
+  color: #fafafa;
+  border-color: #2a2a2a;
+}
+
+.fp-step-btn--back:hover {
+  background: color-mix(in srgb, var(--fp-ink-800) 5%, transparent);
+}
+
+.fp-step-btn--next {
+  border: none;
+  background: var(--fp-ink-800);
+  color: #fff;
+}
+
+.form-publico-page.dark .fp-step-btn--next {
+  background: #fafafa;
+  color: var(--fp-ink-900);
+}
+
+.fp-submit-btn--solo {
+  width: 100%;
+}
+
+.fp-footer-inner--steps .fp-submit-btn {
+  flex: 1;
+  width: auto;
 }
 
 .fp-submit-btn {

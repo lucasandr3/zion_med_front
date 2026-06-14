@@ -1,5 +1,7 @@
 :host {
   display: block;
+  min-height: 100dvh;
+  min-height: 100vh;
 }
 
 *,
@@ -9,16 +11,20 @@
 }
 
 .lb-bio-loading {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: min(72vh, 560px);
-  padding: 2rem 1.25rem;
-  background: linear-gradient(165deg, #fafafa 0%, #f1f5f9 55%, #eef2f7 100%);
+  min-height: 100dvh;
+  min-height: 100vh;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  background: #f9fafb;
 }
 
 .lb-bio-loading--dark {
-  background: linear-gradient(165deg, #13161c 0%, #0d1016 50%, #0a0c10 100%);
+  background: #121212;
 }
 
 .lb-bio-loading__inner {
