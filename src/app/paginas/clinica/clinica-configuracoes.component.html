@@ -372,10 +372,16 @@
                 @for (key of themeKeys; track key) {
                   @let meta = availableThemes[key];
                   @let primary = meta?.primary ?? '#2563eb';
-                  <label class="theme-card palette-card" [class.selected]="form.theme === key" [attr.aria-label]="getThemeLabel(key)">
-                    <input type="radio" [value]="key" [(ngModel)]="form.theme" (ngModelChange)="onThemeChanged($event)" [name]="'theme'" class="sr-only">
+                  <button
+                    type="button"
+                    class="theme-card palette-card"
+                    [class.selected]="isThemeSelected(key)"
+                    [attr.aria-label]="getThemeLabel(key)"
+                    [attr.aria-pressed]="isThemeSelected(key)"
+                    (click)="selectTheme(key)"
+                  >
                     <div class="theme-preview palette-preview" [style.background]="primary"></div>
-                  </label>
+                  </button>
                 }
               </div>
               <div class="visual-subtitle mode-subtitle">

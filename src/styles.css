@@ -1936,7 +1936,7 @@ body.sidebar-collapsed #sidebar[data-shell] .sidebar-brand__text {
 
 #sidebar[data-shell] .sidebar-logo-chip__img {
     display: block;
-    height: 100%;
+    /* height: 100%; */
     object-fit: contain;
     width: 100%;
 }

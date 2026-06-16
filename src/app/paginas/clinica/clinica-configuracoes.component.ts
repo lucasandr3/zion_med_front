@@ -43,6 +43,7 @@ import {
   applyShellPresetToDom,
   applyUserAppearanceToBrowser,
   GESTGO_SHELL_PRESET_LS,
+  GESTGO_THEME_LS,
   normalizeShellPreset,
   normalizeThemeKey,
   SHELL_PRESET_UI_OPTIONS,
@@ -142,6 +143,8 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
   } = {};
   showSkeleton!: Signal<boolean>;
   themeMode: 'light' | 'dark' | 'auto' = 'light';
+  /** Cor ativa no navegador (drawer, preview ou empresa salva). */
+  appliedThemeKey = 'ocean-blue';
   /** Preferência do usuário (header/sidebar); não faz parte do payload da empresa. */
   shellPresetAtual: ShellPreset = 'default';
   readonly shellPresetOptions = SHELL_PRESET_UI_OPTIONS;
@@ -291,7 +294,38 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
   onThemeChanged(value: string): void {
     const canonicalThemeKey = normalizeThemeKey(value);
     this.form.theme = canonicalThemeKey;
+    this.appliedThemeKey = canonicalThemeKey;
     applyUserAppearanceToBrowser({ ui_theme: canonicalThemeKey });
+    this.auth.notifyAppearanceApplied();
+  }
+
+  selectTheme(value: string): void {
+    this.onThemeChanged(value);
+  }
+
+  isThemeSelected(themeKey: string): boolean {
+    return normalizeThemeKey(themeKey) === this.appliedThemeKey;
+  }
+
+  private syncAppliedThemeKey(): void {
+    this.appliedThemeKey = this.readAppliedThemeKey();
+  }
+
+  private readAppliedThemeKey(): string {
+    if (typeof document !== 'undefined') {
+      for (const className of Array.from(document.body.classList)) {
+        if (className.startsWith('theme-')) {
+          return normalizeThemeKey(className.slice('theme-'.length));
+        }
+      }
+    }
+    try {
+      const saved = localStorage.getItem(GESTGO_THEME_LS);
+      if (saved) {
+        return normalizeThemeKey(saved);
+      }
+    } catch {}
+    return normalizeThemeKey(String(this.form.theme ?? 'ocean-blue'));
   }
 
   onThemeModeChanged(mode: 'light' | 'dark' | 'auto'): void {
@@ -391,7 +425,15 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.appearanceSub = this.auth.appearanceApplied$.subscribe(() => this.syncShellPresetFromUser());
+    this.syncAppliedThemeKey();
+    this.appearanceSub = this.auth.appearanceApplied$.subscribe(() => {
+      this.syncShellPresetFromUser();
+      const previousTheme = this.appliedThemeKey;
+      this.syncAppliedThemeKey();
+      if (this.appliedThemeKey !== previousTheme) {
+        this.form.theme = this.appliedThemeKey;
+      }
+    });
     const rawTab = this.route.snapshot.queryParamMap.get('tab');
     const tabQ = rawTab === 'assinatura' ? null : rawTab;
     const pageQuery = tabQ ? { tab: tabQ } : undefined;
@@ -406,6 +448,7 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
         this.activeTab = tab;
         this.patchFormFromClinic(data.organization ?? data.clinic!);
         this.syncShellPresetFromUser();
+        this.syncAppliedThemeKey();
         this.syncTabGroupFromActiveTab();
       },
       error: () => {
@@ -1076,6 +1119,8 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
           ui_theme: normalizeThemeKey(String(updated.theme ?? this.form.theme ?? 'ocean-blue')),
           ui_dark_mode: updated.dark_mode ?? !!this.form.dark_mode,
         });
+        this.syncAppliedThemeKey();
+        this.auth.notifyAppearanceApplied();
         this.toast.success('Configurações salvas', 'As alterações da empresa foram gravadas.');
       },
       error: () => {

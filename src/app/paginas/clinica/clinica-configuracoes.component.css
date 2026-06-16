@@ -304,6 +304,10 @@
   min-height: 54px;
   overflow: hidden;
   gap: 0;
+  width: 100%;
+  cursor: pointer;
+  font: inherit;
+  text-align: inherit;
 }
 
 #panel-visual .theme-card.palette-card:hover {
