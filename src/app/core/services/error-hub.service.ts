@@ -45,8 +45,8 @@ export class ErrorHubService {
       level: options.level ?? this.inferLevel(error),
       message: getErrorMessage(error).slice(0, 2000),
       exception: getExceptionName(error),
-      file,
-      line,
+      file: file ?? this.resolveFallbackFile(),
+      line: line ?? 1,
       trace: stack.slice(0, 8000),
       business_title: options.business_title,
       business_context: {
@@ -96,18 +96,20 @@ export class ErrorHubService {
     const org = this.auth.getCurrentOrganization();
     const stack = backendTrace || getErrorStack(err.error ?? err);
 
+    const requestUrl = this.normalizeRequestUrl(req.url);
+
     return {
       environment: this.config.environment,
-      level: options?.level ?? (err.status >= 500 ? 'critical' : 'error'),
+      level: options?.level ?? (err.status >= 500 ? 'critical' : 'high'),
       message: this.extractHttpMessage(err).slice(0, 2000),
       exception: 'HttpErrorResponse',
-      file: null,
-      line: null,
+      file: requestUrl,
+      line: err.status >= 1 ? err.status : 1,
       trace: stack.slice(0, 8000),
       business_title: options?.business_title ?? 'Falha na requisição HTTP',
       business_context: {
         feature: ERROR_HUB_FEATURE,
-        action: `${req.method} ${this.normalizeRequestUrl(req.url)}`,
+        action: `${req.method} ${requestUrl}`,
         customer_id: org ? String(org.id) : undefined,
         customer_name: org?.name,
         route: this.router.url,
@@ -116,7 +118,7 @@ export class ErrorHubService {
       },
       request: {
         method: req.method,
-        url: this.normalizeRequestUrl(req.url),
+        url: requestUrl,
         payload: sanitizeErrorHubPayload(req.body),
         userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : '',
       },
@@ -166,9 +168,16 @@ export class ErrorHubService {
 
   private inferLevel(error: unknown): ErrorHubLevel {
     if (error instanceof HttpErrorResponse) {
-      return error.status >= 500 ? 'critical' : 'error';
+      return error.status >= 500 ? 'critical' : 'high';
     }
     return 'critical';
+  }
+
+  private resolveFallbackFile(): string {
+    if (typeof window !== 'undefined' && window.location.pathname) {
+      return window.location.pathname;
+    }
+    return 'unknown';
   }
 
   private extractHttpMessage(err: HttpErrorResponse): string {

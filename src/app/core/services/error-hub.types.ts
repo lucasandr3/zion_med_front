@@ -1,4 +1,4 @@
-export type ErrorHubLevel = 'critical' | 'error' | 'warning';
+export type ErrorHubLevel = 'critical' | 'high' | 'medium' | 'low' | 'info';
 
 export interface ErrorHubBusinessContext {
   feature?: string;
@@ -28,8 +28,8 @@ export interface ErrorHubEvent {
   level: ErrorHubLevel;
   message: string;
   exception: string;
-  file: string | null;
-  line: number | null;
+  file: string;
+  line: number;
   trace: string;
   business_title?: string;
   business_context?: ErrorHubBusinessContext;
