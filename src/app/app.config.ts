@@ -1,4 +1,4 @@
-import { ApplicationConfig, provideZoneChangeDetection, isDevMode } from '@angular/core';
+import { ApplicationConfig, ErrorHandler, provideZoneChangeDetection, isDevMode } from '@angular/core';
 import { IMAGE_LOADER, type ImageLoaderConfig } from '@angular/common';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
@@ -9,6 +9,8 @@ import { Portuguese } from 'flatpickr/dist/l10n/pt';
 import { provideZard } from '@/shared/core/provider/providezard';
 import { routes } from './app.routes';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
+import { errorHubInterceptor } from './core/interceptors/error-hub.interceptor';
+import { GlobalErrorHandler } from './core/handlers/global-error.handler';
 import { provideServiceWorker } from '@angular/service-worker';
 
 /** Permite `ngSrc` em logos e mídias com URL absoluta vindas da API. */
@@ -18,11 +20,12 @@ function absoluteMediaImageLoader(config: ImageLoaderConfig): string {
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    { provide: ErrorHandler, useClass: GlobalErrorHandler },
     { provide: IMAGE_LOADER, useValue: absoluteMediaImageLoader },
     provideZard(),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
-    provideHttpClient(withInterceptors([authInterceptor])),
+    provideHttpClient(withInterceptors([authInterceptor, errorHubInterceptor])),
     provideFlatpickrDefaults({
       locale: Portuguese,
       dateFormat: 'Y-m-d',
