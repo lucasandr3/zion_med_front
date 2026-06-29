@@ -4,6 +4,7 @@ import {
   BillingPayment,
   BillingService,
   BillingState,
+  BillingType,
   PlanoComChave,
   Subscription,
 } from '../../core/services/billing.service';
@@ -39,6 +40,8 @@ export class BillingComponent implements OnInit {
   erro = '';
   erroCobrancaBloqueada = false;
   acaoEmAndamento = false;
+  formaPagamento: BillingType = 'PIX';
+  pixExpandidoId: number | null = null;
 
   ngOnInit(): void {
     this.carregar();
@@ -59,6 +62,8 @@ export class BillingComponent implements OnInit {
           data.subscriptions.find(
             (s) => String(s.status).toLowerCase() === 'active' && s.asaas_subscription_id
           ) ?? null;
+        const pendentePix = this.pagamentos.find((p) => this.pagamentoPendente(p) && this.temPix(p));
+        this.pixExpandidoId = pendentePix?.id ?? null;
       },
       error: (err: unknown) => {
         this.listaPronta = true;
@@ -151,10 +156,38 @@ export class BillingComponent implements OnInit {
     this.trocarPlano(plano.key);
   }
 
+  selecionarFormaPagamento(tipo: BillingType): void {
+    this.formaPagamento = tipo;
+  }
+
+  pagamentoPendente(p: BillingPayment): boolean {
+    const st = String(p.status ?? '').toUpperCase();
+    return ['PENDING', 'OVERDUE', 'AWAITING_RISK_ANALYSIS'].includes(st);
+  }
+
+  temPix(p: BillingPayment): boolean {
+    return !!(p.pix_qr_encoded_image || p.pix_copy_paste);
+  }
+
+  alternarPix(p: BillingPayment): void {
+    this.pixExpandidoId = this.pixExpandidoId === p.id ? null : p.id;
+  }
+
+  async copiarPix(codigo: string): Promise<void> {
+    const texto = (codigo || '').trim();
+    if (!texto) return;
+    try {
+      await navigator.clipboard.writeText(texto);
+      this.toast.success('PIX copiado', 'Cole o código no app do seu banco.');
+    } catch {
+      this.toast.error('Não foi possível copiar', 'Copie o código manualmente.');
+    }
+  }
+
   checkout(planKey: string): void {
     this.acaoEmAndamento = true;
     this.erro = '';
-    this.billingService.checkout(planKey).subscribe({
+    this.billingService.checkout(planKey, this.formaPagamento).subscribe({
       next: (res) => {
         this.acaoEmAndamento = false;
         this.toast.success('Assinatura', res.data?.message ?? 'Assinatura ativa.');
@@ -202,7 +235,7 @@ export class BillingComponent implements OnInit {
     if (!ok) return;
     this.acaoEmAndamento = true;
     this.erro = '';
-    this.billingService.changePlan(planKey).subscribe({
+    this.billingService.changePlan(planKey, this.formaPagamento).subscribe({
       next: (res) => {
         this.acaoEmAndamento = false;
         this.toast.success('Plano alterado', res.data?.message ?? 'O plano foi atualizado.');

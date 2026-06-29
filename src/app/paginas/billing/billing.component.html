@@ -58,12 +58,39 @@
           <p class="text-xs font-bold uppercase tracking-wider m-0 mb-2" style="color: var(--c-muted)">Cobranças recentes</p>
           <ul class="list-none p-0 m-0">
             @for (p of pagamentos; track p.id) {
-              <li class="flex flex-wrap items-center gap-2 justify-between rounded-lg border px-3 py-2 text-sm mb-2 last:mb-0" style="border-color: var(--c-border)">
-                <span style="color: var(--c-muted)">{{ p.due_date | date:'dd/MM/yyyy' }}</span>
-                <span style="color: var(--c-text)">{{ rotuloStatusFatura(p.status) }}</span>
-                <span class="font-semibold" style="color: var(--c-text)">R$ {{ p.value | number:'1.2-2':'pt-BR' }}</span>
-                @if (p.bank_slip_url) {
-                  <a [href]="p.bank_slip_url" target="_blank" rel="noopener noreferrer" class="text-sm font-medium" style="color: var(--c-primary)">Abrir boleto / fatura</a>
+              <li class="billing-payment-item rounded-lg border px-3 py-3 text-sm mb-2 last:mb-0" style="border-color: var(--c-border)">
+                <div class="flex flex-wrap items-center gap-2 justify-between">
+                  <span style="color: var(--c-muted)">{{ p.due_date | date:'dd/MM/yyyy' }}</span>
+                  <span style="color: var(--c-text)">{{ rotuloStatusFatura(p.status) }}</span>
+                  <span class="font-semibold" style="color: var(--c-text)">R$ {{ p.value | number:'1.2-2':'pt-BR' }}</span>
+                  @if (p.bank_slip_url) {
+                    <a [href]="p.bank_slip_url" target="_blank" rel="noopener noreferrer" class="text-sm font-medium" style="color: var(--c-primary)">Abrir boleto / fatura</a>
+                  }
+                  @if (temPix(p) && pagamentoPendente(p)) {
+                    <button type="button" class="text-sm font-medium billing-pix-toggle" (click)="alternarPix(p)">
+                      {{ pixExpandidoId === p.id ? 'Ocultar PIX' : 'Pagar com PIX' }}
+                    </button>
+                  }
+                </div>
+                @if (pixExpandidoId === p.id && temPix(p)) {
+                  <div class="billing-pix-panel mt-3 pt-3" style="border-top: 1px solid var(--c-border)">
+                    @if (p.pix_qr_encoded_image) {
+                      <img
+                        class="billing-pix-qr"
+                        [src]="'data:image/png;base64,' + p.pix_qr_encoded_image"
+                        alt="QR Code PIX"
+                        width="180"
+                        height="180"
+                      />
+                    }
+                    @if (p.pix_copy_paste) {
+                      <p class="text-xs m-0 mb-2" style="color: var(--c-muted)">Copia e cola</p>
+                      <code class="billing-pix-code">{{ p.pix_copy_paste }}</code>
+                      <button type="button" class="btn-primary text-sm mt-2 inline-flex items-center gap-2" (click)="copiarPix(p.pix_copy_paste!)">
+                        Copiar código PIX
+                      </button>
+                    }
+                  </div>
                 }
               </li>
             }
@@ -71,6 +98,27 @@
         </div>
       }
       @if (planos.length > 0 && mostrarSelecaoPlano) {
+        <div class="mb-4">
+          <p class="text-xs font-bold uppercase tracking-wider m-0 mb-2" style="color: var(--c-muted)">Forma de pagamento</p>
+          <div class="flex flex-wrap gap-2">
+            <button
+              type="button"
+              class="billing-pay-method"
+              [class.billing-pay-method--active]="formaPagamento === 'PIX'"
+              (click)="selecionarFormaPagamento('PIX')"
+            >
+              PIX
+            </button>
+            <button
+              type="button"
+              class="billing-pay-method"
+              [class.billing-pay-method--active]="formaPagamento === 'BOLETO'"
+              (click)="selecionarFormaPagamento('BOLETO')"
+            >
+              Boleto
+            </button>
+          </div>
+        </div>
         <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           @for (plano of planos; track plano.key) {
             <div class="rounded-xl p-4 border" style="border-color: var(--c-border)">

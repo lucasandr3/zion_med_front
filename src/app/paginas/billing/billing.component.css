@@ -1,1 +1,52 @@
 .billing-page { display: flex; flex-direction: column; min-height: 0; width: 100%; }
+
+.billing-pay-method {
+  border: 1px solid var(--c-border);
+  background: var(--c-surface, transparent);
+  color: var(--c-text);
+  border-radius: 0.5rem;
+  padding: 0.4rem 0.85rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.billing-pay-method--active {
+  border-color: var(--c-primary);
+  background: color-mix(in srgb, var(--c-primary) 10%, transparent);
+  color: var(--c-primary);
+}
+
+.billing-pix-toggle {
+  color: var(--c-primary);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.billing-pix-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.billing-pix-qr {
+  border-radius: 0.5rem;
+  border: 1px solid var(--c-border);
+  background: #fff;
+}
+
+.billing-pix-code {
+  display: block;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  padding: 0.5rem 0.65rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--c-border);
+  background: color-mix(in srgb, var(--c-muted) 6%, transparent);
+  color: var(--c-text);
+  word-break: break-all;
+  max-width: 100%;
+}

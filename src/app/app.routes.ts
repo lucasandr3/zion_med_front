@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
+import { billingGuard } from './core/guards/billing.guard';
 import { platformGuard } from './core/guards/platform.guard';
 import { permissionGuard } from './core/guards/permission.guard';
 import { canSwitchOrganizationGuard } from './core/guards/can-switch-organization.guard';
@@ -21,7 +22,7 @@ export const routes: Routes = [
   {
     path: '',
     loadComponent: () => import('./componentes/layout/layout-app/layout-app.component').then(m => m.LayoutAppComponent),
-    canActivate: [authGuard],
+    canActivate: [authGuard, billingGuard],
     children: [
       { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
       { path: 'dashboard', canActivate: [permissionGuard], loadComponent: () => import('./paginas/dashboard/dashboard.component').then(m => m.DashboardComponent), data: { titulo: 'Dashboard', permission: 'dashboard.access' } },

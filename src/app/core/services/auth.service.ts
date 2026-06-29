@@ -44,6 +44,8 @@ export interface Organization {
   address?: string;
   /** Segmento da empresa (templates e cadastro). */
   niche?: string;
+  /** Indica se a organização pode usar o app (trial ativo ou pagamento confirmado). */
+  can_access_app?: boolean;
   [key: string]: unknown;
 }
 

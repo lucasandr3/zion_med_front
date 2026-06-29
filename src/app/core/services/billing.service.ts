@@ -14,10 +14,13 @@ export interface PlanoComChave extends Plano {
   key: string;
 }
 
+export type BillingType = 'BOLETO' | 'PIX';
+
 export interface Subscription {
   id: number;
   asaas_subscription_id: string | null;
   plan_key: string;
+  billing_type?: BillingType | string;
   status: string;
   next_due_date: string | null;
   created_at?: string;
@@ -43,6 +46,8 @@ export interface BillingPayment {
   paid_at?: string;
   value: number;
   bank_slip_url?: string | null;
+  pix_qr_encoded_image?: string | null;
+  pix_copy_paste?: string | null;
 }
 
 export interface BillingState {
@@ -84,10 +89,10 @@ export class BillingService {
   }
 
   /** Cria assinatura para o plano (plan_key). */
-  checkout(planKey: string): Observable<{ data?: { message?: string; subscription_id?: number; plan_key?: string; next_due_date?: string } }> {
+  checkout(planKey: string, billingType: BillingType = 'PIX'): Observable<{ data?: { message?: string; subscription_id?: number; plan_key?: string; next_due_date?: string } }> {
     return this.api.post<{ data?: { message?: string; subscription_id?: number; plan_key?: string; next_due_date?: string } }>(
       '/billing/checkout',
-      { plan_key: planKey }
+      { plan_key: planKey, billing_type: billingType }
     );
   }
 
@@ -100,10 +105,10 @@ export class BillingService {
   }
 
   /** Troca de plano (cancela atual e cria nova com plan_key). */
-  changePlan(planKey: string): Observable<{ data?: { message?: string; subscription_id?: number; plan_key?: string; next_due_date?: string } }> {
+  changePlan(planKey: string, billingType: BillingType = 'PIX'): Observable<{ data?: { message?: string; subscription_id?: number; plan_key?: string; next_due_date?: string } }> {
     return this.api.post<{ data?: { message?: string; subscription_id?: number; plan_key?: string; next_due_date?: string } }>(
       '/billing/change-plan',
-      { plan_key: planKey }
+      { plan_key: planKey, billing_type: billingType }
     );
   }
 }
