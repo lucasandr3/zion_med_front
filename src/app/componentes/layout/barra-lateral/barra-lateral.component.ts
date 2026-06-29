@@ -10,7 +10,7 @@ import {
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Subscription } from 'rxjs';
-import { AuthService } from '../../../core/services/auth.service';
+import { AuthService, TrialNotice } from '../../../core/services/auth.service';
 import { resolveSidebarLogoSrc } from '../../../core/utils/sidebar-logo.util';
 import { SidebarMobileService } from '../../../core/services/sidebar-mobile.service';
 import { ZardTooltipImports } from '@/shared/components/tooltip';
@@ -19,6 +19,13 @@ import { ZardButtonComponent } from '@/shared/components/button/button.component
 import { ZardMenuLabelComponent } from '../../../shared/components/menu/menu-label.component';
 import { ZardMenuImports } from '../../../shared/components/menu/menu.imports';
 import { ZardAvatarComponent } from '@/shared/components/avatar/avatar.component';
+import {
+  SHELL_NAV_SIDEBAR,
+  ShellNavItem,
+  ShellNavSection,
+  shellNavItemVisivel,
+  shellNavSectionVisivel,
+} from '../shell-nav.config';
 
 @Component({
   selector: 'app-barra-lateral',
@@ -41,22 +48,18 @@ export class BarraLateralComponent implements OnInit, OnDestroy {
   /** Contador vindo do layout (fonte única com o cabeçalho). */
   @Input() notificacoesNaoLidas = 0;
   @Input() novidadesNaoVistas = 0;
+  @Input() trialNotice: TrialNotice | null = null;
+
+  readonly navSections = SHELL_NAV_SIDEBAR;
+
   nomeUsuario = 'Usuário';
   iniciaisUsuario = 'U';
   emailUsuario = '';
   exibirTrocarEmpresa = false;
   ehAdminPlataforma = false;
-  podeVerDashboard = false;
-  podeVerNotificacoes = false;
   podeVerBilling = false;
   podeGerenciarClinica = false;
-  podeGerenciarTemplates = false;
-  podeVerSubmissoes = false;
-  podeGerenciarUsuarios = false;
-  /** Links públicos / envios: templates ou ao menos ver submissões. */
-  podeAcessarLinksEEnvios = false;
 
-  /** Com «Topo e marca», variante do logo em `assets/logo` conforme o tema. */
   sidebarLogoSrc = '/assets/logo/logo.png';
 
   private auth = inject(AuthService);
@@ -78,7 +81,6 @@ export class BarraLateralComponent implements OnInit, OnDestroy {
     });
     this.sidebarMobile.getOpen().subscribe((open) => {
       this.sidebarOpenMobile = open;
-      // Igual ao backend: bloquear scroll do body quando sidebar aberta no mobile
       if (typeof document !== 'undefined') {
         document.body.style.overflow = open ? 'hidden' : '';
       }
@@ -90,33 +92,43 @@ export class BarraLateralComponent implements OnInit, OnDestroy {
     this.appearanceSub?.unsubscribe();
   }
 
-  private atualizarDados(): void {
-    const u = this.auth.getUser();
-    if (u) {
-      this.nomeUsuario = u.name || 'Usuário';
-      this.emailUsuario = u.email || '';
-      this.iniciaisUsuario = this.nomeUsuario.slice(0, 2).toUpperCase() || 'U';
-      this.ehAdminPlataforma = u.role === 'platform_admin';
-      this.podeVerDashboard = this.auth.hasPermission('dashboard.access');
-      this.podeVerNotificacoes = this.auth.hasPermission('notifications.access');
-      this.podeVerBilling = this.auth.hasPermission('billing.manage');
-      this.podeGerenciarClinica = this.auth.hasPermission('organization.manage');
-      this.podeGerenciarUsuarios = this.auth.hasPermission('users.manage');
-      this.podeGerenciarTemplates = this.auth.hasPermission('templates.manage');
-      this.podeVerSubmissoes = this.auth.hasPermission('submissions.view');
-      this.podeAcessarLinksEEnvios =
-        this.auth.hasPermission('templates.manage') || this.auth.hasPermission('submissions.view');
-    } else {
-      this.podeVerDashboard = false;
-      this.podeVerNotificacoes = false;
-      this.podeVerBilling = false;
-      this.podeGerenciarClinica = false;
-      this.podeGerenciarUsuarios = false;
-      this.podeGerenciarTemplates = false;
-      this.podeVerSubmissoes = false;
-      this.podeAcessarLinksEEnvios = false;
+  itemVisivel(item: ShellNavItem): boolean {
+    return shellNavItemVisivel(item, (p) => this.auth.hasPermission(p), 'app');
+  }
+
+  secaoVisivel(section: ShellNavSection): boolean {
+    return shellNavSectionVisivel(section, (p) => this.auth.hasPermission(p), 'app');
+  }
+
+  badgeCount(item: ShellNavItem): number {
+    if (item.badge === 'notifications') return this.notificacoesNaoLidas;
+    if (item.badge === 'novidades') return this.novidadesNaoVistas;
+    return 0;
+  }
+
+  badgeTrialLabel(item: ShellNavItem): string | null {
+    if (item.badge !== 'trial' || !this.trialNotice?.visible) return null;
+    const d = this.trialNotice.days_remaining;
+    return d === 1 ? '1 dia' : `${d} dias`;
+  }
+
+  planLimitsResumo(): string | null {
+    const org = this.auth.getCurrentOrganization();
+    const limits = org?.plan_limits;
+    if (!limits) return null;
+    const parts: string[] = [];
+    if (limits.plan_key) {
+      parts.push(String(limits.plan_key).toUpperCase());
     }
-    this.exibirTrocarEmpresa = this.auth.canSwitchClinic();
+    if (limits.max_users != null && limits.users_count != null) {
+      parts.push(`${limits.users_count}/${limits.max_users} usuários`);
+    } else if (limits.max_users == null) {
+      parts.push('Usuários ilimitados');
+    }
+    if (limits.link_bio_enabled !== false) {
+      parts.push('Link na bio');
+    }
+    return parts.length ? parts.join(' · ') : null;
   }
 
   fecharSidebarMobile(): void {
@@ -129,6 +141,22 @@ export class BarraLateralComponent implements OnInit, OnDestroy {
 
   tooltipQuandoColapsada(texto: string): string {
     return this.sidebarColapsada ? texto : '';
+  }
+
+  private atualizarDados(): void {
+    const u = this.auth.getUser();
+    if (u) {
+      this.nomeUsuario = u.name || 'Usuário';
+      this.emailUsuario = u.email || '';
+      this.iniciaisUsuario = this.nomeUsuario.slice(0, 2).toUpperCase() || 'U';
+      this.ehAdminPlataforma = u.role === 'platform_admin';
+      this.podeVerBilling = this.auth.hasPermission('billing.manage');
+      this.podeGerenciarClinica = this.auth.hasPermission('organization.manage');
+    } else {
+      this.podeVerBilling = false;
+      this.podeGerenciarClinica = false;
+    }
+    this.exibirTrocarEmpresa = this.auth.canSwitchClinic();
   }
 
   private refreshSidebarLogo(): void {

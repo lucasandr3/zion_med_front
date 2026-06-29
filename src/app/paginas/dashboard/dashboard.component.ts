@@ -28,6 +28,8 @@ import { ZmSkeletonDashboardComponent } from '../../shared/components/skeletons'
 import { ZmEmptyStateComponent } from '../../shared/components/ui';
 import { ZardCardComponent } from '@/shared/components/card/card.component';
 import { ZardButtonComponent } from '@/shared/components/button/button.component';
+import { ZmDashboardOnboardingWizardComponent } from '../../shared/components/ui/zm-dashboard-onboarding-wizard/zm-dashboard-onboarding-wizard.component';
+import { AuthService } from '../../core/services/auth.service';
 
 /** Rótulos de categoria (alinhado a templates-listagem) */
 const CATEGORY_LABELS: Record<string, string> = {
@@ -134,6 +136,7 @@ type BarChartOptions = {
     ZmEmptyStateComponent,
     ZardCardComponent,
     ZardButtonComponent,
+    ZmDashboardOnboardingWizardComponent,
   ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css',
@@ -161,6 +164,7 @@ export class DashboardComponent implements OnInit {
   modelosMaisUsados: ModeloMaisUsadoRow[] = [];
   categoriasResumo: { key: string; label: string; count: number }[] = [];
   periodoSelecionado = 7;
+  mostrarWizardOnboarding = false;
   readonly periodOptions = [
     { days: 7, label: '7 dias' },
     { days: 30, label: '30 dias' },
@@ -174,6 +178,7 @@ export class DashboardComponent implements OnInit {
   private dashboardService = inject(DashboardService);
   private templatesService = inject(TemplatesService);
   private loadingService = inject(LoadingService);
+  private authService = inject(AuthService);
 
   get totalStatus(): number {
     return this.porStatus.pending + this.porStatus.approved + this.porStatus.rejected;
@@ -247,6 +252,7 @@ export class DashboardComponent implements OnInit {
         this.variacaoRespostasPositiva = comparativo?.positiva ?? this.variacaoRespostasAbsoluta >= 0;
         this.taxaAprovacaoResumo = dash.taxa_aprovacao ?? 0;
         this.linksPublicosCount = dash.links_publicos_count ?? 0;
+        this.atualizarWizardOnboarding(dash);
         const respostasPorTemplate = dash.respostas_por_template ?? {};
         this.ultimasSubmissoes = (dash.ultimas_submissoes ?? []).map((s) => ({
           id: s.id,
@@ -599,5 +605,23 @@ export class DashboardComponent implements OnInit {
     if (normalized === 'approved') return 'Aprovado';
     if (normalized === 'rejected') return 'Reprovado';
     return status;
+  }
+
+  private atualizarWizardOnboarding(dash: { onboarding?: { needs_public_link?: boolean }; links_publicos_count?: number }): void {
+    const orgId = this.authService.getCurrentOrganizationId();
+    const needsLink = dash.onboarding?.needs_public_link ?? (dash.links_publicos_count ?? 0) === 0;
+    this.mostrarWizardOnboarding =
+      !this.semClinica &&
+      needsLink &&
+      !ZmDashboardOnboardingWizardComponent.isDismissedForOrg(orgId);
+  }
+
+  onWizardOnboardingDismissed(): void {
+    this.mostrarWizardOnboarding = false;
+  }
+
+  onWizardLinkGenerated(): void {
+    this.linksPublicosCount = Math.max(1, this.linksPublicosCount + 1);
+    this.mostrarWizardOnboarding = false;
   }
 }

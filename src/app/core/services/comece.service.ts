@@ -11,8 +11,8 @@ export interface ComecePayload {
   company_name: string;
   responsible_name: string;
   email: string;
-  /** CPF (11) ou CNPJ (14) dígitos — obrigatório quando a API exige faturamento (Asaas). */
-  billing_document: string;
+  /** CPF (11) ou CNPJ (14) — opcional no trial; exigido ao ativar assinatura. */
+  billing_document?: string;
   phone?: string;
   password: string;
   password_confirmation: string;
@@ -35,13 +35,14 @@ export class ComeceService {
       company_name: payload.company_name,
       responsible_name: payload.responsible_name,
       email: payload.email,
-      billing_document: payload.billing_document.trim(),
       password: payload.password,
       password_confirmation: payload.password_confirmation,
       plan_key: payload.plan_key,
       niche: payload.niche,
       accepted_terms: payload.accepted_terms ? '1' : '',
     };
+    const doc = payload.billing_document?.trim();
+    if (doc) body['billing_document'] = doc;
     if (payload.phone?.trim()) body['phone'] = payload.phone.trim();
     return this.http.post<ComeceResponse>(`${BASE}/comece`, body).pipe(map((r) => r.data));
   }

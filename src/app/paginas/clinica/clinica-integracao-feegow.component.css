@@ -1,4 +1,8 @@
-/* Feegow — layout alinhado à tela Empresa */
+.feegow-help-steps li strong {
+  color: var(--foreground);
+  font-weight: 600;
+}
+
 
 :host {
   display: block;

@@ -10,15 +10,13 @@
         @if (erro && !editMode) {
           <p class="mb-4 text-sm text-destructive">{{ erro }}</p>
         }
-        <form (ngSubmit)="salvar()" class="flex flex-col gap-5">
+        <form [formGroup]="pessoaForm" (ngSubmit)="salvar()" class="flex flex-col gap-5">
           <div>
             <label class="pessoa-form-label" for="pessoa-name">Nome completo *</label>
             <input
               id="pessoa-name"
               type="text"
-              [(ngModel)]="name"
-              name="name"
-              required
+              formControlName="name"
               z-input
               class="w-full text-sm"
               placeholder="Ex.: Maria da Silva"
@@ -37,8 +35,8 @@
                 z-input
                 class="w-full text-sm"
                 [ngModel]="phoneDisplay"
+                [ngModelOptions]="{ standalone: true }"
                 (ngModelChange)="onPhoneModelChange($event)"
-                name="phone"
                 placeholder="(11) 98765-4321"
               />
             </div>
@@ -52,8 +50,8 @@
                 z-input
                 class="w-full text-sm"
                 [ngModel]="phoneAltDisplay"
+                [ngModelOptions]="{ standalone: true }"
                 (ngModelChange)="onPhoneAltModelChange($event)"
-                name="phone_alt"
                 placeholder="(11) 3333-4444"
               />
             </div>
@@ -65,8 +63,7 @@
               <input
                 id="pessoa-email"
                 type="email"
-                [(ngModel)]="email"
-                name="email"
+                formControlName="email"
                 z-input
                 class="w-full text-sm"
                 placeholder="nome@exemplo.com"
@@ -78,8 +75,7 @@
               <input
                 id="pessoa-profession"
                 type="text"
-                [(ngModel)]="profession"
-                name="profession"
+                formControlName="profession"
                 z-input
                 class="w-full text-sm"
                 placeholder="Ex.: Enfermeira"
@@ -95,7 +91,7 @@
                 type="text"
                 mwlFlatpickr
                 [(ngModel)]="birth_date"
-                name="birth_date"
+                [ngModelOptions]="{ standalone: true }"
                 z-input
                 class="w-full text-sm"
                 placeholder="dd/mm/aaaa"
@@ -111,8 +107,7 @@
               <input
                 id="pessoa-age"
                 type="number"
-                [(ngModel)]="age"
-                name="age"
+                formControlName="age"
                 z-input
                 class="w-full text-sm"
                 min="0"
@@ -124,13 +119,12 @@
               <z-combobox
                 class="w-full"
                 zWidth="full"
+                formControlName="sex"
                 [options]="opcoesSexo"
-                [value]="sex || null"
                 placeholder="Selecione"
                 [searchable]="false"
                 ariaLabel="Sexo"
                 ariaDescribedBy="pessoa-sex-label"
-                (zValueChange)="selecionarSexo($event)"
               />
             </div>
             <div>
@@ -142,10 +136,10 @@
                 autocomplete="off"
                 z-input
                 class="w-full text-sm"
-                name="cpf"
                 placeholder="000.000.000-00"
                 maxlength="14"
                 [ngModel]="cpfDisplay"
+                [ngModelOptions]="{ standalone: true }"
                 (ngModelChange)="onCpfModelChange($event)"
               />
             </div>
@@ -154,65 +148,49 @@
           <div class="grid gap-4 md:grid-cols-3">
             <div>
               <label class="pessoa-form-label" for="pessoa-rg">RG</label>
-              <input id="pessoa-rg" type="text" [(ngModel)]="rg" name="rg" z-input class="w-full text-sm" />
+              <input id="pessoa-rg" type="text" formControlName="rg" z-input class="w-full text-sm" />
             </div>
             <div>
               <label class="pessoa-form-label" id="pessoa-marital-label">Estado civil</label>
               <z-combobox
                 class="w-full"
                 zWidth="full"
+                formControlName="marital_status"
                 [options]="opcoesEstadoCivil"
-                [value]="marital_status || null"
                 placeholder="Selecione"
                 [searchable]="false"
                 ariaLabel="Estado civil"
                 ariaDescribedBy="pessoa-marital-label"
-                (zValueChange)="selecionarEstadoCivil($event)"
               />
             </div>
             <div>
               <label class="pessoa-form-label" for="pessoa-referred">Indicado por</label>
-              <input
-                id="pessoa-referred"
-                type="text"
-                [(ngModel)]="referred_by"
-                name="referred_by"
-                z-input
-                class="w-full text-sm"
-              />
+              <input id="pessoa-referred" type="text" formControlName="referred_by" z-input class="w-full text-sm" />
             </div>
           </div>
 
           <div class="grid gap-4 md:grid-cols-2">
             <div>
               <label class="pessoa-form-label" for="pessoa-address">Endereço completo</label>
-              <input id="pessoa-address" type="text" [(ngModel)]="address" name="address" z-input class="w-full text-sm" />
+              <input id="pessoa-address" type="text" formControlName="address" z-input class="w-full text-sm" />
             </div>
             <div>
               <label class="pessoa-form-label" for="pessoa-neighborhood">Bairro</label>
-              <input
-                id="pessoa-neighborhood"
-                type="text"
-                [(ngModel)]="neighborhood"
-                name="neighborhood"
-                z-input
-                class="w-full text-sm"
-              />
+              <input id="pessoa-neighborhood" type="text" formControlName="neighborhood" z-input class="w-full text-sm" />
             </div>
           </div>
 
           <div class="grid gap-4 md:grid-cols-2">
             <div>
               <label class="pessoa-form-label" for="pessoa-city">Cidade</label>
-              <input id="pessoa-city" type="text" [(ngModel)]="city" name="city" z-input class="w-full text-sm" />
+              <input id="pessoa-city" type="text" formControlName="city" z-input class="w-full text-sm" />
             </div>
             <div>
               <label class="pessoa-form-label" for="pessoa-cep">CEP</label>
               <input
                 id="pessoa-cep"
                 type="text"
-                [(ngModel)]="cep"
-                name="cep"
+                formControlName="cep"
                 z-input
                 class="w-full text-sm"
                 placeholder="00000-000"
@@ -224,21 +202,20 @@
             <div>
               <label class="pessoa-form-label">Como nos conheceu</label>
               <div class="flex flex-col gap-2.5">
-                <z-checkbox [(ngModel)]="lead_source_instagram" name="lead_source_instagram">Instagram</z-checkbox>
-                <z-checkbox [(ngModel)]="lead_source_google" name="lead_source_google">Google</z-checkbox>
-                <z-checkbox [(ngModel)]="lead_source_facebook" name="lead_source_facebook">Facebook</z-checkbox>
-                <z-checkbox [(ngModel)]="lead_source_indicacao_amigo" name="lead_source_indicacao_amigo">
+                <z-checkbox formControlName="lead_source_instagram">Instagram</z-checkbox>
+                <z-checkbox formControlName="lead_source_google">Google</z-checkbox>
+                <z-checkbox formControlName="lead_source_facebook">Facebook</z-checkbox>
+                <z-checkbox formControlName="lead_source_indicacao_amigo">
                   Indicação de amigo/familiar
                 </z-checkbox>
-                <z-checkbox [(ngModel)]="lead_source_indicacao_medica" name="lead_source_indicacao_medica">
+                <z-checkbox formControlName="lead_source_indicacao_medica">
                   Indicação médica
                 </z-checkbox>
-                <z-checkbox [(ngModel)]="lead_source_plano_saude" name="lead_source_plano_saude">Plano de saúde</z-checkbox>
+                <z-checkbox formControlName="lead_source_plano_saude">Plano de saúde</z-checkbox>
               </div>
               <input
                 type="text"
-                [(ngModel)]="lead_source_outro"
-                name="lead_source_outro"
+                formControlName="lead_source_outro"
                 z-input
                 class="mt-3 w-full text-sm"
                 placeholder="Outro"
@@ -249,26 +226,23 @@
               <z-combobox
                 class="w-full"
                 zWidth="full"
+                formControlName="has_health_plan"
                 [options]="opcoesPlanoSaude"
-                [value]="has_health_plan || null"
                 placeholder="Selecione"
                 [searchable]="false"
                 ariaLabel="Plano de saúde"
                 ariaDescribedBy="pessoa-health-plan-label"
-                (zValueChange)="selecionarPlanoSaude($event)"
               />
               <input
                 type="text"
-                [(ngModel)]="health_plan_operator"
-                name="health_plan_operator"
+                formControlName="health_plan_operator"
                 z-input
                 class="mt-3 w-full text-sm"
                 placeholder="Operadora"
               />
               <input
                 type="text"
-                [(ngModel)]="health_plan_card_number"
-                name="health_plan_card_number"
+                formControlName="health_plan_card_number"
                 z-input
                 class="mt-3 w-full text-sm"
                 placeholder="Número da carteirinha"
@@ -279,10 +253,10 @@
           <div class="border-t border-border pt-5">
             <label class="pessoa-form-label">Autorizações LGPD</label>
             <div class="pessoa-form-lgpd flex flex-col gap-2.5">
-              <z-checkbox [(ngModel)]="lgpd_accept_comms" name="lgpd_accept_comms">
+              <z-checkbox formControlName="lgpd_accept_comms">
                 Aceito receber comunicações e promoções por WhatsApp/e-mail
               </z-checkbox>
-              <z-checkbox [(ngModel)]="lgpd_accept_reminders" name="lgpd_accept_reminders">
+              <z-checkbox formControlName="lgpd_accept_reminders">
                 Aceito receber lembretes de consulta
               </z-checkbox>
             </div>
@@ -294,12 +268,11 @@
               <z-combobox
                 class="w-full max-w-xs"
                 zWidth="full"
+                formControlName="status"
                 [options]="opcoesStatus"
-                [value]="status"
                 [searchable]="false"
                 ariaLabel="Situação"
                 ariaDescribedBy="pessoa-status-label"
-                (zValueChange)="selecionarStatus($event)"
               />
             </div>
           }
@@ -308,8 +281,7 @@
             <label class="pessoa-form-label" for="pessoa-notes">Observações</label>
             <textarea
               id="pessoa-notes"
-              [(ngModel)]="notes"
-              name="notes"
+              formControlName="notes"
               rows="3"
               z-input
               class="w-full text-sm"
@@ -323,7 +295,7 @@
               type="submit"
               class="gap-2"
               [zLoading]="salvando"
-              [zDisabled]="salvando || !name.trim()"
+              [zDisabled]="salvando || !pessoaForm.controls.name.value.trim()"
             >
               <span class="material-symbols-outlined text-base">save</span>
               {{ editMode ? 'Salvar alterações' : 'Cadastrar' }}

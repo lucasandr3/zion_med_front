@@ -31,6 +31,26 @@
           </div>
         </z-card>
 
+        <z-card class="section-card mb-4 gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
+          <div class="section-header">
+            <div class="icon-wrap"><span class="material-symbols-outlined">help</span></div>
+            <span class="section-title">Como conectar o Feegow</span>
+          </div>
+          <div class="section-body">
+            <ol class="feegow-help-steps m-0 pl-5 text-sm text-muted-foreground space-y-2">
+              <li>No Feegow, acesse <strong>Configurações → Integrações → API</strong> e copie o token de acesso.</li>
+              <li>Cole a <strong>Base URL</strong> padrão (<code class="text-xs">https://api.feegow.com/v1/api</code>) e o token acima.</li>
+              <li>Clique em <strong>Testar conexão</strong> antes de salvar — o status deve ficar verde.</li>
+              <li>Ative a integração e use o <strong>link na bio</strong> para direcionar pacientes aos formulários Gestgo.</li>
+            </ol>
+            <p class="hint mt-4 mb-0">
+              Dúvidas? Consulte a
+              <a href="https://docs.feegow.com/" target="_blank" rel="noopener noreferrer" class="text-brand underline-offset-2 hover:underline">documentação oficial Feegow</a>
+              ou fale com nosso suporte pelo WhatsApp.
+            </p>
+          </div>
+        </z-card>
+
         <z-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
           <div class="section-header">
             <div class="icon-wrap"><span class="material-symbols-outlined">settings</span></div>

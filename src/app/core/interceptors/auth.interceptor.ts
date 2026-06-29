@@ -42,7 +42,9 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
         auth.clearSession();
         router.navigate(['/autenticacao']);
       } else if (err.status === 403 && token && req.url.includes('/api/v1/') && !req.url.includes('auth/send-verification-email')) {
-        const code = (err.error as { code?: string } | null)?.code;
+        const body = err.error as { code?: string; message?: string } | null;
+        const code = body?.code;
+        const msg = (body?.message ?? '').toLowerCase();
         if (code === 'billing_blocked') {
           const url = req.url;
           const skipGlobalBanner =
@@ -52,8 +54,10 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
             billingBlockedState.activate();
           }
           return throwError(() => err);
-        } else {
+        }
+        if (code === 'email_unverified' || msg.includes('verif')) {
           router.navigate(['/verificacao-pendente']);
+          return throwError(() => err);
         }
       }
       return throwError(() => err);

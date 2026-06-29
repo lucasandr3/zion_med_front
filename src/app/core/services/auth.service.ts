@@ -38,12 +38,25 @@ export interface User {
   updated_at?: string;
 }
 
+export interface PlanLimits {
+  plan_key?: string | null;
+  max_users?: number | null;
+  max_organizations_per_tenant?: number | null;
+  link_bio_enabled?: boolean;
+  users_count?: number;
+  organizations_in_tenant?: number;
+  can_add_user?: boolean;
+  can_add_organization_in_tenant?: boolean;
+}
+
 export interface Organization {
   id: number;
   name: string;
   address?: string;
   /** Segmento da empresa (templates e cadastro). */
   niche?: string;
+  plan_key?: string | null;
+  plan_limits?: PlanLimits;
   /** Indica se a organização pode usar o app (trial ativo ou pagamento confirmado). */
   can_access_app?: boolean;
   [key: string]: unknown;
@@ -171,6 +184,12 @@ export class AuthService {
     return this._organizations;
   }
 
+  getCurrentOrganization(): Organization | null {
+    const id = this.getCurrentOrganizationId();
+    if (id == null) return null;
+    return this._organizations.find((o) => String(o.id) === String(id)) ?? null;
+  }
+
   /** @deprecated Use getOrganizations() */
   getClinics(): Organization[] {
     return this._organizations;
@@ -183,12 +202,6 @@ export class AuthService {
   /** @deprecated Use getCurrentOrganizationId() */
   getCurrentClinicId(): string | null {
     return this._currentOrganizationId;
-  }
-
-  getCurrentOrganization(): Organization | null {
-    const id = this._currentOrganizationId;
-    if (!id) return null;
-    return this._organizations.find((o) => String(o.id) === id) ?? null;
   }
 
   /** @deprecated Use getCurrentOrganization() */

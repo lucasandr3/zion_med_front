@@ -1,0 +1,486 @@
+<div id="tab-conteudo-extra" class="flex flex-col gap-5 pb-24">
+            <z-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-4 text-xs leading-relaxed text-muted-foreground">
+              @if (conteudoExtraTemCamposParaModelo) {
+                <span>
+                  Campos abaixo correspondem ao layout selecionado:
+                  <strong class="text-foreground">{{ conteudoExtraModeloAtivoLabel }}</strong>.
+                </span>
+                @if (conteudoExtraApareceNoPublico) {
+                  <span class="block mt-1">
+                    Seu layout <strong class="text-foreground">publicado</strong> hoje é
+                    <strong class="text-foreground">{{ layoutPublicadoLabel }}</strong>.
+                    @if (modelDirty) {
+                      Os campos refletem a prévia de <strong class="text-foreground">{{ layoutSelecionadoLabel }}</strong>.
+                    } @else {
+                      O que você preencher aqui pode aparecer na página pública.
+                    }
+                  </span>
+                } @else {
+                  <span class="block mt-1">
+                    Seu layout publicado hoje é <strong class="text-foreground">{{ layoutPublicadoLabel }}</strong> (genérico), então estes campos
+                    <strong class="text-foreground">não aparecem</strong> na página pública até você publicar um layout temático na aba Modelos.
+                  </span>
+                }
+              } @else {
+                <span>
+                  O layout <strong class="text-foreground">{{ conteudoExtraModeloAtivoLabel }}</strong> não usa conteúdo extra.
+                  Escolha um layout temático (2 a 8) na aba <strong class="text-foreground">Modelos</strong> para ver os campos correspondentes.
+                </span>
+              }
+              @if (modelDirty && conteudoExtraTemCamposParaModelo) {
+                <span class="block mt-2 pt-2 border-t border-border">
+                  Há alterações não salvas na aba <strong class="text-foreground">Modelos</strong>: a prévia usa
+                  <strong class="text-foreground">{{ layoutSelecionadoLabel }}</strong>, mas o público ainda segue
+                  <strong class="text-foreground">{{ layoutPublicadoLabel }}</strong> até salvar.
+                </span>
+              }
+            </z-card>
+
+            @if (!conteudoExtraTemCamposParaModelo) {
+              <z-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-8 text-center">
+                <span class="material-symbols-outlined text-4xl mb-3 block mx-auto" style="color:var(--c-muted)">dashboard_customize</span>
+                <p class="text-sm font-medium mb-1" style="color:var(--c-text)">Nenhum campo para este layout</p>
+                <p class="text-xs mb-5 max-w-md mx-auto" style="color:var(--c-muted)">
+                  Selecione um modelo temático na aba Modelos para personalizar foto, textos e seções específicas da sua página pública.
+                </p>
+                <button type="button" z-button zSize="sm" class="gap-2 mx-auto" (click)="goToModelos.emit()">
+                  <span class="material-symbols-outlined text-base">palette</span>
+                  Ir para Modelos
+                </button>
+              </z-card>
+            } @else {
+            <form class="flex flex-col gap-5" (ngSubmit)="salvar()">
+              @if (extraMostraSecao('foto')) {
+              <z-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-5">
+                <p class="text-xs font-bold uppercase tracking-wider mb-1" style="color:var(--c-muted)">Foto do profissional</p>
+                <p class="text-[11px] mb-4" style="color:var(--c-muted)">
+                  Usada no avatar grande da página pública (layouts temáticos). A logo da clínica continua em
+                  <strong style="color:var(--c-text)">Configurações</strong> da empresa; se você só tiver uma imagem, deixe este campo vazio e use apenas a logo.
+                  <span class="block mt-1.5" style="color:var(--c-text)">Tamanho máximo: <strong>2 MB</strong> por arquivo (JPG, PNG ou WebP).</span>
+                </p>
+                <div class="flex flex-wrap items-start gap-4">
+                  @if (state.clinic.professional_photo_url) {
+                    <div class="shrink-0 w-20 h-20 rounded-2xl overflow-hidden border" style="border-color:var(--c-border)">
+                      <img [src]="state.clinic.professional_photo_url" alt="Prévia da foto do profissional" class="w-full h-full object-cover" />
+                    </div>
+                  }
+                  <div class="flex flex-col gap-2 min-w-0 flex-1">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      z-input zSize="sm" class="w-full"
+                      [disabled]="enviandoFoto"
+                      (change)="onSelecionarFotoProfissional($event)"
+                    />
+                    @if (nomeArquivoFoto) {
+                      <p class="text-[11px]" style="color:var(--c-muted)">
+                        {{ enviandoFoto ? 'Enviando…' : 'Último arquivo' }}: {{ nomeArquivoFoto }}
+                      </p>
+                    }
+                  </div>
+                </div>
+              </z-card>
+              }
+
+              @if (extraMostraTextosLinks) {
+              <z-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-5">
+                <p class="text-xs font-bold uppercase tracking-wider mb-1" style="color:var(--c-muted)">Textos e links</p>
+                <p class="text-[11px] mb-4" style="color:var(--c-muted)">Campos usados no layout <strong style="color:var(--c-text)">{{ conteudoExtraModeloAtivoLabel }}</strong>.</p>
+                <div class="flex flex-col gap-4">
+                  @if (extraMostraSecao('hero_tagline')) {
+                  <div>
+                    <label class="form-label">Frase de destaque (hero)</label>
+                    <input type="text" z-input zSize="sm" class="w-full" [(ngModel)]="extraForm.heroTagline" name="extra_hero_tagline" maxlength="300" placeholder="Ex.: Psicologia clínica e organizacional" (ngModelChange)="onDraftChange()" />
+                  </div>
+                  }
+                  @if (extraMostraSecao('council')) {
+                  <div>
+                    <label class="form-label">Registro profissional (CRM, CRO, CRP, RQE…)</label>
+                    <input type="text" z-input zSize="sm" class="w-full" [(ngModel)]="extraForm.councilRegistration" name="extra_council" maxlength="120" placeholder="Ex.: CRMMG 49642 | RQE 60046" (ngModelChange)="onDraftChange()" />
+                  </div>
+                  }
+                  @if (extraMostraSecao('brand_subtitle')) {
+                  <div>
+                    <label class="form-label">Subtítulo da marca (estética)</label>
+                    <input type="text" z-input zSize="sm" class="w-full" [(ngModel)]="extraForm.brandSubtitle" name="extra_brand_sub" maxlength="200" placeholder="Ex.: Estética avançada · Desde 2015" (ngModelChange)="onDraftChange()" />
+                  </div>
+                  }
+                  @if (extraMostraSecao('instagram')) {
+                  <div>
+                    <label class="form-label">Instagram (URL completa)</label>
+                    <input type="url" z-input zSize="sm" class="w-full" [(ngModel)]="extraForm.instagramUrl" name="extra_ig" maxlength="500" placeholder="https://instagram.com/sua_clinica" (ngModelChange)="onDraftChange()" />
+                  </div>
+                  }
+                </div>
+              </z-card>
+              }
+
+              @if (extraMostraSecao('vet_exam')) {
+              <z-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-5">
+                <p class="text-xs font-bold uppercase tracking-wider mb-1" style="color:var(--c-muted)">Resultados de exames (veterinária)</p>
+                <p class="text-[11px] mb-4" style="color:var(--c-muted)">
+                  Exibido no layout <strong style="color:var(--c-text)">Clínica veterinária (6)</strong> como botão abaixo do WhatsApp e dos atalhos. Deixe a URL vazia para ocultar o botão na página pública.
+                </p>
+                <div class="flex flex-col gap-4">
+                  <div>
+                    <label class="form-label">URL do portal de exames</label>
+                    <input
+                      type="url"
+                      z-input zSize="sm" class="w-full"
+                      [(ngModel)]="extraForm.vetExamResultsUrl"
+                      name="extra_vet_exam_url"
+                      maxlength="500"
+                      placeholder="https://laboratorio.com.br/resultados"
+                    />
+                  </div>
+                  <div>
+                    <label class="form-label">Rótulo do botão (opcional)</label>
+                    <input
+                      type="text"
+                      z-input zSize="sm" class="w-full"
+                      [(ngModel)]="extraForm.vetExamResultsLabel"
+                      name="extra_vet_exam_label"
+                      maxlength="120"
+                      placeholder="Consultar resultados"
+                    />
+                  </div>
+                  <div>
+                    <label class="form-label">Subtítulo (opcional)</label>
+                    <input
+                      type="text"
+                      z-input zSize="sm" class="w-full"
+                      [(ngModel)]="extraForm.vetExamResultsSubtitle"
+                      name="extra_vet_exam_sub"
+                      maxlength="200"
+                      placeholder="Acesso ao portal do laboratório"
+                    />
+                  </div>
+                </div>
+              </z-card>
+              }
+
+              @if (extraMostraSecao('vet_cover')) {
+              <!-- ══ VETERINÁRIA (M6) ══ -->
+              <z-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-5">
+                <p class="text-xs font-bold uppercase tracking-wider mb-1" style="color:var(--c-muted)">Clínica veterinária — textos da capa</p>
+                <p class="text-[11px] mb-4" style="color:var(--c-muted)">Campos do layout <strong style="color:var(--c-text)">Clínica veterinária (6)</strong>. Deixe vazio para usar o texto padrão.</p>
+                <div class="flex flex-col gap-4">
+                  <div>
+                    <label class="form-label">Rótulo acima do nome (kicker da capa)</label>
+                    <input type="text" z-input zSize="sm" class="w-full" [(ngModel)]="extraForm.vetCoverKicker" name="extra_vet_kicker" maxlength="80" placeholder="Ex.: Medicina veterinária" (ngModelChange)="onDraftChange()" />
+                  </div>
+                  <div>
+                    <label class="form-label">Texto do botão WhatsApp</label>
+                    <input type="text" z-input zSize="sm" class="w-full" [(ngModel)]="extraForm.vetWaCtaLabel" name="extra_vet_wa" maxlength="80" placeholder="Ex.: Marcar consulta para o pet" (ngModelChange)="onDraftChange()" />
+                  </div>
+                  <div>
+                    <label class="form-label">Título da seção de fichas</label>
+                    <input type="text" z-input zSize="sm" class="w-full" [(ngModel)]="extraForm.vetDocsSectionTitle" name="extra_vet_docs_title" maxlength="80" placeholder="Ex.: Fichas do pet" (ngModelChange)="onDraftChange()" />
+                  </div>
+                  <div>
+                    <label class="form-label">Introdução da seção de fichas</label>
+                    <input type="text" z-input zSize="sm" class="w-full" [(ngModel)]="extraForm.vetDocsIntro" name="extra_vet_docs_intro" maxlength="200" placeholder="Ex.: Preencha antes da consulta do seu bichinho" (ngModelChange)="onDraftChange()" />
+                  </div>
+                </div>
+              </z-card>
+              }
+
+              @if (extraMostraSecao('vet_species')) {
+              <z-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-5">
+                <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+                  <div>
+                    <p class="text-xs font-bold uppercase tracking-wider" style="color:var(--c-muted)">Espécies atendidas</p>
+                    <p class="text-[11px] mt-1" style="color:var(--c-muted)">Layout veterinária (6). Se vazio, usa padrão (Cães, Gatos, Coelhos…).</p>
+                  </div>
+                  <button type="button" z-button zType="outline" zSize="sm" class="gap-1.5" (click)="adicionarSpeciesChip()">
+                    <span class="material-symbols-outlined text-base">add</span>
+                    Adicionar
+                  </button>
+                </div>
+                @if (extraForm.speciesChips.length === 0) {
+                  <p class="text-xs py-2" style="color:var(--c-muted)">Nenhuma espécie personalizada. Clique em Adicionar para criar.</p>
+                }
+                <div class="flex flex-col gap-3">
+                  @for (chip of extraForm.speciesChips; track $index) {
+                    <div class="flex gap-2 items-center">
+                      <input type="text" z-input zSize="sm" class="w-full flex-1 min-w-0" [(ngModel)]="extraForm.speciesChips[$index].label" [name]="'sp_label_' + $index" maxlength="40" placeholder="Ex.: 🐕 Cães" />
+                      <z-checkbox [(ngModel)]="extraForm.speciesChips[$index].active" [name]="'sp_active_' + $index" title="Ativa (chip destacado)">Ativa</z-checkbox>
+                      <button type="button" z-button zType="ghost" zSize="sm" class="shrink-0 min-w-9 px-2" (click)="removerSpeciesChip($index)" aria-label="Remover espécie">
+                        <span class="material-symbols-outlined text-base">close</span>
+                      </button>
+                    </div>
+                  }
+                </div>
+              </z-card>
+              }
+
+              @if (extraMostraSecao('vet_services')) {
+              <z-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-5">
+                <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+                  <div>
+                    <p class="text-xs font-bold uppercase tracking-wider" style="color:var(--c-muted)">Serviços da clínica veterinária</p>
+                    <p class="text-[11px] mt-1" style="color:var(--c-muted)">Layout veterinária (6). Se vazio, usa padrão (Vacinas, Exames, Cirurgia…).</p>
+                  </div>
+                  <button type="button" z-button zType="outline" zSize="sm" class="gap-1.5" (click)="adicionarVetServiceCard()">
+                    <span class="material-symbols-outlined text-base">add</span>
+                    Adicionar
+                  </button>
+                </div>
+                @if (extraForm.vetServiceCards.length === 0) {
+                  <p class="text-xs py-2" style="color:var(--c-muted)">Nenhum serviço personalizado. Clique em Adicionar para criar.</p>
+                }
+                <div class="flex flex-col gap-2">
+                  @for (svc of extraForm.vetServiceCards; track $index) {
+                    <div class="flex gap-2 items-center">
+                      <input type="text" z-input zSize="sm" class="w-18 shrink-0" [(ngModel)]="extraForm.vetServiceCards[$index].icon" [name]="'vsvc_icon_' + $index" maxlength="4" placeholder="💉" />
+                      <input type="text" z-input zSize="sm" class="w-full flex-1 min-w-0" [(ngModel)]="extraForm.vetServiceCards[$index].title" [name]="'vsvc_title_' + $index" maxlength="60" placeholder="Ex.: Vacinas" />
+                      <button type="button" z-button zType="ghost" zSize="sm" class="shrink-0 min-w-9 px-2" (click)="removerVetServiceCard($index)" aria-label="Remover serviço">
+                        <span class="material-symbols-outlined text-base">close</span>
+                      </button>
+                    </div>
+                  }
+                </div>
+              </z-card>
+              }
+
+              @if (extraMostraSecao('ped_texts')) {
+              <!-- ══ PEDIATRIA (M7) ══ -->
+              <z-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-5">
+                <p class="text-xs font-bold uppercase tracking-wider mb-1" style="color:var(--c-muted)">Pediatria — textos e alertas</p>
+                <p class="text-[11px] mb-4" style="color:var(--c-muted)">Campos do layout <strong style="color:var(--c-text)">Pediatria (7)</strong>. Deixe vazio para usar o texto padrão.</p>
+                <div class="flex flex-col gap-4">
+                  <div>
+                    <label class="form-label">Rótulo da capa (kicker)</label>
+                    <input type="text" z-input zSize="sm" class="w-full" [(ngModel)]="extraForm.pedCoverKicker" name="extra_ped_kicker" maxlength="60" placeholder="Ex.: Pediatria" (ngModelChange)="onDraftChange()" />
+                  </div>
+                  <div>
+                    <label class="form-label">Texto do botão WhatsApp</label>
+                    <input type="text" z-input zSize="sm" class="w-full" [(ngModel)]="extraForm.pedWaCtaLabel" name="extra_ped_wa" maxlength="80" placeholder="Ex.: Marcar consulta" (ngModelChange)="onDraftChange()" />
+                  </div>
+                  <div>
+                    <label class="form-label">Título da seção de fichas</label>
+                    <input type="text" z-input zSize="sm" class="w-full" [(ngModel)]="extraForm.pedDocsSectionTitle" name="extra_ped_docs_title" maxlength="80" placeholder="Ex.: Fichas e documentos" (ngModelChange)="onDraftChange()" />
+                  </div>
+                  <div>
+                    <label class="form-label">Introdução da seção de fichas</label>
+                    <input type="text" z-input zSize="sm" class="w-full" [(ngModel)]="extraForm.pedDocsIntro" name="extra_ped_docs_intro" maxlength="200" placeholder="Ex.: Preencha com os dados da criança antes da consulta" (ngModelChange)="onDraftChange()" />
+                  </div>
+                  <div>
+                    <label class="form-label">Título do alerta para responsáveis</label>
+                    <input type="text" z-input zSize="sm" class="w-full" [(ngModel)]="extraForm.pedParentNoticeTitle" name="extra_ped_notice_title" maxlength="120" placeholder="Ex.: Importante para os pais" (ngModelChange)="onDraftChange()" />
+                  </div>
+                  <div>
+                    <label class="form-label">Texto do alerta para responsáveis</label>
+                    <textarea z-input zSize="sm" class="w-full" rows="3" [(ngModel)]="extraForm.pedParentNoticeBody" name="extra_ped_notice_body" maxlength="400" placeholder="Ex.: As fichas devem ser assinadas pelo responsável legal da criança…" (ngModelChange)="onDraftChange()"></textarea>
+                  </div>
+                </div>
+              </z-card>
+              }
+
+              @if (extraMostraSecao('ped_steps')) {
+              <z-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-5">
+                <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+                  <div>
+                    <p class="text-xs font-bold uppercase tracking-wider" style="color:var(--c-muted)">Passos da primeira consulta</p>
+                    <p class="text-[11px] mt-1" style="color:var(--c-muted)">Layout pediatria (7). Se vazio, usa padrão (3 passos).</p>
+                  </div>
+                  <button type="button" z-button zType="outline" zSize="sm" class="gap-1.5" (click)="adicionarPedStep()">
+                    <span class="material-symbols-outlined text-base">add</span>
+                    Adicionar passo
+                  </button>
+                </div>
+                @if (extraForm.pedFirstVisitSteps.length === 0) {
+                  <p class="text-xs py-2" style="color:var(--c-muted)">Nenhum passo personalizado. Clique em Adicionar para criar.</p>
+                }
+                <div class="flex flex-col gap-4">
+                  @for (step of extraForm.pedFirstVisitSteps; track $index) {
+                    <div class="p-4 rounded-xl flex flex-col gap-3" style="background:var(--c-soft);border:1px solid var(--c-border)">
+                      <div class="flex justify-between items-start gap-2">
+                        <span class="text-xs font-semibold" style="color:var(--c-text)">Passo {{ $index + 1 }}</span>
+                        <button type="button" z-button zType="ghost" zSize="sm" (click)="removerPedStep($index)">Remover</button>
+                      </div>
+                      <div>
+                        <label class="form-label">Título</label>
+                        <input type="text" z-input zSize="sm" class="w-full" [(ngModel)]="extraForm.pedFirstVisitSteps[$index].title" [name]="'ped_step_t_' + $index" maxlength="80" placeholder="Ex.: Preencha as fichas abaixo" />
+                      </div>
+                      <div>
+                        <label class="form-label">Subtítulo</label>
+                        <input type="text" z-input zSize="sm" class="w-full" [(ngModel)]="extraForm.pedFirstVisitSteps[$index].subtitle" [name]="'ped_step_s_' + $index" maxlength="120" placeholder="Ex.: Antes de vir à clínica, economiza tempo na recepção" />
+                      </div>
+                    </div>
+                  }
+                </div>
+              </z-card>
+              }
+
+              @if (extraMostraSecao('ped_age_bands')) {
+              <z-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-5">
+                <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+                  <div>
+                    <p class="text-xs font-bold uppercase tracking-wider" style="color:var(--c-muted)">Faixas etárias atendidas</p>
+                    <p class="text-[11px] mt-1" style="color:var(--c-muted)">Layout pediatria (7). Se vazio, usa padrão (Recém-nascido, Criança, Adolescente).</p>
+                  </div>
+                  <button type="button" z-button zType="outline" zSize="sm" class="gap-1.5" (click)="adicionarPedAgeBand()">
+                    <span class="material-symbols-outlined text-base">add</span>
+                    Adicionar faixa
+                  </button>
+                </div>
+                @if (extraForm.pedAgeBands.length === 0) {
+                  <p class="text-xs py-2" style="color:var(--c-muted)">Nenhuma faixa personalizada. Clique em Adicionar para criar.</p>
+                }
+                <div class="flex flex-col gap-4">
+                  @for (band of extraForm.pedAgeBands; track $index) {
+                    <div class="p-4 rounded-xl flex flex-col gap-3" style="background:var(--c-soft);border:1px solid var(--c-border)">
+                      <div class="flex justify-between items-start gap-2">
+                        <span class="text-xs font-semibold" style="color:var(--c-text)">Faixa {{ $index + 1 }}</span>
+                        <button type="button" z-button zType="ghost" zSize="sm" (click)="removerPedAgeBand($index)">Remover</button>
+                      </div>
+                      <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <div>
+                          <label class="form-label">Emoji</label>
+                          <input type="text" z-input zSize="sm" class="w-full" [(ngModel)]="extraForm.pedAgeBands[$index].emoji" [name]="'ped_band_e_' + $index" maxlength="4" placeholder="👶" />
+                        </div>
+                        <div>
+                          <label class="form-label">Título</label>
+                          <input type="text" z-input zSize="sm" class="w-full" [(ngModel)]="extraForm.pedAgeBands[$index].title" [name]="'ped_band_t_' + $index" maxlength="40" placeholder="Ex.: Recém-nascido" />
+                        </div>
+                        <div>
+                          <label class="form-label">Faixa de idade</label>
+                          <input type="text" z-input zSize="sm" class="w-full" [(ngModel)]="extraForm.pedAgeBands[$index].range" [name]="'ped_band_r_' + $index" maxlength="30" placeholder="Ex.: 0 – 28 dias" />
+                        </div>
+                      </div>
+                    </div>
+                  }
+                </div>
+              </z-card>
+              }
+
+              @if (extraMostraSecao('convenios')) {
+              <z-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-5">
+                <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+                  <div>
+                    <p class="text-xs font-bold uppercase tracking-wider" style="color:var(--c-muted)">Convênios aceitos</p>
+                    <p class="text-[11px] mt-1" style="color:var(--c-muted)">Layouts: odontologia (4), pediatria (7) e nutricionista (8)</p>
+                  </div>
+                  <button type="button" z-button zType="outline" zSize="sm" class="gap-1.5" (click)="adicionarConvenioLinha()">
+                    <span class="material-symbols-outlined text-base">add</span>
+                    Adicionar
+                  </button>
+                </div>
+                <div class="flex flex-col gap-2">
+                  @for (linha of extraForm.conveniosLinhas; track $index) {
+                    <div class="flex gap-2 items-center">
+                      <input type="text" z-input zSize="sm" class="w-full flex-1 min-w-0" [(ngModel)]="extraForm.conveniosLinhas[$index]" [name]="'extra_conv_' + $index" maxlength="120" placeholder="Ex.: Unimed" />
+                      <button type="button" z-button zType="ghost" zSize="sm" class="shrink-0 min-w-9 px-2" (click)="removerConvenioLinha($index)" title="Remover linha" aria-label="Remover convênio">
+                        <span class="material-symbols-outlined text-base">close</span>
+                      </button>
+                    </div>
+                  }
+                </div>
+              </z-card>
+              }
+
+              @if (extraMostraSecao('modalidades')) {
+              <z-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-5">
+                <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+                  <div>
+                    <p class="text-xs font-bold uppercase tracking-wider" style="color:var(--c-muted)">Modalidades de atendimento</p>
+                    <p class="text-[11px] mt-1" style="color:var(--c-muted)">Layouts: odontologia (4) e nutricionista (8). Se vazio, a página usa padrão (Online / Presencial).</p>
+                  </div>
+                  <button type="button" z-button zType="outline" zSize="sm" class="gap-1.5" (click)="adicionarModalidade()">
+                    <span class="material-symbols-outlined text-base">add</span>
+                    Adicionar
+                  </button>
+                </div>
+                @if (extraForm.modalities.length === 0) {
+                  <p class="text-xs py-2" style="color:var(--c-muted)">Nenhuma modalidade personalizada. Clique em Adicionar para criar (ex.: Online, Presencial).</p>
+                }
+                <div class="flex flex-col gap-4">
+                  @for (mod of extraForm.modalities; track $index) {
+                    <div class="p-4 rounded-xl flex flex-col gap-3" style="background:var(--c-soft);border:1px solid var(--c-border)">
+                      <div class="flex justify-between items-start gap-2">
+                        <span class="text-xs font-semibold" style="color:var(--c-text)">Modalidade {{ $index + 1 }}</span>
+                        <button type="button" z-button zType="ghost" zSize="sm" (click)="removerModalidade($index)">Remover</button>
+                      </div>
+                      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div>
+                          <label class="form-label">Título</label>
+                          <input type="text" z-input zSize="sm" class="w-full" [(ngModel)]="mod.title" [name]="'mod_t_' + $index" maxlength="80" placeholder="Ex.: Online" />
+                        </div>
+                        <div>
+                          <label class="form-label">Subtítulo</label>
+                          <input type="text" z-input zSize="sm" class="w-full" [(ngModel)]="mod.subtitle" [name]="'mod_s_' + $index" maxlength="120" placeholder="Ex.: Atendimento remoto" />
+                        </div>
+                      </div>
+                      <z-checkbox [(ngModel)]="mod.available" [name]="'mod_a_' + $index">
+                        Disponível (exibir na página)
+                      </z-checkbox>
+                    </div>
+                  }
+                </div>
+              </z-card>
+              }
+
+              @if (extraMostraSecao('equipe')) {
+              <z-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-5">
+                <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+                  <div>
+                    <p class="text-xs font-bold uppercase tracking-wider" style="color:var(--c-muted)">Equipe</p>
+                    <p class="text-[11px] mt-1" style="color:var(--c-muted)">Layout multi profissionais (5)</p>
+                  </div>
+                  <button type="button" z-button zType="outline" zSize="sm" class="gap-1.5" (click)="adicionarMembroEquipe()">
+                    <span class="material-symbols-outlined text-base">person_add</span>
+                    Adicionar pessoa
+                  </button>
+                </div>
+                @if (extraForm.equipe.length === 0) {
+                  <p class="text-xs py-2" style="color:var(--c-muted)">Nenhum membro. Adicione para listar na página pública.</p>
+                }
+                <div class="flex flex-col gap-4">
+                  @for (mem of extraForm.equipe; track $index) {
+                    <div class="p-4 rounded-xl flex flex-col gap-3" style="background:var(--c-soft);border:1px solid var(--c-border)">
+                      <div class="flex justify-between items-start gap-2">
+                        <span class="text-xs font-semibold" style="color:var(--c-text)">Pessoa {{ $index + 1 }}</span>
+                        <button type="button" z-button zType="ghost" zSize="sm" (click)="removerMembroEquipe($index)">Remover</button>
+                      </div>
+                      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div class="md:col-span-2">
+                          <label class="form-label">Nome</label>
+                          <input type="text" z-input zSize="sm" class="w-full" [(ngModel)]="mem.name" [name]="'team_n_' + $index" maxlength="120" placeholder="Dra. Maria Silva" />
+                        </div>
+                        <div>
+                          <label class="form-label">Registro / credencial</label>
+                          <input type="text" z-input zSize="sm" class="w-full" [(ngModel)]="mem.credential" [name]="'team_c_' + $index" maxlength="80" placeholder="CRP 06/12345" />
+                        </div>
+                        <div>
+                          <label class="form-label">Observação</label>
+                          <input type="text" z-input zSize="sm" class="w-full" [(ngModel)]="mem.notes" [name]="'team_o_' + $index" maxlength="120" placeholder="Ex.: Atende online" />
+                        </div>
+                        <div class="md:col-span-2">
+                          <label class="form-label">WhatsApp (só números ou com DDD)</label>
+                          <input type="text" z-input zSize="sm" class="w-full" [(ngModel)]="mem.whatsapp" [name]="'team_w_' + $index" maxlength="20" placeholder="5511999999999" />
+                        </div>
+                      </div>
+                    </div>
+                  }
+                </div>
+              </z-card>
+              }
+
+              <div class="sticky-footer-spacer" aria-hidden="true"></div>
+              <div class="sticky-footer">
+                <div class="text-xs text-muted-foreground">Alterações não salvas</div>
+                <div class="footer-btns">
+                  <a routerLink="/dashboard" z-button zType="outline" zSize="sm" class="gap-2 no-underline">
+                    <span class="material-symbols-outlined text-base">close</span>
+                    Cancelar
+                  </a>
+                  <button type="submit" z-button zSize="sm" class="gap-2" [zDisabled]="salvando" [zLoading]="salvando">
+                    <span class="material-symbols-outlined text-base">save</span>
+                    {{ salvando ? 'Salvando…' : 'Salvar configurações' }}
+                  </button>
+                </div>
+              </div>
+            </form>
+            }
+          </div>

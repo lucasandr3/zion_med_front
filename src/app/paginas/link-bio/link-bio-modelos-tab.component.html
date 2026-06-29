@@ -1,0 +1,78 @@
+<div id="tab-modelos" class="link-bio-fade-in-4 flex flex-col gap-6 pb-24">
+            <z-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
+              <div class="section-body">
+              <div class="mb-4">
+                <div class="min-w-0">
+                  <h2 class="link-bio-section-h2 text-[15px] font-semibold m-0">Modelo publicado</h2>
+                  <p class="link-bio-section-p text-[13px] mt-1.5 mb-0">
+                    Escolha o layout que os visitantes veem no link público. Textos específicos ficam na aba
+                    <button type="button" z-button zType="link" class="h-auto p-0 font-medium" (click)="goToConteudoExtra.emit()">Conteúdo extra</button>.
+                  </p>
+                </div>
+              </div>
+              <div class="link-bio-hr my-6" role="separator" aria-hidden="true"></div>
+              <div class="link-bio-modelos-layout">
+                <div class="link-bio-modelos-grid">
+                  @for (m of previewModelIds; track m) {
+                    <z-card
+                      class="link-bio-model-z-card gap-0 cursor-pointer rounded-xl border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0"
+                      [class.link-bio-model-z-card--selected]="activeModel === m"
+                      role="button"
+                      tabindex="0"
+                      (click)="selecionarModelo(m)"
+                      (keydown.enter)="selecionarModelo(m)"
+                      (keydown.space)="$event.preventDefault(); selecionarModelo(m)"
+                    >
+                      <div class="link-bio-model-z-card__body">
+                        <span class="link-bio-model-z-radio" [class.link-bio-model-z-radio--on]="activeModel === m" aria-hidden="true"></span>
+                        <div class="link-bio-model-z-card__text">
+                          <div class="link-bio-model-z-card__title-row">
+                            <p class="link-bio-card-title text-[13px] font-semibold m-0">{{ linkBioModelLabels[m] }}</p>
+                            @if (m === persistedModel) {
+                              <z-badge zShape="pill" zType="outline" class="link-bio-model-ativo-badge shrink-0">Ativo</z-badge>
+                            }
+                          </div>
+                          <p class="link-bio-card-caption text-[12px] m-0 leading-snug">{{ linkBioModelSubtitles[m] }}</p>
+                        </div>
+                      </div>
+                    </z-card>
+                  }
+                </div>
+                <aside class="link-bio-modelos-preview" aria-label="Prévia do layout selecionado — {{ linkBioModelLabels[activeModel] }}">
+                  <div class="flex justify-center lg:justify-start">
+                    <div class="link-bio-phone link-bio-phone--mini w-full max-w-[320px]">
+                      @if (activeModelIframeSrc; as src) {
+                        <iframe [src]="src" [title]="'Prévia: ' + linkBioModelLabels[activeModel]" class="link-bio-phone-screen w-full h-full border-0" loading="lazy"></iframe>
+                      } @else {
+                        <div class="link-bio-phone-screen link-bio-text-muted w-full h-full min-h-[280px] flex items-center justify-center text-xs">Carregando prévia…</div>
+                      }
+                    </div>
+                  </div>
+                </aside>
+              </div>
+              </div>
+            </z-card>
+
+            <div class="sticky-footer-spacer" aria-hidden="true"></div>
+            <div class="sticky-footer">
+              <div class="text-xs text-muted-foreground">Alterações não salvas</div>
+              <div class="footer-btns">
+                <a routerLink="/dashboard" z-button zType="outline" zSize="sm" class="gap-2 no-underline">
+                  <span class="material-symbols-outlined text-base">close</span>
+                  Cancelar
+                </a>
+                <button
+                  type="button"
+                  z-button
+                  zSize="sm"
+                  class="gap-2"
+                  [zDisabled]="salvando || !modelDirty"
+                  [zLoading]="salvando"
+                  (click)="salvar()"
+                >
+                  <span class="material-symbols-outlined text-base">save</span>
+                  {{ salvando ? 'Salvando…' : 'Salvar configurações' }}
+                </button>
+              </div>
+            </div>
+</div>

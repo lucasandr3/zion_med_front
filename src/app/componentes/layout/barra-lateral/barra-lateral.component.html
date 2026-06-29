@@ -20,173 +20,46 @@
   </div>
 
   <nav class="flex-1 space-y-0.5 overflow-y-auto px-2 py-3">
-    <span z-menu-label class="sidebar-label !py-2 !text-[0.65rem] !font-bold !uppercase !tracking-[0.09em]">Menu</span>
-
-    @if (podeVerDashboard) {
-      <a routerLink="/dashboard"
-         routerLinkActive="router-link-active"
-         [routerLinkActiveOptions]="{ exact: true }"
-         z-button
-         zType="ghost"
-         class="shell-sidebar-nav w-full justify-start gap-2 px-2.5 font-normal text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground [&.router-link-active]:border-none [&.router-link-active]:bg-sidebar-primary/14 [&.router-link-active]:font-semibold [&.router-link-active]:text-sidebar-primary"
-         [zTooltip]="tooltipQuandoColapsada('Dashboard')"
-      >
-        <span class="material-symbols-outlined shrink-0 text-[19px]">bar_chart</span>
-        <span class="sidebar-label">Dashboard</span>
-      </a>
-    }
-
-    @if (podeGerenciarTemplates) {
-      <a routerLink="/templates"
-         routerLinkActive="router-link-active"
-         z-button
-         zType="ghost"
-         class="shell-sidebar-nav w-full justify-start gap-2 px-2.5 font-normal text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground [&.router-link-active]:border-none [&.router-link-active]:bg-sidebar-primary/14 [&.router-link-active]:font-semibold [&.router-link-active]:text-sidebar-primary"
-         [zTooltip]="tooltipQuandoColapsada('Modelos de fichas')"
-      >
-        <span class="material-symbols-outlined shrink-0 text-[19px]">app_registration</span>
-        <span class="sidebar-label">Modelos de fichas</span>
-      </a>
-    }
-
-    @if (podeAcessarLinksEEnvios) {
-      <a routerLink="/links-publicos"
-         routerLinkActive="router-link-active"
-         z-button
-         zType="ghost"
-         class="shell-sidebar-nav w-full justify-start gap-2 px-2.5 font-normal text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground [&.router-link-active]:border-none [&.router-link-active]:bg-sidebar-primary/14 [&.router-link-active]:font-semibold [&.router-link-active]:text-sidebar-primary"
-         [zTooltip]="tooltipQuandoColapsada('Formulários públicos')"
-      >
-        <span class="material-symbols-outlined shrink-0 text-[19px]">list_alt</span>
-        <span class="sidebar-label">Formulários públicos</span>
-      </a>
-      <a routerLink="/envios"
-         routerLinkActive="router-link-active"
-         z-button
-         zType="ghost"
-         class="shell-sidebar-nav w-full justify-start gap-2 px-2.5 font-normal text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground [&.router-link-active]:border-none [&.router-link-active]:bg-sidebar-primary/14 [&.router-link-active]:font-semibold [&.router-link-active]:text-sidebar-primary"
-         [zTooltip]="tooltipQuandoColapsada('Envios de documento')"
-      >
-        <span class="material-symbols-outlined shrink-0 text-[19px]">send</span>
-        <span class="sidebar-label">Envios de documento</span>
-      </a>
-    }
-
-    @if (podeVerSubmissoes) {
-      <a routerLink="/protocolos"
-         routerLinkActive="router-link-active"
-         z-button
-         zType="ghost"
-         class="shell-sidebar-nav w-full justify-start gap-2 px-2.5 font-normal text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground [&.router-link-active]:border-none [&.router-link-active]:bg-sidebar-primary/14 [&.router-link-active]:font-semibold [&.router-link-active]:text-sidebar-primary"
-         [zTooltip]="tooltipQuandoColapsada('Protocolos')"
-      >
-        <span class="material-symbols-outlined shrink-0 text-[19px]">article_person</span>
-        <span class="sidebar-label">Protocolos</span>
-      </a>
-      <a routerLink="/pessoas"
-         routerLinkActive="router-link-active"
-         z-button
-         zType="ghost"
-         class="shell-sidebar-nav w-full justify-start gap-2 px-2.5 font-normal text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground [&.router-link-active]:border-none [&.router-link-active]:bg-sidebar-primary/14 [&.router-link-active]:font-semibold [&.router-link-active]:text-sidebar-primary"
-         [zTooltip]="tooltipQuandoColapsada('Pessoas')"
-      >
-        <span class="material-symbols-outlined shrink-0 text-[19px]">group</span>
-        <span class="sidebar-label">Pessoas</span>
-      </a>
-    }
-
-    <a routerLink="/novidades"
-       routerLinkActive="router-link-active"
-       z-button
-       zType="ghost"
-       class="shell-sidebar-nav relative w-full justify-start gap-2 px-2.5 font-normal text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground [&.router-link-active]:border-none [&.router-link-active]:bg-sidebar-primary/14 [&.router-link-active]:font-semibold [&.router-link-active]:text-sidebar-primary"
-       [zTooltip]="tooltipQuandoColapsada('Novidades')"
-    >
-      <span class="material-symbols-outlined shrink-0 text-[19px]">new_releases</span>
-      <span class="sidebar-label">Novidades</span>
-      @if (novidadesNaoVistas > 0) {
-        <z-badge zShape="pill" class="sidebar-label ml-auto !h-[18px] !min-w-[18px] !px-1 !py-0 !text-[0.6rem] !leading-none">
-          {{ novidadesNaoVistas > 99 ? '99+' : novidadesNaoVistas }}
-        </z-badge>
-      }
-    </a>
-
-    @if (podeVerNotificacoes) {
-      <a routerLink="/notificacoes"
-         routerLinkActive="router-link-active"
-         z-button
-         zType="ghost"
-         class="shell-sidebar-nav relative w-full justify-start gap-2 px-2.5 font-normal text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground [&.router-link-active]:border-none [&.router-link-active]:bg-sidebar-primary/14 [&.router-link-active]:font-semibold [&.router-link-active]:text-sidebar-primary"
-         [zTooltip]="tooltipQuandoColapsada('Notificações')"
-      >
-        <span class="material-symbols-outlined shrink-0 text-[19px]">notifications</span>
-        <span class="sidebar-label">Notificações</span>
-        @if (notificacoesNaoLidas > 0) {
-          <z-badge zShape="pill" class="sidebar-label ml-auto !h-[18px] !min-w-[18px] !px-1 !py-0 !text-[0.6rem] !leading-none">
-            {{ notificacoesNaoLidas > 99 ? '99+' : notificacoesNaoLidas }}
-          </z-badge>
+    @for (section of navSections; track section.id) {
+      @if (secaoVisivel(section)) {
+        @if (section.label) {
+          <span z-menu-label class="sidebar-label !py-2 !text-[0.65rem] !font-bold !uppercase !tracking-[0.09em]"
+                [class.mt-5]="section.id === 'admin'"
+                [class.mb-2]="section.id === 'admin'">
+            {{ section.label }}
+          </span>
         }
-      </a>
-    }
 
-    @if (podeGerenciarClinica || podeGerenciarUsuarios) {
-      <span z-menu-label class="sidebar-label mb-2 mt-5 !py-2 !text-[0.65rem] !font-bold !uppercase !tracking-[0.09em]">Administração</span>
+        @for (item of section.items; track item.route) {
+          @if (itemVisivel(item)) {
+            <a [routerLink]="item.route"
+               routerLinkActive="router-link-active"
+               [routerLinkActiveOptions]="{ exact: item.exact ?? false }"
+               z-button
+               zType="ghost"
+               class="shell-sidebar-nav relative w-full justify-start gap-2 px-2.5 font-normal text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground [&.router-link-active]:border-none [&.router-link-active]:bg-sidebar-primary/14 [&.router-link-active]:font-semibold [&.router-link-active]:text-sidebar-primary"
+               [zTooltip]="tooltipQuandoColapsada(item.label)"
+            >
+              <span class="material-symbols-outlined shrink-0 text-[19px]">{{ item.icon }}</span>
+              <span class="sidebar-label">{{ item.label }}</span>
+              @if (item.badge === 'trial' && badgeTrialLabel(item); as trialLabel) {
+                <z-badge zShape="pill" class="sidebar-label ml-auto !h-[18px] !min-w-[18px] !px-1.5 !py-0 !text-[0.6rem] !leading-none">
+                  {{ trialLabel }}
+                </z-badge>
+              } @else if (item.badge && item.badge !== 'trial' && badgeCount(item) > 0) {
+                <z-badge zShape="pill" class="sidebar-label ml-auto !h-[18px] !min-w-[18px] !px-1 !py-0 !text-[0.6rem] !leading-none">
+                  {{ badgeCount(item) > 99 ? '99+' : badgeCount(item) }}
+                </z-badge>
+              }
+            </a>
+          }
+        }
+      }
     }
-
-    @if (podeGerenciarClinica) {
-      <a routerLink="/clinica/configuracoes"
-         routerLinkActive="router-link-active"
-         z-button
-         zType="ghost"
-         class="shell-sidebar-nav w-full justify-start gap-2 px-2.5 font-normal text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground [&.router-link-active]:border-none [&.router-link-active]:bg-sidebar-primary/14 [&.router-link-active]:font-semibold [&.router-link-active]:text-sidebar-primary"
-         [zTooltip]="tooltipQuandoColapsada('Empresa')"
-      >
-        <span class="material-symbols-outlined shrink-0 text-[19px]">emoji_transportation</span>
-        <span class="sidebar-label">Empresa</span>
-      </a>
-      <a routerLink="/link-bio"
-         routerLinkActive="router-link-active"
-         z-button
-         zType="ghost"
-         class="shell-sidebar-nav w-full justify-start gap-2 px-2.5 font-normal text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground [&.router-link-active]:border-none [&.router-link-active]:bg-sidebar-primary/14 [&.router-link-active]:font-semibold [&.router-link-active]:text-sidebar-primary"
-         [zTooltip]="tooltipQuandoColapsada('Link na bio')"
-      >
-        <span class="material-symbols-outlined shrink-0 text-[19px]">nest_heat_link_gen_3</span>
-        <span class="sidebar-label">Link na bio</span>
-      </a>
-      <a routerLink="/clinica/integracoes"
-         routerLinkActive="router-link-active"
-         z-button
-         zType="ghost"
-         class="shell-sidebar-nav w-full justify-start gap-2 px-2.5 font-normal text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground [&.router-link-active]:border-none [&.router-link-active]:bg-sidebar-primary/14 [&.router-link-active]:font-semibold [&.router-link-active]:text-sidebar-primary"
-         [zTooltip]="tooltipQuandoColapsada('Integrações')"
-      >
-        <span class="material-symbols-outlined shrink-0 text-[19px]">linked_services</span>
-        <span class="sidebar-label">Integrações</span>
-      </a>
-    }
-
-    @if (podeGerenciarUsuarios) {
-      <a routerLink="/usuarios"
-         routerLinkActive="router-link-active"
-         z-button
-         zType="ghost"
-         class="shell-sidebar-nav w-full justify-start gap-2 px-2.5 font-normal text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground [&.router-link-active]:border-none [&.router-link-active]:bg-sidebar-primary/14 [&.router-link-active]:font-semibold [&.router-link-active]:text-sidebar-primary"
-         [zTooltip]="tooltipQuandoColapsada('Usuários')"
-      >
-        <span class="material-symbols-outlined shrink-0 text-[19px]">group</span>
-        <span class="sidebar-label">Usuários</span>
-      </a>
-      <a routerLink="/organizacao/permissoes"
-         routerLinkActive="router-link-active"
-         z-button
-         zType="ghost"
-         class="shell-sidebar-nav w-full justify-start gap-2 px-2.5 font-normal text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground [&.router-link-active]:border-none [&.router-link-active]:bg-sidebar-primary/14 [&.router-link-active]:font-semibold [&.router-link-active]:text-sidebar-primary"
-         [zTooltip]="tooltipQuandoColapsada('Permissões')"
-      >
-        <span class="material-symbols-outlined shrink-0 text-[19px]">admin_panel_settings</span>
-        <span class="sidebar-label">Permissões</span>
-      </a>
+    @if (planLimitsResumo(); as resumo) {
+      <div class="sidebar-label mx-2 mb-2 rounded-md border border-border bg-muted/40 px-2.5 py-2 text-[0.65rem] leading-snug text-muted-foreground">
+        {{ resumo }}
+      </div>
     }
   </nav>
 

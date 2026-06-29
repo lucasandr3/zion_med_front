@@ -2,18 +2,25 @@ import { Component, Inject, OnInit, PLATFORM_ID, inject } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NgxMaskDirective } from 'ngx-mask';
 
 import { ZardCheckboxComponent } from '@/shared/components/checkbox';
 import { LandingService, PlanoLanding } from '../../core/services/landing.service';
 import { ComeceService } from '../../core/services/comece.service';
 import { AuthService } from '../../core/services/auth.service';
+import { OnboardingService } from '../../core/services/onboarding.service';
+import { Template } from '../../core/services/templates.service';
+import {
+  billingDocumentValidator,
+  passwordMatchValidator,
+  phoneMinDigitsValidator,
+} from './comece-form.validators';
 
 @Component({
   selector: 'app-pagina-comece',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule, NgxMaskDirective, ZardCheckboxComponent],
+  imports: [CommonModule, RouterLink, ReactiveFormsModule, NgxMaskDirective, ZardCheckboxComponent],
   templateUrl: './comece.component.html',
   styleUrl: './comece.component.css',
 })
@@ -22,15 +29,6 @@ export class ComeceComponent implements OnInit {
   diasTrial = 14;
   carregandoPlanos = true;
   planKey = '';
-  companyName = '';
-  responsibleName = '';
-  email = '';
-  /** CPF ou CNPJ para faturamento / Asaas (com ou sem máscara). */
-  billingDocument = '';
-  phone = '';
-  password = '';
-  passwordConfirmation = '';
-  acceptedTerms = false;
   estadoCarregando = false;
   estadoErro = false;
   mensagemErro = '';
@@ -38,18 +36,21 @@ export class ComeceComponent implements OnInit {
   mostrarSenhaConf = false;
   forcaSenha = 0;
   labelForcaSenha = 'Use no mínimo 8 caracteres';
-  /** 1 = formulário cadastro; 2 = configuração pós-sucesso (só UI) */
   uiStep = 1;
   showSuccessOverlay = false;
-  especialidadePrincipal = '';
-  tamanhoEquipe = 'Só eu (profissional solo)';
-  comoConheceu = '';
   lpTheme: 'dark' | 'light' = 'dark';
+  formularioEnviado = false;
 
-  /** Chaves vindas de `GET /landing` (`niches`). */
   niches: string[] = [];
-  /** Nicho selecionado (enviado no cadastro). */
   nicheKey = 'estetica';
+
+  templatesOnboarding: Template[] = [];
+  carregandoTemplates = false;
+  templateSelecionadoId: number | null = null;
+  linkPublicoUrl = '';
+  gerandoLink = false;
+  onboardingErro = '';
+  linkCopiado = false;
 
   readonly nicheLabels: Record<string, string> = {
     estetica: 'Estética / Harmonização',
@@ -70,15 +71,31 @@ export class ComeceComponent implements OnInit {
     'https://wa.me/5534996460818?text=' +
     encodeURIComponent('Olá! Estou criando minha conta no Gestgo e queria tirar uma dúvida.');
 
+  readonly cadastroForm = inject(FormBuilder).nonNullable.group(
+    {
+      companyName: ['', Validators.required],
+      responsibleName: ['', Validators.required],
+      email: ['', [Validators.required, Validators.email]],
+      billingDocument: ['', billingDocumentValidator()],
+      phone: ['', [Validators.required, phoneMinDigitsValidator(10)]],
+      password: ['', [Validators.required, Validators.minLength(8)]],
+      passwordConfirmation: ['', Validators.required],
+      acceptedTerms: [false, Validators.requiredTrue],
+    },
+    { validators: passwordMatchValidator },
+  );
+
   private platformId: object;
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private landingService = inject(LandingService);
   private comeceService = inject(ComeceService);
   private auth = inject(AuthService);
+  private onboarding = inject(OnboardingService);
 
   constructor(@Inject(PLATFORM_ID) platformId: object) {
     this.platformId = platformId;
+    this.cadastroForm.controls.password.valueChanges.subscribe(() => this.atualizarForcaSenha());
   }
 
   ngOnInit(): void {
@@ -99,7 +116,9 @@ export class ComeceComponent implements OnInit {
       }
     }
     const qe = this.route.snapshot.queryParamMap.get('email');
-    if (qe?.trim()) this.email = qe.trim();
+    if (qe?.trim()) {
+      this.cadastroForm.patchValue({ email: qe.trim() });
+    }
     const qp = this.route.snapshot.queryParamMap.get('plan');
     if (qp?.trim()) this.planKey = qp.trim();
 
@@ -139,6 +158,7 @@ export class ComeceComponent implements OnInit {
 
   get progressPct(): number {
     if (this.showSuccessOverlay) return 100;
+    if (this.linkPublicoUrl) return 90;
     return this.uiStep === 1 ? 33 : 66;
   }
 
@@ -154,22 +174,18 @@ export class ComeceComponent implements OnInit {
     this.nicheKey = key;
   }
 
+  selecionarTemplate(id: number): void {
+    this.templateSelecionadoId = id;
+    this.linkPublicoUrl = '';
+    this.onboardingErro = '';
+  }
+
   labelNicho(key: string): string {
     return this.nicheLabels[key] ?? key;
   }
 
-  private billingDocDigits(): string {
-    return (this.billingDocument || '').replace(/\D/g, '');
-  }
-
-  /** Alinhado à API: 11 (CPF) ou 14 (CNPJ) dígitos. */
-  private billingDocValid(): boolean {
-    const d = this.billingDocDigits();
-    return d.length === 11 || d.length === 14;
-  }
-
   atualizarForcaSenha(): void {
-    const p = this.password || '';
+    const p = this.cadastroForm.controls.password.value || '';
     let score = 0;
     if (p.length >= 8) score++;
     if (p.length >= 12) score++;
@@ -182,52 +198,50 @@ export class ComeceComponent implements OnInit {
   }
 
   enviar(): void {
+    this.formularioEnviado = true;
     this.estadoErro = false;
     this.mensagemErro = '';
-    if (
-      !this.planKey ||
-      !this.nicheKey ||
-      !this.companyName?.trim() ||
-      !this.responsibleName?.trim() ||
-      !this.email?.trim() ||
-      !this.password ||
-      this.password !== this.passwordConfirmation ||
-      !this.acceptedTerms
-    ) {
+    this.cadastroForm.markAllAsTouched();
+
+    if (!this.planKey || !this.nicheKey) {
       this.estadoErro = true;
-      this.mensagemErro = 'Preencha todos os campos obrigatórios, confirme a senha e aceite os termos.';
+      this.mensagemErro = 'Selecione o plano e o segmento do negócio.';
       return;
     }
-    if (this.password.length < 8) {
+
+    if (this.cadastroForm.invalid) {
       this.estadoErro = true;
-      this.mensagemErro = 'A senha deve ter no mínimo 8 caracteres.';
+      if (this.cadastroForm.hasError('passwordMismatch')) {
+        this.mensagemErro = 'As senhas não coincidem.';
+      } else if (this.cadastroForm.controls.billingDocument.hasError('billingDocument')) {
+        this.mensagemErro = 'Se informar CPF/CNPJ, use 11 ou 14 dígitos válidos.';
+      } else {
+        this.mensagemErro = 'Preencha todos os campos obrigatórios, confirme a senha e aceite os termos.';
+      }
       return;
     }
-    if (!this.billingDocValid()) {
-      this.estadoErro = true;
-      this.mensagemErro =
-        'Informe um CPF (11 dígitos) ou CNPJ (14 dígitos) válido para faturamento e emissão do boleto.';
-      return;
-    }
+
+    const v = this.cadastroForm.getRawValue();
     this.estadoCarregando = true;
+    const payload = {
+      company_name: v.companyName.trim(),
+      responsible_name: v.responsibleName.trim(),
+      email: v.email.trim(),
+      phone: v.phone.trim(),
+      password: v.password,
+      password_confirmation: v.passwordConfirmation,
+      plan_key: this.planKey,
+      niche: this.nicheKey,
+      accepted_terms: v.acceptedTerms,
+    };
+    const doc = v.billingDocument.trim();
     this.comeceService
-      .store({
-        company_name: this.companyName.trim(),
-        responsible_name: this.responsibleName.trim(),
-        email: this.email.trim(),
-        billing_document: this.billingDocument.trim(),
-        phone: this.phone.trim() || undefined,
-        password: this.password,
-        password_confirmation: this.passwordConfirmation,
-        plan_key: this.planKey,
-        niche: this.nicheKey,
-        accepted_terms: this.acceptedTerms,
-      })
+      .store(doc ? { ...payload, billing_document: doc } : payload)
       .subscribe({
-        next: (data) => {
-          this.auth.setSessionFromLoginData(data);
+        next: () => {
           this.estadoCarregando = false;
           this.uiStep = 2;
+          this.carregarTemplatesOnboarding();
           if (isPlatformBrowser(this.platformId)) {
             window.scrollTo({ top: 0, behavior: 'smooth' });
           }
@@ -243,6 +257,55 @@ export class ComeceComponent implements OnInit {
             typeof msg === 'string' && msg.trim() ? msg : 'Não foi possível criar a conta. Tente novamente.';
         },
       });
+  }
+
+  private carregarTemplatesOnboarding(): void {
+    this.carregandoTemplates = true;
+    this.onboardingErro = '';
+    this.onboarding.listTemplates().subscribe({
+      next: (items) => {
+        this.templatesOnboarding = items;
+        this.carregandoTemplates = false;
+        if (items.length === 1) {
+          this.templateSelecionadoId = items[0].id;
+        }
+      },
+      error: () => {
+        this.carregandoTemplates = false;
+        this.onboardingErro = 'Não foi possível carregar os modelos. Você pode configurar depois no painel.';
+      },
+    });
+  }
+
+  gerarLinkPublico(): void {
+    if (this.templateSelecionadoId == null) {
+      this.onboardingErro = 'Escolha um modelo de ficha para continuar.';
+      return;
+    }
+    this.gerandoLink = true;
+    this.onboardingErro = '';
+    this.onboarding.gerarLinkPublico(this.templateSelecionadoId).subscribe({
+      next: (url) => {
+        this.gerandoLink = false;
+        if (!url) {
+          this.onboardingErro = 'Link não retornado. Tente novamente no painel.';
+          return;
+        }
+        this.linkPublicoUrl = url;
+      },
+      error: () => {
+        this.gerandoLink = false;
+        this.onboardingErro = 'Erro ao gerar o link. Tente em Modelos de fichas no painel.';
+      },
+    });
+  }
+
+  copiarLink(): void {
+    if (!this.linkPublicoUrl || !isPlatformBrowser(this.platformId)) return;
+    navigator.clipboard.writeText(this.linkPublicoUrl).then(() => {
+      this.linkCopiado = true;
+      window.setTimeout(() => (this.linkCopiado = false), 2000);
+    });
   }
 
   finalizarConfiguracao(): void {

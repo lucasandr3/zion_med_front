@@ -148,7 +148,7 @@
               <div class="alert-err">{{ mensagemErro }}</div>
             }
 
-            <form (ngSubmit)="enviar()">
+            <form [formGroup]="cadastroForm" (ngSubmit)="enviar()">
               <div class="plan-selector">
                 <div class="plan-label">Plano <span class="req">*</span></div>
                 @if (carregandoPlanos) {
@@ -197,60 +197,57 @@
               <div class="form-row">
                 <div class="field">
                   <label class="field-label" for="company_name">Nome do negócio <span class="req">*</span></label>
-                  <input class="fi" id="company_name" type="text" [(ngModel)]="companyName" name="company_name" placeholder="Ex.: Studio Belle, Dr. João Silva" required autocomplete="organization" />
+                  <input class="fi" id="company_name" type="text" formControlName="companyName" placeholder="Ex.: Studio Belle, Dr. João Silva" autocomplete="organization" />
                 </div>
                 <div class="field">
                   <label class="field-label" for="responsible_name">Seu nome <span class="req">*</span></label>
-                  <input class="fi" id="responsible_name" type="text" [(ngModel)]="responsibleName" name="responsible_name" placeholder="Ex.: Dr. João Silva" required autocomplete="name" />
+                  <input class="fi" id="responsible_name" type="text" formControlName="responsibleName" placeholder="Ex.: Dr. João Silva" autocomplete="name" />
                 </div>
               </div>
 
               <div class="field">
                 <label class="field-label" for="email">E-mail <span class="req">*</span></label>
-                <input class="fi" id="email" type="email" [(ngModel)]="email" name="email" placeholder="voce@clinica.com.br" required autocomplete="email" />
+                <input class="fi" id="email" type="email" formControlName="email" placeholder="voce@clinica.com.br" autocomplete="email" />
                 <div class="field-hint">Usado para acesso, cobrança e comunicações importantes.</div>
               </div>
 
               <div class="field">
-                <label class="field-label" for="billing_document">CPF ou CNPJ <span class="req">*</span></label>
+                <label class="field-label" for="billing_document">CPF ou CNPJ <span class="text-muted-foreground text-xs">(opcional no trial)</span></label>
                 <input
                   class="fi"
                   id="billing_document"
                   type="text"
                   mask="000.000.000-00||00.000.000/0000-00"
                   [dropSpecialCharacters]="true"
-                  [(ngModel)]="billingDocument"
-                  name="billing_document"
+                  formControlName="billingDocument"
                   placeholder="000.000.000-00 ou 00.000.000/0001-00"
-                  required
                   autocomplete="off"
                   inputmode="numeric"
                 />
-                <div class="field-hint">Documento da empresa ou do responsável legal — necessário para gerar a assinatura e o boleto no sistema de pagamento.</div>
+                <div class="field-hint">Informe só quando for ativar a assinatura. Não é necessário para começar o trial.</div>
               </div>
 
               <div class="field">
-                <label class="field-label" for="phone">WhatsApp</label>
+                <label class="field-label" for="phone">WhatsApp <span class="req">*</span></label>
                 <input
                   class="fi"
                   id="phone"
                   type="tel"
                   mask="(00) 0000-0000||(00) 00000-0000"
                   [dropSpecialCharacters]="true"
-                  [(ngModel)]="phone"
-                  name="phone"
+                  formControlName="phone"
                   placeholder="(11) 99999-9999"
                   inputmode="numeric"
                   autocomplete="tel"
                 />
-                <div class="field-hint">Opcional — para suporte durante o onboarding.</div>
+                <div class="field-hint">Número com DDD — usamos para suporte durante o onboarding.</div>
               </div>
 
               <div class="form-row">
                 <div class="field">
                   <label class="field-label" for="password">Senha <span class="req">*</span></label>
                   <div class="pw-wrap">
-                    <input class="fi" [type]="mostrarSenha ? 'text' : 'password'" id="password" [(ngModel)]="password" (ngModelChange)="atualizarForcaSenha()" name="password" placeholder="Mínimo 8 caracteres" required minlength="8" autocomplete="new-password" />
+                    <input class="fi" [type]="mostrarSenha ? 'text' : 'password'" id="password" formControlName="password" placeholder="Mínimo 8 caracteres" autocomplete="new-password" />
                     <button type="button" class="pw-toggle" (click)="mostrarSenha = !mostrarSenha" [attr.aria-label]="mostrarSenha ? 'Ocultar senha' : 'Mostrar senha'">
                       @if (mostrarSenha) {
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
@@ -270,7 +267,7 @@
                 <div class="field">
                   <label class="field-label" for="password_confirmation">Confirmar senha <span class="req">*</span></label>
                   <div class="pw-wrap">
-                    <input class="fi" [type]="mostrarSenhaConf ? 'text' : 'password'" id="password_confirmation" [(ngModel)]="passwordConfirmation" name="password_confirmation" placeholder="Repita a senha" required minlength="8" autocomplete="new-password" />
+                    <input class="fi" [type]="mostrarSenhaConf ? 'text' : 'password'" id="password_confirmation" formControlName="passwordConfirmation" placeholder="Repita a senha" autocomplete="new-password" />
                     <button type="button" class="pw-toggle" (click)="mostrarSenhaConf = !mostrarSenhaConf" [attr.aria-label]="mostrarSenhaConf ? 'Ocultar senha' : 'Mostrar senha'">
                       @if (mostrarSenhaConf) {
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
@@ -282,7 +279,7 @@
                 </div>
               </div>
 
-              <z-checkbox class="comece-terms-check" [(ngModel)]="acceptedTerms" name="accepted_terms">
+              <z-checkbox class="comece-terms-check" formControlName="acceptedTerms">
                 <span class="check-text">
                   Li e concordo com os
                   <a routerLink="/termos-de-uso" target="_blank" rel="noopener noreferrer" (click)="$event.stopPropagation()">Termos de Uso</a>
@@ -314,55 +311,68 @@
 
         @if (uiStep === 2) {
           <div class="form-card">
-            <div class="form-title">Configuração inicial</div>
-            <div class="form-sub">Conta criada! Agora vamos preparar seu perfil (opcional — você pode ajustar depois no painel).</div>
-
-            <div class="field">
-              <label class="field-label" for="esp">Especialidade principal</label>
-              <select class="fi" id="esp" [(ngModel)]="especialidadePrincipal" name="esp" style="cursor: pointer">
-                <option value="">Selecione sua especialidade</option>
-                <option value="geral">Clínica Geral</option>
-                <option value="estetica">Estética & Harmonização</option>
-                <option value="odonto">Odontologia</option>
-                <option value="psi">Psicologia & Psiquiatria</option>
-                <option value="ped">Pediatria</option>
-                <option value="vet">Veterinária</option>
-                <option value="fisio">Fisioterapia</option>
-                <option value="derma">Dermatologia</option>
-                <option value="oftalmo">Oftalmologia</option>
-                <option value="outra">Outra</option>
-              </select>
+            <div class="form-title">Seu primeiro link público</div>
+            <div class="form-sub">
+              Escolha um modelo de ficha e gere o link para enviar aos clientes — leva menos de 1 minuto.
             </div>
 
-            <div class="field">
-              <label class="field-label" for="equipe">Tamanho da equipe</label>
-              <select class="fi" id="equipe" [(ngModel)]="tamanhoEquipe" name="equipe" style="cursor: pointer">
-                <option>Só eu (profissional solo)</option>
-                <option>2 a 5 profissionais</option>
-                <option>6 a 20 profissionais</option>
-                <option>Mais de 20</option>
-              </select>
-            </div>
+            @if (onboardingErro) {
+              <div class="alert-err">{{ onboardingErro }}</div>
+            }
 
-            <div class="field">
-              <label class="field-label" for="origem">Como ficou sabendo do Gestgo?</label>
-              <select class="fi" id="origem" [(ngModel)]="comoConheceu" name="origem" style="cursor: pointer">
-                <option value="">Opcional</option>
-                <option value="ig">Instagram</option>
-                <option value="google">Google</option>
-                <option value="indica">Indicação de colega</option>
-                <option value="in">LinkedIn</option>
-                <option value="outro">Outro</option>
-              </select>
-            </div>
+            @if (carregandoTemplates) {
+              <p class="plans-loading">Carregando modelos do seu segmento…</p>
+            } @else if (templatesOnboarding.length === 0) {
+              <p class="plans-loading">Modelos serão exibidos no painel após verificar o e-mail.</p>
+            } @else {
+              <div class="plan-selector">
+                <div class="plan-label">Modelo de ficha <span class="req">*</span></div>
+                @for (t of templatesOnboarding; track t.id) {
+                  <button
+                    type="button"
+                    class="plan-option"
+                    [class.selected]="templateSelecionadoId === t.id"
+                    (click)="selecionarTemplate(t.id)"
+                  >
+                    <div class="plan-radio"><div class="plan-radio-inner"></div></div>
+                    <div class="plan-info">
+                      <div class="plan-name">{{ t.name }}</div>
+                      @if (t.description) {
+                        <div class="plan-desc">{{ t.description }}</div>
+                      }
+                    </div>
+                  </button>
+                }
+              </div>
+            }
 
-            <button type="button" class="submit-btn" (click)="finalizarConfiguracao()">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/></svg>
-              Ir para o painel
+            @if (linkPublicoUrl) {
+              <div class="field">
+                <label class="field-label">Link gerado</label>
+                <div class="form-row" style="align-items: stretch; gap: 8px">
+                  <input class="fi" type="text" [value]="linkPublicoUrl" readonly />
+                  <button type="button" class="submit-btn" style="width: auto; min-width: 120px; padding: 0 16px" (click)="copiarLink()">
+                    {{ linkCopiado ? 'Copiado!' : 'Copiar' }}
+                  </button>
+                </div>
+                <div class="field-hint">Envie por WhatsApp, Instagram ou QR Code na recepção.</div>
+              </div>
+            } @else if (templateSelecionadoId != null && !carregandoTemplates) {
+              <button type="button" class="submit-btn" [disabled]="gerandoLink" (click)="gerarLinkPublico()">
+                @if (gerandoLink) {
+                  Gerando link…
+                } @else {
+                  Gerar link público
+                }
+              </button>
+            }
+
+            <button type="button" class="submit-btn" style="margin-top: 12px" (click)="finalizarConfiguracao()" [disabled]="gerandoLink">
+              {{ linkPublicoUrl ? 'Ir para o painel' : 'Pular e ir para o painel' }}
             </button>
 
             <div class="form-bottom">
-              <a routerLink="/dashboard" class="form-login" style="font-size: 12px">Pular e ir direto ao painel →</a>
+              <a routerLink="/verificacao-pendente" class="form-login" style="font-size: 12px">Verificar e-mail agora →</a>
             </div>
           </div>
         }

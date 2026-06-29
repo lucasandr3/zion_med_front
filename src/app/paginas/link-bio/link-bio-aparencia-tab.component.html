@@ -1,0 +1,204 @@
+        <div id="tab-aparencia" class="flex flex-col gap-6 pb-24" >
+          <form id="link-bio-form-aparencia" class="flex flex-col gap-5" (ngSubmit)="salvarAparencia()">
+            <!-- Tema de cor: mesma paleta que Configurações → Tema visual (quadrados sólidos) -->
+            <z-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
+              <div class="section-header">
+                <div class="icon-wrap"><span class="material-symbols-outlined">palette</span></div>
+                <span class="section-title">Tema de cor da página</span>
+              </div>
+              <div class="section-body">
+                <div class="visual-subtitle link-bio-appearance-visual-subtitle">
+                  <div class="vtitle">Cor do tema público</div>
+                  <div class="vsub">Mesmas opções de cor da configuração da empresa</div>
+                </div>
+                <div class="theme-grid palette-grid link-bio-theme-palette">
+                  <button
+                    type="button"
+                    class="theme-card palette-card"
+                    [class.selected]="publicTheme === ''"
+                    [attr.aria-label]="'Padrão'"
+                    title="Padrão"
+                    (click)="selecionarTema('')"
+                  >
+                    <div class="theme-preview palette-preview" style="background: #1a1a2e"></div>
+                  </button>
+                  <button
+                    type="button"
+                    class="theme-card palette-card"
+                    [class.selected]="publicTheme === 'onyx-black'"
+                    [attr.aria-label]="'Preto'"
+                    title="Preto"
+                    (click)="selecionarTema('onyx-black')"
+                  >
+                    <div class="theme-preview palette-preview" style="background: #0a0a0a"></div>
+                  </button>
+                  @for (key of themeKeys; track key) {
+                    @let meta = availableThemes[key];
+                    @let primary = meta?.primary ?? '#2563eb';
+                    <button
+                      type="button"
+                      class="theme-card palette-card"
+                      [class.selected]="publicTheme === key"
+                      [attr.aria-label]="meta?.label ?? key"
+                      [title]="meta?.label ?? key"
+                      (click)="selecionarTema(key)"
+                    >
+                      <div class="theme-preview palette-preview" [style.background]="primary"></div>
+                    </button>
+                  }
+                  <button
+                    type="button"
+                    class="theme-card palette-card palette-card-custom"
+                    [class.selected]="publicTheme === 'custom'"
+                    [attr.aria-label]="'Personalizada'"
+                    title="Escolher minha cor"
+                    (click)="selecionarTema('custom')"
+                  >
+                    <div
+                      class="theme-preview palette-preview"
+                      [style.background]="publicTheme === 'custom' ? customAccent : 'conic-gradient(from 180deg, #ef4444, #f59e0b, #eab308, #22c55e, #06b6d4, #3b82f6, #8b5cf6, #ec4899, #ef4444)'"
+                    ></div>
+                  </button>
+                </div>
+                @if (publicTheme === 'custom') {
+                  <div class="custom-accent-wrap">
+                    <label class="form-label" for="custom-accent-color">Cor personalizada</label>
+                    <div class="custom-accent-row">
+                      <input
+                        id="custom-accent-color"
+                        type="color"
+                        class="custom-accent-picker"
+                        [value]="customAccent"
+                        (input)="onCustomAccentChange($any($event.target).value)"
+                      />
+                      <input
+                        type="text"
+                        z-input zSize="sm" class="w-full custom-accent-hex"
+                        [value]="customAccent"
+                        (input)="onCustomAccentChange($any($event.target).value)"
+                        maxlength="7"
+                        placeholder="#c9a84c"
+                        spellcheck="false"
+                        aria-label="Código hexadecimal"
+                      />
+                      <span class="custom-accent-swatch" [style.background]="customAccent" aria-hidden="true"></span>
+                    </div>
+                    <p class="hint" style="font-size: 11px; color: var(--c-muted); margin: 8px 0 0">
+                      Escolha qualquer cor para o detalhe da página pública (logo, botões, destaques).
+                    </p>
+                  </div>
+                }
+                <p class="hint" style="font-size: 11px; color: var(--c-muted); margin: 16px 0 0">Afeta o logo, botões e indicador de horário aberto. Independente do tema do sistema.</p>
+              </div>
+            </z-card>
+
+            <z-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-5">
+              <p class="text-xs font-bold uppercase tracking-wider mb-4" style="color:var(--c-muted)">Topo da página pública</p>
+              <div class="z-segment" role="group" aria-label="Modo do topo da página">
+                <button
+                  type="button"
+                  z-button
+                  zType="ghost"
+                  zSize="sm"
+                  class="z-segment-btn"
+                  [class.z-segment-btn--active]="coverMode === 'banner'"
+                  (click)="coverMode = 'banner'"
+                >
+                  Usar banner
+                </button>
+                <button
+                  type="button"
+                  z-button
+                  zType="ghost"
+                  zSize="sm"
+                  class="z-segment-btn"
+                  [class.z-segment-btn--active]="coverMode === 'solid'"
+                  (click)="coverMode = 'solid'"
+                >
+                  Cor sólida
+                </button>
+                <button
+                  type="button"
+                  z-button
+                  zType="ghost"
+                  zSize="sm"
+                  class="z-segment-btn"
+                  [class.z-segment-btn--active]="coverMode === 'none'"
+                  (click)="coverMode = 'none'"
+                >
+                  Sem banner
+                </button>
+              </div>
+              @if (coverMode === 'solid') {
+                <div class="mt-4">
+                  <label class="form-label">Cor sólida</label>
+                  <input type="color" [(ngModel)]="coverColor" name="cover_color" class="cover-color-input" />
+                </div>
+              }
+              @if (coverMode === 'banner') {
+                <div class="mt-4">
+                  <label class="form-label">Imagem do banner</label>
+                  <input type="file" accept="image/*" z-input zSize="sm" class="w-full" [disabled]="enviandoCover" (change)="onSelecionarCoverImage($event)" />
+                  @if (nomeArquivoCover) {
+                    <p class="text-[11px] mt-2 text-muted-foreground">
+                      {{ enviandoCover ? 'Enviando…' : 'Arquivo selecionado' }}: {{ nomeArquivoCover }}
+                    </p>
+                  }
+                </div>
+              }
+            </z-card>
+
+            <!-- Informações exibidas na página -->
+            <z-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-5">
+              <p class="text-xs font-bold uppercase tracking-wider mb-4" style="color:var(--c-muted)">Informações exibidas na página</p>
+              <div class="flex flex-col gap-4">
+                <div class="field">
+                  <label class="form-label">Descrição / Slogan</label>
+                  <input type="text" z-input zSize="sm" class="w-full" [(ngModel)]="shortDescription" name="short_description" placeholder="Ex: Cuidando da sua saúde com excelência" maxlength="200" />
+                </div>
+                <div class="field">
+                  <label class="form-label">Especialidades</label>
+                  <input type="text" z-input zSize="sm" class="w-full" [(ngModel)]="specialties" name="specialties" placeholder="Clínica geral, Pediatria, Dermatologia (vírgula para separar)" />
+                </div>
+                <div class="field-row">
+                  <div class="field">
+                    <label class="form-label">Ano de fundação</label>
+                    <input type="number" z-input zSize="sm" class="w-full" [(ngModel)]="foundedYear" name="founded_year" placeholder="2010" min="1900" />
+                  </div>
+                  <div class="field">
+                    <label class="form-label">E-mail de contato público</label>
+                    <input type="email" z-input zSize="sm" class="w-full" [(ngModel)]="contactEmail" name="contact_email" placeholder="contato@empresa.com" />
+                  </div>
+                </div>
+                <div class="field">
+                  <label class="form-label">Link do Google Maps</label>
+                  <input type="url" z-input zSize="sm" class="w-full" [(ngModel)]="mapsUrl" name="maps_url" placeholder="https://maps.google.com/..." />
+                  <p class="form-hint m-0 mt-1.5">Usado no botão «Como chegar». Para «Avalie no Google», prefira a URL longa (<code class="text-xs">google.com/maps/place/…</code>); links <code class="text-xs">maps.app.goo.gl</code> não geram avaliações sozinhos.</p>
+                </div>
+              </div>
+            </z-card>
+          </form>
+
+          <div class="sticky-footer-spacer" aria-hidden="true"></div>
+          <div class="sticky-footer">
+            <div style="font-size:12px;color:var(--c-muted)">Alterações não salvas</div>
+            <div class="footer-btns">
+              <a routerLink="/dashboard" z-button zType="outline" zSize="sm" class="gap-2 no-underline">
+                <span class="material-symbols-outlined text-base">close</span>
+                Cancelar
+              </a>
+              <button
+                type="submit"
+                form="link-bio-form-aparencia"
+                z-button
+                zSize="sm"
+                class="gap-2"
+                [zDisabled]="salvando"
+                [zLoading]="salvando"
+              >
+                <span class="material-symbols-outlined text-base">save</span>
+                {{ salvando ? 'Salvando…' : 'Salvar aparência' }}
+              </button>
+            </div>
+          </div>
+        </div>

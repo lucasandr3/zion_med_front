@@ -1,0 +1,27 @@
+.onboarding-template-btn {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 0.625rem 0.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--border);
+  background: var(--card);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.onboarding-template-btn:hover {
+  border-color: color-mix(in srgb, var(--brand) 40%, var(--border));
+}
+
+.onboarding-template-btn--selected {
+  border-color: var(--brand);
+  background: color-mix(in srgb, var(--brand) 8%, var(--card));
+}
+
+.onboarding-template-btn__name {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1.35;
+  color: var(--foreground);
+}

@@ -1,0 +1,246 @@
+<div id="tab-links" class="flex flex-col gap-4 pb-24">
+  <div class="flex flex-wrap items-center justify-between gap-2">
+    <p class="text-xs text-muted-foreground m-0">Links exibidos na sua página</p>
+    <button type="button" id="btn-add" z-button zSize="sm" class="gap-1.5" (click)="toggleFormNovo()">
+      <span class="material-symbols-outlined text-base" aria-hidden="true">{{ mostrarFormNovo ? 'close' : 'add' }}</span>
+      {{ mostrarFormNovo ? 'Cancelar' : 'Adicionar link' }}
+    </button>
+  </div>
+
+  <z-card class="link-bio-google-review-helper gap-0 rounded-[0.875rem] border-border bg-muted/20 py-0 shadow-sm **:data-[slot=card-content]:p-0">
+    <div class="section-body">
+      <div class="link-bio-google-review-helper__head">
+        <span class="material-symbols-outlined link-bio-google-review-helper__icon" aria-hidden="true">star</span>
+        <div>
+          <p class="text-sm font-semibold text-foreground m-0">Avalie no Google</p>
+          <p class="text-xs text-muted-foreground m-0 mt-0.5">Botão pronto para pedir avaliações — sem configuração técnica</p>
+        </div>
+      </div>
+
+      <ol class="link-bio-google-review-helper__steps m-0 mt-4 pl-4 text-sm text-muted-foreground">
+        <li class="mb-2">No Google Maps (computador), abra seu negócio e copie a <strong class="text-foreground font-medium">URL longa</strong> da barra do navegador (<code class="text-xs">google.com/maps/place/…</code>). O link curto <code class="text-xs">maps.app.goo.gl</code> serve só para «Como chegar».</li>
+        <li class="mb-2">Cole em <button type="button" class="link-bio-inline-link" (click)="irParaAparencia()">Aparência → Link do Google Maps</button> e salve.</li>
+        <li>Volte aqui e clique em <strong class="text-foreground font-medium">Adicionar link</strong> abaixo.</li>
+      </ol>
+
+      @if (mapsUrlCurtoSemPlaceId) {
+        <p class="m-0 mt-3 text-xs text-amber-700 dark:text-amber-400">
+          O link curto do Maps não gera avaliações automaticamente. Use a URL longa do navegador ou informe o Place ID abaixo.
+        </p>
+      }
+
+      @if (!urlAvalieGoogleSugerida && !temLinkAvalieGoogle) {
+        <div class="field mt-4 mb-0">
+          <label class="form-label">Place ID (se o link curto do Maps não funcionar)</label>
+          <input
+            type="text"
+            z-input
+            zSize="sm"
+            class="w-full"
+            [ngModel]="linkAvaliePlaceIdManual"
+            (ngModelChange)="onPlaceIdManualChange($event)"
+            name="linkAvaliePlaceIdManual"
+            placeholder="g/11x2kkkqf0 ou ChIJ…"
+          />
+          <p class="form-hint m-0 mt-1.5">
+            No link longo do Maps, procure <code class="text-xs">g/11x…</code> ou <code class="text-xs">ChIJ…</code> e cole aqui. Salve em Aparência antes de adicionar o link.
+          </p>
+        </div>
+      }
+
+      @if (urlAvalieGoogleSugerida; as previewUrl) {
+        <p class="link-bio-google-review-helper__preview m-0 mt-4 text-xs text-muted-foreground break-all">
+          Link gerado: <span class="text-foreground">{{ previewUrl }}</span>
+        </p>
+      }
+
+      <div class="flex flex-wrap gap-2 mt-4">
+        @if (temLinkAvalieGoogle) {
+          <z-badge zShape="pill" zType="outline" class="border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400">
+            Já adicionado na página
+          </z-badge>
+        } @else {
+          <button
+            type="button"
+            z-button
+            zSize="sm"
+            class="gap-1.5"
+            [zLoading]="salvandoLinkAvalieGoogle"
+            [zDisabled]="salvandoLinkAvalieGoogle || !urlAvalieGoogleSugerida"
+            (click)="adicionarLinkAvalieGoogle()"
+          >
+            <span class="material-symbols-outlined text-base" aria-hidden="true">add_link</span>
+            Adicionar link «Avalie no Google»
+          </button>
+        }
+        @if (faltaLinkGoogleMaps) {
+          <button type="button" z-button zType="outline" zSize="sm" (click)="irParaAparencia()">
+            Configurar Google Maps
+          </button>
+        }
+      </div>
+    </div>
+  </z-card>
+
+  @if (mostrarFormNovo) {
+    <z-card class="link-bio-novo-link-card gap-0 rounded-[0.875rem] border-border bg-muted/30 py-0 shadow-sm **:data-[slot=card-content]:p-0">
+      <div class="section-body">
+        <p class="text-sm font-semibold text-foreground m-0 mb-4">Novo link</p>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+          <div class="field">
+            <label class="form-label">Título</label>
+            <input type="text" z-input zSize="sm" class="w-full" [(ngModel)]="novoLabel" name="novoLabel" placeholder="Ex: WhatsApp, Instagram…" maxlength="80" />
+          </div>
+          <div class="field">
+            <label class="form-label">URL</label>
+            <input type="url" z-input zSize="sm" class="w-full" [(ngModel)]="novoUrl" name="novoUrl" placeholder="https://…" maxlength="500" />
+          </div>
+          <div class="field">
+            <label class="form-label" id="novo-link-icon-label">Ícone</label>
+            <z-combobox
+              class="w-full"
+              zWidth="full"
+              buttonSize="control"
+              [(ngModel)]="novoIcon"
+              name="novoIcon"
+              [options]="iconComboboxOptions"
+              placeholder="Selecione o ícone"
+              searchPlaceholder="Buscar ícone..."
+              emptyText="Nenhum ícone encontrado."
+              ariaLabel="Ícone do link"
+              ariaDescribedBy="novo-link-icon-label"
+            />
+          </div>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <button type="button" z-button zSize="sm" [zLoading]="salvandoNovoLink" [zDisabled]="salvandoNovoLink" (click)="salvarNovoLink()">
+            Salvar
+          </button>
+          <button type="button" z-button zType="ghost" zSize="sm" (click)="toggleFormNovo()">Cancelar</button>
+        </div>
+      </div>
+    </z-card>
+  }
+
+  @if (links.length > 0) {
+    <div class="flex flex-col gap-3">
+      @for (lnk of links; track lnk.id) {
+        <z-card class="link-bio-link-card gap-0 rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
+          @if (editandoId === lnk.id) {
+            <form class="section-body" (ngSubmit)="salvarEdicao(lnk)">
+              <p class="text-sm font-semibold text-foreground m-0 mb-4">Editar link</p>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+                <div class="field">
+                  <label class="form-label">Título</label>
+                  <input type="text" name="label" required maxlength="80" [(ngModel)]="editLabel" z-input zSize="sm" class="w-full" placeholder="Título" />
+                </div>
+                <div class="field">
+                  <label class="form-label">URL</label>
+                  <input type="url" name="url" required maxlength="500" [(ngModel)]="editUrl" z-input zSize="sm" class="w-full" placeholder="URL" />
+                </div>
+                <div class="field">
+                  <label class="form-label" [attr.id]="'edit-link-icon-label-' + lnk.id">Ícone</label>
+                  <z-combobox
+                    class="w-full"
+                    zWidth="full"
+                    buttonSize="control"
+                    [(ngModel)]="editIcon"
+                    name="icon"
+                    [options]="iconComboboxOptions"
+                    placeholder="Selecione o ícone"
+                    searchPlaceholder="Buscar ícone..."
+                    emptyText="Nenhum ícone encontrado."
+                    ariaLabel="Ícone do link"
+                    [ariaDescribedBy]="'edit-link-icon-label-' + lnk.id"
+                  />
+                </div>
+              </div>
+              <div class="flex flex-wrap gap-2">
+                <button type="submit" z-button zSize="sm" [zLoading]="salvandoEdicaoId === lnk.id" [zDisabled]="salvandoEdicaoId === lnk.id">
+                  Salvar
+                </button>
+                <button type="button" z-button zType="ghost" zSize="sm" (click)="cancelarEdicao()">Cancelar</button>
+              </div>
+            </form>
+          } @else {
+            <div class="link-bio-link-card__inner flex flex-wrap items-center gap-3">
+              <span class="link-bio-link-card__icon material-symbols-outlined shrink-0" aria-hidden="true">{{ lnk.icon ?? 'link' }}</span>
+              <div class="link-bio-link-card__body min-w-0 flex-1">
+                <h3 class="m-0 truncate text-sm font-semibold text-foreground" [attr.title]="lnk.label">{{ lnk.label }}</h3>
+                <p class="m-0 mt-0.5 truncate text-xs text-muted-foreground" [attr.title]="lnk.url">{{ lnk.url }}</p>
+              </div>
+              <div class="link-bio-link-card__actions flex shrink-0 flex-wrap items-center justify-center gap-2 self-center">
+                <z-badge zShape="pill" zType="outline" class="border-primary/25 bg-primary/10 text-primary tabular-nums">
+                  {{ lnk.total_clicks ?? 0 }} cliques
+                </z-badge>
+                <button type="button" z-button zType="outline" zSize="sm" (click)="iniciarEdicao(lnk)">Editar</button>
+                <a
+                  [href]="lnk.url"
+                  target="_blank"
+                  rel="noopener"
+                  z-button
+                  zType="outline"
+                  zSize="sm"
+                  class="gap-1.5 no-underline link-bio-link-card__btn-abrir"
+                  aria-label="Abrir link"
+                  title="Abrir link"
+                >
+                  <span class="material-symbols-outlined text-base" aria-hidden="true">open_in_new</span>
+                  Abrir
+                </a>
+                <button
+                  type="button"
+                  z-button
+                  zType="ghost"
+                  zSize="icon-sm"
+                  aria-label="Remover link"
+                  title="Remover link"
+                  [zDisabled]="excluindoLinkId === lnk.id"
+                  [zLoading]="excluindoLinkId === lnk.id"
+                  (click)="excluirLink(lnk)"
+                >
+                  <span class="material-symbols-outlined text-base">delete</span>
+                </button>
+              </div>
+            </div>
+          }
+        </z-card>
+      }
+    </div>
+  } @else if (!mostrarFormNovo) {
+    <z-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
+      <div class="section-body py-10 text-center">
+        <span class="material-symbols-outlined mb-3 block text-[2.5rem] text-muted-foreground" aria-hidden="true">add_link</span>
+        <p class="text-sm font-medium text-foreground m-0">Nenhum link cadastrado</p>
+        <p class="text-xs text-muted-foreground mt-1.5 mb-4">Adicione links para WhatsApp, Instagram, site e outros.</p>
+        <button type="button" z-button zSize="sm" class="gap-1.5" (click)="toggleFormNovo()">
+          <span class="material-symbols-outlined text-base" aria-hidden="true">add</span>
+          Adicionar link
+        </button>
+      </div>
+    </z-card>
+  }
+
+  <div class="sticky-footer-spacer" aria-hidden="true"></div>
+  <div class="sticky-footer">
+    <div class="text-xs text-muted-foreground">Alterações não salvas</div>
+    <div class="footer-btns">
+      <a routerLink="/dashboard" z-button zType="outline" zSize="sm" class="gap-2 no-underline">
+        <span class="material-symbols-outlined text-base">close</span>
+        Cancelar
+      </a>
+      <button
+        type="button"
+        z-button
+        zSize="sm"
+        class="gap-2"
+        [zDisabled]="linkBioFooterLinksSaveDisabled"
+        [zLoading]="salvandoNovoLink || salvandoEdicaoId !== null"
+        (click)="salvarFooterAbaLinks()"
+      >
+        <span class="material-symbols-outlined text-base">save</span>
+        {{ salvandoNovoLink || salvandoEdicaoId !== null ? 'Salvando…' : 'Salvar configurações' }}
+      </button>
+    </div>
+  </div>
+</div>

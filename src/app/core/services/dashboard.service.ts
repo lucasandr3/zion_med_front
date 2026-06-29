@@ -30,6 +30,10 @@ export interface DashboardData {
     total: number;
   }>;
   respostas_por_template?: Record<number, number>;
+  onboarding?: {
+    needs_public_link: boolean;
+    public_links_count: number;
+  };
 }
 
 interface ApiResponse {

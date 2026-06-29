@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, Signal, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
 import { FlatpickrDirective, provideFlatpickrDefaults } from 'angularx-flatpickr';
 import { Portuguese } from 'flatpickr/dist/l10n/pt';
@@ -11,41 +12,15 @@ import { ToastService } from '../../core/services/toast.service';
 import { ZardCardComponent } from '@/shared/components/card/card.component';
 import { ZardButtonComponent } from '@/shared/components/button/button.component';
 import { ZardComboboxComponent, type ZardComboboxOption } from '@/shared/components/combobox';
-
-/** Formata dígitos para exibição: +55 (11) 98765-4321 ou (11) 98765-4321 */
-function formatPhoneBrDisplay(digits: string): string {
-  if (!digits) return '';
-  if (digits.startsWith('55') && digits.length > 2) {
-    const r = digits.slice(2);
-    if (r.length <= 2) return `+55 (${r}`;
-    if (r.length <= 6) return `+55 (${r.slice(0, 2)}) ${r.slice(2)}`;
-    if (r.length <= 10) return `+55 (${r.slice(0, 2)}) ${r.slice(2, 6)}-${r.slice(6)}`;
-    return `+55 (${r.slice(0, 2)}) ${r.slice(2, 7)}-${r.slice(7, 11)}`;
-  }
-  if (digits.length <= 2) return `(${digits}`;
-  if (digits.length <= 6) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
-  if (digits.length <= 10) return `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`;
-  return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7, 11)}`;
-}
-
-function digitsOnlyPhone(raw: string): string {
-  return raw.replace(/\D/g, '').slice(0, 13);
-}
-
-function digitsOnlyCpf(raw: string): string {
-  return raw.replace(/\D/g, '').slice(0, 11);
-}
-
-/** CPF: 000.000.000-00 */
-function formatCpfDisplay(digits: string): string {
-  if (!digits) return '';
-  if (digits.length <= 3) return digits;
-  if (digits.length <= 6) return `${digits.slice(0, 3)}.${digits.slice(3)}`;
-  if (digits.length <= 9) return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6)}`;
-  return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6, 9)}-${digits.slice(9, 11)}`;
-}
-
 import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
+import {
+  buildPessoaApiPayload,
+  digitsOnlyCpf,
+  digitsOnlyPhone,
+  formatCpfDisplay,
+  formatPhoneBrDisplay,
+} from './pessoas-form.util';
+
 @Component({
   selector: 'app-pessoas-formulario',
   standalone: true,
@@ -53,6 +28,7 @@ import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
     ...ZARD_FORM_CONTROL_IMPORTS,
     CommonModule,
     RouterLink,
+    ReactiveFormsModule,
     FormsModule,
     ZmSkeletonPessoaFormularioComponent,
     FlatpickrDirective,
@@ -78,43 +54,42 @@ export class PessoasFormularioComponent implements OnInit {
   editMode = false;
   pessoaId: number | null = null;
 
-  name = '';
-  /** Dígitos apenas (55 + DDD + número, até 13). */
-  phoneDigits = '';
-  /** Valor exibido com máscara (sincronizado com phoneDigits). */
+  readonly pessoaForm = inject(FormBuilder).nonNullable.group({
+    name: ['', Validators.required],
+    email: ['', Validators.email],
+    phoneDigits: [''],
+    phoneAltDigits: [''],
+    cpfDigits: [''],
+    profession: [''],
+    rg: [''],
+    age: [null as number | null],
+    sex: ['' as 'F' | 'M' | 'O' | ''],
+    marital_status: [''],
+    referred_by: [''],
+    address: [''],
+    neighborhood: [''],
+    city: [''],
+    cep: [''],
+    lead_source_instagram: [false],
+    lead_source_google: [false],
+    lead_source_facebook: [false],
+    lead_source_indicacao_amigo: [false],
+    lead_source_indicacao_medica: [false],
+    lead_source_plano_saude: [false],
+    lead_source_outro: [''],
+    has_health_plan: ['' as 'sim' | 'nao' | ''],
+    health_plan_operator: [''],
+    health_plan_card_number: [''],
+    lgpd_accept_comms: [false],
+    lgpd_accept_reminders: [false],
+    notes: [''],
+    status: ['active' as 'active' | 'inactive'],
+  });
+
   phoneDisplay = '';
-  phoneAltDigits = '';
   phoneAltDisplay = '';
-  email = '';
-  /** Data: string Y-m-d ou Date (Flatpickr com convertModelValue). */
-  birth_date: string | Date | null = '';
-  /** Apenas dígitos do CPF (até 11). */
-  cpfDigits = '';
   cpfDisplay = '';
-  rg = '';
-  age: number | null = null;
-  sex: 'F' | 'M' | 'O' | '' = '';
-  marital_status = '';
-  profession = '';
-  referred_by = '';
-  address = '';
-  neighborhood = '';
-  city = '';
-  cep = '';
-  lead_source_instagram = false;
-  lead_source_google = false;
-  lead_source_facebook = false;
-  lead_source_indicacao_amigo = false;
-  lead_source_indicacao_medica = false;
-  lead_source_plano_saude = false;
-  lead_source_outro = '';
-  has_health_plan: 'sim' | 'nao' | '' = '';
-  health_plan_operator = '';
-  health_plan_card_number = '';
-  lgpd_accept_comms = false;
-  lgpd_accept_reminders = false;
-  notes = '';
-  status: 'active' | 'inactive' = 'active';
+  birth_date: string | Date | null = '';
 
   showSkeleton!: Signal<boolean>;
   listaPronta = false;
@@ -166,39 +141,44 @@ export class PessoasFormularioComponent implements OnInit {
       data$.subscribe({
         next: (p) => {
           this.listaPronta = true;
-          this.name = p.name ?? '';
-          this.phoneDigits = digitsOnlyPhone(p.phone ?? '');
-          this.phoneDisplay = formatPhoneBrDisplay(this.phoneDigits);
-          this.phoneAltDigits = digitsOnlyPhone(p.phone_alt ?? '');
-          this.phoneAltDisplay = formatPhoneBrDisplay(this.phoneAltDigits);
-          this.email = p.email ?? '';
+          const phoneDigits = digitsOnlyPhone(p.phone ?? '');
+          const phoneAltDigits = digitsOnlyPhone(p.phone_alt ?? '');
+          const cpfDigits = digitsOnlyCpf(p.cpf ?? '');
+          this.pessoaForm.patchValue({
+            name: p.name ?? '',
+            email: p.email ?? '',
+            phoneDigits,
+            phoneAltDigits,
+            cpfDigits,
+            rg: p.rg ?? '',
+            age: p.age ?? null,
+            sex: (p.sex === 'F' || p.sex === 'M' || p.sex === 'O') ? p.sex : '',
+            marital_status: p.marital_status ?? '',
+            profession: p.profession ?? '',
+            referred_by: p.referred_by ?? '',
+            address: p.address ?? '',
+            neighborhood: p.neighborhood ?? '',
+            city: p.city ?? '',
+            cep: p.cep ?? '',
+            lead_source_instagram: !!p.lead_source_instagram,
+            lead_source_google: !!p.lead_source_google,
+            lead_source_facebook: !!p.lead_source_facebook,
+            lead_source_indicacao_amigo: !!p.lead_source_indicacao_amigo,
+            lead_source_indicacao_medica: !!p.lead_source_indicacao_medica,
+            lead_source_plano_saude: !!p.lead_source_plano_saude,
+            lead_source_outro: p.lead_source_outro ?? '',
+            has_health_plan: p.has_health_plan === 'sim' || p.has_health_plan === 'nao' ? p.has_health_plan : '',
+            health_plan_operator: p.health_plan_operator ?? '',
+            health_plan_card_number: p.health_plan_card_number ?? '',
+            lgpd_accept_comms: !!p.lgpd_accept_comms,
+            lgpd_accept_reminders: !!p.lgpd_accept_reminders,
+            notes: p.notes ?? '',
+            status: (p.status === 'inactive' ? 'inactive' : 'active') as 'active' | 'inactive',
+          });
+          this.phoneDisplay = formatPhoneBrDisplay(phoneDigits);
+          this.phoneAltDisplay = formatPhoneBrDisplay(phoneAltDigits);
+          this.cpfDisplay = formatCpfDisplay(cpfDigits);
           this.birth_date = p.birth_date ? p.birth_date : '';
-          this.cpfDigits = digitsOnlyCpf(p.cpf ?? '');
-          this.cpfDisplay = formatCpfDisplay(this.cpfDigits);
-          this.rg = p.rg ?? '';
-          this.age = p.age ?? null;
-          this.sex = (p.sex === 'F' || p.sex === 'M' || p.sex === 'O') ? p.sex : '';
-          this.marital_status = p.marital_status ?? '';
-          this.profession = p.profession ?? '';
-          this.referred_by = p.referred_by ?? '';
-          this.address = p.address ?? '';
-          this.neighborhood = p.neighborhood ?? '';
-          this.city = p.city ?? '';
-          this.cep = p.cep ?? '';
-          this.lead_source_instagram = !!p.lead_source_instagram;
-          this.lead_source_google = !!p.lead_source_google;
-          this.lead_source_facebook = !!p.lead_source_facebook;
-          this.lead_source_indicacao_amigo = !!p.lead_source_indicacao_amigo;
-          this.lead_source_indicacao_medica = !!p.lead_source_indicacao_medica;
-          this.lead_source_plano_saude = !!p.lead_source_plano_saude;
-          this.lead_source_outro = p.lead_source_outro ?? '';
-          this.has_health_plan = p.has_health_plan === 'sim' || p.has_health_plan === 'nao' ? p.has_health_plan : '';
-          this.health_plan_operator = p.health_plan_operator ?? '';
-          this.health_plan_card_number = p.health_plan_card_number ?? '';
-          this.lgpd_accept_comms = !!p.lgpd_accept_comms;
-          this.lgpd_accept_reminders = !!p.lgpd_accept_reminders;
-          this.notes = p.notes ?? '';
-          this.status = (p.status === 'inactive' ? 'inactive' : 'active') as 'active' | 'inactive';
         },
         error: () => {
           this.listaPronta = true;
@@ -213,112 +193,28 @@ export class PessoasFormularioComponent implements OnInit {
 
   onPhoneModelChange(raw: string): void {
     const d = digitsOnlyPhone(raw);
-    this.phoneDigits = d;
+    this.pessoaForm.patchValue({ phoneDigits: d });
     this.phoneDisplay = formatPhoneBrDisplay(d);
   }
 
   onPhoneAltModelChange(raw: string): void {
     const d = digitsOnlyPhone(raw);
-    this.phoneAltDigits = d;
+    this.pessoaForm.patchValue({ phoneAltDigits: d });
     this.phoneAltDisplay = formatPhoneBrDisplay(d);
   }
 
   onCpfModelChange(raw: string): void {
     const d = digitsOnlyCpf(raw);
-    this.cpfDigits = d;
+    this.pessoaForm.patchValue({ cpfDigits: d });
     this.cpfDisplay = formatCpfDisplay(d);
   }
 
-  selecionarSexo(key: string | null): void {
-    this.sex = key === 'F' || key === 'M' || key === 'O' ? key : '';
-  }
-
-  selecionarEstadoCivil(key: string | null): void {
-    this.marital_status = key ?? '';
-  }
-
-  selecionarPlanoSaude(key: string | null): void {
-    this.has_health_plan = key === 'sim' || key === 'nao' ? key : '';
-  }
-
-  selecionarStatus(key: string | null): void {
-    this.status = key === 'inactive' ? 'inactive' : 'active';
-  }
-
-  /** API: só dígitos ou null (backend costuma normalizar). */
-  private cpfForApi(): string | null {
-    return this.cpfDigits ? this.cpfDigits : null;
-  }
-
-  /** Envia telefone no padrão WhatsApp quando possível (55…). */
-  private phoneForApi(): string | null {
-    if (!this.phoneDigits) return null;
-    let d = this.phoneDigits;
-    if (d.length >= 10 && d.length <= 11 && !d.startsWith('55')) {
-      d = '55' + d;
-    }
-    return d;
-  }
-
-  private phoneAltForApi(): string | null {
-    if (!this.phoneAltDigits) return null;
-    let d = this.phoneAltDigits;
-    if (d.length >= 10 && d.length <= 11 && !d.startsWith('55')) {
-      d = '55' + d;
-    }
-    return d;
-  }
-
-  private serializeBirthDate(): string | null {
-    const v = this.birth_date;
-    if (v == null || v === '') return null;
-    if (v instanceof Date) {
-      if (isNaN(v.getTime())) return null;
-      const y = v.getFullYear();
-      const m = String(v.getMonth() + 1).padStart(2, '0');
-      const d = String(v.getDate()).padStart(2, '0');
-      return `${y}-${m}-${d}`;
-    }
-    const s = String(v).trim();
-    return s || null;
-  }
-
   salvar(): void {
-    if (!this.name.trim()) return;
+    this.pessoaForm.markAllAsTouched();
+    if (this.pessoaForm.invalid) return;
     this.salvando = true;
     this.erro = '';
-    const body = {
-      name: this.name.trim(),
-      phone: this.phoneForApi(),
-      phone_alt: this.phoneAltForApi(),
-      email: this.email.trim() || null,
-      birth_date: this.serializeBirthDate(),
-      age: this.age,
-      sex: this.sex || null,
-      cpf: this.cpfForApi(),
-      rg: this.rg.trim() || null,
-      marital_status: this.marital_status || null,
-      profession: this.profession.trim() || null,
-      referred_by: this.referred_by.trim() || null,
-      address: this.address.trim() || null,
-      neighborhood: this.neighborhood.trim() || null,
-      city: this.city.trim() || null,
-      cep: this.cep.trim() || null,
-      lead_source_instagram: this.lead_source_instagram,
-      lead_source_google: this.lead_source_google,
-      lead_source_facebook: this.lead_source_facebook,
-      lead_source_indicacao_amigo: this.lead_source_indicacao_amigo,
-      lead_source_indicacao_medica: this.lead_source_indicacao_medica,
-      lead_source_plano_saude: this.lead_source_plano_saude,
-      lead_source_outro: this.lead_source_outro.trim() || null,
-      has_health_plan: this.has_health_plan || null,
-      health_plan_operator: this.health_plan_operator.trim() || null,
-      health_plan_card_number: this.health_plan_card_number.trim() || null,
-      lgpd_accept_comms: this.lgpd_accept_comms,
-      lgpd_accept_reminders: this.lgpd_accept_reminders,
-      notes: this.notes.trim() || null,
-      status: this.status,
-    };
+    const body = buildPessoaApiPayload(this.pessoaForm.getRawValue(), this.birth_date);
     if (this.editMode && this.pessoaId != null) {
       this.pessoasService.update(this.pessoaId, body).subscribe({
         next: () => {

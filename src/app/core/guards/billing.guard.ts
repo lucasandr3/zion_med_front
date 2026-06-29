@@ -43,6 +43,10 @@ export const billingGuard: CanActivateFn = (_route, state) => {
       void router.navigateByUrl(destino);
       return false;
     }),
-    catchError(() => of(true)),
+    catchError(() => {
+      const destino = auth.hasPermission('billing.manage') ? '/assinatura' : '/dashboard';
+      void router.navigateByUrl(destino);
+      return of(false);
+    }),
   );
 };

@@ -1,0 +1,183 @@
+<div class="link-bio-overview-grid link-bio-fade-in-2">
+  <z-card class="link-bio-kpi-card gap-0 rounded-xl border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-4">
+    <div class="link-bio-kpi-card__head">
+      <p class="link-bio-kpi-card__label">Visitas hoje</p>
+      @if (visitasTrendPercentValue !== null) {
+        <span
+          class="link-bio-kpi-trend"
+          [class.link-bio-kpi-trend--up]="visitasTrendPercentValue >= 0"
+          [class.link-bio-kpi-trend--down]="visitasTrendPercentValue < 0"
+        >
+          {{ visitasTrendPercentValue >= 0 ? '+' : '' }}{{ visitasTrendPercentValue }}%
+        </span>
+      }
+    </div>
+    <p class="link-bio-kpi-card__value link-bio-kpi-card__value--accent">{{ metrics.visitas_hoje }}</p>
+    <p class="link-bio-kpi-card__sub">vs. ontem: {{ visitasOntemCount }} visita@if (visitasOntemCount !== 1) {s}</p>
+  </z-card>
+
+  <z-card class="link-bio-kpi-card gap-0 rounded-xl border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-4">
+    <div class="link-bio-kpi-card__head">
+      <p class="link-bio-kpi-card__label">Taxa de clique</p>
+    </div>
+    <p class="link-bio-kpi-card__value">{{ metrics.taxa_clique | number:'1.1-1' }}% <span class="link-bio-kpi-card__suffix">— média</span></p>
+    <div class="link-bio-kpi-progress" role="presentation" aria-hidden="true">
+      <div class="link-bio-kpi-progress__fill" [style.width.%]="ctrBarPercentValue"></div>
+    </div>
+    <p class="link-bio-kpi-card__sub">Média do setor: {{ ctrMediaSetor }}%</p>
+  </z-card>
+
+  <z-card class="link-bio-kpi-card gap-0 rounded-xl border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-4">
+    <div class="link-bio-kpi-card__head">
+      <p class="link-bio-kpi-card__label">Cliques totais</p>
+      @if (cliquesTrendPercentValue !== null) {
+        <span
+          class="link-bio-kpi-trend"
+          [class.link-bio-kpi-trend--up]="cliquesTrendPercentValue >= 0"
+          [class.link-bio-kpi-trend--down]="cliquesTrendPercentValue < 0"
+        >
+          {{ cliquesTrendPercentValue >= 0 ? '+' : '' }}{{ cliquesTrendPercentValue }}%
+        </span>
+      }
+    </div>
+    <p class="link-bio-kpi-card__value">{{ metrics.total_clicks_last_30 }}</p>
+    <p class="link-bio-kpi-card__sub">últimos 30 dias</p>
+  </z-card>
+
+  <z-card class="link-bio-kpi-card gap-0 rounded-xl border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-4">
+    <div class="link-bio-kpi-card__head">
+      <p class="link-bio-kpi-card__label">Formulários</p>
+    </div>
+    <p class="link-bio-kpi-card__value">{{ metrics.formularios_total }}</p>
+    <p class="link-bio-kpi-card__sub">
+      <span class="link-bio-kpi-card__highlight">{{ metrics.formularios_ativos }} ativo@if (metrics.formularios_ativos !== 1) {s}</span>
+      <span class="link-bio-text-muted"> · {{ metrics.formularios_draft }} rascunho</span>
+    </p>
+  </z-card>
+</div>
+
+@if (mostrarInsightBanner) {
+  <div class="link-bio-insight link-bio-fade-in-2" role="note">
+    <span class="material-symbols-outlined link-bio-insight__icon" aria-hidden="true">lightbulb</span>
+    <p class="link-bio-insight__text">{{ insightBannerTextoValue }}</p>
+    <button
+      type="button"
+      z-button
+      zType="ghost"
+      zSize="icon-sm"
+      class="link-bio-insight__close shrink-0"
+      aria-label="Fechar dica"
+      (click)="closeInsight.emit()"
+    >
+      <span class="material-symbols-outlined text-base">close</span>
+    </button>
+  </div>
+}
+
+<div class="link-bio-overview-panels link-bio-fade-in-3">
+  <z-card class="link-bio-panel-card gap-0 overflow-hidden rounded-xl border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-5">
+    <div class="link-bio-panel-card__head">
+      <div>
+        <h3 class="link-bio-panel-card__title">Cliques por dia</h3>
+        <p class="link-bio-panel-card__meta">Total: {{ totalCliquesPeriodoValue }} clique@if (totalCliquesPeriodoValue !== 1) {s}</p>
+      </div>
+      <div class="link-bio-period-toggle" role="group" aria-label="Período do gráfico">
+        @for (p of statsPeriodos; track p.id) {
+          <button
+            type="button"
+            z-button
+            zType="ghost"
+            zSize="sm"
+            class="link-bio-period-toggle__btn"
+            [class.link-bio-period-toggle__btn--active]="statsPeriodo === p.id"
+            (click)="selecionarPeriodo(p.id)"
+          >
+            {{ p.label }}
+          </button>
+        }
+        <button
+          type="button"
+          z-button
+          zType="ghost"
+          zSize="icon-sm"
+          class="shrink-0"
+          aria-label="Atualizar estatísticas"
+          [zDisabled]="atualizandoStats"
+          [zLoading]="atualizandoStats"
+          (click)="refreshStats.emit()"
+        >
+          <span class="material-symbols-outlined text-base">refresh</span>
+        </button>
+      </div>
+    </div>
+    @if (chartCliques.length === 0) {
+      <p class="link-bio-panel-empty">Nenhum dado de cliques neste período.</p>
+    } @else {
+      @if (chartCliques[0]?.ghost) {
+        <p class="link-bio-panel-hint">Nenhum clique registrado — barras apenas para referência visual.</p>
+      }
+      <div class="link-bio-chart-row link-bio-chart-row--overview">
+        @for (d of chartCliques; track d.label) {
+          <div class="link-bio-bar-wrap">
+            <div class="link-bio-bar-stack">
+              <div
+                class="link-bio-bar"
+                [class.link-bio-bar--ghost]="d.ghost"
+                [style.height.%]="d.percent"
+              ></div>
+            </div>
+            <div class="link-bio-bar-label">{{ d.label }}</div>
+          </div>
+        }
+      </div>
+    }
+  </z-card>
+
+  <z-card class="link-bio-panel-card gap-0 overflow-hidden rounded-xl border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-5">
+    <h3 class="link-bio-panel-card__title m-0 mb-4">Origem dos cliques</h3>
+    @if (origensClique.length === 0) {
+      <p class="link-bio-panel-empty m-0">Nenhum clique registrado ainda.</p>
+    } @else {
+      <ul class="link-bio-origin-list m-0 p-0 list-none">
+        @for (item of origensClique; track $index) {
+          <li class="link-bio-origin-item">
+            <div class="link-bio-origin-item__head">
+              <span class="link-bio-origin-item__icon material-symbols-outlined" aria-hidden="true">{{ item.icon }}</span>
+              <span class="link-bio-origin-item__label">{{ item.row.label }}</span>
+              <span class="link-bio-origin-item__count tabular-nums">{{ item.row.total_last_30 }}</span>
+            </div>
+            <div class="link-bio-origin-item__track" role="presentation" aria-hidden="true">
+              <div class="link-bio-origin-item__fill" [style.width.%]="item.percent"></div>
+            </div>
+          </li>
+        }
+      </ul>
+    }
+  </z-card>
+
+  @if (sugestoesMelhoria.length > 0) {
+    <z-card class="link-bio-panel-card link-bio-panel-card--suggestions gap-0 overflow-hidden rounded-xl border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-5">
+      <h3 class="link-bio-panel-card__title m-0 mb-1">Sugestões para melhorar</h3>
+      <p class="link-bio-panel-card__meta m-0 mb-3">Com base no que sua página pública já exibe hoje</p>
+      <ul class="link-bio-suggestion-list m-0 p-0 list-none">
+        @for (s of sugestoesMelhoria; track s.id) {
+          <li>
+            <button
+              type="button"
+              class="link-bio-suggestion-item"
+              [attr.data-tone]="s.tone"
+              (click)="applySuggestion.emit(s)"
+            >
+              <span class="link-bio-suggestion-item__icon material-symbols-outlined" aria-hidden="true">{{ s.icon }}</span>
+              <span class="link-bio-suggestion-item__body">
+                <span class="link-bio-suggestion-item__title">{{ s.title }}</span>
+                <span class="link-bio-suggestion-item__sub">{{ s.subtitle }}</span>
+              </span>
+              <span class="material-symbols-outlined link-bio-suggestion-item__chevron" aria-hidden="true">chevron_right</span>
+            </button>
+          </li>
+        }
+      </ul>
+    </z-card>
+  }
+</div>

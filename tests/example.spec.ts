@@ -61,6 +61,11 @@ test.describe('Fluxos públicos', () => {
 
     await page.goto('/comece');
     await expect(page.locator('.comece-page .nav-login')).toBeVisible();
+    await expect(page.locator('#company_name')).toBeVisible();
+    await expect(page.getByRole('button', { name: /Criar conta/i })).toBeVisible();
+    await page.locator('#company_name').fill('');
+    await page.getByRole('button', { name: /Criar conta/i }).click();
+    await expect(page.locator('.alert-err')).toBeVisible();
 
     await page.goto('/privacidade');
     await expect(page).toHaveURL(/\/privacidade$/);

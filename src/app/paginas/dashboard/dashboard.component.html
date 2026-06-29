@@ -27,6 +27,12 @@
       }
 
       @if (!semClinica) {
+        <zm-dashboard-onboarding-wizard
+          [visible]="mostrarWizardOnboarding"
+          (dismissed)="onWizardOnboardingDismissed()"
+          (linkGenerated)="onWizardLinkGenerated()"
+        />
+
         <z-card class="mb-6 gap-0 py-4 shadow-sm **:data-[slot=card-content]:px-5">
           <section class="flex flex-wrap items-center justify-between gap-4" aria-label="Filtro de período do painel">
             <div class="min-w-0">
