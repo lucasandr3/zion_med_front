@@ -4,7 +4,7 @@
       <zm-skeleton-integracao-feegow />
     </div>
   } @else if (erro) {
-    <p class="feegow-alerts text-sm" style="color: var(--c-error, #dc2626)">{{ erro }}</p>
+    <p class="feegow-alerts text-sm text-destructive">{{ erro }}</p>
   } @else {
     <div class="feegow-shell zm-content-enter">
       <div class="clinica-config feegow-config">
@@ -26,7 +26,7 @@
               </p>
             }
             @if (state?.last_error) {
-              <p class="mt-2 text-sm" style="color: var(--c-error, #dc2626)">{{ state?.last_error }}</p>
+              <p class="mt-2 text-sm text-destructive">{{ state?.last_error }}</p>
             }
           </div>
         </z-card>

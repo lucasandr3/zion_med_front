@@ -1,0 +1,120 @@
+<z-card class="link-bio-header-card border-border bg-card shadow-sm **:data-[slot=card-content]:p-0">
+  <div class="link-bio-header-card__head">
+    <div class="link-bio-header-card__lead">
+      <div class="link-bio-header-card__icon" aria-hidden="true">
+        <span class="material-symbols-outlined">link</span>
+      </div>
+      <div class="link-bio-header-card__identity min-w-0">
+        <p class="link-bio-header-card__eyebrow">Link na bio</p>
+        <h1 class="link-bio-header-card__title">{{ clinicName }}</h1>
+        <p class="link-bio-header-card__url m-0 truncate" [attr.title]="publicUrl">{{ publicUrl }}</p>
+      </div>
+    </div>
+    <div class="link-bio-header-card__aside shrink-0">
+      <z-badge zShape="pill" class="link-bio-header-card__badge link-bio-status-published gap-1.5">
+        <span class="link-bio-status-dot" aria-hidden="true"></span>
+        Publicado
+      </z-badge>
+      @if (headerMeta) {
+        <p class="link-bio-header-card__sub">{{ headerMeta }}</p>
+      }
+      @if (recepcaoKioskUrl) {
+        <button
+          z-menu
+          type="button"
+          [zMenuTriggerFor]="headerMenuTpl"
+          zPlacement="bottomRight"
+          z-button
+          zType="ghost"
+          zSize="icon-sm"
+          class="link-bio-header-card__menu-btn"
+          aria-label="Mais opções do modo recepção"
+        >
+          <span class="material-symbols-outlined text-[1.125rem]">more_vert</span>
+        </button>
+      }
+    </div>
+  </div>
+  <div
+    class="link-bio-header-card__actions"
+    [class.link-bio-header-card__actions--with-recepcao]="!!recepcaoKioskUrl"
+  >
+    <button
+      z-button
+      zType="outline"
+      zSize="sm"
+      type="button"
+      class="link-bio-header-card__action"
+      [title]="copiedLink ? 'Link copiado' : 'Copiar link público'"
+      (click)="copyLink.emit()"
+    >
+      <span class="material-symbols-outlined text-base" aria-hidden="true">
+        {{ copiedLink ? 'check' : 'content_copy' }}
+      </span>
+      {{ copiedLink ? 'Copiado!' : 'Copiar link' }}
+    </button>
+    <a
+      [href]="publicUrlAbrir"
+      target="_blank"
+      rel="noopener"
+      z-button
+      zType="outline"
+      zSize="sm"
+      class="link-bio-header-card__action no-underline"
+      title="Abre o link público neste ambiente (dev) ou o URL oficial"
+    >
+      <span class="material-symbols-outlined text-base" aria-hidden="true">open_in_new</span>
+      Abrir
+    </a>
+    @if (recepcaoKioskUrl) {
+      <a
+        [href]="recepcaoKioskUrl"
+        target="_blank"
+        rel="noopener"
+        z-button
+        zType="outline"
+        zSize="sm"
+        class="link-bio-header-card__action no-underline"
+        title="Lista grande de fichas para tablet ou totem na recepção"
+      >
+        <span class="material-symbols-outlined text-base" aria-hidden="true">tablet_mac</span>
+        Modo recepção
+      </a>
+    }
+    <button
+      z-button
+      zType="outline"
+      zSize="sm"
+      type="button"
+      class="link-bio-header-card__action"
+      title="Ver QR code da página"
+      (click)="openQr.emit()"
+    >
+      <span class="material-symbols-outlined text-base" aria-hidden="true">qr_code_2</span>
+      QR code
+    </button>
+    <button
+      z-button
+      zType="outline"
+      zSize="sm"
+      type="button"
+      class="link-bio-header-card__action"
+      title="Editar conteúdo da página"
+      (click)="editContent.emit()"
+    >
+      <span class="material-symbols-outlined text-base" aria-hidden="true">edit</span>
+      Editar
+    </button>
+  </div>
+</z-card>
+
+<ng-template #headerMenuTpl>
+  <div z-menu-content class="min-w-48">
+    @if (recepcaoKioskUrl) {
+      <button type="button" z-menu-item class="w-full gap-2" (click)="copyRecepcao.emit()">
+        <span class="material-symbols-outlined shrink-0 text-base" aria-hidden="true">content_copy</span>
+        Copiar link do modo recepção
+      </button>
+    }
+  </div>
+</ng-template>

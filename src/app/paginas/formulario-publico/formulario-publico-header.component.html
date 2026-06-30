@@ -1,0 +1,54 @@
+<header class="fp-sticky-header">
+  <div class="fp-header-inner">
+    <div class="fp-header-row">
+      <div class="fp-brand">
+        @if (logoUrl) {
+          <div class="fp-logo fp-logo--img">
+            <img
+              [src]="logoUrl"
+              [alt]="data.clinic_name ? 'Logo ' + data.clinic_name : 'Logo da clínica'"
+              loading="lazy"
+              (error)="logoError.emit()"
+            />
+          </div>
+        } @else {
+          <div class="fp-logo" aria-hidden="true">{{ clinicInitial }}</div>
+        }
+        <div>
+          <p class="fp-clinic-name">{{ data.clinic_name ?? 'Clínica' }}</p>
+          <p class="fp-sub">Formulário por Gestgo</p>
+        </div>
+      </div>
+      <button type="button" (click)="toggleDark.emit()" class="fp-icon-btn" aria-label="Alternar tema claro ou escuro">
+        @if (dark) {
+          <svg class="fp-theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="12" cy="12" r="5" />
+            <line x1="12" y1="1" x2="12" y2="3" />
+            <line x1="12" y1="21" x2="12" y2="23" />
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+            <line x1="1" y1="12" x2="3" y2="12" />
+            <line x1="21" y1="12" x2="23" y2="12" />
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+          </svg>
+        } @else {
+          <svg class="fp-theme-icon fp-theme-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
+          </svg>
+        }
+      </button>
+    </div>
+    @if (personFormUnlocked) {
+      <div class="fp-progress-block" role="region" aria-label="Progresso do preenchimento do formulário">
+        <div class="fp-progress-labels">
+          <span class="fp-progress-hint">Progresso</span>
+          <span class="fp-progress-count">{{ progressCountLabel }}</span>
+        </div>
+        <div class="fp-progress-track">
+          <div class="fp-progress-fill" [style.width.%]="progressPercent"></div>
+        </div>
+      </div>
+    }
+  </div>
+</header>

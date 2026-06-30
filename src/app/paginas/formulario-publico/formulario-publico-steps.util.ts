@@ -85,3 +85,34 @@ function buildStepsByChunkSize(sorted: FormularioPublicoField[]): FormularioPubl
 
   return steps;
 }
+
+export interface FormFieldStepState {
+  steps: FormularioPublicoField[][];
+  currentStepIndex: number;
+  usesFormSteps: boolean;
+  totalFormSteps: number;
+  currentStepNumber: number;
+  isFirstFormStep: boolean;
+  isLastFormStep: boolean;
+  currentStepFields: FormularioPublicoField[];
+}
+
+export function buildFormFieldStepState(
+  fields: FormularioPublicoField[],
+  currentStepIndex: number,
+): FormFieldStepState {
+  const steps = fields.length ? buildFormFieldSteps(fields) : [];
+  const totalFormSteps = steps.length || 1;
+  const safeIndex = Math.min(Math.max(currentStepIndex, 0), totalFormSteps - 1);
+
+  return {
+    steps,
+    currentStepIndex: safeIndex,
+    usesFormSteps: steps.length > 1,
+    totalFormSteps,
+    currentStepNumber: safeIndex + 1,
+    isFirstFormStep: safeIndex <= 0,
+    isLastFormStep: safeIndex >= totalFormSteps - 1,
+    currentStepFields: steps[safeIndex] ?? [],
+  };
+}

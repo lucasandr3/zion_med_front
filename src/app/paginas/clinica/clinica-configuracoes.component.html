@@ -8,10 +8,10 @@
     <div class="clinica-config">
       <div class="clinica-config-alerts">
         @if (erro) {
-          <p class="text-sm mb-4" style="color: var(--c-error, #dc2626)">{{ erro }}</p>
+          <p class="mb-4 text-sm text-destructive">{{ erro }}</p>
         }
         @if (sucesso) {
-          <p class="text-sm mb-4" style="color: var(--c-success, #22c55e)">Configurações salvas com sucesso.</p>
+          <p class="mb-4 text-sm text-primary">Configurações salvas com sucesso.</p>
         }
       </div>
 
@@ -105,9 +105,9 @@
                   </div>
                 </div>
                 @if (enderecoErro) {
-                  <div class="hint" style="color:var(--c-error, #dc2626)">{{ enderecoErro }}</div>
+                  <div class="hint text-destructive">{{ enderecoErro }}</div>
                 } @else if (enderecoSucesso) {
-                  <div class="hint" style="color:var(--c-success, #22c55e)">Endereço preenchido automaticamente pelo CEP.</div>
+                  <div class="hint text-primary">Endereço preenchido automaticamente pelo CEP.</div>
                 } @else {
                   <div class="hint">Aparece no cabeçalho dos PDFs e no link na bio.</div>
                 }
@@ -124,7 +124,7 @@
             <div class="section-header">
               <div class="icon-wrap"><span class="material-symbols-outlined">receipt_long</span></div>
               <span class="section-title">Dados para Faturamento</span>
-              <span style="margin-left:auto;font-size:11px;color:var(--c-muted)">Necessário para assinar planos</span>
+              <span class="section-header__hint">Necessário para assinar planos</span>
             </div>
             <div class="section-body">
               <div class="field">
@@ -194,7 +194,7 @@
             <div class="section-header">
               <div class="icon-wrap"><span class="material-symbols-outlined">schedule</span></div>
               <span class="section-title">Horário de Atendimento</span>
-              <span style="margin-left:auto;font-size:11px;color:var(--c-muted)">Deixe vazio para "Fechado"</span>
+              <span class="section-header__hint">Deixe vazio para "Fechado"</span>
             </div>
             <div class="section-body">
               <div class="schedule-grid">
@@ -438,17 +438,17 @@
               <span class="section-title">Comunicação por WhatsApp</span>
             </div>
             <div class="section-body">
-              <div class="field" style="margin-bottom:16px">
-                <div class="dark-toggle-card" style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:0">
-                  <span>
-                    <span class="dtitle">Receber comunicação por WhatsApp</span>
-                    <span class="dsub">Confirmações e avisos da loja no número cadastrado (Telefone/WhatsApp)</span>
+              <div class="field !mb-4">
+                <div class="dark-toggle-card">
+                  <span class="dark-toggle-info">
+                    <span class="dtitle block">Receber comunicação por WhatsApp</span>
+                    <span class="dsub block">Confirmações e avisos da loja no número cadastrado (Telefone/WhatsApp)</span>
                   </span>
                   <z-switch [(ngModel)]="form.whatsapp_notifications_enabled" name="whatsapp_notifications_enabled" />
                 </div>
               </div>
-              <div style="padding-left:4px;border-left:2px solid var(--c-soft);margin-top:12px">
-                <p style="font-size:12px;color:var(--c-muted);margin-bottom:10px">Quais notificações deseja receber:</p>
+              <div class="wa-notify-subsection">
+                <p class="wa-notify-subsection__title">Quais notificações deseja receber:</p>
                 <z-checkbox [(ngModel)]="form.whatsapp_notify_cobranca" name="whatsapp_notify_cobranca" class="mb-2">
                   Cobrança (lembretes, vencimentos)
                 </z-checkbox>
@@ -461,17 +461,6 @@
               </div>
             </div>
           </z-card>
-<!-- <div class="page-header mb-4">
-          <div class="page-title">
-            <div class="page-title-icon">
-              <span class="material-symbols-outlined">chat</span>
-            </div>
-            <div>
-              <h1>WhatsApp (Evolution Go)</h1>
-              <p class="page-header-subtitle">Conecte o número da empresa e envie uma mensagem de teste</p>
-            </div>
-          </div>
-        </div> -->
         @if (waLoading) {
           <z-card class="section-card mb-4 gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
             <div class="section-header">
@@ -489,13 +478,13 @@
               <span class="section-title">Integração Evolution Go</span>
             </div>
             <div class="section-body">
-              <p class="text-sm mb-4" style="color: var(--c-error, #dc2626)">{{ waError }}</p>
+              <p class="mb-4 text-sm text-destructive">{{ waError }}</p>
               <button type="button" z-button zType="outline" zSize="sm" (click)="carregarWhatsapp()">Tentar novamente</button>
             </div>
           </z-card>
         } @else if (waState) {
           @if (waError) {
-            <p class="text-sm mb-4" style="color: var(--c-error, #dc2626)">{{ waError }}</p>
+            <p class="mb-4 text-sm text-destructive">{{ waError }}</p>
           }
           @if (!waState.server_configured) {
             <z-card class="section-card mb-4 gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
@@ -504,10 +493,10 @@
                 <span class="section-title">Servidor não configurado</span>
               </div>
               <div class="section-body">
-                <p style="font-size:14px;color:var(--c-text);margin:0 0 8px 0">
+                <p class="m-0 mb-2 text-sm text-foreground">
                   A API Evolution Go não está configurada no servidor. Peça ao administrador para definir
-                  <code style="font-size:12px">EVOLUTION_GO_BASE_URL</code> e
-                  <code style="font-size:12px">EVOLUTION_GO_API_KEY</code> (GLOBAL_API_KEY do container) no backend.
+                  <code class="text-xs">EVOLUTION_GO_BASE_URL</code> e
+                  <code class="text-xs">EVOLUTION_GO_API_KEY</code> (GLOBAL_API_KEY do container) no backend.
                 </p>
               </div>
             </z-card>
@@ -518,14 +507,14 @@
                 <span class="section-title">Criar instância</span>
               </div>
               <div class="section-body">
-                <p style="font-size:13px;color:var(--c-muted);margin-bottom:16px">
-                  O sistema gera automaticamente o nome da instância (<code style="font-size:12px">gestgo_org_</code> + id da empresa) e um token (UUID) antes de registrar na Evolution Go — necessário em ambientes onde a API não gera o token sozinha.
+                <p class="mb-4 text-sm text-muted-foreground">
+                  O sistema gera automaticamente o nome da instância (<code class="text-xs">gestgo_org_</code> + id da empresa) e um token (UUID) antes de registrar na Evolution Go — necessário em ambientes onde a API não gera o token sozinha.
                 </p>
                 <button type="button" z-button zSize="sm" class="inline-flex items-center gap-2" (click)="criarInstanciaWhatsapp()" [disabled]="waCriandoInstancia">
                   @if (waCriandoInstancia) {
                     <span class="btn-spinner" aria-hidden="true"></span>
                   } @else {
-                    <span class="material-symbols-outlined" style="font-size:16px">bolt</span>
+                    <span class="material-symbols-outlined text-base">bolt</span>
                   }
                   {{ waCriandoInstancia ? 'Criando…' : 'Criar instância' }}
                 </button>
@@ -533,14 +522,14 @@
             </z-card>
           } @else {
             @if (waTokenExibicaoUnica) {
-              <z-card class="section-card mb-4 gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0" style="border-color: color-mix(in srgb, var(--c-success, #22c55e) 35%, var(--c-border))">
+              <z-card class="section-card section-card--token mb-4 gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
                 <div class="section-header">
-                  <div class="icon-wrap"><span class="material-symbols-outlined" style="color:var(--c-success,#22c55e)">key</span></div>
+                  <div class="icon-wrap icon-wrap--token"><span class="material-symbols-outlined">key</span></div>
                   <span class="section-title">Token da instância (guarde agora)</span>
                 </div>
                 <div class="section-body">
-                  <p style="font-size:12px;color:var(--c-muted);margin-bottom:8px">Este valor não será mostrado novamente nesta tela.</p>
-                  <code style="display:block;font-size:12px;word-break:break-all;padding:10px;background:var(--c-soft);border-radius: 0.5rem;margin-bottom:10px">{{ waTokenExibicaoUnica }}</code>
+                  <p class="mb-2 text-xs text-muted-foreground">Este valor não será mostrado novamente nesta tela.</p>
+                  <code class="config-code-block">{{ waTokenExibicaoUnica }}</code>
                   <button type="button" z-button zType="outline" zSize="sm" (click)="copiarTextoWhatsapp(waTokenExibicaoUnica!)">Copiar token</button>
                 </div>
               </z-card>
@@ -580,10 +569,10 @@
                   </div>
                 </div>
                 @if (waState.remote_error) {
-                  <p style="font-size:12px;color:var(--c-error,#dc2626);margin:0">API: {{ waState.remote_error }}</p>
+                  <p class="m-0 text-xs text-destructive">API: {{ waState.remote_error }}</p>
                 }
                 @if (!waSessaoAtiva) {
-                  <div style="display:flex;justify-content:flex-start;margin-top:12px">
+                  <div class="wa-status-action">
                     <button
                       type="button"
                       z-button zType="outline" zSize="sm" class="inline-flex items-center gap-2"
@@ -593,7 +582,7 @@
                       @if (waQrCarregando) {
                         <span class="btn-spinner" aria-hidden="true"></span>
                       } @else {
-                        <span class="material-symbols-outlined" style="font-size:16px">qr_code_2</span>
+                        <span class="material-symbols-outlined text-base">qr_code_2</span>
                       }
                       {{ waQrCarregando ? 'Solicitando QR…' : 'Solicitar QR agora' }}
                     </button>
@@ -608,23 +597,23 @@
                   <span class="section-title">Conectar dispositivo</span>
                 </div>
                 <div class="section-body">
-                  <p style="font-size:13px;color:var(--c-muted);margin-bottom:12px">
+                  <p class="mb-3 text-sm text-muted-foreground">
                     Número opcional para código de pareamento (somente dígitos, com DDI). O QR Code expira, então gere um novo sempre que precisar conectar o aparelho.
                   </p>
-                  <div class="field" style="margin-bottom:12px">
+                  <div class="field !mb-3">
                     <label for="wa-phone-conectar">Telefone (pareamento)</label>
                     <input id="wa-phone-conectar" type="text" z-input zSize="sm" class="w-full" [(ngModel)]="waPhoneConectar" name="waPhoneConectar" placeholder="5511999999999" autocomplete="tel" />
                   </div>
-                  <div class="field" style="margin-bottom:16px">
+                  <div class="field !mb-4">
                     <label for="wa-webhook">Webhook URL <span class="opt">opcional</span></label>
                     <input id="wa-webhook" type="url" z-input zSize="sm" class="w-full" [(ngModel)]="waWebhookUrl" name="waWebhookUrl" placeholder="https://…" />
                   </div>
-                  <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:20px">
+                  <div class="wa-actions-row">
                     <button type="button" z-button zSize="sm" class="inline-flex items-center gap-2" (click)="iniciarConexaoWhatsapp()" [disabled]="waConectando">
                       @if (waConectando) {
                         <span class="btn-spinner" aria-hidden="true"></span>
                       } @else {
-                        <span class="material-symbols-outlined" style="font-size:16px">power_settings_new</span>
+                        <span class="material-symbols-outlined text-base">power_settings_new</span>
                       }
                       {{ waConectando ? 'Iniciando…' : 'Iniciar conexão' }}
                     </button>
@@ -632,36 +621,36 @@
                       @if (waQrCarregando) {
                         <span class="btn-spinner" aria-hidden="true"></span>
                       } @else {
-                        <span class="material-symbols-outlined" style="font-size:16px">qr_code_2</span>
+                        <span class="material-symbols-outlined text-base">qr_code_2</span>
                       }
                       {{ waQrCarregando ? 'Carregando…' : 'Obter QR Code' }}
                     </button>
                   </div>
                   @if (waQrSrc) {
-                    <div style="margin-bottom:16px">
-                      <p style="font-size:12px;font-weight:600;color:var(--c-muted);margin-bottom:8px">Escaneie no WhatsApp · Dispositivos conectados</p>
-                      <img [src]="waQrSrc" alt="QR Code WhatsApp" style="max-width:260px;height:auto;border-radius: 0.5rem;border:1px solid var(--c-border)" />
+                    <div class="wa-qr-block">
+                      <p class="wa-qr-block__label">Escaneie no WhatsApp · Dispositivos conectados</p>
+                      <img [src]="waQrSrc" alt="QR Code WhatsApp" class="wa-qr-img" />
                     </div>
                   }
                   @if (waQrLinkCode) {
-                    <p style="font-size:12px;color:var(--c-muted);margin-bottom:4px">Código de vinculação (QR)</p>
-                    <code style="display:block;font-size:11px;word-break:break-all;padding:8px;background:var(--c-soft);border-radius: 0.5rem;padding-top:16px;margin-top:16px">
+                    <p class="mb-1 text-xs text-muted-foreground">Código de vinculação (QR)</p>
+                    <code class="config-code-block config-code-block--compact">
                       {{ waQrLinkCode }}
                     </code>
                   }
-                  <p style="font-size:12px;font-weight:600;color:var(--c-muted);margin-bottom:8px">Pareamento por código (8 dígitos)</p>
-                  <div class="field" style="margin-bottom:12px">
+                  <p class="wa-qr-block__label">Pareamento por código (8 dígitos)</p>
+                  <div class="field !mb-3">
                     <label for="wa-phone-pair">Telefone do aparelho</label>
                     <input id="wa-phone-pair" type="text" z-input zSize="sm" class="w-full" [(ngModel)]="waPhonePair" name="waPhonePair" placeholder="5511999999999" autocomplete="tel" />
                   </div>
-                  <button type="button" class="btn-secondary inline-flex items-center gap-2 mb-3" (click)="solicitarPairWhatsapp()" [disabled]="waPairCarregando">
+                  <button type="button" z-button zType="outline" zSize="sm" class="mb-3 inline-flex items-center gap-2" (click)="solicitarPairWhatsapp()" [disabled]="waPairCarregando">
                     @if (waPairCarregando) {
                       <span class="btn-spinner" aria-hidden="true"></span>
                     }
                     {{ waPairCarregando ? 'Solicitando…' : 'Obter código de pareamento' }}
                   </button>
                   @if (waPairingCode) {
-                    <p style="font-size:24px;font-weight:700;letter-spacing:0.2em;font-family:monospace;margin:8px 0 0 0">{{ waPairingCode }}</p>
+                    <p class="wa-pairing-code">{{ waPairingCode }}</p>
                   }
                 </div>
               </z-card>
@@ -672,15 +661,15 @@
                 <span class="section-title">Mensagem de teste</span>
               </div>
               <div class="section-body">
-                <div class="field" style="margin-bottom:12px">
+                <div class="field !mb-3">
                   <label for="wa-test-phone">Número destino (DDI + DDD + número)</label>
                   <input id="wa-test-phone" type="text" z-input zSize="sm" class="w-full" [(ngModel)]="waTestPhone" name="waTestPhone" placeholder="5511987654321" autocomplete="tel" />
                 </div>
-                <div class="field" style="margin-bottom:16px">
+                <div class="field !mb-4">
                   <label for="wa-test-text">Texto <span class="opt">opcional</span></label>
                   <textarea id="wa-test-text" z-input zSize="sm" class="w-full" rows="2" [(ngModel)]="waTestText" name="waTestText" placeholder="Mensagem de teste — Gestgo"></textarea>
                 </div>
-                <p style="font-size:12px;color:var(--c-muted);margin:0">Use o botão "Enviar teste" no footer para disparar a mensagem.</p>
+                <p class="m-0 text-xs text-muted-foreground">Use o botão "Enviar teste" no footer para disparar a mensagem.</p>
               </div>
             </z-card>
           }
@@ -688,7 +677,7 @@
         @if (showWhatsappStickyFooter) {
           <div class="sticky-footer-spacer" aria-hidden="true"></div>
           <div class="sticky-footer">
-            <div style="font-size:12px;color:var(--c-muted)">
+            <div class="text-xs text-muted-foreground">
               @if (waLoading) {
                 Carregando integração…
               } @else if (waError && !waState) {
@@ -699,19 +688,19 @@
             </div>
             <div class="footer-btns">
               <a routerLink="/dashboard" z-button zType="outline" zSize="sm" class="inline-flex items-center gap-2 no-underline">
-                <span class="material-symbols-outlined" style="font-size:16px">close</span>
+                <span class="material-symbols-outlined text-base">close</span>
                 Cancelar
               </a>
               @if (waError && !waState && !waLoading) {
                 <button type="button" z-button zSize="sm" class="inline-flex items-center gap-2" (click)="carregarWhatsapp()">
-                  <span class="material-symbols-outlined" style="font-size:16px">refresh</span>
+                  <span class="material-symbols-outlined text-base">refresh</span>
                   Tentar novamente
                 </button>
               }
               @if (waState && !waLoading) {
                 @if (waState.instance_configured) {
                   <button type="button" z-button zType="outline" zSize="sm" class="inline-flex items-center gap-2" (click)="carregarWhatsapp()">
-                    <span class="material-symbols-outlined" style="font-size:16px">sync</span>
+                    <span class="material-symbols-outlined text-base">sync</span>
                     Atualizar status
                   </button>
                   @if (waState.connected === true || waState.logged_in === true) {
@@ -724,7 +713,7 @@
                       @if (waDesconectando) {
                         <span class="btn-spinner" aria-hidden="true"></span>
                       } @else {
-                        <span class="material-symbols-outlined" style="font-size:16px">link_off</span>
+                        <span class="material-symbols-outlined text-base">link_off</span>
                       }
                       {{ waDesconectando ? 'Desconectando…' : 'Desconectar sessão' }}
                     </button>
@@ -740,7 +729,7 @@
                     @if (waCriandoInstancia) {
                       <span class="btn-spinner" aria-hidden="true"></span>
                     } @else {
-                      <span class="material-symbols-outlined" style="font-size:16px">bolt</span>
+                      <span class="material-symbols-outlined text-base">bolt</span>
                     }
                     {{ waCriandoInstancia ? 'Criando…' : 'Criar instância' }}
                   </button>
@@ -755,7 +744,7 @@
                     @if (waTestEnviando) {
                       <span class="btn-spinner" aria-hidden="true"></span>
                     } @else {
-                      <span class="material-symbols-outlined" style="font-size:16px">send</span>
+                      <span class="material-symbols-outlined text-base">send</span>
                     }
                     {{ waTestEnviando ? 'Enviando…' : 'Enviar teste' }}
                   </button>
@@ -763,15 +752,14 @@
                 @if (waState.instance_configured) {
                   <button
                     type="button"
-                    z-button zType="outline" zSize="sm" class="inline-flex items-center gap-2"
-                    style="color:var(--c-error,#dc2626);border-color:color-mix(in srgb,var(--c-error) 40%,var(--c-border))"
+                    z-button zType="outline" zSize="sm" class="inline-flex items-center gap-2 text-destructive border-destructive/40 hover:text-destructive"
                     (click)="removerIntegracaoWhatsapp()"
                     [disabled]="waRemovendo"
                   >
                     @if (waRemovendo) {
                       <span class="btn-spinner" aria-hidden="true"></span>
                     } @else {
-                      <span class="material-symbols-outlined" style="font-size:16px">delete</span>
+                      <span class="material-symbols-outlined text-base">delete</span>
                     }
                     {{ waRemovendo ? 'Removendo…' : 'Remover integração' }}
                   </button>
@@ -833,7 +821,7 @@
                     />
                   </div>
                   @if (erroNovaEmpresa) {
-                    <p class="text-sm mb-3" style="color: var(--c-error, #dc2626)">{{ erroNovaEmpresa }}</p>
+                    <p class="mb-3 text-sm text-destructive">{{ erroNovaEmpresa }}</p>
                   }
                   <button
                     type="button"
@@ -844,7 +832,7 @@
                     @if (salvandoNovaEmpresa) {
                       <span class="btn-spinner" aria-hidden="true"></span>
                     } @else {
-                      <span class="material-symbols-outlined" style="font-size:16px">add_business</span>
+                      <span class="material-symbols-outlined text-base">add_business</span>
                     }
                     {{ salvandoNovaEmpresa ? 'Criando…' : 'Cadastrar nova empresa' }}
                   </button>
@@ -937,17 +925,17 @@
         }
         @if (showStickyFooter) {
           <div class="sticky-footer">
-            <div style="font-size:12px;color:var(--c-muted)">Alterações não salvas</div>
+            <div class="text-xs text-muted-foreground">Alterações não salvas</div>
             <div class="footer-btns">
               <a routerLink="/dashboard" z-button zType="outline" zSize="sm" class="inline-flex items-center gap-2 no-underline">
-                <span class="material-symbols-outlined" style="font-size:16px">close</span>
+                <span class="material-symbols-outlined text-base">close</span>
                 Cancelar
               </a>
               <button type="submit" z-button zSize="sm" class="inline-flex items-center gap-2" [disabled]="salvando">
                 @if (salvando) {
                   <span class="btn-spinner" aria-hidden="true"></span>
                 } @else {
-                  <span class="material-symbols-outlined" style="font-size:16px">save</span>
+                  <span class="material-symbols-outlined text-base">save</span>
                 }
                 {{ salvando ? 'Salvando…' : 'Salvar configurações' }}
               </button>
@@ -959,6 +947,6 @@
     </div>
   }
   @if (listaPronta && !pageData && erro) {
-    <p class="text-sm" style="color: var(--c-error, #dc2626)">{{ erro }}</p>
+    <p class="text-sm text-destructive">{{ erro }}</p>
   }
 </div>

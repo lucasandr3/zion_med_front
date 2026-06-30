@@ -1,0 +1,40 @@
+<div class="link-bio-tab-panel link-bio-fade-in">
+  <zm-link-bio-overview-header
+    [clinicName]="state.clinic.name"
+    [publicUrl]="publicUrl"
+    [publicUrlAbrir]="publicUrlAbrirNoNavegador"
+    [recepcaoKioskUrl]="recepcaoKioskUrl"
+    [headerMeta]="headerMeta"
+    [copiedLink]="copiedPrincipalLink"
+    (copyLink)="copiarLinkPrincipal()"
+    (openQr)="abrirQr()"
+    (editContent)="editContent.emit()"
+    (copyRecepcao)="copiarLinkRecepcao()"
+  />
+
+  @if (state.metrics) {
+    <zm-link-bio-overview-section
+      [metrics]="state.metrics"
+      [stats]="state.stats"
+      [clinic]="state.clinic"
+      [links]="state.links"
+      [forms]="state.forms"
+      [layoutModel]="layoutModel"
+      [statsPeriodo]="statsPeriodo"
+      [insightBannerFechado]="insightBannerFechado"
+      [atualizandoStats]="atualizandoStats"
+      [ctrMediaSetor]="ctrMediaSetor"
+      (statsPeriodoChange)="selecionarPeriodoStats($event)"
+      (refreshStats)="atualizarDadosEstatisticas()"
+      (closeInsight)="fecharInsightBanner()"
+      (applySuggestion)="applySuggestion.emit($event)"
+    />
+  }
+</div>
+
+<zm-link-bio-qr-dialog
+  [open]="qrAberto"
+  [publicUrl]="publicUrl"
+  [clinicName]="state.clinic.name"
+  (closed)="fecharQr()"
+/>

@@ -18,9 +18,9 @@
         <p class="text-sm text-muted-foreground m-0">Carregando modelos…</p>
       } @else if (templates.length === 0) {
         <p class="text-sm text-muted-foreground m-0 mb-3">
-          Nenhum modelo ativo encontrado. Crie um na biblioteca ou escolha um template pronto.
+          Nenhum modelo ativo encontrado. Crie um em branco ou escolha um modelo pronto na biblioteca.
         </p>
-        <a z-button zSize="sm" routerLink="/modelos/biblioteca" class="no-underline">Abrir biblioteca</a>
+        <a z-button zSize="sm" routerLink="/templates/criar" class="no-underline">Abrir biblioteca</a>
       } @else {
         <div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-4 mb-4">
           @for (t of templates; track t.id) {

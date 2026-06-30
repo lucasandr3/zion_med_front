@@ -6,7 +6,7 @@
       </div>
     </div>
   } @else if (erro) {
-    <p class="integracoes-alerts text-sm" style="color: var(--c-error, #dc2626)">{{ erro }}</p>
+    <p class="integracoes-alerts text-sm text-destructive">{{ erro }}</p>
   } @else if (state) {
     <div class="integracoes-shell zm-content-enter">
       <div class="clinica-config integracoes-config">
@@ -20,8 +20,7 @@
           <z-tab label="API e tokens" icon="key">
             <div class="config-tab-panel">
               <z-card
-                class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0"
-                style="border-color: color-mix(in srgb, var(--primary) 35%, var(--border))"
+                class="section-card section-card--highlight gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0"
               >
                 <div class="section-header">
                   <div class="icon-wrap"><span class="material-symbols-outlined">menu_book</span></div>
@@ -31,11 +30,11 @@
                   <p class="hint mb-4">Documentação interativa (Scramble) e especificação OpenAPI para integrar com outros sistemas.</p>
                   <div class="flex flex-wrap gap-3">
                     <a href="/docs/api" target="_blank" rel="noopener" z-button zSize="sm" class="inline-flex items-center gap-2 no-underline">
-                      <span class="material-symbols-outlined" style="font-size:16px">menu_book</span>
+                      <span class="material-symbols-outlined text-base">menu_book</span>
                       Documentação interativa
                     </a>
                     <a href="/docs/api.json" target="_blank" rel="noopener" z-button zType="outline" zSize="sm" class="inline-flex items-center gap-2 no-underline">
-                      <span class="material-symbols-outlined" style="font-size:16px">download</span>
+                      <span class="material-symbols-outlined text-base">download</span>
                       OpenAPI (JSON)
                     </a>
                   </div>
@@ -44,8 +43,7 @@
 
               @if (ultimoTokenGerado) {
                 <z-card
-                  class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0"
-                  style="border-color: color-mix(in srgb, var(--primary) 35%, var(--border))"
+                  class="section-card section-card--highlight gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0"
                 >
                   <div class="section-header">
                     <div class="icon-wrap"><span class="material-symbols-outlined">key</span></div>
@@ -85,7 +83,7 @@
                           @if (tokenCriando) {
                             <span class="btn-spinner" aria-hidden="true"></span>
                           } @else {
-                            <span class="material-symbols-outlined" style="font-size:16px">add</span>
+                            <span class="material-symbols-outlined text-base">add</span>
                           }
                           {{ tokenCriando ? 'Criando…' : 'Criar token' }}
                         </button>
@@ -167,7 +165,7 @@
                       @if (webhookCriando) {
                         <span class="btn-spinner" aria-hidden="true"></span>
                       } @else {
-                        <span class="material-symbols-outlined" style="font-size:16px">add</span>
+                        <span class="material-symbols-outlined text-base">add</span>
                       }
                       {{ webhookCriando ? 'Salvando…' : 'Adicionar webhook' }}
                     </button>
@@ -248,7 +246,7 @@
                                     [disabled]="reenviandoId === d.id"
                                   >
                                     @if (reenviandoId === d.id) {
-                                      <span class="btn-spinner" style="width:12px;height:12px;border-width:2px" aria-hidden="true"></span>
+                                      <span class="btn-spinner btn-spinner--xs" aria-hidden="true"></span>
                                     }
                                     {{ reenviandoId === d.id ? 'Reenviando…' : 'Reenviar' }}
                                   </button>
@@ -290,7 +288,7 @@
                                 </span>
                               } @else {
                                 <span class="sistema-logo-wrap">
-                                  <span class="material-symbols-outlined text-primary" style="font-size:16px">computer</span>
+                                  <span class="material-symbols-outlined text-base text-primary">computer</span>
                                 </span>
                               }
                               <div class="min-w-0">

@@ -1,0 +1,164 @@
+@for (f of fields; track trackByKey($index, f)) {
+  <div class="fp-field-group fp-field-animate">
+    @if (fieldType(f) !== 'checkbox') {
+      <label [for]="'field_' + f.name_key" class="fp-field-label">
+        {{ f.label }}
+        @if (f.required) {
+          <span class="fp-required" aria-hidden="true">*</span>
+        }
+      </label>
+    }
+
+    @switch (fieldType(f)) {
+      @case ('text') {
+        <input
+          [id]="'field_' + f.name_key"
+          type="text"
+          [(ngModel)]="valores[f.name_key]"
+          (ngModelChange)="onCampoAlterado()"
+          [name]="f.name_key"
+          class="fp-input"
+          [required]="f.required"
+          [placeholder]="fieldPlaceholder(f)"
+        />
+      }
+      @case ('textarea') {
+        <textarea
+          [id]="'field_' + f.name_key"
+          [(ngModel)]="valores[f.name_key]"
+          (ngModelChange)="onCampoAlterado()"
+          [name]="f.name_key"
+          class="fp-input fp-textarea"
+          rows="4"
+          [required]="f.required"
+          [placeholder]="fieldPlaceholder(f)"
+        ></textarea>
+      }
+      @case ('number') {
+        <input
+          [id]="'field_' + f.name_key"
+          type="number"
+          [(ngModel)]="valores[f.name_key]"
+          (ngModelChange)="onCampoAlterado()"
+          [name]="f.name_key"
+          class="fp-input"
+          [required]="f.required"
+          [placeholder]="fieldPlaceholder(f)"
+          inputmode="numeric"
+        />
+      }
+      @case ('date') {
+        <input
+          [id]="'field_' + f.name_key"
+          type="text"
+          mwlFlatpickr
+          [(ngModel)]="valores[f.name_key]"
+          (ngModelChange)="onCampoAlterado()"
+          [name]="f.name_key"
+          class="fp-input"
+          [required]="f.required"
+          placeholder="dd/mm/aaaa"
+          [altInput]="true"
+          [altInputClass]="'fp-input'"
+          [convertModelValue]="true"
+        />
+      }
+      @case ('checkbox') {
+        <z-checkbox
+          class="fp-field-checkbox"
+          [(ngModel)]="valores[f.name_key]"
+          (ngModelChange)="onCampoAlterado()"
+          [name]="f.name_key"
+          [attr.required]="f.required ? true : null"
+        >
+          {{ f.label }}
+          @if (f.required) {
+            <span class="fp-required" aria-hidden="true">*</span>
+          }
+        </z-checkbox>
+      }
+      @case ('select') {
+        <div class="fp-select-wrap">
+          <select
+            [id]="'field_' + f.name_key"
+            [(ngModel)]="valores[f.name_key]"
+            (ngModelChange)="onCampoAlterado()"
+            [name]="f.name_key"
+            class="fp-input fp-select"
+            [required]="f.required"
+            spellcheck="false"
+            autocomplete="off"
+          >
+            <option value="">Selecione</option>
+            @for (opt of getFieldOptions(f); track opt.value) {
+              <option [value]="opt.value">{{ opt.label }}</option>
+            }
+          </select>
+        </div>
+      }
+      @case ('radio') {
+        <div class="fp-radio-grid" [class.fp-radio-grid-single]="getFieldOptions(f).length === 1">
+          @for (opt of getFieldOptions(f); track opt.value) {
+            <label class="fp-radio-option" [class.fp-radio-selected]="valores[f.name_key] === opt.value">
+              <input
+                type="radio"
+                [(ngModel)]="valores[f.name_key]"
+                (ngModelChange)="onCampoAlterado()"
+                [name]="f.name_key"
+                [value]="opt.value"
+                [required]="f.required"
+                class="fp-visually-hidden"
+              />
+              <span class="fp-radio-dot" aria-hidden="true"><span class="fp-radio-dot-inner"></span></span>
+              <span class="fp-radio-label-text">{{ opt.label }}</span>
+            </label>
+          }
+        </div>
+      }
+      @case ('file') {
+        <div class="fp-file-wrap">
+          <input
+            type="file"
+            [id]="'field_' + f.name_key"
+            class="fp-input fp-file-input"
+            (change)="onFileSelected($event, f.name_key)"
+            accept="image/*,application/pdf,.pdf,.doc,.docx,.heic,.heif"
+          />
+          @if (valores[f.name_key]) {
+            <div class="fp-file-actions">
+              <span class="fp-field-hint">Arquivo selecionado — enviaremos junto com o formulário.</span>
+              <button type="button" class="fp-link-btn" (click)="clearFile(f.name_key)">Remover</button>
+            </div>
+          }
+        </div>
+        <input type="hidden" [name]="f.name_key" [ngModel]="valores[f.name_key]" [required]="f.required" />
+      }
+      @case ('signature') {
+        <p class="fp-sig-help">Assine com o dedo (celular) ou mouse (computador) no espaço abaixo.</p>
+        <canvas
+          [id]="'signature_' + f.name_key"
+          width="400"
+          height="120"
+          class="fp-sig-canvas"
+          role="img"
+          [attr.aria-label]="'Área de assinatura: ' + f.label"
+          (mousedown)="startSignature($event, f.name_key)"
+          (mousemove)="moveSignature($event, f.name_key)"
+          (mouseup)="endSignature(f.name_key)"
+          (mouseleave)="endSignature(f.name_key)"
+          (touchstart)="startSignature($event, f.name_key)"
+          (touchmove)="moveSignature($event, f.name_key); $event.preventDefault()"
+          (touchend)="endSignature(f.name_key)"
+        ></canvas>
+        <input type="hidden" [name]="f.name_key" [ngModel]="valores[f.name_key]" [required]="f.required" />
+        <div class="fp-sig-footer">
+          <span class="fp-field-hint">Escreva sua assinatura no campo acima</span>
+          <button type="button" class="fp-link-btn" (click)="clearSignature(f.name_key)">Limpar</button>
+        </div>
+      }
+      @default {
+        <input [id]="'field_' + f.name_key" type="text" [(ngModel)]="valores[f.name_key]" [name]="f.name_key" class="fp-input" [required]="f.required" />
+      }
+    }
+  </div>
+}

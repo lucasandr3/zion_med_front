@@ -83,7 +83,7 @@
               <thead z-table-header>
                 <tr z-table-row>
                   <th z-table-head>Protocolo / Data</th>
-                  <th z-table-head>Template</th>
+                  <th z-table-head>Modelo</th>
                   <th z-table-head>Pessoa</th>
                   <th z-table-head>Situação</th>
                   <th z-table-head>Submetente</th>
@@ -162,7 +162,7 @@
       <div class="zm-filter-sheet__body">
         <div class="zm-filter-sheet__fields">
           <div class="zm-filter-field">
-            <label class="zm-filter-label" id="protocolos-filtro-template-label">Template</label>
+            <label class="zm-filter-label" id="protocolos-filtro-template-label">Modelo</label>
             <z-combobox
               class="w-full"
               zWidth="full"
@@ -171,7 +171,7 @@
               placeholder="Todos"
               searchPlaceholder="Buscar template..."
               emptyText="Nenhum template encontrado."
-              ariaLabel="Template"
+              ariaLabel="Modelo"
               ariaDescribedBy="protocolos-filtro-template-label"
               (zValueChange)="selecionarTemplateFiltro($event)"
             />

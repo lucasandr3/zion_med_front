@@ -16,136 +16,15 @@
         (zTabChange)="onMainTabChange($event)"
       >
         <z-tab label="Visão geral" icon="bar_chart">
-          <div class="link-bio-tab-panel link-bio-fade-in">
-            <z-card class="link-bio-header-card border-border bg-card shadow-sm **:data-[slot=card-content]:p-0">
-              <div class="link-bio-header-card__head">
-                <div class="link-bio-header-card__lead">
-                  <div class="link-bio-header-card__icon" aria-hidden="true">
-                    <span class="material-symbols-outlined">link</span>
-                  </div>
-                  <div class="link-bio-header-card__identity min-w-0">
-                    <p class="link-bio-header-card__eyebrow">Link na bio</p>
-                    <h1 class="link-bio-header-card__title">{{ state.clinic.name }}</h1>
-                    <p class="link-bio-header-card__url m-0 truncate" [attr.title]="publicUrl">{{ publicUrl }}</p>
-                  </div>
-                </div>
-                <div class="link-bio-header-card__aside shrink-0">
-                  <z-badge zShape="pill" class="link-bio-header-card__badge link-bio-status-published gap-1.5">
-                    <span class="link-bio-status-dot" aria-hidden="true"></span>
-                    Publicado
-                  </z-badge>
-                  @if (headerMetaLinha()) {
-                    <p class="link-bio-header-card__sub">{{ headerMetaLinha() }}</p>
-                  }
-                  @if (recepcaoKioskUrl) {
-                    <button
-                      z-menu
-                      type="button"
-                      [zMenuTriggerFor]="headerMenuTpl"
-                      zPlacement="bottomRight"
-                      z-button
-                      zType="ghost"
-                      zSize="icon-sm"
-                      class="link-bio-header-card__menu-btn"
-                      aria-label="Mais opções do modo recepção"
-                    >
-                      <span class="material-symbols-outlined text-[1.125rem]">more_vert</span>
-                    </button>
-                  }
-                </div>
-              </div>
-              <div
-                class="link-bio-header-card__actions"
-                [class.link-bio-header-card__actions--with-recepcao]="!!recepcaoKioskUrl"
-              >
-                <button
-                  z-button
-                  zType="outline"
-                  zSize="sm"
-                  type="button"
-                  class="link-bio-header-card__action"
-                  [title]="copiedPrincipalLink ? 'Link copiado' : 'Copiar link público'"
-                  (click)="copiarLinkPrincipal()"
-                >
-                  <span class="material-symbols-outlined text-base" aria-hidden="true">
-                    {{ copiedPrincipalLink ? 'check' : 'content_copy' }}
-                  </span>
-                  {{ copiedPrincipalLink ? 'Copiado!' : 'Copiar link' }}
-                </button>
-                <a
-                  [href]="publicUrlAbrirNoNavegador"
-                  target="_blank"
-                  rel="noopener"
-                  z-button
-                  zType="outline"
-                  zSize="sm"
-                  class="link-bio-header-card__action no-underline"
-                  title="Abre o link público neste ambiente (dev) ou o URL oficial"
-                >
-                  <span class="material-symbols-outlined text-base" aria-hidden="true">open_in_new</span>
-                  Abrir
-                </a>
-                @if (recepcaoKioskUrl) {
-                  <a
-                    [href]="recepcaoKioskUrl"
-                    target="_blank"
-                    rel="noopener"
-                    z-button
-                    zType="outline"
-                    zSize="sm"
-                    class="link-bio-header-card__action no-underline"
-                    title="Lista grande de fichas para tablet ou totem na recepção"
-                  >
-                    <span class="material-symbols-outlined text-base" aria-hidden="true">tablet_mac</span>
-                    Modo recepção
-                  </a>
-                }
-                <button
-                  z-button
-                  zType="outline"
-                  zSize="sm"
-                  type="button"
-                  class="link-bio-header-card__action"
-                  title="Ver QR code da página"
-                  (click)="abrirQrPrincipal()"
-                >
-                  <span class="material-symbols-outlined text-base" aria-hidden="true">qr_code_2</span>
-                  QR code
-                </button>
-                <button
-                  z-button
-                  zType="outline"
-                  zSize="sm"
-                  type="button"
-                  class="link-bio-header-card__action"
-                  title="Editar conteúdo da página"
-                  (click)="editarConteudo()"
-                >
-                  <span class="material-symbols-outlined text-base" aria-hidden="true">edit</span>
-                  Editar
-                </button>
-              </div>
-            </z-card>
-
-            @if (metrics && state) {
-              <zm-link-bio-overview-section
-                [metrics]="metrics"
-                [stats]="stats"
-                [clinic]="state.clinic"
-                [links]="links"
-                [forms]="forms"
-                [layoutModel]="aparenciaModelo"
-                [statsPeriodo]="statsPeriodo"
-                [insightBannerFechado]="insightBannerFechado"
-                [atualizandoStats]="atualizandoStatsRodape"
-                [ctrMediaSetor]="ctrMediaSetor"
-                (statsPeriodoChange)="selecionarPeriodoStats($event)"
-                (refreshStats)="atualizarDadosEstatisticas()"
-                (closeInsight)="fecharInsightBanner()"
-                (applySuggestion)="aplicarSugestao($event)"
-              />
-            }
-          </div>
+          @if (state) {
+            <zm-link-bio-visao-geral-tab
+              [state]="state"
+              [layoutModel]="aparenciaModelo"
+              (editContent)="editarConteudo()"
+              (applySuggestion)="aplicarSugestao($event)"
+              (stateUpdated)="aplicarEstadoLinkBio($event)"
+            />
+          }
         </z-tab>
 
         <z-tab label="Conteúdo" icon="tune">
@@ -302,65 +181,5 @@
       </z-tab-group>
     </div>
   }
-  }
-
-  <ng-template #headerMenuTpl>
-    <div z-menu-content class="min-w-48">
-      @if (recepcaoKioskUrl) {
-        <button type="button" z-menu-item class="w-full gap-2" (click)="copiarLinkRecepcao()">
-          <span class="material-symbols-outlined shrink-0 text-base" aria-hidden="true">content_copy</span>
-          Copiar link do modo recepção
-        </button>
-      }
-    </div>
-  </ng-template>
-
-  @if (qrAberto) {
-    <div class="link-bio-qr-backdrop" role="presentation" (click)="fecharQr()"></div>
-    <div
-      class="link-bio-qr-dialog"
-      role="dialog"
-      aria-modal="true"
-      [attr.aria-label]="'QR code — ' + (state?.clinic?.name ?? 'link na bio')"
-    >
-      <div class="link-bio-qr-dialog__head">
-        <div class="min-w-0">
-          <p class="link-bio-qr-dialog__title">{{ state?.clinic?.name }}</p>
-          <p class="link-bio-qr-dialog__sub">Escaneie para abrir a página pública</p>
-        </div>
-        <button
-          z-button
-          zType="ghost"
-          zSize="icon-sm"
-          type="button"
-          class="shrink-0"
-          aria-label="Fechar"
-          (click)="fecharQr()"
-        >
-          <span class="material-symbols-outlined text-[1.125rem]">close</span>
-        </button>
-      </div>
-      <div class="link-bio-qr-dialog__body">
-        @if (qrCarregando) {
-          <z-skeleton class="link-bio-qr-dialog__skeleton" />
-        } @else if (qrDataUrl) {
-          <img [src]="qrDataUrl" alt="" class="link-bio-qr-dialog__img" />
-        }
-      </div>
-      <div class="link-bio-qr-dialog__actions">
-        <button
-          z-button
-          zType="outline"
-          zSize="sm"
-          type="button"
-          class="gap-2"
-          [disabled]="!qrDataUrl"
-          (click)="baixarQrPrincipal()"
-        >
-          <span class="material-symbols-outlined text-base" aria-hidden="true">download</span>
-          Baixar QR code
-        </button>
-      </div>
-    </div>
   }
 </div>

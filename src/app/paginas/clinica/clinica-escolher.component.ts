@@ -6,12 +6,21 @@ import { AuthService } from '../../core/services/auth.service';
 import { ClinicaService, ClinicaOption } from '../../core/services/clinica.service';
 import { LoadingService } from '../../shared/services/loading.service';
 import { ZmSkeletonListComponent } from '../../shared/components/skeletons';
+import { ZmEmptyStateComponent } from '../../shared/components/ui';
+import { ZardCardComponent } from '@/shared/components/card/card.component';
+import { ZardButtonComponent } from '@/shared/components/button/button.component';
 import { ToastService } from '../../core/services/toast.service';
 
 @Component({
   selector: 'app-clinica-escolher',
   standalone: true,
-  imports: [CommonModule, ZmSkeletonListComponent],
+  imports: [
+    CommonModule,
+    ZmSkeletonListComponent,
+    ZmEmptyStateComponent,
+    ZardCardComponent,
+    ZardButtonComponent,
+  ],
   templateUrl: './clinica-escolher.component.html',
   styleUrl: './clinica-escolher.component.css',
 })
@@ -37,9 +46,14 @@ export class ClinicaEscolherComponent implements OnInit {
       },
       error: () => {
         this.listaPronta = true;
-        this.erro = 'Não foi possível carregar as clínicas.';
+        this.erro = 'Não foi possível carregar as empresas.';
       },
     });
+  }
+
+  inicial(nome: string): string {
+    if (!nome) return '?';
+    return nome.trim().charAt(0).toUpperCase();
   }
 
   escolher(clinicId: number): void {
@@ -48,16 +62,16 @@ export class ClinicaEscolherComponent implements OnInit {
       .escolher(clinicId)
       .pipe(switchMap(() => this.auth.me()))
       .subscribe({
-      next: () => {
-        this.escolhendoId = null;
-        this.toast.success('Empresa selecionada', 'Redirecionando…');
-        this.router.navigateByUrl(this.auth.getDefaultTenantPath());
-      },
-      error: () => {
-        this.escolhendoId = null;
-        this.erro = 'Não foi possível trocar de clínica.';
-        this.toast.error('Erro', this.erro);
-      },
-    });
+        next: () => {
+          this.escolhendoId = null;
+          this.toast.success('Empresa selecionada', 'Redirecionando…');
+          this.router.navigateByUrl(this.auth.getDefaultTenantPath());
+        },
+        error: () => {
+          this.escolhendoId = null;
+          this.erro = 'Não foi possível trocar de empresa.';
+          this.toast.error('Erro', this.erro);
+        },
+      });
   }
 }

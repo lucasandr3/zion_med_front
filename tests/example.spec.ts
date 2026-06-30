@@ -1,7 +1,8 @@
 import { test, expect, type Page } from '@playwright/test';
 
-const EMAIL = 'lucasvieiraandrade58@gmail.com';
-const PASSWORD = '12345678';
+const EMAIL = process.env['E2E_EMAIL'] ?? '';
+const PASSWORD = process.env['E2E_PASSWORD'] ?? '';
+const hasE2ECredentials = EMAIL.length > 0 && PASSWORD.length > 0;
 
 const TENANT_NAV_ITEMS = [
   { label: 'Dashboard', path: '/dashboard', heading: 'Dashboard' },
@@ -84,6 +85,8 @@ test.describe('Fluxos públicos', () => {
 });
 
 test.describe('Sessão autenticada', () => {
+  test.skip(!hasE2ECredentials, 'Defina E2E_EMAIL e E2E_PASSWORD em .env.test');
+
   test('deve validar os principais fluxos autenticados da aplicação', async ({ page }) => {
     await login(page);
 

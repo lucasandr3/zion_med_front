@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { Observable, Subject, tap, catchError, of } from 'rxjs';
+import { Observable, Subject, tap, catchError, of, map } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { applyUserAppearanceToBrowser } from './user-appearance.sync';
 import { AppUpdateService } from './app-update.service';
@@ -284,6 +284,21 @@ export class AuthService {
     }
     if (this.canSwitchClinic()) return '/clinica/escolher';
     return '/404';
+  }
+
+  /** Valida sessão com a API (`/me`). Limpa credenciais locais se o token expirou ou foi revogado. */
+  validateSession(): Observable<boolean> {
+    if (!this.isAuthenticated() || !this.getUser()) {
+      return of(false);
+    }
+
+    return this.me().pipe(
+      map(() => true),
+      catchError(() => {
+        this.clearSession();
+        return of(false);
+      }),
+    );
   }
 
   login(email: string, password: string): Observable<LoginResponse> {

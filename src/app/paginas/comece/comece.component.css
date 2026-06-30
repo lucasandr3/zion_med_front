@@ -700,7 +700,6 @@
 
 .comece-page .fi:focus {
   border-color: var(--brand);
-  box-shadow: 0 0 0 3px var(--brand-bg);
 }
 
 .comece-page .pw-wrap {

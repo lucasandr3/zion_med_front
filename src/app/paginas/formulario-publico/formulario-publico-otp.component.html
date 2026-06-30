@@ -1,0 +1,82 @@
+<div class="fp-section-div" aria-hidden="true"></div>
+<div class="fp-otp-card">
+  <p class="fp-otp-title">Confirmar identidade para assinar</p>
+  <p class="fp-field-hint">Com o modo reforçado, enviamos um código de 6 dígitos antes do envio com assinatura.</p>
+  <div class="fp-field-group">
+    <label class="fp-field-label" for="fpOtpChannel">Canal</label>
+    <select
+      id="fpOtpChannel"
+      class="fp-input fp-select"
+      [ngModel]="otpChannel"
+      (ngModelChange)="otpChannelChange.emit($event)"
+      name="fpOtpChannel"
+      [ngModelOptions]="{ standalone: true }"
+    >
+      <option value="email">E-mail</option>
+      @if (otpWhatsappAvailable) {
+        <option value="whatsapp">WhatsApp</option>
+      }
+    </select>
+  </div>
+  @if (otpChannel === 'email' && personLinkRequired) {
+    <div class="fp-field-group">
+      <label class="fp-field-label" for="fpOtpEmail">E-mail para receber o código</label>
+      <input
+        id="fpOtpEmail"
+        type="email"
+        class="fp-input"
+        [ngModel]="submitterEmail"
+        (ngModelChange)="submitterEmailChange.emit($event); identityChange.emit()"
+        name="fpOtpEmail"
+        [ngModelOptions]="{ standalone: true }"
+        placeholder="email@exemplo.com"
+        [attr.autocomplete]="personLinkRequired ? 'off' : 'email'"
+      />
+    </div>
+  }
+  @if (otpChannel === 'whatsapp') {
+    <div class="fp-field-group">
+      <label class="fp-field-label" for="fpOtpPhone">Celular (DDD + número)</label>
+      <input
+        id="fpOtpPhone"
+        type="tel"
+        class="fp-input"
+        [ngModel]="otpPhone"
+        (ngModelChange)="otpPhoneChange.emit($event)"
+        name="fpOtpPhone"
+        [ngModelOptions]="{ standalone: true }"
+        placeholder="11999998888"
+        autocomplete="tel"
+      />
+    </div>
+  }
+  <div class="fp-otp-actions">
+    <button type="button" class="fp-link-btn" (click)="sendOtp.emit()" [disabled]="otpSending">
+      {{ otpSending ? 'Enviando…' : 'Enviar código' }}
+    </button>
+  </div>
+  <div class="fp-field-group">
+    <label class="fp-field-label" for="fpOtpCode">Código de 6 dígitos</label>
+    <input
+      id="fpOtpCode"
+      type="text"
+      inputmode="numeric"
+      maxlength="6"
+      class="fp-input"
+      [ngModel]="otpCode"
+      (ngModelChange)="otpCodeChange.emit($event)"
+      name="fpOtpCode"
+      [ngModelOptions]="{ standalone: true }"
+      autocomplete="one-time-code"
+    />
+  </div>
+  <button type="button" class="fp-submit-btn fp-otp-verify" (click)="verifyOtp.emit()" [disabled]="otpVerifying">
+    {{ otpVerifying ? 'Verificando…' : 'Validar código' }}
+  </button>
+  @if (otpVerified) {
+    <p class="fp-otp-ok">Código confirmado. Você pode enviar o formulário.</p>
+  }
+  @if (otpErro) {
+    <p class="fp-banner-error" style="margin-top: 0.75rem">{{ otpErro }}</p>
+  }
+</div>

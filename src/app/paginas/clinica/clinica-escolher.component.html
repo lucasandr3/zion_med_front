@@ -1,48 +1,52 @@
 <div class="relative min-h-[320px]">
-  <div class="page-header mb-6">
-    <div class="page-title flex items-center gap-3">
-      <div class="page-title-icon w-10 h-10 rounded-lg flex items-center justify-center" style="background: var(--c-soft)">
-        <span class="material-symbols-outlined" style="color: var(--c-primary)">swap_horiz</span>
-      </div>
-      <div>
-        <h1 class="text-xl font-semibold m-0" style="color: var(--c-text)">Escolher empresa</h1>
-        <p class="text-sm mt-1 mb-0" style="color: var(--c-muted)">Fiel ao clinica/escolher.blade.php</p>
-      </div>
-    </div>
-  </div>
+  <p class="text-sm text-muted-foreground mb-4">Selecione qual empresa deseja acessar no painel.</p>
+
   @if (showSkeleton()) {
     <zm-skeleton-list [rows]="5" />
   } @else if (!listaPronta) {
   } @else if (erro) {
-    <p class="text-sm" style="color: var(--c-error, #dc2626)">{{ erro }}</p>
+    <p class="text-sm text-destructive">{{ erro }}</p>
   } @else {
     <div class="zm-content-enter">
-  <div class="card rounded-xl overflow-hidden" style="border: 1px solid var(--c-border)">
-    @if (clinicas.length === 0) {
-      <div class="p-8 text-center" style="color: var(--c-muted)">Nenhuma clínica disponível.</div>
-    } @else {
-      <ul class="divide-y" style="border-color: var(--c-border)">
-        @for (c of clinicas; track c.id) {
-          <li class="flex items-center justify-between px-5 py-4">
-            <div>
-              <p class="font-medium m-0" style="color: var(--c-text)">{{ c.name }}</p>
-              @if (c.users_count != null) {
-                <p class="text-xs m-0 mt-0.5" style="color: var(--c-muted)">{{ c.users_count }} usuário(s)</p>
-              }
-            </div>
-            <button type="button" class="btn-primary inline-flex items-center gap-2" [disabled]="escolhendoId !== null" (click)="escolher(c.id)" title="Selecionar esta empresa">
-              @if (escolhendoId === c.id) {
-                <span class="btn-spinner" aria-hidden="true"></span>
-                Selecionando…
-              } @else {
-                Selecionar
-              }
-            </button>
-          </li>
+      <z-card class="gap-0 overflow-hidden rounded-[0.875rem] py-0 shadow-sm **:data-[slot=card-content]:p-0">
+        @if (clinicas.length === 0) {
+          <div class="p-10">
+            <zm-empty-state title="Nenhuma empresa disponível." />
+          </div>
+        } @else {
+          <ul class="divide-y divide-border">
+            @for (c of clinicas; track c.id) {
+              <li class="flex flex-wrap items-center justify-between gap-3 px-5 py-4">
+                <div class="flex min-w-0 items-center gap-3">
+                  <div class="zm-row-avatar">{{ inicial(c.name) }}</div>
+                  <div class="min-w-0">
+                    <p class="zm-row-title m-0 truncate">{{ c.name }}</p>
+                    @if (c.users_count != null) {
+                      <p class="text-xs text-muted-foreground m-0 mt-0.5">{{ c.users_count }} usuário(s)</p>
+                    }
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  z-button
+                  zSize="sm"
+                  class="shrink-0 gap-1.5"
+                  [disabled]="escolhendoId !== null"
+                  (click)="escolher(c.id)"
+                  title="Selecionar esta empresa"
+                >
+                  @if (escolhendoId === c.id) {
+                    <span class="btn-spinner" aria-hidden="true"></span>
+                    Selecionando…
+                  } @else {
+                    Selecionar
+                  }
+                </button>
+              </li>
+            }
+          </ul>
         }
-      </ul>
-    }
-  </div>
+      </z-card>
     </div>
   }
 </div>

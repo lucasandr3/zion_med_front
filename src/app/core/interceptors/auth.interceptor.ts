@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
 import { BillingBlockedStateService } from '../services/billing-blocked-state.service';
 import { AuthService } from '../services/auth.service';
+import { extractApiErrorCode } from '../utils/api-error.util';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const auth = inject(AuthService);
@@ -42,9 +43,12 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
         auth.clearSession();
         router.navigate(['/autenticacao']);
       } else if (err.status === 403 && token && req.url.includes('/api/v1/') && !req.url.includes('auth/send-verification-email')) {
-        const body = err.error as { code?: string; message?: string } | null;
-        const code = body?.code;
-        const msg = (body?.message ?? '').toLowerCase();
+        const body = err.error;
+        const code = extractApiErrorCode(body);
+        const msg = (typeof body === 'object' && body && 'message' in body
+          ? String((body as { message?: string }).message ?? '')
+          : ''
+        ).toLowerCase();
         if (code === 'billing_blocked') {
           const url = req.url;
           const skipGlobalBanner =

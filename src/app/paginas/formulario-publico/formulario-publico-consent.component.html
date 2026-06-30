@@ -1,0 +1,15 @@
+<div class="fp-consent-block" (click)="onToggleBlock($event)">
+  <z-checkbox
+    class="fp-consent-checkbox"
+    [ngModel]="acceptTerms"
+    (ngModelChange)="acceptTermsChange.emit($event)"
+    name="fpAcceptTerms"
+    [ngModelOptions]="{ standalone: true }"
+    (click)="$event.stopPropagation()"
+  >
+    <span class="fp-check-label-inline">
+      Declaro que li o aviso sobre uso dos dados e a política de privacidade, e estou ciente de que minha assinatura eletrônica integra este documento.
+      <a routerLink="/privacidade" target="_blank" rel="noopener" class="fp-link">Privacidade</a>
+    </span>
+  </z-checkbox>
+</div>

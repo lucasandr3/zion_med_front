@@ -1,61 +1,16 @@
 <div class="form-publico-page" [class.dark]="dark" [class.fp-kiosk]="kioskMode">
   @if (!showSkeleton() && data && !kioskMode) {
-    <header class="fp-sticky-header">
-      <div class="fp-header-inner">
-        <div class="fp-header-row">
-          <div class="fp-brand">
-            @if (clinicLogoDisplayUrl()) {
-              <div class="fp-logo fp-logo--img">
-                <img
-                  [src]="clinicLogoDisplayUrl()!"
-                  [alt]="data.clinic_name ? 'Logo ' + data.clinic_name : 'Logo da clínica'"
-                  loading="lazy"
-                  (error)="onClinicLogoError()"
-                />
-              </div>
-            } @else {
-              <div class="fp-logo" aria-hidden="true">{{ clinicNameInitial() }}</div>
-            }
-            <div>
-              <p class="fp-clinic-name">{{ data.clinic_name ?? 'Clínica' }}</p>
-              <p class="fp-sub">Formulário por Gestgo</p>
-            </div>
-          </div>
-          <button type="button" (click)="toggleDark()" class="fp-icon-btn" aria-label="Alternar tema claro ou escuro">
-            @if (dark) {
-              <svg class="fp-theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                <circle cx="12" cy="12" r="5" />
-                <line x1="12" y1="1" x2="12" y2="3" />
-                <line x1="12" y1="21" x2="12" y2="23" />
-                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
-                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
-                <line x1="1" y1="12" x2="3" y2="12" />
-                <line x1="21" y1="12" x2="23" y2="12" />
-                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
-                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
-              </svg>
-            } @else {
-              <svg class="fp-theme-icon fp-theme-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
-              </svg>
-            }
-          </button>
-        </div>
-        @if (personFormUnlocked()) {
-          <div class="fp-progress-block" role="region" aria-label="Progresso do preenchimento do formulário">
-            <div class="fp-progress-labels">
-              <span class="fp-progress-hint">Progresso</span>
-              <span class="fp-progress-count">
-                {{ progressCountLabel }}
-              </span>
-            </div>
-            <div class="fp-progress-track">
-              <div class="fp-progress-fill" [style.width.%]="progressPercent"></div>
-            </div>
-          </div>
-        }
-      </div>
-    </header>
+    <zm-formulario-publico-header
+      [data]="data"
+      [dark]="dark"
+      [personFormUnlocked]="personFormUnlocked()"
+      [progressPercent]="progressPercent"
+      [progressCountLabel]="progressCountLabel"
+      [logoUrl]="clinicLogoDisplayUrl()"
+      [clinicInitial]="clinicNameInitial()"
+      (toggleDark)="toggleDark()"
+      (logoError)="onClinicLogoError()"
+    />
   }
 
   <div class="fp-scroll" #fpScroll>
@@ -75,495 +30,113 @@
     @if (!showSkeleton() && data) {
       <div class="fp-container zm-content-enter">
         @if (personLinkRequired() && !personGateOk) {
+          <zm-formulario-publico-gate
+            [templateName]="data.template.name"
+            [personCpfDisplay]="personCpfDisplay"
+            [personGateErro]="personGateErro"
+            [validandoPerson]="validandoPerson"
+            (cpfChange)="onPersonCpfChange($event)"
+            (validate)="validarIdentificacao()"
+          />
+        } @else {
           <div class="fp-title-block">
             <h1 class="fp-title">{{ data.template.name }}</h1>
-            <p class="fp-lead">Para iniciar o preenchimento, informe seu CPF para autorizacao de acesso ao formulario.</p>
-          </div>
-          @if (personGateErro) {
-            <div class="fp-banner-error">{{ personGateErro }}</div>
-          }
-          <div class="fp-field-group fp-field-animate">
-            <label class="fp-field-label" for="fpPersonCpf">CPF</label>
-            <input
-              id="fpPersonCpf"
-              type="text"
-              inputmode="numeric"
-              autocomplete="off"
-              [ngModel]="personCpfDisplay"
-              (ngModelChange)="onPersonCpfChange($event)"
-              name="fpPersonCpf"
-              [ngModelOptions]="{ standalone: true }"
-              class="fp-input"
-              placeholder="000.000.000-00"
-            />
-          </div>
-          <button type="button" class="fp-submit-btn" style="margin-top: 1.25rem" (click)="validarIdentificacao()" [disabled]="validandoPerson">
-            @if (validandoPerson) {
-              <svg class="fp-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" opacity=".25" />
-                <path d="M21 12a9 9 0 00-9-9" />
-              </svg>
-              Validando…
-            } @else {
-              Continuar para o formulário
+            @if (data.template.description) {
+              <p class="fp-lead">{{ data.template.description }}</p>
             }
-          </button>
-        } @else {
-        <div class="fp-title-block">
-          <h1 class="fp-title">{{ data.template.name }}</h1>
-          @if (data.template.description) {
-            <p class="fp-lead">{{ data.template.description }}</p>
-          }
-          @if (personValidatedName) {
-            <p class="fp-lead" style="font-size: 0.95rem">Olá, <strong>{{ personValidatedName }}</strong>. Preencha os campos abaixo.</p>
-          }
-          <p class="fp-lgpd-note">
-            Seus dados serão utilizados apenas para as finalidades deste formulário e em conformidade com a LGPD.
-            <a routerLink="/privacidade" target="_blank" rel="noopener" class="fp-link">Política de Privacidade</a>.
-          </p>
-          <div class="fp-required-legend">
-            <span class="fp-asterisk">*</span>
-            <span>Campos obrigatórios</span>
+            @if (personValidatedName) {
+              <p class="fp-lead" style="font-size: 0.95rem">Olá, <strong>{{ personValidatedName }}</strong>. Preencha os campos abaixo.</p>
+            }
+            <p class="fp-lgpd-note">
+              Seus dados serão utilizados apenas para as finalidades deste formulário e em conformidade com a LGPD.
+              <a routerLink="/privacidade" target="_blank" rel="noopener" class="fp-link">Política de Privacidade</a>.
+            </p>
+            <div class="fp-required-legend">
+              <span class="fp-asterisk">*</span>
+              <span>Campos obrigatórios</span>
+            </div>
           </div>
-        </div>
 
-        @if (erro) {
-          <div class="fp-banner-error">{{ erro }}</div>
-        }
+          @if (erro) {
+            <div class="fp-banner-error">{{ erro }}</div>
+          }
 
-        <form #publicForm="ngForm" id="formulario-publico-form" (ngSubmit)="enviar()" class="fp-form">
-          @if (showFeegowOnCurrentStep) {
-            <div class="fp-feegow-card">
-              <p class="fp-feegow-title">Agendamento Feegow</p>
-              <p class="fp-field-hint" style="margin-top:0">Esta seção aparece apenas para empresas com integração Feegow ativa.</p>
+          <form #publicForm="ngForm" id="formulario-publico-form" (ngSubmit)="enviar()" class="fp-form">
+            @if (showFeegowOnCurrentStep) {
+              <zm-formulario-publico-feegow
+                [token]="token"
+                [valores]="valores"
+                [feegowMeta]="feegowMeta()"
+                (valoresChange)="onCampoAlterado()"
+              />
+            }
 
-              @if (feegowMeta()?.warning) {
-                <div class="fp-banner-error" style="margin-top:0.75rem">{{ feegowMeta()?.warning }}</div>
-              }
+            @if (showPreenchedoraOnCurrentStep) {
+              <zm-formulario-publico-preenchedora
+                [submitterName]="submitterName"
+                [submitterEmail]="submitterEmail"
+                [personLinkRequired]="personLinkRequired()"
+                (submitterNameChange)="submitterName = $event"
+                (submitterEmailChange)="submitterEmail = $event"
+                (identityChange)="onSubmitterIdentityChange()"
+              />
+            }
 
-              <div class="fp-feegow-grid">
-                <div class="fp-field-group">
-                  <label class="fp-field-label" for="feegow_paciente_id">Paciente ID (Feegow) *</label>
-                  <input id="feegow_paciente_id" type="number" [(ngModel)]="valores['feegow_paciente_id']" name="feegow_paciente_id" class="fp-input" required />
-                </div>
-                <div class="fp-field-group">
-                  <label class="fp-field-label" for="feegow_profissional_id">Profissional *</label>
-                  @if (hasFeegowProfessionalOptions()) {
-                    <select id="feegow_profissional_id" [(ngModel)]="valores['feegow_profissional_id']" name="feegow_profissional_id" class="fp-input fp-select" (ngModelChange)="onFeegowProfissionalChange()" required>
-                      <option value="">Selecione</option>
-                      @for (opt of feegowProfessionalsOptions(); track opt.value) {
-                        <option [value]="opt.value">{{ opt.label }}</option>
-                      }
-                    </select>
-                  } @else {
-                    <input id="feegow_profissional_id" type="number" [(ngModel)]="valores['feegow_profissional_id']" name="feegow_profissional_id" class="fp-input" required />
-                  }
-                </div>
-                <div class="fp-field-group">
-                  <label class="fp-field-label" for="feegow_especialidade_id">Especialidade *</label>
-                  <select id="feegow_especialidade_id" [(ngModel)]="valores['feegow_especialidade_id']" name="feegow_especialidade_id" class="fp-input fp-select" required>
-                    <option value="">Selecione</option>
-                    @for (opt of feegowSpecialtiesOptions(); track opt.value) {
-                      <option [value]="opt.value">{{ opt.label }}</option>
-                    }
-                  </select>
-                </div>
-                <div class="fp-field-group">
-                  <label class="fp-field-label" for="feegow_procedimento_id">Procedimento *</label>
-                  @if (hasFeegowProcedureOptions()) {
-                    <select id="feegow_procedimento_id" [(ngModel)]="valores['feegow_procedimento_id']" name="feegow_procedimento_id" class="fp-input fp-select" required>
-                      <option value="">Selecione</option>
-                      @for (opt of feegowProceduresOptions(); track opt.value) {
-                        <option [value]="opt.value">{{ opt.label }}</option>
-                      }
-                    </select>
-                  } @else {
-                    <input id="feegow_procedimento_id" type="number" [(ngModel)]="valores['feegow_procedimento_id']" name="feegow_procedimento_id" class="fp-input" required />
-                  }
-                </div>
-                <div class="fp-field-group">
-                  <label class="fp-field-label" for="feegow_local_id">Local *</label>
-                  <select id="feegow_local_id" [(ngModel)]="valores['feegow_local_id']" name="feegow_local_id" class="fp-input fp-select" required>
-                    <option value="">Selecione</option>
-                    @for (opt of feegowLocalsOptions(); track opt.value) {
-                      <option [value]="opt.value">{{ opt.label }}</option>
-                    }
-                  </select>
-                </div>
-                <div class="fp-field-group">
-                  <label class="fp-field-label" for="feegow_convenio_id">Convênio</label>
-                  <select id="feegow_convenio_id" [(ngModel)]="valores['feegow_convenio_id']" name="feegow_convenio_id" class="fp-input fp-select">
-                    <option value="">Não informado</option>
-                    @for (opt of feegowInsurancesOptions(); track opt.value) {
-                      <option [value]="opt.value">{{ opt.label }}</option>
-                    }
-                  </select>
-                </div>
-                <div class="fp-field-group">
-                  <label class="fp-field-label" for="feegow_data">Data *</label>
-                  <input
-                    id="feegow_data"
-                    type="text"
-                    mwlFlatpickr
-                    [(ngModel)]="valores['feegow_data']"
-                    name="feegow_data"
-                    class="fp-input"
-                    placeholder="dd/mm/aaaa"
-                    [altInput]="true"
-                    [altInputClass]="'fp-input'"
-                    required
-                  />
-                </div>
-                <div class="fp-field-group">
-                  <label class="fp-field-label" for="feegow_horario">Horário *</label>
-                  <select id="feegow_horario" [(ngModel)]="valores['feegow_horario']" name="feegow_horario" class="fp-input fp-select" required>
-                    <option value="">Selecione</option>
-                    @for (hr of feegowHorariosDisponiveis; track hr) {
-                      <option [value]="hr">{{ hr }}</option>
-                    }
-                  </select>
-                </div>
-                <div class="fp-field-group">
-                  <label class="fp-field-label" for="feegow_canal_id">Canal</label>
-                  <select id="feegow_canal_id" [(ngModel)]="valores['feegow_canal_id']" name="feegow_canal_id" class="fp-input fp-select">
-                    <option value="">Não informado</option>
-                    @for (opt of feegowChannelsOptions(); track opt.value) {
-                      <option [value]="opt.value">{{ opt.label }}</option>
-                    }
-                  </select>
-                </div>
-              </div>
+            @if (showOtpOnCurrentStep) {
+              <zm-formulario-publico-otp
+                [otpChannel]="otpChannel"
+                [otpPhone]="otpPhone"
+                [otpCode]="otpCode"
+                [otpVerified]="otpVerified"
+                [otpSending]="otpSending"
+                [otpVerifying]="otpVerifying"
+                [otpErro]="otpErro"
+                [otpWhatsappAvailable]="!!data.otp_whatsapp_available"
+                [personLinkRequired]="personLinkRequired()"
+                [submitterEmail]="submitterEmail"
+                (otpChannelChange)="otpChannel = $event"
+                (otpPhoneChange)="otpPhone = $event"
+                (otpCodeChange)="otpCode = $event"
+                (submitterEmailChange)="submitterEmail = $event"
+                (identityChange)="onSubmitterIdentityChange()"
+                (sendOtp)="enviarOtp()"
+                (verifyOtp)="verificarOtp()"
+              />
+            }
 
-              <div class="fp-feegow-actions">
-                <button type="button" class="fp-link-btn" (click)="consultarDisponibilidadeFeegow()" [disabled]="feegowBuscandoDisponibilidade">
-                  {{ feegowBuscandoDisponibilidade ? 'Consultando horários…' : 'Consultar horários disponíveis' }}
-                </button>
-                @if (feegowDisponibilidadeErro) {
-                  <span class="fp-feegow-error">{{ feegowDisponibilidadeErro }}</span>
-                }
-              </div>
-            </div>
             <div class="fp-section-div" aria-hidden="true"></div>
-          }
 
-          @if (showPreenchedoraOnCurrentStep) {
-            <div class="fp-preenchedora">
-              <p class="fp-preenchedora-title">Identificação de quem envia <span class="fp-optional">(opcional)</span></p>
-              <div class="fp-preenchedora-grid">
-                <div class="fp-field-group">
-                  <label for="submitterName" class="fp-field-label">Seu nome</label>
-                  <input
-                    id="submitterName"
-                    type="text"
-                    [(ngModel)]="submitterName"
-                    (ngModelChange)="onSubmitterIdentityChange()"
-                    name="submitterName"
-                    class="fp-input"
-                    placeholder="Nome para contato"
-                    [attr.autocomplete]="personLinkRequired() ? 'off' : 'name'"
-                  />
-                </div>
-                <div class="fp-field-group">
-                  <label for="submitterEmail" class="fp-field-label">Seu e-mail</label>
-                  <input
-                    id="submitterEmail"
-                    type="email"
-                    [(ngModel)]="submitterEmail"
-                    (ngModelChange)="onSubmitterIdentityChange()"
-                    name="submitterEmail"
-                    class="fp-input"
-                    placeholder="email@exemplo.com"
-                    [attr.autocomplete]="personLinkRequired() ? 'off' : 'email'"
-                  />
-                </div>
-              </div>
-            </div>
-          }
+            <zm-formulario-publico-fields
+              [fields]="currentStepFields"
+              [valores]="valores"
+              (fieldChange)="onCampoAlterado()"
+              (fileSelected)="onFileSelected($event.event, $event.key)"
+              (fileClear)="clearFile($event)"
+              (signatureChange)="onSignatureChange($event)"
+              (signatureClear)="onSignatureClear($event)"
+            />
 
-          @if (showOtpOnCurrentStep) {
-            <div class="fp-section-div" aria-hidden="true"></div>
-            <div class="fp-otp-card">
-              <p class="fp-otp-title">Confirmar identidade para assinar</p>
-              <p class="fp-field-hint">Com o modo reforçado, enviamos um código de 6 dígitos antes do envio com assinatura.</p>
-              <div class="fp-field-group">
-                <label class="fp-field-label" for="fpOtpChannel">Canal</label>
-                <select id="fpOtpChannel" class="fp-input fp-select" [(ngModel)]="otpChannel" name="fpOtpChannel" [ngModelOptions]="{ standalone: true }">
-                  <option value="email">E-mail</option>
-                  @if (data.otp_whatsapp_available) {
-                    <option value="whatsapp">WhatsApp</option>
-                  }
-                </select>
-              </div>
-              @if (otpChannel === 'email' && personLinkRequired()) {
-                <div class="fp-field-group">
-                  <label class="fp-field-label" for="fpOtpEmail">E-mail para receber o código</label>
-                  <input
-                    id="fpOtpEmail"
-                    type="email"
-                    class="fp-input"
-                    [(ngModel)]="submitterEmail"
-                    (ngModelChange)="onSubmitterIdentityChange()"
-                    name="fpOtpEmail"
-                    [ngModelOptions]="{ standalone: true }"
-                    placeholder="email@exemplo.com"
-                    [attr.autocomplete]="personLinkRequired() ? 'off' : 'email'"
-                  />
-                </div>
-              }
-              @if (otpChannel === 'whatsapp') {
-                <div class="fp-field-group">
-                  <label class="fp-field-label" for="fpOtpPhone">Celular (DDD + número)</label>
-                  <input id="fpOtpPhone" type="tel" class="fp-input" [(ngModel)]="otpPhone" name="fpOtpPhone" [ngModelOptions]="{ standalone: true }" placeholder="11999998888" autocomplete="tel" />
-                </div>
-              }
-              <div class="fp-otp-actions">
-                <button type="button" class="fp-link-btn" (click)="enviarOtp()" [disabled]="otpSending">
-                  {{ otpSending ? 'Enviando…' : 'Enviar código' }}
-                </button>
-              </div>
-              <div class="fp-field-group">
-                <label class="fp-field-label" for="fpOtpCode">Código de 6 dígitos</label>
-                <input id="fpOtpCode" type="text" inputmode="numeric" maxlength="6" class="fp-input" [(ngModel)]="otpCode" name="fpOtpCode" [ngModelOptions]="{ standalone: true }" autocomplete="one-time-code" />
-              </div>
-              <button type="button" class="fp-submit-btn fp-otp-verify" (click)="verificarOtp()" [disabled]="otpVerifying">
-                {{ otpVerifying ? 'Verificando…' : 'Validar código' }}
-              </button>
-              @if (otpVerified) {
-                <p class="fp-otp-ok">Código confirmado. Você pode enviar o formulário.</p>
-              }
-              @if (otpErro) {
-                <p class="fp-banner-error" style="margin-top: 0.75rem">{{ otpErro }}</p>
-              }
-            </div>
-          }
-
-          <div class="fp-section-div" aria-hidden="true"></div>
-
-          @for (f of currentStepFields; track trackByKey($index, f)) {
-            <div class="fp-field-group fp-field-animate">
-              @if (fieldType(f) !== 'checkbox') {
-                <label [for]="'field_' + f.name_key" class="fp-field-label">
-                  {{ f.label }}
-                  @if (f.required) {
-                    <span class="fp-required" aria-hidden="true">*</span>
-                  }
-                </label>
-              }
-
-              @switch (fieldType(f)) {
-                @case ('text') {
-                  <input
-                    [id]="'field_' + f.name_key"
-                    type="text"
-                    [(ngModel)]="valores[f.name_key]"
-                    (ngModelChange)="onCampoAlterado()"
-                    [name]="f.name_key"
-                    class="fp-input"
-                    [required]="f.required"
-                    [placeholder]="fieldPlaceholder(f)"
-                  />
-                }
-                @case ('textarea') {
-                  <textarea
-                    [id]="'field_' + f.name_key"
-                    [(ngModel)]="valores[f.name_key]"
-                    (ngModelChange)="onCampoAlterado()"
-                    [name]="f.name_key"
-                    class="fp-input fp-textarea"
-                    rows="4"
-                    [required]="f.required"
-                    [placeholder]="fieldPlaceholder(f)"
-                  ></textarea>
-                }
-                @case ('number') {
-                  <input
-                    [id]="'field_' + f.name_key"
-                    type="number"
-                    [(ngModel)]="valores[f.name_key]"
-                    (ngModelChange)="onCampoAlterado()"
-                    [name]="f.name_key"
-                    class="fp-input"
-                    [required]="f.required"
-                    [placeholder]="fieldPlaceholder(f)"
-                    inputmode="numeric"
-                  />
-                }
-                @case ('date') {
-                  <input
-                    [id]="'field_' + f.name_key"
-                    type="text"
-                    mwlFlatpickr
-                    [(ngModel)]="valores[f.name_key]"
-                    (ngModelChange)="onCampoAlterado()"
-                    [name]="f.name_key"
-                    class="fp-input"
-                    [required]="f.required"
-                    placeholder="dd/mm/aaaa"
-                    [altInput]="true"
-                    [altInputClass]="'fp-input'"
-                    [convertModelValue]="true"
-                  />
-                }
-                @case ('checkbox') {
-                  <z-checkbox
-                    class="fp-field-checkbox"
-                    [(ngModel)]="valores[f.name_key]"
-                    (ngModelChange)="onCampoAlterado()"
-                    [name]="f.name_key"
-                    [attr.required]="f.required ? true : null"
-                  >
-                    {{ f.label }}
-                    @if (f.required) {
-                      <span class="fp-required" aria-hidden="true">*</span>
-                    }
-                  </z-checkbox>
-                }
-                @case ('select') {
-                  <div class="fp-select-wrap">
-                    <select
-                      [id]="'field_' + f.name_key"
-                      [(ngModel)]="valores[f.name_key]"
-                      (ngModelChange)="onCampoAlterado()"
-                      [name]="f.name_key"
-                      class="fp-input fp-select"
-                      [required]="f.required"
-                      spellcheck="false"
-                      autocomplete="off"
-                    >
-                      <option value="">Selecione</option>
-                      @for (opt of getFieldOptions(f); track opt.value) {
-                        <option [value]="opt.value">{{ opt.label }}</option>
-                      }
-                    </select>
-                  </div>
-                }
-                @case ('radio') {
-                  <div class="fp-radio-grid" [class.fp-radio-grid-single]="getFieldOptions(f).length === 1">
-                    @for (opt of getFieldOptions(f); track opt.value) {
-                      <label class="fp-radio-option" [class.fp-radio-selected]="valores[f.name_key] === opt.value">
-                        <input
-                          type="radio"
-                          [(ngModel)]="valores[f.name_key]"
-                          (ngModelChange)="onCampoAlterado()"
-                          [name]="f.name_key"
-                          [value]="opt.value"
-                          [required]="f.required"
-                          class="fp-visually-hidden"
-                        />
-                        <span class="fp-radio-dot" aria-hidden="true"><span class="fp-radio-dot-inner"></span></span>
-                        <span class="fp-radio-label-text">{{ opt.label }}</span>
-                      </label>
-                    }
-                  </div>
-                }
-                @case ('file') {
-                  <div class="fp-file-wrap">
-                    <input
-                      type="file"
-                      [id]="'field_' + f.name_key"
-                      class="fp-input fp-file-input"
-                      (change)="onFileSelected($event, f.name_key)"
-                      accept="image/*,application/pdf,.pdf,.doc,.docx,.heic,.heif"
-                    />
-                    @if (valores[f.name_key]) {
-                      <div class="fp-file-actions">
-                        <span class="fp-field-hint">Arquivo selecionado — enviaremos junto com o formulário.</span>
-                        <button type="button" class="fp-link-btn" (click)="clearFile(f.name_key)">Remover</button>
-                      </div>
-                    }
-                  </div>
-                  <input type="hidden" [name]="f.name_key" [ngModel]="valores[f.name_key]" [required]="f.required" />
-                }
-                @case ('signature') {
-                  <p class="fp-sig-help">Assine com o dedo (celular) ou mouse (computador) no espaço abaixo.</p>
-                  <canvas
-                    [id]="'signature_' + f.name_key"
-                    width="400"
-                    height="120"
-                    class="fp-sig-canvas"
-                    role="img"
-                    [attr.aria-label]="'Área de assinatura: ' + f.label"
-                    (mousedown)="startSignature($event, f.name_key)"
-                    (mousemove)="moveSignature($event, f.name_key)"
-                    (mouseup)="endSignature(f.name_key)"
-                    (mouseleave)="endSignature(f.name_key)"
-                    (touchstart)="startSignature($event, f.name_key)"
-                    (touchmove)="moveSignature($event, f.name_key); $event.preventDefault()"
-                    (touchend)="endSignature(f.name_key)"
-                  ></canvas>
-                  <input type="hidden" [name]="f.name_key" [ngModel]="valores[f.name_key]" [required]="f.required" />
-                  <div class="fp-sig-footer">
-                    <span class="fp-field-hint">Escreva sua assinatura no campo acima</span>
-                    <button type="button" class="fp-link-btn" (click)="clearSignature(f.name_key)">Limpar</button>
-                  </div>
-                }
-                @default {
-                  <input [id]="'field_' + f.name_key" type="text" [(ngModel)]="valores[f.name_key]" [name]="f.name_key" class="fp-input" [required]="f.required" />
-                }
-              }
-            </div>
-          }
-          @if (showConsentOnCurrentStep) {
-            <div class="fp-consent-block" (click)="toggleAcceptTermsFromBlock($event)">
-              <z-checkbox
-                class="fp-consent-checkbox"
-                [(ngModel)]="acceptTerms"
-                name="fpAcceptTerms"
-                [ngModelOptions]="{ standalone: true }"
-                (click)="$event.stopPropagation()"
-              >
-                <span class="fp-check-label-inline">
-                  Declaro que li o aviso sobre uso dos dados e a política de privacidade, e estou ciente de que minha assinatura eletrônica integra este documento.
-                  <a routerLink="/privacidade" target="_blank" rel="noopener" class="fp-link">Privacidade</a>
-                </span>
-              </z-checkbox>
-            </div>
-          }
-        </form>
+            @if (showConsentOnCurrentStep) {
+              <zm-formulario-publico-consent
+                [acceptTerms]="acceptTerms"
+                (acceptTermsChange)="acceptTerms = $event"
+                (toggleFromBlock)="toggleAcceptTermsFromBlock($event)"
+              />
+            }
+          </form>
         }
       </div>
     }
   </div>
 
   @if (!showSkeleton() && data && personFormUnlocked()) {
-    <footer class="fp-footer">
-      <div class="fp-footer-inner" [class.fp-footer-inner--steps]="usesFormSteps">
-        @if (usesFormSteps && !isFirstFormStep) {
-          <button type="button" class="fp-step-btn fp-step-btn--back" (click)="voltarEtapa()">
-            Anterior
-          </button>
-        }
-        @if (usesFormSteps && !isLastFormStep) {
-          <button type="button" class="fp-step-btn fp-step-btn--next" (click)="avancarEtapa()">
-            Continuar
-            <svg class="fp-submit-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
-              <polyline points="9 18 15 12 9 6" />
-            </svg>
-          </button>
-        } @else {
-          <button
-            type="submit"
-            form="formulario-publico-form"
-            class="fp-submit-btn"
-            [class.fp-submit-btn--solo]="!usesFormSteps || isFirstFormStep"
-            [disabled]="enviando"
-            [attr.aria-busy]="enviando"
-          >
-            @if (enviando) {
-              <svg class="fp-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" opacity=".25" />
-                <path d="M21 12a9 9 0 00-9-9" />
-              </svg>
-              Enviando…
-            } @else {
-              <svg class="fp-submit-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
-                <polyline points="20 6 9 17 4 12" />
-              </svg>
-              Enviar formulário
-            }
-          </button>
-        }
-      </div>
-    </footer>
+    <zm-formulario-publico-footer
+      [usesFormSteps]="usesFormSteps"
+      [isFirstFormStep]="isFirstFormStep"
+      [isLastFormStep]="isLastFormStep"
+      [enviando]="enviando"
+      (voltarEtapa)="voltarEtapa()"
+      (avancarEtapa)="avancarEtapa()"
+    />
   }
 </div>

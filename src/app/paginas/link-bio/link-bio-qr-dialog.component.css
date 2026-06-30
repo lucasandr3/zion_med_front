@@ -1,0 +1,75 @@
+.link-bio-qr-backdrop {
+  background: rgba(0, 0, 0, 0.45);
+  inset: 0;
+  position: fixed;
+  z-index: 40;
+}
+
+.link-bio-qr-dialog {
+  background: var(--card, var(--c-surface));
+  border: 1px solid var(--border, var(--c-border));
+  border-radius: 0.75rem;
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  left: 50%;
+  max-width: min(22rem, calc(100vw - 2rem));
+  padding: 1rem;
+  position: fixed;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  z-index: 50;
+}
+
+.link-bio-qr-dialog__head {
+  align-items: flex-start;
+  display: flex;
+  gap: 0.75rem;
+  justify-content: space-between;
+}
+
+.link-bio-qr-dialog__title {
+  color: var(--foreground, var(--c-text));
+  font-size: 0.9375rem;
+  font-weight: 700;
+  line-height: 1.25;
+  margin: 0;
+}
+
+.link-bio-qr-dialog__sub {
+  color: var(--muted-foreground, var(--c-muted));
+  font-size: 0.75rem;
+  margin: 0.25rem 0 0;
+}
+
+.link-bio-qr-dialog__body {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  min-height: 13.75rem;
+  padding: 0.5rem;
+}
+
+.link-bio-qr-dialog__img {
+  border: 1px solid var(--border, var(--c-border));
+  border-radius: 0.5rem;
+  display: block;
+  height: auto;
+  max-width: 100%;
+  width: 13.75rem;
+}
+
+:host ::ng-deep .link-bio-qr-dialog__skeleton {
+  border-radius: 0.5rem;
+  display: block;
+  height: 13.75rem;
+  width: 13.75rem;
+}
+
+.link-bio-qr-dialog__actions {
+  display: grid;
+  gap: 0.5rem;
+  grid-template-columns: 1fr;
+}

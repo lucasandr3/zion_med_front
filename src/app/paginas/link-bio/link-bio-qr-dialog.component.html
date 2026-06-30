@@ -1,0 +1,48 @@
+@if (open) {
+  <div class="link-bio-qr-backdrop" role="presentation" (click)="fechar()"></div>
+  <div
+    class="link-bio-qr-dialog"
+    role="dialog"
+    aria-modal="true"
+    [attr.aria-label]="'QR code — ' + (clinicName || 'link na bio')"
+  >
+    <div class="link-bio-qr-dialog__head">
+      <div class="min-w-0">
+        <p class="link-bio-qr-dialog__title">{{ clinicName }}</p>
+        <p class="link-bio-qr-dialog__sub">Escaneie para abrir a página pública</p>
+      </div>
+      <button
+        z-button
+        zType="ghost"
+        zSize="icon-sm"
+        type="button"
+        class="shrink-0"
+        aria-label="Fechar"
+        (click)="fechar()"
+      >
+        <span class="material-symbols-outlined text-[1.125rem]">close</span>
+      </button>
+    </div>
+    <div class="link-bio-qr-dialog__body">
+      @if (qrCarregando) {
+        <z-skeleton class="link-bio-qr-dialog__skeleton" />
+      } @else if (qrDataUrl) {
+        <img [src]="qrDataUrl" alt="" class="link-bio-qr-dialog__img" />
+      }
+    </div>
+    <div class="link-bio-qr-dialog__actions">
+      <button
+        z-button
+        zType="outline"
+        zSize="sm"
+        type="button"
+        class="gap-2"
+        [disabled]="!qrDataUrl"
+        (click)="baixar()"
+      >
+        <span class="material-symbols-outlined text-base" aria-hidden="true">download</span>
+        Baixar QR code
+      </button>
+    </div>
+  </div>
+}

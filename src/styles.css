@@ -494,7 +494,17 @@ textarea.form-input {
 .form-select:focus,
 textarea.form-input:focus {
     border-color: var(--c-primary);
-    box-shadow: var(--c-focus) 0 0 0 3px;
+}
+
+/* Sem outline/ring no foco — inputs, textarea e select */
+input:focus,
+input:focus-visible,
+textarea:focus,
+textarea:focus-visible,
+select:focus,
+select:focus-visible {
+    outline: none !important;
+    box-shadow: none !important;
 }
 
 .form-input::placeholder,
@@ -652,7 +662,6 @@ textarea.form-input::placeholder { color: var(--c-muted); opacity: 0.7; }
 .form-publico-page:not(.dark) input.flatpickr-input:focus,
 .form-publico-page:not(.dark) .flatpickr-wrapper input:focus {
     border-color: #0a0a0a !important;
-    box-shadow: 0 0 0 3px rgba(10, 10, 10, 0.08) !important;
 }
 
 /* Formulário público em modo escuro */
@@ -672,7 +681,6 @@ textarea.form-input::placeholder { color: var(--c-muted); opacity: 0.7; }
 .form-publico-page.dark input.flatpickr-input:focus,
 .form-publico-page.dark .flatpickr-wrapper input:focus {
     border-color: #fafafa !important;
-    box-shadow: 0 0 0 3px rgba(250, 250, 250, 0.15) !important;
 }
 
 .form-label {
@@ -2604,6 +2612,12 @@ body.dark.shell-preset-sidebar-dark .sidebar {
     opacity: 0.9;
 }
 
+.btn-spinner--xs {
+    width: 0.75rem;
+    height: 0.75rem;
+    border-width: 2px;
+}
+
 @keyframes btn-spinner-rotate {
     to {
         transform: rotate(360deg);
@@ -2772,7 +2786,6 @@ body.dark.shell-preset-sidebar-dark .sidebar {
 
 :not(.form-publico-page) .flatpickr-wrapper input:not([type="hidden"]):focus {
   border-color: var(--ring, var(--c-primary));
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ring, var(--c-primary)) 50%, transparent);
 }
 
 body.dark :not(.form-publico-page) .flatpickr-wrapper input:not([type="hidden"]) {
@@ -3311,6 +3324,19 @@ body.dark .flatpickr-calendar .flatpickr-weekwrapper span.flatpickr-day { color:
   text-transform: uppercase;
   color: var(--muted-foreground);
 }
+
+.clinica-config .section-header__hint {
+  margin-left: auto;
+  font-size: 0.6875rem;
+  font-weight: 400;
+  letter-spacing: normal;
+  text-transform: none;
+  color: var(--muted-foreground);
+}
+
+.clinica-config z-card.section-card--highlight {
+  border-color: color-mix(in srgb, var(--primary) 35%, var(--border));
+}
 .clinica-config .section-body,
 .link-bio-config .section-body { padding: 20px; }
 
@@ -3794,8 +3820,8 @@ body.dark .flatpickr-calendar.hasTime.noCalendar .flatpickr-time input:focus {
   box-shadow: none !important;
 }
 
-/* Foco acessível sem box-shadow (substitui ring/shadow de focus) */
-:focus-visible {
+/* Foco acessível em botões/links — inputs ficam sem outline (regra global acima) */
+:focus-visible:not(input):not(textarea):not(select) {
   outline: 2px solid color-mix(in srgb, var(--ring, var(--c-primary, #2563eb)) 70%, transparent);
   outline-offset: 2px;
 }

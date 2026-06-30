@@ -917,3 +917,79 @@
   font-size: 2.5rem;
   color: var(--border);
 }
+
+.clinica-config z-card.section-card--token {
+  border-color: color-mix(in srgb, var(--primary) 35%, var(--border));
+}
+
+.clinica-config .icon-wrap--token .material-symbols-outlined {
+  color: var(--primary);
+}
+
+.clinica-config .config-code-block {
+  display: block;
+  font-size: 0.75rem;
+  word-break: break-all;
+  padding: 0.625rem;
+  background: var(--muted);
+  border-radius: 0.5rem;
+  margin-bottom: 0.625rem;
+}
+
+.clinica-config .config-code-block--compact {
+  font-size: 0.6875rem;
+  padding: 0.5rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+}
+
+.clinica-config .wa-notify-subsection {
+  padding-left: 0.25rem;
+  border-left: 2px solid var(--border);
+  margin-top: 0.75rem;
+}
+
+.clinica-config .wa-notify-subsection__title {
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+  margin: 0 0 0.625rem;
+}
+
+.clinica-config .wa-actions-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.625rem;
+  margin-bottom: 1.25rem;
+}
+
+.clinica-config .wa-qr-block {
+  margin-bottom: 1rem;
+}
+
+.clinica-config .wa-qr-block__label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--muted-foreground);
+  margin: 0 0 0.5rem;
+}
+
+.clinica-config .wa-qr-img {
+  max-width: 260px;
+  height: auto;
+  border-radius: 0.5rem;
+  border: 1px solid var(--border);
+}
+
+.clinica-config .wa-pairing-code {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  font-family: ui-monospace, monospace;
+  margin: 0.5rem 0 0;
+}
+
+.clinica-config .wa-status-action {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 0.75rem;
+}

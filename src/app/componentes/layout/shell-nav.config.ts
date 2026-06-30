@@ -24,9 +24,9 @@ export interface ShellNavSectionView extends ShellNavSection {
 /** Itens do menu tenant (app) — legado / referência plana. */
 export const SHELL_NAV_APP: ShellNavItem[] = [
   { route: '/dashboard', label: 'Painel', icon: 'dashboard', permission: 'dashboard.access', exact: true },
-  { route: '/templates', label: 'Modelos', icon: 'description', permission: 'templates.manage' },
+  { route: '/templates', label: 'Modelos de fichas', icon: 'description', permission: 'templates.manage' },
   { route: '/links-publicos', label: 'Formulários públicos', icon: 'link', permissionsAny: ['templates.manage', 'submissions.view'] },
-  { route: '/envios', label: 'Envios', icon: 'send', permissionsAny: ['templates.manage', 'submissions.view'] },
+  { route: '/envios', label: 'Envios de documento', icon: 'send', permissionsAny: ['templates.manage', 'submissions.view'] },
   { route: '/protocolos', label: 'Protocolos', icon: 'inbox', permission: 'submissions.view' },
   { route: '/pessoas', label: 'Pessoas', icon: 'group', permission: 'submissions.view' },
   { route: '/notificacoes', label: 'Notificações', icon: 'notifications', permission: 'notifications.access', badge: 'notifications' },

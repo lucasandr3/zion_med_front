@@ -1,0 +1,31 @@
+<div class="fp-preenchedora">
+  <p class="fp-preenchedora-title">Identificação de quem envia <span class="fp-optional">(opcional)</span></p>
+  <div class="fp-preenchedora-grid">
+    <div class="fp-field-group">
+      <label for="submitterName" class="fp-field-label">Seu nome</label>
+      <input
+        id="submitterName"
+        type="text"
+        [ngModel]="submitterName"
+        (ngModelChange)="submitterNameChange.emit($event); identityChange.emit()"
+        name="submitterName"
+        class="fp-input"
+        placeholder="Nome para contato"
+        [attr.autocomplete]="personLinkRequired ? 'off' : 'name'"
+      />
+    </div>
+    <div class="fp-field-group">
+      <label for="submitterEmail" class="fp-field-label">Seu e-mail</label>
+      <input
+        id="submitterEmail"
+        type="email"
+        [ngModel]="submitterEmail"
+        (ngModelChange)="submitterEmailChange.emit($event); identityChange.emit()"
+        name="submitterEmail"
+        class="fp-input"
+        placeholder="email@exemplo.com"
+        [attr.autocomplete]="personLinkRequired ? 'off' : 'email'"
+      />
+    </div>
+  </div>
+</div>
