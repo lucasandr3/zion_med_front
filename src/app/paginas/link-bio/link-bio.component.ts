@@ -173,7 +173,7 @@ export class LinkBioComponent implements OnInit {
   aparenciaFoundedYear: number | null = null;
   aparenciaContactEmail = '';
   aparenciaMapsUrl = '';
-  /** Place ID manual para gerar o link «Avalie no Google» (aba Links). */
+  /** Place ID manual para gerar o link Avalie no Google (aba Links). */
   linkAvaliePlaceIdManual = '';
   salvandoLinkAvalieGoogle = false;
   enviandoCover = false;
@@ -950,7 +950,7 @@ export class LinkBioComponent implements OnInit {
     );
   }
 
-  /** URL sugerida para o botão «Avalie no Google», com base no Maps / Place ID. */
+  /** URL sugerida para o botão Avalie no Google, com base no Maps / Place ID. */
   get urlAvalieGoogleSugerida(): string | null {
     if (!this.state?.clinic) return null;
 
@@ -986,7 +986,7 @@ export class LinkBioComponent implements OnInit {
         next: () => {
           this.salvandoLinkAvalieGoogle = false;
           this.carregar();
-          this.toast.success('Link adicionado', 'O botão «Avalie no Google» já aparece na sua página pública.');
+          this.toast.success('Link adicionado', 'O botão Avalie no Google já aparece na sua página pública.');
         },
         error: () => {
           this.salvandoLinkAvalieGoogle = false;

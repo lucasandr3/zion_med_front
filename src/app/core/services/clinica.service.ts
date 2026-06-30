@@ -54,6 +54,10 @@ export interface ClinicaConfig {
   whatsapp_notify_avisos?: boolean;
   signing_security_level?: 'basic' | 'reinforced';
   data_retention_years?: number | null;
+  /** Aparência dos formulários públicos (/f/:token). */
+  form_public_theme?: string | null;
+  form_accent_hex?: string | null;
+  hide_platform_branding?: boolean;
   plan_key?: string;
   subscription_status?: string;
   billing_status?: string;
@@ -70,6 +74,8 @@ export interface ConfigPageData {
   /** @deprecated Use organization */
   clinic?: ClinicaConfig;
   available_themes?: Record<string, ThemeOption>;
+  /** Temas da página pública + presets exclusivos (onyx-black, custom). */
+  available_public_themes?: Record<string, ThemeOption>;
   billing_plans?: Record<string, { name?: string; value?: number }>;
   billing_ui?: BillingUi;
   billing_subscriptions?: Array<{ status?: string; asaas_subscription_id?: string | null }>;

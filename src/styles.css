@@ -1816,7 +1816,7 @@ body.shell-nav-horizontal .top-header.top-header--horizontal {
     border-bottom: 1px solid var(--border, var(--c-border));
 }
 
-/* Ícones do cabeçalho (z-button ghost): modo normal vs preset «Topo e marca» (--c-muted / --c-text) */
+/* Ícones do cabeçalho (z-button ghost): modo normal vs preset Topo e marca (--c-muted / --c-text) */
 #top-header button.cabecalho-toolbar-action,
 #top-header a.cabecalho-toolbar-action {
     color: var(--muted-foreground);
@@ -1841,7 +1841,7 @@ body.dark.shell-preset-tinted .top-header {
     border-bottom: 1px solid #1e1e2a;
 }
 
-/* Título e subtítulo (classes Tailwind text-foreground / text-muted-foreground) sob preset «Topo e marca» */
+/* Título e subtítulo (classes Tailwind text-foreground / text-muted-foreground) sob preset Topo e marca */
 body.shell-preset-tinted #top-header h2.text-foreground {
     color: var(--c-text);
 }
@@ -1964,7 +1964,7 @@ body.sidebar-collapsed #sidebar[data-shell] .sidebar-brand__text {
     text-transform: uppercase;
 }
 
-/* z-button ghost no header: hover/foco sem fundo «muted» claro sobre o primário */
+/* z-button ghost no header: hover/foco sem fundo muted claro sobre o primário */
 body.shell-preset-tinted #top-header button.cabecalho-toolbar-action,
 body.shell-preset-tinted #top-header a.cabecalho-toolbar-action {
     color: rgba(255, 255, 255, 0.9);
@@ -2077,7 +2077,7 @@ body.shell-preset-tinted #top-header .header-notify-dot {
 }
 
 /*
-  Menu da empresa no header (overlay): com «Topo e marca», #top-header define texto claro —
+  Menu da empresa no header (overlay): com Topo e marca, #top-header define texto claro —
   reset do popover ligado pela classe empresa-menu-popover no cabeçalho.
 */
 body.shell-preset-tinted:not(.dark) .empresa-menu-popover {
@@ -2351,7 +2351,7 @@ body.shell-preset-sidebar-dark:not(.dark) #sidebar[data-shell] a.shell-sidebar-n
 
 /*
   Modo escuro (padrão): header e rail da sidebar na mesma superfície.
-  Com «Topo e marca», só a faixa Gestgo + #top-header usam primária (ver bloco shell-preset-tinted).
+  Com Topo e marca, só a faixa Gestgo + #top-header usam primária (ver bloco shell-preset-tinted).
 */
 .dark:not(.shell-preset-tinted) #sidebar > .sidebar-brand-strip,
 .dark:not(.shell-preset-tinted) .sidebar > .sidebar-brand-strip {

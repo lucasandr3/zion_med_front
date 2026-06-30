@@ -256,7 +256,7 @@ export function buildLinkBioOverviewSuggestions(input: LinkBioPageAuditInput): L
       id: 'google-reviews-link',
       icon: 'star',
       tone: 'purple',
-      title: 'Adicionar botão «Avalie no Google»',
+      title: 'Adicionar botão Avalie no Google',
       subtitle: 'Na aba Links, use o atalho pré-configurado — leva o paciente a avaliar no Google',
       aba: 'links',
       priority: 40,

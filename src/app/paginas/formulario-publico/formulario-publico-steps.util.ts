@@ -49,6 +49,7 @@ function buildStepsByExplicitBreaks(sorted: FormularioPublicoField[]): Formulari
         steps.push(current);
         current = [];
       }
+      current.push(field);
       continue;
     }
     current.push(field);

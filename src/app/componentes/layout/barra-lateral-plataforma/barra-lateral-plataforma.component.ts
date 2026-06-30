@@ -44,7 +44,7 @@ export class BarraLateralPlataformaComponent implements OnInit, OnDestroy {
   iniciaisUsuario = 'U';
   emailUsuario = '';
 
-  /** Com «Topo e marca», variante do logo em `assets/logo` conforme o tema. */
+  /** Com Topo e marca, variante do logo em `assets/logo` conforme o tema. */
   sidebarLogoSrc = '/assets/logo/logo.png';
 
   private auth = inject(AuthService);

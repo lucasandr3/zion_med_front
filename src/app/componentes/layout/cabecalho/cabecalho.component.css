@@ -1,6 +1,6 @@
 /* Estilos do cabeçalho (variáveis globais em styles.css) */
 
-/* ── Sheet «Tema e aparência» ───────────────────────────────────────────── */
+/* ── Sheet Tema e aparência ───────────────────────────────────────────── */
 :host ::ng-deep [data-slot='sheet'].cabecalho-theme-sheet-panel {
   bottom: auto !important;
   gap: 0.375rem;

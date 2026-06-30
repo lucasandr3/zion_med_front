@@ -174,8 +174,18 @@ export interface FormularioPublicoFeegowMeta {
 export interface FormularioPublicoData {
   template: { id: number; name: string; description?: string };
   clinic_name?: string;
+  /** Slug público da clínica (Link Bio). */
+  clinic_slug?: string | null;
   /** URL absoluta da logo (preenchida pelo service a partir da API). */
   logo_url?: string | null;
+  /** Tema público herdado da clínica (Configurações → Formulários públicos). */
+  form_public_theme?: string | null;
+  /** @deprecated Alias de form_public_theme na API pública. */
+  public_theme?: string | null;
+  /** Cor de destaque resolvida (preset ou accent_hex quando custom). */
+  accent_hex?: string | null;
+  /** Oculta "Formulário por Gestgo" no cabeçalho público. */
+  hide_platform_branding?: boolean;
   /** `basic` ou `reinforced` (OTP antes de assinar). */
   signing_security_level?: string;
   /** Evolution configurado para OTP por WhatsApp. */
@@ -241,6 +251,22 @@ interface OtpVerifyResponse {
   data: { message: string };
 }
 
+function normalizeFormularioPublicoShow(raw: FormularioPublicoData & Record<string, unknown>): FormularioPublicoData {
+  const rec = raw as Record<string, unknown>;
+  const theme =
+    (typeof rec['form_public_theme'] === 'string' ? rec['form_public_theme'] : null) ??
+    (typeof rec['public_theme'] === 'string' ? rec['public_theme'] : null);
+
+  return {
+    ...(raw as FormularioPublicoData),
+    clinic_slug: extractPublicLinkBioSlug(rec) ?? (typeof rec['clinic_slug'] === 'string' ? rec['clinic_slug'] : null),
+    form_public_theme: theme,
+    public_theme: theme,
+    accent_hex: typeof rec['accent_hex'] === 'string' ? rec['accent_hex'] : null,
+    hide_platform_branding: rec['hide_platform_branding'] === true,
+  };
+}
+
 @Injectable({ providedIn: 'root' })
 export class FormularioPublicoService {
   private http = inject(HttpClient);
@@ -253,11 +279,12 @@ export class FormularioPublicoService {
         const rec = raw as Record<string, unknown>;
         const picked = pickPublicFormLogoUrl(rec);
         const slug = extractPublicLinkBioSlug(rec);
+        const normalized = normalizeFormularioPublicoShow(raw);
         if (picked) {
-          return of({ ...raw, logo_url: picked } as FormularioPublicoData);
+          return of({ ...normalized, logo_url: picked });
         }
         if (!slug) {
-          return of({ ...raw, logo_url: null } as FormularioPublicoData);
+          return of({ ...normalized, logo_url: null });
         }
         return this.linkBio.getPublicBySlug(slug).pipe(
           map((pub) => {
@@ -266,9 +293,17 @@ export class FormularioPublicoService {
               lu != null && String(lu).trim() !== ''
                 ? absoluteMediaUrl(String(lu).trim()) ?? String(lu).trim()
                 : null;
-            return { ...raw, logo_url: resolved } as FormularioPublicoData;
+            const accentFromBio = pub.clinic?.accent_hex;
+            const themeFromBio = pub.clinic?.form_public_theme ?? pub.clinic?.public_theme;
+            return {
+              ...normalized,
+              logo_url: resolved,
+              form_public_theme: normalized.form_public_theme ?? themeFromBio ?? null,
+              public_theme: normalized.public_theme ?? themeFromBio ?? null,
+              accent_hex: normalized.accent_hex ?? accentFromBio ?? null,
+            } as FormularioPublicoData;
           }),
-          catchError(() => of({ ...raw, logo_url: null } as FormularioPublicoData))
+          catchError(() => of({ ...normalized, logo_url: null }))
         );
       })
     );

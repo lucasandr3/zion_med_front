@@ -1,4 +1,10 @@
-<div class="form-publico-page" [class.dark]="dark" [class.fp-kiosk]="kioskMode">
+<div
+  class="form-publico-page"
+  [class.dark]="dark"
+  [class.fp-kiosk]="kioskMode"
+  [class.fp-branded]="isBranded"
+  [ngStyle]="themeVars"
+>
   @if (!showSkeleton() && data && !kioskMode) {
     <header class="fp-sticky-header">
       <div class="fp-header-inner">
@@ -18,7 +24,9 @@
             }
             <div>
               <p class="fp-clinic-name">{{ data.clinic_name ?? 'Clínica' }}</p>
-              <p class="fp-sub">Formulário por Gestgo</p>
+              @if (!hidePlatformBranding()) {
+                <p class="fp-sub">Formulário por Gestgo</p>
+              }
             </div>
           </div>
           <button type="button" (click)="toggleDark()" class="fp-icon-btn" aria-label="Alternar tema claro ou escuro">
@@ -77,7 +85,7 @@
         @if (personLinkRequired() && !personGateOk) {
           <div class="fp-title-block">
             <h1 class="fp-title">{{ data.template.name }}</h1>
-            <p class="fp-lead">Para iniciar o preenchimento, informe seu CPF para autorizacao de acesso ao formulario.</p>
+            <p class="fp-lead">Para iniciar o preenchimento, informe seu CPF para autorizar o acesso ao formulário.</p>
           </div>
           @if (personGateErro) {
             <div class="fp-banner-error">{{ personGateErro }}</div>
@@ -283,10 +291,10 @@
           @if (showOtpOnCurrentStep) {
             <div class="fp-section-div" aria-hidden="true"></div>
             <div class="fp-otp-card">
-              <p class="fp-otp-title">Confirmar identidade para assinar</p>
-              <p class="fp-field-hint">Com o modo reforçado, enviamos um código de 6 dígitos antes do envio com assinatura.</p>
+              <p class="fp-otp-title">Confirme sua identidade</p>
+              <p class="fp-field-hint">Para assinar com segurança, enviamos um código de 6 dígitos para você confirmar antes do envio.</p>
               <div class="fp-field-group">
-                <label class="fp-field-label" for="fpOtpChannel">Canal</label>
+                <label class="fp-field-label" for="fpOtpChannel">Onde receber o código?</label>
                 <select id="fpOtpChannel" class="fp-input fp-select" [(ngModel)]="otpChannel" name="fpOtpChannel" [ngModelOptions]="{ standalone: true }">
                   <option value="email">E-mail</option>
                   @if (data.otp_whatsapp_available) {
@@ -326,7 +334,7 @@
                 <input id="fpOtpCode" type="text" inputmode="numeric" maxlength="6" class="fp-input" [(ngModel)]="otpCode" name="fpOtpCode" [ngModelOptions]="{ standalone: true }" autocomplete="one-time-code" />
               </div>
               <button type="button" class="fp-submit-btn fp-otp-verify" (click)="verificarOtp()" [disabled]="otpVerifying">
-                {{ otpVerifying ? 'Verificando…' : 'Validar código' }}
+                {{ otpVerifying ? 'Verificando…' : 'Confirmar código' }}
               </button>
               @if (otpVerified) {
                 <p class="fp-otp-ok">Código confirmado. Você pode enviar o formulário.</p>
@@ -340,7 +348,16 @@
           <div class="fp-section-div" aria-hidden="true"></div>
 
           @for (f of currentStepFields; track trackByKey($index, f)) {
-            <div class="fp-field-group fp-field-animate">
+            @if (isSectionHeadingField(f)) {
+              <div class="fp-section-heading fp-field-animate" [attr.data-fp-field]="f.name_key">
+                <h2 class="fp-section-heading-title">{{ f.label }}</h2>
+              </div>
+            } @else {
+            <div
+              class="fp-field-group fp-field-animate"
+              [class.fp-field-group--error]="isFieldInvalid(f.name_key)"
+              [attr.data-fp-field]="f.name_key"
+            >
               @if (fieldType(f) !== 'checkbox') {
                 <label [for]="'field_' + f.name_key" class="fp-field-label">
                   {{ f.label }}
@@ -356,7 +373,7 @@
                     [id]="'field_' + f.name_key"
                     type="text"
                     [(ngModel)]="valores[f.name_key]"
-                    (ngModelChange)="onCampoAlterado()"
+                    (ngModelChange)="onCampoAlterado(f.name_key)"
                     [name]="f.name_key"
                     class="fp-input"
                     [required]="f.required"
@@ -367,7 +384,7 @@
                   <textarea
                     [id]="'field_' + f.name_key"
                     [(ngModel)]="valores[f.name_key]"
-                    (ngModelChange)="onCampoAlterado()"
+                    (ngModelChange)="onCampoAlterado(f.name_key)"
                     [name]="f.name_key"
                     class="fp-input fp-textarea"
                     rows="4"
@@ -380,7 +397,7 @@
                     [id]="'field_' + f.name_key"
                     type="number"
                     [(ngModel)]="valores[f.name_key]"
-                    (ngModelChange)="onCampoAlterado()"
+                    (ngModelChange)="onCampoAlterado(f.name_key)"
                     [name]="f.name_key"
                     class="fp-input"
                     [required]="f.required"
@@ -394,7 +411,7 @@
                     type="text"
                     mwlFlatpickr
                     [(ngModel)]="valores[f.name_key]"
-                    (ngModelChange)="onCampoAlterado()"
+                    (ngModelChange)="onCampoAlterado(f.name_key)"
                     [name]="f.name_key"
                     class="fp-input"
                     [required]="f.required"
@@ -408,7 +425,7 @@
                   <z-checkbox
                     class="fp-field-checkbox"
                     [(ngModel)]="valores[f.name_key]"
-                    (ngModelChange)="onCampoAlterado()"
+                    (ngModelChange)="onCampoAlterado(f.name_key)"
                     [name]="f.name_key"
                     [attr.required]="f.required ? true : null"
                   >
@@ -423,7 +440,7 @@
                     <select
                       [id]="'field_' + f.name_key"
                       [(ngModel)]="valores[f.name_key]"
-                      (ngModelChange)="onCampoAlterado()"
+                      (ngModelChange)="onCampoAlterado(f.name_key)"
                       [name]="f.name_key"
                       class="fp-input fp-select"
                       [required]="f.required"
@@ -444,7 +461,7 @@
                         <input
                           type="radio"
                           [(ngModel)]="valores[f.name_key]"
-                          (ngModelChange)="onCampoAlterado()"
+                          (ngModelChange)="onCampoAlterado(f.name_key)"
                           [name]="f.name_key"
                           [value]="opt.value"
                           [required]="f.required"
@@ -501,7 +518,11 @@
                   <input [id]="'field_' + f.name_key" type="text" [(ngModel)]="valores[f.name_key]" [name]="f.name_key" class="fp-input" [required]="f.required" />
                 }
               }
+              @if (isFieldInvalid(f.name_key)) {
+                <p class="fp-field-error-msg" role="alert">Preencha este campo para continuar.</p>
+              }
             </div>
+            }
           }
           @if (showConsentOnCurrentStep) {
             <div class="fp-consent-block" (click)="toggleAcceptTermsFromBlock($event)">

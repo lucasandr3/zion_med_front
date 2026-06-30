@@ -1,6 +1,6 @@
 import { GESTGO_THEME_LS, normalizeThemeKey } from '../services/user-appearance.sync';
 
-/** Ficheiros em `assets/logo/` alinhados aos temas da UI (modo «Topo e marca»). */
+/** Ficheiros em `assets/logo/` alinhados aos temas da UI (modo Topo e marca). */
 const THEME_LOGO_FILE: Record<string, string> = {
   'gestgo-blue': 'logo-azul.png',
   'ocean-blue': 'logo-ocean.png',

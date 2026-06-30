@@ -147,6 +147,10 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
   appliedThemeKey = 'ocean-blue';
   /** Preferência do usuário (header/sidebar); não faz parte do payload da empresa. */
   shellPresetAtual: ShellPreset = 'default';
+  /** Aparência exclusiva dos formulários públicos (/f/:token). */
+  formPublicTheme = '';
+  formCustomAccent = '#c9a84c';
+  hidePlatformBranding = false;
   readonly shellPresetOptions = SHELL_PRESET_UI_OPTIONS;
   private _sysDarkMql: MediaQueryList | null = null;
   private _sysListener = () => this._applyAutoTheme();
@@ -249,6 +253,16 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
     return this.pageData?.available_themes ?? {};
   }
 
+  get availablePublicThemes(): Record<string, { label?: string; primary?: string }> {
+    return this.pageData?.available_public_themes ?? this.availableThemes;
+  }
+
+  get publicFormThemeKeys(): string[] {
+    return Object.keys(this.availablePublicThemes).filter(
+      (key) => key !== 'onyx-black' && key !== 'custom'
+    );
+  }
+
   get canAddMultiEmpresa(): boolean {
     return !!this.pageData?.can_add_multi_empresa;
   }
@@ -301,6 +315,42 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
 
   selectTheme(value: string): void {
     this.onThemeChanged(value);
+  }
+
+  getPublicFormThemeLabel(themeKey: string): string {
+    const canonicalThemeKey = normalizeThemeKey(themeKey);
+    return TEMA_LABEL_PT_MAP[canonicalThemeKey] ?? this.availablePublicThemes[themeKey]?.label ?? themeKey;
+  }
+
+  selecionarFormPublicTheme(themeKey: string): void {
+    this.formPublicTheme = themeKey === '' ? '' : normalizeThemeKey(themeKey);
+  }
+
+  isFormPublicThemeSelected(themeKey: string): boolean {
+    if (themeKey === '') {
+      return this.formPublicTheme === '';
+    }
+    return normalizeThemeKey(this.formPublicTheme) === normalizeThemeKey(themeKey);
+  }
+
+  onFormCustomAccentChange(value: string): void {
+    const hex = this.normalizarFormAccentHex(value);
+    if (hex) {
+      this.formCustomAccent = hex;
+    }
+  }
+
+  private normalizarFormAccentHex(value: string | null | undefined): string | null {
+    const v = (value ?? '').trim();
+    if (!v) return null;
+    const short = /^#([0-9a-f]{3})$/i.exec(v);
+    if (short) {
+      const [r, g, b] = short[1]!.split('');
+      return `#${r}${r}${g}${g}${b}${b}`.toLowerCase();
+    }
+    const long = /^#([0-9a-f]{6})$/i.exec(v);
+    if (long) return v.toLowerCase();
+    return null;
   }
 
   isThemeSelected(themeKey: string): boolean {
@@ -488,6 +538,9 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
       theme: c.theme ?? 'ocean-blue',
       dark_mode: c.dark_mode ?? false,
     };
+    this.formPublicTheme = c.form_public_theme ? normalizeThemeKey(String(c.form_public_theme)) : '';
+    this.formCustomAccent = this.normalizarFormAccentHex(String(c.form_accent_hex ?? '')) ?? '#c9a84c';
+    this.hidePlatformBranding = c.hide_platform_branding === true;
     this.themeMode = (c.dark_mode ?? false) ? 'dark' : 'light';
     if (c.address_data) {
       this.patchEnderecoFromAddressData(c.address_data);
@@ -1104,6 +1157,9 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
           : Number(this.form.data_retention_years),
       theme: this.form.theme ?? undefined,
       dark_mode: !!this.form.dark_mode,
+      form_public_theme: this.formPublicTheme,
+      form_accent_hex: this.formPublicTheme === 'custom' ? this.formCustomAccent : null,
+      hide_platform_branding: this.hidePlatformBranding,
     };
     this.clinicaService.updateConfiguracoes(payload as Partial<ClinicaConfig>, this.logoFile ?? undefined).subscribe({
       next: (updated) => {

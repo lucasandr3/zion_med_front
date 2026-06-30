@@ -18,7 +18,11 @@ import {
 import { LoadingService } from '../../shared/services/loading.service';
 import { ToastService } from '../../core/services/toast.service';
 import { digitsOnlyCpf, formatCpfDisplay, isValidCpfDigits } from '../../core/utils/cpf';
-import { buildFormFieldSteps, isTrackableFormField } from './formulario-publico-steps.util';
+import { buildFormFieldSteps, isFormStepBreakField, isTrackableFormField } from './formulario-publico-steps.util';
+import {
+  buildFormularioPublicoThemeVars,
+  formularioPublicoHasBranding,
+} from './formulario-publico-theme.util';
 
 interface PersonPrefill {
   name?: string;
@@ -211,6 +215,8 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
   logoImageFailed = signal(false);
   /** Índice da etapa atual (0-based) em formulários longos. */
   currentStepIndex = 0;
+  /** Campos com erro de validação inline (obrigatórios vazios). */
+  invalidFieldKeys = new Set<string>();
   private route = inject(ActivatedRoute);
   private cdr = inject(ChangeDetectorRef);
   private router = inject(Router);
@@ -635,7 +641,7 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
       this.hasFilledSignatures() &&
       !this.otpVerified
     ) {
-      this.toast.warning('Verificação', 'Envie e confirme o código OTP (e-mail ou WhatsApp) antes de enviar o formulário.');
+      this.toast.warning('Verificação', 'Envie e confirme o código por e-mail ou WhatsApp antes de enviar o formulário.');
       return;
     }
     this.enviando = true;
@@ -1016,7 +1022,41 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
   }
 
   /** Atualiza a barra de progresso após alteração de campo (ex.: z-checkbox). */
-  onCampoAlterado(): void {
+  onCampoAlterado(fieldKey?: string): void {
+    if (fieldKey) {
+      this.clearFieldInvalid(fieldKey);
+    }
+    this.cdr.markForCheck();
+  }
+
+  isSectionHeadingField(f: FormularioPublicoField): boolean {
+    return isFormStepBreakField(f);
+  }
+
+  isFieldInvalid(nameKey: string): boolean {
+    return this.invalidFieldKeys.has(nameKey);
+  }
+
+  hidePlatformBranding(): boolean {
+    return !!this.data?.hide_platform_branding;
+  }
+
+  get themeVars(): Record<string, string> {
+    return buildFormularioPublicoThemeVars(this.data);
+  }
+
+  get isBranded(): boolean {
+    return formularioPublicoHasBranding(this.data);
+  }
+
+  private clearFieldInvalid(nameKey: string): void {
+    if (this.invalidFieldKeys.delete(nameKey)) {
+      this.cdr.markForCheck();
+    }
+  }
+
+  private markInvalidFields(keys: string[]): void {
+    this.invalidFieldKeys = new Set(keys);
     this.cdr.markForCheck();
   }
 
@@ -1041,24 +1081,47 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
 
   private validarCamposObrigatorios(fields: FormularioPublicoField[]): boolean {
     if (!this.data) return false;
-    const pendentes = fields.filter((f) => f.required && !this.isFieldFilled(f));
+    const pendentes = fields.filter(
+      (f) => !isFormStepBreakField(f) && f.required && !this.isFieldFilled(f)
+    );
     if (pendentes.length) {
+      this.markInvalidFields(pendentes.map((f) => f.name_key));
       if (this.usesFormSteps) {
-        const stepIndex = this.formFieldSteps.findIndex((step) => step.some((f) => f.name_key === pendentes[0]!.name_key));
+        const stepIndex = this.formFieldSteps.findIndex((step) =>
+          step.some((f) => f.name_key === pendentes[0]!.name_key)
+        );
         if (stepIndex >= 0 && stepIndex !== this.currentStepIndex) {
           this.currentStepIndex = stepIndex;
-          this.scrollToFormTop();
         }
       }
+      window.setTimeout(() => this.scrollToFirstInvalidField(pendentes[0]!.name_key), 80);
       this.toast.warning(
         'Campos obrigatórios',
         this.usesFormSteps
-          ? 'Preencha os campos marcados com * nesta etapa antes de continuar.'
-          : 'Preencha os campos marcados com * antes de enviar.'
+          ? 'Preencha os campos destacados nesta etapa antes de continuar.'
+          : 'Preencha os campos destacados antes de enviar.'
       );
       return false;
     }
+    this.invalidFieldKeys.clear();
+    this.cdr.markForCheck();
     return true;
+  }
+
+  private scrollToFirstInvalidField(nameKey: string): void {
+    if (typeof document === 'undefined') return;
+    const el =
+      document.getElementById(`field_${nameKey}`) ??
+      document.getElementById(`signature_${nameKey}`) ??
+      document.querySelector(`[data-fp-field="${nameKey}"]`);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      if (el instanceof HTMLElement && typeof el.focus === 'function') {
+        el.focus({ preventScroll: true });
+      }
+      return;
+    }
+    this.scrollToFormTop();
   }
 
   private scrollToFormTop(): void {
@@ -1158,6 +1221,7 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
     if (canvas) {
       (canvas as unknown as { _signing: boolean })._signing = false;
       this.valores[key] = canvas.toDataURL('image/png');
+      this.onCampoAlterado(key);
     }
   }
 

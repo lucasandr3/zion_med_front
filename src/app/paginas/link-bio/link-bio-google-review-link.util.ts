@@ -3,7 +3,7 @@ import type { LinkBioClinic, LinkBioLink } from '../../core/services/link-bio.se
 export const GOOGLE_REVIEW_LINK_LABEL = 'Avalie no Google';
 export const GOOGLE_REVIEW_LINK_ICON = 'star';
 
-/** Link curto do Maps (Compartilhar) — serve para «Como chegar», mas não traz Place ID. */
+/** Link curto do Maps (Compartilhar) — serve para Como chegar, mas não traz Place ID. */
 export function isShortGoogleMapsShareUrl(mapsUrl: string | null | undefined): boolean {
   const raw = mapsUrl?.trim();
   if (!raw) return false;

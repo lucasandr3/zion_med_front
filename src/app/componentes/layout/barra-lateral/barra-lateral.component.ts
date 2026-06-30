@@ -56,7 +56,7 @@ export class BarraLateralComponent implements OnInit, OnDestroy {
   /** Links públicos / envios: templates ou ao menos ver submissões. */
   podeAcessarLinksEEnvios = false;
 
-  /** Com «Topo e marca», variante do logo em `assets/logo` conforme o tema. */
+  /** Com Topo e marca, variante do logo em `assets/logo` conforme o tema. */
   sidebarLogoSrc = '/assets/logo/logo.png';
 
   private auth = inject(AuthService);
