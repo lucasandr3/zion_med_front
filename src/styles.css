@@ -2074,6 +2074,21 @@ body.shell-preset-tinted #top-header .shell-profile-chip--header .material-symbo
     background: var(--border);
 }
 
+.sidebar-shell-menu-popover {
+    box-sizing: border-box;
+}
+
+/* Iguala a largura do popup à do chip trigger (sidebar px-2 = 1rem total). */
+body:not(.sidebar-collapsed) .sidebar-shell-menu-popover {
+    width: calc(var(--sidebar-w, 15rem) - 1rem);
+    min-width: calc(var(--sidebar-w, 15rem) - 1rem);
+    max-width: calc(var(--sidebar-w, 15rem) - 1rem);
+}
+
+body.sidebar-collapsed .sidebar-shell-menu-popover {
+    min-width: 13rem;
+}
+
 .empresa-menu-popover__items {
     display: flex;
     flex-direction: column;

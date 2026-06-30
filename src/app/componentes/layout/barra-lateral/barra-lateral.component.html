@@ -56,11 +56,6 @@
         }
       }
     }
-    @if (planLimitsResumo(); as resumo) {
-      <div class="sidebar-label mx-2 mb-2 rounded-md border border-border bg-muted/40 px-2.5 py-2 text-[0.65rem] leading-snug text-muted-foreground">
-        {{ resumo }}
-      </div>
-    }
   </nav>
 
   <div class="shrink-0 overflow-visible border-t border-border px-2 py-2">
@@ -89,7 +84,7 @@
       </button>
 
       <ng-template #usuarioSidebarMenuTpl>
-        <div z-menu-content class="sidebar-shell-menu-popover min-w-52 rounded-lg border border-border bg-popover p-1.5 text-popover-foreground">
+        <div z-menu-content class="sidebar-shell-menu-popover rounded-lg border border-border bg-popover p-1.5 text-popover-foreground">
           @if (exibirTrocarEmpresa) {
             <a
               z-menu-item

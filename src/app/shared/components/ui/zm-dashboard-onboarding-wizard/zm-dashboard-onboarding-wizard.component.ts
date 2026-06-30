@@ -64,6 +64,66 @@ export class ZmDashboardOnboardingWizardComponent implements OnChanges {
     this.linkCopiado = false;
   }
 
+  iconeTemplate(template: Template): string {
+    const name = (template.name ?? '').toLowerCase();
+    const category = (template.category ?? '').toLowerCase();
+    const label = `${name} ${category}`;
+
+    if (label.includes('lgpd') || label.includes('autorização') || label.includes('consent')) {
+      return 'verified_user';
+    }
+    if (label.includes('checklist') || label.includes('sala')) {
+      return 'checklist';
+    }
+    if (label.includes('toxina') || label.includes('botul')) {
+      return 'vaccines';
+    }
+    if (label.includes('preenchimento') || label.includes('ácido') || label.includes('acido')) {
+      return 'water_drop';
+    }
+    if (label.includes('depilação') || label.includes('depilacao') || label.includes('laser')) {
+      return 'flare';
+    }
+    if (label.includes('peeling') || label.includes('lumínic') || label.includes('luminic')) {
+      return 'light_mode';
+    }
+    if (label.includes('corporal') || label.includes('corpo')) {
+      return 'accessibility_new';
+    }
+    if (label.includes('anamnese')) {
+      return 'clinical_notes';
+    }
+    if (label.includes('cadastro') || label.includes('ficha')) {
+      return 'assignment';
+    }
+    if (label.includes('retorno') || label.includes('avalia')) {
+      return 'stethoscope';
+    }
+    return 'description';
+  }
+
+  categoriaTemplate(template: Template): string | null {
+    const name = (template.name ?? '').toLowerCase();
+    if (name.includes('anamnese')) {
+      return 'Anamnese';
+    }
+    if (name.includes('lgpd') || name.includes('autorização') || name.includes('autorizacao')) {
+      return 'Consentimento';
+    }
+    if (name.includes('checklist')) {
+      return 'Operacional';
+    }
+    if (template.category?.trim()) {
+      return template.category.trim();
+    }
+    return null;
+  }
+
+  nomeTemplateSelecionado(): string {
+    const template = this.templates.find((item) => item.id === this.templateSelecionadoId);
+    return template ? `Modelo selecionado: ${template.name}` : '';
+  }
+
   gerarLink(): void {
     if (!this.templateSelecionadoId) {
       this.toast.error('Selecione um modelo', 'Escolha um formulário antes de gerar o link.');

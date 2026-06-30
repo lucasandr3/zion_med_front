@@ -34,6 +34,7 @@ import { ZardButtonComponent } from '@/shared/components/button/button.component
   standalone: true,
   imports: [CommonModule, ZardCardComponent, ZardButtonComponent],
   templateUrl: './link-bio-overview-section.component.html',
+  styleUrl: './link-bio-overview-section.component.css',
 })
 export class LinkBioOverviewSectionComponent {
   @Input({ required: true }) metrics!: LinkBioMetrics;

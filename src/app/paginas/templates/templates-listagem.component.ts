@@ -3,7 +3,9 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { catchError, forkJoin, of } from 'rxjs';
 import { TemplatesService, Template } from '../../core/services/templates.service';
+import { DashboardService } from '../../core/services/dashboard.service';
 import { LoadingService } from '../../shared/services/loading.service';
 import {
   ZmSkeletonTemplatesColecaoComponent,
@@ -83,12 +85,14 @@ type ModoColecao = 'cards' | 'lista';
 
 import { ZardTableImports } from '@/shared/components/table';
 import { ZardTooltipImports } from '@/shared/components/tooltip';
+import { ZardMenuImports } from '@/shared/components/menu/menu.imports';
 @Component({
   selector: 'app-templates-listagem',
   standalone: true,
   imports: [
     ...ZardTableImports,
     ...ZardTooltipImports,
+    ...ZardMenuImports,
     CommonModule,
     RouterLink,
     FormsModule,
@@ -131,8 +135,11 @@ export class TemplatesListagemComponent implements OnInit {
 
   removendoId: number | null = null;
   publicandoId: number | null = null;
+  menuItem: Template | null = null;
+  respostasPorTemplate: Record<number, number> = {};
 
   private templatesService = inject(TemplatesService);
+  private dashboardService = inject(DashboardService);
   private loadingService = inject(LoadingService);
   private toast = inject(ToastService);
   private confirm = inject(ConfirmDialogService);
@@ -154,12 +161,18 @@ export class TemplatesListagemComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    const { data$, showSkeleton } = this.loadingService.loadWithThreshold(this.templatesService.list());
+    const { data$, showSkeleton } = this.loadingService.loadWithThreshold(
+      forkJoin({
+        templates: this.templatesService.list(),
+        dashboard: this.dashboardService.getDashboard().pipe(catchError(() => of(null))),
+      }),
+    );
     this.showSkeleton = showSkeleton;
     data$.subscribe({
-      next: (list) => {
+      next: ({ templates, dashboard }) => {
         this.listaPronta = true;
-        this.templates = list;
+        this.templates = templates;
+        this.respostasPorTemplate = dashboard?.respostas_por_template ?? {};
         this.montarGrupos();
         this.validarCategoriaNaUrl();
       },
@@ -266,18 +279,30 @@ export class TemplatesListagemComponent implements OnInit {
 
   subtituloModelo(t: Template): string {
     const raw = (t.description ?? '').trim();
-    if (raw) {
-      return raw.length > 90 ? `${raw.slice(0, 87)}...` : raw;
-    }
+    if (raw) return raw;
     return 'Modelo de ficha';
   }
 
-  rotuloCriadoEm(t: Template): string {
-    const iso = t.created_at;
-    if (!iso) return '';
-    const d = new Date(iso);
-    if (Number.isNaN(d.getTime())) return '';
-    return d.toLocaleDateString('pt-BR', { day: 'numeric', month: 'short', year: 'numeric' });
+  rotuloCategoria(t: Template): string {
+    const key = canonicalCategoryKey(t.category);
+    return CATEGORY_LABELS[key] ?? this.formatarChaveCategoriaFallback(key);
+  }
+
+  respostasModelo(t: Template): number {
+    return this.respostasPorTemplate[t.id] ?? 0;
+  }
+
+  rotuloRespostas(t: Template): string {
+    const n = this.respostasModelo(t);
+    return `${n} ${n === 1 ? 'resposta' : 'respostas'}`;
+  }
+
+  rotuloPublicar(t: Template): string {
+    return t.public_enabled ? 'Tirar publicação' : 'Publicar';
+  }
+
+  iconePublicar(t: Template): string {
+    return t.public_enabled ? 'link_off' : 'public';
   }
 
   rotuloAtualizacaoGrupo(grupo: { items: Template[] }): string {
@@ -324,17 +349,47 @@ export class TemplatesListagemComponent implements OnInit {
     });
   }
 
-  publicarOuCopiarLink(t: Template, event: Event): void {
+  alternarPublicacao(t: Template, event: Event): void {
     event.preventDefault();
     event.stopPropagation();
 
     if (this.publicandoId === t.id) return;
 
-    if (t.public_enabled && (t.public_url ?? '').trim() !== '') {
-      void this.copiarLinkPublico(t);
+    if (t.public_enabled) {
+      void this.despublicarModelo(t);
       return;
     }
 
+    this.publicarModelo(t);
+  }
+
+  private async despublicarModelo(t: Template): Promise<void> {
+    const nome = t.name?.trim() || 'este modelo';
+    const ok = await this.confirm.request({
+      title: 'Tirar publicação?',
+      messageBefore: 'O formulário ',
+      emphasis: nome,
+      messageAfter: ' deixará de ser acessível pelo link atual. Você poderá publicar novamente depois.',
+      confirmLabel: 'Sim, tirar publicação',
+      variant: 'danger',
+    });
+    if (!ok) return;
+
+    this.publicandoId = t.id;
+    this.templatesService.desativarLink(t.id).subscribe({
+      next: () => {
+        this.publicandoId = null;
+        this.marcarTemplateComoNaoPublico(t.id);
+        this.toast.success('Publicação removida', 'O link público foi desativado.');
+      },
+      error: () => {
+        this.publicandoId = null;
+        this.toast.error('Erro ao despublicar', 'Não foi possível remover a publicação deste modelo.');
+      },
+    });
+  }
+
+  private publicarModelo(t: Template): void {
     this.publicandoId = t.id;
     this.templatesService.gerarLink(t.id).subscribe({
       next: async (resp) => {
@@ -380,17 +435,11 @@ export class TemplatesListagemComponent implements OnInit {
       }));
   }
 
-  private async copiarLinkPublico(t: Template): Promise<void> {
-    const url = String(t.public_url ?? '').trim();
-    if (!url) {
-      this.toast.error('Link indisponível', 'Este modelo está público, mas o link ainda não foi carregado.');
-      return;
-    }
-    const copied = await this.copiarTexto(url);
-    if (copied) {
-      this.toast.success('Link copiado', 'Link público copiado para a área de transferência.');
-    } else {
-      this.toast.error('Falha ao copiar', 'Não foi possível copiar o link automaticamente.');
+  private marcarTemplateComoNaoPublico(templateId: number): void {
+    for (const item of this.templates) {
+      if (item.id !== templateId) continue;
+      item.public_enabled = false;
+      item.public_url = '';
     }
   }
 

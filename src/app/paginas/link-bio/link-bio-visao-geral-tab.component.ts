@@ -27,6 +27,7 @@ import {
     LinkBioQrDialogComponent,
   ],
   templateUrl: './link-bio-visao-geral-tab.component.html',
+  styleUrl: './link-bio-visao-geral-tab.component.css',
 })
 export class LinkBioVisaoGeralTabComponent {
   @Input({ required: true }) state!: LinkBioState;

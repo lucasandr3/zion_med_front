@@ -59,9 +59,9 @@ type OnChangeType = (value: boolean) => void;
     /* Usa o mesmo visual de input[type=checkbox] / .form-checkbox em styles.css */
     z-checkbox .z-checkbox-wrapper,
     [z-checkbox] .z-checkbox-wrapper {
-      display: flex;
-      align-items: flex-start;
-      gap: 0.625rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
       cursor: pointer;
       margin: 0;
     }
@@ -74,7 +74,7 @@ type OnChangeType = (value: boolean) => void;
 
     z-checkbox .z-checkbox-native,
     [z-checkbox] .z-checkbox-native {
-      margin-top: 0.125rem;
+      margin: 0;
       flex-shrink: 0;
     }
 
@@ -104,8 +104,8 @@ type OnChangeType = (value: boolean) => void;
     [z-checkbox] .z-checkbox-text {
       flex: 1;
       min-width: 0;
-      line-height: 1.45;
-      padding-top: 0.0625rem;
+      line-height: 1.25;
+      padding: 0;
     }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,

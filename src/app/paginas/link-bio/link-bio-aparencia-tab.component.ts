@@ -31,6 +31,7 @@ import { ZardCardComponent } from '@/shared/components/card/card.component';
     ZardCardComponent,
   ],
   templateUrl: './link-bio-aparencia-tab.component.html',
+  styleUrl: './link-bio-aparencia-tab.component.css',
 })
 export class LinkBioAparenciaTabComponent implements OnChanges {
   @Input({ required: true }) state!: LinkBioState;

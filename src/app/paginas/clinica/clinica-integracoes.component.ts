@@ -24,6 +24,7 @@ import { ZardButtonComponent } from '@/shared/components/button/button.component
 import { ZardTabComponent, ZardTabGroupComponent } from '@/shared/components/tabs';
 import { ZardBadgeComponent } from '@/shared/components/badge';
 import type { ZardBadgeTypeVariants } from '@/shared/components/badge/badge.variants';
+import { scrambleDocsUiUrl, scrambleOpenApiJsonUrl } from '../../core/utils/api-docs-url.util';
 
 type AbaIntegracao = 'api' | 'webhooks' | 'entregas' | 'sistemas';
 
@@ -71,6 +72,9 @@ export class ClinicaIntegracoesComponent implements OnInit {
   tokenCriando = false;
   webhookCriando = false;
   reenviandoId: number | null = null;
+
+  readonly docsApiUrl = scrambleDocsUiUrl();
+  readonly docsApiJsonUrl = scrambleOpenApiJsonUrl();
 
   ngOnInit(): void {
     this.carregar();

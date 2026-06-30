@@ -397,13 +397,13 @@
                             zType="ghost"
                             zSize="icon-xs"
                             type="button"
-                            [zTooltip]="t.public_enabled ? 'Copiar link' : 'Publicar'"
-                            [attr.aria-label]="t.public_enabled ? 'Copiar link' : 'Publicar'"
+                            [zTooltip]="rotuloPublicar(t)"
+                            [attr.aria-label]="rotuloPublicar(t)"
                             [zDisabled]="publicandoId === t.id"
                             [zLoading]="publicandoId === t.id"
-                            (click)="publicarOuCopiarLink(t, $event)"
+                            (click)="alternarPublicacao(t, $event)"
                           >
-                            <span class="material-symbols-outlined text-sm">{{ t.public_enabled ? 'content_copy' : 'public' }}</span>
+                            <span class="material-symbols-outlined text-sm">{{ iconePublicar(t) }}</span>
                           </button>
                           <a
                             z-button
@@ -449,113 +449,106 @@
             </div>
           </z-card>
         } @else {
-          <div class="grid grid-cols-1 gap-3.5 sm:grid-cols-2 xl:grid-cols-3">
+          <div class="templates-modelo-grid">
             @for (t of itensVisiveis(grupoDetalhe); track t.id) {
-              <z-card
-                class="flex h-full min-h-[13.5rem] flex-col !gap-0 !py-0 border-border bg-card shadow-sm transition-shadow hover:shadow-md **:data-[slot=card-content]:flex **:data-[slot=card-content]:min-h-0 **:data-[slot=card-content]:flex-1 **:data-[slot=card-content]:flex-col **:data-[slot=card-content]:gap-0 **:data-[slot=card-content]:p-0 **:data-[slot=card-footer]:w-full **:data-[slot=card-footer]:!flex-row **:data-[slot=card-footer]:items-stretch **:data-[slot=card-footer]:gap-2 **:data-[slot=card-footer]:px-5 **:data-[slot=card-footer]:pb-5 **:data-[slot=card-footer]:pt-0"
-                [zFooterBorder]="true"
-              >
-                <div class="flex items-center justify-between gap-3 border-b border-border px-5 pb-3.5 pt-5">
-                  <div class="flex min-w-0 flex-wrap items-center gap-1.5">
-                    @if (t.is_active) {
-                      <z-badge zType="default" zShape="pill">Ativo</z-badge>
-                    } @else {
-                      <z-badge zType="secondary" zShape="pill">Inativo</z-badge>
-                    }
-                    @if (t.public_enabled) {
-                      <z-badge zType="outline" zShape="pill" class="h-5 gap-1">
-                        <span class="material-symbols-outlined text-xs" aria-hidden="true">visibility</span>
-                        Público
-                      </z-badge>
-                    }
-                  </div>
-                  <div class="flex shrink-0 items-center gap-0.5">
-                    <a
-                      z-button
-                      zType="ghost"
-                      zSize="icon-xs"
-                      [routerLink]="['/templates', t.id, 'campos']"
-                      class="no-underline"
-                      zTooltip="Campos"
-                      aria-label="Campos do modelo"
-                    >
-                      <span class="material-symbols-outlined text-sm">tune</span>
-                    </a>
-                    <a
-                      z-button
-                      zType="ghost"
-                      zSize="icon-xs"
-                      [routerLink]="['/templates', t.id, 'editar']"
-                      class="no-underline"
-                      zTooltip="Editar"
-                      aria-label="Editar modelo"
-                    >
-                      <span class="material-symbols-outlined text-sm">edit</span>
-                    </a>
-                    <button
-                      z-button
-                      zType="ghost"
-                      zSize="icon-xs"
-                      type="button"
-                      class="text-destructive hover:text-destructive"
-                      zTooltip="Remover"
-                      aria-label="Remover modelo"
-                      [zDisabled]="removendoId === t.id"
-                      [zLoading]="removendoId === t.id"
-                      (click)="remover(t, $event)"
-                    >
-                      <span class="material-symbols-outlined text-sm">delete</span>
-                    </button>
-                  </div>
-                </div>
-
-                <div class="flex min-h-[6.5rem] flex-1 flex-col items-center justify-center gap-2 px-5 py-5 text-center">
-                  <h3 class="m-0 line-clamp-2 text-base font-semibold text-foreground">{{ t.name }}</h3>
-                  <p class="m-0 line-clamp-2 text-sm text-muted-foreground">{{ subtituloModelo(t) }}</p>
-                  @if (rotuloCriadoEm(t)) {
-                    <p class="m-0 flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
-                      <span class="material-symbols-outlined text-sm" aria-hidden="true">calendar_today</span>
-                      Criado em {{ rotuloCriadoEm(t) }}
-                    </p>
+              <article class="templates-modelo-card">
+                <div class="templates-modelo-card__head">
+                  @if (t.is_active) {
+                    <span class="templates-modelo-card__status templates-modelo-card__status--ativo">Ativo</span>
+                  } @else {
+                    <span class="templates-modelo-card__status templates-modelo-card__status--inativo">Inativo</span>
                   }
+                  <button
+                    z-menu
+                    type="button"
+                    [zMenuTriggerFor]="modeloMenuTpl"
+                    zPlacement="bottomRight"
+                    z-button
+                    zType="ghost"
+                    zSize="icon-sm"
+                    class="templates-modelo-card__menu-btn"
+                    [attr.aria-label]="'Mais opções para ' + t.name"
+                    (click)="menuItem = t"
+                  >
+                    <span class="material-symbols-outlined text-[1.125rem]" aria-hidden="true">more_vert</span>
+                  </button>
                 </div>
 
-                <div card-footer class="flex w-full gap-2">
+                <div class="templates-modelo-card__body">
+                  <p class="templates-modelo-card__categoria">
+                    {{ rotuloCategoria(t) }}
+                  </p>
+                  <h3 class="templates-modelo-card__titulo">{{ t.name }}</h3>
+                  <p class="templates-modelo-card__descricao">{{ subtituloModelo(t) }}</p>
+                </div>
+
+                <div class="templates-modelo-card__stats">
+                  <span class="material-symbols-outlined" aria-hidden="true">bar_chart</span>
+                  {{ rotuloRespostas(t) }}
+                </div>
+
+                <div class="templates-modelo-card__actions">
                   <a
                     z-button
                     zType="outline"
                     zSize="sm"
-                    class="min-w-0 flex-1 gap-1.5 no-underline"
+                    class="templates-modelo-card__action no-underline"
                     [routerLink]="['/templates', t.id, 'preview']"
                     target="_blank"
                     rel="noopener noreferrer"
                     title="Pré-visualizar modelo"
                     aria-label="Pré-visualizar modelo"
                   >
-                    <span class="material-symbols-outlined text-base">open_in_new</span>
+                    <span class="material-symbols-outlined text-base" aria-hidden="true">open_in_new</span>
                     Pré-visualizar
                   </a>
                   <button
                     z-button
-                    zType="default"
+                    [zType]="t.public_enabled ? 'outline' : 'default'"
                     zSize="sm"
                     type="button"
-                    class="min-w-0 flex-1 gap-1.5"
-                    [title]="t.public_enabled ? 'Copiar' : 'Publicar'"
-                    [attr.aria-label]="t.public_enabled ? 'Copiar' : 'Publicar'"
+                    class="templates-modelo-card__action templates-modelo-card__action--primary"
+                    [title]="rotuloPublicar(t)"
+                    [attr.aria-label]="rotuloPublicar(t)"
                     [zDisabled]="publicandoId === t.id"
                     [zLoading]="publicandoId === t.id"
-                    (click)="publicarOuCopiarLink(t, $event)"
+                    (click)="alternarPublicacao(t, $event)"
                   >
-                    <span class="material-symbols-outlined text-base">{{ t.public_enabled ? 'content_copy' : 'public' }}</span>
-                    {{ t.public_enabled ? 'Copiar' : 'Publicar' }}
+                    <span class="material-symbols-outlined text-base" aria-hidden="true">{{ iconePublicar(t) }}</span>
+                    {{ rotuloPublicar(t) }}
                   </button>
                 </div>
-              </z-card>
+              </article>
             }
           </div>
         }
       }
     </div>
   }
+
+  <ng-template #modeloMenuTpl>
+    @if (menuItem) {
+      <div z-menu-content class="min-w-44">
+        <a z-menu-item [routerLink]="['/templates', menuItem.id, 'campos']" class="gap-2 text-inherit no-underline">
+          <span class="material-symbols-outlined shrink-0 text-base" aria-hidden="true">tune</span>
+          Campos
+        </a>
+        <a z-menu-item [routerLink]="['/templates', menuItem.id, 'editar']" class="gap-2 text-inherit no-underline">
+          <span class="material-symbols-outlined shrink-0 text-base" aria-hidden="true">edit</span>
+          Editar
+        </a>
+        <button
+          type="button"
+          z-menu-item
+          zType="destructive"
+          class="w-full gap-2"
+          [zDisabled]="removendoId === menuItem.id"
+          (click)="remover(menuItem, $event)"
+        >
+          <span class="material-symbols-outlined shrink-0 text-base" aria-hidden="true">delete</span>
+          Remover
+        </button>
+      </div>
+    }
+  </ng-template>
 </div>

@@ -57,7 +57,6 @@ export class BarraLateralComponent implements OnInit, OnDestroy {
   emailUsuario = '';
   exibirTrocarEmpresa = false;
   ehAdminPlataforma = false;
-  podeVerBilling = false;
   podeGerenciarClinica = false;
 
   sidebarLogoSrc = '/assets/logo/logo.png';
@@ -112,23 +111,8 @@ export class BarraLateralComponent implements OnInit, OnDestroy {
     return d === 1 ? '1 dia' : `${d} dias`;
   }
 
-  planLimitsResumo(): string | null {
-    const org = this.auth.getCurrentOrganization();
-    const limits = org?.plan_limits;
-    if (!limits) return null;
-    const parts: string[] = [];
-    if (limits.plan_key) {
-      parts.push(String(limits.plan_key).toUpperCase());
-    }
-    if (limits.max_users != null && limits.users_count != null) {
-      parts.push(`${limits.users_count}/${limits.max_users} usuários`);
-    } else if (limits.max_users == null) {
-      parts.push('Usuários ilimitados');
-    }
-    if (limits.link_bio_enabled !== false) {
-      parts.push('Link na bio');
-    }
-    return parts.length ? parts.join(' · ') : null;
+  get podeVerBilling(): boolean {
+    return this.auth.hasPermission('billing.manage');
   }
 
   fecharSidebarMobile(): void {
@@ -150,10 +134,8 @@ export class BarraLateralComponent implements OnInit, OnDestroy {
       this.emailUsuario = u.email || '';
       this.iniciaisUsuario = this.nomeUsuario.slice(0, 2).toUpperCase() || 'U';
       this.ehAdminPlataforma = u.role === 'platform_admin';
-      this.podeVerBilling = this.auth.hasPermission('billing.manage');
       this.podeGerenciarClinica = this.auth.hasPermission('organization.manage');
     } else {
-      this.podeVerBilling = false;
       this.podeGerenciarClinica = false;
     }
     this.exibirTrocarEmpresa = this.auth.canSwitchClinic();

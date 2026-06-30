@@ -29,11 +29,11 @@
                 <div class="section-body">
                   <p class="hint mb-4">Documentação interativa (Scramble) e especificação OpenAPI para integrar com outros sistemas.</p>
                   <div class="flex flex-wrap gap-3">
-                    <a href="/docs/api" target="_blank" rel="noopener" z-button zSize="sm" class="inline-flex items-center gap-2 no-underline">
+                    <a [href]="docsApiUrl" target="_blank" rel="noopener" z-button zSize="sm" class="inline-flex items-center gap-2 no-underline">
                       <span class="material-symbols-outlined text-base">menu_book</span>
                       Documentação interativa
                     </a>
-                    <a href="/docs/api.json" target="_blank" rel="noopener" z-button zType="outline" zSize="sm" class="inline-flex items-center gap-2 no-underline">
+                    <a [href]="docsApiJsonUrl" target="_blank" rel="noopener" z-button zType="outline" zSize="sm" class="inline-flex items-center gap-2 no-underline">
                       <span class="material-symbols-outlined text-base">download</span>
                       OpenAPI (JSON)
                     </a>
@@ -141,7 +141,7 @@
                     </div>
                     <div class="field mb-0">
                       <label>Eventos</label>
-                      <div class="mt-2 flex flex-wrap gap-3">
+                      <div class="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2">
                         @for (ev of availableEvents; track ev) {
                           <z-checkbox
                             [ngModel]="novoWebhookEventos.includes(ev)"

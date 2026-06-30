@@ -281,8 +281,7 @@ export class LinkBioService {
    * Fora da prévia passa pela API, que registra o clique e redireciona.
    *
    * Sempre usa `environment.apiUrl` (o mesmo host que o `ApiService`), para bater no mesmo
-   * Laravel que grava views/cliques. Path relativo no SPA + proxy costuma apontar para outra
-   * porta/instância e os números não atualizam.
+   * Laravel que grava views/cliques.
    */
   /**
    * @param clinicSlugFallback ex.: `clinic.slug` da API quando `publicSlug` da rota vier vazio no binding

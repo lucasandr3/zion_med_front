@@ -38,26 +38,23 @@ export type ZmSkeletonTemplatesDetalheVisual = 'cards' | 'tabela';
       } @else {
         <div class="grid grid-cols-1 gap-3.5 sm:grid-cols-2 xl:grid-cols-3">
           @for (i of cardIndices; track i) {
-            <div class="flex min-h-[13.5rem] flex-col overflow-hidden rounded-xl border border-border bg-card shadow-sm">
-              <div class="flex items-center justify-between gap-3 border-b border-border px-5 pb-3.5 pt-5">
-                <div class="flex gap-1.5">
-                  <z-skeleton class="h-5 w-12 rounded-full" />
-                  <z-skeleton class="h-5 w-16 rounded-full" />
-                </div>
-                <div class="flex gap-1">
-                  <z-skeleton class="size-7 rounded-lg" />
-                  <z-skeleton class="size-7 rounded-lg" />
-                  <z-skeleton class="size-7 rounded-lg" />
-                </div>
+            <div class="flex min-h-[15.5rem] flex-col overflow-hidden rounded-xl border border-border bg-card px-5 py-[1.15rem] shadow-sm">
+              <div class="mb-3.5 flex items-center justify-between gap-3">
+                <z-skeleton class="h-5 w-12 rounded-full" />
+                <z-skeleton class="size-8 rounded-lg" />
               </div>
-              <div class="flex flex-1 flex-col items-center justify-center gap-2 px-5 py-5">
-                <z-skeleton class="h-4 w-[62%] rounded-md" />
-                <z-skeleton class="h-3.5 w-[78%] rounded-md" />
-                <z-skeleton class="h-3 w-[52%] rounded-md" />
+              <div class="flex flex-1 flex-col gap-2">
+                <z-skeleton class="h-3.5 w-[38%] rounded-md" />
+                <z-skeleton class="h-4 w-[72%] rounded-md" />
+                <z-skeleton class="h-3.5 w-full rounded-md" />
+                <z-skeleton class="h-3.5 w-[88%] rounded-md" />
               </div>
-              <div class="flex gap-2 border-t border-border px-5 pb-5 pt-3.5">
-                <z-skeleton class="h-8 flex-1 rounded-lg" />
-                <z-skeleton class="h-8 flex-1 rounded-lg opacity-90" />
+              <div class="mt-4 border-t border-border pt-3.5">
+                <z-skeleton class="h-3.5 w-[42%] rounded-md" />
+              </div>
+              <div class="mt-3.5 grid grid-cols-2 gap-2">
+                <z-skeleton class="h-8 rounded-lg" />
+                <z-skeleton class="h-8 rounded-lg opacity-90" />
               </div>
             </div>
           }

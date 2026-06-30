@@ -19,9 +19,9 @@ Edite `src/environments/environment.ts` (dev) e `environment.prod.ts` (produçã
 
 | Campo   | Exemplo dev              | Observação        |
 |---------|--------------------------|-------------------|
-| `apiUrl` | `http://zion_med.test` ou `http://localhost:8000` | URL base da API Laravel, **sem** `/api/v1` no final |
+| `apiUrl` | `http://localhost:8000` ou `http://zion_med.test` | URL base da API Laravel, **sem** `/api/v1` no final |
 
-O proxy de desenvolvimento está em `proxy.conf.json` (recomendado alinhar com o host da API).
+O CORS é configurado no backend Laravel (`config/cors.php`). Em dev, o SPA em `http://localhost:4200` chama a API diretamente nessa URL.
 
 ## Desenvolvimento
 
