@@ -182,8 +182,9 @@ export interface FormularioPublicoData {
   form_public_theme?: string | null;
   /** @deprecated Alias de form_public_theme na API pública. */
   public_theme?: string | null;
-  /** Cor de destaque resolvida (preset ou accent_hex quando custom). */
+  /** Cor de destaque resolvida (preset ou form_accent_hex quando custom). */
   accent_hex?: string | null;
+  form_accent_hex?: string | null;
   /** Oculta "Formulário por Gestgo" no cabeçalho público. */
   hide_platform_branding?: boolean;
   /** `basic` ou `reinforced` (OTP antes de assinar). */
@@ -263,6 +264,7 @@ function normalizeFormularioPublicoShow(raw: FormularioPublicoData & Record<stri
     form_public_theme: theme,
     public_theme: theme,
     accent_hex: typeof rec['accent_hex'] === 'string' ? rec['accent_hex'] : null,
+    form_accent_hex: typeof rec['form_accent_hex'] === 'string' ? rec['form_accent_hex'] : null,
     hide_platform_branding: rec['hide_platform_branding'] === true,
   };
 }
@@ -294,6 +296,7 @@ export class FormularioPublicoService {
                 ? absoluteMediaUrl(String(lu).trim()) ?? String(lu).trim()
                 : null;
             const accentFromBio = pub.clinic?.accent_hex;
+            const formAccentFromBio = pub.clinic?.form_accent_hex;
             const themeFromBio = pub.clinic?.form_public_theme ?? pub.clinic?.public_theme;
             return {
               ...normalized,
@@ -301,6 +304,9 @@ export class FormularioPublicoService {
               form_public_theme: normalized.form_public_theme ?? themeFromBio ?? null,
               public_theme: normalized.public_theme ?? themeFromBio ?? null,
               accent_hex: normalized.accent_hex ?? accentFromBio ?? null,
+              form_accent_hex: normalized.form_accent_hex ?? formAccentFromBio ?? null,
+              hide_platform_branding:
+                normalized.hide_platform_branding === true || pub.clinic?.hide_platform_branding === true,
             } as FormularioPublicoData;
           }),
           catchError(() => of({ ...normalized, logo_url: null }))
