@@ -236,7 +236,7 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
     try {
       this.dark = localStorage.getItem('gestgo_form_dark_mode') === '1';
     } catch {}
-    this.applyPublicDarkBodyClass();
+    this.syncPublicBodyClasses();
     if (!this.token) {
       this.showSkeleton = signal(false).asReadonly();
       this.erro = 'Link inválido.';
@@ -283,6 +283,7 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
         }
         this.resetFormSteps();
         this.restoreCpfGateAuthorization();
+        this.syncPublicBodyClasses();
       },
       error: (err) => {
         this.erro = err.error?.message ?? 'Formulário não encontrado ou não disponível.';
@@ -295,13 +296,24 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
     try {
       localStorage.setItem('gestgo_form_dark_mode', this.dark ? '1' : '0');
     } catch {}
-    this.applyPublicDarkBodyClass();
+    this.syncPublicBodyClasses();
   }
 
-  /** Sincroniza a classe `gestgo-public-dark` no <body> — necessária para estilizar o popup do Flatpickr (anexado ao body). */
-  private applyPublicDarkBodyClass(): void {
+  /** Sincroniza classes no <body> — Flatpickr é anexado ao body, fora de `.form-publico-page`. */
+  private syncPublicBodyClasses(): void {
     if (typeof document === 'undefined' || !document.body) return;
-    document.body.classList.toggle('gestgo-public-dark', this.dark);
+    const body = document.body;
+    body.classList.toggle('gestgo-public-dark', this.dark);
+    const branded = this.isBranded;
+    body.classList.toggle('gestgo-public-branded', branded);
+    if (branded) {
+      const vars = this.themeVars;
+      body.style.setProperty('--fp-brand-500', vars['--fp-brand-500'] ?? '#0a0a0a');
+      body.style.setProperty('--fp-accent-contrast', vars['--fp-accent-contrast'] ?? '#ffffff');
+    } else {
+      body.style.removeProperty('--fp-brand-500');
+      body.style.removeProperty('--fp-accent-contrast');
+    }
   }
 
   /** Chamado ao digitar nome/e-mail opcionais — persiste para o próximo link de formulário público. */
@@ -1290,7 +1302,9 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
     this.unlockPageScroll();
     this.publicPageBody.leavePublicPage();
     if (typeof document !== 'undefined' && document.body) {
-      document.body.classList.remove('gestgo-public-dark');
+      document.body.classList.remove('gestgo-public-dark', 'gestgo-public-branded');
+      document.body.style.removeProperty('--fp-brand-500');
+      document.body.style.removeProperty('--fp-accent-contrast');
     }
   }
 }

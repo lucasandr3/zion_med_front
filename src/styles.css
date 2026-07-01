@@ -2953,6 +2953,43 @@ body.gestgo-public-dark .flatpickr-calendar .flatpickr-day.nextMonthDay {
   border-color: transparent !important;
 }
 
+/* Formulário público com marca — Flatpickr (popup no body) */
+body.gestgo-public-branded:not(.gestgo-public-dark) .flatpickr-calendar .flatpickr-day.today {
+  border-color: var(--fp-brand-500, #0a0a0a) !important;
+}
+body.gestgo-public-branded:not(.gestgo-public-dark) .flatpickr-calendar .flatpickr-day.today:hover,
+body.gestgo-public-branded:not(.gestgo-public-dark) .flatpickr-calendar .flatpickr-day.today:focus {
+  border-color: var(--fp-brand-500, #0a0a0a) !important;
+}
+body.gestgo-public-branded:not(.gestgo-public-dark) .flatpickr-calendar .flatpickr-day.selected,
+body.gestgo-public-branded:not(.gestgo-public-dark) .flatpickr-calendar .flatpickr-day.startRange,
+body.gestgo-public-branded:not(.gestgo-public-dark) .flatpickr-calendar .flatpickr-day.endRange,
+body.gestgo-public-branded:not(.gestgo-public-dark) .flatpickr-calendar .flatpickr-day.selected:hover,
+body.gestgo-public-branded:not(.gestgo-public-dark) .flatpickr-calendar .flatpickr-day.startRange:hover,
+body.gestgo-public-branded:not(.gestgo-public-dark) .flatpickr-calendar .flatpickr-day.endRange:hover {
+  background: var(--fp-brand-500, #0a0a0a) !important;
+  border-color: var(--fp-brand-500, #0a0a0a) !important;
+  color: var(--fp-accent-contrast, #fff) !important;
+}
+body.gestgo-public-branded.gestgo-public-dark .flatpickr-calendar .flatpickr-day.today {
+  border-color: var(--fp-brand-500, #fafafa) !important;
+  color: var(--fp-brand-500, #fafafa) !important;
+}
+body.gestgo-public-branded.gestgo-public-dark .flatpickr-calendar .flatpickr-day.today:hover,
+body.gestgo-public-branded.gestgo-public-dark .flatpickr-calendar .flatpickr-day.today:focus {
+  border-color: var(--fp-brand-500, #fafafa) !important;
+}
+body.gestgo-public-branded.gestgo-public-dark .flatpickr-calendar .flatpickr-day.selected,
+body.gestgo-public-branded.gestgo-public-dark .flatpickr-calendar .flatpickr-day.startRange,
+body.gestgo-public-branded.gestgo-public-dark .flatpickr-calendar .flatpickr-day.endRange,
+body.gestgo-public-branded.gestgo-public-dark .flatpickr-calendar .flatpickr-day.selected:hover,
+body.gestgo-public-branded.gestgo-public-dark .flatpickr-calendar .flatpickr-day.startRange:hover,
+body.gestgo-public-branded.gestgo-public-dark .flatpickr-calendar .flatpickr-day.endRange:hover {
+  background: var(--fp-brand-500, #fafafa) !important;
+  border-color: var(--fp-brand-500, #fafafa) !important;
+  color: var(--fp-accent-contrast, #0a0a0a) !important;
+}
+
 body.dark .flatpickr-calendar,
 body.dark .flatpickr-calendar.open {
   background: #16161e !important;
