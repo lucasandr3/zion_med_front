@@ -353,6 +353,124 @@
           </div>
         </z-tab>
 
+        <z-tab label="Formulários públicos" icon="assignment">
+          <div id="panel-formularios-publicos" class="config-tab-panel">
+            <z-card class="section-card mb-4 gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
+              <div class="section-header">
+                <div class="icon-wrap"><span class="material-symbols-outlined">palette</span></div>
+                <span class="section-title">Cor de destaque</span>
+              </div>
+              <div class="section-body">
+                <div class="visual-subtitle">
+                  <div class="vtitle">Cor do formulário:</div>
+                  <div class="vsub">
+                    Define botões, barra de progresso e destaques quando alguém preenche uma ficha pelo link ou QR.
+                    Não altera o painel interno nem o link na bio.
+                  </div>
+                </div>
+                <div class="theme-grid palette-grid">
+                  <button
+                    type="button"
+                    class="theme-card palette-card"
+                    [class.selected]="isFormPublicThemeSelected('')"
+                    [attr.aria-label]="'Padrão'"
+                    [attr.aria-pressed]="isFormPublicThemeSelected('')"
+                    title="Padrão"
+                    (click)="selecionarFormPublicTheme('')"
+                  >
+                    <div class="theme-preview palette-preview" style="background: #1a1a2e"></div>
+                  </button>
+                  <button
+                    type="button"
+                    class="theme-card palette-card"
+                    [class.selected]="isFormPublicThemeSelected('onyx-black')"
+                    [attr.aria-label]="'Preto'"
+                    [attr.aria-pressed]="isFormPublicThemeSelected('onyx-black')"
+                    title="Preto"
+                    (click)="selecionarFormPublicTheme('onyx-black')"
+                  >
+                    <div class="theme-preview palette-preview" style="background: #0a0a0a"></div>
+                  </button>
+                  @for (key of publicFormThemeKeys; track key) {
+                    @let meta = availablePublicThemes[key];
+                    @let primary = meta?.primary ?? '#2563eb';
+                    <button
+                      type="button"
+                      class="theme-card palette-card"
+                      [class.selected]="isFormPublicThemeSelected(key)"
+                      [attr.aria-label]="getPublicFormThemeLabel(key)"
+                      [attr.aria-pressed]="isFormPublicThemeSelected(key)"
+                      [title]="getPublicFormThemeLabel(key)"
+                      (click)="selecionarFormPublicTheme(key)"
+                    >
+                      <div class="theme-preview palette-preview" [style.background]="primary"></div>
+                    </button>
+                  }
+                  <button
+                    type="button"
+                    class="theme-card palette-card palette-card-custom"
+                    [class.selected]="isFormPublicThemeSelected('custom')"
+                    [attr.aria-label]="'Personalizada'"
+                    [attr.aria-pressed]="isFormPublicThemeSelected('custom')"
+                    title="Escolher minha cor"
+                    (click)="selecionarFormPublicTheme('custom')"
+                  >
+                    <div
+                      class="theme-preview palette-preview"
+                      [style.background]="formPublicTheme === 'custom' ? formCustomAccent : 'conic-gradient(from 180deg, #ef4444, #f59e0b, #eab308, #22c55e, #06b6d4, #3b82f6, #8b5cf6, #ec4899, #ef4444)'"
+                    ></div>
+                  </button>
+                </div>
+                @if (formPublicTheme === 'custom') {
+                  <div class="custom-accent-wrap">
+                    <label class="form-label" for="form-custom-accent-color">Cor personalizada</label>
+                    <div class="custom-accent-row">
+                      <input
+                        id="form-custom-accent-color"
+                        type="color"
+                        class="custom-accent-picker"
+                        [value]="formCustomAccent"
+                        (input)="onFormCustomAccentChange($any($event.target).value)"
+                      />
+                      <input
+                        type="text"
+                        z-input
+                        zSize="sm"
+                        class="w-full custom-accent-hex"
+                        [value]="formCustomAccent"
+                        (input)="onFormCustomAccentChange($any($event.target).value)"
+                        maxlength="7"
+                        placeholder="#c9a84c"
+                        spellcheck="false"
+                        aria-label="Código hexadecimal"
+                      />
+                      <span class="custom-accent-swatch" [style.background]="formCustomAccent" aria-hidden="true"></span>
+                    </div>
+                    <p class="theme-panel-hint">Escolha qualquer cor para botões e barra de progresso do formulário.</p>
+                  </div>
+                }
+                <p class="theme-panel-hint">Afeta a página pública do formulário. Salve as configurações da empresa para aplicar a todos os links.</p>
+              </div>
+            </z-card>
+
+            <z-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
+              <div class="section-header">
+                <div class="icon-wrap"><span class="material-symbols-outlined">visibility_off</span></div>
+                <span class="section-title">Marca no cabeçalho</span>
+              </div>
+              <div class="section-body">
+                <div class="dark-toggle-card">
+                  <span class="dark-toggle-info">
+                    <span class="dtitle">Ocultar Formulário por Gestgo</span>
+                    <span class="dsub">Exibe apenas o nome e a logo da sua clínica no topo da ficha.</span>
+                  </span>
+                  <z-switch [(ngModel)]="hidePlatformBranding" name="hide_platform_branding" />
+                </div>
+              </div>
+            </z-card>
+          </div>
+        </z-tab>
+
         <z-tab label="Tema Visual" icon="palette">
           <div id="panel-visual" class="config-tab-panel">
           <z-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">

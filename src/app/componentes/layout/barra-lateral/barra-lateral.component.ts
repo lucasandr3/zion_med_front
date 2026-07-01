@@ -59,6 +59,7 @@ export class BarraLateralComponent implements OnInit, OnDestroy {
   ehAdminPlataforma = false;
   podeGerenciarClinica = false;
 
+  /** Com Topo e marca, variante do logo em `assets/logo` conforme o tema. */
   sidebarLogoSrc = '/assets/logo/logo.png';
 
   private auth = inject(AuthService);

@@ -87,6 +87,9 @@ export interface LinkBioClinic {
   google_place_id?: string | null;
   google_reviews_enabled?: boolean;
   accent_hex?: string | null;
+  form_public_theme?: string | null;
+  form_accent_hex?: string | null;
+  hide_platform_branding?: boolean;
   is_open_now?: boolean | null;
   business_hours_grid?: Record<string, { label: string; text: string }>;
 }

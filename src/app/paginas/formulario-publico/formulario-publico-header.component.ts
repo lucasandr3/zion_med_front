@@ -11,6 +11,7 @@ import { FormularioPublicoData } from '../../core/services/formulario-publico.se
 export class FormularioPublicoHeaderComponent {
   @Input({ required: true }) data!: FormularioPublicoData;
   @Input() dark = false;
+  @Input() hidePlatformBranding = false;
   @Input() personFormUnlocked = false;
   @Input() progressPercent = 0;
   @Input() progressCountLabel = '';

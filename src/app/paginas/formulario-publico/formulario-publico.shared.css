@@ -1136,3 +1136,130 @@
     opacity: 1;
   }
 }
+
+/* Marca: repassa accent para componentes globais (z-checkbox, focus rings) */
+.form-publico-page.fp-branded {
+  --c-primary: var(--fp-brand-500);
+  --c-focus: color-mix(in srgb, var(--fp-brand-500) 28%, transparent);
+}
+
+.form-publico-page.fp-branded :is(.form-checkbox, .z-checkbox-native):checked {
+  background-color: var(--fp-brand-500);
+  border-color: var(--fp-brand-500);
+}
+
+.form-publico-page.fp-branded :is(.form-checkbox, .z-checkbox-native):focus-visible {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--fp-brand-500) 28%, transparent);
+}
+
+.form-publico-page.fp-branded .fp-input:focus,
+.form-publico-page.fp-branded .fp-select:focus {
+  border-color: var(--fp-brand-500);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--fp-brand-500) 20%, transparent);
+}
+
+.form-publico-page.fp-branded.dark .fp-input:focus,
+.form-publico-page.fp-branded.dark .fp-select:focus {
+  border-color: var(--fp-brand-500);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--fp-brand-500) 28%, transparent);
+}
+
+.form-publico-page.fp-branded
+  .fp-field-group
+  :is(input.flatpickr-input, input.flatpickr-alt-input, .flatpickr-wrapper input):focus {
+  border-color: var(--fp-brand-500);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--fp-brand-500) 20%, transparent);
+}
+
+.form-publico-page.fp-branded.dark
+  .fp-field-group
+  :is(input.flatpickr-input, input.flatpickr-alt-input, .flatpickr-wrapper input):focus {
+  border-color: var(--fp-brand-500);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--fp-brand-500) 28%, transparent);
+}
+
+.form-publico-page.fp-branded .fp-link {
+  color: var(--fp-brand-500);
+}
+
+.form-publico-page.fp-branded.dark .fp-link {
+  color: color-mix(in srgb, var(--fp-brand-500) 72%, #fff);
+}
+
+.form-publico-page.fp-branded .fp-link-btn {
+  color: var(--fp-brand-500);
+}
+
+.form-publico-page.fp-branded.dark .fp-link-btn {
+  color: color-mix(in srgb, var(--fp-brand-500) 72%, #fff);
+}
+
+.form-publico-page.fp-branded .fp-loading-ring {
+  border-color: color-mix(in srgb, var(--fp-brand-500) 15%, transparent);
+  border-top-color: var(--fp-brand-500);
+}
+
+.form-publico-page.fp-branded.dark .fp-loading-ring {
+  border-color: color-mix(in srgb, var(--fp-brand-500) 20%, transparent);
+  border-top-color: var(--fp-brand-500);
+}
+
+.form-publico-page.fp-branded .fp-file-input::file-selector-button {
+  border-color: color-mix(in srgb, var(--fp-brand-500) 35%, var(--fp-cream-200));
+  color: var(--fp-brand-500);
+}
+
+.form-publico-page.fp-branded.dark .fp-file-input::file-selector-button {
+  border-color: color-mix(in srgb, var(--fp-brand-500) 40%, #2a2a2a);
+  color: color-mix(in srgb, var(--fp-brand-500) 80%, #fff);
+}
+
+.form-publico-page.fp-branded .fp-check-native:focus-visible + .fp-check-box,
+.form-publico-page.fp-branded.dark .fp-check-native:focus-visible + .fp-check-box {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--fp-brand-500) 28%, transparent);
+}
+
+.form-publico-page.fp-branded .fp-step-btn--next,
+.form-publico-page.fp-branded .fp-submit-btn {
+  background: var(--fp-brand-500);
+  color: var(--fp-accent-contrast, #fff);
+}
+
+.form-publico-page.fp-branded.dark .fp-step-btn--next,
+.form-publico-page.fp-branded.dark .fp-submit-btn {
+  background: var(--fp-brand-500);
+  color: var(--fp-accent-contrast, #fff);
+}
+
+.form-publico-page.fp-branded .fp-step-btn--next:hover:not(:disabled),
+.form-publico-page.fp-branded .fp-submit-btn:hover:not(:disabled) {
+  filter: brightness(0.92);
+}
+
+.form-publico-page.fp-branded.dark .fp-step-btn--next:hover:not(:disabled),
+.form-publico-page.fp-branded.dark .fp-submit-btn:hover:not(:disabled) {
+  filter: brightness(1.08);
+}
+
+.form-publico-page.fp-branded .fp-radio-selected {
+  border-color: var(--fp-brand-500);
+  background: color-mix(in srgb, var(--fp-brand-500) 8%, #fff);
+}
+
+.form-publico-page.fp-branded.dark .fp-radio-selected {
+  border-color: var(--fp-brand-500);
+  background: color-mix(in srgb, var(--fp-brand-500) 14%, #141414);
+  color: #fafafa;
+}
+
+.form-publico-page.fp-branded .fp-radio-selected .fp-radio-dot {
+  border-color: var(--fp-brand-500);
+}
+
+.form-publico-page.fp-branded .fp-radio-dot-inner {
+  background: var(--fp-brand-500);
+}
+
+.form-publico-page.fp-branded.dark .fp-radio-dot-inner {
+  background: var(--fp-brand-500);
+}

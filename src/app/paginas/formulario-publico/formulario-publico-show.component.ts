@@ -48,6 +48,10 @@ import { FormularioPublicoOtpComponent } from './formulario-publico-otp.componen
 import { FormularioPublicoFieldsComponent } from './formulario-publico-fields.component';
 import { FormularioPublicoConsentComponent } from './formulario-publico-consent.component';
 import { FormularioPublicoFooterComponent } from './formulario-publico-footer.component';
+import {
+  buildFormularioPublicoThemeVars,
+  formularioPublicoHasBranding,
+} from './formulario-publico-theme.util';
 
 @Component({
   selector: 'app-formulario-publico-show',
@@ -119,7 +123,7 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
     try {
       this.dark = localStorage.getItem('gestgo_form_dark_mode') === '1';
     } catch {}
-    this.applyPublicDarkBodyClass();
+    this.syncPublicBodyClasses();
     if (!this.token) {
       this.showSkeleton = signal(false).asReadonly();
       this.erro = 'Link inválido.';
@@ -162,6 +166,7 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
     this.valores = initFormularioPublicoValores(d.fields, !!d.feegow?.enabled);
     this.resetFormSteps();
     this.restoreCpfGateAuthorization();
+    this.syncPublicBodyClasses();
   }
 
   toggleDark(): void {
@@ -169,7 +174,7 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
     try {
       localStorage.setItem('gestgo_form_dark_mode', this.dark ? '1' : '0');
     } catch {}
-    this.applyPublicDarkBodyClass();
+    this.syncPublicBodyClasses();
   }
 
   onSubmitterIdentityChange(): void {
@@ -434,6 +439,18 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
     }).countLabel;
   }
 
+  hidePlatformBranding(): boolean {
+    return !!this.data?.hide_platform_branding;
+  }
+
+  get themeVars(): Record<string, string> {
+    return buildFormularioPublicoThemeVars(this.data);
+  }
+
+  get isBranded(): boolean {
+    return formularioPublicoHasBranding(this.data);
+  }
+
   onCampoAlterado(): void {
     this.cdr.markForCheck();
   }
@@ -496,7 +513,9 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
     this.unlockPageScroll();
     this.publicPageBody.leavePublicPage();
     if (typeof document !== 'undefined' && document.body) {
-      document.body.classList.remove('gestgo-public-dark');
+      document.body.classList.remove('gestgo-public-dark', 'gestgo-public-branded');
+      document.body.style.removeProperty('--fp-brand-500');
+      document.body.style.removeProperty('--fp-accent-contrast');
     }
   }
 
@@ -564,9 +583,20 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
     this.personGateOk = true;
   }
 
-  private applyPublicDarkBodyClass(): void {
+  private syncPublicBodyClasses(): void {
     if (typeof document === 'undefined' || !document.body) return;
-    document.body.classList.toggle('gestgo-public-dark', this.dark);
+    const body = document.body;
+    body.classList.toggle('gestgo-public-dark', this.dark);
+    const branded = this.isBranded;
+    body.classList.toggle('gestgo-public-branded', branded);
+    if (branded) {
+      const vars = this.themeVars;
+      body.style.setProperty('--fp-brand-500', vars['--fp-brand-500'] ?? '#0a0a0a');
+      body.style.setProperty('--fp-accent-contrast', vars['--fp-accent-contrast'] ?? '#ffffff');
+    } else {
+      body.style.removeProperty('--fp-brand-500');
+      body.style.removeProperty('--fp-accent-contrast');
+    }
   }
 
   private scrollToFormTop(): void {

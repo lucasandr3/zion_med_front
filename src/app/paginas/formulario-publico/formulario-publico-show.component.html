@@ -1,8 +1,15 @@
-<div class="form-publico-page" [class.dark]="dark" [class.fp-kiosk]="kioskMode">
+<div
+  class="form-publico-page"
+  [class.dark]="dark"
+  [class.fp-kiosk]="kioskMode"
+  [class.fp-branded]="isBranded"
+  [ngStyle]="themeVars"
+>
   @if (!showSkeleton() && data && !kioskMode) {
     <zm-formulario-publico-header
       [data]="data"
       [dark]="dark"
+      [hidePlatformBranding]="hidePlatformBranding()"
       [personFormUnlocked]="personFormUnlocked()"
       [progressPercent]="progressPercent"
       [progressCountLabel]="progressCountLabel"

@@ -262,35 +262,41 @@
   white-space: nowrap;
 }
 
-/* Aba Tema Visual — herda bg-card do z-card; só ajustes de layout */
-#panel-visual .section-header {
+/* Aba Tema Visual / Formulários públicos — herda bg-card do z-card; só ajustes de layout */
+#panel-visual .section-header,
+#panel-formularios-publicos .section-header {
   padding: 16px 18px 14px;
   border-bottom: 1px solid var(--border);
 }
 
-#panel-visual .section-body {
+#panel-visual .section-body,
+#panel-formularios-publicos .section-body {
   padding: 16px 18px 18px;
 }
 
-#panel-visual .theme-grid {
+#panel-visual .theme-grid,
+#panel-formularios-publicos .theme-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
   gap: 12px;
 }
 
-#panel-visual .visual-subtitle .vtitle {
+#panel-visual .visual-subtitle .vtitle,
+#panel-formularios-publicos .visual-subtitle .vtitle {
   font-size: 18px;
   font-weight: 700;
   color: var(--foreground);
 }
 
-#panel-visual .visual-subtitle .vsub {
+#panel-visual .visual-subtitle .vsub,
+#panel-formularios-publicos .visual-subtitle .vsub {
   margin-top: 4px;
   font-size: 14px;
   color: var(--muted-foreground);
 }
 
-#panel-visual .palette-grid {
+#panel-visual .palette-grid,
+#panel-formularios-publicos .palette-grid {
   margin-top: 12px;
   display: grid;
   grid-template-columns: repeat(auto-fill, 3rem);
@@ -298,7 +304,8 @@
   justify-content: start;
 }
 
-#panel-visual .theme-card.palette-card {
+#panel-visual .theme-card.palette-card,
+#panel-formularios-publicos .theme-card.palette-card {
   padding: 0;
   border: none;
   border-radius: 0.5rem;
@@ -315,13 +322,15 @@
   transition: transform 0.12s ease;
 }
 
-#panel-visual .theme-card.palette-card:hover {
-  transform: scale(1.05);
+#panel-visual .theme-card.palette-card:hover,
+#panel-formularios-publicos .theme-card.palette-card:hover {
+  transform: none;
   border-color: transparent;
   box-shadow: none;
 }
 
-#panel-visual .theme-card.palette-card.selected {
+#panel-visual .theme-card.palette-card.selected,
+#panel-formularios-publicos .theme-card.palette-card.selected {
   border-color: transparent;
   background: transparent;
   box-shadow: none;
@@ -378,9 +387,10 @@
   padding: 10px 8px;
 }
 
-#panel-visual .palette-preview {
-  min-height: 0;
-  border-radius: 0.5rem;
+#panel-visual .palette-preview,
+#panel-formularios-publicos .palette-preview {
+  min-height: 60px;
+  border-radius: 0;
   padding: 0;
 }
 
@@ -414,12 +424,10 @@
   font-variation-settings: 'FILL' 1, 'wght' 600;
 }
 
-#panel-visual .palette-card.selected::after {
-  top: 50%;
-  left: 50%;
-  right: auto;
-  transform: translate(-50%, -50%);
-  font-size: 0.875rem;
+#panel-visual .palette-card.selected::after,
+#panel-formularios-publicos .palette-card.selected::after {
+  top: 10px;
+  right: 10px;
   color: #fff;
   filter: drop-shadow(0 1px 2px rgb(0 0 0 / 45%));
 }
@@ -500,7 +508,8 @@
 }
 
 
-#panel-visual .dark-toggle-card {
+#panel-visual .dark-toggle-card,
+#panel-formularios-publicos .dark-toggle-card {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -511,13 +520,15 @@
   background: var(--muted);
 }
 
-#panel-visual .dark-toggle-info .dtitle {
+#panel-visual .dark-toggle-info .dtitle,
+#panel-formularios-publicos .dark-toggle-info .dtitle {
   font-size: 14px;
   font-weight: 700;
   color: var(--foreground);
 }
 
-#panel-visual .dark-toggle-info .dsub {
+#panel-visual .dark-toggle-info .dsub,
+#panel-formularios-publicos .dark-toggle-info .dsub {
   margin-top: 3px;
   font-size: 12px;
   color: var(--muted-foreground);
@@ -525,12 +536,15 @@
 
 @media (max-width: 640px) {
   #panel-visual .section-header,
-  #panel-visual .section-body {
+  #panel-visual .section-body,
+  #panel-formularios-publicos .section-header,
+  #panel-formularios-publicos .section-body {
     padding-left: 14px;
     padding-right: 14px;
   }
 
-  #panel-visual .theme-grid {
+  #panel-visual .theme-grid,
+  #panel-formularios-publicos .theme-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 10px;
   }
@@ -538,6 +552,70 @@
   #panel-visual .mode-grid {
     grid-template-columns: 1fr;
   }
+}
+
+#panel-formularios-publicos .custom-accent-wrap {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: var(--muted);
+  border: 1px dashed var(--border);
+}
+
+#panel-formularios-publicos .custom-accent-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+#panel-formularios-publicos .custom-accent-picker {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 48px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: transparent;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+#panel-formularios-publicos .custom-accent-picker::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+#panel-formularios-publicos .custom-accent-picker::-webkit-color-swatch,
+#panel-formularios-publicos .custom-accent-picker::-moz-color-swatch {
+  border: none;
+  border-radius: 6px;
+}
+
+#panel-formularios-publicos .custom-accent-hex {
+  max-width: 130px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+#panel-formularios-publicos .custom-accent-swatch {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+#panel-formularios-publicos .theme-panel-hint {
+  margin: 16px 0 0;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--muted-foreground);
+}
+
+#panel-formularios-publicos .custom-accent-wrap .theme-panel-hint {
+  margin-top: 8px;
 }
 
 /* —— Horário de atendimento —— */

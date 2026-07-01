@@ -16,7 +16,9 @@
         }
         <div>
           <p class="fp-clinic-name">{{ data.clinic_name ?? 'Clínica' }}</p>
-          <p class="fp-sub">Formulário por Gestgo</p>
+          @if (!hidePlatformBranding) {
+            <p class="fp-sub">Formulário por Gestgo</p>
+          }
         </div>
       </div>
       <button type="button" (click)="toggleDark.emit()" class="fp-icon-btn" aria-label="Alternar tema claro ou escuro">
