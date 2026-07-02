@@ -1,0 +1,364 @@
+.dev-ui-page {
+  min-height: 100dvh;
+  background: var(--c-bg);
+  color: var(--c-text);
+}
+
+.dev-ui-topbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--border, var(--c-border));
+  background: var(--card, var(--c-surface));
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.dev-ui-topbar__brand {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.dev-ui-topbar__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--primary, var(--c-primary));
+  text-decoration: none;
+}
+
+.dev-ui-topbar__back:hover {
+  text-decoration: underline;
+}
+
+.dev-ui-topbar__title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.dev-ui-topbar__subtitle {
+  margin: 0.25rem 0 0;
+  font-size: 0.8125rem;
+  color: var(--muted-foreground, var(--c-muted));
+}
+
+.dev-ui-topbar__controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.75rem;
+}
+
+.dev-ui-control {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.dev-ui-control__label {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted-foreground, var(--c-muted));
+}
+
+.dev-ui-select {
+  height: var(--button-height);
+  min-width: 10rem;
+  padding: 0 0.75rem;
+  border: 1px solid var(--border, var(--c-border));
+  border-radius: 0.5rem;
+  background: var(--background, var(--c-surface));
+  color: var(--foreground, var(--c-text));
+  font-size: 0.8125rem;
+}
+
+.dev-ui-layout {
+  display: grid;
+  grid-template-columns: 11rem minmax(0, 1fr);
+  gap: 0;
+  max-width: 72rem;
+  margin: 0 auto;
+}
+
+@media (max-width: 900px) {
+  .dev-ui-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .dev-ui-nav {
+    position: static;
+    flex-direction: row;
+    flex-wrap: wrap;
+    border-right: none;
+    border-bottom: 1px solid var(--border, var(--c-border));
+    padding: 0.75rem 1rem;
+  }
+}
+
+.dev-ui-nav {
+  position: sticky;
+  top: 5.5rem;
+  align-self: start;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 1.25rem 1rem;
+  border-right: 1px solid var(--border, var(--c-border));
+  max-height: calc(100dvh - 6rem);
+  overflow-y: auto;
+}
+
+.dev-ui-nav a {
+  padding: 0.4rem 0.625rem;
+  border-radius: 0.375rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--muted-foreground, var(--c-muted));
+  text-decoration: none;
+  transition: background-color 0.12s ease, color 0.12s ease;
+}
+
+.dev-ui-nav a:hover {
+  color: var(--foreground, var(--c-text));
+  background: color-mix(in srgb, var(--primary, var(--c-primary)) 8%, transparent);
+}
+
+.dev-ui-main {
+  padding: 1.5rem;
+  min-width: 0;
+}
+
+.dev-ui-section {
+  margin-bottom: 2.5rem;
+  scroll-margin-top: 6rem;
+}
+
+.dev-ui-section__title {
+  margin: 0 0 0.35rem;
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.dev-ui-section__desc {
+  margin: 0 0 1rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--muted-foreground, var(--c-muted));
+}
+
+.dev-ui-subsection__title {
+  margin: 1.25rem 0 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--muted-foreground, var(--c-muted));
+}
+
+.dev-ui-swatch-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(7.5rem, 1fr));
+  gap: 0.75rem;
+}
+
+.dev-ui-swatch {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.625rem;
+  border: 1px solid var(--border, var(--c-border));
+  border-radius: 0.625rem;
+  background: var(--card, var(--c-surface));
+}
+
+.dev-ui-swatch__chip {
+  height: 2.5rem;
+  border-radius: 0.375rem;
+  border: 1px solid var(--border, var(--c-border));
+}
+
+.dev-ui-swatch__name {
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.dev-ui-swatch__token {
+  font-size: 0.6875rem;
+  color: var(--muted-foreground, var(--c-muted));
+}
+
+.dev-ui-type-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
+  border: 1px solid var(--border, var(--c-border));
+  border-radius: 0.75rem;
+  background: var(--card, var(--c-surface));
+}
+
+.dev-ui-type-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.75rem 1.5rem;
+}
+
+.dev-ui-type-row__meta {
+  min-width: 10rem;
+  font-size: 0.75rem;
+  color: var(--muted-foreground, var(--c-muted));
+  font-family: ui-monospace, monospace;
+}
+
+.dev-ui-type-xs { font-size: var(--text-xs); }
+.dev-ui-type-sm { font-size: var(--text-sm); }
+.dev-ui-type-base { font-size: var(--text-base); }
+.dev-ui-type-md { font-size: var(--text-md); }
+.dev-ui-type-lg { font-size: var(--text-lg); }
+.dev-ui-type-2xl { font-size: var(--text-2xl); font-weight: 600; }
+
+.dev-ui-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+.dev-ui-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.dev-ui-field--wide {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 640px) {
+  .dev-ui-form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.dev-ui-section-card-value {
+  margin: 0.25rem 0 0;
+  font-size: 0.875rem;
+  color: var(--foreground, var(--c-text));
+}
+
+.dev-ui-muted {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.45;
+  color: var(--muted-foreground, var(--c-muted));
+}
+
+/* Section card — estilos globais espelhados para a página dev */
+:host ::ng-deep .section-card {
+  margin-bottom: 0;
+}
+
+:host ::ng-deep .section-header {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border, var(--c-border));
+}
+
+:host ::ng-deep .section-header .icon-wrap {
+  background: color-mix(in srgb, var(--primary, var(--c-primary)) 12%, transparent);
+}
+
+:host ::ng-deep .section-header .icon-wrap .material-symbols-outlined {
+  color: var(--primary, var(--c-primary));
+}
+
+:host ::ng-deep .section-body {
+  padding: 1.25rem;
+}
+
+.dev-ui-states-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+@media (max-width: 640px) {
+  .dev-ui-states-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.dev-ui-state-box {
+  border: 1px solid var(--border, var(--c-border));
+  border-radius: 0.75rem;
+  padding: 1rem;
+}
+
+.dev-ui-state-box--active {
+  border-color: color-mix(in srgb, var(--primary, var(--c-primary)) 28%, var(--border, var(--c-border)));
+  background: color-mix(in srgb, var(--primary, var(--c-primary)) 8%, transparent);
+}
+
+.dev-ui-state-box--pending {
+  border-color: color-mix(in srgb, var(--c-warning) 35%, var(--border, var(--c-border)));
+  background: color-mix(in srgb, var(--c-warning) 10%, transparent);
+}
+
+.dev-ui-state-box__title {
+  margin: 0 0 0.35rem;
+  font-weight: 600;
+}
+
+.dev-ui-states-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.dev-ui-skeleton-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem;
+}
+
+@media (max-width: 640px) {
+  .dev-ui-skeleton-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.dev-ui-skeleton-grid > div {
+  padding: 1rem;
+  border: 1px solid var(--border, var(--c-border));
+  border-radius: 0.75rem;
+  background: var(--card, var(--c-surface));
+}
+
+.dev-ui-footer {
+  margin-top: 2rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--border, var(--c-border));
+  font-size: 0.8125rem;
+  color: var(--muted-foreground, var(--c-muted));
+}
+
+.dev-ui-footer p {
+  margin: 0;
+}
+
+.dev-ui-footer code {
+  font-size: 0.75rem;
+}

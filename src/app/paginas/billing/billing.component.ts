@@ -126,6 +126,101 @@ export class BillingComponent implements OnInit {
     }
   }
 
+  get pagamentosPendentes(): BillingPayment[] {
+    return this.pagamentos.filter((p) => this.pagamentoPendente(p));
+  }
+
+  get temCobrancaPendente(): boolean {
+    return this.pagamentosPendentes.length > 0;
+  }
+
+  get orientacaoTitulo(): string {
+    if (this.mostrarPendenciaPrimeiroPagamento && this.temCobrancaPendente) {
+      return 'Conclua o pagamento para ativar sua assinatura';
+    }
+    if (this.mostrarPendenciaPrimeiroPagamento) {
+      return 'Escolha um plano para continuar';
+    }
+    if (this.mostrarCartaoGerenciado && this.assinaturaAtiva) {
+      return 'Sua assinatura está em dia';
+    }
+    if (this.trialAte) {
+      return 'Período de teste em andamento';
+    }
+    if (this.mostrarSelecaoPlano && !this.assinaturaAtiva) {
+      return 'Ative sua assinatura';
+    }
+    return 'Gerencie sua assinatura';
+  }
+
+  get orientacaoDescricao(): string {
+    if (this.mostrarPendenciaPrimeiroPagamento && this.temCobrancaPendente) {
+      return 'Já existe uma cobrança gerada. Pague com PIX ou boleto na seção abaixo — não é necessário assinar novamente o mesmo plano.';
+    }
+    if (this.mostrarPendenciaPrimeiroPagamento) {
+      return 'Selecione o plano e a forma de pagamento. Depois de confirmar, siga as instruções de PIX ou boleto que aparecerão nesta tela.';
+    }
+    if (this.mostrarCartaoGerenciado && this.assinaturaAtiva) {
+      return 'Acompanhe cobranças, veja a próxima data de cobrança e cancele a assinatura quando precisar.';
+    }
+    if (this.trialAte) {
+      return `Seu teste termina em ${this.trialAte}. Antes dessa data, escolha um plano para não interromper o acesso.`;
+    }
+    if (this.mostrarSelecaoPlano && !this.assinaturaAtiva) {
+      return 'Escolha o plano ideal e defina PIX ou boleto como forma de pagamento recorrente.';
+    }
+    return 'Acompanhe status, cobranças e planos disponíveis para sua conta.';
+  }
+
+  get rotuloSecaoPagamentos(): string {
+    return this.temCobrancaPendente ? 'Pagar agora' : 'Cobranças recentes';
+  }
+
+  get descricaoSecaoPagamentos(): string {
+    if (this.temCobrancaPendente) {
+      return 'Use PIX ou boleto para quitar a cobrança pendente abaixo.';
+    }
+    return 'Histórico das últimas cobranças da sua assinatura.';
+  }
+
+  get descricaoSecaoPlanos(): string {
+    if (this.mostrarPendenciaPrimeiroPagamento && this.temCobrancaPendente) {
+      return 'Para trocar de plano, escolha outra opção. Se o plano desejado já foi assinado, basta pagar a cobrança acima.';
+    }
+    if (this.mostrarPendenciaPrimeiroPagamento) {
+      return 'Escolha como pagar ao confirmar o plano. A cobrança será gerada nesta mesma tela.';
+    }
+    return 'Defina PIX ou boleto antes de assinar ou trocar de plano.';
+  }
+
+  get nomePlanoAtual(): string {
+    const key = this.assinaturaAtiva?.plan_key ?? this.state?.organization?.plan_key ?? null;
+    if (!key) {
+      return '';
+    }
+    return this.planos.find((p) => p.key === key)?.name ?? key;
+  }
+
+  planoAguardandoPagamento(plano: PlanoComChave): boolean {
+    return (
+      this.mostrarPendenciaPrimeiroPagamento &&
+      !!this.assinaturaAtiva &&
+      this.assinaturaAtiva.plan_key === plano.key &&
+      this.temCobrancaPendente
+    );
+  }
+
+  rotuloPeriodicidade(plano: PlanoComChave): string {
+    const text = `${plano.name} ${plano.description ?? ''}`.toLowerCase();
+    if (/anual|\/ano|\bano\b|year|12\s*meses/.test(text)) {
+      return '/ano';
+    }
+    if (/mensal|\/mês|\/mes|\bmês\b|\bmes\b|month/.test(text)) {
+      return '/mês';
+    }
+    return '/mês';
+  }
+
   /** Só “Plano atual” sem botão quando a assinatura está em modo gerenciado (não pendência pós-trial). */
   somenteRotuloPlanoAtual(plano: PlanoComChave): boolean {
     return (
@@ -190,7 +285,10 @@ export class BillingComponent implements OnInit {
     this.billingService.checkout(planKey, this.formaPagamento).subscribe({
       next: (res) => {
         this.acaoEmAndamento = false;
-        this.toast.success('Assinatura', res.data?.message ?? 'Assinatura ativa.');
+        this.toast.success(
+          'Assinatura criada',
+          res.data?.message ?? 'Plano selecionado. Pague a cobrança gerada abaixo para ativar o acesso.'
+        );
         this.carregar();
       },
       error: (err) => {

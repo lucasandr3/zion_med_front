@@ -1,0 +1,300 @@
+<div class="dev-ui-page">
+  <header class="dev-ui-topbar">
+    <div class="dev-ui-topbar__brand">
+      <a routerLink="/dashboard" class="dev-ui-topbar__back">
+        <span class="material-symbols-outlined text-base" aria-hidden="true">arrow_back</span>
+        Voltar ao app
+      </a>
+      <div>
+        <h1 class="dev-ui-topbar__title">Design System</h1>
+        <p class="dev-ui-topbar__subtitle">Referência visual — tokens, componentes e padrões Gestgo</p>
+      </div>
+    </div>
+    <div class="dev-ui-topbar__controls">
+      <label class="dev-ui-control">
+        <span class="dev-ui-control__label">Tema</span>
+        <select
+          class="dev-ui-select"
+          [(ngModel)]="selectedTheme"
+          (ngModelChange)="onThemeChange($event)"
+          aria-label="Tema de cor"
+        >
+          @for (t of themeOptions; track t.id) {
+            <option [value]="t.id">{{ t.label }}</option>
+          }
+        </select>
+      </label>
+      <label class="dev-ui-control">
+        <span class="dev-ui-control__label">Shell</span>
+        <select
+          class="dev-ui-select"
+          [(ngModel)]="selectedShell"
+          (ngModelChange)="onShellChange($event)"
+          aria-label="Preset do shell"
+        >
+          @for (p of shellPresets; track p.id) {
+            <option [value]="p.id">{{ p.label }}</option>
+          }
+        </select>
+      </label>
+      <button z-button zType="outline" zSize="sm" type="button" (click)="toggleDark()">
+        <span class="material-symbols-outlined text-base" aria-hidden="true">{{ isDark ? 'light_mode' : 'dark_mode' }}</span>
+        {{ isDark ? 'Modo claro' : 'Modo escuro' }}
+      </button>
+    </div>
+  </header>
+
+  <div class="dev-ui-layout">
+    <nav class="dev-ui-nav" aria-label="Seções do design system">
+      <a href="#cores">Cores</a>
+      <a href="#tipografia">Tipografia</a>
+      <a href="#botoes">Botões</a>
+      <a href="#badges">Badges</a>
+      <a href="#formularios">Formulários</a>
+      <a href="#section-card">Section card</a>
+      <a href="#tabela">Tabela</a>
+      <a href="#toolbar">Toolbar</a>
+      <a href="#estados">Estados</a>
+      <a href="#skeleton">Skeleton</a>
+    </nav>
+
+    <main class="dev-ui-main">
+      <section id="cores" class="dev-ui-section">
+        <h2 class="dev-ui-section__title">Cores — superfície e marca</h2>
+        <p class="dev-ui-section__desc">Tokens <code>--c-*</code> definidos em <code>styles.css</code>. Semânticas não mudam com o tema.</p>
+        <div class="dev-ui-swatch-grid">
+          @for (t of surfaceTokens; track t.token) {
+            <div class="dev-ui-swatch">
+              <div class="dev-ui-swatch__chip" [style.background]="'var(' + t.token + ')'"></div>
+              <span class="dev-ui-swatch__name">{{ t.label }}</span>
+              <code class="dev-ui-swatch__token">{{ t.token }}</code>
+            </div>
+          }
+        </div>
+
+        <h3 class="dev-ui-subsection__title">Semânticas</h3>
+        <div class="dev-ui-swatch-grid">
+          @for (t of semanticTokens; track t.token) {
+            <div class="dev-ui-swatch">
+              <div class="dev-ui-swatch__chip" [style.background]="'var(' + t.token + ')'"></div>
+              <span class="dev-ui-swatch__name">{{ t.label }}</span>
+              <code class="dev-ui-swatch__token">{{ t.token }}</code>
+            </div>
+          }
+        </div>
+      </section>
+
+      <section id="tipografia" class="dev-ui-section">
+        <h2 class="dev-ui-section__title">Tipografia</h2>
+        <p class="dev-ui-section__desc">Roboto — corpo e títulos. Escala em rem via tokens <code>--text-*</code>.</p>
+        <div class="dev-ui-type-stack">
+          @for (s of typographySamples; track s.label) {
+            <div class="dev-ui-type-row">
+              <span class="dev-ui-type-row__meta">{{ s.label }}</span>
+              <span [class]="s.cls">{{ s.sample }}</span>
+            </div>
+          }
+        </div>
+      </section>
+
+      <section id="botoes" class="dev-ui-section">
+        <h2 class="dev-ui-section__title">Botões</h2>
+        <p class="dev-ui-section__desc">Preferir <code>z-button</code> em código novo. Classes legadas ainda usadas em billing.</p>
+
+        <h3 class="dev-ui-subsection__title">Zard (<code>z-button</code>)</h3>
+        <div class="dev-ui-row">
+          <button z-button zType="default" zSize="sm" type="button">Default</button>
+          <button z-button zType="outline" zSize="sm" type="button">Outline</button>
+          <button z-button zType="secondary" zSize="sm" type="button">Secondary</button>
+          <button z-button zType="ghost" zSize="sm" type="button">Ghost</button>
+          <button z-button zType="destructive" zSize="sm" type="button">Destructive</button>
+          <button z-button zType="link" zSize="sm" type="button">Link</button>
+          <button z-button zType="default" zSize="sm" type="button" disabled>Disabled</button>
+        </div>
+
+        <h3 class="dev-ui-subsection__title">Legado (<code>styles.css</code>)</h3>
+        <div class="dev-ui-row">
+          <button type="button" class="btn-primary">btn-primary</button>
+          <button type="button" class="btn-ghost">btn-ghost</button>
+          <button type="button" class="btn-danger">btn-danger</button>
+          <button type="button" class="btn-primary" disabled>
+            <span class="btn-spinner" aria-hidden="true"></span>
+            Loading
+          </button>
+        </div>
+      </section>
+
+      <section id="badges" class="dev-ui-section">
+        <h2 class="dev-ui-section__title">Badges</h2>
+        <div class="dev-ui-row">
+          <z-badge zType="default">Default</z-badge>
+          <z-badge zType="secondary">Secondary</z-badge>
+          <z-badge zType="destructive">Destructive</z-badge>
+          <z-badge zType="outline">Outline</z-badge>
+          <z-badge zType="secondary" zShape="pill">Pill</z-badge>
+        </div>
+      </section>
+
+      <section id="formularios" class="dev-ui-section">
+        <h2 class="dev-ui-section__title">Formulários</h2>
+        <div class="dev-ui-form-grid">
+          <div class="dev-ui-field">
+            <label class="form-label" for="dev-ui-input">Input (<code>z-input</code>)</label>
+            <input id="dev-ui-input" z-input class="form-input w-full text-sm" placeholder="Placeholder…" />
+          </div>
+          <div class="dev-ui-field">
+            <label class="form-label" for="dev-ui-select">Select nativo</label>
+            <select id="dev-ui-select" z-input class="form-select w-full text-sm">
+              <option>Opção A</option>
+              <option>Opção B</option>
+            </select>
+          </div>
+          <div class="dev-ui-field dev-ui-field--wide">
+            <label class="form-label" for="dev-ui-search">Busca com ícone</label>
+            <div class="form-search-wrap">
+              <span class="material-symbols-outlined form-search-icon">search</span>
+              <input id="dev-ui-search" z-input class="form-search-input form-input w-full text-sm" placeholder="Buscar…" />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="section-card" class="dev-ui-section">
+        <h2 class="dev-ui-section__title">Section card</h2>
+        <p class="dev-ui-section__desc">Padrão de configurações, billing e detalhes.</p>
+
+        <z-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
+          <div class="section-header">
+            <div class="icon-wrap w-7 h-7 rounded-lg flex items-center justify-center">
+              <span class="material-symbols-outlined text-sm">palette</span>
+            </div>
+            <div>
+              <p class="section-title text-xs font-bold uppercase tracking-wider">Exemplo de seção</p>
+              <p class="dev-ui-section-card-value">Subtítulo ou valor da seção</p>
+            </div>
+          </div>
+          <div class="section-body">
+            <p class="dev-ui-muted">Corpo do card com padding <code>1.25rem</code>. Use tokens e <code>color-mix</code> para destaques.</p>
+          </div>
+        </z-card>
+      </section>
+
+      <section id="tabela" class="dev-ui-section">
+        <h2 class="dev-ui-section__title">Tabela de listagem</h2>
+        <z-card class="zm-table-card gap-0 overflow-hidden rounded-[8px] py-0 shadow-sm **:data-[slot=card-content]:p-0">
+          <div class="zm-table-wrap">
+            <table z-table zSize="compact">
+              <thead z-table-header>
+                <tr z-table-row>
+                  <th z-table-head>Pessoa</th>
+                  <th z-table-head>Contato</th>
+                  <th z-table-head>Situação</th>
+                </tr>
+              </thead>
+              <tbody z-table-body>
+                <tr z-table-row class="zm-row-clickable">
+                  <td z-table-cell>
+                    <div class="zm-row-title">Ana Silva</div>
+                    <div class="zm-row-sub">#00142</div>
+                  </td>
+                  <td z-table-cell>
+                    <div class="zm-cell-muted">ana&#64;email.com</div>
+                  </td>
+                  <td z-table-cell>
+                    <z-badge zType="secondary" zShape="pill">Ativo</z-badge>
+                  </td>
+                </tr>
+                <tr z-table-row class="zm-row-clickable">
+                  <td z-table-cell>
+                    <div class="zm-row-title">Bruno Costa</div>
+                    <div class="zm-row-sub">#00143</div>
+                  </td>
+                  <td z-table-cell>
+                    <div class="zm-cell-muted">bruno&#64;email.com</div>
+                  </td>
+                  <td z-table-cell>
+                    <z-badge zType="outline" zShape="pill">Pendente</z-badge>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </z-card>
+      </section>
+
+      <section id="toolbar" class="dev-ui-section">
+        <h2 class="dev-ui-section__title">Toolbar de listagem</h2>
+        <div class="zm-list-toolbar zm-list-toolbar--search-wide">
+          <div class="form-search-wrap zm-list-toolbar__search">
+            <span class="material-symbols-outlined form-search-icon">search</span>
+            <input z-input class="form-search-input w-full text-sm" placeholder="Buscar registros…" aria-label="Buscar" />
+          </div>
+          <div class="zm-list-toolbar__actions">
+            <button z-button zType="outline" zSize="sm" type="button" class="gap-1.5">
+              <span class="material-symbols-outlined text-base" aria-hidden="true">filter_alt</span>
+              Filtros
+            </button>
+            <button z-button zSize="sm" type="button" class="gap-1.5">
+              <span class="material-symbols-outlined text-base" aria-hidden="true">add</span>
+              Criar
+            </button>
+          </div>
+        </div>
+        <p class="zm-count-label">2 registros de exemplo</p>
+      </section>
+
+      <section id="estados" class="dev-ui-section">
+        <h2 class="dev-ui-section__title">Estados e feedback</h2>
+
+        <div class="dev-ui-states-grid">
+          <div class="dev-ui-state-box dev-ui-state-box--active">
+            <p class="dev-ui-state-box__title">Status ativo</p>
+            <p class="dev-ui-muted">Borda e fundo com <code>color-mix</code> da primária (~8–12%).</p>
+          </div>
+          <div class="dev-ui-state-box dev-ui-state-box--pending">
+            <p class="dev-ui-state-box__title">Status pendente</p>
+            <p class="dev-ui-muted">Usa <code>--c-warning</code> para borda e fundo.</p>
+          </div>
+        </div>
+
+        <div class="dev-ui-states-stack">
+          <zm-empty-state
+            title="Nenhum registro encontrado."
+            description="Exemplo de estado vazio com CTA opcional."
+            actionLabel="Criar primeiro"
+            actionLink="/dashboard"
+          />
+          <zm-pagination
+            [currentPage]="paginationPage()"
+            [lastPage]="paginationLast()"
+            (pageChange)="onPageChange($event)"
+          />
+        </div>
+      </section>
+
+      <section id="skeleton" class="dev-ui-section">
+        <h2 class="dev-ui-section__title">Skeleton / loading</h2>
+        <div class="dev-ui-skeleton-grid">
+          <div>
+            <p class="dev-ui-subsection__title"><code>z-skeleton</code></p>
+            <z-skeleton class="h-4 w-full mb-2" />
+            <z-skeleton class="h-4 w-3/4 mb-2" />
+            <z-skeleton class="h-4 w-1/2" />
+          </div>
+          <div>
+            <p class="dev-ui-subsection__title"><code>zm-skeleton-list</code></p>
+            <zm-skeleton-list [rows]="3" />
+          </div>
+        </div>
+      </section>
+
+      <footer class="dev-ui-footer">
+        <p>
+          Documentação completa em
+          <code>docs/DESIGN_SYSTEM.md</code>
+          · Rota disponível apenas em desenvolvimento (<code>environment.production === false</code>)
+        </p>
+      </footer>
+    </main>
+  </div>
+</div>
