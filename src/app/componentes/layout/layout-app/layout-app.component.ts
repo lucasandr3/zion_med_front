@@ -13,6 +13,7 @@ import { AuthService, TrialNotice } from '../../../core/services/auth.service';
 import { OrganizationPresenceService } from '../../../core/services/organization-presence.service';
 import { ZmAssinaturaBloqueadaCardComponent, ZmPageBackLinkComponent } from '../../../shared/components/ui';
 import { ZardButtonComponent } from '@/shared/components/button/button.component';
+import { GoAssistantHostComponent } from '../../../go-assistant';
 @Component({
   selector: 'app-layout-app',
   standalone: true,
@@ -25,6 +26,7 @@ import { ZardButtonComponent } from '@/shared/components/button/button.component
     ZmAssinaturaBloqueadaCardComponent,
     ZmPageBackLinkComponent,
     ZardButtonComponent,
+    GoAssistantHostComponent,
   ],
   templateUrl: './layout-app.component.html',
   styleUrl: './layout-app.component.css',

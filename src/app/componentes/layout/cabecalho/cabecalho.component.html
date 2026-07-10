@@ -43,6 +43,19 @@
   </div>
 
   <div class="top-header__end flex shrink-0 items-center gap-2">
+    <button
+      z-button
+      zType="ghost"
+      zSize="icon"
+      type="button"
+      (click)="abrirGoAssistant()"
+      class="cabecalho-toolbar-action rounded-md"
+      title="Go Assistant (Ctrl+/)"
+      aria-label="Abrir Go Assistant"
+    >
+      <span class="material-symbols-outlined text-[22px]" aria-hidden="true">smart_toy</span>
+    </button>
+
     <div class="relative header-desktop-only-block">
       <button z-button zType="ghost" zSize="icon" type="button" (click)="alternarMenuTema()" class="cabecalho-toolbar-action rounded-md"
               aria-label="Tema e aparência">

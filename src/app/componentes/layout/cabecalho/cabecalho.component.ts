@@ -31,6 +31,7 @@ import { ZardMenuImports } from '../../../shared/components/menu/menu.imports';
 import { ZardAvatarComponent } from '@/shared/components/avatar/avatar.component';
 import { ZardSheetService } from '@/shared/components/sheet/sheet.service';
 import type { ZardSheetRef } from '@/shared/components/sheet/sheet-ref';
+import { GoAssistantShellService } from '../../../go-assistant/services/go-assistant-shell.service';
 
 export const TEMAS: { key: string; label: string; labelPt: string; color: string }[] = [
   { key: 'gestgo-blue', label: 'Royal blue', labelPt: 'Azul Gestgo', color: '#1e40af' },
@@ -158,6 +159,7 @@ export class CabecalhoComponent implements OnInit, OnDestroy {
   private readonly shellNavLayout = inject(ShellNavLayoutService);
   private readonly vcr = inject(ViewContainerRef);
   private readonly zardSheet = inject(ZardSheetService);
+  private readonly goAssistant = inject(GoAssistantShellService);
   private temaSheetRef?: ZardSheetRef<void>;
 
   ngOnInit(): void {
@@ -376,6 +378,10 @@ export class CabecalhoComponent implements OnInit, OnDestroy {
         this.temaSheetRef = undefined;
       },
     });
+  }
+
+  abrirGoAssistant(): void {
+    this.goAssistant.show();
   }
 
   sair(): void {

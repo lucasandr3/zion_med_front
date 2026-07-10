@@ -1,5 +1,5 @@
 <div class="protocolos-page relative min-h-[320px]">
-  <div class="zm-list-toolbar">
+  <div class="zm-list-toolbar" data-go-tour="protocolos-filters">
     <div class="form-search-wrap zm-list-toolbar__search">
       <span class="material-symbols-outlined form-search-icon">search</span>
       <input
@@ -71,7 +71,7 @@
     <zm-skeleton-list [rows]="6" />
   } @else if (!listaPronta && !erro) {
   } @else if (!erro) {
-    <div class="zm-content-enter">
+    <div class="zm-content-enter" data-go-tour="protocolos-list">
       <z-card class="zm-table-card gap-0 overflow-hidden rounded-[8px] py-0 **:data-[slot=card-content]:p-0">
         @if (protocolos.length === 0) {
           <div class="p-10">

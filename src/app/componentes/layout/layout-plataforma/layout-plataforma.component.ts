@@ -10,10 +10,18 @@ import { SidebarMobileService } from '../../../core/services/sidebar-mobile.serv
 import { PlataformaHeaderService } from '../../../core/services/plataforma-header.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { ZmPageBackLinkComponent } from '../../../shared/components/ui';
+import { GoAssistantHostComponent } from '../../../go-assistant';
 @Component({
   selector: 'app-layout-plataforma',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, BarraLateralPlataformaComponent, CabecalhoComponent, ZmPageBackLinkComponent],
+  imports: [
+    CommonModule,
+    RouterOutlet,
+    BarraLateralPlataformaComponent,
+    CabecalhoComponent,
+    ZmPageBackLinkComponent,
+    GoAssistantHostComponent,
+  ],
   templateUrl: './layout-plataforma.component.html',
   styleUrl: './layout-plataforma.component.css',
 })

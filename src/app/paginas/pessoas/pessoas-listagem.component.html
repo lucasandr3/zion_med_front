@@ -1,6 +1,6 @@
 <div class="pessoas-page relative min-h-[320px]">
   <div class="zm-list-toolbar zm-list-toolbar--search-wide">
-    <div class="form-search-wrap zm-list-toolbar__search">
+    <div class="form-search-wrap zm-list-toolbar__search" data-go-tour="pessoas-search">
       <span class="material-symbols-outlined form-search-icon">search</span>
       <input
         type="text"
@@ -37,6 +37,7 @@
         routerLink="/pessoas/criar"
         class="shrink-0 gap-1.5 no-underline"
         title="Nova pessoa"
+        data-go-tour="pessoas-new"
       >
         <span class="material-symbols-outlined text-base" aria-hidden="true">person_add</span>
         Nova pessoa
@@ -56,7 +57,7 @@
     <zm-skeleton-list [rows]="6" />
   } @else if (!listaPronta && !erro) {
   } @else if (!erro) {
-    <div class="zm-content-enter">
+    <div class="zm-content-enter" data-go-tour="pessoas-list">
       <z-card class="zm-table-card gap-0 overflow-hidden rounded-[8px] py-0 shadow-sm **:data-[slot=card-content]:p-0">
         @if (pessoas.length === 0) {
           <div class="p-10">

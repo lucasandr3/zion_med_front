@@ -76,7 +76,7 @@
               Pastas
             </button>
           </div>
-          <a z-button zSize="sm" routerLink="/templates/criar-em-branco" class="templates-colecao-btn-novo shrink-0 no-underline" title="Criar novo modelo">
+          <a z-button zSize="sm" routerLink="/templates/criar-em-branco" class="templates-colecao-btn-novo shrink-0 no-underline" title="Criar novo modelo" data-go-tour="templates-new">
             <span class="material-symbols-outlined text-base">add</span>
             Novo modelo
           </a>
@@ -86,7 +86,7 @@
       @if (filtrosPainelAberto) {
         <z-card class="mb-5 gap-0 border-border bg-card py-4 shadow-sm **:data-[slot=card-content]:px-5" role="region">
           <div id="templates-filtros-panel" class="templates-filtros-panel" aria-label="Filtros da coleção">
-            <div class="templates-filtros-busca relative min-w-[200px] flex-1 max-w-xs">
+            <div class="templates-filtros-busca relative min-w-[200px] flex-1 max-w-xs" data-go-tour="templates-search">
               <span class="material-symbols-outlined pointer-events-none absolute left-2.5 top-1/2 z-10 -translate-y-1/2 text-base text-muted-foreground">search</span>
               <input
                 z-input
@@ -149,7 +149,7 @@
           </button>
         </z-card>
       } @else if (modoColecaoVisual === 'cards') {
-        <div class="templates-colecao-grid">
+        <div class="templates-colecao-grid" data-go-tour="templates-list">
           @for (grupo of gruposParaColecao; track grupo.key) {
             <a
               class="templates-cat-card"

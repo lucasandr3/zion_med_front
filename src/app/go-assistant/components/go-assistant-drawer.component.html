@@ -1,0 +1,174 @@
+@if (shell.open()) {
+  <button type="button" class="go-assistant-backdrop" aria-label="Fechar Go Assistant" (click)="shell.close()"></button>
+
+  <aside id="go-assistant-drawer" class="go-assistant-panel" role="dialog" aria-modal="true" aria-labelledby="go-assistant-title">
+    <header class="go-assistant-header">
+      <div>
+        <h2 id="go-assistant-title">Go Assistant</h2>
+        <p class="go-assistant-context">Você está em: {{ screenTitle() }}</p>
+      </div>
+      <button type="button" class="go-assistant-close" (click)="shell.close()" aria-label="Fechar">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </header>
+
+    <div class="go-assistant-search-wrap">
+      <span class="material-symbols-outlined go-assistant-search-icon" aria-hidden="true">search</span>
+      <input
+        class="go-assistant-search"
+        type="search"
+        placeholder="Como cadastrar pessoa? Como criar ficha?"
+        [ngModel]="shell.query()"
+        (ngModelChange)="onSearchInput($event)"
+        autocomplete="off"
+      />
+    </div>
+
+    <div class="go-assistant-body">
+      @if (shell.view(); as view) {
+        @switch (view.kind) {
+          @case ('home') {
+            @if (contextualIntents().length) {
+              <section class="go-assistant-section">
+                <h3>Ajuda nesta tela</h3>
+                <div class="go-assistant-list">
+                  @for (intent of contextualIntents(); track intent.id) {
+                    <button type="button" class="go-assistant-item" (click)="openIntent(intent)">
+                      <span class="material-symbols-outlined" aria-hidden="true">help</span>
+                      <span>{{ intent.title }}</span>
+                    </button>
+                  }
+                </div>
+              </section>
+            }
+
+            @if (hasTour()) {
+              <section class="go-assistant-section">
+                <h3>Tour guiado</h3>
+                <button type="button" class="go-assistant-btn primary" (click)="startTour()">
+                  <span class="material-symbols-outlined text-base" aria-hidden="true">school</span>
+                  Me ensine esta tela
+                </button>
+              </section>
+            }
+
+            <section class="go-assistant-section">
+              <h3>Últimos acessos</h3>
+              @if (shell.loadingHistory()) {
+                <p class="go-assistant-empty">Carregando…</p>
+              } @else if (!shell.history().length) {
+                <p class="go-assistant-empty">Seus acessos e tutoriais aparecerão aqui.</p>
+              } @else {
+                <div class="go-assistant-list">
+                  @for (item of shell.history(); track item.id) {
+                    <button type="button" class="go-assistant-item" (click)="shell.openHistoryItem(item)">
+                      <span class="material-symbols-outlined" aria-hidden="true">history</span>
+                      <span>{{ shell.historyLabel(item) }}</span>
+                    </button>
+                  }
+                </div>
+              }
+            </section>
+
+            <section class="go-assistant-section">
+              <h3>Tutoriais</h3>
+              @if (shell.popular().length) {
+                <div class="go-assistant-list">
+                  @for (item of shell.popular(); track item.intent_id) {
+                    <button type="button" class="go-assistant-item" (click)="shell.openIntentById(item.intent_id)">
+                      <span class="material-symbols-outlined" aria-hidden="true">menu_book</span>
+                      <span>{{ shell.popularLabel(item) }}</span>
+                    </button>
+                  }
+                </div>
+              } @else if (contextualIntents().length) {
+                <div class="go-assistant-list">
+                  @for (intent of contextualIntents().slice(0, 5); track intent.id) {
+                    <button type="button" class="go-assistant-item" (click)="openIntent(intent)">
+                      <span class="material-symbols-outlined" aria-hidden="true">menu_book</span>
+                      <span>{{ intent.title }}</span>
+                    </button>
+                  }
+                </div>
+              } @else {
+                <p class="go-assistant-empty">Pesquise acima para encontrar tutoriais do Gestgo.</p>
+              }
+            </section>
+          }
+
+          @case ('search') {
+            <section class="go-assistant-section">
+              <h3>Resultados</h3>
+              <div class="go-assistant-list">
+                @for (hit of view.hits; track hit.intent.id) {
+                  <button type="button" class="go-assistant-item" (click)="openIntent(hit.intent)">
+                    <span class="material-symbols-outlined" aria-hidden="true">search</span>
+                    <span>{{ hit.intent.title }}</span>
+                  </button>
+                }
+              </div>
+            </section>
+          }
+
+          @case ('empty') {
+            <p class="go-assistant-empty">
+              Não encontrei “{{ view.query }}” nas funcionalidades do Gestgo.
+            </p>
+            @if (view.suggestions.length) {
+              <section class="go-assistant-section">
+                <h3>Sugestões</h3>
+                <div class="go-assistant-list">
+                  @for (intent of view.suggestions; track intent.id) {
+                    <button type="button" class="go-assistant-item" (click)="openIntent(intent)">
+                      <span class="material-symbols-outlined" aria-hidden="true">lightbulb</span>
+                      <span>{{ intent.title }}</span>
+                    </button>
+                  }
+                </div>
+              </section>
+            }
+          }
+
+          @case ('intent') {
+            <button type="button" class="go-assistant-back" (click)="shell.backHome()">
+              <span class="material-symbols-outlined text-base" aria-hidden="true">arrow_back</span>
+              Voltar
+            </button>
+
+            <div class="go-assistant-explain">
+              <div class="go-assistant-explain__badge">
+                <span class="material-symbols-outlined" aria-hidden="true">smart_toy</span>
+                <span>Passo a passo</span>
+              </div>
+              <h3 class="go-assistant-intent-title">{{ view.intent.title }}</h3>
+
+              <ol class="go-assistant-steps">
+                @for (step of view.intent.tutorial; track step.order; let idx = $index) {
+                  <li class="go-assistant-step">
+                    <span class="go-assistant-step__num" aria-hidden="true">{{ idx + 1 }}</span>
+                    <span class="go-assistant-step__text">{{ step.text }}</span>
+                  </li>
+                }
+              </ol>
+
+              @if (visibleActions(view.intent).length) {
+                <div class="go-assistant-actions">
+                  @for (action of visibleActions(view.intent); track action.id) {
+                    <button
+                      type="button"
+                      class="go-assistant-btn"
+                      [class.primary]="action.type === 'navigate-create' || action.type === 'start-tour'"
+                      (click)="runAction(action, view.intent)"
+                    >
+                      {{ action.label }}
+                    </button>
+                  }
+                </div>
+              }
+            </div>
+          }
+        }
+      }
+    </div>
+  </aside>
+}
