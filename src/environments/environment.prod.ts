@@ -1,6 +1,6 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://api.gestgo.com.br',
+  apiUrl: 'https://api-homolog.gestgo.com.br',
   errorHub: {
     enabled: true,
     apiUrl: 'https://api-errorhub.zionai.com.br/api/v1/events',
