@@ -16,6 +16,8 @@ export const routes: Routes = [
   { path: 'esqueci-a-senha', loadComponent: () => import('./paginas/auth/esqueci-senha.component').then(m => m.EsqueciSenhaComponent) },
   { path: 'redefinir-senha', loadComponent: () => import('./paginas/auth/redefinir-senha.component').then(m => m.RedefinirSenhaComponent) },
   { path: 'verificar-email', loadComponent: () => import('./paginas/auth/verificar-email.component').then(m => m.VerificarEmailComponent) },
+  { path: 'verificar/:code', loadComponent: () => import('./paginas/verificar/verificar-documento.component').then(m => m.VerificarDocumentoComponent) },
+  { path: 'verificar', loadComponent: () => import('./paginas/verificar/verificar-documento.component').then(m => m.VerificarDocumentoComponent) },
   { path: 'verificacao-pendente', loadComponent: () => import('./paginas/auth/verificacao-pendente.component').then(m => m.VerificacaoPendenteComponent) },
   { path: 'comece', loadComponent: () => import('./paginas/comece/comece.component').then(m => m.ComeceComponent) },
   { path: 'termos-de-uso', loadComponent: () => import('./paginas/termos/termos.component').then(m => m.TermosComponent) },

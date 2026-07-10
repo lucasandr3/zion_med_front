@@ -1,4 +1,15 @@
 @for (f of fields; track trackByKey($index, f)) {
+  @if (fieldType(f) === 'heading') {
+    <div class="fp-field-group fp-field-animate fp-structural fp-heading">
+      <h2 class="fp-section-title">{{ f.label }}</h2>
+    </div>
+  } @else if (fieldType(f) === 'notice') {
+    <div class="fp-field-group fp-field-animate fp-structural fp-notice">
+      <p class="fp-notice-text">{{ f.label }}</p>
+    </div>
+  } @else if (fieldType(f) === 'section_break') {
+    <div class="fp-field-group fp-field-animate fp-structural fp-section-break" aria-hidden="true"></div>
+  } @else {
   <div class="fp-field-group fp-field-animate">
     @if (fieldType(f) !== 'checkbox') {
       <label [for]="'field_' + f.name_key" class="fp-field-label">
@@ -161,4 +172,5 @@
       }
     }
   </div>
+  }
 }

@@ -1,0 +1,90 @@
+<div class="vd-page">
+  <div class="vd-card">
+    <header class="vd-header">
+      <p class="vd-eyebrow">Gestgo</p>
+      <h1 class="vd-title">Verificar autenticidade</h1>
+      <p class="vd-sub">
+        Confira se o documento foi registrado no Gestgo. Informe o código impresso, o número do protocolo ou o hash SHA-256.
+      </p>
+    </header>
+
+    <form class="vd-form" (submit)="onSubmit($event)">
+      <label class="vd-label" for="vd-code">Código de verificação</label>
+      <input
+        id="vd-code"
+        class="vd-input"
+        name="code"
+        type="text"
+        autocomplete="off"
+        spellcheck="false"
+        [(ngModel)]="codeInput"
+        placeholder="Ex.: A1B2C3D4 ou número do protocolo"
+      />
+      <button type="submit" class="vd-btn" [disabled]="loading">
+        {{ loading ? 'Verificando…' : 'Verificar documento' }}
+      </button>
+    </form>
+
+    @if (loading) {
+      <p class="vd-hint">Consultando registro…</p>
+    }
+
+    @if (result?.valid && result?.data) {
+      <section class="vd-result vd-result--ok" aria-live="polite">
+        <h2 class="vd-result-title">Documento autenticado</h2>
+        <p class="vd-result-msg">{{ result?.message || 'Registro encontrado no Gestgo.' }}</p>
+        <dl class="vd-dl">
+          <div>
+            <dt>Protocolo</dt>
+            <dd>{{ result?.data?.protocol_number || '—' }}</dd>
+          </div>
+          <div>
+            <dt>Clínica</dt>
+            <dd>{{ result?.data?.clinic_name || '—' }}</dd>
+          </div>
+          <div>
+            <dt>Documento</dt>
+            <dd>{{ result?.data?.template_name || '—' }}</dd>
+          </div>
+          <div>
+            <dt>Enviado em</dt>
+            <dd>{{ formatDate(result?.data?.submitted_at) }}</dd>
+          </div>
+          <div>
+            <dt>Assinatura</dt>
+            <dd>
+              @if (result?.data?.has_signature) {
+                Registrada{{ result?.data?.signed_at ? ' em ' + formatDate(result?.data?.signed_at) : '' }}
+              } @else {
+                Não registrada neste protocolo
+              }
+            </dd>
+          </div>
+          <div>
+            <dt>Código</dt>
+            <dd class="vd-mono">{{ result?.data?.verification_code || '—' }}</dd>
+          </div>
+          <div>
+            <dt>Hash SHA-256</dt>
+            <dd class="vd-mono vd-hash">{{ result?.data?.document_hash || '—' }}</dd>
+          </div>
+        </dl>
+        <p class="vd-disclaimer">
+          Esta verificação confirma que o protocolo existe no Gestgo com o hash informado.
+          Não substitui análise jurídica nem atesta o conteúdo clínico do termo.
+        </p>
+      </section>
+    } @else if (errorMessage && !loading) {
+      <section class="vd-result vd-result--fail" aria-live="polite">
+        <h2 class="vd-result-title">Não autenticado</h2>
+        <p class="vd-result-msg">{{ errorMessage }}</p>
+      </section>
+    }
+
+    <p class="vd-footer">
+      <a routerLink="/privacidade">Privacidade</a>
+      ·
+      <a href="https://gestgo.com.br" rel="noopener">gestgo.com.br</a>
+    </p>
+  </div>
+</div>

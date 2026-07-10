@@ -68,7 +68,7 @@ export const ASSISTANT_INTENTS: AssistantIntent[] = [
       { order: 2, text: 'Entre em Campos do modelo.' },
       { order: 3, text: 'Adicione um campo e escolha o tipo (texto, seleção, data, assinatura, arquivo etc.).' },
       { order: 4, text: 'Defina rótulo, obrigatoriedade e opções quando houver.' },
-      { order: 5, text: 'Ordene os campos e salve.' },
+      { order: 5, text: 'Arraste pelo ícone ⠿ para reordenar os campos; a ordem é salva automaticamente.' },
     ],
     actions: [
       { id: 'open', label: 'Abrir Modelos', type: 'navigate', route: '/templates', permission: 'templates.manage' },
@@ -77,15 +77,15 @@ export const ASSISTANT_INTENTS: AssistantIntent[] = [
   {
     id: 'templates.public-link',
     title: 'Como gerar um formulário público',
-    aliases: ['gerar link', 'link público', 'ativar formulário', 'qr code ficha', 'como criar uma ficha'],
-    keywords: ['link', 'público', 'token', 'qr', 'compartilhar'],
+    aliases: ['gerar link', 'link público', 'ativar formulário', 'qr code ficha', 'como criar uma ficha', 'desativar link', 'tirar publicação'],
+    keywords: ['link', 'público', 'token', 'qr', 'compartilhar', 'desativar', 'publicação'],
     screenIds: ['templates.list', 'templates.edit', 'templates.fields', 'links-publicos'],
     permissionsAny: ['templates.manage'],
     tutorial: [
       { order: 1, text: 'Abra o modelo desejado em Modelos de fichas.' },
-      { order: 2, text: 'Ative o link público do modelo.' },
+      { order: 2, text: 'Ative o link público do modelo (Publicar / Tirar publicação na listagem ou em Campos).' },
       { order: 3, text: 'Copie a URL ou gere o QR Code.' },
-      { order: 4, text: 'Acompanhe os links ativos em Formulários públicos.' },
+      { order: 4, text: 'Acompanhe os links ativos em Formulários públicos. Para desativar, use Tirar publicação em Modelos.' },
     ],
     actions: [
       { id: 'open-templates', label: 'Abrir Modelos', type: 'navigate', route: '/templates', permission: 'templates.manage' },
@@ -101,8 +101,8 @@ export const ASSISTANT_INTENTS: AssistantIntent[] = [
     permissionsAny: ['templates.manage'],
     tutorial: [
       { order: 1, text: 'Abra Modelos de fichas.' },
-      { order: 2, text: 'Nas ações do modelo, escolha Duplicar.' },
-      { order: 3, text: 'Ajuste o nome do novo modelo e edite os campos se necessário.' },
+      { order: 2, text: 'No menu de ações do modelo (⋯), escolha Duplicar.' },
+      { order: 3, text: 'O Gestgo cria uma cópia inativa para você ajustar nome e campos.' },
     ],
     actions: [
       { id: 'open', label: 'Abrir Modelos', type: 'navigate', route: '/templates', permission: 'templates.manage' },
@@ -126,14 +126,14 @@ export const ASSISTANT_INTENTS: AssistantIntent[] = [
   {
     id: 'links-publicos.manage',
     title: 'Como gerenciar formulários públicos',
-    aliases: ['links públicos', 'copiar link', 'desativar link'],
+    aliases: ['links públicos', 'copiar link', 'qr code'],
     keywords: ['formulários', 'públicos', 'qr', 'copiar'],
     screenIds: ['links-publicos', 'dashboard'],
     permissionsAny: ['templates.manage', 'submissions.view'],
     tutorial: [
       { order: 1, text: 'Abra Formulários públicos no menu.' },
       { order: 2, text: 'Veja os links ativos vinculados aos modelos.' },
-      { order: 3, text: 'Copie a URL, abra o QR Code ou desative o link quando necessário.' },
+      { order: 3, text: 'Copie a URL ou abra o QR Code. Para desativar um link, volte a Modelos e use Tirar publicação.' },
     ],
     actions: [
       { id: 'open', label: 'Abrir Formulários públicos', type: 'navigate', route: '/links-publicos' },

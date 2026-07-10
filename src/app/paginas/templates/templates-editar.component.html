@@ -45,6 +45,121 @@
           </div>
 
           <div>
+            <label class="templates-form-label" id="template-edit-kind-label">Tipo de documento</label>
+            <z-combobox
+              class="w-full"
+              ariaLabelledby="template-edit-kind-label"
+              [options]="opcoesDocumento"
+              [ngModel]="document_kind"
+              (ngModelChange)="onDocumentKindChange($event)"
+              name="document_kind"
+            />
+            <p class="mt-1.5 text-xs text-muted-foreground">
+              Separar ficha, consentimento clínico e ciência de privacidade evita misturar finalidades no mesmo modelo.
+            </p>
+          </div>
+
+          @if (document_kind === 'consentimento') {
+            <div>
+              <label class="templates-form-label" for="template-edit-validity-days">Validade do consentimento (dias)</label>
+              <input
+                id="template-edit-validity-days"
+                type="number"
+                min="1"
+                max="3650"
+                [ngModel]="consent_validity_days ?? ''"
+                (ngModelChange)="onValidityDaysChange($event)"
+                name="consent_validity_days"
+                z-input
+                zSize="sm"
+                class="w-full"
+                placeholder="Ex.: 365 — deixe vazio para sem vencimento"
+              />
+              <p class="mt-1.5 text-xs text-muted-foreground">
+                Após a aprovação, o protocolo fica válido por este período. Depois aparece como vencido na ficha da pessoa.
+              </p>
+            </div>
+
+            <div class="space-y-3 rounded-lg border border-border p-4">
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <div>
+                  <p class="templates-form-label mb-0">Quiz de compreensão</p>
+                  <p class="mt-1 text-xs text-muted-foreground">
+                    Perguntas curtas no formulário público. O envio só segue se o paciente acertar.
+                  </p>
+                </div>
+                <button
+                  z-button
+                  zType="outline"
+                  zSize="sm"
+                  type="button"
+                  class="gap-1"
+                  (click)="addQuizQuestion()"
+                  [disabled]="quizQuestions.length >= 5"
+                >
+                  <span class="material-symbols-outlined text-base">add</span>
+                  Pergunta
+                </button>
+              </div>
+
+              @for (q of quizQuestions; track q.id || $index; let qi = $index) {
+                <div class="space-y-2 rounded-md border border-border/80 bg-muted/20 p-3">
+                  <div class="flex items-start justify-between gap-2">
+                    <label class="templates-form-label mb-0" [attr.for]="'quiz-prompt-' + qi">Pergunta {{ qi + 1 }}</label>
+                    <button z-button zType="ghost" zSize="sm" type="button" (click)="removeQuizQuestion(qi)" aria-label="Remover pergunta">
+                      <span class="material-symbols-outlined text-base">delete</span>
+                    </button>
+                  </div>
+                  <input
+                    [id]="'quiz-prompt-' + qi"
+                    type="text"
+                    [(ngModel)]="q.prompt"
+                    [name]="'quiz_prompt_' + qi"
+                    z-input
+                    zSize="sm"
+                    class="w-full"
+                    placeholder="Ex.: Posso recusar o procedimento a qualquer momento?"
+                  />
+                  <div class="space-y-2">
+                    @for (opt of q.options; track $index; let oi = $index) {
+                      <div class="flex items-center gap-2">
+                        <input
+                          type="radio"
+                          [name]="'quiz_correct_' + qi"
+                          [checked]="q.correct_index === oi"
+                          (change)="q.correct_index = oi"
+                          [attr.aria-label]="'Marcar opção ' + (oi + 1) + ' como correta'"
+                        />
+                        <input
+                          type="text"
+                          [ngModel]="opt"
+                          (ngModelChange)="setQuizOption(qi, oi, $event)"
+                          [name]="'quiz_opt_' + qi + '_' + oi"
+                          z-input
+                          zSize="sm"
+                          class="w-full"
+                          [placeholder]="'Opção ' + (oi + 1)"
+                        />
+                        @if (q.options.length > 2) {
+                          <button z-button zType="ghost" zSize="sm" type="button" (click)="removeQuizOption(qi, oi)" aria-label="Remover opção">
+                            <span class="material-symbols-outlined text-base">close</span>
+                          </button>
+                        }
+                      </div>
+                    }
+                    @if (q.options.length < 4) {
+                      <button z-button zType="link" zSize="sm" type="button" class="px-0" (click)="addQuizOption(qi)">
+                        + opção
+                      </button>
+                    }
+                  </div>
+                  <p class="m-0 text-xs text-muted-foreground">Marque o rádio da resposta correta.</p>
+                </div>
+              }
+            </div>
+          }
+
+          <div>
             <label class="templates-form-label" id="template-edit-category-label">Categoria</label>
             <z-combobox
               class="w-full"

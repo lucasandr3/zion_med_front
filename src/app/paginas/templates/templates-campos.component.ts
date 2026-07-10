@@ -2,6 +2,7 @@ import { Component, OnInit, inject, Signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 import { switchMap, map, catchError, of } from 'rxjs';
 import { TemplatesService, Template, TemplateCampo } from '../../core/services/templates.service';
 import { LoadingService } from '../../shared/services/loading.service';
@@ -19,6 +20,9 @@ const TYPE_OPTIONS: { value: string; label: string }[] = [
   { value: 'checkbox', label: 'Caixa de seleção' },
   { value: 'file', label: 'Anexo' },
   { value: 'signature', label: 'Assinatura' },
+  { value: 'heading', label: 'Título de seção' },
+  { value: 'notice', label: 'Texto informativo (termo)' },
+  { value: 'section_break', label: 'Quebra de etapa' },
 ];
 
 const TYPE_ICONS: Record<string, string> = {
@@ -31,7 +35,21 @@ const TYPE_ICONS: Record<string, string> = {
   checkbox: 'check_box',
   file: 'attach_file',
   signature: 'draw',
+  heading: 'title',
+  notice: 'info',
+  section_break: 'horizontal_rule',
 };
+
+const STRUCTURAL_TYPES = new Set(['heading', 'notice', 'section_break']);
+
+/** Blocos recomendados para consentimento informado (checagem suave). */
+const CONSENT_HINTS = [
+  { key: 'riscos', label: 'Riscos do procedimento' },
+  { key: 'beneficios', label: 'Benefícios esperados' },
+  { key: 'alternativas', label: 'Alternativas' },
+  { key: 'recusa', label: 'Direito de recusa' },
+  { key: 'ciencia', label: 'Declaração de ciência / aceite' },
+];
 
 import { ZardTableImports } from '@/shared/components/table';
 import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
@@ -52,6 +70,7 @@ import { ZardTooltipImports } from '@/shared/components/tooltip';
     CommonModule,
     RouterLink,
     FormsModule,
+    DragDropModule,
     ZmSkeletonTemplateCamposComponent,
     ZmPageBackLinkComponent,
     ZardCardComponent,
@@ -74,6 +93,7 @@ export class TemplatesCamposComponent implements OnInit {
   desativandoLink = false;
   salvandoCampo = false;
   removendoId: number | null = null;
+  reordenando = false;
 
   /** Formulário "Adicionar campo" */
   novoType = 'text';
@@ -113,6 +133,27 @@ export class TemplatesCamposComponent implements OnInit {
     return ['select', 'radio'].includes(this.novoType);
   }
 
+  get isNovoStructural(): boolean {
+    return STRUCTURAL_TYPES.has(this.novoType);
+  }
+
+  get isEditStructural(): boolean {
+    return STRUCTURAL_TYPES.has(this.editType);
+  }
+
+  get isConsentimento(): boolean {
+    const kind = (this.template?.document_kind || this.template?.category || '').toLowerCase();
+    return kind === 'consentimento';
+  }
+
+  get consentHints(): { key: string; label: string; present: boolean }[] {
+    const blob = this.campos.map((c) => `${c.label} ${c.name_key}`.toLowerCase()).join(' | ');
+    return CONSENT_HINTS.map((h) => ({
+      ...h,
+      present: blob.includes(h.key) || blob.includes(h.label.toLowerCase().split(' ')[0]),
+    }));
+  }
+
   get showEditOptions(): boolean {
     return ['select', 'radio'].includes(this.editType);
   }
@@ -148,11 +189,32 @@ export class TemplatesCamposComponent implements OnInit {
         this.listaPronta = true;
         this.template = t;
         if (t.public_url) this.linkPublicoUrl = t.public_url;
-        this.campos = list;
+        this.campos = [...list].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
       },
       error: () => {
         this.listaPronta = true;
         this.erro = 'Não foi possível carregar o template.';
+      },
+    });
+  }
+
+  onCamposDrop(event: CdkDragDrop<TemplateCampo[]>): void {
+    if (event.previousIndex === event.currentIndex || this.reordenando) return;
+    const previous = [...this.campos];
+    moveItemInArray(this.campos, event.previousIndex, event.currentIndex);
+    this.campos = this.campos.map((c, i) => ({ ...c, sort_order: i + 1 }));
+    const id = this.idNum;
+    if (!id) return;
+    this.reordenando = true;
+    this.templatesService.reorderCampos(id, this.campos.map((c) => c.id)).subscribe({
+      next: () => {
+        this.reordenando = false;
+        this.toast.success('Ordem salva', 'A ordem dos campos foi atualizada.');
+      },
+      error: () => {
+        this.reordenando = false;
+        this.campos = previous;
+        this.toast.error('Erro', 'Não foi possível salvar a nova ordem.');
       },
     });
   }
@@ -171,7 +233,7 @@ export class TemplatesCamposComponent implements OnInit {
       type: this.novoType,
       label,
       name_key: nameKey,
-      required: this.novoRequired,
+      required: this.isNovoStructural ? false : this.novoRequired,
     };
     if (this.showNovoOptions && this.novoOptionsText?.trim()) {
       payload.options = this.novoOptionsText
@@ -217,11 +279,14 @@ export class TemplatesCamposComponent implements OnInit {
   salvarEdicao(): void {
     const id = this.idNum;
     if (!id || !this.editCampo) return;
-    const payload: Partial<TemplateCampo> = {
+    const label = this.editLabel?.trim();
+    const nameKey = this.normalizarNameKey(this.editNameKey?.trim() || '') || this.editCampo.name_key;
+    if (!label || !nameKey) return;
+    const payload: Partial<TemplateCampo> & { options?: string[] } = {
       type: this.editType,
-      label: this.editLabel?.trim() || this.editCampo.label,
-      name_key: (this.editNameKey?.trim().toLowerCase().replace(/\s+/g, '_')) || this.editCampo.name_key,
-      required: this.editRequired,
+      label,
+      name_key: nameKey,
+      required: this.isEditStructural ? false : this.editRequired,
     };
     if (this.showEditOptions) {
       payload.options = this.editOptionsText

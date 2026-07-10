@@ -171,8 +171,14 @@ export interface FormularioPublicoFeegowMeta {
   warning?: string;
 }
 
+export interface FormularioPublicoQuizQuestion {
+  id: string;
+  prompt: string;
+  options: string[];
+}
+
 export interface FormularioPublicoData {
-  template: { id: number; name: string; description?: string };
+  template: { id: number; name: string; description?: string; document_kind?: string; category?: string };
   clinic_name?: string;
   /** Slug público da clínica (Link Bio). */
   clinic_slug?: string | null;
@@ -197,6 +203,8 @@ export interface FormularioPublicoData {
   public_person_link_mode?: string;
   /** Integração Feegow para este formulário/empresa. */
   feegow?: FormularioPublicoFeegowMeta;
+  /** Quiz público (sem gabarito). */
+  comprehension_quiz?: FormularioPublicoQuizQuestion[];
   fields: FormularioPublicoField[];
 }
 

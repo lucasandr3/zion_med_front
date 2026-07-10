@@ -4,6 +4,19 @@
   } @else if (!listaPronta) {
   } @else if (template) {
     <div class="zm-content-enter">
+      @if (isConsentimento) {
+        <div class="mb-5 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950">
+          <p class="mb-2 font-semibold">Checklist de consentimento informado</p>
+          <p class="mb-2 text-amber-900/80">Recomendado para defensabilidade clínica. Use títulos/textos informativos e checkboxes de ciência.</p>
+          <ul class="m-0 grid gap-1 pl-4">
+            @for (h of consentHints; track h.key) {
+              <li>
+                {{ h.present ? '✓' : '○' }} {{ h.label }}
+              </li>
+            }
+          </ul>
+        </div>
+      }
       <div class="mb-6 flex flex-wrap items-center gap-2.5">
         <zm-page-back-link />
         <div class="flex flex-wrap items-center gap-2.5">
@@ -178,7 +191,9 @@
           }
 
           <div class="flex flex-wrap items-center justify-between gap-3">
-            <z-checkbox [(ngModel)]="novoRequired" name="new_required">Campo obrigatório</z-checkbox>
+            @if (!isNovoStructural) {
+              <z-checkbox [(ngModel)]="novoRequired" name="new_required">Campo obrigatório</z-checkbox>
+            }
             <button
               type="button"
               z-button
@@ -218,7 +233,7 @@
                 <th z-table-head class="w-[110px] text-center">Ações</th>
               </tr>
             </thead>
-            <tbody z-table-body>
+            <tbody z-table-body cdkDropList [cdkDropListData]="campos" (cdkDropListDropped)="onCamposDrop($event)" [cdkDropListDisabled]="reordenando">
               @if (campos.length === 0) {
                 <tr z-table-row>
                   <td z-table-cell colspan="7" class="p-0">
@@ -235,9 +250,17 @@
                 </tr>
               } @else {
                 @for (c of campos; track c.id) {
-                  <tr z-table-row class="border-t border-border transition-colors hover:bg-muted/50">
+                  <tr z-table-row class="border-t border-border transition-colors hover:bg-muted/50" cdkDrag [cdkDragDisabled]="reordenando">
                     <td z-table-cell class="px-4 py-3">
-                      <span class="templates-campos-drag text-muted-foreground/60" aria-hidden="true">⠿</span>
+                      <button
+                        type="button"
+                        class="templates-campos-drag text-muted-foreground/60"
+                        cdkDragHandle
+                        aria-label="Arrastar para reordenar"
+                        title="Arrastar para reordenar"
+                      >
+                        ⠿
+                      </button>
                     </td>
                     <td z-table-cell class="px-4 py-3 text-[0.8125rem] font-semibold text-muted-foreground">
                       {{ ordemFormatada(c.sort_order) }}
@@ -367,7 +390,9 @@
           />
           <p class="mt-1 text-xs text-muted-foreground">Apenas letras minúsculas, números e underscore.</p>
         </div>
-        <z-checkbox [(ngModel)]="editRequired" name="edit_required">Obrigatório</z-checkbox>
+        @if (!isEditStructural) {
+          <z-checkbox [(ngModel)]="editRequired" name="edit_required">Obrigatório</z-checkbox>
+        }
         @if (showEditOptions) {
           <div>
             <label class="templates-campos-form-label" for="edit_options_text">Lista de opções que o usuário poderá escolher</label>

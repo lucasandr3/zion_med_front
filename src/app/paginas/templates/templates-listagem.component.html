@@ -540,6 +540,16 @@
         <button
           type="button"
           z-menu-item
+          class="w-full gap-2"
+          [zDisabled]="duplicandoId === menuItem.id"
+          (click)="duplicar(menuItem, $event)"
+        >
+          <span class="material-symbols-outlined shrink-0 text-base" aria-hidden="true">content_copy</span>
+          Duplicar
+        </button>
+        <button
+          type="button"
+          z-menu-item
           zType="destructive"
           class="w-full gap-2"
           [zDisabled]="removendoId === menuItem.id"

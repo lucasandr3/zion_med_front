@@ -23,6 +23,14 @@
                 <z-badge zShape="pill" zType="outline" [class]="statusPessoaBadgeClass()">
                   {{ pessoa!.status === 'active' ? 'Ativa' : 'Inativa' }}
                 </z-badge>
+                @if (pessoa!.consent_summary) {
+                  <z-badge zShape="pill" zType="outline" [class]="statusConsentimentoBadgeClass()">
+                    {{ pessoa!.consent_summary.label }}
+                  </z-badge>
+                  @if (pessoa!.consent_summary.valid_until) {
+                    <span class="pessoa-header__code">até {{ formatarDataCurta(pessoa!.consent_summary.valid_until) }}</span>
+                  }
+                }
               </div>
             </div>
           </div>
@@ -152,6 +160,17 @@
                   </div>
                   <p class="pessoa-stat-card__value pessoa-stat-card__value--danger">{{ stats.rejected_protocols }}</p>
                 </z-card>
+                @if (stats.revoked_protocols != null) {
+                  <z-card class="pessoa-stat-card pessoa-stat-card--danger gap-0 rounded-lg py-0 shadow-none **:data-[slot=card-content]:p-4">
+                    <div class="pessoa-stat-card__head">
+                      <p class="pessoa-stat-card__label">Revogados</p>
+                      <span class="pessoa-stat-card__icon pessoa-stat-card__icon--danger" aria-hidden="true">
+                        <span class="material-symbols-outlined">undo</span>
+                      </span>
+                    </div>
+                    <p class="pessoa-stat-card__value pessoa-stat-card__value--danger">{{ stats.revoked_protocols }}</p>
+                  </z-card>
+                }
               </div>
             } @else {
               <div class="pessoa-vazio">

@@ -86,7 +86,12 @@ export class PessoasDetalheComponent implements OnInit {
   }
 
   statusProtocolo(s: string): string {
-    const map: Record<string, string> = { pending: 'Pendente', approved: 'Aprovado', rejected: 'Reprovado' };
+    const map: Record<string, string> = {
+      pending: 'Pendente',
+      approved: 'Aprovado',
+      rejected: 'Reprovado',
+      revoked: 'Revogado',
+    };
     return map[s?.toLowerCase()] ?? s;
   }
 
@@ -97,12 +102,26 @@ export class PessoasDetalheComponent implements OnInit {
     return 'border-transparent bg-[color-mix(in_srgb,var(--c-error)_14%,transparent)] text-[var(--c-error)]';
   }
 
+  statusConsentimentoBadgeClass(): string {
+    const s = this.pessoa?.consent_summary?.status?.toLowerCase();
+    if (s === 'valid') {
+      return 'border-transparent bg-[color-mix(in_srgb,var(--c-success)_14%,transparent)] text-[var(--c-success)]';
+    }
+    if (s === 'pending' || s === 'expired') {
+      return 'border-transparent bg-[color-mix(in_srgb,var(--c-warning)_14%,transparent)] text-[var(--c-warning)]';
+    }
+    if (s === 'revoked') {
+      return 'border-transparent bg-[color-mix(in_srgb,var(--c-error)_14%,transparent)] text-[var(--c-error)]';
+    }
+    return 'border-transparent bg-muted text-muted-foreground';
+  }
+
   statusProtocoloBadgeClass(status: string): string {
     const s = status?.toLowerCase();
     if (s === 'pending') {
       return 'border-transparent bg-[color-mix(in_srgb,var(--c-warning)_14%,transparent)] text-[var(--c-warning)]';
     }
-    if (s === 'rejected') {
+    if (s === 'rejected' || s === 'revoked') {
       return 'border-transparent bg-[color-mix(in_srgb,var(--c-error)_14%,transparent)] text-[var(--c-error)]';
     }
     return 'border-transparent bg-[color-mix(in_srgb,var(--c-success)_14%,transparent)] text-[var(--c-success)]';

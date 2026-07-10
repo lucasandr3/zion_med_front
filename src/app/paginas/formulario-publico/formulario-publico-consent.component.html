@@ -1,4 +1,44 @@
+@if (quizQuestions.length > 0) {
+  <div class="fp-quiz-block">
+    <p class="fp-quiz-title">Confirme sua compreensão</p>
+    <p class="fp-quiz-hint">Responda corretamente para poder enviar o termo.</p>
+    @for (q of quizQuestions; track q.id) {
+      <fieldset class="fp-quiz-question">
+        <legend class="fp-quiz-prompt">{{ q.prompt }}</legend>
+        <div class="fp-quiz-options">
+          @for (opt of q.options; track $index; let oi = $index) {
+            <label class="fp-quiz-option">
+              <input
+                type="radio"
+                [name]="'fpQuiz_' + q.id"
+                [checked]="quizAnswers[q.id] === oi"
+                (change)="onQuizSelect(q.id, oi)"
+              />
+              <span>{{ opt }}</span>
+            </label>
+          }
+        </div>
+      </fieldset>
+    }
+  </div>
+}
+
 <div class="fp-consent-block" (click)="onToggleBlock($event)">
+  @if (requireComprehension) {
+    <z-checkbox
+      class="fp-consent-checkbox"
+      [ngModel]="comprehensionAck"
+      (ngModelChange)="comprehensionAckChange.emit($event)"
+      name="fpComprehensionAck"
+      [ngModelOptions]="{ standalone: true }"
+      (click)="$event.stopPropagation()"
+    >
+      <span class="fp-check-label-inline">
+        Declaro que li e compreendi os riscos, benefícios, alternativas e o direito de recusa descritos neste termo.
+      </span>
+    </z-checkbox>
+  }
+
   <z-checkbox
     class="fp-consent-checkbox"
     [ngModel]="acceptTerms"
@@ -8,8 +48,70 @@
     (click)="$event.stopPropagation()"
   >
     <span class="fp-check-label-inline">
-      Declaro que li o aviso sobre uso dos dados e a política de privacidade, e estou ciente de que minha assinatura eletrônica integra este documento.
-      <a routerLink="/privacidade" target="_blank" rel="noopener" class="fp-link">Privacidade</a>
+      Declaro que li o aviso sobre uso dos dados e a
+      <a routerLink="/privacidade" target="_blank" rel="noopener" class="fp-link">política de privacidade</a>,
+      e estou ciente de que minha assinatura eletrônica integra este documento (ciência de privacidade — distinta da compreensão clínica acima).
     </span>
   </z-checkbox>
 </div>
+
+@if (showActors) {
+  <div class="fp-actors-block">
+    <p class="fp-actors-title">Responsável legal / testemunha (quando aplicável)</p>
+    <div class="fp-field-group">
+      <label class="fp-field-label" for="fpGuardianName">Nome do responsável legal</label>
+      <input
+        id="fpGuardianName"
+        type="text"
+        class="fp-input"
+        [ngModel]="guardianName"
+        (ngModelChange)="guardianNameChange.emit($event)"
+        name="fpGuardianName"
+        [ngModelOptions]="{ standalone: true }"
+        placeholder="Opcional — menor ou incapaz"
+      />
+    </div>
+    <div class="fp-field-group">
+      <label class="fp-field-label" for="fpGuardianRelation">Parentesco / relação</label>
+      <input
+        id="fpGuardianRelation"
+        type="text"
+        class="fp-input"
+        [ngModel]="guardianRelation"
+        (ngModelChange)="guardianRelationChange.emit($event)"
+        name="fpGuardianRelation"
+        [ngModelOptions]="{ standalone: true }"
+        placeholder="Ex.: mãe, tutor"
+      />
+    </div>
+    <div class="fp-field-group">
+      <label class="fp-field-label" for="fpWitnessName">Nome da testemunha</label>
+      <input
+        id="fpWitnessName"
+        type="text"
+        class="fp-input"
+        [ngModel]="witnessName"
+        (ngModelChange)="witnessNameChange.emit($event)"
+        name="fpWitnessName"
+        [ngModelOptions]="{ standalone: true }"
+        placeholder="Opcional"
+      />
+    </div>
+  </div>
+}
+
+@if (assistedMode) {
+  <div class="fp-assisted-block">
+    <z-checkbox
+      class="fp-consent-checkbox"
+      [ngModel]="professionalExplained"
+      (ngModelChange)="professionalExplainedChange.emit($event)"
+      name="fpProfessionalExplained"
+      [ngModelOptions]="{ standalone: true }"
+    >
+      <span class="fp-check-label-inline">
+        Confirmo, como profissional, que expliquei riscos, benefícios, alternativas e o direito de recusa ao paciente (modo assistido).
+      </span>
+    </z-checkbox>
+  </div>
+}

@@ -8,9 +8,22 @@ export interface FormularioPublicoSubmitContext {
   submitterName: string;
   submitterEmail: string;
   personCpfDigits: string;
+  personCode?: string;
+  personBirthDate?: string;
   signingSecurityLevel?: string;
   otpChannel: 'email' | 'whatsapp';
   otpPhone: string;
+  acceptTerms?: boolean;
+  comprehensionAck?: boolean;
+  requireComprehension?: boolean;
+  assistedMode?: boolean;
+  professionalExplained?: boolean;
+  quizAnswers?: Record<string, number>;
+  actors?: {
+    guardian_name?: string;
+    guardian_relation?: string;
+    witness_name?: string;
+  };
 }
 
 export function buildFormularioPublicoSubmitPayload(ctx: FormularioPublicoSubmitContext): Record<string, unknown> {
@@ -39,9 +52,33 @@ export function buildFormularioPublicoSubmitPayload(ctx: FormularioPublicoSubmit
   }
 
   const hasSignatures = templateHasSignatureFields(ctx.fields) && hasFilledSignatures(ctx.fields, ctx.valores);
-  if (hasSignatures) {
+  if (hasSignatures || ctx.acceptTerms) {
     payload['_accept_terms'] = true;
     payload['_accepted_text_at'] = new Date().toISOString();
+  }
+
+  if (ctx.requireComprehension || ctx.comprehensionAck) {
+    payload['_comprehension_ack'] = !!ctx.comprehensionAck;
+    if (ctx.comprehensionAck) {
+      payload['_comprehension_ack_at'] = new Date().toISOString();
+    }
+  }
+
+  if (ctx.assistedMode) {
+    payload['_assisted_mode'] = true;
+  }
+  if (ctx.professionalExplained) {
+    payload['_professional_explained'] = true;
+  }
+  if (ctx.quizAnswers && Object.keys(ctx.quizAnswers).length > 0) {
+    payload['_comprehension_quiz'] = ctx.quizAnswers;
+  }
+  if (ctx.actors && (ctx.actors.guardian_name || ctx.actors.witness_name)) {
+    payload['_actors'] = {
+      guardian_name: ctx.actors.guardian_name || undefined,
+      guardian_relation: ctx.actors.guardian_relation || undefined,
+      witness_name: ctx.actors.witness_name || undefined,
+    };
   }
 
   if (signingSecurityReinforced(ctx.signingSecurityLevel) && hasSignatures) {
@@ -53,6 +90,12 @@ export function buildFormularioPublicoSubmitPayload(ctx: FormularioPublicoSubmit
 
   if (ctx.personCpfDigits) {
     payload['_person_cpf'] = ctx.personCpfDigits;
+  }
+  if (ctx.personCode) {
+    payload['_person_code'] = ctx.personCode;
+  }
+  if (ctx.personBirthDate) {
+    payload['_person_birth_date'] = ctx.personBirthDate;
   }
 
   return payload;

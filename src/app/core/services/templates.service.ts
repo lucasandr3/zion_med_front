@@ -7,6 +7,12 @@ export interface Template {
   name: string;
   description?: string;
   category?: string;
+  /** Tipo documental: ficha | consentimento | ciencia_lgpd */
+  document_kind?: 'ficha' | 'consentimento' | 'ciencia_lgpd' | string;
+  /** Validade do consentimento em dias (só para document_kind=consentimento). */
+  consent_validity_days?: number | null;
+  /** Quiz de compreensão (gabarito só na API autenticada). */
+  comprehension_quiz?: TemplateComprehensionQuestion[] | null;
   is_active?: boolean;
   public_enabled?: boolean;
   /** Exige código + data de nascimento no link público (acompanhamento). */
@@ -17,6 +23,13 @@ export interface Template {
   public_url?: string;
   created_at: string;
   updated_at: string;
+}
+
+export interface TemplateComprehensionQuestion {
+  id?: string;
+  prompt: string;
+  options: string[];
+  correct_index: number;
 }
 
 export interface TemplateCategory {
@@ -88,7 +101,7 @@ export class TemplatesService {
 
   update(
     id: number,
-    payload: Partial<Template & { public_require_person_link?: boolean; public_person_link_mode?: string; new_category?: string }>
+    payload: Partial<Template & { public_require_person_link?: boolean; public_person_link_mode?: string; document_kind?: string; consent_validity_days?: number | null; comprehension_quiz?: TemplateComprehensionQuestion[] | null; new_category?: string }>
   ): Observable<Template> {
     return this.api.put<OneResponse>(`/templates/${id}`, payload).pipe(map((r) => r.data));
   }
@@ -111,6 +124,17 @@ export class TemplatesService {
 
   destroyCampo(templateId: number, campoId: number): Observable<void> {
     return this.api.delete(`/templates/${templateId}/campos/${campoId}`).pipe(map(() => undefined));
+  }
+
+  reorderCampos(templateId: number, ids: number[]): Observable<void> {
+    return this.api.post(`/templates/${templateId}/campos/reorder`, { ids }).pipe(map(() => undefined));
+  }
+
+  /** Duplica um modelo do tenant (cópia local). */
+  duplicar(templateId: number, name?: string): Observable<Template & { fields?: TemplateCampo[] }> {
+    return this.api
+      .post<OneResponse>(`/templates/${templateId}/duplicar`, name ? { name } : {})
+      .pipe(map((r) => r.data));
   }
 
   gerarLink(templateId: number): Observable<{ data?: { public_url?: string; token?: string } }> {

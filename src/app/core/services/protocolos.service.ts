@@ -5,6 +5,9 @@ import { map, Observable } from 'rxjs';
 export interface Protocolo {
   id: number;
   protocol_number: string;
+  document_hash?: string | null;
+  document_snapshot_hash?: string | null;
+  template_version_id?: number | null;
   status: string;
   template_id: number;
   template_name?: string;
@@ -15,7 +18,11 @@ export interface Protocolo {
   submitted_at?: string;
   approved_at?: string;
   approved_by_name?: string;
+  consent_valid_until?: string | null;
+  consent_expired?: boolean;
   review_comment?: string;
+  revoked_at?: string | null;
+  revoke_reason?: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -75,7 +82,32 @@ export interface ProtocoloSignature {
 }
 
 export type ProtocoloDetalheData = Protocolo & {
-  template?: { name?: string; fields?: ProtocoloField[] };
+  template?: { name?: string; fields?: ProtocoloField[]; document_kind?: string; category?: string };
+  template_version?: {
+    id?: number;
+    version?: number;
+    name?: string;
+    description?: string;
+    fields_snapshot?: Array<{
+      id?: number;
+      type?: string;
+      label?: string;
+      name_key?: string;
+      required?: boolean;
+      sort_order?: number;
+      options_json?: unknown;
+    }>;
+  };
+  document_snapshot?: {
+    protocol_number?: string;
+    template_version_id?: number;
+    template_version?: number;
+    template_name?: string;
+    document_kind?: string;
+    fields_snapshot?: ProtocoloField[];
+    values?: Record<string, unknown>;
+    submitted_at?: string;
+  } | null;
   /** Valores agregados (chave do campo → valor exibido). Inclui respostas do paciente e do registro da equipe. */
   values?: Record<string, unknown>;
   form_data?: Record<string, unknown>;
@@ -127,11 +159,24 @@ export class ProtocolosService {
     return this.api.getBlob(`/protocols/${id}/dossie`);
   }
 
-  aprovar(id: number, aprovado: boolean, comentario?: string): Observable<unknown> {
+  aprovar(
+    id: number,
+    aprovado: boolean,
+    comentario?: string,
+    professionalExplained?: boolean,
+  ): Observable<unknown> {
     const status = aprovado ? 'approved' : 'rejected';
-    const body: { status: string; review_comment?: string } = { status };
+    const body: { status: string; review_comment?: string; professional_explained?: boolean } = { status };
     if (comentario?.trim()) body.review_comment = comentario.trim();
+    if (professionalExplained) body.professional_explained = true;
     return this.api.post(`/protocols/${id}/revisao`, body);
+  }
+
+  /** Revoga consentimento/protocolo (ciclo de vida clínico). */
+  revogar(id: number, reason: string): Observable<ProtocoloDetalheData> {
+    return this.api
+      .post<OneResponse>(`/protocols/${id}/revogar`, { reason: reason.trim() })
+      .pipe(map((r) => r.data));
   }
 
   comentario(id: number, comentario: string): Observable<unknown> {

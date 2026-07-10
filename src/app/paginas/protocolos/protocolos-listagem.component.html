@@ -113,8 +113,20 @@
                           {{ statusLabel(p.status) }}
                         </span>
                       } @else if (p.status === 'approved' || (p.status && p.status.toLowerCase() === 'approved')) {
-                        <span class="inline-flex items-center gap-1 text-xs font-semibold" style="color: var(--c-success)">
-                          <span class="material-symbols-outlined text-base">check_circle</span>
+                        @if (p.consent_expired) {
+                          <span class="inline-flex items-center gap-1 text-xs font-semibold" style="color: var(--c-warning)">
+                            <span class="material-symbols-outlined text-base">event_busy</span>
+                            Vencido
+                          </span>
+                        } @else {
+                          <span class="inline-flex items-center gap-1 text-xs font-semibold" style="color: var(--c-success)">
+                            <span class="material-symbols-outlined text-base">check_circle</span>
+                            {{ statusLabel(p.status) }}
+                          </span>
+                        }
+                      } @else if (p.status === 'revoked' || (p.status && p.status.toLowerCase() === 'revoked')) {
+                        <span class="inline-flex items-center gap-1 text-xs font-semibold text-destructive">
+                          <span class="material-symbols-outlined text-base">undo</span>
                           {{ statusLabel(p.status) }}
                         </span>
                       } @else {

@@ -7,14 +7,19 @@ export const FORM_STEP_MIN_FIELDS = 12;
 export const FORM_STEP_MAX_FIELDS = 8;
 
 const STEP_BREAK_TYPES = new Set(['heading', 'section', 'section_break', 'page_break', 'step_break']);
+const STRUCTURAL_NON_INPUT_TYPES = new Set(['heading', 'notice', 'section', 'section_break', 'page_break', 'step_break']);
 
 export function isFormStepBreakField(field: FormularioPublicoField): boolean {
   return STEP_BREAK_TYPES.has((field.type ?? '').toLowerCase());
 }
 
-/** Campos que entram no cálculo de progresso (exclui quebras de etapa). */
+export function isStructuralFormField(field: FormularioPublicoField): boolean {
+  return STRUCTURAL_NON_INPUT_TYPES.has((field.type ?? '').toLowerCase());
+}
+
+/** Campos que entram no cálculo de progresso (exclui quebras de etapa e textos estruturais). */
 export function isTrackableFormField(field: FormularioPublicoField): boolean {
-  return !isFormStepBreakField(field);
+  return !isStructuralFormField(field);
 }
 
 function isCheckboxField(field: FormularioPublicoField): boolean {

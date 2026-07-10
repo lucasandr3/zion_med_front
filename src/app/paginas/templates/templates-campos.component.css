@@ -101,8 +101,32 @@
   cursor: grab;
   font-size: 1rem;
   line-height: 1;
+  border: 0;
+  background: transparent;
+  padding: 0.25rem;
+  border-radius: 4px;
 }
 
 .templates-campos-drag:hover {
   color: var(--muted-foreground);
+  background: var(--muted, rgba(0, 0, 0, 0.04));
+}
+
+.templates-campos-drag:active {
+  cursor: grabbing;
+}
+
+.cdk-drag-preview {
+  box-sizing: border-box;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
+  background: var(--card, #fff);
+}
+
+.cdk-drag-placeholder {
+  opacity: 0.35;
+}
+
+.cdk-drop-list-dragging .cdk-drag:not(.cdk-drag-placeholder) {
+  transition: transform 200ms ease;
 }

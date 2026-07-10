@@ -42,13 +42,25 @@ export interface Pessoa {
   updated_at: string;
 }
 
+export interface PessoaConsentSummary {
+  status: 'valid' | 'pending' | 'revoked' | 'expired' | 'inactive' | 'none' | string;
+  label: string;
+  active_protocol_id?: number | null;
+  active_protocol_number?: string | null;
+  active_submitted_at?: string | null;
+  valid_until?: string | null;
+  consents_count?: number;
+}
+
 export interface PessoaDetalhe extends Pessoa {
   stats?: {
     protocols_count: number;
     pending_protocols: number;
     approved_protocols: number;
     rejected_protocols: number;
+    revoked_protocols?: number;
   };
+  consent_summary?: PessoaConsentSummary;
   recent_protocols?: Protocolo[];
 }
 

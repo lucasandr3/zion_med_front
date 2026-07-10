@@ -85,11 +85,20 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
   personGateOk = false;
   personCpfDigits = '';
   personCpfDisplay = '';
+  personCode = '';
+  personBirthDate = '';
   personGateErro = '';
   validandoPerson = false;
   personValidatedName: string | null = null;
   kioskMode = false;
   acceptTerms = false;
+  comprehensionAck = false;
+  guardianName = '';
+  guardianRelation = '';
+  witnessName = '';
+  professionalExplained = false;
+  assistedMode = false;
+  quizAnswers: Record<string, number | null> = {};
   otpChannel: 'email' | 'whatsapp' = 'email';
   otpPhone = '';
   otpCode = '';
@@ -115,6 +124,7 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
   constructor() {
     this.token = this.route.snapshot.paramMap.get('token') ?? '';
     this.kioskMode = this.route.snapshot.queryParamMap.get('kiosk') === '1';
+    this.assistedMode = this.route.snapshot.queryParamMap.get('assistido') === '1';
   }
 
   ngOnInit(): void {
@@ -145,9 +155,17 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
     this.personGateOk = false;
     this.personCpfDigits = '';
     this.personCpfDisplay = '';
+    this.personCode = '';
+    this.personBirthDate = '';
     this.personGateErro = '';
     this.personValidatedName = null;
     this.acceptTerms = false;
+    this.comprehensionAck = false;
+    this.guardianName = '';
+    this.guardianRelation = '';
+    this.witnessName = '';
+    this.professionalExplained = false;
+    this.quizAnswers = {};
     this.otpVerified = false;
     this.otpCode = '';
     this.otpPhone = '';
@@ -198,6 +216,11 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
     return !!this.data?.person_link?.enabled;
   }
 
+  personLinkMode(): 'cpf' | 'code' {
+    const mode = (this.data?.person_link?.mode || 'code').toLowerCase();
+    return mode === 'cpf' ? 'cpf' : 'code';
+  }
+
   personFormUnlocked(): boolean {
     return !this.personLinkRequired() || this.personGateOk;
   }
@@ -207,35 +230,71 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
     this.personCpfDisplay = formatCpfDisplay(this.personCpfDigits);
   }
 
+  onPersonCodeChange(raw: string): void {
+    this.personCode = (raw || '').trim();
+  }
+
+  onPersonBirthDateChange(raw: string): void {
+    this.personBirthDate = (raw || '').trim();
+  }
+
   validarIdentificacao(): void {
     this.personGateErro = '';
-    const cpf = this.personCpfDigits;
-    if (cpf.length !== 11) {
-      this.personGateErro = 'Informe o CPF completo (11 dígitos).';
-      return;
-    }
-    if (!isValidCpfDigits(cpf)) {
-      this.personGateErro = 'CPF inválido. Verifique os números.';
-      return;
-    }
     if (!this.personLinkRequired()) {
       this.personGateOk = true;
-      fpPersistCpfGateAuthorization(this.token, cpf);
+      return;
+    }
+
+    if (this.personLinkMode() === 'cpf') {
+      const cpf = this.personCpfDigits;
+      if (cpf.length !== 11) {
+        this.personGateErro = 'Informe o CPF completo (11 dígitos).';
+        return;
+      }
+      if (!isValidCpfDigits(cpf)) {
+        this.personGateErro = 'CPF inválido. Verifique os números.';
+        return;
+      }
+      this.validandoPerson = true;
+      this.formularioService.validatePerson(this.token, { cpf }).subscribe({
+        next: (r) => {
+          this.validandoPerson = false;
+          this.personGateOk = true;
+          this.personValidatedName = r.name;
+          fpPersistCpfGateAuthorization(this.token, cpf);
+          this.applyPersonPrefill(r.prefill, r.name);
+        },
+        error: (err) => {
+          this.validandoPerson = false;
+          const msg = err.error?.errors ? Object.values(err.error.errors).flat().join(' ') : err.error?.message;
+          this.personGateErro = msg ?? 'CPF não autorizado para este formulário.';
+        },
+      });
+      return;
+    }
+
+    const code = this.personCode.trim();
+    const birthDate = this.personBirthDate.trim();
+    if (!code) {
+      this.personGateErro = 'Informe o código cadastrado na clínica.';
+      return;
+    }
+    if (!birthDate) {
+      this.personGateErro = 'Informe a data de nascimento.';
       return;
     }
     this.validandoPerson = true;
-    this.formularioService.validatePerson(this.token, { cpf }).subscribe({
+    this.formularioService.validatePerson(this.token, { code, birth_date: birthDate }).subscribe({
       next: (r) => {
         this.validandoPerson = false;
         this.personGateOk = true;
         this.personValidatedName = r.name;
-        fpPersistCpfGateAuthorization(this.token, cpf);
         this.applyPersonPrefill(r.prefill, r.name);
       },
       error: (err) => {
         this.validandoPerson = false;
         const msg = err.error?.errors ? Object.values(err.error.errors).flat().join(' ') : err.error?.message;
-        this.personGateErro = msg ?? 'CPF não autorizado para este formulário.';
+        this.personGateErro = msg ?? 'Código ou data de nascimento não conferem.';
       },
     });
   }
@@ -308,8 +367,20 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
     }
     const fields = this.data.fields;
     const hasSignatures = templateHasSignatureFields(fields) && hasFilledSignatures(fields, this.valores);
+    if (this.isConsentimentoDocumento() && !this.comprehensionAck) {
+      this.toast.warning('Compreensão clínica', 'Marque que leu e compreendeu riscos, benefícios e alternativas.');
+      return;
+    }
+    if (!this.quizCompleto()) {
+      this.toast.warning('Quiz de compreensão', 'Responda todas as perguntas de compreensão antes de enviar.');
+      return;
+    }
     if (hasSignatures && !this.acceptTerms) {
-      this.toast.warning('Termo de ciência', 'Marque a caixa confirmando que leu o aviso antes de assinar e enviar.');
+      this.toast.warning('Termo de ciência', 'Marque a caixa confirmando que leu o aviso de privacidade antes de assinar e enviar.');
+      return;
+    }
+    if (this.assistedMode && !this.professionalExplained) {
+      this.toast.warning('Modo assistido', 'O profissional deve confirmar que explicou o termo antes do envio.');
       return;
     }
     if (signingSecurityReinforced(this.data.signing_security_level) && hasSignatures && !this.otpVerified) {
@@ -325,9 +396,22 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
       submitterName: this.submitterName,
       submitterEmail: this.submitterEmail,
       personCpfDigits: this.personCpfDigits,
+      personCode: this.personCode,
+      personBirthDate: this.personBirthDate,
       signingSecurityLevel: this.data.signing_security_level,
       otpChannel: this.otpChannel,
       otpPhone: this.otpPhone,
+      acceptTerms: this.acceptTerms,
+      comprehensionAck: this.comprehensionAck,
+      requireComprehension: this.isConsentimentoDocumento(),
+      assistedMode: this.assistedMode,
+      professionalExplained: this.professionalExplained,
+      quizAnswers: this.quizAnswersPayload(),
+      actors: {
+        guardian_name: this.guardianName,
+        guardian_relation: this.guardianRelation,
+        witness_name: this.witnessName,
+      },
     });
 
     this.formularioService.submit(this.token, payload).subscribe({
@@ -414,7 +498,46 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
 
   get showConsentOnCurrentStep(): boolean {
     const fields = this.data?.fields ?? [];
-    return templateHasSignatureFields(fields) && this.isLastFormStep;
+    return (
+      this.isLastFormStep &&
+      (templateHasSignatureFields(fields) ||
+        this.isConsentimentoDocumento() ||
+        this.assistedMode ||
+        this.quizQuestions().length > 0)
+    );
+  }
+
+  isConsentimentoDocumento(): boolean {
+    const kind = (this.data?.template?.document_kind || '').toLowerCase();
+    const category = (this.data?.template?.category || '').toLowerCase();
+    return kind === 'consentimento' || category === 'consentimento';
+  }
+
+  quizQuestions(): { id: string; prompt: string; options: string[] }[] {
+    const list = this.data?.comprehension_quiz;
+    if (!Array.isArray(list)) return [];
+    return list.filter((q) => q?.id && q?.prompt && Array.isArray(q.options) && q.options.length >= 2);
+  }
+
+  onQuizAnswerChange(event: { id: string; index: number }): void {
+    this.quizAnswers = { ...this.quizAnswers, [event.id]: event.index };
+  }
+
+  private quizCompleto(): boolean {
+    const questions = this.quizQuestions();
+    if (questions.length === 0) return true;
+    return questions.every((q) => typeof this.quizAnswers[q.id] === 'number');
+  }
+
+  private quizAnswersPayload(): Record<string, number> | undefined {
+    const questions = this.quizQuestions();
+    if (questions.length === 0) return undefined;
+    const out: Record<string, number> = {};
+    for (const q of questions) {
+      const v = this.quizAnswers[q.id];
+      if (typeof v === 'number') out[q.id] = v;
+    }
+    return out;
   }
 
   get progressPercent(): number {
@@ -566,6 +689,12 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
     this.personCpfDigits = '';
     this.personCpfDisplay = '';
     this.acceptTerms = false;
+    this.comprehensionAck = false;
+    this.guardianName = '';
+    this.guardianRelation = '';
+    this.witnessName = '';
+    this.professionalExplained = false;
+    this.quizAnswers = {};
     this.otpVerified = false;
     this.otpCode = '';
     if (this.data) {
@@ -576,6 +705,7 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
   }
 
   private restoreCpfGateAuthorization(): void {
+    if (this.personLinkMode() !== 'cpf') return;
     const restored = fpRestoreCpfGateAuthorization(this.token);
     if (!restored) return;
     this.personCpfDigits = restored.cpfDigits;

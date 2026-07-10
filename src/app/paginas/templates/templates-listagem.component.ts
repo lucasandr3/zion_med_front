@@ -135,6 +135,7 @@ export class TemplatesListagemComponent implements OnInit {
 
   removendoId: number | null = null;
   publicandoId: number | null = null;
+  duplicandoId: number | null = null;
   menuItem: Template | null = null;
   respostasPorTemplate: Record<number, number> = {};
 
@@ -345,6 +346,27 @@ export class TemplatesListagemComponent implements OnInit {
       error: () => {
         this.removendoId = null;
         this.toast.error('Erro ao remover', 'Não foi possível remover o template.');
+      },
+    });
+  }
+
+  duplicar(t: Template, event: Event): void {
+    event.preventDefault();
+    event.stopPropagation();
+    if (this.duplicandoId === t.id) return;
+    this.duplicandoId = t.id;
+    this.templatesService.duplicar(t.id).subscribe({
+      next: (novo) => {
+        this.duplicandoId = null;
+        this.templates = [novo, ...this.templates];
+        this.montarGrupos();
+        this.validarCategoriaNaUrl();
+        this.toast.success('Modelo duplicado', `${novo.name} foi criado. O link público fica desativado até você publicar.`);
+        void this.router.navigate(['/templates', novo.id, 'editar']);
+      },
+      error: () => {
+        this.duplicandoId = null;
+        this.toast.error('Erro ao duplicar', 'Não foi possível duplicar este modelo.');
       },
     });
   }

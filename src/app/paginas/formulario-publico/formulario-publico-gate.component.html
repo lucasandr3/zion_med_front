@@ -1,25 +1,57 @@
 <div class="fp-title-block">
   <h1 class="fp-title">{{ templateName }}</h1>
-  <p class="fp-lead">Para iniciar o preenchimento, informe seu CPF para autorizacao de acesso ao formulario.</p>
+  <p class="fp-lead">{{ leadText }}</p>
 </div>
 @if (personGateErro) {
   <div class="fp-banner-error">{{ personGateErro }}</div>
 }
-<div class="fp-field-group fp-field-animate">
-  <label class="fp-field-label" for="fpPersonCpf">CPF</label>
-  <input
-    id="fpPersonCpf"
-    type="text"
-    inputmode="numeric"
-    autocomplete="off"
-    [ngModel]="personCpfDisplay"
-    (ngModelChange)="onCpfInput($event)"
-    name="fpPersonCpf"
-    [ngModelOptions]="{ standalone: true }"
-    class="fp-input"
-    placeholder="000.000.000-00"
-  />
-</div>
+
+@if (isCpfMode) {
+  <div class="fp-field-group fp-field-animate">
+    <label class="fp-field-label" for="fpPersonCpf">CPF</label>
+    <input
+      id="fpPersonCpf"
+      type="text"
+      inputmode="numeric"
+      autocomplete="off"
+      [ngModel]="personCpfDisplay"
+      (ngModelChange)="onCpfInput($event)"
+      name="fpPersonCpf"
+      [ngModelOptions]="{ standalone: true }"
+      class="fp-input"
+      placeholder="000.000.000-00"
+    />
+  </div>
+} @else {
+  <div class="fp-field-group fp-field-animate">
+    <label class="fp-field-label" for="fpPersonCode">Código</label>
+    <input
+      id="fpPersonCode"
+      type="text"
+      autocomplete="off"
+      [ngModel]="personCode"
+      (ngModelChange)="onCodeInput($event)"
+      name="fpPersonCode"
+      [ngModelOptions]="{ standalone: true }"
+      class="fp-input"
+      placeholder="Código informado pela clínica"
+    />
+  </div>
+  <div class="fp-field-group fp-field-animate">
+    <label class="fp-field-label" for="fpPersonBirth">Data de nascimento</label>
+    <input
+      id="fpPersonBirth"
+      type="date"
+      autocomplete="bday"
+      [ngModel]="personBirthDate"
+      (ngModelChange)="onBirthDateInput($event)"
+      name="fpPersonBirth"
+      [ngModelOptions]="{ standalone: true }"
+      class="fp-input"
+    />
+  </div>
+}
+
 <button type="button" class="fp-submit-btn" style="margin-top: 1.25rem" (click)="validate.emit()" [disabled]="validandoPerson">
   @if (validandoPerson) {
     <svg class="fp-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">

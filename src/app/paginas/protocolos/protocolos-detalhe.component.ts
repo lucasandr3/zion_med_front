@@ -94,7 +94,11 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
   revisaoFormVisible = false;
   revisaoAprovado = true;
   comentarioRevisao = '';
+  profissionalExplicou = false;
   novoComentario = '';
+  revogarFormVisible = false;
+  motivoRevogacao = '';
+  revogando = false;
 
   /** Rascunho dos campos internos da equipe (modelos Estética). */
   staffDraft: Record<string, unknown> = {};
@@ -151,12 +155,20 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
   private async gerarAutenticacaoDocumento(): Promise<void> {
     if (!this.protocolo) return;
     try {
-      const id = this.protocolo.id;
-      const numero = this.protocolo.protocol_number || String(id);
-      const criadoEm = this.protocolo.created_at || '';
-      const orgId = this.auth.getCurrentOrganizationId() || '';
-      const seed = `${orgId}|${id}|${numero}|${criadoEm}`;
-      const hash = await this.sha256Hex(seed);
+      const hashFromProtocol = (this.protocolo.document_hash || '').trim().toLowerCase();
+      const hashFromSignature = (this.protocolo.signatures ?? [])
+        .map((s) => (s.document_hash || '').trim().toLowerCase())
+        .find((h) => h.length >= 8);
+      const hash = hashFromProtocol || hashFromSignature || '';
+
+      if (!hash) {
+        this.docHash = '';
+        this.docCode = '';
+        this.docVerifyUrl = '';
+        this.docQrDataUrl = '';
+        return;
+      }
+
       this.docHash = hash;
       this.docCode = hash.substring(0, 8).toUpperCase();
       const origin = typeof window !== 'undefined' ? window.location.origin : '';
@@ -173,24 +185,9 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
     } catch {
       this.docHash = '';
       this.docCode = '';
+      this.docVerifyUrl = '';
       this.docQrDataUrl = '';
     }
-  }
-
-  private async sha256Hex(input: string): Promise<string> {
-    if (typeof crypto === 'undefined' || !crypto.subtle) {
-      let h = 0;
-      for (let i = 0; i < input.length; i++) {
-        h = (h << 5) - h + input.charCodeAt(i);
-        h |= 0;
-      }
-      return Math.abs(h).toString(16).padStart(8, '0').repeat(8);
-    }
-    const enc = new TextEncoder().encode(input);
-    const buf = await crypto.subtle.digest('SHA-256', enc);
-    return Array.from(new Uint8Array(buf))
-      .map((b) => b.toString(16).padStart(2, '0'))
-      .join('');
   }
 
   ngOnDestroy(): void {
@@ -261,13 +258,42 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
     return s === 'pending' || s === 'pendente';
   }
 
+  get isApproved(): boolean {
+    const s = this.protocolo?.status?.toLowerCase();
+    return s === 'approved' || s === 'aprovado';
+  }
+
+  get isRevoked(): boolean {
+    const s = this.protocolo?.status?.toLowerCase();
+    return s === 'revoked' || s === 'revogado';
+  }
+
+  get isConsentExpired(): boolean {
+    if (this.protocolo?.consent_expired) return true;
+    if (!this.isApproved || !this.protocolo?.consent_valid_until) return false;
+    const until = new Date(this.protocolo.consent_valid_until);
+    return !isNaN(until.getTime()) && until.getTime() < Date.now();
+  }
+
+  get podeRevogarProtocolo(): boolean {
+    return this.podeRevisarProtocolo && this.isApproved;
+  }
+
+  get isConsentimentoProtocolo(): boolean {
+    const kind = (this.protocolo?.document_snapshot?.document_kind || this.protocolo?.template?.document_kind || '').toLowerCase();
+    const category = (this.protocolo?.template?.category || '').toLowerCase();
+    return kind === 'consentimento' || category === 'consentimento';
+  }
+
   statusLabel(): string {
     const s = this.protocolo?.status;
     if (!s) return '';
+    if (this.isConsentExpired) return 'Vencido';
     const map: Record<string, string> = {
       pending: 'Pendente',
       approved: 'Aprovado',
       rejected: 'Reprovado',
+      revoked: 'Revogado',
     };
     return map[s.toLowerCase()] ?? s;
   }
@@ -742,6 +768,8 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
 
   /** Na versão documento, não renderiza campo vazio para evitar linhas sobrando. */
   mostrarCampoNoDocumento(field: ProtocoloField): boolean {
+    const type = (field.type || '').toLowerCase();
+    if (type === 'heading' || type === 'notice' || type === 'section_break') return true;
     const raw = this.rawValorCampo(field);
     if (raw == null) return false;
     if (Array.isArray(raw)) return raw.length > 0;
@@ -750,9 +778,28 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
   }
 
   camposRespostas(): ProtocoloField[] {
+    const snapshot =
+      this.protocolo?.document_snapshot?.fields_snapshot ??
+      this.protocolo?.template_version?.fields_snapshot;
+    if (snapshot?.length) {
+      return [...snapshot]
+        .map((f) => ({
+          name_key: f.name_key || '',
+          label: f.label || '',
+          type: f.type || 'text',
+          sort_order: f.sort_order ?? 0,
+          required: !!f.required,
+        }))
+        .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+    }
     const fields = this.protocolo?.template?.fields;
     if (!fields?.length) return [];
     return [...fields].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+  }
+
+  versaoTemplateLabel(): string {
+    const v = this.protocolo?.template_version?.version ?? this.protocolo?.document_snapshot?.template_version;
+    return v != null ? `v${v}` : '';
   }
 
   camposRespostasPreenchidos(): ProtocoloField[] {
@@ -855,7 +902,9 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
       this.revisaoFormVisible = false;
       return;
     }
+    this.revogarFormVisible = false;
     this.revisaoAprovado = aprovado;
+    this.profissionalExplicou = false;
     this.revisaoFormVisible = true;
     setTimeout(() => {
       document.getElementById('revisao_form')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -865,6 +914,23 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
   fecharRevisao(): void {
     this.revisaoFormVisible = false;
     this.comentarioRevisao = '';
+    this.profissionalExplicou = false;
+  }
+
+  abrirRevogacao(): void {
+    if (!this.podeRevogarProtocolo) return;
+    this.revisaoFormVisible = false;
+    this.revogarFormVisible = !this.revogarFormVisible;
+    if (this.revogarFormVisible) {
+      setTimeout(() => {
+        document.getElementById('revogar_form')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 50);
+    }
+  }
+
+  fecharRevogacao(): void {
+    this.revogarFormVisible = false;
+    this.motivoRevogacao = '';
   }
 
   toggleFormRevisao(): void {
@@ -908,21 +974,60 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
       if (!ok) return;
     }
     this.revisaoEnviando = true;
-    this.protocolosService.aprovar(this.protocolo.id, this.revisaoAprovado, this.comentarioRevisao || undefined).subscribe({
+    this.protocolosService
+      .aprovar(
+        this.protocolo.id,
+        this.revisaoAprovado,
+        this.comentarioRevisao || undefined,
+        this.revisaoAprovado && this.isConsentimentoProtocolo ? this.profissionalExplicou : undefined,
+      )
+      .subscribe({
+        next: () => {
+          this.revisaoEnviando = false;
+          this.revisaoFormVisible = false;
+          this.comentarioRevisao = '';
+          this.profissionalExplicou = false;
+          if (this.revisaoAprovado) {
+            this.toast.success('Protocolo aprovado', 'A revisão foi registrada.');
+          } else {
+            this.toast.warning('Protocolo reprovado', 'A revisão foi registrada.');
+          }
+          this.carregar(this.protocolo!.id);
+        },
+        error: (err) => {
+          this.revisaoEnviando = false;
+          this.erro = this.mensagemErroApi(err, 'Não foi possível enviar a revisão.');
+          this.toast.error('Erro', this.erro);
+        },
+      });
+  }
+
+  async enviarRevogacao(): Promise<void> {
+    if (!this.protocolo || !this.podeRevogarProtocolo) return;
+    const reason = this.motivoRevogacao.trim();
+    if (reason.length < 5) {
+      this.toast.warning('Motivo', 'Informe o motivo da revogação (mínimo 5 caracteres).');
+      return;
+    }
+    const ok = await this.confirm.request({
+      title: 'Revogar consentimento?',
+      message: 'O protocolo passará a constar como revogado. O histórico permanece para auditoria.',
+      confirmLabel: 'Sim, revogar',
+      variant: 'danger',
+    });
+    if (!ok) return;
+    this.revogando = true;
+    this.protocolosService.revogar(this.protocolo.id, reason).subscribe({
       next: () => {
-        this.revisaoEnviando = false;
-        this.revisaoFormVisible = false;
-        this.comentarioRevisao = '';
-        if (this.revisaoAprovado) {
-          this.toast.success('Protocolo aprovado', 'A revisão foi registrada.');
-        } else {
-          this.toast.warning('Protocolo reprovado', 'A revisão foi registrada.');
-        }
+        this.revogando = false;
+        this.revogarFormVisible = false;
+        this.motivoRevogacao = '';
+        this.toast.success('Protocolo revogado', 'A revogação foi registrada.');
         this.carregar(this.protocolo!.id);
       },
       error: (err) => {
-        this.revisaoEnviando = false;
-        this.erro = this.mensagemErroApi(err, 'Não foi possível enviar a revisão.');
+        this.revogando = false;
+        this.erro = this.mensagemErroApi(err, 'Não foi possível revogar o protocolo.');
         this.toast.error('Erro', this.erro);
       },
     });
@@ -1029,9 +1134,10 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
   }
 
   statusBadgeTone(): 'green' | 'red' | 'amber' | 'gray' {
+    if (this.isConsentExpired) return 'amber';
     const s = this.protocolo?.status?.toLowerCase();
     if (s === 'approved' || s === 'aprovado') return 'green';
-    if (s === 'rejected' || s === 'reprovado') return 'red';
+    if (s === 'rejected' || s === 'reprovado' || s === 'revoked' || s === 'revogado') return 'red';
     if (s === 'pending' || s === 'pendente') return 'amber';
     return 'gray';
   }

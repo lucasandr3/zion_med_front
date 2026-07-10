@@ -77,6 +77,7 @@ export class ProtocolosListagemComponent implements OnInit, OnDestroy {
     { value: 'pending', label: 'Pendente' },
     { value: 'approved', label: 'Aprovado' },
     { value: 'rejected', label: 'Reprovado' },
+    { value: 'revoked', label: 'Revogado' },
   ];
 
   get opcoesTemplateFiltro(): ZardComboboxOption[] {
@@ -201,6 +202,7 @@ export class ProtocolosListagemComponent implements OnInit, OnDestroy {
       pending: 'Pendente',
       approved: 'Aprovado',
       rejected: 'Reprovado',
+      revoked: 'Revogado',
     };
     return map[s?.toLowerCase()] ?? s;
   }

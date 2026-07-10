@@ -39,10 +39,17 @@
         @if (personLinkRequired() && !personGateOk) {
           <zm-formulario-publico-gate
             [templateName]="data.template.name"
+            [mode]="personLinkMode()"
+            [title]="data.person_link?.title || ''"
+            [description]="data.person_link?.description || ''"
             [personCpfDisplay]="personCpfDisplay"
+            [personCode]="personCode"
+            [personBirthDate]="personBirthDate"
             [personGateErro]="personGateErro"
             [validandoPerson]="validandoPerson"
             (cpfChange)="onPersonCpfChange($event)"
+            (codeChange)="onPersonCodeChange($event)"
+            (birthDateChange)="onPersonBirthDateChange($event)"
             (validate)="validarIdentificacao()"
           />
         } @else {
@@ -126,7 +133,23 @@
             @if (showConsentOnCurrentStep) {
               <zm-formulario-publico-consent
                 [acceptTerms]="acceptTerms"
+                [comprehensionAck]="comprehensionAck"
+                [requireComprehension]="isConsentimentoDocumento()"
+                [showActors]="isConsentimentoDocumento()"
+                [guardianName]="guardianName"
+                [guardianRelation]="guardianRelation"
+                [witnessName]="witnessName"
+                [assistedMode]="assistedMode"
+                [professionalExplained]="professionalExplained"
+                [quizQuestions]="quizQuestions()"
+                [quizAnswers]="quizAnswers"
                 (acceptTermsChange)="acceptTerms = $event"
+                (comprehensionAckChange)="comprehensionAck = $event"
+                (guardianNameChange)="guardianName = $event"
+                (guardianRelationChange)="guardianRelation = $event"
+                (witnessNameChange)="witnessName = $event"
+                (professionalExplainedChange)="professionalExplained = $event"
+                (quizAnswerChange)="onQuizAnswerChange($event)"
                 (toggleFromBlock)="toggleAcceptTermsFromBlock($event)"
               />
             }
