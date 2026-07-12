@@ -35,6 +35,9 @@ export class FormularioPublicoFeegowComponent implements OnChanges {
   @Input() token = '';
   @Input({ required: true }) valores!: Record<string, string | number | boolean | Date>;
   @Input() feegowMeta: FormularioPublicoFeegowMeta | null = null;
+  @Input() schedulingBlocked = false;
+  @Input() schedulingBlockMessage = '';
+  @Input() personId: number | null = null;
 
   @Output() valoresChange = new EventEmitter<void>();
 
@@ -110,7 +113,7 @@ export class FormularioPublicoFeegowComponent implements OnChanges {
   }
 
   consultarDisponibilidade(): void {
-    if (!this.feegowMeta?.enabled || !this.token) return;
+    if (!this.feegowMeta?.enabled || !this.token || this.schedulingBlocked) return;
 
     const especialidadeId = Number(this.valores['feegow_especialidade_id'] || 0);
     const procedimentoId = Number(this.valores['feegow_procedimento_id'] || 0);
@@ -135,6 +138,7 @@ export class FormularioPublicoFeegowComponent implements OnChanges {
         data_start: dateBr,
         data_end: dateBr,
         convenio_id: this.valores['feegow_convenio_id'] ? Number(this.valores['feegow_convenio_id']) : undefined,
+        person_id: this.personId ?? undefined,
       })
       .subscribe({
         next: (resp) => {

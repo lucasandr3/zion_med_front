@@ -1,5 +1,7 @@
 import { FormularioPublicoField } from '../../core/services/formulario-publico.service';
 
+import { fpSignatureIsFilled } from './formulario-publico-a11y.util';
+
 export function fieldType(f: FormularioPublicoField): string {
   const t = (f.type ?? '').toLowerCase();
   if (t === 'anexo' || t === 'attachment') return 'file';
@@ -88,7 +90,7 @@ export function isFieldFilled(
     case 'date':
       return v instanceof Date || (typeof v === 'string' && v.trim().length > 0);
     case 'signature':
-      return typeof v === 'string' && v.length > 80;
+      return fpSignatureIsFilled(v);
     case 'file':
       return typeof v === 'string' && v.startsWith('data:') && v.length > 64;
     case 'select':

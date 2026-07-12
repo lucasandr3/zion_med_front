@@ -4,6 +4,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { PublicPageBodyService } from '../../core/services/public-page-body.service';
 import {
+  DocumentVerificationEvidence,
   DocumentVerificationResult,
   DocumentVerificationService,
 } from '../../core/services/document-verification.service';
@@ -77,5 +78,21 @@ export class VerificarDocumentoComponent implements OnInit, OnDestroy {
     } catch {
       return iso;
     }
+  }
+
+  formatBool(value?: boolean | null): string {
+    if (value === true) return 'Sim';
+    if (value === false) return 'Não';
+    return '—';
+  }
+
+  documentKindLabel(kind?: string | null): string {
+    if (kind === 'consentimento') return 'Termo de consentimento';
+    if (kind === 'ficha') return 'Ficha / formulário';
+    return kind?.trim() ? kind : '—';
+  }
+
+  hasEvidence(evidence?: DocumentVerificationEvidence | null): boolean {
+    return evidence != null;
   }
 }

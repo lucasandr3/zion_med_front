@@ -35,6 +35,7 @@ export class PessoasDetalheComponent implements OnInit {
   listaPronta = false;
   erro = '';
   inativando = false;
+  solicitandoReconsentimento = false;
   abaAtiva: 'dados' | 'estatisticas' | 'protocolos' = 'dados';
 
   private route = inject(ActivatedRoute);
@@ -47,6 +48,10 @@ export class PessoasDetalheComponent implements OnInit {
 
   get podeInativar(): boolean {
     return this.auth.hasPermission('people.deactivate');
+  }
+
+  get podeSolicitarReconsentimento(): boolean {
+    return this.pessoa?.consent_summary?.status?.toLowerCase() === 'expired';
   }
 
   ngOnInit(): void {
@@ -150,6 +155,27 @@ export class PessoasDetalheComponent implements OnInit {
       error: (err) => {
         this.inativando = false;
         this.toast.error('Erro', err.error?.message ?? 'Não foi possível inativar.');
+      },
+    });
+  }
+
+  async solicitarReconsentimento(): Promise<void> {
+    if (!this.pessoa || !this.podeSolicitarReconsentimento) return;
+    const ok = await this.confirm.request({
+      title: 'Solicitar reconsentimento?',
+      message: 'Será enviado um novo link do termo de consentimento ao paciente (e-mail ou WhatsApp da ficha).',
+      confirmLabel: 'Enviar link',
+    });
+    if (!ok) return;
+    this.solicitandoReconsentimento = true;
+    this.pessoasService.solicitarReconsentimento(this.pessoa.id).subscribe({
+      next: (res) => {
+        this.solicitandoReconsentimento = false;
+        this.toast.success('Reconsentimento enviado', res.message);
+      },
+      error: (err) => {
+        this.solicitandoReconsentimento = false;
+        this.toast.error('Erro', err.error?.message ?? 'Não foi possível solicitar reconsentimento.');
       },
     });
   }

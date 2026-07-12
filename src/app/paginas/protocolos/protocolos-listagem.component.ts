@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, inject, Signal, ViewChild, TemplateRef, ViewContainerRef } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProtocolosService, Protocolo } from '../../core/services/protocolos.service';
@@ -69,6 +69,7 @@ export class ProtocolosListagemComponent implements OnInit, OnDestroy {
   private templatesService = inject(TemplatesService);
   private loadingService = inject(LoadingService);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
   private readonly vcr = inject(ViewContainerRef);
   private readonly zardSheet = inject(ZardSheetService);
 
@@ -108,6 +109,10 @@ export class ProtocolosListagemComponent implements OnInit, OnDestroy {
   }
   ngOnInit(): void {
     this.flatpickrAppendTo = document.body;
+    const statusFromQuery = this.route.snapshot.queryParamMap.get('status');
+    if (statusFromQuery) {
+      this.status = statusFromQuery;
+    }
     this.templatesService.list().subscribe({ next: (t) => (this.templates = t) });
     this.carregar();
   }

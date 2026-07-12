@@ -1,6 +1,11 @@
 import { FormularioPublicoField } from '../../core/services/formulario-publico.service';
+import {
+  buildClinicalFormStepMetas,
+  ClinicalFormStepMeta,
+  templateUsesClinicalSteps,
+} from '../../core/utils/clinical-step.util';
 
-/** Mínimo de campos para ativar navegação por etapas. */
+/** Mínimo de campos para ativar navegação por etapas (modo legado). */
 export const FORM_STEP_MIN_FIELDS = 12;
 
 /** Máximo de campos por etapa (exceto agrupamento de checkboxes). */
@@ -94,10 +99,14 @@ function buildStepsByChunkSize(sorted: FormularioPublicoField[]): FormularioPubl
 
 export interface FormFieldStepState {
   steps: FormularioPublicoField[][];
+  clinicalSteps: ClinicalFormStepMeta[];
+  usesClinicalSteps: boolean;
   currentStepIndex: number;
   usesFormSteps: boolean;
   totalFormSteps: number;
   currentStepNumber: number;
+  currentStepTitle: string;
+  currentStepKind: string;
   isFirstFormStep: boolean;
   isLastFormStep: boolean;
   currentStepFields: FormularioPublicoField[];
@@ -106,19 +115,41 @@ export interface FormFieldStepState {
 export function buildFormFieldStepState(
   fields: FormularioPublicoField[],
   currentStepIndex: number,
+  usesClinicalStepsFlag?: boolean,
 ): FormFieldStepState {
-  const steps = fields.length ? buildFormFieldSteps(fields) : [];
+  const usesClinicalSteps = templateUsesClinicalSteps(fields, usesClinicalStepsFlag);
+  const clinicalSteps = usesClinicalSteps ? buildClinicalFormStepMetas(fields) : [];
+  const steps = usesClinicalSteps
+    ? clinicalSteps.map((s) => s.fields)
+    : fields.length
+      ? buildFormFieldSteps(fields)
+      : [];
+
   const totalFormSteps = steps.length || 1;
   const safeIndex = Math.min(Math.max(currentStepIndex, 0), totalFormSteps - 1);
+  const currentClinical = clinicalSteps[safeIndex];
 
   return {
     steps,
+    clinicalSteps,
+    usesClinicalSteps,
     currentStepIndex: safeIndex,
     usesFormSteps: steps.length > 1,
     totalFormSteps,
     currentStepNumber: safeIndex + 1,
+    currentStepTitle: currentClinical?.title ?? `Etapa ${safeIndex + 1}`,
+    currentStepKind: currentClinical?.kind ?? 'geral',
     isFirstFormStep: safeIndex <= 0,
     isLastFormStep: safeIndex >= totalFormSteps - 1,
     currentStepFields: steps[safeIndex] ?? [],
   };
+}
+
+export function findStepIndexForFieldInState(
+  allFields: FormularioPublicoField[],
+  nameKey: string,
+  usesClinicalStepsFlag?: boolean,
+): number {
+  const state = buildFormFieldStepState(allFields, 0, usesClinicalStepsFlag);
+  return state.steps.findIndex((step) => step.some((f) => f.name_key === nameKey));
 }

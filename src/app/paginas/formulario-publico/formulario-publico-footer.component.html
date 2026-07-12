@@ -1,12 +1,12 @@
 <footer class="fp-footer">
   <div class="fp-footer-inner" [class.fp-footer-inner--steps]="usesFormSteps">
     @if (usesFormSteps && !isFirstFormStep) {
-      <button type="button" class="fp-step-btn fp-step-btn--back" (click)="voltarEtapa.emit()">
+      <button type="button" class="fp-step-btn fp-step-btn--back" (click)="voltarEtapa.emit()" aria-label="Voltar para etapa anterior">
         Anterior
       </button>
     }
     @if (usesFormSteps && !isLastFormStep) {
-      <button type="button" class="fp-step-btn fp-step-btn--next" (click)="avancarEtapa.emit()">
+      <button type="button" class="fp-step-btn fp-step-btn--next" (click)="avancarEtapa.emit()" aria-label="Continuar para próxima etapa">
         Continuar
         <svg class="fp-submit-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
           <polyline points="9 18 15 12 9 6" />

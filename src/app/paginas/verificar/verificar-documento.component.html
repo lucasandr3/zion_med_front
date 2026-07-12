@@ -69,6 +69,87 @@
             <dd class="vd-mono vd-hash">{{ result?.data?.document_hash || '—' }}</dd>
           </div>
         </dl>
+
+        @if (hasEvidence(result?.data?.evidence)) {
+          <section class="vd-evidence" aria-labelledby="vd-evidence-title">
+            <h3 id="vd-evidence-title" class="vd-evidence-title">Evidências registradas</h3>
+            <p class="vd-evidence-hint">
+              Metadados de defensabilidade clínica e integridade. Não incluem dados pessoais do paciente.
+            </p>
+            <dl class="vd-dl">
+              <div>
+                <dt>Tipo de documento</dt>
+                <dd>{{ documentKindLabel(result?.data?.evidence?.document_kind) }}</dd>
+              </div>
+              @if (result?.data?.evidence?.template_version) {
+                <div>
+                  <dt>Versão do modelo</dt>
+                  <dd>{{ result?.data?.evidence?.template_version }}</dd>
+                </div>
+              }
+              <div>
+                <dt>Compreensão clínica</dt>
+                <dd>
+                  {{ formatBool(result?.data?.evidence?.comprehension_ack) }}
+                  @if (result?.data?.evidence?.comprehension_ack_at) {
+                    <span class="vd-evidence-at"> · {{ formatDate(result?.data?.evidence?.comprehension_ack_at) }}</span>
+                  }
+                </dd>
+              </div>
+              @if (result?.data?.evidence?.term_scrolled_at) {
+                <div>
+                  <dt>Leitura do termo</dt>
+                  <dd>{{ formatDate(result?.data?.evidence?.term_scrolled_at) }}</dd>
+                </div>
+              }
+              <div>
+                <dt>Ciência de privacidade (LGPD)</dt>
+                <dd>{{ formatBool(result?.data?.evidence?.privacy_ack) }}</dd>
+              </div>
+              @if (result?.data?.evidence?.comprehension_quiz_passed) {
+                <div>
+                  <dt>Quiz de compreensão</dt>
+                  <dd>Aprovado</dd>
+                </div>
+              }
+              @if (result?.data?.evidence?.assisted_mode) {
+                <div>
+                  <dt>Modo assistido</dt>
+                  <dd>{{ formatBool(result?.data?.evidence?.professional_explained) }} (profissional confirmou explicação)</dd>
+                </div>
+              }
+              @if (result?.data?.evidence?.has_guardian || result?.data?.evidence?.has_witness) {
+                <div>
+                  <dt>Atores adicionais</dt>
+                  <dd>
+                    @if (result?.data?.evidence?.has_guardian) { Responsável legal registrado }
+                    @if (result?.data?.evidence?.has_guardian && result?.data?.evidence?.has_witness) { · }
+                    @if (result?.data?.evidence?.has_witness) { Testemunha registrada }
+                  </dd>
+                </div>
+              }
+              @if (result?.data?.evidence?.approved_at) {
+                <div>
+                  <dt>Aprovado em</dt>
+                  <dd>{{ formatDate(result?.data?.evidence?.approved_at) }}</dd>
+                </div>
+              }
+              @if (result?.data?.evidence?.revoked_at) {
+                <div>
+                  <dt>Revogado em</dt>
+                  <dd>{{ formatDate(result?.data?.evidence?.revoked_at) }}</dd>
+                </div>
+              }
+              @if (result?.data?.evidence?.retention_anonymized_at) {
+                <div>
+                  <dt>Anonimizado (retenção)</dt>
+                  <dd>{{ formatDate(result?.data?.evidence?.retention_anonymized_at) }}</dd>
+                </div>
+              }
+            </dl>
+          </section>
+        }
+
         <p class="vd-disclaimer">
           Esta verificação confirma que o protocolo existe no Gestgo com o hash informado.
           Não substitui análise jurídica nem atesta o conteúdo clínico do termo.

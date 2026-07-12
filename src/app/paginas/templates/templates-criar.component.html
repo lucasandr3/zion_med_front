@@ -40,13 +40,17 @@
 
       <!-- Section -->
       <div class="flex items-center justify-between mb-4">
-        <span class="text-[11px] font-semibold uppercase tracking-wider" style="color: var(--c-muted)">{{ categoryLabels['geral'] }}</span>
-        <span class="text-xs tabular-nums" style="color: var(--c-muted)">{{ cardsVisiveis.length }} {{ cardsVisiveis.length === 1 ? 'modelo' : 'modelos' }}</span>
+        <span class="text-[11px] font-semibold uppercase tracking-wider" style="color: var(--c-muted)">
+          Biblioteca — {{ specialtyLabel() }}
+        </span>
+        <span class="text-xs tabular-nums" style="color: var(--c-muted)">
+          {{ bibliotecaMeta?.approved_count ?? 0 }} revisados · {{ cardsVisiveis.length }} {{ cardsVisiveis.length === 1 ? 'modelo' : 'modelos' }}
+        </span>
       </div>
 
       <!-- Grid de cards -->
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-        @for (t of cardsVisiveis; track t.id) {
+        @for (t of cardsVisiveis; track t.library_key) {
           <div class="card-criar rounded-xl p-5 flex flex-col gap-3 cursor-pointer border transition-all" style="background: var(--c-surface); border-color: var(--c-border)">
             <div class="flex items-start">
               <div class="w-9 h-9 rounded-lg flex items-center justify-center text-lg transition-all" style="background: var(--c-soft); color: var(--c-muted)">{{ categoryEmoji[categoriaKey(t)] }}</div>
@@ -61,10 +65,18 @@
               @if (t.category && categoryLabels[categoriaKey(t)]) {
                 <span class="card-tag px-2 py-0.5 rounded-full text-[10px] font-medium" style="background: var(--c-soft); color: var(--c-muted); border: 1px solid var(--c-border)">{{ categoryLabels[categoriaKey(t)] }}</span>
               }
+              @if (reviewBadgeLabel(t); as badge) {
+                <span class="review-badge px-2 py-0.5 rounded-full text-[10px] font-medium" [class]="reviewBadgeClass(t)">{{ badge }}</span>
+              }
+              @if (t.installed_template_id) {
+                <span class="card-tag px-2 py-0.5 rounded-full text-[10px] font-medium" style="background: rgba(15, 118, 110, 0.12); color: #0f766e; border: 1px solid rgba(15, 118, 110, 0.25)">Instalado</span>
+              }
             </div>
             <div class="flex gap-2 mt-auto pt-1">
               <button type="button" class="preview-btn flex-1 text-xs py-2 rounded-lg border transition-colors" style="background: transparent; color: var(--c-muted); border-color: var(--c-border)" (click)="abrirPreview(t); $event.stopPropagation()">Pré-visualizar</button>
-              <button type="button" class="use-btn flex-1 text-xs py-2 rounded-lg font-medium border transition-all" style="background: var(--c-primary); color: #fff; border-color: var(--c-primary)" (click)="usarModeloDoCard(t, $event)" [disabled]="usandoModelo">Usar modelo</button>
+              <button type="button" class="use-btn flex-1 text-xs py-2 rounded-lg font-medium border transition-all" style="background: var(--c-primary); color: #fff; border-color: var(--c-primary)" (click)="usarModeloDoCard(t, $event)" [disabled]="usandoModelo">
+                {{ t.installed_template_id ? 'Abrir instalado' : (usandoModelo ? 'Instalando…' : 'Usar modelo') }}
+              </button>
             </div>
           </div>
         }
@@ -109,7 +121,7 @@
             <p class="text-sm" style="color: var(--c-muted)">Carregando...</p>
           } @else if (previewTemplate?.fields?.length) {
             <div class="space-y-4 mb-6">
-              @for (f of previewTemplate!.fields; track f.id) {
+              @for (f of previewTemplate!.fields!; track f.name_key) {
                 <div>
                   <label class="block text-xs font-medium mb-1" style="color: var(--c-muted)">{{ f.label }}{{ f.required ? ' *' : '' }}</label>
                   <div class="rounded-lg border py-2 px-3 text-sm min-h-[2.25rem]" style="background: var(--c-soft); border-color: var(--c-border); color: var(--c-muted)">{{ previewFieldText(f) }}</div>

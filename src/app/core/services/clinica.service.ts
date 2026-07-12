@@ -54,6 +54,9 @@ export interface ClinicaConfig {
   whatsapp_notify_avisos?: boolean;
   signing_security_level?: 'basic' | 'reinforced';
   data_retention_years?: number | null;
+  /** Retenção de protocolos com evidência (job diário). */
+  protocol_retention_years?: number | null;
+  protocol_retention_mode?: 'anonymize' | 'delete' | string;
   /** Aparência dos formulários públicos (/f/:token). */
   form_public_theme?: string | null;
   form_accent_hex?: string | null;
@@ -196,6 +199,26 @@ export class ClinicaService {
   /** Logs de auditoria da clínica atual (paginados). */
   getClinicaLogs(page = 1, perPage = 50): Observable<LogsResponse> {
     return this.api.get<LogsResponse>('/clinica/logs', { page, per_page: perPage });
+  }
+
+  previewProtocolRetention(): Observable<{
+    enabled: boolean;
+    protocol_retention_years: number | null;
+    protocol_retention_mode: string;
+    cutoff_date: string | null;
+    eligible_count: number;
+    already_anonymized_count: number;
+  }> {
+    return this.api
+      .get<{ data: {
+        enabled: boolean;
+        protocol_retention_years: number | null;
+        protocol_retention_mode: string;
+        cutoff_date: string | null;
+        eligible_count: number;
+        already_anonymized_count: number;
+      } }>('/clinica/retencao-protocolos/preview')
+      .pipe(map((r) => r.data));
   }
 
   updateConfiguracoes(payload: Partial<ClinicaConfig>, logoFile?: File): Observable<ClinicaConfig> {

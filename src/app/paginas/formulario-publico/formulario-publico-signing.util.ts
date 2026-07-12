@@ -1,5 +1,6 @@
 import { FormularioPublicoField } from '../../core/services/formulario-publico.service';
 import { fieldType } from './formulario-publico-field.util';
+import { fpSignatureIsFilled } from './formulario-publico-a11y.util';
 
 export function signingSecurityReinforced(signingSecurityLevel?: string): boolean {
   return (signingSecurityLevel ?? 'basic') === 'reinforced';
@@ -14,9 +15,6 @@ export function hasFilledSignatures(
   valores: Record<string, string | number | boolean | Date>,
 ): boolean {
   return fields.some(
-    (f) =>
-      fieldType(f) === 'signature' &&
-      typeof valores[f.name_key] === 'string' &&
-      String(valores[f.name_key]).length > 80,
+    (f) => fieldType(f) === 'signature' && fpSignatureIsFilled(valores[f.name_key]),
   );
 }

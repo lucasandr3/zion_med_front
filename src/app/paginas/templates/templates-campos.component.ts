@@ -9,6 +9,7 @@ import { LoadingService } from '../../shared/services/loading.service';
 import { ZmSkeletonTemplateCamposComponent } from '../../shared/components/skeletons';
 import { ToastService } from '../../core/services/toast.service';
 import { ConfirmDialogService } from '../../core/services/confirm-dialog.service';
+import { TemplatePublishGuardService } from '../../core/services/template-publish-guard.service';
 
 const TYPE_OPTIONS: { value: string; label: string }[] = [
   { value: 'text', label: 'Texto curto' },
@@ -42,13 +43,17 @@ const TYPE_ICONS: Record<string, string> = {
 
 const STRUCTURAL_TYPES = new Set(['heading', 'notice', 'section_break']);
 
-/** Blocos recomendados para consentimento informado (checagem suave). */
+/** Blocos recomendados (Recomendação CFM nº 1/2016 — boa prática, não lei federal). */
 const CONSENT_HINTS = [
-  { key: 'riscos', label: 'Riscos do procedimento' },
-  { key: 'beneficios', label: 'Benefícios esperados' },
-  { key: 'alternativas', label: 'Alternativas' },
-  { key: 'recusa', label: 'Direito de recusa' },
-  { key: 'ciencia', label: 'Declaração de ciência / aceite' },
+  { key: 'procedimento', label: 'Descrição / justificativa do procedimento' },
+  { key: 'risco', label: 'Riscos e intercorrências' },
+  { key: 'beneficio', label: 'Benefícios / prognóstico' },
+  { key: 'alternativa', label: 'Alternativas terapêuticas' },
+  { key: 'nao realiz', label: 'Consequências da não realização' },
+  { key: 'cuidado', label: 'Cuidados pré/pós' },
+  { key: 'recusa', label: 'Direito de recusa / revogação' },
+  { key: 'autoriz', label: 'Autorização explícita do procedimento' },
+  { key: 'assinatura', label: 'Assinatura do paciente' },
 ];
 
 import { ZardTableImports } from '@/shared/components/table';
@@ -59,6 +64,13 @@ import { ZardButtonComponent } from '@/shared/components/button/button.component
 import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
 import { ZardComboboxComponent, type ZardComboboxOption } from '@/shared/components/combobox';
 import { ZardTooltipImports } from '@/shared/components/tooltip';
+import {
+  buildVisibilityRulesPayload,
+  FIELD_VISIBILITY_OPERATORS,
+  FieldVisibilityOperator,
+  parseVisibilityRules,
+} from '../../core/utils/field-visibility.util';
+import { CLINICAL_STEP_KINDS, CLINICAL_STEP_LABELS } from '../../core/utils/clinical-step.util';
 
 @Component({
   selector: 'app-templates-campos',
@@ -111,15 +123,34 @@ export class TemplatesCamposComponent implements OnInit {
   editNameKey = '';
   editOptionsText = '';
   editRequired = false;
+  editVisibilityEnabled = false;
+  editVisibilityField = '';
+  editVisibilityOperator: FieldVisibilityOperator = 'equals';
+  editVisibilityValue = '';
+  editClinicalStepKind = '';
+  aplicandoEstruturaTcle = false;
+
+  actorsVisibilityEnabled = false;
+  actorsVisibilityField = '';
+  actorsVisibilityOperator: FieldVisibilityOperator = 'equals';
+  actorsVisibilityValue = '';
+  actorsRequireGuardian = false;
+  salvandoActorsRules = false;
 
   readonly typeOptions = TYPE_OPTIONS;
   readonly typeIcons = TYPE_ICONS;
+  readonly visibilityOperators = FIELD_VISIBILITY_OPERATORS;
+  readonly clinicalStepOptions = CLINICAL_STEP_KINDS.map((value) => ({
+    value,
+    label: CLINICAL_STEP_LABELS[value],
+  }));
 
   private route = inject(ActivatedRoute);
   private templatesService = inject(TemplatesService);
   private loadingService = inject(LoadingService);
   private toast = inject(ToastService);
   private confirm = inject(ConfirmDialogService);
+  private publishGuard = inject(TemplatePublishGuardService);
 
   get idNum(): number {
     return parseInt(this.templateId, 10) || 0;
@@ -150,12 +181,37 @@ export class TemplatesCamposComponent implements OnInit {
     const blob = this.campos.map((c) => `${c.label} ${c.name_key}`.toLowerCase()).join(' | ');
     return CONSENT_HINTS.map((h) => ({
       ...h,
-      present: blob.includes(h.key) || blob.includes(h.label.toLowerCase().split(' ')[0]),
+      present:
+        blob.includes(h.key) ||
+        blob.includes(h.label.toLowerCase().split(' ')[0]) ||
+        (h.key === 'beneficio' && (blob.includes('benefício') || blob.includes('beneficio') || blob.includes('prognóstico') || blob.includes('prognostico'))) ||
+        (h.key === 'nao realiz' && (blob.includes('não realização') || blob.includes('nao realizacao') || blob.includes('consequencias_nao'))),
     }));
   }
 
   get showEditOptions(): boolean {
     return ['select', 'radio'].includes(this.editType);
+  }
+
+  get editVisibilityFieldOptions(): { value: string; label: string }[] {
+    if (!this.editCampo) return [];
+    return this.campos
+      .filter((c) => !STRUCTURAL_TYPES.has(c.type) && c.name_key !== this.editCampo?.name_key)
+      .map((c) => ({ value: c.name_key, label: `${c.label} (${c.name_key})` }));
+  }
+
+  get editVisibilityNeedsValue(): boolean {
+    return this.editVisibilityOperator === 'equals' || this.editVisibilityOperator === 'not_equals';
+  }
+
+  get actorsVisibilityFieldOptions(): { value: string; label: string }[] {
+    return this.campos
+      .filter((c) => !STRUCTURAL_TYPES.has(c.type))
+      .map((c) => ({ value: c.name_key, label: `${c.label} (${c.name_key})` }));
+  }
+
+  get actorsVisibilityNeedsValue(): boolean {
+    return this.actorsVisibilityOperator === 'equals' || this.actorsVisibilityOperator === 'not_equals';
   }
 
   get tipoIcon(): (type: string) => string {
@@ -190,6 +246,7 @@ export class TemplatesCamposComponent implements OnInit {
         this.template = t;
         if (t.public_url) this.linkPublicoUrl = t.public_url;
         this.campos = [...list].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+        this.loadActorsVisibilityRules(t);
       },
       error: () => {
         this.listaPronta = true;
@@ -268,6 +325,12 @@ export class TemplatesCamposComponent implements OnInit {
     this.editNameKey = c.name_key;
     this.editOptionsText = Array.isArray(c.options) ? c.options.join('\n') : '';
     this.editRequired = !!c.required;
+    const parsed = parseVisibilityRules(c.visibility_rules);
+    this.editVisibilityEnabled = parsed.enabled;
+    this.editVisibilityField = parsed.field;
+    this.editVisibilityOperator = parsed.operator;
+    this.editVisibilityValue = parsed.value;
+    this.editClinicalStepKind = c.clinical_step_kind ?? '';
     this.modalAberto = true;
   }
 
@@ -294,6 +357,13 @@ export class TemplatesCamposComponent implements OnInit {
         .map((s) => s.trim())
         .filter(Boolean);
     }
+    payload.visibility_rules = buildVisibilityRulesPayload(
+      this.editVisibilityEnabled,
+      this.editVisibilityField,
+      this.editVisibilityOperator,
+      this.editVisibilityValue,
+    );
+    payload.clinical_step_kind = this.editClinicalStepKind?.trim() || null;
     this.salvandoCampo = true;
     this.templatesService.updateCampo(id, this.editCampo.id, payload).subscribe({
       next: () => {
@@ -341,23 +411,62 @@ export class TemplatesCamposComponent implements OnInit {
     const id = this.idNum;
     if (!id) return;
     this.gerandoLink = true;
-    this.templatesService.gerarLink(id).subscribe({
-      next: (res) => {
+    void this.publishGuard.confirmPublishIfNeeded(id).then((confirmed) => {
+      if (!confirmed) {
         this.gerandoLink = false;
-        const url = (res as { data?: { public_url?: string } })?.data?.public_url;
-        if (url) this.linkPublicoUrl = url;
-        else if (typeof window !== 'undefined') {
-          const token = (res as { data?: { token?: string } })?.data?.token;
-          if (token) this.linkPublicoUrl = `${window.location.origin}/f/${token}`;
-        }
+        return;
+      }
+      this.templatesService.gerarLink(id).subscribe({
+        next: (res) => {
+          this.gerandoLink = false;
+          const url = (res as { data?: { public_url?: string } })?.data?.public_url;
+          if (url) this.linkPublicoUrl = url;
+          else if (typeof window !== 'undefined') {
+            const token = (res as { data?: { token?: string } })?.data?.token;
+            if (token) this.linkPublicoUrl = `${window.location.origin}/f/${token}`;
+          }
+          this.carregar();
+          this.toast.success('Link público gerado', 'O link está disponível para copiar.');
+        },
+        error: (err) => {
+          this.gerandoLink = false;
+          this.erro = err?.error?.message ?? 'Não foi possível gerar o link.';
+          const issues = err?.error?.clinical_validation as { message?: string; level?: string }[] | undefined;
+          if (Array.isArray(issues) && issues.length) {
+            this.toast.warning('Validação clínica', issues.map((i) => i.message).filter(Boolean).join(' '));
+          }
+          this.toast.error('Erro', this.erro);
+        },
+      });
+    });
+  }
+
+  aplicarEstruturaTcle(): void {
+    const id = this.idNum;
+    if (!id || this.aplicandoEstruturaTcle) return;
+    this.aplicandoEstruturaTcle = true;
+    this.templatesService.aplicarEstruturaTcle(id).subscribe({
+      next: () => {
+        this.aplicandoEstruturaTcle = false;
         this.carregar();
-        this.toast.success('Link público gerado', 'O link está disponível para copiar.');
+        this.toast.success('Etapas clínicas', 'Estrutura TCLE aplicada aos campos.');
       },
-      error: () => {
-        this.gerandoLink = false;
-        this.erro = 'Não foi possível gerar o link.';
-        this.toast.error('Erro', this.erro);
+      error: (err) => {
+        this.aplicandoEstruturaTcle = false;
+        this.toast.error('Erro', err?.error?.message ?? 'Não foi possível aplicar a estrutura TCLE.');
       },
+    });
+  }
+
+  toggleUsesClinicalSteps(enabled: boolean): void {
+    const id = this.idNum;
+    if (!id || !this.template) return;
+    this.templatesService.update(id, { uses_clinical_steps: enabled }).subscribe({
+      next: () => {
+        this.template = { ...this.template!, uses_clinical_steps: enabled };
+        this.toast.success('Etapas clínicas', enabled ? 'Wizard clínico ativado.' : 'Wizard clínico desativado.');
+      },
+      error: () => this.toast.error('Erro', 'Não foi possível atualizar etapas clínicas.'),
     });
   }
 
@@ -445,5 +554,40 @@ export class TemplatesCamposComponent implements OnInit {
       .trim()
       .replace(/\s+/g, '_')
       .replace(/_+/g, '_');
+  }
+
+  private loadActorsVisibilityRules(t: Template): void {
+    const parsed = parseVisibilityRules(t.actors_visibility_rules);
+    this.actorsVisibilityEnabled = parsed.enabled;
+    this.actorsVisibilityField = parsed.field;
+    this.actorsVisibilityOperator = parsed.operator;
+    this.actorsVisibilityValue = parsed.value;
+    this.actorsRequireGuardian = !!t.actors_visibility_rules?.require_guardian;
+  }
+
+  salvarActorsVisibilityRules(): void {
+    const id = this.idNum;
+    if (!id || !this.template) return;
+    this.salvandoActorsRules = true;
+    const rules = buildVisibilityRulesPayload(
+      this.actorsVisibilityEnabled,
+      this.actorsVisibilityField,
+      this.actorsVisibilityOperator,
+      this.actorsVisibilityValue,
+    );
+    const payload = rules
+      ? { ...rules, require_guardian: this.actorsRequireGuardian }
+      : null;
+    this.templatesService.update(id, { actors_visibility_rules: payload }).subscribe({
+      next: () => {
+        this.salvandoActorsRules = false;
+        this.toast.success('Regras salvas', 'Visibilidade do bloco responsável atualizada.');
+        this.carregar();
+      },
+      error: () => {
+        this.salvandoActorsRules = false;
+        this.toast.error('Erro', 'Não foi possível salvar as regras do responsável.');
+      },
+    });
   }
 }

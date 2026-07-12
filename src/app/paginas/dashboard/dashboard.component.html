@@ -101,6 +101,87 @@
             </a>
           </div>
 
+          @if (complianceReport) {
+            <z-card class="dash-z-panel gap-0 overflow-hidden rounded-lg py-0 shadow-sm **:data-[slot=card-content]:px-0">
+              <div class="dash-panel__head">
+                <div class="min-w-0">
+                  <h2 class="dash-panel__title">Compliance de consentimentos</h2>
+                  <p class="dash-chart-card__subtitle">Validade, evidências e revogação de termos</p>
+                </div>
+                <a routerLink="/protocolos" class="dash-link-all">Ver protocolos</a>
+              </div>
+
+              <div class="grid grid-cols-2 gap-3 p-4 lg:grid-cols-4 border-b border-border">
+                <a routerLink="/protocolos" class="card-fade-in dash-kpi dash-kpi--danger no-underline">
+                  <div class="dash-kpi__head">
+                    <span class="dash-kpi__label">Vencidos</span>
+                  </div>
+                  <p class="dash-kpi__value">{{ complianceReport.summary.consent_expired }}</p>
+                  <p class="dash-kpi__sub">Consentimentos fora da validade</p>
+                </a>
+
+                <a routerLink="/protocolos" class="card-fade-in dash-kpi dash-kpi--warning no-underline">
+                  <div class="dash-kpi__head">
+                    <span class="dash-kpi__label">Vencem em 30 dias</span>
+                  </div>
+                  <p class="dash-kpi__value">{{ complianceReport.highlights.expiring_next_30_days }}</p>
+                  <p class="dash-kpi__sub">Requer atenção preventiva</p>
+                </a>
+
+                <a routerLink="/protocolos" class="card-fade-in dash-kpi no-underline">
+                  <div class="dash-kpi__head">
+                    <span class="dash-kpi__label">Sem snapshot</span>
+                  </div>
+                  <p class="dash-kpi__value">{{ complianceReport.summary.without_snapshot }}</p>
+                  <p class="dash-kpi__sub">Evidência incompleta</p>
+                </a>
+
+                <a routerLink="/protocolos" [queryParams]="{ status: 'revoked' }" class="card-fade-in dash-kpi no-underline">
+                  <div class="dash-kpi__head">
+                    <span class="dash-kpi__label">Taxa revogação</span>
+                  </div>
+                  <p class="dash-kpi__value">{{ complianceReport.summary.revocation_rate_percent }}%</p>
+                  <p class="dash-kpi__sub">{{ complianceReport.summary.revoked }} revogados</p>
+                </a>
+              </div>
+
+              @if (complianceReport.recent_issues.length > 0) {
+                <div class="dash-compliance-table-wrap">
+                  <table class="dash-compliance-table">
+                    <thead>
+                      <tr>
+                        <th>Protocolo</th>
+                        <th>Paciente</th>
+                        <th>Modelo</th>
+                        <th>Problema</th>
+                        <th>Validade</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (issue of complianceReport.recent_issues; track issue.id) {
+                        <tr>
+                          <td>
+                            <a [routerLink]="['/protocolos', issue.id]" class="dash-compliance-link">{{ issue.protocol_number }}</a>
+                          </td>
+                          <td>{{ issue.person_name }}</td>
+                          <td>{{ issue.template_name }}</td>
+                          <td>
+                            <span class="dash-compliance-pill dash-compliance-pill--{{ issue.issue }}">
+                              {{ complianceIssueLabel(issue.issue) }}
+                            </span>
+                          </td>
+                          <td>{{ formatarDataCompliance(issue.consent_valid_until) }}</td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              } @else {
+                <div class="p-4 text-sm text-muted-foreground">Nenhuma pendência crítica de compliance nos consentimentos.</div>
+              }
+            </z-card>
+          }
+
           <!-- Gráficos principais: Área + Donut -->
           <div class="grid grid-cols-1 gap-4 lg:grid-cols-5">
             <z-card class="dash-z-chart lg:col-span-3 gap-0 overflow-hidden rounded-lg py-0 shadow-sm **:data-[slot=card-content]:px-0">

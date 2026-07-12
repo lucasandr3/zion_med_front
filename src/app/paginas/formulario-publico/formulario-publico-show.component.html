@@ -5,6 +5,8 @@
   [class.fp-branded]="isBranded"
   [ngStyle]="themeVars"
 >
+  <a class="fp-skip-link" href="#fp-main-content">Pular para o conteúdo</a>
+
   @if (!showSkeleton() && data && !kioskMode) {
     <zm-formulario-publico-header
       [data]="data"
@@ -13,14 +15,21 @@
       [personFormUnlocked]="personFormUnlocked()"
       [progressPercent]="progressPercent"
       [progressCountLabel]="progressCountLabel"
+      [usesFormSteps]="usesFormSteps"
+      [currentStepNumber]="stepStateForTemplate.currentStepNumber"
+      [totalFormSteps]="stepStateForTemplate.totalFormSteps"
+      [currentStepTitle]="currentStepTitle"
+      [clinicalSteps]="clinicalStepMetas"
+      [largeTextMode]="largeTextMode"
       [logoUrl]="clinicLogoDisplayUrl()"
       [clinicInitial]="clinicNameInitial()"
       (toggleDark)="toggleDark()"
+      (toggleLargeText)="toggleLargeText()"
       (logoError)="onClinicLogoError()"
     />
   }
 
-  <div class="fp-scroll" #fpScroll>
+  <div class="fp-scroll" #fpScroll id="fp-main-content" tabindex="-1">
     @if (showSkeleton()) {
       <div class="fp-container fp-loading-shell" role="status" aria-live="polite" aria-busy="true">
         <span class="fp-loading-ring" aria-hidden="true"></span>
@@ -72,15 +81,24 @@
           </div>
 
           @if (erro) {
-            <div class="fp-banner-error">{{ erro }}</div>
+            <div class="fp-banner-error" role="alert" aria-live="assertive">{{ erro }}</div>
           }
 
-          <form #publicForm="ngForm" id="formulario-publico-form" (ngSubmit)="enviar()" class="fp-form">
+          @if (usesFormSteps && personFormUnlocked()) {
+            <h2 #fpStepHeading class="fp-step-heading" tabindex="-1">
+              Etapa {{ stepStateForTemplate.currentStepNumber }} de {{ stepStateForTemplate.totalFormSteps }} — {{ currentStepTitle }}
+            </h2>
+          }
+
+          <form #publicForm="ngForm" id="formulario-publico-form" (ngSubmit)="enviar()" class="fp-form" novalidate>
             @if (showFeegowOnCurrentStep) {
               <zm-formulario-publico-feegow
                 [token]="token"
                 [valores]="valores"
                 [feegowMeta]="feegowMeta()"
+                [schedulingBlocked]="feegowSchedulingBlocked()"
+                [schedulingBlockMessage]="consentSummaryLabel"
+                [personId]="personValidatedId"
                 (valoresChange)="onCampoAlterado()"
               />
             }
@@ -123,7 +141,11 @@
             <zm-formulario-publico-fields
               [fields]="currentStepFields"
               [valores]="valores"
+              [termScrollRequired]="termScrollRequired"
+              [noticeScrollState]="noticeScrollState"
+              [invalidFieldKeys]="invalidFieldKeys"
               (fieldChange)="onCampoAlterado()"
+              (noticeScroll)="onNoticeScrolled($event)"
               (fileSelected)="onFileSelected($event.event, $event.key)"
               (fileClear)="clearFile($event)"
               (signatureChange)="onSignatureChange($event)"
@@ -135,12 +157,21 @@
                 [acceptTerms]="acceptTerms"
                 [comprehensionAck]="comprehensionAck"
                 [requireComprehension]="isConsentimentoDocumento()"
-                [showActors]="isConsentimentoDocumento()"
+                [requireTermScroll]="termScrollRequired"
+                [termScrollCompleted]="termScrollCompleted"
+                [showComprehensionSection]="showComprehensionSection"
+                [showPrivacySection]="showPrivacySection"
+                [showActorsAssistedSection]="showActorsAssistedSection"
+                [showActors]="showActorsBlock()"
+                [requireGuardian]="requireGuardianBlock()"
                 [guardianName]="guardianName"
                 [guardianRelation]="guardianRelation"
                 [witnessName]="witnessName"
                 [assistedMode]="assistedMode"
                 [professionalExplained]="professionalExplained"
+                [showAssistedCosignBlock]="showAssistedCosignBlock()"
+                [professionalSignerName]="professionalSignerName"
+                [professionalCosignFieldKey]="professionalCosignFieldKey()"
                 [quizQuestions]="quizQuestions()"
                 [quizAnswers]="quizAnswers"
                 (acceptTermsChange)="acceptTerms = $event"
@@ -149,6 +180,9 @@
                 (guardianRelationChange)="guardianRelation = $event"
                 (witnessNameChange)="witnessName = $event"
                 (professionalExplainedChange)="professionalExplained = $event"
+                (professionalSignerNameChange)="professionalSignerName = $event"
+                (professionalSignatureChange)="onSignatureChange($event)"
+                (professionalSignatureClear)="onSignatureClear($event)"
                 (quizAnswerChange)="onQuizAnswerChange($event)"
                 (toggleFromBlock)="toggleAcceptTermsFromBlock($event)"
               />

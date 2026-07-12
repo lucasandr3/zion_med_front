@@ -1,7 +1,7 @@
-@if (quizQuestions.length > 0) {
+@if (showComprehensionSection && quizQuestions.length > 0) {
   <div class="fp-quiz-block">
     <p class="fp-quiz-title">Confirme sua compreensão</p>
-    <p class="fp-quiz-hint">Responda corretamente para poder enviar o termo.</p>
+    <p class="fp-quiz-hint">Responda corretamente. Se errar, revise o termo e tente novamente.</p>
     @for (q of quizQuestions; track q.id) {
       <fieldset class="fp-quiz-question">
         <legend class="fp-quiz-prompt">{{ q.prompt }}</legend>
@@ -23,22 +23,30 @@
   </div>
 }
 
+@if (showComprehensionSection || showPrivacySection) {
 <div class="fp-consent-block" (click)="onToggleBlock($event)">
-  @if (requireComprehension) {
+  @if (showComprehensionSection && requireComprehension) {
+    @if (requireTermScroll && !termScrollCompleted) {
+      <p class="fp-term-scroll-gate-hint" role="status">
+        Leia todas as seções do termo acima (role até o final) para habilitar a declaração de compreensão clínica.
+      </p>
+    }
     <z-checkbox
       class="fp-consent-checkbox"
       [ngModel]="comprehensionAck"
       (ngModelChange)="comprehensionAckChange.emit($event)"
       name="fpComprehensionAck"
       [ngModelOptions]="{ standalone: true }"
+      [zDisabled]="requireTermScroll && !termScrollCompleted"
       (click)="$event.stopPropagation()"
     >
       <span class="fp-check-label-inline">
-        Declaro que li e compreendi os riscos, benefícios, alternativas e o direito de recusa descritos neste termo.
+        Declaro que li e compreendi as informações deste termo sobre o procedimento, riscos, benefícios, alternativas, cuidados e o direito de recusa, conforme descrito acima.
       </span>
     </z-checkbox>
   }
 
+  @if (showPrivacySection) {
   <z-checkbox
     class="fp-consent-checkbox"
     [ngModel]="acceptTerms"
@@ -49,17 +57,22 @@
   >
     <span class="fp-check-label-inline">
       Declaro que li o aviso sobre uso dos dados e a
-      <a routerLink="/privacidade" target="_blank" rel="noopener" class="fp-link">política de privacidade</a>,
-      e estou ciente de que minha assinatura eletrônica integra este documento (ciência de privacidade — distinta da compreensão clínica acima).
+      <a routerLink="/privacidade" target="_blank" rel="noopener" class="fp-link">Política de Privacidade</a>.
+      Estou ciente de que minha assinatura eletrônica integra este documento (ciência de privacidade, distinta da compreensão clínica acima).
     </span>
   </z-checkbox>
+  }
 </div>
+}
 
-@if (showActors) {
+@if (showActorsAssistedSection && showActors) {
   <div class="fp-actors-block">
     <p class="fp-actors-title">Responsável legal / testemunha (quando aplicável)</p>
     <div class="fp-field-group">
-      <label class="fp-field-label" for="fpGuardianName">Nome do responsável legal</label>
+      <label class="fp-field-label" for="fpGuardianName">
+        Nome do responsável legal
+        @if (requireGuardian) { <span class="fp-required" aria-hidden="true">*</span> }
+      </label>
       <input
         id="fpGuardianName"
         type="text"
@@ -68,7 +81,9 @@
         (ngModelChange)="guardianNameChange.emit($event)"
         name="fpGuardianName"
         [ngModelOptions]="{ standalone: true }"
-        placeholder="Opcional — menor ou incapaz"
+        [required]="requireGuardian"
+        [attr.aria-required]="requireGuardian ? true : null"
+        [placeholder]="requireGuardian ? 'Obrigatório para menor ou incapaz' : 'Opcional — menor ou incapaz'"
       />
     </div>
     <div class="fp-field-group">
@@ -100,7 +115,7 @@
   </div>
 }
 
-@if (assistedMode) {
+@if (showActorsAssistedSection && assistedMode) {
   <div class="fp-assisted-block">
     <z-checkbox
       class="fp-consent-checkbox"
@@ -113,5 +128,55 @@
         Confirmo, como profissional, que expliquei riscos, benefícios, alternativas e o direito de recusa ao paciente (modo assistido).
       </span>
     </z-checkbox>
+
+    @if (!showAssistedCosignBlock) {
+      <p class="fp-field-hint" style="margin-top:0.75rem">
+        Preencha também o campo de assinatura do profissional no formulário acima antes de enviar.
+      </p>
+    }
+
+    @if (showAssistedCosignBlock) {
+      <div class="fp-cosign-block">
+        <p class="fp-cosign-title">Assinatura do profissional (co-assinatura)</p>
+        <p class="fp-field-hint">Registre sua assinatura no mesmo documento. Na aprovação clínica, o sistema não repetirá esta assinatura.</p>
+        <div class="fp-field-group">
+          <label class="fp-field-label" for="fpProfessionalSignerName">
+            Nome completo do profissional <span class="fp-required" aria-hidden="true">*</span>
+          </label>
+          <input
+            id="fpProfessionalSignerName"
+            type="text"
+            class="fp-input"
+            [ngModel]="professionalSignerName"
+            (ngModelChange)="professionalSignerNameChange.emit($event)"
+            name="fpProfessionalSignerName"
+            [ngModelOptions]="{ standalone: true }"
+            required
+            placeholder="Ex.: Dra. Ana Silva — CRM 12345"
+          />
+        </div>
+        <p class="fp-sig-help">Assine com o dedo (celular) ou mouse (computador) no espaço abaixo.</p>
+        <canvas
+          [id]="'signature_' + professionalCosignFieldKey"
+          width="400"
+          height="120"
+          class="fp-sig-canvas"
+          role="img"
+          aria-label="Área de assinatura do profissional"
+          tabindex="0"
+          (mousedown)="startProfessionalSignature($event)"
+          (mousemove)="moveProfessionalSignature($event)"
+          (mouseup)="endProfessionalSignature()"
+          (mouseleave)="endProfessionalSignature()"
+          (touchstart)="startProfessionalSignature($event)"
+          (touchmove)="moveProfessionalSignature($event); $event.preventDefault()"
+          (touchend)="endProfessionalSignature()"
+        ></canvas>
+        <div class="fp-sig-footer">
+          <span class="fp-field-hint">Assinatura do profissional responsável pelo atendimento assistido</span>
+          <button type="button" class="fp-link-btn" (click)="clearProfessionalSignature()">Limpar</button>
+        </div>
+      </div>
+    }
   </div>
 }

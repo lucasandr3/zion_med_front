@@ -1,11 +1,20 @@
-<div class="fp-feegow-card">
+<div class="fp-feegow-card" [class.fp-feegow-card--blocked]="schedulingBlocked">
   <p class="fp-feegow-title">Agendamento Feegow</p>
-  <p class="fp-field-hint" style="margin-top:0">Esta seção aparece apenas para empresas com integração Feegow ativa.</p>
+
+  @if (schedulingBlocked) {
+    <div class="fp-feegow-block-banner" role="status">
+      <strong>Agendamento indisponível.</strong>
+      {{ schedulingBlockMessage || 'Consentimento pendente ou inválido. Conclua a revisão clínica antes de agendar o procedimento.' }}
+    </div>
+  } @else {
+    <p class="fp-field-hint" style="margin-top:0">Esta seção aparece apenas para empresas com integração Feegow ativa.</p>
+  }
 
   @if (feegowMeta?.warning) {
     <div class="fp-banner-error" style="margin-top:0.75rem">{{ feegowMeta?.warning }}</div>
   }
 
+  @if (!schedulingBlocked) {
   <div class="fp-feegow-grid">
     <div class="fp-field-group">
       <label class="fp-field-label" for="feegow_paciente_id">Paciente ID (Feegow) *</label>
@@ -114,5 +123,6 @@
       <span class="fp-feegow-error">{{ feegowDisponibilidadeErro }}</span>
     }
   </div>
+  }
 </div>
 <div class="fp-section-div" aria-hidden="true"></div>

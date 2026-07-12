@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, Signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { switchMap, map, catchError, of } from 'rxjs';
+import { switchMap, map, catchError, of, forkJoin } from 'rxjs';
 import {
   ChartComponent,
   ApexAxisChartSeries,
@@ -21,6 +21,7 @@ import {
 } from 'ng-apexcharts';
 import { isBillingBlockedError } from '../../core/utils/billing-blocked-error';
 import { DashboardService } from '../../core/services/dashboard.service';
+import { ComplianceReportData, ComplianceService } from '../../core/services/compliance.service';
 import { TemplatesService, Template } from '../../core/services/templates.service';
 import { LoadingService } from '../../shared/services/loading.service';
 import { ZmAssinaturaBloqueadaCardComponent } from '../../shared/components/ui/zm-assinatura-bloqueada-card/zm-assinatura-bloqueada-card.component';
@@ -165,6 +166,7 @@ export class DashboardComponent implements OnInit {
   categoriasResumo: { key: string; label: string; count: number }[] = [];
   periodoSelecionado = 7;
   mostrarWizardOnboarding = false;
+  complianceReport: ComplianceReportData | null = null;
   readonly periodOptions = [
     { days: 7, label: '7 dias' },
     { days: 30, label: '30 dias' },
@@ -176,6 +178,7 @@ export class DashboardComponent implements OnInit {
   barChart: BarChartOptions = this.buildBarChart([]);
 
   private dashboardService = inject(DashboardService);
+  private complianceService = inject(ComplianceService);
   private templatesService = inject(TemplatesService);
   private loadingService = inject(LoadingService);
   private authService = inject(AuthService);
@@ -223,12 +226,13 @@ export class DashboardComponent implements OnInit {
     const dashboard$ = this.dashboardService.getDashboard().pipe(
       switchMap((dash) => {
         if (dash.sem_clinica) {
-          return of({ dash, templates: [] as Template[] });
+          return of({ dash, templates: [] as Template[], compliance: null as ComplianceReportData | null });
         }
-        return this.templatesService.list().pipe(
-          map((templates) => ({ dash, templates })),
-          catchError(() => of({ dash, templates: [] as Template[] })),
-        );
+        return forkJoin({
+          dash: of(dash),
+          templates: this.templatesService.list().pipe(catchError(() => of([] as Template[]))),
+          compliance: this.complianceService.getReport('consent').pipe(catchError(() => of(null))),
+        });
       }),
     );
 
@@ -236,11 +240,12 @@ export class DashboardComponent implements OnInit {
     this.showSkeleton = showSkeleton;
 
     data$.subscribe({
-      next: ({ dash, templates }) => {
+      next: ({ dash, templates, compliance }) => {
         this.dashReady = true;
         this.estadoErro = false;
         this.painelBloqueadoCobranca = false;
         this.semClinica = dash.sem_clinica;
+        this.complianceReport = compliance;
         this.pendentesHoje = dash.pendentes_hoje ?? 0;
         this.ultimos7Dias = dash.ultimos_7_dias ?? 0;
         this.ultimos30Dias = dash.ultimos_30_dias ?? 0;
@@ -550,6 +555,26 @@ export class DashboardComponent implements OnInit {
   }
 
   // ============ HELPERS ============
+
+  complianceIssueLabel(issue: string): string {
+    switch (issue) {
+      case 'consent_expired':
+        return 'Consentimento vencido';
+      case 'without_snapshot':
+        return 'Sem snapshot';
+      case 'pending_review':
+        return 'Revisão pendente';
+      default:
+        return issue;
+    }
+  }
+
+  formatarDataCompliance(iso?: string | null): string {
+    if (!iso) return '—';
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return '—';
+    return d.toLocaleDateString('pt-BR');
+  }
 
   private formatarDataTemplate(s?: string): string {
     if (!s) return '—';

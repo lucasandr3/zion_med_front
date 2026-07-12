@@ -14,6 +14,20 @@ import { ToastService } from '../../core/services/toast.service';
 import { digitsOnlyCpf, formatCpfDisplay, isValidCpfDigits } from '../../core/utils/cpf';
 import { buildFormFieldStepState } from './formulario-publico-steps.util';
 import {
+  clinicalStepRequiresTermScroll,
+  clinicalStepShowsComprehension,
+  clinicalStepShowsPrivacy,
+  clinicalStepShowsSignatures,
+} from '../../core/utils/clinical-step.util';
+import {
+  fpAnnounceLiveRegion,
+  fpApplyLargeTextClass,
+  fpFocusElement,
+  fpPersistLargeTextPreference,
+  fpPrefersReducedMotion,
+  fpRestoreLargeTextPreference,
+} from './formulario-publico-a11y.util';
+import {
   applyPersonPrefillToFields,
   PersonPrefill,
   resolveSubmitterFromPrefill,
@@ -34,7 +48,18 @@ import {
 } from './formulario-publico-signing.util';
 import { computeFormularioPublicoProgress } from './formulario-publico-progress.util';
 import { findPendingRequiredFields, findStepIndexForField } from './formulario-publico-validation.util';
+import {
+  filterVisibleFields,
+  requiresGuardianName,
+  shouldShowActorsBlock,
+} from '../../core/utils/field-visibility.util';
 import { initFormularioPublicoValores, resetFormularioPublicoValores } from './formulario-publico-init.util';
+import { fieldType } from './formulario-publico-field.util';
+import {
+  hasProfessionalCosignFilled,
+  resolveProfessionalCosignFieldKey,
+  shouldShowAssistedCosignBlock,
+} from './formulario-publico-cosign.util';
 import {
   clearFileInputByKey,
   FORM_PUBLIC_FILE_MAX_BYTES,
@@ -48,6 +73,11 @@ import { FormularioPublicoOtpComponent } from './formulario-publico-otp.componen
 import { FormularioPublicoFieldsComponent } from './formulario-publico-fields.component';
 import { FormularioPublicoConsentComponent } from './formulario-publico-consent.component';
 import { FormularioPublicoFooterComponent } from './formulario-publico-footer.component';
+import {
+  allNoticesScrolled,
+  hasNoticeFields,
+  noticeFieldKeys,
+} from './formulario-publico-term-scroll.util';
 import {
   buildFormularioPublicoThemeVars,
   formularioPublicoHasBranding,
@@ -75,6 +105,7 @@ import {
 export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
   @ViewChild('publicForm') ngForm!: NgForm;
   @ViewChild('fpScroll') fpScrollRef?: ElementRef<HTMLElement>;
+  @ViewChild('fpStepHeading') fpStepHeadingRef?: ElementRef<HTMLElement>;
   @ViewChild(FormularioPublicoFeegowComponent) feegowBlock?: FormularioPublicoFeegowComponent;
 
   token = '';
@@ -90,13 +121,20 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
   personGateErro = '';
   validandoPerson = false;
   personValidatedName: string | null = null;
+  personValidatedId: number | null = null;
+  procedureSchedulingAllowed = true;
+  consentSummaryLabel = '';
   kioskMode = false;
   acceptTerms = false;
   comprehensionAck = false;
+  noticeScrollState: Record<string, boolean> = {};
+  termScrollCompleted = true;
+  private termScrolledAt: string | null = null;
   guardianName = '';
   guardianRelation = '';
   witnessName = '';
   professionalExplained = false;
+  professionalSignerName = '';
   assistedMode = false;
   quizAnswers: Record<string, number | null> = {};
   otpChannel: 'email' | 'whatsapp' = 'email';
@@ -112,6 +150,9 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
   dark = false;
   logoImageFailed = signal(false);
   currentStepIndex = 0;
+  largeTextMode = false;
+  invalidFieldKeys = new Set<string>();
+  private clinicalStepsCompleted: { kind: string; completed_at: string }[] = [];
 
   private route = inject(ActivatedRoute);
   private cdr = inject(ChangeDetectorRef);
@@ -132,6 +173,8 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
     this.lockPageScroll();
     try {
       this.dark = localStorage.getItem('gestgo_form_dark_mode') === '1';
+      this.largeTextMode = fpRestoreLargeTextPreference();
+      fpApplyLargeTextClass(this.largeTextMode);
     } catch {}
     this.syncPublicBodyClasses();
     if (!this.token) {
@@ -159,12 +202,17 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
     this.personBirthDate = '';
     this.personGateErro = '';
     this.personValidatedName = null;
+    this.personValidatedId = null;
+    this.procedureSchedulingAllowed = true;
+    this.consentSummaryLabel = '';
     this.acceptTerms = false;
     this.comprehensionAck = false;
+    this.resetTermScrollState();
     this.guardianName = '';
     this.guardianRelation = '';
     this.witnessName = '';
     this.professionalExplained = false;
+    this.professionalSignerName = '';
     this.quizAnswers = {};
     this.otpVerified = false;
     this.otpCode = '';
@@ -261,6 +309,9 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
           this.validandoPerson = false;
           this.personGateOk = true;
           this.personValidatedName = r.name;
+          this.personValidatedId = r.person_id;
+          this.procedureSchedulingAllowed = r.procedure_scheduling_allowed !== false;
+          this.consentSummaryLabel = r.consent_summary?.label ?? '';
           fpPersistCpfGateAuthorization(this.token, cpf);
           this.applyPersonPrefill(r.prefill, r.name);
         },
@@ -289,6 +340,9 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
         this.validandoPerson = false;
         this.personGateOk = true;
         this.personValidatedName = r.name;
+        this.personValidatedId = r.person_id;
+        this.procedureSchedulingAllowed = r.procedure_scheduling_allowed !== false;
+        this.consentSummaryLabel = r.consent_summary?.label ?? '';
         this.applyPersonPrefill(r.prefill, r.name);
       },
       error: (err) => {
@@ -360,7 +414,7 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
       this.avancarEtapa();
       return;
     }
-    if (!this.validarCamposObrigatorios(this.data.fields)) return;
+    if (!this.validarCamposObrigatorios(this.visibleFormFields)) return;
     if (this.ngForm && !this.ngForm.valid) {
       this.toast.warning('Campos obrigatórios', 'Preencha ou corrija os campos marcados com * antes de enviar.');
       return;
@@ -368,7 +422,11 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
     const fields = this.data.fields;
     const hasSignatures = templateHasSignatureFields(fields) && hasFilledSignatures(fields, this.valores);
     if (this.isConsentimentoDocumento() && !this.comprehensionAck) {
-      this.toast.warning('Compreensão clínica', 'Marque que leu e compreendeu riscos, benefícios e alternativas.');
+      this.toast.warning('Compreensão clínica', 'Marque que leu e compreendeu riscos, benefícios, alternativas e o direito de recusa.');
+      return;
+    }
+    if (this.termScrollRequired && !this.termScrollCompleted) {
+      this.toast.warning('Leitura do termo', 'Role até o final de todas as seções do termo antes de confirmar a compreensão.');
       return;
     }
     if (!this.quizCompleto()) {
@@ -383,6 +441,27 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
       this.toast.warning('Modo assistido', 'O profissional deve confirmar que explicou o termo antes do envio.');
       return;
     }
+    if (this.assistedMode && !this.professionalSignerName.trim()) {
+      this.toast.warning('Modo assistido', 'Informe o nome do profissional que assina o documento.');
+      return;
+    }
+    if (
+      this.assistedMode &&
+      !hasProfessionalCosignFilled(this.data.fields, this.valores, true)
+    ) {
+      const usesDedicatedBlock = shouldShowAssistedCosignBlock(this.data.fields, true);
+      this.toast.warning(
+        'Assinatura do profissional',
+        usesDedicatedBlock
+          ? 'Assine no bloco de co-assinatura do profissional antes de enviar.'
+          : 'Preencha o campo de assinatura do profissional no formulário antes de enviar.',
+      );
+      return;
+    }
+    if (this.requireGuardianBlock() && !this.guardianName.trim()) {
+      this.toast.warning('Responsável legal', 'Informe o nome do responsável legal.');
+      return;
+    }
     if (signingSecurityReinforced(this.data.signing_security_level) && hasSignatures && !this.otpVerified) {
       this.toast.warning('Verificação', 'Envie e confirme o código OTP (e-mail ou WhatsApp) antes de enviar o formulário.');
       return;
@@ -390,8 +469,9 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
 
     this.enviando = true;
     this.erro = '';
+    this.recordClinicalStepCompletion();
     const payload = buildFormularioPublicoSubmitPayload({
-      fields,
+      fields: this.visibleFormFields,
       valores: this.valores,
       submitterName: this.submitterName,
       submitterEmail: this.submitterEmail,
@@ -404,19 +484,29 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
       acceptTerms: this.acceptTerms,
       comprehensionAck: this.comprehensionAck,
       requireComprehension: this.isConsentimentoDocumento(),
+      requireTermScroll: this.termScrollRequired,
+      termScrolledAt: this.termScrolledAt,
       assistedMode: this.assistedMode,
       professionalExplained: this.professionalExplained,
+      professionalSignerName: this.professionalSignerName,
       quizAnswers: this.quizAnswersPayload(),
       actors: {
         guardian_name: this.guardianName,
         guardian_relation: this.guardianRelation,
         witness_name: this.witnessName,
       },
+      clinicalStepsCompleted: this.clinicalStepsCompleted,
     });
 
     this.formularioService.submit(this.token, payload).subscribe({
       next: (r) => {
         this.enviando = false;
+        if (r.feegow?.code === 'consent_blocks_procedure') {
+          this.toast.warning(
+            'Agendamento Feegow',
+            r.feegow.message ?? 'O formulário foi enviado, mas o agendamento foi bloqueado por pendência de consentimento.',
+          );
+        }
         if (this.kioskMode) {
           this.toast.success('Enviado', `Protocolo ${r.protocol_number ?? ''} registrado.`);
           this.resetAfterKioskSubmit();
@@ -463,8 +553,29 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
     return n ? n.charAt(0).toUpperCase() : 'Z';
   }
 
+  private get visibleFormFields(): FormularioPublicoField[] {
+    if (!this.data?.fields?.length) return [];
+    return filterVisibleFields(this.data.fields, this.valores);
+  }
+
   private get stepState() {
-    return buildFormFieldStepState(this.data?.fields ?? [], this.currentStepIndex);
+    return buildFormFieldStepState(this.visibleFormFields, this.currentStepIndex, this.data?.uses_clinical_steps);
+  }
+
+  get usesClinicalSteps(): boolean {
+    return this.stepState.usesClinicalSteps;
+  }
+
+  get currentStepTitle(): string {
+    return this.stepState.currentStepTitle;
+  }
+
+  get clinicalStepMetas() {
+    return this.stepState.clinicalSteps;
+  }
+
+  get stepStateForTemplate() {
+    return this.stepState;
   }
 
   get usesFormSteps(): boolean {
@@ -480,30 +591,127 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
   }
 
   get currentStepFields(): FormularioPublicoField[] {
-    return this.stepState.currentStepFields;
+    const fields = this.stepState.currentStepFields;
+    if (!this.usesClinicalSteps) {
+      return fields;
+    }
+    if (this.stepState.currentStepKind === 'assinaturas') {
+      return fields;
+    }
+    return fields.filter((f) => fieldType(f) !== 'signature');
   }
 
   get showFeegowOnCurrentStep(): boolean {
-    return this.feegowEnabled() && this.isFirstFormStep;
+    return (
+      this.feegowEnabled() &&
+      this.personFormUnlocked() &&
+      (this.isFirstFormStep || this.stepState.currentStepKind === 'dados_paciente')
+    );
+  }
+
+  feegowSchedulingBlocked(): boolean {
+    return this.feegowEnabled() && this.personLinkRequired() && !this.procedureSchedulingAllowed;
+  }
+
+  showAssistedCosignBlock(): boolean {
+    if (!this.data) return false;
+    return shouldShowAssistedCosignBlock(this.data.fields, this.assistedMode);
+  }
+
+  professionalCosignFieldKey(): string {
+    if (!this.data) return resolveProfessionalCosignFieldKey([]);
+    return resolveProfessionalCosignFieldKey(this.data.fields);
   }
 
   get showPreenchedoraOnCurrentStep(): boolean {
-    return !this.personLinkRequired() && this.isFirstFormStep;
+    if (this.personLinkRequired()) {
+      return false;
+    }
+    return this.isFirstFormStep || this.stepState.currentStepKind === 'dados_paciente';
   }
 
   get showOtpOnCurrentStep(): boolean {
-    const fields = this.data?.fields ?? [];
-    return signingSecurityReinforced(this.data?.signing_security_level) && templateHasSignatureFields(fields) && this.isLastFormStep;
+    const onSignatureStep =
+      !this.usesClinicalSteps ||
+      this.stepState.currentStepKind === 'assinaturas' ||
+      this.isLastFormStep;
+    return (
+      signingSecurityReinforced(this.data?.signing_security_level) &&
+      templateHasSignatureFields(this.visibleFormFields) &&
+      onSignatureStep
+    );
   }
 
   get showConsentOnCurrentStep(): boolean {
-    const fields = this.data?.fields ?? [];
+    if (this.usesClinicalSteps) {
+      const kind = this.stepState.currentStepKind;
+      return (
+        clinicalStepShowsComprehension(kind) ||
+        clinicalStepShowsPrivacy(kind) ||
+        clinicalStepShowsSignatures(kind) ||
+        (this.isLastFormStep &&
+          (this.isConsentimentoDocumento() || this.quizQuestions().length > 0 || this.assistedMode))
+      );
+    }
     return (
       this.isLastFormStep &&
-      (templateHasSignatureFields(fields) ||
+      (templateHasSignatureFields(this.visibleFormFields) ||
         this.isConsentimentoDocumento() ||
         this.assistedMode ||
         this.quizQuestions().length > 0)
+    );
+  }
+
+  get showComprehensionSection(): boolean {
+    if (!this.showConsentOnCurrentStep) {
+      return false;
+    }
+    if (!this.usesClinicalSteps) {
+      return this.isConsentimentoDocumento() || this.quizQuestions().length > 0;
+    }
+    return clinicalStepShowsComprehension(this.stepState.currentStepKind) || this.quizQuestions().length > 0;
+  }
+
+  get showPrivacySection(): boolean {
+    if (!this.showConsentOnCurrentStep) {
+      return false;
+    }
+    if (!this.usesClinicalSteps) {
+      return true;
+    }
+    return clinicalStepShowsPrivacy(this.stepState.currentStepKind) || this.isLastFormStep;
+  }
+
+  get showActorsAssistedSection(): boolean {
+    if (!this.showConsentOnCurrentStep) {
+      return false;
+    }
+    if (!this.usesClinicalSteps) {
+      return this.showActorsBlock() || this.assistedMode;
+    }
+    return (
+      clinicalStepShowsSignatures(this.stepState.currentStepKind) &&
+      (this.showActorsBlock() || this.assistedMode)
+    );
+  }
+
+  showActorsBlock(): boolean {
+    if (!this.data) return false;
+    return shouldShowActorsBlock(
+      this.data.template.document_kind,
+      this.data.template.category,
+      this.data.actors_visibility_rules,
+      this.valores,
+    );
+  }
+
+  requireGuardianBlock(): boolean {
+    if (!this.data) return false;
+    return requiresGuardianName(
+      this.data.template.document_kind,
+      this.data.template.category,
+      this.data.actors_visibility_rules,
+      this.valores,
     );
   }
 
@@ -511,6 +719,24 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
     const kind = (this.data?.template?.document_kind || '').toLowerCase();
     const category = (this.data?.template?.category || '').toLowerCase();
     return kind === 'consentimento' || category === 'consentimento';
+  }
+
+  get termScrollRequired(): boolean {
+    return this.isConsentimentoDocumento() && hasNoticeFields(this.visibleFormFields);
+  }
+
+  onNoticeScrolled(event: { key: string; scrolled: boolean }): void {
+    if (!event.scrolled || this.noticeScrollState[event.key]) return;
+    const wasComplete = this.termScrollCompleted;
+    this.noticeScrollState = { ...this.noticeScrollState, [event.key]: true };
+    this.recomputeTermScrollCompleted();
+    if (!wasComplete && this.termScrollCompleted && !this.termScrolledAt) {
+      this.termScrolledAt = new Date().toISOString();
+    }
+    if (this.comprehensionAck && !this.termScrollCompleted) {
+      this.comprehensionAck = false;
+    }
+    this.cdr.markForCheck();
   }
 
   quizQuestions(): { id: string; prompt: string; options: string[] }[] {
@@ -543,23 +769,32 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
   get progressPercent(): number {
     if (!this.data) return 0;
     return computeFormularioPublicoProgress({
-      fields: this.data.fields,
+      fields: this.visibleFormFields,
       valores: this.valores,
       usesFormSteps: this.usesFormSteps,
       currentStepNumber: this.stepState.currentStepNumber,
       totalFormSteps: this.stepState.totalFormSteps,
+      currentStepTitle: this.currentStepTitle,
     }).percent;
   }
 
   get progressCountLabel(): string {
     if (!this.data) return '';
     return computeFormularioPublicoProgress({
-      fields: this.data.fields,
+      fields: this.visibleFormFields,
       valores: this.valores,
       usesFormSteps: this.usesFormSteps,
       currentStepNumber: this.stepState.currentStepNumber,
       totalFormSteps: this.stepState.totalFormSteps,
+      currentStepTitle: this.currentStepTitle,
     }).countLabel;
+  }
+
+  toggleLargeText(): void {
+    this.largeTextMode = !this.largeTextMode;
+    fpPersistLargeTextPreference(this.largeTextMode);
+    fpApplyLargeTextClass(this.largeTextMode);
+    fpAnnounceLiveRegion(this.largeTextMode ? 'Texto ampliado ativado.' : 'Texto ampliado desativado.');
   }
 
   hidePlatformBranding(): boolean {
@@ -575,6 +810,7 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
   }
 
   onCampoAlterado(): void {
+    this.recomputeTermScrollCompleted();
     this.cdr.markForCheck();
   }
 
@@ -590,17 +826,62 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
 
   avancarEtapa(): void {
     if (!this.validarCamposObrigatorios(this.currentStepFields)) return;
+    if (!this.validarTermoDaEtapaAtual()) return;
+    if (!this.validarConsentimentoDaEtapaAtual()) return;
     if (!this.isLastFormStep) {
+      this.recordClinicalStepCompletion();
       this.currentStepIndex++;
-      this.scrollToFormTop();
+      this.afterStepChange('forward');
     }
   }
 
   voltarEtapa(): void {
     if (!this.isFirstFormStep) {
       this.currentStepIndex--;
-      this.scrollToFormTop();
+      this.afterStepChange('back');
     }
+  }
+
+  private validarConsentimentoDaEtapaAtual(): boolean {
+    if (!this.showConsentOnCurrentStep) {
+      return true;
+    }
+    if (this.showComprehensionSection && this.isConsentimentoDocumento() && !this.comprehensionAck) {
+      this.toast.warning('Compreensão clínica', 'Marque que leu e compreendeu riscos, benefícios, alternativas e o direito de recusa.');
+      return false;
+    }
+    if (this.showComprehensionSection && !this.quizCompleto()) {
+      this.toast.warning('Quiz de compreensão', 'Responda todas as perguntas de compreensão antes de continuar.');
+      return false;
+    }
+    if (this.showPrivacySection && templateHasSignatureFields(this.visibleFormFields) && !this.acceptTerms) {
+      this.toast.warning('Termo de ciência', 'Marque a caixa de privacidade antes de continuar.');
+      return false;
+    }
+    return true;
+  }
+
+  private recordClinicalStepCompletion(): void {
+    if (!this.usesClinicalSteps) {
+      return;
+    }
+    const kind = this.stepState.currentStepKind;
+    const completedAt = new Date().toISOString();
+    this.clinicalStepsCompleted = [
+      ...this.clinicalStepsCompleted.filter((s) => s.kind !== kind),
+      { kind, completed_at: completedAt },
+    ];
+  }
+
+  private afterStepChange(direction: 'forward' | 'back'): void {
+    const title = this.currentStepTitle;
+    const msg =
+      direction === 'forward'
+        ? `Avançou para a etapa ${this.stepState.currentStepNumber} de ${this.stepState.totalFormSteps}: ${title}.`
+        : `Voltou para a etapa ${this.stepState.currentStepNumber} de ${this.stepState.totalFormSteps}: ${title}.`;
+    fpAnnounceLiveRegion(msg);
+    this.scrollToFormTop();
+    fpFocusElement(this.fpStepHeadingRef?.nativeElement, fpPrefersReducedMotion() ? 0 : 120);
   }
 
   onFileSelected(event: Event, key: string): void {
@@ -662,18 +943,54 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
     this.otpErro = err.error?.message ?? 'Não foi possível enviar o código.';
   }
 
+  private validarTermoDaEtapaAtual(): boolean {
+    if (!this.termScrollRequired) return true;
+    const requiresStepScroll =
+      this.usesClinicalSteps && clinicalStepRequiresTermScroll(this.stepState.currentStepKind);
+    const fieldsToCheck = requiresStepScroll ? this.currentStepFields : this.currentStepFields;
+    const pending = noticeFieldKeys(fieldsToCheck).filter((key) => !this.noticeScrollState[key]);
+    if (pending.length === 0) return true;
+    this.toast.warning('Leitura do termo', 'Role até o final de cada seção do termo nesta etapa antes de continuar.');
+    fpAnnounceLiveRegion('Leia todas as seções do termo nesta etapa antes de continuar.');
+    return false;
+  }
+
+  private resetTermScrollState(): void {
+    this.noticeScrollState = {};
+    this.termScrolledAt = null;
+    this.recomputeTermScrollCompleted();
+  }
+
+  private recomputeTermScrollCompleted(): void {
+    if (!this.termScrollRequired) {
+      this.termScrollCompleted = true;
+      return;
+    }
+    this.termScrollCompleted = allNoticesScrolled(noticeFieldKeys(this.visibleFormFields), this.noticeScrollState);
+  }
+
   private validarCamposObrigatorios(fields: FormularioPublicoField[]): boolean {
     if (!this.data) return false;
     const pendentes = findPendingRequiredFields(fields, this.valores);
-    if (!pendentes.length) return true;
+    if (!pendentes.length) {
+      this.invalidFieldKeys = new Set();
+      return true;
+    }
 
+    this.invalidFieldKeys = new Set(pendentes.map((f) => f.name_key));
     if (this.usesFormSteps) {
-      const stepIndex = findStepIndexForField(this.data.fields, pendentes[0]!.name_key);
+      const stepIndex = findStepIndexForField(this.visibleFormFields, pendentes[0]!.name_key, this.data.uses_clinical_steps);
       if (stepIndex >= 0 && stepIndex !== this.currentStepIndex) {
         this.currentStepIndex = stepIndex;
-        this.scrollToFormTop();
+        this.afterStepChange('back');
       }
     }
+    const firstKey = pendentes[0]!.name_key;
+    fpAnnounceLiveRegion(`Campo obrigatório pendente: ${pendentes[0]!.label}.`);
+    queueMicrotask(() => {
+      const el = document.getElementById(`field_${firstKey}`) as HTMLElement | null;
+      fpFocusElement(el);
+    });
     this.toast.warning(
       'Campos obrigatórios',
       this.usesFormSteps
@@ -690,10 +1007,12 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
     this.personCpfDisplay = '';
     this.acceptTerms = false;
     this.comprehensionAck = false;
+    this.resetTermScrollState();
     this.guardianName = '';
     this.guardianRelation = '';
     this.witnessName = '';
     this.professionalExplained = false;
+    this.professionalSignerName = '';
     this.quizAnswers = {};
     this.otpVerified = false;
     this.otpCode = '';
@@ -732,11 +1051,12 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
   private scrollToFormTop(): void {
     if (typeof document === 'undefined') return;
     const el = this.fpScrollRef?.nativeElement;
+    const behavior = fpPrefersReducedMotion() ? 'auto' : 'smooth';
     if (el) {
-      el.scrollTo({ top: 0, behavior: 'smooth' });
+      el.scrollTo({ top: 0, behavior });
       return;
     }
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior });
   }
 
   private lockPageScroll(): void {
@@ -757,5 +1077,7 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
 
   private resetFormSteps(): void {
     this.currentStepIndex = 0;
+    this.clinicalStepsCompleted = [];
+    this.invalidFieldKeys = new Set();
   }
 }

@@ -1,4 +1,7 @@
 <div class="fp-title-block">
+  @if (title.trim()) {
+    <p class="fp-gate-eyebrow">{{ title.trim() }}</p>
+  }
   <h1 class="fp-title">{{ templateName }}</h1>
   <p class="fp-lead">{{ leadText }}</p>
 </div>

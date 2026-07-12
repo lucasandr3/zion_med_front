@@ -60,6 +60,23 @@
               {{ gerandoDossie ? 'Gerando…' : 'Dossiê ZIP' }}
             </button>
           </div>
+          @if (podeSolicitarReconsentimento) {
+            <div class="protocolo-detalhe-header__group">
+              <button
+                z-button
+                zSize="sm"
+                type="button"
+                class="gap-2"
+                (click)="solicitarReconsentimento()"
+                title="Enviar novo link de consentimento"
+                [zLoading]="solicitandoReconsentimento"
+                [zDisabled]="solicitandoReconsentimento"
+              >
+                <span class="material-symbols-outlined text-base" aria-hidden="true">forward_to_inbox</span>
+                {{ solicitandoReconsentimento ? 'Enviando…' : 'Solicitar reconsentimento' }}
+              </button>
+            </div>
+          }
           @if (isPending && podeRevisarProtocolo) {
             <div class="protocolo-detalhe-header__group protocolo-detalhe-header__group--review" role="group" aria-label="Revisão do protocolo">
               <button
@@ -280,12 +297,18 @@
                       }
                     </div>
                   }
+                  @if (protocolo.retention_anonymized_at) {
+                    <div class="protocolo-detail-field">
+                      <p class="protocolo-detail-label">Retenção LGPD</p>
+                      <p class="protocolo-detail-value text-muted-foreground">Dados identificáveis anonimizados em {{ dataFormatada(protocolo.retention_anonymized_at) }}</p>
+                    </div>
+                  }
                   @if (protocolo.consent_valid_until) {
                     <div class="protocolo-detail-field">
                       <p class="protocolo-detail-label">Válido até</p>
                       <p class="protocolo-detail-value">{{ dataFormatada(protocolo.consent_valid_until) }}</p>
                       @if (isConsentExpired) {
-                        <p class="protocolo-detail-muted text-destructive">Consentimento vencido — considere reemitir.</p>
+                        <p class="protocolo-detail-muted text-destructive">Consentimento vencido — solicite um novo termo ao paciente.</p>
                       }
                     </div>
                   }

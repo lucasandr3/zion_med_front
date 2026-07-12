@@ -4,6 +4,7 @@ import { Observable, of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { absoluteMediaUrl } from '../utils/absolute-media-url';
+import { FieldVisibilityRules } from '../utils/field-visibility.util';
 import { LinkBioService } from './link-bio.service';
 
 const BASE = `${environment.apiUrl}/api/v1`;
@@ -139,6 +140,8 @@ export interface FormularioPublicoField {
   required: boolean;
   options: unknown[];
   sort_order: number;
+  visibility_rules?: FieldVisibilityRules | null;
+  clinical_step_kind?: string | null;
 }
 
 export interface FormularioPersonLink {
@@ -205,6 +208,10 @@ export interface FormularioPublicoData {
   feegow?: FormularioPublicoFeegowMeta;
   /** Quiz público (sem gabarito). */
   comprehension_quiz?: FormularioPublicoQuizQuestion[];
+  /** Regras condicionais do bloco responsável legal / testemunha. */
+  actors_visibility_rules?: FieldVisibilityRules | null;
+  /** Wizard por etapas clínicas (TCLE). */
+  uses_clinical_steps?: boolean;
   fields: FormularioPublicoField[];
 }
 
@@ -213,7 +220,17 @@ interface ShowResponse {
 }
 
 interface SubmitResponse {
-  data: { message: string; protocol_number: string };
+  data: {
+    message: string;
+    protocol_number: string;
+    feegow?: {
+      enabled?: boolean;
+      attempted?: boolean;
+      created?: boolean;
+      code?: string;
+      message?: string;
+    };
+  };
 }
 
 interface ValidatePersonResponse {
@@ -245,7 +262,15 @@ interface ValidatePersonResponse {
       health_plan_operator?: string | null;
       health_plan_card_number?: string | null;
     };
+    consent_summary?: FormularioPublicoConsentSummary;
+    procedure_scheduling_allowed?: boolean;
   };
+}
+
+export interface FormularioPublicoConsentSummary {
+  status: 'valid' | 'pending' | 'expired' | 'revoked' | 'inactive' | 'none' | string;
+  label?: string;
+  active_protocol_number?: string | null;
 }
 
 interface FeegowDisponibilidadeResponse {
@@ -367,6 +392,7 @@ export class FormularioPublicoService {
       unidade_id?: number;
       profissional_id?: number;
       convenio_id?: number;
+      person_id?: number;
     }
   ): Observable<FeegowDisponibilidadeResponse['data']> {
     const query = new URLSearchParams();

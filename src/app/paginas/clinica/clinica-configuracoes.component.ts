@@ -16,7 +16,6 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FlatpickrDirective, provideFlatpickrDefaults } from 'angularx-flatpickr';
 import { Portuguese } from 'flatpickr/dist/l10n/pt';
 import { finalize, Subscription } from 'rxjs';
-import { isBillingBlockedError } from '../../core/utils/billing-blocked-error';
 import {
   ClinicaService,
   ClinicaConfig,
@@ -28,7 +27,6 @@ import {
 } from '../../core/services/clinica.service';
 import { ViaCepService } from '../../core/services/via-cep.service';
 import { LoadingService } from '../../shared/services/loading.service';
-import { ZmAssinaturaBloqueadaCardComponent } from '../../shared/components/ui/zm-assinatura-bloqueada-card/zm-assinatura-bloqueada-card.component';
 import { ZmSkeletonConfiguracoesComponent, ZmSkeletonListComponent } from '../../shared/components/skeletons';
 import { ZardBadgeComponent } from '@/shared/components/badge';
 import { ZardButtonComponent } from '@/shared/components/button/button.component';
@@ -111,7 +109,6 @@ import { ZardTableImports } from '@/shared/components/table';
     RouterLink,
     ZmSkeletonConfiguracoesComponent,
     ZmSkeletonListComponent,
-    ZmAssinaturaBloqueadaCardComponent,
     ZardCardComponent,
     ZardComboboxComponent,
     ZardButtonComponent,
@@ -140,6 +137,8 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
     business_hours?: Record<string, { open: string; close: string }>;
     signing_security_level?: 'basic' | 'reinforced';
     data_retention_years?: number | null;
+    protocol_retention_years?: number | null;
+    protocol_retention_mode?: 'anonymize' | 'delete' | string;
   } = {};
   showSkeleton!: Signal<boolean>;
   themeMode: 'light' | 'dark' | 'auto' = 'light';
@@ -175,6 +174,19 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
     },
   ];
 
+  readonly opcoesProtocolRetentionMode: ZardComboboxOption[] = [
+    { value: 'anonymize', label: 'Anonimizar — mantém protocolo, hashes e trilha; remove PII' },
+    { value: 'delete', label: 'Excluir — remove protocolos elegíveis permanentemente' },
+  ];
+
+  retencaoPreview: {
+    enabled: boolean;
+    eligible_count: number;
+    already_anonymized_count: number;
+    cutoff_date: string | null;
+  } | null = null;
+  carregandoRetencaoPreview = false;
+
   private readonly configTabIds = ['dados', 'identidade', 'visual', 'whatsapp', 'empresas', 'logs'] as const;
 
   @ViewChild('configTabGroup') configTabGroup?: ZardTabGroupComponent;
@@ -189,7 +201,6 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
   logsLoaded = false;
   logsError = '';
   /** API retornou 403 billing_blocked — assinatura/pagamento pendente. */
-  logsErroCobranca = false;
   logsPage = 1;
   logsLastPage = 1;
   logsTotal = 0;
@@ -535,6 +546,8 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
       whatsapp_notify_avisos: c.whatsapp_notify_avisos ?? true,
       signing_security_level: (c.signing_security_level as 'basic' | 'reinforced') ?? 'basic',
       data_retention_years: c.data_retention_years ?? null,
+      protocol_retention_years: c.protocol_retention_years ?? null,
+      protocol_retention_mode: (c.protocol_retention_mode as 'anonymize' | 'delete') ?? 'anonymize',
       theme: c.theme ?? 'ocean-blue',
       dark_mode: c.dark_mode ?? false,
     };
@@ -603,6 +616,30 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
 
   onSigningSecurityLevelChange(value: string | null): void {
     this.form.signing_security_level = value === 'reinforced' ? 'reinforced' : 'basic';
+  }
+
+  onProtocolRetentionModeChange(value: string | null): void {
+    this.form.protocol_retention_mode = value === 'delete' ? 'delete' : 'anonymize';
+  }
+
+  carregarRetencaoPreview(): void {
+    this.carregandoRetencaoPreview = true;
+    this.clinicaService.previewProtocolRetention().subscribe({
+      next: (data) => {
+        this.carregandoRetencaoPreview = false;
+        this.retencaoPreview = data;
+      },
+      error: () => {
+        this.carregandoRetencaoPreview = false;
+        this.toast.error('Erro', 'Não foi possível carregar a prévia de retenção.');
+      },
+    });
+  }
+
+  formatarDataRetencao(iso: string | null | undefined): string {
+    if (!iso) return '—';
+    const d = new Date(iso);
+    return isNaN(d.getTime()) ? iso : d.toLocaleDateString('pt-BR');
   }
 
   onBillingDocumentInput(value: string): void {
@@ -959,12 +996,10 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
   carregarLogs(page = 1): void {
     this.logsLoading = true;
     this.logsError = '';
-    this.logsErroCobranca = false;
     this.clinicaService.getClinicaLogs(page).subscribe({
       next: (res) => {
         this.logsLoading = false;
         this.logsLoaded = true;
-        this.logsErroCobranca = false;
         this.logs = (res.data ?? []).map((log) => ({
           ...log,
           action: this.traduzirAcao(log.action),
@@ -977,12 +1012,6 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
       error: (err: unknown) => {
         this.logsLoading = false;
         this.logsLoaded = true;
-        if (isBillingBlockedError(err)) {
-          this.logsErroCobranca = true;
-          this.logsError = '';
-          return;
-        }
-        this.logsErroCobranca = false;
         const http = err instanceof HttpErrorResponse ? err : null;
         const apiMsg = (http?.error as { message?: string } | null)?.message;
         this.logsError =
@@ -1155,6 +1184,11 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
         this.form.data_retention_years === null || this.form.data_retention_years === undefined
           ? null
           : Number(this.form.data_retention_years),
+      protocol_retention_years:
+        this.form.protocol_retention_years === null || this.form.protocol_retention_years === undefined
+          ? null
+          : Number(this.form.protocol_retention_years),
+      protocol_retention_mode: this.form.protocol_retention_mode ?? 'anonymize',
       theme: this.form.theme ?? undefined,
       dark_mode: !!this.form.dark_mode,
       form_public_theme: this.formPublicTheme,

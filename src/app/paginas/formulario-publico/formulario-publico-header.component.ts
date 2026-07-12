@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormularioPublicoData } from '../../core/services/formulario-publico.service';
+import { ClinicalFormStepMeta } from '../../core/utils/clinical-step.util';
 
 @Component({
   selector: 'zm-formulario-publico-header',
@@ -17,7 +18,14 @@ export class FormularioPublicoHeaderComponent {
   @Input() progressCountLabel = '';
   @Input() logoUrl: string | null = null;
   @Input() clinicInitial = 'Z';
+  @Input() usesFormSteps = false;
+  @Input() currentStepNumber = 1;
+  @Input() totalFormSteps = 1;
+  @Input() currentStepTitle = '';
+  @Input() clinicalSteps: ClinicalFormStepMeta[] = [];
+  @Input() largeTextMode = false;
 
   @Output() toggleDark = new EventEmitter<void>();
+  @Output() toggleLargeText = new EventEmitter<void>();
   @Output() logoError = new EventEmitter<void>();
 }

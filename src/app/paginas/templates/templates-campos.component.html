@@ -4,19 +4,6 @@
   } @else if (!listaPronta) {
   } @else if (template) {
     <div class="zm-content-enter">
-      @if (isConsentimento) {
-        <div class="mb-5 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950">
-          <p class="mb-2 font-semibold">Checklist de consentimento informado</p>
-          <p class="mb-2 text-amber-900/80">Recomendado para defensabilidade clínica. Use títulos/textos informativos e checkboxes de ciência.</p>
-          <ul class="m-0 grid gap-1 pl-4">
-            @for (h of consentHints; track h.key) {
-              <li>
-                {{ h.present ? '✓' : '○' }} {{ h.label }}
-              </li>
-            }
-          </ul>
-        </div>
-      }
       <div class="mb-6 flex flex-wrap items-center gap-2.5">
         <zm-page-back-link />
         <div class="flex flex-wrap items-center gap-2.5">
@@ -45,6 +32,21 @@
         </div>
 
         <div class="ml-auto flex flex-wrap items-center gap-2.5">
+          @if (isConsentimento) {
+            <button
+              type="button"
+              z-button
+              zType="outline"
+              zSize="sm"
+              class="inline-flex items-center gap-1.5"
+              [zLoading]="aplicandoEstruturaTcle"
+              [zDisabled]="aplicandoEstruturaTcle"
+              (click)="aplicarEstruturaTcle()"
+            >
+              <span class="material-symbols-outlined text-sm" aria-hidden="true">account_tree</span>
+              Aplicar estrutura TCLE
+            </button>
+          }
           @if (linkPublicoUrl) {
             <button
               type="button"
@@ -101,6 +103,98 @@
           }
         </div>
       </div>
+
+      @if (isConsentimento) {
+        <div class="mb-5 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950">
+          <p class="mb-2 font-semibold">Checklist de consentimento informado (CFM)</p>
+          <p class="mb-2 text-amber-900/80">
+            Itens alinhados à Recomendação CFM nº 1/2016 (orientação ética, não lei federal).
+            A publicação de TCLE exige procedimento, riscos/benefícios, alternativas e assinatura visíveis ao paciente.
+            Autorização de imagem/marketing deve ficar em documento separado.
+          </p>
+          <ul class="m-0 grid gap-1 pl-4">
+            @for (h of consentHints; track h.key) {
+              <li>
+                {{ h.present ? '✓' : '○' }} {{ h.label }}
+              </li>
+            }
+          </ul>
+        </div>
+        <z-card class="mb-5 gap-0 overflow-hidden border-border bg-card py-0 shadow-sm">
+          <div class="border-b border-border px-5 py-4">
+            <p class="text-sm font-semibold text-foreground">Bloco responsável legal (condicional)</p>
+            <p class="mt-1 text-xs text-muted-foreground">
+              Ex.: exibir e exigir responsável quando «É menor de idade?» = Sim.
+            </p>
+          </div>
+          <div class="space-y-4 px-5 py-4">
+            <z-checkbox [(ngModel)]="actorsVisibilityEnabled" name="actors_visibility_enabled">
+              Exibir bloco responsável/testemunha somente quando…
+            </z-checkbox>
+            @if (actorsVisibilityEnabled) {
+              <div class="templates-campos-form-grid">
+                <div class="templates-campos-field templates-campos-field--full">
+                  <label class="templates-campos-form-label" for="actors_visibility_field">Campo de referência</label>
+                  <select
+                    id="actors_visibility_field"
+                    class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                    [(ngModel)]="actorsVisibilityField"
+                    name="actors_visibility_field"
+                  >
+                    <option value="">Selecione…</option>
+                    @for (opt of actorsVisibilityFieldOptions; track opt.value) {
+                      <option [value]="opt.value">{{ opt.label }}</option>
+                    }
+                  </select>
+                </div>
+                <div class="templates-campos-field">
+                  <label class="templates-campos-form-label" for="actors_visibility_operator">Condição</label>
+                  <select
+                    id="actors_visibility_operator"
+                    class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                    [(ngModel)]="actorsVisibilityOperator"
+                    name="actors_visibility_operator"
+                  >
+                    @for (op of visibilityOperators; track op.value) {
+                      <option [value]="op.value">{{ op.label }}</option>
+                    }
+                  </select>
+                </div>
+                @if (actorsVisibilityNeedsValue) {
+                  <div class="templates-campos-field">
+                    <label class="templates-campos-form-label" for="actors_visibility_value">Valor esperado</label>
+                    <input
+                      id="actors_visibility_value"
+                      type="text"
+                      z-input
+                      zSize="sm"
+                      class="w-full"
+                      placeholder="Ex.: Sim"
+                      [(ngModel)]="actorsVisibilityValue"
+                      name="actors_visibility_value"
+                    />
+                  </div>
+                }
+              </div>
+              <z-checkbox [(ngModel)]="actorsRequireGuardian" name="actors_require_guardian">
+                Exigir nome do responsável legal quando o bloco aparecer
+              </z-checkbox>
+            }
+            <div class="flex justify-end">
+              <button
+                type="button"
+                z-button
+                zSize="sm"
+                [zLoading]="salvandoActorsRules"
+                [zDisabled]="salvandoActorsRules"
+                (click)="salvarActorsVisibilityRules()"
+              >
+                Salvar regras do responsável
+              </button>
+            </div>
+          </div>
+        </z-card>
+      }
 
       @if (erro) {
         <p class="mb-4 text-sm text-destructive">{{ erro }}</p>
@@ -271,7 +365,12 @@
                         {{ c.type }}
                       </span>
                     </td>
-                    <td z-table-cell class="px-4 py-3 font-medium text-foreground">{{ c.label }}</td>
+                    <td z-table-cell class="px-4 py-3 font-medium text-foreground">
+                      {{ c.label }}
+                      @if (c.visibility_rules?.show_when?.length) {
+                        <span class="ml-1.5 inline-flex items-center rounded bg-muted px-1.5 py-0.5 text-[0.625rem] font-medium text-muted-foreground" title="Campo condicional">condicional</span>
+                      }
+                    </td>
                     <td z-table-cell class="px-4 py-3">
                       <span class="templates-campos-key-chip">{{ c.name_key }}</span>
                     </td>
@@ -408,6 +507,82 @@
             ></textarea>
           </div>
         }
+        @if (!isEditStructural) {
+          <div class="space-y-3 rounded-lg border border-border p-4">
+            <z-checkbox [(ngModel)]="editVisibilityEnabled" name="edit_visibility_enabled">
+              Exibir somente quando…
+            </z-checkbox>
+            @if (editVisibilityEnabled) {
+              <div class="templates-campos-form-grid">
+                <div class="templates-campos-field templates-campos-field--full">
+                  <label class="templates-campos-form-label" for="edit_visibility_field">Campo de referência</label>
+                  <select
+                    id="edit_visibility_field"
+                    class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                    [(ngModel)]="editVisibilityField"
+                    name="edit_visibility_field"
+                  >
+                    <option value="">Selecione…</option>
+                    @for (opt of editVisibilityFieldOptions; track opt.value) {
+                      <option [value]="opt.value">{{ opt.label }}</option>
+                    }
+                  </select>
+                </div>
+                <div class="templates-campos-field">
+                  <label class="templates-campos-form-label" for="edit_visibility_operator">Condição</label>
+                  <select
+                    id="edit_visibility_operator"
+                    class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                    [(ngModel)]="editVisibilityOperator"
+                    name="edit_visibility_operator"
+                  >
+                    @for (op of visibilityOperators; track op.value) {
+                      <option [value]="op.value">{{ op.label }}</option>
+                    }
+                  </select>
+                </div>
+                @if (editVisibilityNeedsValue) {
+                  <div class="templates-campos-field">
+                    <label class="templates-campos-form-label" for="edit_visibility_value">Valor esperado</label>
+                    <input
+                      id="edit_visibility_value"
+                      type="text"
+                      z-input
+                      zSize="sm"
+                      class="w-full"
+                      placeholder="Ex.: Sim"
+                      [(ngModel)]="editVisibilityValue"
+                      name="edit_visibility_value"
+                    />
+                  </div>
+                }
+              </div>
+              <p class="text-xs text-muted-foreground">
+                Ex.: campo «É menor de idade?» = Sim → exibir este campo.
+              </p>
+            }
+          </div>
+        }
+
+        <div class="border-t border-border px-5 py-4">
+          <label class="templates-campos-form-label" for="edit_clinical_step">Etapa clínica (wizard público)</label>
+          <select
+            id="edit_clinical_step"
+            z-input
+            zSize="sm"
+            class="w-full"
+            [(ngModel)]="editClinicalStepKind"
+            name="edit_clinical_step"
+          >
+            <option value="">Automático / sem etapa</option>
+            @for (opt of clinicalStepOptions; track opt.value) {
+              <option [value]="opt.value">{{ opt.label }}</option>
+            }
+          </select>
+          <p class="mt-1 text-xs text-muted-foreground">
+            Define em qual bloco clínico o campo aparece no formulário público (TCLE).
+          </p>
+        </div>
       </div>
 
       <div class="flex justify-end gap-2 border-t border-border px-5 py-4" card-footer>

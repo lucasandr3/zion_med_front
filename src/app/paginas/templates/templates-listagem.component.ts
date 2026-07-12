@@ -18,6 +18,7 @@ import { ZardCardComponent } from '@/shared/components/card/card.component';
 import { ZardInputDirective } from '@/shared/components/input/input.directive';
 import { ToastService } from '../../core/services/toast.service';
 import { ConfirmDialogService } from '../../core/services/confirm-dialog.service';
+import { TemplatePublishGuardService } from '../../core/services/template-publish-guard.service';
 
 /** Rótulos de categoria (igual ao backend FormTemplate::categoryLabels) */
 const CATEGORY_LABELS: Record<string, string> = {
@@ -144,6 +145,7 @@ export class TemplatesListagemComponent implements OnInit {
   private loadingService = inject(LoadingService);
   private toast = inject(ToastService);
   private confirm = inject(ConfirmDialogService);
+  private publishGuard = inject(TemplatePublishGuardService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private destroyRef = inject(DestroyRef);
@@ -413,25 +415,31 @@ export class TemplatesListagemComponent implements OnInit {
 
   private publicarModelo(t: Template): void {
     this.publicandoId = t.id;
-    this.templatesService.gerarLink(t.id).subscribe({
-      next: async (resp) => {
+    void this.publishGuard.confirmPublishIfNeeded(t.id).then((confirmed) => {
+      if (!confirmed) {
         this.publicandoId = null;
-        const publicUrl = String(resp?.data?.public_url ?? t.public_url ?? '').trim();
-        this.marcarTemplateComoPublico(t.id, publicUrl);
+        return;
+      }
+      this.templatesService.gerarLink(t.id).subscribe({
+        next: async (resp) => {
+          this.publicandoId = null;
+          const publicUrl = String(resp?.data?.public_url ?? t.public_url ?? '').trim();
+          this.marcarTemplateComoPublico(t.id, publicUrl);
 
-        if (publicUrl !== '') {
-          const copied = await this.copiarTexto(publicUrl);
-          if (copied) {
-            this.toast.success('Link publicado', 'Link público copiado para a área de transferência.');
-            return;
+          if (publicUrl !== '') {
+            const copied = await this.copiarTexto(publicUrl);
+            if (copied) {
+              this.toast.success('Link publicado', 'Link público copiado para a área de transferência.');
+              return;
+            }
           }
-        }
-        this.toast.success('Link publicado', 'O link público foi ativado para este modelo.');
-      },
-      error: () => {
-        this.publicandoId = null;
-        this.toast.error('Erro ao publicar', 'Não foi possível publicar o link deste modelo.');
-      },
+          this.toast.success('Link publicado', 'O link público foi ativado para este modelo.');
+        },
+        error: () => {
+          this.publicandoId = null;
+          this.toast.error('Erro ao publicar', 'Não foi possível publicar o link deste modelo.');
+        },
+      });
     });
   }
 

@@ -20,6 +20,7 @@ export interface Protocolo {
   approved_by_name?: string;
   consent_valid_until?: string | null;
   consent_expired?: boolean;
+  retention_anonymized_at?: string | null;
   review_comment?: string;
   revoked_at?: string | null;
   revoke_reason?: string | null;
@@ -176,6 +177,14 @@ export class ProtocolosService {
   revogar(id: number, reason: string): Observable<ProtocoloDetalheData> {
     return this.api
       .post<OneResponse>(`/protocols/${id}/revogar`, { reason: reason.trim() })
+      .pipe(map((r) => r.data));
+  }
+
+  /** Envia link de reconsentimento quando o consentimento venceu. */
+  solicitarReconsentimento(id: number, channel?: 'email' | 'whatsapp'): Observable<{ message: string; send_id: number; channel: string }> {
+    const body = channel ? { channel } : {};
+    return this.api
+      .post<{ data: { message: string; send_id: number; channel: string } }>(`/protocols/${id}/reconsentimento`, body)
       .pipe(map((r) => r.data));
   }
 

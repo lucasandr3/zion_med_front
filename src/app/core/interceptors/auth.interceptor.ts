@@ -51,9 +51,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
         ).toLowerCase();
         if (code === 'billing_blocked') {
           const url = req.url;
-          const skipGlobalBanner =
-            url.includes('/clinica/logs') ||
-            url.includes('/api/v1/billing');
+          const skipGlobalBanner = url.includes('/api/v1/billing');
           if (!skipGlobalBanner) {
             billingBlockedState.activate();
           }

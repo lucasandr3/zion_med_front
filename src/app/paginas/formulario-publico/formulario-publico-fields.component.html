@@ -4,11 +4,27 @@
       <h2 class="fp-section-title">{{ f.label }}</h2>
     </div>
   } @else if (fieldType(f) === 'notice') {
-    <div class="fp-field-group fp-field-animate fp-structural fp-notice">
-      <p class="fp-notice-text">{{ f.label }}</p>
-    </div>
+    @if (termScrollRequired) {
+      <div
+        #termNoticeWrap
+        class="fp-field-group fp-field-animate fp-structural fp-notice fp-term-scroll-wrap"
+        [attr.data-notice-key]="f.name_key"
+        [class.fp-term-scroll-wrap--pending]="!isNoticeScrolled(f.name_key)"
+        [class.fp-term-scroll-wrap--done]="isNoticeScrolled(f.name_key)"
+        (scroll)="onTermNoticeScroll(f.name_key, $event)"
+      >
+        @if (!isNoticeScrolled(f.name_key)) {
+          <p class="fp-term-scroll-hint" role="status">Role até o final desta seção para continuar.</p>
+        }
+        <p class="fp-notice-text">{{ f.label }}</p>
+      </div>
+    } @else {
+      <div class="fp-field-group fp-field-animate fp-structural fp-notice">
+        <p class="fp-notice-text">{{ f.label }}</p>
+      </div>
+    }
   } @else if (fieldType(f) === 'section_break') {
-    <div class="fp-field-group fp-field-animate fp-structural fp-section-break" aria-hidden="true"></div>
+    <div class="fp-field-group fp-field-animate fp-structural fp-section-break" role="separator" [attr.aria-label]="f.label || 'Nova etapa'"></div>
   } @else {
   <div class="fp-field-group fp-field-animate">
     @if (fieldType(f) !== 'checkbox') {
@@ -18,6 +34,10 @@
           <span class="fp-required" aria-hidden="true">*</span>
         }
       </label>
+    }
+
+    @if (isFieldInvalid(f.name_key)) {
+      <p class="fp-field-error" [id]="'error_' + f.name_key" role="alert">Preencha este campo obrigatório.</p>
     }
 
     @switch (fieldType(f)) {
@@ -30,6 +50,9 @@
           [name]="f.name_key"
           class="fp-input"
           [required]="f.required"
+          [attr.aria-required]="f.required ? true : null"
+          [attr.aria-invalid]="isFieldInvalid(f.name_key) ? true : null"
+          [attr.aria-describedby]="isFieldInvalid(f.name_key) ? 'error_' + f.name_key : null"
           [placeholder]="fieldPlaceholder(f)"
         />
       }
@@ -54,6 +77,9 @@
           [name]="f.name_key"
           class="fp-input"
           [required]="f.required"
+          [attr.aria-required]="f.required ? true : null"
+          [attr.aria-invalid]="isFieldInvalid(f.name_key) ? true : null"
+          [attr.aria-describedby]="isFieldInvalid(f.name_key) ? 'error_' + f.name_key : null"
           [placeholder]="fieldPlaceholder(f)"
           inputmode="numeric"
         />
@@ -145,7 +171,7 @@
         <input type="hidden" [name]="f.name_key" [ngModel]="valores[f.name_key]" [required]="f.required" />
       }
       @case ('signature') {
-        <p class="fp-sig-help">Assine com o dedo (celular) ou mouse (computador) no espaço abaixo.</p>
+        <p class="fp-sig-help" id="sig_help_{{ f.name_key }}">Assine com o dedo (celular) ou mouse (computador), ou digite seu nome completo abaixo.</p>
         <canvas
           [id]="'signature_' + f.name_key"
           width="400"
@@ -153,6 +179,8 @@
           class="fp-sig-canvas"
           role="img"
           [attr.aria-label]="'Área de assinatura: ' + f.label"
+          [attr.aria-describedby]="'sig_help_' + f.name_key + ' sig_typed_' + f.name_key"
+          tabindex="0"
           (mousedown)="startSignature($event, f.name_key)"
           (mousemove)="moveSignature($event, f.name_key)"
           (mouseup)="endSignature(f.name_key)"
@@ -161,9 +189,22 @@
           (touchmove)="moveSignature($event, f.name_key); $event.preventDefault()"
           (touchend)="endSignature(f.name_key)"
         ></canvas>
+        <div class="fp-sig-typed" [id]="'sig_typed_' + f.name_key">
+          <label class="fp-field-label" [for]="'typed_sig_' + f.name_key">Alternativa acessível: digite seu nome completo</label>
+          <input
+            [id]="'typed_sig_' + f.name_key"
+            type="text"
+            class="fp-input"
+            [value]="typedSignatureValue(f.name_key)"
+            (input)="onTypedSignatureInput(f.name_key, $any($event.target).value)"
+            autocomplete="name"
+            placeholder="Nome completo como assinatura"
+            [attr.aria-invalid]="isFieldInvalid(f.name_key) ? true : null"
+          />
+        </div>
         <input type="hidden" [name]="f.name_key" [ngModel]="valores[f.name_key]" [required]="f.required" />
         <div class="fp-sig-footer">
-          <span class="fp-field-hint">Escreva sua assinatura no campo acima</span>
+          <span class="fp-field-hint">Escreva sua assinatura no campo acima ou digite o nome</span>
           <button type="button" class="fp-link-btn" (click)="clearSignature(f.name_key)">Limpar</button>
         </div>
       }

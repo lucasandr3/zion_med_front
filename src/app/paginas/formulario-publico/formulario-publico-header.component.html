@@ -21,6 +21,10 @@
           }
         </div>
       </div>
+      <div class="fp-header-actions">
+      <button type="button" (click)="toggleLargeText.emit()" class="fp-icon-btn" [attr.aria-pressed]="largeTextMode" aria-label="Alternar texto ampliado">
+        <span class="fp-a11y-icon" aria-hidden="true">A+</span>
+      </button>
       <button type="button" (click)="toggleDark.emit()" class="fp-icon-btn" aria-label="Alternar tema claro ou escuro">
         @if (dark) {
           <svg class="fp-theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
@@ -40,16 +44,39 @@
           </svg>
         }
       </button>
+      </div>
     </div>
     @if (personFormUnlocked) {
       <div class="fp-progress-block" role="region" aria-label="Progresso do preenchimento do formulário">
         <div class="fp-progress-labels">
-          <span class="fp-progress-hint">Progresso</span>
-          <span class="fp-progress-count">{{ progressCountLabel }}</span>
+          <span class="fp-progress-hint" id="fp-progress-hint">Progresso</span>
+          <span class="fp-progress-count" id="fp-progress-count">{{ progressCountLabel }}</span>
         </div>
-        <div class="fp-progress-track">
+        <div
+          class="fp-progress-track"
+          role="progressbar"
+          [attr.aria-valuemin]="0"
+          [attr.aria-valuemax]="100"
+          [attr.aria-valuenow]="progressPercent"
+          aria-labelledby="fp-progress-hint fp-progress-count"
+        >
           <div class="fp-progress-fill" [style.width.%]="progressPercent"></div>
         </div>
+        @if (usesFormSteps && clinicalSteps.length > 1) {
+          <ol class="fp-stepper" aria-label="Etapas clínicas do formulário">
+            @for (step of clinicalSteps; track step.stepNumber) {
+              <li
+                class="fp-stepper-item"
+                [class.fp-stepper-item--current]="$index + 1 === currentStepNumber"
+                [class.fp-stepper-item--done]="$index + 1 < currentStepNumber"
+                [attr.aria-current]="$index + 1 === currentStepNumber ? 'step' : null"
+              >
+                <span class="fp-stepper-dot" aria-hidden="true"></span>
+                <span class="fp-stepper-label">{{ step.title }}</span>
+              </li>
+            }
+          </ol>
+        }
       </div>
     }
   </div>

@@ -1,5 +1,6 @@
 import { FormularioPublicoField } from '../../core/services/formulario-publico.service';
 import { fieldType } from './formulario-publico-field.util';
+import { resolveProfessionalCosignFieldKey } from './formulario-publico-cosign.util';
 import { hasFilledSignatures, signingSecurityReinforced, templateHasSignatureFields } from './formulario-publico-signing.util';
 
 export interface FormularioPublicoSubmitContext {
@@ -16,19 +17,27 @@ export interface FormularioPublicoSubmitContext {
   acceptTerms?: boolean;
   comprehensionAck?: boolean;
   requireComprehension?: boolean;
+  requireTermScroll?: boolean;
+  termScrolledAt?: string | null;
   assistedMode?: boolean;
   professionalExplained?: boolean;
+  professionalSignerName?: string;
   quizAnswers?: Record<string, number>;
   actors?: {
     guardian_name?: string;
     guardian_relation?: string;
     witness_name?: string;
   };
+  clinicalStepsCompleted?: { kind: string; completed_at: string }[];
 }
 
 export function buildFormularioPublicoSubmitPayload(ctx: FormularioPublicoSubmitContext): Record<string, unknown> {
   const normalized = Object.fromEntries(
     Object.entries(ctx.valores).map(([k, v]) => [k, v instanceof Date ? v.toISOString().slice(0, 10) : v]),
+  );
+
+  const signatureKeys = new Set(
+    ctx.fields.filter((f) => fieldType(f) === 'signature').map((f) => f.name_key),
   );
 
   const signatures = ctx.fields
@@ -41,10 +50,23 @@ export function buildFormularioPublicoSubmitPayload(ctx: FormularioPublicoSubmit
       return acc;
     }, {});
 
+  if (ctx.assistedMode) {
+    const cosignKey = resolveProfessionalCosignFieldKey(ctx.fields);
+    signatureKeys.add(cosignKey);
+    const cosignValue = normalized[cosignKey];
+    if (typeof cosignValue === 'string' && cosignValue.trim().length > 0) {
+      signatures[cosignKey] = cosignValue;
+    }
+  }
+
+  const flatValues = Object.fromEntries(
+    Object.entries(normalized).filter(([key]) => !signatureKeys.has(key)),
+  );
+
   const payload: Record<string, unknown> = {
     _submitter_name: ctx.submitterName || undefined,
     _submitter_email: ctx.submitterEmail || undefined,
-    ...normalized,
+    ...flatValues,
   };
 
   if (Object.keys(signatures).length > 0) {
@@ -64,11 +86,18 @@ export function buildFormularioPublicoSubmitPayload(ctx: FormularioPublicoSubmit
     }
   }
 
+  if (ctx.requireTermScroll && ctx.termScrolledAt) {
+    payload['_term_scrolled_at'] = ctx.termScrolledAt;
+  }
+
   if (ctx.assistedMode) {
     payload['_assisted_mode'] = true;
   }
   if (ctx.professionalExplained) {
     payload['_professional_explained'] = true;
+  }
+  if (ctx.assistedMode && ctx.professionalSignerName?.trim()) {
+    payload['_professional_name'] = ctx.professionalSignerName.trim();
   }
   if (ctx.quizAnswers && Object.keys(ctx.quizAnswers).length > 0) {
     payload['_comprehension_quiz'] = ctx.quizAnswers;
@@ -96,6 +125,10 @@ export function buildFormularioPublicoSubmitPayload(ctx: FormularioPublicoSubmit
   }
   if (ctx.personBirthDate) {
     payload['_person_birth_date'] = ctx.personBirthDate;
+  }
+
+  if (ctx.clinicalStepsCompleted?.length) {
+    payload['_clinical_steps_completed'] = ctx.clinicalStepsCompleted;
   }
 
   return payload;

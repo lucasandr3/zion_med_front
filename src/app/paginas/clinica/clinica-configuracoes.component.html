@@ -187,6 +187,56 @@
                 />
                 <div class="hint">Remove apenas cadastros (fichas) sem nenhum protocolo vinculado, mais antigos que o prazo. Job diário no servidor.</div>
               </div>
+              <div class="field">
+                <label>Retenção de protocolos com evidência (anos) <span class="opt">opcional</span></label>
+                <input
+                  type="number"
+                  min="1"
+                  max="50"
+                  [(ngModel)]="form.protocol_retention_years"
+                  name="protocol_retention_years"
+                  z-input zSize="sm" class="w-full"
+                  placeholder="Ex.: 7 — deixe vazio para desativar"
+                />
+                <div class="hint">Protocolos aprovados/reprovados/revogados mais antigos que o prazo entram na política abaixo. Job diário às 04:30.</div>
+              </div>
+              <div class="field">
+                <label id="protocol-retention-mode-label">Ação sobre protocolos elegíveis</label>
+                <z-combobox
+                  class="w-full"
+                  zWidth="full"
+                  [options]="opcoesProtocolRetentionMode"
+                  [value]="form.protocol_retention_mode ?? 'anonymize'"
+                  [searchable]="false"
+                  ariaLabelledby="protocol-retention-mode-label"
+                  (zValueChange)="onProtocolRetentionModeChange($event)"
+                />
+              </div>
+              <div class="field">
+                <button
+                  type="button"
+                  z-button
+                  zType="outline"
+                  zSize="sm"
+                  (click)="carregarRetencaoPreview()"
+                  [zLoading]="carregandoRetencaoPreview"
+                  [zDisabled]="carregandoRetencaoPreview"
+                >
+                  Verificar protocolos elegíveis
+                </button>
+                @if (retencaoPreview) {
+                  <div class="hint mt-2">
+                    @if (retencaoPreview.enabled) {
+                      <span>
+                        {{ retencaoPreview.eligible_count }} elegível(is) antes de {{ formatarDataRetencao(retencaoPreview.cutoff_date) }} —
+                        {{ retencaoPreview.already_anonymized_count }} já processado(s).
+                      </span>
+                    } @else {
+                      <span>Retenção de protocolos desativada (informe anos acima e salve).</span>
+                    }
+                  </div>
+                }
+              </div>
             </div>
           </z-card>
 
@@ -971,16 +1021,14 @@
                   <zm-skeleton-list [rows]="6" />
                 </div>
               </z-card>
-            } @else if (logsErroCobranca) {
-              <zm-assinatura-bloqueada-card
-                titulo="Logs indisponíveis até regularizar a cobrança"
-                descricao="Com assinatura pendente ou conta bloqueada por pagamento, o histórico de auditoria não é exibido. Depois que o pagamento for confirmado, os registros passam a aparecer nesta aba."
-              />
             } @else {
               <z-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
                 <div class="section-header">
                   <div class="icon-wrap"><span class="material-symbols-outlined">history</span></div>
-                  <span class="section-title">Histórico de auditoria</span>
+                  <div class="min-w-0">
+                    <span class="section-title">Histórico de auditoria</span>
+                    <p class="text-xs text-muted-foreground mt-0.5">Registro de ações na empresa, disponível para governança e compliance mesmo com cobrança pendente.</p>
+                  </div>
                 </div>
                 @if (logsError) {
                   <div class="section-body">

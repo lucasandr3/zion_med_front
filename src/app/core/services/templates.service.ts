@@ -1,6 +1,43 @@
 import { Injectable, inject } from '@angular/core';
 import { ApiService } from './api.service';
 import { map, Observable } from 'rxjs';
+import { FieldVisibilityRules } from '../utils/field-visibility.util';
+
+export type TemplateReviewStatus = 'draft' | 'pending' | 'approved';
+
+export interface TemplateLibraryItem {
+  library_key: string;
+  name: string;
+  description?: string;
+  category?: string;
+  category_label?: string;
+  specialty?: string;
+  specialty_label?: string;
+  document_kind?: string;
+  field_count?: number;
+  legal_review_status?: TemplateReviewStatus;
+  clinical_review_status?: TemplateReviewStatus;
+  content_version?: number;
+  reviewed_at?: string | null;
+  installed_template_id?: number | null;
+  fields?: TemplateCampo[];
+}
+
+export interface TemplateLibraryMeta {
+  total: number;
+  niche: string;
+  approved_count: number;
+  content_version: number;
+}
+
+export interface TemplateLibraryResponse {
+  meta: TemplateLibraryMeta;
+  specialties: Array<{
+    key: string;
+    label: string;
+    templates: TemplateLibraryItem[];
+  }>;
+}
 
 export interface Template {
   id: number;
@@ -9,10 +46,19 @@ export interface Template {
   category?: string;
   /** Tipo documental: ficha | consentimento | ciencia_lgpd */
   document_kind?: 'ficha' | 'consentimento' | 'ciencia_lgpd' | string;
+  library_key?: string | null;
+  library_content_version?: number | null;
+  legal_review_status?: TemplateReviewStatus | null;
+  clinical_review_status?: TemplateReviewStatus | null;
+  library_reviewed_at?: string | null;
   /** Validade do consentimento em dias (só para document_kind=consentimento). */
   consent_validity_days?: number | null;
   /** Quiz de compreensão (gabarito só na API autenticada). */
   comprehension_quiz?: TemplateComprehensionQuestion[] | null;
+  /** Regras para exibir/obrigar bloco responsável legal no formulário público. */
+  actors_visibility_rules?: FieldVisibilityRules | null;
+  /** Ativa wizard por etapas clínicas no formulário público. */
+  uses_clinical_steps?: boolean;
   is_active?: boolean;
   public_enabled?: boolean;
   /** Exige código + data de nascimento no link público (acompanhamento). */
@@ -32,9 +78,56 @@ export interface TemplateComprehensionQuestion {
   correct_index: number;
 }
 
+export interface TemplateVersionSummary {
+  id: number;
+  version: number;
+  name?: string;
+  created_at?: string | null;
+}
+
+export interface TemplateVersionFieldSummary {
+  name_key: string;
+  label: string;
+  type: string;
+}
+
+export interface TemplateVersionFieldChange {
+  name_key: string;
+  label: string;
+  type: string;
+  changes: string[];
+}
+
+export interface TemplateVersionReorderDiff {
+  from: TemplateVersionFieldSummary[];
+  to: TemplateVersionFieldSummary[];
+}
+
+export interface TemplateVersionCompareResult {
+  from: TemplateVersionSummary | null;
+  to: TemplateVersionSummary | null;
+  meta: {
+    name_changed: boolean;
+    description_changed: boolean;
+  };
+  fields: {
+    added: TemplateVersionFieldSummary[];
+    removed: TemplateVersionFieldSummary[];
+    changed: TemplateVersionFieldChange[];
+    reordered: TemplateVersionReorderDiff | [];
+  };
+  has_changes: boolean;
+}
+
 export interface TemplateCategory {
   key: string;
   name: string;
+}
+
+export interface ClinicalValidationIssue {
+  level: 'warning' | 'error';
+  code: string;
+  message: string;
 }
 
 export interface TemplateCampo {
@@ -45,6 +138,8 @@ export interface TemplateCampo {
   sort_order: number;
   required?: boolean;
   options?: string[] | unknown;
+  visibility_rules?: FieldVisibilityRules | null;
+  clinical_step_kind?: string | null;
 }
 
 interface ListResponse {
@@ -69,6 +164,25 @@ export class TemplatesService {
 
   list(params?: { is_active?: boolean; category?: string }): Observable<Template[]> {
     return this.api.get<ListResponse>('/templates', params).pipe(map((r) => r.data));
+  }
+
+  biblioteca(params?: { category?: string; niche?: string }): Observable<TemplateLibraryResponse> {
+    return this.api.get<{ data: TemplateLibraryResponse }>('/templates/biblioteca', params).pipe(map((r) => r.data));
+  }
+
+  getBibliotecaItem(libraryKey: string): Observable<TemplateLibraryItem> {
+    return this.api
+      .get<{ data: TemplateLibraryItem }>(`/templates/biblioteca/${encodeURIComponent(libraryKey)}`)
+      .pipe(map((r) => r.data));
+  }
+
+  installFromLibrary(libraryKey: string): Observable<Template & { fields?: TemplateCampo[] }> {
+    return this.api
+      .post<OneResponse & { data: Template & { fields?: TemplateCampo[] } }>(
+        `/templates/biblioteca/${encodeURIComponent(libraryKey)}/instalar`,
+        {},
+      )
+      .pipe(map((r) => r.data));
   }
 
   get(id: number): Observable<Template & { fields?: TemplateCampo[] }> {
@@ -101,7 +215,7 @@ export class TemplatesService {
 
   update(
     id: number,
-    payload: Partial<Template & { public_require_person_link?: boolean; public_person_link_mode?: string; document_kind?: string; consent_validity_days?: number | null; comprehension_quiz?: TemplateComprehensionQuestion[] | null; new_category?: string }>
+    payload: Partial<Template & { public_require_person_link?: boolean; public_person_link_mode?: string; document_kind?: string; consent_validity_days?: number | null; comprehension_quiz?: TemplateComprehensionQuestion[] | null; actors_visibility_rules?: FieldVisibilityRules | null; new_category?: string }>
   ): Observable<Template> {
     return this.api.put<OneResponse>(`/templates/${id}`, payload).pipe(map((r) => r.data));
   }
@@ -114,7 +228,19 @@ export class TemplatesService {
     return this.api.get<CamposResponse>(`/templates/${templateId}/campos`).pipe(map((r) => (r.data as TemplateCampo[]) ?? []));
   }
 
-  storeCampo(templateId: number, payload: { type: string; label: string; name_key?: string; required?: boolean; sort_order?: number; options?: string[] }): Observable<unknown> {
+  storeCampo(
+    templateId: number,
+    payload: {
+      type: string;
+      label: string;
+      name_key?: string;
+      required?: boolean;
+      sort_order?: number;
+      options?: string[];
+      visibility_rules?: FieldVisibilityRules | null;
+      clinical_step_kind?: string | null;
+    },
+  ): Observable<unknown> {
     return this.api.post(`/templates/${templateId}/campos`, payload);
   }
 
@@ -141,8 +267,41 @@ export class TemplatesService {
     return this.api.post(`/templates/${templateId}/link-publico`, {});
   }
 
+  listVersoes(templateId: number): Observable<TemplateVersionSummary[]> {
+    return this.api
+      .get<{ data: TemplateVersionSummary[] }>(`/templates/${templateId}/versoes`)
+      .pipe(map((r) => r.data ?? []));
+  }
+
+  compararVersoes(templateId: number, fromId?: number, toId?: number): Observable<TemplateVersionCompareResult> {
+    const params = new URLSearchParams();
+    if (fromId) params.set('from', String(fromId));
+    if (toId) params.set('to', String(toId));
+    const query = params.toString();
+
+    return this.api
+      .get<{ data: TemplateVersionCompareResult }>(
+        `/templates/${templateId}/versoes/comparar${query ? `?${query}` : ''}`,
+      )
+      .pipe(map((r) => r.data));
+  }
+
   desativarLink(templateId: number): Observable<void> {
     return this.api.delete(`/templates/${templateId}/link-publico`).pipe(map(() => undefined));
+  }
+
+  validarEtapasClinicas(templateId: number): Observable<{ issues: ClinicalValidationIssue[]; has_blocking: boolean }> {
+    return this.api
+      .get<{ data: { issues: ClinicalValidationIssue[]; has_blocking: boolean } }>(
+        `/templates/${templateId}/etapas-clinicas/validar`,
+      )
+      .pipe(map((r) => r.data));
+  }
+
+  aplicarEstruturaTcle(templateId: number): Observable<Template & { fields?: TemplateCampo[] }> {
+    return this.api
+      .post<OneResponse>(`/templates/${templateId}/etapas-clinicas/aplicar-tcle`, {})
+      .pipe(map((r) => r.data));
   }
 
   /** Envia link do documento por e-mail ou WhatsApp (body: channel?, recipient_email ou recipient_phone, expires_at?). */

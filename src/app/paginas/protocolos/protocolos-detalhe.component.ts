@@ -99,6 +99,7 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
   revogarFormVisible = false;
   motivoRevogacao = '';
   revogando = false;
+  solicitandoReconsentimento = false;
 
   /** Rascunho dos campos internos da equipe (modelos Estética). */
   staffDraft: Record<string, unknown> = {};
@@ -277,6 +278,10 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
 
   get podeRevogarProtocolo(): boolean {
     return this.podeRevisarProtocolo && this.isApproved;
+  }
+
+  get podeSolicitarReconsentimento(): boolean {
+    return this.isConsentimentoProtocolo && this.isConsentExpired && !!this.protocolo?.person_id;
   }
 
   get isConsentimentoProtocolo(): boolean {
@@ -1028,6 +1033,29 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
       error: (err) => {
         this.revogando = false;
         this.erro = this.mensagemErroApi(err, 'Não foi possível revogar o protocolo.');
+        this.toast.error('Erro', this.erro);
+      },
+    });
+  }
+
+  async solicitarReconsentimento(): Promise<void> {
+    if (!this.protocolo || !this.podeSolicitarReconsentimento) return;
+    const ok = await this.confirm.request({
+      title: 'Solicitar reconsentimento?',
+      message: 'Um novo link do termo será enviado ao paciente (e-mail ou WhatsApp cadastrado na ficha). O protocolo vencido permanece no histórico.',
+      confirmLabel: 'Enviar link',
+    });
+    if (!ok) return;
+    this.solicitandoReconsentimento = true;
+    this.protocolosService.solicitarReconsentimento(this.protocolo.id).subscribe({
+      next: (res) => {
+        this.solicitandoReconsentimento = false;
+        this.toast.success('Reconsentimento enviado', res.message);
+        this.carregar(this.protocolo!.id);
+      },
+      error: (err) => {
+        this.solicitandoReconsentimento = false;
+        this.erro = this.mensagemErroApi(err, 'Não foi possível solicitar reconsentimento.');
         this.toast.error('Erro', this.erro);
       },
     });

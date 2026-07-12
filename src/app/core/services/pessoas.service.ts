@@ -47,6 +47,7 @@ export interface PessoaConsentSummary {
   label: string;
   active_protocol_id?: number | null;
   active_protocol_number?: string | null;
+  template_id?: number | null;
   active_submitted_at?: string | null;
   valid_until?: string | null;
   consents_count?: number;
@@ -185,5 +186,12 @@ export class PessoasService {
 
   destroy(id: number): Observable<{ message: string }> {
     return this.api.delete<{ data: { message: string } }>(`/pessoas/${id}`).pipe(map((r) => r.data));
+  }
+
+  solicitarReconsentimento(id: number, channel?: 'email' | 'whatsapp'): Observable<{ message: string; send_id: number; channel: string; protocol_id?: number }> {
+    const body = channel ? { channel } : {};
+    return this.api
+      .post<{ data: { message: string; send_id: number; channel: string; protocol_id?: number } }>(`/pessoas/${id}/reconsentimento`, body)
+      .pipe(map((r) => r.data));
   }
 }
