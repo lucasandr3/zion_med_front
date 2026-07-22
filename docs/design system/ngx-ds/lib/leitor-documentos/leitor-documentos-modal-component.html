@@ -1,0 +1,18 @@
+<upx-modal>
+	<upx-modal-heading [dialogRef]="dialogRef">
+		Importação de Despesas com IA
+	</upx-modal-heading>
+	<upx-modal-content>
+		<app-leitorDocumentos (onChangeForm)="onChangeForm($event)" (onSubmited)="onSubmited($event)" (onSaved)="onSaved($event)"
+			[triggerSave]="triggerSave" [item]="item">
+		</app-leitorDocumentos>
+	</upx-modal-content>
+	<upx-modal-footer>
+		<upx-button (onClick)="save()" [disabled]="submited"
+			[variant]="'default'"
+			[color]="'theme'">
+			<upx-icon name="upload"></upx-icon>
+			Importar Despesas
+		</upx-button>
+	</upx-modal-footer>
+</upx-modal>

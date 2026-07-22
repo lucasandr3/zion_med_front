@@ -5,22 +5,26 @@ import { finalize } from 'rxjs';
 import { IntegracoesService, FeegowConfigState } from '../../core/services/integracoes.service';
 import { ToastService } from '../../core/services/toast.service';
 import { ZmSkeletonIntegracaoFeegowComponent } from '../../shared/components/skeletons';
-import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
 import { ZardCardComponent } from '@/shared/components/card/card.component';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ZardBadgeComponent } from '@/shared/components/badge';
 import type { ZardBadgeTypeVariants } from '@/shared/components/badge/badge.variants';
+import { MAT_FORM_IMPORTS } from '@/shared/material';
 
 @Component({
   selector: 'app-clinica-integracao-feegow',
   standalone: true,
   imports: [
-    ...ZARD_FORM_CONTROL_IMPORTS,
+    ...MAT_FORM_IMPORTS,
     CommonModule,
     FormsModule,
     ZmSkeletonIntegracaoFeegowComponent,
     ZardCardComponent,
-    ZardButtonComponent,
+    MatButtonModule,
+    MatIconModule,
+    MatProgressSpinnerModule,
     ZardBadgeComponent,
   ],
   templateUrl: './clinica-integracao-feegow.component.html',

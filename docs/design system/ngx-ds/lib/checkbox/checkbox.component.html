@@ -1,0 +1,14 @@
+<label class="upx-checkbox__label">
+    <input
+		[id]="id"
+        (change)="changeEmit($event)"
+        [formControl]="field"
+        [required]="required"
+        [value]="value"
+        [name]="name"
+        [attr.readonly]="readOnly"
+        type="checkbox"
+        class="upx-checkbox__input"
+    />
+    <ng-content></ng-content>
+</label>

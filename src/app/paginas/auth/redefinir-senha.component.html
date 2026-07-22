@@ -1,67 +1,120 @@
-<div class="auth-page">
-  <div class="auth-bg-gradient"></div>
-  <div class="auth-blob-tr"></div>
-  <div class="auth-blob-bl"></div>
-  <div class="auth-wrap">
-    <div class="auth-brand">
-      <div class="auth-brand-logo">
-        <div class="auth-brand-logo-icon">
-          <img src="assets/logo/logo.png" alt="Gestgo">
+<div class="login-page">
+  <aside class="login-brand">
+    <header class="login-brand__header">
+      <span class="login-brand__mark" aria-hidden="true">
+        <img src="assets/logo/logo.png" alt="" />
+      </span>
+      <div class="login-brand__identity">
+        <span class="login-brand__product">Gestgo</span>
+        <span class="login-brand__slogan">Fichas digitais</span>
+      </div>
+    </header>
+
+    <div class="login-brand__body">
+      <p class="login-brand__eyebrow">Redefinição</p>
+      <h2 class="login-brand__title">
+        Nova
+        <em>senha</em>
+      </h2>
+      <p class="login-brand__text">Defina uma nova senha para acessar sua conta com segurança.</p>
+    </div>
+
+    <footer class="login-brand__footer">
+      <span>Copyright © {{ ano }} Gestgo</span>
+    </footer>
+  </aside>
+
+  <main class="login-panel">
+    <div class="login-panel__inner">
+      <div class="login-panel__brand-mobile">
+        <span class="login-panel__mark-mobile" aria-hidden="true">
+          <img src="assets/logo/logo.png" alt="" />
+        </span>
+        <div class="login-panel__brand-text">
+          <span class="login-panel__brand-name">Gestgo</span>
+          <span class="login-panel__brand-sub">Fichas digitais</span>
         </div>
-        <span class="auth-brand-logo-name">Gestgo</span>
       </div>
-      <div class="auth-brand-text">
-        <h1>Nova <span class="hl">senha</span></h1>
-        <p>Defina uma nova senha para acessar sua conta.</p>
-      </div>
-      <p class="auth-brand-footer">© {{ ano }} Gestgo.</p>
-    </div>
-    <div class="auth-card">
-      <div class="auth-card-inner">
-        @if (sucesso) {
-          <h2 class="auth-card-title">Senha alterada</h2>
-          <p class="auth-card-subtitle">Sua senha foi redefinida. Faça login com a nova senha.</p>
-          <button type="button" class="auth-btn" (click)="irParaLogin()">Ir para o login</button>
-        } @else {
-          <h2 class="auth-card-title">Redefinir senha</h2>
-          <p class="auth-card-subtitle">Digite sua nova senha abaixo.</p>
-          @if (erro) {
-            <div class="auth-error"><p>{{ erro }}</p></div>
-          }
-          <form (ngSubmit)="enviar()" class="auth-form">
-            @if (email) {
-              <div class="auth-field">
-                <label class="auth-label">E-mail</label>
-                <p class="auth-muted">{{ email }}</p>
-              </div>
-            }
-            <div class="auth-field">
-              <label class="auth-label" for="nova-senha">Nova senha</label>
-              <div class="auth-input-wrap">
-                <span class="material-symbols-outlined auth-input-icon-l">lock</span>
-                <input [type]="mostrarSenha ? 'text' : 'password'" id="nova-senha" [(ngModel)]="senha" name="senha"
-                       class="auth-input pr" placeholder="Mínimo 8 caracteres" required minlength="8">
-                <span class="material-symbols-outlined auth-input-icon-r" (click)="mostrarSenha = !mostrarSenha"
-                      role="button" tabindex="0">{{ mostrarSenha ? 'visibility_off' : 'visibility' }}</span>
-              </div>
-            </div>
-            <div class="auth-field">
-              <label class="auth-label" for="confirma-senha">Confirmar senha</label>
-              <div class="auth-input-wrap">
-                <span class="material-symbols-outlined auth-input-icon-l">lock</span>
-                <input type="password" id="confirma-senha" [(ngModel)]="senhaConfirmacao" name="senhaConfirmacao"
-                       class="auth-input" placeholder="Repita a senha" required>
-              </div>
-            </div>
-            <button type="submit" class="auth-btn" [disabled]="carregando">
-              {{ carregando ? 'Salvando…' : 'Redefinir senha' }}
-            </button>
-          </form>
-          <p class="auth-register">
-            <a routerLink="/autenticacao">Voltar ao login</a>
-          </p>
+
+      @if (sucesso) {
+        <header class="login-panel__header">
+          <h1>Senha alterada</h1>
+          <p>Sua senha foi redefinida. Faça login com a nova senha.</p>
+        </header>
+        <button type="button" mat-flat-button color="primary" class="login-submit" (click)="irParaLogin()">
+          Ir para o login
+        </button>
+      } @else {
+        <header class="login-panel__header">
+          <h1>Redefinir senha</h1>
+          <p>Digite sua nova senha abaixo.</p>
+        </header>
+
+        @if (erro) {
+          <p class="login-error" role="alert">{{ erro }}</p>
         }
-      </div>
+
+        <form (ngSubmit)="enviar()" class="login-form" novalidate>
+          @if (email) {
+            <mat-form-field appearance="outline" class="login-field" subscriptSizing="dynamic">
+              <mat-label>E-mail</mat-label>
+              <input matInput type="email" [value]="email" disabled />
+            </mat-form-field>
+          }
+
+          <mat-form-field appearance="outline" class="login-field" subscriptSizing="dynamic">
+            <mat-label>Nova senha</mat-label>
+            <input
+              matInput
+              [type]="mostrarSenha ? 'text' : 'password'"
+              id="nova-senha"
+              [(ngModel)]="senha"
+              name="senha"
+              placeholder="Mínimo 8 caracteres"
+              required
+              minlength="8"
+              autocomplete="new-password"
+            />
+            <button
+              mat-icon-button
+              matSuffix
+              type="button"
+              (click)="mostrarSenha = !mostrarSenha"
+              [attr.aria-label]="mostrarSenha ? 'Ocultar senha' : 'Mostrar senha'"
+            >
+              <mat-icon>{{ mostrarSenha ? 'visibility_off' : 'visibility' }}</mat-icon>
+            </button>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="login-field" subscriptSizing="dynamic">
+            <mat-label>Confirmar senha</mat-label>
+            <input
+              matInput
+              type="password"
+              id="confirma-senha"
+              [(ngModel)]="senhaConfirmacao"
+              name="senhaConfirmacao"
+              placeholder="Repita a senha"
+              required
+              autocomplete="new-password"
+            />
+            <mat-icon matSuffix>lock_outline</mat-icon>
+          </mat-form-field>
+
+          <button mat-flat-button color="primary" type="submit" class="login-submit" [disabled]="carregando">
+            @if (carregando) {
+              <mat-spinner diameter="22"></mat-spinner>
+            } @else {
+              Redefinir senha
+            }
+          </button>
+        </form>
+
+        <a routerLink="/autenticacao" class="login-back">
+          <mat-icon>arrow_back</mat-icon>
+          Voltar ao login
+        </a>
+      }
     </div>
-  </div>
+  </main>
 </div>

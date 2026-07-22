@@ -1,0 +1,78 @@
+.upx-toolbar{
+    @apply flex shrink-0 items-center gap-2 h-14 w-full px-4 bg-theme text-white dark:text-theme-contrast border-black border-opacity-10 dark:border-white dark:border-opacity-10;
+    &.upx-toolbar--color-padrao {
+        @apply bg-theme-floor-2 text-black dark:text-white;
+    }
+    &.sidenav-main__toolbar-header.upx-toolbar--color-padrao {
+        @apply bg-theme-padrao-2 text-white dark:text-white;
+    }
+    &.sidenav-content-main__header.upx-toolbar--color-padrao {
+        @apply bg-theme-padrao-2 text-white dark:text-white;
+    }
+    &.upx-toolbar--border-top {
+        @apply border-t;
+    }
+    &.upx-toolbar--border-bottom {
+        @apply border-b;
+    }
+    &.upx-toolbar--align-end {
+        @apply justify-end;
+    }
+    &.upx-toolbar--align-between {
+        @apply justify-between;
+    }
+    &:not(.upx-toolbar--color-padrao) {
+        .upx-button {
+            &.upx-button--variant-plain {
+                &.upx-button--color-default .upx-button__container {
+                    @apply text-white dark:text-theme-contrast;
+                }
+            }
+        }
+    }
+    .upx-toolbar__template-start,
+    .upx-toolbar__template-end {
+        @apply flex gap-2 items-center;
+    }
+    
+    // quando o toolbar é color padrao, ajustar cores do texto
+    &.upx-toolbar--color-padrao {
+        .upx-button.upx-button--color-padrao {
+            &.upx-button--variant-plain {
+                &.upx-button--color-default .upx-button__container {
+                    @apply text-black dark:text-white;
+                }
+            }
+        }
+
+        .upx-avatar {
+            background-color: rgb(255 255 255 / var(--tw-bg-opacity));
+            
+            span {
+                @apply text-white dark:text-theme-contrast;
+            }
+        }
+        
+        .sidenav-main__footer-text span {
+            @apply text-black dark:text-white;
+        }
+    }
+    
+    // regra específica para o avatar do footer (sidenav-main__footer)
+    &.sidenav-main__footer.upx-toolbar--color-padrao {
+        .upx-avatar {
+            background-color: rgb(222 222 223) !important; // cinza fraco para tema claro
+            
+            span {
+                @apply text-black dark:text-white;
+            }
+        }
+        
+        // no tema escuro, volta ao background original
+        .dark & {
+            .upx-avatar {
+                background-color: rgb(255 255 255 / var(--tw-bg-opacity)) !important;
+            }
+        }
+    }
+}

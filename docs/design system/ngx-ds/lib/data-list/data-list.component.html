@@ -1,0 +1,432 @@
+<ng-template #templateColumns>
+
+	<div
+		class="flex flex-row shrink-0 items-center justify-start overflow-hidden w-full {{ isFinancial ? 'h-10 ': 'h-8'}} bg-theme-floor-1 border-b border-black border-opacity-5 dark:border-white dark:border-opacity-5">
+
+		<div class="flex shrink-0 h-full items-center justify-center px-2" style="width: 5%;" *ngIf="hasCheckBox">
+			<upx-checkbox [(field)]="listFieldCheckAll" (change)="listCheckAllRegisters()"></upx-checkbox>
+		</div>
+
+		<ng-container *ngFor="let column of columns; let index = index;">
+
+			<div [ngClass]="{'shrink-0': column.width}" [style.width]="column.width ? column.width : '100%'"
+				class="flex h-full items-center justify-{{column.align ? column.align : 'start'}} px-2 text-xs font-semibold leading-none
+				{{((column.colorOrderIcon) ? 'text-theme': '')}} dark:text-white dark:text-opacity-70 uppercase">
+
+				<span class="text-black text-opacity-70 dark:text-white dark:text-opacity-70">{{column.title}}</span>
+
+				<upx-icon *ngIf="column.title"
+					[name]="!column.order || column.order === 'asc' ? 'arrow_drop_down' : 'arrow_drop_up'"
+					(click)="listOrderBy(column, index)" [ngClass]="{'text-opacity-100': column.order}"
+					[titleText]="!column.order ? 'Adicionar ordenação crescente' : (column.order === 'asc' ? 'Mudar para descrescente' : 'Remover ordenação')"
+					[size]="'lg'"
+					class="{{((column.colorOrderIcon) ? 'text-theme dark:text-theme': 'text-black')}} text-opacity-25 ml-1 cursor-pointer">
+				</upx-icon>
+
+			</div>
+		</ng-container>
+
+	</div>
+
+</ng-template>
+
+<div class="flex flex-col w-full h-full overflow-x-hidden">
+
+	<ng-template *ngIf="!screenIsMobile() then templateColumns"></ng-template>
+
+	<div id="upxDataList-listDataElement" 
+		class="flex flex-col overflow-y-auto overflow-x-hidden h-full w-full pb-16 upx-scroll bg-black bg-opacity-[2%] dark:bg-white dark:bg-opacity-[2%]"
+		style="overflow-y: overlay !important;">
+
+		<div #elementList *ngFor="let row of listData"
+			[ngClass]="{'hover:bg-theme hover:bg-opacity-5 dark:hover:bg-theme dark:hover:bg-opacity-5': !screenIsMobile(), 'select-none py-2': screenIsMobile(), 'bg-theme-focus': row.upxDataList.fieldCheck.value}"
+			class="flex shrink-0 flex-row items-center justify-start w-full text-sm cursor-pointer bg-white dark:bg-theme-floor-2 dark:bg-opacity-40 border-b border-black border-opacity-5 dark:border-white dark:border-opacity-5">
+
+			<ng-container *ngIf="screenIsMobile()">
+
+				<div (click)="listDataChecked.length ? registerCheck(row) : registerOpen(row)"
+					(touchstart)="registerTouchStart(row)" (touchend)="registerTouchEnd()"
+					class="flex gap-4 shrink-0 items-center justify-start px-4 w-full h-24 flex-1">
+					<ng-container *ngIf="row.upxDataList.fieldCheck.value">
+						<upx-avatar variant="icon" icon="check" color="blue" size="sm"></upx-avatar>
+					</ng-container>
+					
+					<div class="w-20 flex items-center justify-center">
+						<ng-container *ngIf="!row.upxDataList.fieldCheck.value">
+							<ng-container *ngIf="listDataChecked.length">
+								<upx-avatar variant="icon" icon="" color="blue" size="sm"></upx-avatar>
+							</ng-container>
+							<ng-container *ngIf="!listDataChecked.length">
+								<ng-container
+									*ngTemplateOutlet="templateSwitchColumnType; context: {row, column: columnsMobile[0]}"></ng-container>
+							</ng-container>
+						</ng-container>
+					</div>
+
+						<div class="flex flex-col shrink-0 items-start justify-center flex-1 h-full">
+							<div *ngIf="columnsMobile[1] || columnsMobile[4]"
+								class="flex gap-2 py-0.5 items-center justify-start w-full text-black text-opacity-90 dark:text-white dark:text-opacity-90">
+								<span class="flex-1 text-sm leading-none">
+									<ng-container
+										*ngTemplateOutlet="templateSwitchColumnType; context: {row, column: columnsMobile[1]}"></ng-container>
+								</span>
+								<span class="text-xs leading-3 text-right">
+									<ng-container
+										*ngTemplateOutlet="templateSwitchColumnType; context: {row, column: columnsMobile[4]}"></ng-container>
+								</span>
+							</div>
+
+							<div *ngIf="columnsMobile[2] || columnsMobile[5]"
+								class="flex gap-2 py-0.5 items-center justify-start w-full text-black text-opacity-70 dark:text-white dark:text-opacity-70">
+								<span class="flex-1 text-xs leading-none">
+									<ng-container
+										*ngTemplateOutlet="templateSwitchColumnType; context: {row, column: columnsMobile[2]}"></ng-container>
+								</span>
+								<span class="text-xs leading-none text-right">
+									<ng-container
+										*ngTemplateOutlet="templateSwitchColumnType; context: {row, column: columnsMobile[5]}"></ng-container>
+								</span>
+							</div>
+
+							<div *ngIf="columnsMobile[3] || columnsMobile[6]"
+								class="flex gap-2 py-0.5 items-center justify-start w-full text-black text-opacity-60 dark:text-white dark:text-opacity-60">
+								<span class="flex-1 text-xs leading-3">
+									<ng-container
+										*ngTemplateOutlet="templateSwitchColumnType; context: {row, column: columnsMobile[3]}"></ng-container>
+								</span>
+								<span class="flex items-center text-xs leading-3 text-right">
+									<ng-container
+										*ngTemplateOutlet="templateSwitchColumnType; context: {row, column: columnsMobile[6]}"></ng-container>
+								</span>
+							</div>
+
+						</div>
+
+						<ng-container
+							*ngTemplateOutlet="templateSwitchColumnType; context: {row, column: columnsMobile[7]}">
+						</ng-container>
+				</div>
+
+			</ng-container>
+
+			<ng-container *ngIf="!screenIsMobile()">
+
+				<div
+					class="flex shrink-0 justify-start w-full flex-1"
+					[ngClass]="{
+						'h-18 items-center': isFinancial || isClassTributaria,
+						'min-h-12 h-auto items-start py-1': hasMultilineRow() && !isFinancial && !isClassTributaria,
+						'h-12 items-center': !hasMultilineRow() && !isFinancial && !isClassTributaria
+					}">
+
+					<div class="flex shrink-0 h-full items-center justify-center px-2" style="width: 5%;" *ngIf="hasCheckBox">
+						<upx-checkbox [(field)]="row.upxDataList.fieldCheck" (change)="registerCheck()"></upx-checkbox>
+					</div>
+
+					<ng-container *ngFor="let column of columns; let index = index; let lastCol = last;">
+
+						<div
+							(click)="column.openOnClick !== false && registerOpen(row)"
+							[ngClass]="{
+								'shrink-0': column.width,
+								'cursor-pointer': column.openOnClick !== false
+							}"
+							[style.width]="column.width ? column.width : '100%'"
+							class="flex shrink-0 h-full justify-{{column.align ? column.align : 'start'}} px-2 py-1"
+							[ngClass]="isMultilineColumn(column) ? 'items-start' : 'items-center'">
+
+							<ng-container
+								*ngTemplateOutlet="templateSwitchColumnType; context: {row, column}"></ng-container>
+
+						</div>
+
+					</ng-container>
+
+				</div>
+
+			</ng-container>
+
+		</div>
+
+		<div class="flex items-center justify-center">
+			<div
+				class="flex items-center justify-center h-16 text-black text-opacity-90 dark:text-white dark:text-opacity-70">
+				<div *ngIf="loadingListData" class="inline-flex items-center justify-center">
+					<upx-loading class="mr-2"></upx-loading> Carregando dados...
+				</div>
+				<span *ngIf="!loadingListData && listData && listAllFetched" class="text-sm">
+					<span *ngIf="listData.length >= 1" class="text-xs">
+						Isso é tudo!
+					</span>
+					<span *ngIf="listData.length === 0">
+						Nenhum registro encontrado.
+					</span>
+				</span>
+			</div>
+		</div>
+
+	</div>
+
+</div>
+
+<div
+	class="flex sticky bottom-0 shrink-0 items-start justify-between gap-2 h-14 w-full px-4 border-t border-black border-opacity-5 dark:border-white dark:border-opacity-5 bg-theme-floor-1">
+	<div class="flex shrink-0 items-center justify-start h-full">
+		<span class="text-sm leading-tight text-black text-opacity-70 dark:text-white dark:text-opacity-70">
+			<span *ngIf="listDataCount">
+				<strong>{{listDataCount | number}}</strong> {{listDataCount > 1 ? 'registros' : 'registro'}}
+			</span>
+			<!--<span *ngIf="!loadingListData">
+                <a class="text-xs text-black text-opacity-30" (click)="search()">recarrega lista</a>
+            </span>-->
+		</span>
+	</div>
+	
+	<div class="flex shrink-0 items-center justify-end h-full" *ngIf="isProdutos; else outros">
+		<mat-button-toggle-group
+			appearance="legacy"
+			name="fontStyle"
+			aria-label="Font Style"
+			[value]="tipoSelecionado"
+			>
+			<mat-button-toggle
+				[ngClass]="{'ativo': tipoSelecionado === 'normal'}"
+				value="normal"
+				(click)="alterarVisualizacao('normal')"
+			>
+				Normal
+			</mat-button-toggle>
+	
+			<mat-button-toggle
+				[ngClass]="{'ativo': tipoSelecionado === 'estoque'}"
+				value="estoque"
+				(click)="alterarVisualizacao('estoque')"
+			>
+				Estoque
+			</mat-button-toggle>
+		</mat-button-toggle-group>
+	</div>
+
+	<ng-template #outros>
+		<div class="flex shrink-0 items-center justify-end h-full">
+			<span class="text-sm leading-tight text-black text-opacity-70 dark:text-white dark:text-opacity-70">
+				<span *ngIf="listDataValueAccumulated && podeExibirTotal()">
+					<strong>Total: {{listDataValueAccumulated}}</strong>
+				</span>
+				<ng-container *ngIf="isFinancial && !listDataChecked.length">
+					<ng-container *ngIf="extrato && !screenIsMobile() && !loadingListData">
+						<div class="flex items-center justify-center">
+							<div *ngIf="extrato">
+								<span>Total Acumulado:&nbsp;</span>
+								<span>
+									{{totalAcumulado |currency:'BRL'}}
+								</span>
+							</div>
+							<div class="ml-10 mr-10">
+								<span>Total de Receitas:&nbsp;</span>
+								<span>
+									{{totalReceitas |currency:'BRL'}}
+								</span>
+							</div>
+							<div class="ml-10 mr-10">
+								<span>Total de Despesas:&nbsp;</span>
+								<span>
+									{{totalDespesas |currency:'BRL'}}
+								</span>
+							</div>
+							<div>
+								<span>Total Parcial:&nbsp;</span>
+								<span>
+									{{totalParcial |currency:'BRL'}}
+								</span>
+							</div>
+						</div>
+					</ng-container>
+					<ng-container *ngIf="extrato && screenIsMobile() && !loadingListData">
+						<div>
+							<span><p>Total de Receitas:{{totalReceitas |currency:'BRL'}}</p></span>
+							<span><p>Total de Despesas:	{{totalDespesas |currency:'BRL'}}</p></span>
+							<span><p>Total Parcial:{{totalParcial |currency:'BRL'}}</p>
+							</span>
+						</div>
+					</ng-container>
+					<ng-container *ngIf="!extrato && !screenIsMobile() && listDataCount">
+						
+						<div class="flex items-center justify-center">
+							<div>								
+								<span>Total em Títulos Pagos: </span>
+								<span>
+									{{titPago | currency: 'BRL'}}
+								</span>
+							</div>														
+							<div class="ml-10 mr-10">
+								<span>Total em Títulos Abertos: </span>
+								<span>
+									{{titAberto | currency: 'BRL'}}
+								</span>
+							</div>
+							
+							<div>
+								<span>Total em Títulos:</span>
+								<span *ngIf="!isNumber(listTituloValueAccumulated)" class="mr-2">
+									{{ listTituloValueAccumulated | currency: 'BRL'}}
+								</span>
+							</div>
+						</div>
+						
+						<span *ngIf="isNumber(listTituloValueAccumulated)" style="min-width: 100px; display: inline-block; text-align: right;" class="mr-2">
+							{{ listTituloValueAccumulated}}
+						</span>
+
+					</ng-container>
+					<ng-container *ngIf="!extrato && screenIsMobile() && !loadingListData">
+						
+						<span><p>Em Aberto: {{titAberto | currency: 'BRL'}}</p> </span>
+						
+						<span>Total: {{listTituloValueAccumulated | currency: 'BRL'}}</span>
+
+						<div>
+							<span><p>Pagos: {{titPago | currency: 'BRL'}}</p> </span>
+						</div>
+						
+					</ng-container>
+				</ng-container>
+				<ng-container *ngIf="isFinancial && listDataChecked.length">
+					<div>
+						<span>Total dos Títulos Selecionados:</span>
+						<span style="min-width: 100px; display: inline-block; text-align: right;" class="mr-2">
+							{{totalSelecao |currency:'BRL'}}
+						</span>
+					</div>
+				</ng-container>
+				<ng-container *ngIf="isCadastro">
+
+					<span style="min-width: 100px; display: inline-block; text-align: right;">
+						{{totCadInativo}} inativo(s)
+					</span>
+
+					<span style="min-width: 100px; display: inline-block; text-align: right;">
+						{{totCadAtivo}} ativo(s)
+					</span>
+
+					<span style="min-width: 100px; display: inline-block; text-align: right;">
+						{{totCadNovo}} novo(s)
+					</span>
+
+				</ng-container>
+				<!-- <ng-container *ngIf="listDataCount">
+					Total &nbsp;{{totalVendas | currency:'BRL':'symbol':'1.2-2':'pt-BR'}}
+				</ng-container> -->
+			</span>
+		</div>
+	</ng-template>
+</div>
+
+<ng-template #templateSwitchColumnType let-row="row" let-column="column">
+	<ng-container *ngIf="column && row">
+		<ng-container [ngSwitch]="column.type">
+
+			<ng-container *ngSwitchCase="'upx-avatar'">
+				<ng-container *ngTemplateOutlet="templateColumnTypeAvatar; context: {row, column}"></ng-container>
+			</ng-container>
+
+			<ng-container *ngSwitchCase="'upx-badge'">
+				<ng-container *ngTemplateOutlet="templateColumnTypeBadge; context: {row, column}"></ng-container>
+			</ng-container>
+
+			<ng-container *ngSwitchDefault>
+				<ng-container *ngTemplateOutlet="templateColumnTypeDefault; context: {row, column}"></ng-container>
+			</ng-container>
+
+		</ng-container>
+	</ng-container>
+</ng-template>
+
+<ng-template #templateColumnTypeDefault let-row="row" let-column="column">
+	<ng-container *ngIf="column.icon && column.options?.iconInline; else columnDefaultContent">
+		<div class="flex items-center gap-1 w-full min-w-0">
+			<span
+				class="flex-1 min-w-0 truncate line-clamp-{{column?.options?.maxLines ?? '1'}}"
+				[innerHTML]="getColumnValue(row, column)"
+				[matTooltip]="getColumnUpxTooltip(row, column)"
+				[matTooltipPosition]="column?.tooltipPosition">
+			</span>
+			<upx-icon
+				class="shrink-0"
+				[name]="getColumnUpxIcon(row, column, 1)"
+				[size]="column.iconSize || 'sm'"
+				[matTooltip]="getColumnUpxTooltip(row, column)"
+				[matTooltipPosition]="column?.tooltipPosition"
+				[style]="getColumnUpxStyle(row, column)"
+				[sourceType]="column.sourceType"
+				[ngClass]="getColumnUpxIconClass(row, column)">
+			</upx-icon>
+		</div>
+	</ng-container>
+
+	<ng-template #columnDefaultContent>
+	<span
+		[class]="isMultilineColumn(column)
+			? 'block w-full min-w-0 break-words whitespace-normal leading-snug text-sm line-clamp-' + (column?.options?.maxLines ?? 2)
+			: 'line-clamp-' + (column?.options?.maxLines ?? '1')"
+		[innerHTML]="getColumnValue(row, column)"
+		[matTooltip]="getColumnUpxTooltip(row, column)" [matTooltipPosition]="column?.tooltipPosition">
+	</span>
+
+	<span class="fa-stack fa-1x flex items-stretch" *ngIf="column.faIcon && getColumnUpxIconFaClass(row,column)"
+		[matTooltip]="getColumnUpxTooltip(row, column)" [matTooltipPosition]="column?.tooltipPosition">
+		<i [ngClass]="getColumnUpxIconFaClass(row,column)"></i>
+		<i [ngClass]="getColumnUpxIconFaClass2(row,column)" *ngIf="column.faIcon2"></i>
+	</span>
+
+	<ng-container *ngIf="column.iconFontAwesome">
+		<fa-icon *ngIf="getColumnUpxIconFontAwesome(row, column, 1) !== ''"
+			[icon]="getColumnUpxIconFontAwesome(row, column, 1)" [size]="column.iconFontAwSize"
+			[matTooltip]="getColumnUpxTooltip(row, column)" [matTooltipPosition]="column?.tooltipPosition"
+			style="pointer-events: auto;" [ngClass]="getColumnUpxIconFontAwesomeClass(row,column)">
+		</fa-icon>
+		<fa-icon *ngIf="getColumnUpxIconFontAwesome(row, column, 2) !== ''"
+			[icon]="getColumnUpxIconFontAwesome(row, column, 2)" [size]="column.iconFontAwSize2">
+		</fa-icon>
+	</ng-container>
+
+	<ng-container *ngIf="column.icon && !column.options?.iconInline">
+		<upx-icon [name]="getColumnUpxIcon(row, column, 1)" [size]="column.iconSize"
+			[matTooltip]="getColumnUpxTooltip(row, column)" [matTooltipPosition]="column?.tooltipPosition"
+			[style]="getColumnUpxStyle(row, column)" [sourceType]="column.sourceType"
+			[ngClass]="getColumnUpxIconClass(row,column)"></upx-icon>
+		<upx-icon [name]="getColumnUpxIcon(row, column, 2)" [size]="column.iconSize2"></upx-icon>
+	</ng-container>
+	</ng-template>
+
+</ng-template>
+
+<ng-template #templateColumnTypeAvatar let-row="row" let-column="column">
+	<upx-avatar [variant]="column.options?.upxAvatar?.variant" [src]="getColumnValue(row, column)"
+		[icon]="getColumnUpxAvatarIcon(row, column)" [text]="getRowValue(row, column.options?.upxAvatar?.columnText)"
+		[email]="getRowValue(row, column.options?.upxAvatar?.columnEmail)" [color]="column.options?.upxAvatar?.color"
+		[ngClass]="{'opacity-50': column.disabled(getColumnValue(row, column), row) || column.canceled(getColumnValue(row, column), row), 'opacity-0': classeDinamica(row, column) && valorClasse}"
+		size="sm" [matTooltip]="getColumnUpxAvatarTooltip(row, column)">
+	</upx-avatar>
+</ng-template>
+
+<ng-template #templateColumnTypeBadge let-row="row" let-column="column">
+	<span
+		class="inline-block max-w-full"
+		[matTooltip]="getUpxBadgeMatTooltip(row, column)"
+		[matTooltipDisabled]="!getUpxBadgeMatTooltip(row, column)"
+		[matTooltipPosition]="column?.tooltipPosition || 'below'"
+	>
+		<upx-badge
+			[color]="column.options?.upxBadge?.binds ? column.options?.upxBadge?.binds[getColumnValue(row, column)]?.color : getRowValue(row, column.options?.upxBadge?.columnColor)"
+			[colorHexadecimal]="column.options?.upxBadge?.binds ? column.options?.upxBadge?.binds[getColumnValue(row, column)]?.colorHexadecimal : getRowValue(row, column.options?.upxBadge?.columnColorHexadecimal)"
+			[colorTextHexadecimal]="column.options?.upxBadge?.binds ? column.options?.upxBadge?.binds[getColumnValue(row, column)]?.colorTextHexadecimal : getRowValue(row, column.options?.upxBadge?.columnColorTextHexadecimal)"
+			size="xs">
+			<ng-container
+				*ngIf="column.options?.upxBadge?.binds && column.options?.upxBadge?.binds[getColumnValue(row, column)]?.icon">
+				<upx-icon [name]="column.options?.upxBadge?.binds[getColumnValue(row, column)]?.icon" size="xs"></upx-icon>
+			</ng-container>
+			{{ getUpxBadgeDisplayText(row, column) }}
+		</upx-badge>
+	</span>
+</ng-template>

@@ -1,0 +1,75 @@
+// :root {
+// 	--bg: #0f1724;
+// 	--card: #0b1430;
+// 	--muted: #94a3b8;
+// 	--accent: #2563eb;
+// }
+// * {
+// 	box-sizing: border-box;
+// }
+// body {
+// 	font-family: Inter, Segoe UI, Roboto, Arial;
+// 	background: #f3f4f6;
+// 	padding: 18px;
+// }
+// .toolbar {
+// 	display: flex;
+// 	gap: 8px;
+// 	flex-wrap: wrap;
+// 	margin-bottom: 12px;
+// }
+// .btn {
+// 	background: white;
+// 	border: 1px solid #e6e7ea;
+// 	padding: 8px 10px;
+// 	border-radius: 6px;
+// 	cursor: pointer;
+// }
+// .btn:active {
+// 	transform: translateY(1px);
+// }
+// .editor-wrap {
+// 	border: 1px solid #d1d5db;
+// 	border-radius: 8px;
+// 	background: white;
+// }
+// .editor {
+// 	min-height: 300px;
+// 	padding: 16px;
+// 	outline: none;
+// }
+// .status {
+// 	font-size: 13px;
+// 	color: var(--muted);
+// 	margin-top: 8px;
+// }
+// .controls {
+// 	display: flex;
+// 	gap: 8px;
+// 	align-items: center;
+// }
+// .small {
+// 	padding: 6px 8px;
+// 	font-size: 13px;
+// }
+// .export {
+// 	margin-left: auto;
+// }
+// pre {
+// 	white-space: pre-wrap;
+// 	word-break: break-word;
+// }
+// /* nicer table visuals inside editor */
+// .editor table {
+// 	border-collapse: collapse;
+// 	width: auto;
+// 	max-width: 100%;
+// }
+// .editor td,
+// .editor th {
+// 	border: 1px solid #cbd5e1;
+// 	padding: 6px 8px;
+// }
+
+
+

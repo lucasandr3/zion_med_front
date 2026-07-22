@@ -1,0 +1,94 @@
+<div id="authentication-modal" *ngIf="show"
+	class="fixed inset-0 z-50 flex items-center justify-center w-full h-full bg-gray-800 bg-opacity-50 md:pl-4 md:pr-4 ">
+	<div class="relative w-full max-w-sm max-h-full c ">
+		<!-- Modal content -->
+		<div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+			<!-- Modal header -->
+			<div class=" flex items-center text-center  p-2 md:p-5 border-b rounded-t dark:border-gray-600 ">
+				<h3 class="text-xl text-center w-64 flex-auto items-center font-semibold text-gray-900 dark:text-white">
+					Recebimento PIX
+				</h3>
+				<button (click)="ocultar(false)" type="button"
+					class="text-gray-400   flex-none bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 inline-flex justify-center items-center dark:hover:bg-gray-600  ms-auto  dark:hover:text-white"
+					data-modal-hide="authentication-modal">
+					<svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
+						viewBox="0 0 14 14">
+						<path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+							d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+					</svg>
+					<span class="sr-only">Close modal</span>
+				</button>
+			</div>
+			<div class="p-2 md:p-5 justify-center flex-auto items-center text-center">
+				O QRCode vai expirar em: {{ minutes }}:{{ seconds }}
+			</div>
+			<!-- Modal body -->
+
+			<div class="flex ml-4 xs:ml-4 sm:ml-6 pl-6 pb-2 sm:p-4 items-center">
+				<qrcode [qrdata]="this.dataPix.copiaECola" [cssClass]="'items-center'" [width]="300"></qrcode>
+			</div>
+			<div class=" flex items-start text-start  p-2 md:p-5 border-t  rounded dark:border-gray-600 ">
+				<h3 class="text-xl text-left w-64 flex-auto items-center font-semibold text-gray-900 dark:text-white">
+					Valor:
+				</h3>
+				<div class="text-xl text-right w-64 flex-none">
+					{{this.dataPix.valor | currency:'BRL'}}
+				</div>
+			</div>
+			<div class=" flex items-start text-start p-2 md:p-5 border-t  rounded dark:border-gray-600 ">
+				<h3 class="text-md text-left w-64 flex-auto items-center font-semibold text-gray-900 dark:text-white">
+					Identificador:
+				</h3>
+				<div class="text-sm text-right w-32 flex-none">
+					{{this.dataPix.empresa }}
+				</div>
+			</div>
+			<div class="flex items-start text-start p-2 md:p-5 border-t  rounded dark:border-gray-600 ">
+
+				<div class="text-sm text-start w-8 mt-2 mr-2 flex-auto">
+					<upx-button [color]="'danger'" [size]="'xs'"  class="start" (onClick)="cancelarPix()"
+					>
+					<upx-icon  [name]="'cancel'"></upx-icon>
+					Cancelar
+				</upx-button>
+				</div>
+				<div class="text-sm text-center w-8 mt-2 mr-2 flex-auto">
+					<upx-button class="start"
+						(onClick)="share()" [size]="'xs'" [color]="'theme'">
+						<i class="fa-regular fa-share-from-square"></i>Compartilhar
+					</upx-button>
+				</div>
+
+			<div class="text-sm text-end w-16 mt-2  flex-auto">
+				<upx-button class="start" matMenu [matMenuTriggerFor]="menuWhatsapp"
+					[size]="'xs'"  [color]="'theme'">
+					<i class="fab fa-whatsapp fa-xl"></i> {{isMobile()? '': 'WhatsApp'}}
+				</upx-button>
+
+				<mat-menu #menuWhatsapp="matMenu">
+					<button mat-menu-item (click)="send()">
+						<div class="flex items-center justify-center">
+							<div class="mr-2">
+								<upx-icon [name]="'link'"></upx-icon>
+							</div>
+							<div>Enviar Link Manual</div>
+						</div>
+					</button>
+					<button mat-menu-item (click)="enviarWhatsappAutomatico()" *ngIf="getPermissaoSol(55)">
+						<div class="flex items-center justify-center">
+							<div class="mr-2">
+								<upx-icon [name]="'send'"></upx-icon>
+							</div>
+							<div>Enviar Automaticamente</div>
+						</div>
+					</button>
+				</mat-menu>
+			</div>
+
+			</div>
+			<!-- <div class="p-4 md:p-5 ">
+				<mat-progress-bar mode="determinate" [value]=progressValue></mat-progress-bar>
+			</div> -->
+		</div>
+	</div>
+</div>

@@ -1,0 +1,69 @@
+.upx-form-page {
+    @apply flex flex-col h-[calc(100dvh_-_4rem)] relative;
+}
+
+.upx-form-page-content {
+    @apply flex flex-col w-full pb-24 px-0 md:px-8;
+}
+
+.upx-form-grid {
+    @apply grid grid-cols-1 gap-x-4 w-full;
+    &--with-2-cols {
+        @apply md:grid-cols-2;
+    }
+    &--with-3-cols {
+        @apply md:grid-cols-3;
+    }
+    &--with-4-cols {
+        @apply md:grid-cols-4;
+    }
+	&--with-5-cols {
+        @apply md:grid-cols-5;
+    }
+	&--with-6-cols {
+        @apply md:grid-cols-6;
+    }
+	&--with-7-cols {
+        @apply md:grid-cols-7;
+    }
+	&--with-8-cols {
+        @apply md:grid-cols-8;
+    }
+	&--with-9-cols {
+        @apply md:grid-cols-9;
+    }
+	&--with-11-cols {
+        @apply md:grid-cols-11;
+    }
+    &--with-12-cols {
+        @apply md:grid-cols-12;
+    }
+
+}
+
+.upx-form-field {
+    @apply flex flex-col items-start justify-start gap-x-4 w-full;
+	white-space: pre-line; /* Adicione esta linha */
+    &--align-center {
+        @apply flex-row justify-center;
+    }
+    &--align-end {
+        @apply flex-row justify-end;
+    }
+    &--align-between {
+        @apply flex-row justify-between;
+    }
+	&--align-start {
+        @apply flex-row justify-start;
+    }
+}
+
+@media screen and (max-width: 640px) {
+  .upx-form-grid {
+    display: block;
+  }
+
+  .grid-pagamento-outras-entradas {
+    display: flex;
+  }
+}

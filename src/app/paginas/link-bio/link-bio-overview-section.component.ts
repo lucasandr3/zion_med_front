@@ -26,13 +26,15 @@ import {
   visitasOntem,
   visitasTrendPercent,
 } from './link-bio-stats-chart.util';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ZardCardComponent } from '@/shared/components/card/card.component';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
 
 @Component({
   selector: 'zm-link-bio-overview-section',
   standalone: true,
-  imports: [CommonModule, ZardCardComponent, ZardButtonComponent],
+  imports: [CommonModule, MatButtonModule, MatIconModule, MatProgressSpinnerModule, ZardCardComponent],
   templateUrl: './link-bio-overview-section.component.html',
   styleUrl: './link-bio-overview-section.component.css',
 })

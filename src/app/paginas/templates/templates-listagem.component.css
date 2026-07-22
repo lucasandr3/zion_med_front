@@ -2,27 +2,32 @@
   --cat-accent: var(--primary);
 }
 
-.templates-colecao-header {
-  display: flex;
-  flex-wrap: nowrap;
-  align-items: flex-start;
-  justify-content: flex-start;
-  gap: 1.25rem;
-  margin-bottom: 1.5rem;
+.templates-detalhe-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.templates-table-bleed,
+.templates-empty-bleed {
+  width: 100%;
+  margin: 0;
+  border: none;
+  border-radius: 0;
+  background: rgb(var(--theme-floor-1));
+  box-shadow: none;
 }
 
 .templates-colecao-header-actions {
   display: flex;
   flex-wrap: nowrap;
   align-items: center;
-  width: 100%;
+  min-width: 0;
   gap: 0.5rem;
   overflow-x: auto;
   scrollbar-width: thin;
-}
-
-.templates-colecao-btn-novo {
-  margin-left: auto;
 }
 
 .templates-filtros-panel,
@@ -293,22 +298,8 @@
   margin-bottom: 1rem;
 }
 
-.templates-detalhe-toolbar-top {
-  display: flex;
+.templates-detalhe-toolbar-top .upx-page-list__toolbar-end {
   flex-wrap: wrap;
-  align-items: center;
-  justify-content: flex-start;
-  width: 100%;
-  gap: 0.75rem;
-}
-
-.templates-detalhe-toolbar-actions-right {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: flex-end;
-  margin-left: auto;
-  gap: 0.5rem;
 }
 
 .templates-table th:last-child,

@@ -1,0 +1,26 @@
+<ng-container *ngFor="let toast of toasts; index as i;">
+    <div id="upx-toast-{{i}}" class="upx-toast-item upx-toast-item-{{toast.type}}">
+        <div class="upx-toast-icon">
+            <ng-container [ngSwitch]="toast.type">
+                <ng-container *ngSwitchCase="toastType.Success">
+                    <upx-icon name="check"></upx-icon>
+                </ng-container>
+                <ng-container *ngSwitchCase="toastType.Error">
+                    <upx-icon name="block"></upx-icon>
+                </ng-container>
+                <ng-container *ngSwitchCase="toastType.Warning">
+                    <upx-icon name="warning_amber"></upx-icon>
+                </ng-container>
+                <ng-container *ngSwitchCase="toastType.Info">
+                    <upx-icon name="info"></upx-icon>
+                </ng-container>
+            </ng-container>
+        </div>
+        <div class="upx-toast-content">
+            <span [innerHTML]="toast.message"></span>
+        </div>
+        <upx-button (onClick)="removeToast(toast)" [onlyIcon]="true" variant="plain" class="upx-toast-close">
+            <upx-icon name="close"></upx-icon>
+        </upx-button>
+    </div>
+</ng-container>

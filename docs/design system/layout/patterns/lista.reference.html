@@ -1,0 +1,132 @@
+<up-app-shell pageTitle="Relatórios" empresaNome="Gestgo">
+  @if (loading()) {
+    <up-page-loading />
+  }
+
+  <div class="upx-page-list">
+    <div class="upx-page-list__toolbar">
+      <div class="upx-page-list__toolbar-start">
+        <up-search-box
+          [control]="searchControl"
+          placeholder="Digite para buscar"
+          ariaLabel="Buscar relatórios" />
+      </div>
+
+      <div class="upx-page-list__toolbar-end">
+        <input
+          [id]="importInputId"
+          type="file"
+          accept=".json,application/json"
+          class="sr-only"
+          (change)="onImportFile($event)" />
+
+        <button
+          mat-stroked-button
+          type="button"
+          class="toolbar-more-btn"
+          [matMenuTriggerFor]="moreOptionsMenu">
+          <span>Mais opções</span>
+          <mat-icon iconPositionEnd>expand_more</mat-icon>
+        </button>
+        <mat-menu #moreOptionsMenu="matMenu" panelClass="toolbar-more-menu">
+          <a mat-menu-item routerLink="/biblioteca">
+            <mat-icon>app_registration</mat-icon>
+            <span>Biblioteca UP Gestão</span>
+          </a>
+          <button
+            mat-menu-item
+            type="button"
+            (click)="openImportPicker()"
+            [disabled]="importing()">
+            <mat-icon>cloud_upload</mat-icon>
+            <span>Importar template</span>
+          </button>
+        </mat-menu>
+
+        <button
+          mat-flat-button
+          color="primary"
+          type="button"
+          (click)="create()"
+          [disabled]="creating()">
+          <mat-icon>add</mat-icon>
+          Adicionar
+        </button>
+      </div>
+    </div>
+
+    <div class="upx-page-list__content">
+      @if (!loading() && reports().length === 0) {
+        <up-empty-state
+          icon="description"
+          title="Nenhum relatório ainda"
+          description="Comece criando o primeiro modelo — o assistente guia você passo a passo.">
+          <button mat-flat-button color="primary" type="button" (click)="create()">
+            <mat-icon>add</mat-icon>
+            Adicionar
+          </button>
+        </up-empty-state>
+      } @else if (!loading()) {
+        <up-data-table [recordCount]="reports().length">
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>Categoria</th>
+              <th>Tipo</th>
+              <th>Status</th>
+              <th>Versão</th>
+              <th>Fonte</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (report of reports(); track report.id) {
+              <tr
+                [routerLink]="['/relatorios', report.id, 'editar']"
+                [queryParams]="{ step: 'layout' }">
+                <td>
+                  <div class="cell-primary">{{ report.name }}</div>
+                </td>
+                <td>{{ report.category || '—' }}</td>
+                <td>
+                  <up-badge variant="type">{{ report.type_label }}</up-badge>
+                </td>
+                <td>
+                  <up-badge variant="status" [tone]="statusTone(report.status)">
+                    {{ report.status_label }}
+                  </up-badge>
+                </td>
+                <td class="mono">{{ report.current_version || '—' }}</td>
+                <td>{{ report.datasource?.name || 'Não definida' }}</td>
+                <td class="actions" (click)="$event.stopPropagation()">
+                  <button
+                    mat-icon-button
+                    type="button"
+                    matTooltip="Exportar template"
+                    (click)="exportTemplate(report, $event)">
+                    <mat-icon>download</mat-icon>
+                  </button>
+                  <button
+                    mat-icon-button
+                    type="button"
+                    matTooltip="Duplicar"
+                    (click)="duplicate(report, $event)">
+                    <mat-icon>content_copy</mat-icon>
+                  </button>
+                  <button
+                    mat-icon-button
+                    type="button"
+                    color="warn"
+                    matTooltip="Excluir"
+                    (click)="remove(report, $event)">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </up-data-table>
+      }
+    </div>
+  </div>
+</up-app-shell>

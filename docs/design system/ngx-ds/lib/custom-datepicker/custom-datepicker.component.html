@@ -1,0 +1,17 @@
+<div class="custom-datepicker">
+
+	<span (click)="openDatePicker()" class="custom-date-display">
+		{{ displayDate || 'Selecione a data' }}
+	</span>
+	<input
+		matInput
+		#datepickerInput
+		[matDatepicker]="picker"
+		[formControl]="field"
+		(dateChange)="changeEmit()"
+		[id]="fieldId"
+		style="opacity: 0; position: absolute; left: 100px;"
+	/>
+	<mat-datepicker #picker></mat-datepicker>
+
+</div>

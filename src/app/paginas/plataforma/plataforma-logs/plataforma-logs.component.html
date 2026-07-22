@@ -1,101 +1,66 @@
 <!-- Igual ao backend: platform/logs/index -->
-<div class="relative min-h-[300px] space-y-4">
-  <div class="flex items-center justify-between gap-3">
-    <div class="flex items-center gap-3">
-      <div class="bg-muted flex h-10 w-10 shrink-0 items-center justify-center rounded-lg">
-        <span class="material-symbols-outlined text-primary text-xl">history</span>
-      </div>
-      <div>
-        <h2 class="text-foreground m-0 text-base font-semibold">Meus logs de auditoria</h2>
-        <p class="text-muted-foreground mt-0.5 mb-0 text-sm">Ações realizadas por você na plataforma</p>
+<section class="upx-page-list">
+  <div class="upx-page-list__toolbar">
+    <div class="upx-page-list__toolbar-start">
+      <div class="flex items-center gap-3">
+        <div class="bg-muted flex h-10 w-10 shrink-0 items-center justify-center rounded-lg">
+          <mat-icon class="text-primary">history</mat-icon>
+        </div>
+        <div>
+          <h2 class="text-foreground m-0 text-base font-semibold">Meus logs de auditoria</h2>
+          <p class="text-muted-foreground mt-0.5 mb-0 text-sm">Ações realizadas por você na plataforma</p>
+        </div>
       </div>
     </div>
   </div>
 
-  @if (showSkeleton()) {
-    <zm-skeleton-list [rows]="6" />
-  } @else if (!listaPronta) {
-  } @else {
-    @if (error) {
-      <div class="rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-foreground">
-        {{ error }}
-      </div>
-    }
-
-    <div class="zm-content-enter">
-      <z-card class="zm-table-card gap-0 py-0 shadow-sm **:data-[slot=card-content]:p-0">
-        <div class="zm-table-wrap">
-          <table z-table zSize="compact" class="text-xs">
-            <thead z-table-header>
-              <tr z-table-row>
-                <th z-table-head>Data / Hora</th>
-                <th z-table-head>Ação</th>
-                <th z-table-head>Empresa</th>
-                <th z-table-head>Detalhe</th>
-              </tr>
-            </thead>
-            <tbody z-table-body>
-              @for (log of logs; track log.id) {
-                <tr z-table-row>
-                  <td z-table-cell>
-                    <span class="zm-cell-muted whitespace-nowrap">{{ formatarData(log.created_at) }}</span>
-                  </td>
-                  <td z-table-cell>
-                    <span class="zm-row-title inline-flex items-center gap-1">
-                      <span class="material-symbols-outlined text-primary text-base">info</span>
-                      {{ actionLabel(log.action) }}
-                    </span>
-                  </td>
-                  <td z-table-cell>
-                    <span class="zm-cell-muted">{{ log.organization_name ?? '—' }}</span>
-                  </td>
-                  <td z-table-cell>
-                    <span class="zm-cell-muted">{{ detalheTexto(log) }}</span>
-                  </td>
-                </tr>
-              } @empty {
-                <tr z-table-row>
-                  <td z-table-cell colspan="4" class="py-0">
-                    <zm-empty-state
-                      title="Nenhum registro de auditoria."
-                      description="As ações realizadas na plataforma serão registradas aqui."
-                    />
-                  </td>
-                </tr>
-              }
-            </tbody>
-          </table>
-        </div>
-        @if (lastPage > 1) {
-          <div card-footer class="border-border flex items-center justify-between gap-3 border-t px-4 py-3">
-            <span class="text-muted-foreground text-xs">Página {{ currentPage }} de {{ lastPage }} ({{ total }} registros)</span>
-            <div class="flex gap-2">
-              <button
-                z-button
-                zType="outline"
-                zSize="sm"
-                type="button"
-                [zDisabled]="currentPage <= 1"
-                (click)="goToPage(currentPage - 1)"
-                title="Página anterior"
-              >
-                Anterior
-              </button>
-              <button
-                z-button
-                zType="outline"
-                zSize="sm"
-                type="button"
-                [zDisabled]="currentPage >= lastPage"
-                (click)="goToPage(currentPage + 1)"
-                title="Próxima página"
-              >
-                Próxima
-              </button>
-            </div>
-          </div>
-        }
-      </z-card>
-    </div>
+  @if (error) {
+    <p class="mb-4 text-sm text-destructive">{{ error }}</p>
   }
-</div>
+
+  <div class="upx-page-list__content">
+    @if (showSkeleton()) {
+      <zm-skeleton-list [rows]="6" />
+    } @else if (!listaPronta && !error) {
+    } @else if (!error) {
+      @if (logs.length === 0) {
+        <up-empty-state
+          icon="history"
+          title="Nenhum registro de auditoria."
+          description="As ações realizadas na plataforma serão registradas aqui."
+        />
+      } @else {
+        <up-data-table [recordCount]="total" recordLabel="registro" recordLabelPlural="registros" [showEndHint]="lastPage <= 1">
+          <thead>
+            <tr>
+              <th>Data / Hora</th>
+              <th>Ação</th>
+              <th>Empresa</th>
+              <th>Detalhe</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (log of logs; track log.id) {
+              <tr class="upx-data-table__row--static">
+                <td class="cell-secondary">{{ formatarData(log.created_at) }}</td>
+                <td>
+                  <span class="cell-primary inline-flex items-center gap-1">
+                    <mat-icon class="text-primary" inline>info</mat-icon>
+                    {{ actionLabel(log.action) }}
+                  </span>
+                </td>
+                <td class="cell-secondary">{{ log.organization_name ?? '—' }}</td>
+                <td class="cell-secondary">{{ detalheTexto(log) }}</td>
+              </tr>
+            }
+          </tbody>
+          @if (lastPage > 1) {
+            <div data-table-footer-end>
+              <zm-pagination [currentPage]="currentPage" [lastPage]="lastPage" (pageChange)="goToPage($event)" />
+            </div>
+          }
+        </up-data-table>
+      }
+    }
+  </div>
+</section>

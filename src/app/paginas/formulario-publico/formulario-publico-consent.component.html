@@ -31,23 +31,23 @@
         Leia todas as seções do termo acima (role até o final) para habilitar a declaração de compreensão clínica.
       </p>
     }
-    <z-checkbox
+    <mat-checkbox
       class="fp-consent-checkbox"
       [ngModel]="comprehensionAck"
       (ngModelChange)="comprehensionAckChange.emit($event)"
       name="fpComprehensionAck"
       [ngModelOptions]="{ standalone: true }"
-      [zDisabled]="requireTermScroll && !termScrollCompleted"
+      [disabled]="requireTermScroll && !termScrollCompleted"
       (click)="$event.stopPropagation()"
     >
       <span class="fp-check-label-inline">
         Declaro que li e compreendi as informações deste termo sobre o procedimento, riscos, benefícios, alternativas, cuidados e o direito de recusa, conforme descrito acima.
       </span>
-    </z-checkbox>
+    </mat-checkbox>
   }
 
   @if (showPrivacySection) {
-  <z-checkbox
+  <mat-checkbox
     class="fp-consent-checkbox"
     [ngModel]="acceptTerms"
     (ngModelChange)="acceptTermsChange.emit($event)"
@@ -60,7 +60,7 @@
       <a routerLink="/privacidade" target="_blank" rel="noopener" class="fp-link">Política de Privacidade</a>.
       Estou ciente de que minha assinatura eletrônica integra este documento (ciência de privacidade, distinta da compreensão clínica acima).
     </span>
-  </z-checkbox>
+  </mat-checkbox>
   }
 </div>
 }
@@ -76,6 +76,7 @@
       <input
         id="fpGuardianName"
         type="text"
+        matInput
         class="fp-input"
         [ngModel]="guardianName"
         (ngModelChange)="guardianNameChange.emit($event)"
@@ -91,6 +92,7 @@
       <input
         id="fpGuardianRelation"
         type="text"
+        matInput
         class="fp-input"
         [ngModel]="guardianRelation"
         (ngModelChange)="guardianRelationChange.emit($event)"
@@ -104,6 +106,7 @@
       <input
         id="fpWitnessName"
         type="text"
+        matInput
         class="fp-input"
         [ngModel]="witnessName"
         (ngModelChange)="witnessNameChange.emit($event)"
@@ -117,7 +120,7 @@
 
 @if (showActorsAssistedSection && assistedMode) {
   <div class="fp-assisted-block">
-    <z-checkbox
+    <mat-checkbox
       class="fp-consent-checkbox"
       [ngModel]="professionalExplained"
       (ngModelChange)="professionalExplainedChange.emit($event)"
@@ -127,7 +130,7 @@
       <span class="fp-check-label-inline">
         Confirmo, como profissional, que expliquei riscos, benefícios, alternativas e o direito de recusa ao paciente (modo assistido).
       </span>
-    </z-checkbox>
+    </mat-checkbox>
 
     @if (!showAssistedCosignBlock) {
       <p class="fp-field-hint" style="margin-top:0.75rem">
@@ -146,6 +149,7 @@
           <input
             id="fpProfessionalSignerName"
             type="text"
+            matInput
             class="fp-input"
             [ngModel]="professionalSignerName"
             (ngModelChange)="professionalSignerNameChange.emit($event)"

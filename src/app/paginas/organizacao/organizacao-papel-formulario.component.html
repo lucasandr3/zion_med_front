@@ -6,7 +6,7 @@
     <p class="text-sm text-destructive">{{ erro }}</p>
   } @else {
     <div class="zm-content-enter">
-      <z-card class="gap-0 py-5 shadow-sm **:data-[slot=card-content]:px-5">
+      <div class="upx-form-panel">
         <p class="mb-5 text-sm text-muted-foreground">
           @if (novo) {
             Defina um identificador, o nome e quais acessos este perfil terá na organização.
@@ -16,21 +16,18 @@
         </p>
 
         @if (novo) {
-          <div class="mb-5">
-            <label class="permissao-form-label" for="perfil-slug">Identificador (slug) <span class="text-destructive">*</span></label>
+          <mat-form-field class="upx-full mb-5">
+            <mat-label>Identificador (slug) <span class="text-destructive">*</span></mat-label>
             <input
+              matInput
               id="perfil-slug"
-              type="text"
               [(ngModel)]="slugNovo"
               name="slugNovo"
-              z-input
-              zSize="sm"
-              class="w-full"
               placeholder="ex.: recepcao"
               autocomplete="off"
             />
-            <p class="m-0 mt-1 text-xs text-muted-foreground">Minúsculas, números e underscore. Não pode ser alterado depois.</p>
-          </div>
+            <mat-hint>Minúsculas, números e underscore. Não pode ser alterado depois.</mat-hint>
+          </mat-form-field>
         } @else {
           <p class="mb-5 text-sm text-muted-foreground">
             Identificador: <code class="text-xs">{{ slugParam }}</code>
@@ -40,19 +37,10 @@
           </p>
         }
 
-        <div class="mb-5">
-          <label class="permissao-form-label" for="perfil-label">Nome exibido <span class="text-destructive">*</span></label>
-          <input
-            id="perfil-label"
-            type="text"
-            [(ngModel)]="label"
-            name="label"
-            z-input
-            zSize="sm"
-            class="w-full"
-            required
-          />
-        </div>
+        <mat-form-field class="upx-full mb-5">
+          <mat-label>Nome exibido <span class="text-destructive">*</span></mat-label>
+          <input matInput id="perfil-label" [(ngModel)]="label" name="label" required />
+        </mat-form-field>
 
         @if (permissoesBloqueadas) {
           <p class="mb-5 rounded-lg border border-border bg-muted p-3 text-sm text-foreground">
@@ -68,11 +56,11 @@
               <ul class="perm-list m-0 list-none space-y-2 p-0">
                 @for (item of g.items; track item.key) {
                   <li>
-                    <z-checkbox
-                      class="items-start"
+                    <mat-checkbox
+                      color="primary"
                       [ngModel]="isOn(item.key)"
                       (ngModelChange)="setPerm(item.key, $event)"
-                      [zDisabled]="permissoesBloqueadas"
+                      [disabled]="permissoesBloqueadas"
                       [name]="'perm_' + item.key"
                     >
                       <span>
@@ -81,7 +69,7 @@
                           <span class="mt-0.5 block text-xs text-muted-foreground">{{ item.description }}</span>
                         }
                       </span>
-                    </z-checkbox>
+                    </mat-checkbox>
                   </li>
                 }
               </ul>
@@ -92,22 +80,21 @@
         <div class="mt-5 flex flex-wrap items-center gap-3 pt-2">
           <button
             type="button"
-            z-button
-            zSize="sm"
-            class="inline-flex items-center gap-2"
+            mat-flat-button
+            color="primary"
             [disabled]="salvando || !label.trim()"
             (click)="salvar()"
           >
             @if (salvando) {
-              <span class="btn-spinner" aria-hidden="true"></span>
+              <mat-spinner diameter="18"></mat-spinner>
             } @else {
-              <span class="material-symbols-outlined text-base">save</span>
+              <mat-icon>save</mat-icon>
             }
             {{ salvando ? 'Salvando…' : 'Salvar' }}
           </button>
-          <a routerLink="/organizacao/permissoes" z-button zType="outline" zSize="sm" class="no-underline">Cancelar</a>
+          <a routerLink="/organizacao/permissoes" mat-stroked-button class="btn-cancel">Cancelar</a>
         </div>
-      </z-card>
+      </div>
     </div>
   }
 </div>

@@ -1,0 +1,41 @@
+:host {
+    display: inline-flex;
+    @apply inline-flex items-center text-inherit dark:text-inherit text-opacity-70 text-2xl select-none;
+    &.upx-icon-size-xs {
+        @apply text-base;
+    }
+    &.upx-icon-size-sm {
+        @apply text-lg;
+    }
+    &.upx-icon-size-md {
+        @apply text-xl;
+    }
+    &.upx-icon-size-lg {
+        @apply text-2xl;
+    }
+    &.upx-icon-size-xl {
+        @apply text-3xl;
+    }
+    &.upx-icon-size-2xl {
+        @apply text-4xl;
+    }
+    &.upx-icon-size-3xl {
+        @apply text-5xl;
+    }
+    &.upx-icon-size-4xl {
+        @apply text-6xl;
+    }
+    &.upx-icon-animate-spin {
+        @apply animate-spin;
+    }
+    &.upx-icon-animate-ping {
+        @apply animate-ping;
+    }
+	.material-symbols-outlined {
+		font-variation-settings:
+		'FILL' 1,
+		'wght' 400,
+		'GRAD' 0,
+		'opsz' 24
+	}
+}

@@ -1,19 +1,15 @@
 import { Component, OnInit, inject, Signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ZardCardComponent } from '@/shared/components/card/card.component';
-import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
 import { PlataformaService, PlatformInvoice } from '../../../core/services/plataforma.service';
 import { LoadingService } from '../../../shared/services/loading.service';
 import { ZmSkeletonListComponent } from '../../../shared/components/skeletons';
-import { ZmEmptyStateComponent } from '../../../shared/components/ui';
+import { DataTableComponent, BadgeComponent, UpEmptyStateComponent, type StatusTone } from '../../../shared/components/up';
 import { statusFaturaPt } from '../../../core/utils/status-labels-pt';
 
-import { ZardTableImports } from '@/shared/components/table';
 @Component({
   selector: 'app-plataforma-faturas',
   standalone: true,
-  imports: [
-    ...ZardTableImports,CommonModule, ZardCardComponent, ZardBadgeComponent, ZmSkeletonListComponent, ZmEmptyStateComponent],
+  imports: [CommonModule, ZmSkeletonListComponent, DataTableComponent, BadgeComponent, UpEmptyStateComponent],
   templateUrl: './plataforma-faturas.component.html',
   styleUrl: './plataforma-faturas.component.css',
 })
@@ -59,11 +55,11 @@ export class PlataformaFaturasComponent implements OnInit {
     return symbol + ' ' + valor.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
 
-  badgeTipoStatus(status?: string | null): 'default' | 'secondary' | 'destructive' | 'outline' {
+  badgeTone(status?: string | null): StatusTone {
     const k = (status ?? '').toLowerCase();
-    if (['received', 'confirmed', 'paid', 'received_in_cash'].includes(k)) return 'default';
-    if (['pending', 'awaiting_risk_analysis'].includes(k)) return 'secondary';
-    if (['overdue', 'deleted', 'unpaid'].includes(k)) return 'destructive';
-    return 'outline';
+    if (['received', 'confirmed', 'paid', 'received_in_cash'].includes(k)) return 'published';
+    if (['pending', 'awaiting_risk_analysis'].includes(k)) return 'draft';
+    if (['overdue', 'deleted', 'unpaid'].includes(k)) return 'archived';
+    return 'default';
   }
 }

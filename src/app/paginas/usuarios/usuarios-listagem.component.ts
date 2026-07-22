@@ -1,30 +1,30 @@
 import { Component, OnInit, inject, Signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { UsuariosService, Usuario } from '../../core/services/usuarios.service';
 import { LoadingService } from '../../shared/services/loading.service';
 import { ZmSkeletonUsuariosListagemComponent } from '../../shared/components/skeletons';
-import { ZmEmptyStateComponent } from '../../shared/components/ui';
-import { ZardCardComponent } from '@/shared/components/card/card.component';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
+import { DataTableComponent, BadgeComponent, UpEmptyStateComponent } from '../../shared/components/up';
 import { AuthService } from '../../core/services/auth.service';
 import { ToastService } from '../../core/services/toast.service';
 import { ConfirmDialogService } from '../../core/services/confirm-dialog.service';
-import { ZardTooltipImports } from '@/shared/components/tooltip';
 
-import { ZardTableImports } from '@/shared/components/table';
 @Component({
   selector: 'app-usuarios-listagem',
   standalone: true,
   imports: [
-    ...ZardTableImports,
     CommonModule,
     RouterLink,
+    MatButtonModule,
+    MatIconModule,
+    MatTooltipModule,
     ZmSkeletonUsuariosListagemComponent,
-    ZmEmptyStateComponent,
-    ...ZardTooltipImports,
-    ZardCardComponent,
-    ZardButtonComponent,
+    DataTableComponent,
+    BadgeComponent,
+    UpEmptyStateComponent,
   ],
   templateUrl: './usuarios-listagem.component.html',
   styleUrl: './usuarios-listagem.component.css',

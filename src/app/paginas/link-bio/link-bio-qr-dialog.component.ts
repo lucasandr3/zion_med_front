@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, Output, inject, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { ZardSkeletonComponent } from '@/shared/components/skeleton/skeleton.component';
 import { ToastService } from '../../core/services/toast.service';
 import {
@@ -11,7 +12,7 @@ import {
 @Component({
   selector: 'zm-link-bio-qr-dialog',
   standalone: true,
-  imports: [CommonModule, ZardButtonComponent, ZardSkeletonComponent],
+  imports: [CommonModule, MatButtonModule, MatIconModule, ZardSkeletonComponent],
   templateUrl: './link-bio-qr-dialog.component.html',
   styleUrl: './link-bio-qr-dialog.component.css',
 })

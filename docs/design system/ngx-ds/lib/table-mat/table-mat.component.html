@@ -1,0 +1,46 @@
+<div class="table-responsive">
+	<!-- <upx-form-field *ngIf="enableSearch">
+		<upx-label>Filter</upx-label>
+		<input matInput (keyup)="applyFilter($event)" placeholder="Ex. ium" #input>
+	</upx-form-field> -->
+
+    <div (scroll)="onScroll.emit($event)" [ngStyle]="{'max-height.px': '400', 'overflow-y': 'auto'}">
+        <table mat-table [dataSource]="dataSource" class="defautl-div-theme mat-elevation-z8 mt-4"
+            *ngIf="dataSourceItens.length > 0">
+
+            <!-- Colunas dinâmicas -->
+            <ng-container *ngFor="let column of columnDefinitions; let i = index" [matColumnDef]="column.key">
+                <ng-container>
+                    <th class="default-text-theme" mat-header-cell *matHeaderCellDef> {{ column.header }} </th>
+                    <td class="default-text-theme" mat-cell *matCellDef="let element">
+
+                        <ng-container *ngIf="column.type === 'component'">
+                            <ng-container
+                                *ngComponentOutlet="element[column.key].component; injector: element[column.key].injector">
+                            </ng-container>
+                        </ng-container>
+
+                        <ng-container *ngIf="column.type === 'text'">
+                            <span class="{{element.class && element.columnPosition && i == element.columnPosition ? element.class: '' }}">
+                                {{ element[column.key] }}
+                            </span>
+                        </ng-container>
+
+                    </td>
+                </ng-container>
+            </ng-container>
+
+            <!-- Cabeçalho e linhas da tabela -->
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            
+        </table>
+        <table *ngIf="isLast" class="defautl-div-theme mat-elevation-z8 mt-4">
+            <tr>
+                <td [attr.colspan]="displayedColumns.length" class="text-center">
+                    <div>Isso é tudo!</div>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>

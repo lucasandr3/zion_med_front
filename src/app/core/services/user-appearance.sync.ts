@@ -3,7 +3,7 @@ export const GESTGO_THEME_LS = 'gestgo_theme';
 export const GESTGO_DARK_LS = 'gestgo_dark_mode';
 /** Quando `'auto'`, o modo claro/escuro segue `prefers-color-scheme` (drawer do cabeçalho). */
 export const GESTGO_APPEARANCE_MODE_LS = 'gestgo_appearance_mode';
-/** Preset visual do shell (header + sidebar): `default` | `tinted` | `sidebar_dark`. */
+/** Preset visual do shell: `default` | `tinted` | `sidebar_dark` | `tinted_sidebar_dark`. */
 export const GESTGO_SHELL_PRESET_LS = 'gestgo_shell_preset';
 /** Disposição do menu: `sidebar` (padrão) | `horizontal`. */
 export const GESTGO_NAV_LAYOUT_LS = 'gestgo_nav_layout';
@@ -20,11 +20,24 @@ export function normalizeThemeKey(theme: string): string {
   return LEGACY_THEME_ALIASES[theme] ?? theme;
 }
 
-export type ShellPreset = 'default' | 'tinted' | 'sidebar_dark';
+/** Estilo do topo/faixa de marca (independente do menu escuro). */
+export type ShellHeaderPreset = 'default' | 'tinted';
 
-/** Opções do shell (drawer do header e aba Tema Visual em Configurações). */
+/**
+ * Valor persistido na API/localStorage.
+ * `tinted` e `sidebar_dark` podem combinar em `tinted_sidebar_dark`.
+ */
+export type ShellPreset = 'default' | 'tinted' | 'sidebar_dark' | 'tinted_sidebar_dark';
+
+/** Estado interno do shell (topo + menu). */
+export interface ShellAppearance {
+  header: ShellHeaderPreset;
+  sidebarDark: boolean;
+}
+
+/** Opções do drawer — Padrão/Topo são exclusivos; Menu escuro é independente (toggle). */
 export const SHELL_PRESET_UI_OPTIONS: ReadonlyArray<{
-  id: ShellPreset;
+  id: 'default' | 'tinted' | 'sidebar_dark';
   label: string;
   icon: string;
   description: string;
@@ -33,19 +46,19 @@ export const SHELL_PRESET_UI_OPTIONS: ReadonlyArray<{
     id: 'default',
     label: 'Padrão',
     icon: 'view_agenda',
-    description: 'Topo e menu iguais aos cartões (superfície neutra).',
+    description: 'Topo neutro (branco/superfície). Permanece claro mesmo com Menu escuro.',
   },
   {
     id: 'tinted',
     label: 'Topo e marca',
     icon: 'branding_watermark',
-    description: 'Cor primária no cabeçalho e na faixa do nome Gestgo; o restante do menu segue o fundo padrão.',
+    description: 'Cor primária no cabeçalho e na faixa do nome Gestgo (pode combinar com Menu escuro).',
   },
   {
     id: 'sidebar_dark',
     label: 'Menu escuro',
     icon: 'dock_to_right',
-    description: 'Barra lateral estilo painel; destaque no modo claro.',
+    description: 'Escurece só a lateral (#1a1a1a). Não altera o topo Padrão nem remove Topo e marca.',
   },
 ];
 
@@ -70,25 +83,45 @@ export const NAV_LAYOUT_UI_OPTIONS: ReadonlyArray<{
   },
 ];
 
-const SHELL_BODY_CLASSES = ['shell-preset-tinted', 'shell-preset-sidebar-dark'] as const;
 const NAV_LAYOUT_BODY_CLASS = 'shell-nav-horizontal';
 
-/** Normaliza valor da API ou localStorage para um preset do shell. */
-export function normalizeShellPreset(raw: string | null | undefined): ShellPreset {
+/** Converte valor da API/localStorage para estado do shell. */
+export function parseShellAppearance(raw: string | null | undefined): ShellAppearance {
   const s = String(raw ?? '').trim();
-  if (s === 'tinted' || s === 'sidebar_dark') return s;
+  if (s === 'tinted_sidebar_dark' || s === 'tinted+sidebar_dark' || s === 'sidebar_dark_tinted') {
+    return { header: 'tinted', sidebarDark: true };
+  }
+  if (s === 'tinted' || s === 'branded-top') {
+    return { header: 'tinted', sidebarDark: false };
+  }
+  if (s === 'sidebar_dark' || s === 'dark-sidebar') {
+    return { header: 'default', sidebarDark: true };
+  }
+  return { header: 'default', sidebarDark: false };
+}
+
+/** Serializa estado do shell para API/localStorage. */
+export function serializeShellAppearance(appearance: ShellAppearance): ShellPreset {
+  if (appearance.header === 'tinted' && appearance.sidebarDark) return 'tinted_sidebar_dark';
+  if (appearance.header === 'tinted') return 'tinted';
+  if (appearance.sidebarDark) return 'sidebar_dark';
   return 'default';
 }
 
-/** Normaliza valor da API ou localStorage para disposição do menu. */
-export function normalizeNavLayout(raw: string | null | undefined): NavLayout {
-  return String(raw ?? '').trim() === 'horizontal' ? 'horizontal' : 'sidebar';
+/** @deprecated Preferir `parseShellAppearance` — mantido para chamadas existentes. */
+export function normalizeShellPreset(raw: string | null | undefined): ShellPreset {
+  return serializeShellAppearance(parseShellAppearance(raw));
 }
 
 /** Lê disposição atual do `body` (após boot ou apply). */
 export function readNavLayoutFromDom(): NavLayout {
   if (typeof document === 'undefined') return 'sidebar';
   return document.body.classList.contains(NAV_LAYOUT_BODY_CLASS) ? 'horizontal' : 'sidebar';
+}
+
+/** Normaliza valor da API ou localStorage para disposição do menu. */
+export function normalizeNavLayout(raw: string | null | undefined): NavLayout {
+  return String(raw ?? '').trim() === 'horizontal' ? 'horizontal' : 'sidebar';
 }
 
 /**
@@ -103,18 +136,32 @@ export function applyNavLayoutToDom(layout: NavLayout): void {
   } catch {}
 }
 
+/** Lê estado atual das classes do body. */
+export function readShellAppearanceFromDom(): ShellAppearance {
+  if (typeof document === 'undefined') return { header: 'default', sidebarDark: false };
+  return {
+    header: document.body.classList.contains('shell-preset-tinted') ? 'tinted' : 'default',
+    sidebarDark: document.body.classList.contains('shell-preset-sidebar-dark'),
+  };
+}
+
 /**
  * Aplica classes `body.shell-preset-*` e persiste em localStorage.
+ * Topo e marca (`tinted`) e Menu escuro (`sidebar_dark`) são independentes.
  */
-export function applyShellPresetToDom(preset: ShellPreset): void {
+export function applyShellAppearanceToDom(appearance: ShellAppearance): void {
   if (typeof document === 'undefined') return;
-  SHELL_BODY_CLASSES.forEach((c) => document.body.classList.remove(c));
-  if (preset === 'tinted') document.body.classList.add('shell-preset-tinted');
-  if (preset === 'sidebar_dark') document.body.classList.add('shell-preset-sidebar-dark');
+  document.body.classList.toggle('shell-preset-tinted', appearance.header === 'tinted');
+  document.body.classList.toggle('shell-preset-sidebar-dark', appearance.sidebarDark);
   if (typeof localStorage === 'undefined') return;
   try {
-    localStorage.setItem(GESTGO_SHELL_PRESET_LS, preset);
+    localStorage.setItem(GESTGO_SHELL_PRESET_LS, serializeShellAppearance(appearance));
   } catch {}
+}
+
+/** @deprecated Preferir `applyShellAppearanceToDom`. */
+export function applyShellPresetToDom(preset: ShellPreset | string): void {
+  applyShellAppearanceToDom(parseShellAppearance(preset));
 }
 
 export interface UserAppearanceFields {
@@ -151,8 +198,7 @@ export function applyUserAppearanceToBrowser(fields: UserAppearanceFields): void
   }
 
   if (fields.ui_shell_preset !== undefined) {
-    const p = normalizeShellPreset(fields.ui_shell_preset);
-    applyShellPresetToDom(p);
+    applyShellAppearanceToDom(parseShellAppearance(fields.ui_shell_preset));
   }
 
   if (fields.ui_nav_layout != null && String(fields.ui_nav_layout).trim() !== '') {

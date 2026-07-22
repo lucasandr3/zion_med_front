@@ -1,0 +1,121 @@
+:host {
+  display: block;
+  height: 100%;
+  min-height: 100%;
+  background-color: rgb(var(--theme-floor-2));
+}
+
+.upx-page-list {
+  display: flex;
+  height: 100%;
+  min-height: 100%;
+  flex-direction: column;
+  background-color: rgb(var(--theme-floor-2));
+}
+
+.upx-page-list__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  padding: 0.65rem 1rem;
+  border-bottom: 1px solid var(--theme-line);
+  background: rgb(var(--theme-floor-2));
+}
+
+.upx-page-list__toolbar-start,
+.upx-page-list__toolbar-end {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.toolbar-more-btn {
+  border-radius: 10px;
+  border-color: rgb(var(--theme-border) / 0.28);
+  color: rgb(var(--theme-fg) / 0.85) !important;
+
+  mat-icon {
+    font-size: 1.15rem;
+    width: 1.15rem;
+    height: 1.15rem;
+    color: rgb(var(--theme-fg) / 0.8);
+  }
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: min(100%, 20rem);
+  height: 2.15rem;
+  padding: 0 0.85rem;
+  border: 1px solid rgb(var(--theme-border) / 0.12);
+  border-radius: 999px;
+  background: rgb(var(--theme-floor-1));
+  transition: border-color 120ms ease;
+
+  &:focus-within {
+    border-color: rgb(var(--theme-padrao));
+    background: rgb(var(--theme-floor-1));
+  }
+
+  mat-icon {
+    font-size: 1.15rem;
+    width: 1.15rem;
+    height: 1.15rem;
+    color: rgb(var(--theme-fg) / 0.45);
+  }
+
+  input {
+    flex: 1;
+    min-width: 0;
+    border: none;
+    outline: none;
+    background: transparent;
+    font: inherit;
+    font-size: 0.875rem;
+    color: rgb(var(--theme-fg));
+
+    &::placeholder {
+      color: rgb(var(--theme-fg) / 0.4);
+    }
+  }
+}
+
+:host-context(html.dark) .search-box {
+  background: rgb(var(--theme-sidebar));
+
+  &:focus-within {
+    background: rgb(var(--theme-floor-1));
+  }
+}
+
+.upx-page-list__content {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  flex-direction: column;
+  background: rgb(var(--theme-floor-2));
+}
+
+@media (max-width: 767.98px) {
+  .upx-page-list__toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 0.75rem;
+  }
+
+  .upx-page-list__toolbar-start,
+  .upx-page-list__toolbar-end {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .search-box {
+    width: 100%;
+    max-width: none;
+  }
+}
+

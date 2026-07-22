@@ -1,0 +1,20 @@
+<!-- Extraído de: components/core/operacoes-item/operacoes-item.component.html -->
+<upx-form-page>
+	<upx-toolbar [startTemplate]="templateRegisterToolbarStart" [endTemplate]="templateRegisterToolbarEnd"></upx-toolbar>
+	<ng-template #templateRegisterToolbarStart>
+		<upx-button (click)="close()" variant="plain">
+			<upx-icon name="arrow_back"></upx-icon>
+			<span>Voltar</span>
+		</upx-button>
+	</ng-template>
+	<ng-template #templateRegisterToolbarEnd>
+		<upx-button
+			(onClick)="save()"
+			[disabled]="!form.dirty"
+			[variant]="form.dirty ? 'solid' : 'default'"
+			[color]="form.dirty ? 'theme' : 'default'">
+			<upx-icon name="done"></upx-icon>
+			Salvar alterações
+		</upx-button>
+	</ng-template>
+</upx-form-page>

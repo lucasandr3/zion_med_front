@@ -1,0 +1,63 @@
+.upx-expansion {
+    @apply flex flex-col gap-2 w-full;
+    
+    &--multi {
+        .upx-expansion-panel {
+            margin-bottom: 0.5rem;
+        }
+    }
+}
+
+.upx-expansion-panel {
+    @apply flex flex-col w-full bg-theme-floor-1 rounded-lg overflow-hidden;
+    border: 1px solid rgb(0 0 0 / 10%);
+    
+    &--disabled {
+        @apply opacity-50 pointer-events-none;
+    }
+
+    &__header {
+        @apply flex items-center justify-between w-full p-4 cursor-pointer;
+        @apply hover:bg-black hover:bg-opacity-5 dark:hover:bg-white dark:hover:bg-opacity-5;
+        transition: background-color 0.2s ease;
+        
+        &:active {
+            @apply bg-black bg-opacity-10 dark:bg-white dark:bg-opacity-10;
+        }
+    }
+
+    &__icon {
+        @apply flex items-center justify-center min-w-[24px] text-black dark:text-white text-opacity-70 dark:text-opacity-70;
+        transition: transform 0.2s ease;
+    }
+
+    &__content-wrapper {
+        @apply w-full overflow-hidden;
+        max-height: 0;
+        transition: max-height 0.3s ease, opacity 0.3s ease;
+        opacity: 0;
+
+        &--expanded {
+            max-height: 10000px;
+            opacity: 1;
+        }
+    }
+
+    &__content {
+        @apply w-full p-4 pt-0;
+    }
+
+    &--expanded {
+        .upx-expansion-panel__header {
+            @apply border-b border-neutral-300 dark:border-neutral-700;
+        }
+    }
+}
+
+// Suporte para tema dark
+.dark {
+    .upx-expansion-panel {
+        border-color: rgb(255 255 255 / 10%);
+    }
+}
+

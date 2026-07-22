@@ -1,0 +1,124 @@
+<div class="theme-panel__backdrop" (click)="close()"></div>
+
+<aside class="theme-panel" role="dialog" aria-modal="true" aria-label="Tema e aparência">
+  <div class="theme-panel__header">
+    <h2 class="theme-panel__title">Tema e aparência</h2>
+    <button type="button" class="theme-panel__close" (click)="close()" aria-label="Fechar painel de tema">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <div class="theme-panel__body">
+    <section class="theme-section" aria-labelledby="theme-panel-modo">
+      <p id="theme-panel-modo" class="theme-section__label">Modo</p>
+      <div class="theme-options theme-options--3">
+        <button
+          type="button"
+          class="theme-option"
+          [class.is-active]="themeDrawerMode === 'light'"
+          (click)="aplicarModoTema('light')"
+          [attr.aria-pressed]="themeDrawerMode === 'light'"
+        >
+          <mat-icon>light_mode</mat-icon>
+          <span>Claro</span>
+        </button>
+        <button
+          type="button"
+          class="theme-option"
+          [class.is-active]="themeDrawerMode === 'dark'"
+          (click)="aplicarModoTema('dark')"
+          [attr.aria-pressed]="themeDrawerMode === 'dark'"
+        >
+          <mat-icon>dark_mode</mat-icon>
+          <span>Escuro</span>
+        </button>
+        <button
+          type="button"
+          class="theme-option"
+          [class.is-active]="themeDrawerMode === 'auto'"
+          (click)="aplicarModoTema('auto')"
+          [attr.aria-pressed]="themeDrawerMode === 'auto'"
+        >
+          <mat-icon>brightness_auto</mat-icon>
+          <span>Automático</span>
+        </button>
+      </div>
+    </section>
+
+    <section class="theme-section" aria-labelledby="theme-panel-nav">
+      <p id="theme-panel-nav" class="theme-section__label">Disposição do menu</p>
+      <p class="theme-section__hint">
+        <strong>Lateral:</strong> barra de navegação fixa à esquerda.
+        <strong>Horizontal:</strong> marca, menu e usuário no topo.
+      </p>
+      <div class="theme-options theme-options--2">
+        @for (opt of navLayoutOptions; track opt.id) {
+          <button
+            type="button"
+            class="theme-option"
+            [class.is-active]="navLayoutAtual === opt.id"
+            (click)="aplicarNavLayout(opt.id)"
+            [attr.aria-pressed]="navLayoutAtual === opt.id"
+            [attr.title]="opt.description"
+          >
+            <mat-icon>{{ opt.icon }}</mat-icon>
+            <span>{{ opt.label }}</span>
+          </button>
+        }
+      </div>
+    </section>
+
+    <section class="theme-section" aria-labelledby="theme-panel-shell">
+      <p id="theme-panel-shell" class="theme-section__label">Barra lateral e topo</p>
+      <p class="theme-section__hint">
+        <strong>Padrão</strong> e <strong>Topo e marca</strong> controlam a cor do cabeçalho.
+        <strong>Menu escuro</strong> é independente e pode ficar ativo junto com qualquer um dos dois.
+      </p>
+      <div class="theme-options theme-options--3">
+        @for (opt of shellPresetOptions; track opt.id) {
+          <button
+            type="button"
+            class="theme-option theme-option--compact"
+            [class.is-active]="isShellOptionActive(opt.id)"
+            (click)="aplicarShellPreset(opt.id)"
+            [attr.aria-pressed]="isShellOptionActive(opt.id)"
+            [attr.title]="opt.description"
+          >
+            <mat-icon>{{ opt.icon }}</mat-icon>
+            <span>{{ opt.label }}</span>
+          </button>
+        }
+      </div>
+      <p class="theme-section__footnote">{{ shellPresetFootnote }}</p>
+    </section>
+
+    <section class="theme-section" aria-labelledby="theme-panel-cor">
+      <p id="theme-panel-cor" class="theme-section__label">Cor do tema</p>
+      <p class="theme-section__hint">
+        Afeta botões, links e o item ativo do menu. O fundo do topo e da lateral é controlado por
+        <strong>Barra lateral e topo</strong> acima.
+      </p>
+      <div class="theme-colors" role="list">
+        @for (t of temasOrdemGrade; track t.key) {
+          <button
+            type="button"
+            class="theme-color"
+            [class.is-active]="temaAtual === t.key"
+            [style.--swatch-color]="t.color"
+            (click)="aplicarTema(t.key)"
+            [attr.aria-label]="'Cor do tema: ' + t.labelPt"
+            [attr.aria-pressed]="temaAtual === t.key"
+            role="listitem"
+          >
+            @if (temaAtual === t.key) {
+              <mat-icon aria-hidden="true">check</mat-icon>
+            }
+          </button>
+        }
+      </div>
+      <p class="theme-section__footnote">
+        Selecionado: <strong>{{ temaAtualMeta?.labelPt ?? '—' }}</strong>
+      </p>
+    </section>
+  </div>
+</aside>

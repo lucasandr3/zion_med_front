@@ -1,0 +1,132 @@
+.upx-input {
+	@apply w-full;
+
+	.upx-input__container {
+		@apply w-full;
+
+		.upx-input__icon {
+			@apply text-xl leading-none w-5 h-5;
+		}
+
+		.upx-input__icon-clear,
+		.upx-input__icon-copy {
+			@apply hidden text-neutral-300 cursor-pointer;
+
+			&:hover {
+				@apply text-theme;
+			}
+		}
+
+		.upx-input__icon-suffix--with-action {
+			@apply cursor-pointer;
+
+			&:hover {
+				@apply text-theme;
+			}
+		}
+
+		&:hover {
+
+			.upx-input__icon-clear,
+			.upx-input__icon-copy {
+				@apply inline-block;
+			}
+		}
+	}
+
+	&.upx-input--size {
+		&-xs {
+			input {
+				@apply h-7 p-1.5 text-xs rounded-sm;
+			}
+		}
+
+		&-sm {
+			input {
+				@apply h-9 p-2 text-sm rounded-sm;
+			}
+		}
+
+		&-md {
+			input {
+				@apply h-11 text-sm p-2.5 rounded-md;
+			}
+		}
+
+		&-lg {
+			input {
+				@apply h-12 p-3 text-base rounded-lg;
+			}
+		}
+
+		&-xl {
+			input {
+				@apply h-14 text-base p-3.5 rounded-xl;
+			}
+		}
+	}
+
+	// &.input--background-paid{
+	// 	@apply bg-[#3b972e] dark:bg-[#1a4922];
+	// }
+
+	// &.input--background-non-paid{
+	// 	@apply bg-[#8b3434] dark:bg-[#a73838];
+	// }
+
+	&.upx-input--feedback-disabled {
+		.mat-mdc-form-field-subscript-wrapper {
+			@apply hidden;
+		}
+	}
+
+	.mdc-text-field {
+		@apply p-0 border-black border-opacity-80 dark:border-white dark:border-opacity-80;
+	}
+
+	.mdc-text-field--outlined .mdc-notched-outline .mdc-notched-outline__leading {
+		@apply rounded-tl-md rounded-bl-md;
+	}
+
+	.mdc-text-field--outlined .mdc-notched-outline .mdc-notched-outline__trailing {
+		@apply rounded-tr-md rounded-br-md;
+	}
+
+	.mat-mdc-form-field-infix {
+		@apply min-h-0 p-0 #{!important};
+	}
+
+	.mat-mdc-form-field-icon-prefix,
+	.mat-mdc-form-field-icon-suffix {
+		@apply flex items-center gap-1 py-0 pr-2 pl-1;
+		>.mat-icon {
+			@apply p-0;
+		}
+	}
+
+	/* Estilos específicos para inputs do tipo 'date' */
+	&.is-date {
+		.mat-mdc-form-field-icon-prefix,
+		.mat-mdc-form-field-icon-suffix {
+			@apply flex items-center gap-1 py-px pl-0 pr-0.5 #{!important}; // Remove pr-2 e pl-1 para inputs 'date'
+		}
+	}
+
+	.mat-mdc-form-field-error {
+		@apply text-xs;
+	}
+
+	input:focus {
+		@apply bg-[#FFFEC3] dark:bg-[#3C3C3C];
+	}
+}
+
+.no-arrow::-webkit-inner-spin-button,
+.no-arrow::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.no-arrow {
+    -moz-appearance: textfield; /* Para Firefox */
+}

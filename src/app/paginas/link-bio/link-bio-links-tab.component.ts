@@ -19,11 +19,12 @@ import {
   normalizeGooglePlaceId,
   resolveGoogleWriteReviewUrl,
 } from './link-bio-google-review-link.util';
-import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
+import { MAT_FORM_IMPORTS } from '@/shared/material';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ZardBadgeComponent } from '@/shared/components/badge';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
 import { ZardCardComponent } from '@/shared/components/card/card.component';
-import { ZardComboboxComponent, type ZardComboboxOption } from '@/shared/components/combobox';
 
 export type LinkBioLinksTabNavigate = 'aparencia';
 
@@ -31,14 +32,15 @@ export type LinkBioLinksTabNavigate = 'aparencia';
   selector: 'zm-link-bio-links-tab',
   standalone: true,
   imports: [
-    ...ZARD_FORM_CONTROL_IMPORTS,
+    ...MAT_FORM_IMPORTS,
     CommonModule,
     FormsModule,
     RouterLink,
+    MatButtonModule,
+    MatIconModule,
+    MatProgressSpinnerModule,
     ZardBadgeComponent,
-    ZardButtonComponent,
     ZardCardComponent,
-    ZardComboboxComponent,
   ],
   templateUrl: './link-bio-links-tab.component.html',
 })
@@ -71,7 +73,7 @@ export class LinkBioLinksTabComponent {
     return this.state?.links ?? [];
   }
 
-  get iconComboboxOptions(): ZardComboboxOption[] {
+  get iconComboboxOptions(): { value: string; label: string }[] {
     return Object.entries(this.state?.available_icons ?? {}).map(([value, label]) => ({ value, label }));
   }
 

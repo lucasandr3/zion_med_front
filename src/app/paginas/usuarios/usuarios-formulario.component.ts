@@ -3,15 +3,13 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { forkJoin } from 'rxjs';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { UsuariosService, Role, Usuario, UsuarioUpdatePayload } from '../../core/services/usuarios.service';
 import { LoadingService } from '../../shared/services/loading.service';
 import { ZmSkeletonUsuarioFormularioComponent } from '../../shared/components/skeletons';
 import { ToastService } from '../../core/services/toast.service';
 import { AuthService } from '../../core/services/auth.service';
-import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
-import { ZardCardComponent } from '@/shared/components/card/card.component';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
-import { ZardComboboxComponent, type ZardComboboxOption } from '@/shared/components/combobox';
+import { MAT_FORM_IMPORTS } from '@/shared/material';
 
 function mensagemErroApi(err: { error?: { message?: string; errors?: Record<string, string[]> } }): string {
   const e = err.error;
@@ -25,14 +23,12 @@ function mensagemErroApi(err: { error?: { message?: string; errors?: Record<stri
   selector: 'app-usuarios-formulario',
   standalone: true,
   imports: [
-    ...ZARD_FORM_CONTROL_IMPORTS,
+    ...MAT_FORM_IMPORTS,
     CommonModule,
     RouterLink,
     FormsModule,
     ZmSkeletonUsuarioFormularioComponent,
-    ZardCardComponent,
-    ZardButtonComponent,
-    ZardComboboxComponent,
+    MatProgressSpinnerModule,
   ],
   templateUrl: './usuarios-formulario.component.html',
   styleUrl: './usuarios-formulario.component.css',
@@ -66,10 +62,6 @@ export class UsuariosFormularioComponent implements OnInit {
 
   get podeConcederTrocaClinica(): boolean {
     return this.auth.getUser()?.role === 'owner';
-  }
-
-  get opcoesRoles(): ZardComboboxOption[] {
-    return this.rolesList.map((r) => ({ value: r.value, label: r.label }));
   }
 
   ngOnInit(): void {
@@ -111,10 +103,6 @@ export class UsuariosFormularioComponent implements OnInit {
         },
       });
     }
-  }
-
-  selecionarRole(value: string | null): void {
-    this.role = value ?? '';
   }
 
   private patchFromUser(u: Usuario): void {

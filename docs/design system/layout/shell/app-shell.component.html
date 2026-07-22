@@ -1,0 +1,228 @@
+<mat-sidenav-container autosize class="sidenav-container-main" [hasBackdrop]="isMobile()">
+  <mat-sidenav
+    #sidenavMenu
+    class="sidenav-main"
+    [mode]="sidenavMode()"
+    [opened]="sidenavOpened()"
+    [fixedInViewport]="isMobile()"
+    [autoFocus]="false"
+    (openedChange)="onSidenavOpenedChange($event)">
+    <div class="sidenav-main__toolbar-header">
+      <img src="assets/logo/up/UpCB.svg" alt="Gestgo" />
+      <span>Gestgo</span>
+      @if (isMobile()) {
+        <button
+          mat-icon-button
+          type="button"
+          class="sidenav-main__close"
+          aria-label="Fechar menu"
+          (click)="sidenavOpened.set(false)">
+          <mat-icon>close</mat-icon>
+        </button>
+      }
+    </div>
+
+    <div class="sidenav-main__body">
+      @for (section of navSections(); track section.title) {
+        <div class="sidenav-main__section">
+          <span class="sidenav-main__body-title">{{ section.title }}</span>
+          <nav class="upx-navigation">
+            @for (item of section.items; track item.route) {
+              <a
+                class="upx-navigation-item"
+                [routerLink]="item.route"
+                routerLinkActive="upx-navigation-item-active"
+                (click)="onNavClick()">
+                <span class="upx-navigation-item-start">
+                  @if (item.iconSet) {
+                    <mat-icon [fontSet]="item.iconSet">{{ item.icon }}</mat-icon>
+                  } @else {
+                    <mat-icon>{{ item.icon }}</mat-icon>
+                  }
+                  <span>{{ item.label }}</span>
+                </span>
+              </a>
+            }
+          </nav>
+        </div>
+      }
+    </div>
+
+    <div class="sidenav-main__footer">
+      <button
+        type="button"
+        class="upx-navigation-item sidenav-main__logout"
+        (click)="onLogout(); onNavClick()">
+        <span class="upx-navigation-item-start">
+          <mat-icon>logout</mat-icon>
+          <span>Sair</span>
+        </span>
+      </button>
+    </div>
+  </mat-sidenav>
+
+  <mat-sidenav-content class="sidenav-content-main">
+    <header class="sidenav-content-main__header">
+      <div class="sidenav-content-main__header-start">
+        <button mat-icon-button type="button" (click)="sidenavOpened.set(!sidenavOpened())" aria-label="Menu">
+          <mat-icon>menu</mat-icon>
+        </button>
+        <span class="header-title">{{ headerLabel() }}</span>
+      </div>
+
+      <div class="sidenav-content-main__header-end">
+        <button
+          mat-icon-button
+          type="button"
+          matTooltip="Ajuda (Ctrl+/)"
+          aria-label="Abrir ajuda"
+          (click)="openHelp()">
+          <mat-icon>help_outline</mat-icon>
+        </button>
+        <button
+          mat-icon-button
+          type="button"
+          class="header-notifications"
+          matTooltip="Notificações"
+          aria-label="Notificações"
+          #notifTrigger="matMenuTrigger"
+          [matMenuTriggerFor]="menuNotificacoes"
+          (menuOpened)="onNotificationsMenuOpened()">
+          <mat-icon>{{ unreadCount() > 0 ? 'notifications_active' : 'notifications_none' }}</mat-icon>
+          @if (unreadCount() > 0) {
+            <span class="header-notifications__badge">
+              {{ unreadCount() > 99 ? '99+' : unreadCount() }}
+            </span>
+          }
+        </button>
+
+        <mat-menu
+          #menuNotificacoes="matMenu"
+          class="notifications-menu"
+          xPosition="before"
+          yPosition="below"
+          [overlapTrigger]="false">
+          <div class="notif" (click)="$event.stopPropagation()">
+            <header class="notif__header">
+              <div>
+                <h3>Notificações</h3>
+                <span>
+                  @if (unreadCount() > 0) {
+                    {{ unreadCount() }} não lida{{ unreadCount() === 1 ? '' : 's' }}
+                  } @else {
+                    Tudo em dia
+                  }
+                </span>
+              </div>
+              @if (unreadCount() > 0) {
+                <button type="button" class="notif__mark-all" (click)="markAllRead($event)">
+                  Marcar todas
+                </button>
+              }
+            </header>
+
+            <div class="notif__list">
+              @if (notificationsLoading()) {
+                <p class="notif__empty">Carregando…</p>
+              } @else if (notifications().length === 0) {
+                <p class="notif__empty">Nenhuma notificação por enquanto.</p>
+              } @else {
+                @for (item of notifications(); track item.id) {
+                  <button
+                    type="button"
+                    class="notif__item"
+                    [class.notif__item--unread]="!item.is_read"
+                    (click)="openNotification(item, notifTrigger)">
+                    <mat-icon [class]="'notif__icon notif__icon--' + item.level" aria-hidden="true">
+                      {{ levelIcon(item.level) }}
+                    </mat-icon>
+                    <span class="notif__content">
+                      <span class="notif__title">{{ item.title }}</span>
+                      @if (item.body) {
+                        <span class="notif__body">{{ item.body }}</span>
+                      }
+                      @if (item.created_at) {
+                        <span class="notif__time">{{ item.created_at | date: 'dd/MM/yyyy HH:mm' }}</span>
+                      }
+                    </span>
+                  </button>
+                }
+              }
+            </div>
+          </div>
+        </mat-menu>
+
+        <button
+          type="button"
+          class="header-user"
+          #userMenuTrigger="matMenuTrigger"
+          [matMenuTriggerFor]="menuUsuario"
+          aria-label="Menu da conta"
+          aria-haspopup="menu">
+          <span class="header-avatar" aria-hidden="true">{{ userInitials() }}</span>
+          <span class="header-user__meta">
+            <span class="header-user__name">{{ usuarioNome() }}</span>
+            <span class="header-user__email">{{ usuarioEmail() }}</span>
+          </span>
+          <mat-icon class="header-user__chevron" aria-hidden="true">keyboard_arrow_down</mat-icon>
+        </button>
+
+        <mat-menu
+          #menuUsuario="matMenu"
+          class="user-account-menu"
+          xPosition="before"
+          yPosition="below"
+          [overlapTrigger]="false">
+          <div class="uam" (click)="$event.stopPropagation()">
+            <div class="uam__profile">
+              <span class="uam__avatar">{{ userInitials() }}</span>
+              <div class="uam__identity">
+                <span class="uam__name">{{ usuarioNome() }}</span>
+                <span class="uam__email">{{ usuarioEmail() }}</span>
+              </div>
+            </div>
+
+            <div class="uam__divider"></div>
+
+            <button type="button" class="uam__item" (click)="openMyAccount(userMenuTrigger)">
+              <mat-icon class="uam__item-icon">person_outline</mat-icon>
+              <span class="uam__item-label">Minha conta</span>
+            </button>
+
+            <button type="button" class="uam__item" (click)="openSettings(userMenuTrigger)">
+              <mat-icon class="uam__item-icon">settings</mat-icon>
+              <span class="uam__item-label">Configurações</span>
+            </button>
+
+            <button type="button" class="uam__item" (click)="toggleTheme()">
+              <mat-icon class="uam__item-icon">{{ themeToggleIcon() }}</mat-icon>
+              <span class="uam__item-label">{{ isDark() ? 'Modo claro' : 'Modo escuro' }}</span>
+              <span class="uam__switch" [class.uam__switch--on]="isDark()" aria-hidden="true">
+                <span class="uam__switch-thumb"></span>
+              </span>
+            </button>
+
+            <button type="button" class="uam__item" (click)="openHelpFromMenu(userMenuTrigger)">
+              <mat-icon class="uam__item-icon">help_outline</mat-icon>
+              <span class="uam__item-label">Central de ajuda</span>
+            </button>
+
+            <div class="uam__divider"></div>
+
+            <button
+              type="button"
+              class="uam__item uam__item--danger"
+              (click)="onLogout(); userMenuTrigger.closeMenu()">
+              <mat-icon class="uam__item-icon">logout</mat-icon>
+              <span class="uam__item-label">Sair da conta</span>
+            </button>
+          </div>
+        </mat-menu>
+      </div>
+    </header>
+
+    <div class="sidenav-content-main__body">
+      <ng-content></ng-content>
+    </div>
+  </mat-sidenav-content>
+</mat-sidenav-container>

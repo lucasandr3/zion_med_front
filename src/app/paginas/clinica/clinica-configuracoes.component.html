@@ -33,74 +33,59 @@
             </div>
             <div class="section-body">
               <div class="field">
-                <label>Nome da empresa <span class="req">*</span></label>
-                <input type="text" [(ngModel)]="form.name" name="name" required z-input zSize="sm" class="w-full" placeholder="Nome da sua empresa">
+                <mat-form-field appearance="outline" class="w-full">
+                  <mat-label>Nome da empresa</mat-label>
+                  <input matInput type="text" [(ngModel)]="form.name" name="name" required placeholder="Nome da sua empresa">
+                </mat-form-field>
               </div>
               <div class="field-row">
                 <div class="field">
-                  <label>E-mail para notificações <span class="req">*</span></label>
-                  <input type="email" [(ngModel)]="form.notification_email" name="notification_email" z-input zSize="sm" class="w-full" placeholder="recepcao@empresa.com">
+                  <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>E-mail para notificações</mat-label>
+                    <input matInput type="email" [(ngModel)]="form.notification_email" name="notification_email" placeholder="recepcao@empresa.com">
+                  </mat-form-field>
                 </div>
                 <div class="field">
-                  <label>Telefone / WhatsApp</label>
-                  <input
-                    type="text"
-                    [ngModel]="form.phone"
-                    (ngModelChange)="onPhoneInput($event)"
-                    name="phone"
-                    z-input zSize="sm" class="w-full"
-                    placeholder="(11) 99999-9999"
-                    maxlength="16"
-                  >
+                  <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>Telefone / WhatsApp</mat-label>
+                    <input matInput type="text" [ngModel]="form.phone" (ngModelChange)="onPhoneInput($event)" name="phone" placeholder="(11) 99999-9999" maxlength="16">
+                  </mat-form-field>
                 </div>
               </div>
               <div class="field">
                 <label>Endereço</label>
                 <div class="address-grid">
                   <div class="field">
-                    <label>CEP</label>
                     <div class="cep-row">
-                      <input
-                        type="text"
-                        [ngModel]="enderecoForm.cep"
-                        (ngModelChange)="onCepInput($event)"
-                        (blur)="buscarEnderecoPorCep()"
-                        name="address_cep"
-                        z-input zSize="sm" class="w-full"
-                        placeholder="00000-000"
-                        maxlength="9"
-                      >
+                      <mat-form-field appearance="outline" class="w-full">
+                        <mat-label>CEP</mat-label>
+                        <input matInput type="text" [ngModel]="enderecoForm.cep" (ngModelChange)="onCepInput($event)" (blur)="buscarEnderecoPorCep()" name="address_cep" placeholder="00000-000" maxlength="9">
+                      </mat-form-field>
                       @if (enderecoLoading) {
                         <span class="status-chip">Buscando...</span>
                       }
                     </div>
                   </div>
                   <div class="field">
-                    <label>Logradouro</label>
-                    <input type="text" [(ngModel)]="enderecoForm.logradouro" name="address_logradouro" z-input zSize="sm" class="w-full" placeholder="Rua, avenida, etc.">
+                    <mat-form-field appearance="outline" class="w-full"><mat-label>Logradouro</mat-label><input matInput type="text" [(ngModel)]="enderecoForm.logradouro" name="address_logradouro" placeholder="Rua, avenida, etc."></mat-form-field>
                   </div>
                   <div class="field-row">
                     <div class="field">
-                      <label>Número</label>
-                      <input type="text" [(ngModel)]="enderecoForm.numero" name="address_numero" z-input zSize="sm" class="w-full" placeholder="123">
+                      <mat-form-field appearance="outline" class="w-full"><mat-label>Número</mat-label><input matInput type="text" [(ngModel)]="enderecoForm.numero" name="address_numero" placeholder="123"></mat-form-field>
                     </div>
                     <div class="field">
-                      <label>Complemento <span class="opt">opcional</span></label>
-                      <input type="text" [(ngModel)]="enderecoForm.complemento" name="address_complemento" z-input zSize="sm" class="w-full" placeholder="Sala, bloco, apto">
+                      <mat-form-field appearance="outline" class="w-full"><mat-label>Complemento</mat-label><input matInput type="text" [(ngModel)]="enderecoForm.complemento" name="address_complemento" placeholder="Sala, bloco, apto"></mat-form-field>
                     </div>
                   </div>
                   <div class="field-row">
                     <div class="field">
-                      <label>Bairro</label>
-                      <input type="text" [(ngModel)]="enderecoForm.bairro" name="address_bairro" z-input zSize="sm" class="w-full" placeholder="Bairro">
+                      <mat-form-field appearance="outline" class="w-full"><mat-label>Bairro</mat-label><input matInput type="text" [(ngModel)]="enderecoForm.bairro" name="address_bairro" placeholder="Bairro"></mat-form-field>
                     </div>
                     <div class="field">
-                      <label>Cidade</label>
-                      <input type="text" [(ngModel)]="enderecoForm.cidade" name="address_cidade" z-input zSize="sm" class="w-full" placeholder="Cidade">
+                      <mat-form-field appearance="outline" class="w-full"><mat-label>Cidade</mat-label><input matInput type="text" [(ngModel)]="enderecoForm.cidade" name="address_cidade" placeholder="Cidade"></mat-form-field>
                     </div>
                     <div class="field field-uf">
-                      <label>UF</label>
-                      <input type="text" [(ngModel)]="enderecoForm.uf" name="address_uf" z-input zSize="sm" class="w-full" placeholder="SP" maxlength="2">
+                      <mat-form-field appearance="outline" class="w-full"><mat-label>UF</mat-label><input matInput type="text" [(ngModel)]="enderecoForm.uf" name="address_uf" placeholder="SP" maxlength="2"></mat-form-field>
                     </div>
                   </div>
                 </div>
@@ -113,8 +98,7 @@
                 }
               </div>
               <div class="field">
-                <label>E-mail de contato público <span class="opt">opcional</span></label>
-                <input type="email" [(ngModel)]="form.contact_email" name="contact_email" z-input zSize="sm" class="w-full" placeholder="contato@empresa.com">
+                <mat-form-field appearance="outline" class="w-full"><mat-label>E-mail de contato público</mat-label><input matInput type="email" [(ngModel)]="form.contact_email" name="contact_email" placeholder="contato@empresa.com"></mat-form-field>
                 <div class="hint">Exibido no link na bio. Diferente do e-mail de notificações.</div>
               </div>
             </div>
@@ -128,26 +112,15 @@
             </div>
             <div class="section-body">
               <div class="field">
-                <label>Nome/Razão Social na nota <span class="opt">opcional</span></label>
-                <input type="text" [(ngModel)]="form.billing_name" name="billing_name" z-input zSize="sm" class="w-full" placeholder="Nome ou razão social">
+                <mat-form-field appearance="outline" class="w-full"><mat-label>Nome/Razão Social na nota</mat-label><input matInput type="text" [(ngModel)]="form.billing_name" name="billing_name" placeholder="Nome ou razão social"></mat-form-field>
                 <div class="hint">Usado em boletos e faturas. Padrão: nome da empresa.</div>
               </div>
               <div class="field">
-                <label>E-mail para boletos <span class="opt">opcional</span></label>
-                <input type="email" [(ngModel)]="form.billing_email" name="billing_email" z-input zSize="sm" class="w-full" placeholder="financeiro@empresa.com">
+                <mat-form-field appearance="outline" class="w-full"><mat-label>E-mail para boletos</mat-label><input matInput type="email" [(ngModel)]="form.billing_email" name="billing_email" placeholder="financeiro@empresa.com"></mat-form-field>
                 <div class="hint">Onde os boletos serão enviados. Padrão: e-mail de notificações.</div>
               </div>
               <div class="field">
-                <label>CPF ou CNPJ <span class="req">*</span> <span class="opt">para assinatura</span></label>
-                <input
-                  type="text"
-                  [ngModel]="form.billing_document"
-                  (ngModelChange)="onBillingDocumentInput($event)"
-                  name="billing_document"
-                  z-input zSize="sm" class="w-full"
-                  placeholder="000.000.000-00 ou 00.000.000/0001-00"
-                  maxlength="18"
-                >
+                <mat-form-field appearance="outline" class="w-full"><mat-label>CPF ou CNPJ</mat-label><input matInput type="text" [ngModel]="form.billing_document" (ngModelChange)="onBillingDocumentInput($event)" name="billing_document" placeholder="000.000.000-00 ou 00.000.000/0001-00" maxlength="18"></mat-form-field>
                 <div class="hint">Obrigatório para gerar boletos. Apenas números ou com pontuação.</div>
               </div>
             </div>
@@ -160,68 +133,45 @@
             </div>
             <div class="section-body">
               <div class="field">
-                <label id="signing-security-label">Segurança da assinatura pública</label>
-                <z-combobox
-                  class="w-full"
-                  zWidth="full"
-                  [options]="opcoesSigningSecurityLevel"
-                  [value]="form.signing_security_level ?? 'basic'"
-                  placeholder="Selecione o nível de segurança"
-                  [searchable]="false"
-                  ariaLabel="Segurança da assinatura pública"
-                  ariaDescribedBy="signing-security-label"
-                  (zValueChange)="onSigningSecurityLevelChange($event)"
-                />
+                <mat-form-field appearance="outline" class="w-full">
+                  <mat-label>Segurança da assinatura pública</mat-label>
+                  <mat-select [ngModel]="form.signing_security_level ?? 'basic'" (ngModelChange)="onSigningSecurityLevelChange($event)" name="signing_security_level">
+                    @for (option of opcoesSigningSecurityLevel; track option.value) {
+                      <mat-option [value]="option.value">{{ option.label }}</mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
                 <div class="hint">No modo reforçado, configure o WhatsApp (Evolution) na aba correspondente para oferecer OTP por mensagem.</div>
               </div>
               <div class="field">
-                <label>Exclusão automática de fichas sem protocolo (anos) <span class="opt">opcional</span></label>
-                <input
-                  type="number"
-                  min="1"
-                  max="50"
-                  [(ngModel)]="form.data_retention_years"
-                  name="data_retention_years"
-                  z-input zSize="sm" class="w-full"
-                  placeholder="Ex.: 7 — deixe vazio para desativar"
-                />
+                <mat-form-field appearance="outline" class="w-full"><mat-label>Exclusão automática de fichas sem protocolo (anos)</mat-label><input matInput type="number" min="1" max="50" [(ngModel)]="form.data_retention_years" name="data_retention_years" placeholder="Ex.: 7 — deixe vazio para desativar"></mat-form-field>
                 <div class="hint">Remove apenas cadastros (fichas) sem nenhum protocolo vinculado, mais antigos que o prazo. Job diário no servidor.</div>
               </div>
               <div class="field">
-                <label>Retenção de protocolos com evidência (anos) <span class="opt">opcional</span></label>
-                <input
-                  type="number"
-                  min="1"
-                  max="50"
-                  [(ngModel)]="form.protocol_retention_years"
-                  name="protocol_retention_years"
-                  z-input zSize="sm" class="w-full"
-                  placeholder="Ex.: 7 — deixe vazio para desativar"
-                />
+                <mat-form-field appearance="outline" class="w-full"><mat-label>Retenção de protocolos com evidência (anos)</mat-label><input matInput type="number" min="1" max="50" [(ngModel)]="form.protocol_retention_years" name="protocol_retention_years" placeholder="Ex.: 7 — deixe vazio para desativar"></mat-form-field>
                 <div class="hint">Protocolos aprovados/reprovados/revogados mais antigos que o prazo entram na política abaixo. Job diário às 04:30.</div>
               </div>
               <div class="field">
-                <label id="protocol-retention-mode-label">Ação sobre protocolos elegíveis</label>
-                <z-combobox
-                  class="w-full"
-                  zWidth="full"
-                  [options]="opcoesProtocolRetentionMode"
-                  [value]="form.protocol_retention_mode ?? 'anonymize'"
-                  [searchable]="false"
-                  ariaLabelledby="protocol-retention-mode-label"
-                  (zValueChange)="onProtocolRetentionModeChange($event)"
-                />
+                <mat-form-field appearance="outline" class="w-full">
+                  <mat-label>Ação sobre protocolos elegíveis</mat-label>
+                  <mat-select [ngModel]="form.protocol_retention_mode ?? 'anonymize'" (ngModelChange)="onProtocolRetentionModeChange($event)" name="protocol_retention_mode">
+                    @for (option of opcoesProtocolRetentionMode; track option.value) {
+                      <mat-option [value]="option.value">{{ option.label }}</mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
               </div>
               <div class="field">
                 <button
+                  mat-stroked-button
+                  class="btn-cancel"
                   type="button"
-                  z-button
-                  zType="outline"
-                  zSize="sm"
                   (click)="carregarRetencaoPreview()"
-                  [zLoading]="carregandoRetencaoPreview"
-                  [zDisabled]="carregandoRetencaoPreview"
+                  [disabled]="carregandoRetencaoPreview"
                 >
+                  @if (carregandoRetencaoPreview) {
+                    <mat-spinner diameter="18"></mat-spinner>
+                  }
                   Verificar protocolos elegíveis
                 </button>
                 @if (retencaoPreview) {
@@ -251,9 +201,8 @@
                 @for (d of days; track d.id) {
                   <div class="schedule-row" [class.schedule-row--active]="isScheduleActive(d.id)">
                     <span class="schedule-row__day">{{ d.label }}</span>
-                    <z-switch
+                    <mat-slide-toggle
                       class="schedule-row__switch"
-                      zSize="sm"
                       [ngModel]="isScheduleActive(d.id)"
                       (ngModelChange)="toggleScheduleDay(d.id, $event)"
                       [name]="'schedule_' + d.id"
@@ -261,51 +210,23 @@
                     />
                     @if (isScheduleActive(d.id)) {
                       <div class="schedule-row__times">
-                        <label class="schedule-time-field" [attr.for]="'bh_open_' + d.id">
-                          <span class="schedule-time-field__label">Abre</span>
-                          <input
-                            type="text"
-                            z-input
-                            zSize="sm"
-                            class="schedule-time-input"
-                            mwlFlatpickr
-                            [(ngModel)]="form.business_hours![d.id].open"
-                            (flatpickrChange)="setTime(d.id, 'open', $event.selectedDates)"
-                            [id]="'bh_open_' + d.id"
-                            [name]="'bh_open_' + d.id"
-                            placeholder="08:00"
-                            autocomplete="off"
-                            [enableTime]="true"
-                            [noCalendar]="true"
-                            [dateFormat]="'H:i'"
-                            [time24hr]="true"
-                            [minuteIncrement]="15"
-                            [appendTo]="flatpickrAppendTo"
-                          />
-                        </label>
+                        <div class="schedule-time-field">
+                          <mat-form-field appearance="outline">
+                            <mat-label>Abre</mat-label>
+                            <input matInput class="schedule-time-input" [matTimepicker]="openPicker" [ngModel]="scheduleOpenDate(d.id)" (ngModelChange)="onScheduleOpenChange(d.id, $event)" [id]="'bh_open_' + d.id" [name]="'bh_open_' + d.id" placeholder="08:00" autocomplete="off" />
+                            <mat-timepicker-toggle matIconSuffix [for]="openPicker" />
+                            <mat-timepicker #openPicker [interval]="'15m'" />
+                          </mat-form-field>
+                        </div>
                         <span class="schedule-row__sep material-symbols-outlined" aria-hidden="true">arrow_forward</span>
-                        <label class="schedule-time-field" [attr.for]="'bh_close_' + d.id">
-                          <span class="schedule-time-field__label">Fecha</span>
-                          <input
-                            type="text"
-                            z-input
-                            zSize="sm"
-                            class="schedule-time-input"
-                            mwlFlatpickr
-                            [(ngModel)]="form.business_hours![d.id].close"
-                            (flatpickrChange)="setTime(d.id, 'close', $event.selectedDates)"
-                            [id]="'bh_close_' + d.id"
-                            [name]="'bh_close_' + d.id"
-                            placeholder="18:00"
-                            autocomplete="off"
-                            [enableTime]="true"
-                            [noCalendar]="true"
-                            [dateFormat]="'H:i'"
-                            [time24hr]="true"
-                            [minuteIncrement]="15"
-                            [appendTo]="flatpickrAppendTo"
-                          />
-                        </label>
+                        <div class="schedule-time-field">
+                          <mat-form-field appearance="outline">
+                            <mat-label>Fecha</mat-label>
+                            <input matInput class="schedule-time-input" [matTimepicker]="closePicker" [ngModel]="scheduleCloseDate(d.id)" (ngModelChange)="onScheduleCloseChange(d.id, $event)" [id]="'bh_close_' + d.id" [name]="'bh_close_' + d.id" placeholder="18:00" autocomplete="off" />
+                            <mat-timepicker-toggle matIconSuffix [for]="closePicker" />
+                            <mat-timepicker #closePicker [interval]="'15m'" />
+                          </mat-form-field>
+                        </div>
                       </div>
                     } @else {
                       <z-badge zType="secondary" zShape="pill" class="schedule-row__closed">Fechado</z-badge>
@@ -314,7 +235,7 @@
                 }
               </div>
               <div class="schedule-actions">
-                <button type="button" z-button zType="link" zSize="sm" class="schedule-copy-btn" (click)="copyFirstDayToAll()">
+                <button mat-button type="button" class="schedule-copy-btn" (click)="copyFirstDayToAll()">
                   <span class="material-symbols-outlined" aria-hidden="true">content_copy</span>
                   Copiar segunda para todos os dias
                 </button>
@@ -384,14 +305,7 @@
                     <div class="logo-upload-file">
                       <span class="material-symbols-outlined logo-upload-file__icon" aria-hidden="true">draft</span>
                       <span class="logo-upload-file__name" [title]="logoFile.name">{{ logoFile.name }}</span>
-                      <button
-                        type="button"
-                        z-button
-                        zType="ghost"
-                        zSize="sm"
-                        class="logo-upload-file__remove shrink-0"
-                        (click)="limparLogoSelecionada(); $event.stopPropagation()"
-                      >
+                      <button mat-button type="button" class="logo-upload-file__remove shrink-0" (click)="limparLogoSelecionada(); $event.stopPropagation()">
                         Remover
                       </button>
                     </div>
@@ -401,6 +315,78 @@
             </div>
           </z-card>
           </div>
+        </z-tab>
+
+        <z-tab label="Tema Visual" icon="palette">
+          <div id="panel-visual" class="config-tab-panel">
+          <z-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
+            <div class="section-header">
+              <div class="icon-wrap"><span class="material-symbols-outlined">palette</span></div>
+              <span class="section-title">Personalização</span>
+            </div>
+            <div class="section-body">
+              <div class="visual-subtitle">
+                <div class="vtitle">Cor do Tema:</div>
+                <div class="vsub">
+                  Define botões, links e o item ativo do menu. O fundo branco do topo e da lateral continua neutro, salvo se você usar
+                  <strong>Barra lateral e topo</strong> abaixo. Salve as configurações da empresa para gravar esta cor para todos da empresa.
+                </div>
+              </div>
+              <div class="theme-grid palette-grid">
+                @for (key of themeKeys; track key) {
+                  @let meta = availableThemes[key];
+                  @let primary = meta?.primary ?? '#2563eb';
+                  <label class="theme-card palette-card" [class.selected]="form.theme === key" [attr.aria-label]="getThemeLabel(key)">
+                    <input type="radio" [value]="key" [(ngModel)]="form.theme" (ngModelChange)="onThemeChanged($event)" [name]="'theme'" class="sr-only">
+                    <div class="theme-preview palette-preview" [style.background]="primary"></div>
+                  </label>
+                }
+              </div>
+              <div class="visual-subtitle mode-subtitle">
+                <div class="vtitle">Modo de Tema:</div>
+              </div>
+              <div class="mode-grid">
+                <button type="button" class="mode-card" [class.selected]="themeMode === 'light'" (click)="onThemeModeChanged('light')">
+                  <span class="material-symbols-outlined">light_mode</span>
+                  <span>Claro</span>
+                </button>
+                <button type="button" class="mode-card" [class.selected]="themeMode === 'dark'" (click)="onThemeModeChanged('dark')">
+                  <span class="material-symbols-outlined">dark_mode</span>
+                  <span>Escuro</span>
+                </button>
+                <button type="button" class="mode-card" [class.selected]="themeMode === 'auto'" (click)="onThemeModeChanged('auto')">
+                  <span class="material-symbols-outlined">brightness_auto</span>
+                  <span>Automático</span>
+                </button>
+              </div>
+
+              <div class="visual-subtitle mode-subtitle">
+                <div class="vtitle">Barra lateral e topo</div>
+                <div class="vsub">
+                  Preferência <strong>pessoal</strong> (salva na sua conta ao clicar). Use <strong>Topo e marca</strong> para pintar com a cor primária só o cabeçalho e a faixa do nome Gestgo,
+                  ou <strong>Menu escuro</strong> para contraste tipo painel no modo claro.
+                </div>
+              </div>
+              <div class="mode-grid shell-preset-grid">
+                @for (opt of shellPresetOptions; track opt.id) {
+                  <button
+                    type="button"
+                    class="mode-card shell-preset-card"
+                    [class.selected]="isShellOptionActive(opt.id)"
+                    (click)="onShellPresetPainel(opt.id)"
+                    [attr.title]="opt.description"
+                    [attr.aria-pressed]="isShellOptionActive(opt.id)"
+                    [attr.aria-label]="opt.label + ': ' + opt.description"
+                  >
+                    <span class="material-symbols-outlined">{{ opt.icon }}</span>
+                    <span>{{ opt.label }}</span>
+                  </button>
+                }
+              </div>
+              <p class="shell-preset-footnote">{{ shellPresetFootnote }}</p>
+            </div>
+          </z-card>
+        </div>
         </z-tab>
 
         <z-tab label="Formulários públicos" icon="assignment">
@@ -482,18 +468,20 @@
                         [value]="formCustomAccent"
                         (input)="onFormCustomAccentChange($any($event.target).value)"
                       />
-                      <input
-                        type="text"
-                        z-input
-                        zSize="sm"
-                        class="w-full custom-accent-hex"
-                        [value]="formCustomAccent"
-                        (input)="onFormCustomAccentChange($any($event.target).value)"
-                        maxlength="7"
-                        placeholder="#c9a84c"
-                        spellcheck="false"
-                        aria-label="Código hexadecimal"
-                      />
+                      <mat-form-field appearance="outline" class="w-full">
+                        <mat-label>Código hexadecimal</mat-label>
+                        <input
+                          matInput
+                          type="text"
+                          class="custom-accent-hex"
+                          [value]="formCustomAccent"
+                          (input)="onFormCustomAccentChange($any($event.target).value)"
+                          maxlength="7"
+                          placeholder="#c9a84c"
+                          spellcheck="false"
+                          aria-label="Código hexadecimal"
+                        />
+                      </mat-form-field>
                       <span class="custom-accent-swatch" [style.background]="formCustomAccent" aria-hidden="true"></span>
                     </div>
                     <p class="theme-panel-hint">Escolha qualquer cor para botões e barra de progresso do formulário.</p>
@@ -514,90 +502,13 @@
                     <span class="dtitle">Ocultar Formulário por Gestgo</span>
                     <span class="dsub">Exibe apenas o nome e a logo da sua clínica no topo da ficha.</span>
                   </span>
-                  <z-switch [(ngModel)]="hidePlatformBranding" name="hide_platform_branding" />
+                  <mat-slide-toggle [(ngModel)]="hidePlatformBranding" name="hide_platform_branding" aria-label="Ocultar Formulário por Gestgo" />
                 </div>
               </div>
             </z-card>
           </div>
         </z-tab>
 
-        <z-tab label="Tema Visual" icon="palette">
-          <div id="panel-visual" class="config-tab-panel">
-          <z-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
-            <div class="section-header">
-              <div class="icon-wrap"><span class="material-symbols-outlined">palette</span></div>
-              <span class="section-title">Personalização</span>
-            </div>
-            <div class="section-body">
-              <div class="visual-subtitle">
-                <div class="vtitle">Cor do Tema:</div>
-                <div class="vsub">
-                  Define botões, links e o item ativo do menu. O fundo branco do topo e da lateral continua neutro, salvo se você usar
-                  <strong>Barra lateral e topo</strong> abaixo. Salve as configurações da empresa para gravar esta cor para todos da empresa.
-                </div>
-              </div>
-              <div class="theme-grid palette-grid">
-                @for (key of themeKeys; track key) {
-                  @let meta = availableThemes[key];
-                  @let primary = meta?.primary ?? '#2563eb';
-                  <button
-                    type="button"
-                    class="theme-card palette-card"
-                    [class.selected]="isThemeSelected(key)"
-                    [attr.aria-label]="getThemeLabel(key)"
-                    [attr.aria-pressed]="isThemeSelected(key)"
-                    (click)="selectTheme(key)"
-                  >
-                    <div class="theme-preview palette-preview" [style.background]="primary"></div>
-                  </button>
-                }
-              </div>
-              <div class="visual-subtitle mode-subtitle">
-                <div class="vtitle">Modo de Tema:</div>
-              </div>
-              <div class="mode-grid">
-                <button type="button" class="mode-card" [class.selected]="themeMode === 'light'" (click)="onThemeModeChanged('light')">
-                  <span class="material-symbols-outlined">light_mode</span>
-                  <span>Claro</span>
-                </button>
-                <button type="button" class="mode-card" [class.selected]="themeMode === 'dark'" (click)="onThemeModeChanged('dark')">
-                  <span class="material-symbols-outlined">dark_mode</span>
-                  <span>Escuro</span>
-                </button>
-                <button type="button" class="mode-card" [class.selected]="themeMode === 'auto'" (click)="onThemeModeChanged('auto')">
-                  <span class="material-symbols-outlined">brightness_auto</span>
-                  <span>Automático</span>
-                </button>
-              </div>
-
-              <div class="visual-subtitle mode-subtitle">
-                <div class="vtitle">Barra lateral e topo</div>
-                <div class="vsub">
-                  Preferência <strong>pessoal</strong> (salva na sua conta ao clicar). Use <strong>Topo e marca</strong> para pintar com a cor primária só o cabeçalho e a faixa do nome Gestgo,
-                  ou <strong>Menu escuro</strong> para contraste tipo painel no modo claro.
-                </div>
-              </div>
-              <div class="mode-grid shell-preset-grid">
-                @for (opt of shellPresetOptions; track opt.id) {
-                  <button
-                    type="button"
-                    class="mode-card shell-preset-card"
-                    [class.selected]="shellPresetAtual === opt.id"
-                    (click)="onShellPresetPainel(opt.id)"
-                    [attr.title]="opt.description"
-                    [attr.aria-pressed]="shellPresetAtual === opt.id"
-                    [attr.aria-label]="opt.label + ': ' + opt.description"
-                  >
-                    <span class="material-symbols-outlined">{{ opt.icon }}</span>
-                    <span>{{ opt.label }}</span>
-                  </button>
-                }
-              </div>
-              <p class="shell-preset-footnote">{{ shellPresetMeta?.description ?? '—' }}</p>
-            </div>
-          </z-card>
-        </div>
-        </z-tab>
         <z-tab label="WhatsApp" icon="chat">
           <div class="config-tab-panel">
           <z-card class="section-card mb-4 gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
@@ -612,20 +523,20 @@
                     <span class="dtitle block">Receber comunicação por WhatsApp</span>
                     <span class="dsub block">Confirmações e avisos da loja no número cadastrado (Telefone/WhatsApp)</span>
                   </span>
-                  <z-switch [(ngModel)]="form.whatsapp_notifications_enabled" name="whatsapp_notifications_enabled" />
+                  <mat-slide-toggle [(ngModel)]="form.whatsapp_notifications_enabled" name="whatsapp_notifications_enabled" aria-label="Receber comunicação por WhatsApp" />
                 </div>
               </div>
               <div class="wa-notify-subsection">
                 <p class="wa-notify-subsection__title">Quais notificações deseja receber:</p>
-                <z-checkbox [(ngModel)]="form.whatsapp_notify_cobranca" name="whatsapp_notify_cobranca" class="mb-2">
+                <mat-checkbox [(ngModel)]="form.whatsapp_notify_cobranca" name="whatsapp_notify_cobranca" class="mb-2">
                   Cobrança (lembretes, vencimentos)
-                </z-checkbox>
-                <z-checkbox [(ngModel)]="form.whatsapp_notify_faturas_boleto" name="whatsapp_notify_faturas_boleto" class="mb-2">
+                </mat-checkbox>
+                <mat-checkbox [(ngModel)]="form.whatsapp_notify_faturas_boleto" name="whatsapp_notify_faturas_boleto" class="mb-2">
                   Faturas e boleto (confirmação de assinatura, boleto gerado)
-                </z-checkbox>
-                <z-checkbox [(ngModel)]="form.whatsapp_notify_avisos" name="whatsapp_notify_avisos">
+                </mat-checkbox>
+                <mat-checkbox [(ngModel)]="form.whatsapp_notify_avisos" name="whatsapp_notify_avisos">
                   Avisos gerais
-                </z-checkbox>
+                </mat-checkbox>
               </div>
             </div>
           </z-card>
@@ -647,7 +558,7 @@
             </div>
             <div class="section-body">
               <p class="mb-4 text-sm text-destructive">{{ waError }}</p>
-              <button type="button" z-button zType="outline" zSize="sm" (click)="carregarWhatsapp()">Tentar novamente</button>
+              <button mat-stroked-button class="btn-cancel" type="button" (click)="carregarWhatsapp()">Tentar novamente</button>
             </div>
           </z-card>
         } @else if (waState) {
@@ -678,9 +589,9 @@
                 <p class="mb-4 text-sm text-muted-foreground">
                   O sistema gera automaticamente o nome da instância (<code class="text-xs">gestgo_org_</code> + id da empresa) e um token (UUID) antes de registrar na Evolution Go — necessário em ambientes onde a API não gera o token sozinha.
                 </p>
-                <button type="button" z-button zSize="sm" class="inline-flex items-center gap-2" (click)="criarInstanciaWhatsapp()" [disabled]="waCriandoInstancia">
+                <button mat-flat-button color="primary" type="button" class="inline-flex items-center gap-2" (click)="criarInstanciaWhatsapp()" [disabled]="waCriandoInstancia">
                   @if (waCriandoInstancia) {
-                    <span class="btn-spinner" aria-hidden="true"></span>
+                    <mat-spinner diameter="18"></mat-spinner>
                   } @else {
                     <span class="material-symbols-outlined text-base">bolt</span>
                   }
@@ -698,7 +609,7 @@
                 <div class="section-body">
                   <p class="mb-2 text-xs text-muted-foreground">Este valor não será mostrado novamente nesta tela.</p>
                   <code class="config-code-block">{{ waTokenExibicaoUnica }}</code>
-                  <button type="button" z-button zType="outline" zSize="sm" (click)="copiarTextoWhatsapp(waTokenExibicaoUnica!)">Copiar token</button>
+                  <button mat-stroked-button class="btn-cancel" type="button" (click)="copiarTextoWhatsapp(waTokenExibicaoUnica!)">Copiar token</button>
                 </div>
               </z-card>
             }
@@ -741,14 +652,9 @@
                 }
                 @if (!waSessaoAtiva) {
                   <div class="wa-status-action">
-                    <button
-                      type="button"
-                      z-button zType="outline" zSize="sm" class="inline-flex items-center gap-2"
-                      (click)="buscarQrWhatsapp()"
-                      [disabled]="waQrCarregando"
-                    >
+                    <button mat-stroked-button type="button" class="inline-flex items-center gap-2 btn-cancel" (click)="buscarQrWhatsapp()" [disabled]="waQrCarregando">
                       @if (waQrCarregando) {
-                        <span class="btn-spinner" aria-hidden="true"></span>
+                        <mat-spinner diameter="18"></mat-spinner>
                       } @else {
                         <span class="material-symbols-outlined text-base">qr_code_2</span>
                       }
@@ -770,24 +676,24 @@
                   </p>
                   <div class="field !mb-3">
                     <label for="wa-phone-conectar">Telefone (pareamento)</label>
-                    <input id="wa-phone-conectar" type="text" z-input zSize="sm" class="w-full" [(ngModel)]="waPhoneConectar" name="waPhoneConectar" placeholder="5511999999999" autocomplete="tel" />
+                    <mat-form-field appearance="outline" class="w-full"><mat-label>Telefone</mat-label><input matInput id="wa-phone-conectar" type="text" [(ngModel)]="waPhoneConectar" name="waPhoneConectar" placeholder="5511999999999" autocomplete="tel" /></mat-form-field>
                   </div>
                   <div class="field !mb-4">
                     <label for="wa-webhook">Webhook URL <span class="opt">opcional</span></label>
-                    <input id="wa-webhook" type="url" z-input zSize="sm" class="w-full" [(ngModel)]="waWebhookUrl" name="waWebhookUrl" placeholder="https://…" />
+                    <mat-form-field appearance="outline" class="w-full"><mat-label>Webhook</mat-label><input matInput id="wa-webhook" type="url" [(ngModel)]="waWebhookUrl" name="waWebhookUrl" placeholder="https://…" /></mat-form-field>
                   </div>
                   <div class="wa-actions-row">
-                    <button type="button" z-button zSize="sm" class="inline-flex items-center gap-2" (click)="iniciarConexaoWhatsapp()" [disabled]="waConectando">
+                    <button mat-flat-button color="primary" type="button" class="inline-flex items-center gap-2" (click)="iniciarConexaoWhatsapp()" [disabled]="waConectando">
                       @if (waConectando) {
-                        <span class="btn-spinner" aria-hidden="true"></span>
+                        <mat-spinner diameter="18"></mat-spinner>
                       } @else {
                         <span class="material-symbols-outlined text-base">power_settings_new</span>
                       }
                       {{ waConectando ? 'Iniciando…' : 'Iniciar conexão' }}
                     </button>
-                    <button type="button" z-button zType="outline" zSize="sm" class="inline-flex items-center gap-2" (click)="buscarQrWhatsapp()" [disabled]="waQrCarregando">
+                    <button mat-stroked-button type="button" class="inline-flex items-center gap-2 btn-cancel" (click)="buscarQrWhatsapp()" [disabled]="waQrCarregando">
                       @if (waQrCarregando) {
-                        <span class="btn-spinner" aria-hidden="true"></span>
+                        <mat-spinner diameter="18"></mat-spinner>
                       } @else {
                         <span class="material-symbols-outlined text-base">qr_code_2</span>
                       }
@@ -809,11 +715,11 @@
                   <p class="wa-qr-block__label">Pareamento por código (8 dígitos)</p>
                   <div class="field !mb-3">
                     <label for="wa-phone-pair">Telefone do aparelho</label>
-                    <input id="wa-phone-pair" type="text" z-input zSize="sm" class="w-full" [(ngModel)]="waPhonePair" name="waPhonePair" placeholder="5511999999999" autocomplete="tel" />
+                    <mat-form-field appearance="outline" class="w-full"><mat-label>Telefone para pareamento</mat-label><input matInput id="wa-phone-pair" type="text" [(ngModel)]="waPhonePair" name="waPhonePair" placeholder="5511999999999" autocomplete="tel" /></mat-form-field>
                   </div>
-                  <button type="button" z-button zType="outline" zSize="sm" class="mb-3 inline-flex items-center gap-2" (click)="solicitarPairWhatsapp()" [disabled]="waPairCarregando">
+                  <button mat-stroked-button type="button" class="mb-3 inline-flex items-center gap-2 btn-cancel" (click)="solicitarPairWhatsapp()" [disabled]="waPairCarregando">
                     @if (waPairCarregando) {
-                      <span class="btn-spinner" aria-hidden="true"></span>
+                      <mat-spinner diameter="18"></mat-spinner>
                     }
                     {{ waPairCarregando ? 'Solicitando…' : 'Obter código de pareamento' }}
                   </button>
@@ -831,11 +737,11 @@
               <div class="section-body">
                 <div class="field !mb-3">
                   <label for="wa-test-phone">Número destino (DDI + DDD + número)</label>
-                  <input id="wa-test-phone" type="text" z-input zSize="sm" class="w-full" [(ngModel)]="waTestPhone" name="waTestPhone" placeholder="5511987654321" autocomplete="tel" />
+                  <mat-form-field appearance="outline" class="w-full"><mat-label>Telefone de teste</mat-label><input matInput id="wa-test-phone" type="text" [(ngModel)]="waTestPhone" name="waTestPhone" placeholder="5511987654321" autocomplete="tel" /></mat-form-field>
                 </div>
                 <div class="field !mb-4">
                   <label for="wa-test-text">Texto <span class="opt">opcional</span></label>
-                  <textarea id="wa-test-text" z-input zSize="sm" class="w-full" rows="2" [(ngModel)]="waTestText" name="waTestText" placeholder="Mensagem de teste — Gestgo"></textarea>
+                  <mat-form-field appearance="outline" class="w-full"><mat-label>Mensagem</mat-label><textarea matInput id="wa-test-text" rows="2" [(ngModel)]="waTestText" name="waTestText" placeholder="Mensagem de teste — Gestgo"></textarea></mat-form-field>
                 </div>
                 <p class="m-0 text-xs text-muted-foreground">Use o botão "Enviar teste" no footer para disparar a mensagem.</p>
               </div>
@@ -855,31 +761,26 @@
               }
             </div>
             <div class="footer-btns">
-              <a routerLink="/dashboard" z-button zType="outline" zSize="sm" class="inline-flex items-center gap-2 no-underline">
+              <a mat-stroked-button routerLink="/dashboard" class="inline-flex items-center gap-2 no-underline btn-cancel">
                 <span class="material-symbols-outlined text-base">close</span>
                 Cancelar
               </a>
               @if (waError && !waState && !waLoading) {
-                <button type="button" z-button zSize="sm" class="inline-flex items-center gap-2" (click)="carregarWhatsapp()">
+                <button mat-flat-button color="primary" type="button" class="inline-flex items-center gap-2" (click)="carregarWhatsapp()">
                   <span class="material-symbols-outlined text-base">refresh</span>
                   Tentar novamente
                 </button>
               }
               @if (waState && !waLoading) {
                 @if (waState.instance_configured) {
-                  <button type="button" z-button zType="outline" zSize="sm" class="inline-flex items-center gap-2" (click)="carregarWhatsapp()">
+                  <button mat-stroked-button type="button" class="inline-flex items-center gap-2 btn-cancel" (click)="carregarWhatsapp()">
                     <span class="material-symbols-outlined text-base">sync</span>
                     Atualizar status
                   </button>
                   @if (waState.connected === true || waState.logged_in === true) {
-                    <button
-                      type="button"
-                      z-button zType="outline" zSize="sm" class="inline-flex items-center gap-2"
-                      (click)="desconectarWhatsapp()"
-                      [disabled]="waDesconectando"
-                    >
+                    <button mat-stroked-button type="button" class="inline-flex items-center gap-2 btn-cancel" (click)="desconectarWhatsapp()" [disabled]="waDesconectando">
                       @if (waDesconectando) {
-                        <span class="btn-spinner" aria-hidden="true"></span>
+                        <mat-spinner diameter="18"></mat-spinner>
                       } @else {
                         <span class="material-symbols-outlined text-base">link_off</span>
                       }
@@ -888,14 +789,9 @@
                   }
                 }
                 @if (waState.server_configured && !waState.instance_configured) {
-                  <button
-                    type="button"
-                    z-button zSize="sm" class="inline-flex items-center gap-2"
-                    (click)="criarInstanciaWhatsapp()"
-                    [disabled]="waCriandoInstancia"
-                  >
+                  <button mat-flat-button color="primary" type="button" class="inline-flex items-center gap-2" (click)="criarInstanciaWhatsapp()" [disabled]="waCriandoInstancia">
                     @if (waCriandoInstancia) {
-                      <span class="btn-spinner" aria-hidden="true"></span>
+                      <mat-spinner diameter="18"></mat-spinner>
                     } @else {
                       <span class="material-symbols-outlined text-base">bolt</span>
                     }
@@ -903,14 +799,9 @@
                   </button>
                 }
                 @if (waState.instance_configured && waPodeEnviarTesteNoFooter) {
-                  <button
-                    type="button"
-                    z-button zSize="sm" class="inline-flex items-center gap-2"
-                    (click)="enviarTesteWhatsapp()"
-                    [disabled]="waTestEnviando"
-                  >
+                  <button mat-flat-button color="primary" type="button" class="inline-flex items-center gap-2" (click)="enviarTesteWhatsapp()" [disabled]="waTestEnviando">
                     @if (waTestEnviando) {
-                      <span class="btn-spinner" aria-hidden="true"></span>
+                      <mat-spinner diameter="18"></mat-spinner>
                     } @else {
                       <span class="material-symbols-outlined text-base">send</span>
                     }
@@ -918,14 +809,9 @@
                   </button>
                 }
                 @if (waState.instance_configured) {
-                  <button
-                    type="button"
-                    z-button zType="outline" zSize="sm" class="inline-flex items-center gap-2 text-destructive border-destructive/40 hover:text-destructive"
-                    (click)="removerIntegracaoWhatsapp()"
-                    [disabled]="waRemovendo"
-                  >
+                  <button mat-stroked-button type="button" class="inline-flex items-center gap-2 text-destructive border-destructive/40 hover:text-destructive btn-cancel" (click)="removerIntegracaoWhatsapp()" [disabled]="waRemovendo">
                     @if (waRemovendo) {
-                      <span class="btn-spinner" aria-hidden="true"></span>
+                      <mat-spinner diameter="18"></mat-spinner>
                     } @else {
                       <span class="material-symbols-outlined text-base">delete</span>
                     }
@@ -975,30 +861,27 @@
                 </div>
                 <div class="section-body">
                   <div class="field">
-                    <label for="nova-empresa-nome">Nome da nova empresa</label>
-                    <input
-                      id="nova-empresa-nome"
-                      type="text"
-                      [(ngModel)]="novaEmpresaNome"
-                      name="novaEmpresaNome"
-                      z-input zSize="sm" class="w-full"
-                      maxlength="120"
-                      placeholder="Ex.: Filial Centro"
-                      autocomplete="organization"
-                      (keydown.enter)="$event.preventDefault(); criarNovaEmpresa()"
-                    />
+                    <mat-form-field appearance="outline" class="w-full">
+                      <mat-label>Nome da nova empresa</mat-label>
+                      <input
+                        matInput
+                        id="nova-empresa-nome"
+                        type="text"
+                        [(ngModel)]="novaEmpresaNome"
+                        name="novaEmpresaNome"
+                        maxlength="120"
+                        placeholder="Ex.: Filial Centro"
+                        autocomplete="organization"
+                        (keydown.enter)="$event.preventDefault(); criarNovaEmpresa()"
+                      />
+                    </mat-form-field>
                   </div>
                   @if (erroNovaEmpresa) {
                     <p class="mb-3 text-sm text-destructive">{{ erroNovaEmpresa }}</p>
                   }
-                  <button
-                    type="button"
-                    z-button zSize="sm" class="inline-flex items-center gap-2"
-                    (click)="criarNovaEmpresa()"
-                    [disabled]="salvandoNovaEmpresa || !novaEmpresaNome.trim()"
-                  >
+                  <button mat-flat-button color="primary" type="button" class="inline-flex items-center gap-2" (click)="criarNovaEmpresa()" [disabled]="salvandoNovaEmpresa || !novaEmpresaNome.trim()">
                     @if (salvandoNovaEmpresa) {
-                      <span class="btn-spinner" aria-hidden="true"></span>
+                      <mat-spinner diameter="18"></mat-spinner>
                     } @else {
                       <span class="material-symbols-outlined text-base">add_business</span>
                     }
@@ -1093,13 +976,13 @@
           <div class="sticky-footer">
             <div class="text-xs text-muted-foreground">Alterações não salvas</div>
             <div class="footer-btns">
-              <a routerLink="/dashboard" z-button zType="outline" zSize="sm" class="inline-flex items-center gap-2 no-underline">
+              <a mat-stroked-button routerLink="/dashboard" class="inline-flex items-center gap-2 no-underline btn-cancel">
                 <span class="material-symbols-outlined text-base">close</span>
                 Cancelar
               </a>
-              <button type="submit" z-button zSize="sm" class="inline-flex items-center gap-2" [disabled]="salvando">
+              <button mat-flat-button color="primary" type="submit" class="inline-flex items-center gap-2" [disabled]="salvando">
                 @if (salvando) {
-                  <span class="btn-spinner" aria-hidden="true"></span>
+                  <mat-spinner diameter="18"></mat-spinner>
                 } @else {
                   <span class="material-symbols-outlined text-base">save</span>
                 }

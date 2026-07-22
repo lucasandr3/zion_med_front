@@ -1,0 +1,19 @@
+<div class="flex items-center justify-center">
+    <div class="flex items-center justify-center h-16 text-black text-opacity-90 dark:text-white dark:text-opacity-70">
+        <div *ngIf="loadingData" class="inline-flex items-center justify-center">
+            <upx-loading class="mr-2"></upx-loading> {{message}}
+        </div>
+        <a *ngIf="(!loadingData && !listAllFetched) && totalData > 25" (click)="this.listAppend.emit(true);"
+            id="upxDataListLoadMore">
+            Carregar mais
+        </a>
+        <span *ngIf="!loadingData && listData && listAllFetched" class="text-sm">
+            <span *ngIf="listData.length >= 1 && totalData <= 25" class="text-xs">
+                Isso é tudo!
+            </span>
+            <span *ngIf="listData.length === 0">
+                Nenhum registro encontrado.
+            </span>
+        </span>
+    </div>
+</div>

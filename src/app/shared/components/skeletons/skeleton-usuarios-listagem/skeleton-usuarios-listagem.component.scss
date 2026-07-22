@@ -1,5 +1,39 @@
 .usuarios-listagem-skeleton {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
   width: 100%;
+  min-height: 0;
+  margin: 0;
+  border: none;
+  border-radius: 0;
+  background: rgb(var(--theme-floor-1));
+  overflow: auto;
+}
+
+.usuarios-listagem-skeleton__head,
+.usuarios-listagem-skeleton__row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--theme-line);
+}
+
+.usuarios-listagem-skeleton__head {
+  background: rgb(var(--theme-floor-1));
+}
+
+.usuarios-listagem-skeleton__row:last-child {
+  border-bottom: none;
+}
+
+.usuarios-listagem-skeleton__name {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  align-items: center;
+  gap: 0.625rem;
 }
 
 .usuarios-listagem-skeleton__actions-head {
@@ -13,10 +47,6 @@
 }
 
 @media (max-width: 767px) {
-  .usuarios-listagem-skeleton z-card {
-    overflow-x: auto;
-  }
-
   .usuarios-listagem-skeleton__head,
   .usuarios-listagem-skeleton__row {
     min-width: 36rem;

@@ -4,12 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { ZardCardComponent } from '@/shared/components/card/card.component';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
-import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
-import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
-import { ZardTableImports } from '@/shared/components/table';
 import { ZardTabComponent, ZardTabGroupComponent } from '@/shared/components/tabs';
-import { ZardComboboxComponent, type ZardComboboxGroup, type ZardComboboxOption } from '@/shared/components/combobox';
+import { MAT_FORM_IMPORTS } from '@/shared/material';
 import {
   PlataformaService,
   PlatformManualEmail,
@@ -20,11 +16,22 @@ import {
 import { LoadingService } from '../../../shared/services/loading.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { ZmSkeletonListComponent } from '../../../shared/components/skeletons';
-import { ZmEmptyStateComponent } from '../../../shared/components/ui';
+import { ZmPaginationComponent } from '../../../shared/components/ui';
+import { DataTableComponent, BadgeComponent, UpEmptyStateComponent } from '../../../shared/components/up';
 import {
   applyPlatformEmailTemplate,
   PLATFORM_EMAIL_TEMPLATES,
 } from './plataforma-email-templates';
+
+interface SelectOption {
+  value: string;
+  label: string;
+}
+
+interface SelectOptionGroup {
+  label?: string;
+  options: SelectOption[];
+}
 
 @Component({
   selector: 'app-plataforma-emails',
@@ -34,15 +41,14 @@ import {
     FormsModule,
     RouterLink,
     ZardCardComponent,
-    ZardButtonComponent,
-    ZardBadgeComponent,
     ZardTabComponent,
     ZardTabGroupComponent,
-    ZardComboboxComponent,
-    ...ZARD_FORM_CONTROL_IMPORTS,
-    ...ZardTableImports,
+    ...MAT_FORM_IMPORTS,
     ZmSkeletonListComponent,
-    ZmEmptyStateComponent,
+    ZmPaginationComponent,
+    DataTableComponent,
+    BadgeComponent,
+    UpEmptyStateComponent,
   ],
   templateUrl: './plataforma-emails.component.html',
   styleUrl: './plataforma-emails.component.css',
@@ -91,14 +97,14 @@ export class PlataformaEmailsComponent implements OnInit {
     return Array.from(groups.entries()).map(([label, items]) => ({ label, items }));
   });
 
-  private readonly defaultCategoryOptions: ZardComboboxOption[] = [
+  private readonly defaultCategoryOptions: SelectOption[] = [
     { value: 'contact', label: 'Contato' },
     { value: 'billing', label: 'Cobrança' },
     { value: 'general', label: 'Geral' },
     { value: 'support', label: 'Suporte' },
   ];
 
-  readonly categoryOptions = computed((): ZardComboboxOption[] => {
+  readonly categoryOptions = computed((): SelectOption[] => {
     const merged = new Map(this.defaultCategoryOptions.map((item) => [item.value, item]));
 
     (this.recipientsData?.categories ?? []).forEach((item) => {
@@ -118,7 +124,7 @@ export class PlataformaEmailsComponent implements OnInit {
     () => Boolean(this.recipientsData?.whatsapp_number?.trim())
   );
 
-  readonly templateOptions = computed((): ZardComboboxOption[] => {
+  readonly templateOptions = computed((): SelectOption[] => {
     const filtered = PLATFORM_EMAIL_TEMPLATES.filter((item) => item.category === this.category);
 
     return [
@@ -127,8 +133,8 @@ export class PlataformaEmailsComponent implements OnInit {
     ];
   });
 
-  readonly recipientComboboxGroups = computed((): ZardComboboxGroup[] => {
-    const groups: ZardComboboxGroup[] = [
+  readonly recipientSelectGroups = computed((): SelectOptionGroup[] => {
+    const groups: SelectOptionGroup[] = [
       {
         options: [{ value: this.customRecipientKey, label: 'E-mail personalizado' }],
       },

@@ -1,0 +1,172 @@
+<ng-container *ngIf="selectType === 'native'">
+    <mat-form-field appearance="outline" class="upx-select__container"
+        [subscriptSizing]="subscriptSizing ? 'dynamic' : 'fixed'"
+        [floatLabel]="floatLabel ? 'always' : 'auto'">
+        <select *ngIf="!multiple"
+            #upxSelect
+            matNativeControl
+            (input)="changeEmit()"
+            (change)="changeEmit($event)"
+            [formControl]="field"
+            [required]="required"
+            [attr.id]="fieldId"
+            [attr.reference]="reference"
+            class="upx-select__form-control">
+            <ng-container *ngTemplateOutlet="templateOptions"></ng-container>
+        </select>
+        <select *ngIf="multiple" multiple
+            #upxSelect
+            matNativeControl
+            (input)="changeEmit()"
+            (change)="changeEmit($event)"
+            [formControl]="field"
+            [required]="required"
+            [attr.id]="fieldId"
+            [attr.reference]="reference"
+            class="upx-select__form-control">
+            <ng-container *ngTemplateOutlet="templateOptions"></ng-container>
+        </select>
+        <mat-error *ngIf="!feedbackDisabled && field.invalid && (field.dirty || field.touched)">
+            {{getErrorMessage()}}
+        </mat-error>
+    </mat-form-field>
+    <ng-template #templateOptions>
+        <ng-content></ng-content>
+    </ng-template>
+</ng-container>
+
+<ng-container *ngIf="selectType === 'material'">
+    <mat-form-field appearance="outline" class="upx-select__container"
+        [subscriptSizing]="subscriptSizing ? 'dynamic' : 'fixed'"
+        [floatLabel]="floatLabel ? 'always' : 'auto'">
+        <mat-select *ngIf="!multiple"
+            #upxSelect
+            (input)="changeEmit()"
+            (change)="changeEmit($event)"
+
+            [formControl]="field"
+            [required]="required"
+            [attr.id]="fieldId"
+            [attr.reference]="reference"
+			[placeholder]="placeholderText"
+            class="upx-select__form-control">
+			<mat-option *ngIf="!multiple && enableNone" [value]="null" #matOpt  (click)="itemSelected('', matOpt.selected)">Nenhum</mat-option>
+            <mat-option *ngFor="let option of matOptions" #matOpt (click)="itemSelected(option, matOpt.selected)" [value]="option.value">
+                {{option.label}}
+                <span *ngIf="option.nameCompany" style="font-size: 11px; color: gray;display:block;margin-bottom: 3px;" >{{ option.nameCompany }}</span>
+            </mat-option>
+        </mat-select>
+        <mat-select *ngIf="multiple" multiple
+            #upxSelect
+            (input)="changeEmit()"
+            (change)="changeEmit($event)"
+            [formControl]="field"
+            [required]="required"
+            [attr.id]="fieldId"
+            [attr.reference]="reference"
+			[placeholder]="placeholderText"
+            class="upx-select__form-control">
+			<mat-option [value]="''" *ngIf="!multiple" #matOpt (click)="itemSelected('', matOpt.selected)">Selecione...</mat-option>
+            <mat-option *ngFor="let option of matOptions" #matOpt [value]="option.value" (click)="itemSelected(option, matOpt.selected)">
+                {{option.label}}
+                <span *ngIf="option.nameCompany" style="font-size: 11px; color: gray;display:block;margin-bottom: 3px;" >{{ option.nameCompany }}</span>
+            </mat-option>
+        </mat-select>
+        <mat-select *ngIf="multiple && multiempresa" multiple
+            #upxSelect
+            (input)="changeEmit()"
+            (change)="changeEmit($event)"
+            [formControl]="field"
+            [required]="required"
+            [attr.id]="fieldId"
+            [attr.reference]="reference"
+			[placeholder]="placeholderText"
+            class="upx-select__form-control">
+			<mat-option [value]="''" *ngIf="!multiple" #matOpt (click)="itemSelectedMultiEmpresa('', matOpt.selected)">Selecione...</mat-option>
+            <mat-option *ngFor="let option of matOptions" #matOpt [value]="option.value" (click)="itemSelectedMultiEmpresa(option, matOpt.selected)">
+                {{option.label}}
+            </mat-option>
+        </mat-select>
+        <mat-error *ngIf="!feedbackDisabled && field.invalid && (field.dirty || field.touched)">
+            {{getErrorMessage()}}
+        </mat-error>
+    </mat-form-field>
+</ng-container>
+
+<ng-container *ngIf="selectType === 'funciona'">
+    <mat-form-field appearance="outline" class="upx-select__container"
+        [subscriptSizing]="subscriptSizing ? 'dynamic' : 'fixed'"
+        [floatLabel]="floatLabel ? 'always' : 'auto'">
+        <mat-select *ngIf="!multiple"
+            #upxSelect
+            [formControl]="field"
+            [required]="required"
+            [attr.id]="fieldId"
+			[placeholder]="placeholderText"
+            class="upx-select__form-control">
+			<mat-option *ngIf="!multiple && enableNone" [value]="null" >Nenhum</mat-option>
+            <mat-option *ngFor="let option of matOptions" (onSelectionChange)="onChange.emit($event)"  [value]="option.value">
+                {{option.label}}
+            </mat-option>
+        </mat-select>
+        <mat-select *ngIf="multiple" multiple
+            #upxSelect
+            [formControl]="field"
+            [required]="required"
+            [attr.id]="fieldId"
+			[placeholder]="placeholderText"
+            class="upx-select__form-control">
+			<mat-option [value]="''" *ngIf="!multiple">Selecione...</mat-option>
+            <mat-option *ngFor="let option of matOptions" [value]="option.value" (onSelectionChange)="onChange.emit($event)">
+                {{option.label}}
+            </mat-option>
+        </mat-select>
+        <mat-error *ngIf="!feedbackDisabled && field.invalid && (field.dirty || field.touched)">
+            {{getErrorMessage()}}
+        </mat-error>
+    </mat-form-field>
+</ng-container>
+
+<ng-container *ngIf="selectType === 'multiempresa'">
+    <mat-form-field appearance="outline" class="upx-select__container"
+        [subscriptSizing]="subscriptSizing ? 'dynamic' : 'fixed'"
+        [floatLabel]="floatLabel ? 'always' : 'auto'">
+        <mat-select *ngIf="!multiple"
+            #upxSelect
+            (input)="changeEmit()"
+            (change)="changeEmit($event)"
+
+            [formControl]="field"
+            [required]="required"
+            [attr.id]="fieldId"
+            [attr.reference]="reference"
+			[placeholder]="placeholderText"
+            class="upx-select__form-control">
+			<mat-option *ngIf="!multiple && enableNone" [value]="''" #matOpt (click)="itemSelected('', matOpt.selected)">Nenhum</mat-option>
+            <mat-option *ngFor="let option of matOptions" #matOpt (click)="itemSelected(option, matOpt.selected)" [value]="option.value">
+                {{option.label}}
+            </mat-option>
+        </mat-select>
+        <mat-select *ngIf="multiple" multiple
+            #upxSelect
+            (input)="changeEmit()"
+            (change)="changeEmit($event)"
+            [formControl]="field"
+            [required]="required"
+            [attr.id]="fieldId"
+            [attr.reference]="reference"
+			[placeholder]="placeholderText"
+            class="upx-select__form-control">
+			<mat-option [value]="''" *ngIf="!multiple" #matOpt (click)="itemSelectedMultiEmpresa('', matOpt.selected)">Selecione...</mat-option>
+            <mat-option *ngFor="let option of matOptions" #matOpt [value]="option.value" (click)="itemSelectedMultiEmpresa(option, matOpt.selected)">
+                {{option.label}}
+            </mat-option>
+        </mat-select>
+        <mat-error *ngIf="!feedbackDisabled && field.invalid && (field.dirty || field.touched)">
+            {{getErrorMessage()}}
+        </mat-error>
+    </mat-form-field>
+</ng-container>
+
+<!-- Ver o que a de errado, no botão de importar
+E arrumar o layout do edit, esta quebrando ao adicionar item, verificar -->

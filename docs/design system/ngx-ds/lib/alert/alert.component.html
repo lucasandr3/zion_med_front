@@ -1,0 +1,13 @@
+<upx-icon *ngIf="icon" [name]="icon"></upx-icon>
+<span class="sr-only">{{color}}</span>
+<div>
+    <strong *ngIf="titleText">
+        {{titleText}}
+    </strong>
+    <span *ngIf="messageText" [innerHTML]="messageText"></span>
+    <ng-content></ng-content>
+</div>
+<button *ngIf="dismiss" upxDismiss [targetDismissId]="dismissId" type="button" aria-label="Fechar">
+    <span class="sr-only">Close</span>
+    <upx-icon name="close"></upx-icon>
+</button>

@@ -1,63 +1,48 @@
-<div class="relative min-h-[300px] space-y-4">
-  <p class="zm-count-label">
-    {{ leads.length }} {{ leads.length === 1 ? 'lead' : 'leads' }} cadastrados
-  </p>
-
-  @if (showSkeleton()) {
-    <zm-skeleton-list [rows]="6" />
-  } @else if (!listaPronta) {
-  } @else {
-    @if (estadoErro) {
+<section class="upx-page-list">
+  <div class="upx-page-list__content">
+    @if (showSkeleton()) {
+      <zm-skeleton-list [rows]="6" />
+    } @else if (!listaPronta) {
+    } @else if (estadoErro) {
       <div class="rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-foreground">
         Não foi possível carregar os leads.
       </div>
     } @else {
-      <div class="zm-content-enter">
-        <z-card class="zm-table-card gap-0 py-0 shadow-sm **:data-[slot=card-content]:p-0">
-          <div class="zm-table-wrap">
-            <table z-table zSize="compact" class="text-xs">
-              <thead z-table-header>
-                <tr z-table-row>
-                  <th z-table-head>Nome</th>
-                  <th z-table-head>Contato</th>
-                  <th z-table-head>Clínica</th>
-                  <th z-table-head>Data</th>
-                </tr>
-              </thead>
-              <tbody z-table-body>
-                @for (lead of leads; track lead.id) {
-                  <tr z-table-row>
-                    <td z-table-cell>
-                      <div class="zm-row-title">{{ lead.name }}</div>
-                    </td>
-                    <td z-table-cell>
-                      <div class="zm-cell-muted">{{ lead.email }}</div>
-                      @if (lead.phone) {
-                        <div class="zm-row-sub">{{ lead.phone }}</div>
-                      }
-                    </td>
-                    <td z-table-cell>
-                      <span class="zm-cell-muted">{{ lead.clinic || '—' }}</span>
-                    </td>
-                    <td z-table-cell>
-                      <span class="zm-cell-muted whitespace-nowrap">{{ formatarData(lead.created_at) }}</span>
-                    </td>
-                  </tr>
-                } @empty {
-                  <tr z-table-row>
-                    <td z-table-cell colspan="4" class="py-0">
-                      <zm-empty-state
-                        title="Nenhum lead cadastrado."
-                        description="Novos leads capturados pela landing page aparecerão aqui."
-                      />
-                    </td>
-                  </tr>
-                }
-              </tbody>
-            </table>
-          </div>
-        </z-card>
-      </div>
+      @if (leads.length === 0) {
+        <up-empty-state
+          icon="person_search"
+          title="Nenhum lead cadastrado."
+          description="Novos leads capturados pela landing page aparecerão aqui."
+        />
+      } @else {
+        <up-data-table [recordCount]="leads.length" recordLabel="lead" recordLabelPlural="leads">
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>Contato</th>
+              <th>Clínica</th>
+              <th>Data</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (lead of leads; track lead.id) {
+              <tr class="upx-data-table__row--static">
+                <td>
+                  <div class="cell-primary">{{ lead.name }}</div>
+                </td>
+                <td>
+                  <div class="cell-secondary">{{ lead.email }}</div>
+                  @if (lead.phone) {
+                    <div class="cell-secondary">{{ lead.phone }}</div>
+                  }
+                </td>
+                <td class="cell-secondary">{{ lead.clinic || '—' }}</td>
+                <td class="cell-secondary">{{ formatarData(lead.created_at) }}</td>
+              </tr>
+            }
+          </tbody>
+        </up-data-table>
+      }
     }
-  }
-</div>
+  </div>
+</section>

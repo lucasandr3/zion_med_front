@@ -15,19 +15,23 @@ import {
   extractPlaceIdFromMapsUrl,
   normalizeGooglePlaceId,
 } from './link-bio-google-review-link.util';
-import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
+import { MAT_FORM_IMPORTS } from '@/shared/material';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ZardCardComponent } from '@/shared/components/card/card.component';
 
 @Component({
   selector: 'zm-link-bio-aparencia-tab',
   standalone: true,
   imports: [
-    ...ZARD_FORM_CONTROL_IMPORTS,
+    ...MAT_FORM_IMPORTS,
     CommonModule,
     FormsModule,
     RouterLink,
-    ZardButtonComponent,
+    MatButtonModule,
+    MatIconModule,
+    MatProgressSpinnerModule,
     ZardCardComponent,
   ],
   templateUrl: './link-bio-aparencia-tab.component.html',

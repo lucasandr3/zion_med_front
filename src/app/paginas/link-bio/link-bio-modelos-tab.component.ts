@@ -14,14 +14,24 @@ import {
   LINK_BIO_MODEL_SUBTITLES,
   LINK_BIO_PREVIEW_MODEL_IDS,
 } from './link-bio-model-labels.util';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ZardBadgeComponent } from '@/shared/components/badge';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
 import { ZardCardComponent } from '@/shared/components/card/card.component';
 
 @Component({
   selector: 'zm-link-bio-modelos-tab',
   standalone: true,
-  imports: [CommonModule, RouterLink, ZardBadgeComponent, ZardButtonComponent, ZardCardComponent],
+  imports: [
+    CommonModule,
+    RouterLink,
+    MatButtonModule,
+    MatIconModule,
+    MatProgressSpinnerModule,
+    ZardBadgeComponent,
+    ZardCardComponent,
+  ],
   templateUrl: './link-bio-modelos-tab.component.html',
   styleUrl: './link-bio-modelos-tab.component.css',
   host: { class: 'link-bio-config block min-w-0' },

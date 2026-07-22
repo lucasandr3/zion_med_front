@@ -1,0 +1,48 @@
+/**
+ * Tema Angular Material — identidade Gestgo (DS canônico).
+ * Primária #16a874 · on-primary branco · floor-2 #f4faf7
+ */
+@use '@angular/material' as mat;
+
+@use './styles/tokens';
+@use './styles/material-theme';
+@use './styles/data-table';
+@use './styles/gestgo-ds';
+@use './styles/shell-menus';
+@use './styles/page-list';
+@use './styles/form-controls';
+
+html {
+  @include mat.theme(
+    (
+      color: (
+        theme-type: light,
+        primary: mat.$green-palette,
+        tertiary: mat.$green-palette,
+      ),
+      typography: Roboto,
+      density: 0,
+    )
+  );
+
+  /* Sobrescreve a paleta Material com tokens Gestgo */
+  --mat-sys-primary: rgb(var(--theme-padrao));
+  --mat-sys-on-primary: #ffffff;
+  --mat-sys-primary-container: rgb(var(--theme-padrao) / 0.16);
+  --mat-sys-on-primary-container: rgb(10 61 43);
+  --mat-sys-secondary: rgb(var(--theme-padrao-2));
+  --mat-sys-on-secondary: #ffffff;
+  --mat-sys-surface: rgb(var(--theme-floor-1));
+  --mat-sys-on-surface: rgb(var(--theme-fg));
+  --mat-sys-surface-container: rgb(var(--theme-floor-2));
+  --mat-sys-surface-container-low: rgb(var(--theme-floor-2));
+  --mat-sys-surface-container-highest: rgb(var(--theme-floor-1));
+  --mat-sys-outline: rgb(var(--theme-border));
+  --mat-sys-outline-variant: rgb(var(--theme-border) / 0.55);
+  --mat-sidenav-content-background-color: rgb(var(--theme-floor-1));
+}
+
+/* Não sobrescrever body do Gestgo (styles.css) — só color-scheme */
+body {
+  color-scheme: light dark;
+}

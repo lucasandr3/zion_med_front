@@ -29,11 +29,11 @@
                 <div class="section-body">
                   <p class="hint mb-4">Documentação interativa (Scramble) e especificação OpenAPI para integrar com outros sistemas.</p>
                   <div class="flex flex-wrap gap-3">
-                    <a [href]="docsApiUrl" target="_blank" rel="noopener" z-button zSize="sm" class="inline-flex items-center gap-2 no-underline">
+                    <a mat-flat-button color="primary" [href]="docsApiUrl" target="_blank" rel="noopener" class="inline-flex items-center gap-2 no-underline">
                       <span class="material-symbols-outlined text-base">menu_book</span>
                       Documentação interativa
                     </a>
-                    <a [href]="docsApiJsonUrl" target="_blank" rel="noopener" z-button zType="outline" zSize="sm" class="inline-flex items-center gap-2 no-underline">
+                    <a mat-stroked-button [href]="docsApiJsonUrl" target="_blank" rel="noopener" class="inline-flex items-center gap-2 no-underline btn-cancel">
                       <span class="material-symbols-outlined text-base">download</span>
                       OpenAPI (JSON)
                     </a>
@@ -68,20 +68,10 @@
                     <div class="field mb-0">
                       <label for="novo-token-nome">Nome do token</label>
                       <div class="flex flex-wrap items-center gap-3">
-                        <input
-                          id="novo-token-nome"
-                          type="text"
-                          z-input
-                          zSize="sm"
-                          class="min-w-[200px] flex-1"
-                          [(ngModel)]="novoTokenNome"
-                          name="novoTokenNome"
-                          placeholder="Ex: ERP, Sistema externo"
-                          required
-                        />
-                        <button type="submit" z-button zSize="sm" class="inline-flex shrink-0 items-center gap-2" [disabled]="tokenCriando">
+                        <mat-form-field appearance="outline" class="min-w-[200px] flex-1"><mat-label>Nome do token</mat-label><input matInput id="novo-token-nome" type="text" [(ngModel)]="novoTokenNome" name="novoTokenNome" placeholder="Ex: ERP, Sistema externo" required /></mat-form-field>
+                        <button mat-flat-button color="primary" type="submit" class="inline-flex shrink-0 items-center gap-2" [disabled]="tokenCriando">
                           @if (tokenCriando) {
-                            <span class="btn-spinner" aria-hidden="true"></span>
+                            <mat-spinner diameter="18"></mat-spinner>
                           } @else {
                             <span class="material-symbols-outlined text-base">add</span>
                           }
@@ -107,7 +97,7 @@
                             <td z-table-cell>{{ t.name }}</td>
                             <td z-table-cell class="text-muted-foreground">{{ t.created_at | date:'dd/MM/yyyy HH:mm' }}</td>
                             <td z-table-cell class="text-right">
-                              <button type="button" z-button zType="link" zSize="sm" class="px-0" (click)="revogarToken(t)">
+                              <button mat-button type="button" class="px-0" (click)="revogarToken(t)">
                                 Revogar
                               </button>
                             </td>
@@ -137,33 +127,33 @@
                   <form (ngSubmit)="criarWebhook()" class="mb-6 flex max-w-xl flex-col gap-4">
                     <div class="field mb-0">
                       <label>URL</label>
-                      <input type="url" z-input zSize="sm" class="w-full" [(ngModel)]="novoWebhookUrl" name="novoWebhookUrl" placeholder="https://seu-sistema.com/webhook" required />
+                      <mat-form-field appearance="outline" class="w-full"><mat-label>URL</mat-label><input matInput type="url" [(ngModel)]="novoWebhookUrl" name="novoWebhookUrl" placeholder="https://seu-sistema.com/webhook" required /></mat-form-field>
                     </div>
                     <div class="field mb-0">
                       <label>Eventos</label>
                       <div class="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2">
                         @for (ev of availableEvents; track ev) {
-                          <z-checkbox
+                          <mat-checkbox
                             [ngModel]="novoWebhookEventos.includes(ev)"
                             (ngModelChange)="toggleEvento(ev, $event)"
                             [name]="'webhook_ev_' + ev"
                           >
                             {{ eventLabels[ev] || ev }}
-                          </z-checkbox>
+                          </mat-checkbox>
                         }
                       </div>
                     </div>
                     <div class="field mb-0">
                       <label>Secret <span class="opt">opcional, para assinatura HMAC</span></label>
-                      <input type="text" z-input zSize="sm" class="max-w-xs w-full" [(ngModel)]="novoWebhookSecret" name="novoWebhookSecret" placeholder="Chave secreta" />
+                      <mat-form-field appearance="outline" class="max-w-xs w-full"><mat-label>Secret</mat-label><input matInput type="text" [(ngModel)]="novoWebhookSecret" name="novoWebhookSecret" placeholder="Chave secreta" /></mat-form-field>
                     </div>
                     <div class="field mb-0">
                       <label>Descrição <span class="opt">opcional</span></label>
-                      <input type="text" z-input zSize="sm" class="max-w-xs w-full" [(ngModel)]="novoWebhookDescricao" name="novoWebhookDescricao" placeholder="Ex: ERP principal" />
+                      <mat-form-field appearance="outline" class="max-w-xs w-full"><mat-label>Descrição</mat-label><input matInput type="text" [(ngModel)]="novoWebhookDescricao" name="novoWebhookDescricao" placeholder="Ex: ERP principal" /></mat-form-field>
                     </div>
-                    <button type="submit" z-button zSize="sm" class="inline-flex w-fit items-center gap-2" [disabled]="webhookCriando">
+                    <button mat-flat-button color="primary" type="submit" class="inline-flex w-fit items-center gap-2" [disabled]="webhookCriando">
                       @if (webhookCriando) {
-                        <span class="btn-spinner" aria-hidden="true"></span>
+                        <mat-spinner diameter="18"></mat-spinner>
                       } @else {
                         <span class="material-symbols-outlined text-base">add</span>
                       }
@@ -186,7 +176,7 @@
                               <p class="mt-1 break-all text-muted-foreground">{{ wh.url }}</p>
                               <p class="mt-1 text-xs text-muted-foreground">{{ formatarEventosWebhook(wh) }}</p>
                             </div>
-                            <button type="button" z-button zType="link" zSize="sm" class="shrink-0 px-0 text-destructive" (click)="removerWebhook(wh)">
+                            <button mat-button type="button" class="shrink-0 px-0 text-destructive" (click)="removerWebhook(wh)">
                               Excluir
                             </button>
                           </div>
@@ -236,17 +226,9 @@
                               </td>
                               <td z-table-cell class="text-right">
                                 @if ((d.response_code == null || d.response_code < 200 || d.response_code >= 300) && d.id) {
-                                  <button
-                                    type="button"
-                                    z-button
-                                    zType="outline"
-                                    zSize="sm"
-                                    class="inline-flex items-center gap-2"
-                                    (click)="reenviar(d)"
-                                    [disabled]="reenviandoId === d.id"
-                                  >
+                                  <button mat-stroked-button type="button" class="inline-flex items-center gap-2 btn-cancel" (click)="reenviar(d)" [disabled]="reenviandoId === d.id">
                                     @if (reenviandoId === d.id) {
-                                      <span class="btn-spinner btn-spinner--xs" aria-hidden="true"></span>
+                                      <mat-spinner diameter="18"></mat-spinner>
                                     }
                                     {{ reenviandoId === d.id ? 'Reenviando…' : 'Reenviar' }}
                                   </button>

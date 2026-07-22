@@ -45,9 +45,9 @@ import { normalizeGooglePlaceId } from './link-bio-google-review-link.util';
 
 const LINK_BIO_PREVIEW_SESSION_KEY = 'zm_link_bio_preview';
 
-import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { ZardBadgeComponent } from '@/shared/components/badge';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
 import { ZardTabComponent, ZardTabGroupComponent } from '@/shared/components/tabs';
 import { prefetchPublicFormQr } from '../../core/utils/public-form-qr.util';
 import { LinkBioSidePreviewComponent } from './link-bio-side-preview.component';
@@ -56,12 +56,12 @@ import { LinkBioSidePreviewComponent } from './link-bio-side-preview.component';
   selector: 'app-pagina-link-bio',
   standalone: true,
   imports: [
-    ...ZARD_FORM_CONTROL_IMPORTS,
     CommonModule,
     FormsModule,
+    MatButtonModule,
+    MatIconModule,
     ZmSkeletonLinkBioComponent,
     ZardBadgeComponent,
-    ZardButtonComponent,
     ZardTabComponent,
     ZardTabGroupComponent,
     LinkBioSidePreviewComponent,

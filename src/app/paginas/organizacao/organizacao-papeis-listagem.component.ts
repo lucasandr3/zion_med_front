@@ -1,32 +1,31 @@
 import { Component, OnInit, inject, Signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { OrganizationRolesService, OrganizationRoleListItem } from '../../core/services/organization-roles.service';
 import { LoadingService } from '../../shared/services/loading.service';
 import { ZmSkeletonPermissoesListagemComponent } from '../../shared/components/skeletons';
-import { ZmEmptyStateComponent, ZmPageBackLinkComponent } from '../../shared/components/ui';
+import { ZmPageBackLinkComponent } from '../../shared/components/ui';
+import { DataTableComponent, BadgeComponent, UpEmptyStateComponent } from '../../shared/components/up';
 import { ToastService } from '../../core/services/toast.service';
 import { ConfirmDialogService } from '../../core/services/confirm-dialog.service';
-import { ZardTooltipImports } from '@/shared/components/tooltip';
-import { ZardCardComponent } from '@/shared/components/card/card.component';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
-import { ZardBadgeComponent } from '@/shared/components/badge';
-import { ZardTableImports } from '@/shared/components/table';
 
 @Component({
   selector: 'app-organizacao-papeis-listagem',
   standalone: true,
   imports: [
-    ...ZardTableImports,
     CommonModule,
     RouterLink,
+    MatButtonModule,
+    MatIconModule,
+    MatTooltipModule,
     ZmSkeletonPermissoesListagemComponent,
-    ZmEmptyStateComponent,
     ZmPageBackLinkComponent,
-    ...ZardTooltipImports,
-    ZardCardComponent,
-    ZardButtonComponent,
-    ZardBadgeComponent,
+    DataTableComponent,
+    BadgeComponent,
+    UpEmptyStateComponent,
   ],
   templateUrl: './organizacao-papeis-listagem.component.html',
 })

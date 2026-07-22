@@ -1,23 +1,22 @@
 import { Component, Input, inject } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'zm-page-back-link',
   standalone: true,
-  imports: [RouterLink, ZardButtonComponent],
+  imports: [RouterLink, MatButtonModule, MatIconModule],
   template: `
     @if (backUrl) {
       <a
         [routerLink]="backUrl"
-        z-button
-        zType="outline"
-        zSize="sm"
-        class="zm-page-back-link shrink-0 gap-1.5 no-underline"
+        mat-stroked-button
+        class="zm-page-back-link btn-cancel shrink-0"
         [attr.title]="backLabel"
         [attr.aria-label]="backLabel"
       >
-        <span class="material-symbols-outlined text-base" aria-hidden="true">arrow_back</span>
+        <mat-icon>arrow_back</mat-icon>
         {{ backLabel }}
       </a>
     }

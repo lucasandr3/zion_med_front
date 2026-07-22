@@ -20,8 +20,10 @@ import {
   buildExtraPayload,
   type LinkBioExtraFormState,
 } from './link-bio-extra-form.util';
-import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
+import { MAT_FORM_IMPORTS } from '@/shared/material';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ZardCardComponent } from '@/shared/components/card/card.component';
 
 const LINK_BIO_FOTO_PROFISSIONAL_MAX_BYTES = 2 * 1024 * 1024;
@@ -30,11 +32,13 @@ const LINK_BIO_FOTO_PROFISSIONAL_MAX_BYTES = 2 * 1024 * 1024;
   selector: 'zm-link-bio-conteudo-extra-tab',
   standalone: true,
   imports: [
-    ...ZARD_FORM_CONTROL_IMPORTS,
+    ...MAT_FORM_IMPORTS,
     CommonModule,
     FormsModule,
     RouterLink,
-    ZardButtonComponent,
+    MatButtonModule,
+    MatIconModule,
+    MatProgressSpinnerModule,
     ZardCardComponent,
   ],
   templateUrl: './link-bio-conteudo-extra-tab.component.html',

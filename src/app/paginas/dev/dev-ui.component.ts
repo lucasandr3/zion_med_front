@@ -1,10 +1,11 @@
 import { isPlatformBrowser } from '@angular/common';
 import { Component, inject, PLATFORM_ID, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
 
 import { ZardBadgeComponent } from '@/shared/components/badge';
-import { ZardButtonComponent } from '@/shared/components/button';
 import { ZardCardComponent } from '@/shared/components/card';
 import { ZardInputDirective } from '@/shared/components/input/input.directive';
 import { ZardSkeletonComponent } from '@/shared/components/skeleton';
@@ -33,9 +34,10 @@ interface ThemeOption {
   standalone: true,
   imports: [
     FormsModule,
+    MatButtonModule,
+    MatIconModule,
     RouterLink,
     ZardBadgeComponent,
-    ZardButtonComponent,
     ZardCardComponent,
     ZardInputDirective,
     ZardSkeletonComponent,

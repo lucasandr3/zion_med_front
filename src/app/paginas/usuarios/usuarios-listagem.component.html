@@ -1,90 +1,90 @@
-<div class="relative min-h-[320px]">
-  <div class="mb-6 flex flex-wrap items-center justify-end gap-3">
-    <a z-button zType="outline" zSize="sm" routerLink="/organizacao/permissoes" class="no-underline" title="Gerenciar perfis e permissões">
-      <span class="material-symbols-outlined text-base">admin_panel_settings</span>
-      Permissões
-    </a>
-    <a z-button zSize="sm" routerLink="/usuarios/criar" class="no-underline" title="Criar novo usuário">
-      <span class="material-symbols-outlined text-base">person_add</span>
-      Novo usuário
-    </a>
-  </div>
-  @if (showSkeleton()) {
-    <zm-skeleton-usuarios-listagem />
-  } @else if (!listaPronta) {
-  } @else if (erro) {
-    <p class="text-sm text-destructive">{{ erro }}</p>
-  } @else {
-    <div class="zm-content-enter">
-      <z-card class="zm-table-card gap-0 overflow-hidden rounded-[8px] py-0 shadow-sm **:data-[slot=card-content]:p-0">
-        @if (usuarios.length === 0) {
-          <div class="p-10">
-            <zm-empty-state title="Nenhum usuário cadastrado." actionLabel="Novo usuário" actionLink="/usuarios/criar" />
-          </div>
-        } @else {
-          <div class="zm-table-wrap">
-            <table z-table zSize="compact">
-              <thead z-table-header>
-                <tr z-table-row>
-                  <th z-table-head>Nome</th>
-                  <th z-table-head>E-mail</th>
-                  <th z-table-head>Permissões</th>
-                  <th z-table-head>Status</th>
-                  <th z-table-head class="text-right">Ações</th>
-                </tr>
-              </thead>
-              <tbody z-table-body>
-                @for (u of usuarios; track u.id) {
-                  <tr z-table-row>
-                    <td z-table-cell>
-                      <div class="flex items-center gap-3">
-                        <div class="zm-row-avatar">{{ inicial(u.name) }}</div>
-                        <span class="zm-row-title">{{ u.name }}</span>
-                      </div>
-                    </td>
-                    <td z-table-cell class="zm-cell-muted">{{ u.email }}</td>
-                    <td z-table-cell>
-                      <span class="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-[0.7rem] font-semibold text-muted-foreground">
-                        <span class="material-symbols-outlined text-xs">badge</span>
-                        {{ u.role_label || u.role }}
-                      </span>
-                    </td>
-                    <td z-table-cell>
-                      @if (u.active) {
-                        <span class="inline-flex items-center gap-1 text-xs font-semibold" style="color: var(--c-success)">
-                          <span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1">check_circle</span>
-                          Ativo
-                        </span>
-                      } @else {
-                        <span class="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground">
-                          <span class="material-symbols-outlined text-sm">cancel</span>
-                          Inativo
-                        </span>
-                      }
-                    </td>
-                    <td z-table-cell class="text-right">
-                      <div class="flex items-center justify-end gap-0.5">
-                        <a [routerLink]="['/usuarios', u.id, 'editar']" aria-label="Editar usuário" class="action-btn" zTooltip="Editar usuário">
-                          <span class="material-symbols-outlined text-lg">edit</span>
-                        </a>
-                        @if (podeDesativar(u)) {
-                          <button type="button" class="action-btn danger" aria-label="Desativar usuário" [disabled]="desativandoId === u.id" (click)="desativar(u)" zTooltip="Desativar usuário">
-                            @if (desativandoId === u.id) {
-                              <span class="btn-spinner" style="width: 16px; height: 16px; border-width: 2px"></span>
-                            } @else {
-                              <span class="material-symbols-outlined text-lg">person_off</span>
-                            }
-                          </button>
-                        }
-                      </div>
-                    </td>
-                  </tr>
-                }
-              </tbody>
-            </table>
-          </div>
-        }
-      </z-card>
+<section class="usuarios-page upx-page-list">
+  <div class="upx-page-list__toolbar">
+    <div class="upx-page-list__toolbar-end">
+      <a mat-stroked-button class="btn-cancel" routerLink="/organizacao/permissoes" title="Gerenciar perfis e permissões">
+        <mat-icon>admin_panel_settings</mat-icon>
+        Permissões
+      </a>
+      <a mat-flat-button color="primary" routerLink="/usuarios/criar" title="Criar novo usuário">
+        <mat-icon>person_add</mat-icon>
+        Novo usuário
+      </a>
     </div>
+  </div>
+
+  @if (erro) {
+    <p class="mb-4 text-sm text-destructive">{{ erro }}</p>
   }
-</div>
+
+  <div class="upx-page-list__content">
+    @if (showSkeleton()) {
+      <zm-skeleton-usuarios-listagem />
+    } @else if (!listaPronta && !erro) {
+    } @else if (!erro) {
+      @if (usuarios.length === 0) {
+        <up-empty-state icon="group" title="Nenhum usuário cadastrado." description="Cadastre o primeiro usuário para começar.">
+          <a mat-flat-button color="primary" routerLink="/usuarios/criar">
+            <mat-icon>person_add</mat-icon>
+            Novo usuário
+          </a>
+        </up-empty-state>
+      } @else {
+        <up-data-table [recordCount]="usuarios.length" recordLabel="usuário" recordLabelPlural="usuários">
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>E-mail</th>
+              <th>Permissões</th>
+              <th>Status</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (u of usuarios; track u.id) {
+              <tr class="upx-data-table__row--static">
+                <td>
+                  <div class="flex items-center gap-3">
+                    <div class="zm-row-avatar">{{ inicial(u.name) }}</div>
+                    <div class="cell-primary">{{ u.name }}</div>
+                  </div>
+                </td>
+                <td class="cell-secondary">{{ u.email }}</td>
+                <td>
+                  <up-badge variant="type">{{ u.role_label || u.role }}</up-badge>
+                </td>
+                <td>
+                  @if (u.active) {
+                    <up-badge variant="status" tone="published">Ativo</up-badge>
+                  } @else {
+                    <up-badge variant="status" tone="draft">Inativo</up-badge>
+                  }
+                </td>
+                <td class="actions">
+                  <a mat-icon-button [routerLink]="['/usuarios', u.id, 'editar']" aria-label="Editar usuário" matTooltip="Editar usuário">
+                    <mat-icon>edit</mat-icon>
+                  </a>
+                  @if (podeDesativar(u)) {
+                    <button
+                      mat-icon-button
+                      type="button"
+                      aria-label="Desativar usuário"
+                      [disabled]="desativandoId === u.id"
+                      (click)="desativar(u)"
+                      matTooltip="Desativar usuário"
+                    >
+                      @if (desativandoId === u.id) {
+                        <span class="btn-spinner" style="width: 16px; height: 16px; border-width: 2px"></span>
+                      } @else {
+                        <mat-icon>person_off</mat-icon>
+                      }
+                    </button>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </up-data-table>
+      }
+    }
+  </div>
+</section>

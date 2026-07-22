@@ -15,30 +15,24 @@
             <div class="link-bio-form-card__actions flex shrink-0 flex-wrap items-center justify-center gap-2 self-center">
               <button
                 type="button"
-                z-button
-                zType="outline"
-                zSize="sm"
-                class="gap-1.5 link-bio-form-card__btn-copiar"
+                mat-stroked-button
+                class="btn-cancel gap-1.5 link-bio-form-card__btn-copiar"
                 [title]="copiedFormId === t.id ? 'Link copiado' : 'Copiar link do formulário'"
                 (click)="copiarLinkForm(t)"
               >
-                <span class="material-symbols-outlined text-base" aria-hidden="true">
-                  {{ copiedFormId === t.id ? 'check' : 'content_copy' }}
-                </span>
+                <mat-icon>{{ copiedFormId === t.id ? 'check' : 'content_copy' }}</mat-icon>
                 {{ copiedFormId === t.id ? 'Copiado!' : 'Copiar link' }}
               </button>
               @if (t.public_url) {
                 <a
-                  z-button
-                  zType="outline"
-                  zSize="sm"
+                  mat-stroked-button
+                  class="btn-cancel gap-1.5 no-underline link-bio-form-card__btn-abrir"
                   [href]="t.public_url"
                   target="_blank"
                   rel="noopener noreferrer"
-                  class="gap-1.5 no-underline link-bio-form-card__btn-abrir"
                   title="Abrir formulário em nova aba"
                 >
-                  <span class="material-symbols-outlined text-base" aria-hidden="true">open_in_new</span>
+                  <mat-icon>open_in_new</mat-icon>
                   Abrir
                 </a>
               }
@@ -60,12 +54,12 @@
   <div class="sticky-footer">
     <div class="text-xs text-muted-foreground">Alterações não salvas</div>
     <div class="footer-btns">
-      <a routerLink="/dashboard" z-button zType="outline" zSize="sm" class="gap-2 no-underline">
-        <span class="material-symbols-outlined text-base">close</span>
+      <a routerLink="/dashboard" mat-stroked-button class="btn-cancel gap-2 no-underline">
+        <mat-icon>close</mat-icon>
         Cancelar
       </a>
-      <a routerLink="/templates" z-button zSize="sm" class="gap-2 no-underline">
-        <span class="material-symbols-outlined text-base">description</span>
+      <a routerLink="/templates" mat-flat-button color="primary" class="gap-2 no-underline">
+        <mat-icon>description</mat-icon>
         Gerenciar templates
       </a>
     </div>

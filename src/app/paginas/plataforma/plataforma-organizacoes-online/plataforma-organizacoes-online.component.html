@@ -1,63 +1,50 @@
-<div class="relative min-h-[300px] space-y-4">
-  <p class="zm-count-label">
-    Empresas com sessão ativa no app
-  </p>
-
-  @if (showSkeleton()) {
-    <zm-skeleton-list [rows]="6" />
-  } @else if (!listaPronta) {
-  } @else {
-    @if (estadoErro) {
+<section class="upx-page-list">
+  <div class="upx-page-list__content">
+    @if (showSkeleton()) {
+      <zm-skeleton-list [rows]="6" />
+    } @else if (!listaPronta) {
+    } @else if (estadoErro) {
       <div class="rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-foreground">
         Não foi possível carregar a lista.
       </div>
     } @else {
-      <div class="zm-content-enter">
-        <z-card class="zm-table-card gap-0 py-0 shadow-sm **:data-[slot=card-content]:p-0">
-          <div class="zm-table-wrap">
-            <table z-table zSize="compact" class="text-xs">
-              <thead z-table-header>
-                <tr z-table-row>
-                  <th z-table-head>Empresa</th>
-                  <th z-table-head class="text-center">Sessões</th>
-                  <th z-table-head>Última atividade</th>
-                </tr>
-              </thead>
-              <tbody z-table-body>
-                @for (row of linhas; track row.organization_id) {
-                  <tr z-table-row>
-                    <td z-table-cell>
-                      <div class="zm-row-title">{{ row.organization_name }}</div>
-                      <div class="zm-row-sub zm-cell-mono">#{{ row.organization_id }}</div>
-                    </td>
-                    <td z-table-cell class="text-center">
-                      <z-badge zType="secondary" zShape="pill">{{ row.active_sessions }}</z-badge>
-                    </td>
-                    <td z-table-cell>
-                      <span class="zm-cell-muted whitespace-nowrap">
-                        @if (row.last_seen_at) {
-                          {{ row.last_seen_at | date: 'dd/MM/yyyy HH:mm' }}
-                        } @else {
-                          —
-                        }
-                      </span>
-                    </td>
-                  </tr>
-                } @empty {
-                  <tr z-table-row>
-                    <td z-table-cell colspan="3" class="py-0">
-                      <zm-empty-state
-                        title="Nenhuma empresa com sessão ativa no momento."
-                        description="Quando houver atividade de sessão, as empresas aparecerão aqui."
-                      />
-                    </td>
-                  </tr>
-                }
-              </tbody>
-            </table>
-          </div>
-        </z-card>
-      </div>
+      @if (linhas.length === 0) {
+        <up-empty-state
+          icon="wifi_tethering"
+          title="Nenhuma empresa com sessão ativa no momento."
+          description="Quando houver atividade de sessão, as empresas aparecerão aqui."
+        />
+      } @else {
+        <up-data-table [recordCount]="linhas.length" recordLabel="empresa" recordLabelPlural="empresas">
+          <thead>
+            <tr>
+              <th>Empresa</th>
+              <th class="text-center">Sessões</th>
+              <th>Última atividade</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of linhas; track row.organization_id) {
+              <tr class="upx-data-table__row--static">
+                <td>
+                  <div class="cell-primary">{{ row.organization_name }}</div>
+                  <div class="cell-secondary mono">#{{ row.organization_id }}</div>
+                </td>
+                <td class="text-center">
+                  <up-badge variant="type">{{ row.active_sessions }}</up-badge>
+                </td>
+                <td class="cell-secondary">
+                  @if (row.last_seen_at) {
+                    {{ row.last_seen_at | date: 'dd/MM/yyyy HH:mm' }}
+                  } @else {
+                    —
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </up-data-table>
+      }
     }
-  }
-</div>
+  </div>
+</section>

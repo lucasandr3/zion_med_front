@@ -1,0 +1,160 @@
+/**
+ * Sobrescreve o tema Material (azure-blue) com a identidade Gestgo (#16a874).
+ */
+
+/* Todos os botões Material: border-radius 10px */
+.mat-mdc-button,
+.mat-mdc-unelevated-button,
+.mat-mdc-raised-button,
+.mat-mdc-outlined-button,
+.mat-mdc-icon-button,
+a.mat-mdc-button,
+a.mat-mdc-unelevated-button,
+a.mat-mdc-raised-button,
+a.mat-mdc-outlined-button,
+a.mat-mdc-icon-button {
+  --mdc-filled-button-container-shape: 10px;
+  --mdc-protected-button-container-shape: 10px;
+  --mdc-outlined-button-container-shape: 10px;
+  --mdc-text-button-container-shape: 10px;
+  --mat-button-filled-container-shape: 10px;
+  --mat-button-protected-container-shape: 10px;
+  --mat-button-outlined-container-shape: 10px;
+  --mat-button-text-container-shape: 10px;
+  --mat-icon-button-state-layer-shape: 10px;
+  --mdc-icon-button-state-layer-shape: 10px;
+  border-radius: 10px !important;
+}
+
+.mat-mdc-button .mdc-button__ripple,
+.mat-mdc-unelevated-button .mdc-button__ripple,
+.mat-mdc-raised-button .mdc-button__ripple,
+.mat-mdc-outlined-button .mdc-button__ripple,
+.mat-mdc-icon-button .mat-mdc-button-persistent-ripple,
+.mat-mdc-icon-button .mat-mdc-button-ripple {
+  border-radius: 10px !important;
+}
+
+.mat-mdc-unelevated-button.mat-primary,
+.mat-mdc-raised-button.mat-primary,
+.mat-mdc-fab.mat-primary,
+.mat-mdc-mini-fab.mat-primary {
+  --mdc-filled-button-container-color: rgb(var(--theme-padrao));
+  --mdc-filled-button-label-text-color: #fff;
+  --mdc-protected-button-container-color: rgb(var(--theme-padrao));
+  --mdc-protected-button-label-text-color: #fff;
+  --mat-fab-container-color: rgb(var(--theme-padrao));
+  --mat-fab-foreground-color: #fff;
+}
+
+/* Ação principal: verde + texto branco (Salvar, Editar, Adicionar, Continuar) */
+.mat-mdc-unelevated-button.mat-primary,
+a.mat-mdc-unelevated-button.mat-primary {
+  border-radius: 10px !important;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  padding-inline: 1.1rem !important;
+  box-shadow: none !important;
+
+  .mat-icon,
+  mat-icon {
+    color: inherit;
+    margin-right: 0.15rem;
+  }
+}
+
+.mat-mdc-outlined-button.mat-primary {
+  --mdc-outlined-button-label-text-color: rgb(var(--theme-fg));
+  --mdc-outlined-button-outline-color: rgb(var(--theme-padrao) / 0.55);
+}
+
+.mat-mdc-button.mat-primary {
+  --mdc-text-button-label-text-color: rgb(var(--theme-fg));
+}
+
+.mat-mdc-progress-spinner {
+  --mdc-circular-progress-active-indicator-color: rgb(var(--theme-padrao));
+}
+
+.mat-mdc-form-field {
+  --mdc-outlined-text-field-focus-outline-color: rgb(var(--theme-padrao));
+  --mdc-outlined-text-field-caret-color: rgb(var(--theme-fg));
+  --mdc-outlined-text-field-focus-label-text-color: rgb(var(--theme-fg));
+  --mdc-outlined-text-field-label-text-color: rgb(var(--theme-fg) / 0.7);
+  --mdc-outlined-text-field-input-text-color: rgb(var(--theme-fg));
+  --mdc-outlined-text-field-input-text-placeholder-color: rgb(var(--theme-fg) / 0.45);
+  --mdc-outlined-text-field-outline-color: rgb(var(--theme-border) / 0.25);
+  --mdc-outlined-text-field-hover-outline-color: rgb(var(--theme-border) / 0.45);
+  --mat-select-enabled-trigger-text-color: rgb(var(--theme-fg));
+  --mat-select-placeholder-text-color: rgb(var(--theme-fg) / 0.45);
+  --mat-select-enabled-arrow-color: rgb(var(--theme-fg) / 0.55);
+  --mat-form-field-trailing-icon-color: rgb(var(--theme-fg) / 0.55);
+}
+
+.mat-mdc-checkbox.mat-accent,
+.mat-mdc-checkbox.mat-primary {
+  --mdc-checkbox-selected-checkmark-color: #fff;
+  --mdc-checkbox-selected-focus-icon-color: rgb(var(--theme-padrao));
+  --mdc-checkbox-selected-hover-icon-color: rgb(var(--theme-padrao));
+  --mdc-checkbox-selected-icon-color: rgb(var(--theme-padrao));
+  --mdc-checkbox-selected-pressed-icon-color: rgb(var(--theme-padrao));
+}
+
+.mat-mdc-radio-button.mat-accent,
+.mat-mdc-radio-button.mat-primary {
+  --mdc-radio-selected-icon-color: rgb(var(--theme-padrao));
+  --mdc-radio-selected-focus-icon-color: rgb(var(--theme-padrao));
+  --mdc-radio-selected-hover-icon-color: rgb(var(--theme-padrao));
+  --mdc-radio-selected-pressed-icon-color: rgb(var(--theme-padrao));
+}
+
+.mat-step-header .mat-step-icon-selected,
+.mat-step-header .mat-step-icon-state-done,
+.mat-step-header .mat-step-icon-state-edit {
+  background-color: rgb(var(--theme-padrao)) !important;
+  color: #fff !important;
+}
+
+.mat-drawer,
+.mat-sidenav,
+.mat-drawer-inner-container {
+  border-radius: 0 !important;
+}
+
+.mat-drawer-side {
+  border: none !important;
+}
+
+/* Conteúdo das telas: floor-2 (cinza), não branco do surface Material */
+.mat-drawer-content,
+.mat-sidenav-content {
+  --mat-sidenav-content-background-color: rgb(var(--theme-floor-2));
+  background-color: rgb(var(--theme-floor-2)) !important;
+}
+
+.mat-mdc-list-base {
+  --mdc-list-list-item-label-text-color: rgb(var(--theme-fg));
+  --mdc-list-list-item-leading-icon-color: rgb(var(--theme-fg-muted) / 0.55);
+  --mdc-list-list-item-hover-state-layer-color: rgb(var(--theme-padrao));
+  --mdc-list-list-item-hover-state-layer-opacity: 0.1;
+  --mdc-list-list-item-focus-state-layer-color: rgb(var(--theme-padrao));
+  --mdc-list-list-item-focus-state-layer-opacity: 0.12;
+}
+
+.mat-mdc-list-item.mdc-list-item--activated {
+  background-color: rgb(var(--theme-padrao) / 0.14) !important;
+
+  .mdc-list-item__primary-text,
+  .mdc-list-item__content,
+  span[matlistitemtitle],
+  mat-icon {
+    color: rgb(var(--theme-fg)) !important;
+    font-weight: 500;
+  }
+}
+
+.mat-mdc-snack-bar-container {
+  --mdc-snackbar-container-color: rgb(var(--theme-padrao-2));
+  --mdc-snackbar-supporting-text-color: #fff;
+  --mat-snack-bar-button-color: rgb(var(--theme-padrao));
+}

@@ -1,41 +1,80 @@
-<div class="auth-page">
-  <div class="auth-bg-gradient"></div>
-  <div class="auth-blob-tr"></div>
-  <div class="auth-blob-bl"></div>
-  <div class="auth-wrap">
-    <div class="auth-brand">
-      <div class="auth-brand-logo">
-        <div class="auth-brand-logo-icon">
-          <img src="assets/logo/logo.png" alt="Gestgo">
+<div class="login-page">
+  <aside class="login-brand">
+    <header class="login-brand__header">
+      <span class="login-brand__mark" aria-hidden="true">
+        <img src="assets/logo/logo.png" alt="" />
+      </span>
+      <div class="login-brand__identity">
+        <span class="login-brand__product">Gestgo</span>
+        <span class="login-brand__slogan">Fichas digitais</span>
+      </div>
+    </header>
+
+    <div class="login-brand__body">
+      <p class="login-brand__eyebrow">Confirmação</p>
+      <h2 class="login-brand__title">
+        Confirme seu
+        <em>e-mail</em>
+      </h2>
+      <p class="login-brand__text">
+        Para acessar o sistema, confirme seu endereço de e-mail. Enviamos um link de verificação no momento do
+        cadastro.
+      </p>
+    </div>
+
+    <footer class="login-brand__footer">
+      <span>Copyright © {{ ano }} Gestgo</span>
+    </footer>
+  </aside>
+
+  <main class="login-panel">
+    <div class="login-panel__inner">
+      <div class="login-panel__brand-mobile">
+        <span class="login-panel__mark-mobile" aria-hidden="true">
+          <img src="assets/logo/logo.png" alt="" />
+        </span>
+        <div class="login-panel__brand-text">
+          <span class="login-panel__brand-name">Gestgo</span>
+          <span class="login-panel__brand-sub">Fichas digitais</span>
         </div>
-        <span class="auth-brand-logo-name">Gestgo</span>
       </div>
-      <div class="auth-brand-text">
-        <h1>Confirme seu <span class="hl">e-mail</span></h1>
-        <p>Para acessar o sistema, confirme seu endereço de e-mail. Enviamos um link de verificação no momento do cadastro.</p>
-      </div>
-      <p class="auth-brand-footer">© {{ ano }} Gestgo.</p>
-    </div>
-    <div class="auth-card">
-      <div class="auth-card-inner">
-        @if (enviado) {
-          <h2 class="auth-card-title">E-mail reenviado</h2>
-          <p class="auth-card-subtitle">Verifique sua caixa de entrada (e a pasta de spam) e clique no link para confirmar seu e-mail.</p>
-          <a routerLink="/autenticacao" class="auth-btn">Voltar ao login</a>
-        } @else {
-          <h2 class="auth-card-title">E-mail não verificado</h2>
-          <p class="auth-card-subtitle">Clique no botão abaixo para receber novamente o link de verificação.</p>
-          @if (erro) {
-            <div class="auth-error"><p>{{ erro }}</p></div>
-          }
-          <button type="button" class="auth-btn" [disabled]="carregando" (click)="reenviar()">
-            {{ carregando ? 'Enviando…' : 'Reenviar e-mail de verificação' }}
-          </button>
-          <p class="auth-register">
-            <a routerLink="/autenticacao">Voltar ao login</a>
-          </p>
+
+      @if (enviado) {
+        <header class="login-panel__header">
+          <h1>E-mail reenviado</h1>
+          <p>Verifique sua caixa de entrada (e a pasta de spam) e clique no link para confirmar seu e-mail.</p>
+        </header>
+        <a mat-flat-button color="primary" routerLink="/autenticacao" class="login-submit">Voltar ao login</a>
+      } @else {
+        <header class="login-panel__header">
+          <h1>E-mail não verificado</h1>
+          <p>Clique no botão abaixo para receber novamente o link de verificação.</p>
+        </header>
+
+        @if (erro) {
+          <p class="login-error" role="alert">{{ erro }}</p>
         }
-      </div>
+
+        <button
+          type="button"
+          mat-flat-button
+          color="primary"
+          class="login-submit"
+          [disabled]="carregando"
+          (click)="reenviar()"
+        >
+          @if (carregando) {
+            <mat-spinner diameter="22"></mat-spinner>
+          } @else {
+            Reenviar e-mail de verificação
+          }
+        </button>
+
+        <a routerLink="/autenticacao" class="login-back">
+          <mat-icon>arrow_back</mat-icon>
+          Voltar ao login
+        </a>
+      }
     </div>
-  </div>
+  </main>
 </div>

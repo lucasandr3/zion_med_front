@@ -1,0 +1,92 @@
+/**
+ * Tokens de cor — Gestgo (primária canônica Vital / ocean-blue #16a874)
+ * Matriz completa por tema: `src/styles/theme-palettes.css` + `gestgo-themes.ts`
+ */
+:root {
+  --theme: 22 168 116;
+  --theme-contrast: 13 40 51;
+  --theme-info: 3 105 161;
+  --theme-success: 21 128 61;
+  --theme-danger: 220 38 38;
+  --theme-warning: 217 119 6;
+  --theme-default: 107 114 128;
+  --theme-focus: 230 245 239;
+  --theme-padrao: 22 168 116;
+  --theme-padrao-2: 13 40 51;
+  --theme-floor-1: 255 255 255;
+  --theme-floor-2: 244 250 247;
+  --theme-sidebar: 244 250 247;
+  --theme-rosa: 214 51 108;
+  --theme-roxo: 145 18 236;
+  --theme-azul: 0 119 204;
+  --theme-verde: 34 139 34;
+  --theme-ciano: 3 167 170;
+  --theme-laranja: 255 102 0;
+  --theme-vermelho: 239 76 92;
+  --theme-fg: 13 20 16;
+  --theme-fg-muted: 61 77 70;
+  --theme-border: 221 232 227;
+  --theme-line: rgb(13 20 16 / 0.1);
+  --layout-footer-height: 3.75rem;
+
+  /* Breakpoints (alinhados ao ScreenService) */
+  --bp-sm: 640px;
+  --bp-md: 768px;
+  --bp-lg: 960px;
+  --bp-xl: 1280px;
+
+  --mdc-theme-primary: rgb(var(--theme-padrao));
+  --mat-sys-primary: rgb(var(--theme-padrao));
+  --mat-sys-on-primary: #ffffff;
+  --mat-sys-surface: rgb(var(--theme-floor-1));
+  --mat-sys-on-surface: rgb(var(--theme-fg));
+  --mat-sys-surface-container: rgb(var(--theme-floor-2));
+  --mat-sidenav-content-background-color: rgb(var(--theme-floor-2));
+  color-scheme: light;
+}
+
+html[color-theme='padrao'] {
+  --theme: var(--theme-padrao);
+}
+
+html[color-theme='padrao-2'] {
+  --theme: var(--theme-padrao-2);
+}
+
+html.dark,
+body.dark,
+.dark {
+  --theme: 255 255 255;
+  --theme-contrast: 255 255 255;
+  --theme-info: 30 71 138;
+  --theme-success: 20 83 43;
+  --theme-danger: 240 80 80;
+  --theme-warning: 113 90 18;
+  --theme-default: 57 58 64;
+  --theme-focus: 52 211 153;
+  /* Primária dark = .dark.theme-ocean-blue (--c-primary #34d399) */
+  --theme-padrao: 52 211 153;
+  --theme-padrao-2: 13 40 51;
+  /* Pretos neutros (sem tom azul), hierarquia suave */
+  --theme-sidebar: 18 18 18;
+  --theme-floor-2: 22 22 22;
+  --theme-floor-1: 28 28 28;
+  --theme-rosa: 214 51 108;
+  --theme-roxo: 145 18 236;
+  --theme-azul: 0 119 204;
+  --theme-verde: 34 139 34;
+  --theme-ciano: 3 167 170;
+  --theme-laranja: 255 102 0;
+  --theme-vermelho: 239 76 92;
+  --theme-fg: 255 255 255;
+  --theme-fg-muted: 255 255 255;
+  --theme-border: 255 255 255;
+  --theme-line: rgb(255 255 255 / 0.1);
+  --mat-sys-primary: rgb(var(--theme-padrao));
+  --mat-sys-on-primary: #0a3d2b;
+  --mat-sys-surface: rgb(var(--theme-floor-1));
+  --mat-sys-on-surface: rgb(var(--theme-fg));
+  --mat-sys-surface-container: rgb(var(--theme-floor-2));
+  --mat-sidenav-content-background-color: rgb(var(--theme-floor-2));
+  color-scheme: dark;
+}

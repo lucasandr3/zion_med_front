@@ -1,0 +1,15 @@
+<label [for]="fieldId" class="inline-flex gap-1 items-center text-sm font-medium text-neutral-900 dark:text-white w-full" >
+    <span *ngIf="required" class="text-red-500">*</span>
+    <span class="w-full">
+        <ng-content></ng-content>
+    </span>
+
+    <upx-icon [dynamicClass]="dynamicClassIcon" *ngIf="helpIcon" [size]="'sm'" [name]="helpIcon" [titleText]="helpText"
+        class="text-neutral-400 dark:text-neutral-500 hover:text-neutral-900 dark:hover:text-white hover:cursor-pointer"></upx-icon>
+    <!-- <span *ngIf="optionalText" class="break-line  text-xs text-neutral-500 dark:text-neutral-300" >
+        {{optionalText}}
+    </span> -->
+</label>
+<span *ngIf="optionalText" class="break-line font-medium  text-xs text-neutral-500 dark:text-neutral-300" >
+	{{optionalText}}
+</span>

@@ -1,0 +1,9 @@
+<ng-container *ngIf="startTemplate || endTemplate">
+    <div class="upx-toolbar__template-start">
+        <ng-container *ngTemplateOutlet="startTemplate"></ng-container>
+    </div>
+    <div class="upx-toolbar__template-end">
+        <ng-container *ngTemplateOutlet="endTemplate"></ng-container>
+    </div>
+</ng-container>
+<ng-content></ng-content>

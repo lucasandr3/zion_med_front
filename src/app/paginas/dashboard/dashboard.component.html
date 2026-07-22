@@ -19,7 +19,13 @@
               <p class="text-sm font-medium text-foreground">Selecione uma empresa para ver o resumo</p>
               <p class="text-xs mt-0.5 text-muted-foreground">Os números e atalhos do painel são exibidos por empresa.</p>
             </div>
-            <a z-button routerLink="/clinica/escolher" class="sm:ml-auto shrink-0 no-underline" title="Escolher empresa para visualizar o painel">
+            <a
+              mat-flat-button
+              color="primary"
+              routerLink="/clinica/escolher"
+              class="sm:ml-auto shrink-0"
+              title="Escolher empresa para visualizar o painel"
+            >
               Escolher empresa
             </a>
           </div>
@@ -314,29 +320,29 @@
               </div>
               <div class="flex flex-wrap gap-2">
                 @if (pendentesHoje > 0) {
-                  <a z-button routerLink="/protocolos" class="no-underline">
-                    <span class="material-symbols-outlined text-base">pending_actions</span>
+                  <a mat-flat-button color="primary" routerLink="/protocolos">
+                    <mat-icon>pending_actions</mat-icon>
                     Revisar {{ pendentesHoje }} pendente@if (pendentesHoje > 1) {s}
                   </a>
                 } @else {
-                  <a z-button zType="outline" routerLink="/protocolos" class="no-underline">
-                    <span class="material-symbols-outlined text-base">inbox</span>
+                  <a mat-stroked-button class="btn-cancel" routerLink="/protocolos">
+                    <mat-icon>inbox</mat-icon>
                     Ver protocolos
                   </a>
                 }
                 @if (totalTemplates === 0) {
-                  <a z-button routerLink="/templates/criar-em-branco" class="no-underline">
-                    <span class="material-symbols-outlined text-base">add</span>
+                  <a mat-flat-button color="primary" routerLink="/templates/criar-em-branco">
+                    <mat-icon>add</mat-icon>
                     Criar primeiro modelo
                   </a>
                 } @else {
-                  <a z-button zType="outline" routerLink="/templates/criar-em-branco" class="no-underline">
-                    <span class="material-symbols-outlined text-base">add</span>
+                  <a mat-stroked-button class="btn-cancel" routerLink="/templates/criar-em-branco">
+                    <mat-icon>add</mat-icon>
                     Novo modelo
                   </a>
                 }
-                <a z-button zType="outline" routerLink="/links-publicos" class="no-underline">
-                  <span class="material-symbols-outlined text-base">link</span>
+                <a mat-stroked-button class="btn-cancel" routerLink="/links-publicos">
+                  <mat-icon>link</mat-icon>
                   Formulários públicos
                   @if (linksPublicosCount > 0) {
                     <span class="text-[0.65rem] font-semibold px-1.5 py-0.5 rounded-md" style="background: var(--c-kpi-accent-soft); color: var(--c-kpi-accent-text)">{{ linksPublicosCount }}</span>

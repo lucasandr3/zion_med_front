@@ -1,0 +1,66 @@
+/**
+ * Extraído do Gestgo: pages/painel/wizard/wizard.component.scss
+ * Não aplicar padding no report-wizard (designer full-bleed).
+ */
+.mat-stepper-horizontal:not(.report-wizard-stepper) {
+    @apply pt-20 pl-6 pr-6 bg-theme-floor-2;
+}
+
+.mat-stepper-next {
+    @apply inline-flex items-center justify-center font-medium select-none whitespace-nowrap rounded-md bg-theme h-9 py-2 px-3 text-sm gap-2 text-white dark:text-white;
+}
+
+.mat-stepper-previous {
+    @apply inline-flex items-center justify-center font-medium select-none whitespace-nowrap rounded-md bg-theme h-9 py-2 px-3 text-sm gap-2 text-white;
+}
+
+.mat-step-icon-selected {
+    @apply bg-theme;
+}
+
+.upx-card__actions {
+    @apply pr-0 #{!important};
+}
+
+.upx-card__custom {
+    @apply pl-0 #{!important};
+}
+
+::ng-deep .mat-step-header .mat-step-icon {
+    @apply w-[70px] h-[70px] bg-theme;
+}
+
+@media (max-width: 640px) {
+    ::ng-deep .mat-step-header .mat-step-icon {
+        @apply w-[30px] h-[30px];
+    }
+
+    .mat-stepper-horizontal:not(.report-wizard-stepper) {
+        @apply bg-theme-floor-2 pt-4 pl-2 pr-2;
+    }
+
+    ::ng-deep .mat-horizontal-stepper-header-container {
+        overflow-x: auto;
+        scrollbar-width: thin;
+    }
+}
+
+::ng-deep .mat-vertical-content {
+    padding: 0 !important;
+}
+
+::ng-deep .mat-vertical-content-container {
+    margin-left: 0 !important;
+    border: 0;
+    position: relative;
+}
+
+::ng-deep .mat-step-header {
+    overflow: hidden;
+    outline: none;
+    cursor: pointer;
+    position: relative;
+    box-sizing: content-box;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+    padding: 10px !important;
+}

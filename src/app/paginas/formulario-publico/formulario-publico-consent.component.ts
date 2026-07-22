@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { ZardCheckboxComponent } from '@/shared/components/checkbox';
+import { MAT_FORM_IMPORTS } from '@/shared/material';
 import { FormularioPublicoQuizQuestion } from '../../core/services/formulario-publico.service';
 import {
   clearSignatureCanvas,
@@ -15,7 +15,7 @@ import { ASSISTED_COSIGN_FIELD_KEY } from './formulario-publico-cosign.util';
 @Component({
   selector: 'zm-formulario-publico-consent',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, ZardCheckboxComponent],
+  imports: [CommonModule, FormsModule, RouterLink, ...MAT_FORM_IMPORTS],
   templateUrl: './formulario-publico-consent.component.html',
 })
 export class FormularioPublicoConsentComponent {

@@ -279,14 +279,14 @@
                 </div>
               </div>
 
-              <z-checkbox class="comece-terms-check" formControlName="acceptedTerms">
+              <mat-checkbox class="comece-terms-check" formControlName="acceptedTerms">
                 <span class="check-text">
                   Li e concordo com os
                   <a routerLink="/termos-de-uso" target="_blank" rel="noopener noreferrer" (click)="$event.stopPropagation()">Termos de Uso</a>
                   e a
                   <a routerLink="/privacidade" target="_blank" rel="noopener noreferrer" (click)="$event.stopPropagation()">Política de Privacidade</a>.
                 </span>
-              </z-checkbox>
+              </mat-checkbox>
 
               <button type="submit" class="submit-btn" [disabled]="estadoCarregando || carregandoPlanos || planos.length === 0">
                 @if (estadoCarregando) {

@@ -32,9 +32,7 @@
             <div class="link-bio-fade-in-3 mb-6">
               <div class="z-segment" role="tablist" aria-label="Seções do conteúdo">
                 <button
-                  z-button
-                  zType="ghost"
-                  zSize="sm"
+                  mat-button
                   type="button"
                   class="z-segment-btn gap-1.5"
                   role="tab"
@@ -42,13 +40,11 @@
                   [attr.aria-selected]="abaAtiva === 'modelos'"
                   (click)="ativarAba('modelos')"
                 >
-                  <span class="material-symbols-outlined text-base" aria-hidden="true">dashboard_customize</span>
+                  <mat-icon>dashboard_customize</mat-icon>
                   Modelos
                 </button>
                 <button
-                  z-button
-                  zType="ghost"
-                  zSize="sm"
+                  mat-button
                   type="button"
                   class="z-segment-btn gap-1.5"
                   role="tab"
@@ -56,13 +52,11 @@
                   [attr.aria-selected]="abaAtiva === 'conteudoExtra'"
                   (click)="ativarAba('conteudoExtra')"
                 >
-                  <span class="material-symbols-outlined text-base" aria-hidden="true">article</span>
+                  <mat-icon>article</mat-icon>
                   Conteúdo extra
                 </button>
                 <button
-                  z-button
-                  zType="ghost"
-                  zSize="sm"
+                  mat-button
                   type="button"
                   class="z-segment-btn gap-1.5"
                   role="tab"
@@ -70,14 +64,12 @@
                   [attr.aria-selected]="abaAtiva === 'links'"
                   (click)="ativarAba('links')"
                 >
-                  <span class="material-symbols-outlined text-base" aria-hidden="true">link</span>
+                  <mat-icon>link</mat-icon>
                   Links
                   <z-badge zShape="pill" zType="secondary" class="min-w-5 justify-center px-1.5 text-[10px] tabular-nums">{{ links.length }}</z-badge>
                 </button>
                 <button
-                  z-button
-                  zType="ghost"
-                  zSize="sm"
+                  mat-button
                   type="button"
                   class="z-segment-btn gap-1.5"
                   role="tab"
@@ -85,16 +77,14 @@
                   [attr.aria-selected]="abaAtiva === 'forms'"
                   (click)="ativarAba('forms')"
                 >
-                  <span class="material-symbols-outlined text-base" aria-hidden="true">assignment</span>
+                  <mat-icon>assignment</mat-icon>
                   Formulários
                   @if (metrics && metrics.formularios_draft > 0) {
                     <z-badge zShape="pill" zType="outline" class="link-bio-segment-badge-draft min-w-5 justify-center px-1.5 text-[10px] tabular-nums">{{ metrics.formularios_draft }}</z-badge>
                   }
                 </button>
                 <button
-                  z-button
-                  zType="ghost"
-                  zSize="sm"
+                  mat-button
                   type="button"
                   class="z-segment-btn gap-1.5"
                   role="tab"
@@ -102,7 +92,7 @@
                   [attr.aria-selected]="abaAtiva === 'aparencia'"
                   (click)="ativarAba('aparencia')"
                 >
-                  <span class="material-symbols-outlined text-base" aria-hidden="true">palette</span>
+                  <mat-icon>palette</mat-icon>
                   Aparência
                 </button>
               </div>

@@ -6,7 +6,7 @@
     <p class="text-sm text-destructive">{{ erro || 'Não foi possível carregar os dados.' }}</p>
   } @else {
     <div class="zm-content-enter">
-      <z-card class="gap-0 py-5 shadow-sm **:data-[slot=card-content]:px-5">
+      <div class="upx-form-panel">
         <p class="mb-5 text-sm text-muted-foreground">
           Escolha o perfil de permissões do usuário (conforme o que foi configurado na organização).
         </p>
@@ -16,127 +16,100 @@
         }
 
         <form (ngSubmit)="salvar()" class="flex flex-col gap-5">
-          <div>
-            <label class="usuario-form-label" for="usuario-name">Nome <span class="text-destructive">*</span></label>
-            <input
-              id="usuario-name"
-              type="text"
-              [(ngModel)]="name"
-              name="name"
-              required
-              z-input
-              zSize="sm"
-              class="w-full"
-              placeholder="Nome completo"
-              autocomplete="name"
-            />
-          </div>
+          <mat-form-field class="upx-full">
+            <mat-label>Nome <span class="text-destructive">*</span></mat-label>
+            <input matInput id="usuario-name" [(ngModel)]="name" name="name" required placeholder="Nome completo" autocomplete="name" />
+          </mat-form-field>
 
-          <div>
-            <label class="usuario-form-label" for="usuario-email">E-mail <span class="text-destructive">*</span></label>
+          <mat-form-field class="upx-full">
+            <mat-label>E-mail <span class="text-destructive">*</span></mat-label>
             <input
+              matInput
               id="usuario-email"
               type="email"
               [(ngModel)]="email"
               name="email"
               required
-              z-input
-              zSize="sm"
-              class="w-full"
               placeholder="nome@exemplo.com"
               autocomplete="email"
             />
-          </div>
+          </mat-form-field>
 
-          <div>
-            <label class="usuario-form-label" id="usuario-role-label">Permissões (perfil) <span class="text-destructive">*</span></label>
-            <z-combobox
-              class="w-full"
-              zWidth="full"
-              [options]="opcoesRoles"
-              [value]="role || null"
-              placeholder="Selecione o perfil"
-              [searchable]="false"
-              ariaLabel="Permissões (perfil)"
-              ariaDescribedBy="usuario-role-label"
-              (zValueChange)="selecionarRole($event)"
-            />
-          </div>
+          <mat-form-field class="upx-full">
+            <mat-label>Permissões (perfil) <span class="text-destructive">*</span></mat-label>
+            <mat-select [(ngModel)]="role" name="role" required aria-label="Permissões (perfil)">
+              @for (r of rolesList; track r.value) {
+                <mat-option [value]="r.value">{{ r.label }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
 
           @if (!editMode) {
-            <div class="grid gap-4 md:grid-cols-2">
-              <div>
-                <label class="usuario-form-label" for="usuario-password">Senha <span class="text-destructive">*</span></label>
+            <div class="upx-form-grid">
+              <mat-form-field class="upx-full">
+                <mat-label>Senha <span class="text-destructive">*</span></mat-label>
                 <input
+                  matInput
                   id="usuario-password"
                   type="password"
                   [(ngModel)]="password"
                   name="password"
                   required
-                  z-input
-                  zSize="sm"
-                  class="w-full"
                   placeholder="Mínimo exigido pelo sistema"
                   autocomplete="new-password"
                 />
-              </div>
-              <div>
-                <label class="usuario-form-label" for="usuario-password-confirm">Confirmar senha <span class="text-destructive">*</span></label>
+              </mat-form-field>
+              <mat-form-field class="upx-full">
+                <mat-label>Confirmar senha <span class="text-destructive">*</span></mat-label>
                 <input
+                  matInput
                   id="usuario-password-confirm"
                   type="password"
                   [(ngModel)]="passwordConfirm"
                   name="passwordConfirm"
                   required
-                  z-input
-                  zSize="sm"
-                  class="w-full"
                   placeholder="Repita a senha"
                   autocomplete="new-password"
                 />
-              </div>
+              </mat-form-field>
             </div>
           } @else {
-            <div class="grid gap-4 md:grid-cols-2">
-              <div>
-                <label class="usuario-form-label" for="usuario-new-password">Nova senha</label>
+            <div class="upx-form-grid">
+              <mat-form-field class="upx-full">
+                <mat-label>Nova senha</mat-label>
                 <input
+                  matInput
                   id="usuario-new-password"
                   type="password"
                   [(ngModel)]="newPassword"
                   name="newPassword"
-                  z-input
-                  zSize="sm"
-                  class="w-full"
                   placeholder="Deixe em branco para manter"
                   autocomplete="new-password"
                 />
-              </div>
-              <div>
-                <label class="usuario-form-label" for="usuario-new-password-confirm">Confirmar nova senha</label>
+              </mat-form-field>
+              <mat-form-field class="upx-full">
+                <mat-label>Confirmar nova senha</mat-label>
                 <input
+                  matInput
                   id="usuario-new-password-confirm"
                   type="password"
                   [(ngModel)]="newPasswordConfirm"
                   name="newPasswordConfirm"
-                  z-input
-                  zSize="sm"
-                  class="w-full"
                   placeholder="Se alterar a senha"
                   autocomplete="new-password"
                 />
-              </div>
+              </mat-form-field>
             </div>
-            <div>
-              <z-checkbox [(ngModel)]="active" name="active">Usuário ativo (pode acessar o sistema)</z-checkbox>
-            </div>
+            <mat-checkbox [(ngModel)]="active" name="active" color="primary">
+              Usuário ativo (pode acessar o sistema)
+            </mat-checkbox>
           }
 
           @if (podeConcederTrocaClinica) {
             <div>
-              <z-checkbox [(ngModel)]="canSwitchClinic" name="canSwitchClinic">
+              <mat-checkbox [(ngModel)]="canSwitchClinic" name="canSwitchClinic" color="primary">
                 Pode acessar todas as empresas da conta
-              </z-checkbox>
+              </mat-checkbox>
               <p class="m-0 mt-1 text-xs text-muted-foreground">Somente proprietários podem conceder esta permissão.</p>
             </div>
           }
@@ -144,22 +117,21 @@
           <div class="flex flex-wrap items-center gap-3 pt-2">
             <button
               type="submit"
-              z-button
-              zSize="sm"
-              class="inline-flex items-center gap-2"
+              mat-flat-button
+              color="primary"
               [disabled]="salvando || !name.trim() || !email.trim() || !role || (!editMode && (!password || !passwordConfirm))"
             >
               @if (salvando) {
-                <span class="btn-spinner" aria-hidden="true"></span>
+                <mat-spinner diameter="18"></mat-spinner>
               } @else {
-                <span class="material-symbols-outlined text-base">save</span>
+                <mat-icon>save</mat-icon>
               }
               {{ salvando ? 'Salvando…' : editMode ? 'Salvar alterações' : 'Cadastrar usuário' }}
             </button>
-            <a routerLink="/usuarios" z-button zType="outline" zSize="sm" class="no-underline">Cancelar</a>
+            <a routerLink="/usuarios" mat-stroked-button class="btn-cancel">Cancelar</a>
           </div>
         </form>
-      </z-card>
+      </div>
     </div>
   }
 </div>

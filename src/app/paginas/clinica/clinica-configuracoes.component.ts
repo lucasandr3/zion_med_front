@@ -13,8 +13,6 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { FlatpickrDirective, provideFlatpickrDefaults } from 'angularx-flatpickr';
-import { Portuguese } from 'flatpickr/dist/l10n/pt';
 import { finalize, Subscription } from 'rxjs';
 import {
   ClinicaService,
@@ -29,23 +27,24 @@ import { ViaCepService } from '../../core/services/via-cep.service';
 import { LoadingService } from '../../shared/services/loading.service';
 import { ZmSkeletonConfiguracoesComponent, ZmSkeletonListComponent } from '../../shared/components/skeletons';
 import { ZardBadgeComponent } from '@/shared/components/badge';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
-import { ZardCheckboxComponent } from '@/shared/components/checkbox';
-import { ZardInputDirective } from '@/shared/components/input/input.directive';
-import { ZardSwitchComponent } from '@/shared/components/switch';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ZardTabComponent, ZardTabGroupComponent } from '@/shared/components/tabs';
 import { ToastService } from '../../core/services/toast.service';
 import { WhatsappEvolutionService, WhatsappEvolutionState } from '../../core/services/whatsapp-evolution.service';
 import { ConfirmDialogService } from '../../core/services/confirm-dialog.service';
 import {
-  applyShellPresetToDom,
+  applyShellAppearanceToDom,
   applyUserAppearanceToBrowser,
   GESTGO_SHELL_PRESET_LS,
   GESTGO_THEME_LS,
-  normalizeShellPreset,
   normalizeThemeKey,
+  parseShellAppearance,
+  readShellAppearanceFromDom,
+  serializeShellAppearance,
   SHELL_PRESET_UI_OPTIONS,
-  type ShellPreset,
+  type ShellHeaderPreset,
 } from '../../core/services/user-appearance.sync';
 import { AuthService } from '../../core/services/auth.service';
 import { UserAppearanceService } from '../../core/services/user-appearance.service';
@@ -81,52 +80,43 @@ const API_TO_UI_DAY_MAP: Record<string, string> = {
 };
 
 const TEMA_LABEL_PT_MAP: Record<string, string> = {
-  'gestgo-blue': 'Azul Gestgo',
-  'ocean-blue': 'Azul oceano',
+  'ocean-blue': 'Vital',
+  'teal-ocean': 'Clínico',
+  'gestgo-blue': 'Confiança',
+  'cyan-tech': 'Acolhimento',
+  'emerald-fresh': 'Estética Soft',
+  'slate-pro': 'Neutro',
   'indigo-night': 'Anil',
-  'emerald-fresh': 'Esmeralda',
   'rose-elegant': 'Rosa',
   'amber-warm': 'Âmbar',
   'violet-dream': 'Violeta',
-  'teal-ocean': 'Verde-água',
-  'slate-pro': 'Ardósia',
-  'cyan-tech': 'Ciano',
   'fuchsia-bold': 'Magenta',
   'onyx-black': 'Preto',
   custom: 'Personalizada',
 };
 
 import { ZardCardComponent } from '@/shared/components/card/card.component';
-import { ZardComboboxComponent, type ZardComboboxOption } from '@/shared/components/combobox';
 import { ZardTableImports } from '@/shared/components/table';
+import { MAT_FORM_IMPORTS } from '@/shared/material';
+import { formatDateToHm, parseHmToDate } from '@/shared/utils/date-time.util';
 @Component({
   selector: 'app-clinica-configuracoes',
   standalone: true,
   imports: [
     ...ZardTableImports,
+    ...MAT_FORM_IMPORTS,
     CommonModule,
     FormsModule,
     RouterLink,
     ZmSkeletonConfiguracoesComponent,
     ZmSkeletonListComponent,
     ZardCardComponent,
-    ZardComboboxComponent,
-    ZardButtonComponent,
-    ZardInputDirective,
+    MatButtonModule,
+    MatIconModule,
+    MatProgressSpinnerModule,
     ZardTabComponent,
     ZardTabGroupComponent,
-    FlatpickrDirective,
-    ZardCheckboxComponent,
-    ZardSwitchComponent,
     ZardBadgeComponent,
-  ],
-  providers: [
-    provideFlatpickrDefaults({
-      locale: Portuguese,
-      allowInput: true,
-      clickOpens: true,
-      disableMobile: false,
-    }),
   ],
   templateUrl: './clinica-configuracoes.component.html',
   styleUrl: './clinica-configuracoes.component.css',
@@ -145,7 +135,8 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
   /** Cor ativa no navegador (drawer, preview ou empresa salva). */
   appliedThemeKey = 'ocean-blue';
   /** Preferência do usuário (header/sidebar); não faz parte do payload da empresa. */
-  shellPresetAtual: ShellPreset = 'default';
+  shellHeaderAtual: ShellHeaderPreset = 'default';
+  shellSidebarDark = false;
   /** Aparência exclusiva dos formulários públicos (/f/:token). */
   formPublicTheme = '';
   formCustomAccent = '#c9a84c';
@@ -162,11 +153,9 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
   logoFile: File | null = null;
   logoDragOver = false;
   private logoObjectUrl: string | null = null;
-  flatpickrAppendTo: HTMLElement =
-    typeof document !== 'undefined' ? document.body : (null as unknown as HTMLElement);
   readonly days = DAYS;
 
-  readonly opcoesSigningSecurityLevel: ZardComboboxOption[] = [
+  readonly opcoesSigningSecurityLevel = [
     { value: 'basic', label: 'Básica — somente evidências (IP, navegador, hashes)' },
     {
       value: 'reinforced',
@@ -174,7 +163,7 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
     },
   ];
 
-  readonly opcoesProtocolRetentionMode: ZardComboboxOption[] = [
+  readonly opcoesProtocolRetentionMode = [
     { value: 'anonymize', label: 'Anonimizar — mantém protocolo, hashes e trilha; remove PII' },
     { value: 'delete', label: 'Excluir — remove protocolos elegíveis permanentemente' },
   ];
@@ -187,7 +176,7 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
   } | null = null;
   carregandoRetencaoPreview = false;
 
-  private readonly configTabIds = ['dados', 'identidade', 'visual', 'whatsapp', 'empresas', 'logs'] as const;
+  private readonly configTabIds = ['dados', 'identidade', 'visual', 'formularios', 'whatsapp', 'empresas', 'logs'] as const;
 
   @ViewChild('configTabGroup') configTabGroup?: ZardTabGroupComponent;
 
@@ -307,8 +296,18 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
     return Object.keys(this.availableThemes);
   }
 
-  get shellPresetMeta(): (typeof SHELL_PRESET_UI_OPTIONS)[number] | undefined {
-    return this.shellPresetOptions.find((o) => o.id === this.shellPresetAtual);
+  get shellPresetFootnote(): string {
+    const headerOpt = this.shellPresetOptions.find((o) => o.id === this.shellHeaderAtual);
+    const darkOpt = this.shellPresetOptions.find((o) => o.id === 'sidebar_dark');
+    if (this.shellSidebarDark) {
+      return `${headerOpt?.description ?? ''} ${darkOpt?.description ?? ''}`.trim();
+    }
+    return headerOpt?.description ?? '—';
+  }
+
+  isShellOptionActive(id: 'default' | 'tinted' | 'sidebar_dark'): boolean {
+    if (id === 'sidebar_dark') return this.shellSidebarDark;
+    return this.shellHeaderAtual === id;
   }
 
   getThemeLabel(themeKey: string): string {
@@ -420,14 +419,19 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
   }
 
   /** Ajuste imediato do shell + PATCH em `/me/appearance` (preferência pessoal). */
-  onShellPresetPainel(preset: ShellPreset): void {
-    const canonical = normalizeShellPreset(preset);
-    this.shellPresetAtual = canonical;
-    applyShellPresetToDom(canonical);
+  onShellPresetPainel(option: 'default' | 'tinted' | 'sidebar_dark'): void {
+    if (option === 'sidebar_dark') {
+      this.shellSidebarDark = !this.shellSidebarDark;
+    } else {
+      this.shellHeaderAtual = option;
+    }
+    const appearance = { header: this.shellHeaderAtual, sidebarDark: this.shellSidebarDark };
+    applyShellAppearanceToDom(appearance);
     if (this.auth.isAuthenticated()) {
+      const serialized = serializeShellAppearance(appearance);
       this.userAppearance
         .patchAppearance({
-          ui_shell_preset: canonical === 'default' ? null : canonical,
+          ui_shell_preset: serialized === 'default' ? null : serialized,
         })
         .subscribe({ error: () => {} });
     }
@@ -435,17 +439,18 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
 
   private syncShellPresetFromUser(): void {
     const u = this.auth.getUser();
-    let preset: ShellPreset = 'default';
+    let appearance = readShellAppearanceFromDom();
     if (this.auth.isAuthenticated() && u && u.ui_shell_preset !== undefined) {
-      preset = normalizeShellPreset(u.ui_shell_preset);
+      appearance = parseShellAppearance(u.ui_shell_preset);
     } else {
       try {
         const ls = localStorage.getItem(GESTGO_SHELL_PRESET_LS);
-        if (ls) preset = normalizeShellPreset(ls);
+        if (ls) appearance = parseShellAppearance(ls);
       } catch {}
     }
-    this.shellPresetAtual = preset;
-    applyShellPresetToDom(preset);
+    this.shellHeaderAtual = appearance.header;
+    this.shellSidebarDark = appearance.sidebarDark;
+    applyShellAppearanceToDom(appearance);
   }
 
   ngOnDestroy(): void {
@@ -983,14 +988,27 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
     return 'Não foi possível concluir a operação. Tente novamente.';
   }
 
-  setTime(dayId: string, field: 'open' | 'close', dates: Date[]): void {
-    if (!this.form.business_hours || !dates?.length) {
+  scheduleOpenDate(dayId: string): Date | null {
+    return parseHmToDate(this.form.business_hours?.[dayId]?.open);
+  }
+
+  scheduleCloseDate(dayId: string): Date | null {
+    return parseHmToDate(this.form.business_hours?.[dayId]?.close);
+  }
+
+  onScheduleOpenChange(dayId: string, value: Date | null): void {
+    this.setScheduleTime(dayId, 'open', value);
+  }
+
+  onScheduleCloseChange(dayId: string, value: Date | null): void {
+    this.setScheduleTime(dayId, 'close', value);
+  }
+
+  private setScheduleTime(dayId: string, field: 'open' | 'close', value: Date | null): void {
+    if (!this.form.business_hours || !this.form.business_hours[dayId]) {
       return;
     }
-    const d = dates[0];
-    const h = d.getHours().toString().padStart(2, '0');
-    const m = d.getMinutes().toString().padStart(2, '0');
-    this.form.business_hours[dayId][field] = `${h}:${m}`;
+    this.form.business_hours[dayId][field] = formatDateToHm(value);
   }
 
   carregarLogs(page = 1): void {

@@ -37,45 +37,46 @@
           <div class="flex flex-wrap items-center gap-2">
             <zm-page-back-link />
             <a
-              z-button
-              zType="outline"
-              zSize="sm"
+              mat-stroked-button
               [routerLink]="['/pessoas', pessoa!.id, 'editar']"
-              class="gap-2 no-underline"
+              class="btn-cancel gap-2 no-underline"
               title="Editar pessoa"
             >
-              <span class="material-symbols-outlined text-base">edit</span>
+              <mat-icon>edit</mat-icon>
               Editar
             </a>
             @if (podeSolicitarReconsentimento) {
               <button
-                z-button
-                zType="outline"
-                zSize="sm"
+                mat-stroked-button
                 type="button"
-                class="gap-2"
+                class="btn-cancel gap-2"
                 (click)="solicitarReconsentimento()"
-                [zLoading]="solicitandoReconsentimento"
-                [zDisabled]="solicitandoReconsentimento"
+                [disabled]="solicitandoReconsentimento"
                 title="Enviar novo termo de consentimento"
               >
-                <span class="material-symbols-outlined text-base">forward_to_inbox</span>
+                @if (solicitandoReconsentimento) {
+                  <mat-spinner diameter="18"></mat-spinner>
+                } @else {
+                  <mat-icon>forward_to_inbox</mat-icon>
+                }
                 Reconsentimento
               </button>
             }
             @if (podeInativar && pessoa!.status === 'active') {
               <button
-                z-button
-                zType="destructive"
-                zSize="sm"
+                mat-flat-button
+                color="warn"
                 type="button"
                 class="gap-2"
                 (click)="inativar()"
-                [zDisabled]="inativando"
-                [zLoading]="inativando"
+                [disabled]="inativando"
                 title="Inativar pessoa"
               >
-                <span class="material-symbols-outlined text-base">person_off</span>
+                @if (inativando) {
+                  <mat-spinner diameter="18"></mat-spinner>
+                } @else {
+                  <mat-icon>person_off</mat-icon>
+                }
                 Inativar
               </button>
             }

@@ -1,8 +1,8 @@
 <div id="tab-links" class="flex flex-col gap-4 pb-24">
   <div class="flex flex-wrap items-center justify-between gap-2">
     <p class="text-xs text-muted-foreground m-0">Links exibidos na sua página</p>
-    <button type="button" id="btn-add" z-button zSize="sm" class="gap-1.5" (click)="toggleFormNovo()">
-      <span class="material-symbols-outlined text-base" aria-hidden="true">{{ mostrarFormNovo ? 'close' : 'add' }}</span>
+    <button type="button" id="btn-add" mat-flat-button color="primary" class="gap-1.5" (click)="toggleFormNovo()">
+      <mat-icon>{{ mostrarFormNovo ? 'close' : 'add' }}</mat-icon>
       {{ mostrarFormNovo ? 'Cancelar' : 'Adicionar link' }}
     </button>
   </div>
@@ -32,16 +32,16 @@
       @if (!urlAvalieGoogleSugerida && !temLinkAvalieGoogle) {
         <div class="field mt-4 mb-0">
           <label class="form-label">Place ID (se o link curto do Maps não funcionar)</label>
-          <input
+          <mat-form-field appearance="outline" class="w-full">
+            <input
+            matInput
             type="text"
-            z-input
-            zSize="sm"
-            class="w-full"
             [ngModel]="linkAvaliePlaceIdManual"
             (ngModelChange)="onPlaceIdManualChange($event)"
             name="linkAvaliePlaceIdManual"
             placeholder="g/11x2kkkqf0 ou ChIJ…"
-          />
+            />
+          </mat-form-field>
           <p class="form-hint m-0 mt-1.5">
             No link longo do Maps, procure <code class="text-xs">g/11x…</code> ou <code class="text-xs">ChIJ…</code> e cole aqui. Salve em Aparência antes de adicionar o link.
           </p>
@@ -62,19 +62,22 @@
         } @else {
           <button
             type="button"
-            z-button
-            zSize="sm"
+            mat-flat-button
+            color="primary"
             class="gap-1.5"
-            [zLoading]="salvandoLinkAvalieGoogle"
-            [zDisabled]="salvandoLinkAvalieGoogle || !urlAvalieGoogleSugerida"
+            [disabled]="salvandoLinkAvalieGoogle || !urlAvalieGoogleSugerida"
             (click)="adicionarLinkAvalieGoogle()"
           >
-            <span class="material-symbols-outlined text-base" aria-hidden="true">add_link</span>
+            @if (salvandoLinkAvalieGoogle) {
+              <mat-spinner diameter="18"></mat-spinner>
+            } @else {
+              <mat-icon>add_link</mat-icon>
+            }
             Adicionar link «Avalie no Google»
           </button>
         }
         @if (faltaLinkGoogleMaps) {
-          <button type="button" z-button zType="outline" zSize="sm" (click)="irParaAparencia()">
+          <button type="button" mat-stroked-button class="btn-cancel" (click)="irParaAparencia()">
             Configurar Google Maps
           </button>
         }
@@ -89,34 +92,31 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
           <div class="field">
             <label class="form-label">Título</label>
-            <input type="text" z-input zSize="sm" class="w-full" [(ngModel)]="novoLabel" name="novoLabel" placeholder="Ex: WhatsApp, Instagram…" maxlength="80" />
+            <mat-form-field appearance="outline" class="w-full"><input matInput type="text" [(ngModel)]="novoLabel" name="novoLabel" placeholder="Ex: WhatsApp, Instagram…" maxlength="80" /></mat-form-field>
           </div>
           <div class="field">
             <label class="form-label">URL</label>
-            <input type="url" z-input zSize="sm" class="w-full" [(ngModel)]="novoUrl" name="novoUrl" placeholder="https://…" maxlength="500" />
+            <mat-form-field appearance="outline" class="w-full"><input matInput type="url" [(ngModel)]="novoUrl" name="novoUrl" placeholder="https://…" maxlength="500" /></mat-form-field>
           </div>
           <div class="field">
             <label class="form-label" id="novo-link-icon-label">Ícone</label>
-            <z-combobox
-              class="w-full"
-              zWidth="full"
-              buttonSize="control"
-              [(ngModel)]="novoIcon"
-              name="novoIcon"
-              [options]="iconComboboxOptions"
-              placeholder="Selecione o ícone"
-              searchPlaceholder="Buscar ícone..."
-              emptyText="Nenhum ícone encontrado."
-              ariaLabel="Ícone do link"
-              ariaDescribedBy="novo-link-icon-label"
-            />
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-select [(ngModel)]="novoIcon" name="novoIcon" aria-label="Ícone do link">
+                @for (option of iconComboboxOptions; track option.value) {
+                  <mat-option [value]="option.value">{{ option.label }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
           </div>
         </div>
         <div class="flex flex-wrap gap-2">
-          <button type="button" z-button zSize="sm" [zLoading]="salvandoNovoLink" [zDisabled]="salvandoNovoLink" (click)="salvarNovoLink()">
+          <button type="button" mat-flat-button color="primary" [disabled]="salvandoNovoLink" (click)="salvarNovoLink()">
+            @if (salvandoNovoLink) {
+              <mat-spinner diameter="18"></mat-spinner>
+            }
             Salvar
           </button>
-          <button type="button" z-button zType="ghost" zSize="sm" (click)="toggleFormNovo()">Cancelar</button>
+          <button type="button" mat-button (click)="toggleFormNovo()">Cancelar</button>
         </div>
       </div>
     </z-card>
@@ -132,34 +132,31 @@
               <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
                 <div class="field">
                   <label class="form-label">Título</label>
-                  <input type="text" name="label" required maxlength="80" [(ngModel)]="editLabel" z-input zSize="sm" class="w-full" placeholder="Título" />
+                  <mat-form-field appearance="outline" class="w-full"><input matInput type="text" name="label" required maxlength="80" [(ngModel)]="editLabel" placeholder="Título" /></mat-form-field>
                 </div>
                 <div class="field">
                   <label class="form-label">URL</label>
-                  <input type="url" name="url" required maxlength="500" [(ngModel)]="editUrl" z-input zSize="sm" class="w-full" placeholder="URL" />
+                  <mat-form-field appearance="outline" class="w-full"><input matInput type="url" name="url" required maxlength="500" [(ngModel)]="editUrl" placeholder="URL" /></mat-form-field>
                 </div>
                 <div class="field">
                   <label class="form-label" [attr.id]="'edit-link-icon-label-' + lnk.id">Ícone</label>
-                  <z-combobox
-                    class="w-full"
-                    zWidth="full"
-                    buttonSize="control"
-                    [(ngModel)]="editIcon"
-                    name="icon"
-                    [options]="iconComboboxOptions"
-                    placeholder="Selecione o ícone"
-                    searchPlaceholder="Buscar ícone..."
-                    emptyText="Nenhum ícone encontrado."
-                    ariaLabel="Ícone do link"
-                    [ariaDescribedBy]="'edit-link-icon-label-' + lnk.id"
-                  />
+                  <mat-form-field appearance="outline" class="w-full">
+                    <mat-select [(ngModel)]="editIcon" name="icon" aria-label="Ícone do link">
+                      @for (option of iconComboboxOptions; track option.value) {
+                        <mat-option [value]="option.value">{{ option.label }}</mat-option>
+                      }
+                    </mat-select>
+                  </mat-form-field>
                 </div>
               </div>
               <div class="flex flex-wrap gap-2">
-                <button type="submit" z-button zSize="sm" [zLoading]="salvandoEdicaoId === lnk.id" [zDisabled]="salvandoEdicaoId === lnk.id">
+                <button type="submit" mat-flat-button color="primary" [disabled]="salvandoEdicaoId === lnk.id">
+                  @if (salvandoEdicaoId === lnk.id) {
+                    <mat-spinner diameter="18"></mat-spinner>
+                  }
                   Salvar
                 </button>
-                <button type="button" z-button zType="ghost" zSize="sm" (click)="cancelarEdicao()">Cancelar</button>
+                <button type="button" mat-button (click)="cancelarEdicao()">Cancelar</button>
               </div>
             </form>
           } @else {
@@ -173,33 +170,32 @@
                 <z-badge zShape="pill" zType="outline" class="border-primary/25 bg-primary/10 text-primary tabular-nums">
                   {{ lnk.total_clicks ?? 0 }} cliques
                 </z-badge>
-                <button type="button" z-button zType="outline" zSize="sm" (click)="iniciarEdicao(lnk)">Editar</button>
+                <button type="button" mat-stroked-button class="btn-cancel" (click)="iniciarEdicao(lnk)">Editar</button>
                 <a
                   [href]="lnk.url"
                   target="_blank"
                   rel="noopener"
-                  z-button
-                  zType="outline"
-                  zSize="sm"
-                  class="gap-1.5 no-underline link-bio-link-card__btn-abrir"
+                  mat-stroked-button
+                  class="btn-cancel gap-1.5 no-underline link-bio-link-card__btn-abrir"
                   aria-label="Abrir link"
                   title="Abrir link"
                 >
-                  <span class="material-symbols-outlined text-base" aria-hidden="true">open_in_new</span>
+                  <mat-icon>open_in_new</mat-icon>
                   Abrir
                 </a>
                 <button
                   type="button"
-                  z-button
-                  zType="ghost"
-                  zSize="icon-sm"
+                  mat-icon-button
                   aria-label="Remover link"
                   title="Remover link"
-                  [zDisabled]="excluindoLinkId === lnk.id"
-                  [zLoading]="excluindoLinkId === lnk.id"
+                  [disabled]="excluindoLinkId === lnk.id"
                   (click)="excluirLink(lnk)"
                 >
-                  <span class="material-symbols-outlined text-base">delete</span>
+                  @if (excluindoLinkId === lnk.id) {
+                    <mat-spinner diameter="18"></mat-spinner>
+                  } @else {
+                    <mat-icon>delete</mat-icon>
+                  }
                 </button>
               </div>
             </div>
@@ -213,8 +209,8 @@
         <span class="material-symbols-outlined mb-3 block text-[2.5rem] text-muted-foreground" aria-hidden="true">add_link</span>
         <p class="text-sm font-medium text-foreground m-0">Nenhum link cadastrado</p>
         <p class="text-xs text-muted-foreground mt-1.5 mb-4">Adicione links para WhatsApp, Instagram, site e outros.</p>
-        <button type="button" z-button zSize="sm" class="gap-1.5" (click)="toggleFormNovo()">
-          <span class="material-symbols-outlined text-base" aria-hidden="true">add</span>
+        <button type="button" mat-flat-button color="primary" class="gap-1.5" (click)="toggleFormNovo()">
+          <mat-icon>add</mat-icon>
           Adicionar link
         </button>
       </div>
@@ -225,20 +221,23 @@
   <div class="sticky-footer">
     <div class="text-xs text-muted-foreground">Alterações não salvas</div>
     <div class="footer-btns">
-      <a routerLink="/dashboard" z-button zType="outline" zSize="sm" class="gap-2 no-underline">
-        <span class="material-symbols-outlined text-base">close</span>
+      <a routerLink="/dashboard" mat-stroked-button class="btn-cancel gap-2 no-underline">
+        <mat-icon>close</mat-icon>
         Cancelar
       </a>
       <button
         type="button"
-        z-button
-        zSize="sm"
+        mat-flat-button
+        color="primary"
         class="gap-2"
-        [zDisabled]="linkBioFooterLinksSaveDisabled"
-        [zLoading]="salvandoNovoLink || salvandoEdicaoId !== null"
+        [disabled]="linkBioFooterLinksSaveDisabled"
         (click)="salvarFooterAbaLinks()"
       >
-        <span class="material-symbols-outlined text-base">save</span>
+        @if (salvandoNovoLink || salvandoEdicaoId !== null) {
+          <mat-spinner diameter="18"></mat-spinner>
+        } @else {
+          <mat-icon>save</mat-icon>
+        }
         {{ salvandoNovoLink || salvandoEdicaoId !== null ? 'Salvando…' : 'Salvar configurações' }}
       </button>
     </div>

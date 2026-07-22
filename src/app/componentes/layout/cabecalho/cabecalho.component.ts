@@ -9,21 +9,24 @@ import { ClinicaService } from '../../../core/services/clinica.service';
 import { ShellNavLayoutService } from '../../../core/services/shell-nav-layout.service';
 import {
   applyNavLayoutToDom,
-  applyShellPresetToDom,
+  applyShellAppearanceToDom,
   GESTGO_APPEARANCE_MODE_LS,
   GESTGO_NAV_LAYOUT_LS,
   GESTGO_SHELL_PRESET_LS,
   NAV_LAYOUT_UI_OPTIONS,
   normalizeNavLayout,
-  normalizeShellPreset,
   normalizeThemeKey,
+  parseShellAppearance,
   readNavLayoutFromDom,
+  serializeShellAppearance,
   SHELL_PRESET_UI_OPTIONS,
   type NavLayout,
-  type ShellPreset,
+  type ShellHeaderPreset,
 } from '../../../core/services/user-appearance.sync';
 import { absoluteMediaUrl } from '../../../core/utils/absolute-media-url';
 import { resolveSidebarLogoSrc } from '../../../core/utils/sidebar-logo.util';
+import { ScreenService } from '../../../shared/services/screen.service';
+import { TemaUtil } from '../../../shared/utils/tema.util';
 import { BarraNavHorizontalComponent } from '../barra-nav-horizontal/barra-nav-horizontal.component';
 import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
 import { ZardButtonComponent } from '@/shared/components/button/button.component';
@@ -33,34 +36,10 @@ import { ZardSheetService } from '@/shared/components/sheet/sheet.service';
 import type { ZardSheetRef } from '@/shared/components/sheet/sheet-ref';
 import { GoAssistantShellService } from '../../../go-assistant/services/go-assistant-shell.service';
 
-export const TEMAS: { key: string; label: string; labelPt: string; color: string }[] = [
-  { key: 'gestgo-blue', label: 'Royal blue', labelPt: 'Azul Gestgo', color: '#1e40af' },
-  { key: 'ocean-blue', label: 'Brand green', labelPt: 'Verde marca', color: '#16a874' },
-  { key: 'indigo-night', label: 'Indigo Night', labelPt: 'Anil', color: '#3730a3' },
-  { key: 'emerald-fresh', label: 'Emerald Fresh', labelPt: 'Esmeralda', color: '#15803d' },
-  { key: 'rose-elegant', label: 'Rose Elegant', labelPt: 'Rosa', color: '#be185d' },
-  { key: 'amber-warm', label: 'Amber Warm', labelPt: 'Âmbar', color: '#b45309' },
-  { key: 'violet-dream', label: 'Violet Dream', labelPt: 'Violeta', color: '#6d28d9' },
-  { key: 'teal-ocean', label: 'Teal Ocean', labelPt: 'Verde-água', color: '#0f766e' },
-  { key: 'slate-pro', label: 'Slate Pro', labelPt: 'Ardósia', color: '#334155' },
-  { key: 'cyan-tech', label: 'Cyan Tech', labelPt: 'Ciano', color: '#0369a1' },
-  { key: 'fuchsia-bold', label: 'Fuchsia Bold', labelPt: 'Magenta', color: '#a21caf' },
-];
+import { TEMAS, TEMAS_GRADE_ORDER } from '../../../core/theme/gestgo-themes';
 
-/** Ordem na grade 6+5 (alinhada ao painel visual de referência). */
-const TEMAS_GRADE_ORDER = [
-  'gestgo-blue',
-  'indigo-night',
-  'rose-elegant',
-  'violet-dream',
-  'slate-pro',
-  'fuchsia-bold',
-  'ocean-blue',
-  'emerald-fresh',
-  'amber-warm',
-  'teal-ocean',
-  'cyan-tech',
-] as const;
+/** Re-export para consumidores legados do cabeçalho. */
+export { TEMAS, TEMAS_GRADE_ORDER };
 
 @Component({
   selector: 'app-cabecalho',
@@ -99,8 +78,18 @@ export class CabecalhoComponent implements OnInit, OnDestroy {
     return this.temas.find((t) => t.key === this.temaAtual);
   }
 
-  get shellPresetMeta(): (typeof SHELL_PRESET_UI_OPTIONS)[number] | undefined {
-    return this.shellPresetOptions.find((o) => o.id === this.shellPresetAtual);
+  get shellPresetFootnote(): string {
+    const headerOpt = this.shellPresetOptions.find((o) => o.id === this.shellHeaderAtual);
+    const darkOpt = this.shellPresetOptions.find((o) => o.id === 'sidebar_dark');
+    if (this.shellSidebarDark) {
+      return `${headerOpt?.description ?? ''} ${darkOpt?.description ?? ''}`.trim();
+    }
+    return headerOpt?.description ?? '—';
+  }
+
+  isShellOptionActive(id: 'default' | 'tinted' | 'sidebar_dark'): boolean {
+    if (id === 'sidebar_dark') return this.shellSidebarDark;
+    return this.shellHeaderAtual === id;
   }
 
   get homeRouterLink(): string {
@@ -112,7 +101,7 @@ export class CabecalhoComponent implements OnInit, OnDestroy {
   }
 
   get brandTag(): string {
-    return 'Plataforma';
+    return 'Fichas digitais';
   }
 
   /** Ícone de notificações só para quem tem permissão no contexto atual (tenant ou plataforma). */
@@ -130,7 +119,8 @@ export class CabecalhoComponent implements OnInit, OnDestroy {
   }
   temaAtual = 'ocean-blue';
   modoEscuro = false;
-  shellPresetAtual: ShellPreset = 'default';
+  shellHeaderAtual: ShellHeaderPreset = 'default';
+  shellSidebarDark = false;
   navLayoutAtual: NavLayout = 'sidebar';
   readonly shellPresetOptions = SHELL_PRESET_UI_OPTIONS;
   readonly navLayoutOptions = NAV_LAYOUT_UI_OPTIONS;
@@ -155,6 +145,8 @@ export class CabecalhoComponent implements OnInit, OnDestroy {
   private router = inject(Router);
   private appearance = inject(UserAppearanceService);
   private sidebarMobile = inject(SidebarMobileService);
+  private screen = inject(ScreenService);
+  private temaUtil = inject(TemaUtil);
   private clinicaService = inject(ClinicaService);
   private readonly shellNavLayout = inject(ShellNavLayoutService);
   private readonly vcr = inject(ViewContainerRef);
@@ -274,17 +266,18 @@ export class CabecalhoComponent implements OnInit, OnDestroy {
   /** Alinha preset do shell com usuário logado ou localStorage. */
   private syncShellPresetFromBrowser(): void {
     const u = this.auth.getUser();
-    let preset: ShellPreset = 'default';
+    let appearance = parseShellAppearance(null);
     if (this.auth.isAuthenticated() && u && u.ui_shell_preset !== undefined) {
-      preset = normalizeShellPreset(u.ui_shell_preset);
+      appearance = parseShellAppearance(u.ui_shell_preset);
     } else {
       try {
         const ls = localStorage.getItem(GESTGO_SHELL_PRESET_LS);
-        if (ls) preset = normalizeShellPreset(ls);
+        if (ls) appearance = parseShellAppearance(ls);
       } catch {}
     }
-    this.shellPresetAtual = preset;
-    applyShellPresetToDom(preset);
+    this.shellHeaderAtual = appearance.header;
+    this.shellSidebarDark = appearance.sidebarDark;
+    applyShellAppearanceToDom(appearance);
   }
 
   aplicarModoTema(mode: 'light' | 'dark' | 'auto'): void {
@@ -307,8 +300,7 @@ export class CabecalhoComponent implements OnInit, OnDestroy {
   private _applyAutoMode(): void {
     const dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     this.modoEscuro = dark;
-    document.body.classList.toggle('dark', dark);
-    try { localStorage.setItem('gestgo_dark_mode', dark ? '1' : '0'); } catch {}
+    this.temaUtil.setColorScheme(dark ? 'dark' : 'light');
     if (this.auth.isAuthenticated()) {
       this.appearance.patchAppearance({ ui_dark_mode: dark }).subscribe({ error: () => {} });
     }
@@ -326,12 +318,11 @@ export class CabecalhoComponent implements OnInit, OnDestroy {
   }
 
   alternarSidebar(): void {
-    const isMobile = typeof window !== 'undefined' && window.innerWidth < 1024;
+    const isMobile = this.screen.isMobile();
     if (!isMobile && this.navLayoutAtual === 'horizontal') {
       return;
     }
     if (isMobile) {
-      /* Igual ao backend: apenas alternar estado; sidebar/overlay reagem por classe no elemento */
       this.sidebarMobile.setOpen(!this.sidebarMobile.isOpen);
       return;
     }
@@ -345,10 +336,7 @@ export class CabecalhoComponent implements OnInit, OnDestroy {
   /** Define modo escuro (true) ou claro (false); usado no drawer de tema */
   aplicarModoEscuro(escuro: boolean): void {
     this.modoEscuro = escuro;
-    document.body.classList.toggle('dark', this.modoEscuro);
-    try {
-      localStorage.setItem('gestgo_dark_mode', this.modoEscuro ? '1' : '0');
-    } catch {}
+    this.temaUtil.setColorScheme(escuro ? 'dark' : 'light');
     if (this.auth.isAuthenticated()) {
       this.appearance.patchAppearance({ ui_dark_mode: escuro }).subscribe({ error: () => {} });
     }
@@ -403,15 +391,20 @@ export class CabecalhoComponent implements OnInit, OnDestroy {
     this.auth.notifyAppearanceApplied();
   }
 
-  aplicarShellPreset(preset: ShellPreset): void {
-    const canonical = normalizeShellPreset(preset);
-    this.shellPresetAtual = canonical;
-    applyShellPresetToDom(canonical);
+  aplicarShellPreset(option: 'default' | 'tinted' | 'sidebar_dark'): void {
+    if (option === 'sidebar_dark') {
+      this.shellSidebarDark = !this.shellSidebarDark;
+    } else {
+      this.shellHeaderAtual = option;
+    }
+    const appearance = { header: this.shellHeaderAtual, sidebarDark: this.shellSidebarDark };
+    applyShellAppearanceToDom(appearance);
     this.auth.notifyAppearanceApplied();
     if (this.auth.isAuthenticated()) {
+      const serialized = serializeShellAppearance(appearance);
       this.appearance
         .patchAppearance({
-          ui_shell_preset: canonical === 'default' ? null : canonical,
+          ui_shell_preset: serialized === 'default' ? null : serialized,
         })
         .subscribe({ error: () => {} });
     }

@@ -1,9 +1,9 @@
 import { Component, OnInit, OnDestroy, inject, Signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { MatButtonModule } from '@angular/material/button';
 import { ZardCardComponent } from '@/shared/components/card/card.component';
 import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
 import {
   PlataformaService,
   PlatformTenantClinic,
@@ -20,9 +20,9 @@ import { statusAssinaturaOuCobrancaPt } from '../../../core/utils/status-labels-
   standalone: true,
   imports: [
     CommonModule,
+    MatButtonModule,
     ZardCardComponent,
     ZardBadgeComponent,
-    ZardButtonComponent,
     ZmSkeletonListComponent,
     ZmEmptyStateComponent,
   ],

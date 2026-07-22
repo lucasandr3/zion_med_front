@@ -3,6 +3,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { forkJoin } from 'rxjs';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import {
   OrganizationRolesService,
   PermissionCatalogItem,
@@ -11,21 +12,18 @@ import {
 import { LoadingService } from '../../shared/services/loading.service';
 import { ZmSkeletonPermissaoFormularioComponent } from '../../shared/components/skeletons';
 import { ToastService } from '../../core/services/toast.service';
-import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
-import { ZardCardComponent } from '@/shared/components/card/card.component';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
+import { MAT_FORM_IMPORTS } from '@/shared/material';
 
 @Component({
   selector: 'app-organizacao-papel-formulario',
   standalone: true,
   imports: [
-    ...ZARD_FORM_CONTROL_IMPORTS,
+    ...MAT_FORM_IMPORTS,
     CommonModule,
     RouterLink,
     FormsModule,
     ZmSkeletonPermissaoFormularioComponent,
-    ZardCardComponent,
-    ZardButtonComponent,
+    MatProgressSpinnerModule,
   ],
   templateUrl: './organizacao-papel-formulario.component.html',
   styleUrl: './organizacao-papel-formulario.component.css',

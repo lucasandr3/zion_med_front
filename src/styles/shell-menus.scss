@@ -1,0 +1,299 @@
+/**
+ * Menus globais do shell (overlays CDK — fora do encapsulation do componente).
+ * Extraído do design system Zion.
+ */
+
+.cdk-overlay-pane.user-account-menu,
+.cdk-overlay-pane:has(.user-account-menu),
+.mat-mdc-menu-panel.user-account-menu {
+  min-width: min(17.5rem, calc(100vw - 1.5rem)) !important;
+  max-width: min(17.5rem, calc(100vw - 1.5rem)) !important;
+  margin-top: 0.5rem !important;
+  padding: 0 !important;
+  border: none !important;
+  border-radius: 1rem !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  overflow: visible !important;
+}
+
+.mat-mdc-menu-panel.user-account-menu .mat-mdc-menu-content,
+.user-account-menu .mat-mdc-menu-content {
+  padding: 0 !important;
+  background: transparent !important;
+}
+
+.uam {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--theme-line);
+  border-radius: 10px;
+  background: rgb(var(--theme-floor-1));
+  box-shadow:
+    0 0 0 1px rgb(var(--theme-border) / 0.06),
+    0 18px 40px rgb(0 0 0 / 0.28);
+  color: rgb(var(--theme-fg));
+}
+
+.uam__profile {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  min-width: 0;
+  padding: 0.9rem 1rem;
+}
+
+.uam__avatar {
+  display: inline-grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 999px;
+  background: rgb(var(--theme-padrao));
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.uam__identity {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.uam__name {
+  font-size: 0.9rem;
+  font-weight: 700;
+  line-height: 1.2;
+  color: rgb(var(--theme-fg));
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.uam__email {
+  margin-top: 0.1rem;
+  font-size: 0.8rem;
+  line-height: 1.2;
+  color: rgb(var(--theme-fg) / 0.6);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.uam__divider {
+  height: 1px;
+  margin: 0;
+  background: var(--theme-line);
+}
+
+.uam__item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  min-height: 2.55rem;
+  padding: 0 1rem;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  color: rgb(var(--theme-fg));
+  cursor: pointer;
+  text-align: left;
+  transition: background-color 120ms ease;
+
+  &:hover,
+  &:focus-visible {
+    outline: none;
+    background: rgb(var(--theme-fg) / 0.06);
+  }
+}
+
+.uam__item-icon {
+  flex-shrink: 0;
+  width: 1.2rem;
+  height: 1.2rem;
+  font-size: 1.2rem;
+  color: rgb(var(--theme-fg) / 0.65);
+}
+
+.uam__item-label {
+  flex: 1;
+  font-size: 0.9rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.uam__item-badge {
+  flex-shrink: 0;
+  min-width: 1.25rem;
+  height: 1.15rem;
+  padding: 0 0.35rem;
+  border-radius: 999px;
+  background: rgb(var(--theme-padrao));
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  line-height: 1.15rem;
+  text-align: center;
+}
+
+.uam__switch {
+  position: relative;
+  flex-shrink: 0;
+  width: 2.15rem;
+  height: 1.25rem;
+  border-radius: 999px;
+  background: rgb(var(--theme-fg) / 0.2);
+  transition: background-color 120ms ease;
+}
+
+.uam__switch-thumb {
+  position: absolute;
+  top: 0.15rem;
+  left: 0.15rem;
+  width: 0.95rem;
+  height: 0.95rem;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.25);
+  transition: transform 120ms ease;
+}
+
+.uam__switch--on {
+  background: rgb(var(--theme-padrao));
+
+  .uam__switch-thumb {
+    transform: translateX(0.9rem);
+  }
+}
+
+.uam__item--danger {
+  min-height: 2.45rem;
+  color: rgb(var(--theme-danger));
+
+  .uam__item-icon {
+    color: rgb(var(--theme-danger));
+  }
+
+  &:hover {
+    background: rgb(var(--theme-danger) / 0.1);
+  }
+}
+
+/* Multiempresa — seletor no rodapé da sidebar (padrão UpGestão) */
+.cdk-overlay-pane.company-switch-menu,
+.cdk-overlay-pane:has(.company-switch-menu),
+.mat-mdc-menu-panel.company-switch-menu {
+  min-width: min(15rem, calc(100vw - 1.5rem)) !important;
+  max-width: min(15rem, calc(100vw - 1.5rem)) !important;
+  margin-bottom: 0.35rem !important;
+  padding: 0 !important;
+  border: none !important;
+  border-radius: 1rem !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  overflow: visible !important;
+}
+
+.mat-mdc-menu-panel.company-switch-menu .mat-mdc-menu-content,
+.company-switch-menu .mat-mdc-menu-content {
+  padding: 0 !important;
+  background: transparent !important;
+}
+
+.scm {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--theme-line);
+  border-radius: 10px;
+  background: rgb(var(--theme-floor-1));
+  box-shadow:
+    0 0 0 1px rgb(var(--theme-border) / 0.06),
+    0 18px 40px rgb(0 0 0 / 0.28);
+  color: rgb(var(--theme-fg));
+}
+
+.scm__header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.85rem 1rem;
+}
+
+.scm__eyebrow {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgb(var(--theme-fg-muted) / 0.55);
+}
+
+.scm__current {
+  font-size: 0.9rem;
+  font-weight: 700;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.scm__divider {
+  height: 1px;
+  margin: 0;
+  background: var(--theme-line);
+}
+
+.scm__item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  min-height: 2.55rem;
+  padding: 0 1rem;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  color: rgb(var(--theme-fg));
+  cursor: pointer;
+  text-align: left;
+  transition: background-color 120ms ease;
+
+  &:hover,
+  &:focus-visible {
+    outline: none;
+    background: rgb(var(--theme-fg) / 0.06);
+  }
+}
+
+.scm__item-icon {
+  flex-shrink: 0;
+  width: 1.2rem;
+  height: 1.2rem;
+  font-size: 1.2rem;
+  color: rgb(var(--theme-fg) / 0.65);
+}
+
+.scm__item-label {
+  flex: 1;
+  font-size: 0.9rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.scm__item--danger {
+  color: rgb(var(--theme-danger));
+
+  .scm__item-icon {
+    color: rgb(var(--theme-danger));
+  }
+
+  &:hover,
+  &:focus-visible {
+    background: rgb(var(--theme-danger) / 0.1);
+  }
+}

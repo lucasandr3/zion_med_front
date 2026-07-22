@@ -1,43 +1,47 @@
-import { Component, OnInit, OnDestroy, inject, Signal, ViewChild, TemplateRef, ViewContainerRef } from '@angular/core';
+import { Component, OnInit, inject, Signal, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { PessoasService, Pessoa } from '../../core/services/pessoas.service';
 import { LoadingService } from '../../shared/services/loading.service';
 import { ZmSkeletonListComponent } from '../../shared/components/skeletons';
-import { ZmPaginationComponent, ZmEmptyStateComponent } from '../../shared/components/ui';
-import { ZardCardComponent } from '@/shared/components/card/card.component';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
-import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
-import { ZardSheetService } from '@/shared/components/sheet/sheet.service';
-import type { ZardSheetRef } from '@/shared/components/sheet/sheet-ref';
+import { ZmPaginationComponent } from '../../shared/components/ui';
+import {
+  SearchBoxComponent,
+  DataTableComponent,
+  BadgeComponent,
+  UpEmptyStateComponent,
+  ListFiltersPanelComponent,
+} from '../../shared/components/up';
+import { MAT_FORM_IMPORTS } from '@/shared/material';
+import { OpenPickerOnInteractDirective } from '@/shared/directives/open-picker-on-interact.directive';
+import { formatDateToYmd } from '@/shared/utils/date-time.util';
 
-import { FlatpickrDirective } from 'angularx-flatpickr';
-
-import { ZardComboboxComponent, type ZardComboboxOption } from '@/shared/components/combobox';
-import { ZardTableImports } from '@/shared/components/table';
-import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
 @Component({
   selector: 'app-pessoas-listagem',
   standalone: true,
   imports: [
-    ...ZARD_FORM_CONTROL_IMPORTS,
-    ...ZardTableImports,
-    FlatpickrDirective,
+    ...MAT_FORM_IMPORTS,
     CommonModule,
     FormsModule,
+    ReactiveFormsModule,
     RouterLink,
+    MatButtonModule,
+    MatIconModule,
     ZmSkeletonListComponent,
     ZmPaginationComponent,
-    ZmEmptyStateComponent,
-    ZardCardComponent,
-    ZardButtonComponent,
-    ZardBadgeComponent,
-    ZardComboboxComponent,
+    SearchBoxComponent,
+    DataTableComponent,
+    BadgeComponent,
+    UpEmptyStateComponent,
+    ListFiltersPanelComponent,
+    OpenPickerOnInteractDirective,
   ],
   templateUrl: './pessoas-listagem.component.html',
 })
-export class PessoasListagemComponent implements OnInit, OnDestroy {
+export class PessoasListagemComponent implements OnInit {
   pessoas: Pessoa[] = [];
   meta: { current_page: number; last_page: number; per_page: number; total: number } = {
     current_page: 1,
@@ -49,77 +53,47 @@ export class PessoasListagemComponent implements OnInit, OnDestroy {
   listaPronta = false;
   erro = '';
 
-  busca = '';
-  status: string = '';
+  readonly buscaControl = new FormControl('', { nonNullable: true });
+  status = '';
   has_protocols: '' | '1' | '0' = '';
-  created_from = '';
-  created_to = '';
-  filterDrawerOpen = false;
-  /** Calendário no body para não ser cortado pelo overflow do sheet. */
-  flatpickrAppendTo!: HTMLElement;
-
-  @ViewChild('pessoasFiltrosTpl') pessoasFiltrosTpl?: TemplateRef<void>;
-
-  private filtrosSheetRef?: ZardSheetRef<void>;
+  createdFromDate: Date | null = null;
+  createdToDate: Date | null = null;
+  readonly filtersOpen = signal(false);
 
   private pessoasService = inject(PessoasService);
   private loadingService = inject(LoadingService);
   private router = inject(Router);
-  private readonly vcr = inject(ViewContainerRef);
-  private readonly zardSheet = inject(ZardSheetService);
 
-  readonly opcoesStatusFiltro: ZardComboboxOption[] = [
-    { value: '', label: 'Todas' },
-    { value: 'active', label: 'Ativa' },
-    { value: 'inactive', label: 'Inativa' },
-  ];
-
-  readonly opcoesProtocolosFiltro: ZardComboboxOption[] = [
-    { value: '', label: 'Todos' },
-    { value: '1', label: 'Com protocolos' },
-    { value: '0', label: 'Sem protocolos' },
-  ];
-
-  selecionarStatusFiltro(key: string | null): void {
-    this.status = key ?? '';
-  }
-
-  selecionarProtocolosFiltro(key: string | null): void {
-    if (!key) {
-      this.has_protocols = '';
-      return;
-    }
-    this.has_protocols = key === '' ? '' : (key as '1' | '0');
-  }
-
-  ngOnDestroy(): void {
-    this.filtrosSheetRef?.close();
-  }
   ngOnInit(): void {
-    this.flatpickrAppendTo = document.body;
     this.carregar();
   }
 
   get temFiltrosAtivos(): boolean {
-    return !!(this.status !== '' || this.has_protocols !== '' || this.created_from !== '' || this.created_to !== '');
+    return !!(this.status !== '' || this.has_protocols !== '' || this.createdFromDate || this.createdToDate);
   }
 
-  get quantidadeFiltrosAtivos(): number {
-    let n = 0;
-    if (this.status !== '') n++;
-    if (this.has_protocols !== '') n++;
-    if (this.created_from !== '') n++;
-    if (this.created_to !== '') n++;
-    return n;
+  toggleFilters(): void {
+    this.filtersOpen.update((open) => !open);
+  }
+
+  closeFilters(): void {
+    this.filtersOpen.set(false);
+  }
+
+  buscar(): void {
+    this.carregar(1);
   }
 
   carregar(page = 1): void {
     const params: Parameters<PessoasService['list']>[0] = { per_page: 20, page };
-    if (this.busca?.trim()) params.search = this.busca.trim();
+    const busca = this.buscaControl.value?.trim();
+    if (busca) params.search = busca;
     if (this.status) params.status = this.status;
     if (this.has_protocols !== '') params.has_protocols = this.has_protocols;
-    if (this.created_from) params.created_from = this.created_from;
-    if (this.created_to) params.created_to = this.created_to;
+    const createdFrom = formatDateToYmd(this.createdFromDate);
+    const createdTo = formatDateToYmd(this.createdToDate);
+    if (createdFrom) params.created_from = createdFrom;
+    if (createdTo) params.created_to = createdTo;
 
     const { data$, showSkeleton } = this.loadingService.loadWithThreshold(this.pessoasService.list(params));
     this.showSkeleton = showSkeleton;
@@ -138,41 +112,16 @@ export class PessoasListagemComponent implements OnInit, OnDestroy {
 
   aplicarFiltros(): void {
     this.carregar(1);
-    this.filtrosSheetRef?.close();
+    this.closeFilters();
   }
 
   limparFiltros(): void {
     this.status = '';
     this.has_protocols = '';
-    this.created_from = '';
-    this.created_to = '';
+    this.createdFromDate = null;
+    this.createdToDate = null;
     this.carregar(1);
-    this.filtrosSheetRef?.close();
-  }
-
-  openFilterDrawer(): void {
-    if (this.filtrosSheetRef) {
-      this.filtrosSheetRef.close();
-      return;
-    }
-    if (!this.pessoasFiltrosTpl) {
-      return;
-    }
-    this.filterDrawerOpen = true;
-    this.filtrosSheetRef = this.zardSheet.create<void, void>({
-      zContent: this.pessoasFiltrosTpl,
-      zViewContainerRef: this.vcr,
-      zSide: 'right',
-      zSize: 'lg',
-      zTitle: 'Filtros',
-      zHideFooter: true,
-      zOkText: null,
-      zCancelText: null,
-      zAfterClose: () => {
-        this.filtrosSheetRef = undefined;
-        this.filterDrawerOpen = false;
-      },
-    });
+    this.closeFilters();
   }
 
   irParaDetalhe(p: Pessoa, event: Event): void {
@@ -184,7 +133,13 @@ export class PessoasListagemComponent implements OnInit, OnDestroy {
     if (!val) return '—';
     const d = new Date(val);
     if (isNaN(d.getTime())) return val;
-    return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+    return d.toLocaleDateString('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
   }
 
   formatarDataCurta(val: string | undefined | null): string {
@@ -192,10 +147,5 @@ export class PessoasListagemComponent implements OnInit, OnDestroy {
     const d = new Date(val);
     if (isNaN(d.getTime())) return val;
     return d.toLocaleDateString('pt-BR');
-  }
-
-  contagemTexto(): string {
-    const n = this.meta.total;
-    return n === 1 ? '1 registro' : `${n} registros`;
   }
 }

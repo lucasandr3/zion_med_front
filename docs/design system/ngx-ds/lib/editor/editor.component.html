@@ -1,0 +1,15 @@
+<textarea #upxTextarea
+    (input)="changeEmit()"
+    (change)="changeEmit()"
+    [formControl]="field"
+    [required]="required"
+    [readonly]="readOnly"
+    [placeholder]="placeholderText"
+    [attr.id]="fieldId"
+    [attr.minlength]="minlength"
+    [attr.maxlength]="maxlength"
+    [class]="lines ? 'upx-editor__form-control-lines' : 'upx-editor__form-control'"
+></textarea>
+<div *ngIf="!feedbackDisabled && field.invalid && (field.dirty || field.touched)">
+    {{getErrorMessage()}}
+</div>

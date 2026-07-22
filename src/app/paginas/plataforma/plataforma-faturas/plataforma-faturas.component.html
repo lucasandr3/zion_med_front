@@ -1,69 +1,56 @@
-<div class="relative min-h-[300px] space-y-4">
-  <p class="zm-count-label">
-    {{ faturas.length }} {{ faturas.length === 1 ? 'fatura' : 'faturas' }}
-  </p>
-
-  @if (showSkeleton()) {
-    <zm-skeleton-list [rows]="6" />
-  } @else if (!listaPronta) {
-  } @else {
-    @if (estadoErro) {
+<section class="upx-page-list">
+  <div class="upx-page-list__content">
+    @if (showSkeleton()) {
+      <zm-skeleton-list [rows]="6" />
+    } @else if (!listaPronta) {
+    } @else if (estadoErro) {
       <div class="rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-foreground">
         Não foi possível carregar as faturas.
       </div>
     } @else {
-      <div class="zm-content-enter">
-        <z-card class="zm-table-card gap-0 py-0 shadow-sm **:data-[slot=card-content]:p-0">
-          <div class="zm-table-wrap">
-            <table z-table zSize="compact" class="text-xs">
-              <thead z-table-header>
-                <tr z-table-row>
-                  <th z-table-head>Empresa</th>
-                  <th z-table-head class="text-right">Valor</th>
-                  <th z-table-head>Vencimento</th>
-                  <th z-table-head>Status</th>
-                </tr>
-              </thead>
-              <tbody z-table-body>
-                @for (f of faturas; track f.id) {
-                  <tr z-table-row>
-                    <td z-table-cell>
-                      <div class="zm-row-title">{{ f.clinic_name }}</div>
-                      @if (f.tenant_name) {
-                        <div class="zm-row-sub">{{ f.tenant_name }}</div>
-                      }
-                    </td>
-                    <td z-table-cell class="text-right">
-                      <span class="zm-row-title">{{ formatarValor(f.amount, f.currency) }}</span>
-                    </td>
-                    <td z-table-cell>
-                      <span class="zm-cell-muted whitespace-nowrap">{{ formatarData(f.due_date) }}</span>
-                    </td>
-                    <td z-table-cell>
-                      @if (f.status) {
-                        <z-badge [zType]="badgeTipoStatus(f.status)" zShape="pill">
-                          {{ rotuloStatusFatura(f.status) }}
-                        </z-badge>
-                      } @else {
-                        <span class="zm-cell-muted">—</span>
-                      }
-                    </td>
-                  </tr>
-                } @empty {
-                  <tr z-table-row>
-                    <td z-table-cell colspan="4" class="py-0">
-                      <zm-empty-state
-                        title="Nenhuma fatura cadastrada."
-                        description="As faturas geradas para os clientes serão exibidas aqui."
-                      />
-                    </td>
-                  </tr>
-                }
-              </tbody>
-            </table>
-          </div>
-        </z-card>
-      </div>
+      @if (faturas.length === 0) {
+        <up-empty-state
+          icon="receipt_long"
+          title="Nenhuma fatura cadastrada."
+          description="As faturas geradas para os clientes serão exibidas aqui."
+        />
+      } @else {
+        <up-data-table [recordCount]="faturas.length" recordLabel="fatura" recordLabelPlural="faturas">
+          <thead>
+            <tr>
+              <th>Empresa</th>
+              <th class="text-right">Valor</th>
+              <th>Vencimento</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (f of faturas; track f.id) {
+              <tr class="upx-data-table__row--static">
+                <td>
+                  <div class="cell-primary">{{ f.clinic_name }}</div>
+                  @if (f.tenant_name) {
+                    <div class="cell-secondary">{{ f.tenant_name }}</div>
+                  }
+                </td>
+                <td class="text-right">
+                  <span class="cell-primary">{{ formatarValor(f.amount, f.currency) }}</span>
+                </td>
+                <td class="cell-secondary">{{ formatarData(f.due_date) }}</td>
+                <td>
+                  @if (f.status) {
+                    <up-badge variant="status" [tone]="badgeTone(f.status)">
+                      {{ rotuloStatusFatura(f.status) }}
+                    </up-badge>
+                  } @else {
+                    <span class="cell-secondary">—</span>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </up-data-table>
+      }
     }
-  }
-</div>
+  </div>
+</section>

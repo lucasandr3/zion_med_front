@@ -1,0 +1,317 @@
+@if (context === 'app' && trialNotice) {
+  <div class="shell-banner-rail" aria-live="polite">
+    <div class="shell-banner shell-banner--install" role="status">
+      <mat-icon>schedule</mat-icon>
+      <span>{{ trialNotice.message }}</span>
+      <a mat-flat-button color="primary" routerLink="/assinatura">Ver assinatura</a>
+    </div>
+  </div>
+}
+
+<mat-sidenav-container autosize class="sidenav-container-main" [hasBackdrop]="isMobile()">
+  <mat-sidenav
+    class="sidenav-main"
+    [mode]="sidenavMode()"
+    [opened]="sidenavVisible()"
+    [fixedInViewport]="isMobile()"
+    [autoFocus]="false"
+    (openedChange)="onSidenavOpenedChange($event)"
+  >
+    <div
+      class="sidenav-main__toolbar-header"
+      [class.sidenav-main__toolbar-header--themed]="headerIsBrand()"
+    >
+      <a
+        class="sidenav-main__brand"
+        [routerLink]="context === 'plataforma' ? '/plataforma' : '/dashboard'"
+        (click)="onNavClick()"
+      >
+        <span class="sidenav-main__brand-mark" aria-hidden="true">
+          <img [src]="brandLogoSrc" alt="" />
+        </span>
+        <span class="sidenav-main__brand-identity">
+          <span class="sidenav-main__brand-name">{{ brandName }}</span>
+          <span class="sidenav-main__brand-slogan">Fichas digitais</span>
+        </span>
+      </a>
+      @if (isMobile()) {
+        <button
+          mat-icon-button
+          type="button"
+          class="sidenav-main__close"
+          aria-label="Fechar menu"
+          (click)="sidenavOpened.set(false)"
+        >
+          <mat-icon>close</mat-icon>
+        </button>
+      }
+    </div>
+
+    <div class="sidenav-main__body">
+      @for (section of navSections(); track section.id) {
+        <div class="sidenav-main__section">
+          @if (section.label) {
+            <span class="sidenav-main__body-title">{{ section.label }}</span>
+          }
+          <nav class="upx-navigation">
+            @for (item of section.items; track item.route) {
+              <a
+                class="upx-navigation-item"
+                [routerLink]="item.route"
+                routerLinkActive="upx-navigation-item-active"
+                [routerLinkActiveOptions]="{ exact: item.exact ?? false }"
+                (click)="onNavClick()"
+              >
+                <span class="upx-navigation-item-start">
+                  <mat-icon class="material-symbols-outlined">{{ item.icon }}</mat-icon>
+                  <span>{{ item.label }}</span>
+                </span>
+                @if (badgeLabel(item); as badge) {
+                  <span class="upx-navigation-item-badge">{{ badge }}</span>
+                }
+              </a>
+            }
+          </nav>
+        </div>
+      }
+    </div>
+
+    <div class="sidenav-main__footer">
+      <button
+        type="button"
+        class="sidenav-main__company"
+        #companyMenuTrigger="matMenuTrigger"
+        [matMenuTriggerFor]="menuEmpresa"
+        aria-label="Conta e empresa"
+        aria-haspopup="menu"
+      >
+        <span class="sidenav-main__company-avatar" aria-hidden="true">{{ userInitials() }}</span>
+        <span class="sidenav-main__company-meta">
+          <span class="sidenav-main__company-label">{{ context === 'plataforma' ? 'Plataforma' : 'Empresa' }}</span>
+          <span class="sidenav-main__company-name">{{ orgName() }}</span>
+        </span>
+        <mat-icon class="sidenav-main__company-chevron" aria-hidden="true">expand_more</mat-icon>
+      </button>
+
+      <mat-menu
+        #menuEmpresa="matMenu"
+        class="company-switch-menu"
+        xPosition="after"
+        yPosition="above"
+        [overlapTrigger]="false"
+      >
+        <div class="scm" (click)="$event.stopPropagation()">
+          <div class="scm__header">
+            <span class="scm__eyebrow">{{ usuarioNome() }}</span>
+            <span class="scm__current">{{ orgName() }}</span>
+          </div>
+          <div class="scm__divider"></div>
+          @if (context === 'app' && canSwitchCompany()) {
+            <button type="button" class="scm__item" (click)="openSwitchCompany(companyMenuTrigger)">
+              <mat-icon class="scm__item-icon">swap_horiz</mat-icon>
+              <span class="scm__item-label">Alterar empresa</span>
+            </button>
+          }
+          @if (context === 'app') {
+            <button type="button" class="scm__item" (click)="openSettings(companyMenuTrigger)">
+              <mat-icon class="scm__item-icon">settings</mat-icon>
+              <span class="scm__item-label">Empresa</span>
+            </button>
+          }
+          @if (isPlatformAdmin() && context === 'app') {
+            <button type="button" class="scm__item" (click)="openPlataforma(companyMenuTrigger)">
+              <mat-icon class="scm__item-icon">admin_panel_settings</mat-icon>
+              <span class="scm__item-label">Painel plataforma</span>
+            </button>
+          }
+          @if (context === 'plataforma') {
+            <button type="button" class="scm__item" (click)="openAppHome(companyMenuTrigger)">
+              <mat-icon class="scm__item-icon">home</mat-icon>
+              <span class="scm__item-label">Voltar ao app</span>
+            </button>
+          }
+          <div class="scm__divider"></div>
+          <button
+            type="button"
+            class="scm__item scm__item--danger"
+            (click)="logout(); companyMenuTrigger.closeMenu(); onNavClick()"
+          >
+            <mat-icon class="scm__item-icon">logout</mat-icon>
+            <span class="scm__item-label">Sair</span>
+          </button>
+        </div>
+      </mat-menu>
+    </div>
+  </mat-sidenav>
+
+  <mat-sidenav-content class="sidenav-content-main">
+    <header
+      class="sidenav-content-main__header"
+      [class.sidenav-content-main__header--themed]="headerIsBrand()"
+      [class.sidenav-content-main__header--horizontal]="isHorizontalDesktop()"
+    >
+      <div class="sidenav-content-main__header-start">
+        @if (isHorizontalDesktop()) {
+          <a
+            class="sidenav-main__brand sidenav-main__brand--header"
+            [routerLink]="context === 'plataforma' ? '/plataforma' : '/dashboard'"
+          >
+            <span class="sidenav-main__brand-mark" aria-hidden="true">
+              <img [src]="brandLogoSrc" alt="" />
+            </span>
+            <span class="sidenav-main__brand-identity">
+              <span class="sidenav-main__brand-name">{{ brandName }}</span>
+              <span class="sidenav-main__brand-slogan">{{ brandSlogan }}</span>
+            </span>
+          </a>
+          <span class="shell-horizontal-divider" aria-hidden="true"></span>
+          <app-barra-nav-horizontal
+            class="shell-header-nav"
+            [context]="context"
+            [notificacoesNaoLidas]="unreadNotifications()"
+            [novidadesNaoVistas]="novidadesNaoVistas()"
+          />
+        } @else {
+          <button
+            mat-icon-button
+            type="button"
+            (click)="sidenavOpened.set(!sidenavOpened())"
+            aria-label="Menu"
+          >
+            <mat-icon>menu</mat-icon>
+          </button>
+          <span class="header-title">{{ headerLabel() }}</span>
+        }
+      </div>
+
+      <div class="sidenav-content-main__header-end">
+        <button
+          mat-icon-button
+          type="button"
+          matTooltip="Assistente (Ctrl+/)"
+          aria-label="Abrir assistente"
+          (click)="openAssistant()"
+        >
+          <mat-icon class="material-symbols-outlined">smart_toy</mat-icon>
+        </button>
+
+        <button
+          mat-icon-button
+          type="button"
+          matTooltip="Tema e aparência"
+          aria-label="Abrir tema e aparência"
+          (click)="toggleThemePanel()"
+        >
+          <mat-icon>palette</mat-icon>
+        </button>
+
+        @if (podeVerNotificacoes()) {
+          <a
+            mat-icon-button
+            [routerLink]="notificacoesRoute"
+            class="header-notifications"
+            matTooltip="Notificações"
+            aria-label="Notificações"
+          >
+            <mat-icon>{{ unreadNotifications() > 0 ? 'notifications_active' : 'notifications_none' }}</mat-icon>
+            @if (unreadNotifications() > 0) {
+              <span class="header-notifications__badge">
+                {{ unreadNotifications() > 99 ? '99+' : unreadNotifications() }}
+              </span>
+            }
+          </a>
+        }
+
+        <button
+          type="button"
+          class="header-user"
+          #userMenuTrigger="matMenuTrigger"
+          [matMenuTriggerFor]="menuUsuario"
+          aria-label="Menu da conta"
+          aria-haspopup="menu"
+        >
+          <span class="header-avatar" aria-hidden="true">{{ userInitials() }}</span>
+          <span class="header-user__meta">
+            <span class="header-user__name">{{ usuarioNome() }}</span>
+            <span class="header-user__email">{{ usuarioEmail() }}</span>
+          </span>
+          <mat-icon class="header-user__chevron" aria-hidden="true">keyboard_arrow_down</mat-icon>
+        </button>
+
+        <mat-menu
+          #menuUsuario="matMenu"
+          class="user-account-menu"
+          xPosition="before"
+          yPosition="below"
+          [overlapTrigger]="false"
+        >
+          <div class="uam" (click)="$event.stopPropagation()">
+            <div class="uam__profile">
+              <span class="uam__avatar">{{ userInitials() }}</span>
+              <div class="uam__identity">
+                <span class="uam__name">{{ usuarioNome() }}</span>
+                <span class="uam__email">{{ usuarioEmail() }}</span>
+              </div>
+            </div>
+
+            <div class="uam__divider"></div>
+
+            <button type="button" class="uam__item" (click)="openMyAccount(userMenuTrigger)">
+              <mat-icon class="uam__item-icon">person_outline</mat-icon>
+              <span class="uam__item-label">Minha conta</span>
+            </button>
+
+            @if (context === 'app') {
+              <button type="button" class="uam__item" (click)="openSettings(userMenuTrigger)">
+                <mat-icon class="uam__item-icon">settings</mat-icon>
+                <span class="uam__item-label">Empresa</span>
+              </button>
+
+              <button type="button" class="uam__item" (click)="openNovidades(userMenuTrigger)">
+                <mat-icon class="uam__item-icon">new_releases</mat-icon>
+                <span class="uam__item-label">Novidades</span>
+                @if (novidadesNaoVistas() > 0) {
+                  <span class="uam__item-badge">
+                    {{ novidadesNaoVistas() > 99 ? '99+' : novidadesNaoVistas() }}
+                  </span>
+                }
+              </button>
+            }
+
+            <div class="uam__divider"></div>
+
+            <button
+              type="button"
+              class="uam__item uam__item--danger"
+              (click)="logout(); userMenuTrigger.closeMenu()"
+            >
+              <mat-icon class="uam__item-icon">logout</mat-icon>
+              <span class="uam__item-label">Sair da conta</span>
+            </button>
+          </div>
+        </mat-menu>
+      </div>
+    </header>
+
+    @if (context === 'app' && mostrarAvisoCobrancaGlobal()) {
+      <div class="shell-billing-alert">
+        <zm-assinatura-bloqueada-card variant="compact" />
+      </div>
+    }
+
+    <div class="sidenav-content-main__body">
+      @if (urlVoltar() && !voltarIntegrado()) {
+        <div class="shell-back-bar">
+          <zm-page-back-link [url]="urlVoltar()!" [label]="labelVoltar()" />
+        </div>
+      }
+      <router-outlet />
+    </div>
+  </mat-sidenav-content>
+</mat-sidenav-container>
+
+<go-assistant-host />
+
+@if (themePanelOpen()) {
+  <app-gestgo-theme-panel (closed)="closeThemePanel()" />
+}

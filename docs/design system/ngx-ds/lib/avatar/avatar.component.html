@@ -1,0 +1,24 @@
+<ng-container [ngSwitch]="variant">
+    <ng-container *ngSwitchCase="'image'">
+        <ng-container *ngIf="src; then imageVariantTemplate else initialsVariantTemplate"></ng-container>
+    </ng-container>
+    <ng-container *ngSwitchCase="'initials'">
+        <ng-container *ngIf="text; then initialsVariantTemplate else iconVariantTemplate"></ng-container>
+    </ng-container>
+    <ng-container *ngSwitchDefault>
+        <ng-container *ngTemplateOutlet="iconVariantTemplate"></ng-container>
+    </ng-container>
+</ng-container>
+
+<ng-template #imageVariantTemplate>
+    <img (load)="loadImage()" (error)="errorHandler()" (click)="showImage()" [src]="src" [alt]="text ?? 'avatar'" />
+    <upx-icon *ngIf="!isLoaded" name="image" [size]="size"></upx-icon>
+</ng-template>
+
+<ng-template #initialsVariantTemplate>
+    <span>{{getInitials()}}</span>
+</ng-template>
+
+<ng-template #iconVariantTemplate>
+    <upx-icon [name]="icon" [size]="size"></upx-icon>
+</ng-template>

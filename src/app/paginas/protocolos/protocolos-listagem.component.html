@@ -1,268 +1,173 @@
-<div class="protocolos-page relative min-h-[320px]">
-  <div class="zm-list-toolbar" data-go-tour="protocolos-filters">
-    <div class="form-search-wrap zm-list-toolbar__search">
-      <span class="material-symbols-outlined form-search-icon">search</span>
-      <input
-        type="text"
-        [(ngModel)]="busca"
-        (keydown.enter)="carregar(1)"
+<section class="protocolos-page upx-page-list">
+  <div class="upx-page-list__toolbar" data-go-tour="protocolos-filters">
+    <div class="upx-page-list__toolbar-start">
+      <up-search-box
+        [control]="buscaControl"
         placeholder="Buscar..."
-        z-input
-        class="form-search-input w-full text-sm"
-        aria-label="Buscar protocolos"
+        ariaLabel="Buscar protocolos"
+        (enter)="carregar(1)"
       />
-    </div>
-    <div class="zm-list-toolbar__actions">
       <button
-        z-button
-        zType="outline"
-        zSize="sm"
         type="button"
-        class="shrink-0 gap-1.5"
-        (click)="exportarCsv()"
-        [disabled]="exportando"
-        title="Exportar CSV"
-      >
-        <span class="material-symbols-outlined text-base" aria-hidden="true">download</span>
-        Exportar CSV
-      </button>
-      <button
-        z-button
-        zType="outline"
-        zSize="sm"
-        type="button"
-        class="shrink-0 gap-1.5"
-        (click)="exportarPdf()"
-        [disabled]="exportando"
-        title="Exportar PDF (até 50)"
-      >
-        <span class="material-symbols-outlined text-base" aria-hidden="true">picture_as_pdf</span>
-        Exportar PDF (até 50)
-      </button>
-      <button
-        z-button
-        zType="outline"
-        zSize="sm"
-        type="button"
-        class="shrink-0 gap-1.5"
-        (click)="openFilterDrawer()"
-        [attr.aria-expanded]="filterDrawerOpen ? 'true' : 'false'"
-        [class.ring-2]="temFiltrosAtivos"
-        [class.ring-ring]="temFiltrosAtivos"
+        class="filters-btn"
+        [class.filters-btn--active]="temFiltrosAtivos"
+        (click)="toggleFilters()"
+        [attr.aria-expanded]="filtersOpen() ? 'true' : 'false'"
         title="Filtros"
       >
-        <span class="material-symbols-outlined text-base" aria-hidden="true">filter_alt</span>
-        Filtros
-        @if (temFiltrosAtivos) {
-          <z-badge zType="secondary" zShape="pill">{{ quantidadeFiltrosAtivos }}</z-badge>
-        }
+        <mat-icon aria-hidden="true">filter_list</mat-icon>
+        <span>Filtros</span>
+      </button>
+    </div>
+    <div class="upx-page-list__toolbar-end">
+      <button mat-stroked-button type="button" class="btn-cancel" (click)="exportarCsv()" [disabled]="exportando" title="Exportar CSV">
+        <mat-icon>download</mat-icon>
+        Exportar CSV
+      </button>
+      <button mat-stroked-button type="button" class="btn-cancel" (click)="exportarPdf()" [disabled]="exportando" title="Exportar PDF (até 50)">
+        <mat-icon>picture_as_pdf</mat-icon>
+        Exportar PDF
       </button>
     </div>
   </div>
-  @if (listaPronta && !erro) {
-    <p class="zm-count-label mb-3">{{ contagemTexto() }}</p>
-  }
-
   @if (erro) {
     <p class="mb-4 text-sm text-destructive">{{ erro }}</p>
   }
 
-  @if (showSkeleton()) {
-    <zm-skeleton-list [rows]="6" />
-  } @else if (!listaPronta && !erro) {
-  } @else if (!erro) {
-    <div class="zm-content-enter" data-go-tour="protocolos-list">
-      <z-card class="zm-table-card gap-0 overflow-hidden rounded-[8px] py-0 **:data-[slot=card-content]:p-0">
-        @if (protocolos.length === 0) {
-          <div class="p-10">
-            <zm-empty-state title="Nenhum protocolo encontrado." />
-          </div>
-        } @else {
-          <div class="zm-table-wrap">
-            <table z-table zSize="compact">
-              <thead z-table-header>
-                <tr z-table-row>
-                  <th z-table-head>Protocolo / Data</th>
-                  <th z-table-head>Modelo</th>
-                  <th z-table-head>Pessoa</th>
-                  <th z-table-head>Situação</th>
-                  <th z-table-head>Submetente</th>
-                  <th z-table-head class="text-right">Ações</th>
-                </tr>
-              </thead>
-              <tbody z-table-body id="protocolos-tbody">
-                @for (p of protocolos; track p.id) {
-                  <tr z-table-row class="zm-row-clickable" (click)="irParaDetalhe(p, $event)">
-                    <td z-table-cell>
-                      <div class="zm-row-title">{{ p.protocol_number || p.id }}</div>
-                      <div class="zm-row-sub">{{ dataFormatada(p.submitted_at || p.created_at) }}</div>
-                    </td>
-                    <td z-table-cell class="zm-cell-muted">{{ p.template_name ?? '—' }}</td>
-                    <td z-table-cell (click)="$event.stopPropagation()">
-                      @if (p.person) {
-                        <a [routerLink]="['/pessoas', p.person.id]" class="zm-row-title text-primary no-underline hover:underline">{{ p.person.name }}</a>
-                        <div class="zm-row-sub zm-cell-mono">{{ p.person.code }}</div>
-                      } @else {
-                        <span class="zm-cell-muted">—</span>
-                      }
-                    </td>
-                    <td z-table-cell>
-                      @if (p.status === 'pending' || (p.status && p.status.toLowerCase() === 'pending')) {
-                        <span class="inline-flex items-center gap-1 text-xs font-medium" style="color: var(--c-warning)">
-                          <span class="material-symbols-outlined text-base">schedule</span>
-                          {{ statusLabel(p.status) }}
-                        </span>
-                      } @else if (p.status === 'approved' || (p.status && p.status.toLowerCase() === 'approved')) {
-                        @if (p.consent_expired) {
-                          <span class="inline-flex items-center gap-1 text-xs font-semibold" style="color: var(--c-warning)">
-                            <span class="material-symbols-outlined text-base">event_busy</span>
-                            Vencido
-                          </span>
-                        } @else {
-                          <span class="inline-flex items-center gap-1 text-xs font-semibold" style="color: var(--c-success)">
-                            <span class="material-symbols-outlined text-base">check_circle</span>
-                            {{ statusLabel(p.status) }}
-                          </span>
-                        }
-                      } @else if (p.status === 'revoked' || (p.status && p.status.toLowerCase() === 'revoked')) {
-                        <span class="inline-flex items-center gap-1 text-xs font-semibold text-destructive">
-                          <span class="material-symbols-outlined text-base">undo</span>
-                          {{ statusLabel(p.status) }}
-                        </span>
-                      } @else {
-                        <span class="inline-flex items-center gap-1 text-xs font-semibold text-destructive">
-                          <span class="material-symbols-outlined text-base">cancel</span>
-                          {{ statusLabel(p.status) }}
-                        </span>
-                      }
-                    </td>
-                    <td z-table-cell>
-                      <div class="zm-row-title">{{ p.submitter_name ?? '—' }}</div>
-                      @if (p.submitter_email) {
-                        <div class="zm-row-sub">{{ p.submitter_email }}</div>
-                      }
-                    </td>
-                    <td z-table-cell class="text-right" (click)="$event.stopPropagation()">
-                      <a
-                        [routerLink]="['/protocolos', p.id]"
-                        z-button
-                        zType="ghost"
-                        zSize="sm"
-                        class="gap-1 no-underline"
-                        title="Ver detalhes"
-                        aria-label="Ver detalhes do protocolo {{ p.protocol_number || p.id }}"
-                      >
-                        Detalhes
-                        <span class="material-symbols-outlined text-base" aria-hidden="true">chevron_right</span>
-                      </a>
-                    </td>
-                  </tr>
-                }
-              </tbody>
-            </table>
-          </div>
+  <div class="upx-page-list__content" data-go-tour="protocolos-list">
+    @if (showSkeleton()) {
+      <zm-skeleton-list [rows]="6" />
+    } @else if (!listaPronta && !erro) {
+    } @else if (!erro) {
+      @if (protocolos.length === 0) {
+        <up-empty-state icon="fact_check" title="Nenhum protocolo encontrado." />
+      } @else {
+        <up-data-table
+          [recordCount]="meta.total"
+          recordLabel="protocolo"
+          recordLabelPlural="protocolos"
+          [showEndHint]="meta.last_page <= 1"
+        >
+          <thead>
+            <tr>
+              <th>Protocolo / Data</th>
+              <th>Modelo</th>
+              <th>Pessoa</th>
+              <th>Situação</th>
+              <th>Submetente</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="protocolos-tbody">
+            @for (p of protocolos; track p.id) {
+              <tr (click)="irParaDetalhe(p, $event)">
+                <td>
+                  <div class="cell-primary">{{ p.protocol_number || p.id }}</div>
+                  <div class="cell-secondary">{{ dataFormatada(p.submitted_at || p.created_at) }}</div>
+                </td>
+                <td class="cell-secondary">{{ p.template_name ?? '—' }}</td>
+                <td (click)="$event.stopPropagation()">
+                  @if (p.person) {
+                    <a [routerLink]="['/pessoas', p.person.id]" class="cell-primary text-primary no-underline hover:underline">{{ p.person.name }}</a>
+                    <div class="cell-secondary mono">{{ p.person.code }}</div>
+                  } @else {
+                    <span class="cell-secondary">—</span>
+                  }
+                </td>
+                <td>
+                  @if (p.status === 'pending' || (p.status && p.status.toLowerCase() === 'pending')) {
+                    <up-badge variant="status" tone="draft">{{ statusLabel(p.status) }}</up-badge>
+                  } @else if (p.status === 'approved' || (p.status && p.status.toLowerCase() === 'approved')) {
+                    @if (p.consent_expired) {
+                      <up-badge variant="status" tone="archived">Vencido</up-badge>
+                    } @else {
+                      <up-badge variant="status" tone="published">{{ statusLabel(p.status) }}</up-badge>
+                    }
+                  } @else {
+                    <up-badge variant="status" tone="archived">{{ statusLabel(p.status) }}</up-badge>
+                  }
+                </td>
+                <td>
+                  <div class="cell-primary">{{ p.submitter_name ?? '—' }}</div>
+                  @if (p.submitter_email) {
+                    <div class="cell-secondary">{{ p.submitter_email }}</div>
+                  }
+                </td>
+                <td class="actions" (click)="$event.stopPropagation()">
+                  <a
+                    mat-button
+                    [routerLink]="['/protocolos', p.id]"
+                    title="Ver detalhes"
+                    [attr.aria-label]="'Ver detalhes do protocolo ' + (p.protocol_number || p.id)"
+                  >
+                    Detalhes
+                    <mat-icon iconPositionEnd>chevron_right</mat-icon>
+                  </a>
+                </td>
+              </tr>
+            }
+          </tbody>
           @if (meta.last_page > 1) {
-            <zm-pagination [currentPage]="meta.current_page" [lastPage]="meta.last_page" (pageChange)="carregar($event)" />
+            <div data-table-footer-end>
+              <zm-pagination [currentPage]="meta.current_page" [lastPage]="meta.last_page" (pageChange)="carregar($event)" />
+            </div>
           }
-        }
-      </z-card>
-    </div>
-  }
+        </up-data-table>
+      }
+    }
+  </div>
 
-  <ng-template #protocolosFiltrosTpl>
-    <div class="protocolos-filtros-sheet zm-filter-sheet">
-      <div class="zm-filter-sheet__body">
-        <div class="zm-filter-sheet__fields">
-          <div class="zm-filter-field">
-            <label class="zm-filter-label" id="protocolos-filtro-template-label">Modelo</label>
-            <z-combobox
-              class="w-full"
-              zWidth="full"
-              [options]="opcoesTemplateFiltro"
-              [value]="templateFiltroKey"
-              placeholder="Todos"
-              searchPlaceholder="Buscar template..."
-              emptyText="Nenhum template encontrado."
-              ariaLabel="Modelo"
-              ariaDescribedBy="protocolos-filtro-template-label"
-              (zValueChange)="selecionarTemplateFiltro($event)"
-            />
-          </div>
-          <div class="zm-filter-field">
-            <label class="zm-filter-label" id="protocolos-filtro-status-label">Situação</label>
-            <z-combobox
-              class="w-full"
-              zWidth="full"
-              [options]="opcoesStatusFiltro"
-              [value]="status || null"
-              placeholder="Todas"
-              [searchable]="false"
-              ariaLabel="Situação"
-              ariaDescribedBy="protocolos-filtro-status-label"
-              (zValueChange)="selecionarStatusFiltro($event)"
-            />
-          </div>
-          <div class="zm-filter-sheet__dates">
-            <div class="zm-filter-field">
-              <label class="zm-filter-label" for="protocolos-filtro-inicio">Data início</label>
-              <input
-                id="protocolos-filtro-inicio"
-                type="text"
-                mwlFlatpickr
-                [(ngModel)]="data_inicio"
-                name="protocolos_filtro_inicio"
-                z-input
-                class="w-full text-sm"
-                placeholder="dd/mm/aaaa"
-                [altInput]="true"
-                [appendTo]="flatpickrAppendTo"
-                [static]="false"
-                autocomplete="off"
-              />
-            </div>
-            <div class="zm-filter-field">
-              <label class="zm-filter-label" for="protocolos-filtro-fim">Data fim</label>
-              <input
-                id="protocolos-filtro-fim"
-                type="text"
-                mwlFlatpickr
-                [(ngModel)]="data_fim"
-                name="protocolos_filtro_fim"
-                z-input
-                class="w-full text-sm"
-                placeholder="dd/mm/aaaa"
-                [altInput]="true"
-                [appendTo]="flatpickrAppendTo"
-                [static]="false"
-                autocomplete="off"
-              />
-            </div>
-          </div>
+  @if (filtersOpen()) {
+    <up-list-filters-panel
+      (closed)="closeFilters()"
+      (reset)="limparFiltros()"
+      (apply)="aplicarFiltros()"
+    >
+      <section class="filter-section">
+        <header class="filter-section__title">Modelo</header>
+        <div class="filter-section__body">
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Modelo</mat-label>
+            <mat-select [(ngModel)]="template_id" name="protocolos_filtro_template">
+              @for (option of opcoesTemplateFiltro; track option.value) {
+                <mat-option [value]="templateFiltroValue(option.value)">{{ option.label }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
         </div>
-      </div>
-      <footer class="zm-filter-sheet__footer">
-        <button
-          z-button
-          zType="outline"
-          zSize="sm"
-          type="button"
-          class="min-w-0 flex-1 gap-2"
-          (click)="limparFiltros()"
-        >
-          <span class="material-symbols-outlined shrink-0 text-lg">filter_alt_off</span>
-          Limpar
-        </button>
-        <button
-          z-button
-          zSize="sm"
-          type="button"
-          class="min-w-0 flex-1 gap-2"
-          (click)="aplicarFiltros()"
-        >
-          <span class="material-symbols-outlined shrink-0 text-lg">check</span>
-          Aplicar
-        </button>
-      </footer>
-    </div>
-  </ng-template>
-</div>
+      </section>
+
+      <section class="filter-section">
+        <header class="filter-section__title">Situação</header>
+        <div class="filter-section__body">
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Situação</mat-label>
+            <mat-select [(ngModel)]="status" name="protocolos_filtro_status">
+              @for (option of opcoesStatusFiltro; track option.value) {
+                <mat-option [value]="option.value">{{ option.label }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </section>
+
+      <section class="filter-section">
+        <header class="filter-section__title">Período</header>
+        <div class="filter-section__body">
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Data início</mat-label>
+            <input matInput [matDatepicker]="inicioPicker" appOpenPickerOnInteract [datepicker]="inicioPicker" [(ngModel)]="data_inicio" name="protocolos_filtro_inicio" autocomplete="off" />
+            <mat-datepicker-toggle matIconSuffix [for]="inicioPicker" />
+            <mat-datepicker #inicioPicker />
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Data fim</mat-label>
+            <input matInput [matDatepicker]="fimPicker" appOpenPickerOnInteract [datepicker]="fimPicker" [(ngModel)]="data_fim" name="protocolos_filtro_fim" autocomplete="off" />
+            <mat-datepicker-toggle matIconSuffix [for]="fimPicker" />
+            <mat-datepicker #fimPicker />
+          </mat-form-field>
+        </div>
+      </section>
+    </up-list-filters-panel>
+  }
+</section>

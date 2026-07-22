@@ -41,7 +41,7 @@
               <p class="perfil-hint m-0 mt-4 text-sm text-muted-foreground">
                 Para alterar nome ou e-mail, um administrador da empresa pode atualizar seu usuário em
                 @if (podeGerenciarUsuarios()) {
-                  <a routerLink="/usuarios" z-button zType="link" zSize="sm" class="!h-auto !min-h-0 px-0 py-0 align-baseline no-underline">Usuários</a>.
+                  <a routerLink="/usuarios" mat-button class="!h-auto !min-h-0 px-0 py-0 align-baseline no-underline">Usuários</a>.
                 } @else {
                   <span>Usuários</span>.
                 }
@@ -99,10 +99,10 @@
                       (touchend)="endDesenho()"
                     ></canvas>
                     <div class="sig-actions">
-                      <button type="button" z-button zType="outline" zSize="sm" (click)="limparDesenho()" [disabled]="salvando">
+                      <button type="button" mat-stroked-button class="btn-cancel" (click)="limparDesenho()" [disabled]="salvando">
                         Limpar
                       </button>
-                      <button type="button" z-button zSize="sm" (click)="salvarDesenho()" [disabled]="salvando">
+                      <button type="button" mat-flat-button color="primary" (click)="salvarDesenho()" [disabled]="salvando">
                         {{ salvando ? 'Salvando…' : 'Salvar assinatura' }}
                       </button>
                     </div>
@@ -112,34 +112,31 @@
                 <z-tab label="Modelo com meu nome" icon="text_fields">
                   <div role="tabpanel" class="sig-panel">
                     <div class="mb-4 max-w-md">
-                      <label class="perfil-field-label" for="perfil-nome-assinatura">Nome na assinatura</label>
-                      <input
-                        id="perfil-nome-assinatura"
-                        type="text"
-                        [(ngModel)]="nomeTextoAssinatura"
-                        (ngModelChange)="nomeAssinaturaChange()"
-                        name="nomeTextoAssinatura"
-                        z-input
-                        zSize="sm"
-                        class="w-full"
-                        [attr.placeholder]="'Ex.: ' + nomeExibicao()"
-                        autocomplete="name"
-                        maxlength="120"
-                      />
+                      <mat-form-field appearance="outline" class="w-full">
+                        <mat-label>Nome na assinatura</mat-label>
+                        <input
+                          matInput
+                          id="perfil-nome-assinatura"
+                          type="text"
+                          [(ngModel)]="nomeTextoAssinatura"
+                          (ngModelChange)="nomeAssinaturaChange()"
+                          name="nomeTextoAssinatura"
+                          [placeholder]="'Ex.: ' + nomeExibicao()"
+                          autocomplete="name"
+                          maxlength="120"
+                        />
+                      </mat-form-field>
                     </div>
                     <div class="mb-4 max-w-md">
-                      <label class="perfil-field-label" id="perfil-fonte-label">Estilo da assinatura</label>
-                      <z-combobox
-                        class="w-full"
-                        zWidth="full"
-                        [options]="opcoesFontes"
-                        [value]="fonteSelecionadaId || null"
-                        placeholder="Escolha o tipo de assinatura"
-                        [searchable]="true"
-                        ariaLabel="Estilo da assinatura"
-                        ariaDescribedBy="perfil-fonte-label"
-                        (zValueChange)="onFonteComboboxChange($event)"
-                      />
+                      <mat-form-field appearance="outline" class="w-full">
+                        <mat-label>Estilo da assinatura</mat-label>
+                        <mat-select [(ngModel)]="fonteSelecionadaId" name="fonteSelecionadaId" (ngModelChange)="onFonteChange()">
+                          <mat-option value="">Escolha o tipo de assinatura</mat-option>
+                          @for (fonte of fontesAssinatura; track fonte.id) {
+                            <mat-option [value]="fonte.id">{{ fonte.label }}</mat-option>
+                          }
+                        </mat-select>
+                      </mat-form-field>
                     </div>
                     <canvas
                       #canvasModelo
@@ -150,7 +147,7 @@
                       aria-label="Pré-visualização da assinatura tipográfica"
                     ></canvas>
                     <div class="sig-actions">
-                      <button type="button" z-button zSize="sm" (click)="salvarModelo()" [disabled]="salvando">
+                      <button type="button" mat-flat-button color="primary" (click)="salvarModelo()" [disabled]="salvando">
                         {{ salvando ? 'Salvando…' : 'Salvar assinatura' }}
                       </button>
                     </div>
@@ -159,7 +156,7 @@
               </z-tab-group>
 
               <div class="sig-footer-actions">
-                <button type="button" z-button zType="link" zSize="sm" class="!h-auto !min-h-0 px-0 text-destructive hover:text-destructive" (click)="removerDoServidor()" [disabled]="salvando">
+                <button type="button" mat-button class="!h-auto !min-h-0 px-0 text-destructive hover:text-destructive" (click)="removerDoServidor()" [disabled]="salvando">
                   Remover assinatura do servidor
                 </button>
               </div>
@@ -190,9 +187,9 @@
                 </ul>
                 <p class="perfil-legal-links m-0 mt-4 text-sm text-muted-foreground">
                   Documentos completos:
-                  <a routerLink="/privacidade" target="_blank" rel="noopener noreferrer" z-button zType="link" zSize="sm" class="!h-auto !min-h-0 px-1 py-0 align-baseline">Política de Privacidade</a>
+                  <a routerLink="/privacidade" target="_blank" rel="noopener noreferrer" mat-button class="!h-auto !min-h-0 px-1 py-0 align-baseline">Política de Privacidade</a>
                   ·
-                  <a routerLink="/termos-de-uso" target="_blank" rel="noopener noreferrer" z-button zType="link" zSize="sm" class="!h-auto !min-h-0 px-1 py-0 align-baseline">Termos de Uso</a>
+                  <a routerLink="/termos-de-uso" target="_blank" rel="noopener noreferrer" mat-button class="!h-auto !min-h-0 px-1 py-0 align-baseline">Termos de Uso</a>
                 </p>
               </div>
             </z-card>
@@ -211,19 +208,17 @@
                 <div class="mt-5 flex flex-wrap gap-3">
                   <button
                     type="button"
-                    z-button
-                    zType="outline"
-                    zSize="sm"
+                    mat-stroked-button
+                    class="btn-cancel"
                     (click)="exportarMeusDados()"
                     [disabled]="exportandoDados"
                   >
                     @if (exportandoDados) {
-                      <span class="material-symbols-outlined text-base" aria-hidden="true">progress_activity</span>
-                      Gerando arquivo…
+                      <mat-spinner diameter="18"></mat-spinner>
                     } @else {
-                      <span class="material-symbols-outlined text-base" aria-hidden="true">download</span>
-                      Baixar meus dados (JSON)
+                      <mat-icon aria-hidden="true">download</mat-icon>
                     }
+                    {{ exportandoDados ? 'Gerando arquivo…' : 'Baixar meus dados (JSON)' }}
                   </button>
                 </div>
               </div>
@@ -243,12 +238,12 @@
                 <ul class="perfil-lgpd-list m-0 mt-4 list-none p-0 text-sm leading-relaxed text-foreground">
                   <li>Finalidades típicas: atendimento, consentimentos, fichas, assinaturas e organização documental.</li>
                   <li>Titulares (pacientes) devem ser informados nos formulários e podem solicitar direitos à clínica.</li>
-                  <li>Inativar uma ficha em <a routerLink="/pessoas" z-button zType="link" zSize="sm" class="!h-auto !min-h-0 px-0 py-0 align-baseline">Pessoas</a> é uma ação operacional da empresa, distinta da exclusão da sua conta de usuário.</li>
+                  <li>Inativar uma ficha em <a routerLink="/pessoas" mat-button class="!h-auto !min-h-0 px-0 py-0 align-baseline">Pessoas</a> é uma ação operacional da empresa, distinta da exclusão da sua conta de usuário.</li>
                 </ul>
                 @if (podeGerenciarClinica()) {
                   <p class="m-0 mt-4 text-sm text-muted-foreground">
                     Configure canais e dados públicos da empresa em
-                    <a routerLink="/clinica/configuracoes" z-button zType="link" zSize="sm" class="!h-auto !min-h-0 px-0 py-0 align-baseline">Configurações</a>.
+                    <a routerLink="/clinica/configuracoes" mat-button class="!h-auto !min-h-0 px-0 py-0 align-baseline">Configurações</a>.
                   </p>
                 }
               </div>
@@ -275,20 +270,20 @@
                 </p>
 
                 <div class="perfil-delete-form mt-5 max-w-md">
-                  <label class="perfil-field-label" for="perfil-delete-password">Senha atual</label>
-                  <input
-                    id="perfil-delete-password"
-                    type="password"
-                    [(ngModel)]="senhaExclusao"
-                    name="senhaExclusao"
-                    z-input
-                    zSize="sm"
-                    class="w-full"
-                    autocomplete="current-password"
-                    [disabled]="excluindoConta"
-                  />
+                  <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>Senha atual</mat-label>
+                    <input
+                      matInput
+                      id="perfil-delete-password"
+                      type="password"
+                      [(ngModel)]="senhaExclusao"
+                      name="senhaExclusao"
+                      autocomplete="current-password"
+                      [disabled]="excluindoConta"
+                    />
+                  </mat-form-field>
 
-                  <z-checkbox
+                  <mat-checkbox
                     class="perfil-delete-check mt-4"
                     [(ngModel)]="confirmouExclusao"
                     name="confirmouExclusao"
@@ -297,14 +292,13 @@
                     <span class="perfil-delete-check__label">
                       Entendo que esta ação é irreversível e desejo excluir minha conta de usuário.
                     </span>
-                  </z-checkbox>
+                  </mat-checkbox>
 
                   <div class="mt-5 flex flex-wrap gap-3">
                     <button
                       type="button"
-                      z-button
-                      zType="destructive"
-                      zSize="sm"
+                      mat-flat-button
+                      color="warn"
                       (click)="excluirMinhaConta()"
                       [disabled]="excluindoConta || !confirmouExclusao || !senhaExclusao.trim()"
                     >

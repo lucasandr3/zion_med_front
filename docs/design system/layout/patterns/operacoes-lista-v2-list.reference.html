@@ -1,0 +1,248 @@
+<ng-template
+	#columnCell
+	let-row="row"
+	let-column="column">
+	<ng-container *ngIf="column">
+		<ng-container [ngSwitch]="column.type">
+			<ng-container *ngSwitchCase="'upx-badge'">
+				<span
+					*ngIf="column.name !== 'fin_6025_fase' || columnHelpers.getUpxBadgeDisplayText(row, column)"
+					class="inline-block max-w-full"
+					[matTooltip]="columnHelpers.getUpxBadgeMatTooltip(row, column)"
+					[matTooltipDisabled]="!columnHelpers.getUpxBadgeMatTooltip(row, column)">
+					<upx-badge
+						[color]="getBadgeColor(column, row)"
+						[colorHexadecimal]="getBadgeColorHex(column, row)"
+						size="xs">
+						{{ columnHelpers.getUpxBadgeDisplayText(row, column) }}
+					</upx-badge>
+				</span>
+			</ng-container>
+
+			<ng-container *ngSwitchDefault>
+				<ng-container *ngIf="isDocColumn(column); else dateOrDefaultCell">
+					<span
+						class="text-xs font-bold whitespace-nowrap block overflow-visible"
+						[innerHTML]="columnHelpers.getColumnValue(row, column)"
+						[matTooltip]="columnHelpers.getColumnTooltip(row, column)"
+						[matTooltipPosition]="getTooltipPosition(column)">
+					</span>
+				</ng-container>
+				<ng-template #dateOrDefaultCell>
+					<ng-container *ngIf="isDateColumn(column); else defaultColumnCell">
+						<span class="text-xs font-bold leading-tight whitespace-nowrap text-black text-opacity-90 dark:text-white dark:text-opacity-90">
+							{{ getDateDisplay(row, column) }}
+						</span>
+					</ng-container>
+					<ng-template #defaultColumnCell>
+						<span
+							class="block min-w-0"
+							[ngClass]="isDocColumn(column) ? 'whitespace-nowrap' : 'line-clamp-2'"
+							[innerHTML]="columnHelpers.getColumnValue(row, column)"
+							[matTooltip]="columnHelpers.getColumnTooltip(row, column)"
+							[matTooltipPosition]="getTooltipPosition(column)">
+						</span>
+						<span
+							class="fa-stack fa-1x flex items-stretch"
+							*ngIf="column.faIcon && columnHelpers.getColumnFaClass(row, column)"
+							[matTooltip]="columnHelpers.getColumnTooltip(row, column)">
+							<i [ngClass]="columnHelpers.getColumnFaClass(row, column)"></i>
+						</span>
+					</ng-template>
+				</ng-template>
+			</ng-container>
+		</ng-container>
+	</ng-container>
+</ng-template>
+
+<div class="flex flex-col w-full h-full overflow-x-hidden">
+	<div
+		*ngIf="!screenIsMobile()"
+		class="flex flex-row shrink-0 items-center justify-start overflow-hidden w-full h-8 bg-theme-floor-1 border-b border-black border-opacity-5 dark:border-white dark:border-opacity-5">
+		<div class="flex shrink-0 h-full items-center justify-center px-2" style="width: 5%;">
+			<upx-checkbox
+				*ngIf="listDataCount > 0"
+				[field]="headerCheckAllControl"
+				[disabled]="headerCheckAllControl.disabled"
+				(change)="onHeaderCheckChange()">
+			</upx-checkbox>
+		</div>
+		<div
+			*ngFor="let column of columns"
+			[ngClass]="{ 'shrink-0': column.width }"
+			[style.width]="column.width ? column.width : '100%'"
+			class="flex h-full items-center justify-{{ column.align ? column.align : 'start' }} px-2 text-xs font-semibold uppercase text-black text-opacity-70 dark:text-white dark:text-opacity-70">
+			<span>{{ column.title }}</span>
+		</div>
+	</div>
+
+	<div
+		id="upxDataList-listDataElement"
+		class="flex flex-col overflow-y-auto overflow-x-hidden h-full w-full pb-16 upx-scroll bg-black bg-opacity-[2%] dark:bg-white dark:bg-opacity-[2%]"
+		(scroll)="onScroll($event)">
+
+		<ng-container *ngFor="let empresa of empresas; trackBy: trackEmpresa">
+			<!-- <div
+				(click)="toggleEmpresaExpanded(empresa)"
+				class="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-2 px-4 py-3 border-b border-black border-opacity-10 dark:border-white dark:border-opacity-10 bg-theme-floor-1 cursor-pointer select-none">
+				<div class="flex items-center gap-2 text-sm font-semibold text-black dark:text-white">
+					<upx-icon [name]="empresa.expanded ? 'expand_less' : 'expand_more'"></upx-icon>
+					<span>{{ empresa.emp_nome_razao }}</span>
+				</div>
+				<div class="flex flex-wrap gap-3 text-xs text-black text-opacity-70 dark:text-white dark:text-opacity-70">
+					<span>{{ empresa.total }} registros</span>
+					<span>Total: <strong>{{ formatCurrency(empresa.valor) }}</strong></span>
+				</div>
+			</div> -->
+			<div
+				class="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-2 px-4 py-3 border-b border-black border-opacity-10 dark:border-white dark:border-opacity-10 bg-theme-floor-1 cursor-pointer select-none" *ngIf="(companys.length - 1) > 1">
+				<div class="flex items-center gap-2 text-sm font-semibold text-black dark:text-white">
+					<!-- <upx-icon [name]="empresa.expanded ? 'expand_less' : 'expand_more'"></upx-icon> -->
+					<span>{{ empresa.emp_nome_razao }}</span>
+				</div>
+				<div class="flex flex-wrap gap-3 text-xs text-black text-opacity-70 dark:text-white dark:text-opacity-70">
+					<span>{{ empresa.total }} registros</span>
+					<span>Total: <strong>{{ formatCurrency(empresa.valor) }}</strong></span>
+				</div>
+			</div>
+
+			<ng-container *ngIf="empresa.expanded">
+				<div
+					*ngFor="let row of empresa.lista; trackBy: trackRow"
+					class="flex shrink-0 flex-row items-stretch justify-start w-full text-sm cursor-pointer bg-white dark:bg-theme-floor-2 dark:bg-opacity-40 border-b border-black border-opacity-5 dark:border-white dark:border-opacity-5"
+					[ngClass]="{
+						'hover:bg-theme hover:bg-opacity-5 dark:hover:bg-theme dark:hover:bg-opacity-5': !screenIsMobile(),
+						'select-none py-2 min-h-[6rem]': screenIsMobile(),
+						'min-h-[3.5rem]': !screenIsMobile(),
+						'bg-theme-focus': isRowChecked(row)
+					}">
+
+					<ng-container *ngIf="screenIsMobile()">
+						<div
+							(click)="onMobileRowClick(row)"
+							class="flex gap-4 shrink-0 items-center justify-start px-4 w-full h-24 flex-1">
+							<ng-container *ngIf="isRowChecked(row)">
+								<upx-avatar variant="icon" icon="check" color="blue" size="sm"></upx-avatar>
+							</ng-container>
+
+							<div class="w-20 flex items-center justify-center">
+								<ng-container *ngIf="!isRowChecked(row)">
+									<ng-container *ngIf="selectionActive">
+										<upx-avatar variant="icon" icon="" color="blue" size="sm"></upx-avatar>
+									</ng-container>
+									<ng-container *ngIf="!selectionActive">
+										<ng-container
+											*ngTemplateOutlet="columnCell; context: { row, column: getMobileColumn(0), empresa }">
+										</ng-container>
+									</ng-container>
+								</ng-container>
+							</div>
+
+							<div class="flex flex-col shrink-0 items-start justify-center flex-1 h-full">
+								<div
+									*ngIf="getMobileColumn(1) || getMobileColumn(4)"
+									class="flex gap-2 py-0.5 items-center justify-start w-full text-black text-opacity-90 dark:text-white dark:text-opacity-90">
+									<span class="flex-1 text-sm leading-none">
+										<ng-container
+											*ngTemplateOutlet="columnCell; context: { row, column: getMobileColumn(1), empresa }">
+										</ng-container>
+									</span>
+									<span class="text-xs leading-3 text-right">
+										<ng-container
+											*ngTemplateOutlet="columnCell; context: { row, column: getMobileColumn(4), empresa }">
+										</ng-container>
+									</span>
+								</div>
+
+								<div
+									*ngIf="getMobileColumn(2) || getMobileColumn(5)"
+									class="flex gap-2 py-0.5 items-center justify-start w-full text-black text-opacity-70 dark:text-white dark:text-opacity-70">
+									<span class="flex-1 text-xs leading-none">
+										<ng-container
+											*ngTemplateOutlet="columnCell; context: { row, column: getMobileColumn(2), empresa }">
+										</ng-container>
+									</span>
+									<span class="text-xs leading-none text-right">
+										<ng-container
+											*ngTemplateOutlet="columnCell; context: { row, column: getMobileColumn(5), empresa }">
+										</ng-container>
+									</span>
+								</div>
+
+								<div
+									*ngIf="getMobileColumn(3) || getMobileColumn(6)"
+									class="flex gap-2 py-0.5 items-center justify-start w-full text-black text-opacity-60 dark:text-white dark:text-opacity-60">
+									<span class="flex-1 text-xs leading-3">
+										<ng-container
+											*ngTemplateOutlet="columnCell; context: { row, column: getMobileColumn(3), empresa }">
+										</ng-container>
+									</span>
+									<span class="flex items-center text-xs leading-3 text-right">
+										<ng-container
+											*ngTemplateOutlet="columnCell; context: { row, column: getMobileColumn(6), empresa }">
+										</ng-container>
+									</span>
+								</div>
+							</div>
+
+							<ng-container
+								*ngTemplateOutlet="columnCell; context: { row, column: getMobileColumn(7), empresa }">
+							</ng-container>
+						</div>
+					</ng-container>
+
+					<ng-container *ngIf="!screenIsMobile()">
+						<div class="flex shrink-0 h-full items-center justify-center px-2" style="width: 5%;">
+							<upx-checkbox
+								[(field)]="row.upxDataList.fieldCheck"
+								[disabled]="selectionDisabled"
+								(change)="onRowCheck()">
+							</upx-checkbox>
+						</div>
+
+						<div
+							*ngFor="let column of columns"
+							(click)="onRowOpen(row)"
+							[ngClass]="{ 'shrink-0': column.width }"
+							[style.width]="column.width ? column.width : '100%'"
+							class="flex shrink-0 min-h-[3.5rem] items-center justify-{{ column.align ? column.align : 'start' }} px-2 py-1 overflow-visible">
+							<ng-container
+								*ngTemplateOutlet="columnCell; context: { row, column, empresa }">
+							</ng-container>
+						</div>
+					</ng-container>
+				</div>
+			</ng-container>
+		</ng-container>
+
+		<div class="flex items-center justify-center">
+			<div class="flex items-center justify-center h-16 text-black text-opacity-90 dark:text-white dark:text-opacity-70">
+				<div *ngIf="loading" class="inline-flex items-center justify-center">
+					<upx-loading class="mr-2"></upx-loading>
+					Carregando dados...
+				</div>
+				<span *ngIf="!loading && !hasMore" class="text-sm">
+					<span *ngIf="listDataCount >= 1" class="text-xs">Isso é tudo!</span>
+					<span *ngIf="listDataCount === 0">Nenhum registro encontrado.</span>
+				</span>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div
+	class="flex sticky bottom-0 shrink-0 items-start justify-between gap-2 h-14 w-full px-4 border-t border-black border-opacity-5 dark:border-white dark:border-opacity-5 bg-theme-floor-1">
+	<div class="flex shrink-0 items-center justify-start h-full">
+		<span class="text-sm text-black text-opacity-70 dark:text-white dark:text-opacity-70">
+			<strong *ngIf="totalRegistros">{{ totalRegistros | number }}</strong>
+			{{ totalRegistros === 1 ? ' registro' : ' registros' }}
+		</span>
+	</div>
+	<div class="flex shrink-0 items-center justify-end h-full">
+		<span
+			*ngIf="valorTotalGeral"
+			class="text-sm text-black text-opacity-70 dark:text-white dark:text-opacity-70">
+			Total: <strong>{{ formatCurrency(valorTotalGeral) }}</strong>
+		</span>
+	</div>
+</div>

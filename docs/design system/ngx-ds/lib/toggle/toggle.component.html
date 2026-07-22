@@ -1,0 +1,57 @@
+<label *ngIf="versao === 'v1'" class="upx-toggle__label">
+    <input #upxToogle
+        (input)="changeEmit()"
+        (change)="changeEmit()"
+        [formControl]="field"
+        [required]="required"
+        [disabled]="disabled || readOnly"
+        [id]="fieldId"
+        class="upx-toggle__input peer/upxtoggle"
+        type="checkbox">
+    <div [ngClass]="{
+        'peer-focus/upxtoggle:!ring-theme-default peer-checked/upxtoggle:!bg-theme-default': color === 'default',
+        'peer-focus/upxtoggle:!ring-theme         peer-checked/upxtoggle:!bg-theme        ': color === 'theme',
+        'peer-focus/upxtoggle:!ring-theme-info    peer-checked/upxtoggle:!bg-theme-info   ': color === 'info',
+        'peer-focus/upxtoggle:!ring-theme-success peer-checked/upxtoggle:!bg-theme-success': color === 'success',
+        'peer-focus/upxtoggle:!ring-theme-warning peer-checked/upxtoggle:!bg-theme-warning': color === 'warning',
+        'peer-focus/upxtoggle:!ring-theme-danger  peer-checked/upxtoggle:!bg-theme-danger ': color === 'danger'
+        }"
+         class="upx-toggle__peer peer-focus/upxtoggle:ring-4 peer-focus/upxtoggle:!ring-opacity-30 dark:peer-focus/upxtoggle:!ring-opacity-50 peer-checked/upxtoggle:!bg-opacity-100 peer-checked/upxtoggle:after:translate-x-full peer-checked/upxtoggle:after:border-white">
+        <span class="hidden peer-checked/upxtoggle:block">Sim</span>
+    </div>
+    <span class="upx-toggle__content" *ngIf="descricao == ''">
+        <ng-content></ng-content>
+    </span>
+    <span class="upx-toggle__content" *ngIf="descricao != ''">
+        {{descricao}}
+    </span>
+</label>
+
+<label *ngIf="versao === 'v2'" class="upx-toggle__label">
+    <input #upxToogle
+        (change)="changeEmit()"
+        [formControl]="field"
+        [required]="required"
+        [disabled]="disabled || readOnly"
+        [id]="fieldId"
+        class="upx-toggle__input peer/upxtoggle"
+        type="checkbox">
+    <div [ngClass]="{
+        'peer-focus/upxtoggle:!ring-theme-default peer-checked/upxtoggle:!bg-theme-default': color === 'default',
+        'peer-focus/upxtoggle:!ring-theme         peer-checked/upxtoggle:!bg-theme        ': color === 'theme',
+        'peer-focus/upxtoggle:!ring-theme-info    peer-checked/upxtoggle:!bg-theme-info   ': color === 'info',
+        'peer-focus/upxtoggle:!ring-theme-success peer-checked/upxtoggle:!bg-theme-success': color === 'success',
+        'peer-focus/upxtoggle:!ring-theme-warning peer-checked/upxtoggle:!bg-theme-warning': color === 'warning',
+        'peer-focus/upxtoggle:!ring-theme-danger  peer-checked/upxtoggle:!bg-theme-danger ': color === 'danger'
+        }"
+         class="upx-toggle__peer peer-focus/upxtoggle:ring-4 peer-focus/upxtoggle:!ring-opacity-30 dark:peer-focus/upxtoggle:!ring-opacity-50 peer-checked/upxtoggle:!bg-opacity-100 peer-checked/upxtoggle:after:translate-x-full peer-checked/upxtoggle:after:border-white">
+        <span class="hidden peer-checked/upxtoggle:block">Sim</span>
+    </div>
+    <span class="upx-toggle__content">
+        <ng-content></ng-content>
+    </span>
+</label>
+
+<div *ngIf="!feedbackDisabled && field.invalid && (field.dirty || field.touched)" class="upx-toogle__helper">
+    {{getErrorMessage()}}
+</div>

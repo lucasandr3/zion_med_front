@@ -6,8 +6,7 @@ import { LoadingService } from '../../../shared/services/loading.service';
 import { ZmSkeletonConfiguracoesComponent } from '../../../shared/components/skeletons';
 import { ToastService } from '../../../core/services/toast.service';
 import { ZardCardComponent } from '@/shared/components/card/card.component';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
-import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
+import { MAT_FORM_IMPORTS } from '@/shared/material';
 import { ZardTabComponent, ZardTabGroupComponent } from '@/shared/components/tabs';
 import { PlataformaIntegracoesTabComponent } from './plataforma-integracoes-tab.component';
 import { PlataformaServicosTabComponent } from './plataforma-servicos-tab.component';
@@ -19,8 +18,7 @@ import { PlataformaServicosTabComponent } from './plataforma-servicos-tab.compon
     CommonModule,
     FormsModule,
     ZardCardComponent,
-    ZardButtonComponent,
-    ...ZARD_FORM_CONTROL_IMPORTS,
+    ...MAT_FORM_IMPORTS,
     ZmSkeletonConfiguracoesComponent,
     ZardTabComponent,
     ZardTabGroupComponent,

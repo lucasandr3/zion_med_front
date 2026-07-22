@@ -1,30 +1,51 @@
 import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-esqueci-senha',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule],
+  imports: [
+    RouterLink,
+    ReactiveFormsModule,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatIconModule,
+    MatInputModule,
+    MatProgressSpinnerModule,
+  ],
   templateUrl: './esqueci-senha.component.html',
   styleUrl: './esqueci-senha.component.css',
 })
 export class EsqueciSenhaComponent {
-  private auth = inject(AuthService);
+  private readonly auth = inject(AuthService);
+  private readonly fb = inject(FormBuilder);
 
-  email = '';
   enviado = false;
   carregando = false;
   erro = '';
   ano = new Date().getFullYear();
 
+  readonly form = this.fb.nonNullable.group({
+    email: ['', [Validators.required, Validators.email]],
+  });
+
   enviar(): void {
+    this.form.markAllAsTouched();
     this.erro = '';
-    if (!this.email.trim()) return;
+    if (this.form.invalid || this.carregando) {
+      return;
+    }
+
     this.carregando = true;
-    this.auth.forgotPassword(this.email.trim()).subscribe({
+    const email = this.form.controls.email.value.trim();
+    this.auth.forgotPassword(email).subscribe({
       next: () => {
         this.carregando = false;
         this.enviado = true;

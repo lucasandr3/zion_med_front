@@ -1,0 +1,14 @@
+<button
+  type="button"
+  class="status-toggle"
+  role="switch"
+  [attr.aria-checked]="checked()"
+  [attr.aria-label]="ariaLabel()"
+  [matTooltip]="ariaLabel()"
+  [disabled]="disabled()"
+  [class.status-toggle--on]="checked()"
+  (click)="onClick($event)">
+  <span class="status-toggle__track">
+    <span class="status-toggle__thumb"></span>
+  </span>
+</button>

@@ -1,0 +1,39 @@
+<mat-tree [dataSource]="treeData" nameDescricao="desc" [treeControl]="treeControl" class="example-tree ml-10">
+	<mat-tree-node   *matTreeNodeDef="let node" matTreeNodeToggle>
+		<div  (click)="onNodeEdited(node)"> <upx-icon *ngIf="!node.children" name="insert_drive_file"></upx-icon> {{getNodeValue(node)}}</div>
+		<div >
+			<upx-button (click)="onAddNodeChild(node)"   [variant]="'plain'" [onlyIcon]="true" *ngIf="enableButtonAdd" place size="xs">
+				<upx-icon name="add"  size="xs"></upx-icon>
+			</upx-button>
+			<upx-button *ngIf="enableButtonEdit" (click)="onNodeEdited(node)" [variant]="'plain'" [onlyIcon]="true" size="xs">
+				<upx-icon name="edit" size="xs"></upx-icon>
+			</upx-button>
+			<upx-button *ngIf="enableButtonDelete" (click)="onNodeDeleted(node)" [onlyIcon]="true" size="xs" [variant]="'plain'" >
+				<upx-icon sour name="delete" size="xs"></upx-icon>
+			</upx-button>
+		</div>
+	</mat-tree-node>
+	<mat-nested-tree-node  *matTreeNodeDef="let node; when: hasChild">
+		<div class="mat-tree-node">
+			<button mat-icon-button matTreeNodeToggle [attr.aria-label]="'Toggle ' + node.name">
+				<upx-icon name="{{treeControl.isExpanded(node) ? 'folder' : 'folder_open'}}">
+				</upx-icon>
+			</button>
+			<div  (click)="onNodeEdited(node)">  <upx-icon *ngIf="!node.children" name="insert_drive_file"></upx-icon> {{getNodeValue(node)}}</div>
+			<div class="align-button">
+				<upx-button *ngIf="enableButtonAdd" (click)="onAddNodeChild(node)" [variant]="'plain'" [onlyIcon]="true" size="xs">
+					<upx-icon name="add" size="xs"></upx-icon>
+				</upx-button>
+				<upx-button *ngIf="enableButtonEdit" (click)="onNodeEdited(node)" [variant]="'plain'" [onlyIcon]="true" size="xs">
+					<upx-icon name="edit" size="xs"></upx-icon>
+				</upx-button>
+				<upx-button *ngIf="enableButtonDelete" (click)="onNodeDeleted(node)" [onlyIcon]="true" size="xs" [variant]="'plain'" >
+					<upx-icon sour name="delete" size="xs"></upx-icon>
+				</upx-button>
+			</div>
+		</div>
+		<div [class.example-tree-invisible]="!treeControl.isExpanded(node)" role="group">
+			<ng-container matTreeNodeOutlet></ng-container>
+		</div>
+	</mat-nested-tree-node>
+</mat-tree>

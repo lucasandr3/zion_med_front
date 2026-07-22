@@ -12,9 +12,9 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { FlatpickrDirective, provideFlatpickrDefaults } from 'angularx-flatpickr';
-import { Portuguese } from 'flatpickr/dist/l10n/pt';
-import { ZardCheckboxComponent } from '@/shared/components/checkbox';
+import { MAT_FORM_IMPORTS } from '@/shared/material';
+import { OpenPickerOnInteractDirective } from '@/shared/directives/open-picker-on-interact.directive';
+import { formatDateToYmd, parseYmdToDate } from '@/shared/utils/date-time.util';
 import { FormularioPublicoField } from '../../core/services/formulario-publico.service';
 import { fieldPlaceholder, fieldType, getFieldOptions } from './formulario-publico-field.util';
 import {
@@ -36,19 +36,7 @@ import {
 @Component({
   selector: 'zm-formulario-publico-fields',
   standalone: true,
-  imports: [CommonModule, FormsModule, FlatpickrDirective, ZardCheckboxComponent],
-  providers: [
-    provideFlatpickrDefaults({
-      locale: Portuguese,
-      dateFormat: 'Y-m-d',
-      altInput: true,
-      altFormat: 'd/m/Y',
-      altInputClass: 'fp-input',
-      allowInput: true,
-      disableMobile: true,
-      static: false,
-    }),
-  ],
+  imports: [CommonModule, FormsModule, ...MAT_FORM_IMPORTS, OpenPickerOnInteractDirective],
   templateUrl: './formulario-publico-fields.component.html',
 })
 export class FormularioPublicoFieldsComponent implements AfterViewInit, OnChanges {
@@ -115,6 +103,15 @@ export class FormularioPublicoFieldsComponent implements AfterViewInit, OnChange
 
   onCampoAlterado(): void {
     this.fieldChange.emit();
+  }
+
+  dateValue(key: string): Date | null {
+    return parseYmdToDate(this.valores[key] as string | Date | null | undefined);
+  }
+
+  onDateChange(key: string, value: Date | null): void {
+    this.valores[key] = formatDateToYmd(value);
+    this.onCampoAlterado();
   }
 
   onFileSelected(event: Event, key: string): void {

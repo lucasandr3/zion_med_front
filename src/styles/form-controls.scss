@@ -1,0 +1,112 @@
+/**
+ * Formulários Material — densidade e layout (paridade InspecFlow / Gestgo DS).
+ */
+
+.mat-mdc-form-field .mdc-notched-outline__notch {
+  border-right-style: hidden;
+}
+
+.upx-form-grid {
+  display: grid;
+  gap: 0.85rem 1rem;
+  grid-template-columns: 1fr;
+
+  @media (min-width: 640px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.upx-form-grid--1 {
+  grid-template-columns: 1fr;
+}
+
+.upx-form-grid--3 {
+  @media (min-width: 640px) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.upx-form-grid--4 {
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  @media (min-width: 1024px) {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.upx-form-field,
+.upx-form-grid > .mat-mdc-form-field,
+.mat-mdc-form-field.upx-full {
+  width: 100%;
+}
+
+.upx-form-span-2,
+.upx-form-grid > .upx-form-span-2 {
+  @media (min-width: 640px) {
+    grid-column: span 2;
+  }
+}
+
+.upx-form-span-full {
+  grid-column: 1 / -1;
+}
+
+.mat-mdc-form-field {
+  font-size: 0.875rem;
+  --mat-form-field-container-height: 52px;
+  --mat-form-field-container-vertical-padding: 14px;
+  --mdc-outlined-text-field-container-shape: 10px;
+}
+
+.mat-mdc-form-field .mat-mdc-text-field-wrapper {
+  background-color: rgb(var(--theme-floor-1));
+}
+
+.mat-mdc-form-field-subscript-wrapper {
+  margin-top: 0;
+}
+
+.mat-mdc-select-panel {
+  background: rgb(var(--theme-floor-1)) !important;
+}
+
+.mat-mdc-option.mdc-list-item--selected:not(.mdc-list-item--disabled) {
+  --mat-option-selected-state-label-text-color: rgb(var(--theme-fg));
+  background: rgb(var(--theme-padrao) / 0.12) !important;
+}
+
+.mat-mdc-option:hover:not(.mdc-list-item--disabled),
+.mat-mdc-option.mat-mdc-option-active {
+  background: rgb(var(--theme-padrao) / 0.08) !important;
+}
+
+.mat-mdc-form-field .mat-mdc-form-field-icon-prefix,
+.mat-mdc-form-field .mat-mdc-form-field-icon-suffix {
+  color: rgb(var(--theme-fg) / 0.55);
+}
+
+.mat-mdc-checkbox.mat-primary,
+.mat-mdc-radio-button.mat-primary {
+  --mdc-checkbox-selected-checkmark-color: #fff;
+}
+
+.upx-check-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.upx-radio-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.25rem;
+  align-items: center;
+}
+
+/* Input de data/hora: cursor pointer — abre picker ao clicar */
+input[matInput][matDatepicker],
+input[matInput][matTimepicker] {
+  cursor: pointer;
+}

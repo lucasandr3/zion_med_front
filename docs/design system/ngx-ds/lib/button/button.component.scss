@@ -1,0 +1,448 @@
+.upx-button{
+    @apply cursor-pointer;
+    &__container{
+        @apply inline-flex gap-2 items-center justify-center font-medium w-full h-full select-none whitespace-nowrap;
+    }
+    &.upx-button--full {
+        @apply w-full;
+    }
+    &.upx-button--shape-square,
+    &.upx-button--shape-square .upx-button__container{
+        @apply rounded-none;
+    }
+    &.upx-button--shape-rounded,
+    &.upx-button--shape-rounded .upx-button__container{
+        @apply rounded-md;
+    }
+    &.upx-button--shape-circle,
+    &.upx-button--shape-circle .upx-button__container{
+        @apply rounded-full;
+    }
+    &.upx-button--size-xs {
+        .upx-button__container {
+            @apply h-7 py-2 px-3 text-xs gap-1;
+        }
+        &.upx-button--onlyicon .upx-button__container {
+            @apply w-7;
+        }
+    }
+    &.upx-button--size-sm {
+        .upx-button__container {
+            @apply h-9 py-2 px-3 text-sm gap-2;
+        }
+        &.upx-button--onlyicon .upx-button__container {
+            @apply w-9;
+        }
+    }
+    &.upx-button--size-md {
+        .upx-button__container {
+            @apply h-11 text-sm px-5 py-2.5 gap-3;
+        }
+        &.upx-button--onlyicon .upx-button__container {
+            @apply w-11;
+        }
+    }
+    &.upx-button--size-lg {
+        .upx-button__container {
+            @apply h-12 py-3 px-5 text-base gap-4;
+        }
+        &.upx-button--onlyicon .upx-button__container {
+            @apply w-12;
+        }
+    }
+    &.upx-button--size-xl {
+        .upx-button__container {
+            @apply h-14 text-base px-6 py-3.5 gap-4;
+        }
+        &.upx-button--onlyicon .upx-button__container {
+            @apply w-14;
+        }
+    }
+    &.upx-button--disabled .upx-button__container {
+        @apply opacity-20 cursor-not-allowed;
+    }
+		&.upx-button--variant-default {
+			.upx-button__container {
+				@apply text-black dark:text-white border border-black border-opacity-40 hover:border-opacity-80 dark:border-white dark:border-opacity-40 dark:hover:border-opacity-80;
+			}
+			&:not(.upx-button--disabled) .upx-button__container{
+				@apply focus:ring-4;
+			}
+			&.upx-button--color {
+				&-default {
+					.upx-button__container {
+						@apply bg-theme-floor-1;
+					}
+					&:not(.upx-button--disabled) .upx-button__container{
+						@apply hover:bg-neutral-50 dark:hover:bg-theme-floor-1 dark:hover:bg-opacity-80;
+					}
+				}
+				&-danger {
+					.upx-button__container {
+						@apply border-theme-danger text-theme-danger;
+					}
+
+				}
+			}
+		}
+    &.upx-button--variant-solid {
+        .upx-button__container {
+            @apply text-white bg-theme;
+        }
+        &:not(.upx-button--disabled) .upx-button__container{
+            @apply focus:ring-4;
+        }
+        &.upx-button--color {
+            &-theme {
+                .upx-button__container {
+                    @apply bg-theme;
+                }
+                &:not(.upx-button--disabled) .upx-button__container{
+                    @apply hover:bg-theme hover:bg-opacity-80 focus:ring-theme focus:ring-opacity-30 dark:focus:ring-opacity-80;
+                }
+            }
+            &-default {
+                .upx-button__container {
+                    @apply bg-black;
+                }
+                &:not(.upx-button--disabled) .upx-button__container{
+                    @apply hover:bg-neutral-900 focus:ring-neutral-300 dark:focus:ring-neutral-900;
+                }
+            }
+            &-info {
+                .upx-button__container {
+                    @apply bg-theme-info;
+                }
+                &:not(.upx-button--disabled) .upx-button__container{
+                    /*@apply hover:bg-theme-info-800 focus:ring-theme-info-300 dark:hover:bg-theme-info-800 dark:focus:ring-theme-info-800;*/
+                }
+            }
+            &-warning {
+                .upx-button__container {
+                    @apply bg-theme-warning;
+                }
+                &:not(.upx-button--disabled) .upx-button__container{
+                    /*@apply hover:bg-theme-warning-800 focus:ring-theme-warning-300 dark:hover:bg-theme-warning-800 dark:focus:ring-theme-warning-800;*/
+                }
+            }
+            &-success {
+                .upx-button__container {
+                    @apply bg-theme-success;
+                }
+                &:not(.upx-button--disabled) .upx-button__container{
+                    /*@apply hover:bg-theme-success-800 focus:ring-theme-success-300 dark:hover:bg-theme-success-800 dark:focus:ring-theme-success-800;*/
+                }
+            }
+            &-danger {
+                .upx-button__container {
+                    @apply bg-theme-danger;
+                }
+                &:not(.upx-button--disabled) .upx-button__container{
+                    /*@apply hover:bg-theme-danger focus:ring-theme-danger-300 dark:hover:bg-theme-danger-800 dark:focus:ring-theme-danger-800;*/
+                }
+            }
+        }
+    }
+    &.upx-button--variant-plain {
+        .upx-button__container {
+            @apply bg-transparent border-none;
+        }
+        &:not(.upx-button--disabled) .upx-button__container{
+            @apply hover:bg-black hover:bg-opacity-10 focus:ring-4 focus:ring-black focus:ring-opacity-20;
+        }
+        &.upx-button--color {
+            &-default {
+                .upx-button__container {
+                    @apply text-black dark:text-white;
+                }
+                &:not(.upx-button--disabled) .upx-button__container{
+                    /*@apply hover:bg-neutral-100 focus:ring-neutral-200 dark:hover:bg-neutral-700 dark:focus:ring-neutral-700;*/
+                }
+            }
+            &-danger {
+                .upx-button__container {
+                    @apply text-theme-danger;
+                }
+                &:not(.upx-button--disabled) .upx-button__container{
+                    /*@apply hover:bg-theme-danger-50 dark:hover:bg-theme-danger-50 focus:ring-theme-danger-300 dark:focus:ring-theme-danger-700;*/
+                }
+            }
+        }
+    }
+    &.upx-button--variant-outline {
+        .upx-button__container {
+            @apply bg-transparent border;
+        }
+        &:not(.upx-button--disabled) .upx-button__container{
+            @apply focus:ring-4 focus:outline-none;
+        }
+        &.upx-button--color {
+            &-theme {
+                .upx-button__container {
+                    @apply text-theme border-theme dark:text-theme dark:border-theme;
+                }
+                &:not(.upx-button--disabled) .upx-button__container{
+                    @apply hover:bg-theme hover:bg-opacity-10 dark:hover:bg-theme dark:hover:bg-opacity-10 focus:ring-theme focus:ring-opacity-30 dark:focus:ring-opacity-80;
+                }
+            }
+            &-default {
+                .upx-button__container {
+                    @apply text-black border-black border-opacity-40 dark:text-white dark:border-white dark:border-opacity-40;
+                }
+                &:not(.upx-button--disabled) .upx-button__container{
+                    @apply hover:border-opacity-80 dark:hover:border-opacity-80 hover:bg-black hover:bg-opacity-5 dark:hover:bg-white dark:hover:bg-opacity-5;
+                }
+            }
+            &-success {
+                .upx-button__container {
+                    @apply text-theme-success border-theme-success dark:text-theme-success dark:border-theme-success;
+                }
+                &:not(.upx-button--disabled) .upx-button__container{
+                    @apply hover:bg-theme-success hover:bg-opacity-10 dark:hover:bg-theme-success dark:hover:bg-opacity-10 focus:ring-theme-success focus:ring-opacity-30 dark:focus:ring-opacity-80;
+                }
+            }
+            &-info {
+                .upx-button__container {
+                    @apply text-theme-info border-theme-info dark:text-theme-info dark:border-theme-info;
+                }
+                &:not(.upx-button--disabled) .upx-button__container{
+                    @apply hover:bg-theme-info hover:bg-opacity-10 dark:hover:bg-theme-info dark:hover:bg-opacity-10 focus:ring-theme-info focus:ring-opacity-30 dark:focus:ring-opacity-80;
+                }
+            }
+            &-warning {
+                .upx-button__container {
+                    @apply text-theme-warning border-theme-warning dark:text-theme-warning dark:border-theme-warning;
+                }
+                &:not(.upx-button--disabled) .upx-button__container{
+                    @apply hover:bg-theme-warning hover:bg-opacity-10 dark:hover:bg-theme-warning dark:hover:bg-opacity-10 focus:ring-theme-warning focus:ring-opacity-30 dark:focus:ring-opacity-80;
+                }
+            }
+            &-danger {
+                .upx-button__container {
+                    @apply text-theme-danger border-theme-danger dark:text-theme-danger dark:border-theme-danger;
+                }
+                &:not(.upx-button--disabled) .upx-button__container{
+                    @apply hover:bg-theme-danger hover:bg-opacity-10 dark:hover:bg-theme-danger dark:hover:bg-opacity-10 focus:ring-theme-danger focus:ring-opacity-30 dark:focus:ring-opacity-80;
+                }
+            }
+            &-padrao {
+                .upx-button__container {
+                    @apply text-black border-black border-opacity-40 dark:text-white dark:border-white dark:border-opacity-40;
+                }
+                &:not(.upx-button--disabled) .upx-button__container{
+                    @apply hover:border-opacity-80 dark:hover:border-opacity-80 hover:bg-black hover:bg-opacity-5 dark:hover:bg-white dark:hover:bg-opacity-5;
+                }
+            }
+        }
+    }
+}
+
+/*
+:host {
+    @apply inline-flex items-center justify-center w-fit #{!important};
+    .upx-button__container {
+        @apply inline-flex
+        gap-2
+        items-center
+        justify-center
+        font-medium
+        w-full
+        h-full
+        select-none
+        whitespace-nowrap
+        hover:cursor-pointer #{!important};
+    }
+    &.upx-button--full {
+        @apply w-full #{!important};;
+    }
+    &.upx-button--shape-square,
+    &.upx-button--shape-square .upx-button__container{
+        @apply rounded-none #{!important};
+    }
+    &.upx-button--shape-rounded,
+    &.upx-button--shape-rounded .upx-button__container{
+        @apply rounded-md #{!important};
+    }
+    &.upx-button--shape-circle,
+    &.upx-button--shape-circle .upx-button__container{
+        @apply rounded-full #{!important};
+    }
+    &.upx-button--size-xs {
+        .upx-button__container {
+            @apply h-7 py-2 px-3 text-xs gap-1 #{!important};
+        }
+        &.upx-button--onlyicon {
+            .upx-button__container {
+                @apply w-7 #{!important};
+            }
+        }
+    }
+    &.upx-button--size-sm {
+        .upx-button__container {
+            @apply h-9 py-2 px-3 text-sm gap-2 #{!important};
+        }
+        &.upx-button--onlyicon {
+            .upx-button__container {
+                @apply w-9 #{!important};
+            }
+        }
+    }
+    &.upx-button--size-md {
+        .upx-button__container {
+            @apply h-11 text-sm px-5 py-2.5 gap-3 #{!important};
+        }
+        &.upx-button--onlyicon {
+            .upx-button__container {
+                @apply w-11 #{!important};
+            }
+        }
+    }
+    &.upx-button--size-lg {
+        .upx-button__container {
+            @apply h-12 py-3 px-5 text-base gap-4 #{!important};
+        }
+        &.upx-button--onlyicon {
+            .upx-button__container {
+                @apply w-12 #{!important};
+            }
+        }
+    }
+    &.upx-button--size-xl {
+        .upx-button__container {
+            @apply h-14 text-base px-6 py-3.5 gap-4 #{!important};
+        }
+        &.upx-button--onlyicon {
+            .upx-button__container {
+                @apply w-14 #{!important};
+            }
+        }
+    }
+    &.upx-button--disabled {
+        @apply opacity-50
+            cursor-not-allowed #{!important};
+    }
+    &.upx-button--variant-default {
+        @apply text-black dark:text-white border border-black border-opacity-10 dark:border-white dark:border-opacity-10 focus:ring-4 focus:outline-none #{!important};
+        &.upx-button--color-theme {
+            @apply text-theme
+                    border-theme
+
+                    dark:text-opacity-70
+                    dark:border-opacity-70
+
+                    hover:text-theme
+                    hover:bg-theme
+                    hover:bg-opacity-5
+
+                    dark:hover:bg-theme
+                    dark:hover:bg-opacity-10
+
+                    active:bg-opacity-10
+                    dark:active:bg-opacity-20 #{!important};
+        }
+        &.upx-button--color-default {
+            @apply bg-theme-floor-1 hover:bg-white hover:bg-opacity-20 #{!important};
+        }
+        &.upx-button--color-success {
+            @apply text-theme-success
+                border-theme-success
+
+                dark:text-opacity-70
+                dark:border-opacity-70
+
+                hover:text-theme-success
+                hover:bg-theme-success
+                hover:bg-opacity-5
+
+                dark:hover:bg-theme-success
+                dark:hover:bg-opacity-10
+
+                active:bg-opacity-10
+                dark:active:bg-opacity-20 #{!important};
+        }
+        &.upx-button--color-info {
+            @apply text-theme-info
+                border-theme-info
+
+                dark:text-opacity-70
+                dark:border-opacity-70
+
+                hover:text-theme-info
+                hover:bg-theme-info
+                hover:bg-opacity-5
+
+                dark:hover:bg-theme-info
+                dark:hover:bg-opacity-10
+
+                active:bg-opacity-10
+                dark:active:bg-opacity-20 #{!important};
+        }
+        &.upx-button--color-warning {
+            @apply text-theme-warning
+                border-theme-warning
+
+                dark:text-opacity-70
+                dark:border-opacity-70
+
+                hover:text-theme-warning
+                hover:bg-theme-warning
+                hover:bg-opacity-5
+
+                dark:hover:bg-theme-warning
+                dark:hover:bg-opacity-10
+
+                active:bg-opacity-10
+                dark:active:bg-opacity-20 #{!important};
+        }
+        &.upx-button--color-danger {
+            @apply text-theme-danger
+                border-theme-danger
+
+                dark:text-opacity-70
+                dark:border-opacity-70
+
+                hover:text-theme-danger
+                hover:bg-theme-danger
+                hover:bg-opacity-5
+
+                dark:hover:bg-theme-danger
+                dark:hover:bg-opacity-10
+
+                active:bg-opacity-10
+                dark:active:bg-opacity-20 #{!important};
+        }
+    }
+    &.upx-button--variant-solid {
+        &.upx-button--color-theme {
+            @apply text-white bg-theme-900 hover:bg-theme-800 focus:ring-4 focus:ring-theme-300 dark:bg-theme-900 dark:hover:bg-theme-800 focus:outline-none dark:focus:ring-theme-800 #{!important};
+        }
+        &.upx-button--color-default {
+            @apply text-white focus:ring-4 focus:outline-none bg-theme-warning-400 hover:bg-theme-warning-500 focus:ring-theme-warning-300 dark:focus:ring-theme-warning-900 #{!important};
+        }
+        &.upx-button--color-info {
+            @apply text-white focus:ring-4 focus:outline-none bg-theme-info-700 hover:bg-theme-info-800 focus:ring-theme-info-300 dark:bg-theme-info-600 dark:hover:bg-theme-info-700 dark:focus:ring-theme-info-800 #{!important};
+        }
+        &.upx-button--color-danger {
+            @apply text-white focus:ring-4 focus:outline-none bg-theme-danger-700 hover:bg-theme-danger-800 focus:ring-theme-danger-300 dark:bg-theme-danger-600 dark:hover:bg-theme-danger-700 dark:focus:ring-theme-danger-800 #{!important};
+        }
+        &.upx-button--color-success {
+            @apply focus:outline-none text-white bg-theme-success-700 hover:bg-theme-success-800 focus:ring-4 focus:ring-theme-success-300 dark:bg-theme-success-600 dark:hover:bg-theme-success-700 dark:focus:ring-theme-success-800 #{!important};
+        }
+        &.upx-button--color-warning {
+            @apply text-white focus:ring-4 focus:outline-none bg-theme-warning-400 hover:bg-theme-warning-500 focus:ring-theme-warning-300 dark:focus:ring-theme-warning-900 #{!important};
+        }
+    }
+    &.upx-button--variant-plain {
+        @apply bg-transparent border-none #{!important};
+        &.upx-button--color-default {
+            @apply text-neutral-900 dark:text-white focus:outline-none hover:bg-neutral-100 focus:ring-4 focus:ring-neutral-200 dark:hover:bg-neutral-700 dark:focus:ring-neutral-700 #{!important};
+        }
+        &.upx-button--color-danger {
+            @apply text-theme-danger-700 dark:text-theme-danger-600 hover:bg-theme-danger-50 dark:hover:bg-theme-danger-50 focus:outline-none focus:ring-4 focus:ring-theme-danger-300 dark:focus:ring-theme-danger-700 #{!important};
+        }
+    }
+    upx-icon {
+        @apply text-inherit dark:text-inherit #{!important};
+    }
+}
+*/

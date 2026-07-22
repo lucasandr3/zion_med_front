@@ -17,7 +17,7 @@
           </div>
         }
 
-        <z-tab-group
+          <z-tab-group
           class="emails-zard-tabs emails-zard-tabs--layout emails-zard-tabs--no-nav-rule w-full"
           zNavWrapperClass="emails-tabs-bar border-b border-border bg-card"
           zNavClass="!mb-0 !border-0 !px-0 pt-2"
@@ -49,33 +49,25 @@
 
                   <div class="form-grid">
                     <div class="form-field form-field--pair">
-                      <label id="email_category_label" class="form-label">Categoria</label>
-                      <z-combobox
-                        class="w-full"
-                        zWidth="full"
-                        [options]="categoryOptions()"
-                        [value]="category"
-                        placeholder="Selecione a categoria"
-                        [searchable]="false"
-                        ariaLabel="Categoria do e-mail"
-                        ariaDescribedBy="email_category_label"
-                        (zValueChange)="onCategoryChange($event)"
-                      />
+                      <mat-form-field appearance="outline" class="w-full">
+                        <mat-label>Categoria</mat-label>
+                        <mat-select [ngModel]="category" name="category" (ngModelChange)="onCategoryChange($event)">
+                          @for (option of categoryOptions(); track option.value) {
+                            <mat-option [value]="option.value">{{ option.label }}</mat-option>
+                          }
+                        </mat-select>
+                      </mat-form-field>
                     </div>
 
                     <div class="form-field form-field--pair">
-                      <label id="email_template_label" class="form-label">Modelo de mensagem</label>
-                      <z-combobox
-                        class="w-full"
-                        zWidth="full"
-                        [options]="templateOptions()"
-                        [value]="templateKey || null"
-                        placeholder="Selecione um modelo pronto"
-                        [searchable]="false"
-                        ariaLabel="Modelo de mensagem"
-                        ariaDescribedBy="email_template_label"
-                        (zValueChange)="onTemplateChange($event)"
-                      />
+                      <mat-form-field appearance="outline" class="w-full">
+                        <mat-label>Modelo de mensagem</mat-label>
+                        <mat-select [ngModel]="templateKey" name="template" (ngModelChange)="onTemplateChange($event)">
+                          @for (option of templateOptions(); track option.value) {
+                            <mat-option [value]="option.value">{{ option.label }}</mat-option>
+                          }
+                        </mat-select>
+                      </mat-form-field>
                     </div>
 
                     <div class="form-field form-field--full">
@@ -96,88 +88,61 @@
                     </div>
 
                     <div class="form-field form-field--full">
-                      <label id="email_recipient_label" class="form-label">Destinatário</label>
-                      <z-combobox
-                        class="w-full"
-                        zWidth="full"
-                        [groups]="recipientComboboxGroups()"
-                        [value]="recipientKey"
-                        placeholder="Selecione um destinatário"
-                        searchPlaceholder="Buscar cliente ou lead..."
-                        emptyText="Nenhum destinatário encontrado."
-                        ariaLabel="Destinatário do e-mail"
-                        ariaDescribedBy="email_recipient_label"
-                        (zValueChange)="onRecipientChange($event)"
-                      />
+                      <mat-form-field appearance="outline" class="w-full">
+                        <mat-label>Destinatário</mat-label>
+                        <mat-select [ngModel]="recipientKey" name="recipient" (ngModelChange)="onRecipientChange($event)">
+                          @for (group of recipientSelectGroups(); track group.label) {
+                            @if (group.label) {
+                              <mat-optgroup [label]="group.label">
+                                @for (option of group.options; track option.value) {
+                                  <mat-option [value]="option.value">{{ option.label }}</mat-option>
+                                }
+                              </mat-optgroup>
+                            } @else {
+                              @for (option of group.options; track option.value) {
+                                <mat-option [value]="option.value">{{ option.label }}</mat-option>
+                              }
+                            }
+                          }
+                        </mat-select>
+                      </mat-form-field>
                     </div>
 
                     <div class="form-field form-field--pair">
-                      <label for="email_to" class="form-label">E-mail</label>
-                      <input
-                        type="email"
-                        id="email_to"
-                        [(ngModel)]="toEmail"
-                        name="to_email"
-                        z-input
-                        zSize="sm"
-                        class="w-full font-mono text-xs"
-                        required
-                        maxlength="255"
-                        placeholder="cliente@empresa.com"
-                      />
+                      <mat-form-field appearance="outline" class="w-full">
+                        <mat-label>E-mail</mat-label>
+                        <input matInput type="email" [(ngModel)]="toEmail" name="to_email" class="font-mono text-xs" required maxlength="255" placeholder="cliente@empresa.com" />
+                      </mat-form-field>
                     </div>
 
                     <div class="form-field form-field--pair">
-                      <label for="email_to_name" class="form-label">Nome (opcional)</label>
-                      <input
-                        type="text"
-                        id="email_to_name"
-                        [(ngModel)]="toName"
-                        (ngModelChange)="onToNameChange()"
-                        name="to_name"
-                        z-input
-                        zSize="sm"
-                        class="w-full"
-                        maxlength="255"
-                        placeholder="Nome do destinatário"
-                      />
+                      <mat-form-field appearance="outline" class="w-full">
+                        <mat-label>Nome (opcional)</mat-label>
+                        <input matInput type="text" [(ngModel)]="toName" (ngModelChange)="onToNameChange()" name="to_name" maxlength="255" placeholder="Nome do destinatário" />
+                      </mat-form-field>
                     </div>
 
                     <div class="form-field form-field--full">
-                      <label for="email_subject" class="form-label">Assunto</label>
-                      <input
-                        type="text"
-                        id="email_subject"
-                        [(ngModel)]="subject"
-                        name="subject"
-                        z-input
-                        zSize="sm"
-                        class="w-full"
-                        required
-                        maxlength="255"
-                        placeholder="Assunto do e-mail"
-                      />
+                      <mat-form-field appearance="outline" class="w-full">
+                        <mat-label>Assunto</mat-label>
+                        <input matInput type="text" [(ngModel)]="subject" name="subject" required maxlength="255" placeholder="Assunto do e-mail" />
+                      </mat-form-field>
                     </div>
 
                     <div class="form-field form-field--full">
-                      <label for="email_body" class="form-label">Mensagem</label>
-                      <textarea
-                        id="email_body"
-                        [(ngModel)]="body"
-                        name="body"
-                        rows="8"
-                        z-input
-                        class="w-full text-sm"
-                        required
-                        maxlength="10000"
-                        placeholder="Escreva a mensagem que será enviada ao cliente..."
-                      ></textarea>
+                      <mat-form-field appearance="outline" class="w-full">
+                        <mat-label>Mensagem</mat-label>
+                        <textarea matInput [(ngModel)]="body" name="body" rows="8" class="text-sm" required maxlength="10000" placeholder="Escreva a mensagem que será enviada ao cliente..."></textarea>
+                      </mat-form-field>
                       <p class="form-hint">Texto simples. Quebras de linha serão preservadas no e-mail.</p>
                     </div>
                   </div>
 
                   <div class="form-actions">
-                    <button type="submit" z-button zSize="sm" [zDisabled]="saving" [zLoading]="saving">
+                    <button type="submit" mat-flat-button color="primary" [disabled]="saving">
+                      @if (saving) {
+                        <mat-spinner diameter="18"></mat-spinner>
+                      }
                       {{ saving ? 'Enviando…' : 'Enviar e-mail' }}
                     </button>
                   </div>
@@ -203,87 +168,59 @@
                   <div class="px-4 py-3">
                     <zm-skeleton-list [rows]="4" />
                   </div>
+                } @else if (emails.length === 0) {
+                  <up-empty-state
+                    icon="mail"
+                    title="Nenhum e-mail enviado ainda."
+                    description="Os envios manuais aparecerão aqui."
+                  />
                 } @else {
-                  <div class="overflow-x-auto zm-table-wrap">
-                    <table z-table zSize="compact" class="text-xs">
-                      <thead z-table-header>
-                        <tr z-table-row>
-                          <th z-table-head>Data</th>
-                          <th z-table-head>Categoria</th>
-                          <th z-table-head>Destinatário</th>
-                          <th z-table-head>Assunto</th>
-                          <th z-table-head>Cliente / lead</th>
+                  <up-data-table [recordCount]="total" [showEndHint]="lastPage <= 1">
+                    <thead>
+                      <tr>
+                        <th>Data</th>
+                        <th>Categoria</th>
+                        <th>Destinatário</th>
+                        <th>Assunto</th>
+                        <th>Cliente / lead</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (email of emails; track email.id) {
+                        <tr class="upx-data-table__row--static">
+                          <td class="cell-secondary">
+                            {{ formatarData(email.sent_at ?? email.created_at) }}
+                          </td>
+                          <td>
+                            <up-badge variant="type">{{ email.category_label }}</up-badge>
+                          </td>
+                          <td>
+                            <span class="cell-primary">{{ destinatarioResumo(email) }}</span>
+                          </td>
+                          <td>
+                            <span class="cell-primary">{{ email.subject }}</span>
+                            @if (email.body_preview) {
+                              <p class="cell-secondary mb-0 line-clamp-1">{{ email.body_preview }}</p>
+                            }
+                          </td>
+                          <td class="cell-secondary">
+                            @if (email.tenant_name || email.organization_name) {
+                              {{ email.tenant_name ?? '—' }}@if (email.organization_name) { · {{ email.organization_name }} }
+                            } @else if (email.lead_name) {
+                              Lead · {{ email.lead_name }}
+                            } @else {
+                              —
+                            }
+                          </td>
                         </tr>
-                      </thead>
-                      <tbody z-table-body>
-                        @for (email of emails; track email.id) {
-                          <tr z-table-row>
-                            <td z-table-cell class="zm-cell-muted whitespace-nowrap">
-                              {{ formatarData(email.sent_at ?? email.created_at) }}
-                            </td>
-                            <td z-table-cell>
-                              <z-badge zShape="pill" zType="secondary">{{ email.category_label }}</z-badge>
-                            </td>
-                            <td z-table-cell>
-                              <span class="zm-row-title">{{ destinatarioResumo(email) }}</span>
-                            </td>
-                            <td z-table-cell>
-                              <span class="zm-row-title">{{ email.subject }}</span>
-                              @if (email.body_preview) {
-                                <p class="zm-row-sub mb-0 line-clamp-1">{{ email.body_preview }}</p>
-                              }
-                            </td>
-                            <td z-table-cell class="zm-cell-muted">
-                              @if (email.tenant_name || email.organization_name) {
-                                {{ email.tenant_name ?? '—' }}@if (email.organization_name) { · {{ email.organization_name }} }
-                              } @else if (email.lead_name) {
-                                Lead · {{ email.lead_name }}
-                              } @else {
-                                —
-                              }
-                            </td>
-                          </tr>
-                        } @empty {
-                          <tr z-table-row>
-                            <td z-table-cell colspan="5" class="py-0">
-                              <zm-empty-state
-                                title="Nenhum e-mail enviado ainda."
-                                description="Os envios manuais aparecerão aqui."
-                              />
-                            </td>
-                          </tr>
-                        }
-                      </tbody>
-                    </table>
-                  </div>
-
-                  @if (lastPage > 1) {
-                    <div card-footer class="border-border flex items-center justify-between gap-3 border-t px-4 py-3">
-                      <span class="text-muted-foreground text-xs">Página {{ currentPage }} de {{ lastPage }} ({{ total }} registros)</span>
-                      <div class="flex gap-2">
-                        <button
-                          z-button
-                          zType="outline"
-                          zSize="sm"
-                          type="button"
-                          [zDisabled]="currentPage <= 1"
-                          (click)="goToPage(currentPage - 1)"
-                        >
-                          Anterior
-                        </button>
-                        <button
-                          z-button
-                          zType="outline"
-                          zSize="sm"
-                          type="button"
-                          [zDisabled]="currentPage >= lastPage"
-                          (click)="goToPage(currentPage + 1)"
-                        >
-                          Próxima
-                        </button>
+                      }
+                    </tbody>
+                    @if (lastPage > 1) {
+                      <div data-table-footer-end>
+                        <zm-pagination [currentPage]="currentPage" [lastPage]="lastPage" (pageChange)="goToPage($event)" />
                       </div>
-                    </div>
-                  }
+                    }
+                  </up-data-table>
                 }
               </z-card>
             </div>

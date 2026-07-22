@@ -1,0 +1,128 @@
+<div class="upx-notification">
+	<button
+		type="button"
+		class="upx-notification__trigger"
+		#notificationMenuTrigger="matMenuTrigger"
+		[matMenuTriggerFor]="notificationMenu"
+		aria-hidden="true"
+		tabindex="-1"></button>
+
+	<upx-button
+		class="upx-notification__button"
+		(onClick)="onOpen($event)"
+		variant="plain"
+		shape="circle"
+		[onlyIcon]="true"
+		color="padrao"
+		[disabled]="loading">
+		<span class="upx-notification__icon-wrap">
+			<upx-icon name="notifications"></upx-icon>
+		</span>
+	</upx-button>
+	<span *ngIf="unreadTotal > 0" class="upx-notification__badge">
+		{{ unreadTotal > 99 ? '99+' : unreadTotal }}
+	</span>
+
+	<mat-menu #notificationMenu="matMenu" class="upx-notification-menu" xPosition="before">
+		<ng-template matMenuContent>
+			<section class="upx-notification__panel" (click)="$event.stopPropagation()">
+				<header class="upx-notification__header">
+					<div>
+						<h3>Notificações</h3>
+						<span>{{ total }} {{ total === 1 ? 'notificação' : 'notificações' }}</span>
+					</div>
+					<div class="upx-notification__header-actions">
+						<mat-spinner *ngIf="loading" diameter="18"></mat-spinner>
+						<button
+							type="button"
+							mat-icon-button
+							class="upx-notification__close"
+							(click)="closeMenu()"
+							aria-label="Fechar notificações">
+							<mat-icon>close</mat-icon>
+						</button>
+					</div>
+				</header>
+
+				<mat-divider></mat-divider>
+
+				<div class="upx-notification__list">
+					<article
+						*ngFor="let notification of notifications"
+						class="upx-notification__item"
+						[class.upx-notification__item--unread]="!isRead(notification)">
+						<div class="upx-notification__marker">
+							<mat-icon>{{ isRead(notification) ? 'notifications_none' : 'notifications_active' }}</mat-icon>
+						</div>
+
+						<div class="upx-notification__content">
+							<div class="upx-notification__description">{{ notification.desc }}</div>
+							<div class="upx-notification__details" *ngIf="hasDetails(notification)">
+								<div class="upx-notification__cliente" *ngIf="getNomeCliente(notification) as nomeCliente">
+									{{ nomeCliente }}
+								</div>
+								<div class="upx-notification__tags" *ngIf="getClienteTags(notification).length">
+									<span
+										*ngFor="let tag of getClienteTags(notification)"
+										class="upx-notification__tag">
+										{{ tag }}
+									</span>
+								</div>
+								<div class="upx-notification__valor" *ngIf="getValorPago(notification) != null">
+									<span class="upx-notification__valor-label">Valor pago</span>
+									<span class="upx-notification__valor-amount">
+										{{ getValorPago(notification) | currency : 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}
+									</span>
+								</div>
+							</div>
+							<div class="upx-notification__meta">
+								<span class="upx-notification__status" [ngClass]="getStatusClass(notification.status)">
+									{{ getStatusLabel(notification.status) }}
+								</span>
+							</div>
+						</div>
+
+						<div class="upx-notification__actions">
+							<button
+								type="button"
+								class="upx-notification__action-button"
+								*ngIf="notification.url"
+								[disabled]="actionId === notification.id"
+								(click)="onOpenUrl(notification, $event)"
+								aria-label="Abrir link">
+								<mat-icon>open_in_new</mat-icon>
+							</button>
+							<button
+								type="button"
+								class="upx-notification__action-button"
+								*ngIf="notification.path"
+								[disabled]="actionId === notification.id"
+								(click)="onDownload(notification, $event)"
+								aria-label="Baixar arquivo">
+								<mat-icon>download</mat-icon>
+							</button>
+							<button
+								type="button"
+								class="upx-notification__action-button"
+								*ngIf="!isRead(notification)"
+								[disabled]="actionId === notification.id"
+								(click)="onMarkRead(notification, $event)"
+								aria-label="Marcar como lida">
+								<mat-icon>done</mat-icon>
+							</button>
+							<button
+								type="button"
+								class="upx-notification__action-button"
+								*ngIf="canDelete(notification)"
+								[disabled]="actionId === notification.id"
+								(click)="onDelete(notification, $event)"
+								aria-label="Excluir notificação">
+								<mat-icon>delete_outline</mat-icon>
+							</button>
+						</div>
+					</article>
+				</div>
+			</section>
+		</ng-template>
+	</mat-menu>
+</div>

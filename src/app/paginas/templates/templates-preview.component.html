@@ -106,12 +106,12 @@
                     </div>
                   }
                   @case ('checkbox') {
-                    <z-checkbox [(ngModel)]="valores[campo.name_key]" [name]="'preview_' + campo.name_key">
+                    <mat-checkbox [(ngModel)]="valores[campo.name_key]" [name]="'preview_' + campo.name_key">
                       {{ campo.label }}
                       @if (campo.required) {
                         <span class="fp-required">*</span>
                       }
-                    </z-checkbox>
+                    </mat-checkbox>
                   }
                   @case ('file') {
                     <input [id]="'preview_' + campo.name_key" type="file" class="fp-input fp-file-input" [name]="'preview_' + campo.name_key" />

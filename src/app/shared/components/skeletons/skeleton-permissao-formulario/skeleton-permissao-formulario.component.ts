@@ -1,20 +1,19 @@
 import { Component, input, ViewEncapsulation } from '@angular/core';
 
-import { ZardCardComponent } from '@/shared/components/card/card.component';
 import { ZardSkeletonComponent } from '@/shared/components/skeleton';
 
 @Component({
   selector: 'zm-skeleton-permissao-formulario',
   standalone: true,
-  imports: [ZardCardComponent, ZardSkeletonComponent],
+  imports: [ZardSkeletonComponent],
   template: `
     <div class="permissao-formulario-skeleton zm-content-enter" aria-hidden="true" aria-busy="true">
-      <z-card class="gap-0 py-5 shadow-sm **:data-[slot=card-content]:px-5">
+      <div class="upx-form-panel">
         <div class="flex flex-col gap-5">
           @if (novo()) {
             <div class="space-y-2">
               <z-skeleton class="h-3 w-36 rounded-md" />
-              <z-skeleton class="h-9 w-full rounded-md" />
+              <z-skeleton class="h-10 w-full rounded-md" />
               <z-skeleton class="h-3 w-full max-w-md rounded-md" />
             </div>
           } @else {
@@ -23,11 +22,11 @@ import { ZardSkeletonComponent } from '@/shared/components/skeleton';
 
           <div class="space-y-2">
             <z-skeleton class="h-3 w-28 rounded-md" />
-            <z-skeleton class="h-9 w-full rounded-md" />
+            <z-skeleton class="h-10 w-full rounded-md" />
           </div>
 
           @for (group of groupIndices; track group) {
-            <div class="space-y-3 rounded-lg border border-border p-4">
+            <div class="space-y-3 border-t border-border pt-4">
               <z-skeleton class="h-3 w-32 rounded-md" />
               @for (item of itemIndices; track item) {
                 <div class="flex items-start gap-2">
@@ -42,11 +41,11 @@ import { ZardSkeletonComponent } from '@/shared/components/skeleton';
           }
 
           <div class="flex flex-wrap gap-3 pt-2">
-            <z-skeleton class="h-9 w-28 rounded-md" />
-            <z-skeleton class="h-9 w-24 rounded-md" />
+            <z-skeleton class="h-10 w-28 rounded-md" />
+            <z-skeleton class="h-10 w-24 rounded-md" />
           </div>
         </div>
-      </z-card>
+      </div>
     </div>
   `,
   encapsulation: ViewEncapsulation.None,

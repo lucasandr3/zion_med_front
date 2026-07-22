@@ -1,0 +1,9 @@
+<mat-calendar
+	class="calendar-card mx-6"
+	(monthSelected)="selectedDate"
+	(monthSelected)="setMonthAndYear($event)"
+	(selectedChange)="onSelect($event)"
+
+	[selected]="selectedDate"
+></mat-calendar>
+

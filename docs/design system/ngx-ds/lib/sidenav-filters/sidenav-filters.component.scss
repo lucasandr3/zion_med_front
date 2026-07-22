@@ -1,0 +1,16 @@
+.upx-sidenav-filters {
+	@apply flex flex-col justify-between w-full max-w-[393px] h-[calc(100dvh_-_3.5rem)] border-r border-black border-opacity-10 dark:border-white dark:border-opacity-10 bg-theme-floor-2;
+	/*shadow-right*/
+	&__toolbar-header{
+		@apply order-1;
+	}
+	&__heading {
+		@apply flex items-center gap-4 text-base font-medium;
+	}
+	&__body {
+		@apply flex flex-col gap-4 order-2 h-[calc(100dvh_-_6rem)] overflow-y-auto overflow-x-hidden p-4;
+	}
+	&__toolbar-footer{
+		@apply order-3;
+	}
+}

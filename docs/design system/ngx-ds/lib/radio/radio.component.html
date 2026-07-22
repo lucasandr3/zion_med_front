@@ -1,0 +1,12 @@
+<label>
+    <input
+        (change)="emitChange()"
+        [formControl]="field"
+        [required]="required"
+        [value]="value"
+        [name]="name"
+        [readonly]="readOnly"
+        type="radio"
+    />
+    <ng-content></ng-content>
+</label>

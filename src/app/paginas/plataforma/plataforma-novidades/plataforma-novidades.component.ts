@@ -1,13 +1,14 @@
 import { Component, OnDestroy, OnInit, inject, Signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { NovidadesService, ReleaseNote, ReleaseNoteItem, ReleaseNoteItemType } from '../../../core/services/novidades.service';
 import { PlataformaHeaderService } from '../../../core/services/plataforma-header.service';
 import { LoadingService } from '../../../shared/services/loading.service';
 import { ZmSkeletonListComponent } from '../../../shared/components/skeletons';
-import { ZmEmptyStateComponent } from '../../../shared/components/ui';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
-import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
+import { BadgeComponent, UpEmptyStateComponent } from '../../../shared/components/up';
 import { ToastService } from '../../../core/services/toast.service';
 import { ConfirmDialogService } from '../../../core/services/confirm-dialog.service';
 
@@ -22,10 +23,12 @@ interface FormItem {
   imports: [
     CommonModule,
     FormsModule,
+    MatButtonModule,
+    MatIconModule,
+    MatProgressSpinnerModule,
     ZmSkeletonListComponent,
-    ZmEmptyStateComponent,
-    ZardButtonComponent,
-    ZardBadgeComponent,
+    BadgeComponent,
+    UpEmptyStateComponent,
   ],
   templateUrl: './plataforma-novidades.component.html',
   styleUrl: './plataforma-novidades.component.css',

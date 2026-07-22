@@ -1,82 +1,64 @@
-<div class="relative min-h-[300px] space-y-4">
-  <p class="zm-count-label">
-    {{ tenants.length }} {{ tenants.length === 1 ? 'cliente' : 'clientes' }} cadastrados
-  </p>
-
-  @if (showSkeleton()) {
-    <zm-skeleton-list [rows]="6" />
-  } @else if (!listaPronta) {
-  } @else {
-    @if (estadoErro) {
+<section class="upx-page-list">
+  <div class="upx-page-list__content">
+    @if (showSkeleton()) {
+      <zm-skeleton-list [rows]="6" />
+    } @else if (!listaPronta) {
+    } @else if (estadoErro) {
       <div class="rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-foreground">
         Não foi possível carregar os clientes.
       </div>
     } @else {
-      <div class="zm-content-enter">
-        <z-card class="zm-table-card gap-0 py-0 shadow-sm **:data-[slot=card-content]:p-0">
-          <div class="zm-table-wrap">
-            <table z-table zSize="compact" class="text-xs">
-              <thead z-table-header>
-                <tr z-table-row>
-                  <th z-table-head>Cliente</th>
-                  <th z-table-head>Plano</th>
-                  <th z-table-head>Assinatura</th>
-                  <th z-table-head class="zm-action-cell"></th>
-                </tr>
-              </thead>
-              <tbody z-table-body>
-                @for (tenant of tenants; track tenant.id) {
-                  <tr
-                    z-table-row
-                    class="zm-row-clickable"
-                    [routerLink]="['/plataforma/clientes', tenant.id]"
-                    title="Ver detalhes de {{ tenant.name }}"
-                  >
-                    <td z-table-cell>
-                      <div class="flex items-center gap-3">
-                        <div class="zm-row-avatar">{{ iniciais(tenant.name) }}</div>
-                        <div class="min-w-0">
-                          <div class="zm-row-title">{{ tenant.name }}</div>
-                          <div class="zm-row-sub">
-                            {{ tenant.clinics_count }} {{ tenant.clinics_count === 1 ? 'empresa' : 'empresas' }}
-                            @if (tenant.users_count != null) {
-                              · {{ tenant.users_count }} {{ tenant.users_count === 1 ? 'usuário' : 'usuários' }}
-                            }
-                          </div>
-                        </div>
+      @if (tenants.length === 0) {
+        <up-empty-state
+          icon="business"
+          title="Nenhum tenant cadastrado."
+          description="Quando um cliente for criado, ele será listado aqui."
+        />
+      } @else {
+        <up-data-table [recordCount]="tenants.length" recordLabel="cliente" recordLabelPlural="clientes">
+          <thead>
+            <tr>
+              <th>Cliente</th>
+              <th>Plano</th>
+              <th>Assinatura</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (tenant of tenants; track tenant.id) {
+              <tr [routerLink]="['/plataforma/clientes', tenant.id]" title="Ver detalhes de {{ tenant.name }}">
+                <td>
+                  <div class="flex items-center gap-3">
+                    <div class="zm-row-avatar">{{ iniciais(tenant.name) }}</div>
+                    <div class="min-w-0">
+                      <div class="cell-primary">{{ tenant.name }}</div>
+                      <div class="cell-secondary">
+                        {{ tenant.clinics_count }} {{ tenant.clinics_count === 1 ? 'empresa' : 'empresas' }}
+                        @if (tenant.users_count != null) {
+                          · {{ tenant.users_count }} {{ tenant.users_count === 1 ? 'usuário' : 'usuários' }}
+                        }
                       </div>
-                    </td>
-                    <td z-table-cell>
-                      <span class="zm-cell-muted">{{ planosRotulo(tenant) }}</span>
-                    </td>
-                    <td z-table-cell>
-                      @if (tenant.subscription_status) {
-                        <z-badge [zType]="badgeTipoStatus(tenant.subscription_status)" zShape="pill">
-                          {{ rotuloStatusAssinaturaCobranca(tenant.subscription_status) }}
-                        </z-badge>
-                      } @else {
-                        <span class="zm-cell-muted">—</span>
-                      }
-                    </td>
-                    <td z-table-cell class="zm-action-cell">
-                      <span class="material-symbols-outlined zm-action-icon text-lg">chevron_right</span>
-                    </td>
-                  </tr>
-                } @empty {
-                  <tr z-table-row>
-                    <td z-table-cell colspan="4" class="py-0">
-                      <zm-empty-state
-                        title="Nenhum tenant cadastrado."
-                        description="Quando um cliente for criado, ele será listado aqui."
-                      />
-                    </td>
-                  </tr>
-                }
-              </tbody>
-            </table>
-          </div>
-        </z-card>
-      </div>
+                    </div>
+                  </div>
+                </td>
+                <td class="cell-secondary">{{ planosRotulo(tenant) }}</td>
+                <td>
+                  @if (tenant.subscription_status) {
+                    <up-badge variant="status" [tone]="badgeTone(tenant.subscription_status)">
+                      {{ rotuloStatusAssinaturaCobranca(tenant.subscription_status) }}
+                    </up-badge>
+                  } @else {
+                    <span class="cell-secondary">—</span>
+                  }
+                </td>
+                <td class="text-right">
+                  <mat-icon class="text-muted-foreground align-middle">chevron_right</mat-icon>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </up-data-table>
+      }
     }
-  }
-</div>
+  </div>
+</section>

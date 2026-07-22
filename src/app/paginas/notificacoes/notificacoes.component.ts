@@ -1,11 +1,12 @@
 import { Component, OnInit, inject, Signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { NotificacoesService, Notificacao } from '../../core/services/notificacoes.service';
 import { LoadingService } from '../../shared/services/loading.service';
 import { ZmSkeletonListComponent } from '../../shared/components/skeletons';
-import { ZmEmptyStateComponent } from '../../shared/components/ui';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
+import { UpEmptyStateComponent } from '../../shared/components/up';
 import { ToastService } from '../../core/services/toast.service';
 import { ConfirmDialogService } from '../../core/services/confirm-dialog.service';
 
@@ -21,7 +22,7 @@ const ORDEM_GRUPOS = ['Hoje', 'Esta semana', 'Este mês', 'Anteriores'] as const
 @Component({
   selector: 'app-pagina-notificacoes',
   standalone: true,
-  imports: [CommonModule, ZmSkeletonListComponent, ZmEmptyStateComponent, RouterLink, ZardButtonComponent],
+  imports: [CommonModule, RouterLink, MatButtonModule, MatIconModule, ZmSkeletonListComponent, UpEmptyStateComponent],
   templateUrl: './notificacoes.component.html',
   styleUrl: './notificacoes.component.css',
 })

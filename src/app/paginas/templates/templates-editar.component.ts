@@ -7,24 +7,18 @@ import { LoadingService } from '../../shared/services/loading.service';
 import { ZmSkeletonTemplateFormularioComponent } from '../../shared/components/skeletons';
 import { ZmPageBackLinkComponent } from '../../shared/components/ui';
 import { ToastService } from '../../core/services/toast.service';
-import { ZardComboboxComponent, type ZardComboboxOption } from '@/shared/components/combobox';
-import { ZardCardComponent } from '@/shared/components/card/card.component';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
-import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
+import { MAT_FORM_IMPORTS } from '@/shared/material';
 
 @Component({
   selector: 'app-templates-editar',
   standalone: true,
   imports: [
-    ...ZARD_FORM_CONTROL_IMPORTS,
+    ...MAT_FORM_IMPORTS,
     CommonModule,
     RouterLink,
     FormsModule,
     ZmSkeletonTemplateFormularioComponent,
     ZmPageBackLinkComponent,
-    ZardComboboxComponent,
-    ZardCardComponent,
-    ZardButtonComponent,
   ],
   templateUrl: './templates-editar.component.html',
   styleUrl: './templates-editar.component.css',
@@ -56,7 +50,7 @@ export class TemplatesEditarComponent implements OnInit {
   private loadingService = inject(LoadingService);
   private toast = inject(ToastService);
 
-  get opcoesDocumento(): ZardComboboxOption[] {
+  get opcoesDocumento(): { value: string; label: string }[] {
     return [
       { value: 'ficha', label: 'Ficha / anamnese' },
       { value: 'consentimento', label: 'Consentimento informado' },
@@ -64,7 +58,7 @@ export class TemplatesEditarComponent implements OnInit {
     ];
   }
 
-  get opcoesCategoria(): ZardComboboxOption[] {
+  get opcoesCategoria(): { value: string; label: string }[] {
     return [
       { value: '', label: 'Sem categoria' },
       ...this.categorias.map((cat) => ({ value: cat.key, label: cat.name })),
@@ -164,14 +158,14 @@ export class TemplatesEditarComponent implements OnInit {
       });
   }
 
-  selecionarCategoria(value: string | null): void {
-    this.categoriaSelecionada = value ?? '';
+  selecionarCategoria(value: string): void {
+    this.categoriaSelecionada = value;
     if (this.categoriaSelecionada !== '__nova__') {
       this.novaCategoria = '';
     }
   }
 
-  onDocumentKindChange(value: string | null): void {
+  onDocumentKindChange(value: string): void {
     this.document_kind =
       value === 'consentimento' || value === 'ciencia_lgpd' ? value : 'ficha';
     if (this.document_kind !== 'consentimento') {

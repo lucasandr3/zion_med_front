@@ -1,20 +1,30 @@
 import { Component, OnInit, OnDestroy, inject, Signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { ZardCardComponent } from '@/shared/components/card/card.component';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
-import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
 import { PlataformaService, PlatformPlan } from '../../../core/services/plataforma.service';
 import { PlataformaHeaderService } from '../../../core/services/plataforma-header.service';
 import { LoadingService } from '../../../shared/services/loading.service';
 import { ZmSkeletonListComponent } from '../../../shared/components/skeletons';
+import { BadgeComponent, UpEmptyStateComponent } from '../../../shared/components/up';
 import { ToastService } from '../../../core/services/toast.service';
 import { ConfirmDialogService } from '../../../core/services/confirm-dialog.service';
 
 @Component({
   selector: 'app-plataforma-planos',
   standalone: true,
-  imports: [CommonModule, RouterLink, ZardCardComponent, ZardButtonComponent, ZardBadgeComponent, ZmSkeletonListComponent],
+  imports: [
+    CommonModule,
+    RouterLink,
+    MatButtonModule,
+    MatIconModule,
+    ZardCardComponent,
+    ZmSkeletonListComponent,
+    BadgeComponent,
+    UpEmptyStateComponent,
+  ],
   templateUrl: './plataforma-planos.component.html',
   styleUrl: './plataforma-planos.component.css',
 })

@@ -1,0 +1,6 @@
+:host {
+    @apply text-sm font-medium text-center text-neutral-500 border-b border-neutral-200 dark:text-neutral-400 dark:border-neutral-700;
+    ul {
+        @apply flex flex-wrap -mb-px;
+    }
+}

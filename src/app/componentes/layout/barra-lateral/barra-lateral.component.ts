@@ -66,7 +66,6 @@ export class BarraLateralComponent implements OnInit, OnDestroy {
   private router = inject(Router);
   private sidebarMobile = inject(SidebarMobileService);
 
-  sidebarOpenMobile = false;
   sidebarColapsada = false;
   private sidebarObserver: MutationObserver | null = null;
   private appearanceSub?: Subscription;
@@ -78,12 +77,6 @@ export class BarraLateralComponent implements OnInit, OnDestroy {
     this.sincronizarEstadoSidebar();
     this.appearanceSub = this.auth.appearanceApplied$.subscribe(() => {
       this.ngZone.run(() => this.refreshSidebarLogo());
-    });
-    this.sidebarMobile.getOpen().subscribe((open) => {
-      this.sidebarOpenMobile = open;
-      if (typeof document !== 'undefined') {
-        document.body.style.overflow = open ? 'hidden' : '';
-      }
     });
   }
 

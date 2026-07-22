@@ -1,0 +1,67 @@
+<mat-form-field appearance="outline" class="upx-input__container"
+    [subscriptSizing]="subscriptSizing ? 'dynamic' : 'fixed'"
+    [floatLabel]="floatLabel ? 'always' : 'auto'">
+  <input 
+    #upxInput 
+    matInput 
+    (input)="changeEmit()" 
+    (keyup)="inputOnKeyUp($event)" 
+    [type]="typeInput"
+    [formControl]="field" 
+    [required]="required" 
+    [readonly]="readOnly" 
+    [placeholder]="placeholderText"
+    [attr.id]="fieldIdList" 
+    [attr.autocomplete]="autocomplete" 
+    [attr.minlength]="minlength" 
+    [attr.maxlength]="maxlength"
+    [attr.min]="min" 
+    [attr.max]="max" 
+    [attr.step]="step" 
+    [attr.inputmode]="inputmode" 
+    [attr.pattern]="pattern"
+    [attr.accept]="accept" 
+    [attr.multiple]="multiple" 
+    [matAutocomplete]="auto"
+    class="ref-input-select"
+    (focus)="handleFocus()" />
+
+  <mat-autocomplete 
+    #auto="matAutocomplete" 
+    (optionSelected)="onOptionSelected($event)" 
+    (keyup)="inputOnKeyUp($event)">
+
+    <mat-option *ngIf="enableNone" [value]="''" >Nenhum</mat-option>
+    <mat-option *ngFor="let option of filteredOptions | async" [value]="option" class="upx-input-select__mat-option">
+      <span class="upx-input-select__option-row">
+        <span class="upx-input-select__option-label">{{ getOptionLabel(option) }}</span>
+        <mat-icon
+          *ngIf="isOpcaoVendedorFavorito(option)"
+          class="upx-input-select__option-star"
+          title="Vendedor favorito do cliente"
+          aria-hidden="true">star</mat-icon>
+      </span>
+    </mat-option>
+
+    <mat-option *ngIf="showAdd && addInLine">
+      Cadastrar {{this.field.value}}
+    </mat-option>
+
+    <button mat-stroked-button class="mat-option-button" *ngIf="showLoadMoreButton" (click)="loadMore()">Listar
+      mais</button>
+
+  </mat-autocomplete>
+
+
+  <mat-icon matSuffix *ngIf="field && field.value && isCopyEnabled" (click)="copy()"
+    class="upx-input__icon upx-input__icon-copy">content_copy</mat-icon>
+  <mat-icon matSuffix *ngIf="field && field.value && isResetEnabled
+	&& !readOnly && !disabled" (click)="close()" class="upx-input__icon upx-input__icon-clear">close</mat-icon>
+  <mat-icon matSuffix *ngIf="icon" (click)="action()" [ngClass]="{'upx-input__icon-suffix--with-action': onAction}"
+    class="upx-input__icon">{{getIcon()}}</mat-icon>
+  <mat-error *ngIf="!feedbackDisabled && field && field.invalid && (field.dirty || field.touched)">
+    {{getErrorMessage()}}
+  </mat-error>
+
+
+</mat-form-field>

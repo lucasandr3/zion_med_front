@@ -1,0 +1,18 @@
+:host {
+    @apply mr-2;
+    .upx-tabs-item-active {
+        @apply text-theme border-theme dark:text-theme dark:border-theme;
+    }
+    .upx-tabs-item-inactive {
+        @apply border-transparent hover:text-neutral-600 hover:border-neutral-300 dark:hover:text-neutral-300;
+    }
+    &.upx-tabs-item-disabled {
+        .upx-tabs-item-active,
+        .upx-tabs-item-inactive {
+            @apply text-neutral-400 cursor-not-allowed dark:text-neutral-500 border-0;
+        }
+    }
+    span {
+        @apply hidden md:inline-block;
+    }
+}

@@ -1,0 +1,130 @@
+<mat-form-field *ngIf="versionInput === 'v1'" appearance="outline" class="upx-input__container"
+    [subscriptSizing]="subscriptSizing ? 'dynamic' : 'fixed'"
+    [floatLabel]="floatLabel ? 'always' : 'auto'">
+
+  <ng-container *ngIf="httpsDirective; else semHttps">
+    <input
+           #upxInput
+           matInput
+           (input)="changeEmit()"
+           (change)="changeEmit()"
+           (keyup)="inputOnKeyUp($event)"
+           (keydown)="saveOnPressEnter($event)"
+           [type]="typeInput"
+           [formControl]="field"
+           [required]="required"
+           [readonly]="readOnly"
+           [placeholder]="placeholderText"
+           [id]="fieldId"
+           [attr.autocomplete]="autocomplete"
+           [attr.minlength]="minlength"
+           [attr.maxlength]="maxlength"
+           [attr.min]="min"
+           [attr.max]="max"
+           [attr.step]="step"
+           [attr.inputmode]="inputmode"
+           [attr.pattern]="pattern"
+           [attr.accept]="accept"
+           [attr.multiple]="multiple"
+           [ngClass]="{ 'is-date': typeInput === 'date' && (showStartArrow || showEndArrow), 'cursor-not-allowed': readOnly == true }"
+           class="upx-input__input {{mask =='money'? 'text-right': ''}} {{ typeInput == 'number' ? 'no-arrow' :'' }} {{readOnly == true ? ' bg-slate-500 opacity-100': ''}}"
+           [attr.reference]="reference"
+           (blur)="onBlur.emit()"
+           [upxHttpsAuto]="redeSocial" />
+           <!-- upxHttpsAuto /> -->
+  </ng-container>
+
+  <ng-template #semHttps>
+    <input
+      #upxInput
+      matInput
+      (input)="changeEmit()"
+      (change)="changeEmit()"
+      (keyup)="inputOnKeyUp($event)"
+      (keydown)="saveOnPressEnter($event)"
+      [type]="typeInput"
+      [formControl]="field"
+      [required]="required"
+      [readonly]="readOnly"
+      [placeholder]="placeholderText"
+      [id]="fieldId"
+      [attr.autocomplete]="autocomplete"
+      [attr.minlength]="minlength"
+      [attr.maxlength]="maxlength"
+      [attr.min]="min"
+      [attr.max]="max"
+      [attr.step]="step"
+      [attr.inputmode]="inputmode"
+      [attr.pattern]="pattern"
+      [attr.accept]="accept"
+      [attr.multiple]="multiple"
+      [ngClass]="{ 'is-date': typeInput === 'date' && (showStartArrow || showEndArrow), 'cursor-not-allowed': readOnly == true }"
+      class="upx-input__input {{mask =='money'? 'text-right': ''}} {{ typeInput == 'number' ? 'no-arrow' :'' }} {{readOnly == true ? ' bg-slate-500 opacity-100': ''}}"
+      [attr.reference]="reference"
+      (blur)="onBlur.emit()" />
+  </ng-template>
+
+  <mat-icon matPrefix  *ngIf="this.type == 'date' && showStartArrow" (click)="changeDateFn()" class="ico icon-input">chevron_left</mat-icon>
+
+    <mat-icon matSuffix *ngIf="field.value && isCopyEnabled && this.type !='date'" (click)="copy()" class="upx-input__icon upx-input__icon-copy">content_copy</mat-icon>
+
+    <mat-icon matSuffix *ngIf="field.value && isResetEnabled
+	&& !readOnly && !disabled && this.type !='date'" (click)="clearField($event)" class="upx-input__icon upx-input__icon-clear">close</mat-icon>
+
+	<i matSuffix *ngIf="iconFa" class="fab fa-whatsapp upx-input__icon" (click)="action2(1)" [ngClass]="{'upx-input__icon-suffix--with-action': onAction}"></i>
+
+    <mat-icon matSuffix *ngIf="icon" (click)="action()" [ngClass]="{'upx-input__icon-suffix--with-action': onAction}" class="upx-input__icon">{{getIcon()}}</mat-icon>
+	<mat-icon matSuffix class="ico" *ngIf="this.type == 'date' && showEndArrow" (click)="changeDateFn()">chevron_right</mat-icon>
+    <mat-error *ngIf="!feedbackDisabled && field.invalid && (field.dirty || field.touched)">
+        {{getErrorMessage()}}
+    </mat-error>
+</mat-form-field>
+
+
+<mat-form-field *ngIf="versionInput === 'v2'" appearance="outline" class="upx-input__container"
+    [subscriptSizing]="subscriptSizing ? 'dynamic' : 'fixed'"
+    [floatLabel]="floatLabel ? 'always' : 'auto'">
+
+    <input #upxInput
+        matInput
+        (input)="inputChangeEvent()"
+        (change)="changeEmit()"
+        (keyup)="inputOnKeyUp($event)"
+        (keydown)="saveOnPressEnter($event)"
+        [type]="typeInput"
+        [formControl]="field"
+        [required]="required"
+        [readonly]="readOnly"
+        [placeholder]="placeholderText"
+        [id]="fieldId"
+        [attr.autocomplete]="autocomplete"
+        [attr.minlength]="minlength"
+        [attr.maxlength]="maxlength"
+        [attr.min]="min"
+        [attr.max]="max"
+        [attr.step]="step"
+        [attr.inputmode]="inputmode"
+        [attr.pattern]="pattern"
+        [attr.accept]="accept"
+        [attr.multiple]="multiple"
+		[ngClass]="{ 'is-date': typeInput === 'date' && (showStartArrow || showEndArrow)}"
+        class="upx-input__input {{mask =='money'? 'text-right': ''}} {{ typeInput == 'number' ? 'no-arrow' :'' }} {{readOnly  == true ? ' bg-slate-500 opacity-100': ''}}"
+        [attr.reference]="reference"
+		(blur)="onBlur.emit()"
+    />
+	<mat-icon matPrefix  *ngIf="this.type == 'date' && showStartArrow" (click)="changeDateFn()" class="ico icon-input">chevron_left</mat-icon>
+
+    <mat-icon matSuffix *ngIf="field.value && isCopyEnabled && this.type !='date'" (click)="copy()" class="upx-input__icon upx-input__icon-copy">content_copy</mat-icon>
+
+    <mat-icon matSuffix *ngIf="field.value && isResetEnabled
+	&& !readOnly && !disabled && this.type !='date'" (click)="clearField($event)" class="upx-input__icon upx-input__icon-clear">close</mat-icon>
+
+	<i matSuffix *ngIf="iconFa" class="fab fa-whatsapp upx-input__icon" (click)="action2(1)" [ngClass]="{'upx-input__icon-suffix--with-action': onAction}"></i>
+
+    <mat-icon matSuffix *ngIf="icon" (click)="action()" [ngClass]="{'upx-input__icon-suffix--with-action': onAction}" class="upx-input__icon">{{getIcon()}}</mat-icon>
+	<mat-icon matSuffix class="ico" *ngIf="this.type == 'date' && showEndArrow" (click)="changeDateFn()">chevron_right</mat-icon>
+    <mat-error *ngIf="!feedbackDisabled && field.invalid && (field.dirty || field.touched)">
+        {{getErrorMessage()}}
+    </mat-error>
+</mat-form-field>
+

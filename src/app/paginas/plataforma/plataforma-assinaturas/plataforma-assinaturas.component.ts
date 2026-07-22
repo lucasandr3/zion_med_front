@@ -1,20 +1,16 @@
 import { Component, OnInit, inject, Signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ZardCardComponent } from '@/shared/components/card/card.component';
-import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
 import { catchError } from 'rxjs';
 import { PlataformaService, PlatformSubscription } from '../../../core/services/plataforma.service';
 import { LoadingService } from '../../../shared/services/loading.service';
 import { ZmSkeletonListComponent } from '../../../shared/components/skeletons';
-import { ZmEmptyStateComponent } from '../../../shared/components/ui';
+import { DataTableComponent, BadgeComponent, UpEmptyStateComponent, type StatusTone } from '../../../shared/components/up';
 import { statusAssinaturaOuCobrancaPt } from '../../../core/utils/status-labels-pt';
 
-import { ZardTableImports } from '@/shared/components/table';
 @Component({
   selector: 'app-plataforma-assinaturas',
   standalone: true,
-  imports: [
-    ...ZardTableImports,CommonModule, ZardCardComponent, ZardBadgeComponent, ZmSkeletonListComponent, ZmEmptyStateComponent],
+  imports: [CommonModule, ZmSkeletonListComponent, DataTableComponent, BadgeComponent, UpEmptyStateComponent],
   templateUrl: './plataforma-assinaturas.component.html',
   styleUrl: './plataforma-assinaturas.component.css',
 })
@@ -57,11 +53,11 @@ export class PlataformaAssinaturasComponent implements OnInit {
     }
   }
 
-  badgeTipoStatus(status?: string | null): 'default' | 'secondary' | 'destructive' | 'outline' {
+  badgeTone(status?: string | null): StatusTone {
     const k = (status ?? '').toLowerCase();
-    if (['active', 'ok'].includes(k)) return 'default';
-    if (['trial', 'attention', 'past_due'].includes(k)) return 'secondary';
-    if (['blocked', 'inactive'].includes(k)) return 'destructive';
-    return 'outline';
+    if (['active', 'ok'].includes(k)) return 'published';
+    if (['trial', 'attention', 'past_due'].includes(k)) return 'draft';
+    if (['blocked', 'inactive'].includes(k)) return 'archived';
+    return 'default';
   }
 }

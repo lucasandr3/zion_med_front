@@ -1,12 +1,10 @@
-<!-- Overlay e sidebar mobile alinhados ao layout legado Django -->
-<div class="sidebar-overlay-mobile fixed inset-0 z-20 cursor-pointer bg-black/55 backdrop-blur-sm lg:hidden"
-     [class.hidden]="!sidebarOpenMobile"
+<!-- Overlay e sidebar: breakpoint 960px via gestgo-ds.scss + body.sidebar-mobile-open -->
+<div class="sidebar-overlay-mobile fixed inset-0 z-20 cursor-pointer bg-black/55 backdrop-blur-sm"
      aria-hidden="true"
      (click)="fecharSidebarMobile()"></div>
 <aside id="sidebar"
        data-shell="app"
-       class="sidebar fixed inset-y-0 left-0 z-30 flex flex-col lg:translate-x-0"
-       [class.-translate-x-full]="!sidebarOpenMobile">
+       class="sidebar fixed inset-y-0 left-0 z-30 flex flex-col">
   <div class="sidebar-brand-strip sidebar-brand-strip--gestgo flex h-14 shrink-0 items-center border-b px-3.5">
     <a routerLink="/dashboard" class="sidebar-brand sidebar-brand--gestgo flex w-full min-w-0 items-center gap-2.5 no-underline">
       <div class="sidebar-logo-chip sidebar-logo-chip--gestgo flex shrink-0 items-center justify-center">
@@ -14,7 +12,7 @@
       </div>
       <span class="sidebar-brand__text sidebar-label min-w-0">
         <span class="sidebar-brand__title">Gestgo</span>
-        <span class="sidebar-brand__tag">Plataforma</span>
+        <span class="sidebar-brand__tag">Fichas digitais</span>
       </span>
     </a>
   </div>
@@ -40,7 +38,7 @@
                class="shell-sidebar-nav relative w-full justify-start gap-2 px-2.5 font-normal text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground [&.router-link-active]:border-none [&.router-link-active]:bg-sidebar-primary/14 [&.router-link-active]:font-semibold [&.router-link-active]:text-sidebar-primary"
                [zTooltip]="tooltipQuandoColapsada(item.label)"
             >
-              <span class="material-symbols-outlined shrink-0 text-[19px]">{{ item.icon }}</span>
+              <span class="material-symbols-outlined shrink-0 text-[19px]" aria-hidden="true">{{ item.icon }}</span>
               <span class="sidebar-label">{{ item.label }}</span>
               @if (item.badge === 'trial' && badgeTrialLabel(item); as trialLabel) {
                 <z-badge zShape="pill" class="sidebar-label ml-auto !h-[18px] !min-w-[18px] !px-1.5 !py-0 !text-[0.6rem] !leading-none">

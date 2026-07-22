@@ -4,6 +4,9 @@ import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { catchError, forkJoin, of } from 'rxjs';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TemplatesService, Template } from '../../core/services/templates.service';
 import { DashboardService } from '../../core/services/dashboard.service';
 import { LoadingService } from '../../shared/services/loading.service';
@@ -13,9 +16,8 @@ import {
 } from '../../shared/components/skeletons';
 import { ZmEmptyStateComponent } from '../../shared/components/ui';
 import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
 import { ZardCardComponent } from '@/shared/components/card/card.component';
-import { ZardInputDirective } from '@/shared/components/input/input.directive';
+import { MAT_FORM_IMPORTS } from '@/shared/material';
 import { ToastService } from '../../core/services/toast.service';
 import { ConfirmDialogService } from '../../core/services/confirm-dialog.service';
 import { TemplatePublishGuardService } from '../../core/services/template-publish-guard.service';
@@ -91,6 +93,7 @@ import { ZardMenuImports } from '@/shared/components/menu/menu.imports';
   selector: 'app-templates-listagem',
   standalone: true,
   imports: [
+    ...MAT_FORM_IMPORTS,
     ...ZardTableImports,
     ...ZardTooltipImports,
     ...ZardMenuImports,
@@ -101,9 +104,10 @@ import { ZardMenuImports } from '@/shared/components/menu/menu.imports';
     ZmSkeletonTemplatesDetalheComponent,
     ZmEmptyStateComponent,
     ZardCardComponent,
-    ZardButtonComponent,
     ZardBadgeComponent,
-    ZardInputDirective,
+    MatButtonModule,
+    MatIconModule,
+    MatProgressSpinnerModule,
   ],
   templateUrl: './templates-listagem.component.html',
   styleUrl: './templates-listagem.component.css',

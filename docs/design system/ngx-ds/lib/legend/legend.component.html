@@ -1,0 +1,9 @@
+<div *ngIf="titleText || descriptionText" class="flex flex-col items-start justify-center pb-7">
+    <p *ngIf="titleText" class="text-lg font-medium leading-7 text-black dark:text-white text-opacity-80 dark:text-opacity-80">
+        {{titleText}}
+    </p>
+    <p *ngIf="descriptionText" class="text-sm leading-tight text-black dark:text-white text-opacity-60 dark:text-opacity-60">
+        {{descriptionText}}
+    </p>
+</div>
+

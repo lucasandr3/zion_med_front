@@ -3,16 +3,14 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
-import { FlatpickrDirective, provideFlatpickrDefaults } from 'angularx-flatpickr';
-import { Portuguese } from 'flatpickr/dist/l10n/pt';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { PessoasService } from '../../core/services/pessoas.service';
 import { LoadingService } from '../../shared/services/loading.service';
 import { ZmSkeletonPessoaFormularioComponent } from '../../shared/components/skeletons';
 import { ToastService } from '../../core/services/toast.service';
-import { ZardCardComponent } from '@/shared/components/card/card.component';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
-import { ZardComboboxComponent, type ZardComboboxOption } from '@/shared/components/combobox';
-import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
+import { MAT_FORM_IMPORTS } from '@/shared/material';
+import { OpenPickerOnInteractDirective } from '@/shared/directives/open-picker-on-interact.directive';
+import { parseYmdToDate } from '@/shared/utils/date-time.util';
 import {
   buildPessoaApiPayload,
   digitsOnlyCpf,
@@ -25,27 +23,14 @@ import {
   selector: 'app-pessoas-formulario',
   standalone: true,
   imports: [
-    ...ZARD_FORM_CONTROL_IMPORTS,
+    ...MAT_FORM_IMPORTS,
     CommonModule,
     RouterLink,
     ReactiveFormsModule,
     FormsModule,
     ZmSkeletonPessoaFormularioComponent,
-    FlatpickrDirective,
-    ZardCardComponent,
-    ZardButtonComponent,
-    ZardComboboxComponent,
-  ],
-  providers: [
-    provideFlatpickrDefaults({
-      locale: Portuguese,
-      dateFormat: 'Y-m-d',
-      altInput: true,
-      altFormat: 'd/m/Y',
-      allowInput: true,
-      disableMobile: true,
-      static: true,
-    }),
+    MatProgressSpinnerModule,
+    OpenPickerOnInteractDirective,
   ],
   templateUrl: './pessoas-formulario.component.html',
   styleUrl: './pessoas-formulario.component.css',
@@ -89,40 +74,12 @@ export class PessoasFormularioComponent implements OnInit {
   phoneDisplay = '';
   phoneAltDisplay = '';
   cpfDisplay = '';
-  birth_date: string | Date | null = '';
+  birth_date: Date | null = null;
 
   showSkeleton!: Signal<boolean>;
   listaPronta = false;
   salvando = false;
   erro = '';
-  flatpickrAppendTo!: HTMLElement;
-
-  readonly opcoesSexo: ZardComboboxOption[] = [
-    { value: '', label: 'Selecione' },
-    { value: 'F', label: 'Feminino' },
-    { value: 'M', label: 'Masculino' },
-    { value: 'O', label: 'Outro' },
-  ];
-
-  readonly opcoesEstadoCivil: ZardComboboxOption[] = [
-    { value: '', label: 'Selecione' },
-    { value: 'solteiro', label: 'Solteiro(a)' },
-    { value: 'casado', label: 'Casado(a)' },
-    { value: 'divorciado', label: 'Divorciado(a)' },
-    { value: 'viuvo', label: 'Viúvo(a)' },
-    { value: 'uniao_estavel', label: 'União estável' },
-  ];
-
-  readonly opcoesPlanoSaude: ZardComboboxOption[] = [
-    { value: '', label: 'Selecione' },
-    { value: 'sim', label: 'Sim' },
-    { value: 'nao', label: 'Não' },
-  ];
-
-  readonly opcoesStatus: ZardComboboxOption[] = [
-    { value: 'active', label: 'Ativa' },
-    { value: 'inactive', label: 'Inativa' },
-  ];
 
   private route = inject(ActivatedRoute);
   private router = inject(Router);
@@ -131,7 +88,6 @@ export class PessoasFormularioComponent implements OnInit {
   private toast = inject(ToastService);
 
   ngOnInit(): void {
-    this.flatpickrAppendTo = document.body;
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.editMode = true;
@@ -178,7 +134,7 @@ export class PessoasFormularioComponent implements OnInit {
           this.phoneDisplay = formatPhoneBrDisplay(phoneDigits);
           this.phoneAltDisplay = formatPhoneBrDisplay(phoneAltDigits);
           this.cpfDisplay = formatCpfDisplay(cpfDigits);
-          this.birth_date = p.birth_date ? p.birth_date : '';
+          this.birth_date = parseYmdToDate(p.birth_date);
         },
         error: () => {
           this.listaPronta = true;

@@ -1,0 +1,33 @@
+<!-- Extraído de: components/core/operacoes-lista-v2/operacoes-lista-v2.component.html (estrutura) -->
+<upx-page-list>
+	<mat-sidenav-container autosize [hasBackdrop]="false" class="upx-sidenav__container">
+		<mat-sidenav #sidenavFilters mode="side" position="start"
+			id="upx-sidenav--datalist-filters" class="upx-sidenav upx-sidenav--datalist-filters">
+			<!-- templateFiltersSidebar -->
+		</mat-sidenav>
+
+		<mat-sidenav-content class="overflow-hidden">
+			<upx-toolbar [startTemplate]="templateListToolbarStart"
+				[endTemplate]="templateListToolbarEnd" color="padrao">
+			</upx-toolbar>
+
+			<!-- Lista: operacoes-lista-v2-list ou upx-data-list -->
+		</mat-sidenav-content>
+	</mat-sidenav-container>
+</upx-page-list>
+
+<!-- Toolbar: busca + filtros + adicionar -->
+<ng-template #templateListToolbarStart>
+	<upx-data-list-search></upx-data-list-search>
+	<upx-button (click)="sidenavFilters.toggle()">
+		<upx-icon name="filter_list"></upx-icon>
+		Filtros
+	</upx-button>
+</ng-template>
+
+<ng-template #templateListToolbarEnd>
+	<upx-button variant="solid" color="theme" shape="circle" size="sm">
+		<upx-icon name="add"></upx-icon>
+		Adicionar
+	</upx-button>
+</ng-template>

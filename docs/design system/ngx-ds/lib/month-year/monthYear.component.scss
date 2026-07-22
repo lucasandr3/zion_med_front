@@ -1,0 +1,92 @@
+/* Ajuste da borda arredondada e opacidade */
+.mat-mdc-form-field-flex {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  opacity: 0.8; /* Diminui a opacidade */
+  border-radius: 12px; /* Aplica bordas arredondadas */
+  border: 1px solid #ccc; /* Adiciona uma borda suave */
+}
+
+/* Centralizar o input */
+.mat-mdc-input-element {
+  text-align: center;
+}
+
+/* Ajustes para telas menores */
+@media (max-width: 768px) {
+  .mat-mdc-form-field-flex {
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    opacity: 0.8; /* Mantém a opacidade no mobile */
+  }
+}
+
+/* Ajuste para evitar quebra desnecessária em telas pequenas */
+.mat-mdc-form-field {
+  width: 98%;
+  max-width: 98%;
+}
+
+.mat-calendar-header {
+  opacity: 1 !important;
+}
+
+.mat-calendar-content {
+  padding: 4px;
+}
+
+.mat-mdc-text-field-wrapper {
+  opacity: 0.8 !important; /* Diminui a opacidade no campo */
+}
+
+.mat-calendar-controls {
+  position: relative;
+  top: -10px;
+  opacity: 0.8 !important;
+}
+
+.mat-calendar-controls button {
+  position: relative;
+  top: -10px;
+  opacity: 0.8 !important;
+}
+
+/* Ajuste para o input ocupar 100% do espaço e centralizar o texto */
+.mat-mdc-form-field-infix {
+  width: 100% !important;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0.8 !important;
+}
+
+/* Ajuste para o input ficar alinhado corretamente */
+.mat-mdc-input-element {
+  width: 100% !important;
+  text-align: center;
+  font-size: 1rem;
+  padding: 8px;
+  opacity: 0.8 !important;
+}
+
+/* Ajuste para a área de mensagem ocupar 100% */
+.mat-mdc-form-field-subscript-wrapper {
+  width: 100% !important;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0.8 !important;
+}
+
+/* Ajusta a mensagem de erro/hint para alinhar corretamente */
+.mat-mdc-form-field-hint-wrapper {
+  width: 100%;
+  text-align: center;
+  opacity: 0.8 !important;
+}

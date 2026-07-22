@@ -1,0 +1,43 @@
+<upx-toolbar
+	class="upx-sidenav-filters__toolbar-header">
+	<div
+		class="upx-sidenav-filters__heading">
+		<upx-icon
+			name="filter_list">
+		</upx-icon>
+		Filtros e ordenação
+	</div>
+	<upx-button
+		(onClick)="close()"
+		[onlyIcon]="true"
+		variant="plain"
+		size="sm"
+		color="default"
+		shape="circle">
+		<upx-icon
+			name="close">
+		</upx-icon>
+	</upx-button>
+</upx-toolbar>
+<upx-toolbar
+	[borderTop]="true"
+	[borderBottom]="false"
+	class="upx-sidenav-filters__toolbar-footer">
+	<upx-button
+		(onClick)="reset()"
+		variant="plain"
+		size="sm">
+		Limpar
+	</upx-button>
+	<upx-button
+		(onClick)="apply()"
+		variant="solid"
+		size="sm"
+		[disabled]="applyDisable"
+		color="theme">
+		Aplicar
+	</upx-button>
+</upx-toolbar>
+<div class="upx-sidenav-filters__body">
+	<ng-content></ng-content>
+</div>

@@ -6,311 +6,246 @@
     <p class="mb-4 text-sm text-destructive">{{ erro }}</p>
   } @else {
     <div class="zm-content-enter">
-      <z-card class="gap-0 py-5 shadow-sm **:data-[slot=card-content]:px-5">
+      <div class="upx-form-panel">
         @if (erro && !editMode) {
           <p class="mb-4 text-sm text-destructive">{{ erro }}</p>
         }
         <form [formGroup]="pessoaForm" (ngSubmit)="salvar()" class="flex flex-col gap-5">
-          <div>
-            <label class="pessoa-form-label" for="pessoa-name">Nome completo *</label>
+          <mat-form-field class="upx-full">
+            <mat-label>Nome completo *</mat-label>
             <input
+              matInput
               id="pessoa-name"
-              type="text"
               formControlName="name"
-              z-input
-              class="w-full text-sm"
               placeholder="Ex.: Maria da Silva"
               autocomplete="name"
             />
-          </div>
+          </mat-form-field>
 
-          <div class="grid gap-4 md:grid-cols-2">
-            <div>
-              <label class="pessoa-form-label" for="pessoa-phone">Telefone / WhatsApp</label>
+          <div class="upx-form-grid">
+            <mat-form-field class="upx-full">
+              <mat-label>Telefone / WhatsApp</mat-label>
               <input
+                matInput
                 id="pessoa-phone"
                 type="tel"
                 inputmode="numeric"
                 autocomplete="tel-national"
-                z-input
-                class="w-full text-sm"
                 [ngModel]="phoneDisplay"
                 [ngModelOptions]="{ standalone: true }"
                 (ngModelChange)="onPhoneModelChange($event)"
                 placeholder="(11) 98765-4321"
               />
-            </div>
-            <div>
-              <label class="pessoa-form-label" for="pessoa-phone-alt">Telefone alternativo</label>
+            </mat-form-field>
+            <mat-form-field class="upx-full">
+              <mat-label>Telefone alternativo</mat-label>
               <input
+                matInput
                 id="pessoa-phone-alt"
                 type="tel"
                 inputmode="numeric"
                 autocomplete="tel-national"
-                z-input
-                class="w-full text-sm"
                 [ngModel]="phoneAltDisplay"
                 [ngModelOptions]="{ standalone: true }"
                 (ngModelChange)="onPhoneAltModelChange($event)"
                 placeholder="(11) 3333-4444"
               />
-            </div>
+            </mat-form-field>
           </div>
 
-          <div class="grid gap-4 md:grid-cols-2">
-            <div>
-              <label class="pessoa-form-label" for="pessoa-email">E-mail</label>
-              <input
-                id="pessoa-email"
-                type="email"
-                formControlName="email"
-                z-input
-                class="w-full text-sm"
-                placeholder="nome@exemplo.com"
-                autocomplete="email"
-              />
-            </div>
-            <div>
-              <label class="pessoa-form-label" for="pessoa-profession">Profissão</label>
-              <input
-                id="pessoa-profession"
-                type="text"
-                formControlName="profession"
-                z-input
-                class="w-full text-sm"
-                placeholder="Ex.: Enfermeira"
-              />
-            </div>
+          <div class="upx-form-grid">
+            <mat-form-field class="upx-full">
+              <mat-label>E-mail</mat-label>
+              <input matInput id="pessoa-email" type="email" formControlName="email" placeholder="nome@exemplo.com" autocomplete="email" />
+            </mat-form-field>
+            <mat-form-field class="upx-full">
+              <mat-label>Profissão</mat-label>
+              <input matInput id="pessoa-profession" formControlName="profession" placeholder="Ex.: Enfermeira" />
+            </mat-form-field>
           </div>
 
-          <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <div>
-              <label class="pessoa-form-label" for="pessoa-birth">Data de nascimento</label>
+          <div class="upx-form-grid upx-form-grid--4">
+            <mat-form-field class="upx-full">
+              <mat-label>Data de nascimento</mat-label>
               <input
+                matInput
                 id="pessoa-birth"
-                type="text"
-                mwlFlatpickr
+                [matDatepicker]="birthPicker"
                 [(ngModel)]="birth_date"
                 [ngModelOptions]="{ standalone: true }"
-                z-input
-                class="w-full text-sm"
+                appOpenPickerOnInteract
+                [datepicker]="birthPicker"
                 placeholder="dd/mm/aaaa"
-                [altInput]="true"
-                [convertModelValue]="true"
-                [appendTo]="flatpickrAppendTo"
-                [static]="false"
                 autocomplete="bday"
+                readonly
               />
-            </div>
-            <div>
-              <label class="pessoa-form-label" for="pessoa-age">Idade</label>
+              <mat-datepicker-toggle matIconSuffix [for]="birthPicker" />
+              <mat-datepicker #birthPicker />
+            </mat-form-field>
+            <mat-form-field class="upx-full">
+              <mat-label>Idade</mat-label>
+              <input matInput id="pessoa-age" type="number" formControlName="age" min="0" placeholder="Ex.: 30" />
+            </mat-form-field>
+            <mat-form-field class="upx-full">
+              <mat-label>Sexo</mat-label>
+              <mat-select formControlName="sex" aria-labelledby="pessoa-sex-label">
+                <mat-option value="">Selecione</mat-option>
+                <mat-option value="F">Feminino</mat-option>
+                <mat-option value="M">Masculino</mat-option>
+                <mat-option value="O">Outro</mat-option>
+              </mat-select>
+            </mat-form-field>
+            <mat-form-field class="upx-full">
+              <mat-label>CPF</mat-label>
               <input
-                id="pessoa-age"
-                type="number"
-                formControlName="age"
-                z-input
-                class="w-full text-sm"
-                min="0"
-                placeholder="Ex.: 30"
-              />
-            </div>
-            <div>
-              <label class="pessoa-form-label" id="pessoa-sex-label">Sexo</label>
-              <z-combobox
-                class="w-full"
-                zWidth="full"
-                formControlName="sex"
-                [options]="opcoesSexo"
-                placeholder="Selecione"
-                [searchable]="false"
-                ariaLabel="Sexo"
-                ariaDescribedBy="pessoa-sex-label"
-              />
-            </div>
-            <div>
-              <label class="pessoa-form-label" for="pessoa-cpf">CPF</label>
-              <input
+                matInput
                 id="pessoa-cpf"
-                type="text"
                 inputmode="numeric"
                 autocomplete="off"
-                z-input
-                class="w-full text-sm"
                 placeholder="000.000.000-00"
                 maxlength="14"
                 [ngModel]="cpfDisplay"
                 [ngModelOptions]="{ standalone: true }"
                 (ngModelChange)="onCpfModelChange($event)"
               />
-            </div>
+            </mat-form-field>
           </div>
 
-          <div class="grid gap-4 md:grid-cols-3">
-            <div>
-              <label class="pessoa-form-label" for="pessoa-rg">RG</label>
-              <input id="pessoa-rg" type="text" formControlName="rg" z-input class="w-full text-sm" />
-            </div>
-            <div>
-              <label class="pessoa-form-label" id="pessoa-marital-label">Estado civil</label>
-              <z-combobox
-                class="w-full"
-                zWidth="full"
-                formControlName="marital_status"
-                [options]="opcoesEstadoCivil"
-                placeholder="Selecione"
-                [searchable]="false"
-                ariaLabel="Estado civil"
-                ariaDescribedBy="pessoa-marital-label"
-              />
-            </div>
-            <div>
-              <label class="pessoa-form-label" for="pessoa-referred">Indicado por</label>
-              <input id="pessoa-referred" type="text" formControlName="referred_by" z-input class="w-full text-sm" />
-            </div>
+          <div class="upx-form-grid upx-form-grid--3">
+            <mat-form-field class="upx-full">
+              <mat-label>RG</mat-label>
+              <input matInput id="pessoa-rg" formControlName="rg" />
+            </mat-form-field>
+            <mat-form-field class="upx-full">
+              <mat-label>Estado civil</mat-label>
+              <mat-select formControlName="marital_status">
+                <mat-option value="">Selecione</mat-option>
+                <mat-option value="solteiro">Solteiro(a)</mat-option>
+                <mat-option value="casado">Casado(a)</mat-option>
+                <mat-option value="divorciado">Divorciado(a)</mat-option>
+                <mat-option value="viuvo">Viúvo(a)</mat-option>
+                <mat-option value="uniao_estavel">União estável</mat-option>
+              </mat-select>
+            </mat-form-field>
+            <mat-form-field class="upx-full">
+              <mat-label>Indicado por</mat-label>
+              <input matInput id="pessoa-referred" formControlName="referred_by" />
+            </mat-form-field>
           </div>
 
-          <div class="grid gap-4 md:grid-cols-2">
-            <div>
-              <label class="pessoa-form-label" for="pessoa-address">Endereço completo</label>
-              <input id="pessoa-address" type="text" formControlName="address" z-input class="w-full text-sm" />
-            </div>
-            <div>
-              <label class="pessoa-form-label" for="pessoa-neighborhood">Bairro</label>
-              <input id="pessoa-neighborhood" type="text" formControlName="neighborhood" z-input class="w-full text-sm" />
-            </div>
+          <div class="upx-form-grid">
+            <mat-form-field class="upx-full">
+              <mat-label>Endereço completo</mat-label>
+              <input matInput id="pessoa-address" formControlName="address" />
+            </mat-form-field>
+            <mat-form-field class="upx-full">
+              <mat-label>Bairro</mat-label>
+              <input matInput id="pessoa-neighborhood" formControlName="neighborhood" />
+            </mat-form-field>
           </div>
 
-          <div class="grid gap-4 md:grid-cols-2">
-            <div>
-              <label class="pessoa-form-label" for="pessoa-city">Cidade</label>
-              <input id="pessoa-city" type="text" formControlName="city" z-input class="w-full text-sm" />
-            </div>
-            <div>
-              <label class="pessoa-form-label" for="pessoa-cep">CEP</label>
-              <input
-                id="pessoa-cep"
-                type="text"
-                formControlName="cep"
-                z-input
-                class="w-full text-sm"
-                placeholder="00000-000"
-              />
-            </div>
+          <div class="upx-form-grid">
+            <mat-form-field class="upx-full">
+              <mat-label>Cidade</mat-label>
+              <input matInput id="pessoa-city" formControlName="city" />
+            </mat-form-field>
+            <mat-form-field class="upx-full">
+              <mat-label>CEP</mat-label>
+              <input matInput id="pessoa-cep" formControlName="cep" placeholder="00000-000" />
+            </mat-form-field>
           </div>
 
           <div class="grid gap-4 border-t border-border pt-5 md:grid-cols-2">
             <div>
-              <label class="pessoa-form-label">Como nos conheceu</label>
-              <div class="flex flex-col gap-2.5">
-                <z-checkbox formControlName="lead_source_instagram">Instagram</z-checkbox>
-                <z-checkbox formControlName="lead_source_google">Google</z-checkbox>
-                <z-checkbox formControlName="lead_source_facebook">Facebook</z-checkbox>
-                <z-checkbox formControlName="lead_source_indicacao_amigo">
+              <p class="pessoa-form-label m-0 mb-2">Como nos conheceu</p>
+              <div class="upx-check-stack">
+                <mat-checkbox formControlName="lead_source_instagram" color="primary">Instagram</mat-checkbox>
+                <mat-checkbox formControlName="lead_source_google" color="primary">Google</mat-checkbox>
+                <mat-checkbox formControlName="lead_source_facebook" color="primary">Facebook</mat-checkbox>
+                <mat-checkbox formControlName="lead_source_indicacao_amigo" color="primary">
                   Indicação de amigo/familiar
-                </z-checkbox>
-                <z-checkbox formControlName="lead_source_indicacao_medica">
+                </mat-checkbox>
+                <mat-checkbox formControlName="lead_source_indicacao_medica" color="primary">
                   Indicação médica
-                </z-checkbox>
-                <z-checkbox formControlName="lead_source_plano_saude">Plano de saúde</z-checkbox>
+                </mat-checkbox>
+                <mat-checkbox formControlName="lead_source_plano_saude" color="primary">Plano de saúde</mat-checkbox>
               </div>
-              <input
-                type="text"
-                formControlName="lead_source_outro"
-                z-input
-                class="mt-3 w-full text-sm"
-                placeholder="Outro"
-              />
+              <mat-form-field class="upx-full mt-3">
+                <mat-label>Outro</mat-label>
+                <input matInput formControlName="lead_source_outro" />
+              </mat-form-field>
             </div>
             <div>
-              <label class="pessoa-form-label" id="pessoa-health-plan-label">Plano de saúde</label>
-              <z-combobox
-                class="w-full"
-                zWidth="full"
-                formControlName="has_health_plan"
-                [options]="opcoesPlanoSaude"
-                placeholder="Selecione"
-                [searchable]="false"
-                ariaLabel="Plano de saúde"
-                ariaDescribedBy="pessoa-health-plan-label"
-              />
-              <input
-                type="text"
-                formControlName="health_plan_operator"
-                z-input
-                class="mt-3 w-full text-sm"
-                placeholder="Operadora"
-              />
-              <input
-                type="text"
-                formControlName="health_plan_card_number"
-                z-input
-                class="mt-3 w-full text-sm"
-                placeholder="Número da carteirinha"
-              />
+              <mat-form-field class="upx-full">
+                <mat-label>Plano de saúde</mat-label>
+                <mat-select formControlName="has_health_plan">
+                  <mat-option value="">Selecione</mat-option>
+                  <mat-option value="sim">Sim</mat-option>
+                  <mat-option value="nao">Não</mat-option>
+                </mat-select>
+              </mat-form-field>
+              <mat-form-field class="upx-full mt-3">
+                <mat-label>Operadora</mat-label>
+                <input matInput formControlName="health_plan_operator" />
+              </mat-form-field>
+              <mat-form-field class="upx-full mt-3">
+                <mat-label>Número da carteirinha</mat-label>
+                <input matInput formControlName="health_plan_card_number" />
+              </mat-form-field>
             </div>
           </div>
 
           <div class="border-t border-border pt-5">
-            <label class="pessoa-form-label">Autorizações LGPD</label>
-            <div class="pessoa-form-lgpd flex flex-col gap-2.5">
-              <z-checkbox formControlName="lgpd_accept_comms">
+            <p class="pessoa-form-label m-0 mb-2">Autorizações LGPD</p>
+            <div class="pessoa-form-lgpd upx-check-stack">
+              <mat-checkbox formControlName="lgpd_accept_comms" color="primary">
                 Aceito receber comunicações e promoções por WhatsApp/e-mail
-              </z-checkbox>
-              <z-checkbox formControlName="lgpd_accept_reminders">
+              </mat-checkbox>
+              <mat-checkbox formControlName="lgpd_accept_reminders" color="primary">
                 Aceito receber lembretes de consulta
-              </z-checkbox>
+              </mat-checkbox>
             </div>
           </div>
 
           @if (editMode) {
-            <div>
-              <label class="pessoa-form-label" id="pessoa-status-label">Situação</label>
-              <z-combobox
-                class="w-full max-w-xs"
-                zWidth="full"
-                formControlName="status"
-                [options]="opcoesStatus"
-                [searchable]="false"
-                ariaLabel="Situação"
-                ariaDescribedBy="pessoa-status-label"
-              />
-            </div>
+            <mat-form-field class="upx-full max-w-xs">
+              <mat-label>Situação</mat-label>
+              <mat-select formControlName="status">
+                <mat-option value="active">Ativa</mat-option>
+                <mat-option value="inactive">Inativa</mat-option>
+              </mat-select>
+            </mat-form-field>
           }
 
-          <div>
-            <label class="pessoa-form-label" for="pessoa-notes">Observações</label>
-            <textarea
-              id="pessoa-notes"
-              formControlName="notes"
-              rows="3"
-              z-input
-              class="w-full text-sm"
-              placeholder="Anotações internas (opcional)"
-            ></textarea>
-          </div>
+          <mat-form-field class="upx-full">
+            <mat-label>Observações</mat-label>
+            <textarea matInput id="pessoa-notes" formControlName="notes" rows="3" placeholder="Anotações internas (opcional)"></textarea>
+          </mat-form-field>
 
           <div class="flex flex-wrap items-center gap-3 border-t border-border pt-4">
             <button
-              z-button
+              mat-flat-button
+              color="primary"
               type="submit"
-              class="gap-2"
-              [zLoading]="salvando"
-              [zDisabled]="salvando || !pessoaForm.controls.name.value.trim()"
+              [disabled]="salvando || !pessoaForm.controls.name.value.trim()"
             >
-              <span class="material-symbols-outlined text-base">save</span>
+              @if (salvando) {
+                <mat-spinner diameter="18"></mat-spinner>
+              } @else {
+                <mat-icon>save</mat-icon>
+              }
               {{ editMode ? 'Salvar alterações' : 'Cadastrar' }}
             </button>
             <a
-              z-button
-              zType="outline"
+              mat-stroked-button
+              class="btn-cancel"
               [routerLink]="editMode && pessoaId ? ['/pessoas', pessoaId] : '/pessoas'"
-              class="no-underline"
             >
               Cancelar
             </a>
           </div>
         </form>
-      </z-card>
+      </div>
     </div>
   }
 </div>

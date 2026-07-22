@@ -1,27 +1,24 @@
 import { Component, OnInit, inject, Signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { ZardCardComponent } from '@/shared/components/card/card.component';
-import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
+import { MatIconModule } from '@angular/material/icon';
 import { PlataformaService, PlatformTenant } from '../../../core/services/plataforma.service';
 import { LoadingService } from '../../../shared/services/loading.service';
 import { ZmSkeletonListComponent } from '../../../shared/components/skeletons';
-import { ZmEmptyStateComponent } from '../../../shared/components/ui';
+import { DataTableComponent, BadgeComponent, UpEmptyStateComponent, type StatusTone } from '../../../shared/components/up';
 import { statusAssinaturaOuCobrancaPt } from '../../../core/utils/status-labels-pt';
-
-import { ZardTableImports } from '@/shared/components/table';
 
 @Component({
   selector: 'app-plataforma-clientes',
   standalone: true,
   imports: [
-    ...ZardTableImports,
     CommonModule,
     RouterLink,
-    ZardCardComponent,
-    ZardBadgeComponent,
+    MatIconModule,
     ZmSkeletonListComponent,
-    ZmEmptyStateComponent,
+    DataTableComponent,
+    BadgeComponent,
+    UpEmptyStateComponent,
   ],
   templateUrl: './plataforma-clientes.component.html',
   styleUrl: './plataforma-clientes.component.css',
@@ -65,11 +62,11 @@ export class PlataformaClientesComponent implements OnInit {
     return plans.join(', ');
   }
 
-  badgeTipoStatus(status?: string | null): 'default' | 'secondary' | 'destructive' | 'outline' {
+  badgeTone(status?: string | null): StatusTone {
     const k = (status ?? '').toLowerCase();
-    if (['active', 'ok'].includes(k)) return 'default';
-    if (['trial', 'attention', 'past_due'].includes(k)) return 'secondary';
-    if (['blocked', 'inactive'].includes(k)) return 'destructive';
-    return 'outline';
+    if (['active', 'ok'].includes(k)) return 'published';
+    if (['trial', 'attention', 'past_due'].includes(k)) return 'draft';
+    if (['blocked', 'inactive'].includes(k)) return 'archived';
+    return 'default';
   }
 }

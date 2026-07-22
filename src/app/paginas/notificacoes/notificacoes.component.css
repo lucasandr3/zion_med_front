@@ -1,19 +1,3 @@
-.notif-page__toolbar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem 1rem;
-  margin-bottom: 1.25rem;
-}
-
-.notif-page__toolbar-actions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.5rem;
-}
-
 .notif-filtros {
   display: inline-flex;
   flex-wrap: wrap;
@@ -283,9 +267,5 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 0.25rem;
-  }
-
-  .notif-page__toolbar-actions {
-    width: 100%;
   }
 }

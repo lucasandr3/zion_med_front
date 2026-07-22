@@ -1,44 +1,48 @@
-import { Component, OnInit, OnDestroy, inject, Signal, ViewChild, TemplateRef, ViewContainerRef } from '@angular/core';
+import { Component, OnInit, inject, Signal, signal } from '@angular/core';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { ProtocolosService, Protocolo } from '../../core/services/protocolos.service';
 import { TemplatesService, Template } from '../../core/services/templates.service';
 import { LoadingService } from '../../shared/services/loading.service';
 import { ZmSkeletonListComponent } from '../../shared/components/skeletons';
-import { ZmPaginationComponent, ZmEmptyStateComponent } from '../../shared/components/ui';
-import { ZardCardComponent } from '@/shared/components/card/card.component';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
-import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
-import { ZardSheetService } from '@/shared/components/sheet/sheet.service';
-import type { ZardSheetRef } from '@/shared/components/sheet/sheet-ref';
+import { ZmPaginationComponent } from '../../shared/components/ui';
+import {
+  SearchBoxComponent,
+  DataTableComponent,
+  BadgeComponent,
+  UpEmptyStateComponent,
+  ListFiltersPanelComponent,
+} from '../../shared/components/up';
+import { OpenPickerOnInteractDirective } from '@/shared/directives/open-picker-on-interact.directive';
+import { MAT_FORM_IMPORTS } from '@/shared/material';
+import { formatDateToYmd } from '@/shared/utils/date-time.util';
 
-import { FlatpickrDirective } from 'angularx-flatpickr';
-
-import { ZardComboboxComponent, type ZardComboboxOption } from '@/shared/components/combobox';
-import { ZardTableImports } from '@/shared/components/table';
-import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
 @Component({
   selector: 'app-protocolos-listagem',
   standalone: true,
   imports: [
-    ...ZARD_FORM_CONTROL_IMPORTS,
-    ...ZardTableImports,
-    FlatpickrDirective,
+    ...MAT_FORM_IMPORTS,
+    OpenPickerOnInteractDirective,
     CommonModule,
     FormsModule,
+    ReactiveFormsModule,
     RouterLink,
+    MatButtonModule,
+    MatIconModule,
     ZmSkeletonListComponent,
     ZmPaginationComponent,
-    ZmEmptyStateComponent,
-    ZardCardComponent,
-    ZardButtonComponent,
-    ZardBadgeComponent,
-    ZardComboboxComponent,
+    SearchBoxComponent,
+    DataTableComponent,
+    BadgeComponent,
+    UpEmptyStateComponent,
+    ListFiltersPanelComponent,
   ],
   templateUrl: './protocolos-listagem.component.html',
 })
-export class ProtocolosListagemComponent implements OnInit, OnDestroy {
+export class ProtocolosListagemComponent implements OnInit {
   protocolos: Protocolo[] = [];
   templates: Template[] = [];
   meta: { current_page: number; last_page: number; per_page: number; total: number } = {
@@ -52,28 +56,20 @@ export class ProtocolosListagemComponent implements OnInit, OnDestroy {
   erro = '';
   exportando = false;
 
-  busca = '';
+  readonly buscaControl = new FormControl('', { nonNullable: true });
   template_id: number | '' = '';
   status: string = '';
-  data_inicio = '';
-  data_fim = '';
-  filterDrawerOpen = false;
-  /** Calendário no body para não ser cortado pelo overflow do sheet. */
-  flatpickrAppendTo!: HTMLElement;
-
-  @ViewChild('protocolosFiltrosTpl') protocolosFiltrosTpl?: TemplateRef<void>;
-
-  private filtrosSheetRef?: ZardSheetRef<void>;
+  data_inicio: Date | null = null;
+  data_fim: Date | null = null;
+  readonly filtersOpen = signal(false);
 
   private protocolosService = inject(ProtocolosService);
   private templatesService = inject(TemplatesService);
   private loadingService = inject(LoadingService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
-  private readonly vcr = inject(ViewContainerRef);
-  private readonly zardSheet = inject(ZardSheetService);
 
-  readonly opcoesStatusFiltro: ZardComboboxOption[] = [
+  readonly opcoesStatusFiltro = [
     { value: '', label: 'Todas' },
     { value: 'pending', label: 'Pendente' },
     { value: 'approved', label: 'Aprovado' },
@@ -81,34 +77,18 @@ export class ProtocolosListagemComponent implements OnInit, OnDestroy {
     { value: 'revoked', label: 'Revogado' },
   ];
 
-  get opcoesTemplateFiltro(): ZardComboboxOption[] {
+  get opcoesTemplateFiltro(): { value: string; label: string }[] {
     return [
       { value: '', label: 'Todos' },
       ...this.templates.map((t) => ({ value: String(t.id), label: t.name })),
     ];
   }
 
-  get templateFiltroKey(): string {
-    return this.template_id === '' ? '' : String(this.template_id);
+  templateFiltroValue(value: string): number | '' {
+    return value === '' ? '' : Number(value);
   }
 
-  selecionarTemplateFiltro(key: string | null): void {
-    if (!key) {
-      this.template_id = '';
-      return;
-    }
-    this.template_id = key === '' ? '' : Number(key);
-  }
-
-  selecionarStatusFiltro(key: string | null): void {
-    this.status = key ?? '';
-  }
-
-  ngOnDestroy(): void {
-    this.filtrosSheetRef?.close();
-  }
   ngOnInit(): void {
-    this.flatpickrAppendTo = document.body;
     const statusFromQuery = this.route.snapshot.queryParamMap.get('status');
     if (statusFromQuery) {
       this.status = statusFromQuery;
@@ -121,27 +101,28 @@ export class ProtocolosListagemComponent implements OnInit, OnDestroy {
     return !!(
       this.template_id !== '' ||
       this.status !== '' ||
-      this.data_inicio !== '' ||
-      this.data_fim !== ''
+      this.data_inicio !== null ||
+      this.data_fim !== null
     );
   }
 
-  get quantidadeFiltrosAtivos(): number {
-    let n = 0;
-    if (this.template_id !== '') n++;
-    if (this.status !== '') n++;
-    if (this.data_inicio !== '') n++;
-    if (this.data_fim !== '') n++;
-    return n;
+  toggleFilters(): void {
+    this.filtersOpen.update((open) => !open);
+  }
+
+  closeFilters(): void {
+    this.filtersOpen.set(false);
   }
 
   carregar(page = 1): void {
     const params: Parameters<ProtocolosService['list']>[0] = { per_page: 20, page };
-    if (this.busca?.trim()) params.busca = this.busca.trim();
+    if (this.buscaControl.value?.trim()) params.busca = this.buscaControl.value.trim();
     if (this.template_id !== '') params.template_id = Number(this.template_id);
     if (this.status) params.status = this.status;
-    if (this.data_inicio) params.data_inicio = this.data_inicio;
-    if (this.data_fim) params.data_fim = this.data_fim;
+    const dataInicio = formatDateToYmd(this.data_inicio);
+    const dataFim = formatDateToYmd(this.data_fim);
+    if (dataInicio) params.data_inicio = dataInicio;
+    if (dataFim) params.data_fim = dataFim;
 
     const { data$, showSkeleton } = this.loadingService.loadWithThreshold(this.protocolosService.list(params));
     this.showSkeleton = showSkeleton;
@@ -160,41 +141,16 @@ export class ProtocolosListagemComponent implements OnInit, OnDestroy {
 
   aplicarFiltros(): void {
     this.carregar(1);
-    this.filtrosSheetRef?.close();
+    this.closeFilters();
   }
 
   limparFiltros(): void {
     this.template_id = '';
     this.status = '';
-    this.data_inicio = '';
-    this.data_fim = '';
+    this.data_inicio = null;
+    this.data_fim = null;
     this.carregar(1);
-    this.filtrosSheetRef?.close();
-  }
-
-  openFilterDrawer(): void {
-    if (this.filtrosSheetRef) {
-      this.filtrosSheetRef.close();
-      return;
-    }
-    if (!this.protocolosFiltrosTpl) {
-      return;
-    }
-    this.filterDrawerOpen = true;
-    this.filtrosSheetRef = this.zardSheet.create<void, void>({
-      zContent: this.protocolosFiltrosTpl,
-      zViewContainerRef: this.vcr,
-      zSide: 'right',
-      zSize: 'lg',
-      zTitle: 'Filtros',
-      zHideFooter: true,
-      zOkText: null,
-      zCancelText: null,
-      zAfterClose: () => {
-        this.filtrosSheetRef = undefined;
-        this.filterDrawerOpen = false;
-      },
-    });
+    this.closeFilters();
   }
 
   irParaDetalhe(p: Protocolo, event: Event): void {
@@ -216,7 +172,13 @@ export class ProtocolosListagemComponent implements OnInit, OnDestroy {
     if (!val) return '—';
     const d = new Date(val);
     if (isNaN(d.getTime())) return val;
-    return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+    return d.toLocaleDateString('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
   }
 
   exportarCsv(): void {
@@ -224,8 +186,10 @@ export class ProtocolosListagemComponent implements OnInit, OnDestroy {
     const params: { template_id?: number; status?: string; data_inicio?: string; data_fim?: string } = {};
     if (this.template_id !== '') params.template_id = Number(this.template_id);
     if (this.status) params.status = this.status;
-    if (this.data_inicio) params.data_inicio = this.data_inicio;
-    if (this.data_fim) params.data_fim = this.data_fim;
+    const dataInicio = formatDateToYmd(this.data_inicio);
+    const dataFim = formatDateToYmd(this.data_fim);
+    if (dataInicio) params.data_inicio = dataInicio;
+    if (dataFim) params.data_fim = dataFim;
 
     this.protocolosService.exportarCsv(params).subscribe({
       next: (blob) => {
@@ -243,11 +207,15 @@ export class ProtocolosListagemComponent implements OnInit, OnDestroy {
 
   exportarPdf(): void {
     this.exportando = true;
-    const params: { template_id?: number; status?: string; data_inicio?: string; data_fim?: string; limit?: number } = { limit: 50 };
+    const params: { template_id?: number; status?: string; data_inicio?: string; data_fim?: string; limit?: number } = {
+      limit: 50,
+    };
     if (this.template_id !== '') params.template_id = Number(this.template_id);
     if (this.status) params.status = this.status;
-    if (this.data_inicio) params.data_inicio = this.data_inicio;
-    if (this.data_fim) params.data_fim = this.data_fim;
+    const dataInicio = formatDateToYmd(this.data_inicio);
+    const dataFim = formatDateToYmd(this.data_fim);
+    if (dataInicio) params.data_inicio = dataInicio;
+    if (dataFim) params.data_fim = dataFim;
 
     this.protocolosService.exportarPdf(params).subscribe({
       next: (blob) => {
@@ -261,10 +229,5 @@ export class ProtocolosListagemComponent implements OnInit, OnDestroy {
       },
       error: () => (this.exportando = false),
     });
-  }
-
-  contagemTexto(): string {
-    const n = this.meta.total;
-    return n === 1 ? '1 registro' : `${n} registros`;
   }
 }

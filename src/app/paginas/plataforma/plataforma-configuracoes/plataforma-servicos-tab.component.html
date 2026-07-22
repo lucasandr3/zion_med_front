@@ -67,18 +67,33 @@
                 </header>
                 <div class="settings-fields">
                   <div class="settings-field settings-field--wide">
-                    <label for="asaas_base_url" class="settings-label">URL da API</label>
-                    <input type="url" id="asaas_base_url" [(ngModel)]="asaasBaseUrl" name="asaas_base_url" z-input zSize="sm" class="w-full font-mono text-xs" required maxlength="255" placeholder="https://sandbox.asaas.com/api/v3" />
+                    <mat-form-field appearance="outline" class="w-full">
+
+                      <mat-label>URL da API</mat-label>
+
+                      <input matInput type="url" id="asaas_base_url" [(ngModel)]="asaasBaseUrl" name="asaas_base_url" class="w-full font-mono text-xs" required maxlength="255" placeholder="https://sandbox.asaas.com/api/v3" />
+
+                    </mat-form-field>
                   </div>
                   <div class="settings-field-row">
                     <div class="settings-field">
-                      <label for="asaas_api_key" class="settings-label">Chave da API</label>
-                      <input type="password" id="asaas_api_key" [(ngModel)]="asaasApiKey" name="asaas_api_key" z-input zSize="sm" class="w-full font-mono text-xs" maxlength="512" autocomplete="new-password" [placeholder]="asaasApiKeyPreview ? 'Atual: ' + asaasApiKeyPreview : 'Cole a chave de acesso'" />
+                      <mat-form-field appearance="outline" class="w-full">
+
+                        <mat-label>Chave da API</mat-label>
+
+                        <input matInput type="password" id="asaas_api_key" [(ngModel)]="asaasApiKey" name="asaas_api_key" class="w-full font-mono text-xs" maxlength="512" autocomplete="new-password" [placeholder]="asaasApiKeyPreview ? 'Atual: ' + asaasApiKeyPreview : 'Cole a chave de acesso'" />
+
+                      </mat-form-field>
                       <p class="settings-hint">Deixe em branco para manter a chave atual.</p>
                     </div>
                     <div class="settings-field">
-                      <label for="asaas_webhook_secret" class="settings-label">Segredo do webhook</label>
-                      <input type="password" id="asaas_webhook_secret" [(ngModel)]="asaasWebhookSecret" name="asaas_webhook_secret" z-input zSize="sm" class="w-full font-mono text-xs" maxlength="512" autocomplete="new-password" [placeholder]="asaasWebhookPreview ? 'Atual: ' + asaasWebhookPreview : 'Opcional'" />
+                      <mat-form-field appearance="outline" class="w-full">
+
+                        <mat-label>Segredo do webhook</mat-label>
+
+                        <input matInput type="password" id="asaas_webhook_secret" [(ngModel)]="asaasWebhookSecret" name="asaas_webhook_secret" class="w-full font-mono text-xs" maxlength="512" autocomplete="new-password" [placeholder]="asaasWebhookPreview ? 'Atual: ' + asaasWebhookPreview : 'Opcional'" />
+
+                      </mat-form-field>
                       <p class="settings-hint">Deixe em branco para manter o valor atual.</p>
                     </div>
                   </div>
@@ -87,7 +102,10 @@
                   <p class="settings-alert settings-alert--success">{{ successSettings }}</p>
                 }
                 <div class="settings-form-actions settings-form-actions--inline">
-                  <button type="submit" z-button zSize="sm" [zDisabled]="savingSettings" [zLoading]="savingSettings">
+                  <button type="submit" mat-flat-button color="primary" [disabled]="savingSettings">
+                    @if (savingSettings) {
+                      <mat-spinner diameter="18"></mat-spinner>
+                    }
                     {{ savingSettings ? 'Salvando…' : 'Salvar Asaas' }}
                   </button>
                 </div>
@@ -112,55 +130,99 @@
                 <div class="settings-fields">
                   <div class="settings-field-row">
                     <div class="settings-field">
-                      <label for="mail_mailer" class="settings-label">Driver</label>
-                      <select id="mail_mailer" [(ngModel)]="mailMailer" name="mail_mailer" z-input class="w-full">
-                        <option value="resend">Resend (produção)</option>
-                        <option value="log">Log (desenvolvimento)</option>
-                      </select>
+                      <mat-form-field appearance="outline" class="w-full">
+                        <mat-label>Driver</mat-label>
+                        <mat-select [(ngModel)]="mailMailer" name="mail_mailer">
+                          <mat-option value="resend">Resend (produção)</mat-option>
+                          <mat-option value="log">Log (desenvolvimento)</mat-option>
+                        </mat-select>
+                      </mat-form-field>
                     </div>
                     <div class="settings-field">
-                      <label for="resend_api_key" class="settings-label">Chave da API</label>
-                      <input type="password" id="resend_api_key" [(ngModel)]="resendApiKey" name="resend_api_key" z-input zSize="sm" class="w-full font-mono text-xs" maxlength="512" autocomplete="new-password" [placeholder]="resendApiKeyPreview ? 'Atual: ' + resendApiKeyPreview : 're_...'" [disabled]="mailMailer === 'log'" />
-                    </div>
-                  </div>
-                  <div class="settings-field-row">
-                    <div class="settings-field">
-                      <label for="mail_from_address" class="settings-label">Remetente (e-mail)</label>
-                      <input type="email" id="mail_from_address" [(ngModel)]="mailFromAddress" name="mail_from_address" z-input zSize="sm" class="w-full font-mono text-xs" required maxlength="255" />
-                    </div>
-                    <div class="settings-field">
-                      <label for="mail_from_name" class="settings-label">Remetente (nome)</label>
-                      <input type="text" id="mail_from_name" [(ngModel)]="mailFromName" name="mail_from_name" z-input zSize="sm" class="w-full" required maxlength="128" />
+                      <mat-form-field appearance="outline" class="w-full">
+                        <mat-label>Chave da API</mat-label>
+                        <input matInput type="password" [(ngModel)]="resendApiKey" name="resend_api_key" class="font-mono text-xs" maxlength="512" autocomplete="new-password" [placeholder]="resendApiKeyPreview ? 'Atual: ' + resendApiKeyPreview : 're_...'" [disabled]="mailMailer === 'log'" />
+                      </mat-form-field>
                     </div>
                   </div>
                   <div class="settings-field-row">
                     <div class="settings-field">
-                      <label for="mail_support_email" class="settings-label">E-mail de suporte</label>
-                      <input type="email" id="mail_support_email" [(ngModel)]="mailSupportEmail" name="mail_support_email" z-input zSize="sm" class="w-full font-mono text-xs" maxlength="255" />
+                      <mat-form-field appearance="outline" class="w-full">
+
+                        <mat-label>Remetente (e-mail)</mat-label>
+
+                        <input matInput type="email" id="mail_from_address" [(ngModel)]="mailFromAddress" name="mail_from_address" class="w-full font-mono text-xs" required maxlength="255" />
+
+                      </mat-form-field>
                     </div>
                     <div class="settings-field">
-                      <label for="mail_product_name" class="settings-label">Nome nos e-mails</label>
-                      <input type="text" id="mail_product_name" [(ngModel)]="mailProductName" name="mail_product_name" z-input zSize="sm" class="w-full" maxlength="128" />
+                      <mat-form-field appearance="outline" class="w-full">
+
+                        <mat-label>Remetente (nome)</mat-label>
+
+                        <input matInput type="text" id="mail_from_name" [(ngModel)]="mailFromName" name="mail_from_name" class="w-full" required maxlength="128" />
+
+                      </mat-form-field>
                     </div>
                   </div>
                   <div class="settings-field-row">
                     <div class="settings-field">
-                      <label for="mail_sender_name" class="settings-label">Nome na assinatura</label>
-                      <input type="text" id="mail_sender_name" [(ngModel)]="mailSenderName" name="mail_sender_name" z-input zSize="sm" class="w-full" maxlength="128" placeholder="Ex: Lucas Vieira" />
+                      <mat-form-field appearance="outline" class="w-full">
+
+                        <mat-label>E-mail de suporte</mat-label>
+
+                        <input matInput type="email" id="mail_support_email" [(ngModel)]="mailSupportEmail" name="mail_support_email" class="w-full font-mono text-xs" maxlength="255" />
+
+                      </mat-form-field>
                     </div>
                     <div class="settings-field">
-                      <label for="mail_sender_role" class="settings-label">Cargo na assinatura</label>
-                      <input type="text" id="mail_sender_role" [(ngModel)]="mailSenderRole" name="mail_sender_role" z-input zSize="sm" class="w-full" maxlength="128" placeholder="Ex: Suporte Gestgo" />
+                      <mat-form-field appearance="outline" class="w-full">
+
+                        <mat-label>Nome nos e-mails</mat-label>
+
+                        <input matInput type="text" id="mail_product_name" [(ngModel)]="mailProductName" name="mail_product_name" class="w-full" maxlength="128" />
+
+                      </mat-form-field>
                     </div>
                   </div>
                   <div class="settings-field-row">
                     <div class="settings-field">
-                      <label for="mail_whatsapp_number" class="settings-label">WhatsApp (botão no e-mail)</label>
-                      <input type="text" id="mail_whatsapp_number" [(ngModel)]="mailWhatsappNumber" name="mail_whatsapp_number" z-input zSize="sm" class="w-full font-mono text-xs" maxlength="32" placeholder="5511999999999" />
+                      <mat-form-field appearance="outline" class="w-full">
+
+                        <mat-label>Nome na assinatura</mat-label>
+
+                        <input matInput type="text" id="mail_sender_name" [(ngModel)]="mailSenderName" name="mail_sender_name" class="w-full" maxlength="128" placeholder="Ex: Lucas Vieira" />
+
+                      </mat-form-field>
+                    </div>
+                    <div class="settings-field">
+                      <mat-form-field appearance="outline" class="w-full">
+
+                        <mat-label>Cargo na assinatura</mat-label>
+
+                        <input matInput type="text" id="mail_sender_role" [(ngModel)]="mailSenderRole" name="mail_sender_role" class="w-full" maxlength="128" placeholder="Ex: Suporte Gestgo" />
+
+                      </mat-form-field>
+                    </div>
+                  </div>
+                  <div class="settings-field-row">
+                    <div class="settings-field">
+                      <mat-form-field appearance="outline" class="w-full">
+
+                        <mat-label>WhatsApp (botão no e-mail)</mat-label>
+
+                        <input matInput type="text" id="mail_whatsapp_number" [(ngModel)]="mailWhatsappNumber" name="mail_whatsapp_number" class="w-full font-mono text-xs" maxlength="32" placeholder="5511999999999" />
+
+                      </mat-form-field>
                     </div>
                     <div class="settings-field settings-field--narrow">
-                      <label for="mail_primary_color" class="settings-label">Cor primária</label>
-                      <input type="text" id="mail_primary_color" [(ngModel)]="mailPrimaryColor" name="mail_primary_color" z-input zSize="sm" class="w-full font-mono text-xs" maxlength="7" />
+                      <mat-form-field appearance="outline" class="w-full">
+
+                        <mat-label>Cor primária</mat-label>
+
+                        <input matInput type="text" id="mail_primary_color" [(ngModel)]="mailPrimaryColor" name="mail_primary_color" class="w-full font-mono text-xs" maxlength="7" />
+
+                      </mat-form-field>
                     </div>
                   </div>
                   <div class="settings-field-row mail-branding-upload-row">
@@ -173,10 +235,12 @@
                           <span class="mail-branding-preview__empty">Nenhum logo enviado</span>
                         }
                       </div>
-                      <label class="mail-branding-upload-btn">
-                        <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" class="sr-only" (change)="onMailLogoSelected($event)" [disabled]="uploadingLogo" />
-                        <span z-button zType="outline" zSize="sm">{{ uploadingLogo ? 'Enviando…' : 'Enviar logo' }}</span>
-                      </label>
+                      <div class="mail-branding-upload-btn">
+                        <input #mailLogoInput type="file" accept="image/png,image/jpeg,image/webp,image/gif" class="sr-only" (change)="onMailLogoSelected($event)" [disabled]="uploadingLogo" />
+                        <button type="button" mat-stroked-button class="btn-cancel" [disabled]="uploadingLogo" (click)="mailLogoInput.click()">
+                          {{ uploadingLogo ? 'Enviando…' : 'Enviar logo' }}
+                        </button>
+                      </div>
                       <p class="settings-hint">PNG, JPG ou WebP. Máx. 2 MB. Também pode usar URL pública abaixo.</p>
                     </div>
                     <div class="settings-field">
@@ -188,23 +252,30 @@
                           <span class="mail-branding-preview__empty">Nenhuma foto enviada</span>
                         }
                       </div>
-                      <label class="mail-branding-upload-btn">
-                        <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" class="sr-only" (change)="onMailSignatureSelected($event)" [disabled]="uploadingSignature" />
-                        <span z-button zType="outline" zSize="sm">{{ uploadingSignature ? 'Enviando…' : 'Enviar foto' }}</span>
-                      </label>
+                      <div class="mail-branding-upload-btn">
+                        <input #mailSignatureInput type="file" accept="image/png,image/jpeg,image/webp,image/gif" class="sr-only" (change)="onMailSignatureSelected($event)" [disabled]="uploadingSignature" />
+                        <button type="button" mat-stroked-button class="btn-cancel" [disabled]="uploadingSignature" (click)="mailSignatureInput.click()">
+                          {{ uploadingSignature ? 'Enviando…' : 'Enviar foto' }}
+                        </button>
+                      </div>
                       <p class="settings-hint">Aparece na assinatura do e-mail (60×60 px).</p>
                     </div>
                   </div>
                   <div class="settings-field settings-field--wide">
-                    <label for="mail_logo_url" class="settings-label">Logo (URL pública alternativa)</label>
-                    <input type="url" id="mail_logo_url" [(ngModel)]="mailLogoUrl" name="mail_logo_url" z-input zSize="sm" class="w-full font-mono text-xs" maxlength="512" placeholder="https://..." />
+                    <mat-form-field appearance="outline" class="w-full">
+                      <mat-label>Logo (URL pública alternativa)</mat-label>
+                      <input matInput type="url" [(ngModel)]="mailLogoUrl" name="mail_logo_url" class="font-mono text-xs" maxlength="512" placeholder="https://..." />
+                    </mat-form-field>
                   </div>
                 </div>
                 @if (successSettings) {
                   <p class="settings-alert settings-alert--success">{{ successSettings }}</p>
                 }
                 <div class="settings-form-actions settings-form-actions--inline">
-                  <button type="submit" z-button zSize="sm" [zDisabled]="savingSettings" [zLoading]="savingSettings">
+                  <button type="submit" mat-flat-button color="primary" [disabled]="savingSettings">
+                    @if (savingSettings) {
+                      <mat-spinner diameter="18"></mat-spinner>
+                    }
                     {{ savingSettings ? 'Salvando…' : 'Salvar Resend' }}
                   </button>
                 </div>
@@ -228,39 +299,79 @@
                 </header>
                 <div class="settings-fields">
                   <div class="settings-field settings-field--wide">
-                    <label for="minio_endpoint" class="settings-label">Endpoint</label>
-                    <input type="url" id="minio_endpoint" [(ngModel)]="minioEndpoint" name="minio_endpoint" z-input zSize="sm" class="w-full font-mono text-xs" required maxlength="255" />
+                    <mat-form-field appearance="outline" class="w-full">
+
+                      <mat-label>Endpoint</mat-label>
+
+                      <input matInput type="url" id="minio_endpoint" [(ngModel)]="minioEndpoint" name="minio_endpoint" class="w-full font-mono text-xs" required maxlength="255" />
+
+                    </mat-form-field>
                   </div>
                   <div class="settings-field-row">
                     <div class="settings-field">
-                      <label for="minio_access_key" class="settings-label">Access key</label>
-                      <input type="text" id="minio_access_key" [(ngModel)]="minioAccessKey" name="minio_access_key" z-input zSize="sm" class="w-full font-mono text-xs" required maxlength="128" autocomplete="off" />
+                      <mat-form-field appearance="outline" class="w-full">
+
+                        <mat-label>Access key</mat-label>
+
+                        <input matInput type="text" id="minio_access_key" [(ngModel)]="minioAccessKey" name="minio_access_key" class="w-full font-mono text-xs" required maxlength="128" autocomplete="off" />
+
+                      </mat-form-field>
                     </div>
                     <div class="settings-field">
-                      <label for="minio_secret_key" class="settings-label">Secret key</label>
-                      <input type="password" id="minio_secret_key" [(ngModel)]="minioSecretKey" name="minio_secret_key" z-input zSize="sm" class="w-full font-mono text-xs" maxlength="512" autocomplete="new-password" [placeholder]="minioSecretPreview ? 'Atual: ' + minioSecretPreview : 'Secret key'" />
+                      <mat-form-field appearance="outline" class="w-full">
+
+                        <mat-label>Secret key</mat-label>
+
+                        <input matInput type="password" id="minio_secret_key" [(ngModel)]="minioSecretKey" name="minio_secret_key" class="w-full font-mono text-xs" maxlength="512" autocomplete="new-password" [placeholder]="minioSecretPreview ? 'Atual: ' + minioSecretPreview : 'Secret key'" />
+
+                      </mat-form-field>
                     </div>
                   </div>
                   <div class="settings-field settings-field--narrow">
-                    <label for="minio_region" class="settings-label">Região</label>
-                    <input type="text" id="minio_region" [(ngModel)]="minioRegion" name="minio_region" z-input zSize="sm" class="w-full" required maxlength="64" />
+                    <mat-form-field appearance="outline" class="w-full">
+
+                      <mat-label>Região</mat-label>
+
+                      <input matInput type="text" id="minio_region" [(ngModel)]="minioRegion" name="minio_region" class="w-full" required maxlength="64" />
+
+                    </mat-form-field>
                   </div>
                   <div class="settings-field-row settings-field-row--quad">
                     <div class="settings-field">
-                      <label for="minio_submissions_bucket" class="settings-label">Bucket submissões</label>
-                      <input type="text" id="minio_submissions_bucket" [(ngModel)]="minioSubmissionsBucket" name="minio_submissions_bucket" z-input zSize="sm" class="w-full font-mono text-xs" required maxlength="128" />
+                      <mat-form-field appearance="outline" class="w-full">
+
+                        <mat-label>Bucket submissões</mat-label>
+
+                        <input matInput type="text" id="minio_submissions_bucket" [(ngModel)]="minioSubmissionsBucket" name="minio_submissions_bucket" class="w-full font-mono text-xs" required maxlength="128" />
+
+                      </mat-form-field>
                     </div>
                     <div class="settings-field">
-                      <label for="minio_attachments_bucket" class="settings-label">Bucket anexos</label>
-                      <input type="text" id="minio_attachments_bucket" [(ngModel)]="minioAttachmentsBucket" name="minio_attachments_bucket" z-input zSize="sm" class="w-full font-mono text-xs" required maxlength="128" />
+                      <mat-form-field appearance="outline" class="w-full">
+
+                        <mat-label>Bucket anexos</mat-label>
+
+                        <input matInput type="text" id="minio_attachments_bucket" [(ngModel)]="minioAttachmentsBucket" name="minio_attachments_bucket" class="w-full font-mono text-xs" required maxlength="128" />
+
+                      </mat-form-field>
                     </div>
                     <div class="settings-field">
-                      <label for="minio_assets_bucket" class="settings-label">Bucket assets</label>
-                      <input type="text" id="minio_assets_bucket" [(ngModel)]="minioAssetsBucket" name="minio_assets_bucket" z-input zSize="sm" class="w-full font-mono text-xs" required maxlength="128" />
+                      <mat-form-field appearance="outline" class="w-full">
+
+                        <mat-label>Bucket assets</mat-label>
+
+                        <input matInput type="text" id="minio_assets_bucket" [(ngModel)]="minioAssetsBucket" name="minio_assets_bucket" class="w-full font-mono text-xs" required maxlength="128" />
+
+                      </mat-form-field>
                     </div>
                     <div class="settings-field">
-                      <label for="minio_invoices_bucket" class="settings-label">Bucket faturas</label>
-                      <input type="text" id="minio_invoices_bucket" [(ngModel)]="minioInvoicesBucket" name="minio_invoices_bucket" z-input zSize="sm" class="w-full font-mono text-xs" required maxlength="128" />
+                      <mat-form-field appearance="outline" class="w-full">
+
+                        <mat-label>Bucket faturas</mat-label>
+
+                        <input matInput type="text" id="minio_invoices_bucket" [(ngModel)]="minioInvoicesBucket" name="minio_invoices_bucket" class="w-full font-mono text-xs" required maxlength="128" />
+
+                      </mat-form-field>
                     </div>
                   </div>
                 </div>
@@ -268,7 +379,10 @@
                   <p class="settings-alert settings-alert--success">{{ successSettings }}</p>
                 }
                 <div class="settings-form-actions settings-form-actions--inline">
-                  <button type="submit" z-button zSize="sm" [zDisabled]="savingSettings" [zLoading]="savingSettings">
+                  <button type="submit" mat-flat-button color="primary" [disabled]="savingSettings">
+                    @if (savingSettings) {
+                      <mat-spinner diameter="18"></mat-spinner>
+                    }
                     {{ savingSettings ? 'Salvando…' : 'Salvar MinIO' }}
                   </button>
                 </div>
@@ -289,28 +403,34 @@
                 <div class="settings-fields">
                   <div class="settings-field-row">
                     <div class="settings-field">
-                      <label for="service_status" class="settings-label">Status geral</label>
-                      <select id="service_status" [(ngModel)]="serviceStatus" name="status" z-input class="w-full">
-                        <option value="operational">Operacional</option>
-                        <option value="degraded">Degradado</option>
-                        <option value="outage">Indisponível</option>
-                        <option value="maintenance">Manutenção</option>
-                      </select>
+                      <mat-form-field appearance="outline" class="w-full">
+                        <mat-label>Status geral</mat-label>
+                        <mat-select [(ngModel)]="serviceStatus" name="status">
+                          <mat-option value="operational">Operacional</mat-option>
+                          <mat-option value="degraded">Degradado</mat-option>
+                          <mat-option value="outage">Indisponível</mat-option>
+                          <mat-option value="maintenance">Manutenção</mat-option>
+                        </mat-select>
+                      </mat-form-field>
                     </div>
                     <div class="settings-field">
-                      <label for="service_severity" class="settings-label">Criticidade</label>
-                      <select id="service_severity" [(ngModel)]="serviceStatusSeverity" name="severity" z-input class="w-full">
-                        <option value="none">Nenhuma</option>
-                        <option value="low">Baixa</option>
-                        <option value="medium">Média</option>
-                        <option value="high">Alta</option>
-                        <option value="critical">Crítica</option>
-                      </select>
+                      <mat-form-field appearance="outline" class="w-full">
+                        <mat-label>Criticidade</mat-label>
+                        <mat-select [(ngModel)]="serviceStatusSeverity" name="severity">
+                          <mat-option value="none">Nenhuma</mat-option>
+                          <mat-option value="low">Baixa</mat-option>
+                          <mat-option value="medium">Média</mat-option>
+                          <mat-option value="high">Alta</mat-option>
+                          <mat-option value="critical">Crítica</mat-option>
+                        </mat-select>
+                      </mat-form-field>
                     </div>
                   </div>
                   <div class="settings-field settings-field--wide">
-                    <label for="service_status_message" class="settings-label">Mensagem (opcional)</label>
-                    <textarea id="service_status_message" [(ngModel)]="serviceStatusMessage" name="message" rows="2" z-input class="w-full" maxlength="500"></textarea>
+                    <mat-form-field appearance="outline" class="w-full">
+                      <mat-label>Mensagem (opcional)</mat-label>
+                      <textarea matInput [(ngModel)]="serviceStatusMessage" name="message" rows="2" maxlength="500"></textarea>
+                    </mat-form-field>
                   </div>
                   <div class="settings-field settings-field--wide">
                     <p class="settings-label">Componentes</p>
@@ -318,12 +438,14 @@
                       @for (key of getComponentKeys(); track key) {
                         <div class="settings-component-row">
                           <span class="settings-component-label">{{ componentOptions[key] }}</span>
-                          <select [(ngModel)]="serviceComponents[key]" [name]="'comp_' + key" z-input class="settings-component-select text-xs">
-                            <option value="operational">Operacional</option>
-                            <option value="degraded">Degradado</option>
-                            <option value="outage">Indisponível</option>
-                            <option value="maintenance">Manutenção</option>
-                          </select>
+                          <mat-form-field appearance="outline" class="settings-component-select">
+                            <mat-select [(ngModel)]="serviceComponents[key]" [name]="'comp_' + key">
+                              <mat-option value="operational">Operacional</mat-option>
+                              <mat-option value="degraded">Degradado</mat-option>
+                              <mat-option value="outage">Indisponível</mat-option>
+                              <mat-option value="maintenance">Manutenção</mat-option>
+                            </mat-select>
+                          </mat-form-field>
                         </div>
                       }
                     </div>
@@ -333,7 +455,10 @@
                   <p class="settings-alert settings-alert--success">{{ successStatus }}</p>
                 }
                 <div class="settings-form-actions settings-form-actions--inline">
-                  <button type="submit" z-button [zDisabled]="savingStatus" [zLoading]="savingStatus">
+                  <button type="submit" mat-flat-button color="primary" [disabled]="savingStatus">
+                    @if (savingStatus) {
+                      <mat-spinner diameter="18"></mat-spinner>
+                    }
                     {{ savingStatus ? 'Atualizando…' : 'Atualizar status' }}
                   </button>
                 </div>

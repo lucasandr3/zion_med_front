@@ -82,18 +82,22 @@
     </div>
     <div class="fp-field-group">
       <label class="fp-field-label" for="feegow_data">Data *</label>
-      <input
-        id="feegow_data"
-        type="text"
-        mwlFlatpickr
-        [(ngModel)]="valores['feegow_data']"
-        name="feegow_data"
-        class="fp-input"
-        placeholder="dd/mm/aaaa"
-        [altInput]="true"
-        [altInputClass]="'fp-input'"
-        required
-      />
+      <mat-form-field appearance="outline" class="w-full">
+        <input
+          matInput
+          id="feegow_data"
+          [matDatepicker]="feegowDatepicker"
+          appOpenPickerOnInteract
+          [datepicker]="feegowDatepicker"
+          [ngModel]="feegowDateValue()"
+          (ngModelChange)="onFeegowDateChange($event)"
+          name="feegow_data"
+          placeholder="dd/mm/aaaa"
+          required
+        />
+        <mat-datepicker-toggle matIconSuffix [for]="feegowDatepicker"></mat-datepicker-toggle>
+        <mat-datepicker #feegowDatepicker></mat-datepicker>
+      </mat-form-field>
     </div>
     <div class="fp-field-group">
       <label class="fp-field-label" for="feegow_horario">Horário *</label>

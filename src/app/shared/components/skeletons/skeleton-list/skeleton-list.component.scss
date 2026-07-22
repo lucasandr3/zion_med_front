@@ -1,7 +1,13 @@
 .zm-skeleton-list {
-  border-radius: var(--radius-table, 8px);
-  border: 1px solid var(--border, var(--c-border));
-  background: var(--card, var(--c-surface));
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  width: 100%;
+  min-height: 0;
+  margin: 0;
+  border: none;
+  border-radius: 0;
+  background: rgb(var(--theme-floor-1));
   overflow: hidden;
 }
 
@@ -10,7 +16,7 @@
   align-items: center;
   gap: 0.75rem;
   padding: 0.75rem 1rem;
-  border-bottom: 1px solid var(--border, var(--c-border));
+  border-bottom: 1px solid var(--theme-line);
 }
 
 .zm-skeleton-list__row:last-child {

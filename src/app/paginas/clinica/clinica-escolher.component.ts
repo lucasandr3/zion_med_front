@@ -8,7 +8,9 @@ import { LoadingService } from '../../shared/services/loading.service';
 import { ZmSkeletonListComponent } from '../../shared/components/skeletons';
 import { ZmEmptyStateComponent } from '../../shared/components/ui';
 import { ZardCardComponent } from '@/shared/components/card/card.component';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ToastService } from '../../core/services/toast.service';
 
 @Component({
@@ -19,7 +21,9 @@ import { ToastService } from '../../core/services/toast.service';
     ZmSkeletonListComponent,
     ZmEmptyStateComponent,
     ZardCardComponent,
-    ZardButtonComponent,
+    MatButtonModule,
+    MatIconModule,
+    MatProgressSpinnerModule,
   ],
   templateUrl: './clinica-escolher.component.html',
   styleUrl: './clinica-escolher.component.css',

@@ -1,0 +1,39 @@
+<mat-form-field appearance="outline" class="upx-input__container upx-tree-select__container">
+
+    <input
+        matInput
+        [formControl]="searchControl"
+        [required]="required"
+        [placeholder]="placeholderText"
+        [matAutocomplete]="auto"
+        autocomplete="off"
+        class="upx-tree-select__input" />
+
+    <!-- Ícone de limpar (aparece quando há valor selecionado) -->
+    <mat-icon
+        matSuffix
+        *ngIf="field.value != null"
+        class="upx-input__icon upx-input__icon-clear"
+        (click)="clearSelection()">
+        close
+    </mat-icon>
+
+    <mat-autocomplete
+        #auto="matAutocomplete"
+        [displayWith]="displayFn"
+        (optionSelected)="onOptionSelected($event)">
+
+        <mat-option *ngIf="enableNone" [value]="null">{{ noneLabel }}</mat-option>
+
+        <mat-option *ngFor="let opt of filteredOptions$ | async" [value]="opt">
+            <span
+                class="upx-tree-select__option"
+                [class.upx-tree-select__option--parent]="opt.hasChildren"
+                [style.paddingLeft.px]="opt.level * 16">
+                {{ opt.label }}
+            </span>
+        </mat-option>
+
+    </mat-autocomplete>
+
+</mat-form-field>

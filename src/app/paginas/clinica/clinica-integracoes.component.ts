@@ -18,9 +18,11 @@ import {
 import { ToastService } from '../../core/services/toast.service';
 import { ConfirmDialogService } from '../../core/services/confirm-dialog.service';
 import { ZardTableImports } from '@/shared/components/table';
-import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
+import { MAT_FORM_IMPORTS } from '@/shared/material';
 import { ZardCardComponent } from '@/shared/components/card/card.component';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ZardTabComponent, ZardTabGroupComponent } from '@/shared/components/tabs';
 import { ZardBadgeComponent } from '@/shared/components/badge';
 import type { ZardBadgeTypeVariants } from '@/shared/components/badge/badge.variants';
@@ -32,7 +34,7 @@ type AbaIntegracao = 'api' | 'webhooks' | 'entregas' | 'sistemas';
   selector: 'app-clinica-integracoes',
   standalone: true,
   imports: [
-    ...ZARD_FORM_CONTROL_IMPORTS,
+    ...MAT_FORM_IMPORTS,
     ...ZardTableImports,
     CommonModule,
     FormsModule,
@@ -40,7 +42,9 @@ type AbaIntegracao = 'api' | 'webhooks' | 'entregas' | 'sistemas';
     ZmSkeletonIntegracoesComponent,
     ZmSkeletonIntegracoesSistemasComponent,
     ZardCardComponent,
-    ZardButtonComponent,
+    MatButtonModule,
+    MatIconModule,
+    MatProgressSpinnerModule,
     ZardTabComponent,
     ZardTabGroupComponent,
     ZardBadgeComponent,

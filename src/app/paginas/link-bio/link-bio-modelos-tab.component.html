@@ -6,7 +6,7 @@
                   <h2 class="link-bio-section-h2 text-[15px] font-semibold m-0">Modelo publicado</h2>
                   <p class="link-bio-section-p text-[13px] mt-1.5 mb-0">
                     Escolha o layout que os visitantes veem no link público. Textos específicos ficam na aba
-                    <button type="button" z-button zType="link" class="h-auto p-0 font-medium" (click)="goToConteudoExtra.emit()">Conteúdo extra</button>.
+                    <button type="button" mat-button class="h-auto p-0 font-medium" (click)="goToConteudoExtra.emit()">Conteúdo extra</button>.
                   </p>
                 </div>
               </div>
@@ -57,20 +57,23 @@
             <div class="sticky-footer">
               <div class="text-xs text-muted-foreground">Alterações não salvas</div>
               <div class="footer-btns">
-                <a routerLink="/dashboard" z-button zType="outline" zSize="sm" class="gap-2 no-underline">
-                  <span class="material-symbols-outlined text-base">close</span>
+                <a routerLink="/dashboard" mat-stroked-button class="btn-cancel gap-2 no-underline">
+                  <mat-icon>close</mat-icon>
                   Cancelar
                 </a>
                 <button
                   type="button"
-                  z-button
-                  zSize="sm"
+                  mat-flat-button
+                  color="primary"
                   class="gap-2"
-                  [zDisabled]="salvando || !modelDirty"
-                  [zLoading]="salvando"
+                  [disabled]="salvando || !modelDirty"
                   (click)="salvar()"
                 >
-                  <span class="material-symbols-outlined text-base">save</span>
+                  @if (salvando) {
+                    <mat-spinner diameter="18"></mat-spinner>
+                  } @else {
+                    <mat-icon>save</mat-icon>
+                  }
                   {{ salvando ? 'Salvando…' : 'Salvar configurações' }}
                 </button>
               </div>

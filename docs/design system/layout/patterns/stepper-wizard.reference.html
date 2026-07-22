@@ -1,0 +1,21 @@
+<!-- Extraído de: pages/painel/wizard/wizard.component.html (início) -->
+<mat-stepper class="pt-4 pl-4 pr-4 lg:pt-0 lg:pl-0 lg:pr-0"
+	[linear]="true"
+	[orientation]="isMobile() ? 'vertical' : 'horizontal'"
+	#stepper>
+	<mat-step label="Fornecedores" [stepControl]="stepFornecedores">
+		<upx-card class="mt-5 mb-5" headerPosition="left">
+			<upx-card-content>
+				<!-- conteúdo da etapa -->
+			</upx-card-content>
+		</upx-card>
+	</mat-step>
+	<mat-step label="Itens" [stepControl]="stepItens">
+		<!-- ... -->
+	</mat-step>
+	<mat-step label="Conclusão" [stepControl]="stepConclusao">
+		<!-- ... -->
+	</mat-step>
+</mat-stepper>
+
+<!-- Estilos: styles/stepper-wizard.scss + Mat Stepper em styles.scss -->

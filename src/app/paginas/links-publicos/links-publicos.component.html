@@ -1,35 +1,34 @@
-<div class="links-publicos relative min-h-[320px]">
-  @if (showSkeleton()) {
-    <zm-skeleton-links-publicos [rows]="3" />
-  } @else if (!listaPronta) {
-  } @else if (erro) {
-    <z-card class="flex flex-wrap items-center justify-between gap-3 border-border py-5 shadow-sm **:data-[slot=card-content]:px-5">
-      <p class="m-0 text-sm text-destructive">{{ erro }}</p>
-      <button z-button zType="outline" zSize="sm" type="button" class="gap-2" (click)="carregar(meta.current_page)">
-        <span class="material-symbols-outlined text-base" aria-hidden="true">refresh</span>
-        Tentar novamente
-      </button>
-    </z-card>
-  } @else {
-    <div class="zm-content-enter flex flex-col gap-4" data-go-tour="links-publicos-list">
-      @if (meta.total > 0) {
-        <p class="zm-count-label m-0">{{ contagemTexto() }}</p>
-      }
+<div class="links-publicos upx-page-list relative min-h-[320px]">
+  <div class="upx-page-list__content">
+    @if (showSkeleton()) {
+      <zm-skeleton-links-publicos [rows]="3" />
+    } @else if (!listaPronta) {
+    } @else if (erro) {
+      <div class="flex flex-wrap items-center justify-between gap-3 rounded-[10px] border border-border bg-card px-5 py-5 shadow-sm">
+        <p class="m-0 text-sm text-destructive">{{ erro }}</p>
+        <button mat-stroked-button type="button" class="btn-cancel" (click)="carregar(meta.current_page)">
+          <mat-icon>refresh</mat-icon>
+          Tentar novamente
+        </button>
+      </div>
+    } @else {
+      <div class="zm-content-enter flex flex-col gap-4" data-go-tour="links-publicos-list">
+        @if (meta.total > 0) {
+          <p class="zm-count-label m-0">{{ contagemTexto() }}</p>
+        }
 
-      @for (t of templates; track t.id) {
-        <z-card class="links-publicos-card border-border bg-card shadow-sm **:data-[slot=card-content]:p-0">
-          <div class="links-publicos-card__head">
-            <div class="links-publicos-card__lead">
-              <div class="links-publicos-card__icon" aria-hidden="true">
-                <span class="material-symbols-outlined">{{ iconeTemplate(t) }}</span>
+        @for (t of templates; track t.id) {
+          <z-card class="links-publicos-card border-border bg-card shadow-sm **:data-[slot=card-content]:p-0">
+            <div class="links-publicos-card__head">
+              <div class="links-publicos-card__lead">
+                <div class="links-publicos-card__icon" aria-hidden="true">
+                  <span class="material-symbols-outlined">{{ iconeTemplate(t) }}</span>
+                </div>
+                <div class="links-publicos-card__identity min-w-0">
+                  <h3 class="links-publicos-card__title" [attr.title]="t.name">{{ t.name }}</h3>
+                  <up-badge variant="status" tone="published">Público</up-badge>
+                </div>
               </div>
-              <div class="links-publicos-card__identity min-w-0">
-                <h3 class="links-publicos-card__title" [attr.title]="t.name">{{ t.name }}</h3>
-                <z-badge zShape="pill" class="links-publicos-card__badge">
-                  Público
-                </z-badge>
-              </div>
-            </div>
             <div class="links-publicos-card__aside shrink-0">
               @if (metaLinha(t)) {
                 <p class="links-publicos-card__sub">{{ metaLinha(t) }}</p>
@@ -39,81 +38,72 @@
                 type="button"
                 [zMenuTriggerFor]="cardMenuTpl"
                 zPlacement="bottomRight"
-                z-button
-                zType="ghost"
-                zSize="icon-sm"
+                mat-icon-button
                 class="links-publicos-card__menu-btn"
                 [attr.aria-label]="'Mais opções para ' + t.name"
                 (click)="menuItem = t"
               >
-                <span class="material-symbols-outlined text-[1.125rem]">more_vert</span>
+                <mat-icon>more_vert</mat-icon>
               </button>
             </div>
           </div>
 
           <div class="links-publicos-card__actions">
             <button
-              z-button
-              zType="outline"
-              zSize="sm"
+              mat-stroked-button
               type="button"
-              class="links-publicos-card__action"
+              class="links-publicos-card__action btn-cancel"
               [title]="copiedTemplateId === t.id ? 'Link copiado' : 'Copiar link do formulário'"
               (click)="copiarLink(t.id, t.public_url)"
             >
-              <span class="material-symbols-outlined text-base" aria-hidden="true">
+              <mat-icon aria-hidden="true">
                 {{ copiedTemplateId === t.id ? 'check' : 'content_copy' }}
-              </span>
+              </mat-icon>
               {{ copiedTemplateId === t.id ? 'Copiado!' : 'Copiar link' }}
             </button>
             <a
-              z-button
-              zType="outline"
-              zSize="sm"
+              mat-stroked-button
               [href]="t.public_url"
               target="_blank"
               rel="noopener noreferrer"
-              class="links-publicos-card__action no-underline"
+              class="links-publicos-card__action btn-cancel no-underline"
               title="Abrir formulário em nova aba"
             >
-              <span class="material-symbols-outlined text-base" aria-hidden="true">open_in_new</span>
+              <mat-icon aria-hidden="true">open_in_new</mat-icon>
               Abrir
             </a>
             <button
-              z-button
-              zType="outline"
-              zSize="sm"
+              mat-stroked-button
               type="button"
-              class="links-publicos-card__action"
+              class="links-publicos-card__action btn-cancel"
               title="Ver QR code do link"
               (click)="abrirQr(t)"
             >
-              <span class="material-symbols-outlined text-base" aria-hidden="true">qr_code_2</span>
+              <mat-icon aria-hidden="true">qr_code_2</mat-icon>
               QR code
             </button>
             <a
-              z-button
-              zType="outline"
-              zSize="sm"
+              mat-stroked-button
               routerLink="/templates/{{ t.id }}/campos"
-              class="links-publicos-card__action no-underline"
+              class="links-publicos-card__action btn-cancel no-underline"
               title="Campos do formulário"
             >
-              <span class="material-symbols-outlined text-base" aria-hidden="true">tune</span>
+              <mat-icon aria-hidden="true">tune</mat-icon>
               Campos
             </a>
           </div>
         </z-card>
       } @empty {
-        <z-card class="border-border py-10 shadow-sm **:data-[slot=card-content]:px-5">
-          <zm-empty-state
-            title="Nenhum formulário público ativo"
-            description="Ative o link público em Modelos de fichas → Campos para gerar um link compartilhável com pacientes."
-            actionLabel="Ir para modelos de fichas"
-            actionLink="/templates"
-            actionIcon="description"
-          />
-        </z-card>
+        <up-empty-state
+          icon="description"
+          title="Nenhum formulário público ativo"
+          description="Ative o link público em Modelos de fichas → Campos para gerar um link compartilhável com pacientes."
+        >
+          <a mat-flat-button color="primary" routerLink="/templates">
+            <mat-icon>description</mat-icon>
+            Ir para modelos de fichas
+          </a>
+        </up-empty-state>
       }
 
       @if (meta.last_page > 1) {
@@ -124,7 +114,8 @@
         />
       }
     </div>
-  }
+    }
+  </div>
 
   <ng-template #cardMenuTpl>
     @if (menuItem) {
@@ -173,15 +164,13 @@
           <p class="links-publicos-qr-dialog__sub">Escaneie para abrir o formulário</p>
         </div>
         <button
-          z-button
-          zType="ghost"
-          zSize="icon-sm"
+          mat-icon-button
           type="button"
           class="shrink-0"
           aria-label="Fechar"
           (click)="fecharQr()"
         >
-          <span class="material-symbols-outlined text-[1.125rem]">close</span>
+          <mat-icon>close</mat-icon>
         </button>
       </div>
       <div class="links-publicos-qr-dialog__body">
@@ -194,26 +183,22 @@
       @if (qrItem?.public_url) {
         <div class="links-publicos-qr-dialog__actions">
           <button
-            z-button
-            zType="outline"
-            zSize="sm"
+            mat-stroked-button
             type="button"
-            class="gap-2"
+            class="btn-cancel gap-2"
             [disabled]="!qrDataUrl"
             (click)="baixarQr()"
           >
-            <span class="material-symbols-outlined text-base" aria-hidden="true">download</span>
+            <mat-icon aria-hidden="true">download</mat-icon>
             Baixar QR code
           </button>
           <button
-            z-button
-            zType="outline"
-            zSize="sm"
+            mat-stroked-button
             type="button"
-            class="gap-2"
+            class="btn-cancel gap-2"
             (click)="copiarLink(qrItem!.id, qrItem!.public_url)"
           >
-            <span class="material-symbols-outlined text-base" aria-hidden="true">content_copy</span>
+            <mat-icon aria-hidden="true">content_copy</mat-icon>
             Copiar link
           </button>
         </div>

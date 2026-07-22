@@ -1,0 +1,57 @@
+/**
+ * Extraído do Gestgo: src/styles_bkp.scss (bloco NAVIGATION)
+ */
+@layer components {
+    .upx-navigation {
+        @apply flex flex-col px-2 w-full;
+        .upx-navigation-title {
+            @apply inline-flex items-end justify-start w-full h-10 px-3 pt-4 pb-2 text-xs font-medium leading-none text-black dark:text-white text-opacity-60 dark:text-opacity-60 uppercase;
+        }
+        .upx-navigation-item {
+            @apply flex gap-2 items-center justify-between w-full h-10 px-3 py-2 rounded-md select-none cursor-pointer
+                text-black text-opacity-80 dark:text-white dark:text-opacity-80
+                hover:text-opacity-100 dark:hover:text-opacity-100 hover:bg-black hover:bg-opacity-5 dark:hover:bg-white dark:hover:bg-opacity-10;
+
+            &.upx-navigation-item-active {
+                @apply text-black dark:text-white bg-theme dark:bg-theme bg-opacity-10 dark:bg-opacity-25;
+            }
+            .upx-navigation-item-start {
+                @apply flex gap-2 items-center;
+            }
+            .upx-navigation-item-end {
+                @apply flex gap-2 items-center;
+            }
+            .upx-navigation-item-text {
+                @apply text-sm font-semibold leading-normal;
+            }
+        }
+        .upx-navigation-group {
+            @apply flex flex-col w-full gap-1;
+        }
+        .upx-navigation-collapse {
+            @apply flex flex-col w-full relative;
+            .upx-navigation-collapse-menu {
+                @apply flex flex-col gap-2 items-start justify-start w-full pl-6 py-1;
+                .upx-navigation-item {
+                    @apply text-black text-opacity-70 dark:text-white dark:text-opacity-70 hover:text-opacity-100 dark:hover:text-opacity-100;
+                    &.upx-navigation-item-active {
+                        @apply text-black dark:text-white;
+                    }
+                }
+            }
+        }
+        &.upx-navigation-compact {
+            .upx-navigation-item {
+                @apply px-0 justify-center;
+                .upx-navigation-title,
+                .upx-navigation-item-text,
+                .upx-navigation-item-end {
+                    @apply hidden;
+                }
+            }
+            .upx-navigation-collapse-menu {
+                @apply hidden;
+            }
+        }
+    }
+}

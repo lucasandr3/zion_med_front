@@ -26,17 +26,9 @@
                     }
                   </div>
                 </div>
-                <button
-                  type="button"
-                  z-button
-                  zSize="sm"
-                  class="shrink-0 gap-1.5"
-                  [disabled]="escolhendoId !== null"
-                  (click)="escolher(c.id)"
-                  title="Selecionar esta empresa"
-                >
+                <button mat-flat-button color="primary" type="button" class="shrink-0 gap-1.5" [disabled]="escolhendoId !== null" (click)="escolher(c.id)" title="Selecionar esta empresa">
                   @if (escolhendoId === c.id) {
-                    <span class="btn-spinner" aria-hidden="true"></span>
+                    <mat-spinner diameter="18"></mat-spinner>
                     Selecionando…
                   } @else {
                     Selecionar

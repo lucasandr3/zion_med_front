@@ -7,15 +7,12 @@ import { PlataformaHeaderService } from '../../../core/services/plataforma-heade
 import { LoadingService } from '../../../shared/services/loading.service';
 import { ZmSkeletonCardComponent } from '../../../shared/components/skeletons';
 import { ToastService } from '../../../core/services/toast.service';
-import { ZardCardComponent } from '@/shared/components/card/card.component';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
-
-import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
+import { MAT_FORM_IMPORTS } from '@/shared/material';
 @Component({
   selector: 'app-plataforma-plano-form',
   standalone: true,
   imports: [
-    ...ZARD_FORM_CONTROL_IMPORTS,CommonModule, FormsModule, RouterLink, ZardCardComponent, ZardButtonComponent, ZmSkeletonCardComponent],
+    ...MAT_FORM_IMPORTS, CommonModule, FormsModule, RouterLink, ZmSkeletonCardComponent],
   templateUrl: './plataforma-plano-form.component.html',
   styleUrl: './plataforma-plano-form.component.css',
 })

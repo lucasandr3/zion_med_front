@@ -1,0 +1,79 @@
+.upx-modal{
+    @apply flex flex-col bg-theme-floor-1 rounded-lg divide-y divide-black divide-opacity-10 dark:divide-white dark:divide-opacity-10;
+    .upx-modal__heading,
+    .upx-modal__footer{
+        @apply flex shrink-0 items-center justify-between gap-2 h-14 w-full px-4;
+    }
+    .upx-modal__heading{
+        @apply order-1 bg-theme text-white dark:text-theme-contrast;
+        .upx-button {
+            &.upx-button--variant-plain {
+                &.upx-button--color-default .upx-button__container {
+                    @apply text-white dark:text-theme-contrast;
+                }
+            }
+        }
+    }
+    .upx-modal__title {
+        @apply text-lg;
+    }
+    .upx-modal__drag-handle {
+        @apply cursor-move;
+    }
+    .upx-modal__content {
+        @apply flex flex-col p-4 overflow-auto max-h-[calc(100dvh_-_7rem)];
+    }
+    .upx-modal__footer {
+		@apply flex; /* Garante que o footer use flexbox */
+
+		&--align-start {
+			@apply justify-start; /* Alinha os botões à esquerda */
+		}
+
+		&--align-center {
+			@apply justify-center; /* Alinha os botões ao centro */
+		}
+
+		&--align-end {
+			@apply justify-end; /* Alinha os botões à direita */
+		}
+
+		&--align-between {
+			@apply justify-between; /* Distribui os botões uniformemente */
+		}
+
+		&--align-around {
+			@apply justify-around; /* Distribui os botões com espaçamento */
+		}
+
+		&--align-evenly {
+			@apply justify-evenly; /* Distribui os botões uniformemente */
+		}
+	}
+    &:not(.upx-modal--disable-full-size-mobile) {
+        @apply h-[100dvh] md:h-auto w-[100dvw];
+    }
+    &.upx-modal--size-exs {
+        @apply md:w-[20dvw];
+    }
+	&.upx-modal--size-xs {
+        @apply md:w-[45dvw];
+    }
+    &.upx-modal--size-sm {
+        @apply md:w-[50dvw];
+    }
+    &.upx-modal--size-md {
+        @apply md:w-[65dvw];
+    }
+    &.upx-modal--size-lg {
+        @apply md:w-[90dvw];
+    }
+    &:not(.upx-modal--disable-order-mobile) {
+        .upx-modal__content {
+            @apply order-2 md:order-2;
+        }
+        .upx-modal__footer {
+            @apply order-3 md:order-3;
+        }
+    }
+}

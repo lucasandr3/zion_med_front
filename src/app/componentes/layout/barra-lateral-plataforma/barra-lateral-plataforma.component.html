@@ -1,11 +1,9 @@
-<div class="sidebar-overlay-mobile fixed inset-0 z-20 cursor-pointer bg-black/55 backdrop-blur-sm lg:hidden"
-     [class.hidden]="!sidebarOpenMobile"
+<div class="sidebar-overlay-mobile fixed inset-0 z-20 cursor-pointer bg-black/55 backdrop-blur-sm"
      aria-hidden="true"
      (click)="fecharSidebarMobile()"></div>
 <aside id="sidebar"
        data-shell="plataforma"
-       class="sidebar fixed inset-y-0 left-0 z-30 flex flex-col lg:translate-x-0"
-       [class.-translate-x-full]="!sidebarOpenMobile">
+       class="sidebar fixed inset-y-0 left-0 z-30 flex flex-col">
   <div class="sidebar-brand-strip sidebar-brand-strip--gestgo flex h-14 shrink-0 items-center border-b px-3.5">
     <a routerLink="/plataforma" class="sidebar-brand sidebar-brand--gestgo flex w-full min-w-0 items-center gap-2.5 no-underline">
       <div class="sidebar-logo-chip sidebar-logo-chip--gestgo flex shrink-0 items-center justify-center">
@@ -13,7 +11,7 @@
       </div>
       <span class="sidebar-brand__text sidebar-label min-w-0">
         <span class="sidebar-brand__title">Gestgo</span>
-        <span class="sidebar-brand__tag">Plataforma</span>
+        <span class="sidebar-brand__tag">Fichas digitais</span>
       </span>
     </a>
   </div>

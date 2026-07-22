@@ -1,0 +1,31 @@
+.table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    /* Suporte para rolagem suave em dispositivos móveis */
+}
+
+table {
+    width: 100%;
+    min-width: 600px;
+    table-layout: auto;
+}
+
+::ng-deep .mat-mdc-table tbody,
+.mat-mdc-table tfoot,
+.mat-mdc-table thead,
+.mat-mdc-cell,
+.mat-mdc-footer-cell,
+.mat-mdc-header-row,
+.mat-mdc-row,
+.mat-mdc-footer-row,
+.mat-mdc-table .mat-mdc-header-cell {
+    border-bottom: 0.1rem solid rgb(119, 118, 118) !important;
+}
+
+::ng-deep {
+    @media (hover: none) {
+        .mat-expansion-panel:not(.mat-expanded) .mat-expansion-panel-header:not([aria-disabled=true]):hover {
+            @apply rounded-lg bg-teal-100 text-black dark:bg-zinc-700 dark:text-white;
+        }
+    }
+}

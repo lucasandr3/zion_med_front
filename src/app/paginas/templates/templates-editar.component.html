@@ -6,7 +6,7 @@
     <p class="text-sm text-destructive">{{ erro }}</p>
   } @else if (template) {
     <div class="zm-content-enter">
-      <z-card class="gap-0 border-border bg-card py-5 shadow-sm **:data-[slot=card-content]:px-5">
+      <div class="upx-form-panel">
         <p class="mb-5 text-sm text-muted-foreground">
           Atualize os dados básicos do modelo. As alterações nos campos do formulário são feitas na tela de campos.
         </p>
@@ -17,43 +17,15 @@
 
         <form (ngSubmit)="salvar()" class="flex flex-col gap-5">
           <div>
-            <label class="templates-form-label" for="template-edit-name">Nome</label>
-            <input
-              id="template-edit-name"
-              type="text"
-              [(ngModel)]="name"
-              name="name"
-              required
-              z-input
-              zSize="sm"
-              class="w-full"
-            />
+            <mat-form-field appearance="outline" class="w-full"><mat-label>Nome</mat-label><input matInput id="template-edit-name" type="text" [(ngModel)]="name" name="name" required /></mat-form-field>
           </div>
 
           <div>
-            <label class="templates-form-label" for="template-edit-description">Descrição</label>
-            <textarea
-              id="template-edit-description"
-              [(ngModel)]="description"
-              name="description"
-              rows="3"
-              z-input
-              zSize="sm"
-              class="w-full"
-              placeholder="Breve descrição do modelo..."
-            ></textarea>
+            <mat-form-field appearance="outline" class="w-full"><mat-label>Descrição</mat-label><textarea matInput id="template-edit-description" [(ngModel)]="description" name="description" rows="3" placeholder="Breve descrição do modelo..."></textarea></mat-form-field>
           </div>
 
           <div>
-            <label class="templates-form-label" id="template-edit-kind-label">Tipo de documento</label>
-            <z-combobox
-              class="w-full"
-              ariaLabelledby="template-edit-kind-label"
-              [options]="opcoesDocumento"
-              [ngModel]="document_kind"
-              (ngModelChange)="onDocumentKindChange($event)"
-              name="document_kind"
-            />
+            <mat-form-field appearance="outline" class="w-full"><mat-label>Tipo de documento</mat-label><mat-select [ngModel]="document_kind" (ngModelChange)="onDocumentKindChange($event)" name="document_kind">@for (option of opcoesDocumento; track option.value) {<mat-option [value]="option.value">{{ option.label }}</mat-option>}</mat-select></mat-form-field>
             <p class="mt-1.5 text-xs text-muted-foreground">
               Separar ficha, consentimento clínico e ciência de privacidade evita misturar finalidades no mesmo modelo.
             </p>
@@ -61,26 +33,13 @@
 
           @if (document_kind === 'consentimento') {
             <div>
-              <label class="templates-form-label" for="template-edit-validity-days">Validade do consentimento (dias)</label>
-              <input
-                id="template-edit-validity-days"
-                type="number"
-                min="1"
-                max="3650"
-                [ngModel]="consent_validity_days ?? ''"
-                (ngModelChange)="onValidityDaysChange($event)"
-                name="consent_validity_days"
-                z-input
-                zSize="sm"
-                class="w-full"
-                placeholder="Ex.: 365 — deixe vazio para sem vencimento"
-              />
+              <mat-form-field appearance="outline" class="w-full"><mat-label>Validade do consentimento (dias)</mat-label><input matInput id="template-edit-validity-days" type="number" min="1" max="3650" [ngModel]="consent_validity_days ?? ''" (ngModelChange)="onValidityDaysChange($event)" name="consent_validity_days" placeholder="Ex.: 365 — deixe vazio para sem vencimento" /></mat-form-field>
               <p class="mt-1.5 text-xs text-muted-foreground">
                 Após a aprovação, o protocolo fica válido por este período. Depois aparece como vencido na ficha da pessoa.
               </p>
             </div>
 
-            <div class="space-y-3 rounded-lg border border-border p-4">
+            <div class="space-y-3 border-y border-border py-4">
               <div class="flex flex-wrap items-center justify-between gap-2">
                 <div>
                   <p class="templates-form-label mb-0">Quiz de compreensão</p>
@@ -89,66 +48,40 @@
                   </p>
                 </div>
                 <button
-                  z-button
-                  zType="outline"
-                  zSize="sm"
+                  mat-stroked-button
                   type="button"
-                  class="gap-1"
+                  class="btn-cancel"
                   (click)="addQuizQuestion()"
                   [disabled]="quizQuestions.length >= 5"
                 >
-                  <span class="material-symbols-outlined text-base">add</span>
+                  <mat-icon>add</mat-icon>
                   Pergunta
                 </button>
               </div>
 
               @for (q of quizQuestions; track q.id || $index; let qi = $index) {
-                <div class="space-y-2 rounded-md border border-border/80 bg-muted/20 p-3">
+                <div class="space-y-2 border-t border-border/80 pt-3">
                   <div class="flex items-start justify-between gap-2">
                     <label class="templates-form-label mb-0" [attr.for]="'quiz-prompt-' + qi">Pergunta {{ qi + 1 }}</label>
-                    <button z-button zType="ghost" zSize="sm" type="button" (click)="removeQuizQuestion(qi)" aria-label="Remover pergunta">
-                      <span class="material-symbols-outlined text-base">delete</span>
+                    <button mat-icon-button type="button" (click)="removeQuizQuestion(qi)" aria-label="Remover pergunta">
+                      <mat-icon>delete</mat-icon>
                     </button>
                   </div>
-                  <input
-                    [id]="'quiz-prompt-' + qi"
-                    type="text"
-                    [(ngModel)]="q.prompt"
-                    [name]="'quiz_prompt_' + qi"
-                    z-input
-                    zSize="sm"
-                    class="w-full"
-                    placeholder="Ex.: Posso recusar o procedimento a qualquer momento?"
-                  />
+                  <mat-form-field appearance="outline" class="w-full"><mat-label>Pergunta {{ qi + 1 }}</mat-label><input matInput [id]="'quiz-prompt-' + qi" type="text" [(ngModel)]="q.prompt" [name]="'quiz_prompt_' + qi" placeholder="Ex.: Posso recusar o procedimento a qualquer momento?" /></mat-form-field>
                   <div class="space-y-2">
                     @for (opt of q.options; track $index; let oi = $index) {
                       <div class="flex items-center gap-2">
-                        <input
-                          type="radio"
-                          [name]="'quiz_correct_' + qi"
-                          [checked]="q.correct_index === oi"
-                          (change)="q.correct_index = oi"
-                          [attr.aria-label]="'Marcar opção ' + (oi + 1) + ' como correta'"
-                        />
-                        <input
-                          type="text"
-                          [ngModel]="opt"
-                          (ngModelChange)="setQuizOption(qi, oi, $event)"
-                          [name]="'quiz_opt_' + qi + '_' + oi"
-                          z-input
-                          zSize="sm"
-                          class="w-full"
-                          [placeholder]="'Opção ' + (oi + 1)"
-                        />
+                        <mat-radio-group [ngModel]="q.correct_index" (ngModelChange)="q.correct_index = $event" [name]="'quiz_correct_' + qi"><mat-radio-button [value]="oi" [attr.aria-label]="'Marcar opção ' + (oi + 1) + ' como correta'" /></mat-radio-group>
+                        <mat-form-field appearance="outline" class="w-full"><mat-label>Opção {{ oi + 1 }}</mat-label><input matInput type="text" [ngModel]="opt" (ngModelChange)="setQuizOption(qi, oi, $event)" [name]="'quiz_opt_' + qi + '_' + oi" /></mat-form-field>
                         @if (q.options.length > 2) {
-                          <button z-button zType="ghost" zSize="sm" type="button" (click)="removeQuizOption(qi, oi)" aria-label="Remover opção">
-                            <span class="material-symbols-outlined text-base">close</span>
+                          <button mat-icon-button type="button" (click)="removeQuizOption(qi, oi)" aria-label="Remover opção">
+                            <mat-icon>close</mat-icon>
                           </button>
                         }
                       </div>
                     }
                     @if (q.options.length < 4) {
-                      <button z-button zType="link" zSize="sm" type="button" class="px-0" (click)="addQuizOption(qi)">
+                      <button mat-button type="button" (click)="addQuizOption(qi)">
                         + opção
                       </button>
                     }
@@ -160,68 +93,30 @@
           }
 
           <div>
-            <label class="templates-form-label" id="template-edit-category-label">Categoria</label>
-            <z-combobox
-              class="w-full"
-              zWidth="full"
-              [options]="opcoesCategoria"
-              [value]="categoriaSelecionada || null"
-              placeholder="Sem categoria"
-              searchPlaceholder="Buscar categoria..."
-              emptyText="Nenhuma categoria encontrada."
-              ariaLabel="Categoria"
-              ariaDescribedBy="template-edit-category-label"
-              (zValueChange)="selecionarCategoria($event)"
-            />
+            <mat-form-field appearance="outline" class="w-full"><mat-label>Categoria</mat-label><mat-select [(ngModel)]="categoriaSelecionada" (ngModelChange)="selecionarCategoria($event)" name="categoria">@for (option of opcoesCategoria; track option.value) {<mat-option [value]="option.value">{{ option.label }}</mat-option>}</mat-select></mat-form-field>
           </div>
 
           @if (categoriaSelecionada === '__nova__') {
             <div>
-              <label class="templates-form-label" for="template-edit-nova-categoria">Nova categoria</label>
-              <input
-                id="template-edit-nova-categoria"
-                type="text"
-                [(ngModel)]="novaCategoria"
-                name="novaCategoria"
-                z-input
-                zSize="sm"
-                class="w-full"
-                placeholder="Ex: Anamnese, Acompanhamento, Evolução..."
-              />
+            <mat-form-field appearance="outline" class="w-full"><mat-label>Nova categoria</mat-label><input matInput id="template-edit-nova-categoria" type="text" [(ngModel)]="novaCategoria" name="novaCategoria" placeholder="Ex: Anamnese, Acompanhamento, Evolução..." /></mat-form-field>
             </div>
           }
 
           <div class="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-6">
-            <z-checkbox [(ngModel)]="is_active" name="is_active">Ativo</z-checkbox>
-            <z-checkbox [(ngModel)]="public_enabled" name="public_enabled">Formulário público</z-checkbox>
-            <z-checkbox [(ngModel)]="public_require_person_link" name="public_require_person_link">
+            <mat-checkbox [(ngModel)]="is_active" name="is_active">Ativo</mat-checkbox>
+            <mat-checkbox [(ngModel)]="public_enabled" name="public_enabled">Formulário público</mat-checkbox>
+            <mat-checkbox [(ngModel)]="public_require_person_link" name="public_require_person_link">
               Exigir identificação antes do formulário
-            </z-checkbox>
+            </mat-checkbox>
           </div>
 
           @if (public_require_person_link) {
             <fieldset class="m-0 flex flex-col gap-2 border-0 p-0">
               <legend class="templates-form-label mb-1">Como a pessoa se identifica</legend>
-              <label class="flex cursor-pointer items-center gap-2">
-                <input
-                  type="radio"
-                  name="public_person_link_mode"
-                  value="code"
-                  [(ngModel)]="public_person_link_mode"
-                  class="accent-primary"
-                />
-                <span class="text-sm text-foreground">Código da ficha + data de nascimento</span>
-              </label>
-              <label class="flex cursor-pointer items-center gap-2">
-                <input
-                  type="radio"
-                  name="public_person_link_mode"
-                  value="cpf"
-                  [(ngModel)]="public_person_link_mode"
-                  class="accent-primary"
-                />
-                <span class="text-sm text-foreground">CPF</span>
-              </label>
+              <mat-radio-group [(ngModel)]="public_person_link_mode" name="public_person_link_mode" class="flex flex-col gap-2">
+                <mat-radio-button value="code">Código da ficha + data de nascimento</mat-radio-button>
+                <mat-radio-button value="cpf">CPF</mat-radio-button>
+              </mat-radio-group>
             </fieldset>
             <p class="m-0 text-xs text-muted-foreground">
               @if (public_person_link_mode === 'cpf') {
@@ -235,24 +130,24 @@
           <div class="flex flex-wrap items-center gap-3 pt-2">
             <zm-page-back-link />
             <button
+              mat-flat-button
+              color="primary"
               type="submit"
-              z-button
-              zSize="sm"
-              class="inline-flex items-center gap-2"
-              [zLoading]="salvando"
-              [zDisabled]="salvando || !name.trim() || (categoriaSelecionada === '__nova__' && !novaCategoria.trim())"
+              [disabled]="salvando || !name.trim() || (categoriaSelecionada === '__nova__' && !novaCategoria.trim())"
             >
-              @if (!salvando) {
-                <span class="material-symbols-outlined text-base" aria-hidden="true">save</span>
+              @if (salvando) {
+                <mat-spinner diameter="18"></mat-spinner>
+              } @else {
+                <mat-icon>save</mat-icon>
               }
               {{ salvando ? 'Salvando…' : 'Salvar alterações' }}
             </button>
-            <a routerLink="/templates" z-button zType="ghost" zSize="sm" class="no-underline" title="Cancelar edição">
+            <a routerLink="/templates" mat-button class="btn-cancel" title="Cancelar edição">
               Cancelar
             </a>
           </div>
         </form>
-      </z-card>
+      </div>
     </div>
   }
 </div>

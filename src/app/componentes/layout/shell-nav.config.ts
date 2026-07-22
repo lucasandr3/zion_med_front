@@ -65,7 +65,8 @@ export const SHELL_NAV_APP_SECTIONS: ShellNavSection[] = [
     icon: 'admin_panel_settings',
     items: [
       { route: '/clinica/configuracoes', label: 'Empresa', icon: 'emoji_transportation', permission: 'organization.manage' },
-      { route: '/link-bio', label: 'Link na bio', icon: 'nest_heat_link_gen_3', permission: 'organization.manage' },
+      /* nest_heat_link_gen_3 via codepoint — ligature do nome falha em alguns caches/browsers */
+      { route: '/link-bio', label: 'Link na bio', icon: '\uF127', permission: 'organization.manage' },
       { route: '/clinica/integracoes', label: 'Integrações', icon: 'linked_services', permission: 'organization.manage' },
       { route: '/usuarios', label: 'Usuários', icon: 'group', permission: 'users.manage' },
       { route: '/organizacao/permissoes', label: 'Permissões', icon: 'admin_panel_settings', permission: 'users.manage' },
@@ -110,7 +111,8 @@ export const SHELL_NAV_SIDEBAR: ShellNavSection[] = [
     icon: 'admin_panel_settings',
     items: [
       { route: '/clinica/configuracoes', label: 'Empresa', icon: 'emoji_transportation', permission: 'organization.manage' },
-      { route: '/link-bio', label: 'Link na bio', icon: 'nest_heat_link_gen_3', permission: 'organization.manage' },
+      /* nest_heat_link_gen_3 via codepoint — ligature do nome falha em alguns caches/browsers */
+      { route: '/link-bio', label: 'Link na bio', icon: '\uF127', permission: 'organization.manage' },
       { route: '/clinica/integracoes', label: 'Integrações', icon: 'linked_services', permission: 'organization.manage' },
       { route: '/usuarios', label: 'Usuários', icon: 'group', permission: 'users.manage' },
       { route: '/organizacao/permissoes', label: 'Permissões', icon: 'admin_panel_settings', permission: 'users.manage' },

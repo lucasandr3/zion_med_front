@@ -1,76 +1,81 @@
-import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
+import { Component, OnInit, PLATFORM_ID, inject } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AuthService } from '../../core/services/auth.service';
-import { ZardButtonComponent } from '@/shared/components/button';
-import { ZardCheckboxComponent } from '@/shared/components/checkbox';
-import { ZardInputDirective } from '@/shared/components/input/input.directive';
-import { ZardTooltipImports } from '@/shared/components/tooltip';
 
 @Component({
   selector: 'app-pagina-login',
   standalone: true,
   imports: [
-    CommonModule,
     RouterLink,
-    FormsModule,
-    ZardButtonComponent,
-    ZardInputDirective,
-    ZardCheckboxComponent,
-    ...ZardTooltipImports,
+    ReactiveFormsModule,
+    MatButtonModule,
+    MatCheckboxModule,
+    MatFormFieldModule,
+    MatIconModule,
+    MatInputModule,
+    MatProgressSpinnerModule,
   ],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css',
 })
 export class LoginComponent implements OnInit {
-  email = '';
-  senha = '';
-  lembrar = false;
+  private readonly platformId = inject(PLATFORM_ID);
+  private readonly router = inject(Router);
+  private readonly auth = inject(AuthService);
+  private readonly fb = inject(FormBuilder);
+
   mostrarSenha = false;
   estadoCarregando = false;
   estadoErro = false;
   mensagemErro = '';
   ano = new Date().getFullYear();
-  iconeTema = 'dark_mode';
 
-  constructor(
-    @Inject(PLATFORM_ID) private platformId: object,
-    private router: Router,
-    private auth: AuthService
-  ) {}
+  readonly form = this.fb.nonNullable.group({
+    email: ['', [Validators.required, Validators.email]],
+    password: ['', Validators.required],
+    remember: [false],
+  });
 
   ngOnInit(): void {
     if (isPlatformBrowser(this.platformId)) {
       const saved = localStorage.getItem('gestgo_login_email');
-      if (saved) this.email = saved;
-      this.atualizarIconeTema();
+      if (saved) {
+        this.form.patchValue({ email: saved, remember: true });
+      }
     }
   }
 
-  alternarTema(): void {
-    if (isPlatformBrowser(this.platformId)) {
-      document.body.classList.toggle('dark');
-      localStorage.setItem('gestgo_dark_mode', document.body.classList.contains('dark') ? '1' : '0');
-      this.atualizarIconeTema();
+  private salvarEmailLogin(email: string): void {
+    if (!isPlatformBrowser(this.platformId) || !email) {
+      return;
     }
-  }
-
-  private atualizarIconeTema(): void {
-    this.iconeTema = document.body.classList.contains('dark') ? 'light_mode' : 'dark_mode';
+    localStorage.setItem('gestgo_login_email', email);
   }
 
   enviar(): void {
+    this.form.markAllAsTouched();
+    if (this.form.invalid || this.estadoCarregando) {
+      return;
+    }
+
     this.estadoErro = false;
     this.mensagemErro = '';
     this.estadoCarregando = true;
-    if (isPlatformBrowser(this.platformId) && this.email) {
-      localStorage.setItem('gestgo_login_email', this.email);
-    }
-    this.auth.login(this.email, this.senha).subscribe({
+
+    const { email, password } = this.form.getRawValue();
+
+    this.auth.login(email, password).subscribe({
       next: (res) => {
         this.estadoCarregando = false;
+        this.salvarEmailLogin(email);
         const isPlatformAdmin = res.data.user?.role === 'platform_admin';
         if (isPlatformAdmin) {
           this.router.navigate(['/plataforma']);
@@ -86,7 +91,8 @@ export class LoginComponent implements OnInit {
       error: (err) => {
         this.estadoCarregando = false;
         this.estadoErro = true;
-        const msg = err.error?.message ?? err.error?.errors?.email?.[0] ?? 'Credenciais inválidas. Tente novamente.';
+        const msg =
+          err.error?.message ?? err.error?.errors?.email?.[0] ?? 'Credenciais inválidas. Tente novamente.';
         this.mensagemErro = typeof msg === 'string' ? msg : 'Credenciais inválidas. Tente novamente.';
       },
     });

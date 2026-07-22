@@ -1,14 +1,15 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { ZardBadgeComponent } from '@/shared/components/badge';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
 import { ZardCardComponent } from '@/shared/components/card/card.component';
 import { ZardMenuImports } from '../../shared/components/menu/menu.imports';
 
 @Component({
   selector: 'zm-link-bio-overview-header',
   standalone: true,
-  imports: [CommonModule, ZardBadgeComponent, ZardButtonComponent, ZardCardComponent, ...ZardMenuImports],
+  imports: [CommonModule, MatButtonModule, MatIconModule, ZardBadgeComponent, ZardCardComponent, ...ZardMenuImports],
   templateUrl: './link-bio-overview-header.component.html',
   styleUrl: './link-bio-overview-header.component.css',
 })

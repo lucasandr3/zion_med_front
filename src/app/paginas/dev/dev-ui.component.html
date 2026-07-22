@@ -37,8 +37,8 @@
           }
         </select>
       </label>
-      <button z-button zType="outline" zSize="sm" type="button" (click)="toggleDark()">
-        <span class="material-symbols-outlined text-base" aria-hidden="true">{{ isDark ? 'light_mode' : 'dark_mode' }}</span>
+      <button mat-stroked-button type="button" (click)="toggleDark()">
+        <mat-icon aria-hidden="true">{{ isDark ? 'light_mode' : 'dark_mode' }}</mat-icon>
         {{ isDark ? 'Modo claro' : 'Modo escuro' }}
       </button>
     </div>
@@ -99,17 +99,23 @@
 
       <section id="botoes" class="dev-ui-section">
         <h2 class="dev-ui-section__title">Botões</h2>
-        <p class="dev-ui-section__desc">Preferir <code>z-button</code> em código novo. Classes legadas ainda usadas em billing.</p>
+        <p class="dev-ui-section__desc">Preferir Angular Material (<code>mat-flat-button</code>, <code>mat-stroked-button</code>, <code>mat-button</code>, <code>mat-icon-button</code>) em código novo. Classes legadas ainda usadas em billing.</p>
 
-        <h3 class="dev-ui-subsection__title">Zard (<code>z-button</code>)</h3>
+        <h3 class="dev-ui-subsection__title">Angular Material</h3>
         <div class="dev-ui-row">
-          <button z-button zType="default" zSize="sm" type="button">Default</button>
-          <button z-button zType="outline" zSize="sm" type="button">Outline</button>
-          <button z-button zType="secondary" zSize="sm" type="button">Secondary</button>
-          <button z-button zType="ghost" zSize="sm" type="button">Ghost</button>
-          <button z-button zType="destructive" zSize="sm" type="button">Destructive</button>
-          <button z-button zType="link" zSize="sm" type="button">Link</button>
-          <button z-button zType="default" zSize="sm" type="button" disabled>Disabled</button>
+          <button mat-flat-button color="primary" type="button">Flat</button>
+          <button mat-stroked-button type="button">Stroked</button>
+          <button mat-button type="button">Basic</button>
+          <button mat-flat-button color="warn" type="button">Warn</button>
+          <button mat-stroked-button color="warn" type="button">Warn stroked</button>
+          <button mat-button disabled type="button">Disabled</button>
+          <button mat-icon-button type="button" aria-label="Ícone">
+            <mat-icon>favorite</mat-icon>
+          </button>
+          <button mat-flat-button color="primary" type="button">
+            <mat-icon>add</mat-icon>
+            Com ícone
+          </button>
         </div>
 
         <h3 class="dev-ui-subsection__title">Legado (<code>styles.css</code>)</h3>
@@ -230,12 +236,12 @@
             <input z-input class="form-search-input w-full text-sm" placeholder="Buscar registros…" aria-label="Buscar" />
           </div>
           <div class="zm-list-toolbar__actions">
-            <button z-button zType="outline" zSize="sm" type="button" class="gap-1.5">
-              <span class="material-symbols-outlined text-base" aria-hidden="true">filter_alt</span>
+            <button mat-stroked-button type="button">
+              <mat-icon aria-hidden="true">filter_alt</mat-icon>
               Filtros
             </button>
-            <button z-button zSize="sm" type="button" class="gap-1.5">
-              <span class="material-symbols-outlined text-base" aria-hidden="true">add</span>
+            <button mat-flat-button color="primary" type="button">
+              <mat-icon aria-hidden="true">add</mat-icon>
               Criar
             </button>
           </div>

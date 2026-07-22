@@ -1,24 +1,16 @@
 import { FormularioPublicoData } from '../../core/services/formulario-publico.service';
 import { normalizeThemeKey } from '../../core/services/user-appearance.sync';
+import { getGestgoThemePrimary, GESTGO_THEME_TOKENS } from '../../core/theme/gestgo-themes';
 
 const DEFAULT_ACCENT = '#0a0a0a';
 
-/** Presets alinhados ao `ThemeService` do backend. */
-const PUBLIC_THEME_ACCENT: Record<string, string> = {
-  'gestgo-blue': '#1e40af',
-  'ocean-blue': '#2563eb',
-  'indigo-night': '#4f46e5',
-  'emerald-fresh': '#10b981',
-  'rose-elegant': '#f43f5e',
-  'amber-warm': '#f59e0b',
-  'violet-dream': '#8b5cf6',
-  'teal-ocean': '#14b8a6',
-  'slate-pro': '#475569',
-  'cyan-tech': '#06b6d4',
-  'fuchsia-bold': '#d946ef',
-  'onyx-black': '#1a1410',
-  custom: '#c9a84c',
-};
+/** Presets alinhados à matriz Gestgo (`gestgo-themes.ts` / `theme-palettes.css`). */
+const PUBLIC_THEME_ACCENT: Record<string, string> = Object.fromEntries(
+  Object.entries(GESTGO_THEME_TOKENS).map(([key, tokens]) => [key, tokens.light.primary]),
+);
+
+PUBLIC_THEME_ACCENT['onyx-black'] = '#1a1410';
+PUBLIC_THEME_ACCENT['custom'] = '#c9a84c';
 
 function isValidHex(hex: string | null | undefined): hex is string {
   return !!hex && /^#[0-9a-fA-F]{6}$/.test(hex.trim());
@@ -44,19 +36,24 @@ export function resolveFormularioPublicoAccent(data: FormularioPublicoData | nul
     return PUBLIC_THEME_ACCENT['custom'];
   }
 
-  return PUBLIC_THEME_ACCENT[theme] ?? DEFAULT_ACCENT;
+  return PUBLIC_THEME_ACCENT[theme] ?? getGestgoThemePrimary(theme) ?? DEFAULT_ACCENT;
 }
 
 /** Variáveis CSS aplicadas na página pública do formulário. */
 export function buildFormularioPublicoThemeVars(data: FormularioPublicoData | null | undefined): Record<string, string> {
   const accent = resolveFormularioPublicoAccent(data);
   const hasCustomAccent = accent !== DEFAULT_ACCENT;
+  const theme = normalizeThemeKey(String(data?.form_public_theme ?? data?.public_theme ?? ''));
+  const tokens = theme && GESTGO_THEME_TOKENS[theme] ? GESTGO_THEME_TOKENS[theme] : null;
+  const onPrimary = tokens?.light.onPrimary ?? '#ffffff';
+  const soft = tokens?.light.soft ?? accent;
 
   return {
     '--fp-brand-400': accent,
     '--fp-brand-500': accent,
-    '--fp-brand-600': accent,
-    '--fp-accent-contrast': '#ffffff',
+    '--fp-brand-600': tokens?.light.primaryHover ?? accent,
+    '--fp-accent-contrast': onPrimary,
+    '--fp-brand-soft': soft,
     ...(hasCustomAccent ? { '--fp-branded': '1' } : {}),
   };
 }

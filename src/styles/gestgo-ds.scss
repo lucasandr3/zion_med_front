@@ -1,0 +1,369 @@
+/**
+ * Utilitários do Design System Gestgo (Material + listagens).
+ */
+
+/* Preflight Tailwind / outline Material */
+.mat-mdc-form-field .mdc-notched-outline__notch {
+  border-right-style: hidden;
+}
+
+.btn-cancel.mat-mdc-outlined-button {
+  border-radius: 10px !important;
+  border-color: rgb(var(--theme-border) / 0.28) !important;
+  color: rgb(var(--theme-fg) / 0.85) !important;
+  background: transparent !important;
+}
+
+/**
+ * Botão soft (Voltar).
+ * Use: mat-flat-button class="upx-btn-soft" — sem color="primary".
+ */
+.upx-btn-soft.mat-mdc-unelevated-button,
+a.upx-btn-soft.mat-mdc-unelevated-button {
+  --mdc-filled-button-container-color: rgb(var(--theme-padrao) / 0.16);
+  --mdc-filled-button-label-text-color: #0a6647;
+  --mdc-filled-button-disabled-container-color: rgb(var(--theme-padrao) / 0.08);
+  --mdc-filled-button-disabled-label-text-color: rgb(var(--theme-fg) / 0.35);
+  border-radius: 10px !important;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  padding-inline: 1rem !important;
+  box-shadow: none !important;
+
+  .mat-icon,
+  mat-icon {
+    color: inherit;
+    margin-right: 0.15rem;
+  }
+
+  &:hover {
+    --mdc-filled-button-container-color: rgb(var(--theme-padrao) / 0.24);
+  }
+}
+
+html.dark .upx-btn-soft.mat-mdc-unelevated-button,
+body.dark .upx-btn-soft.mat-mdc-unelevated-button,
+.dark .upx-btn-soft.mat-mdc-unelevated-button,
+html.dark a.upx-btn-soft.mat-mdc-unelevated-button,
+body.dark a.upx-btn-soft.mat-mdc-unelevated-button,
+.dark a.upx-btn-soft.mat-mdc-unelevated-button {
+  --mdc-filled-button-container-color: rgb(var(--theme-padrao) / 0.18);
+  --mdc-filled-button-label-text-color: rgb(var(--theme-padrao));
+
+  &:hover {
+    --mdc-filled-button-container-color: rgb(var(--theme-padrao) / 0.28);
+  }
+}
+
+/* Página de lista canônica — alinhada ao InspecFlow (floor-1 full-bleed) */
+.upx-page-list {
+  display: flex;
+  flex: 1 1 auto;
+  height: 100%;
+  min-height: 0;
+  flex-direction: column;
+  width: 100%;
+  background-color: rgb(var(--theme-floor-1));
+}
+
+.upx-page-list__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+  padding: 0.65rem 1rem;
+  border-bottom: 1px solid var(--theme-line);
+  background: rgb(var(--theme-floor-1));
+}
+
+.upx-page-list__toolbar-start,
+.upx-page-list__toolbar-end {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.upx-page-list__toolbar-end {
+  margin-left: auto;
+}
+
+.upx-page-list__content {
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 0;
+  flex-direction: column;
+  background: rgb(var(--theme-floor-1));
+}
+
+@media (max-width: 767.98px) {
+  .upx-page-list__toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 0.75rem;
+  }
+
+  .upx-page-list__toolbar-start,
+  .upx-page-list__toolbar-end {
+    width: 100%;
+  }
+
+  .upx-page-list__toolbar-end {
+    margin-left: 0;
+  }
+
+  up-search-box {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+/* Badge published: tom Gestgo (não lima UpGestão) */
+.upx-badge--published {
+  background: rgb(var(--theme-padrao) / 0.18);
+  color: #0a6647;
+}
+
+body.dark .upx-badge--published,
+.dark .upx-badge--published {
+  background: rgb(var(--theme-padrao) / 0.2);
+  color: rgb(var(--theme-padrao));
+}
+
+/* Alias legado → padrão DS */
+.zm-page-list {
+  display: flex;
+  height: 100%;
+  min-height: 100%;
+  flex-direction: column;
+  background-color: transparent;
+}
+
+.zm-list-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  padding: 0.65rem 0;
+  border-bottom: 1px solid var(--theme-line);
+  background: transparent;
+}
+
+.zm-list-toolbar__start,
+.zm-list-toolbar__actions,
+.zm-list-toolbar__end {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.zm-list-toolbar__actions,
+.zm-list-toolbar__end {
+  margin-left: auto;
+}
+
+@media (max-width: 767.98px) {
+  .zm-list-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 0.75rem 0;
+  }
+
+  .zm-list-toolbar__start,
+  .zm-list-toolbar__actions,
+  .zm-list-toolbar__end,
+  .zm-list-toolbar__search {
+    width: 100%;
+    max-width: none;
+  }
+
+  .zm-list-toolbar__actions,
+  .zm-list-toolbar__end {
+    margin-left: 0;
+  }
+}
+
+/* Shell autenticado — floor-2 + filhos flex full-height */
+.main-wrapper {
+  background: rgb(var(--theme-floor-2)) !important;
+  min-height: 100vh;
+}
+
+.main-wrapper > main {
+  background: rgb(var(--theme-floor-2)) !important;
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-wrapper > main > .flex-1 {
+  min-height: 0;
+}
+
+/* Sidebar DS: rail floor; faixa de marca segue --gestgo-brand-bg (branco no Padrão) */
+#sidebar[data-shell],
+.sidebar[data-shell] {
+  width: 15rem !important;
+  background: rgb(var(--theme-sidebar)) !important;
+  border-right: 1px solid var(--theme-line);
+}
+
+#sidebar[data-shell] > .sidebar-brand-strip,
+.sidebar[data-shell] > .sidebar-brand-strip {
+  height: 3.5rem;
+  background: var(--gestgo-brand-bg, #ffffff) !important;
+  border-bottom: 1px solid var(--gestgo-brand-border, var(--theme-line));
+  color: var(--gestgo-brand-title, rgb(var(--theme-fg)));
+}
+
+#sidebar[data-shell] .sidebar-brand__title {
+  color: var(--gestgo-brand-title, rgb(var(--theme-fg))) !important;
+}
+
+#sidebar[data-shell] .sidebar-brand__tag {
+  color: var(--gestgo-brand-tag, rgb(var(--theme-fg-muted))) !important;
+  opacity: 1;
+}
+
+#sidebar[data-shell] a.shell-sidebar-nav {
+  height: 2.75rem;
+  border-radius: 0.5rem;
+  margin-bottom: 0.15rem;
+  color: rgb(var(--theme-fg) / 0.8);
+
+  .material-symbols-outlined {
+    color: inherit;
+    font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 24;
+  }
+}
+
+#sidebar[data-shell] a.shell-sidebar-nav:hover {
+  background: rgb(var(--theme-fg) / 0.05);
+  color: rgb(var(--theme-fg));
+
+  .material-symbols-outlined {
+    color: inherit;
+  }
+}
+
+#sidebar[data-shell] a.shell-sidebar-nav.router-link-active {
+  background: rgb(var(--theme-padrao) / 0.22) !important;
+  color: rgb(var(--theme-fg)) !important;
+  font-weight: 600;
+}
+
+#sidebar[data-shell] a.shell-sidebar-nav.router-link-active .material-symbols-outlined {
+  color: inherit !important;
+  font-variation-settings: 'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24;
+}
+
+/* Header já usa --shell-header-bg; reforça tipografia DS */
+#top-header .header-title,
+#top-header h2 {
+  font-weight: 500;
+}
+
+/* Breakpoint shell DS: 960px (substitui lg:1024 para overlay) */
+@media (max-width: 959.98px) {
+  #sidebar,
+  .sidebar {
+    transform: translateX(-100%);
+  }
+
+  body.sidebar-mobile-open #sidebar,
+  body.sidebar-mobile-open .sidebar {
+    transform: translateX(0);
+  }
+
+  #main-wrapper,
+  .main-wrapper {
+    margin-left: 0 !important;
+  }
+
+  .sidebar-overlay-mobile {
+    display: none;
+  }
+
+  body.sidebar-mobile-open .sidebar-overlay-mobile {
+    display: block;
+  }
+}
+
+@media (min-width: 960px) {
+  #sidebar,
+  .sidebar {
+    transform: translateX(0) !important;
+  }
+
+  .sidebar-overlay-mobile {
+    display: none !important;
+  }
+}
+
+/* Tabelas em listagens: full-bleed — sem card (borda/radius/sombra) */
+.upx-page-list .zm-table-card,
+.upx-page-list .plat-table-card,
+.upx-page-list .table-card,
+.upx-page-list z-card,
+.zm-page-list .zm-table-card,
+.zm-page-list z-card {
+  margin: 0 !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  background: rgb(var(--theme-floor-1)) !important;
+}
+
+.upx-page-list__content > zm-skeleton-list,
+.upx-page-list__content > zm-skeleton-usuarios-listagem,
+.upx-page-list__content > zm-skeleton-permissoes-listagem,
+.upx-page-list__content > up-data-table,
+.upx-page-list__content > up-empty-state {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  align-self: stretch;
+  min-height: 0;
+  width: 100%;
+  margin: 0;
+  border-radius: 0;
+}
+
+.mat-mdc-unelevated-button,
+.mat-mdc-outlined-button,
+.mat-mdc-button {
+  border-radius: 10px !important;
+}
+
+/**
+ * Painel de formulário — full-bleed flat (sem card decorativo).
+ * Conteúdo direto no floor-1, só padding.
+ */
+.upx-form-panel {
+  margin: 0;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  background: transparent;
+  padding: 1rem 1.15rem;
+  width: 100%;
+  max-width: none;
+}
+
+@media (min-width: 640px) {
+  .upx-form-panel {
+    padding: 1.15rem 1.25rem 1.5rem;
+  }
+}
+
+/* Spinner branco dentro de botões primários (loading de submit) */
+.mat-mdc-unelevated-button.mat-primary mat-spinner,
+.mat-mdc-raised-button.mat-primary mat-spinner {
+  display: inline-block;
+  --mdc-circular-progress-active-indicator-color: #fff;
+}

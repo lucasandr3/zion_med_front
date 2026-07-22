@@ -1,0 +1,77 @@
+:host {
+    @apply flex items-start p-4 mb-4 text-sm rounded-lg;
+    &.upx-alert-icon {
+        > .upx-icon {
+            @apply text-[1.2rem] mr-3 leading-none;
+        }
+    }
+    a {
+        @apply font-semibold underline;
+    }
+    .upx-dismiss {
+        @apply ml-auto -mx-1.5 -my-1.5 rounded-lg focus:ring-2 p-1.5 inline-flex h-8 w-8;
+        > .upx-icon {
+            @apply text-[1.2rem] mr-3 leading-none;
+        }
+    }
+    &.upx-alert-color-theme {
+        @apply bg-theme bg-opacity-10 text-theme;
+        a {
+            @apply text-theme hover:text-opacity-80 dark:hover:text-opacity-90;
+        }
+        .upx-dismiss {
+            @apply text-theme text-opacity-50 focus:ring-theme focus:ring-opacity-40 hover:bg-theme hover:bg-opacity-20 dark:bg-opacity-20 dark:text-opacity-60 dark:hover:bg-opacity-30;
+        }
+    }
+    /*&.upx-alert-color-default {
+        @apply bg-theme-default-100 default:bg-theme-default-700 text-theme-default-700 default:text-theme-default-300;
+        a {
+            @apply text-theme-default-700 default:text-theme-default-300 hover:text-theme-default-800 default:hover:text-white;
+        }
+        .upx-dismiss {
+            @apply bg-theme-default-100 text-theme-default focus:ring-theme-default-400 hover:bg-theme-default-200 default:bg-theme-default-700 default:text-theme-default-300 default:hover:bg-theme-default-800 default:hover:text-white;
+        }
+    }
+    &.upx-alert-color-info {
+        @apply bg-theme-info-100 dark:bg-theme-info-200 text-theme-info-700 dark:text-theme-info-800;
+        a {
+            @apply text-theme-info-700 dark:text-theme-info-800 hover:text-theme-info-800 dark:hover:text-theme-info-900;
+        }
+        .upx-dismiss {
+            @apply bg-theme-info-100 text-theme-info focus:ring-theme-info-400 hover:bg-theme-info-200 dark:bg-theme-info-200 dark:text-theme-info-600 dark:hover:bg-theme-info-300;
+        }
+    }
+    &.upx-alert-color-danger {
+        @apply bg-theme-danger-100 dark:bg-theme-danger-200 text-theme-danger-700 dark:text-theme-danger-800;
+        a {
+            @apply text-theme-danger-700 dark:text-theme-danger-800 hover:text-theme-danger-800 dark:hover:text-theme-danger-900;
+        }
+        .upx-dismiss {
+            @apply bg-theme-danger-100 text-theme-danger focus:ring-theme-danger-400 hover:bg-theme-danger-200 dark:bg-theme-danger-200 dark:text-theme-danger-600 dark:hover:bg-theme-danger-300;
+        }
+    }
+    &.upx-alert-color-success {
+        @apply bg-theme-success-100 dark:bg-theme-success-200 text-theme-success-700 dark:text-theme-success-800;
+        &.upx-alert-icon {
+            @apply text-theme-success-700 dark:text-theme-success-800;
+        }
+        a {
+            @apply text-theme-success-700 dark:text-theme-success-800 hover:text-theme-success-800 dark:hover:text-theme-success-900;
+        }
+        .upx-dismiss {
+            @apply bg-theme-success-100 text-theme-success focus:ring-theme-success-400 hover:bg-theme-success-200 dark:bg-theme-success-200 dark:text-theme-success-600 dark:hover:bg-theme-success-300;
+        }
+    }
+    &.upx-alert-color-warning {
+        @apply bg-theme-warning-100 dark:bg-theme-warning-200 text-theme-warning-700 dark:text-theme-warning-800;
+        &.upx-alert-icon {
+            @apply text-theme-warning-700 dark:text-theme-warning-800;
+        }
+        a {
+            @apply text-theme-warning-700 dark:text-theme-warning-800 hover:text-theme-warning-800 dark:hover:text-theme-warning-900;
+        }
+        .upx-dismiss {
+            @apply bg-theme-warning-100 text-theme-warning focus:ring-theme-warning-400 hover:bg-theme-warning-200 dark:bg-theme-warning-200 dark:text-theme-warning-600 dark:hover:bg-theme-warning-300;
+        }
+    }*/
+}

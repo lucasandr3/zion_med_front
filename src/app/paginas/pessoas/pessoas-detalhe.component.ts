@@ -1,6 +1,9 @@
 import { Component, OnInit, inject, Signal, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { PessoasService, PessoaDetalhe } from '../../core/services/pessoas.service';
 import { LoadingService } from '../../shared/services/loading.service';
 import { ZmSkeletonPessoaDetalheComponent } from '../../shared/components/skeletons';
@@ -10,7 +13,6 @@ import { AuthService } from '../../core/services/auth.service';
 
 import { ZardCardComponent } from '@/shared/components/card/card.component';
 import { ZmPageBackLinkComponent } from '../../shared/components/ui';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
 import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
 import { ZardTableImports } from '@/shared/components/table';
 @Component({
@@ -20,10 +22,12 @@ import { ZardTableImports } from '@/shared/components/table';
     ...ZardTableImports,
     CommonModule,
     RouterLink,
+    MatButtonModule,
+    MatIconModule,
+    MatProgressSpinnerModule,
     ZmSkeletonPessoaDetalheComponent,
     ZardCardComponent,
     ZmPageBackLinkComponent,
-    ZardButtonComponent,
     ZardBadgeComponent,
   ],
   templateUrl: './pessoas-detalhe.component.html',

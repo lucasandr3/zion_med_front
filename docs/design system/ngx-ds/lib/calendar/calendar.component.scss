@@ -1,0 +1,250 @@
+.mat-calendar-controls {
+	position: relative; /* ou absolute */
+	top: -10px; /* Ajuste o valor conforme necessário */
+  }
+  
+  /* Se precisar mover apenas os botões e não o resto do conteúdo */
+  .mat-calendar-controls button {
+	position: relative;
+	top: -10px; /* Ajuste os botões */
+  }
+
+/*.mat-calendar-body-selected.mat-calendar-body-today {*/
+/*	box-shadow: inset 0 0 0 0 var(--mat-datepicker-calendar-date-today-selected-state-outline-color);*/
+/*}*/
+
+/*.mat-calendar-body-cell {*/
+/*	position: relative;*/
+/*}*/
+
+/*.mat-calendar-body-cell .dot-layer {*/
+/*	position: absolute;*/
+/*	top: 0;*/
+/*	left: 0;*/
+/*	width: 100%;*/
+/*	height: 100%;*/
+/*	border-radius: 100%;*/
+/*	box-sizing: border-box;*/
+/*	pointer-events: none;*/
+/*}*/
+
+/*.mat-calendar-body-cell.credit-date .dot-layer.credit {*/
+/*	border: 2px solid #7EE4AB;*/
+/*	clip-path: polygon(0 0, 100% 0, 100% 100%);*/
+/*}*/
+
+/*.mat-calendar-body-cell.debit-date .dot-layer.debit {*/
+/*	border: 2px solid #EE6E7B;*/
+/*	clip-path: polygon(0 0, 100% 100%, 0 100%);*/
+/*}*/
+
+/*.mat-calendar-body-cell.lembret-date .dot-layer.lembret {*/
+/*	border: 2px solid #6875f5;*/
+/*	clip-path: polygon(100% 0, 0 0, 100% 100%);*/
+/*}*/
+
+
+.calendar-card {
+
+
+	/*.debit-date::after {*/
+	/*  content: '';*/
+	/*  position: absolute;*/
+	/*  top: 0;*/
+	/*  left: 0;*/
+	/*  width: 100%;*/
+	/*  height: 100%;*/
+	/*  border: 2px solid #EE6E7B ;*/
+	/*  border-radius: 100%;*/
+	/*  clip-path: polygon(0 0, 100% 100%, 0 100%);*/
+	/*  box-sizing: border-box;*/
+	/*}*/
+
+    .double-highlight {
+        position: absolute;
+    }
+    
+    .triple-highlight {
+        position: absolute;
+    }
+
+    .credit-lembret-highlight {
+        position: absolute;
+    }
+
+    .debit-lembret-highlight {
+        position: absolute;
+    }
+
+    .credit-date {
+        position: absolute;
+    }
+
+    .debit-date {
+        position: absolute;
+    }
+    
+    .lembret-date {
+        position: absolute;
+    }
+
+
+      .credit-date::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border: 2px solid #7EE4AB;
+        border-radius: 100%;
+        clip-path: polygon(0 0, 100% 0, 100% 100%);
+        box-sizing: border-box;
+      }
+
+    .debit-date::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border: 2px solid #EE6E7B;
+        border-radius: 100%;
+        clip-path: polygon(0 0, 100% 0, 100% 100%);
+        box-sizing: border-box;
+    }
+
+    .lembret-date::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border: 2px solid #6875f5;
+        border-radius: 100%;
+        clip-path: polygon(0 0, 100% 0, 100% 100%);
+        box-sizing: border-box;
+    }
+
+    .lembret-date-full::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border: 2px solid #6875f5;
+        border-radius: 100%;
+        box-sizing: border-box;
+    }
+
+	.credit-lembret-highlight::before {
+		content: '';
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		border-radius: 100%;
+		background: conic-gradient(
+				#7EE4AB 0deg 180deg,
+				#6875f5 180deg 360deg
+		);
+		z-index: 1;
+		box-sizing: border-box;
+		padding: 2px;
+		-webkit-mask:
+				radial-gradient(closest-side, transparent calc(100% - 4px), #7EE4AB 100%);
+		mask:
+				radial-gradient(closest-side, transparent calc(100% - 4px), #7EE4AB 100%);
+	}
+
+	.debit-lembret-highlight::before {
+		content: '';
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		border-radius: 100%;
+		background: conic-gradient(
+				#EE6E7B 0deg 180deg,
+				#6875f5 180deg 360deg
+		);
+		z-index: 1;
+		box-sizing: border-box;
+		padding: 2px;
+		-webkit-mask:
+				radial-gradient(closest-side, transparent calc(100% - 4px), #EE6E7B 100%);
+		mask:
+				radial-gradient(closest-side, transparent calc(100% - 4px), #EE6E7B 100%);
+	}
+
+    .double-highlight::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border-radius: 100%;
+        background: conic-gradient(
+                #EE6E7B 0deg 180deg,
+                #7EE4AB 180deg 360deg
+        );
+        z-index: 1;
+        box-sizing: border-box;
+        padding: 2px;
+        -webkit-mask:
+                radial-gradient(closest-side, transparent calc(100% - 4px), #7EE4AB 100%);
+        mask:
+                radial-gradient(closest-side, transparent calc(100% - 4px), #7EE4AB 100%);
+    }
+
+    .triple-highlight::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border-radius: 100%;
+        background: conic-gradient(
+            #7EE4AB 0deg 120deg,
+            #EE6E7B 120deg 240deg,
+			#6875f5 240deg 360deg
+        );
+        z-index: 1;
+        box-sizing: border-box;
+        padding: 2px;
+        -webkit-mask:
+            radial-gradient(closest-side, transparent calc(100% - 4px), #6875f5 100%);
+        mask:
+            radial-gradient(closest-side, transparent calc(100% - 4px), #6875f5 100%);
+    }
+
+
+	  .mat-calendar-body-today {
+	/*	background-color: rgba(0, 0, 255, 0.35);  Azul com 35% de opacidade 
+		border-radius: 50%; Mantém o formato circular*/
+	    @apply bg-theme dark:bg-theme bg-opacity-50 dark:bg-opacity-50;
+	}
+	.mat-calendar-body-selected {
+		/*	background-color: rgba(0, 0, 255, 0.35);  Azul com 35% de opacidade 
+			border-radius: 50%; Mantém o formato circular*/
+			@apply bg-theme dark:bg-theme bg-opacity-70 dark:bg-opacity-70;
+		}
+	
+	.mat-calendar-body-cell:hover {
+		@apply bg-theme dark:bg-theme bg-opacity-30 dark:bg-opacity-30; 
+		border-radius: 50%;
+	}
+
+	.mat-calendar-body-cell.mat-calendar-body-selected:hover {
+		@apply bg-theme dark:bg-theme bg-opacity-30 dark:bg-opacity-30; 
+		border-radius: 50%;
+	}
+
+}

@@ -3,6 +3,9 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { switchMap, map, catchError, of } from 'rxjs';
 import { TemplatesService, Template, TemplateCampo } from '../../core/services/templates.service';
 import { LoadingService } from '../../shared/services/loading.service';
@@ -57,12 +60,10 @@ const CONSENT_HINTS = [
 ];
 
 import { ZardTableImports } from '@/shared/components/table';
-import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
+import { MAT_FORM_IMPORTS } from '@/shared/material';
 import { ZmPageBackLinkComponent } from '../../shared/components/ui';
 import { ZardCardComponent } from '@/shared/components/card/card.component';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
 import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
-import { ZardComboboxComponent, type ZardComboboxOption } from '@/shared/components/combobox';
 import { ZardTooltipImports } from '@/shared/components/tooltip';
 import {
   buildVisibilityRulesPayload,
@@ -76,7 +77,7 @@ import { CLINICAL_STEP_KINDS, CLINICAL_STEP_LABELS } from '../../core/utils/clin
   selector: 'app-templates-campos',
   standalone: true,
   imports: [
-    ...ZARD_FORM_CONTROL_IMPORTS,
+    ...MAT_FORM_IMPORTS,
     ...ZardTableImports,
     ...ZardTooltipImports,
     CommonModule,
@@ -86,9 +87,10 @@ import { CLINICAL_STEP_KINDS, CLINICAL_STEP_LABELS } from '../../core/utils/clin
     ZmSkeletonTemplateCamposComponent,
     ZmPageBackLinkComponent,
     ZardCardComponent,
-    ZardButtonComponent,
     ZardBadgeComponent,
-    ZardComboboxComponent,
+    MatButtonModule,
+    MatIconModule,
+    MatProgressSpinnerModule,
   ],
   templateUrl: './templates-campos.component.html',
   styleUrl: './templates-campos.component.css',
@@ -154,10 +156,6 @@ export class TemplatesCamposComponent implements OnInit {
 
   get idNum(): number {
     return parseInt(this.templateId, 10) || 0;
-  }
-
-  get opcoesTipo(): ZardComboboxOption[] {
-    return this.typeOptions.map((opt) => ({ value: opt.value, label: opt.label }));
   }
 
   get showNovoOptions(): boolean {
@@ -518,14 +516,6 @@ export class TemplatesCamposComponent implements OnInit {
     if (!this.novoMostrarOpcoesAvancadas) {
       this.novoNameKey = '';
     }
-  }
-
-  selecionarNovoType(value: string | null): void {
-    this.novoType = value ?? 'text';
-  }
-
-  selecionarEditType(value: string | null): void {
-    this.editType = value ?? 'text';
   }
 
   previewNameKey(): string {

@@ -1,33 +1,32 @@
 import { Component, OnDestroy, OnInit, inject, Signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { Subject, Subscription, debounceTime, distinctUntilChanged } from 'rxjs';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { Subscription, debounceTime, distinctUntilChanged } from 'rxjs';
 import { NovidadesService, ReleaseNote } from '../../core/services/novidades.service';
 import { LoadingService } from '../../shared/services/loading.service';
 import { ZmSkeletonListComponent } from '../../shared/components/skeletons';
-import { ZmEmptyStateComponent } from '../../shared/components/ui';
+import { SearchBoxComponent, UpEmptyStateComponent } from '../../shared/components/up';
 import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
-import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
 
 @Component({
   selector: 'app-pagina-novidades',
   standalone: true,
   imports: [
     CommonModule,
-    FormsModule,
-    ...ZARD_FORM_CONTROL_IMPORTS,
+    ReactiveFormsModule,
+    MatButtonModule,
     ZmSkeletonListComponent,
-    ZmEmptyStateComponent,
+    SearchBoxComponent,
+    UpEmptyStateComponent,
     ZardBadgeComponent,
-    ZardButtonComponent,
   ],
   templateUrl: './novidades.component.html',
   styleUrl: './novidades.component.css',
 })
 export class NovidadesComponent implements OnInit, OnDestroy {
   notas: ReleaseNote[] = [];
-  busca = '';
+  readonly buscaControl = new FormControl('', { nonNullable: true });
   paginaAtual = 1;
   ultimaPagina = 1;
   total = 0;
@@ -38,8 +37,11 @@ export class NovidadesComponent implements OnInit, OnDestroy {
 
   private novidadesService = inject(NovidadesService);
   private loadingService = inject(LoadingService);
-  private buscaSubject = new Subject<string>();
   private buscaSub?: Subscription;
+
+  get busca(): string {
+    return this.buscaControl.value;
+  }
 
   get buscaAtiva(): boolean {
     return this.busca.trim().length > 0;
@@ -60,7 +62,7 @@ export class NovidadesComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.buscaSub = this.buscaSubject.pipe(debounceTime(350), distinctUntilChanged()).subscribe(() => {
+    this.buscaSub = this.buscaControl.valueChanges.pipe(debounceTime(350), distinctUntilChanged()).subscribe(() => {
       this.carregar(true);
     });
     this.carregar(true);
@@ -68,16 +70,6 @@ export class NovidadesComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.buscaSub?.unsubscribe();
-  }
-
-  onBuscaChange(): void {
-    this.buscaSubject.next(this.busca.trim());
-  }
-
-  limparBusca(): void {
-    if (!this.busca) return;
-    this.busca = '';
-    this.carregar(true);
   }
 
   carregar(reset: boolean): void {

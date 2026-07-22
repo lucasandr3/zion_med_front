@@ -48,6 +48,9 @@
     --skeleton-highlight: #ecf8f3;
 
     --c-primary:  #16a874;
+    --c-primary-hover: #128a5f;
+    --c-primary-active: #0f7a56;
+    --c-on-primary: #ffffff;
     --c-accent:   var(--color-primary-light);
     --c-focus:    rgba(22, 168, 116, 0.18);
 
@@ -67,17 +70,28 @@
 
     --sidebar-w:  15rem;
 
-    /* Faixa de marca Gestgo (sidebar + header horizontal) */
-    --gestgo-brand-bg: var(--sidebar, var(--background, var(--c-surface)));
-    --gestgo-brand-border: var(--sidebar-border, var(--border, var(--c-border)));
-    --gestgo-brand-title: var(--sidebar-foreground, var(--foreground, var(--c-text)));
-    --gestgo-brand-tag: var(--muted-foreground, var(--c-muted));
+    /* Gestgo Design System — tokens canônicos (docs/design system) */
+    --theme-padrao: 22 168 116;
+    --theme-padrao-2: 13 40 51;
+    --theme-floor-1: 255 255 255;
+    --theme-floor-2: 244 250 247;
+    --theme-sidebar: 244 250 247;
+    --theme-fg: 13 20 16;
+    --theme-fg-muted: 61 77 70;
+    --theme-border: 221 232 227;
+    --theme-line: rgb(13 20 16 / 0.1);
+
+    /* Faixa de marca Gestgo (sidebar + header) — padrão: superfície clara; tinted usa primária */
+    --gestgo-brand-bg: #ffffff;
+    --gestgo-brand-border: var(--border, rgb(13 20 16 / 0.1));
+    --gestgo-brand-title: var(--foreground, #0d1410);
+    --gestgo-brand-tag: var(--muted-foreground, #3d4d46);
     --gestgo-brand-logo-shadow: none;
 
-    /* Shell — alinhado aos tokens Zard (presets via body.shell-preset-* podem sobrescrever) */
+    /* Shell — topo padrão branco; "Topo e marca" sobrescreve com primária */
     --shell-header-height: 3.5rem; /* h-14 — #top-header */
-    --shell-header-bg: var(--sidebar, var(--background, var(--c-surface)));
-    --shell-sidebar-bg: var(--sidebar, var(--c-surface));
+    --shell-header-bg: #ffffff;
+    --shell-sidebar-bg: #f4faf7;
 
     /* Semânticas (estado / feedback) — independentes do tema de marca */
     --c-success: #15803d;
@@ -105,12 +119,12 @@
     --space-8: 2rem;
     --space-10: 2.5rem;
 
-    /* Altura padrão de botões — 35px */
-    --button-height: 35px;
+    /* Altura padrão de botões — 40px (Material) */
+    --button-height: 40px;
     --button-height-inner: calc(var(--button-height) - 4px);
 
-    /* Altura de inputs, selects e combobox trigger (alinhados em toolbars) — 43px */
-    --control-height: 43px;
+    /* Altura de inputs, selects e combobox trigger (alinhados em toolbars) — 40px */
+    --control-height: 40px;
     --control-height-inner: calc(var(--control-height) - 4px);
 
     /* Raio */
@@ -140,26 +154,29 @@
     --tracking-wide: 0.06em;
 }
 
-/* "Topo e marca" (shell-preset-tinted): primária só no #top-header e na faixa Gestgo — rail do menu neutra */
+/* "Topo e marca" (shell-preset-tinted): primária só no cabeçalho e na faixa Gestgo — rail do menu neutra */
 body.shell-preset-tinted {
     --shell-header-bg: var(--c-primary);
     --shell-sidebar-bg: var(--sidebar, var(--background, var(--c-surface)));
+    --gestgo-brand-bg: var(--c-primary);
+    --gestgo-brand-border: rgba(255, 255, 255, 0.24);
+    --gestgo-brand-title: #ffffff;
+    --gestgo-brand-tag: rgba(255, 255, 255, 0.58);
 }
 
-/* Temas claro — primary/accent com contraste WCAG AA mínimo 4.5:1 em fundo branco */
-/* Canônico: gestgo-blue (zion-blue mantido como alias legado — mesmas variáveis) */
-.theme-gestgo-blue,
-.theme-zion-blue     { --c-primary: #1e40af; --c-accent: #2563eb; --c-focus: rgba(30,64,175,.18); }
-.theme-ocean-blue    { --c-primary: #16a874; --c-accent: #9fe1cb; --c-focus: rgba(22,168,116,.18); }
-.theme-indigo-night  { --c-primary: #3730a3; --c-accent: #4f46e5; --c-focus: rgba(55,48,163,.18); }
-.theme-emerald-fresh { --c-primary: #15803d; --c-accent: #16a34a; --c-focus: rgba(21,128,61,.18); }
-.theme-rose-elegant  { --c-primary: #be185d; --c-accent: #db2777; --c-focus: rgba(190,24,93,.18); }
-.theme-amber-warm    { --c-primary: #b45309; --c-accent: #d97706; --c-focus: rgba(180,83,9,.18); }
-.theme-violet-dream  { --c-primary: #6d28d9; --c-accent: #7c3aed; --c-focus: rgba(109,40,217,.18); }
-.theme-teal-ocean    { --c-primary: #0f766e; --c-accent: #0d9488; --c-focus: rgba(15,118,110,.18); }
-.theme-slate-pro     { --c-primary: #334155; --c-accent: #475569; --c-focus: rgba(51,65,85,.18); }
-.theme-cyan-tech     { --c-primary: #0369a1; --c-accent: #0284c7; --c-focus: rgba(3,105,161,.18); }
-.theme-fuchsia-bold  { --c-primary: #a21caf; --c-accent: #c026d3; --c-focus: rgba(162,28,175,.18); }
+/* Menu escuro: só a lateral (#1a1a1a). Topo Padrão permanece branco. */
+body.shell-preset-sidebar-dark:not(.dark) {
+    --shell-sidebar-bg: #1a1a1a;
+    --shell-sidebar-surface: #1a1a1a;
+    --shell-sidebar-surface-border: rgba(255, 255, 255, 0.1);
+}
+
+/* Padrão + Menu escuro: força header branco (não herda superfície da lateral) */
+body.shell-preset-sidebar-dark:not(.dark):not(.shell-preset-tinted) {
+    --shell-header-bg: #ffffff;
+}
+
+/* Temas: `src/styles/theme-palettes.css` (carregado após este ficheiro no angular.json) */
 
 /* ══════════════════════════════════════════════════════════════════════════
    MODO ESCURO — valores diretos
@@ -177,7 +194,14 @@ body.shell-preset-tinted {
     --c-muted:    #7c7c96;
     --c-border:   #1e1e2a;
 
-    /* --shell-header-bg / --shell-sidebar-bg: definidos no bloco Zard `.dark` (--sidebar) */
+    --theme-padrao: 52 211 153;
+    --theme-floor-1: 28 28 28;
+    --theme-floor-2: 22 22 22;
+    --theme-sidebar: 18 18 18;
+    --theme-fg: 255 255 255;
+    --theme-fg-muted: 255 255 255;
+    --theme-border: 255 255 255;
+    --theme-line: rgb(255 255 255 / 0.1);
 
     --c-btn-default-bg:    #1e2530;
     --c-btn-default-text: #94a3b8;
@@ -211,55 +235,44 @@ body.shell-preset-tinted {
     --gestgo-brand-logo-shadow: none;
 }
 
-/* Cada tema ajusta primary/accent/focus no dark — shade-400/300 para luminosidade adequada */
-.dark.theme-gestgo-blue,
-.dark.theme-zion-blue     { --c-primary: #60a5fa; --c-accent: #93c5fd; --c-focus: rgba(96,165,250,.2); }
-.dark.theme-ocean-blue    { --c-primary: #34d399; --c-accent: #6ee7b7; --c-focus: rgba(52,211,153,.22); }
-.dark.theme-indigo-night  { --c-primary: #818cf8; --c-accent: #a5b4fc; --c-focus: rgba(129,140,248,.2); }
-.dark.theme-emerald-fresh { --c-primary: #4ade80; --c-accent: #86efac; --c-focus: rgba(74,222,128,.2); }
-.dark.theme-rose-elegant  { --c-primary: #fb7185; --c-accent: #fda4af; --c-focus: rgba(251,113,133,.2); }
-.dark.theme-amber-warm    { --c-primary: #fbbf24; --c-accent: #fde68a; --c-focus: rgba(251,191,36,.2); }
-.dark.theme-violet-dream  { --c-primary: #a78bfa; --c-accent: #c4b5fd; --c-focus: rgba(167,139,250,.2); }
-.dark.theme-teal-ocean    { --c-primary: #2dd4bf; --c-accent: #5eead4; --c-focus: rgba(45,212,191,.2); }
-.dark.theme-slate-pro     { --c-primary: #94a3b8; --c-accent: #cbd5e1; --c-focus: rgba(148,163,184,.2); }
-.dark.theme-cyan-tech     { --c-primary: #38bdf8; --c-accent: #7dd3fc; --c-focus: rgba(56,189,248,.2); }
-.dark.theme-fuchsia-bold  { --c-primary: #e879f9; --c-accent: #f0abfc; --c-focus: rgba(232,121,249,.2); }
+/* Dark por tema: `src/styles/theme-palettes.css` (.dark.theme-*) */
 
 /* ─── Zard UI — tema neutral + integração marca (`--c-*` definido acima) ──── */
 :root {
   --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
+  /* Floor-2 DS Gestgo (#f4faf7) — fundo de página */
+  --background: #f4faf7;
+  --foreground: #0d1410;
+  --card: #ffffff;
+  --card-foreground: #0d1410;
+  --popover: #ffffff;
+  --popover-foreground: #0d1410;
   --primary: oklch(0.205 0 0);
   --primary-foreground: oklch(0.985 0 0);
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
+  --muted: #e6f5ef;
+  --muted-foreground: #3d4d46;
+  --accent: #e6f5ef;
+  --accent-foreground: #0d1410;
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(0.985 0 0);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
+  --border: #dde8e3;
+  --input: #dde8e3;
+  --ring: rgb(22 168 116 / 0.35);
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --sidebar: #f4faf7;
+  --sidebar-foreground: #0d1410;
+  --sidebar-primary: #16a874;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #e6f5ef;
+  --sidebar-accent-foreground: #0d1410;
+  --sidebar-border: #dde8e3;
+  --sidebar-ring: rgb(22 168 116 / 0.35);
 }
 
 .dark {
@@ -307,17 +320,22 @@ body.shell-preset-tinted {
 */
 body {
   --primary: var(--c-primary);
-  --primary-foreground: oklch(0.995 0.02 145);
+  --primary-foreground: var(--c-on-primary, #ffffff);
   --sidebar-primary: var(--c-primary);
-  --sidebar-primary-foreground: oklch(0.995 0.02 145);
+  --sidebar-primary-foreground: var(--c-on-primary, #ffffff);
   --ring: var(--c-focus);
+  --mat-sys-primary: var(--c-primary);
+  --mat-sys-on-primary: var(--c-on-primary, #ffffff);
+  --mat-sys-primary-container: color-mix(in srgb, var(--c-primary) 16%, transparent);
 }
 
 body.dark {
   --primary: var(--c-primary);
-  --primary-foreground: oklch(0.145 0.02 145);
+  --primary-foreground: var(--c-on-primary, #0a3d2b);
   --sidebar-primary: var(--c-primary);
-  --sidebar-primary-foreground: oklch(0.992 0.01 145);
+  --sidebar-primary-foreground: var(--c-on-primary, #0a3d2b);
+  --mat-sys-primary: var(--c-primary);
+  --mat-sys-on-primary: var(--c-on-primary, #0a3d2b);
 }
 
 body.app-update-banner-visible {
@@ -458,7 +476,21 @@ body.app-update-banner-visible {
    MATERIAL SYMBOLS
    ══════════════════════════════════════════════════════════════════════════ */
 .material-symbols-outlined {
-    font-variation-settings: 'FILL' 0, 'wght' 350, 'GRAD' 0, 'opsz' 24;
+    font-family: 'Material Symbols Outlined', sans-serif;
+    font-weight: normal;
+    font-style: normal;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-block;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    -webkit-font-feature-settings: 'liga';
+    font-feature-settings: 'liga';
+    /* wght 400: faces estáticas do Google Fonts; 350 pode falhar a ligature em alguns browsers */
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    -webkit-font-smoothing: antialiased;
     user-select: none;
 }
 
@@ -525,14 +557,17 @@ textarea.form-input::placeholder { color: var(--c-muted); opacity: 0.7; }
     flex-shrink: 0;
   }
 
-  /* Toolbar padrão de listagens — busca à esquerda, ações à direita */
+  /* Toolbar padrão de listagens — padrão DS Gestgo (upx-page-list) */
   .zm-list-toolbar {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
     gap: 0.75rem;
-    margin-bottom: 1.5rem;
+    margin: 0 0 0.75rem;
+    padding: 0.65rem 0;
+    border-bottom: 1px solid var(--theme-line, rgb(13 20 16 / 0.1));
+    background: transparent;
     --zm-list-toolbar-search-max: 20rem;
   }
 
@@ -551,11 +586,24 @@ textarea.form-input::placeholder { color: var(--c-muted); opacity: 0.7; }
     justify-content: flex-end;
   }
 
+  .zm-list-toolbar__start {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 0;
+  }
+
   .zm-list-toolbar--search-wide {
     --zm-list-toolbar-search-max: 28rem;
   }
 
-  @media (max-width: 768px) {
+  @media (max-width: 767.98px) {
+    .zm-list-toolbar {
+      flex-direction: column;
+      align-items: stretch;
+      padding: 0.75rem 0;
+    }
+
     .zm-list-toolbar__search {
       width: 100%;
       max-width: 100%;
@@ -567,6 +615,24 @@ textarea.form-input::placeholder { color: var(--c-muted); opacity: 0.7; }
       margin-left: 0;
       justify-content: flex-start;
     }
+  }
+
+  /* Página de lista full-height (DS) */
+  .upx-page-list,
+  .zm-page-list {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    flex: 1 1 auto;
+    background: transparent;
+  }
+
+  .upx-page-list__content,
+  .zm-page-list__content {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+    flex-direction: column;
   }
 
   /* Select nativo com z-input: remove outline do browser (lista continua nativa) */
@@ -794,14 +860,16 @@ input[type="radio"]:not(.sr-only):focus-visible,
 @layer components {
     z-card:has(table[z-table]),
     [data-slot='card']:has(table[z-table]) {
-        border-radius: var(--radius-table) !important;
+        border-radius: 0 !important;
+        border: none !important;
+        box-shadow: none !important;
     }
 }
 
 .table-card {
     background-color: var(--c-surface);
-    border-radius: var(--radius-table, 8px);
-    border: 1px solid var(--c-border);
+    border-radius: 0;
+    border: none;
     overflow-x: auto;
 }
 
@@ -835,6 +903,8 @@ input[type="radio"]:not(.sr-only):focus-visible,
 .zm-table-card,
 .plat-table-card {
   overflow: hidden;
+  box-shadow: none !important;
+  border-color: var(--border, var(--c-border));
 }
 
 .zm-table-wrap,
@@ -845,6 +915,13 @@ input[type="radio"]:not(.sr-only):focus-visible,
 .zm-row-clickable,
 .plat-row-clickable {
   cursor: pointer;
+}
+
+.zm-row-clickable:hover,
+.plat-row-clickable:hover,
+tr.zm-row-clickable:hover,
+tr.plat-row-clickable:hover {
+  background: rgb(var(--theme-padrao, 22 168 116) / 0.06) !important;
 }
 
 .zm-row-avatar,
@@ -974,17 +1051,31 @@ table.data-table {
 
 .form-search-wrap .material-symbols-outlined.form-search-icon {
     position: absolute;
-    left: 0.75rem;
+    left: 0.85rem;
     top: 50%;
     transform: translateY(-50%);
     font-size: 1.125rem;
-    color: var(--c-muted);
+    color: color-mix(in srgb, var(--c-text, var(--foreground)) 45%, transparent);
     pointer-events: none;
+    z-index: 1;
 }
 
 .form-search-wrap .form-input.form-search-input,
 .form-search-wrap input[z-input].form-search-input {
     padding-left: 2.5rem;
+    height: 2.15rem;
+    border-radius: 999px;
+    background: var(--card, var(--c-surface, #fff));
+    border-color: color-mix(in srgb, var(--border, var(--c-border)) 80%, transparent);
+    transition: border-color 120ms ease, box-shadow 120ms ease;
+}
+
+.form-search-wrap .form-input.form-search-input:focus,
+.form-search-wrap .form-input.form-search-input:focus-visible,
+.form-search-wrap input[z-input].form-search-input:focus,
+.form-search-wrap input[z-input].form-search-input:focus-visible {
+    border-color: rgb(var(--theme-padrao, 22 168 116)) !important;
+    box-shadow: 0 0 0 3px rgb(var(--theme-padrao, 22 168 116) / 0.16) !important;
 }
 
 /* Drawer de filtros — entrada suave */
@@ -1415,14 +1506,14 @@ table.data-table {
                 transform 0.3s ease;
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 960px) {
     #main-wrapper,
     .main-wrapper { margin-left: var(--sidebar-w); transition: margin-left 0.25s cubic-bezier(0.4,0,0.2,1); }
     .sidebar-overlay-mobile { display: none !important; }
 }
 
 /* Menu horizontal — esconde sidebar no desktop e remove recuo do conteúdo */
-@media (min-width: 1024px) {
+@media (min-width: 960px) {
     body.shell-nav-horizontal #sidebar,
     body.shell-nav-horizontal .sidebar {
         display: none !important;
@@ -1450,7 +1541,7 @@ body.shell-nav-horizontal .shell-horizontal-divider--desktop {
     display: none;
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 960px) {
     body.shell-nav-horizontal .shell-horizontal-brand--desktop {
         display: inline-flex;
     }
@@ -1642,6 +1733,10 @@ body.sidebar-collapsed .nav-link.ativo {
     min-height: var(--button-height);
 }
 
+#sidebar[data-shell] a.shell-sidebar-nav .material-symbols-outlined {
+    color: inherit;
+}
+
 #sidebar[data-shell] a.shell-sidebar-nav.router-link-active {
     border: none !important;
     box-shadow: none;
@@ -1651,7 +1746,7 @@ body.sidebar-collapsed .nav-link.ativo {
 
 #sidebar[data-shell] a.shell-sidebar-nav.router-link-active .material-symbols-outlined {
     font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-    color: var(--sidebar-primary, var(--c-primary));
+    color: inherit;
 }
 
 body.dark #sidebar[data-shell] a.shell-sidebar-nav.router-link-active {
@@ -1806,7 +1901,7 @@ body.sidebar-collapsed .sidebar-user-trigger.shell-profile-chip {
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
-   TOP HEADER
+   TOP HEADER — padrão branco/neutro; "Topo e marca" usa --c-primary
    ══════════════════════════════════════════════════════════════════════════ */
 .cabecalho-shell,
 #top-header,
@@ -1816,15 +1911,33 @@ body.sidebar-collapsed .sidebar-user-trigger.shell-profile-chip {
 
 #top-header,
 .top-header {
-    border-bottom: 1px solid var(--border, var(--c-border));
+    border-bottom: 1px solid var(--border, rgb(13 20 16 / 0.1));
+}
+
+/* Topo padrão (claro): fundo branco e borda neutra — inclusive com Menu escuro */
+body:not(.dark):not(.shell-preset-tinted) .cabecalho-shell,
+body:not(.dark):not(.shell-preset-tinted) #top-header,
+body:not(.dark):not(.shell-preset-tinted) .top-header {
+    background-color: #ffffff !important;
+    border-bottom: 1px solid var(--border, rgb(13 20 16 / 0.1));
+    color: var(--foreground, #0d1410);
+}
+
+body:not(.dark):not(.shell-preset-tinted) #top-header .header-notify-dot {
+    border-color: #ffffff !important;
 }
 
 body.shell-nav-horizontal #top-header.top-header--horizontal,
 body.shell-nav-horizontal .top-header.top-header--horizontal {
-    border-bottom: 1px solid var(--border, var(--c-border));
+    border-bottom: 1px solid var(--border, rgb(13 20 16 / 0.1));
 }
 
-/* Ícones do cabeçalho (z-button ghost): modo normal vs preset Topo e marca (--c-muted / --c-text) */
+body.shell-preset-tinted.shell-nav-horizontal #top-header.top-header--horizontal,
+body.shell-preset-tinted.shell-nav-horizontal .top-header.top-header--horizontal {
+    border-bottom: 1px solid rgb(255 255 255 / 0.12);
+}
+
+/* Ícones do cabeçalho (z-button ghost): modo normal vs preset Topo e marca */
 #top-header button.cabecalho-toolbar-action,
 #top-header a.cabecalho-toolbar-action {
     color: var(--muted-foreground);
@@ -1873,8 +1986,8 @@ body.shell-preset-tinted .sidebar-brand-strip .text-sidebar-foreground {
 }
 
 body.shell-preset-tinted .sidebar-brand-strip .sidebar-logo-chip {
-    background: rgba(255, 255, 255, 0.94) !important;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+    background: rgb(0 0 0 / 0.22) !important;
+    box-shadow: none;
 }
 
 /* Gestgo — faixa de marca adaptada ao modo claro/escuro (cliente e plataforma) */
@@ -1892,8 +2005,28 @@ body.dark.shell-preset-tinted .sidebar[data-shell] > .sidebar-brand-strip--gestg
 
 body.shell-preset-tinted #sidebar[data-shell] .sidebar-logo-chip--gestgo,
 body.shell-preset-tinted .sidebar[data-shell] .sidebar-logo-chip--gestgo {
-    background: rgba(255, 255, 255, 0.94) !important;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.14) !important;
+    background: rgb(0 0 0 / 0.22) !important;
+    box-shadow: none !important;
+}
+
+body:not(.dark):not(.shell-preset-tinted).shell-nav-horizontal .shell-horizontal-brand--gestgo .shell-horizontal-brand__title {
+    color: var(--gestgo-brand-title, #0d1410);
+}
+
+body:not(.dark):not(.shell-preset-tinted).shell-nav-horizontal .shell-horizontal-brand--gestgo .shell-horizontal-brand__tag {
+    color: var(--gestgo-brand-tag, #3d4d46);
+}
+
+body:not(.dark):not(.shell-preset-tinted).shell-nav-horizontal .shell-horizontal-brand__logo--gestgo {
+    background: transparent !important;
+}
+
+body:not(.dark):not(.shell-preset-tinted).shell-nav-horizontal .shell-horizontal-divider {
+    background: var(--border, rgb(13 20 16 / 0.12));
+}
+
+body:not(.dark):not(.shell-preset-tinted).shell-nav-horizontal .shell-horizontal-nav__trigger {
+    color: var(--foreground, #0d1410);
 }
 
 body.shell-preset-tinted.shell-nav-horizontal .shell-horizontal-brand--gestgo .shell-horizontal-brand__title {
@@ -1905,8 +2038,8 @@ body.shell-preset-tinted.shell-nav-horizontal .shell-horizontal-brand--gestgo .s
 }
 
 body.shell-preset-tinted.shell-nav-horizontal .shell-horizontal-brand__logo--gestgo {
-    background: #ffffff !important;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.16) !important;
+    background: rgb(0 0 0 / 0.22) !important;
+    box-shadow: none !important;
 }
 
 body.sidebar-collapsed #sidebar[data-shell] .sidebar-brand__text {
@@ -1935,41 +2068,45 @@ body.sidebar-collapsed #sidebar[data-shell] .sidebar-brand__text {
 
 #sidebar[data-shell] .sidebar-logo-chip--gestgo {
     background: var(--c-primary, #16a874);
-    border-radius: 9999px;
+    border-radius: 0.55rem;
     box-shadow: var(--gestgo-brand-logo-shadow);
-    height: 2rem;
-    padding: 0.3125rem;
-    width: 2rem;
+    height: 2.35rem;
+    width: 2.35rem;
+    padding: 0;
+    display: inline-grid;
+    place-items: center;
 }
 
 #sidebar[data-shell] .sidebar-logo-chip__img {
     display: block;
-    /* height: 100%; */
+    width: 1.55rem;
+    height: 1.55rem;
     object-fit: contain;
-    width: 100%;
 }
 
 #sidebar[data-shell] .sidebar-brand__text {
     display: flex;
     flex-direction: column;
-    gap: 0.0625rem;
-    line-height: 1.1;
+    gap: 0.1rem;
+    line-height: 1.15;
     min-width: 0;
 }
 
 #sidebar[data-shell] .sidebar-brand__title {
     color: var(--gestgo-brand-title);
-    font-size: 0.9375rem;
-    font-weight: 800;
-    letter-spacing: 0.10em;
+    font-size: 1.05rem;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1.15;
 }
 
 #sidebar[data-shell] .sidebar-brand__tag {
     color: var(--gestgo-brand-tag);
-    font-size: 0.5625rem;
-    font-weight: 700;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
+    font-size: 0.72rem;
+    font-weight: 400;
+    letter-spacing: 0;
+    text-transform: none;
+    line-height: 1.25;
 }
 
 /* z-button ghost no header: hover/foco sem fundo muted claro sobre o primário */
@@ -2133,15 +2270,6 @@ body.dark.shell-preset-tinted .empresa-menu-popover [z-menu-item] .material-symb
     color: #7c7c96;
 }
 
-/*
-  Superfície da sidebar no body (overlay do menu não herda vars de #sidebar).
-  Mesmo valor de --shell-sidebar-bg / --sidebar do rail.
-*/
-body.shell-preset-sidebar-dark:not(.dark) {
-    --shell-sidebar-surface: oklch(0.205 0 0);
-    --shell-sidebar-surface-border: oklch(1 0 0 / 10%);
-}
-
 body.dark.shell-preset-sidebar-dark {
     --shell-sidebar-surface: var(--sidebar);
     --shell-sidebar-surface-border: var(--sidebar-border, var(--border));
@@ -2198,32 +2326,32 @@ body.shell-preset-sidebar-dark .sidebar-shell-menu-popover [z-menu-item].text-de
 }
 
 /*
-  Menu escuro (modo claro do app): mesmos tokens de superfície/texto da sidebar em `.dark`.
-  Escopo só em #sidebar / .sidebar — o canvas principal permanece claro.
+  Menu escuro (modo claro do app): lateral em #1a1a1a; canvas/header permanecem claros no Padrão.
+  Escopo só em #sidebar / .sidebar.
 */
 body.shell-preset-sidebar-dark:not(.dark) #sidebar,
 body.shell-preset-sidebar-dark:not(.dark) .sidebar {
-    --c-bg: #09090f;
-    --c-surface: #111118;
-    --c-elevated: #18181f;
-    --c-soft: #0d0d14;
+    --c-bg: #1a1a1a;
+    --c-surface: #1a1a1a;
+    --c-elevated: #242424;
+    --c-soft: #141414;
     --c-text: #e8e8f0;
-    --c-muted: #7c7c96;
-    --c-border: #1e1e2a;
-    --shell-sidebar-bg: var(--sidebar);
+    --c-muted: #a1a1aa;
+    --c-border: rgba(255, 255, 255, 0.1);
+    --shell-sidebar-bg: #1a1a1a;
 
-    --background: var(--sidebar);
-    --foreground: oklch(0.985 0 0);
-    --muted: oklch(0.269 0 0);
-    --muted-foreground: oklch(0.708 0 0);
-    --accent: oklch(0.269 0 0);
-    --accent-foreground: oklch(0.985 0 0);
-    --border: oklch(1 0 0 / 10%);
-    --popover: oklch(0.205 0 0);
-    --popover-foreground: oklch(0.985 0 0);
+    --background: #1a1a1a;
+    --foreground: #f4f4f5;
+    --muted: #242424;
+    --muted-foreground: rgba(255, 255, 255, 0.72);
+    --accent: #242424;
+    --accent-foreground: #ffffff;
+    --border: rgba(255, 255, 255, 0.1);
+    --popover: #1a1a1a;
+    --popover-foreground: #f4f4f5;
 
-    --sidebar: oklch(0.205 0 0);
-    --sidebar-foreground: oklch(0.985 0 0);
+    --sidebar: #1a1a1a;
+    --sidebar-foreground: #f4f4f5;
     --gestgo-brand-bg: var(--sidebar);
     --gestgo-brand-border: var(--sidebar-border);
     --gestgo-brand-title: var(--sidebar-foreground);
@@ -2231,10 +2359,10 @@ body.shell-preset-sidebar-dark:not(.dark) .sidebar {
     --gestgo-brand-logo-shadow: none;
     /* fallback; cada `body.theme-*` sobrescreve com a primária do modo escuro */
     --sidebar-primary: oklch(0.488 0.243 264.376);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.269 0 0);
-    --sidebar-accent-foreground: oklch(0.985 0 0);
-    --sidebar-border: oklch(1 0 0 / 10%);
+    --sidebar-primary-foreground: #ffffff;
+    --sidebar-accent: #242424;
+    --sidebar-accent-foreground: #ffffff;
+    --sidebar-border: rgba(255, 255, 255, 0.1);
     --sidebar-ring: oklch(0.556 0 0);
 
     background-color: var(--shell-sidebar-bg);
@@ -2368,7 +2496,7 @@ body.shell-preset-sidebar-dark:not(.dark) #sidebar[data-shell] a.shell-sidebar-n
 }
 
 body.shell-preset-sidebar-dark:not(.dark) #sidebar[data-shell] a.shell-sidebar-nav.router-link-active .material-symbols-outlined {
-    color: var(--sidebar-primary) !important;
+    color: inherit !important;
     font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
 }
 
@@ -2584,7 +2712,7 @@ body.dark.shell-preset-sidebar-dark .sidebar {
     align-items: center;
     gap: 0.5rem;
     background-color: var(--c-primary);
-    color: #ffffff;
+    color: var(--c-on-primary, #ffffff);
     font-size: 0.8125rem;
     font-weight: 600;
     height: var(--button-height);
@@ -2593,17 +2721,18 @@ body.dark.shell-preset-sidebar-dark .sidebar {
     border-radius: 0.5rem;
     border: none;
     cursor: pointer;
-    transition: opacity 0.15s, transform 0.1s;
+    transition: background-color 0.15s, opacity 0.15s, transform 0.1s;
     white-space: nowrap;
     text-decoration: none;
 }
 
 .btn-primary:hover:not(:disabled) {
-    filter: brightness(0.94);
+    background-color: var(--c-primary-hover, var(--c-primary));
     box-shadow: var(--shadow-sm);
 }
 
 .btn-primary:active:not(:disabled) {
+    background-color: var(--c-primary-active, var(--c-primary-hover, var(--c-primary)));
     transform: scale(0.98);
 }
 
@@ -3308,11 +3437,11 @@ body.dark .flatpickr-calendar .flatpickr-weekwrapper span.flatpickr-day { color:
   flex-direction: column;
   gap: 0;
   overflow: hidden;
-  margin-bottom: 1.25rem;
-  background: var(--card);
+  margin-bottom: 0;
+  background: transparent;
   color: var(--card-foreground);
-  border: 1px solid var(--border);
-  border-radius: 0.875rem;
+  border: none;
+  border-radius: 0;
   box-shadow: none;
 }
 
@@ -3328,9 +3457,9 @@ body.dark .flatpickr-calendar .flatpickr-weekwrapper span.flatpickr-day { color:
   gap: 0;
 }
 
-/* Link bio: cards sem section-body — padding no slot (evita conteúdo colado na borda) */
+/* Link bio: seções flat — padding no slot */
 .link-bio-config z-card.section-card:not(:has(.section-body)) [data-slot='card-content'] {
-  padding: 1.25rem 1.5rem;
+  padding: 1rem 1.15rem;
 }
 
 /* Cards de modelo na grade */
@@ -3387,10 +3516,11 @@ body.dark .flatpickr-calendar .flatpickr-weekwrapper span.flatpickr-day { color:
 }
 
 .clinica-config z-card.section-card--highlight {
-  border-color: color-mix(in srgb, var(--primary) 35%, var(--border));
+  border: none;
+  background: transparent;
 }
 .clinica-config .section-body,
-.link-bio-config .section-body { padding: 20px; }
+.link-bio-config .section-body { padding: 1rem 1.15rem; }
 
 /* ══════════════════════════════════════════════════════════════════════════
    PROTOCOLO DETALHE
@@ -3402,7 +3532,7 @@ body.dark .flatpickr-calendar .flatpickr-weekwrapper span.flatpickr-day { color:
   border-top: 1px solid var(--border, var(--c-border)) !important;
   border-bottom: 1px solid var(--border, var(--c-border)) !important;
   box-shadow: none !important;
-  background: var(--card) !important;
+  background: rgb(var(--theme-floor-1)) !important;
 }
 
 .protocolo-detalhe-page .protocolo-detalhe-shell .protocolo-zard-tabs--no-nav-rule nav[role='tablist'] {
@@ -3413,11 +3543,14 @@ body.dark .flatpickr-calendar .flatpickr-weekwrapper span.flatpickr-day { color:
 
 .protocolo-detalhe-page z-card.section-card {
   overflow: hidden;
-  margin-bottom: 1rem;
+  margin-bottom: 0;
   gap: 0;
   padding-top: 0;
   padding-bottom: 0;
-  border-radius: 0.875rem;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
 }
 
 .protocolo-detalhe-page z-card.section-card [data-slot='card-content'] {
@@ -3757,7 +3890,7 @@ body.dark .flatpickr-calendar.hasTime.noCalendar .flatpickr-time input:focus {
   display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; z-index: 100;
   box-shadow: none;
 }
-@media (min-width: 1024px) {
+@media (min-width: 960px) {
   .clinica-config .sticky-footer,
   .link-bio-config .sticky-footer { left: var(--sidebar-w); padding-left: 2rem; padding-right: 2rem; }
 }
@@ -3877,3 +4010,6 @@ body.dark .flatpickr-calendar.hasTime.noCalendar .flatpickr-time input:focus {
   outline: 2px solid color-mix(in srgb, var(--ring, var(--c-primary, #2563eb)) 70%, transparent);
   outline-offset: 2px;
 }
+
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }

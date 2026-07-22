@@ -1,0 +1,41 @@
+.upx-tree-select {
+    @apply w-full;
+
+    .upx-tree-select__container {
+        @apply w-full;
+    }
+
+    .upx-input__icon-clear {
+        cursor: pointer;
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+    }
+
+    .mdc-text-field {
+        @apply p-0 border-black border-opacity-80 dark:border-white dark:border-opacity-80;
+    }
+    .mdc-text-field--outlined .mdc-notched-outline .mdc-notched-outline__leading {
+        @apply rounded-tl-md rounded-bl-md;
+    }
+    .mdc-text-field--outlined .mdc-notched-outline .mdc-notched-outline__trailing {
+        @apply rounded-tr-md rounded-br-md;
+    }
+    .mat-mdc-form-field-infix {
+        @apply min-h-0 p-0 #{!important};
+    }
+    .mat-mdc-form-field-icon-suffix {
+        @apply flex items-center py-0 pr-2 pl-1;
+    }
+}
+
+// Negrito para nós pai — fora do escopo do componente pois o autocomplete
+// é renderizado num overlay portal na raiz do <body>.
+.upx-tree-select__option {
+    display: inline-block;
+    width: 100%;
+}
+
+.upx-tree-select__option--parent {
+    font-weight: 700 !important;
+}

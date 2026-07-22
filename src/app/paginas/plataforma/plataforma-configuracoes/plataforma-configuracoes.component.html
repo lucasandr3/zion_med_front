@@ -26,33 +26,25 @@
 
                   <div class="settings-fields">
                     <div class="settings-field settings-field--wide">
-                      <label for="product_name" class="settings-label">Nome do produto</label>
-                      <input type="text" id="product_name" [(ngModel)]="productName" name="product_name" z-input zSize="sm" class="w-full" required maxlength="128" placeholder="Ex: ZionMed" />
+                      <mat-form-field appearance="outline" class="w-full"><mat-label>Nome do produto</mat-label><input matInput type="text" id="product_name" [(ngModel)]="productName" name="product_name" required maxlength="128" placeholder="Ex: ZionMed" /></mat-form-field>
                     </div>
 
                     <div class="settings-field-row">
                       <div class="settings-field">
-                        <label for="trial_days" class="settings-label">Trial (dias)</label>
-                        <input type="number" id="trial_days" [(ngModel)]="trialDays" name="trial_days" z-input zSize="sm" class="w-full" min="0" max="365" required placeholder="14" />
+                        <mat-form-field appearance="outline" class="w-full"><mat-label>Trial (dias)</mat-label><input matInput type="number" id="trial_days" [(ngModel)]="trialDays" name="trial_days" min="0" max="365" required placeholder="14" /></mat-form-field>
                       </div>
                       <div class="settings-field">
-                        <label for="grace_days" class="settings-label">Grace (dias)</label>
-                        <input type="number" id="grace_days" [(ngModel)]="graceDays" name="grace_days" z-input zSize="sm" class="w-full" min="0" max="90" required placeholder="7" />
+                        <mat-form-field appearance="outline" class="w-full"><mat-label>Grace (dias)</mat-label><input matInput type="number" id="grace_days" [(ngModel)]="graceDays" name="grace_days" min="0" max="90" required placeholder="7" /></mat-form-field>
                       </div>
                     </div>
 
                     <div class="settings-field settings-field--wide">
-                      <label for="block_mode" class="settings-label">Modo de bloqueio</label>
-                      <select id="block_mode" [(ngModel)]="blockMode" name="block_mode" z-input class="w-full">
-                        <option value="soft">soft</option>
-                        <option value="hard">hard</option>
-                      </select>
+                      <mat-form-field appearance="outline" class="w-full"><mat-label>Modo de bloqueio</mat-label><mat-select id="block_mode" [(ngModel)]="blockMode" name="block_mode"><mat-option value="soft">soft</mat-option><mat-option value="hard">hard</mat-option></mat-select></mat-form-field>
                       <p class="settings-hint">soft = bloqueia app e libera /assinatura; hard = bloqueia tudo exceto logout.</p>
                     </div>
 
                     <div class="settings-field settings-field--wide">
-                      <label for="multi_empresa_plan" class="settings-label">Plano multi-empresa (chave do plano)</label>
-                      <input type="text" id="multi_empresa_plan" [(ngModel)]="multiEmpresaPlan" name="multi_empresa_plan" z-input zSize="sm" class="w-full" maxlength="64" required placeholder="ex: enterprise" />
+                      <mat-form-field appearance="outline" class="w-full"><mat-label>Plano multi-empresa</mat-label><input matInput type="text" id="multi_empresa_plan" [(ngModel)]="multiEmpresaPlan" name="multi_empresa_plan" maxlength="64" required placeholder="ex: enterprise" /></mat-form-field>
                     </div>
                   </div>
 
@@ -61,7 +53,10 @@
                   }
 
                   <div class="settings-form-actions settings-form-actions--inline">
-                    <button type="submit" z-button zSize="sm" [zDisabled]="savingSettings" [zLoading]="savingSettings">
+                    <button type="submit" mat-flat-button color="primary" [disabled]="savingSettings">
+                      @if (savingSettings) {
+                        <mat-spinner diameter="18"></mat-spinner>
+                      }
                       {{ savingSettings ? 'Salvando…' : 'Salvar parâmetros' }}
                     </button>
                   </div>

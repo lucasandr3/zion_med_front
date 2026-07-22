@@ -1,215 +1,183 @@
-<div class="pessoas-page relative min-h-[320px]">
-  <div class="zm-list-toolbar zm-list-toolbar--search-wide">
-    <div class="form-search-wrap zm-list-toolbar__search" data-go-tour="pessoas-search">
-      <span class="material-symbols-outlined form-search-icon">search</span>
-      <input
-        type="text"
-        [(ngModel)]="busca"
-        (keydown.enter)="carregar(1)"
+<section class="pessoas-page upx-page-list">
+  <div class="upx-page-list__toolbar" data-go-tour="pessoas-search">
+    <div class="upx-page-list__toolbar-start">
+      <up-search-box
+        [control]="buscaControl"
         placeholder="Nome, código, telefone, e-mail ou CPF…"
-        z-input
-        class="form-search-input w-full text-sm"
-        aria-label="Buscar pessoas"
+        ariaLabel="Buscar pessoas"
+        (enter)="buscar()"
       />
-    </div>
-    <div class="zm-list-toolbar__actions">
       <button
-        z-button
-        zType="outline"
-        zSize="sm"
         type="button"
-        class="shrink-0 gap-1.5"
-        (click)="openFilterDrawer()"
-        [attr.aria-expanded]="filterDrawerOpen ? 'true' : 'false'"
-        [class.ring-2]="temFiltrosAtivos"
-        [class.ring-ring]="temFiltrosAtivos"
+        class="filters-btn"
+        [class.filters-btn--active]="temFiltrosAtivos"
+        (click)="toggleFilters()"
+        [attr.aria-expanded]="filtersOpen() ? 'true' : 'false'"
         title="Filtros"
       >
-        <span class="material-symbols-outlined text-base" aria-hidden="true">filter_alt</span>
-        Filtros
-        @if (temFiltrosAtivos) {
-          <z-badge zType="secondary" zShape="pill">{{ quantidadeFiltrosAtivos }}</z-badge>
-        }
+        <mat-icon aria-hidden="true">filter_list</mat-icon>
+        <span>Filtros</span>
       </button>
-      <a
-        z-button
-        zSize="sm"
-        routerLink="/pessoas/criar"
-        class="shrink-0 gap-1.5 no-underline"
-        title="Nova pessoa"
-        data-go-tour="pessoas-new"
-      >
-        <span class="material-symbols-outlined text-base" aria-hidden="true">person_add</span>
+    </div>
+    <div class="upx-page-list__toolbar-end">
+      <a mat-flat-button color="primary" routerLink="/pessoas/criar" title="Nova pessoa" data-go-tour="pessoas-new">
+        <mat-icon>person_add</mat-icon>
         Nova pessoa
       </a>
     </div>
   </div>
 
-  @if (listaPronta && !erro) {
-    <p class="zm-count-label mb-3">{{ contagemTexto() }}</p>
-  }
-
   @if (erro) {
     <p class="mb-4 text-sm text-destructive">{{ erro }}</p>
   }
 
-  @if (showSkeleton()) {
-    <zm-skeleton-list [rows]="6" />
-  } @else if (!listaPronta && !erro) {
-  } @else if (!erro) {
-    <div class="zm-content-enter" data-go-tour="pessoas-list">
-      <z-card class="zm-table-card gap-0 overflow-hidden rounded-[8px] py-0 shadow-sm **:data-[slot=card-content]:p-0">
-        @if (pessoas.length === 0) {
-          <div class="p-10">
-            <zm-empty-state title="Nenhuma pessoa encontrada." actionLabel="Cadastrar primeira pessoa" actionLink="/pessoas/criar" />
-          </div>
-        } @else {
-          <div class="zm-table-wrap">
-            <table z-table zSize="compact">
-              <thead z-table-header>
-                <tr z-table-row>
-                  <th z-table-head>Pessoa / Código</th>
-                  <th z-table-head>Contato</th>
-                  <th z-table-head>Nascimento</th>
-                  <th z-table-head>Protocolos</th>
-                  <th z-table-head>Última resposta</th>
-                  <th z-table-head>Situação</th>
-                </tr>
-              </thead>
-              <tbody z-table-body>
-                @for (p of pessoas; track p.id) {
-                  <tr z-table-row class="zm-row-clickable" (click)="irParaDetalhe(p, $event)">
-                    <td z-table-cell>
-                      <div class="zm-row-title">{{ p.name }}</div>
-                      <div class="zm-row-sub zm-cell-mono">{{ p.code }}</div>
-                    </td>
-                    <td z-table-cell>
-                      @if (p.phone) {
-                        <div class="zm-row-title">{{ p.phone }}</div>
-                      }
-                      @if (p.email) {
-                        <div class="zm-row-sub">{{ p.email }}</div>
-                      }
-                      @if (!p.phone && !p.email) {
-                        <span class="zm-cell-muted">—</span>
-                      }
-                    </td>
-                    <td z-table-cell class="zm-cell-muted">{{ formatarDataCurta(p.birth_date) }}</td>
-                    <td z-table-cell>{{ p.protocols_count ?? 0 }}</td>
-                    <td z-table-cell class="zm-cell-muted">{{ dataFormatada(p.last_protocol_at) }}</td>
-                    <td z-table-cell>
-                      @if (p.status === 'active') {
-                        <span class="text-xs font-semibold" style="color: var(--c-success)">Ativa</span>
-                      } @else {
-                        <span class="text-xs font-medium text-muted-foreground">Inativa</span>
-                      }
-                    </td>
-                  </tr>
-                }
-              </tbody>
-            </table>
-          </div>
+  <div class="upx-page-list__content" data-go-tour="pessoas-list">
+    @if (showSkeleton()) {
+      <zm-skeleton-list [rows]="6" />
+    } @else if (!listaPronta && !erro) {
+    } @else if (!erro) {
+      @if (pessoas.length === 0) {
+        <up-empty-state
+          icon="person_search"
+          title="Nenhuma pessoa encontrada."
+          description="Cadastre a primeira pessoa para começar."
+        >
+          <a mat-flat-button color="primary" routerLink="/pessoas/criar">
+            <mat-icon>person_add</mat-icon>
+            Cadastrar primeira pessoa
+          </a>
+        </up-empty-state>
+      } @else {
+        <up-data-table
+          [recordCount]="meta.total"
+          recordLabel="pessoa"
+          recordLabelPlural="pessoas"
+          [showEndHint]="meta.last_page <= 1"
+        >
+          <thead>
+            <tr>
+              <th>Pessoa / Código</th>
+              <th>Contato</th>
+              <th>Nascimento</th>
+              <th>Protocolos</th>
+              <th>Última resposta</th>
+              <th>Situação</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (p of pessoas; track p.id) {
+              <tr (click)="irParaDetalhe(p, $event)">
+                <td>
+                  <div class="cell-primary">{{ p.name }}</div>
+                  <div class="cell-secondary mono">{{ p.code }}</div>
+                </td>
+                <td>
+                  @if (p.phone) {
+                    <div class="cell-primary">{{ p.phone }}</div>
+                  }
+                  @if (p.email) {
+                    <div class="cell-secondary">{{ p.email }}</div>
+                  }
+                  @if (!p.phone && !p.email) {
+                    <span class="cell-secondary">—</span>
+                  }
+                </td>
+                <td class="cell-secondary">{{ formatarDataCurta(p.birth_date) }}</td>
+                <td>{{ p.protocols_count ?? 0 }}</td>
+                <td class="cell-secondary">{{ dataFormatada(p.last_protocol_at) }}</td>
+                <td>
+                  @if (p.status === 'active') {
+                    <up-badge variant="status" tone="published">Ativa</up-badge>
+                  } @else {
+                    <up-badge variant="status" tone="draft">Inativa</up-badge>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
           @if (meta.last_page > 1) {
-            <zm-pagination [currentPage]="meta.current_page" [lastPage]="meta.last_page" (pageChange)="carregar($event)" />
+            <div data-table-footer-end>
+              <zm-pagination [currentPage]="meta.current_page" [lastPage]="meta.last_page" (pageChange)="carregar($event)" />
+            </div>
           }
-        }
-      </z-card>
-    </div>
-  }
+        </up-data-table>
+      }
+    }
+  </div>
 
-  <ng-template #pessoasFiltrosTpl>
-    <div class="pessoas-filtros-sheet zm-filter-sheet">
-      <div class="zm-filter-sheet__body">
-        <div class="zm-filter-sheet__fields">
-          <div class="zm-filter-field">
-            <label class="zm-filter-label" id="pessoas-filtro-status-label">Situação</label>
-            <z-combobox
-              class="w-full"
-              zWidth="full"
-              [options]="opcoesStatusFiltro"
-              [value]="status || null"
-              placeholder="Todas"
-              [searchable]="false"
-              ariaLabel="Situação"
-              ariaDescribedBy="pessoas-filtro-status-label"
-              (zValueChange)="selecionarStatusFiltro($event)"
-            />
-          </div>
-          <div class="zm-filter-field">
-            <label class="zm-filter-label" id="pessoas-filtro-protocolos-label">Protocolos</label>
-            <z-combobox
-              class="w-full"
-              zWidth="full"
-              [options]="opcoesProtocolosFiltro"
-              [value]="has_protocols || null"
-              placeholder="Todos"
-              [searchable]="false"
-              ariaLabel="Protocolos"
-              ariaDescribedBy="pessoas-filtro-protocolos-label"
-              (zValueChange)="selecionarProtocolosFiltro($event)"
-            />
-          </div>
-          <div class="zm-filter-sheet__dates">
-            <div class="zm-filter-field">
-              <label class="zm-filter-label" for="pessoas-filtro-inicio">Cadastro a partir de</label>
-              <input
-                id="pessoas-filtro-inicio"
-                type="text"
-                mwlFlatpickr
-                [(ngModel)]="created_from"
-                name="pessoas_filtro_inicio"
-                z-input
-                class="w-full text-sm"
-                placeholder="dd/mm/aaaa"
-                [altInput]="true"
-                [appendTo]="flatpickrAppendTo"
-                [static]="false"
-                autocomplete="off"
-              />
-            </div>
-            <div class="zm-filter-field">
-              <label class="zm-filter-label" for="pessoas-filtro-fim">Cadastro até</label>
-              <input
-                id="pessoas-filtro-fim"
-                type="text"
-                mwlFlatpickr
-                [(ngModel)]="created_to"
-                name="pessoas_filtro_fim"
-                z-input
-                class="w-full text-sm"
-                placeholder="dd/mm/aaaa"
-                [altInput]="true"
-                [appendTo]="flatpickrAppendTo"
-                [static]="false"
-                autocomplete="off"
-              />
-            </div>
-          </div>
+  @if (filtersOpen()) {
+    <up-list-filters-panel
+      (closed)="closeFilters()"
+      (reset)="limparFiltros()"
+      (apply)="aplicarFiltros()"
+    >
+      <section class="filter-section">
+        <header class="filter-section__title">Situação</header>
+        <div class="filter-section__body">
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Situação</mat-label>
+            <mat-select [(ngModel)]="status" name="pessoas_filtro_status">
+              <mat-option value="">Todas</mat-option>
+              <mat-option value="active">Ativa</mat-option>
+              <mat-option value="inactive">Inativa</mat-option>
+            </mat-select>
+          </mat-form-field>
         </div>
-      </div>
-      <footer class="zm-filter-sheet__footer">
-        <button
-          z-button
-          zType="outline"
-          zSize="sm"
-          type="button"
-          class="min-w-0 flex-1 gap-2"
-          (click)="limparFiltros()"
-        >
-          <span class="material-symbols-outlined shrink-0 text-lg">filter_alt_off</span>
-          Limpar
-        </button>
-        <button
-          z-button
-          zSize="sm"
-          type="button"
-          class="min-w-0 flex-1 gap-2"
-          (click)="aplicarFiltros()"
-        >
-          <span class="material-symbols-outlined shrink-0 text-lg">check</span>
-          Aplicar
-        </button>
-      </footer>
-    </div>
-  </ng-template>
-</div>
+      </section>
+
+      <section class="filter-section">
+        <header class="filter-section__title">Protocolos</header>
+        <div class="filter-section__body">
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Protocolos</mat-label>
+            <mat-select [(ngModel)]="has_protocols" name="pessoas_filtro_protocolos">
+              <mat-option value="">Todos</mat-option>
+              <mat-option value="1">Com protocolos</mat-option>
+              <mat-option value="0">Sem protocolos</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </section>
+
+      <section class="filter-section">
+        <header class="filter-section__title">Cadastro</header>
+        <div class="filter-section__body">
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>A partir de</mat-label>
+            <input
+              matInput
+              id="pessoas-filtro-inicio"
+              [matDatepicker]="pessoasFromPicker"
+              [(ngModel)]="createdFromDate"
+              name="pessoas_filtro_inicio"
+              appOpenPickerOnInteract
+              [datepicker]="pessoasFromPicker"
+              placeholder="dd/mm/aaaa"
+              autocomplete="off"
+              readonly
+            />
+            <mat-datepicker-toggle matIconSuffix [for]="pessoasFromPicker" />
+            <mat-datepicker #pessoasFromPicker />
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Até</mat-label>
+            <input
+              matInput
+              id="pessoas-filtro-fim"
+              [matDatepicker]="pessoasToPicker"
+              [(ngModel)]="createdToDate"
+              name="pessoas_filtro_fim"
+              appOpenPickerOnInteract
+              [datepicker]="pessoasToPicker"
+              placeholder="dd/mm/aaaa"
+              autocomplete="off"
+              readonly
+            />
+            <mat-datepicker-toggle matIconSuffix [for]="pessoasToPicker" />
+            <mat-datepicker #pessoasToPicker />
+          </mat-form-field>
+        </div>
+      </section>
+    </up-list-filters-panel>
+  }
+</section>

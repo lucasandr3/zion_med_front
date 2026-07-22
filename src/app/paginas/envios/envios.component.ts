@@ -1,37 +1,37 @@
 import { Component, OnInit, inject, Signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 import { DocumentSendsService, DocumentSendItem } from '../../core/services/document-sends.service';
 import { PessoasService, Pessoa } from '../../core/services/pessoas.service';
 import { TemplatesService, Template } from '../../core/services/templates.service';
 import { LoadingService } from '../../shared/services/loading.service';
 import { ZmSkeletonListComponent } from '../../shared/components/skeletons';
-import { ZmPaginationComponent, ZmEmptyStateComponent } from '../../shared/components/ui';
-import { ZardComboboxComponent, type ZardComboboxOption } from '@/shared/components/combobox';
+import { ZmPaginationComponent } from '../../shared/components/ui';
+import { DataTableComponent, BadgeComponent, UpEmptyStateComponent, type StatusTone } from '../../shared/components/up';
 import { ToastService } from '../../core/services/toast.service';
 import { ConfirmDialogService } from '../../core/services/confirm-dialog.service';
-import { ZardCardComponent } from '@/shared/components/card/card.component';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
+import { MAT_FORM_IMPORTS } from '@/shared/material';
 
 type Caixa = 'pendentes' | 'assinados' | 'expirados' | 'cancelados';
-
-import { ZardTableImports } from '@/shared/components/table';
-import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
 @Component({
   selector: 'app-envios',
   standalone: true,
   imports: [
-    ...ZARD_FORM_CONTROL_IMPORTS,
-    ...ZardTableImports,
+    ...MAT_FORM_IMPORTS,
     CommonModule,
     FormsModule,
+    MatButtonModule,
+    MatIconModule,
+    MatTooltipModule,
     ZmSkeletonListComponent,
     ZmPaginationComponent,
-    ZmEmptyStateComponent,
-    ZardComboboxComponent,
-    ZardCardComponent,
-    ZardButtonComponent,
+    DataTableComponent,
+    BadgeComponent,
+    UpEmptyStateComponent,
   ],
   templateUrl: './envios.component.html',
   styleUrl: './envios.component.css',
@@ -80,17 +80,6 @@ export class EnviosComponent implements OnInit {
 
   get templatesPublicos(): Template[] {
     return this.templates.filter((template) => template.is_active !== false && template.public_enabled === true);
-  }
-
-  get opcoesTemplatesPublicos(): ZardComboboxOption[] {
-    return this.templatesPublicos.map((template) => ({
-      value: String(template.id),
-      label: template.name,
-    }));
-  }
-
-  get templateSelecionadoKey(): string {
-    return this.novoEnvio.template_id ? `${this.novoEnvio.template_id}` : '';
   }
 
   ngOnInit(): void {
@@ -172,21 +161,21 @@ export class EnviosComponent implements OnInit {
     return map[status] ?? status;
   }
 
-  corStatusEnvio(status: string): string {
-    switch (status) {
+  assinaturaTone(item: DocumentSendItem): StatusTone {
+    switch (item.status) {
       case 'assinado':
-        return 'var(--c-success)';
+        return 'published';
       case 'expirado':
-        return 'var(--c-warning)';
+        return 'archived';
       case 'cancelado':
-        return 'var(--c-muted)';
+        return 'draft';
       default:
-        return 'var(--c-muted)';
+        return 'default';
     }
   }
 
-  corEntrega(item: DocumentSendItem): string {
-    return item.delivery_status === 'nao_enviado' ? 'var(--c-danger)' : 'var(--c-success)';
+  entregaTone(item: DocumentSendItem): StatusTone {
+    return item.delivery_status === 'nao_enviado' ? 'archived' : 'published';
   }
 
   canalLabel(channel: string): string {
@@ -460,7 +449,4 @@ export class EnviosComponent implements OnInit {
     });
   }
 
-  selecionarTemplatePublico(templateId: string | null): void {
-    this.novoEnvio.template_id = Number(templateId ?? '') || 0;
-  }
 }

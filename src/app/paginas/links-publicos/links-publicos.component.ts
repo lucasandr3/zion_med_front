@@ -1,13 +1,14 @@
 import { Component, OnInit, inject, Signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { LinksPublicosService, LinkPublico } from '../../core/services/links-publicos.service';
 import { ToastService } from '../../core/services/toast.service';
 import { LoadingService } from '../../shared/services/loading.service';
 import { ZmSkeletonLinksPublicosComponent } from '../../shared/components/skeletons';
-import { ZmEmptyStateComponent, ZmPaginationComponent } from '../../shared/components/ui';
-import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
+import { ZmPaginationComponent } from '../../shared/components/ui';
+import { BadgeComponent, UpEmptyStateComponent } from '../../shared/components/up';
 import { ZardCardComponent } from '@/shared/components/card/card.component';
 import { ZardMenuImports } from '../../shared/components/menu/menu.imports';
 import { ZardSkeletonComponent } from '@/shared/components/skeleton/skeleton.component';
@@ -33,11 +34,12 @@ interface LinkPublicoItem {
   imports: [
     CommonModule,
     RouterLink,
+    MatButtonModule,
+    MatIconModule,
     ZmSkeletonLinksPublicosComponent,
-    ZmEmptyStateComponent,
     ZmPaginationComponent,
-    ZardBadgeComponent,
-    ZardButtonComponent,
+    BadgeComponent,
+    UpEmptyStateComponent,
     ZardCardComponent,
     ZardSkeletonComponent,
     ...ZardMenuImports,

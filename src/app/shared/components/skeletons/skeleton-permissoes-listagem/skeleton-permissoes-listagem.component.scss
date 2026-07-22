@@ -1,5 +1,27 @@
 .permissoes-listagem-skeleton {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
   width: 100%;
+  min-height: 0;
+  margin: 0;
+  border: none;
+  border-radius: 0;
+  background: rgb(var(--theme-floor-1));
+  overflow: auto;
+}
+
+.permissoes-listagem-skeleton__head,
+.permissoes-listagem-skeleton__row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--theme-line);
+}
+
+.permissoes-listagem-skeleton__row:last-child {
+  border-bottom: none;
 }
 
 .permissoes-listagem-skeleton__actions-head {
@@ -8,12 +30,8 @@
 }
 
 @media (max-width: 767px) {
-  .permissoes-listagem-skeleton z-card {
-    overflow-x: auto;
-  }
-
   .permissoes-listagem-skeleton__head,
   .permissoes-listagem-skeleton__row {
-    min-width: 32rem;
+    min-width: 36rem;
   }
 }

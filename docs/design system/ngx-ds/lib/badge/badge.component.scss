@@ -1,0 +1,81 @@
+.upx-badge {
+    @apply inline-flex font-medium px-2.5 py-0.5 items-center gap-1 w-fit whitespace-nowrap;
+	&--variant-dot {
+		@apply w-2 h-2 rounded-full;
+	}
+	&--size-custom {
+        @apply text-[10px] px-1;
+    }
+    &--size-xs {
+        @apply text-xs px-1.5;
+    }
+    &--size-sm {
+        @apply text-sm px-2;
+    }
+    &--size-md {
+        @apply text-base px-2.5;
+    }
+    &--size-lg {
+        @apply text-lg px-3;
+    }
+    &--size-xl {
+        @apply text-xl px-3.5;
+    }
+    &--shape-square {
+        @apply rounded-none;
+    }
+    &--shape-rounded {
+        @apply rounded-md;
+    }
+    &--shape-circle {
+        @apply rounded-full;
+    }
+    &--color-theme {
+        @apply bg-theme bg-opacity-10 text-theme;
+    }
+    &--color-default {
+        @apply bg-black bg-opacity-10 text-black text-opacity-70 dark:bg-white dark:bg-opacity-70;
+    }
+    &--color-success {
+        @apply bg-theme-success bg-opacity-10 text-theme-success;
+    }
+    &--color-info {
+        @apply bg-theme-info bg-opacity-10 text-theme-info;
+    }
+    &--color-warning {
+        @apply bg-theme-warning bg-opacity-10 text-theme-warning;
+    }
+    &--color-danger {
+        @apply bg-theme-danger bg-opacity-10 text-theme-danger;
+    }
+	&--color-slate {
+        @apply bg-slate-100 text-slate-500;
+    }
+	&--color-red {
+        @apply bg-red-100 text-red-500;
+    }
+	&--color-amber {
+        @apply bg-amber-100 text-amber-500;
+    }
+	&--color-lime {
+        @apply bg-lime-100 text-lime-500;
+    }
+	&--color-teal {
+        @apply bg-teal-100 text-teal-500;
+    }
+	&--color-sky {
+        @apply bg-sky-100 text-sky-500;
+    }
+	&--color-indigo {
+        @apply bg-indigo-100 text-indigo-500;
+    }
+	&--color-purple {
+        @apply bg-purple-100 text-purple-500;
+    }
+	&--color-pink {
+        @apply bg-pink-100 text-pink-500;
+    }
+	&--color-hexadecimal {
+		@apply text-white text-opacity-90;
+	}
+}

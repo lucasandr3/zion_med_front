@@ -694,16 +694,8 @@
   cursor: pointer;
 }
 
-.clinica-config .schedule-row .flatpickr-wrapper {
-  display: inline-block;
-  width: auto;
-  max-width: 100%;
-  vertical-align: middle;
-}
-
-.clinica-config .schedule-row .flatpickr-wrapper input.schedule-time-input {
-  width: 4.5rem;
-  min-width: 4.5rem;
+.clinica-config .schedule-time-field .mat-mdc-form-field {
+  width: 8.75rem;
   max-width: 100%;
 }
 

@@ -1,0 +1,170 @@
+/**
+ * Estilos globais da data-table (projeção de conteúdo + badges).
+ * Importado em styles.scss para funcionar em qualquer tela.
+ */
+
+.upx-data-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.875rem;
+
+  th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    padding: 0.55rem 1rem;
+    background: rgb(var(--theme-floor-2));
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: rgb(var(--theme-fg) / 0.72);
+    border-bottom: 1px solid var(--theme-line);
+  }
+
+  td {
+    padding: 0.55rem 1rem;
+    border-bottom: 1px solid rgb(var(--theme-border) / 0.08);
+    vertical-align: middle;
+    color: rgb(var(--theme-fg));
+  }
+
+  tbody tr {
+    cursor: pointer;
+    transition: background-color 120ms ease;
+
+    &:hover {
+      background: rgb(var(--theme-padrao) / 0.06);
+    }
+
+    &.upx-data-table__row--static {
+      cursor: default;
+
+      &:hover {
+        background: transparent;
+      }
+    }
+  }
+
+  .cell-primary {
+    font-weight: 600;
+  }
+
+  .cell-secondary {
+    margin-top: 0.1rem;
+    font-size: 0.72rem;
+    color: rgb(var(--theme-fg) / 0.5);
+  }
+
+  .mono {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .actions {
+    width: 1%;
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+    padding-right: 0.5rem;
+    padding-left: 0.5rem;
+    white-space: nowrap;
+    text-align: right;
+    vertical-align: middle;
+
+    /* Não usar display:flex no <td> — quebra border-collapse e desalinha as linhas. */
+    display: table-cell !important;
+
+    > * {
+      vertical-align: middle;
+    }
+
+    up-status-toggle {
+      display: inline-flex;
+      vertical-align: middle;
+    }
+
+    button[mat-icon-button] {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 2.15rem;
+      height: 2.15rem;
+      padding: 0;
+      margin: 0;
+      vertical-align: middle;
+      color: rgb(var(--theme-fg) / 0.55);
+    }
+  }
+}
+
+.upx-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.15rem 0.55rem;
+  border-radius: 0.35rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.upx-badge--type {
+  border: 1px solid rgb(0 119 204 / 0.35);
+  background: rgb(0 119 204 / 0.1);
+  color: #0077cc;
+}
+
+.upx-badge--status {
+  border-radius: 999px;
+  padding: 0.2rem 0.65rem;
+  background: rgb(var(--theme-fg) / 0.08);
+  color: rgb(var(--theme-fg) / 0.75);
+}
+
+.upx-badge--draft {
+  background: rgb(107 114 128 / 0.16);
+  color: #4b5563;
+}
+
+.upx-badge--published {
+  background: rgb(var(--theme-padrao) / 0.22);
+  color: #3d6400;
+}
+
+.upx-badge--archived {
+  background: rgb(var(--theme-danger) / 0.12);
+  color: #b91c1c;
+}
+
+html.dark {
+  .upx-data-table th {
+    color: rgb(var(--theme-fg) / 0.7);
+  }
+
+  .upx-data-table .cell-secondary {
+    color: rgb(var(--theme-fg) / 0.45);
+  }
+
+  .upx-data-table .actions button[mat-icon-button] {
+    color: rgb(var(--theme-fg) / 0.65);
+  }
+
+  .upx-badge--type {
+    border-color: rgb(96 165 250 / 0.45);
+    background: rgb(59 130 246 / 0.18);
+    color: #93c5fd;
+  }
+
+  .upx-badge--draft {
+    background: rgb(255 255 255 / 0.1);
+    color: rgb(209 213 219);
+  }
+
+  .upx-badge--published {
+    background: rgb(var(--theme-padrao) / 0.2);
+    color: rgb(var(--theme-padrao));
+  }
+
+  .upx-badge--archived {
+    background: rgb(248 113 113 / 0.16);
+    color: #fca5a5;
+  }
+}

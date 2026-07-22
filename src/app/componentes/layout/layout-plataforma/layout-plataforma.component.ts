@@ -1,104 +1,13 @@
-import { Component, OnInit, OnDestroy, inject } from '@angular/core';
-import { Router, RouterOutlet, NavigationEnd } from '@angular/router';
-import { filter, Subscription } from 'rxjs';
-import { BarraLateralPlataformaComponent } from '../barra-lateral-plataforma/barra-lateral-plataforma.component';
-import { CabecalhoComponent } from '../cabecalho/cabecalho.component';
-import { CommonModule } from '@angular/common';
-import { NotificacoesService } from '../../../core/services/notificacoes.service';
-import { NovidadesService } from '../../../core/services/novidades.service';
-import { SidebarMobileService } from '../../../core/services/sidebar-mobile.service';
-import { PlataformaHeaderService } from '../../../core/services/plataforma-header.service';
-import { AuthService } from '../../../core/services/auth.service';
-import { ZmPageBackLinkComponent } from '../../../shared/components/ui';
-import { GoAssistantHostComponent } from '../../../go-assistant';
+import { Component } from '@angular/core';
+import { GestgoShellComponent } from '../../../layout/shell/gestgo-shell.component';
+
+/**
+ * Layout plataforma — shell Material canônico (paridade InspecFlow / DS).
+ */
 @Component({
   selector: 'app-layout-plataforma',
   standalone: true,
-  imports: [
-    CommonModule,
-    RouterOutlet,
-    BarraLateralPlataformaComponent,
-    CabecalhoComponent,
-    ZmPageBackLinkComponent,
-    GoAssistantHostComponent,
-  ],
-  templateUrl: './layout-plataforma.component.html',
-  styleUrl: './layout-plataforma.component.css',
+  imports: [GestgoShellComponent],
+  template: `<app-gestgo-shell context="plataforma" />`,
 })
-export class LayoutPlataformaComponent implements OnInit, OnDestroy {
-  tituloPagina = 'Plataforma';
-  subtituloPagina: string | null = null;
-  urlVoltar: string | null = null;
-  labelVoltar = 'Voltar';
-  voltarIntegrado = false;
-  notificacoesNaoLidas = 0;
-  novidadesNaoVistas = 0;
-  private router = inject(Router);
-  private notif = inject(NotificacoesService);
-  private novidades = inject(NovidadesService);
-  private sidebarMobile = inject(SidebarMobileService);
-  private headerService = inject(PlataformaHeaderService);
-  private auth = inject(AuthService);
-  private headerSub?: Subscription;
-
-  private updateFromActivatedRoute(): void {
-    let route = this.router.routerState.snapshot.root;
-    while (route.firstChild) {
-      route = route.firstChild;
-    }
-    const data = (route.data ?? {}) as {
-      titulo?: string;
-      subtitulo?: string;
-      urlVoltar?: string;
-      labelVoltar?: string;
-      voltarIntegrado?: boolean;
-    };
-    this.tituloPagina = data.titulo ?? 'Plataforma';
-    this.subtituloPagina = data.subtitulo ?? null;
-    this.urlVoltar = data.urlVoltar ?? null;
-    this.labelVoltar = data.labelVoltar ?? this.labelVoltar;
-    this.voltarIntegrado = data.voltarIntegrado === true;
-  }
-
-  ngOnInit(): void {
-    if (this.auth.isAuthenticated()) {
-      this.auth.me().subscribe({ error: () => {} });
-    }
-    this.headerSub = this.headerService.getOverride().subscribe((override) => {
-      if (override) {
-        this.tituloPagina = override.titulo;
-        this.subtituloPagina = override.subtitulo;
-      } else {
-        this.updateFromActivatedRoute();
-      }
-    });
-
-    this.router.events.pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd)).subscribe(() => {
-      this.sidebarMobile.setOpen(false);
-      this.headerService.clearHeader();
-      this.updateFromActivatedRoute();
-      this.atualizarBadgeNotificacoes();
-      this.atualizarBadgeNovidades();
-    });
-
-    this.updateFromActivatedRoute();
-    this.atualizarBadgeNotificacoes();
-    this.atualizarBadgeNovidades();
-  }
-
-  private atualizarBadgeNovidades(): void {
-    this.novidades.getNaoVistasCount().subscribe((n) => (this.novidadesNaoVistas = n));
-  }
-
-  private atualizarBadgeNotificacoes(): void {
-    if (!this.auth.hasPermission('notifications.access')) {
-      this.notificacoesNaoLidas = 0;
-      return;
-    }
-    this.notif.getNaoLidasCount().subscribe((n) => (this.notificacoesNaoLidas = n));
-  }
-
-  ngOnDestroy(): void {
-    this.headerSub?.unsubscribe();
-  }
-}
+export class LayoutPlataformaComponent {}

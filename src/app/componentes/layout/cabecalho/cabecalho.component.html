@@ -33,7 +33,7 @@
               aria-label="Abrir ou fechar menu">
         <span class="material-symbols-outlined text-[21px]">menu</span>
       </button>
-      <div class="min-w-0" [class.lg:hidden]="navLayoutAtual === 'horizontal'">
+      <div class="min-w-0">
         <h2 class="truncate text-[0.9375rem] font-semibold text-foreground">{{ titulo }}</h2>
         @if (subtitulo) {
           <p class="mt-0.5 truncate text-xs text-muted-foreground">{{ subtitulo }}</p>
@@ -328,8 +328,8 @@
     <section class="cabecalho-theme-sheet__section" aria-labelledby="theme-sheet-shell">
       <p id="theme-sheet-shell" class="theme-drawer-section-label">Barra lateral e topo</p>
       <p class="theme-drawer-shell-hint">
-        <strong>Topo e marca</strong> aplica a cor primária só no cabeçalho e na faixa do Gestgo;
-        <strong>Menu escuro</strong> escurece a lateral inteira.
+        <strong>Padrão</strong> e <strong>Topo e marca</strong> controlam o cabeçalho.
+        <strong>Menu escuro</strong> é independente e pode ficar ativo junto com qualquer um.
       </p>
       <div class="theme-drawer-option-grid theme-drawer-option-grid--shell">
         @for (opt of shellPresetOptions; track opt.id) {
@@ -337,10 +337,10 @@
             type="button"
             z-button
             zFull
-            [zType]="shellPresetAtual === opt.id ? 'default' : 'outline'"
+            [zType]="isShellOptionActive(opt.id) ? 'default' : 'outline'"
             class="theme-drawer-pick-btn theme-drawer-pick-btn--tall"
             (click)="aplicarShellPreset(opt.id)"
-            [attr.aria-pressed]="shellPresetAtual === opt.id"
+            [attr.aria-pressed]="isShellOptionActive(opt.id)"
             [attr.title]="opt.description"
           >
             <span class="material-symbols-outlined theme-drawer-pick-icon">{{ opt.icon }}</span>
@@ -349,7 +349,7 @@
         }
       </div>
       <p class="theme-drawer-footnote">
-        {{ shellPresetMeta?.description ?? '—' }}
+        {{ shellPresetFootnote }}
       </p>
     </section>
 

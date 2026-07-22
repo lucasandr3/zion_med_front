@@ -62,14 +62,12 @@
     <p class="link-bio-insight__text">{{ insightBannerTextoValue }}</p>
     <button
       type="button"
-      z-button
-      zType="ghost"
-      zSize="icon-sm"
+      mat-icon-button
       class="link-bio-insight__close shrink-0"
       aria-label="Fechar dica"
       (click)="closeInsight.emit()"
     >
-      <span class="material-symbols-outlined text-base">close</span>
+      <mat-icon>close</mat-icon>
     </button>
   </div>
 }
@@ -85,9 +83,7 @@
         @for (p of statsPeriodos; track p.id) {
           <button
             type="button"
-            z-button
-            zType="ghost"
-            zSize="sm"
+            mat-button
             class="link-bio-period-toggle__btn"
             [class.link-bio-period-toggle__btn--active]="statsPeriodo === p.id"
             (click)="selecionarPeriodo(p.id)"
@@ -97,16 +93,17 @@
         }
         <button
           type="button"
-          z-button
-          zType="ghost"
-          zSize="icon-sm"
+          mat-icon-button
           class="shrink-0"
           aria-label="Atualizar estatísticas"
-          [zDisabled]="atualizandoStats"
-          [zLoading]="atualizandoStats"
+          [disabled]="atualizandoStats"
           (click)="refreshStats.emit()"
         >
-          <span class="material-symbols-outlined text-base">refresh</span>
+          @if (atualizandoStats) {
+            <mat-spinner diameter="18"></mat-spinner>
+          } @else {
+            <mat-icon>refresh</mat-icon>
+          }
         </button>
       </div>
     </div>

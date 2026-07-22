@@ -45,7 +45,7 @@ O `Dockerfile` copia `dist/gestgo_front/browser` para Nginx. O build da imagem d
 
 ## Tema
 
-O tema corporativo padrão é **`gestgo-blue`** (classe `theme-gestgo-blue`). Valores antigos `zion-blue` no `localStorage` são normalizados para `gestgo-blue` (ver `user-appearance.sync.ts`).
+O tema de marca padrão é **`ocean-blue` / Vital** (`#16a874`). Matriz completa em `src/app/core/theme/gestgo-themes.ts` e `src/styles/theme-palettes.css`. Valores antigos `zion-blue` no `localStorage` são normalizados para `gestgo-blue` (ver `user-appearance.sync.ts`).
 
 ## Testes
 

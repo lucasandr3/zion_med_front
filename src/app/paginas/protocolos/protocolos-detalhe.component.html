@@ -34,45 +34,50 @@
           </div>
           <div class="protocolo-detalhe-header__group protocolo-detalhe-header__group--export">
             <button
-              z-button
-              zType="outline"
-              zSize="sm"
+              mat-stroked-button
+              class="btn-cancel gap-2"
               type="button"
-              class="gap-2"
               (click)="baixarFichaPdf()"
               title="Baixar PDF"
-              [zLoading]="gerandoPdf"
-              [zDisabled]="gerandoPdf">
-              <span class="material-symbols-outlined text-base" aria-hidden="true">download</span>
+              [disabled]="gerandoPdf">
+              @if (gerandoPdf) {
+                <mat-spinner diameter="18"></mat-spinner>
+              } @else {
+                <span class="material-symbols-outlined text-base" aria-hidden="true">download</span>
+              }
               {{ gerandoPdf ? 'Gerando…' : 'Baixar PDF' }}
             </button>
             <button
-              z-button
-              zType="outline"
-              zSize="sm"
+              mat-stroked-button
+              class="btn-cancel gap-2"
               type="button"
-              class="gap-2"
               (click)="baixarDossie()"
               title="Baixar dossiê (ZIP)"
-              [zLoading]="gerandoDossie"
-              [zDisabled]="gerandoDossie">
-              <span class="material-symbols-outlined text-base" aria-hidden="true">inventory_2</span>
+              [disabled]="gerandoDossie">
+              @if (gerandoDossie) {
+                <mat-spinner diameter="18"></mat-spinner>
+              } @else {
+                <span class="material-symbols-outlined text-base" aria-hidden="true">inventory_2</span>
+              }
               {{ gerandoDossie ? 'Gerando…' : 'Dossiê ZIP' }}
             </button>
           </div>
           @if (podeSolicitarReconsentimento) {
             <div class="protocolo-detalhe-header__group">
               <button
-                z-button
-                zSize="sm"
+                mat-flat-button
+                color="primary"
                 type="button"
                 class="gap-2"
                 (click)="solicitarReconsentimento()"
                 title="Enviar novo link de consentimento"
-                [zLoading]="solicitandoReconsentimento"
-                [zDisabled]="solicitandoReconsentimento"
+                [disabled]="solicitandoReconsentimento"
               >
-                <span class="material-symbols-outlined text-base" aria-hidden="true">forward_to_inbox</span>
+                @if (solicitandoReconsentimento) {
+                  <mat-spinner diameter="18"></mat-spinner>
+                } @else {
+                  <span class="material-symbols-outlined text-base" aria-hidden="true">forward_to_inbox</span>
+                }
                 {{ solicitandoReconsentimento ? 'Enviando…' : 'Solicitar reconsentimento' }}
               </button>
             </div>
@@ -80,11 +85,9 @@
           @if (isPending && podeRevisarProtocolo) {
             <div class="protocolo-detalhe-header__group protocolo-detalhe-header__group--review" role="group" aria-label="Revisão do protocolo">
               <button
-                z-button
-                zType="outline"
-                zSize="sm"
+                mat-stroked-button
+                class="btn-cancel gap-2"
                 type="button"
-                class="gap-2"
                 [class.ring-2]="revisaoFormVisible && revisaoAprovado"
                 [class.ring-ring]="revisaoFormVisible && revisaoAprovado"
                 (click)="abrirRevisao(true)"
@@ -93,9 +96,8 @@
                 Aprovar
               </button>
               <button
-                z-button
-                zType="destructive"
-                zSize="sm"
+                mat-flat-button
+                color="warn"
                 type="button"
                 class="gap-2"
                 [class.ring-2]="revisaoFormVisible && !revisaoAprovado"
@@ -110,11 +112,9 @@
             <z-badge zShape="pill" [zType]="statusBadgeType()" [class]="statusBadgeClass()">✓ {{ statusLabel() }}</z-badge>
             @if (podeRevogarProtocolo) {
               <button
-                z-button
-                zType="outline"
-                zSize="sm"
+                mat-stroked-button
+                class="btn-cancel gap-2"
                 type="button"
-                class="gap-2"
                 [class.ring-2]="revogarFormVisible"
                 [class.ring-destructive]="revogarFormVisible"
                 (click)="abrirRevogacao()"
@@ -137,7 +137,7 @@
               <span class="material-symbols-outlined" aria-hidden="true">rate_review</span>
             </div>
             <span class="section-title">Revisar protocolo</span>
-            <button z-button zType="ghost" zSize="icon-sm" type="button" class="section-header__action" (click)="fecharRevisao()" aria-label="Fechar">
+            <button mat-icon-button type="button" class="section-header__action" (click)="fecharRevisao()" aria-label="Fechar">
               <span class="material-symbols-outlined text-base">close</span>
             </button>
           </div>
@@ -146,9 +146,8 @@
               <p class="pd-field-label">Decisão</p>
               <div class="pd-revisao-toggle">
                 <button
-                  z-button
-                  zType="outline"
-                  zSize="sm"
+                  mat-stroked-button
+                  class="btn-cancel"
                   type="button"
                   [class.ring-2]="revisaoAprovado"
                   [class.ring-primary]="revisaoAprovado"
@@ -156,9 +155,8 @@
                   Aprovar
                 </button>
                 <button
-                  z-button
-                  zType="outline"
-                  zSize="sm"
+                  mat-stroked-button
+                  class="btn-cancel"
                   type="button"
                   [class.ring-2]="!revisaoAprovado"
                   [class.ring-destructive]="!revisaoAprovado"
@@ -169,25 +167,24 @@
             </div>
             <div>
               <label class="pd-field-label" for="comentario_revisao">Comentário (opcional)</label>
-              <textarea
-                id="comentario_revisao"
-                z-input
-                [(ngModel)]="comentarioRevisao"
-                rows="3"
-                class="w-full"
-                placeholder="Comentário da revisão..."></textarea>
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>Comentário da revisão</mat-label>
+                <textarea matInput id="comentario_revisao" [(ngModel)]="comentarioRevisao" rows="3" placeholder="Comentário da revisão..."></textarea>
+              </mat-form-field>
             </div>
             @if (revisaoAprovado && isConsentimentoProtocolo) {
-              <label class="pd-check-row flex cursor-pointer items-start gap-2 text-sm">
-                <input type="checkbox" class="mt-0.5" [(ngModel)]="profissionalExplicou" name="profissionalExplicou" />
-                <span>Declaro que o profissional explicou riscos, benefícios e alternativas ao paciente (TCLE).</span>
-              </label>
+              <mat-checkbox class="pd-check-row" [(ngModel)]="profissionalExplicou" name="profissionalExplicou">
+                Declaro que o profissional explicou riscos, benefícios e alternativas ao paciente (TCLE).
+              </mat-checkbox>
             }
             <div class="pd-revisao-actions">
-              <button z-button zType="default" type="button" class="gap-2" (click)="enviarRevisao()" [zLoading]="revisaoEnviando" [zDisabled]="revisaoEnviando">
+              <button mat-flat-button color="primary" type="button" class="gap-2" (click)="enviarRevisao()" [disabled]="revisaoEnviando">
+                @if (revisaoEnviando) {
+                  <mat-spinner diameter="18"></mat-spinner>
+                }
                 {{ revisaoEnviando ? 'Enviando…' : 'Confirmar revisão' }}
               </button>
-              <button z-button zType="outline" type="button" (click)="fecharRevisao()" [zDisabled]="revisaoEnviando">Cancelar</button>
+              <button mat-stroked-button class="btn-cancel" type="button" (click)="fecharRevisao()" [disabled]="revisaoEnviando">Cancelar</button>
             </div>
           </div>
         </z-card>
@@ -200,26 +197,26 @@
               <span class="material-symbols-outlined" aria-hidden="true">undo</span>
             </div>
             <span class="section-title">Revogar consentimento</span>
-            <button z-button zType="ghost" zSize="icon-sm" type="button" class="section-header__action" (click)="fecharRevogacao()" aria-label="Fechar">
+            <button mat-icon-button type="button" class="section-header__action" (click)="fecharRevogacao()" aria-label="Fechar">
               <span class="material-symbols-outlined text-base">close</span>
             </button>
           </div>
           <div class="section-body pd-revisao-body">
             <div>
               <label class="pd-field-label" for="motivo_revogacao">Motivo da revogação</label>
-              <textarea
-                id="motivo_revogacao"
-                z-input
-                [(ngModel)]="motivoRevogacao"
-                rows="3"
-                class="w-full"
-                placeholder="Ex.: paciente solicitou cancelamento do procedimento..."></textarea>
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>Motivo da revogação</mat-label>
+                <textarea matInput id="motivo_revogacao" [(ngModel)]="motivoRevogacao" rows="3" placeholder="Ex.: paciente solicitou cancelamento do procedimento..."></textarea>
+              </mat-form-field>
             </div>
             <div class="pd-revisao-actions">
-              <button z-button zType="destructive" type="button" class="gap-2" (click)="enviarRevogacao()" [zLoading]="revogando" [zDisabled]="revogando">
+              <button mat-flat-button color="warn" type="button" class="gap-2" (click)="enviarRevogacao()" [disabled]="revogando">
+                @if (revogando) {
+                  <mat-spinner diameter="18"></mat-spinner>
+                }
                 {{ revogando ? 'Revogando…' : 'Confirmar revogação' }}
               </button>
-              <button z-button zType="outline" type="button" (click)="fecharRevogacao()" [zDisabled]="revogando">Cancelar</button>
+              <button mat-stroked-button class="btn-cancel" type="button" (click)="fecharRevogacao()" [disabled]="revogando">Cancelar</button>
             </div>
           </div>
         </z-card>
@@ -385,9 +382,7 @@
                   @if (camposRespostasVazios().length > 0) {
                     <div class="pd-resp-empty-toggle-wrap">
                       <button
-                        z-button
-                        zType="ghost"
-                        zSize="sm"
+                        mat-button
                         type="button"
                         class="gap-1.5"
                         (click)="alternarCamposVazios()"
@@ -422,14 +417,15 @@
                   </div>
                   <span class="section-title">Registro da equipe (clínica)</span>
                   <button
-                    z-button
-                    zType="default"
-                    zSize="sm"
+                    mat-flat-button
+                    color="primary"
                     type="button"
                     class="section-header__action gap-2"
                     (click)="salvarRegistroEquipe()"
-                    [zLoading]="staffSalvando"
-                    [zDisabled]="staffSalvando">
+                    [disabled]="staffSalvando">
+                    @if (staffSalvando) {
+                      <mat-spinner diameter="18"></mat-spinner>
+                    }
                     {{ staffSalvando ? 'Salvando…' : 'Salvar' }}
                   </button>
                 </div>
@@ -441,45 +437,48 @@
                         <label class="pd-field-label" [for]="'staff_' + sf.name_key">{{ sf.label }}</label>
                         @switch (sf.type) {
                           @case ('textarea') {
-                            <textarea
-                              [id]="'staff_' + sf.name_key"
-                              z-input
-                              rows="3"
-                              class="w-full"
-                              [(ngModel)]="staffDraft[sf.name_key]"
-                              [name]="'staff_' + sf.name_key"></textarea>
+                            <mat-form-field appearance="outline" class="w-full">
+                              <mat-label>{{ sf.label }}</mat-label>
+                              <textarea matInput [id]="'staff_' + sf.name_key" rows="3" [(ngModel)]="staffDraft[sf.name_key]" [name]="'staff_' + sf.name_key"></textarea>
+                            </mat-form-field>
                           }
                           @case ('number') {
-                            <input
-                              type="number"
-                              z-input
-                              class="w-full"
-                              [(ngModel)]="staffDraft[sf.name_key]"
-                              [name]="'staff_' + sf.name_key" />
+                            <mat-form-field appearance="outline" class="w-full">
+                              <mat-label>{{ sf.label }}</mat-label>
+                              <input matInput type="number" [(ngModel)]="staffDraft[sf.name_key]" [name]="'staff_' + sf.name_key" />
+                            </mat-form-field>
                           }
                           @case ('date') {
-                            <input type="date" z-input class="w-full" [(ngModel)]="staffDraft[sf.name_key]" [name]="'staff_' + sf.name_key" />
+                            <mat-form-field appearance="outline" class="w-full">
+                              <mat-label>{{ sf.label }}</mat-label>
+                              <input matInput [matDatepicker]="staffDatePicker" appOpenPickerOnInteract [datepicker]="staffDatePicker" [ngModel]="staffDateValue(sf.name_key)" (ngModelChange)="onStaffDateChange(sf.name_key, $event)" [name]="'staff_' + sf.name_key" />
+                              <mat-datepicker-toggle matIconSuffix [for]="staffDatePicker" />
+                              <mat-datepicker #staffDatePicker />
+                            </mat-form-field>
                           }
                           @case ('select') {
-                            <select z-input class="w-full" [(ngModel)]="staffDraft[sf.name_key]" [name]="'staff_' + sf.name_key">
-                              <option value="">Selecione</option>
+                            <mat-form-field appearance="outline" class="w-full">
+                              <mat-label>{{ sf.label }}</mat-label>
+                              <mat-select [(ngModel)]="staffDraft[sf.name_key]" [name]="'staff_' + sf.name_key">
+                              <mat-option value="">Selecione</mat-option>
                               @for (opt of sf.options ?? []; track opt) {
-                                <option [value]="opt">{{ opt }}</option>
+                                <mat-option [value]="opt">{{ opt }}</mat-option>
                               }
-                            </select>
+                              </mat-select>
+                            </mat-form-field>
                           }
                           @case ('radio') {
-                            <div class="pd-radio-stack">
+                            <mat-radio-group class="pd-radio-stack" [(ngModel)]="staffDraft[sf.name_key]" [name]="'staff_' + sf.name_key">
                               @for (opt of sf.options ?? []; track opt) {
-                                <label class="pd-radio-line">
-                                  <input type="radio" [name]="'staff_' + sf.name_key" [value]="opt" [(ngModel)]="staffDraft[sf.name_key]" />
-                                  {{ opt }}
-                                </label>
+                                <mat-radio-button class="pd-radio-line" [value]="opt">{{ opt }}</mat-radio-button>
                               }
-                            </div>
+                            </mat-radio-group>
                           }
                           @default {
-                            <input type="text" z-input class="w-full" [(ngModel)]="staffDraft[sf.name_key]" [name]="'staff_' + sf.name_key" />
+                            <mat-form-field appearance="outline" class="w-full">
+                              <mat-label>{{ sf.label }}</mat-label>
+                              <input matInput type="text" [(ngModel)]="staffDraft[sf.name_key]" [name]="'staff_' + sf.name_key" />
+                            </mat-form-field>
                           }
                         }
                       </div>
@@ -649,16 +648,21 @@
 
                 <div class="pd-coment-form">
                   <p class="pd-field-label">Novo comentário interno</p>
-                  <textarea z-input [(ngModel)]="novoComentario" rows="4" class="w-full" placeholder="Digite seu comentário..."></textarea>
+                  <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>Novo comentário interno</mat-label>
+                    <textarea matInput [(ngModel)]="novoComentario" rows="4" placeholder="Digite seu comentário..."></textarea>
+                  </mat-form-field>
                   <div class="pd-coment-actions">
                     <button
-                      z-button
-                      zType="default"
+                      mat-flat-button
+                      color="primary"
                       type="button"
                       class="gap-2"
                       (click)="enviarComentario()"
-                      [zDisabled]="!novoComentario.trim() || comentarioEnviando"
-                      [zLoading]="comentarioEnviando">
+                      [disabled]="!novoComentario.trim() || comentarioEnviando">
+                      @if (comentarioEnviando) {
+                        <mat-spinner diameter="18"></mat-spinner>
+                      }
                       {{ comentarioEnviando ? 'Enviando…' : 'Adicionar comentário' }}
                     </button>
                   </div>
@@ -672,29 +676,28 @@
           <div class="protocolo-tab-panel protocolo-tab-panel--impressao">
             <div class="pd-print-toolbar">
               <button
-                z-button
-                zType="outline"
-                zSize="sm"
+                mat-stroked-button
+                class="btn-cancel gap-2"
                 type="button"
-                class="gap-2"
                 (click)="visualizarFichaPdf()"
-                [zDisabled]="gerandoPdf">
+                [disabled]="gerandoPdf">
                 <span class="material-symbols-outlined text-base" aria-hidden="true">visibility</span>
                 Visualizar PDF
               </button>
               <button
-                z-button
-                zType="outline"
-                zSize="sm"
+                mat-stroked-button
+                class="btn-cancel gap-2"
                 type="button"
-                class="gap-2"
                 (click)="baixarFichaPdf()"
-                [zLoading]="gerandoPdf"
-                [zDisabled]="gerandoPdf">
-                <span class="material-symbols-outlined text-base" aria-hidden="true">download</span>
+                [disabled]="gerandoPdf">
+                @if (gerandoPdf) {
+                  <mat-spinner diameter="18"></mat-spinner>
+                } @else {
+                  <span class="material-symbols-outlined text-base" aria-hidden="true">download</span>
+                }
                 {{ gerandoPdf ? 'Gerando…' : 'Baixar PDF' }}
               </button>
-              <button z-button zType="default" zSize="sm" type="button" class="gap-2" (click)="imprimirFicha()">
+              <button mat-flat-button color="primary" type="button" class="gap-2" (click)="imprimirFicha()">
                 <span class="material-symbols-outlined text-base" aria-hidden="true">print</span>
                 Imprimir
               </button>

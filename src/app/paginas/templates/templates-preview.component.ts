@@ -5,7 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { catchError, map, of, switchMap } from 'rxjs';
 import { LoadingService } from '../../shared/services/loading.service';
 import { ZmSkeletonListComponent } from '../../shared/components/skeletons';
-import { ZardCheckboxComponent } from '@/shared/components/checkbox';
+import { MAT_FORM_IMPORTS } from '@/shared/material';
 import { Template, TemplateCampo, TemplatesService } from '../../core/services/templates.service';
 
 type PreviewValue = string | number | boolean;
@@ -13,7 +13,7 @@ type PreviewValue = string | number | boolean;
 @Component({
   selector: 'app-templates-preview',
   standalone: true,
-  imports: [CommonModule, FormsModule, ZmSkeletonListComponent, ZardCheckboxComponent],
+  imports: [CommonModule, FormsModule, ZmSkeletonListComponent, ...MAT_FORM_IMPORTS],
   templateUrl: './templates-preview.component.html',
   styleUrl: './templates-preview.component.css',
 })

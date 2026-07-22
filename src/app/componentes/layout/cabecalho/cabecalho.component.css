@@ -229,38 +229,44 @@
 
 .shell-horizontal-brand__logo--gestgo {
   background: var(--c-primary, #16a874);
-  border-radius: 9999px;
+  border-radius: 0.55rem;
   box-shadow: var(--gestgo-brand-logo-shadow);
-  height: 2rem;
-  padding: 0.3125rem;
-  width: 2rem;
+  height: 2.35rem;
+  padding: 0;
+  width: 2.35rem;
+  display: inline-grid;
+  place-items: center;
 }
 
 .shell-horizontal-brand__logo--gestgo img {
   border-radius: 0;
+  width: 1.55rem;
+  height: 1.55rem;
 }
 
 .shell-horizontal-brand__text {
   display: flex;
   flex-direction: column;
-  gap: 0.0625rem;
-  line-height: 1.1;
+  gap: 0.1rem;
+  line-height: 1.15;
   min-width: 0;
 }
 
 .shell-horizontal-brand__title {
   color: var(--gestgo-brand-title, var(--foreground, var(--c-text)));
-  font-size: 0.9375rem;
-  font-weight: 800;
-  letter-spacing: -0.01em;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
 }
 
 .shell-horizontal-brand__tag {
   color: var(--gestgo-brand-tag, var(--muted-foreground, var(--c-muted)));
-  font-size: 0.5625rem;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  font-size: 0.72rem;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+  line-height: 1.25;
 }
 
 .shell-horizontal-divider {
@@ -274,7 +280,7 @@
   display: inline-flex;
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 960px) {
   .cabecalho-menu-btn--hidden-desktop {
     display: none !important;
   }

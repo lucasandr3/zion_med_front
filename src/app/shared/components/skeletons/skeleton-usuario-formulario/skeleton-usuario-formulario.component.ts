@@ -1,15 +1,14 @@
 import { Component, input, ViewEncapsulation } from '@angular/core';
 
-import { ZardCardComponent } from '@/shared/components/card/card.component';
 import { ZardSkeletonComponent } from '@/shared/components/skeleton';
 
 @Component({
   selector: 'zm-skeleton-usuario-formulario',
   standalone: true,
-  imports: [ZardCardComponent, ZardSkeletonComponent],
+  imports: [ZardSkeletonComponent],
   template: `
     <div class="usuario-formulario-skeleton zm-content-enter" aria-hidden="true" aria-busy="true">
-      <z-card class="gap-0 py-5 shadow-sm **:data-[slot=card-content]:px-5">
+      <div class="upx-form-panel">
         <div class="flex flex-col gap-5">
           <z-skeleton class="h-3.5 w-full max-w-xl rounded-md" />
           <z-skeleton class="h-3.5 w-[80%] max-w-lg rounded-md" />
@@ -17,7 +16,7 @@ import { ZardSkeletonComponent } from '@/shared/components/skeleton';
           @for (field of singleFields; track field) {
             <div class="space-y-2">
               <z-skeleton class="h-3 w-28 rounded-md" />
-              <z-skeleton class="h-9 w-full rounded-md" />
+              <z-skeleton class="h-10 w-full rounded-md" />
             </div>
           }
 
@@ -25,7 +24,7 @@ import { ZardSkeletonComponent } from '@/shared/components/skeleton';
             @for (i of pairIndices; track i) {
               <div class="space-y-2">
                 <z-skeleton class="h-3 w-32 rounded-md" />
-                <z-skeleton class="h-9 w-full rounded-md" />
+                <z-skeleton class="h-10 w-full rounded-md" />
               </div>
             }
           </div>
@@ -46,11 +45,11 @@ import { ZardSkeletonComponent } from '@/shared/components/skeleton';
           </div>
 
           <div class="flex flex-wrap gap-3 pt-2">
-            <z-skeleton class="h-9 w-40 rounded-md" />
-            <z-skeleton class="h-9 w-24 rounded-md" />
+            <z-skeleton class="h-10 w-40 rounded-md" />
+            <z-skeleton class="h-10 w-24 rounded-md" />
           </div>
         </div>
-      </z-card>
+      </div>
     </div>
   `,
   encapsulation: ViewEncapsulation.None,

@@ -19,6 +19,8 @@ import {
   ApexNonAxisChartSeries,
   ApexResponsive,
 } from 'ng-apexcharts';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { isBillingBlockedError } from '../../core/utils/billing-blocked-error';
 import { DashboardService } from '../../core/services/dashboard.service';
 import { ComplianceReportData, ComplianceService } from '../../core/services/compliance.service';
@@ -28,7 +30,6 @@ import { ZmAssinaturaBloqueadaCardComponent } from '../../shared/components/ui/z
 import { ZmSkeletonDashboardComponent } from '../../shared/components/skeletons';
 import { ZmEmptyStateComponent } from '../../shared/components/ui';
 import { ZardCardComponent } from '@/shared/components/card/card.component';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
 import { ZmDashboardOnboardingWizardComponent } from '../../shared/components/ui/zm-dashboard-onboarding-wizard/zm-dashboard-onboarding-wizard.component';
 import { AuthService } from '../../core/services/auth.service';
 
@@ -136,8 +137,9 @@ type BarChartOptions = {
     ZmAssinaturaBloqueadaCardComponent,
     ZmEmptyStateComponent,
     ZardCardComponent,
-    ZardButtonComponent,
     ZmDashboardOnboardingWizardComponent,
+    MatButtonModule,
+    MatIconModule,
   ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css',

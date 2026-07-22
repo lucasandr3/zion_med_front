@@ -1,143 +1,111 @@
-<button
-  type="button"
-  id="login-dark-btn"
-  z-button
-  zType="outline"
-  zSize="icon-sm"
-  (click)="alternarTema()"
-  aria-label="Alternar modo escuro"
-  zTooltip="Alternar modo escuro"
->
-  <span class="material-symbols-outlined text-[17px]" [textContent]="iconeTema"></span>
-</button>
-
 <div class="login-page">
-  <div class="login-bg-gradient"></div>
-  <div class="login-blob-tr"></div>
-  <div class="login-blob-bl"></div>
+  <aside class="login-brand">
+    <header class="login-brand__header">
+      <span class="login-brand__mark" aria-hidden="true">
+        <img src="assets/logo/logo.png" alt="" />
+      </span>
+      <div class="login-brand__identity">
+        <span class="login-brand__product">Gestgo</span>
+        <span class="login-brand__slogan">Fichas digitais</span>
+      </div>
+    </header>
 
-  <div class="login-wrap">
-    <div class="login-brand">
-      <div class="login-brand-logo">
-        <div class="login-brand-logo-icon">
-          <img src="assets/logo/logo.png" alt="Gestgo">
-        </div>
-        <span class="login-brand-logo-name">Gestgo</span>
-      </div>
-      <div class="login-brand-text">
-        <h1>
-          Fichas digitais que chegam<br>
-          <span class="hl">antes do paciente.</span>
-        </h1>
-        <p>
-          Fichas e consentimentos digitais para sua clínica: o paciente preenche pelo link antes da consulta — protocolo, PDF automático e histórico organizados.
-        </p>
-      </div>
-      <p class="login-brand-footer">© {{ ano }} Gestgo. Todos os direitos reservados.</p>
+    <div class="login-brand__body">
+      <p class="login-brand__eyebrow">Fichas digitais</p>
+      <h2 class="login-brand__title">
+        Fichas que chegam
+        <em>antes do paciente.</em>
+      </h2>
+      <p class="login-brand__text">
+        Fichas e consentimentos digitais para sua clínica: o paciente preenche pelo link antes da consulta —
+        protocolo, PDF automático e histórico organizados.
+      </p>
     </div>
 
-    <div class="login-form-stack">
-      <div class="login-mobile-brand">
-        <div class="login-brand-logo">
-          <div class="login-brand-logo-icon">
-            <img src="assets/logo/logo.png" alt="">
-          </div>
-          <span class="login-brand-logo-name">Gestgo</span>
+    <footer class="login-brand__footer">
+      <span>Copyright © {{ ano }} Gestgo</span>
+    </footer>
+  </aside>
+
+  <main class="login-panel">
+    <div class="login-panel__inner">
+      <div class="login-panel__brand-mobile">
+        <span class="login-panel__mark-mobile" aria-hidden="true">
+          <img src="assets/logo/logo.png" alt="" />
+        </span>
+        <div class="login-panel__brand-text">
+          <span class="login-panel__brand-name">Gestgo</span>
+          <span class="login-panel__brand-sub">Fichas digitais</span>
         </div>
       </div>
 
-      <div class="login-card">
-      <div class="login-card-inner">
-        <h2 class="login-card-title">Bem-vindo de volta</h2>
-        <p class="login-card-subtitle">Entre para acessar o painel da sua clínica, fichas e protocolos.</p>
+      <header class="login-panel__header">
+        <h1>Acesse sua conta</h1>
+        <p>Digite suas credenciais de acesso para entrar.</p>
+      </header>
+
+      <form [formGroup]="form" (ngSubmit)="enviar()" class="login-form" novalidate>
+        <mat-form-field appearance="outline" class="login-field" subscriptSizing="dynamic">
+          <mat-label>E-mail</mat-label>
+          <input matInput type="email" formControlName="email" autocomplete="username" autofocus />
+          <mat-icon matSuffix>mail_outline</mat-icon>
+          @if (form.controls.email.touched && form.controls.email.hasError('required')) {
+            <mat-error>Informe o e-mail.</mat-error>
+          } @else if (form.controls.email.touched && form.controls.email.hasError('email')) {
+            <mat-error>E-mail inválido.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="login-field" subscriptSizing="dynamic">
+          <mat-label>Senha</mat-label>
+          <input
+            matInput
+            [type]="mostrarSenha ? 'text' : 'password'"
+            formControlName="password"
+            autocomplete="current-password"
+          />
+          <button
+            mat-icon-button
+            matSuffix
+            type="button"
+            (click)="mostrarSenha = !mostrarSenha"
+            [attr.aria-label]="mostrarSenha ? 'Ocultar senha' : 'Mostrar senha'"
+          >
+            <mat-icon>{{ mostrarSenha ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+          @if (form.controls.password.touched && form.controls.password.hasError('required')) {
+            <mat-error>Informe a senha.</mat-error>
+          }
+        </mat-form-field>
+
+        <div class="login-options">
+          <mat-checkbox formControlName="remember" color="primary">Lembrar de mim</mat-checkbox>
+          <a routerLink="/esqueci-a-senha" class="login-link">Esqueceu a senha?</a>
+        </div>
 
         @if (estadoErro) {
-          <p class="login-error mb-6 text-sm text-destructive" role="alert">{{ mensagemErro }}</p>
+          <p class="login-error" role="alert">{{ mensagemErro }}</p>
         }
 
-        <form (ngSubmit)="enviar()" class="login-form" #formLogin="ngForm">
-          <div class="login-field">
-            <div class="login-label-row">
-              <label class="login-label" for="login-email">E-mail</label>
-            </div>
-            <div class="login-input-wrap group">
-              <span class="material-symbols-outlined login-input-icon-l">mail</span>
-              <input
-                type="email"
-                name="email"
-                id="login-email"
-                [(ngModel)]="email"
-                z-input
-                zSize="sm"
-                class="w-full pl-9"
-                [zStatus]="estadoErro ? 'error' : undefined"
-                placeholder="seu@email.com.br"
-                required
-                autofocus
-                autocomplete="email"
-              >
-            </div>
-          </div>
+        <button
+          mat-flat-button
+          color="primary"
+          type="submit"
+          class="login-submit"
+          [disabled]="estadoCarregando || form.invalid"
+        >
+          @if (estadoCarregando) {
+            <mat-spinner diameter="22"></mat-spinner>
+          } @else {
+            Entrar
+          }
+        </button>
 
-          <div class="login-field">
-            <div class="login-label-row">
-              <label class="login-label" for="login-password">Senha</label>
-              <a routerLink="/esqueci-a-senha" class="login-forgot">Esqueceu a senha?</a>
-            </div>
-            <div class="login-input-wrap group">
-              <span class="material-symbols-outlined login-input-icon-l">lock</span>
-              <input
-                [type]="mostrarSenha ? 'text' : 'password'"
-                name="password"
-                id="login-password"
-                [(ngModel)]="senha"
-                z-input
-                zSize="sm"
-                class="w-full pl-9 pr-9"
-                [zStatus]="estadoErro ? 'error' : undefined"
-                placeholder="••••••••"
-                required
-                autocomplete="current-password"
-              >
-              <button
-                type="button"
-                z-button
-                zType="ghost"
-                zSize="icon-sm"
-                class="login-input-toggle"
-                (click)="mostrarSenha = !mostrarSenha"
-                aria-label="Mostrar ou ocultar senha"
-                zTooltip="Mostrar ou ocultar senha"
-              >
-                <span class="material-symbols-outlined text-lg">{{ mostrarSenha ? 'visibility_off' : 'visibility' }}</span>
-              </button>
-            </div>
-          </div>
-
-          <z-checkbox class="login-remember" name="remember" [(ngModel)]="lembrar">Lembrar neste dispositivo</z-checkbox>
-
-          <button
-            type="submit"
-            z-button
-            zFull
-            class="login-submit-btn inline-flex items-center gap-2"
-            [zLoading]="estadoCarregando"
-            [zDisabled]="estadoCarregando"
-          >
-            @if (!estadoCarregando) {
-              <span>Acessar</span>
-              <span class="material-symbols-outlined login-submit-icon transition-transform group-hover/button:translate-x-0.5">arrow_forward</span>
-            } @else {
-              <span>Entrando…</span>
-            }
-          </button>
-
-          <p class="login-register">
-            Ainda não tem conta? <a href="https://gestgo.com.br/comece/">Criar conta grátis</a>
-          </p>
-        </form>
-      </div>
-      </div>
+        <p class="login-register">
+          Ainda não tem conta?
+          <a href="https://gestgo.com.br/comece/">Criar conta grátis</a>
+        </p>
+      </form>
     </div>
-  </div>
+  </main>
 </div>

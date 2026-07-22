@@ -10,12 +10,9 @@ import { ConfirmDialogService } from '../../core/services/confirm-dialog.service
 import { ToastService } from '../../core/services/toast.service';
 import { LoadingService } from '../../shared/services/loading.service';
 import { ZmSkeletonContaPerfilComponent } from '../../shared/components/skeletons';
-import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
+import { MAT_FORM_IMPORTS } from '@/shared/material';
 import { ZardCardComponent } from '@/shared/components/card/card.component';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
 import { ZardTabComponent, ZardTabGroupComponent } from '@/shared/components/tabs';
-import { ZardComboboxComponent, type ZardComboboxOption } from '@/shared/components/combobox';
-import { ZardCheckboxComponent } from '@/shared/components/checkbox';
 
 type ModoAssinatura = 'desenhar' | 'modelo';
 
@@ -52,16 +49,13 @@ function mensagemErroApi(err: { error?: { message?: string; errors?: Record<stri
   selector: 'app-conta-perfil',
   standalone: true,
   imports: [
-    ...ZARD_FORM_CONTROL_IMPORTS,
+    ...MAT_FORM_IMPORTS,
     CommonModule,
     RouterLink,
     FormsModule,
     ZardCardComponent,
-    ZardButtonComponent,
     ZardTabComponent,
     ZardTabGroupComponent,
-    ZardComboboxComponent,
-    ZardCheckboxComponent,
     ZmSkeletonContaPerfilComponent,
   ],
   templateUrl: './conta-perfil.component.html',
@@ -83,11 +77,7 @@ export class ContaPerfilComponent implements OnInit {
   listaPronta = false;
 
   readonly previewUrlServidor = signal<string | null>(null);
-  readonly opcoesFontes: ZardComboboxOption[] = FONTES_ASSINATURA.map((f) => ({
-    value: f.id,
-    label: f.label,
-  }));
-
+  readonly fontesAssinatura = FONTES_ASSINATURA;
   usuarioAtual(): User | null {
     return this.auth.getUser();
   }
@@ -159,11 +149,6 @@ export class ContaPerfilComponent implements OnInit {
 
   onSigTabChange(ev: { index: number }): void {
     this.setModo(ev.index === 0 ? 'desenhar' : 'modelo');
-  }
-
-  onFonteComboboxChange(value: string | null): void {
-    this.fonteSelecionadaId = value ?? '';
-    this.onFonteChange();
   }
 
   setModo(m: ModoAssinatura): void {

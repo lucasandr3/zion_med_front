@@ -1,0 +1,309 @@
+<up-app-shell pageTitle="Agendamentos" empresaNome="Gestgo">
+  @if (loading()) {
+    <up-page-loading />
+  }
+
+  <div class="upx-page-list">
+    <mat-sidenav-container class="list-sidenav" autosize [hasBackdrop]="isFilterMobile()">
+      <mat-sidenav
+        #filtersNav
+        [mode]="filterSidenavMode()"
+        position="start"
+        class="list-sidenav__filters">
+        <up-list-filters-panel
+          (closed)="closeFilters()"
+          (reset)="resetFilters()"
+          (apply)="applyFilters()">
+          <section class="filter-section">
+            <header class="filter-section__title">Principal</header>
+            <div class="filter-section__body">
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>Situação</mat-label>
+                <mat-select [formControl]="filterForm.controls.status">
+                  <mat-option value="all">Todas</mat-option>
+                  <mat-option value="active">Ativos</mat-option>
+                  <mat-option value="paused">Pausados</mat-option>
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>Frequência</mat-label>
+                <mat-select [formControl]="filterForm.controls.frequency">
+                  <mat-option value="all">Todas</mat-option>
+                  <mat-option value="daily">Diário</mat-option>
+                  <mat-option value="weekly">Semanal</mat-option>
+                  <mat-option value="monthly">Mensal</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+          </section>
+        </up-list-filters-panel>
+      </mat-sidenav>
+
+      <mat-sidenav
+        #createNav
+        mode="over"
+        position="end"
+        class="list-sidenav__create"
+        [autoFocus]="false">
+        <div class="create-drawer">
+          <header class="create-drawer__header">
+            <div>
+              <h2>Novo agendamento</h2>
+              <p>Gera o relatório automaticamente no horário definido.</p>
+            </div>
+            <button
+              mat-icon-button
+              type="button"
+              aria-label="Fechar"
+              (click)="closeCreate()">
+              <mat-icon>close</mat-icon>
+            </button>
+          </header>
+
+          <form [formGroup]="form" class="create-drawer__form" (ngSubmit)="create()">
+            <div class="create-drawer__body">
+              @if (loadingReports()) {
+                <div class="create-drawer__loading">
+                  <mat-spinner diameter="32"></mat-spinner>
+                  <span>Carregando relatórios...</span>
+                </div>
+              } @else {
+                @if (reportOptions().length === 0) {
+                  <div class="create-drawer__notice">
+                    <mat-icon aria-hidden="true">info</mat-icon>
+                    <div>
+                      <strong>Nenhum relatório disponível</strong>
+                      <p>
+                        Crie um relatório em Relatórios antes de agendar uma execução.
+                      </p>
+                      <a routerLink="/relatorios" (click)="closeCreate()">Ir para Relatórios</a>
+                    </div>
+                  </div>
+                }
+
+                <mat-form-field appearance="outline" class="w-full">
+                  <mat-label>Relatório</mat-label>
+                  <mat-select formControlName="report_id">
+                    <mat-option [value]="0" disabled>Selecione</mat-option>
+                    @for (report of reportOptions(); track report.id) {
+                      <mat-option [value]="report.id">
+                        {{ report.name }}
+                        @if (report.status_label) {
+                          ({{ report.status_label }})
+                        }
+                      </mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="w-full">
+                  <mat-label>Nome do agendamento</mat-label>
+                  <input matInput formControlName="name" placeholder="Ex.: Contas a receber diário" />
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="w-full">
+                  <mat-label>Frequência</mat-label>
+                  <mat-select formControlName="frequency">
+                    <mat-option value="daily">Diário</mat-option>
+                    <mat-option value="weekly">Semanal</mat-option>
+                    <mat-option value="monthly">Mensal</mat-option>
+                  </mat-select>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="w-full">
+                  <mat-label>Horário</mat-label>
+                  <input matInput type="time" formControlName="time" />
+                </mat-form-field>
+
+                @if (form.value.frequency === 'weekly') {
+                  <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>Dia da semana</mat-label>
+                    <mat-select formControlName="weekday">
+                      @for (day of weekdays; track day.value) {
+                        <mat-option [value]="day.value">{{ day.label }}</mat-option>
+                      }
+                    </mat-select>
+                  </mat-form-field>
+                }
+
+                @if (form.value.frequency === 'monthly') {
+                  <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>Dia do mês</mat-label>
+                    <input matInput type="number" min="1" max="28" formControlName="day_of_month" />
+                  </mat-form-field>
+                }
+
+                <mat-form-field appearance="outline" class="w-full">
+                  <mat-label>Formato</mat-label>
+                  <mat-select formControlName="format">
+                    <mat-option value="excel">Excel (.xlsx)</mat-option>
+                    <mat-option value="csv">CSV</mat-option>
+                  </mat-select>
+                </mat-form-field>
+
+                <mat-checkbox formControlName="active">Ativo</mat-checkbox>
+              }
+            </div>
+
+            <footer class="create-drawer__footer">
+              <button
+                mat-button
+                type="button"
+                class="create-drawer__cancel"
+                (click)="closeCreate()">
+                <mat-icon>close</mat-icon>
+                Cancelar
+              </button>
+              <button
+                mat-flat-button
+                color="primary"
+                type="submit"
+                [disabled]="saving() || loadingReports() || !canWrite() || reportOptions().length === 0">
+                <mat-icon>schedule</mat-icon>
+                Agendar
+              </button>
+            </footer>
+          </form>
+        </div>
+      </mat-sidenav>
+
+      <mat-sidenav-content class="list-sidenav__content">
+        <div class="upx-page-list__toolbar">
+          <div class="upx-page-list__toolbar-start">
+            <up-search-box
+              [control]="searchControl"
+              placeholder="Digite para buscar"
+              ariaLabel="Buscar agendamentos"
+              shape="rounded"
+              iconPosition="end" />
+            <button
+              type="button"
+              class="filters-btn"
+              [class.filters-btn--active]="filtersActive()"
+              (click)="toggleFilters()">
+              <mat-icon aria-hidden="true">filter_list</mat-icon>
+              <span>Filtros</span>
+            </button>
+          </div>
+
+          <div class="upx-page-list__toolbar-end">
+            <button
+              mat-flat-button
+              color="primary"
+              type="button"
+              [disabled]="!canWrite()"
+              (click)="openCreate()">
+              <mat-icon>add</mat-icon>
+              Adicionar
+            </button>
+          </div>
+        </div>
+
+        <div class="upx-page-list__content">
+          @if (!loading() && filtered().length === 0) {
+            <up-empty-state
+              icon="schedule"
+              title="Nenhum agendamento encontrado"
+              description="Crie um agendamento para gerar relatórios automaticamente no horário definido.">
+              <button
+                mat-flat-button
+                color="primary"
+                type="button"
+                [disabled]="!canWrite()"
+                (click)="openCreate()">
+                <mat-icon>add</mat-icon>
+                Adicionar
+              </button>
+            </up-empty-state>
+          } @else if (!loading()) {
+            <up-data-table
+              [recordCount]="filtered().length"
+              recordLabel="agendamento"
+              recordLabelPlural="agendamentos">
+              <thead>
+                <tr>
+                  <th class="col-name">Agendamento</th>
+                  <th class="col-frequency">Frequência</th>
+                  <th class="col-next">Próxima execução</th>
+                  <th class="col-last">Última</th>
+                  <th class="col-status">Situação</th>
+                  <th class="col-actions"></th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (item of filtered(); track item.id) {
+                  <tr class="upx-data-table__row--static">
+                    <td class="col-name">
+                      <div class="cell-primary">{{ item.name }}</div>
+                      <div class="cell-secondary">
+                        {{ item.report_name }} · {{ item.format | uppercase }}
+                      </div>
+                    </td>
+                    <td class="col-frequency">
+                      {{ frequencyLabel(item.frequency) }} às {{ item.time }}
+                    </td>
+                    <td class="col-next">
+                      @if (item.next_run_at) {
+                        {{ item.next_run_at | date: 'dd/MM/yyyy HH:mm' }}
+                      } @else {
+                        —
+                      }
+                    </td>
+                    <td class="col-last">
+                      @if (item.last_run_at) {
+                        <div>{{ item.last_run_at | date: 'dd/MM/yyyy HH:mm' }}</div>
+                        <div class="cell-secondary">{{ item.last_status }}</div>
+                      } @else {
+                        Nunca
+                      }
+                    </td>
+                    <td class="col-status">
+                      <up-badge variant="status" [tone]="item.active ? 'published' : 'draft'">
+                        {{ item.active ? 'Ativo' : 'Pausado' }}
+                      </up-badge>
+                    </td>
+                    <td class="actions col-actions">
+                      <button
+                        mat-icon-button
+                        type="button"
+                        matTooltip="Executar agora"
+                        [disabled]="running() === item.id"
+                        (click)="runNow(item)">
+                        <mat-icon>play_arrow</mat-icon>
+                      </button>
+                      @if (item.has_file) {
+                        <button
+                          mat-icon-button
+                          type="button"
+                          matTooltip="Baixar último arquivo"
+                          (click)="download(item)">
+                          <mat-icon>download</mat-icon>
+                        </button>
+                      }
+                      <button
+                        mat-icon-button
+                        type="button"
+                        matTooltip="Ativar/Pausar"
+                        (click)="toggleActive(item)">
+                        <mat-icon>{{ item.active ? 'pause' : 'play_circle' }}</mat-icon>
+                      </button>
+                      <button
+                        mat-icon-button
+                        type="button"
+                        color="warn"
+                        matTooltip="Excluir"
+                        (click)="remove(item)">
+                        <mat-icon>delete</mat-icon>
+                      </button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </up-data-table>
+          }
+        </div>
+      </mat-sidenav-content>
+    </mat-sidenav-container>
+  </div>
+</up-app-shell>

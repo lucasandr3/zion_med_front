@@ -1,0 +1,1031 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  height: 100vh;
+  min-height: 100vh;
+  overflow: hidden;
+
+  /* Fixo no topo da viewport, acima do header e da sidenav, largura total. */
+  .shell-banner-rail {
+    position: relative;
+    z-index: 1100;
+    flex-shrink: 0;
+    width: 100%;
+    margin: 0;
+    order: -1;
+  }
+
+  .shell-banner {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    margin: 0;
+    padding: 0.55rem 1rem;
+    font-size: 0.8125rem;
+    border-bottom: 1px solid var(--theme-line);
+    box-sizing: border-box;
+
+    mat-icon {
+      flex-shrink: 0;
+      font-size: 1.125rem;
+      width: 1.125rem;
+      height: 1.125rem;
+    }
+
+    > span {
+      flex: 1;
+      min-width: 0;
+    }
+  }
+
+  .shell-banner--install {
+    background: rgb(var(--theme-padrao) / 0.14);
+    color: rgb(var(--theme-fg));
+    border-bottom-color: rgb(var(--theme-padrao) / 0.28);
+  }
+
+  .shell-banner--update {
+    background: rgb(var(--theme-warning) / 0.18);
+    color: rgb(var(--theme-fg));
+    border-bottom-color: rgb(var(--theme-warning) / 0.35);
+  }
+
+  .shell-banner--offline {
+    background: rgb(var(--theme-warning) / 0.18);
+    color: rgb(var(--theme-fg));
+    border-bottom-color: rgb(var(--theme-warning) / 0.35);
+
+    mat-icon {
+      color: rgb(180 120 0);
+    }
+  }
+
+  .sidenav-container-main {
+    flex: 1 1 auto;
+    min-height: 0 !important;
+    height: auto !important;
+    background: rgb(var(--theme-floor-1)) !important;
+  }
+
+  .sidenav-main {
+    display: flex !important;
+    flex-direction: column;
+    width: 15rem !important;
+    height: 100% !important;
+    max-height: 100% !important;
+    overflow: hidden !important;
+    border-radius: 0 !important;
+    border: none !important;
+    background: rgb(var(--theme-sidebar)) !important;
+    box-shadow: none !important;
+  }
+
+  .sidenav-main__toolbar-header {
+    position: relative;
+    z-index: 2;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    height: 3.5rem;
+    min-height: 3.5rem;
+    padding: 0 0.85rem;
+    background: var(--shell-header-bg, #ffffff);
+    border-right: 1px solid var(--theme-line);
+    border-bottom: 1px solid var(--theme-line);
+    border-radius: 0;
+    color: var(--gestgo-brand-title, rgb(var(--theme-fg)));
+
+    .sidenav-main__brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      min-width: 0;
+      flex: 1 1 auto;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .sidenav-main__brand:hover {
+      opacity: 0.94;
+    }
+
+    /* Chip igual ao login (login-brand__mark) */
+    .sidenav-main__brand-mark {
+      display: inline-grid;
+      place-items: center;
+      width: 2.35rem;
+      height: 2.35rem;
+      border-radius: 0.55rem;
+      background: rgb(var(--theme-padrao));
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+
+    .sidenav-main__brand-mark img {
+      width: 1.55rem;
+      height: 1.55rem;
+      object-fit: contain;
+      display: block;
+    }
+
+    .sidenav-main__brand-identity {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 0.12rem;
+      min-width: 0;
+    }
+
+    .sidenav-main__brand-name {
+      display: block;
+      font-family: Roboto, 'Helvetica Neue', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      line-height: 1.15;
+      letter-spacing: -0.03em;
+      color: var(--gestgo-brand-title, rgb(var(--theme-fg)));
+      white-space: nowrap;
+    }
+
+    .sidenav-main__brand-slogan {
+      display: block;
+      font-family: Roboto, 'Helvetica Neue', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 400;
+      line-height: 1.25;
+      letter-spacing: 0;
+      color: var(--gestgo-brand-tag, rgb(var(--theme-fg-muted)));
+      white-space: nowrap;
+      opacity: 1;
+      visibility: visible;
+    }
+
+    &--themed {
+      background: var(--shell-header-bg, var(--c-primary, rgb(var(--theme-padrao))));
+      color: #fff;
+      border-bottom-color: rgb(255 255 255 / 0.18);
+      border-right-color: rgb(255 255 255 / 0.12);
+    }
+
+    &--themed .sidenav-main__brand-name {
+      color: #fff;
+    }
+
+    &--themed .sidenav-main__brand-mark {
+      background: rgb(0 0 0 / 0.22);
+    }
+
+    &--themed .sidenav-main__brand-slogan {
+      color: rgb(255 255 255 / 0.62);
+    }
+  }
+
+  .sidenav-main__close {
+    margin-left: auto;
+    color: #fff !important;
+  }
+
+  .sidenav-main__body {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    border-right: 1px solid var(--theme-line);
+    scrollbar-gutter: stable;
+    scrollbar-width: thin;
+    scrollbar-color: rgb(var(--theme-fg) / 0.18) transparent;
+
+    &::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: rgb(var(--theme-fg) / 0.16);
+      border-radius: 999px;
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+      background: rgb(var(--theme-fg) / 0.28);
+    }
+
+    &::-webkit-scrollbar-button {
+      display: none;
+      width: 0;
+      height: 0;
+    }
+
+    .sidenav-main__section {
+      &:not(:first-child) {
+        margin-top: 0.35rem;
+      }
+
+      &:last-child {
+        padding-bottom: 0.75rem;
+      }
+    }
+
+    .sidenav-main__body-title {
+      display: flex;
+      align-items: center;
+      box-sizing: border-box;
+      width: 100%;
+      min-height: 2.5rem;
+      padding: 1rem 1.25rem 0.5rem;
+      font-size: 0.7rem;
+      font-weight: 600;
+      line-height: 1;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: rgb(var(--theme-fg-muted) / 0.55);
+    }
+
+    .sidenav-main__section:not(:first-child) .sidenav-main__body-title {
+      padding-top: 0.75rem;
+    }
+
+    .upx-navigation {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      padding: 0 0.5rem 0.25rem;
+    }
+
+    .upx-navigation-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      height: 2.75rem;
+      padding: 0 0.75rem;
+      margin-bottom: 0.15rem;
+      border-radius: 0.5rem;
+      color: rgb(var(--theme-fg) / 0.8);
+      text-decoration: none;
+      cursor: pointer;
+      user-select: none;
+      transition: background-color 120ms ease;
+
+      &:hover {
+        background: rgb(var(--theme-fg) / 0.05);
+        color: rgb(var(--theme-fg));
+      }
+
+      .upx-navigation-item-start {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        min-width: 0;
+
+        mat-icon {
+          font-size: 1.25rem;
+          width: 1.25rem;
+          height: 1.25rem;
+          color: rgb(var(--theme-fg-muted) / 0.55);
+        }
+
+        span {
+          font-size: 0.875rem;
+          font-weight: 500;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+      }
+    }
+
+    .upx-navigation-item-active {
+      background: rgb(var(--theme-padrao) / 0.22) !important;
+      color: rgb(var(--theme-fg)) !important;
+
+      mat-icon {
+        color: rgb(var(--theme-fg)) !important;
+      }
+    }
+  }
+
+  .sidenav-main__footer {
+    z-index: 2;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    box-sizing: border-box;
+    padding: 0.5rem;
+    border-top: 1px solid var(--theme-line);
+    border-right: 1px solid var(--theme-line);
+    background: rgb(var(--theme-sidebar));
+  }
+
+  .sidenav-main__company {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    width: 100%;
+    min-height: 2.75rem;
+    padding: 0.35rem 0.5rem;
+    border: none;
+    border-radius: 0.5rem;
+    background: transparent;
+    color: rgb(var(--theme-fg) / 0.9);
+    cursor: pointer;
+    text-align: left;
+    user-select: none;
+    transition: background-color 120ms ease;
+
+    &:hover {
+      background: rgb(var(--theme-fg) / 0.05);
+    }
+  }
+
+  .sidenav-main__company-avatar {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 999px;
+    background: rgb(var(--theme-fg) / 0.1);
+    color: rgb(var(--theme-fg));
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+
+  .sidenav-main__company-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    min-width: 0;
+    flex: 1;
+  }
+
+  .sidenav-main__company-label {
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: rgb(var(--theme-fg-muted) / 0.55);
+    line-height: 1;
+  }
+
+  .sidenav-main__company-name {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .sidenav-main__company-chevron {
+    flex-shrink: 0;
+    font-size: 1.25rem;
+    width: 1.25rem;
+    height: 1.25rem;
+    color: rgb(var(--theme-fg-muted) / 0.55);
+  }
+
+  .sidenav-main__logout {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: 2.75rem;
+    padding: 0 0.75rem;
+    border: none;
+    border-radius: 0.5rem;
+    background: transparent;
+    color: rgb(var(--theme-fg) / 0.8);
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 120ms ease, color 120ms ease;
+
+    &:hover {
+      background: rgb(var(--theme-danger) / 0.12);
+      color: rgb(var(--theme-danger));
+
+      .upx-navigation-item-start mat-icon {
+        color: rgb(var(--theme-danger));
+      }
+    }
+
+    .upx-navigation-item-start {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+
+      mat-icon {
+        font-size: 1.25rem;
+        width: 1.25rem;
+        height: 1.25rem;
+        color: rgb(var(--theme-fg-muted) / 0.55);
+        transition: color 120ms ease;
+      }
+
+      span {
+        font-size: 0.875rem;
+        font-weight: 500;
+      }
+    }
+  }
+
+  .sidenav-content-main {
+    display: flex !important;
+    flex-direction: column;
+    height: 100% !important;
+    background-color: rgb(var(--theme-floor-1)) !important;
+    --mat-sidenav-content-background-color: rgb(var(--theme-floor-1));
+    overflow: hidden !important;
+  }
+
+  .sidenav-content-main__header {
+    z-index: 20;
+    position: relative;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    height: 3.5rem;
+    padding: 0 0.75rem 0 0.25rem;
+    background: var(--shell-header-bg, #ffffff);
+    color: var(--foreground, rgb(var(--theme-fg)));
+    border-bottom: 1px solid var(--theme-line);
+    border-radius: 0;
+
+    &--themed {
+      .header-avatar {
+        background: #fff;
+        color: rgb(var(--theme-padrao));
+      }
+    }
+  }
+
+  .sidenav-content-main__header-start {
+    display: flex;
+    align-items: center;
+    gap: 0.15rem;
+    min-width: 0;
+
+    button {
+      color: inherit !important;
+    }
+  }
+
+  .sidenav-content-main__header--horizontal {
+    gap: 0.5rem;
+    padding-left: 0.85rem;
+    padding-right: 0.75rem;
+
+    .sidenav-content-main__header-start {
+      flex: 1 1 auto;
+      gap: 0.75rem;
+      min-width: 0;
+      overflow: hidden;
+    }
+
+    .sidenav-main__brand--header {
+      flex: 0 0 auto;
+    }
+
+    .shell-horizontal-divider {
+      flex-shrink: 0;
+      width: 1px;
+      height: 1.75rem;
+      background: rgb(var(--theme-fg) / 0.14);
+    }
+
+    .shell-header-nav {
+      flex: 1 1 auto;
+      min-width: 0;
+      overflow: hidden;
+    }
+  }
+
+  :host-context(body.shell-preset-tinted) .sidenav-content-main__header--horizontal .shell-horizontal-divider {
+    background: rgb(255 255 255 / 0.22);
+  }
+
+  .header-title {
+    font-size: 1.25rem;
+    font-weight: 500;
+    line-height: 1.75rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    @media (max-width: 959.98px) {
+      font-size: 1.05rem;
+      max-width: min(52vw, 14rem);
+    }
+  }
+
+  .sidenav-content-main__header-end {
+    display: flex;
+    align-items: center;
+    gap: 0.15rem;
+
+    button[mat-icon-button],
+    a[mat-icon-button] {
+      color: rgb(var(--theme-fg-muted) / 0.72) !important;
+    }
+
+    button[mat-icon-button]:hover,
+    a[mat-icon-button]:hover {
+      color: rgb(var(--theme-fg) / 0.82) !important;
+    }
+
+    button[mat-icon-button] mat-icon,
+    a[mat-icon-button] mat-icon {
+      color: inherit;
+    }
+  }
+
+  .header-notifications {
+    position: relative;
+    color: rgb(var(--theme-fg-muted) / 0.72) !important;
+  }
+
+  .header-notifications:hover {
+    color: rgb(var(--theme-fg) / 0.82) !important;
+  }
+
+  .header-notifications__badge {
+    position: absolute;
+    top: 0.2rem;
+    right: 0.15rem;
+    min-width: 1rem;
+    height: 1rem;
+    padding: 0 0.25rem;
+    border-radius: 999px;
+    background: #ef4444;
+    color: #fff;
+    font-size: 0.625rem;
+    font-weight: 700;
+    line-height: 1rem;
+    text-align: center;
+    pointer-events: none;
+  }
+
+  .header-user {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    max-width: 14rem;
+    margin-left: 0.35rem;
+    padding: 0.3rem 0.55rem 0.3rem 0.3rem;
+    border: none;
+    border-radius: 10px;
+    background: rgb(var(--theme-fg) / 0.06);
+    color: rgb(var(--theme-fg));
+    cursor: pointer;
+    outline: none;
+    box-shadow: none;
+    transition: background-color 140ms ease;
+
+    &:hover,
+    &[aria-expanded='true'] {
+      background: rgb(var(--theme-fg) / 0.1);
+      outline: none;
+      box-shadow: none;
+    }
+
+    &:focus,
+    &:focus-visible {
+      outline: none;
+      box-shadow: none;
+    }
+
+    @media (max-width: 640px) {
+      max-width: none;
+      margin-left: 0.15rem;
+      padding: 0.25rem;
+      gap: 0;
+
+      .header-user__chevron {
+        display: none;
+      }
+    }
+  }
+
+  .header-user__meta {
+    display: none;
+    flex-direction: column;
+    align-items: flex-start;
+    min-width: 0;
+    line-height: 1.15;
+    text-align: left;
+
+    @media (min-width: 900px) {
+      display: flex;
+    }
+  }
+
+  .header-user__name {
+    max-width: 8.5rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .header-user__email {
+    max-width: 8.5rem;
+    font-size: 0.65rem;
+    opacity: 0.65;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .header-user__chevron {
+    font-size: 1.2rem;
+    width: 1.2rem;
+    height: 1.2rem;
+    margin-right: 0.1rem;
+    opacity: 0.7;
+  }
+
+  .header-avatar {
+    display: inline-grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 1.85rem;
+    height: 1.85rem;
+    border: none;
+    border-radius: 999px;
+    background: rgb(var(--theme-padrao));
+    color: rgb(var(--theme-padrao-2));
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+
+  .sidenav-content-main__body {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    background-color: rgb(var(--theme-floor-1));
+    scrollbar-width: thin;
+    scrollbar-color: rgb(var(--theme-fg) / 0.18) transparent;
+
+    &::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: rgb(var(--theme-fg) / 0.16);
+      border-radius: 999px;
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+      background: rgb(var(--theme-fg) / 0.28);
+    }
+
+    &::-webkit-scrollbar-button {
+      display: none;
+      width: 0;
+      height: 0;
+    }
+
+    > router-outlet {
+      display: none;
+    }
+  }
+
+  /* ::ng-deep: hosts roteados não recebem atributos de encapsulation do shell. */
+  ::ng-deep .sidenav-content-main__body > *:not(router-outlet) {
+    display: flex !important;
+    flex-direction: column;
+    flex: 1 1 auto;
+    align-self: stretch;
+    min-height: 0;
+    width: 100% !important;
+    max-width: none !important;
+    background-color: rgb(var(--theme-floor-1));
+  }
+
+  ::ng-deep {
+    .mat-drawer,
+    .mat-sidenav,
+    .mat-drawer-inner-container {
+      border-radius: 0 !important;
+    }
+
+    .mat-drawer-side {
+      border: none !important;
+    }
+
+    .mat-drawer-content,
+    .mat-sidenav-content {
+      background-color: rgb(var(--theme-floor-1)) !important;
+    }
+
+    .mat-drawer-container {
+      background: rgb(var(--theme-floor-1));
+      color: rgb(var(--theme-fg));
+    }
+
+    .mat-drawer-inner-container {
+      display: flex !important;
+      flex-direction: column !important;
+      height: 100% !important;
+      overflow: hidden !important;
+    }
+  }
+}
+
+/* Contraste quando o header está na cor do tema (classe --themed no template) */
+.sidenav-main__toolbar-header--themed {
+  .sidenav-main__brand-name {
+    color: #fff !important;
+  }
+
+  .sidenav-main__brand-slogan {
+    color: rgb(255 255 255 / 0.62) !important;
+  }
+}
+
+.sidenav-content-main__header--themed {
+  .header-avatar {
+    background: #fff;
+    color: rgb(var(--theme-padrao));
+  }
+}
+
+/* Shell presets (body classes) */
+
+/* Padrão: header do sistema sempre branco (mesmo com Menu escuro) */
+:host-context(body:not(.shell-preset-tinted):not(.dark)) {
+  .sidenav-content-main__header {
+    background: #ffffff !important;
+    color: rgb(var(--theme-fg)) !important;
+    border-bottom: 1px solid var(--theme-line) !important;
+  }
+
+  .header-title {
+    color: rgb(var(--theme-fg)) !important;
+  }
+
+  .sidenav-content-main__header-start button,
+  .sidenav-content-main__header-end button[mat-icon-button],
+  .sidenav-content-main__header-end a[mat-icon-button],
+  .header-notifications {
+    color: rgb(var(--theme-fg-muted) / 0.72) !important;
+  }
+
+  .sidenav-content-main__header-start button:hover,
+  .sidenav-content-main__header-end button[mat-icon-button]:hover,
+  .sidenav-content-main__header-end a[mat-icon-button]:hover,
+  .header-notifications:hover {
+    color: rgb(var(--theme-fg) / 0.82) !important;
+  }
+
+  .header-user {
+    background: rgb(var(--theme-fg) / 0.06);
+    color: rgb(var(--theme-fg));
+
+    &:hover,
+    &[aria-expanded='true'] {
+      background: rgb(var(--theme-fg) / 0.1);
+    }
+  }
+
+  .header-avatar {
+    background: rgb(var(--theme-padrao));
+    color: #fff;
+  }
+}
+
+/* Faixa da marca clara só no Padrão sem Menu escuro */
+:host-context(body:not(.shell-preset-tinted):not(.dark):not(.shell-preset-sidebar-dark)) {
+  .sidenav-main__toolbar-header:not(.sidenav-main__toolbar-header--themed) {
+    background: #ffffff !important;
+    color: rgb(var(--theme-fg)) !important;
+    border-bottom-color: var(--theme-line) !important;
+    border-right-color: var(--theme-line) !important;
+  }
+
+  .sidenav-main__toolbar-header:not(.sidenav-main__toolbar-header--themed) .sidenav-main__brand-name {
+    color: rgb(var(--theme-fg)) !important;
+  }
+
+  .sidenav-main__toolbar-header:not(.sidenav-main__toolbar-header--themed) .sidenav-main__brand-slogan {
+    color: rgb(var(--theme-fg-muted)) !important;
+  }
+
+  .sidenav-main__toolbar-header:not(.sidenav-main__toolbar-header--themed) .sidenav-main__close {
+    color: rgb(var(--theme-fg-muted) / 0.72) !important;
+  }
+}
+
+:host-context(body.shell-preset-tinted) {
+  .sidenav-main__toolbar-header,
+  .sidenav-content-main__header {
+    background: var(--shell-header-bg, var(--c-primary, rgb(var(--theme-padrao)))) !important;
+    color: #fff !important;
+    border-bottom-color: rgb(255 255 255 / 0.18);
+  }
+
+  .sidenav-main__brand-name,
+  .sidenav-main__brand-slogan,
+  .header-title {
+    color: #fff !important;
+  }
+
+  .sidenav-main__brand-slogan {
+    color: rgb(255 255 255 / 0.62) !important;
+  }
+
+  .sidenav-main__brand-mark {
+    background: rgb(0 0 0 / 0.22) !important;
+  }
+
+  .sidenav-main__close,
+  .sidenav-content-main__header-start button,
+  .sidenav-content-main__header-end button[mat-icon-button],
+  .sidenav-content-main__header-end a[mat-icon-button],
+  .header-notifications {
+    color: #fff !important;
+  }
+
+  .header-user {
+    background: rgb(255 255 255 / 0.12);
+    color: #fff;
+
+    &:hover,
+    &[aria-expanded='true'] {
+      background: rgb(255 255 255 / 0.18);
+    }
+  }
+
+  .header-avatar {
+    background: #fff;
+    color: rgb(var(--theme-padrao));
+  }
+}
+
+:host-context(body.shell-preset-sidebar-dark) {
+  .sidenav-main {
+    background: #1a1a1a !important;
+  }
+
+  .sidenav-main__body {
+    border-right-color: rgb(255 255 255 / 0.1) !important;
+    background: #1a1a1a !important;
+  }
+
+  .sidenav-main__body-title {
+    color: rgb(255 255 255 / 0.45) !important;
+  }
+
+  .sidenav-main__footer {
+    background: #1a1a1a !important;
+    border-top-color: rgb(255 255 255 / 0.1) !important;
+  }
+
+  /* Faixa Gestgo acompanha o menu escuro no Padrão (Topo e marca mantém primária via --themed) */
+  .sidenav-main__toolbar-header:not(.sidenav-main__toolbar-header--themed) {
+    background: #1a1a1a !important;
+    color: #fff !important;
+    border-bottom-color: rgb(255 255 255 / 0.1) !important;
+    border-right-color: rgb(255 255 255 / 0.1) !important;
+  }
+
+  .sidenav-main__toolbar-header:not(.sidenav-main__toolbar-header--themed) .sidenav-main__brand-name {
+    color: #fff !important;
+  }
+
+  .sidenav-main__toolbar-header:not(.sidenav-main__toolbar-header--themed) .sidenav-main__brand-slogan {
+    color: rgb(255 255 255 / 0.55) !important;
+  }
+
+  .sidenav-main__toolbar-header:not(.sidenav-main__toolbar-header--themed) .sidenav-main__close {
+    color: #fff !important;
+  }
+
+  .sidenav-main__company {
+    color: #fff !important;
+  }
+
+  .sidenav-main__company-label {
+    color: rgb(255 255 255 / 0.55) !important;
+  }
+
+  .sidenav-main__company-name {
+    color: #fff !important;
+  }
+
+  .sidenav-main__company-avatar {
+    background: rgb(255 255 255 / 0.12) !important;
+    color: #fff !important;
+  }
+
+  .sidenav-main__company-chevron {
+    color: rgb(255 255 255 / 0.55) !important;
+  }
+
+  .upx-navigation-item {
+    color: rgb(255 255 255 / 0.82) !important;
+  }
+
+  .upx-navigation-item mat-icon {
+    color: inherit !important;
+  }
+
+  .upx-navigation-item-active,
+  a.upx-navigation-item.upx-navigation-item-active,
+  a.upx-navigation-item.router-link-active {
+    color: #fff !important;
+    background: rgb(var(--theme-padrao) / 0.38) !important;
+  }
+
+  .upx-navigation-item-active mat-icon,
+  a.upx-navigation-item.upx-navigation-item-active mat-icon,
+  a.upx-navigation-item.router-link-active mat-icon {
+    color: #fff !important;
+  }
+}
+
+/* Menu escuro + Padrão: reforça header branco (acima do bloco sidebar-dark) */
+:host-context(body.shell-preset-sidebar-dark:not(.shell-preset-tinted):not(.dark)) {
+  .sidenav-content-main__header {
+    background: #ffffff !important;
+    color: rgb(var(--theme-fg)) !important;
+    border-bottom: 1px solid var(--theme-line) !important;
+  }
+
+  .header-title {
+    color: rgb(var(--theme-fg)) !important;
+  }
+
+  .sidenav-content-main__header-start button,
+  .sidenav-content-main__header-end button[mat-icon-button],
+  .sidenav-content-main__header-end a[mat-icon-button],
+  .header-notifications {
+    color: rgb(var(--theme-fg-muted) / 0.72) !important;
+  }
+
+  .header-user {
+    background: rgb(var(--theme-fg) / 0.06) !important;
+    color: rgb(var(--theme-fg)) !important;
+
+    &:hover,
+    &[aria-expanded='true'] {
+      background: rgb(var(--theme-fg) / 0.1) !important;
+    }
+  }
+
+  .header-avatar {
+    background: rgb(var(--theme-padrao)) !important;
+    color: #fff !important;
+  }
+}
+
+.upx-navigation-item-badge {
+  flex-shrink: 0;
+  min-width: 1.25rem;
+  height: 1.15rem;
+  padding: 0 0.35rem;
+  border-radius: 999px;
+  background: rgb(var(--theme-padrao));
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  line-height: 1.15rem;
+  text-align: center;
+}
+
+.shell-billing-alert {
+  flex-shrink: 0;
+  padding: 0.75rem 1rem 0;
+  background: rgb(var(--theme-floor-1));
+}
+
+.shell-back-bar {
+  flex-shrink: 0;
+  padding: 0.75rem 1rem 0;
+}
+
+a.header-notifications,
+a[mat-icon-button].header-notifications,
+.sidenav-content-main__header-end > a[mat-icon-button] {
+  position: relative;
+}
+
+

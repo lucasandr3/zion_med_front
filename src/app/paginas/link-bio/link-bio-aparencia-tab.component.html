@@ -71,16 +71,18 @@
                         [value]="customAccent"
                         (input)="onCustomAccentChange($any($event.target).value)"
                       />
-                      <input
+                      <mat-form-field appearance="outline" class="w-full custom-accent-hex">
+                        <input
+                        matInput
                         type="text"
-                        z-input zSize="sm" class="w-full custom-accent-hex"
                         [value]="customAccent"
                         (input)="onCustomAccentChange($any($event.target).value)"
                         maxlength="7"
                         placeholder="#c9a84c"
                         spellcheck="false"
                         aria-label="Código hexadecimal"
-                      />
+                        />
+                      </mat-form-field>
                       <span class="custom-accent-swatch" [style.background]="customAccent" aria-hidden="true"></span>
                     </div>
                     <p class="hint" style="font-size: 11px; color: var(--c-muted); margin: 8px 0 0">
@@ -97,9 +99,7 @@
               <div class="z-segment" role="group" aria-label="Modo do topo da página">
                 <button
                   type="button"
-                  z-button
-                  zType="ghost"
-                  zSize="sm"
+                  mat-button
                   class="z-segment-btn"
                   [class.z-segment-btn--active]="coverMode === 'banner'"
                   (click)="coverMode = 'banner'"
@@ -108,9 +108,7 @@
                 </button>
                 <button
                   type="button"
-                  z-button
-                  zType="ghost"
-                  zSize="sm"
+                  mat-button
                   class="z-segment-btn"
                   [class.z-segment-btn--active]="coverMode === 'solid'"
                   (click)="coverMode = 'solid'"
@@ -119,9 +117,7 @@
                 </button>
                 <button
                   type="button"
-                  z-button
-                  zType="ghost"
-                  zSize="sm"
+                  mat-button
                   class="z-segment-btn"
                   [class.z-segment-btn--active]="coverMode === 'none'"
                   (click)="coverMode = 'none'"
@@ -138,7 +134,9 @@
               @if (coverMode === 'banner') {
                 <div class="mt-4">
                   <label class="form-label">Imagem do banner</label>
-                  <input type="file" accept="image/*" z-input zSize="sm" class="w-full" [disabled]="enviandoCover" (change)="onSelecionarCoverImage($event)" />
+                  <mat-form-field appearance="outline" class="w-full">
+                    <input matInput type="file" accept="image/*" [disabled]="enviandoCover" (change)="onSelecionarCoverImage($event)" />
+                  </mat-form-field>
                   @if (nomeArquivoCover) {
                     <p class="text-[11px] mt-2 text-muted-foreground">
                       {{ enviandoCover ? 'Enviando…' : 'Arquivo selecionado' }}: {{ nomeArquivoCover }}
@@ -154,25 +152,25 @@
               <div class="flex flex-col gap-4">
                 <div class="field">
                   <label class="form-label">Descrição / Slogan</label>
-                  <input type="text" z-input zSize="sm" class="w-full" [(ngModel)]="shortDescription" name="short_description" placeholder="Ex: Cuidando da sua saúde com excelência" maxlength="200" />
+                  <mat-form-field appearance="outline" class="w-full"><input matInput type="text" [(ngModel)]="shortDescription" name="short_description" placeholder="Ex: Cuidando da sua saúde com excelência" maxlength="200" /></mat-form-field>
                 </div>
                 <div class="field">
                   <label class="form-label">Especialidades</label>
-                  <input type="text" z-input zSize="sm" class="w-full" [(ngModel)]="specialties" name="specialties" placeholder="Clínica geral, Pediatria, Dermatologia (vírgula para separar)" />
+                  <mat-form-field appearance="outline" class="w-full"><input matInput type="text" [(ngModel)]="specialties" name="specialties" placeholder="Clínica geral, Pediatria, Dermatologia (vírgula para separar)" /></mat-form-field>
                 </div>
                 <div class="field-row">
                   <div class="field">
                     <label class="form-label">Ano de fundação</label>
-                    <input type="number" z-input zSize="sm" class="w-full" [(ngModel)]="foundedYear" name="founded_year" placeholder="2010" min="1900" />
+                    <mat-form-field appearance="outline" class="w-full"><input matInput type="number" [(ngModel)]="foundedYear" name="founded_year" placeholder="2010" min="1900" /></mat-form-field>
                   </div>
                   <div class="field">
                     <label class="form-label">E-mail de contato público</label>
-                    <input type="email" z-input zSize="sm" class="w-full" [(ngModel)]="contactEmail" name="contact_email" placeholder="contato@empresa.com" />
+                    <mat-form-field appearance="outline" class="w-full"><input matInput type="email" [(ngModel)]="contactEmail" name="contact_email" placeholder="contato@empresa.com" /></mat-form-field>
                   </div>
                 </div>
                 <div class="field">
                   <label class="form-label">Link do Google Maps</label>
-                  <input type="url" z-input zSize="sm" class="w-full" [(ngModel)]="mapsUrl" name="maps_url" placeholder="https://maps.google.com/..." />
+                  <mat-form-field appearance="outline" class="w-full"><input matInput type="url" [(ngModel)]="mapsUrl" name="maps_url" placeholder="https://maps.google.com/..." /></mat-form-field>
                   <p class="form-hint m-0 mt-1.5">Usado no botão «Como chegar». Para «Avalie no Google», prefira a URL longa (<code class="text-xs">google.com/maps/place/…</code>); links <code class="text-xs">maps.app.goo.gl</code> não geram avaliações sozinhos.</p>
                 </div>
               </div>
@@ -183,20 +181,23 @@
           <div class="sticky-footer">
             <div style="font-size:12px;color:var(--c-muted)">Alterações não salvas</div>
             <div class="footer-btns">
-              <a routerLink="/dashboard" z-button zType="outline" zSize="sm" class="gap-2 no-underline">
-                <span class="material-symbols-outlined text-base">close</span>
+              <a routerLink="/dashboard" mat-stroked-button class="btn-cancel gap-2 no-underline">
+                <mat-icon>close</mat-icon>
                 Cancelar
               </a>
               <button
                 type="submit"
                 form="link-bio-form-aparencia"
-                z-button
-                zSize="sm"
+                mat-flat-button
+                color="primary"
                 class="gap-2"
-                [zDisabled]="salvando"
-                [zLoading]="salvando"
+                [disabled]="salvando"
               >
-                <span class="material-symbols-outlined text-base">save</span>
+                @if (salvando) {
+                  <mat-spinner diameter="18"></mat-spinner>
+                } @else {
+                  <mat-icon>save</mat-icon>
+                }
                 {{ salvando ? 'Salvando…' : 'Salvar aparência' }}
               </button>
             </div>

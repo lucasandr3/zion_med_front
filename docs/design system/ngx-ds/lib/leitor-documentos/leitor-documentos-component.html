@@ -1,0 +1,159 @@
+<div class="max-w-4xl mx-auto p-6">
+	<!-- Header -->
+	<div class="text-center mb-8">
+		<div class="inline-flex items-center justify-center w-16 h-16 bg-blue-100 dark:bg-blue-900 rounded-full mb-4">
+			<svg class="w-8 h-8 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+					d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+			</svg>
+		</div>
+		<h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">Upload de Documentos</h2>
+		<!-- <p class="text-gray-600 dark:text-gray-300">Arraste e solte seus arquivos ou clique para selecionar</p> -->
+	</div>
+
+	<!-- Upload Area -->
+	<div class="upload-area relative border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-8 text-center hover:border-blue-400 dark:hover:border-blue-500 transition-colors duration-200 cursor-pointer bg-white dark:bg-gray-800"
+		[class.border-blue-400]="isDragOver" [class.bg-blue-50]="isDragOver" [class.dark:bg-blue-900]="isDragOver"
+		[class.drag-over]="isDragOver" (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)"
+		(drop)="onDrop($event)" (click)="fileInput.click()">
+
+		<input #fileInput type="file" multiple accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" class="hidden"
+			(change)="onFileSelected($event)">
+
+		<div class="space-y-4">
+			<svg class="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500" stroke="currentColor" fill="none"
+				viewBox="0 0 48 48">
+				<path
+					d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+					stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+			</svg>
+
+			<div>
+				<p class="text-lg font-medium text-gray-900 dark:text-white">Arraste arquivos aqui</p>
+				<p class="text-sm text-gray-500 dark:text-gray-400">ou <span
+						class="text-blue-600 dark:text-blue-400 font-medium">clique para selecionar</span></p>
+			</div>
+
+			<p class="text-xs text-gray-500 dark:text-gray-400">PDF Até 2MB</p>
+		</div>
+	</div>
+
+	<!-- Payment Options -->
+	<form [formGroup]="form">
+		<div class="mt-8" *ngIf="isFinance">
+			<h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Tipo de Pagamento</h3>
+			<div class="payment-options grid grid-cols-1 md:grid-cols-2 gap-4">
+
+				<label
+					class="payment-option relative flex items-center p-4 border border-gray-200 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 bg-white dark:bg-gray-800"
+					[class.border-blue-500]="form.get('parcelado')?.value"
+					[class.bg-blue-50]="form.get('parcelado')?.value"
+					[class.dark:bg-blue-900]="form.get('parcelado')?.value">
+					<input type="checkbox" (click)="alterChekbox('parcelado')" formControlName="parcelado" class="sr-only">
+					<div class="flex items-center space-x-3">
+						<div class="flex-shrink-0">
+							<div class="w-5 h-5 border-2 border-gray-300 rounded flex items-center justify-center"
+								[class.border-blue-500]="form.get('parcelado')?.value"
+								[class.bg-blue-500]="form.get('parcelado')?.value">
+								<svg *ngIf="form.get('parcelado')?.value" class="w-3 h-3 text-white" fill="currentColor"
+									viewBox="0 0 20 20">
+									<path fill-rule="evenodd"
+										d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+										clip-rule="evenodd"></path>
+								</svg>
+							</div>
+						</div>
+						<div class="flex-1">
+							<div class="flex items-center space-x-2">
+								<!-- <svg class="w-5 h-5 text-green-600 dark:text-green-400" fill="none"
+									stroke="currentColor" viewBox="0 0 24 24">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+										d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+								</svg> -->
+								<span class="font-medium text-gray-900 dark:text-white">Boleto com parcelamento</span>
+							</div>
+							<!-- <p class="text-sm text-gray-500 dark:text-gray-400">Gerar vários boleto</p> -->
+						</div>
+					</div>
+				</label>
+
+				<label
+					class="payment-option relative flex items-center p-4 border border-gray-200 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 bg-white dark:bg-gray-800"
+					[class.border-blue-500]="form.get('boleto')?.value" [class.bg-blue-50]="form.get('boleto')?.value"
+					[class.dark:bg-blue-900]="form.get('boleto')?.value">
+					<input type="checkbox" formControlName="boleto" (click)="alterChekbox('boleto')" class="sr-only">
+					<div class="flex items-center space-x-3">
+						<div class="flex-shrink-0">
+							<div class="w-5 h-5 border-2 border-gray-300 rounded flex items-center justify-center"
+								[class.border-blue-500]="form.get('boleto')?.value"
+								[class.bg-blue-500]="form.get('boleto')?.value">
+								<svg *ngIf="form.get('boleto')?.value" class="w-3 h-3 text-white" fill="currentColor"
+									viewBox="0 0 20 20">
+									<path fill-rule="evenodd"
+										d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+										clip-rule="evenodd"></path>
+								</svg>
+							</div>
+						</div>
+						<div class="flex-1">
+							<div class="flex items-center space-x-2">
+								<!-- <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor"
+									viewBox="0 0 24 24">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+										d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+									</path>
+								</svg> -->
+								<span class="font-medium text-gray-900 dark:text-white">Boleto com parcela única</span>
+							</div>
+							<!-- <p class="text-sm text-gray-500 dark:text-gray-400">Gerar boleto único</p> -->
+						</div>
+					</div>
+				</label>
+			</div>
+		</div>
+	</form>
+
+	<!-- Selected Files List -->
+	<div *ngIf="selectedFiles.length > 0" class="mt-8">
+		<h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Arquivos Selecionados</h3>
+		<div class="space-y-2">
+			<div *ngFor="let file of selectedFiles; let i = index"
+				class="file-item flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+				<div class="flex items-center space-x-3">
+					<svg class="w-5 h-5 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor"
+						viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+							d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+						</path>
+					</svg>
+					<div>
+						<p class="text-sm font-medium text-gray-900 dark:text-gray-400">{{ file.name }}</p>
+						<p class="text-xs text-gray-500 dark:text-gray-400">{{ formatFileSize(file.size) }}</p>
+					</div>
+				</div>
+				<button type="button" (click)="removeFile(i)"
+					class="text-red-500 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 transition-colors duration-200 ml-2">
+					<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+						</path>
+					</svg>
+				</button>
+			</div>
+		</div>
+	</div>
+
+	<!-- Action Buttons -->
+	<div class="mt-8 flex justify-end space-x-4">
+		<button type="button" (click)="clearAll()"
+			class="btn-secondary px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
+			Limpar
+		</button>
+		<!-- <button 
+					type="button"
+					(click)="save()"
+					[disabled]="!(selectedFiles.length > 0)"
+					class="btn-primary px-6 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200">
+					Enviar Documentos
+				</button> -->
+	</div>
+</div>

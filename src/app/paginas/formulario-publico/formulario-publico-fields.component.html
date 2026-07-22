@@ -42,7 +42,8 @@
 
     @switch (fieldType(f)) {
       @case ('text') {
-        <input
+        <mat-form-field appearance="outline" class="w-full">
+          <input matInput
           [id]="'field_' + f.name_key"
           type="text"
           [(ngModel)]="valores[f.name_key]"
@@ -54,10 +55,12 @@
           [attr.aria-invalid]="isFieldInvalid(f.name_key) ? true : null"
           [attr.aria-describedby]="isFieldInvalid(f.name_key) ? 'error_' + f.name_key : null"
           [placeholder]="fieldPlaceholder(f)"
-        />
+          />
+        </mat-form-field>
       }
       @case ('textarea') {
-        <textarea
+        <mat-form-field appearance="outline" class="w-full">
+          <textarea matInput
           [id]="'field_' + f.name_key"
           [(ngModel)]="valores[f.name_key]"
           (ngModelChange)="onCampoAlterado()"
@@ -66,10 +69,12 @@
           rows="4"
           [required]="f.required"
           [placeholder]="fieldPlaceholder(f)"
-        ></textarea>
+          ></textarea>
+        </mat-form-field>
       }
       @case ('number') {
-        <input
+        <mat-form-field appearance="outline" class="w-full">
+          <input matInput
           [id]="'field_' + f.name_key"
           type="number"
           [(ngModel)]="valores[f.name_key]"
@@ -82,26 +87,29 @@
           [attr.aria-describedby]="isFieldInvalid(f.name_key) ? 'error_' + f.name_key : null"
           [placeholder]="fieldPlaceholder(f)"
           inputmode="numeric"
-        />
+          />
+        </mat-form-field>
       }
       @case ('date') {
-        <input
-          [id]="'field_' + f.name_key"
-          type="text"
-          mwlFlatpickr
-          [(ngModel)]="valores[f.name_key]"
-          (ngModelChange)="onCampoAlterado()"
-          [name]="f.name_key"
-          class="fp-input"
-          [required]="f.required"
-          placeholder="dd/mm/aaaa"
-          [altInput]="true"
-          [altInputClass]="'fp-input'"
-          [convertModelValue]="true"
-        />
+        <mat-form-field appearance="outline" class="w-full">
+          <input
+            matInput
+            [id]="'field_' + f.name_key"
+            [matDatepicker]="picker"
+            appOpenPickerOnInteract
+            [datepicker]="picker"
+            [ngModel]="dateValue(f.name_key)"
+            (ngModelChange)="onDateChange(f.name_key, $event)"
+            [name]="f.name_key"
+            [required]="f.required"
+            placeholder="dd/mm/aaaa"
+          />
+          <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+          <mat-datepicker #picker></mat-datepicker>
+        </mat-form-field>
       }
       @case ('checkbox') {
-        <z-checkbox
+        <mat-checkbox
           class="fp-field-checkbox"
           [(ngModel)]="valores[f.name_key]"
           (ngModelChange)="onCampoAlterado()"
@@ -112,45 +120,37 @@
           @if (f.required) {
             <span class="fp-required" aria-hidden="true">*</span>
           }
-        </z-checkbox>
+        </mat-checkbox>
       }
       @case ('select') {
-        <div class="fp-select-wrap">
-          <select
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-select
             [id]="'field_' + f.name_key"
             [(ngModel)]="valores[f.name_key]"
             (ngModelChange)="onCampoAlterado()"
             [name]="f.name_key"
-            class="fp-input fp-select"
             [required]="f.required"
-            spellcheck="false"
-            autocomplete="off"
           >
-            <option value="">Selecione</option>
+            <mat-option value="">Selecione</mat-option>
             @for (opt of getFieldOptions(f); track opt.value) {
-              <option [value]="opt.value">{{ opt.label }}</option>
+              <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
             }
-          </select>
-        </div>
+          </mat-select>
+        </mat-form-field>
       }
       @case ('radio') {
-        <div class="fp-radio-grid" [class.fp-radio-grid-single]="getFieldOptions(f).length === 1">
+        <mat-radio-group
+          class="fp-radio-grid"
+          [class.fp-radio-grid-single]="getFieldOptions(f).length === 1"
+          [(ngModel)]="valores[f.name_key]"
+          (ngModelChange)="onCampoAlterado()"
+          [name]="f.name_key"
+          [required]="f.required"
+        >
           @for (opt of getFieldOptions(f); track opt.value) {
-            <label class="fp-radio-option" [class.fp-radio-selected]="valores[f.name_key] === opt.value">
-              <input
-                type="radio"
-                [(ngModel)]="valores[f.name_key]"
-                (ngModelChange)="onCampoAlterado()"
-                [name]="f.name_key"
-                [value]="opt.value"
-                [required]="f.required"
-                class="fp-visually-hidden"
-              />
-              <span class="fp-radio-dot" aria-hidden="true"><span class="fp-radio-dot-inner"></span></span>
-              <span class="fp-radio-label-text">{{ opt.label }}</span>
-            </label>
+            <mat-radio-button class="fp-radio-option" [value]="opt.value">{{ opt.label }}</mat-radio-button>
           }
-        </div>
+        </mat-radio-group>
       }
       @case ('file') {
         <div class="fp-file-wrap">
@@ -209,7 +209,7 @@
         </div>
       }
       @default {
-        <input [id]="'field_' + f.name_key" type="text" [(ngModel)]="valores[f.name_key]" [name]="f.name_key" class="fp-input" [required]="f.required" />
+        <mat-form-field appearance="outline" class="w-full"><input matInput [id]="'field_' + f.name_key" type="text" [(ngModel)]="valores[f.name_key]" [name]="f.name_key" [required]="f.required" /></mat-form-field>
       }
     }
   </div>

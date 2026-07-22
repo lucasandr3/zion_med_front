@@ -1,0 +1,43 @@
+<upx-modal [disableFullSizeMobile]="true" [disableOrderMobile]="true" size="sm">
+    <upx-modal-content>
+        <h3 *ngIf="title">
+            {{title}}
+        </h3>
+        <p *ngIf="message">
+            {{message}}
+        </p>
+    </upx-modal-content>
+    <upx-modal-footer>
+        <upx-button *ngIf="button2 !== ''" (onClick)="close(false)">
+            {{button2}}
+        </upx-button>
+        <upx-button *ngIf="isTheme" (onClick)="close(true)" variant="solid" color="theme">
+            {{button1}}
+        </upx-button>
+        <upx-button *ngIf="!isTheme" (onClick)="close(true)">
+            {{button1}}
+        </upx-button>
+    </upx-modal-footer>
+</upx-modal>
+
+
+<!--<div *ngIf="false" class="relative w-full h-full max-w-md md:h-auto">
+    <div class="relative bg-white rounded-lg shadow dark:bg-neutral-700">
+        <div class="p-6">
+            <h3 *ngIf="title" class="mb-4 text-lg font-medium">
+                {{title}}
+            </h3>
+            <p *ngIf="message" class="text-base text-neutral-500 dark:text-neutral-400">
+                {{message}}
+            </p>
+            <div class="flex gap-4 justify-end mt-6">
+                <upx-button (onClick)="close(true)" variant="solid" color="theme">
+                    Sim, eu confirmo
+                </upx-button>
+                <upx-button (onClick)="close(false)">
+                    Não, cancelar
+                </upx-button>
+            </div>
+        </div>
+    </div>
+</div>-->

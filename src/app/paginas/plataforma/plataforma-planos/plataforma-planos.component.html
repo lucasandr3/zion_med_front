@@ -1,72 +1,88 @@
 <!-- Igual ao backend: platform/plans/index - grid de cards -->
-<div class="relative min-h-[300px] space-y-4">
-  <div class="flex items-center justify-between gap-3">
-    <p class="text-xs text-muted-foreground">
-      {{ planos.length }} {{ planos.length === 1 ? 'plano' : 'planos' }}.
-    </p>
-    <a routerLink="/plataforma/planos/novo" z-button title="Criar novo plano">
-      <span class="material-symbols-outlined text-lg">add</span>
-      Novo plano
-    </a>
+<div class="upx-page-list relative min-h-[300px]">
+  <div class="upx-page-list__toolbar">
+    <div class="upx-page-list__toolbar-start">
+      <p class="zm-count-label">
+        {{ planos.length }} {{ planos.length === 1 ? 'plano' : 'planos' }}.
+      </p>
+    </div>
+    <div class="upx-page-list__toolbar-end">
+      <a mat-flat-button color="primary" routerLink="/plataforma/planos/novo" title="Criar novo plano">
+        <mat-icon>add</mat-icon>
+        Novo plano
+      </a>
+    </div>
   </div>
 
-  @if (showSkeleton()) {
-    <zm-skeleton-list [rows]="6" />
-  } @else if (!listaPronta) {
-  } @else {
-    @if (estadoErro) {
-      <div class="rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-foreground">
-        Não foi possível carregar os planos.
-      </div>
-    }
-    @if (!estadoErro) {
-      <div class="zm-content-enter">
-        @if (planos.length === 0) {
-          <z-card class="items-center gap-3 py-8 text-center">
-            <p class="text-muted-foreground m-0 text-sm">Nenhum plano cadastrado.</p>
-            <a routerLink="/plataforma/planos/novo" z-button title="Criar primeiro plano">Criar primeiro plano</a>
-          </z-card>
-        } @else {
-          <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-            @for (p of planos; track p.id) {
-              <z-card class="gap-3 py-4">
-                <div class="flex items-center justify-between gap-2">
-                  <span class="text-foreground text-sm font-semibold">{{ p.name }}</span>
-                  <z-badge zType="secondary">{{ p.key }}</z-badge>
-                </div>
-                <p class="text-primary m-0 text-2xl font-bold">
-                  R$ {{ formatarValor(p.value) }}
-                  <span class="text-muted-foreground text-sm font-normal">/mês</span>
-                </p>
-                @if (p.description) {
-                  <p class="text-muted-foreground m-0 mt-2 flex-1 text-xs leading-relaxed">{{ p.description }}</p>
-                }
-                <div class="border-border mt-3 flex flex-wrap items-center gap-2 border-t pt-3">
-                  @if (!p.is_active) {
-                    <z-badge zType="outline">Inativo</z-badge>
+  <div class="upx-page-list__content">
+    @if (showSkeleton()) {
+      <zm-skeleton-list [rows]="6" />
+    } @else if (!listaPronta) {
+    } @else {
+      @if (estadoErro) {
+        <div class="rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-foreground">
+          Não foi possível carregar os planos.
+        </div>
+      }
+      @if (!estadoErro) {
+        <div class="zm-content-enter">
+          @if (planos.length === 0) {
+            <up-empty-state
+              icon="workspace_premium"
+              title="Nenhum plano cadastrado."
+              description="Crie o primeiro plano para disponibilizar assinaturas aos clientes."
+            >
+              <a mat-flat-button color="primary" routerLink="/plataforma/planos/novo" title="Criar primeiro plano">
+                <mat-icon>add</mat-icon>
+                Criar primeiro plano
+              </a>
+            </up-empty-state>
+          } @else {
+            <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+              @for (p of planos; track p.id) {
+                <z-card class="gap-3 py-4">
+                  <div class="flex items-center justify-between gap-2">
+                    <span class="text-foreground text-sm font-semibold">{{ p.name }}</span>
+                    <up-badge variant="type">{{ p.key }}</up-badge>
+                  </div>
+                  <p class="text-primary m-0 text-2xl font-bold">
+                    R$ {{ formatarValor(p.value) }}
+                    <span class="text-muted-foreground text-sm font-normal">/mês</span>
+                  </p>
+                  @if (p.description) {
+                    <p class="text-muted-foreground m-0 mt-2 flex-1 text-xs leading-relaxed">{{ p.description }}</p>
                   }
-                  <a [routerLink]="['/plataforma/planos', p.id, 'editar']" z-button zType="outline" zSize="xs" title="Editar plano">
-                    <span class="material-symbols-outlined text-sm">edit</span>
-                    Editar
-                  </a>
-                  <button
-                    type="button"
-                    z-button
-                    zType="destructive"
-                    zSize="xs"
-                    [zDisabled]="excluindoId === p.id"
-                    [zLoading]="excluindoId === p.id"
-                    (click)="excluir(p)"
-                    title="Excluir plano"
-                  >
-                    Excluir
-                  </button>
-                </div>
-              </z-card>
-            }
-          </div>
-        }
-      </div>
+                  <div class="border-border mt-3 flex flex-wrap items-center gap-2 border-t pt-3">
+                    @if (!p.is_active) {
+                      <up-badge variant="status" tone="draft">Inativo</up-badge>
+                    }
+                    <a
+                      mat-stroked-button
+                      class="btn-cancel"
+                      [routerLink]="['/plataforma/planos', p.id, 'editar']"
+                      title="Editar plano"
+                    >
+                      <mat-icon>edit</mat-icon>
+                      Editar
+                    </a>
+                    <button
+                      mat-stroked-button
+                      type="button"
+                      color="warn"
+                      [disabled]="excluindoId === p.id"
+                      (click)="excluir(p)"
+                      title="Excluir plano"
+                    >
+                      <mat-icon>delete</mat-icon>
+                      {{ excluindoId === p.id ? 'Excluindo…' : 'Excluir' }}
+                    </button>
+                  </div>
+                </z-card>
+              }
+            </div>
+          }
+        </div>
+      }
     }
-  }
+  </div>
 </div>

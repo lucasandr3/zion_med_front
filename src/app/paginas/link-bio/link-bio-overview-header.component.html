@@ -24,13 +24,11 @@
           type="button"
           [zMenuTriggerFor]="headerMenuTpl"
           zPlacement="bottomRight"
-          z-button
-          zType="ghost"
-          zSize="icon-sm"
+          mat-icon-button
           class="link-bio-header-card__menu-btn"
           aria-label="Mais opções do modo recepção"
         >
-          <span class="material-symbols-outlined text-[1.125rem]">more_vert</span>
+          <mat-icon>more_vert</mat-icon>
         </button>
       }
     </div>
@@ -40,30 +38,24 @@
     [class.link-bio-header-card__actions--with-recepcao]="!!recepcaoKioskUrl"
   >
     <button
-      z-button
-      zType="outline"
-      zSize="sm"
+      mat-stroked-button
+      class="btn-cancel link-bio-header-card__action"
       type="button"
-      class="link-bio-header-card__action"
       [title]="copiedLink ? 'Link copiado' : 'Copiar link público'"
       (click)="copyLink.emit()"
     >
-      <span class="material-symbols-outlined text-base" aria-hidden="true">
-        {{ copiedLink ? 'check' : 'content_copy' }}
-      </span>
+      <mat-icon>{{ copiedLink ? 'check' : 'content_copy' }}</mat-icon>
       {{ copiedLink ? 'Copiado!' : 'Copiar link' }}
     </button>
     <a
       [href]="publicUrlAbrir"
       target="_blank"
       rel="noopener"
-      z-button
-      zType="outline"
-      zSize="sm"
-      class="link-bio-header-card__action no-underline"
+      mat-stroked-button
+      class="btn-cancel link-bio-header-card__action no-underline"
       title="Abre o link público neste ambiente (dev) ou o URL oficial"
     >
-      <span class="material-symbols-outlined text-base" aria-hidden="true">open_in_new</span>
+      <mat-icon>open_in_new</mat-icon>
       Abrir
     </a>
     @if (recepcaoKioskUrl) {
@@ -71,38 +63,32 @@
         [href]="recepcaoKioskUrl"
         target="_blank"
         rel="noopener"
-        z-button
-        zType="outline"
-        zSize="sm"
-        class="link-bio-header-card__action no-underline"
+        mat-stroked-button
+        class="btn-cancel link-bio-header-card__action no-underline"
         title="Lista grande de fichas para tablet ou totem na recepção"
       >
-        <span class="material-symbols-outlined text-base" aria-hidden="true">tablet_mac</span>
+        <mat-icon>tablet_mac</mat-icon>
         Modo recepção
       </a>
     }
     <button
-      z-button
-      zType="outline"
-      zSize="sm"
+      mat-stroked-button
+      class="btn-cancel link-bio-header-card__action"
       type="button"
-      class="link-bio-header-card__action"
       title="Ver QR code da página"
       (click)="openQr.emit()"
     >
-      <span class="material-symbols-outlined text-base" aria-hidden="true">qr_code_2</span>
+      <mat-icon>qr_code_2</mat-icon>
       QR code
     </button>
     <button
-      z-button
-      zType="outline"
-      zSize="sm"
+      mat-stroked-button
+      class="btn-cancel link-bio-header-card__action"
       type="button"
-      class="link-bio-header-card__action"
       title="Editar conteúdo da página"
       (click)="editContent.emit()"
     >
-      <span class="material-symbols-outlined text-base" aria-hidden="true">edit</span>
+      <mat-icon>edit</mat-icon>
       Editar
     </button>
   </div>

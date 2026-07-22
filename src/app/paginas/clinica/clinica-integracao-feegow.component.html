@@ -58,17 +58,27 @@
           </div>
           <div class="section-body">
             <div class="field">
-              <z-switch [(ngModel)]="form.enabled" name="feegow_enabled">Ativar integração Feegow</z-switch>
+              <mat-checkbox [(ngModel)]="form.enabled" name="feegow_enabled">Ativar integração Feegow</mat-checkbox>
             </div>
 
             <div class="field">
-              <label>Base URL</label>
-              <input type="url" z-input zSize="sm" class="w-full" [(ngModel)]="form.base_url" name="feegow_base_url" placeholder="https://api.feegow.com/v1/api" />
+              <mat-form-field appearance="outline" class="w-full">
+
+                <mat-label>Base URL</mat-label>
+
+                <input matInput type="url" class="w-full" [(ngModel)]="form.base_url" name="feegow_base_url" placeholder="https://api.feegow.com/v1/api" />
+
+              </mat-form-field>
             </div>
 
             <div class="field">
-              <label>Token de acesso (x-access-token)</label>
-              <input type="password" z-input zSize="sm" class="w-full" [(ngModel)]="form.token" name="feegow_token" placeholder="Cole um novo token para atualizar" />
+              <mat-form-field appearance="outline" class="w-full">
+
+                <mat-label>Token de acesso (x-access-token)</mat-label>
+
+                <input matInput type="password" class="w-full" [(ngModel)]="form.token" name="feegow_token" placeholder="Cole um novo token para atualizar" />
+
+              </mat-form-field>
               <p class="hint">
                 @if (state?.has_token) {
                   Token já configurado. Preencha apenas se quiser trocar.
@@ -79,15 +89,15 @@
             </div>
 
             <div class="flex flex-wrap gap-3">
-              <button type="button" z-button zSize="sm" class="inline-flex items-center gap-2" (click)="salvar()" [disabled]="salvando">
+              <button mat-flat-button color="primary" type="button" class="inline-flex items-center gap-2" (click)="salvar()" [disabled]="salvando">
                 @if (salvando) {
-                  <span class="btn-spinner" aria-hidden="true"></span>
+                  <mat-spinner diameter="18"></mat-spinner>
                 }
                 {{ salvando ? 'Salvando…' : 'Salvar configuração' }}
               </button>
-              <button type="button" z-button zType="outline" zSize="sm" class="inline-flex items-center gap-2" (click)="testarConexao()" [disabled]="testando">
+              <button mat-stroked-button type="button" class="inline-flex items-center gap-2 btn-cancel" (click)="testarConexao()" [disabled]="testando">
                 @if (testando) {
-                  <span class="btn-spinner" aria-hidden="true"></span>
+                  <mat-spinner diameter="18"></mat-spinner>
                 }
                 {{ testando ? 'Testando…' : 'Testar conexão' }}
               </button>

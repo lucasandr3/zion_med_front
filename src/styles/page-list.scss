@@ -1,0 +1,280 @@
+/**
+ * Layout de lista / detalhe / wizard canônico Zion (global).
+ * Página = floor-1 (branco no claro / superfície no escuro), full-bleed.
+ * Sem cards decorativos.
+ */
+
+/* Páginas roteadas: encapsulation do shell não estiliza hosts dinâmicos. */
+.sidenav-content-main__body > *:not(router-outlet) {
+  display: flex !important;
+  flex-direction: column;
+  flex: 1 1 auto;
+  align-self: stretch;
+  min-height: 0;
+  width: 100% !important;
+  max-width: none !important;
+  background-color: rgb(var(--theme-floor-1));
+}
+
+.upx-page-list {
+  display: flex;
+  flex: 1 1 auto;
+  height: 100%;
+  min-height: 0;
+  flex-direction: column;
+  width: 100%;
+  background-color: rgb(var(--theme-floor-1));
+}
+
+.upx-page-list__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+  padding: 0.65rem 1rem;
+  border-bottom: 1px solid var(--theme-line);
+  background: rgb(var(--theme-floor-1));
+}
+
+.upx-page-list__toolbar-start,
+.upx-page-list__toolbar-end {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Lista com drawer de filtros (direita) — estilos do painel em list-filters-panel */
+
+.filters-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  height: 40px;
+  min-height: 40px;
+  padding: 0 0.85rem;
+  border: 1px solid rgb(var(--theme-border) / 0.18);
+  border-radius: 10px;
+  background: rgb(var(--theme-floor-1));
+  color: rgb(var(--theme-fg) / 0.85);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: normal;
+  cursor: pointer;
+  box-sizing: border-box;
+  transition:
+    background-color 120ms ease,
+    border-color 120ms ease,
+    color 120ms ease;
+
+  mat-icon {
+    flex-shrink: 0;
+    font-size: 1.2rem;
+    width: 1.2rem;
+    height: 1.2rem;
+    color: rgb(var(--theme-fg) / 0.65);
+  }
+
+  &:hover {
+    border-color: rgb(var(--theme-border) / 0.3);
+    background: rgb(var(--theme-fg) / 0.04);
+  }
+}
+
+.filters-btn--active {
+  border-color: rgb(var(--theme-fg) / 0.35);
+  background: rgb(var(--theme-fg) / 0.06);
+  color: rgb(var(--theme-fg));
+
+  mat-icon {
+    color: rgb(var(--theme-fg) / 0.8);
+  }
+}
+
+.filter-section {
+  border: 1px solid var(--theme-line);
+  border-radius: 0.5rem;
+  overflow: hidden;
+  background: rgb(var(--theme-floor-1));
+}
+
+.filter-section__title {
+  padding: 0.55rem 0.85rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: rgb(var(--theme-fg) / 0.55);
+  background: rgb(var(--theme-floor-2));
+  border-bottom: 1px solid var(--theme-line);
+}
+
+.filter-section__body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.85rem;
+}
+
+.filter-section__body .mat-mdc-form-field,
+.filter-section__body .w-full {
+  width: 100%;
+}
+
+.upx-page-list__content {
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 0;
+  flex-direction: column;
+  background: rgb(var(--theme-floor-1));
+  padding: 0;
+  margin: 0;
+  border: none;
+  box-shadow: none;
+  border-radius: 0;
+  overflow: hidden;
+
+  > up-data-table,
+  > up-empty-state,
+  > zm-skeleton-list,
+  > zm-skeleton-usuarios-listagem,
+  > zm-skeleton-permissoes-listagem {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    align-self: stretch;
+    min-height: 0;
+    width: 100%;
+    margin: 0;
+    border-radius: 0;
+  }
+}
+
+/* Detalhe / formulário longo: scroll interno, full-bleed */
+.upx-page-list--detail {
+  .upx-page-list__content {
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 0;
+    gap: 0;
+  }
+}
+
+.upx-page-list__form {
+  flex-shrink: 0;
+  padding: 1rem 1.15rem;
+  border-bottom: 1px solid var(--theme-line);
+  background: rgb(var(--theme-floor-1));
+}
+
+/** Bloco de conteúdo flat (sem card). */
+.upx-panel {
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  overflow: visible;
+}
+
+.upx-panel--padded {
+  padding: 1rem 1.15rem;
+}
+
+/**
+ * Full-bleed no shell: remove chrome de card decorativo do conteúdo das telas.
+ * Não aplica a overlays/modais (ancestral .fixed / cdk-overlay).
+ */
+.sidenav-content-main__body z-card:not(:where(.fixed *, .cdk-overlay-container *)),
+.sidenav-content-main__body [data-slot='card']:not(:where(.fixed *, .cdk-overlay-container *)),
+.sidenav-content-main__body .section-card,
+.sidenav-content-main__body .pd-section-card,
+.sidenav-content-main__body .campos-add-card,
+.sidenav-content-main__body .campos-table-card,
+.sidenav-content-main__body .zm-table-card,
+.sidenav-content-main__body .plat-table-card,
+.sidenav-content-main__body .table-card,
+.sidenav-content-main__body .dash-z-panel,
+.sidenav-content-main__body .dash-z-chart,
+.sidenav-content-main__body .dash-kpi,
+.sidenav-content-main__body .notif-card,
+.sidenav-content-main__body .novidades-card,
+.sidenav-content-main__body .templates-cat-card {
+  margin-inline: 0 !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  background: rgb(var(--theme-floor-1)) !important;
+}
+
+.sidenav-content-main__body z-card:not(:where(.fixed *, .cdk-overlay-container *)) [data-slot='card-content'],
+.sidenav-content-main__body .section-card [data-slot='card-content'] {
+  padding-inline: 1rem !important;
+}
+
+.wizard-page {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  flex: 1 1 auto;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: rgb(var(--theme-floor-1));
+}
+
+.wizard-page--designer {
+  min-height: 0;
+
+  > .upx-page-list__toolbar {
+    flex-shrink: 0;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+  }
+
+  > .tb-body {
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+}
+
+/* Corpo do designer: scroll no page */
+.wizard-page--designer.tb {
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.toolbar-more-btn {
+  border-radius: 10px !important;
+  border-color: rgb(var(--theme-border) / 0.28) !important;
+  color: rgb(var(--theme-fg) / 0.85) !important;
+}
+
+.upx-page-list__toolbar-end {
+  .mat-mdc-outlined-button,
+  .mat-mdc-unelevated-button {
+    border-radius: 10px !important;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .upx-page-list__toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 0.75rem;
+  }
+
+  .upx-page-list__toolbar-start,
+  .upx-page-list__toolbar-end {
+    width: 100%;
+  }
+
+  .upx-page-list__toolbar up-search-box,
+  .upx-page-list__toolbar .search-box {
+    width: 100%;
+  }
+}

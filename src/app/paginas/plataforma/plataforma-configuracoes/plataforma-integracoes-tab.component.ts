@@ -8,9 +8,8 @@ import {
 } from '../../../core/services/plataforma-integracoes.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { ZardCardComponent } from '@/shared/components/card/card.component';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
 import { ZardBadgeComponent } from '@/shared/components/badge';
-import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
+import { MAT_FORM_IMPORTS } from '@/shared/material';
 import type { ZardBadgeTypeVariants } from '@/shared/components/badge/badge.variants';
 
 @Component({
@@ -20,9 +19,8 @@ import type { ZardBadgeTypeVariants } from '@/shared/components/badge/badge.vari
     CommonModule,
     FormsModule,
     ZardCardComponent,
-    ZardButtonComponent,
     ZardBadgeComponent,
-    ...ZARD_FORM_CONTROL_IMPORTS,
+    ...MAT_FORM_IMPORTS,
   ],
   templateUrl: './plataforma-integracoes-tab.component.html',
   styleUrl: './plataforma-integracoes-tab.component.css',

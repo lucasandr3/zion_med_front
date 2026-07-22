@@ -8,9 +8,8 @@ import {
 import { ToastService } from '../../../core/services/toast.service';
 import { environment } from '../../../../environments/environment';
 import { ZardCardComponent } from '@/shared/components/card/card.component';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
 import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
-import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
+import { MAT_FORM_IMPORTS } from '@/shared/material';
 
 export type PlatformServiceId = 'asaas' | 'resend' | 'minio' | 'status';
 
@@ -38,9 +37,8 @@ const COMPONENT_OPTIONS: Record<string, string> = {
     CommonModule,
     FormsModule,
     ZardCardComponent,
-    ZardButtonComponent,
     ZardBadgeComponent,
-    ...ZARD_FORM_CONTROL_IMPORTS,
+    ...MAT_FORM_IMPORTS,
   ],
   templateUrl: './plataforma-servicos-tab.component.html',
   styleUrl: './plataforma-servicos-tab.component.css',

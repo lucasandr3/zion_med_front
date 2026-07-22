@@ -29,13 +29,14 @@ import { ConfirmDialogService } from '../../core/services/confirm-dialog.service
 import { AuthService } from '../../core/services/auth.service';
 import { ClinicaService, ClinicaConfig } from '../../core/services/clinica.service';
 import { PessoasService, Pessoa } from '../../core/services/pessoas.service';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
 import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
 import type { ZardBadgeTypeVariants } from '@/shared/components/badge/badge.variants';
 import { ZardCardComponent } from '@/shared/components/card/card.component';
 import { ZardTabComponent, ZardTabGroupComponent } from '@/shared/components/tabs';
 import { ZardAvatarComponent } from '@/shared/components/avatar/avatar.component';
-import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
+import { MAT_FORM_IMPORTS } from '@/shared/material';
+import { OpenPickerOnInteractDirective } from '@/shared/directives/open-picker-on-interact.directive';
+import { formatDateToYmd, parseYmdToDate } from '@/shared/utils/date-time.util';
 
 /** Linha do documento de impressão: agrupamento dinâmico de campos do template. */
 interface DocLinhaCampo {
@@ -68,13 +69,13 @@ const PROTOCOLO_ABA_IDS: ProtocoloAbaId[] = [
     ZmSkeletonProtocoloDetalheComponent,
     ZmEmptyStateComponent,
     ZmPageBackLinkComponent,
-    ZardButtonComponent,
     ZardBadgeComponent,
     ZardCardComponent,
     ZardTabComponent,
     ZardTabGroupComponent,
     ZardAvatarComponent,
-    ...ZARD_FORM_CONTROL_IMPORTS,
+    ...MAT_FORM_IMPORTS,
+    OpenPickerOnInteractDirective,
   ],
   templateUrl: './protocolos-detalhe.component.html',
   styleUrl: './protocolos-detalhe.component.css',
@@ -252,6 +253,14 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
         this.staffSalvando = false;
       },
     });
+  }
+
+  staffDateValue(fieldKey: string): Date | null {
+    return parseYmdToDate(this.staffDraft[fieldKey] as string | Date | null | undefined);
+  }
+
+  onStaffDateChange(fieldKey: string, value: Date | null): void {
+    this.staffDraft[fieldKey] = formatDateToYmd(value);
   }
 
   get isPending(): boolean {

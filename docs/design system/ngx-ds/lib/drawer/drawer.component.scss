@@ -1,0 +1,9 @@
+.upx-drawer__container {
+	box-shadow: 0 10px 25px rgba(15, 23, 42, 0.1);
+	will-change: transform, width;
+	z-index: 9999;
+	transition: transform 0.3s ease-in-out, width 0.3s ease-in-out;
+	overflow: hidden;
+}
+
+

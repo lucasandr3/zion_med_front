@@ -1,0 +1,36 @@
+.upx-radio-group {
+	@apply flex justify-between gap-2 w-full;
+}
+
+.upx-radio {
+	@apply inline-flex shrink-0 items-center justify-start h-11;
+    label {
+        @apply inline-flex gap-2 items-center justify-start text-sm font-medium text-black text-opacity-70 dark:text-white dark:text-opacity-70;
+        input {
+            @apply form-radio
+                w-5
+                h-5
+
+                text-theme
+                dark:text-opacity-70
+
+                bg-transparent
+                /*bg-neutral-100
+                dark:bg-neutral-700*/
+
+                border-black
+                border-opacity-30
+                dark:border-white
+                dark:border-opacity-30
+                /*border-neutral-300
+                dark:border-neutral-600*/
+
+                focus:ring-2
+                focus:ring-blue-500
+
+                /*
+                dark:focus:ring-blue-600
+                dark:ring-offset-neutral-800*/;
+        }
+    }
+}

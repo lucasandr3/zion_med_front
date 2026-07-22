@@ -5,23 +5,17 @@ import { FormsModule } from '@angular/forms';
 import { TemplatesService, TemplateCategory } from '../../core/services/templates.service';
 import { ToastService } from '../../core/services/toast.service';
 import { ZmPageBackLinkComponent } from '../../shared/components/ui';
-import { ZardComboboxComponent, type ZardComboboxOption } from '@/shared/components/combobox';
-import { ZardCardComponent } from '@/shared/components/card/card.component';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
-import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
+import { MAT_FORM_IMPORTS } from '@/shared/material';
 
 @Component({
   selector: 'app-templates-criar-em-branco',
   standalone: true,
   imports: [
-    ...ZARD_FORM_CONTROL_IMPORTS,
+    ...MAT_FORM_IMPORTS,
     CommonModule,
     RouterLink,
     FormsModule,
     ZmPageBackLinkComponent,
-    ZardComboboxComponent,
-    ZardCardComponent,
-    ZardButtonComponent,
   ],
   templateUrl: './templates-criar-em-branco.component.html',
   styleUrl: './templates-criar-em-branco.component.css',
@@ -38,7 +32,7 @@ export class TemplatesCriarEmBrancoComponent {
   erro = '';
   categorias: TemplateCategory[] = [];
 
-  get opcoesCategoria(): ZardComboboxOption[] {
+  get opcoesCategoria(): { value: string; label: string }[] {
     return [
       { value: '', label: 'Sem categoria' },
       ...this.categorias.map((cat) => ({ value: cat.key, label: cat.name })),
@@ -91,8 +85,8 @@ export class TemplatesCriarEmBrancoComponent {
       });
   }
 
-  selecionarCategoria(value: string | null): void {
-    this.categoriaSelecionada = value ?? '';
+  selecionarCategoria(value: string): void {
+    this.categoriaSelecionada = value;
     if (this.categoriaSelecionada !== '__nova__') {
       this.novaCategoria = '';
     }
