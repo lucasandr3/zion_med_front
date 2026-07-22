@@ -17,7 +17,7 @@ import { LoadingService } from '../../../shared/services/loading.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { ZmSkeletonListComponent } from '../../../shared/components/skeletons';
 import { ZmPaginationComponent } from '../../../shared/components/ui';
-import { DataTableComponent, BadgeComponent, UpEmptyStateComponent } from '../../../shared/components/up';
+import { DataTableComponent, BadgeComponent, ZionEmptyStateComponent } from '../../../shared/components/zion';
 import {
   applyPlatformEmailTemplate,
   PLATFORM_EMAIL_TEMPLATES,
@@ -48,7 +48,7 @@ interface SelectOptionGroup {
     ZmPaginationComponent,
     DataTableComponent,
     BadgeComponent,
-    UpEmptyStateComponent,
+    ZionEmptyStateComponent,
   ],
   templateUrl: './plataforma-emails.component.html',
   styleUrl: './plataforma-emails.component.css',

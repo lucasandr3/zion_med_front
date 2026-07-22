@@ -1,5 +1,5 @@
-<section class="upx-page-list">
-  <div class="upx-page-list__content">
+<section class="zion-page-list">
+  <div class="zion-page-list__content">
     @if (showSkeleton()) {
       <zm-skeleton-list [rows]="6" />
     } @else if (!listaPronta) {
@@ -9,13 +9,13 @@
       </div>
     } @else {
       @if (leads.length === 0) {
-        <up-empty-state
+        <zion-empty-state
           icon="person_search"
           title="Nenhum lead cadastrado."
           description="Novos leads capturados pela landing page aparecerão aqui."
         />
       } @else {
-        <up-data-table [recordCount]="leads.length" recordLabel="lead" recordLabelPlural="leads">
+        <zion-data-table [recordCount]="leads.length" recordLabel="lead" recordLabelPlural="leads">
           <thead>
             <tr>
               <th>Nome</th>
@@ -26,7 +26,7 @@
           </thead>
           <tbody>
             @for (lead of leads; track lead.id) {
-              <tr class="upx-data-table__row--static">
+              <tr class="zion-data-table__row--static">
                 <td>
                   <div class="cell-primary">{{ lead.name }}</div>
                 </td>
@@ -41,7 +41,7 @@
               </tr>
             }
           </tbody>
-        </up-data-table>
+        </zion-data-table>
       }
     }
   </div>

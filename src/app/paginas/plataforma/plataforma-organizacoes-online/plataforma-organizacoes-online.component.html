@@ -1,5 +1,5 @@
-<section class="upx-page-list">
-  <div class="upx-page-list__content">
+<section class="zion-page-list">
+  <div class="zion-page-list__content">
     @if (showSkeleton()) {
       <zm-skeleton-list [rows]="6" />
     } @else if (!listaPronta) {
@@ -9,13 +9,13 @@
       </div>
     } @else {
       @if (linhas.length === 0) {
-        <up-empty-state
+        <zion-empty-state
           icon="wifi_tethering"
           title="Nenhuma empresa com sessão ativa no momento."
           description="Quando houver atividade de sessão, as empresas aparecerão aqui."
         />
       } @else {
-        <up-data-table [recordCount]="linhas.length" recordLabel="empresa" recordLabelPlural="empresas">
+        <zion-data-table [recordCount]="linhas.length" recordLabel="empresa" recordLabelPlural="empresas">
           <thead>
             <tr>
               <th>Empresa</th>
@@ -25,13 +25,13 @@
           </thead>
           <tbody>
             @for (row of linhas; track row.organization_id) {
-              <tr class="upx-data-table__row--static">
+              <tr class="zion-data-table__row--static">
                 <td>
                   <div class="cell-primary">{{ row.organization_name }}</div>
                   <div class="cell-secondary mono">#{{ row.organization_id }}</div>
                 </td>
                 <td class="text-center">
-                  <up-badge variant="type">{{ row.active_sessions }}</up-badge>
+                  <zion-badge variant="type">{{ row.active_sessions }}</zion-badge>
                 </td>
                 <td class="cell-secondary">
                   @if (row.last_seen_at) {
@@ -43,7 +43,7 @@
               </tr>
             }
           </tbody>
-        </up-data-table>
+        </zion-data-table>
       }
     }
   </div>

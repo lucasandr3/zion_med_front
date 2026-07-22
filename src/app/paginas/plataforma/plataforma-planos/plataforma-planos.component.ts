@@ -8,7 +8,7 @@ import { PlataformaService, PlatformPlan } from '../../../core/services/platafor
 import { PlataformaHeaderService } from '../../../core/services/plataforma-header.service';
 import { LoadingService } from '../../../shared/services/loading.service';
 import { ZmSkeletonListComponent } from '../../../shared/components/skeletons';
-import { BadgeComponent, UpEmptyStateComponent } from '../../../shared/components/up';
+import { BadgeComponent, ZionEmptyStateComponent } from '../../../shared/components/zion';
 import { ToastService } from '../../../core/services/toast.service';
 import { ConfirmDialogService } from '../../../core/services/confirm-dialog.service';
 
@@ -23,7 +23,7 @@ import { ConfirmDialogService } from '../../../core/services/confirm-dialog.serv
     ZardCardComponent,
     ZmSkeletonListComponent,
     BadgeComponent,
-    UpEmptyStateComponent,
+    ZionEmptyStateComponent,
   ],
   templateUrl: './plataforma-planos.component.html',
   styleUrl: './plataforma-planos.component.css',

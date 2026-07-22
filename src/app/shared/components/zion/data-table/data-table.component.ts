@@ -1,22 +1,22 @@
 import { Component, computed, input } from '@angular/core';
 
 @Component({
-  selector: 'up-data-table',
+  selector: 'zion-data-table',
   template: `
-    <div class="up-data-table">
-      <div class="up-data-table__scroll">
-        <table class="upx-data-table">
+    <div class="zion-data-table">
+      <div class="zion-data-table__scroll">
+        <table class="zion-data-table">
           <ng-content select="thead" />
           <ng-content select="tbody" />
         </table>
 
         @if (showEndHint()) {
-          <div class="up-data-table__end-hint">{{ endHint() }}</div>
+          <div class="zion-data-table__end-hint">{{ endHint() }}</div>
         }
       </div>
 
       @if (showFooter()) {
-        <footer class="up-data-table__footer">
+        <footer class="zion-data-table__footer">
           <span>{{ footerLabel() }}</span>
           <ng-content select="[data-table-footer-end]" />
         </footer>
@@ -25,7 +25,7 @@ import { Component, computed, input } from '@angular/core';
   `,
   styleUrl: './data-table.component.scss',
   host: {
-    class: 'up-data-table-host',
+    class: 'zion-data-table-host',
   },
 })
 export class DataTableComponent {

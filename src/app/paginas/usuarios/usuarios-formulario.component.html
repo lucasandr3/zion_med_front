@@ -6,7 +6,7 @@
     <p class="text-sm text-destructive">{{ erro || 'Não foi possível carregar os dados.' }}</p>
   } @else {
     <div class="zm-content-enter">
-      <div class="upx-form-panel">
+      <div class="zion-form-panel">
         <p class="mb-5 text-sm text-muted-foreground">
           Escolha o perfil de permissões do usuário (conforme o que foi configurado na organização).
         </p>
@@ -16,12 +16,12 @@
         }
 
         <form (ngSubmit)="salvar()" class="flex flex-col gap-5">
-          <mat-form-field class="upx-full">
+          <mat-form-field class="zion-full">
             <mat-label>Nome <span class="text-destructive">*</span></mat-label>
             <input matInput id="usuario-name" [(ngModel)]="name" name="name" required placeholder="Nome completo" autocomplete="name" />
           </mat-form-field>
 
-          <mat-form-field class="upx-full">
+          <mat-form-field class="zion-full">
             <mat-label>E-mail <span class="text-destructive">*</span></mat-label>
             <input
               matInput
@@ -35,7 +35,7 @@
             />
           </mat-form-field>
 
-          <mat-form-field class="upx-full">
+          <mat-form-field class="zion-full">
             <mat-label>Permissões (perfil) <span class="text-destructive">*</span></mat-label>
             <mat-select [(ngModel)]="role" name="role" required aria-label="Permissões (perfil)">
               @for (r of rolesList; track r.value) {
@@ -45,8 +45,8 @@
           </mat-form-field>
 
           @if (!editMode) {
-            <div class="upx-form-grid">
-              <mat-form-field class="upx-full">
+            <div class="zion-form-grid">
+              <mat-form-field class="zion-full">
                 <mat-label>Senha <span class="text-destructive">*</span></mat-label>
                 <input
                   matInput
@@ -59,7 +59,7 @@
                   autocomplete="new-password"
                 />
               </mat-form-field>
-              <mat-form-field class="upx-full">
+              <mat-form-field class="zion-full">
                 <mat-label>Confirmar senha <span class="text-destructive">*</span></mat-label>
                 <input
                   matInput
@@ -74,8 +74,8 @@
               </mat-form-field>
             </div>
           } @else {
-            <div class="upx-form-grid">
-              <mat-form-field class="upx-full">
+            <div class="zion-form-grid">
+              <mat-form-field class="zion-full">
                 <mat-label>Nova senha</mat-label>
                 <input
                   matInput
@@ -87,7 +87,7 @@
                   autocomplete="new-password"
                 />
               </mat-form-field>
-              <mat-form-field class="upx-full">
+              <mat-form-field class="zion-full">
                 <mat-label>Confirmar nova senha</mat-label>
                 <input
                   matInput
@@ -114,7 +114,7 @@
             </div>
           }
 
-          <div class="flex flex-wrap items-center gap-3 pt-2">
+          <div class="zion-form-actions">
             <button
               type="submit"
               mat-flat-button

@@ -3,7 +3,7 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 
 @Component({
-  selector: 'up-search-box',
+  selector: 'zion-search-box',
   imports: [ReactiveFormsModule, MatIconModule],
   template: `
     <div class="search-box">

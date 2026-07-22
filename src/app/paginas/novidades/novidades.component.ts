@@ -6,7 +6,7 @@ import { Subscription, debounceTime, distinctUntilChanged } from 'rxjs';
 import { NovidadesService, ReleaseNote } from '../../core/services/novidades.service';
 import { LoadingService } from '../../shared/services/loading.service';
 import { ZmSkeletonListComponent } from '../../shared/components/skeletons';
-import { SearchBoxComponent, UpEmptyStateComponent } from '../../shared/components/up';
+import { SearchBoxComponent, ZionEmptyStateComponent } from '../../shared/components/zion';
 import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
 
 @Component({
@@ -18,7 +18,7 @@ import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
     MatButtonModule,
     ZmSkeletonListComponent,
     SearchBoxComponent,
-    UpEmptyStateComponent,
+    ZionEmptyStateComponent,
     ZardBadgeComponent,
   ],
   templateUrl: './novidades.component.html',

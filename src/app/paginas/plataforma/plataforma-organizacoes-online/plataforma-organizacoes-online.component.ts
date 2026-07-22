@@ -3,12 +3,12 @@ import { CommonModule } from '@angular/common';
 import { PlataformaService, PlatformOrganizationPresence } from '../../../core/services/plataforma.service';
 import { LoadingService } from '../../../shared/services/loading.service';
 import { ZmSkeletonListComponent } from '../../../shared/components/skeletons';
-import { DataTableComponent, BadgeComponent, UpEmptyStateComponent } from '../../../shared/components/up';
+import { DataTableComponent, BadgeComponent, ZionEmptyStateComponent } from '../../../shared/components/zion';
 
 @Component({
   selector: 'app-plataforma-organizacoes-online',
   standalone: true,
-  imports: [CommonModule, ZmSkeletonListComponent, DataTableComponent, BadgeComponent, UpEmptyStateComponent],
+  imports: [CommonModule, ZmSkeletonListComponent, DataTableComponent, BadgeComponent, ZionEmptyStateComponent],
   templateUrl: './plataforma-organizacoes-online.component.html',
   styleUrl: './plataforma-organizacoes-online.component.css',
 })

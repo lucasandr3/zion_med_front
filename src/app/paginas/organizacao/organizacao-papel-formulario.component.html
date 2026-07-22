@@ -6,7 +6,7 @@
     <p class="text-sm text-destructive">{{ erro }}</p>
   } @else {
     <div class="zm-content-enter">
-      <div class="upx-form-panel">
+      <div class="zion-form-panel">
         <p class="mb-5 text-sm text-muted-foreground">
           @if (novo) {
             Defina um identificador, o nome e quais acessos este perfil terá na organização.
@@ -16,7 +16,7 @@
         </p>
 
         @if (novo) {
-          <mat-form-field class="upx-full mb-5">
+          <mat-form-field class="zion-full mb-5">
             <mat-label>Identificador (slug) <span class="text-destructive">*</span></mat-label>
             <input
               matInput
@@ -37,7 +37,7 @@
           </p>
         }
 
-        <mat-form-field class="upx-full mb-5">
+        <mat-form-field class="zion-full mb-5">
           <mat-label>Nome exibido <span class="text-destructive">*</span></mat-label>
           <input matInput id="perfil-label" [(ngModel)]="label" name="label" required />
         </mat-form-field>

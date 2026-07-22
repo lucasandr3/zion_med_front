@@ -1,20 +1,21 @@
 import { Component, EventEmitter, Input, Output, inject, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { finalize } from 'rxjs';
 import { OnboardingService } from '../../../../core/services/onboarding.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { ToastService } from '../../../../core/services/toast.service';
 import { Template } from '../../../../core/services/templates.service';
 import { ZardCardComponent } from '@/shared/components/card/card.component';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
 
 const DISMISS_PREFIX = 'zm_onboarding_dismiss_';
 
 @Component({
   selector: 'zm-dashboard-onboarding-wizard',
   standalone: true,
-  imports: [CommonModule, RouterLink, ZardCardComponent, ZardButtonComponent],
+  imports: [CommonModule, RouterLink, ZardCardComponent, MatButtonModule, MatIconModule],
   templateUrl: './zm-dashboard-onboarding-wizard.component.html',
   styleUrl: './zm-dashboard-onboarding-wizard.component.css',
 })

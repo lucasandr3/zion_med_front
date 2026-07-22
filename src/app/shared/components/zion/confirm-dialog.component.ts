@@ -17,7 +17,7 @@ export interface ConfirmDialogData {
 }
 
 @Component({
-  selector: 'up-confirm-dialog',
+  selector: 'zion-confirm-dialog',
   imports: [MatDialogModule, MatButtonModule, MatIconModule],
   template: `
     <div class="confirm-dialog">

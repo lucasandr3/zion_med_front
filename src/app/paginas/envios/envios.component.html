@@ -1,13 +1,13 @@
-<section class="envios-page upx-page-list">
-  <div class="upx-page-list__toolbar">
-    <div class="upx-page-list__toolbar-start flex gap-0.5 rounded-lg border border-border bg-card p-0.5" style="max-width: fit-content">
+<section class="envios-page zion-page-list">
+  <div class="zion-page-list__toolbar">
+    <div class="zion-page-list__toolbar-start flex gap-0.5 rounded-lg border border-border bg-card p-0.5" style="max-width: fit-content">
       @for (c of caixas; track c.key) {
         <button type="button" class="envios-tab rounded-md px-4 py-2 text-sm font-medium transition-all" [class.ativo]="caixaAtual === c.key" (click)="setCaixa(c.key)">
           {{ c.label }}
         </button>
       }
     </div>
-    <div class="upx-page-list__toolbar-end">
+    <div class="zion-page-list__toolbar-end">
       <button mat-flat-button color="primary" type="button" title="Novo envio" data-go-tour="envios-new" (click)="abrirNovoEnvio()">
         <mat-icon>add</mat-icon>
         Novo envio
@@ -16,7 +16,7 @@
   </div>
 
   @if (mostrarNovoEnvio) {
-    <div class="upx-page-list__form">
+    <div class="zion-page-list__form">
       <h3 class="m-0 mb-4 text-base font-semibold text-foreground">Enviar link do documento</h3>
       @if (erroNovo) {
         <p class="mb-3 text-sm text-destructive">{{ erroNovo }}</p>
@@ -122,15 +122,15 @@
     <p class="mb-4 text-sm text-destructive">{{ erro }}</p>
   }
 
-  <div class="upx-page-list__content" data-go-tour="envios-list">
+  <div class="zion-page-list__content" data-go-tour="envios-list">
     @if (showSkeleton()) {
       <zm-skeleton-list [rows]="6" />
     } @else if (!listaPronta) {
     } @else {
       @if (envios.length === 0) {
-        <up-empty-state icon="forward_to_inbox" title="Nenhum envio nesta caixa." />
+        <zion-empty-state icon="forward_to_inbox" title="Nenhum envio nesta caixa." />
       } @else {
-        <up-data-table [recordCount]="meta.total" [showEndHint]="meta.last_page <= 1" recordLabel="envio" recordLabelPlural="envios">
+        <zion-data-table [recordCount]="meta.total" [showEndHint]="meta.last_page <= 1" recordLabel="envio" recordLabelPlural="envios">
           <thead>
             <tr>
               <th>Modelo</th>
@@ -145,15 +145,15 @@
           </thead>
           <tbody>
             @for (e of envios; track e.id) {
-              <tr class="upx-data-table__row--static">
+              <tr class="zion-data-table__row--static">
                 <td class="cell-primary">{{ e.template_name ?? '—' }}</td>
                 <td class="cell-secondary">{{ destinatario(e) }}</td>
                 <td class="cell-secondary">{{ canalLabel(e.channel) }}</td>
                 <td class="cell-secondary">{{ dataFormatada(e.sent_at) }}</td>
                 <td>
                   <div class="flex flex-col items-start gap-1">
-                    <up-badge variant="status" [tone]="entregaTone(e)">{{ entregaLabel(e) }}</up-badge>
-                    <up-badge variant="status" [tone]="assinaturaTone(e)">{{ assinaturaLabel(e) }}</up-badge>
+                    <zion-badge variant="status" [tone]="entregaTone(e)">{{ entregaLabel(e) }}</zion-badge>
+                    <zion-badge variant="status" [tone]="assinaturaTone(e)">{{ assinaturaLabel(e) }}</zion-badge>
                   </div>
                 </td>
                 @if (caixaAtual === 'pendentes') {
@@ -174,7 +174,7 @@
               <zm-pagination [currentPage]="meta.current_page" [lastPage]="meta.last_page" (pageChange)="carregar($event)" />
             </div>
           }
-        </up-data-table>
+        </zion-data-table>
         @if (caixaAtual === 'pendentes') {
           <p class="mt-3 mb-0 text-xs text-muted-foreground">
             "Aguardando assinatura" significa que o link já foi enviado e ainda não foi assinado.

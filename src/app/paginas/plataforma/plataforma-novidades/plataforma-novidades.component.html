@@ -1,12 +1,12 @@
-<div class="plat-novidades upx-page-list relative min-h-[200px]">
-  <div class="upx-page-list__toolbar plat-novidades__toolbar">
-    <div class="upx-page-list__toolbar-start">
+<div class="plat-novidades zion-page-list relative min-h-[200px]">
+  <div class="zion-page-list__toolbar plat-novidades__toolbar">
+    <div class="zion-page-list__toolbar-start">
       <p class="plat-novidades__hint text-sm text-muted-foreground">
         Cadastre uma release por versão. Itens aparecem na área de Novidades para todos os usuários autenticados.
       </p>
     </div>
     @if (!exibirFormulario) {
-      <div class="upx-page-list__toolbar-end">
+      <div class="zion-page-list__toolbar-end">
         <button mat-flat-button color="primary" type="button" (click)="abrirNovo()">
           <mat-icon>add</mat-icon>
           Nova release
@@ -85,7 +85,7 @@
   } @else if (erro) {
     <p class="text-sm text-destructive">Não foi possível carregar as releases.</p>
   } @else if (notas.length === 0 && !exibirFormulario) {
-    <up-empty-state
+    <zion-empty-state
       icon="campaign"
       title="Nenhuma release cadastrada."
       description="Crie a primeira release para informar os usuários sobre as novidades."
@@ -97,9 +97,9 @@
           <div class="plat-novidades-card__top">
             <div>
               <div class="plat-novidades-card__meta">
-                <up-badge variant="type">v{{ nota.version }}</up-badge>
+                <zion-badge variant="type">v{{ nota.version }}</zion-badge>
                 @if (nota.is_published === false) {
-                  <up-badge variant="status" tone="draft">Rascunho</up-badge>
+                  <zion-badge variant="status" tone="draft">Rascunho</zion-badge>
                 }
                 <span class="text-xs text-muted-foreground">{{ formatarData(nota.released_at) }}</span>
               </div>

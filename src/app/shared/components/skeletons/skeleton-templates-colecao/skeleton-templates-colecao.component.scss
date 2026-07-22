@@ -1,16 +1,28 @@
+.skel-templates-colecao {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+  width: 100%;
+  background: rgb(var(--theme-floor-1));
+}
+
 .skel-templates-colecao__header {
   display: flex;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   align-items: center;
   gap: 0.5rem;
-  margin-bottom: 1.5rem;
-  overflow-x: auto;
+  flex-shrink: 0;
+  padding: 0.65rem 1rem;
+  margin: 0;
+  border-bottom: 1px solid var(--theme-line, var(--border));
+  overflow: visible;
 }
 
 .skel-templates-colecao__toolbar-btn {
-  height: 2rem;
+  height: 2.5rem;
   flex-shrink: 0;
-  border-radius: var(--radius, 0.5rem);
+  border-radius: 10px;
 }
 
 .skel-templates-colecao__toolbar-btn--wide {
@@ -24,16 +36,19 @@
 
 .skel-templates-colecao__view-toggle {
   width: 9.5rem;
-  height: 2rem;
+  height: 2.5rem;
   flex-shrink: 0;
-  border-radius: var(--radius, 0.5rem);
+  border-radius: 10px;
+}
+
+.skel-templates-colecao__body {
+  padding: 1rem 1.15rem 1.5rem;
 }
 
 .skel-templates-colecao__grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 1rem;
-  margin-bottom: 1.5rem;
 }
 
 .skel-templates-colecao__card {
@@ -42,7 +57,7 @@
   justify-content: space-between;
   min-height: 168px;
   padding: 1.15rem 1.2rem;
-  border-radius: var(--radius, 0.5rem);
+  border-radius: 0.5rem;
   border: 1px solid var(--border, var(--c-border));
   background: var(--card, var(--c-surface));
 }
@@ -129,7 +144,6 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
   gap: 0.85rem;
-  margin-bottom: 1.5rem;
 }
 
 .skel-templates-colecao__pasta {
@@ -138,7 +152,7 @@
   align-items: center;
   gap: 0.4rem;
   padding: 0.7rem 0.5rem;
-  border-radius: var(--radius, 0.5rem);
+  border-radius: 0.5rem;
   border: 1px solid var(--border, var(--c-border));
   background: var(--card, var(--c-surface));
 }

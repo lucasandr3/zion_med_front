@@ -5,7 +5,7 @@ import { PlataformaService, PlatformAuditLog } from '../../../core/services/plat
 import { LoadingService } from '../../../shared/services/loading.service';
 import { ZmSkeletonListComponent } from '../../../shared/components/skeletons';
 import { ZmPaginationComponent } from '../../../shared/components/ui';
-import { DataTableComponent, UpEmptyStateComponent } from '../../../shared/components/up';
+import { DataTableComponent, ZionEmptyStateComponent } from '../../../shared/components/zion';
 
 @Component({
   selector: 'app-plataforma-logs',
@@ -16,7 +16,7 @@ import { DataTableComponent, UpEmptyStateComponent } from '../../../shared/compo
     ZmSkeletonListComponent,
     ZmPaginationComponent,
     DataTableComponent,
-    UpEmptyStateComponent,
+    ZionEmptyStateComponent,
   ],
   templateUrl: './plataforma-logs.component.html',
   styleUrl: './plataforma-logs.component.css',

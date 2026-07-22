@@ -1,7 +1,7 @@
-<section class="protocolos-page upx-page-list">
-  <div class="upx-page-list__toolbar" data-go-tour="protocolos-filters">
-    <div class="upx-page-list__toolbar-start">
-      <up-search-box
+<section class="protocolos-page zion-page-list">
+  <div class="zion-page-list__toolbar" data-go-tour="protocolos-filters">
+    <div class="zion-page-list__toolbar-start">
+      <zion-search-box
         [control]="buscaControl"
         placeholder="Buscar..."
         ariaLabel="Buscar protocolos"
@@ -19,7 +19,7 @@
         <span>Filtros</span>
       </button>
     </div>
-    <div class="upx-page-list__toolbar-end">
+    <div class="zion-page-list__toolbar-end">
       <button mat-stroked-button type="button" class="btn-cancel" (click)="exportarCsv()" [disabled]="exportando" title="Exportar CSV">
         <mat-icon>download</mat-icon>
         Exportar CSV
@@ -34,15 +34,15 @@
     <p class="mb-4 text-sm text-destructive">{{ erro }}</p>
   }
 
-  <div class="upx-page-list__content" data-go-tour="protocolos-list">
+  <div class="zion-page-list__content" data-go-tour="protocolos-list">
     @if (showSkeleton()) {
       <zm-skeleton-list [rows]="6" />
     } @else if (!listaPronta && !erro) {
     } @else if (!erro) {
       @if (protocolos.length === 0) {
-        <up-empty-state icon="fact_check" title="Nenhum protocolo encontrado." />
+        <zion-empty-state icon="fact_check" title="Nenhum protocolo encontrado." />
       } @else {
-        <up-data-table
+        <zion-data-table
           [recordCount]="meta.total"
           recordLabel="protocolo"
           recordLabelPlural="protocolos"
@@ -76,15 +76,15 @@
                 </td>
                 <td>
                   @if (p.status === 'pending' || (p.status && p.status.toLowerCase() === 'pending')) {
-                    <up-badge variant="status" tone="draft">{{ statusLabel(p.status) }}</up-badge>
+                    <zion-badge variant="status" tone="draft">{{ statusLabel(p.status) }}</zion-badge>
                   } @else if (p.status === 'approved' || (p.status && p.status.toLowerCase() === 'approved')) {
                     @if (p.consent_expired) {
-                      <up-badge variant="status" tone="archived">Vencido</up-badge>
+                      <zion-badge variant="status" tone="archived">Vencido</zion-badge>
                     } @else {
-                      <up-badge variant="status" tone="published">{{ statusLabel(p.status) }}</up-badge>
+                      <zion-badge variant="status" tone="published">{{ statusLabel(p.status) }}</zion-badge>
                     }
                   } @else {
-                    <up-badge variant="status" tone="archived">{{ statusLabel(p.status) }}</up-badge>
+                    <zion-badge variant="status" tone="archived">{{ statusLabel(p.status) }}</zion-badge>
                   }
                 </td>
                 <td>
@@ -112,13 +112,13 @@
               <zm-pagination [currentPage]="meta.current_page" [lastPage]="meta.last_page" (pageChange)="carregar($event)" />
             </div>
           }
-        </up-data-table>
+        </zion-data-table>
       }
     }
   </div>
 
   @if (filtersOpen()) {
-    <up-list-filters-panel
+    <zion-list-filters-panel
       (closed)="closeFilters()"
       (reset)="limparFiltros()"
       (apply)="aplicarFiltros()"
@@ -168,6 +168,6 @@
           </mat-form-field>
         </div>
       </section>
-    </up-list-filters-panel>
+    </zion-list-filters-panel>
   }
 </section>

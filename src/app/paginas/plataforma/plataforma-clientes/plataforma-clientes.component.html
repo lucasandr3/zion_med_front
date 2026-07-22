@@ -1,5 +1,5 @@
-<section class="upx-page-list">
-  <div class="upx-page-list__content">
+<section class="zion-page-list">
+  <div class="zion-page-list__content">
     @if (showSkeleton()) {
       <zm-skeleton-list [rows]="6" />
     } @else if (!listaPronta) {
@@ -9,13 +9,13 @@
       </div>
     } @else {
       @if (tenants.length === 0) {
-        <up-empty-state
+        <zion-empty-state
           icon="business"
           title="Nenhum tenant cadastrado."
           description="Quando um cliente for criado, ele será listado aqui."
         />
       } @else {
-        <up-data-table [recordCount]="tenants.length" recordLabel="cliente" recordLabelPlural="clientes">
+        <zion-data-table [recordCount]="tenants.length" recordLabel="cliente" recordLabelPlural="clientes">
           <thead>
             <tr>
               <th>Cliente</th>
@@ -44,9 +44,9 @@
                 <td class="cell-secondary">{{ planosRotulo(tenant) }}</td>
                 <td>
                   @if (tenant.subscription_status) {
-                    <up-badge variant="status" [tone]="badgeTone(tenant.subscription_status)">
+                    <zion-badge variant="status" [tone]="badgeTone(tenant.subscription_status)">
                       {{ rotuloStatusAssinaturaCobranca(tenant.subscription_status) }}
-                    </up-badge>
+                    </zion-badge>
                   } @else {
                     <span class="cell-secondary">—</span>
                   }
@@ -57,7 +57,7 @@
               </tr>
             }
           </tbody>
-        </up-data-table>
+        </zion-data-table>
       }
     }
   </div>

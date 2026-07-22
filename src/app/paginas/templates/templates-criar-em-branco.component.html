@@ -1,6 +1,6 @@
 <div class="templates-criar-em-branco relative min-h-[200px]">
   <div class="zm-content-enter">
-    <div class="upx-form-panel">
+    <div class="zion-form-panel">
       <p class="mb-5 text-sm text-muted-foreground">
         Preencha os dados básicos do modelo. Em seguida você poderá adicionar os campos do formulário.
       </p>
@@ -52,7 +52,7 @@
           </mat-checkbox>
         </div>
 
-        <div class="flex flex-wrap items-center gap-3 pt-2">
+        <div class="zion-form-actions">
           <zm-page-back-link />
           <button
             mat-flat-button
@@ -67,7 +67,7 @@
             }
             {{ salvando ? 'Criando…' : 'Criar modelo' }}
           </button>
-          <a routerLink="/templates" mat-button class="btn-cancel" title="Cancelar criação">
+          <a routerLink="/templates" mat-stroked-button class="btn-cancel" title="Cancelar criação">
             Cancelar
           </a>
         </div>

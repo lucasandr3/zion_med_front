@@ -1,1 +1,49 @@
-/* Clinica escolher */
+.clinica-escolher-page {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.clinica-escolher-lead {
+  margin: 0;
+  font-size: 0.875rem;
+  color: rgb(var(--theme-fg-muted) / 0.72);
+}
+
+.clinica-escolher-error {
+  margin: 1rem 1.15rem;
+  font-size: 0.875rem;
+  color: var(--destructive, #dc2626);
+}
+
+.clinica-escolher-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.clinica-escolher-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid var(--theme-line, var(--border));
+}
+
+.clinica-escolher-row:last-child {
+  border-bottom: none;
+}
+
+.clinica-escolher-row__main {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.clinica-escolher-meta {
+  margin: 0.15rem 0 0;
+  font-size: 0.75rem;
+  color: rgb(var(--theme-fg-muted) / 0.65);
+}

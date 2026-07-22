@@ -6,12 +6,12 @@
     <p class="mb-4 text-sm text-destructive">{{ erro }}</p>
   } @else {
     <div class="zm-content-enter">
-      <div class="upx-form-panel">
+      <div class="zion-form-panel">
         @if (erro && !editMode) {
           <p class="mb-4 text-sm text-destructive">{{ erro }}</p>
         }
         <form [formGroup]="pessoaForm" (ngSubmit)="salvar()" class="flex flex-col gap-5">
-          <mat-form-field class="upx-full">
+          <mat-form-field class="zion-full">
             <mat-label>Nome completo *</mat-label>
             <input
               matInput
@@ -22,8 +22,8 @@
             />
           </mat-form-field>
 
-          <div class="upx-form-grid">
-            <mat-form-field class="upx-full">
+          <div class="zion-form-grid">
+            <mat-form-field class="zion-full">
               <mat-label>Telefone / WhatsApp</mat-label>
               <input
                 matInput
@@ -37,7 +37,7 @@
                 placeholder="(11) 98765-4321"
               />
             </mat-form-field>
-            <mat-form-field class="upx-full">
+            <mat-form-field class="zion-full">
               <mat-label>Telefone alternativo</mat-label>
               <input
                 matInput
@@ -53,19 +53,19 @@
             </mat-form-field>
           </div>
 
-          <div class="upx-form-grid">
-            <mat-form-field class="upx-full">
+          <div class="zion-form-grid">
+            <mat-form-field class="zion-full">
               <mat-label>E-mail</mat-label>
               <input matInput id="pessoa-email" type="email" formControlName="email" placeholder="nome@exemplo.com" autocomplete="email" />
             </mat-form-field>
-            <mat-form-field class="upx-full">
+            <mat-form-field class="zion-full">
               <mat-label>Profissão</mat-label>
               <input matInput id="pessoa-profession" formControlName="profession" placeholder="Ex.: Enfermeira" />
             </mat-form-field>
           </div>
 
-          <div class="upx-form-grid upx-form-grid--4">
-            <mat-form-field class="upx-full">
+          <div class="zion-form-grid zion-form-grid--4">
+            <mat-form-field class="zion-full">
               <mat-label>Data de nascimento</mat-label>
               <input
                 matInput
@@ -82,11 +82,11 @@
               <mat-datepicker-toggle matIconSuffix [for]="birthPicker" />
               <mat-datepicker #birthPicker />
             </mat-form-field>
-            <mat-form-field class="upx-full">
+            <mat-form-field class="zion-full">
               <mat-label>Idade</mat-label>
               <input matInput id="pessoa-age" type="number" formControlName="age" min="0" placeholder="Ex.: 30" />
             </mat-form-field>
-            <mat-form-field class="upx-full">
+            <mat-form-field class="zion-full">
               <mat-label>Sexo</mat-label>
               <mat-select formControlName="sex" aria-labelledby="pessoa-sex-label">
                 <mat-option value="">Selecione</mat-option>
@@ -95,7 +95,7 @@
                 <mat-option value="O">Outro</mat-option>
               </mat-select>
             </mat-form-field>
-            <mat-form-field class="upx-full">
+            <mat-form-field class="zion-full">
               <mat-label>CPF</mat-label>
               <input
                 matInput
@@ -111,12 +111,12 @@
             </mat-form-field>
           </div>
 
-          <div class="upx-form-grid upx-form-grid--3">
-            <mat-form-field class="upx-full">
+          <div class="zion-form-grid zion-form-grid--3">
+            <mat-form-field class="zion-full">
               <mat-label>RG</mat-label>
               <input matInput id="pessoa-rg" formControlName="rg" />
             </mat-form-field>
-            <mat-form-field class="upx-full">
+            <mat-form-field class="zion-full">
               <mat-label>Estado civil</mat-label>
               <mat-select formControlName="marital_status">
                 <mat-option value="">Selecione</mat-option>
@@ -127,29 +127,29 @@
                 <mat-option value="uniao_estavel">União estável</mat-option>
               </mat-select>
             </mat-form-field>
-            <mat-form-field class="upx-full">
+            <mat-form-field class="zion-full">
               <mat-label>Indicado por</mat-label>
               <input matInput id="pessoa-referred" formControlName="referred_by" />
             </mat-form-field>
           </div>
 
-          <div class="upx-form-grid">
-            <mat-form-field class="upx-full">
+          <div class="zion-form-grid">
+            <mat-form-field class="zion-full">
               <mat-label>Endereço completo</mat-label>
               <input matInput id="pessoa-address" formControlName="address" />
             </mat-form-field>
-            <mat-form-field class="upx-full">
+            <mat-form-field class="zion-full">
               <mat-label>Bairro</mat-label>
               <input matInput id="pessoa-neighborhood" formControlName="neighborhood" />
             </mat-form-field>
           </div>
 
-          <div class="upx-form-grid">
-            <mat-form-field class="upx-full">
+          <div class="zion-form-grid">
+            <mat-form-field class="zion-full">
               <mat-label>Cidade</mat-label>
               <input matInput id="pessoa-city" formControlName="city" />
             </mat-form-field>
-            <mat-form-field class="upx-full">
+            <mat-form-field class="zion-full">
               <mat-label>CEP</mat-label>
               <input matInput id="pessoa-cep" formControlName="cep" placeholder="00000-000" />
             </mat-form-field>
@@ -158,7 +158,7 @@
           <div class="grid gap-4 border-t border-border pt-5 md:grid-cols-2">
             <div>
               <p class="pessoa-form-label m-0 mb-2">Como nos conheceu</p>
-              <div class="upx-check-stack">
+              <div class="zion-check-stack">
                 <mat-checkbox formControlName="lead_source_instagram" color="primary">Instagram</mat-checkbox>
                 <mat-checkbox formControlName="lead_source_google" color="primary">Google</mat-checkbox>
                 <mat-checkbox formControlName="lead_source_facebook" color="primary">Facebook</mat-checkbox>
@@ -170,13 +170,13 @@
                 </mat-checkbox>
                 <mat-checkbox formControlName="lead_source_plano_saude" color="primary">Plano de saúde</mat-checkbox>
               </div>
-              <mat-form-field class="upx-full mt-3">
+              <mat-form-field class="zion-full mt-3">
                 <mat-label>Outro</mat-label>
                 <input matInput formControlName="lead_source_outro" />
               </mat-form-field>
             </div>
             <div>
-              <mat-form-field class="upx-full">
+              <mat-form-field class="zion-full">
                 <mat-label>Plano de saúde</mat-label>
                 <mat-select formControlName="has_health_plan">
                   <mat-option value="">Selecione</mat-option>
@@ -184,11 +184,11 @@
                   <mat-option value="nao">Não</mat-option>
                 </mat-select>
               </mat-form-field>
-              <mat-form-field class="upx-full mt-3">
+              <mat-form-field class="zion-full mt-3">
                 <mat-label>Operadora</mat-label>
                 <input matInput formControlName="health_plan_operator" />
               </mat-form-field>
-              <mat-form-field class="upx-full mt-3">
+              <mat-form-field class="zion-full mt-3">
                 <mat-label>Número da carteirinha</mat-label>
                 <input matInput formControlName="health_plan_card_number" />
               </mat-form-field>
@@ -197,7 +197,7 @@
 
           <div class="border-t border-border pt-5">
             <p class="pessoa-form-label m-0 mb-2">Autorizações LGPD</p>
-            <div class="pessoa-form-lgpd upx-check-stack">
+            <div class="pessoa-form-lgpd zion-check-stack">
               <mat-checkbox formControlName="lgpd_accept_comms" color="primary">
                 Aceito receber comunicações e promoções por WhatsApp/e-mail
               </mat-checkbox>
@@ -208,7 +208,7 @@
           </div>
 
           @if (editMode) {
-            <mat-form-field class="upx-full max-w-xs">
+            <mat-form-field class="zion-full max-w-xs">
               <mat-label>Situação</mat-label>
               <mat-select formControlName="status">
                 <mat-option value="active">Ativa</mat-option>
@@ -217,12 +217,12 @@
             </mat-form-field>
           }
 
-          <mat-form-field class="upx-full">
+          <mat-form-field class="zion-full">
             <mat-label>Observações</mat-label>
             <textarea matInput id="pessoa-notes" formControlName="notes" rows="3" placeholder="Anotações internas (opcional)"></textarea>
           </mat-form-field>
 
-          <div class="flex flex-wrap items-center gap-3 border-t border-border pt-4">
+          <div class="zion-form-actions zion-form-actions--divider">
             <button
               mat-flat-button
               color="primary"

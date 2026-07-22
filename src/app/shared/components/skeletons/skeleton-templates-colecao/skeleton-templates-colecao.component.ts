@@ -17,6 +17,7 @@ export type ZmSkeletonTemplatesColecaoVisual = 'cards' | 'pastas';
         <z-skeleton class="skel-templates-colecao__toolbar-btn skel-templates-colecao__toolbar-btn--novo" />
       </header>
 
+      <div class="skel-templates-colecao__body">
       @if (visual === 'pastas') {
         <div class="skel-templates-colecao__pastas">
           @for (i of folderIndices; track i) {
@@ -53,6 +54,7 @@ export type ZmSkeletonTemplatesColecaoVisual = 'cards' | 'pastas';
           </div>
         </div>
       }
+      </div>
     </div>
   `,
   styleUrl: './skeleton-templates-colecao.component.scss',

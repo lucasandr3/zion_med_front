@@ -89,6 +89,7 @@ type ModoColecao = 'cards' | 'lista';
 import { ZardTableImports } from '@/shared/components/table';
 import { ZardTooltipImports } from '@/shared/components/tooltip';
 import { ZardMenuImports } from '@/shared/components/menu/menu.imports';
+import { ListFiltersPanelComponent } from '../../shared/components/zion';
 @Component({
   selector: 'app-templates-listagem',
   standalone: true,
@@ -108,6 +109,7 @@ import { ZardMenuImports } from '@/shared/components/menu/menu.imports';
     MatButtonModule,
     MatIconModule,
     MatProgressSpinnerModule,
+    ListFiltersPanelComponent,
   ],
   templateUrl: './templates-listagem.component.html',
   styleUrl: './templates-listagem.component.css',
@@ -118,9 +120,13 @@ export class TemplatesListagemComponent implements OnInit {
   listaPronta = false;
   erro = '';
 
-  /** Filtro: 'all' | 'ativo' | 'publico' */
+  /** Filtro aplicado: 'all' | 'ativo' | 'publico' */
   filtroAtual: 'all' | 'ativo' | 'publico' = 'all';
   buscaTexto = '';
+
+  /** Rascunhos do drawer (aplicados em Aplicar) */
+  filtroDraft: 'all' | 'ativo' | 'publico' = 'all';
+  buscaDraft = '';
 
   /** Grupos por categoria (chave = category ou 'personalizado') */
   grupos: { key: string; label: string; items: Template[] }[] = [];
@@ -128,7 +134,7 @@ export class TemplatesListagemComponent implements OnInit {
   /** Query `?categoria=` — lista modelos só dessa categoria */
   categoriaAberta: string | null = null;
 
-  /** Painel lateral de filtros (busca + status) */
+  /** Drawer de filtros */
   filtrosPainelAberto = false;
 
   /** Ordenação dos cards na coleção */
@@ -238,12 +244,38 @@ export class TemplatesListagemComponent implements OnInit {
     return CATEGORY_ACCENT[canonicalCategoryKey(key)] ?? '#8b5cf6';
   }
 
+  get temFiltrosAtivos(): boolean {
+    return this.filtroAtual !== 'all' || this.buscaTexto.trim() !== '';
+  }
+
   fecharCategoria(): void {
     void this.router.navigate(['/templates']);
   }
 
   toggleFiltrosPainel(): void {
+    if (!this.filtrosPainelAberto) {
+      this.buscaDraft = this.buscaTexto;
+      this.filtroDraft = this.filtroAtual;
+    }
     this.filtrosPainelAberto = !this.filtrosPainelAberto;
+  }
+
+  fecharFiltrosPainel(): void {
+    this.filtrosPainelAberto = false;
+  }
+
+  aplicarFiltrosTemplates(): void {
+    this.buscaTexto = this.buscaDraft;
+    this.filtroAtual = this.filtroDraft;
+    this.filtrosPainelAberto = false;
+  }
+
+  limparFiltrosTemplates(): void {
+    this.buscaDraft = '';
+    this.filtroDraft = 'all';
+    this.buscaTexto = '';
+    this.filtroAtual = 'all';
+    this.filtrosPainelAberto = false;
   }
 
   setFiltro(f: 'all' | 'ativo' | 'publico'): void {

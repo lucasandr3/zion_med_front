@@ -8,7 +8,7 @@ import { NovidadesService, ReleaseNote, ReleaseNoteItem, ReleaseNoteItemType } f
 import { PlataformaHeaderService } from '../../../core/services/plataforma-header.service';
 import { LoadingService } from '../../../shared/services/loading.service';
 import { ZmSkeletonListComponent } from '../../../shared/components/skeletons';
-import { BadgeComponent, UpEmptyStateComponent } from '../../../shared/components/up';
+import { BadgeComponent, ZionEmptyStateComponent } from '../../../shared/components/zion';
 import { ToastService } from '../../../core/services/toast.service';
 import { ConfirmDialogService } from '../../../core/services/confirm-dialog.service';
 
@@ -28,7 +28,7 @@ interface FormItem {
     MatProgressSpinnerModule,
     ZmSkeletonListComponent,
     BadgeComponent,
-    UpEmptyStateComponent,
+    ZionEmptyStateComponent,
   ],
   templateUrl: './plataforma-novidades.component.html',
   styleUrl: './plataforma-novidades.component.css',

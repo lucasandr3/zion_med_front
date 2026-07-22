@@ -10,7 +10,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 
 @Component({
-  selector: 'up-list-filters-panel',
+  selector: 'zion-list-filters-panel',
   imports: [MatButtonModule, MatIconModule],
   template: `
     <div class="filters-panel__backdrop" aria-hidden="true" (click)="closed.emit()"></div>

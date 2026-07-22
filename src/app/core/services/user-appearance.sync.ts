@@ -191,9 +191,13 @@ export function applyUserAppearanceToBrowser(fields: UserAppearanceFields): void
   }
 
   if (fields.ui_dark_mode !== null && fields.ui_dark_mode !== undefined) {
-    document.body.classList.toggle('dark', fields.ui_dark_mode);
+    const isDark = !!fields.ui_dark_mode;
+    document.documentElement.classList.toggle('dark', isDark);
+    document.body.classList.toggle('dark', isDark);
+    document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
     try {
-      localStorage.setItem(GESTGO_DARK_LS, fields.ui_dark_mode ? '1' : '0');
+      localStorage.setItem(GESTGO_DARK_LS, isDark ? '1' : '0');
+      localStorage.setItem('color-scheme', isDark ? 'dark' : 'light');
     } catch {}
   }
 

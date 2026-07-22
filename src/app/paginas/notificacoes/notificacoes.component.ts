@@ -6,7 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { NotificacoesService, Notificacao } from '../../core/services/notificacoes.service';
 import { LoadingService } from '../../shared/services/loading.service';
 import { ZmSkeletonListComponent } from '../../shared/components/skeletons';
-import { UpEmptyStateComponent } from '../../shared/components/up';
+import { ZionEmptyStateComponent } from '../../shared/components/zion';
 import { ToastService } from '../../core/services/toast.service';
 import { ConfirmDialogService } from '../../core/services/confirm-dialog.service';
 
@@ -22,7 +22,7 @@ const ORDEM_GRUPOS = ['Hoje', 'Esta semana', 'Este mês', 'Anteriores'] as const
 @Component({
   selector: 'app-pagina-notificacoes',
   standalone: true,
-  imports: [CommonModule, RouterLink, MatButtonModule, MatIconModule, ZmSkeletonListComponent, UpEmptyStateComponent],
+  imports: [CommonModule, RouterLink, MatButtonModule, MatIconModule, ZmSkeletonListComponent, ZionEmptyStateComponent],
   templateUrl: './notificacoes.component.html',
   styleUrl: './notificacoes.component.css',
 })

@@ -233,6 +233,10 @@ body.shell-preset-sidebar-dark:not(.dark):not(.shell-preset-tinted) {
     --gestgo-brand-title: var(--sidebar-foreground, var(--c-text, #ffffff));
     --gestgo-brand-tag: color-mix(in srgb, var(--gestgo-brand-title) 52%, transparent);
     --gestgo-brand-logo-shadow: none;
+
+    /* Shell Padrão no escuro: header/faixa na superfície elevada (nunca branco) */
+    --shell-header-bg: var(--c-elevated, #18181f);
+    --shell-sidebar-bg: var(--shell-header-bg);
 }
 
 /* Dark por tema: `src/styles/theme-palettes.css` (.dark.theme-*) */
@@ -557,7 +561,7 @@ textarea.form-input::placeholder { color: var(--c-muted); opacity: 0.7; }
     flex-shrink: 0;
   }
 
-  /* Toolbar padrão de listagens — padrão DS Gestgo (upx-page-list) */
+  /* Toolbar padrão de listagens — padrão DS Gestgo (zion-page-list) */
   .zm-list-toolbar {
     display: flex;
     flex-wrap: wrap;
@@ -618,7 +622,7 @@ textarea.form-input::placeholder { color: var(--c-muted); opacity: 0.7; }
   }
 
   /* Página de lista full-height (DS) */
-  .upx-page-list,
+  .zion-page-list,
   .zm-page-list {
     display: flex;
     flex-direction: column;
@@ -627,7 +631,7 @@ textarea.form-input::placeholder { color: var(--c-muted); opacity: 0.7; }
     background: transparent;
   }
 
-  .upx-page-list__content,
+  .zion-page-list__content,
   .zm-page-list__content {
     display: flex;
     flex: 1;
@@ -1925,6 +1929,23 @@ body:not(.dark):not(.shell-preset-tinted) .top-header {
 
 body:not(.dark):not(.shell-preset-tinted) #top-header .header-notify-dot {
     border-color: #ffffff !important;
+}
+
+/* Topo padrão (escuro): superfície dark — nunca branco */
+body.dark:not(.shell-preset-tinted) .cabecalho-shell,
+body.dark:not(.shell-preset-tinted) #top-header,
+body.dark:not(.shell-preset-tinted) .top-header,
+html.dark body:not(.shell-preset-tinted) .cabecalho-shell,
+html.dark body:not(.shell-preset-tinted) #top-header,
+html.dark body:not(.shell-preset-tinted) .top-header {
+    background-color: var(--shell-header-bg, var(--c-elevated, #18181f)) !important;
+    border-bottom: 1px solid var(--border, rgb(255 255 255 / 0.1));
+    color: var(--foreground, #e8e8f0);
+}
+
+body.dark:not(.shell-preset-tinted) #top-header .header-notify-dot,
+html.dark body:not(.shell-preset-tinted) #top-header .header-notify-dot {
+    border-color: var(--shell-header-bg, var(--c-elevated, #18181f)) !important;
 }
 
 body.shell-nav-horizontal #top-header.top-header--horizontal,

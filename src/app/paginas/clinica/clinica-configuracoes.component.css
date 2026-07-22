@@ -1,41 +1,29 @@
-/* Clinica configuracoes */
+/* Clinica configuracoes — full-bleed no shell (sem margin negativa) */
 
 :host {
-  display: block;
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
   width: 100%;
-  margin-top: -1.5rem;
+  margin: 0;
 }
 
-/* Compensa padding do <main> — barra de abas até as bordas */
 .clinica-config-page {
-  width: calc(100% + 2rem);
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  width: 100%;
   max-width: none;
-  margin-left: -1rem;
-  margin-right: -1rem;
+  margin: 0;
   color: var(--foreground);
-}
-
-@media (min-width: 640px) {
-  .clinica-config-page {
-    width: calc(100% + 3rem);
-    margin-left: -1.5rem;
-    margin-right: -1.5rem;
-  }
-}
-
-@media (min-width: 1024px) {
-  .clinica-config-page {
-    width: calc(100% + 4rem);
-    margin-left: -2rem;
-    margin-right: -2rem;
-  }
 }
 
 .clinica-config-shell {
   display: flex;
   flex-direction: column;
   width: 100%;
-  background: var(--background);
+  background: rgb(var(--theme-floor-1));
 }
 
 .clinica-config-shell .clinica-config,

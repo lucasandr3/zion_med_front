@@ -1,12 +1,12 @@
 <!-- Igual ao backend: platform/plans/index - grid de cards -->
-<div class="upx-page-list relative min-h-[300px]">
-  <div class="upx-page-list__toolbar">
-    <div class="upx-page-list__toolbar-start">
+<div class="zion-page-list relative min-h-[300px]">
+  <div class="zion-page-list__toolbar">
+    <div class="zion-page-list__toolbar-start">
       <p class="zm-count-label">
         {{ planos.length }} {{ planos.length === 1 ? 'plano' : 'planos' }}.
       </p>
     </div>
-    <div class="upx-page-list__toolbar-end">
+    <div class="zion-page-list__toolbar-end">
       <a mat-flat-button color="primary" routerLink="/plataforma/planos/novo" title="Criar novo plano">
         <mat-icon>add</mat-icon>
         Novo plano
@@ -14,7 +14,7 @@
     </div>
   </div>
 
-  <div class="upx-page-list__content">
+  <div class="zion-page-list__content">
     @if (showSkeleton()) {
       <zm-skeleton-list [rows]="6" />
     } @else if (!listaPronta) {
@@ -27,7 +27,7 @@
       @if (!estadoErro) {
         <div class="zm-content-enter">
           @if (planos.length === 0) {
-            <up-empty-state
+            <zion-empty-state
               icon="workspace_premium"
               title="Nenhum plano cadastrado."
               description="Crie o primeiro plano para disponibilizar assinaturas aos clientes."
@@ -36,14 +36,14 @@
                 <mat-icon>add</mat-icon>
                 Criar primeiro plano
               </a>
-            </up-empty-state>
+            </zion-empty-state>
           } @else {
             <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
               @for (p of planos; track p.id) {
                 <z-card class="gap-3 py-4">
                   <div class="flex items-center justify-between gap-2">
                     <span class="text-foreground text-sm font-semibold">{{ p.name }}</span>
-                    <up-badge variant="type">{{ p.key }}</up-badge>
+                    <zion-badge variant="type">{{ p.key }}</zion-badge>
                   </div>
                   <p class="text-primary m-0 text-2xl font-bold">
                     R$ {{ formatarValor(p.value) }}
@@ -54,7 +54,7 @@
                   }
                   <div class="border-border mt-3 flex flex-wrap items-center gap-2 border-t pt-3">
                     @if (!p.is_active) {
-                      <up-badge variant="status" tone="draft">Inativo</up-badge>
+                      <zion-badge variant="status" tone="draft">Inativo</zion-badge>
                     }
                     <a
                       mat-stroked-button

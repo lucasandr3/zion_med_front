@@ -1,4 +1,4 @@
-<div class="templates-colecao templates-listagem-layout upx-page-list">
+<div class="templates-colecao templates-listagem-layout zion-page-list">
   @if (erro) {
     <p class="mb-4 text-sm text-destructive">{{ erro }}</p>
   }
@@ -18,8 +18,8 @@
   } @else if (!listaPronta) {
   } @else if (modoColecao) {
     <div class="zm-content-enter">
-      <div class="upx-page-list__toolbar templates-colecao-header mb-6">
-        <div class="upx-page-list__toolbar-start templates-colecao-header-actions">
+      <div class="zion-page-list__toolbar templates-colecao-header">
+        <div class="zion-page-list__toolbar-start templates-colecao-header-actions">
           <button
             mat-stroked-button
             class="btn-cancel shrink-0 gap-1.5"
@@ -32,17 +32,15 @@
             <span class="text-xs font-medium text-muted-foreground">{{ rotuloOrdenacao() }}</span>
           </button>
           <button
-            mat-stroked-button
-            class="btn-cancel shrink-0 gap-1.5"
             type="button"
-            [class.ring-2]="filtrosPainelAberto"
-            [class.ring-ring]="filtrosPainelAberto"
+            class="filters-btn"
+            [class.filters-btn--active]="temFiltrosAtivos"
             (click)="toggleFiltrosPainel()"
             [attr.aria-expanded]="filtrosPainelAberto ? 'true' : 'false'"
-            aria-controls="templates-filtros-panel"
+            title="Filtros"
           >
-            <mat-icon>filter_alt</mat-icon>
-            Filtros
+            <mat-icon aria-hidden="true">filter_list</mat-icon>
+            <span>Filtros</span>
           </button>
           <div class="templates-view-toggle" role="tablist" aria-label="Visualização da coleção">
             <button
@@ -69,7 +67,7 @@
             </button>
           </div>
         </div>
-        <div class="upx-page-list__toolbar-end">
+        <div class="zion-page-list__toolbar-end">
           <a
             mat-flat-button
             color="primary"
@@ -84,57 +82,16 @@
         </div>
       </div>
 
-      <div class="px-4 pb-4">
-      @if (filtrosPainelAberto) {
-        <z-card class="mb-5 gap-0 border-border bg-card py-4 shadow-sm **:data-[slot=card-content]:px-5" role="region">
-          <div id="templates-filtros-panel" class="templates-filtros-panel" aria-label="Filtros da coleção">
-            <div class="templates-filtros-busca relative min-w-[200px] flex-1 max-w-xs" data-go-tour="templates-search">
-              <mat-form-field appearance="outline" class="w-full"><mat-label>Buscar modelo</mat-label><input matInput type="text" [(ngModel)]="buscaTexto" placeholder="Buscar por nome do modelo..." aria-label="Buscar modelo por nome" /></mat-form-field>
-            </div>
-            <div class="templates-filter-wrap" role="group" aria-label="Filtrar por status">
-              <button
-                mat-button
-                type="button"
-                class="templates-filter-btn"
-                [class.templates-filter-btn--active]="filtroAtual === 'all'"
-                (click)="setFiltro('all')"
-              >
-                Todos
-              </button>
-              <button
-                mat-button
-                type="button"
-                class="templates-filter-btn"
-                [class.templates-filter-btn--active]="filtroAtual === 'ativo'"
-                (click)="setFiltro('ativo')"
-              >
-                Ativos
-              </button>
-              <button
-                mat-button
-                type="button"
-                class="templates-filter-btn"
-                [class.templates-filter-btn--active]="filtroAtual === 'publico'"
-                (click)="setFiltro('publico')"
-              >
-                Públicos
-              </button>
-            </div>
-          </div>
-        </z-card>
-      }
-
+      <div class="zion-page-list__content templates-colecao-content">
       @if (templates.length === 0) {
-        <z-card class="mb-6 border-dashed border-border bg-muted/30 py-10 shadow-none **:data-[slot=card-content]:px-4">
-          <zm-empty-state title="Nenhum modelo cadastrado." actionLabel="Criar modelo" actionLink="/templates/criar-em-branco" />
-        </z-card>
+        <zm-empty-state title="Nenhum modelo cadastrado." actionLabel="Criar modelo" actionLink="/templates/criar-em-branco" />
       } @else if (gruposParaColecao.length === 0) {
-        <z-card class="mb-6 border-dashed border-border bg-muted/40 py-8 text-center shadow-none **:data-[slot=card-content]:px-6">
+        <div class="templates-empty-filters">
           <p class="m-0 text-sm text-foreground">Nenhum modelo corresponde aos filtros atuais.</p>
           <button mat-button type="button" class="mt-3 justify-center px-0" (click)="setFiltro('all'); buscaTexto = ''">
             Limpar filtros
           </button>
-        </z-card>
+        </div>
       } @else if (modoColecaoVisual === 'cards') {
         <div class="templates-colecao-grid" data-go-tour="templates-list">
           @for (grupo of gruposParaColecao; track grupo.key) {
@@ -210,27 +167,25 @@
   } @else {
     <div class="zm-content-enter templates-detalhe">
       <div class="templates-detalhe-toolbar">
-        <div class="upx-page-list__toolbar templates-detalhe-toolbar-top">
-          <div class="upx-page-list__toolbar-start">
-            <button mat-stroked-button class="btn-cancel shrink-0 gap-1.5" type="button" (click)="fecharCategoria()">
+        <div class="zion-page-list__toolbar templates-detalhe-toolbar-top">
+          <div class="zion-page-list__toolbar-start">
+            <button mat-flat-button class="zion-btn-soft shrink-0 gap-1.5" type="button" (click)="fecharCategoria()">
               <mat-icon>arrow_back</mat-icon>
               Voltar para coleção
             </button>
           </div>
 
-          <div class="upx-page-list__toolbar-end">
+          <div class="zion-page-list__toolbar-end">
             <button
-              mat-stroked-button
-              class="btn-cancel shrink-0 gap-1.5"
               type="button"
-              [class.ring-2]="filtrosPainelAberto"
-              [class.ring-ring]="filtrosPainelAberto"
+              class="filters-btn"
+              [class.filters-btn--active]="temFiltrosAtivos"
               (click)="toggleFiltrosPainel()"
               [attr.aria-expanded]="filtrosPainelAberto ? 'true' : 'false'"
-              aria-controls="templates-detalhe-filtros"
+              title="Filtros"
             >
-              <mat-icon>filter_alt</mat-icon>
-              Filtros
+              <mat-icon aria-hidden="true">filter_list</mat-icon>
+              <span>Filtros</span>
             </button>
 
             <div class="templates-view-toggle" role="tablist" aria-label="Modo de visualização">
@@ -264,45 +219,6 @@
             </a>
           </div>
         </div>
-
-        @if (filtrosPainelAberto) {
-          <z-card class="gap-0 border-border bg-card py-4 shadow-sm **:data-[slot=card-content]:px-5">
-            <div id="templates-detalhe-filtros" class="templates-detalhe-filtros">
-              <div class="templates-detalhe-busca relative min-w-[240px] flex-1">
-                <mat-form-field appearance="outline" class="w-full"><mat-label>Buscar nesta categoria</mat-label><input matInput type="text" [(ngModel)]="buscaTexto" placeholder="Buscar nesta categoria..." aria-label="Buscar modelo por nome" /></mat-form-field>
-              </div>
-              <div class="templates-filter-wrap" role="group" aria-label="Filtrar por status">
-                <button
-                  mat-button
-                  type="button"
-                  class="templates-filter-btn"
-                  [class.templates-filter-btn--active]="filtroAtual === 'all'"
-                  (click)="setFiltro('all')"
-                >
-                  Todos
-                </button>
-                <button
-                  mat-button
-                  type="button"
-                  class="templates-filter-btn"
-                  [class.templates-filter-btn--active]="filtroAtual === 'ativo'"
-                  (click)="setFiltro('ativo')"
-                >
-                  Ativos
-                </button>
-                <button
-                  mat-button
-                  type="button"
-                  class="templates-filter-btn"
-                  [class.templates-filter-btn--active]="filtroAtual === 'publico'"
-                  (click)="setFiltro('publico')"
-                >
-                  Públicos
-                </button>
-              </div>
-            </div>
-          </z-card>
-        }
       </div>
 
       <div class="templates-detalhe-body">
@@ -505,6 +421,44 @@
       }
       </div>
     </div>
+  }
+
+  @if (filtrosPainelAberto) {
+    <zion-list-filters-panel
+      (closed)="fecharFiltrosPainel()"
+      (reset)="limparFiltrosTemplates()"
+      (apply)="aplicarFiltrosTemplates()"
+    >
+      <section class="filter-section">
+        <header class="filter-section__title">Busca</header>
+        <div class="filter-section__body">
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>{{ modoColecao ? 'Buscar modelo' : 'Buscar nesta categoria' }}</mat-label>
+            <input
+              matInput
+              type="text"
+              [(ngModel)]="buscaDraft"
+              [placeholder]="modoColecao ? 'Buscar por nome do modelo...' : 'Buscar nesta categoria...'"
+              aria-label="Buscar modelo por nome"
+            />
+          </mat-form-field>
+        </div>
+      </section>
+
+      <section class="filter-section">
+        <header class="filter-section__title">Status</header>
+        <div class="filter-section__body">
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Status</mat-label>
+            <mat-select [(ngModel)]="filtroDraft" name="templates_filtro_status">
+              <mat-option value="all">Todos</mat-option>
+              <mat-option value="ativo">Ativos</mat-option>
+              <mat-option value="publico">Públicos</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </section>
+    </zion-list-filters-panel>
   }
 
   <ng-template #modeloMenuTpl>

@@ -7,7 +7,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { UsuariosService, Usuario } from '../../core/services/usuarios.service';
 import { LoadingService } from '../../shared/services/loading.service';
 import { ZmSkeletonUsuariosListagemComponent } from '../../shared/components/skeletons';
-import { DataTableComponent, BadgeComponent, UpEmptyStateComponent } from '../../shared/components/up';
+import { DataTableComponent, BadgeComponent, ZionEmptyStateComponent } from '../../shared/components/zion';
 import { AuthService } from '../../core/services/auth.service';
 import { ToastService } from '../../core/services/toast.service';
 import { ConfirmDialogService } from '../../core/services/confirm-dialog.service';
@@ -24,7 +24,7 @@ import { ConfirmDialogService } from '../../core/services/confirm-dialog.service
     ZmSkeletonUsuariosListagemComponent,
     DataTableComponent,
     BadgeComponent,
-    UpEmptyStateComponent,
+    ZionEmptyStateComponent,
   ],
   templateUrl: './usuarios-listagem.component.html',
   styleUrl: './usuarios-listagem.component.css',

@@ -169,13 +169,13 @@
                     <zm-skeleton-list [rows]="4" />
                   </div>
                 } @else if (emails.length === 0) {
-                  <up-empty-state
+                  <zion-empty-state
                     icon="mail"
                     title="Nenhum e-mail enviado ainda."
                     description="Os envios manuais aparecerão aqui."
                   />
                 } @else {
-                  <up-data-table [recordCount]="total" [showEndHint]="lastPage <= 1">
+                  <zion-data-table [recordCount]="total" [showEndHint]="lastPage <= 1">
                     <thead>
                       <tr>
                         <th>Data</th>
@@ -187,12 +187,12 @@
                     </thead>
                     <tbody>
                       @for (email of emails; track email.id) {
-                        <tr class="upx-data-table__row--static">
+                        <tr class="zion-data-table__row--static">
                           <td class="cell-secondary">
                             {{ formatarData(email.sent_at ?? email.created_at) }}
                           </td>
                           <td>
-                            <up-badge variant="type">{{ email.category_label }}</up-badge>
+                            <zion-badge variant="type">{{ email.category_label }}</zion-badge>
                           </td>
                           <td>
                             <span class="cell-primary">{{ destinatarioResumo(email) }}</span>
@@ -220,7 +220,7 @@
                         <zm-pagination [currentPage]="currentPage" [lastPage]="lastPage" (pageChange)="goToPage($event)" />
                       </div>
                     }
-                  </up-data-table>
+                  </zion-data-table>
                 }
               </z-card>
             </div>

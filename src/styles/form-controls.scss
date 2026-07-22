@@ -6,7 +6,7 @@
   border-right-style: hidden;
 }
 
-.upx-form-grid {
+.zion-form-grid {
   display: grid;
   gap: 0.85rem 1rem;
   grid-template-columns: 1fr;
@@ -16,17 +16,17 @@
   }
 }
 
-.upx-form-grid--1 {
+.zion-form-grid--1 {
   grid-template-columns: 1fr;
 }
 
-.upx-form-grid--3 {
+.zion-form-grid--3 {
   @media (min-width: 640px) {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
-.upx-form-grid--4 {
+.zion-form-grid--4 {
   @media (min-width: 768px) {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -36,20 +36,20 @@
   }
 }
 
-.upx-form-field,
-.upx-form-grid > .mat-mdc-form-field,
-.mat-mdc-form-field.upx-full {
+.zion-form-field,
+.zion-form-grid > .mat-mdc-form-field,
+.mat-mdc-form-field.zion-full {
   width: 100%;
 }
 
-.upx-form-span-2,
-.upx-form-grid > .upx-form-span-2 {
+.zion-form-span-2,
+.zion-form-grid > .zion-form-span-2 {
   @media (min-width: 640px) {
     grid-column: span 2;
   }
 }
 
-.upx-form-span-full {
+.zion-form-span-full {
   grid-column: 1 / -1;
 }
 
@@ -92,17 +92,32 @@
   --mdc-checkbox-selected-checkmark-color: #fff;
 }
 
-.upx-check-stack {
+.zion-check-stack {
   display: flex;
   flex-direction: column;
   gap: 0.55rem;
 }
 
-.upx-radio-row {
+.zion-radio-row {
   display: flex;
   flex-wrap: wrap;
   gap: 0.75rem 1.25rem;
   align-items: center;
+}
+
+/* Ações de formulário — paridade InspecFlow `.zion-form-actions` */
+.zion-form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  margin-top: 0.75rem;
+}
+
+.zion-form-actions--divider {
+  margin-top: 0;
+  padding-top: 1rem;
+  border-top: 1px solid var(--theme-line, var(--border));
 }
 
 /* Input de data/hora: cursor pointer — abre picker ao clicar */

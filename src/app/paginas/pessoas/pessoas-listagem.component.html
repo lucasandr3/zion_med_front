@@ -1,7 +1,7 @@
-<section class="pessoas-page upx-page-list">
-  <div class="upx-page-list__toolbar" data-go-tour="pessoas-search">
-    <div class="upx-page-list__toolbar-start">
-      <up-search-box
+<section class="pessoas-page zion-page-list">
+  <div class="zion-page-list__toolbar" data-go-tour="pessoas-search">
+    <div class="zion-page-list__toolbar-start">
+      <zion-search-box
         [control]="buscaControl"
         placeholder="Nome, código, telefone, e-mail ou CPF…"
         ariaLabel="Buscar pessoas"
@@ -19,7 +19,7 @@
         <span>Filtros</span>
       </button>
     </div>
-    <div class="upx-page-list__toolbar-end">
+    <div class="zion-page-list__toolbar-end">
       <a mat-flat-button color="primary" routerLink="/pessoas/criar" title="Nova pessoa" data-go-tour="pessoas-new">
         <mat-icon>person_add</mat-icon>
         Nova pessoa
@@ -31,13 +31,13 @@
     <p class="mb-4 text-sm text-destructive">{{ erro }}</p>
   }
 
-  <div class="upx-page-list__content" data-go-tour="pessoas-list">
+  <div class="zion-page-list__content" data-go-tour="pessoas-list">
     @if (showSkeleton()) {
       <zm-skeleton-list [rows]="6" />
     } @else if (!listaPronta && !erro) {
     } @else if (!erro) {
       @if (pessoas.length === 0) {
-        <up-empty-state
+        <zion-empty-state
           icon="person_search"
           title="Nenhuma pessoa encontrada."
           description="Cadastre a primeira pessoa para começar."
@@ -46,9 +46,9 @@
             <mat-icon>person_add</mat-icon>
             Cadastrar primeira pessoa
           </a>
-        </up-empty-state>
+        </zion-empty-state>
       } @else {
-        <up-data-table
+        <zion-data-table
           [recordCount]="meta.total"
           recordLabel="pessoa"
           recordLabelPlural="pessoas"
@@ -87,9 +87,9 @@
                 <td class="cell-secondary">{{ dataFormatada(p.last_protocol_at) }}</td>
                 <td>
                   @if (p.status === 'active') {
-                    <up-badge variant="status" tone="published">Ativa</up-badge>
+                    <zion-badge variant="status" tone="published">Ativa</zion-badge>
                   } @else {
-                    <up-badge variant="status" tone="draft">Inativa</up-badge>
+                    <zion-badge variant="status" tone="draft">Inativa</zion-badge>
                   }
                 </td>
               </tr>
@@ -100,13 +100,13 @@
               <zm-pagination [currentPage]="meta.current_page" [lastPage]="meta.last_page" (pageChange)="carregar($event)" />
             </div>
           }
-        </up-data-table>
+        </zion-data-table>
       }
     }
   </div>
 
   @if (filtersOpen()) {
-    <up-list-filters-panel
+    <zion-list-filters-panel
       (closed)="closeFilters()"
       (reset)="limparFiltros()"
       (apply)="aplicarFiltros()"
@@ -178,6 +178,6 @@
           </mat-form-field>
         </div>
       </section>
-    </up-list-filters-panel>
+    </zion-list-filters-panel>
   }
 </section>

@@ -6,8 +6,7 @@ import { AuthService } from '../../core/services/auth.service';
 import { ClinicaService, ClinicaOption } from '../../core/services/clinica.service';
 import { LoadingService } from '../../shared/services/loading.service';
 import { ZmSkeletonListComponent } from '../../shared/components/skeletons';
-import { ZmEmptyStateComponent } from '../../shared/components/ui';
-import { ZardCardComponent } from '@/shared/components/card/card.component';
+import { ZionEmptyStateComponent } from '../../shared/components/zion';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -19,8 +18,7 @@ import { ToastService } from '../../core/services/toast.service';
   imports: [
     CommonModule,
     ZmSkeletonListComponent,
-    ZmEmptyStateComponent,
-    ZardCardComponent,
+    ZionEmptyStateComponent,
     MatButtonModule,
     MatIconModule,
     MatProgressSpinnerModule,

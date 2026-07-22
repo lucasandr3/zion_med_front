@@ -8,7 +8,7 @@ import { ZardSkeletonComponent } from '@/shared/components/skeleton';
   imports: [ZardSkeletonComponent],
   template: `
     <div class="template-formulario-skeleton zm-content-enter" aria-hidden="true" aria-busy="true">
-      <div class="upx-form-panel">
+      <div class="zion-form-panel">
         <div class="flex flex-col gap-5">
           <z-skeleton class="h-3.5 w-full max-w-xl rounded-md" />
 

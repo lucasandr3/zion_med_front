@@ -12,9 +12,9 @@ import {
   SearchBoxComponent,
   DataTableComponent,
   BadgeComponent,
-  UpEmptyStateComponent,
+  ZionEmptyStateComponent,
   ListFiltersPanelComponent,
-} from '../../shared/components/up';
+} from '../../shared/components/zion';
 import { MAT_FORM_IMPORTS } from '@/shared/material';
 import { OpenPickerOnInteractDirective } from '@/shared/directives/open-picker-on-interact.directive';
 import { formatDateToYmd } from '@/shared/utils/date-time.util';
@@ -35,7 +35,7 @@ import { formatDateToYmd } from '@/shared/utils/date-time.util';
     SearchBoxComponent,
     DataTableComponent,
     BadgeComponent,
-    UpEmptyStateComponent,
+    ZionEmptyStateComponent,
     ListFiltersPanelComponent,
     OpenPickerOnInteractDirective,
   ],

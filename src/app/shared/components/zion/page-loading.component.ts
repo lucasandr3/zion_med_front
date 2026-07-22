@@ -2,12 +2,12 @@ import { Component, ElementRef, OnDestroy, OnInit, inject, input } from '@angula
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
-  selector: 'up-page-loading',
+  selector: 'zion-page-loading',
   imports: [MatProgressSpinnerModule],
   template: `
-    <div class="up-page-loading__panel" role="status" [attr.aria-label]="text()">
+    <div class="zion-page-loading__panel" role="status" [attr.aria-label]="text()">
       <mat-spinner diameter="48" />
-      <span class="up-page-loading__text">{{ text() }}</span>
+      <span class="zion-page-loading__text">{{ text() }}</span>
     </div>
   `,
   styles: `
@@ -22,14 +22,14 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
       -webkit-backdrop-filter: blur(1.5px);
     }
 
-    .up-page-loading__panel {
+    .zion-page-loading__panel {
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 1rem;
     }
 
-    .up-page-loading__text {
+    .zion-page-loading__text {
       font-size: 0.95rem;
       font-weight: 500;
       letter-spacing: 0.01em;
@@ -41,7 +41,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     }
   `,
   host: {
-    class: 'up-page-loading',
+    class: 'zion-page-loading',
   },
 })
 export class PageLoadingComponent implements OnInit, OnDestroy {

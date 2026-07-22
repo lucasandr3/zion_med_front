@@ -1,6 +1,6 @@
-<div class="notif-page upx-page-list relative min-h-[200px]">
-  <div class="upx-page-list__toolbar">
-    <div class="upx-page-list__toolbar-start">
+<div class="notif-page zion-page-list relative min-h-[200px]">
+  <div class="zion-page-list__toolbar">
+    <div class="zion-page-list__toolbar-start">
       <div class="notif-filtros" role="tablist" aria-label="Filtrar notificações">
         <button
           type="button"
@@ -26,7 +26,7 @@
       </div>
     </div>
 
-    <div class="upx-page-list__toolbar-end">
+    <div class="zion-page-list__toolbar-end">
       @if (temNaoLidas) {
         <button
           mat-stroked-button
@@ -62,7 +62,7 @@
     </div>
   </div>
 
-  <div class="upx-page-list__content">
+  <div class="zion-page-list__content">
     @if (showSkeleton()) {
       <zm-skeleton-list [rows]="5" />
     } @else if (!listaPronta) {
@@ -71,7 +71,7 @@
     } @else {
       <div class="zm-content-enter">
         @if (notificacoesFiltradas.length === 0) {
-          <up-empty-state
+          <zion-empty-state
             icon="notifications"
             [title]="filtroPlataforma === 'nao_lidas' ? 'Nenhuma notificação não lida.' : 'Nenhuma notificação.'"
             description="As novas notificações aparecerão aqui assim que chegarem."

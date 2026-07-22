@@ -1,7 +1,7 @@
 <!-- Igual ao backend: platform/logs/index -->
-<section class="upx-page-list">
-  <div class="upx-page-list__toolbar">
-    <div class="upx-page-list__toolbar-start">
+<section class="zion-page-list">
+  <div class="zion-page-list__toolbar">
+    <div class="zion-page-list__toolbar-start">
       <div class="flex items-center gap-3">
         <div class="bg-muted flex h-10 w-10 shrink-0 items-center justify-center rounded-lg">
           <mat-icon class="text-primary">history</mat-icon>
@@ -18,19 +18,19 @@
     <p class="mb-4 text-sm text-destructive">{{ error }}</p>
   }
 
-  <div class="upx-page-list__content">
+  <div class="zion-page-list__content">
     @if (showSkeleton()) {
       <zm-skeleton-list [rows]="6" />
     } @else if (!listaPronta && !error) {
     } @else if (!error) {
       @if (logs.length === 0) {
-        <up-empty-state
+        <zion-empty-state
           icon="history"
           title="Nenhum registro de auditoria."
           description="As ações realizadas na plataforma serão registradas aqui."
         />
       } @else {
-        <up-data-table [recordCount]="total" recordLabel="registro" recordLabelPlural="registros" [showEndHint]="lastPage <= 1">
+        <zion-data-table [recordCount]="total" recordLabel="registro" recordLabelPlural="registros" [showEndHint]="lastPage <= 1">
           <thead>
             <tr>
               <th>Data / Hora</th>
@@ -41,7 +41,7 @@
           </thead>
           <tbody>
             @for (log of logs; track log.id) {
-              <tr class="upx-data-table__row--static">
+              <tr class="zion-data-table__row--static">
                 <td class="cell-secondary">{{ formatarData(log.created_at) }}</td>
                 <td>
                   <span class="cell-primary inline-flex items-center gap-1">
@@ -59,7 +59,7 @@
               <zm-pagination [currentPage]="currentPage" [lastPage]="lastPage" (pageChange)="goToPage($event)" />
             </div>
           }
-        </up-data-table>
+        </zion-data-table>
       }
     }
   </div>

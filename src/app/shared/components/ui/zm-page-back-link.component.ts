@@ -11,8 +11,8 @@ import { MatIconModule } from '@angular/material/icon';
     @if (backUrl) {
       <a
         [routerLink]="backUrl"
-        mat-stroked-button
-        class="zm-page-back-link btn-cancel shrink-0"
+        mat-flat-button
+        class="zm-page-back-link zion-btn-soft shrink-0"
         [attr.title]="backLabel"
         [attr.aria-label]="backLabel"
       >

@@ -1,5 +1,5 @@
-<div class="links-publicos upx-page-list relative min-h-[320px]">
-  <div class="upx-page-list__content">
+<div class="links-publicos zion-page-list relative min-h-[320px]">
+  <div class="zion-page-list__content">
     @if (showSkeleton()) {
       <zm-skeleton-links-publicos [rows]="3" />
     } @else if (!listaPronta) {
@@ -26,7 +26,7 @@
                 </div>
                 <div class="links-publicos-card__identity min-w-0">
                   <h3 class="links-publicos-card__title" [attr.title]="t.name">{{ t.name }}</h3>
-                  <up-badge variant="status" tone="published">Público</up-badge>
+                  <zion-badge variant="status" tone="published">Público</zion-badge>
                 </div>
               </div>
             <div class="links-publicos-card__aside shrink-0">
@@ -94,7 +94,7 @@
           </div>
         </z-card>
       } @empty {
-        <up-empty-state
+        <zion-empty-state
           icon="description"
           title="Nenhum formulário público ativo"
           description="Ative o link público em Modelos de fichas → Campos para gerar um link compartilhável com pacientes."
@@ -103,7 +103,7 @@
             <mat-icon>description</mat-icon>
             Ir para modelos de fichas
           </a>
-        </up-empty-state>
+        </zion-empty-state>
       }
 
       @if (meta.last_page > 1) {

@@ -16,7 +16,7 @@
   background-color: rgb(var(--theme-floor-1));
 }
 
-.upx-page-list {
+.zion-page-list {
   display: flex;
   flex: 1 1 auto;
   height: 100%;
@@ -26,7 +26,7 @@
   background-color: rgb(var(--theme-floor-1));
 }
 
-.upx-page-list__toolbar {
+.zion-page-list__toolbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -38,11 +38,13 @@
   background: rgb(var(--theme-floor-1));
 }
 
-.upx-page-list__toolbar-start,
-.upx-page-list__toolbar-end {
+.zion-page-list__toolbar-start,
+.zion-page-list__toolbar-end {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  min-width: 0;
+  overflow: visible;
 }
 
 /* Lista com drawer de filtros (direita) — estilos do painel em list-filters-panel */
@@ -123,7 +125,7 @@
   width: 100%;
 }
 
-.upx-page-list__content {
+.zion-page-list__content {
   display: flex;
   flex: 1 1 auto;
   min-height: 0;
@@ -136,8 +138,8 @@
   border-radius: 0;
   overflow: hidden;
 
-  > up-data-table,
-  > up-empty-state,
+  > zion-data-table,
+  > zion-empty-state,
   > zm-skeleton-list,
   > zm-skeleton-usuarios-listagem,
   > zm-skeleton-permissoes-listagem {
@@ -153,8 +155,8 @@
 }
 
 /* Detalhe / formulário longo: scroll interno, full-bleed */
-.upx-page-list--detail {
-  .upx-page-list__content {
+.zion-page-list--detail {
+  .zion-page-list__content {
     overflow-y: auto;
     overflow-x: hidden;
     padding: 0;
@@ -162,7 +164,7 @@
   }
 }
 
-.upx-page-list__form {
+.zion-page-list__form {
   flex-shrink: 0;
   padding: 1rem 1.15rem;
   border-bottom: 1px solid var(--theme-line);
@@ -170,7 +172,7 @@
 }
 
 /** Bloco de conteúdo flat (sem card). */
-.upx-panel {
+.zion-panel {
   border: none;
   border-radius: 0;
   background: transparent;
@@ -178,39 +180,24 @@
   overflow: visible;
 }
 
-.upx-panel--padded {
+.zion-panel--padded {
   padding: 1rem 1.15rem;
 }
 
 /**
- * Full-bleed no shell: remove chrome de card decorativo do conteúdo das telas.
- * Não aplica a overlays/modais (ancestral .fixed / cdk-overlay).
+ * Full-bleed no shell: só wrappers de tabela/listagem (não cards de conteúdo).
+ * KPIs, painéis, gráficos, section-cards e z-cards de conteúdo mantêm borda/fundo.
+ * Tabelas em `.zion-page-list` também são tratadas em gestgo-ds.scss.
  */
-.sidenav-content-main__body z-card:not(:where(.fixed *, .cdk-overlay-container *)),
-.sidenav-content-main__body [data-slot='card']:not(:where(.fixed *, .cdk-overlay-container *)),
-.sidenav-content-main__body .section-card,
-.sidenav-content-main__body .pd-section-card,
-.sidenav-content-main__body .campos-add-card,
 .sidenav-content-main__body .campos-table-card,
 .sidenav-content-main__body .zm-table-card,
 .sidenav-content-main__body .plat-table-card,
-.sidenav-content-main__body .table-card,
-.sidenav-content-main__body .dash-z-panel,
-.sidenav-content-main__body .dash-z-chart,
-.sidenav-content-main__body .dash-kpi,
-.sidenav-content-main__body .notif-card,
-.sidenav-content-main__body .novidades-card,
-.sidenav-content-main__body .templates-cat-card {
+.sidenav-content-main__body .table-card {
   margin-inline: 0 !important;
   border: none !important;
   border-radius: 0 !important;
   box-shadow: none !important;
   background: rgb(var(--theme-floor-1)) !important;
-}
-
-.sidenav-content-main__body z-card:not(:where(.fixed *, .cdk-overlay-container *)) [data-slot='card-content'],
-.sidenav-content-main__body .section-card [data-slot='card-content'] {
-  padding-inline: 1rem !important;
 }
 
 .wizard-page {
@@ -229,7 +216,7 @@
 .wizard-page--designer {
   min-height: 0;
 
-  > .upx-page-list__toolbar {
+  > .zion-page-list__toolbar {
     flex-shrink: 0;
     position: sticky;
     top: 0;
@@ -254,7 +241,7 @@
   color: rgb(var(--theme-fg) / 0.85) !important;
 }
 
-.upx-page-list__toolbar-end {
+.zion-page-list__toolbar-end {
   .mat-mdc-outlined-button,
   .mat-mdc-unelevated-button {
     border-radius: 10px !important;
@@ -262,19 +249,19 @@
 }
 
 @media (max-width: 767.98px) {
-  .upx-page-list__toolbar {
+  .zion-page-list__toolbar {
     flex-direction: column;
     align-items: stretch;
     padding: 0.75rem;
   }
 
-  .upx-page-list__toolbar-start,
-  .upx-page-list__toolbar-end {
+  .zion-page-list__toolbar-start,
+  .zion-page-list__toolbar-end {
     width: 100%;
   }
 
-  .upx-page-list__toolbar up-search-box,
-  .upx-page-list__toolbar .search-box {
+  .zion-page-list__toolbar zion-search-box,
+  .zion-page-list__toolbar .search-box {
     width: 100%;
   }
 }

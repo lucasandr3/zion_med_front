@@ -1,9 +1,9 @@
-<section class="permissoes-page upx-page-list">
-  <div class="upx-page-list__toolbar">
-    <div class="upx-page-list__toolbar-start">
+<section class="permissoes-page zion-page-list">
+  <div class="zion-page-list__toolbar">
+    <div class="zion-page-list__toolbar-start">
       <zm-page-back-link />
     </div>
-    <div class="upx-page-list__toolbar-end">
+    <div class="zion-page-list__toolbar-end">
       <a mat-flat-button color="primary" routerLink="/organizacao/permissoes/novo" title="Criar novo perfil de permissões">
         <mat-icon>add</mat-icon>
         Novo perfil
@@ -15,20 +15,20 @@
     <p class="mb-4 text-sm text-destructive">{{ erro }}</p>
   }
 
-  <div class="upx-page-list__content">
+  <div class="zion-page-list__content">
     @if (showSkeleton()) {
       <zm-skeleton-permissoes-listagem />
     } @else if (!listaPronta && !erro) {
     } @else if (!erro) {
       @if (papeis.length === 0) {
-        <up-empty-state icon="admin_panel_settings" title="Nenhum perfil de permissões cadastrado." description="Crie o primeiro perfil para organizar as permissões da equipe.">
+        <zion-empty-state icon="admin_panel_settings" title="Nenhum perfil de permissões cadastrado." description="Crie o primeiro perfil para organizar as permissões da equipe.">
           <a mat-flat-button color="primary" routerLink="/organizacao/permissoes/novo">
             <mat-icon>add</mat-icon>
             Novo perfil
           </a>
-        </up-empty-state>
+        </zion-empty-state>
       } @else {
-        <up-data-table [recordCount]="papeis.length" recordLabel="perfil" recordLabelPlural="perfis">
+        <zion-data-table [recordCount]="papeis.length" recordLabel="perfil" recordLabelPlural="perfis">
           <thead>
             <tr>
               <th>Nome</th>
@@ -40,7 +40,7 @@
           </thead>
           <tbody>
             @for (p of papeis; track p.slug) {
-              <tr class="upx-data-table__row--static">
+              <tr class="zion-data-table__row--static">
                 <td>
                   <div class="cell-primary">{{ p.label }}</div>
                 </td>
@@ -48,9 +48,9 @@
                 <td class="cell-secondary">{{ p.user_count }}</td>
                 <td>
                   @if (p.is_system) {
-                    <up-badge variant="type">Padrão</up-badge>
+                    <zion-badge variant="type">Padrão</zion-badge>
                   } @else {
-                    <up-badge variant="status">Personalizado</up-badge>
+                    <zion-badge variant="status">Personalizado</zion-badge>
                   }
                 </td>
                 <td class="actions">
@@ -77,7 +77,7 @@
               </tr>
             }
           </tbody>
-        </up-data-table>
+        </zion-data-table>
       }
     }
   </div>

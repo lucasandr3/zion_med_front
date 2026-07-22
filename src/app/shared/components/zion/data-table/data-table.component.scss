@@ -11,7 +11,7 @@
   box-shadow: none;
 }
 
-.up-data-table {
+.zion-data-table {
   display: flex;
   flex: 1 1 auto;
   min-height: 0;
@@ -23,7 +23,7 @@
   box-shadow: none;
 }
 
-.up-data-table__scroll {
+.zion-data-table__scroll {
   flex: 1 1 auto;
   min-height: 0;
   overflow: auto;
@@ -56,14 +56,14 @@
   }
 }
 
-.up-data-table__end-hint {
+.zion-data-table__end-hint {
   padding: 0.85rem 1rem 1rem;
   text-align: center;
   font-size: 0.8rem;
   color: rgb(var(--theme-fg) / 0.55);
 }
 
-.up-data-table__footer {
+.zion-data-table__footer {
   display: flex;
   flex-shrink: 0;
   align-items: center;

@@ -1,13 +1,13 @@
-<div class="novidades-page upx-page-list relative min-h-[200px]">
-  <div class="upx-page-list__toolbar">
-    <div class="upx-page-list__toolbar-start">
-      <up-search-box
+<div class="novidades-page zion-page-list relative min-h-[200px]">
+  <div class="zion-page-list__toolbar">
+    <div class="zion-page-list__toolbar-start">
+      <zion-search-box
         [control]="buscaControl"
         placeholder="Buscar por versão, título ou conteúdo..."
         ariaLabel="Buscar novidades"
       />
     </div>
-    <div class="upx-page-list__toolbar-end">
+    <div class="zion-page-list__toolbar-end">
       @if (listaPronta && total > 0) {
         <p class="zm-count-label m-0">
           {{ total }} {{ total === 1 ? 'versão' : 'versões' }}
@@ -19,7 +19,7 @@
     </div>
   </div>
 
-  <div class="upx-page-list__content">
+  <div class="zion-page-list__content">
     @if (showSkeleton()) {
       <zm-skeleton-list [rows]="4" />
     } @else if (!listaPronta) {
@@ -28,7 +28,7 @@
     } @else {
       <div class="zm-content-enter">
         @if (notas.length === 0) {
-          <up-empty-state
+          <zion-empty-state
             icon="new_releases"
             [title]="buscaAtiva ? 'Nenhum resultado para esta busca.' : 'Nenhuma novidade publicada ainda.'"
             [description]="buscaAtiva ? 'Tente outro termo ou limpe o filtro.' : 'Quando houver uma nova versão, ela aparecerá aqui.'"

@@ -2,7 +2,7 @@ import { Component, input, output } from '@angular/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
-  selector: 'up-status-toggle',
+  selector: 'zion-status-toggle',
   imports: [MatTooltipModule],
   templateUrl: './status-toggle.component.html',
   styleUrl: './status-toggle.component.scss',

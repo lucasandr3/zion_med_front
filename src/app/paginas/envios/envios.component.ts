@@ -11,7 +11,7 @@ import { TemplatesService, Template } from '../../core/services/templates.servic
 import { LoadingService } from '../../shared/services/loading.service';
 import { ZmSkeletonListComponent } from '../../shared/components/skeletons';
 import { ZmPaginationComponent } from '../../shared/components/ui';
-import { DataTableComponent, BadgeComponent, UpEmptyStateComponent, type StatusTone } from '../../shared/components/up';
+import { DataTableComponent, BadgeComponent, ZionEmptyStateComponent, type StatusTone } from '../../shared/components/zion';
 import { ToastService } from '../../core/services/toast.service';
 import { ConfirmDialogService } from '../../core/services/confirm-dialog.service';
 import { MAT_FORM_IMPORTS } from '@/shared/material';
@@ -31,7 +31,7 @@ type Caixa = 'pendentes' | 'assinados' | 'expirados' | 'cancelados';
     ZmPaginationComponent,
     DataTableComponent,
     BadgeComponent,
-    UpEmptyStateComponent,
+    ZionEmptyStateComponent,
   ],
   templateUrl: './envios.component.html',
   styleUrl: './envios.component.css',

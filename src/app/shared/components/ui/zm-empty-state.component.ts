@@ -1,19 +1,20 @@
 import { Component, Input, TemplateRef, ViewChild } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 
 import { provideIcons } from '@ng-icons/core';
 import { lucideFolderOpen } from '@ng-icons/lucide';
 
-import { ZardButtonComponent } from '../button/button.component';
 import { ZardEmptyComponent } from '../empty/empty.component';
 
 /**
- * Wrapper compatível com a API legada; renderiza `z-empty` (Zard).
+ * Wrapper compatível com a API legada; renderiza `z-empty` (Zard) + CTA Material.
  */
 @Component({
   selector: 'zm-empty-state',
   standalone: true,
-  imports: [ZardEmptyComponent, ZardButtonComponent, RouterLink],
+  imports: [ZardEmptyComponent, MatButtonModule, MatIconModule, RouterLink],
   viewProviders: [provideIcons({ lucideFolderOpen })],
   template: `
     <z-empty
@@ -26,9 +27,9 @@ import { ZardEmptyComponent } from '../empty/empty.component';
     />
     <ng-template #actionTpl>
       @if (actionLabel && actionLink) {
-        <a z-button [routerLink]="actionLink" class="gap-2 no-underline">
+        <a mat-flat-button color="primary" [routerLink]="actionLink" class="gap-2 no-underline">
           @if (actionIcon) {
-            <span class="material-symbols-outlined text-base">{{ actionIcon }}</span>
+            <mat-icon>{{ actionIcon }}</mat-icon>
           }
           {{ actionLabel }}
         </a>

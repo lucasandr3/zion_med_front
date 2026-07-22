@@ -1,5 +1,5 @@
-<section class="upx-page-list">
-  <div class="upx-page-list__content">
+<section class="zion-page-list">
+  <div class="zion-page-list__content">
     @if (showSkeleton()) {
       <zm-skeleton-list [rows]="6" />
     } @else if (!listaPronta) {
@@ -9,13 +9,13 @@
       </div>
     } @else {
       @if (faturas.length === 0) {
-        <up-empty-state
+        <zion-empty-state
           icon="receipt_long"
           title="Nenhuma fatura cadastrada."
           description="As faturas geradas para os clientes serão exibidas aqui."
         />
       } @else {
-        <up-data-table [recordCount]="faturas.length" recordLabel="fatura" recordLabelPlural="faturas">
+        <zion-data-table [recordCount]="faturas.length" recordLabel="fatura" recordLabelPlural="faturas">
           <thead>
             <tr>
               <th>Empresa</th>
@@ -26,7 +26,7 @@
           </thead>
           <tbody>
             @for (f of faturas; track f.id) {
-              <tr class="upx-data-table__row--static">
+              <tr class="zion-data-table__row--static">
                 <td>
                   <div class="cell-primary">{{ f.clinic_name }}</div>
                   @if (f.tenant_name) {
@@ -39,9 +39,9 @@
                 <td class="cell-secondary">{{ formatarData(f.due_date) }}</td>
                 <td>
                   @if (f.status) {
-                    <up-badge variant="status" [tone]="badgeTone(f.status)">
+                    <zion-badge variant="status" [tone]="badgeTone(f.status)">
                       {{ rotuloStatusFatura(f.status) }}
-                    </up-badge>
+                    </zion-badge>
                   } @else {
                     <span class="cell-secondary">—</span>
                   }
@@ -49,7 +49,7 @@
               </tr>
             }
           </tbody>
-        </up-data-table>
+        </zion-data-table>
       }
     }
   </div>

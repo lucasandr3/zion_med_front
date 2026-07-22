@@ -13,9 +13,9 @@ import {
   SearchBoxComponent,
   DataTableComponent,
   BadgeComponent,
-  UpEmptyStateComponent,
+  ZionEmptyStateComponent,
   ListFiltersPanelComponent,
-} from '../../shared/components/up';
+} from '../../shared/components/zion';
 import { OpenPickerOnInteractDirective } from '@/shared/directives/open-picker-on-interact.directive';
 import { MAT_FORM_IMPORTS } from '@/shared/material';
 import { formatDateToYmd } from '@/shared/utils/date-time.util';
@@ -37,7 +37,7 @@ import { formatDateToYmd } from '@/shared/utils/date-time.util';
     SearchBoxComponent,
     DataTableComponent,
     BadgeComponent,
-    UpEmptyStateComponent,
+    ZionEmptyStateComponent,
     ListFiltersPanelComponent,
   ],
   templateUrl: './protocolos-listagem.component.html',

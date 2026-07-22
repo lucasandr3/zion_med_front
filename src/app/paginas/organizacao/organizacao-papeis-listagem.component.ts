@@ -8,7 +8,7 @@ import { OrganizationRolesService, OrganizationRoleListItem } from '../../core/s
 import { LoadingService } from '../../shared/services/loading.service';
 import { ZmSkeletonPermissoesListagemComponent } from '../../shared/components/skeletons';
 import { ZmPageBackLinkComponent } from '../../shared/components/ui';
-import { DataTableComponent, BadgeComponent, UpEmptyStateComponent } from '../../shared/components/up';
+import { DataTableComponent, BadgeComponent, ZionEmptyStateComponent } from '../../shared/components/zion';
 import { ToastService } from '../../core/services/toast.service';
 import { ConfirmDialogService } from '../../core/services/confirm-dialog.service';
 
@@ -25,7 +25,7 @@ import { ConfirmDialogService } from '../../core/services/confirm-dialog.service
     ZmPageBackLinkComponent,
     DataTableComponent,
     BadgeComponent,
-    UpEmptyStateComponent,
+    ZionEmptyStateComponent,
   ],
   templateUrl: './organizacao-papeis-listagem.component.html',
 })

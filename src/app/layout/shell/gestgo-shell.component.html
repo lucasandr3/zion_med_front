@@ -53,21 +53,21 @@
           @if (section.label) {
             <span class="sidenav-main__body-title">{{ section.label }}</span>
           }
-          <nav class="upx-navigation">
+          <nav class="zion-navigation">
             @for (item of section.items; track item.route) {
               <a
-                class="upx-navigation-item"
+                class="zion-navigation-item"
                 [routerLink]="item.route"
-                routerLinkActive="upx-navigation-item-active"
+                routerLinkActive="zion-navigation-item-active"
                 [routerLinkActiveOptions]="{ exact: item.exact ?? false }"
                 (click)="onNavClick()"
               >
-                <span class="upx-navigation-item-start">
+                <span class="zion-navigation-item-start">
                   <mat-icon class="material-symbols-outlined">{{ item.icon }}</mat-icon>
                   <span>{{ item.label }}</span>
                 </span>
                 @if (badgeLabel(item); as badge) {
-                  <span class="upx-navigation-item-badge">{{ badge }}</span>
+                  <span class="zion-navigation-item-badge">{{ badge }}</span>
                 }
               </a>
             }

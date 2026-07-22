@@ -8,7 +8,7 @@ import { ToastService } from '../../core/services/toast.service';
 import { LoadingService } from '../../shared/services/loading.service';
 import { ZmSkeletonLinksPublicosComponent } from '../../shared/components/skeletons';
 import { ZmPaginationComponent } from '../../shared/components/ui';
-import { BadgeComponent, UpEmptyStateComponent } from '../../shared/components/up';
+import { BadgeComponent, ZionEmptyStateComponent } from '../../shared/components/zion';
 import { ZardCardComponent } from '@/shared/components/card/card.component';
 import { ZardMenuImports } from '../../shared/components/menu/menu.imports';
 import { ZardSkeletonComponent } from '@/shared/components/skeleton/skeleton.component';
@@ -39,7 +39,7 @@ interface LinkPublicoItem {
     ZmSkeletonLinksPublicosComponent,
     ZmPaginationComponent,
     BadgeComponent,
-    UpEmptyStateComponent,
+    ZionEmptyStateComponent,
     ZardCardComponent,
     ZardSkeletonComponent,
     ...ZardMenuImports,
