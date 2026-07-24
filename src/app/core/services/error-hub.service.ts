@@ -147,6 +147,7 @@ export class ErrorHubService {
     return {
       id: String(user.id),
       name: user.name,
+      email: user.email,
     };
   }
 
@@ -231,6 +232,7 @@ export class ErrorHubService {
     return {
       id: String(user.id),
       name: user.name,
+      email: user.email,
     };
   }
 
