@@ -119,10 +119,34 @@ export class ErrorHubService {
       request: {
         method: req.method,
         url: requestUrl,
-        payload: sanitizeErrorHubPayload(req.body),
+        payload: this.shouldOmitRequestBody(requestUrl)
+          ? '[omitted]'
+          : sanitizeErrorHubPayload(req.body),
         userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : '',
       },
-      user: this.buildUserContext(),
+      user: this.buildUserContextMinimal(),
+    };
+  }
+
+  private shouldOmitRequestBody(url: string): boolean {
+    const path = url.toLowerCase();
+    return (
+      path.includes('/auth/') ||
+      path.includes('/plataforma/') ||
+      path.includes('/platform/') ||
+      path.includes('asaas') ||
+      path.includes('integracoes') ||
+      path.includes('password') ||
+      path.includes('otp')
+    );
+  }
+
+  private buildUserContextMinimal(): ErrorHubEvent['user'] {
+    const user = this.auth.getUser();
+    if (!user) return undefined;
+    return {
+      id: String(user.id),
+      name: user.name,
     };
   }
 
@@ -207,7 +231,6 @@ export class ErrorHubService {
     return {
       id: String(user.id),
       name: user.name,
-      email: user.email,
     };
   }
 

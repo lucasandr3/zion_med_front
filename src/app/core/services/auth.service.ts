@@ -7,6 +7,7 @@ import { applyUserAppearanceToBrowser } from './user-appearance.sync';
 import { AppUpdateService } from './app-update.service';
 
 const TOKEN_KEY = 'gestgo_token';
+const PRESENCE_LEAVE_TOKEN_KEY = 'gestgo_presence_leave_token';
 const USER_KEY = 'gestgo_user';
 const ORGANIZATIONS_KEY = 'gestgo_organizations';
 const CURRENT_ORG_KEY = 'gestgo_organization_id';
@@ -72,6 +73,8 @@ export interface LoginResponse {
     user: User;
     current_organization_id: number | null;
     organizations: Organization[];
+    /** Token HMAC de curta duração para sendBeacon (não é o Sanctum). */
+    presence_leave_token?: string | null;
     /** Legado */
     current_clinic_id?: number | null;
     clinics?: Organization[];
@@ -150,6 +153,7 @@ export class AuthService {
   setSessionFromLoginData(data: LoginResponse['data']): void {
     if (typeof localStorage !== 'undefined' && data.token) {
       localStorage.setItem(TOKEN_KEY, data.token);
+      this.persistPresenceLeaveToken(data.presence_leave_token);
     }
     this._user = data.user;
     this._organizations = data.organizations ?? data.clinics ?? [];
@@ -170,6 +174,22 @@ export class AuthService {
 
   getToken(): string | null {
     return typeof localStorage !== 'undefined' ? localStorage.getItem(TOKEN_KEY) : null;
+  }
+
+  getPresenceLeaveToken(): string | null {
+    return typeof localStorage !== 'undefined' ? localStorage.getItem(PRESENCE_LEAVE_TOKEN_KEY) : null;
+  }
+
+  setPresenceLeaveToken(token: string | null | undefined): void {
+    this.persistPresenceLeaveToken(token);
+  }
+
+  private persistPresenceLeaveToken(token: string | null | undefined): void {
+    if (typeof localStorage === 'undefined') return;
+    try {
+      if (token) localStorage.setItem(PRESENCE_LEAVE_TOKEN_KEY, token);
+      else localStorage.removeItem(PRESENCE_LEAVE_TOKEN_KEY);
+    } catch {}
   }
 
   getUser(): User | null {
@@ -231,33 +251,12 @@ export class AuthService {
     return this._user?.can_switch_clinic ?? false;
   }
 
-  /** Verifica permissão no contexto atual (usa `user.permissions` ou fallback por `role` legado). */
+  /** Verifica permissão no contexto atual (usa `user.permissions`; sem lista = negar). */
   hasPermission(key: string): boolean {
     const u = this._user;
     if (!u) return false;
     if (Array.isArray(u.permissions)) {
       return u.permissions.includes(key);
-    }
-    return this.permissionFallbackByRole(u.role, key);
-  }
-
-  private permissionFallbackByRole(role: string | undefined, key: string): boolean {
-    if (!role) return false;
-    if (role === 'owner' || role === 'super_admin') return true;
-    if (role === 'platform_admin') return true;
-    if (role === 'manager') {
-      return [
-        'dashboard.access',
-        'notifications.access',
-        'billing.manage',
-        'templates.manage',
-        'submissions.view',
-        'submissions.approve',
-        'people.deactivate',
-      ].includes(key);
-    }
-    if (role === 'staff') {
-      return ['dashboard.access', 'notifications.access', 'submissions.view'].includes(key);
     }
     return false;
   }
@@ -309,6 +308,7 @@ export class AuthService {
           const d = res.data;
           if (typeof localStorage !== 'undefined') {
             localStorage.setItem(TOKEN_KEY, d.token);
+            this.persistPresenceLeaveToken(d.presence_leave_token);
           }
           this._user = d.user;
           this._organizations = d.organizations ?? d.clinics ?? [];
@@ -340,6 +340,7 @@ export class AuthService {
   clearSession(): void {
     if (typeof localStorage !== 'undefined') {
       localStorage.removeItem(TOKEN_KEY);
+      localStorage.removeItem(PRESENCE_LEAVE_TOKEN_KEY);
       localStorage.removeItem(USER_KEY);
       localStorage.removeItem(ORGANIZATIONS_KEY);
       localStorage.removeItem(CURRENT_ORG_KEY);

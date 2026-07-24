@@ -4,7 +4,7 @@ import { AuthService } from './auth.service';
 
 /**
  * Presença de organizações no app tenant (login / troca de empresa no backend).
- * Beacon ao fechar aba para decrementar contador sem header Authorization.
+ * Beacon ao fechar aba usa presence_leave_token (HMAC), não o Sanctum plain token.
  */
 @Injectable({ providedIn: 'root' })
 export class OrganizationPresenceService {
@@ -24,14 +24,14 @@ export class OrganizationPresenceService {
     if (this.auth.isPlatformAdmin()) {
       return;
     }
-    const token = this.auth.getToken();
+    const leaveToken = this.auth.getPresenceLeaveToken();
     const organizationId = this.auth.getCurrentOrganizationId();
-    if (!token || organizationId == null || organizationId === '') {
+    if (!leaveToken || organizationId == null || organizationId === '') {
       return;
     }
     const url = `${environment.apiUrl}/api/v1/organization-presence/leave-beacon`;
     const body = new URLSearchParams();
-    body.set('token', token);
+    body.set('presence_leave_token', leaveToken);
     body.set('organization_id', String(organizationId));
     navigator.sendBeacon(url, body);
   }

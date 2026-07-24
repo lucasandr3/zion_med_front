@@ -303,8 +303,13 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
         this.personGateErro = 'CPF inválido. Verifique os números.';
         return;
       }
+      const birthDate = this.personBirthDate.trim();
+      if (!birthDate) {
+        this.personGateErro = 'Informe a data de nascimento cadastrada na clínica.';
+        return;
+      }
       this.validandoPerson = true;
-      this.formularioService.validatePerson(this.token, { cpf }).subscribe({
+      this.formularioService.validatePerson(this.token, { cpf, birth_date: birthDate }).subscribe({
         next: (r) => {
           this.validandoPerson = false;
           this.personGateOk = true;
@@ -1029,7 +1034,7 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
     if (!restored) return;
     this.personCpfDigits = restored.cpfDigits;
     this.personCpfDisplay = restored.cpfDisplay;
-    this.personGateOk = true;
+    // Não libera o gate automaticamente — exige data de nascimento + revalidação na API.
   }
 
   private syncPublicBodyClasses(): void {

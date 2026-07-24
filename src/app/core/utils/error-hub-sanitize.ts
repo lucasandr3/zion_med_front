@@ -1,4 +1,4 @@
-const SENSITIVE_KEYS = new Set([
+const SENSITIVE_EXACT = new Set([
   'password',
   'password_confirmation',
   'token',
@@ -8,10 +8,32 @@ const SENSITIVE_KEYS = new Set([
   'secret',
   'api_key',
   'apikey',
+  'cpf',
+  'rg',
 ]);
+
+const SENSITIVE_SUBSTRINGS = [
+  'password',
+  'secret',
+  'token',
+  'api_key',
+  'apikey',
+  'access_key',
+  'private_key',
+  'webhook_secret',
+  'authorization',
+  'cpf',
+  'card_number',
+];
 
 const MAX_STRING_LENGTH = 500;
 const MAX_DEPTH = 4;
+
+function isSensitiveKey(key: string): boolean {
+  const lower = key.toLowerCase();
+  if (SENSITIVE_EXACT.has(lower)) return true;
+  return SENSITIVE_SUBSTRINGS.some((part) => lower.includes(part));
+}
 
 export function sanitizeErrorHubPayload(value: unknown, depth = 0): unknown {
   if (value == null) return value;
@@ -38,7 +60,7 @@ export function sanitizeErrorHubPayload(value: unknown, depth = 0): unknown {
   if (typeof value === 'object') {
     const out: Record<string, unknown> = {};
     for (const [key, nested] of Object.entries(value as Record<string, unknown>)) {
-      if (SENSITIVE_KEYS.has(key.toLowerCase())) {
+      if (isSensitiveKey(key)) {
         out[key] = '[redacted]';
         continue;
       }

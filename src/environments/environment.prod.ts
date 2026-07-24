@@ -2,9 +2,10 @@ export const environment = {
   production: true,
   apiUrl: 'https://api.gestgo.com.br',
   errorHub: {
-    enabled: true,
+    // Chave injetada no CI/CD (nunca commitar ek_live_*). Sem chave = desabilitado.
+    enabled: false,
     apiUrl: 'https://api-errorhub.zionai.com.br/api/v1/events',
-    apiKey: 'ek_live_36fe4e60513f189042e19b1acc44b275',
+    apiKey: '',
     environment: 'production' as const,
   },
 };

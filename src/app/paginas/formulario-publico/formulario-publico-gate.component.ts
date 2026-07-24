@@ -32,7 +32,7 @@ export class FormularioPublicoGateComponent {
   get leadText(): string {
     if (this.description?.trim()) return this.description.trim();
     return this.isCpfMode
-      ? 'Para iniciar o preenchimento, informe seu CPF para autorização de acesso ao formulário.'
+      ? 'Para iniciar o preenchimento, informe seu CPF e a data de nascimento cadastrados na clínica.'
       : 'Para iniciar o preenchimento, informe o código e a data de nascimento cadastrados na clínica.';
   }
 

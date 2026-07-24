@@ -155,12 +155,19 @@ export class ClinicaService {
   }
 
   escolher(organizationId: number): Observable<unknown> {
-    return this.api.post('/clinica/escolher', { organization_id: organizationId }).pipe(
-      tap(() => {
-        this.auth.setCurrentOrganizationId(organizationId);
-        this.emitBrandingUpdated();
-      })
-    );
+    return this.api
+      .post<{ data?: { presence_leave_token?: string; current_organization_id?: number } }>(
+        '/clinica/escolher',
+        { organization_id: organizationId },
+      )
+      .pipe(
+        tap((res) => {
+          this.auth.setCurrentOrganizationId(organizationId);
+          const leave = res?.data?.presence_leave_token;
+          if (leave) this.auth.setPresenceLeaveToken(leave);
+          this.emitBrandingUpdated();
+        }),
+      );
   }
 
   /**

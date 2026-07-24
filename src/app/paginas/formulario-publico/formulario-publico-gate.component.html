@@ -25,6 +25,19 @@
       placeholder="000.000.000-00"
     />
   </div>
+  <div class="fp-field-group fp-field-animate">
+    <label class="fp-field-label" for="fpPersonBirthCpf">Data de nascimento</label>
+    <input
+      id="fpPersonBirthCpf"
+      type="date"
+      autocomplete="bday"
+      [ngModel]="personBirthDate"
+      (ngModelChange)="onBirthDateInput($event)"
+      name="fpPersonBirthCpf"
+      [ngModelOptions]="{ standalone: true }"
+      class="fp-input"
+    />
+  </div>
 } @else {
   <div class="fp-field-group fp-field-animate">
     <label class="fp-field-label" for="fpPersonCode">Código</label>
