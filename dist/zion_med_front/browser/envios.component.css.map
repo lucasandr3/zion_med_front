@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/paginas/envios/envios.component.css"],
+  "sourcesContent": [":host { display: block; }\n.envios-tab { background: transparent; border: none; cursor: pointer; color: var(--c-muted); }\n.envios-tab:hover { color: var(--c-text); }\n.envios-tab.ativo { background: var(--c-soft); color: var(--c-primary); font-weight: 600; }\n"],
+  "mappings": ";AAAA;AAAQ,WAAA;AAAgB;AACxB,CAAA;AAAc,cAAA;AAAyB,UAAA;AAAc,UAAA;AAAiB,SAAA,IAAA;AAAuB;AAC7F,CADA,UACA;AAAoB,SAAA,IAAA;AAAsB;AAC1C,CAFA,UAEA,CAAA;AAAoB,cAAA,IAAA;AAA2B,SAAA,IAAA;AAAyB,eAAA;AAAkB;",
+  "names": []
+}

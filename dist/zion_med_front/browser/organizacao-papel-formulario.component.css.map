@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/paginas/organizacao/organizacao-papel-formulario.component.css"],
+  "sourcesContent": [".perm-group-title {\r\n  font-size: 0.75rem;\r\n  font-weight: 600;\r\n  text-transform: uppercase;\r\n  letter-spacing: 0.04em;\r\n  color: var(--c-muted);\r\n  margin-bottom: 0.5rem;\r\n}\r\n\r\n.perm-list input[type='checkbox'] {\r\n  margin-top: 0.2rem;\r\n}\r\n"],
+  "mappings": ";AAAA,CAAA;AACE,aAAA;AACA,eAAA;AACA,kBAAA;AACA,kBAAA;AACA,SAAA,IAAA;AACA,iBAAA;AACF;AAEA,CAAA,UAAA,KAAA,CAAA;AACE,cAAA;AACF;",
+  "names": []
+}

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/componentes/layout/barra-lateral-plataforma/barra-lateral-plataforma.component.css"],
+  "sourcesContent": [".user-dropdown a,\r\n.user-dropdown button {\r\n  display: flex;\r\n  align-items: center;\r\n  width: 100%;\r\n}\r\n"],
+  "mappings": ";AAAA,CAAA,cAAA;CAAA;AAEE,WAAA;AACA,eAAA;AACA,SAAA;AACF;",
+  "names": []
+}

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/componentes/layout/barra-lateral/barra-lateral.component.css"],
+  "sourcesContent": ["/* Estilos específicos do componente (sidebar usa variáveis globais) */\n.user-dropdown a,\n.user-dropdown button {\n  display: flex;\n  align-items: center;\n  width: 100%;\n}\n\n"],
+  "mappings": ";AACA,CAAA,cAAA;CAAA;AAEE,WAAA;AACA,eAAA;AACA,SAAA;AACF;",
+  "names": []
+}

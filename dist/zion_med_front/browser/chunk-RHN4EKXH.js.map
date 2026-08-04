@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/core/utils/absolute-media-url.ts"],
+  "sourcesContent": ["import { environment } from '../../../environments/environment';\r\n\r\n/**\r\n * Garante URL absoluta para imagens vindas da API (ex.: /storage/... em Laravel).\r\n * Necessário quando o front roda em outro host/porta que o backend.\r\n */\r\nexport function absoluteMediaUrl(href: string | null | undefined): string | null {\r\n  if (href == null) return null;\r\n  const u = String(href).trim();\r\n  if (!u) return null;\r\n  if (/^(https?:|blob:|data:)/i.test(u)) return u;\r\n  const base = environment.apiUrl.replace(/\\/$/, '');\r\n  return u.startsWith('/') ? `${base}${u}` : `${base}/${u}`;\r\n}\r\n"],
+  "mappings": ";;;;;AAMM,SAAU,iBAAiB,MAA+B;AAC9D,MAAI,QAAQ;AAAM,WAAO;AACzB,QAAM,IAAI,OAAO,IAAI,EAAE,KAAI;AAC3B,MAAI,CAAC;AAAG,WAAO;AACf,MAAI,0BAA0B,KAAK,CAAC;AAAG,WAAO;AAC9C,QAAM,OAAO,YAAY,OAAO,QAAQ,OAAO,EAAE;AACjD,SAAO,EAAE,WAAW,GAAG,IAAI,GAAG,IAAI,GAAG,CAAC,KAAK,GAAG,IAAI,IAAI,CAAC;AACzD;",
+  "names": []
+}

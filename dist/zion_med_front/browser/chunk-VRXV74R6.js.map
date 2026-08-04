@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/core/services/billing-blocked-state.service.ts"],
+  "sourcesContent": ["import { Injectable, signal } from '@angular/core';\r\n\r\n/**\r\n * Indica que houve 403 billing_blocked em alguma chamada à API.\r\n * O layout exibe o aviso global; limpa ao navegar para outra rota.\r\n */\r\n@Injectable({ providedIn: 'root' })\r\nexport class BillingBlockedStateService {\r\n  private readonly active = signal(false);\r\n\r\n  readonly isActive = this.active.asReadonly();\r\n\r\n  activate(): void {\r\n    this.active.set(true);\r\n  }\r\n\r\n  clear(): void {\r\n    this.active.set(false);\r\n  }\r\n}\r\n"],
+  "mappings": ";;;;;;;;AAOM,IAAO,6BAAP,MAAO,4BAA0B;EACpB,SAAS,OAAO,OAAK,GAAA,YAAA,CAAA,EAAA,WAAA,SAAA,CAAA,IAAA,CAAA,CAAA;EAE7B,WAAW,KAAK,OAAO,WAAU;EAE1C,WAAQ;AACN,SAAK,OAAO,IAAI,IAAI;EACtB;EAEA,QAAK;AACH,SAAK,OAAO,IAAI,KAAK;EACvB;;qCAXW,6BAA0B;EAAA;4EAA1B,6BAA0B,SAA1B,4BAA0B,WAAA,YADb,OAAM,CAAA;;;sEACnB,4BAA0B,CAAA;UADtC;WAAW,EAAE,YAAY,OAAM,CAAE;;;",
+  "names": []
+}

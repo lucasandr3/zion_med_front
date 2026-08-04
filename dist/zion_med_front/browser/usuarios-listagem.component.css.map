@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/paginas/usuarios/usuarios-listagem.component.css"],
+  "sourcesContent": [".page-header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem; }\n"],
+  "mappings": ";AAAA,CAAA;AAAe,WAAA;AAAe,aAAA;AAAiB,eAAA;AAAqB,mBAAA;AAAgC,OAAA;AAAW;",
+  "names": []
+}

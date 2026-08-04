@@ -1,0 +1,1 @@
+import{a as i}from"./chunk-IE7YVJRF.js";function e(n){if(n==null)return null;let t=String(n).trim();if(!t)return null;if(/^(https?:|blob:|data:)/i.test(t))return t;let r=i.apiUrl.replace(/\/$/,"");return t.startsWith("/")?`${r}${t}`:`${r}/${t}`}export{e as a};

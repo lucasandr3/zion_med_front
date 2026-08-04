@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/shared/components/ui/zm-empty-state.component.css"],
+  "sourcesContent": [".zm-empty-state {\r\n  padding: var(--space-10) var(--space-4);\r\n  text-align: center;\r\n}\r\n\r\n.zm-empty-state__icon {\r\n  display: block;\r\n  margin: 0 auto var(--space-3);\r\n  font-size: 2.75rem;\r\n  color: var(--c-muted);\r\n  opacity: 0.85;\r\n}\r\n\r\n.zm-empty-state__title {\r\n  margin: 0;\r\n  font-size: var(--text-sm);\r\n  font-weight: 500;\r\n  color: var(--c-text);\r\n}\r\n\r\n.zm-empty-state__desc {\r\n  margin: var(--space-2) auto 0;\r\n  max-width: 22rem;\r\n  font-size: var(--text-xs);\r\n  line-height: 1.5;\r\n  color: var(--c-muted);\r\n}\r\n\r\n.zm-empty-state__action {\r\n  margin-top: var(--space-3);\r\n}\r\n"],
+  "mappings": ";AAAA,CAAA;AACE,WAAA,IAAA,YAAA,IAAA;AACA,cAAA;AACF;AAEA,CAAA;AACE,WAAA;AACA,UAAA,EAAA,KAAA,IAAA;AACA,aAAA;AACA,SAAA,IAAA;AACA,WAAA;AACF;AAEA,CAAA;AACE,UAAA;AACA,aAAA,IAAA;AACA,eAAA;AACA,SAAA,IAAA;AACF;AAEA,CAAA;AACE,UAAA,IAAA,WAAA,KAAA;AACA,aAAA;AACA,aAAA,IAAA;AACA,eAAA;AACA,SAAA,IAAA;AACF;AAEA,CAAA;AACE,cAAA,IAAA;AACF;",
+  "names": []
+}

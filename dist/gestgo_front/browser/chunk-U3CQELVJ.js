@@ -1,0 +1,1 @@
+import{aa as o,g as i}from"./chunk-SRB2YXIB.js";var a=class e{override$=new i(null);getOverride(){return this.override$.asObservable()}setHeader(t,r=null){this.override$.next({titulo:t,subtitulo:r})}clearHeader(){this.override$.next(null)}static \u0275fac=function(r){return new(r||e)};static \u0275prov=o({token:e,factory:e.\u0275fac,providedIn:"root"})};export{a};
