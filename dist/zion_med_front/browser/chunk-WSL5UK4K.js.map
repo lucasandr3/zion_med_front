@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["src/app/core/utils/billing-blocked-error.ts"],
-  "sourcesContent": ["import { HttpErrorResponse } from '@angular/common/http';\r\n\r\n/** Resposta 403 com `code: billing_blocked` (assinatura / cobrança pendente). */\r\nexport function isBillingBlockedError(err: unknown): boolean {\r\n  const http = err instanceof HttpErrorResponse ? err : null;\r\n  if (http?.status !== 403) return false;\r\n  const code = (http.error as { code?: string } | null)?.code;\r\n  return code === 'billing_blocked';\r\n}\r\n"],
-  "mappings": ";;;;;AAGM,SAAU,sBAAsB,KAAY;AAChD,QAAM,OAAO,eAAe,oBAAoB,MAAM;AACtD,MAAI,MAAM,WAAW;AAAK,WAAO;AACjC,QAAM,OAAQ,KAAK,OAAoC;AACvD,SAAO,SAAS;AAClB;",
-  "names": []
-}

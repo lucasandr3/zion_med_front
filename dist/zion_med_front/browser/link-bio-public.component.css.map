@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["src/app/paginas/link-bio-public/link-bio-public.component.css"],
-  "sourcesContent": [":host {\n  display: block;\n}\n\n*,\n*::before,\n*::after {\n  box-sizing: border-box;\n}\n\n.lb-bio-skeleton {\n  min-height: min(72vh, 560px);\n  padding-top: 0.75rem;\n  --c-border: #e5e7eb;\n  --c-surface: #ffffff;\n  --c-soft: #f3f4f6;\n  --skeleton-base: #e2e8f0;\n  --skeleton-highlight: #f8fafc;\n}\n\n.lb-bio-skeleton.lb-bio-skeleton--dark {\n  --c-border: rgba(255, 255, 255, 0.1);\n  --c-surface: #13161c;\n  --c-soft: #0d1016;\n  --skeleton-base: #252b36;\n  --skeleton-highlight: #3d4654;\n}\n\n.muted {\n  color: #9ca3af;\n}\n"],
-  "mappings": ";AAAA;AACE,WAAA;AACF;AAEA;;;AAGE,cAAA;AACF;AAEA,CAAA;AACE,cAAA,IAAA,IAAA,EAAA;AACA,eAAA;AACA,cAAA;AACA,eAAA;AACA,YAAA;AACA,mBAAA;AACA,wBAAA;AACF;AAEA,CAVA,eAUA,CAAA;AACE,cAAA,KAAA,GAAA,EAAA,GAAA,EAAA,GAAA,EAAA;AACA,eAAA;AACA,YAAA;AACA,mBAAA;AACA,wBAAA;AACF;AAEA,CAAA;AACE,SAAA;AACF;",
-  "names": []
-}

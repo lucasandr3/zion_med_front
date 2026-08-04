@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["src/app/paginas/billing/billing.component.css"],
-  "sourcesContent": [".billing-page { display: flex; flex-direction: column; min-height: 0; width: 100%; }\n"],
-  "mappings": ";AAAA,CAAA;AAAgB,WAAA;AAAe,kBAAA;AAAwB,cAAA;AAAe,SAAA;AAAa;",
-  "names": []
-}

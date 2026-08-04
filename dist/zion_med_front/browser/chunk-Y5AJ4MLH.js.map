@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["src/app/core/services/plataforma-header.service.ts"],
-  "sourcesContent": ["import { Injectable } from '@angular/core';\r\nimport { BehaviorSubject } from 'rxjs';\r\n\r\nexport interface PlataformaHeaderOverride {\r\n  titulo: string;\r\n  subtitulo: string | null;\r\n}\r\n\r\n/**\r\n * Permite que páginas filhas do layout plataforma (ex.: detalhe do tenant)\r\n * definam título e subtítulo do header dinamicamente.\r\n */\r\n@Injectable({ providedIn: 'root' })\r\nexport class PlataformaHeaderService {\r\n  private readonly override$ = new BehaviorSubject<PlataformaHeaderOverride | null>(null);\r\n\r\n  getOverride() {\r\n    return this.override$.asObservable();\r\n  }\r\n\r\n  setHeader(titulo: string, subtitulo: string | null = null): void {\r\n    this.override$.next({ titulo, subtitulo });\r\n  }\r\n\r\n  clearHeader(): void {\r\n    this.override$.next(null);\r\n  }\r\n}\r\n"],
-  "mappings": ";;;;;;;;AAaM,IAAO,0BAAP,MAAO,yBAAuB;EACjB,YAAY,IAAI,gBAAiD,IAAI;EAEtF,cAAW;AACT,WAAO,KAAK,UAAU,aAAY;EACpC;EAEA,UAAU,QAAgB,YAA2B,MAAI;AACvD,SAAK,UAAU,KAAK,EAAE,QAAQ,UAAS,CAAE;EAC3C;EAEA,cAAW;AACT,SAAK,UAAU,KAAK,IAAI;EAC1B;;qCAbW,0BAAuB;EAAA;4EAAvB,0BAAuB,SAAvB,yBAAuB,WAAA,YADV,OAAM,CAAA;;;sEACnB,yBAAuB,CAAA;UADnC;WAAW,EAAE,YAAY,OAAM,CAAE;;;",
-  "names": []
-}

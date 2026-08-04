@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["src/app/paginas/plataforma/plataforma-plano-form/plataforma-plano-form.component.css"],
-  "sourcesContent": ["/* Usa classes globais: .card, .form-input, .btn-primary, .btn-ghost */\r\n\r\n.space-y-4 > * + * {\r\n  margin-top: 1rem;\r\n}\r\n"],
-  "mappings": ";AAEA,CAAA,UAAA,EAAA,EAAA,EAAA;AACE,cAAA;AACF;",
-  "names": []
-}

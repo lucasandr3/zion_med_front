@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["src/app/paginas/plataforma/plataforma-configuracoes/plataforma-configuracoes.component.css"],
-  "sourcesContent": [".space-y-4 > * + * {\r\n  margin-top: 1rem;\r\n}\r\n\r\n.space-y-2 > * + * {\r\n  margin-top: 0.5rem;\r\n}\r\n"],
-  "mappings": ";AAAA,CAAA,UAAA,EAAA,EAAA,EAAA;AACE,cAAA;AACF;AAEA,CAAA,UAAA,EAAA,EAAA,EAAA;AACE,cAAA;AACF;",
-  "names": []
-}

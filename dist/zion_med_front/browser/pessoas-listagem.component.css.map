@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["src/app/paginas/pessoas/pessoas-listagem.component.css"],
-  "sourcesContent": [".pessoa-row:hover {\r\n  background: var(--c-soft);\r\n}\r\n\r\n.filter-drawer {\r\n  animation: drawer-in 0.2s ease-out;\r\n}\r\n\r\n@keyframes drawer-in {\r\n  from {\r\n    transform: translateX(100%);\r\n  }\r\n  to {\r\n    transform: translateX(0);\r\n  }\r\n}\r\n"],
-  "mappings": ";AAAA,CAAA,UAAA;AACE,cAAA,IAAA;AACF;AAEA,CAAA;AACE,aAAA,UAAA,KAAA;AACF;AAEA,WAHE;AAIA;AACE,eAAA,WAAA;AACF;AACA;AACE,eAAA,WAAA;AACF;AACF;",
-  "names": []
-}

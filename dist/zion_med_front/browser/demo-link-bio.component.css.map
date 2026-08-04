@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["demo-link-bio.component.ts"],
-  "sourcesContent": ["\n    :host { display: block; }\n    .demo-banner { position: fixed; top: 0; left: 0; right: 0; z-index: 9999; background: #1d4ed8; color: #fff; font-size: 13px; padding: 8px 16px; }\n    .demo-banner-inner { max-width: 600px; margin: 0 auto; display: flex; align-items: center; gap: 10px; justify-content: center; flex-wrap: wrap; }\n    .demo-badge { font-size: 10px; font-weight: 700; background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 4px; letter-spacing: 0.05em; }\n    .demo-back { color: #fff; text-decoration: underline; text-underline-offset: 2px; font-weight: 500; }\n  "],
-  "mappings": ";AACI;AAAQ,WAAA;AAAgB;AACxB,CAAA;AAAe,YAAA;AAAiB,OAAA;AAAQ,QAAA;AAAS,SAAA;AAAU,WAAA;AAAe,cAAA;AAAqB,SAAA;AAAa,aAAA;AAAiB,WAAA,IAAA;AAAmB;AAChJ,CAAA;AAAqB,aAAA;AAAkB,UAAA,EAAA;AAAgB,WAAA;AAAe,eAAA;AAAqB,OAAA;AAAW,mBAAA;AAAyB,aAAA;AAAiB;AAChJ,CAAA;AAAc,aAAA;AAAiB,eAAA;AAAkB,cAAA,KAAA,GAAA,EAAA,GAAA,EAAA,GAAA,EAAA;AAAmC,WAAA,IAAA;AAAkB,iBAAA;AAAoB,kBAAA;AAAwB;AAClJ,CAAA;AAAa,SAAA;AAAa,mBAAA;AAA4B,yBAAA;AAA4B,eAAA;AAAkB;",
-  "names": []
-}

@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["src/app/paginas/protocolos/protocolos-listagem.component.css"],
-  "sourcesContent": ["/* Protocolos listagem — fiel à view protocolos/index.blade.php */\n.protocolo-row:hover {\n  background-color: var(--c-soft);\n}\n.filter-drawer {\n  animation: proto-drawer-in 0.2s ease-out;\n}\n@keyframes proto-drawer-in {\n  from {\n    transform: translateX(100%);\n  }\n  to {\n    transform: translateX(0);\n  }\n}\n"],
-  "mappings": ";AACA,CAAA,aAAA;AACE,oBAAA,IAAA;AACF;AACA,CAAA;AACE,aAAA,gBAAA,KAAA;AACF;AACA,WAFE;AAGA;AACE,eAAA,WAAA;AACF;AACA;AACE,eAAA,WAAA;AACF;AACF;",
-  "names": []
-}
