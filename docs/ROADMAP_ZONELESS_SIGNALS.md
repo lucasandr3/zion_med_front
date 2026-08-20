@@ -4,6 +4,8 @@ Documento de análise e plano de modernização do SPA Gestgo após a migração
 
 **Repositório backend (contratos / regras alinhadas):** `../zion_med` → ver [`docs/ROADMAP_MODERNIZACAO_API.md`](../../zion_med/docs/ROADMAP_MODERNIZACAO_API.md).
 
+**Gap-list do fluxo paciente (identificação → PDF → cópias):** [`GAP_FLUXO_PACIENTE_CONSENTIMENTO.md`](./GAP_FLUXO_PACIENTE_CONSENTIMENTO.md).
+
 ---
 
 ## 1. Estado atual (baseline)
