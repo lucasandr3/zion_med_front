@@ -1,5 +1,4 @@
 import { Component, OnInit, inject, Signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PlataformaService, PlatformSettingsData } from '../../../core/services/plataforma.service';
 import { LoadingService } from '../../../shared/services/loading.service';
@@ -16,7 +15,6 @@ import { PlataformaServicosTabComponent } from './plataforma-servicos-tab.compon
   selector: 'app-plataforma-configuracoes',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     ZardCardComponent,
     ZardButtonComponent,

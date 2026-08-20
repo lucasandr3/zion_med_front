@@ -1,5 +1,4 @@
 import { Component, EventEmitter, Input, Output, inject, OnChanges, SimpleChanges } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 import { OnboardingService } from '../../../../core/services/onboarding.service';
@@ -14,7 +13,7 @@ const DISMISS_PREFIX = 'zm_onboarding_dismiss_';
 @Component({
   selector: 'zm-dashboard-onboarding-wizard',
   standalone: true,
-  imports: [CommonModule, RouterLink, ZardCardComponent, ZardButtonComponent],
+  imports: [RouterLink, ZardCardComponent, ZardButtonComponent],
   templateUrl: './zm-dashboard-onboarding-wizard.component.html',
   styleUrl: './zm-dashboard-onboarding-wizard.component.css',
 })

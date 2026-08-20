@@ -1,12 +1,11 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { FormularioPublicoData } from '../../core/services/formulario-publico.service';
 import { ClinicalFormStepMeta } from '../../core/utils/clinical-step.util';
 
 @Component({
   selector: 'zm-formulario-publico-header',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './formulario-publico-header.component.html',
 })
 export class FormularioPublicoHeaderComponent {

@@ -10,7 +10,7 @@ import {
   SimpleChanges,
   ViewChildren,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { FlatpickrDirective, provideFlatpickrDefaults } from 'angularx-flatpickr';
 import { Portuguese } from 'flatpickr/dist/l10n/pt';
@@ -36,7 +36,7 @@ import {
 @Component({
   selector: 'zm-formulario-publico-fields',
   standalone: true,
-  imports: [CommonModule, FormsModule, FlatpickrDirective, ZardCheckboxComponent],
+  imports: [FormsModule, FlatpickrDirective, ZardCheckboxComponent],
   providers: [
     provideFlatpickrDefaults({
       locale: Portuguese,

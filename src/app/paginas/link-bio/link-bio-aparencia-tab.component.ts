@@ -1,5 +1,4 @@
 import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import {
@@ -24,7 +23,6 @@ import { ZardCardComponent } from '@/shared/components/card/card.component';
   standalone: true,
   imports: [
     ...ZARD_FORM_CONTROL_IMPORTS,
-    CommonModule,
     FormsModule,
     RouterLink,
     ZardButtonComponent,

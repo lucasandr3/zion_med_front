@@ -1,6 +1,5 @@
 import { Component, OnInit, OnDestroy, inject, Signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { CommonModule } from '@angular/common';
 import { ZardCardComponent } from '@/shared/components/card/card.component';
 import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
 import { ZardButtonComponent } from '@/shared/components/button/button.component';
@@ -19,7 +18,6 @@ import { statusAssinaturaOuCobrancaPt } from '../../../core/utils/status-labels-
   selector: 'app-plataforma-cliente-detalhe',
   standalone: true,
   imports: [
-    CommonModule,
     ZardCardComponent,
     ZardBadgeComponent,
     ZardButtonComponent,

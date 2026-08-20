@@ -1,5 +1,4 @@
 import { Component, OnInit, ViewChild, ElementRef, inject, signal, DestroyRef, Signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -53,7 +52,6 @@ function mensagemErroApi(err: { error?: { message?: string; errors?: Record<stri
   standalone: true,
   imports: [
     ...ZARD_FORM_CONTROL_IMPORTS,
-    CommonModule,
     RouterLink,
     FormsModule,
     ZardCardComponent,

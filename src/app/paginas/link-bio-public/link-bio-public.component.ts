@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit, inject, PLATFORM_ID, Signal, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { isPlatformBrowser } from '@angular/common';
 import { Title, Meta } from '@angular/platform-browser';
 import {
   LinkBioService,
@@ -26,7 +26,6 @@ import type { LinkBioLayoutModel } from '../../core/services/link-bio.service';
   selector: 'app-link-bio-public',
   standalone: true,
   imports: [
-    CommonModule,
     LinkBioPublicKioskComponent,
     LinkBioPublicLayoutGenericComponent,
     LinkBioPublicLayoutsComponent,

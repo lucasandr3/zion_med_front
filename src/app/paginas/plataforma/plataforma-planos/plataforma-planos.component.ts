@@ -1,5 +1,4 @@
 import { Component, OnInit, OnDestroy, inject, Signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { ZardCardComponent } from '@/shared/components/card/card.component';
 import { ZardButtonComponent } from '@/shared/components/button/button.component';
@@ -14,7 +13,7 @@ import { ConfirmDialogService } from '../../../core/services/confirm-dialog.serv
 @Component({
   selector: 'app-plataforma-planos',
   standalone: true,
-  imports: [CommonModule, RouterLink, ZardCardComponent, ZardButtonComponent, ZardBadgeComponent, ZmSkeletonListComponent],
+  imports: [RouterLink, ZardCardComponent, ZardButtonComponent, ZardBadgeComponent, ZmSkeletonListComponent],
   templateUrl: './plataforma-planos.component.html',
   styleUrl: './plataforma-planos.component.css',
 })

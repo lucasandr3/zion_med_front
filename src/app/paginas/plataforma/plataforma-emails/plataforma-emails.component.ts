@@ -1,5 +1,4 @@
 import { Component, OnInit, computed, inject, Signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { forkJoin } from 'rxjs';
@@ -30,7 +29,6 @@ import {
   selector: 'app-plataforma-emails',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     RouterLink,
     ZardCardComponent,

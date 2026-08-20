@@ -4,7 +4,6 @@ import { Router, RouterLink, RouterOutlet, NavigationEnd } from '@angular/router
 import { filter } from 'rxjs';
 import { BarraLateralComponent } from '../barra-lateral/barra-lateral.component';
 import { CabecalhoComponent } from '../cabecalho/cabecalho.component';
-import { CommonModule } from '@angular/common';
 import { NotificacoesService } from '../../../core/services/notificacoes.service';
 import { NovidadesService } from '../../../core/services/novidades.service';
 import { SidebarMobileService } from '../../../core/services/sidebar-mobile.service';
@@ -18,7 +17,6 @@ import { GoAssistantHostComponent } from '../../../go-assistant';
   selector: 'app-layout-app',
   standalone: true,
   imports: [
-    CommonModule,
     RouterLink,
     RouterOutlet,
     BarraLateralComponent,

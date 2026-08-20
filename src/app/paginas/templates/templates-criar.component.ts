@@ -1,6 +1,5 @@
 import { Component, OnInit, inject, Signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
   TemplatesService,
@@ -65,7 +64,7 @@ const CATEGORY_EMOJI: Record<string, string> = {
 @Component({
   selector: 'app-templates-criar',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule, ZmSkeletonListComponent],
+  imports: [RouterLink, FormsModule, ZmSkeletonListComponent],
   templateUrl: './templates-criar.component.html',
   styleUrl: './templates-criar.component.css',
 })

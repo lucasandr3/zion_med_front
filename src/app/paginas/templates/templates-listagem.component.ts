@@ -1,7 +1,6 @@
 import { Component, OnInit, DestroyRef, inject, Signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { catchError, forkJoin, of } from 'rxjs';
 import { TemplatesService, Template } from '../../core/services/templates.service';
@@ -94,7 +93,6 @@ import { ZardMenuImports } from '@/shared/components/menu/menu.imports';
     ...ZardTableImports,
     ...ZardTooltipImports,
     ...ZardMenuImports,
-    CommonModule,
     RouterLink,
     FormsModule,
     ZmSkeletonTemplatesColecaoComponent,

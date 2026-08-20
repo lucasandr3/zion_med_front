@@ -1,5 +1,4 @@
 import { Component, Input, OnChanges, Output, EventEmitter, SimpleChanges, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
   PlataformaService,
@@ -35,7 +34,6 @@ const COMPONENT_OPTIONS: Record<string, string> = {
   selector: 'app-plataforma-servicos-tab',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     ZardCardComponent,
     ZardButtonComponent,

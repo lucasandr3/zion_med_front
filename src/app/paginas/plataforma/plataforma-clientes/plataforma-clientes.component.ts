@@ -1,6 +1,5 @@
 import { Component, OnInit, inject, Signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { CommonModule } from '@angular/common';
 import { ZardCardComponent } from '@/shared/components/card/card.component';
 import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
 import { PlataformaService, PlatformTenant } from '../../../core/services/plataforma.service';
@@ -8,7 +7,6 @@ import { LoadingService } from '../../../shared/services/loading.service';
 import { ZmSkeletonListComponent } from '../../../shared/components/skeletons';
 import { ZmEmptyStateComponent } from '../../../shared/components/ui';
 import { statusAssinaturaOuCobrancaPt } from '../../../core/utils/status-labels-pt';
-
 import { ZardTableImports } from '@/shared/components/table';
 
 @Component({
@@ -16,7 +14,6 @@ import { ZardTableImports } from '@/shared/components/table';
   standalone: true,
   imports: [
     ...ZardTableImports,
-    CommonModule,
     RouterLink,
     ZardCardComponent,
     ZardBadgeComponent,

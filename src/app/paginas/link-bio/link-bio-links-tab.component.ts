@@ -1,5 +1,4 @@
 import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import {
@@ -32,7 +31,6 @@ export type LinkBioLinksTabNavigate = 'aparencia';
   standalone: true,
   imports: [
     ...ZARD_FORM_CONTROL_IMPORTS,
-    CommonModule,
     FormsModule,
     RouterLink,
     ZardBadgeComponent,

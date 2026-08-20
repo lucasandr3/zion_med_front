@@ -1,5 +1,4 @@
 import { Component, OnDestroy, OnInit, inject, Signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NovidadesService, ReleaseNote, ReleaseNoteItem, ReleaseNoteItemType } from '../../../core/services/novidades.service';
 import { PlataformaHeaderService } from '../../../core/services/plataforma-header.service';
@@ -20,7 +19,6 @@ interface FormItem {
   selector: 'app-plataforma-novidades',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     ZmSkeletonListComponent,
     ZmEmptyStateComponent,

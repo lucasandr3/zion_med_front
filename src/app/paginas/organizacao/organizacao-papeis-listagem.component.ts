@@ -1,6 +1,5 @@
 import { Component, OnInit, inject, Signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { CommonModule } from '@angular/common';
 import { OrganizationRolesService, OrganizationRoleListItem } from '../../core/services/organization-roles.service';
 import { LoadingService } from '../../shared/services/loading.service';
 import { ZmSkeletonPermissoesListagemComponent } from '../../shared/components/skeletons';
@@ -18,7 +17,6 @@ import { ZardTableImports } from '@/shared/components/table';
   standalone: true,
   imports: [
     ...ZardTableImports,
-    CommonModule,
     RouterLink,
     ZmSkeletonPermissoesListagemComponent,
     ZmEmptyStateComponent,

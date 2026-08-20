@@ -1,6 +1,5 @@
 import { Component, OnInit, inject, Signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { forkJoin } from 'rxjs';
 import {
@@ -20,7 +19,6 @@ import { ZardButtonComponent } from '@/shared/components/button/button.component
   standalone: true,
   imports: [
     ...ZARD_FORM_CONTROL_IMPORTS,
-    CommonModule,
     RouterLink,
     FormsModule,
     ZmSkeletonPermissaoFormularioComponent,

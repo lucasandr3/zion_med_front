@@ -1,11 +1,10 @@
 import { Component, input } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { SafeResourceUrl } from '@angular/platform-browser';
 
 @Component({
   selector: 'zm-link-bio-side-preview',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './link-bio-side-preview.component.html',
   styleUrl: './link-bio-side-preview.component.css',
 })

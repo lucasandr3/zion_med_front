@@ -1,6 +1,5 @@
 import { Component, OnInit, inject, Signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { CommonModule } from '@angular/common';
 import { switchMap, map, catchError, of, forkJoin } from 'rxjs';
 import {
   ChartComponent,
@@ -129,7 +128,6 @@ type BarChartOptions = {
   selector: 'app-pagina-dashboard',
   standalone: true,
   imports: [
-    CommonModule,
     RouterLink,
     ChartComponent,
     ZmSkeletonDashboardComponent,

@@ -1,5 +1,4 @@
 import { Component, OnInit, OnDestroy, inject, Signal, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { PlataformaService, PlatformPlan } from '../../../core/services/plataforma.service';
@@ -9,13 +8,18 @@ import { ZmSkeletonCardComponent } from '../../../shared/components/skeletons';
 import { ToastService } from '../../../core/services/toast.service';
 import { ZardCardComponent } from '@/shared/components/card/card.component';
 import { ZardButtonComponent } from '@/shared/components/button/button.component';
-
 import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
 @Component({
   selector: 'app-plataforma-plano-form',
   standalone: true,
   imports: [
-    ...ZARD_FORM_CONTROL_IMPORTS,CommonModule, FormsModule, RouterLink, ZardCardComponent, ZardButtonComponent, ZmSkeletonCardComponent],
+    ...ZARD_FORM_CONTROL_IMPORTS,
+    FormsModule,
+    RouterLink,
+    ZardCardComponent,
+    ZardButtonComponent,
+    ZmSkeletonCardComponent,
+  ],
   templateUrl: './plataforma-plano-form.component.html',
   styleUrl: './plataforma-plano-form.component.css',
 })

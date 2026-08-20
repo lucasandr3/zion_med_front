@@ -1,6 +1,5 @@
 import { Component, OnInit, inject, Signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { CommonModule } from '@angular/common';
 import { switchMap } from 'rxjs';
 import { AuthService } from '../../core/services/auth.service';
 import { ClinicaService, ClinicaOption } from '../../core/services/clinica.service';
@@ -15,7 +14,6 @@ import { ToastService } from '../../core/services/toast.service';
   selector: 'app-clinica-escolher',
   standalone: true,
   imports: [
-    CommonModule,
     ZmSkeletonListComponent,
     ZmEmptyStateComponent,
     ZardCardComponent,

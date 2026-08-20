@@ -5,10 +5,10 @@ import {
   OnDestroy,
   inject,
   PLATFORM_ID,
-  NgZone,
+  ChangeDetectorRef,
 } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
-import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { isPlatformBrowser } from '@angular/common';
 import { Subscription } from 'rxjs';
 import { AuthService } from '../../../core/services/auth.service';
 import { resolveSidebarLogoSrc } from '../../../core/utils/sidebar-logo.util';
@@ -24,7 +24,6 @@ import { ZardAvatarComponent } from '@/shared/components/avatar/avatar.component
   selector: 'app-barra-lateral-plataforma',
   standalone: true,
   imports: [
-    CommonModule,
     RouterLink,
     RouterLinkActive,
     ...ZardTooltipImports,
@@ -56,19 +55,21 @@ export class BarraLateralPlataformaComponent implements OnInit, OnDestroy {
   private sidebarObserver: MutationObserver | null = null;
   private appearanceSub?: Subscription;
   private platformId = inject(PLATFORM_ID);
-  private ngZone = inject(NgZone);
+  private cdr = inject(ChangeDetectorRef);
 
   ngOnInit(): void {
     this.atualizarDados();
     this.sincronizarEstadoSidebar();
     this.appearanceSub = this.auth.appearanceApplied$.subscribe(() => {
-      this.ngZone.run(() => this.refreshSidebarLogo());
+      this.refreshSidebarLogo();
+      this.cdr.markForCheck();
     });
     this.sidebarMobile.getOpen().subscribe((open) => {
       this.sidebarOpenMobile = open;
       if (typeof document !== 'undefined') {
         document.body.style.overflow = open ? 'hidden' : '';
       }
+      this.cdr.markForCheck();
     });
   }
 
@@ -107,10 +108,9 @@ export class BarraLateralPlataformaComponent implements OnInit, OnDestroy {
     if (!isPlatformBrowser(this.platformId) || typeof document === 'undefined') return;
 
     const atualizar = (): void => {
-      this.ngZone.run(() => {
-        this.sidebarColapsada = document.body.classList.contains('sidebar-collapsed');
-        this.refreshSidebarLogo();
-      });
+      this.sidebarColapsada = document.body.classList.contains('sidebar-collapsed');
+      this.refreshSidebarLogo();
+      this.cdr.markForCheck();
     };
 
     atualizar();

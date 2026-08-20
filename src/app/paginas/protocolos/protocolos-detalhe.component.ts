@@ -11,7 +11,6 @@ import {
 } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
   ProtocolosService,
@@ -62,7 +61,6 @@ const PROTOCOLO_ABA_IDS: ProtocoloAbaId[] = [
   selector: 'app-protocolos-detalhe',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     RouterLink,
     ZmSkeletonProtocoloDetalheComponent,

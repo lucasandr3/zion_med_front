@@ -1,5 +1,4 @@
 import { Component, OnInit, inject, Signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { ZardCardComponent } from '@/shared/components/card/card.component';
 import {
@@ -12,7 +11,7 @@ import { ZmSkeletonListComponent } from '../../../shared/components/skeletons';
 @Component({
   selector: 'app-plataforma-trafico-landing',
   standalone: true,
-  imports: [CommonModule, RouterLink, ZardCardComponent, ZmSkeletonListComponent],
+  imports: [RouterLink, ZardCardComponent, ZmSkeletonListComponent],
   templateUrl: './plataforma-trafico-landing.component.html',
   styleUrl: './plataforma-trafico-landing.component.css',
 })

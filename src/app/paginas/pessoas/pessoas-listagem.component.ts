@@ -1,6 +1,5 @@
 import { Component, OnInit, OnDestroy, inject, Signal, ViewChild, TemplateRef, ViewContainerRef } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PessoasService, Pessoa } from '../../core/services/pessoas.service';
 import { LoadingService } from '../../shared/services/loading.service';
@@ -11,9 +10,7 @@ import { ZardButtonComponent } from '@/shared/components/button/button.component
 import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
 import { ZardSheetService } from '@/shared/components/sheet/sheet.service';
 import type { ZardSheetRef } from '@/shared/components/sheet/sheet-ref';
-
 import { FlatpickrDirective } from 'angularx-flatpickr';
-
 import { ZardComboboxComponent, type ZardComboboxOption } from '@/shared/components/combobox';
 import { ZardTableImports } from '@/shared/components/table';
 import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
@@ -24,7 +21,6 @@ import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
     ...ZARD_FORM_CONTROL_IMPORTS,
     ...ZardTableImports,
     FlatpickrDirective,
-    CommonModule,
     FormsModule,
     RouterLink,
     ZmSkeletonListComponent,

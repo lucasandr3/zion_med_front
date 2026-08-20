@@ -1,6 +1,5 @@
 import { Component, OnInit, inject, Signal, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TemplatesService, Template, TemplateCategory, TemplateComprehensionQuestion } from '../../core/services/templates.service';
 import { LoadingService } from '../../shared/services/loading.service';
@@ -17,7 +16,6 @@ import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
   standalone: true,
   imports: [
     ...ZARD_FORM_CONTROL_IMPORTS,
-    CommonModule,
     RouterLink,
     FormsModule,
     ZmSkeletonTemplateFormularioComponent,

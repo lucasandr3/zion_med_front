@@ -1,6 +1,5 @@
 import { Component, OnInit, inject, Signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { catchError, map, of, switchMap } from 'rxjs';
 import { LoadingService } from '../../shared/services/loading.service';
@@ -13,7 +12,7 @@ type PreviewValue = string | number | boolean;
 @Component({
   selector: 'app-templates-preview',
   standalone: true,
-  imports: [CommonModule, FormsModule, ZmSkeletonListComponent, ZardCheckboxComponent],
+  imports: [FormsModule, ZmSkeletonListComponent, ZardCheckboxComponent],
   templateUrl: './templates-preview.component.html',
   styleUrl: './templates-preview.component.css',
 })

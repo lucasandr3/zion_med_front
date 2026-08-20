@@ -1,7 +1,6 @@
 import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../core/services/auth.service';
 import { ZardButtonComponent } from '@/shared/components/button';
@@ -13,7 +12,6 @@ import { ZardTooltipImports } from '@/shared/components/tooltip';
   selector: 'app-pagina-login',
   standalone: true,
   imports: [
-    CommonModule,
     RouterLink,
     FormsModule,
     ZardButtonComponent,

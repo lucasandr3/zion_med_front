@@ -1,17 +1,19 @@
 import { Component, OnInit, inject, Signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { ZardCardComponent } from '@/shared/components/card/card.component';
 import { PlataformaService, PlatformLead } from '../../../core/services/plataforma.service';
 import { LoadingService } from '../../../shared/services/loading.service';
 import { ZmSkeletonListComponent } from '../../../shared/components/skeletons';
 import { ZmEmptyStateComponent } from '../../../shared/components/ui';
-
 import { ZardTableImports } from '@/shared/components/table';
 @Component({
   selector: 'app-plataforma-leads',
   standalone: true,
   imports: [
-    ...ZardTableImports,CommonModule, ZardCardComponent, ZmSkeletonListComponent, ZmEmptyStateComponent],
+    ...ZardTableImports,
+    ZardCardComponent,
+    ZmSkeletonListComponent,
+    ZmEmptyStateComponent,
+  ],
   templateUrl: './plataforma-leads.component.html',
   styleUrl: './plataforma-leads.component.css',
 })

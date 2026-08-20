@@ -1,5 +1,4 @@
 import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { LinkBioFormLink } from '../../core/services/link-bio.service';
 import { ToastService } from '../../core/services/toast.service';
@@ -9,7 +8,7 @@ import { ZardButtonComponent } from '@/shared/components/button/button.component
 @Component({
   selector: 'zm-link-bio-forms-tab',
   standalone: true,
-  imports: [CommonModule, RouterLink, ZardCardComponent, ZardButtonComponent],
+  imports: [RouterLink, ZardCardComponent, ZardButtonComponent],
   templateUrl: './link-bio-forms-tab.component.html',
 })
 export class LinkBioFormsTabComponent {

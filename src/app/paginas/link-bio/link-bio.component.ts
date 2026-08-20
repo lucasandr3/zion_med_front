@@ -9,7 +9,7 @@ import {
   Signal,
   ViewChild,
 } from '@angular/core';
-import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import {
@@ -57,7 +57,6 @@ import { LinkBioSidePreviewComponent } from './link-bio-side-preview.component';
   standalone: true,
   imports: [
     ...ZARD_FORM_CONTROL_IMPORTS,
-    CommonModule,
     FormsModule,
     ZmSkeletonLinkBioComponent,
     ZardBadgeComponent,

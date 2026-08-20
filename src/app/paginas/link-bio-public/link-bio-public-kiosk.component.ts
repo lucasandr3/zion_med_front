@@ -1,5 +1,4 @@
 import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import {
   LinkBioClinic,
@@ -15,7 +14,7 @@ import {
 @Component({
   selector: 'app-link-bio-public-kiosk',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [RouterLink],
   templateUrl: './link-bio-public-kiosk.component.html',
   styleUrl: './link-bio-public-kiosk.component.css',
 })

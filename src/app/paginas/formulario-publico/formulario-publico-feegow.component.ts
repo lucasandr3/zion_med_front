@@ -1,5 +1,4 @@
 import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { FlatpickrDirective, provideFlatpickrDefaults } from 'angularx-flatpickr';
 import { Portuguese } from 'flatpickr/dist/l10n/pt';
@@ -16,7 +15,7 @@ import {
 @Component({
   selector: 'zm-formulario-publico-feegow',
   standalone: true,
-  imports: [CommonModule, FormsModule, FlatpickrDirective],
+  imports: [FormsModule, FlatpickrDirective],
   providers: [
     provideFlatpickrDefaults({
       locale: Portuguese,

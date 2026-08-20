@@ -1,5 +1,4 @@
 import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
@@ -31,7 +30,6 @@ const LINK_BIO_FOTO_PROFISSIONAL_MAX_BYTES = 2 * 1024 * 1024;
   standalone: true,
   imports: [
     ...ZARD_FORM_CONTROL_IMPORTS,
-    CommonModule,
     FormsModule,
     RouterLink,
     ZardButtonComponent,

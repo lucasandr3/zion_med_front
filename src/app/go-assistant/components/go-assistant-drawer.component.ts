@@ -1,5 +1,4 @@
 import { Component, computed, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { getTourByScreenId } from '../data';
 import type { AssistantAction, AssistantIntent } from '../models/assistant.types';
@@ -11,7 +10,7 @@ import { GoAssistantTourService } from '../services/go-assistant-tour.service';
 @Component({
   selector: 'go-assistant-drawer',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [FormsModule],
   templateUrl: './go-assistant-drawer.component.html',
   styleUrl: './go-assistant-drawer.component.css',
 })

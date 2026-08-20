@@ -1,6 +1,5 @@
 import { Component, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TemplatesService, TemplateCategory } from '../../core/services/templates.service';
 import { ToastService } from '../../core/services/toast.service';
@@ -15,7 +14,6 @@ import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
   standalone: true,
   imports: [
     ...ZARD_FORM_CONTROL_IMPORTS,
-    CommonModule,
     RouterLink,
     FormsModule,
     ZmPageBackLinkComponent,

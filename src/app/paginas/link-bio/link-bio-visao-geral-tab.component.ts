@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output, PLATFORM_ID, inject } from '@angular/core';
-import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { isPlatformBrowser } from '@angular/common';
 import {
   LinkBioLayoutModel,
   LinkBioService,
@@ -21,7 +21,6 @@ import {
   selector: 'zm-link-bio-visao-geral-tab',
   standalone: true,
   imports: [
-    CommonModule,
     LinkBioOverviewHeaderComponent,
     LinkBioOverviewSectionComponent,
     LinkBioQrDialogComponent,

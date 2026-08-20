@@ -1,10 +1,10 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 
 @Component({
   selector: 'zm-formulario-publico-footer',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './formulario-publico-footer.component.html',
 })
 export class FormularioPublicoFooterComponent {

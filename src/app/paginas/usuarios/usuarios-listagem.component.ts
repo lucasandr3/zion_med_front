@@ -1,6 +1,5 @@
 import { Component, OnInit, inject, Signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { CommonModule } from '@angular/common';
 import { UsuariosService, Usuario } from '../../core/services/usuarios.service';
 import { LoadingService } from '../../shared/services/loading.service';
 import { ZmSkeletonUsuariosListagemComponent } from '../../shared/components/skeletons';
@@ -11,14 +10,12 @@ import { AuthService } from '../../core/services/auth.service';
 import { ToastService } from '../../core/services/toast.service';
 import { ConfirmDialogService } from '../../core/services/confirm-dialog.service';
 import { ZardTooltipImports } from '@/shared/components/tooltip';
-
 import { ZardTableImports } from '@/shared/components/table';
 @Component({
   selector: 'app-usuarios-listagem',
   standalone: true,
   imports: [
     ...ZardTableImports,
-    CommonModule,
     RouterLink,
     ZmSkeletonUsuariosListagemComponent,
     ZmEmptyStateComponent,

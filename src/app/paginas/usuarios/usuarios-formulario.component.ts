@@ -1,6 +1,5 @@
 import { Component, OnInit, inject, Signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { forkJoin } from 'rxjs';
 import { UsuariosService, Role, Usuario, UsuarioUpdatePayload } from '../../core/services/usuarios.service';
@@ -26,7 +25,6 @@ function mensagemErroApi(err: { error?: { message?: string; errors?: Record<stri
   standalone: true,
   imports: [
     ...ZARD_FORM_CONTROL_IMPORTS,
-    CommonModule,
     RouterLink,
     FormsModule,
     ZmSkeletonUsuarioFormularioComponent,

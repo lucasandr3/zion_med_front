@@ -1,6 +1,5 @@
 import { Component, OnInit, inject, Signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { CommonModule } from '@angular/common';
 import { LinksPublicosService, LinkPublico } from '../../core/services/links-publicos.service';
 import { ToastService } from '../../core/services/toast.service';
 import { LoadingService } from '../../shared/services/loading.service';
@@ -31,7 +30,6 @@ interface LinkPublicoItem {
   selector: 'app-pagina-links-publicos',
   standalone: true,
   imports: [
-    CommonModule,
     RouterLink,
     ZmSkeletonLinksPublicosComponent,
     ZmEmptyStateComponent,

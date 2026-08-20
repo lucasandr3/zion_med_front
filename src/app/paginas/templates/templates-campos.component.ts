@@ -1,6 +1,5 @@
 import { Component, OnInit, inject, Signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 import { switchMap, map, catchError, of } from 'rxjs';
@@ -79,7 +78,6 @@ import { CLINICAL_STEP_KINDS, CLINICAL_STEP_LABELS } from '../../core/utils/clin
     ...ZARD_FORM_CONTROL_IMPORTS,
     ...ZardTableImports,
     ...ZardTooltipImports,
-    CommonModule,
     RouterLink,
     FormsModule,
     DragDropModule,

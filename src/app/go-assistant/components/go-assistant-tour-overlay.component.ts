@@ -1,11 +1,10 @@
 import { Component, computed, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { GoAssistantTourService } from '../services/go-assistant-tour.service';
 
 @Component({
   selector: 'go-assistant-tour-overlay',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   template: `
     @if (tour.state(); as state) {
       <div class="go-tour-root" role="dialog" aria-modal="true" aria-label="Tour guiado">

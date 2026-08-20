@@ -1,5 +1,4 @@
 import { Component, OnInit, inject, Signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { NotificacoesService, Notificacao } from '../../core/services/notificacoes.service';
 import { LoadingService } from '../../shared/services/loading.service';
@@ -21,7 +20,7 @@ const ORDEM_GRUPOS = ['Hoje', 'Esta semana', 'Este mês', 'Anteriores'] as const
 @Component({
   selector: 'app-pagina-notificacoes',
   standalone: true,
-  imports: [CommonModule, ZmSkeletonListComponent, ZmEmptyStateComponent, RouterLink, ZardButtonComponent],
+  imports: [ZmSkeletonListComponent, ZmEmptyStateComponent, RouterLink, ZardButtonComponent],
   templateUrl: './notificacoes.component.html',
   styleUrl: './notificacoes.component.css',
 })

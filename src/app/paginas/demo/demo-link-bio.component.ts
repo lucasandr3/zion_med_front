@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, inject, PLATFORM_ID } from '@angular/core';
-import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { LinkBioPublicLayoutsComponent } from '../link-bio-public/link-bio-public-layouts.component';
 import { LinkBioPublicLayoutGenericComponent } from '../link-bio-public/link-bio-public-layout-generic.component';
@@ -211,7 +211,6 @@ const MOCK_DOCS: LinkBioPublicDocItem[] = [
   selector: 'app-demo-link-bio',
   standalone: true,
   imports: [
-    CommonModule,
     RouterLink,
     LinkBioPublicLayoutGenericComponent,
     LinkBioPublicLayoutsComponent,

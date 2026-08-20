@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, inject } from '@angular/core';
-import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { isPlatformBrowser } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { PLATFORM_ID } from '@angular/core';
@@ -21,7 +21,7 @@ import { ZardCardComponent } from '@/shared/components/card/card.component';
 @Component({
   selector: 'zm-link-bio-modelos-tab',
   standalone: true,
-  imports: [CommonModule, RouterLink, ZardBadgeComponent, ZardButtonComponent, ZardCardComponent],
+  imports: [RouterLink, ZardBadgeComponent, ZardButtonComponent, ZardCardComponent],
   templateUrl: './link-bio-modelos-tab.component.html',
   styleUrl: './link-bio-modelos-tab.component.css',
   host: { class: 'link-bio-config block min-w-0' },

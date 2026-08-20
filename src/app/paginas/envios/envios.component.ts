@@ -1,5 +1,4 @@
 import { Component, OnInit, inject, Signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 import { DocumentSendsService, DocumentSendItem } from '../../core/services/document-sends.service';
@@ -24,7 +23,6 @@ import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
   imports: [
     ...ZARD_FORM_CONTROL_IMPORTS,
     ...ZardTableImports,
-    CommonModule,
     FormsModule,
     ZmSkeletonListComponent,
     ZmPaginationComponent,

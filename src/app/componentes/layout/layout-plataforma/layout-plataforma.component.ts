@@ -3,7 +3,6 @@ import { Router, RouterOutlet, NavigationEnd } from '@angular/router';
 import { filter, Subscription } from 'rxjs';
 import { BarraLateralPlataformaComponent } from '../barra-lateral-plataforma/barra-lateral-plataforma.component';
 import { CabecalhoComponent } from '../cabecalho/cabecalho.component';
-import { CommonModule } from '@angular/common';
 import { NotificacoesService } from '../../../core/services/notificacoes.service';
 import { NovidadesService } from '../../../core/services/novidades.service';
 import { SidebarMobileService } from '../../../core/services/sidebar-mobile.service';
@@ -15,7 +14,6 @@ import { GoAssistantHostComponent } from '../../../go-assistant';
   selector: 'app-layout-plataforma',
   standalone: true,
   imports: [
-    CommonModule,
     RouterOutlet,
     BarraLateralPlataformaComponent,
     CabecalhoComponent,
