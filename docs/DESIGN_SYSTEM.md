@@ -19,7 +19,7 @@ Para outro sistema com a mesma aparência, alinhe esta base:
 
 | Pacote | Uso |
 |--------|-----|
-| Angular 20+ (standalone) | Framework |
+| Angular 21+ (standalone, zoneless) | Framework — ver `docs/ROADMAP_ZONELESS_SIGNALS.md` |
 | Tailwind CSS 4 | Utilitários; `@import 'tailwindcss'` em `styles.css` |
 | `tailwindcss-animate` | Animações (`zm-fade-in`, pulse do skeleton) |
 | Zard UI (`zard-cli`) | Componentes headless (`z-button`, `z-card`, `z-table`, `z-input`…) |
