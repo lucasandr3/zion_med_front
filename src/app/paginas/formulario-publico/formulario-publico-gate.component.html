@@ -1,5 +1,5 @@
 <div class="fp-title-block">
-  @if (title.trim()) {
+  @if (title.trim() && !isConfirmStep) {
     <p class="fp-gate-eyebrow">{{ title.trim() }}</p>
   }
   <h1 class="fp-title">{{ templateName }}</h1>
@@ -9,7 +9,38 @@
   <div class="fp-banner-error">{{ personGateErro }}</div>
 }
 
-@if (isCpfMode) {
+@if (isConfirmStep) {
+  <div class="fp-field-group fp-field-animate" style="margin-top: 0.5rem">
+    <p class="fp-lead" style="font-size: 1.05rem; margin-bottom: 1rem">
+      Olá, <strong>{{ pendingConfirmName }}</strong>.
+    </p>
+    <label class="fp-check-row" style="display: flex; align-items: flex-start; gap: 0.65rem; cursor: pointer">
+      <input
+        type="checkbox"
+        [ngModel]="nameConfirmed"
+        (ngModelChange)="onNameConfirmedInput($event)"
+        [ngModelOptions]="{ standalone: true }"
+        style="margin-top: 0.2rem"
+      />
+      <span class="fp-field-label" style="margin: 0; font-weight: 500">
+        Confirmo que sou <strong>{{ pendingConfirmName }}</strong> e que os dados de identificação estão corretos.
+      </span>
+    </label>
+  </div>
+
+  <button
+    type="button"
+    class="fp-submit-btn"
+    style="margin-top: 1.25rem"
+    (click)="confirmIdentity.emit()"
+    [disabled]="!nameConfirmed"
+  >
+    Continuar para o formulário
+  </button>
+  <button type="button" class="fp-link" style="display: block; margin: 1rem auto 0; background: none; border: 0; cursor: pointer" (click)="backToCredentials.emit()">
+    Usar outros dados
+  </button>
+} @else if (isCpfMode) {
   <div class="fp-field-group fp-field-animate">
     <label class="fp-field-label" for="fpPersonCpf">CPF</label>
     <input
@@ -38,6 +69,18 @@
       class="fp-input"
     />
   </div>
+
+  <button type="button" class="fp-submit-btn" style="margin-top: 1.25rem" (click)="validate.emit()" [disabled]="validandoPerson">
+    @if (validandoPerson) {
+      <svg class="fp-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" opacity=".25" />
+        <path d="M21 12a9 9 0 00-9-9" />
+      </svg>
+      Validando…
+    } @else {
+      Continuar
+    }
+  </button>
 } @else {
   <div class="fp-field-group fp-field-animate">
     <label class="fp-field-label" for="fpPersonCode">Código</label>
@@ -66,16 +109,16 @@
       class="fp-input"
     />
   </div>
-}
 
-<button type="button" class="fp-submit-btn" style="margin-top: 1.25rem" (click)="validate.emit()" [disabled]="validandoPerson">
-  @if (validandoPerson) {
-    <svg class="fp-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-      <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" opacity=".25" />
-      <path d="M21 12a9 9 0 00-9-9" />
-    </svg>
-    Validando…
-  } @else {
-    Continuar para o formulário
-  }
-</button>
+  <button type="button" class="fp-submit-btn" style="margin-top: 1.25rem" (click)="validate.emit()" [disabled]="validandoPerson">
+    @if (validandoPerson) {
+      <svg class="fp-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" opacity=".25" />
+        <path d="M21 12a9 9 0 00-9-9" />
+      </svg>
+      Validando…
+    } @else {
+      Continuar
+    }
+  </button>
+}

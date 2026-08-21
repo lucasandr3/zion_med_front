@@ -18,17 +18,30 @@ export class FormularioPublicoGateComponent {
   @Input() personBirthDate = '';
   @Input() personGateErro = '';
   @Input() validandoPerson = false;
+  /** Após validate-person: nome cadastrado para confirmação (Opção B). */
+  @Input() pendingConfirmName: string | null = null;
+  @Input() nameConfirmed = false;
 
   @Output() cpfChange = new EventEmitter<string>();
   @Output() codeChange = new EventEmitter<string>();
   @Output() birthDateChange = new EventEmitter<string>();
   @Output() validate = new EventEmitter<void>();
+  @Output() nameConfirmedChange = new EventEmitter<boolean>();
+  @Output() confirmIdentity = new EventEmitter<void>();
+  @Output() backToCredentials = new EventEmitter<void>();
 
   get isCpfMode(): boolean {
     return (this.mode || 'cpf').toLowerCase() === 'cpf';
   }
 
+  get isConfirmStep(): boolean {
+    return !!(this.pendingConfirmName && this.pendingConfirmName.trim());
+  }
+
   get leadText(): string {
+    if (this.isConfirmStep) {
+      return 'Confirme que você é a pessoa abaixo para continuar o preenchimento.';
+    }
     if (this.description?.trim()) return this.description.trim();
     return this.isCpfMode
       ? 'Para iniciar o preenchimento, informe seu CPF e a data de nascimento cadastrados na clínica.'
@@ -45,5 +58,9 @@ export class FormularioPublicoGateComponent {
 
   onBirthDateInput(value: string): void {
     this.birthDateChange.emit(value);
+  }
+
+  onNameConfirmedInput(value: boolean): void {
+    this.nameConfirmedChange.emit(!!value);
   }
 }

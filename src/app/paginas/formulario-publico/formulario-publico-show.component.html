@@ -56,10 +56,15 @@
             [personBirthDate]="personBirthDate"
             [personGateErro]="personGateErro"
             [validandoPerson]="validandoPerson"
+            [pendingConfirmName]="personPendingConfirmName"
+            [nameConfirmed]="personNameConfirmed"
             (cpfChange)="onPersonCpfChange($event)"
             (codeChange)="onPersonCodeChange($event)"
             (birthDateChange)="onPersonBirthDateChange($event)"
             (validate)="validarIdentificacao()"
+            (nameConfirmedChange)="personNameConfirmed = $event"
+            (confirmIdentity)="confirmarIdentidade()"
+            (backToCredentials)="voltarCredenciaisGate()"
           />
         } @else {
           <div class="fp-title-block">

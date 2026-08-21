@@ -223,6 +223,9 @@ interface SubmitResponse {
   data: {
     message: string;
     protocol_number: string;
+    patient_download_token?: string;
+    patient_download_url?: string;
+    patient_download_expires_at?: string | null;
     feegow?: {
       enabled?: boolean;
       attempted?: boolean;
@@ -352,6 +355,13 @@ export class FormularioPublicoService {
     return this.http
       .post<SubmitResponse>(`${BASE}/formulario-publico/${encodeURIComponent(token)}/submit`, payload)
       .pipe(map((r) => r.data));
+  }
+
+  /** Download da cópia PDF do paciente (token público de curta duração). */
+  downloadPatientCopy(copyToken: string): Observable<Blob> {
+    return this.http.get(`${BASE}/formulario-publico/copia/${encodeURIComponent(copyToken)}`, {
+      responseType: 'blob',
+    });
   }
 
   validatePerson(

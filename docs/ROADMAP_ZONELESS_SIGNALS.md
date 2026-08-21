@@ -4,7 +4,7 @@ Documento de análise e plano de modernização do SPA Gestgo após a migração
 
 **Repositório backend (contratos / regras alinhadas):** `../zion_med` → ver [`docs/ROADMAP_MODERNIZACAO_API.md`](../../zion_med/docs/ROADMAP_MODERNIZACAO_API.md).
 
-**Gap-list do fluxo paciente (identificação → PDF → cópias):** [`GAP_FLUXO_PACIENTE_CONSENTIMENTO.md`](./GAP_FLUXO_PACIENTE_CONSENTIMENTO.md).
+**Gap-list do fluxo paciente (identificação → PDF → cópias):** [`GAP_FLUXO_PACIENTE_CONSENTIMENTO.md`](./GAP_FLUXO_PACIENTE_CONSENTIMENTO.md) — **P0 fechado em 2026-08-21** (Opção B + cópia paciente + identity no PDF). Track independente deste roadmap de signals.
 
 ---
 
@@ -281,16 +281,15 @@ Ao tocar em componente/página:
 
 ## 7. Dependências do backend
 
-Zoneless **não exige** breaking change de API. Itens que **melhoram** a adoção de signals/`resource`:
+Zoneless **não exige** breaking change de API. Itens ligados a produto/consentimento:
 
-| Front | Pedido ao back | Doc |
-|-------|----------------|-----|
-| Badge de notificações no layout | Usar `meta.unread_count` (já existe) ou endpoint leve | Roadmap API |
-| WhatsApp QR / status Evolution | Status estável + ETag/poll documentado (SSE opcional depois) | Roadmap API |
-| PDF/dossiê pesado | Job + status (evita UI “travada”) | Roadmap API |
-| Envelope de erro | Manter flat `{ code, message, details? }` alinhado às rules Cursor | Roadmap API |
+| Front | Back | Status |
+|-------|------|--------|
+| Badge de notificações no layout | Usar `meta.unread_count` | Pendente (roadmap API) |
+| Gate B + cópia PDF paciente | `PatientCopyService`, job PDF, identity | **Feito** (gap-list) |
+| Envelope de erro | Flat `{ code, message }` | OK no código; rules Cursor a alinhar |
 
-Detalhes e fases do Laravel: **`zion_med/docs/ROADMAP_MODERNIZACAO_API.md`**.
+Detalhes: **`zion_med/docs/ROADMAP_MODERNIZACAO_API.md`** e **`GAP_FLUXO_PACIENTE_CONSENTIMENTO.md`**.
 
 ---
 
@@ -314,3 +313,4 @@ A modernização zoneless/signals do front está **concluída** quando:
 | 2026-08-20 | Upgrade Angular 20 → 21; CDK 21; ngx-mask 21; ng-apexcharts 3 |
 | 2026-08-20 | `provideZonelessChangeDetection`; remoção de Zone dos polyfills |
 | 2026-08-20 | Este roadmap criado |
+| 2026-08-21 | Gap fluxo paciente P0 fechado (track separado); este doc permanece focado em signals/OnPush |

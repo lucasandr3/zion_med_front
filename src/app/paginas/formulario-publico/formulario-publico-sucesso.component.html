@@ -32,6 +32,31 @@
           <p class="text-xl font-mono font-semibold bio-text">{{ protocolNumber }}</p>
         </div>
       }
+
+      @if (patientDownloadToken) {
+        <button
+          type="button"
+          class="fp-submit-btn"
+          style="margin-top: 1.25rem; width: 100%"
+          (click)="baixarCopia()"
+          [disabled]="downloading"
+        >
+          @if (downloading) {
+            Baixando PDF…
+          } @else {
+            Baixar minha cópia (PDF)
+          }
+        </button>
+        @if (patientCopyEmailedHint) {
+          <p class="bio-muted text-xs mt-3 leading-relaxed">
+            Também enviamos o link de download para o e-mail informado (válido por 72 horas).
+          </p>
+        } @else {
+          <p class="bio-muted text-xs mt-3 leading-relaxed">
+            Guarde este PDF. O link de download expira em 72 horas.
+          </p>
+        }
+      }
     </div>
   </div>
 </div>

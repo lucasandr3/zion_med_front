@@ -122,6 +122,9 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
   validandoPerson = false;
   personValidatedName: string | null = null;
   personValidatedId: number | null = null;
+  /** Nome pendente de confirmação explícita (Opção B). */
+  personPendingConfirmName: string | null = null;
+  personNameConfirmed = false;
   procedureSchedulingAllowed = true;
   consentSummaryLabel = '';
   kioskMode = false;
@@ -203,6 +206,8 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
     this.personGateErro = '';
     this.personValidatedName = null;
     this.personValidatedId = null;
+    this.personPendingConfirmName = null;
+    this.personNameConfirmed = false;
     this.procedureSchedulingAllowed = true;
     this.consentSummaryLabel = '';
     this.acceptTerms = false;
@@ -312,7 +317,8 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
       this.formularioService.validatePerson(this.token, { cpf, birth_date: birthDate }).subscribe({
         next: (r) => {
           this.validandoPerson = false;
-          this.personGateOk = true;
+          this.personPendingConfirmName = r.name;
+          this.personNameConfirmed = false;
           this.personValidatedName = r.name;
           this.personValidatedId = r.person_id;
           this.procedureSchedulingAllowed = r.procedure_scheduling_allowed !== false;
@@ -343,7 +349,8 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
     this.formularioService.validatePerson(this.token, { code, birth_date: birthDate }).subscribe({
       next: (r) => {
         this.validandoPerson = false;
-        this.personGateOk = true;
+        this.personPendingConfirmName = r.name;
+        this.personNameConfirmed = false;
         this.personValidatedName = r.name;
         this.personValidatedId = r.person_id;
         this.procedureSchedulingAllowed = r.procedure_scheduling_allowed !== false;
@@ -356,6 +363,24 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
         this.personGateErro = msg ?? 'Código ou data de nascimento não conferem.';
       },
     });
+  }
+
+  confirmarIdentidade(): void {
+    this.personGateErro = '';
+    if (!this.personPendingConfirmName || !this.personNameConfirmed) {
+      this.personGateErro = 'Confirme que você é a pessoa identificada para continuar.';
+      return;
+    }
+    this.personGateOk = true;
+    this.personPendingConfirmName = null;
+  }
+
+  voltarCredenciaisGate(): void {
+    this.personPendingConfirmName = null;
+    this.personNameConfirmed = false;
+    this.personValidatedName = null;
+    this.personValidatedId = null;
+    this.personGateErro = '';
   }
 
   enviarOtp(): void {
@@ -483,6 +508,7 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
       personCpfDigits: this.personCpfDigits,
       personCode: this.personCode,
       personBirthDate: this.personBirthDate,
+      personNameConfirmed: this.personLinkRequired() ? this.personNameConfirmed : false,
       signingSecurityLevel: this.data.signing_security_level,
       otpChannel: this.otpChannel,
       otpPhone: this.otpPhone,
@@ -524,6 +550,10 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
             protocol_number: r.protocol_number,
             clinic_name: this.data?.clinic_name,
             clinic_logo_url: this.data?.logo_url ?? null,
+            patient_download_token: r.patient_download_token ?? null,
+            patient_download_url: r.patient_download_url ?? null,
+            patient_download_expires_at: r.patient_download_expires_at ?? null,
+            submitter_email: this.submitterEmail.trim() || null,
           },
         });
       },
@@ -1010,6 +1040,8 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
     this.personGateOk = false;
     this.personCpfDigits = '';
     this.personCpfDisplay = '';
+    this.personPendingConfirmName = null;
+    this.personNameConfirmed = false;
     this.acceptTerms = false;
     this.comprehensionAck = false;
     this.resetTermScrollState();
