@@ -54,7 +54,7 @@ export class DevUiComponent {
   readonly paginationLast = signal(8);
 
   readonly themeOptions: ThemeOption[] = [
-    { id: 'ocean-blue', label: 'Ocean Blue (padrão)' },
+    { id: 'ocean-blue', label: 'Verde marca (padrão)' },
     { id: 'gestgo-blue', label: 'Gestgo Blue' },
     { id: 'indigo-night', label: 'Indigo Night' },
     { id: 'emerald-fresh', label: 'Emerald Fresh' },

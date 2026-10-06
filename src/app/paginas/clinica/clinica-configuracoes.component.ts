@@ -72,7 +72,7 @@ const API_TO_UI_DAY_MAP: Record<string, string> = {
 
 const TEMA_LABEL_PT_MAP: Record<string, string> = {
   'gestgo-blue': 'Azul Gestgo',
-  'ocean-blue': 'Azul oceano',
+  'ocean-blue': 'Verde marca',
   'indigo-night': 'Anil',
   'emerald-fresh': 'Esmeralda',
   'rose-elegant': 'Rosa',

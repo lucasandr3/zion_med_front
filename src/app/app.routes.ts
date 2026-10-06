@@ -19,7 +19,6 @@ export const routes: Routes = [
   { path: 'verificar/:code', loadComponent: () => import('./paginas/verificar/verificar-documento.component').then(m => m.VerificarDocumentoComponent) },
   { path: 'verificar', loadComponent: () => import('./paginas/verificar/verificar-documento.component').then(m => m.VerificarDocumentoComponent) },
   { path: 'verificacao-pendente', loadComponent: () => import('./paginas/auth/verificacao-pendente.component').then(m => m.VerificacaoPendenteComponent) },
-  { path: 'comece', loadComponent: () => import('./paginas/comece/comece.component').then(m => m.ComeceComponent) },
   { path: 'termos-de-uso', loadComponent: () => import('./paginas/termos/termos.component').then(m => m.TermosComponent) },
   { path: 'privacidade', loadComponent: () => import('./paginas/privacidade/privacidade.component').then(m => m.PrivacidadeComponent) },
   { path: 'f/sucesso', loadComponent: () => import('./paginas/formulario-publico/formulario-publico-sucesso.component').then(m => m.FormularioPublicoSucessoComponent) },

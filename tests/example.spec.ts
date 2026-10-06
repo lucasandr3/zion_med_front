@@ -47,26 +47,13 @@ async function expectAuthenticatedShell(page: Page, heading: string) {
 }
 
 test.describe('Fluxos públicos', () => {
-  test('deve navegar entre home, login e páginas institucionais', async ({ page }) => {
-    await page.goto('/');
-
+  test('deve navegar entre login e páginas institucionais', async ({ page }) => {
+    await page.goto('/autenticacao');
     await expect(page).toHaveTitle(/Gestgo/i);
-    await expect(page.getByRole('link', { name: 'Entrar' })).toBeVisible();
-
-    await page.getByRole('link', { name: 'Entrar' }).click();
-    await expect(page).toHaveURL(/\/autenticacao$/);
     await expect(page.getByRole('heading', { name: 'Bem-vindo de volta' })).toBeVisible();
 
     await page.getByRole('link', { name: 'Esqueceu a senha?' }).click();
     await expect(page).toHaveURL(/\/esqueci-a-senha$/);
-
-    await page.goto('/comece');
-    await expect(page.locator('.comece-page .nav-login')).toBeVisible();
-    await expect(page.locator('#company_name')).toBeVisible();
-    await expect(page.getByRole('button', { name: /Criar conta/i })).toBeVisible();
-    await page.locator('#company_name').fill('');
-    await page.getByRole('button', { name: /Criar conta/i }).click();
-    await expect(page.locator('.alert-err')).toBeVisible();
 
     await page.goto('/privacidade');
     await expect(page).toHaveURL(/\/privacidade$/);

@@ -35,7 +35,7 @@ import { GoAssistantShellService } from '../../../go-assistant/services/go-assis
 
 export const TEMAS: { key: string; label: string; labelPt: string; color: string }[] = [
   { key: 'gestgo-blue', label: 'Royal blue', labelPt: 'Azul Gestgo', color: '#1e40af' },
-  { key: 'ocean-blue', label: 'Brand green', labelPt: 'Verde marca', color: '#16a874' },
+  { key: 'ocean-blue', label: 'Brand green', labelPt: 'Verde marca', color: '#14B87A' },
   { key: 'indigo-night', label: 'Indigo Night', labelPt: 'Anil', color: '#3730a3' },
   { key: 'emerald-fresh', label: 'Emerald Fresh', labelPt: 'Esmeralda', color: '#15803d' },
   { key: 'rose-elegant', label: 'Rose Elegant', labelPt: 'Rosa', color: '#be185d' },

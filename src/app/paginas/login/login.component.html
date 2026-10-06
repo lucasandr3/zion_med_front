@@ -12,30 +12,61 @@
 </button>
 
 <div class="login-page">
-  <div class="login-bg-gradient"></div>
-  <div class="login-blob-tr"></div>
-  <div class="login-blob-bl"></div>
-
-  <div class="login-wrap">
-    <div class="login-brand">
+  <aside class="login-aside" aria-label="Sobre o Gestgo">
+    <div class="login-aside-mesh" aria-hidden="true"></div>
+    <div class="login-aside-inner">
       <div class="login-brand-logo">
         <div class="login-brand-logo-icon">
           <img src="assets/logo/logo.png" alt="Gestgo">
         </div>
         <span class="login-brand-logo-name">Gestgo</span>
       </div>
-      <div class="login-brand-text">
-        <h1>
-          Fichas digitais que chegam<br>
-          <span class="hl">antes do paciente.</span>
-        </h1>
-        <p>
-          Fichas e consentimentos digitais para sua clínica: o paciente identifica-se (CPF ou código + nascimento), confirma o nome e preenche pelo link antes da consulta — protocolo, PDF automático e histórico organizados.
-        </p>
-      </div>
-      <p class="login-brand-footer">© {{ ano }} Gestgo. Todos os direitos reservados.</p>
-    </div>
 
+      <div class="login-brand-text">
+        <p class="login-kicker">Fichas e consentimentos digitais</p>
+        <h1>
+          Tudo preenchido<br>
+          <span class="hl">antes do paciente chegar.</span>
+        </h1>
+        <p class="login-lead">
+          Clientes recebem o link, preenchem e assinam. Você recebe protocolo, PDF e histórico organizado.
+        </p>
+
+        <ul class="login-points">
+          <li>
+            <span class="login-point-icon" aria-hidden="true">
+              <span class="material-symbols-outlined">edit_document</span>
+            </span>
+            <span class="login-point-copy">
+              <strong>Preenchimento antecipado</strong>
+              <span>A ficha chega completa, antes da consulta.</span>
+            </span>
+          </li>
+          <li>
+            <span class="login-point-icon" aria-hidden="true">
+              <span class="material-symbols-outlined">draw</span>
+            </span>
+            <span class="login-point-copy">
+              <strong>Assinatura com evidências</strong>
+              <span>Registro eletrônico pronto para auditoria.</span>
+            </span>
+          </li>
+          <li>
+            <span class="login-point-icon" aria-hidden="true">
+              <span class="material-symbols-outlined">picture_as_pdf</span>
+            </span>
+            <span class="login-point-copy">
+              <strong>PDF e protocolo automáticos</strong>
+              <span>Documento e número gerados sem retrabalho.</span>
+            </span>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <p class="login-brand-footer">© {{ ano }} Gestgo. Todos os direitos reservados.</p>
+  </aside>
+
+  <section class="login-panel">
     <div class="login-form-stack">
       <div class="login-mobile-brand">
         <div class="login-brand-logo">
@@ -47,97 +78,95 @@
       </div>
 
       <div class="login-card">
-      <div class="login-card-inner">
-        <h2 class="login-card-title">Bem-vindo de volta</h2>
-        <p class="login-card-subtitle">Entre para acessar o painel da sua clínica, fichas e protocolos.</p>
+        <div class="login-card-inner">
+          <h2 class="login-card-title">Bem-vindo de volta</h2>
+          <p class="login-card-subtitle">Acesse o painel da sua clínica.</p>
 
-        @if (estadoErro()) {
-          <p class="login-error mb-6 text-sm text-destructive" role="alert">{{ mensagemErro() }}</p>
-        }
+          @if (estadoErro()) {
+            <p class="login-error" role="alert">{{ mensagemErro() }}</p>
+          }
 
-        <form (ngSubmit)="enviar()" class="login-form" #formLogin="ngForm">
-          <div class="login-field">
-            <div class="login-label-row">
-              <label class="login-label" for="login-email">E-mail</label>
+          <form (ngSubmit)="enviar()" class="login-form" #formLogin="ngForm">
+            <div class="login-field">
+              <div class="login-label-row">
+                <label class="login-label" for="login-email">E-mail</label>
+              </div>
+              <div class="login-input-wrap group">
+                <span class="material-symbols-outlined login-input-icon-l">mail</span>
+                <input
+                  type="email"
+                  name="email"
+                  id="login-email"
+                  [(ngModel)]="email"
+                  z-input
+                  class="w-full pl-9"
+                  [zStatus]="estadoErro() ? 'error' : undefined"
+                  placeholder="seu@email.com.br"
+                  required
+                  autofocus
+                  autocomplete="email"
+                >
+              </div>
             </div>
-            <div class="login-input-wrap group">
-              <span class="material-symbols-outlined login-input-icon-l">mail</span>
-              <input
-                type="email"
-                name="email"
-                id="login-email"
-                [(ngModel)]="email"
-                z-input
-                zSize="sm"
-                class="w-full pl-9"
-                [zStatus]="estadoErro() ? 'error' : undefined"
-                placeholder="seu@email.com.br"
-                required
-                autofocus
-                autocomplete="email"
-              >
+
+            <div class="login-field">
+              <div class="login-label-row">
+                <label class="login-label" for="login-password">Senha</label>
+                <a routerLink="/esqueci-a-senha" class="login-forgot">Esqueceu a senha?</a>
+              </div>
+              <div class="login-input-wrap group">
+                <span class="material-symbols-outlined login-input-icon-l">lock</span>
+                <input
+                  [type]="mostrarSenha() ? 'text' : 'password'"
+                  name="password"
+                  id="login-password"
+                  [(ngModel)]="senha"
+                  z-input
+                  class="w-full pl-9 pr-9"
+                  [zStatus]="estadoErro() ? 'error' : undefined"
+                  placeholder="••••••••"
+                  required
+                  autocomplete="current-password"
+                >
+                <button
+                  type="button"
+                  z-button
+                  zType="ghost"
+                  zSize="icon-sm"
+                  class="login-input-toggle"
+                  (click)="mostrarSenha.set(!mostrarSenha())"
+                  aria-label="Mostrar ou ocultar senha"
+                  zTooltip="Mostrar ou ocultar senha"
+                >
+                  <span class="material-symbols-outlined text-lg">{{ mostrarSenha() ? 'visibility_off' : 'visibility' }}</span>
+                </button>
+              </div>
             </div>
-          </div>
 
-          <div class="login-field">
-            <div class="login-label-row">
-              <label class="login-label" for="login-password">Senha</label>
-              <a routerLink="/esqueci-a-senha" class="login-forgot">Esqueceu a senha?</a>
-            </div>
-            <div class="login-input-wrap group">
-              <span class="material-symbols-outlined login-input-icon-l">lock</span>
-              <input
-                [type]="mostrarSenha() ? 'text' : 'password'"
-                name="password"
-                id="login-password"
-                [(ngModel)]="senha"
-                z-input
-                zSize="sm"
-                class="w-full pl-9 pr-9"
-                [zStatus]="estadoErro() ? 'error' : undefined"
-                placeholder="••••••••"
-                required
-                autocomplete="current-password"
-              >
-              <button
-                type="button"
-                z-button
-                zType="ghost"
-                zSize="icon-sm"
-                class="login-input-toggle"
-                (click)="mostrarSenha.set(!mostrarSenha())"
-                aria-label="Mostrar ou ocultar senha"
-                zTooltip="Mostrar ou ocultar senha"
-              >
-                <span class="material-symbols-outlined text-lg">{{ mostrarSenha() ? 'visibility_off' : 'visibility' }}</span>
-              </button>
-            </div>
-          </div>
+            <z-checkbox class="login-remember" name="remember" [(ngModel)]="lembrar">Lembrar neste dispositivo</z-checkbox>
 
-          <z-checkbox class="login-remember" name="remember" [(ngModel)]="lembrar">Lembrar neste dispositivo</z-checkbox>
+            <button
+              type="submit"
+              z-button
+              zFull
+              class="login-submit-btn inline-flex items-center gap-2"
+              [zLoading]="estadoCarregando()"
+              [zDisabled]="estadoCarregando()"
+            >
+              @if (!estadoCarregando()) {
+                <span>Acessar</span>
+                <span class="material-symbols-outlined login-submit-icon">arrow_forward</span>
+              } @else {
+                <span>Entrando…</span>
+              }
+            </button>
 
-          <button
-            type="submit"
-            z-button
-            zFull
-            class="login-submit-btn inline-flex items-center gap-2"
-            [zLoading]="estadoCarregando()"
-            [zDisabled]="estadoCarregando()"
-          >
-            @if (!estadoCarregando()) {
-              <span>Acessar</span>
-              <span class="material-symbols-outlined login-submit-icon transition-transform group-hover/button:translate-x-0.5">arrow_forward</span>
-            } @else {
-              <span>Entrando…</span>
-            }
-          </button>
-
-          <p class="login-register">
-            Ainda não tem conta? <a href="https://gestgo.com.br/comece/">Criar conta grátis</a>
-          </p>
-        </form>
-      </div>
+            <p class="login-register">
+              Ainda não tem conta? <a href="https://gestgo.com.br/comece/">Criar conta grátis</a>
+            </p>
+          </form>
+        </div>
       </div>
     </div>
-  </div>
+  </section>
 </div>

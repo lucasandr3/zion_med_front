@@ -194,14 +194,14 @@
 
 .shell-horizontal-brand__logo {
   align-items: center;
-  background: var(--primary);
-  border-radius: 0.5rem;
+  background: transparent;
+  border-radius: 0;
   display: inline-flex;
   flex-shrink: 0;
   height: 1.75rem;
   justify-content: center;
-  overflow: hidden;
-  padding: 0.125rem;
+  overflow: visible;
+  padding: 0;
   width: 1.75rem;
 }
 
@@ -228,12 +228,12 @@
 }
 
 .shell-horizontal-brand__logo--gestgo {
-  background: var(--c-primary, #16a874);
-  border-radius: 9999px;
-  box-shadow: var(--gestgo-brand-logo-shadow);
-  height: 2rem;
-  padding: 0.3125rem;
-  width: 2rem;
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  height: 1.75rem;
+  padding: 0;
+  width: 1.75rem;
 }
 
 .shell-horizontal-brand__logo--gestgo img {

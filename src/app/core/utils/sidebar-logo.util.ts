@@ -16,15 +16,16 @@ const THEME_LOGO_FILE: Record<string, string> = {
 };
 
 /**
- * Logo na faixa da marca: com `shell-preset-tinted`, usa variante colorida do tema; caso contrário `logo.png`.
+ * Logo na faixa da marca, sem chip: cor sólida do tema.
+ * No modo Topo e marca (faixa colorida) usa a marca branca.
  */
 export function resolveSidebarLogoSrc(): string {
   if (typeof document === 'undefined') {
     return '/assets/logo/logo.png';
   }
   const tinted = document.body.classList.contains('shell-preset-tinted');
-  if (!tinted) {
-    return '/assets/logo/logo.png';
+  if (tinted) {
+    return '/assets/logo/logo-white.png';
   }
   let themeKey = '';
   for (const c of Array.from(document.body.classList)) {

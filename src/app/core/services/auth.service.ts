@@ -153,7 +153,7 @@ export class AuthService {
     } catch {}
   }
 
-  /** Usado após login ou cadastro (comece) para definir token e contexto. */
+  /** Usado após login para definir token e contexto. */
   setSessionFromLoginData(data: LoginResponse['data']): void {
     if (typeof localStorage !== 'undefined' && data.token) {
       localStorage.setItem(TOKEN_KEY, data.token);
