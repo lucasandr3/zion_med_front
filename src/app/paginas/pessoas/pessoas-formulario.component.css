@@ -12,7 +12,7 @@
   min-height: var(--control-height);
 }
 
-.pessoa-form-lgpd z-checkbox {
+.pessoa-form-lgpd g-checkbox {
   align-items: flex-start;
 }
 

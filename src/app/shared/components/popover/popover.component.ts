@@ -28,8 +28,8 @@ import { mergeClasses } from '@/shared/utils/merge-classes';
 
 import { popoverVariants } from './popover.variants';
 
-export type ZardPopoverTrigger = 'click' | 'hover' | null;
-export type ZardPopoverPlacement = 'top' | 'bottom' | 'left' | 'right';
+export type GestgoPopoverTrigger = 'click' | 'hover' | null;
+export type GestgoPopoverPlacement = 'top' | 'bottom' | 'left' | 'right';
 
 const POPOVER_POSITIONS_MAP: { [key: string]: ConnectedPosition } = {
   top: {
@@ -71,7 +71,7 @@ const POPOVER_POSITIONS_MAP: { [key: string]: ConnectedPosition } = {
   standalone: true,
   exportAs: 'zPopover',
 })
-export class ZardPopoverDirective implements OnInit, OnDestroy {
+export class GestgoPopoverDirective implements OnInit, OnDestroy {
   private readonly destroyRef = inject(DestroyRef);
   private readonly overlay = inject(Overlay);
   private readonly overlayPositionBuilder = inject(OverlayPositionBuilder);
@@ -84,9 +84,9 @@ export class ZardPopoverDirective implements OnInit, OnDestroy {
   private overlayRefSubscription?: Subscription;
   private listeners: (() => void)[] = [];
 
-  readonly zTrigger = input<ZardPopoverTrigger>('click');
+  readonly zTrigger = input<GestgoPopoverTrigger>('click');
   readonly zContent = input.required<TemplateRef<unknown>>();
-  readonly zPlacement = input<ZardPopoverPlacement>('bottom');
+  readonly zPlacement = input<GestgoPopoverPlacement>('bottom');
   readonly zOrigin = input<ElementRef>();
   readonly zVisible = input<boolean>(false);
   readonly zOverlayClickable = input<boolean>(true);
@@ -251,7 +251,7 @@ export class ZardPopoverDirective implements OnInit, OnDestroy {
 
   private getMatchTriggerWidthPositions(): ConnectedPosition[] {
     const placement = this.zPlacement();
-    const aligned: Record<ZardPopoverPlacement, ConnectedPosition> = {
+    const aligned: Record<GestgoPopoverPlacement, ConnectedPosition> = {
       bottom: {
         originX: 'start',
         originY: 'bottom',
@@ -466,7 +466,7 @@ export class ZardPopoverDirective implements OnInit, OnDestroy {
     '[class]': 'classes()',
   },
 })
-export class ZardPopoverComponent {
+export class GestgoPopoverComponent {
   readonly class = input<string>('');
 
   protected readonly classes = computed(() => mergeClasses(popoverVariants(), this.class()));

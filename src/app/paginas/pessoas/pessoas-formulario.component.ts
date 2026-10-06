@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, Signal, signal } from '@angular/core';
+import { Component, OnInit, inject, Signal, signal, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
@@ -8,10 +8,11 @@ import { PessoasService } from '../../core/services/pessoas.service';
 import { LoadingService } from '../../shared/services/loading.service';
 import { ZmSkeletonPessoaFormularioComponent } from '../../shared/components/skeletons';
 import { ToastService } from '../../core/services/toast.service';
-import { ZardCardComponent } from '@/shared/components/card/card.component';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
-import { ZardComboboxComponent, type ZardComboboxOption } from '@/shared/components/combobox';
-import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
+import { GestgoCardComponent } from '@/shared/components/card/card.component';
+import { ZmPageBackLinkComponent } from '../../shared/components/ui';
+
+import { GestgoComboboxComponent, type GestgoComboboxOption } from '@/shared/components/combobox';
+import { NORD_FORM_IMPORTS } from '@/shared/nord';
 import {
   buildPessoaApiPayload,
   digitsOnlyCpf,
@@ -21,18 +22,20 @@ import {
 } from './pessoas-form.util';
 
 @Component({
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'app-pessoas-formulario',
   standalone: true,
+  host: { class: 'n-page' },
   imports: [
-    ...ZARD_FORM_CONTROL_IMPORTS,
+    ...NORD_FORM_IMPORTS,
     RouterLink,
     ReactiveFormsModule,
     FormsModule,
     ZmSkeletonPessoaFormularioComponent,
     FlatpickrDirective,
-    ZardCardComponent,
-    ZardButtonComponent,
-    ZardComboboxComponent,
+    GestgoCardComponent,
+    GestgoComboboxComponent,
+    ZmPageBackLinkComponent,
   ],
   providers: [
     provideFlatpickrDefaults({
@@ -43,8 +46,7 @@ import {
       allowInput: true,
       disableMobile: true,
       static: true,
-    }),
-  ],
+    })],
   templateUrl: './pessoas-formulario.component.html',
   styleUrl: './pessoas-formulario.component.css',
 })
@@ -95,38 +97,38 @@ export class PessoasFormularioComponent implements OnInit {
   erro = '';
   flatpickrAppendTo!: HTMLElement;
 
-  readonly opcoesSexo: ZardComboboxOption[] = [
+  readonly opcoesSexo: GestgoComboboxOption[] = [
     { value: '', label: 'Selecione' },
     { value: 'F', label: 'Feminino' },
     { value: 'M', label: 'Masculino' },
-    { value: 'O', label: 'Outro' },
-  ];
+    { value: 'O', label: 'Outro' }];
 
-  readonly opcoesEstadoCivil: ZardComboboxOption[] = [
+  readonly opcoesEstadoCivil: GestgoComboboxOption[] = [
     { value: '', label: 'Selecione' },
     { value: 'solteiro', label: 'Solteiro(a)' },
     { value: 'casado', label: 'Casado(a)' },
     { value: 'divorciado', label: 'Divorciado(a)' },
     { value: 'viuvo', label: 'Viúvo(a)' },
-    { value: 'uniao_estavel', label: 'União estável' },
-  ];
+    { value: 'uniao_estavel', label: 'União estável' }];
 
-  readonly opcoesPlanoSaude: ZardComboboxOption[] = [
+  readonly opcoesPlanoSaude: GestgoComboboxOption[] = [
     { value: '', label: 'Selecione' },
     { value: 'sim', label: 'Sim' },
-    { value: 'nao', label: 'Não' },
-  ];
+    { value: 'nao', label: 'Não' }];
 
-  readonly opcoesStatus: ZardComboboxOption[] = [
+  readonly opcoesStatus: GestgoComboboxOption[] = [
     { value: 'active', label: 'Ativa' },
-    { value: 'inactive', label: 'Inativa' },
-  ];
+    { value: 'inactive', label: 'Inativa' }];
 
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private pessoasService = inject(PessoasService);
   private loadingService = inject(LoadingService);
   private toast = inject(ToastService);
+
+  get cancelLink(): string {
+    return this.editMode && this.pessoaId != null ? `/pessoas/${this.pessoaId}` : '/pessoas';
+  }
 
   ngOnInit(): void {
     this.flatpickrAppendTo = document.body;

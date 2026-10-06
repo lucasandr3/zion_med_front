@@ -26,8 +26,8 @@ import { LoadingService } from '../../shared/services/loading.service';
 import { ZmAssinaturaBloqueadaCardComponent } from '../../shared/components/ui/zm-assinatura-bloqueada-card/zm-assinatura-bloqueada-card.component';
 import { ZmSkeletonDashboardComponent } from '../../shared/components/skeletons';
 import { ZmEmptyStateComponent } from '../../shared/components/ui';
-import { ZardCardComponent } from '@/shared/components/card/card.component';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
+import { GestgoCardComponent } from '@/shared/components/card/card.component';
+
 import { ZmDashboardOnboardingWizardComponent } from '../../shared/components/ui/zm-dashboard-onboarding-wizard/zm-dashboard-onboarding-wizard.component';
 import { AuthService } from '../../core/services/auth.service';
 
@@ -128,16 +128,15 @@ type BarChartOptions = {
   selector: 'app-pagina-dashboard',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { class: 'n-page' },
   imports: [
     RouterLink,
     ChartComponent,
     ZmSkeletonDashboardComponent,
     ZmAssinaturaBloqueadaCardComponent,
     ZmEmptyStateComponent,
-    ZardCardComponent,
-    ZardButtonComponent,
-    ZmDashboardOnboardingWizardComponent,
-  ],
+    GestgoCardComponent,
+    ZmDashboardOnboardingWizardComponent],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css',
 })
@@ -169,8 +168,7 @@ export class DashboardComponent implements OnInit {
   readonly periodOptions = [
     { days: 7, label: '7 dias' },
     { days: 30, label: '30 dias' },
-    { days: 90, label: '90 dias' },
-  ];
+    { days: 90, label: '90 dias' }];
 
   readonly areaChart = signal<AreaChartOptions>(this.buildAreaChart([]));
   readonly donutChart = signal<DonutChartOptions>(this.buildDonutChart(0, 0, 0));
@@ -333,21 +331,18 @@ export class DashboardComponent implements OnInit {
         { label: 'Sem 1', valor: Math.round(perWeek * 0.85) },
         { label: 'Sem 2', valor: Math.round(perWeek * 1.05) },
         { label: 'Sem 3', valor: Math.round(perWeek * 0.95) },
-        { label: 'Sem atual', valor: this.ultimos7Dias() },
-      ];
+        { label: 'Sem atual', valor: this.ultimos7Dias() }];
     }
     if (this.periodoSelecionado() === 90) {
       return [
         { label: '30d', valor: this.ultimos30Dias() },
         { label: '60d', valor: this.ultimos30Dias() * 2 },
-        { label: '90d', valor: this.ultimos30Dias() * 3 },
-      ];
+        { label: '90d', valor: this.ultimos30Dias() * 3 }];
     }
     return [
       { label: 'Sem. anterior', valor: semanaAnterior },
       { label: 'Sem. atual', valor: this.ultimos7Dias() },
-      { label: 'Média 30d', valor: media30 },
-    ];
+      { label: 'Média 30d', valor: media30 }];
   }
 
   private buildAreaChart(serie: { label: string; valor: number }[]): AreaChartOptions {
@@ -483,8 +478,7 @@ export class DashboardComponent implements OnInit {
         {
           breakpoint: 480,
           options: { chart: { height: 240 }, legend: { position: 'bottom' } },
-        },
-      ],
+        }],
     };
   }
 

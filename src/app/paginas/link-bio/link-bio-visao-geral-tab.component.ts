@@ -23,8 +23,7 @@ import {
   imports: [
     LinkBioOverviewHeaderComponent,
     LinkBioOverviewSectionComponent,
-    LinkBioQrDialogComponent,
-  ],
+    LinkBioQrDialogComponent],
   templateUrl: './link-bio-visao-geral-tab.component.html',
   styleUrl: './link-bio-visao-geral-tab.component.css',
 })

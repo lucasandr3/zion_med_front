@@ -1,121 +1,156 @@
-<div class="links-publicos relative min-h-[320px]">
+<div class="n-page-list__content n-page-list__content--padded" data-go-tour="links-publicos-list">
   @if (showSkeleton()) {
-    <zm-skeleton-links-publicos [rows]="3" />
+    <zm-skeleton-links-publicos [rows]="6" />
   } @else if (!listaPronta()) {
   } @else if (erro()) {
-    <z-card class="flex flex-wrap items-center justify-between gap-3 border-border py-5 shadow-sm **:data-[slot=card-content]:px-5">
-      <p class="m-0 text-sm text-destructive">{{ erro() }}</p>
-      <button z-button zType="outline" zSize="sm" type="button" class="gap-2" (click)="carregar(meta().current_page)">
-        <span class="material-symbols-outlined text-base" aria-hidden="true">refresh</span>
+    <div class="n-page-list__panel links-publicos-error">
+      <p class="n-muted n-small" style="color: var(--n-color-status-danger, #c62828)">{{ erro() }}</p>
+      <nord-button variant="default" type="button" (click)="carregar(meta().current_page)">
+        <nord-icon name="arrow-refresh" size="s"></nord-icon>
         Tentar novamente
-      </button>
-    </z-card>
+      </nord-button>
+    </div>
+  } @else if (templates().length === 0) {
+    <div class="n-page-list__empty">
+      <nord-empty-state>
+        <h2>Nenhum formulário público ativo</h2>
+        <p>Ative o link público em Modelos de fichas → Campos para gerar um link compartilhável com pacientes.</p>
+        <nord-button variant="primary" routerLink="/templates">
+          <nord-icon name="file-notes" size="s"></nord-icon>
+          Ir para modelos de fichas
+        </nord-button>
+      </nord-empty-state>
+    </div>
   } @else {
-    <div class="zm-content-enter flex flex-col gap-4" data-go-tour="links-publicos-list">
-      @if (meta().total > 0) {
-        <p class="zm-count-label m-0">{{ contagemTexto() }}</p>
-      }
-
+    <div class="zm-content-enter links-publicos-grid">
       @for (t of templates(); track t.id) {
-        <z-card class="links-publicos-card border-border bg-card shadow-sm **:data-[slot=card-content]:p-0">
-          <div class="links-publicos-card__head">
-            <div class="links-publicos-card__lead">
-              <div class="links-publicos-card__icon" aria-hidden="true">
-                <span class="material-symbols-outlined">{{ iconeTemplate(t) }}</span>
+        <article class="lp-card">
+          <div class="lp-card__head">
+            <div class="lp-card__lead">
+              <div class="lp-card__icon" aria-hidden="true">
+                <nord-icon [name]="iconeNordTemplate(t)" size="s"></nord-icon>
               </div>
-              <div class="links-publicos-card__identity min-w-0">
-                <h3 class="links-publicos-card__title" [attr.title]="t.name">{{ t.name }}</h3>
-                <z-badge zShape="pill" class="links-publicos-card__badge">
-                  Público
-                </z-badge>
+              <div class="lp-card__identity">
+                <h3 class="lp-card__title" [attr.title]="t.name">{{ t.name }}</h3>
+                <span
+                  class="lp-card__status"
+                  [class.lp-card__status--ativo]="t.public_enabled !== false"
+                  [class.lp-card__status--inativo]="t.public_enabled === false"
+                >
+                  <span class="lp-card__status-dot" aria-hidden="true"></span>
+                  {{ t.public_enabled === false ? 'Inativo' : 'Ativo' }}
+                </span>
               </div>
             </div>
-            <div class="links-publicos-card__aside shrink-0">
-              @if (metaLinha(t)) {
-                <p class="links-publicos-card__sub">{{ metaLinha(t) }}</p>
-              }
-              <button
-                z-menu
+            <nord-dropdown class="lp-card__menu">
+              <nord-button
+                slot="toggle"
                 type="button"
-                [zMenuTriggerFor]="cardMenuTpl"
-                zPlacement="bottomRight"
-                z-button
-                zType="ghost"
-                zSize="icon-sm"
-                class="links-publicos-card__menu-btn"
-                [attr.aria-label]="'Mais opções para ' + t.name"
-                (click)="menuItem.set(t)"
+                variant="plain"
+                size="s"
+                square
+                hide-dropdown-icon
+                class="lp-card__menu-btn"
+                [attr.aria-label]="'Opções de ' + t.name"
               >
-                <span class="material-symbols-outlined text-[1.125rem]">more_vert</span>
-              </button>
+                <nord-icon name="interface-menu-small" size="s"></nord-icon>
+              </nord-button>
+              <nord-dropdown-group>
+                <nord-dropdown-item [routerLink]="['/templates', t.id, 'campos']">
+                  <nord-icon slot="start" name="file-code" size="s"></nord-icon>
+                  Campos do formulário
+                </nord-dropdown-item>
+                <nord-dropdown-item routerLink="/templates">
+                  <nord-icon slot="start" name="file-notes" size="s"></nord-icon>
+                  Gerenciar templates
+                </nord-dropdown-item>
+                @if (t.public_url) {
+                  <nord-dropdown-item (click)="copiarLink(t.id, t.public_url)">
+                    <nord-icon slot="start" name="interface-copy" size="s"></nord-icon>
+                    Copiar link
+                  </nord-dropdown-item>
+                  <nord-dropdown-item (click)="abrirQr(t)">
+                    <nord-icon slot="start" name="generic-qr-code" size="s"></nord-icon>
+                    Ver QR code
+                  </nord-dropdown-item>
+                  <nord-dropdown-item (click)="baixarQrDireto(t)">
+                    <nord-icon slot="start" name="interface-download" size="s"></nord-icon>
+                    Baixar QR code
+                  </nord-dropdown-item>
+                }
+              </nord-dropdown-group>
+              @if (t.public_enabled !== false) {
+                <nord-dropdown-group>
+                  <nord-dropdown-item
+                    class="lp-card__menu-danger"
+                    [attr.disabled]="desativandoId() === t.id"
+                    (click)="desativarLinkPublico(t, $event)"
+                  >
+                        <nord-icon slot="start" name="interface-cancelled-small" size="s"></nord-icon>
+                        Desativar link público
+                  </nord-dropdown-item>
+                </nord-dropdown-group>
+              }
+            </nord-dropdown>
+          </div>
+
+          <div class="lp-card__stats">
+            <div class="lp-card__stat">
+              <span class="lp-card__stat-value">{{ t.submission_count ?? 0 }}</span>
+              <span class="lp-card__stat-label">
+                {{ (t.submission_count ?? 0) === 1 ? 'resposta' : 'respostas' }}
+              </span>
+            </div>
+            <div class="lp-card__stat">
+              <span class="lp-card__stat-value">{{ ultimaRespostaLabel(t) }}</span>
+              <span class="lp-card__stat-label">última resposta</span>
             </div>
           </div>
 
-          <div class="links-publicos-card__actions">
-            <button
-              z-button
-              zType="outline"
-              zSize="sm"
+          <div class="lp-card__share">
+            <p class="lp-card__hint">Compartilhe o link para começar a receber respostas.</p>
+            @if (t.public_url) {
+              <p class="lp-card__url" [attr.title]="t.public_url">{{ urlCurta(t.public_url) }}</p>
+            } @else {
+              <p class="lp-card__url lp-card__url--empty">Link indisponível</p>
+            }
+          </div>
+
+          <div class="lp-card__actions">
+            <nord-button
+              variant="default"
               type="button"
-              class="links-publicos-card__action"
+              class="lp-card__action"
+              [attr.disabled]="!t.public_url"
               [title]="copiedTemplateId() === t.id ? 'Link copiado' : 'Copiar link do formulário'"
               (click)="copiarLink(t.id, t.public_url)"
             >
-              <span class="material-symbols-outlined text-base" aria-hidden="true">
-                {{ copiedTemplateId() === t.id ? 'check' : 'content_copy' }}
-              </span>
+              <nord-icon
+                [name]="copiedTemplateId() === t.id ? 'interface-checked' : 'interface-copy'"
+                size="s"
+              ></nord-icon>
               {{ copiedTemplateId() === t.id ? 'Copiado!' : 'Copiar link' }}
-            </button>
-            <a
-              z-button
-              zType="outline"
-              zSize="sm"
-              [href]="t.public_url"
+            </nord-button>
+            <nord-button
+              variant="primary"
+              type="button"
+              class="lp-card__action"
+              [attr.href]="t.public_url || null"
               target="_blank"
               rel="noopener noreferrer"
-              class="links-publicos-card__action no-underline"
+              [attr.disabled]="!t.public_url"
               title="Abrir formulário em nova aba"
             >
-              <span class="material-symbols-outlined text-base" aria-hidden="true">open_in_new</span>
+              <nord-icon name="interface-new-window" size="s"></nord-icon>
               Abrir
-            </a>
-            <button
-              z-button
-              zType="outline"
-              zSize="sm"
-              type="button"
-              class="links-publicos-card__action"
-              title="Ver QR code do link"
-              (click)="abrirQr(t)"
-            >
-              <span class="material-symbols-outlined text-base" aria-hidden="true">qr_code_2</span>
-              QR code
-            </button>
-            <a
-              z-button
-              zType="outline"
-              zSize="sm"
-              routerLink="/templates/{{ t.id }}/campos"
-              class="links-publicos-card__action no-underline"
-              title="Campos do formulário"
-            >
-              <span class="material-symbols-outlined text-base" aria-hidden="true">tune</span>
-              Campos
-            </a>
+            </nord-button>
           </div>
-        </z-card>
-      } @empty {
-        <z-card class="border-border py-10 shadow-sm **:data-[slot=card-content]:px-5">
-          <zm-empty-state
-            title="Nenhum formulário público ativo"
-            description="Ative o link público em Modelos de fichas → Campos para gerar um link compartilhável com pacientes."
-            actionLabel="Ir para modelos de fichas"
-            actionLink="/templates"
-            actionIcon="description"
-          />
-        </z-card>
+        </article>
       }
+    </div>
 
+    <div class="n-page-list__footer">
+      <span class="n-muted n-small">{{ contagemTexto() }}</span>
       @if (meta().last_page > 1) {
         <zm-pagination
           [currentPage]="meta().current_page"
@@ -125,99 +160,44 @@
       }
     </div>
   }
-
-  <ng-template #cardMenuTpl>
-    @if (menuItem()) {
-      <div z-menu-content class="min-w-48">
-        <a z-menu-item [routerLink]="['/templates', menuItem()?.id, 'campos']" class="gap-2 text-inherit no-underline">
-          <span class="material-symbols-outlined shrink-0 text-base" aria-hidden="true">tune</span>
-          Campos do formulário
-        </a>
-        <a z-menu-item routerLink="/templates" class="gap-2 text-inherit no-underline">
-          <span class="material-symbols-outlined shrink-0 text-base" aria-hidden="true">description</span>
-          Gerenciar templates
-        </a>
-        @if (menuItem()?.public_url) {
-          <button type="button" z-menu-item class="w-full gap-2" (click)="copiarLink(menuItem()!.id, menuItem()!.public_url)">
-            <span class="material-symbols-outlined shrink-0 text-base" aria-hidden="true">content_copy</span>
-            Copiar link
-          </button>
-          <button type="button" z-menu-item class="w-full gap-2" (click)="abrirQr(menuItem()!)">
-            <span class="material-symbols-outlined shrink-0 text-base" aria-hidden="true">qr_code_2</span>
-            Ver QR code
-          </button>
-          <button type="button" z-menu-item class="w-full gap-2" (click)="baixarQrDireto(menuItem()!)">
-            <span class="material-symbols-outlined shrink-0 text-base" aria-hidden="true">download</span>
-            Baixar QR code
-          </button>
-        }
-      </div>
-    }
-  </ng-template>
-
-  @if (qrAberto()) {
-    <div
-      class="links-publicos-qr-backdrop"
-      role="presentation"
-      (click)="fecharQr()"
-    ></div>
-    <div
-      class="links-publicos-qr-dialog"
-      role="dialog"
-      aria-modal="true"
-      [attr.aria-label]="'QR code — ' + (qrItem()?.name ?? 'formulário')"
-    >
-      <div class="links-publicos-qr-dialog__head">
-        <div class="min-w-0">
-          <p class="links-publicos-qr-dialog__title">{{ qrItem()?.name }}</p>
-          <p class="links-publicos-qr-dialog__sub">Escaneie para abrir o formulário</p>
-        </div>
-        <button
-          z-button
-          zType="ghost"
-          zSize="icon-sm"
-          type="button"
-          class="shrink-0"
-          aria-label="Fechar"
-          (click)="fecharQr()"
-        >
-          <span class="material-symbols-outlined text-[1.125rem]">close</span>
-        </button>
-      </div>
-      <div class="links-publicos-qr-dialog__body">
-        @if (qrCarregando()) {
-          <z-skeleton class="links-publicos-qr-dialog__skeleton" />
-        } @else if (qrDataUrl()) {
-          <img [src]="qrDataUrl()" alt="" class="links-publicos-qr-dialog__img" />
-        }
-      </div>
-      @if (qrItem()?.public_url) {
-        <div class="links-publicos-qr-dialog__actions">
-          <button
-            z-button
-            zType="outline"
-            zSize="sm"
-            type="button"
-            class="gap-2"
-            [disabled]="!qrDataUrl()"
-            (click)="baixarQr()"
-          >
-            <span class="material-symbols-outlined text-base" aria-hidden="true">download</span>
-            Baixar QR code
-          </button>
-          <button
-            z-button
-            zType="outline"
-            zSize="sm"
-            type="button"
-            class="gap-2"
-            (click)="copiarLink(qrItem()!.id, qrItem()!.public_url)"
-          >
-            <span class="material-symbols-outlined text-base" aria-hidden="true">content_copy</span>
-            Copiar link
-          </button>
-        </div>
-      }
-    </div>
-  }
 </div>
+
+<nord-modal
+  #qrModal
+  class="links-publicos-qr-modal"
+  size="s"
+  aria-labelledby="links-publicos-qr-title"
+  (close)="fecharQr()"
+>
+  <h2 slot="header" id="links-publicos-qr-title">{{ qrItem()?.name || 'QR code' }}</h2>
+  <p class="n-reset n-muted links-publicos-qr-modal__sub">Escaneie para abrir o formulário</p>
+  <div class="links-publicos-qr-modal__body">
+    @if (qrCarregando()) {
+      <g-skeleton class="links-publicos-qr-modal__skeleton" />
+    } @else if (qrDataUrl()) {
+      <img [src]="qrDataUrl()" alt="" class="links-publicos-qr-modal__img" />
+    }
+  </div>
+  <nord-button-group slot="footer" variant="spaced">
+    <nord-button
+      expand
+      type="button"
+      variant="default"
+      [attr.disabled]="!qrDataUrl()"
+      (click)="baixarQr()"
+    >
+      <nord-icon name="interface-download" size="s"></nord-icon>
+      Baixar QR code
+    </nord-button>
+    <nord-button
+      expand
+      type="button"
+      variant="primary"
+      [attr.disabled]="!qrItem()?.public_url"
+      (click)="copiarLinkQr()"
+    >
+      <nord-icon name="interface-copy" size="s"></nord-icon>
+      Copiar link
+    </nord-button>
+  </nord-button-group>
+</nord-modal>

@@ -1,34 +1,9 @@
-/* Clinica configuracoes */
+/* Clinica configuracoes — edge-to-edge via host n-page--flush */
 
-:host {
-  display: block;
-  width: 100%;
-  margin-top: -1.5rem;
-}
-
-/* Compensa padding do <main> — barra de abas até as bordas */
 .clinica-config-page {
-  width: calc(100% + 2rem);
+  width: 100%;
   max-width: none;
-  margin-left: -1rem;
-  margin-right: -1rem;
   color: var(--foreground);
-}
-
-@media (min-width: 640px) {
-  .clinica-config-page {
-    width: calc(100% + 3rem);
-    margin-left: -1.5rem;
-    margin-right: -1.5rem;
-  }
-}
-
-@media (min-width: 1024px) {
-  .clinica-config-page {
-    width: calc(100% + 4rem);
-    margin-left: -2rem;
-    margin-right: -2rem;
-  }
 }
 
 .clinica-config-shell {
@@ -48,7 +23,7 @@
 
 /* Barra de abas fixa no topo — mesmo fundo dos cards (como protocolo detalhe) */
 :host ::ng-deep .clinica-config-shell .clinica-config-tabs-bar,
-:host ::ng-deep .clinica-config-shell .config-zard-tabs--layout > .grid {
+:host ::ng-deep .clinica-config-shell .config-gestgo-tabs--layout > .grid {
   position: sticky;
   top: 0;
   z-index: 30;
@@ -60,7 +35,7 @@
   border-bottom: 1px solid var(--border, var(--c-border)) !important;
 }
 
-:host ::ng-deep .clinica-config-shell .config-zard-tabs--no-nav-rule nav[role='tablist'] {
+:host ::ng-deep .clinica-config-shell .config-gestgo-tabs--no-nav-rule nav[role='tablist'] {
   flex-shrink: 0;
   width: 100%;
   margin: 0 !important;
@@ -75,12 +50,12 @@
   padding: 0 1.25rem;
 }
 
-:host ::ng-deep .config-zard-tabs nav[role='tablist'] button[role='tab'][aria-selected='true'] {
+:host ::ng-deep .config-gestgo-tabs nav[role='tablist'] button[role='tab'][aria-selected='true'] {
   color: var(--primary);
   border-bottom-color: var(--primary) !important;
 }
 
-.config-zard-tabs--layout {
+.config-gestgo-tabs--layout {
   display: flex;
   flex-direction: column;
   flex: 0 0 auto;
@@ -91,8 +66,8 @@
   border: none;
 }
 
-/* Evita faixa vazia: o .flex-1 do z-tab-group não deve crescer além do conteúdo */
-:host ::ng-deep .clinica-config-shell .config-zard-tabs--layout > .flex-1 {
+/* Evita faixa vazia: o .flex-1 do g-tab-group não deve crescer além do conteúdo */
+:host ::ng-deep .clinica-config-shell .config-gestgo-tabs--layout > .flex-1 {
   display: block;
   flex: 0 0 auto !important;
   width: 100%;
@@ -101,13 +76,13 @@
   background: var(--background);
 }
 
-:host ::ng-deep .clinica-config-shell .config-zard-tabs--layout > .flex-1 [role='tabpanel'] {
+:host ::ng-deep .clinica-config-shell .config-gestgo-tabs--layout > .flex-1 [role='tabpanel'] {
   display: block;
   width: 100%;
   outline: none;
 }
 
-:host ::ng-deep .clinica-config-shell .config-zard-tabs--layout > .flex-1 [role='tabpanel'][hidden] {
+:host ::ng-deep .clinica-config-shell .config-gestgo-tabs--layout > .flex-1 [role='tabpanel'][hidden] {
   display: none !important;
 }
 
@@ -262,7 +237,7 @@
   white-space: nowrap;
 }
 
-/* Aba Tema Visual / Formulários públicos — herda bg-card do z-card; só ajustes de layout */
+/* Aba Tema Visual / Formulários públicos — herda bg-card do g-card; só ajustes de layout */
 #panel-visual .section-header,
 #panel-formularios-publicos .section-header {
   padding: 16px 18px 14px;
@@ -1019,7 +994,7 @@
   color: var(--border);
 }
 
-.clinica-config z-card.section-card--token {
+.clinica-config g-card.section-card--token {
   border-color: color-mix(in srgb, var(--primary) 35%, var(--border));
 }
 

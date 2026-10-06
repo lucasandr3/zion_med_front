@@ -24,6 +24,11 @@
     "@angular/service-worker": "^21.2.21",
     "@ng-icons/core": "^32.5.0",
     "@ng-icons/lucide": "^32.5.0",
+    "@nordhealth/components": "^5.4.3",
+    "@nordhealth/css": "^5.2.4",
+    "@nordhealth/fonts": "^3.0.4",
+    "@nordhealth/icons": "^3.20.0",
+    "@nordhealth/themes": "^10.0.4",
     "@tailwindcss/postcss": "^4.2.1",
     "angularx-flatpickr": "^8.1.0",
     "apexcharts": "^6.10.0",
@@ -57,7 +62,6 @@
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.1.0",
     "tailwindcss-animate": "^1.0.7",
-    "typescript": "~5.9.3",
-    "zard-cli": "^1.0.0-beta.70"
+    "typescript": "~5.9.3"
   }
 }

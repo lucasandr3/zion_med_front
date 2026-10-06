@@ -1,36 +1,31 @@
-import { Component, OnInit, inject, Signal, ChangeDetectionStrategy, signal } from '@angular/core';
+import { Component, OnInit, inject, Signal, ChangeDetectionStrategy, signal, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 import { DocumentSendsService, DocumentSendItem } from '../../core/services/document-sends.service';
 import { PessoasService, Pessoa } from '../../core/services/pessoas.service';
 import { TemplatesService, Template } from '../../core/services/templates.service';
 import { LoadingService } from '../../shared/services/loading.service';
-import { ZmSkeletonListComponent } from '../../shared/components/skeletons';
-import { ZmPaginationComponent, ZmEmptyStateComponent } from '../../shared/components/ui';
-import { ZardComboboxComponent, type ZardComboboxOption } from '@/shared/components/combobox';
+import { ListSkeletonComponent } from '../../shared/components/list-skeleton/list-skeleton.component';
+import { ZmPaginationComponent } from '../../shared/components/ui';
+import { GestgoComboboxComponent, type GestgoComboboxOption } from '@/shared/components/combobox';
 import { ToastService } from '../../core/services/toast.service';
 import { ConfirmDialogService } from '../../core/services/confirm-dialog.service';
-import { ZardCardComponent } from '@/shared/components/card/card.component';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
 
 type Caixa = 'pendentes' | 'assinados' | 'expirados' | 'cancelados';
 
-import { ZardTableImports } from '@/shared/components/table';
-import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
+import { NORD_FORM_IMPORTS } from '@/shared/nord';
 @Component({
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'app-envios',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { class: 'n-page-list' },
   imports: [
-    ...ZARD_FORM_CONTROL_IMPORTS,
-    ...ZardTableImports,
+    ...NORD_FORM_IMPORTS,
     FormsModule,
-    ZmSkeletonListComponent,
+    ListSkeletonComponent,
     ZmPaginationComponent,
-    ZmEmptyStateComponent,
-    ZardComboboxComponent,
-    ZardCardComponent,
-    ZardButtonComponent,
+    GestgoComboboxComponent,
   ],
   templateUrl: './envios.component.html',
   styleUrl: './envios.component.css',
@@ -74,14 +69,13 @@ export class EnviosComponent implements OnInit {
     { key: 'pendentes', label: 'Pendentes' },
     { key: 'assinados', label: 'Assinados' },
     { key: 'expirados', label: 'Expirados' },
-    { key: 'cancelados', label: 'Cancelados' },
-  ];
+    { key: 'cancelados', label: 'Cancelados' }];
 
   get templatesPublicos(): Template[] {
     return this.templates().filter((template) => template.is_active !== false && template.public_enabled === true);
   }
 
-  get opcoesTemplatesPublicos(): ZardComboboxOption[] {
+  get opcoesTemplatesPublicos(): GestgoComboboxOption[] {
     return this.templatesPublicos.map((template) => ({
       value: String(template.id),
       label: template.name,

@@ -64,8 +64,7 @@ function pickPublicFormLogoUrl(d: Record<string, unknown>): string | null {
     d['clinic_logo_path'],
     d['logo'],
     d['logoUrl'],
-    d['clinicLogoUrl'],
-  ];
+    d['clinicLogoUrl']];
   pushClinicLogoCandidates(candidates, nestRecord(d['clinic']));
   pushClinicLogoCandidates(candidates, nestRecord(d['clinica']));
   pushClinicLogoCandidates(candidates, nestRecord(d['company']));
@@ -116,8 +115,7 @@ function extractPublicLinkBioSlug(d: Record<string, unknown>): string | null {
     nestRecord(d['empresa']),
     nestRecord(d['attributes']),
     nestRecord(nestRecord(d['template'])?.['clinic'] as unknown),
-    nestRecord(nestRecord(d['template'])?.['clinica'] as unknown),
-  ];
+    nestRecord(nestRecord(d['template'])?.['clinica'] as unknown)];
   for (const r of nested) {
     const s = fromClinicLike(r);
     if (s) return s;

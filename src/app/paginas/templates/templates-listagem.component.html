@@ -1,298 +1,257 @@
-<div class="templates-colecao templates-listagem-layout relative min-h-[320px]">
-  @if (erro()) {
-    <p class="mb-4 text-sm text-destructive">{{ erro() }}</p>
-  }
+@if (modoColecao) {
+  <div class="n-page-list__toolbar">
+    <div class="n-page-list__toolbar-start">
+      <nord-button variant="default" type="button" class="shrink-0" [attr.title]="tituloOrdenacao()" (click)="ciclarOrdenacao()">
+        <nord-icon name="interface-sort-small" size="s"></nord-icon>
+        Ordenar
+        <span class="n-muted n-small">{{ rotuloOrdenacao() }}</span>
+      </nord-button>
+      <nord-button
+        variant="default"
+        type="button"
+        class="shrink-0"
+        [class.ring-2]="filtrosPainelAberto()"
+        [class.ring-ring]="filtrosPainelAberto()"
+        (click)="toggleFiltrosPainel()"
+        [attr.aria-expanded]="filtrosPainelAberto() ? 'true' : 'false'"
+        aria-controls="templates-filtros-panel"
+      >
+        <nord-icon name="interface-filter" size="s"></nord-icon>
+        Filtros
+      </nord-button>
+      <nord-button-group class="templates-view-group" aria-label="Visualização da coleção">
+        <nord-button
+          type="button"
+          [attr.aria-pressed]="modoColecaoVisual() === 'cards'"
+          (click)="setModoColecaoVisual('cards')"
+          title="Visualizar em cards"
+        >
+          <nord-icon slot="start" name="interface-grid" size="s"></nord-icon>
+          Cards
+        </nord-button>
+        <nord-button
+          type="button"
+          [attr.aria-pressed]="modoColecaoVisual() === 'lista'"
+          (click)="setModoColecaoVisual('lista')"
+          title="Visualizar como pastas"
+        >
+          <nord-icon slot="start" name="interface-folder" size="s"></nord-icon>
+          Pastas
+        </nord-button>
+      </nord-button-group>
+    </div>
+    <div class="n-page-list__toolbar-end">
+      <nord-button
+        variant="primary"
+        type="button"
+        routerLink="/templates/criar-em-branco"
+        class="shrink-0"
+        title="Criar novo modelo"
+        data-go-tour="templates-new"
+      >
+        <nord-icon name="interface-add" size="s"></nord-icon>
+        Novo modelo
+      </nord-button>
+    </div>
+  </div>
 
-  @if (showSkeleton()) {
-    @if (modoColecao) {
+  <div class="n-page-list__content n-page-list__content--padded templates-colecao">
+    @if (erro()) {
+      <p class="mb-4 text-sm text-destructive">{{ erro() }}</p>
+    }
+
+    @if (showSkeleton()) {
       <zm-skeleton-templates-colecao
         [visual]="modoColecaoVisual() === 'lista' ? 'pastas' : 'cards'"
         [cards]="3"
       />
+    } @else if (!listaPronta()) {
     } @else {
-      <zm-skeleton-templates-detalhe
-        [visual]="modoDetalhe() === 'tabela' ? 'tabela' : 'cards'"
-        [cards]="6"
-      />
-    }
-  } @else if (!listaPronta()) {
-  } @else if (modoColecao) {
-    <div class="zm-content-enter">
-      <header class="templates-colecao-header">
-        <div class="templates-colecao-header-actions">
-          <button
-            z-button
-            zType="outline"
-            zSize="sm"
-            type="button"
-            class="shrink-0 gap-1.5"
-            [attr.title]="tituloOrdenacao()"
-            (click)="ciclarOrdenacao()"
-          >
-            <span class="material-symbols-outlined text-base" aria-hidden="true">sort</span>
-            Ordenar
-            <span class="text-xs font-medium text-muted-foreground">{{ rotuloOrdenacao() }}</span>
-          </button>
-          <button
-            z-button
-            zType="outline"
-            zSize="sm"
-            type="button"
-            class="shrink-0 gap-1.5"
-            [class.ring-2]="filtrosPainelAberto()"
-            [class.ring-ring]="filtrosPainelAberto()"
-            (click)="toggleFiltrosPainel()"
-            [attr.aria-expanded]="filtrosPainelAberto() ? 'true' : 'false'"
-            aria-controls="templates-filtros-panel"
-          >
-            <span class="material-symbols-outlined text-base" aria-hidden="true">filter_alt</span>
-            Filtros
-          </button>
-          <div class="templates-view-toggle" role="tablist" aria-label="Visualização da coleção">
-            <button
-              z-button
-              zType="ghost"
-              zSize="sm"
-              type="button"
-              class="templates-view-btn"
-              [class.templates-view-btn--active]="modoColecaoVisual() === 'cards'"
-              (click)="setModoColecaoVisual('cards')"
-              title="Visualizar em cards"
-            >
-              <span class="material-symbols-outlined text-base" aria-hidden="true">grid_view</span>
-              Cards
-            </button>
-            <button
-              z-button
-              zType="ghost"
-              zSize="sm"
-              type="button"
-              class="templates-view-btn"
-              [class.templates-view-btn--active]="modoColecaoVisual() === 'lista'"
-              (click)="setModoColecaoVisual('lista')"
-              title="Visualizar como pastas"
-            >
-              <span class="material-symbols-outlined text-base" aria-hidden="true">folder</span>
-              Pastas
-            </button>
-          </div>
-          <a z-button zSize="sm" routerLink="/templates/criar-em-branco" class="templates-colecao-btn-novo shrink-0 no-underline" title="Criar novo modelo" data-go-tour="templates-new">
-            <span class="material-symbols-outlined text-base">add</span>
-            Novo modelo
-          </a>
-        </div>
-      </header>
-
-      @if (filtrosPainelAberto()) {
-        <z-card class="mb-5 gap-0 border-border bg-card py-4 shadow-sm **:data-[slot=card-content]:px-5" role="region">
-          <div id="templates-filtros-panel" class="templates-filtros-panel" aria-label="Filtros da coleção">
-            <div class="templates-filtros-busca relative min-w-[200px] flex-1 max-w-xs" data-go-tour="templates-search">
-              <span class="material-symbols-outlined pointer-events-none absolute left-2.5 top-1/2 z-10 -translate-y-1/2 text-base text-muted-foreground">search</span>
-              <input
-                z-input
-                zSize="sm"
-                type="text"
-                [(ngModel)]="buscaTexto"
-                placeholder="Buscar por nome do modelo..."
-                class="w-full pl-9"
-                aria-label="Buscar modelo por nome"
-              />
-            </div>
-            <div class="templates-filter-wrap" role="group" aria-label="Filtrar por status">
-              <button
-                z-button
-                zType="ghost"
-                zSize="sm"
-                type="button"
-                class="templates-filter-btn"
-                [class.templates-filter-btn--active]="filtroAtual === 'all'"
-                (click)="setFiltro('all')"
-              >
-                Todos
-              </button>
-              <button
-                z-button
-                zType="ghost"
-                zSize="sm"
-                type="button"
-                class="templates-filter-btn"
-                [class.templates-filter-btn--active]="filtroAtual === 'ativo'"
-                (click)="setFiltro('ativo')"
-              >
-                Ativos
-              </button>
-              <button
-                z-button
-                zType="ghost"
-                zSize="sm"
-                type="button"
-                class="templates-filter-btn"
-                [class.templates-filter-btn--active]="filtroAtual === 'publico'"
-                (click)="setFiltro('publico')"
-              >
-                Públicos
-              </button>
-            </div>
-          </div>
-        </z-card>
-      }
-
-      @if (templates().length === 0) {
-        <z-card class="mb-6 border-dashed border-border bg-muted/30 py-10 shadow-none **:data-[slot=card-content]:px-4">
-          <zm-empty-state title="Nenhum modelo cadastrado." actionLabel="Criar modelo" actionLink="/templates/criar-em-branco" />
-        </z-card>
-      } @else if (gruposParaColecao.length === 0) {
-        <z-card class="mb-6 border-dashed border-border bg-muted/40 py-8 text-center shadow-none **:data-[slot=card-content]:px-6">
-          <p class="m-0 text-sm text-foreground">Nenhum modelo corresponde aos filtros atuais.</p>
-          <button z-button zType="link" type="button" class="mt-3 justify-center px-0" (click)="setFiltro('all'); buscaTexto = ''">
-            Limpar filtros
-          </button>
-        </z-card>
-      } @else if (modoColecaoVisual() === 'cards') {
-        <div class="templates-colecao-grid" data-go-tour="templates-list">
-          @for (grupo of gruposParaColecao; track grupo.key) {
-            <a
-              class="templates-cat-card"
-              [style.--cat-accent]="corAccent(grupo.key)"
-              [routerLink]="['/templates']"
-              [queryParams]="{ categoria: grupo.key }"
-              [attr.aria-label]="'Abrir categoria ' + grupo.label"
-            >
-              <div class="templates-cat-card-top">
-                <div class="templates-cat-icon-wrap">
-                  <span class="material-symbols-outlined" aria-hidden="true">folder</span>
-                </div>
-                <h2 class="templates-cat-card-title">{{ grupo.label }}</h2>
-                <p class="templates-cat-card-count">
-                  <span class="material-symbols-outlined templates-cat-count-ico" aria-hidden="true">assignment</span>
-                  {{ itensVisiveis(grupo).length }}
-                  {{ itensVisiveis(grupo).length === 1 ? 'ficha' : 'fichas' }}
-                </p>
+      <div class="zm-content-enter">
+        @if (filtrosPainelAberto()) {
+          <g-card class="mb-5 gap-0 border-border bg-card py-4 shadow-sm **:data-[slot=card-content]:px-5" role="region">
+            <div id="templates-filtros-panel" class="templates-filtros-panel" aria-label="Filtros da coleção">
+              <div class="templates-filtros-busca relative min-w-[200px] flex-1 max-w-xs" data-go-tour="templates-search">
+                <span class="material-symbols-outlined pointer-events-none absolute left-2.5 top-1/2 z-10 -translate-y-1/2 text-base text-muted-foreground">search</span>
+                <input
+                  type="text"
+                  [(ngModel)]="buscaTexto"
+                  placeholder="Buscar por nome do modelo..."
+                  class="w-full pl-9"
+                  aria-label="Buscar modelo por nome"
+                />
               </div>
-              <div class="templates-cat-card-foot">
-                <span class="templates-cat-updated">{{ rotuloAtualizacaoGrupo(grupo) }}</span>
-                <span class="material-symbols-outlined templates-cat-arrow text-primary" aria-hidden="true">arrow_forward</span>
+              <div class="templates-filter-wrap" role="group" aria-label="Filtrar por status">
+                <nord-button variant="plain" size="s" type="button" class="templates-filter-btn" [class.templates-filter-btn--active]="filtroAtual === 'all'" (click)="setFiltro('all')">
+                  Todos
+                </nord-button>
+                <nord-button variant="plain" size="s" type="button" class="templates-filter-btn" [class.templates-filter-btn--active]="filtroAtual === 'ativo'" (click)="setFiltro('ativo')">
+                  Ativos
+                </nord-button>
+                <nord-button variant="plain" size="s" type="button" class="templates-filter-btn" [class.templates-filter-btn--active]="filtroAtual === 'publico'" (click)="setFiltro('publico')">
+                  Públicos
+                </nord-button>
               </div>
-            </a>
-          }
+            </div>
+          </g-card>
+        }
 
-          <a routerLink="/templates/criar-em-branco" class="templates-cat-card templates-cat-card--novo" aria-label="Criar novo modelo em branco">
-            <span class="material-symbols-outlined templates-cat-novo-ico" aria-hidden="true">create_new_folder</span>
-            <span class="templates-cat-novo-label">Novo modelo</span>
-            <span class="templates-cat-novo-hint">A partir da biblioteca ou em branco</span>
-          </a>
-        </div>
-      } @else {
-        <z-card class="mb-6 gap-0 overflow-hidden border-border bg-card py-5 shadow-sm **:data-[slot=card-content]:px-5">
-          <div class="templates-colecao-pastas">
+        @if (templates().length === 0) {
+          <g-card class="mb-6 border-dashed border-border bg-muted/30 py-10 shadow-none **:data-[slot=card-content]:px-4">
+            <zm-empty-state title="Nenhum modelo cadastrado." actionLabel="Criar modelo" actionLink="/templates/criar-em-branco" />
+          </g-card>
+        } @else if (gruposParaColecao.length === 0) {
+          <g-card class="mb-6 border-dashed border-border bg-muted/40 py-8 text-center shadow-none **:data-[slot=card-content]:px-6">
+            <p class="m-0 text-sm text-foreground">Nenhum modelo corresponde aos filtros atuais.</p>
+            <nord-button variant="plain" type="button" class="mt-3 justify-center px-0" (click)="setFiltro('all'); buscaTexto = ''">
+              Limpar filtros
+            </nord-button>
+          </g-card>
+        } @else if (modoColecaoVisual() === 'cards') {
+          <div class="templates-colecao-grid" data-go-tour="templates-list">
             @for (grupo of gruposParaColecao; track grupo.key) {
               <a
-                class="templates-folder-item"
+                class="templates-cat-card"
                 [style.--cat-accent]="corAccent(grupo.key)"
                 [routerLink]="['/templates']"
                 [queryParams]="{ categoria: grupo.key }"
                 [attr.aria-label]="'Abrir categoria ' + grupo.label"
               >
+                <div class="templates-cat-card-top">
+                  <div class="templates-cat-icon-wrap">
+                    <span class="material-symbols-outlined" aria-hidden="true">folder</span>
+                  </div>
+                  <h2 class="templates-cat-card-title">{{ grupo.label }}</h2>
+                  <p class="templates-cat-card-count">
+                    <span class="material-symbols-outlined templates-cat-count-ico" aria-hidden="true">assignment</span>
+                    {{ itensVisiveis(grupo).length }}
+                    {{ itensVisiveis(grupo).length === 1 ? 'ficha' : 'fichas' }}
+                  </p>
+                </div>
+                <div class="templates-cat-card-foot">
+                  <span class="templates-cat-updated">{{ rotuloAtualizacaoGrupo(grupo) }}</span>
+                  <span class="material-symbols-outlined templates-cat-arrow text-primary" aria-hidden="true">arrow_forward</span>
+                </div>
+              </a>
+            }
+
+            <a routerLink="/templates/criar-em-branco" class="templates-cat-card templates-cat-card--novo" aria-label="Criar novo modelo em branco">
+              <span class="material-symbols-outlined templates-cat-novo-ico" aria-hidden="true">create_new_folder</span>
+              <span class="templates-cat-novo-label">Novo modelo</span>
+              <span class="templates-cat-novo-hint">A partir da biblioteca ou em branco</span>
+            </a>
+          </div>
+        } @else {
+          <g-card class="mb-6 gap-0 overflow-hidden border-border bg-card py-5 shadow-sm **:data-[slot=card-content]:px-5">
+            <div class="templates-colecao-pastas">
+              @for (grupo of gruposParaColecao; track grupo.key) {
+                <a
+                  class="templates-folder-item"
+                  [style.--cat-accent]="corAccent(grupo.key)"
+                  [routerLink]="['/templates']"
+                  [queryParams]="{ categoria: grupo.key }"
+                  [attr.aria-label]="'Abrir categoria ' + grupo.label"
+                >
+                  <div class="templates-folder-icon">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" class="templates-folder-svg">
+                      <path class="templates-folder-svg-main" d="M10 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-8l-2-2z" />
+                    </svg>
+                  </div>
+                  <h2 class="templates-folder-title">{{ grupo.label }}</h2>
+                  <p class="templates-folder-meta">
+                    {{ itensVisiveis(grupo).length }}
+                    {{ itensVisiveis(grupo).length === 1 ? 'ficha' : 'fichas' }}
+                  </p>
+                </a>
+              }
+
+              <a routerLink="/templates/criar-em-branco" class="templates-folder-item templates-folder-item--novo" aria-label="Criar novo modelo em branco">
                 <div class="templates-folder-icon">
                   <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" class="templates-folder-svg">
                     <path class="templates-folder-svg-main" d="M10 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-8l-2-2z" />
                   </svg>
                 </div>
-                <h2 class="templates-folder-title">{{ grupo.label }}</h2>
-                <p class="templates-folder-meta">
-                  {{ itensVisiveis(grupo).length }}
-                  {{ itensVisiveis(grupo).length === 1 ? 'ficha' : 'fichas' }}
-                </p>
-              </a>
-            }
-
-            <a routerLink="/templates/criar-em-branco" class="templates-folder-item templates-folder-item--novo" aria-label="Criar novo modelo em branco">
-              <div class="templates-folder-icon">
-                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" class="templates-folder-svg">
-                  <path class="templates-folder-svg-main" d="M10 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-8l-2-2z" />
-                </svg>
-              </div>
-              <h2 class="templates-folder-title">Novo modelo</h2>
-              <p class="templates-folder-meta">Criar em branco</p>
-            </a>
-          </div>
-        </z-card>
-      }
-
-
-    </div>
-  } @else {
-    <div class="zm-content-enter templates-detalhe">
-      <div class="templates-detalhe-toolbar">
-        <div class="templates-detalhe-head">
-          <div class="templates-detalhe-toolbar-top">
-            <button z-button zType="outline" zSize="sm" type="button" class="shrink-0 gap-1.5" (click)="fecharCategoria()">
-              <span class="material-symbols-outlined text-sm" aria-hidden="true">arrow_back</span>
-              Voltar para coleção
-            </button>
-
-            <div class="templates-detalhe-toolbar-actions-right">
-              <button
-                z-button
-                zType="outline"
-                zSize="sm"
-                type="button"
-                class="shrink-0 gap-1.5"
-                [class.ring-2]="filtrosPainelAberto()"
-                [class.ring-ring]="filtrosPainelAberto()"
-                (click)="toggleFiltrosPainel()"
-                [attr.aria-expanded]="filtrosPainelAberto() ? 'true' : 'false'"
-                aria-controls="templates-detalhe-filtros"
-              >
-                <span class="material-symbols-outlined text-base" aria-hidden="true">filter_alt</span>
-                Filtros
-              </button>
-
-              <div class="templates-view-toggle" role="tablist" aria-label="Modo de visualização">
-                <button
-                  z-button
-                  zType="ghost"
-                  zSize="sm"
-                  type="button"
-                  class="templates-view-btn"
-                  [class.templates-view-btn--active]="modoDetalhe() === 'tabela'"
-                  (click)="setModoDetalhe('tabela')"
-                  title="Visualizar em tabela"
-                >
-                  <span class="material-symbols-outlined text-base" aria-hidden="true">table_rows</span>
-                  Tabela
-                </button>
-                <button
-                  z-button
-                  zType="ghost"
-                  zSize="sm"
-                  type="button"
-                  class="templates-view-btn"
-                  [class.templates-view-btn--active]="modoDetalhe() === 'cards'"
-                  (click)="setModoDetalhe('cards')"
-                  title="Visualizar em cards"
-                >
-                  <span class="material-symbols-outlined text-base" aria-hidden="true">grid_view</span>
-                  Cards
-                </button>
-              </div>
-
-              <a z-button zSize="sm" routerLink="/templates/criar-em-branco" class="shrink-0 no-underline">
-                <span class="material-symbols-outlined text-base">add</span>
-                Novo modelo
+                <h2 class="templates-folder-title">Novo modelo</h2>
+                <p class="templates-folder-meta">Criar em branco</p>
               </a>
             </div>
-          </div>
-        </div>
+          </g-card>
+        }
+      </div>
+    }
+  </div>
+} @else {
+  <div class="n-page-list__toolbar">
+    <div class="n-page-list__toolbar-start">
+      <nord-button variant="default" type="button" class="shrink-0" (click)="fecharCategoria()">
+        <nord-icon name="arrow-left" size="s"></nord-icon>
+        Voltar para coleção
+      </nord-button>
+    </div>
+    <div class="n-page-list__toolbar-end">
+      <nord-button
+        variant="default"
+        type="button"
+        class="shrink-0"
+        [class.ring-2]="filtrosPainelAberto()"
+        [class.ring-ring]="filtrosPainelAberto()"
+        (click)="toggleFiltrosPainel()"
+        [attr.aria-expanded]="filtrosPainelAberto() ? 'true' : 'false'"
+        aria-controls="templates-detalhe-filtros"
+      >
+        <nord-icon name="interface-filter" size="s"></nord-icon>
+        Filtros
+      </nord-button>
+      <nord-button-group class="templates-view-group" aria-label="Modo de visualização">
+        <nord-button
+          type="button"
+          [attr.aria-pressed]="modoDetalhe() === 'tabela'"
+          (click)="setModoDetalhe('tabela')"
+          title="Visualizar em tabela"
+        >
+          <nord-icon slot="start" name="file-notes" size="s"></nord-icon>
+          Tabela
+        </nord-button>
+        <nord-button
+          type="button"
+          [attr.aria-pressed]="modoDetalhe() === 'cards'"
+          (click)="setModoDetalhe('cards')"
+          title="Visualizar em cards"
+        >
+          <nord-icon slot="start" name="interface-grid" size="s"></nord-icon>
+          Cards
+        </nord-button>
+      </nord-button-group>
+      <nord-button variant="primary" type="button" routerLink="/templates/criar-em-branco" class="shrink-0" title="Criar novo modelo">
+        <nord-icon name="interface-add" size="s"></nord-icon>
+        Novo modelo
+      </nord-button>
+    </div>
+  </div>
 
+  <div
+    class="n-page-list__content templates-detalhe"
+    [class.n-page-list__content--padded]="modoDetalhe() === 'cards'"
+  >
+    @if (erro()) {
+      <div class="n-page-list__panel">
+        <p class="n-muted n-small" style="color: var(--n-color-status-danger, #c62828)">{{ erro() }}</p>
+      </div>
+    }
+
+    @if (showSkeleton()) {
+      <div class="n-page-list__panel">
+        <app-list-skeleton [count]="6" />
+      </div>
+    } @else if (!listaPronta()) {
+    } @else {
+      <div class="zm-content-enter templates-detalhe-body">
         @if (filtrosPainelAberto()) {
-          <z-card class="gap-0 border-border bg-card py-4 shadow-sm **:data-[slot=card-content]:px-5">
-            <div id="templates-detalhe-filtros" class="templates-detalhe-filtros">
+          <div class="n-page-list__panel" id="templates-detalhe-filtros">
+            <div class="templates-detalhe-filtros">
               <div class="templates-detalhe-busca relative min-w-[240px] flex-1">
                 <span class="material-symbols-outlined pointer-events-none absolute left-2.5 top-1/2 z-10 -translate-y-1/2 text-base text-muted-foreground">search</span>
                 <input
-                  z-input
-                  zSize="sm"
                   type="text"
                   [(ngModel)]="buscaTexto"
                   placeholder="Buscar nesta categoria..."
@@ -301,264 +260,194 @@
                 />
               </div>
               <div class="templates-filter-wrap" role="group" aria-label="Filtrar por status">
-                <button
-                  z-button
-                  zType="ghost"
-                  zSize="sm"
-                  type="button"
-                  class="templates-filter-btn"
-                  [class.templates-filter-btn--active]="filtroAtual === 'all'"
-                  (click)="setFiltro('all')"
-                >
+                <nord-button variant="plain" size="s" type="button" class="templates-filter-btn" [class.templates-filter-btn--active]="filtroAtual === 'all'" (click)="setFiltro('all')">
                   Todos
-                </button>
-                <button
-                  z-button
-                  zType="ghost"
-                  zSize="sm"
-                  type="button"
-                  class="templates-filter-btn"
-                  [class.templates-filter-btn--active]="filtroAtual === 'ativo'"
-                  (click)="setFiltro('ativo')"
-                >
+                </nord-button>
+                <nord-button variant="plain" size="s" type="button" class="templates-filter-btn" [class.templates-filter-btn--active]="filtroAtual === 'ativo'" (click)="setFiltro('ativo')">
                   Ativos
-                </button>
-                <button
-                  z-button
-                  zType="ghost"
-                  zSize="sm"
-                  type="button"
-                  class="templates-filter-btn"
-                  [class.templates-filter-btn--active]="filtroAtual === 'publico'"
-                  (click)="setFiltro('publico')"
-                >
+                </nord-button>
+                <nord-button variant="plain" size="s" type="button" class="templates-filter-btn" [class.templates-filter-btn--active]="filtroAtual === 'publico'" (click)="setFiltro('publico')">
                   Públicos
-                </button>
+                </nord-button>
               </div>
             </div>
-          </z-card>
-        }
-      </div>
-
-      @if (grupoDetalhe) {
-        @if (itensVisiveis(grupoDetalhe).length === 0) {
-          <z-card class="overflow-hidden border-border bg-card py-0 shadow-sm">
-            <div class="p-10 text-center text-sm text-muted-foreground">Nenhum modelo nesta categoria com os filtros atuais.</div>
-          </z-card>
-        } @else if (modoDetalhe() === 'tabela') {
-          <z-card class="zm-table-card gap-0 overflow-hidden rounded-[8px] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
-            <div class="zm-table-wrap">
-              <table z-table zSize="compact" class="templates-table w-full text-sm">
-                <thead z-table-header>
-                  <tr z-table-row>
-                    <th z-table-head class="w-1/2">Nome</th>
-                    <th z-table-head>Status</th>
-                    <th z-table-head class="text-right">Ações</th>
-                  </tr>
-                </thead>
-                <tbody z-table-body>
-                  @for (t of itensVisiveis(grupoDetalhe); track t.id) {
-                    <tr z-table-row>
-                      <td z-table-cell>
-                        <span class="zm-row-title">{{ t.name }}</span>
-                      </td>
-                      <td z-table-cell>
-                        <div class="flex flex-wrap items-center gap-1.5">
-                          @if (t.is_active) {
-                            <z-badge zType="default" zShape="pill">Ativo</z-badge>
-                          } @else {
-                            <z-badge zType="secondary" zShape="pill">Inativo</z-badge>
-                          }
-                          @if (t.public_enabled) {
-                            <z-badge zType="outline" zShape="pill" class="h-5 gap-1">
-                              <span class="material-symbols-outlined text-xs">visibility</span>
-                              Público
-                            </z-badge>
-                          }
-                        </div>
-                      </td>
-                      <td z-table-cell class="px-5 py-3 text-right">
-                        <div class="flex items-center justify-end gap-0.5">
-                          <a
-                            z-button
-                            zType="ghost"
-                            zSize="icon-xs"
-                            [routerLink]="['/templates', t.id, 'preview']"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            class="no-underline"
-                            zTooltip="Pré-visualizar"
-                            aria-label="Pré-visualizar modelo"
-                          >
-                            <span class="material-symbols-outlined text-sm">open_in_new</span>
-                          </a>
-                          <button
-                            z-button
-                            zType="ghost"
-                            zSize="icon-xs"
-                            type="button"
-                            [zTooltip]="rotuloPublicar(t)"
-                            [attr.aria-label]="rotuloPublicar(t)"
-                            [zDisabled]="publicandoId() === t.id"
-                            [zLoading]="publicandoId() === t.id"
-                            (click)="alternarPublicacao(t, $event)"
-                          >
-                            <span class="material-symbols-outlined text-sm">{{ iconePublicar(t) }}</span>
-                          </button>
-                          <a
-                            z-button
-                            zType="ghost"
-                            zSize="icon-xs"
-                            [routerLink]="['/templates', t.id, 'campos']"
-                            class="no-underline"
-                            zTooltip="Campos"
-                            aria-label="Campos do modelo"
-                          >
-                            <span class="material-symbols-outlined text-sm">tune</span>
-                          </a>
-                          <a
-                            z-button
-                            zType="ghost"
-                            zSize="icon-xs"
-                            [routerLink]="['/templates', t.id, 'editar']"
-                            class="no-underline"
-                            zTooltip="Editar"
-                            aria-label="Editar modelo"
-                          >
-                            <span class="material-symbols-outlined text-sm">edit</span>
-                          </a>
-                          <button
-                            z-button
-                            zType="destructive"
-                            zSize="icon-xs"
-                            type="button"
-                            zTooltip="Remover"
-                            aria-label="Remover modelo"
-                            [zDisabled]="removendoId() === t.id"
-                            [zLoading]="removendoId() === t.id"
-                            (click)="remover(t, $event)"
-                          >
-                            <span class="material-symbols-outlined text-sm">delete</span>
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  }
-                </tbody>
-              </table>
-            </div>
-          </z-card>
-        } @else {
-          <div class="templates-modelo-grid">
-            @for (t of itensVisiveis(grupoDetalhe); track t.id) {
-              <article class="templates-modelo-card">
-                <div class="templates-modelo-card__head">
-                  @if (t.is_active) {
-                    <span class="templates-modelo-card__status templates-modelo-card__status--ativo">Ativo</span>
-                  } @else {
-                    <span class="templates-modelo-card__status templates-modelo-card__status--inativo">Inativo</span>
-                  }
-                  <button
-                    z-menu
-                    type="button"
-                    [zMenuTriggerFor]="modeloMenuTpl"
-                    zPlacement="bottomRight"
-                    z-button
-                    zType="ghost"
-                    zSize="icon-sm"
-                    class="templates-modelo-card__menu-btn"
-                    [attr.aria-label]="'Mais opções para ' + t.name"
-                    (click)="menuItem.set(t)"
-                  >
-                    <span class="material-symbols-outlined text-[1.125rem]" aria-hidden="true">more_vert</span>
-                  </button>
-                </div>
-
-                <div class="templates-modelo-card__body">
-                  <p class="templates-modelo-card__categoria">
-                    {{ rotuloCategoria(t) }}
-                  </p>
-                  <h3 class="templates-modelo-card__titulo">{{ t.name }}</h3>
-                  <p class="templates-modelo-card__descricao">{{ subtituloModelo(t) }}</p>
-                </div>
-
-                <div class="templates-modelo-card__stats">
-                  <span class="material-symbols-outlined" aria-hidden="true">bar_chart</span>
-                  {{ rotuloRespostas(t) }}
-                </div>
-
-                <div class="templates-modelo-card__actions">
-                  <a
-                    z-button
-                    zType="outline"
-                    zSize="sm"
-                    class="templates-modelo-card__action no-underline"
-                    [routerLink]="['/templates', t.id, 'preview']"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    title="Pré-visualizar modelo"
-                    aria-label="Pré-visualizar modelo"
-                  >
-                    <span class="material-symbols-outlined text-base" aria-hidden="true">open_in_new</span>
-                    Pré-visualizar
-                  </a>
-                  <button
-                    z-button
-                    [zType]="t.public_enabled ? 'outline' : 'default'"
-                    zSize="sm"
-                    type="button"
-                    class="templates-modelo-card__action templates-modelo-card__action--primary"
-                    [title]="rotuloPublicar(t)"
-                    [attr.aria-label]="rotuloPublicar(t)"
-                    [zDisabled]="publicandoId() === t.id"
-                    [zLoading]="publicandoId() === t.id"
-                    (click)="alternarPublicacao(t, $event)"
-                  >
-                    <span class="material-symbols-outlined text-base" aria-hidden="true">{{ iconePublicar(t) }}</span>
-                    {{ rotuloPublicar(t) }}
-                  </button>
-                </div>
-              </article>
-            }
           </div>
         }
-      }
-    </div>
-  }
 
-  <ng-template #modeloMenuTpl>
-    @if (menuItem()) {
-      <div z-menu-content class="min-w-44">
-        <a z-menu-item [routerLink]="['/templates', menuItem()?.id, 'campos']" class="gap-2 text-inherit no-underline">
-          <span class="material-symbols-outlined shrink-0 text-base" aria-hidden="true">tune</span>
-          Campos
-        </a>
-        <a z-menu-item [routerLink]="['/templates', menuItem()?.id, 'editar']" class="gap-2 text-inherit no-underline">
-          <span class="material-symbols-outlined shrink-0 text-base" aria-hidden="true">edit</span>
-          Editar
-        </a>
-        <button
-          type="button"
-          z-menu-item
-          class="w-full gap-2"
-          [zDisabled]="duplicandoId() === menuItem()?.id"
-          (click)="duplicar(menuItem()!, $event)"
-        >
-          <span class="material-symbols-outlined shrink-0 text-base" aria-hidden="true">content_copy</span>
-          Duplicar
-        </button>
-        <button
-          type="button"
-          z-menu-item
-          zType="destructive"
-          class="w-full gap-2"
-          [zDisabled]="removendoId() === menuItem()?.id"
-          (click)="remover(menuItem()!, $event)"
-        >
-          <span class="material-symbols-outlined shrink-0 text-base" aria-hidden="true">delete</span>
-          Remover
-        </button>
+        @if (grupoDetalhe) {
+          @if (itensVisiveis(grupoDetalhe).length === 0) {
+            <div class="n-page-list__empty">
+              <nord-empty-state>
+                <h2>Nenhum modelo nesta categoria</h2>
+                <p>Ajuste os filtros ou crie um novo modelo.</p>
+                <nord-button variant="primary" routerLink="/templates/criar-em-branco">
+                  <nord-icon name="interface-add" size="s"></nord-icon>
+                  Novo modelo
+                </nord-button>
+              </nord-empty-state>
+            </div>
+          } @else if (modoDetalhe() === 'tabela') {
+            <div class="n-page-list__table">
+              @for (t of itensVisiveis(grupoDetalhe); track t.id) {
+                <div
+                  class="n-page-list__row n-page-list__row--clickable"
+                  role="link"
+                  tabindex="0"
+                  [routerLink]="['/templates', t.id, 'campos']"
+                >
+                  <div class="n-page-list__row-main">
+                    <div class="n-page-list__row-title">{{ t.name }}</div>
+                    <div class="n-page-list__row-meta">
+                      {{ subtituloModelo(t) }}
+                      · {{ rotuloRespostas(t) }}
+                    </div>
+                  </div>
+                  <div class="n-page-list__actions" (click)="$event.stopPropagation()" (keydown)="$event.stopPropagation()">
+                    @if (t.is_active) {
+                      <nord-badge variant="success">Ativo</nord-badge>
+                    } @else {
+                      <nord-badge variant="neutral">Inativo</nord-badge>
+                    }
+                    @if (t.public_enabled) {
+                      <nord-badge variant="info">Público</nord-badge>
+                    }
+                    <nord-button
+                      square
+                      variant="plain"
+                      [routerLink]="['/templates', t.id, 'preview']"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label="Pré-visualizar modelo"
+                      aria-describedby="tip-tpl-preview"
+                    >
+                      <nord-icon name="interface-new-window" size="s"></nord-icon>
+                    </nord-button>
+                    <nord-button
+                      square
+                      variant="plain"
+                      type="button"
+                      [attr.aria-label]="rotuloPublicar(t)"
+                      [attr.disabled]="publicandoId() === t.id"
+                      [attr.loading]="publicandoId() === t.id"
+                      (click)="alternarPublicacao(t, $event)"
+                    >
+                      <nord-icon [name]="t.public_enabled ? 'interface-unlink' : 'interface-globe'" size="s"></nord-icon>
+                    </nord-button>
+                    <nord-button
+                      square
+                      variant="plain"
+                      [routerLink]="['/templates', t.id, 'campos']"
+                      aria-label="Campos do modelo"
+                      aria-describedby="tip-tpl-campos"
+                    >
+                      <nord-icon name="navigation-settings" size="s"></nord-icon>
+                    </nord-button>
+                    <nord-button
+                      square
+                      variant="plain"
+                      [routerLink]="['/templates', t.id, 'editar']"
+                      aria-label="Editar modelo"
+                      aria-describedby="tip-tpl-edit"
+                    >
+                      <nord-icon name="interface-edit" size="s"></nord-icon>
+                    </nord-button>
+                    <nord-button
+                      square
+                      variant="danger"
+                      type="button"
+                      aria-label="Remover modelo"
+                      aria-describedby="tip-tpl-del"
+                      [attr.disabled]="removendoId() === t.id"
+                      [attr.loading]="removendoId() === t.id"
+                      (click)="remover(t, $event)"
+                    >
+                      <nord-icon name="interface-delete" size="s"></nord-icon>
+                    </nord-button>
+                  </div>
+                </div>
+              }
+            </div>
+            <div class="n-page-list__footer">
+              <span class="n-muted n-small">
+                {{ itensVisiveis(grupoDetalhe).length }}
+                {{ itensVisiveis(grupoDetalhe).length === 1 ? 'modelo' : 'modelos' }}
+                em {{ grupoDetalhe.label }}
+              </span>
+            </div>
+            <nord-tooltip id="tip-tpl-preview" [delay]="0">Pré-visualizar</nord-tooltip>
+            <nord-tooltip id="tip-tpl-campos" [delay]="0">Campos</nord-tooltip>
+            <nord-tooltip id="tip-tpl-edit" [delay]="0">Editar</nord-tooltip>
+            <nord-tooltip id="tip-tpl-del" [delay]="0">Remover</nord-tooltip>
+          } @else {
+            <div class="templates-modelo-grid">
+              @for (t of itensVisiveis(grupoDetalhe); track t.id) {
+                <article class="templates-modelo-card">
+                  <div class="templates-modelo-card__head">
+                    @if (t.is_active) {
+                      <span class="templates-modelo-card__status templates-modelo-card__status--ativo">Ativo</span>
+                    } @else {
+                      <span class="templates-modelo-card__status templates-modelo-card__status--inativo">Inativo</span>
+                    }
+                    <nord-dropdown style="--n-dropdown-size: 11rem">
+                      <nord-button slot="toggle" type="button" variant="plain" size="s" class="templates-modelo-card__menu-btn" [attr.aria-label]="'Mais opções para ' + t.name" square>
+                        <span class="material-symbols-outlined text-[1.125rem]" aria-hidden="true">more_vert</span>
+                      </nord-button>
+                      <nord-dropdown-group>
+                        <nord-dropdown-item [routerLink]="['/templates', t.id, 'campos']">
+                          <span class="material-symbols-outlined shrink-0 text-base" aria-hidden="true">tune</span>
+                          Campos
+                        </nord-dropdown-item>
+                        <nord-dropdown-item [routerLink]="['/templates', t.id, 'editar']">
+                          <span class="material-symbols-outlined shrink-0 text-base" aria-hidden="true">edit</span>
+                          Editar
+                        </nord-dropdown-item>
+                        <nord-dropdown-item
+                          [disabled]="duplicandoId() === t.id"
+                          (click)="duplicar(t, $event)"
+                        >
+                          <span class="material-symbols-outlined shrink-0 text-base" aria-hidden="true">content_copy</span>
+                          Duplicar
+                        </nord-dropdown-item>
+                        <nord-dropdown-item
+                          [disabled]="removendoId() === t.id"
+                          (click)="remover(t, $event)"
+                        >
+                          <span class="material-symbols-outlined shrink-0 text-base" aria-hidden="true">delete</span>
+                          Remover
+                        </nord-dropdown-item>
+                      </nord-dropdown-group>
+                    </nord-dropdown>
+                  </div>
+
+                  <div class="templates-modelo-card__body">
+                    <p class="templates-modelo-card__categoria">
+                      {{ rotuloCategoria(t) }}
+                    </p>
+                    <h3 class="templates-modelo-card__titulo">{{ t.name }}</h3>
+                    <p class="templates-modelo-card__descricao">{{ subtituloModelo(t) }}</p>
+                  </div>
+
+                  <div class="templates-modelo-card__stats">
+                    <span class="material-symbols-outlined" aria-hidden="true">bar_chart</span>
+                    {{ rotuloRespostas(t) }}
+                  </div>
+
+                  <div class="templates-modelo-card__actions">
+                    <a class="templates-modelo-card__action no-underline" [routerLink]="['/templates', t.id, 'preview']" target="_blank" rel="noopener noreferrer" title="Pré-visualizar modelo" aria-label="Pré-visualizar modelo">
+                      <span class="material-symbols-outlined text-base" aria-hidden="true">open_in_new</span>
+                      Pré-visualizar
+                    </a>
+                    <nord-button [attr.variant]="t.public_enabled ? 'default' : 'primary'" size="s" type="button" class="templates-modelo-card__action templates-modelo-card__action--primary" [title]="rotuloPublicar(t)" [attr.aria-label]="rotuloPublicar(t)" [attr.disabled]="publicandoId() === t.id" [attr.loading]="publicandoId() === t.id" (click)="alternarPublicacao(t, $event)">
+                      <span class="material-symbols-outlined text-base" aria-hidden="true">{{ iconePublicar(t) }}</span>
+                      {{ rotuloPublicar(t) }}
+                    </nord-button>
+                  </div>
+                </article>
+              }
+            </div>
+          }
+        }
       </div>
     }
-  </ng-template>
-</div>
+  </div>
+}

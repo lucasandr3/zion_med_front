@@ -26,10 +26,17 @@
               "src/assets"
             ],
             "styles": [
+              "node_modules/@nordhealth/fonts/lib/fonts.css",
+              "node_modules/@nordhealth/css/lib/nord.min.css",
+              "node_modules/@nordhealth/themes/lib/nord.css",
               "src/styles.css",
               "src/app/paginas/formulario-publico/formulario-publico.shared.css"
             ],
-            "scripts": []
+            "scripts": [],
+            "loader": {
+              ".woff": "file",
+              ".woff2": "file"
+            }
           },
           "configurations": {
             "production": {

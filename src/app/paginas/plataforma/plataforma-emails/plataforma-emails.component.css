@@ -1,30 +1,6 @@
-:host {
-  display: block;
-  width: 100%;
-  margin-top: -1.5rem;
-}
-
 .emails-page {
-  width: calc(100% + 2rem);
+  width: 100%;
   max-width: none;
-  margin-left: -1rem;
-  margin-right: -1rem;
-}
-
-@media (min-width: 640px) {
-  .emails-page {
-    width: calc(100% + 3rem);
-    margin-left: -1.5rem;
-    margin-right: -1.5rem;
-  }
-}
-
-@media (min-width: 1024px) {
-  .emails-page {
-    width: calc(100% + 4rem);
-    margin-left: -2rem;
-    margin-right: -2rem;
-  }
 }
 
 .emails-shell {
@@ -54,7 +30,7 @@
 }
 
 :host ::ng-deep .emails-shell .emails-tabs-bar,
-:host ::ng-deep .emails-shell .emails-zard-tabs--layout > .grid {
+:host ::ng-deep .emails-shell .emails-gestgo-tabs--layout > .grid {
   position: sticky;
   top: 0;
   z-index: 30;
@@ -66,7 +42,7 @@
   border-bottom: 1px solid var(--border, var(--c-border)) !important;
 }
 
-:host ::ng-deep .emails-shell .emails-zard-tabs--no-nav-rule nav[role='tablist'] {
+:host ::ng-deep .emails-shell .emails-gestgo-tabs--no-nav-rule nav[role='tablist'] {
   flex-shrink: 0;
   width: 100%;
   margin: 0 !important;
@@ -77,12 +53,12 @@
   border-bottom: none !important;
 }
 
-:host ::ng-deep .emails-zard-tabs nav[role='tablist'] button[role='tab'][aria-selected='true'] {
+:host ::ng-deep .emails-gestgo-tabs nav[role='tablist'] button[role='tab'][aria-selected='true'] {
   color: var(--primary);
   border-bottom-color: var(--primary) !important;
 }
 
-.emails-zard-tabs--layout {
+.emails-gestgo-tabs--layout {
   display: flex;
   flex-direction: column;
   flex: 0 0 auto;
@@ -93,7 +69,7 @@
   border: none;
 }
 
-:host ::ng-deep .emails-shell .emails-zard-tabs--layout > .flex-1 {
+:host ::ng-deep .emails-shell .emails-gestgo-tabs--layout > .flex-1 {
   display: block;
   flex: 0 0 auto !important;
   width: 100%;
@@ -102,13 +78,13 @@
   background: var(--background);
 }
 
-:host ::ng-deep .emails-shell .emails-zard-tabs--layout > .flex-1 [role='tabpanel'] {
+:host ::ng-deep .emails-shell .emails-gestgo-tabs--layout > .flex-1 [role='tabpanel'] {
   display: block;
   width: 100%;
   outline: none;
 }
 
-:host ::ng-deep .emails-shell .emails-zard-tabs--layout > .flex-1 [role='tabpanel'][hidden] {
+:host ::ng-deep .emails-shell .emails-gestgo-tabs--layout > .flex-1 [role='tabpanel'][hidden] {
   display: none !important;
 }
 

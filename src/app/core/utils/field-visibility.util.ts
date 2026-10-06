@@ -20,8 +20,7 @@ export const FIELD_VISIBILITY_OPERATORS: { value: FieldVisibilityOperator; label
   { value: 'equals', label: 'é igual a' },
   { value: 'not_equals', label: 'é diferente de' },
   { value: 'filled', label: 'está preenchido' },
-  { value: 'empty', label: 'está vazio' },
-];
+  { value: 'empty', label: 'está vazio' }];
 
 export function normalizeVisibilityValue(value: unknown): string {
   if (value === true || value === 1 || value === '1') return 'true';

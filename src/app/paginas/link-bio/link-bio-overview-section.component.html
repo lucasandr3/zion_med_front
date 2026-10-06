@@ -1,5 +1,5 @@
 <div class="link-bio-overview-grid link-bio-fade-in-2">
-  <z-card class="link-bio-kpi-card gap-0 rounded-xl border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-4">
+  <g-card class="link-bio-kpi-card gap-0 rounded-xl border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-4">
     <div class="link-bio-kpi-card__head">
       <p class="link-bio-kpi-card__label">Visitas hoje</p>
       @if (visitasTrendPercentValue !== null) {
@@ -14,9 +14,9 @@
     </div>
     <p class="link-bio-kpi-card__value link-bio-kpi-card__value--accent">{{ metrics.visitas_hoje }}</p>
     <p class="link-bio-kpi-card__sub">vs. ontem: {{ visitasOntemCount }} visita@if (visitasOntemCount !== 1) {s}</p>
-  </z-card>
+  </g-card>
 
-  <z-card class="link-bio-kpi-card gap-0 rounded-xl border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-4">
+  <g-card class="link-bio-kpi-card gap-0 rounded-xl border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-4">
     <div class="link-bio-kpi-card__head">
       <p class="link-bio-kpi-card__label">Taxa de clique</p>
     </div>
@@ -25,9 +25,9 @@
       <div class="link-bio-kpi-progress__fill" [style.width.%]="ctrBarPercentValue"></div>
     </div>
     <p class="link-bio-kpi-card__sub">Média do setor: {{ ctrMediaSetor }}%</p>
-  </z-card>
+  </g-card>
 
-  <z-card class="link-bio-kpi-card gap-0 rounded-xl border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-4">
+  <g-card class="link-bio-kpi-card gap-0 rounded-xl border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-4">
     <div class="link-bio-kpi-card__head">
       <p class="link-bio-kpi-card__label">Cliques totais</p>
       @if (cliquesTrendPercentValue !== null) {
@@ -42,9 +42,9 @@
     </div>
     <p class="link-bio-kpi-card__value">{{ metrics.total_clicks_last_30 }}</p>
     <p class="link-bio-kpi-card__sub">últimos 30 dias</p>
-  </z-card>
+  </g-card>
 
-  <z-card class="link-bio-kpi-card gap-0 rounded-xl border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-4">
+  <g-card class="link-bio-kpi-card gap-0 rounded-xl border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-4">
     <div class="link-bio-kpi-card__head">
       <p class="link-bio-kpi-card__label">Formulários</p>
     </div>
@@ -53,29 +53,21 @@
       <span class="link-bio-kpi-card__highlight">{{ metrics.formularios_ativos }} ativo@if (metrics.formularios_ativos !== 1) {s}</span>
       <span class="link-bio-text-muted"> · {{ metrics.formularios_draft }} rascunho</span>
     </p>
-  </z-card>
+  </g-card>
 </div>
 
 @if (mostrarInsightBanner) {
   <div class="link-bio-insight link-bio-fade-in-2" role="note">
     <span class="material-symbols-outlined link-bio-insight__icon" aria-hidden="true">lightbulb</span>
     <p class="link-bio-insight__text">{{ insightBannerTextoValue }}</p>
-    <button
-      type="button"
-      z-button
-      zType="ghost"
-      zSize="icon-sm"
-      class="link-bio-insight__close shrink-0"
-      aria-label="Fechar dica"
-      (click)="closeInsight.emit()"
-    >
+    <nord-button type="button" variant="plain" size="s" class="link-bio-insight__close shrink-0" aria-label="Fechar dica" (click)="closeInsight.emit()" square>
       <span class="material-symbols-outlined text-base">close</span>
-    </button>
+    </nord-button>
   </div>
 }
 
 <div class="link-bio-overview-panels link-bio-fade-in-3">
-  <z-card class="link-bio-panel-card gap-0 overflow-hidden rounded-xl border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-5">
+  <g-card class="link-bio-panel-card gap-0 overflow-hidden rounded-xl border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-5">
     <div class="link-bio-panel-card__head">
       <div>
         <h3 class="link-bio-panel-card__title">Cliques por dia</h3>
@@ -83,31 +75,13 @@
       </div>
       <div class="link-bio-period-toggle" role="group" aria-label="Período do gráfico">
         @for (p of statsPeriodos; track p.id) {
-          <button
-            type="button"
-            z-button
-            zType="ghost"
-            zSize="sm"
-            class="link-bio-period-toggle__btn"
-            [class.link-bio-period-toggle__btn--active]="statsPeriodo === p.id"
-            (click)="selecionarPeriodo(p.id)"
-          >
+          <nord-button type="button" variant="plain" size="s" class="link-bio-period-toggle__btn" [class.link-bio-period-toggle__btn--active]="statsPeriodo === p.id" (click)="selecionarPeriodo(p.id)">
             {{ p.label }}
-          </button>
+          </nord-button>
         }
-        <button
-          type="button"
-          z-button
-          zType="ghost"
-          zSize="icon-sm"
-          class="shrink-0"
-          aria-label="Atualizar estatísticas"
-          [zDisabled]="atualizandoStats"
-          [zLoading]="atualizandoStats"
-          (click)="refreshStats.emit()"
-        >
+        <nord-button type="button" variant="plain" size="s" class="shrink-0" aria-label="Atualizar estatísticas" [attr.disabled]="atualizandoStats" [attr.loading]="atualizandoStats" (click)="refreshStats.emit()" square>
           <span class="material-symbols-outlined text-base">refresh</span>
-        </button>
+        </nord-button>
       </div>
     </div>
     @if (chartCliques.length === 0) {
@@ -131,9 +105,9 @@
         }
       </div>
     }
-  </z-card>
+  </g-card>
 
-  <z-card class="link-bio-panel-card gap-0 overflow-hidden rounded-xl border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-5">
+  <g-card class="link-bio-panel-card gap-0 overflow-hidden rounded-xl border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-5">
     <h3 class="link-bio-panel-card__title m-0 mb-4">Origem dos cliques</h3>
     @if (origensClique.length === 0) {
       <p class="link-bio-panel-empty m-0">Nenhum clique registrado ainda.</p>
@@ -153,10 +127,10 @@
         }
       </ul>
     }
-  </z-card>
+  </g-card>
 
   @if (sugestoesMelhoria.length > 0) {
-    <z-card class="link-bio-panel-card link-bio-panel-card--suggestions gap-0 overflow-hidden rounded-xl border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-5">
+    <g-card class="link-bio-panel-card link-bio-panel-card--suggestions gap-0 overflow-hidden rounded-xl border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-5">
       <h3 class="link-bio-panel-card__title m-0 mb-1">Sugestões para melhorar</h3>
       <p class="link-bio-panel-card__meta m-0 mb-3">Com base no que sua página pública já exibe hoje</p>
       <ul class="link-bio-suggestion-list m-0 p-0 list-none">
@@ -178,6 +152,6 @@
           </li>
         }
       </ul>
-    </z-card>
+    </g-card>
   }
 </div>

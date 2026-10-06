@@ -21,6 +21,7 @@ import { statusAssinaturaOuCobrancaPt, statusFaturaPt } from '../../core/utils/s
   selector: 'app-pagina-billing',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { class: 'n-page' },
   imports: [CommonModule, ZmSkeletonListComponent, ZmAssinaturaBloqueadaCardComponent],
   templateUrl: './billing.component.html',
   styleUrl: './billing.component.css',

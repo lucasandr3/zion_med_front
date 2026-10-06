@@ -47,7 +47,7 @@ export function linkBioSpecialtiesList(clinic: LinkBioClinic): string[] {
   if (!csv) return [];
 
   return csv
-    .split(/[,;|/]/)
+    .split(/[;|/]/)
     .map((part) => part.trim())
     .filter(Boolean);
 }

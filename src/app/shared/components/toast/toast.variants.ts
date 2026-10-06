@@ -16,4 +16,4 @@ export const toastVariants = cva(
   },
 );
 
-export type ZardToastVariants = NonNullable<VariantProps<typeof toastVariants>['variant']>;
+export type GestgoToastVariants = NonNullable<VariantProps<typeof toastVariants>['variant']>;

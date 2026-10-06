@@ -2,6 +2,185 @@
 @layer ng-icon, theme, base, components, utilities;
 @plugin 'tailwindcss-animate';
 @import 'flatpickr/dist/flatpickr.css';
+@import './styles/page-list.css';
+
+/*
+ * Nord Design System — accent segue a cor do tema (`body.theme-*` → --c-primary).
+ * Não fixar --n-color-accent no :root/html: isso impedia nav ativo, botões e
+ * links Nord de acompanharem a paleta escolhida no drawer.
+ */
+:root,
+html[data-color-scheme='light'],
+html[data-color-scheme='dark'] {
+  --n-color-accent-text: #ffffff;
+  --n-color-status-success: #14b87a;
+}
+
+a.nord-anchor-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  color: inherit;
+}
+
+/*
+ * Nord envia `:not(:defined){visibility:hidden}` para evitar FOUC.
+ * Angular hosts (app-*, g-*, zm-*, go-*, …) NUNCA passam por
+ * customElements.define() — a UI ficava invisível (só nord-* definidos
+ * apareciam), com “buracos” brancos. Padrão pesquisa_app: forçar visible
+ * em hosts Angular. nord-* já são registrados em nord-setup.ts no boot.
+ */
+:not(:defined) {
+  visibility: visible !important;
+}
+
+/* Botões Nord — gabarito pesquisa_app (só remove sombra/foco; primary nativo) */
+nord-button,
+nord-button:focus,
+nord-button:focus-visible,
+nord-button:active {
+  --n-button-box-shadow: none;
+  --_n-button-box-shadow: none;
+  outline: none !important;
+}
+
+/*
+ * Material Symbols em nord-button — só corrige line-height (não mexer em nord-icon:
+ * display:inline-flex no host some o SVG).
+ */
+nord-button .material-symbols-outlined {
+  font-size: 1.125rem;
+  line-height: 1;
+  vertical-align: middle;
+}
+
+/* Shell Nord + overlays críticos */
+nord-layout,
+nord-navigation,
+nord-nav-group,
+nord-nav-item,
+nord-nav-toggle,
+nord-top-bar,
+nord-button,
+nord-button-group,
+nord-checkbox,
+nord-toggle,
+nord-input,
+nord-card,
+nord-banner,
+nord-stack,
+nord-modal,
+nord-toast,
+nord-toast-group,
+nord-dropdown,
+nord-dropdown-item,
+nord-dropdown-group,
+nord-popout,
+nord-tooltip,
+nord-tab-group,
+nord-tab,
+nord-avatar,
+nord-badge,
+nord-icon,
+nord-empty-state,
+nord-skeleton {
+  visibility: visible !important;
+}
+
+/*
+ * Tokens Nord claros no modo claro Gestgo.
+ * Importante: NÃO carregar nord-dark.css em angular.json — ele redefine
+ * `:root { color-scheme: dark; --n-color-active: … }` e deixa inputs/ícones
+ * pretos mesmo com data-color-scheme=light. Estes overrides cobrem o vazamento.
+ */
+:root,
+html[data-color-scheme='light'],
+body:not(.dark) {
+  color-scheme: light;
+  --n-color-text: #17201f;
+  --n-color-text-weak: #3d4a47;
+  --n-color-text-weaker: #6b7a76;
+  --n-color-text-weakest: #9aa8a4;
+  --n-color-text-on-accent: #ffffff;
+  --n-color-surface: #ffffff;
+  --n-color-background: #f8faf6;
+  /*
+   * Raised ≠ surface — contraste do header do account menu (referência).
+   * Nord light default (250,251,251) é quase branco; usamos um raised mais legível.
+   */
+  --n-color-surface-raised: #f0f3f1;
+  --n-color-surface-lowered: #e9efec;
+  --n-color-surface-canvas: #fcfcfc;
+  --n-color-surface-background: #f3f6f4;
+  /* Divisórias do dropdown (header / group / footer) */
+  --n-color-border: #d5ddd9;
+  --n-color-border-strong: #c5d0cb;
+  --n-color-border-hover: #6b7a76;
+  --n-color-nav-surface: #ffffff;
+  --n-color-nav-hover: #f0f3f1;
+  --n-color-nav-selected: #e9efec;
+  --n-color-button: #ffffff;
+  --n-color-button-hover: #f3f6f4;
+  --n-color-icon: #6b7a76;
+  --n-color-icon-hover: #17201f;
+  /* Pill do Sair no account menu (= raised) */
+  --n-color-active: #f0f3f1;
+  --n-color-header: #f3f6f4;
+  --n-input-background: var(--n-color-surface);
+  --n-input-background-inactive: var(--n-color-surface);
+  --n-textarea-background: var(--n-color-surface);
+  --n-textarea-background-inactive: var(--n-color-surface);
+}
+
+/*
+ * Tokens Nord escuros — base pesquisa, um pouco mais escuros.
+ * Hierarquia: canvas < background < surface < raised/header/nav.
+ */
+body.dark,
+html[data-color-scheme='dark'] {
+  color-scheme: dark;
+  --n-color-text: rgb(222, 223, 225);
+  --n-color-text-weak: rgb(222, 223, 225);
+  --n-color-text-weaker: rgb(143, 148, 158);
+  --n-color-text-weakest: rgb(85, 89, 98);
+  --n-color-text-on-accent: rgb(255, 255, 255);
+  --n-color-surface: rgb(22, 24, 29);
+  --n-color-background: rgb(16, 18, 22);
+  --n-color-surface-raised: rgb(26, 28, 34);
+  --n-color-surface-lowered: rgb(30, 33, 39);
+  --n-color-surface-canvas: rgb(10, 11, 13);
+  --n-color-surface-background: rgb(8, 9, 11);
+  --n-color-overlay: rgba(6, 7, 9, 0.55);
+  --n-color-border: rgb(40, 44, 52);
+  --n-color-border-strong: rgb(52, 57, 66);
+  --n-color-border-hover: rgb(143, 148, 158);
+  --n-color-nav-surface: rgb(22, 24, 29);
+  --n-color-nav-heading: rgb(190, 196, 204);
+  --n-color-nav-hover: rgb(14, 15, 18);
+  --n-color-nav-selected: rgb(28, 30, 36);
+  --n-color-button: rgb(22, 24, 29);
+  --n-color-button-hover: rgb(30, 33, 39);
+  --n-color-icon: rgb(143, 148, 158);
+  --n-color-icon-hover: rgb(222, 223, 225);
+  --n-color-active: rgb(30, 33, 39);
+  --n-color-header: rgb(22, 24, 29);
+  --n-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  --n-box-shadow-card: 0 0 0 1px var(--n-color-border), 0 1px 5px rgba(0, 0, 0, 0.15);
+  --n-box-shadow-header: 0 1px 5px rgba(0, 0, 0, 0.15);
+  --n-box-shadow-nav: 0 0 0 1px var(--n-color-border), 0 5px 17px rgba(0, 0, 0, 0.24);
+  --n-navigation-header-background: var(--n-color-header);
+  --n-navigation-header-color: var(--n-color-text);
+  --n-navigation-header-toggle-icon-color: var(--n-color-icon);
+  --n-navigation-header-divider: 1px solid var(--n-color-border);
+  --n-navigation-background-color: var(--n-color-header);
+  --n-layout-nav-border-color: var(--n-color-border);
+  --n-layout-background-color: var(--n-color-background);
+  --n-input-background: var(--n-color-active);
+  --n-input-background-inactive: var(--n-color-surface);
+  --n-textarea-background: var(--n-color-active);
+  --n-textarea-background-inactive: var(--n-color-surface);
+}
 
 /* ─── Dark mode via classe .dark (não media query) ───────────────────────── */
 @custom-variant dark (&:where(.dark, .dark *));
@@ -82,7 +261,7 @@
     --gestgo-brand-tag: var(--muted-foreground, var(--c-muted));
     --gestgo-brand-logo-shadow: none;
 
-    /* Shell — alinhado aos tokens Zard (presets via body.shell-preset-* podem sobrescrever) */
+    /* Shell — alinhado aos tokens Gestgo (presets via body.shell-preset-* podem sobrescrever) */
     --shell-header-height: 3.5rem; /* h-14 — #top-header */
     --shell-header-bg: var(--sidebar, var(--background, var(--c-surface)));
     --shell-sidebar-bg: var(--sidebar, var(--c-surface));
@@ -120,6 +299,15 @@
     /* Altura de inputs, selects e combobox trigger (alinhados em toolbars) */
     --control-height: 40px;
     --control-height-inner: calc(var(--control-height) - 4px);
+    --control-radius: 5px;
+    --control-font-size: 14px;
+
+    /* Tokens Nord de controle (referência pesquisa_app) */
+    --n-input-block-size: var(--control-height);
+    --n-input-border-radius: var(--control-radius);
+    --n-input-font-size: var(--control-font-size);
+    --n-select-block-size: var(--control-height);
+    --n-textarea-border-radius: var(--control-radius);
 
     /* Raio — DS: sm 6 / md 8 / lg 12 / xl 16 */
     --radius-sm: 0.375rem;
@@ -146,10 +334,18 @@
     --tracking-wide: 0.06em;
 }
 
-/* "Topo e marca" (shell-preset-tinted): primária só no #top-header e na faixa Gestgo — rail do menu neutra */
+/* "Topo e marca" (shell-preset-tinted) — pesquisa branded-top */
 body.shell-preset-tinted {
     --shell-header-bg: var(--c-primary);
     --shell-sidebar-bg: var(--sidebar, var(--background, var(--c-surface)));
+}
+
+/* Dark + topo e marca: nav alinhada aos tokens escuros */
+body.dark.shell-preset-tinted {
+    --shell-sidebar-bg: var(--n-color-nav-surface);
+    --shell-nav-bg: var(--n-color-nav-surface);
+    --shell-nav-muted: rgb(190, 196, 204);
+    --n-color-nav-heading: rgb(190, 196, 204);
 }
 
 /* Temas claro — primary/accent com contraste WCAG AA mínimo 4.5:1 em fundo branco */
@@ -168,34 +364,33 @@ body.shell-preset-tinted {
 .theme-fuchsia-bold  { --c-primary: #a21caf; --c-accent: #c026d3; --c-focus: rgba(162,28,175,.18); }
 
 /* ══════════════════════════════════════════════════════════════════════════
-   MODO ESCURO — valores diretos
+   MODO ESCURO — ponte legado → tokens Nord (pesquisa html.dark)
    ══════════════════════════════════════════════════════════════════════════ */
 .dark {
-    /* Gestgo dark — grafite neutro (sem verde/azul nos fundos) */
-    --bg-base: #0D0D0D;
-    --bg-sidebar: #111111;
-    --bg-surface: #171717;
-    --bg-surface-raised: #1C1C1C;
-    --bg-input: #141414;
-    --bg-hover: #222222;
-    --bg-active: #292929;
-    --border-subtle: #242424;
-    --border-default: #303030;
-    --border-strong: #404040;
-    --border-focus: #14B87A;
-    --text-primary: #F2F2F2;
-    --text-secondary: #B4B4B4;
-    --text-muted: #858585;
-    --text-disabled: #5F5F5F;
+    --bg-base: var(--n-color-background);
+    --bg-sidebar: var(--n-color-nav-surface);
+    --bg-surface: var(--n-color-surface);
+    --bg-surface-raised: var(--n-color-surface-raised);
+    --bg-input: var(--n-color-surface);
+    --bg-hover: var(--n-color-active);
+    --bg-active: var(--n-color-nav-selected);
+    --border-subtle: var(--n-color-border);
+    --border-default: var(--n-color-border);
+    --border-strong: var(--n-color-border-strong);
+    --border-focus: var(--c-primary);
+    --text-primary: var(--n-color-text);
+    --text-secondary: var(--n-color-text-weak);
+    --text-muted: var(--n-color-text-weaker);
+    --text-disabled: var(--n-color-text-weakest);
     --text-inverse: #FFFFFF;
-    --brand-primary: #14B87A;
-    --brand-hover: #20C989;
-    --brand-active: #0FA36C;
-    --brand-soft: #10251E;
-    --brand-text: #55D7A6;
+    --brand-primary: var(--c-primary);
+    --brand-hover: var(--n-color-accent-hover, var(--c-primary));
+    --brand-active: var(--n-color-accent-active, var(--c-primary));
+    --brand-soft: color-mix(in srgb, var(--c-primary) 18%, var(--n-color-surface));
+    --brand-text: var(--c-primary);
 
-    --skeleton-base: #171717;
-    --skeleton-highlight: #222222;
+    --skeleton-base: var(--n-color-surface);
+    --skeleton-highlight: var(--n-color-active);
 
     --c-bg:       var(--bg-base);
     --c-surface:  var(--bg-surface);
@@ -206,7 +401,7 @@ body.shell-preset-tinted {
     --c-muted:    var(--text-secondary);
     --c-border:   var(--border-default);
 
-    /* --shell-header-bg / --shell-sidebar-bg: definidos no bloco Zard `.dark` (--sidebar) */
+    /* Shell: ver bloco `.dark` Tailwind acima (tokens Nord) */
 
     --c-btn-default-bg:    var(--bg-hover);
     --c-btn-default-text: var(--text-secondary);
@@ -258,7 +453,7 @@ body.shell-preset-tinted {
 .dark.theme-cyan-tech     { --c-primary: #38bdf8; --c-accent: #7dd3fc; --c-focus: rgba(56,189,248,.2); }
 .dark.theme-fuchsia-bold  { --c-primary: #e879f9; --c-accent: #f0abfc; --c-focus: rgba(232,121,249,.2); }
 
-/* ─── Zard UI — tema neutral + integração marca (`--c-*` definido acima) ──── */
+/* ─── Gestgo UI — tema neutral + integração marca (`--c-*` definido acima) ──── */
 :root {
   --radius: 0.5rem;
   --background: #F8FAF6;
@@ -296,54 +491,72 @@ body.shell-preset-tinted {
 }
 
 .dark {
-  --background: #0D0D0D;
-  --foreground: #F2F2F2;
-  --card: #171717;
-  --card-foreground: #F2F2F2;
-  --popover: #1C1C1C;
-  --popover-foreground: #F2F2F2;
+  /* Superfícies Tailwind/shadcn ↔ tokens Nord (pesquisa html.dark) */
+  --background: var(--n-color-background);
+  --foreground: var(--n-color-text);
+  --card: var(--n-color-surface);
+  --card-foreground: var(--n-color-text);
+  --popover: var(--n-color-surface-raised);
+  --popover-foreground: var(--n-color-text);
   --primary: var(--c-primary);
-  --primary-foreground: #FFFFFF;
-  --secondary: #171717;
-  --secondary-foreground: #F2F2F2;
-  --muted: #222222;
-  --muted-foreground: #858585;
-  --accent: #222222;
-  --accent-foreground: #F2F2F2;
+  --primary-foreground: var(--n-color-text-on-accent, #fff);
+  --secondary: var(--n-color-surface);
+  --secondary-foreground: var(--n-color-text);
+  --muted: var(--n-color-active);
+  --muted-foreground: var(--n-color-text-weaker);
+  --accent: var(--n-color-active);
+  --accent-foreground: var(--n-color-text);
   --destructive: #F08A8A;
   --destructive-foreground: #FFFFFF;
-  --border: #303030;
-  --input: #141414;
-  --ring: #14B87A;
+  --border: var(--n-color-border);
+  /* Borda de input: nunca igual à surface (senão some no dark) */
+  --input: var(--n-color-border-strong);
+  --ring: var(--c-primary);
   --chart-1: #14B87A;
   --chart-2: #55D7A6;
   --chart-3: #7CC4F8;
   --chart-4: #EAC66D;
   --chart-5: #F08A8A;
-  --sidebar: #111111;
-  --sidebar-foreground: #F2F2F2;
+  --sidebar: var(--n-color-nav-surface);
+  --sidebar-foreground: var(--n-color-text);
   --sidebar-primary: var(--c-primary);
-  --sidebar-primary-foreground: #FFFFFF;
-  --sidebar-accent: #222222;
-  --sidebar-accent-foreground: #F2F2F2;
-  --sidebar-border: #242424;
-  --sidebar-ring: #14B87A;
-  /* Shell: header e sidebar com a mesma superfície (--sidebar) */
-  --shell-header-bg: var(--sidebar);
-  --shell-sidebar-bg: var(--shell-header-bg);
+  --sidebar-primary-foreground: var(--n-color-text-on-accent, #fff);
+  --sidebar-accent: var(--n-color-nav-hover);
+  --sidebar-accent-foreground: var(--n-color-text);
+  --sidebar-border: var(--n-color-border);
+  --sidebar-ring: var(--c-primary);
+  /* Shell padrão dark — pesquisa html.dark[data-shell-style=default] */
+  --shell-header-bg: var(--n-color-header);
+  --shell-sidebar-bg: var(--n-color-nav-surface);
+  --shell-header-fg: var(--n-color-text);
+  --shell-header-muted: var(--n-color-text-weaker);
+  --shell-header-border: var(--n-color-border);
+  --shell-header-control: var(--n-color-icon);
+  --shell-header-control-hover: var(--n-color-active);
+  --shell-nav-bg: var(--n-color-nav-surface);
+  --shell-nav-fg: var(--n-color-text);
+  --shell-nav-muted: var(--n-color-nav-heading);
 }
 
 /*
-  Ponte marca → Zard/Tailwind.
+  Ponte marca → Gestgo/Tailwind + Nord.
   O tema (`body.theme-*`) define --c-primary no body; tokens no :root liam o valor
-  padrão do html e a sidebar não acompanhava a cor selecionada.
+  padrão do html e a sidebar/nav Nord não acompanhava a cor selecionada.
 */
 body {
   --primary: var(--c-primary);
   --primary-foreground: #FFFFFF;
   --sidebar-primary: var(--c-primary);
   --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-ring: var(--c-primary);
   --ring: var(--c-focus);
+  /* Nord: nav ativo, botões primary, avatar, links */
+  --n-color-accent: var(--c-primary);
+  /* Derivados da primária atual — não usar --c-primary-hover do :root (fica verde legado) */
+  --n-color-accent-hover: color-mix(in srgb, var(--c-primary) 88%, #000);
+  --n-color-accent-active: color-mix(in srgb, var(--c-primary) 72%, #000);
+  --n-color-accent-secondary: var(--c-primary);
+  --n-color-text-link: var(--c-primary);
 }
 
 body.dark {
@@ -351,6 +564,12 @@ body.dark {
   --primary-foreground: #FFFFFF;
   --sidebar-primary: var(--c-primary);
   --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-ring: var(--c-primary);
+  --n-color-accent: var(--c-primary);
+  --n-color-accent-hover: color-mix(in srgb, var(--c-primary) 88%, #fff);
+  --n-color-accent-active: color-mix(in srgb, var(--c-primary) 72%, #fff);
+  --n-color-accent-secondary: var(--c-primary);
+  --n-color-text-link: var(--c-primary);
 }
 
 body.app-update-banner-visible {
@@ -487,6 +706,101 @@ body.app-update-banner-visible {
     display: none !important;
 }
 
+/*
+ * Marca da sidebar Nord — Gestgo + PLATAFORMA empilhados
+ * (global: o slot do nord-navigation pode anular CSS encapsulado).
+ */
+.gestgo-shell__brand-word {
+  align-items: flex-start !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0.1rem !important;
+  justify-content: center !important;
+  min-width: 0;
+  white-space: nowrap;
+}
+
+.gestgo-shell__brand-title {
+  display: block !important;
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+
+.gestgo-shell__brand-tag {
+  display: block !important;
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  line-height: 1.2;
+  margin: 0 !important;
+  text-transform: uppercase;
+}
+
+/* Popup Nord — borda 1px + sombra suave (referência account menu) */
+nord-dropdown {
+  --n-popout-background: var(--n-color-surface, #fff);
+  --n-popout-box-shadow:
+    0 0 0 1px var(--n-color-border, #d5ddd9),
+    0 8px 24px rgb(0 0 0 / 0.14),
+    0 2px 8px rgb(0 0 0 / 0.08);
+}
+
+body.dark nord-dropdown {
+  --n-popout-background: var(--n-color-surface);
+  --n-popout-box-shadow:
+    0 0 0 1px var(--n-color-border, rgb(47, 52, 60)),
+    0 10px 28px rgb(0 0 0 / 0.45),
+    0 2px 8px rgb(0 0 0 / 0.3);
+}
+
+/* Drawer Tema e aparência — altura total da viewport (overlay CDK) */
+[data-slot='sheet'].cabecalho-theme-sheet-panel {
+  gap: 0 !important;
+  inset-block: 0 !important;
+  top: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  height: 100dvh !important;
+  min-height: 100dvh !important;
+  max-height: 100dvh !important;
+  max-width: min(100vw, 22rem) !important;
+  width: min(100vw, 22rem) !important;
+  border-radius: 0 !important;
+  background: var(--n-color-surface, var(--background)) !important;
+  color: var(--n-color-text, var(--foreground));
+  box-shadow: var(--n-box-shadow-nav, 0 0 24px rgb(0 0 0 / 0.12));
+}
+
+[data-slot='sheet'].cabecalho-theme-sheet-panel [data-slot='sheet-header'] {
+  align-items: center;
+  background: var(--n-color-surface, var(--background));
+  border-bottom: 1px solid var(--n-color-border, var(--border));
+  display: flex;
+  flex-shrink: 0;
+  min-height: var(--shell-header-height, 3.5rem);
+  padding: 0 3rem 0 1rem;
+}
+
+[data-slot='sheet'].cabecalho-theme-sheet-panel [data-slot='sheet-title'] {
+  font-size: var(--n-font-size-m, 1rem);
+  font-weight: var(--n-font-weight-heading, 700);
+  line-height: 1.25;
+}
+
+[data-slot='sheet'].cabecalho-theme-sheet-panel > nord-button[data-testid='z-close-header-button'] {
+  inset-block-start: 0.65rem;
+  inset-inline-end: 0.5rem;
+  z-index: 1;
+}
+
+[data-slot='sheet'].cabecalho-theme-sheet-panel > main {
+  min-height: 0;
+  overflow: hidden;
+  padding: 0;
+}
+
 /* ══════════════════════════════════════════════════════════════════════════
    MATERIAL SYMBOLS
    ══════════════════════════════════════════════════════════════════════════ */
@@ -496,55 +810,142 @@ body.app-update-banner-visible {
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
-   FORMULÁRIOS
+   FORMULÁRIOS — caixa Nord (borda + fundo), como pesquisa_app / nord-input
+   Tailwind preflight zera border; sem z-input os campos somem no card branco.
    ══════════════════════════════════════════════════════════════════════════ */
+nord-input,
+nord-input[size='s'],
+nord-input[size='l'],
+nord-date-picker,
+nord-number-field,
+nord-combobox {
+  --n-input-block-size: var(--control-height);
+  --n-input-border-radius: var(--control-radius);
+  --n-input-font-size: var(--control-font-size);
+  --_n-input-block-size: var(--control-height);
+  --_n-input-border-radius: var(--control-radius);
+  --_n-input-font-size: var(--control-font-size);
+}
+
+nord-select {
+  --n-select-block-size: var(--control-height);
+  --_n-select-block-size: var(--control-height);
+}
+
+nord-textarea {
+  --n-textarea-border-radius: var(--control-radius);
+  --_n-input-border-radius: var(--control-radius);
+  --n-input-font-size: var(--control-font-size);
+}
+
+/*
+ * Inputs nativos nas páginas — mesma caixa do Nord:
+ * borda --n-color-border-strong + fundo --n-input-background / surface.
+ */
 .form-input,
 .form-select,
-textarea.form-input {
-    display: block;
-    width: 100%;
-    border-radius: 0.5rem;
-    border: 1px solid var(--c-border);
-    background-color: var(--c-surface);
-    color: var(--c-text);
-    padding: 0.5rem 0.75rem;
-    font-size: 0.875rem;
-    line-height: var(--leading-form);
-    font-family: inherit;
-    transition: border-color 0.15s, box-shadow 0.15s, background-color 0.25s;
-    outline: none;
+textarea.form-input,
+.n-page input:not([type='checkbox']):not([type='radio']):not([type='hidden']):not([type='file']):not([type='range']):not([type='submit']):not([type='button']):not([type='reset']):not([type='image']):not([type='color']),
+.n-page-list input:not([type='checkbox']):not([type='radio']):not([type='hidden']):not([type='file']):not([type='range']):not([type='submit']):not([type='button']):not([type='reset']):not([type='image']):not([type='color']),
+.n-page textarea,
+.n-page-list textarea,
+.n-page select,
+.n-page-list select {
+  appearance: none;
+  background-color: var(--n-input-background, var(--n-color-surface, var(--c-surface)));
+  border: 1px solid var(--n-color-border-strong, var(--c-border));
+  border-radius: var(--n-input-border-radius, var(--control-radius, 0.5rem));
+  box-sizing: border-box;
+  color: var(--n-color-text, var(--c-text));
+  display: block;
+  font-family: inherit;
+  font-size: var(--n-input-font-size, var(--control-font-size, 0.875rem));
+  line-height: var(--leading-form, 1.4);
+  outline: none;
+  padding: 0.5rem 0.75rem;
+  transition: border-color 0.15s, background-color 0.25s;
+  width: 100%;
 }
 
 .form-input:not(textarea.form-input),
-.form-select {
-    box-sizing: border-box;
-    height: var(--control-height);
-    min-height: var(--control-height);
-    padding-block: 0;
+.form-select,
+.n-page input:not([type='checkbox']):not([type='radio']):not([type='hidden']):not([type='file']):not([type='range']):not([type='submit']):not([type='button']):not([type='reset']):not([type='image']):not([type='color']),
+.n-page-list input:not([type='checkbox']):not([type='radio']):not([type='hidden']):not([type='file']):not([type='range']):not([type='submit']):not([type='button']):not([type='reset']):not([type='image']):not([type='color']),
+.n-page select,
+.n-page-list select {
+  height: var(--n-input-block-size, var(--control-height));
+  min-height: var(--n-input-block-size, var(--control-height));
+  padding-block: 0;
+}
+
+.n-page textarea,
+.n-page-list textarea,
+textarea.form-input {
+  height: auto;
+  min-height: 5.5rem;
+  padding-block: 0.5rem;
+  resize: vertical;
+}
+
+.form-input:hover,
+.form-select:hover,
+.n-page input:hover:not([type='checkbox']):not([type='radio']):not([type='hidden']):not([type='file']):not([disabled]),
+.n-page-list input:hover:not([type='checkbox']):not([type='radio']):not([type='hidden']):not([type='file']):not([disabled]),
+.n-page textarea:hover,
+.n-page-list textarea:hover,
+.n-page select:hover,
+.n-page-list select:hover {
+  border-color: var(--n-color-border-hover, var(--c-border));
 }
 
 .form-input:focus,
+.form-input:focus-visible,
 .form-select:focus,
-textarea.form-input:focus {
-    border-color: var(--c-primary);
-    box-shadow: 0 0 0 3px rgba(20, 184, 122, 0.12);
-}
-
-/* Sem outline/ring no foco — inputs, textarea e select */
-input:focus,
-input:focus-visible,
-textarea:focus,
-textarea:focus-visible,
-select:focus,
-select:focus-visible {
-    outline: none !important;
-    box-shadow: none !important;
+.form-select:focus-visible,
+textarea.form-input:focus,
+textarea.form-input:focus-visible,
+.n-page input:focus:not([type='checkbox']):not([type='radio']),
+.n-page input:focus-visible:not([type='checkbox']):not([type='radio']),
+.n-page-list input:focus:not([type='checkbox']):not([type='radio']),
+.n-page-list input:focus-visible:not([type='checkbox']):not([type='radio']),
+.n-page textarea:focus,
+.n-page textarea:focus-visible,
+.n-page-list textarea:focus,
+.n-page-list textarea:focus-visible,
+.n-page select:focus,
+.n-page select:focus-visible,
+.n-page-list select:focus,
+.n-page-list select:focus-visible {
+  border-color: var(--n-color-accent, var(--c-primary));
+  box-shadow: none !important;
+  outline: none !important;
 }
 
 .form-input::placeholder,
-textarea.form-input::placeholder { color: var(--c-muted); opacity: 0.7; }
+textarea.form-input::placeholder,
+.n-page input::placeholder,
+.n-page-list input::placeholder,
+.n-page textarea::placeholder,
+.n-page-list textarea::placeholder {
+  color: var(--n-color-text-weakest, var(--c-muted));
+  opacity: 1;
+}
 
-/* Zard + toolbars: mesma altura que .form-input legado */
+.form-input:disabled,
+.form-select:disabled,
+.n-page input:disabled,
+.n-page-list input:disabled,
+.n-page textarea:disabled,
+.n-page-list textarea:disabled,
+.n-page select:disabled,
+.n-page-list select:disabled {
+  background-color: var(--n-input-background-inactive, var(--n-color-surface));
+  color: var(--n-color-text-weaker, var(--c-muted));
+  cursor: not-allowed;
+  opacity: 0.85;
+}
+
+/* Gestgo + toolbars: mesma altura que .form-input legado */
 @layer components {
   .zm-toolbar-controls {
     display: flex;
@@ -727,10 +1128,13 @@ textarea.form-input::placeholder { color: var(--c-muted); opacity: 0.7; }
     margin-bottom: 0.375rem;
 }
 
-/* Checkbox: estilo global — fundo primary quando marcado, check branco (inclui z-checkbox via .form-checkbox) */
-input[type="checkbox"]:not(.sr-only):not(.z-checkbox-input),
+/*
+ * Checkbox nativo / g-checkbox.
+ * Exclui `.n-input` (input interno do nord-checkbox) para não sobrescrever o Nord.
+ */
+input[type="checkbox"]:not(.sr-only):not(.g-checkbox-input):not(.n-input),
 .form-checkbox,
-.z-checkbox-native {
+.g-checkbox-native {
     appearance: none;
     -webkit-appearance: none;
     width: 1.25rem;
@@ -743,14 +1147,14 @@ input[type="checkbox"]:not(.sr-only):not(.z-checkbox-input),
     transition: background-color 0.15s, border-color 0.15s;
     background-image: none;
 }
-input[type="checkbox"]:not(.sr-only):not(.z-checkbox-input):hover,
+input[type="checkbox"]:not(.sr-only):not(.g-checkbox-input):not(.n-input):hover,
 .form-checkbox:hover,
-.z-checkbox-native:hover {
+.g-checkbox-native:hover {
     border-color: var(--c-muted);
 }
-input[type="checkbox"]:not(.sr-only):not(.z-checkbox-input):checked,
+input[type="checkbox"]:not(.sr-only):not(.g-checkbox-input):not(.n-input):checked,
 .form-checkbox:checked,
-.z-checkbox-native:checked {
+.g-checkbox-native:checked {
     background-color: var(--c-primary);
     border-color: var(--c-primary);
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath fill='white' d='M10.28 2.28L3.989 8.575 1.695 6.28A1 1 0 00.28 7.695l3 3a1 1 0 001.414 0l7-7A1 1 0 0010.28 2.28z'/%3E%3C/svg%3E");
@@ -758,15 +1162,15 @@ input[type="checkbox"]:not(.sr-only):not(.z-checkbox-input):checked,
     background-position: center;
     background-repeat: no-repeat;
 }
-input[type="checkbox"]:not(.sr-only):not(.z-checkbox-input):focus-visible,
+input[type="checkbox"]:not(.sr-only):not(.g-checkbox-input):not(.n-input):focus-visible,
 .form-checkbox:focus-visible,
-.z-checkbox-native:focus-visible {
+.g-checkbox-native:focus-visible {
     outline: none;
     box-shadow: 0 0 0 3px var(--c-focus);
 }
-.dark input[type="checkbox"]:not(.sr-only):not(.z-checkbox-input):not(:checked),
+.dark input[type="checkbox"]:not(.sr-only):not(.g-checkbox-input):not(.n-input):not(:checked),
 .dark .form-checkbox:not(:checked),
-.dark .z-checkbox-native:not(:checked) {
+.dark .g-checkbox-native:not(:checked) {
     background-color: var(--c-surface);
     border-color: var(--c-border);
 }
@@ -826,7 +1230,7 @@ input[type="radio"]:not(.sr-only):focus-visible,
 }
 
 @layer components {
-    z-card:has(table[z-table]),
+    g-card:has(table[z-table]),
     [data-slot='card']:has(table[z-table]) {
         border-radius: var(--radius-table) !important;
     }
@@ -954,7 +1358,7 @@ input[type="radio"]:not(.sr-only):focus-visible,
 /* ══════════════════════════════════════════════════════════════════════════
    TABELA DE DADOS (listagens unificadas)
    ══════════════════════════════════════════════════════════════════════════ */
-/* Legado — preferir <table z-table> (Zard) */
+/* Legado — preferir <table z-table> (Gestgo) */
 table.data-table {
     width: 100%;
     border-collapse: collapse;
@@ -1017,7 +1421,7 @@ table.data-table {
 }
 
 .form-search-wrap .form-input.form-search-input,
-.form-search-wrap input[z-input].form-search-input {
+.form-search-wrap input.form-search-input {
     padding-left: 2.5rem;
 }
 
@@ -1059,10 +1463,13 @@ table.data-table {
   }
 
   [data-slot='sheet'].cabecalho-theme-sheet-panel {
+    inset-block: 0 !important;
     top: 0 !important;
-    bottom: auto !important;
-    height: auto !important;
-    max-height: 100dvh;
+    bottom: 0 !important;
+    height: 100dvh !important;
+    min-height: 100dvh !important;
+    max-height: 100dvh !important;
+    border-radius: 0 !important;
   }
 
   [data-slot='sheet'].cabecalho-theme-sheet-panel [data-testid='z-close-header-button'] {
@@ -1670,7 +2077,7 @@ body.sidebar-collapsed .nav-link.ativo {
     transition: opacity 0.15s, width 0.25s;
 }
 
-/* ── Sidebar shell Zard (<a z-button class="shell-sidebar-nav">) — tenant e plataforma ── */
+/* ── Sidebar shell Gestgo (<a z-button class="shell-sidebar-nav">) — tenant e plataforma ── */
 #sidebar[data-shell] a.shell-sidebar-nav {
     height: var(--button-height);
     min-height: var(--button-height);
@@ -2149,7 +2556,7 @@ body.shell-preset-tinted:not(.dark) .empresa-menu-popover {
     border-color: #dde8e3;
 }
 
-body.shell-preset-tinted:not(.dark) .empresa-menu-popover [z-menu-item] .material-symbols-outlined {
+body.shell-preset-tinted:not(.dark) .empresa-menu-popover [g-menu-item] .material-symbols-outlined {
     color: #3d4d46;
 }
 
@@ -2164,22 +2571,44 @@ body.dark.shell-preset-tinted .empresa-menu-popover {
     border-color: var(--border-default, #303030);
 }
 
-body.dark.shell-preset-tinted .empresa-menu-popover [z-menu-item] .material-symbols-outlined {
+body.dark.shell-preset-tinted .empresa-menu-popover [g-menu-item] .material-symbols-outlined {
     color: var(--text-muted, #858585);
 }
 
 /*
-  Superfície da sidebar no body (overlay do menu não herda vars de #sidebar).
-  Mesmo valor de --shell-sidebar-bg / --sidebar do rail.
+  Menu escuro — pesquisa html[data-shell-style='dark-sidebar']
+  Light: top-bar clara + nav rgb(24,28,33)
+  Dark:  top-bar Nord header + nav mais escura rgb(18,20,24)
 */
 body.shell-preset-sidebar-dark:not(.dark) {
-    --shell-sidebar-surface: #111111;
-    --shell-sidebar-surface-border: #242424;
+    --shell-sidebar-bg: rgb(24, 28, 33);
+    --shell-nav-bg: rgb(24, 28, 33);
+    --shell-nav-fg: rgb(236, 238, 241);
+    --shell-nav-muted: rgb(255 255 255 / 0.82);
+    --shell-nav-item: rgb(255 255 255 / 0.88);
+    --shell-nav-item-hover: #fff;
+    --shell-sidebar-surface: rgb(24, 28, 33);
+    --shell-sidebar-surface-border: rgb(255 255 255 / 0.1);
+    --n-color-nav-surface: var(--shell-nav-bg);
+    --n-color-nav-heading: var(--shell-nav-muted);
+    --n-color-nav-hover: rgb(255 255 255 / 0.08);
+    --n-color-nav-selected: rgb(255 255 255 / 0.12);
 }
 
 body.dark.shell-preset-sidebar-dark {
-    --shell-sidebar-surface: var(--sidebar);
-    --shell-sidebar-surface-border: var(--sidebar-border, var(--border));
+    --shell-header-bg: var(--n-color-header);
+    --shell-sidebar-bg: rgb(12, 13, 16);
+    --shell-nav-bg: rgb(12, 13, 16);
+    --shell-nav-fg: rgb(236, 238, 241);
+    --shell-nav-muted: rgb(255 255 255 / 0.8);
+    --shell-nav-item: rgb(255 255 255 / 0.88);
+    --shell-nav-item-hover: #fff;
+    --shell-sidebar-surface: rgb(12, 13, 16);
+    --shell-sidebar-surface-border: rgb(255 255 255 / 0.1);
+    --n-color-nav-surface: var(--shell-nav-bg);
+    --n-color-nav-heading: var(--shell-nav-muted);
+    --n-color-nav-hover: rgb(255 255 255 / 0.08);
+    --n-color-nav-selected: rgb(255 255 255 / 0.12);
 }
 
 /* Popup do usuário na sidebar — mesmo fundo e borda do rail */
@@ -2198,36 +2627,36 @@ body.shell-preset-sidebar-dark .sidebar-shell-menu-popover {
     box-shadow: 0 10px 28px rgba(0, 0, 0, 0.42);
 }
 
-body.shell-preset-sidebar-dark .sidebar-shell-menu-popover [z-menu-item] {
+body.shell-preset-sidebar-dark .sidebar-shell-menu-popover [g-menu-item] {
     border-radius: 0.375rem;
 }
 
-body.shell-preset-sidebar-dark .sidebar-shell-menu-popover [z-menu-item]:not(.text-destructive) {
+body.shell-preset-sidebar-dark .sidebar-shell-menu-popover [g-menu-item]:not(.text-destructive) {
     color: #F2F2F2;
 }
 
-body.shell-preset-sidebar-dark .sidebar-shell-menu-popover [z-menu-item]:not(.text-destructive) .material-symbols-outlined {
+body.shell-preset-sidebar-dark .sidebar-shell-menu-popover [g-menu-item]:not(.text-destructive) .material-symbols-outlined {
     color: #F2F2F2;
 }
 
-body.shell-preset-sidebar-dark .sidebar-shell-menu-popover [z-menu-item][data-highlighted]:not(.text-destructive),
-body.shell-preset-sidebar-dark .sidebar-shell-menu-popover [z-menu-item]:hover:not(.text-destructive) {
+body.shell-preset-sidebar-dark .sidebar-shell-menu-popover [g-menu-item][data-highlighted]:not(.text-destructive),
+body.shell-preset-sidebar-dark .sidebar-shell-menu-popover [g-menu-item]:hover:not(.text-destructive) {
     background-color: #222222 !important;
     color: #F2F2F2 !important;
 }
 
-body.shell-preset-sidebar-dark .sidebar-shell-menu-popover [z-menu-item][data-highlighted]:not(.text-destructive) .material-symbols-outlined,
-body.shell-preset-sidebar-dark .sidebar-shell-menu-popover [z-menu-item]:hover:not(.text-destructive) .material-symbols-outlined {
+body.shell-preset-sidebar-dark .sidebar-shell-menu-popover [g-menu-item][data-highlighted]:not(.text-destructive) .material-symbols-outlined,
+body.shell-preset-sidebar-dark .sidebar-shell-menu-popover [g-menu-item]:hover:not(.text-destructive) .material-symbols-outlined {
     color: #ffffff;
 }
 
-body.shell-preset-sidebar-dark .sidebar-shell-menu-popover [z-menu-item].text-destructive,
-body.shell-preset-sidebar-dark .sidebar-shell-menu-popover [z-menu-item].text-destructive .material-symbols-outlined {
+body.shell-preset-sidebar-dark .sidebar-shell-menu-popover [g-menu-item].text-destructive,
+body.shell-preset-sidebar-dark .sidebar-shell-menu-popover [g-menu-item].text-destructive .material-symbols-outlined {
     color: #F08A8A !important;
 }
 
-body.shell-preset-sidebar-dark .sidebar-shell-menu-popover [z-menu-item].text-destructive[data-highlighted],
-body.shell-preset-sidebar-dark .sidebar-shell-menu-popover [z-menu-item].text-destructive:hover {
+body.shell-preset-sidebar-dark .sidebar-shell-menu-popover [g-menu-item].text-destructive[data-highlighted],
+body.shell-preset-sidebar-dark .sidebar-shell-menu-popover [g-menu-item].text-destructive:hover {
     background-color: #2A1717 !important;
     color: #F08A8A !important;
 }
@@ -2318,8 +2747,8 @@ body.shell-preset-sidebar-dark:not(.dark) .sidebar .shell-profile-chip .material
     color: var(--muted-foreground) !important;
 }
 
-body.shell-preset-sidebar-dark:not(.dark) #sidebar [z-menu-label],
-body.shell-preset-sidebar-dark:not(.dark) .sidebar [z-menu-label] {
+body.shell-preset-sidebar-dark:not(.dark) #sidebar [g-menu-label],
+body.shell-preset-sidebar-dark:not(.dark) .sidebar [g-menu-label] {
     color: var(--muted-foreground) !important;
 }
 
@@ -2464,7 +2893,7 @@ body.dark.shell-preset-sidebar-dark .sidebar {
 /* ══════════════════════════════════════════════════════════════════════════
    PAGE HEADER
    ══════════════════════════════════════════════════════════════════════════ */
-/* Legado appTooltip — usar [zTooltip] (Zard) */
+/* Legado appTooltip — usar [zTooltip] (Gestgo) */
 #global-tooltip {
     position: fixed;
     z-index: 9999;
@@ -2538,7 +2967,7 @@ body.dark.shell-preset-sidebar-dark .sidebar {
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
-   ZARD SEGMENT (toggle em grupo — ex.: Cards / Pastas, sub-abas Link Bio)
+   GESTGO SEGMENT (toggle em grupo — ex.: Cards / Pastas, sub-abas Link Bio)
    ══════════════════════════════════════════════════════════════════════════ */
 @layer components {
   .z-segment {
@@ -2577,10 +3006,10 @@ body.dark.shell-preset-sidebar-dark .sidebar {
     box-shadow: none;
 }
 
-/* Cards — sem box-shadow em todo o sistema (z-card, legado e variantes por página) */
+/* Cards — sem box-shadow em todo o sistema (g-card, legado e variantes por página) */
 @layer components {
   [data-slot='card'],
-  z-card,
+  g-card,
   .section-card,
   .templates-cat-card,
   .pd-section-card,
@@ -2598,12 +3027,12 @@ body.dark.shell-preset-sidebar-dark .sidebar {
   .templates-cat-card:hover,
   a.dash-kpi:hover,
   [data-slot='card']:hover,
-  z-card:hover {
+  g-card:hover {
     box-shadow: none !important;
   }
 }
 
-/* Legado — estilos migrados para <table z-table> (Zard) + .zm-table-* */
+/* Legado — estilos migrados para <table z-table> (Gestgo) + .zm-table-* */
 .platform-table,
 .plat-table {
   min-width: 100%;
@@ -3154,9 +3583,9 @@ body.dark .flatpickr-calendar .flatpickr-weekwrapper .flatpickr-weeks { border-l
 body.dark .flatpickr-calendar .flatpickr-weekwrapper span.flatpickr-day { color: #5a5a6a !important; }
 
 /* ══════════════════════════════════════════════════════════════════════════
-   SKELETON (Zard z-skeleton) + ENTRADA DE CONTEÚDO
+   SKELETON (Gestgo g-skeleton) + ENTRADA DE CONTEÚDO
    ══════════════════════════════════════════════════════════════════════════ */
-/* Shimmer legado — preferir <z-skeleton> (bg-accent animate-pulse) */
+/* Shimmer legado — preferir <g-skeleton> (bg-accent animate-pulse) */
 .zm-skeleton {
     background: linear-gradient(
         90deg,
@@ -3245,7 +3674,7 @@ body.dark .flatpickr-calendar .flatpickr-weekwrapper span.flatpickr-day { color:
    ══════════════════════════════════════════════════════════════════════════ */
 .clinica-config,
 .templates-listagem-layout { display: flex; flex-direction: column; min-height: 0; width: 100%; }
-.clinica-config .config-zard-tabs {
+.clinica-config .config-gestgo-tabs {
   width: 100%;
 }
 /* padding do painel das abas: clinica-configuracoes.component.css */
@@ -3257,7 +3686,7 @@ body.dark .flatpickr-calendar .flatpickr-weekwrapper span.flatpickr-day { color:
   height: 4px; border-radius: 0.5rem; background: var(--c-primary); transition: width 0.3s;
 }
 .clinica-config .section-card,
-.clinica-config z-card.section-card,
+.clinica-config g-card.section-card,
 .link-bio-config .section-card {
   display: flex;
   flex-direction: column;
@@ -3271,29 +3700,29 @@ body.dark .flatpickr-calendar .flatpickr-weekwrapper span.flatpickr-day { color:
   box-shadow: none;
 }
 
-.clinica-config z-card.section-card,
-.link-bio-config z-card.section-card {
+.clinica-config g-card.section-card,
+.link-bio-config g-card.section-card {
   padding-top: 0;
   padding-bottom: 0;
 }
 
-.clinica-config z-card.section-card [data-slot='card-content'],
-.link-bio-config z-card.section-card [data-slot='card-content'] {
+.clinica-config g-card.section-card [data-slot='card-content'],
+.link-bio-config g-card.section-card [data-slot='card-content'] {
   padding: 0;
   gap: 0;
 }
 
 /* Link bio: cards sem section-body — padding no slot (evita conteúdo colado na borda) */
-.link-bio-config z-card.section-card:not(:has(.section-body)) [data-slot='card-content'] {
+.link-bio-config g-card.section-card:not(:has(.section-body)) [data-slot='card-content'] {
   padding: 1.25rem 1.5rem;
 }
 
 /* Cards de modelo na grade */
-.link-bio-config z-card.link-bio-model-z-card [data-slot='card-content'] {
+.link-bio-config g-card.link-bio-model-g-card [data-slot='card-content'] {
   padding: 0 !important;
 }
 
-.link-bio-config z-card.link-bio-model-z-card .link-bio-model-z-card__body {
+.link-bio-config g-card.link-bio-model-g-card .link-bio-model-g-card__body {
   padding: 1.25rem 1.375rem;
 }
 
@@ -3341,7 +3770,7 @@ body.dark .flatpickr-calendar .flatpickr-weekwrapper span.flatpickr-day { color:
   color: var(--muted-foreground);
 }
 
-.clinica-config z-card.section-card--highlight {
+.clinica-config g-card.section-card--highlight {
   border-color: color-mix(in srgb, var(--primary) 35%, var(--border));
 }
 .clinica-config .section-body,
@@ -3352,7 +3781,7 @@ body.dark .flatpickr-calendar .flatpickr-weekwrapper span.flatpickr-day { color:
    ══════════════════════════════════════════════════════════════════════════ */
 /* Barra de abas do protocolo — linha em cima e embaixo (classe no wrapper via zNavWrapperClass) */
 .protocolo-detalhe-page .protocolo-detalhe-tabs-bar,
-.protocolo-detalhe-page .protocolo-detalhe-shell .protocolo-zard-tabs--layout > .grid {
+.protocolo-detalhe-page .protocolo-detalhe-shell .protocolo-gestgo-tabs--layout > .grid {
   width: 100%;
   border-top: 1px solid var(--border, var(--c-border)) !important;
   border-bottom: 1px solid var(--border, var(--c-border)) !important;
@@ -3360,13 +3789,13 @@ body.dark .flatpickr-calendar .flatpickr-weekwrapper span.flatpickr-day { color:
   background: var(--card) !important;
 }
 
-.protocolo-detalhe-page .protocolo-detalhe-shell .protocolo-zard-tabs--no-nav-rule nav[role='tablist'] {
+.protocolo-detalhe-page .protocolo-detalhe-shell .protocolo-gestgo-tabs--no-nav-rule nav[role='tablist'] {
   border-top: none !important;
   border-bottom: none !important;
   margin-bottom: 0 !important;
 }
 
-.protocolo-detalhe-page z-card.section-card {
+.protocolo-detalhe-page g-card.section-card {
   overflow: hidden;
   margin-bottom: 1rem;
   gap: 0;
@@ -3375,7 +3804,7 @@ body.dark .flatpickr-calendar .flatpickr-weekwrapper span.flatpickr-day { color:
   border-radius: 0.875rem;
 }
 
-.protocolo-detalhe-page z-card.section-card [data-slot='card-content'] {
+.protocolo-detalhe-page g-card.section-card [data-slot='card-content'] {
   padding: 0;
   gap: 0;
 }
@@ -3763,7 +4192,7 @@ body.dark .flatpickr-calendar.hasTime.noCalendar .flatpickr-time input:focus {
   }
 }
 
-/* ─── Zard Toast (ngx-sonner) — tokens do tema, sem richColors ───────────── */
+/* ─── Gestgo Toast (ngx-sonner) — tokens do tema, sem richColors ───────────── */
 [data-sonner-toaster],
 [data-sonner-toaster][data-theme='light'],
 [data-sonner-toaster][data-theme='dark'] {

@@ -1,37 +1,29 @@
-import { Component, OnInit, OnDestroy, inject, Signal, ViewChild, TemplateRef, ViewContainerRef, ChangeDetectionStrategy, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, Signal, ViewChild, TemplateRef, ViewContainerRef, ChangeDetectionStrategy, signal, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { PessoasService, Pessoa } from '../../core/services/pessoas.service';
 import { LoadingService } from '../../shared/services/loading.service';
-import { ZmSkeletonListComponent } from '../../shared/components/skeletons';
-import { ZmPaginationComponent, ZmEmptyStateComponent } from '../../shared/components/ui';
-import { ZardCardComponent } from '@/shared/components/card/card.component';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
-import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
-import { ZardSheetService } from '@/shared/components/sheet/sheet.service';
-import type { ZardSheetRef } from '@/shared/components/sheet/sheet-ref';
+import { ListSkeletonComponent } from '../../shared/components/list-skeleton/list-skeleton.component';
+import { ZmPaginationComponent } from '../../shared/components/ui';
+import { GestgoSheetService } from '@/shared/components/sheet/sheet.service';
+import type { GestgoSheetRef } from '@/shared/components/sheet/sheet-ref';
 import { FlatpickrDirective } from 'angularx-flatpickr';
-import { ZardComboboxComponent, type ZardComboboxOption } from '@/shared/components/combobox';
-import { ZardTableImports } from '@/shared/components/table';
-import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
+import { GestgoComboboxComponent, type GestgoComboboxOption } from '@/shared/components/combobox';
+import { NORD_FORM_IMPORTS } from '@/shared/nord';
 @Component({
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'app-pessoas-listagem',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { class: 'n-page-list' },
   imports: [
-    ...ZARD_FORM_CONTROL_IMPORTS,
-    ...ZardTableImports,
+    ...NORD_FORM_IMPORTS,
     FlatpickrDirective,
     FormsModule,
     RouterLink,
-    ZmSkeletonListComponent,
+    ListSkeletonComponent,
     ZmPaginationComponent,
-    ZmEmptyStateComponent,
-    ZardCardComponent,
-    ZardButtonComponent,
-    ZardBadgeComponent,
-    ZardComboboxComponent,
-  ],
+    GestgoComboboxComponent],
   templateUrl: './pessoas-listagem.component.html',
 })
 export class PessoasListagemComponent implements OnInit, OnDestroy {
@@ -57,25 +49,23 @@ export class PessoasListagemComponent implements OnInit, OnDestroy {
 
   @ViewChild('pessoasFiltrosTpl') pessoasFiltrosTpl?: TemplateRef<void>;
 
-  private filtrosSheetRef?: ZardSheetRef<void>;
+  private filtrosSheetRef?: GestgoSheetRef<void>;
 
   private pessoasService = inject(PessoasService);
   private loadingService = inject(LoadingService);
   private router = inject(Router);
   private readonly vcr = inject(ViewContainerRef);
-  private readonly zardSheet = inject(ZardSheetService);
+  private readonly gestgoSheet = inject(GestgoSheetService);
 
-  readonly opcoesStatusFiltro = signal<ZardComboboxOption[]>([
+  readonly opcoesStatusFiltro = signal<GestgoComboboxOption[]>([
     { value: '', label: 'Todas' },
     { value: 'active', label: 'Ativa' },
-    { value: 'inactive', label: 'Inativa' },
-  ]);
+    { value: 'inactive', label: 'Inativa' }]);
 
-  readonly opcoesProtocolosFiltro = signal<ZardComboboxOption[]>([
+  readonly opcoesProtocolosFiltro = signal<GestgoComboboxOption[]>([
     { value: '', label: 'Todos' },
     { value: '1', label: 'Com protocolos' },
-    { value: '0', label: 'Sem protocolos' },
-  ]);
+    { value: '0', label: 'Sem protocolos' }]);
 
   selecionarStatusFiltro(key: string | null): void {
     this.status = key ?? '';
@@ -156,7 +146,7 @@ export class PessoasListagemComponent implements OnInit, OnDestroy {
       return;
     }
     this.filterDrawerOpen.set(true);
-    this.filtrosSheetRef = this.zardSheet.create<void, void>({
+    this.filtrosSheetRef = this.gestgoSheet.create<void, void>({
       zContent: this.pessoasFiltrosTpl,
       zViewContainerRef: this.vcr,
       zSide: 'right',

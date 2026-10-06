@@ -1,25 +1,20 @@
-import { Component, OnInit, inject, Signal, ChangeDetectionStrategy, signal } from '@angular/core';
+import { Component, OnInit, inject, Signal, ChangeDetectionStrategy, signal, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { Router } from '@angular/router';
 import { switchMap } from 'rxjs';
 import { AuthService } from '../../core/services/auth.service';
 import { ClinicaService, ClinicaOption } from '../../core/services/clinica.service';
 import { LoadingService } from '../../shared/services/loading.service';
-import { ZmSkeletonListComponent } from '../../shared/components/skeletons';
-import { ZmEmptyStateComponent } from '../../shared/components/ui';
-import { ZardCardComponent } from '@/shared/components/card/card.component';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
+import { ZmPageBackLinkComponent } from '../../shared/components/ui';
+import { ListSkeletonComponent } from '../../shared/components/list-skeleton/list-skeleton.component';
 import { ToastService } from '../../core/services/toast.service';
 
 @Component({
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'app-clinica-escolher',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    ZmSkeletonListComponent,
-    ZmEmptyStateComponent,
-    ZardCardComponent,
-    ZardButtonComponent,
-  ],
+  host: { class: 'n-page' },
+  imports: [ZmPageBackLinkComponent, ListSkeletonComponent],
   templateUrl: './clinica-escolher.component.html',
   styleUrl: './clinica-escolher.component.css',
 })

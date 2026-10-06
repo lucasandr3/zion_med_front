@@ -11,7 +11,7 @@ import {
 import { NgIcon } from '@ng-icons/core';
 import type { ClassValue } from 'clsx';
 
-import { ZardStringTemplateOutletDirective } from '../../core/directives/string-template-outlet/string-template-outlet.directive';
+import { GestgoStringTemplateOutletDirective } from '../../core/directives/string-template-outlet/string-template-outlet.directive';
 import { mergeClasses } from '../../utils/merge-classes';
 
 import {
@@ -25,8 +25,8 @@ import {
 } from './empty.variants';
 
 @Component({
-  selector: 'z-empty',
-  imports: [NgOptimizedImage, NgIcon, ZardStringTemplateOutletDirective],
+  selector: 'g-empty',
+  imports: [NgOptimizedImage, NgIcon, GestgoStringTemplateOutletDirective],
   template: `
     @let image = zImage();
     @let icon = zIcon();
@@ -75,9 +75,9 @@ import {
   host: {
     '[class]': 'classes()',
   },
-  exportAs: 'zEmpty',
+  exportAs: 'gEmpty',
 })
-export class ZardEmptyComponent {
+export class GestgoEmptyComponent {
   readonly zActions = input<TemplateRef<void>[]>([]);
   readonly zIcon = input<string>();
   readonly zImage = input<string | TemplateRef<void>>();

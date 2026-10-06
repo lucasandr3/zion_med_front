@@ -61,5 +61,5 @@ export const tableCaptionVariants = cva('mt-4 text-sm text-muted-foreground', {
   defaultVariants: {},
 });
 
-export type ZardTableSizeVariants = NonNullable<VariantProps<typeof tableVariants>['zSize']>;
-export type ZardTableTypeVariants = NonNullable<VariantProps<typeof tableVariants>['zType']>;
+export type GestgoTableSizeVariants = NonNullable<VariantProps<typeof tableVariants>['zSize']>;
+export type GestgoTableTypeVariants = NonNullable<VariantProps<typeof tableVariants>['zType']>;

@@ -1,0 +1,44 @@
+/*
+ * Host = nord-dropdown. Tokens do toggle (top-bar) + popout da referência.
+ * Header raised / divisórias / Sair: shell-nord.css + nord-setup (shadow).
+ */
+:host {
+  --n-button-gap: calc(var(--n-space-xs) / 2);
+  --n-button-background-color: transparent;
+  --n-button-border-color: transparent;
+  --n-button-box-shadow: none;
+  --n-button-overflow: visible;
+  --n-button-padding-inline: calc(var(--n-space-s) + 2px);
+  --n-button-toggle-icon-color: var(--shell-header-control, var(--n-color-icon));
+  --n-button-color: var(--shell-header-control, var(--n-color-icon));
+  --n-avatar-color: var(--n-color-accent);
+  --n-avatar-text-color: var(--n-color-text-on-accent, #fff);
+  --n-avatar-box-shadow: 0 0 0 1px
+    color-mix(in srgb, var(--shell-header-fg, var(--n-color-text)) 12%, transparent);
+  --n-dropdown-size: 16.5rem;
+  --n-popout-background: var(--n-color-surface, #fff);
+  --n-popout-box-shadow:
+    0 0 0 1px var(--n-color-border, #d5ddd9),
+    0 8px 24px rgb(0 0 0 / 0.12),
+    0 2px 8px rgb(0 0 0 / 0.06);
+}
+
+:host(:is(:hover, [open], :focus-within)) {
+  --n-button-background-color: var(--shell-header-control-hover, var(--n-color-active));
+}
+
+.account-menu__avatar {
+  transform: translateY(-1px);
+}
+
+.account-menu__signed-in {
+  color: var(--n-color-text-weak);
+  font-size: var(--n-font-size-s);
+  font-weight: var(--n-font-weight);
+  margin: 0;
+}
+
+.account-menu__name {
+  color: var(--n-color-text);
+  font-weight: var(--n-font-weight-active);
+}

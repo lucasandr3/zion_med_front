@@ -12,6 +12,6 @@
   min-height: var(--control-height);
 }
 
-.templates-criar-em-branco z-checkbox {
+.templates-criar-em-branco g-checkbox {
   align-items: flex-start;
 }

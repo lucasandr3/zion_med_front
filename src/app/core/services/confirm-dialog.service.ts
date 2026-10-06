@@ -1,16 +1,6 @@
-import { inject, Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 
-import {
-  ZardDialogOptions,
-  ZardDialogService,
-} from '../../shared/components/dialog';
-import {
-  type ConfirmDialogData,
-  type ConfirmDialogVariant,
-  ZmConfirmDialogContentComponent,
-} from '../../shared/components/dialog/confirm-dialog-content.component';
-
-export type { ConfirmDialogVariant };
+export type ConfirmDialogVariant = 'danger' | 'neutral';
 
 export interface ConfirmDialogOptions {
   title: string;
@@ -25,52 +15,62 @@ export interface ConfirmDialogOptions {
   variant?: ConfirmDialogVariant;
 }
 
+export interface ConfirmDialogState {
+  title: string;
+  message: string;
+  messageBefore: string;
+  emphasis: string;
+  messageAfter: string;
+  confirmLabel: string;
+  cancelLabel: string;
+  variant: ConfirmDialogVariant;
+  /** true quando há partes (before/emphasis/after) em vez de message simples. */
+  hasParts: boolean;
+}
+
 @Injectable({ providedIn: 'root' })
 export class ConfirmDialogService {
-  private readonly zardDialog = inject(ZardDialogService);
+  readonly open = signal(false);
+  readonly state = signal<ConfirmDialogState | null>(null);
+
+  private resolveFn: ((confirmed: boolean) => void) | null = null;
 
   /** Abre o modal e retorna uma Promise: `true` se confirmou, `false` se cancelou. */
   request(opts: ConfirmDialogOptions): Promise<boolean> {
-    return new Promise((resolve) => {
-      let settled = false;
-      const settle = (value: boolean): void => {
-        if (settled) return;
-        settled = true;
-        resolve(value);
-      };
+    this.resolveFn?.(false);
 
-      const variant = opts.variant ?? 'neutral';
-      const config = new ZardDialogOptions<
-        ZmConfirmDialogContentComponent,
-        ConfirmDialogData
-      >();
-      config.zTitle = opts.title;
-      config.zContent = ZmConfirmDialogContentComponent;
-      config.zData = {
-        message: opts.message,
-        messageBefore: opts.messageBefore,
-        emphasis: opts.emphasis,
-        messageAfter: opts.messageAfter,
-        variant,
-      };
-      config.zOkText = opts.confirmLabel ?? 'Confirmar';
-      config.zCancelText = opts.cancelLabel ?? 'Cancelar';
-      config.zOkDestructive = variant === 'danger';
-      config.zClosable = false;
-      config.zMaskClosable = true;
-      config.zWidth = '28rem';
-      config.zCustomClasses = 'sm:max-w-md';
-      config.zOnOk = () => settle(true);
-      config.zOnCancel = () => settle(false);
-
-      const dialogRef = this.zardDialog.create(config);
-      const originalClose = dialogRef.close.bind(dialogRef);
-      dialogRef.close = (result?: boolean): void => {
-        if (!settled) {
-          settle(result === true);
-        }
-        originalClose(result);
-      };
+    const hasParts = !!(opts.messageBefore || opts.emphasis || opts.messageAfter);
+    this.state.set({
+      title: opts.title,
+      message: opts.message ?? '',
+      messageBefore: opts.messageBefore ?? '',
+      emphasis: opts.emphasis ?? '',
+      messageAfter: opts.messageAfter ?? '',
+      confirmLabel: opts.confirmLabel ?? 'Confirmar',
+      cancelLabel: opts.cancelLabel ?? 'Cancelar',
+      variant: opts.variant ?? 'neutral',
+      hasParts,
     });
+    this.open.set(true);
+
+    return new Promise((resolve) => {
+      this.resolveFn = resolve;
+    });
+  }
+
+  confirm(): void {
+    this.finish(true);
+  }
+
+  cancel(): void {
+    this.finish(false);
+  }
+
+  private finish(confirmed: boolean): void {
+    if (!this.resolveFn) return;
+    const resolve = this.resolveFn;
+    this.resolveFn = null;
+    this.open.set(false);
+    resolve(confirmed);
   }
 }

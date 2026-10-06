@@ -1,0 +1,48 @@
+<nord-button variant="plain" slot="toggle" aria-describedby="account-menu-tooltip">
+  <nord-avatar class="account-menu__avatar" [name]="nomeUsuario">{{ iniciaisUsuario }}</nord-avatar>
+</nord-button>
+
+<nord-avatar slot="header" size="s" [name]="nomeUsuario">{{ iniciaisUsuario }}</nord-avatar>
+<p slot="header" class="account-menu__signed-in">
+  Conectado como <span class="account-menu__name">{{ nomeUsuario }}</span>
+</p>
+
+<nord-dropdown-group>
+  <nord-dropdown-item href="/conta/perfil" (click)="go($event, '/conta/perfil')">
+    <nord-icon slot="start" name="user-single" size="s"></nord-icon>
+    Conta e privacidade
+  </nord-dropdown-item>
+  @if (shellContext === 'app' && podeGerenciarClinica) {
+    <nord-dropdown-item href="/clinica/configuracoes" (click)="go($event, '/clinica/configuracoes')">
+      <nord-icon slot="start" name="file-picture" size="s"></nord-icon>
+      Marca própria
+    </nord-dropdown-item>
+  }
+  @if (shellContext === 'app' && exibirTrocarEmpresa) {
+    <nord-dropdown-item href="/clinica/escolher" (click)="go($event, '/clinica/escolher')">
+      <nord-icon slot="start" name="arrow-replace" size="s"></nord-icon>
+      Trocar empresa
+    </nord-dropdown-item>
+  }
+  @if (shellContext === 'app' && podeVerBillingNoHeader) {
+    <nord-dropdown-item href="/assinatura" (click)="go($event, '/assinatura')">
+      <nord-icon slot="start" name="generic-credit-card" size="s"></nord-icon>
+      Assinatura
+    </nord-dropdown-item>
+  }
+  @if (ehAdminPlataforma) {
+    <nord-dropdown-item href="/plataforma" (click)="go($event, '/plataforma')">
+      <nord-icon slot="start" name="interface-shield" size="s"></nord-icon>
+      Admin da plataforma
+    </nord-dropdown-item>
+  }
+  <nord-dropdown-item (click)="abrirTema()">
+    <nord-icon slot="start" name="navigation-settings" size="s"></nord-icon>
+    Tema e aparência
+  </nord-dropdown-item>
+</nord-dropdown-group>
+
+<nord-dropdown-item (click)="sair()">
+  <nord-icon slot="start" name="interface-logout" size="s"></nord-icon>
+  Sair
+</nord-dropdown-item>

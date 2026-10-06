@@ -1,69 +1,51 @@
-<div class="relative min-h-[300px] space-y-4">
-  <p class="zm-count-label">
-    {{ faturas().length }} {{ faturas().length === 1 ? 'fatura' : 'faturas()' }}
-  </p>
+<div class="n-page-list__toolbar">
+  <div class="n-page-list__toolbar-start">
+    <span class="n-muted n-small">
+      {{ faturas().length }} {{ faturas().length === 1 ? 'fatura' : 'faturas' }}
+    </span>
+  </div>
+</div>
 
+<div class="n-page-list__content">
   @if (showSkeleton()) {
-    <zm-skeleton-list [rows]="6" />
+    <div class="n-page-list__panel"><app-list-skeleton [count]="6" /></div>
   } @else if (!listaPronta()) {
-  } @else {
-    @if (estadoErro()) {
-      <div class="rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-foreground">
+  } @else if (estadoErro()) {
+    <div class="n-page-list__panel">
+      <p class="n-muted n-small" style="color:var(--n-color-status-danger,#c62828)">
         Não foi possível carregar as faturas.
-      </div>
-    } @else {
-      <div class="zm-content-enter">
-        <z-card class="zm-table-card gap-0 py-0 shadow-sm **:data-[slot=card-content]:p-0">
-          <div class="zm-table-wrap">
-            <table z-table zSize="compact" class="text-xs">
-              <thead z-table-header>
-                <tr z-table-row>
-                  <th z-table-head>Empresa</th>
-                  <th z-table-head class="text-right">Valor</th>
-                  <th z-table-head>Vencimento</th>
-                  <th z-table-head>Status</th>
-                </tr>
-              </thead>
-              <tbody z-table-body>
-                @for (f of faturas(); track f.id) {
-                  <tr z-table-row>
-                    <td z-table-cell>
-                      <div class="zm-row-title">{{ f.clinic_name }}</div>
-                      @if (f.tenant_name) {
-                        <div class="zm-row-sub">{{ f.tenant_name }}</div>
-                      }
-                    </td>
-                    <td z-table-cell class="text-right">
-                      <span class="zm-row-title">{{ formatarValor(f.amount, f.currency) }}</span>
-                    </td>
-                    <td z-table-cell>
-                      <span class="zm-cell-muted whitespace-nowrap">{{ formatarData(f.due_date) }}</span>
-                    </td>
-                    <td z-table-cell>
-                      @if (f.status) {
-                        <z-badge [zType]="badgeTipoStatus(f.status)" zShape="pill">
-                          {{ rotuloStatusFatura(f.status) }}
-                        </z-badge>
-                      } @else {
-                        <span class="zm-cell-muted">—</span>
-                      }
-                    </td>
-                  </tr>
-                } @empty {
-                  <tr z-table-row>
-                    <td z-table-cell colspan="4" class="py-0">
-                      <zm-empty-state
-                        title="Nenhuma fatura cadastrada."
-                        description="As faturas geradas para os clientes serão exibidas aqui."
-                      />
-                    </td>
-                  </tr>
-                }
-              </tbody>
-            </table>
+      </p>
+    </div>
+  } @else if (faturas().length === 0) {
+    <div class="n-page-list__empty">
+      <nord-empty-state>
+        <h2>Nenhuma fatura cadastrada.</h2>
+        <p>As faturas geradas para os clientes serão exibidas aqui.</p>
+      </nord-empty-state>
+    </div>
+  } @else {
+    <div class="n-page-list__table">
+      @for (f of faturas(); track f.id) {
+        <div class="n-page-list__row">
+          <div class="n-page-list__row-main">
+            <div class="n-page-list__row-title">{{ f.clinic_name }}</div>
+            <div class="n-page-list__row-meta">
+              {{ f.tenant_name || '—' }}
+              · {{ formatarData(f.due_date) }}
+              · {{ formatarValor(f.amount, f.currency) }}
+            </div>
           </div>
-        </z-card>
-      </div>
-    }
+          <div class="n-page-list__actions">
+            @if (f.status) {
+              <nord-badge [attr.variant]="badgeVariant(f.status)">
+                {{ rotuloStatusFatura(f.status) }}
+              </nord-badge>
+            } @else {
+              <span class="n-muted n-small">—</span>
+            }
+          </div>
+        </div>
+      }
+    </div>
   }
 </div>

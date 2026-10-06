@@ -2,14 +2,18 @@
   display: contents;
 }
 
+/*
+ * Acima do shell Nord (top-bar 500, nav 400, overlay 600).
+ * Alinha ao nível modal / sheets CDK para cobrir header + sidebar.
+ */
 .go-assistant-backdrop {
   position: fixed;
   inset: 0;
-  z-index: 45;
+  z-index: var(--n-index-modal, 900);
   margin: 0;
   padding: 0;
   border: 0;
-  background: rgb(15 23 42 / 0.4);
+  background: rgb(0 0 0 / 0.45);
   cursor: pointer;
 }
 
@@ -17,15 +21,17 @@
   position: fixed;
   inset-block: 0;
   right: 0;
-  z-index: 50;
+  z-index: calc(var(--n-index-modal, 900) + 1);
   display: flex;
   flex-direction: column;
   width: min(100vw, 26.5rem);
   height: 100dvh;
-  background: var(--background);
-  color: var(--foreground);
-  border-left: 1px solid var(--border);
-  box-shadow: -16px 0 48px -24px rgb(0 0 0 / 0.35);
+  background: var(--n-color-surface, var(--background));
+  color: var(--n-color-text, var(--foreground));
+  border-left: 1px solid var(--n-color-border, var(--border));
+  box-shadow:
+    0 0 0 1px var(--n-color-border, rgb(0 0 0 / 0.06)),
+    -16px 0 48px -24px rgb(0 0 0 / 0.35);
   animation: go-assistant-slide-in 0.22s ease-out;
 }
 

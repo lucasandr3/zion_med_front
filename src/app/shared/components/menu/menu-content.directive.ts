@@ -9,14 +9,14 @@ import { mergeClasses } from '../../utils/merge-classes';
 import { menuContentVariants } from './menu.variants';
 
 @Directive({
-  selector: '[z-menu-content]',
+  selector: '[g-menu-content]',
   host: {
     '[class]': 'classes()',
     tabindex: '0',
   },
   hostDirectives: [CdkMenu, CdkTrapFocus],
 })
-export class ZardMenuContentDirective implements OnInit {
+export class GestgoMenuContentDirective implements OnInit {
   private cdkTrapFocus = inject(CdkTrapFocus);
   readonly class = input<ClassValue>('');
 

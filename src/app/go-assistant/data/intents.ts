@@ -12,12 +12,10 @@ export const ASSISTANT_INTENTS: AssistantIntent[] = [
     tutorial: [
       { order: 1, text: 'Abra Dashboard no menu lateral.' },
       { order: 2, text: 'Veja o resumo de protocolos e atalhos da operação.' },
-      { order: 3, text: 'Se for o primeiro acesso, siga o assistente de onboarding para gerar um formulário público.' },
-    ],
+      { order: 3, text: 'Se for o primeiro acesso, siga o assistente de onboarding para gerar um formulário público.' }],
     actions: [
       { id: 'open', label: 'Abrir Dashboard', type: 'navigate', route: '/dashboard', permission: 'dashboard.access' },
-      { id: 'tour', label: 'Me ensine esta tela', type: 'start-tour', tourId: 'tour.dashboard' },
-    ],
+      { id: 'tour', label: 'Me ensine esta tela', type: 'start-tour', tourId: 'tour.dashboard' }],
   },
   {
     id: 'templates.create',
@@ -31,12 +29,10 @@ export const ASSISTANT_INTENTS: AssistantIntent[] = [
       { order: 2, text: 'Clique em Novo (ou Criar).' },
       { order: 3, text: 'Escolha um modelo da biblioteca ou Criar em branco.' },
       { order: 4, text: 'Informe o nome e a categoria da ficha.' },
-      { order: 5, text: 'Salve e, em seguida, adicione os campos do formulário.' },
-    ],
+      { order: 5, text: 'Salve e, em seguida, adicione os campos do formulário.' }],
     actions: [
       { id: 'open', label: 'Abrir Modelos', type: 'navigate', route: '/templates', permission: 'templates.manage' },
-      { id: 'create', label: 'Criar novo', type: 'navigate-create', route: '/templates/criar', permission: 'templates.manage' },
-    ],
+      { id: 'create', label: 'Criar novo', type: 'navigate-create', route: '/templates/criar', permission: 'templates.manage' }],
     relatedIntentIds: ['templates.fields', 'templates.public-link'],
   },
   {
@@ -50,11 +46,9 @@ export const ASSISTANT_INTENTS: AssistantIntent[] = [
       { order: 1, text: 'Abra Modelos de fichas.' },
       { order: 2, text: 'Localize o modelo desejado na lista.' },
       { order: 3, text: 'Clique para editar e altere nome, descrição ou categoria.' },
-      { order: 4, text: 'Salve as alterações.' },
-    ],
+      { order: 4, text: 'Salve as alterações.' }],
     actions: [
-      { id: 'open', label: 'Abrir Modelos', type: 'navigate', route: '/templates', permission: 'templates.manage' },
-    ],
+      { id: 'open', label: 'Abrir Modelos', type: 'navigate', route: '/templates', permission: 'templates.manage' }],
   },
   {
     id: 'templates.fields',
@@ -68,11 +62,9 @@ export const ASSISTANT_INTENTS: AssistantIntent[] = [
       { order: 2, text: 'Entre em Campos do modelo.' },
       { order: 3, text: 'Adicione um campo e escolha o tipo (texto, seleção, data, assinatura, arquivo etc.).' },
       { order: 4, text: 'Defina rótulo, obrigatoriedade e opções quando houver.' },
-      { order: 5, text: 'Arraste pelo ícone ⠿ para reordenar os campos; a ordem é salva automaticamente.' },
-    ],
+      { order: 5, text: 'Arraste pelo ícone ⠿ para reordenar os campos; a ordem é salva automaticamente.' }],
     actions: [
-      { id: 'open', label: 'Abrir Modelos', type: 'navigate', route: '/templates', permission: 'templates.manage' },
-    ],
+      { id: 'open', label: 'Abrir Modelos', type: 'navigate', route: '/templates', permission: 'templates.manage' }],
   },
   {
     id: 'templates.public-link',
@@ -85,12 +77,10 @@ export const ASSISTANT_INTENTS: AssistantIntent[] = [
       { order: 1, text: 'Abra o modelo desejado em Modelos de fichas.' },
       { order: 2, text: 'Ative o link público do modelo (Publicar / Tirar publicação na listagem ou em Campos).' },
       { order: 3, text: 'Copie a URL ou gere o QR Code.' },
-      { order: 4, text: 'Acompanhe os links ativos em Formulários públicos. Para desativar, use Tirar publicação em Modelos.' },
-    ],
+      { order: 4, text: 'Acompanhe os links ativos em Formulários públicos. Para desativar, use Tirar publicação em Modelos.' }],
     actions: [
       { id: 'open-templates', label: 'Abrir Modelos', type: 'navigate', route: '/templates', permission: 'templates.manage' },
-      { id: 'open-links', label: 'Formulários públicos', type: 'navigate', route: '/links-publicos' },
-    ],
+      { id: 'open-links', label: 'Formulários públicos', type: 'navigate', route: '/links-publicos' }],
   },
   {
     id: 'templates.duplicate',
@@ -102,11 +92,9 @@ export const ASSISTANT_INTENTS: AssistantIntent[] = [
     tutorial: [
       { order: 1, text: 'Abra Modelos de fichas.' },
       { order: 2, text: 'No menu de ações do modelo (⋯), escolha Duplicar.' },
-      { order: 3, text: 'O Gestgo cria uma cópia inativa para você ajustar nome e campos.' },
-    ],
+      { order: 3, text: 'O Gestgo cria uma cópia inativa para você ajustar nome e campos.' }],
     actions: [
-      { id: 'open', label: 'Abrir Modelos', type: 'navigate', route: '/templates', permission: 'templates.manage' },
-    ],
+      { id: 'open', label: 'Abrir Modelos', type: 'navigate', route: '/templates', permission: 'templates.manage' }],
   },
   {
     id: 'templates.preview',
@@ -117,11 +105,9 @@ export const ASSISTANT_INTENTS: AssistantIntent[] = [
     permissionsAny: ['templates.manage'],
     tutorial: [
       { order: 1, text: 'Abra o modelo em Modelos de fichas.' },
-      { order: 2, text: 'Use a opção de pré-visualização para ver a ficha como o preenchimento.' },
-    ],
+      { order: 2, text: 'Use a opção de pré-visualização para ver a ficha como o preenchimento.' }],
     actions: [
-      { id: 'open', label: 'Abrir Modelos', type: 'navigate', route: '/templates', permission: 'templates.manage' },
-    ],
+      { id: 'open', label: 'Abrir Modelos', type: 'navigate', route: '/templates', permission: 'templates.manage' }],
   },
   {
     id: 'links-publicos.manage',
@@ -133,11 +119,9 @@ export const ASSISTANT_INTENTS: AssistantIntent[] = [
     tutorial: [
       { order: 1, text: 'Abra Formulários públicos no menu.' },
       { order: 2, text: 'Veja os links ativos vinculados aos modelos.' },
-      { order: 3, text: 'Copie a URL ou abra o QR Code. Para desativar um link, volte a Modelos e use Tirar publicação.' },
-    ],
+      { order: 3, text: 'Copie a URL ou abra o QR Code. Para desativar um link, volte a Modelos e use Tirar publicação.' }],
     actions: [
-      { id: 'open', label: 'Abrir Formulários públicos', type: 'navigate', route: '/links-publicos' },
-    ],
+      { id: 'open', label: 'Abrir Formulários públicos', type: 'navigate', route: '/links-publicos' }],
   },
   {
     id: 'envios.create',
@@ -150,11 +134,9 @@ export const ASSISTANT_INTENTS: AssistantIntent[] = [
       { order: 1, text: 'Abra Envios de documento.' },
       { order: 2, text: 'Clique em Novo envio.' },
       { order: 3, text: 'Selecione a pessoa, o modelo de ficha e o canal (e-mail ou WhatsApp).' },
-      { order: 4, text: 'Confirme o envio e acompanhe o status na listagem.' },
-    ],
+      { order: 4, text: 'Confirme o envio e acompanhe o status na listagem.' }],
     actions: [
-      { id: 'open', label: 'Abrir Envios', type: 'navigate', route: '/envios' },
-    ],
+      { id: 'open', label: 'Abrir Envios', type: 'navigate', route: '/envios' }],
   },
   {
     id: 'envios.resend',
@@ -166,11 +148,9 @@ export const ASSISTANT_INTENTS: AssistantIntent[] = [
     tutorial: [
       { order: 1, text: 'Abra Envios de documento.' },
       { order: 2, text: 'Localize o envio desejado.' },
-      { order: 3, text: 'Use a ação Reenviar.' },
-    ],
+      { order: 3, text: 'Use a ação Reenviar.' }],
     actions: [
-      { id: 'open', label: 'Abrir Envios', type: 'navigate', route: '/envios' },
-    ],
+      { id: 'open', label: 'Abrir Envios', type: 'navigate', route: '/envios' }],
   },
   {
     id: 'envios.cancel',
@@ -182,11 +162,9 @@ export const ASSISTANT_INTENTS: AssistantIntent[] = [
     tutorial: [
       { order: 1, text: 'Abra Envios de documento.' },
       { order: 2, text: 'Localize o envio ainda válido.' },
-      { order: 3, text: 'Use a ação Cancelar.' },
-    ],
+      { order: 3, text: 'Use a ação Cancelar.' }],
     actions: [
-      { id: 'open', label: 'Abrir Envios', type: 'navigate', route: '/envios' },
-    ],
+      { id: 'open', label: 'Abrir Envios', type: 'navigate', route: '/envios' }],
   },
   {
     id: 'protocolos.list',
@@ -198,11 +176,9 @@ export const ASSISTANT_INTENTS: AssistantIntent[] = [
     tutorial: [
       { order: 1, text: 'Abra Protocolos no menu.' },
       { order: 2, text: 'Use filtros e busca para localizar submissões.' },
-      { order: 3, text: 'Clique em um protocolo para ver o detalhe, timeline e ações.' },
-    ],
+      { order: 3, text: 'Clique em um protocolo para ver o detalhe, timeline e ações.' }],
     actions: [
-      { id: 'open', label: 'Abrir Protocolos', type: 'navigate', route: '/protocolos', permission: 'submissions.view' },
-    ],
+      { id: 'open', label: 'Abrir Protocolos', type: 'navigate', route: '/protocolos', permission: 'submissions.view' }],
   },
   {
     id: 'protocolos.approve',
@@ -214,11 +190,9 @@ export const ASSISTANT_INTENTS: AssistantIntent[] = [
     tutorial: [
       { order: 1, text: 'Abra Protocolos e entre no protocolo desejado.' },
       { order: 2, text: 'Revise os dados preenchidos, anexos e assinaturas.' },
-      { order: 3, text: 'Escolha Aprovar ou Rejeitar e, se quiser, inclua um comentário.' },
-    ],
+      { order: 3, text: 'Escolha Aprovar ou Rejeitar e, se quiser, inclua um comentário.' }],
     actions: [
-      { id: 'open', label: 'Abrir Protocolos', type: 'navigate', route: '/protocolos', permission: 'submissions.view' },
-    ],
+      { id: 'open', label: 'Abrir Protocolos', type: 'navigate', route: '/protocolos', permission: 'submissions.view' }],
   },
   {
     id: 'protocolos.pdf',
@@ -230,11 +204,9 @@ export const ASSISTANT_INTENTS: AssistantIntent[] = [
     tutorial: [
       { order: 1, text: 'Abra o detalhe do protocolo.' },
       { order: 2, text: 'Use a ação de baixar PDF.' },
-      { order: 3, text: 'O arquivo é gerado com os dados e evidências da submissão.' },
-    ],
+      { order: 3, text: 'O arquivo é gerado com os dados e evidências da submissão.' }],
     actions: [
-      { id: 'open', label: 'Abrir Protocolos', type: 'navigate', route: '/protocolos', permission: 'submissions.view' },
-    ],
+      { id: 'open', label: 'Abrir Protocolos', type: 'navigate', route: '/protocolos', permission: 'submissions.view' }],
   },
   {
     id: 'protocolos.dossier',
@@ -245,11 +217,9 @@ export const ASSISTANT_INTENTS: AssistantIntent[] = [
     permissionsAny: ['submissions.view'],
     tutorial: [
       { order: 1, text: 'Abra o detalhe do protocolo.' },
-      { order: 2, text: 'Use a ação de dossiê para baixar o pacote de evidências.' },
-    ],
+      { order: 2, text: 'Use a ação de dossiê para baixar o pacote de evidências.' }],
     actions: [
-      { id: 'open', label: 'Abrir Protocolos', type: 'navigate', route: '/protocolos', permission: 'submissions.view' },
-    ],
+      { id: 'open', label: 'Abrir Protocolos', type: 'navigate', route: '/protocolos', permission: 'submissions.view' }],
   },
   {
     id: 'protocolos.comment',
@@ -260,11 +230,9 @@ export const ASSISTANT_INTENTS: AssistantIntent[] = [
     permissionsAny: ['submissions.view'],
     tutorial: [
       { order: 1, text: 'Abra o detalhe do protocolo.' },
-      { order: 2, text: 'Na timeline, adicione um comentário para registrar a observação.' },
-    ],
+      { order: 2, text: 'Na timeline, adicione um comentário para registrar a observação.' }],
     actions: [
-      { id: 'open', label: 'Abrir Protocolos', type: 'navigate', route: '/protocolos', permission: 'submissions.view' },
-    ],
+      { id: 'open', label: 'Abrir Protocolos', type: 'navigate', route: '/protocolos', permission: 'submissions.view' }],
   },
   {
     id: 'protocolos.export',
@@ -276,11 +244,9 @@ export const ASSISTANT_INTENTS: AssistantIntent[] = [
     tutorial: [
       { order: 1, text: 'Abra Protocolos.' },
       { order: 2, text: 'Aplique os filtros desejados.' },
-      { order: 3, text: 'Use a ação Exportar para baixar o CSV.' },
-    ],
+      { order: 3, text: 'Use a ação Exportar para baixar o CSV.' }],
     actions: [
-      { id: 'open', label: 'Abrir Protocolos', type: 'navigate', route: '/protocolos', permission: 'submissions.view' },
-    ],
+      { id: 'open', label: 'Abrir Protocolos', type: 'navigate', route: '/protocolos', permission: 'submissions.view' }],
   },
   {
     id: 'pessoas.create',
@@ -293,12 +259,10 @@ export const ASSISTANT_INTENTS: AssistantIntent[] = [
       { order: 1, text: 'Abra Pessoas no menu.' },
       { order: 2, text: 'Clique em Nova pessoa (ou Criar).' },
       { order: 3, text: 'Preencha nome, contatos e demais dados.' },
-      { order: 4, text: 'Salve o cadastro.' },
-    ],
+      { order: 4, text: 'Salve o cadastro.' }],
     actions: [
       { id: 'open', label: 'Abrir Pessoas', type: 'navigate', route: '/pessoas', permission: 'submissions.view' },
-      { id: 'create', label: 'Criar novo', type: 'navigate-create', route: '/pessoas/criar', permission: 'submissions.view' },
-    ],
+      { id: 'create', label: 'Criar novo', type: 'navigate-create', route: '/pessoas/criar', permission: 'submissions.view' }],
   },
   {
     id: 'pessoas.edit',
@@ -310,11 +274,9 @@ export const ASSISTANT_INTENTS: AssistantIntent[] = [
     tutorial: [
       { order: 1, text: 'Abra Pessoas e localize o registro.' },
       { order: 2, text: 'Abra a ficha e clique em Editar.' },
-      { order: 3, text: 'Atualize os dados e salve.' },
-    ],
+      { order: 3, text: 'Atualize os dados e salve.' }],
     actions: [
-      { id: 'open', label: 'Abrir Pessoas', type: 'navigate', route: '/pessoas', permission: 'submissions.view' },
-    ],
+      { id: 'open', label: 'Abrir Pessoas', type: 'navigate', route: '/pessoas', permission: 'submissions.view' }],
   },
   {
     id: 'pessoas.search',
@@ -326,11 +288,9 @@ export const ASSISTANT_INTENTS: AssistantIntent[] = [
     tutorial: [
       { order: 1, text: 'Abra Pessoas.' },
       { order: 2, text: 'Use o campo de busca para filtrar por nome ou contato.' },
-      { order: 3, text: 'Abra o resultado desejado para ver a ficha e os protocolos.' },
-    ],
+      { order: 3, text: 'Abra o resultado desejado para ver a ficha e os protocolos.' }],
     actions: [
-      { id: 'open', label: 'Abrir Pessoas', type: 'navigate', route: '/pessoas', permission: 'submissions.view' },
-    ],
+      { id: 'open', label: 'Abrir Pessoas', type: 'navigate', route: '/pessoas', permission: 'submissions.view' }],
   },
   {
     id: 'pessoas.deactivate',
@@ -342,11 +302,9 @@ export const ASSISTANT_INTENTS: AssistantIntent[] = [
     tutorial: [
       { order: 1, text: 'Abra a ficha da pessoa.' },
       { order: 2, text: 'Use a ação de desativar (requer permissão específica).' },
-      { order: 3, text: 'Confirme a operação.' },
-    ],
+      { order: 3, text: 'Confirme a operação.' }],
     actions: [
-      { id: 'open', label: 'Abrir Pessoas', type: 'navigate', route: '/pessoas', permission: 'submissions.view' },
-    ],
+      { id: 'open', label: 'Abrir Pessoas', type: 'navigate', route: '/pessoas', permission: 'submissions.view' }],
   },
   {
     id: 'notificacoes.manage',
@@ -357,11 +315,9 @@ export const ASSISTANT_INTENTS: AssistantIntent[] = [
     permissionsAny: ['notifications.access'],
     tutorial: [
       { order: 1, text: 'Abra Notificações no menu.' },
-      { order: 2, text: 'Leia os avisos e marque como lidos individualmente ou em lote.' },
-    ],
+      { order: 2, text: 'Leia os avisos e marque como lidos individualmente ou em lote.' }],
     actions: [
-      { id: 'open', label: 'Abrir Notificações', type: 'navigate', route: '/notificacoes', permission: 'notifications.access' },
-    ],
+      { id: 'open', label: 'Abrir Notificações', type: 'navigate', route: '/notificacoes', permission: 'notifications.access' }],
   },
   {
     id: 'novidades.read',
@@ -371,11 +327,9 @@ export const ASSISTANT_INTENTS: AssistantIntent[] = [
     screenIds: ['novidades'],
     tutorial: [
       { order: 1, text: 'Abra Novidades no menu.' },
-      { order: 2, text: 'Leia as notas de versão publicadas pela plataforma.' },
-    ],
+      { order: 2, text: 'Leia as notas de versão publicadas pela plataforma.' }],
     actions: [
-      { id: 'open', label: 'Abrir Novidades', type: 'navigate', route: '/novidades' },
-    ],
+      { id: 'open', label: 'Abrir Novidades', type: 'navigate', route: '/novidades' }],
   },
   {
     id: 'billing.checkout',
@@ -387,11 +341,9 @@ export const ASSISTANT_INTENTS: AssistantIntent[] = [
     tutorial: [
       { order: 1, text: 'Abra Assinatura no menu.' },
       { order: 2, text: 'Escolha o plano desejado.' },
-      { order: 3, text: 'Conclua o checkout (PIX ou demais opções disponíveis).' },
-    ],
+      { order: 3, text: 'Conclua o checkout (PIX ou demais opções disponíveis).' }],
     actions: [
-      { id: 'open', label: 'Abrir Assinatura', type: 'navigate', route: '/assinatura', permission: 'billing.manage' },
-    ],
+      { id: 'open', label: 'Abrir Assinatura', type: 'navigate', route: '/assinatura', permission: 'billing.manage' }],
   },
   {
     id: 'billing.cancel',
@@ -403,11 +355,9 @@ export const ASSISTANT_INTENTS: AssistantIntent[] = [
     tutorial: [
       { order: 1, text: 'Abra Assinatura.' },
       { order: 2, text: 'Localize a assinatura ativa.' },
-      { order: 3, text: 'Use a opção de cancelamento e confirme.' },
-    ],
+      { order: 3, text: 'Use a opção de cancelamento e confirme.' }],
     actions: [
-      { id: 'open', label: 'Abrir Assinatura', type: 'navigate', route: '/assinatura', permission: 'billing.manage' },
-    ],
+      { id: 'open', label: 'Abrir Assinatura', type: 'navigate', route: '/assinatura', permission: 'billing.manage' }],
   },
   {
     id: 'empresa.settings',
@@ -419,11 +369,9 @@ export const ASSISTANT_INTENTS: AssistantIntent[] = [
     tutorial: [
       { order: 1, text: 'Abra Empresa em Administração.' },
       { order: 2, text: 'Atualize dados cadastrais, contato e endereço.' },
-      { order: 3, text: 'Salve as alterações.' },
-    ],
+      { order: 3, text: 'Salve as alterações.' }],
     actions: [
-      { id: 'open', label: 'Ir para Configurações', type: 'navigate', route: '/clinica/configuracoes', permission: 'organization.manage' },
-    ],
+      { id: 'open', label: 'Ir para Configurações', type: 'navigate', route: '/clinica/configuracoes', permission: 'organization.manage' }],
   },
   {
     id: 'empresa.branding',
@@ -435,11 +383,9 @@ export const ASSISTANT_INTENTS: AssistantIntent[] = [
     tutorial: [
       { order: 1, text: 'Abra Empresa.' },
       { order: 2, text: 'Envie a logo e ajuste a aparência dos formulários públicos.' },
-      { order: 3, text: 'Salve para aplicar nas páginas públicas.' },
-    ],
+      { order: 3, text: 'Salve para aplicar nas páginas públicas.' }],
     actions: [
-      { id: 'open', label: 'Ir para Configurações', type: 'navigate', route: '/clinica/configuracoes', permission: 'organization.manage' },
-    ],
+      { id: 'open', label: 'Ir para Configurações', type: 'navigate', route: '/clinica/configuracoes', permission: 'organization.manage' }],
   },
   {
     id: 'empresa.switch',
@@ -450,11 +396,9 @@ export const ASSISTANT_INTENTS: AssistantIntent[] = [
     tutorial: [
       { order: 1, text: 'No menu do usuário, escolha Trocar empresa.' },
       { order: 2, text: 'Selecione a organização desejada.' },
-      { order: 3, text: 'O contexto do app passa a usar essa empresa.' },
-    ],
+      { order: 3, text: 'O contexto do app passa a usar essa empresa.' }],
     actions: [
-      { id: 'open', label: 'Trocar empresa', type: 'navigate', route: '/clinica/escolher' },
-    ],
+      { id: 'open', label: 'Trocar empresa', type: 'navigate', route: '/clinica/escolher' }],
   },
   {
     id: 'integracoes.tokens',
@@ -466,11 +410,9 @@ export const ASSISTANT_INTENTS: AssistantIntent[] = [
     tutorial: [
       { order: 1, text: 'Abra Integrações.' },
       { order: 2, text: 'Crie um token de API ou configure webhooks de saída.' },
-      { order: 3, text: 'Guarde o segredo com segurança — ele não é exibido novamente.' },
-    ],
+      { order: 3, text: 'Guarde o segredo com segurança — ele não é exibido novamente.' }],
     actions: [
-      { id: 'open', label: 'Abrir Integrações', type: 'navigate', route: '/clinica/integracoes', permission: 'organization.manage' },
-    ],
+      { id: 'open', label: 'Abrir Integrações', type: 'navigate', route: '/clinica/integracoes', permission: 'organization.manage' }],
   },
   {
     id: 'integracoes.feegow',
@@ -483,11 +425,9 @@ export const ASSISTANT_INTENTS: AssistantIntent[] = [
       { order: 1, text: 'Abra Integrações.' },
       { order: 2, text: 'Entre em Sistemas → Feegow.' },
       { order: 3, text: 'Informe as credenciais e teste a conexão.' },
-      { order: 4, text: 'A agenda Feegow passa a poder ser usada no formulário público quando configurada.' },
-    ],
+      { order: 4, text: 'A agenda Feegow passa a poder ser usada no formulário público quando configurada.' }],
     actions: [
-      { id: 'open', label: 'Abrir Feegow', type: 'navigate', route: '/clinica/integracoes/sistemas/feegow', permission: 'organization.manage' },
-    ],
+      { id: 'open', label: 'Abrir Feegow', type: 'navigate', route: '/clinica/integracoes/sistemas/feegow', permission: 'organization.manage' }],
   },
   {
     id: 'integracoes.whatsapp',
@@ -499,11 +439,9 @@ export const ASSISTANT_INTENTS: AssistantIntent[] = [
     tutorial: [
       { order: 1, text: 'Abra Integrações.' },
       { order: 2, text: 'Na seção WhatsApp (Evolution), inicie a instância.' },
-      { order: 3, text: 'Escaneie o QR Code e confirme o pareamento.' },
-    ],
+      { order: 3, text: 'Escaneie o QR Code e confirme o pareamento.' }],
     actions: [
-      { id: 'open', label: 'Abrir Integrações', type: 'navigate', route: '/clinica/integracoes', permission: 'organization.manage' },
-    ],
+      { id: 'open', label: 'Abrir Integrações', type: 'navigate', route: '/clinica/integracoes', permission: 'organization.manage' }],
   },
   {
     id: 'link-bio.setup',
@@ -515,11 +453,9 @@ export const ASSISTANT_INTENTS: AssistantIntent[] = [
     tutorial: [
       { order: 1, text: 'Abra Link na bio em Administração.' },
       { order: 2, text: 'Configure aparência, foto e links.' },
-      { order: 3, text: 'Publique e compartilhe a URL pública `/l/seu-slug`.' },
-    ],
+      { order: 3, text: 'Publique e compartilhe a URL pública `/l/seu-slug`.' }],
     actions: [
-      { id: 'open', label: 'Abrir Link na bio', type: 'navigate', route: '/link-bio', permission: 'organization.manage' },
-    ],
+      { id: 'open', label: 'Abrir Link na bio', type: 'navigate', route: '/link-bio', permission: 'organization.manage' }],
   },
   {
     id: 'link-bio.forms',
@@ -531,11 +467,9 @@ export const ASSISTANT_INTENTS: AssistantIntent[] = [
     tutorial: [
       { order: 1, text: 'Abra Link na bio.' },
       { order: 2, text: 'Na aba de formulários/modelos, selecione quais fichas aparecerão.' },
-      { order: 3, text: 'Salve e confira na pré-visualização.' },
-    ],
+      { order: 3, text: 'Salve e confira na pré-visualização.' }],
     actions: [
-      { id: 'open', label: 'Abrir Link na bio', type: 'navigate', route: '/link-bio', permission: 'organization.manage' },
-    ],
+      { id: 'open', label: 'Abrir Link na bio', type: 'navigate', route: '/link-bio', permission: 'organization.manage' }],
   },
   {
     id: 'link-bio.qr',
@@ -546,11 +480,9 @@ export const ASSISTANT_INTENTS: AssistantIntent[] = [
     permissionsAny: ['organization.manage'],
     tutorial: [
       { order: 1, text: 'Abra Link na bio.' },
-      { order: 2, text: 'Use a ação de QR Code para baixar ou compartilhar.' },
-    ],
+      { order: 2, text: 'Use a ação de QR Code para baixar ou compartilhar.' }],
     actions: [
-      { id: 'open', label: 'Abrir Link na bio', type: 'navigate', route: '/link-bio', permission: 'organization.manage' },
-    ],
+      { id: 'open', label: 'Abrir Link na bio', type: 'navigate', route: '/link-bio', permission: 'organization.manage' }],
   },
   {
     id: 'usuarios.invite',
@@ -563,12 +495,10 @@ export const ASSISTANT_INTENTS: AssistantIntent[] = [
       { order: 1, text: 'Abra Usuários em Administração.' },
       { order: 2, text: 'Clique em Novo.' },
       { order: 3, text: 'Informe nome, e-mail e o papel (permissões).' },
-      { order: 4, text: 'Salve o convite/cadastro.' },
-    ],
+      { order: 4, text: 'Salve o convite/cadastro.' }],
     actions: [
       { id: 'open', label: 'Abrir Usuários', type: 'navigate', route: '/usuarios', permission: 'users.manage' },
-      { id: 'create', label: 'Criar novo', type: 'navigate-create', route: '/usuarios/criar', permission: 'users.manage' },
-    ],
+      { id: 'create', label: 'Criar novo', type: 'navigate-create', route: '/usuarios/criar', permission: 'users.manage' }],
   },
   {
     id: 'usuarios.edit',
@@ -580,11 +510,9 @@ export const ASSISTANT_INTENTS: AssistantIntent[] = [
     tutorial: [
       { order: 1, text: 'Abra Usuários.' },
       { order: 2, text: 'Edite o usuário desejado.' },
-      { order: 3, text: 'Ajuste dados, papel ou status e salve.' },
-    ],
+      { order: 3, text: 'Ajuste dados, papel ou status e salve.' }],
     actions: [
-      { id: 'open', label: 'Abrir Usuários', type: 'navigate', route: '/usuarios', permission: 'users.manage' },
-    ],
+      { id: 'open', label: 'Abrir Usuários', type: 'navigate', route: '/usuarios', permission: 'users.manage' }],
   },
   {
     id: 'permissoes.edit',
@@ -597,11 +525,9 @@ export const ASSISTANT_INTENTS: AssistantIntent[] = [
       { order: 1, text: 'Abra Permissões em Administração.' },
       { order: 2, text: 'Crie um novo papel ou edite um existente.' },
       { order: 3, text: 'Marque as permissões do catálogo e salve.' },
-      { order: 4, text: 'Atribua o papel aos usuários em Usuários.' },
-    ],
+      { order: 4, text: 'Atribua o papel aos usuários em Usuários.' }],
     actions: [
-      { id: 'open', label: 'Abrir Permissões', type: 'navigate', route: '/organizacao/permissoes', permission: 'users.manage' },
-    ],
+      { id: 'open', label: 'Abrir Permissões', type: 'navigate', route: '/organizacao/permissoes', permission: 'users.manage' }],
   },
   {
     id: 'conta.perfil',
@@ -612,11 +538,9 @@ export const ASSISTANT_INTENTS: AssistantIntent[] = [
     tutorial: [
       { order: 1, text: 'Abra Meu perfil no menu do usuário.' },
       { order: 2, text: 'Ajuste dados da conta e preferências de aparência.' },
-      { order: 3, text: 'Salve as alterações.' },
-    ],
+      { order: 3, text: 'Salve as alterações.' }],
     actions: [
-      { id: 'open', label: 'Abrir Meu perfil', type: 'navigate', route: '/conta/perfil' },
-    ],
+      { id: 'open', label: 'Abrir Meu perfil', type: 'navigate', route: '/conta/perfil' }],
   },
   {
     id: 'conta.signature',
@@ -627,11 +551,9 @@ export const ASSISTANT_INTENTS: AssistantIntent[] = [
     tutorial: [
       { order: 1, text: 'Abra Meu perfil.' },
       { order: 2, text: 'Na seção de assinatura eletrônica, envie ou desenhe sua assinatura.' },
-      { order: 3, text: 'Salve para usar nas revisões de protocolo quando aplicável.' },
-    ],
+      { order: 3, text: 'Salve para usar nas revisões de protocolo quando aplicável.' }],
     actions: [
-      { id: 'open', label: 'Abrir Meu perfil', type: 'navigate', route: '/conta/perfil' },
-    ],
+      { id: 'open', label: 'Abrir Meu perfil', type: 'navigate', route: '/conta/perfil' }],
   },
   {
     id: 'plataforma.overview',
@@ -642,11 +564,9 @@ export const ASSISTANT_INTENTS: AssistantIntent[] = [
     permissionsAny: ['platform_admin'],
     tutorial: [
       { order: 1, text: 'Acesse Admin da plataforma.' },
-      { order: 2, text: 'Use o dashboard para visão geral de clientes, assinaturas e operação.' },
-    ],
+      { order: 2, text: 'Use o dashboard para visão geral de clientes, assinaturas e operação.' }],
     actions: [
-      { id: 'open', label: 'Abrir Plataforma', type: 'navigate', route: '/plataforma', permission: 'platform_admin' },
-    ],
+      { id: 'open', label: 'Abrir Plataforma', type: 'navigate', route: '/plataforma', permission: 'platform_admin' }],
   },
   {
     id: 'plataforma.clientes',
@@ -657,11 +577,9 @@ export const ASSISTANT_INTENTS: AssistantIntent[] = [
     permissionsAny: ['platform_admin'],
     tutorial: [
       { order: 1, text: 'Abra Clientes na plataforma.' },
-      { order: 2, text: 'Pesquise e abra o detalhe do tenant/organização.' },
-    ],
+      { order: 2, text: 'Pesquise e abra o detalhe do tenant/organização.' }],
     actions: [
-      { id: 'open', label: 'Abrir Clientes', type: 'navigate', route: '/plataforma/clientes', permission: 'platform_admin' },
-    ],
+      { id: 'open', label: 'Abrir Clientes', type: 'navigate', route: '/plataforma/clientes', permission: 'platform_admin' }],
   },
   {
     id: 'plataforma.leads',
@@ -672,11 +590,9 @@ export const ASSISTANT_INTENTS: AssistantIntent[] = [
     permissionsAny: ['platform_admin'],
     tutorial: [
       { order: 1, text: 'Abra Leads na plataforma.' },
-      { order: 2, text: 'Acompanhe solicitações de demonstração e contatos.' },
-    ],
+      { order: 2, text: 'Acompanhe solicitações de demonstração e contatos.' }],
     actions: [
-      { id: 'open', label: 'Abrir Leads', type: 'navigate', route: '/plataforma/leads', permission: 'platform_admin' },
-    ],
+      { id: 'open', label: 'Abrir Leads', type: 'navigate', route: '/plataforma/leads', permission: 'platform_admin' }],
   },
   {
     id: 'plataforma.assinaturas',
@@ -687,11 +603,9 @@ export const ASSISTANT_INTENTS: AssistantIntent[] = [
     permissionsAny: ['platform_admin'],
     tutorial: [
       { order: 1, text: 'Abra Assinaturas na plataforma.' },
-      { order: 2, text: 'Filtre e acompanhe o status das assinaturas dos clientes.' },
-    ],
+      { order: 2, text: 'Filtre e acompanhe o status das assinaturas dos clientes.' }],
     actions: [
-      { id: 'open', label: 'Abrir Assinaturas', type: 'navigate', route: '/plataforma/assinaturas', permission: 'platform_admin' },
-    ],
+      { id: 'open', label: 'Abrir Assinaturas', type: 'navigate', route: '/plataforma/assinaturas', permission: 'platform_admin' }],
   },
   {
     id: 'plataforma.planos',
@@ -703,11 +617,8 @@ export const ASSISTANT_INTENTS: AssistantIntent[] = [
     tutorial: [
       { order: 1, text: 'Abra Planos na plataforma.' },
       { order: 2, text: 'Crie ou edite um plano com valores e limites.' },
-      { order: 3, text: 'Salve para disponibilizar no checkout dos tenants.' },
-    ],
+      { order: 3, text: 'Salve para disponibilizar no checkout dos tenants.' }],
     actions: [
       { id: 'open', label: 'Abrir Planos', type: 'navigate', route: '/plataforma/planos', permission: 'platform_admin' },
-      { id: 'create', label: 'Criar novo', type: 'navigate-create', route: '/plataforma/planos/novo', permission: 'platform_admin' },
-    ],
-  },
-];
+      { id: 'create', label: 'Criar novo', type: 'navigate-create', route: '/plataforma/planos/novo', permission: 'platform_admin' }],
+  }];

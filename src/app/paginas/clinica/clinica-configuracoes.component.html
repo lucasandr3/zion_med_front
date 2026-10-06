@@ -16,17 +16,17 @@
       </div>
 
       <form (ngSubmit)="salvar()" id="clinica-config-form">
-        <z-tab-group
+        <g-tab-group
           #configTabGroup
-          class="config-zard-tabs config-zard-tabs--layout config-zard-tabs--no-nav-rule w-full"
+          class="config-gestgo-tabs config-gestgo-tabs--layout config-gestgo-tabs--no-nav-rule w-full"
           zNavWrapperClass="clinica-config-tabs-bar border-b border-border bg-card"
           zNavClass="!mb-0 !border-0 !px-0 pt-2"
           [zShowArrow]="false"
-          (zTabChange)="onZardTabChange($event)"
+          (zTabChange)="onGestgoTabChange($event)"
         >
-          <z-tab label="Dados Gerais" icon="cloud_done">
+          <g-tab label="Dados Gerais" icon="cloud_done">
             <div class="config-tab-panel">
-          <z-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
+          <g-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
             <div class="section-header">
               <div class="icon-wrap"><span class="material-symbols-outlined">business</span></div>
               <span class="section-title">Informações Básicas</span>
@@ -34,12 +34,12 @@
             <div class="section-body">
               <div class="field">
                 <label>Nome da empresa <span class="req">*</span></label>
-                <input type="text" [(ngModel)]="form.name" name="name" required z-input zSize="sm" class="w-full" placeholder="Nome da sua empresa">
+                <input type="text" [(ngModel)]="form.name" name="name" required class="w-full" placeholder="Nome da sua empresa">
               </div>
               <div class="field-row">
                 <div class="field">
                   <label>E-mail para notificações <span class="req">*</span></label>
-                  <input type="email" [(ngModel)]="form.notification_email" name="notification_email" z-input zSize="sm" class="w-full" placeholder="recepcao@empresa.com">
+                  <input type="email" [(ngModel)]="form.notification_email" name="notification_email" class="w-full" placeholder="recepcao@empresa.com">
                 </div>
                 <div class="field">
                   <label>Telefone / WhatsApp</label>
@@ -47,8 +47,7 @@
                     type="text"
                     [ngModel]="form.phone"
                     (ngModelChange)="onPhoneInput($event)"
-                    name="phone"
-                    z-input zSize="sm" class="w-full"
+                    name="phone" class="w-full"
                     placeholder="(11) 99999-9999"
                     maxlength="16"
                   >
@@ -65,8 +64,7 @@
                         [ngModel]="enderecoForm.cep"
                         (ngModelChange)="onCepInput($event)"
                         (blur)="buscarEnderecoPorCep()"
-                        name="address_cep"
-                        z-input zSize="sm" class="w-full"
+                        name="address_cep" class="w-full"
                         placeholder="00000-000"
                         maxlength="9"
                       >
@@ -77,30 +75,30 @@
                   </div>
                   <div class="field">
                     <label>Logradouro</label>
-                    <input type="text" [(ngModel)]="enderecoForm.logradouro" name="address_logradouro" z-input zSize="sm" class="w-full" placeholder="Rua, avenida, etc.">
+                    <input type="text" [(ngModel)]="enderecoForm.logradouro" name="address_logradouro" class="w-full" placeholder="Rua, avenida, etc.">
                   </div>
                   <div class="field-row">
                     <div class="field">
                       <label>Número</label>
-                      <input type="text" [(ngModel)]="enderecoForm.numero" name="address_numero" z-input zSize="sm" class="w-full" placeholder="123">
+                      <input type="text" [(ngModel)]="enderecoForm.numero" name="address_numero" class="w-full" placeholder="123">
                     </div>
                     <div class="field">
                       <label>Complemento <span class="opt">opcional</span></label>
-                      <input type="text" [(ngModel)]="enderecoForm.complemento" name="address_complemento" z-input zSize="sm" class="w-full" placeholder="Sala, bloco, apto">
+                      <input type="text" [(ngModel)]="enderecoForm.complemento" name="address_complemento" class="w-full" placeholder="Sala, bloco, apto">
                     </div>
                   </div>
                   <div class="field-row">
                     <div class="field">
                       <label>Bairro</label>
-                      <input type="text" [(ngModel)]="enderecoForm.bairro" name="address_bairro" z-input zSize="sm" class="w-full" placeholder="Bairro">
+                      <input type="text" [(ngModel)]="enderecoForm.bairro" name="address_bairro" class="w-full" placeholder="Bairro">
                     </div>
                     <div class="field">
                       <label>Cidade</label>
-                      <input type="text" [(ngModel)]="enderecoForm.cidade" name="address_cidade" z-input zSize="sm" class="w-full" placeholder="Cidade">
+                      <input type="text" [(ngModel)]="enderecoForm.cidade" name="address_cidade" class="w-full" placeholder="Cidade">
                     </div>
                     <div class="field field-uf">
                       <label>UF</label>
-                      <input type="text" [(ngModel)]="enderecoForm.uf" name="address_uf" z-input zSize="sm" class="w-full" placeholder="SP" maxlength="2">
+                      <input type="text" [(ngModel)]="enderecoForm.uf" name="address_uf" class="w-full" placeholder="SP" maxlength="2">
                     </div>
                   </div>
                 </div>
@@ -114,13 +112,13 @@
               </div>
               <div class="field">
                 <label>E-mail de contato público <span class="opt">opcional</span></label>
-                <input type="email" [(ngModel)]="form.contact_email" name="contact_email" z-input zSize="sm" class="w-full" placeholder="contato@empresa.com">
+                <input type="email" [(ngModel)]="form.contact_email" name="contact_email" class="w-full" placeholder="contato@empresa.com">
                 <div class="hint">Exibido no link na bio. Diferente do e-mail de notificações.</div>
               </div>
             </div>
-          </z-card>
+          </g-card>
 
-          <z-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
+          <g-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
             <div class="section-header">
               <div class="icon-wrap"><span class="material-symbols-outlined">receipt_long</span></div>
               <span class="section-title">Dados para Faturamento</span>
@@ -129,12 +127,12 @@
             <div class="section-body">
               <div class="field">
                 <label>Nome/Razão Social na nota <span class="opt">opcional</span></label>
-                <input type="text" [(ngModel)]="form.billing_name" name="billing_name" z-input zSize="sm" class="w-full" placeholder="Nome ou razão social">
+                <input type="text" [(ngModel)]="form.billing_name" name="billing_name" class="w-full" placeholder="Nome ou razão social">
                 <div class="hint">Usado em boletos e faturas. Padrão: nome da empresa.</div>
               </div>
               <div class="field">
                 <label>E-mail para boletos <span class="opt">opcional</span></label>
-                <input type="email" [(ngModel)]="form.billing_email" name="billing_email" z-input zSize="sm" class="w-full" placeholder="financeiro@empresa.com">
+                <input type="email" [(ngModel)]="form.billing_email" name="billing_email" class="w-full" placeholder="financeiro@empresa.com">
                 <div class="hint">Onde os boletos serão enviados. Padrão: e-mail de notificações.</div>
               </div>
               <div class="field">
@@ -143,17 +141,16 @@
                   type="text"
                   [ngModel]="form.billing_document"
                   (ngModelChange)="onBillingDocumentInput($event)"
-                  name="billing_document"
-                  z-input zSize="sm" class="w-full"
+                  name="billing_document" class="w-full"
                   placeholder="000.000.000-00 ou 00.000.000/0001-00"
                   maxlength="18"
                 >
                 <div class="hint">Obrigatório para gerar boletos. Apenas números ou com pontuação.</div>
               </div>
             </div>
-          </z-card>
+          </g-card>
 
-          <z-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
+          <g-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
             <div class="section-header">
               <div class="icon-wrap"><span class="material-symbols-outlined">verified_user</span></div>
               <span class="section-title">Assinatura e retenção de dados</span>
@@ -188,8 +185,7 @@
                   min="1"
                   max="50"
                   [(ngModel)]="form.data_retention_years"
-                  name="data_retention_years"
-                  z-input zSize="sm" class="w-full"
+                  name="data_retention_years" class="w-full"
                   placeholder="Ex.: 7 — deixe vazio para desativar"
                 />
                 <div class="hint">Remove apenas cadastros (fichas) sem nenhum protocolo vinculado, mais antigos que o prazo. Job diário no servidor.</div>
@@ -201,8 +197,7 @@
                   min="1"
                   max="50"
                   [(ngModel)]="form.protocol_retention_years"
-                  name="protocol_retention_years"
-                  z-input zSize="sm" class="w-full"
+                  name="protocol_retention_years" class="w-full"
                   placeholder="Ex.: 7 — deixe vazio para desativar"
                 />
                 <div class="hint">Protocolos aprovados/reprovados/revogados mais antigos que o prazo entram na política abaixo. Job diário às 04:30.</div>
@@ -220,17 +215,9 @@
                 />
               </div>
               <div class="field">
-                <button
-                  type="button"
-                  z-button
-                  zType="outline"
-                  zSize="sm"
-                  (click)="carregarRetencaoPreview()"
-                  [zLoading]="carregandoRetencaoPreview()"
-                  [zDisabled]="carregandoRetencaoPreview()"
-                >
+                <nord-button type="button" variant="default" size="s" (click)="carregarRetencaoPreview()" [attr.loading]="carregandoRetencaoPreview()" [attr.disabled]="carregandoRetencaoPreview()">
                   Verificar protocolos elegíveis
-                </button>
+                </nord-button>
                 @if (retencaoPreview(); as rp) {
                   <div class="hint mt-2">
                     @if (rp.enabled) {
@@ -245,9 +232,9 @@
                 }
               </div>
             </div>
-          </z-card>
+          </g-card>
 
-          <z-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
+          <g-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
             <div class="section-header">
               <div class="icon-wrap"><span class="material-symbols-outlined">schedule</span></div>
               <span class="section-title">Horário de Atendimento</span>
@@ -258,22 +245,19 @@
                 @for (d of days; track d.id) {
                   <div class="schedule-row" [class.schedule-row--active]="isScheduleActive(d.id)">
                     <span class="schedule-row__day">{{ d.label }}</span>
-                    <z-switch
+                    <nord-toggle
                       class="schedule-row__switch"
-                      zSize="sm"
                       [ngModel]="isScheduleActive(d.id)"
                       (ngModelChange)="toggleScheduleDay(d.id, $event)"
                       [name]="'schedule_' + d.id"
                       [attr.aria-label]="'Atendimento em ' + d.label"
-                    />
+                    ></nord-toggle>
                     @if (isScheduleActive(d.id)) {
                       <div class="schedule-row__times">
                         <label class="schedule-time-field" [attr.for]="'bh_open_' + d.id">
                           <span class="schedule-time-field__label">Abre</span>
                           <input
                             type="text"
-                            z-input
-                            zSize="sm"
                             class="schedule-time-input"
                             mwlFlatpickr
                             [(ngModel)]="form.business_hours![d.id].open"
@@ -295,8 +279,6 @@
                           <span class="schedule-time-field__label">Fecha</span>
                           <input
                             type="text"
-                            z-input
-                            zSize="sm"
                             class="schedule-time-input"
                             mwlFlatpickr
                             [(ngModel)]="form.business_hours![d.id].close"
@@ -315,25 +297,25 @@
                         </label>
                       </div>
                     } @else {
-                      <z-badge zType="secondary" zShape="pill" class="schedule-row__closed">Fechado</z-badge>
+                      <g-badge zType="secondary" zShape="pill" class="schedule-row__closed">Fechado</g-badge>
                     }
                   </div>
                 }
               </div>
               <div class="schedule-actions">
-                <button type="button" z-button zType="link" zSize="sm" class="schedule-copy-btn" (click)="copyFirstDayToAll()">
+                <nord-button type="button" variant="plain" size="s" class="schedule-copy-btn" (click)="copyFirstDayToAll()">
                   <span class="material-symbols-outlined" aria-hidden="true">content_copy</span>
                   Copiar segunda para todos os dias
-                </button>
+                </nord-button>
               </div>
             </div>
-          </z-card>
+          </g-card>
           </div>
-        </z-tab>
+        </g-tab>
 
-        <z-tab label="Identidade Visual" icon="image">
+        <g-tab label="Identidade Visual" icon="image">
           <div class="config-tab-panel">
-          <z-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
+          <g-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
             <div class="section-header">
               <div class="icon-wrap"><span class="material-symbols-outlined">image</span></div>
               <span class="section-title">Logo da empresa</span>
@@ -391,28 +373,21 @@
                     <div class="logo-upload-file">
                       <span class="material-symbols-outlined logo-upload-file__icon" aria-hidden="true">draft</span>
                       <span class="logo-upload-file__name" [title]="logoFile.name">{{ logoFile.name }}</span>
-                      <button
-                        type="button"
-                        z-button
-                        zType="ghost"
-                        zSize="sm"
-                        class="logo-upload-file__remove shrink-0"
-                        (click)="limparLogoSelecionada(); $event.stopPropagation()"
-                      >
+                      <nord-button type="button" variant="plain" size="s" class="logo-upload-file__remove shrink-0" (click)="limparLogoSelecionada(); $event.stopPropagation()">
                         Remover
-                      </button>
+                      </nord-button>
                     </div>
                   }
                 </div>
               </div>
             </div>
-          </z-card>
+          </g-card>
           </div>
-        </z-tab>
+        </g-tab>
 
-        <z-tab label="Formulários públicos" icon="assignment">
+        <g-tab label="Formulários públicos" icon="assignment">
           <div id="panel-formularios-publicos" class="config-tab-panel">
-            <z-card class="section-card mb-4 gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
+            <g-card class="section-card mb-4 gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
               <div class="section-header">
                 <div class="icon-wrap"><span class="material-symbols-outlined">palette</span></div>
                 <span class="section-title">Cor de destaque</span>
@@ -491,8 +466,6 @@
                       />
                       <input
                         type="text"
-                        z-input
-                        zSize="sm"
                         class="w-full custom-accent-hex"
                         [value]="formCustomAccent"
                         (input)="onFormCustomAccentChange($any($event.target).value)"
@@ -508,9 +481,9 @@
                 }
                 <p class="theme-panel-hint">Afeta a página pública do formulário. Salve as configurações da empresa para aplicar a todos os links.</p>
               </div>
-            </z-card>
+            </g-card>
 
-            <z-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
+            <g-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
               <div class="section-header">
                 <div class="icon-wrap"><span class="material-symbols-outlined">visibility_off</span></div>
                 <span class="section-title">Marca no cabeçalho</span>
@@ -521,16 +494,16 @@
                     <span class="dtitle">Ocultar Formulário por Gestgo</span>
                     <span class="dsub">Exibe apenas o nome e a logo da sua clínica no topo da ficha.</span>
                   </span>
-                  <z-switch [(ngModel)]="hidePlatformBranding" name="hide_platform_branding" />
+                  <nord-toggle [(ngModel)]="hidePlatformBranding" name="hide_platform_branding"></nord-toggle>
                 </div>
               </div>
-            </z-card>
+            </g-card>
           </div>
-        </z-tab>
+        </g-tab>
 
-        <z-tab label="Tema Visual" icon="palette">
+        <g-tab label="Tema Visual" icon="palette">
           <div id="panel-visual" class="config-tab-panel">
-          <z-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
+          <g-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
             <div class="section-header">
               <div class="icon-wrap"><span class="material-symbols-outlined">palette</span></div>
               <span class="section-title">Personalização</span>
@@ -602,12 +575,12 @@
               </div>
               <p class="shell-preset-footnote">{{ shellPresetMeta?.description ?? '—' }}</p>
             </div>
-          </z-card>
+          </g-card>
         </div>
-        </z-tab>
-        <z-tab label="WhatsApp" icon="chat">
+        </g-tab>
+        <g-tab label="WhatsApp" icon="chat">
           <div class="config-tab-panel">
-          <z-card class="section-card mb-4 gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
+          <g-card class="section-card mb-4 gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
             <div class="section-header">
               <div class="icon-wrap"><span class="material-symbols-outlined">chat</span></div>
               <span class="section-title">Comunicação por WhatsApp</span>
@@ -619,25 +592,19 @@
                     <span class="dtitle block">Receber comunicação por WhatsApp</span>
                     <span class="dsub block">Confirmações e avisos da loja no número cadastrado (Telefone/WhatsApp)</span>
                   </span>
-                  <z-switch [(ngModel)]="form.whatsapp_notifications_enabled" name="whatsapp_notifications_enabled" />
+                  <nord-toggle [(ngModel)]="form.whatsapp_notifications_enabled" name="whatsapp_notifications_enabled"></nord-toggle>
                 </div>
               </div>
               <div class="wa-notify-subsection">
                 <p class="wa-notify-subsection__title">Quais notificações deseja receber:</p>
-                <z-checkbox [(ngModel)]="form.whatsapp_notify_cobranca" name="whatsapp_notify_cobranca" class="mb-2">
-                  Cobrança (lembretes, vencimentos)
-                </z-checkbox>
-                <z-checkbox [(ngModel)]="form.whatsapp_notify_faturas_boleto" name="whatsapp_notify_faturas_boleto" class="mb-2">
-                  Faturas e boleto (confirmação de assinatura, boleto gerado)
-                </z-checkbox>
-                <z-checkbox [(ngModel)]="form.whatsapp_notify_avisos" name="whatsapp_notify_avisos">
-                  Avisos gerais
-                </z-checkbox>
+                <nord-checkbox [(ngModel)]="form.whatsapp_notify_cobranca" name="whatsapp_notify_cobranca" class="mb-2" label="Cobrança (lembretes, vencimentos)"></nord-checkbox>
+                <nord-checkbox [(ngModel)]="form.whatsapp_notify_faturas_boleto" name="whatsapp_notify_faturas_boleto" class="mb-2" label="Faturas e boleto (confirmação de assinatura, boleto gerado)"></nord-checkbox>
+                <nord-checkbox [(ngModel)]="form.whatsapp_notify_avisos" name="whatsapp_notify_avisos" label="Avisos gerais"></nord-checkbox>
               </div>
             </div>
-          </z-card>
+          </g-card>
         @if (waLoading()) {
-          <z-card class="section-card mb-4 gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
+          <g-card class="section-card mb-4 gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
             <div class="section-header">
               <div class="icon-wrap"><span class="material-symbols-outlined">settings</span></div>
               <span class="section-title">Integração Evolution Go</span>
@@ -645,24 +612,24 @@
             <div class="section-body">
               <zm-skeleton-list [rows]="6" />
             </div>
-          </z-card>
+          </g-card>
         } @else if (waError() && !waState()) {
-          <z-card class="section-card mb-4 gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
+          <g-card class="section-card mb-4 gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
             <div class="section-header">
               <div class="icon-wrap"><span class="material-symbols-outlined">error</span></div>
               <span class="section-title">Integração Evolution Go</span>
             </div>
             <div class="section-body">
               <p class="mb-4 text-sm text-destructive">{{ waError() }}</p>
-              <button type="button" z-button zType="outline" zSize="sm" (click)="carregarWhatsapp()">Tentar novamente</button>
+              <nord-button type="button" variant="default" size="s" (click)="carregarWhatsapp()">Tentar novamente</nord-button>
             </div>
-          </z-card>
+          </g-card>
         } @else if (waState(); as wa) {
           @if (waError()) {
             <p class="mb-4 text-sm text-destructive">{{ waError() }}</p>
           }
           @if (!wa.server_configured) {
-            <z-card class="section-card mb-4 gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
+            <g-card class="section-card mb-4 gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
               <div class="section-header">
                 <div class="icon-wrap"><span class="material-symbols-outlined">cloud_off</span></div>
                 <span class="section-title">Servidor não configurado</span>
@@ -674,9 +641,9 @@
                   <code class="text-xs">EVOLUTION_GO_API_KEY</code> (GLOBAL_API_KEY do container) no backend.
                 </p>
               </div>
-            </z-card>
+            </g-card>
           } @else if (!wa.instance_configured) {
-            <z-card class="section-card mb-4 gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
+            <g-card class="section-card mb-4 gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
               <div class="section-header">
                 <div class="icon-wrap"><span class="material-symbols-outlined">add_circle</span></div>
                 <span class="section-title">Criar instância</span>
@@ -685,19 +652,19 @@
                 <p class="mb-4 text-sm text-muted-foreground">
                   O sistema gera automaticamente o nome da instância (<code class="text-xs">gestgo_org_</code> + id da empresa) e um token (UUID) antes de registrar na Evolution Go — necessário em ambientes onde a API não gera o token sozinha.
                 </p>
-                <button type="button" z-button zSize="sm" class="inline-flex items-center gap-2" (click)="criarInstanciaWhatsapp()" [disabled]="waCriandoInstancia()">
+                <nord-button type="button" size="s" class="inline-flex items-center gap-2" (click)="criarInstanciaWhatsapp()" [attr.disabled]="waCriandoInstancia()">
                   @if (waCriandoInstancia()) {
                     <span class="btn-spinner" aria-hidden="true"></span>
                   } @else {
                     <span class="material-symbols-outlined text-base">bolt</span>
                   }
                   {{ waCriandoInstancia() ? 'Criando…' : 'Criar instância' }}
-                </button>
+                </nord-button>
               </div>
-            </z-card>
+            </g-card>
           } @else {
             @if (waTokenExibicaoUnica()) {
-              <z-card class="section-card section-card--token mb-4 gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
+              <g-card class="section-card section-card--token mb-4 gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
                 <div class="section-header">
                   <div class="icon-wrap icon-wrap--token"><span class="material-symbols-outlined">key</span></div>
                   <span class="section-title">Token da instância (guarde agora)</span>
@@ -705,11 +672,11 @@
                 <div class="section-body">
                   <p class="mb-2 text-xs text-muted-foreground">Este valor não será mostrado novamente nesta tela.</p>
                   <code class="config-code-block">{{ waTokenExibicaoUnica() }}</code>
-                  <button type="button" z-button zType="outline" zSize="sm" (click)="copiarTextoWhatsapp(waTokenExibicaoUnica()!)">Copiar token</button>
+                  <nord-button type="button" variant="default" size="s" (click)="copiarTextoWhatsapp(waTokenExibicaoUnica()!)">Copiar token</nord-button>
                 </div>
-              </z-card>
+              </g-card>
             }
-            <z-card class="section-card mb-4 gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
+            <g-card class="section-card mb-4 gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
               <div class="section-header">
                 <div class="icon-wrap"><span class="material-symbols-outlined">info</span></div>
                 <span class="section-title">Status</span>
@@ -748,25 +715,20 @@
                 }
                 @if (!waSessaoAtiva) {
                   <div class="wa-status-action">
-                    <button
-                      type="button"
-                      z-button zType="outline" zSize="sm" class="inline-flex items-center gap-2"
-                      (click)="buscarQrWhatsapp()"
-                      [disabled]="waQrCarregando()"
-                    >
+                    <nord-button type="button" variant="default" size="s" class="inline-flex items-center gap-2" (click)="buscarQrWhatsapp()" [attr.disabled]="waQrCarregando()">
                       @if (waQrCarregando()) {
                         <span class="btn-spinner" aria-hidden="true"></span>
                       } @else {
                         <span class="material-symbols-outlined text-base">qr_code_2</span>
                       }
                       {{ waQrCarregando() ? 'Solicitando QR…' : 'Solicitar QR agora' }}
-                    </button>
+                    </nord-button>
                   </div>
                 }
               </div>
-            </z-card>
+            </g-card>
             @if (!waSessaoAtiva) {
-              <z-card class="section-card mb-4 gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
+              <g-card class="section-card mb-4 gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
                 <div class="section-header">
                   <div class="icon-wrap"><span class="material-symbols-outlined">link</span></div>
                   <span class="section-title">Conectar dispositivo</span>
@@ -777,29 +739,29 @@
                   </p>
                   <div class="field !mb-3">
                     <label for="wa-phone-conectar">Telefone (pareamento)</label>
-                    <input id="wa-phone-conectar" type="text" z-input zSize="sm" class="w-full" [(ngModel)]="waPhoneConectar" name="waPhoneConectar" placeholder="5511999999999" autocomplete="tel" />
+                    <input id="wa-phone-conectar" type="text" class="w-full" [(ngModel)]="waPhoneConectar" name="waPhoneConectar" placeholder="5511999999999" autocomplete="tel" />
                   </div>
                   <div class="field !mb-4">
                     <label for="wa-webhook">Webhook URL <span class="opt">opcional</span></label>
-                    <input id="wa-webhook" type="url" z-input zSize="sm" class="w-full" [(ngModel)]="waWebhookUrl" name="waWebhookUrl" placeholder="https://…" />
+                    <input id="wa-webhook" type="url" class="w-full" [(ngModel)]="waWebhookUrl" name="waWebhookUrl" placeholder="https://…" />
                   </div>
                   <div class="wa-actions-row">
-                    <button type="button" z-button zSize="sm" class="inline-flex items-center gap-2" (click)="iniciarConexaoWhatsapp()" [disabled]="waConectando()">
+                    <nord-button type="button" size="s" class="inline-flex items-center gap-2" (click)="iniciarConexaoWhatsapp()" [attr.disabled]="waConectando()">
                       @if (waConectando()) {
                         <span class="btn-spinner" aria-hidden="true"></span>
                       } @else {
                         <span class="material-symbols-outlined text-base">power_settings_new</span>
                       }
                       {{ waConectando() ? 'Iniciando…' : 'Iniciar conexão' }}
-                    </button>
-                    <button type="button" z-button zType="outline" zSize="sm" class="inline-flex items-center gap-2" (click)="buscarQrWhatsapp()" [disabled]="waQrCarregando()">
+                    </nord-button>
+                    <nord-button type="button" variant="default" size="s" class="inline-flex items-center gap-2" (click)="buscarQrWhatsapp()" [attr.disabled]="waQrCarregando()">
                       @if (waQrCarregando()) {
                         <span class="btn-spinner" aria-hidden="true"></span>
                       } @else {
                         <span class="material-symbols-outlined text-base">qr_code_2</span>
                       }
                       {{ waQrCarregando() ? 'Carregando…' : 'Obter QR Code' }}
-                    </button>
+                    </nord-button>
                   </div>
                   @if (waQrSrc()) {
                     <div class="wa-qr-block">
@@ -816,21 +778,21 @@
                   <p class="wa-qr-block__label">Pareamento por código (8 dígitos)</p>
                   <div class="field !mb-3">
                     <label for="wa-phone-pair">Telefone do aparelho</label>
-                    <input id="wa-phone-pair" type="text" z-input zSize="sm" class="w-full" [(ngModel)]="waPhonePair" name="waPhonePair" placeholder="5511999999999" autocomplete="tel" />
+                    <input id="wa-phone-pair" type="text" class="w-full" [(ngModel)]="waPhonePair" name="waPhonePair" placeholder="5511999999999" autocomplete="tel" />
                   </div>
-                  <button type="button" z-button zType="outline" zSize="sm" class="mb-3 inline-flex items-center gap-2" (click)="solicitarPairWhatsapp()" [disabled]="waPairCarregando()">
+                  <nord-button type="button" variant="default" size="s" class="mb-3 inline-flex items-center gap-2" (click)="solicitarPairWhatsapp()" [attr.disabled]="waPairCarregando()">
                     @if (waPairCarregando()) {
                       <span class="btn-spinner" aria-hidden="true"></span>
                     }
                     {{ waPairCarregando() ? 'Solicitando…' : 'Obter código de pareamento' }}
-                  </button>
+                  </nord-button>
                   @if (waPairingCode()) {
                     <p class="wa-pairing-code">{{ waPairingCode() }}</p>
                   }
                 </div>
-              </z-card>
+              </g-card>
             }
-            <z-card class="section-card mb-4 gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
+            <g-card class="section-card mb-4 gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
               <div class="section-header">
                 <div class="icon-wrap"><span class="material-symbols-outlined">send</span></div>
                 <span class="section-title">Mensagem de teste</span>
@@ -838,15 +800,15 @@
               <div class="section-body">
                 <div class="field !mb-3">
                   <label for="wa-test-phone">Número destino (DDI + DDD + número)</label>
-                  <input id="wa-test-phone" type="text" z-input zSize="sm" class="w-full" [(ngModel)]="waTestPhone" name="waTestPhone" placeholder="5511987654321" autocomplete="tel" />
+                  <input id="wa-test-phone" type="text" class="w-full" [(ngModel)]="waTestPhone" name="waTestPhone" placeholder="5511987654321" autocomplete="tel" />
                 </div>
                 <div class="field !mb-4">
                   <label for="wa-test-text">Texto <span class="opt">opcional</span></label>
-                  <textarea id="wa-test-text" z-input zSize="sm" class="w-full" rows="2" [(ngModel)]="waTestText" name="waTestText" placeholder="Mensagem de teste — Gestgo"></textarea>
+                  <textarea id="wa-test-text" class="w-full" rows="2" [(ngModel)]="waTestText" name="waTestText" placeholder="Mensagem de teste — Gestgo"></textarea>
                 </div>
                 <p class="m-0 text-xs text-muted-foreground">Use o botão "Enviar teste" no footer para disparar a mensagem.</p>
               </div>
-            </z-card>
+            </g-card>
           }
         }
         @if (showWhatsappStickyFooter) {
@@ -862,83 +824,63 @@
               }
             </div>
             <div class="footer-btns">
-              <a routerLink="/dashboard" z-button zType="outline" zSize="sm" class="inline-flex items-center gap-2 no-underline">
+              <a routerLink="/dashboard" class="inline-flex items-center gap-2 no-underline">
                 <span class="material-symbols-outlined text-base">close</span>
                 Cancelar
               </a>
               @if (waError() && !waState() && !waLoading()) {
-                <button type="button" z-button zSize="sm" class="inline-flex items-center gap-2" (click)="carregarWhatsapp()">
+                <nord-button type="button" size="s" class="inline-flex items-center gap-2" (click)="carregarWhatsapp()">
                   <span class="material-symbols-outlined text-base">refresh</span>
                   Tentar novamente
-                </button>
+                </nord-button>
               }
               @if (waState(); as wa) {
                 @if (!waLoading()) {
                 @if (wa.instance_configured) {
-                  <button type="button" z-button zType="outline" zSize="sm" class="inline-flex items-center gap-2" (click)="carregarWhatsapp()">
+                  <nord-button type="button" variant="default" size="s" class="inline-flex items-center gap-2" (click)="carregarWhatsapp()">
                     <span class="material-symbols-outlined text-base">sync</span>
                     Atualizar status
-                  </button>
+                  </nord-button>
                   @if (wa.connected === true || wa.logged_in === true) {
-                    <button
-                      type="button"
-                      z-button zType="outline" zSize="sm" class="inline-flex items-center gap-2"
-                      (click)="desconectarWhatsapp()"
-                      [disabled]="waDesconectando()"
-                    >
+                    <nord-button type="button" variant="default" size="s" class="inline-flex items-center gap-2" (click)="desconectarWhatsapp()" [attr.disabled]="waDesconectando()">
                       @if (waDesconectando()) {
                         <span class="btn-spinner" aria-hidden="true"></span>
                       } @else {
                         <span class="material-symbols-outlined text-base">link_off</span>
                       }
                       {{ waDesconectando() ? 'Desconectando…' : 'Desconectar sessão' }}
-                    </button>
+                    </nord-button>
                   }
                 }
                 @if (wa.server_configured && !wa.instance_configured) {
-                  <button
-                    type="button"
-                    z-button zSize="sm" class="inline-flex items-center gap-2"
-                    (click)="criarInstanciaWhatsapp()"
-                    [disabled]="waCriandoInstancia()"
-                  >
+                  <nord-button type="button" size="s" class="inline-flex items-center gap-2" (click)="criarInstanciaWhatsapp()" [attr.disabled]="waCriandoInstancia()">
                     @if (waCriandoInstancia()) {
                       <span class="btn-spinner" aria-hidden="true"></span>
                     } @else {
                       <span class="material-symbols-outlined text-base">bolt</span>
                     }
                     {{ waCriandoInstancia() ? 'Criando…' : 'Criar instância' }}
-                  </button>
+                  </nord-button>
                 }
                 @if (wa.instance_configured && waPodeEnviarTesteNoFooter) {
-                  <button
-                    type="button"
-                    z-button zSize="sm" class="inline-flex items-center gap-2"
-                    (click)="enviarTesteWhatsapp()"
-                    [disabled]="waTestEnviando()"
-                  >
+                  <nord-button type="button" size="s" class="inline-flex items-center gap-2" (click)="enviarTesteWhatsapp()" [attr.disabled]="waTestEnviando()">
                     @if (waTestEnviando()) {
                       <span class="btn-spinner" aria-hidden="true"></span>
                     } @else {
                       <span class="material-symbols-outlined text-base">send</span>
                     }
                     {{ waTestEnviando() ? 'Enviando…' : 'Enviar teste' }}
-                  </button>
+                  </nord-button>
                 }
                 @if (wa.instance_configured) {
-                  <button
-                    type="button"
-                    z-button zType="outline" zSize="sm" class="inline-flex items-center gap-2 text-destructive border-destructive/40 hover:text-destructive"
-                    (click)="removerIntegracaoWhatsapp()"
-                    [disabled]="waRemovendo()"
-                  >
+                  <nord-button type="button" variant="default" size="s" class="inline-flex items-center gap-2 text-destructive border-destructive/40 hover:text-destructive" (click)="removerIntegracaoWhatsapp()" [attr.disabled]="waRemovendo()">
                     @if (waRemovendo()) {
                       <span class="btn-spinner" aria-hidden="true"></span>
                     } @else {
                       <span class="material-symbols-outlined text-base">delete</span>
                     }
                     {{ waRemovendo() ? 'Removendo…' : 'Remover integração' }}
-                  </button>
+                  </nord-button>
                 }
                 }
               }
@@ -946,11 +888,11 @@
           </div>
         }
           </div>
-        </z-tab>
+        </g-tab>
         @if (canAddMultiEmpresa) {
-          <z-tab label="Empresas" icon="business_center">
+          <g-tab label="Empresas" icon="business_center">
             <div class="config-tab-panel">
-              <z-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
+              <g-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
                 <div class="section-header">
                   <div class="icon-wrap"><span class="material-symbols-outlined">business_center</span></div>
                   <span class="section-title">Empresas do grupo</span>
@@ -975,9 +917,9 @@
                   }
                   <a routerLink="/clinica/escolher" class="empresas-trocar-link">Ver lista para trocar de empresa →</a>
                 </div>
-              </z-card>
+              </g-card>
 
-              <z-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
+              <g-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
                 <div class="section-header">
                   <div class="icon-wrap"><span class="material-symbols-outlined">add_business</span></div>
                   <span class="section-title">Adicionar empresa ou filial</span>
@@ -989,8 +931,7 @@
                       id="nova-empresa-nome"
                       type="text"
                       [(ngModel)]="novaEmpresaNome"
-                      name="novaEmpresaNome"
-                      z-input zSize="sm" class="w-full"
+                      name="novaEmpresaNome" class="w-full"
                       maxlength="120"
                       placeholder="Ex.: Filial Centro"
                       autocomplete="organization"
@@ -1000,28 +941,23 @@
                   @if (erroNovaEmpresa()) {
                     <p class="mb-3 text-sm text-destructive">{{ erroNovaEmpresa() }}</p>
                   }
-                  <button
-                    type="button"
-                    z-button zSize="sm" class="inline-flex items-center gap-2"
-                    (click)="criarNovaEmpresa()"
-                    [disabled]="salvandoNovaEmpresa() || !novaEmpresaNome.trim()"
-                  >
+                  <nord-button type="button" size="s" class="inline-flex items-center gap-2" (click)="criarNovaEmpresa()" [attr.disabled]="salvandoNovaEmpresa() || !novaEmpresaNome.trim()">
                     @if (salvandoNovaEmpresa()) {
                       <span class="btn-spinner" aria-hidden="true"></span>
                     } @else {
                       <span class="material-symbols-outlined text-base">add_business</span>
                     }
                     {{ salvandoNovaEmpresa() ? 'Criando…' : 'Cadastrar nova empresa' }}
-                  </button>
+                  </nord-button>
                 </div>
-              </z-card>
+              </g-card>
             </div>
-          </z-tab>
+          </g-tab>
         }
-        <z-tab label="Logs" icon="history">
+        <g-tab label="Logs" icon="history">
           <div class="config-tab-panel">
             @if (logsLoading()) {
-              <z-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
+              <g-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
                 <div class="section-header">
                   <div class="icon-wrap"><span class="material-symbols-outlined">history</span></div>
                   <span class="section-title">Histórico de auditoria</span>
@@ -1029,9 +965,9 @@
                 <div class="section-body">
                   <zm-skeleton-list [rows]="6" />
                 </div>
-              </z-card>
+              </g-card>
             } @else {
-              <z-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
+              <g-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
                 <div class="section-header">
                   <div class="icon-wrap"><span class="material-symbols-outlined">history</span></div>
                   <div class="min-w-0">
@@ -1053,7 +989,7 @@
                 } @else {
                   <div class="section-body section-body--flush">
                     <div class="config-table-wrap zm-table-wrap">
-                      <table z-table zSize="compact" class="w-full text-sm">
+                      <table z-table class="w-full text-sm">
                         <thead z-table-header>
                           <tr z-table-row>
                             <th z-table-head>Data / Hora</th>
@@ -1089,11 +1025,11 @@
                     </div>
                   </div>
                 }
-              </z-card>
+              </g-card>
             }
           </div>
-        </z-tab>
-      </z-tab-group>
+        </g-tab>
+      </g-tab-group>
 
         @if (showStickyFooter) {
           <div class="sticky-footer-spacer" aria-hidden="true"></div>
@@ -1102,18 +1038,18 @@
           <div class="sticky-footer">
             <div class="text-xs text-muted-foreground">Alterações não salvas</div>
             <div class="footer-btns">
-              <a routerLink="/dashboard" z-button zType="outline" zSize="sm" class="inline-flex items-center gap-2 no-underline">
+              <a routerLink="/dashboard" class="inline-flex items-center gap-2 no-underline">
                 <span class="material-symbols-outlined text-base">close</span>
                 Cancelar
               </a>
-              <button type="submit" z-button zSize="sm" class="inline-flex items-center gap-2" [disabled]="salvando()">
+              <nord-button type="submit" size="s" class="inline-flex items-center gap-2" [attr.disabled]="salvando()">
                 @if (salvando()) {
                   <span class="btn-spinner" aria-hidden="true"></span>
                 } @else {
                   <span class="material-symbols-outlined text-base">save</span>
                 }
                 {{ salvando() ? 'Salvando…' : 'Salvar configurações' }}
-              </button>
+              </nord-button>
             </div>
           </div>
         }

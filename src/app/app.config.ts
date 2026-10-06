@@ -6,7 +6,7 @@ import { provideFlatpickrDefaults } from 'angularx-flatpickr';
 import { provideEnvironmentNgxMask } from 'ngx-mask';
 import { Portuguese } from 'flatpickr/dist/l10n/pt';
 
-import { provideZard } from '@/shared/core/provider/providezard';
+import { provideNord } from '@/shared/nord/provide-nord';
 import { routes } from './app.routes';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { errorHubInterceptor } from './core/interceptors/error-hub.interceptor';
@@ -22,7 +22,7 @@ export const appConfig: ApplicationConfig = {
   providers: [
     { provide: ErrorHandler, useClass: GlobalErrorHandler },
     { provide: IMAGE_LOADER, useValue: absoluteMediaImageLoader },
-    provideZard(),
+    provideNord(),
     provideZonelessChangeDetection(),
     provideRouter(routes),
     provideHttpClient(withInterceptors([authInterceptor, errorHubInterceptor])),
@@ -42,6 +42,5 @@ export const appConfig: ApplicationConfig = {
     provideServiceWorker('ngsw-worker.js', {
       enabled: !isDevMode(),
       registrationStrategy: 'registerWhenStable:5000',
-    }),
-  ],
+    })],
 };

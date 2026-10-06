@@ -19,15 +19,15 @@
           }
         }
 
-        <z-tab-group
-          class="emails-zard-tabs emails-zard-tabs--layout emails-zard-tabs--no-nav-rule w-full"
+        <g-tab-group
+          class="emails-gestgo-tabs emails-gestgo-tabs--layout emails-gestgo-tabs--no-nav-rule w-full"
           zNavWrapperClass="emails-tabs-bar border-b border-border bg-card"
           zNavClass="!mb-0 !border-0 !px-0 pt-2"
           [zShowArrow]="false"
         >
-          <z-tab label="Envio" icon="send">
+          <g-tab label="Envio" icon="send">
             <div class="emails-tab-panel">
-              <z-card class="emails-form-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
+              <g-card class="emails-form-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
                 <div class="section-header">
                   <div class="icon-wrap">
                     <span class="material-symbols-outlined">mail</span>
@@ -120,8 +120,6 @@
                         id="email_to"
                         [(ngModel)]="toEmail"
                         name="to_email"
-                        z-input
-                        zSize="sm"
                         class="w-full font-mono text-xs"
                         required
                         maxlength="255"
@@ -137,8 +135,6 @@
                         [(ngModel)]="toName"
                         (ngModelChange)="onToNameChange()"
                         name="to_name"
-                        z-input
-                        zSize="sm"
                         class="w-full"
                         maxlength="255"
                         placeholder="Nome do destinatário"
@@ -152,8 +148,6 @@
                         id="email_subject"
                         [(ngModel)]="subject"
                         name="subject"
-                        z-input
-                        zSize="sm"
                         class="w-full"
                         required
                         maxlength="255"
@@ -168,7 +162,6 @@
                         [(ngModel)]="body"
                         name="body"
                         rows="8"
-                        z-input
                         class="w-full text-sm"
                         required
                         maxlength="10000"
@@ -179,18 +172,18 @@
                   </div>
 
                   <div class="form-actions">
-                    <button type="submit" z-button zSize="sm" [zDisabled]="saving()" [zLoading]="saving()">
+                    <nord-button type="submit" size="s" [attr.disabled]="saving()" [attr.loading]="saving()">
                       {{ saving() ? 'Enviando…' : 'Enviar e-mail' }}
-                    </button>
+                    </nord-button>
                   </div>
                 </form>
-              </z-card>
+              </g-card>
             </div>
-          </z-tab>
+          </g-tab>
 
-          <z-tab label="Histórico" icon="history">
+          <g-tab label="Histórico" icon="history">
             <div class="emails-tab-panel">
-              <z-card class="gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
+              <g-card class="gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
                 <div class="section-header section-header--compact">
                   <div class="icon-wrap">
                     <span class="material-symbols-outlined">history</span>
@@ -207,7 +200,7 @@
                   </div>
                 } @else {
                   <div class="overflow-x-auto zm-table-wrap">
-                    <table z-table zSize="compact" class="text-xs">
+                    <table z-table class="text-xs">
                       <thead z-table-header>
                         <tr z-table-row>
                           <th z-table-head>Data</th>
@@ -224,7 +217,7 @@
                               {{ formatarData(email.sent_at ?? email.created_at) }}
                             </td>
                             <td z-table-cell>
-                              <z-badge zShape="pill" zType="secondary">{{ email.category_label }}</z-badge>
+                              <g-badge zShape="pill" zType="secondary">{{ email.category_label }}</g-badge>
                             </td>
                             <td z-table-cell>
                               <span class="zm-row-title">{{ destinatarioResumo(email) }}</span>
@@ -263,34 +256,22 @@
                     <div card-footer class="border-border flex items-center justify-between gap-3 border-t px-4 py-3">
                       <span class="text-muted-foreground text-xs">Página {{ currentPage() }} de {{ lastPage() }} ({{ total() }} registros)</span>
                       <div class="flex gap-2">
-                        <button
-                          z-button
-                          zType="outline"
-                          zSize="sm"
-                          type="button"
-                          [zDisabled]="currentPage() <= 1"
-                          (click)="goToPage(currentPage() - 1)"
-                        >
+                        <nord-button variant="default" size="s" type="button" [attr.disabled]="currentPage() <= 1" (click)="goToPage(currentPage() - 1)">
                           Anterior
-                        </button>
-                        <button
-                          z-button
-                          zType="outline"
-                          zSize="sm"
-                          type="button"
-                          [zDisabled]="currentPage() >= lastPage()"
+                        </nord-button>
+                        <nord-button variant="default" size="s" type="button" [attr.disabled]="currentPage()>= lastPage()"
                           (click)="goToPage(currentPage() + 1)"
                         >
                           Próxima
-                        </button>
+                        </nord-button>
                       </div>
                     </div>
                   }
                 }
-              </z-card>
+              </g-card>
             </div>
-          </z-tab>
-        </z-tab-group>
+          </g-tab>
+        </g-tab-group>
       </div>
     }
   }

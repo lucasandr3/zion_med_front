@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, input, ViewEncaps
 
 import type { ClassValue } from 'clsx';
 
-import { ZardCommandComponent } from '@/shared/components/command/command.component';
+import { GestgoCommandComponent } from '@/shared/components/command/command.component';
 import { commandSeparatorVariants } from '@/shared/components/command/command.variants';
 import { mergeClasses } from '@/shared/utils/merge-classes';
 
@@ -17,8 +17,8 @@ import { mergeClasses } from '@/shared/utils/merge-classes';
   encapsulation: ViewEncapsulation.None,
   exportAs: 'zCommandDivider',
 })
-export class ZardCommandDividerComponent {
-  private readonly commandComponent = inject(ZardCommandComponent, { optional: true });
+export class GestgoCommandDividerComponent {
+  private readonly commandComponent = inject(GestgoCommandComponent, { optional: true });
 
   readonly class = input<ClassValue>('');
 

@@ -1,14 +1,14 @@
-import { Component, OnInit, Signal, computed, inject, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, Signal, computed, inject, signal, ChangeDetectionStrategy, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { forkJoin } from 'rxjs';
-import { ZardCardComponent } from '@/shared/components/card/card.component';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
-import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
-import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
-import { ZardTableImports } from '@/shared/components/table';
-import { ZardTabComponent, ZardTabGroupComponent } from '@/shared/components/tabs';
-import { ZardComboboxComponent, type ZardComboboxGroup, type ZardComboboxOption } from '@/shared/components/combobox';
+import { GestgoCardComponent } from '@/shared/components/card/card.component';
+
+import { GestgoBadgeComponent } from '@/shared/components/badge/badge.component';
+import { NORD_FORM_IMPORTS } from '@/shared/nord';
+import { GestgoTableImports } from '@/shared/components/table';
+import { GestgoTabComponent, GestgoTabGroupComponent } from '@/shared/components/tabs';
+import { GestgoComboboxComponent, type GestgoComboboxGroup, type GestgoComboboxOption } from '@/shared/components/combobox';
 import {
   PlataformaService,
   PlatformManualEmail,
@@ -26,23 +26,23 @@ import {
 } from './plataforma-email-templates';
 
 @Component({
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'app-plataforma-emails',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { class: 'n-page n-page--flush' },
   imports: [
     FormsModule,
     RouterLink,
-    ZardCardComponent,
-    ZardButtonComponent,
-    ZardBadgeComponent,
-    ZardTabComponent,
-    ZardTabGroupComponent,
-    ZardComboboxComponent,
-    ...ZARD_FORM_CONTROL_IMPORTS,
-    ...ZardTableImports,
+    GestgoCardComponent,
+    GestgoBadgeComponent,
+    GestgoTabComponent,
+    GestgoTabGroupComponent,
+    GestgoComboboxComponent,
+    ...NORD_FORM_IMPORTS,
+    ...GestgoTableImports,
     ZmSkeletonListComponent,
-    ZmEmptyStateComponent,
-  ],
+    ZmEmptyStateComponent],
   templateUrl: './plataforma-emails.component.html',
   styleUrl: './plataforma-emails.component.css',
 })
@@ -93,14 +93,13 @@ export class PlataformaEmailsComponent implements OnInit {
     return Array.from(groups.entries()).map(([label, items]) => ({ label, items }));
   });
 
-  private readonly defaultCategoryOptions: ZardComboboxOption[] = [
+  private readonly defaultCategoryOptions: GestgoComboboxOption[] = [
     { value: 'contact', label: 'Contato' },
     { value: 'billing', label: 'Cobrança' },
     { value: 'general', label: 'Geral' },
-    { value: 'support', label: 'Suporte' },
-  ];
+    { value: 'support', label: 'Suporte' }];
 
-  readonly categoryOptions = computed((): ZardComboboxOption[] => {
+  readonly categoryOptions = computed((): GestgoComboboxOption[] => {
     const merged = new Map(this.defaultCategoryOptions.map((item) => [item.value, item]));
 
     (this.recipientsData()?.categories ?? []).forEach((item) => {
@@ -120,21 +119,19 @@ export class PlataformaEmailsComponent implements OnInit {
     () => Boolean(this.recipientsData()?.whatsapp_number?.trim())
   );
 
-  readonly templateOptions = computed((): ZardComboboxOption[] => {
+  readonly templateOptions = computed((): GestgoComboboxOption[] => {
     const filtered = PLATFORM_EMAIL_TEMPLATES.filter((item) => item.category === this.category);
 
     return [
       { value: '', label: 'Escrever do zero' },
-      ...filtered.map((item) => ({ value: item.id, label: item.label })),
-    ];
+      ...filtered.map((item) => ({ value: item.id, label: item.label }))];
   });
 
-  readonly recipientComboboxGroups = computed((): ZardComboboxGroup[] => {
-    const groups: ZardComboboxGroup[] = [
+  readonly recipientComboboxGroups = computed((): GestgoComboboxGroup[] => {
+    const groups: GestgoComboboxGroup[] = [
       {
         options: [{ value: this.customRecipientKey, label: 'E-mail personalizado' }],
-      },
-    ];
+      }];
 
     this.recipientGroups().forEach((group) => {
       groups.push({

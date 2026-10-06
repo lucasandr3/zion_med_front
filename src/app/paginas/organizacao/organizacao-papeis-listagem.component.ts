@@ -1,31 +1,22 @@
-import { Component, OnInit, inject, Signal, ChangeDetectionStrategy, signal } from '@angular/core';
+import { Component, OnInit, inject, Signal, ChangeDetectionStrategy, signal, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { OrganizationRolesService, OrganizationRoleListItem } from '../../core/services/organization-roles.service';
 import { LoadingService } from '../../shared/services/loading.service';
-import { ZmSkeletonPermissoesListagemComponent } from '../../shared/components/skeletons';
-import { ZmEmptyStateComponent, ZmPageBackLinkComponent } from '../../shared/components/ui';
+import { ListSkeletonComponent } from '../../shared/components/list-skeleton/list-skeleton.component';
+import { ZmPageBackLinkComponent } from '../../shared/components/ui';
 import { ToastService } from '../../core/services/toast.service';
 import { ConfirmDialogService } from '../../core/services/confirm-dialog.service';
-import { ZardTooltipImports } from '@/shared/components/tooltip';
-import { ZardCardComponent } from '@/shared/components/card/card.component';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
-import { ZardBadgeComponent } from '@/shared/components/badge';
-import { ZardTableImports } from '@/shared/components/table';
 
 @Component({
   selector: 'app-organizacao-papeis-listagem',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  host: { class: 'n-page-list' },
   imports: [
-    ...ZardTableImports,
     RouterLink,
-    ZmSkeletonPermissoesListagemComponent,
-    ZmEmptyStateComponent,
+    ListSkeletonComponent,
     ZmPageBackLinkComponent,
-    ...ZardTooltipImports,
-    ZardCardComponent,
-    ZardButtonComponent,
-    ZardBadgeComponent,
   ],
   templateUrl: './organizacao-papeis-listagem.component.html',
 })

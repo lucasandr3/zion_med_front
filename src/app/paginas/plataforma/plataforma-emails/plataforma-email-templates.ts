@@ -258,8 +258,7 @@ Passando para saber se está tudo certo com o uso do {{produto}} em {{empresa}}.
 Por favor, responda este e-mail se houver algo em que possamos ajudar.
 
 Obrigado por escolher o {{produto}}. Estamos à disposição para ajudar!`,
-  },
-];
+  }];
 
 export interface PlatformEmailTemplateContext {
   nome?: string | null;

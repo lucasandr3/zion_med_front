@@ -12,7 +12,7 @@
   min-height: var(--control-height);
 }
 
-.templates-editar z-checkbox {
+.templates-editar g-checkbox {
   align-items: flex-start;
 }
 

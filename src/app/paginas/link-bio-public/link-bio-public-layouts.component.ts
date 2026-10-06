@@ -293,14 +293,12 @@ export class LinkBioPublicLayoutsComponent {
       return [
         { title: specs[0]!, layout: 'sm' },
         { title: specs[1]!, layout: 'sm' },
-        { title: specs[2]!, layout: 'wide' },
-      ];
+        { title: specs[2]!, layout: 'wide' }];
     }
     if (specs.length === 2) {
       return [
         { title: specs[0]!, layout: 'sm' },
-        { title: specs[1]!, layout: 'sm' },
-      ];
+        { title: specs[1]!, layout: 'sm' }];
     }
     if (specs.length === 1) {
       return [{ title: specs[0]!, layout: 'wide' }];
@@ -308,8 +306,7 @@ export class LinkBioPublicLayoutsComponent {
     return [
       { title: 'Estética dental', layout: 'sm' },
       { title: 'Implantes', layout: 'sm' },
-      { title: 'Ortodontia', layout: 'wide' },
-    ];
+      { title: 'Ortodontia', layout: 'wide' }];
   }
 
   /** Modalidades de atendimento (Online / Presencial) — modelo 4. */
@@ -335,8 +332,7 @@ export class LinkBioPublicLayoutsComponent {
         subtitle: 'Via videochamada',
         available: true,
         icon: 'computer',
-      },
-    ];
+      }];
   }
 
   private dentalModalityIcon(title: string, index: number): 'place' | 'computer' {

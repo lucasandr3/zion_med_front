@@ -1,12 +1,12 @@
-import { Component, OnDestroy, OnInit, inject, Signal, ChangeDetectionStrategy, signal } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject, Signal, ChangeDetectionStrategy, signal, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NovidadesService, ReleaseNote, ReleaseNoteItem, ReleaseNoteItemType } from '../../../core/services/novidades.service';
 import { PlataformaHeaderService } from '../../../core/services/plataforma-header.service';
 import { LoadingService } from '../../../shared/services/loading.service';
 import { ZmSkeletonListComponent } from '../../../shared/components/skeletons';
 import { ZmEmptyStateComponent } from '../../../shared/components/ui';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
-import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
+
+import { GestgoBadgeComponent } from '@/shared/components/badge/badge.component';
 import { ToastService } from '../../../core/services/toast.service';
 import { ConfirmDialogService } from '../../../core/services/confirm-dialog.service';
 
@@ -16,6 +16,7 @@ interface FormItem {
 }
 
 @Component({
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'app-plataforma-novidades',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -23,9 +24,7 @@ interface FormItem {
     FormsModule,
     ZmSkeletonListComponent,
     ZmEmptyStateComponent,
-    ZardButtonComponent,
-    ZardBadgeComponent,
-  ],
+    GestgoBadgeComponent],
   templateUrl: './plataforma-novidades.component.html',
   styleUrl: './plataforma-novidades.component.css',
 })
@@ -49,8 +48,7 @@ export class PlataformaNovidadesComponent implements OnInit, OnDestroy {
   readonly tipos: { value: ReleaseNoteItemType; label: string }[] = [
     { value: 'feature', label: 'Novidade' },
     { value: 'improvement', label: 'Melhoria' },
-    { value: 'fix', label: 'Correção' },
-  ];
+    { value: 'fix', label: 'Correção' }];
 
   private novidadesService = inject(NovidadesService);
   private headerService = inject(PlataformaHeaderService);

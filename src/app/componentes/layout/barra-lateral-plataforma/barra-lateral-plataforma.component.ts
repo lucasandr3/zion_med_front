@@ -7,6 +7,7 @@ import {
   ChangeDetectionStrategy,
   effect,
   signal,
+  CUSTOM_ELEMENTS_SCHEMA,
 } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
@@ -14,27 +15,21 @@ import { AuthService } from '../../../core/services/auth.service';
 import { resolveSidebarLogoSrc } from '../../../core/utils/sidebar-logo.util';
 import { SidebarMobileService } from '../../../core/services/sidebar-mobile.service';
 import { ShellSidebarCollapseService } from '../../../core/services/shell-sidebar-collapse.service';
-import { ZardTooltipImports } from '@/shared/components/tooltip';
-import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
-import { ZardMenuLabelComponent } from '../../../shared/components/menu/menu-label.component';
-import { ZardMenuImports } from '../../../shared/components/menu/menu.imports';
-import { ZardAvatarComponent } from '@/shared/components/avatar/avatar.component';
+
+import { GestgoBadgeComponent } from '@/shared/components/badge/badge.component';
+
+import { GestgoAvatarComponent } from '@/shared/components/avatar/avatar.component';
 
 @Component({
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'app-barra-lateral-plataforma',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     RouterLink,
     RouterLinkActive,
-    ...ZardTooltipImports,
-    ZardBadgeComponent,
-    ZardButtonComponent,
-    ZardMenuLabelComponent,
-    ...ZardMenuImports,
-    ZardAvatarComponent,
-  ],
+    GestgoBadgeComponent,
+    GestgoAvatarComponent],
   templateUrl: './barra-lateral-plataforma.component.html',
   styleUrl: './barra-lateral-plataforma.component.css',
 })

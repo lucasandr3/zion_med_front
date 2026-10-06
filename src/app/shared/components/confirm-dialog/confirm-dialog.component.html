@@ -1,0 +1,28 @@
+@if (dialog.state(); as s) {
+  <nord-modal #modal size="s" aria-labelledby="confirm-dialog-title" (close)="onClose()">
+    <h2 slot="header" id="confirm-dialog-title">{{ s.title }}</h2>
+
+    <p class="n-reset n-muted confirm-dialog__message">
+      @if (s.hasParts) {
+        {{ s.messageBefore }}@if (s.emphasis) {
+          <strong class="confirm-dialog__emphasis">{{ s.emphasis }}</strong>
+        }{{ s.messageAfter }}
+      } @else {
+        {{ s.message }}
+      }
+    </p>
+
+    <nord-button-group slot="footer" variant="spaced">
+      <nord-button expand type="button" (click)="onCancel()">{{ s.cancelLabel }}</nord-button>
+      @if (s.variant === 'danger') {
+        <nord-button expand type="button" variant="danger" autofocus (click)="onConfirm()">
+          {{ s.confirmLabel }}
+        </nord-button>
+      } @else {
+        <nord-button expand type="button" variant="primary" autofocus (click)="onConfirm()">
+          {{ s.confirmLabel }}
+        </nord-button>
+      }
+    </nord-button-group>
+  </nord-modal>
+}

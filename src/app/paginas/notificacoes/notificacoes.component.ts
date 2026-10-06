@@ -1,10 +1,10 @@
-import { Component, OnInit, inject, Signal, ChangeDetectionStrategy, signal } from '@angular/core';
+import { Component, OnInit, inject, Signal, ChangeDetectionStrategy, signal, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { NotificacoesService, Notificacao } from '../../core/services/notificacoes.service';
 import { LoadingService } from '../../shared/services/loading.service';
 import { ZmSkeletonListComponent } from '../../shared/components/skeletons';
 import { ZmEmptyStateComponent } from '../../shared/components/ui';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
+
 import { ToastService } from '../../core/services/toast.service';
 import { ConfirmDialogService } from '../../core/services/confirm-dialog.service';
 
@@ -18,10 +18,12 @@ const LIMITE_INCREMENTO = 15;
 const ORDEM_GRUPOS = ['Hoje', 'Esta semana', 'Este mês', 'Anteriores'] as const;
 
 @Component({
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'app-pagina-notificacoes',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ZmSkeletonListComponent, ZmEmptyStateComponent, RouterLink, ZardButtonComponent],
+  host: { class: 'n-page' },
+  imports: [ZmSkeletonListComponent, ZmEmptyStateComponent, RouterLink],
   templateUrl: './notificacoes.component.html',
   styleUrl: './notificacoes.component.css',
 })

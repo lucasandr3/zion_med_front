@@ -8,8 +8,7 @@ export const CLINICAL_STEP_KINDS = [
   'declaracoes',
   'compreensao',
   'privacidade_lgpd',
-  'assinaturas',
-] as const;
+  'assinaturas'] as const;
 
 export type ClinicalStepKind = (typeof CLINICAL_STEP_KINDS)[number];
 
@@ -28,8 +27,7 @@ export const CLINICAL_STEPS_REQUIRING_TERM_SCROLL: ReadonlySet<ClinicalStepKind>
   'descricao_procedimento',
   'riscos_beneficios',
   'alternativas',
-  'declaracoes',
-]);
+  'declaracoes']);
 
 export function clinicalStepLabel(kind: string | null | undefined, fallback?: string): string {
   if (kind && kind in CLINICAL_STEP_LABELS) {

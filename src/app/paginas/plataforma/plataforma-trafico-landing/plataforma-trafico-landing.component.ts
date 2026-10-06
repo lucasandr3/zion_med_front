@@ -1,6 +1,6 @@
 import { Component, OnInit, inject, Signal, ChangeDetectionStrategy, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { ZardCardComponent } from '@/shared/components/card/card.component';
+import { GestgoCardComponent } from '@/shared/components/card/card.component';
 import {
   LandingAnalyticsData,
   LandingAnalyticsService,
@@ -12,7 +12,7 @@ import { ZmSkeletonListComponent } from '../../../shared/components/skeletons';
   selector: 'app-plataforma-trafico-landing',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, ZardCardComponent, ZmSkeletonListComponent],
+  imports: [RouterLink, GestgoCardComponent, ZmSkeletonListComponent],
   templateUrl: './plataforma-trafico-landing.component.html',
   styleUrl: './plataforma-trafico-landing.component.css',
 })
@@ -79,7 +79,7 @@ export class PlataformaTraficoLandingComponent implements OnInit {
     const entries = Object.entries(source);
     if (!entries.length) return [];
     entries.sort(([a], [b]) => a.localeCompare(b));
-    const counts = entries.map(([, v]) => Number(v) || 0);
+    const counts = entries.map(([ v]) => Number(v) || 0);
     const maxVal = Math.max(...counts);
     const dayLabels = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
     return entries.map(([date, countVal]) => {

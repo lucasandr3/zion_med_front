@@ -15,4 +15,4 @@ export const comboboxVariants = cva('', {
   },
 });
 
-export type ZardComboboxWidthVariants = NonNullable<VariantProps<typeof comboboxVariants>['zWidth']>;
+export type GestgoComboboxWidthVariants = NonNullable<VariantProps<typeof comboboxVariants>['zWidth']>;

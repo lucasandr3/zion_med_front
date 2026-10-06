@@ -1,172 +1,122 @@
-<button
-  type="button"
+<nord-button
   id="login-dark-btn"
-  z-button
-  zType="outline"
-  zSize="icon-sm"
+  type="button"
+  variant="plain"
+  square
+  size="s"
   (click)="alternarTema()"
   aria-label="Alternar modo escuro"
-  zTooltip="Alternar modo escuro"
 >
-  <span class="material-symbols-outlined text-[17px]" [textContent]="iconeTema()"></span>
-</button>
+  <nord-icon [name]="iconeTema()" size="s"></nord-icon>
+</nord-button>
 
 <div class="login-page">
-  <aside class="login-aside" aria-label="Sobre o Gestgo">
-    <div class="login-aside-mesh" aria-hidden="true"></div>
-    <div class="login-aside-inner">
-      <div class="login-brand-logo">
-        <div class="login-brand-logo-icon">
-          <img src="assets/logo/logo.png" alt="Gestgo">
-        </div>
-        <span class="login-brand-logo-name">Gestgo</span>
+  <aside class="login-brand" aria-label="Sobre o Gestgo">
+    <header class="login-brand__header">
+      <div class="login-brand__mark">
+        <img src="assets/logo/logo.png" alt="" aria-hidden="true">
       </div>
-
-      <div class="login-brand-text">
-        <p class="login-kicker">Fichas e consentimentos digitais</p>
-        <h1>
-          Tudo preenchido<br>
-          <span class="hl">antes do paciente chegar.</span>
-        </h1>
-        <p class="login-lead">
-          Clientes recebem o link, preenchem e assinam. Você recebe protocolo, PDF e histórico organizado.
-        </p>
-
-        <ul class="login-points">
-          <li>
-            <span class="login-point-icon" aria-hidden="true">
-              <span class="material-symbols-outlined">edit_document</span>
-            </span>
-            <span class="login-point-copy">
-              <strong>Preenchimento antecipado</strong>
-              <span>A ficha chega completa, antes da consulta.</span>
-            </span>
-          </li>
-          <li>
-            <span class="login-point-icon" aria-hidden="true">
-              <span class="material-symbols-outlined">draw</span>
-            </span>
-            <span class="login-point-copy">
-              <strong>Assinatura com evidências</strong>
-              <span>Registro eletrônico pronto para auditoria.</span>
-            </span>
-          </li>
-          <li>
-            <span class="login-point-icon" aria-hidden="true">
-              <span class="material-symbols-outlined">picture_as_pdf</span>
-            </span>
-            <span class="login-point-copy">
-              <strong>PDF e protocolo automáticos</strong>
-              <span>Documento e número gerados sem retrabalho.</span>
-            </span>
-          </li>
-        </ul>
+      <div class="login-brand__identity">
+        <span class="login-brand__product">Gestgo</span>
+        <span class="login-brand__tagline">Fichas e consentimentos</span>
       </div>
+    </header>
+
+    <div class="login-brand__body">
+      <p class="login-brand__eyebrow">Fichas e consentimentos digitais</p>
+      <h2 class="login-brand__title">
+        Tudo preenchido antes do paciente chegar.
+        <em>Link, assinatura e protocolo.</em>
+      </h2>
+      <p class="login-brand__text">
+        Clientes recebem o link, preenchem e assinam. Você recebe protocolo, PDF e histórico organizado.
+      </p>
     </div>
-    <p class="login-brand-footer">© {{ ano }} Gestgo. Todos os direitos reservados.</p>
+
+    <footer class="login-brand__footer">
+      <span>Copyright © {{ ano }} Gestgo</span>
+      <span class="login-brand__footer-dot" aria-hidden="true"></span>
+      <span>Fichas e consentimentos</span>
+    </footer>
   </aside>
 
-  <section class="login-panel">
-    <div class="login-form-stack">
-      <div class="login-mobile-brand">
-        <div class="login-brand-logo">
-          <div class="login-brand-logo-icon">
-            <img src="assets/logo/logo.png" alt="">
-          </div>
-          <span class="login-brand-logo-name">Gestgo</span>
+  <main class="login-panel">
+    <div class="login-panel__inner">
+      <div class="login-panel__brand-mobile">
+        <div class="login-panel__mark-mobile">
+          <img src="assets/logo/logo.png" alt="" aria-hidden="true">
+        </div>
+        <div class="login-panel__brand-text">
+          <span class="login-panel__brand-name">Gestgo</span>
+          <span class="login-panel__brand-sub">Fichas e consentimentos</span>
         </div>
       </div>
 
-      <div class="login-card">
-        <div class="login-card-inner">
-          <h2 class="login-card-title">Bem-vindo de volta</h2>
-          <p class="login-card-subtitle">Acesse o painel da sua clínica.</p>
+      <header class="login-panel__header">
+        <h1>Acesse sua conta</h1>
+        <p>Digite suas credenciais de acesso para entrar.</p>
+      </header>
 
-          @if (estadoErro()) {
-            <p class="login-error" role="alert">{{ mensagemErro() }}</p>
-          }
+      <form class="login-form" (ngSubmit)="enviar()" #formLogin="ngForm" novalidate>
+        @if (estadoErro()) {
+          <p class="login-error" role="alert">{{ mensagemErro() }}</p>
+        }
 
-          <form (ngSubmit)="enviar()" class="login-form" #formLogin="ngForm">
-            <div class="login-field">
-              <div class="login-label-row">
-                <label class="login-label" for="login-email">E-mail</label>
-              </div>
-              <div class="login-input-wrap group">
-                <span class="material-symbols-outlined login-input-icon-l">mail</span>
-                <input
-                  type="email"
-                  name="email"
-                  id="login-email"
-                  [(ngModel)]="email"
-                  z-input
-                  class="w-full pl-9"
-                  [zStatus]="estadoErro() ? 'error' : undefined"
-                  placeholder="seu@email.com.br"
-                  required
-                  autofocus
-                  autocomplete="email"
-                >
-              </div>
-            </div>
+        <nord-input
+          class="login-field"
+          label="E-mail"
+          type="email"
+          name="email"
+          id="login-email"
+          expand
+          required
+          autocomplete="username"
+          placeholder="seu@email.com.br"
+          [value]="email"
+          (input)="onEmailInput($event)"
+        ></nord-input>
 
-            <div class="login-field">
-              <div class="login-label-row">
-                <label class="login-label" for="login-password">Senha</label>
-                <a routerLink="/esqueci-a-senha" class="login-forgot">Esqueceu a senha?</a>
-              </div>
-              <div class="login-input-wrap group">
-                <span class="material-symbols-outlined login-input-icon-l">lock</span>
-                <input
-                  [type]="mostrarSenha() ? 'text' : 'password'"
-                  name="password"
-                  id="login-password"
-                  [(ngModel)]="senha"
-                  z-input
-                  class="w-full pl-9 pr-9"
-                  [zStatus]="estadoErro() ? 'error' : undefined"
-                  placeholder="••••••••"
-                  required
-                  autocomplete="current-password"
-                >
-                <button
-                  type="button"
-                  z-button
-                  zType="ghost"
-                  zSize="icon-sm"
-                  class="login-input-toggle"
-                  (click)="mostrarSenha.set(!mostrarSenha())"
-                  aria-label="Mostrar ou ocultar senha"
-                  zTooltip="Mostrar ou ocultar senha"
-                >
-                  <span class="material-symbols-outlined text-lg">{{ mostrarSenha() ? 'visibility_off' : 'visibility' }}</span>
-                </button>
-              </div>
-            </div>
+        <nord-input
+          class="login-field"
+          label="Senha"
+          type="password"
+          name="password"
+          id="login-password"
+          expand
+          required
+          autocomplete="current-password"
+          placeholder="••••••••"
+          [value]="senha"
+          (input)="onSenhaInput($event)"
+        ></nord-input>
 
-            <z-checkbox class="login-remember" name="remember" [(ngModel)]="lembrar">Lembrar neste dispositivo</z-checkbox>
-
-            <button
-              type="submit"
-              z-button
-              zFull
-              class="login-submit-btn inline-flex items-center gap-2"
-              [zLoading]="estadoCarregando()"
-              [zDisabled]="estadoCarregando()"
-            >
-              @if (!estadoCarregando()) {
-                <span>Acessar</span>
-                <span class="material-symbols-outlined login-submit-icon">arrow_forward</span>
-              } @else {
-                <span>Entrando…</span>
-              }
-            </button>
-
-            <p class="login-register">
-              Ainda não tem conta? <a href="https://gestgo.com.br/comece/">Criar conta grátis</a>
-            </p>
-          </form>
+        <div class="login-options">
+          <nord-checkbox
+            name="remember"
+            label="Lembrar neste dispositivo"
+            [checked]="lembrar"
+            (change)="onLembrarChange($event)"
+          ></nord-checkbox>
+          <a routerLink="/esqueci-a-senha" class="login-link">Esqueceu a senha?</a>
         </div>
-      </div>
+
+        <nord-button
+          class="login-submit"
+          variant="primary"
+          type="submit"
+          expand
+          [attr.loading]="estadoCarregando() || null"
+          [attr.disabled]="estadoCarregando() || null"
+        >
+          <nord-icon name="interface-login" size="s"></nord-icon>
+          {{ estadoCarregando() ? 'Entrando…' : 'Entrar' }}
+        </nord-button>
+      </form>
+
+      <p class="login-register">
+        Ainda não tem conta?
+        <a href="https://gestgo.com.br/comece/">Criar conta grátis</a>
+      </p>
     </div>
-  </section>
+  </main>
 </div>

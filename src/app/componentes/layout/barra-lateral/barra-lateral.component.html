@@ -23,7 +23,7 @@
     @for (section of navSections; track section.id) {
       @if (secaoVisivel(section)) {
         @if (section.label) {
-          <span z-menu-label class="sidebar-label !py-2 !text-[0.65rem] !font-bold !uppercase !tracking-[0.09em]"
+          <span  class="sidebar-label !py-2 !text-[0.65rem] !font-bold !uppercase !tracking-[0.09em]"
                 [class.mt-5]="section.id === 'admin'"
                 [class.mb-2]="section.id === 'admin'">
             {{ section.label }}
@@ -32,24 +32,17 @@
 
         @for (item of section.items; track item.route) {
           @if (itemVisivel(item)) {
-            <a [routerLink]="item.route"
-               routerLinkActive="router-link-active"
-               [routerLinkActiveOptions]="{ exact: item.exact ?? false }"
-               z-button
-               zType="ghost"
-               class="shell-sidebar-nav relative w-full justify-start gap-2 px-2.5 font-normal text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground [&.router-link-active]:border-none [&.router-link-active]:bg-sidebar-primary/14 [&.router-link-active]:font-semibold [&.router-link-active]:text-sidebar-primary"
-               [zTooltip]="tooltipQuandoColapsada(item.label)"
-            >
+            <a [routerLink]="item.route" routerLinkActive="router-link-active" [routerLinkActiveOptions]="{ exact: item.exact ?? false }" class="shell-sidebar-nav relative w-full justify-start gap-2 px-2.5 font-normal text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground [&.router-link-active]:border-none [&.router-link-active]:bg-sidebar-primary/14 [&.router-link-active]:font-semibold [&.router-link-active]:text-sidebar-primary">
               <span class="material-symbols-outlined shrink-0 text-[19px]">{{ item.icon }}</span>
               <span class="sidebar-label">{{ item.label }}</span>
               @if (item.badge === 'trial' && badgeTrialLabel(item); as trialLabel) {
-                <z-badge zShape="pill" class="sidebar-label ml-auto !h-[18px] !min-w-[18px] !px-1.5 !py-0 !text-[0.6rem] !leading-none">
+                <g-badge zShape="pill" class="sidebar-label ml-auto !h-[18px] !min-w-[18px] !px-1.5 !py-0 !text-[0.6rem] !leading-none">
                   {{ trialLabel }}
-                </z-badge>
+                </g-badge>
               } @else if (item.badge && item.badge !== 'trial' && badgeCount(item) > 0) {
-                <z-badge zShape="pill" class="sidebar-label ml-auto !h-[18px] !min-w-[18px] !px-1 !py-0 !text-[0.6rem] !leading-none">
+                <g-badge zShape="pill" class="sidebar-label ml-auto !h-[18px] !min-w-[18px] !px-1 !py-0 !text-[0.6rem] !leading-none">
                   {{ badgeCount(item) > 99 ? '99+' : badgeCount(item) }}
-                </z-badge>
+                </g-badge>
               }
             </a>
           }
@@ -59,18 +52,14 @@
   </nav>
 
   <div class="shrink-0 overflow-visible border-t border-border px-2 py-2">
-    <div class="relative">
+    <nord-dropdown style="--n-dropdown-size: 16rem">
       <button
-        z-menu
         type="button"
-        [zMenuTriggerFor]="usuarioSidebarMenuTpl"
-        zPlacement="topLeft"
+        slot="toggle"
         class="sidebar-user-trigger shell-profile-chip"
-        [zTooltip]="tooltipQuandoColapsada('Menu do usuário')"
         aria-label="Menu do usuário"
       >
-        <z-avatar
-          zSize="sm"
+        <g-avatar
           zShape="circle"
           [zFallback]="iniciaisUsuario()"
           [zAlt]="nomeUsuario()"
@@ -83,50 +72,40 @@
         <span class="sidebar-label material-symbols-outlined shrink-0 text-base text-muted-foreground">unfold_more</span>
       </button>
 
-      <ng-template #usuarioSidebarMenuTpl>
-        <div z-menu-content class="sidebar-shell-menu-popover rounded-lg border border-border bg-popover p-1.5 text-popover-foreground">
-          @if (exibirTrocarEmpresa()) {
-            <a
-              z-menu-item
-              routerLink="/clinica/escolher"
-              class="gap-2 text-inherit no-underline"
-            >
-              <span class="material-symbols-outlined shrink-0 text-base" aria-hidden="true">swap_horiz</span>
-              Trocar empresa
-            </a>
-          }
-          <a
-            z-menu-item
-            routerLink="/conta/perfil"
-            class="gap-2 text-inherit no-underline"
-          >
-            <span class="material-symbols-outlined shrink-0 text-base" aria-hidden="true">person</span>
-            Meu perfil
-          </a>
-          @if (ehAdminPlataforma()) {
-            <a z-menu-item routerLink="/plataforma" class="gap-2 text-inherit no-underline">
-              <span class="material-symbols-outlined shrink-0 text-base" aria-hidden="true">admin_panel_settings</span>
-              Admin da plataforma
-            </a>
-          }
-          @if (podeGerenciarClinica()) {
-            <a z-menu-item routerLink="/clinica/configuracoes" class="gap-2 text-inherit no-underline" [zTooltip]="tooltipQuandoColapsada('Empresa')">
-              <span class="material-symbols-outlined shrink-0 text-base" aria-hidden="true">business</span>
-              Empresa
-            </a>
-          }
-          @if (podeVerBilling) {
-            <a z-menu-item routerLink="/assinatura" class="gap-2 text-inherit no-underline">
-              <span class="material-symbols-outlined shrink-0 text-base" aria-hidden="true">credit_card</span>
-              Assinatura
-            </a>
-          }
-          <button type="button" z-menu-item zType="destructive" class="w-full gap-2" (click)="sair()">
-            <span class="material-symbols-outlined shrink-0 text-base" aria-hidden="true">logout</span>
-            Sair
-          </button>
-        </div>
-      </ng-template>
-    </div>
+      <nord-dropdown-group>
+        @if (exibirTrocarEmpresa()) {
+          <nord-dropdown-item routerLink="/clinica/escolher">
+            <span class="material-symbols-outlined shrink-0 text-base" aria-hidden="true">swap_horiz</span>
+            Trocar empresa
+          </nord-dropdown-item>
+        }
+        <nord-dropdown-item routerLink="/conta/perfil">
+          <span class="material-symbols-outlined shrink-0 text-base" aria-hidden="true">person</span>
+          Meu perfil
+        </nord-dropdown-item>
+        @if (ehAdminPlataforma()) {
+          <nord-dropdown-item routerLink="/plataforma">
+            <span class="material-symbols-outlined shrink-0 text-base" aria-hidden="true">admin_panel_settings</span>
+            Admin da plataforma
+          </nord-dropdown-item>
+        }
+        @if (podeGerenciarClinica()) {
+          <nord-dropdown-item routerLink="/clinica/configuracoes">
+            <span class="material-symbols-outlined shrink-0 text-base" aria-hidden="true">business</span>
+            Empresa
+          </nord-dropdown-item>
+        }
+        @if (podeVerBilling) {
+          <nord-dropdown-item routerLink="/assinatura">
+            <span class="material-symbols-outlined shrink-0 text-base" aria-hidden="true">credit_card</span>
+            Assinatura
+          </nord-dropdown-item>
+        }
+        <nord-dropdown-item (click)="sair()">
+          <span class="material-symbols-outlined shrink-0 text-base" aria-hidden="true">logout</span>
+          Sair
+        </nord-dropdown-item>
+      </nord-dropdown-group>
+    </nord-dropdown>
   </div>
 </aside>

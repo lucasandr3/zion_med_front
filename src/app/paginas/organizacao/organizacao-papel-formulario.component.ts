@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, Signal } from '@angular/core';
+import { Component, OnInit, inject, Signal, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { forkJoin } from 'rxjs';
@@ -10,20 +10,23 @@ import {
 import { LoadingService } from '../../shared/services/loading.service';
 import { ZmSkeletonPermissaoFormularioComponent } from '../../shared/components/skeletons';
 import { ToastService } from '../../core/services/toast.service';
-import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
-import { ZardCardComponent } from '@/shared/components/card/card.component';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
+import { NORD_FORM_IMPORTS } from '@/shared/nord';
+import { GestgoCardComponent } from '@/shared/components/card/card.component';
+import { ZmPageBackLinkComponent } from '../../shared/components/ui';
+
 
 @Component({
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'app-organizacao-papel-formulario',
   standalone: true,
+  host: { class: 'n-page' },
   imports: [
-    ...ZARD_FORM_CONTROL_IMPORTS,
+    ...NORD_FORM_IMPORTS,
     RouterLink,
     FormsModule,
     ZmSkeletonPermissaoFormularioComponent,
-    ZardCardComponent,
-    ZardButtonComponent,
+    GestgoCardComponent,
+    ZmPageBackLinkComponent,
   ],
   templateUrl: './organizacao-papel-formulario.component.html',
   styleUrl: './organizacao-papel-formulario.component.css',

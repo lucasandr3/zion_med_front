@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, inject } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, inject, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
@@ -14,14 +14,15 @@ import {
   LINK_BIO_MODEL_SUBTITLES,
   LINK_BIO_PREVIEW_MODEL_IDS,
 } from './link-bio-model-labels.util';
-import { ZardBadgeComponent } from '@/shared/components/badge';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
-import { ZardCardComponent } from '@/shared/components/card/card.component';
+import { GestgoBadgeComponent } from '@/shared/components/badge';
+
+import { GestgoCardComponent } from '@/shared/components/card/card.component';
 
 @Component({
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'zm-link-bio-modelos-tab',
   standalone: true,
-  imports: [RouterLink, ZardBadgeComponent, ZardButtonComponent, ZardCardComponent],
+  imports: [RouterLink, GestgoBadgeComponent, GestgoCardComponent],
   templateUrl: './link-bio-modelos-tab.component.html',
   styleUrl: './link-bio-modelos-tab.component.css',
   host: { class: 'link-bio-config block min-w-0' },

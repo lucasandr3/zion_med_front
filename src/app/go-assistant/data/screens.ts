@@ -22,8 +22,7 @@ export const ASSISTANT_SCREENS: AssistantScreen[] = [
       'templates.edit',
       'templates.fields',
       'templates.public-link',
-      'templates.duplicate',
-    ],
+      'templates.duplicate'],
     tourId: 'tour.templates.list',
   },
   {
@@ -95,8 +94,7 @@ export const ASSISTANT_SCREENS: AssistantScreen[] = [
       'protocolos.approve',
       'protocolos.pdf',
       'protocolos.dossier',
-      'protocolos.comment',
-    ],
+      'protocolos.comment'],
     tourId: 'tour.protocolos.detail',
   },
   {
@@ -264,5 +262,4 @@ export const ASSISTANT_SCREENS: AssistantScreen[] = [
     routePatterns: ['/plataforma/planos', '/plataforma/planos/novo', '/plataforma/planos/:id/editar'],
     permissionsAny: ['platform_admin'],
     quickAskIntentIds: ['plataforma.planos'],
-  },
-];
+  }];

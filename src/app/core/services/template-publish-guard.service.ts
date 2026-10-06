@@ -2,8 +2,8 @@ import { inject, Injectable } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 
 import {
-  ZardDialogOptions,
-  ZardDialogService,
+  GestgoDialogOptions,
+  GestgoDialogService,
 } from '@/shared/components/dialog';
 import {
   TemplateVersionCompareResult,
@@ -17,7 +17,7 @@ import {
 @Injectable({ providedIn: 'root' })
 export class TemplatePublishGuardService {
   private readonly templates = inject(TemplatesService);
-  private readonly zardDialog = inject(ZardDialogService);
+  private readonly gestgoDialog = inject(GestgoDialogService);
 
   /** Retorna `true` se o usuário confirmou publicar (ou não havia diff). */
   async confirmPublishIfNeeded(templateId: number): Promise<boolean> {
@@ -38,7 +38,7 @@ export class TemplatePublishGuardService {
         resolve(value);
       };
 
-      const config = new ZardDialogOptions<
+      const config = new GestgoDialogOptions<
         ZmTemplateVersionDiffDialogContentComponent,
         TemplateVersionDiffDialogData
       >();
@@ -54,7 +54,7 @@ export class TemplatePublishGuardService {
       config.zOnOk = () => settle(true);
       config.zOnCancel = () => settle(false);
 
-      const dialogRef = this.zardDialog.create(config);
+      const dialogRef = this.gestgoDialog.create(config);
       const originalClose = dialogRef.close.bind(dialogRef);
       dialogRef.close = (result?: boolean): void => {
         if (!settled) {

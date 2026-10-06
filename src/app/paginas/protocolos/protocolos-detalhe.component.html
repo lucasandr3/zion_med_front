@@ -1,4 +1,48 @@
 <div class="protocolo-detalhe-page relative min-h-[320px]">
+  <div class="n-form-toolbar">
+    <div class="n-form-toolbar__start">
+      <zm-page-back-link />
+    </div>
+    @if (protocolo(); as p) {
+      <div class="n-form-toolbar__end">
+        <nord-button variant="default" size="s" type="button" (click)="baixarFichaPdf()" title="Baixar PDF" [attr.loading]="gerandoPdf()" [attr.disabled]="gerandoPdf()">
+          <nord-icon name="interface-download" size="s" aria-hidden="true"></nord-icon>
+          {{ gerandoPdf() ? 'Gerando…' : 'Baixar PDF' }}
+        </nord-button>
+        <nord-button variant="default" size="s" type="button" (click)="baixarDossie()" title="Baixar dossiê (ZIP)" [attr.loading]="gerandoDossie()" [attr.disabled]="gerandoDossie()">
+          <nord-icon name="file-generic" size="s" aria-hidden="true"></nord-icon>
+          {{ gerandoDossie() ? 'Gerando…' : 'Dossiê ZIP' }}
+        </nord-button>
+        @if (podeSolicitarReconsentimento) {
+          <nord-button size="s" type="button" (click)="solicitarReconsentimento()" title="Enviar novo link de consentimento" [attr.loading]="solicitandoReconsentimento()" [attr.disabled]="solicitandoReconsentimento()">
+            <span class="material-symbols-outlined text-base" aria-hidden="true">forward_to_inbox</span>
+            {{ solicitandoReconsentimento() ? 'Enviando…' : 'Solicitar reconsentimento' }}
+          </nord-button>
+        }
+        @if (isPending && podeRevisarProtocolo) {
+          <nord-button variant="default" size="s" type="button" [class.ring-2]="revisaoFormVisible() && revisaoAprovado" [class.ring-ring]="revisaoFormVisible() && revisaoAprovado" (click)="abrirRevisao(true)" title="Aprovar protocolo">
+            <nord-icon name="interface-checked-circle" size="s" aria-hidden="true"></nord-icon>
+            Aprovar
+          </nord-button>
+          <nord-button variant="danger" size="s" type="button" [class.ring-2]="revisaoFormVisible() && !revisaoAprovado" [class.ring-destructive]="revisaoFormVisible() && !revisaoAprovado" (click)="abrirRevisao(false)" title="Reprovar protocolo">
+            <nord-icon name="interface-close" size="s" aria-hidden="true"></nord-icon>
+            Reprovar
+          </nord-button>
+        } @else if (!isPending) {
+          <g-badge zShape="pill" [zType]="statusBadgeType()" [class]="statusBadgeClass()">✓ {{ statusLabel() }}</g-badge>
+          @if (podeRevogarProtocolo) {
+            <nord-button variant="default" size="s" type="button" [class.ring-2]="revogarFormVisible()" [class.ring-destructive]="revogarFormVisible()" (click)="abrirRevogacao()" title="Revogar consentimento">
+              <span class="material-symbols-outlined text-base" aria-hidden="true">undo</span>
+              Revogar
+            </nord-button>
+          }
+        } @else if (isPending) {
+          <g-badge zShape="pill" zType="outline" [class]="statusBadgeClass()">Pendente</g-badge>
+        }
+      </div>
+    }
+  </div>
+
   @if (gerandoPdf()) {
     <div class="dp-generating-overlay" aria-live="polite" aria-busy="true">
       <div class="dp-generating-card">
@@ -19,159 +63,41 @@
   @if (!erro() && protocolo(); as p) {
     <div class="protocolo-detalhe-shell zm-content-enter">
 
-      <div class="protocolo-detalhe-sticky-top">
-        <div class="protocolo-detalhe-header">
-        <div>
-          <div class="mb-1 flex flex-wrap items-center gap-2">
-            <span class="font-mono text-xs text-muted-foreground">{{ p.protocol_number || p.id }}</span>
-            <z-badge zShape="pill" [zType]="statusBadgeType()" [class]="statusBadgeClass()">{{ statusLabel() }}</z-badge>
-          </div>
-          <h1 class="m-0 text-base font-semibold leading-snug text-foreground">{{ templateNome() }}</h1>
+      <div class="protocolo-detalhe-title">
+        <div class="mb-1 flex flex-wrap items-center gap-2">
+          <span class="font-mono text-xs text-muted-foreground">{{ p.protocol_number || p.id }}</span>
+          <g-badge zShape="pill" [zType]="statusBadgeType()" [class]="statusBadgeClass()">{{ statusLabel() }}</g-badge>
         </div>
-        <div class="protocolo-detalhe-header__actions">
-          <div class="protocolo-detalhe-header__group">
-            <zm-page-back-link />
-          </div>
-          <div class="protocolo-detalhe-header__group protocolo-detalhe-header__group--export">
-            <button
-              z-button
-              zType="outline"
-              zSize="sm"
-              type="button"
-              class="gap-2"
-              (click)="baixarFichaPdf()"
-              title="Baixar PDF"
-              [zLoading]="gerandoPdf()"
-              [zDisabled]="gerandoPdf()">
-              <span class="material-symbols-outlined text-base" aria-hidden="true">download</span>
-              {{ gerandoPdf() ? 'Gerando…' : 'Baixar PDF' }}
-            </button>
-            <button
-              z-button
-              zType="outline"
-              zSize="sm"
-              type="button"
-              class="gap-2"
-              (click)="baixarDossie()"
-              title="Baixar dossiê (ZIP)"
-              [zLoading]="gerandoDossie()"
-              [zDisabled]="gerandoDossie()">
-              <span class="material-symbols-outlined text-base" aria-hidden="true">inventory_2</span>
-              {{ gerandoDossie() ? 'Gerando…' : 'Dossiê ZIP' }}
-            </button>
-          </div>
-          @if (podeSolicitarReconsentimento) {
-            <div class="protocolo-detalhe-header__group">
-              <button
-                z-button
-                zSize="sm"
-                type="button"
-                class="gap-2"
-                (click)="solicitarReconsentimento()"
-                title="Enviar novo link de consentimento"
-                [zLoading]="solicitandoReconsentimento()"
-                [zDisabled]="solicitandoReconsentimento()"
-              >
-                <span class="material-symbols-outlined text-base" aria-hidden="true">forward_to_inbox</span>
-                {{ solicitandoReconsentimento() ? 'Enviando…' : 'Solicitar reconsentimento' }}
-              </button>
-            </div>
-          }
-          @if (isPending && podeRevisarProtocolo) {
-            <div class="protocolo-detalhe-header__group protocolo-detalhe-header__group--review" role="group" aria-label="Revisão do protocolo">
-              <button
-                z-button
-                zType="outline"
-                zSize="sm"
-                type="button"
-                class="gap-2"
-                [class.ring-2]="revisaoFormVisible() && revisaoAprovado"
-                [class.ring-ring]="revisaoFormVisible() && revisaoAprovado"
-                (click)="abrirRevisao(true)"
-                title="Aprovar protocolo">
-                <span class="material-symbols-outlined text-base" aria-hidden="true">check_circle</span>
-                Aprovar
-              </button>
-              <button
-                z-button
-                zType="destructive"
-                zSize="sm"
-                type="button"
-                class="gap-2"
-                [class.ring-2]="revisaoFormVisible() && !revisaoAprovado"
-                [class.ring-destructive]="revisaoFormVisible() && !revisaoAprovado"
-                (click)="abrirRevisao(false)"
-                title="Reprovar protocolo">
-                <span class="material-symbols-outlined text-base" aria-hidden="true">cancel</span>
-                Reprovar
-              </button>
-            </div>
-          } @else if (!isPending) {
-            <z-badge zShape="pill" [zType]="statusBadgeType()" [class]="statusBadgeClass()">✓ {{ statusLabel() }}</z-badge>
-            @if (podeRevogarProtocolo) {
-              <button
-                z-button
-                zType="outline"
-                zSize="sm"
-                type="button"
-                class="gap-2"
-                [class.ring-2]="revogarFormVisible()"
-                [class.ring-destructive]="revogarFormVisible()"
-                (click)="abrirRevogacao()"
-                title="Revogar consentimento">
-                <span class="material-symbols-outlined text-base" aria-hidden="true">undo</span>
-                Revogar
-              </button>
-            }
-          } @else if (isPending) {
-            <z-badge zShape="pill" zType="outline" [class]="statusBadgeClass()">Pendente</z-badge>
-          }
-        </div>
-        </div>
+        <h1 class="m-0 text-base font-semibold leading-snug text-foreground">{{ templateNome() }}</h1>
       </div>
 
       @if (isPending && revisaoFormVisible() && podeRevisarProtocolo) {
-        <z-card class="section-card pd-revisao-card shrink-0" id="revisao_form">
+        <g-card class="section-card pd-revisao-card shrink-0" id="revisao_form">
           <div class="section-header">
             <div class="icon-wrap">
               <span class="material-symbols-outlined" aria-hidden="true">rate_review</span>
             </div>
             <span class="section-title">Revisar protocolo</span>
-            <button z-button zType="ghost" zSize="icon-sm" type="button" class="section-header__action" (click)="fecharRevisao()" aria-label="Fechar">
+            <nord-button variant="plain" size="s" type="button" class="section-header__action" (click)="fecharRevisao()" aria-label="Fechar" square>
               <span class="material-symbols-outlined text-base">close</span>
-            </button>
+            </nord-button>
           </div>
           <div class="section-body pd-revisao-body">
             <div>
               <p class="pd-field-label">Decisão</p>
               <div class="pd-revisao-toggle">
-                <button
-                  z-button
-                  zType="outline"
-                  zSize="sm"
-                  type="button"
-                  [class.ring-2]="revisaoAprovado"
-                  [class.ring-primary]="revisaoAprovado"
-                  (click)="revisaoAprovado = true">
+                <nord-button variant="default" size="s" type="button" [class.ring-2]="revisaoAprovado" [class.ring-primary]="revisaoAprovado" (click)="revisaoAprovado = true">
                   Aprovar
-                </button>
-                <button
-                  z-button
-                  zType="outline"
-                  zSize="sm"
-                  type="button"
-                  [class.ring-2]="!revisaoAprovado"
-                  [class.ring-destructive]="!revisaoAprovado"
-                  (click)="revisaoAprovado = false">
+                </nord-button>
+                <nord-button variant="default" size="s" type="button" [class.ring-2]="!revisaoAprovado" [class.ring-destructive]="!revisaoAprovado" (click)="revisaoAprovado = false">
                   Reprovar
-                </button>
+                </nord-button>
               </div>
             </div>
             <div>
               <label class="pd-field-label" for="comentario_revisao">Comentário (opcional)</label>
               <textarea
                 id="comentario_revisao"
-                z-input
                 [(ngModel)]="comentarioRevisao"
                 rows="3"
                 class="w-full"
@@ -184,57 +110,56 @@
               </label>
             }
             <div class="pd-revisao-actions">
-              <button z-button zType="default" type="button" class="gap-2" (click)="enviarRevisao()" [zLoading]="revisaoEnviando()" [zDisabled]="revisaoEnviando()">
+              <nord-button variant="primary" type="button" class="gap-2" (click)="enviarRevisao()" [attr.loading]="revisaoEnviando()" [attr.disabled]="revisaoEnviando()">
                 {{ revisaoEnviando() ? 'Enviando…' : 'Confirmar revisão' }}
-              </button>
-              <button z-button zType="outline" type="button" (click)="fecharRevisao()" [zDisabled]="revisaoEnviando()">Cancelar</button>
+              </nord-button>
+              <nord-button variant="default" type="button" (click)="fecharRevisao()" [attr.disabled]="revisaoEnviando()">Cancelar</nord-button>
             </div>
           </div>
-        </z-card>
+        </g-card>
       }
 
       @if (revogarFormVisible() && podeRevogarProtocolo) {
-        <z-card class="section-card pd-revisao-card shrink-0" id="revogar_form">
+        <g-card class="section-card pd-revisao-card shrink-0" id="revogar_form">
           <div class="section-header">
             <div class="icon-wrap">
               <span class="material-symbols-outlined" aria-hidden="true">undo</span>
             </div>
             <span class="section-title">Revogar consentimento</span>
-            <button z-button zType="ghost" zSize="icon-sm" type="button" class="section-header__action" (click)="fecharRevogacao()" aria-label="Fechar">
+            <nord-button variant="plain" size="s" type="button" class="section-header__action" (click)="fecharRevogacao()" aria-label="Fechar" square>
               <span class="material-symbols-outlined text-base">close</span>
-            </button>
+            </nord-button>
           </div>
           <div class="section-body pd-revisao-body">
             <div>
               <label class="pd-field-label" for="motivo_revogacao">Motivo da revogação</label>
               <textarea
                 id="motivo_revogacao"
-                z-input
                 [(ngModel)]="motivoRevogacao"
                 rows="3"
                 class="w-full"
                 placeholder="Ex.: paciente solicitou cancelamento do procedimento..."></textarea>
             </div>
             <div class="pd-revisao-actions">
-              <button z-button zType="destructive" type="button" class="gap-2" (click)="enviarRevogacao()" [zLoading]="revogando()" [zDisabled]="revogando()">
+              <nord-button variant="danger" type="button" class="gap-2" (click)="enviarRevogacao()" [attr.loading]="revogando()" [attr.disabled]="revogando()">
                 {{ revogando() ? 'Revogando…' : 'Confirmar revogação' }}
-              </button>
-              <button z-button zType="outline" type="button" (click)="fecharRevogacao()" [zDisabled]="revogando()">Cancelar</button>
+              </nord-button>
+              <nord-button variant="default" type="button" (click)="fecharRevogacao()" [attr.disabled]="revogando()">Cancelar</nord-button>
             </div>
           </div>
-        </z-card>
+        </g-card>
       }
 
-      <z-tab-group
+      <g-tab-group
         #protocoloTabGroup
-        class="protocolo-zard-tabs protocolo-zard-tabs--layout protocolo-zard-tabs--no-nav-rule"
+        class="protocolo-gestgo-tabs protocolo-gestgo-tabs--layout protocolo-gestgo-tabs--no-nav-rule"
         zNavWrapperClass="protocolo-detalhe-tabs-bar border-y border-border bg-card"
         zNavClass="!mb-0 !border-0 px-5 pt-2"
         [zShowArrow]="false"
-        (zTabChange)="onZardTabChange($event)">
-        <z-tab label="Dados" icon="cloud_done">
+        (zTabChange)="onGestgoTabChange($event)">
+        <g-tab label="Dados" icon="cloud_done">
           <div class="protocolo-tab-panel">
-            <z-card class="section-card">
+            <g-card class="section-card">
               <div class="section-header">
                 <div class="icon-wrap">
                   <span class="material-symbols-outlined" aria-hidden="true">description</span>
@@ -251,7 +176,7 @@
                     <p class="protocolo-detail-label">Pessoa (ficha)</p>
                     @if (p.person) {
                       <div class="protocolo-detail-person">
-                        <z-avatar zSize="sm" [zFallback]="iniciaisNome(p.person.name)" />
+                        <g-avatar [zFallback]="iniciaisNome(p.person.name)" />
                         <div class="min-w-0">
                           <a [routerLink]="['/pessoas', p.person.id]" class="protocolo-detail-value block truncate text-primary no-underline hover:underline">{{ p.person.name }}</a>
                           <p class="protocolo-detail-muted font-mono">{{ p.person.code }}</p>
@@ -286,7 +211,7 @@
                   }
                   <div class="protocolo-detail-field protocolo-detail-field--status">
                     <p class="protocolo-detail-label">Status</p>
-                    <z-badge zShape="pill" [zType]="statusBadgeType()" [class]="statusBadgeClass()">{{ statusLabel() }}</z-badge>
+                    <g-badge zShape="pill" [zType]="statusBadgeType()" [class]="statusBadgeClass()">{{ statusLabel() }}</g-badge>
                   </div>
                   @if (isRevoked && (p.revoke_reason || p.revoked_at)) {
                     <div class="protocolo-detail-field">
@@ -318,11 +243,11 @@
                   </div>
                 </div>
               </div>
-            </z-card>
+            </g-card>
           </div>
-        </z-tab>
+        </g-tab>
 
-        <z-tab [label]="tabLabelRespostas()" icon="assignment">
+        <g-tab [label]="tabLabelRespostas()" icon="assignment">
           <div class="protocolo-tab-panel">
             <div class="pd-alert-top pd-fade-up" role="status">
               <div class="pd-alert-dot"></div>
@@ -333,21 +258,21 @@
             </div>
 
             @if (camposRespostas().length === 0) {
-              <z-card class="section-card">
+              <g-card class="section-card">
                 <zm-empty-state
                   title="Não há campos do modelo disponíveis para exibir as respostas."
                   description="Se o protocolo for antigo, atualize a página após deploy do sistema." />
-              </z-card>
+              </g-card>
             } @else {
-              <z-card class="section-card">
+              <g-card class="section-card">
                 <div class="section-header">
                   <div class="icon-wrap">
                     <span class="material-symbols-outlined" aria-hidden="true">assignment</span>
                   </div>
                   <span class="section-title">Respostas do formulário</span>
-                  <z-badge zShape="pill" zType="outline" class="section-header__badge">
+                  <g-badge zShape="pill" zType="outline" class="section-header__badge">
                     {{ quantidadeCamposPreenchidos() }} de {{ camposRespostas().length }} preenchidos
-                  </z-badge>
+                  </g-badge>
                 </div>
                 <div class="section-body">
                   @if (camposRespostasPreenchidos().length > 0) {
@@ -384,17 +309,10 @@
 
                   @if (camposRespostasVazios().length > 0) {
                     <div class="pd-resp-empty-toggle-wrap">
-                      <button
-                        z-button
-                        zType="ghost"
-                        zSize="sm"
-                        type="button"
-                        class="gap-1.5"
-                        (click)="alternarCamposVazios()"
-                        [attr.aria-expanded]="mostrarCamposVazios ? 'true' : 'false'">
+                      <nord-button variant="plain" size="s" type="button" class="gap-1.5" (click)="alternarCamposVazios()" [attr.aria-expanded]="mostrarCamposVazios ? 'true' : 'false'">
                         <span class="material-symbols-outlined text-base" aria-hidden="true">{{ mostrarCamposVazios ? 'expand_less' : 'expand_more' }}</span>
                         {{ mostrarCamposVazios ? 'Ocultar campos não preenchidos' : 'Ver ' + camposRespostasVazios().length + ' campos não preenchidos' }}
-                      </button>
+                      </nord-button>
                     </div>
                     @if (mostrarCamposVazios) {
                       <div class="pd-resp-grid pd-resp-grid--muted" role="list">
@@ -411,27 +329,19 @@
                     }
                   }
                 </div>
-              </z-card>
+              </g-card>
             }
 
             @if (temCamposEquipe()) {
-              <z-card class="section-card pd-staff-card">
+              <g-card class="section-card pd-staff-card">
                 <div class="section-header">
                   <div class="icon-wrap">
                     <span class="material-symbols-outlined" aria-hidden="true">groups</span>
                   </div>
                   <span class="section-title">Registro da equipe (clínica)</span>
-                  <button
-                    z-button
-                    zType="default"
-                    zSize="sm"
-                    type="button"
-                    class="section-header__action gap-2"
-                    (click)="salvarRegistroEquipe()"
-                    [zLoading]="staffSalvando()"
-                    [zDisabled]="staffSalvando()">
+                  <nord-button variant="primary" size="s" type="button" class="section-header__action gap-2" (click)="salvarRegistroEquipe()" [attr.loading]="staffSalvando()" [attr.disabled]="staffSalvando()">
                     {{ staffSalvando() ? 'Salvando…' : 'Salvar' }}
-                  </button>
+                  </nord-button>
                 </div>
                 <div class="section-body">
                   <p class="pd-staff-hint">Campos internos; não aparecem no formulário público.</p>
@@ -443,7 +353,6 @@
                           @case ('textarea') {
                             <textarea
                               [id]="'staff_' + sf.name_key"
-                              z-input
                               rows="3"
                               class="w-full"
                               [(ngModel)]="staffDraft[sf.name_key]"
@@ -452,16 +361,15 @@
                           @case ('number') {
                             <input
                               type="number"
-                              z-input
                               class="w-full"
                               [(ngModel)]="staffDraft[sf.name_key]"
                               [name]="'staff_' + sf.name_key" />
                           }
                           @case ('date') {
-                            <input type="date" z-input class="w-full" [(ngModel)]="staffDraft[sf.name_key]" [name]="'staff_' + sf.name_key" />
+                            <input type="date" class="w-full" [(ngModel)]="staffDraft[sf.name_key]" [name]="'staff_' + sf.name_key" />
                           }
                           @case ('select') {
-                            <select z-input class="w-full" [(ngModel)]="staffDraft[sf.name_key]" [name]="'staff_' + sf.name_key">
+                            <select class="w-full" [(ngModel)]="staffDraft[sf.name_key]" [name]="'staff_' + sf.name_key">
                               <option value="">Selecione</option>
                               @for (opt of sf.options ?? []; track opt) {
                                 <option [value]="opt">{{ opt }}</option>
@@ -479,21 +387,21 @@
                             </div>
                           }
                           @default {
-                            <input type="text" z-input class="w-full" [(ngModel)]="staffDraft[sf.name_key]" [name]="'staff_' + sf.name_key" />
+                            <input type="text" class="w-full" [(ngModel)]="staffDraft[sf.name_key]" [name]="'staff_' + sf.name_key" />
                           }
                         }
                       </div>
                     }
                   </div>
                 </div>
-              </z-card>
+              </g-card>
             }
           </div>
-        </z-tab>
+        </g-tab>
 
-        <z-tab label="Histórico" icon="history">
+        <g-tab label="Histórico" icon="history">
           <div class="protocolo-tab-panel">
-            <z-card class="section-card">
+            <g-card class="section-card">
               <div class="section-header">
                 <div class="icon-wrap">
                   <span class="material-symbols-outlined" aria-hidden="true">history</span>
@@ -526,20 +434,20 @@
                   }
                 </div>
               </div>
-            </z-card>
+            </g-card>
           </div>
-        </z-tab>
+        </g-tab>
 
-        <z-tab [label]="tabLabelAssinaturas()" icon="draw">
+        <g-tab [label]="tabLabelAssinaturas()" icon="draw">
           <div class="protocolo-tab-panel">
           @if (p.signatures && p.signatures.length > 0) {
-            <z-card class="section-card">
+            <g-card class="section-card">
               <div class="section-header">
                 <div class="icon-wrap">
                   <span class="material-symbols-outlined" aria-hidden="true">draw</span>
                 </div>
                 <span class="section-title">Assinaturas</span>
-                <z-badge zShape="pill" zType="secondary" class="section-header__badge">{{ p.signatures.length }} assinada(s)</z-badge>
+                <g-badge zShape="pill" zType="secondary" class="section-header__badge">{{ p.signatures.length }} assinada(s)</g-badge>
               </div>
               <div class="section-body pd-assin-list">
                 @for (sig of p.signatures; track $index) {
@@ -547,7 +455,7 @@
                     <div class="pd-assin-block__head">
                       <span class="pd-field-value">Assinatura {{ $index + 1 }} — {{ sig.signed_name || 'Não informado' }}</span>
                       @if (sig.status) {
-                        <z-badge zShape="pill" zType="secondary">{{ assinaturaStatusLabel(sig.status) }}</z-badge>
+                        <g-badge zShape="pill" zType="secondary">{{ assinaturaStatusLabel(sig.status) }}</g-badge>
                       }
                     </div>
                     <div class="pd-assin-block__grid">
@@ -594,18 +502,18 @@
                   </div>
                 }
               </div>
-            </z-card>
+            </g-card>
           } @else {
-            <z-card class="section-card">
+            <g-card class="section-card">
               <zm-empty-state title="Nenhuma assinatura disponível." />
-            </z-card>
+            </g-card>
           }
           </div>
-        </z-tab>
+        </g-tab>
 
-        <z-tab [label]="tabLabelComentarios()" icon="comment">
+        <g-tab [label]="tabLabelComentarios()" icon="comment">
           <div class="protocolo-tab-panel">
-            <z-card class="section-card">
+            <g-card class="section-card">
               <div class="section-header">
                 <div class="icon-wrap">
                   <span class="material-symbols-outlined" aria-hidden="true">comment</span>
@@ -649,55 +557,33 @@
 
                 <div class="pd-coment-form">
                   <p class="pd-field-label">Novo comentário interno</p>
-                  <textarea z-input [(ngModel)]="novoComentario" rows="4" class="w-full" placeholder="Digite seu comentário..."></textarea>
+                  <textarea [(ngModel)]="novoComentario" rows="4" class="w-full" placeholder="Digite seu comentário..."></textarea>
                   <div class="pd-coment-actions">
-                    <button
-                      z-button
-                      zType="default"
-                      type="button"
-                      class="gap-2"
-                      (click)="enviarComentario()"
-                      [zDisabled]="!novoComentario.trim() || comentarioEnviando()"
-                      [zLoading]="comentarioEnviando()">
+                    <nord-button variant="primary" type="button" class="gap-2" (click)="enviarComentario()" [attr.disabled]="!novoComentario.trim() || comentarioEnviando()" [attr.loading]="comentarioEnviando()">
                       {{ comentarioEnviando() ? 'Enviando…' : 'Adicionar comentário' }}
-                    </button>
+                    </nord-button>
                   </div>
                 </div>
               </div>
-            </z-card>
+            </g-card>
           </div>
-        </z-tab>
+        </g-tab>
 
-        <z-tab label="Impressão" icon="print">
+        <g-tab label="Impressão" icon="print">
           <div class="protocolo-tab-panel protocolo-tab-panel--impressao">
             <div class="pd-print-toolbar">
-              <button
-                z-button
-                zType="outline"
-                zSize="sm"
-                type="button"
-                class="gap-2"
-                (click)="visualizarFichaPdf()"
-                [zDisabled]="gerandoPdf()">
+              <nord-button variant="default" size="s" type="button" class="gap-2" (click)="visualizarFichaPdf()" [attr.disabled]="gerandoPdf()">
                 <span class="material-symbols-outlined text-base" aria-hidden="true">visibility</span>
                 Visualizar PDF
-              </button>
-              <button
-                z-button
-                zType="outline"
-                zSize="sm"
-                type="button"
-                class="gap-2"
-                (click)="baixarFichaPdf()"
-                [zLoading]="gerandoPdf()"
-                [zDisabled]="gerandoPdf()">
+              </nord-button>
+              <nord-button variant="default" size="s" type="button" class="gap-2" (click)="baixarFichaPdf()" [attr.loading]="gerandoPdf()" [attr.disabled]="gerandoPdf()">
                 <span class="material-symbols-outlined text-base" aria-hidden="true">download</span>
                 {{ gerandoPdf() ? 'Gerando…' : 'Baixar PDF' }}
-              </button>
-              <button z-button zType="default" zSize="sm" type="button" class="gap-2" (click)="imprimirFicha()">
+              </nord-button>
+              <nord-button variant="primary" size="s" type="button" class="gap-2" (click)="imprimirFicha()">
                 <span class="material-symbols-outlined text-base" aria-hidden="true">print</span>
                 Imprimir
-              </button>
+              </nord-button>
             </div>
             <div class="protocolo-print-preview">
             <div id="documento-impressao" class="protocolo-print-sheet documento">
@@ -934,8 +820,8 @@
             </div>
             </div>
           </div>
-        </z-tab>
-      </z-tab-group>
+        </g-tab>
+      </g-tab-group>
     </div>
   }
 </div>

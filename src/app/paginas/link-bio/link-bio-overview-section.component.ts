@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   LinkBioClinic,
@@ -26,13 +26,14 @@ import {
   visitasOntem,
   visitasTrendPercent,
 } from './link-bio-stats-chart.util';
-import { ZardCardComponent } from '@/shared/components/card/card.component';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
+import { GestgoCardComponent } from '@/shared/components/card/card.component';
+
 
 @Component({
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'zm-link-bio-overview-section',
   standalone: true,
-  imports: [CommonModule, ZardCardComponent, ZardButtonComponent],
+  imports: [CommonModule, GestgoCardComponent],
   templateUrl: './link-bio-overview-section.component.html',
   styleUrl: './link-bio-overview-section.component.css',
 })

@@ -1,13 +1,13 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { ZardBadgeComponent } from '@/shared/components/badge';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
-import { ZardCardComponent } from '@/shared/components/card/card.component';
-import { ZardMenuImports } from '../../shared/components/menu/menu.imports';
+import { Component, EventEmitter, Input, Output, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { GestgoBadgeComponent } from '@/shared/components/badge';
+
+import { GestgoCardComponent } from '@/shared/components/card/card.component';
 
 @Component({
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'zm-link-bio-overview-header',
   standalone: true,
-  imports: [ZardBadgeComponent, ZardButtonComponent, ZardCardComponent, ...ZardMenuImports],
+  imports: [GestgoBadgeComponent, GestgoCardComponent],
   templateUrl: './link-bio-overview-header.component.html',
   styleUrl: './link-bio-overview-header.component.css',
 })

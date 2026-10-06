@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
+import { Component, EventEmitter, Input, Output, inject, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import {
@@ -18,26 +18,25 @@ import {
   normalizeGooglePlaceId,
   resolveGoogleWriteReviewUrl,
 } from './link-bio-google-review-link.util';
-import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
-import { ZardBadgeComponent } from '@/shared/components/badge';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
-import { ZardCardComponent } from '@/shared/components/card/card.component';
-import { ZardComboboxComponent, type ZardComboboxOption } from '@/shared/components/combobox';
+import { NORD_FORM_IMPORTS } from '@/shared/nord';
+import { GestgoBadgeComponent } from '@/shared/components/badge';
+
+import { GestgoCardComponent } from '@/shared/components/card/card.component';
+import { GestgoComboboxComponent, type GestgoComboboxOption } from '@/shared/components/combobox';
 
 export type LinkBioLinksTabNavigate = 'aparencia';
 
 @Component({
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'zm-link-bio-links-tab',
   standalone: true,
   imports: [
-    ...ZARD_FORM_CONTROL_IMPORTS,
+    ...NORD_FORM_IMPORTS,
     FormsModule,
     RouterLink,
-    ZardBadgeComponent,
-    ZardButtonComponent,
-    ZardCardComponent,
-    ZardComboboxComponent,
-  ],
+    GestgoBadgeComponent,
+    GestgoCardComponent,
+    GestgoComboboxComponent],
   templateUrl: './link-bio-links-tab.component.html',
 })
 export class LinkBioLinksTabComponent {
@@ -69,7 +68,7 @@ export class LinkBioLinksTabComponent {
     return this.state?.links ?? [];
   }
 
-  get iconComboboxOptions(): ZardComboboxOption[] {
+  get iconComboboxOptions(): GestgoComboboxOption[] {
     return Object.entries(this.state?.available_icons ?? {}).map(([value, label]) => ({ value, label }));
   }
 

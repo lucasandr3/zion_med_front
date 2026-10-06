@@ -1,0 +1,221 @@
+:host {
+  align-items: center;
+  display: inline-flex;
+  min-width: 0;
+}
+
+.shell-topbar-actions {
+  align-items: center;
+  display: flex;
+  flex-shrink: 0;
+  /* nord-top-bar slot=end usa gap: 1px */
+  gap: 1px;
+}
+
+/*
+ * Controles plain — espelho de:
+ * nord-top-bar > nord-button[slot='end'] / nord-dropdown[slot='end'] … (pesquisa)
+ */
+.shell-topbar-actions > nord-button,
+.shell-topbar-actions > .header-desktop-only-block > nord-button {
+  --n-button-background-color: transparent;
+  --n-button-border-color: transparent;
+  --n-button-box-shadow: none;
+  --n-button-padding-inline: calc(var(--n-space-s) + 2px);
+  --n-button-color: var(--shell-header-control, var(--n-color-icon));
+}
+
+.shell-topbar-actions > nord-button:hover,
+.shell-topbar-actions > .header-desktop-only-block > nord-button:hover {
+  --n-button-background-color: var(--shell-header-control-hover, var(--n-color-active));
+}
+
+.shell-topbar-actions > nord-button nord-icon,
+.shell-topbar-actions > .header-desktop-only-block > nord-button nord-icon,
+.shell-topbar-actions > a.cabecalho-toolbar-action nord-icon {
+  color: var(--shell-header-control, var(--n-color-icon));
+}
+
+/* Links do topo (ícone puro) — mesmo gabarito dos nord-button */
+a.cabecalho-toolbar-action {
+  align-items: center;
+  block-size: 2.25rem;
+  border-radius: var(--n-border-radius-s, 3px);
+  color: var(--shell-header-control, var(--n-color-icon));
+  display: inline-flex;
+  inline-size: 2.25rem;
+  justify-content: center;
+  position: relative;
+  text-decoration: none;
+}
+
+a.cabecalho-toolbar-action:hover {
+  background: var(--shell-header-control-hover, var(--n-color-active));
+}
+
+.shell-topbar-badge {
+  align-items: center;
+  background: var(--n-color-status-danger, #c62828);
+  border: 1.5px solid var(--shell-header-bg, var(--n-color-header, #fff));
+  border-radius: 999px;
+  color: #fff;
+  display: inline-flex;
+  font-size: 0.62rem;
+  font-weight: 700;
+  height: 1.05rem;
+  inset-block-start: 0.15rem;
+  inset-inline-end: 0.1rem;
+  justify-content: center;
+  line-height: 1;
+  min-width: 1.05rem;
+  padding: 0 4px;
+  pointer-events: none;
+  position: absolute;
+  z-index: 1;
+}
+
+/* ── Tema e aparência — padrão pesquisa_app/theme-panel ───────────────── */
+.theme-panel__body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0;
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--n-space-l, 1.25rem) var(--n-space-m, 1rem);
+}
+
+.theme-section + .theme-section {
+  margin-top: var(--n-space-l, 1.25rem);
+}
+
+.theme-section__label {
+  color: var(--n-color-text-weaker, var(--muted-foreground));
+  font-size: var(--n-font-size-xs, 0.75rem);
+  font-weight: var(--n-font-weight-heading, 700);
+  letter-spacing: 0.08em;
+  margin: 0 0 var(--n-space-s, 0.75rem);
+  text-transform: uppercase;
+}
+
+.theme-section__hint,
+.theme-section__footnote {
+  color: var(--n-color-text-weaker, var(--muted-foreground));
+  font-size: var(--n-font-size-s, 0.875rem);
+  line-height: 1.35;
+  margin: 0 0 var(--n-space-s, 0.75rem);
+}
+
+.theme-section__footnote {
+  margin-bottom: 0;
+  margin-top: var(--n-space-s, 0.75rem);
+}
+
+.theme-section__footnote strong {
+  color: var(--n-color-text, var(--foreground));
+  font-weight: 600;
+}
+
+.theme-options {
+  display: grid;
+  gap: var(--n-space-s, 0.75rem);
+}
+
+.theme-options--3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.theme-option {
+  align-items: center;
+  background: var(--n-color-background, var(--background));
+  border: 1px solid var(--n-color-border, var(--border));
+  border-radius: var(--n-border-radius, 0.5rem);
+  color: var(--n-color-text, var(--foreground));
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  font: inherit;
+  font-size: var(--n-font-size-s, 0.875rem);
+  font-weight: var(--n-font-weight-active, 600);
+  gap: var(--n-space-xs, 0.35rem);
+  justify-content: center;
+  min-height: 4.25rem;
+  padding: var(--n-space-s, 0.75rem);
+  transition:
+    background 120ms ease,
+    border-color 120ms ease,
+    color 120ms ease;
+}
+
+.theme-option--compact {
+  min-height: 2.5rem;
+}
+
+.theme-option:hover {
+  background: var(--n-color-button-hover, var(--accent));
+}
+
+.theme-option.is-active {
+  background: color-mix(in srgb, var(--n-color-accent, var(--primary)) 12%, var(--n-color-surface, var(--card)));
+  border-color: var(--n-color-accent, var(--primary));
+  color: var(--n-color-accent, var(--primary));
+}
+
+.theme-colors {
+  display: grid;
+  gap: var(--n-space-s, 0.75rem);
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+.theme-color {
+  aspect-ratio: 1;
+  background: var(--swatch-color);
+  border: 2px solid transparent;
+  border-radius: var(--n-border-radius, 0.5rem);
+  color: #fff;
+  cursor: pointer;
+  padding: 0;
+  position: relative;
+  transition:
+    transform 120ms ease,
+    box-shadow 120ms ease,
+    border-color 120ms ease;
+}
+
+.theme-color:hover {
+  transform: scale(1.05);
+}
+
+.theme-color.is-active {
+  border-color: var(--n-color-text, var(--foreground));
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--n-color-accent, var(--primary)) 35%, transparent);
+}
+
+.theme-color nord-icon {
+  display: grid;
+  filter: drop-shadow(0 1px 2px rgb(0 0 0 / 35%));
+  inset: 0;
+  place-items: center;
+  position: absolute;
+}
+
+.header-desktop-only-block {
+  display: block;
+}
+
+.header-desktop-only-flex {
+  display: flex;
+}
+
+@media (max-width: 767px) {
+  .header-desktop-only-block,
+  .header-desktop-only-flex {
+    display: none !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .theme-options--3 {
+    grid-template-columns: 1fr;
+  }
+}

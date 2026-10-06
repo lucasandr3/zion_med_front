@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, Signal, ChangeDetectionStrategy, signal } from '@angular/core';
+import { Component, OnInit, inject, Signal, ChangeDetectionStrategy, signal, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import {
@@ -10,6 +10,7 @@ import {
 } from '../../core/services/templates.service';
 import { LoadingService } from '../../shared/services/loading.service';
 import { ZmSkeletonListComponent } from '../../shared/components/skeletons';
+import { ZmPageBackLinkComponent } from '../../shared/components/ui';
 import { ToastService } from '../../core/services/toast.service';
 
 /** Rótulos de categoria (igual ao backend) */
@@ -62,10 +63,12 @@ const CATEGORY_EMOJI: Record<string, string> = {
 };
 
 @Component({
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'app-templates-criar',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, FormsModule, ZmSkeletonListComponent],
+  host: { class: 'n-page' },
+  imports: [RouterLink, FormsModule, ZmSkeletonListComponent, ZmPageBackLinkComponent],
   templateUrl: './templates-criar.component.html',
   styleUrl: './templates-criar.component.css',
 })
@@ -102,8 +105,7 @@ export class TemplatesCriarComponent implements OnInit {
         const modelos = payload.specialties.flatMap((s) => s.templates);
         this.modelos.set(modelos);
         const keys = [
-          ...new Set(modelos.map((t) => String(t.category ?? '').trim().toLowerCase()).filter(Boolean)),
-        ].sort();
+          ...new Set(modelos.map((t) => String(t.category ?? '').trim().toLowerCase()).filter(Boolean))].sort();
         this.categoryKeys.set(keys);
       },
       error: () => {

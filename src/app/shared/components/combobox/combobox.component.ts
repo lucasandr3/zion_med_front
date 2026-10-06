@@ -15,85 +15,80 @@ import {
   runInInjectionContext,
   signal,
   viewChild,
-  ViewEncapsulation,
-} from '@angular/core';
+  ViewEncapsulation, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { type ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 import { NgIcon, provideIcons, type IconName } from '@ng-icons/core';
 import { lucideCheck, lucideChevronsUpDown } from '@ng-icons/lucide';
 import type { ClassValue } from 'clsx';
 
-import { ZardButtonComponent, type ZardButtonSizeVariants, type ZardButtonTypeVariants } from '@/shared/components/button';
-import { comboboxVariants, type ZardComboboxWidthVariants } from '@/shared/components/combobox/combobox.variants';
+import { comboboxVariants, type GestgoComboboxWidthVariants } from '@/shared/components/combobox/combobox.variants';
 import {
-  ZardCommandComponent,
-  ZardCommandEmptyComponent,
-  ZardCommandInputComponent,
-  ZardCommandListComponent,
-  ZardCommandOptionComponent,
-  ZardCommandOptionGroupComponent,
-  type ZardCommandOption,
+  GestgoCommandComponent,
+  GestgoCommandEmptyComponent,
+  GestgoCommandInputComponent,
+  GestgoCommandListComponent,
+  GestgoCommandOptionComponent,
+  GestgoCommandOptionGroupComponent,
+  type GestgoCommandOption,
 } from '@/shared/components/command';
-import { ZardEmptyComponent } from '@/shared/components/empty';
-import { ZardPopoverComponent, ZardPopoverDirective } from '@/shared/components/popover';
+import { GestgoEmptyComponent } from '@/shared/components/empty';
+import { GestgoPopoverComponent, GestgoPopoverDirective } from '@/shared/components/popover';
 import { mergeClasses } from '@/shared/utils/merge-classes';
 
-export interface ZardComboboxOption {
+export interface GestgoComboboxOption {
   value: string;
   label: string;
   disabled?: boolean;
   icon?: IconName;
 }
 
-export interface ZardComboboxGroup {
+export interface GestgoComboboxGroup {
   label?: string;
-  options: ZardComboboxOption[];
+  options: GestgoComboboxOption[];
 }
 
+/** Variantes legadas do trigger (mapeadas para nord-button). */
+export type GestgoButtonTypeVariants =
+  | 'default'
+  | 'destructive'
+  | 'outline'
+  | 'secondary'
+  | 'ghost'
+  | 'link';
+export type GestgoButtonSizeVariants =
+  | 'control'
+  | 'default'
+  | 'xs'
+  | 'sm'
+  | 'lg'
+  | 'icon'
+  | 'icon-xs'
+  | 'icon-sm'
+  | 'icon-lg';
+
 @Component({
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'z-combobox',
   imports: [
     FormsModule,
     NgTemplateOutlet,
     NgIcon,
-    ZardButtonComponent,
-    ZardCommandComponent,
-    ZardCommandInputComponent,
-    ZardCommandListComponent,
-    ZardCommandEmptyComponent,
-    ZardCommandOptionComponent,
-    ZardCommandOptionGroupComponent,
-    ZardPopoverDirective,
-    ZardPopoverComponent,
-    ZardEmptyComponent,
-  ],
+    GestgoCommandComponent,
+    GestgoCommandInputComponent,
+    GestgoCommandListComponent,
+    GestgoCommandEmptyComponent,
+    GestgoCommandOptionComponent,
+    GestgoCommandOptionGroupComponent,
+    GestgoPopoverComponent,
+    GestgoEmptyComponent],
   template: `
-    <button
-      type="button"
-      z-button
-      zPopover
-      [zMatchTriggerWidth]="true"
-      role="combobox"
-      [zContent]="popoverContent"
-      [zType]="buttonVariant()"
-      [zSize]="buttonSize()"
-      [class]="buttonClasses()"
-      [zDisabled]="disabledState()"
-      [attr.aria-expanded]="open()"
-      [attr.aria-haspopup]="'listbox'"
-      [attr.aria-controls]="'combobox-listbox'"
-      [attr.aria-label]="ariaLabel() || 'Select option'"
-      [attr.aria-describedby]="ariaDescribedBy()"
-      [attr.aria-autocomplete]="searchable() ? 'list' : 'none'"
-      [attr.aria-activedescendant]="null"
-      (zVisibleChange)="setOpen($event)"
-      #popoverTrigger
-    >
+    <nord-button type="button" role="combobox" [attr.variant]="buttonVariant()" [attr.size]="['xs','sm','icon-xs','icon-sm'].includes(buttonSize()) ? 's' : ['lg','icon-lg'].includes(buttonSize()) ? 'l' : 'm'" [class]="buttonClasses()" [attr.disabled]="disabledState()" [attr.aria-expanded]="open()" [attr.aria-haspopup]="'listbox'" [attr.aria-controls]="'combobox-listbox'" [attr.aria-label]="ariaLabel() || 'Select option'" [attr.aria-describedby]="ariaDescribedBy()" [attr.aria-autocomplete]="searchable() ? 'list' : 'none'" [attr.aria-activedescendant]="null">
       <span class="flex-1 truncate text-left">
         {{ displayValue() ?? placeholder() }}
       </span>
       <ng-icon name="lucideChevronsUpDown" class="ml-2 shrink-0 opacity-50" />
-    </button>
+    </nord-button>
 
     <ng-template #popoverContent>
       <z-popover [class]="popoverClasses()">
@@ -105,7 +100,7 @@ export interface ZardComboboxGroup {
           <z-command-list id="combobox-listbox" role="listbox">
             @if (emptyText()) {
               <z-command-empty>
-                <z-empty [zDescription]="emptyText()" />
+                <g-empty [zDescription]="emptyText()" />
               </z-command-empty>
             }
 
@@ -172,10 +167,9 @@ export interface ZardComboboxGroup {
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => ZardComboboxComponent),
+      useExisting: forwardRef(() => GestgoComboboxComponent),
       multi: true,
-    },
-  ],
+    }],
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   viewProviders: [provideIcons({ lucideChevronsUpDown, lucideCheck })],
@@ -188,31 +182,31 @@ export interface ZardComboboxGroup {
   },
   exportAs: 'zCombobox',
 })
-export class ZardComboboxComponent implements ControlValueAccessor {
+export class GestgoComboboxComponent implements ControlValueAccessor {
   private readonly injector = inject(Injector);
 
   readonly class = input<ClassValue>('');
-  readonly buttonVariant = input<ZardButtonTypeVariants>('outline');
-  readonly buttonSize = input<ZardButtonSizeVariants>('control');
-  readonly zWidth = input<ZardComboboxWidthVariants>('default');
+  readonly buttonVariant = input<GestgoButtonTypeVariants>('outline');
+  readonly buttonSize = input<GestgoButtonSizeVariants>('control');
+  readonly zWidth = input<GestgoComboboxWidthVariants>('default');
   readonly placeholder = input<string>('Select...');
   readonly searchPlaceholder = input<string>('Search...');
   readonly emptyText = input<string>('No results found.');
   readonly zDisabled = input(false, { transform: booleanAttribute });
   readonly searchable = input(true, { transform: booleanAttribute });
   readonly value = input<string | null>(null);
-  readonly options = input<ZardComboboxOption[]>([]);
-  readonly groups = input<ZardComboboxGroup[]>([]);
+  readonly options = input<GestgoComboboxOption[]>([]);
+  readonly groups = input<GestgoComboboxGroup[]>([]);
   readonly ariaLabel = input<string>('');
   readonly ariaDescribedBy = input<string>('');
 
   readonly zValueChange = output<string | null>();
-  readonly zComboSelected = output<ZardComboboxOption>();
+  readonly zComboSelected = output<GestgoComboboxOption>();
 
-  readonly popoverDirective = viewChild.required('popoverTrigger', { read: ZardPopoverDirective });
+  readonly popoverDirective = viewChild.required('popoverTrigger', { read: GestgoPopoverDirective });
   readonly buttonRef = viewChild.required('popoverTrigger', { read: ElementRef });
-  readonly commandRef = viewChild('commandRef', { read: ZardCommandComponent });
-  readonly commandInputRef = viewChild('commandInputRef', { read: ZardCommandInputComponent });
+  readonly commandRef = viewChild('commandRef', { read: GestgoCommandComponent });
+  readonly commandInputRef = viewChild('commandInputRef', { read: GestgoCommandInputComponent });
 
   protected readonly disabledState = linkedSignal(() => this.zDisabled());
   protected readonly internalValue = signal<string | null>(null);
@@ -283,7 +277,7 @@ export class ZardComboboxComponent implements ControlValueAccessor {
     }
   }
 
-  handleSelect(commandOption: ZardCommandOption) {
+  handleSelect(commandOption: GestgoCommandOption) {
     const selectedValue = commandOption.value as string;
 
     // Toggle behavior - if same value is selected, clear it
@@ -295,7 +289,7 @@ export class ZardComboboxComponent implements ControlValueAccessor {
 
     // Emit the combobox option if we have a selection
     if (newValue) {
-      let selectedOption: ZardComboboxOption | undefined;
+      let selectedOption: GestgoComboboxOption | undefined;
 
       if (this.groups().length > 0) {
         for (const group of this.groups()) {

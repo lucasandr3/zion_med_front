@@ -6,10 +6,10 @@ import type { ClassValue } from 'clsx';
 
 import { mergeClasses } from '../../utils/merge-classes';
 
-import { menuItemVariants, type ZardMenuItemTypeVariants } from './menu.variants';
+import { menuItemVariants, type GestgoMenuItemTypeVariants } from './menu.variants';
 
 @Directive({
-  selector: 'button[z-menu-item], [z-menu-item]',
+  selector: 'button[g-menu-item], [g-menu-item]',
   host: {
     '[class]': 'classes()',
     '[attr.data-orientation]': "'horizontal'",
@@ -28,15 +28,14 @@ import { menuItemVariants, type ZardMenuItemTypeVariants } from './menu.variants
     {
       directive: CdkMenuItem,
       outputs: ['cdkMenuItemTriggered: menuItemTriggered'],
-    },
-  ],
+    }],
 })
-export class ZardMenuItemDirective {
+export class GestgoMenuItemDirective {
   private readonly cdkMenuItem = inject(CdkMenuItem, { host: true });
 
   readonly zDisabled = input<boolean, BooleanInput>(false, { transform: booleanAttribute });
   readonly zInset = input<boolean, BooleanInput>(false, { transform: booleanAttribute });
-  readonly zType = input<ZardMenuItemTypeVariants>('default');
+  readonly zType = input<GestgoMenuItemTypeVariants>('default');
   readonly class = input<ClassValue>('');
 
   private readonly isFocused = signal(false);

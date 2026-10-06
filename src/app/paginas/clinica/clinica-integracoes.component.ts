@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -17,34 +17,34 @@ import {
 } from '../../core/services/integracoes.service';
 import { ToastService } from '../../core/services/toast.service';
 import { ConfirmDialogService } from '../../core/services/confirm-dialog.service';
-import { ZardTableImports } from '@/shared/components/table';
-import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
-import { ZardCardComponent } from '@/shared/components/card/card.component';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
-import { ZardTabComponent, ZardTabGroupComponent } from '@/shared/components/tabs';
-import { ZardBadgeComponent } from '@/shared/components/badge';
-import type { ZardBadgeTypeVariants } from '@/shared/components/badge/badge.variants';
+import { GestgoTableImports } from '@/shared/components/table';
+import { NORD_FORM_IMPORTS } from '@/shared/nord';
+import { GestgoCardComponent } from '@/shared/components/card/card.component';
+
+import { GestgoTabComponent, GestgoTabGroupComponent } from '@/shared/components/tabs';
+import { GestgoBadgeComponent } from '@/shared/components/badge';
+import type { GestgoBadgeTypeVariants } from '@/shared/components/badge/badge.variants';
 import { scrambleDocsUiUrl, scrambleOpenApiJsonUrl } from '../../core/utils/api-docs-url.util';
 
 type AbaIntegracao = 'api' | 'webhooks' | 'entregas' | 'sistemas';
 
 @Component({
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'app-clinica-integracoes',
   standalone: true,
+  host: { class: 'n-page n-page--flush' },
   imports: [
-    ...ZARD_FORM_CONTROL_IMPORTS,
-    ...ZardTableImports,
+    ...NORD_FORM_IMPORTS,
+    ...GestgoTableImports,
     CommonModule,
     FormsModule,
     RouterLink,
     ZmSkeletonIntegracoesComponent,
     ZmSkeletonIntegracoesSistemasComponent,
-    ZardCardComponent,
-    ZardButtonComponent,
-    ZardTabComponent,
-    ZardTabGroupComponent,
-    ZardBadgeComponent,
-  ],
+    GestgoCardComponent,
+    GestgoTabComponent,
+    GestgoTabGroupComponent,
+    GestgoBadgeComponent],
   templateUrl: './clinica-integracoes.component.html',
   styleUrl: './clinica-integracoes.component.css',
 })
@@ -101,7 +101,7 @@ export class ClinicaIntegracoesComponent implements OnInit {
     return this.state?.available_events ?? [];
   }
 
-  onZardTabChange(event: { index: number }): void {
+  onGestgoTabChange(event: { index: number }): void {
     const tab = this.tabIds[event.index];
     if (tab) {
       this.ativarAba(tab);
@@ -271,7 +271,7 @@ export class ClinicaIntegracoesComponent implements OnInit {
     }
   }
 
-  statusBadgeType(status: IntegracaoSistemaStatus): ZardBadgeTypeVariants {
+  statusBadgeType(status: IntegracaoSistemaStatus): GestgoBadgeTypeVariants {
     switch (status) {
       case 'ok':
         return 'default';

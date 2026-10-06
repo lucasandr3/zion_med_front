@@ -1,23 +1,16 @@
-import { Component, OnInit, inject, Signal, ChangeDetectionStrategy, signal } from '@angular/core';
-import { ZardCardComponent } from '@/shared/components/card/card.component';
-import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
+import { Component, OnInit, inject, Signal, ChangeDetectionStrategy, signal, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { PlataformaService, PlatformInvoice } from '../../../core/services/plataforma.service';
 import { LoadingService } from '../../../shared/services/loading.service';
-import { ZmSkeletonListComponent } from '../../../shared/components/skeletons';
-import { ZmEmptyStateComponent } from '../../../shared/components/ui';
+import { ListSkeletonComponent } from '../../../shared/components/list-skeleton/list-skeleton.component';
 import { statusFaturaPt } from '../../../core/utils/status-labels-pt';
-import { ZardTableImports } from '@/shared/components/table';
+
 @Component({
   selector: 'app-plataforma-faturas',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    ...ZardTableImports,
-    ZardCardComponent,
-    ZardBadgeComponent,
-    ZmSkeletonListComponent,
-    ZmEmptyStateComponent,
-  ],
+  host: { class: 'n-page-list' },
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  imports: [ListSkeletonComponent],
   templateUrl: './plataforma-faturas.component.html',
   styleUrl: './plataforma-faturas.component.css',
 })
@@ -63,11 +56,11 @@ export class PlataformaFaturasComponent implements OnInit {
     return symbol + ' ' + valor.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
 
-  badgeTipoStatus(status?: string | null): 'default' | 'secondary' | 'destructive' | 'outline' {
+  badgeVariant(status?: string | null): 'success' | 'warning' | 'danger' | 'neutral' | 'info' {
     const k = (status ?? '').toLowerCase();
-    if (['received', 'confirmed', 'paid', 'received_in_cash'].includes(k)) return 'default';
-    if (['pending', 'awaiting_risk_analysis'].includes(k)) return 'secondary';
-    if (['overdue', 'deleted', 'unpaid'].includes(k)) return 'destructive';
-    return 'outline';
+    if (['received', 'confirmed', 'paid', 'received_in_cash'].includes(k)) return 'success';
+    if (['pending', 'awaiting_risk_analysis'].includes(k)) return 'warning';
+    if (['overdue', 'deleted', 'unpaid'].includes(k)) return 'danger';
+    return 'neutral';
   }
 }

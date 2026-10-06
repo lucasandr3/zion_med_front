@@ -55,7 +55,7 @@ import { GoAssistantTourService } from '../services/go-assistant-tour.service';
       .go-tour-root {
         position: fixed;
         inset: 0;
-        z-index: 60;
+        z-index: calc(var(--n-index-modal, 900) + 2);
         pointer-events: none;
       }
       .go-tour-dim {
@@ -140,8 +140,7 @@ import { GoAssistantTourService } from '../services/go-assistant-tour.service';
         pointer-events: none;
         transition: all 0.2s ease;
       }
-    `,
-  ],
+    `],
 })
 export class GoAssistantTourOverlayComponent {
   readonly tour = inject(GoAssistantTourService);

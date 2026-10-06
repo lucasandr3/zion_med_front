@@ -1,0 +1,323 @@
+/**
+ * Listagens full-bleed (padrão pesquisa_app / p360-page-list), adaptado ao Nord.
+ */
+
+.n-page-list {
+  background: var(--n-color-surface);
+  box-sizing: border-box;
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  height: 100%;
+  min-height: 100%;
+}
+
+.n-page-list__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1rem;
+  padding: 0.65rem 1rem;
+  border-block-end: 1px solid var(--n-color-border);
+  background: var(--n-color-surface);
+  flex-shrink: 0;
+}
+
+.n-page-list__toolbar-start,
+.n-page-list__toolbar-end {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+}
+
+/* CTAs do toolbar — pesquisa: sem override de primary (Nord nativo) */
+.n-page-list__toolbar-end nord-button {
+  --n-button-box-shadow: none;
+  --_n-button-box-shadow: none;
+}
+
+.n-page-list__toolbar-start {
+  flex: 1 1 14rem;
+  min-width: 0;
+}
+
+.n-page-list__toolbar-start nord-input,
+.n-page-list__toolbar-start .form-search-wrap,
+.n-page-list__toolbar-start .n-page-list__search {
+  flex: 0 1 auto;
+  width: min(22rem, 100%);
+  max-width: 100%;
+}
+
+.n-page-list__toolbar-start .form-search-wrap {
+  flex: 0 1 auto;
+}
+
+.n-page-list__content {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  flex-direction: column;
+  overflow: auto;
+  background: var(--n-color-surface);
+}
+
+.n-page-list__content--padded {
+  padding: var(--n-space-m, 1rem);
+  box-sizing: border-box;
+}
+
+.n-page-list__table {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  flex: 1;
+}
+
+.n-page-list__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--n-space-m, 1rem);
+  flex-wrap: wrap;
+  padding: 0.85rem 1rem;
+  border-block-end: 1px solid var(--n-color-border);
+}
+
+/* Evita o bloco de título sumir quando as ações ocupam a linha. */
+.n-page-list__row > .n-page-list__row-main {
+  flex: 1 1 16rem;
+  min-width: min(16rem, 100%);
+}
+
+.n-page-list__row:hover {
+  background: color-mix(in srgb, var(--n-color-border) 35%, transparent);
+}
+
+.n-page-list__row--clickable {
+  cursor: pointer;
+}
+
+.n-page-list__row--clickable:focus-visible {
+  outline: 2px solid var(--n-color-accent);
+  outline-offset: -2px;
+}
+
+.n-page-list__toolbar-title {
+  font-weight: var(--n-font-weight-active, 600);
+  color: var(--n-color-text);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.n-page-list__row-main {
+  min-width: 0;
+  flex: 1;
+}
+
+.n-page-list__row-title {
+  font-weight: var(--n-font-weight-active, 600);
+  line-height: 1.3;
+  color: var(--n-color-text);
+}
+
+.n-page-list__row-meta {
+  margin-top: 0.2rem;
+  font-size: var(--n-font-size-s, 0.8125rem);
+  color: var(--n-color-text-weak);
+  line-height: 1.35;
+}
+
+.n-page-list__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.25rem;
+  margin-inline-start: auto;
+  flex: 0 1 auto;
+}
+
+.n-page-list__actions--filters {
+  flex: 1 1 100%;
+  margin-inline-start: 0;
+  justify-content: flex-start;
+  padding-top: 0.15rem;
+}
+
+.n-page-list__actions nord-button[square] {
+  --n-button-color: color-mix(in srgb, var(--n-color-text) 62%, transparent);
+}
+
+.n-page-list__actions nord-button[square]:hover {
+  --n-button-color: var(--n-color-text);
+}
+
+.n-page-list__actions nord-button[variant='danger'] {
+  --n-button-color: var(--n-color-status-danger, #c62828);
+}
+
+.n-page-list__actions nord-combobox,
+.n-page-list__dedup {
+  --n-combobox-block-size: var(--n-button-min-block-size, var(--n-space-xl));
+  --_n-combobox-block-size: var(--n-button-min-block-size, var(--n-space-xl));
+}
+
+.n-page-list__dedup {
+  inline-size: 9.5rem;
+  min-inline-size: 9.5rem;
+  max-inline-size: 12rem;
+}
+
+.n-page-list__dedup--wide {
+  inline-size: 11.5rem;
+  min-inline-size: 11.5rem;
+  max-inline-size: 14rem;
+}
+
+.n-page-list__empty {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  padding: var(--n-space-xl, 2rem) var(--n-space-m, 1rem);
+}
+
+.n-page-list__section {
+  padding: 0.85rem 1rem 0.35rem;
+  border-block-end: 1px solid var(--n-color-border);
+}
+
+.n-page-list__section-title {
+  margin: 0;
+  font-size: var(--n-font-size-s, 0.8125rem);
+  font-weight: var(--n-font-weight-active, 600);
+  color: var(--n-color-text-weak);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.n-page-list__panel {
+  padding: 1rem;
+  border-block-end: 1px solid var(--n-color-border);
+}
+
+.n-page-list__footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 1.15rem 1rem;
+  min-block-size: 3.75rem;
+  border-block-start: 1px solid var(--n-color-border);
+  background: var(--n-color-surface);
+  flex-shrink: 0;
+}
+
+/* Páginas com padding (dashboard, forms, settings) */
+.n-page {
+  background: var(--n-color-background, var(--background));
+  box-sizing: border-box;
+  display: block;
+  flex: 1 1 auto;
+  min-height: 100%;
+  padding: var(--n-space-m, 1rem);
+  width: 100%;
+}
+
+.n-page--narrow {
+  max-width: 920px;
+}
+
+/* Settings / shells de abas edge-to-edge (sem padding do host) */
+.n-page--flush {
+  padding: 0;
+  background: var(--n-color-surface);
+}
+
+.n-form-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1rem;
+  flex-wrap: wrap;
+  margin: calc(-1 * var(--n-space-m, 1rem)) calc(-1 * var(--n-space-m, 1rem)) var(--n-space-m, 1rem);
+  padding: 0.65rem 1rem;
+  border-block-end: 1px solid var(--n-color-border);
+  background: var(--n-color-surface);
+}
+
+.n-form-toolbar__start,
+.n-form-toolbar__end {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+}
+
+.n-form-toolbar__end {
+  margin-inline-start: auto;
+}
+
+.n-form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--n-space-m, 1rem);
+}
+
+.n-stack-gap {
+  margin-top: var(--n-space-m, 1rem);
+}
+
+.n-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--n-space-s, 0.5rem);
+  margin-top: var(--n-space-m, 1rem);
+}
+
+.n-section-title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 650;
+  color: var(--n-color-text);
+}
+
+.n-item {
+  border-top: 1px solid var(--n-color-border);
+  padding: var(--n-space-m, 1rem) 0;
+}
+
+.n-item:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.n-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--n-space-m, 1rem);
+  flex-wrap: wrap;
+}
+
+.n-muted {
+  color: var(--n-color-text-weaker);
+}
+
+.n-small {
+  font-size: var(--n-font-size-s, 0.8125rem);
+}
+
+.n-reset {
+  margin: 0;
+}
+
+.n-full {
+  width: 100%;
+}

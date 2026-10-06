@@ -31,8 +31,7 @@ import type { LinkBioLayoutModel } from '../../core/services/link-bio.service';
     LinkBioPublicLayoutsComponent,
     LinkBioPublicLayoutVetComponent,
     LinkBioPublicLayoutPediaComponent,
-    LinkBioPublicLayoutNutriComponent,
-  ],
+    LinkBioPublicLayoutNutriComponent],
   templateUrl: './link-bio-public.component.html',
   styleUrl: './link-bio-public.component.css',
 })

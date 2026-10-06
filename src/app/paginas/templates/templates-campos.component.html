@@ -1,109 +1,60 @@
 <div class="templates-campos relative min-h-[320px]">
+  <div class="n-form-toolbar">
+    <div class="n-form-toolbar__start">
+      <zm-page-back-link />
+      @if (template()) {
+        <nord-button type="button" size="s" [routerLink]="['/templates', templateId, 'editar']">
+          <nord-icon name="interface-edit" size="s" aria-hidden="true"></nord-icon>
+          Editar modelo
+        </nord-button>
+        <nord-button type="button" size="s" [routerLink]="['/templates', templateId, 'preview']" target="_blank" rel="noopener noreferrer">
+          <nord-icon name="interface-new-window" size="s" aria-hidden="true"></nord-icon>
+          Pré-visualizar
+        </nord-button>
+      }
+    </div>
+    @if (template()) {
+      <div class="n-form-toolbar__end">
+        @if (isConsentimento) {
+          <nord-button type="button" variant="default" size="s" [attr.loading]="aplicandoEstruturaTcle()" [attr.disabled]="aplicandoEstruturaTcle()" (click)="aplicarEstruturaTcle()">
+            <span class="material-symbols-outlined text-base" aria-hidden="true">account_tree</span>
+            Aplicar estrutura TCLE
+          </nord-button>
+        }
+        @if (linkPublicoUrl()) {
+          <nord-button type="button" size="s" (click)="copiarLink($event)">
+            <span class="material-symbols-outlined text-base" aria-hidden="true">content_copy</span>
+            <span class="copy-label">Copiar link</span>
+          </nord-button>
+          <a [href]="linkPublicoUrl()" target="_blank" rel="noopener" class="no-underline">
+            <nord-button type="button" size="s">
+              <nord-icon name="interface-new-window" size="s" aria-hidden="true"></nord-icon>
+              Abrir
+            </nord-button>
+          </a>
+          <nord-button type="button" variant="default" size="s" [attr.loading]="desativandoLink()" [attr.disabled]="desativandoLink()" (click)="desativarLink()">
+            @if (!desativandoLink()) {
+              <span class="material-symbols-outlined text-base" aria-hidden="true">link_off</span>
+            }
+            {{ desativandoLink() ? 'Desativando…' : 'Desativar link' }}
+          </nord-button>
+        } @else {
+          <nord-button type="button" size="s" [attr.loading]="gerandoLink()" [attr.disabled]="gerandoLink()" (click)="gerarLink()">
+            @if (!gerandoLink()) {
+              <span class="material-symbols-outlined text-base" aria-hidden="true">link</span>
+            }
+            {{ gerandoLink() ? 'Publicando…' : 'Publicar link' }}
+          </nord-button>
+        }
+      </div>
+    }
+  </div>
+
   @if (showSkeleton()) {
     <zm-skeleton-template-campos />
   } @else if (!listaPronta()) {
   } @else if (template()) {
     <div class="zm-content-enter">
-      <div class="mb-6 flex flex-wrap items-center gap-2.5">
-        <zm-page-back-link />
-        <div class="flex flex-wrap items-center gap-2.5">
-          <a
-            z-button
-            zType="outline"
-            zSize="sm"
-            [routerLink]="['/templates', templateId, 'editar']"
-            class="inline-flex items-center gap-1.5 no-underline"
-          >
-            <span class="material-symbols-outlined text-sm" aria-hidden="true">edit</span>
-            Editar modelo
-          </a>
-          <a
-            z-button
-            zType="outline"
-            zSize="sm"
-            [routerLink]="['/templates', templateId, 'preview']"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="inline-flex items-center gap-1.5 no-underline"
-          >
-            <span class="material-symbols-outlined text-sm" aria-hidden="true">visibility</span>
-            Pré-visualizar
-          </a>
-        </div>
-
-        <div class="ml-auto flex flex-wrap items-center gap-2.5">
-          @if (isConsentimento) {
-            <button
-              type="button"
-              z-button
-              zType="outline"
-              zSize="sm"
-              class="inline-flex items-center gap-1.5"
-              [zLoading]="aplicandoEstruturaTcle()"
-              [zDisabled]="aplicandoEstruturaTcle()"
-              (click)="aplicarEstruturaTcle()"
-            >
-              <span class="material-symbols-outlined text-sm" aria-hidden="true">account_tree</span>
-              Aplicar estrutura TCLE
-            </button>
-          }
-          @if (linkPublicoUrl()) {
-            <button
-              type="button"
-              z-button
-              zSize="sm"
-              class="inline-flex items-center gap-1.5"
-              (click)="copiarLink($event)"
-            >
-              <span class="material-symbols-outlined text-sm" aria-hidden="true">content_copy</span>
-              <span class="copy-label">Copiar link</span>
-            </button>
-            <a
-              z-button
-              zType="outline"
-              zSize="sm"
-              [href]="linkPublicoUrl()"
-              target="_blank"
-              rel="noopener"
-              class="inline-flex items-center gap-1.5 no-underline"
-            >
-              <span class="material-symbols-outlined text-sm" aria-hidden="true">open_in_new</span>
-              Abrir
-            </a>
-            <button
-              type="button"
-              z-button
-              zType="outline"
-              zSize="sm"
-              class="inline-flex items-center gap-1.5"
-              [zLoading]="desativandoLink()"
-              [zDisabled]="desativandoLink()"
-              (click)="desativarLink()"
-            >
-              @if (!desativandoLink()) {
-                <span class="material-symbols-outlined text-sm" aria-hidden="true">link_off</span>
-              }
-              {{ desativandoLink() ? 'Desativando…' : 'Desativar link' }}
-            </button>
-          } @else {
-            <button
-              type="button"
-              z-button
-              zSize="sm"
-              class="inline-flex items-center gap-1.5"
-              [zLoading]="gerandoLink()"
-              [zDisabled]="gerandoLink()"
-              (click)="gerarLink()"
-            >
-              @if (!gerandoLink()) {
-                <span class="material-symbols-outlined text-sm" aria-hidden="true">link</span>
-              }
-              {{ gerandoLink() ? 'Publicando…' : 'Publicar link' }}
-            </button>
-          }
-        </div>
-      </div>
-
       @if (isConsentimento) {
         <div class="mb-5 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950">
           <p class="mb-2 font-semibold">Checklist de consentimento informado (CFM)</p>
@@ -120,7 +71,7 @@
             }
           </ul>
         </div>
-        <z-card class="mb-5 gap-0 overflow-hidden border-border bg-card py-0 shadow-sm">
+        <g-card class="mb-5 gap-0 overflow-hidden border-border bg-card py-0 shadow-sm">
           <div class="border-b border-border px-5 py-4">
             <p class="text-sm font-semibold text-foreground">Bloco responsável legal (condicional)</p>
             <p class="mt-1 text-xs text-muted-foreground">
@@ -128,9 +79,7 @@
             </p>
           </div>
           <div class="space-y-4 px-5 py-4">
-            <z-checkbox [(ngModel)]="actorsVisibilityEnabled" name="actors_visibility_enabled">
-              Exibir bloco responsável/testemunha somente quando…
-            </z-checkbox>
+            <nord-checkbox [(ngModel)]="actorsVisibilityEnabled" name="actors_visibility_enabled" label="Exibir bloco responsável/testemunha somente quando…"></nord-checkbox>
             @if (actorsVisibilityEnabled) {
               <div class="templates-campos-form-grid">
                 <div class="templates-campos-field templates-campos-field--full">
@@ -166,8 +115,6 @@
                     <input
                       id="actors_visibility_value"
                       type="text"
-                      z-input
-                      zSize="sm"
                       class="w-full"
                       placeholder="Ex.: Sim"
                       [(ngModel)]="actorsVisibilityValue"
@@ -176,35 +123,26 @@
                   </div>
                 }
               </div>
-              <z-checkbox [(ngModel)]="actorsRequireGuardian" name="actors_require_guardian">
-                Exigir nome do responsável legal quando o bloco aparecer
-              </z-checkbox>
+              <nord-checkbox [(ngModel)]="actorsRequireGuardian" name="actors_require_guardian" label="Exigir nome do responsável legal quando o bloco aparecer"></nord-checkbox>
             }
             <div class="flex justify-end">
-              <button
-                type="button"
-                z-button
-                zSize="sm"
-                [zLoading]="salvandoActorsRules()"
-                [zDisabled]="salvandoActorsRules()"
-                (click)="salvarActorsVisibilityRules()"
-              >
+              <nord-button type="button" size="s" [attr.loading]="salvandoActorsRules()" [attr.disabled]="salvandoActorsRules()" (click)="salvarActorsVisibilityRules()">
                 Salvar regras do responsável
-              </button>
+              </nord-button>
             </div>
           </div>
-        </z-card>
+        </g-card>
       }
 
       @if (erro()) {
         <p class="mb-4 text-sm text-destructive">{{ erro() }}</p>
       }
 
-      <z-card class="mb-4 gap-0 overflow-hidden border-border bg-card py-0 shadow-sm">
+      <g-card class="mb-4 gap-0 overflow-hidden border-border bg-card py-0 shadow-sm">
         <div class="flex items-center gap-2 border-b border-border px-5 py-4 sm:px-6">
           <span class="material-symbols-outlined text-base text-primary" aria-hidden="true">add_circle</span>
           <span class="text-sm font-semibold text-foreground">Adicionar campo</span>
-          <z-badge zType="default" zShape="pill" class="h-5 px-2 text-[0.6875rem]">Novo</z-badge>
+          <g-badge zType="default" zShape="pill" class="h-5 px-2 text-[0.6875rem]">Novo</g-badge>
         </div>
 
         <div class="px-5 py-5 sm:px-6">
@@ -232,8 +170,6 @@
               <input
                 id="new_label"
                 type="text"
-                z-input
-                zSize="sm"
                 class="w-full"
                 placeholder="Ex: Nome completo"
                 [(ngModel)]="novoLabel"
@@ -243,9 +179,9 @@
                   Identificador interno:
                   <span class="templates-campos-key-chip">{{ previewNameKey() || 'sera_gerado_automaticamente' }}</span>
                 </p>
-                <button type="button" z-button zType="link" zSize="sm" class="h-auto shrink-0 px-0 text-xs" (click)="alternarOpcoesAvancadas()">
+                <nord-button type="button" variant="plain" size="s" class="h-auto shrink-0 px-0 text-xs" (click)="alternarOpcoesAvancadas()">
                   {{ novoMostrarOpcoesAvancadas ? 'Ocultar opções avançadas' : 'Mostrar opções avançadas' }}
-                </button>
+                </nord-button>
               </div>
             </div>
 
@@ -255,8 +191,6 @@
                 <input
                   id="new_name_key"
                   type="text"
-                  z-input
-                  zSize="sm"
                   class="w-full font-mono text-[0.8125rem]"
                   placeholder="ex: nome_completo"
                   maxlength="80"
@@ -275,8 +209,6 @@
               <textarea
                 id="new_options_text"
                 rows="3"
-                z-input
-                zSize="sm"
                 class="w-full"
                 placeholder="Ex.: Opção 1&#10;Opção 2&#10;Opção 3"
                 [(ngModel)]="novoOptionsText"
@@ -286,36 +218,28 @@
 
           <div class="flex flex-wrap items-center justify-between gap-3">
             @if (!isNovoStructural) {
-              <z-checkbox [(ngModel)]="novoRequired" name="new_required">Campo obrigatório</z-checkbox>
+              <nord-checkbox [(ngModel)]="novoRequired" name="new_required" label="Campo obrigatório"></nord-checkbox>
             }
-            <button
-              type="button"
-              z-button
-              zSize="sm"
-              class="inline-flex items-center gap-1.5"
-              [zLoading]="salvandoCampo()"
-              [zDisabled]="salvandoCampo() || !novoLabel.trim()"
-              (click)="adicionarCampo()"
-            >
+            <nord-button type="button" size="s" class="inline-flex items-center gap-1.5" [attr.loading]="salvandoCampo()" [attr.disabled]="salvandoCampo() || !novoLabel.trim()" (click)="adicionarCampo()">
               @if (!salvandoCampo()) {
                 <span class="material-symbols-outlined text-sm" aria-hidden="true">add</span>
               }
               {{ salvandoCampo() ? 'Salvando…' : 'Adicionar campo' }}
-            </button>
+            </nord-button>
           </div>
         </div>
-      </z-card>
+      </g-card>
 
-      <z-card class="gap-0 overflow-hidden border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
+      <g-card class="gap-0 overflow-hidden border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
         <div class="flex items-center justify-between gap-2 border-b border-border px-5 py-4 sm:px-6">
           <div class="flex items-center gap-2 text-sm font-semibold text-foreground">
             Campos configurados
-            <z-badge zType="secondary" zShape="pill" class="h-5 px-2 text-xs font-semibold">{{ campos().length }}</z-badge>
+            <g-badge zType="secondary" zShape="pill" class="h-5 px-2 text-xs font-semibold">{{ campos().length }}</g-badge>
           </div>
         </div>
 
         <div class="zm-table-wrap">
-          <table z-table zSize="compact" class="w-full text-sm">
+          <table z-table class="w-full text-sm">
             <thead z-table-header>
               <tr z-table-row>
                 <th z-table-head class="w-[50px]"></th>
@@ -383,31 +307,12 @@
                     </td>
                     <td z-table-cell class="px-4 py-3">
                       <div class="flex items-center justify-center gap-1">
-                        <button
-                          type="button"
-                          z-button
-                          zType="ghost"
-                          zSize="icon-xs"
-                          zTooltip="Editar campo"
-                          aria-label="Editar campo"
-                          (click)="abrirModalEditar(c)"
-                        >
+                        <nord-button type="button" variant="plain" size="s" aria-label="Editar campo" (click)="abrirModalEditar(c)" square>
                           <span class="material-symbols-outlined text-sm">edit</span>
-                        </button>
-                        <button
-                          type="button"
-                          z-button
-                          zType="ghost"
-                          zSize="icon-xs"
-                          class="text-destructive hover:text-destructive"
-                          zTooltip="Remover campo"
-                          aria-label="Remover campo"
-                          [zLoading]="removendoId() === c.id"
-                          [zDisabled]="removendoId() === c.id"
-                          (click)="removerCampo(c)"
-                        >
+                        </nord-button>
+                        <nord-button type="button" variant="plain" size="s" class="text-destructive hover:text-destructive" aria-label="Remover campo" [attr.loading]="removendoId() === c.id" [attr.disabled]="removendoId() === c.id" (click)="removerCampo(c)" square>
                           <span class="material-symbols-outlined text-sm">delete</span>
-                        </button>
+                        </nord-button>
                       </div>
                     </td>
                   </tr>
@@ -416,7 +321,7 @@
             </tbody>
           </table>
         </div>
-      </z-card>
+      </g-card>
     </div>
   }
 
@@ -433,20 +338,12 @@
     aria-labelledby="edit-campo-title"
     (click)="fecharModal()"
   >
-    <z-card class="w-full max-w-lg gap-0 overflow-hidden border-border bg-card py-0 shadow-lg" (click)="$event.stopPropagation()">
+    <g-card class="w-full max-w-lg gap-0 overflow-hidden border-border bg-card py-0 shadow-lg" (click)="$event.stopPropagation()">
       <div class="flex items-center justify-between border-b border-border px-5 py-4">
         <h2 id="edit-campo-title" class="text-lg font-semibold text-foreground">Editar campo</h2>
-        <button
-          type="button"
-          z-button
-          zType="ghost"
-          zSize="icon-sm"
-          aria-label="Fechar"
-          title="Fechar"
-          (click)="fecharModal()"
-        >
+        <nord-button type="button" variant="plain" size="s" aria-label="Fechar" title="Fechar" (click)="fecharModal()" square>
           <span class="material-symbols-outlined text-[1.375rem]">close</span>
-        </button>
+        </nord-button>
       </div>
 
       <div class="space-y-4 px-5 py-4">
@@ -468,8 +365,6 @@
           <input
             id="edit_label"
             type="text"
-            z-input
-            zSize="sm"
             class="w-full"
             placeholder="Ex: Nome completo"
             [(ngModel)]="editLabel"
@@ -480,8 +375,6 @@
           <input
             id="edit_name_key"
             type="text"
-            z-input
-            zSize="sm"
             class="w-full font-mono"
             placeholder="ex: nome_completo"
             maxlength="80"
@@ -490,7 +383,7 @@
           <p class="mt-1 text-xs text-muted-foreground">Apenas letras minúsculas, números e underscore.</p>
         </div>
         @if (!isEditStructural) {
-          <z-checkbox [(ngModel)]="editRequired" name="edit_required">Obrigatório</z-checkbox>
+          <nord-checkbox [(ngModel)]="editRequired" name="edit_required" label="Obrigatório"></nord-checkbox>
         }
         @if (showEditOptions) {
           <div>
@@ -499,8 +392,6 @@
             <textarea
               id="edit_options_text"
               rows="3"
-              z-input
-              zSize="sm"
               class="w-full"
               placeholder="Ex.: Opção 1&#10;Opção 2&#10;Opção 3"
               [(ngModel)]="editOptionsText"
@@ -509,9 +400,7 @@
         }
         @if (!isEditStructural) {
           <div class="space-y-3 rounded-lg border border-border p-4">
-            <z-checkbox [(ngModel)]="editVisibilityEnabled" name="edit_visibility_enabled">
-              Exibir somente quando…
-            </z-checkbox>
+            <nord-checkbox [(ngModel)]="editVisibilityEnabled" name="edit_visibility_enabled" label="Exibir somente quando…"></nord-checkbox>
             @if (editVisibilityEnabled) {
               <div class="templates-campos-form-grid">
                 <div class="templates-campos-field templates-campos-field--full">
@@ -547,8 +436,6 @@
                     <input
                       id="edit_visibility_value"
                       type="text"
-                      z-input
-                      zSize="sm"
                       class="w-full"
                       placeholder="Ex.: Sim"
                       [(ngModel)]="editVisibilityValue"
@@ -568,8 +455,6 @@
           <label class="templates-campos-form-label" for="edit_clinical_step">Etapa clínica (wizard público)</label>
           <select
             id="edit_clinical_step"
-            z-input
-            zSize="sm"
             class="w-full"
             [(ngModel)]="editClinicalStepKind"
             name="edit_clinical_step"
@@ -586,18 +471,11 @@
       </div>
 
       <div class="flex justify-end gap-2 border-t border-border px-5 py-4" card-footer>
-        <button type="button" z-button zType="outline" zSize="sm" (click)="fecharModal()">Cancelar</button>
-        <button
-          type="button"
-          z-button
-          zSize="sm"
-          [zLoading]="salvandoCampo()"
-          [zDisabled]="salvandoCampo()"
-          (click)="salvarEdicao()"
-        >
+        <nord-button type="button" variant="default" size="s" (click)="fecharModal()">Cancelar</nord-button>
+        <nord-button type="button" size="s" [attr.loading]="salvandoCampo()" [attr.disabled]="salvandoCampo()" (click)="salvarEdicao()">
           {{ salvandoCampo() ? 'Salvando…' : 'Salvar' }}
-        </button>
+        </nord-button>
       </div>
-    </z-card>
+    </g-card>
   </div>
 }

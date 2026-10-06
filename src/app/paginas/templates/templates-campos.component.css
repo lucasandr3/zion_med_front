@@ -62,7 +62,7 @@
   min-height: var(--control-height);
 }
 
-.templates-campos z-checkbox {
+.templates-campos g-checkbox {
   align-items: flex-start;
 }
 

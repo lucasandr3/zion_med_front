@@ -1,25 +1,36 @@
-import { Component, Input, inject } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, Input, inject } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
 
+/**
+ * Voltar no toolbar — `nord-button` + `nord-icon` (pesquisa_app).
+ */
 @Component({
   selector: 'zm-page-back-link',
   standalone: true,
-  imports: [RouterLink, ZardButtonComponent],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  imports: [RouterLink],
   template: `
     @if (backUrl) {
-      <a
+      <nord-button
+        type="button"
         [routerLink]="backUrl"
-        z-button
-        zType="outline"
-        zSize="sm"
-        class="zm-page-back-link shrink-0 gap-1.5 no-underline"
         [attr.title]="backLabel"
         [attr.aria-label]="backLabel"
       >
-        <span class="material-symbols-outlined text-base" aria-hidden="true">arrow_back</span>
+        <nord-icon name="arrow-left" size="s" aria-hidden="true"></nord-icon>
         {{ backLabel }}
-      </a>
+      </nord-button>
+    }
+  `,
+  styles: `
+    :host {
+      display: inline-flex;
+      min-width: 0;
+    }
+
+    :host nord-button {
+      --n-button-box-shadow: none;
+      --_n-button-box-shadow: none;
     }
   `,
 })

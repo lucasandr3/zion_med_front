@@ -31,36 +31,21 @@
         Leia todas as seções do termo acima (role até o final) para habilitar a declaração de compreensão clínica.
       </p>
     }
-    <z-checkbox
-      class="fp-consent-checkbox"
-      [ngModel]="comprehensionAck"
-      (ngModelChange)="comprehensionAckChange.emit($event)"
-      name="fpComprehensionAck"
-      [ngModelOptions]="{ standalone: true }"
-      [zDisabled]="requireTermScroll && !termScrollCompleted"
-      (click)="$event.stopPropagation()"
-    >
-      <span class="fp-check-label-inline">
+    <nord-checkbox class="fp-consent-checkbox" [ngModel]="comprehensionAck" (ngModelChange)="comprehensionAckChange.emit($event)" name="fpComprehensionAck" [ngModelOptions]="{ standalone: true }" [attr.disabled]="requireTermScroll && !termScrollCompleted" (click)="$event.stopPropagation()">
+      <span slot="label" class="fp-check-label-inline">
         Declaro que li e compreendi as informações deste termo sobre o procedimento, riscos, benefícios, alternativas, cuidados e o direito de recusa, conforme descrito acima.
       </span>
-    </z-checkbox>
+    </nord-checkbox>
   }
 
   @if (showPrivacySection) {
-  <z-checkbox
-    class="fp-consent-checkbox"
-    [ngModel]="acceptTerms"
-    (ngModelChange)="acceptTermsChange.emit($event)"
-    name="fpAcceptTerms"
-    [ngModelOptions]="{ standalone: true }"
-    (click)="$event.stopPropagation()"
-  >
-    <span class="fp-check-label-inline">
+  <nord-checkbox class="fp-consent-checkbox" [ngModel]="acceptTerms" (ngModelChange)="acceptTermsChange.emit($event)" name="fpAcceptTerms" [ngModelOptions]="{ standalone: true }" (click)="$event.stopPropagation()">
+    <span slot="label" class="fp-check-label-inline">
       Declaro que li o aviso sobre uso dos dados e a
       <a routerLink="/privacidade" target="_blank" rel="noopener" class="fp-link">Política de Privacidade</a>.
       Estou ciente de que minha assinatura eletrônica integra este documento (ciência de privacidade, distinta da compreensão clínica acima).
     </span>
-  </z-checkbox>
+  </nord-checkbox>
   }
 </div>
 }
@@ -117,17 +102,11 @@
 
 @if (showActorsAssistedSection && assistedMode) {
   <div class="fp-assisted-block">
-    <z-checkbox
-      class="fp-consent-checkbox"
-      [ngModel]="professionalExplained"
-      (ngModelChange)="professionalExplainedChange.emit($event)"
-      name="fpProfessionalExplained"
-      [ngModelOptions]="{ standalone: true }"
-    >
-      <span class="fp-check-label-inline">
+    <nord-checkbox class="fp-consent-checkbox" [ngModel]="professionalExplained" (ngModelChange)="professionalExplainedChange.emit($event)" name="fpProfessionalExplained" [ngModelOptions]="{ standalone: true }">
+      <span slot="label" class="fp-check-label-inline">
         Confirmo, como profissional, que expliquei riscos, benefícios, alternativas e o direito de recusa ao paciente (modo assistido).
       </span>
-    </z-checkbox>
+    </nord-checkbox>
 
     @if (!showAssistedCosignBlock) {
       <p class="fp-field-hint" style="margin-top:0.75rem">

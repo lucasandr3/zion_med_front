@@ -1,31 +1,31 @@
-import { Component, OnInit, inject, Signal, ChangeDetectionStrategy, signal } from '@angular/core';
+import { Component, OnInit, inject, Signal, ChangeDetectionStrategy, signal, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { PlataformaService, PlatformSettingsData } from '../../../core/services/plataforma.service';
 import { LoadingService } from '../../../shared/services/loading.service';
 import { ZmSkeletonConfiguracoesComponent } from '../../../shared/components/skeletons';
 import { ToastService } from '../../../core/services/toast.service';
-import { ZardCardComponent } from '@/shared/components/card/card.component';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
-import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
-import { ZardTabComponent, ZardTabGroupComponent } from '@/shared/components/tabs';
+import { GestgoCardComponent } from '@/shared/components/card/card.component';
+
+import { NORD_FORM_IMPORTS } from '@/shared/nord';
+import { GestgoTabComponent, GestgoTabGroupComponent } from '@/shared/components/tabs';
 import { PlataformaIntegracoesTabComponent } from './plataforma-integracoes-tab.component';
 import { PlataformaServicosTabComponent } from './plataforma-servicos-tab.component';
 
 @Component({
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'app-plataforma-configuracoes',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { class: 'n-page n-page--flush' },
   imports: [
     FormsModule,
-    ZardCardComponent,
-    ZardButtonComponent,
-    ...ZARD_FORM_CONTROL_IMPORTS,
+    GestgoCardComponent,
+    ...NORD_FORM_IMPORTS,
     ZmSkeletonConfiguracoesComponent,
-    ZardTabComponent,
-    ZardTabGroupComponent,
+    GestgoTabComponent,
+    GestgoTabGroupComponent,
     PlataformaIntegracoesTabComponent,
-    PlataformaServicosTabComponent,
-  ],
+    PlataformaServicosTabComponent],
   templateUrl: './plataforma-configuracoes.component.html',
   styleUrl: './plataforma-configuracoes.component.css',
 })

@@ -14,8 +14,7 @@ describe('field-visibility.util', () => {
       visibility_rules: {
         show_when: [{ field: 'eh_menor', operator: 'equals' as const, value: 'Sim' }],
       },
-    },
-  ];
+    }];
 
   it('mostra campo sem regras sempre', () => {
     expect(isFieldVisible(fields[0], {})).toBe(true);

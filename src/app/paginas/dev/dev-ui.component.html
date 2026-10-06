@@ -37,10 +37,10 @@
           }
         </select>
       </label>
-      <button z-button zType="outline" zSize="sm" type="button" (click)="toggleDark()">
+      <nord-button variant="default" size="s" type="button" (click)="toggleDark()">
         <span class="material-symbols-outlined text-base" aria-hidden="true">{{ isDark ? 'light_mode' : 'dark_mode' }}</span>
         {{ isDark ? 'Modo claro' : 'Modo escuro' }}
-      </button>
+      </nord-button>
     </div>
   </header>
 
@@ -101,15 +101,15 @@
         <h2 class="dev-ui-section__title">Botões</h2>
         <p class="dev-ui-section__desc">Preferir <code>z-button</code> em código novo. Classes legadas ainda usadas em billing.</p>
 
-        <h3 class="dev-ui-subsection__title">Zard (<code>z-button</code>)</h3>
+        <h3 class="dev-ui-subsection__title">Gestgo (<code>z-button</code>)</h3>
         <div class="dev-ui-row">
-          <button z-button zType="default" zSize="sm" type="button">Default</button>
-          <button z-button zType="outline" zSize="sm" type="button">Outline</button>
-          <button z-button zType="secondary" zSize="sm" type="button">Secondary</button>
-          <button z-button zType="ghost" zSize="sm" type="button">Ghost</button>
-          <button z-button zType="destructive" zSize="sm" type="button">Destructive</button>
-          <button z-button zType="link" zSize="sm" type="button">Link</button>
-          <button z-button zType="default" zSize="sm" type="button" disabled>Disabled</button>
+          <nord-button variant="primary" size="s" type="button">Default</nord-button>
+          <nord-button variant="default" size="s" type="button">Outline</nord-button>
+          <nord-button variant="default" size="s" type="button">Secondary</nord-button>
+          <nord-button variant="plain" size="s" type="button">Ghost</nord-button>
+          <nord-button variant="danger" size="s" type="button">Destructive</nord-button>
+          <nord-button variant="plain" size="s" type="button">Link</nord-button>
+          <nord-button variant="primary" size="s" type="button" disabled>Disabled</nord-button>
         </div>
 
         <h3 class="dev-ui-subsection__title">Legado (<code>styles.css</code>)</h3>
@@ -127,11 +127,11 @@
       <section id="badges" class="dev-ui-section">
         <h2 class="dev-ui-section__title">Badges</h2>
         <div class="dev-ui-row">
-          <z-badge zType="default">Default</z-badge>
-          <z-badge zType="secondary">Secondary</z-badge>
-          <z-badge zType="destructive">Destructive</z-badge>
-          <z-badge zType="outline">Outline</z-badge>
-          <z-badge zType="secondary" zShape="pill">Pill</z-badge>
+          <g-badge zType="default">Default</g-badge>
+          <g-badge zType="secondary">Secondary</g-badge>
+          <g-badge zType="destructive">Destructive</g-badge>
+          <g-badge zType="outline">Outline</g-badge>
+          <g-badge zType="secondary" zShape="pill">Pill</g-badge>
         </div>
       </section>
 
@@ -139,12 +139,12 @@
         <h2 class="dev-ui-section__title">Formulários</h2>
         <div class="dev-ui-form-grid">
           <div class="dev-ui-field">
-            <label class="form-label" for="dev-ui-input">Input (<code>z-input</code>)</label>
-            <input id="dev-ui-input" z-input class="form-input w-full text-sm" placeholder="Placeholder…" />
+            <label class="form-label" for="dev-ui-input">Input (<code>nord-input</code>)</label>
+            <input id="dev-ui-input" class="form-input w-full text-sm" placeholder="Placeholder…" />
           </div>
           <div class="dev-ui-field">
             <label class="form-label" for="dev-ui-select">Select nativo</label>
-            <select id="dev-ui-select" z-input class="form-select w-full text-sm">
+            <select id="dev-ui-select" class="form-select w-full text-sm">
               <option>Opção A</option>
               <option>Opção B</option>
             </select>
@@ -153,7 +153,7 @@
             <label class="form-label" for="dev-ui-search">Busca com ícone</label>
             <div class="form-search-wrap">
               <span class="material-symbols-outlined form-search-icon">search</span>
-              <input id="dev-ui-search" z-input class="form-search-input form-input w-full text-sm" placeholder="Buscar…" />
+              <input id="dev-ui-search" class="form-search-input form-input w-full text-sm" placeholder="Buscar…" />
             </div>
           </div>
         </div>
@@ -163,7 +163,7 @@
         <h2 class="dev-ui-section__title">Section card</h2>
         <p class="dev-ui-section__desc">Padrão de configurações, billing e detalhes.</p>
 
-        <z-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
+        <g-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
           <div class="section-header">
             <div class="icon-wrap w-7 h-7 rounded-lg flex items-center justify-center">
               <span class="material-symbols-outlined text-sm">palette</span>
@@ -176,14 +176,14 @@
           <div class="section-body">
             <p class="dev-ui-muted">Corpo do card com padding <code>1.25rem</code>. Use tokens e <code>color-mix</code> para destaques.</p>
           </div>
-        </z-card>
+        </g-card>
       </section>
 
       <section id="tabela" class="dev-ui-section">
         <h2 class="dev-ui-section__title">Tabela de listagem</h2>
-        <z-card class="zm-table-card gap-0 overflow-hidden rounded-[8px] py-0 shadow-sm **:data-[slot=card-content]:p-0">
+        <g-card class="zm-table-card gap-0 overflow-hidden rounded-[8px] py-0 shadow-sm **:data-[slot=card-content]:p-0">
           <div class="zm-table-wrap">
-            <table z-table zSize="compact">
+            <table z-table>
               <thead z-table-header>
                 <tr z-table-row>
                   <th z-table-head>Pessoa</th>
@@ -201,7 +201,7 @@
                     <div class="zm-cell-muted">ana&#64;email.com</div>
                   </td>
                   <td z-table-cell>
-                    <z-badge zType="secondary" zShape="pill">Ativo</z-badge>
+                    <g-badge zType="secondary" zShape="pill">Ativo</g-badge>
                   </td>
                 </tr>
                 <tr z-table-row class="zm-row-clickable">
@@ -213,13 +213,13 @@
                     <div class="zm-cell-muted">bruno&#64;email.com</div>
                   </td>
                   <td z-table-cell>
-                    <z-badge zType="outline" zShape="pill">Pendente</z-badge>
+                    <g-badge zType="outline" zShape="pill">Pendente</g-badge>
                   </td>
                 </tr>
               </tbody>
             </table>
           </div>
-        </z-card>
+        </g-card>
       </section>
 
       <section id="toolbar" class="dev-ui-section">
@@ -227,17 +227,17 @@
         <div class="zm-list-toolbar zm-list-toolbar--search-wide">
           <div class="form-search-wrap zm-list-toolbar__search">
             <span class="material-symbols-outlined form-search-icon">search</span>
-            <input z-input class="form-search-input w-full text-sm" placeholder="Buscar registros…" aria-label="Buscar" />
+            <input class="form-search-input w-full text-sm" placeholder="Buscar registros…" aria-label="Buscar" />
           </div>
           <div class="zm-list-toolbar__actions">
-            <button z-button zType="outline" zSize="sm" type="button" class="gap-1.5">
+            <nord-button variant="default" size="s" type="button" class="gap-1.5">
               <span class="material-symbols-outlined text-base" aria-hidden="true">filter_alt</span>
               Filtros
-            </button>
-            <button z-button zSize="sm" type="button" class="gap-1.5">
+            </nord-button>
+            <nord-button size="s" type="button" class="gap-1.5">
               <span class="material-symbols-outlined text-base" aria-hidden="true">add</span>
               Criar
-            </button>
+            </nord-button>
           </div>
         </div>
         <p class="zm-count-label">2 registros de exemplo</p>
@@ -276,10 +276,10 @@
         <h2 class="dev-ui-section__title">Skeleton / loading</h2>
         <div class="dev-ui-skeleton-grid">
           <div>
-            <p class="dev-ui-subsection__title"><code>z-skeleton</code></p>
-            <z-skeleton class="h-4 w-full mb-2" />
-            <z-skeleton class="h-4 w-3/4 mb-2" />
-            <z-skeleton class="h-4 w-1/2" />
+            <p class="dev-ui-subsection__title"><code>g-skeleton</code></p>
+            <g-skeleton class="h-4 w-full mb-2" />
+            <g-skeleton class="h-4 w-3/4 mb-2" />
+            <g-skeleton class="h-4 w-1/2" />
           </div>
           <div>
             <p class="dev-ui-subsection__title"><code>zm-skeleton-list</code></p>

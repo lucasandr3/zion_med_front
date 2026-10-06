@@ -12,7 +12,7 @@
   min-height: var(--control-height);
 }
 
-.usuario-formulario z-checkbox {
+.usuario-formulario g-checkbox {
   align-items: flex-start;
 }
 

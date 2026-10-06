@@ -1,4 +1,4 @@
-import { afterNextRender, Component, Injector, OnDestroy, OnInit, inject, runInInjectionContext, Signal, ViewChild, ChangeDetectionStrategy, signal } from '@angular/core';
+import { afterNextRender, Component, Injector, OnDestroy, OnInit, inject, runInInjectionContext, Signal, ViewChild, ChangeDetectionStrategy, signal, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -18,13 +18,13 @@ import { ConfirmDialogService } from '../../core/services/confirm-dialog.service
 import { AuthService } from '../../core/services/auth.service';
 import { ClinicaService, ClinicaConfig } from '../../core/services/clinica.service';
 import { PessoasService, Pessoa } from '../../core/services/pessoas.service';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
-import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
-import type { ZardBadgeTypeVariants } from '@/shared/components/badge/badge.variants';
-import { ZardCardComponent } from '@/shared/components/card/card.component';
-import { ZardTabComponent, ZardTabGroupComponent } from '@/shared/components/tabs';
-import { ZardAvatarComponent } from '@/shared/components/avatar/avatar.component';
-import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
+
+import { GestgoBadgeComponent } from '@/shared/components/badge/badge.component';
+import type { GestgoBadgeTypeVariants } from '@/shared/components/badge/badge.variants';
+import { GestgoCardComponent } from '@/shared/components/card/card.component';
+import { GestgoTabComponent, GestgoTabGroupComponent } from '@/shared/components/tabs';
+import { GestgoAvatarComponent } from '@/shared/components/avatar/avatar.component';
+import { NORD_FORM_IMPORTS } from '@/shared/nord';
 
 /** Linha do documento de impressão: agrupamento dinâmico de campos do template. */
 interface DocLinhaCampo {
@@ -44,34 +44,33 @@ const PROTOCOLO_ABA_IDS: ProtocoloAbaId[] = [
   'historico',
   'assinaturas',
   'comentarios',
-  'impressao',
-];
+  'impressao'];
 
 @Component({
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'app-protocolos-detalhe',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { class: 'n-page' },
   imports: [
     FormsModule,
     RouterLink,
     ZmSkeletonProtocoloDetalheComponent,
     ZmEmptyStateComponent,
     ZmPageBackLinkComponent,
-    ZardButtonComponent,
-    ZardBadgeComponent,
-    ZardCardComponent,
-    ZardTabComponent,
-    ZardTabGroupComponent,
-    ZardAvatarComponent,
-    ...ZARD_FORM_CONTROL_IMPORTS,
-  ],
+    GestgoBadgeComponent,
+    GestgoCardComponent,
+    GestgoTabComponent,
+    GestgoTabGroupComponent,
+    GestgoAvatarComponent,
+    ...NORD_FORM_IMPORTS],
   templateUrl: './protocolos-detalhe.component.html',
   styleUrl: './protocolos-detalhe.component.css',
 })
 export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
   abaAtiva: ProtocoloAbaId = 'visao-geral';
 
-  @ViewChild('protocoloTabGroup') protocoloTabGroup?: ZardTabGroupComponent;
+  @ViewChild('protocoloTabGroup') protocoloTabGroup?: GestgoTabGroupComponent;
   readonly protocolo = signal<ProtocoloDetalheData | null>(null);
   showSkeleton!: Signal<boolean>;
   readonly erro = signal('');
@@ -322,7 +321,7 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
     this.syncTabGroupFromAba();
   }
 
-  onZardTabChange(event: { index: number }): void {
+  onGestgoTabChange(event: { index: number }): void {
     const aba = PROTOCOLO_ABA_IDS[event.index];
     if (aba) {
       this.abaAtiva = aba;
@@ -358,7 +357,7 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
     return n > 0 ? `Comentários (${n})` : 'Comentários';
   }
 
-  statusBadgeType(): ZardBadgeTypeVariants {
+  statusBadgeType(): GestgoBadgeTypeVariants {
     const tone = this.statusBadgeTone();
     if (tone === 'red') return 'destructive';
     if (tone === 'green') return 'secondary';
@@ -579,8 +578,7 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
         a.complemento,
         a.bairro,
         a.cidade && a.uf ? `${a.cidade}/${a.uf}` : a.cidade,
-        a.cep ? `CEP ${a.cep}` : null,
-      ];
+        a.cep ? `CEP ${a.cep}` : null];
       const filtradas = partes.filter((s) => !!s && String(s).trim().length > 0);
       if (filtradas.length > 0) return filtradas.join(' · ');
     }
@@ -699,7 +697,7 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
     if (Array.isArray(raw)) {
       return raw.some((it) => String(it).trim().toLowerCase() === alvo);
     }
-    const partes = String(raw).split(/[;,]/).map((p) => p.trim().toLowerCase());
+    const partes = String(raw).split(/[;]/).map((p) => p.trim().toLowerCase());
     if (partes.includes(alvo)) return true;
     return String(raw).trim().toLowerCase() === alvo;
   }
@@ -1083,8 +1081,7 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
         body: undefined,
         user: undefined,
         created_at: p.created_at,
-      },
-    ];
+      }];
   }
 
   camposTemplate(): ProtocoloField[] {

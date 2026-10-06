@@ -1,20 +1,22 @@
-import { Component, OnInit, OnDestroy, inject, Signal, ChangeDetectionStrategy, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, Signal, ChangeDetectionStrategy, signal, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { ZardCardComponent } from '@/shared/components/card/card.component';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
-import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
+import { GestgoCardComponent } from '@/shared/components/card/card.component';
+
+import { GestgoBadgeComponent } from '@/shared/components/badge/badge.component';
 import { PlataformaService, PlatformPlan } from '../../../core/services/plataforma.service';
 import { PlataformaHeaderService } from '../../../core/services/plataforma-header.service';
 import { LoadingService } from '../../../shared/services/loading.service';
-import { ZmSkeletonListComponent } from '../../../shared/components/skeletons';
+import { ListSkeletonComponent } from '../../../shared/components/list-skeleton/list-skeleton.component';
 import { ToastService } from '../../../core/services/toast.service';
 import { ConfirmDialogService } from '../../../core/services/confirm-dialog.service';
 
 @Component({
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'app-plataforma-planos',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, ZardCardComponent, ZardButtonComponent, ZardBadgeComponent, ZmSkeletonListComponent],
+  host: { class: 'n-page' },
+  imports: [RouterLink, GestgoCardComponent, GestgoBadgeComponent, ListSkeletonComponent],
   templateUrl: './plataforma-planos.component.html',
   styleUrl: './plataforma-planos.component.css',
 })

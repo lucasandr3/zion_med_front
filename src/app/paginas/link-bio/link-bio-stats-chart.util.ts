@@ -134,8 +134,8 @@ export function visitasTrendPercent(metrics: LinkBioMetrics | undefined, stats: 
 export function cliquesTrendPercent(stats: LinkBioStats): number | null {
   const entries = sortedDayEntries(stats.clicks_per_day ?? {});
   if (entries.length < 14) return null;
-  const recent = entries.slice(-7).reduce((sum, [, v]) => sum + (Number(v) || 0), 0);
-  const previous = entries.slice(-14, -7).reduce((sum, [, v]) => sum + (Number(v) || 0), 0);
+  const recent = entries.slice(-7).reduce((sum, [ v]) => sum + (Number(v) || 0), 0);
+  const previous = entries.slice(-14, -7).reduce((sum, [ v]) => sum + (Number(v) || 0), 0);
   if (recent === 0 && previous === 0) return null;
   if (previous === 0) return recent > 0 ? 100 : null;
   return Math.round(((recent - previous) / previous) * 100);
@@ -189,7 +189,6 @@ export function totalCliquesPeriodo(chart: LinkBioChartBar[]): number {
 export const LINK_BIO_STATS_PERIODOS: readonly { id: LinkBioStatsPeriodo; label: string }[] = [
   { id: '7d', label: '7d' },
   { id: '30d', label: '30d' },
-  { id: '90d', label: '90d' },
-];
+  { id: '90d', label: '90d' }];
 
 export { CTR_MEDIA_SETOR_DEFAULT };

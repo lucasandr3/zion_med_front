@@ -4,14 +4,14 @@ import { EventEmitter, Inject, PLATFORM_ID } from '@angular/core';
 
 import { filter, fromEvent, Subject, takeUntil } from 'rxjs';
 
-import type { ZardSheetComponent, ZardSheetOptions } from './sheet.component';
+import type { GestgoSheetComponent, GestgoSheetOptions } from './sheet.component';
 
 const enum eTriggerAction {
   CANCEL = 'cancel',
   OK = 'ok',
 }
 
-export class ZardSheetRef<T = any, R = any, U = any> {
+export class GestgoSheetRef<T = any, R = any, U = any> {
   private destroy$ = new Subject<void>();
   private isClosing = false;
   protected result?: R;
@@ -19,8 +19,8 @@ export class ZardSheetRef<T = any, R = any, U = any> {
 
   constructor(
     private overlayRef: OverlayRef,
-    private config: ZardSheetOptions<T, U>,
-    private containerInstance: ZardSheetComponent<T, U>,
+    private config: GestgoSheetOptions<T, U>,
+    private containerInstance: GestgoSheetComponent<T, U>,
     @Inject(PLATFORM_ID) private platformId: object,
   ) {
     this.containerInstance.cancelTriggered.subscribe(() => this.trigger(eTriggerAction.CANCEL));

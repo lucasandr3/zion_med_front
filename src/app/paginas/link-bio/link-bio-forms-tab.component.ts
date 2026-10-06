@@ -1,14 +1,15 @@
-import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
+import { Component, EventEmitter, Input, Output, inject, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { LinkBioFormLink } from '../../core/services/link-bio.service';
 import { ToastService } from '../../core/services/toast.service';
-import { ZardCardComponent } from '@/shared/components/card/card.component';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
+import { GestgoCardComponent } from '@/shared/components/card/card.component';
+
 
 @Component({
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'zm-link-bio-forms-tab',
   standalone: true,
-  imports: [RouterLink, ZardCardComponent, ZardButtonComponent],
+  imports: [RouterLink, GestgoCardComponent],
   templateUrl: './link-bio-forms-tab.component.html',
 })
 export class LinkBioFormsTabComponent {

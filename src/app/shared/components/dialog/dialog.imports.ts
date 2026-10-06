@@ -1,7 +1,7 @@
 import { OverlayModule } from '@angular/cdk/overlay';
 import { PortalModule } from '@angular/cdk/portal';
 
-import { ZardButtonComponent } from '@/shared/components/button';
-import { ZardDialogComponent } from '@/shared/components/dialog/dialog.component';
 
-export const ZardDialogImports = [ZardButtonComponent, ZardDialogComponent, OverlayModule, PortalModule] as const;
+import { GestgoDialogComponent } from '@/shared/components/dialog/dialog.component';
+
+export const GestgoDialogImports = [ GestgoDialogComponent, OverlayModule, PortalModule] as const;

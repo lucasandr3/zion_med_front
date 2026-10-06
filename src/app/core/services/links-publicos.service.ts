@@ -12,6 +12,7 @@ export interface LinkPublico {
   public_enabled?: boolean;
   public_url?: string;
   submission_count?: number;
+  last_submission_at?: string | null;
   created_at?: string;
   updated_at?: string;
 }

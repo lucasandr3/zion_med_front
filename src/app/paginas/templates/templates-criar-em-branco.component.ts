@@ -1,26 +1,27 @@
-import { Component, inject, ChangeDetectionStrategy, signal } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy, signal, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TemplatesService, TemplateCategory } from '../../core/services/templates.service';
 import { ToastService } from '../../core/services/toast.service';
 import { ZmPageBackLinkComponent } from '../../shared/components/ui';
-import { ZardComboboxComponent, type ZardComboboxOption } from '@/shared/components/combobox';
-import { ZardCardComponent } from '@/shared/components/card/card.component';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
-import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
+import { GestgoComboboxComponent, type GestgoComboboxOption } from '@/shared/components/combobox';
+import { GestgoCardComponent } from '@/shared/components/card/card.component';
+
+import { NORD_FORM_IMPORTS } from '@/shared/nord';
 
 @Component({
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'app-templates-criar-em-branco',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { class: 'n-page' },
   imports: [
-    ...ZARD_FORM_CONTROL_IMPORTS,
+    ...NORD_FORM_IMPORTS,
     RouterLink,
     FormsModule,
     ZmPageBackLinkComponent,
-    ZardComboboxComponent,
-    ZardCardComponent,
-    ZardButtonComponent,
+    GestgoComboboxComponent,
+    GestgoCardComponent
   ],
   templateUrl: './templates-criar-em-branco.component.html',
   styleUrl: './templates-criar-em-branco.component.css',
@@ -37,12 +38,11 @@ export class TemplatesCriarEmBrancoComponent {
   readonly erro = signal('');
   readonly categorias = signal<TemplateCategory[]>([]);
 
-  get opcoesCategoria(): ZardComboboxOption[] {
+  get opcoesCategoria(): GestgoComboboxOption[] {
     return [
       { value: '', label: 'Sem categoria' },
       ...this.categorias().map((cat) => ({ value: cat.key, label: cat.name })),
-      { value: '__nova__', label: 'Nova categoria…' },
-    ];
+      { value: '__nova__', label: 'Nova categoria…' }];
   }
 
   private templatesService = inject(TemplatesService);

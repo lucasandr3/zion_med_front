@@ -4,10 +4,10 @@
       Cadastre uma release por versão. Itens aparecem na área de Novidades para todos os usuários autenticados.
     </p>
     @if (!exibirFormulario()) {
-      <button z-button zType="default" zSize="sm" type="button" class="gap-1.5 shrink-0" (click)="abrirNovo()">
+      <nord-button variant="primary" size="s" type="button" class="gap-1.5 shrink-0" (click)="abrirNovo()">
         <span class="material-symbols-outlined text-base" aria-hidden="true">add</span>
         Nova release
-      </button>
+      </nord-button>
     }
   </div>
 
@@ -40,7 +40,7 @@
       <div class="plat-novidades-form__itens">
         <div class="plat-novidades-form__itens-header">
           <h3>Itens do changelog</h3>
-          <button z-button zType="outline" zSize="sm" type="button" (click)="adicionarItem()">Adicionar item</button>
+          <nord-button variant="default" size="s" type="button" (click)="adicionarItem()">Adicionar item</nord-button>
         </div>
         @for (item of formItems; track $index) {
           <div class="plat-novidades-form-item">
@@ -50,26 +50,18 @@
               }
             </select>
             <input type="text" [(ngModel)]="item.text" [name]="'texto-' + $index" placeholder="Descreva a mudança" />
-            <button
-              z-button
-              zType="ghost"
-              zSize="icon"
-              type="button"
-              aria-label="Remover item"
-              [zDisabled]="formItems.length <= 1"
-              (click)="removerItem($index)"
-            >
+            <nord-button variant="plain" size="m" type="button" aria-label="Remover item" [attr.disabled]="formItems.length <= 1" (click)="removerItem($index)" square>
               <span class="material-symbols-outlined text-base">close</span>
-            </button>
+            </nord-button>
           </div>
         }
       </div>
 
       <div class="plat-novidades-form__actions">
-        <button z-button zType="outline" type="button" (click)="cancelarFormulario()">Cancelar</button>
-        <button z-button zType="default" type="button" [zLoading]="salvando()" [zDisabled]="salvando()" (click)="salvar()">
+        <nord-button variant="default" type="button" (click)="cancelarFormulario()">Cancelar</nord-button>
+        <nord-button variant="primary" type="button" [attr.loading]="salvando()" [attr.disabled]="salvando()" (click)="salvar()">
           {{ editandoId() ? 'Salvar alterações' : 'Publicar release' }}
-        </button>
+        </nord-button>
       </div>
     </section>
   }
@@ -91,9 +83,9 @@
           <div class="plat-novidades-card__top">
             <div>
               <div class="plat-novidades-card__meta">
-                <z-badge zShape="pill">v{{ nota.version }}</z-badge>
+                <g-badge zShape="pill">v{{ nota.version }}</g-badge>
                 @if (nota.is_published === false) {
-                  <z-badge zShape="pill" class="plat-novidades-card__rascunho">Rascunho</z-badge>
+                  <g-badge zShape="pill" class="plat-novidades-card__rascunho">Rascunho</g-badge>
                 }
                 <span class="text-xs text-muted-foreground">{{ formatarData(nota.released_at) }}</span>
               </div>
@@ -103,19 +95,10 @@
               }
             </div>
             <div class="plat-novidades-card__actions">
-              <button z-button zType="outline" zSize="sm" type="button" (click)="editar(nota)">Editar</button>
-              <button
-                z-button
-                zType="outline"
-                zSize="sm"
-                type="button"
-                class="text-destructive"
-                [zLoading]="excluindoId() === nota.id"
-                [zDisabled]="excluindoId() === nota.id"
-                (click)="excluir(nota)"
-              >
+              <nord-button variant="default" size="s" type="button" (click)="editar(nota)">Editar</nord-button>
+              <nord-button variant="default" size="s" type="button" class="text-destructive" [attr.loading]="excluindoId() === nota.id" [attr.disabled]="excluindoId() === nota.id" (click)="excluir(nota)">
                 Excluir
-              </button>
+              </nord-button>
             </div>
           </div>
           <ul class="plat-novidades-card__itens">

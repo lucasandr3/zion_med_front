@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject, Signal, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, Signal, signal, ChangeDetectionStrategy, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { PlataformaService, PlatformPlan } from '../../../core/services/plataforma.service';
@@ -6,20 +6,23 @@ import { PlataformaHeaderService } from '../../../core/services/plataforma-heade
 import { LoadingService } from '../../../shared/services/loading.service';
 import { ZmSkeletonCardComponent } from '../../../shared/components/skeletons';
 import { ToastService } from '../../../core/services/toast.service';
-import { ZardCardComponent } from '@/shared/components/card/card.component';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
-import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
+import { GestgoCardComponent } from '@/shared/components/card/card.component';
+import { ZmPageBackLinkComponent } from '../../../shared/components/ui';
+
+import { NORD_FORM_IMPORTS } from '@/shared/nord';
 @Component({
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'app-plataforma-plano-form',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { class: 'n-page' },
   imports: [
-    ...ZARD_FORM_CONTROL_IMPORTS,
+    ...NORD_FORM_IMPORTS,
     FormsModule,
     RouterLink,
-    ZardCardComponent,
-    ZardButtonComponent,
+    GestgoCardComponent,
     ZmSkeletonCardComponent,
+    ZmPageBackLinkComponent,
   ],
   templateUrl: './plataforma-plano-form.component.html',
   styleUrl: './plataforma-plano-form.component.css',

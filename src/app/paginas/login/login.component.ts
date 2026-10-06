@@ -1,25 +1,15 @@
-import { Component, OnInit, Inject, PLATFORM_ID, ChangeDetectionStrategy, signal } from '@angular/core';
+import { Component, OnInit, Inject, PLATFORM_ID, ChangeDetectionStrategy, signal, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../core/services/auth.service';
-import { ZardButtonComponent } from '@/shared/components/button';
-import { ZardCheckboxComponent } from '@/shared/components/checkbox';
-import { ZardInputDirective } from '@/shared/components/input/input.directive';
-import { ZardTooltipImports } from '@/shared/components/tooltip';
 
 @Component({
   selector: 'app-pagina-login',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    RouterLink,
-    FormsModule,
-    ZardButtonComponent,
-    ZardInputDirective,
-    ZardCheckboxComponent,
-    ...ZardTooltipImports,
-  ],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  imports: [RouterLink, FormsModule],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css',
 })
@@ -27,12 +17,11 @@ export class LoginComponent implements OnInit {
   email = '';
   senha = '';
   lembrar = false;
-  readonly mostrarSenha = signal(false);
   readonly estadoCarregando = signal(false);
   readonly estadoErro = signal(false);
   readonly mensagemErro = signal('');
   ano = new Date().getFullYear();
-  readonly iconeTema = signal('dark_mode');
+  readonly iconeTema = signal('interface-mode-dark');
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: object,
@@ -48,6 +37,21 @@ export class LoginComponent implements OnInit {
     }
   }
 
+  onEmailInput(ev: Event): void {
+    const el = ev.target as HTMLElement & { value?: string };
+    this.email = el.value ?? '';
+  }
+
+  onSenhaInput(ev: Event): void {
+    const el = ev.target as HTMLElement & { value?: string };
+    this.senha = el.value ?? '';
+  }
+
+  onLembrarChange(ev: Event): void {
+    const el = ev.target as HTMLElement & { checked?: boolean };
+    this.lembrar = !!el.checked;
+  }
+
   alternarTema(): void {
     if (isPlatformBrowser(this.platformId)) {
       document.body.classList.toggle('dark');
@@ -57,7 +61,9 @@ export class LoginComponent implements OnInit {
   }
 
   private atualizarIconeTema(): void {
-    this.iconeTema.set(document.body.classList.contains('dark') ? 'light_mode' : 'dark_mode');
+    this.iconeTema.set(
+      document.body.classList.contains('dark') ? 'interface-mode-light' : 'interface-mode-dark',
+    );
   }
 
   enviar(): void {

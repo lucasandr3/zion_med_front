@@ -1,0 +1,18 @@
+:host {
+  visibility: visible !important;
+  pointer-events: none;
+}
+
+:host nord-modal[open] {
+  pointer-events: auto;
+}
+
+.confirm-dialog__message {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.confirm-dialog__emphasis {
+  font-weight: 600;
+  color: var(--n-color-text, inherit);
+}

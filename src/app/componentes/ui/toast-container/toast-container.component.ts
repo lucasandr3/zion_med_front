@@ -1,37 +1,9 @@
-import { Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { ToastService, ToastType } from '../../../core/services/toast.service';
+import { Component } from '@angular/core';
 
-/** @deprecated Use `<z-toaster />` + `ToastService` (ngx-sonner via Zard). */
+/** @deprecated Use `<gestgo-toaster />` no `app-root` (Nord). */
 @Component({
   selector: 'app-toast-container',
   standalone: true,
-  imports: [CommonModule],
-  templateUrl: './toast-container.component.html',
-  styleUrl: './toast-container.component.css',
+  template: '',
 })
-export class ToastContainerComponent {
-  private toastService = inject(ToastService);
-  readonly toasts = this.toastService.toasts;
-
-  icon(type: ToastType): string {
-    const m: Record<ToastType, string> = {
-      success: 'check_circle',
-      error: 'error',
-      warning: 'warning',
-      info: 'info',
-    };
-    return m[type];
-  }
-
-  runAction(id: number, action?: () => void): void {
-    if (action) {
-      action();
-    }
-    this.dismiss(id);
-  }
-
-  dismiss(id: number): void {
-    this.toastService.remove(id);
-  }
-}
+export class ToastContainerComponent {}

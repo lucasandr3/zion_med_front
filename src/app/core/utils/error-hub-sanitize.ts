@@ -9,8 +9,7 @@ const SENSITIVE_EXACT = new Set([
   'api_key',
   'apikey',
   'cpf',
-  'rg',
-]);
+  'rg']);
 
 const SENSITIVE_SUBSTRINGS = [
   'password',
@@ -23,8 +22,7 @@ const SENSITIVE_SUBSTRINGS = [
   'webhook_secret',
   'authorization',
   'cpf',
-  'card_number',
-];
+  'card_number'];
 
 const MAX_STRING_LENGTH = 500;
 const MAX_DEPTH = 4;

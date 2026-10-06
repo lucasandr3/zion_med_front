@@ -6,28 +6,12 @@
   --dash-card-radius: var(--radius-xl, 1rem);
 }
 
+/* Padding vem do host .n-page — sem bleed negativo */
 .dashboard-bleed {
-  margin: -1.5rem -1rem;
-  padding: 1.5rem 1rem;
+  width: 100%;
 }
 
-@media (min-width: 640px) {
-  .dashboard-bleed {
-    margin-left: -1.5rem;
-    margin-right: -1.5rem;
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
-  }
-}
-
-@media (min-width: 1024px) {
-  .dashboard-bleed {
-    margin: -2rem;
-    padding: 2rem;
-  }
-}
-
-/* -------- Filtro de período (conteúdo dentro de z-card no template) -------- */
+/* -------- Filtro de período (conteúdo dentro de g-card no template) -------- */
 
 .dash-period-bar__kicker {
   margin: 0;
@@ -313,7 +297,7 @@ a.dash-kpi:hover::before {
   margin-left: 0.15rem;
 }
 
-/* -------- Shell Zard dos gráficos (z-card host + classes internas) -------- */
+/* -------- Shell Gestgo dos gráficos (g-card host + classes internas) -------- */
 .dash-z-chart {
   animation: dash-fade-up 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
 }
@@ -377,7 +361,7 @@ a.dash-kpi:hover::before {
   font-weight: 500 !important;
 }
 
-/* -------- Quick actions (card Zard por fora; sem caixa própria) -------- */
+/* -------- Quick actions (card Gestgo por fora; sem caixa própria) -------- */
 .dash-quick-actions {
   margin: 0;
 }
@@ -430,7 +414,7 @@ a.dash-kpi:hover::before {
   padding: 3rem 1.25rem;
 }
 
-/* -------- Painéis de lista (host z-card = .dash-z-panel) -------- */
+/* -------- Painéis de lista (host g-card = .dash-z-panel) -------- */
 .dash-z-panel {
   animation: dash-fade-up 0.52s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
 }

@@ -1,14 +1,14 @@
 import { isPlatformBrowser } from '@angular/common';
-import { Component, inject, PLATFORM_ID, signal } from '@angular/core';
+import { Component, inject, PLATFORM_ID, signal, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 
-import { ZardBadgeComponent } from '@/shared/components/badge';
-import { ZardButtonComponent } from '@/shared/components/button';
-import { ZardCardComponent } from '@/shared/components/card';
-import { ZardInputDirective } from '@/shared/components/input/input.directive';
-import { ZardSkeletonComponent } from '@/shared/components/skeleton';
-import { ZardTableImports } from '@/shared/components/table';
+import { GestgoBadgeComponent } from '@/shared/components/badge';
+
+import { GestgoCardComponent } from '@/shared/components/card';
+
+import { GestgoSkeletonComponent } from '@/shared/components/skeleton';
+import { GestgoTableImports } from '@/shared/components/table';
 import {
   applyShellPresetToDom,
   applyUserAppearanceToBrowser,
@@ -29,21 +29,19 @@ interface ThemeOption {
 }
 
 @Component({
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'app-dev-ui',
   standalone: true,
   imports: [
     FormsModule,
     RouterLink,
-    ZardBadgeComponent,
-    ZardButtonComponent,
-    ZardCardComponent,
-    ZardInputDirective,
-    ZardSkeletonComponent,
+    GestgoBadgeComponent,
+    GestgoCardComponent,
+    GestgoSkeletonComponent,
     ZmEmptyStateComponent,
     ZmPaginationComponent,
     ZmSkeletonListComponent,
-    ...ZardTableImports,
-  ],
+    ...GestgoTableImports],
   templateUrl: './dev-ui.component.html',
   styleUrl: './dev-ui.component.css',
 })
@@ -64,14 +62,12 @@ export class DevUiComponent {
     { id: 'teal-ocean', label: 'Teal Ocean' },
     { id: 'slate-pro', label: 'Slate Pro' },
     { id: 'cyan-tech', label: 'Cyan Tech' },
-    { id: 'fuchsia-bold', label: 'Fuchsia Bold' },
-  ];
+    { id: 'fuchsia-bold', label: 'Fuchsia Bold' }];
 
   readonly shellPresets: { id: ShellPreset; label: string }[] = [
     { id: 'default', label: 'Padrão' },
     { id: 'tinted', label: 'Topo e marca' },
-    { id: 'sidebar_dark', label: 'Menu escuro' },
-  ];
+    { id: 'sidebar_dark', label: 'Menu escuro' }];
 
   readonly surfaceTokens: TokenSwatch[] = [
     { token: '--c-bg', label: 'bg' },
@@ -82,8 +78,7 @@ export class DevUiComponent {
     { token: '--c-muted', label: 'muted' },
     { token: '--c-border', label: 'border' },
     { token: '--c-primary', label: 'primary' },
-    { token: '--c-accent', label: 'accent' },
-  ];
+    { token: '--c-accent', label: 'accent' }];
 
   readonly semanticTokens: TokenSwatch[] = [
     { token: '--c-success', label: 'success' },
@@ -93,8 +88,7 @@ export class DevUiComponent {
     { token: '--c-danger', label: 'danger' },
     { token: '--c-danger-soft', label: 'danger-soft' },
     { token: '--c-info', label: 'info' },
-    { token: '--c-info-soft', label: 'info-soft' },
-  ];
+    { token: '--c-info-soft', label: 'info-soft' }];
 
   readonly typographySamples = [
     { cls: 'dev-ui-type-xs', label: '--text-xs · 11px', sample: 'Label uppercase' },
@@ -102,8 +96,7 @@ export class DevUiComponent {
     { cls: 'dev-ui-type-base', label: '--text-base · 14px', sample: 'Corpo de formulário' },
     { cls: 'dev-ui-type-md', label: '--text-md · 16px', sample: 'Valores destacados' },
     { cls: 'dev-ui-type-lg', label: '--text-lg · 18px', sample: 'Subtítulos e preços' },
-    { cls: 'dev-ui-type-2xl', label: '--text-2xl · 24px', sample: 'Título de página' },
-  ];
+    { cls: 'dev-ui-type-2xl', label: '--text-2xl · 24px', sample: 'Título de página' }];
 
   selectedTheme = 'ocean-blue';
   isDark = false;

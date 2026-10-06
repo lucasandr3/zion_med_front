@@ -280,8 +280,7 @@ export class AuthService {
       ['/clinica/configuracoes', () => this.hasPermission('organization.manage')],
       ['/clinica/integracoes', () => this.hasPermission('organization.manage')],
       ['/usuarios', () => this.hasPermission('users.manage')],
-      ['/organizacao/permissoes', () => this.hasPermission('users.manage')],
-    ];
+      ['/organizacao/permissoes', () => this.hasPermission('users.manage')]];
     for (const [path, ok] of routes) {
       if (ok()) return path;
     }

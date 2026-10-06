@@ -1,4 +1,4 @@
-import { Component, OnInit, DestroyRef, inject, Signal, ChangeDetectionStrategy, signal } from '@angular/core';
+import { Component, OnInit, DestroyRef, inject, Signal, ChangeDetectionStrategy, signal, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -6,15 +6,10 @@ import { catchError, forkJoin, of } from 'rxjs';
 import { TemplatesService, Template } from '../../core/services/templates.service';
 import { DashboardService } from '../../core/services/dashboard.service';
 import { LoadingService } from '../../shared/services/loading.service';
-import {
-  ZmSkeletonTemplatesColecaoComponent,
-  ZmSkeletonTemplatesDetalheComponent,
-} from '../../shared/components/skeletons';
+import { ZmSkeletonTemplatesColecaoComponent } from '../../shared/components/skeletons';
+import { ListSkeletonComponent } from '../../shared/components/list-skeleton/list-skeleton.component';
 import { ZmEmptyStateComponent } from '../../shared/components/ui';
-import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
-import { ZardCardComponent } from '@/shared/components/card/card.component';
-import { ZardInputDirective } from '@/shared/components/input/input.directive';
+import { GestgoCardComponent } from '@/shared/components/card/card.component';
 import { ToastService } from '../../core/services/toast.service';
 import { ConfirmDialogService } from '../../core/services/confirm-dialog.service';
 import { TemplatePublishGuardService } from '../../core/services/template-publish-guard.service';
@@ -83,26 +78,19 @@ type OrdenacaoColecao = 'fixa' | 'az' | 'recente';
 type ModoDetalhe = 'tabela' | 'cards';
 type ModoColecao = 'cards' | 'lista';
 
-import { ZardTableImports } from '@/shared/components/table';
-import { ZardTooltipImports } from '@/shared/components/tooltip';
-import { ZardMenuImports } from '@/shared/components/menu/menu.imports';
 @Component({
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'app-templates-listagem',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { class: 'n-page-list' },
   imports: [
-    ...ZardTableImports,
-    ...ZardTooltipImports,
-    ...ZardMenuImports,
     RouterLink,
     FormsModule,
     ZmSkeletonTemplatesColecaoComponent,
-    ZmSkeletonTemplatesDetalheComponent,
+    ListSkeletonComponent,
     ZmEmptyStateComponent,
-    ZardCardComponent,
-    ZardButtonComponent,
-    ZardBadgeComponent,
-    ZardInputDirective,
+    GestgoCardComponent,
   ],
   templateUrl: './templates-listagem.component.html',
   styleUrl: './templates-listagem.component.css',
@@ -136,7 +124,6 @@ export class TemplatesListagemComponent implements OnInit {
   readonly removendoId = signal<number | null>(null);
   readonly publicandoId = signal<number | null>(null);
   readonly duplicandoId = signal<number | null>(null);
-  readonly menuItem = signal<Template | null>(null);
   readonly respostasPorTemplate = signal<Record<number, number>>({});
 
   private templatesService = inject(TemplatesService);

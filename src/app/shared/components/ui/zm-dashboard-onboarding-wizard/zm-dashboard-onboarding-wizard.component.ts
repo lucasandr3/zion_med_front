@@ -8,8 +8,7 @@ import {
   inject,
   input,
   output,
-  signal,
-} from '@angular/core';
+  signal, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
@@ -17,16 +16,17 @@ import { OnboardingService } from '../../../../core/services/onboarding.service'
 import { AuthService } from '../../../../core/services/auth.service';
 import { ToastService } from '../../../../core/services/toast.service';
 import { Template } from '../../../../core/services/templates.service';
-import { ZardCardComponent } from '@/shared/components/card/card.component';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
+import { GestgoCardComponent } from '@/shared/components/card/card.component';
+
 
 const DISMISS_PREFIX = 'zm_onboarding_dismiss_';
 
 @Component({
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'zm-dashboard-onboarding-wizard',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, ZardCardComponent, ZardButtonComponent],
+  imports: [RouterLink, GestgoCardComponent],
   templateUrl: './zm-dashboard-onboarding-wizard.component.html',
   styleUrl: './zm-dashboard-onboarding-wizard.component.css',
 })

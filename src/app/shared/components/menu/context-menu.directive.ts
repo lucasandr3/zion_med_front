@@ -5,7 +5,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { noopFn } from '../../utils/merge-classes';
 
 @Directive({
-  selector: '[z-context-menu]',
+  selector: '[g-context-menu]',
   host: {
     'data-slot': 'context-menu-trigger',
     '[attr.tabindex]': "'0'",
@@ -20,10 +20,9 @@ import { noopFn } from '../../utils/merge-classes';
     {
       directive: CdkContextMenuTrigger,
       inputs: ['cdkContextMenuTriggerFor: zContextMenuTriggerFor'],
-    },
-  ],
+    }],
 })
-export class ZardContextMenuDirective {
+export class GestgoContextMenuDirective {
   protected readonly cdkTrigger = inject(CdkContextMenuTrigger, { host: true });
   private readonly destroyRef = inject(DestroyRef);
   private readonly document = inject(DOCUMENT);
@@ -39,8 +38,7 @@ export class ZardContextMenuDirective {
         originY: 'top',
         overlayX: 'start',
         overlayY: 'top',
-      },
-    ];
+      }];
     this.cdkTrigger.opened.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => this.attachCloseListeners());
   }
 

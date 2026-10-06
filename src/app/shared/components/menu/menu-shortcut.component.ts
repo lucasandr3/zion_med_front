@@ -6,7 +6,7 @@ import { mergeClasses } from '../../utils/merge-classes';
 import { menuShortcutVariants } from './menu.variants';
 
 @Component({
-  selector: 'z-menu-shortcut, [z-menu-shortcut]',
+  selector: 'g-menu-shortcut, [g-menu-shortcut]',
   template: `
     <ng-content />
   `,
@@ -17,7 +17,7 @@ import { menuShortcutVariants } from './menu.variants';
   },
   exportAs: 'zMenuShortcut',
 })
-export class ZardMenuShortcutComponent {
+export class GestgoMenuShortcutComponent {
   readonly class = input<ClassValue>('');
 
   protected readonly classes = computed(() => mergeClasses(menuShortcutVariants(), this.class()));

@@ -1,0 +1,12 @@
+<div class="n-skeleton n-skeleton--list" aria-busy="true" aria-live="polite">
+  <span class="n-visually-hidden">Carregando</span>
+  @for (i of rows(); track i) {
+    <div class="n-skeleton__row">
+      <div class="n-skeleton__row-main">
+        <nord-skeleton effect="sheen" class="n-skeleton__line n-skeleton__line--lg"></nord-skeleton>
+        <nord-skeleton effect="sheen" class="n-skeleton__line n-skeleton__line--sm"></nord-skeleton>
+      </div>
+      <nord-skeleton effect="sheen" class="n-skeleton__chip"></nord-skeleton>
+    </div>
+  }
+</div>

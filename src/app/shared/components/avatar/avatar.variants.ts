@@ -57,6 +57,6 @@ export const avatarGroupVariants = cva('flex items-center [&_img]:ring-2 [&_img]
   },
 });
 
-export type ZardAvatarSizeVariants = NonNullable<VariantProps<typeof avatarVariants>['zSize']>;
-export type ZardAvatarShapeVariants = NonNullable<VariantProps<typeof avatarVariants>['zShape']>;
-export type ZardAvatarGroupOrientationVariants = NonNullable<VariantProps<typeof avatarGroupVariants>['zOrientation']>;
+export type GestgoAvatarSizeVariants = NonNullable<VariantProps<typeof avatarVariants>['zSize']>;
+export type GestgoAvatarShapeVariants = NonNullable<VariantProps<typeof avatarVariants>['zShape']>;
+export type GestgoAvatarGroupOrientationVariants = NonNullable<VariantProps<typeof avatarGroupVariants>['zOrientation']>;

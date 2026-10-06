@@ -14,7 +14,7 @@ import { mergeClasses } from '../../utils/merge-classes';
 import { menuLabelVariants } from './menu.variants';
 
 @Component({
-  selector: 'z-menu-label, [z-menu-label], z-dropdown-menu-label, [z-dropdown-menu-label]',
+  selector: 'g-menu-label, [g-menu-label], g-dropdown-menu-label, [g-dropdown-menu-label]',
   template: `
     <ng-content />
   `,
@@ -26,7 +26,7 @@ import { menuLabelVariants } from './menu.variants';
   },
   exportAs: 'zMenuLabel',
 })
-export class ZardMenuLabelComponent {
+export class GestgoMenuLabelComponent {
   readonly class = input<ClassValue>('');
   readonly inset = input<boolean, BooleanInput>(false, { transform: booleanAttribute });
 

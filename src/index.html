@@ -29,7 +29,7 @@
   <!-- Favicons -->
   <meta name="theme-color" content="#14B87A"/>
   <link rel="icon" type="image/png" href="favicon-96x96.png" sizes="96x96"/>
-  <link rel="icon" type="image/svg+xml" href="favicon.svg"/>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" data-theme-favicon="1"/>
   <link rel="shortcut icon" href="favicon.ico"/>
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png"/>
   <meta name="apple-mobile-web-app-title" content="Gestgo"/>
@@ -84,6 +84,20 @@
         else if (shell === 'sidebar_dark') document.body.classList.add('shell-preset-sidebar-dark');
         var nav = localStorage.getItem('gestgo_nav_layout') || 'sidebar';
         if (nav === 'horizontal') document.body.classList.add('shell-nav-horizontal');
+
+        /* Accent Nord + favicon + theme-color no boot (antes do Angular) */
+        var primary = getComputedStyle(document.body).getPropertyValue('--c-primary').trim() || '#14B87A';
+        var root = document.documentElement;
+        root.style.setProperty('--n-color-accent', primary);
+        root.style.setProperty('--n-color-accent-secondary', primary);
+        root.style.setProperty('--n-color-text-link', primary);
+        var meta = document.querySelector('meta[name="theme-color"]');
+        if (meta) meta.setAttribute('content', document.body.classList.contains('dark') ? '#1d2025' : primary);
+        var fav = document.querySelector('link[rel="icon"][data-theme-favicon]');
+        if (fav) {
+          var svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="'+primary+'"/><path fill="#fff" d="M10.2 8.4h7.1c3.55 0 5.85 2.15 5.85 5.35 0 2.35-1.2 4.05-3.2 4.85l3.55 5h-3.35l-3.2-4.55h-3.45V23.6H10.2V8.4zm3.3 2.55v5.15h3.55c1.7 0 2.7-.9 2.7-2.55s-1-2.6-2.7-2.6H13.5z"/></svg>';
+          fav.setAttribute('href', 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg));
+        }
       } catch(e) {}
     })();
   </script>

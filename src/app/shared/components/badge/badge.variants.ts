@@ -24,5 +24,5 @@ export const badgeVariants = cva(
   },
 );
 
-export type ZardBadgeTypeVariants = NonNullable<VariantProps<typeof badgeVariants>['zType']>;
-export type ZardBadgeShapeVariants = NonNullable<VariantProps<typeof badgeVariants>['zShape']>;
+export type GestgoBadgeTypeVariants = NonNullable<VariantProps<typeof badgeVariants>['zType']>;
+export type GestgoBadgeShapeVariants = NonNullable<VariantProps<typeof badgeVariants>['zShape']>;

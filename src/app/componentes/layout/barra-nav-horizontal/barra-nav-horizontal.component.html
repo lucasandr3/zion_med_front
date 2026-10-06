@@ -12,12 +12,10 @@
         <span class="shell-horizontal-nav__label">{{ secao.label }}</span>
       </a>
     } @else {
-      <div class="shell-horizontal-nav__group">
+      <nord-dropdown class="shell-horizontal-nav__group" style="--n-dropdown-size: 16rem">
         <button
           type="button"
-          z-menu
-          [zMenuTriggerFor]="secaoMenuTpl"
-          zPlacement="bottomLeft"
+          slot="toggle"
           class="shell-horizontal-nav__trigger"
           [class.shell-horizontal-nav__trigger--active]="secaoAtiva(secao)"
           [attr.aria-label]="'Menu ' + secao.label"
@@ -27,22 +25,19 @@
           <span class="material-symbols-outlined shell-horizontal-nav__chevron">expand_more</span>
         </button>
 
-        <ng-template #secaoMenuTpl>
-          <div z-menu-content class="shell-horizontal-nav__dropdown">
-            @for (item of secao.visibleItems; track item.route) {
-              <a
-                z-menu-item
-                [routerLink]="item.route"
-                class="shell-horizontal-nav__dropdown-item gap-2 text-inherit no-underline"
-                [class.shell-horizontal-nav__dropdown-item--active]="linkAtivo(item)"
-              >
-                <span class="material-symbols-outlined shell-horizontal-nav__dropdown-icon">{{ item.icon }}</span>
-                <span>{{ item.label }}</span>
-              </a>
-            }
-          </div>
-        </ng-template>
-      </div>
+        <nord-dropdown-group class="shell-horizontal-nav__dropdown">
+          @for (item of secao.visibleItems; track item.route) {
+            <nord-dropdown-item
+              [routerLink]="item.route"
+              class="shell-horizontal-nav__dropdown-item"
+              [class.shell-horizontal-nav__dropdown-item--active]="linkAtivo(item)"
+            >
+              <span class="material-symbols-outlined shell-horizontal-nav__dropdown-icon">{{ item.icon }}</span>
+              <span>{{ item.label }}</span>
+            </nord-dropdown-item>
+          }
+        </nord-dropdown-group>
+      </nord-dropdown>
     }
   }
 
@@ -55,14 +50,14 @@
       <span class="material-symbols-outlined shell-horizontal-nav__icon">{{ item.icon }}</span>
       <span class="shell-horizontal-nav__label">{{ item.label }}</span>
       @if (item.badge === 'notifications' && notificacoesNaoLidas > 0) {
-        <z-badge zShape="pill" class="shell-horizontal-nav__badge">
+        <g-badge zShape="pill" class="shell-horizontal-nav__badge">
           {{ notificacoesNaoLidas > 99 ? '99+' : notificacoesNaoLidas }}
-        </z-badge>
+        </g-badge>
       }
       @if (item.badge === 'novidades' && novidadesNaoVistas > 0) {
-        <z-badge zShape="pill" class="shell-horizontal-nav__badge">
+        <g-badge zShape="pill" class="shell-horizontal-nav__badge">
           {{ novidadesNaoVistas > 99 ? '99+' : novidadesNaoVistas }}
-        </z-badge>
+        </g-badge>
       }
     </a>
   }

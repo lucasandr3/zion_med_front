@@ -1,59 +1,43 @@
 <div class="notif-page relative min-h-[200px]">
-  <div class="notif-page__toolbar">
-    <div class="notif-filtros" role="tablist" aria-label="Filtrar notificações">
-      <button
-        type="button"
-        class="notif-filtro-btn"
-        role="tab"
-        [class.ativo]="filtroPlataforma() === 'todas'"
-        [attr.aria-selected]="filtroPlataforma() === 'todas'"
-        (click)="alterarFiltro('todas')">
-        Todas
-      </button>
-      <button
-        type="button"
-        class="notif-filtro-btn"
-        role="tab"
-        [class.ativo]="filtroPlataforma() === 'nao_lidas'"
-        [attr.aria-selected]="filtroPlataforma() === 'nao_lidas'"
-        (click)="alterarFiltro('nao_lidas')">
-        Não lidas
-        @if (quantidadeNaoLidas > 0) {
-          <span class="notif-filtro-badge">{{ quantidadeNaoLidas > 99 ? '99+' : quantidadeNaoLidas }}</span>
-        }
-      </button>
+  <div class="n-form-toolbar">
+    <div class="n-form-toolbar__start">
+      <div class="notif-filtros" role="tablist" aria-label="Filtrar notificações">
+        <button
+          type="button"
+          class="notif-filtro-btn"
+          role="tab"
+          [class.ativo]="filtroPlataforma() === 'todas'"
+          [attr.aria-selected]="filtroPlataforma() === 'todas'"
+          (click)="alterarFiltro('todas')">
+          Todas
+        </button>
+        <button
+          type="button"
+          class="notif-filtro-btn"
+          role="tab"
+          [class.ativo]="filtroPlataforma() === 'nao_lidas'"
+          [attr.aria-selected]="filtroPlataforma() === 'nao_lidas'"
+          (click)="alterarFiltro('nao_lidas')">
+          Não lidas
+          @if (quantidadeNaoLidas > 0) {
+            <span class="notif-filtro-badge">{{ quantidadeNaoLidas > 99 ? '99+' : quantidadeNaoLidas }}</span>
+          }
+        </button>
+      </div>
     </div>
 
-    <div class="notif-page__toolbar-actions">
+    <div class="n-form-toolbar__end">
       @if (temNaoLidas) {
-        <button
-          z-button
-          zType="outline"
-          zSize="sm"
-          type="button"
-          class="gap-1.5"
-          [zDisabled]="marcandoTodas()"
-          [zLoading]="marcandoTodas()"
-          (click)="marcarTodas()"
-          title="Marcar todas como lidas">
-          <span class="material-symbols-outlined text-base" aria-hidden="true">done_all</span>
+        <nord-button variant="default" size="s" type="button" class="gap-1.5" [attr.disabled]="marcandoTodas()" [attr.loading]="marcandoTodas()" (click)="marcarTodas()" title="Marcar todas como lidas">
+          <nord-icon name="interface-checked" size="s" aria-hidden="true"></nord-icon>
           {{ marcandoTodas() ? 'Marcando…' : 'Marcar todas' }}
-        </button>
+        </nord-button>
       }
       @if (notificacoes().length > 0) {
-        <button
-          z-button
-          zType="outline"
-          zSize="sm"
-          type="button"
-          class="gap-1.5"
-          [zDisabled]="limpandoTudo()"
-          [zLoading]="limpandoTudo()"
-          (click)="limparTudo()"
-          title="Excluir todas as notificações">
-          <span class="material-symbols-outlined text-base" aria-hidden="true">delete_sweep</span>
+        <nord-button variant="default" size="s" type="button" class="gap-1.5" [attr.disabled]="limpandoTudo()" [attr.loading]="limpandoTudo()" (click)="limparTudo()" title="Excluir todas as notificações">
+          <nord-icon name="interface-delete" size="s" aria-hidden="true"></nord-icon>
           {{ limpandoTudo() ? 'Limpando…' : 'Limpar tudo' }}
-        </button>
+        </nord-button>
       }
     </div>
   </div>
@@ -146,9 +130,9 @@
 
         @if (podeCarregarMais()) {
           <div class="notif-load-more">
-            <button z-button zType="outline" zSize="sm" type="button" (click)="carregarMais()">
+            <nord-button variant="default" size="s" type="button" (click)="carregarMais()">
               Carregar mais notificações
-            </button>
+            </nord-button>
           </div>
         }
       }

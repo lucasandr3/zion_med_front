@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, inject } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, inject, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import {
@@ -14,20 +14,19 @@ import {
   extractPlaceIdFromMapsUrl,
   normalizeGooglePlaceId,
 } from './link-bio-google-review-link.util';
-import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
-import { ZardCardComponent } from '@/shared/components/card/card.component';
+import { NORD_FORM_IMPORTS } from '@/shared/nord';
+
+import { GestgoCardComponent } from '@/shared/components/card/card.component';
 
 @Component({
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'zm-link-bio-aparencia-tab',
   standalone: true,
   imports: [
-    ...ZARD_FORM_CONTROL_IMPORTS,
+    ...NORD_FORM_IMPORTS,
     FormsModule,
     RouterLink,
-    ZardButtonComponent,
-    ZardCardComponent,
-  ],
+    GestgoCardComponent],
   templateUrl: './link-bio-aparencia-tab.component.html',
   styleUrl: './link-bio-aparencia-tab.component.css',
 })

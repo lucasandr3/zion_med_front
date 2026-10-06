@@ -1,7 +1,7 @@
 import { Directive, inject, Injectable, input, computed } from '@angular/core';
 
 @Injectable({ providedIn: 'root' })
-class ZardIdInternalService {
+class GestgoIdInternalService {
   private counter = 0;
   generate(prefix: string) {
     return `${prefix}-${++this.counter}`;
@@ -9,13 +9,13 @@ class ZardIdInternalService {
 }
 
 @Directive({
-  selector: '[zardId]',
-  exportAs: 'zardId',
+  selector: '[gestgoId]',
+  exportAs: 'gestgoId',
 })
-export class ZardIdDirective {
-  private idService = inject(ZardIdInternalService);
+export class GestgoIdDirective {
+  private idService = inject(GestgoIdInternalService);
 
-  readonly zardId = input('ssr');
+  readonly gestgoId = input('ssr');
 
-  readonly id = computed(() => this.idService.generate(this.zardId()));
+  readonly id = computed(() => this.idService.generate(this.gestgoId()));
 }

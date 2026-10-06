@@ -7,16 +7,16 @@
   } @else if (usuarioAtual(); as u) {
     <div class="conta-perfil-shell zm-content-enter w-full">
       <div class="conta-perfil">
-      <z-tab-group
-        class="config-zard-tabs config-zard-tabs--layout config-zard-tabs--no-nav-rule w-full"
+      <g-tab-group
+        class="config-gestgo-tabs config-gestgo-tabs--layout config-gestgo-tabs--no-nav-rule w-full"
         zNavWrapperClass="conta-perfil-tabs-bar border-b border-border bg-card"
         zNavClass="!mb-0 !border-0 !px-0 pt-2"
         [zShowArrow]="false"
         (zTabChange)="onPageTabChange($event)"
       >
-        <z-tab label="Perfil" icon="person">
+        <g-tab label="Perfil" icon="person">
           <div class="config-tab-panel">
-          <z-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
+          <g-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
             <div class="section-header">
               <div class="icon-wrap">
                 <span class="material-symbols-outlined" aria-hidden="true">badge</span>
@@ -41,19 +41,19 @@
               <p class="perfil-hint m-0 mt-4 text-sm text-muted-foreground">
                 Para alterar nome ou e-mail, um administrador da empresa pode atualizar seu usuário em
                 @if (podeGerenciarUsuarios()) {
-                  <a routerLink="/usuarios" z-button zType="link" zSize="sm" class="!h-auto !min-h-0 px-0 py-0 align-baseline no-underline">Usuários</a>.
+                  <a routerLink="/usuarios" class="!h-auto !min-h-0 px-0 py-0 align-baseline no-underline">Usuários</a>.
                 } @else {
                   <span>Usuários</span>.
                 }
               </p>
             </div>
-          </z-card>
+          </g-card>
           </div>
-        </z-tab>
+        </g-tab>
 
-        <z-tab label="Assinatura" icon="draw">
+        <g-tab label="Assinatura" icon="draw">
           <div class="config-tab-panel">
-          <z-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
+          <g-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
             <div class="section-header">
               <div class="icon-wrap">
                 <span class="material-symbols-outlined" aria-hidden="true">draw</span>
@@ -74,13 +74,13 @@
                 </div>
               }
 
-              <z-tab-group
-                class="perfil-sig-tabs config-zard-tabs config-zard-tabs--no-nav-rule w-full"
+              <g-tab-group
+                class="perfil-sig-tabs config-gestgo-tabs config-gestgo-tabs--no-nav-rule w-full"
                 zNavClass="!mb-4 !border-0 !border-b !border-border !px-0 pt-1"
                 [zShowArrow]="false"
                 (zTabChange)="onSigTabChange($event)"
               >
-                <z-tab label="Desenhar" icon="draw">
+                <g-tab label="Desenhar" icon="draw">
                   <div role="tabpanel" class="sig-panel">
                     <p class="m-0 mb-3 text-sm text-muted-foreground">Use o mouse ou o dedo (celular) no quadro branco.</p>
                     <canvas
@@ -99,17 +99,17 @@
                       (touchend)="endDesenho()"
                     ></canvas>
                     <div class="sig-actions">
-                      <button type="button" z-button zType="outline" zSize="sm" (click)="limparDesenho()" [disabled]="salvando">
+                      <nord-button type="button" variant="default" size="s" (click)="limparDesenho()" [attr.disabled]="salvando">
                         Limpar
-                      </button>
-                      <button type="button" z-button zSize="sm" (click)="salvarDesenho()" [disabled]="salvando">
+                      </nord-button>
+                      <nord-button type="button" size="s" (click)="salvarDesenho()" [attr.disabled]="salvando">
                         {{ salvando ? 'Salvando…' : 'Salvar assinatura' }}
-                      </button>
+                      </nord-button>
                     </div>
                   </div>
-                </z-tab>
+                </g-tab>
 
-                <z-tab label="Modelo com meu nome" icon="text_fields">
+                <g-tab label="Modelo com meu nome" icon="text_fields">
                   <div role="tabpanel" class="sig-panel">
                     <div class="mb-4 max-w-md">
                       <label class="perfil-field-label" for="perfil-nome-assinatura">Nome na assinatura</label>
@@ -119,8 +119,6 @@
                         [(ngModel)]="nomeTextoAssinatura"
                         (ngModelChange)="nomeAssinaturaChange()"
                         name="nomeTextoAssinatura"
-                        z-input
-                        zSize="sm"
                         class="w-full"
                         [attr.placeholder]="'Ex.: ' + nomeExibicao()"
                         autocomplete="name"
@@ -150,28 +148,28 @@
                       aria-label="Pré-visualização da assinatura tipográfica"
                     ></canvas>
                     <div class="sig-actions">
-                      <button type="button" z-button zSize="sm" (click)="salvarModelo()" [disabled]="salvando">
+                      <nord-button type="button" size="s" (click)="salvarModelo()" [attr.disabled]="salvando">
                         {{ salvando ? 'Salvando…' : 'Salvar assinatura' }}
-                      </button>
+                      </nord-button>
                     </div>
                   </div>
-                </z-tab>
-              </z-tab-group>
+                </g-tab>
+              </g-tab-group>
 
               <div class="sig-footer-actions">
-                <button type="button" z-button zType="link" zSize="sm" class="!h-auto !min-h-0 px-0 text-destructive hover:text-destructive" (click)="removerDoServidor()" [disabled]="salvando">
+                <nord-button type="button" variant="plain" size="s" class="!h-auto !min-h-0 px-0 text-destructive hover:text-destructive" (click)="removerDoServidor()" [attr.disabled]="salvando">
                   Remover assinatura do servidor
-                </button>
+                </nord-button>
               </div>
             </div>
-          </z-card>
+          </g-card>
           </div>
-        </z-tab>
+        </g-tab>
 
-        <z-tab label="Privacidade e dados" icon="shield">
+        <g-tab label="Privacidade e dados" icon="shield">
           <div class="config-tab-panel">
           <div class="perfil-privacidade-stack flex flex-col gap-5">
-            <z-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
+            <g-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
               <div class="section-header">
                 <div class="icon-wrap">
                   <span class="material-symbols-outlined" aria-hidden="true">account_circle</span>
@@ -190,14 +188,14 @@
                 </ul>
                 <p class="perfil-legal-links m-0 mt-4 text-sm text-muted-foreground">
                   Documentos completos:
-                  <a routerLink="/privacidade" target="_blank" rel="noopener noreferrer" z-button zType="link" zSize="sm" class="!h-auto !min-h-0 px-1 py-0 align-baseline">Política de Privacidade</a>
+                  <a routerLink="/privacidade" target="_blank" rel="noopener noreferrer" class="!h-auto !min-h-0 px-1 py-0 align-baseline">Política de Privacidade</a>
                   ·
-                  <a routerLink="/termos-de-uso" target="_blank" rel="noopener noreferrer" z-button zType="link" zSize="sm" class="!h-auto !min-h-0 px-1 py-0 align-baseline">Termos de Uso</a>
+                  <a routerLink="/termos-de-uso" target="_blank" rel="noopener noreferrer" class="!h-auto !min-h-0 px-1 py-0 align-baseline">Termos de Uso</a>
                 </p>
               </div>
-            </z-card>
+            </g-card>
 
-            <z-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
+            <g-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
               <div class="section-header">
                 <div class="icon-wrap">
                   <span class="material-symbols-outlined" aria-hidden="true">download</span>
@@ -209,14 +207,7 @@
                   Você pode baixar um arquivo JSON com os dados da sua conta, preferências, registros de auditoria das suas ações e metadados de protocolos em que participou (sem conteúdo clínico de pacientes).
                 </p>
                 <div class="mt-5 flex flex-wrap gap-3">
-                  <button
-                    type="button"
-                    z-button
-                    zType="outline"
-                    zSize="sm"
-                    (click)="exportarMeusDados()"
-                    [disabled]="exportandoDados"
-                  >
+                  <nord-button type="button" variant="default" size="s" (click)="exportarMeusDados()" [attr.disabled]="exportandoDados">
                     @if (exportandoDados) {
                       <span class="material-symbols-outlined text-base" aria-hidden="true">progress_activity</span>
                       Gerando arquivo…
@@ -224,12 +215,12 @@
                       <span class="material-symbols-outlined text-base" aria-hidden="true">download</span>
                       Baixar meus dados (JSON)
                     }
-                  </button>
+                  </nord-button>
                 </div>
               </div>
-            </z-card>
+            </g-card>
 
-            <z-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
+            <g-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
               <div class="section-header">
                 <div class="icon-wrap">
                   <span class="material-symbols-outlined" aria-hidden="true">groups</span>
@@ -243,18 +234,18 @@
                 <ul class="perfil-lgpd-list m-0 mt-4 list-none p-0 text-sm leading-relaxed text-foreground">
                   <li>Finalidades típicas: atendimento, consentimentos, fichas, assinaturas e organização documental.</li>
                   <li>Titulares (pacientes) devem ser informados nos formulários e podem solicitar direitos à clínica.</li>
-                  <li>Inativar uma ficha em <a routerLink="/pessoas" z-button zType="link" zSize="sm" class="!h-auto !min-h-0 px-0 py-0 align-baseline">Pessoas</a> é uma ação operacional da empresa, distinta da exclusão da sua conta de usuário.</li>
+                  <li>Inativar uma ficha em <a routerLink="/pessoas" class="!h-auto !min-h-0 px-0 py-0 align-baseline">Pessoas</a> é uma ação operacional da empresa, distinta da exclusão da sua conta de usuário.</li>
                 </ul>
                 @if (podeGerenciarClinica()) {
                   <p class="m-0 mt-4 text-sm text-muted-foreground">
                     Configure canais e dados públicos da empresa em
-                    <a routerLink="/clinica/configuracoes" z-button zType="link" zSize="sm" class="!h-auto !min-h-0 px-0 py-0 align-baseline">Configurações</a>.
+                    <a routerLink="/clinica/configuracoes" class="!h-auto !min-h-0 px-0 py-0 align-baseline">Configurações</a>.
                   </p>
                 }
               </div>
-            </z-card>
+            </g-card>
 
-            <z-card class="section-card section-card--danger gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
+            <g-card class="section-card section-card--danger gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
               <div class="section-header section-header--danger">
                 <div class="icon-wrap icon-wrap--danger">
                   <span class="material-symbols-outlined" aria-hidden="true">delete_forever</span>
@@ -281,43 +272,29 @@
                     type="password"
                     [(ngModel)]="senhaExclusao"
                     name="senhaExclusao"
-                    z-input
-                    zSize="sm"
                     class="w-full"
                     autocomplete="current-password"
                     [disabled]="excluindoConta"
                   />
 
-                  <z-checkbox
-                    class="perfil-delete-check mt-4"
-                    [(ngModel)]="confirmouExclusao"
-                    name="confirmouExclusao"
-                    [disabled]="excluindoConta"
-                  >
-                    <span class="perfil-delete-check__label">
+                  <nord-checkbox class="perfil-delete-check mt-4" [(ngModel)]="confirmouExclusao" name="confirmouExclusao" [disabled]="excluindoConta">
+                    <span slot="label" class="perfil-delete-check__label">
                       Entendo que esta ação é irreversível e desejo excluir minha conta de usuário.
                     </span>
-                  </z-checkbox>
+                  </nord-checkbox>
 
                   <div class="mt-5 flex flex-wrap gap-3">
-                    <button
-                      type="button"
-                      z-button
-                      zType="destructive"
-                      zSize="sm"
-                      (click)="excluirMinhaConta()"
-                      [disabled]="excluindoConta || !confirmouExclusao || !senhaExclusao.trim()"
-                    >
+                    <nord-button type="button" variant="danger" size="s" (click)="excluirMinhaConta()" [attr.disabled]="excluindoConta || !confirmouExclusao || !senhaExclusao.trim()">
                       {{ excluindoConta ? 'Excluindo…' : 'Excluir minha conta' }}
-                    </button>
+                    </nord-button>
                   </div>
                 </div>
               </div>
-            </z-card>
+            </g-card>
           </div>
           </div>
-        </z-tab>
-      </z-tab-group>
+        </g-tab>
+      </g-tab-group>
       </div>
     </div>
   }

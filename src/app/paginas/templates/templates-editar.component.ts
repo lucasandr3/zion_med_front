@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, Signal, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, inject, Signal, signal, ChangeDetectionStrategy, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TemplatesService, Template, TemplateCategory, TemplateComprehensionQuestion } from '../../core/services/templates.service';
@@ -6,24 +6,25 @@ import { LoadingService } from '../../shared/services/loading.service';
 import { ZmSkeletonTemplateFormularioComponent } from '../../shared/components/skeletons';
 import { ZmPageBackLinkComponent } from '../../shared/components/ui';
 import { ToastService } from '../../core/services/toast.service';
-import { ZardComboboxComponent, type ZardComboboxOption } from '@/shared/components/combobox';
-import { ZardCardComponent } from '@/shared/components/card/card.component';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
-import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
+import { GestgoComboboxComponent, type GestgoComboboxOption } from '@/shared/components/combobox';
+import { GestgoCardComponent } from '@/shared/components/card/card.component';
+
+import { NORD_FORM_IMPORTS } from '@/shared/nord';
 
 @Component({
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'app-templates-editar',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { class: 'n-page' },
   imports: [
-    ...ZARD_FORM_CONTROL_IMPORTS,
+    ...NORD_FORM_IMPORTS,
     RouterLink,
     FormsModule,
     ZmSkeletonTemplateFormularioComponent,
     ZmPageBackLinkComponent,
-    ZardComboboxComponent,
-    ZardCardComponent,
-    ZardButtonComponent,
+    GestgoComboboxComponent,
+    GestgoCardComponent
   ],
   templateUrl: './templates-editar.component.html',
   styleUrl: './templates-editar.component.css',
@@ -55,20 +56,18 @@ export class TemplatesEditarComponent implements OnInit {
   private loadingService = inject(LoadingService);
   private toast = inject(ToastService);
 
-  get opcoesDocumento(): ZardComboboxOption[] {
+  get opcoesDocumento(): GestgoComboboxOption[] {
     return [
       { value: 'ficha', label: 'Ficha / anamnese' },
       { value: 'consentimento', label: 'Consentimento informado' },
-      { value: 'ciencia_lgpd', label: 'Ciência LGPD / privacidade' },
-    ];
+      { value: 'ciencia_lgpd', label: 'Ciência LGPD / privacidade' }];
   }
 
-  get opcoesCategoria(): ZardComboboxOption[] {
+  get opcoesCategoria(): GestgoComboboxOption[] {
     return [
       { value: '', label: 'Sem categoria' },
       ...this.categorias().map((cat) => ({ value: cat.key, label: cat.name })),
-      { value: '__nova__', label: 'Nova categoria…' },
-    ];
+      { value: '__nova__', label: 'Nova categoria…' }];
   }
 
   ngOnInit(): void {
@@ -200,8 +199,7 @@ export class TemplatesEditarComponent implements OnInit {
         prompt: '',
         options: ['Sim', 'Não'],
         correct_index: 0,
-      },
-    ];
+      }];
   }
 
   removeQuizQuestion(index: number): void {

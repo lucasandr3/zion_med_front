@@ -27,8 +27,7 @@ import {
       allowInput: true,
       disableMobile: true,
       static: false,
-    }),
-  ],
+    })],
   templateUrl: './formulario-publico-feegow.component.html',
 })
 export class FormularioPublicoFeegowComponent implements OnChanges {

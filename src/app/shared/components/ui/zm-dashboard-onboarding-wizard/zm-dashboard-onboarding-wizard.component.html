@@ -1,5 +1,5 @@
 @if (visible()) {
-  <z-card class="onboarding-card mb-6 gap-0 overflow-hidden py-0 shadow-sm **:data-[slot=card-content]:p-0">
+  <g-card class="onboarding-card mb-6 gap-0 overflow-hidden py-0 shadow-sm **:data-[slot=card-content]:p-0">
     <div class="onboarding-wizard">
       <div class="onboarding-wizard__header">
         <div class="onboarding-wizard__header-main">
@@ -14,16 +14,9 @@
             </p>
           </div>
         </div>
-        <button
-          type="button"
-          z-button
-          zType="ghost"
-          zSize="sm"
-          class="onboarding-wizard__dismiss shrink-0"
-          (click)="dispensar()"
-        >
+        <nord-button type="button" variant="plain" size="s" class="onboarding-wizard__dismiss shrink-0" (click)="dispensar()">
           Lembrar depois
-        </button>
+        </nord-button>
       </div>
 
       @if (carregandoTemplates()) {
@@ -38,7 +31,7 @@
           <p class="onboarding-wizard__empty-text">
             Nenhum modelo ativo encontrado. Crie um em branco ou escolha um modelo pronto na biblioteca.
           </p>
-          <a z-button zSize="sm" routerLink="/templates/criar" class="no-underline">Abrir biblioteca</a>
+          <a routerLink="/templates/criar" class="no-underline">Abrir biblioteca</a>
         </div>
       } @else {
         <div class="onboarding-wizard__grid">
@@ -70,17 +63,11 @@
 
         <div class="onboarding-wizard__footer">
           <div class="onboarding-wizard__actions">
-            <button
-              type="button"
-              z-button
-              zSize="sm"
-              (click)="gerarLink()"
-              [disabled]="gerandoLink() || !templateSelecionadoId()"
-            >
+            <nord-button type="button" size="s" (click)="gerarLink()" [attr.disabled]="gerandoLink() || !templateSelecionadoId()">
               <span class="material-symbols-outlined text-base" aria-hidden="true">link</span>
               {{ gerandoLink() ? 'Gerando…' : 'Gerar link público' }}
-            </button>
-            <a z-button zType="outline" zSize="sm" routerLink="/link-bio" class="no-underline">
+            </nord-button>
+            <a routerLink="/link-bio" class="no-underline">
               <span class="material-symbols-outlined text-base" aria-hidden="true">account_circle</span>
               Configurar link na bio
             </a>
@@ -104,16 +91,16 @@
             </div>
             <div class="onboarding-wizard__link-row">
               <code class="onboarding-wizard__link-url">{{ linkPublicoUrl() }}</code>
-              <button type="button" z-button zType="outline" zSize="sm" (click)="copiarLink()">
+              <nord-button type="button" variant="default" size="s" (click)="copiarLink()">
                 <span class="material-symbols-outlined text-base" aria-hidden="true">
                   {{ linkCopiado() ? 'check' : 'content_copy' }}
                 </span>
                 {{ linkCopiado() ? 'Copiado!' : 'Copiar' }}
-              </button>
+              </nord-button>
             </div>
           </div>
         }
       }
     </div>
-  </z-card>
+  </g-card>
 }

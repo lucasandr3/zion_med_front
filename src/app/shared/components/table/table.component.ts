@@ -3,8 +3,8 @@ import { ChangeDetectionStrategy, Component, computed, input, ViewEncapsulation 
 import type { ClassValue } from 'clsx';
 
 import {
-  type ZardTableSizeVariants,
-  type ZardTableTypeVariants,
+  type GestgoTableSizeVariants,
+  type GestgoTableTypeVariants,
   tableBodyVariants,
   tableCaptionVariants,
   tableCellVariants,
@@ -27,9 +27,9 @@ import { mergeClasses } from '@/shared/utils/merge-classes';
   },
   exportAs: 'zTable',
 })
-export class ZardTableComponent {
-  readonly zType = input<ZardTableTypeVariants>('default');
-  readonly zSize = input<ZardTableSizeVariants>('default');
+export class GestgoTableComponent {
+  readonly zType = input<GestgoTableTypeVariants>('default');
+  readonly zSize = input<GestgoTableSizeVariants>('default');
   readonly class = input<ClassValue>('');
 
   protected readonly classes = computed(() =>
@@ -55,7 +55,7 @@ export class ZardTableComponent {
   },
   exportAs: 'zTableHeader',
 })
-export class ZardTableHeaderComponent {
+export class GestgoTableHeaderComponent {
   readonly class = input<ClassValue>('');
 
   protected readonly classes = computed(() => mergeClasses(tableHeaderVariants(), this.class()));
@@ -73,7 +73,7 @@ export class ZardTableHeaderComponent {
   },
   exportAs: 'zTableBody',
 })
-export class ZardTableBodyComponent {
+export class GestgoTableBodyComponent {
   readonly class = input<ClassValue>('');
 
   protected readonly classes = computed(() => mergeClasses(tableBodyVariants(), this.class()));
@@ -91,7 +91,7 @@ export class ZardTableBodyComponent {
   },
   exportAs: 'zTableRow',
 })
-export class ZardTableRowComponent {
+export class GestgoTableRowComponent {
   readonly class = input<ClassValue>('');
 
   protected readonly classes = computed(() => mergeClasses(tableRowVariants(), this.class()));
@@ -109,7 +109,7 @@ export class ZardTableRowComponent {
   },
   exportAs: 'zTableHead',
 })
-export class ZardTableHeadComponent {
+export class GestgoTableHeadComponent {
   readonly class = input<ClassValue>('');
 
   protected readonly classes = computed(() => mergeClasses(tableHeadVariants(), this.class()));
@@ -127,7 +127,7 @@ export class ZardTableHeadComponent {
   },
   exportAs: 'zTableCell',
 })
-export class ZardTableCellComponent {
+export class GestgoTableCellComponent {
   readonly class = input<ClassValue>('');
 
   protected readonly classes = computed(() => mergeClasses(tableCellVariants(), this.class()));
@@ -145,7 +145,7 @@ export class ZardTableCellComponent {
   },
   exportAs: 'zTableCaption',
 })
-export class ZardTableCaptionComponent {
+export class GestgoTableCaptionComponent {
   readonly class = input<ClassValue>('');
 
   protected readonly classes = computed(() => mergeClasses(tableCaptionVariants(), this.class()));

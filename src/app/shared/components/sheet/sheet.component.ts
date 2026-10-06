@@ -20,20 +20,19 @@ import {
   type TemplateRef,
   type Type,
   viewChild,
-  type ViewContainerRef,
-} from '@angular/core';
+  type ViewContainerRef, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideX } from '@ng-icons/lucide';
 
-import { ZardButtonComponent } from '@/shared/components/button';
+
 import { mergeClasses, noopFn } from '@/shared/utils/merge-classes';
 
-import type { ZardSheetRef } from './sheet-ref';
-import { sheetVariants, type ZardSheetVariants } from './sheet.variants';
+import type { GestgoSheetRef } from './sheet-ref';
+import { sheetVariants, type GestgoSheetVariants } from './sheet.variants';
 
 export type OnClickCallback<T> = (instance: T) => false | void | object;
-export class ZardSheetOptions<T, U> {
+export class GestgoSheetOptions<T, U> {
   zCancelIcon?: string;
   zCancelText?: string | null;
   zClosable?: boolean;
@@ -50,8 +49,8 @@ export class ZardSheetOptions<T, U> {
   zOkText?: string | null;
   zOnCancel?: EventEmitter<T> | OnClickCallback<T> = noopFn;
   zOnOk?: EventEmitter<T> | OnClickCallback<T> = noopFn;
-  zSide?: ZardSheetVariants['zSide'] = 'left';
-  zSize?: ZardSheetVariants['zSize'] = 'default';
+  zSide?: GestgoSheetVariants['zSide'] = 'left';
+  zSize?: GestgoSheetVariants['zSize'] = 'default';
   zTitle?: string | TemplateRef<T>;
   zViewContainerRef?: ViewContainerRef;
   zWidth?: string;
@@ -60,21 +59,14 @@ export class ZardSheetOptions<T, U> {
 }
 
 @Component({
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'z-sheet',
-  imports: [OverlayModule, PortalModule, ZardButtonComponent, NgIcon],
+  imports: [OverlayModule, PortalModule, NgIcon],
   template: `
     @if (config.zClosable || config.zClosable === undefined) {
-      <button
-        type="button"
-        data-testid="z-close-header-button"
-        z-button
-        zType="ghost"
-        zSize="sm"
-        class="absolute cursor-pointer"
-        (click)="onCloseClick()"
-      >
+      <nord-button type="button" data-testid="z-close-header-button" variant="plain" size="s" class="absolute cursor-pointer" (click)="onCloseClick()">
         <ng-icon name="lucideX" />
-      </button>
+      </nord-button>
     }
 
     @if (config.zTitle || config.zDescription) {
@@ -106,38 +98,23 @@ export class ZardSheetOptions<T, U> {
     @if (!config.zHideFooter) {
       <footer data-slot="sheet-footer" class="mt-auto flex flex-col gap-2 p-4">
         @if (config.zOkText !== null) {
-          <button
-            type="button"
-            data-testid="z-ok-button"
-            class="cursor-pointer"
-            z-button
-            [zType]="config.zOkDestructive ? 'destructive' : 'default'"
-            [disabled]="config.zOkDisabled"
-            (click)="onOkClick()"
-          >
+          <nord-button type="button" data-testid="z-ok-button" class="cursor-pointer" [attr.variant]="config.zOkDestructive ? 'danger' : 'primary'" [attr.disabled]="config.zOkDisabled" (click)="onOkClick()">
             @if (config.zOkIcon) {
               <ng-icon [svg]="config.zOkIcon" />
             }
 
             {{ config.zOkText ?? 'OK' }}
-          </button>
+          </nord-button>
         }
 
         @if (config.zCancelText !== null) {
-          <button
-            type="button"
-            data-testid="z-cancel-button"
-            class="cursor-pointer"
-            z-button
-            zType="outline"
-            (click)="onCloseClick()"
-          >
+          <nord-button type="button" data-testid="z-cancel-button" class="cursor-pointer" variant="default" (click)="onCloseClick()">
             @if (config.zCancelIcon) {
               <ng-icon [svg]="config.zCancelIcon" />
             }
 
             {{ config.zCancelText ?? 'Cancel' }}
-          </button>
+          </nord-button>
         }
       </footer>
     }
@@ -148,14 +125,15 @@ export class ZardSheetOptions<T, U> {
     'data-slot': 'sheet',
     '[class]': 'classes()',
     '[attr.data-state]': 'state()',
-    '[style.width]': 'config.zWidth ? config.zWidth + " !important" : null',
-    '[style.height]': 'config.zHeight ? config.zHeight + " !important" : null',
+    '[style.width]': 'config.zWidth || null',
+    '[style.height]': 'config.zHeight || null',
+    '[style.maxWidth]': 'config.zWidth || null',
   },
   exportAs: 'zSheet',
 })
-export class ZardSheetComponent<T, U> extends BasePortalOutlet {
+export class GestgoSheetComponent<T, U> extends BasePortalOutlet {
   private readonly host = inject(ElementRef<HTMLElement>);
-  protected readonly config = inject(ZardSheetOptions<T, U>);
+  protected readonly config = inject(GestgoSheetOptions<T, U>);
 
   protected readonly classes = computed(() => {
     const zSize = this.config.zWidth || this.config.zHeight ? 'custom' : this.config.zSize;
@@ -169,7 +147,7 @@ export class ZardSheetComponent<T, U> extends BasePortalOutlet {
     );
   });
 
-  sheetRef?: ZardSheetRef<T>;
+  sheetRef?: GestgoSheetRef<T>;
 
   protected readonly isStringContent = typeof this.config.zContent === 'string';
 

@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef, inject, signal, DestroyRef, Signal } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, inject, signal, DestroyRef, Signal, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -9,12 +9,12 @@ import { ConfirmDialogService } from '../../core/services/confirm-dialog.service
 import { ToastService } from '../../core/services/toast.service';
 import { LoadingService } from '../../shared/services/loading.service';
 import { ZmSkeletonContaPerfilComponent } from '../../shared/components/skeletons';
-import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
-import { ZardCardComponent } from '@/shared/components/card/card.component';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
-import { ZardTabComponent, ZardTabGroupComponent } from '@/shared/components/tabs';
-import { ZardComboboxComponent, type ZardComboboxOption } from '@/shared/components/combobox';
-import { ZardCheckboxComponent } from '@/shared/components/checkbox';
+import { NORD_FORM_IMPORTS } from '@/shared/nord';
+import { GestgoCardComponent } from '@/shared/components/card/card.component';
+
+import { GestgoTabComponent, GestgoTabGroupComponent } from '@/shared/components/tabs';
+import { GestgoComboboxComponent, type GestgoComboboxOption } from '@/shared/components/combobox';
+
 
 type ModoAssinatura = 'desenhar' | 'modelo';
 
@@ -36,8 +36,7 @@ const FONTES_ASSINATURA: DefinicaoFonteAssinatura[] = [
   { id: 'italianno', label: 'Tradicional fina', family: '"Italianno", cursive', size: 42 },
   { id: 'tangerine', label: 'Minimalista fina', family: '"Tangerine", cursive', size: 44 },
   { id: 'sofia', label: 'Manuscrito simples', family: '"Sofia", cursive', size: 34 },
-  { id: 'caveat', label: 'Informal à mão', family: '"Caveat", cursive', size: 40 },
-];
+  { id: 'caveat', label: 'Informal à mão', family: '"Caveat", cursive', size: 40 }];
 
 function mensagemErroApi(err: { error?: { message?: string; errors?: Record<string, string[]> } }): string {
   const e = err.error;
@@ -48,20 +47,19 @@ function mensagemErroApi(err: { error?: { message?: string; errors?: Record<stri
 }
 
 @Component({
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'app-conta-perfil',
   standalone: true,
+  host: { class: 'n-page n-page--flush' },
   imports: [
-    ...ZARD_FORM_CONTROL_IMPORTS,
+    ...NORD_FORM_IMPORTS,
     RouterLink,
     FormsModule,
-    ZardCardComponent,
-    ZardButtonComponent,
-    ZardTabComponent,
-    ZardTabGroupComponent,
-    ZardComboboxComponent,
-    ZardCheckboxComponent,
-    ZmSkeletonContaPerfilComponent,
-  ],
+    GestgoCardComponent,
+    GestgoTabComponent,
+    GestgoTabGroupComponent,
+    GestgoComboboxComponent,
+    ZmSkeletonContaPerfilComponent],
   templateUrl: './conta-perfil.component.html',
   styleUrl: './conta-perfil.component.css',
 })
@@ -81,7 +79,7 @@ export class ContaPerfilComponent implements OnInit {
   listaPronta = false;
 
   readonly previewUrlServidor = signal<string | null>(null);
-  readonly opcoesFontes: ZardComboboxOption[] = FONTES_ASSINATURA.map((f) => ({
+  readonly opcoesFontes: GestgoComboboxOption[] = FONTES_ASSINATURA.map((f) => ({
     value: f.id,
     label: f.label,
   }));

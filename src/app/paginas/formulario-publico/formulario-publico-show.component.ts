@@ -99,8 +99,7 @@ import {
     FormularioPublicoOtpComponent,
     FormularioPublicoFieldsComponent,
     FormularioPublicoConsentComponent,
-    FormularioPublicoFooterComponent,
-  ],
+    FormularioPublicoFooterComponent],
   templateUrl: './formulario-publico-show.component.html',
   styleUrl: './formulario-publico-show.component.css',
 })
@@ -914,8 +913,7 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
     const completedAt = new Date().toISOString();
     this.clinicalStepsCompleted = [
       ...this.clinicalStepsCompleted.filter((s) => s.kind !== kind),
-      { kind, completed_at: completedAt },
-    ];
+      { kind, completed_at: completedAt }];
   }
 
   private afterStepChange(direction: 'forward' | 'back'): void {

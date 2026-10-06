@@ -1,4 +1,4 @@
-import { afterNextRender, Component, inject, Injector, OnInit, PLATFORM_ID, runInInjectionContext, Signal, ViewChild, ChangeDetectionStrategy, signal } from '@angular/core';
+import { afterNextRender, Component, inject, Injector, OnInit, PLATFORM_ID, runInInjectionContext, Signal, ViewChild, ChangeDetectionStrategy, signal, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -35,33 +35,33 @@ import { normalizeGooglePlaceId } from './link-bio-google-review-link.util';
 
 const LINK_BIO_PREVIEW_SESSION_KEY = 'zm_link_bio_preview';
 
-import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
-import { ZardBadgeComponent } from '@/shared/components/badge';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
-import { ZardTabComponent, ZardTabGroupComponent } from '@/shared/components/tabs';
+import { NORD_FORM_IMPORTS } from '@/shared/nord';
+import { GestgoBadgeComponent } from '@/shared/components/badge';
+
+import { GestgoTabComponent, GestgoTabGroupComponent } from '@/shared/components/tabs';
 import { prefetchPublicFormQr } from '../../core/utils/public-form-qr.util';
 import { LinkBioSidePreviewComponent } from './link-bio-side-preview.component';
 
 @Component({
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'app-pagina-link-bio',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { class: 'n-page n-page--flush' },
   imports: [
-    ...ZARD_FORM_CONTROL_IMPORTS,
+    ...NORD_FORM_IMPORTS,
     FormsModule,
     ZmSkeletonLinkBioComponent,
-    ZardBadgeComponent,
-    ZardButtonComponent,
-    ZardTabComponent,
-    ZardTabGroupComponent,
+    GestgoBadgeComponent,
+    GestgoTabComponent,
+    GestgoTabGroupComponent,
     LinkBioSidePreviewComponent,
     LinkBioVisaoGeralTabComponent,
     LinkBioLinksTabComponent,
     LinkBioFormsTabComponent,
     LinkBioAparenciaTabComponent,
     LinkBioConteudoExtraTabComponent,
-    LinkBioModelosTabComponent,
-  ],
+    LinkBioModelosTabComponent],
   templateUrl: './link-bio.component.html',
   styleUrl: './link-bio.component.css',
 })
@@ -72,7 +72,7 @@ export class LinkBioComponent implements OnInit {
   abaPrincipal: AbaPrincipal = 'visaoGeral';
   abaAtiva: Aba = 'modelos';
 
-  @ViewChild('mainTabGroup') mainTabGroup?: ZardTabGroupComponent;
+  @ViewChild('mainTabGroup') mainTabGroup?: GestgoTabGroupComponent;
 
   private readonly injector = inject(Injector);
 

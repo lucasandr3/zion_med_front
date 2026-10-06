@@ -1,104 +1,96 @@
-<div class="templates-criar-em-branco relative min-h-[200px]">
-  <div class="zm-content-enter">
-    <z-card class="gap-0 border-border bg-card py-5 shadow-sm **:data-[slot=card-content]:px-5">
-      <p class="mb-5 text-sm text-muted-foreground">
-        Preencha os dados básicos do modelo. Em seguida você poderá adicionar os campos do formulário.
-      </p>
+<div class="n-form-toolbar">
+  <div class="n-form-toolbar__start">
+    <zm-page-back-link />
+  </div>
+  <div class="n-form-toolbar__end">
+    <nord-button type="button" routerLink="/templates">
+      <nord-icon name="interface-close" size="s"></nord-icon>
+      Cancelar
+    </nord-button>
+    <nord-button
+      variant="primary"
+      type="button"
+      [attr.loading]="salvando()"
+      [attr.disabled]="salvando() || !name.trim() || (categoriaSelecionada === '__nova__' && !novaCategoria.trim())"
+      (click)="salvar()"
+    >
+      <nord-icon name="interface-checked" size="s"></nord-icon>
+      Criar modelo
+    </nord-button>
+  </div>
+</div>
 
-      @if (erro()) {
-        <p class="mb-4 text-sm text-destructive">{{ erro() }}</p>
+<div class="zm-content-enter">
+  <g-card class="gap-0 border-border bg-card py-5 shadow-sm **:data-[slot=card-content]:px-5">
+    <p class="mb-5 text-sm text-muted-foreground">
+      Preencha os dados básicos do modelo. Em seguida você poderá adicionar os campos do formulário.
+    </p>
+
+    @if (erro()) {
+      <p class="mb-4 text-sm text-destructive">{{ erro() }}</p>
+    }
+
+    <form class="flex flex-col gap-5">
+      <div>
+        <label class="templates-form-label" for="template-name">Nome</label>
+        <input
+          id="template-name"
+          type="text"
+          [(ngModel)]="name"
+          name="name"
+          required
+          class="w-full"
+          placeholder="Ex: Ficha de Anamnese"
+        />
+      </div>
+
+      <div>
+        <label class="templates-form-label" for="template-description">Descrição</label>
+        <textarea
+          id="template-description"
+          [(ngModel)]="description"
+          name="description"
+          rows="3"
+          class="w-full"
+          placeholder="Breve descrição do modelo..."
+        ></textarea>
+      </div>
+
+      <div>
+        <label class="templates-form-label" id="template-category-label">Categoria</label>
+        <z-combobox
+          class="w-full"
+          zWidth="full"
+          [options]="opcoesCategoria"
+          [value]="categoriaSelecionada || null"
+          placeholder="Sem categoria"
+          searchPlaceholder="Buscar categoria..."
+          emptyText="Nenhuma categoria encontrada."
+          ariaLabel="Categoria"
+          ariaDescribedBy="template-category-label"
+          (zValueChange)="selecionarCategoria($event)"
+        />
+      </div>
+
+      @if (categoriaSelecionada === '__nova__') {
+        <div>
+          <label class="templates-form-label" for="template-nova-categoria">Nova categoria</label>
+          <input
+            id="template-nova-categoria"
+            type="text"
+            [(ngModel)]="novaCategoria"
+            name="novaCategoria"
+            class="w-full"
+            placeholder="Ex: Anamnese, Acompanhamento, Evolução..."
+          />
+        </div>
       }
 
-      <form (ngSubmit)="salvar()" class="flex flex-col gap-5">
-        <div>
-          <label class="templates-form-label" for="template-name">Nome</label>
-          <input
-            id="template-name"
-            type="text"
-            [(ngModel)]="name"
-            name="name"
-            required
-            z-input
-            zSize="sm"
-            class="w-full"
-            placeholder="Ex: Ficha de Anamnese"
-          />
-        </div>
-
-        <div>
-          <label class="templates-form-label" for="template-description">Descrição</label>
-          <textarea
-            id="template-description"
-            [(ngModel)]="description"
-            name="description"
-            rows="3"
-            z-input
-            zSize="sm"
-            class="w-full"
-            placeholder="Breve descrição do modelo..."
-          ></textarea>
-        </div>
-
-        <div>
-          <label class="templates-form-label" id="template-category-label">Categoria</label>
-          <z-combobox
-            class="w-full"
-            zWidth="full"
-            [options]="opcoesCategoria"
-            [value]="categoriaSelecionada || null"
-            placeholder="Sem categoria"
-            searchPlaceholder="Buscar categoria..."
-            emptyText="Nenhuma categoria encontrada."
-            ariaLabel="Categoria"
-            ariaDescribedBy="template-category-label"
-            (zValueChange)="selecionarCategoria($event)"
-          />
-        </div>
-
-        @if (categoriaSelecionada === '__nova__') {
-          <div>
-            <label class="templates-form-label" for="template-nova-categoria">Nova categoria</label>
-            <input
-              id="template-nova-categoria"
-              type="text"
-              [(ngModel)]="novaCategoria"
-              name="novaCategoria"
-              z-input
-              zSize="sm"
-              class="w-full"
-              placeholder="Ex: Anamnese, Acompanhamento, Evolução..."
-            />
-          </div>
-        }
-
-        <div class="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-6">
-          <z-checkbox [(ngModel)]="is_active" name="is_active">Ativo</z-checkbox>
-          <z-checkbox [(ngModel)]="public_enabled" name="public_enabled">Formulário público</z-checkbox>
-          <z-checkbox [(ngModel)]="public_require_person_link" name="public_require_person_link">
-            Exigir identificação antes do formulário
-          </z-checkbox>
-        </div>
-
-          <div class="flex flex-wrap items-center gap-3 pt-2">
-            <zm-page-back-link />
-            <button
-            type="submit"
-            z-button
-            zSize="sm"
-            class="inline-flex items-center gap-2"
-            [zLoading]="salvando()"
-            [zDisabled]="salvando() || !name.trim() || (categoriaSelecionada === '__nova__' && !novaCategoria.trim())"
-          >
-            @if (!salvando()) {
-              <span class="material-symbols-outlined text-base" aria-hidden="true">save</span>
-            }
-            {{ salvando() ? 'Criando…' : 'Criar modelo' }}
-          </button>
-          <a routerLink="/templates" z-button zType="ghost" zSize="sm" class="no-underline" title="Cancelar criação">
-            Cancelar
-          </a>
-        </div>
-      </form>
-    </z-card>
-  </div>
+      <div class="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-6">
+        <nord-checkbox [(ngModel)]="is_active" name="is_active" label="Ativo"></nord-checkbox>
+        <nord-checkbox [(ngModel)]="public_enabled" name="public_enabled" label="Formulário público"></nord-checkbox>
+        <nord-checkbox [(ngModel)]="public_require_person_link" name="public_require_person_link" label="Exigir identificação antes do formulário"></nord-checkbox>
+      </div>
+    </form>
+  </g-card>
 </div>

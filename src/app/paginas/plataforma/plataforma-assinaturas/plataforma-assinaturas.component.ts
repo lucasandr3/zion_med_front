@@ -1,24 +1,17 @@
-import { Component, OnInit, inject, Signal, ChangeDetectionStrategy, signal } from '@angular/core';
-import { ZardCardComponent } from '@/shared/components/card/card.component';
-import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
+import { Component, OnInit, inject, Signal, ChangeDetectionStrategy, signal, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { catchError } from 'rxjs';
 import { PlataformaService, PlatformSubscription } from '../../../core/services/plataforma.service';
 import { LoadingService } from '../../../shared/services/loading.service';
-import { ZmSkeletonListComponent } from '../../../shared/components/skeletons';
-import { ZmEmptyStateComponent } from '../../../shared/components/ui';
+import { ListSkeletonComponent } from '../../../shared/components/list-skeleton/list-skeleton.component';
 import { statusAssinaturaOuCobrancaPt } from '../../../core/utils/status-labels-pt';
-import { ZardTableImports } from '@/shared/components/table';
+
 @Component({
   selector: 'app-plataforma-assinaturas',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    ...ZardTableImports,
-    ZardCardComponent,
-    ZardBadgeComponent,
-    ZmSkeletonListComponent,
-    ZmEmptyStateComponent,
-  ],
+  host: { class: 'n-page-list' },
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  imports: [ListSkeletonComponent],
   templateUrl: './plataforma-assinaturas.component.html',
   styleUrl: './plataforma-assinaturas.component.css',
 })
@@ -61,11 +54,11 @@ export class PlataformaAssinaturasComponent implements OnInit {
     }
   }
 
-  badgeTipoStatus(status?: string | null): 'default' | 'secondary' | 'destructive' | 'outline' {
+  badgeVariant(status?: string | null): 'success' | 'warning' | 'danger' | 'neutral' | 'info' {
     const k = (status ?? '').toLowerCase();
-    if (['active', 'ok'].includes(k)) return 'default';
-    if (['trial', 'attention', 'past_due'].includes(k)) return 'secondary';
-    if (['blocked', 'inactive'].includes(k)) return 'destructive';
-    return 'outline';
+    if (['active', 'ok'].includes(k)) return 'success';
+    if (['trial', 'attention', 'past_due'].includes(k)) return 'warning';
+    if (['blocked', 'inactive'].includes(k)) return 'danger';
+    return 'neutral';
   }
 }

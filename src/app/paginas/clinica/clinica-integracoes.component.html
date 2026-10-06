@@ -10,16 +10,16 @@
   } @else if (state) {
     <div class="integracoes-shell zm-content-enter">
       <div class="clinica-config integracoes-config">
-        <z-tab-group
-          class="config-zard-tabs config-zard-tabs--layout config-zard-tabs--no-nav-rule w-full"
+        <g-tab-group
+          class="config-gestgo-tabs config-gestgo-tabs--layout config-gestgo-tabs--no-nav-rule w-full"
           zNavWrapperClass="integracoes-tabs-bar border-b border-border bg-card"
           zNavClass="!mb-0 !border-0 !px-0 pt-2"
           [zShowArrow]="false"
-          (zTabChange)="onZardTabChange($event)"
+          (zTabChange)="onGestgoTabChange($event)"
         >
-          <z-tab label="API e tokens" icon="key">
+          <g-tab label="API e tokens" icon="key">
             <div class="config-tab-panel">
-              <z-card
+              <g-card
                 class="section-card section-card--highlight gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0"
               >
                 <div class="section-header">
@@ -29,20 +29,20 @@
                 <div class="section-body">
                   <p class="hint mb-4">Documentação interativa (Scramble) e especificação OpenAPI para integrar com outros sistemas.</p>
                   <div class="flex flex-wrap gap-3">
-                    <a [href]="docsApiUrl" target="_blank" rel="noopener" z-button zSize="sm" class="inline-flex items-center gap-2 no-underline">
+                    <a [href]="docsApiUrl" target="_blank" rel="noopener" class="inline-flex items-center gap-2 no-underline">
                       <span class="material-symbols-outlined text-base">menu_book</span>
                       Documentação interativa
                     </a>
-                    <a [href]="docsApiJsonUrl" target="_blank" rel="noopener" z-button zType="outline" zSize="sm" class="inline-flex items-center gap-2 no-underline">
+                    <a [href]="docsApiJsonUrl" target="_blank" rel="noopener" class="inline-flex items-center gap-2 no-underline">
                       <span class="material-symbols-outlined text-base">download</span>
                       OpenAPI (JSON)
                     </a>
                   </div>
                 </div>
-              </z-card>
+              </g-card>
 
               @if (ultimoTokenGerado) {
-                <z-card
+                <g-card
                   class="section-card section-card--highlight gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0"
                 >
                   <div class="section-header">
@@ -53,10 +53,10 @@
                     <p class="hint mb-3">Copie e guarde em local seguro. Este valor não será exibido novamente.</p>
                     <code class="block break-all rounded-md bg-muted p-3 text-xs">{{ ultimoTokenGerado.token }}</code>
                   </div>
-                </z-card>
+                </g-card>
               }
 
-              <z-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
+              <g-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
                 <div class="section-header">
                   <div class="icon-wrap"><span class="material-symbols-outlined">key</span></div>
                   <span class="section-title">Token de API</span>
@@ -71,29 +71,27 @@
                         <input
                           id="novo-token-nome"
                           type="text"
-                          z-input
-                          zSize="sm"
                           class="min-w-[200px] flex-1"
                           [(ngModel)]="novoTokenNome"
                           name="novoTokenNome"
                           placeholder="Ex: ERP, Sistema externo"
                           required
                         />
-                        <button type="submit" z-button zSize="sm" class="inline-flex shrink-0 items-center gap-2" [disabled]="tokenCriando">
+                        <nord-button type="submit" size="s" class="inline-flex shrink-0 items-center gap-2" [attr.disabled]="tokenCriando">
                           @if (tokenCriando) {
                             <span class="btn-spinner" aria-hidden="true"></span>
                           } @else {
                             <span class="material-symbols-outlined text-base">add</span>
                           }
                           {{ tokenCriando ? 'Criando…' : 'Criar token' }}
-                        </button>
+                        </nord-button>
                       </div>
                     </div>
                   </form>
 
                   @if (tokens.length > 0) {
                     <div class="zm-table-wrap mt-4">
-                    <table z-table zSize="compact" class="text-sm">
+                    <table z-table class="text-sm">
                       <thead z-table-header>
                         <tr z-table-row>
                           <th z-table-head>Nome</th>
@@ -107,9 +105,9 @@
                             <td z-table-cell>{{ t.name }}</td>
                             <td z-table-cell class="text-muted-foreground">{{ t.created_at | date:'dd/MM/yyyy HH:mm' }}</td>
                             <td z-table-cell class="text-right">
-                              <button type="button" z-button zType="link" zSize="sm" class="px-0" (click)="revogarToken(t)">
+                              <nord-button type="button" variant="plain" size="s" class="px-0" (click)="revogarToken(t)">
                                 Revogar
-                              </button>
+                              </nord-button>
                             </td>
                           </tr>
                         }
@@ -118,13 +116,13 @@
                     </div>
                   }
                 </div>
-              </z-card>
+              </g-card>
             </div>
-          </z-tab>
+          </g-tab>
 
-          <z-tab label="Webhooks" icon="webhook">
+          <g-tab label="Webhooks" icon="webhook">
             <div class="config-tab-panel">
-              <z-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
+              <g-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
                 <div class="section-header">
                   <div class="icon-wrap"><span class="material-symbols-outlined">webhook</span></div>
                   <span class="section-title">Webhooks</span>
@@ -137,71 +135,70 @@
                   <form (ngSubmit)="criarWebhook()" class="mb-6 flex max-w-xl flex-col gap-4">
                     <div class="field mb-0">
                       <label>URL</label>
-                      <input type="url" z-input zSize="sm" class="w-full" [(ngModel)]="novoWebhookUrl" name="novoWebhookUrl" placeholder="https://seu-sistema.com/webhook" required />
+                      <input type="url" class="w-full" [(ngModel)]="novoWebhookUrl" name="novoWebhookUrl" placeholder="https://seu-sistema.com/webhook" required />
                     </div>
                     <div class="field mb-0">
                       <label>Eventos</label>
                       <div class="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2">
                         @for (ev of availableEvents; track ev) {
-                          <z-checkbox
+                          <nord-checkbox
                             [ngModel]="novoWebhookEventos.includes(ev)"
                             (ngModelChange)="toggleEvento(ev, $event)"
                             [name]="'webhook_ev_' + ev"
-                          >
-                            {{ eventLabels[ev] || ev }}
-                          </z-checkbox>
+                            [attr.label]="eventLabels[ev] || ev"
+                          ></nord-checkbox>
                         }
                       </div>
                     </div>
                     <div class="field mb-0">
                       <label>Secret <span class="opt">opcional, para assinatura HMAC</span></label>
-                      <input type="text" z-input zSize="sm" class="max-w-xs w-full" [(ngModel)]="novoWebhookSecret" name="novoWebhookSecret" placeholder="Chave secreta" />
+                      <input type="text" class="max-w-xs w-full" [(ngModel)]="novoWebhookSecret" name="novoWebhookSecret" placeholder="Chave secreta" />
                     </div>
                     <div class="field mb-0">
                       <label>Descrição <span class="opt">opcional</span></label>
-                      <input type="text" z-input zSize="sm" class="max-w-xs w-full" [(ngModel)]="novoWebhookDescricao" name="novoWebhookDescricao" placeholder="Ex: ERP principal" />
+                      <input type="text" class="max-w-xs w-full" [(ngModel)]="novoWebhookDescricao" name="novoWebhookDescricao" placeholder="Ex: ERP principal" />
                     </div>
-                    <button type="submit" z-button zSize="sm" class="inline-flex w-fit items-center gap-2" [disabled]="webhookCriando">
+                    <nord-button type="submit" size="s" class="inline-flex w-fit items-center gap-2" [attr.disabled]="webhookCriando">
                       @if (webhookCriando) {
                         <span class="btn-spinner" aria-hidden="true"></span>
                       } @else {
                         <span class="material-symbols-outlined text-base">add</span>
                       }
                       {{ webhookCriando ? 'Salvando…' : 'Adicionar webhook' }}
-                    </button>
+                    </nord-button>
                   </form>
 
                   @if (webhooks.length > 0) {
                     <div class="flex flex-col gap-3">
                       @for (wh of webhooks; track wh.id) {
-                        <z-card class="webhook-item-card gap-0 overflow-hidden rounded-lg border-border bg-card py-0 shadow-none **:data-[slot=card-content]:p-0">
+                        <g-card class="webhook-item-card gap-0 overflow-hidden rounded-lg border-border bg-card py-0 shadow-none **:data-[slot=card-content]:p-0">
                           <div class="flex flex-wrap items-start justify-between gap-3 p-4 text-sm">
                             <div class="min-w-0 flex-1">
                               <div class="flex flex-wrap items-center gap-2">
                                 <strong>{{ wh.description || 'Webhook' }}</strong>
                                 @if (!wh.is_active) {
-                                  <z-badge zType="outline" zShape="pill">Inativo</z-badge>
+                                  <g-badge zType="outline" zShape="pill">Inativo</g-badge>
                                 }
                               </div>
                               <p class="mt-1 break-all text-muted-foreground">{{ wh.url }}</p>
                               <p class="mt-1 text-xs text-muted-foreground">{{ formatarEventosWebhook(wh) }}</p>
                             </div>
-                            <button type="button" z-button zType="link" zSize="sm" class="shrink-0 px-0 text-destructive" (click)="removerWebhook(wh)">
+                            <nord-button type="button" variant="plain" size="s" class="shrink-0 px-0 text-destructive" (click)="removerWebhook(wh)">
                               Excluir
-                            </button>
+                            </nord-button>
                           </div>
-                        </z-card>
+                        </g-card>
                       }
                     </div>
                   }
                 </div>
-              </z-card>
+              </g-card>
             </div>
-          </z-tab>
+          </g-tab>
 
-          <z-tab label="Entregas" icon="history">
+          <g-tab label="Entregas" icon="history">
             <div class="config-tab-panel">
-              <z-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
+              <g-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
                 <div class="section-header">
                   <div class="icon-wrap"><span class="material-symbols-outlined">history</span></div>
                   <span class="section-title">Últimas entregas de webhook</span>
@@ -211,7 +208,7 @@
                     <p class="text-sm text-muted-foreground">Nenhuma entrega registrada.</p>
                   } @else {
                     <div class="zm-table-wrap">
-                      <table z-table zSize="compact" class="text-xs">
+                      <table z-table class="text-xs">
                         <thead z-table-header>
                           <tr z-table-row>
                             <th z-table-head>Data</th>
@@ -229,27 +226,19 @@
                               <td z-table-cell>{{ d.webhook_id }}</td>
                               <td z-table-cell>
                                 @if (d.response_code != null && d.response_code >= 200 && d.response_code < 300) {
-                                  <z-badge zType="default" zShape="pill">{{ d.response_code }}</z-badge>
+                                  <g-badge zType="default" zShape="pill">{{ d.response_code }}</g-badge>
                                 } @else {
                                   <span class="text-muted-foreground">{{ d.response_code ?? (d.error_message || '-') }}</span>
                                 }
                               </td>
                               <td z-table-cell class="text-right">
                                 @if ((d.response_code == null || d.response_code < 200 || d.response_code >= 300) && d.id) {
-                                  <button
-                                    type="button"
-                                    z-button
-                                    zType="outline"
-                                    zSize="sm"
-                                    class="inline-flex items-center gap-2"
-                                    (click)="reenviar(d)"
-                                    [disabled]="reenviandoId === d.id"
-                                  >
+                                  <nord-button type="button" variant="default" size="s" class="inline-flex items-center gap-2" (click)="reenviar(d)" [attr.disabled]="reenviandoId === d.id">
                                     @if (reenviandoId === d.id) {
                                       <span class="btn-spinner btn-spinner--xs" aria-hidden="true"></span>
                                     }
                                     {{ reenviandoId === d.id ? 'Reenviando…' : 'Reenviar' }}
-                                  </button>
+                                  </nord-button>
                                 }
                               </td>
                             </tr>
@@ -259,13 +248,13 @@
                     </div>
                   }
                 </div>
-              </z-card>
+              </g-card>
             </div>
-          </z-tab>
+          </g-tab>
 
-          <z-tab label="Sistemas" icon="computer">
+          <g-tab label="Sistemas" icon="computer">
             <div class="config-tab-panel">
-              <z-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
+              <g-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
                 <div class="section-header">
                   <div class="icon-wrap"><span class="material-symbols-outlined">computer</span></div>
                   <span class="section-title">Sistemas integrados</span>
@@ -298,9 +287,9 @@
                                 </div>
                               </div>
                             </div>
-                            <z-badge [zType]="statusBadgeType(s.status)" zShape="pill" class="shrink-0">
+                            <g-badge [zType]="statusBadgeType(s.status)" zShape="pill" class="shrink-0">
                               {{ statusSistemaLabel(s.status) }}
-                            </z-badge>
+                            </g-badge>
                           </div>
                           @if (s.last_check_at) {
                             <p class="mt-2.5 text-xs text-muted-foreground">
@@ -312,10 +301,10 @@
                     </div>
                   }
                 </div>
-              </z-card>
+              </g-card>
             </div>
-          </z-tab>
-        </z-tab-group>
+          </g-tab>
+        </g-tab-group>
       </div>
     </div>
   }

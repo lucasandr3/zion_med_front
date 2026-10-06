@@ -1,13 +1,14 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
+
 
 import { AppUpdateService } from '../../../core/services/app-update.service';
 
 @Component({
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'zm-app-update-banner',
   standalone: true,
-  imports: [ZardButtonComponent],
+  imports: [],
   template: `
     @if (updates.updateReady() || updates.updateBlocked()) {
       <div class="zm-app-update-banner" role="alertdialog" aria-modal="true" aria-live="assertive">
@@ -19,17 +20,9 @@ import { AppUpdateService } from '../../../core/services/app-update.service';
               <p class="zm-app-update-banner__desc">{{ description() }}</p>
             </div>
           </div>
-          <button
-            z-button
-            zType="default"
-            zSize="sm"
-            type="button"
-            class="zm-app-update-banner__action gap-2"
-            (click)="updates.applyUpdate()"
-            [zLoading]="updates.applying()"
-            [zDisabled]="updates.applying()">
+          <nord-button variant="primary" size="s" type="button" class="zm-app-update-banner__action gap-2" (click)="updates.applyUpdate()" [attr.loading]="updates.applying()" [attr.disabled]="updates.applying()">
             {{ updates.applying() ? 'Atualizando…' : 'Atualizar agora' }}
-          </button>
+          </nord-button>
         </div>
       </div>
     }
@@ -93,8 +86,7 @@ import { AppUpdateService } from '../../../core/services/app-update.service';
         flex-shrink: 0;
         font-weight: 600;
       }
-    `,
-  ],
+    `],
 })
 export class ZmAppUpdateBannerComponent {
   readonly updates = inject(AppUpdateService);

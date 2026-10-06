@@ -1,28 +1,21 @@
-import { Component, OnInit, inject, Signal, ChangeDetectionStrategy, signal } from '@angular/core';
+import { Component, OnInit, inject, Signal, ChangeDetectionStrategy, signal, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { UsuariosService, Usuario } from '../../core/services/usuarios.service';
 import { LoadingService } from '../../shared/services/loading.service';
-import { ZmSkeletonUsuariosListagemComponent } from '../../shared/components/skeletons';
-import { ZmEmptyStateComponent } from '../../shared/components/ui';
-import { ZardCardComponent } from '@/shared/components/card/card.component';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
+import { ListSkeletonComponent } from '../../shared/components/list-skeleton/list-skeleton.component';
 import { AuthService } from '../../core/services/auth.service';
 import { ToastService } from '../../core/services/toast.service';
 import { ConfirmDialogService } from '../../core/services/confirm-dialog.service';
-import { ZardTooltipImports } from '@/shared/components/tooltip';
-import { ZardTableImports } from '@/shared/components/table';
+
 @Component({
   selector: 'app-usuarios-listagem',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  host: { class: 'n-page-list' },
   imports: [
-    ...ZardTableImports,
     RouterLink,
-    ZmSkeletonUsuariosListagemComponent,
-    ZmEmptyStateComponent,
-    ...ZardTooltipImports,
-    ZardCardComponent,
-    ZardButtonComponent,
+    ListSkeletonComponent,
   ],
   templateUrl: './usuarios-listagem.component.html',
   styleUrl: './usuarios-listagem.component.css',

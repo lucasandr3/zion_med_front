@@ -1,4 +1,4 @@
-import { afterNextRender, Component, OnInit, OnDestroy, inject, Injector, runInInjectionContext, Signal, ViewChild, ChangeDetectionStrategy, signal } from '@angular/core';
+import { afterNextRender, Component, OnInit, OnDestroy, inject, Injector, runInInjectionContext, Signal, ViewChild, ChangeDetectionStrategy, signal, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -18,12 +18,12 @@ import {
 import { ViaCepService } from '../../core/services/via-cep.service';
 import { LoadingService } from '../../shared/services/loading.service';
 import { ZmSkeletonConfiguracoesComponent, ZmSkeletonListComponent } from '../../shared/components/skeletons';
-import { ZardBadgeComponent } from '@/shared/components/badge';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
-import { ZardCheckboxComponent } from '@/shared/components/checkbox';
-import { ZardInputDirective } from '@/shared/components/input/input.directive';
-import { ZardSwitchComponent } from '@/shared/components/switch';
-import { ZardTabComponent, ZardTabGroupComponent } from '@/shared/components/tabs';
+import { GestgoBadgeComponent } from '@/shared/components/badge';
+
+
+
+
+import { GestgoTabComponent, GestgoTabGroupComponent } from '@/shared/components/tabs';
 import { ToastService } from '../../core/services/toast.service';
 import { WhatsappEvolutionService, WhatsappEvolutionState } from '../../core/services/whatsapp-evolution.service';
 import { ConfirmDialogService } from '../../core/services/confirm-dialog.service';
@@ -47,8 +47,7 @@ const DAYS: { id: string; label: string }[] = [
   { id: '4', label: 'Quinta' },
   { id: '5', label: 'Sexta' },
   { id: '6', label: 'Sábado' },
-  { id: '7', label: 'Domingo' },
-];
+  { id: '7', label: 'Domingo' }];
 
 const UI_TO_API_DAY_MAP: Record<string, string> = {
   '1': '0',
@@ -86,30 +85,30 @@ const TEMA_LABEL_PT_MAP: Record<string, string> = {
   custom: 'Personalizada',
 };
 
-import { ZardCardComponent } from '@/shared/components/card/card.component';
-import { ZardComboboxComponent, type ZardComboboxOption } from '@/shared/components/combobox';
-import { ZardTableImports } from '@/shared/components/table';
+import { GestgoCardComponent } from '@/shared/components/card/card.component';
+import { GestgoComboboxComponent, type GestgoComboboxOption } from '@/shared/components/combobox';
+import { GestgoTableImports } from '@/shared/components/table';
+import { NORD_FORM_IMPORTS } from '@/shared/nord';
 @Component({
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'app-clinica-configuracoes',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { class: 'n-page n-page--flush' },
   imports: [
-    ...ZardTableImports,
+    ...GestgoTableImports,
+    ...NORD_FORM_IMPORTS,
     CommonModule,
     FormsModule,
     RouterLink,
     ZmSkeletonConfiguracoesComponent,
     ZmSkeletonListComponent,
-    ZardCardComponent,
-    ZardComboboxComponent,
-    ZardButtonComponent,
-    ZardInputDirective,
-    ZardTabComponent,
-    ZardTabGroupComponent,
+    GestgoCardComponent,
+    GestgoComboboxComponent,
+    GestgoTabComponent,
+    GestgoTabGroupComponent,
     FlatpickrDirective,
-    ZardCheckboxComponent,
-    ZardSwitchComponent,
-    ZardBadgeComponent,
+    GestgoBadgeComponent,
   ],
   providers: [
     provideFlatpickrDefaults({
@@ -117,8 +116,7 @@ import { ZardTableImports } from '@/shared/components/table';
       allowInput: true,
       clickOpens: true,
       disableMobile: false,
-    }),
-  ],
+    })],
   templateUrl: './clinica-configuracoes.component.html',
   styleUrl: './clinica-configuracoes.component.css',
 })
@@ -157,25 +155,23 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
     typeof document !== 'undefined' ? document.body : (null as unknown as HTMLElement);
   readonly days = DAYS;
 
-  readonly opcoesSigningSecurityLevel: ZardComboboxOption[] = [
+  readonly opcoesSigningSecurityLevel: GestgoComboboxOption[] = [
     { value: 'basic', label: 'Básica — somente evidências (IP, navegador, hashes)' },
     {
       value: 'reinforced',
       label: 'Reforçada (recomendado) — exige OTP por e-mail ou WhatsApp antes de enviar com assinatura',
-    },
-  ];
+    }];
 
-  readonly opcoesProtocolRetentionMode: ZardComboboxOption[] = [
+  readonly opcoesProtocolRetentionMode: GestgoComboboxOption[] = [
     { value: 'anonymize', label: 'Anonimizar — mantém protocolo, hashes e trilha; remove PII' },
-    { value: 'delete', label: 'Excluir — remove protocolos elegíveis permanentemente' },
-  ];
+    { value: 'delete', label: 'Excluir — remove protocolos elegíveis permanentemente' }];
 
   readonly retencaoPreview = signal<{ enabled: boolean; eligible_count: number; already_anonymized_count: number; cutoff_date: string | null } | null>(null);
   readonly carregandoRetencaoPreview = signal(false);
 
   private readonly configTabIds = ['dados', 'identidade', 'visual', 'whatsapp', 'empresas', 'logs'] as const;
 
-  @ViewChild('configTabGroup') configTabGroup?: ZardTabGroupComponent;
+  @ViewChild('configTabGroup') configTabGroup?: GestgoTabGroupComponent;
 
   novaEmpresaNome = '';
   readonly salvandoNovaEmpresa = signal(false);
@@ -730,7 +726,7 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
     return this.getTabIdOrder().indexOf(tabId);
   }
 
-  onZardTabChange(event: { index: number }): void {
+  onGestgoTabChange(event: { index: number }): void {
     const tabId = this.getTabIdOrder()[event.index];
     if (tabId) {
       this.setTab(tabId);

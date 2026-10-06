@@ -32,22 +32,21 @@ export const SHELL_PRESET_UI_OPTIONS: ReadonlyArray<{
   {
     id: 'default',
     label: 'Padrão',
-    icon: 'view_agenda',
+    icon: 'navigation-dashboard',
     description: 'Topo e menu iguais aos cartões (superfície neutra).',
   },
   {
     id: 'tinted',
     label: 'Topo e marca',
-    icon: 'branding_watermark',
+    icon: 'file-picture',
     description: 'Cor primária no cabeçalho e na faixa do nome Gestgo; o restante do menu segue o fundo padrão.',
   },
   {
     id: 'sidebar_dark',
     label: 'Menu escuro',
-    icon: 'dock_to_right',
+    icon: 'navigation-drawer-right-expand',
     description: 'Barra lateral estilo painel; destaque no modo claro.',
-  },
-];
+  }];
 
 /** Opções de disposição do menu (drawer do header). */
 export const NAV_LAYOUT_UI_OPTIONS: ReadonlyArray<{
@@ -59,16 +58,15 @@ export const NAV_LAYOUT_UI_OPTIONS: ReadonlyArray<{
   {
     id: 'sidebar',
     label: 'Lateral',
-    icon: 'dock_to_right',
+    icon: 'navigation-drawer-left-expand',
     description: 'Barra de navegação fixa à esquerda.',
   },
   {
     id: 'horizontal',
     label: 'Horizontal',
-    icon: 'view_day',
+    icon: 'interface-presentation-mode',
     description: 'Marca, menu e ações no topo.',
-  },
-];
+  }];
 
 const SHELL_BODY_CLASSES = ['shell-preset-tinted', 'shell-preset-sidebar-dark'] as const;
 const NAV_LAYOUT_BODY_CLASS = 'shell-nav-horizontal';
@@ -104,6 +102,18 @@ export function applyNavLayoutToDom(layout: NavLayout): void {
 }
 
 /**
+ * Remove a disposição horizontal do `body` sem tocar na preferência salva.
+ *
+ * O shell Nord (`nord-layout`) é sidebar-first e o menu horizontal legado
+ * conflita com ele, então os layouts desligam a classe no DOM enquanto a
+ * escolha do usuário continua intacta em localStorage e na API.
+ */
+export function disableHorizontalNavInDom(): void {
+  if (typeof document === 'undefined') return;
+  document.body.classList.remove(NAV_LAYOUT_BODY_CLASS);
+}
+
+/**
  * Aplica classes `body.shell-preset-*` e persiste em localStorage.
  */
 export function applyShellPresetToDom(preset: ShellPreset): void {
@@ -123,6 +133,56 @@ export interface UserAppearanceFields {
   ui_shell_preset?: string | null;
   /** `null` = lateral (padrão). `horizontal` = menu no topo. */
   ui_nav_layout?: string | null;
+}
+
+/** Cor primária resolvida do tema atual no `body` (fallback marca Gestgo). */
+export function readThemePrimaryColor(): string {
+  if (typeof document === 'undefined') return '#14B87A';
+  const raw = getComputedStyle(document.body).getPropertyValue('--c-primary').trim();
+  return raw || '#14B87A';
+}
+
+/** Favicon SVG tintado com a cor do tema (padrão pesquisa_app). */
+export function buildThemeFaviconDataUrl(primary: string): string {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Gestgo">
+  <rect width="32" height="32" rx="8" fill="${primary}"/>
+  <path fill="#fff" d="M10.2 8.4h7.1c3.55 0 5.85 2.15 5.85 5.35 0 2.35-1.2 4.05-3.2 4.85l3.55 5h-3.35l-3.2-4.55h-3.45V23.6H10.2V8.4zm3.3 2.55v5.15h3.55c1.7 0 2.7-.9 2.7-2.55s-1-2.6-2.7-2.6H13.5z"/>
+</svg>`;
+  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+}
+
+/**
+ * Sincroniza accent Nord no `html`, meta theme-color e favicon com a cor do tema.
+ * Chamar após trocar `body.theme-*` ou modo escuro.
+ */
+export function syncThemeChrome(): void {
+  if (typeof document === 'undefined') return;
+
+  const primary = readThemePrimaryColor();
+  const root = document.documentElement;
+  const dark = document.body.classList.contains('dark');
+
+  root.style.setProperty('--n-color-accent', primary);
+  root.style.setProperty('--n-color-accent-secondary', primary);
+  root.style.setProperty('--n-color-text-link', primary);
+
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) {
+    meta.setAttribute('content', dark ? '#1d2025' : primary);
+  }
+
+  let link =
+    document.querySelector<HTMLLinkElement>('link[rel="icon"][data-theme-favicon]') ??
+    document.querySelector<HTMLLinkElement>('link[rel="icon"][type="image/svg+xml"]');
+  if (!link) {
+    link = document.createElement('link');
+    link.rel = 'icon';
+    link.type = 'image/svg+xml';
+    document.head.prepend(link);
+  }
+  link.dataset['themeFavicon'] = '1';
+  link.type = 'image/svg+xml';
+  link.href = buildThemeFaviconDataUrl(primary);
 }
 
 /**
@@ -158,4 +218,6 @@ export function applyUserAppearanceToBrowser(fields: UserAppearanceFields): void
   if (fields.ui_nav_layout != null && String(fields.ui_nav_layout).trim() !== '') {
     applyNavLayoutToDom(normalizeNavLayout(fields.ui_nav_layout));
   }
+
+  syncThemeChrome();
 }

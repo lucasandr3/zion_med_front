@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, Signal, signal } from '@angular/core';
+import { Component, OnInit, inject, Signal, signal, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { PessoasService, PessoaDetalhe } from '../../core/services/pessoas.service';
@@ -8,24 +8,24 @@ import { ToastService } from '../../core/services/toast.service';
 import { ConfirmDialogService } from '../../core/services/confirm-dialog.service';
 import { AuthService } from '../../core/services/auth.service';
 
-import { ZardCardComponent } from '@/shared/components/card/card.component';
+import { GestgoCardComponent } from '@/shared/components/card/card.component';
 import { ZmPageBackLinkComponent } from '../../shared/components/ui';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
-import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
-import { ZardTableImports } from '@/shared/components/table';
+
+import { GestgoBadgeComponent } from '@/shared/components/badge/badge.component';
+import { GestgoTableImports } from '@/shared/components/table';
 @Component({
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'app-pessoas-detalhe',
   standalone: true,
+  host: { class: 'n-page' },
   imports: [
-    ...ZardTableImports,
+    ...GestgoTableImports,
     CommonModule,
     RouterLink,
     ZmSkeletonPessoaDetalheComponent,
-    ZardCardComponent,
+    GestgoCardComponent,
     ZmPageBackLinkComponent,
-    ZardButtonComponent,
-    ZardBadgeComponent,
-  ],
+    GestgoBadgeComponent],
   templateUrl: './pessoas-detalhe.component.html',
   styleUrl: './pessoas-detalhe.component.css',
 })

@@ -19,172 +19,90 @@
   </div>
 
   <nav class="flex-1 space-y-0.5 overflow-y-auto px-2 py-3">
-    <span z-menu-label class="sidebar-label !py-2 !text-[0.65rem] !font-bold !uppercase !tracking-[0.09em]">Menu</span>
+    <span  class="sidebar-label !py-2 !text-[0.65rem] !font-bold !uppercase !tracking-[0.09em]">Menu</span>
 
-    <a routerLink="/plataforma"
-       routerLinkActive="router-link-active"
-       [routerLinkActiveOptions]="{ exact: true }"
-       z-button
-       zType="ghost"
-       class="shell-sidebar-nav w-full justify-start gap-2 px-2.5 font-normal text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground [&.router-link-active]:border-none [&.router-link-active]:bg-sidebar-primary/14 [&.router-link-active]:font-semibold [&.router-link-active]:text-sidebar-primary"
-       [zTooltip]="tooltipQuandoColapsada('Dashboard')"
-    >
+    <a routerLink="/plataforma" routerLinkActive="router-link-active" [routerLinkActiveOptions]="{ exact: true }" class="shell-sidebar-nav w-full justify-start gap-2 px-2.5 font-normal text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground [&.router-link-active]:border-none [&.router-link-active]:bg-sidebar-primary/14 [&.router-link-active]:font-semibold [&.router-link-active]:text-sidebar-primary">
       <span class="material-symbols-outlined shrink-0 text-[19px]">bar_chart</span>
       <span class="sidebar-label">Dashboard</span>
     </a>
 
-    <a routerLink="/plataforma/clientes"
-       routerLinkActive="router-link-active"
-       z-button
-       zType="ghost"
-       class="shell-sidebar-nav w-full justify-start gap-2 px-2.5 font-normal text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground [&.router-link-active]:border-none [&.router-link-active]:bg-sidebar-primary/14 [&.router-link-active]:font-semibold [&.router-link-active]:text-sidebar-primary"
-       [zTooltip]="tooltipQuandoColapsada('Clientes')"
-    >
+    <a routerLink="/plataforma/clientes" routerLinkActive="router-link-active" class="shell-sidebar-nav w-full justify-start gap-2 px-2.5 font-normal text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground [&.router-link-active]:border-none [&.router-link-active]:bg-sidebar-primary/14 [&.router-link-active]:font-semibold [&.router-link-active]:text-sidebar-primary">
       <span class="material-symbols-outlined shrink-0 text-[19px]">emoji_transportation</span>
       <span class="sidebar-label">Clientes</span>
     </a>
 
-    <a routerLink="/plataforma/organizacoes-online"
-       routerLinkActive="router-link-active"
-       z-button
-       zType="ghost"
-       class="shell-sidebar-nav w-full justify-start gap-2 px-2.5 font-normal text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground [&.router-link-active]:border-none [&.router-link-active]:bg-sidebar-primary/14 [&.router-link-active]:font-semibold [&.router-link-active]:text-sidebar-primary"
-       [zTooltip]="tooltipQuandoColapsada('Empresas com sessão ativa')"
-    >
+    <a routerLink="/plataforma/organizacoes-online" routerLinkActive="router-link-active" class="shell-sidebar-nav w-full justify-start gap-2 px-2.5 font-normal text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground [&.router-link-active]:border-none [&.router-link-active]:bg-sidebar-primary/14 [&.router-link-active]:font-semibold [&.router-link-active]:text-sidebar-primary">
       <span class="material-symbols-outlined shrink-0 text-[19px]">sensors</span>
       <span class="sidebar-label">Empresas online</span>
     </a>
 
-    <a routerLink="/plataforma/leads"
-       routerLinkActive="router-link-active"
-       z-button
-       zType="ghost"
-       class="shell-sidebar-nav w-full justify-start gap-2 px-2.5 font-normal text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground [&.router-link-active]:border-none [&.router-link-active]:bg-sidebar-primary/14 [&.router-link-active]:font-semibold [&.router-link-active]:text-sidebar-primary"
-       [zTooltip]="tooltipQuandoColapsada('Leads')"
-    >
+    <a routerLink="/plataforma/leads" routerLinkActive="router-link-active" class="shell-sidebar-nav w-full justify-start gap-2 px-2.5 font-normal text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground [&.router-link-active]:border-none [&.router-link-active]:bg-sidebar-primary/14 [&.router-link-active]:font-semibold [&.router-link-active]:text-sidebar-primary">
       <span class="material-symbols-outlined shrink-0 text-[19px]">3p</span>
       <span class="sidebar-label">Leads</span>
     </a>
 
-    <a routerLink="/plataforma/trafego-landing"
-       routerLinkActive="router-link-active"
-       z-button
-       zType="ghost"
-       class="shell-sidebar-nav w-full justify-start gap-2 px-2.5 font-normal text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground [&.router-link-active]:border-none [&.router-link-active]:bg-sidebar-primary/14 [&.router-link-active]:font-semibold [&.router-link-active]:text-sidebar-primary"
-       [zTooltip]="tooltipQuandoColapsada('Tráfego da landing')"
-    >
+    <a routerLink="/plataforma/trafego-landing" routerLinkActive="router-link-active" class="shell-sidebar-nav w-full justify-start gap-2 px-2.5 font-normal text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground [&.router-link-active]:border-none [&.router-link-active]:bg-sidebar-primary/14 [&.router-link-active]:font-semibold [&.router-link-active]:text-sidebar-primary">
       <span class="material-symbols-outlined shrink-0 text-[19px]">monitoring</span>
       <span class="sidebar-label">Tráfego da landing</span>
     </a>
 
-    <a routerLink="/plataforma/assinaturas"
-       routerLinkActive="router-link-active"
-       z-button
-       zType="ghost"
-       class="shell-sidebar-nav w-full justify-start gap-2 px-2.5 font-normal text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground [&.router-link-active]:border-none [&.router-link-active]:bg-sidebar-primary/14 [&.router-link-active]:font-semibold [&.router-link-active]:text-sidebar-primary"
-       data-tooltip="Assinaturas"
-       title="Assinaturas"
-    >
+    <a routerLink="/plataforma/assinaturas" routerLinkActive="router-link-active" class="shell-sidebar-nav w-full justify-start gap-2 px-2.5 font-normal text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground [&.router-link-active]:border-none [&.router-link-active]:bg-sidebar-primary/14 [&.router-link-active]:font-semibold [&.router-link-active]:text-sidebar-primary" data-tooltip="Assinaturas" title="Assinaturas">
       <span class="material-symbols-outlined shrink-0 text-[19px]">add_card</span>
       <span class="sidebar-label">Assinaturas</span>
     </a>
 
-    <a routerLink="/plataforma/faturas"
-       routerLinkActive="router-link-active"
-       z-button
-       zType="ghost"
-       class="shell-sidebar-nav w-full justify-start gap-2 px-2.5 font-normal text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground [&.router-link-active]:border-none [&.router-link-active]:bg-sidebar-primary/14 [&.router-link-active]:font-semibold [&.router-link-active]:text-sidebar-primary"
-       [zTooltip]="tooltipQuandoColapsada('Faturas / cobranças')"
-    >
+    <a routerLink="/plataforma/faturas" routerLinkActive="router-link-active" class="shell-sidebar-nav w-full justify-start gap-2 px-2.5 font-normal text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground [&.router-link-active]:border-none [&.router-link-active]:bg-sidebar-primary/14 [&.router-link-active]:font-semibold [&.router-link-active]:text-sidebar-primary">
       <span class="material-symbols-outlined shrink-0 text-[19px]">payments</span>
       <span class="sidebar-label">Faturas / cobranças</span>
     </a>
 
-    <a routerLink="/plataforma/emails"
-       routerLinkActive="router-link-active"
-       z-button
-       zType="ghost"
-       class="shell-sidebar-nav w-full justify-start gap-2 px-2.5 font-normal text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground [&.router-link-active]:border-none [&.router-link-active]:bg-sidebar-primary/14 [&.router-link-active]:font-semibold [&.router-link-active]:text-sidebar-primary"
-       [zTooltip]="tooltipQuandoColapsada('E-mails')"
-    >
+    <a routerLink="/plataforma/emails" routerLinkActive="router-link-active" class="shell-sidebar-nav w-full justify-start gap-2 px-2.5 font-normal text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground [&.router-link-active]:border-none [&.router-link-active]:bg-sidebar-primary/14 [&.router-link-active]:font-semibold [&.router-link-active]:text-sidebar-primary">
       <span class="material-symbols-outlined shrink-0 text-[19px]">mail</span>
       <span class="sidebar-label">E-mails</span>
     </a>
 
-    <a routerLink="/plataforma/notificacoes"
-       routerLinkActive="router-link-active"
-       z-button
-       zType="ghost"
-       class="shell-sidebar-nav relative w-full justify-start gap-2 px-2.5 font-normal text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground [&.router-link-active]:border-none [&.router-link-active]:bg-sidebar-primary/14 [&.router-link-active]:font-semibold [&.router-link-active]:text-sidebar-primary"
-       [zTooltip]="tooltipQuandoColapsada('Notificações')"
-    >
+    <a routerLink="/plataforma/notificacoes" routerLinkActive="router-link-active" class="shell-sidebar-nav relative w-full justify-start gap-2 px-2.5 font-normal text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground [&.router-link-active]:border-none [&.router-link-active]:bg-sidebar-primary/14 [&.router-link-active]:font-semibold [&.router-link-active]:text-sidebar-primary">
       <span class="material-symbols-outlined shrink-0 text-[19px]">notifications</span>
       <span class="sidebar-label">Notificações</span>
       @if (notificacoesNaoLidas > 0) {
-        <z-badge zShape="pill" class="sidebar-label ml-auto !h-[18px] !min-w-[18px] !px-1 !py-0 !text-[0.6rem] !leading-none">
+        <g-badge zShape="pill" class="sidebar-label ml-auto !h-[18px] !min-w-[18px] !px-1 !py-0 !text-[0.6rem] !leading-none">
           {{ notificacoesNaoLidas > 99 ? '99+' : notificacoesNaoLidas }}
-        </z-badge>
+        </g-badge>
       }
     </a>
 
-    <span z-menu-label class="sidebar-label mb-2 mt-5 !py-2 !text-[0.65rem] !font-bold !uppercase !tracking-[0.09em]">Plataforma</span>
+    <span  class="sidebar-label mb-2 mt-5 !py-2 !text-[0.65rem] !font-bold !uppercase !tracking-[0.09em]">Plataforma</span>
 
-    <a routerLink="/plataforma/planos"
-       routerLinkActive="router-link-active"
-       z-button
-       zType="ghost"
-       class="shell-sidebar-nav w-full justify-start gap-2 px-2.5 font-normal text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground [&.router-link-active]:border-none [&.router-link-active]:bg-sidebar-primary/14 [&.router-link-active]:font-semibold [&.router-link-active]:text-sidebar-primary"
-       [zTooltip]="tooltipQuandoColapsada('Planos')"
-    >
+    <a routerLink="/plataforma/planos" routerLinkActive="router-link-active" class="shell-sidebar-nav w-full justify-start gap-2 px-2.5 font-normal text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground [&.router-link-active]:border-none [&.router-link-active]:bg-sidebar-primary/14 [&.router-link-active]:font-semibold [&.router-link-active]:text-sidebar-primary">
       <span class="material-symbols-outlined shrink-0 text-[19px]">featured_play_list</span>
       <span class="sidebar-label">Planos</span>
     </a>
 
-    <a routerLink="/plataforma/novidades"
-       routerLinkActive="router-link-active"
-       z-button
-       zType="ghost"
-       class="shell-sidebar-nav w-full justify-start gap-2 px-2.5 font-normal text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground [&.router-link-active]:border-none [&.router-link-active]:bg-sidebar-primary/14 [&.router-link-active]:font-semibold [&.router-link-active]:text-sidebar-primary"
-       [zTooltip]="tooltipQuandoColapsada('Novidades e versão')"
-    >
+    <a routerLink="/plataforma/novidades" routerLinkActive="router-link-active" class="shell-sidebar-nav w-full justify-start gap-2 px-2.5 font-normal text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground [&.router-link-active]:border-none [&.router-link-active]:bg-sidebar-primary/14 [&.router-link-active]:font-semibold [&.router-link-active]:text-sidebar-primary">
       <span class="material-symbols-outlined shrink-0 text-[19px]">new_releases</span>
       <span class="sidebar-label">Novidades</span>
     </a>
 
-    <a routerLink="/plataforma/configuracoes"
-       routerLinkActive="router-link-active"
-       z-button
-       zType="ghost"
-       class="shell-sidebar-nav w-full justify-start gap-2 px-2.5 font-normal text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground [&.router-link-active]:border-none [&.router-link-active]:bg-sidebar-primary/14 [&.router-link-active]:font-semibold [&.router-link-active]:text-sidebar-primary"
-       [zTooltip]="tooltipQuandoColapsada('Configurações da plataforma')"
-    >
+    <a routerLink="/plataforma/configuracoes" routerLinkActive="router-link-active" class="shell-sidebar-nav w-full justify-start gap-2 px-2.5 font-normal text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground [&.router-link-active]:border-none [&.router-link-active]:bg-sidebar-primary/14 [&.router-link-active]:font-semibold [&.router-link-active]:text-sidebar-primary">
       <span class="material-symbols-outlined shrink-0 text-[19px]">settings</span>
       <span class="sidebar-label">Configurações</span>
     </a>
 
-    <a routerLink="/plataforma/logs"
-       routerLinkActive="router-link-active"
-       z-button
-       zType="ghost"
-       class="shell-sidebar-nav w-full justify-start gap-2 px-2.5 font-normal text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground [&.router-link-active]:border-none [&.router-link-active]:bg-sidebar-primary/14 [&.router-link-active]:font-semibold [&.router-link-active]:text-sidebar-primary"
-       [zTooltip]="tooltipQuandoColapsada('Logs')"
-    >
+    <a routerLink="/plataforma/logs" routerLinkActive="router-link-active" class="shell-sidebar-nav w-full justify-start gap-2 px-2.5 font-normal text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground [&.router-link-active]:border-none [&.router-link-active]:bg-sidebar-primary/14 [&.router-link-active]:font-semibold [&.router-link-active]:text-sidebar-primary">
       <span class="material-symbols-outlined shrink-0 text-[19px]">history</span>
       <span class="sidebar-label">Logs</span>
     </a>
   </nav>
 
   <div class="shrink-0 overflow-visible border-t border-border px-2 py-2">
-    <div class="relative">
-      <button z-menu type="button"
-              [zMenuTriggerFor]="usuarioPlataformaMenuTpl"
-              zPlacement="topLeft"
-              class="sidebar-user-trigger shell-profile-chip"
-              [zTooltip]="tooltipQuandoColapsada('Menu do usuário')"
-              aria-label="Menu do usuário"
+    <nord-dropdown style="--n-dropdown-size: 16rem">
+      <button
+        type="button"
+        slot="toggle"
+        class="sidebar-user-trigger shell-profile-chip"
+        aria-label="Menu do usuário"
       >
-        <z-avatar
-          zSize="sm"
+        <g-avatar
           zShape="circle"
           [zFallback]="iniciaisUsuario()"
           [zAlt]="nomeUsuario()"
@@ -197,18 +115,16 @@
         <span class="sidebar-label material-symbols-outlined shrink-0 text-base text-muted-foreground">unfold_more</span>
       </button>
 
-      <ng-template #usuarioPlataformaMenuTpl>
-        <div z-menu-content class="sidebar-shell-menu-popover rounded-lg border border-border bg-popover p-1.5 text-popover-foreground">
-          <a z-menu-item routerLink="/conta/perfil" class="gap-2 text-inherit no-underline">
-            <span class="material-symbols-outlined shrink-0 text-base" aria-hidden="true">person</span>
-            Meu perfil
-          </a>
-          <button type="button" z-menu-item zType="destructive" class="w-full gap-2" (click)="sair()">
-            <span class="material-symbols-outlined shrink-0 text-base" aria-hidden="true">logout</span>
-            Sair
-          </button>
-        </div>
-      </ng-template>
-    </div>
+      <nord-dropdown-group>
+        <nord-dropdown-item routerLink="/conta/perfil">
+          <span class="material-symbols-outlined shrink-0 text-base" aria-hidden="true">person</span>
+          Meu perfil
+        </nord-dropdown-item>
+        <nord-dropdown-item (click)="sair()">
+          <span class="material-symbols-outlined shrink-0 text-base" aria-hidden="true">logout</span>
+          Sair
+        </nord-dropdown-item>
+      </nord-dropdown-group>
+    </nord-dropdown>
   </div>
 </aside>

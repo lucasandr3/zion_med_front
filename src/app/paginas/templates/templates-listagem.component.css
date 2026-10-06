@@ -2,27 +2,14 @@
   --cat-accent: var(--primary);
 }
 
-.templates-colecao-header {
-  display: flex;
-  flex-wrap: nowrap;
-  align-items: flex-start;
-  justify-content: flex-start;
-  gap: 1.25rem;
-  margin-bottom: 1.5rem;
+/* Alinha altura do button-group com Ordenar / Filtros (size padrão do nord-button). */
+.templates-view-group {
+  align-self: center;
 }
 
-.templates-colecao-header-actions {
-  display: flex;
-  flex-wrap: nowrap;
-  align-items: center;
-  width: 100%;
-  gap: 0.5rem;
-  overflow-x: auto;
-  scrollbar-width: thin;
-}
-
-.templates-colecao-btn-novo {
-  margin-left: auto;
+.templates-view-group nord-button {
+  --n-button-min-block-size: var(--n-space-xl, 2.75rem);
+  --_n-button-min-block-size: var(--n-space-xl, 2.75rem);
 }
 
 .templates-filtros-panel,
@@ -60,28 +47,6 @@
 }
 
 .templates-filter-btn--active {
-  background: var(--background) !important;
-  color: var(--foreground) !important;
-  box-shadow: var(--shadow-sm);
-}
-
-.templates-view-toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.125rem;
-  height: var(--button-height);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 2px;
-  background: var(--muted);
-}
-
-.templates-view-toggle > button {
-  height: var(--button-height-inner) !important;
-  min-height: var(--button-height-inner);
-}
-
-.templates-view-btn--active {
   background: var(--background) !important;
   color: var(--foreground) !important;
   box-shadow: var(--shadow-sm);
@@ -282,33 +247,12 @@
 }
 
 .templates-detalhe {
-  padding-bottom: 1rem;
+  padding-bottom: 0;
 }
 
-.templates-detalhe-toolbar {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
-}
-
-.templates-detalhe-toolbar-top {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: flex-start;
-  width: 100%;
-  gap: 0.75rem;
-}
-
-.templates-detalhe-toolbar-actions-right {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: flex-end;
-  margin-left: auto;
-  gap: 0.5rem;
+/* Mantém linhas full-bleed (igual Pessoas / Protocolos): o wrapper não cria caixa. */
+.templates-detalhe > .templates-detalhe-body {
+  display: contents;
 }
 
 .templates-table th:last-child,

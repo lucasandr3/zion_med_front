@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
+import { Component, EventEmitter, Input, Output, inject, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
@@ -19,22 +19,21 @@ import {
   buildExtraPayload,
   type LinkBioExtraFormState,
 } from './link-bio-extra-form.util';
-import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
-import { ZardCardComponent } from '@/shared/components/card/card.component';
+import { NORD_FORM_IMPORTS } from '@/shared/nord';
+
+import { GestgoCardComponent } from '@/shared/components/card/card.component';
 
 const LINK_BIO_FOTO_PROFISSIONAL_MAX_BYTES = 2 * 1024 * 1024;
 
 @Component({
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'zm-link-bio-conteudo-extra-tab',
   standalone: true,
   imports: [
-    ...ZARD_FORM_CONTROL_IMPORTS,
+    ...NORD_FORM_IMPORTS,
     FormsModule,
     RouterLink,
-    ZardButtonComponent,
-    ZardCardComponent,
-  ],
+    GestgoCardComponent],
   templateUrl: './link-bio-conteudo-extra-tab.component.html',
 })
 export class LinkBioConteudoExtraTabComponent {

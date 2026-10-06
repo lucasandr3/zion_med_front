@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, Signal, ChangeDetectionStrategy, signal } from '@angular/core';
+import { Component, OnInit, inject, Signal, ChangeDetectionStrategy, signal, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
@@ -22,8 +22,7 @@ const TYPE_OPTIONS: { value: string; label: string }[] = [
   { value: 'signature', label: 'Assinatura' },
   { value: 'heading', label: 'Título de seção' },
   { value: 'notice', label: 'Texto informativo (termo)' },
-  { value: 'section_break', label: 'Quebra de etapa' },
-];
+  { value: 'section_break', label: 'Quebra de etapa' }];
 
 const TYPE_ICONS: Record<string, string> = {
   text: 'text_fields',
@@ -52,17 +51,16 @@ const CONSENT_HINTS = [
   { key: 'cuidado', label: 'Cuidados pré/pós' },
   { key: 'recusa', label: 'Direito de recusa / revogação' },
   { key: 'autoriz', label: 'Autorização explícita do procedimento' },
-  { key: 'assinatura', label: 'Assinatura do paciente' },
-];
+  { key: 'assinatura', label: 'Assinatura do paciente' }];
 
-import { ZardTableImports } from '@/shared/components/table';
-import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
+import { GestgoTableImports } from '@/shared/components/table';
+import { NORD_FORM_IMPORTS } from '@/shared/nord';
 import { ZmPageBackLinkComponent } from '../../shared/components/ui';
-import { ZardCardComponent } from '@/shared/components/card/card.component';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
-import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
-import { ZardComboboxComponent, type ZardComboboxOption } from '@/shared/components/combobox';
-import { ZardTooltipImports } from '@/shared/components/tooltip';
+import { GestgoCardComponent } from '@/shared/components/card/card.component';
+
+import { GestgoBadgeComponent } from '@/shared/components/badge/badge.component';
+import { GestgoComboboxComponent, type GestgoComboboxOption } from '@/shared/components/combobox';
+
 import {
   buildVisibilityRulesPayload,
   FIELD_VISIBILITY_OPERATORS,
@@ -72,23 +70,22 @@ import {
 import { CLINICAL_STEP_KINDS, CLINICAL_STEP_LABELS } from '../../core/utils/clinical-step.util';
 
 @Component({
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'app-templates-campos',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { class: 'n-page' },
   imports: [
-    ...ZARD_FORM_CONTROL_IMPORTS,
-    ...ZardTableImports,
-    ...ZardTooltipImports,
+    ...NORD_FORM_IMPORTS,
+    ...GestgoTableImports,
     RouterLink,
     FormsModule,
     DragDropModule,
     ZmSkeletonTemplateCamposComponent,
     ZmPageBackLinkComponent,
-    ZardCardComponent,
-    ZardButtonComponent,
-    ZardBadgeComponent,
-    ZardComboboxComponent,
-  ],
+    GestgoCardComponent,
+    GestgoBadgeComponent,
+    GestgoComboboxComponent],
   templateUrl: './templates-campos.component.html',
   styleUrl: './templates-campos.component.css',
 })
@@ -155,7 +152,7 @@ export class TemplatesCamposComponent implements OnInit {
     return parseInt(this.templateId, 10) || 0;
   }
 
-  get opcoesTipo(): ZardComboboxOption[] {
+  get opcoesTipo(): GestgoComboboxOption[] {
     return this.typeOptions.map((opt) => ({ value: opt.value, label: opt.label }));
   }
 

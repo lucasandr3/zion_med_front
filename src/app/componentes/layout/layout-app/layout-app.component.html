@@ -1,39 +1,122 @@
-<app-barra-lateral
-  [notificacoesNaoLidas]="notificacoesNaoLidas()"
-  [novidadesNaoVistas]="novidadesNaoVistas()"
-  [trialNotice]="trialNotice()"
-/>
-<div class="main-wrapper flex min-h-screen flex-col bg-background">
-  <app-cabecalho
-    [titulo]="tituloPagina()"
-    [notificacoesNaoLidas]="notificacoesNaoLidas()"
-    [novidadesNaoVistas]="novidadesNaoVistas()"
-    shellContext="app"
-  />
-  @if (trialNotice(); as trial) {
-    <div
-      class="trial-banner flex flex-wrap items-center justify-between gap-3 border-b border-border bg-muted/35 px-4 py-3 text-sm text-foreground sm:px-6 lg:px-8"
-      role="status"
+<nord-layout
+  class="gestgo-shell"
+  sticky
+  persist-nav-state
+  collapse-mode="rail"
+  padding="none"
+  hide-default-nav-toggle
+  hide-collapse-button
+>
+  <nord-navigation slot="nav" class="gestgo-shell__nav">
+    <a
+      slot="header"
+      class="gestgo-shell__brand"
+      href="/dashboard"
+      (click)="go($event, '/dashboard')"
+      aria-label="Gestgo — painel"
     >
-      <span class="flex items-center gap-2 text-muted-foreground">
-        <span class="material-symbols-outlined text-lg text-primary" aria-hidden="true">schedule</span>
-        {{ trial.message }}
+      <span class="gestgo-shell__brand-logo">
+        <img [src]="sidebarLogoSrc()" alt="Gestgo" onerror="this.style.display='none'" />
       </span>
-      <a routerLink="/assinatura" z-button zType="link" class="shrink-0 font-semibold">Ver assinatura</a>
+      <span class="gestgo-shell__brand-word" aria-hidden="true">
+        <span class="gestgo-shell__brand-title">Gestgo</span>
+      </span>
+    </a>
+
+    @for (section of navSections; track section.id) {
+      @if (secaoVisivel(section)) {
+        <nord-nav-group [attr.heading]="section.label || null">
+          @for (item of section.items; track item.route) {
+            @if (itemVisivel(item)) {
+              <nord-nav-item
+                [href]="item.route"
+                [attr.icon]="item.icon"
+                [active]="isActive(item)"
+                [attr.badge]="badgeTexto(item)"
+                (click)="go($event, item.route)"
+              >
+                {{ item.label }}
+                <span slot="rail-tooltip">{{ item.label }}</span>
+              </nord-nav-item>
+            }
+          }
+        </nord-nav-group>
+      }
+    }
+
+    <nord-button
+      slot="footer"
+      expand
+      variant="plain"
+      type="button"
+      aria-describedby="nav-logout-tooltip"
+      (click)="sair()"
+    >
+      <nord-icon name="interface-logout" size="s"></nord-icon>
+      Sair
+    </nord-button>
+    <nord-tooltip id="nav-logout-tooltip" position="inline-end" [delay]="0">Sair</nord-tooltip>
+  </nord-navigation>
+
+  <nord-top-bar slot="top-bar" id="top-header" class="gestgo-shell__top-bar">
+    <div class="gestgo-shell__top-bar-start">
+      <nord-nav-toggle
+        class="gestgo-shell__nav-toggle"
+        square
+        icon="navigation-toggle"
+        icon-active="navigation-toggle"
+        aria-label="Alternar menu"
+      ></nord-nav-toggle>
+      <div class="gestgo-shell__heading">
+        <h1 class="gestgo-shell__title">{{ tituloPagina() }}</h1>
+      </div>
     </div>
-  }
-  @if (mostrarAvisoCobrancaGlobal()) {
-    <div class="px-4 pt-3 sm:px-6 lg:px-8">
-      <zm-assinatura-bloqueada-card variant="compact" />
-    </div>
-  }
-  <main class="flex-1 bg-background px-4 py-6 sm:px-6 lg:px-8 lg:py-6">
-    @if (urlVoltar() && !voltarIntegrado()) {
-      <div class="zm-page-back-bar mb-4">
-        <zm-page-back-link [url]="urlVoltar()" [label]="labelVoltar()" />
+
+    <app-shell-top-bar-actions
+      #topBarActions
+      slot="end"
+      notificacoesRouterLink="/notificacoes"
+      [notificacoesNaoLidas]="notificacoesNaoLidas()"
+      [novidadesNaoVistas]="novidadesNaoVistas()"
+    />
+    <nord-dropdown
+      #accountMenu
+      slot="end"
+      gestgoAccountMenu
+      [shellContext]="'app'"
+      (openTheme)="topBarActions.alternarMenuTema()"
+    ></nord-dropdown>
+    <nord-tooltip slot="end" id="account-menu-tooltip" [delay]="0">{{
+      accountMenu.nomeUsuario
+    }}</nord-tooltip>
+  </nord-top-bar>
+
+  <div class="gestgo-shell__content">
+    @if (trialNotice(); as trial) {
+      <div
+        class="trial-banner flex flex-wrap items-center justify-between gap-3 border-b border-border bg-muted/35 px-4 py-3 text-sm text-foreground sm:px-6 lg:px-8"
+        role="status"
+      >
+        <span class="flex items-center gap-2 text-muted-foreground">
+          <nord-icon name="interface-alarm" size="s" aria-hidden="true"></nord-icon>
+          {{ trial.message }}
+        </span>
+        <a routerLink="/assinatura" class="shrink-0 font-semibold">Ver assinatura</a>
       </div>
     }
-    <router-outlet />
-  </main>
-</div>
+    @if (mostrarAvisoCobrancaGlobal()) {
+      <div class="px-4 pt-3 sm:px-6 lg:px-8">
+        <zm-assinatura-bloqueada-card variant="compact" />
+      </div>
+    }
+    <main class="gestgo-shell__main bg-background px-4 py-6 sm:px-6 lg:px-8 lg:py-6">
+      @if (urlVoltar() && !voltarIntegrado()) {
+        <div class="zm-page-back-bar mb-4">
+          <zm-page-back-link [url]="urlVoltar()" [label]="labelVoltar()" />
+        </div>
+      }
+      <router-outlet />
+    </main>
+  </div>
+</nord-layout>
 <go-assistant-host />

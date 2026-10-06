@@ -1,84 +1,93 @@
-<!-- Igual ao backend: platform/plans/edit - formulário novo/editar -->
-<div class="relative min-h-[300px] w-full max-w-4xl">
-  @if (showSkeleton()) {
-    <zm-skeleton-card [height]="320" />
-  } @else if (!listaPronta()) {
-  } @else {
-    <div class="zm-content-enter">
-      <z-card class="gap-4 py-4">
-        <form (ngSubmit)="submit()" class="flex w-full flex-col gap-4">
-          @if (error()) {
-            <p class="text-primary m-0 text-xs">{{ error() }}</p>
-          }
-
-          <div>
-            <label for="key" class="text-foreground mb-1 block text-xs font-medium">Chave (única, ex: core, enterprise)</label>
-            <input
-              type="text"
-              id="key"
-              [(ngModel)]="key"
-              name="key"
-              z-input class="w-full"
-              maxlength="64"
-              required
-              pattern="[a-z0-9_-]+"
-              placeholder="Ex: core, enterprise"
-              [readonly]="isEdit"
-            />
-            @if (isEdit) {
-              <p class="text-muted-foreground mt-1 m-0 text-xs">A chave não pode ser alterada após criação.</p>
-            }
-          </div>
-
-          <div>
-            <label for="name" class="text-foreground mb-1 block text-xs font-medium">Nome</label>
-            <input type="text" id="name" [(ngModel)]="name" name="name" z-input class="w-full" maxlength="128" required placeholder="Ex: Core" />
-          </div>
-
-          <div>
-            <label for="value_display" class="text-foreground mb-1 block text-xs font-medium">Valor (R$/mês)</label>
-            <input
-              type="text"
-              id="value_display"
-              z-input class="w-40"
-              placeholder="0,00"
-              inputmode="decimal"
-              autocomplete="off"
-              [ngModel]="valueDisplay"
-              (ngModelChange)="onValueInput($event)"
-              name="value_display"
-              (blur)="onValueBlur()"
-            />
-          </div>
-
-          <div>
-            <label for="description" class="text-foreground mb-1 block text-xs font-medium">Descrição</label>
-            <textarea
-              id="description"
-              [(ngModel)]="description"
-              name="description"
-              rows="3"
-              z-input class="w-full"
-              maxlength="500"
-              placeholder="Ex: Para clínicas pequenas e médias que precisam padronizar formulários..."
-            ></textarea>
-          </div>
-
-          <div>
-            <label for="sort_order" class="text-foreground mb-1 block text-xs font-medium">Ordem de exibição</label>
-            <input type="number" id="sort_order" [(ngModel)]="sortOrder" name="sort_order" z-input class="w-24" min="0" placeholder="0" />
-          </div>
-
-          <z-checkbox [(ngModel)]="isActive" name="is_active">Plano ativo (disponível para assinatura)</z-checkbox>
-
-          <div class="flex gap-2 pt-2">
-            <button type="submit" z-button [zDisabled]="saving()" [zLoading]="saving()">
-              {{ saving() ? 'Salvando…' : isEdit ? 'Salvar' : 'Criar plano' }}
-            </button>
-            <a routerLink="/plataforma/planos" z-button zType="outline">Cancelar</a>
-          </div>
-        </form>
-      </z-card>
-    </div>
-  }
+<div class="n-form-toolbar">
+  <div class="n-form-toolbar__start">
+    <zm-page-back-link />
+  </div>
+  <div class="n-form-toolbar__end">
+    <nord-button type="button" routerLink="/plataforma/planos">
+      <nord-icon name="interface-close" size="s"></nord-icon>
+      Cancelar
+    </nord-button>
+    <nord-button
+      variant="primary"
+      type="button"
+      [attr.loading]="saving()"
+      [attr.disabled]="saving()"
+      (click)="submit()"
+    >
+      <nord-icon name="interface-checked" size="s"></nord-icon>
+      {{ isEdit ? 'Salvar' : 'Criar plano' }}
+    </nord-button>
+  </div>
 </div>
+
+@if (showSkeleton()) {
+  <zm-skeleton-card [height]="320" />
+} @else if (!listaPronta()) {
+} @else {
+  <div class="zm-content-enter">
+    <g-card class="gap-4 py-4">
+      <form class="flex w-full flex-col gap-4">
+        @if (error()) {
+          <p class="text-primary m-0 text-xs">{{ error() }}</p>
+        }
+
+        <div>
+          <label for="key" class="text-foreground mb-1 block text-xs font-medium">Chave (única, ex: core, enterprise)</label>
+          <input
+            type="text"
+            id="key"
+            [(ngModel)]="key"
+            name="key" class="w-full"
+            maxlength="64"
+            required
+            pattern="[a-z0-9_-]+"
+            placeholder="Ex: core, enterprise"
+            [readonly]="isEdit"
+          />
+          @if (isEdit) {
+            <p class="text-muted-foreground mt-1 m-0 text-xs">A chave não pode ser alterada após criação.</p>
+          }
+        </div>
+
+        <div>
+          <label for="name" class="text-foreground mb-1 block text-xs font-medium">Nome</label>
+          <input type="text" id="name" [(ngModel)]="name" name="name" class="w-full" maxlength="128" required placeholder="Ex: Core" />
+        </div>
+
+        <div>
+          <label for="value_display" class="text-foreground mb-1 block text-xs font-medium">Valor (R$/mês)</label>
+          <input
+            type="text"
+            id="value_display" class="w-40"
+            placeholder="0,00"
+            inputmode="decimal"
+            autocomplete="off"
+            [ngModel]="valueDisplay"
+            (ngModelChange)="onValueInput($event)"
+            name="value_display"
+            (blur)="onValueBlur()"
+          />
+        </div>
+
+        <div>
+          <label for="description" class="text-foreground mb-1 block text-xs font-medium">Descrição</label>
+          <textarea
+            id="description"
+            [(ngModel)]="description"
+            name="description"
+            rows="3" class="w-full"
+            maxlength="500"
+            placeholder="Ex: Para clínicas pequenas e médias que precisam padronizar formulários..."
+          ></textarea>
+        </div>
+
+        <div>
+          <label for="sort_order" class="text-foreground mb-1 block text-xs font-medium">Ordem de exibição</label>
+          <input type="number" id="sort_order" [(ngModel)]="sortOrder" name="sort_order" class="w-24" min="0" placeholder="0" />
+        </div>
+
+        <nord-checkbox [(ngModel)]="isActive" name="is_active" label="Plano ativo (disponível para assinatura)"></nord-checkbox>
+      </form>
+    </g-card>
+  </div>
+}

@@ -1,77 +1,57 @@
-<div class="relative min-h-[300px] space-y-4">
-  <p class="zm-count-label">
-    {{ assinaturas().length }} {{ assinaturas().length === 1 ? 'assinatura' : 'assinaturas()' }}
-  </p>
+<div class="n-page-list__toolbar">
+  <div class="n-page-list__toolbar-start">
+    <span class="n-muted n-small">
+      {{ assinaturas().length }} {{ assinaturas().length === 1 ? 'assinatura' : 'assinaturas' }}
+    </span>
+  </div>
+</div>
 
+<div class="n-page-list__content">
   @if (showSkeleton()) {
-    <zm-skeleton-list [rows]="6" />
+    <div class="n-page-list__panel"><app-list-skeleton [count]="6" /></div>
   } @else if (!listaPronta()) {
-  } @else {
-    @if (estadoErro()) {
-      <div class="rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-foreground">
+  } @else if (estadoErro()) {
+    <div class="n-page-list__panel">
+      <p class="n-muted n-small" style="color:var(--n-color-status-danger,#c62828)">
         Não foi possível carregar as assinaturas.
-      </div>
-    } @else {
-      <div class="zm-content-enter">
-        <z-card class="zm-table-card gap-0 py-0 shadow-sm **:data-[slot=card-content]:p-0">
-          <div class="zm-table-wrap">
-            <table z-table zSize="compact" class="text-xs">
-              <thead z-table-header>
-                <tr z-table-row>
-                  <th z-table-head>Empresa</th>
-                  <th z-table-head>Plano</th>
-                  <th z-table-head>Assinatura</th>
-                  <th z-table-head>Próximo ciclo</th>
-                </tr>
-              </thead>
-              <tbody z-table-body>
-                @for (a of assinaturas(); track a.clinic_id + '_' + a.tenant_id) {
-                  <tr z-table-row>
-                    <td z-table-cell>
-                      <div class="zm-row-title">{{ a.clinic_name }}</div>
-                      @if (a.tenant_name) {
-                        <div class="zm-row-sub">{{ a.tenant_name }}</div>
-                      }
-                    </td>
-                    <td z-table-cell>
-                      <span class="zm-cell-muted">{{ a.plan_key || '—' }}</span>
-                    </td>
-                    <td z-table-cell>
-                      <div class="flex flex-wrap gap-1">
-                        @if (a.subscription_status) {
-                          <z-badge [zType]="badgeTipoStatus(a.subscription_status)" zShape="pill">
-                            {{ rotuloStatusAssinaturaCobranca(a.subscription_status) }}
-                          </z-badge>
-                        }
-                        @if (a.billing_status) {
-                          <z-badge [zType]="badgeTipoStatus(a.billing_status)" zShape="pill">
-                            {{ rotuloStatusAssinaturaCobranca(a.billing_status) }}
-                          </z-badge>
-                        }
-                        @if (!a.subscription_status && !a.billing_status) {
-                          <span class="zm-cell-muted">—</span>
-                        }
-                      </div>
-                    </td>
-                    <td z-table-cell>
-                      <span class="zm-cell-muted whitespace-nowrap">{{ formatarData(a.current_period_end) }}</span>
-                    </td>
-                  </tr>
-                } @empty {
-                  <tr z-table-row>
-                    <td z-table-cell colspan="4" class="py-0">
-                      <zm-empty-state
-                        title="Nenhuma assinatura cadastrada."
-                        description="As assinaturas dos clientes aparecerão aqui assim que forem ativadas."
-                      />
-                    </td>
-                  </tr>
-                }
-              </tbody>
-            </table>
+      </p>
+    </div>
+  } @else if (assinaturas().length === 0) {
+    <div class="n-page-list__empty">
+      <nord-empty-state>
+        <h2>Nenhuma assinatura cadastrada.</h2>
+        <p>As assinaturas dos clientes aparecerão aqui assim que forem ativadas.</p>
+      </nord-empty-state>
+    </div>
+  } @else {
+    <div class="n-page-list__table">
+      @for (a of assinaturas(); track a.clinic_id + '_' + a.tenant_id) {
+        <div class="n-page-list__row">
+          <div class="n-page-list__row-main">
+            <div class="n-page-list__row-title">{{ a.clinic_name }}</div>
+            <div class="n-page-list__row-meta">
+              {{ a.tenant_name || '—' }}
+              · {{ a.plan_key || '—' }}
+              · {{ formatarData(a.current_period_end) }}
+            </div>
           </div>
-        </z-card>
-      </div>
-    }
+          <div class="n-page-list__actions">
+            @if (a.subscription_status) {
+              <nord-badge [attr.variant]="badgeVariant(a.subscription_status)">
+                {{ rotuloStatusAssinaturaCobranca(a.subscription_status) }}
+              </nord-badge>
+            }
+            @if (a.billing_status) {
+              <nord-badge [attr.variant]="badgeVariant(a.billing_status)">
+                {{ rotuloStatusAssinaturaCobranca(a.billing_status) }}
+              </nord-badge>
+            }
+            @if (!a.subscription_status && !a.billing_status) {
+              <span class="n-muted n-small">—</span>
+            }
+          </div>
+        </div>
+      }
+    </div>
   }
 </div>

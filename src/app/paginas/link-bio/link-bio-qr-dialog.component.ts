@@ -1,6 +1,6 @@
-import { Component, EventEmitter, Input, Output, inject, OnChanges, SimpleChanges } from '@angular/core';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
-import { ZardSkeletonComponent } from '@/shared/components/skeleton/skeleton.component';
+import { Component, EventEmitter, Input, Output, inject, OnChanges, SimpleChanges, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+
+import { GestgoSkeletonComponent } from '@/shared/components/skeleton/skeleton.component';
 import { ToastService } from '../../core/services/toast.service';
 import {
   downloadPublicFormQrPng,
@@ -8,9 +8,10 @@ import {
 } from '../../core/utils/public-form-qr.util';
 
 @Component({
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'zm-link-bio-qr-dialog',
   standalone: true,
-  imports: [ZardButtonComponent, ZardSkeletonComponent],
+  imports: [ GestgoSkeletonComponent],
   templateUrl: './link-bio-qr-dialog.component.html',
   styleUrl: './link-bio-qr-dialog.component.css',
 })

@@ -6,13 +6,14 @@ import { PlataformaService, PlatformTenant, PlatformLead, PlatformAuditLog } fro
 import { LoadingService } from '../../../shared/services/loading.service';
 import { ZmSkeletonListComponent } from '../../../shared/components/skeletons';
 import { ZmEmptyStateComponent } from '../../../shared/components/ui';
-import { ZardTooltipImports } from '@/shared/components/tooltip';
+
 
 @Component({
   selector: 'app-plataforma-dashboard',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, RouterLink, ZmSkeletonListComponent, ZmEmptyStateComponent, ...ZardTooltipImports],
+  host: { class: 'n-page' },
+  imports: [CommonModule, RouterLink, ZmSkeletonListComponent, ZmEmptyStateComponent],
   templateUrl: './plataforma-dashboard.component.html',
   styleUrl: './plataforma-dashboard.component.css',
 })

@@ -204,8 +204,7 @@ const MOCK_DOCS: LinkBioPublicDocItem[] = [
   {
     type: 'form',
     item: { id: 3, name: 'Pesquisa de Satisfação', public_url: 'https://gestgo.com.br/f/demo-pesquisa' },
-  },
-];
+  }];
 
 @Component({
   selector: 'app-demo-link-bio',
@@ -216,8 +215,7 @@ const MOCK_DOCS: LinkBioPublicDocItem[] = [
     LinkBioPublicLayoutsComponent,
     LinkBioPublicLayoutVetComponent,
     LinkBioPublicLayoutPediaComponent,
-    LinkBioPublicLayoutNutriComponent,
-  ],
+    LinkBioPublicLayoutNutriComponent],
   template: `
     @if (!embedMode) {
       <div class="demo-banner">

@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, Output, EventEmitter, SimpleChanges, inject, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Input, OnChanges, Output, EventEmitter, SimpleChanges, inject, signal, ChangeDetectionStrategy, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
   PlataformaService,
@@ -6,10 +6,10 @@ import {
 } from '../../../core/services/plataforma.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { environment } from '../../../../environments/environment';
-import { ZardCardComponent } from '@/shared/components/card/card.component';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
-import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
-import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
+import { GestgoCardComponent } from '@/shared/components/card/card.component';
+
+import { GestgoBadgeComponent } from '@/shared/components/badge/badge.component';
+import { NORD_FORM_IMPORTS } from '@/shared/nord';
 
 export type PlatformServiceId = 'asaas' | 'resend' | 'minio' | 'status';
 
@@ -31,16 +31,15 @@ const COMPONENT_OPTIONS: Record<string, string> = {
 };
 
 @Component({
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'app-plataforma-servicos-tab',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FormsModule,
-    ZardCardComponent,
-    ZardButtonComponent,
-    ZardBadgeComponent,
-    ...ZARD_FORM_CONTROL_IMPORTS,
-  ],
+    GestgoCardComponent,
+    GestgoBadgeComponent,
+    ...NORD_FORM_IMPORTS],
   templateUrl: './plataforma-servicos-tab.component.html',
   styleUrl: './plataforma-servicos-tab.component.css',
 })
@@ -150,8 +149,7 @@ export class PlataformaServicosTabComponent implements OnChanges {
         icon: 'monitoring',
         status: this.serviceStatus === 'operational' ? 'ok' : 'warn',
         statusLabel: this.serviceStatusLabel(this.serviceStatus),
-      },
-    ];
+      }];
   }
 
   ngOnChanges(changes: SimpleChanges): void {

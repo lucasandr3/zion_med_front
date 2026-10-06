@@ -1342,18 +1342,18 @@
   }
 }
 
-/* Marca: repassa accent para componentes globais (z-checkbox, focus rings) */
+/* Marca: repassa accent para componentes globais (g-checkbox, focus rings) */
 .form-publico-page.fp-branded {
   --c-primary: var(--fp-brand-500);
   --c-focus: color-mix(in srgb, var(--fp-brand-500) 28%, transparent);
 }
 
-.form-publico-page.fp-branded :is(.form-checkbox, .z-checkbox-native):checked {
+.form-publico-page.fp-branded :is(.form-checkbox, .g-checkbox-native):checked {
   background-color: var(--fp-brand-500);
   border-color: var(--fp-brand-500);
 }
 
-.form-publico-page.fp-branded :is(.form-checkbox, .z-checkbox-native):focus-visible {
+.form-publico-page.fp-branded :is(.form-checkbox, .g-checkbox-native):focus-visible {
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--fp-brand-500) 28%, transparent);
 }
 

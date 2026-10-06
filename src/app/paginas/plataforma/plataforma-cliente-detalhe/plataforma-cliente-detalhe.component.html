@@ -1,4 +1,10 @@
 <div class="relative min-h-[300px] space-y-4">
+  <div class="n-form-toolbar">
+    <div class="n-form-toolbar__start">
+      <zm-page-back-link />
+    </div>
+  </div>
+
   @if (showSkeleton()) {
     <zm-skeleton-list [rows]="8" />
   } @else if (!listaPronta()) {
@@ -52,7 +58,7 @@
         </div>
 
         <!-- Cabeçalho do cliente -->
-        <z-card class="tenant-hero gap-0 py-0">
+        <g-card class="tenant-hero gap-0 py-0">
           <div class="tenant-hero-inner">
             <div class="tenant-hero-avatar" aria-hidden="true">
               {{ iniciais(tenant.tenant.name) }}
@@ -72,23 +78,23 @@
               </div>
             </div>
           </div>
-        </z-card>
+        </g-card>
 
         <!-- Empresas -->
         <section>
           <h2 class="tenant-section-title">Empresas vinculadas ({{ tenant.clinics.length }})</h2>
 
           @if (tenant.clinics.length === 0) {
-            <z-card class="py-6">
+            <g-card class="py-6">
               <zm-empty-state
                 title="Nenhuma empresa vinculada a este tenant."
                 description="Quando houver vínculo de empresas, elas serão listadas aqui."
               />
-            </z-card>
+            </g-card>
           } @else {
             <div class="tenant-clinic-list">
               @for (c of tenant.clinics; track c.id) {
-                <z-card class="tenant-clinic-card gap-0 py-0">
+                <g-card class="tenant-clinic-card gap-0 py-0">
                   <!-- Cabeçalho da empresa -->
                   <div class="tenant-clinic-header">
                     <div class="min-w-0">
@@ -96,12 +102,12 @@
                       <p class="tenant-clinic-sub">#{{ c.id }} · {{ c.slug || '—' }}</p>
                     </div>
                     <div class="tenant-clinic-badges">
-                      <z-badge [zType]="badgeTipoStatus(c.subscription_status)" zShape="pill">
+                      <g-badge [zType]="badgeTipoStatus(c.subscription_status)" zShape="pill">
                         {{ rotuloStatusAssinaturaCobranca(c.subscription_status) }}
-                      </z-badge>
-                      <z-badge [zType]="badgeTipoStatus(c.billing_status)" zShape="pill">
+                      </g-badge>
+                      <g-badge [zType]="badgeTipoStatus(c.billing_status)" zShape="pill">
                         {{ rotuloStatusAssinaturaCobranca(c.billing_status) }}
-                      </z-badge>
+                      </g-badge>
                     </div>
                   </div>
 
@@ -211,19 +217,12 @@
                       }
                     </div>
 
-                    <button
-                      type="button"
-                      z-button
-                      zType="outline"
-                      zSize="sm"
-                      class="tenant-clinic-toggle"
-                      (click)="alternarDetalhes(c.id)"
-                    >
+                    <nord-button type="button" variant="default" size="s" class="tenant-clinic-toggle" (click)="alternarDetalhes(c.id)">
                       <span class="material-symbols-outlined">
                         {{ detalheExpandido(c.id) ? 'expand_less' : 'open_in_new' }}
                       </span>
                       {{ detalheExpandido(c.id) ? 'Ocultar' : 'Ver detalhes' }}
-                    </button>
+                    </nord-button>
                   </div>
 
                   @if (detalheExpandido(c.id)) {
@@ -258,9 +257,9 @@
                       </div>
                       <div class="tenant-extra-item">
                         <span class="tenant-field-label">Acesso ao app</span>
-                        <z-badge [zType]="badgeTipoAcesso(c.can_access_app)" zShape="pill">
+                        <g-badge [zType]="badgeTipoAcesso(c.can_access_app)" zShape="pill">
                           {{ c.can_access_app ? 'Liberado' : 'Bloqueado' }}
-                        </z-badge>
+                        </g-badge>
                       </div>
                       <div class="tenant-extra-item">
                         <span class="tenant-field-label">Cadastro da empresa</span>
@@ -268,7 +267,7 @@
                       </div>
                     </div>
                   }
-                </z-card>
+                </g-card>
               }
             </div>
           }

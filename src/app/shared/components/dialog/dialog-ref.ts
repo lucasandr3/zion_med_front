@@ -4,14 +4,14 @@ import { EventEmitter, Inject, PLATFORM_ID } from '@angular/core';
 
 import { filter, fromEvent, Subject, takeUntil } from 'rxjs';
 
-import type { ZardDialogComponent, ZardDialogOptions } from './dialog.component';
+import type { GestgoDialogComponent, GestgoDialogOptions } from './dialog.component';
 
 const enum eTriggerAction {
   CANCEL = 'cancel',
   OK = 'ok',
 }
 
-export class ZardDialogRef<T = any, R = any, U = any> {
+export class GestgoDialogRef<T = any, R = any, U = any> {
   private destroy$ = new Subject<void>();
   private isClosing = false;
   protected result?: R;
@@ -19,8 +19,8 @@ export class ZardDialogRef<T = any, R = any, U = any> {
 
   constructor(
     private overlayRef: OverlayRef,
-    private config: ZardDialogOptions<T, U>,
-    private containerInstance: ZardDialogComponent<T, U>,
+    private config: GestgoDialogOptions<T, U>,
+    private containerInstance: GestgoDialogComponent<T, U>,
     @Inject(PLATFORM_ID) private platformId: object,
   ) {
     this.containerInstance.cancelTriggered.subscribe(() => this.trigger(eTriggerAction.CANCEL));

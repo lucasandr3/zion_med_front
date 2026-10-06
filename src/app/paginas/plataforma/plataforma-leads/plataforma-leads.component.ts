@@ -1,20 +1,15 @@
-import { Component, OnInit, inject, Signal, ChangeDetectionStrategy, signal } from '@angular/core';
-import { ZardCardComponent } from '@/shared/components/card/card.component';
+import { Component, OnInit, inject, Signal, ChangeDetectionStrategy, signal, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { PlataformaService, PlatformLead } from '../../../core/services/plataforma.service';
 import { LoadingService } from '../../../shared/services/loading.service';
-import { ZmSkeletonListComponent } from '../../../shared/components/skeletons';
-import { ZmEmptyStateComponent } from '../../../shared/components/ui';
-import { ZardTableImports } from '@/shared/components/table';
+import { ListSkeletonComponent } from '../../../shared/components/list-skeleton/list-skeleton.component';
+
 @Component({
   selector: 'app-plataforma-leads',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    ...ZardTableImports,
-    ZardCardComponent,
-    ZmSkeletonListComponent,
-    ZmEmptyStateComponent,
-  ],
+  host: { class: 'n-page-list' },
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  imports: [ListSkeletonComponent],
   templateUrl: './plataforma-leads.component.html',
   styleUrl: './plataforma-leads.component.css',
 })

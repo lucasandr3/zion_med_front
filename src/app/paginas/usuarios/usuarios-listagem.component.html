@@ -1,90 +1,86 @@
-<div class="relative min-h-[320px]">
-  <div class="mb-6 flex flex-wrap items-center justify-end gap-3">
-    <a z-button zType="outline" zSize="sm" routerLink="/organizacao/permissoes" class="no-underline" title="Gerenciar perfis e permissões">
-      <span class="material-symbols-outlined text-base">admin_panel_settings</span>
-      Permissões
-    </a>
-    <a z-button zSize="sm" routerLink="/usuarios/criar" class="no-underline" title="Criar novo usuário">
-      <span class="material-symbols-outlined text-base">person_add</span>
-      Novo usuário
-    </a>
+<div class="n-page-list__toolbar">
+  <div class="n-page-list__toolbar-start">
+    <span class="n-muted n-small">Usuários com acesso à clínica.</span>
   </div>
+  <div class="n-page-list__toolbar-end">
+    <nord-button type="button" [routerLink]="['/organizacao/permissoes']" title="Gerenciar perfis e permissões">
+      <nord-icon name="navigation-settings" size="s"></nord-icon>
+      Permissões
+    </nord-button>
+    <nord-button variant="primary" type="button" [routerLink]="['/usuarios/criar']" title="Criar novo usuário">
+      <nord-icon name="user-add" size="s"></nord-icon>
+      Novo usuário
+    </nord-button>
+  </div>
+</div>
+
+<div class="n-page-list__content">
   @if (showSkeleton()) {
-    <zm-skeleton-usuarios-listagem />
-  } @else if (!listaPronta()) {
-  } @else if (erro()) {
-    <p class="text-sm text-destructive">{{ erro() }}</p>
-  } @else {
-    <div class="zm-content-enter">
-      <z-card class="zm-table-card gap-0 overflow-hidden rounded-[8px] py-0 shadow-sm **:data-[slot=card-content]:p-0">
-        @if (usuarios().length === 0) {
-          <div class="p-10">
-            <zm-empty-state title="Nenhum usuário cadastrado." actionLabel="Novo usuário" actionLink="/usuarios/criar" />
-          </div>
-        } @else {
-          <div class="zm-table-wrap">
-            <table z-table zSize="compact">
-              <thead z-table-header>
-                <tr z-table-row>
-                  <th z-table-head>Nome</th>
-                  <th z-table-head>E-mail</th>
-                  <th z-table-head>Permissões</th>
-                  <th z-table-head>Status</th>
-                  <th z-table-head class="text-right">Ações</th>
-                </tr>
-              </thead>
-              <tbody z-table-body>
-                @for (u of usuarios(); track u.id) {
-                  <tr z-table-row>
-                    <td z-table-cell>
-                      <div class="flex items-center gap-3">
-                        <div class="zm-row-avatar">{{ inicial(u.name) }}</div>
-                        <span class="zm-row-title">{{ u.name }}</span>
-                      </div>
-                    </td>
-                    <td z-table-cell class="zm-cell-muted">{{ u.email }}</td>
-                    <td z-table-cell>
-                      <span class="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-[0.7rem] font-semibold text-muted-foreground">
-                        <span class="material-symbols-outlined text-xs">badge</span>
-                        {{ u.role_label || u.role }}
-                      </span>
-                    </td>
-                    <td z-table-cell>
-                      @if (u.active) {
-                        <span class="inline-flex items-center gap-1 text-xs font-semibold" style="color: var(--c-success)">
-                          <span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1">check_circle</span>
-                          Ativo
-                        </span>
-                      } @else {
-                        <span class="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground">
-                          <span class="material-symbols-outlined text-sm">cancel</span>
-                          Inativo
-                        </span>
-                      }
-                    </td>
-                    <td z-table-cell class="text-right">
-                      <div class="flex items-center justify-end gap-0.5">
-                        <a [routerLink]="['/usuarios()', u.id, 'editar']" aria-label="Editar usuário" class="action-btn" zTooltip="Editar usuário">
-                          <span class="material-symbols-outlined text-lg">edit</span>
-                        </a>
-                        @if (podeDesativar(u)) {
-                          <button type="button" class="action-btn danger" aria-label="Desativar usuário" [disabled]="desativandoId() === u.id" (click)="desativar(u)" zTooltip="Desativar usuário">
-                            @if (desativandoId() === u.id) {
-                              <span class="btn-spinner" style="width: 16px; height: 16px; border-width: 2px"></span>
-                            } @else {
-                              <span class="material-symbols-outlined text-lg">person_off</span>
-                            }
-                          </button>
-                        }
-                      </div>
-                    </td>
-                  </tr>
-                }
-              </tbody>
-            </table>
-          </div>
-        }
-      </z-card>
+    <div class="n-page-list__panel">
+      <app-list-skeleton [count]="6" />
     </div>
+  } @else if (erro()) {
+    <div class="n-page-list__panel">
+      <p class="n-muted n-small" style="color: var(--n-color-status-danger, #c62828)">{{ erro() }}</p>
+    </div>
+  } @else if (!listaPronta()) {
+  } @else if (usuarios().length === 0) {
+    <div class="n-page-list__empty">
+      <nord-empty-state>
+        <h2>Nenhum usuário cadastrado</h2>
+        <p>Convide o primeiro usuário para acessar a clínica.</p>
+        <nord-button variant="primary" [routerLink]="['/usuarios/criar']">
+          <nord-icon name="user-add" size="s"></nord-icon>
+          Novo usuário
+        </nord-button>
+      </nord-empty-state>
+    </div>
+  } @else {
+    <div class="n-page-list__table">
+      @for (u of usuarios(); track u.id) {
+        <div class="n-page-list__row">
+          <div class="n-page-list__row-main">
+            <div class="n-page-list__row-title">{{ u.name }}</div>
+            <div class="n-page-list__row-meta">
+              {{ u.email }} · {{ u.role_label || u.role }}
+            </div>
+          </div>
+          <div class="n-page-list__actions">
+            @if (u.active) {
+              <nord-badge variant="success">Ativo</nord-badge>
+            } @else {
+              <nord-badge variant="neutral">Inativo</nord-badge>
+            }
+            <nord-button
+              square
+              variant="plain"
+              [routerLink]="['/usuarios', u.id, 'editar']"
+              aria-label="Editar usuário"
+              aria-describedby="tip-usuarios-edit"
+            >
+              <nord-icon name="interface-edit" size="s"></nord-icon>
+            </nord-button>
+            @if (podeDesativar(u)) {
+              <nord-button
+                square
+                variant="plain"
+                aria-label="Desativar usuário"
+                aria-describedby="tip-usuarios-deactivate"
+                [attr.disabled]="desativandoId() === u.id"
+                (click)="desativar(u)"
+              >
+                @if (desativandoId() === u.id) {
+                  <span class="btn-spinner" style="width: 16px; height: 16px; border-width: 2px"></span>
+                } @else {
+                  <nord-icon name="user-block" size="s"></nord-icon>
+                }
+              </nord-button>
+            }
+          </div>
+        </div>
+      }
+    </div>
+    <nord-tooltip id="tip-usuarios-edit" [delay]="0">Editar</nord-tooltip>
+    <nord-tooltip id="tip-usuarios-deactivate" [delay]="0">Desativar</nord-tooltip>
   }
 </div>

@@ -1,8 +1,8 @@
-import { Component, OnInit, OnDestroy, inject, Signal, ChangeDetectionStrategy, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, Signal, ChangeDetectionStrategy, signal, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { ZardCardComponent } from '@/shared/components/card/card.component';
-import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
+import { GestgoCardComponent } from '@/shared/components/card/card.component';
+import { GestgoBadgeComponent } from '@/shared/components/badge/badge.component';
+
 import {
   PlataformaService,
   PlatformTenantClinic,
@@ -11,20 +11,21 @@ import {
 import { PlataformaHeaderService } from '../../../core/services/plataforma-header.service';
 import { LoadingService } from '../../../shared/services/loading.service';
 import { ZmSkeletonListComponent } from '../../../shared/components/skeletons';
-import { ZmEmptyStateComponent } from '../../../shared/components/ui';
+import { ZmEmptyStateComponent, ZmPageBackLinkComponent } from '../../../shared/components/ui';
 import { statusAssinaturaOuCobrancaPt } from '../../../core/utils/status-labels-pt';
 
 @Component({
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'app-plataforma-cliente-detalhe',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { class: 'n-page' },
   imports: [
-    ZardCardComponent,
-    ZardBadgeComponent,
-    ZardButtonComponent,
+    GestgoCardComponent,
+    GestgoBadgeComponent,
     ZmSkeletonListComponent,
     ZmEmptyStateComponent,
-  ],
+    ZmPageBackLinkComponent],
   templateUrl: './plataforma-cliente-detalhe.component.html',
   styleUrl: './plataforma-cliente-detalhe.component.css',
 })

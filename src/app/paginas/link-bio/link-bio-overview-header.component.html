@@ -1,4 +1,4 @@
-<z-card class="link-bio-header-card border-border bg-card shadow-sm **:data-[slot=card-content]:p-0">
+<g-card class="link-bio-header-card border-border bg-card shadow-sm **:data-[slot=card-content]:p-0">
   <div class="link-bio-header-card__head">
     <div class="link-bio-header-card__lead">
       <div class="link-bio-header-card__icon" aria-hidden="true">
@@ -11,27 +11,25 @@
       </div>
     </div>
     <div class="link-bio-header-card__aside shrink-0">
-      <z-badge zType="outline" zShape="pill" class="link-bio-header-card__badge link-bio-status-published gap-1.5">
+      <g-badge zType="outline" zShape="pill" class="link-bio-header-card__badge link-bio-status-published gap-1.5">
         <span class="link-bio-status-dot" aria-hidden="true"></span>
         Publicado
-      </z-badge>
+      </g-badge>
       @if (headerMeta) {
         <p class="link-bio-header-card__sub">{{ headerMeta }}</p>
       }
       @if (recepcaoKioskUrl) {
-        <button
-          z-menu
-          type="button"
-          [zMenuTriggerFor]="headerMenuTpl"
-          zPlacement="bottomRight"
-          z-button
-          zType="ghost"
-          zSize="icon-sm"
-          class="link-bio-header-card__menu-btn"
-          aria-label="Mais opções do modo recepção"
-        >
-          <span class="material-symbols-outlined text-[1.125rem]">more_vert</span>
-        </button>
+        <nord-dropdown style="--n-dropdown-size: 14rem">
+          <nord-button slot="toggle" type="button" variant="plain" size="s" class="link-bio-header-card__menu-btn" aria-label="Mais opções do modo recepção" square>
+            <span class="material-symbols-outlined text-[1.125rem]">more_vert</span>
+          </nord-button>
+          <nord-dropdown-group>
+            <nord-dropdown-item (click)="copyRecepcao.emit()">
+              <span class="material-symbols-outlined shrink-0 text-base" aria-hidden="true">content_copy</span>
+              Copiar link do modo recepção
+            </nord-dropdown-item>
+          </nord-dropdown-group>
+        </nord-dropdown>
       }
     </div>
   </div>
@@ -39,82 +37,29 @@
     class="link-bio-header-card__actions"
     [class.link-bio-header-card__actions--with-recepcao]="!!recepcaoKioskUrl"
   >
-    <button
-      z-button
-      zType="outline"
-      zSize="sm"
-      type="button"
-      class="link-bio-header-card__action"
-      [title]="copiedLink ? 'Link copiado' : 'Copiar link público'"
-      (click)="copyLink.emit()"
-    >
+    <nord-button variant="default" size="s" type="button" class="link-bio-header-card__action" [title]="copiedLink ? 'Link copiado' : 'Copiar link público'" (click)="copyLink.emit()">
       <span class="material-symbols-outlined text-base" aria-hidden="true">
         {{ copiedLink ? 'check' : 'content_copy' }}
       </span>
       {{ copiedLink ? 'Copiado!' : 'Copiar link' }}
-    </button>
-    <a
-      [href]="publicUrlAbrir"
-      target="_blank"
-      rel="noopener"
-      z-button
-      zType="outline"
-      zSize="sm"
-      class="link-bio-header-card__action no-underline"
-      title="Abre o link público neste ambiente (dev) ou o URL oficial"
-    >
+    </nord-button>
+    <a [href]="publicUrlAbrir" target="_blank" rel="noopener" class="link-bio-header-card__action no-underline" title="Abre o link público neste ambiente (dev) ou o URL oficial">
       <span class="material-symbols-outlined text-base" aria-hidden="true">open_in_new</span>
       Abrir
     </a>
     @if (recepcaoKioskUrl) {
-      <a
-        [href]="recepcaoKioskUrl"
-        target="_blank"
-        rel="noopener"
-        z-button
-        zType="outline"
-        zSize="sm"
-        class="link-bio-header-card__action no-underline"
-        title="Lista grande de fichas para tablet ou totem na recepção"
-      >
+      <a [href]="recepcaoKioskUrl" target="_blank" rel="noopener" class="link-bio-header-card__action no-underline" title="Lista grande de fichas para tablet ou totem na recepção">
         <span class="material-symbols-outlined text-base" aria-hidden="true">tablet_mac</span>
         Modo recepção
       </a>
     }
-    <button
-      z-button
-      zType="outline"
-      zSize="sm"
-      type="button"
-      class="link-bio-header-card__action"
-      title="Ver QR code da página"
-      (click)="openQr.emit()"
-    >
+    <nord-button variant="default" size="s" type="button" class="link-bio-header-card__action" title="Ver QR code da página" (click)="openQr.emit()">
       <span class="material-symbols-outlined text-base" aria-hidden="true">qr_code_2</span>
       QR code
-    </button>
-    <button
-      z-button
-      zType="outline"
-      zSize="sm"
-      type="button"
-      class="link-bio-header-card__action"
-      title="Editar conteúdo da página"
-      (click)="editContent.emit()"
-    >
+    </nord-button>
+    <nord-button variant="default" size="s" type="button" class="link-bio-header-card__action" title="Editar conteúdo da página" (click)="editContent.emit()">
       <span class="material-symbols-outlined text-base" aria-hidden="true">edit</span>
       Editar
-    </button>
+    </nord-button>
   </div>
-</z-card>
-
-<ng-template #headerMenuTpl>
-  <div z-menu-content class="min-w-48">
-    @if (recepcaoKioskUrl) {
-      <button type="button" z-menu-item class="w-full gap-2" (click)="copyRecepcao.emit()">
-        <span class="material-symbols-outlined shrink-0 text-base" aria-hidden="true">content_copy</span>
-        Copiar link do modo recepção
-      </button>
-    }
-  </div>
-</ng-template>
+</g-card>

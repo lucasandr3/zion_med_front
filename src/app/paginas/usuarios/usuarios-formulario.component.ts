@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, Signal } from '@angular/core';
+import { Component, OnInit, inject, Signal, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { forkJoin } from 'rxjs';
@@ -7,10 +7,11 @@ import { LoadingService } from '../../shared/services/loading.service';
 import { ZmSkeletonUsuarioFormularioComponent } from '../../shared/components/skeletons';
 import { ToastService } from '../../core/services/toast.service';
 import { AuthService } from '../../core/services/auth.service';
-import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
-import { ZardCardComponent } from '@/shared/components/card/card.component';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
-import { ZardComboboxComponent, type ZardComboboxOption } from '@/shared/components/combobox';
+import { NORD_FORM_IMPORTS } from '@/shared/nord';
+import { GestgoCardComponent } from '@/shared/components/card/card.component';
+import { ZmPageBackLinkComponent } from '../../shared/components/ui';
+
+import { GestgoComboboxComponent, type GestgoComboboxOption } from '@/shared/components/combobox';
 
 function mensagemErroApi(err: { error?: { message?: string; errors?: Record<string, string[]> } }): string {
   const e = err.error;
@@ -21,16 +22,18 @@ function mensagemErroApi(err: { error?: { message?: string; errors?: Record<stri
 }
 
 @Component({
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'app-usuarios-formulario',
   standalone: true,
+  host: { class: 'n-page' },
   imports: [
-    ...ZARD_FORM_CONTROL_IMPORTS,
+    ...NORD_FORM_IMPORTS,
     RouterLink,
     FormsModule,
     ZmSkeletonUsuarioFormularioComponent,
-    ZardCardComponent,
-    ZardButtonComponent,
-    ZardComboboxComponent,
+    GestgoCardComponent,
+    GestgoComboboxComponent,
+    ZmPageBackLinkComponent,
   ],
   templateUrl: './usuarios-formulario.component.html',
   styleUrl: './usuarios-formulario.component.css',
@@ -66,7 +69,7 @@ export class UsuariosFormularioComponent implements OnInit {
     return this.auth.getUser()?.role === 'owner';
   }
 
-  get opcoesRoles(): ZardComboboxOption[] {
+  get opcoesRoles(): GestgoComboboxOption[] {
     return this.rolesList.map((r) => ({ value: r.value, label: r.label }));
   }
 

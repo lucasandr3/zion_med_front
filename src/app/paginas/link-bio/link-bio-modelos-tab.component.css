@@ -13,21 +13,21 @@
   }
 }
 
-/* Cards de modelo (grade) — z-card */
-.link-bio-config .link-bio-model-z-card {
+/* Cards de modelo (grade) — g-card */
+.link-bio-config .link-bio-model-g-card {
   border-color: var(--border, var(--c-border)) !important;
   background: var(--card, var(--c-surface)) !important;
   transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
   min-height: 4.25rem;
 }
 
-.link-bio-model-z-card__body {
+.link-bio-model-g-card__body {
   display: flex;
   align-items: flex-start;
   gap: 0.875rem;
 }
 
-.link-bio-model-z-card__text {
+.link-bio-model-g-card__text {
   flex: 1;
   min-width: 0;
   display: flex;
@@ -35,19 +35,19 @@
   gap: 0.375rem;
 }
 
-.link-bio-model-z-card__title-row {
+.link-bio-model-g-card__title-row {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 0.5rem;
 }
 
-.link-bio-config .link-bio-model-z-card:hover {
+.link-bio-config .link-bio-model-g-card:hover {
   border-color: color-mix(in oklch, var(--primary, var(--c-primary)) 40%, var(--border, var(--c-border))) !important;
   transform: translateY(-1px);
 }
 
-.link-bio-config .link-bio-model-z-card--selected {
+.link-bio-config .link-bio-model-g-card--selected {
   border-color: var(--primary, var(--c-primary)) !important;
   box-shadow: 0 0 0 3px color-mix(in oklch, var(--primary, var(--c-primary)) 18%, transparent);
 }

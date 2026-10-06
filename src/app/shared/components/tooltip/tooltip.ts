@@ -32,14 +32,14 @@ import { TOOLTIP_POSITIONS_MAP } from './tooltip-positions';
 import {
   tooltipPositionVariants,
   tooltipVariants,
-  type ZardTooltipPositionVariants,
+  type GestgoTooltipPositionVariants,
 } from './tooltip.variants';
-import { ZardIdDirective } from '@/shared/core';
-import { ZardStringTemplateOutletDirective } from '@/shared/core/directives/string-template-outlet/string-template-outlet.directive';
+import { GestgoIdDirective } from '@/shared/core';
+import { GestgoStringTemplateOutletDirective } from '@/shared/core/directives/string-template-outlet/string-template-outlet.directive';
 import { mergeClasses } from '@/shared/utils/merge-classes';
 
-export type ZardTooltipTriggers = 'click' | 'hover';
-export type ZardTooltipType = string | TemplateRef<void> | null;
+export type GestgoTooltipTriggers = 'click' | 'hover';
+export type GestgoTooltipType = string | TemplateRef<void> | null;
 
 interface DelayConfig {
   isShow: boolean;
@@ -63,7 +63,7 @@ const throttle = (callback: () => void, wait: number) => {
   },
   exportAs: 'zTooltip',
 })
-export class ZardTooltipDirective implements OnInit, OnDestroy {
+export class GestgoTooltipDirective implements OnInit, OnDestroy {
   private readonly destroyRef = inject(DestroyRef);
   private readonly document = inject(DOCUMENT);
   private readonly elementRef = inject(ElementRef<HTMLElement>);
@@ -74,14 +74,14 @@ export class ZardTooltipDirective implements OnInit, OnDestroy {
   private readonly renderer = inject(Renderer2);
 
   private delaySubject?: Subject<DelayConfig>;
-  private componentRef?: ComponentRef<ZardTooltipComponent>;
+  private componentRef?: ComponentRef<GestgoTooltipComponent>;
   private listenersRefs: (() => void)[] = [];
   private overlayRef?: OverlayRef;
   private ariaEffectRef?: ReturnType<typeof effect>;
 
-  readonly zPosition = input<ZardTooltipPositionVariants>('top');
-  readonly zTrigger = input<ZardTooltipTriggers>('hover');
-  readonly zTooltip = input<ZardTooltipType>(null);
+  readonly zPosition = input<GestgoTooltipPositionVariants>('top');
+  readonly zTrigger = input<GestgoTooltipTriggers>('hover');
+  readonly zTooltip = input<GestgoTooltipType>(null);
   readonly zShowDelay = input(150, { transform: numberAttribute });
   readonly zHideDelay = input(100, { transform: numberAttribute });
 
@@ -152,8 +152,7 @@ export class ZardTooltipDirective implements OnInit, OnDestroy {
         const shouldShowTooltip = !this.overlayRef?.hasAttached();
         const delay = shouldShowTooltip ? this.zShowDelay() : this.zHideDelay();
         this.delay(shouldShowTooltip, delay);
-      }),
-    ];
+      })];
   }
 
   private initHoverListeners(): void {
@@ -166,8 +165,7 @@ export class ZardTooltipDirective implements OnInit, OnDestroy {
       this.renderer.listen(this.elementRef.nativeElement, 'mouseenter', () => this.delay(true, this.zShowDelay())),
       this.renderer.listen(this.elementRef.nativeElement, 'mouseleave', () => this.delay(false, this.zHideDelay())),
       this.renderer.listen(this.elementRef.nativeElement, 'focus', () => this.delay(true, this.zShowDelay())),
-      this.renderer.listen(this.elementRef.nativeElement, 'blur', () => this.delay(false, this.zHideDelay())),
-    ];
+      this.renderer.listen(this.elementRef.nativeElement, 'blur', () => this.delay(false, this.zHideDelay()))];
   }
 
   private initScrollListener(): void {
@@ -177,8 +175,7 @@ export class ZardTooltipDirective implements OnInit, OnDestroy {
         this.document.defaultView,
         'scroll',
         throttle(() => this.delay(false, 0), 100),
-      ),
-    ];
+      )];
   }
 
   private cleanupTriggerEvents(): void {
@@ -215,7 +212,7 @@ export class ZardTooltipDirective implements OnInit, OnDestroy {
       return;
     }
 
-    const tooltipPortal = new ComponentPortal(ZardTooltipComponent);
+    const tooltipPortal = new ComponentPortal(GestgoTooltipComponent);
     this.componentRef = this.overlayRef?.attach(tooltipPortal);
     this.componentRef?.onDestroy(() => {
       this.componentRef = undefined;
@@ -255,9 +252,9 @@ export class ZardTooltipDirective implements OnInit, OnDestroy {
 
 @Component({
   selector: 'z-tooltip',
-  imports: [ZardStringTemplateOutletDirective, ZardIdDirective],
+  imports: [GestgoStringTemplateOutletDirective, GestgoIdDirective],
   template: `
-    <ng-container *zStringTemplateOutlet="tooltipText()" zardId="tooltip" #z="zardId">{{ tooltipText() }}</ng-container>
+    <ng-container *zStringTemplateOutlet="tooltipText()" gestgoId="tooltip" #z="gestgoId">{{ tooltipText() }}</ng-container>
 
     <span [class]="arrowClasses()">
       <svg
@@ -280,19 +277,19 @@ export class ZardTooltipDirective implements OnInit, OnDestroy {
     role: 'tooltip',
   },
 })
-export class ZardTooltipComponent {
+export class GestgoTooltipComponent {
   protected readonly arrowClasses = computed(() =>
     mergeClasses(tooltipPositionVariants({ position: this.position() })),
   );
 
   protected readonly classes = computed(() => mergeClasses(tooltipVariants()));
-  protected readonly position = signal<ZardTooltipPositionVariants>('top');
+  protected readonly position = signal<GestgoTooltipPositionVariants>('top');
   readonly state = signal<'closed' | 'opened'>('closed');
-  readonly uniqueId = viewChild<ZardIdDirective>('z');
-  protected readonly tooltipText = signal<ZardTooltipType>(null);
+  readonly uniqueId = viewChild<GestgoIdDirective>('z');
+  protected readonly tooltipText = signal<GestgoTooltipType>(null);
   protected readonly tooltipId = computed(() => this.uniqueId()?.id() ?? 'tooltip');
 
-  setProps(tooltipText: ZardTooltipType, position: ZardTooltipPositionVariants) {
+  setProps(tooltipText: GestgoTooltipType, position: GestgoTooltipPositionVariants) {
     if (tooltipText) {
       this.tooltipText.set(tooltipText);
     }

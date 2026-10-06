@@ -1,0 +1,156 @@
+<div class="shell-topbar-actions">
+  <nord-button
+    variant="plain"
+    size="m"
+    type="button"
+    (click)="abrirGoAssistant()"
+    class="cabecalho-toolbar-action"
+    aria-describedby="go-assistant-tooltip"
+    aria-label="Abrir Go Assistant"
+    square
+  >
+    <nord-icon name="interface-ai" size="m" aria-hidden="true"></nord-icon>
+  </nord-button>
+  <nord-tooltip id="go-assistant-tooltip" [delay]="0">Go Assistant (Ctrl+/)</nord-tooltip>
+
+  <div class="relative header-desktop-only-block">
+    <nord-button
+      variant="plain"
+      size="m"
+      type="button"
+      (click)="alternarMenuTema()"
+      class="cabecalho-toolbar-action"
+      aria-describedby="theme-menu-tooltip"
+      aria-label="Tema e aparência"
+      square
+    >
+      <nord-icon name="navigation-settings" size="m"></nord-icon>
+    </nord-button>
+  </div>
+  <nord-tooltip id="theme-menu-tooltip" [delay]="0">Tema e aparência</nord-tooltip>
+
+  <a
+    routerLink="/novidades"
+    class="cabecalho-toolbar-action relative header-desktop-only-flex"
+    aria-describedby="novidades-tooltip"
+    aria-label="Novidades e versão"
+  >
+    <nord-icon name="interface-checked-circle" size="m"></nord-icon>
+    @if (novidadesNaoVistas > 0) {
+      <span class="shell-topbar-badge" aria-hidden="true">
+        {{ novidadesNaoVistas > 99 ? '99+' : novidadesNaoVistas }}
+      </span>
+    }
+  </a>
+  <nord-tooltip id="novidades-tooltip" [delay]="0">Novidades e versão</nord-tooltip>
+
+  @if (podeVerNotificacoesNoHeader) {
+    <a
+      [routerLink]="notificacoesRouterLink"
+      class="cabecalho-toolbar-action relative header-desktop-only-flex"
+      aria-describedby="notifications-tooltip"
+      aria-label="Notificações"
+    >
+      <nord-icon name="navigation-notifications" size="m"></nord-icon>
+      @if (notificacoesNaoLidas > 0) {
+        <span class="shell-topbar-badge" aria-hidden="true">
+          {{ notificacoesNaoLidas > 99 ? '99+' : notificacoesNaoLidas }}
+        </span>
+      }
+    </a>
+    <nord-tooltip id="notifications-tooltip" [delay]="0">Notificações</nord-tooltip>
+  }
+</div>
+
+<ng-template #temaSheetContent>
+  <div class="theme-panel__body">
+    <section class="theme-section">
+      <h3 class="theme-section__label">Modo</h3>
+      <div class="theme-options theme-options--3">
+        <button
+          type="button"
+          class="theme-option"
+          [class.is-active]="themeDrawerMode === 'light'"
+          [attr.aria-pressed]="themeDrawerMode === 'light'"
+          (click)="aplicarModoTema('light')"
+        >
+          <nord-icon name="interface-mode-light" size="s"></nord-icon>
+          Claro
+        </button>
+        <button
+          type="button"
+          class="theme-option"
+          [class.is-active]="themeDrawerMode === 'dark'"
+          [attr.aria-pressed]="themeDrawerMode === 'dark'"
+          (click)="aplicarModoTema('dark')"
+        >
+          <nord-icon name="interface-mode-dark" size="s"></nord-icon>
+          Escuro
+        </button>
+        <button
+          type="button"
+          class="theme-option"
+          [class.is-active]="themeDrawerMode === 'auto'"
+          [attr.aria-pressed]="themeDrawerMode === 'auto'"
+          (click)="aplicarModoTema('auto')"
+        >
+          <nord-icon name="interface-presentation-mode" size="s"></nord-icon>
+          Automático
+        </button>
+      </div>
+    </section>
+
+    <section class="theme-section">
+      <h3 class="theme-section__label">Barra lateral e topo</h3>
+      <p class="theme-section__hint">
+        <strong>Topo e marca</strong> aplica a cor primária só no cabeçalho e na faixa do Gestgo;
+        <strong>Menu escuro</strong> escurece a lateral inteira.
+      </p>
+      <div class="theme-options theme-options--3">
+        @for (opt of shellPresetOptions; track opt.id) {
+          <button
+            type="button"
+            class="theme-option theme-option--compact"
+            [class.is-active]="shellPresetAtual === opt.id"
+            [attr.aria-pressed]="shellPresetAtual === opt.id"
+            [attr.title]="opt.description"
+            (click)="aplicarShellPreset(opt.id)"
+          >
+            {{ opt.label }}
+          </button>
+        }
+      </div>
+      <p class="theme-section__footnote">{{ shellPresetMeta?.description ?? '—' }}</p>
+    </section>
+
+    <section class="theme-section">
+      <h3 class="theme-section__label">Cor do tema</h3>
+      <p class="theme-section__hint">
+        Botões, links e item ativo. O fundo do topo e do menu é controlado por
+        <strong>Barra lateral e topo</strong>.
+      </p>
+      <div class="theme-colors" role="list">
+        @for (t of temasOrdemGrade; track t.key) {
+          <button
+            type="button"
+            class="theme-color"
+            role="listitem"
+            [class.is-active]="temaAtual === t.key"
+            [style.--swatch-color]="t.color"
+            [attr.aria-label]="t.labelPt"
+            [attr.title]="t.labelPt"
+            [attr.aria-pressed]="temaAtual === t.key"
+            (click)="aplicarTema(t.key)"
+          >
+            @if (temaAtual === t.key) {
+              <nord-icon name="interface-checked" size="s"></nord-icon>
+            }
+          </button>
+        }
+      </div>
+      <p class="theme-section__footnote">
+        Selecionado: <strong>{{ temaAtualMeta?.labelPt ?? '—' }}</strong>
+      </p>
+    </section>
+  </div>
+</ng-template>
