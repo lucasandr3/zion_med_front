@@ -1,16 +1,16 @@
 <div
   class="form-publico-page"
-  [class.dark]="dark"
-  [class.fp-kiosk]="kioskMode"
+  [class.dark]="dark()"
+  [class.fp-kiosk]="kioskMode()"
   [class.fp-branded]="isBranded"
   [ngStyle]="themeVars"
 >
   <a class="fp-skip-link" href="#fp-main-content">Pular para o conteúdo</a>
 
-  @if (!showSkeleton() && data && !kioskMode) {
+  @if (!showSkeleton() && !kioskMode() && data(); as formData) {
     <zm-formulario-publico-header
-      [data]="data"
-      [dark]="dark"
+      [data]="formData"
+      [dark]="dark()"
       [hidePlatformBranding]="hidePlatformBranding()"
       [personFormUnlocked]="personFormUnlocked()"
       [progressPercent]="progressPercent"
@@ -20,7 +20,7 @@
       [totalFormSteps]="stepStateForTemplate.totalFormSteps"
       [currentStepTitle]="currentStepTitle"
       [clinicalSteps]="clinicalStepMetas"
-      [largeTextMode]="largeTextMode"
+      [largeTextMode]="largeTextMode()"
       [logoUrl]="clinicLogoDisplayUrl()"
       [clinicInitial]="clinicNameInitial()"
       (toggleDark)="toggleDark()"
@@ -36,44 +36,44 @@
         <p class="fp-loading-hint">Carregando formulário…</p>
       </div>
     }
-    @if (!showSkeleton() && erro && !data) {
+    @if (!showSkeleton() && erro() && !data()) {
       <div class="fp-container">
         <div class="fp-error-card">
-          <p class="fp-error-text">{{ erro }}</p>
+          <p class="fp-error-text">{{ erro() }}</p>
         </div>
       </div>
     }
-    @if (!showSkeleton() && data) {
+    @if (!showSkeleton() && data(); as formData) {
       <div class="fp-container zm-content-enter">
-        @if (personLinkRequired() && !personGateOk) {
+        @if (personLinkRequired() && !personGateOk()) {
           <zm-formulario-publico-gate
-            [templateName]="data.template.name"
+            [templateName]="formData.template.name"
             [mode]="personLinkMode()"
-            [title]="data.person_link?.title || ''"
-            [description]="data.person_link?.description || ''"
-            [personCpfDisplay]="personCpfDisplay"
-            [personCode]="personCode"
-            [personBirthDate]="personBirthDate"
-            [personGateErro]="personGateErro"
-            [validandoPerson]="validandoPerson"
-            [pendingConfirmName]="personPendingConfirmName"
-            [nameConfirmed]="personNameConfirmed"
+            [title]="formData.person_link?.title || ''"
+            [description]="formData.person_link?.description || ''"
+            [personCpfDisplay]="personCpfDisplay()"
+            [personCode]="personCode()"
+            [personBirthDate]="personBirthDate()"
+            [personGateErro]="personGateErro()"
+            [validandoPerson]="validandoPerson()"
+            [pendingConfirmName]="personPendingConfirmName()"
+            [nameConfirmed]="personNameConfirmed()"
             (cpfChange)="onPersonCpfChange($event)"
             (codeChange)="onPersonCodeChange($event)"
             (birthDateChange)="onPersonBirthDateChange($event)"
             (validate)="validarIdentificacao()"
-            (nameConfirmedChange)="personNameConfirmed = $event"
+            (nameConfirmedChange)="personNameConfirmed.set($event)"
             (confirmIdentity)="confirmarIdentidade()"
             (backToCredentials)="voltarCredenciaisGate()"
           />
         } @else {
           <div class="fp-title-block">
-            <h1 class="fp-title">{{ data.template.name }}</h1>
-            @if (data.template.description) {
-              <p class="fp-lead">{{ data.template.description }}</p>
+            <h1 class="fp-title">{{ formData.template.name }}</h1>
+            @if (formData.template.description) {
+              <p class="fp-lead">{{ formData.template.description }}</p>
             }
-            @if (personValidatedName) {
-              <p class="fp-lead" style="font-size: 0.95rem">Olá, <strong>{{ personValidatedName }}</strong>. Preencha os campos abaixo.</p>
+            @if (personValidatedName()) {
+              <p class="fp-lead" style="font-size: 0.95rem">Olá, <strong>{{ personValidatedName() }}</strong>. Preencha os campos abaixo.</p>
             }
             <p class="fp-lgpd-note">
               Seus dados serão utilizados apenas para as finalidades deste formulário e em conformidade com a LGPD.
@@ -85,8 +85,8 @@
             </div>
           </div>
 
-          @if (erro) {
-            <div class="fp-banner-error" role="alert" aria-live="assertive">{{ erro }}</div>
+          @if (erro()) {
+            <div class="fp-banner-error" role="alert" aria-live="assertive">{{ erro() }}</div>
           }
 
           @if (usesFormSteps && personFormUnlocked()) {
@@ -102,39 +102,39 @@
                 [valores]="valores"
                 [feegowMeta]="feegowMeta()"
                 [schedulingBlocked]="feegowSchedulingBlocked()"
-                [schedulingBlockMessage]="consentSummaryLabel"
-                [personId]="personValidatedId"
+                [schedulingBlockMessage]="consentSummaryLabel()"
+                [personId]="personValidatedId()"
                 (valoresChange)="onCampoAlterado()"
               />
             }
 
             @if (showPreenchedoraOnCurrentStep) {
               <zm-formulario-publico-preenchedora
-                [submitterName]="submitterName"
-                [submitterEmail]="submitterEmail"
+                [submitterName]="submitterName()"
+                [submitterEmail]="submitterEmail()"
                 [personLinkRequired]="personLinkRequired()"
-                (submitterNameChange)="submitterName = $event"
-                (submitterEmailChange)="submitterEmail = $event"
+                (submitterNameChange)="submitterName.set($event)"
+                (submitterEmailChange)="submitterEmail.set($event)"
                 (identityChange)="onSubmitterIdentityChange()"
               />
             }
 
             @if (showOtpOnCurrentStep) {
               <zm-formulario-publico-otp
-                [otpChannel]="otpChannel"
-                [otpPhone]="otpPhone"
-                [otpCode]="otpCode"
-                [otpVerified]="otpVerified"
-                [otpSending]="otpSending"
-                [otpVerifying]="otpVerifying"
-                [otpErro]="otpErro"
-                [otpWhatsappAvailable]="!!data.otp_whatsapp_available"
+                [otpChannel]="otpChannel()"
+                [otpPhone]="otpPhone()"
+                [otpCode]="otpCode()"
+                [otpVerified]="otpVerified()"
+                [otpSending]="otpSending()"
+                [otpVerifying]="otpVerifying()"
+                [otpErro]="otpErro()"
+                [otpWhatsappAvailable]="!!formData.otp_whatsapp_available"
                 [personLinkRequired]="personLinkRequired()"
-                [submitterEmail]="submitterEmail"
-                (otpChannelChange)="otpChannel = $event"
-                (otpPhoneChange)="otpPhone = $event"
-                (otpCodeChange)="otpCode = $event"
-                (submitterEmailChange)="submitterEmail = $event"
+                [submitterEmail]="submitterEmail()"
+                (otpChannelChange)="otpChannel.set($event)"
+                (otpPhoneChange)="otpPhone.set($event)"
+                (otpCodeChange)="otpCode.set($event)"
+                (submitterEmailChange)="submitterEmail.set($event)"
                 (identityChange)="onSubmitterIdentityChange()"
                 (sendOtp)="enviarOtp()"
                 (verifyOtp)="verificarOtp()"
@@ -147,8 +147,8 @@
               [fields]="currentStepFields"
               [valores]="valores"
               [termScrollRequired]="termScrollRequired"
-              [noticeScrollState]="noticeScrollState"
-              [invalidFieldKeys]="invalidFieldKeys"
+              [noticeScrollState]="noticeScrollState()"
+              [invalidFieldKeys]="invalidFieldKeys()"
               (fieldChange)="onCampoAlterado()"
               (noticeScroll)="onNoticeScrolled($event)"
               (fileSelected)="onFileSelected($event.event, $event.key)"
@@ -159,33 +159,33 @@
 
             @if (showConsentOnCurrentStep) {
               <zm-formulario-publico-consent
-                [acceptTerms]="acceptTerms"
-                [comprehensionAck]="comprehensionAck"
+                [acceptTerms]="acceptTerms()"
+                [comprehensionAck]="comprehensionAck()"
                 [requireComprehension]="isConsentimentoDocumento()"
                 [requireTermScroll]="termScrollRequired"
-                [termScrollCompleted]="termScrollCompleted"
+                [termScrollCompleted]="termScrollCompleted()"
                 [showComprehensionSection]="showComprehensionSection"
                 [showPrivacySection]="showPrivacySection"
                 [showActorsAssistedSection]="showActorsAssistedSection"
                 [showActors]="showActorsBlock()"
                 [requireGuardian]="requireGuardianBlock()"
-                [guardianName]="guardianName"
-                [guardianRelation]="guardianRelation"
-                [witnessName]="witnessName"
-                [assistedMode]="assistedMode"
-                [professionalExplained]="professionalExplained"
+                [guardianName]="guardianName()"
+                [guardianRelation]="guardianRelation()"
+                [witnessName]="witnessName()"
+                [assistedMode]="assistedMode()"
+                [professionalExplained]="professionalExplained()"
                 [showAssistedCosignBlock]="showAssistedCosignBlock()"
-                [professionalSignerName]="professionalSignerName"
+                [professionalSignerName]="professionalSignerName()"
                 [professionalCosignFieldKey]="professionalCosignFieldKey()"
                 [quizQuestions]="quizQuestions()"
-                [quizAnswers]="quizAnswers"
-                (acceptTermsChange)="acceptTerms = $event"
-                (comprehensionAckChange)="comprehensionAck = $event"
-                (guardianNameChange)="guardianName = $event"
-                (guardianRelationChange)="guardianRelation = $event"
-                (witnessNameChange)="witnessName = $event"
-                (professionalExplainedChange)="professionalExplained = $event"
-                (professionalSignerNameChange)="professionalSignerName = $event"
+                [quizAnswers]="quizAnswers()"
+                (acceptTermsChange)="acceptTerms.set($event)"
+                (comprehensionAckChange)="comprehensionAck.set($event)"
+                (guardianNameChange)="guardianName.set($event)"
+                (guardianRelationChange)="guardianRelation.set($event)"
+                (witnessNameChange)="witnessName.set($event)"
+                (professionalExplainedChange)="professionalExplained.set($event)"
+                (professionalSignerNameChange)="professionalSignerName.set($event)"
                 (professionalSignatureChange)="onSignatureChange($event)"
                 (professionalSignatureClear)="onSignatureClear($event)"
                 (quizAnswerChange)="onQuizAnswerChange($event)"
@@ -198,12 +198,12 @@
     }
   </div>
 
-  @if (!showSkeleton() && data && personFormUnlocked()) {
+  @if (!showSkeleton() && data() && personFormUnlocked()) {
     <zm-formulario-publico-footer
       [usesFormSteps]="usesFormSteps"
       [isFirstFormStep]="isFirstFormStep"
       [isLastFormStep]="isLastFormStep"
-      [enviando]="enviando"
+      [enviando]="enviando()"
       (voltarEtapa)="voltarEtapa()"
       (avancarEtapa)="avancarEtapa()"
     />

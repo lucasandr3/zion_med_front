@@ -1,7 +1,7 @@
 <div class="plataforma-config-page relative min-h-[300px] w-full">
   @if (showSkeleton()) {
     <zm-skeleton-configuracoes />
-  } @else if (!listaPronta) {
+  } @else if (!listaPronta()) {
   } @else {
     <div class="plataforma-config-shell zm-content-enter">
       <div class="plataforma-config">
@@ -13,8 +13,8 @@
         >
           <z-tab label="Parâmetros" icon="settings">
             <div class="config-tab-panel">
-              @if (error) {
-                <p class="settings-alert settings-alert--error">{{ error }}</p>
+              @if (error()) {
+                <p class="settings-alert settings-alert--error">{{ error() }}</p>
               }
 
               <form class="settings-form" (ngSubmit)="submitPlatformParams()">
@@ -56,13 +56,13 @@
                     </div>
                   </div>
 
-                  @if (successSettings) {
-                    <p class="settings-alert settings-alert--success">{{ successSettings }}</p>
+                  @if (successSettings()) {
+                    <p class="settings-alert settings-alert--success">{{ successSettings() }}</p>
                   }
 
                   <div class="settings-form-actions settings-form-actions--inline">
-                    <button type="submit" z-button zSize="sm" [zDisabled]="savingSettings" [zLoading]="savingSettings">
-                      {{ savingSettings ? 'Salvando…' : 'Salvar parâmetros' }}
+                    <button type="submit" z-button zSize="sm" [zDisabled]="savingSettings()" [zLoading]="savingSettings()">
+                      {{ savingSettings() ? 'Salvando…' : 'Salvar parâmetros' }}
                     </button>
                   </div>
                 </z-card>
@@ -76,7 +76,7 @@
 
           <z-tab label="Serviços" icon="dns">
             <app-plataforma-servicos-tab
-              [settings]="data"
+              [settings]="data()"
               [platformParams]="platformParams"
               (settingsUpdated)="onSettingsUpdated($event)"
             />

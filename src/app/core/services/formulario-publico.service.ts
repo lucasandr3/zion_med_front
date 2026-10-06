@@ -226,6 +226,7 @@ interface SubmitResponse {
     patient_download_token?: string;
     patient_download_url?: string;
     patient_download_expires_at?: string | null;
+    patient_copy_emailed?: boolean;
     feegow?: {
       enabled?: boolean;
       attempted?: boolean;
@@ -362,6 +363,16 @@ export class FormularioPublicoService {
     return this.http.get(`${BASE}/formulario-publico/copia/${encodeURIComponent(copyToken)}`, {
       responseType: 'blob',
     });
+  }
+
+  /** Envia o link da cópia para um e-mail informado na tela de sucesso. */
+  emailPatientCopy(copyToken: string, email: string): Observable<{ message: string }> {
+    return this.http
+      .post<{ data: { message: string } }>(
+        `${BASE}/formulario-publico/copia/${encodeURIComponent(copyToken)}/email`,
+        { email },
+      )
+      .pipe(map((r) => r.data));
   }
 
   validatePerson(

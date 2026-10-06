@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, Signal } from '@angular/core';
+import { Component, OnInit, inject, Signal, ChangeDetectionStrategy, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { switchMap, map, catchError, of, forkJoin } from 'rxjs';
 import {
@@ -127,6 +127,7 @@ type BarChartOptions = {
 @Component({
   selector: 'app-pagina-dashboard',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     RouterLink,
     ChartComponent,
@@ -142,38 +143,38 @@ type BarChartOptions = {
 })
 export class DashboardComponent implements OnInit {
   showSkeleton!: Signal<boolean>;
-  dashReady = false;
-  estadoErro = false;
-  mensagemErro = '';
-  painelBloqueadoCobranca = false;
-  semClinica = false;
-  pendentesHoje = 0;
-  totalTemplates = 0;
-  ultimos7Dias = 0;
-  ultimos30Dias = 0;
-  linksPublicosCount = 0;
-  mediaSemanal30Dias = 0;
-  variacaoRespostasAbsoluta = 0;
-  variacaoRespostasPercentual = 0;
-  variacaoRespostasPositiva = true;
-  taxaAprovacaoResumo = 0;
-  porStatus: { pending: number; approved: number; rejected: number } = { pending: 0, approved: 0, rejected: 0 };
-  ultimosTemplates: UltimoTemplateRow[] = [];
-  ultimasSubmissoes: UltimaSubmissaoRow[] = [];
-  modelosMaisUsados: ModeloMaisUsadoRow[] = [];
+  readonly dashReady = signal(false);
+  readonly estadoErro = signal(false);
+  readonly mensagemErro = signal('');
+  readonly painelBloqueadoCobranca = signal(false);
+  readonly semClinica = signal(false);
+  readonly pendentesHoje = signal(0);
+  readonly totalTemplates = signal(0);
+  readonly ultimos7Dias = signal(0);
+  readonly ultimos30Dias = signal(0);
+  readonly linksPublicosCount = signal(0);
+  readonly mediaSemanal30Dias = signal(0);
+  readonly variacaoRespostasAbsoluta = signal(0);
+  readonly variacaoRespostasPercentual = signal(0);
+  readonly variacaoRespostasPositiva = signal(true);
+  readonly taxaAprovacaoResumo = signal(0);
+  readonly porStatus = signal<{ pending: number; approved: number; rejected: number }>({ pending: 0, approved: 0, rejected: 0 });
+  readonly ultimosTemplates = signal<UltimoTemplateRow[]>([]);
+  readonly ultimasSubmissoes = signal<UltimaSubmissaoRow[]>([]);
+  readonly modelosMaisUsados = signal<ModeloMaisUsadoRow[]>([]);
   categoriasResumo: { key: string; label: string; count: number }[] = [];
-  periodoSelecionado = 7;
-  mostrarWizardOnboarding = false;
-  complianceReport: ComplianceReportData | null = null;
+  readonly periodoSelecionado = signal(7);
+  readonly mostrarWizardOnboarding = signal(false);
+  readonly complianceReport = signal<ComplianceReportData | null>(null);
   readonly periodOptions = [
     { days: 7, label: '7 dias' },
     { days: 30, label: '30 dias' },
     { days: 90, label: '90 dias' },
   ];
 
-  areaChart: AreaChartOptions = this.buildAreaChart([]);
-  donutChart: DonutChartOptions = this.buildDonutChart(0, 0, 0);
-  barChart: BarChartOptions = this.buildBarChart([]);
+  readonly areaChart = signal<AreaChartOptions>(this.buildAreaChart([]));
+  readonly donutChart = signal<DonutChartOptions>(this.buildDonutChart(0, 0, 0));
+  readonly barChart = signal<BarChartOptions>(this.buildBarChart([]));
 
   private dashboardService = inject(DashboardService);
   private complianceService = inject(ComplianceService);
@@ -182,41 +183,41 @@ export class DashboardComponent implements OnInit {
   private authService = inject(AuthService);
 
   get totalStatus(): number {
-    return this.porStatus.pending + this.porStatus.approved + this.porStatus.rejected;
+    return this.porStatus().pending + this.porStatus().approved + this.porStatus().rejected;
   }
 
-  get percentualPendente(): number { return this.getPercentual(this.porStatus.pending); }
-  get percentualAprovado(): number { return this.getPercentual(this.porStatus.approved); }
-  get percentualReprovado(): number { return this.getPercentual(this.porStatus.rejected); }
+  get percentualPendente(): number { return this.getPercentual(this.porStatus().pending); }
+  get percentualAprovado(): number { return this.getPercentual(this.porStatus().approved); }
+  get percentualReprovado(): number { return this.getPercentual(this.porStatus().rejected); }
 
   get taxaAprovacao(): number {
-    if (this.taxaAprovacaoResumo > 0) return this.taxaAprovacaoResumo;
-    return this.getPercentual(this.porStatus.approved);
+    if (this.taxaAprovacaoResumo() > 0) return this.taxaAprovacaoResumo();
+    return this.getPercentual(this.porStatus().approved);
   }
 
   get mediaSemanalUltimos30Dias(): number {
-    if (this.mediaSemanal30Dias > 0) return this.mediaSemanal30Dias;
-    if (!this.ultimos30Dias) return 0;
-    return Math.round(this.ultimos30Dias / (30 / 7));
+    if (this.mediaSemanal30Dias() > 0) return this.mediaSemanal30Dias();
+    if (!this.ultimos30Dias()) return 0;
+    return Math.round(this.ultimos30Dias() / (30 / 7));
   }
 
-  get variacaoRespostas7DiasPercentual(): number { return this.variacaoRespostasPercentual; }
+  get variacaoRespostas7DiasPercentual(): number { return this.variacaoRespostasPercentual(); }
 
   get respostasPeriodoSelecionado(): number {
-    if (this.periodoSelecionado === 30) return this.ultimos30Dias;
-    if (this.periodoSelecionado === 90) return this.ultimos30Dias * 3;
-    return this.ultimos7Dias;
+    if (this.periodoSelecionado() === 30) return this.ultimos30Dias();
+    if (this.periodoSelecionado() === 90) return this.ultimos30Dias() * 3;
+    return this.ultimos7Dias();
   }
 
   get labelPeriodoSelecionado(): string {
-    if (this.periodoSelecionado === 30) return 'Últimos 30 dias';
-    if (this.periodoSelecionado === 90) return 'Últimos 90 dias (estimativa)';
+    if (this.periodoSelecionado() === 30) return 'Últimos 30 dias';
+    if (this.periodoSelecionado() === 90) return 'Últimos 90 dias (estimativa)';
     return 'Últimos 7 dias';
   }
 
   periodRangeLabel(): string {
-    if (this.periodoSelecionado <= 7) return 'Últimos 7 dias';
-    if (this.periodoSelecionado <= 30) return 'Últimos 30 dias';
+    if (this.periodoSelecionado() <= 7) return 'Últimos 7 dias';
+    if (this.periodoSelecionado() <= 30) return 'Últimos 30 dias';
     return 'Últimos 90 dias';
   }
 
@@ -239,36 +240,35 @@ export class DashboardComponent implements OnInit {
 
     data$.subscribe({
       next: ({ dash, templates, compliance }) => {
-        this.dashReady = true;
-        this.estadoErro = false;
-        this.painelBloqueadoCobranca = false;
-        this.semClinica = dash.sem_clinica;
-        this.complianceReport = compliance;
-        this.pendentesHoje = dash.pendentes_hoje ?? 0;
-        this.ultimos7Dias = dash.ultimos_7_dias ?? 0;
-        this.ultimos30Dias = dash.ultimos_30_dias ?? 0;
-        this.mediaSemanal30Dias = dash.media_semanal_ultimos_30_dias ?? 0;
+        this.dashReady.set(true);
+        this.estadoErro.set(false);
+        this.painelBloqueadoCobranca.set(false);
+        this.semClinica.set(dash.sem_clinica);
+        this.complianceReport.set(compliance);
+        this.pendentesHoje.set(dash.pendentes_hoje ?? 0);
+        this.ultimos7Dias.set(dash.ultimos_7_dias ?? 0);
+        this.ultimos30Dias.set(dash.ultimos_30_dias ?? 0);
+        this.mediaSemanal30Dias.set(dash.media_semanal_ultimos_30_dias ?? 0);
         const comparativo = dash.comparativo_semana_anterior;
-        this.variacaoRespostasAbsoluta =
-          comparativo?.delta_absoluto ?? (this.ultimos7Dias - this.mediaSemanalUltimos30Dias);
-        this.variacaoRespostasPercentual = comparativo?.delta_percentual ?? this.calcularVariacaoPercentualFallback();
-        this.variacaoRespostasPositiva = comparativo?.positiva ?? this.variacaoRespostasAbsoluta >= 0;
-        this.taxaAprovacaoResumo = dash.taxa_aprovacao ?? 0;
-        this.linksPublicosCount = dash.links_publicos_count ?? 0;
+        this.variacaoRespostasAbsoluta.set(comparativo?.delta_absoluto ?? (this.ultimos7Dias() - this.mediaSemanalUltimos30Dias));
+        this.variacaoRespostasPercentual.set(comparativo?.delta_percentual ?? this.calcularVariacaoPercentualFallback());
+        this.variacaoRespostasPositiva.set(comparativo?.positiva ?? this.variacaoRespostasAbsoluta() >= 0);
+        this.taxaAprovacaoResumo.set(dash.taxa_aprovacao ?? 0);
+        this.linksPublicosCount.set(dash.links_publicos_count ?? 0);
         this.atualizarWizardOnboarding(dash);
         const respostasPorTemplate = dash.respostas_por_template ?? {};
-        this.ultimasSubmissoes = (dash.ultimas_submissoes ?? []).map((s) => ({
+        this.ultimasSubmissoes.set((dash.ultimas_submissoes ?? []).map((s) => ({
           id: s.id,
           paciente: s.paciente,
           modelo: s.modelo,
           status: this.mapStatusLabel(s.status),
           dataLabel: this.formatarDataSubmissao(s.data),
-        }));
-        this.modelosMaisUsados = (dash.modelos_mais_usados ?? []).slice(0, 5);
+        })));
+        this.modelosMaisUsados.set((dash.modelos_mais_usados ?? []).slice(0, 5));
 
         const byId = new Map(templates.map((t) => [t.id, t]));
-        this.totalTemplates = templates.length;
-        this.ultimosTemplates = (dash.ultimos_templates ?? []).map((t) => {
+        this.totalTemplates.set(templates.length);
+        this.ultimosTemplates.set((dash.ultimos_templates ?? []).map((t) => {
           const full = byId.get(t.id);
           return {
             id: t.id,
@@ -278,74 +278,74 @@ export class DashboardComponent implements OnInit {
             is_active: full?.is_active !== false,
             respostas_count: Number(respostasPorTemplate[t.id] ?? 0),
           };
-        });
+        }));
         this.categoriasResumo = this.aggregateCategories(templates);
 
         const ps = dash.por_status ?? {};
-        this.porStatus = {
+        this.porStatus.set({
           pending: Number(ps['pending'] ?? ps['Pending'] ?? 0),
           approved: Number(ps['approved'] ?? ps['Approved'] ?? 0),
           rejected: Number(ps['rejected'] ?? ps['Rejected'] ?? 0),
-        };
+        });
 
         this.reconstruirGraficos();
       },
       error: (err: unknown) => {
-        this.dashReady = true;
+        this.dashReady.set(true);
         if (isBillingBlockedError(err)) {
-          this.painelBloqueadoCobranca = true;
-          this.estadoErro = false;
+          this.painelBloqueadoCobranca.set(true);
+          this.estadoErro.set(false);
           return;
         }
-        this.painelBloqueadoCobranca = false;
-        this.estadoErro = true;
-        this.mensagemErro = 'Não foi possível carregar o painel.';
+        this.painelBloqueadoCobranca.set(false);
+        this.estadoErro.set(true);
+        this.mensagemErro.set('Não foi possível carregar o painel.');
       },
     });
   }
 
   selecionarPeriodo(days: number): void {
-    this.periodoSelecionado = days;
+    this.periodoSelecionado.set(days);
     this.reconstruirGraficos();
   }
 
   // ============ GRÁFICOS ============
 
   private reconstruirGraficos(): void {
-    this.areaChart = this.buildAreaChart(this.serieEvolucao());
-    this.donutChart = this.buildDonutChart(
-      this.porStatus.pending,
-      this.porStatus.approved,
-      this.porStatus.rejected,
-    );
-    this.barChart = this.buildBarChart(this.modelosMaisUsados);
+    this.areaChart.set(this.buildAreaChart(this.serieEvolucao()));
+    this.donutChart.set(this.buildDonutChart(
+      this.porStatus().pending,
+      this.porStatus().approved,
+      this.porStatus().rejected,
+    ));
+    this.barChart.set(this.buildBarChart(this.modelosMaisUsados()));
   }
 
   /** Série sintética para o gráfico de área a partir de dados agregados. */
   private serieEvolucao(): { label: string; valor: number }[] {
-    const semanaAnterior = Math.max(0, this.ultimos7Dias - this.variacaoRespostasAbsoluta);
+    const semanaAnterior = Math.max(0, this.ultimos7Dias() - this.variacaoRespostasAbsoluta());
     const media30 = this.mediaSemanalUltimos30Dias;
 
-    if (this.periodoSelecionado === 30) {
+    if (this.periodoSelecionado() === 30) {
       // 4 semanas aproximadas
-      const perWeek = this.ultimos30Dias / 4;
+      const perWeek = this.ultimos30Dias() / 4;
       return [
         { label: 'Sem 1', valor: Math.round(perWeek * 0.85) },
         { label: 'Sem 2', valor: Math.round(perWeek * 1.05) },
         { label: 'Sem 3', valor: Math.round(perWeek * 0.95) },
-        { label: 'Sem atual', valor: this.ultimos7Dias },
+        { label: 'Sem atual', valor: this.ultimos7Dias() },
       ];
     }
-    if (this.periodoSelecionado === 90) {
+    if (this.periodoSelecionado() === 90) {
       return [
-        { label: '30d', valor: this.ultimos30Dias },
-        { label: '60d', valor: this.ultimos30Dias * 2 },
-        { label: '90d', valor: this.ultimos30Dias * 3 },
+        { label: '30d', valor: this.ultimos30Dias() },
+        { label: '60d', valor: this.ultimos30Dias() * 2 },
+        { label: '90d', valor: this.ultimos30Dias() * 3 },
       ];
     }
     return [
       { label: 'Sem. anterior', valor: semanaAnterior },
-      { label: 'Sem. atual', valor: this.ultimos7Dias },
+      { label: 'Sem. atual', valor: this.ultimos7Dias() },
       { label: 'Média 30d', valor: media30 },
     ];
   }
@@ -608,9 +608,9 @@ export class DashboardComponent implements OnInit {
   private calcularVariacaoPercentualFallback(): number {
     const base = this.mediaSemanalUltimos30Dias;
     if (base <= 0) {
-      return this.ultimos7Dias > 0 ? 100 : 0;
+      return this.ultimos7Dias() > 0 ? 100 : 0;
     }
-    return Math.round((this.variacaoRespostasAbsoluta / base) * 100);
+    return Math.round((this.variacaoRespostasAbsoluta() / base) * 100);
   }
 
   private formatarDataSubmissao(s: string | null): string {
@@ -633,18 +633,17 @@ export class DashboardComponent implements OnInit {
   private atualizarWizardOnboarding(dash: { onboarding?: { needs_public_link?: boolean }; links_publicos_count?: number }): void {
     const orgId = this.authService.getCurrentOrganizationId();
     const needsLink = dash.onboarding?.needs_public_link ?? (dash.links_publicos_count ?? 0) === 0;
-    this.mostrarWizardOnboarding =
-      !this.semClinica &&
+    this.mostrarWizardOnboarding.set(!this.semClinica() &&
       needsLink &&
-      !ZmDashboardOnboardingWizardComponent.isDismissedForOrg(orgId);
+      !ZmDashboardOnboardingWizardComponent.isDismissedForOrg(orgId));
   }
 
   onWizardOnboardingDismissed(): void {
-    this.mostrarWizardOnboarding = false;
+    this.mostrarWizardOnboarding.set(false);
   }
 
   onWizardLinkGenerated(): void {
-    this.linksPublicosCount = Math.max(1, this.linksPublicosCount + 1);
-    this.mostrarWizardOnboarding = false;
+    this.linksPublicosCount.set(Math.max(1, this.linksPublicosCount() + 1));
+    this.mostrarWizardOnboarding.set(false);
   }
 }

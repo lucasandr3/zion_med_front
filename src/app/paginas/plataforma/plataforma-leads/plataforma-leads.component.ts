@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, Signal } from '@angular/core';
+import { Component, OnInit, inject, Signal, ChangeDetectionStrategy, signal } from '@angular/core';
 import { ZardCardComponent } from '@/shared/components/card/card.component';
 import { PlataformaService, PlatformLead } from '../../../core/services/plataforma.service';
 import { LoadingService } from '../../../shared/services/loading.service';
@@ -8,6 +8,7 @@ import { ZardTableImports } from '@/shared/components/table';
 @Component({
   selector: 'app-plataforma-leads',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     ...ZardTableImports,
     ZardCardComponent,
@@ -19,9 +20,9 @@ import { ZardTableImports } from '@/shared/components/table';
 })
 export class PlataformaLeadsComponent implements OnInit {
   showSkeleton!: Signal<boolean>;
-  listaPronta = false;
-  estadoErro = false;
-  leads: PlatformLead[] = [];
+  readonly listaPronta = signal(false);
+  readonly estadoErro = signal(false);
+  readonly leads = signal<PlatformLead[]>([]);
 
   private plataformaService = inject(PlataformaService);
   private loadingService = inject(LoadingService);
@@ -31,12 +32,12 @@ export class PlataformaLeadsComponent implements OnInit {
     this.showSkeleton = showSkeleton;
     data$.subscribe({
       next: (res) => {
-        this.listaPronta = true;
-        this.leads = res.data ?? [];
+        this.listaPronta.set(true);
+        this.leads.set(res.data ?? []);
       },
       error: () => {
-        this.listaPronta = true;
-        this.estadoErro = true;
+        this.listaPronta.set(true);
+        this.estadoErro.set(true);
       },
     });
   }

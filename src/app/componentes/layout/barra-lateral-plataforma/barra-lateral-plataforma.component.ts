@@ -2,17 +2,18 @@ import {
   Component,
   Input,
   OnInit,
-  OnDestroy,
   inject,
   PLATFORM_ID,
-  ChangeDetectorRef,
+  ChangeDetectionStrategy,
+  effect,
+  signal,
 } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
-import { Subscription } from 'rxjs';
 import { AuthService } from '../../../core/services/auth.service';
 import { resolveSidebarLogoSrc } from '../../../core/utils/sidebar-logo.util';
 import { SidebarMobileService } from '../../../core/services/sidebar-mobile.service';
+import { ShellSidebarCollapseService } from '../../../core/services/shell-sidebar-collapse.service';
 import { ZardTooltipImports } from '@/shared/components/tooltip';
 import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
 import { ZardButtonComponent } from '@/shared/components/button/button.component';
@@ -23,6 +24,7 @@ import { ZardAvatarComponent } from '@/shared/components/avatar/avatar.component
 @Component({
   selector: 'app-barra-lateral-plataforma',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     RouterLink,
     RouterLinkActive,
@@ -36,55 +38,39 @@ import { ZardAvatarComponent } from '@/shared/components/avatar/avatar.component
   templateUrl: './barra-lateral-plataforma.component.html',
   styleUrl: './barra-lateral-plataforma.component.css',
 })
-export class BarraLateralPlataformaComponent implements OnInit, OnDestroy {
-  /** Contador vindo do layout (mesmo valor do cabeçalho). */
+export class BarraLateralPlataformaComponent implements OnInit {
   @Input() notificacoesNaoLidas = 0;
-  nomeUsuario = 'Usuário';
-  iniciaisUsuario = 'U';
-  emailUsuario = '';
 
-  /** Com Topo e marca, variante do logo em `assets/logo` conforme o tema. */
-  sidebarLogoSrc = '/assets/logo/logo.png';
+  private readonly nomeUsuarioSignal = signal('Usuário');
+  private readonly iniciaisUsuarioSignal = signal('U');
+  private readonly emailUsuarioSignal = signal('');
+  private readonly sidebarLogoSrcSignal = signal('/assets/logo/logo.png');
 
-  private auth = inject(AuthService);
-  private router = inject(Router);
-  private sidebarMobile = inject(SidebarMobileService);
+  readonly nomeUsuario = this.nomeUsuarioSignal.asReadonly();
+  readonly iniciaisUsuario = this.iniciaisUsuarioSignal.asReadonly();
+  readonly emailUsuario = this.emailUsuarioSignal.asReadonly();
+  readonly sidebarLogoSrc = this.sidebarLogoSrcSignal.asReadonly();
 
-  sidebarOpenMobile = false;
-  sidebarColapsada = false;
-  private sidebarObserver: MutationObserver | null = null;
-  private appearanceSub?: Subscription;
-  private platformId = inject(PLATFORM_ID);
-  private cdr = inject(ChangeDetectorRef);
+  private readonly auth = inject(AuthService);
+  private readonly router = inject(Router);
+  private readonly sidebarMobile = inject(SidebarMobileService);
+  private readonly sidebarCollapse = inject(ShellSidebarCollapseService);
+  private readonly platformId = inject(PLATFORM_ID);
+
+  readonly sidebarOpenMobile = this.sidebarMobile.isOpen;
+  readonly sidebarColapsada = this.sidebarCollapse.collapsed;
+
+  constructor() {
+    effect(() => {
+      this.auth.appearanceVersion();
+      this.refreshSidebarLogo();
+    });
+  }
 
   ngOnInit(): void {
+    this.sidebarCollapse.ensureHydrated();
     this.atualizarDados();
-    this.sincronizarEstadoSidebar();
-    this.appearanceSub = this.auth.appearanceApplied$.subscribe(() => {
-      this.refreshSidebarLogo();
-      this.cdr.markForCheck();
-    });
-    this.sidebarMobile.getOpen().subscribe((open) => {
-      this.sidebarOpenMobile = open;
-      if (typeof document !== 'undefined') {
-        document.body.style.overflow = open ? 'hidden' : '';
-      }
-      this.cdr.markForCheck();
-    });
-  }
-
-  ngOnDestroy(): void {
-    this.sidebarObserver?.disconnect();
-    this.appearanceSub?.unsubscribe();
-  }
-
-  private atualizarDados(): void {
-    const u = this.auth.getUser();
-    if (u) {
-      this.nomeUsuario = u.name || 'Usuário';
-      this.emailUsuario = u.email || '';
-      this.iniciaisUsuario = this.nomeUsuario.slice(0, 2).toUpperCase() || 'U';
-    }
+    this.refreshSidebarLogo();
   }
 
   fecharSidebarMobile(): void {
@@ -96,25 +82,21 @@ export class BarraLateralPlataformaComponent implements OnInit, OnDestroy {
   }
 
   tooltipQuandoColapsada(texto: string): string {
-    return this.sidebarColapsada ? texto : '';
+    return this.sidebarColapsada() ? texto : '';
+  }
+
+  private atualizarDados(): void {
+    const u = this.auth.getUser();
+    if (u) {
+      const nome = u.name || 'Usuário';
+      this.nomeUsuarioSignal.set(nome);
+      this.emailUsuarioSignal.set(u.email || '');
+      this.iniciaisUsuarioSignal.set(nome.slice(0, 2).toUpperCase() || 'U');
+    }
   }
 
   private refreshSidebarLogo(): void {
     if (!isPlatformBrowser(this.platformId)) return;
-    this.sidebarLogoSrc = resolveSidebarLogoSrc();
-  }
-
-  private sincronizarEstadoSidebar(): void {
-    if (!isPlatformBrowser(this.platformId) || typeof document === 'undefined') return;
-
-    const atualizar = (): void => {
-      this.sidebarColapsada = document.body.classList.contains('sidebar-collapsed');
-      this.refreshSidebarLogo();
-      this.cdr.markForCheck();
-    };
-
-    atualizar();
-    this.sidebarObserver = new MutationObserver(atualizar);
-    this.sidebarObserver.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+    this.sidebarLogoSrcSignal.set(resolveSidebarLogoSrc());
   }
 }

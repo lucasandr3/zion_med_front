@@ -1,8 +1,8 @@
 <div class="templates-campos relative min-h-[320px]">
   @if (showSkeleton()) {
     <zm-skeleton-template-campos />
-  } @else if (!listaPronta) {
-  } @else if (template) {
+  } @else if (!listaPronta()) {
+  } @else if (template()) {
     <div class="zm-content-enter">
       <div class="mb-6 flex flex-wrap items-center gap-2.5">
         <zm-page-back-link />
@@ -39,15 +39,15 @@
               zType="outline"
               zSize="sm"
               class="inline-flex items-center gap-1.5"
-              [zLoading]="aplicandoEstruturaTcle"
-              [zDisabled]="aplicandoEstruturaTcle"
+              [zLoading]="aplicandoEstruturaTcle()"
+              [zDisabled]="aplicandoEstruturaTcle()"
               (click)="aplicarEstruturaTcle()"
             >
               <span class="material-symbols-outlined text-sm" aria-hidden="true">account_tree</span>
               Aplicar estrutura TCLE
             </button>
           }
-          @if (linkPublicoUrl) {
+          @if (linkPublicoUrl()) {
             <button
               type="button"
               z-button
@@ -62,7 +62,7 @@
               z-button
               zType="outline"
               zSize="sm"
-              [href]="linkPublicoUrl"
+              [href]="linkPublicoUrl()"
               target="_blank"
               rel="noopener"
               class="inline-flex items-center gap-1.5 no-underline"
@@ -76,14 +76,14 @@
               zType="outline"
               zSize="sm"
               class="inline-flex items-center gap-1.5"
-              [zLoading]="desativandoLink"
-              [zDisabled]="desativandoLink"
+              [zLoading]="desativandoLink()"
+              [zDisabled]="desativandoLink()"
               (click)="desativarLink()"
             >
-              @if (!desativandoLink) {
+              @if (!desativandoLink()) {
                 <span class="material-symbols-outlined text-sm" aria-hidden="true">link_off</span>
               }
-              {{ desativandoLink ? 'Desativando…' : 'Desativar link' }}
+              {{ desativandoLink() ? 'Desativando…' : 'Desativar link' }}
             </button>
           } @else {
             <button
@@ -91,14 +91,14 @@
               z-button
               zSize="sm"
               class="inline-flex items-center gap-1.5"
-              [zLoading]="gerandoLink"
-              [zDisabled]="gerandoLink"
+              [zLoading]="gerandoLink()"
+              [zDisabled]="gerandoLink()"
               (click)="gerarLink()"
             >
-              @if (!gerandoLink) {
+              @if (!gerandoLink()) {
                 <span class="material-symbols-outlined text-sm" aria-hidden="true">link</span>
               }
-              {{ gerandoLink ? 'Publicando…' : 'Publicar link' }}
+              {{ gerandoLink() ? 'Publicando…' : 'Publicar link' }}
             </button>
           }
         </div>
@@ -185,8 +185,8 @@
                 type="button"
                 z-button
                 zSize="sm"
-                [zLoading]="salvandoActorsRules"
-                [zDisabled]="salvandoActorsRules"
+                [zLoading]="salvandoActorsRules()"
+                [zDisabled]="salvandoActorsRules()"
                 (click)="salvarActorsVisibilityRules()"
               >
                 Salvar regras do responsável
@@ -196,8 +196,8 @@
         </z-card>
       }
 
-      @if (erro) {
-        <p class="mb-4 text-sm text-destructive">{{ erro }}</p>
+      @if (erro()) {
+        <p class="mb-4 text-sm text-destructive">{{ erro() }}</p>
       }
 
       <z-card class="mb-4 gap-0 overflow-hidden border-border bg-card py-0 shadow-sm">
@@ -293,14 +293,14 @@
               z-button
               zSize="sm"
               class="inline-flex items-center gap-1.5"
-              [zLoading]="salvandoCampo"
-              [zDisabled]="salvandoCampo || !novoLabel.trim()"
+              [zLoading]="salvandoCampo()"
+              [zDisabled]="salvandoCampo() || !novoLabel.trim()"
               (click)="adicionarCampo()"
             >
-              @if (!salvandoCampo) {
+              @if (!salvandoCampo()) {
                 <span class="material-symbols-outlined text-sm" aria-hidden="true">add</span>
               }
-              {{ salvandoCampo ? 'Salvando…' : 'Adicionar campo' }}
+              {{ salvandoCampo() ? 'Salvando…' : 'Adicionar campo' }}
             </button>
           </div>
         </div>
@@ -310,7 +310,7 @@
         <div class="flex items-center justify-between gap-2 border-b border-border px-5 py-4 sm:px-6">
           <div class="flex items-center gap-2 text-sm font-semibold text-foreground">
             Campos configurados
-            <z-badge zType="secondary" zShape="pill" class="h-5 px-2 text-xs font-semibold">{{ campos.length }}</z-badge>
+            <z-badge zType="secondary" zShape="pill" class="h-5 px-2 text-xs font-semibold">{{ campos().length }}</z-badge>
           </div>
         </div>
 
@@ -327,8 +327,8 @@
                 <th z-table-head class="w-[110px] text-center">Ações</th>
               </tr>
             </thead>
-            <tbody z-table-body cdkDropList [cdkDropListData]="campos" (cdkDropListDropped)="onCamposDrop($event)" [cdkDropListDisabled]="reordenando">
-              @if (campos.length === 0) {
+            <tbody z-table-body cdkDropList [cdkDropListData]="campos()" (cdkDropListDropped)="onCamposDrop($event)" [cdkDropListDisabled]="reordenando()">
+              @if (campos().length === 0) {
                 <tr z-table-row>
                   <td z-table-cell colspan="7" class="p-0">
                     <div class="flex flex-col items-center gap-3 px-5 py-14 text-center">
@@ -343,8 +343,8 @@
                   </td>
                 </tr>
               } @else {
-                @for (c of campos; track c.id) {
-                  <tr z-table-row class="border-t border-border transition-colors hover:bg-muted/50" cdkDrag [cdkDragDisabled]="reordenando">
+                @for (c of campos(); track c.id) {
+                  <tr z-table-row class="border-t border-border transition-colors hover:bg-muted/50" cdkDrag [cdkDragDisabled]="reordenando()">
                     <td z-table-cell class="px-4 py-3">
                       <button
                         type="button"
@@ -402,8 +402,8 @@
                           class="text-destructive hover:text-destructive"
                           zTooltip="Remover campo"
                           aria-label="Remover campo"
-                          [zLoading]="removendoId === c.id"
-                          [zDisabled]="removendoId === c.id"
+                          [zLoading]="removendoId() === c.id"
+                          [zDisabled]="removendoId() === c.id"
                           (click)="removerCampo(c)"
                         >
                           <span class="material-symbols-outlined text-sm">delete</span>
@@ -420,8 +420,8 @@
     </div>
   }
 
-  @if (listaPronta && !template && erro) {
-    <p class="text-sm text-destructive">{{ erro }}</p>
+  @if (listaPronta() && !template() && erro()) {
+    <p class="text-sm text-destructive">{{ erro() }}</p>
   }
 </div>
 
@@ -591,11 +591,11 @@
           type="button"
           z-button
           zSize="sm"
-          [zLoading]="salvandoCampo"
-          [zDisabled]="salvandoCampo"
+          [zLoading]="salvandoCampo()"
+          [zDisabled]="salvandoCampo()"
           (click)="salvarEdicao()"
         >
-          {{ salvandoCampo ? 'Salvando…' : 'Salvar' }}
+          {{ salvandoCampo() ? 'Salvando…' : 'Salvar' }}
         </button>
       </div>
     </z-card>

@@ -1,18 +1,18 @@
 <div class="templates-editar relative min-h-[200px]">
   @if (showSkeleton()) {
     <zm-skeleton-template-formulario [editMode]="true" />
-  } @else if (!listaPronta) {
-  } @else if (erro && !template) {
-    <p class="text-sm text-destructive">{{ erro }}</p>
-  } @else if (template) {
+  } @else if (!listaPronta()) {
+  } @else if (erro() && !template()) {
+    <p class="text-sm text-destructive">{{ erro() }}</p>
+  } @else if (template()) {
     <div class="zm-content-enter">
       <z-card class="gap-0 border-border bg-card py-5 shadow-sm **:data-[slot=card-content]:px-5">
         <p class="mb-5 text-sm text-muted-foreground">
           Atualize os dados básicos do modelo. As alterações nos campos do formulário são feitas na tela de campos.
         </p>
 
-        @if (erro) {
-          <p class="mb-4 text-sm text-destructive">{{ erro }}</p>
+        @if (erro()) {
+          <p class="mb-4 text-sm text-destructive">{{ erro() }}</p>
         }
 
         <form (ngSubmit)="salvar()" class="flex flex-col gap-5">
@@ -225,9 +225,9 @@
             </fieldset>
             <p class="m-0 text-xs text-muted-foreground">
               @if (public_person_link_mode === 'cpf') {
-                Antes de preencher, a pessoa informa o CPF para autorização de acesso ao formulário.
+                Antes de preencher, a pessoa informa CPF e data de nascimento e <strong>confirma o nome</strong> cadastrado na clínica.
               } @else {
-                Antes de preencher, a pessoa informa o código da ficha e a data de nascimento (útil para acompanhamentos).
+                Antes de preencher, a pessoa informa o código da ficha e a data de nascimento e <strong>confirma o nome</strong> (útil para acompanhamentos).
               }
             </p>
           }
@@ -239,13 +239,13 @@
               z-button
               zSize="sm"
               class="inline-flex items-center gap-2"
-              [zLoading]="salvando"
-              [zDisabled]="salvando || !name.trim() || (categoriaSelecionada === '__nova__' && !novaCategoria.trim())"
+              [zLoading]="salvando()"
+              [zDisabled]="salvando() || !name.trim() || (categoriaSelecionada === '__nova__' && !novaCategoria.trim())"
             >
-              @if (!salvando) {
+              @if (!salvando()) {
                 <span class="material-symbols-outlined text-base" aria-hidden="true">save</span>
               }
-              {{ salvando ? 'Salvando…' : 'Salvar alterações' }}
+              {{ salvando() ? 'Salvando…' : 'Salvar alterações' }}
             </button>
             <a routerLink="/templates" z-button zType="ghost" zSize="sm" class="no-underline" title="Cancelar edição">
               Cancelar

@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, Signal } from '@angular/core';
+import { Component, OnInit, inject, Signal, ChangeDetectionStrategy, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   BillingPayment,
@@ -20,6 +20,7 @@ import { statusAssinaturaOuCobrancaPt, statusFaturaPt } from '../../core/utils/s
 @Component({
   selector: 'app-pagina-billing',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, ZmSkeletonListComponent, ZmAssinaturaBloqueadaCardComponent],
   templateUrl: './billing.component.html',
   styleUrl: './billing.component.css',
@@ -32,86 +33,85 @@ export class BillingComponent implements OnInit {
   private toast = inject(ToastService);
   private confirm = inject(ConfirmDialogService);
 
-  state: BillingState | null = null;
-  planos: PlanoComChave[] = [];
-  assinaturaAtiva: Subscription | null = null;
+  readonly state = signal<BillingState | null>(null);
+  readonly planos = signal<PlanoComChave[]>([]);
+  readonly assinaturaAtiva = signal<Subscription | null>(null);
   showSkeleton!: Signal<boolean>;
-  listaPronta = false;
-  erro = '';
-  erroCobrancaBloqueada = false;
-  acaoEmAndamento = false;
-  formaPagamento: BillingType = 'PIX';
-  pixExpandidoId: number | null = null;
+  readonly listaPronta = signal(false);
+  readonly erro = signal('');
+  readonly erroCobrancaBloqueada = signal(false);
+  readonly acaoEmAndamento = signal(false);
+  readonly formaPagamento = signal<BillingType>('PIX');
+  readonly pixExpandidoId = signal<number | null>(null);
 
   ngOnInit(): void {
     this.carregar();
   }
 
   carregar(): void {
-    this.erro = '';
-    this.erroCobrancaBloqueada = false;
+    this.erro.set('');
+    this.erroCobrancaBloqueada.set(false);
     const { data$, showSkeleton } = this.loadingService.loadWithThreshold(this.billingService.get());
     this.showSkeleton = showSkeleton;
     data$.subscribe({
       next: (data: BillingState) => {
-        this.listaPronta = true;
-        this.erroCobrancaBloqueada = false;
-        this.state = data;
-        this.planos = Object.entries(data.plans ?? {}).map(([key, p]) => ({ ...p, key }));
-        this.assinaturaAtiva =
-          data.subscriptions.find(
+        this.listaPronta.set(true);
+        this.erroCobrancaBloqueada.set(false);
+        this.state.set(data);
+        this.planos.set(Object.entries(data.plans ?? {}).map(([key, p]) => ({ ...p, key })));
+        this.assinaturaAtiva.set(data.subscriptions.find(
             (s) => String(s.status).toLowerCase() === 'active' && s.asaas_subscription_id
-          ) ?? null;
+          ) ?? null);
         const pendentePix = this.pagamentos.find((p) => this.pagamentoPendente(p) && this.temPix(p));
-        this.pixExpandidoId = pendentePix?.id ?? null;
+        this.pixExpandidoId.set(pendentePix?.id ?? null);
       },
       error: (err: unknown) => {
-        this.listaPronta = true;
+        this.listaPronta.set(true);
         if (isBillingBlockedError(err)) {
-          this.erroCobrancaBloqueada = true;
-          this.erro = '';
+          this.erroCobrancaBloqueada.set(true);
+          this.erro.set('');
           return;
         }
-        this.erroCobrancaBloqueada = false;
-        this.erro = 'Não foi possível carregar os dados da assinatura.';
+        this.erroCobrancaBloqueada.set(false);
+        this.erro.set('Não foi possível carregar os dados da assinatura.');
       },
     });
   }
 
   get statusAssinatura(): string {
-    const o = this.state?.organization ?? this.state?.clinic;
+    const o = this.state()?.organization ?? this.state()?.clinic;
     const raw = o?.subscription_status ?? o?.billing_status ?? 'trial';
     return statusAssinaturaOuCobrancaPt(raw);
   }
 
   /** Cartão “Assinatura ativa” + cancelar — só quando a API indica gestão normal. */
   get mostrarCartaoGerenciado(): boolean {
-    return !!this.state?.billing_ui?.show_managed_subscription_card;
+    return !!this.state()?.billing_ui?.show_managed_subscription_card;
   }
 
   get mostrarPendenciaPrimeiroPagamento(): boolean {
-    return !!this.state?.billing_ui?.show_pending_first_payment;
+    return !!this.state()?.billing_ui?.show_pending_first_payment;
   }
 
   get mensagemPendenciaPrimeiroPagamento(): string {
-    return this.state?.billing_ui?.pending_first_payment_message ?? '';
+    return this.state()?.billing_ui?.pending_first_payment_message ?? '';
   }
 
   get mostrarSelecaoPlano(): boolean {
-    return this.state?.billing_ui?.show_plan_selection !== false;
+    return this.state()?.billing_ui?.show_plan_selection !== false;
   }
 
   get pagamentos(): BillingPayment[] {
-    const all = this.state?.payments ?? [];
+    const all = this.state()?.payments ?? [];
     return filterPaymentsWhenSubscriptionCanceled(all, {
-      subscriptions: this.state?.subscriptions ?? [],
-      organization: this.state?.organization ?? this.state?.clinic,
+      subscriptions: this.state()?.subscriptions ?? [],
+      organization: this.state()?.organization ?? this.state()?.clinic,
       showPendingFirstPayment: this.mostrarPendenciaPrimeiroPagamento,
     });
   }
 
   get trialAte(): string {
-    const o = this.state?.organization;
+    const o = this.state()?.organization;
     if (!o?.is_on_trial || !o?.trial_ends_at) {
       return '';
     }
@@ -141,13 +141,13 @@ export class BillingComponent implements OnInit {
     if (this.mostrarPendenciaPrimeiroPagamento) {
       return 'Escolha um plano para continuar';
     }
-    if (this.mostrarCartaoGerenciado && this.assinaturaAtiva) {
+    if (this.mostrarCartaoGerenciado && this.assinaturaAtiva()) {
       return 'Sua assinatura está em dia';
     }
     if (this.trialAte) {
       return 'Período de teste em andamento';
     }
-    if (this.mostrarSelecaoPlano && !this.assinaturaAtiva) {
+    if (this.mostrarSelecaoPlano && !this.assinaturaAtiva()) {
       return 'Ative sua assinatura';
     }
     return 'Gerencie sua assinatura';
@@ -160,13 +160,13 @@ export class BillingComponent implements OnInit {
     if (this.mostrarPendenciaPrimeiroPagamento) {
       return 'Selecione o plano e a forma de pagamento. Depois de confirmar, siga as instruções de PIX ou boleto que aparecerão nesta tela.';
     }
-    if (this.mostrarCartaoGerenciado && this.assinaturaAtiva) {
+    if (this.mostrarCartaoGerenciado && this.assinaturaAtiva()) {
       return 'Acompanhe cobranças, veja a próxima data de cobrança e cancele a assinatura quando precisar.';
     }
     if (this.trialAte) {
       return `Seu teste termina em ${this.trialAte}. Antes dessa data, escolha um plano para não interromper o acesso.`;
     }
-    if (this.mostrarSelecaoPlano && !this.assinaturaAtiva) {
+    if (this.mostrarSelecaoPlano && !this.assinaturaAtiva()) {
       return 'Escolha o plano ideal e defina PIX ou boleto como forma de pagamento recorrente.';
     }
     return 'Acompanhe status, cobranças e planos disponíveis para sua conta.';
@@ -194,18 +194,18 @@ export class BillingComponent implements OnInit {
   }
 
   get nomePlanoAtual(): string {
-    const key = this.assinaturaAtiva?.plan_key ?? this.state?.organization?.plan_key ?? null;
+    const key = this.assinaturaAtiva()?.plan_key ?? this.state()?.organization?.plan_key ?? null;
     if (!key) {
       return '';
     }
-    return this.planos.find((p) => p.key === key)?.name ?? key;
+    return this.planos().find((p) => p.key === key)?.name ?? key;
   }
 
   planoAguardandoPagamento(plano: PlanoComChave): boolean {
     return (
       this.mostrarPendenciaPrimeiroPagamento &&
-      !!this.assinaturaAtiva &&
-      this.assinaturaAtiva.plan_key === plano.key &&
+      !!this.assinaturaAtiva() &&
+      this.assinaturaAtiva()!.plan_key === plano.key &&
       this.temCobrancaPendente
     );
   }
@@ -224,27 +224,27 @@ export class BillingComponent implements OnInit {
   /** Só “Plano atual” sem botão quando a assinatura está em modo gerenciado (não pendência pós-trial). */
   somenteRotuloPlanoAtual(plano: PlanoComChave): boolean {
     return (
-      !!this.assinaturaAtiva &&
-      this.assinaturaAtiva.plan_key === plano.key &&
+      !!this.assinaturaAtiva() &&
+      this.assinaturaAtiva()!.plan_key === plano.key &&
       this.mostrarCartaoGerenciado
     );
   }
 
   rotuloBotaoPlano(plano: PlanoComChave): string {
-    if (!this.assinaturaAtiva) {
+    if (!this.assinaturaAtiva()) {
       return 'Assinar';
     }
     if (this.mostrarPendenciaPrimeiroPagamento) {
-      return this.assinaturaAtiva.plan_key === plano.key ? 'Assinar novamente' : 'Assinar com este plano';
+      return this.assinaturaAtiva()!.plan_key === plano.key ? 'Assinar novamente' : 'Assinar com este plano';
     }
-    if (this.assinaturaAtiva.plan_key === plano.key) {
+    if (this.assinaturaAtiva()!.plan_key === plano.key) {
       return 'Assinar';
     }
     return 'Trocar para este plano';
   }
 
   acaoPlano(plano: PlanoComChave): void {
-    if (!this.assinaturaAtiva || this.mostrarPendenciaPrimeiroPagamento) {
+    if (!this.assinaturaAtiva() || this.mostrarPendenciaPrimeiroPagamento) {
       this.checkout(plano.key);
       return;
     }
@@ -252,7 +252,7 @@ export class BillingComponent implements OnInit {
   }
 
   selecionarFormaPagamento(tipo: BillingType): void {
-    this.formaPagamento = tipo;
+    this.formaPagamento.set(tipo);
   }
 
   pagamentoPendente(p: BillingPayment): boolean {
@@ -265,7 +265,7 @@ export class BillingComponent implements OnInit {
   }
 
   alternarPix(p: BillingPayment): void {
-    this.pixExpandidoId = this.pixExpandidoId === p.id ? null : p.id;
+    this.pixExpandidoId.set(this.pixExpandidoId() === p.id ? null : p.id);
   }
 
   async copiarPix(codigo: string): Promise<void> {
@@ -280,11 +280,11 @@ export class BillingComponent implements OnInit {
   }
 
   checkout(planKey: string): void {
-    this.acaoEmAndamento = true;
-    this.erro = '';
-    this.billingService.checkout(planKey, this.formaPagamento).subscribe({
+    this.acaoEmAndamento.set(true);
+    this.erro.set('');
+    this.billingService.checkout(planKey, this.formaPagamento()).subscribe({
       next: (res) => {
-        this.acaoEmAndamento = false;
+        this.acaoEmAndamento.set(false);
         this.toast.success(
           'Assinatura criada',
           res.data?.message ?? 'Plano selecionado. Pague a cobrança gerada abaixo para ativar o acesso.'
@@ -292,9 +292,9 @@ export class BillingComponent implements OnInit {
         this.carregar();
       },
       error: (err) => {
-        this.acaoEmAndamento = false;
-        this.erro = err.error?.message ?? 'Não foi possível assinar.';
-        this.toast.error('Erro na assinatura', this.erro);
+        this.acaoEmAndamento.set(false);
+        this.erro.set(err.error?.message ?? 'Não foi possível assinar.');
+        this.toast.error('Erro na assinatura', this.erro());
       },
     });
   }
@@ -307,18 +307,18 @@ export class BillingComponent implements OnInit {
       variant: 'danger',
     });
     if (!ok) return;
-    this.acaoEmAndamento = true;
-    this.erro = '';
+    this.acaoEmAndamento.set(true);
+    this.erro.set('');
     this.billingService.cancelSubscription(sub.id).subscribe({
       next: (res) => {
-        this.acaoEmAndamento = false;
+        this.acaoEmAndamento.set(false);
         this.toast.success('Assinatura cancelada', res.data?.message ?? 'Sua assinatura foi cancelada.');
         this.carregar();
       },
       error: (err) => {
-        this.acaoEmAndamento = false;
-        this.erro = err.error?.message ?? 'Não foi possível cancelar.';
-        this.toast.error('Erro', this.erro);
+        this.acaoEmAndamento.set(false);
+        this.erro.set(err.error?.message ?? 'Não foi possível cancelar.');
+        this.toast.error('Erro', this.erro());
       },
     });
   }
@@ -331,18 +331,18 @@ export class BillingComponent implements OnInit {
       variant: 'neutral',
     });
     if (!ok) return;
-    this.acaoEmAndamento = true;
-    this.erro = '';
-    this.billingService.changePlan(planKey, this.formaPagamento).subscribe({
+    this.acaoEmAndamento.set(true);
+    this.erro.set('');
+    this.billingService.changePlan(planKey, this.formaPagamento()).subscribe({
       next: (res) => {
-        this.acaoEmAndamento = false;
+        this.acaoEmAndamento.set(false);
         this.toast.success('Plano alterado', res.data?.message ?? 'O plano foi atualizado.');
         this.carregar();
       },
       error: (err) => {
-        this.acaoEmAndamento = false;
-        this.erro = err.error?.message ?? 'Não foi possível trocar o plano.';
-        this.toast.error('Erro', this.erro);
+        this.acaoEmAndamento.set(false);
+        this.erro.set(err.error?.message ?? 'Não foi possível trocar o plano.');
+        this.toast.error('Erro', this.erro());
       },
     });
   }

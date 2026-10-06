@@ -1,22 +1,22 @@
 <div class="links-publicos relative min-h-[320px]">
   @if (showSkeleton()) {
     <zm-skeleton-links-publicos [rows]="3" />
-  } @else if (!listaPronta) {
-  } @else if (erro) {
+  } @else if (!listaPronta()) {
+  } @else if (erro()) {
     <z-card class="flex flex-wrap items-center justify-between gap-3 border-border py-5 shadow-sm **:data-[slot=card-content]:px-5">
-      <p class="m-0 text-sm text-destructive">{{ erro }}</p>
-      <button z-button zType="outline" zSize="sm" type="button" class="gap-2" (click)="carregar(meta.current_page)">
+      <p class="m-0 text-sm text-destructive">{{ erro() }}</p>
+      <button z-button zType="outline" zSize="sm" type="button" class="gap-2" (click)="carregar(meta().current_page)">
         <span class="material-symbols-outlined text-base" aria-hidden="true">refresh</span>
         Tentar novamente
       </button>
     </z-card>
   } @else {
     <div class="zm-content-enter flex flex-col gap-4" data-go-tour="links-publicos-list">
-      @if (meta.total > 0) {
+      @if (meta().total > 0) {
         <p class="zm-count-label m-0">{{ contagemTexto() }}</p>
       }
 
-      @for (t of templates; track t.id) {
+      @for (t of templates(); track t.id) {
         <z-card class="links-publicos-card border-border bg-card shadow-sm **:data-[slot=card-content]:p-0">
           <div class="links-publicos-card__head">
             <div class="links-publicos-card__lead">
@@ -44,7 +44,7 @@
                 zSize="icon-sm"
                 class="links-publicos-card__menu-btn"
                 [attr.aria-label]="'Mais opções para ' + t.name"
-                (click)="menuItem = t"
+                (click)="menuItem.set(t)"
               >
                 <span class="material-symbols-outlined text-[1.125rem]">more_vert</span>
               </button>
@@ -58,13 +58,13 @@
               zSize="sm"
               type="button"
               class="links-publicos-card__action"
-              [title]="copiedTemplateId === t.id ? 'Link copiado' : 'Copiar link do formulário'"
+              [title]="copiedTemplateId() === t.id ? 'Link copiado' : 'Copiar link do formulário'"
               (click)="copiarLink(t.id, t.public_url)"
             >
               <span class="material-symbols-outlined text-base" aria-hidden="true">
-                {{ copiedTemplateId === t.id ? 'check' : 'content_copy' }}
+                {{ copiedTemplateId() === t.id ? 'check' : 'content_copy' }}
               </span>
-              {{ copiedTemplateId === t.id ? 'Copiado!' : 'Copiar link' }}
+              {{ copiedTemplateId() === t.id ? 'Copiado!' : 'Copiar link' }}
             </button>
             <a
               z-button
@@ -116,10 +116,10 @@
         </z-card>
       }
 
-      @if (meta.last_page > 1) {
+      @if (meta().last_page > 1) {
         <zm-pagination
-          [currentPage]="meta.current_page"
-          [lastPage]="meta.last_page"
+          [currentPage]="meta().current_page"
+          [lastPage]="meta().last_page"
           (pageChange)="carregar($event)"
         />
       }
@@ -127,9 +127,9 @@
   }
 
   <ng-template #cardMenuTpl>
-    @if (menuItem) {
+    @if (menuItem()) {
       <div z-menu-content class="min-w-48">
-        <a z-menu-item [routerLink]="['/templates', menuItem.id, 'campos']" class="gap-2 text-inherit no-underline">
+        <a z-menu-item [routerLink]="['/templates', menuItem()?.id, 'campos']" class="gap-2 text-inherit no-underline">
           <span class="material-symbols-outlined shrink-0 text-base" aria-hidden="true">tune</span>
           Campos do formulário
         </a>
@@ -137,16 +137,16 @@
           <span class="material-symbols-outlined shrink-0 text-base" aria-hidden="true">description</span>
           Gerenciar templates
         </a>
-        @if (menuItem.public_url) {
-          <button type="button" z-menu-item class="w-full gap-2" (click)="copiarLink(menuItem.id, menuItem.public_url)">
+        @if (menuItem()?.public_url) {
+          <button type="button" z-menu-item class="w-full gap-2" (click)="copiarLink(menuItem()!.id, menuItem()!.public_url)">
             <span class="material-symbols-outlined shrink-0 text-base" aria-hidden="true">content_copy</span>
             Copiar link
           </button>
-          <button type="button" z-menu-item class="w-full gap-2" (click)="abrirQr(menuItem)">
+          <button type="button" z-menu-item class="w-full gap-2" (click)="abrirQr(menuItem()!)">
             <span class="material-symbols-outlined shrink-0 text-base" aria-hidden="true">qr_code_2</span>
             Ver QR code
           </button>
-          <button type="button" z-menu-item class="w-full gap-2" (click)="baixarQrDireto(menuItem)">
+          <button type="button" z-menu-item class="w-full gap-2" (click)="baixarQrDireto(menuItem()!)">
             <span class="material-symbols-outlined shrink-0 text-base" aria-hidden="true">download</span>
             Baixar QR code
           </button>
@@ -155,7 +155,7 @@
     }
   </ng-template>
 
-  @if (qrAberto) {
+  @if (qrAberto()) {
     <div
       class="links-publicos-qr-backdrop"
       role="presentation"
@@ -165,11 +165,11 @@
       class="links-publicos-qr-dialog"
       role="dialog"
       aria-modal="true"
-      [attr.aria-label]="'QR code — ' + (qrItem?.name ?? 'formulário')"
+      [attr.aria-label]="'QR code — ' + (qrItem()?.name ?? 'formulário')"
     >
       <div class="links-publicos-qr-dialog__head">
         <div class="min-w-0">
-          <p class="links-publicos-qr-dialog__title">{{ qrItem?.name }}</p>
+          <p class="links-publicos-qr-dialog__title">{{ qrItem()?.name }}</p>
           <p class="links-publicos-qr-dialog__sub">Escaneie para abrir o formulário</p>
         </div>
         <button
@@ -185,13 +185,13 @@
         </button>
       </div>
       <div class="links-publicos-qr-dialog__body">
-        @if (qrCarregando) {
+        @if (qrCarregando()) {
           <z-skeleton class="links-publicos-qr-dialog__skeleton" />
-        } @else if (qrDataUrl) {
-          <img [src]="qrDataUrl" alt="" class="links-publicos-qr-dialog__img" />
+        } @else if (qrDataUrl()) {
+          <img [src]="qrDataUrl()" alt="" class="links-publicos-qr-dialog__img" />
         }
       </div>
-      @if (qrItem?.public_url) {
+      @if (qrItem()?.public_url) {
         <div class="links-publicos-qr-dialog__actions">
           <button
             z-button
@@ -199,7 +199,7 @@
             zSize="sm"
             type="button"
             class="gap-2"
-            [disabled]="!qrDataUrl"
+            [disabled]="!qrDataUrl()"
             (click)="baixarQr()"
           >
             <span class="material-symbols-outlined text-base" aria-hidden="true">download</span>
@@ -211,7 +211,7 @@
             zSize="sm"
             type="button"
             class="gap-2"
-            (click)="copiarLink(qrItem!.id, qrItem!.public_url)"
+            (click)="copiarLink(qrItem()!.id, qrItem()!.public_url)"
           >
             <span class="material-symbols-outlined text-base" aria-hidden="true">content_copy</span>
             Copiar link

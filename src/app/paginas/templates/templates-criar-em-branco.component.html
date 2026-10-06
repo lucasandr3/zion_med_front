@@ -5,8 +5,8 @@
         Preencha os dados básicos do modelo. Em seguida você poderá adicionar os campos do formulário.
       </p>
 
-      @if (erro) {
-        <p class="mb-4 text-sm text-destructive">{{ erro }}</p>
+      @if (erro()) {
+        <p class="mb-4 text-sm text-destructive">{{ erro() }}</p>
       }
 
       <form (ngSubmit)="salvar()" class="flex flex-col gap-5">
@@ -86,13 +86,13 @@
             z-button
             zSize="sm"
             class="inline-flex items-center gap-2"
-            [zLoading]="salvando"
-            [zDisabled]="salvando || !name.trim() || (categoriaSelecionada === '__nova__' && !novaCategoria.trim())"
+            [zLoading]="salvando()"
+            [zDisabled]="salvando() || !name.trim() || (categoriaSelecionada === '__nova__' && !novaCategoria.trim())"
           >
-            @if (!salvando) {
+            @if (!salvando()) {
               <span class="material-symbols-outlined text-base" aria-hidden="true">save</span>
             }
-            {{ salvando ? 'Criando…' : 'Criar modelo' }}
+            {{ salvando() ? 'Criando…' : 'Criar modelo' }}
           </button>
           <a routerLink="/templates" z-button zType="ghost" zSize="sm" class="no-underline" title="Cancelar criação">
             Cancelar

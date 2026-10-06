@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, Output, EventEmitter, SimpleChanges, inject, signal } from '@angular/core';
+import { Component, Input, OnChanges, Output, EventEmitter, SimpleChanges, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
   PlataformaService,
@@ -33,6 +33,7 @@ const COMPONENT_OPTIONS: Record<string, string> = {
 @Component({
   selector: 'app-plataforma-servicos-tab',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FormsModule,
     ZardCardComponent,
@@ -58,11 +59,11 @@ export class PlataformaServicosTabComponent implements OnChanges {
   readonly activeServico = signal<PlatformServiceId | null>(null);
   readonly componentOptions = COMPONENT_OPTIONS;
 
-  savingSettings = false;
-  savingStatus = false;
-  successSettings = '';
-  successStatus = '';
-  error = '';
+  readonly savingSettings = signal(false);
+  readonly savingStatus = signal(false);
+  readonly successSettings = signal('');
+  readonly successStatus = signal('');
+  readonly error = signal('');
 
   asaasBaseUrl = '';
   asaasApiKey = '';
@@ -161,16 +162,16 @@ export class PlataformaServicosTabComponent implements OnChanges {
 
   selecionarServico(id: PlatformServiceId): void {
     this.activeServico.set(id);
-    this.error = '';
-    this.successSettings = '';
-    this.successStatus = '';
+    this.error.set('');
+    this.successSettings.set('');
+    this.successStatus.set('');
   }
 
   voltarLista(): void {
     this.activeServico.set(null);
-    this.error = '';
-    this.successSettings = '';
-    this.successStatus = '';
+    this.error.set('');
+    this.successSettings.set('');
+    this.successStatus.set('');
   }
 
   statusBadgeType(status: PlatformServiceCard['status']): 'default' | 'destructive' | 'secondary' {
@@ -180,9 +181,9 @@ export class PlataformaServicosTabComponent implements OnChanges {
   }
 
   submitSettings(): void {
-    this.error = '';
-    this.successSettings = '';
-    this.savingSettings = true;
+    this.error.set('');
+    this.successSettings.set('');
+    this.savingSettings.set(true);
 
     this.plataformaService
       .updateSettings({
@@ -212,8 +213,8 @@ export class PlataformaServicosTabComponent implements OnChanges {
       })
       .subscribe({
         next: (res) => {
-          this.savingSettings = false;
-          this.successSettings = 'Configurações salvas.';
+          this.savingSettings.set(false);
+          this.successSettings.set('Configurações salvas.');
           this.toast.success('Configurações salvas', 'O serviço foi atualizado.');
           if (res.data) {
             this.applySettingsData(res.data);
@@ -225,17 +226,17 @@ export class PlataformaServicosTabComponent implements OnChanges {
           this.resendApiKey = '';
         },
         error: () => {
-          this.savingSettings = false;
-          this.error = 'Não foi possível salvar as configurações.';
-          this.toast.error('Erro', this.error);
+          this.savingSettings.set(false);
+          this.error.set('Não foi possível salvar as configurações.');
+          this.toast.error('Erro', this.error());
         },
       });
   }
 
   submitStatus(): void {
-    this.error = '';
-    this.successStatus = '';
-    this.savingStatus = true;
+    this.error.set('');
+    this.successStatus.set('');
+    this.savingStatus.set(true);
 
     this.plataformaService
       .updateStatus({
@@ -246,14 +247,14 @@ export class PlataformaServicosTabComponent implements OnChanges {
       })
       .subscribe({
         next: () => {
-          this.savingStatus = false;
-          this.successStatus = 'Status atualizado.';
+          this.savingStatus.set(false);
+          this.successStatus.set('Status atualizado.');
           this.toast.success('Status atualizado', 'O status operacional foi gravado.');
         },
         error: () => {
-          this.savingStatus = false;
-          this.error = 'Não foi possível atualizar o status.';
-          this.toast.error('Erro', this.error);
+          this.savingStatus.set(false);
+          this.error.set('Não foi possível atualizar o status.');
+          this.toast.error('Erro', this.error());
         },
       });
   }

@@ -18,12 +18,12 @@
     </div>
     <div class="auth-card">
       <div class="auth-card-inner">
-        @if (carregando) {
+        @if (carregando()) {
           <h2 class="auth-card-title">Aguarde…</h2>
           <p class="auth-card-subtitle">Verificando seu e-mail.</p>
         } @else {
-          <h2 class="auth-card-title">{{ sucesso ? 'E-mail verificado' : 'Falha na verificação' }}</h2>
-          <p class="auth-card-subtitle">{{ mensagem }}</p>
+          <h2 class="auth-card-title">{{ sucesso() ? 'E-mail verificado' : 'Falha na verificação' }}</h2>
+          <p class="auth-card-subtitle">{{ mensagem() }}</p>
           <a routerLink="/autenticacao" class="auth-btn">Ir para o login</a>
         }
       </div>

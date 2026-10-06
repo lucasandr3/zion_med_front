@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject, Signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, Signal, ChangeDetectionStrategy, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ZardCardComponent } from '@/shared/components/card/card.component';
 import { ZardButtonComponent } from '@/shared/components/button/button.component';
@@ -13,16 +13,17 @@ import { ConfirmDialogService } from '../../../core/services/confirm-dialog.serv
 @Component({
   selector: 'app-plataforma-planos',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [RouterLink, ZardCardComponent, ZardButtonComponent, ZardBadgeComponent, ZmSkeletonListComponent],
   templateUrl: './plataforma-planos.component.html',
   styleUrl: './plataforma-planos.component.css',
 })
 export class PlataformaPlanosComponent implements OnInit, OnDestroy {
   showSkeleton!: Signal<boolean>;
-  listaPronta = false;
-  estadoErro = false;
-  planos: PlatformPlan[] = [];
-  excluindoId: string | number | null = null;
+  readonly listaPronta = signal(false);
+  readonly estadoErro = signal(false);
+  readonly planos = signal<PlatformPlan[]>([]);
+  readonly excluindoId = signal<string | number | null>(null);
 
   private plataformaService = inject(PlataformaService);
   private headerService = inject(PlataformaHeaderService);
@@ -53,16 +54,16 @@ export class PlataformaPlanosComponent implements OnInit, OnDestroy {
       variant: 'danger',
     });
     if (!ok) return;
-    this.excluindoId = p.id;
+    this.excluindoId.set(p.id);
     this.plataformaService.deletePlan(p.id).subscribe({
       next: () => {
-        this.excluindoId = null;
+        this.excluindoId.set(null);
         this.carregar(false);
         this.toast.success('Plano removido', `${nome} foi excluído.`);
       },
       error: () => {
-        this.excluindoId = null;
-        this.estadoErro = true;
+        this.excluindoId.set(null);
+        this.estadoErro.set(true);
         this.toast.error('Erro', 'Não foi possível remover o plano.');
       },
     });
@@ -73,9 +74,9 @@ export class PlataformaPlanosComponent implements OnInit, OnDestroy {
     this.showSkeleton = showSkeleton;
     data$.subscribe({
       next: (res) => {
-        this.listaPronta = true;
-        this.estadoErro = false;
-        this.planos = res.data ?? [];
+        this.listaPronta.set(true);
+        this.estadoErro.set(false);
+        this.planos.set(res.data ?? []);
         if (setHeader) {
           const trialDays = res.trial_days ?? 14;
           this.headerService.setHeader(
@@ -85,8 +86,8 @@ export class PlataformaPlanosComponent implements OnInit, OnDestroy {
         }
       },
       error: () => {
-        this.listaPronta = true;
-        this.estadoErro = true;
+        this.listaPronta.set(true);
+        this.estadoErro.set(true);
       },
     });
   }

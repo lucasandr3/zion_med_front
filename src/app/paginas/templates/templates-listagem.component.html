@@ -1,21 +1,21 @@
 <div class="templates-colecao templates-listagem-layout relative min-h-[320px]">
-  @if (erro) {
-    <p class="mb-4 text-sm text-destructive">{{ erro }}</p>
+  @if (erro()) {
+    <p class="mb-4 text-sm text-destructive">{{ erro() }}</p>
   }
 
   @if (showSkeleton()) {
     @if (modoColecao) {
       <zm-skeleton-templates-colecao
-        [visual]="modoColecaoVisual === 'lista' ? 'pastas' : 'cards'"
+        [visual]="modoColecaoVisual() === 'lista' ? 'pastas' : 'cards'"
         [cards]="3"
       />
     } @else {
       <zm-skeleton-templates-detalhe
-        [visual]="modoDetalhe === 'tabela' ? 'tabela' : 'cards'"
+        [visual]="modoDetalhe() === 'tabela' ? 'tabela' : 'cards'"
         [cards]="6"
       />
     }
-  } @else if (!listaPronta) {
+  } @else if (!listaPronta()) {
   } @else if (modoColecao) {
     <div class="zm-content-enter">
       <header class="templates-colecao-header">
@@ -39,10 +39,10 @@
             zSize="sm"
             type="button"
             class="shrink-0 gap-1.5"
-            [class.ring-2]="filtrosPainelAberto"
-            [class.ring-ring]="filtrosPainelAberto"
+            [class.ring-2]="filtrosPainelAberto()"
+            [class.ring-ring]="filtrosPainelAberto()"
             (click)="toggleFiltrosPainel()"
-            [attr.aria-expanded]="filtrosPainelAberto ? 'true' : 'false'"
+            [attr.aria-expanded]="filtrosPainelAberto() ? 'true' : 'false'"
             aria-controls="templates-filtros-panel"
           >
             <span class="material-symbols-outlined text-base" aria-hidden="true">filter_alt</span>
@@ -55,7 +55,7 @@
               zSize="sm"
               type="button"
               class="templates-view-btn"
-              [class.templates-view-btn--active]="modoColecaoVisual === 'cards'"
+              [class.templates-view-btn--active]="modoColecaoVisual() === 'cards'"
               (click)="setModoColecaoVisual('cards')"
               title="Visualizar em cards"
             >
@@ -68,7 +68,7 @@
               zSize="sm"
               type="button"
               class="templates-view-btn"
-              [class.templates-view-btn--active]="modoColecaoVisual === 'lista'"
+              [class.templates-view-btn--active]="modoColecaoVisual() === 'lista'"
               (click)="setModoColecaoVisual('lista')"
               title="Visualizar como pastas"
             >
@@ -83,7 +83,7 @@
         </div>
       </header>
 
-      @if (filtrosPainelAberto) {
+      @if (filtrosPainelAberto()) {
         <z-card class="mb-5 gap-0 border-border bg-card py-4 shadow-sm **:data-[slot=card-content]:px-5" role="region">
           <div id="templates-filtros-panel" class="templates-filtros-panel" aria-label="Filtros da coleção">
             <div class="templates-filtros-busca relative min-w-[200px] flex-1 max-w-xs" data-go-tour="templates-search">
@@ -137,7 +137,7 @@
         </z-card>
       }
 
-      @if (templates.length === 0) {
+      @if (templates().length === 0) {
         <z-card class="mb-6 border-dashed border-border bg-muted/30 py-10 shadow-none **:data-[slot=card-content]:px-4">
           <zm-empty-state title="Nenhum modelo cadastrado." actionLabel="Criar modelo" actionLink="/templates/criar-em-branco" />
         </z-card>
@@ -148,7 +148,7 @@
             Limpar filtros
           </button>
         </z-card>
-      } @else if (modoColecaoVisual === 'cards') {
+      } @else if (modoColecaoVisual() === 'cards') {
         <div class="templates-colecao-grid" data-go-tour="templates-list">
           @for (grupo of gruposParaColecao; track grupo.key) {
             <a
@@ -238,10 +238,10 @@
                 zSize="sm"
                 type="button"
                 class="shrink-0 gap-1.5"
-                [class.ring-2]="filtrosPainelAberto"
-                [class.ring-ring]="filtrosPainelAberto"
+                [class.ring-2]="filtrosPainelAberto()"
+                [class.ring-ring]="filtrosPainelAberto()"
                 (click)="toggleFiltrosPainel()"
-                [attr.aria-expanded]="filtrosPainelAberto ? 'true' : 'false'"
+                [attr.aria-expanded]="filtrosPainelAberto() ? 'true' : 'false'"
                 aria-controls="templates-detalhe-filtros"
               >
                 <span class="material-symbols-outlined text-base" aria-hidden="true">filter_alt</span>
@@ -255,7 +255,7 @@
                   zSize="sm"
                   type="button"
                   class="templates-view-btn"
-                  [class.templates-view-btn--active]="modoDetalhe === 'tabela'"
+                  [class.templates-view-btn--active]="modoDetalhe() === 'tabela'"
                   (click)="setModoDetalhe('tabela')"
                   title="Visualizar em tabela"
                 >
@@ -268,7 +268,7 @@
                   zSize="sm"
                   type="button"
                   class="templates-view-btn"
-                  [class.templates-view-btn--active]="modoDetalhe === 'cards'"
+                  [class.templates-view-btn--active]="modoDetalhe() === 'cards'"
                   (click)="setModoDetalhe('cards')"
                   title="Visualizar em cards"
                 >
@@ -285,7 +285,7 @@
           </div>
         </div>
 
-        @if (filtrosPainelAberto) {
+        @if (filtrosPainelAberto()) {
           <z-card class="gap-0 border-border bg-card py-4 shadow-sm **:data-[slot=card-content]:px-5">
             <div id="templates-detalhe-filtros" class="templates-detalhe-filtros">
               <div class="templates-detalhe-busca relative min-w-[240px] flex-1">
@@ -345,7 +345,7 @@
           <z-card class="overflow-hidden border-border bg-card py-0 shadow-sm">
             <div class="p-10 text-center text-sm text-muted-foreground">Nenhum modelo nesta categoria com os filtros atuais.</div>
           </z-card>
-        } @else if (modoDetalhe === 'tabela') {
+        } @else if (modoDetalhe() === 'tabela') {
           <z-card class="zm-table-card gap-0 overflow-hidden rounded-[8px] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
             <div class="zm-table-wrap">
               <table z-table zSize="compact" class="templates-table w-full text-sm">
@@ -399,8 +399,8 @@
                             type="button"
                             [zTooltip]="rotuloPublicar(t)"
                             [attr.aria-label]="rotuloPublicar(t)"
-                            [zDisabled]="publicandoId === t.id"
-                            [zLoading]="publicandoId === t.id"
+                            [zDisabled]="publicandoId() === t.id"
+                            [zLoading]="publicandoId() === t.id"
                             (click)="alternarPublicacao(t, $event)"
                           >
                             <span class="material-symbols-outlined text-sm">{{ iconePublicar(t) }}</span>
@@ -434,8 +434,8 @@
                             type="button"
                             zTooltip="Remover"
                             aria-label="Remover modelo"
-                            [zDisabled]="removendoId === t.id"
-                            [zLoading]="removendoId === t.id"
+                            [zDisabled]="removendoId() === t.id"
+                            [zLoading]="removendoId() === t.id"
                             (click)="remover(t, $event)"
                           >
                             <span class="material-symbols-outlined text-sm">delete</span>
@@ -468,7 +468,7 @@
                     zSize="icon-sm"
                     class="templates-modelo-card__menu-btn"
                     [attr.aria-label]="'Mais opções para ' + t.name"
-                    (click)="menuItem = t"
+                    (click)="menuItem.set(t)"
                   >
                     <span class="material-symbols-outlined text-[1.125rem]" aria-hidden="true">more_vert</span>
                   </button>
@@ -510,8 +510,8 @@
                     class="templates-modelo-card__action templates-modelo-card__action--primary"
                     [title]="rotuloPublicar(t)"
                     [attr.aria-label]="rotuloPublicar(t)"
-                    [zDisabled]="publicandoId === t.id"
-                    [zLoading]="publicandoId === t.id"
+                    [zDisabled]="publicandoId() === t.id"
+                    [zLoading]="publicandoId() === t.id"
                     (click)="alternarPublicacao(t, $event)"
                   >
                     <span class="material-symbols-outlined text-base" aria-hidden="true">{{ iconePublicar(t) }}</span>
@@ -527,13 +527,13 @@
   }
 
   <ng-template #modeloMenuTpl>
-    @if (menuItem) {
+    @if (menuItem()) {
       <div z-menu-content class="min-w-44">
-        <a z-menu-item [routerLink]="['/templates', menuItem.id, 'campos']" class="gap-2 text-inherit no-underline">
+        <a z-menu-item [routerLink]="['/templates', menuItem()?.id, 'campos']" class="gap-2 text-inherit no-underline">
           <span class="material-symbols-outlined shrink-0 text-base" aria-hidden="true">tune</span>
           Campos
         </a>
-        <a z-menu-item [routerLink]="['/templates', menuItem.id, 'editar']" class="gap-2 text-inherit no-underline">
+        <a z-menu-item [routerLink]="['/templates', menuItem()?.id, 'editar']" class="gap-2 text-inherit no-underline">
           <span class="material-symbols-outlined shrink-0 text-base" aria-hidden="true">edit</span>
           Editar
         </a>
@@ -541,8 +541,8 @@
           type="button"
           z-menu-item
           class="w-full gap-2"
-          [zDisabled]="duplicandoId === menuItem.id"
-          (click)="duplicar(menuItem, $event)"
+          [zDisabled]="duplicandoId() === menuItem()?.id"
+          (click)="duplicar(menuItem()!, $event)"
         >
           <span class="material-symbols-outlined shrink-0 text-base" aria-hidden="true">content_copy</span>
           Duplicar
@@ -552,8 +552,8 @@
           z-menu-item
           zType="destructive"
           class="w-full gap-2"
-          [zDisabled]="removendoId === menuItem.id"
-          (click)="remover(menuItem, $event)"
+          [zDisabled]="removendoId() === menuItem()?.id"
+          (click)="remover(menuItem()!, $event)"
         >
           <span class="material-symbols-outlined shrink-0 text-base" aria-hidden="true">delete</span>
           Remover

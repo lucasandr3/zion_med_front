@@ -5,8 +5,8 @@
         type="button"
         class="notif-filtro-btn"
         role="tab"
-        [class.ativo]="filtroPlataforma === 'todas'"
-        [attr.aria-selected]="filtroPlataforma === 'todas'"
+        [class.ativo]="filtroPlataforma() === 'todas'"
+        [attr.aria-selected]="filtroPlataforma() === 'todas'"
         (click)="alterarFiltro('todas')">
         Todas
       </button>
@@ -14,8 +14,8 @@
         type="button"
         class="notif-filtro-btn"
         role="tab"
-        [class.ativo]="filtroPlataforma === 'nao_lidas'"
-        [attr.aria-selected]="filtroPlataforma === 'nao_lidas'"
+        [class.ativo]="filtroPlataforma() === 'nao_lidas'"
+        [attr.aria-selected]="filtroPlataforma() === 'nao_lidas'"
         (click)="alterarFiltro('nao_lidas')">
         Não lidas
         @if (quantidadeNaoLidas > 0) {
@@ -32,27 +32,27 @@
           zSize="sm"
           type="button"
           class="gap-1.5"
-          [zDisabled]="marcandoTodas"
-          [zLoading]="marcandoTodas"
+          [zDisabled]="marcandoTodas()"
+          [zLoading]="marcandoTodas()"
           (click)="marcarTodas()"
           title="Marcar todas como lidas">
           <span class="material-symbols-outlined text-base" aria-hidden="true">done_all</span>
-          {{ marcandoTodas ? 'Marcando…' : 'Marcar todas' }}
+          {{ marcandoTodas() ? 'Marcando…' : 'Marcar todas' }}
         </button>
       }
-      @if (notificacoes.length > 0) {
+      @if (notificacoes().length > 0) {
         <button
           z-button
           zType="outline"
           zSize="sm"
           type="button"
           class="gap-1.5"
-          [zDisabled]="limpandoTudo"
-          [zLoading]="limpandoTudo"
+          [zDisabled]="limpandoTudo()"
+          [zLoading]="limpandoTudo()"
           (click)="limparTudo()"
           title="Excluir todas as notificações">
           <span class="material-symbols-outlined text-base" aria-hidden="true">delete_sweep</span>
-          {{ limpandoTudo ? 'Limpando…' : 'Limpar tudo' }}
+          {{ limpandoTudo() ? 'Limpando…' : 'Limpar tudo' }}
         </button>
       }
     </div>
@@ -60,14 +60,14 @@
 
   @if (showSkeleton()) {
     <zm-skeleton-list [rows]="5" />
-  } @else if (!listaPronta) {
-  } @else if (erro) {
-    <p class="mb-4 text-sm text-destructive">{{ erro }}</p>
+  } @else if (!listaPronta()) {
+  } @else if (erro()) {
+    <p class="mb-4 text-sm text-destructive">{{ erro() }}</p>
   } @else {
     <div class="zm-content-enter">
       @if (notificacoesFiltradas.length === 0) {
         <zm-empty-state
-          [title]="filtroPlataforma === 'nao_lidas' ? 'Nenhuma notificação não lida.' : 'Nenhuma notificação.'"
+          [title]="filtroPlataforma() === 'nao_lidas' ? 'Nenhuma notificação não lida.' : 'Nenhuma notificação.'"
           description="As novas notificações aparecerão aqui assim que chegarem."
         />
       } @else {
@@ -127,11 +127,11 @@
                     <button
                       type="button"
                       class="notif-card__dismiss"
-                      [disabled]="excluindoId === n.id"
+                      [disabled]="excluindoId() === n.id"
                       (click)="excluir(n.id)"
                       aria-label="Excluir notificação"
                       title="Excluir notificação">
-                      @if (excluindoId === n.id) {
+                      @if (excluindoId() === n.id) {
                         <span class="btn-spinner" style="width: 14px; height: 14px; border-width: 2px"></span>
                       } @else {
                         <span class="material-symbols-outlined" style="font-size: 18px">close</span>

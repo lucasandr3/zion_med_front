@@ -1,15 +1,15 @@
 <div class="relative min-h-[300px] space-y-4">
   @if (showSkeleton()) {
     <zm-skeleton-list [rows]="8" />
-  } @else if (!listaPronta) {
+  } @else if (!listaPronta()) {
   } @else {
-    @if (estadoErro) {
+    @if (estadoErro()) {
       <div class="rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-foreground mb-6">
         Não foi possível carregar o cliente.
       </div>
     }
 
-    @if (data) {
+    @if (data(); as tenant) {
       <div class="zm-content-enter tenant-detail space-y-5">
         <!-- KPIs -->
         <div class="tenant-kpi-grid">
@@ -19,7 +19,7 @@
             </div>
             <div>
               <p class="tenant-kpi-label">Empresas</p>
-              <p class="tenant-kpi-value">{{ data.summary?.clinics_count ?? data.clinics.length }}</p>
+              <p class="tenant-kpi-value">{{ tenant.summary?.clinics_count ?? tenant.clinics.length }}</p>
             </div>
           </div>
           <div class="tenant-kpi-card">
@@ -28,7 +28,7 @@
             </div>
             <div>
               <p class="tenant-kpi-label">Usuários</p>
-              <p class="tenant-kpi-value">{{ data.summary?.users_count ?? '—' }}</p>
+              <p class="tenant-kpi-value">{{ tenant.summary?.users_count ?? '—' }}</p>
             </div>
           </div>
           <div class="tenant-kpi-card">
@@ -37,7 +37,7 @@
             </div>
             <div>
               <p class="tenant-kpi-label">Pessoas</p>
-              <p class="tenant-kpi-value">{{ data.summary?.people_count ?? '—' }}</p>
+              <p class="tenant-kpi-value">{{ tenant.summary?.people_count ?? '—' }}</p>
             </div>
           </div>
           <div class="tenant-kpi-card tenant-kpi-card--accent">
@@ -46,7 +46,7 @@
             </div>
             <div>
               <p class="tenant-kpi-label">Protocolos</p>
-              <p class="tenant-kpi-value">{{ data.summary?.form_submissions_count ?? '—' }}</p>
+              <p class="tenant-kpi-value">{{ tenant.summary?.form_submissions_count ?? '—' }}</p>
             </div>
           </div>
         </div>
@@ -55,19 +55,19 @@
         <z-card class="tenant-hero gap-0 py-0">
           <div class="tenant-hero-inner">
             <div class="tenant-hero-avatar" aria-hidden="true">
-              {{ iniciais(data.tenant.name) }}
+              {{ iniciais(tenant.tenant.name) }}
             </div>
             <div class="tenant-hero-body">
-              <h2 class="tenant-hero-title">{{ data.tenant.name }}</h2>
-              <p class="tenant-hero-sub">{{ data.tenant.slug }} · #{{ data.tenant.id }}</p>
+              <h2 class="tenant-hero-title">{{ tenant.tenant.name }}</h2>
+              <p class="tenant-hero-sub">{{ tenant.tenant.slug }} · #{{ tenant.tenant.id }}</p>
               <div class="tenant-hero-meta">
                 <span class="tenant-hero-meta-item">
                   <span class="material-symbols-outlined">calendar_today</span>
-                  Cadastro {{ formatarDataHora(data.tenant.created_at) }}
+                  Cadastro {{ formatarDataHora(tenant.tenant.created_at) }}
                 </span>
                 <span class="tenant-hero-meta-item">
                   <span class="material-symbols-outlined">update</span>
-                  Atualizado {{ formatarDataHora(data.tenant.updated_at) }}
+                  Atualizado {{ formatarDataHora(tenant.tenant.updated_at) }}
                 </span>
               </div>
             </div>
@@ -76,9 +76,9 @@
 
         <!-- Empresas -->
         <section>
-          <h2 class="tenant-section-title">Empresas vinculadas ({{ data.clinics.length }})</h2>
+          <h2 class="tenant-section-title">Empresas vinculadas ({{ tenant.clinics.length }})</h2>
 
-          @if (data.clinics.length === 0) {
+          @if (tenant.clinics.length === 0) {
             <z-card class="py-6">
               <zm-empty-state
                 title="Nenhuma empresa vinculada a este tenant."
@@ -87,7 +87,7 @@
             </z-card>
           } @else {
             <div class="tenant-clinic-list">
-              @for (c of data.clinics; track c.id) {
+              @for (c of tenant.clinics; track c.id) {
                 <z-card class="tenant-clinic-card gap-0 py-0">
                   <!-- Cabeçalho da empresa -->
                   <div class="tenant-clinic-header">

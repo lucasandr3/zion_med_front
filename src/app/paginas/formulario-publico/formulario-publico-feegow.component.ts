@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, inject } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, inject, ChangeDetectionStrategy, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { FlatpickrDirective, provideFlatpickrDefaults } from 'angularx-flatpickr';
 import { Portuguese } from 'flatpickr/dist/l10n/pt';
@@ -15,6 +15,7 @@ import {
 @Component({
   selector: 'zm-formulario-publico-feegow',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [FormsModule, FlatpickrDirective],
   providers: [
     provideFlatpickrDefaults({
@@ -40,11 +41,11 @@ export class FormularioPublicoFeegowComponent implements OnChanges {
 
   @Output() valoresChange = new EventEmitter<void>();
 
-  feegowHorariosDisponiveis: string[] = [];
-  feegowProfissionaisDisponiveis: { value: string; label: string }[] = [];
-  feegowHorasPorProfissional: Record<string, string[]> = {};
-  feegowDisponibilidadeErro = '';
-  feegowBuscandoDisponibilidade = false;
+  readonly feegowHorariosDisponiveis = signal<string[]>([]);
+  readonly feegowProfissionaisDisponiveis = signal<{ value: string; label: string }[]>([]);
+  readonly feegowHorasPorProfissional = signal<Record<string, string[]>>({});
+  readonly feegowDisponibilidadeErro = signal('');
+  readonly feegowBuscandoDisponibilidade = signal(false);
 
   private formularioService = inject(FormularioPublicoService);
 
@@ -81,7 +82,7 @@ export class FormularioPublicoFeegowComponent implements OnChanges {
       ['profissional_id', 'id', 'sys_user'],
     );
     const merged = new Map<string, { value: string; label: string }>();
-    [...fromMeta, ...this.feegowProfissionaisDisponiveis].forEach((opt) => merged.set(opt.value, opt));
+    [...fromMeta, ...this.feegowProfissionaisDisponiveis()].forEach((opt) => merged.set(opt.value, opt));
     return Array.from(merged.values());
   }
 
@@ -95,18 +96,18 @@ export class FormularioPublicoFeegowComponent implements OnChanges {
 
   onProfissionalChange(): void {
     const selected = String(this.valores['feegow_profissional_id'] || '');
-    if (selected && this.feegowHorasPorProfissional[selected]?.length) {
-      this.feegowHorariosDisponiveis = this.feegowHorasPorProfissional[selected];
+    if (selected && this.feegowHorasPorProfissional()[selected]?.length) {
+      this.feegowHorariosDisponiveis.set(this.feegowHorasPorProfissional()[selected]);
       const current = String(this.valores['feegow_horario'] || '');
-      if (current && !this.feegowHorariosDisponiveis.includes(current)) {
+      if (current && !this.feegowHorariosDisponiveis().includes(current)) {
         this.valores['feegow_horario'] = '';
       }
       this.valoresChange.emit();
       return;
     }
-    const all = Array.from(new Set(Object.values(this.feegowHorasPorProfissional).flat())).sort();
+    const all = Array.from(new Set(Object.values(this.feegowHorasPorProfissional()).flat())).sort();
     if (all.length > 0) {
-      this.feegowHorariosDisponiveis = all;
+      this.feegowHorariosDisponiveis.set(all);
       this.valoresChange.emit();
     }
   }
@@ -118,13 +119,13 @@ export class FormularioPublicoFeegowComponent implements OnChanges {
     const procedimentoId = Number(this.valores['feegow_procedimento_id'] || 0);
     const dataRaw = String(this.valores['feegow_data'] || '');
     if (!especialidadeId || !procedimentoId || !dataRaw) {
-      this.feegowDisponibilidadeErro = 'Informe especialidade, procedimento e data para consultar horários.';
+      this.feegowDisponibilidadeErro.set('Informe especialidade, procedimento e data para consultar horários.');
       return;
     }
 
-    this.feegowBuscandoDisponibilidade = true;
-    this.feegowDisponibilidadeErro = '';
-    this.feegowHorariosDisponiveis = [];
+    this.feegowBuscandoDisponibilidade.set(true);
+    this.feegowDisponibilidadeErro.set('');
+    this.feegowHorariosDisponiveis.set([]);
 
     const [yyyy, mm, dd] = dataRaw.split('-');
     const dateBr = yyyy && mm && dd ? `${dd}-${mm}-${yyyy}` : '';
@@ -141,29 +142,29 @@ export class FormularioPublicoFeegowComponent implements OnChanges {
       })
       .subscribe({
         next: (resp) => {
-          this.feegowBuscandoDisponibilidade = false;
+          this.feegowBuscandoDisponibilidade.set(false);
           const availability = extractAvailabilityByProfessional(resp.schedule);
-          this.feegowHorasPorProfissional = availability.hoursByProfessional;
-          this.feegowProfissionaisDisponiveis = availability.professionals;
-          this.feegowHorariosDisponiveis = availability.allHours;
+          this.feegowHorasPorProfissional.set(availability.hoursByProfessional);
+          this.feegowProfissionaisDisponiveis.set(availability.professionals);
+          this.feegowHorariosDisponiveis.set(availability.allHours);
           this.onProfissionalChange();
-          if (this.feegowHorariosDisponiveis.length === 0) {
-            this.feegowDisponibilidadeErro = 'Nenhum horário disponível para os filtros informados.';
+          if (this.feegowHorariosDisponiveis().length === 0) {
+            this.feegowDisponibilidadeErro.set('Nenhum horário disponível para os filtros informados.');
           }
         },
         error: (err) => {
-          this.feegowBuscandoDisponibilidade = false;
-          this.feegowDisponibilidadeErro = err?.error?.message ?? 'Não foi possível consultar a disponibilidade.';
+          this.feegowBuscandoDisponibilidade.set(false);
+          this.feegowDisponibilidadeErro.set(err?.error?.message ?? 'Não foi possível consultar a disponibilidade.');
         },
       });
   }
 
   resetAvailabilityState(): void {
-    this.feegowBuscandoDisponibilidade = false;
-    this.feegowDisponibilidadeErro = '';
-    this.feegowHorariosDisponiveis = [];
-    this.feegowProfissionaisDisponiveis = [];
-    this.feegowHorasPorProfissional = {};
+    this.feegowBuscandoDisponibilidade.set(false);
+    this.feegowDisponibilidadeErro.set('');
+    this.feegowHorariosDisponiveis.set([]);
+    this.feegowProfissionaisDisponiveis.set([]);
+    this.feegowHorasPorProfissional.set({});
   }
 
   private initFeegowValues(): void {

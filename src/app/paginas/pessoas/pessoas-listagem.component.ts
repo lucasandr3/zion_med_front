@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject, Signal, ViewChild, TemplateRef, ViewContainerRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, Signal, ViewChild, TemplateRef, ViewContainerRef, ChangeDetectionStrategy, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { PessoasService, Pessoa } from '../../core/services/pessoas.service';
@@ -17,6 +17,7 @@ import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
 @Component({
   selector: 'app-pessoas-listagem',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     ...ZARD_FORM_CONTROL_IMPORTS,
     ...ZardTableImports,
@@ -34,23 +35,23 @@ import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
   templateUrl: './pessoas-listagem.component.html',
 })
 export class PessoasListagemComponent implements OnInit, OnDestroy {
-  pessoas: Pessoa[] = [];
-  meta: { current_page: number; last_page: number; per_page: number; total: number } = {
+  readonly pessoas = signal<Pessoa[]>([]);
+  readonly meta = signal<{ current_page: number; last_page: number; per_page: number; total: number }>({
     current_page: 1,
     last_page: 1,
     per_page: 20,
     total: 0,
-  };
+  });
   showSkeleton!: Signal<boolean>;
-  listaPronta = false;
-  erro = '';
+  readonly listaPronta = signal(false);
+  readonly erro = signal('');
 
   busca = '';
   status: string = '';
   has_protocols: '' | '1' | '0' = '';
   created_from = '';
   created_to = '';
-  filterDrawerOpen = false;
+  readonly filterDrawerOpen = signal(false);
   /** Calendário no body para não ser cortado pelo overflow do sheet. */
   flatpickrAppendTo!: HTMLElement;
 
@@ -64,17 +65,17 @@ export class PessoasListagemComponent implements OnInit, OnDestroy {
   private readonly vcr = inject(ViewContainerRef);
   private readonly zardSheet = inject(ZardSheetService);
 
-  readonly opcoesStatusFiltro: ZardComboboxOption[] = [
+  readonly opcoesStatusFiltro = signal<ZardComboboxOption[]>([
     { value: '', label: 'Todas' },
     { value: 'active', label: 'Ativa' },
     { value: 'inactive', label: 'Inativa' },
-  ];
+  ]);
 
-  readonly opcoesProtocolosFiltro: ZardComboboxOption[] = [
+  readonly opcoesProtocolosFiltro = signal<ZardComboboxOption[]>([
     { value: '', label: 'Todos' },
     { value: '1', label: 'Com protocolos' },
     { value: '0', label: 'Sem protocolos' },
-  ];
+  ]);
 
   selecionarStatusFiltro(key: string | null): void {
     this.status = key ?? '';
@@ -121,13 +122,13 @@ export class PessoasListagemComponent implements OnInit, OnDestroy {
     this.showSkeleton = showSkeleton;
     data$.subscribe({
       next: (res) => {
-        this.listaPronta = true;
-        this.pessoas = res.data;
-        this.meta = res.meta;
+        this.listaPronta.set(true);
+        this.pessoas.set(res.data);
+        this.meta.set(res.meta);
       },
       error: () => {
-        this.listaPronta = true;
-        this.erro = 'Não foi possível carregar as pessoas.';
+        this.listaPronta.set(true);
+        this.erro.set('Não foi possível carregar as pessoas.');
       },
     });
   }
@@ -154,7 +155,7 @@ export class PessoasListagemComponent implements OnInit, OnDestroy {
     if (!this.pessoasFiltrosTpl) {
       return;
     }
-    this.filterDrawerOpen = true;
+    this.filterDrawerOpen.set(true);
     this.filtrosSheetRef = this.zardSheet.create<void, void>({
       zContent: this.pessoasFiltrosTpl,
       zViewContainerRef: this.vcr,
@@ -166,7 +167,7 @@ export class PessoasListagemComponent implements OnInit, OnDestroy {
       zCancelText: null,
       zAfterClose: () => {
         this.filtrosSheetRef = undefined;
-        this.filterDrawerOpen = false;
+        this.filterDrawerOpen.set(false);
       },
     });
   }
@@ -191,7 +192,7 @@ export class PessoasListagemComponent implements OnInit, OnDestroy {
   }
 
   contagemTexto(): string {
-    const n = this.meta.total;
+    const n = this.meta().total;
     return n === 1 ? '1 registro' : `${n} registros`;
   }
 }

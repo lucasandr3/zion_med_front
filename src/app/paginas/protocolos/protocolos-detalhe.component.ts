@@ -1,14 +1,4 @@
-import {
-  afterNextRender,
-  Component,
-  Injector,
-  OnDestroy,
-  OnInit,
-  inject,
-  runInInjectionContext,
-  Signal,
-  ViewChild,
-} from '@angular/core';
+import { afterNextRender, Component, Injector, OnDestroy, OnInit, inject, runInInjectionContext, Signal, ViewChild, ChangeDetectionStrategy, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -60,6 +50,7 @@ const PROTOCOLO_ABA_IDS: ProtocoloAbaId[] = [
 @Component({
   selector: 'app-protocolos-detalhe',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FormsModule,
     RouterLink,
@@ -81,35 +72,35 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
   abaAtiva: ProtocoloAbaId = 'visao-geral';
 
   @ViewChild('protocoloTabGroup') protocoloTabGroup?: ZardTabGroupComponent;
-  protocolo: ProtocoloDetalheData | null = null;
+  readonly protocolo = signal<ProtocoloDetalheData | null>(null);
   showSkeleton!: Signal<boolean>;
-  erro = '';
-  comentarioEnviando = false;
-  revisaoEnviando = false;
-  gerandoPdf = false;
-  gerandoDossie = false;
+  readonly erro = signal('');
+  readonly comentarioEnviando = signal(false);
+  readonly revisaoEnviando = signal(false);
+  readonly gerandoPdf = signal(false);
+  readonly gerandoDossie = signal(false);
 
-  revisaoFormVisible = false;
+  readonly revisaoFormVisible = signal(false);
   revisaoAprovado = true;
   comentarioRevisao = '';
   profissionalExplicou = false;
   novoComentario = '';
-  revogarFormVisible = false;
+  readonly revogarFormVisible = signal(false);
   motivoRevogacao = '';
-  revogando = false;
-  solicitandoReconsentimento = false;
+  readonly revogando = signal(false);
+  readonly solicitandoReconsentimento = signal(false);
 
   /** Rascunho dos campos internos da equipe (modelos Estética). */
   staffDraft: Record<string, unknown> = {};
-  staffSalvando = false;
+  readonly staffSalvando = signal(false);
   mostrarCamposVazios = false;
 
-  clinicaConfig: ClinicaConfig | null = null;
-  pessoaCompleta: Pessoa | null = null;
-  docHash = '';
-  docCode = '';
-  docVerifyUrl = '';
-  docQrDataUrl = '';
+  readonly clinicaConfig = signal<ClinicaConfig | null>(null);
+  readonly pessoaCompleta = signal<Pessoa | null>(null);
+  readonly docHash = signal('');
+  readonly docCode = signal('');
+  readonly docVerifyUrl = signal('');
+  readonly docQrDataUrl = signal('');
 
   private readonly route = inject(ActivatedRoute);
   private readonly protocolosService = inject(ProtocolosService);
@@ -134,58 +125,59 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
 
   private carregarConfigClinica(): void {
     this.clinicaService.getConfiguracoes().subscribe({
-      next: (cfg) => (this.clinicaConfig = cfg),
+      next: (cfg) => this.clinicaConfig.set(cfg),
       error: () => {},
     });
   }
 
   private carregarPessoaCompleta(): void {
-    const personId = this.protocolo?.person?.id;
+    const personId = this.protocolo()?.person?.id;
     if (!personId) {
-      this.pessoaCompleta = null;
+      this.pessoaCompleta.set(null);
       return;
     }
     this.pessoasService.get(personId).subscribe({
-      next: (p) => (this.pessoaCompleta = p),
-      error: () => (this.pessoaCompleta = null),
+      next: (p) => this.pessoaCompleta.set(p),
+      error: () => this.pessoaCompleta.set(null),
     });
   }
 
   private async gerarAutenticacaoDocumento(): Promise<void> {
-    if (!this.protocolo) return;
+    const protocolo = this.protocolo();
+    if (!protocolo) return;
     try {
-      const hashFromProtocol = (this.protocolo.document_hash || '').trim().toLowerCase();
-      const hashFromSignature = (this.protocolo.signatures ?? [])
+      const hashFromProtocol = (protocolo.document_hash || '').trim().toLowerCase();
+      const hashFromSignature = (protocolo.signatures ?? [])
         .map((s) => (s.document_hash || '').trim().toLowerCase())
         .find((h) => h.length >= 8);
       const hash = hashFromProtocol || hashFromSignature || '';
 
       if (!hash) {
-        this.docHash = '';
-        this.docCode = '';
-        this.docVerifyUrl = '';
-        this.docQrDataUrl = '';
+        this.docHash.set('');
+        this.docCode.set('');
+        this.docVerifyUrl.set('');
+        this.docQrDataUrl.set('');
         return;
       }
 
-      this.docHash = hash;
-      this.docCode = hash.substring(0, 8).toUpperCase();
+      this.docHash.set(hash);
+      this.docCode.set(hash.substring(0, 8).toUpperCase());
       const origin = typeof window !== 'undefined' ? window.location.origin : '';
-      this.docVerifyUrl = origin ? `${origin}/verificar/${this.docCode}` : `/verificar/${this.docCode}`;
+      this.docVerifyUrl.set(origin ? `${origin}/verificar/${this.docCode()}` : `/verificar/${this.docCode()}`);
       const QR: any = await import('qrcode');
       const qrFn = QR.toDataURL ?? QR.default?.toDataURL;
       if (qrFn) {
-        this.docQrDataUrl = await qrFn.call(QR.default ?? QR, this.docVerifyUrl, {
+        this.docQrDataUrl.set(await qrFn.call(QR.default ?? QR, this.docVerifyUrl(), {
           margin: 0,
           width: 96,
           color: { dark: '#0f172a', light: '#ffffff' },
-        });
+        }));
       }
     } catch {
-      this.docHash = '';
-      this.docCode = '';
-      this.docVerifyUrl = '';
-      this.docQrDataUrl = '';
+      this.docHash.set('');
+      this.docCode.set('');
+      this.docVerifyUrl.set('');
+      this.docQrDataUrl.set('');
     }
   }
 
@@ -194,26 +186,26 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
   }
 
   carregar(id: number): void {
-    this.erro = '';
+    this.erro.set('');
     const { data$, showSkeleton } = this.loadingService.loadWithThreshold(this.protocolosService.get(id));
     this.showSkeleton = showSkeleton;
     data$.subscribe({
       next: (p) => {
-        this.protocolo = p;
+        this.protocolo.set(p);
         this.initStaffDraft();
         this.carregarPessoaCompleta();
         void this.gerarAutenticacaoDocumento();
         this.syncTabGroupFromAba();
       },
       error: () => {
-        this.erro = 'Não foi possível carregar o protocolo.';
+        this.erro.set('Não foi possível carregar o protocolo.');
       },
     });
   }
 
   private initStaffDraft(): void {
     this.staffDraft = {};
-    const p = this.protocolo;
+    const p = this.protocolo();
     if (!p?.staff_fields?.length) {
       return;
     }
@@ -229,17 +221,17 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
   }
 
   temCamposEquipe(): boolean {
-    return (this.protocolo?.staff_fields?.length ?? 0) > 0;
+    return (this.protocolo()?.staff_fields?.length ?? 0) > 0;
   }
 
   salvarRegistroEquipe(): void {
-    if (!this.protocolo?.id || !this.temCamposEquipe()) {
+    if (!this.protocolo()?.id || !this.temCamposEquipe()) {
       return;
     }
-    this.staffSalvando = true;
-    this.protocolosService.saveStaffValues(this.protocolo.id, { ...this.staffDraft }).subscribe({
+    this.staffSalvando.set(true);
+    this.protocolosService.saveStaffValues(this.protocolo()!.id, { ...this.staffDraft }).subscribe({
       next: (p) => {
-        this.protocolo = p;
+        this.protocolo.set(p);
         this.initStaffDraft();
         this.toast.success('Registro salvo', 'Dados da equipe atualizados no protocolo.');
       },
@@ -247,30 +239,31 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
         this.toast.error('Erro', 'Não foi possível salvar o registro da equipe.');
       },
       complete: () => {
-        this.staffSalvando = false;
+        this.staffSalvando.set(false);
       },
     });
   }
 
   get isPending(): boolean {
-    const s = this.protocolo?.status?.toLowerCase();
+    const s = this.protocolo()?.status?.toLowerCase();
     return s === 'pending' || s === 'pendente';
   }
 
   get isApproved(): boolean {
-    const s = this.protocolo?.status?.toLowerCase();
+    const s = this.protocolo()?.status?.toLowerCase();
     return s === 'approved' || s === 'aprovado';
   }
 
   get isRevoked(): boolean {
-    const s = this.protocolo?.status?.toLowerCase();
+    const s = this.protocolo()?.status?.toLowerCase();
     return s === 'revoked' || s === 'revogado';
   }
 
   get isConsentExpired(): boolean {
-    if (this.protocolo?.consent_expired) return true;
-    if (!this.isApproved || !this.protocolo?.consent_valid_until) return false;
-    const until = new Date(this.protocolo.consent_valid_until);
+    const protocolo = this.protocolo();
+    if (protocolo?.consent_expired) return true;
+    if (!this.isApproved || !protocolo?.consent_valid_until) return false;
+    const until = new Date(protocolo.consent_valid_until);
     return !isNaN(until.getTime()) && until.getTime() < Date.now();
   }
 
@@ -279,17 +272,17 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
   }
 
   get podeSolicitarReconsentimento(): boolean {
-    return this.isConsentimentoProtocolo && this.isConsentExpired && !!this.protocolo?.person_id;
+    return this.isConsentimentoProtocolo && this.isConsentExpired && !!this.protocolo()?.person_id;
   }
 
   get isConsentimentoProtocolo(): boolean {
-    const kind = (this.protocolo?.document_snapshot?.document_kind || this.protocolo?.template?.document_kind || '').toLowerCase();
-    const category = (this.protocolo?.template?.category || '').toLowerCase();
+    const kind = (this.protocolo()?.document_snapshot?.document_kind || this.protocolo()?.template?.document_kind || '').toLowerCase();
+    const category = (this.protocolo()?.template?.category || '').toLowerCase();
     return kind === 'consentimento' || category === 'consentimento';
   }
 
   statusLabel(): string {
-    const s = this.protocolo?.status;
+    const s = this.protocolo()?.status;
     if (!s) return '';
     if (this.isConsentExpired) return 'Vencido';
     const map: Record<string, string> = {
@@ -356,7 +349,7 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
   }
 
   tabLabelAssinaturas(): string {
-    const n = this.protocolo?.signatures?.length ?? 0;
+    const n = this.protocolo()?.signatures?.length ?? 0;
     return n > 0 ? `Assinaturas (${n})` : 'Assinaturas';
   }
 
@@ -395,13 +388,13 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
 
   /** Baixa o PDF gerado no backend (DomPDF). */
   baixarFichaPdf(): void {
-    if (!this.protocolo || this.gerandoPdf) return;
-    this.gerandoPdf = true;
+    if (!this.protocolo() || this.gerandoPdf()) return;
+    this.gerandoPdf.set(true);
     const arquivo = this.nomeArquivoPdf();
-    this.protocolosService.pdf(this.protocolo.id).subscribe({
+    this.protocolosService.pdf(this.protocolo()!.id).subscribe({
       next: (blob) => {
         if (!this.eBlobPdf(blob)) {
-          this.gerandoPdf = false;
+          this.gerandoPdf.set(false);
           return;
         }
         const url = URL.createObjectURL(blob);
@@ -410,10 +403,10 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
         a.download = arquivo;
         a.click();
         URL.revokeObjectURL(url);
-        this.gerandoPdf = false;
+        this.gerandoPdf.set(false);
       },
       error: (err) => {
-        this.gerandoPdf = false;
+        this.gerandoPdf.set(false);
         void this.tratarErroPdf(err);
       },
     });
@@ -421,36 +414,36 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
 
   /** Abre o PDF do backend em nova aba. */
   visualizarFichaPdf(): void {
-    if (!this.protocolo || this.gerandoPdf) return;
+    if (!this.protocolo() || this.gerandoPdf()) return;
     const previewWindow = window.open('', '_blank');
     if (!previewWindow) {
       this.toast.error('PDF', 'Permita pop-ups neste site para visualizar o PDF.');
       return;
     }
     this.escreverCarregandoPdf(previewWindow);
-    this.gerandoPdf = true;
-    this.protocolosService.pdf(this.protocolo.id).subscribe({
+    this.gerandoPdf.set(true);
+    this.protocolosService.pdf(this.protocolo()!.id).subscribe({
       next: (blob) => {
         if (!this.eBlobPdf(blob)) {
           if (!previewWindow.closed) previewWindow.close();
-          this.gerandoPdf = false;
+          this.gerandoPdf.set(false);
           return;
         }
         const url = URL.createObjectURL(blob);
         previewWindow.location.replace(url);
         setTimeout(() => URL.revokeObjectURL(url), 120_000);
-        this.gerandoPdf = false;
+        this.gerandoPdf.set(false);
       },
       error: (err) => {
         if (!previewWindow.closed) previewWindow.close();
-        this.gerandoPdf = false;
+        this.gerandoPdf.set(false);
         void this.tratarErroPdf(err);
       },
     });
   }
 
   private nomeArquivoPdf(): string {
-    const p = this.protocolo;
+    const p = this.protocolo();
     return `protocolo-${p?.protocol_number || p?.id || 'documento'}.pdf`;
   }
 
@@ -538,14 +531,15 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
 
   /** Nome da clínica/empresa atual para o cabeçalho do documento. */
   clinicaNome(): string {
-    if (this.clinicaConfig?.name) return this.clinicaConfig.name;
+    const name = this.clinicaConfig()?.name;
+    if (name) return name;
     const org = this.auth.getCurrentOrganization();
     return (org?.name as string) || 'Documento';
   }
 
   /** Subtítulo abaixo do nome da clínica (nicho ou padrão). */
   clinicaSubtitulo(): string {
-    const niche = this.clinicaConfig?.niche;
+    const niche = this.clinicaConfig()?.niche;
     if (niche) return niche;
     const org = this.auth.getCurrentOrganization();
     const niche2 = (org as { niche?: string } | null)?.niche;
@@ -554,28 +548,28 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
   }
 
   get clinicaLogo(): string {
-    return this.clinicaConfig?.logo_url || '';
+    return this.clinicaConfig()?.logo_url || '';
   }
 
   get clinicaCnpj(): string {
-    const raw = (this.clinicaConfig?.billing_document as string) || '';
+    const raw = (this.clinicaConfig()?.billing_document as string) || '';
     return this.formatarCnpj(raw);
   }
 
   get clinicaTelefone(): string {
-    return this.formatarTelefone(this.clinicaConfig?.phone);
+    return this.formatarTelefone(this.clinicaConfig()?.phone);
   }
 
   get clinicaEmail(): string {
     return (
-      (this.clinicaConfig?.contact_email as string) ||
-      (this.clinicaConfig?.notification_email as string) ||
+      (this.clinicaConfig()?.contact_email as string) ||
+      (this.clinicaConfig()?.notification_email as string) ||
       ''
     );
   }
 
   get clinicaEndereco(): string {
-    const c = this.clinicaConfig;
+    const c = this.clinicaConfig();
     if (!c) return '';
     const a = c.address_data;
     if (a) {
@@ -649,7 +643,7 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
   }
 
   dataDocumentoPorExtenso(): string {
-    const source = this.protocolo?.submitted_at || this.protocolo?.created_at;
+    const source = this.protocolo()?.submitted_at || this.protocolo()?.created_at;
     if (!source) return '—';
     const d = new Date(source);
     if (isNaN(d.getTime())) return source;
@@ -662,7 +656,7 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
 
   /** Retorna o valor BRUTO armazenado para um campo (sem stringificar). */
   private rawValorCampo(field: ProtocoloField): unknown {
-    const p = this.protocolo;
+    const p = this.protocolo();
     if (!p) return null;
     const key = field.name_key;
     const keyed = p.values_keyed?.[key];
@@ -782,8 +776,8 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
 
   camposRespostas(): ProtocoloField[] {
     const snapshot =
-      this.protocolo?.document_snapshot?.fields_snapshot ??
-      this.protocolo?.template_version?.fields_snapshot;
+      this.protocolo()?.document_snapshot?.fields_snapshot ??
+      this.protocolo()?.template_version?.fields_snapshot;
     if (snapshot?.length) {
       return [...snapshot]
         .map((f) => ({
@@ -795,13 +789,13 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
         }))
         .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
     }
-    const fields = this.protocolo?.template?.fields;
+    const fields = this.protocolo()?.template?.fields;
     if (!fields?.length) return [];
     return [...fields].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
   }
 
   versaoTemplateLabel(): string {
-    const v = this.protocolo?.template_version?.version ?? this.protocolo?.document_snapshot?.template_version;
+    const v = this.protocolo()?.template_version?.version ?? this.protocolo()?.document_snapshot?.template_version;
     return v != null ? `v${v}` : '';
   }
 
@@ -822,7 +816,7 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
   }
 
   anexoParaCampo(nameKey: string): ProtocoloAttachment | undefined {
-    return this.protocolo?.attachments?.find((a) => a.field_key === nameKey);
+    return this.protocolo()?.attachments?.find((a) => a.field_key === nameKey);
   }
 
   /** Anexo com URL garantida (para o template da aba Respostas). */
@@ -833,7 +827,7 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
   }
 
   assinaturaParaCampo(nameKey: string): ProtocoloSignature | undefined {
-    return this.protocolo?.signatures?.find((s) => s.field_key === nameKey);
+    return this.protocolo()?.signatures?.find((s) => s.field_key === nameKey);
   }
 
   /** Campos longos ocupam a linha inteira da grade. */
@@ -859,7 +853,7 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
 
   totalComentarios(): number {
     let total = this.eventosComentarios().length;
-    if (this.protocolo?.review_comment?.trim()) total += 1;
+    if (this.protocolo()?.review_comment?.trim()) total += 1;
     return total;
   }
 
@@ -880,9 +874,10 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
   }
 
   templateNome(): string {
-    if (!this.protocolo) return '—';
-    if (this.protocolo.template_name) return this.protocolo.template_name;
-    return (this.protocolo.template as { name?: string } | undefined)?.name ?? '—';
+    const protocolo = this.protocolo();
+    if (!protocolo) return '—';
+    if (protocolo.template_name) return protocolo.template_name;
+    return (protocolo.template as { name?: string } | undefined)?.name ?? '—';
   }
 
   dataFormatada(val: string | undefined): string {
@@ -900,31 +895,31 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
 
   abrirRevisao(aprovado: boolean): void {
     if (!this.podeRevisarProtocolo) return;
-    const jaMostrandoMesmaDecisao = this.revisaoFormVisible && this.revisaoAprovado === aprovado;
+    const jaMostrandoMesmaDecisao = this.revisaoFormVisible() && this.revisaoAprovado === aprovado;
     if (jaMostrandoMesmaDecisao) {
-      this.revisaoFormVisible = false;
+      this.revisaoFormVisible.set(false);
       return;
     }
-    this.revogarFormVisible = false;
+    this.revogarFormVisible.set(false);
     this.revisaoAprovado = aprovado;
     this.profissionalExplicou = false;
-    this.revisaoFormVisible = true;
+    this.revisaoFormVisible.set(true);
     setTimeout(() => {
       document.getElementById('revisao_form')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }, 50);
   }
 
   fecharRevisao(): void {
-    this.revisaoFormVisible = false;
+    this.revisaoFormVisible.set(false);
     this.comentarioRevisao = '';
     this.profissionalExplicou = false;
   }
 
   abrirRevogacao(): void {
     if (!this.podeRevogarProtocolo) return;
-    this.revisaoFormVisible = false;
-    this.revogarFormVisible = !this.revogarFormVisible;
-    if (this.revogarFormVisible) {
+    this.revisaoFormVisible.set(false);
+    this.revogarFormVisible.set(!this.revogarFormVisible());
+    if (this.revogarFormVisible()) {
       setTimeout(() => {
         document.getElementById('revogar_form')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }, 50);
@@ -932,13 +927,13 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
   }
 
   fecharRevogacao(): void {
-    this.revogarFormVisible = false;
+    this.revogarFormVisible.set(false);
     this.motivoRevogacao = '';
   }
 
   toggleFormRevisao(): void {
     if (!this.podeRevisarProtocolo) return;
-    this.revisaoFormVisible = !this.revisaoFormVisible;
+    this.revisaoFormVisible.set(!this.revisaoFormVisible());
   }
 
   baixarPdf(): void {
@@ -946,27 +941,27 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
   }
 
   baixarDossie(): void {
-    if (!this.protocolo || this.gerandoDossie) return;
-    this.gerandoDossie = true;
-    this.protocolosService.dossie(this.protocolo.id).subscribe({
+    if (!this.protocolo() || this.gerandoDossie()) return;
+    this.gerandoDossie.set(true);
+    this.protocolosService.dossie(this.protocolo()!.id).subscribe({
       next: (blob) => {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `dossie-${this.protocolo!.protocol_number || this.protocolo!.id}.zip`;
+        a.download = `dossie-${this.protocolo()!.protocol_number || this.protocolo()!.id}.zip`;
         a.click();
         URL.revokeObjectURL(url);
-        this.gerandoDossie = false;
+        this.gerandoDossie.set(false);
       },
       error: () => {
-        this.gerandoDossie = false;
+        this.gerandoDossie.set(false);
         this.toast.error('Download', 'Não foi possível baixar o dossiê.');
       },
     });
   }
 
   async enviarRevisao(): Promise<void> {
-    if (!this.protocolo || !this.podeRevisarProtocolo) return;
+    if (!this.protocolo() || !this.podeRevisarProtocolo) return;
     if (this.revisaoAprovado === false) {
       const ok = await this.confirm.request({
         title: 'Reprovar protocolo?',
@@ -976,18 +971,18 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
       });
       if (!ok) return;
     }
-    this.revisaoEnviando = true;
+    this.revisaoEnviando.set(true);
     this.protocolosService
       .aprovar(
-        this.protocolo.id,
+        this.protocolo()!.id,
         this.revisaoAprovado,
         this.comentarioRevisao || undefined,
         this.revisaoAprovado && this.isConsentimentoProtocolo ? this.profissionalExplicou : undefined,
       )
       .subscribe({
         next: () => {
-          this.revisaoEnviando = false;
-          this.revisaoFormVisible = false;
+          this.revisaoEnviando.set(false);
+          this.revisaoFormVisible.set(false);
           this.comentarioRevisao = '';
           this.profissionalExplicou = false;
           if (this.revisaoAprovado) {
@@ -995,18 +990,18 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
           } else {
             this.toast.warning('Protocolo reprovado', 'A revisão foi registrada.');
           }
-          this.carregar(this.protocolo!.id);
+          this.carregar(this.protocolo()!.id);
         },
         error: (err) => {
-          this.revisaoEnviando = false;
-          this.erro = this.mensagemErroApi(err, 'Não foi possível enviar a revisão.');
-          this.toast.error('Erro', this.erro);
+          this.revisaoEnviando.set(false);
+          this.erro.set(this.mensagemErroApi(err, 'Não foi possível enviar a revisão.'));
+          this.toast.error('Erro', this.erro());
         },
       });
   }
 
   async enviarRevogacao(): Promise<void> {
-    if (!this.protocolo || !this.podeRevogarProtocolo) return;
+    if (!this.protocolo() || !this.podeRevogarProtocolo) return;
     const reason = this.motivoRevogacao.trim();
     if (reason.length < 5) {
       this.toast.warning('Motivo', 'Informe o motivo da revogação (mínimo 5 caracteres).');
@@ -1019,66 +1014,66 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
       variant: 'danger',
     });
     if (!ok) return;
-    this.revogando = true;
-    this.protocolosService.revogar(this.protocolo.id, reason).subscribe({
+    this.revogando.set(true);
+    this.protocolosService.revogar(this.protocolo()!.id, reason).subscribe({
       next: () => {
-        this.revogando = false;
-        this.revogarFormVisible = false;
+        this.revogando.set(false);
+        this.revogarFormVisible.set(false);
         this.motivoRevogacao = '';
         this.toast.success('Protocolo revogado', 'A revogação foi registrada.');
-        this.carregar(this.protocolo!.id);
+        this.carregar(this.protocolo()!.id);
       },
       error: (err) => {
-        this.revogando = false;
-        this.erro = this.mensagemErroApi(err, 'Não foi possível revogar o protocolo.');
-        this.toast.error('Erro', this.erro);
+        this.revogando.set(false);
+        this.erro.set(this.mensagemErroApi(err, 'Não foi possível revogar o protocolo.'));
+        this.toast.error('Erro', this.erro());
       },
     });
   }
 
   async solicitarReconsentimento(): Promise<void> {
-    if (!this.protocolo || !this.podeSolicitarReconsentimento) return;
+    if (!this.protocolo() || !this.podeSolicitarReconsentimento) return;
     const ok = await this.confirm.request({
       title: 'Solicitar reconsentimento?',
       message: 'Um novo link do termo será enviado ao paciente (e-mail ou WhatsApp cadastrado na ficha). O protocolo vencido permanece no histórico.',
       confirmLabel: 'Enviar link',
     });
     if (!ok) return;
-    this.solicitandoReconsentimento = true;
-    this.protocolosService.solicitarReconsentimento(this.protocolo.id).subscribe({
+    this.solicitandoReconsentimento.set(true);
+    this.protocolosService.solicitarReconsentimento(this.protocolo()!.id).subscribe({
       next: (res) => {
-        this.solicitandoReconsentimento = false;
+        this.solicitandoReconsentimento.set(false);
         this.toast.success('Reconsentimento enviado', res.message);
-        this.carregar(this.protocolo!.id);
+        this.carregar(this.protocolo()!.id);
       },
       error: (err) => {
-        this.solicitandoReconsentimento = false;
-        this.erro = this.mensagemErroApi(err, 'Não foi possível solicitar reconsentimento.');
-        this.toast.error('Erro', this.erro);
+        this.solicitandoReconsentimento.set(false);
+        this.erro.set(this.mensagemErroApi(err, 'Não foi possível solicitar reconsentimento.'));
+        this.toast.error('Erro', this.erro());
       },
     });
   }
 
   enviarComentario(): void {
-    if (!this.protocolo || !this.novoComentario.trim()) return;
-    this.comentarioEnviando = true;
-    this.protocolosService.comentario(this.protocolo.id, this.novoComentario.trim()).subscribe({
+    if (!this.protocolo() || !this.novoComentario.trim()) return;
+    this.comentarioEnviando.set(true);
+    this.protocolosService.comentario(this.protocolo()!.id, this.novoComentario.trim()).subscribe({
       next: () => {
-        this.comentarioEnviando = false;
+        this.comentarioEnviando.set(false);
         this.novoComentario = '';
         this.toast.success('Comentário adicionado', 'Seu comentário foi publicado.');
-        this.carregar(this.protocolo!.id);
+        this.carregar(this.protocolo()!.id);
       },
       error: (err) => {
-        this.comentarioEnviando = false;
-        this.erro = this.mensagemErroApi(err, 'Não foi possível adicionar o comentário.');
-        this.toast.error('Erro', this.erro);
+        this.comentarioEnviando.set(false);
+        this.erro.set(this.mensagemErroApi(err, 'Não foi possível adicionar o comentário.'));
+        this.toast.error('Erro', this.erro());
       },
     });
   }
 
   eventosTimeline(): ProtocoloEvent[] {
-    const p = this.protocolo;
+    const p = this.protocolo();
     if (!p) return [];
     if (p.events?.length) return p.events;
     return [
@@ -1093,13 +1088,13 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
   }
 
   camposTemplate(): ProtocoloField[] {
-    const fields = this.protocolo?.template?.fields;
+    const fields = this.protocolo()?.template?.fields;
     if (!fields?.length) return [];
     return fields.filter((f) => f.type !== 'file' && f.type !== 'signature');
   }
 
   valorCampo(field: ProtocoloField): string {
-    const p = this.protocolo;
+    const p = this.protocolo();
     if (!p) return '—';
     const key = field.name_key;
     const val = p.values_keyed?.[key] ?? (p.form_data as Record<string, unknown>)?.[key];
@@ -1141,7 +1136,7 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
 
   /** Texto do banner superior na aba Respostas (padrão visual do protocolo). */
   mensagemBannerTopo(): string {
-    const s = this.protocolo?.status?.toLowerCase();
+    const s = this.protocolo()?.status?.toLowerCase();
     if (s === 'approved' || s === 'aprovado') {
       return 'Protocolo aprovado — registro concluído.';
     }
@@ -1155,13 +1150,13 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
   }
 
   dataBannerTopo(): string {
-    const raw = this.protocolo?.approved_at || this.protocolo?.submitted_at || this.protocolo?.created_at;
+    const raw = this.protocolo()?.approved_at || this.protocolo()?.submitted_at || this.protocolo()?.created_at;
     return raw ? this.formatarDataCurta(raw) : '';
   }
 
   statusBadgeTone(): 'green' | 'red' | 'amber' | 'gray' {
     if (this.isConsentExpired) return 'amber';
-    const s = this.protocolo?.status?.toLowerCase();
+    const s = this.protocolo()?.status?.toLowerCase();
     if (s === 'approved' || s === 'aprovado') return 'green';
     if (s === 'rejected' || s === 'reprovado' || s === 'revoked' || s === 'revogado') return 'red';
     if (s === 'pending' || s === 'pendente') return 'amber';

@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, Signal } from '@angular/core';
+import { Component, OnInit, inject, Signal, ChangeDetectionStrategy, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { UsuariosService, Usuario } from '../../core/services/usuarios.service';
 import { LoadingService } from '../../shared/services/loading.service';
@@ -14,6 +14,7 @@ import { ZardTableImports } from '@/shared/components/table';
 @Component({
   selector: 'app-usuarios-listagem',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     ...ZardTableImports,
     RouterLink,
@@ -27,11 +28,11 @@ import { ZardTableImports } from '@/shared/components/table';
   styleUrl: './usuarios-listagem.component.css',
 })
 export class UsuariosListagemComponent implements OnInit {
-  usuarios: Usuario[] = [];
+  readonly usuarios = signal<Usuario[]>([]);
   showSkeleton!: Signal<boolean>;
-  listaPronta = false;
-  erro = '';
-  desativandoId: number | null = null;
+  readonly listaPronta = signal(false);
+  readonly erro = signal('');
+  readonly desativandoId = signal<number | null>(null);
 
   private usuariosService = inject(UsuariosService);
   private loadingService = inject(LoadingService);
@@ -45,12 +46,12 @@ export class UsuariosListagemComponent implements OnInit {
     this.showSkeleton = showSkeleton;
     data$.subscribe({
       next: (list) => {
-        this.listaPronta = true;
-        this.usuarios = list;
+        this.listaPronta.set(true);
+        this.usuarios.set(list);
       },
       error: () => {
-        this.listaPronta = true;
-        this.erro = 'Não foi possível carregar os usuários.';
+        this.listaPronta.set(true);
+        this.erro.set('Não foi possível carregar os usuários.');
       },
     });
   }
@@ -75,17 +76,17 @@ export class UsuariosListagemComponent implements OnInit {
       variant: 'danger',
     });
     if (!ok) return;
-    this.desativandoId = u.id;
+    this.desativandoId.set(u.id);
     this.usuariosService.delete(u.id).subscribe({
       next: () => {
-        this.desativandoId = null;
-        this.usuarios = this.usuarios.filter((x) => x.id !== u.id);
+        this.desativandoId.set(null);
+        this.usuarios.set(this.usuarios().filter((x) => x.id !== u.id));
         this.toast.success('Usuário desativado', 'O acesso foi revogado.');
       },
       error: () => {
-        this.desativandoId = null;
-        this.erro = 'Não foi possível desativar o usuário.';
-        this.toast.error('Erro', this.erro);
+        this.desativandoId.set(null);
+        this.erro.set('Não foi possível desativar o usuário.');
+        this.toast.error('Erro', this.erro());
       },
     });
   }

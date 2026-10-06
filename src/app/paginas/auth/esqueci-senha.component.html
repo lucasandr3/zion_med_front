@@ -18,8 +18,8 @@
     </div>
     <div class="auth-card">
       <div class="auth-card-inner">
-        @if (enviado) {
-          <h2 class="auth-card-title">E-mail enviado</h2>
+        @if (enviado()) {
+          <h2 class="auth-card-title">E-mail enviado()</h2>
           <p class="auth-card-subtitle">
             Se existir uma conta com o e-mail informado, você receberá um link para redefinir sua senha. Verifique também a pasta de spam.
           </p>
@@ -27,8 +27,8 @@
         } @else {
           <h2 class="auth-card-title">Esqueceu a senha?</h2>
           <p class="auth-card-subtitle">Digite seu e-mail e enviaremos um link para redefinir.</p>
-          @if (erro) {
-            <div class="auth-error"><p>{{ erro }}</p></div>
+          @if (erro()) {
+            <div class="auth-error"><p>{{ erro() }}</p></div>
           }
           <form (ngSubmit)="enviar()" class="auth-form">
             <div class="auth-field">
@@ -39,8 +39,8 @@
                        class="auth-input" placeholder="seu@email.com" required autofocus>
               </div>
             </div>
-            <button type="submit" class="auth-btn" [disabled]="carregando">
-              {{ carregando ? 'Enviando…' : 'Enviar link' }}
+            <button type="submit" class="auth-btn" [disabled]="carregando()">
+              {{ carregando() ? 'Enviando…' : 'Enviar link' }}
             </button>
           </form>
           <p class="auth-register">

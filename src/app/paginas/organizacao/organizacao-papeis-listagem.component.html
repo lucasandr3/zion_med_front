@@ -9,9 +9,9 @@
 
   @if (showSkeleton()) {
     <zm-skeleton-permissoes-listagem />
-  } @else if (!listaPronta) {
-  } @else if (erro) {
-    <p class="text-sm text-destructive">{{ erro }}</p>
+  } @else if (!listaPronta()) {
+  } @else if (erro()) {
+    <p class="text-sm text-destructive">{{ erro() }}</p>
   } @else {
     <div class="zm-content-enter">
       <z-card class="zm-table-card gap-0 overflow-hidden rounded-lg py-0 shadow-sm **:data-[slot=card-content]:p-0">
@@ -27,7 +27,7 @@
               </tr>
             </thead>
             <tbody z-table-body>
-              @if (papeis.length === 0) {
+              @if (papeis().length === 0) {
                 <tr z-table-row>
                   <td z-table-cell colspan="5" class="p-10 text-center">
                     <zm-empty-state
@@ -38,7 +38,7 @@
                   </td>
                 </tr>
               } @else {
-                @for (p of papeis; track p.slug) {
+                @for (p of papeis(); track p.slug) {
                   <tr z-table-row>
                     <td z-table-cell>
                       <span class="zm-row-title">{{ p.label }}</span>
@@ -75,11 +75,11 @@
                             type="button"
                             class="action-btn danger"
                             aria-label="Excluir perfil"
-                            [disabled]="excluindoSlug === p.slug"
+                            [disabled]="excluindoSlug() === p.slug"
                             (click)="excluir(p)"
                             zTooltip="Excluir perfil"
                           >
-                            @if (excluindoSlug === p.slug) {
+                            @if (excluindoSlug() === p.slug) {
                               <span class="btn-spinner" style="width: 16px; height: 16px; border-width: 2px" aria-hidden="true"></span>
                             } @else {
                               <span class="material-symbols-outlined text-lg">delete</span>

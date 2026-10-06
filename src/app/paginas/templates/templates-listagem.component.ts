@@ -1,4 +1,4 @@
-import { Component, OnInit, DestroyRef, inject, Signal } from '@angular/core';
+import { Component, OnInit, DestroyRef, inject, Signal, ChangeDetectionStrategy, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -89,6 +89,7 @@ import { ZardMenuImports } from '@/shared/components/menu/menu.imports';
 @Component({
   selector: 'app-templates-listagem',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     ...ZardTableImports,
     ...ZardTooltipImports,
@@ -107,10 +108,10 @@ import { ZardMenuImports } from '@/shared/components/menu/menu.imports';
   styleUrl: './templates-listagem.component.css',
 })
 export class TemplatesListagemComponent implements OnInit {
-  templates: Template[] = [];
+  readonly templates = signal<Template[]>([]);
   showSkeleton!: Signal<boolean>;
-  listaPronta = false;
-  erro = '';
+  readonly listaPronta = signal(false);
+  readonly erro = signal('');
 
   /** Filtro: 'all' | 'ativo' | 'publico' */
   filtroAtual: 'all' | 'ativo' | 'publico' = 'all';
@@ -120,23 +121,23 @@ export class TemplatesListagemComponent implements OnInit {
   grupos: { key: string; label: string; items: Template[] }[] = [];
 
   /** Query `?categoria=` — lista modelos só dessa categoria */
-  categoriaAberta: string | null = null;
+  readonly categoriaAberta = signal<string | null>(null);
 
   /** Painel lateral de filtros (busca + status) */
-  filtrosPainelAberto = false;
+  readonly filtrosPainelAberto = signal(false);
 
   /** Ordenação dos cards na coleção */
-  ordenacao: OrdenacaoColecao = 'fixa';
-  modoColecaoVisual: ModoColecao = 'cards';
-  modoDetalhe: ModoDetalhe = 'cards';
+  readonly ordenacao = signal<OrdenacaoColecao>('fixa');
+  readonly modoColecaoVisual = signal<ModoColecao>('cards');
+  readonly modoDetalhe = signal<ModoDetalhe>('cards');
 
   readonly categoryLabels = CATEGORY_LABELS;
 
-  removendoId: number | null = null;
-  publicandoId: number | null = null;
-  duplicandoId: number | null = null;
-  menuItem: Template | null = null;
-  respostasPorTemplate: Record<number, number> = {};
+  readonly removendoId = signal<number | null>(null);
+  readonly publicandoId = signal<number | null>(null);
+  readonly duplicandoId = signal<number | null>(null);
+  readonly menuItem = signal<Template | null>(null);
+  readonly respostasPorTemplate = signal<Record<number, number>>({});
 
   private templatesService = inject(TemplatesService);
   private dashboardService = inject(DashboardService);
@@ -153,9 +154,9 @@ export class TemplatesListagemComponent implements OnInit {
       const raw = q['categoria'];
       const next =
         typeof raw === 'string' && raw.trim() !== '' ? canonicalCategoryKey(raw.trim()) : null;
-      this.categoriaAberta = next;
+      this.categoriaAberta.set(next);
       if (next) {
-        this.filtrosPainelAberto = false;
+        this.filtrosPainelAberto.set(false);
       }
       this.validarCategoriaNaUrl();
     });
@@ -171,36 +172,36 @@ export class TemplatesListagemComponent implements OnInit {
     this.showSkeleton = showSkeleton;
     data$.subscribe({
       next: ({ templates, dashboard }) => {
-        this.listaPronta = true;
-        this.templates = templates;
-        this.respostasPorTemplate = dashboard?.respostas_por_template ?? {};
+        this.listaPronta.set(true);
+        this.templates.set(templates);
+        this.respostasPorTemplate.set(dashboard?.respostas_por_template ?? {});
         this.montarGrupos();
         this.validarCategoriaNaUrl();
       },
       error: () => {
-        this.listaPronta = true;
-        this.erro = 'Não foi possível carregar os templates.';
+        this.listaPronta.set(true);
+        this.erro.set('Não foi possível carregar os templates.');
       },
     });
   }
 
   /** Vista em grade da coleção (sem query categoria) */
   get modoColecao(): boolean {
-    return !this.categoriaAberta;
+    return !this.categoriaAberta();
   }
 
   get grupoDetalhe(): { key: string; label: string; items: Template[] } | null {
-    if (!this.categoriaAberta) return null;
-    const q = canonicalCategoryKey(this.categoriaAberta);
+    if (!this.categoriaAberta()) return null;
+    const q = canonicalCategoryKey(this.categoriaAberta());
     return this.grupos.find((g) => g.key === q) ?? null;
   }
 
   get gruposParaColecao(): { key: string; label: string; items: Template[] }[] {
     const base = this.grupos.filter((g) => this.grupoVisivel(g));
     const copy = [...base];
-    if (this.ordenacao === 'az') {
+    if (this.ordenacao() === 'az') {
       copy.sort((a, b) => a.label.localeCompare(b.label, 'pt-BR'));
-    } else if (this.ordenacao === 'recente') {
+    } else if (this.ordenacao() === 'recente') {
       copy.sort((a, b) => {
         const ta = this.isoMaisRecente(a.items) ?? '';
         const tb = this.isoMaisRecente(b.items) ?? '';
@@ -211,21 +212,21 @@ export class TemplatesListagemComponent implements OnInit {
   }
 
   rotuloOrdenacao(): string {
-    if (this.ordenacao === 'az') return 'A–Z';
-    if (this.ordenacao === 'recente') return 'Recentes';
+    if (this.ordenacao() === 'az') return 'A–Z';
+    if (this.ordenacao() === 'recente') return 'Recentes';
     return 'Padrão';
   }
 
   tituloOrdenacao(): string {
-    if (this.ordenacao === 'az') return 'Ordenar: nome da categoria (A–Z)';
-    if (this.ordenacao === 'recente') return 'Ordenar: última atualização na categoria';
+    if (this.ordenacao() === 'az') return 'Ordenar: nome da categoria (A–Z)';
+    if (this.ordenacao() === 'recente') return 'Ordenar: última atualização na categoria';
     return 'Ordenar: ordem padrão do sistema';
   }
 
   ciclarOrdenacao(): void {
     const seq: OrdenacaoColecao[] = ['fixa', 'az', 'recente'];
-    const i = seq.indexOf(this.ordenacao);
-    this.ordenacao = seq[(i + 1) % seq.length];
+    const i = seq.indexOf(this.ordenacao());
+    this.ordenacao.set(seq[(i + 1) % seq.length]);
   }
 
   corAccent(key: string): string {
@@ -237,7 +238,7 @@ export class TemplatesListagemComponent implements OnInit {
   }
 
   toggleFiltrosPainel(): void {
-    this.filtrosPainelAberto = !this.filtrosPainelAberto;
+    this.filtrosPainelAberto.set(!this.filtrosPainelAberto());
   }
 
   setFiltro(f: 'all' | 'ativo' | 'publico'): void {
@@ -245,11 +246,11 @@ export class TemplatesListagemComponent implements OnInit {
   }
 
   setModoDetalhe(modo: ModoDetalhe): void {
-    this.modoDetalhe = modo;
+    this.modoDetalhe.set(modo);
   }
 
   setModoColecaoVisual(modo: ModoColecao): void {
-    this.modoColecaoVisual = modo;
+    this.modoColecaoVisual.set(modo);
   }
 
   /** Retorna os itens do grupo que passam no filtro e na busca */
@@ -290,7 +291,7 @@ export class TemplatesListagemComponent implements OnInit {
   }
 
   respostasModelo(t: Template): number {
-    return this.respostasPorTemplate[t.id] ?? 0;
+    return this.respostasPorTemplate()[t.id] ?? 0;
   }
 
   rotuloRespostas(t: Template): string {
@@ -334,17 +335,17 @@ export class TemplatesListagemComponent implements OnInit {
       variant: 'danger',
     });
     if (!ok) return;
-    this.removendoId = t.id;
+    this.removendoId.set(t.id);
     this.templatesService.delete(t.id).subscribe({
       next: () => {
-        this.removendoId = null;
-        this.templates = this.templates.filter((x) => x.id !== t.id);
+        this.removendoId.set(null);
+        this.templates.set(this.templates().filter((x) => x.id !== t.id));
         this.montarGrupos();
         this.validarCategoriaNaUrl();
         this.toast.success('Template removido', `${nome} foi excluído.`);
       },
       error: () => {
-        this.removendoId = null;
+        this.removendoId.set(null);
         this.toast.error('Erro ao remover', 'Não foi possível remover o template.');
       },
     });
@@ -353,19 +354,19 @@ export class TemplatesListagemComponent implements OnInit {
   duplicar(t: Template, event: Event): void {
     event.preventDefault();
     event.stopPropagation();
-    if (this.duplicandoId === t.id) return;
-    this.duplicandoId = t.id;
+    if (this.duplicandoId() === t.id) return;
+    this.duplicandoId.set(t.id);
     this.templatesService.duplicar(t.id).subscribe({
       next: (novo) => {
-        this.duplicandoId = null;
-        this.templates = [novo, ...this.templates];
+        this.duplicandoId.set(null);
+        this.templates.set([novo, ...this.templates()]);
         this.montarGrupos();
         this.validarCategoriaNaUrl();
         this.toast.success('Modelo duplicado', `${novo.name} foi criado. O link público fica desativado até você publicar.`);
         void this.router.navigate(['/templates', novo.id, 'editar']);
       },
       error: () => {
-        this.duplicandoId = null;
+        this.duplicandoId.set(null);
         this.toast.error('Erro ao duplicar', 'Não foi possível duplicar este modelo.');
       },
     });
@@ -375,7 +376,7 @@ export class TemplatesListagemComponent implements OnInit {
     event.preventDefault();
     event.stopPropagation();
 
-    if (this.publicandoId === t.id) return;
+    if (this.publicandoId() === t.id) return;
 
     if (t.public_enabled) {
       void this.despublicarModelo(t);
@@ -397,30 +398,30 @@ export class TemplatesListagemComponent implements OnInit {
     });
     if (!ok) return;
 
-    this.publicandoId = t.id;
+    this.publicandoId.set(t.id);
     this.templatesService.desativarLink(t.id).subscribe({
       next: () => {
-        this.publicandoId = null;
+        this.publicandoId.set(null);
         this.marcarTemplateComoNaoPublico(t.id);
         this.toast.success('Publicação removida', 'O link público foi desativado.');
       },
       error: () => {
-        this.publicandoId = null;
+        this.publicandoId.set(null);
         this.toast.error('Erro ao despublicar', 'Não foi possível remover a publicação deste modelo.');
       },
     });
   }
 
   private publicarModelo(t: Template): void {
-    this.publicandoId = t.id;
+    this.publicandoId.set(t.id);
     void this.publishGuard.confirmPublishIfNeeded(t.id).then((confirmed) => {
       if (!confirmed) {
-        this.publicandoId = null;
+        this.publicandoId.set(null);
         return;
       }
       this.templatesService.gerarLink(t.id).subscribe({
         next: async (resp) => {
-          this.publicandoId = null;
+          this.publicandoId.set(null);
           const publicUrl = String(resp?.data?.public_url ?? t.public_url ?? '').trim();
           this.marcarTemplateComoPublico(t.id, publicUrl);
 
@@ -434,7 +435,7 @@ export class TemplatesListagemComponent implements OnInit {
           this.toast.success('Link publicado', 'O link público foi ativado para este modelo.');
         },
         error: () => {
-          this.publicandoId = null;
+          this.publicandoId.set(null);
           this.toast.error('Erro ao publicar', 'Não foi possível publicar o link deste modelo.');
         },
       });
@@ -443,7 +444,7 @@ export class TemplatesListagemComponent implements OnInit {
 
   private montarGrupos(): void {
     const byCategory = new Map<string, Template[]>();
-    for (const t of this.templates) {
+    for (const t of this.templates()) {
       const key = canonicalCategoryKey(t.category);
       if (!byCategory.has(key)) byCategory.set(key, []);
       byCategory.get(key)!.push(t);
@@ -464,7 +465,7 @@ export class TemplatesListagemComponent implements OnInit {
   }
 
   private marcarTemplateComoNaoPublico(templateId: number): void {
-    for (const item of this.templates) {
+    for (const item of this.templates()) {
       if (item.id !== templateId) continue;
       item.public_enabled = false;
       item.public_url = '';
@@ -472,7 +473,7 @@ export class TemplatesListagemComponent implements OnInit {
   }
 
   private marcarTemplateComoPublico(templateId: number, publicUrl: string): void {
-    for (const item of this.templates) {
+    for (const item of this.templates()) {
       if (item.id !== templateId) continue;
       item.public_enabled = true;
       if (publicUrl !== '') item.public_url = publicUrl;
@@ -499,8 +500,8 @@ export class TemplatesListagemComponent implements OnInit {
   }
 
   private validarCategoriaNaUrl(): void {
-    if (!this.categoriaAberta || !this.listaPronta) return;
-    const q = canonicalCategoryKey(this.categoriaAberta);
+    if (!this.categoriaAberta() || !this.listaPronta()) return;
+    const q = canonicalCategoryKey(this.categoriaAberta());
     const grupo = this.grupos.find((g) => g.key === q);
     if (!grupo) {
       void this.router.navigate(['/templates'], { replaceUrl: true });

@@ -1,15 +1,15 @@
 <div class="sidebar-overlay-mobile fixed inset-0 z-20 cursor-pointer bg-black/55 backdrop-blur-sm lg:hidden"
-     [class.hidden]="!sidebarOpenMobile"
+     [class.hidden]="!sidebarOpenMobile()"
      aria-hidden="true"
      (click)="fecharSidebarMobile()"></div>
 <aside id="sidebar"
        data-shell="plataforma"
        class="sidebar fixed inset-y-0 left-0 z-30 flex flex-col lg:translate-x-0"
-       [class.-translate-x-full]="!sidebarOpenMobile">
+       [class.-translate-x-full]="!sidebarOpenMobile()">
   <div class="sidebar-brand-strip sidebar-brand-strip--gestgo flex h-14 shrink-0 items-center border-b px-3.5">
     <a routerLink="/plataforma" class="sidebar-brand sidebar-brand--gestgo flex w-full min-w-0 items-center gap-2.5 no-underline">
       <div class="sidebar-logo-chip sidebar-logo-chip--gestgo flex shrink-0 items-center justify-center">
-        <img [src]="sidebarLogoSrc" alt="Gestgo" class="sidebar-logo-chip__img" onerror="this.style.display='none'">
+        <img [src]="sidebarLogoSrc()" alt="Gestgo" class="sidebar-logo-chip__img" onerror="this.style.display='none'">
       </div>
       <span class="sidebar-brand__text sidebar-label min-w-0">
         <span class="sidebar-brand__title">Gestgo</span>
@@ -186,13 +186,13 @@
         <z-avatar
           zSize="sm"
           zShape="circle"
-          [zFallback]="iniciaisUsuario"
-          [zAlt]="nomeUsuario"
+          [zFallback]="iniciaisUsuario()"
+          [zAlt]="nomeUsuario()"
           class="shrink-0 !bg-primary !text-primary-foreground [&>span]:text-[0.65rem] [&>span]:font-bold"
         />
         <div class="shell-profile-chip__meta sidebar-label">
-          <p class="truncate text-left text-xs font-semibold text-foreground">{{ nomeUsuario }}</p>
-          <p class="truncate text-left text-[0.7rem] text-muted-foreground">{{ emailUsuario }}</p>
+          <p class="truncate text-left text-xs font-semibold text-foreground">{{ nomeUsuario() }}</p>
+          <p class="truncate text-left text-[0.7rem] text-muted-foreground">{{ emailUsuario() }}</p>
         </div>
         <span class="sidebar-label material-symbols-outlined shrink-0 text-base text-muted-foreground">unfold_more</span>
       </button>

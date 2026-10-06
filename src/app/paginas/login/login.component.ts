@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
+import { Component, OnInit, Inject, PLATFORM_ID, ChangeDetectionStrategy, signal } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -11,6 +11,7 @@ import { ZardTooltipImports } from '@/shared/components/tooltip';
 @Component({
   selector: 'app-pagina-login',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     RouterLink,
     FormsModule,
@@ -26,12 +27,12 @@ export class LoginComponent implements OnInit {
   email = '';
   senha = '';
   lembrar = false;
-  mostrarSenha = false;
-  estadoCarregando = false;
-  estadoErro = false;
-  mensagemErro = '';
+  readonly mostrarSenha = signal(false);
+  readonly estadoCarregando = signal(false);
+  readonly estadoErro = signal(false);
+  readonly mensagemErro = signal('');
   ano = new Date().getFullYear();
-  iconeTema = 'dark_mode';
+  readonly iconeTema = signal('dark_mode');
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: object,
@@ -56,19 +57,19 @@ export class LoginComponent implements OnInit {
   }
 
   private atualizarIconeTema(): void {
-    this.iconeTema = document.body.classList.contains('dark') ? 'light_mode' : 'dark_mode';
+    this.iconeTema.set(document.body.classList.contains('dark') ? 'light_mode' : 'dark_mode');
   }
 
   enviar(): void {
-    this.estadoErro = false;
-    this.mensagemErro = '';
-    this.estadoCarregando = true;
+    this.estadoErro.set(false);
+    this.mensagemErro.set('');
+    this.estadoCarregando.set(true);
     if (isPlatformBrowser(this.platformId) && this.email) {
       localStorage.setItem('gestgo_login_email', this.email);
     }
     this.auth.login(this.email, this.senha).subscribe({
       next: (res) => {
-        this.estadoCarregando = false;
+        this.estadoCarregando.set(false);
         const isPlatformAdmin = res.data.user?.role === 'platform_admin';
         if (isPlatformAdmin) {
           this.router.navigate(['/plataforma']);
@@ -82,10 +83,10 @@ export class LoginComponent implements OnInit {
         }
       },
       error: (err) => {
-        this.estadoCarregando = false;
-        this.estadoErro = true;
+        this.estadoCarregando.set(false);
+        this.estadoErro.set(true);
         const msg = err.error?.message ?? err.error?.errors?.email?.[0] ?? 'Credenciais inválidas. Tente novamente.';
-        this.mensagemErro = typeof msg === 'string' ? msg : 'Credenciais inválidas. Tente novamente.';
+        this.mensagemErro.set(typeof msg === 'string' ? msg : 'Credenciais inválidas. Tente novamente.');
       },
     });
   }

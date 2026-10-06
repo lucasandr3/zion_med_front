@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, Signal } from '@angular/core';
+import { Component, OnInit, inject, Signal, ChangeDetectionStrategy, signal } from '@angular/core';
 import { ZardCardComponent } from '@/shared/components/card/card.component';
 import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
 import { PlataformaService, PlatformInvoice } from '../../../core/services/plataforma.service';
@@ -10,6 +10,7 @@ import { ZardTableImports } from '@/shared/components/table';
 @Component({
   selector: 'app-plataforma-faturas',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     ...ZardTableImports,
     ZardCardComponent,
@@ -24,9 +25,9 @@ export class PlataformaFaturasComponent implements OnInit {
   protected readonly rotuloStatusFatura = statusFaturaPt;
 
   showSkeleton!: Signal<boolean>;
-  listaPronta = false;
-  estadoErro = false;
-  faturas: PlatformInvoice[] = [];
+  readonly listaPronta = signal(false);
+  readonly estadoErro = signal(false);
+  readonly faturas = signal<PlatformInvoice[]>([]);
 
   private plataformaService = inject(PlataformaService);
   private loadingService = inject(LoadingService);
@@ -36,12 +37,12 @@ export class PlataformaFaturasComponent implements OnInit {
     this.showSkeleton = showSkeleton;
     data$.subscribe({
       next: (res) => {
-        this.listaPronta = true;
-        this.faturas = res.data ?? [];
+        this.listaPronta.set(true);
+        this.faturas.set(res.data ?? []);
       },
       error: () => {
-        this.listaPronta = true;
-        this.estadoErro = true;
+        this.listaPronta.set(true);
+        this.estadoErro.set(true);
       },
     });
   }

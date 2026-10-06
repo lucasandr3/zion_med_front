@@ -1,9 +1,10 @@
-import { Component, Input, OnInit, OnDestroy, inject, ViewChild, TemplateRef, ViewContainerRef } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy, inject, ViewChild, TemplateRef, ViewContainerRef, ChangeDetectionStrategy } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { UserAppearanceService } from '../../../core/services/user-appearance.service';
 import { SidebarMobileService } from '../../../core/services/sidebar-mobile.service';
+import { ShellSidebarCollapseService } from '../../../core/services/shell-sidebar-collapse.service';
 import { ClinicaService } from '../../../core/services/clinica.service';
 import { ShellNavLayoutService } from '../../../core/services/shell-nav-layout.service';
 import {
@@ -64,6 +65,7 @@ const TEMAS_GRADE_ORDER = [
 @Component({
   selector: 'app-cabecalho',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [RouterLink, ZardButtonComponent, ZardBadgeComponent, ZardAvatarComponent, BarraNavHorizontalComponent, ...ZardMenuImports],
   templateUrl: './cabecalho.component.html',
   styleUrl: './cabecalho.component.css',
@@ -154,6 +156,7 @@ export class CabecalhoComponent implements OnInit, OnDestroy {
   private router = inject(Router);
   private appearance = inject(UserAppearanceService);
   private sidebarMobile = inject(SidebarMobileService);
+  private sidebarCollapse = inject(ShellSidebarCollapseService);
   private clinicaService = inject(ClinicaService);
   private readonly shellNavLayout = inject(ShellNavLayoutService);
   private readonly vcr = inject(ViewContainerRef);
@@ -162,6 +165,8 @@ export class CabecalhoComponent implements OnInit, OnDestroy {
   private temaSheetRef?: ZardSheetRef<void>;
 
   ngOnInit(): void {
+    this.sidebarCollapse.ensureHydrated();
+    this.sidebarColapsada = this.sidebarCollapse.collapsed();
     this.syncTemaControlsFromBrowser();
     if (this.themeDrawerMode === 'auto') {
       this._applyAutoMode();
@@ -330,15 +335,11 @@ export class CabecalhoComponent implements OnInit, OnDestroy {
       return;
     }
     if (isMobile) {
-      /* Igual ao backend: apenas alternar estado; sidebar/overlay reagem por classe no elemento */
-      this.sidebarMobile.setOpen(!this.sidebarMobile.isOpen);
+      this.sidebarMobile.toggle();
       return;
     }
-    this.sidebarColapsada = !this.sidebarColapsada;
-    document.body.classList.toggle('sidebar-collapsed', this.sidebarColapsada);
-    try {
-      localStorage.setItem('gestgo_sidebar_collapsed', this.sidebarColapsada ? '1' : '0');
-    } catch {}
+    this.sidebarCollapse.toggle();
+    this.sidebarColapsada = this.sidebarCollapse.collapsed();
   }
 
   /** Define modo escuro (true) ou claro (false); usado no drawer de tema */

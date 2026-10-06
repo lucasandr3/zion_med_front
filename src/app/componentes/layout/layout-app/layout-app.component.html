@@ -1,27 +1,36 @@
-<app-barra-lateral [notificacoesNaoLidas]="notificacoesNaoLidas" [novidadesNaoVistas]="novidadesNaoVistas" [trialNotice]="trialNotice" />
-<div class="main-wrapper flex flex-col min-h-screen bg-background">
-  <app-cabecalho [titulo]="tituloPagina" [notificacoesNaoLidas]="notificacoesNaoLidas" [novidadesNaoVistas]="novidadesNaoVistas" shellContext="app" />
-  @if (trialNotice) {
+<app-barra-lateral
+  [notificacoesNaoLidas]="notificacoesNaoLidas()"
+  [novidadesNaoVistas]="novidadesNaoVistas()"
+  [trialNotice]="trialNotice()"
+/>
+<div class="main-wrapper flex min-h-screen flex-col bg-background">
+  <app-cabecalho
+    [titulo]="tituloPagina()"
+    [notificacoesNaoLidas]="notificacoesNaoLidas()"
+    [novidadesNaoVistas]="novidadesNaoVistas()"
+    shellContext="app"
+  />
+  @if (trialNotice(); as trial) {
     <div
-      class="trial-banner px-4 sm:px-6 lg:px-8 py-3 text-sm flex flex-wrap items-center justify-between gap-3 border-b bg-muted/35 text-foreground border-border"
+      class="trial-banner flex flex-wrap items-center justify-between gap-3 border-b border-border bg-muted/35 px-4 py-3 text-sm text-foreground sm:px-6 lg:px-8"
       role="status"
     >
       <span class="flex items-center gap-2 text-muted-foreground">
         <span class="material-symbols-outlined text-lg text-primary" aria-hidden="true">schedule</span>
-        {{ trialNotice.message }}
+        {{ trial.message }}
       </span>
       <a routerLink="/assinatura" z-button zType="link" class="shrink-0 font-semibold">Ver assinatura</a>
     </div>
   }
   @if (mostrarAvisoCobrancaGlobal()) {
-    <div class="px-4 sm:px-6 lg:px-8 pt-3">
+    <div class="px-4 pt-3 sm:px-6 lg:px-8">
       <zm-assinatura-bloqueada-card variant="compact" />
     </div>
   }
-  <main class="flex-1 px-4 sm:px-6 lg:px-8 py-6 lg:py-6 bg-background">
-    @if (urlVoltar && !voltarIntegrado) {
+  <main class="flex-1 bg-background px-4 py-6 sm:px-6 lg:px-8 lg:py-6">
+    @if (urlVoltar() && !voltarIntegrado()) {
       <div class="zm-page-back-bar mb-4">
-        <zm-page-back-link [url]="urlVoltar" [label]="labelVoltar" />
+        <zm-page-back-link [url]="urlVoltar()" [label]="labelVoltar()" />
       </div>
     }
     <router-outlet />

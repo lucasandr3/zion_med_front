@@ -138,6 +138,52 @@
   color: #0a0a0a;
 }
 
+.fp-input {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #e5e5e5;
+  border-radius: 0.5rem;
+  padding: 0.65rem 0.75rem;
+  font-size: 0.9375rem;
+  background: #fff;
+  color: #0a0a0a;
+}
+.sucesso-page.dark .fp-input {
+  background: #141414;
+  border-color: #2a2a2a;
+  color: #fafafa;
+}
+.fp-input:focus {
+  outline: 2px solid #0a0a0a;
+  outline-offset: 1px;
+}
+.sucesso-page.dark .fp-input:focus {
+  outline-color: #fafafa;
+}
+
+.fp-submit-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  background: #0a0a0a;
+  color: #fff;
+  cursor: pointer;
+}
+.sucesso-page.dark .fp-submit-btn {
+  background: #fafafa;
+  color: #0a0a0a;
+}
+.fp-submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 @keyframes sucessoPop {
   0% {
     transform: scale(0.85);

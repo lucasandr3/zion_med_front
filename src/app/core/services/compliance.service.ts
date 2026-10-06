@@ -29,6 +29,10 @@ export interface ComplianceReportData {
     retention_anonymized: number;
     revocation_rate_percent: number;
     revocation_rate_denominator?: string;
+    patient_copy_token_issued?: number;
+    patient_copy_downloaded?: number;
+    patient_copy_emailed?: number;
+    patient_copy_download_rate_percent?: number;
   };
   by_status: {
     pending: number;

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject, Signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, Signal, ChangeDetectionStrategy, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ZardCardComponent } from '@/shared/components/card/card.component';
 import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
@@ -17,6 +17,7 @@ import { statusAssinaturaOuCobrancaPt } from '../../../core/utils/status-labels-
 @Component({
   selector: 'app-plataforma-cliente-detalhe',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     ZardCardComponent,
     ZardBadgeComponent,
@@ -31,9 +32,9 @@ export class PlataformaClienteDetalheComponent implements OnInit, OnDestroy {
   protected readonly rotuloStatusAssinaturaCobranca = statusAssinaturaOuCobrancaPt;
 
   showSkeleton!: Signal<boolean>;
-  listaPronta = false;
-  estadoErro = false;
-  data: PlatformTenantDetail | null = null;
+  readonly listaPronta = signal(false);
+  readonly estadoErro = signal(false);
+  readonly data = signal<PlatformTenantDetail | null>(null);
   clinicasExpandidas = new Set<number>();
 
   private route = inject(ActivatedRoute);
@@ -48,8 +49,8 @@ export class PlataformaClienteDetalheComponent implements OnInit, OnDestroy {
     this.showSkeleton = showSkeleton;
     data$.subscribe({
       next: (res) => {
-        this.listaPronta = true;
-        this.data = res.data;
+        this.listaPronta.set(true);
+        this.data.set(res.data);
         if (res.data?.tenant) {
           this.headerService.setHeader(
             'Cliente: ' + res.data.tenant.name,
@@ -58,8 +59,8 @@ export class PlataformaClienteDetalheComponent implements OnInit, OnDestroy {
         }
       },
       error: () => {
-        this.listaPronta = true;
-        this.estadoErro = true;
+        this.listaPronta.set(true);
+        this.estadoErro.set(true);
       },
     });
   }

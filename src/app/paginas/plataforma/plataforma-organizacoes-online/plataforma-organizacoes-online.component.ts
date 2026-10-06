@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, Signal } from '@angular/core';
+import { Component, OnInit, inject, Signal, ChangeDetectionStrategy, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ZardCardComponent } from '@/shared/components/card/card.component';
 import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
@@ -11,6 +11,7 @@ import { ZardTableImports } from '@/shared/components/table';
 @Component({
   selector: 'app-plataforma-organizacoes-online',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     ...ZardTableImports,CommonModule, ZardCardComponent, ZardBadgeComponent, ZmSkeletonListComponent, ZmEmptyStateComponent],
   templateUrl: './plataforma-organizacoes-online.component.html',
@@ -18,9 +19,9 @@ import { ZardTableImports } from '@/shared/components/table';
 })
 export class PlataformaOrganizacoesOnlineComponent implements OnInit {
   showSkeleton!: Signal<boolean>;
-  listaPronta = false;
-  estadoErro = false;
-  linhas: PlatformOrganizationPresence[] = [];
+  readonly listaPronta = signal(false);
+  readonly estadoErro = signal(false);
+  readonly linhas = signal<PlatformOrganizationPresence[]>([]);
 
   private plataformaService = inject(PlataformaService);
   private loadingService = inject(LoadingService);
@@ -30,12 +31,12 @@ export class PlataformaOrganizacoesOnlineComponent implements OnInit {
     this.showSkeleton = showSkeleton;
     data$.subscribe({
       next: (res) => {
-        this.listaPronta = true;
-        this.linhas = res.data ?? [];
+        this.listaPronta.set(true);
+        this.linhas.set(res.data ?? []);
       },
       error: () => {
-        this.listaPronta = true;
-        this.estadoErro = true;
+        this.listaPronta.set(true);
+        this.estadoErro.set(true);
       },
     });
   }

@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, Signal } from '@angular/core';
+import { Component, OnInit, inject, Signal, ChangeDetectionStrategy, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { LinksPublicosService, LinkPublico } from '../../core/services/links-publicos.service';
 import { ToastService } from '../../core/services/toast.service';
@@ -29,6 +29,7 @@ interface LinkPublicoItem {
 @Component({
   selector: 'app-pagina-links-publicos',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     RouterLink,
     ZmSkeletonLinksPublicosComponent,
@@ -44,22 +45,22 @@ interface LinkPublicoItem {
   styleUrl: './links-publicos.component.css',
 })
 export class LinksPublicosComponent implements OnInit {
-  templates: LinkPublicoItem[] = [];
-  meta: { current_page: number; last_page: number; per_page: number; total: number } = {
+  readonly templates = signal<LinkPublicoItem[]>([]);
+  readonly meta = signal<{ current_page: number; last_page: number; per_page: number; total: number }>({
     current_page: 1,
     last_page: 1,
     per_page: 10,
     total: 0,
-  };
+  });
   showSkeleton!: Signal<boolean>;
-  listaPronta = false;
-  erro = '';
-  copiedTemplateId: number | null = null;
-  qrAberto = false;
-  qrCarregando = false;
-  qrDataUrl = '';
-  qrItem: LinkPublicoItem | null = null;
-  menuItem: LinkPublicoItem | null = null;
+  readonly listaPronta = signal(false);
+  readonly erro = signal('');
+  readonly copiedTemplateId = signal<number | null>(null);
+  readonly qrAberto = signal(false);
+  readonly qrCarregando = signal(false);
+  readonly qrDataUrl = signal('');
+  readonly qrItem = signal<LinkPublicoItem | null>(null);
+  readonly menuItem = signal<LinkPublicoItem | null>(null);
 
   private linksService = inject(LinksPublicosService);
   private loadingService = inject(LoadingService);
@@ -70,18 +71,18 @@ export class LinksPublicosComponent implements OnInit {
   }
 
   carregar(page = 1): void {
-    this.erro = '';
-    this.listaPronta = false;
+    this.erro.set('');
+    this.listaPronta.set(false);
     const { data$, showSkeleton } = this.loadingService.loadWithThreshold(
-      this.linksService.list({ page, per_page: this.meta.per_page }),
+      this.linksService.list({ page, per_page: this.meta().per_page }),
     );
     this.showSkeleton = showSkeleton;
     data$.subscribe({
       next: ({ data: list, meta }) => {
-        this.listaPronta = true;
-        this.meta = meta;
+        this.listaPronta.set(true);
+        this.meta.set(meta);
         const base = typeof window !== 'undefined' ? window.location.origin : '';
-        this.templates = list.map((t: LinkPublico) => ({
+        this.templates.set(list.map((t: LinkPublico) => ({
           id: t.template_id ?? t.id,
           name: t.template_name ?? t.name ?? '',
           category_label: t.category_label,
@@ -89,21 +90,21 @@ export class LinksPublicosComponent implements OnInit {
           public_token: t.public_token,
           submission_count: t.submission_count,
           updated_at: t.updated_at ?? t.created_at,
-        }));
-        for (const item of this.templates) {
+        })));
+        for (const item of this.templates()) {
           prefetchPublicFormQr(item.public_url);
         }
       },
       error: () => {
-        this.listaPronta = true;
-        this.erro = 'Não foi possível carregar os formulários públicos.';
-        this.toast.error('Erro ao carregar', this.erro);
+        this.listaPronta.set(true);
+        this.erro.set('Não foi possível carregar os formulários públicos.');
+        this.toast.error('Erro ao carregar', this.erro());
       },
     });
   }
 
   contagemTexto(): string {
-    const { total, current_page, last_page, per_page } = this.meta;
+    const { total, current_page, last_page, per_page } = this.meta();
     if (total === 0) return 'Nenhum formulário público';
     if (last_page <= 1) {
       return `${total} ${total === 1 ? 'formulário público' : 'formulários públicos'}`;
@@ -144,11 +145,11 @@ export class LinksPublicosComponent implements OnInit {
       navigator.clipboard
         .writeText(url)
         .then(() => {
-          this.copiedTemplateId = templateId;
+          this.copiedTemplateId.set(templateId);
           this.toast.success('Link copiado', 'Você já pode colar e enviar para o paciente.');
           setTimeout(() => {
-            if (this.copiedTemplateId === templateId) {
-              this.copiedTemplateId = null;
+            if (this.copiedTemplateId() === templateId) {
+              this.copiedTemplateId.set(null);
             }
           }, 2000);
         })
@@ -165,23 +166,23 @@ export class LinksPublicosComponent implements OnInit {
       this.toast.warning('Link indisponível', 'Este formulário ainda não possui URL pública.');
       return;
     }
-    this.qrItem = item;
-    this.qrAberto = true;
-    this.qrCarregando = true;
-    this.qrDataUrl = '';
+    this.qrItem.set(item);
+    this.qrAberto.set(true);
+    this.qrCarregando.set(true);
+    this.qrDataUrl.set('');
     try {
-      this.qrDataUrl = await getOrCreatePublicFormQrDataUrl(item.public_url);
+      this.qrDataUrl.set(await getOrCreatePublicFormQrDataUrl(item.public_url));
     } catch {
       this.toast.error('QR code', 'Não foi possível gerar o QR code deste link.');
       this.fecharQr();
     } finally {
-      this.qrCarregando = false;
+      this.qrCarregando.set(false);
     }
   }
 
   baixarQr(): void {
-    if (!this.qrDataUrl || !this.qrItem) return;
-    downloadPublicFormQrPng(this.qrDataUrl, this.qrItem.name);
+    if (!this.qrDataUrl() || !this.qrItem()) return;
+    downloadPublicFormQrPng(this.qrDataUrl(), this.qrItem()!.name);
     this.toast.success('Download iniciado', 'O QR code foi salvo no seu dispositivo.');
   }
 
@@ -200,9 +201,9 @@ export class LinksPublicosComponent implements OnInit {
   }
 
   fecharQr(): void {
-    this.qrAberto = false;
-    this.qrCarregando = false;
-    this.qrItem = null;
+    this.qrAberto.set(false);
+    this.qrCarregando.set(false);
+    this.qrItem.set(null);
   }
 
   private formatRelativeDate(iso: string): string {

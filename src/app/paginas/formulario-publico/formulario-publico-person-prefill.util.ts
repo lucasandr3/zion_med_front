@@ -103,6 +103,31 @@ export function applyPersonPrefillToFields(
   });
 }
 
+/**
+ * R8: após o gate por CPF, preenche campos de CPF vazios com os dígitos já informados
+ * (não vem do banco — o paciente acabou de digitar no gate).
+ */
+export function applyGateCpfToFields(
+  fields: FormularioPublicoField[],
+  valores: Record<string, string | number | boolean | Date>,
+  cpfDigits: string | undefined | null,
+): void {
+  const digits = String(cpfDigits ?? '').replace(/\D+/g, '');
+  if (digits.length !== 11) return;
+
+  const formatted = digits.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+
+  fields.forEach((field) => {
+    const fieldKey = field.name_key;
+    if (String(valores[fieldKey] ?? '').trim() !== '') return;
+
+    const haystack = `${normalizeText(fieldKey)} ${normalizeText(field.label)}`;
+    if (!haystack.includes('cpf')) return;
+
+    valores[fieldKey] = formatted;
+  });
+}
+
 export function resolveSubmitterFromPrefill(
   prefill: PersonPrefill | undefined,
   validatedName?: string,

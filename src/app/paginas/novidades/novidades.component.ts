@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, inject, Signal } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject, Signal, ChangeDetectionStrategy, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subject, Subscription, debounceTime, distinctUntilChanged } from 'rxjs';
@@ -13,6 +13,7 @@ import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
 @Component({
   selector: 'app-pagina-novidades',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,
@@ -26,15 +27,15 @@ import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
   styleUrl: './novidades.component.css',
 })
 export class NovidadesComponent implements OnInit, OnDestroy {
-  notas: ReleaseNote[] = [];
+  readonly notas = signal<ReleaseNote[]>([]);
   busca = '';
-  paginaAtual = 1;
-  ultimaPagina = 1;
-  total = 0;
+  readonly paginaAtual = signal(1);
+  readonly ultimaPagina = signal(1);
+  readonly total = signal(0);
   showSkeleton!: Signal<boolean>;
-  listaPronta = false;
-  erro = '';
-  carregandoMais = false;
+  readonly listaPronta = signal(false);
+  readonly erro = signal('');
+  readonly carregandoMais = signal(false);
 
   private novidadesService = inject(NovidadesService);
   private loadingService = inject(LoadingService);
@@ -46,17 +47,17 @@ export class NovidadesComponent implements OnInit, OnDestroy {
   }
 
   get notaRecente(): ReleaseNote | null {
-    if (this.buscaAtiva || this.notas.length === 0) return null;
-    return this.notas[0];
+    if (this.buscaAtiva || this.notas().length === 0) return null;
+    return this.notas()[0];
   }
 
   get notasAnteriores(): ReleaseNote[] {
-    if (this.buscaAtiva || this.notas.length <= 1) return [];
-    return this.notas.slice(1);
+    if (this.buscaAtiva || this.notas().length <= 1) return [];
+    return this.notas().slice(1);
   }
 
   get podeCarregarMais(): boolean {
-    return this.paginaAtual < this.ultimaPagina;
+    return this.paginaAtual() < this.ultimaPagina();
   }
 
   ngOnInit(): void {
@@ -81,7 +82,7 @@ export class NovidadesComponent implements OnInit, OnDestroy {
   }
 
   carregar(reset: boolean): void {
-    const pagina = reset ? 1 : this.paginaAtual + 1;
+    const pagina = reset ? 1 : this.paginaAtual() + 1;
     const termo = this.busca.trim() || undefined;
 
     if (reset) {
@@ -92,19 +93,19 @@ export class NovidadesComponent implements OnInit, OnDestroy {
       data$.subscribe({
         next: (res) => this.aplicarResposta(res, reset),
         error: () => {
-          this.listaPronta = true;
-          this.erro = 'Não foi possível carregar as novidades.';
+          this.listaPronta.set(true);
+          this.erro.set('Não foi possível carregar as novidades.');
         },
       });
       return;
     }
 
-    this.carregandoMais = true;
+    this.carregandoMais.set(true);
     this.novidadesService.list(pagina, termo).subscribe({
       next: (res) => this.aplicarResposta(res, reset),
       error: () => {
-        this.carregandoMais = false;
-        this.erro = 'Não foi possível carregar mais versões.';
+        this.carregandoMais.set(false);
+        this.erro.set('Não foi possível carregar mais versões.');
       },
     });
   }
@@ -113,14 +114,14 @@ export class NovidadesComponent implements OnInit, OnDestroy {
     res: { data: ReleaseNote[]; meta?: { current_page: number; last_page: number; total: number } },
     reset: boolean,
   ): void {
-    this.listaPronta = true;
-    this.carregandoMais = false;
-    this.erro = '';
+    this.listaPronta.set(true);
+    this.carregandoMais.set(false);
+    this.erro.set('');
     const novos = res.data ?? [];
-    this.notas = reset ? novos : [...this.notas, ...novos];
-    this.paginaAtual = res.meta?.current_page ?? 1;
-    this.ultimaPagina = res.meta?.last_page ?? 1;
-    this.total = res.meta?.total ?? this.notas.length;
+    this.notas.set(reset ? novos : [...this.notas(), ...novos]);
+    this.paginaAtual.set(res.meta?.current_page ?? 1);
+    this.ultimaPagina.set(res.meta?.last_page ?? 1);
+    this.total.set(res.meta?.total ?? this.notas().length);
 
     if (reset) {
       this.novidadesService.markLatestAsSeen().subscribe({ error: () => {} });

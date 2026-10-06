@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject, Signal, ViewChild, TemplateRef, ViewContainerRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, Signal, ViewChild, TemplateRef, ViewContainerRef, ChangeDetectionStrategy, signal } from '@angular/core';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ProtocolosService, Protocolo } from '../../core/services/protocolos.service';
@@ -18,6 +18,7 @@ import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
 @Component({
   selector: 'app-protocolos-listagem',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     ...ZARD_FORM_CONTROL_IMPORTS,
     ...ZardTableImports,
@@ -35,25 +36,25 @@ import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
   templateUrl: './protocolos-listagem.component.html',
 })
 export class ProtocolosListagemComponent implements OnInit, OnDestroy {
-  protocolos: Protocolo[] = [];
-  templates: Template[] = [];
-  meta: { current_page: number; last_page: number; per_page: number; total: number } = {
+  readonly protocolos = signal<Protocolo[]>([]);
+  readonly templates = signal<Template[]>([]);
+  readonly meta = signal<{ current_page: number; last_page: number; per_page: number; total: number }>({
     current_page: 1,
     last_page: 1,
     per_page: 20,
     total: 0,
-  };
+  });
   showSkeleton!: Signal<boolean>;
-  listaPronta = false;
-  erro = '';
-  exportando = false;
+  readonly listaPronta = signal(false);
+  readonly erro = signal('');
+  readonly exportando = signal(false);
 
   busca = '';
   template_id: number | '' = '';
   status: string = '';
   data_inicio = '';
   data_fim = '';
-  filterDrawerOpen = false;
+  readonly filterDrawerOpen = signal(false);
   /** Calendário no body para não ser cortado pelo overflow do sheet. */
   flatpickrAppendTo!: HTMLElement;
 
@@ -80,7 +81,7 @@ export class ProtocolosListagemComponent implements OnInit, OnDestroy {
   get opcoesTemplateFiltro(): ZardComboboxOption[] {
     return [
       { value: '', label: 'Todos' },
-      ...this.templates.map((t) => ({ value: String(t.id), label: t.name })),
+      ...this.templates().map((t) => ({ value: String(t.id), label: t.name })),
     ];
   }
 
@@ -109,7 +110,7 @@ export class ProtocolosListagemComponent implements OnInit, OnDestroy {
     if (statusFromQuery) {
       this.status = statusFromQuery;
     }
-    this.templatesService.list().subscribe({ next: (t) => (this.templates = t) });
+    this.templatesService.list().subscribe({ next: (t) => this.templates.set(t) });
     this.carregar();
   }
 
@@ -143,13 +144,13 @@ export class ProtocolosListagemComponent implements OnInit, OnDestroy {
     this.showSkeleton = showSkeleton;
     data$.subscribe({
       next: (res) => {
-        this.listaPronta = true;
-        this.protocolos = res.data;
-        this.meta = res.meta;
+        this.listaPronta.set(true);
+        this.protocolos.set(res.data);
+        this.meta.set(res.meta);
       },
       error: () => {
-        this.listaPronta = true;
-        this.erro = 'Não foi possível carregar os protocolos.';
+        this.listaPronta.set(true);
+        this.erro.set('Não foi possível carregar os protocolos.');
       },
     });
   }
@@ -176,7 +177,7 @@ export class ProtocolosListagemComponent implements OnInit, OnDestroy {
     if (!this.protocolosFiltrosTpl) {
       return;
     }
-    this.filterDrawerOpen = true;
+    this.filterDrawerOpen.set(true);
     this.filtrosSheetRef = this.zardSheet.create<void, void>({
       zContent: this.protocolosFiltrosTpl,
       zViewContainerRef: this.vcr,
@@ -188,7 +189,7 @@ export class ProtocolosListagemComponent implements OnInit, OnDestroy {
       zCancelText: null,
       zAfterClose: () => {
         this.filtrosSheetRef = undefined;
-        this.filterDrawerOpen = false;
+        this.filterDrawerOpen.set(false);
       },
     });
   }
@@ -216,7 +217,7 @@ export class ProtocolosListagemComponent implements OnInit, OnDestroy {
   }
 
   exportarCsv(): void {
-    this.exportando = true;
+    this.exportando.set(true);
     const params: { template_id?: number; status?: string; data_inicio?: string; data_fim?: string } = {};
     if (this.template_id !== '') params.template_id = Number(this.template_id);
     if (this.status) params.status = this.status;
@@ -231,14 +232,14 @@ export class ProtocolosListagemComponent implements OnInit, OnDestroy {
         a.download = `protocolos-${new Date().toISOString().slice(0, 10)}.csv`;
         a.click();
         URL.revokeObjectURL(url);
-        this.exportando = false;
+        this.exportando.set(false);
       },
-      error: () => (this.exportando = false),
+      error: () => this.exportando.set(false),
     });
   }
 
   exportarPdf(): void {
-    this.exportando = true;
+    this.exportando.set(true);
     const params: { template_id?: number; status?: string; data_inicio?: string; data_fim?: string; limit?: number } = { limit: 50 };
     if (this.template_id !== '') params.template_id = Number(this.template_id);
     if (this.status) params.status = this.status;
@@ -253,14 +254,14 @@ export class ProtocolosListagemComponent implements OnInit, OnDestroy {
         a.download = `protocolos-pdf-${new Date().toISOString().slice(0, 10)}.pdf`;
         a.click();
         URL.revokeObjectURL(url);
-        this.exportando = false;
+        this.exportando.set(false);
       },
-      error: () => (this.exportando = false),
+      error: () => this.exportando.set(false),
     });
   }
 
   contagemTexto(): string {
-    const n = this.meta.total;
+    const n = this.meta().total;
     return n === 1 ? '1 registro' : `${n} registros`;
   }
 }

@@ -20,7 +20,7 @@
         type="button"
         class="shrink-0 gap-1.5"
         (click)="openFilterDrawer()"
-        [attr.aria-expanded]="filterDrawerOpen ? 'true' : 'false'"
+        [attr.aria-expanded]="filterDrawerOpen() ? 'true' : 'false'"
         [class.ring-2]="temFiltrosAtivos"
         [class.ring-ring]="temFiltrosAtivos"
         title="Filtros"
@@ -45,21 +45,21 @@
     </div>
   </div>
 
-  @if (listaPronta && !erro) {
+  @if (listaPronta() && !erro()) {
     <p class="zm-count-label mb-3">{{ contagemTexto() }}</p>
   }
 
-  @if (erro) {
-    <p class="mb-4 text-sm text-destructive">{{ erro }}</p>
+  @if (erro()) {
+    <p class="mb-4 text-sm text-destructive">{{ erro() }}</p>
   }
 
   @if (showSkeleton()) {
     <zm-skeleton-list [rows]="6" />
-  } @else if (!listaPronta && !erro) {
-  } @else if (!erro) {
+  } @else if (!listaPronta() && !erro()) {
+  } @else if (!erro()) {
     <div class="zm-content-enter" data-go-tour="pessoas-list">
       <z-card class="zm-table-card gap-0 overflow-hidden rounded-[8px] py-0 shadow-sm **:data-[slot=card-content]:p-0">
-        @if (pessoas.length === 0) {
+        @if (pessoas().length === 0) {
           <div class="p-10">
             <zm-empty-state title="Nenhuma pessoa encontrada." actionLabel="Cadastrar primeira pessoa" actionLink="/pessoas/criar" />
           </div>
@@ -77,7 +77,7 @@
                 </tr>
               </thead>
               <tbody z-table-body>
-                @for (p of pessoas; track p.id) {
+                @for (p of pessoas(); track p.id) {
                   <tr z-table-row class="zm-row-clickable" (click)="irParaDetalhe(p, $event)">
                     <td z-table-cell>
                       <div class="zm-row-title">{{ p.name }}</div>
@@ -109,8 +109,8 @@
               </tbody>
             </table>
           </div>
-          @if (meta.last_page > 1) {
-            <zm-pagination [currentPage]="meta.current_page" [lastPage]="meta.last_page" (pageChange)="carregar($event)" />
+          @if (meta().last_page > 1) {
+            <zm-pagination [currentPage]="meta().current_page" [lastPage]="meta().last_page" (pageChange)="carregar($event)" />
           }
         }
       </z-card>
@@ -126,7 +126,7 @@
             <z-combobox
               class="w-full"
               zWidth="full"
-              [options]="opcoesStatusFiltro"
+              [options]="opcoesStatusFiltro()"
               [value]="status || null"
               placeholder="Todas"
               [searchable]="false"
@@ -140,7 +140,7 @@
             <z-combobox
               class="w-full"
               zWidth="full"
-              [options]="opcoesProtocolosFiltro"
+              [options]="opcoesProtocolosFiltro()"
               [value]="has_protocols || null"
               placeholder="Todos"
               [searchable]="false"

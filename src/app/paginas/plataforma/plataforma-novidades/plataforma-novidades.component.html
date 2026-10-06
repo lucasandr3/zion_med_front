@@ -3,7 +3,7 @@
     <p class="plat-novidades__hint text-sm text-muted-foreground">
       Cadastre uma release por versão. Itens aparecem na área de Novidades para todos os usuários autenticados.
     </p>
-    @if (!exibirFormulario) {
+    @if (!exibirFormulario()) {
       <button z-button zType="default" zSize="sm" type="button" class="gap-1.5 shrink-0" (click)="abrirNovo()">
         <span class="material-symbols-outlined text-base" aria-hidden="true">add</span>
         Nova release
@@ -11,9 +11,9 @@
     }
   </div>
 
-  @if (exibirFormulario) {
+  @if (exibirFormulario()) {
     <section class="plat-novidades-form">
-      <h2 class="plat-novidades-form__titulo">{{ editandoId ? 'Editar release' : 'Nova release' }}</h2>
+      <h2 class="plat-novidades-form__titulo">{{ editandoId() ? 'Editar release' : 'Nova release' }}</h2>
       <div class="plat-novidades-form__grid">
         <label class="plat-novidades-field">
           <span>Versão</span>
@@ -67,8 +67,8 @@
 
       <div class="plat-novidades-form__actions">
         <button z-button zType="outline" type="button" (click)="cancelarFormulario()">Cancelar</button>
-        <button z-button zType="default" type="button" [zLoading]="salvando" [zDisabled]="salvando" (click)="salvar()">
-          {{ editandoId ? 'Salvar alterações' : 'Publicar release' }}
+        <button z-button zType="default" type="button" [zLoading]="salvando()" [zDisabled]="salvando()" (click)="salvar()">
+          {{ editandoId() ? 'Salvar alterações' : 'Publicar release' }}
         </button>
       </div>
     </section>
@@ -76,17 +76,17 @@
 
   @if (showSkeleton()) {
     <zm-skeleton-list [rows]="4" />
-  } @else if (!listaPronta) {
-  } @else if (erro) {
+  } @else if (!listaPronta()) {
+  } @else if (erro()) {
     <p class="text-sm text-destructive">Não foi possível carregar as releases.</p>
-  } @else if (notas.length === 0 && !exibirFormulario) {
+  } @else if (notas().length === 0 && !exibirFormulario()) {
     <zm-empty-state
       title="Nenhuma release cadastrada."
       description="Crie a primeira release para informar os usuários sobre as novidades."
     />
   } @else {
     <div class="plat-novidades-lista">
-      @for (nota of notas; track nota.id) {
+      @for (nota of notas(); track nota.id) {
         <article class="plat-novidades-card">
           <div class="plat-novidades-card__top">
             <div>
@@ -110,8 +110,8 @@
                 zSize="sm"
                 type="button"
                 class="text-destructive"
-                [zLoading]="excluindoId === nota.id"
-                [zDisabled]="excluindoId === nota.id"
+                [zLoading]="excluindoId() === nota.id"
+                [zDisabled]="excluindoId() === nota.id"
                 (click)="excluir(nota)"
               >
                 Excluir

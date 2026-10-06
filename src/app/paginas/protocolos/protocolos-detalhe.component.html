@@ -1,5 +1,5 @@
 <div class="protocolo-detalhe-page relative min-h-[320px]">
-  @if (gerandoPdf) {
+  @if (gerandoPdf()) {
     <div class="dp-generating-overlay" aria-live="polite" aria-busy="true">
       <div class="dp-generating-card">
         <span class="btn-spinner" aria-hidden="true"></span>
@@ -8,22 +8,22 @@
     </div>
   }
 
-  @if (erro) {
-    <p class="mb-4 text-sm text-destructive">{{ erro }}</p>
+  @if (erro()) {
+    <p class="mb-4 text-sm text-destructive">{{ erro() }}</p>
   }
 
-  @if (showSkeleton() && !protocolo) {
+  @if (showSkeleton() && !protocolo()) {
     <zm-skeleton-protocolo-detalhe />
   }
 
-  @if (!erro && protocolo) {
+  @if (!erro() && protocolo(); as p) {
     <div class="protocolo-detalhe-shell zm-content-enter">
 
       <div class="protocolo-detalhe-sticky-top">
         <div class="protocolo-detalhe-header">
         <div>
           <div class="mb-1 flex flex-wrap items-center gap-2">
-            <span class="font-mono text-xs text-muted-foreground">{{ protocolo.protocol_number || protocolo.id }}</span>
+            <span class="font-mono text-xs text-muted-foreground">{{ p.protocol_number || p.id }}</span>
             <z-badge zShape="pill" [zType]="statusBadgeType()" [class]="statusBadgeClass()">{{ statusLabel() }}</z-badge>
           </div>
           <h1 class="m-0 text-base font-semibold leading-snug text-foreground">{{ templateNome() }}</h1>
@@ -41,10 +41,10 @@
               class="gap-2"
               (click)="baixarFichaPdf()"
               title="Baixar PDF"
-              [zLoading]="gerandoPdf"
-              [zDisabled]="gerandoPdf">
+              [zLoading]="gerandoPdf()"
+              [zDisabled]="gerandoPdf()">
               <span class="material-symbols-outlined text-base" aria-hidden="true">download</span>
-              {{ gerandoPdf ? 'Gerando…' : 'Baixar PDF' }}
+              {{ gerandoPdf() ? 'Gerando…' : 'Baixar PDF' }}
             </button>
             <button
               z-button
@@ -54,10 +54,10 @@
               class="gap-2"
               (click)="baixarDossie()"
               title="Baixar dossiê (ZIP)"
-              [zLoading]="gerandoDossie"
-              [zDisabled]="gerandoDossie">
+              [zLoading]="gerandoDossie()"
+              [zDisabled]="gerandoDossie()">
               <span class="material-symbols-outlined text-base" aria-hidden="true">inventory_2</span>
-              {{ gerandoDossie ? 'Gerando…' : 'Dossiê ZIP' }}
+              {{ gerandoDossie() ? 'Gerando…' : 'Dossiê ZIP' }}
             </button>
           </div>
           @if (podeSolicitarReconsentimento) {
@@ -69,11 +69,11 @@
                 class="gap-2"
                 (click)="solicitarReconsentimento()"
                 title="Enviar novo link de consentimento"
-                [zLoading]="solicitandoReconsentimento"
-                [zDisabled]="solicitandoReconsentimento"
+                [zLoading]="solicitandoReconsentimento()"
+                [zDisabled]="solicitandoReconsentimento()"
               >
                 <span class="material-symbols-outlined text-base" aria-hidden="true">forward_to_inbox</span>
-                {{ solicitandoReconsentimento ? 'Enviando…' : 'Solicitar reconsentimento' }}
+                {{ solicitandoReconsentimento() ? 'Enviando…' : 'Solicitar reconsentimento' }}
               </button>
             </div>
           }
@@ -85,8 +85,8 @@
                 zSize="sm"
                 type="button"
                 class="gap-2"
-                [class.ring-2]="revisaoFormVisible && revisaoAprovado"
-                [class.ring-ring]="revisaoFormVisible && revisaoAprovado"
+                [class.ring-2]="revisaoFormVisible() && revisaoAprovado"
+                [class.ring-ring]="revisaoFormVisible() && revisaoAprovado"
                 (click)="abrirRevisao(true)"
                 title="Aprovar protocolo">
                 <span class="material-symbols-outlined text-base" aria-hidden="true">check_circle</span>
@@ -98,8 +98,8 @@
                 zSize="sm"
                 type="button"
                 class="gap-2"
-                [class.ring-2]="revisaoFormVisible && !revisaoAprovado"
-                [class.ring-destructive]="revisaoFormVisible && !revisaoAprovado"
+                [class.ring-2]="revisaoFormVisible() && !revisaoAprovado"
+                [class.ring-destructive]="revisaoFormVisible() && !revisaoAprovado"
                 (click)="abrirRevisao(false)"
                 title="Reprovar protocolo">
                 <span class="material-symbols-outlined text-base" aria-hidden="true">cancel</span>
@@ -115,8 +115,8 @@
                 zSize="sm"
                 type="button"
                 class="gap-2"
-                [class.ring-2]="revogarFormVisible"
-                [class.ring-destructive]="revogarFormVisible"
+                [class.ring-2]="revogarFormVisible()"
+                [class.ring-destructive]="revogarFormVisible()"
                 (click)="abrirRevogacao()"
                 title="Revogar consentimento">
                 <span class="material-symbols-outlined text-base" aria-hidden="true">undo</span>
@@ -130,7 +130,7 @@
         </div>
       </div>
 
-      @if (isPending && revisaoFormVisible && podeRevisarProtocolo) {
+      @if (isPending && revisaoFormVisible() && podeRevisarProtocolo) {
         <z-card class="section-card pd-revisao-card shrink-0" id="revisao_form">
           <div class="section-header">
             <div class="icon-wrap">
@@ -184,16 +184,16 @@
               </label>
             }
             <div class="pd-revisao-actions">
-              <button z-button zType="default" type="button" class="gap-2" (click)="enviarRevisao()" [zLoading]="revisaoEnviando" [zDisabled]="revisaoEnviando">
-                {{ revisaoEnviando ? 'Enviando…' : 'Confirmar revisão' }}
+              <button z-button zType="default" type="button" class="gap-2" (click)="enviarRevisao()" [zLoading]="revisaoEnviando()" [zDisabled]="revisaoEnviando()">
+                {{ revisaoEnviando() ? 'Enviando…' : 'Confirmar revisão' }}
               </button>
-              <button z-button zType="outline" type="button" (click)="fecharRevisao()" [zDisabled]="revisaoEnviando">Cancelar</button>
+              <button z-button zType="outline" type="button" (click)="fecharRevisao()" [zDisabled]="revisaoEnviando()">Cancelar</button>
             </div>
           </div>
         </z-card>
       }
 
-      @if (revogarFormVisible && podeRevogarProtocolo) {
+      @if (revogarFormVisible() && podeRevogarProtocolo) {
         <z-card class="section-card pd-revisao-card shrink-0" id="revogar_form">
           <div class="section-header">
             <div class="icon-wrap">
@@ -216,10 +216,10 @@
                 placeholder="Ex.: paciente solicitou cancelamento do procedimento..."></textarea>
             </div>
             <div class="pd-revisao-actions">
-              <button z-button zType="destructive" type="button" class="gap-2" (click)="enviarRevogacao()" [zLoading]="revogando" [zDisabled]="revogando">
-                {{ revogando ? 'Revogando…' : 'Confirmar revogação' }}
+              <button z-button zType="destructive" type="button" class="gap-2" (click)="enviarRevogacao()" [zLoading]="revogando()" [zDisabled]="revogando()">
+                {{ revogando() ? 'Revogando…' : 'Confirmar revogação' }}
               </button>
-              <button z-button zType="outline" type="button" (click)="fecharRevogacao()" [zDisabled]="revogando">Cancelar</button>
+              <button z-button zType="outline" type="button" (click)="fecharRevogacao()" [zDisabled]="revogando()">Cancelar</button>
             </div>
           </div>
         </z-card>
@@ -245,16 +245,16 @@
                 <div class="protocolo-detail-grid">
                   <div class="protocolo-detail-field">
                     <p class="protocolo-detail-label">Data de submissão</p>
-                    <p class="protocolo-detail-value">{{ dataFormatada(protocolo.submitted_at || protocolo.created_at) }}</p>
+                    <p class="protocolo-detail-value">{{ dataFormatada(p.submitted_at || p.created_at) }}</p>
                   </div>
                   <div class="protocolo-detail-field">
                     <p class="protocolo-detail-label">Pessoa (ficha)</p>
-                    @if (protocolo.person) {
+                    @if (p.person) {
                       <div class="protocolo-detail-person">
-                        <z-avatar zSize="sm" [zFallback]="iniciaisNome(protocolo.person.name)" />
+                        <z-avatar zSize="sm" [zFallback]="iniciaisNome(p.person.name)" />
                         <div class="min-w-0">
-                          <a [routerLink]="['/pessoas', protocolo.person.id]" class="protocolo-detail-value block truncate text-primary no-underline hover:underline">{{ protocolo.person.name }}</a>
-                          <p class="protocolo-detail-muted font-mono">{{ protocolo.person.code }}</p>
+                          <a [routerLink]="['/pessoas', p.person.id]" class="protocolo-detail-value block truncate text-primary no-underline hover:underline">{{ p.person.name }}</a>
+                          <p class="protocolo-detail-muted font-mono">{{ p.person.code }}</p>
                         </div>
                       </div>
                     } @else {
@@ -263,9 +263,9 @@
                   </div>
                   <div class="protocolo-detail-field">
                     <p class="protocolo-detail-label">Submetente</p>
-                    <p class="protocolo-detail-value">{{ protocolo.submitter_name || '—' }}</p>
-                    @if (protocolo.submitter_email) {
-                      <p class="protocolo-detail-muted">{{ protocolo.submitter_email }}</p>
+                    <p class="protocolo-detail-value">{{ p.submitter_name || '—' }}</p>
+                    @if (p.submitter_email) {
+                      <p class="protocolo-detail-muted">{{ p.submitter_email }}</p>
                     }
                   </div>
                   <div class="protocolo-detail-field">
@@ -278,35 +278,35 @@
                       <p class="protocolo-detail-value">{{ versaoTemplateLabel() }}</p>
                     </div>
                   }
-                  @if (protocolo.document_snapshot_hash) {
+                  @if (p.document_snapshot_hash) {
                     <div class="protocolo-detail-field">
                       <p class="protocolo-detail-label">Hash do snapshot</p>
-                      <p class="protocolo-detail-value font-mono text-xs break-all">{{ protocolo.document_snapshot_hash }}</p>
+                      <p class="protocolo-detail-value font-mono text-xs break-all">{{ p.document_snapshot_hash }}</p>
                     </div>
                   }
                   <div class="protocolo-detail-field protocolo-detail-field--status">
                     <p class="protocolo-detail-label">Status</p>
                     <z-badge zShape="pill" [zType]="statusBadgeType()" [class]="statusBadgeClass()">{{ statusLabel() }}</z-badge>
                   </div>
-                  @if (isRevoked && (protocolo.revoke_reason || protocolo.revoked_at)) {
+                  @if (isRevoked && (p.revoke_reason || p.revoked_at)) {
                     <div class="protocolo-detail-field">
                       <p class="protocolo-detail-label">Revogação</p>
-                      <p class="protocolo-detail-value">{{ protocolo.revoke_reason || '—' }}</p>
-                      @if (protocolo.revoked_at) {
-                        <p class="protocolo-detail-muted">Em {{ dataFormatada(protocolo.revoked_at) }}</p>
+                      <p class="protocolo-detail-value">{{ p.revoke_reason || '—' }}</p>
+                      @if (p.revoked_at) {
+                        <p class="protocolo-detail-muted">Em {{ dataFormatada(p.revoked_at) }}</p>
                       }
                     </div>
                   }
-                  @if (protocolo.retention_anonymized_at) {
+                  @if (p.retention_anonymized_at) {
                     <div class="protocolo-detail-field">
                       <p class="protocolo-detail-label">Retenção LGPD</p>
-                      <p class="protocolo-detail-value text-muted-foreground">Dados identificáveis anonimizados em {{ dataFormatada(protocolo.retention_anonymized_at) }}</p>
+                      <p class="protocolo-detail-value text-muted-foreground">Dados identificáveis anonimizados em {{ dataFormatada(p.retention_anonymized_at) }}</p>
                     </div>
                   }
-                  @if (protocolo.consent_valid_until) {
+                  @if (p.consent_valid_until) {
                     <div class="protocolo-detail-field">
                       <p class="protocolo-detail-label">Válido até</p>
-                      <p class="protocolo-detail-value">{{ dataFormatada(protocolo.consent_valid_until) }}</p>
+                      <p class="protocolo-detail-value">{{ dataFormatada(p.consent_valid_until) }}</p>
                       @if (isConsentExpired) {
                         <p class="protocolo-detail-muted text-destructive">Consentimento vencido — solicite um novo termo ao paciente.</p>
                       }
@@ -314,7 +314,7 @@
                   }
                   <div class="protocolo-detail-field">
                     <p class="protocolo-detail-label">Código</p>
-                    <p class="protocolo-detail-value font-mono tabular-nums">{{ protocolo.protocol_number || protocolo.id }}</p>
+                    <p class="protocolo-detail-value font-mono tabular-nums">{{ p.protocol_number || p.id }}</p>
                   </div>
                 </div>
               </div>
@@ -428,15 +428,15 @@
                     type="button"
                     class="section-header__action gap-2"
                     (click)="salvarRegistroEquipe()"
-                    [zLoading]="staffSalvando"
-                    [zDisabled]="staffSalvando">
-                    {{ staffSalvando ? 'Salvando…' : 'Salvar' }}
+                    [zLoading]="staffSalvando()"
+                    [zDisabled]="staffSalvando()">
+                    {{ staffSalvando() ? 'Salvando…' : 'Salvar' }}
                   </button>
                 </div>
                 <div class="section-body">
                   <p class="pd-staff-hint">Campos internos; não aparecem no formulário público.</p>
                   <div class="pd-staff-grid">
-                    @for (sf of protocolo!.staff_fields!; track sf.name_key) {
+                    @for (sf of p.staff_fields!; track sf.name_key) {
                       <div class="pd-staff-field" [class.pd-staff-field--full]="sf.type === 'textarea'">
                         <label class="pd-field-label" [for]="'staff_' + sf.name_key">{{ sf.label }}</label>
                         @switch (sf.type) {
@@ -532,17 +532,17 @@
 
         <z-tab [label]="tabLabelAssinaturas()" icon="draw">
           <div class="protocolo-tab-panel">
-          @if (protocolo.signatures && protocolo.signatures.length > 0) {
+          @if (p.signatures && p.signatures.length > 0) {
             <z-card class="section-card">
               <div class="section-header">
                 <div class="icon-wrap">
                   <span class="material-symbols-outlined" aria-hidden="true">draw</span>
                 </div>
                 <span class="section-title">Assinaturas</span>
-                <z-badge zShape="pill" zType="secondary" class="section-header__badge">{{ protocolo.signatures.length }} assinada(s)</z-badge>
+                <z-badge zShape="pill" zType="secondary" class="section-header__badge">{{ p.signatures.length }} assinada(s)</z-badge>
               </div>
               <div class="section-body pd-assin-list">
-                @for (sig of protocolo.signatures; track $index) {
+                @for (sig of p.signatures; track $index) {
                   <div class="pd-assin-block">
                     <div class="pd-assin-block__head">
                       <span class="pd-field-value">Assinatura {{ $index + 1 }} — {{ sig.signed_name || 'Não informado' }}</span>
@@ -619,13 +619,13 @@
                   </div>
                 }
 
-                @if (protocolo.review_comment) {
+                @if (p.review_comment) {
                   <div class="pd-quote">
                     <p class="pd-field-label">Comentário da revisão</p>
-                    <p class="pd-field-value">{{ protocolo.review_comment }}</p>
-                    @if (protocolo.approved_by_name || protocolo.approved_at) {
+                    <p class="pd-field-value">{{ p.review_comment }}</p>
+                    @if (p.approved_by_name || p.approved_at) {
                       <p class="pd-muted text-sm mt-1">
-                        Por {{ protocolo.approved_by_name || '—' }} em {{ dataFormatada(protocolo.approved_at) }}
+                        Por {{ p.approved_by_name || '—' }} em {{ dataFormatada(p.approved_at) }}
                       </p>
                     }
                   </div>
@@ -657,9 +657,9 @@
                       type="button"
                       class="gap-2"
                       (click)="enviarComentario()"
-                      [zDisabled]="!novoComentario.trim() || comentarioEnviando"
-                      [zLoading]="comentarioEnviando">
-                      {{ comentarioEnviando ? 'Enviando…' : 'Adicionar comentário' }}
+                      [zDisabled]="!novoComentario.trim() || comentarioEnviando()"
+                      [zLoading]="comentarioEnviando()">
+                      {{ comentarioEnviando() ? 'Enviando…' : 'Adicionar comentário' }}
                     </button>
                   </div>
                 </div>
@@ -678,7 +678,7 @@
                 type="button"
                 class="gap-2"
                 (click)="visualizarFichaPdf()"
-                [zDisabled]="gerandoPdf">
+                [zDisabled]="gerandoPdf()">
                 <span class="material-symbols-outlined text-base" aria-hidden="true">visibility</span>
                 Visualizar PDF
               </button>
@@ -689,10 +689,10 @@
                 type="button"
                 class="gap-2"
                 (click)="baixarFichaPdf()"
-                [zLoading]="gerandoPdf"
-                [zDisabled]="gerandoPdf">
+                [zLoading]="gerandoPdf()"
+                [zDisabled]="gerandoPdf()">
                 <span class="material-symbols-outlined text-base" aria-hidden="true">download</span>
-                {{ gerandoPdf ? 'Gerando…' : 'Baixar PDF' }}
+                {{ gerandoPdf() ? 'Gerando…' : 'Baixar PDF' }}
               </button>
               <button z-button zType="default" zSize="sm" type="button" class="gap-2" (click)="imprimirFicha()">
                 <span class="material-symbols-outlined text-base" aria-hidden="true">print</span>
@@ -740,73 +740,73 @@
                 <div class="dp-header-doc">
                   <div class="dp-form-title">{{ tituloDocumento() }}</div>
                   <div class="dp-form-number">
-                    Protocolo Nº <strong>{{ protocolo.protocol_number || protocolo.id }}</strong>
+                    Protocolo Nº <strong>{{ p.protocol_number || p.id }}</strong>
                   </div>
                   <div class="dp-form-number">Emitido em {{ dataDocumentoPorExtenso() }}</div>
                 </div>
               </header>
 
-              @if (protocolo.person || protocolo.submitter_name) {
+              @if (p.person || p.submitter_name) {
                 <h2 class="dp-section-heading">Identificação</h2>
                 <div class="dp-id-card">
                   <div class="dp-id-grid">
-                    @if (protocolo.person) {
+                    @if (p.person) {
                       <div class="dp-id-item dp-id-item--wide">
                         <span class="dp-id-label">Nome</span>
-                        <span class="dp-id-value">{{ protocolo.person.name }}</span>
+                        <span class="dp-id-value">{{ p.person.name }}</span>
                       </div>
                     }
-                    @if (formatarCpf(pessoaCompleta?.cpf)) {
+                    @if (formatarCpf(pessoaCompleta()?.cpf)) {
                       <div class="dp-id-item">
                         <span class="dp-id-label">CPF</span>
-                        <span class="dp-id-value">{{ formatarCpf(pessoaCompleta?.cpf) }}</span>
+                        <span class="dp-id-value">{{ formatarCpf(pessoaCompleta()?.cpf) }}</span>
                       </div>
                     }
-                    @if (pessoaCompleta?.rg) {
+                    @if (pessoaCompleta()?.rg) {
                       <div class="dp-id-item">
                         <span class="dp-id-label">RG</span>
-                        <span class="dp-id-value">{{ pessoaCompleta?.rg }}</span>
+                        <span class="dp-id-value">{{ pessoaCompleta()?.rg }}</span>
                       </div>
                     }
-                    @if (pessoaCompleta?.birth_date) {
+                    @if (pessoaCompleta()?.birth_date) {
                       <div class="dp-id-item">
                         <span class="dp-id-label">Nascimento</span>
                         <span class="dp-id-value">
-                          {{ formatarDataCurta(pessoaCompleta?.birth_date) }}
-                          @if (calcularIdade(pessoaCompleta?.birth_date)) {
-                            ({{ calcularIdade(pessoaCompleta?.birth_date) }} anos)
+                          {{ formatarDataCurta(pessoaCompleta()?.birth_date) }}
+                          @if (calcularIdade(pessoaCompleta()?.birth_date)) {
+                            ({{ calcularIdade(pessoaCompleta()?.birth_date) }} anos)
                           }
                         </span>
                       </div>
                     }
-                    @if (pessoaCompleta?.sex) {
+                    @if (pessoaCompleta()?.sex) {
                       <div class="dp-id-item">
                         <span class="dp-id-label">Sexo</span>
-                        <span class="dp-id-value">{{ formatarSexo(pessoaCompleta?.sex) }}</span>
+                        <span class="dp-id-value">{{ formatarSexo(pessoaCompleta()?.sex) }}</span>
                       </div>
                     }
-                    @if (pessoaCompleta?.phone) {
+                    @if (pessoaCompleta()?.phone) {
                       <div class="dp-id-item">
                         <span class="dp-id-label">Telefone</span>
-                        <span class="dp-id-value">{{ formatarTelefone(pessoaCompleta?.phone) }}</span>
+                        <span class="dp-id-value">{{ formatarTelefone(pessoaCompleta()?.phone) }}</span>
                       </div>
                     }
-                    @if (pessoaCompleta?.email) {
+                    @if (pessoaCompleta()?.email) {
                       <div class="dp-id-item dp-id-item--wide">
                         <span class="dp-id-label">E-mail</span>
-                        <span class="dp-id-value">{{ pessoaCompleta?.email }}</span>
+                        <span class="dp-id-value">{{ pessoaCompleta()?.email }}</span>
                       </div>
                     }
-                    @if (protocolo.person?.code) {
+                    @if (p.person?.code) {
                       <div class="dp-id-item">
                         <span class="dp-id-label">Código</span>
-                        <span class="dp-id-value">{{ protocolo.person?.code }}</span>
+                        <span class="dp-id-value">{{ p.person?.code }}</span>
                       </div>
                     }
-                    @if (protocolo.submitter_name) {
+                    @if (p.submitter_name) {
                       <div class="dp-id-item dp-id-item--wide">
                         <span class="dp-id-label">Responsável pelo preenchimento</span>
-                        <span class="dp-id-value">{{ protocolo.submitter_name }}</span>
+                        <span class="dp-id-value">{{ p.submitter_name }}</span>
                       </div>
                     }
                   </div>
@@ -884,7 +884,7 @@
                 <div class="dp-signature-area">
                   <div class="dp-sig-block">
                     <div class="dp-sig-line"></div>
-                    <div class="dp-sig-name">{{ protocolo.submitter_name || '—' }}</div>
+                    <div class="dp-sig-name">{{ p.submitter_name || '—' }}</div>
                     <div class="dp-sig-label">Assinatura do responsável</div>
                   </div>
                   <div class="dp-sig-block">
@@ -900,35 +900,35 @@
                   <p class="dp-auth-legal">
                     Documento assinado eletronicamente nos termos da MP nº 2.200-2/2001 e da Lei nº 14.063/2020. A autenticidade do registro no Gestgo pode ser conferida com o código ou o QR abaixo.
                   </p>
-                  @if (docCode) {
+                  @if (docCode()) {
                     <div class="dp-auth-row">
                       <span class="dp-auth-label">Código de verificação</span>
-                      <span class="dp-auth-value">{{ docCode }}</span>
+                      <span class="dp-auth-value">{{ docCode() }}</span>
                     </div>
                   }
-                  @if (docVerifyUrl) {
+                  @if (docVerifyUrl()) {
                     <div class="dp-auth-row">
                       <span class="dp-auth-label">Verificar autenticidade</span>
-                      <span class="dp-auth-value dp-auth-value--mono">{{ docVerifyUrl }}</span>
+                      <span class="dp-auth-value dp-auth-value--mono">{{ docVerifyUrl() }}</span>
                     </div>
                   }
-                  @if (docHash) {
+                  @if (docHash()) {
                     <div class="dp-auth-row">
                       <span class="dp-auth-label">Hash SHA-256</span>
-                      <span class="dp-auth-value dp-auth-value--mono dp-auth-hash">{{ docHash }}</span>
+                      <span class="dp-auth-value dp-auth-value--mono dp-auth-hash">{{ docHash() }}</span>
                     </div>
                   }
                 </div>
-                @if (docQrDataUrl) {
+                @if (docQrDataUrl()) {
                   <div class="dp-auth-qr">
-                    <img [src]="docQrDataUrl" alt="QR de verificação do documento" />
+                    <img [src]="docQrDataUrl()" alt="QR de verificação do documento" />
                     <span class="dp-auth-qr-label">Escaneie para validar</span>
                   </div>
                 }
               </section>
 
               <footer class="dp-footer">
-                <div class="dp-footer__left">{{ clinicaNome() }} · Protocolo {{ protocolo.protocol_number || protocolo.id }}</div>
+                <div class="dp-footer__left">{{ clinicaNome() }} · Protocolo {{ p.protocol_number || p.id }}</div>
                 <div class="dp-footer__right">Documento gerado em {{ dataDocumentoPorExtenso() }}</div>
               </footer>
             </div>

@@ -1,10 +1,11 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectionStrategy, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-verificar-email',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [RouterLink],
   templateUrl: './verificar-email.component.html',
   styleUrl: './verificar-email.component.css',
@@ -13,9 +14,9 @@ export class VerificarEmailComponent implements OnInit {
   private auth = inject(AuthService);
   private route = inject(ActivatedRoute);
 
-  sucesso = false;
-  carregando = true;
-  mensagem = '';
+  readonly sucesso = signal(false);
+  readonly carregando = signal(true);
+  readonly mensagem = signal('');
   ano = new Date().getFullYear();
 
   ngOnInit(): void {
@@ -25,8 +26,8 @@ export class VerificarEmailComponent implements OnInit {
     const signature = this.route.snapshot.queryParamMap.get('signature');
 
     if (!id || !hash || !expires || !signature) {
-      this.carregando = false;
-      this.mensagem = 'Link inválido. Parâmetros ausentes.';
+      this.carregando.set(false);
+      this.mensagem.set('Link inválido. Parâmetros ausentes.');
       return;
     }
 
@@ -36,13 +37,13 @@ export class VerificarEmailComponent implements OnInit {
 
     call.subscribe({
       next: (res) => {
-        this.carregando = false;
-        this.sucesso = true;
-        this.mensagem = res.data?.message ?? 'E-mail verificado com sucesso.';
+        this.carregando.set(false);
+        this.sucesso.set(true);
+        this.mensagem.set(res.data?.message ?? 'E-mail verificado com sucesso.');
       },
       error: (err) => {
-        this.carregando = false;
-        this.mensagem = err.error?.message ?? 'Link inválido ou expirado.';
+        this.carregando.set(false);
+        this.mensagem.set(err.error?.message ?? 'Link inválido ou expirado.');
       },
     });
   }

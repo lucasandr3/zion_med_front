@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { ZardCheckboxComponent } from '@/shared/components/checkbox';
@@ -14,6 +14,7 @@ import { ASSISTED_COSIGN_FIELD_KEY } from './formulario-publico-cosign.util';
 @Component({
   selector: 'zm-formulario-publico-consent',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [FormsModule, RouterLink, ZardCheckboxComponent],
   templateUrl: './formulario-publico-consent.component.html',
 })

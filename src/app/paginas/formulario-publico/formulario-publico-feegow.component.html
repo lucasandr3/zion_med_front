@@ -99,7 +99,7 @@
       <label class="fp-field-label" for="feegow_horario">Horário *</label>
       <select id="feegow_horario" [(ngModel)]="valores['feegow_horario']" name="feegow_horario" class="fp-input fp-select" required>
         <option value="">Selecione</option>
-        @for (hr of feegowHorariosDisponiveis; track hr) {
+        @for (hr of feegowHorariosDisponiveis(); track hr) {
           <option [value]="hr">{{ hr }}</option>
         }
       </select>
@@ -116,11 +116,11 @@
   </div>
 
   <div class="fp-feegow-actions">
-    <button type="button" class="fp-link-btn" (click)="consultarDisponibilidade()" [disabled]="feegowBuscandoDisponibilidade">
-      {{ feegowBuscandoDisponibilidade ? 'Consultando horários…' : 'Consultar horários disponíveis' }}
+    <button type="button" class="fp-link-btn" (click)="consultarDisponibilidade()" [disabled]="feegowBuscandoDisponibilidade()">
+      {{ feegowBuscandoDisponibilidade() ? 'Consultando horários…' : 'Consultar horários disponíveis' }}
     </button>
-    @if (feegowDisponibilidadeErro) {
-      <span class="fp-feegow-error">{{ feegowDisponibilidadeErro }}</span>
+    @if (feegowDisponibilidadeErro()) {
+      <span class="fp-feegow-error">{{ feegowDisponibilidadeErro() }}</span>
     }
   </div>
   }

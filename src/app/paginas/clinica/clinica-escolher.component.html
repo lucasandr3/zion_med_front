@@ -3,19 +3,19 @@
 
   @if (showSkeleton()) {
     <zm-skeleton-list [rows]="5" />
-  } @else if (!listaPronta) {
-  } @else if (erro) {
-    <p class="text-sm text-destructive">{{ erro }}</p>
+  } @else if (!listaPronta()) {
+  } @else if (erro()) {
+    <p class="text-sm text-destructive">{{ erro() }}</p>
   } @else {
     <div class="zm-content-enter">
       <z-card class="gap-0 overflow-hidden rounded-[0.875rem] py-0 shadow-sm **:data-[slot=card-content]:p-0">
-        @if (clinicas.length === 0) {
+        @if (clinicas().length === 0) {
           <div class="p-10">
             <zm-empty-state title="Nenhuma empresa disponível." />
           </div>
         } @else {
           <ul class="divide-y divide-border">
-            @for (c of clinicas; track c.id) {
+            @for (c of clinicas(); track c.id) {
               <li class="flex flex-wrap items-center justify-between gap-3 px-5 py-4">
                 <div class="flex min-w-0 items-center gap-3">
                   <div class="zm-row-avatar">{{ inicial(c.name) }}</div>
@@ -31,11 +31,11 @@
                   z-button
                   zSize="sm"
                   class="shrink-0 gap-1.5"
-                  [disabled]="escolhendoId !== null"
+                  [disabled]="escolhendoId() !== null"
                   (click)="escolher(c.id)"
                   title="Selecionar esta empresa"
                 >
-                  @if (escolhendoId === c.id) {
+                  @if (escolhendoId() === c.id) {
                     <span class="btn-spinner" aria-hidden="true"></span>
                     Selecionando…
                   } @else {

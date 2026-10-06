@@ -18,18 +18,18 @@
     </div>
     <div class="auth-card">
       <div class="auth-card-inner">
-        @if (enviado) {
+        @if (enviado()) {
           <h2 class="auth-card-title">E-mail reenviado</h2>
           <p class="auth-card-subtitle">Verifique sua caixa de entrada (e a pasta de spam) e clique no link para confirmar seu e-mail.</p>
           <a routerLink="/autenticacao" class="auth-btn">Voltar ao login</a>
         } @else {
           <h2 class="auth-card-title">E-mail não verificado</h2>
           <p class="auth-card-subtitle">Clique no botão abaixo para receber novamente o link de verificação.</p>
-          @if (erro) {
-            <div class="auth-error"><p>{{ erro }}</p></div>
+          @if (erro()) {
+            <div class="auth-error"><p>{{ erro() }}</p></div>
           }
-          <button type="button" class="auth-btn" [disabled]="carregando" (click)="reenviar()">
-            {{ carregando ? 'Enviando…' : 'Reenviar e-mail de verificação' }}
+          <button type="button" class="auth-btn" [disabled]="carregando()" (click)="reenviar()">
+            {{ carregando() ? 'Enviando…' : 'Reenviar e-mail de verificação' }}
           </button>
           <p class="auth-register">
             <a routerLink="/autenticacao">Voltar ao login</a>

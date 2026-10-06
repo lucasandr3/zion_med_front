@@ -1,4 +1,12 @@
-import { Component, OnInit, inject, HostListener, PLATFORM_ID } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  inject,
+  HostListener,
+  PLATFORM_ID,
+  ChangeDetectionStrategy,
+  signal,
+} from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { Router, RouterLink, RouterOutlet, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs';
@@ -13,9 +21,11 @@ import { OrganizationPresenceService } from '../../../core/services/organization
 import { ZmAssinaturaBloqueadaCardComponent, ZmPageBackLinkComponent } from '../../../shared/components/ui';
 import { ZardButtonComponent } from '@/shared/components/button/button.component';
 import { GoAssistantHostComponent } from '../../../go-assistant';
+
 @Component({
   selector: 'app-layout-app',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     RouterLink,
     RouterOutlet,
@@ -30,21 +40,30 @@ import { GoAssistantHostComponent } from '../../../go-assistant';
   styleUrl: './layout-app.component.css',
 })
 export class LayoutAppComponent implements OnInit {
-  tituloPagina = 'Painel';
-  urlVoltar: string | null = null;
-  labelVoltar: string | null = null;
-  voltarIntegrado = false;
-  notificacoesNaoLidas = 0;
-  novidadesNaoVistas = 0;
-  trialNotice: TrialNotice | null = null;
-  private router = inject(Router);
-  private notif = inject(NotificacoesService);
-  private novidades = inject(NovidadesService);
-  private sidebarMobile = inject(SidebarMobileService);
-  private auth = inject(AuthService);
-  private billingBlockedState = inject(BillingBlockedStateService);
-  private organizationPresence = inject(OrganizationPresenceService);
-  private platformId = inject(PLATFORM_ID);
+  private readonly tituloPaginaSignal = signal('Painel');
+  private readonly urlVoltarSignal = signal<string | null>(null);
+  private readonly labelVoltarSignal = signal<string | null>(null);
+  private readonly voltarIntegradoSignal = signal(false);
+  private readonly notificacoesNaoLidasSignal = signal(0);
+  private readonly novidadesNaoVistasSignal = signal(0);
+  private readonly trialNoticeSignal = signal<TrialNotice | null>(null);
+
+  readonly tituloPagina = this.tituloPaginaSignal.asReadonly();
+  readonly urlVoltar = this.urlVoltarSignal.asReadonly();
+  readonly labelVoltar = this.labelVoltarSignal.asReadonly();
+  readonly voltarIntegrado = this.voltarIntegradoSignal.asReadonly();
+  readonly notificacoesNaoLidas = this.notificacoesNaoLidasSignal.asReadonly();
+  readonly novidadesNaoVistas = this.novidadesNaoVistasSignal.asReadonly();
+  readonly trialNotice = this.trialNoticeSignal.asReadonly();
+
+  private readonly router = inject(Router);
+  private readonly notif = inject(NotificacoesService);
+  private readonly novidades = inject(NovidadesService);
+  private readonly sidebarMobile = inject(SidebarMobileService);
+  private readonly auth = inject(AuthService);
+  private readonly billingBlockedState = inject(BillingBlockedStateService);
+  private readonly organizationPresence = inject(OrganizationPresenceService);
+  private readonly platformId = inject(PLATFORM_ID);
 
   @HostListener('window:pagehide')
   onWindowPageHide(): void {
@@ -66,11 +85,12 @@ export class LayoutAppComponent implements OnInit {
       voltarIntegrado?: boolean;
     };
     const path = this.router.url.split('?')[0].replace(/\/$/, '') || '/';
-    const categoriaAtual = typeof route.queryParams['categoria'] === 'string' ? route.queryParams['categoria'] : null;
-    this.tituloPagina = this.resolvePageTitle(path, categoriaAtual, data.titulo);
-    this.urlVoltar = data.urlVoltar ?? null;
-    this.labelVoltar = data.labelVoltar ?? null;
-    this.voltarIntegrado = data.voltarIntegrado === true;
+    const categoriaAtual =
+      typeof route.queryParams['categoria'] === 'string' ? route.queryParams['categoria'] : null;
+    this.tituloPaginaSignal.set(this.resolvePageTitle(path, categoriaAtual, data.titulo));
+    this.urlVoltarSignal.set(data.urlVoltar ?? null);
+    this.labelVoltarSignal.set(data.labelVoltar ?? null);
+    this.voltarIntegradoSignal.set(data.voltarIntegrado === true);
   }
 
   private resolvePageTitle(path: string, categoria: string | null, fallbackTitle?: string): string {
@@ -127,7 +147,7 @@ export class LayoutAppComponent implements OnInit {
     if (this.auth.isAuthenticated()) {
       this.auth.me().subscribe({
         next: () => {
-          this.trialNotice = this.auth.getTrialNotice();
+          this.trialNoticeSignal.set(this.auth.getTrialNotice());
         },
         error: () => {},
       });
@@ -145,14 +165,14 @@ export class LayoutAppComponent implements OnInit {
   }
 
   private atualizarBadgeNovidades(): void {
-    this.novidades.getNaoVistasCount().subscribe((n) => (this.novidadesNaoVistas = n));
+    this.novidades.getNaoVistasCount().subscribe((n) => this.novidadesNaoVistasSignal.set(n));
   }
 
   private atualizarBadgeNotificacoes(): void {
     if (!this.auth.hasPermission('notifications.access')) {
-      this.notificacoesNaoLidas = 0;
+      this.notificacoesNaoLidasSignal.set(0);
       return;
     }
-    this.notif.getNaoLidasCount().subscribe((n) => (this.notificacoesNaoLidas = n));
+    this.notif.getNaoLidasCount().subscribe((n) => this.notificacoesNaoLidasSignal.set(n));
   }
 }

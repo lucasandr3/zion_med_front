@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, Signal } from '@angular/core';
+import { Component, OnInit, inject, Signal, ChangeDetectionStrategy, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ZardCardComponent } from '@/shared/components/card/card.component';
 import {
@@ -11,16 +11,17 @@ import { ZmSkeletonListComponent } from '../../../shared/components/skeletons';
 @Component({
   selector: 'app-plataforma-trafico-landing',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [RouterLink, ZardCardComponent, ZmSkeletonListComponent],
   templateUrl: './plataforma-trafico-landing.component.html',
   styleUrl: './plataforma-trafico-landing.component.css',
 })
 export class PlataformaTraficoLandingComponent implements OnInit {
   showSkeleton!: Signal<boolean>;
-  listaPronta = false;
-  estadoErro = false;
-  atualizando = false;
-  stats: LandingAnalyticsData | null = null;
+  readonly listaPronta = signal(false);
+  readonly estadoErro = signal(false);
+  readonly atualizando = signal(false);
+  readonly stats = signal<LandingAnalyticsData | null>(null);
 
   private landingAnalytics = inject(LandingAnalyticsService);
   private loadingService = inject(LoadingService);
@@ -34,37 +35,37 @@ export class PlataformaTraficoLandingComponent implements OnInit {
     this.showSkeleton = showSkeleton;
     data$.subscribe({
       next: (res) => {
-        this.listaPronta = true;
-        this.stats = res.data;
+        this.listaPronta.set(true);
+        this.stats.set(res.data);
       },
       error: () => {
-        this.listaPronta = true;
-        this.estadoErro = true;
+        this.listaPronta.set(true);
+        this.estadoErro.set(true);
       },
     });
   }
 
   atualizar(): void {
-    if (this.atualizando) return;
-    this.atualizando = true;
+    if (this.atualizando()) return;
+    this.atualizando.set(true);
     this.landingAnalytics.getStats().subscribe({
       next: (res) => {
-        this.atualizando = false;
-        this.stats = res.data;
+        this.atualizando.set(false);
+        this.stats.set(res.data);
       },
       error: () => {
-        this.atualizando = false;
-        this.estadoErro = true;
+        this.atualizando.set(false);
+        this.estadoErro.set(true);
       },
     });
   }
 
   get diasVisitas(): { date: string; label: string; count: number; percent: number; ghost: boolean }[] {
-    return this.buildChartDays(this.stats?.views_per_day);
+    return this.buildChartDays(this.stats()?.views_per_day);
   }
 
   get diasCliques(): { date: string; label: string; count: number; percent: number; ghost: boolean }[] {
-    return this.buildChartDays(this.stats?.clicks_per_day);
+    return this.buildChartDays(this.stats()?.clicks_per_day);
   }
 
   private buildChartDays(source?: Record<string, number>): {

@@ -2,17 +2,18 @@ import {
   Component,
   Input,
   OnInit,
-  OnDestroy,
   inject,
   PLATFORM_ID,
-  ChangeDetectorRef,
+  ChangeDetectionStrategy,
+  effect,
+  signal,
 } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
-import { Subscription } from 'rxjs';
 import { AuthService, TrialNotice } from '../../../core/services/auth.service';
 import { resolveSidebarLogoSrc } from '../../../core/utils/sidebar-logo.util';
 import { SidebarMobileService } from '../../../core/services/sidebar-mobile.service';
+import { ShellSidebarCollapseService } from '../../../core/services/shell-sidebar-collapse.service';
 import { ZardTooltipImports } from '@/shared/components/tooltip';
 import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
 import { ZardButtonComponent } from '@/shared/components/button/button.component';
@@ -30,6 +31,7 @@ import {
 @Component({
   selector: 'app-barra-lateral',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     RouterLink,
     RouterLinkActive,
@@ -43,62 +45,57 @@ import {
   templateUrl: './barra-lateral.component.html',
   styleUrl: './barra-lateral.component.css',
 })
-export class BarraLateralComponent implements OnInit, OnDestroy {
-  /** Contador vindo do layout (fonte única com o cabeçalho). */
+export class BarraLateralComponent implements OnInit {
   @Input() notificacoesNaoLidas = 0;
   @Input() novidadesNaoVistas = 0;
   @Input() trialNotice: TrialNotice | null = null;
 
   readonly navSections = SHELL_NAV_SIDEBAR;
 
-  nomeUsuario = 'Usuário';
-  iniciaisUsuario = 'U';
-  emailUsuario = '';
-  exibirTrocarEmpresa = false;
-  ehAdminPlataforma = false;
-  podeGerenciarClinica = false;
+  private readonly nomeUsuarioSignal = signal('Usuário');
+  private readonly iniciaisUsuarioSignal = signal('U');
+  private readonly emailUsuarioSignal = signal('');
+  private readonly exibirTrocarEmpresaSignal = signal(false);
+  private readonly ehAdminPlataformaSignal = signal(false);
+  private readonly podeGerenciarClinicaSignal = signal(false);
+  private readonly sidebarLogoSrcSignal = signal('/assets/logo/logo.png');
 
-  /** Com Topo e marca, variante do logo em `assets/logo` conforme o tema. */
-  sidebarLogoSrc = '/assets/logo/logo.png';
+  readonly nomeUsuario = this.nomeUsuarioSignal.asReadonly();
+  readonly iniciaisUsuario = this.iniciaisUsuarioSignal.asReadonly();
+  readonly emailUsuario = this.emailUsuarioSignal.asReadonly();
+  readonly exibirTrocarEmpresa = this.exibirTrocarEmpresaSignal.asReadonly();
+  readonly ehAdminPlataforma = this.ehAdminPlataformaSignal.asReadonly();
+  readonly podeGerenciarClinica = this.podeGerenciarClinicaSignal.asReadonly();
+  readonly sidebarLogoSrc = this.sidebarLogoSrcSignal.asReadonly();
 
-  private auth = inject(AuthService);
-  private router = inject(Router);
-  private sidebarMobile = inject(SidebarMobileService);
+  private readonly auth = inject(AuthService);
+  private readonly router = inject(Router);
+  private readonly sidebarMobile = inject(SidebarMobileService);
+  private readonly sidebarCollapse = inject(ShellSidebarCollapseService);
+  private readonly platformId = inject(PLATFORM_ID);
 
-  sidebarOpenMobile = false;
-  sidebarColapsada = false;
-  private sidebarObserver: MutationObserver | null = null;
-  private appearanceSub?: Subscription;
-  private platformId = inject(PLATFORM_ID);
-  private cdr = inject(ChangeDetectorRef);
+  readonly sidebarOpenMobile = this.sidebarMobile.isOpen;
+  readonly sidebarColapsada = this.sidebarCollapse.collapsed;
+
+  constructor() {
+    effect(() => {
+      this.auth.appearanceVersion();
+      this.refreshSidebarLogo();
+    });
+  }
 
   ngOnInit(): void {
+    this.sidebarCollapse.ensureHydrated();
     this.atualizarDados();
-    this.sincronizarEstadoSidebar();
-    this.appearanceSub = this.auth.appearanceApplied$.subscribe(() => {
-      this.refreshSidebarLogo();
-      this.cdr.markForCheck();
-    });
-    this.sidebarMobile.getOpen().subscribe((open) => {
-      this.sidebarOpenMobile = open;
-      if (typeof document !== 'undefined') {
-        document.body.style.overflow = open ? 'hidden' : '';
-      }
-      this.cdr.markForCheck();
-    });
-  }
-
-  ngOnDestroy(): void {
-    this.sidebarObserver?.disconnect();
-    this.appearanceSub?.unsubscribe();
-  }
-
-  itemVisivel(item: ShellNavItem): boolean {
-    return shellNavItemVisivel(item, (p) => this.auth.hasPermission(p), 'app');
+    this.refreshSidebarLogo();
   }
 
   secaoVisivel(section: ShellNavSection): boolean {
     return shellNavSectionVisivel(section, (p) => this.auth.hasPermission(p), 'app');
+  }
+
+  itemVisivel(item: ShellNavItem): boolean {
+    return shellNavItemVisivel(item, (p) => this.auth.hasPermission(p), 'app');
   }
 
   badgeCount(item: ShellNavItem): number {
@@ -126,39 +123,26 @@ export class BarraLateralComponent implements OnInit, OnDestroy {
   }
 
   tooltipQuandoColapsada(texto: string): string {
-    return this.sidebarColapsada ? texto : '';
+    return this.sidebarColapsada() ? texto : '';
   }
 
   private atualizarDados(): void {
     const u = this.auth.getUser();
     if (u) {
-      this.nomeUsuario = u.name || 'Usuário';
-      this.emailUsuario = u.email || '';
-      this.iniciaisUsuario = this.nomeUsuario.slice(0, 2).toUpperCase() || 'U';
-      this.ehAdminPlataforma = u.role === 'platform_admin';
-      this.podeGerenciarClinica = this.auth.hasPermission('organization.manage');
+      const nome = u.name || 'Usuário';
+      this.nomeUsuarioSignal.set(nome);
+      this.emailUsuarioSignal.set(u.email || '');
+      this.iniciaisUsuarioSignal.set(nome.slice(0, 2).toUpperCase() || 'U');
+      this.ehAdminPlataformaSignal.set(u.role === 'platform_admin');
+      this.podeGerenciarClinicaSignal.set(this.auth.hasPermission('organization.manage'));
     } else {
-      this.podeGerenciarClinica = false;
+      this.podeGerenciarClinicaSignal.set(false);
     }
-    this.exibirTrocarEmpresa = this.auth.canSwitchClinic();
+    this.exibirTrocarEmpresaSignal.set(this.auth.canSwitchClinic());
   }
 
   private refreshSidebarLogo(): void {
     if (!isPlatformBrowser(this.platformId)) return;
-    this.sidebarLogoSrc = resolveSidebarLogoSrc();
-  }
-
-  private sincronizarEstadoSidebar(): void {
-    if (!isPlatformBrowser(this.platformId) || typeof document === 'undefined') return;
-
-    const atualizar = (): void => {
-      this.sidebarColapsada = document.body.classList.contains('sidebar-collapsed');
-      this.refreshSidebarLogo();
-      this.cdr.markForCheck();
-    };
-
-    atualizar();
-    this.sidebarObserver = new MutationObserver(atualizar);
-    this.sidebarObserver.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+    this.sidebarLogoSrcSignal.set(resolveSidebarLogoSrc());
   }
 }

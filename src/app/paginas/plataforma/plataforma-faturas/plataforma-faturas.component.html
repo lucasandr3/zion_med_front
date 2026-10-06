@@ -1,13 +1,13 @@
 <div class="relative min-h-[300px] space-y-4">
   <p class="zm-count-label">
-    {{ faturas.length }} {{ faturas.length === 1 ? 'fatura' : 'faturas' }}
+    {{ faturas().length }} {{ faturas().length === 1 ? 'fatura' : 'faturas()' }}
   </p>
 
   @if (showSkeleton()) {
     <zm-skeleton-list [rows]="6" />
-  } @else if (!listaPronta) {
+  } @else if (!listaPronta()) {
   } @else {
-    @if (estadoErro) {
+    @if (estadoErro()) {
       <div class="rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-foreground">
         Não foi possível carregar as faturas.
       </div>
@@ -25,7 +25,7 @@
                 </tr>
               </thead>
               <tbody z-table-body>
-                @for (f of faturas; track f.id) {
+                @for (f of faturas(); track f.id) {
                   <tr z-table-row>
                     <td z-table-cell>
                       <div class="zm-row-title">{{ f.clinic_name }}</div>

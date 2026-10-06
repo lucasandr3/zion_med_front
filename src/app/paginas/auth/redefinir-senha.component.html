@@ -18,15 +18,15 @@
     </div>
     <div class="auth-card">
       <div class="auth-card-inner">
-        @if (sucesso) {
+        @if (sucesso()) {
           <h2 class="auth-card-title">Senha alterada</h2>
           <p class="auth-card-subtitle">Sua senha foi redefinida. Faça login com a nova senha.</p>
           <button type="button" class="auth-btn" (click)="irParaLogin()">Ir para o login</button>
         } @else {
           <h2 class="auth-card-title">Redefinir senha</h2>
           <p class="auth-card-subtitle">Digite sua nova senha abaixo.</p>
-          @if (erro) {
-            <div class="auth-error"><p>{{ erro }}</p></div>
+          @if (erro()) {
+            <div class="auth-error"><p>{{ erro() }}</p></div>
           }
           <form (ngSubmit)="enviar()" class="auth-form">
             @if (email) {
@@ -39,10 +39,10 @@
               <label class="auth-label" for="nova-senha">Nova senha</label>
               <div class="auth-input-wrap">
                 <span class="material-symbols-outlined auth-input-icon-l">lock</span>
-                <input [type]="mostrarSenha ? 'text' : 'password'" id="nova-senha" [(ngModel)]="senha" name="senha"
+                <input [type]="mostrarSenha() ? 'text' : 'password'" id="nova-senha" [(ngModel)]="senha" name="senha"
                        class="auth-input pr" placeholder="Mínimo 8 caracteres" required minlength="8">
-                <span class="material-symbols-outlined auth-input-icon-r" (click)="mostrarSenha = !mostrarSenha"
-                      role="button" tabindex="0">{{ mostrarSenha ? 'visibility_off' : 'visibility' }}</span>
+                <span class="material-symbols-outlined auth-input-icon-r" (click)="mostrarSenha.set(!mostrarSenha())"
+                      role="button" tabindex="0">{{ mostrarSenha() ? 'visibility_off' : 'visibility' }}</span>
               </div>
             </div>
             <div class="auth-field">
@@ -53,8 +53,8 @@
                        class="auth-input" placeholder="Repita a senha" required>
               </div>
             </div>
-            <button type="submit" class="auth-btn" [disabled]="carregando">
-              {{ carregando ? 'Salvando…' : 'Redefinir senha' }}
+            <button type="submit" class="auth-btn" [disabled]="carregando()">
+              {{ carregando() ? 'Salvando…' : 'Redefinir senha' }}
             </button>
           </form>
           <p class="auth-register">

@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, Subject, tap, catchError, of, map } from 'rxjs';
@@ -114,6 +114,9 @@ export class AuthService {
   /** Emite após tema/modo ser aplicados a partir da API (ex.: pós-`/me`). */
   private appearanceAppliedSubject = new Subject<void>();
   readonly appearanceApplied$ = this.appearanceAppliedSubject.asObservable();
+  /** Contador signal para consumidores zoneless (templates/effects). */
+  private readonly appearanceAppliedTick = signal(0);
+  readonly appearanceVersion = this.appearanceAppliedTick.asReadonly();
 
   constructor() {
     this.loadFromStorage();
@@ -122,6 +125,7 @@ export class AuthService {
   /** Para o cabeçalho reler `localStorage`/`body` quando a sessão sincronizar com o servidor. */
   notifyAppearanceApplied(): void {
     this.appearanceAppliedSubject.next();
+    this.appearanceAppliedTick.update((n) => n + 1);
   }
 
   private loadFromStorage(): void {

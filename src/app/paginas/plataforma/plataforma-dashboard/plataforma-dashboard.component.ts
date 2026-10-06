@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, Signal } from '@angular/core';
+import { Component, OnInit, inject, Signal, ChangeDetectionStrategy, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { forkJoin } from 'rxjs';
@@ -11,22 +11,23 @@ import { ZardTooltipImports } from '@/shared/components/tooltip';
 @Component({
   selector: 'app-plataforma-dashboard',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, RouterLink, ZmSkeletonListComponent, ZmEmptyStateComponent, ...ZardTooltipImports],
   templateUrl: './plataforma-dashboard.component.html',
   styleUrl: './plataforma-dashboard.component.css',
 })
 export class PlataformaDashboardComponent implements OnInit {
   showSkeleton!: Signal<boolean>;
-  listaPronta = false;
-  estadoErro = false;
-  tenantsCount = 0;
-  clinicsCount = 0;
-  usersCount = 0;
-  leadsCount = 0;
+  readonly listaPronta = signal(false);
+  readonly estadoErro = signal(false);
+  readonly tenantsCount = signal(0);
+  readonly clinicsCount = signal(0);
+  readonly usersCount = signal(0);
+  readonly leadsCount = signal(0);
 
-  ultimosTenants: PlatformTenant[] = [];
-  ultimosLeads: PlatformLead[] = [];
-  ultimosLogs: PlatformAuditLog[] = [];
+  readonly ultimosTenants = signal<PlatformTenant[]>([]);
+  readonly ultimosLeads = signal<PlatformLead[]>([]);
+  readonly ultimosLogs = signal<PlatformAuditLog[]>([]);
 
   private plataformaService = inject(PlataformaService);
   private loadingService = inject(LoadingService);
@@ -42,19 +43,19 @@ export class PlataformaDashboardComponent implements OnInit {
     this.showSkeleton = showSkeleton;
     data$.subscribe({
       next: ({ dashboard, tenants, leads, logs }) => {
-        this.listaPronta = true;
-        this.tenantsCount = dashboard.data.tenants_count ?? 0;
-        this.clinicsCount = dashboard.data.clinics_count ?? 0;
-        this.usersCount = dashboard.data.users_count ?? 0;
-        this.leadsCount = dashboard.data.leads_count ?? 0;
+        this.listaPronta.set(true);
+        this.tenantsCount.set(dashboard.data.tenants_count ?? 0);
+        this.clinicsCount.set(dashboard.data.clinics_count ?? 0);
+        this.usersCount.set(dashboard.data.users_count ?? 0);
+        this.leadsCount.set(dashboard.data.leads_count ?? 0);
 
-        this.ultimosTenants = (tenants.data ?? []).slice(0, 5);
-        this.ultimosLeads = (leads.data ?? []).slice(0, 5);
-        this.ultimosLogs = (logs.data ?? []).slice(0, 5);
+        this.ultimosTenants.set((tenants.data ?? []).slice(0, 5));
+        this.ultimosLeads.set((leads.data ?? []).slice(0, 5));
+        this.ultimosLogs.set((logs.data ?? []).slice(0, 5));
       },
       error: () => {
-        this.listaPronta = true;
-        this.estadoErro = true;
+        this.listaPronta.set(true);
+        this.estadoErro.set(true);
       },
     });
   }

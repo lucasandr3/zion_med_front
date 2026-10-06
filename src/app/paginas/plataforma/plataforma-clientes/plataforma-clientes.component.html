@@ -1,13 +1,13 @@
 <div class="relative min-h-[300px] space-y-4">
   <p class="zm-count-label">
-    {{ tenants.length }} {{ tenants.length === 1 ? 'cliente' : 'clientes' }} cadastrados
+    {{ tenants().length }} {{ tenants().length === 1 ? 'cliente' : 'clientes' }} cadastrados
   </p>
 
   @if (showSkeleton()) {
     <zm-skeleton-list [rows]="6" />
-  } @else if (!listaPronta) {
+  } @else if (!listaPronta()) {
   } @else {
-    @if (estadoErro) {
+    @if (estadoErro()) {
       <div class="rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-foreground">
         Não foi possível carregar os clientes.
       </div>
@@ -25,7 +25,7 @@
                 </tr>
               </thead>
               <tbody z-table-body>
-                @for (tenant of tenants; track tenant.id) {
+                @for (tenant of tenants(); track tenant.id) {
                   <tr
                     z-table-row
                     class="zm-row-clickable"

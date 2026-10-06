@@ -46,8 +46,8 @@
           Voltar aos serviços
         </button>
 
-        @if (error) {
-          <p class="settings-alert settings-alert--error">{{ error }}</p>
+        @if (error()) {
+          <p class="settings-alert settings-alert--error">{{ error() }}</p>
         }
 
         @switch (activeServico()) {
@@ -83,12 +83,12 @@
                     </div>
                   </div>
                 </div>
-                @if (successSettings) {
-                  <p class="settings-alert settings-alert--success">{{ successSettings }}</p>
+                @if (successSettings()) {
+                  <p class="settings-alert settings-alert--success">{{ successSettings() }}</p>
                 }
                 <div class="settings-form-actions settings-form-actions--inline">
-                  <button type="submit" z-button zSize="sm" [zDisabled]="savingSettings" [zLoading]="savingSettings">
-                    {{ savingSettings ? 'Salvando…' : 'Salvar Asaas' }}
+                  <button type="submit" z-button zSize="sm" [zDisabled]="savingSettings()" [zLoading]="savingSettings()">
+                    {{ savingSettings() ? 'Salvando…' : 'Salvar Asaas' }}
                   </button>
                 </div>
               </z-card>
@@ -200,12 +200,12 @@
                     <input type="url" id="mail_logo_url" [(ngModel)]="mailLogoUrl" name="mail_logo_url" z-input zSize="sm" class="w-full font-mono text-xs" maxlength="512" placeholder="https://..." />
                   </div>
                 </div>
-                @if (successSettings) {
-                  <p class="settings-alert settings-alert--success">{{ successSettings }}</p>
+                @if (successSettings()) {
+                  <p class="settings-alert settings-alert--success">{{ successSettings() }}</p>
                 }
                 <div class="settings-form-actions settings-form-actions--inline">
-                  <button type="submit" z-button zSize="sm" [zDisabled]="savingSettings" [zLoading]="savingSettings">
-                    {{ savingSettings ? 'Salvando…' : 'Salvar Resend' }}
+                  <button type="submit" z-button zSize="sm" [zDisabled]="savingSettings()" [zLoading]="savingSettings()">
+                    {{ savingSettings() ? 'Salvando…' : 'Salvar Resend' }}
                   </button>
                 </div>
               </z-card>
@@ -264,12 +264,12 @@
                     </div>
                   </div>
                 </div>
-                @if (successSettings) {
-                  <p class="settings-alert settings-alert--success">{{ successSettings }}</p>
+                @if (successSettings()) {
+                  <p class="settings-alert settings-alert--success">{{ successSettings() }}</p>
                 }
                 <div class="settings-form-actions settings-form-actions--inline">
-                  <button type="submit" z-button zSize="sm" [zDisabled]="savingSettings" [zLoading]="savingSettings">
-                    {{ savingSettings ? 'Salvando…' : 'Salvar MinIO' }}
+                  <button type="submit" z-button zSize="sm" [zDisabled]="savingSettings()" [zLoading]="savingSettings()">
+                    {{ savingSettings() ? 'Salvando…' : 'Salvar MinIO' }}
                   </button>
                 </div>
               </z-card>
@@ -329,12 +329,12 @@
                     </div>
                   </div>
                 </div>
-                @if (successStatus) {
-                  <p class="settings-alert settings-alert--success">{{ successStatus }}</p>
+                @if (successStatus()) {
+                  <p class="settings-alert settings-alert--success">{{ successStatus() }}</p>
                 }
                 <div class="settings-form-actions settings-form-actions--inline">
-                  <button type="submit" z-button [zDisabled]="savingStatus" [zLoading]="savingStatus">
-                    {{ savingStatus ? 'Atualizando…' : 'Atualizar status' }}
+                  <button type="submit" z-button [zDisabled]="savingStatus()" [zLoading]="savingStatus()">
+                    {{ savingStatus() ? 'Atualizando…' : 'Atualizar status' }}
                   </button>
                 </div>
               </z-card>

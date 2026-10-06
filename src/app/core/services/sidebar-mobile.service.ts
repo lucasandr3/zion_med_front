@@ -1,19 +1,26 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { Injectable, signal } from '@angular/core';
 
+/**
+ * Estado do drawer da sidebar no mobile (fonte de verdade reativa para zoneless).
+ */
 @Injectable({ providedIn: 'root' })
 export class SidebarMobileService {
-  private readonly open$ = new BehaviorSubject<boolean>(false);
+  private readonly openSignal = signal(false);
+
+  /** Leitura reativa — use no template como `sidebarMobile.isOpen()`. */
+  readonly isOpen = this.openSignal.asReadonly();
 
   setOpen(open: boolean): void {
-    this.open$.next(open);
+    if (this.openSignal() === open) {
+      return;
+    }
+    this.openSignal.set(open);
+    if (typeof document !== 'undefined') {
+      document.body.style.overflow = open ? 'hidden' : '';
+    }
   }
 
-  getOpen(): Observable<boolean> {
-    return this.open$.asObservable();
-  }
-
-  get isOpen(): boolean {
-    return this.open$.value;
+  toggle(): void {
+    this.setOpen(!this.openSignal());
   }
 }

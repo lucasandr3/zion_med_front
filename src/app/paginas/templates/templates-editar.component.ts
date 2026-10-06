@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, Signal, signal } from '@angular/core';
+import { Component, OnInit, inject, Signal, signal, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TemplatesService, Template, TemplateCategory, TemplateComprehensionQuestion } from '../../core/services/templates.service';
@@ -14,6 +14,7 @@ import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
 @Component({
   selector: 'app-templates-editar',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     ...ZARD_FORM_CONTROL_IMPORTS,
     RouterLink,
@@ -28,12 +29,12 @@ import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
   styleUrl: './templates-editar.component.css',
 })
 export class TemplatesEditarComponent implements OnInit {
-  template: Template | null = null;
+  readonly template = signal<Template | null>(null);
   name = '';
   description = '';
   categoriaSelecionada = '';
   novaCategoria = '';
-  categorias: TemplateCategory[] = [];
+  readonly categorias = signal<TemplateCategory[]>([]);
   is_active = true;
   public_enabled = false;
   public_require_person_link = false;
@@ -44,9 +45,9 @@ export class TemplatesEditarComponent implements OnInit {
   consent_validity_days: number | null = null;
   quizQuestions: TemplateComprehensionQuestion[] = [];
   showSkeleton!: Signal<boolean>;
-  listaPronta = false;
-  salvando = false;
-  erro = '';
+  readonly listaPronta = signal(false);
+  readonly salvando = signal(false);
+  readonly erro = signal('');
 
   private route = inject(ActivatedRoute);
   private router = inject(Router);
@@ -65,7 +66,7 @@ export class TemplatesEditarComponent implements OnInit {
   get opcoesCategoria(): ZardComboboxOption[] {
     return [
       { value: '', label: 'Sem categoria' },
-      ...this.categorias.map((cat) => ({ value: cat.key, label: cat.name })),
+      ...this.categorias().map((cat) => ({ value: cat.key, label: cat.name })),
       { value: '__nova__', label: 'Nova categoria…' },
     ];
   }
@@ -74,24 +75,24 @@ export class TemplatesEditarComponent implements OnInit {
     const id = this.route.snapshot.paramMap.get('id');
     if (!id) {
       this.showSkeleton = signal(false).asReadonly();
-      this.listaPronta = true;
-      this.erro = 'ID inválido';
+      this.listaPronta.set(true);
+      this.erro.set('ID inválido');
       return;
     }
     const { data$, showSkeleton } = this.loadingService.loadWithThreshold(this.templatesService.get(Number(id)));
     this.showSkeleton = showSkeleton;
     this.templatesService.categories().subscribe({
       next: (items) => {
-        this.categorias = items;
+        this.categorias.set(items);
       },
       error: () => {
-        this.categorias = [];
+        this.categorias.set([]);
       },
     });
     data$.subscribe({
       next: (t) => {
-        this.listaPronta = true;
-        this.template = t;
+        this.listaPronta.set(true);
+        this.template.set(t);
         this.name = t.name ?? '';
         this.description = t.description ?? '';
         this.categoriaSelecionada = t.category ?? '';
@@ -118,20 +119,21 @@ export class TemplatesEditarComponent implements OnInit {
             : [];
       },
       error: () => {
-        this.listaPronta = true;
-        this.erro = 'Template não encontrado.';
+        this.listaPronta.set(true);
+        this.erro.set('Template não encontrado.');
       },
     });
   }
 
   salvar(): void {
-    if (!this.template || !this.name.trim()) return;
-    this.salvando = true;
-    this.erro = '';
+    const tpl = this.template();
+    if (!tpl || !this.name.trim()) return;
+    this.salvando.set(true);
+    this.erro.set('');
     const usarNovaCategoria = this.categoriaSelecionada === '__nova__';
     const categoriaCustom = this.novaCategoria.trim();
     this.templatesService
-      .update(this.template.id, {
+      .update(tpl.id, {
         name: this.name.trim(),
         description: this.description.trim() || undefined,
         category: !usarNovaCategoria ? this.categoriaSelecionada || undefined : undefined,
@@ -149,14 +151,14 @@ export class TemplatesEditarComponent implements OnInit {
       })
       .subscribe({
         next: () => {
-          this.salvando = false;
+          this.salvando.set(false);
           const label = this.name.trim();
           this.toast.success('Template salvo!', `${label} foi salvo com sucesso.`);
           this.router.navigate(['/templates']);
         },
         error: () => {
-          this.salvando = false;
-          this.erro = 'Não foi possível salvar.';
+          this.salvando.set(false);
+          this.erro.set('Não foi possível salvar.');
           this.toast.error('Erro ao salvar', 'Não foi possível salvar as alterações.');
         },
       });

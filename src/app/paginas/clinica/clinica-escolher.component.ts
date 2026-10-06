@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, Signal } from '@angular/core';
+import { Component, OnInit, inject, Signal, ChangeDetectionStrategy, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { switchMap } from 'rxjs';
 import { AuthService } from '../../core/services/auth.service';
@@ -13,6 +13,7 @@ import { ToastService } from '../../core/services/toast.service';
 @Component({
   selector: 'app-clinica-escolher',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     ZmSkeletonListComponent,
     ZmEmptyStateComponent,
@@ -23,11 +24,11 @@ import { ToastService } from '../../core/services/toast.service';
   styleUrl: './clinica-escolher.component.css',
 })
 export class ClinicaEscolherComponent implements OnInit {
-  clinicas: ClinicaOption[] = [];
+  readonly clinicas = signal<ClinicaOption[]>([]);
   showSkeleton!: Signal<boolean>;
-  listaPronta = false;
-  erro = '';
-  escolhendoId: number | null = null;
+  readonly listaPronta = signal(false);
+  readonly erro = signal('');
+  readonly escolhendoId = signal<number | null>(null);
   private auth = inject(AuthService);
   private clinicaService = inject(ClinicaService);
   private loadingService = inject(LoadingService);
@@ -39,12 +40,12 @@ export class ClinicaEscolherComponent implements OnInit {
     this.showSkeleton = showSkeleton;
     data$.subscribe({
       next: (list) => {
-        this.listaPronta = true;
-        this.clinicas = list;
+        this.listaPronta.set(true);
+        this.clinicas.set(list);
       },
       error: () => {
-        this.listaPronta = true;
-        this.erro = 'Não foi possível carregar as empresas.';
+        this.listaPronta.set(true);
+        this.erro.set('Não foi possível carregar as empresas.');
       },
     });
   }
@@ -55,20 +56,20 @@ export class ClinicaEscolherComponent implements OnInit {
   }
 
   escolher(clinicId: number): void {
-    this.escolhendoId = clinicId;
+    this.escolhendoId.set(clinicId);
     this.clinicaService
       .escolher(clinicId)
       .pipe(switchMap(() => this.auth.me()))
       .subscribe({
         next: () => {
-          this.escolhendoId = null;
+          this.escolhendoId.set(null);
           this.toast.success('Empresa selecionada', 'Redirecionando…');
           this.router.navigateByUrl(this.auth.getDefaultTenantPath());
         },
         error: () => {
-          this.escolhendoId = null;
-          this.erro = 'Não foi possível trocar de empresa.';
-          this.toast.error('Erro', this.erro);
+          this.escolhendoId.set(null);
+          this.erro.set('Não foi possível trocar de empresa.');
+          this.toast.error('Erro', this.erro());
         },
       });
   }

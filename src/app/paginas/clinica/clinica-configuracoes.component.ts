@@ -1,14 +1,4 @@
-import {
-  afterNextRender,
-  Component,
-  OnInit,
-  OnDestroy,
-  inject,
-  Injector,
-  runInInjectionContext,
-  Signal,
-  ViewChild,
-} from '@angular/core';
+import { afterNextRender, Component, OnInit, OnDestroy, inject, Injector, runInInjectionContext, Signal, ViewChild, ChangeDetectionStrategy, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -102,6 +92,7 @@ import { ZardTableImports } from '@/shared/components/table';
 @Component({
   selector: 'app-clinica-configuracoes',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     ...ZardTableImports,
     CommonModule,
@@ -132,7 +123,7 @@ import { ZardTableImports } from '@/shared/components/table';
   styleUrl: './clinica-configuracoes.component.css',
 })
 export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
-  pageData: ConfigPageData | null = null;
+  readonly pageData = signal<ConfigPageData | null>(null);
   form: Partial<ClinicaConfig> & {
     business_hours?: Record<string, { open: string; close: string }>;
     signing_security_level?: 'basic' | 'reinforced';
@@ -154,10 +145,10 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
   private _sysDarkMql: MediaQueryList | null = null;
   private _sysListener = () => this._applyAutoTheme();
   private appearanceSub?: Subscription;
-  listaPronta = false;
-  salvando = false;
-  erro = '';
-  sucesso = false;
+  readonly listaPronta = signal(false);
+  readonly salvando = signal(false);
+  readonly erro = signal('');
+  readonly sucesso = signal(false);
   activeTab = 'dados';
   logoFile: File | null = null;
   logoDragOver = false;
@@ -170,7 +161,7 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
     { value: 'basic', label: 'Básica — somente evidências (IP, navegador, hashes)' },
     {
       value: 'reinforced',
-      label: 'Reforçada — exige OTP por e-mail ou WhatsApp antes de enviar com assinatura',
+      label: 'Reforçada (recomendado) — exige OTP por e-mail ou WhatsApp antes de enviar com assinatura',
     },
   ];
 
@@ -179,52 +170,47 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
     { value: 'delete', label: 'Excluir — remove protocolos elegíveis permanentemente' },
   ];
 
-  retencaoPreview: {
-    enabled: boolean;
-    eligible_count: number;
-    already_anonymized_count: number;
-    cutoff_date: string | null;
-  } | null = null;
-  carregandoRetencaoPreview = false;
+  readonly retencaoPreview = signal<{ enabled: boolean; eligible_count: number; already_anonymized_count: number; cutoff_date: string | null } | null>(null);
+  readonly carregandoRetencaoPreview = signal(false);
 
   private readonly configTabIds = ['dados', 'identidade', 'visual', 'whatsapp', 'empresas', 'logs'] as const;
 
   @ViewChild('configTabGroup') configTabGroup?: ZardTabGroupComponent;
 
   novaEmpresaNome = '';
-  salvandoNovaEmpresa = false;
-  erroNovaEmpresa = '';
+  readonly salvandoNovaEmpresa = signal(false);
+  readonly erroNovaEmpresa = signal('');
 
   // Logs
-  logs: ClinicaAuditLog[] = [];
-  logsLoading = false;
-  logsLoaded = false;
-  logsError = '';
+  readonly logs = signal<ClinicaAuditLog[]>([]);
+  readonly logsLoading = signal(false);
+  readonly logsLoaded = signal(false);
+  readonly logsError = signal('');
   /** API retornou 403 billing_blocked — assinatura/pagamento pendente. */
-  logsPage = 1;
-  logsLastPage = 1;
-  logsTotal = 0;
+  readonly logsPage = signal(1);
+  readonly logsLastPage = signal(1);
+  readonly logsTotal = signal(0);
 
   /** Aba WhatsApp (Evolution Go) */
-  waState: WhatsappEvolutionState | null = null;
-  waLoading = false;
-  waError = '';
-  waCriandoInstancia = false;
-  waTokenExibicaoUnica: string | null = null;
+  readonly waState = signal<WhatsappEvolutionState | null>(null);
+  readonly waLoading = signal(false);
+  readonly waError = signal('');
+  readonly waCriandoInstancia = signal(false);
+  readonly waTokenExibicaoUnica = signal<string | null>(null);
   waPhoneConectar = '';
   waWebhookUrl = '';
-  waConectando = false;
-  waQrSrc: string | null = null;
-  waQrLinkCode: string | null = null;
-  waQrCarregando = false;
+  readonly waConectando = signal(false);
+  readonly waQrSrc = signal<string | null>(null);
+  readonly waQrLinkCode = signal<string | null>(null);
+  readonly waQrCarregando = signal(false);
   waPhonePair = '';
-  waPairCarregando = false;
-  waPairingCode: string | null = null;
-  waDesconectando = false;
-  waRemovendo = false;
+  readonly waPairCarregando = signal(false);
+  readonly waPairingCode = signal<string | null>(null);
+  readonly waDesconectando = signal(false);
+  readonly waRemovendo = signal(false);
   waTestPhone = '';
   waTestText = '';
-  waTestEnviando = false;
+  readonly waTestEnviando = signal(false);
   enderecoForm = {
     cep: '',
     logradouro: '',
@@ -234,9 +220,9 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
     cidade: '',
     uf: '',
   };
-  enderecoLoading = false;
-  enderecoErro = '';
-  enderecoSucesso = false;
+  readonly enderecoLoading = signal(false);
+  readonly enderecoErro = signal('');
+  readonly enderecoSucesso = signal(false);
 
   private readonly injector = inject(Injector);
   private route = inject(ActivatedRoute);
@@ -257,15 +243,15 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
   }
 
   get clinic(): ClinicaConfig | undefined {
-    return this.pageData?.organization ?? this.pageData?.clinic;
+    return this.pageData()?.organization ?? this.pageData()?.clinic;
   }
 
   get availableThemes(): Record<string, { label?: string; primary?: string }> {
-    return this.pageData?.available_themes ?? {};
+    return this.pageData()?.available_themes ?? {};
   }
 
   get availablePublicThemes(): Record<string, { label?: string; primary?: string }> {
-    return this.pageData?.available_public_themes ?? this.availableThemes;
+    return this.pageData()?.available_public_themes ?? this.availableThemes;
   }
 
   get publicFormThemeKeys(): string[] {
@@ -275,11 +261,11 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
   }
 
   get canAddMultiEmpresa(): boolean {
-    return !!this.pageData?.can_add_multi_empresa;
+    return !!this.pageData()?.can_add_multi_empresa;
   }
 
   get tenantClinics(): ClinicaOption[] {
-    return this.pageData?.tenant_organizations ?? this.pageData?.tenant_clinics ?? [];
+    return this.pageData()?.tenant_organizations ?? this.pageData()?.tenant_clinics ?? [];
   }
 
   get showStickyFooter(): boolean {
@@ -288,7 +274,7 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
 
   /** Footer fixo na aba WhatsApp (mesmo padrão visual das outras abas com ações). */
   get showWhatsappStickyFooter(): boolean {
-    return this.activeTab === 'whatsapp' && this.listaPronta && !!this.pageData;
+    return this.activeTab === 'whatsapp' && this.listaPronta() && !!this.pageData();
   }
 
   get waPodeEnviarTesteNoFooter(): boolean {
@@ -296,11 +282,11 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
   }
 
   get waSessaoAtiva(): boolean {
-    return this.waState?.logged_in === true;
+    return this.waState()?.logged_in === true;
   }
 
   get waConectadoDeFato(): boolean {
-    return this.waState?.connected === true && this.waSessaoAtiva;
+    return this.waState()?.connected === true && this.waSessaoAtiva;
   }
 
   get themeKeys(): string[] {
@@ -502,8 +488,8 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
     this.showSkeleton = showSkeleton;
     data$.subscribe({
       next: (data) => {
-        this.listaPronta = true;
-        this.pageData = data;
+        this.listaPronta.set(true);
+        this.pageData.set(data);
         let tab = data.active_config_tab ?? 'dados';
         if (tab === 'assinatura') tab = 'dados';
         this.activeTab = tab;
@@ -513,8 +499,8 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
         this.syncTabGroupFromActiveTab();
       },
       error: () => {
-        this.listaPronta = true;
-        this.erro = 'Não foi possível carregar as configurações.';
+        this.listaPronta.set(true);
+        this.erro.set('Não foi possível carregar as configurações.');
       },
     });
   }
@@ -544,7 +530,7 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
       whatsapp_notify_cobranca: c.whatsapp_notify_cobranca ?? true,
       whatsapp_notify_faturas_boleto: c.whatsapp_notify_faturas_boleto ?? true,
       whatsapp_notify_avisos: c.whatsapp_notify_avisos ?? true,
-      signing_security_level: (c.signing_security_level as 'basic' | 'reinforced') ?? 'basic',
+      signing_security_level: (c.signing_security_level as 'basic' | 'reinforced') ?? 'reinforced',
       data_retention_years: c.data_retention_years ?? null,
       protocol_retention_years: c.protocol_retention_years ?? null,
       protocol_retention_mode: (c.protocol_retention_mode as 'anonymize' | 'delete') ?? 'anonymize',
@@ -563,8 +549,8 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
   }
 
   private patchEnderecoFromAddressData(addressData: OrganizationAddressData): void {
-    this.enderecoErro = '';
-    this.enderecoSucesso = false;
+    this.enderecoErro.set('');
+    this.enderecoSucesso.set(false);
     this.enderecoForm = {
       cep: this.maskCep(addressData.cep ?? ''),
       logradouro: (addressData.logradouro ?? '').trim(),
@@ -578,8 +564,8 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
 
   private patchEnderecoFromAddress(address: string): void {
     const value = (address ?? '').trim();
-    this.enderecoErro = '';
-    this.enderecoSucesso = false;
+    this.enderecoErro.set('');
+    this.enderecoSucesso.set(false);
     if (!value) {
       this.enderecoForm = {
         cep: '',
@@ -606,8 +592,8 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
 
   onCepInput(value: string): void {
     this.enderecoForm.cep = this.maskCep(value);
-    if (this.enderecoErro) this.enderecoErro = '';
-    this.enderecoSucesso = false;
+    if (this.enderecoErro()) this.enderecoErro.set('');
+    this.enderecoSucesso.set(false);
   }
 
   onPhoneInput(value: string): void {
@@ -623,14 +609,14 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
   }
 
   carregarRetencaoPreview(): void {
-    this.carregandoRetencaoPreview = true;
+    this.carregandoRetencaoPreview.set(true);
     this.clinicaService.previewProtocolRetention().subscribe({
       next: (data) => {
-        this.carregandoRetencaoPreview = false;
-        this.retencaoPreview = data;
+        this.carregandoRetencaoPreview.set(false);
+        this.retencaoPreview.set(data);
       },
       error: () => {
-        this.carregandoRetencaoPreview = false;
+        this.carregandoRetencaoPreview.set(false);
         this.toast.error('Erro', 'Não foi possível carregar a prévia de retenção.');
       },
     });
@@ -676,22 +662,22 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
 
   buscarEnderecoPorCep(): void {
     const cep = this.enderecoForm.cep.replace(/\D/g, '');
-    this.enderecoErro = '';
-    this.enderecoSucesso = false;
+    this.enderecoErro.set('');
+    this.enderecoSucesso.set(false);
     if (!cep) return;
     if (cep.length !== 8) {
-      this.enderecoErro = 'CEP inválido. Informe 8 dígitos.';
+      this.enderecoErro.set('CEP inválido. Informe 8 dígitos.');
       return;
     }
-    if (this.enderecoLoading) return;
-    this.enderecoLoading = true;
+    if (this.enderecoLoading()) return;
+    this.enderecoLoading.set(true);
     this.viaCepService
       .consultarCep(cep)
-      .pipe(finalize(() => (this.enderecoLoading = false)))
+      .pipe(finalize(() => this.enderecoLoading.set(false)))
       .subscribe({
         next: (res) => {
           if (res.erro) {
-            this.enderecoErro = 'CEP não encontrado.';
+            this.enderecoErro.set('CEP não encontrado.');
             return;
           }
           this.enderecoForm = {
@@ -702,10 +688,10 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
             cidade: res.localidade ?? this.enderecoForm.cidade,
             uf: res.uf ?? this.enderecoForm.uf,
           };
-          this.enderecoSucesso = true;
+          this.enderecoSucesso.set(true);
         },
         error: () => {
-          this.enderecoErro = 'Não foi possível consultar o CEP no momento.';
+          this.enderecoErro.set('Não foi possível consultar o CEP no momento.');
         },
       });
   }
@@ -773,48 +759,48 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
   }
 
   carregarWhatsapp(): void {
-    this.waLoading = true;
-    this.waError = '';
+    this.waLoading.set(true);
+    this.waError.set('');
     this.waService.getState().subscribe({
       next: (s) => {
-        this.waState = s;
-        this.waLoading = false;
+        this.waState.set(s);
+        this.waLoading.set(false);
       },
       error: (err: unknown) => {
-        this.waLoading = false;
-        this.waError = this.mensagemErroWhatsapp(err);
+        this.waLoading.set(false);
+        this.waError.set(this.mensagemErroWhatsapp(err));
       },
     });
   }
 
   criarInstanciaWhatsapp(): void {
-    if (this.waCriandoInstancia) return;
-    this.waCriandoInstancia = true;
-    this.waError = '';
+    if (this.waCriandoInstancia()) return;
+    this.waCriandoInstancia.set(true);
+    this.waError.set('');
     this.waService
       .createInstance()
-      .pipe(finalize(() => (this.waCriandoInstancia = false)))
+      .pipe(finalize(() => this.waCriandoInstancia.set(false)))
       .subscribe({
         next: (res) => {
-          this.waTokenExibicaoUnica = res.instance_token;
-          this.waQrSrc = null;
-          this.waQrLinkCode = null;
-          this.waPairingCode = null;
+          this.waTokenExibicaoUnica.set(res.instance_token);
+          this.waQrSrc.set(null);
+          this.waQrLinkCode.set(null);
+          this.waPairingCode.set(null);
           this.toast.success('Instância criada', 'Guarde o token com segurança. Ele não será exibido de novo nesta tela.');
           this.iniciarConexaoWhatsapp();
           this.carregarWhatsapp();
         },
         error: (err: unknown) => {
-          this.waError = this.mensagemErroWhatsapp(err);
-          this.toast.error('Erro', this.waError);
+          this.waError.set(this.mensagemErroWhatsapp(err));
+          this.toast.error('Erro', this.waError());
         },
       });
   }
 
   iniciarConexaoWhatsapp(): void {
-    if (this.waConectando) return;
-    this.waConectando = true;
-    this.waError = '';
+    if (this.waConectando()) return;
+    this.waConectando.set(true);
+    this.waError.set('');
     const phone = this.waPhoneConectar.replace(/\D/g, '');
     const webhook = this.waWebhookUrl.trim();
     this.waService
@@ -822,39 +808,39 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
         phone: phone || undefined,
         webhook_url: webhook || undefined,
       })
-      .pipe(finalize(() => (this.waConectando = false)))
+      .pipe(finalize(() => this.waConectando.set(false)))
       .subscribe({
         next: () => {
           this.toast.success('Conexão iniciada', 'Obtenha o QR Code ou o código de pareamento abaixo.');
           this.carregarWhatsapp();
         },
         error: (err: unknown) => {
-          this.waError = this.mensagemErroWhatsapp(err);
-          this.toast.error('Erro', this.waError);
+          this.waError.set(this.mensagemErroWhatsapp(err));
+          this.toast.error('Erro', this.waError());
         },
       });
   }
 
   buscarQrWhatsapp(): void {
-    if (this.waQrCarregando) return;
-    this.waQrCarregando = true;
-    this.waQrSrc = null;
-    this.waQrLinkCode = null;
-    this.waError = '';
+    if (this.waQrCarregando()) return;
+    this.waQrCarregando.set(true);
+    this.waQrSrc.set(null);
+    this.waQrLinkCode.set(null);
+    this.waError.set('');
     this.waService
       .getQr()
-      .pipe(finalize(() => (this.waQrCarregando = false)))
+      .pipe(finalize(() => this.waQrCarregando.set(false)))
       .subscribe({
         next: (d) => {
-          this.waQrSrc = this.normalizarQrDataUrl(d.qrcode);
-          this.waQrLinkCode = d.link_code ?? null;
-          if (!this.waQrSrc && d.link_code) {
+          this.waQrSrc.set(this.normalizarQrDataUrl(d.qrcode));
+          this.waQrLinkCode.set(d.link_code ?? null);
+          if (!this.waQrSrc() && d.link_code) {
             this.toast.success('Código obtido', 'Use o código no WhatsApp se o QR não estiver disponível.');
           }
         },
         error: (err: unknown) => {
-          this.waError = this.mensagemErroWhatsapp(err);
-          this.toast.error('Erro', this.waError);
+          this.waError.set(this.mensagemErroWhatsapp(err));
+          this.toast.error('Erro', this.waError());
         },
       });
   }
@@ -865,23 +851,23 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
       this.toast.error('Número inválido', 'Informe DDI + DDD + número (ex.: 5511999999999).');
       return;
     }
-    if (this.waPairCarregando) return;
-    this.waPairCarregando = true;
-    this.waPairingCode = null;
-    this.waError = '';
+    if (this.waPairCarregando()) return;
+    this.waPairCarregando.set(true);
+    this.waPairingCode.set(null);
+    this.waError.set('');
     this.waService
       .requestPair(phone)
-      .pipe(finalize(() => (this.waPairCarregando = false)))
+      .pipe(finalize(() => this.waPairCarregando.set(false)))
       .subscribe({
         next: (r) => {
-          this.waPairingCode = r.pairing_code;
+          this.waPairingCode.set(r.pairing_code);
           if (!r.pairing_code) {
             this.toast.success('Solicitação enviada', 'Verifique a resposta no servidor ou tente novamente.');
           }
         },
         error: (err: unknown) => {
-          this.waError = this.mensagemErroWhatsapp(err);
-          this.toast.error('Erro', this.waError);
+          this.waError.set(this.mensagemErroWhatsapp(err));
+          this.toast.error('Erro', this.waError());
         },
       });
   }
@@ -896,22 +882,22 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
   }
 
   desconectarWhatsapp(): void {
-    if (this.waDesconectando) return;
-    this.waDesconectando = true;
-    this.waError = '';
+    if (this.waDesconectando()) return;
+    this.waDesconectando.set(true);
+    this.waError.set('');
     this.waService
       .disconnect()
-      .pipe(finalize(() => (this.waDesconectando = false)))
+      .pipe(finalize(() => this.waDesconectando.set(false)))
       .subscribe({
         next: () => {
-          this.waQrSrc = null;
-          this.waPairingCode = null;
+          this.waQrSrc.set(null);
+          this.waPairingCode.set(null);
           this.toast.success('Desconectado', 'A sessão WhatsApp foi encerrada na Evolution Go.');
           this.carregarWhatsapp();
         },
         error: (err: unknown) => {
-          this.waError = this.mensagemErroWhatsapp(err);
-          this.toast.error('Erro', this.waError);
+          this.waError.set(this.mensagemErroWhatsapp(err));
+          this.toast.error('Erro', this.waError());
         },
       });
   }
@@ -923,24 +909,24 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
       variant: 'danger',
       confirmLabel: 'Remover',
     });
-    if (!ok || this.waRemovendo) return;
-    this.waRemovendo = true;
-    this.waError = '';
+    if (!ok || this.waRemovendo()) return;
+    this.waRemovendo.set(true);
+    this.waError.set('');
     this.waService
       .destroyInstance()
-      .pipe(finalize(() => (this.waRemovendo = false)))
+      .pipe(finalize(() => this.waRemovendo.set(false)))
       .subscribe({
         next: () => {
-          this.waTokenExibicaoUnica = null;
-          this.waQrSrc = null;
-          this.waPairingCode = null;
-          this.waState = null;
+          this.waTokenExibicaoUnica.set(null);
+          this.waQrSrc.set(null);
+          this.waPairingCode.set(null);
+          this.waState.set(null);
           this.toast.success('Removido', 'Integração WhatsApp removida.');
           this.carregarWhatsapp();
         },
         error: (err: unknown) => {
-          this.waError = this.mensagemErroWhatsapp(err);
-          this.toast.error('Erro', this.waError);
+          this.waError.set(this.mensagemErroWhatsapp(err));
+          this.toast.error('Erro', this.waError());
         },
       });
   }
@@ -951,18 +937,18 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
       this.toast.error('Número inválido', 'Informe o destino com DDI e DDD.');
       return;
     }
-    if (this.waTestEnviando) return;
-    this.waTestEnviando = true;
-    this.waError = '';
+    if (this.waTestEnviando()) return;
+    this.waTestEnviando.set(true);
+    this.waError.set('');
     const text = this.waTestText.trim();
     this.waService
       .sendTest(phone, text || undefined)
-      .pipe(finalize(() => (this.waTestEnviando = false)))
+      .pipe(finalize(() => this.waTestEnviando.set(false)))
       .subscribe({
         next: () => this.toast.success('Enviado', 'Mensagem de teste enviada.'),
         error: (err: unknown) => {
-          this.waError = this.mensagemErroWhatsapp(err);
-          this.toast.error('Erro', this.waError);
+          this.waError.set(this.mensagemErroWhatsapp(err));
+          this.toast.error('Erro', this.waError());
         },
       });
   }
@@ -994,30 +980,29 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
   }
 
   carregarLogs(page = 1): void {
-    this.logsLoading = true;
-    this.logsError = '';
+    this.logsLoading.set(true);
+    this.logsError.set('');
     this.clinicaService.getClinicaLogs(page).subscribe({
       next: (res) => {
-        this.logsLoading = false;
-        this.logsLoaded = true;
-        this.logs = (res.data ?? []).map((log) => ({
+        this.logsLoading.set(false);
+        this.logsLoaded.set(true);
+        this.logs.set((res.data ?? []).map((log) => ({
           ...log,
           action: this.traduzirAcao(log.action),
           entity_type: this.traduzirEntidade(log.entity_type ?? undefined),
-        }));
-        this.logsPage = res.meta?.current_page ?? 1;
-        this.logsLastPage = res.meta?.last_page ?? 1;
-        this.logsTotal = res.meta?.total ?? this.logs.length;
+        })));
+        this.logsPage.set(res.meta?.current_page ?? 1);
+        this.logsLastPage.set(res.meta?.last_page ?? 1);
+        this.logsTotal.set(res.meta?.total ?? this.logs().length);
       },
       error: (err: unknown) => {
-        this.logsLoading = false;
-        this.logsLoaded = true;
+        this.logsLoading.set(false);
+        this.logsLoaded.set(true);
         const http = err instanceof HttpErrorResponse ? err : null;
         const apiMsg = (http?.error as { message?: string } | null)?.message;
-        this.logsError =
-          typeof apiMsg === 'string' && apiMsg.trim()
+        this.logsError.set(typeof apiMsg === 'string' && apiMsg.trim()
             ? apiMsg.trim()
-            : 'Não foi possível carregar os logs. Tente novamente em instantes.';
+            : 'Não foi possível carregar os logs. Tente novamente em instantes.');
       },
     });
   }
@@ -1111,22 +1096,22 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
 
   criarNovaEmpresa(): void {
     const nome = this.novaEmpresaNome.trim();
-    if (!nome || this.salvandoNovaEmpresa) return;
-    this.erroNovaEmpresa = '';
-    this.salvandoNovaEmpresa = true;
+    if (!nome || this.salvandoNovaEmpresa()) return;
+    this.erroNovaEmpresa.set('');
+    this.salvandoNovaEmpresa.set(true);
     this.clinicaService
       .createClinicInTenant(nome)
-      .pipe(finalize(() => (this.salvandoNovaEmpresa = false)))
+      .pipe(finalize(() => this.salvandoNovaEmpresa.set(false)))
       .subscribe({
         next: (data) => {
-          this.pageData = data;
+          this.pageData.set(data);
           this.novaEmpresaNome = '';
           this.patchFormFromClinic(data.organization ?? data.clinic!);
           this.toast.success('Empresa criada', 'A nova empresa foi adicionada ao grupo. Você pode trocar para ela em "Escolher empresa".');
         },
         error: (err: unknown) => {
           const msg = this.mensagemErroApi(err);
-          this.erroNovaEmpresa = msg;
+          this.erroNovaEmpresa.set(msg);
           this.toast.error('Não foi possível criar', msg);
         },
       });
@@ -1146,9 +1131,9 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
   }
 
   salvar(): void {
-    this.salvando = true;
-    this.erro = '';
-    this.sucesso = false;
+    this.salvando.set(true);
+    this.erro.set('');
+    this.sucesso.set(false);
     const bh = this.form.business_hours ?? {};
     const cleaned: Record<string, { open: string; close: string }> = {};
     Object.entries(bh).forEach(([d, slot]) => {
@@ -1179,7 +1164,7 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
       whatsapp_notify_cobranca: !!this.form.whatsapp_notify_cobranca,
       whatsapp_notify_faturas_boleto: !!this.form.whatsapp_notify_faturas_boleto,
       whatsapp_notify_avisos: !!this.form.whatsapp_notify_avisos,
-      signing_security_level: this.form.signing_security_level ?? 'basic',
+      signing_security_level: this.form.signing_security_level ?? 'reinforced',
       data_retention_years:
         this.form.data_retention_years === null || this.form.data_retention_years === undefined
           ? null
@@ -1197,12 +1182,13 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
     };
     this.clinicaService.updateConfiguracoes(payload as Partial<ClinicaConfig>, this.logoFile ?? undefined).subscribe({
       next: (updated) => {
-        this.salvando = false;
-        this.sucesso = true;
+        this.salvando.set(false);
+        this.sucesso.set(true);
         this.setLogoFile(null);
-        if (this.pageData) {
-          const cur = this.pageData.organization ?? this.pageData.clinic;
-          if (cur) this.pageData.organization = { ...cur, ...updated };
+        const pd = this.pageData();
+        if (pd) {
+          const cur = pd.organization ?? pd.clinic;
+          if (cur) this.pageData.set({ ...pd, organization: { ...cur, ...updated } });
         }
         this.patchFormFromClinic(updated);
         applyUserAppearanceToBrowser({
@@ -1214,9 +1200,9 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
         this.toast.success('Configurações salvas', 'As alterações da empresa foram gravadas.');
       },
       error: () => {
-        this.salvando = false;
-        this.erro = 'Não foi possível salvar.';
-        this.toast.error('Erro ao salvar', this.erro);
+        this.salvando.set(false);
+        this.erro.set('Não foi possível salvar.');
+        this.toast.error('Erro ao salvar', this.erro());
       },
     });
   }

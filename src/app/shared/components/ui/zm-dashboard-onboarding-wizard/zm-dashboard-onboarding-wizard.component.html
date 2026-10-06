@@ -1,4 +1,4 @@
-@if (visible) {
+@if (visible()) {
   <z-card class="onboarding-card mb-6 gap-0 overflow-hidden py-0 shadow-sm **:data-[slot=card-content]:p-0">
     <div class="onboarding-wizard">
       <div class="onboarding-wizard__header">
@@ -26,13 +26,13 @@
         </button>
       </div>
 
-      @if (carregandoTemplates) {
+      @if (carregandoTemplates()) {
         <div class="onboarding-wizard__grid" aria-busy="true" aria-label="Carregando modelos">
           @for (i of [1, 2, 3, 4, 5, 6, 7, 8]; track i) {
             <div class="onboarding-template-skeleton" aria-hidden="true"></div>
           }
         </div>
-      } @else if (templates.length === 0) {
+      } @else if (templates().length === 0) {
         <div class="onboarding-wizard__empty">
           <span class="material-symbols-outlined onboarding-wizard__empty-icon" aria-hidden="true">folder_open</span>
           <p class="onboarding-wizard__empty-text">
@@ -42,12 +42,12 @@
         </div>
       } @else {
         <div class="onboarding-wizard__grid">
-          @for (t of templates; track t.id) {
+          @for (t of templates(); track t.id) {
             <button
               type="button"
               class="onboarding-template-btn"
-              [class.onboarding-template-btn--selected]="templateSelecionadoId === t.id"
-              [attr.aria-pressed]="templateSelecionadoId === t.id"
+              [class.onboarding-template-btn--selected]="templateSelecionadoId() === t.id"
+              [attr.aria-pressed]="templateSelecionadoId() === t.id"
               (click)="selecionarTemplate(t.id)"
             >
               <span class="onboarding-template-btn__icon" aria-hidden="true">
@@ -59,7 +59,7 @@
                   <span class="onboarding-template-btn__category">{{ categoriaTemplate(t) }}</span>
                 }
               </span>
-              @if (templateSelecionadoId === t.id) {
+              @if (templateSelecionadoId() === t.id) {
                 <span class="onboarding-template-btn__check" aria-hidden="true">
                   <span class="material-symbols-outlined">check_circle</span>
                 </span>
@@ -75,17 +75,17 @@
               z-button
               zSize="sm"
               (click)="gerarLink()"
-              [disabled]="gerandoLink || !templateSelecionadoId"
+              [disabled]="gerandoLink() || !templateSelecionadoId()"
             >
               <span class="material-symbols-outlined text-base" aria-hidden="true">link</span>
-              {{ gerandoLink ? 'Gerando…' : 'Gerar link público' }}
+              {{ gerandoLink() ? 'Gerando…' : 'Gerar link público' }}
             </button>
             <a z-button zType="outline" zSize="sm" routerLink="/link-bio" class="no-underline">
               <span class="material-symbols-outlined text-base" aria-hidden="true">account_circle</span>
               Configurar link na bio
             </a>
           </div>
-          @if (templateSelecionadoId) {
+          @if (templateSelecionadoId()) {
             <p class="onboarding-wizard__hint">
               <span class="material-symbols-outlined" aria-hidden="true">info</span>
               {{ nomeTemplateSelecionado() }}
@@ -93,7 +93,7 @@
           }
         </div>
 
-        @if (linkPublicoUrl) {
+        @if (linkPublicoUrl()) {
           <div class="onboarding-wizard__success" role="status">
             <div class="onboarding-wizard__success-head">
               <span class="material-symbols-outlined onboarding-wizard__success-icon" aria-hidden="true">check_circle</span>
@@ -103,12 +103,12 @@
               </div>
             </div>
             <div class="onboarding-wizard__link-row">
-              <code class="onboarding-wizard__link-url">{{ linkPublicoUrl }}</code>
+              <code class="onboarding-wizard__link-url">{{ linkPublicoUrl() }}</code>
               <button type="button" z-button zType="outline" zSize="sm" (click)="copiarLink()">
                 <span class="material-symbols-outlined text-base" aria-hidden="true">
-                  {{ linkCopiado ? 'check' : 'content_copy' }}
+                  {{ linkCopiado() ? 'check' : 'content_copy' }}
                 </span>
-                {{ linkCopiado ? 'Copiado!' : 'Copiar' }}
+                {{ linkCopiado() ? 'Copiado!' : 'Copiar' }}
               </button>
             </div>
           </div>

@@ -11,13 +11,13 @@
   </div>
   @if (showSkeleton()) {
     <zm-skeleton-usuarios-listagem />
-  } @else if (!listaPronta) {
-  } @else if (erro) {
-    <p class="text-sm text-destructive">{{ erro }}</p>
+  } @else if (!listaPronta()) {
+  } @else if (erro()) {
+    <p class="text-sm text-destructive">{{ erro() }}</p>
   } @else {
     <div class="zm-content-enter">
       <z-card class="zm-table-card gap-0 overflow-hidden rounded-[8px] py-0 shadow-sm **:data-[slot=card-content]:p-0">
-        @if (usuarios.length === 0) {
+        @if (usuarios().length === 0) {
           <div class="p-10">
             <zm-empty-state title="Nenhum usuário cadastrado." actionLabel="Novo usuário" actionLink="/usuarios/criar" />
           </div>
@@ -34,7 +34,7 @@
                 </tr>
               </thead>
               <tbody z-table-body>
-                @for (u of usuarios; track u.id) {
+                @for (u of usuarios(); track u.id) {
                   <tr z-table-row>
                     <td z-table-cell>
                       <div class="flex items-center gap-3">
@@ -64,12 +64,12 @@
                     </td>
                     <td z-table-cell class="text-right">
                       <div class="flex items-center justify-end gap-0.5">
-                        <a [routerLink]="['/usuarios', u.id, 'editar']" aria-label="Editar usuário" class="action-btn" zTooltip="Editar usuário">
+                        <a [routerLink]="['/usuarios()', u.id, 'editar']" aria-label="Editar usuário" class="action-btn" zTooltip="Editar usuário">
                           <span class="material-symbols-outlined text-lg">edit</span>
                         </a>
                         @if (podeDesativar(u)) {
-                          <button type="button" class="action-btn danger" aria-label="Desativar usuário" [disabled]="desativandoId === u.id" (click)="desativar(u)" zTooltip="Desativar usuário">
-                            @if (desativandoId === u.id) {
+                          <button type="button" class="action-btn danger" aria-label="Desativar usuário" [disabled]="desativandoId() === u.id" (click)="desativar(u)" zTooltip="Desativar usuário">
+                            @if (desativandoId() === u.id) {
                               <span class="btn-spinner" style="width: 16px; height: 16px; border-width: 2px"></span>
                             } @else {
                               <span class="material-symbols-outlined text-lg">person_off</span>

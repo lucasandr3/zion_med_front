@@ -1,20 +1,22 @@
 <div class="emails-page relative min-h-[300px] w-full">
   @if (showSkeleton()) {
     <zm-skeleton-list [rows]="8" />
-  } @else if (!listaPronta) {
+  } @else if (!listaPronta()) {
   } @else {
-    @if (estadoErro) {
+    @if (estadoErro()) {
       <div class="rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-foreground">
-        {{ estadoErro }}
+        {{ estadoErro() }}
       </div>
     } @else {
       <div class="emails-shell zm-content-enter">
-        @if (recipientsData && !recipientsData.mail_configured) {
-          <div class="emails-alert rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-foreground">
-            O envio de e-mails ainda não está configurado.
-            <a routerLink="/plataforma/configuracoes" class="font-medium text-primary underline">Configure o Resend</a>
-            em Configurações da plataforma.
-          </div>
+        @if (recipientsData(); as recipients) {
+          @if (!recipients.mail_configured) {
+            <div class="emails-alert rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-foreground">
+              O envio de e-mails ainda não está configurado.
+              <a routerLink="/plataforma/configuracoes" class="font-medium text-primary underline">Configure o Resend</a>
+              em Configurações da plataforma.
+            </div>
+          }
         }
 
         <z-tab-group
@@ -34,17 +36,17 @@
                     <span class="section-title">Enviar e-mail manual</span>
                     <p class="section-subtitle">
                       Contato, cobrança ou avisos para clientes e leads.
-                      @if (recipientsData) {
+                      @if (recipientsData(); as recipients) {
                         Remetente:
-                        <span class="font-mono text-xs">{{ recipientsData.from_name }} &lt;{{ recipientsData.from_address }}&gt;</span>
+                        <span class="font-mono text-xs">{{ recipients.from_name }} &lt;{{ recipients.from_address }}&gt;</span>
                       }
                     </p>
                   </div>
                 </div>
 
                 <form class="section-body" (ngSubmit)="submit()">
-                  @if (formError) {
-                    <p class="form-alert">{{ formError }}</p>
+                  @if (formError()) {
+                    <p class="form-alert">{{ formError() }}</p>
                   }
 
                   <div class="form-grid">
@@ -177,8 +179,8 @@
                   </div>
 
                   <div class="form-actions">
-                    <button type="submit" z-button zSize="sm" [zDisabled]="saving" [zLoading]="saving">
-                      {{ saving ? 'Enviando…' : 'Enviar e-mail' }}
+                    <button type="submit" z-button zSize="sm" [zDisabled]="saving()" [zLoading]="saving()">
+                      {{ saving() ? 'Enviando…' : 'Enviar e-mail' }}
                     </button>
                   </div>
                 </form>
@@ -199,7 +201,7 @@
                   </div>
                 </div>
 
-                @if (loadingHistorico) {
+                @if (loadingHistorico()) {
                   <div class="px-4 py-3">
                     <zm-skeleton-list [rows]="4" />
                   </div>
@@ -216,7 +218,7 @@
                         </tr>
                       </thead>
                       <tbody z-table-body>
-                        @for (email of emails; track email.id) {
+                        @for (email of emails(); track email.id) {
                           <tr z-table-row>
                             <td z-table-cell class="zm-cell-muted whitespace-nowrap">
                               {{ formatarData(email.sent_at ?? email.created_at) }}
@@ -257,17 +259,17 @@
                     </table>
                   </div>
 
-                  @if (lastPage > 1) {
+                  @if (lastPage() > 1) {
                     <div card-footer class="border-border flex items-center justify-between gap-3 border-t px-4 py-3">
-                      <span class="text-muted-foreground text-xs">Página {{ currentPage }} de {{ lastPage }} ({{ total }} registros)</span>
+                      <span class="text-muted-foreground text-xs">Página {{ currentPage() }} de {{ lastPage() }} ({{ total() }} registros)</span>
                       <div class="flex gap-2">
                         <button
                           z-button
                           zType="outline"
                           zSize="sm"
                           type="button"
-                          [zDisabled]="currentPage <= 1"
-                          (click)="goToPage(currentPage - 1)"
+                          [zDisabled]="currentPage() <= 1"
+                          (click)="goToPage(currentPage() - 1)"
                         >
                           Anterior
                         </button>
@@ -276,8 +278,8 @@
                           zType="outline"
                           zSize="sm"
                           type="button"
-                          [zDisabled]="currentPage >= lastPage"
-                          (click)="goToPage(currentPage + 1)"
+                          [zDisabled]="currentPage() >= lastPage()"
+                          (click)="goToPage(currentPage() + 1)"
                         >
                           Próxima
                         </button>

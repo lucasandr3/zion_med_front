@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, Signal } from '@angular/core';
+import { Component, OnInit, inject, Signal, ChangeDetectionStrategy, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import {
@@ -64,27 +64,28 @@ const CATEGORY_EMOJI: Record<string, string> = {
 @Component({
   selector: 'app-templates-criar',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [RouterLink, FormsModule, ZmSkeletonListComponent],
   templateUrl: './templates-criar.component.html',
   styleUrl: './templates-criar.component.css',
 })
 export class TemplatesCriarComponent implements OnInit {
-  modelos: TemplateLibraryItem[] = [];
-  bibliotecaMeta: TemplateLibraryMeta | null = null;
+  readonly modelos = signal<TemplateLibraryItem[]>([]);
+  readonly bibliotecaMeta = signal<TemplateLibraryMeta | null>(null);
   showSkeleton!: Signal<boolean>;
-  listaPronta = false;
-  erro = '';
+  readonly listaPronta = signal(false);
+  readonly erro = signal('');
 
   buscaTexto = '';
   filtroAtual = 'todos';
-  categoryKeys: string[] = [];
+  readonly categoryKeys = signal<string[]>([]);
   readonly categoryLabels = CATEGORY_LABELS;
   readonly categoryEmoji = CATEGORY_EMOJI;
 
-  previewAberto = false;
-  previewTemplate: TemplateLibraryItem | null = null;
-  previewCarregando = false;
-  usandoModelo = false;
+  readonly previewAberto = signal(false);
+  readonly previewTemplate = signal<TemplateLibraryItem | null>(null);
+  readonly previewCarregando = signal(false);
+  readonly usandoModelo = signal(false);
 
   private templatesService = inject(TemplatesService);
   private loadingService = inject(LoadingService);
@@ -96,24 +97,25 @@ export class TemplatesCriarComponent implements OnInit {
     this.showSkeleton = showSkeleton;
     data$.subscribe({
       next: (payload) => {
-        this.listaPronta = true;
-        this.bibliotecaMeta = payload.meta;
-        this.modelos = payload.specialties.flatMap((s) => s.templates);
+        this.listaPronta.set(true);
+        this.bibliotecaMeta.set(payload.meta);
+        const modelos = payload.specialties.flatMap((s) => s.templates);
+        this.modelos.set(modelos);
         const keys = [
-          ...new Set(this.modelos.map((t) => String(t.category ?? '').trim().toLowerCase()).filter(Boolean)),
+          ...new Set(modelos.map((t) => String(t.category ?? '').trim().toLowerCase()).filter(Boolean)),
         ].sort();
-        this.categoryKeys = keys;
+        this.categoryKeys.set(keys);
       },
       error: () => {
-        this.listaPronta = true;
-        this.erro = 'Não foi possível carregar a biblioteca de modelos.';
+        this.listaPronta.set(true);
+        this.erro.set('Não foi possível carregar a biblioteca de modelos.');
       },
     });
   }
 
   get cardsVisiveis(): TemplateLibraryItem[] {
     const q = this.buscaTexto.trim().toLowerCase();
-    return this.modelos.filter((t) => {
+    return this.modelos().filter((t) => {
       const matchSearch =
         !q ||
         (t.name ?? '').toLowerCase().includes(q) ||
@@ -132,42 +134,42 @@ export class TemplatesCriarComponent implements OnInit {
   }
 
   abrirPreview(t: TemplateLibraryItem): void {
-    this.previewAberto = true;
-    this.previewTemplate = null;
-    this.previewCarregando = true;
+    this.previewAberto.set(true);
+    this.previewTemplate.set(null);
+    this.previewCarregando.set(true);
     this.templatesService.getBibliotecaItem(t.library_key).subscribe({
       next: (full) => {
-        this.previewTemplate = full;
-        this.previewCarregando = false;
+        this.previewTemplate.set(full);
+        this.previewCarregando.set(false);
       },
       error: () => {
-        this.previewCarregando = false;
-        this.previewTemplate = { ...t, fields: [] };
+        this.previewCarregando.set(false);
+        this.previewTemplate.set({ ...t, fields: [] });
       },
     });
   }
 
   fecharPreview(): void {
-    this.previewAberto = false;
-    this.previewTemplate = null;
+    this.previewAberto.set(false);
+    this.previewTemplate.set(null);
   }
 
   usarModelo(t: TemplateLibraryItem): void {
-    if (this.usandoModelo) return;
+    if (this.usandoModelo()) return;
     if (t.installed_template_id) {
       this.router.navigate(['/templates', t.installed_template_id, 'campos']);
       return;
     }
-    this.usandoModelo = true;
+    this.usandoModelo.set(true);
     this.templatesService.installFromLibrary(t.library_key).subscribe({
       next: (novo) => {
-        this.usandoModelo = false;
+        this.usandoModelo.set(false);
         this.fecharPreview();
         t.installed_template_id = novo.id;
         this.router.navigate(['/templates', novo.id, 'campos']);
       },
       error: () => {
-        this.usandoModelo = false;
+        this.usandoModelo.set(false);
         this.toast.error('Erro', 'Não foi possível instalar o modelo da biblioteca.');
       },
     });
@@ -180,8 +182,8 @@ export class TemplatesCriarComponent implements OnInit {
   }
 
   contagemFiltro(cat: string): number {
-    if (cat === 'todos') return this.modelos.length;
-    return this.modelos.filter(
+    if (cat === 'todos') return this.modelos().length;
+    return this.modelos().filter(
       (t) =>
         String(t.category ?? '')
           .trim()
@@ -239,7 +241,7 @@ export class TemplatesCriarComponent implements OnInit {
   }
 
   specialtyLabel(): string {
-    const niche = this.bibliotecaMeta?.niche ?? 'geral';
+    const niche = this.bibliotecaMeta()?.niche ?? 'geral';
     return CATEGORY_LABELS[niche] ?? niche;
   }
 }

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject, Signal, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, Signal, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { PlataformaService, PlatformPlan } from '../../../core/services/plataforma.service';
@@ -12,6 +12,7 @@ import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
 @Component({
   selector: 'app-plataforma-plano-form',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     ...ZARD_FORM_CONTROL_IMPORTS,
     FormsModule,
@@ -27,9 +28,9 @@ export class PlataformaPlanoFormComponent implements OnInit, OnDestroy {
   isEdit = false;
   id: string | null = null;
   showSkeleton!: Signal<boolean>;
-  listaPronta = false;
-  saving = false;
-  error = '';
+  readonly listaPronta = signal(false);
+  readonly saving = signal(false);
+  readonly error = signal('');
 
   key = '';
   name = '';
@@ -55,33 +56,33 @@ export class PlataformaPlanoFormComponent implements OnInit, OnDestroy {
       this.showSkeleton = showSkeleton;
       data$.subscribe({
         next: (res) => {
-          this.listaPronta = true;
+          this.listaPronta.set(true);
           const p = (res as { data?: PlatformPlan }).data ?? (res as unknown as PlatformPlan);
           this.preencherFormulario(p);
         },
         error: () => {
           this.plataformaService.getPlans().subscribe({
             next: (listRes) => {
-              this.listaPronta = true;
+              this.listaPronta.set(true);
               const list = listRes.data ?? [];
               const idNum = Number(this.id);
               const p = list.find((x) => x.id === this.id || x.id === idNum || String(x.id) === this.id);
               if (p) {
                 this.preencherFormulario(p);
               } else {
-                this.error = 'Plano não encontrado.';
+                this.error.set('Plano não encontrado.');
               }
             },
             error: () => {
-              this.listaPronta = true;
-              this.error = 'Não foi possível carregar o plano.';
+              this.listaPronta.set(true);
+              this.error.set('Não foi possível carregar o plano.');
             },
           });
         },
       });
     } else {
       this.showSkeleton = signal(false).asReadonly();
-      this.listaPronta = true;
+      this.listaPronta.set(true);
       this.headerService.setHeader('Novo plano', 'Criar plano de assinatura.');
     }
   }
@@ -126,26 +127,26 @@ export class PlataformaPlanoFormComponent implements OnInit, OnDestroy {
   }
 
   submit(): void {
-    this.error = '';
+    this.error.set('');
     const name = this.name.trim();
     if (!name) {
-      this.error = 'Nome é obrigatório.';
+      this.error.set('Nome é obrigatório.');
       return;
     }
     if (!this.isEdit && !this.key.trim()) {
-      this.error = 'Chave é obrigatória.';
+      this.error.set('Chave é obrigatória.');
       return;
     }
     if (!/^[a-z0-9_-]+$/.test(this.key.trim()) && !this.isEdit) {
-      this.error = 'Chave deve conter apenas letras minúsculas, números, _ e -.';
+      this.error.set('Chave deve conter apenas letras minúsculas, números, _ e -.');
       return;
     }
     if (this.valueNumber < 0) {
-      this.error = 'Valor deve ser maior ou igual a zero.';
+      this.error.set('Valor deve ser maior ou igual a zero.');
       return;
     }
 
-    this.saving = true;
+    this.saving.set(true);
     if (this.isEdit && this.id) {
       this.plataformaService
         .updatePlan(this.id, {
@@ -157,14 +158,14 @@ export class PlataformaPlanoFormComponent implements OnInit, OnDestroy {
         })
         .subscribe({
           next: () => {
-            this.saving = false;
+            this.saving.set(false);
             this.toast.success('Plano salvo', `${name} foi atualizado.`);
             this.router.navigate(['/plataforma/planos']);
           },
           error: () => {
-            this.saving = false;
-            this.error = 'Não foi possível salvar o plano.';
-            this.toast.error('Erro', this.error);
+            this.saving.set(false);
+            this.error.set('Não foi possível salvar o plano.');
+            this.toast.error('Erro', this.error());
           },
         });
     } else {
@@ -179,14 +180,14 @@ export class PlataformaPlanoFormComponent implements OnInit, OnDestroy {
         })
         .subscribe({
           next: () => {
-            this.saving = false;
+            this.saving.set(false);
             this.toast.success('Plano criado', `${name} foi cadastrado.`);
             this.router.navigate(['/plataforma/planos']);
           },
           error: () => {
-            this.saving = false;
-            this.error = 'Não foi possível criar o plano.';
-            this.toast.error('Erro', this.error);
+            this.saving.set(false);
+            this.error.set('Não foi possível criar o plano.');
+            this.toast.error('Erro', this.error());
           },
         });
     }

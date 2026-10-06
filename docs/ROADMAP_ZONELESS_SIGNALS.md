@@ -135,7 +135,7 @@ LoadingService.loadWithThreshold(...) → data$.subscribe → this.lista = ...
 
 ### 2.8 Anti-exemplo crítico
 
-`plataforma-emails.component.ts` — `computed()` lendo **campos plain** populados por subscribe. O `computed` **não invalida** sozinho → UI pode ficar stale. Corrigir na Fase 6 (ou P0 se a tela estiver em uso intenso).
+`plataforma-emails.component.ts` — ~~`computed()` lendo campos plain~~ → **corrigido (2026-08-21):** `recipientsData` / `category` em signals.
 
 ---
 
@@ -182,20 +182,25 @@ LoadingService.loadWithThreshold(...) → data$.subscribe → this.lista = ...
 
 **Alvos:** `src/app/componentes/layout/**` + services de shell  
 
-- [ ] `sidebar-mobile.service.ts` → `signal`  
-- [ ] Sidebars: `sidebarColapsada` / logo / mobile open → signals; remover CDR  
-- [ ] Preferir fonte de verdade Angular para collapse (evitar `MutationObserver` em `body` se possível)  
-- [ ] `layout-app` / `layout-plataforma`: badges/trial/título → signals  
-- [ ] `cabecalho` + `appearanceApplied$` → signal/evento tipado  
-- [ ] OnPush no shell  
+- [x] `sidebar-mobile.service.ts` → `signal` (`isOpen` / `setOpen` / `toggle`)  
+- [x] Sidebars app + plataforma: open/collapse/logo/usuário → signals; CDR/`MutationObserver` removidos  
+- [x] `ShellSidebarCollapseService` como fonte de verdade do collapse (classe no `body` só como espelho CSS)  
+- [x] `layout-app` / `layout-plataforma`: badges/trial/título → signals + OnPush  
+- [x] `appearanceVersion` signal no `AuthService` (+ `$` legado); sidebars reagem via `effect`  
+- [x] OnPush nas barras laterais, layouts e cabeçalho; cabecalho usa collapse service  
+- [x] `PlataformaHeaderService` → signal + `toObservable` compat  
+- [x] `plataforma-emails`: `recipientsData`/`category` em signals (anti-exemplo `computed` stale corrigido)
 
 ### Fase 2 — Auth + onboarding
 
-- [ ] Login / forgot / reset / verificação de e-mail  
-- [ ] `comece.component.ts` (timers → signals)  
-- [ ] `clinica-escolher.component.ts`  
+- [x] Login / forgot / reset / verificação de e-mail → signals + OnPush  
+- [x] `comece.component.ts` (timers/`linkCopiado`/`showSuccessOverlay` → signals; `progressPct` em `computed`)  
+- [x] `clinica-escolher.component.ts` → signals + OnPush  
 
 ### Fase 3 — Dashboard + listagens tenant
+
+> **Status (2026-08-21):** concluída — OnPush + signals de UI; HTML patchado só em expressões Angular; `ng build --configuration=development` ok.
+
 
 Padrão alvo:
 
@@ -206,28 +211,38 @@ readonly data = toSignal(this.data$, { initialValue: null });
 
 ou `rxResource` / `httpResource` quando couber.
 
-- [ ] `dashboard.component.ts`  
-- [ ] `pessoas-*`, `usuarios-*`, `organizacao-*`  
-- [ ] `templates-listagem`, `envios`, `notificacoes`, `novidades`, `links-publicos`, `billing`  
-- [ ] Onboarding wizard  
+- [x] `dashboard.component.ts`  
+- [x] `pessoas-*`, `usuarios-*`, `organizacao-*`  
+- [x] `templates-listagem`, `envios`, `notificacoes`, `novidades`, `links-publicos`, `billing`  
+- [x] Onboarding wizard  
 
 ### Fase 4 — Formulários / protocolos / templates
 
-- [ ] `formulario-publico-*` (começar por `show`)  
-- [ ] `protocolos-detalhe` / listagem  
-- [ ] `templates-campos` / editar / criar  
-- [ ] Zerar `markForCheck` do show  
+> **Status (2026-10-06):** concluída — detalhe de protocolos, campos de template, filhos do formulário público e tela de sucesso em OnPush/signals.
+
+- [x] `formulario-publico-show` (OnPush + signals; `markForCheck` removido)  
+- [x] restante `formulario-publico-*` (filhos leves + sucesso)  
+- [x] `protocolos-listagem`  
+- [x] `protocolos-detalhe`  
+- [x] `templates-criar` / `templates-criar-em-branco` / `templates-editar`  
+- [x] `templates-campos`  
+- [x] Zerar `markForCheck` do show  
 
 ### Fase 5 — Link Bio
 
-- [ ] `link-bio.component.ts` + tabs  
+> **Status (2026-10-06):** shell `link-bio.component` em OnPush + `state()`. Tabs internas e páginas públicas ainda podem evoluir para `input()`.
+
+- [x] `link-bio.component.ts` (OnPush + signals de estado)  
+- [ ] tabs internas (`links` / `forms` / `aparencia`) se ainda mutarem estado fora de signal  
 - [ ] `link-bio-public*` (toast imperativo → signal/componente)  
 
 ### Fase 6 — Plataforma admin
 
-- [ ] Listagens `plataforma/*` → `toSignal` / resource  
-- [ ] Corrigir `plataforma-emails`  
-- [ ] `clinica-configuracoes` / Feegow / Evolution (poll consciente; ver roadmap back)  
+> **Status (2026-10-06):** listagens e forms da plataforma em OnPush + signals de lista. `toSignal`/`resource` ainda não é o padrão único.
+
+- [x] Listagens `plataforma/*` → OnPush + signals  
+- [x] Corrigir `plataforma-emails`  
+- [x] `clinica-configuracoes` (OnPush + flags em signal; poll Feegow/Evolution ainda consciente)  
 
 ### Fase 7 — Shared UI restante
 
@@ -314,3 +329,6 @@ A modernização zoneless/signals do front está **concluída** quando:
 | 2026-08-20 | `provideZonelessChangeDetection`; remoção de Zone dos polyfills |
 | 2026-08-20 | Este roadmap criado |
 | 2026-08-21 | Gap fluxo paciente P0 fechado (track separado); este doc permanece focado em signals/OnPush |
+| 2026-08-21 | Fase 1 parcial: shell mobile/collapse/sidebars + header plataforma + fix `plataforma-emails` |
+| 2026-08-21 | Fase 2: login/auth pages + comece + clinica-escolher em signals/OnPush |
+| 2026-10-06 | Fases 4–6: protocolos-detalhe, templates-campos, form público filhos, link-bio shell, plataforma, clinica-configuracoes |

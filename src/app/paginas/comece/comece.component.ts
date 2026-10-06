@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, PLATFORM_ID, inject } from '@angular/core';
+import { Component, Inject, OnInit, PLATFORM_ID, inject, ChangeDetectionStrategy, signal, computed } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -20,37 +20,38 @@ import {
 @Component({
   selector: 'app-pagina-comece',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, RouterLink, ReactiveFormsModule, NgxMaskDirective, ZardCheckboxComponent],
   templateUrl: './comece.component.html',
   styleUrl: './comece.component.css',
 })
 export class ComeceComponent implements OnInit {
-  planos: PlanoLanding[] = [];
-  diasTrial = 14;
-  carregandoPlanos = true;
-  planKey = '';
-  estadoCarregando = false;
-  estadoErro = false;
-  mensagemErro = '';
-  mostrarSenha = false;
-  mostrarSenhaConf = false;
-  forcaSenha = 0;
-  labelForcaSenha = 'Use no mínimo 8 caracteres';
-  uiStep = 1;
-  showSuccessOverlay = false;
-  lpTheme: 'dark' | 'light' = 'dark';
-  formularioEnviado = false;
+  readonly planos = signal<PlanoLanding[]>([]);
+  readonly diasTrial = signal(14);
+  readonly carregandoPlanos = signal(true);
+  readonly planKey = signal('');
+  readonly estadoCarregando = signal(false);
+  readonly estadoErro = signal(false);
+  readonly mensagemErro = signal('');
+  readonly mostrarSenha = signal(false);
+  readonly mostrarSenhaConf = signal(false);
+  readonly forcaSenha = signal(0);
+  readonly labelForcaSenha = signal('Use no mínimo 8 caracteres');
+  readonly uiStep = signal(1);
+  readonly showSuccessOverlay = signal(false);
+  readonly lpTheme = signal<'dark' | 'light'>('dark');
+  readonly formularioEnviado = signal(false);
 
-  niches: string[] = [];
-  nicheKey = 'estetica';
+  readonly niches = signal<string[]>([]);
+  readonly nicheKey = signal('estetica');
 
-  templatesOnboarding: Template[] = [];
-  carregandoTemplates = false;
-  templateSelecionadoId: number | null = null;
-  linkPublicoUrl = '';
-  gerandoLink = false;
-  onboardingErro = '';
-  linkCopiado = false;
+  readonly templatesOnboarding = signal<Template[]>([]);
+  readonly carregandoTemplates = signal(false);
+  readonly templateSelecionadoId = signal<number | null>(null);
+  readonly linkPublicoUrl = signal('');
+  readonly gerandoLink = signal(false);
+  readonly onboardingErro = signal('');
+  readonly linkCopiado = signal(false);
 
   readonly nicheLabels: Record<string, string> = {
     estetica: 'Estética / Harmonização',
@@ -110,9 +111,9 @@ export class ComeceComponent implements OnInit {
         }
       }
       if (saved === 'dark' || saved === 'light') {
-        this.lpTheme = saved;
+        this.lpTheme.set(saved);
       } else if (window.matchMedia('(prefers-color-scheme: light)').matches) {
-        this.lpTheme = 'light';
+        this.lpTheme.set('light');
       }
     }
     const qe = this.route.snapshot.queryParamMap.get('email');
@@ -120,64 +121,64 @@ export class ComeceComponent implements OnInit {
       this.cadastroForm.patchValue({ email: qe.trim() });
     }
     const qp = this.route.snapshot.queryParamMap.get('plan');
-    if (qp?.trim()) this.planKey = qp.trim();
+    if (qp?.trim()) this.planKey.set(qp.trim());
 
     this.landingService.getLanding().subscribe({
       next: (d) => {
-        this.diasTrial = d.trial_days ?? 14;
-        this.planos = d.plans ?? [];
-        this.niches = d.niches?.length ? d.niches.map(String) : ['estetica', 'odontologia'];
+        this.diasTrial.set(d.trial_days ?? 14);
+        this.planos.set(d.plans ?? []);
+        this.niches.set(d.niches?.length ? d.niches.map(String) : ['estetica', 'odontologia']);
         const qn = this.route.snapshot.queryParamMap.get('niche');
-        if (qn && this.niches.includes(qn)) {
-          this.nicheKey = qn;
-        } else if (!this.niches.includes(this.nicheKey)) {
-          this.nicheKey = this.niches[0] ?? 'estetica';
+        if (qn && this.niches().includes(qn)) {
+          this.nicheKey.set(qn);
+        } else if (!this.niches().includes(this.nicheKey())) {
+          this.nicheKey.set(this.niches()[0] ?? 'estetica');
         }
-        this.carregandoPlanos = false;
-        if (this.planos.length && !this.planos.some((p) => p.key === this.planKey)) {
-          this.planKey = this.planos[0].key;
+        this.carregandoPlanos.set(false);
+        if (this.planos().length && !this.planos().some((p) => p.key === this.planKey())) {
+          this.planKey.set(this.planos()[0].key);
         }
       },
       error: () => {
-        this.diasTrial = 14;
-        this.planos = [];
-        this.niches = ['estetica', 'odontologia'];
-        this.nicheKey = 'estetica';
-        this.carregandoPlanos = false;
+        this.diasTrial.set(14);
+        this.planos.set([]);
+        this.niches.set(['estetica', 'odontologia']);
+        this.nicheKey.set('estetica');
+        this.carregandoPlanos.set(false);
       },
     });
   }
 
   toggleLpTheme(): void {
-    this.lpTheme = this.lpTheme === 'dark' ? 'light' : 'dark';
+    this.lpTheme.set(this.lpTheme() === 'dark' ? 'light' : 'dark');
     if (isPlatformBrowser(this.platformId)) {
-      localStorage.setItem('gestgo-lp-theme', this.lpTheme);
+      localStorage.setItem('gestgo-lp-theme', this.lpTheme());
       localStorage.removeItem('zm-lp-theme');
     }
   }
 
-  get progressPct(): number {
-    if (this.showSuccessOverlay) return 100;
-    if (this.linkPublicoUrl) return 90;
-    return this.uiStep === 1 ? 33 : 66;
-  }
+  readonly progressPct = computed(() => {
+    if (this.showSuccessOverlay()) return 100;
+    if (this.linkPublicoUrl()) return 90;
+    return this.uiStep() === 1 ? 33 : 66;
+  });
 
   isPlanoGratis(plan: PlanoLanding): boolean {
     return plan.value <= 0 || /grat/i.test(plan.name) || plan.key === 'free';
   }
 
   selecionarPlano(key: string): void {
-    this.planKey = key;
+    this.planKey.set(key);
   }
 
   selecionarNicho(key: string): void {
-    this.nicheKey = key;
+    this.nicheKey.set(key);
   }
 
   selecionarTemplate(id: number): void {
-    this.templateSelecionadoId = id;
-    this.linkPublicoUrl = '';
-    this.onboardingErro = '';
+    this.templateSelecionadoId.set(id);
+    this.linkPublicoUrl.set('');
+    this.onboardingErro.set('');
   }
 
   labelNicho(key: string): string {
@@ -192,37 +193,37 @@ export class ComeceComponent implements OnInit {
     if (/[A-Z]/.test(p) && /[a-z]/.test(p)) score++;
     if (/[0-9]/.test(p)) score++;
     if (/[^A-Za-z0-9]/.test(p)) score++;
-    this.forcaSenha = Math.min(4, score);
+    this.forcaSenha.set(Math.min(4, score));
     const labels = ['', 'Senha muito fraca', 'Senha fraca', 'Senha razoável', 'Senha forte'];
-    this.labelForcaSenha = labels[this.forcaSenha] || 'Use no mínimo 8 caracteres';
+    this.labelForcaSenha.set(labels[this.forcaSenha()] || 'Use no mínimo 8 caracteres');
   }
 
   enviar(): void {
-    this.formularioEnviado = true;
-    this.estadoErro = false;
-    this.mensagemErro = '';
+    this.formularioEnviado.set(true);
+    this.estadoErro.set(false);
+    this.mensagemErro.set('');
     this.cadastroForm.markAllAsTouched();
 
-    if (!this.planKey || !this.nicheKey) {
-      this.estadoErro = true;
-      this.mensagemErro = 'Selecione o plano e o segmento do negócio.';
+    if (!this.planKey() || !this.nicheKey()) {
+      this.estadoErro.set(true);
+      this.mensagemErro.set('Selecione o plano e o segmento do negócio.');
       return;
     }
 
     if (this.cadastroForm.invalid) {
-      this.estadoErro = true;
+      this.estadoErro.set(true);
       if (this.cadastroForm.hasError('passwordMismatch')) {
-        this.mensagemErro = 'As senhas não coincidem.';
+        this.mensagemErro.set('As senhas não coincidem.');
       } else if (this.cadastroForm.controls.billingDocument.hasError('billingDocument')) {
-        this.mensagemErro = 'Se informar CPF/CNPJ, use 11 ou 14 dígitos válidos.';
+        this.mensagemErro.set('Se informar CPF/CNPJ, use 11 ou 14 dígitos válidos.');
       } else {
-        this.mensagemErro = 'Preencha todos os campos obrigatórios, confirme a senha e aceite os termos.';
+        this.mensagemErro.set('Preencha todos os campos obrigatórios, confirme a senha e aceite os termos.');
       }
       return;
     }
 
     const v = this.cadastroForm.getRawValue();
-    this.estadoCarregando = true;
+    this.estadoCarregando.set(true);
     const payload = {
       company_name: v.companyName.trim(),
       responsible_name: v.responsibleName.trim(),
@@ -230,8 +231,8 @@ export class ComeceComponent implements OnInit {
       phone: v.phone.trim(),
       password: v.password,
       password_confirmation: v.passwordConfirmation,
-      plan_key: this.planKey,
-      niche: this.nicheKey,
+      plan_key: this.planKey(),
+      niche: this.nicheKey(),
       accepted_terms: v.acceptedTerms,
     };
     const doc = v.billingDocument.trim();
@@ -239,77 +240,76 @@ export class ComeceComponent implements OnInit {
       .store(doc ? { ...payload, billing_document: doc } : payload)
       .subscribe({
         next: () => {
-          this.estadoCarregando = false;
-          this.uiStep = 2;
+          this.estadoCarregando.set(false);
+          this.uiStep.set(2);
           this.carregarTemplatesOnboarding();
           if (isPlatformBrowser(this.platformId)) {
             window.scrollTo({ top: 0, behavior: 'smooth' });
           }
         },
         error: (err) => {
-          this.estadoCarregando = false;
-          this.estadoErro = true;
+          this.estadoCarregando.set(false);
+          this.estadoErro.set(true);
           let msg: string | undefined = err.error?.message;
           if (!msg && err.error?.errors) {
             msg = Object.values(err.error.errors).flat().join(' ');
           }
-          this.mensagemErro =
-            typeof msg === 'string' && msg.trim() ? msg : 'Não foi possível criar a conta. Tente novamente.';
+          this.mensagemErro.set(typeof msg === 'string' && msg.trim() ? msg : 'Não foi possível criar a conta. Tente novamente.');
         },
       });
   }
 
   private carregarTemplatesOnboarding(): void {
-    this.carregandoTemplates = true;
-    this.onboardingErro = '';
+    this.carregandoTemplates.set(true);
+    this.onboardingErro.set('');
     this.onboarding.listTemplates().subscribe({
       next: (items) => {
-        this.templatesOnboarding = items;
-        this.carregandoTemplates = false;
+        this.templatesOnboarding.set(items);
+        this.carregandoTemplates.set(false);
         if (items.length === 1) {
-          this.templateSelecionadoId = items[0].id;
+          this.templateSelecionadoId.set(items[0].id);
         }
       },
       error: () => {
-        this.carregandoTemplates = false;
-        this.onboardingErro = 'Não foi possível carregar os modelos. Você pode configurar depois no painel.';
+        this.carregandoTemplates.set(false);
+        this.onboardingErro.set('Não foi possível carregar os modelos. Você pode configurar depois no painel.');
       },
     });
   }
 
   gerarLinkPublico(): void {
-    if (this.templateSelecionadoId == null) {
-      this.onboardingErro = 'Escolha um modelo de ficha para continuar.';
+    if (this.templateSelecionadoId() == null) {
+      this.onboardingErro.set('Escolha um modelo de ficha para continuar.');
       return;
     }
-    this.gerandoLink = true;
-    this.onboardingErro = '';
-    this.onboarding.gerarLinkPublico(this.templateSelecionadoId).subscribe({
+    this.gerandoLink.set(true);
+    this.onboardingErro.set('');
+    this.onboarding.gerarLinkPublico(this.templateSelecionadoId() as number).subscribe({
       next: (url) => {
-        this.gerandoLink = false;
+        this.gerandoLink.set(false);
         if (!url) {
-          this.onboardingErro = 'Link não retornado. Tente novamente no painel.';
+          this.onboardingErro.set('Link não retornado. Tente novamente no painel.');
           return;
         }
-        this.linkPublicoUrl = url;
+        this.linkPublicoUrl.set(url);
       },
       error: () => {
-        this.gerandoLink = false;
-        this.onboardingErro = 'Erro ao gerar o link. Tente em Modelos de fichas no painel.';
+        this.gerandoLink.set(false);
+        this.onboardingErro.set('Erro ao gerar o link. Tente em Modelos de fichas no painel.');
       },
     });
   }
 
   copiarLink(): void {
-    if (!this.linkPublicoUrl || !isPlatformBrowser(this.platformId)) return;
-    navigator.clipboard.writeText(this.linkPublicoUrl).then(() => {
-      this.linkCopiado = true;
-      window.setTimeout(() => (this.linkCopiado = false), 2000);
+    if (!this.linkPublicoUrl() || !isPlatformBrowser(this.platformId)) return;
+    navigator.clipboard.writeText(this.linkPublicoUrl()).then(() => {
+      this.linkCopiado.set(true);
+      window.setTimeout(() => (this.linkCopiado.set(false), 2000));
     });
   }
 
   finalizarConfiguracao(): void {
-    this.showSuccessOverlay = true;
+    this.showSuccessOverlay.set(true);
     if (isPlatformBrowser(this.platformId)) {
       window.setTimeout(() => void this.router.navigateByUrl(this.auth.getDefaultTenantPath()), 1600);
     }

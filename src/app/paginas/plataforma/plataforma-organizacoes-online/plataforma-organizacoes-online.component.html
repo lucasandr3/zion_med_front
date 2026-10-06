@@ -5,9 +5,9 @@
 
   @if (showSkeleton()) {
     <zm-skeleton-list [rows]="6" />
-  } @else if (!listaPronta) {
+  } @else if (!listaPronta()) {
   } @else {
-    @if (estadoErro) {
+    @if (estadoErro()) {
       <div class="rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-foreground">
         Não foi possível carregar a lista.
       </div>
@@ -24,7 +24,7 @@
                 </tr>
               </thead>
               <tbody z-table-body>
-                @for (row of linhas; track row.organization_id) {
+                @for (row of linhas(); track row.organization_id) {
                   <tr z-table-row>
                     <td z-table-cell>
                       <div class="zm-row-title">{{ row.organization_name }}</div>

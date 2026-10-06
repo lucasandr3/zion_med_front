@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, Signal } from '@angular/core';
+import { Component, OnInit, inject, Signal, ChangeDetectionStrategy, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ZardCardComponent } from '@/shared/components/card/card.component';
 import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
@@ -12,6 +12,7 @@ import { ZardTableImports } from '@/shared/components/table';
 @Component({
   selector: 'app-plataforma-clientes',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     ...ZardTableImports,
     RouterLink,
@@ -27,9 +28,9 @@ export class PlataformaClientesComponent implements OnInit {
   protected readonly rotuloStatusAssinaturaCobranca = statusAssinaturaOuCobrancaPt;
 
   showSkeleton!: Signal<boolean>;
-  listaPronta = false;
-  estadoErro = false;
-  tenants: PlatformTenant[] = [];
+  readonly listaPronta = signal(false);
+  readonly estadoErro = signal(false);
+  readonly tenants = signal<PlatformTenant[]>([]);
 
   private plataformaService = inject(PlataformaService);
   private loadingService = inject(LoadingService);
@@ -39,12 +40,12 @@ export class PlataformaClientesComponent implements OnInit {
     this.showSkeleton = showSkeleton;
     data$.subscribe({
       next: (res) => {
-        this.listaPronta = true;
-        this.tenants = res.data ?? [];
+        this.listaPronta.set(true);
+        this.tenants.set(res.data ?? []);
       },
       error: () => {
-        this.listaPronta = true;
-        this.estadoErro = true;
+        this.listaPronta.set(true);
+        this.estadoErro.set(true);
       },
     });
   }

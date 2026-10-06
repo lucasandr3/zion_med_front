@@ -2,10 +2,10 @@
   @if (showSkeleton()) {
     <zm-skeleton-link-bio />
   } @else {
-    @if (erro) {
-      <p class="px-4 sm:px-6 lg:px-8 text-sm text-destructive">{{ erro }}</p>
+    @if (erro()) {
+      <p class="px-4 sm:px-6 lg:px-8 text-sm text-destructive">{{ erro() }}</p>
     }
-    @if (state) {
+    @if (state(); as bioState) {
     <div class="zm-content-enter link-bio-page link-bio-shell">
       <z-tab-group
         #mainTabGroup
@@ -16,9 +16,9 @@
         (zTabChange)="onMainTabChange($event)"
       >
         <z-tab label="Visão geral" icon="bar_chart">
-          @if (state) {
+          @if (state(); as bioState) {
             <zm-link-bio-visao-geral-tab
-              [state]="state"
+              [state]="bioState"
               [layoutModel]="aparenciaModelo"
               (editContent)="editarConteudo()"
               (applySuggestion)="aplicarSugestao($event)"
@@ -112,9 +112,9 @@
     <div class="link-bio-config grid grid-cols-1 gap-6 link-bio-config--side-preview">
       <div class="min-w-0">
 
-        @if (abaAtiva === 'links' && state) {
+        @if (abaAtiva === 'links' && bioState) {
           <zm-link-bio-links-tab
-            [state]="state"
+            [state]="bioState"
             [linkAvaliePlaceIdManual]="linkAvaliePlaceIdManual"
             (linkAvaliePlaceIdManualChange)="linkAvaliePlaceIdManual = $event"
             (reload)="carregar()"
@@ -126,9 +126,9 @@
           <zm-link-bio-forms-tab [forms]="forms" />
         }
 
-        @if (abaAtiva === 'aparencia' && state) {
+        @if (abaAtiva === 'aparencia' && bioState) {
           <zm-link-bio-aparencia-tab
-            [state]="state"
+            [state]="bioState"
             [linkAvaliePlaceIdManual]="linkAvaliePlaceIdManual"
             (linkAvaliePlaceIdManualChange)="linkAvaliePlaceIdManual = $event"
             (reload)="carregar()"
@@ -138,21 +138,21 @@
 
       </div>
 
-      <zm-link-bio-side-preview [previewUrlSafe]="previewUrlSafe" />
+      <zm-link-bio-side-preview [previewUrlSafe]="previewUrlSafe()" />
     </div>
     } @else {
     <!-- Necessário .link-bio-config para .sticky-footer (styles.css) em Modelos / Conteúdo extra -->
     <div class="link-bio-config min-w-0">
 
         <!-- Aba Modelos -->
-        @if (abaAtiva === 'modelos' && state) {
+        @if (abaAtiva === 'modelos' && bioState) {
           <zm-link-bio-modelos-tab
-            [state]="state"
+            [state]="bioState"
             [activeModel]="aparenciaModelo"
             (activeModelChange)="aparenciaModelo = $event"
-            [persistedModel]="modeloPersistido"
-            (persistedModelChange)="modeloPersistido = $event"
-            [previewSessionVersion]="previewSessionVersion"
+            [persistedModel]="modeloPersistido()"
+            (persistedModelChange)="modeloPersistido.set($event)"
+            [previewSessionVersion]="previewSessionVersion()"
             (draftSync)="syncDraftToSessionForPreviews()"
             (previewRefresh)="atualizarPreviewUrl()"
             (goToConteudoExtra)="ativarAba('conteudoExtra')"
@@ -160,12 +160,12 @@
         }
 
         <!-- Aba Conteúdo extra (layouts temáticos) -->
-        @if (abaAtiva === 'conteudoExtra' && state) {
+        @if (abaAtiva === 'conteudoExtra' && bioState) {
           <zm-link-bio-conteudo-extra-tab
-            [state]="state"
+            [state]="bioState"
             [extraForm]="extraForm"
             [activeModel]="aparenciaModelo"
-            [persistedModel]="modeloPersistido"
+            [persistedModel]="modeloPersistido()"
             [modelDirty]="modeloDirty"
             (draftSync)="syncDraftToSessionForPreviews()"
             (previewRefresh)="atualizarPreviewUrl()"

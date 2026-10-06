@@ -1,15 +1,4 @@
-import {
-  AfterViewInit,
-  Component,
-  ElementRef,
-  EventEmitter,
-  Input,
-  OnChanges,
-  Output,
-  QueryList,
-  SimpleChanges,
-  ViewChildren,
-} from '@angular/core';
+import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnChanges, Output, QueryList, SimpleChanges, ViewChildren, ChangeDetectionStrategy } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { FlatpickrDirective, provideFlatpickrDefaults } from 'angularx-flatpickr';
@@ -36,6 +25,7 @@ import {
 @Component({
   selector: 'zm-formulario-publico-fields',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [FormsModule, FlatpickrDirective, ZardCheckboxComponent],
   providers: [
     provideFlatpickrDefaults({

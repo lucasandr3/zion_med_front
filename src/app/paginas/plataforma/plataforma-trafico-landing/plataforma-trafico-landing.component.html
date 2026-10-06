@@ -1,9 +1,9 @@
 <div class="relative min-h-[320px]">
   @if (showSkeleton()) {
     <zm-skeleton-list [rows]="10" />
-  } @else if (estadoErro) {
+  } @else if (estadoErro()) {
     <p class="text-destructive text-sm">Não foi possível carregar as estatísticas da landing.</p>
-  } @else if (stats) {
+  } @else if (stats(); as s) {
     <div class="zm-content-enter landing-traffic-page">
       <div class="mb-7">
         <p class="text-muted-foreground mb-1 text-[11px] font-semibold uppercase tracking-wider">Plataforma</p>
@@ -18,11 +18,11 @@
           <button
             type="button"
             class="border-border bg-card text-foreground hover:bg-accent inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium transition-colors disabled:opacity-50"
-            [disabled]="atualizando"
+            [disabled]="atualizando()"
             (click)="atualizar()"
           >
-            <span class="material-symbols-outlined text-[18px]">{{ atualizando ? 'progress_activity' : 'refresh' }}</span>
-            {{ atualizando ? 'Atualizando…' : 'Atualizar' }}
+            <span class="material-symbols-outlined text-[18px]">{{ atualizando() ? 'progress_activity' : 'refresh' }}</span>
+            {{ atualizando() ? 'Atualizando…' : 'Atualizar' }}
           </button>
         </div>
       </div>
@@ -30,22 +30,22 @@
       <div class="landing-traffic-fade-in-2 mb-7 grid grid-cols-2 gap-3 lg:grid-cols-4">
         <div class="landing-traffic-metric">
           <p class="landing-traffic-metric-label">Visitantes hoje</p>
-          <p class="landing-traffic-metric-value landing-traffic-metric-value--accent">{{ stats.visitas_hoje }}</p>
+          <p class="landing-traffic-metric-value landing-traffic-metric-value--accent">{{ s.visitas_hoje }}</p>
           <p class="landing-traffic-metric-sub">IPs únicos hoje</p>
         </div>
         <div class="landing-traffic-metric">
           <p class="landing-traffic-metric-label">Visitantes (30 dias)</p>
-          <p class="landing-traffic-metric-value">{{ stats.unique_visitors_last_30 }}</p>
+          <p class="landing-traffic-metric-value">{{ s.unique_visitors_last_30 }}</p>
           <p class="landing-traffic-metric-sub">IPs únicos no período</p>
         </div>
         <div class="landing-traffic-metric">
           <p class="landing-traffic-metric-label">Cliques em CTAs</p>
-          <p class="landing-traffic-metric-value">{{ stats.total_clicks_last_30 }}</p>
+          <p class="landing-traffic-metric-value">{{ s.total_clicks_last_30 }}</p>
           <p class="landing-traffic-metric-sub">últimos 30 dias</p>
         </div>
         <div class="landing-traffic-metric">
           <p class="landing-traffic-metric-label">Taxa de clique</p>
-          <p class="landing-traffic-metric-value landing-traffic-metric-value--accent">{{ stats.taxa_clique }}%</p>
+          <p class="landing-traffic-metric-value landing-traffic-metric-value--accent">{{ s.taxa_clique }}%</p>
           <p class="landing-traffic-metric-sub">CTR (30 dias)</p>
         </div>
       </div>
@@ -53,9 +53,9 @@
       <div class="mb-6 grid grid-cols-1 gap-6 xl:grid-cols-2">
         <z-card class="p-5">
           <h3 class="text-foreground mb-1 text-sm font-bold">Visitantes por dia (7 dias)</h3>
-          <p class="text-muted-foreground mb-4 text-[11px]">Total histórico: {{ stats.total_views }} IPs únicos</p>
-          @if (stats.peak_day_label) {
-            <p class="text-muted-foreground mb-4 text-xs">Dia com mais visitantes: <strong class="text-foreground">{{ stats.peak_day_label }}</strong></p>
+          <p class="text-muted-foreground mb-4 text-[11px]">Total histórico: {{ s.total_views }} IPs únicos</p>
+          @if (s.peak_day_label) {
+            <p class="text-muted-foreground mb-4 text-xs">Dia com mais visitantes: <strong class="text-foreground">{{ s.peak_day_label }}</strong></p>
           }
           @if (diasVisitas.length === 0) {
             <p class="text-muted-foreground py-6 text-center text-xs">Nenhum dado neste período.</p>
@@ -82,7 +82,7 @@
 
         <z-card class="p-5">
           <h3 class="text-foreground mb-1 text-sm font-bold">Cliques em CTAs por dia (7 dias)</h3>
-          <p class="text-muted-foreground mb-4 text-[11px]">Total: {{ stats.total_clicks }} cliques</p>
+          <p class="text-muted-foreground mb-4 text-[11px]">Total: {{ s.total_clicks }} cliques</p>
           @if (diasCliques.length === 0) {
             <p class="text-muted-foreground py-6 text-center text-xs">Nenhum clique registrado.</p>
           } @else {
@@ -108,7 +108,7 @@
         <z-card class="p-5">
           <h3 class="text-foreground mb-4 text-sm font-bold">Páginas mais visitadas (30 dias)</h3>
           <p class="text-muted-foreground mb-4 text-[11px]">Visitantes únicos por URL (um IP por página por dia).</p>
-          @if (stats.path_breakdown.length === 0) {
+          @if (s.path_breakdown.length === 0) {
             <p class="text-muted-foreground py-4 text-center text-xs">Nenhuma página registrada.</p>
           } @else {
             <div class="border-border overflow-x-auto rounded-xl border">
@@ -120,7 +120,7 @@
                   </tr>
                 </thead>
                 <tbody>
-                  @for (row of stats.path_breakdown; track row.path) {
+                  @for (row of s.path_breakdown; track row.path) {
                     <tr class="border-border text-foreground border-t">
                       <td class="px-3 py-2 font-mono text-[11px]">{{ row.path }}</td>
                       <td class="px-3 py-2 text-right font-medium tabular-nums">{{ row.unique_visitors }}</td>
@@ -137,7 +137,7 @@
           <p class="text-muted-foreground mb-4 text-[11px]">
             Botões rastreados na landing (hero, menu, comece, etc.).
           </p>
-          @if (stats.click_breakdown.length === 0) {
+          @if (s.click_breakdown.length === 0) {
             <p class="text-muted-foreground py-4 text-center text-xs">Nenhum clique em CTA.</p>
           } @else {
             <div class="border-border overflow-x-auto rounded-xl border">
@@ -150,7 +150,7 @@
                   </tr>
                 </thead>
                 <tbody>
-                  @for (row of stats.click_breakdown; track row.channel) {
+                  @for (row of s.click_breakdown; track row.channel) {
                     <tr class="border-border text-foreground border-t">
                       <td class="px-3 py-2">
                         <span class="inline-flex items-center gap-1.5">

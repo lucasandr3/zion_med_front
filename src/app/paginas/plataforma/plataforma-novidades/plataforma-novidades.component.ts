@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, inject, Signal } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject, Signal, ChangeDetectionStrategy, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NovidadesService, ReleaseNote, ReleaseNoteItem, ReleaseNoteItemType } from '../../../core/services/novidades.service';
 import { PlataformaHeaderService } from '../../../core/services/plataforma-header.service';
@@ -18,6 +18,7 @@ interface FormItem {
 @Component({
   selector: 'app-plataforma-novidades',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FormsModule,
     ZmSkeletonListComponent,
@@ -30,13 +31,13 @@ interface FormItem {
 })
 export class PlataformaNovidadesComponent implements OnInit, OnDestroy {
   showSkeleton!: Signal<boolean>;
-  listaPronta = false;
-  erro = false;
-  notas: ReleaseNote[] = [];
-  excluindoId: number | null = null;
-  salvando = false;
-  editandoId: number | null = null;
-  exibirFormulario = false;
+  readonly listaPronta = signal(false);
+  readonly erro = signal(false);
+  readonly notas = signal<ReleaseNote[]>([]);
+  readonly excluindoId = signal<number | null>(null);
+  readonly salvando = signal(false);
+  readonly editandoId = signal<number | null>(null);
+  readonly exibirFormulario = signal(false);
 
   formVersion = '';
   formTitle = '';
@@ -74,20 +75,20 @@ export class PlataformaNovidadesComponent implements OnInit, OnDestroy {
     this.showSkeleton = showSkeleton;
     data$.subscribe({
       next: (res) => {
-        this.listaPronta = true;
-        this.erro = false;
-        this.notas = res.data ?? [];
+        this.listaPronta.set(true);
+        this.erro.set(false);
+        this.notas.set(res.data ?? []);
       },
       error: () => {
-        this.listaPronta = true;
-        this.erro = true;
+        this.listaPronta.set(true);
+        this.erro.set(true);
       },
     });
   }
 
   abrirNovo(): void {
-    this.editandoId = null;
-    this.exibirFormulario = true;
+    this.editandoId.set(null);
+    this.exibirFormulario.set(true);
     this.formVersion = '';
     this.formTitle = '';
     this.formSummary = '';
@@ -97,8 +98,8 @@ export class PlataformaNovidadesComponent implements OnInit, OnDestroy {
   }
 
   editar(nota: ReleaseNote): void {
-    this.editandoId = nota.id;
-    this.exibirFormulario = true;
+    this.editandoId.set(nota.id);
+    this.exibirFormulario.set(true);
     this.formVersion = nota.version;
     this.formTitle = nota.title;
     this.formSummary = nota.summary ?? '';
@@ -111,8 +112,8 @@ export class PlataformaNovidadesComponent implements OnInit, OnDestroy {
   }
 
   cancelarFormulario(): void {
-    this.exibirFormulario = false;
-    this.editandoId = null;
+    this.exibirFormulario.set(false);
+    this.editandoId.set(null);
   }
 
   adicionarItem(): void {
@@ -143,22 +144,23 @@ export class PlataformaNovidadesComponent implements OnInit, OnDestroy {
       items,
     };
 
-    this.salvando = true;
-    const wasEditing = this.editandoId != null;
-    const req = this.editandoId
-      ? this.novidadesService.updatePlatform(this.editandoId, payload)
+    this.salvando.set(true);
+    const wasEditing = this.editandoId() != null;
+    const editingId = this.editandoId();
+    const req = editingId
+      ? this.novidadesService.updatePlatform(editingId, payload)
       : this.novidadesService.createPlatform(payload);
 
     req.subscribe({
       next: () => {
-        this.salvando = false;
-        this.exibirFormulario = false;
-        this.editandoId = null;
+        this.salvando.set(false);
+        this.exibirFormulario.set(false);
+        this.editandoId.set(null);
         this.carregar();
         this.toast.success('Novidades', wasEditing ? 'Release atualizada.' : 'Release publicada.');
       },
       error: () => {
-        this.salvando = false;
+        this.salvando.set(false);
         this.toast.error('Erro', 'Não foi possível salvar a release.');
       },
     });
@@ -175,15 +177,15 @@ export class PlataformaNovidadesComponent implements OnInit, OnDestroy {
     });
     if (!ok) return;
 
-    this.excluindoId = nota.id;
+    this.excluindoId.set(nota.id);
     this.novidadesService.deletePlatform(nota.id).subscribe({
       next: () => {
-        this.excluindoId = null;
+        this.excluindoId.set(null);
         this.carregar();
         this.toast.success('Removida', `Release v${nota.version} excluída.`);
       },
       error: () => {
-        this.excluindoId = null;
+        this.excluindoId.set(null);
         this.toast.error('Erro', 'Não foi possível remover a release.');
       },
     });

@@ -54,16 +54,18 @@ GET  /api/v1/formulario-publico/{token}
  → clínica: e-mail protocol-new (anexo) + Protocolos PDF/dossiê
 ```
 
-**Ops obrigatório**
+**Ops obrigatório (VPS, sem Docker)**
 
 ```bash
 # no repo zion_med
-php artisan migrate
-# fila para o job de PDF
-php artisan queue:work
+php artisan migrate --force
+# fila + agendador: ver zion_med/docs/SUPERVISOR_VPS.md
+sudo supervisorctl status
 ```
 
-Migration: `2026_08_21_100000_add_patient_copy_and_pdf_to_form_submissions.php`
+Migrations:
+- `2026_08_21_100000_add_patient_copy_and_pdf_to_form_submissions.php`
+- `2026_08_21_140000_default_signing_security_level_to_reinforced.php`
 
 ---
 
@@ -105,13 +107,13 @@ Migration: `2026_08_21_100000_add_patient_copy_and_pdf_to_form_submissions.php`
 
 ### P2 — Endurecimento produto
 
-| ID | Item | Notas |
-|----|------|-------|
-| R5 | OTP `reinforced` como default recomendado na org | Config + UX clínica |
-| R6 | Métrica: % protocolos com cópia baixada pelo paciente | Dashboard / analytics |
-| R7 | Captura de e-mail na tela de sucesso se Person sem e-mail | Hoje só envia se já houver e-mail |
-| R8 | Prefill de CPF em campo do template (opcional, pós-gate) | Hoje CPF só no snapshot/PDF (LGPD) |
-| R9 | Alinhar copy marketing ↔ Opção B | “confirma o nome” em vez de “informa o nome” |
+| ID | Item | Status |
+|----|------|--------|
+| R5 | OTP `reinforced` como default recomendado na org | **FEITO** (default novas orgs + UX “recomendado” + aviso se basic) |
+| R6 | Métrica: % protocolos com cópia baixada pelo paciente | **FEITO** (compliance summary + KPI no dashboard) |
+| R7 | Captura de e-mail na tela de sucesso se sem e-mail | **FEITO** (`POST .../copia/{token}/email` + form na sucesso) |
+| R8 | Prefill de CPF em campo do template (pós-gate) | **FEITO** (`applyGateCpfToFields` com dígitos do gate) |
+| R9 | Alinhar copy marketing ↔ Opção B | **FEITO** (login + templates: “confirma o nome”) |
 
 ### Fora de escopo (SPEC longa)
 
@@ -131,7 +133,7 @@ Migration: `2026_08_21_100000_add_patient_copy_and_pdf_to_form_submissions.php`
 - [x] Baixa PDF na conclusão / recebe e-mail com link  
 - [x] Clínica recebe aviso e baixa PDF autenticado  
 - [x] Clínica recebe PDF no e-mail (R1)  
-- [ ] Migration + queue validados em staging/prod  
+- [ ] Migration + queue validados em staging/prod (VPS: `php artisan migrate --force` + Supervisor em `docs/SUPERVISOR_VPS.md` no backend)  
 - [x] Dossiê ZIP continua disponível  
 
 ---
@@ -145,3 +147,4 @@ Migration: `2026_08_21_100000_add_patient_copy_and_pdf_to_form_submissions.php`
 | 2026-08-21 | Implementação P0 + job PDF (front/back) |
 | 2026-08-21 | R1–R4: anexo clínica, PDF persistido no stream, eventos dossiê, feature tests |
 | 2026-08-21 | Roadmap/gap ajustados ao estado pós-implementação |
+| 2026-08-21 | P2 R5–R9: OTP recomendado, métrica cópia paciente, e-mail na sucesso, prefill CPF pós-gate, copy Opção B |

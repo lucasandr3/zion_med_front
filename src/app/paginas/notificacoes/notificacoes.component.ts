@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, Signal } from '@angular/core';
+import { Component, OnInit, inject, Signal, ChangeDetectionStrategy, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { NotificacoesService, Notificacao } from '../../core/services/notificacoes.service';
 import { LoadingService } from '../../shared/services/loading.service';
@@ -20,21 +20,22 @@ const ORDEM_GRUPOS = ['Hoje', 'Esta semana', 'Este mês', 'Anteriores'] as const
 @Component({
   selector: 'app-pagina-notificacoes',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [ZmSkeletonListComponent, ZmEmptyStateComponent, RouterLink, ZardButtonComponent],
   templateUrl: './notificacoes.component.html',
   styleUrl: './notificacoes.component.css',
 })
 export class NotificacoesComponent implements OnInit {
-  notificacoes: Notificacao[] = [];
+  readonly notificacoes = signal<Notificacao[]>([]);
   showSkeleton!: Signal<boolean>;
-  listaPronta = false;
-  erro = '';
-  filtroPlataforma: 'todas' | 'nao_lidas' = 'todas';
-  limiteVisivel = LIMITE_INICIAL;
+  readonly listaPronta = signal(false);
+  readonly erro = signal('');
+  readonly filtroPlataforma = signal<'todas' | 'nao_lidas'>('todas');
+  readonly limiteVisivel = signal(LIMITE_INICIAL);
 
-  excluindoId: string | null = null;
-  limpandoTudo = false;
-  marcandoTodas = false;
+  readonly excluindoId = signal<string | null>(null);
+  readonly limpandoTudo = signal(false);
+  readonly marcandoTodas = signal(false);
 
   private notifService = inject(NotificacoesService);
   private loadingService = inject(LoadingService);
@@ -43,31 +44,31 @@ export class NotificacoesComponent implements OnInit {
 
   /** Lista filtrada pelo seletor "Todas / Não lidas". */
   get notificacoesFiltradas(): Notificacao[] {
-    if (this.filtroPlataforma === 'nao_lidas') {
-      return this.notificacoes.filter((n) => !n.read_at);
+    if (this.filtroPlataforma() === 'nao_lidas') {
+      return this.notificacoes().filter((n) => !n.read_at);
     }
-    return this.notificacoes;
+    return this.notificacoes();
   }
 
   get quantidadeNaoLidas(): number {
-    return this.notificacoes.filter((n) => !n.read_at).length;
+    return this.notificacoes().filter((n) => !n.read_at).length;
   }
 
   get notificacoesExibidas(): Notificacao[] {
-    return this.notificacoesFiltradas.slice(0, this.limiteVisivel);
+    return this.notificacoesFiltradas.slice(0, this.limiteVisivel());
   }
 
   alterarFiltro(filtro: 'todas' | 'nao_lidas'): void {
-    this.filtroPlataforma = filtro;
-    this.limiteVisivel = LIMITE_INICIAL;
+    this.filtroPlataforma.set(filtro);
+    this.limiteVisivel.set(LIMITE_INICIAL);
   }
 
   carregarMais(): void {
-    this.limiteVisivel += LIMITE_INCREMENTO;
+    this.limiteVisivel.set(this.limiteVisivel() + LIMITE_INCREMENTO);
   }
 
   podeCarregarMais(): boolean {
-    return this.notificacoesFiltradas.length > this.limiteVisivel;
+    return this.notificacoesFiltradas.length > this.limiteVisivel();
   }
 
   notificacoesAgrupadas(): NotificacaoGrupo[] {
@@ -93,12 +94,12 @@ export class NotificacoesComponent implements OnInit {
     this.showSkeleton = showSkeleton;
     data$.subscribe({
       next: (list) => {
-        this.listaPronta = true;
-        this.notificacoes = list;
+        this.listaPronta.set(true);
+        this.notificacoes.set(list);
       },
       error: () => {
-        this.listaPronta = true;
-        this.erro = 'Não foi possível carregar as notificações.';
+        this.listaPronta.set(true);
+        this.erro.set('Não foi possível carregar as notificações.');
       },
     });
   }
@@ -111,15 +112,15 @@ export class NotificacoesComponent implements OnInit {
   }
 
   marcarTodas(): void {
-    this.marcandoTodas = true;
+    this.marcandoTodas.set(true);
     this.notifService.marcarTodasComoLidas().subscribe({
       next: () => {
-        this.marcandoTodas = false;
+        this.marcandoTodas.set(false);
         this.carregar();
         this.toast.success('Notificações', 'Todas foram marcadas como lidas.');
       },
       error: () => {
-        this.marcandoTodas = false;
+        this.marcandoTodas.set(false);
         this.toast.error('Erro', 'Não foi possível marcar todas como lidas.');
       },
     });
@@ -133,15 +134,15 @@ export class NotificacoesComponent implements OnInit {
       variant: 'danger',
     });
     if (!ok) return;
-    this.excluindoId = id;
+    this.excluindoId.set(id);
     this.notifService.delete(id).subscribe({
       next: () => {
-        this.excluindoId = null;
+        this.excluindoId.set(null);
         this.carregar();
         this.toast.success('Notificação excluída', 'O item foi removido.');
       },
       error: () => {
-        this.excluindoId = null;
+        this.excluindoId.set(null);
         this.toast.error('Erro', 'Não foi possível excluir.');
       },
     });
@@ -155,22 +156,22 @@ export class NotificacoesComponent implements OnInit {
       variant: 'danger',
     });
     if (!ok) return;
-    this.limpandoTudo = true;
+    this.limpandoTudo.set(true);
     this.notifService.limparTudo().subscribe({
       next: () => {
-        this.limpandoTudo = false;
+        this.limpandoTudo.set(false);
         this.carregar();
         this.toast.success('Lista limpa', 'Todas as notificações foram removidas.');
       },
       error: () => {
-        this.limpandoTudo = false;
+        this.limpandoTudo.set(false);
         this.toast.error('Erro', 'Não foi possível limpar as notificações.');
       },
     });
   }
 
   get temNaoLidas(): boolean {
-    return this.notificacoes.some((n) => !n.read_at);
+    return this.notificacoes().some((n) => !n.read_at);
   }
 
   getNotificacaoMensagem(n: Notificacao): string {

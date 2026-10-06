@@ -1,16 +1,16 @@
 <div class="clinica-config-page relative">
-  @if (showSkeleton() || !listaPronta) {
+  @if (showSkeleton() || !listaPronta()) {
     <div class="clinica-config-shell">
       <zm-skeleton-configuracoes />
     </div>
-  } @else if (pageData) {
+  } @else if (pageData()) {
     <div class="clinica-config-shell zm-content-enter">
     <div class="clinica-config">
       <div class="clinica-config-alerts">
-        @if (erro) {
-          <p class="mb-4 text-sm text-destructive">{{ erro }}</p>
+        @if (erro()) {
+          <p class="mb-4 text-sm text-destructive">{{ erro() }}</p>
         }
-        @if (sucesso) {
+        @if (sucesso()) {
           <p class="mb-4 text-sm text-primary">Configurações salvas com sucesso.</p>
         }
       </div>
@@ -70,7 +70,7 @@
                         placeholder="00000-000"
                         maxlength="9"
                       >
-                      @if (enderecoLoading) {
+                      @if (enderecoLoading()) {
                         <span class="status-chip">Buscando...</span>
                       }
                     </div>
@@ -104,9 +104,9 @@
                     </div>
                   </div>
                 </div>
-                @if (enderecoErro) {
-                  <div class="hint text-destructive">{{ enderecoErro }}</div>
-                } @else if (enderecoSucesso) {
+                @if (enderecoErro()) {
+                  <div class="hint text-destructive">{{ enderecoErro() }}</div>
+                } @else if (enderecoSucesso()) {
                   <div class="hint text-primary">Endereço preenchido automaticamente pelo CEP.</div>
                 } @else {
                   <div class="hint">Aparece no cabeçalho dos PDFs e no link na bio.</div>
@@ -165,14 +165,21 @@
                   class="w-full"
                   zWidth="full"
                   [options]="opcoesSigningSecurityLevel"
-                  [value]="form.signing_security_level ?? 'basic'"
+                  [value]="form.signing_security_level ?? 'reinforced'"
                   placeholder="Selecione o nível de segurança"
                   [searchable]="false"
                   ariaLabel="Segurança da assinatura pública"
                   ariaDescribedBy="signing-security-label"
                   (zValueChange)="onSigningSecurityLevelChange($event)"
                 />
-                <div class="hint">No modo reforçado, configure o WhatsApp (Evolution) na aba correspondente para oferecer OTP por mensagem.</div>
+                <div class="hint">
+                  Recomendamos o modo reforçado para consentimentos e TCLEs. No modo reforçado, configure o WhatsApp (Evolution) na aba correspondente para oferecer OTP por mensagem.
+                </div>
+                @if ((form.signing_security_level ?? 'reinforced') === 'basic') {
+                  <div class="hint" style="color: var(--warning, #b45309); margin-top: 0.35rem">
+                    Com o modo básico, o paciente pode enviar assinaturas sem OTP. Prefira reforçado em documentos clínicos.
+                  </div>
+                }
               </div>
               <div class="field">
                 <label>Exclusão automática de fichas sem protocolo (anos) <span class="opt">opcional</span></label>
@@ -219,17 +226,17 @@
                   zType="outline"
                   zSize="sm"
                   (click)="carregarRetencaoPreview()"
-                  [zLoading]="carregandoRetencaoPreview"
-                  [zDisabled]="carregandoRetencaoPreview"
+                  [zLoading]="carregandoRetencaoPreview()"
+                  [zDisabled]="carregandoRetencaoPreview()"
                 >
                   Verificar protocolos elegíveis
                 </button>
-                @if (retencaoPreview) {
+                @if (retencaoPreview(); as rp) {
                   <div class="hint mt-2">
-                    @if (retencaoPreview.enabled) {
+                    @if (rp.enabled) {
                       <span>
-                        {{ retencaoPreview.eligible_count }} elegível(is) antes de {{ formatarDataRetencao(retencaoPreview.cutoff_date) }} —
-                        {{ retencaoPreview.already_anonymized_count }} já processado(s).
+                        {{ rp.eligible_count }} elegível(is) antes de {{ formatarDataRetencao(rp.cutoff_date) }} —
+                        {{ rp.already_anonymized_count }} já processado(s).
                       </span>
                     } @else {
                       <span>Retenção de protocolos desativada (informe anos acima e salve).</span>
@@ -629,7 +636,7 @@
               </div>
             </div>
           </z-card>
-        @if (waLoading) {
+        @if (waLoading()) {
           <z-card class="section-card mb-4 gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
             <div class="section-header">
               <div class="icon-wrap"><span class="material-symbols-outlined">settings</span></div>
@@ -639,22 +646,22 @@
               <zm-skeleton-list [rows]="6" />
             </div>
           </z-card>
-        } @else if (waError && !waState) {
+        } @else if (waError() && !waState()) {
           <z-card class="section-card mb-4 gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
             <div class="section-header">
               <div class="icon-wrap"><span class="material-symbols-outlined">error</span></div>
               <span class="section-title">Integração Evolution Go</span>
             </div>
             <div class="section-body">
-              <p class="mb-4 text-sm text-destructive">{{ waError }}</p>
+              <p class="mb-4 text-sm text-destructive">{{ waError() }}</p>
               <button type="button" z-button zType="outline" zSize="sm" (click)="carregarWhatsapp()">Tentar novamente</button>
             </div>
           </z-card>
-        } @else if (waState) {
-          @if (waError) {
-            <p class="mb-4 text-sm text-destructive">{{ waError }}</p>
+        } @else if (waState(); as wa) {
+          @if (waError()) {
+            <p class="mb-4 text-sm text-destructive">{{ waError() }}</p>
           }
-          @if (!waState.server_configured) {
+          @if (!wa.server_configured) {
             <z-card class="section-card mb-4 gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
               <div class="section-header">
                 <div class="icon-wrap"><span class="material-symbols-outlined">cloud_off</span></div>
@@ -668,7 +675,7 @@
                 </p>
               </div>
             </z-card>
-          } @else if (!waState.instance_configured) {
+          } @else if (!wa.instance_configured) {
             <z-card class="section-card mb-4 gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
               <div class="section-header">
                 <div class="icon-wrap"><span class="material-symbols-outlined">add_circle</span></div>
@@ -678,18 +685,18 @@
                 <p class="mb-4 text-sm text-muted-foreground">
                   O sistema gera automaticamente o nome da instância (<code class="text-xs">gestgo_org_</code> + id da empresa) e um token (UUID) antes de registrar na Evolution Go — necessário em ambientes onde a API não gera o token sozinha.
                 </p>
-                <button type="button" z-button zSize="sm" class="inline-flex items-center gap-2" (click)="criarInstanciaWhatsapp()" [disabled]="waCriandoInstancia">
-                  @if (waCriandoInstancia) {
+                <button type="button" z-button zSize="sm" class="inline-flex items-center gap-2" (click)="criarInstanciaWhatsapp()" [disabled]="waCriandoInstancia()">
+                  @if (waCriandoInstancia()) {
                     <span class="btn-spinner" aria-hidden="true"></span>
                   } @else {
                     <span class="material-symbols-outlined text-base">bolt</span>
                   }
-                  {{ waCriandoInstancia ? 'Criando…' : 'Criar instância' }}
+                  {{ waCriandoInstancia() ? 'Criando…' : 'Criar instância' }}
                 </button>
               </div>
             </z-card>
           } @else {
-            @if (waTokenExibicaoUnica) {
+            @if (waTokenExibicaoUnica()) {
               <z-card class="section-card section-card--token mb-4 gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
                 <div class="section-header">
                   <div class="icon-wrap icon-wrap--token"><span class="material-symbols-outlined">key</span></div>
@@ -697,8 +704,8 @@
                 </div>
                 <div class="section-body">
                   <p class="mb-2 text-xs text-muted-foreground">Este valor não será mostrado novamente nesta tela.</p>
-                  <code class="config-code-block">{{ waTokenExibicaoUnica }}</code>
-                  <button type="button" z-button zType="outline" zSize="sm" (click)="copiarTextoWhatsapp(waTokenExibicaoUnica!)">Copiar token</button>
+                  <code class="config-code-block">{{ waTokenExibicaoUnica() }}</code>
+                  <button type="button" z-button zType="outline" zSize="sm" (click)="copiarTextoWhatsapp(waTokenExibicaoUnica()!)">Copiar token</button>
                 </div>
               </z-card>
             }
@@ -710,16 +717,16 @@
               <div class="section-body wa-status-body">
                 <div class="wa-status-instance">
                   <span class="wa-status-label">Instância</span>
-                  <code class="wa-instance-chip">{{ waState.instance_name ?? '—' }}</code>
+                  <code class="wa-instance-chip">{{ wa.instance_name ?? '—' }}</code>
                 </div>
                 <div class="wa-status-grid">
                   <div class="wa-status-item">
                     <span class="wa-status-label">Conectado</span>
                     @if (waConectadoDeFato) {
                       <span class="wa-badge wa-badge--success">Sim</span>
-                    } @else if (waState.connected === true && waState.logged_in === false) {
+                    } @else if (wa.connected === true && wa.logged_in === false) {
                       <span class="wa-badge wa-badge--neutral">Pendente</span>
-                    } @else if (waState.connected === false) {
+                    } @else if (wa.connected === false) {
                       <span class="wa-badge wa-badge--neutral">Não</span>
                     } @else {
                       <span class="wa-badge wa-badge--neutral">—</span>
@@ -727,17 +734,17 @@
                   </div>
                   <div class="wa-status-item">
                     <span class="wa-status-label">Sessão ativa</span>
-                    @if (waState.logged_in === true) {
+                    @if (wa.logged_in === true) {
                       <span class="wa-badge wa-badge--success">Sim</span>
-                    } @else if (waState.logged_in === false) {
+                    } @else if (wa.logged_in === false) {
                       <span class="wa-badge wa-badge--neutral">Não</span>
                     } @else {
                       <span class="wa-badge wa-badge--neutral">—</span>
                     }
                   </div>
                 </div>
-                @if (waState.remote_error) {
-                  <p class="m-0 text-xs text-destructive">API: {{ waState.remote_error }}</p>
+                @if (wa.remote_error) {
+                  <p class="m-0 text-xs text-destructive">API: {{ wa.remote_error }}</p>
                 }
                 @if (!waSessaoAtiva) {
                   <div class="wa-status-action">
@@ -745,14 +752,14 @@
                       type="button"
                       z-button zType="outline" zSize="sm" class="inline-flex items-center gap-2"
                       (click)="buscarQrWhatsapp()"
-                      [disabled]="waQrCarregando"
+                      [disabled]="waQrCarregando()"
                     >
-                      @if (waQrCarregando) {
+                      @if (waQrCarregando()) {
                         <span class="btn-spinner" aria-hidden="true"></span>
                       } @else {
                         <span class="material-symbols-outlined text-base">qr_code_2</span>
                       }
-                      {{ waQrCarregando ? 'Solicitando QR…' : 'Solicitar QR agora' }}
+                      {{ waQrCarregando() ? 'Solicitando QR…' : 'Solicitar QR agora' }}
                     </button>
                   </div>
                 }
@@ -777,33 +784,33 @@
                     <input id="wa-webhook" type="url" z-input zSize="sm" class="w-full" [(ngModel)]="waWebhookUrl" name="waWebhookUrl" placeholder="https://…" />
                   </div>
                   <div class="wa-actions-row">
-                    <button type="button" z-button zSize="sm" class="inline-flex items-center gap-2" (click)="iniciarConexaoWhatsapp()" [disabled]="waConectando">
-                      @if (waConectando) {
+                    <button type="button" z-button zSize="sm" class="inline-flex items-center gap-2" (click)="iniciarConexaoWhatsapp()" [disabled]="waConectando()">
+                      @if (waConectando()) {
                         <span class="btn-spinner" aria-hidden="true"></span>
                       } @else {
                         <span class="material-symbols-outlined text-base">power_settings_new</span>
                       }
-                      {{ waConectando ? 'Iniciando…' : 'Iniciar conexão' }}
+                      {{ waConectando() ? 'Iniciando…' : 'Iniciar conexão' }}
                     </button>
-                    <button type="button" z-button zType="outline" zSize="sm" class="inline-flex items-center gap-2" (click)="buscarQrWhatsapp()" [disabled]="waQrCarregando">
-                      @if (waQrCarregando) {
+                    <button type="button" z-button zType="outline" zSize="sm" class="inline-flex items-center gap-2" (click)="buscarQrWhatsapp()" [disabled]="waQrCarregando()">
+                      @if (waQrCarregando()) {
                         <span class="btn-spinner" aria-hidden="true"></span>
                       } @else {
                         <span class="material-symbols-outlined text-base">qr_code_2</span>
                       }
-                      {{ waQrCarregando ? 'Carregando…' : 'Obter QR Code' }}
+                      {{ waQrCarregando() ? 'Carregando…' : 'Obter QR Code' }}
                     </button>
                   </div>
-                  @if (waQrSrc) {
+                  @if (waQrSrc()) {
                     <div class="wa-qr-block">
                       <p class="wa-qr-block__label">Escaneie no WhatsApp · Dispositivos conectados</p>
-                      <img [src]="waQrSrc" alt="QR Code WhatsApp" class="wa-qr-img" />
+                      <img [src]="waQrSrc()" alt="QR Code WhatsApp" class="wa-qr-img" />
                     </div>
                   }
-                  @if (waQrLinkCode) {
+                  @if (waQrLinkCode()) {
                     <p class="mb-1 text-xs text-muted-foreground">Código de vinculação (QR)</p>
                     <code class="config-code-block config-code-block--compact">
-                      {{ waQrLinkCode }}
+                      {{ waQrLinkCode() }}
                     </code>
                   }
                   <p class="wa-qr-block__label">Pareamento por código (8 dígitos)</p>
@@ -811,14 +818,14 @@
                     <label for="wa-phone-pair">Telefone do aparelho</label>
                     <input id="wa-phone-pair" type="text" z-input zSize="sm" class="w-full" [(ngModel)]="waPhonePair" name="waPhonePair" placeholder="5511999999999" autocomplete="tel" />
                   </div>
-                  <button type="button" z-button zType="outline" zSize="sm" class="mb-3 inline-flex items-center gap-2" (click)="solicitarPairWhatsapp()" [disabled]="waPairCarregando">
-                    @if (waPairCarregando) {
+                  <button type="button" z-button zType="outline" zSize="sm" class="mb-3 inline-flex items-center gap-2" (click)="solicitarPairWhatsapp()" [disabled]="waPairCarregando()">
+                    @if (waPairCarregando()) {
                       <span class="btn-spinner" aria-hidden="true"></span>
                     }
-                    {{ waPairCarregando ? 'Solicitando…' : 'Obter código de pareamento' }}
+                    {{ waPairCarregando() ? 'Solicitando…' : 'Obter código de pareamento' }}
                   </button>
-                  @if (waPairingCode) {
-                    <p class="wa-pairing-code">{{ waPairingCode }}</p>
+                  @if (waPairingCode()) {
+                    <p class="wa-pairing-code">{{ waPairingCode() }}</p>
                   }
                 </div>
               </z-card>
@@ -846,9 +853,9 @@
           <div class="sticky-footer-spacer" aria-hidden="true"></div>
           <div class="sticky-footer">
             <div class="text-xs text-muted-foreground">
-              @if (waLoading) {
+              @if (waLoading()) {
                 Carregando integração…
-              } @else if (waError && !waState) {
+              } @else if (waError() && !waState()) {
                 Não foi possível carregar o estado da integração.
               } @else {
                 WhatsApp · Evolution Go
@@ -859,78 +866,80 @@
                 <span class="material-symbols-outlined text-base">close</span>
                 Cancelar
               </a>
-              @if (waError && !waState && !waLoading) {
+              @if (waError() && !waState() && !waLoading()) {
                 <button type="button" z-button zSize="sm" class="inline-flex items-center gap-2" (click)="carregarWhatsapp()">
                   <span class="material-symbols-outlined text-base">refresh</span>
                   Tentar novamente
                 </button>
               }
-              @if (waState && !waLoading) {
-                @if (waState.instance_configured) {
+              @if (waState(); as wa) {
+                @if (!waLoading()) {
+                @if (wa.instance_configured) {
                   <button type="button" z-button zType="outline" zSize="sm" class="inline-flex items-center gap-2" (click)="carregarWhatsapp()">
                     <span class="material-symbols-outlined text-base">sync</span>
                     Atualizar status
                   </button>
-                  @if (waState.connected === true || waState.logged_in === true) {
+                  @if (wa.connected === true || wa.logged_in === true) {
                     <button
                       type="button"
                       z-button zType="outline" zSize="sm" class="inline-flex items-center gap-2"
                       (click)="desconectarWhatsapp()"
-                      [disabled]="waDesconectando"
+                      [disabled]="waDesconectando()"
                     >
-                      @if (waDesconectando) {
+                      @if (waDesconectando()) {
                         <span class="btn-spinner" aria-hidden="true"></span>
                       } @else {
                         <span class="material-symbols-outlined text-base">link_off</span>
                       }
-                      {{ waDesconectando ? 'Desconectando…' : 'Desconectar sessão' }}
+                      {{ waDesconectando() ? 'Desconectando…' : 'Desconectar sessão' }}
                     </button>
                   }
                 }
-                @if (waState.server_configured && !waState.instance_configured) {
+                @if (wa.server_configured && !wa.instance_configured) {
                   <button
                     type="button"
                     z-button zSize="sm" class="inline-flex items-center gap-2"
                     (click)="criarInstanciaWhatsapp()"
-                    [disabled]="waCriandoInstancia"
+                    [disabled]="waCriandoInstancia()"
                   >
-                    @if (waCriandoInstancia) {
+                    @if (waCriandoInstancia()) {
                       <span class="btn-spinner" aria-hidden="true"></span>
                     } @else {
                       <span class="material-symbols-outlined text-base">bolt</span>
                     }
-                    {{ waCriandoInstancia ? 'Criando…' : 'Criar instância' }}
+                    {{ waCriandoInstancia() ? 'Criando…' : 'Criar instância' }}
                   </button>
                 }
-                @if (waState.instance_configured && waPodeEnviarTesteNoFooter) {
+                @if (wa.instance_configured && waPodeEnviarTesteNoFooter) {
                   <button
                     type="button"
                     z-button zSize="sm" class="inline-flex items-center gap-2"
                     (click)="enviarTesteWhatsapp()"
-                    [disabled]="waTestEnviando"
+                    [disabled]="waTestEnviando()"
                   >
-                    @if (waTestEnviando) {
+                    @if (waTestEnviando()) {
                       <span class="btn-spinner" aria-hidden="true"></span>
                     } @else {
                       <span class="material-symbols-outlined text-base">send</span>
                     }
-                    {{ waTestEnviando ? 'Enviando…' : 'Enviar teste' }}
+                    {{ waTestEnviando() ? 'Enviando…' : 'Enviar teste' }}
                   </button>
                 }
-                @if (waState.instance_configured) {
+                @if (wa.instance_configured) {
                   <button
                     type="button"
                     z-button zType="outline" zSize="sm" class="inline-flex items-center gap-2 text-destructive border-destructive/40 hover:text-destructive"
                     (click)="removerIntegracaoWhatsapp()"
-                    [disabled]="waRemovendo"
+                    [disabled]="waRemovendo()"
                   >
-                    @if (waRemovendo) {
+                    @if (waRemovendo()) {
                       <span class="btn-spinner" aria-hidden="true"></span>
                     } @else {
                       <span class="material-symbols-outlined text-base">delete</span>
                     }
-                    {{ waRemovendo ? 'Removendo…' : 'Remover integração' }}
+                    {{ waRemovendo() ? 'Removendo…' : 'Remover integração' }}
                   </button>
+                }
                 }
               }
             </div>
@@ -988,21 +997,21 @@
                       (keydown.enter)="$event.preventDefault(); criarNovaEmpresa()"
                     />
                   </div>
-                  @if (erroNovaEmpresa) {
-                    <p class="mb-3 text-sm text-destructive">{{ erroNovaEmpresa }}</p>
+                  @if (erroNovaEmpresa()) {
+                    <p class="mb-3 text-sm text-destructive">{{ erroNovaEmpresa() }}</p>
                   }
                   <button
                     type="button"
                     z-button zSize="sm" class="inline-flex items-center gap-2"
                     (click)="criarNovaEmpresa()"
-                    [disabled]="salvandoNovaEmpresa || !novaEmpresaNome.trim()"
+                    [disabled]="salvandoNovaEmpresa() || !novaEmpresaNome.trim()"
                   >
-                    @if (salvandoNovaEmpresa) {
+                    @if (salvandoNovaEmpresa()) {
                       <span class="btn-spinner" aria-hidden="true"></span>
                     } @else {
                       <span class="material-symbols-outlined text-base">add_business</span>
                     }
-                    {{ salvandoNovaEmpresa ? 'Criando…' : 'Cadastrar nova empresa' }}
+                    {{ salvandoNovaEmpresa() ? 'Criando…' : 'Cadastrar nova empresa' }}
                   </button>
                 </div>
               </z-card>
@@ -1011,7 +1020,7 @@
         }
         <z-tab label="Logs" icon="history">
           <div class="config-tab-panel">
-            @if (logsLoading) {
+            @if (logsLoading()) {
               <z-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
                 <div class="section-header">
                   <div class="icon-wrap"><span class="material-symbols-outlined">history</span></div>
@@ -1030,11 +1039,11 @@
                     <p class="text-xs text-muted-foreground mt-0.5">Registro de ações na empresa, disponível para governança e compliance mesmo com cobrança pendente.</p>
                   </div>
                 </div>
-                @if (logsError) {
+                @if (logsError()) {
                   <div class="section-body">
-                    <p class="text-sm text-destructive">{{ logsError }}</p>
+                    <p class="text-sm text-destructive">{{ logsError() }}</p>
                   </div>
-                } @else if (logs.length === 0) {
+                } @else if (logs().length === 0) {
                   <div class="section-body">
                     <div class="config-empty-state">
                       <span class="material-symbols-outlined">history</span>
@@ -1054,7 +1063,7 @@
                           </tr>
                         </thead>
                         <tbody z-table-body>
-                          @for (log of logs; track log.id) {
+                          @for (log of logs(); track log.id) {
                             <tr z-table-row>
                               <td z-table-cell class="zm-cell-muted whitespace-nowrap">
                                 {{ log.created_at | date:'dd/MM/yyyy HH:mm' }}
@@ -1097,13 +1106,13 @@
                 <span class="material-symbols-outlined text-base">close</span>
                 Cancelar
               </a>
-              <button type="submit" z-button zSize="sm" class="inline-flex items-center gap-2" [disabled]="salvando">
-                @if (salvando) {
+              <button type="submit" z-button zSize="sm" class="inline-flex items-center gap-2" [disabled]="salvando()">
+                @if (salvando()) {
                   <span class="btn-spinner" aria-hidden="true"></span>
                 } @else {
                   <span class="material-symbols-outlined text-base">save</span>
                 }
-                {{ salvando ? 'Salvando…' : 'Salvar configurações' }}
+                {{ salvando() ? 'Salvando…' : 'Salvar configurações' }}
               </button>
             </div>
           </div>
@@ -1112,7 +1121,7 @@
     </div>
     </div>
   }
-  @if (listaPronta && !pageData && erro) {
-    <p class="text-sm text-destructive">{{ erro }}</p>
+  @if (listaPronta() && !pageData() && erro()) {
+    <p class="text-sm text-destructive">{{ erro() }}</p>
   }
 </div>

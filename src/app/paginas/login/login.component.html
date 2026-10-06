@@ -8,7 +8,7 @@
   aria-label="Alternar modo escuro"
   zTooltip="Alternar modo escuro"
 >
-  <span class="material-symbols-outlined text-[17px]" [textContent]="iconeTema"></span>
+  <span class="material-symbols-outlined text-[17px]" [textContent]="iconeTema()"></span>
 </button>
 
 <div class="login-page">
@@ -30,7 +30,7 @@
           <span class="hl">antes do paciente.</span>
         </h1>
         <p>
-          Fichas e consentimentos digitais para sua clínica: o paciente preenche pelo link antes da consulta — protocolo, PDF automático e histórico organizados.
+          Fichas e consentimentos digitais para sua clínica: o paciente identifica-se (CPF ou código + nascimento), confirma o nome e preenche pelo link antes da consulta — protocolo, PDF automático e histórico organizados.
         </p>
       </div>
       <p class="login-brand-footer">© {{ ano }} Gestgo. Todos os direitos reservados.</p>
@@ -51,8 +51,8 @@
         <h2 class="login-card-title">Bem-vindo de volta</h2>
         <p class="login-card-subtitle">Entre para acessar o painel da sua clínica, fichas e protocolos.</p>
 
-        @if (estadoErro) {
-          <p class="login-error mb-6 text-sm text-destructive" role="alert">{{ mensagemErro }}</p>
+        @if (estadoErro()) {
+          <p class="login-error mb-6 text-sm text-destructive" role="alert">{{ mensagemErro() }}</p>
         }
 
         <form (ngSubmit)="enviar()" class="login-form" #formLogin="ngForm">
@@ -70,7 +70,7 @@
                 z-input
                 zSize="sm"
                 class="w-full pl-9"
-                [zStatus]="estadoErro ? 'error' : undefined"
+                [zStatus]="estadoErro() ? 'error' : undefined"
                 placeholder="seu@email.com.br"
                 required
                 autofocus
@@ -87,14 +87,14 @@
             <div class="login-input-wrap group">
               <span class="material-symbols-outlined login-input-icon-l">lock</span>
               <input
-                [type]="mostrarSenha ? 'text' : 'password'"
+                [type]="mostrarSenha() ? 'text' : 'password'"
                 name="password"
                 id="login-password"
                 [(ngModel)]="senha"
                 z-input
                 zSize="sm"
                 class="w-full pl-9 pr-9"
-                [zStatus]="estadoErro ? 'error' : undefined"
+                [zStatus]="estadoErro() ? 'error' : undefined"
                 placeholder="••••••••"
                 required
                 autocomplete="current-password"
@@ -105,11 +105,11 @@
                 zType="ghost"
                 zSize="icon-sm"
                 class="login-input-toggle"
-                (click)="mostrarSenha = !mostrarSenha"
+                (click)="mostrarSenha.set(!mostrarSenha())"
                 aria-label="Mostrar ou ocultar senha"
                 zTooltip="Mostrar ou ocultar senha"
               >
-                <span class="material-symbols-outlined text-lg">{{ mostrarSenha ? 'visibility_off' : 'visibility' }}</span>
+                <span class="material-symbols-outlined text-lg">{{ mostrarSenha() ? 'visibility_off' : 'visibility' }}</span>
               </button>
             </div>
           </div>
@@ -121,10 +121,10 @@
             z-button
             zFull
             class="login-submit-btn inline-flex items-center gap-2"
-            [zLoading]="estadoCarregando"
-            [zDisabled]="estadoCarregando"
+            [zLoading]="estadoCarregando()"
+            [zDisabled]="estadoCarregando()"
           >
-            @if (!estadoCarregando) {
+            @if (!estadoCarregando()) {
               <span>Acessar</span>
               <span class="material-symbols-outlined login-submit-icon transition-transform group-hover/button:translate-x-0.5">arrow_forward</span>
             } @else {

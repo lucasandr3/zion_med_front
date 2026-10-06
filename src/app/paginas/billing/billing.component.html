@@ -1,16 +1,16 @@
 <div class="billing-page relative min-h-[320px]">
   @if (showSkeleton()) {
     <zm-skeleton-list [rows]="5" />
-  } @else if (!listaPronta) {
-  } @else if (erroCobrancaBloqueada) {
+  } @else if (!listaPronta()) {
+  } @else if (erroCobrancaBloqueada()) {
     <zm-assinatura-bloqueada-card
       titulo="Assinatura temporariamente indisponível"
       descricao="Não foi possível carregar os dados de cobrança enquanto a conta estiver bloqueada. Se você já efetuou o pagamento, aguarde a confirmação ou entre em contato com o suporte."
       [permitirIrAssinatura]="false"
     />
-  } @else if (erro) {
-    <p class="billing-error-text">{{ erro }}</p>
-  } @else if (state) {
+  } @else if (erro()) {
+    <p class="billing-error-text">{{ erro() }}</p>
+  } @else if (state()) {
   <div class="zm-content-enter billing-layout">
     <section class="billing-intro" aria-labelledby="billing-intro-title">
       <div class="billing-intro__icon" aria-hidden="true">
@@ -35,13 +35,13 @@
         </div>
       </div>
       <div class="section-body">
-        @if (mostrarCartaoGerenciado && assinaturaAtiva) {
+        @if (mostrarCartaoGerenciado && assinaturaAtiva()) {
           <div class="billing-status-box billing-status-box--active">
             <p class="billing-status-box__title">Assinatura ativa</p>
-            <p class="billing-status-box__text">Próxima cobrança: {{ assinaturaAtiva.next_due_date | date:'dd/MM/yyyy' }}</p>
+            <p class="billing-status-box__text">Próxima cobrança: {{ assinaturaAtiva()?.next_due_date | date:'dd/MM/yyyy' }}</p>
             <div class="billing-actions billing-actions--secondary">
-              <button type="button" class="btn-ghost text-sm inline-flex items-center gap-2" (click)="cancelarAssinatura(assinaturaAtiva)" [disabled]="acaoEmAndamento">
-                @if (acaoEmAndamento) {
+              <button type="button" class="btn-ghost text-sm inline-flex items-center gap-2" (click)="cancelarAssinatura(assinaturaAtiva()!)" [disabled]="acaoEmAndamento()">
+                @if (acaoEmAndamento()) {
                   <span class="btn-spinner" aria-hidden="true"></span>
                 }
                 Cancelar assinatura
@@ -56,10 +56,10 @@
             @if (temCobrancaPendente) {
               <p class="billing-status-box__hint">Role até <strong>Pagar agora</strong> para concluir com PIX ou boleto.</p>
             }
-            @if (assinaturaAtiva) {
+            @if (assinaturaAtiva()) {
               <div class="billing-actions billing-actions--secondary">
-                <button type="button" class="btn-ghost text-sm inline-flex items-center gap-2" (click)="cancelarAssinatura(assinaturaAtiva)" [disabled]="acaoEmAndamento">
-                  @if (acaoEmAndamento) {
+                <button type="button" class="btn-ghost text-sm inline-flex items-center gap-2" (click)="cancelarAssinatura(assinaturaAtiva()!)" [disabled]="acaoEmAndamento()">
+                  @if (acaoEmAndamento()) {
                     <span class="btn-spinner" aria-hidden="true"></span>
                   }
                   Cancelar assinatura pendente
@@ -68,10 +68,10 @@
             }
           </div>
         }
-        @if (!mostrarCartaoGerenciado && !mostrarPendenciaPrimeiroPagamento && planos.length > 0 && !mostrarSelecaoPlano) {
+        @if (!mostrarCartaoGerenciado && !mostrarPendenciaPrimeiroPagamento && planos().length > 0 && !mostrarSelecaoPlano) {
           <p class="billing-muted-text">Seu plano está ativo. Entre em contato com o suporte se precisar de ajuda com a cobrança.</p>
         }
-        @if (planos.length === 0) {
+        @if (planos().length === 0) {
           <p class="billing-muted-text">Nenhum plano disponível no momento.</p>
         }
       </div>
@@ -105,11 +105,11 @@
                   }
                   @if (temPix(p) && pagamentoPendente(p)) {
                     <button type="button" class="billing-pix-toggle" (click)="alternarPix(p)">
-                      {{ pixExpandidoId === p.id ? 'Ocultar PIX' : 'Pagar com PIX' }}
+                      {{ pixExpandidoId() === p.id ? 'Ocultar PIX' : 'Pagar com PIX' }}
                     </button>
                   }
                 </div>
-                @if (pixExpandidoId === p.id && temPix(p)) {
+                @if (pixExpandidoId() === p.id && temPix(p)) {
                   <div class="billing-pix-panel">
                     @if (p.pix_qr_encoded_image) {
                       <img
@@ -136,7 +136,7 @@
       </div>
     }
 
-    @if (planos.length > 0 && mostrarSelecaoPlano) {
+    @if (planos().length > 0 && mostrarSelecaoPlano) {
       <div class="billing-section-card section-card">
         <div class="section-header">
           <div class="icon-wrap w-7 h-7 rounded-lg flex items-center justify-center">
@@ -155,8 +155,8 @@
               <button
                 type="button"
                 class="billing-pay-method"
-                [class.billing-pay-method--active]="formaPagamento === 'PIX'"
-                [attr.aria-pressed]="formaPagamento === 'PIX'"
+                [class.billing-pay-method--active]="formaPagamento() === 'PIX'"
+                [attr.aria-pressed]="formaPagamento() === 'PIX'"
                 (click)="selecionarFormaPagamento('PIX')"
               >
                 PIX
@@ -164,8 +164,8 @@
               <button
                 type="button"
                 class="billing-pay-method"
-                [class.billing-pay-method--active]="formaPagamento === 'BOLETO'"
-                [attr.aria-pressed]="formaPagamento === 'BOLETO'"
+                [class.billing-pay-method--active]="formaPagamento() === 'BOLETO'"
+                [attr.aria-pressed]="formaPagamento() === 'BOLETO'"
                 (click)="selecionarFormaPagamento('BOLETO')"
               >
                 Boleto
@@ -174,7 +174,7 @@
           </div>
 
           <div class="billing-plan-grid">
-            @for (plano of planos; track plano.key) {
+            @for (plano of planos(); track plano.key) {
               <div class="billing-plan-card" [class.billing-plan-card--current]="somenteRotuloPlanoAtual(plano)">
                 <p class="billing-plan-card__name">{{ plano.name }}</p>
                 <p class="billing-plan-card__price">
@@ -189,11 +189,11 @@
                 } @else if (planoAguardandoPagamento(plano)) {
                   <p class="billing-plan-card__wait">Cobrança gerada — pague na seção <strong>Pagar agora</strong> acima.</p>
                 } @else {
-                  <button type="button" class="btn-primary w-full inline-flex items-center justify-center gap-2" (click)="acaoPlano(plano)" [disabled]="acaoEmAndamento">
-                    @if (acaoEmAndamento) {
+                  <button type="button" class="btn-primary w-full inline-flex items-center justify-center gap-2" (click)="acaoPlano(plano)" [disabled]="acaoEmAndamento()">
+                    @if (acaoEmAndamento()) {
                       <span class="btn-spinner" aria-hidden="true"></span>
                     }
-                    {{ acaoEmAndamento ? 'Processando…' : rotuloBotaoPlano(plano) }}
+                    {{ acaoEmAndamento() ? 'Processando…' : rotuloBotaoPlano(plano) }}
                   </button>
                 }
               </div>

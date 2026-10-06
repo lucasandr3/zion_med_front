@@ -14,11 +14,11 @@
 
   @if (showSkeleton()) {
     <zm-skeleton-list [rows]="6" />
-  } @else if (!listaPronta) {
+  } @else if (!listaPronta()) {
   } @else {
-    @if (error) {
+    @if (error()) {
       <div class="rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-foreground">
-        {{ error }}
+        {{ error() }}
       </div>
     }
 
@@ -35,7 +35,7 @@
               </tr>
             </thead>
             <tbody z-table-body>
-              @for (log of logs; track log.id) {
+              @for (log of logs(); track log.id) {
                 <tr z-table-row>
                   <td z-table-cell>
                     <span class="zm-cell-muted whitespace-nowrap">{{ formatarData(log.created_at) }}</span>
@@ -66,17 +66,17 @@
             </tbody>
           </table>
         </div>
-        @if (lastPage > 1) {
+        @if (lastPage() > 1) {
           <div card-footer class="border-border flex items-center justify-between gap-3 border-t px-4 py-3">
-            <span class="text-muted-foreground text-xs">Página {{ currentPage }} de {{ lastPage }} ({{ total }} registros)</span>
+            <span class="text-muted-foreground text-xs">Página {{ currentPage() }} de {{ lastPage() }} ({{ total() }} registros)</span>
             <div class="flex gap-2">
               <button
                 z-button
                 zType="outline"
                 zSize="sm"
                 type="button"
-                [zDisabled]="currentPage <= 1"
-                (click)="goToPage(currentPage - 1)"
+                [zDisabled]="currentPage() <= 1"
+                (click)="goToPage(currentPage() - 1)"
                 title="Página anterior"
               >
                 Anterior
@@ -86,8 +86,8 @@
                 zType="outline"
                 zSize="sm"
                 type="button"
-                [zDisabled]="currentPage >= lastPage"
-                (click)="goToPage(currentPage + 1)"
+                [zDisabled]="currentPage() >= lastPage()"
+                (click)="goToPage(currentPage() + 1)"
                 title="Próxima página"
               >
                 Próxima

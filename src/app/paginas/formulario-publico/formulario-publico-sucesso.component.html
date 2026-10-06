@@ -1,4 +1,4 @@
-<div class="sucesso-page" [class.dark]="dark">
+<div class="sucesso-page" [class.dark]="dark()">
   <div class="sucesso-inner max-w-md mx-auto px-4">
     <div class="sucesso-card" style="border-width: 1px">
       <div class="success-icon-wrap" aria-hidden="true">
@@ -7,50 +7,82 @@
         </svg>
       </div>
       <h1 class="sucesso-title">Ficha enviada!</h1>
-      @if (clinicName) {
+      @if (clinicName()) {
         <div class="flex items-center justify-center gap-2 mb-3">
-          <div class="logo-wrap shrink-0" [class.logo-wrap--img]="!!clinicLogoUrl">
-            @if (clinicLogoUrl) {
+          <div class="logo-wrap shrink-0" [class.logo-wrap--img]="!!clinicLogoUrl()">
+            @if (clinicLogoUrl()) {
               <img
-                [src]="clinicLogoUrl"
-                [alt]="clinicName ? 'Logo ' + clinicName : 'Logo da clínica'"
+                [src]="clinicLogoUrl()"
+                [alt]="clinicName() ? 'Logo ' + clinicName() : 'Logo da clínica'"
                 loading="lazy"
               />
             } @else {
-              <span class="logo-initial">{{ clinicName.charAt(0) | uppercase }}</span>
+              <span class="logo-initial">{{ (clinicName() ?? '').charAt(0) | uppercase }}</span>
             }
           </div>
-          <p class="bio-text font-semibold text-sm">{{ clinicName }}</p>
+          <p class="bio-text font-semibold text-sm">{{ clinicName() }}</p>
         </div>
         <p class="bio-muted text-sm mb-5 leading-relaxed">Recebemos seu formulário. Obrigado!</p>
       } @else {
         <p class="bio-muted text-sm mb-5 leading-relaxed">Seu protocolo foi registrado com sucesso.</p>
       }
-      @if (protocolNumber) {
+      @if (protocolNumber()) {
         <div class="protocol-box bio-bg-soft bio-border rounded-xl py-4 px-5" style="border-width: 1px">
           <p class="text-xs bio-muted uppercase tracking-wider mb-1 font-semibold">Protocolo</p>
-          <p class="text-xl font-mono font-semibold bio-text">{{ protocolNumber }}</p>
+          <p class="text-xl font-mono font-semibold bio-text">{{ protocolNumber() }}</p>
         </div>
       }
 
-      @if (patientDownloadToken) {
+      @if (patientDownloadToken()) {
         <button
           type="button"
           class="fp-submit-btn"
           style="margin-top: 1.25rem; width: 100%"
           (click)="baixarCopia()"
-          [disabled]="downloading"
+          [disabled]="downloading()"
         >
-          @if (downloading) {
+          @if (downloading()) {
             Baixando PDF…
           } @else {
             Baixar minha cópia (PDF)
           }
         </button>
-        @if (patientCopyEmailedHint) {
+
+        @if (patientCopyEmailedHint() || emailSentMessage()) {
           <p class="bio-muted text-xs mt-3 leading-relaxed">
-            Também enviamos o link de download para o e-mail informado (válido por 72 horas).
+            {{ emailSentMessage() || 'Também enviamos o link de download para o e-mail informado (válido por 72 horas).' }}
           </p>
+        } @else if (showEmailCapture) {
+          <div class="mt-4 text-left">
+            <label class="bio-muted text-xs font-semibold uppercase tracking-wider" for="fpSucessoEmail">
+              Receber o link por e-mail
+            </label>
+            <input
+              id="fpSucessoEmail"
+              type="email"
+              class="fp-input mt-1 w-full"
+              [(ngModel)]="emailCapture"
+              name="fpSucessoEmail"
+              autocomplete="email"
+              placeholder="seu@email.com"
+            />
+            <button
+              type="button"
+              class="fp-submit-btn"
+              style="margin-top: 0.75rem; width: 100%"
+              (click)="enviarCopiaPorEmail()"
+              [disabled]="emailSending()"
+            >
+              @if (emailSending()) {
+                Enviando…
+              } @else {
+                Enviar link por e-mail
+              }
+            </button>
+            <p class="bio-muted text-xs mt-2 leading-relaxed">
+              Guarde também o PDF baixado. O link expira em 72 horas.
+            </p>
+          </div>
         } @else {
           <p class="bio-muted text-xs mt-3 leading-relaxed">
             Guarde este PDF. O link de download expira em 72 horas.

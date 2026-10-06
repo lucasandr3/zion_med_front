@@ -1,13 +1,13 @@
-<div class="comece-page" [attr.data-theme]="lpTheme">
+<div class="comece-page" [attr.data-theme]="lpTheme()">
   <div class="grid-bg"></div>
-  <div class="progress-bar" [style.width.%]="progressPct"></div>
+  <div class="progress-bar" [style.width.%]="progressPct()"></div>
 
-  <div class="success-screen" [class.show]="showSuccessOverlay">
+  <div class="success-screen" [class.show]="showSuccessOverlay()">
     <div class="success-check">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
     </div>
     <h2 class="success-h">Conta criada com <em>sucesso!</em></h2>
-    <p class="success-p">Seu período de teste de {{ diasTrial }} dias começa agora. Redirecionando para o painel…</p>
+    <p class="success-p">Seu período de teste de {{ diasTrial() }} dias começa agora. Redirecionando para o painel…</p>
   </div>
 
   <nav>
@@ -33,7 +33,7 @@
       <div class="left">
         <div class="left-eyebrow">
           <div class="left-eyebrow-dot"></div>
-          {{ diasTrial }} dias grátis · Sem cartão
+          {{ diasTrial() }} dias grátis · Sem cartão
         </div>
         <h1>Comece com seu<br />negócio <em>sem papel</em><br />agora mesmo.</h1>
         <p class="left-sub">
@@ -72,7 +72,7 @@
         </div>
 
         <div class="trust-pills">
-          <span class="trust-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>{{ diasTrial }} dias grátis</span>
+          <span class="trust-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>{{ diasTrial() }} dias grátis</span>
           <span class="trust-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Sem cartão de crédito</span>
           <span class="trust-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Acesso imediato</span>
           <span class="trust-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Cancele quando quiser</span>
@@ -92,7 +92,7 @@
       </div>
 
       <div class="right">
-        @if (uiStep === 1) {
+        @if (uiStep() === 1) {
           <a [href]="waCadastroUrl" target="_blank" rel="noopener noreferrer" class="wpp-strip wpp-strip--mobile">
             <div class="wpp-icon" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.108.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
@@ -105,9 +105,9 @@
           </a>
         }
         <div class="stepper">
-          <div class="step-item" [class.active]="uiStep === 1" [class.done]="uiStep >= 2">
+          <div class="step-item" [class.active]="uiStep() === 1" [class.done]="uiStep() >= 2">
             <div class="step-circle">
-              @if (uiStep >= 2) {
+              @if (uiStep() >= 2) {
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
               } @else {
                 1
@@ -115,10 +115,10 @@
             </div>
             <span>Cadastro</span>
           </div>
-          <div class="step-line" [class.done]="uiStep >= 2"></div>
-          <div class="step-item" [class.active]="uiStep === 2 && !showSuccessOverlay" [class.done]="showSuccessOverlay">
+          <div class="step-line" [class.done]="uiStep() >= 2"></div>
+          <div class="step-item" [class.active]="uiStep() === 2 && !showSuccessOverlay()" [class.done]="showSuccessOverlay()">
             <div class="step-circle">
-              @if (showSuccessOverlay) {
+              @if (showSuccessOverlay()) {
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
               } @else {
                 2
@@ -126,10 +126,10 @@
             </div>
             <span>Configuração</span>
           </div>
-          <div class="step-line" [class.done]="showSuccessOverlay"></div>
-          <div class="step-item" [class.active]="showSuccessOverlay">
+          <div class="step-line" [class.done]="showSuccessOverlay()"></div>
+          <div class="step-item" [class.active]="showSuccessOverlay()">
             <div class="step-circle">
-              @if (showSuccessOverlay) {
+              @if (showSuccessOverlay()) {
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
               } @else {
                 3
@@ -139,25 +139,25 @@
           </div>
         </div>
 
-        @if (uiStep === 1) {
+        @if (uiStep() === 1) {
           <div class="form-card">
             <div class="form-title">Criar conta</div>
-            <div class="form-sub">Seu trial de {{ diasTrial }} dias começa imediatamente após o cadastro — sem cartão.</div>
+            <div class="form-sub">Seu trial de {{ diasTrial() }} dias começa imediatamente após o cadastro — sem cartão.</div>
 
-            @if (estadoErro) {
-              <div class="alert-err">{{ mensagemErro }}</div>
+            @if (estadoErro()) {
+              <div class="alert-err">{{ mensagemErro() }}</div>
             }
 
             <form [formGroup]="cadastroForm" (ngSubmit)="enviar()">
               <div class="plan-selector">
                 <div class="plan-label">Plano <span class="req">*</span></div>
-                @if (carregandoPlanos) {
+                @if (carregandoPlanos()) {
                   <p class="plans-loading">Carregando planos…</p>
-                } @else if (planos.length === 0) {
+                } @else if (planos().length === 0) {
                   <p class="plans-loading">Nenhum plano disponível. Tente mais tarde ou fale pelo WhatsApp.</p>
                 } @else {
-                  @for (p of planos; track p.key) {
-                    <button type="button" class="plan-option" [class.selected]="planKey === p.key" (click)="selecionarPlano(p.key)">
+                  @for (p of planos(); track p.key) {
+                    <button type="button" class="plan-option" [class.selected]="planKey() === p.key" (click)="selecionarPlano(p.key)">
                       <div class="plan-radio"><div class="plan-radio-inner"></div></div>
                       <div class="plan-info">
                         <div class="plan-name">{{ p.name }}</div>
@@ -179,11 +179,11 @@
 
               <div class="plan-selector">
                 <div class="plan-label">Segmento do negócio <span class="req">*</span></div>
-                @if (carregandoPlanos) {
+                @if (carregandoPlanos()) {
                   <p class="plans-loading">Carregando…</p>
                 } @else {
-                  @for (n of niches; track n) {
-                    <button type="button" class="plan-option" [class.selected]="nicheKey === n" (click)="selecionarNicho(n)">
+                  @for (n of niches(); track n) {
+                    <button type="button" class="plan-option" [class.selected]="nicheKey() === n" (click)="selecionarNicho(n)">
                       <div class="plan-radio"><div class="plan-radio-inner"></div></div>
                       <div class="plan-info">
                         <div class="plan-name">{{ labelNicho(n) }}</div>
@@ -247,9 +247,9 @@
                 <div class="field">
                   <label class="field-label" for="password">Senha <span class="req">*</span></label>
                   <div class="pw-wrap">
-                    <input class="fi" [type]="mostrarSenha ? 'text' : 'password'" id="password" formControlName="password" placeholder="Mínimo 8 caracteres" autocomplete="new-password" />
-                    <button type="button" class="pw-toggle" (click)="mostrarSenha = !mostrarSenha" [attr.aria-label]="mostrarSenha ? 'Ocultar senha' : 'Mostrar senha'">
-                      @if (mostrarSenha) {
+                    <input class="fi" [type]="mostrarSenha() ? 'text' : 'password'" id="password" formControlName="password" placeholder="Mínimo 8 caracteres" autocomplete="new-password" />
+                    <button type="button" class="pw-toggle" (click)="mostrarSenha.set(!mostrarSenha())" [attr.aria-label]="mostrarSenha() ? 'Ocultar senha' : 'Mostrar senha'">
+                      @if (mostrarSenha()) {
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
                       } @else {
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
@@ -257,19 +257,19 @@
                     </button>
                   </div>
                   <div class="pw-strength">
-                    <div class="pw-bar" [class.on1]="forcaSenha >= 1"></div>
-                    <div class="pw-bar" [class.on2]="forcaSenha >= 2"></div>
-                    <div class="pw-bar" [class.on3]="forcaSenha >= 3"></div>
-                    <div class="pw-bar" [class.on4]="forcaSenha >= 4"></div>
+                    <div class="pw-bar" [class.on1]="forcaSenha() >= 1"></div>
+                    <div class="pw-bar" [class.on2]="forcaSenha() >= 2"></div>
+                    <div class="pw-bar" [class.on3]="forcaSenha() >= 3"></div>
+                    <div class="pw-bar" [class.on4]="forcaSenha() >= 4"></div>
                   </div>
-                  <div class="field-hint">{{ labelForcaSenha }}</div>
+                  <div class="field-hint">{{ labelForcaSenha() }}</div>
                 </div>
                 <div class="field">
                   <label class="field-label" for="password_confirmation">Confirmar senha <span class="req">*</span></label>
                   <div class="pw-wrap">
-                    <input class="fi" [type]="mostrarSenhaConf ? 'text' : 'password'" id="password_confirmation" formControlName="passwordConfirmation" placeholder="Repita a senha" autocomplete="new-password" />
-                    <button type="button" class="pw-toggle" (click)="mostrarSenhaConf = !mostrarSenhaConf" [attr.aria-label]="mostrarSenhaConf ? 'Ocultar senha' : 'Mostrar senha'">
-                      @if (mostrarSenhaConf) {
+                    <input class="fi" [type]="mostrarSenhaConf() ? 'text' : 'password'" id="password_confirmation" formControlName="passwordConfirmation" placeholder="Repita a senha" autocomplete="new-password" />
+                    <button type="button" class="pw-toggle" (click)="mostrarSenhaConf.set(!mostrarSenhaConf())" [attr.aria-label]="mostrarSenhaConf() ? 'Ocultar senha' : 'Mostrar senha'">
+                      @if (mostrarSenhaConf()) {
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
                       } @else {
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
@@ -288,8 +288,8 @@
                 </span>
               </z-checkbox>
 
-              <button type="submit" class="submit-btn" [disabled]="estadoCarregando || carregandoPlanos || planos.length === 0">
-                @if (estadoCarregando) {
+              <button type="submit" class="submit-btn" [disabled]="estadoCarregando() || carregandoPlanos() || planos().length === 0">
+                @if (estadoCarregando()) {
                   <svg class="spinner" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" opacity=".2"/><path d="M21 12a9 9 0 00-9-9"/></svg>
                   Criando conta…
                 } @else {
@@ -309,29 +309,29 @@
           </div>
         }
 
-        @if (uiStep === 2) {
+        @if (uiStep() === 2) {
           <div class="form-card">
             <div class="form-title">Seu primeiro link público</div>
             <div class="form-sub">
               Escolha um modelo de ficha e gere o link para enviar aos clientes — leva menos de 1 minuto.
             </div>
 
-            @if (onboardingErro) {
-              <div class="alert-err">{{ onboardingErro }}</div>
+            @if (onboardingErro()) {
+              <div class="alert-err">{{ onboardingErro() }}</div>
             }
 
-            @if (carregandoTemplates) {
+            @if (carregandoTemplates()) {
               <p class="plans-loading">Carregando modelos do seu segmento…</p>
-            } @else if (templatesOnboarding.length === 0) {
+            } @else if (templatesOnboarding().length === 0) {
               <p class="plans-loading">Modelos serão exibidos no painel após verificar o e-mail.</p>
             } @else {
               <div class="plan-selector">
                 <div class="plan-label">Modelo de ficha <span class="req">*</span></div>
-                @for (t of templatesOnboarding; track t.id) {
+                @for (t of templatesOnboarding(); track t.id) {
                   <button
                     type="button"
                     class="plan-option"
-                    [class.selected]="templateSelecionadoId === t.id"
+                    [class.selected]="templateSelecionadoId() === t.id"
                     (click)="selecionarTemplate(t.id)"
                   >
                     <div class="plan-radio"><div class="plan-radio-inner"></div></div>
@@ -346,20 +346,20 @@
               </div>
             }
 
-            @if (linkPublicoUrl) {
+            @if (linkPublicoUrl()) {
               <div class="field">
                 <label class="field-label">Link gerado</label>
                 <div class="form-row" style="align-items: stretch; gap: 8px">
-                  <input class="fi" type="text" [value]="linkPublicoUrl" readonly />
+                  <input class="fi" type="text" [value]="linkPublicoUrl()" readonly />
                   <button type="button" class="submit-btn" style="width: auto; min-width: 120px; padding: 0 16px" (click)="copiarLink()">
-                    {{ linkCopiado ? 'Copiado!' : 'Copiar' }}
+                    {{ linkCopiado() ? 'Copiado!' : 'Copiar' }}
                   </button>
                 </div>
                 <div class="field-hint">Envie por WhatsApp, Instagram ou QR Code na recepção.</div>
               </div>
-            } @else if (templateSelecionadoId != null && !carregandoTemplates) {
-              <button type="button" class="submit-btn" [disabled]="gerandoLink" (click)="gerarLinkPublico()">
-                @if (gerandoLink) {
+            } @else if (templateSelecionadoId() != null && !carregandoTemplates()) {
+              <button type="button" class="submit-btn" [disabled]="gerandoLink()" (click)="gerarLinkPublico()">
+                @if (gerandoLink()) {
                   Gerando link…
                 } @else {
                   Gerar link público
@@ -367,8 +367,8 @@
               </button>
             }
 
-            <button type="button" class="submit-btn" style="margin-top: 12px" (click)="finalizarConfiguracao()" [disabled]="gerandoLink">
-              {{ linkPublicoUrl ? 'Ir para o painel' : 'Pular e ir para o painel' }}
+            <button type="button" class="submit-btn" style="margin-top: 12px" (click)="finalizarConfiguracao()" [disabled]="gerandoLink()">
+              {{ linkPublicoUrl() ? 'Ir para o painel' : 'Pular e ir para o painel' }}
             </button>
 
             <div class="form-bottom">

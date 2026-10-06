@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, Signal } from '@angular/core';
+import { Component, OnInit, inject, Signal, ChangeDetectionStrategy, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { OrganizationRolesService, OrganizationRoleListItem } from '../../core/services/organization-roles.service';
 import { LoadingService } from '../../shared/services/loading.service';
@@ -15,6 +15,7 @@ import { ZardTableImports } from '@/shared/components/table';
 @Component({
   selector: 'app-organizacao-papeis-listagem',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     ...ZardTableImports,
     RouterLink,
@@ -29,11 +30,11 @@ import { ZardTableImports } from '@/shared/components/table';
   templateUrl: './organizacao-papeis-listagem.component.html',
 })
 export class OrganizacaoPapeisListagemComponent implements OnInit {
-  papeis: OrganizationRoleListItem[] = [];
+  readonly papeis = signal<OrganizationRoleListItem[]>([]);
   showSkeleton!: Signal<boolean>;
-  listaPronta = false;
-  erro = '';
-  excluindoSlug: string | null = null;
+  readonly listaPronta = signal(false);
+  readonly erro = signal('');
+  readonly excluindoSlug = signal<string | null>(null);
 
   private service = inject(OrganizationRolesService);
   private loadingService = inject(LoadingService);
@@ -49,12 +50,12 @@ export class OrganizacaoPapeisListagemComponent implements OnInit {
     this.showSkeleton = showSkeleton;
     data$.subscribe({
       next: (list) => {
-        this.listaPronta = true;
-        this.papeis = list;
+        this.listaPronta.set(true);
+        this.papeis.set(list);
       },
       error: () => {
-        this.listaPronta = true;
-        this.erro = 'Não foi possível carregar os perfis de permissões.';
+        this.listaPronta.set(true);
+        this.erro.set('Não foi possível carregar os perfis de permissões.');
       },
     });
   }
@@ -70,15 +71,15 @@ export class OrganizacaoPapeisListagemComponent implements OnInit {
       variant: 'danger',
     });
     if (!ok) return;
-    this.excluindoSlug = p.slug;
+    this.excluindoSlug.set(p.slug);
     this.service.delete(p.slug).subscribe({
       next: () => {
-        this.excluindoSlug = null;
+        this.excluindoSlug.set(null);
         this.toast.success('Permissões removidas', '');
         this.carregar();
       },
       error: (err) => {
-        this.excluindoSlug = null;
+        this.excluindoSlug.set(null);
         const msg = err.error?.message ?? 'Não foi possível excluir.';
         this.toast.error('Erro', typeof msg === 'string' ? msg : 'Tente novamente.');
       },

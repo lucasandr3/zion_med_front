@@ -2,13 +2,13 @@
 <div class="relative min-h-[300px] w-full max-w-4xl">
   @if (showSkeleton()) {
     <zm-skeleton-card [height]="320" />
-  } @else if (!listaPronta) {
+  } @else if (!listaPronta()) {
   } @else {
     <div class="zm-content-enter">
       <z-card class="gap-4 py-4">
         <form (ngSubmit)="submit()" class="flex w-full flex-col gap-4">
-          @if (error) {
-            <p class="text-primary m-0 text-xs">{{ error }}</p>
+          @if (error()) {
+            <p class="text-primary m-0 text-xs">{{ error() }}</p>
           }
 
           <div>
@@ -72,8 +72,8 @@
           <z-checkbox [(ngModel)]="isActive" name="is_active">Plano ativo (disponível para assinatura)</z-checkbox>
 
           <div class="flex gap-2 pt-2">
-            <button type="submit" z-button [zDisabled]="saving" [zLoading]="saving">
-              {{ saving ? 'Salvando…' : isEdit ? 'Salvar' : 'Criar plano' }}
+            <button type="submit" z-button [zDisabled]="saving()" [zLoading]="saving()">
+              {{ saving() ? 'Salvando…' : isEdit ? 'Salvar' : 'Criar plano' }}
             </button>
             <a routerLink="/plataforma/planos" z-button zType="outline">Cancelar</a>
           </div>
