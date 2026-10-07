@@ -1,1 +1,0 @@
-import{a as o,b as n}from"./chunk-LFNLBS7T.js";import{q as r}from"./chunk-OIPY7JIZ.js";import{X as e}from"./chunk-ZGJMN2J2.js";function u(){return e([{provide:r,useClass:n,multi:!0},{provide:r,useClass:o,multi:!0}])}export{u as a};
