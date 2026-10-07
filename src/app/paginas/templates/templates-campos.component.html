@@ -83,31 +83,29 @@
             @if (actorsVisibilityEnabled) {
               <div class="templates-campos-form-grid">
                 <div class="templates-campos-field templates-campos-field--full">
-                  <label class="templates-campos-form-label" for="actors_visibility_field">Campo de referência</label>
-                  <select
-                    id="actors_visibility_field"
-                    class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  <label class="templates-campos-form-label" id="actors_visibility_field_label">Campo de referência</label>
+                  <z-combobox
+                    zWidth="full"
                     [(ngModel)]="actorsVisibilityField"
                     name="actors_visibility_field"
-                  >
-                    <option value="">Selecione…</option>
-                    @for (opt of actorsVisibilityFieldOptions; track opt.value) {
-                      <option [value]="opt.value">{{ opt.label }}</option>
-                    }
-                  </select>
+                    [options]="actorsVisibilityFieldOptions"
+                    placeholder="Selecione…"
+                    ariaLabel="Campo de referência"
+                    ariaDescribedBy="actors_visibility_field_label"
+                  />
                 </div>
                 <div class="templates-campos-field">
-                  <label class="templates-campos-form-label" for="actors_visibility_operator">Condição</label>
-                  <select
-                    id="actors_visibility_operator"
-                    class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  <label class="templates-campos-form-label" id="actors_visibility_operator_label">Condição</label>
+                  <z-combobox
+                    zWidth="full"
                     [(ngModel)]="actorsVisibilityOperator"
                     name="actors_visibility_operator"
-                  >
-                    @for (op of visibilityOperators; track op.value) {
-                      <option [value]="op.value">{{ op.label }}</option>
-                    }
-                  </select>
+                    [options]="visibilityOperators"
+                    placeholder="Selecione…"
+                    [searchable]="false"
+                    ariaLabel="Condição"
+                    ariaDescribedBy="actors_visibility_operator_label"
+                  />
                 </div>
                 @if (actorsVisibilityNeedsValue) {
                   <div class="templates-campos-field">
@@ -404,31 +402,29 @@
             @if (editVisibilityEnabled) {
               <div class="templates-campos-form-grid">
                 <div class="templates-campos-field templates-campos-field--full">
-                  <label class="templates-campos-form-label" for="edit_visibility_field">Campo de referência</label>
-                  <select
-                    id="edit_visibility_field"
-                    class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  <label class="templates-campos-form-label" id="edit_visibility_field_label">Campo de referência</label>
+                  <z-combobox
+                    zWidth="full"
                     [(ngModel)]="editVisibilityField"
                     name="edit_visibility_field"
-                  >
-                    <option value="">Selecione…</option>
-                    @for (opt of editVisibilityFieldOptions; track opt.value) {
-                      <option [value]="opt.value">{{ opt.label }}</option>
-                    }
-                  </select>
+                    [options]="editVisibilityFieldOptions"
+                    placeholder="Selecione…"
+                    ariaLabel="Campo de referência"
+                    ariaDescribedBy="edit_visibility_field_label"
+                  />
                 </div>
                 <div class="templates-campos-field">
-                  <label class="templates-campos-form-label" for="edit_visibility_operator">Condição</label>
-                  <select
-                    id="edit_visibility_operator"
-                    class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  <label class="templates-campos-form-label" id="edit_visibility_operator_label">Condição</label>
+                  <z-combobox
+                    zWidth="full"
                     [(ngModel)]="editVisibilityOperator"
                     name="edit_visibility_operator"
-                  >
-                    @for (op of visibilityOperators; track op.value) {
-                      <option [value]="op.value">{{ op.label }}</option>
-                    }
-                  </select>
+                    [options]="visibilityOperators"
+                    placeholder="Selecione…"
+                    [searchable]="false"
+                    ariaLabel="Condição"
+                    ariaDescribedBy="edit_visibility_operator_label"
+                  />
                 </div>
                 @if (editVisibilityNeedsValue) {
                   <div class="templates-campos-field">
@@ -452,18 +448,17 @@
         }
 
         <div class="border-t border-border px-5 py-4">
-          <label class="templates-campos-form-label" for="edit_clinical_step">Etapa clínica (wizard público)</label>
-          <select
-            id="edit_clinical_step"
-            class="w-full"
+          <label class="templates-campos-form-label" id="edit_clinical_step_label">Etapa clínica (wizard público)</label>
+          <z-combobox
+            zWidth="full"
             [(ngModel)]="editClinicalStepKind"
             name="edit_clinical_step"
-          >
-            <option value="">Automático / sem etapa</option>
-            @for (opt of clinicalStepOptions; track opt.value) {
-              <option [value]="opt.value">{{ opt.label }}</option>
-            }
-          </select>
+            [options]="clinicalStepOptions"
+            placeholder="Automático / sem etapa"
+            [searchable]="false"
+            ariaLabel="Etapa clínica"
+            ariaDescribedBy="edit_clinical_step_label"
+          />
           <p class="mt-1 text-xs text-muted-foreground">
             Define em qual bloco clínico o campo aparece no formulário público (TCLE).
           </p>

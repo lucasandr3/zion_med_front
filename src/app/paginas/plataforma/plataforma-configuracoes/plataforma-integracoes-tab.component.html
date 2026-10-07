@@ -77,12 +77,18 @@
 
               <div class="grid gap-4 md:grid-cols-2">
                 <div>
-                  <label for="bh-type" class="mb-1 block text-xs font-medium text-muted-foreground">Tipo do conector</label>
-                  <select id="bh-type" [(ngModel)]="connectorType" name="connectorType" class="w-full">
-                    @for (tipo of connectorTypes; track tipo.value) {
-                      <option [value]="tipo.value">{{ tipo.label }}</option>
-                    }
-                  </select>
+                  <label id="bh-type-label" class="mb-1 block text-xs font-medium text-muted-foreground">Tipo do conector</label>
+                  <z-combobox
+                    zWidth="full"
+                    [(ngModel)]="connectorType"
+                    name="connectorType"
+                    [options]="connectorTypes"
+                    placeholder="Selecione…"
+                    [searchable]="false"
+                    [clearable]="false"
+                    ariaLabel="Tipo do conector"
+                    ariaDescribedBy="bh-type-label"
+                  />
                 </div>
                 <div>
                   <label for="bh-version" class="mb-1 block text-xs font-medium text-muted-foreground">Versão da API</label>

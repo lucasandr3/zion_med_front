@@ -368,11 +368,16 @@
   grid-template-columns: 1fr 1fr;
   gap: 0.5rem;
   margin-top: 0.85rem;
+  width: 100%;
 }
 
+.templates-modelo-card__actions nord-button,
 .templates-modelo-card__action {
+  display: block;
   min-width: 0;
-  gap: 0.35rem;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .templates-modelo-card__action--primary {

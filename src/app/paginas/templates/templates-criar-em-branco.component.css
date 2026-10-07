@@ -7,9 +7,8 @@
   color: var(--foreground, var(--c-text));
 }
 
-.templates-criar-em-branco z-combobox button[z-button] {
-  height: var(--control-height);
-  min-height: var(--control-height);
+.templates-criar-em-branco z-combobox nord-combobox {
+  --n-combobox-block-size: var(--control-height);
 }
 
 .templates-criar-em-branco g-checkbox {

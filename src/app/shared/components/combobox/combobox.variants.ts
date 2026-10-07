@@ -1,17 +1,17 @@
 import { cva, type VariantProps } from 'class-variance-authority';
 
-export const comboboxVariants = cva('', {
+export const comboboxVariants = cva('block w-full min-w-0 max-w-full', {
   variants: {
     zWidth: {
-      default: 'w-50',
-      sm: 'w-37.5',
-      md: 'w-62.5',
-      lg: 'w-87.5',
+      default: 'w-full',
+      sm: 'w-full max-w-37.5',
+      md: 'w-full max-w-62.5',
+      lg: 'w-full max-w-87.5',
       full: 'w-full',
     },
   },
   defaultVariants: {
-    zWidth: 'default',
+    zWidth: 'full',
   },
 });
 

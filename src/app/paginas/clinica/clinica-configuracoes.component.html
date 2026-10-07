@@ -254,46 +254,28 @@
                     ></nord-toggle>
                     @if (isScheduleActive(d.id)) {
                       <div class="schedule-row__times">
-                        <label class="schedule-time-field" [attr.for]="'bh_open_' + d.id">
+                        <label class="schedule-time-field">
                           <span class="schedule-time-field__label">Abre</span>
-                          <input
-                            type="text"
+                          <nord-time-picker
                             class="schedule-time-input"
-                            mwlFlatpickr
+                            hide-label
+                            expand
                             [(ngModel)]="form.business_hours![d.id].open"
-                            (flatpickrChange)="setTime(d.id, 'open', $event.selectedDates)"
-                            [id]="'bh_open_' + d.id"
                             [name]="'bh_open_' + d.id"
                             placeholder="08:00"
-                            autocomplete="off"
-                            [enableTime]="true"
-                            [noCalendar]="true"
-                            [dateFormat]="'H:i'"
-                            [time24hr]="true"
-                            [minuteIncrement]="15"
-                            [appendTo]="flatpickrAppendTo"
-                          />
+                          ></nord-time-picker>
                         </label>
                         <span class="schedule-row__sep material-symbols-outlined" aria-hidden="true">arrow_forward</span>
-                        <label class="schedule-time-field" [attr.for]="'bh_close_' + d.id">
+                        <label class="schedule-time-field">
                           <span class="schedule-time-field__label">Fecha</span>
-                          <input
-                            type="text"
+                          <nord-time-picker
                             class="schedule-time-input"
-                            mwlFlatpickr
+                            hide-label
+                            expand
                             [(ngModel)]="form.business_hours![d.id].close"
-                            (flatpickrChange)="setTime(d.id, 'close', $event.selectedDates)"
-                            [id]="'bh_close_' + d.id"
                             [name]="'bh_close_' + d.id"
                             placeholder="18:00"
-                            autocomplete="off"
-                            [enableTime]="true"
-                            [noCalendar]="true"
-                            [dateFormat]="'H:i'"
-                            [time24hr]="true"
-                            [minuteIncrement]="15"
-                            [appendTo]="flatpickrAppendTo"
-                          />
+                          ></nord-time-picker>
                         </label>
                       </div>
                     } @else {

@@ -290,10 +290,6 @@ export class TemplatesListagemComponent implements OnInit {
     return t.public_enabled ? 'Tirar publicação' : 'Publicar';
   }
 
-  iconePublicar(t: Template): string {
-    return t.public_enabled ? 'link_off' : 'public';
-  }
-
   rotuloAtualizacaoGrupo(grupo: { items: Template[] }): string {
     const iso = this.isoMaisRecente(grupo.items);
     if (!iso) return '';

@@ -10,8 +10,8 @@
     <nord-button
       variant="primary"
       type="button"
-      [attr.loading]="salvando()"
-      [attr.disabled]="salvando() || !name.trim() || (categoriaSelecionada === '__nova__' && !novaCategoria.trim())"
+      [attr.loading]="salvando() || null"
+      [attr.disabled]="(salvando() || !name.trim() || (categoriaSelecionada === '__nova__' && !novaCategoria.trim())) || null"
       (click)="salvar()"
     >
       <nord-icon name="interface-checked" size="s"></nord-icon>
@@ -21,7 +21,7 @@
 </div>
 
 <div class="zm-content-enter">
-  <g-card class="gap-0 border-border bg-card py-5 shadow-sm **:data-[slot=card-content]:px-5">
+  <g-card>
     <p class="mb-5 text-sm text-muted-foreground">
       Preencha os dados básicos do modelo. Em seguida você poderá adicionar os campos do formulário.
     </p>

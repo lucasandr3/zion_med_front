@@ -85,20 +85,18 @@
         />
       }
       @case ('date') {
-        <input
+        <nord-date-picker
           [id]="'field_' + f.name_key"
-          type="text"
-          mwlFlatpickr
+          expand
+          hide-label
+          [attr.label]="f.label"
           [(ngModel)]="valores[f.name_key]"
           (ngModelChange)="onCampoAlterado()"
           [name]="f.name_key"
-          class="fp-input"
-          [required]="f.required"
-          placeholder="dd/mm/aaaa"
-          [altInput]="true"
-          [altInputClass]="'fp-input'"
-          [convertModelValue]="true"
-        />
+          class="fp-nord-date"
+          [attr.required]="f.required ? true : null"
+          placeholder="aaaa-mm-dd">
+        </nord-date-picker>
       }
       @case ('checkbox') {
         <nord-checkbox class="fp-field-checkbox" [(ngModel)]="valores[f.name_key]" (ngModelChange)="onCampoAlterado()" [name]="f.name_key" [attr.required]="f.required ? true : null">

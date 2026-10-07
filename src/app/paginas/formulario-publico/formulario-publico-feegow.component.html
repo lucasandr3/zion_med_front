@@ -82,18 +82,17 @@
     </div>
     <div class="fp-field-group">
       <label class="fp-field-label" for="feegow_data">Data *</label>
-      <input
+      <nord-date-picker
         id="feegow_data"
-        type="text"
-        mwlFlatpickr
+        expand
+        hide-label
+        label="Data"
         [(ngModel)]="valores['feegow_data']"
         name="feegow_data"
-        class="fp-input"
-        placeholder="dd/mm/aaaa"
-        [altInput]="true"
-        [altInputClass]="'fp-input'"
+        class="fp-nord-date"
         required
-      />
+        placeholder="aaaa-mm-dd">
+      </nord-date-picker>
     </div>
     <div class="fp-field-group">
       <label class="fp-field-label" for="feegow_horario">Horário *</label>

@@ -1,7 +1,10 @@
-:host { display: block; }
-.envios-tab { background: transparent; border: none; cursor: pointer; color: var(--c-muted); }
-.envios-tab:hover { color: var(--c-text); }
-.envios-tab.ativo { background: var(--c-soft); color: var(--c-primary); font-weight: 600; }
+:host {
+  display: block;
+}
+
+.envios-caixa-group {
+  max-width: 100%;
+}
 
 .novo-envio-card {
   background: linear-gradient(180deg, color-mix(in srgb, var(--c-surface) 85%, transparent), color-mix(in srgb, var(--c-soft) 35%, transparent));

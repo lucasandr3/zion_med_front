@@ -10,8 +10,8 @@
     <nord-button
       variant="primary"
       type="button"
-      [attr.loading]="salvando"
-      [attr.disabled]="salvando || !label.trim()"
+      [attr.loading]="salvando || null"
+      [attr.disabled]="(salvando || !label.trim()) || null"
       (click)="salvar()"
     >
       <nord-icon name="interface-checked" size="s"></nord-icon>
@@ -27,7 +27,7 @@
   <p class="text-sm text-destructive">{{ erro }}</p>
 } @else {
   <div class="zm-content-enter">
-    <g-card class="gap-0 py-5 shadow-sm **:data-[slot=card-content]:px-5">
+    <g-card>
       <p class="mb-5 text-sm text-muted-foreground">
         @if (novo) {
           Defina um identificador, o nome e quais acessos este perfil terá na organização.

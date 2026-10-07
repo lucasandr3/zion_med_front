@@ -112,11 +112,18 @@
                 <div class="settings-fields">
                   <div class="settings-field-row">
                     <div class="settings-field">
-                      <label for="mail_mailer" class="settings-label">Driver</label>
-                      <select id="mail_mailer" [(ngModel)]="mailMailer" name="mail_mailer" class="w-full">
-                        <option value="resend">Resend (produção)</option>
-                        <option value="log">Log (desenvolvimento)</option>
-                      </select>
+                      <label id="mail_mailer_label" class="settings-label">Driver</label>
+                      <z-combobox
+                        zWidth="full"
+                        [(ngModel)]="mailMailer"
+                        name="mail_mailer"
+                        [options]="opcoesMailer"
+                        placeholder="Selecione…"
+                        [searchable]="false"
+                        [clearable]="false"
+                        ariaLabel="Driver de e-mail"
+                        ariaDescribedBy="mail_mailer_label"
+                      />
                     </div>
                     <div class="settings-field">
                       <label for="resend_api_key" class="settings-label">Chave da API</label>
@@ -289,23 +296,32 @@
                 <div class="settings-fields">
                   <div class="settings-field-row">
                     <div class="settings-field">
-                      <label for="service_status" class="settings-label">Status geral</label>
-                      <select id="service_status" [(ngModel)]="serviceStatus" name="status" class="w-full">
-                        <option value="operational">Operacional</option>
-                        <option value="degraded">Degradado</option>
-                        <option value="outage">Indisponível</option>
-                        <option value="maintenance">Manutenção</option>
-                      </select>
+                      <label id="service_status_label" class="settings-label">Status geral</label>
+                      <z-combobox
+                        zWidth="full"
+                        [(ngModel)]="serviceStatus"
+                        name="status"
+                        [options]="opcoesStatus"
+                        placeholder="Selecione…"
+                        [searchable]="false"
+                        [clearable]="false"
+                        ariaLabel="Status geral"
+                        ariaDescribedBy="service_status_label"
+                      />
                     </div>
                     <div class="settings-field">
-                      <label for="service_severity" class="settings-label">Criticidade</label>
-                      <select id="service_severity" [(ngModel)]="serviceStatusSeverity" name="severity" class="w-full">
-                        <option value="none">Nenhuma</option>
-                        <option value="low">Baixa</option>
-                        <option value="medium">Média</option>
-                        <option value="high">Alta</option>
-                        <option value="critical">Crítica</option>
-                      </select>
+                      <label id="service_severity_label" class="settings-label">Criticidade</label>
+                      <z-combobox
+                        zWidth="full"
+                        [(ngModel)]="serviceStatusSeverity"
+                        name="severity"
+                        [options]="opcoesSeverity"
+                        placeholder="Selecione…"
+                        [searchable]="false"
+                        [clearable]="false"
+                        ariaLabel="Criticidade"
+                        ariaDescribedBy="service_severity_label"
+                      />
                     </div>
                   </div>
                   <div class="settings-field settings-field--wide">
@@ -318,12 +334,17 @@
                       @for (key of getComponentKeys(); track key) {
                         <div class="settings-component-row">
                           <span class="settings-component-label">{{ componentOptions[key] }}</span>
-                          <select [(ngModel)]="serviceComponents[key]" [name]="'comp_' + key" class="settings-component-select text-xs">
-                            <option value="operational">Operacional</option>
-                            <option value="degraded">Degradado</option>
-                            <option value="outage">Indisponível</option>
-                            <option value="maintenance">Manutenção</option>
-                          </select>
+                          <z-combobox
+                            class="settings-component-select"
+                            zWidth="full"
+                            [(ngModel)]="serviceComponents[key]"
+                            [name]="'comp_' + key"
+                            [options]="opcoesStatus"
+                            placeholder="Selecione…"
+                            [searchable]="false"
+                            [clearable]="false"
+                            [ariaLabel]="'Status de ' + componentOptions[key]"
+                          />
                         </div>
                       }
                     </div>

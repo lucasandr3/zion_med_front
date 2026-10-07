@@ -84,7 +84,17 @@
                     <input [id]="'preview_' + campo.name_key" type="number" [(ngModel)]="valores[campo.name_key]" [name]="'preview_' + campo.name_key" class="fp-input" [required]="!!campo.required" />
                   }
                   @case ('date') {
-                    <input [id]="'preview_' + campo.name_key" type="date" [(ngModel)]="valores[campo.name_key]" [name]="'preview_' + campo.name_key" class="fp-input" [required]="!!campo.required" />
+                    <nord-date-picker
+                      [id]="'preview_' + campo.name_key"
+                      expand
+                      hide-label
+                      [attr.label]="campo.label"
+                      [(ngModel)]="valores[campo.name_key]"
+                      [name]="'preview_' + campo.name_key"
+                      class="fp-nord-date"
+                      [attr.required]="campo.required ? true : null"
+                      placeholder="aaaa-mm-dd">
+                    </nord-date-picker>
                   }
                   @case ('select') {
                     <select [id]="'preview_' + campo.name_key" [(ngModel)]="valores[campo.name_key]" [name]="'preview_' + campo.name_key" class="fp-input fp-select" [required]="!!campo.required">
