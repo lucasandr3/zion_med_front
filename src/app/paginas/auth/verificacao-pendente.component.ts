@@ -1,6 +1,7 @@
 import { Component, inject, ChangeDetectionStrategy, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
+import { resolveSidebarLogoSrc } from '../../core/utils/sidebar-logo.util';
 
 @Component({
   selector: 'app-verificacao-pendente',
@@ -17,6 +18,7 @@ export class VerificacaoPendenteComponent {
   readonly carregando = signal(false);
   readonly erro = signal('');
   ano = new Date().getFullYear();
+  readonly logoSrc = resolveSidebarLogoSrc();
 
   reenviar(): void {
     this.erro.set('');

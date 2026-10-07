@@ -1,6 +1,7 @@
 import { Component, inject, OnInit, ChangeDetectionStrategy, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
+import { resolveSidebarLogoSrc } from '../../core/utils/sidebar-logo.util';
 
 @Component({
   selector: 'app-verificar-email',
@@ -18,6 +19,7 @@ export class VerificarEmailComponent implements OnInit {
   readonly carregando = signal(true);
   readonly mensagem = signal('');
   ano = new Date().getFullYear();
+  readonly logoSrc = resolveSidebarLogoSrc();
 
   ngOnInit(): void {
     const id = this.route.snapshot.queryParamMap.get('id');

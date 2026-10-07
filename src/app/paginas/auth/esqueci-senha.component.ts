@@ -2,6 +2,7 @@ import { Component, inject, ChangeDetectionStrategy, signal } from '@angular/cor
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../core/services/auth.service';
+import { resolveSidebarLogoSrc } from '../../core/utils/sidebar-logo.util';
 
 @Component({
   selector: 'app-esqueci-senha',
@@ -19,6 +20,7 @@ export class EsqueciSenhaComponent {
   readonly carregando = signal(false);
   readonly erro = signal('');
   ano = new Date().getFullYear();
+  readonly logoSrc = resolveSidebarLogoSrc();
 
   enviar(): void {
     this.erro.set('');

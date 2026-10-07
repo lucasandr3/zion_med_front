@@ -2,6 +2,7 @@ import { Component, inject, OnInit, ChangeDetectionStrategy, signal } from '@ang
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../core/services/auth.service';
+import { resolveSidebarLogoSrc } from '../../core/utils/sidebar-logo.util';
 
 @Component({
   selector: 'app-redefinir-senha',
@@ -25,6 +26,7 @@ export class RedefinirSenhaComponent implements OnInit {
   readonly carregando = signal(false);
   readonly erro = signal('');
   ano = new Date().getFullYear();
+  readonly logoSrc = resolveSidebarLogoSrc();
 
   ngOnInit(): void {
     if (typeof document !== 'undefined') {

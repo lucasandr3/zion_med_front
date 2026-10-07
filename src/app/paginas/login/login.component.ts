@@ -3,6 +3,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../core/services/auth.service';
+import { resolveSidebarLogoSrc } from '../../core/utils/sidebar-logo.util';
 
 @Component({
   selector: 'app-pagina-login',
@@ -22,6 +23,7 @@ export class LoginComponent implements OnInit {
   readonly mensagemErro = signal('');
   ano = new Date().getFullYear();
   readonly iconeTema = signal('interface-mode-dark');
+  readonly logoSrc = signal(resolveSidebarLogoSrc());
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: object,
