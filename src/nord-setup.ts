@@ -28,6 +28,7 @@ import '@nordhealth/components/lib/ComboboxOption.js';
 import '@nordhealth/components/lib/CommandMenu.js';
 import '@nordhealth/components/lib/CommandMenuAction.js';
 import '@nordhealth/components/lib/DatePicker.js';
+import '@nordhealth/components/lib/TimePicker.js';
 import '@nordhealth/components/lib/Divider.js';
 import '@nordhealth/components/lib/Dropdown.js';
 import '@nordhealth/components/lib/DropdownGroup.js';
@@ -66,6 +67,7 @@ import '@nordhealth/components/lib/Select.js';
 import '@nordhealth/components/lib/Skeleton.js';
 import '@nordhealth/components/lib/Tab.js';
 import '@nordhealth/components/lib/TabGroup.js';
+import '@nordhealth/components/lib/TabPanel.js';
 import '@nordhealth/components/lib/Textarea.js';
 import '@nordhealth/components/lib/Toast.js';
 import '@nordhealth/components/lib/ToastGroup.js';
@@ -381,6 +383,63 @@ const NORD_NO_FOCUS_CSS = `
   outline: none !important;
   --n-dropdown-item-box-shadow: none !important;
 }
+/* nord-checkbox / toggle: anel verde no clique */
+input[type='checkbox']:focus,
+input[type='checkbox']:focus-visible,
+input[type='checkbox']:focus-within,
+input.n-input:focus,
+input.n-input:focus-visible,
+.n-input:focus,
+.n-input:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+`;
+
+/** Padding + underline da aba ativa na cor do tema (shadow de nord-tab). */
+const NORD_TAB_PADDING_CSS = `
+:host {
+  padding: 13px !important;
+  box-sizing: border-box !important;
+}
+:host([aria-selected='true']),
+:host([selected]) {
+  --_n-tab-border: 2px solid var(--c-primary, var(--primary, var(--n-color-text-link))) !important;
+  border-block-end: 2px solid var(--c-primary, var(--primary, var(--n-color-text-link))) !important;
+  --_n-tab-color: var(--c-primary, var(--primary, var(--n-color-text-link))) !important;
+}
+`;
+
+/*
+ * Date/time: mesma altura dos demais controles (--control-height) e
+ * input type=time do Nord não usa a fórmula nativa (mais baixa).
+ */
+const NORD_PICKER_INPUT_CSS = `
+:host {
+  --n-input-block-size: var(--control-height, 40px) !important;
+  --_n-input-block-size: var(--control-height, 40px) !important;
+  --n-input-font-size: var(--control-font-size, 0.875rem) !important;
+  --_n-input-font-size: var(--control-font-size, 0.875rem) !important;
+}
+:host([type='time']) .n-control,
+:host .n-control {
+  min-block-size: var(--control-height, 40px) !important;
+  block-size: var(--control-height, 40px) !important;
+  box-sizing: border-box !important;
+}
+:host([type='time']) .n-input {
+  block-size: auto !important;
+  min-block-size: 0 !important;
+}
+:host([type='time']) .n-input::-webkit-calendar-picker-indicator {
+  display: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+.n-input {
+  caret-color: transparent !important;
+  cursor: pointer !important;
+}
 `;
 
 let shellHeaderSheet: CSSStyleSheet | null = null;
@@ -388,11 +447,15 @@ let navItemSheet: CSSStyleSheet | null = null;
 let accountMenuDropdownSheet: CSSStyleSheet | null = null;
 let accountMenuPopoutSheet: CSSStyleSheet | null = null;
 let noFocusSheet: CSSStyleSheet | null = null;
+let tabPaddingSheet: CSSStyleSheet | null = null;
+let pickerInputSheet: CSSStyleSheet | null = null;
 const shellStyled = new WeakSet<ShadowRoot>();
 const navItemStyled = new WeakSet<ShadowRoot>();
 const accountMenuDropdownStyled = new WeakSet<ShadowRoot>();
 const accountMenuPopoutStyled = new WeakSet<ShadowRoot>();
 const noFocusStyled = new WeakSet<ShadowRoot>();
+const tabPaddingStyled = new WeakSet<ShadowRoot>();
+const pickerInputStyled = new WeakSet<ShadowRoot>();
 
 function getShellHeaderSheet(): CSSStyleSheet {
   if (!shellHeaderSheet) {
@@ -433,6 +496,22 @@ function getNoFocusSheet(): CSSStyleSheet {
   // Sempre sync — HMR / correções atualizam shadows que já adotaram a sheet
   noFocusSheet.replaceSync(NORD_NO_FOCUS_CSS);
   return noFocusSheet;
+}
+
+function getTabPaddingSheet(): CSSStyleSheet {
+  if (!tabPaddingSheet) {
+    tabPaddingSheet = new CSSStyleSheet();
+  }
+  tabPaddingSheet.replaceSync(NORD_TAB_PADDING_CSS);
+  return tabPaddingSheet;
+}
+
+function getPickerInputSheet(): CSSStyleSheet {
+  if (!pickerInputSheet) {
+    pickerInputSheet = new CSSStyleSheet();
+  }
+  pickerInputSheet.replaceSync(NORD_PICKER_INPUT_CSS);
+  return pickerInputSheet;
 }
 
 function injectAdoptedOrStyle(
@@ -519,6 +598,166 @@ function injectNoFocusStyles(host: Element): void {
   injectAdoptedOrStyle(root, getNoFocusSheet(), NORD_NO_FOCUS_CSS, 'data-gestgo-no-focus');
 }
 
+function injectTabPaddingStyles(host: Element): void {
+  if (!(host instanceof HTMLElement) || host.localName !== 'nord-tab') return;
+  const root = host.shadowRoot;
+  if (!root || tabPaddingStyled.has(root)) return;
+  tabPaddingStyled.add(root);
+  injectAdoptedOrStyle(root, getTabPaddingSheet(), NORD_TAB_PADDING_CSS, 'data-gestgo-tab-padding');
+}
+
+function injectPickerInputStyles(nordInput: Element): void {
+  const root = nordInput.shadowRoot;
+  if (!root || pickerInputStyled.has(root)) return;
+  pickerInputStyled.add(root);
+  injectAdoptedOrStyle(root, getPickerInputSheet(), NORD_PICKER_INPUT_CSS, 'data-gestgo-picker-input');
+}
+
+/** Altura padrão + cursor de picker (sem digitação livre). */
+function enhanceNordPicker(host: Element): void {
+  if (!(host instanceof HTMLElement)) return;
+  if (host.localName !== 'nord-date-picker' && host.localName !== 'nord-time-picker') return;
+
+  host.style.setProperty('--n-input-block-size', 'var(--control-height)');
+  host.style.setProperty('--_n-input-block-size', 'var(--control-height)');
+  host.style.setProperty('--n-input-font-size', 'var(--control-font-size)');
+  host.style.setProperty('--_n-input-font-size', 'var(--control-font-size)');
+  // size=s encolhe tipografia/padding — padroniza com os demais inputs
+  if (host.getAttribute('size') === 's') {
+    host.setAttribute('size', 'm');
+  }
+  if (!host.hasAttribute('expand')) {
+    host.setAttribute('expand', '');
+  }
+
+  const root = host.shadowRoot;
+  if (!root) return;
+  root.querySelectorAll('nord-input').forEach((el) => injectPickerInputStyles(el));
+}
+
+type NordShowable = HTMLElement & { show?: () => void; open?: boolean; disabled?: boolean };
+
+function findPickerHost(path: EventTarget[]): NordShowable | null {
+  for (const node of path) {
+    if (!(node instanceof HTMLElement)) continue;
+    if (node.localName === 'nord-date-picker' || node.localName === 'nord-time-picker') {
+      return node as NordShowable;
+    }
+  }
+  return null;
+}
+
+function isPickerToggle(path: EventTarget[]): boolean {
+  return path.some(
+    (n) =>
+      n instanceof Element &&
+      (n.classList.contains('n-date-picker-toggle') ||
+        n.closest?.('.n-date-picker-toggle') != null ||
+        (n.localName === 'nord-button' && n.getAttribute('slot') === 'toggle')),
+  );
+}
+
+function openNordPicker(host: NordShowable): void {
+  if (host.disabled || host.hasAttribute('disabled')) return;
+  if (host.localName === 'nord-date-picker') {
+    if (!host.open) host.show?.();
+    return;
+  }
+  const dropdown = host.shadowRoot?.querySelector('nord-dropdown') as NordShowable | null;
+  dropdown?.show?.();
+}
+
+function installNordPickerUx(): void {
+  if (typeof document === 'undefined') return;
+  if ((document.documentElement as HTMLElement).dataset['gestgoPickerUx'] === '1') return;
+  (document.documentElement as HTMLElement).dataset['gestgoPickerUx'] = '1';
+
+  const allowedKeys = new Set([
+    'Tab',
+    'Escape',
+    'Enter',
+    ' ',
+    'ArrowDown',
+    'ArrowUp',
+    'ArrowLeft',
+    'ArrowRight',
+    'Home',
+    'End',
+  ]);
+
+  document.addEventListener(
+    'pointerdown',
+    (ev) => {
+      const path = ev.composedPath();
+      const host = findPickerHost(path);
+      if (!host) return;
+      // Clique no botão nativo: deixa o Nord abrir/fechar
+      if (isPickerToggle(path)) return;
+      openNordPicker(host);
+    },
+    true,
+  );
+
+  document.addEventListener(
+    'keydown',
+    (ev) => {
+      const path = ev.composedPath();
+      const host = findPickerHost(path);
+      if (!host) return;
+      // Dentro do popout/dropdown o teclado continua operacional
+      const inOverlay = path.some(
+        (n) =>
+          n instanceof Element &&
+          (n.localName === 'nord-popout' ||
+            n.localName === 'nord-calendar' ||
+            n.localName === 'nord-dropdown-item' ||
+            n.getAttribute?.('role') === 'dialog'),
+      );
+      if (inOverlay) return;
+      if (ev.ctrlKey || ev.metaKey || ev.altKey) return;
+      if (allowedKeys.has(ev.key)) {
+        if (ev.key === 'Enter' || ev.key === ' ' || ev.key === 'ArrowDown') {
+          ev.preventDefault();
+          openNordPicker(host);
+        }
+        return;
+      }
+      ev.preventDefault();
+      ev.stopPropagation();
+    },
+    true,
+  );
+
+  document.addEventListener(
+    'beforeinput',
+    (ev) => {
+      const path = ev.composedPath();
+      const host = findPickerHost(path);
+      if (!host) return;
+      const inOverlay = path.some(
+        (n) =>
+          n instanceof Element &&
+          (n.localName === 'nord-popout' ||
+            n.localName === 'nord-calendar' ||
+            n.localName === 'nord-dropdown-item'),
+      );
+      if (inOverlay) return;
+      ev.preventDefault();
+    },
+    true,
+  );
+
+  document.addEventListener(
+    'paste',
+    (ev) => {
+      const path = ev.composedPath();
+      if (!findPickerHost(path)) return;
+      ev.preventDefault();
+    },
+    true,
+  );
+}
+
 function scanShellShadows(node: ParentNode = document): void {
   node.querySelectorAll('nord-layout, nord-header, nord-navigation, nord-top-bar').forEach((el) => {
     if (SHELL_SHADOW_TAGS.has(el.localName)) {
@@ -527,11 +766,15 @@ function scanShellShadows(node: ParentNode = document): void {
   });
   node.querySelectorAll('nord-nav-item').forEach((el) => injectNavItemStyles(el));
   node.querySelectorAll('nord-dropdown.account-menu').forEach((el) => injectAccountMenuPopupStyles(el));
-  // Botões (e demais nord-*): strip de foco/sombra como no pesquisa
-  node.querySelectorAll('nord-button').forEach((el) => injectNoFocusStyles(el));
+  // Botões / checkboxes / toggles: strip de foco/sombra como no pesquisa
+  node.querySelectorAll('nord-button, nord-checkbox, nord-toggle').forEach((el) => injectNoFocusStyles(el));
+  node.querySelectorAll('nord-tab').forEach((el) => injectTabPaddingStyles(el));
+  node.querySelectorAll('nord-date-picker, nord-time-picker').forEach((el) => enhanceNordPicker(el));
 }
 
 if (typeof document !== 'undefined') {
+  installNordPickerUx();
+
   const startShellStyles = () => {
     scanShellShadows(document);
     new MutationObserver(() => scanShellShadows(document)).observe(document.documentElement, {

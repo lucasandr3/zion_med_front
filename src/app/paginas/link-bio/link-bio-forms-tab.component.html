@@ -4,26 +4,42 @@
     <div class="flex flex-col gap-3">
       @for (t of forms; track t.id) {
         <g-card class="link-bio-form-card gap-0 rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
-          <div class="link-bio-form-card__inner flex flex-wrap items-center gap-3">
-            <div class="link-bio-form-card__title flex min-w-0 flex-1 items-center gap-3">
+          <div class="link-bio-form-card__inner">
+            <div class="link-bio-form-card__title flex min-w-0 w-full items-center gap-3">
               <span class="material-symbols-outlined shrink-0 text-[1.35rem] text-primary" aria-hidden="true">assignment</span>
               <div class="min-w-0">
                 <h3 class="m-0 truncate text-sm font-semibold text-foreground" [attr.title]="t.name">{{ t.name }}</h3>
                 <p class="m-0 mt-0.5 text-xs text-muted-foreground">Respostas: {{ t.submission_count }}</p>
               </div>
             </div>
-            <div class="link-bio-form-card__actions flex shrink-0 flex-wrap items-center justify-center gap-2 self-center">
-              <nord-button type="button" variant="default" size="s" class="gap-1.5 link-bio-form-card__btn-copiar" [title]="copiedFormId === t.id ? 'Link copiado' : 'Copiar link do formulário'" (click)="copiarLinkForm(t)">
-                <span class="material-symbols-outlined text-base" aria-hidden="true">
-                  {{ copiedFormId === t.id ? 'check' : 'content_copy' }}
-                </span>
+            <div class="link-bio-form-card__actions">
+              <nord-button
+                expand
+                type="button"
+                variant="default"
+                size="s"
+                class="link-bio-form-card__btn-copiar"
+                [title]="copiedFormId === t.id ? 'Link copiado' : 'Copiar link do formulário'"
+                (click)="copiarLinkForm(t)"
+              >
+                <nord-icon [name]="copiedFormId === t.id ? 'interface-checked' : 'interface-copy'" size="s"></nord-icon>
                 {{ copiedFormId === t.id ? 'Copiado!' : 'Copiar link' }}
               </nord-button>
               @if (t.public_url) {
-                <a [href]="t.public_url" target="_blank" rel="noopener noreferrer" class="gap-1.5 no-underline link-bio-form-card__btn-abrir" title="Abrir formulário em nova aba">
-                  <span class="material-symbols-outlined text-base" aria-hidden="true">open_in_new</span>
+                <nord-button
+                  expand
+                  variant="primary"
+                  size="s"
+                  type="button"
+                  class="link-bio-form-card__btn-abrir"
+                  [attr.href]="t.public_url"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title="Abrir formulário em nova aba"
+                >
+                  <nord-icon name="interface-new-window" size="s"></nord-icon>
                   Abrir
-                </a>
+                </nord-button>
               }
             </div>
           </div>

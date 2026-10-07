@@ -10,8 +10,8 @@
     <nord-button
       variant="primary"
       type="button"
-      [attr.loading]="salvando"
-      [attr.disabled]="salvando || !name.trim() || !email.trim() || !role || (!editMode && (!password || !passwordConfirm))"
+      [attr.loading]="salvando || null"
+      [attr.disabled]="(salvando || !name.trim() || !email.trim() || !role || (!editMode && (!password || !passwordConfirm))) || null"
       (click)="salvar()"
     >
       <nord-icon name="interface-checked" size="s"></nord-icon>
@@ -27,7 +27,7 @@
   <p class="text-sm text-destructive">{{ erro || 'Não foi possível carregar os dados.' }}</p>
 } @else {
   <div class="zm-content-enter">
-    <g-card class="gap-0 py-5 shadow-sm **:data-[slot=card-content]:px-5">
+    <g-card>
       <p class="mb-5 text-sm text-muted-foreground">
         Escolha o perfil de permissões do usuário (conforme o que foi configurado na organização).
       </p>

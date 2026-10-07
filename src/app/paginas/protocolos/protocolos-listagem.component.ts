@@ -8,7 +8,6 @@ import { ListSkeletonComponent } from '../../shared/components/list-skeleton/lis
 import { ZmPaginationComponent } from '../../shared/components/ui';
 import { GestgoSheetService } from '@/shared/components/sheet/sheet.service';
 import type { GestgoSheetRef } from '@/shared/components/sheet/sheet-ref';
-import { FlatpickrDirective } from 'angularx-flatpickr';
 import { GestgoComboboxComponent, type GestgoComboboxOption } from '@/shared/components/combobox';
 import { NORD_FORM_IMPORTS } from '@/shared/nord';
 @Component({
@@ -19,7 +18,6 @@ import { NORD_FORM_IMPORTS } from '@/shared/nord';
   host: { class: 'n-page-list' },
   imports: [
     ...NORD_FORM_IMPORTS,
-    FlatpickrDirective,
     FormsModule,
     RouterLink,
     ListSkeletonComponent,
@@ -47,8 +45,6 @@ export class ProtocolosListagemComponent implements OnInit, OnDestroy {
   data_inicio = '';
   data_fim = '';
   readonly filterDrawerOpen = signal(false);
-  /** Calendário no body para não ser cortado pelo overflow do sheet. */
-  flatpickrAppendTo!: HTMLElement;
 
   @ViewChild('protocolosFiltrosTpl') protocolosFiltrosTpl?: TemplateRef<void>;
 
@@ -95,7 +91,6 @@ export class ProtocolosListagemComponent implements OnInit, OnDestroy {
     this.filtrosSheetRef?.close();
   }
   ngOnInit(): void {
-    this.flatpickrAppendTo = document.body;
     const statusFromQuery = this.route.snapshot.queryParamMap.get('status');
     if (statusFromQuery) {
       this.status = statusFromQuery;

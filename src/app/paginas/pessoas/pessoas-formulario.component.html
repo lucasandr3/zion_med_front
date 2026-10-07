@@ -10,8 +10,8 @@
     <nord-button
       variant="primary"
       type="button"
-      [attr.loading]="salvando"
-      [attr.disabled]="salvando || !pessoaForm.controls.name.value.trim()"
+      [attr.loading]="salvando || null"
+      [attr.disabled]="(salvando || !pessoaForm.controls.name.value.trim()) || null"
       (click)="salvar()"
     >
       <nord-icon name="interface-checked" size="s"></nord-icon>
@@ -27,7 +27,7 @@
   <p class="mb-4 text-sm text-destructive">{{ erro }}</p>
 } @else {
   <div class="zm-content-enter">
-    <g-card class="gap-0 py-5 shadow-sm **:data-[slot=card-content]:px-5">
+    <g-card>
       @if (erro && !editMode) {
         <p class="mb-4 text-sm text-destructive">{{ erro }}</p>
       }
@@ -102,20 +102,17 @@
         <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <div>
             <label class="pessoa-form-label" for="pessoa-birth">Data de nascimento</label>
-            <input
+            <nord-date-picker
               id="pessoa-birth"
-              type="text"
-              mwlFlatpickr
+              expand
+              hide-label
+              label="Data de nascimento"
               [(ngModel)]="birth_date"
               [ngModelOptions]="{ standalone: true }"
-              class="w-full text-sm"
-              placeholder="dd/mm/aaaa"
-              [altInput]="true"
-              [convertModelValue]="true"
-              [appendTo]="flatpickrAppendTo"
-              [static]="false"
-              autocomplete="bday"
-            />
+              name="pessoa_birth"
+              placeholder="aaaa-mm-dd"
+              autocomplete="bday">
+            </nord-date-picker>
           </div>
           <div>
             <label class="pessoa-form-label" for="pessoa-age">Idade</label>

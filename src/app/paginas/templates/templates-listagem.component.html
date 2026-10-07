@@ -71,13 +71,13 @@
         @if (filtrosPainelAberto()) {
           <g-card class="mb-5 gap-0 border-border bg-card py-4 shadow-sm **:data-[slot=card-content]:px-5" role="region">
             <div id="templates-filtros-panel" class="templates-filtros-panel" aria-label="Filtros da coleção">
-              <div class="templates-filtros-busca relative min-w-[200px] flex-1 max-w-xs" data-go-tour="templates-search">
-                <span class="material-symbols-outlined pointer-events-none absolute left-2.5 top-1/2 z-10 -translate-y-1/2 text-base text-muted-foreground">search</span>
+              <div class="form-search-wrap templates-filtros-busca min-w-[200px] flex-1 max-w-xs" data-go-tour="templates-search">
+                <span class="material-symbols-outlined form-search-icon" aria-hidden="true">search</span>
                 <input
                   type="text"
                   [(ngModel)]="buscaTexto"
                   placeholder="Buscar por nome do modelo..."
-                  class="w-full pl-9"
+                  class="form-search-input w-full text-sm"
                   aria-label="Buscar modelo por nome"
                 />
               </div>
@@ -249,13 +249,13 @@
         @if (filtrosPainelAberto()) {
           <div class="n-page-list__panel" id="templates-detalhe-filtros">
             <div class="templates-detalhe-filtros">
-              <div class="templates-detalhe-busca relative min-w-[240px] flex-1">
-                <span class="material-symbols-outlined pointer-events-none absolute left-2.5 top-1/2 z-10 -translate-y-1/2 text-base text-muted-foreground">search</span>
+              <div class="form-search-wrap templates-detalhe-busca min-w-[240px] flex-1">
+                <span class="material-symbols-outlined form-search-icon" aria-hidden="true">search</span>
                 <input
                   type="text"
                   [(ngModel)]="buscaTexto"
                   placeholder="Buscar nesta categoria..."
-                  class="w-full pl-9"
+                  class="form-search-input w-full text-sm"
                   aria-label="Buscar modelo por nome"
                 />
               </div>
@@ -327,8 +327,8 @@
                       variant="plain"
                       type="button"
                       [attr.aria-label]="rotuloPublicar(t)"
-                      [attr.disabled]="publicandoId() === t.id"
-                      [attr.loading]="publicandoId() === t.id"
+                      [attr.disabled]="publicandoId() === t.id || null"
+                      [attr.loading]="publicandoId() === t.id || null"
                       (click)="alternarPublicacao(t, $event)"
                     >
                       <nord-icon [name]="t.public_enabled ? 'interface-unlink' : 'interface-globe'" size="s"></nord-icon>
@@ -353,12 +353,13 @@
                     </nord-button>
                     <nord-button
                       square
-                      variant="danger"
+                      variant="plain"
                       type="button"
+                      class="n-page-list__action--danger"
                       aria-label="Remover modelo"
                       aria-describedby="tip-tpl-del"
-                      [attr.disabled]="removendoId() === t.id"
-                      [attr.loading]="removendoId() === t.id"
+                      [attr.disabled]="removendoId() === t.id || null"
+                      [attr.loading]="removendoId() === t.id || null"
                       (click)="remover(t, $event)"
                     >
                       <nord-icon name="interface-delete" size="s"></nord-icon>
@@ -389,30 +390,39 @@
                       <span class="templates-modelo-card__status templates-modelo-card__status--inativo">Inativo</span>
                     }
                     <nord-dropdown style="--n-dropdown-size: 11rem">
-                      <nord-button slot="toggle" type="button" variant="plain" size="s" class="templates-modelo-card__menu-btn" [attr.aria-label]="'Mais opções para ' + t.name" square>
-                        <span class="material-symbols-outlined text-[1.125rem]" aria-hidden="true">more_vert</span>
+                      <nord-button
+                        slot="toggle"
+                        type="button"
+                        variant="plain"
+                        size="s"
+                        square
+                        hide-dropdown-icon
+                        class="templates-modelo-card__menu-btn"
+                        [attr.aria-label]="'Mais opções para ' + t.name"
+                      >
+                        <nord-icon name="interface-menu-small" size="s"></nord-icon>
                       </nord-button>
                       <nord-dropdown-group>
                         <nord-dropdown-item [routerLink]="['/templates', t.id, 'campos']">
-                          <span class="material-symbols-outlined shrink-0 text-base" aria-hidden="true">tune</span>
+                          <nord-icon slot="start" name="navigation-settings" size="s"></nord-icon>
                           Campos
                         </nord-dropdown-item>
                         <nord-dropdown-item [routerLink]="['/templates', t.id, 'editar']">
-                          <span class="material-symbols-outlined shrink-0 text-base" aria-hidden="true">edit</span>
+                          <nord-icon slot="start" name="interface-edit" size="s"></nord-icon>
                           Editar
                         </nord-dropdown-item>
                         <nord-dropdown-item
-                          [disabled]="duplicandoId() === t.id"
+                          [attr.disabled]="duplicandoId() === t.id || null"
                           (click)="duplicar(t, $event)"
                         >
-                          <span class="material-symbols-outlined shrink-0 text-base" aria-hidden="true">content_copy</span>
+                          <nord-icon slot="start" name="interface-copy" size="s"></nord-icon>
                           Duplicar
                         </nord-dropdown-item>
                         <nord-dropdown-item
-                          [disabled]="removendoId() === t.id"
+                          [attr.disabled]="removendoId() === t.id || null"
                           (click)="remover(t, $event)"
                         >
-                          <span class="material-symbols-outlined shrink-0 text-base" aria-hidden="true">delete</span>
+                          <nord-icon slot="start" name="interface-delete" size="s"></nord-icon>
                           Remover
                         </nord-dropdown-item>
                       </nord-dropdown-group>
@@ -433,12 +443,34 @@
                   </div>
 
                   <div class="templates-modelo-card__actions">
-                    <a class="templates-modelo-card__action no-underline" [routerLink]="['/templates', t.id, 'preview']" target="_blank" rel="noopener noreferrer" title="Pré-visualizar modelo" aria-label="Pré-visualizar modelo">
-                      <span class="material-symbols-outlined text-base" aria-hidden="true">open_in_new</span>
+                    <nord-button
+                      expand
+                      variant="default"
+                      size="s"
+                      type="button"
+                      class="templates-modelo-card__action"
+                      [routerLink]="['/templates', t.id, 'preview']"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title="Pré-visualizar modelo"
+                      aria-label="Pré-visualizar modelo"
+                    >
+                      <nord-icon name="interface-new-window" size="s"></nord-icon>
                       Pré-visualizar
-                    </a>
-                    <nord-button [attr.variant]="t.public_enabled ? 'default' : 'primary'" size="s" type="button" class="templates-modelo-card__action templates-modelo-card__action--primary" [title]="rotuloPublicar(t)" [attr.aria-label]="rotuloPublicar(t)" [attr.disabled]="publicandoId() === t.id" [attr.loading]="publicandoId() === t.id" (click)="alternarPublicacao(t, $event)">
-                      <span class="material-symbols-outlined text-base" aria-hidden="true">{{ iconePublicar(t) }}</span>
+                    </nord-button>
+                    <nord-button
+                      expand
+                      [attr.variant]="t.public_enabled ? 'default' : 'primary'"
+                      size="s"
+                      type="button"
+                      class="templates-modelo-card__action templates-modelo-card__action--primary"
+                      [title]="rotuloPublicar(t)"
+                      [attr.aria-label]="rotuloPublicar(t)"
+                      [attr.disabled]="publicandoId() === t.id || null"
+                      [attr.loading]="publicandoId() === t.id || null"
+                      (click)="alternarPublicacao(t, $event)"
+                    >
+                      <nord-icon [name]="t.public_enabled ? 'interface-unlink' : 'interface-globe'" size="s"></nord-icon>
                       {{ rotuloPublicar(t) }}
                     </nord-button>
                   </div>

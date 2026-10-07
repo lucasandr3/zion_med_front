@@ -58,16 +58,19 @@
   </div>
   <div class="fp-field-group fp-field-animate">
     <label class="fp-field-label" for="fpPersonBirthCpf">Data de nascimento</label>
-    <input
+    <nord-date-picker
       id="fpPersonBirthCpf"
-      type="date"
+      expand
+      hide-label
+      label="Data de nascimento"
       autocomplete="bday"
       [ngModel]="personBirthDate"
       (ngModelChange)="onBirthDateInput($event)"
       name="fpPersonBirthCpf"
       [ngModelOptions]="{ standalone: true }"
-      class="fp-input"
-    />
+      class="fp-nord-date"
+      placeholder="aaaa-mm-dd">
+    </nord-date-picker>
   </div>
 
   <button type="button" class="fp-submit-btn" style="margin-top: 1.25rem" (click)="validate.emit()" [disabled]="validandoPerson">
@@ -98,16 +101,19 @@
   </div>
   <div class="fp-field-group fp-field-animate">
     <label class="fp-field-label" for="fpPersonBirth">Data de nascimento</label>
-    <input
+    <nord-date-picker
       id="fpPersonBirth"
-      type="date"
+      expand
+      hide-label
+      label="Data de nascimento"
       autocomplete="bday"
       [ngModel]="personBirthDate"
       (ngModelChange)="onBirthDateInput($event)"
       name="fpPersonBirth"
       [ngModelOptions]="{ standalone: true }"
-      class="fp-input"
-    />
+      class="fp-nord-date"
+      placeholder="aaaa-mm-dd">
+    </nord-date-picker>
   </div>
 
   <button type="button" class="fp-submit-btn" style="margin-top: 1.25rem" (click)="validate.emit()" [disabled]="validandoPerson">

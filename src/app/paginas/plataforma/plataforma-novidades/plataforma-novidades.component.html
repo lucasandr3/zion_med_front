@@ -21,7 +21,14 @@
         </label>
         <label class="plat-novidades-field">
           <span>Data de release</span>
-          <input type="date" [(ngModel)]="formReleasedAt" />
+          <nord-date-picker
+            expand
+            hide-label
+            label="Data de publicação"
+            [(ngModel)]="formReleasedAt"
+            name="formReleasedAt"
+            placeholder="aaaa-mm-dd">
+          </nord-date-picker>
         </label>
         <label class="plat-novidades-field plat-novidades-field--full">
           <span>Título</span>
@@ -44,11 +51,16 @@
         </div>
         @for (item of formItems; track $index) {
           <div class="plat-novidades-form-item">
-            <select [(ngModel)]="item.type" [name]="'tipo-' + $index">
-              @for (t of tipos; track t.value) {
-                <option [ngValue]="t.value">{{ t.label }}</option>
-              }
-            </select>
+            <z-combobox
+              zWidth="full"
+              [(ngModel)]="item.type"
+              [name]="'tipo-' + $index"
+              [options]="tipos"
+              placeholder="Tipo"
+              [searchable]="false"
+              [clearable]="false"
+              ariaLabel="Tipo do item"
+            />
             <input type="text" [(ngModel)]="item.text" [name]="'texto-' + $index" placeholder="Descreva a mudança" />
             <nord-button variant="plain" size="m" type="button" aria-label="Remover item" [attr.disabled]="formItems.length <= 1" (click)="removerItem($index)" square>
               <span class="material-symbols-outlined text-base">close</span>

@@ -23,9 +23,9 @@
       <div class="zm-content-enter">
       <!-- Busca -->
       <div class="mb-4">
-        <div class="relative w-full">
-          <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none text-lg" style="color: var(--c-muted)">search</span>
-          <input type="text" [(ngModel)]="buscaTexto" placeholder="Buscar modelo..." class="w-full pl-10 pr-4 py-2.5 rounded-lg text-sm min-w-0 border font-sans" style="background: var(--c-surface); border-color: var(--c-border); color: var(--c-text)" />
+        <div class="form-search-wrap w-full">
+          <span class="material-symbols-outlined form-search-icon" aria-hidden="true">search</span>
+          <input type="text" [(ngModel)]="buscaTexto" placeholder="Buscar modelo..." class="form-search-input w-full text-sm" aria-label="Buscar modelo" />
         </div>
       </div>
 

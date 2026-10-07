@@ -1,46 +1,31 @@
-import { NgTemplateOutlet } from '@angular/common';
 import {
-  afterNextRender,
   booleanAttribute,
   ChangeDetectionStrategy,
   Component,
   computed,
+  CUSTOM_ELEMENTS_SCHEMA,
+  effect,
   ElementRef,
   forwardRef,
-  inject,
-  Injector,
   input,
   linkedSignal,
   output,
-  runInInjectionContext,
   signal,
   viewChild,
-  ViewEncapsulation, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-import { type ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR } from '@angular/forms';
-
-import { NgIcon, provideIcons, type IconName } from '@ng-icons/core';
-import { lucideCheck, lucideChevronsUpDown } from '@ng-icons/lucide';
+  ViewEncapsulation,
+} from '@angular/core';
+import { type ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import type { ClassValue } from 'clsx';
 
 import { comboboxVariants, type GestgoComboboxWidthVariants } from '@/shared/components/combobox/combobox.variants';
-import {
-  GestgoCommandComponent,
-  GestgoCommandEmptyComponent,
-  GestgoCommandInputComponent,
-  GestgoCommandListComponent,
-  GestgoCommandOptionComponent,
-  GestgoCommandOptionGroupComponent,
-  type GestgoCommandOption,
-} from '@/shared/components/command';
-import { GestgoEmptyComponent } from '@/shared/components/empty';
-import { GestgoPopoverComponent, GestgoPopoverDirective } from '@/shared/components/popover';
 import { mergeClasses } from '@/shared/utils/merge-classes';
 
 export interface GestgoComboboxOption {
   value: string;
   label: string;
   disabled?: boolean;
-  icon?: IconName;
+  /** Ícone legado (ignorado no nord-combobox). */
+  icon?: string;
 }
 
 export interface GestgoComboboxGroup {
@@ -48,7 +33,7 @@ export interface GestgoComboboxGroup {
   options: GestgoComboboxOption[];
 }
 
-/** Variantes legadas do trigger (mapeadas para nord-button). */
+/** Variantes legadas do trigger (mantidas por compatibilidade de API). */
 export type GestgoButtonTypeVariants =
   | 'default'
   | 'destructive'
@@ -67,150 +52,110 @@ export type GestgoButtonSizeVariants =
   | 'icon-sm'
   | 'icon-lg';
 
+type NordComboboxElement = HTMLElement & {
+  options: Array<{ value: string; label: string; disabled?: boolean; group?: string }>;
+  value: string | string[];
+  disabled: boolean;
+  clearable: boolean;
+  size: 's' | 'm' | 'l';
+};
+
+/**
+ * Wrapper Angular do `nord-combobox` (Nord Design System).
+ * Mantém a API `z-combobox` / CVA usada nas telas do Gestgo.
+ */
 @Component({
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'z-combobox',
-  imports: [
-    FormsModule,
-    NgTemplateOutlet,
-    NgIcon,
-    GestgoCommandComponent,
-    GestgoCommandInputComponent,
-    GestgoCommandListComponent,
-    GestgoCommandEmptyComponent,
-    GestgoCommandOptionComponent,
-    GestgoCommandOptionGroupComponent,
-    GestgoPopoverComponent,
-    GestgoEmptyComponent],
+  imports: [],
   template: `
-    <nord-button type="button" role="combobox" [attr.variant]="buttonVariant()" [attr.size]="['xs','sm','icon-xs','icon-sm'].includes(buttonSize()) ? 's' : ['lg','icon-lg'].includes(buttonSize()) ? 'l' : 'm'" [class]="buttonClasses()" [attr.disabled]="disabledState()" [attr.aria-expanded]="open()" [attr.aria-haspopup]="'listbox'" [attr.aria-controls]="'combobox-listbox'" [attr.aria-label]="ariaLabel() || 'Select option'" [attr.aria-describedby]="ariaDescribedBy()" [attr.aria-autocomplete]="searchable() ? 'list' : 'none'" [attr.aria-activedescendant]="null">
-      <span class="flex-1 truncate text-left">
-        {{ displayValue() ?? placeholder() }}
-      </span>
-      <ng-icon name="lucideChevronsUpDown" class="ml-2 shrink-0 opacity-50" />
-    </nord-button>
+    <nord-combobox
+      #nord
+      class="z-combobox__control"
+      [attr.placeholder]="placeholder() || null"
+      [attr.disabled]="disabledState() || null"
+      [attr.size]="nordSize()"
+      [attr.no-results-text]="emptyText() || null"
+      [attr.aria-label]="ariaLabel() || null"
+      [attr.aria-labelledby]="ariaLabelledby() || null"
+      [attr.aria-describedby]="ariaDescribedBy() || null"
+      (change)="onNordChange($event)"
+      (clear)="onNordClear()"
+      (blur)="onTouched()"
+    ></nord-combobox>
+  `,
+  styles: `
+    :host {
+      display: block;
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
+      box-sizing: border-box;
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+      padding: 0 !important;
+      margin: 0;
+    }
 
-    <ng-template #popoverContent>
-      <z-popover [class]="popoverClasses()">
-        <z-command class="min-h-auto" (zCommandSelected)="handleSelect($event)" #commandRef>
-          @if (searchable()) {
-            <z-command-input [placeholder]="searchPlaceholder()" #commandInputRef />
-          }
-
-          <z-command-list id="combobox-listbox" role="listbox">
-            @if (emptyText()) {
-              <z-command-empty>
-                <g-empty [zDescription]="emptyText()" />
-              </z-command-empty>
-            }
-
-            @for (group of groups(); track group.label ?? $index) {
-              @if (group.label) {
-                <z-command-option-group [zLabel]="group.label" #commandGroup>
-                  @for (option of group.options; track option.value) {
-                    <ng-container
-                      [ngTemplateOutlet]="commandOption"
-                      [ngTemplateOutletContext]="{
-                        $implicit: option,
-                        commandInstance: commandRef,
-                        groupInstance: commandGroup,
-                      }"
-                    />
-                  }
-                </z-command-option-group>
-              } @else {
-                @for (option of group.options; track option.value) {
-                  <ng-container
-                    [ngTemplateOutlet]="commandOption"
-                    [ngTemplateOutletContext]="{
-                      $implicit: option,
-                      commandInstance: commandRef,
-                    }"
-                  />
-                }
-              }
-            } @empty {
-              @if (options().length > 0) {
-                @for (option of options(); track option.value) {
-                  <ng-container
-                    [ngTemplateOutlet]="commandOption"
-                    [ngTemplateOutletContext]="{
-                      $implicit: option,
-                      commandInstance: commandRef,
-                    }"
-                  />
-                }
-              }
-            }
-          </z-command-list>
-        </z-command>
-      </z-popover>
-    </ng-template>
-
-    <ng-template #commandOption let-option let-cmd="commandInstance" let-grp="groupInstance">
-      <z-command-option
-        [zValue]="option.value"
-        [zLabel]="option.label"
-        [zDisabled]="option.disabled ?? false"
-        [zIcon]="option.icon"
-        [parentCommand]="cmd"
-        [commandGroup]="grp"
-        [attr.aria-selected]="option.value === currentValue()"
-      >
-        {{ option.label }}
-        @if (option.value === currentValue()) {
-          <ng-icon name="lucideCheck" class="ml-auto" />
-        }
-      </z-command-option>
-    </ng-template>
+    .z-combobox__control,
+    :host nord-combobox {
+      display: block;
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
+      inline-size: 100%;
+      box-sizing: border-box;
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+      padding: 0 !important;
+      --n-combobox-block-size: var(--control-height, var(--n-space-xl));
+    }
   `,
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
       useExisting: forwardRef(() => GestgoComboboxComponent),
       multi: true,
-    }],
+    },
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
-  viewProviders: [provideIcons({ lucideChevronsUpDown, lucideCheck })],
   host: {
     '[class]': 'classes()',
-    '(document:keydown.escape)': 'onDocumentKeyDown($event)',
-    '(keydown.escape.prevent-with-stop)': 'onKeyDownEscape()',
-    '(keydown.{arrowdown,arrowup,enter,home,end,pageup,pagedown,space}.prevent)': 'onKeyDown($event)',
-    '(keydown.tab)': 'onKeyDown($event)',
   },
   exportAs: 'zCombobox',
 })
 export class GestgoComboboxComponent implements ControlValueAccessor {
-  private readonly injector = inject(Injector);
+  private readonly nordRef = viewChild<ElementRef<NordComboboxElement>>('nord');
 
   readonly class = input<ClassValue>('');
+  /** @deprecated Sem efeito visual — o controle é nord-combobox. */
   readonly buttonVariant = input<GestgoButtonTypeVariants>('outline');
+  /** @deprecated Mapeado apenas para size do nord-combobox. */
   readonly buttonSize = input<GestgoButtonSizeVariants>('control');
-  readonly zWidth = input<GestgoComboboxWidthVariants>('default');
-  readonly placeholder = input<string>('Select...');
-  readonly searchPlaceholder = input<string>('Search...');
-  readonly emptyText = input<string>('No results found.');
+  readonly zWidth = input<GestgoComboboxWidthVariants>('full');
+  readonly placeholder = input<string>('Selecione…');
+  /** @deprecated Nord usa o mesmo campo para filtro; mantido por compat. */
+  readonly searchPlaceholder = input<string>('Buscar…');
+  readonly emptyText = input<string>('Nenhum resultado encontrado.');
   readonly zDisabled = input(false, { transform: booleanAttribute });
+  /** @deprecated nord-combobox sempre filtra ao digitar. */
   readonly searchable = input(true, { transform: booleanAttribute });
+  readonly clearable = input(true, { transform: booleanAttribute });
   readonly value = input<string | null>(null);
   readonly options = input<GestgoComboboxOption[]>([]);
   readonly groups = input<GestgoComboboxGroup[]>([]);
   readonly ariaLabel = input<string>('');
+  readonly ariaLabelledby = input<string>('');
   readonly ariaDescribedBy = input<string>('');
 
   readonly zValueChange = output<string | null>();
   readonly zComboSelected = output<GestgoComboboxOption>();
 
-  readonly popoverDirective = viewChild.required('popoverTrigger', { read: GestgoPopoverDirective });
-  readonly buttonRef = viewChild.required('popoverTrigger', { read: ElementRef });
-  readonly commandRef = viewChild('commandRef', { read: GestgoCommandComponent });
-  readonly commandInputRef = viewChild('commandInputRef', { read: GestgoCommandInputComponent });
-
   protected readonly disabledState = linkedSignal(() => this.zDisabled());
   protected readonly internalValue = signal<string | null>(null);
-  protected readonly open = signal(false);
 
   protected readonly classes = computed(() =>
     mergeClasses(
@@ -221,181 +166,90 @@ export class GestgoComboboxComponent implements ControlValueAccessor {
     ),
   );
 
-  protected readonly buttonClasses = computed(() => 'w-full justify-between');
-
-  protected readonly popoverClasses = computed(() => 'w-full min-w-0 max-w-none p-0');
+  protected readonly nordSize = computed((): 's' | 'm' | 'l' => {
+    const size = this.buttonSize();
+    if (size === 'xs' || size === 'sm' || size === 'icon-xs' || size === 'icon-sm' || size === 'control') {
+      return 's';
+    }
+    if (size === 'lg' || size === 'icon-lg') {
+      return 'l';
+    }
+    return 'm';
+  });
 
   protected readonly currentValue = computed(() => this.value() ?? this.internalValue());
 
-  protected readonly displayValue = computed(() => {
-    const currentValue = this.currentValue();
-    if (!currentValue) {
-      return null;
-    }
-
-    // Search in groups first
-    if (this.groups().length) {
-      for (const group of this.groups()) {
-        const option = group.options.find(opt => opt.value === currentValue);
-        if (option) {
-          return option.label;
+  protected readonly nordOptions = computed(() => {
+    const groups = this.groups();
+    if (groups.length > 0) {
+      const list: Array<{ value: string; label: string; disabled?: boolean; group?: string }> = [];
+      for (const group of groups) {
+        for (const opt of group.options) {
+          list.push({
+            value: opt.value,
+            label: opt.label,
+            disabled: opt.disabled,
+            group: group.label || undefined,
+          });
         }
       }
+      return list;
     }
-
-    // Then search in flat options
-    const option = this.options().find(opt => opt.value === currentValue);
-    return option?.label ?? null;
+    return this.options().map((opt) => ({
+      value: opt.value,
+      label: opt.label,
+      disabled: opt.disabled,
+    }));
   });
 
-  private onChange: (value: string | null) => void = () => {
-    // ControlValueAccessor implementation
-  };
+  private onChange: (value: string | null) => void = () => undefined;
+  protected onTouched: () => void = () => undefined;
 
-  private onTouched: () => void = () => {
-    // ControlValueAccessor implementation
-  };
+  constructor() {
+    effect(() => {
+      const el = this.nordRef()?.nativeElement;
+      if (!el) return;
 
-  setOpen(open: boolean) {
-    this.open.set(open);
-    if (open) {
-      runInInjectionContext(this.injector, () =>
-        afterNextRender(() => {
-          const commandRef = this.commandRef();
-          if (commandRef) {
-            // Refresh options to ensure they're detected
-            commandRef.refreshOptions();
-            // Focus on search input if searchable, otherwise on command component
-            if (this.searchable()) {
-              this.commandInputRef()?.focus();
-            } else {
-              commandRef.focus();
-            }
-          }
-        }),
-      );
-    }
+      el.options = this.nordOptions();
+      el.clearable = this.clearable();
+      el.size = this.nordSize();
+      el.disabled = this.disabledState();
+
+      const next = this.currentValue() ?? '';
+      if (el.value !== next) {
+        el.value = next;
+      }
+    });
   }
 
-  handleSelect(commandOption: GestgoCommandOption) {
-    const selectedValue = commandOption.value as string;
-
-    // Toggle behavior - if same value is selected, clear it
-    const newValue = selectedValue === this.currentValue() ? null : selectedValue;
-
-    this.internalValue.set(newValue);
-    this.onChange(newValue);
-    this.zValueChange.emit(newValue);
-
-    // Emit the combobox option if we have a selection
-    if (newValue) {
-      let selectedOption: GestgoComboboxOption | undefined;
-
-      if (this.groups().length > 0) {
-        for (const group of this.groups()) {
-          selectedOption = group.options.find(opt => opt.value === newValue);
-          if (selectedOption) {
-            break;
-          }
-        }
-      } else {
-        selectedOption = this.options().find(opt => opt.value === newValue);
-      }
-
-      if (selectedOption) {
-        this.zComboSelected.emit(selectedOption);
-      }
-    }
-
-    // Close the popover
-    this.popoverDirective().hide();
-
-    // Return focus to the combobox button after selection
-    this.buttonRef().nativeElement.focus();
+  onNordChange(event: Event): void {
+    const el = event.target as NordComboboxElement;
+    const raw = el?.value;
+    const next = Array.isArray(raw) ? (raw[0] ?? '') : String(raw ?? '');
+    this.commitValue(next === '' ? null : next);
   }
 
-  onKeyDownEscape(): void {
-    if (this.open()) {
-      this.popoverDirective().hide();
-      this.buttonRef().nativeElement.focus();
-    } else if (this.currentValue()) {
-      this.internalValue.set(null);
-      this.onChange(null);
-      this.zValueChange.emit(null);
-    }
+  onNordClear(): void {
+    this.commitValue(null);
   }
 
-  onKeyDown(e: Event) {
-    if (this.disabledState()) {
-      return;
-    }
+  private commitValue(next: string | null): void {
+    this.internalValue.set(next);
+    this.onChange(next);
+    this.zValueChange.emit(next);
 
-    const { key, ctrlKey, altKey, metaKey } = e as KeyboardEvent;
-
-    // Handle different keyboard events based on combobox state
-    if (this.open()) {
-      // When popover is open
-      switch (key) {
-        case 'Tab':
-          // Allow tab to close and move to next element
-          this.popoverDirective().hide();
-          break;
-        case 'ArrowDown':
-        case 'ArrowUp':
-        case 'Enter':
-        case 'Home':
-        case 'End':
-        case 'PageUp':
-        case 'PageDown':
-          // Forward navigation to command component
-          this.commandRef()?.onKeyDown(e as KeyboardEvent);
-          break;
-      }
-    } else {
-      // When popover is closed
-      switch (key) {
-        case 'ArrowDown':
-        case 'ArrowUp':
-        case 'Enter':
-        case ' ': // Space key
-          this.popoverDirective().show();
-          break;
-        default:
-          // For searchable comboboxes, open and start typing
-          if (this.searchable() && key.length === 1 && !ctrlKey && !altKey && !metaKey) {
-            this.popoverDirective().show();
-            // Let the command input handle the character after opening
-            runInInjectionContext(this.injector, () =>
-              afterNextRender(() => {
-                const inputElement = this.commandInputRef();
-                if (inputElement) {
-                  inputElement.searchInput().nativeElement.value = key;
-                  inputElement.updateParentComponents(key);
-                  inputElement.focus();
-                }
-              }),
-            );
-          }
-          break;
+    if (next) {
+      const selected =
+        this.options().find((o) => o.value === next) ??
+        this.groups()
+          .flatMap((g) => g.options)
+          .find((o) => o.value === next);
+      if (selected) {
+        this.zComboSelected.emit(selected);
       }
     }
   }
 
-  // needed when component loses focus by keyboard.
-  onDocumentKeyDown(event: Event) {
-    // Close on Escape from anywhere when this combobox is open
-    if (this.open()) {
-      const target = event.target as Element;
-      const buttonElement = this.buttonRef().nativeElement;
-      // Only handle if not already handled by the component itself
-      if (!buttonElement.contains(target)) {
-        this.popoverDirective().hide();
-        this.buttonRef().nativeElement.focus();
-      }
-    }
-  }
-
-  // ControlValueAccessor implementation
   writeValue(value: string | null): void {
     this.internalValue.set(value);
   }

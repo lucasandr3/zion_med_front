@@ -71,8 +71,11 @@ export class EnviosComponent implements OnInit {
     { key: 'expirados', label: 'Expirados' },
     { key: 'cancelados', label: 'Cancelados' }];
 
+  /** Só modelos publicados (link público ativo) e ativos — mesmo critério da listagem. */
   get templatesPublicos(): Template[] {
-    return this.templates().filter((template) => template.is_active !== false && template.public_enabled === true);
+    return this.templates().filter(
+      (template) => template.is_active !== false && !!template.public_enabled,
+    );
   }
 
   get opcoesTemplatesPublicos(): GestgoComboboxOption[] {
@@ -87,12 +90,17 @@ export class EnviosComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.templatesService.list({ is_active: true }).subscribe({
+    this.templatesService.list({ is_active: true, public_enabled: true }).subscribe({
       next: (templates) => {
-        this.templates.set(templates);
+        // Reforço no cliente: a API pode ignorar o filtro ou devolver 0/1.
+        this.templates.set(
+          templates.filter((template) => template.is_active !== false && !!template.public_enabled),
+        );
         const primeiroTemplatePublico = this.templatesPublicos[0];
         if (primeiroTemplatePublico && this.novoEnvio.template_id <= 0) {
           this.novoEnvio.template_id = primeiroTemplatePublico.id;
+        } else if (!primeiroTemplatePublico) {
+          this.novoEnvio.template_id = 0;
         }
       },
     });

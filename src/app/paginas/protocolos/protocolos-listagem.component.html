@@ -152,45 +152,37 @@
         <div class="zm-filter-sheet__dates">
           <div class="zm-filter-field">
             <label class="zm-filter-label" for="protocolos-filtro-inicio">Data início</label>
-            <input
+            <nord-date-picker
               id="protocolos-filtro-inicio"
-              type="text"
-              mwlFlatpickr
+              expand
+              hide-label
+              label="Data início"
               [(ngModel)]="data_inicio"
               name="protocolos_filtro_inicio"
-              class="w-full text-sm"
-              placeholder="dd/mm/aaaa"
-              [altInput]="true"
-              [appendTo]="flatpickrAppendTo"
-              [static]="false"
-              autocomplete="off"
-            />
+              placeholder="aaaa-mm-dd">
+            </nord-date-picker>
           </div>
           <div class="zm-filter-field">
             <label class="zm-filter-label" for="protocolos-filtro-fim">Data fim</label>
-            <input
+            <nord-date-picker
               id="protocolos-filtro-fim"
-              type="text"
-              mwlFlatpickr
+              expand
+              hide-label
+              label="Data fim"
               [(ngModel)]="data_fim"
               name="protocolos_filtro_fim"
-              class="w-full text-sm"
-              placeholder="dd/mm/aaaa"
-              [altInput]="true"
-              [appendTo]="flatpickrAppendTo"
-              [static]="false"
-              autocomplete="off"
-            />
+              placeholder="aaaa-mm-dd">
+            </nord-date-picker>
           </div>
         </div>
       </div>
     </div>
     <footer class="zm-filter-sheet__footer">
-      <nord-button variant="default" type="button" class="min-w-0 flex-1" (click)="limparFiltros()">
+      <nord-button variant="default" type="button" (click)="limparFiltros()">
         <nord-icon name="interface-filter" size="s"></nord-icon>
         Limpar
       </nord-button>
-      <nord-button variant="primary" type="button" class="min-w-0 flex-1" (click)="aplicarFiltros()">
+      <nord-button variant="primary" type="button" (click)="aplicarFiltros()">
         <nord-icon name="interface-checked" size="s"></nord-icon>
         Aplicar
       </nord-button>

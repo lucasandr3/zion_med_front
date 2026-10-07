@@ -1,12 +1,16 @@
 <div class="n-page-list__toolbar">
   <div class="n-page-list__toolbar-start">
-    <div class="flex gap-0.5 rounded-lg border border-border bg-background p-0.5" style="max-width: fit-content">
+    <nord-button-group class="envios-caixa-group" aria-label="Caixa de envios">
       @for (c of caixas; track c.key) {
-        <button type="button" class="envios-tab rounded-md px-4 py-2 text-sm font-medium transition-all" [class.ativo]="caixaAtual() === c.key" (click)="setCaixa(c.key)">
+        <nord-button
+          type="button"
+          [attr.aria-pressed]="caixaAtual() === c.key"
+          (click)="setCaixa(c.key)"
+        >
           {{ c.label }}
-        </button>
+        </nord-button>
       }
-    </div>
+    </nord-button-group>
   </div>
   <div class="n-page-list__toolbar-end">
     @if (mostrarNovoEnvio()) {

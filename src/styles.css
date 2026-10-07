@@ -80,6 +80,7 @@ nord-popout,
 nord-tooltip,
 nord-tab-group,
 nord-tab,
+nord-tab-panel,
 nord-avatar,
 nord-badge,
 nord-icon,
@@ -557,6 +558,18 @@ body {
   --n-color-accent-active: color-mix(in srgb, var(--c-primary) 72%, #000);
   --n-color-accent-secondary: var(--c-primary);
   --n-color-text-link: var(--c-primary);
+  /* Checkbox/radio nativos e destaque de seleção de texto */
+  accent-color: var(--c-primary);
+}
+
+::selection {
+  background: color-mix(in srgb, var(--c-primary) 36%, transparent);
+  color: inherit;
+}
+
+::-moz-selection {
+  background: color-mix(in srgb, var(--c-primary) 36%, transparent);
+  color: inherit;
 }
 
 body.dark {
@@ -817,8 +830,7 @@ nord-input,
 nord-input[size='s'],
 nord-input[size='l'],
 nord-date-picker,
-nord-number-field,
-nord-combobox {
+nord-number-field {
   --n-input-block-size: var(--control-height);
   --n-input-border-radius: var(--control-radius);
   --n-input-font-size: var(--control-font-size);
@@ -827,7 +839,66 @@ nord-combobox {
   --_n-input-font-size: var(--control-font-size);
 }
 
+nord-combobox,
+z-combobox {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  inline-size: 100%;
+  box-sizing: border-box;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+  margin: 0;
+  --n-combobox-block-size: var(--control-height);
+}
+
+z-combobox nord-combobox {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  inline-size: 100%;
+  box-sizing: border-box;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+}
+
+nord-date-picker,
+nord-time-picker {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  cursor: pointer;
+  --n-input-block-size: var(--control-height);
+  --_n-input-block-size: var(--control-height);
+  --n-input-font-size: var(--control-font-size);
+  --_n-input-font-size: var(--control-font-size);
+  --n-input-border-radius: var(--control-radius);
+  --_n-input-border-radius: var(--control-radius);
+}
+
+nord-date-picker[size='s'],
+nord-time-picker[size='s'],
+nord-date-picker[size='m'],
+nord-time-picker[size='m'],
+nord-date-picker[size='l'],
+nord-time-picker[size='l'] {
+  --n-input-block-size: var(--control-height);
+  --_n-input-block-size: var(--control-height);
+}
+
 nord-select {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
   --n-select-block-size: var(--control-height);
   --_n-select-block-size: var(--control-height);
 }
@@ -839,18 +910,26 @@ nord-textarea {
 }
 
 /*
- * Inputs nativos nas páginas — mesma caixa do Nord:
+ * Inputs nativos — mesma caixa do Nord:
  * borda --n-color-border-strong + fundo --n-input-background / surface.
+ * Inclui sheets/drawers (CDK overlay fora de .n-page), senão o preflight
+ * zera a borda e o campo some no fundo branco.
  */
 .form-input,
 .form-select,
 textarea.form-input,
-.n-page input:not([type='checkbox']):not([type='radio']):not([type='hidden']):not([type='file']):not([type='range']):not([type='submit']):not([type='button']):not([type='reset']):not([type='image']):not([type='color']),
-.n-page-list input:not([type='checkbox']):not([type='radio']):not([type='hidden']):not([type='file']):not([type='range']):not([type='submit']):not([type='button']):not([type='reset']):not([type='image']):not([type='color']),
+.n-page input:not([type='checkbox']):not([type='radio']):not([type='hidden']):not([type='file']):not([type='range']):not([type='submit']):not([type='button']):not([type='reset']):not([type='image']):not([type='color']):not(nord-combobox *):not(nord-select *):not(nord-date-picker *):not(nord-time-picker *):not(z-combobox *),
+.n-page-list input:not([type='checkbox']):not([type='radio']):not([type='hidden']):not([type='file']):not([type='range']):not([type='submit']):not([type='button']):not([type='reset']):not([type='image']):not([type='color']):not(nord-combobox *):not(nord-select *):not(nord-date-picker *):not(nord-time-picker *):not(z-combobox *),
+[data-slot='sheet'] input:not([type='checkbox']):not([type='radio']):not([type='hidden']):not([type='file']):not([type='range']):not([type='submit']):not([type='button']):not([type='reset']):not([type='image']):not([type='color']):not(nord-combobox *):not(nord-select *):not(nord-date-picker *):not(nord-time-picker *):not(z-combobox *),
+.zm-filter-sheet input:not([type='checkbox']):not([type='radio']):not([type='hidden']):not([type='file']):not([type='range']):not([type='submit']):not([type='button']):not([type='reset']):not([type='image']):not([type='color']):not(nord-combobox *):not(nord-select *):not(nord-date-picker *):not(nord-time-picker *):not(z-combobox *),
 .n-page textarea,
 .n-page-list textarea,
+[data-slot='sheet'] textarea,
+.zm-filter-sheet textarea,
 .n-page select,
-.n-page-list select {
+.n-page-list select,
+[data-slot='sheet'] select,
+.zm-filter-sheet select {
   appearance: none;
   background-color: var(--n-input-background, var(--n-color-surface, var(--c-surface)));
   border: 1px solid var(--n-color-border-strong, var(--c-border));
@@ -869,10 +948,14 @@ textarea.form-input,
 
 .form-input:not(textarea.form-input),
 .form-select,
-.n-page input:not([type='checkbox']):not([type='radio']):not([type='hidden']):not([type='file']):not([type='range']):not([type='submit']):not([type='button']):not([type='reset']):not([type='image']):not([type='color']),
-.n-page-list input:not([type='checkbox']):not([type='radio']):not([type='hidden']):not([type='file']):not([type='range']):not([type='submit']):not([type='button']):not([type='reset']):not([type='image']):not([type='color']),
+.n-page input:not([type='checkbox']):not([type='radio']):not([type='hidden']):not([type='file']):not([type='range']):not([type='submit']):not([type='button']):not([type='reset']):not([type='image']):not([type='color']):not(nord-combobox *):not(nord-select *):not(nord-date-picker *):not(nord-time-picker *):not(z-combobox *),
+.n-page-list input:not([type='checkbox']):not([type='radio']):not([type='hidden']):not([type='file']):not([type='range']):not([type='submit']):not([type='button']):not([type='reset']):not([type='image']):not([type='color']):not(nord-combobox *):not(nord-select *):not(nord-date-picker *):not(nord-time-picker *):not(z-combobox *),
+[data-slot='sheet'] input:not([type='checkbox']):not([type='radio']):not([type='hidden']):not([type='file']):not([type='range']):not([type='submit']):not([type='button']):not([type='reset']):not([type='image']):not([type='color']):not(nord-combobox *):not(nord-select *):not(nord-date-picker *):not(nord-time-picker *):not(z-combobox *),
+.zm-filter-sheet input:not([type='checkbox']):not([type='radio']):not([type='hidden']):not([type='file']):not([type='range']):not([type='submit']):not([type='button']):not([type='reset']):not([type='image']):not([type='color']):not(nord-combobox *):not(nord-select *):not(nord-date-picker *):not(nord-time-picker *):not(z-combobox *),
 .n-page select,
-.n-page-list select {
+.n-page-list select,
+[data-slot='sheet'] select,
+.zm-filter-sheet select {
   height: var(--n-input-block-size, var(--control-height));
   min-height: var(--n-input-block-size, var(--control-height));
   padding-block: 0;
@@ -880,6 +963,8 @@ textarea.form-input,
 
 .n-page textarea,
 .n-page-list textarea,
+[data-slot='sheet'] textarea,
+.zm-filter-sheet textarea,
 textarea.form-input {
   height: auto;
   min-height: 5.5rem;
@@ -889,13 +974,62 @@ textarea.form-input {
 
 .form-input:hover,
 .form-select:hover,
-.n-page input:hover:not([type='checkbox']):not([type='radio']):not([type='hidden']):not([type='file']):not([disabled]),
-.n-page-list input:hover:not([type='checkbox']):not([type='radio']):not([type='hidden']):not([type='file']):not([disabled]),
+.n-page input:hover:not([type='checkbox']):not([type='radio']):not([type='hidden']):not([type='file']):not([disabled]):not(nord-combobox *):not(nord-select *):not(nord-date-picker *):not(nord-time-picker *):not(z-combobox *),
+.n-page-list input:hover:not([type='checkbox']):not([type='radio']):not([type='hidden']):not([type='file']):not([disabled]):not(nord-combobox *):not(nord-select *):not(nord-date-picker *):not(nord-time-picker *):not(z-combobox *),
+[data-slot='sheet'] input:hover:not([type='checkbox']):not([type='radio']):not([type='hidden']):not([type='file']):not([disabled]):not(nord-combobox *):not(nord-select *):not(nord-date-picker *):not(nord-time-picker *):not(z-combobox *),
+.zm-filter-sheet input:hover:not([type='checkbox']):not([type='radio']):not([type='hidden']):not([type='file']):not([disabled]):not(nord-combobox *):not(nord-select *):not(nord-date-picker *):not(nord-time-picker *):not(z-combobox *),
 .n-page textarea:hover,
 .n-page-list textarea:hover,
+[data-slot='sheet'] textarea:hover,
+.zm-filter-sheet textarea:hover,
 .n-page select:hover,
-.n-page-list select:hover {
+.n-page-list select:hover,
+[data-slot='sheet'] select:hover,
+.zm-filter-sheet select:hover {
   border-color: var(--n-color-border-hover, var(--c-border));
+}
+
+/*
+ * Nord combobox/select/date usam <input> no light DOM.
+ * O estilo global de .n-page input criava uma 2ª caixa dentro do .n-control.
+ */
+:is(nord-combobox, nord-select, nord-date-picker, nord-time-picker, z-combobox) input,
+.n-page :is(nord-combobox, nord-select, nord-date-picker, nord-time-picker, z-combobox) input,
+.n-page-list :is(nord-combobox, nord-select, nord-date-picker, nord-time-picker, z-combobox) input,
+[data-slot='sheet'] :is(nord-combobox, nord-select, nord-date-picker, nord-time-picker, z-combobox) input,
+.zm-filter-sheet :is(nord-combobox, nord-select, nord-date-picker, nord-time-picker, z-combobox) input {
+  appearance: none !important;
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  height: auto !important;
+  margin: 0 !important;
+  min-height: 0 !important;
+  outline: none !important;
+  padding: 0 !important;
+  width: auto !important;
+}
+
+:is(nord-combobox, nord-select, nord-date-picker, nord-time-picker, z-combobox) input:hover,
+:is(nord-combobox, nord-select, nord-date-picker, nord-time-picker, z-combobox) input:focus,
+:is(nord-combobox, nord-select, nord-date-picker, nord-time-picker, z-combobox) input:focus-visible,
+.n-page :is(nord-combobox, nord-select, nord-date-picker, nord-time-picker, z-combobox) input:hover,
+.n-page :is(nord-combobox, nord-select, nord-date-picker, nord-time-picker, z-combobox) input:focus,
+.n-page :is(nord-combobox, nord-select, nord-date-picker, nord-time-picker, z-combobox) input:focus-visible,
+.n-page-list :is(nord-combobox, nord-select, nord-date-picker, nord-time-picker, z-combobox) input:hover,
+.n-page-list :is(nord-combobox, nord-select, nord-date-picker, nord-time-picker, z-combobox) input:focus,
+.n-page-list :is(nord-combobox, nord-select, nord-date-picker, nord-time-picker, z-combobox) input:focus-visible,
+[data-slot='sheet'] :is(nord-combobox, nord-select, nord-date-picker, nord-time-picker, z-combobox) input:hover,
+[data-slot='sheet'] :is(nord-combobox, nord-select, nord-date-picker, nord-time-picker, z-combobox) input:focus,
+[data-slot='sheet'] :is(nord-combobox, nord-select, nord-date-picker, nord-time-picker, z-combobox) input:focus-visible,
+.zm-filter-sheet :is(nord-combobox, nord-select, nord-date-picker, nord-time-picker, z-combobox) input:hover,
+.zm-filter-sheet :is(nord-combobox, nord-select, nord-date-picker, nord-time-picker, z-combobox) input:focus,
+.zm-filter-sheet :is(nord-combobox, nord-select, nord-date-picker, nord-time-picker, z-combobox) input:focus-visible {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
 }
 
 .form-input:focus,
@@ -904,29 +1038,71 @@ textarea.form-input {
 .form-select:focus-visible,
 textarea.form-input:focus,
 textarea.form-input:focus-visible,
-.n-page input:focus:not([type='checkbox']):not([type='radio']),
-.n-page input:focus-visible:not([type='checkbox']):not([type='radio']),
-.n-page-list input:focus:not([type='checkbox']):not([type='radio']),
-.n-page-list input:focus-visible:not([type='checkbox']):not([type='radio']),
+.n-page input:focus:not([type='checkbox']):not([type='radio']):not(nord-combobox *):not(nord-select *):not(nord-date-picker *):not(nord-time-picker *):not(z-combobox *),
+.n-page input:focus-visible:not([type='checkbox']):not([type='radio']):not(nord-combobox *):not(nord-select *):not(nord-date-picker *):not(nord-time-picker *):not(z-combobox *),
+.n-page-list input:focus:not([type='checkbox']):not([type='radio']):not(nord-combobox *):not(nord-select *):not(nord-date-picker *):not(nord-time-picker *):not(z-combobox *),
+.n-page-list input:focus-visible:not([type='checkbox']):not([type='radio']):not(nord-combobox *):not(nord-select *):not(nord-date-picker *):not(nord-time-picker *):not(z-combobox *),
+[data-slot='sheet'] input:focus:not([type='checkbox']):not([type='radio']):not(nord-combobox *):not(nord-select *):not(nord-date-picker *):not(nord-time-picker *):not(z-combobox *),
+[data-slot='sheet'] input:focus-visible:not([type='checkbox']):not([type='radio']):not(nord-combobox *):not(nord-select *):not(nord-date-picker *):not(nord-time-picker *):not(z-combobox *),
+.zm-filter-sheet input:focus:not([type='checkbox']):not([type='radio']):not(nord-combobox *):not(nord-select *):not(nord-date-picker *):not(nord-time-picker *):not(z-combobox *),
+.zm-filter-sheet input:focus-visible:not([type='checkbox']):not([type='radio']):not(nord-combobox *):not(nord-select *):not(nord-date-picker *):not(nord-time-picker *):not(z-combobox *),
 .n-page textarea:focus,
 .n-page textarea:focus-visible,
 .n-page-list textarea:focus,
 .n-page-list textarea:focus-visible,
+[data-slot='sheet'] textarea:focus,
+[data-slot='sheet'] textarea:focus-visible,
+.zm-filter-sheet textarea:focus,
+.zm-filter-sheet textarea:focus-visible,
 .n-page select:focus,
 .n-page select:focus-visible,
 .n-page-list select:focus,
-.n-page-list select:focus-visible {
-  border-color: var(--n-color-accent, var(--c-primary));
+.n-page-list select:focus-visible,
+[data-slot='sheet'] select:focus,
+[data-slot='sheet'] select:focus-visible,
+.zm-filter-sheet select:focus,
+.zm-filter-sheet select:focus-visible {
+  border-color: var(--c-primary, var(--n-color-accent)) !important;
   box-shadow: none !important;
   outline: none !important;
+}
+
+/*
+ * Controles Nord (input/select/combobox/date/time): no foco a borda
+ * usa a cor do tema (--c-primary), via token que o Nord lê no shadow.
+ */
+nord-input:focus-within,
+nord-select:focus-within,
+nord-combobox:focus-within,
+nord-date-picker:focus-within,
+nord-time-picker:focus-within,
+z-combobox:focus-within,
+nord-textarea:focus-within,
+nord-number-field:focus-within {
+  --n-input-border-color: var(--c-primary) !important;
+  --n-color-accent: var(--c-primary) !important;
+  --_n-input-border-color: var(--c-primary) !important;
+  --_n-combobox-border-color: var(--c-primary) !important;
+}
+
+/* Combobox (light DOM): reforça borda do .n-control no foco */
+nord-combobox:focus-within .n-control,
+z-combobox:focus-within nord-combobox .n-control {
+  --_n-combobox-border-color: var(--c-primary) !important;
+  border-color: var(--c-primary) !important;
+  box-shadow: 0 0 0 1px var(--c-primary) !important;
 }
 
 .form-input::placeholder,
 textarea.form-input::placeholder,
 .n-page input::placeholder,
 .n-page-list input::placeholder,
+[data-slot='sheet'] input::placeholder,
+.zm-filter-sheet input::placeholder,
 .n-page textarea::placeholder,
-.n-page-list textarea::placeholder {
+.n-page-list textarea::placeholder,
+[data-slot='sheet'] textarea::placeholder,
+.zm-filter-sheet textarea::placeholder {
   color: var(--n-color-text-weakest, var(--c-muted));
   opacity: 1;
 }
@@ -935,10 +1111,16 @@ textarea.form-input::placeholder,
 .form-select:disabled,
 .n-page input:disabled,
 .n-page-list input:disabled,
+[data-slot='sheet'] input:disabled,
+.zm-filter-sheet input:disabled,
 .n-page textarea:disabled,
 .n-page-list textarea:disabled,
+[data-slot='sheet'] textarea:disabled,
+.zm-filter-sheet textarea:disabled,
 .n-page select:disabled,
-.n-page-list select:disabled {
+.n-page-list select:disabled,
+[data-slot='sheet'] select:disabled,
+.zm-filter-sheet select:disabled {
   background-color: var(--n-input-background-inactive, var(--n-color-surface));
   color: var(--n-color-text-weaker, var(--c-muted));
   cursor: not-allowed;
@@ -1162,11 +1344,20 @@ input[type="checkbox"]:not(.sr-only):not(.g-checkbox-input):not(.n-input):checke
     background-position: center;
     background-repeat: no-repeat;
 }
+input[type="checkbox"]:not(.sr-only):not(.g-checkbox-input):not(.n-input):focus,
 input[type="checkbox"]:not(.sr-only):not(.g-checkbox-input):not(.n-input):focus-visible,
+.form-checkbox:focus,
 .form-checkbox:focus-visible,
+.g-checkbox-native:focus,
 .g-checkbox-native:focus-visible {
-    outline: none;
-    box-shadow: 0 0 0 3px var(--c-focus);
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+nord-checkbox,
+nord-checkbox:focus,
+nord-checkbox:focus-within {
+  outline: none !important;
 }
 .dark input[type="checkbox"]:not(.sr-only):not(.g-checkbox-input):not(.n-input):not(:checked),
 .dark .form-checkbox:not(:checked),
@@ -1416,13 +1607,25 @@ table.data-table {
     top: 50%;
     transform: translateY(-50%);
     font-size: 1.125rem;
-    color: var(--c-muted);
+    color: var(--muted-foreground, var(--c-muted));
     pointer-events: none;
+    z-index: 1;
 }
 
-.form-search-wrap .form-input.form-search-input,
-.form-search-wrap input.form-search-input {
-    padding-left: 2.5rem;
+/*
+ * padding-left precisa vencer o shorthand `padding` das regras
+ * `.n-page input:not(...)` (especificidade alta por causa dos :not).
+ */
+.form-search-wrap > input.form-search-input,
+.form-search-wrap > input.form-input,
+.n-page .form-search-wrap > input.form-search-input,
+.n-page-list .form-search-wrap > input.form-search-input,
+.n-form-toolbar .form-search-wrap > input.form-search-input,
+.n-page input.pl-9,
+.n-page-list input.pl-9,
+.n-page input.pl-10,
+.n-page-list input.pl-10 {
+    padding-left: 2.5rem !important;
 }
 
 /* Drawer de filtros — entrada suave */
@@ -1529,16 +1732,44 @@ table.data-table {
   .zm-filter-sheet__footer {
     display: flex;
     flex-shrink: 0;
+    align-items: center;
+    justify-content: space-between;
     gap: 0.5rem;
     margin-top: 1.25rem;
     padding-top: 1rem;
     border-top: 1px solid var(--border, var(--c-border));
   }
 
-  /* Combobox / flatpickr no sheet: mesma altura que z-input (--control-height) */
-  .zm-filter-sheet z-combobox button[z-button] {
-    height: var(--control-height);
-    min-height: var(--control-height);
+  .zm-filter-sheet__footer > nord-button {
+    flex: 0 0 auto;
+    width: auto;
+    max-width: none;
+  }
+
+  /* Combobox / inputs Nord no sheet: largura total + altura alinhada */
+  [data-slot='sheet'] z-combobox,
+  [data-slot='sheet'] nord-combobox,
+  [data-slot='sheet'] nord-input,
+  .zm-filter-sheet z-combobox,
+  .zm-filter-sheet nord-combobox,
+  .zm-filter-sheet nord-input {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+
+  [data-slot='sheet'] nord-combobox,
+  .zm-filter-sheet nord-combobox,
+  .zm-filter-sheet z-combobox nord-combobox {
+    --n-combobox-block-size: var(--control-height);
+  }
+
+  [data-slot='sheet'] nord-input,
+  .zm-filter-sheet nord-input {
+    --n-input-block-size: var(--control-height);
+    --_n-input-block-size: var(--control-height);
   }
 
   @media (max-width: 380px) {
@@ -3239,37 +3470,50 @@ body.dark.shell-preset-sidebar-dark .sidebar {
   position: relative;
 }
 
-/* Flatpickr (altInput): input visível com a mesma altura/visual do z-input */
-:not(.form-publico-page) .flatpickr-wrapper input:not([type="hidden"]) {
+/* Flatpickr (altInput): mesma caixa Nord dos inputs (inclui drawers/sheets) */
+:not(.form-publico-page) .flatpickr-wrapper input:not([type='hidden']),
+[data-slot='sheet'] .flatpickr-wrapper input:not([type='hidden']),
+.zm-filter-sheet .flatpickr-wrapper input:not([type='hidden']),
+[data-slot='sheet'] input.flatpickr-input:not([type='hidden']),
+.zm-filter-sheet input.flatpickr-input:not([type='hidden']) {
+  appearance: none;
   box-sizing: border-box;
   display: block;
   width: 100%;
-  height: var(--control-height);
-  min-height: var(--control-height);
-  padding: 0.25rem 0.625rem;
-  border-radius: 0.5rem;
-  border: 1px solid var(--input, var(--color-border, var(--c-border)));
-  background-color: transparent;
+  height: var(--n-input-block-size, var(--control-height));
+  min-height: var(--n-input-block-size, var(--control-height));
+  padding: 0 0.75rem;
+  border-radius: var(--n-input-border-radius, var(--control-radius, 0.5rem));
+  border: 1px solid var(--n-color-border-strong, var(--input, var(--c-border)));
+  background-color: var(--n-input-background, var(--n-color-surface, var(--c-surface)));
   font-family: inherit;
-  font-size: 0.875rem;
+  font-size: var(--n-input-font-size, var(--control-font-size, 0.875rem));
   font-weight: 400;
   line-height: 1.25rem;
-  color: var(--foreground, var(--c-text));
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  color: var(--n-color-text, var(--foreground, var(--c-text)));
+  transition: border-color 0.15s ease, background-color 0.25s ease;
   outline: none;
 }
 
-:not(.form-publico-page) .flatpickr-wrapper input:not([type="hidden"])::placeholder {
-  color: var(--muted-foreground, var(--c-muted));
-  opacity: 0.7;
+:not(.form-publico-page) .flatpickr-wrapper input:not([type='hidden'])::placeholder,
+[data-slot='sheet'] .flatpickr-wrapper input:not([type='hidden'])::placeholder,
+.zm-filter-sheet .flatpickr-wrapper input:not([type='hidden'])::placeholder {
+  color: var(--n-color-text-weakest, var(--muted-foreground, var(--c-muted)));
+  opacity: 1;
 }
 
-:not(.form-publico-page) .flatpickr-wrapper input:not([type="hidden"]):focus {
-  border-color: var(--ring, var(--c-primary));
+:not(.form-publico-page) .flatpickr-wrapper input:not([type='hidden']):focus,
+[data-slot='sheet'] .flatpickr-wrapper input:not([type='hidden']):focus,
+.zm-filter-sheet .flatpickr-wrapper input:not([type='hidden']):focus {
+  border-color: var(--n-color-accent, var(--ring, var(--c-primary)));
+  box-shadow: none !important;
+  outline: none !important;
 }
 
-body.dark :not(.form-publico-page) .flatpickr-wrapper input:not([type="hidden"]) {
-  background-color: color-mix(in srgb, var(--input, #222222) 30%, transparent);
+body.dark :not(.form-publico-page) .flatpickr-wrapper input:not([type='hidden']),
+body.dark [data-slot='sheet'] .flatpickr-wrapper input:not([type='hidden']),
+body.dark .zm-filter-sheet .flatpickr-wrapper input:not([type='hidden']) {
+  background-color: var(--n-input-background, var(--n-color-surface));
 }
 .flatpickr-calendar { border-radius: 0.5rem; }
 .flatpickr-calendar.open {
@@ -3677,7 +3921,7 @@ body.dark .flatpickr-calendar .flatpickr-weekwrapper span.flatpickr-day { color:
 .clinica-config .config-gestgo-tabs {
   width: 100%;
 }
-/* padding do painel das abas: clinica-configuracoes.component.css */
+
 .clinica-config .config-progress { margin-bottom: 20px; margin-top: 24px; }
 .clinica-config .config-progress-bar {
   background: var(--c-soft); border-radius: 0.5rem; height: 4px; margin-top: 6px;
@@ -3685,9 +3929,8 @@ body.dark .flatpickr-calendar .flatpickr-weekwrapper span.flatpickr-day { color:
 .clinica-config .config-progress-bar .fill {
   height: 4px; border-radius: 0.5rem; background: var(--c-primary); transition: width 0.3s;
 }
-.clinica-config .section-card,
-.clinica-config g-card.section-card,
-.link-bio-config .section-card {
+.clinica-config .section-card:not(g-card),
+.link-bio-config .section-card:not(g-card) {
   display: flex;
   flex-direction: column;
   gap: 0;
@@ -3702,8 +3945,20 @@ body.dark .flatpickr-calendar .flatpickr-weekwrapper span.flatpickr-day { color:
 
 .clinica-config g-card.section-card,
 .link-bio-config g-card.section-card {
-  padding-top: 0;
-  padding-bottom: 0;
+  display: block;
+  margin-bottom: 1.25rem;
+  background: transparent;
+  border: none;
+  padding: 0;
+  box-shadow: none;
+}
+
+.clinica-config g-card.section-card nord-card,
+.link-bio-config g-card.section-card nord-card {
+  margin-bottom: 0;
+  --n-card-border-radius: 0.875rem;
+  --n-card-box-shadow: 0 0 0 1px var(--border, var(--c-border));
+  color: var(--card-foreground);
 }
 
 .clinica-config g-card.section-card [data-slot='card-content'],
@@ -3770,8 +4025,8 @@ body.dark .flatpickr-calendar .flatpickr-weekwrapper span.flatpickr-day { color:
   color: var(--muted-foreground);
 }
 
-.clinica-config g-card.section-card--highlight {
-  border-color: color-mix(in srgb, var(--primary) 35%, var(--border));
+.clinica-config g-card.section-card--highlight nord-card {
+  --n-card-box-shadow: 0 0 0 1px color-mix(in srgb, var(--primary) 35%, var(--border));
 }
 .clinica-config .section-body,
 .link-bio-config .section-body { padding: 20px; }
@@ -3779,29 +4034,21 @@ body.dark .flatpickr-calendar .flatpickr-weekwrapper span.flatpickr-day { color:
 /* ══════════════════════════════════════════════════════════════════════════
    PROTOCOLO DETALHE
    ══════════════════════════════════════════════════════════════════════════ */
-/* Barra de abas do protocolo — linha em cima e embaixo (classe no wrapper via zNavWrapperClass) */
-.protocolo-detalhe-page .protocolo-detalhe-tabs-bar,
-.protocolo-detalhe-page .protocolo-detalhe-shell .protocolo-gestgo-tabs--layout > .grid {
-  width: 100%;
-  border-top: 1px solid var(--border, var(--c-border)) !important;
-  border-bottom: 1px solid var(--border, var(--c-border)) !important;
-  box-shadow: none !important;
-  background: var(--card) !important;
-}
-
-.protocolo-detalhe-page .protocolo-detalhe-shell .protocolo-gestgo-tabs--no-nav-rule nav[role='tablist'] {
-  border-top: none !important;
-  border-bottom: none !important;
-  margin-bottom: 0 !important;
-}
+/* Abas do protocolo — nord-tab-group nativo */
 
 .protocolo-detalhe-page g-card.section-card {
-  overflow: hidden;
   margin-bottom: 1rem;
-  gap: 0;
-  padding-top: 0;
-  padding-bottom: 0;
-  border-radius: 0.875rem;
+  background: transparent;
+  border: none;
+  padding: 0;
+  box-shadow: none;
+}
+
+.protocolo-detalhe-page g-card.section-card nord-card {
+  overflow: hidden;
+  margin-bottom: 0;
+  --n-card-border-radius: 0.875rem;
+  --n-card-box-shadow: 0 0 0 1px var(--border, var(--c-border));
 }
 
 .protocolo-detalhe-page g-card.section-card [data-slot='card-content'] {

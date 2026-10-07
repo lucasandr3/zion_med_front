@@ -1,7 +1,5 @@
-import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, inject, ChangeDetectionStrategy, signal } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, inject, ChangeDetectionStrategy, signal, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { FlatpickrDirective, provideFlatpickrDefaults } from 'angularx-flatpickr';
-import { Portuguese } from 'flatpickr/dist/l10n/pt';
 import {
   FormularioPublicoFeegowMeta,
   FormularioPublicoService,
@@ -11,23 +9,14 @@ import {
   FEEGOW_VALUE_DEFAULTS,
   optionsFromList,
 } from './formulario-publico-feegow.util';
+import { NORD_FORM_IMPORTS } from '@/shared/nord';
 
 @Component({
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'zm-formulario-publico-feegow',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [FormsModule, FlatpickrDirective],
-  providers: [
-    provideFlatpickrDefaults({
-      locale: Portuguese,
-      dateFormat: 'Y-m-d',
-      altInput: true,
-      altFormat: 'd/m/Y',
-      altInputClass: 'fp-input',
-      allowInput: true,
-      disableMobile: true,
-      static: false,
-    })],
+  imports: [FormsModule, ...NORD_FORM_IMPORTS],
   templateUrl: './formulario-publico-feegow.component.html',
 })
 export class FormularioPublicoFeegowComponent implements OnChanges {

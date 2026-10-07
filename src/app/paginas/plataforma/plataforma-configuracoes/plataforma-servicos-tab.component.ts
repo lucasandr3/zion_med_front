@@ -7,6 +7,7 @@ import {
 import { ToastService } from '../../../core/services/toast.service';
 import { environment } from '../../../../environments/environment';
 import { GestgoCardComponent } from '@/shared/components/card/card.component';
+import { GestgoComboboxComponent, type GestgoComboboxOption } from '@/shared/components/combobox';
 
 import { GestgoBadgeComponent } from '@/shared/components/badge/badge.component';
 import { NORD_FORM_IMPORTS } from '@/shared/nord';
@@ -30,6 +31,26 @@ const COMPONENT_OPTIONS: Record<string, string> = {
   billing: 'Pagamentos & Billing',
 };
 
+const STATUS_OPTIONS: GestgoComboboxOption[] = [
+  { value: 'operational', label: 'Operacional' },
+  { value: 'degraded', label: 'Degradado' },
+  { value: 'outage', label: 'Indisponível' },
+  { value: 'maintenance', label: 'Manutenção' },
+];
+
+const SEVERITY_OPTIONS: GestgoComboboxOption[] = [
+  { value: 'none', label: 'Nenhuma' },
+  { value: 'low', label: 'Baixa' },
+  { value: 'medium', label: 'Média' },
+  { value: 'high', label: 'Alta' },
+  { value: 'critical', label: 'Crítica' },
+];
+
+const MAILER_OPTIONS: GestgoComboboxOption[] = [
+  { value: 'resend', label: 'Resend (produção)' },
+  { value: 'log', label: 'Log (desenvolvimento)' },
+];
+
 @Component({
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'app-plataforma-servicos-tab',
@@ -39,6 +60,7 @@ const COMPONENT_OPTIONS: Record<string, string> = {
     FormsModule,
     GestgoCardComponent,
     GestgoBadgeComponent,
+    GestgoComboboxComponent,
     ...NORD_FORM_IMPORTS],
   templateUrl: './plataforma-servicos-tab.component.html',
   styleUrl: './plataforma-servicos-tab.component.css',
@@ -57,6 +79,9 @@ export class PlataformaServicosTabComponent implements OnChanges {
 
   readonly activeServico = signal<PlatformServiceId | null>(null);
   readonly componentOptions = COMPONENT_OPTIONS;
+  readonly opcoesMailer = MAILER_OPTIONS;
+  readonly opcoesStatus = STATUS_OPTIONS;
+  readonly opcoesSeverity = SEVERITY_OPTIONS;
 
   readonly savingSettings = signal(false);
   readonly savingStatus = signal(false);

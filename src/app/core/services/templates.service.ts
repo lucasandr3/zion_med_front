@@ -162,7 +162,7 @@ interface CamposResponse {
 export class TemplatesService {
   private api = inject(ApiService);
 
-  list(params?: { is_active?: boolean; category?: string }): Observable<Template[]> {
+  list(params?: { is_active?: boolean; public_enabled?: boolean; category?: string }): Observable<Template[]> {
     return this.api.get<ListResponse>('/templates', params).pipe(map((r) => r.data));
   }
 

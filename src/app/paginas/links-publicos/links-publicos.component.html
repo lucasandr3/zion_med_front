@@ -118,10 +118,11 @@
 
           <div class="lp-card__actions">
             <nord-button
+              expand
               variant="default"
               type="button"
               class="lp-card__action"
-              [attr.disabled]="!t.public_url"
+              [attr.disabled]="!t.public_url || null"
               [title]="copiedTemplateId() === t.id ? 'Link copiado' : 'Copiar link do formulário'"
               (click)="copiarLink(t.id, t.public_url)"
             >
@@ -132,13 +133,14 @@
               {{ copiedTemplateId() === t.id ? 'Copiado!' : 'Copiar link' }}
             </nord-button>
             <nord-button
+              expand
               variant="primary"
               type="button"
               class="lp-card__action"
               [attr.href]="t.public_url || null"
               target="_blank"
               rel="noopener noreferrer"
-              [attr.disabled]="!t.public_url"
+              [attr.disabled]="!t.public_url || null"
               title="Abrir formulário em nova aba"
             >
               <nord-icon name="interface-new-window" size="s"></nord-icon>

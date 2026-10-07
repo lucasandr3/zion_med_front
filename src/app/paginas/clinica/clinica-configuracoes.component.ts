@@ -3,8 +3,6 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { FlatpickrDirective, provideFlatpickrDefaults } from 'angularx-flatpickr';
-import { Portuguese } from 'flatpickr/dist/l10n/pt';
 import { finalize, Subscription } from 'rxjs';
 import {
   ClinicaService,
@@ -107,16 +105,8 @@ import { NORD_FORM_IMPORTS } from '@/shared/nord';
     GestgoComboboxComponent,
     GestgoTabComponent,
     GestgoTabGroupComponent,
-    FlatpickrDirective,
     GestgoBadgeComponent,
   ],
-  providers: [
-    provideFlatpickrDefaults({
-      locale: Portuguese,
-      allowInput: true,
-      clickOpens: true,
-      disableMobile: false,
-    })],
   templateUrl: './clinica-configuracoes.component.html',
   styleUrl: './clinica-configuracoes.component.css',
 })
@@ -151,8 +141,6 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
   logoFile: File | null = null;
   logoDragOver = false;
   private logoObjectUrl: string | null = null;
-  flatpickrAppendTo: HTMLElement =
-    typeof document !== 'undefined' ? document.body : (null as unknown as HTMLElement);
   readonly days = DAYS;
 
   readonly opcoesSigningSecurityLevel: GestgoComboboxOption[] = [
@@ -963,16 +951,6 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
       if (err.status === 503) return 'Servidor Evolution Go não configurado. Contate o administrador.';
     }
     return 'Não foi possível concluir a operação. Tente novamente.';
-  }
-
-  setTime(dayId: string, field: 'open' | 'close', dates: Date[]): void {
-    if (!this.form.business_hours || !dates?.length) {
-      return;
-    }
-    const d = dates[0];
-    const h = d.getHours().toString().padStart(2, '0');
-    const m = d.getMinutes().toString().padStart(2, '0');
-    this.form.business_hours[dayId][field] = `${h}:${m}`;
   }
 
   carregarLogs(page = 1): void {
