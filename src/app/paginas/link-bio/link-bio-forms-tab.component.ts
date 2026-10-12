@@ -11,6 +11,7 @@ import { GestgoCardComponent } from '@/shared/components/card/card.component';
   standalone: true,
   imports: [RouterLink, GestgoCardComponent],
   templateUrl: './link-bio-forms-tab.component.html',
+  styleUrl: './link-bio-forms-tab.component.css',
 })
 export class LinkBioFormsTabComponent {
   @Input({ required: true }) forms: LinkBioFormLink[] = [];

@@ -17,6 +17,7 @@ import { ViaCepService } from '../../core/services/via-cep.service';
 import { LoadingService } from '../../shared/services/loading.service';
 import { ZmSkeletonConfiguracoesComponent, ZmSkeletonListComponent } from '../../shared/components/skeletons';
 import { GestgoBadgeComponent } from '@/shared/components/badge';
+import { formatarDataBr } from '@/shared/utils/date';
 
 
 
@@ -35,6 +36,7 @@ import {
   SHELL_PRESET_UI_OPTIONS,
   type ShellPreset,
 } from '../../core/services/user-appearance.sync';
+import { TEMAS, TEMAS_GRADE_ORDER } from '../../componentes/layout/shell-theme.config';
 import { AuthService } from '../../core/services/auth.service';
 import { UserAppearanceService } from '../../core/services/user-appearance.service';
 
@@ -136,7 +138,6 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
   readonly listaPronta = signal(false);
   readonly salvando = signal(false);
   readonly erro = signal('');
-  readonly sucesso = signal(false);
   activeTab = 'dados';
   logoFile: File | null = null;
   logoDragOver = false;
@@ -144,15 +145,15 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
   readonly days = DAYS;
 
   readonly opcoesSigningSecurityLevel: GestgoComboboxOption[] = [
-    { value: 'basic', label: 'Básica — somente evidências (IP, navegador, hashes)' },
+    { value: 'basic', label: 'Básica: somente evidências (IP, navegador, hashes)' },
     {
       value: 'reinforced',
-      label: 'Reforçada (recomendado) — exige OTP por e-mail ou WhatsApp antes de enviar com assinatura',
+      label: 'Reforçada (recomendado): exige OTP por e-mail ou WhatsApp antes de enviar com assinatura',
     }];
 
   readonly opcoesProtocolRetentionMode: GestgoComboboxOption[] = [
-    { value: 'anonymize', label: 'Anonimizar — mantém protocolo, hashes e trilha; remove PII' },
-    { value: 'delete', label: 'Excluir — remove protocolos elegíveis permanentemente' }];
+    { value: 'anonymize', label: 'Anonimizar: mantém protocolo, hashes e trilha; remove PII' },
+    { value: 'delete', label: 'Excluir: remove protocolos elegíveis permanentemente' }];
 
   readonly retencaoPreview = signal<{ enabled: boolean; eligible_count: number; already_anonymized_count: number; cutoff_date: string | null } | null>(null);
   readonly carregandoRetencaoPreview = signal(false);
@@ -174,6 +175,12 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
   readonly logsPage = signal(1);
   readonly logsLastPage = signal(1);
   readonly logsTotal = signal(0);
+
+  /**
+   * Bloco “WhatsApp da empresa” (envio clínica → pacientes via Evolution).
+   * Mantido oculto até a infra estar pronta; a clínica só vê “Receber comunicação”.
+   */
+  readonly mostrarWhatsappEmpresa = false;
 
   /** Aba WhatsApp (Evolution Go) */
   readonly waState = signal<WhatsappEvolutionState | null>(null);
@@ -239,9 +246,11 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
   }
 
   get publicFormThemeKeys(): string[] {
-    return Object.keys(this.availablePublicThemes).filter(
-      (key) => key !== 'onyx-black' && key !== 'custom'
+    const fromApi = Object.keys(this.availablePublicThemes).filter(
+      (key) => key !== 'onyx-black' && key !== 'custom',
     );
+    // Fallback: mesma paleta canônica do Tema Visual se a API não trouxer cores.
+    return fromApi.length > 0 ? fromApi : this.themeKeys.filter((key) => key !== 'onyx-black' && key !== 'custom');
   }
 
   get canAddMultiEmpresa(): boolean {
@@ -253,12 +262,20 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
   }
 
   get showStickyFooter(): boolean {
-    return this.activeTab !== 'empresas' && this.activeTab !== 'logs' && this.activeTab !== 'whatsapp';
+    if (this.activeTab === 'empresas' || this.activeTab === 'logs') return false;
+    // Com WhatsApp da empresa oculto, a aba WhatsApp usa o footer normal (salvar preferências).
+    if (this.activeTab === 'whatsapp' && this.mostrarWhatsappEmpresa) return false;
+    return true;
   }
 
   /** Footer fixo na aba WhatsApp (mesmo padrão visual das outras abas com ações). */
   get showWhatsappStickyFooter(): boolean {
-    return this.activeTab === 'whatsapp' && this.listaPronta() && !!this.pageData();
+    return (
+      this.mostrarWhatsappEmpresa &&
+      this.activeTab === 'whatsapp' &&
+      this.listaPronta() &&
+      !!this.pageData()
+    );
   }
 
   get waPodeEnviarTesteNoFooter(): boolean {
@@ -274,7 +291,12 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
   }
 
   get themeKeys(): string[] {
-    return Object.keys(this.availableThemes);
+    const fromApi = new Set(Object.keys(this.availableThemes));
+    const known = new Set(TEMAS.map((t) => t.key));
+    // Sempre mostra a paleta canônica do front; extras da API vão no fim.
+    const ordered: string[] = TEMAS_GRADE_ORDER.filter((key) => known.has(key) || fromApi.has(key));
+    const extras = [...fromApi].filter((key) => !ordered.includes(key));
+    return ordered.length > 0 ? [...ordered, ...extras] : [...TEMAS_GRADE_ORDER];
   }
 
   get shellPresetMeta(): (typeof SHELL_PRESET_UI_OPTIONS)[number] | undefined {
@@ -283,7 +305,23 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
 
   getThemeLabel(themeKey: string): string {
     const canonicalThemeKey = normalizeThemeKey(themeKey);
-    return TEMA_LABEL_PT_MAP[canonicalThemeKey] ?? this.availableThemes[themeKey]?.label ?? themeKey;
+    return (
+      TEMA_LABEL_PT_MAP[canonicalThemeKey] ??
+      TEMAS.find((t) => t.key === canonicalThemeKey)?.labelPt ??
+      this.availableThemes[themeKey]?.label ??
+      themeKey
+    );
+  }
+
+  /** Cor do swatch: CSS/config local tem prioridade (API antiga podia mandar ocean-blue azul). */
+  getThemePrimary(themeKey: string): string {
+    const canonicalThemeKey = normalizeThemeKey(themeKey);
+    return (
+      TEMAS.find((t) => t.key === canonicalThemeKey)?.color ??
+      this.availableThemes[themeKey]?.primary ??
+      this.availableThemes[canonicalThemeKey]?.primary ??
+      '#14B87A'
+    );
   }
 
   onThemeChanged(value: string): void {
@@ -607,9 +645,7 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
   }
 
   formatarDataRetencao(iso: string | null | undefined): string {
-    if (!iso) return '—';
-    const d = new Date(iso);
-    return isNaN(d.getTime()) ? iso : d.toLocaleDateString('pt-BR');
+    return formatarDataBr(iso) || '—';
   }
 
   onBillingDocumentInput(value: string): void {
@@ -737,7 +773,7 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
     if (tab === 'logs') {
       this.carregarLogs();
     }
-    if (tab === 'whatsapp') {
+    if (tab === 'whatsapp' && this.mostrarWhatsappEmpresa) {
       this.carregarWhatsapp();
     }
   }
@@ -876,7 +912,7 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
         next: () => {
           this.waQrSrc.set(null);
           this.waPairingCode.set(null);
-          this.toast.success('Desconectado', 'A sessão WhatsApp foi encerrada na Evolution Go.');
+          this.toast.success('Desconectado', 'A sessão WhatsApp foi encerrada.');
           this.carregarWhatsapp();
         },
         error: (err: unknown) => {
@@ -888,8 +924,8 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
 
   async removerIntegracaoWhatsapp(): Promise<void> {
     const ok = await this.confirm.request({
-      title: 'Remover integração WhatsApp',
-      messageBefore: 'A instância será excluída na Evolution Go e os dados de conexão desta empresa serão apagados.',
+      title: 'Remover WhatsApp',
+      messageBefore: 'A conexão WhatsApp desta empresa será removida. Será preciso conectar o aparelho de novo depois.',
       variant: 'danger',
       confirmLabel: 'Remover',
     });
@@ -946,9 +982,16 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
 
   private mensagemErroWhatsapp(err: unknown): string {
     if (err instanceof HttpErrorResponse) {
+      if (err.status === 503) {
+        return 'WhatsApp indisponível no momento. Fale com o suporte Gestgo para ativar.';
+      }
       const b = err.error as { message?: string } | null;
-      if (typeof b?.message === 'string' && b.message.trim()) return b.message.trim();
-      if (err.status === 503) return 'Servidor Evolution Go não configurado. Contate o administrador.';
+      const raw = typeof b?.message === 'string' ? b.message.trim() : '';
+      // Mensagens de infra (Evolution Go / env vars) são do Gestgo, não da clínica.
+      if (/EVOLUTION_GO|Evolution Go|GLOBAL_API_KEY|container/i.test(raw)) {
+        return 'WhatsApp indisponível no momento. Fale com o suporte Gestgo para ativar.';
+      }
+      if (raw) return raw;
     }
     return 'Não foi possível concluir a operação. Tente novamente.';
   }
@@ -1107,7 +1150,6 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
   salvar(): void {
     this.salvando.set(true);
     this.erro.set('');
-    this.sucesso.set(false);
     const bh = this.form.business_hours ?? {};
     const cleaned: Record<string, { open: string; close: string }> = {};
     Object.entries(bh).forEach(([d, slot]) => {
@@ -1157,7 +1199,6 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
     this.clinicaService.updateConfiguracoes(payload as Partial<ClinicaConfig>, this.logoFile ?? undefined).subscribe({
       next: (updated) => {
         this.salvando.set(false);
-        this.sucesso.set(true);
         this.setLogoFile(null);
         const pd = this.pageData();
         if (pd) {

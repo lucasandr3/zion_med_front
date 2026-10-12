@@ -68,7 +68,7 @@
         [ngModelOptions]="{ standalone: true }"
         [required]="requireGuardian"
         [attr.aria-required]="requireGuardian ? true : null"
-        [placeholder]="requireGuardian ? 'Obrigatório para menor ou incapaz' : 'Opcional — menor ou incapaz'"
+        [placeholder]="requireGuardian ? 'Obrigatório para menor ou incapaz' : 'Opcional (menor ou incapaz)'"
       />
     </div>
     <div class="fp-field-group">
@@ -131,7 +131,7 @@
             name="fpProfessionalSignerName"
             [ngModelOptions]="{ standalone: true }"
             required
-            placeholder="Ex.: Dra. Ana Silva — CRM 12345"
+            placeholder="Ex.: Dra. Ana Silva, CRM 12345"
           />
         </div>
         <p class="fp-sig-help">Assine com o dedo (celular) ou mouse (computador) no espaço abaixo.</p>

@@ -4,11 +4,11 @@
   </div>
   <div class="n-page-list__toolbar-end">
     <nord-button type="button" [routerLink]="['/organizacao/permissoes']" title="Gerenciar perfis e permissões">
-      <nord-icon name="navigation-settings" size="s"></nord-icon>
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">settings</span>
       Permissões
     </nord-button>
     <nord-button variant="primary" type="button" [routerLink]="['/usuarios/criar']" title="Criar novo usuário">
-      <nord-icon name="user-add" size="s"></nord-icon>
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">person_add</span>
       Novo usuário
     </nord-button>
   </div>
@@ -30,7 +30,7 @@
         <h2>Nenhum usuário cadastrado</h2>
         <p>Convide o primeiro usuário para acessar a clínica.</p>
         <nord-button variant="primary" [routerLink]="['/usuarios/criar']">
-          <nord-icon name="user-add" size="s"></nord-icon>
+          <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">person_add</span>
           Novo usuário
         </nord-button>
       </nord-empty-state>
@@ -58,7 +58,7 @@
               aria-label="Editar usuário"
               aria-describedby="tip-usuarios-edit"
             >
-              <nord-icon name="interface-edit" size="s"></nord-icon>
+              <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">edit</span>
             </nord-button>
             @if (podeDesativar(u)) {
               <nord-button
@@ -72,7 +72,7 @@
                 @if (desativandoId() === u.id) {
                   <span class="btn-spinner" style="width: 16px; height: 16px; border-width: 2px"></span>
                 } @else {
-                  <nord-icon name="user-block" size="s"></nord-icon>
+                  <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">person_off</span>
                 }
               </nord-button>
             }

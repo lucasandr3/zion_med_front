@@ -1,0 +1,123 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+#tab-conteudo-extra {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  width: 100%;
+  margin: 0;
+  padding: 1.25rem;
+  padding-bottom: 5rem;
+}
+
+@media (min-width: 640px) {
+  #tab-conteudo-extra {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  #tab-conteudo-extra {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+/*
+ * g-card/nord-card zeram padding e ainda reservam slot footer —
+ * padding no host + esconder footer evita texto colado/cortado.
+ */
+:host ::ng-deep g-card.lb-extra-card,
+:host ::ng-deep g-card.section-card {
+  display: block !important;
+  box-sizing: border-box !important;
+  padding: 1.25rem 1.5rem !important;
+  margin: 0 !important;
+  overflow: visible !important;
+  border: 1px solid var(--border, var(--c-border)) !important;
+  border-radius: 0.875rem !important;
+  background: var(--card, #fff) !important;
+}
+
+:host ::ng-deep g-card.lb-extra-card nord-card,
+:host ::ng-deep g-card.section-card nord-card {
+  --n-card-padding: 0 !important;
+  --n-card-slot-padding: 0 !important;
+  --n-card-box-shadow: none !important;
+  --n-card-border-color: transparent !important;
+  --n-card-border-radius: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  overflow: visible !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+:host ::ng-deep g-card.lb-extra-card .g-card__footer,
+:host ::ng-deep g-card.lb-extra-card [slot='footer'],
+:host ::ng-deep g-card.section-card .g-card__footer,
+:host ::ng-deep g-card.section-card [slot='footer'] {
+  display: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  min-height: 0 !important;
+  height: 0 !important;
+  overflow: hidden !important;
+  border: none !important;
+}
+
+.lb-extra-hint {
+  margin: 0;
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--border, var(--c-border));
+  border-radius: 0.875rem;
+  background: color-mix(in srgb, var(--muted, #f3f4f6) 40%, var(--card, #fff));
+  font-size: 0.8125rem;
+  line-height: 1.55;
+  color: var(--muted-foreground, var(--c-muted));
+}
+
+.lb-extra-hint strong {
+  color: var(--foreground, var(--c-text));
+  font-weight: 600;
+}
+
+.lb-extra-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 2.5rem 1.5rem;
+  border: 1px solid var(--border, var(--c-border));
+  border-radius: 0.875rem;
+  background: var(--card, #fff);
+  text-align: center;
+}
+
+.lb-extra-empty__icon {
+  margin-bottom: 0.35rem;
+  font-size: 2.25rem;
+  color: var(--muted-foreground, var(--c-muted));
+}
+
+.lb-extra-empty__title {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 650;
+  color: var(--foreground, var(--c-text));
+}
+
+.lb-extra-empty__text {
+  margin: 0 0 0.75rem;
+  max-width: 28rem;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--muted-foreground, var(--c-muted));
+}

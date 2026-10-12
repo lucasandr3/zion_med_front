@@ -9,7 +9,7 @@
     aria-label="Abrir Go Assistant"
     square
   >
-    <nord-icon name="interface-ai" size="m" aria-hidden="true"></nord-icon>
+    <span class="material-symbols-outlined gestgo-mi gestgo-mi--m" aria-hidden="true">smart_toy</span>
   </nord-button>
   <nord-tooltip id="go-assistant-tooltip" [delay]="0">Go Assistant (Ctrl+/)</nord-tooltip>
 
@@ -24,7 +24,7 @@
       aria-label="Tema e aparência"
       square
     >
-      <nord-icon name="navigation-settings" size="m"></nord-icon>
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--m" aria-hidden="true">palette</span>
     </nord-button>
   </div>
   <nord-tooltip id="theme-menu-tooltip" [delay]="0">Tema e aparência</nord-tooltip>
@@ -35,7 +35,7 @@
     aria-describedby="novidades-tooltip"
     aria-label="Novidades e versão"
   >
-    <nord-icon name="interface-checked-circle" size="m"></nord-icon>
+    <span class="material-symbols-outlined gestgo-mi gestgo-mi--m" aria-hidden="true">check_circle</span>
     @if (novidadesNaoVistas > 0) {
       <span class="shell-topbar-badge" aria-hidden="true">
         {{ novidadesNaoVistas > 99 ? '99+' : novidadesNaoVistas }}
@@ -51,7 +51,7 @@
       aria-describedby="notifications-tooltip"
       aria-label="Notificações"
     >
-      <nord-icon name="navigation-notifications" size="m"></nord-icon>
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--m" aria-hidden="true">notifications</span>
       @if (notificacoesNaoLidas > 0) {
         <span class="shell-topbar-badge" aria-hidden="true">
           {{ notificacoesNaoLidas > 99 ? '99+' : notificacoesNaoLidas }}
@@ -74,7 +74,7 @@
           [attr.aria-pressed]="themeDrawerMode === 'light'"
           (click)="aplicarModoTema('light')"
         >
-          <nord-icon name="interface-mode-light" size="s"></nord-icon>
+          <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">light_mode</span>
           Claro
         </button>
         <button
@@ -84,7 +84,7 @@
           [attr.aria-pressed]="themeDrawerMode === 'dark'"
           (click)="aplicarModoTema('dark')"
         >
-          <nord-icon name="interface-mode-dark" size="s"></nord-icon>
+          <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">dark_mode</span>
           Escuro
         </button>
         <button
@@ -94,7 +94,7 @@
           [attr.aria-pressed]="themeDrawerMode === 'auto'"
           (click)="aplicarModoTema('auto')"
         >
-          <nord-icon name="interface-presentation-mode" size="s"></nord-icon>
+          <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">brightness_auto</span>
           Automático
         </button>
       </div>
@@ -143,7 +143,7 @@
             (click)="aplicarTema(t.key)"
           >
             @if (temaAtual === t.key) {
-              <nord-icon name="interface-checked" size="s"></nord-icon>
+              <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">check</span>
             }
           </button>
         }

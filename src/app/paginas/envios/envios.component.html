@@ -4,6 +4,7 @@
       @for (c of caixas; track c.key) {
         <nord-button
           type="button"
+          [attr.variant]="caixaAtual() === c.key ? 'primary' : 'default'"
           [attr.aria-pressed]="caixaAtual() === c.key"
           (click)="setCaixa(c.key)"
         >
@@ -15,12 +16,12 @@
   <div class="n-page-list__toolbar-end">
     @if (mostrarNovoEnvio()) {
       <nord-button type="button" variant="default" title="Fechar formulário" (click)="fecharNovoEnvio()">
-        <nord-icon name="interface-close" size="s"></nord-icon>
+        <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">close</span>
         Cancelar
       </nord-button>
     } @else {
       <nord-button type="button" variant="primary" title="Novo envio" data-go-tour="envios-new" (click)="abrirNovoEnvio()">
-        <nord-icon name="interface-add" size="s"></nord-icon>
+        <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">add</span>
         Novo envio
       </nord-button>
     }
@@ -40,7 +41,7 @@
           <z-combobox
             class="w-full"
             zWidth="full"
-            [options]="opcoesTemplatesPublicos"
+            [options]="opcoesTemplatesPublicos()"
             [value]="templateSelecionadoKey || null"
             placeholder="Selecione o documento"
             searchPlaceholder="Buscar documento público..."
@@ -172,7 +173,7 @@
         <h2>Nenhum envio nesta caixa</h2>
         <p>Crie um novo envio ou selecione outra caixa.</p>
         <nord-button variant="primary" (click)="abrirNovoEnvio()">
-          <nord-icon name="interface-add" size="s"></nord-icon>
+          <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">add</span>
           Novo envio
         </nord-button>
       </nord-empty-state>

@@ -6,14 +6,11 @@
   } @else if (pageData()) {
     <div class="clinica-config-shell zm-content-enter">
     <div class="clinica-config">
-      <div class="clinica-config-alerts">
-        @if (erro()) {
+      @if (erro()) {
+        <div class="clinica-config-alerts">
           <p class="mb-4 text-sm text-destructive">{{ erro() }}</p>
-        }
-        @if (sucesso()) {
-          <p class="mb-4 text-sm text-primary">Configurações salvas com sucesso.</p>
-        }
-      </div>
+        </div>
+      }
 
       <form (ngSubmit)="salvar()" id="clinica-config-form">
         <g-tab-group
@@ -186,7 +183,7 @@
                   max="50"
                   [(ngModel)]="form.data_retention_years"
                   name="data_retention_years" class="w-full"
-                  placeholder="Ex.: 7 — deixe vazio para desativar"
+                  placeholder="Ex.: 7 (deixe vazio para desativar)"
                 />
                 <div class="hint">Remove apenas cadastros (fichas) sem nenhum protocolo vinculado, mais antigos que o prazo. Job diário no servidor.</div>
               </div>
@@ -198,7 +195,7 @@
                   max="50"
                   [(ngModel)]="form.protocol_retention_years"
                   name="protocol_retention_years" class="w-full"
-                  placeholder="Ex.: 7 — deixe vazio para desativar"
+                  placeholder="Ex.: 7 (deixe vazio para desativar)"
                 />
                 <div class="hint">Protocolos aprovados/reprovados/revogados mais antigos que o prazo entram na política abaixo. Job diário às 04:30.</div>
               </div>
@@ -222,7 +219,7 @@
                   <div class="hint mt-2">
                     @if (rp.enabled) {
                       <span>
-                        {{ rp.eligible_count }} elegível(is) antes de {{ formatarDataRetencao(rp.cutoff_date) }} —
+                        {{ rp.eligible_count }} elegível(is) antes de {{ formatarDataRetencao(rp.cutoff_date) }}.
                         {{ rp.already_anonymized_count }} já processado(s).
                       </span>
                     } @else {
@@ -324,7 +321,7 @@
                     }
                   </div>
                   @if (logoFile) {
-                    <span class="logo-preview-status logo-preview-status--pending">Nova logo — salve para aplicar</span>
+                    <span class="logo-preview-status logo-preview-status--pending">Nova logo: salve para aplicar</span>
                   } @else if (clinic?.logo_url) {
                     <span class="logo-preview-status">Logo em uso</span>
                   }
@@ -406,8 +403,6 @@
                     <div class="theme-preview palette-preview" style="background: #0a0a0a"></div>
                   </button>
                   @for (key of publicFormThemeKeys; track key) {
-                    @let meta = availablePublicThemes[key];
-                    @let primary = meta?.primary ?? '#2563eb';
                     <button
                       type="button"
                       class="theme-card palette-card"
@@ -417,7 +412,7 @@
                       [title]="getPublicFormThemeLabel(key)"
                       (click)="selecionarFormPublicTheme(key)"
                     >
-                      <div class="theme-preview palette-preview" [style.background]="primary"></div>
+                      <div class="theme-preview palette-preview" [style.background]="getThemePrimary(key)"></div>
                     </button>
                   }
                   <button
@@ -490,72 +485,80 @@
               <div class="icon-wrap"><span class="material-symbols-outlined">palette</span></div>
               <span class="section-title">Personalização</span>
             </div>
-            <div class="section-body">
-              <div class="visual-subtitle">
-                <div class="vtitle">Cor do Tema:</div>
-                <div class="vsub">
-                  Define botões, links e o item ativo do menu. O fundo branco do topo e da lateral continua neutro, salvo se você usar
-                  <strong>Barra lateral e topo</strong> abaixo. Salve as configurações da empresa para gravar esta cor para todos da empresa.
+            <div class="section-body visual-body">
+              <section class="visual-block">
+                <div class="visual-subtitle">
+                  <div class="vtitle">Cor do tema</div>
+                  <div class="vsub">
+                    Define botões, links e o item ativo do menu. Salve as configurações da empresa para aplicar esta cor a todos os usuários.
+                  </div>
                 </div>
-              </div>
-              <div class="theme-grid palette-grid">
-                @for (key of themeKeys; track key) {
-                  @let meta = availableThemes[key];
-                  @let primary = meta?.primary ?? '#2563eb';
-                  <button
-                    type="button"
-                    class="theme-card palette-card"
-                    [class.selected]="isThemeSelected(key)"
-                    [attr.aria-label]="getThemeLabel(key)"
-                    [attr.aria-pressed]="isThemeSelected(key)"
-                    (click)="selectTheme(key)"
-                  >
-                    <div class="theme-preview palette-preview" [style.background]="primary"></div>
-                  </button>
-                }
-              </div>
-              <div class="visual-subtitle mode-subtitle">
-                <div class="vtitle">Modo de Tema:</div>
-              </div>
-              <div class="mode-grid">
-                <button type="button" class="mode-card" [class.selected]="themeMode === 'light'" (click)="onThemeModeChanged('light')">
-                  <span class="material-symbols-outlined">light_mode</span>
-                  <span>Claro</span>
-                </button>
-                <button type="button" class="mode-card" [class.selected]="themeMode === 'dark'" (click)="onThemeModeChanged('dark')">
-                  <span class="material-symbols-outlined">dark_mode</span>
-                  <span>Escuro</span>
-                </button>
-                <button type="button" class="mode-card" [class.selected]="themeMode === 'auto'" (click)="onThemeModeChanged('auto')">
-                  <span class="material-symbols-outlined">brightness_auto</span>
-                  <span>Automático</span>
-                </button>
-              </div>
+                <div class="theme-grid palette-grid">
+                  @for (key of themeKeys; track key) {
+                    <button
+                      type="button"
+                      class="theme-card palette-card"
+                      [class.selected]="isThemeSelected(key)"
+                      [attr.aria-label]="getThemeLabel(key)"
+                      [attr.aria-pressed]="isThemeSelected(key)"
+                      [attr.title]="getThemeLabel(key)"
+                      (click)="selectTheme(key)"
+                    >
+                      <div class="theme-preview palette-preview" [style.background]="getThemePrimary(key)"></div>
+                      <span class="palette-label">{{ getThemeLabel(key) }}</span>
+                    </button>
+                  }
+                </div>
+              </section>
 
-              <div class="visual-subtitle mode-subtitle">
-                <div class="vtitle">Barra lateral e topo</div>
-                <div class="vsub">
-                  Preferência <strong>pessoal</strong> (salva na sua conta ao clicar). Use <strong>Topo e marca</strong> para pintar com a cor primária só o cabeçalho e a faixa do nome Gestgo,
-                  ou <strong>Menu escuro</strong> para contraste tipo painel no modo claro.
+              <section class="visual-block">
+                <div class="visual-subtitle">
+                  <div class="vtitle">Modo de tema</div>
+                  <div class="vsub">Preferência pessoal de claro, escuro ou automático.</div>
                 </div>
-              </div>
-              <div class="mode-grid shell-preset-grid">
-                @for (opt of shellPresetOptions; track opt.id) {
-                  <button
-                    type="button"
-                    class="mode-card shell-preset-card"
-                    [class.selected]="shellPresetAtual === opt.id"
-                    (click)="onShellPresetPainel(opt.id)"
-                    [attr.title]="opt.description"
-                    [attr.aria-pressed]="shellPresetAtual === opt.id"
-                    [attr.aria-label]="opt.label + ': ' + opt.description"
-                  >
-                    <span class="material-symbols-outlined">{{ opt.icon }}</span>
-                    <span>{{ opt.label }}</span>
+                <div class="mode-grid">
+                  <button type="button" class="mode-card" [class.selected]="themeMode === 'light'" (click)="onThemeModeChanged('light')">
+                    <span class="material-symbols-outlined">light_mode</span>
+                    <span>Claro</span>
                   </button>
+                  <button type="button" class="mode-card" [class.selected]="themeMode === 'dark'" (click)="onThemeModeChanged('dark')">
+                    <span class="material-symbols-outlined">dark_mode</span>
+                    <span>Escuro</span>
+                  </button>
+                  <button type="button" class="mode-card" [class.selected]="themeMode === 'auto'" (click)="onThemeModeChanged('auto')">
+                    <span class="material-symbols-outlined">brightness_auto</span>
+                    <span>Automático</span>
+                  </button>
+                </div>
+              </section>
+
+              <section class="visual-block">
+                <div class="visual-subtitle">
+                  <div class="vtitle">Barra lateral e topo</div>
+                  <div class="vsub">
+                    Preferência pessoal (salva na sua conta ao clicar). Escolha o contraste do menu e do cabeçalho.
+                  </div>
+                </div>
+                <div class="mode-grid shell-preset-grid">
+                  @for (opt of shellPresetOptions; track opt.id) {
+                    <button
+                      type="button"
+                      class="mode-card shell-preset-card"
+                      [class.selected]="shellPresetAtual === opt.id"
+                      (click)="onShellPresetPainel(opt.id)"
+                      [attr.title]="opt.description"
+                      [attr.aria-pressed]="shellPresetAtual === opt.id"
+                      [attr.aria-label]="opt.label + ': ' + opt.description"
+                    >
+                      <span class="material-symbols-outlined">{{ opt.icon }}</span>
+                      <span>{{ opt.label }}</span>
+                    </button>
+                  }
+                </div>
+                @if (shellPresetMeta?.description) {
+                  <p class="shell-preset-footnote">{{ shellPresetMeta?.description }}</p>
                 }
-              </div>
-              <p class="shell-preset-footnote">{{ shellPresetMeta?.description ?? '—' }}</p>
+              </section>
             </div>
           </g-card>
         </div>
@@ -579,17 +582,20 @@
               </div>
               <div class="wa-notify-subsection">
                 <p class="wa-notify-subsection__title">Quais notificações deseja receber:</p>
-                <nord-checkbox [(ngModel)]="form.whatsapp_notify_cobranca" name="whatsapp_notify_cobranca" class="mb-2" label="Cobrança (lembretes, vencimentos)"></nord-checkbox>
-                <nord-checkbox [(ngModel)]="form.whatsapp_notify_faturas_boleto" name="whatsapp_notify_faturas_boleto" class="mb-2" label="Faturas e boleto (confirmação de assinatura, boleto gerado)"></nord-checkbox>
-                <nord-checkbox [(ngModel)]="form.whatsapp_notify_avisos" name="whatsapp_notify_avisos" label="Avisos gerais"></nord-checkbox>
+                <div class="wa-notify-list">
+                  <nord-checkbox [(ngModel)]="form.whatsapp_notify_cobranca" name="whatsapp_notify_cobranca" label="Cobrança (lembretes, vencimentos)"></nord-checkbox>
+                  <nord-checkbox [(ngModel)]="form.whatsapp_notify_faturas_boleto" name="whatsapp_notify_faturas_boleto" label="Faturas e boleto (confirmação de assinatura, boleto gerado)"></nord-checkbox>
+                  <nord-checkbox [(ngModel)]="form.whatsapp_notify_avisos" name="whatsapp_notify_avisos" label="Avisos gerais"></nord-checkbox>
+                </div>
               </div>
             </div>
           </g-card>
+        @if (mostrarWhatsappEmpresa) {
         @if (waLoading()) {
           <g-card class="section-card mb-4 gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
             <div class="section-header">
               <div class="icon-wrap"><span class="material-symbols-outlined">settings</span></div>
-              <span class="section-title">Integração Evolution Go</span>
+              <span class="section-title">WhatsApp da empresa</span>
             </div>
             <div class="section-body">
               <zm-skeleton-list [rows]="6" />
@@ -599,7 +605,7 @@
           <g-card class="section-card mb-4 gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
             <div class="section-header">
               <div class="icon-wrap"><span class="material-symbols-outlined">error</span></div>
-              <span class="section-title">Integração Evolution Go</span>
+              <span class="section-title">WhatsApp da empresa</span>
             </div>
             <div class="section-body">
               <p class="mb-4 text-sm text-destructive">{{ waError() }}</p>
@@ -614,13 +620,12 @@
             <g-card class="section-card mb-4 gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
               <div class="section-header">
                 <div class="icon-wrap"><span class="material-symbols-outlined">cloud_off</span></div>
-                <span class="section-title">Servidor não configurado</span>
+                <span class="section-title">WhatsApp indisponível</span>
               </div>
               <div class="section-body">
-                <p class="m-0 mb-2 text-sm text-foreground">
-                  A API Evolution Go não está configurada no servidor. Peça ao administrador para definir
-                  <code class="text-xs">EVOLUTION_GO_BASE_URL</code> e
-                  <code class="text-xs">EVOLUTION_GO_API_KEY</code> (GLOBAL_API_KEY do container) no backend.
+                <p class="m-0 text-sm text-foreground">
+                  O envio por WhatsApp ainda não está disponível para esta empresa.
+                  Fale com o suporte Gestgo para ativar a integração.
                 </p>
               </div>
             </g-card>
@@ -628,11 +633,12 @@
             <g-card class="section-card mb-4 gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
               <div class="section-header">
                 <div class="icon-wrap"><span class="material-symbols-outlined">add_circle</span></div>
-                <span class="section-title">Criar instância</span>
+                <span class="section-title">Ativar WhatsApp</span>
               </div>
               <div class="section-body">
                 <p class="mb-4 text-sm text-muted-foreground">
-                  O sistema gera automaticamente o nome da instância (<code class="text-xs">gestgo_org_</code> + id da empresa) e um token (UUID) antes de registrar na Evolution Go — necessário em ambientes onde a API não gera o token sozinha.
+                  Crie a conexão da sua empresa para enviar links e avisos pelo WhatsApp.
+                  Em seguida, escaneie o QR Code com o celular da clínica.
                 </p>
                 <nord-button type="button" size="s" class="inline-flex items-center gap-2" (click)="criarInstanciaWhatsapp()" [attr.disabled]="waCriandoInstancia()">
                   @if (waCriandoInstancia()) {
@@ -640,7 +646,7 @@
                   } @else {
                     <span class="material-symbols-outlined text-base">bolt</span>
                   }
-                  {{ waCriandoInstancia() ? 'Criando…' : 'Criar instância' }}
+                  {{ waCriandoInstancia() ? 'Ativando…' : 'Ativar WhatsApp' }}
                 </nord-button>
               </div>
             </g-card>
@@ -649,12 +655,12 @@
               <g-card class="section-card section-card--token mb-4 gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
                 <div class="section-header">
                   <div class="icon-wrap icon-wrap--token"><span class="material-symbols-outlined">key</span></div>
-                  <span class="section-title">Token da instância (guarde agora)</span>
+                  <span class="section-title">Chave de conexão (guarde agora)</span>
                 </div>
                 <div class="section-body">
-                  <p class="mb-2 text-xs text-muted-foreground">Este valor não será mostrado novamente nesta tela.</p>
+                  <p class="mb-2 text-xs text-muted-foreground">Este valor não será mostrado novamente nesta tela. Guarde em local seguro.</p>
                   <code class="config-code-block">{{ waTokenExibicaoUnica() }}</code>
-                  <nord-button type="button" variant="default" size="s" (click)="copiarTextoWhatsapp(waTokenExibicaoUnica()!)">Copiar token</nord-button>
+                  <nord-button type="button" variant="default" size="s" (click)="copiarTextoWhatsapp(waTokenExibicaoUnica()!)">Copiar chave</nord-button>
                 </div>
               </g-card>
             }
@@ -665,7 +671,7 @@
               </div>
               <div class="section-body wa-status-body">
                 <div class="wa-status-instance">
-                  <span class="wa-status-label">Instância</span>
+                  <span class="wa-status-label">Conta</span>
                   <code class="wa-instance-chip">{{ wa.instance_name ?? '—' }}</code>
                 </div>
                 <div class="wa-status-grid">
@@ -693,7 +699,7 @@
                   </div>
                 </div>
                 @if (wa.remote_error) {
-                  <p class="m-0 text-xs text-destructive">API: {{ wa.remote_error }}</p>
+                  <p class="m-0 text-xs text-destructive">Não foi possível consultar o status. Tente novamente em instantes.</p>
                 }
                 @if (!waSessaoAtiva) {
                   <div class="wa-status-action">
@@ -722,10 +728,6 @@
                   <div class="field !mb-3">
                     <label for="wa-phone-conectar">Telefone (pareamento)</label>
                     <input id="wa-phone-conectar" type="text" class="w-full" [(ngModel)]="waPhoneConectar" name="waPhoneConectar" placeholder="5511999999999" autocomplete="tel" />
-                  </div>
-                  <div class="field !mb-4">
-                    <label for="wa-webhook">Webhook URL <span class="opt">opcional</span></label>
-                    <input id="wa-webhook" type="url" class="w-full" [(ngModel)]="waWebhookUrl" name="waWebhookUrl" placeholder="https://…" />
                   </div>
                   <div class="wa-actions-row">
                     <nord-button type="button" size="s" class="inline-flex items-center gap-2" (click)="iniciarConexaoWhatsapp()" [attr.disabled]="waConectando()">
@@ -786,7 +788,7 @@
                 </div>
                 <div class="field !mb-4">
                   <label for="wa-test-text">Texto <span class="opt">opcional</span></label>
-                  <textarea id="wa-test-text" class="w-full" rows="2" [(ngModel)]="waTestText" name="waTestText" placeholder="Mensagem de teste — Gestgo"></textarea>
+                  <textarea id="wa-test-text" class="w-full" rows="2" [(ngModel)]="waTestText" name="waTestText" placeholder="Mensagem de teste Gestgo"></textarea>
                 </div>
                 <p class="m-0 text-xs text-muted-foreground">Use o botão "Enviar teste" no footer para disparar a mensagem.</p>
               </div>
@@ -798,18 +800,18 @@
           <div class="sticky-footer">
             <div class="text-xs text-muted-foreground">
               @if (waLoading()) {
-                Carregando integração…
+                Carregando WhatsApp…
               } @else if (waError() && !waState()) {
-                Não foi possível carregar o estado da integração.
+                Não foi possível carregar o WhatsApp.
               } @else {
-                WhatsApp · Evolution Go
+                WhatsApp da empresa
               }
             </div>
             <div class="footer-btns">
-              <a routerLink="/dashboard" class="inline-flex items-center gap-2 no-underline">
-                <span class="material-symbols-outlined text-base">close</span>
+              <nord-button type="button" routerLink="/dashboard">
+                <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">close</span>
                 Cancelar
-              </a>
+              </nord-button>
               @if (waError() && !waState() && !waLoading()) {
                 <nord-button type="button" size="s" class="inline-flex items-center gap-2" (click)="carregarWhatsapp()">
                   <span class="material-symbols-outlined text-base">refresh</span>
@@ -841,7 +843,7 @@
                     } @else {
                       <span class="material-symbols-outlined text-base">bolt</span>
                     }
-                    {{ waCriandoInstancia() ? 'Criando…' : 'Criar instância' }}
+                    {{ waCriandoInstancia() ? 'Ativando…' : 'Ativar WhatsApp' }}
                   </nord-button>
                 }
                 @if (wa.instance_configured && waPodeEnviarTesteNoFooter) {
@@ -861,13 +863,14 @@
                     } @else {
                       <span class="material-symbols-outlined text-base">delete</span>
                     }
-                    {{ waRemovendo() ? 'Removendo…' : 'Remover integração' }}
+                    {{ waRemovendo() ? 'Removendo…' : 'Remover WhatsApp' }}
                   </nord-button>
                 }
                 }
               }
             </div>
           </div>
+        }
         }
           </div>
         </g-tab>
@@ -1020,16 +1023,17 @@
           <div class="sticky-footer">
             <div class="text-xs text-muted-foreground">Alterações não salvas</div>
             <div class="footer-btns">
-              <a routerLink="/dashboard" class="inline-flex items-center gap-2 no-underline">
-                <span class="material-symbols-outlined text-base">close</span>
+              <nord-button type="button" routerLink="/dashboard">
+                <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">close</span>
                 Cancelar
-              </a>
-              <nord-button type="submit" size="s" class="inline-flex items-center gap-2" [attr.disabled]="salvando()">
-                @if (salvando()) {
-                  <span class="btn-spinner" aria-hidden="true"></span>
-                } @else {
-                  <span class="material-symbols-outlined text-base">save</span>
-                }
+              </nord-button>
+              <nord-button
+                type="submit"
+                variant="primary"
+                [attr.disabled]="salvando() || null"
+                [attr.loading]="salvando() || null"
+              >
+                <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">save</span>
                 {{ salvando() ? 'Salvando…' : 'Salvar configurações' }}
               </nord-button>
             </div>

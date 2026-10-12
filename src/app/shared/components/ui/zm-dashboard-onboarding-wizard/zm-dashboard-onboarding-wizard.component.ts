@@ -15,10 +15,8 @@ import { finalize } from 'rxjs';
 import { OnboardingService } from '../../../../core/services/onboarding.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { ToastService } from '../../../../core/services/toast.service';
+import { TemplatePublishGuardService } from '../../../../core/services/template-publish-guard.service';
 import { Template } from '../../../../core/services/templates.service';
-import { GestgoCardComponent } from '@/shared/components/card/card.component';
-
-
 const DISMISS_PREFIX = 'zm_onboarding_dismiss_';
 
 @Component({
@@ -26,7 +24,7 @@ const DISMISS_PREFIX = 'zm_onboarding_dismiss_';
   selector: 'zm-dashboard-onboarding-wizard',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, GestgoCardComponent],
+  imports: [RouterLink],
   templateUrl: './zm-dashboard-onboarding-wizard.component.html',
   styleUrl: './zm-dashboard-onboarding-wizard.component.css',
 })
@@ -38,6 +36,7 @@ export class ZmDashboardOnboardingWizardComponent implements OnChanges {
   private onboarding = inject(OnboardingService);
   private auth = inject(AuthService);
   private toast = inject(ToastService);
+  private publishGuard = inject(TemplatePublishGuardService);
   private destroyRef = inject(DestroyRef);
 
   readonly templates = signal<Template[]>([]);
@@ -173,8 +172,8 @@ export class ZmDashboardOnboardingWizardComponent implements OnChanges {
           this.linkGenerated.emit();
           this.toast.success('Link gerado', 'Copie e envie para seu paciente ou publique no link na bio.');
         },
-        error: () => {
-          this.toast.error('Erro', 'Não foi possível gerar o link público.');
+        error: (err: unknown) => {
+          void this.publishGuard.reportPublishFailure(err, templateId);
         },
       });
   }

@@ -22,10 +22,6 @@ import {
   viewChild,
   type ViewContainerRef, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 
-import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideX } from '@ng-icons/lucide';
-
-
 import { mergeClasses, noopFn } from '@/shared/utils/merge-classes';
 
 import type { GestgoSheetRef } from './sheet-ref';
@@ -61,11 +57,20 @@ export class GestgoSheetOptions<T, U> {
 @Component({
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'z-sheet',
-  imports: [OverlayModule, PortalModule, NgIcon],
+  imports: [OverlayModule, PortalModule],
   template: `
     @if (config.zClosable || config.zClosable === undefined) {
-      <nord-button type="button" data-testid="z-close-header-button" variant="plain" size="s" class="absolute cursor-pointer" (click)="onCloseClick()">
-        <ng-icon name="lucideX" />
+      <nord-button
+        type="button"
+        data-testid="z-close-header-button"
+        variant="plain"
+        size="s"
+        square
+        class="absolute cursor-pointer"
+        aria-label="Fechar"
+        (click)="onCloseClick()"
+      >
+        <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">close</span>
       </nord-button>
     }
 
@@ -120,7 +125,6 @@ export class GestgoSheetOptions<T, U> {
     }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  viewProviders: [provideIcons({ lucideX })],
   host: {
     'data-slot': 'sheet',
     '[class]': 'classes()',

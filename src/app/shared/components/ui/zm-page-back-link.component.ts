@@ -2,7 +2,7 @@ import { Component, CUSTOM_ELEMENTS_SCHEMA, Input, inject } from '@angular/core'
 import { ActivatedRoute, RouterLink } from '@angular/router';
 
 /**
- * Voltar no toolbar — `nord-button` + `nord-icon` (pesquisa_app).
+ * Voltar no toolbar — `nord-button` + Material Symbols.
  */
 @Component({
   selector: 'zm-page-back-link',
@@ -17,7 +17,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
         [attr.title]="backLabel"
         [attr.aria-label]="backLabel"
       >
-        <nord-icon name="arrow-left" size="s" aria-hidden="true"></nord-icon>
+        <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">arrow_back</span>
         {{ backLabel }}
       </nord-button>
     }

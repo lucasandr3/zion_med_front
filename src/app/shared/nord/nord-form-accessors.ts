@@ -113,7 +113,7 @@ export class NordToggleValueAccessor implements ControlValueAccessor {
   }
 }
 
-/** `nord-date-picker` — valor ISO `YYYY-MM-DD`. */
+/** `nord-date-picker` — valor do model em ISO `YYYY-MM-DD` (UI em dd/mm/aaaa). */
 @Directive({
   selector: 'nord-date-picker[ngModel], nord-date-picker[formControl], nord-date-picker[formControlName]',
   providers: [

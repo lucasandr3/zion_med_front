@@ -13,6 +13,7 @@ import { ZmPageBackLinkComponent } from '../../shared/components/ui';
 
 import { GestgoBadgeComponent } from '@/shared/components/badge/badge.component';
 import { GestgoTableImports } from '@/shared/components/table';
+import { formatarDataBr, formatarDataHoraBr } from '@/shared/utils/date';
 @Component({
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'app-pessoas-detalhe',
@@ -77,17 +78,11 @@ export class PessoasDetalheComponent implements OnInit {
   }
 
   dataFormatada(val: string | undefined | null): string {
-    if (!val) return '—';
-    const d = new Date(val);
-    if (isNaN(d.getTime())) return val;
-    return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+    return formatarDataHoraBr(val) || '—';
   }
 
   formatarDataCurta(val: string | undefined | null): string {
-    if (!val) return '—';
-    const d = new Date(val);
-    if (isNaN(d.getTime())) return val;
-    return d.toLocaleDateString('pt-BR');
+    return formatarDataBr(val) || '—';
   }
 
   statusProtocolo(s: string): string {

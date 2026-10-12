@@ -13,13 +13,13 @@
       class="gestgo-shell__brand"
       href="/plataforma"
       (click)="go($event, '/plataforma')"
-      aria-label="Gestgo — plataforma"
+      aria-label="Gestgo plataforma"
     >
       <span class="gestgo-shell__brand-logo">
-        <img [src]="sidebarLogoSrc()" alt="Gestgo" onerror="this.style.display='none'" />
+        <zm-gestgo-brand-mark />
       </span>
       <span class="gestgo-shell__brand-word" aria-hidden="true">
-        <span class="gestgo-shell__brand-title">Gestgo</span>
+        <span class="gestgo-shell__brand-title">gest<span class="gestgo-shell__brand-go">go</span></span>
         <span class="gestgo-shell__brand-tag">PLATAFORMA</span>
       </span>
     </a>
@@ -29,11 +29,11 @@
         @for (item of section.items; track item.route) {
           <nord-nav-item
             [href]="item.route"
-            [attr.icon]="item.icon"
             [active]="isActive(item)"
             [attr.badge]="badgeTexto(item)"
             (click)="go($event, item.route)"
           >
+            <span slot="icon" class="material-symbols-outlined gestgo-shell__nav-icon" aria-hidden="true">{{ item.icon }}</span>
             {{ item.label }}
             <span slot="rail-tooltip">{{ item.label }}</span>
           </nord-nav-item>
@@ -49,7 +49,7 @@
       aria-describedby="nav-logout-tooltip"
       (click)="sair()"
     >
-      <nord-icon name="interface-logout" size="s"></nord-icon>
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">logout</span>
       Sair
     </nord-button>
     <nord-tooltip id="nav-logout-tooltip" position="inline-end" [delay]="0">Sair</nord-tooltip>
@@ -57,13 +57,16 @@
 
   <nord-top-bar slot="top-bar" id="top-header" class="gestgo-shell__top-bar">
     <div class="gestgo-shell__top-bar-start">
-      <nord-nav-toggle
+      <nord-button
         class="gestgo-shell__nav-toggle"
         square
-        icon="navigation-toggle"
-        icon-active="navigation-toggle"
+        variant="plain"
+        type="button"
         aria-label="Alternar menu"
-      ></nord-nav-toggle>
+        (click)="toggleNav($event)"
+      >
+        <span class="material-symbols-outlined gestgo-mi gestgo-mi--m" aria-hidden="true">menu</span>
+      </nord-button>
       <div class="gestgo-shell__heading">
         <h1 class="gestgo-shell__title">{{ tituloPagina() }}</h1>
         @if (subtituloPagina(); as subtitulo) {

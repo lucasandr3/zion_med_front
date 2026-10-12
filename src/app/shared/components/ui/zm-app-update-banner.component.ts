@@ -98,6 +98,6 @@ export class ZmAppUpdateBannerComponent {
   readonly description = computed(() =>
     this.updates.updateBlocked()
       ? 'Não foi possível carregar a versão mais recente. Atualize agora para continuar usando o sistema.'
-      : 'Uma atualização do Gestgo está pronta. Clique em atualizar — a página será recarregada automaticamente.',
+      : 'Uma atualização do Gestgo está pronta. Clique em atualizar. A página será recarregada automaticamente.',
   );
 }

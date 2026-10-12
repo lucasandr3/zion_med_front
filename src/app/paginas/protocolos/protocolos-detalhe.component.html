@@ -3,29 +3,29 @@
     <div class="n-form-toolbar__start">
       <zm-page-back-link />
     </div>
-    @if (protocolo(); as p) {
+    @if (protocolo() && abaAtiva() === 'visao-geral') {
       <div class="n-form-toolbar__end">
-        <nord-button variant="default" size="s" type="button" (click)="baixarFichaPdf()" title="Baixar PDF" [attr.loading]="gerandoPdf()" [attr.disabled]="gerandoPdf()">
-          <nord-icon name="interface-download" size="s" aria-hidden="true"></nord-icon>
+        <nord-button variant="default" size="s" type="button" (click)="baixarFichaPdf()" title="Baixar PDF" [attr.loading]="gerandoPdf() || null" [attr.disabled]="gerandoPdf() || null">
+          <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">download</span>
           {{ gerandoPdf() ? 'Gerando…' : 'Baixar PDF' }}
         </nord-button>
-        <nord-button variant="default" size="s" type="button" (click)="baixarDossie()" title="Baixar dossiê (ZIP)" [attr.loading]="gerandoDossie()" [attr.disabled]="gerandoDossie()">
-          <nord-icon name="file-generic" size="s" aria-hidden="true"></nord-icon>
+        <nord-button variant="default" size="s" type="button" (click)="baixarDossie()" title="Baixar dossiê (ZIP)" [attr.loading]="gerandoDossie() || null" [attr.disabled]="gerandoDossie() || null">
+          <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">draft</span>
           {{ gerandoDossie() ? 'Gerando…' : 'Dossiê ZIP' }}
         </nord-button>
         @if (podeSolicitarReconsentimento) {
-          <nord-button size="s" type="button" (click)="solicitarReconsentimento()" title="Enviar novo link de consentimento" [attr.loading]="solicitandoReconsentimento()" [attr.disabled]="solicitandoReconsentimento()">
+          <nord-button size="s" type="button" (click)="solicitarReconsentimento()" title="Enviar novo link de consentimento" [attr.loading]="solicitandoReconsentimento() || null" [attr.disabled]="solicitandoReconsentimento() || null">
             <span class="material-symbols-outlined text-base" aria-hidden="true">forward_to_inbox</span>
             {{ solicitandoReconsentimento() ? 'Enviando…' : 'Solicitar reconsentimento' }}
           </nord-button>
         }
         @if (isPending && podeRevisarProtocolo) {
-          <nord-button variant="default" size="s" type="button" [class.ring-2]="revisaoFormVisible() && revisaoAprovado" [class.ring-ring]="revisaoFormVisible() && revisaoAprovado" (click)="abrirRevisao(true)" title="Aprovar protocolo">
-            <nord-icon name="interface-checked-circle" size="s" aria-hidden="true"></nord-icon>
+          <nord-button variant="primary" size="s" type="button" [class.ring-2]="revisaoFormVisible() && revisaoAprovado" [class.ring-ring]="revisaoFormVisible() && revisaoAprovado" (click)="abrirRevisao(true)" title="Aprovar protocolo">
+            <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">check_circle</span>
             Aprovar
           </nord-button>
           <nord-button variant="danger" size="s" type="button" [class.ring-2]="revisaoFormVisible() && !revisaoAprovado" [class.ring-destructive]="revisaoFormVisible() && !revisaoAprovado" (click)="abrirRevisao(false)" title="Reprovar protocolo">
-            <nord-icon name="interface-close" size="s" aria-hidden="true"></nord-icon>
+            <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">close</span>
             Reprovar
           </nord-button>
         } @else if (!isPending) {
@@ -41,6 +41,22 @@
         }
       </div>
     }
+    @if (protocolo() && abaAtiva() === 'impressao') {
+      <div class="n-form-toolbar__end">
+        <nord-button variant="default" size="s" type="button" (click)="visualizarFichaPdf()" title="Visualizar PDF" [attr.disabled]="gerandoPdf() || null">
+          <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">visibility</span>
+          Visualizar PDF
+        </nord-button>
+        <nord-button variant="default" size="s" type="button" (click)="baixarFichaPdf()" title="Baixar PDF" [attr.loading]="gerandoPdf() || null" [attr.disabled]="gerandoPdf() || null">
+          <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">download</span>
+          {{ gerandoPdf() ? 'Gerando…' : 'Baixar PDF' }}
+        </nord-button>
+        <nord-button variant="primary" size="s" type="button" (click)="imprimirFicha()" title="Imprimir">
+          <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">print</span>
+          Imprimir
+        </nord-button>
+      </div>
+    }
   </div>
 
   @if (gerandoPdf()) {
@@ -48,6 +64,20 @@
       <div class="dp-generating-card">
         <span class="btn-spinner" aria-hidden="true"></span>
         <span>Gerando PDF...</span>
+      </div>
+    </div>
+  }
+
+  @if (pdfPreviewUrl(); as previewUrl) {
+    <div class="dp-pdf-preview-overlay" role="dialog" aria-modal="true" aria-label="Visualização do PDF" (click)="fecharPdfPreview()">
+      <div class="dp-pdf-preview-panel" (click)="$event.stopPropagation()">
+        <div class="dp-pdf-preview-toolbar">
+          <span class="dp-pdf-preview-title">Visualização do PDF</span>
+          <nord-button variant="default" size="s" type="button" (click)="fecharPdfPreview()">
+            Fechar
+          </nord-button>
+        </div>
+        <iframe class="dp-pdf-preview-frame" [src]="previewUrl" title="PDF do protocolo"></iframe>
       </div>
     </div>
   }
@@ -62,14 +92,6 @@
 
   @if (!erro() && protocolo(); as p) {
     <div class="protocolo-detalhe-shell zm-content-enter">
-
-      <div class="protocolo-detalhe-title">
-        <div class="mb-1 flex flex-wrap items-center gap-2">
-          <span class="font-mono text-xs text-muted-foreground">{{ p.protocol_number || p.id }}</span>
-          <g-badge zShape="pill" [zType]="statusBadgeType()" [class]="statusBadgeClass()">{{ statusLabel() }}</g-badge>
-        </div>
-        <h1 class="m-0 text-base font-semibold leading-snug text-foreground">{{ templateNome() }}</h1>
-      </div>
 
       @if (isPending && revisaoFormVisible() && podeRevisarProtocolo) {
         <g-card class="section-card pd-revisao-card shrink-0" id="revisao_form">
@@ -110,10 +132,10 @@
               </label>
             }
             <div class="pd-revisao-actions">
-              <nord-button variant="primary" type="button" class="gap-2" (click)="enviarRevisao()" [attr.loading]="revisaoEnviando()" [attr.disabled]="revisaoEnviando()">
+              <nord-button variant="primary" type="button" class="gap-2" (click)="enviarRevisao()" [attr.loading]="revisaoEnviando() || null" [attr.disabled]="revisaoEnviando() || null">
                 {{ revisaoEnviando() ? 'Enviando…' : 'Confirmar revisão' }}
               </nord-button>
-              <nord-button variant="default" type="button" (click)="fecharRevisao()" [attr.disabled]="revisaoEnviando()">Cancelar</nord-button>
+              <nord-button variant="default" type="button" (click)="fecharRevisao()" [attr.disabled]="revisaoEnviando() || null">Cancelar</nord-button>
             </div>
           </div>
         </g-card>
@@ -141,10 +163,10 @@
                 placeholder="Ex.: paciente solicitou cancelamento do procedimento..."></textarea>
             </div>
             <div class="pd-revisao-actions">
-              <nord-button variant="danger" type="button" class="gap-2" (click)="enviarRevogacao()" [attr.loading]="revogando()" [attr.disabled]="revogando()">
+              <nord-button variant="danger" type="button" class="gap-2" (click)="enviarRevogacao()" [attr.loading]="revogando() || null" [attr.disabled]="revogando() || null">
                 {{ revogando() ? 'Revogando…' : 'Confirmar revogação' }}
               </nord-button>
-              <nord-button variant="default" type="button" (click)="fecharRevogacao()" [attr.disabled]="revogando()">Cancelar</nord-button>
+              <nord-button variant="default" type="button" (click)="fecharRevogacao()" [attr.disabled]="revogando() || null">Cancelar</nord-button>
             </div>
           </div>
         </g-card>
@@ -212,6 +234,10 @@
                   <div class="protocolo-detail-field protocolo-detail-field--status">
                     <p class="protocolo-detail-label">Status</p>
                     <g-badge zShape="pill" [zType]="statusBadgeType()" [class]="statusBadgeClass()">{{ statusLabel() }}</g-badge>
+                    <p class="protocolo-detail-muted">{{ statusDescricao() }}</p>
+                    @if (statusDataReferencia()) {
+                      <p class="protocolo-detail-muted">{{ statusDataReferencia() }}</p>
+                    }
                   </div>
                   @if (isRevoked && (p.revoke_reason || p.revoked_at)) {
                     <div class="protocolo-detail-field">
@@ -233,7 +259,7 @@
                       <p class="protocolo-detail-label">Válido até</p>
                       <p class="protocolo-detail-value">{{ dataFormatada(p.consent_valid_until) }}</p>
                       @if (isConsentExpired) {
-                        <p class="protocolo-detail-muted text-destructive">Consentimento vencido — solicite um novo termo ao paciente.</p>
+                        <p class="protocolo-detail-muted text-destructive">Consentimento vencido. Solicite um novo termo ao paciente.</p>
                       }
                     </div>
                   }
@@ -249,14 +275,6 @@
 
         <g-tab [label]="tabLabelRespostas()" icon="assignment">
           <div class="protocolo-tab-panel">
-            <div class="pd-alert-top pd-fade-up" role="status">
-              <div class="pd-alert-dot"></div>
-              <p class="pd-alert-text">{{ mensagemBannerTopo() }}</p>
-              @if (dataBannerTopo()) {
-                <span class="pd-alert-date pd-mono">{{ dataBannerTopo() }}</span>
-              }
-            </div>
-
             @if (camposRespostas().length === 0) {
               <g-card class="section-card">
                 <zm-empty-state
@@ -270,9 +288,12 @@
                     <span class="material-symbols-outlined" aria-hidden="true">assignment</span>
                   </div>
                   <span class="section-title">Respostas do formulário</span>
-                  <g-badge zShape="pill" zType="outline" class="section-header__badge">
-                    {{ quantidadeCamposPreenchidos() }} de {{ camposRespostas().length }} preenchidos
-                  </g-badge>
+                  <div class="section-header__badge pd-header-meta">
+                    <g-badge zShape="pill" [zType]="statusBadgeType()" [class]="statusBadgeClass()">{{ statusLabel() }}</g-badge>
+                    <g-badge zShape="pill" zType="outline">
+                      {{ quantidadeCamposPreenchidos() }} de {{ camposRespostas().length }} preenchidos
+                    </g-badge>
+                  </div>
                 </div>
                 <div class="section-body">
                   @if (camposRespostasPreenchidos().length > 0) {
@@ -339,7 +360,7 @@
                     <span class="material-symbols-outlined" aria-hidden="true">groups</span>
                   </div>
                   <span class="section-title">Registro da equipe (clínica)</span>
-                  <nord-button variant="primary" size="s" type="button" class="section-header__action gap-2" (click)="salvarRegistroEquipe()" [attr.loading]="staffSalvando()" [attr.disabled]="staffSalvando()">
+                  <nord-button variant="primary" size="s" type="button" class="section-header__action gap-2" (click)="salvarRegistroEquipe()" [attr.loading]="staffSalvando() || null" [attr.disabled]="staffSalvando() || null">
                     {{ staffSalvando() ? 'Salvando…' : 'Salvar' }}
                   </nord-button>
                 </div>
@@ -453,7 +474,7 @@
                 @for (sig of p.signatures; track $index) {
                   <div class="pd-assin-block">
                     <div class="pd-assin-block__head">
-                      <span class="pd-field-value">Assinatura {{ $index + 1 }} — {{ sig.signed_name || 'Não informado' }}</span>
+                      <span class="pd-field-value">Assinatura {{ $index + 1 }}: {{ sig.signed_name || 'Não informado' }}</span>
                       @if (sig.status) {
                         <g-badge zShape="pill" zType="secondary">{{ assinaturaStatusLabel(sig.status) }}</g-badge>
                       }
@@ -559,7 +580,7 @@
                   <p class="pd-field-label">Novo comentário interno</p>
                   <textarea [(ngModel)]="novoComentario" rows="4" class="w-full" placeholder="Digite seu comentário..."></textarea>
                   <div class="pd-coment-actions">
-                    <nord-button variant="primary" type="button" class="gap-2" (click)="enviarComentario()" [attr.disabled]="!novoComentario.trim() || comentarioEnviando()" [attr.loading]="comentarioEnviando()">
+                    <nord-button variant="primary" type="button" class="gap-2" (click)="enviarComentario()" [attr.disabled]="!novoComentario.trim() || comentarioEnviando() || null" [attr.loading]="comentarioEnviando() || null">
                       {{ comentarioEnviando() ? 'Enviando…' : 'Adicionar comentário' }}
                     </nord-button>
                   </div>
@@ -571,20 +592,6 @@
 
         <g-tab label="Impressão" icon="print">
           <div class="protocolo-tab-panel protocolo-tab-panel--impressao">
-            <div class="pd-print-toolbar">
-              <nord-button variant="default" size="s" type="button" class="gap-2" (click)="visualizarFichaPdf()" [attr.disabled]="gerandoPdf()">
-                <span class="material-symbols-outlined text-base" aria-hidden="true">visibility</span>
-                Visualizar PDF
-              </nord-button>
-              <nord-button variant="default" size="s" type="button" class="gap-2" (click)="baixarFichaPdf()" [attr.loading]="gerandoPdf()" [attr.disabled]="gerandoPdf()">
-                <span class="material-symbols-outlined text-base" aria-hidden="true">download</span>
-                {{ gerandoPdf() ? 'Gerando…' : 'Baixar PDF' }}
-              </nord-button>
-              <nord-button variant="primary" size="s" type="button" class="gap-2" (click)="imprimirFicha()">
-                <span class="material-symbols-outlined text-base" aria-hidden="true">print</span>
-                Imprimir
-              </nord-button>
-            </div>
             <div class="protocolo-print-preview">
             <div id="documento-impressao" class="protocolo-print-sheet documento">
               <header class="dp-header">

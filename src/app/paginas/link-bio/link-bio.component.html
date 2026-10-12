@@ -1,4 +1,4 @@
-<div class="relative min-h-[320px]">
+<div class="link-bio-page relative min-h-[320px]">
   @if (showSkeleton()) {
     <zm-skeleton-link-bio />
   } @else {
@@ -6,7 +6,7 @@
       <p class="px-4 sm:px-6 lg:px-8 text-sm text-destructive">{{ erro() }}</p>
     }
     @if (state(); as bioState) {
-    <div class="zm-content-enter link-bio-page link-bio-shell">
+    <div class="zm-content-enter link-bio-shell">
       <g-tab-group
         #mainTabGroup
         class="config-gestgo-tabs config-gestgo-tabs--layout config-gestgo-tabs--no-nav-rule w-full"
@@ -16,120 +16,137 @@
         (zTabChange)="onMainTabChange($event)"
       >
         <g-tab label="Visão geral" icon="bar_chart">
-          @if (state(); as bioState) {
-            <zm-link-bio-visao-geral-tab
-              [state]="bioState"
-              [layoutModel]="aparenciaModelo"
-              (editContent)="editarConteudo()"
-              (applySuggestion)="aplicarSugestao($event)"
-              (stateUpdated)="aplicarEstadoLinkBio($event)"
-            />
-          }
+          <zm-link-bio-visao-geral-tab
+            [state]="bioState"
+            [layoutModel]="aparenciaModelo"
+            (editContent)="editarConteudo()"
+            (applySuggestion)="aplicarSugestao($event)"
+            (stateUpdated)="aplicarEstadoLinkBio($event)"
+          />
         </g-tab>
 
         <g-tab label="Conteúdo" icon="tune">
           <div class="link-bio-tab-panel link-bio-conteudo-panel">
-            <div class="link-bio-fade-in-3 mb-6">
-              <div class="z-segment" role="tablist" aria-label="Seções do conteúdo">
-                <nord-button variant="plain" size="s" type="button" class="z-segment-btn gap-1.5" role="tab" [class.z-segment-btn--active]="abaAtiva === 'modelos'" [attr.aria-selected]="abaAtiva === 'modelos'" (click)="ativarAba('modelos')">
-                  <span class="material-symbols-outlined text-base" aria-hidden="true">dashboard_customize</span>
+            <div class="link-bio-conteudo-subnav">
+              <nord-button-group class="link-bio-conteudo-subnav__group" aria-label="Seções do conteúdo">
+                <nord-button
+                  type="button"
+                  size="m"
+                  [attr.variant]="abaAtiva === 'modelos' ? 'primary' : 'default'"
+                  (click)="ativarAba('modelos')"
+                >
+                  <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">dashboard_customize</span>
                   Modelos
                 </nord-button>
-                <nord-button variant="plain" size="s" type="button" class="z-segment-btn gap-1.5" role="tab" [class.z-segment-btn--active]="abaAtiva === 'conteudoExtra'" [attr.aria-selected]="abaAtiva === 'conteudoExtra'" (click)="ativarAba('conteudoExtra')">
-                  <span class="material-symbols-outlined text-base" aria-hidden="true">article</span>
+                <nord-button
+                  type="button"
+                  size="m"
+                  [attr.variant]="abaAtiva === 'conteudoExtra' ? 'primary' : 'default'"
+                  (click)="ativarAba('conteudoExtra')"
+                >
+                  <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">article</span>
                   Conteúdo extra
                 </nord-button>
-                <nord-button variant="plain" size="s" type="button" class="z-segment-btn gap-1.5" role="tab" [class.z-segment-btn--active]="abaAtiva === 'links'" [attr.aria-selected]="abaAtiva === 'links'" (click)="ativarAba('links')">
-                  <span class="material-symbols-outlined text-base" aria-hidden="true">link</span>
+                <nord-button
+                  type="button"
+                  size="m"
+                  [attr.variant]="abaAtiva === 'links' ? 'primary' : 'default'"
+                  (click)="ativarAba('links')"
+                >
+                  <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">link</span>
                   Links
-                  <g-badge zShape="pill" zType="secondary" class="min-w-5 justify-center px-1.5 text-[10px] tabular-nums">{{ links.length }}</g-badge>
+                  <nord-badge variant="neutral">{{ links.length }}</nord-badge>
                 </nord-button>
-                <nord-button variant="plain" size="s" type="button" class="z-segment-btn gap-1.5" role="tab" [class.z-segment-btn--active]="abaAtiva === 'forms'" [attr.aria-selected]="abaAtiva === 'forms'" (click)="ativarAba('forms')">
-                  <span class="material-symbols-outlined text-base" aria-hidden="true">assignment</span>
+                <nord-button
+                  type="button"
+                  size="m"
+                  [attr.variant]="abaAtiva === 'forms' ? 'primary' : 'default'"
+                  (click)="ativarAba('forms')"
+                >
+                  <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">assignment</span>
                   Formulários
                   @if (metrics && metrics.formularios_draft > 0) {
-                    <g-badge zShape="pill" zType="outline" class="link-bio-segment-badge-draft min-w-5 justify-center px-1.5 text-[10px] tabular-nums">{{ metrics.formularios_draft }}</g-badge>
+                    <nord-badge variant="warning">{{ metrics.formularios_draft }}</nord-badge>
                   }
                 </nord-button>
-                <nord-button variant="plain" size="s" type="button" class="z-segment-btn gap-1.5" role="tab" [class.z-segment-btn--active]="abaAtiva === 'aparencia'" [attr.aria-selected]="abaAtiva === 'aparencia'" (click)="ativarAba('aparencia')">
-                  <span class="material-symbols-outlined text-base" aria-hidden="true">palette</span>
+                <nord-button
+                  type="button"
+                  size="m"
+                  [attr.variant]="abaAtiva === 'aparencia' ? 'primary' : 'default'"
+                  (click)="ativarAba('aparencia')"
+                >
+                  <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">palette</span>
                   Aparência
                 </nord-button>
-              </div>
+              </nord-button-group>
             </div>
 
-    @if (previewAoLado) {
-    <div class="link-bio-config grid grid-cols-1 gap-6 link-bio-config--side-preview">
-      <div class="min-w-0">
+            <div
+              class="link-bio-conteudo-body link-bio-config"
+              [class.link-bio-conteudo-body--preview]="previewAoLado"
+            >
+              <div class="link-bio-conteudo-body__main">
+                @if (abaAtiva === 'modelos') {
+                  <zm-link-bio-modelos-tab
+                    [state]="bioState"
+                    [activeModel]="aparenciaModelo"
+                    (activeModelChange)="aparenciaModelo = $event"
+                    [persistedModel]="modeloPersistido()"
+                    (persistedModelChange)="modeloPersistido.set($event)"
+                    [previewSessionVersion]="previewSessionVersion()"
+                    (draftSync)="syncDraftToSessionForPreviews()"
+                    (previewRefresh)="atualizarPreviewUrl()"
+                    (goToConteudoExtra)="ativarAba('conteudoExtra')"
+                  />
+                }
 
-        @if (abaAtiva === 'links' && bioState) {
-          <zm-link-bio-links-tab
-            [state]="bioState"
-            [linkAvaliePlaceIdManual]="linkAvaliePlaceIdManual"
-            (linkAvaliePlaceIdManualChange)="linkAvaliePlaceIdManual = $event"
-            (reload)="carregar()"
-            (goToTab)="ativarAba($event)"
-          />
-        }
+                @if (abaAtiva === 'conteudoExtra') {
+                  <zm-link-bio-conteudo-extra-tab
+                    [state]="bioState"
+                    [extraForm]="extraForm"
+                    [activeModel]="aparenciaModelo"
+                    [persistedModel]="modeloPersistido()"
+                    [modelDirty]="modeloDirty"
+                    (draftSync)="syncDraftToSessionForPreviews()"
+                    (previewRefresh)="atualizarPreviewUrl()"
+                    (goToModelos)="ativarAba('modelos')"
+                    (clinicUpdated)="onExtraClinicUpdated()"
+                  />
+                }
 
-        @if (abaAtiva === 'forms') {
-          <zm-link-bio-forms-tab [forms]="forms" />
-        }
+                @if (abaAtiva === 'links') {
+                  <zm-link-bio-links-tab
+                    [state]="bioState"
+                    [linkAvaliePlaceIdManual]="linkAvaliePlaceIdManual"
+                    (linkAvaliePlaceIdManualChange)="linkAvaliePlaceIdManual = $event"
+                    (reload)="carregar()"
+                    (goToTab)="ativarAba($event)"
+                  />
+                }
 
-        @if (abaAtiva === 'aparencia' && bioState) {
-          <zm-link-bio-aparencia-tab
-            [state]="bioState"
-            [linkAvaliePlaceIdManual]="linkAvaliePlaceIdManual"
-            (linkAvaliePlaceIdManualChange)="linkAvaliePlaceIdManual = $event"
-            (reload)="carregar()"
-            (previewRefresh)="atualizarPreviewUrl()"
-          />
-        }
+                @if (abaAtiva === 'forms') {
+                  <zm-link-bio-forms-tab [forms]="forms" />
+                }
 
-      </div>
+                @if (abaAtiva === 'aparencia') {
+                  <zm-link-bio-aparencia-tab
+                    [state]="bioState"
+                    [linkAvaliePlaceIdManual]="linkAvaliePlaceIdManual"
+                    (linkAvaliePlaceIdManualChange)="linkAvaliePlaceIdManual = $event"
+                    (reload)="carregar()"
+                    (previewRefresh)="atualizarPreviewUrl()"
+                  />
+                }
+              </div>
 
-      <zm-link-bio-side-preview [previewUrlSafe]="previewUrlSafe()" />
-    </div>
-    } @else {
-    <!-- Necessário .link-bio-config para .sticky-footer (styles.css) em Modelos / Conteúdo extra -->
-    <div class="link-bio-config min-w-0">
-
-        <!-- Aba Modelos -->
-        @if (abaAtiva === 'modelos' && bioState) {
-          <zm-link-bio-modelos-tab
-            [state]="bioState"
-            [activeModel]="aparenciaModelo"
-            (activeModelChange)="aparenciaModelo = $event"
-            [persistedModel]="modeloPersistido()"
-            (persistedModelChange)="modeloPersistido.set($event)"
-            [previewSessionVersion]="previewSessionVersion()"
-            (draftSync)="syncDraftToSessionForPreviews()"
-            (previewRefresh)="atualizarPreviewUrl()"
-            (goToConteudoExtra)="ativarAba('conteudoExtra')"
-          />
-        }
-
-        <!-- Aba Conteúdo extra (layouts temáticos) -->
-        @if (abaAtiva === 'conteudoExtra' && bioState) {
-          <zm-link-bio-conteudo-extra-tab
-            [state]="bioState"
-            [extraForm]="extraForm"
-            [activeModel]="aparenciaModelo"
-            [persistedModel]="modeloPersistido()"
-            [modelDirty]="modeloDirty"
-            (draftSync)="syncDraftToSessionForPreviews()"
-            (previewRefresh)="atualizarPreviewUrl()"
-            (goToModelos)="ativarAba('modelos')"
-            (clinicUpdated)="onExtraClinicUpdated()"
-          />
-        }
-
-    </div>
-    }
+              @if (previewAoLado) {
+                <zm-link-bio-side-preview [previewUrlSafe]="previewUrlSafe()" />
+              }
+            </div>
           </div>
         </g-tab>
       </g-tab-group>
     </div>
-  }
+    }
   }
 </div>

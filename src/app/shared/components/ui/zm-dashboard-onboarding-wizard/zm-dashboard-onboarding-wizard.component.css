@@ -1,17 +1,17 @@
-:host ::ng-deep .onboarding-card {
-  border: 1px solid color-mix(in srgb, var(--brand, var(--c-primary)) 22%, var(--border));
-  background:
-    linear-gradient(135deg, color-mix(in srgb, var(--brand, var(--c-primary)) 7%, transparent) 0%, transparent 55%),
-    var(--card);
-}
-
+/* Mesmo chrome dos .dash-panel do dashboard */
 .onboarding-wizard {
-  padding: 1.25rem 1.25rem 1.125rem;
+  box-sizing: border-box;
+  margin-block-end: 0;
+  padding: 1.1rem 1.2rem 1.15rem;
+  border: 1px solid var(--n-color-border, var(--c-border));
+  border-radius: 0.75rem;
+  background: var(--n-color-surface, #fff);
+  overflow: hidden;
 }
 
 @media (min-width: 640px) {
   .onboarding-wizard {
-    padding: 1.375rem 1.5rem 1.25rem;
+    padding: 1.15rem 1.25rem 1.2rem;
   }
 }
 
@@ -34,9 +34,9 @@
 
 .onboarding-wizard__icon {
   align-items: center;
-  background: color-mix(in srgb, var(--brand, var(--c-primary)) 14%, transparent);
-  border-radius: 0.75rem;
-  color: var(--brand, var(--c-primary));
+  background: color-mix(in srgb, var(--n-color-accent, var(--c-primary)) 14%, transparent);
+  border-radius: 0.65rem;
+  color: var(--n-color-accent, var(--c-primary));
   display: flex;
   flex-shrink: 0;
   height: 2.75rem;
@@ -49,7 +49,7 @@
 }
 
 .onboarding-wizard__kicker {
-  color: var(--brand, var(--c-primary));
+  color: var(--n-color-accent, var(--c-primary));
   font-size: 0.625rem;
   font-weight: 700;
   letter-spacing: 0.12em;
@@ -59,19 +59,19 @@
 }
 
 .onboarding-wizard__title {
-  color: var(--foreground, var(--c-text));
-  font-size: 1.0625rem;
-  font-weight: 700;
+  color: var(--n-color-text, var(--c-text));
+  font-size: 1rem;
+  font-weight: 650;
   letter-spacing: -0.01em;
   line-height: 1.25;
   margin: 0.25rem 0 0;
 }
 
 .onboarding-wizard__subtitle {
-  color: var(--muted-foreground, var(--c-muted));
+  color: var(--n-color-text-weaker, var(--c-muted));
   font-size: 0.8125rem;
   line-height: 1.45;
-  margin: 0.35rem 0 0;
+  margin: 0.3rem 0 0;
   max-width: 38rem;
 }
 
@@ -100,8 +100,8 @@
 
 .onboarding-template-btn {
   align-items: flex-start;
-  background: var(--background, var(--c-surface));
-  border: 1px solid var(--border, var(--c-border));
+  background: var(--n-color-surface, var(--c-surface, #fff));
+  border: 1px solid var(--n-color-border, var(--c-border));
   border-radius: 0.75rem;
   cursor: pointer;
   display: flex;
@@ -119,8 +119,11 @@
 }
 
 .onboarding-template-btn:hover {
-  border-color: color-mix(in srgb, var(--brand, var(--c-primary)) 35%, var(--border));
-  box-shadow: 0 2px 8px color-mix(in srgb, var(--brand, var(--c-primary)) 8%, transparent);
+  border-color: color-mix(
+    in srgb,
+    var(--n-color-accent, var(--c-primary)) 35%,
+    var(--n-color-border, var(--c-border))
+  );
 }
 
 .onboarding-template-btn:focus-visible {
@@ -129,11 +132,17 @@
 }
 
 .onboarding-template-btn--selected {
-  background: color-mix(in srgb, var(--brand, var(--c-primary)) 7%, var(--background, var(--c-surface)));
-  border-color: color-mix(in srgb, var(--brand, var(--c-primary)) 55%, var(--border));
-  box-shadow:
-    0 0 0 1px color-mix(in srgb, var(--brand, var(--c-primary)) 18%, transparent),
-    0 4px 12px color-mix(in srgb, var(--brand, var(--c-primary)) 10%, transparent);
+  background: color-mix(
+    in srgb,
+    var(--n-color-accent, var(--c-primary)) 8%,
+    var(--n-color-surface, #fff)
+  );
+  border-color: color-mix(
+    in srgb,
+    var(--n-color-accent, var(--c-primary)) 45%,
+    var(--n-color-border, var(--c-border))
+  );
+  box-shadow: none;
 }
 
 .onboarding-template-btn__icon {
@@ -235,7 +244,7 @@
 }
 
 .onboarding-wizard__footer {
-  border-top: 1px solid color-mix(in srgb, var(--border, var(--c-border)) 85%, transparent);
+  border-top: 1px solid var(--n-color-border, var(--c-border));
   display: flex;
   flex-direction: column;
   gap: 0.625rem;

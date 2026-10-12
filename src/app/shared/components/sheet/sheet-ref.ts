@@ -11,6 +11,24 @@ const enum eTriggerAction {
   OK = 'ok',
 }
 
+/** Popouts Nord (date/combobox/dropdown) vão para o body — não fechar o sheet ao interagir com eles. */
+function isNordFloatingOverlayTarget(target: EventTarget | null): boolean {
+  if (!(target instanceof Element)) {
+    return false;
+  }
+  return !!target.closest(
+    [
+      'nord-popout',
+      'nord-dropdown',
+      'nord-calendar',
+      'nord-popover',
+      'nord-select',
+      '[data-nord-popout]',
+      '.flatpickr-calendar',
+    ].join(','),
+  );
+}
+
 export class GestgoSheetRef<T = any, R = any, U = any> {
   private destroy$ = new Subject<void>();
   private isClosing = false;
@@ -29,7 +47,10 @@ export class GestgoSheetRef<T = any, R = any, U = any> {
     if ((this.config.zMaskClosable ?? true) && isPlatformBrowser(this.platformId)) {
       this.overlayRef
         .outsidePointerEvents()
-        .pipe(takeUntil(this.destroy$))
+        .pipe(
+          filter((event) => !isNordFloatingOverlayTarget(event.target)),
+          takeUntil(this.destroy$),
+        )
         .subscribe(() => this.close());
     }
 

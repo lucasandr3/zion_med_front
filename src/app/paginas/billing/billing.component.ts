@@ -1,4 +1,12 @@
-import { Component, OnInit, inject, Signal, ChangeDetectionStrategy, signal } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  inject,
+  Signal,
+  ChangeDetectionStrategy,
+  signal,
+  CUSTOM_ELEMENTS_SCHEMA,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   BillingPayment,
@@ -18,6 +26,7 @@ import { filterPaymentsWhenSubscriptionCanceled } from '../../core/utils/billing
 import { statusAssinaturaOuCobrancaPt, statusFaturaPt } from '../../core/utils/status-labels-pt';
 
 @Component({
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'app-pagina-billing',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -135,6 +144,22 @@ export class BillingComponent implements OnInit {
     return this.pagamentosPendentes.length > 0;
   }
 
+  get bannerVariant(): 'info' | 'warning' | 'success' {
+    if (this.mostrarPendenciaPrimeiroPagamento) return 'warning';
+    if (this.mostrarCartaoGerenciado && this.assinaturaAtiva()) return 'success';
+    return 'info';
+  }
+
+  badgeStatusPagamento(status: string | null | undefined): 'success' | 'warning' | 'danger' | 'neutral' {
+    const st = String(status ?? '').toUpperCase();
+    if (['RECEIVED', 'CONFIRMED', 'RECEIVED_IN_CASH'].includes(st)) return 'success';
+    if (['PENDING', 'AWAITING_RISK_ANALYSIS'].includes(st)) return 'warning';
+    if (['OVERDUE', 'REFUNDED', 'REFUND_REQUESTED', 'CHARGEBACK_REQUESTED', 'CHARGEBACK_DISPUTE'].includes(st)) {
+      return 'danger';
+    }
+    return 'neutral';
+  }
+
   get orientacaoTitulo(): string {
     if (this.mostrarPendenciaPrimeiroPagamento && this.temCobrancaPendente) {
       return 'Conclua o pagamento para ativar sua assinatura';
@@ -156,7 +181,7 @@ export class BillingComponent implements OnInit {
 
   get orientacaoDescricao(): string {
     if (this.mostrarPendenciaPrimeiroPagamento && this.temCobrancaPendente) {
-      return 'Já existe uma cobrança gerada. Pague com PIX ou boleto na seção abaixo — não é necessário assinar novamente o mesmo plano.';
+      return 'Já existe uma cobrança gerada. Pague com PIX ou boleto na seção abaixo. Não é necessário assinar novamente o mesmo plano.';
     }
     if (this.mostrarPendenciaPrimeiroPagamento) {
       return 'Selecione o plano e a forma de pagamento. Depois de confirmar, siga as instruções de PIX ou boleto que aparecerão nesta tela.';

@@ -3,22 +3,19 @@ import {
   Input,
   OnInit,
   inject,
-  PLATFORM_ID,
   ChangeDetectionStrategy,
-  effect,
   signal,
   CUSTOM_ELEMENTS_SCHEMA,
 } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
-import { isPlatformBrowser } from '@angular/common';
 import { AuthService } from '../../../core/services/auth.service';
-import { resolveSidebarLogoSrc } from '../../../core/utils/sidebar-logo.util';
 import { SidebarMobileService } from '../../../core/services/sidebar-mobile.service';
 import { ShellSidebarCollapseService } from '../../../core/services/shell-sidebar-collapse.service';
 
 import { GestgoBadgeComponent } from '@/shared/components/badge/badge.component';
 
 import { GestgoAvatarComponent } from '@/shared/components/avatar/avatar.component';
+import { GestgoBrandMarkComponent } from '@/shared/components/gestgo-brand-mark/gestgo-brand-mark.component';
 
 @Component({
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
@@ -29,7 +26,9 @@ import { GestgoAvatarComponent } from '@/shared/components/avatar/avatar.compone
     RouterLink,
     RouterLinkActive,
     GestgoBadgeComponent,
-    GestgoAvatarComponent],
+    GestgoAvatarComponent,
+    GestgoBrandMarkComponent,
+  ],
   templateUrl: './barra-lateral-plataforma.component.html',
   styleUrl: './barra-lateral-plataforma.component.css',
 })
@@ -39,33 +38,22 @@ export class BarraLateralPlataformaComponent implements OnInit {
   private readonly nomeUsuarioSignal = signal('Usuário');
   private readonly iniciaisUsuarioSignal = signal('U');
   private readonly emailUsuarioSignal = signal('');
-  private readonly sidebarLogoSrcSignal = signal('/assets/logo/logo.png');
 
   readonly nomeUsuario = this.nomeUsuarioSignal.asReadonly();
   readonly iniciaisUsuario = this.iniciaisUsuarioSignal.asReadonly();
   readonly emailUsuario = this.emailUsuarioSignal.asReadonly();
-  readonly sidebarLogoSrc = this.sidebarLogoSrcSignal.asReadonly();
 
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly sidebarMobile = inject(SidebarMobileService);
   private readonly sidebarCollapse = inject(ShellSidebarCollapseService);
-  private readonly platformId = inject(PLATFORM_ID);
 
   readonly sidebarOpenMobile = this.sidebarMobile.isOpen;
   readonly sidebarColapsada = this.sidebarCollapse.collapsed;
 
-  constructor() {
-    effect(() => {
-      this.auth.appearanceVersion();
-      this.refreshSidebarLogo();
-    });
-  }
-
   ngOnInit(): void {
     this.sidebarCollapse.ensureHydrated();
     this.atualizarDados();
-    this.refreshSidebarLogo();
   }
 
   fecharSidebarMobile(): void {
@@ -88,10 +76,5 @@ export class BarraLateralPlataformaComponent implements OnInit {
       this.emailUsuarioSignal.set(u.email || '');
       this.iniciaisUsuarioSignal.set(nome.slice(0, 2).toUpperCase() || 'U');
     }
-  }
-
-  private refreshSidebarLogo(): void {
-    if (!isPlatformBrowser(this.platformId)) return;
-    this.sidebarLogoSrcSignal.set(resolveSidebarLogoSrc());
   }
 }

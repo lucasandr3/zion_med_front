@@ -27,7 +27,7 @@ export function computeFormularioPublicoProgress(input: FormularioPublicoProgres
   if (input.usesFormSteps) {
     const title = input.currentStepTitle?.trim();
     countLabel = title
-      ? `Etapa ${input.currentStepNumber} de ${input.totalFormSteps} — ${title} · ${filled} de ${total}`
+      ? `Etapa ${input.currentStepNumber} de ${input.totalFormSteps}: ${title} · ${filled} de ${total}`
       : `Etapa ${input.currentStepNumber} de ${input.totalFormSteps} · ${filled} de ${total}`;
   } else if (required.length > 0) {
     countLabel = `${requiredFilled} de ${required.length} obrigatórios · ${filled} de ${total}`;

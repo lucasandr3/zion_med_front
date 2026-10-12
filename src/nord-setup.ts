@@ -29,7 +29,65 @@ import '@nordhealth/components/lib/CommandMenu.js';
 import '@nordhealth/components/lib/CommandMenuAction.js';
 import '@nordhealth/components/lib/DatePicker.js';
 import '@nordhealth/components/lib/TimePicker.js';
+import { registerTranslation } from '@nordhealth/components/lib/translation.js';
 import '@nordhealth/components/lib/Divider.js';
+
+/**
+ * Sem tradução pt-BR o Nord cai no en-US e o calendário (meses/dias) fica em inglês,
+ * mesmo com <html lang="pt-BR"> — o Intl usa `resolvedLang` da tradução registrada.
+ */
+registerTranslation({
+  $lang: 'pt-BR',
+  $name: 'Português (Brasil)',
+  $dir: 'ltr',
+  'nord-calendar': {
+    prevMonthLabel: 'Mês anterior',
+    nextMonthLabel: 'Próximo mês',
+    monthSelectLabel: 'Mês',
+    yearSelectLabel: 'Ano',
+    weekLabel: 'Semana',
+  },
+  'nord-date-picker': {
+    modalHeading: 'Escolher data',
+    closeLabel: 'Fechar',
+    buttonLabel: 'Escolher data',
+    selectedDateMessage: 'Data selecionada',
+    dateOutOfMinBound: (minDate: string) => `A data deve ser em ${minDate} ou depois`,
+    dateOutOfMaxBound: (maxDate: string) => `A data deve ser em ${maxDate} ou antes`,
+  },
+  'nord-date-range-picker': {
+    buttonLabel: 'Escolher período',
+    placeholder: 'Escolher período',
+    modalHeading: 'Escolher período',
+    closeLabel: 'Fechar',
+    applyLabel: 'Aplicar',
+    cancelLabel: 'Cancelar',
+    clearLabel: 'Limpar',
+    presetsLabel: 'Atalhos de período',
+    presetsCollapsedLabel: 'Escolher atalho',
+    rangeSeparator: '–',
+    dateOutOfMinBound: (minDate: string) => `A data deve ser em ${minDate} ou depois`,
+    dateOutOfMaxBound: (maxDate: string) => `A data deve ser em ${maxDate} ou antes`,
+    presetToday: 'Hoje',
+    presetYesterday: 'Ontem',
+    presetLastDays: (n: number) => `Últimos ${n} dias`,
+    presetLastMonths: (n: number) => `Últimos ${n} meses`,
+    presetThisMonth: 'Este mês',
+    presetLastWeek: 'Semana passada',
+    presetLastMonth: 'Mês passado',
+    presetLastQuarter: 'Trimestre passado',
+    presetLastYear: 'Ano passado',
+    presetCurrentWeek: 'Semana atual',
+    presetCurrentMonth: 'Mês atual',
+    presetCurrentQuarter: 'Trimestre atual',
+    presetCurrentYear: 'Ano atual',
+    presetQuarter: (q: number, year: number) => `T${q} ${year}`,
+  },
+  'nord-time-picker': {
+    chooseTime: 'Escolher horário',
+  },
+});
+
 import '@nordhealth/components/lib/Dropdown.js';
 import '@nordhealth/components/lib/DropdownGroup.js';
 import '@nordhealth/components/lib/DropdownItem.js';
@@ -92,6 +150,8 @@ const NORD_SHELL_HEADER_CSS = `
   --_n-layout-header-size-s: var(--shell-header-height, var(--header-height, 3.5rem)) !important;
   --_n-header-block-size: var(--shell-header-height, var(--header-height, 3.5rem)) !important;
   --_n-header-padding-block: 0 !important;
+  --n-size-top-bar: var(--shell-header-height, var(--header-height, 3.5rem)) !important;
+  --n-navigation-header-block-size: var(--shell-header-height, var(--header-height, 3.5rem)) !important;
   --_n-navigation-header-block-size: var(--shell-header-height, var(--header-height, 3.5rem)) !important;
 }
 :host(nord-layout) {
@@ -101,9 +161,22 @@ const NORD_SHELL_HEADER_CSS = `
   overflow: hidden !important;
   --_n-layout-padding: 0 !important;
   --n-layout-padding: 0 !important;
+  --n-size-top-bar: var(--shell-header-height, var(--header-height, 3.5rem)) !important;
+  --n-navigation-header-block-size: var(--shell-header-height, var(--header-height, 3.5rem)) !important;
+}
+:host(nord-navigation) {
+  --n-navigation-header-block-size: var(--shell-header-height, var(--header-height, 3.5rem)) !important;
+  --_n-navigation-header-block-size: var(--shell-header-height, var(--header-height, 3.5rem)) !important;
+}
+:host(nord-navigation) slot[name='header'] {
+  box-sizing: border-box !important;
+  block-size: var(--shell-header-height, var(--header-height, 3.5rem)) !important;
+  min-block-size: var(--shell-header-height, var(--header-height, 3.5rem)) !important;
+  max-block-size: var(--shell-header-height, var(--header-height, 3.5rem)) !important;
 }
 :host(nord-top-bar) {
   box-sizing: border-box !important;
+  --n-size-top-bar: var(--shell-header-height, var(--header-height, 3.5rem)) !important;
   block-size: var(--shell-header-height, var(--header-height, 3.5rem)) !important;
   min-block-size: var(--shell-header-height, var(--header-height, 3.5rem)) !important;
   max-block-size: var(--shell-header-height, var(--header-height, 3.5rem)) !important;
@@ -234,8 +307,15 @@ slot[name='header'] {
   --n-color-icon: var(--shell-nav-item, rgb(255 255 255 / 0.88));
   --n-nav-item-color: var(--shell-nav-item, rgb(255 255 255 / 0.88));
 }
-/* Topo e marca */
-:host-context(body.shell-preset-tinted) .n-has-top-bar[data-screen='wide'][data-nav='opened'] .n-layout-nav {
+/* Topo e marca — faixa da marca sempre na cor do tema (aberta ou rail fechada) */
+:host-context(body.shell-preset-tinted) .n-layout-nav,
+:host-context(body.shell-preset-tinted) .n-has-top-bar .n-layout-nav {
+  --n-navigation-header-background: var(--n-color-accent, var(--c-primary)) !important;
+  --n-navigation-header-color: var(--n-color-text-on-accent, #fff) !important;
+  --n-navigation-header-toggle-icon-color: #ffffffd9 !important;
+  --n-navigation-header-divider: none !important;
+}
+:host-context(body.shell-preset-tinted):host(nord-navigation) {
   --n-navigation-header-background: var(--n-color-accent, var(--c-primary)) !important;
   --n-navigation-header-color: var(--n-color-text-on-accent, #fff) !important;
   --n-navigation-header-toggle-icon-color: #ffffffd9 !important;
@@ -291,6 +371,10 @@ const NORD_NAV_ITEM_CSS = `
   min-block-size: 37px;
   max-block-size: 37px;
   box-sizing: border-box;
+  padding-inline: var(--n-nav-item-padding-inline, 0.75rem) !important;
+}
+.n-nav-badge {
+  padding-inline: var(--n-nav-badge-padding-inline, 0.5rem) !important;
 }
 :host([active]) .n-nav-item {
   background: var(--n-nav-item-background-active) !important;
@@ -303,7 +387,8 @@ const NORD_NAV_ITEM_CSS = `
   filter: brightness(1.06);
 }
 :host([active]) nord-icon,
-:host([active]) .n-nav-icon {
+:host([active]) .n-nav-icon,
+:host([active]) .material-symbols-outlined {
   color: var(--n-nav-item-color-active) !important;
 }
 :host([active]) .n-nav-item:focus,
@@ -413,6 +498,8 @@ const NORD_TAB_PADDING_CSS = `
 /*
  * Date/time: mesma altura dos demais controles (--control-height) e
  * input type=time do Nord não usa a fórmula nativa (mais baixa).
+ * Toggle no slot=end: o Input pinta --n-button-border-color no hover/focus
+ * (caixa dentro da caixa) — forçamos transparente no shadow do nord-input.
  */
 const NORD_PICKER_INPUT_CSS = `
 :host {
@@ -440,6 +527,51 @@ const NORD_PICKER_INPUT_CSS = `
   caret-color: transparent !important;
   cursor: pointer !important;
 }
+/* Cancela o “addon” do input-group (raio só de um lado = caixa aninhada) */
+slot[name='end'] {
+  --n-button-border-radius: var(--n-border-radius-s) !important;
+}
+::slotted(nord-button.n-date-picker-toggle),
+::slotted(nord-dropdown),
+.n-input-container:hover:not(:focus-within) ::slotted(nord-button.n-date-picker-toggle),
+.n-input-container:hover:not(:focus-within) ::slotted(nord-dropdown),
+.n-label-container:hover ~ .n-input-container:not(:focus-within) ::slotted(nord-button.n-date-picker-toggle),
+.n-label-container:hover ~ .n-input-container:not(:focus-within) ::slotted(nord-dropdown),
+.n-input-container:focus-within ::slotted(nord-button.n-date-picker-toggle),
+.n-input-container:focus-within ::slotted(nord-dropdown) {
+  --n-button-border-color: transparent !important;
+  --n-button-background-color: transparent !important;
+  --n-button-background-color-hover: color-mix(in srgb, var(--n-color-text) 6%, transparent) !important;
+  --n-button-box-shadow: none !important;
+  --n-button-box-shadow-hover: none !important;
+  --n-button-border-radius: var(--n-border-radius-s) !important;
+}
+`;
+
+/** Shadow do nord-button do calendário/hora — zera borda de 1px mesmo transparente. */
+const NORD_PICKER_TOGGLE_CSS = `
+:host {
+  --n-button-border-color: transparent !important;
+  --_n-button-border-color: transparent !important;
+  --n-button-border-radius: var(--n-border-radius-s) !important;
+  --_n-button-border-radius: var(--n-border-radius-s) !important;
+  --n-button-box-shadow: none !important;
+  --_n-button-box-shadow: none !important;
+  --n-button-background-color: transparent !important;
+  --_n-button-background-color: transparent !important;
+}
+.n-button,
+.n-button:hover,
+.n-button:focus,
+.n-button:focus-visible,
+.n-button:active {
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+.n-button:hover {
+  background: color-mix(in srgb, var(--n-color-text) 6%, transparent) !important;
+}
 `;
 
 let shellHeaderSheet: CSSStyleSheet | null = null;
@@ -449,6 +581,7 @@ let accountMenuPopoutSheet: CSSStyleSheet | null = null;
 let noFocusSheet: CSSStyleSheet | null = null;
 let tabPaddingSheet: CSSStyleSheet | null = null;
 let pickerInputSheet: CSSStyleSheet | null = null;
+let pickerToggleSheet: CSSStyleSheet | null = null;
 const shellStyled = new WeakSet<ShadowRoot>();
 const navItemStyled = new WeakSet<ShadowRoot>();
 const accountMenuDropdownStyled = new WeakSet<ShadowRoot>();
@@ -456,6 +589,7 @@ const accountMenuPopoutStyled = new WeakSet<ShadowRoot>();
 const noFocusStyled = new WeakSet<ShadowRoot>();
 const tabPaddingStyled = new WeakSet<ShadowRoot>();
 const pickerInputStyled = new WeakSet<ShadowRoot>();
+const pickerToggleStyled = new WeakSet<ShadowRoot>();
 
 function getShellHeaderSheet(): CSSStyleSheet {
   if (!shellHeaderSheet) {
@@ -512,6 +646,14 @@ function getPickerInputSheet(): CSSStyleSheet {
   }
   pickerInputSheet.replaceSync(NORD_PICKER_INPUT_CSS);
   return pickerInputSheet;
+}
+
+function getPickerToggleSheet(): CSSStyleSheet {
+  if (!pickerToggleSheet) {
+    pickerToggleSheet = new CSSStyleSheet();
+  }
+  pickerToggleSheet.replaceSync(NORD_PICKER_TOGGLE_CSS);
+  return pickerToggleSheet;
 }
 
 function injectAdoptedOrStyle(
@@ -608,10 +750,54 @@ function injectTabPaddingStyles(host: Element): void {
 
 function injectPickerInputStyles(nordInput: Element): void {
   const root = nordInput.shadowRoot;
-  if (!root || pickerInputStyled.has(root)) return;
+  if (!root) return;
+  // replaceSync atualiza shadows que já adotaram a sheet (HMR / correções)
+  const sheet = getPickerInputSheet();
+  if (pickerInputStyled.has(root)) return;
   pickerInputStyled.add(root);
-  injectAdoptedOrStyle(root, getPickerInputSheet(), NORD_PICKER_INPUT_CSS, 'data-gestgo-picker-input');
+  injectAdoptedOrStyle(root, sheet, NORD_PICKER_INPUT_CSS, 'data-gestgo-picker-input');
 }
+
+function injectPickerToggleStyles(toggle: Element): void {
+  const root = toggle.shadowRoot;
+  if (!root) return;
+  const sheet = getPickerToggleSheet();
+  if (pickerToggleStyled.has(root)) return;
+  pickerToggleStyled.add(root);
+  injectAdoptedOrStyle(root, sheet, NORD_PICKER_TOGGLE_CSS, 'data-gestgo-picker-toggle');
+}
+
+/**
+ * Exibição dd/mm/aaaa (Brasil). O `value` do componente continua ISO YYYY-MM-DD
+ * para o Angular/API — só muda o que aparece no input e o parse da digitação.
+ */
+type NordCreateDate = (year: string, month: string, day: string) => Date | undefined;
+const BR_DATE_ADAPTER = {
+  format(date: Date): string {
+    const d = String(date.getDate()).padStart(2, '0');
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const y = String(date.getFullYear()).padStart(4, '0');
+    return `${d}/${m}/${y}`;
+  },
+  parse(input: string, createDate: NordCreateDate): Date | undefined {
+    const s = String(input ?? '').trim();
+    if (!s) return undefined;
+    let match = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+    if (match) {
+      return createDate(match[3], match[2].padStart(2, '0'), match[1].padStart(2, '0'));
+    }
+    match = s.match(/^(\d{1,2})[.\-](\d{1,2})[.\-](\d{4})$/);
+    if (match) {
+      return createDate(match[3], match[2].padStart(2, '0'), match[1].padStart(2, '0'));
+    }
+    // Aceita ISO (valor do model / API)
+    match = s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (match) {
+      return createDate(match[1], match[2], match[3]);
+    }
+    return undefined;
+  },
+};
 
 /** Altura padrão + cursor de picker (sem digitação livre). */
 function enhanceNordPicker(host: Element): void {
@@ -630,9 +816,42 @@ function enhanceNordPicker(host: Element): void {
     host.setAttribute('expand', '');
   }
 
+  if (host.localName === 'nord-date-picker') {
+    const picker = host as HTMLElement & {
+      dateAdapter?: typeof BR_DATE_ADAPTER;
+      firstDayOfWeek?: number;
+    };
+    if (picker.dateAdapter !== BR_DATE_ADAPTER) {
+      picker.dateAdapter = BR_DATE_ADAPTER;
+    }
+    // Calendário BR: domingo como primeiro dia
+    if (!host.hasAttribute('first-day-of-week')) {
+      picker.firstDayOfWeek = 0;
+    }
+    if (!host.getAttribute('lang')) {
+      host.setAttribute('lang', 'pt-BR');
+    }
+    const ph = host.getAttribute('placeholder');
+    if (!ph || ph === 'aaaa-mm-dd' || ph === 'yyyy-mm-dd' || ph === 'YYYY-MM-DD') {
+      host.setAttribute('placeholder', 'dd/mm/aaaa');
+    }
+  }
+
   const root = host.shadowRoot;
   if (!root) return;
   root.querySelectorAll('nord-input').forEach((el) => injectPickerInputStyles(el));
+
+  // Toggle plain: sem borda padrão do nord-button (o Input ainda força no hover via CSS acima)
+  root.querySelectorAll('nord-button.n-date-picker-toggle, nord-dropdown > nord-button[slot="toggle"]').forEach((btn) => {
+    if (!(btn instanceof HTMLElement)) return;
+    if (btn.getAttribute('variant') !== 'plain') {
+      btn.setAttribute('variant', 'plain');
+    }
+    btn.style.setProperty('--n-button-border-color', 'transparent');
+    btn.style.setProperty('--n-button-background-color', 'transparent');
+    btn.style.setProperty('--n-button-box-shadow', 'none');
+    injectPickerToggleStyles(btn);
+  });
 }
 
 type NordShowable = HTMLElement & { show?: () => void; open?: boolean; disabled?: boolean };
@@ -648,13 +867,22 @@ function findPickerHost(path: EventTarget[]): NordShowable | null {
 }
 
 function isPickerToggle(path: EventTarget[]): boolean {
-  return path.some(
-    (n) =>
-      n instanceof Element &&
-      (n.classList.contains('n-date-picker-toggle') ||
-        n.closest?.('.n-date-picker-toggle') != null ||
-        (n.localName === 'nord-button' && n.getAttribute('slot') === 'toggle')),
-  );
+  return path.some((n) => {
+    if (!(n instanceof Element)) return false;
+    if (n.classList.contains('n-date-picker-toggle') || n.closest?.('.n-date-picker-toggle')) {
+      return true;
+    }
+    // Time picker: botão/dropdown dentro de nord-time-picker — não o menu da conta
+    const inTimePicker =
+      !!n.closest?.('nord-time-picker') ||
+      (n.getRootNode() instanceof ShadowRoot &&
+        (n.getRootNode() as ShadowRoot).host?.localName === 'nord-time-picker');
+    if (!inTimePicker) return false;
+    return (
+      n.localName === 'nord-dropdown' ||
+      (n.localName === 'nord-button' && n.getAttribute('slot') === 'toggle')
+    );
+  });
 }
 
 function openNordPicker(host: NordShowable): void {
@@ -666,6 +894,17 @@ function openNordPicker(host: NordShowable): void {
   const dropdown = host.shadowRoot?.querySelector('nord-dropdown') as NordShowable | null;
   dropdown?.show?.();
 }
+
+/**
+ * Abre o calendário/hora após o ciclo do clique.
+ * Abrir no pointerdown faz o LightDismiss do nord-popout ver mousedown/click
+ * “fora” do toggle e fechar na mesma interação.
+ */
+function openNordPickerAfterClick(host: NordShowable): void {
+  window.setTimeout(() => openNordPicker(host), 0);
+}
+
+const pickerOpenOnPointer = new WeakMap<NordShowable, boolean>();
 
 function installNordPickerUx(): void {
   if (typeof document === 'undefined') return;
@@ -685,15 +924,32 @@ function installNordPickerUx(): void {
     'End',
   ]);
 
+  // Marca se já estava aberto — evita reabrir após o LightDismiss fechar no mesmo clique
   document.addEventListener(
     'pointerdown',
     (ev) => {
       const path = ev.composedPath();
       const host = findPickerHost(path);
+      if (!host || isPickerToggle(path)) return;
+      const wasOpen =
+        host.localName === 'nord-date-picker'
+          ? !!host.open
+          : !!(host.shadowRoot?.querySelector('nord-dropdown') as NordShowable | null)?.open;
+      pickerOpenOnPointer.set(host, wasOpen);
+    },
+    true,
+  );
+
+  document.addEventListener(
+    'click',
+    (ev) => {
+      const path = ev.composedPath();
+      const host = findPickerHost(path);
       if (!host) return;
-      // Clique no botão nativo: deixa o Nord abrir/fechar
+      // Clique no botão/dropdown nativo: deixa o Nord abrir/fechar
       if (isPickerToggle(path)) return;
-      openNordPicker(host);
+      if (pickerOpenOnPointer.get(host)) return;
+      openNordPickerAfterClick(host);
     },
     true,
   );
@@ -718,7 +974,7 @@ function installNordPickerUx(): void {
       if (allowedKeys.has(ev.key)) {
         if (ev.key === 'Enter' || ev.key === ' ' || ev.key === 'ArrowDown') {
           ev.preventDefault();
-          openNordPicker(host);
+          openNordPickerAfterClick(host);
         }
         return;
       }

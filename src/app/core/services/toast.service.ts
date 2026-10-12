@@ -22,7 +22,7 @@ export class ToastService {
     _onAction?: () => void,
   ): void {
     const description = desc?.trim();
-    const text = description ? `${title} — ${description}` : title;
+    const text = description ? `${title}: ${description}` : title;
     this.message.set(text);
     this.variant.set(type === 'error' ? 'danger' : 'default');
     this.durationMs.set(duration);

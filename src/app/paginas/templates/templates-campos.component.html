@@ -3,12 +3,12 @@
     <div class="n-form-toolbar__start">
       <zm-page-back-link />
       @if (template()) {
-        <nord-button type="button" size="s" [routerLink]="['/templates', templateId, 'editar']">
-          <nord-icon name="interface-edit" size="s" aria-hidden="true"></nord-icon>
+        <nord-button type="button" [routerLink]="['/templates', templateId, 'editar']">
+          <span slot="start" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">edit</span>
           Editar modelo
         </nord-button>
-        <nord-button type="button" size="s" [routerLink]="['/templates', templateId, 'preview']" target="_blank" rel="noopener noreferrer">
-          <nord-icon name="interface-new-window" size="s" aria-hidden="true"></nord-icon>
+        <nord-button type="button" [routerLink]="['/templates', templateId, 'preview']" target="_blank" rel="noopener noreferrer">
+          <span slot="start" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">open_in_new</span>
           Pré-visualizar
         </nord-button>
       }
@@ -16,32 +16,32 @@
     @if (template()) {
       <div class="n-form-toolbar__end">
         @if (isConsentimento) {
-          <nord-button type="button" variant="default" size="s" [attr.loading]="aplicandoEstruturaTcle()" [attr.disabled]="aplicandoEstruturaTcle()" (click)="aplicarEstruturaTcle()">
-            <span class="material-symbols-outlined text-base" aria-hidden="true">account_tree</span>
+          <nord-button type="button" variant="default" [attr.loading]="aplicandoEstruturaTcle()" [attr.disabled]="aplicandoEstruturaTcle()" (click)="aplicarEstruturaTcle()">
+            <span slot="start" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">account_tree</span>
             Aplicar estrutura TCLE
           </nord-button>
         }
         @if (linkPublicoUrl()) {
-          <nord-button type="button" size="s" (click)="copiarLink($event)">
-            <span class="material-symbols-outlined text-base" aria-hidden="true">content_copy</span>
+          <nord-button type="button" (click)="copiarLink($event)">
+            <span slot="start" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">content_copy</span>
             <span class="copy-label">Copiar link</span>
           </nord-button>
           <a [href]="linkPublicoUrl()" target="_blank" rel="noopener" class="no-underline">
-            <nord-button type="button" size="s">
-              <nord-icon name="interface-new-window" size="s" aria-hidden="true"></nord-icon>
+            <nord-button type="button" variant="primary">
+              <span slot="start" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">open_in_new</span>
               Abrir
             </nord-button>
           </a>
-          <nord-button type="button" variant="default" size="s" [attr.loading]="desativandoLink()" [attr.disabled]="desativandoLink()" (click)="desativarLink()">
+          <nord-button type="button" variant="default" [attr.loading]="desativandoLink()" [attr.disabled]="desativandoLink()" (click)="desativarLink()">
             @if (!desativandoLink()) {
-              <span class="material-symbols-outlined text-base" aria-hidden="true">link_off</span>
+              <span slot="start" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">link_off</span>
             }
             {{ desativandoLink() ? 'Desativando…' : 'Desativar link' }}
           </nord-button>
         } @else {
-          <nord-button type="button" size="s" [attr.loading]="gerandoLink()" [attr.disabled]="gerandoLink()" (click)="gerarLink()">
+          <nord-button type="button" variant="primary" [attr.loading]="gerandoLink()" [attr.disabled]="gerandoLink()" (click)="gerarLink()">
             @if (!gerandoLink()) {
-              <span class="material-symbols-outlined text-base" aria-hidden="true">link</span>
+              <span slot="start" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">public</span>
             }
             {{ gerandoLink() ? 'Publicando…' : 'Publicar link' }}
           </nord-button>
@@ -133,7 +133,9 @@
       }
 
       @if (erro()) {
-        <p class="mb-4 text-sm text-destructive">{{ erro() }}</p>
+        <nord-banner variant="danger" class="mb-4">
+          <p style="white-space: pre-line">{{ erro() }}</p>
+        </nord-banner>
       }
 
       <g-card class="mb-4 gap-0 overflow-hidden border-border bg-card py-0 shadow-sm">

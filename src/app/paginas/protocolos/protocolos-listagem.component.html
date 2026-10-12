@@ -13,12 +13,12 @@
     </div>
   </div>
   <div class="n-page-list__toolbar-end" data-go-tour="protocolos-filters">
-    <nord-button variant="default" type="button" (click)="exportarCsv()" [attr.disabled]="exportando()" title="Exportar CSV">
-      <nord-icon name="interface-download" size="s"></nord-icon>
+    <nord-button variant="default" type="button" (click)="exportarCsv()" [attr.disabled]="exportando() || null" title="Exportar CSV">
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">download</span>
       Exportar CSV
     </nord-button>
-    <nord-button variant="default" type="button" (click)="exportarPdf()" [attr.disabled]="exportando()" title="Exportar PDF (até 50)">
-      <nord-icon name="file-invoice" size="s"></nord-icon>
+    <nord-button variant="default" type="button" (click)="exportarPdf()" [attr.disabled]="exportando() || null" title="Exportar PDF (até 50)">
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">receipt_long</span>
       Exportar PDF (até 50)
     </nord-button>
     <nord-button
@@ -30,7 +30,7 @@
       [class.ring-ring]="temFiltrosAtivos"
       title="Filtros"
     >
-      <nord-icon name="interface-filter" size="s"></nord-icon>
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">filter_list</span>
       Filtros
       @if (temFiltrosAtivos) {
         <nord-badge variant="neutral">{{ quantidadeFiltrosAtivos }}</nord-badge>
@@ -159,7 +159,7 @@
               label="Data início"
               [(ngModel)]="data_inicio"
               name="protocolos_filtro_inicio"
-              placeholder="aaaa-mm-dd">
+              placeholder="dd/mm/aaaa">
             </nord-date-picker>
           </div>
           <div class="zm-filter-field">
@@ -171,7 +171,7 @@
               label="Data fim"
               [(ngModel)]="data_fim"
               name="protocolos_filtro_fim"
-              placeholder="aaaa-mm-dd">
+              placeholder="dd/mm/aaaa">
             </nord-date-picker>
           </div>
         </div>
@@ -179,11 +179,11 @@
     </div>
     <footer class="zm-filter-sheet__footer">
       <nord-button variant="default" type="button" (click)="limparFiltros()">
-        <nord-icon name="interface-filter" size="s"></nord-icon>
+        <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">filter_list</span>
         Limpar
       </nord-button>
       <nord-button variant="primary" type="button" (click)="aplicarFiltros()">
-        <nord-icon name="interface-checked" size="s"></nord-icon>
+        <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">check</span>
         Aplicar
       </nord-button>
     </footer>

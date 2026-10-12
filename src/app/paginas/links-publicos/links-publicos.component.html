@@ -6,7 +6,7 @@
     <div class="n-page-list__panel links-publicos-error">
       <p class="n-muted n-small" style="color: var(--n-color-status-danger, #c62828)">{{ erro() }}</p>
       <nord-button variant="default" type="button" (click)="carregar(meta().current_page)">
-        <nord-icon name="arrow-refresh" size="s"></nord-icon>
+        <span slot="start" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">refresh</span>
         Tentar novamente
       </nord-button>
     </div>
@@ -16,7 +16,7 @@
         <h2>Nenhum formulário público ativo</h2>
         <p>Ative o link público em Modelos de fichas → Campos para gerar um link compartilhável com pacientes.</p>
         <nord-button variant="primary" routerLink="/templates">
-          <nord-icon name="file-notes" size="s"></nord-icon>
+          <span slot="start" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">description</span>
           Ir para modelos de fichas
         </nord-button>
       </nord-empty-state>
@@ -28,7 +28,7 @@
           <div class="lp-card__head">
             <div class="lp-card__lead">
               <div class="lp-card__icon" aria-hidden="true">
-                <nord-icon [name]="iconeNordTemplate(t)" size="s"></nord-icon>
+                <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">{{ iconeTemplate(t) }}</span>
               </div>
               <div class="lp-card__identity">
                 <h3 class="lp-card__title" [attr.title]="t.name">{{ t.name }}</h3>
@@ -53,28 +53,28 @@
                 class="lp-card__menu-btn"
                 [attr.aria-label]="'Opções de ' + t.name"
               >
-                <nord-icon name="interface-menu-small" size="s"></nord-icon>
+                <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">more_vert</span>
               </nord-button>
               <nord-dropdown-group>
                 <nord-dropdown-item [routerLink]="['/templates', t.id, 'campos']">
-                  <nord-icon slot="start" name="file-code" size="s"></nord-icon>
+                  <span slot="start" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">code</span>
                   Campos do formulário
                 </nord-dropdown-item>
                 <nord-dropdown-item routerLink="/templates">
-                  <nord-icon slot="start" name="file-notes" size="s"></nord-icon>
+                  <span slot="start" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">description</span>
                   Gerenciar templates
                 </nord-dropdown-item>
                 @if (t.public_url) {
                   <nord-dropdown-item (click)="copiarLink(t.id, t.public_url)">
-                    <nord-icon slot="start" name="interface-copy" size="s"></nord-icon>
+                    <span slot="start" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">content_copy</span>
                     Copiar link
                   </nord-dropdown-item>
                   <nord-dropdown-item (click)="abrirQr(t)">
-                    <nord-icon slot="start" name="generic-qr-code" size="s"></nord-icon>
+                    <span slot="start" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">qr_code</span>
                     Ver QR code
                   </nord-dropdown-item>
                   <nord-dropdown-item (click)="baixarQrDireto(t)">
-                    <nord-icon slot="start" name="interface-download" size="s"></nord-icon>
+                    <span slot="start" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">download</span>
                     Baixar QR code
                   </nord-dropdown-item>
                 }
@@ -86,7 +86,7 @@
                     [attr.disabled]="desativandoId() === t.id"
                     (click)="desativarLinkPublico(t, $event)"
                   >
-                        <nord-icon slot="start" name="interface-cancelled-small" size="s"></nord-icon>
+                        <span slot="start" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">cancel</span>
                         Desativar link público
                   </nord-dropdown-item>
                 </nord-dropdown-group>
@@ -126,10 +126,7 @@
               [title]="copiedTemplateId() === t.id ? 'Link copiado' : 'Copiar link do formulário'"
               (click)="copiarLink(t.id, t.public_url)"
             >
-              <nord-icon
-                [name]="copiedTemplateId() === t.id ? 'interface-checked' : 'interface-copy'"
-                size="s"
-              ></nord-icon>
+              <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">{{ copiedTemplateId() === t.id ? 'check' : 'content_copy' }}</span>
               {{ copiedTemplateId() === t.id ? 'Copiado!' : 'Copiar link' }}
             </nord-button>
             <nord-button
@@ -143,7 +140,7 @@
               [attr.disabled]="!t.public_url || null"
               title="Abrir formulário em nova aba"
             >
-              <nord-icon name="interface-new-window" size="s"></nord-icon>
+              <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">open_in_new</span>
               Abrir
             </nord-button>
           </div>
@@ -188,7 +185,7 @@
       [attr.disabled]="!qrDataUrl()"
       (click)="baixarQr()"
     >
-      <nord-icon name="interface-download" size="s"></nord-icon>
+      <span slot="start" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">download</span>
       Baixar QR code
     </nord-button>
     <nord-button
@@ -198,7 +195,7 @@
       [attr.disabled]="!qrItem()?.public_url"
       (click)="copiarLinkQr()"
     >
-      <nord-icon name="interface-copy" size="s"></nord-icon>
+      <span slot="start" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">content_copy</span>
       Copiar link
     </nord-button>
   </nord-button-group>

@@ -1,57 +1,57 @@
-<div id="tab-conteudo-extra" class="flex flex-col gap-5 pb-24">
-            <g-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-4 text-xs leading-relaxed text-muted-foreground">
+<div id="tab-conteudo-extra">
+            <div class="lb-extra-hint">
               @if (conteudoExtraTemCamposParaModelo) {
-                <span>
+                <p class="m-0">
                   Campos abaixo correspondem ao layout selecionado:
-                  <strong class="text-foreground">{{ conteudoExtraModeloAtivoLabel }}</strong>.
-                </span>
+                  <strong>{{ conteudoExtraModeloAtivoLabel }}</strong>.
+                </p>
                 @if (conteudoExtraApareceNoPublico) {
-                  <span class="block mt-1">
-                    Seu layout <strong class="text-foreground">publicado</strong> hoje é
-                    <strong class="text-foreground">{{ layoutPublicadoLabel }}</strong>.
+                  <p class="m-0 mt-1.5">
+                    Seu layout <strong>publicado</strong> hoje é
+                    <strong>{{ layoutPublicadoLabel }}</strong>.
                     @if (modelDirty) {
-                      Os campos refletem a prévia de <strong class="text-foreground">{{ layoutSelecionadoLabel }}</strong>.
+                      Os campos refletem a prévia de <strong>{{ layoutSelecionadoLabel }}</strong>.
                     } @else {
                       O que você preencher aqui pode aparecer na página pública.
                     }
-                  </span>
+                  </p>
                 } @else {
-                  <span class="block mt-1">
-                    Seu layout publicado hoje é <strong class="text-foreground">{{ layoutPublicadoLabel }}</strong> (genérico), então estes campos
-                    <strong class="text-foreground">não aparecem</strong> na página pública até você publicar um layout temático na aba Modelos.
-                  </span>
+                  <p class="m-0 mt-1.5">
+                    Seu layout publicado hoje é <strong>{{ layoutPublicadoLabel }}</strong> (genérico), então estes campos
+                    <strong>não aparecem</strong> na página pública até você publicar um layout temático na aba Modelos.
+                  </p>
                 }
               } @else {
-                <span>
-                  O layout <strong class="text-foreground">{{ conteudoExtraModeloAtivoLabel }}</strong> não usa conteúdo extra.
-                  Escolha um layout temático (2 a 8) na aba <strong class="text-foreground">Modelos</strong> para ver os campos correspondentes.
-                </span>
+                <p class="m-0">
+                  O layout <strong>{{ conteudoExtraModeloAtivoLabel }}</strong> não usa conteúdo extra.
+                  Escolha um layout temático (2 a 8) na aba <strong>Modelos</strong> para ver os campos correspondentes.
+                </p>
               }
               @if (modelDirty && conteudoExtraTemCamposParaModelo) {
-                <span class="block mt-2 pt-2 border-t border-border">
-                  Há alterações não salvas na aba <strong class="text-foreground">Modelos</strong>: a prévia usa
-                  <strong class="text-foreground">{{ layoutSelecionadoLabel }}</strong>, mas o público ainda segue
-                  <strong class="text-foreground">{{ layoutPublicadoLabel }}</strong> até salvar.
-                </span>
+                <p class="m-0 mt-2.5 pt-2.5" style="border-top: 1px solid var(--border, var(--c-border))">
+                  Há alterações não salvas na aba <strong>Modelos</strong>: a prévia usa
+                  <strong>{{ layoutSelecionadoLabel }}</strong>, mas o público ainda segue
+                  <strong>{{ layoutPublicadoLabel }}</strong> até salvar.
+                </p>
               }
-            </g-card>
+            </div>
 
             @if (!conteudoExtraTemCamposParaModelo) {
-              <g-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-8 text-center">
-                <span class="material-symbols-outlined text-4xl mb-3 block mx-auto" style="color:var(--c-muted)">dashboard_customize</span>
-                <p class="text-sm font-medium mb-1" style="color:var(--c-text)">Nenhum campo para este layout</p>
-                <p class="text-xs mb-5 max-w-md mx-auto" style="color:var(--c-muted)">
+              <div class="lb-extra-empty">
+                <span class="material-symbols-outlined lb-extra-empty__icon" aria-hidden="true">dashboard_customize</span>
+                <p class="lb-extra-empty__title">Nenhum campo para este layout</p>
+                <p class="lb-extra-empty__text">
                   Selecione um modelo temático na aba Modelos para personalizar foto, textos e seções específicas da sua página pública.
                 </p>
-                <nord-button type="button" size="s" class="gap-2 mx-auto" (click)="goToModelos.emit()">
-                  <span class="material-symbols-outlined text-base">palette</span>
+                <nord-button type="button" size="m" (click)="goToModelos.emit()">
+                  <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">palette</span>
                   Ir para Modelos
                 </nord-button>
-              </g-card>
+              </div>
             } @else {
             <form class="flex flex-col gap-5" (ngSubmit)="salvar()">
               @if (extraMostraSecao('foto')) {
-              <g-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-5">
+              <g-card class="section-card lb-extra-card gap-0 rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
                 <p class="text-xs font-bold uppercase tracking-wider mb-1" style="color:var(--c-muted)">Foto do profissional</p>
                 <p class="text-[11px] mb-4" style="color:var(--c-muted)">
                   Usada no avatar grande da página pública (layouts temáticos). A logo da clínica continua em
@@ -82,7 +82,7 @@
               }
 
               @if (extraMostraTextosLinks) {
-              <g-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-5">
+              <g-card class="section-card lb-extra-card gap-0 rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
                 <p class="text-xs font-bold uppercase tracking-wider mb-1" style="color:var(--c-muted)">Textos e links</p>
                 <p class="text-[11px] mb-4" style="color:var(--c-muted)">Campos usados no layout <strong style="color:var(--c-text)">{{ conteudoExtraModeloAtivoLabel }}</strong>.</p>
                 <div class="flex flex-col gap-4">
@@ -115,7 +115,7 @@
               }
 
               @if (extraMostraSecao('vet_exam')) {
-              <g-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-5">
+              <g-card class="section-card lb-extra-card gap-0 rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
                 <p class="text-xs font-bold uppercase tracking-wider mb-1" style="color:var(--c-muted)">Resultados de exames (veterinária)</p>
                 <p class="text-[11px] mb-4" style="color:var(--c-muted)">
                   Exibido no layout <strong style="color:var(--c-text)">Clínica veterinária (6)</strong> como botão abaixo do WhatsApp e dos atalhos. Deixe a URL vazia para ocultar o botão na página pública.
@@ -157,8 +157,8 @@
 
               @if (extraMostraSecao('vet_cover')) {
               <!-- ══ VETERINÁRIA (M6) ══ -->
-              <g-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-5">
-                <p class="text-xs font-bold uppercase tracking-wider mb-1" style="color:var(--c-muted)">Clínica veterinária — textos da capa</p>
+              <g-card class="section-card lb-extra-card gap-0 rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
+                <p class="text-xs font-bold uppercase tracking-wider mb-1" style="color:var(--c-muted)">Clínica veterinária: textos da capa</p>
                 <p class="text-[11px] mb-4" style="color:var(--c-muted)">Campos do layout <strong style="color:var(--c-text)">Clínica veterinária (6)</strong>. Deixe vazio para usar o texto padrão.</p>
                 <div class="flex flex-col gap-4">
                   <div>
@@ -182,7 +182,7 @@
               }
 
               @if (extraMostraSecao('vet_species')) {
-              <g-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-5">
+              <g-card class="section-card lb-extra-card gap-0 rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
                 <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
                   <div>
                     <p class="text-xs font-bold uppercase tracking-wider" style="color:var(--c-muted)">Espécies atendidas</p>
@@ -211,7 +211,7 @@
               }
 
               @if (extraMostraSecao('vet_services')) {
-              <g-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-5">
+              <g-card class="section-card lb-extra-card gap-0 rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
                 <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
                   <div>
                     <p class="text-xs font-bold uppercase tracking-wider" style="color:var(--c-muted)">Serviços da clínica veterinária</p>
@@ -241,8 +241,8 @@
 
               @if (extraMostraSecao('ped_texts')) {
               <!-- ══ PEDIATRIA (M7) ══ -->
-              <g-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-5">
-                <p class="text-xs font-bold uppercase tracking-wider mb-1" style="color:var(--c-muted)">Pediatria — textos e alertas</p>
+              <g-card class="section-card lb-extra-card gap-0 rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
+                <p class="text-xs font-bold uppercase tracking-wider mb-1" style="color:var(--c-muted)">Pediatria: textos e alertas</p>
                 <p class="text-[11px] mb-4" style="color:var(--c-muted)">Campos do layout <strong style="color:var(--c-text)">Pediatria (7)</strong>. Deixe vazio para usar o texto padrão.</p>
                 <div class="flex flex-col gap-4">
                   <div>
@@ -274,7 +274,7 @@
               }
 
               @if (extraMostraSecao('ped_steps')) {
-              <g-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-5">
+              <g-card class="section-card lb-extra-card gap-0 rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
                 <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
                   <div>
                     <p class="text-xs font-bold uppercase tracking-wider" style="color:var(--c-muted)">Passos da primeira consulta</p>
@@ -310,7 +310,7 @@
               }
 
               @if (extraMostraSecao('ped_age_bands')) {
-              <g-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-5">
+              <g-card class="section-card lb-extra-card gap-0 rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
                 <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
                   <div>
                     <p class="text-xs font-bold uppercase tracking-wider" style="color:var(--c-muted)">Faixas etárias atendidas</p>
@@ -352,7 +352,7 @@
               }
 
               @if (extraMostraSecao('convenios')) {
-              <g-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-5">
+              <g-card class="section-card lb-extra-card gap-0 rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
                 <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
                   <div>
                     <p class="text-xs font-bold uppercase tracking-wider" style="color:var(--c-muted)">Convênios aceitos</p>
@@ -377,7 +377,7 @@
               }
 
               @if (extraMostraSecao('modalidades')) {
-              <g-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-5">
+              <g-card class="section-card lb-extra-card gap-0 rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
                 <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
                   <div>
                     <p class="text-xs font-bold uppercase tracking-wider" style="color:var(--c-muted)">Modalidades de atendimento</p>
@@ -416,7 +416,7 @@
               }
 
               @if (extraMostraSecao('equipe')) {
-              <g-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-5">
+              <g-card class="section-card lb-extra-card gap-0 rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
                 <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
                   <div>
                     <p class="text-xs font-bold uppercase tracking-wider" style="color:var(--c-muted)">Equipe</p>
@@ -465,12 +465,17 @@
               <div class="sticky-footer">
                 <div class="text-xs text-muted-foreground">Alterações não salvas</div>
                 <div class="footer-btns">
-                  <a routerLink="/dashboard" class="gap-2 no-underline">
-                    <span class="material-symbols-outlined text-base">close</span>
+                  <nord-button type="button" routerLink="/dashboard">
+                    <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">close</span>
                     Cancelar
-                  </a>
-                  <nord-button type="submit" size="s" class="gap-2" [attr.disabled]="salvando" [attr.loading]="salvando">
-                    <span class="material-symbols-outlined text-base">save</span>
+                  </nord-button>
+                  <nord-button
+                    type="submit"
+                    variant="primary"
+                    [attr.disabled]="salvando || null"
+                    [attr.loading]="salvando || null"
+                  >
+                    <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">save</span>
                     {{ salvando ? 'Salvando…' : 'Salvar configurações' }}
                   </nord-button>
                 </div>

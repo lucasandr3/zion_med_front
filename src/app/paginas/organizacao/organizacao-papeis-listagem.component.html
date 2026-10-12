@@ -9,7 +9,7 @@
       [routerLink]="['/organizacao/permissoes/novo']"
       title="Criar novo perfil de permissões"
     >
-      <nord-icon name="interface-add" size="s"></nord-icon>
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">add</span>
       Novo perfil
     </nord-button>
   </div>
@@ -31,7 +31,7 @@
         <h2>Nenhum perfil de permissões cadastrado</h2>
         <p>Crie um perfil personalizado para organizar o acesso da equipe.</p>
         <nord-button variant="primary" [routerLink]="['/organizacao/permissoes/novo']">
-          <nord-icon name="interface-add" size="s"></nord-icon>
+          <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">add</span>
           Novo perfil
         </nord-button>
       </nord-empty-state>
@@ -59,7 +59,7 @@
               aria-label="Editar perfil"
               aria-describedby="tip-papeis-edit"
             >
-              <nord-icon name="interface-edit" size="s"></nord-icon>
+              <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">edit</span>
             </nord-button>
             @if (!p.is_system) {
               <nord-button
@@ -70,7 +70,7 @@
                 [attr.disabled]="excluindoSlug() === p.slug"
                 (click)="excluir(p)"
               >
-                <nord-icon name="interface-delete" size="s"></nord-icon>
+                <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">delete</span>
               </nord-button>
             }
           </div>

@@ -1,1 +1,8 @@
-/* Clinica escolher */
+/* Destaque da empresa atualmente selecionada */
+.n-page-list__row--current {
+  background: color-mix(in srgb, var(--n-color-accent) 6%, transparent);
+}
+
+.n-page-list__row--current:hover {
+  background: color-mix(in srgb, var(--n-color-accent) 10%, transparent);
+}

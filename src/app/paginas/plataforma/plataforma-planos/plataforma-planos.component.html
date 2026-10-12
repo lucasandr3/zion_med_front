@@ -6,7 +6,7 @@
   </div>
   <div class="n-form-toolbar__end">
     <nord-button variant="primary" size="s" type="button" [routerLink]="['/plataforma/planos/novo']" title="Criar novo plano">
-      <nord-icon name="interface-add" size="s"></nord-icon>
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">add</span>
       Novo plano
     </nord-button>
   </div>
@@ -24,7 +24,7 @@
     <nord-empty-state>
       <h2>Nenhum plano cadastrado.</h2>
       <nord-button variant="primary" [routerLink]="['/plataforma/planos/novo']">
-        <nord-icon name="interface-add" size="s"></nord-icon>
+        <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">add</span>
         Criar primeiro plano
       </nord-button>
     </nord-empty-state>
@@ -55,7 +55,7 @@
               [routerLink]="['/plataforma/planos', p.id, 'editar']"
               title="Editar plano"
             >
-              <nord-icon name="interface-edit" size="s"></nord-icon>
+              <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">edit</span>
               Editar
             </nord-button>
             <nord-button

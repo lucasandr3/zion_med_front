@@ -3,22 +3,19 @@ import {
   Input,
   OnInit,
   inject,
-  PLATFORM_ID,
   ChangeDetectionStrategy,
-  effect,
   signal,
   CUSTOM_ELEMENTS_SCHEMA,
 } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
-import { isPlatformBrowser } from '@angular/common';
 import { AuthService, TrialNotice } from '../../../core/services/auth.service';
-import { resolveSidebarLogoSrc } from '../../../core/utils/sidebar-logo.util';
 import { SidebarMobileService } from '../../../core/services/sidebar-mobile.service';
 import { ShellSidebarCollapseService } from '../../../core/services/shell-sidebar-collapse.service';
 
 import { GestgoBadgeComponent } from '@/shared/components/badge/badge.component';
 
 import { GestgoAvatarComponent } from '@/shared/components/avatar/avatar.component';
+import { GestgoBrandMarkComponent } from '@/shared/components/gestgo-brand-mark/gestgo-brand-mark.component';
 import {
   SHELL_NAV_SIDEBAR,
   ShellNavItem,
@@ -36,7 +33,9 @@ import {
     RouterLink,
     RouterLinkActive,
     GestgoBadgeComponent,
-    GestgoAvatarComponent],
+    GestgoAvatarComponent,
+    GestgoBrandMarkComponent,
+  ],
   templateUrl: './barra-lateral.component.html',
   styleUrl: './barra-lateral.component.css',
 })
@@ -53,7 +52,6 @@ export class BarraLateralComponent implements OnInit {
   private readonly exibirTrocarEmpresaSignal = signal(false);
   private readonly ehAdminPlataformaSignal = signal(false);
   private readonly podeGerenciarClinicaSignal = signal(false);
-  private readonly sidebarLogoSrcSignal = signal('/assets/logo/logo.png');
 
   readonly nomeUsuario = this.nomeUsuarioSignal.asReadonly();
   readonly iniciaisUsuario = this.iniciaisUsuarioSignal.asReadonly();
@@ -61,36 +59,30 @@ export class BarraLateralComponent implements OnInit {
   readonly exibirTrocarEmpresa = this.exibirTrocarEmpresaSignal.asReadonly();
   readonly ehAdminPlataforma = this.ehAdminPlataformaSignal.asReadonly();
   readonly podeGerenciarClinica = this.podeGerenciarClinicaSignal.asReadonly();
-  readonly sidebarLogoSrc = this.sidebarLogoSrcSignal.asReadonly();
 
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly sidebarMobile = inject(SidebarMobileService);
   private readonly sidebarCollapse = inject(ShellSidebarCollapseService);
-  private readonly platformId = inject(PLATFORM_ID);
 
   readonly sidebarOpenMobile = this.sidebarMobile.isOpen;
   readonly sidebarColapsada = this.sidebarCollapse.collapsed;
 
-  constructor() {
-    effect(() => {
-      this.auth.appearanceVersion();
-      this.refreshSidebarLogo();
-    });
-  }
-
   ngOnInit(): void {
     this.sidebarCollapse.ensureHydrated();
     this.atualizarDados();
-    this.refreshSidebarLogo();
   }
 
   secaoVisivel(section: ShellNavSection): boolean {
-    return shellNavSectionVisivel(section, (p) => this.auth.hasPermission(p), 'app');
+    return shellNavSectionVisivel(section, (p) => this.auth.hasPermission(p), 'app', {
+      canSwitchClinic: this.auth.canSwitchClinic(),
+    });
   }
 
   itemVisivel(item: ShellNavItem): boolean {
-    return shellNavItemVisivel(item, (p) => this.auth.hasPermission(p), 'app');
+    return shellNavItemVisivel(item, (p) => this.auth.hasPermission(p), 'app', {
+      canSwitchClinic: this.auth.canSwitchClinic(),
+    });
   }
 
   badgeCount(item: ShellNavItem): number {
@@ -134,10 +126,5 @@ export class BarraLateralComponent implements OnInit {
       this.podeGerenciarClinicaSignal.set(false);
     }
     this.exibirTrocarEmpresaSignal.set(this.auth.canSwitchClinic());
-  }
-
-  private refreshSidebarLogo(): void {
-    if (!isPlatformBrowser(this.platformId)) return;
-    this.sidebarLogoSrcSignal.set(resolveSidebarLogoSrc());
   }
 }

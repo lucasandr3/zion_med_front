@@ -1,6 +1,6 @@
-import { Component, OnInit, inject, Signal, ChangeDetectionStrategy, signal } from '@angular/core';
+import { Component, OnInit, inject, Signal, ChangeDetectionStrategy, signal, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { switchMap, map, catchError, of, forkJoin } from 'rxjs';
+import { switchMap, catchError, of, forkJoin } from 'rxjs';
 import {
   ChartComponent,
   ApexAxisChartSeries,
@@ -25,9 +25,6 @@ import { TemplatesService, Template } from '../../core/services/templates.servic
 import { LoadingService } from '../../shared/services/loading.service';
 import { ZmAssinaturaBloqueadaCardComponent } from '../../shared/components/ui/zm-assinatura-bloqueada-card/zm-assinatura-bloqueada-card.component';
 import { ZmSkeletonDashboardComponent } from '../../shared/components/skeletons';
-import { ZmEmptyStateComponent } from '../../shared/components/ui';
-import { GestgoCardComponent } from '@/shared/components/card/card.component';
-
 import { ZmDashboardOnboardingWizardComponent } from '../../shared/components/ui/zm-dashboard-onboarding-wizard/zm-dashboard-onboarding-wizard.component';
 import { AuthService } from '../../core/services/auth.service';
 
@@ -94,6 +91,7 @@ type AreaChartOptions = {
   legend: ApexLegend;
   markers: { size: number; strokeWidth: number; hover: { size: number } };
   states: ApexStates;
+  plotOptions?: ApexPlotOptions;
 };
 
 type DonutChartOptions = {
@@ -125,6 +123,7 @@ type BarChartOptions = {
 };
 
 @Component({
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'app-pagina-dashboard',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -134,9 +133,8 @@ type BarChartOptions = {
     ChartComponent,
     ZmSkeletonDashboardComponent,
     ZmAssinaturaBloqueadaCardComponent,
-    ZmEmptyStateComponent,
-    GestgoCardComponent,
-    ZmDashboardOnboardingWizardComponent],
+    ZmDashboardOnboardingWizardComponent,
+  ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css',
 })
@@ -217,6 +215,21 @@ export class DashboardComponent implements OnInit {
     if (this.periodoSelecionado() <= 7) return 'Últimos 7 dias';
     if (this.periodoSelecionado() <= 30) return 'Últimos 30 dias';
     return 'Últimos 90 dias';
+  }
+
+  semanaAnterior(): number {
+    return Math.max(0, this.ultimos7Dias() - this.variacaoRespostasAbsoluta());
+  }
+
+  complianceSemPendenciaCritica(): boolean {
+    const c = this.complianceReport();
+    if (!c) return true;
+    return (
+      (c.summary.consent_expired ?? 0) === 0 &&
+      (c.summary.without_snapshot ?? 0) === 0 &&
+      (c.highlights.expiring_next_30_days ?? 0) === 0 &&
+      (c.recent_issues?.length ?? 0) === 0
+    );
   }
 
   ngOnInit(): void {
@@ -319,40 +332,61 @@ export class DashboardComponent implements OnInit {
     this.barChart.set(this.buildBarChart(this.modelosMaisUsados()));
   }
 
-  /** Série sintética para o gráfico de área a partir de dados agregados. */
+  /** Série sintética para o gráfico de evolução a partir de dados agregados. */
   private serieEvolucao(): { label: string; valor: number }[] {
-    const semanaAnterior = Math.max(0, this.ultimos7Dias() - this.variacaoRespostasAbsoluta());
+    const semanaAnterior = this.semanaAnterior();
     const media30 = this.mediaSemanalUltimos30Dias;
 
     if (this.periodoSelecionado() === 30) {
-      // 4 semanas aproximadas
       const perWeek = this.ultimos30Dias() / 4;
       return [
         { label: 'Sem 1', valor: Math.round(perWeek * 0.85) },
         { label: 'Sem 2', valor: Math.round(perWeek * 1.05) },
         { label: 'Sem 3', valor: Math.round(perWeek * 0.95) },
-        { label: 'Sem atual', valor: this.ultimos7Dias() }];
+        { label: 'Sem atual', valor: this.ultimos7Dias() },
+      ];
     }
     if (this.periodoSelecionado() === 90) {
       return [
         { label: '30d', valor: this.ultimos30Dias() },
         { label: '60d', valor: this.ultimos30Dias() * 2 },
-        { label: '90d', valor: this.ultimos30Dias() * 3 }];
+        { label: '90d', valor: this.ultimos30Dias() * 3 },
+      ];
     }
-    return [
-      { label: 'Sem. anterior', valor: semanaAnterior },
-      { label: 'Sem. atual', valor: this.ultimos7Dias() },
-      { label: 'Média 30d', valor: media30 }];
+
+    // Últimos 7 dias — eixos como no mockup (ter…seg)
+    const labels = this.rotulosUltimos7Dias();
+    const total = this.ultimos7Dias();
+    return labels.map((label, index) => ({
+      label,
+      valor: index === labels.length - 1 ? total : 0,
+    }));
+  }
+
+  private rotulosUltimos7Dias(): string[] {
+    const fmt = new Intl.DateTimeFormat('pt-BR', { weekday: 'short' });
+    const labels: string[] = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date();
+      d.setHours(12, 0, 0, 0);
+      d.setDate(d.getDate() - i);
+      const raw = fmt.format(d).replace('.', '');
+      labels.push(raw.slice(0, 3).toLowerCase());
+    }
+    return labels;
   }
 
   private buildAreaChart(serie: { label: string; valor: number }[]): AreaChartOptions {
     const categorias = serie.length ? serie.map((s) => s.label) : ['—'];
     const valores = serie.length ? serie.map((s) => s.valor) : [0];
+    const asBars = this.periodoSelecionado() <= 7;
+    const accent = 'var(--n-color-accent, #0d9488)';
+
     return {
       series: [{ name: 'Respostas', data: valores }],
       chart: {
-        type: 'area',
-        height: 280,
+        type: asBars ? 'bar' : 'area',
+        height: 260,
         fontFamily: 'inherit',
         foreColor: 'var(--c-muted)',
         toolbar: { show: false },
@@ -360,17 +394,30 @@ export class DashboardComponent implements OnInit {
         animations: { enabled: true, speed: 450 },
         sparkline: { enabled: false },
       },
-      colors: ['#0d9488'],
-      stroke: { curve: 'smooth', width: 3 },
-      fill: {
-        type: 'gradient',
-        gradient: {
-          shadeIntensity: 1,
-          opacityFrom: 0.42,
-          opacityTo: 0.05,
-          stops: [0, 100],
-        },
-      },
+      colors: [accent],
+      stroke: asBars
+        ? { curve: 'smooth', width: 0 }
+        : { curve: 'smooth', width: 3 },
+      fill: asBars
+        ? { type: 'solid', opacity: 0.9 }
+        : {
+            type: 'gradient',
+            gradient: {
+              shadeIntensity: 1,
+              opacityFrom: 0.42,
+              opacityTo: 0.05,
+              stops: [0, 100],
+            },
+          },
+      plotOptions: asBars
+        ? {
+            bar: {
+              borderRadius: 6,
+              columnWidth: '48%',
+              distributed: false,
+            },
+          }
+        : undefined,
       dataLabels: { enabled: false },
       grid: {
         borderColor: 'var(--c-border)',
@@ -386,6 +433,7 @@ export class DashboardComponent implements OnInit {
         axisTicks: { show: false },
       },
       yaxis: {
+        min: 0,
         labels: {
           style: { fontSize: '11px', colors: 'var(--c-muted)' },
           formatter: (v) => Math.round(Number(v)).toString(),
@@ -397,7 +445,7 @@ export class DashboardComponent implements OnInit {
         y: { formatter: (v) => `${v} respostas` },
       },
       legend: { show: false },
-      markers: { size: 4, strokeWidth: 2, hover: { size: 7 } },
+      markers: { size: asBars ? 0 : 4, strokeWidth: 2, hover: { size: 7 } },
       states: {
         hover: { filter: { type: 'lighten' } },
         active: { filter: { type: 'darken' } },
@@ -559,6 +607,19 @@ export class DashboardComponent implements OnInit {
       default:
         return issue;
     }
+  }
+
+  complianceIssueVariant(issue: string): 'danger' | 'warning' | 'neutral' {
+    if (issue === 'consent_expired' || issue === 'without_snapshot') return 'danger';
+    if (issue === 'pending_review') return 'warning';
+    return 'neutral';
+  }
+
+  statusBadgeVariant(status: string): 'success' | 'warning' | 'danger' | 'neutral' {
+    if (status === 'Aprovado') return 'success';
+    if (status === 'Pendente') return 'warning';
+    if (status === 'Reprovado') return 'danger';
+    return 'neutral';
   }
 
   formatarDataCompliance(iso?: string | null): string {

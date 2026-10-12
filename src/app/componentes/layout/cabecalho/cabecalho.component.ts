@@ -19,15 +19,16 @@ import {
   normalizeThemeKey,
   readNavLayoutFromDom,
   SHELL_PRESET_UI_OPTIONS,
+  syncThemeChrome,
   type NavLayout,
   type ShellPreset,
 } from '../../../core/services/user-appearance.sync';
 import { absoluteMediaUrl } from '../../../core/utils/absolute-media-url';
-import { resolveSidebarLogoSrc } from '../../../core/utils/sidebar-logo.util';
 import { BarraNavHorizontalComponent } from '../barra-nav-horizontal/barra-nav-horizontal.component';
 import { GestgoBadgeComponent } from '@/shared/components/badge/badge.component';
 
 import { GestgoAvatarComponent } from '@/shared/components/avatar/avatar.component';
+import { GestgoBrandMarkComponent } from '@/shared/components/gestgo-brand-mark/gestgo-brand-mark.component';
 import { GestgoSheetService } from '@/shared/components/sheet/sheet.service';
 import type { GestgoSheetRef } from '@/shared/components/sheet/sheet-ref';
 import { GoAssistantShellService } from '../../../go-assistant/services/go-assistant-shell.service';
@@ -44,7 +45,13 @@ export { TEMAS } from '../shell-theme.config';
   selector: 'app-cabecalho',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, GestgoBadgeComponent, GestgoAvatarComponent, BarraNavHorizontalComponent],
+  imports: [
+    RouterLink,
+    GestgoBadgeComponent,
+    GestgoAvatarComponent,
+    GestgoBrandMarkComponent,
+    BarraNavHorizontalComponent,
+  ],
   templateUrl: './cabecalho.component.html',
   styleUrl: './cabecalho.component.css',
 })
@@ -117,7 +124,6 @@ export class CabecalhoComponent implements OnInit, OnDestroy {
     'shrink-0 !bg-primary !text-primary-foreground [&>img]:object-cover [&>span]:text-[0.65rem] [&>span]:font-bold';
   themeDrawerMode: 'light' | 'dark' | 'auto' = 'light';
   sidebarColapsada = false;
-  sidebarLogoSrc = '/assets/logo/logo.png';
   nomeUsuario = 'Usuário';
   iniciaisUsuario = 'U';
   emailUsuario = '';
@@ -172,7 +178,6 @@ export class CabecalhoComponent implements OnInit, OnDestroy {
       this.emailUsuario = u.email || '';
       this.iniciaisUsuario = this.nomeUsuario.slice(0, 2).toUpperCase() || 'U';
     }
-    this.sidebarLogoSrc = resolveSidebarLogoSrc();
   }
 
   private syncMenuPermissoes(): void {
@@ -290,6 +295,7 @@ export class CabecalhoComponent implements OnInit, OnDestroy {
     this.modoEscuro = dark;
     document.body.classList.toggle('dark', dark);
     try { localStorage.setItem('gestgo_dark_mode', dark ? '1' : '0'); } catch {}
+    syncThemeChrome();
     if (this.auth.isAuthenticated()) {
       this.appearance.patchAppearance({ ui_dark_mode: dark }).subscribe({ error: () => {} });
     }
@@ -326,6 +332,7 @@ export class CabecalhoComponent implements OnInit, OnDestroy {
     try {
       localStorage.setItem('gestgo_dark_mode', this.modoEscuro ? '1' : '0');
     } catch {}
+    syncThemeChrome();
     if (this.auth.isAuthenticated()) {
       this.appearance.patchAppearance({ ui_dark_mode: escuro }).subscribe({ error: () => {} });
     }
@@ -374,6 +381,7 @@ export class CabecalhoComponent implements OnInit, OnDestroy {
     try {
       localStorage.setItem('gestgo_theme', canonical);
     } catch {}
+    syncThemeChrome();
     if (this.auth.isAuthenticated()) {
       this.appearance.patchAppearance({ ui_theme: canonical }).subscribe({ error: () => {} });
     }

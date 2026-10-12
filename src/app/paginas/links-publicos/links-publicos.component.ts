@@ -152,13 +152,13 @@ export class LinksPublicosComponent implements OnInit {
     return `${inicio}–${fim} de ${total} formulários públicos`;
   }
 
-  iconeNordTemplate(item: LinkPublicoItem): string {
+  iconeTemplate(item: LinkPublicoItem): string {
     const cat = (item.category_label ?? item.name ?? '').toLowerCase();
-    if (cat.includes('anamnese')) return 'file-patient-records';
-    if (cat.includes('cadastro') || cat.includes('ficha')) return 'file-notes';
-    if (cat.includes('retorno') || cat.includes('avalia')) return 'file-treatment-plan';
-    if (cat.includes('consent')) return 'interface-checked-circle';
-    return 'file-generic';
+    if (cat.includes('anamnese')) return 'clinical_notes';
+    if (cat.includes('cadastro') || cat.includes('ficha')) return 'description';
+    if (cat.includes('retorno') || cat.includes('avalia')) return 'assignment_turned_in';
+    if (cat.includes('consent')) return 'check_circle';
+    return 'draft';
   }
 
   urlCurta(url: string): string {

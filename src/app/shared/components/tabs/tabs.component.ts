@@ -88,9 +88,30 @@ export class GestgoTabComponent {
       visibility: visible !important;
     }
 
+    :host.protocolo-gestgo-tabs--layout {
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      height: 100%;
+    }
+
     .g-tab-group__nord {
       display: block;
       width: 100%;
+    }
+
+    :host.protocolo-gestgo-tabs--layout .g-tab-group__nord {
+      display: flex;
+      flex-direction: column;
+      flex: 1 1 auto;
+      min-height: 0;
+      height: 100%;
+    }
+
+    :host.protocolo-gestgo-tabs--layout .g-tab-group__panel {
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow: auto;
     }
 
     .g-tab-group__icon {

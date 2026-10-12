@@ -4,7 +4,7 @@
   </div>
   <div class="n-form-toolbar__end">
     <nord-button type="button" routerLink="/organizacao/permissoes">
-      <nord-icon name="interface-close" size="s"></nord-icon>
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">close</span>
       Cancelar
     </nord-button>
     <nord-button
@@ -14,7 +14,7 @@
       [attr.disabled]="(salvando || !label.trim()) || null"
       (click)="salvar()"
     >
-      <nord-icon name="interface-checked" size="s"></nord-icon>
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">check</span>
       Salvar
     </nord-button>
   </div>

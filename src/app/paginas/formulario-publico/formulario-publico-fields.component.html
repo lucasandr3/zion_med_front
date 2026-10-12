@@ -95,7 +95,7 @@
           [name]="f.name_key"
           class="fp-nord-date"
           [attr.required]="f.required ? true : null"
-          placeholder="aaaa-mm-dd">
+          placeholder="dd/mm/aaaa">
         </nord-date-picker>
       }
       @case ('checkbox') {
@@ -157,7 +157,7 @@
           />
           @if (valores[f.name_key]) {
             <div class="fp-file-actions">
-              <span class="fp-field-hint">Arquivo selecionado — enviaremos junto com o formulário.</span>
+              <span class="fp-field-hint">Arquivo selecionado. Enviaremos junto com o formulário.</span>
               <button type="button" class="fp-link-btn" (click)="clearFile(f.name_key)">Remover</button>
             </div>
           }

@@ -4,7 +4,7 @@
     class="link-bio-qr-dialog"
     role="dialog"
     aria-modal="true"
-    [attr.aria-label]="'QR code — ' + (clinicName || 'link na bio')"
+    [attr.aria-label]="'QR code: ' + (clinicName || 'link na bio')"
   >
     <div class="link-bio-qr-dialog__head">
       <div class="min-w-0">
@@ -23,7 +23,7 @@
       }
     </div>
     <div class="link-bio-qr-dialog__actions">
-      <nord-button variant="default" size="s" type="button" class="gap-2" [attr.disabled]="!qrDataUrl" (click)="baixar()">
+      <nord-button variant="default" size="s" type="button" class="gap-2" [attr.disabled]="!qrDataUrl || null" (click)="baixar()">
         <span class="material-symbols-outlined text-base" aria-hidden="true">download</span>
         Baixar QR code
       </nord-button>

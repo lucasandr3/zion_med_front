@@ -5,7 +5,7 @@
     </div>
     <div class="n-form-toolbar__end">
       <nord-button type="button" size="s" variant="primary" routerLink="/templates/criar-em-branco">
-        <nord-icon name="interface-add" size="s" aria-hidden="true"></nord-icon>
+        <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">add</span>
         Em branco
       </nord-button>
     </div>
@@ -44,7 +44,7 @@
       <!-- Section -->
       <div class="flex items-center justify-between mb-4">
         <span class="text-[11px] font-semibold uppercase tracking-wider" style="color: var(--c-muted)">
-          Biblioteca — {{ specialtyLabel() }}
+          Biblioteca: {{ specialtyLabel() }}
         </span>
         <span class="text-xs tabular-nums" style="color: var(--c-muted)">
           {{ bibliotecaMeta()?.approved_count ?? 0 }} revisados · {{ cardsVisiveis.length }} {{ cardsVisiveis.length === 1 ? 'modelo' : 'modelos' }}

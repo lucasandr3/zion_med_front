@@ -13,7 +13,7 @@
         <span class="material-symbols-outlined link-bio-google-review-helper__icon" aria-hidden="true">star</span>
         <div>
           <p class="text-sm font-semibold text-foreground m-0">Avalie no Google</p>
-          <p class="text-xs text-muted-foreground m-0 mt-0.5">Botão pronto para pedir avaliações — sem configuração técnica</p>
+          <p class="text-xs text-muted-foreground m-0 mt-0.5">Botão pronto para pedir avaliações, sem configuração técnica</p>
         </div>
       </div>
 
@@ -40,7 +40,7 @@
             name="linkAvaliePlaceIdManual"
             placeholder="g/11x2kkkqf0 ou ChIJ…"
           />
-          <p class="form-hint m-0 mt-1.5">
+          <p class="form-hint m-0 mt-1.5 whitespace-normal break-words">
             No link longo do Maps, procure <code class="text-xs">g/11x…</code> ou <code class="text-xs">ChIJ…</code> e cole aqui. Salve em Aparência antes de adicionar o link.
           </p>
         </div>
@@ -58,7 +58,7 @@
             Já adicionado na página
           </g-badge>
         } @else {
-          <nord-button type="button" size="s" class="gap-1.5" [attr.loading]="salvandoLinkAvalieGoogle" [attr.disabled]="salvandoLinkAvalieGoogle || !urlAvalieGoogleSugerida" (click)="adicionarLinkAvalieGoogle()">
+          <nord-button type="button" size="s" class="gap-1.5" [attr.loading]="salvandoLinkAvalieGoogle || null" [attr.disabled]="salvandoLinkAvalieGoogle || !urlAvalieGoogleSugerida || null" (click)="adicionarLinkAvalieGoogle()">
             <span class="material-symbols-outlined text-base" aria-hidden="true">add_link</span>
             Adicionar link «Avalie no Google»
           </nord-button>
@@ -103,7 +103,7 @@
           </div>
         </div>
         <div class="flex flex-wrap gap-2">
-          <nord-button type="button" size="s" [attr.loading]="salvandoNovoLink" [attr.disabled]="salvandoNovoLink" (click)="salvarNovoLink()">
+          <nord-button type="button" size="s" [attr.loading]="salvandoNovoLink || null" [attr.disabled]="salvandoNovoLink || null" (click)="salvarNovoLink()">
             Salvar
           </nord-button>
           <nord-button type="button" variant="plain" size="s" (click)="toggleFormNovo()">Cancelar</nord-button>
@@ -146,7 +146,7 @@
                 </div>
               </div>
               <div class="flex flex-wrap gap-2">
-                <nord-button type="submit" size="s" [attr.loading]="salvandoEdicaoId === lnk.id" [attr.disabled]="salvandoEdicaoId === lnk.id">
+                <nord-button type="submit" size="s" [attr.loading]="salvandoEdicaoId === lnk.id || null" [attr.disabled]="salvandoEdicaoId === lnk.id || null">
                   Salvar
                 </nord-button>
                 <nord-button type="button" variant="plain" size="s" (click)="cancelarEdicao()">Cancelar</nord-button>
@@ -168,7 +168,7 @@
                   <span class="material-symbols-outlined text-base" aria-hidden="true">open_in_new</span>
                   Abrir
                 </a>
-                <nord-button type="button" variant="plain" size="s" aria-label="Remover link" title="Remover link" [attr.disabled]="excluindoLinkId === lnk.id" [attr.loading]="excluindoLinkId === lnk.id" (click)="excluirLink(lnk)" square>
+                <nord-button type="button" variant="plain" size="s" aria-label="Remover link" title="Remover link" [attr.disabled]="excluindoLinkId === lnk.id || null" [attr.loading]="excluindoLinkId === lnk.id || null" (click)="excluirLink(lnk)" square>
                   <span class="material-symbols-outlined text-base">delete</span>
                 </nord-button>
               </div>
@@ -195,12 +195,18 @@
   <div class="sticky-footer">
     <div class="text-xs text-muted-foreground">Alterações não salvas</div>
     <div class="footer-btns">
-      <a routerLink="/dashboard" class="gap-2 no-underline">
-        <span class="material-symbols-outlined text-base">close</span>
+      <nord-button type="button" routerLink="/dashboard">
+        <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">close</span>
         Cancelar
-      </a>
-      <nord-button type="button" size="s" class="gap-2" [attr.disabled]="linkBioFooterLinksSaveDisabled" [attr.loading]="salvandoNovoLink || salvandoEdicaoId !== null" (click)="salvarFooterAbaLinks()">
-        <span class="material-symbols-outlined text-base">save</span>
+      </nord-button>
+      <nord-button
+        type="button"
+        variant="primary"
+        [attr.disabled]="linkBioFooterLinksSaveDisabled || null"
+        [attr.loading]="(salvandoNovoLink || salvandoEdicaoId !== null) || null"
+        (click)="salvarFooterAbaLinks()"
+      >
+        <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">save</span>
         {{ salvandoNovoLink || salvandoEdicaoId !== null ? 'Salvando…' : 'Salvar configurações' }}
       </nord-button>
     </div>

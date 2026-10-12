@@ -2,13 +2,13 @@ import { Component, inject, OnInit, ChangeDetectionStrategy, signal } from '@ang
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../core/services/auth.service';
-import { resolveSidebarLogoSrc } from '../../core/utils/sidebar-logo.util';
+import { GestgoBrandMarkComponent } from '../../shared/components/gestgo-brand-mark/gestgo-brand-mark.component';
 
 @Component({
   selector: 'app-redefinir-senha',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, FormsModule],
+  imports: [RouterLink, FormsModule, GestgoBrandMarkComponent],
   templateUrl: './redefinir-senha.component.html',
   styleUrl: './redefinir-senha.component.css',
 })
@@ -26,7 +26,6 @@ export class RedefinirSenhaComponent implements OnInit {
   readonly carregando = signal(false);
   readonly erro = signal('');
   ano = new Date().getFullYear();
-  readonly logoSrc = resolveSidebarLogoSrc();
 
   ngOnInit(): void {
     if (typeof document !== 'undefined') {

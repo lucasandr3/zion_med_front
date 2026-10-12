@@ -1,1 +1,6 @@
 @import './link-bio-overview.shared.css';
+
+/* Section é filha do wrap; só empilha blocos com o mesmo gap */
+:host {
+  display: contents;
+}

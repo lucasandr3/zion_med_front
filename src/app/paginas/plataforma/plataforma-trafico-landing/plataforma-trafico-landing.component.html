@@ -61,7 +61,7 @@
             <p class="text-muted-foreground py-6 text-center text-xs">Nenhum dado neste período.</p>
           } @else {
             @if (diasVisitas[0]?.ghost) {
-              <p class="text-muted-foreground mb-2 text-[11px]">Sem visitas nos últimos dias — barras de referência.</p>
+              <p class="text-muted-foreground mb-2 text-[11px]">Sem visitas nos últimos dias. Barras de referência.</p>
             }
             <div class="landing-traffic-chart-row">
               @for (d of diasVisitas; track d.date) {

@@ -5,7 +5,6 @@ import {
   HostListener,
   OnInit,
   PLATFORM_ID,
-  effect,
   inject,
   signal,
 } from '@angular/core';
@@ -19,11 +18,11 @@ import { BillingBlockedStateService } from '../../../core/services/billing-block
 import { AuthService, TrialNotice } from '../../../core/services/auth.service';
 import { OrganizationPresenceService } from '../../../core/services/organization-presence.service';
 import { disableHorizontalNavInDom } from '../../../core/services/user-appearance.sync';
-import { resolveSidebarLogoSrc } from '../../../core/utils/sidebar-logo.util';
 import {
   ZmAssinaturaBloqueadaCardComponent,
   ZmPageBackLinkComponent,
 } from '../../../shared/components/ui';
+import { GestgoBrandMarkComponent } from '../../../shared/components/gestgo-brand-mark/gestgo-brand-mark.component';
 import { GoAssistantHostComponent } from '../../../go-assistant';
 import {
   SHELL_NAV_SIDEBAR,
@@ -45,6 +44,7 @@ import { ShellTopBarActionsComponent } from '../shell-top-bar-actions/shell-top-
     RouterOutlet,
     ZmAssinaturaBloqueadaCardComponent,
     ZmPageBackLinkComponent,
+    GestgoBrandMarkComponent,
     GoAssistantHostComponent,
     ShellTopBarActionsComponent,
     ShellAccountMenuComponent,
@@ -63,7 +63,6 @@ export class LayoutAppComponent implements OnInit {
   private readonly novidadesNaoVistasSignal = signal(0);
   private readonly trialNoticeSignal = signal<TrialNotice | null>(null);
   private readonly urlAtualSignal = signal('/');
-  private readonly sidebarLogoSrcSignal = signal('/assets/logo/logo.png');
 
   readonly tituloPagina = this.tituloPaginaSignal.asReadonly();
   readonly urlVoltar = this.urlVoltarSignal.asReadonly();
@@ -72,7 +71,6 @@ export class LayoutAppComponent implements OnInit {
   readonly notificacoesNaoLidas = this.notificacoesNaoLidasSignal.asReadonly();
   readonly novidadesNaoVistas = this.novidadesNaoVistasSignal.asReadonly();
   readonly trialNotice = this.trialNoticeSignal.asReadonly();
-  readonly sidebarLogoSrc = this.sidebarLogoSrcSignal.asReadonly();
 
   private readonly router = inject(Router);
   private readonly notif = inject(NotificacoesService);
@@ -83,13 +81,6 @@ export class LayoutAppComponent implements OnInit {
   private readonly organizationPresence = inject(OrganizationPresenceService);
   private readonly platformId = inject(PLATFORM_ID);
 
-  constructor() {
-    effect(() => {
-      this.auth.appearanceVersion();
-      this.refreshSidebarLogo();
-    });
-  }
-
   @HostListener('window:pagehide')
   onWindowPageHide(): void {
     if (!isPlatformBrowser(this.platformId)) {
@@ -99,11 +90,15 @@ export class LayoutAppComponent implements OnInit {
   }
 
   secaoVisivel(section: ShellNavSection): boolean {
-    return shellNavSectionVisivel(section, (p) => this.auth.hasPermission(p), 'app');
+    return shellNavSectionVisivel(section, (p) => this.auth.hasPermission(p), 'app', {
+      canSwitchClinic: this.auth.canSwitchClinic(),
+    });
   }
 
   itemVisivel(item: ShellNavItem): boolean {
-    return shellNavItemVisivel(item, (p) => this.auth.hasPermission(p), 'app');
+    return shellNavItemVisivel(item, (p) => this.auth.hasPermission(p), 'app', {
+      canSwitchClinic: this.auth.canSwitchClinic(),
+    });
   }
 
   /** Texto do badge do `nord-nav-item` (contador ou dias restantes do trial). */
@@ -136,6 +131,15 @@ export class LayoutAppComponent implements OnInit {
     void this.router.navigateByUrl(path);
   }
 
+  /** Alterna o menu Nord (`nav-open`) — substitui `nord-nav-toggle` para usar Material Icons. */
+  toggleNav(event: Event): void {
+    event.preventDefault();
+    const host = event.currentTarget as HTMLElement | null;
+    const layout = host?.closest('nord-layout') as (HTMLElement & { navOpen?: boolean }) | null;
+    if (!layout) return;
+    layout.navOpen = !layout.navOpen;
+  }
+
   sair(): void {
     this.auth.logout().subscribe(() => void this.router.navigate(['/autenticacao']));
   }
@@ -148,7 +152,6 @@ export class LayoutAppComponent implements OnInit {
 
   ngOnInit(): void {
     disableHorizontalNavInDom();
-    this.refreshSidebarLogo();
     if (this.auth.isAuthenticated()) {
       this.auth.me().subscribe({
         next: () => {
@@ -171,11 +174,6 @@ export class LayoutAppComponent implements OnInit {
 
   private caminhoAtual(): string {
     return this.router.url.split('?')[0].replace(/\/$/, '') || '/';
-  }
-
-  private refreshSidebarLogo(): void {
-    if (!isPlatformBrowser(this.platformId)) return;
-    this.sidebarLogoSrcSignal.set(resolveSidebarLogoSrc());
   }
 
   private updateFromActivatedRoute(): void {

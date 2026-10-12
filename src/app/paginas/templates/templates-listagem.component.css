@@ -12,46 +12,6 @@
   --_n-button-min-block-size: var(--n-space-xl, 2.75rem);
 }
 
-.templates-filtros-panel,
-.templates-detalhe-filtros {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 1rem;
-}
-
-.templates-filtros-busca {
-  flex: 1 1 220px;
-  max-width: 320px;
-}
-
-.templates-detalhe-busca {
-  flex: 1 1 320px;
-  min-width: 240px;
-}
-
-.templates-filter-wrap {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.125rem;
-  height: var(--button-height);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 2px;
-  background: var(--muted);
-}
-
-.templates-filter-wrap > button {
-  height: var(--button-height-inner) !important;
-  min-height: var(--button-height-inner);
-}
-
-.templates-filter-btn--active {
-  background: var(--background) !important;
-  color: var(--foreground) !important;
-  box-shadow: var(--shadow-sm);
-}
-
 .templates-colecao-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -367,19 +327,19 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 0.5rem;
-  margin-top: 0.85rem;
+  margin-top: auto;
+  padding-top: 0.85rem;
   width: 100%;
 }
 
 .templates-modelo-card__actions nord-button,
 .templates-modelo-card__action {
   display: block;
+  --n-button-box-shadow: none;
+  /* Ícone + rótulo no mesmo slot, agrupados ao centro. */
+  --n-button-justify-content: center;
   min-width: 0;
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
-}
-
-.templates-modelo-card__action--primary {
-  font-weight: 600;
 }

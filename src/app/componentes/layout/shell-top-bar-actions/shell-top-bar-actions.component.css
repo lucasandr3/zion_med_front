@@ -4,6 +4,13 @@
   min-width: 0;
 }
 
+/* Topo e marca: força ícones claros mesmo se o token não herdar do shell */
+:host-context(body.shell-preset-tinted) {
+  --shell-header-control: #ffffff;
+  --shell-header-control-hover: rgb(255 255 255 / 0.16);
+  --n-color-icon: #ffffff;
+}
+
 .shell-topbar-actions {
   align-items: center;
   display: flex;
@@ -32,7 +39,10 @@
 
 .shell-topbar-actions > nord-button nord-icon,
 .shell-topbar-actions > .header-desktop-only-block > nord-button nord-icon,
-.shell-topbar-actions > a.cabecalho-toolbar-action nord-icon {
+.shell-topbar-actions > a.cabecalho-toolbar-action nord-icon,
+.shell-topbar-actions > nord-button .material-symbols-outlined,
+.shell-topbar-actions > .header-desktop-only-block > nord-button .material-symbols-outlined,
+.shell-topbar-actions > a.cabecalho-toolbar-action .material-symbols-outlined {
   color: var(--shell-header-control, var(--n-color-icon));
 }
 
@@ -191,12 +201,15 @@ a.cabecalho-toolbar-action:hover {
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--n-color-accent, var(--primary)) 35%, transparent);
 }
 
-.theme-color nord-icon {
+.theme-color nord-icon,
+.theme-color .material-symbols-outlined {
   display: grid;
   filter: drop-shadow(0 1px 2px rgb(0 0 0 / 35%));
   inset: 0;
   place-items: center;
   position: absolute;
+  color: #fff;
+  font-size: 1rem;
 }
 
 .header-desktop-only-block {

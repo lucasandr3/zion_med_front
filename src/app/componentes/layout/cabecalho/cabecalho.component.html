@@ -9,10 +9,10 @@
         class="shell-horizontal-brand shell-horizontal-brand--desktop shell-horizontal-brand--gestgo"
       >
         <span class="shell-horizontal-brand__logo shell-horizontal-brand__logo--gestgo">
-          <img [src]="sidebarLogoSrc" alt="Gestgo" onerror="this.style.display='none'">
+          <zm-gestgo-brand-mark />
         </span>
         <span class="shell-horizontal-brand__text">
-          <span class="shell-horizontal-brand__title">Gestgo</span>
+          <span class="shell-horizontal-brand__title">gest<span class="shell-horizontal-brand__go">go</span></span>
           <span class="shell-horizontal-brand__tag">{{ brandTag }}</span>
         </span>
       </a>
@@ -51,7 +51,7 @@
     </div>
 
     <a routerLink="/novidades" class="cabecalho-toolbar-action relative rounded-md no-underline header-desktop-only-flex" aria-label="Novidades e versão">
-      <span class="material-symbols-outlined text-[19px]">new_releases</span>
+      <span class="material-symbols-outlined text-[19px]">check_circle</span>
       @if (novidadesNaoVistas > 0) {
         <g-badge zShape="pill" class="header-notify-dot absolute -top-0.5 -right-0.5 min-w-[1rem] border-2 border-background font-bold !h-4 !px-1 !py-0 !text-[0.55rem] !leading-none">
           {{ novidadesNaoVistas > 99 ? '99+' : novidadesNaoVistas }}

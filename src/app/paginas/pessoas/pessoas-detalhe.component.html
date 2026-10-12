@@ -11,7 +11,7 @@
           [routerLink]="['/pessoas', pessoa.id, 'editar']"
           title="Editar pessoa"
         >
-          <nord-icon name="interface-edit" size="s" aria-hidden="true"></nord-icon>
+          <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">edit</span>
           Editar
         </nord-button>
         @if (podeSolicitarReconsentimento) {
@@ -38,7 +38,7 @@
             [attr.loading]="inativando"
             title="Inativar pessoa"
           >
-            <nord-icon name="user-block" size="s" aria-hidden="true"></nord-icon>
+            <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">person_off</span>
             Inativar
           </nord-button>
         }

@@ -101,7 +101,7 @@ export function buildLinkBioOverviewSuggestions(input: LinkBioPageAuditInput): L
       icon: 'chat',
       tone: 'green',
       title: 'Ativar botão de WhatsApp',
-      subtitle: 'Cadastre o telefone em Configurações da empresa — ou adicione um link wa.me na aba Links',
+      subtitle: 'Cadastre o telefone em Configurações da empresa, ou adicione um link wa.me na aba Links',
       rota: '/clinica/configuracoes',
       priority: 100,
     });
@@ -257,7 +257,7 @@ export function buildLinkBioOverviewSuggestions(input: LinkBioPageAuditInput): L
       icon: 'star',
       tone: 'purple',
       title: 'Adicionar botão Avalie no Google',
-      subtitle: 'Na aba Links, use o atalho pré-configurado — leva o paciente a avaliar no Google',
+      subtitle: 'Na aba Links, use o atalho pré-configurado. Leva o paciente a avaliar no Google',
       aba: 'links',
       priority: 40,
     });

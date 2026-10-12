@@ -19,7 +19,7 @@
       [attr.aria-expanded]="filterDrawerOpen() ? 'true' : 'false'"
       title="Filtros"
     >
-      <nord-icon name="interface-filter" size="s"></nord-icon>
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">filter_list</span>
       Filtros
       @if (temFiltrosAtivos) {
         <nord-badge variant="neutral">{{ quantidadeFiltrosAtivos }}</nord-badge>
@@ -32,7 +32,7 @@
       title="Nova pessoa"
       data-go-tour="pessoas-new"
     >
-      <nord-icon name="user-add" size="s"></nord-icon>
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">person_add</span>
       Nova pessoa
     </nord-button>
   </div>
@@ -54,7 +54,7 @@
         <h2>Nenhuma pessoa encontrada</h2>
         <p>Cadastre a primeira pessoa ou ajuste os filtros de busca.</p>
         <nord-button variant="primary" [routerLink]="['/pessoas/criar']">
-          <nord-icon name="user-add" size="s"></nord-icon>
+          <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">person_add</span>
           Cadastrar primeira pessoa
         </nord-button>
       </nord-empty-state>
@@ -143,7 +143,7 @@
               label="Cadastro a partir de"
               [(ngModel)]="created_from"
               name="pessoas_filtro_inicio"
-              placeholder="aaaa-mm-dd">
+              placeholder="dd/mm/aaaa">
             </nord-date-picker>
           </div>
           <div class="zm-filter-field">
@@ -155,7 +155,7 @@
               label="Cadastro até"
               [(ngModel)]="created_to"
               name="pessoas_filtro_fim"
-              placeholder="aaaa-mm-dd">
+              placeholder="dd/mm/aaaa">
             </nord-date-picker>
           </div>
         </div>
@@ -163,11 +163,11 @@
     </div>
     <footer class="zm-filter-sheet__footer">
       <nord-button variant="default" type="button" (click)="limparFiltros()">
-        <nord-icon name="interface-filter" size="s"></nord-icon>
+        <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">filter_list</span>
         Limpar
       </nord-button>
       <nord-button variant="primary" type="button" (click)="aplicarFiltros()">
-        <nord-icon name="interface-checked" size="s"></nord-icon>
+        <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">check</span>
         Aplicar
       </nord-button>
     </footer>

@@ -10,6 +10,7 @@ import { GestgoSheetService } from '@/shared/components/sheet/sheet.service';
 import type { GestgoSheetRef } from '@/shared/components/sheet/sheet-ref';
 import { GestgoComboboxComponent, type GestgoComboboxOption } from '@/shared/components/combobox';
 import { NORD_FORM_IMPORTS } from '@/shared/nord';
+import { formatarDataHoraBr } from '@/shared/utils/date';
 @Component({
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'app-protocolos-listagem',
@@ -167,11 +168,15 @@ export class ProtocolosListagemComponent implements OnInit, OnDestroy {
       zContent: this.protocolosFiltrosTpl,
       zViewContainerRef: this.vcr,
       zSide: 'right',
-      zSize: 'lg',
+      zSize: 'custom',
+      zWidth: 'min(100vw, 24rem)',
+      zHeight: '100dvh',
       zTitle: 'Filtros',
+      zCustomClasses: 'gestgo-filter-sheet-panel',
       zHideFooter: true,
       zOkText: null,
       zCancelText: null,
+      zMaskClosable: true,
       zAfterClose: () => {
         this.filtrosSheetRef = undefined;
         this.filterDrawerOpen.set(false);
@@ -195,10 +200,7 @@ export class ProtocolosListagemComponent implements OnInit, OnDestroy {
   }
 
   dataFormatada(val: string | undefined): string {
-    if (!val) return '—';
-    const d = new Date(val);
-    if (isNaN(d.getTime())) return val;
-    return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+    return formatarDataHoraBr(val) || '—';
   }
 
   exportarCsv(): void {
