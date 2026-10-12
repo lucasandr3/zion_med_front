@@ -104,6 +104,52 @@
   white-space: nowrap;
 }
 
+.lb-hero__totem {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1rem;
+  margin-top: 0.85rem;
+  padding: 0.85rem 1rem;
+  border-radius: 0.75rem;
+  border: 1px solid color-mix(in srgb, var(--primary, #1a8e5f) 22%, var(--border, #e7eae8));
+  background: color-mix(in srgb, var(--primary, #1a8e5f) 8%, transparent);
+}
+
+.lb-hero__totem-copy {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  min-width: 0;
+}
+
+.lb-hero__totem-copy .material-symbols-outlined {
+  color: var(--primary, #1a8e5f);
+  margin-top: 0.1rem;
+}
+
+.lb-hero__totem-title {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--foreground, #17201c);
+}
+
+.lb-hero__totem-hint {
+  margin: 0.15rem 0 0;
+  font-size: 0.75rem;
+  line-height: 1.35;
+  color: var(--muted-foreground, #6b7570);
+}
+
+.lb-hero__totem-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .lb-hero__sub {
   margin: 0.875rem 0 0;
   font-size: 0.8125rem;

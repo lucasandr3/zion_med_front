@@ -130,7 +130,7 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
   readonly personNameConfirmed = signal(false);
   readonly procedureSchedulingAllowed = signal(true);
   readonly consentSummaryLabel = signal('');
-  readonly kioskMode = signal(false);
+  readonly totemMode = signal(false);
   readonly acceptTerms = signal(false);
   readonly comprehensionAck = signal(false);
   readonly noticeScrollState = signal<Record<string, boolean>>({});
@@ -169,7 +169,10 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
 
   constructor() {
     this.token = this.route.snapshot.paramMap.get('token') ?? '';
-    this.kioskMode.set(this.route.snapshot.queryParamMap.get('kiosk') === '1');
+    this.totemMode.set(
+      this.route.snapshot.queryParamMap.get('totem') === '1' ||
+        this.route.snapshot.queryParamMap.get('kiosk') === '1',
+    );
     this.assistedMode.set(this.route.snapshot.queryParamMap.get('assistido') === '1');
   }
 
@@ -541,9 +544,9 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
             r.feegow.message ?? 'O formulário foi enviado, mas o agendamento foi bloqueado por pendência de consentimento.',
           );
         }
-        if (this.kioskMode()) {
+        if (this.totemMode()) {
           this.toast.success('Enviado', `Protocolo ${r.protocol_number ?? ''} registrado.`);
-          this.resetAfterKioskSubmit();
+          this.resetAfterTotemSubmit();
           return;
         }
         fpClearCpfGateAuthorization(this.token);
@@ -1046,7 +1049,7 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
     return false;
   }
 
-  private resetAfterKioskSubmit(): void {
+  private resetAfterTotemSubmit(): void {
     fpClearCpfGateAuthorization(this.token);
     this.personGateOk.set(false);
     this.personCpfDigits.set('');

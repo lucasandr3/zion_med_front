@@ -3,10 +3,14 @@
     [clinicName]="state.clinic.name"
     [publicUrl]="publicUrl"
     [publicUrlAbrir]="publicUrlAbrirNoNavegador"
+    [totemUrl]="totemUrl"
+    [totemUrlAbrir]="totemUrlAbrirNoNavegador"
     [copiedLink]="copiedPrincipalLink"
+    [copiedTotem]="copiedTotemLink"
     [visitasHoje]="state.metrics.visitas_hoje"
     [cliques]="state.metrics.total_clicks_last_30"
     (copyLink)="copiarLinkPrincipal()"
+    (copyTotem)="copiarLinkTotem()"
   />
 
   @if (state.metrics) {

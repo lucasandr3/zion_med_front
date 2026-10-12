@@ -27,6 +27,37 @@
         <span slot="end" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">open_in_new</span>
       </nord-button>
     </div>
+
+    @if (totemUrl) {
+      <div class="lb-hero__totem">
+        <div class="lb-hero__totem-copy">
+          <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">desktop_windows</span>
+          <div>
+            <p class="lb-hero__totem-title">Modo recepção (totem)</p>
+            <p class="lb-hero__totem-hint">Layout simplificado para tablet ou TV na recepção.</p>
+          </div>
+        </div>
+        <div class="lb-hero__totem-actions">
+          <nord-button type="button" variant="default" size="s" (click)="copyTotem.emit()">
+            <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">
+              {{ copiedTotem ? 'check' : 'content_copy' }}
+            </span>
+            {{ copiedTotem ? 'Copiado' : 'Copiar link' }}
+          </nord-button>
+          <nord-button
+            variant="default"
+            size="s"
+            [href]="totemUrlAbrir || totemUrl"
+            target="_blank"
+            rel="noopener"
+          >
+            Abrir totem
+            <span slot="end" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">open_in_new</span>
+          </nord-button>
+        </div>
+      </div>
+    }
+
     @if (visitasHoje !== null || cliques !== null) {
       <p class="lb-hero__sub">
         <b>{{ visitasHoje ?? 0 }} visitas</b> hoje · <b>{{ cliques ?? 0 }} cliques</b>

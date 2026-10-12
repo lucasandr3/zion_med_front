@@ -19,14 +19,15 @@ import { LinkBioPublicLayoutGenericComponent } from './link-bio-public-layout-ge
 import { LinkBioPublicLayoutVetComponent } from './link-bio-public-layout-vet.component';
 import { LinkBioPublicLayoutPediaComponent } from './link-bio-public-layout-pedia.component';
 import { LinkBioPublicLayoutNutriComponent } from './link-bio-public-layout-nutri.component';
-import { LinkBioPublicKioskComponent } from './link-bio-public-kiosk.component';
+import { LinkBioPublicTotemComponent } from './link-bio-public-totem.component';
+import { isTotemQueryParam } from '../link-bio/link-bio-public-url.util';
 import type { LinkBioLayoutModel } from '../../core/services/link-bio.service';
 
 @Component({
   selector: 'app-link-bio-public',
   standalone: true,
   imports: [
-    LinkBioPublicKioskComponent,
+    LinkBioPublicTotemComponent,
     LinkBioPublicLayoutGenericComponent,
     LinkBioPublicLayoutsComponent,
     LinkBioPublicLayoutVetComponent,
@@ -37,8 +38,8 @@ import type { LinkBioLayoutModel } from '../../core/services/link-bio.service';
 })
 export class LinkBioPublicComponent implements OnInit, OnDestroy {
   slug = '';
-  /** Hub totem: `/l/:slug?kiosk=1` — lista só os links publicados. */
-  kioskMode = false;
+  /** Hub totem: `/l/:slug?totem=1` — lista só os links publicados. */
+  totemMode = false;
   data: LinkBioPublicData | null = null;
   showSkeleton!: Signal<boolean>;
   erro = '';
@@ -54,7 +55,7 @@ export class LinkBioPublicComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.publicPageBody.enterPublicPage();
-    this.kioskMode = this.route.snapshot.queryParamMap.get('kiosk') === '1';
+    this.totemMode = isTotemQueryParam((k) => this.route.snapshot.queryParamMap.get(k));
     try {
       this.dark = localStorage.getItem('gestgo_bio_dark') === '1';
     } catch {}

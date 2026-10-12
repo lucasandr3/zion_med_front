@@ -9,7 +9,7 @@ import { type LinkBioOverviewSuggestion } from './link-bio-overview-suggestions.
 import { type LinkBioStatsPeriodo, CTR_MEDIA_SETOR_DEFAULT } from './link-bio-stats-chart.util';
 import { LinkBioOverviewHeaderComponent } from './link-bio-overview-header.component';
 import { LinkBioOverviewSectionComponent } from './link-bio-overview-section.component';
-import { resolvePublicUrlForBrowser } from './link-bio-public-url.util';
+import { buildRecepcaoTotemUrl, resolvePublicUrlForBrowser } from './link-bio-public-url.util';
 
 @Component({
   selector: 'zm-link-bio-visao-geral-tab',
@@ -27,6 +27,7 @@ export class LinkBioVisaoGeralTabComponent {
   @Output() stateUpdated = new EventEmitter<LinkBioState>();
 
   copiedPrincipalLink = false;
+  copiedTotemLink = false;
   statsPeriodo: LinkBioStatsPeriodo = '7d';
   readonly ctrMediaSetor = CTR_MEDIA_SETOR_DEFAULT;
 
@@ -45,6 +46,14 @@ export class LinkBioVisaoGeralTabComponent {
     );
   }
 
+  get totemUrl(): string {
+    return buildRecepcaoTotemUrl(this.publicUrl);
+  }
+
+  get totemUrlAbrirNoNavegador(): string {
+    return buildRecepcaoTotemUrl(this.publicUrlAbrirNoNavegador);
+  }
+
   copiarLinkPrincipal(): void {
     if (!this.publicUrl) return;
     navigator.clipboard.writeText(this.publicUrl).then(
@@ -53,6 +62,21 @@ export class LinkBioVisaoGeralTabComponent {
         this.toast.success('Link copiado', 'Você já pode colar e compartilhar.');
         window.setTimeout(() => {
           this.copiedPrincipalLink = false;
+        }, 1600);
+      },
+      () => this.toast.error('Não foi possível copiar', 'Tente novamente.'),
+    );
+  }
+
+  copiarLinkTotem(): void {
+    const url = this.totemUrl;
+    if (!url) return;
+    navigator.clipboard.writeText(url).then(
+      () => {
+        this.copiedTotemLink = true;
+        this.toast.success('Link do totem copiado', 'Use no tablet ou TV da recepção.');
+        window.setTimeout(() => {
+          this.copiedTotemLink = false;
         }, 1600);
       },
       () => this.toast.error('Não foi possível copiar', 'Tente novamente.'),

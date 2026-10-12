@@ -12,11 +12,15 @@ export class LinkBioOverviewHeaderComponent {
   @Input({ required: true }) clinicName!: string;
   @Input() publicUrl = '';
   @Input() publicUrlAbrir = '';
+  @Input() totemUrl = '';
+  @Input() totemUrlAbrir = '';
   @Input() copiedLink = false;
+  @Input() copiedTotem = false;
   @Input() visitasHoje: number | null = null;
   @Input() cliques: number | null = null;
 
   @Output() copyLink = new EventEmitter<void>();
+  @Output() copyTotem = new EventEmitter<void>();
 
   get displayUrl(): string {
     return (this.publicUrl || '')

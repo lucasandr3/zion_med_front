@@ -1,8 +1,8 @@
-<div class="form-publico-page lb-kiosk" [class.dark]="dark">
+<div class="form-publico-page lb-totem" [class.dark]="dark">
   <button
     type="button"
     (click)="toggleDark.emit()"
-    class="fp-icon-btn lb-kiosk-theme-float"
+    class="fp-icon-btn lb-totem-theme-float"
     aria-label="Alternar tema claro ou escuro"
   >
     @if (dark) {
@@ -26,10 +26,10 @@
 
   <div class="fp-scroll">
     <div class="fp-container zm-content-enter">
-      <div class="fp-title-block lb-kiosk-hero">
-        <div class="lb-kiosk-hero-row">
+      <div class="fp-title-block lb-totem-hero">
+        <div class="lb-totem-hero-row">
           @if (clinicLogoUrl()) {
-            <div class="fp-logo fp-logo--img lb-kiosk-logo">
+            <div class="fp-logo fp-logo--img lb-totem-logo">
               <img
                 [src]="clinicLogoUrl()!"
                 [alt]="clinic.name ? 'Logo ' + clinic.name : 'Logo da clínica'"
@@ -37,7 +37,7 @@
               />
             </div>
           } @else {
-            <div class="fp-logo lb-kiosk-logo" aria-hidden="true">{{ clinicNameInitial() }}</div>
+            <div class="fp-logo lb-totem-logo" aria-hidden="true">{{ clinicNameInitial() }}</div>
           }
           <h1 class="fp-title">{{ clinic.name || 'Bem-vindo' }}</h1>
         </div>
@@ -45,16 +45,16 @@
       </div>
 
       @if (allLinks.length) {
-        <ul class="lb-kiosk-list" role="list">
+        <ul class="lb-totem-list" role="list">
           @for (link of allLinks; track trackDoc($index, link)) {
             <li>
               @if (link.type === 'form') {
                 <a
                   [routerLink]="['/f', formToken(link.item)]"
-                  [queryParams]="{ kiosk: '1' }"
-                  class="lb-kiosk-card"
+                  [queryParams]="{ totem: '1' }"
+                  class="lb-totem-card"
                 >
-                  <span class="lb-kiosk-card-ic" aria-hidden="true">
+                  <span class="lb-totem-card-ic" aria-hidden="true">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                       <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
                       <polyline points="14 2 14 8 20 8" />
@@ -62,11 +62,11 @@
                       <line x1="9" y1="15" x2="15" y2="15" />
                     </svg>
                   </span>
-                  <span class="lb-kiosk-card-text">
-                    <span class="lb-kiosk-card-title">{{ link.item.name }}</span>
-                    <span class="lb-kiosk-card-sub">Preencher ficha</span>
+                  <span class="lb-totem-card-text">
+                    <span class="lb-totem-card-title">{{ link.item.name }}</span>
+                    <span class="lb-totem-card-sub">Preencher ficha</span>
                   </span>
-                  <svg class="lb-kiosk-card-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                  <svg class="lb-totem-card-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
                     <polyline points="9 18 15 12 9 6" />
                   </svg>
                 </a>
@@ -75,20 +75,20 @@
                   [href]="hrefBioLink(link.item)"
                   target="_blank"
                   rel="noopener noreferrer"
-                  class="lb-kiosk-card lb-kiosk-card--external"
+                  class="lb-totem-card lb-totem-card--external"
                 >
-                  <span class="lb-kiosk-card-ic" aria-hidden="true">
+                  <span class="lb-totem-card-ic" aria-hidden="true">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                       <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6" />
                       <polyline points="15 3 21 3 21 9" />
                       <line x1="10" y1="14" x2="21" y2="3" />
                     </svg>
                   </span>
-                  <span class="lb-kiosk-card-text">
-                    <span class="lb-kiosk-card-title">{{ link.item.label }}</span>
-                    <span class="lb-kiosk-card-sub">Abrir link</span>
+                  <span class="lb-totem-card-text">
+                    <span class="lb-totem-card-title">{{ link.item.label }}</span>
+                    <span class="lb-totem-card-sub">Abrir link</span>
                   </span>
-                  <svg class="lb-kiosk-card-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                  <svg class="lb-totem-card-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
                     <polyline points="9 18 15 12 9 6" />
                   </svg>
                 </a>
@@ -97,10 +97,10 @@
           }
         </ul>
       } @else {
-        <p class="lb-kiosk-empty">Nenhum link publicado no momento.</p>
+        <p class="lb-totem-empty">Nenhum link publicado no momento.</p>
       }
 
-      <p class="lb-kiosk-foot">
+      <p class="lb-totem-foot">
         <span>Fichas digitais por</span>
         <a href="https://gestgo.com.br" target="_blank" rel="noopener noreferrer">Gestgo</a>
       </p>

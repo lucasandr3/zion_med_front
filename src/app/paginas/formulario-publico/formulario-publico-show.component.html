@@ -1,13 +1,13 @@
 <div
   class="form-publico-page"
   [class.dark]="dark()"
-  [class.fp-kiosk]="kioskMode()"
+  [class.fp-totem]="totemMode()"
   [class.fp-branded]="isBranded"
   [ngStyle]="themeVars"
 >
   <a class="fp-skip-link" href="#fp-main-content">Pular para o conteúdo</a>
 
-  @if (!showSkeleton() && !kioskMode() && data(); as formData) {
+  @if (!showSkeleton() && !totemMode() && data(); as formData) {
     <zm-formulario-publico-header
       [data]="formData"
       [dark]="dark()"
