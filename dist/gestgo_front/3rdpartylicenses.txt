@@ -5,7 +5,7 @@ License: "MIT"
 
 The MIT License
 
-Copyright (c) 2025 Google LLC.
+Copyright (c) 2026 Google LLC.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -24,6 +24,58 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
+
+--------------------------------------------------------------------------------
+Package: html2canvas
+License: "MIT"
+
+Copyright (c) 2012 Niklas von Hertzen
+
+Permission is hereby granted, free of charge, to any person
+obtaining a copy of this software and associated documentation
+files (the "Software"), to deal in the Software without
+restriction, including without limitation the rights to use,
+copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the
+Software is furnished to do so, subject to the following
+conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE SOFTWARE.
+--------------------------------------------------------------------------------
+Package: html2pdf.js
+License: "MIT"
+
+The MIT License
+
+Copyright (c) 2017 Erik Koopmans
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 
 --------------------------------------------------------------------------------
 Package: apexcharts
@@ -252,12 +304,12 @@ THE SOFTWARE.
 ```
 
 --------------------------------------------------------------------------------
-Package: @angular/common
+Package: @angular/core
 License: "MIT"
 
 The MIT License
 
-Copyright (c) 2010-2025 Google LLC. https://angular.dev/license
+Copyright (c) 2010-2026 Google LLC. https://angular.dev/license
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -276,32 +328,6 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
-
---------------------------------------------------------------------------------
-Package: ngx-mask
-License: "MIT"
-
-MIT License
-
-Copyright (c) 2018 JS Daddy
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
 
 --------------------------------------------------------------------------------
 Package: flatpickr
@@ -330,6 +356,208 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 --------------------------------------------------------------------------------
+Package: @angular/common
+License: "MIT"
+
+The MIT License
+
+Copyright (c) 2010-2026 Google LLC. https://angular.dev/license
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
+--------------------------------------------------------------------------------
+Package: @nordhealth/components
+License: "SEE LICENSE IN LICENSE.md"
+
+# License
+
+This Nord Design System package (the “Package”) is brought to you by Nordhealth Ltd (“Nordhealth”, or “we” or “us”) and all rights, including copyright, in the content of the Package is owned or controlled by Nordhealth.
+
+## Conditions of Using Features on the Package
+
+Nordhealth hereby grants you a limited, non-exclusive, revocable license to access and use the Package solely for the purpose of performing your duties for and on behalf of Nordhealth (the “Purpose”).
+
+You may not access or use the Package or reproduce, retransmit, disseminate, sell, publish, broadcast or use it for any other reason.
+
+If Nordhealth is informed or has any reason to believe that the Package is being used by a user other than in accordance with these Terms of Use, Nordhealth reserves the right to suspend or permanently prevent access by the user to the Package and shall have no liability to the user whatsoever in such event.
+
+## Package Accuracy 
+
+Nordhealth makes every effort to ensure that the Package is accurate and up-to-date, but Nordhealth does not offer any warranties (whether express, implied or otherwise) as to the reliability, accuracy or completeness of the Package. The Package is provided “as is” and “as available” without express or implied warranty or condition of any kind.
+
+## Privacy 
+
+The access to the Package and use of it is governed by Nordhealth’s Privacy Policy. 
+
+## Intellectual Property Rights
+
+You acknowledge and agree that all copyright, rights in data, databases, trade-marks, names, images, logos and other intellectual property rights in the Package (“Intellectual Property Rights”) shall remain at all times vested in Nordhealth and its subsidiaries and that these are protected by copyright and other laws and international treaty provisions.
+
+Nothing contained in the Package shall be construed as conferring by implication or otherwise any license or right to use any of the Intellectual Property Rights displayed or subsisting on or in the Package other than in accordance with these Terms of Use.
+
+## Limitation of Liability 
+
+While Nordhealth takes all reasonable steps to ensure that the Package is properly functioning at all times, Nordhealth does not warrant that this Package will be uninterrupted, timely, secure or error-free, that defects will be corrected, or that this Package is free of software bugs or other defects.
+
+Nordhealth shall not be liable to you for any loss or damage you suffer as a result of using this Package. You must take your own precautions (including, but not limited to, installing adequate protective measures to guard against software viruses and ensuring that you retain up-to-date copies of all data) to protect yourself against loss or damage.
+
+## Governing Law 
+
+Your use of the Package will be governed by and construed in accordance with the laws of Finland.
+
+--------------------------------------------------------------------------------
+Package: @lit/reactive-element
+License: "BSD-3-Clause"
+
+BSD 3-Clause License
+
+Copyright (c) 2017 Google LLC. All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, this
+   list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+3. Neither the name of the copyright holder nor the names of its
+   contributors may be used to endorse or promote products derived from
+   this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+--------------------------------------------------------------------------------
+Package: lit-html
+License: "BSD-3-Clause"
+
+BSD 3-Clause License
+
+Copyright (c) 2017 Google LLC. All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, this
+   list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+3. Neither the name of the copyright holder nor the names of its
+   contributors may be used to endorse or promote products derived from
+   this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+--------------------------------------------------------------------------------
+Package: lit-element
+License: "BSD-3-Clause"
+
+BSD 3-Clause License
+
+Copyright (c) 2017 Google LLC. All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, this
+   list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+3. Neither the name of the copyright holder nor the names of its
+   contributors may be used to endorse or promote products derived from
+   this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+--------------------------------------------------------------------------------
+Package: @nordhealth/icons
+License: "SEE LICENSE IN LICENSE.md"
+
+# License
+
+This Nord Design System package (the “Package”) is brought to you by Nordhealth Ltd (“Nordhealth”, or “we” or “us”) and all rights, including copyright, in the content of the Package is owned or controlled by Nordhealth.
+
+## Conditions of Using Features on the Package
+
+Nordhealth hereby grants you a limited, non-exclusive, revocable license to access and use the Package solely for the purpose of performing your duties for and on behalf of Nordhealth (the “Purpose”).
+
+You may not access or use the Package or reproduce, retransmit, disseminate, sell, publish, broadcast or use it for any other reason.
+
+If Nordhealth is informed or has any reason to believe that the Package is being used by a user other than in accordance with these Terms of Use, Nordhealth reserves the right to suspend or permanently prevent access by the user to the Package and shall have no liability to the user whatsoever in such event.
+
+## Package Accuracy 
+
+Nordhealth makes every effort to ensure that the Package is accurate and up-to-date, but Nordhealth does not offer any warranties (whether express, implied or otherwise) as to the reliability, accuracy or completeness of the Package. The Package is provided “as is” and “as available” without express or implied warranty or condition of any kind.
+
+## Privacy 
+
+The access to the Package and use of it is governed by Nordhealth’s Privacy Policy. 
+
+## Intellectual Property Rights
+
+You acknowledge and agree that all copyright, rights in data, databases, trade-marks, names, images, logos and other intellectual property rights in the Package (“Intellectual Property Rights”) shall remain at all times vested in Nordhealth and its subsidiaries and that these are protected by copyright and other laws and international treaty provisions.
+
+Nothing contained in the Package shall be construed as conferring by implication or otherwise any license or right to use any of the Intellectual Property Rights displayed or subsisting on or in the Package other than in accordance with these Terms of Use.
+
+## Limitation of Liability 
+
+While Nordhealth takes all reasonable steps to ensure that the Package is properly functioning at all times, Nordhealth does not warrant that this Package will be uninterrupted, timely, secure or error-free, that defects will be corrected, or that this Package is free of software bugs or other defects.
+
+Nordhealth shall not be liable to you for any loss or damage you suffer as a result of using this Package. You must take your own precautions (including, but not limited to, installing adequate protective measures to guard against software viruses and ensuring that you retain up-to-date copies of all data) to protect yourself against loss or damage.
+
+## Governing Law 
+
+Your use of the Package will be governed by and construed in accordance with the laws of Finland.
+--------------------------------------------------------------------------------
 Package: angularx-flatpickr
 License: "MIT"
 
@@ -356,17 +584,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 --------------------------------------------------------------------------------
-Package: ngx-sonner
+Package: ngx-mask
 License: "MIT"
 
+MIT License
 
---------------------------------------------------------------------------------
-Package: @angular/core
-License: "MIT"
-
-The MIT License
-
-Copyright (c) 2010-2025 Google LLC. https://angular.dev/license
+Copyright (c) 2018 JS Daddy
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -375,16 +598,16 @@ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 copies of the Software, and to permit persons to whom the Software is
 furnished to do so, subject to the following conditions:
 
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 
 --------------------------------------------------------------------------------
 Package: @ng-icons/core
@@ -395,20 +618,6 @@ License: "MIT"
 Package: @ng-icons/lucide
 License: "ISC"
 
-
---------------------------------------------------------------------------------
-Package: clsx
-License: "MIT"
-
-MIT License
-
-Copyright (c) Luke Edwards <luke.edwards05@gmail.com> (lukeed.com)
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 --------------------------------------------------------------------------------
 Package: tailwind-merge
@@ -435,6 +644,20 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+--------------------------------------------------------------------------------
+Package: clsx
+License: "MIT"
+
+MIT License
+
+Copyright (c) Luke Edwards <luke.edwards05@gmail.com> (lukeed.com)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 --------------------------------------------------------------------------------
 Package: class-variance-authority
@@ -637,7 +860,7 @@ License: "MIT"
 
 The MIT License
 
-Copyright (c) 2010-2025 Google LLC. https://angular.dev/license
+Copyright (c) 2010-2026 Google LLC. https://angular.dev/license
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -663,7 +886,7 @@ License: "MIT"
 
 The MIT License
 
-Copyright (c) 2010-2025 Google LLC. https://angular.dev/license
+Copyright (c) 2010-2026 Google LLC. https://angular.dev/license
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -689,7 +912,33 @@ License: "MIT"
 
 The MIT License
 
-Copyright (c) 2010-2025 Google LLC. https://angular.dev/license
+Copyright (c) 2010-2026 Google LLC. https://angular.dev/license
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
+--------------------------------------------------------------------------------
+Package: @angular/platform-browser
+License: "MIT"
+
+The MIT License
+
+Copyright (c) 2010-2026 Google LLC. https://angular.dev/license
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -933,55 +1182,121 @@ LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
 OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 PERFORMANCE OF THIS SOFTWARE.
 --------------------------------------------------------------------------------
-Package: @angular/platform-browser
-License: "MIT"
+Package: @nordhealth/fonts
+License: "SEE LICENSE IN LICENSE.md"
 
-The MIT License
+# License
 
-Copyright (c) 2010-2025 Google LLC. https://angular.dev/license
+This Nord Design System package (the “Package”) is brought to you by Nordhealth Ltd (“Nordhealth”, or “we” or “us”) and all rights, including copyright, in the content of the Package is owned or controlled by Nordhealth.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+## Conditions of Using Features on the Package
 
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
+Nordhealth hereby grants you a limited, non-exclusive, revocable license to access and use the Package solely for the purpose of performing your duties for and on behalf of Nordhealth (the “Purpose”).
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
+You may not access or use the Package or reproduce, retransmit, disseminate, sell, publish, broadcast or use it for any other reason.
+
+If Nordhealth is informed or has any reason to believe that the Package is being used by a user other than in accordance with these Terms of Use, Nordhealth reserves the right to suspend or permanently prevent access by the user to the Package and shall have no liability to the user whatsoever in such event.
+
+## Package Accuracy 
+
+Nordhealth makes every effort to ensure that the Package is accurate and up-to-date, but Nordhealth does not offer any warranties (whether express, implied or otherwise) as to the reliability, accuracy or completeness of the Package. The Package is provided “as is” and “as available” without express or implied warranty or condition of any kind.
+
+## Privacy 
+
+The access to the Package and use of it is governed by Nordhealth’s Privacy Policy. 
+
+## Intellectual Property Rights
+
+You acknowledge and agree that all copyright, rights in data, databases, trade-marks, names, images, logos and other intellectual property rights in the Package (“Intellectual Property Rights”) shall remain at all times vested in Nordhealth and its subsidiaries and that these are protected by copyright and other laws and international treaty provisions.
+
+Nothing contained in the Package shall be construed as conferring by implication or otherwise any license or right to use any of the Intellectual Property Rights displayed or subsisting on or in the Package other than in accordance with these Terms of Use.
+
+## Limitation of Liability 
+
+While Nordhealth takes all reasonable steps to ensure that the Package is properly functioning at all times, Nordhealth does not warrant that this Package will be uninterrupted, timely, secure or error-free, that defects will be corrected, or that this Package is free of software bugs or other defects.
+
+Nordhealth shall not be liable to you for any loss or damage you suffer as a result of using this Package. You must take your own precautions (including, but not limited to, installing adequate protective measures to guard against software viruses and ensuring that you retain up-to-date copies of all data) to protect yourself against loss or damage.
+
+## Governing Law 
+
+Your use of the Package will be governed by and construed in accordance with the laws of Finland.
+--------------------------------------------------------------------------------
+Package: @nordhealth/css
+License: "SEE LICENSE IN LICENSE.md"
+
+# License
+
+This Nord Design System package (the “Package”) is brought to you by Nordhealth Ltd (“Nordhealth”, or “we” or “us”) and all rights, including copyright, in the content of the Package is owned or controlled by Nordhealth.
+
+## Conditions of Using Features on the Package
+
+Nordhealth hereby grants you a limited, non-exclusive, revocable license to access and use the Package solely for the purpose of performing your duties for and on behalf of Nordhealth (the “Purpose”).
+
+You may not access or use the Package or reproduce, retransmit, disseminate, sell, publish, broadcast or use it for any other reason.
+
+If Nordhealth is informed or has any reason to believe that the Package is being used by a user other than in accordance with these Terms of Use, Nordhealth reserves the right to suspend or permanently prevent access by the user to the Package and shall have no liability to the user whatsoever in such event.
+
+## Package Accuracy 
+
+Nordhealth makes every effort to ensure that the Package is accurate and up-to-date, but Nordhealth does not offer any warranties (whether express, implied or otherwise) as to the reliability, accuracy or completeness of the Package. The Package is provided “as is” and “as available” without express or implied warranty or condition of any kind.
+
+## Privacy 
+
+The access to the Package and use of it is governed by Nordhealth’s Privacy Policy. 
+
+## Intellectual Property Rights
+
+You acknowledge and agree that all copyright, rights in data, databases, trade-marks, names, images, logos and other intellectual property rights in the Package (“Intellectual Property Rights”) shall remain at all times vested in Nordhealth and its subsidiaries and that these are protected by copyright and other laws and international treaty provisions.
+
+Nothing contained in the Package shall be construed as conferring by implication or otherwise any license or right to use any of the Intellectual Property Rights displayed or subsisting on or in the Package other than in accordance with these Terms of Use.
+
+## Limitation of Liability 
+
+While Nordhealth takes all reasonable steps to ensure that the Package is properly functioning at all times, Nordhealth does not warrant that this Package will be uninterrupted, timely, secure or error-free, that defects will be corrected, or that this Package is free of software bugs or other defects.
+
+Nordhealth shall not be liable to you for any loss or damage you suffer as a result of using this Package. You must take your own precautions (including, but not limited to, installing adequate protective measures to guard against software viruses and ensuring that you retain up-to-date copies of all data) to protect yourself against loss or damage.
+
+## Governing Law 
+
+Your use of the Package will be governed by and construed in accordance with the laws of Finland.
 
 --------------------------------------------------------------------------------
-Package: zone.js
-License: "MIT"
+Package: @nordhealth/themes
+License: "SEE LICENSE IN LICENSE.md"
 
-The MIT License
+# License
 
-Copyright (c) 2010-2025 Google LLC. https://angular.dev/license
+This Nord Design System package (the “Package”) is brought to you by Nordhealth Ltd (“Nordhealth”, or “we” or “us”) and all rights, including copyright, in the content of the Package is owned or controlled by Nordhealth.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+## Conditions of Using Features on the Package
 
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
+Nordhealth hereby grants you a limited, non-exclusive, revocable license to access and use the Package solely for the purpose of performing your duties for and on behalf of Nordhealth (the “Purpose”).
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
+You may not access or use the Package or reproduce, retransmit, disseminate, sell, publish, broadcast or use it for any other reason.
 
+If Nordhealth is informed or has any reason to believe that the Package is being used by a user other than in accordance with these Terms of Use, Nordhealth reserves the right to suspend or permanently prevent access by the user to the Package and shall have no liability to the user whatsoever in such event.
+
+## Package Accuracy 
+
+Nordhealth makes every effort to ensure that the Package is accurate and up-to-date, but Nordhealth does not offer any warranties (whether express, implied or otherwise) as to the reliability, accuracy or completeness of the Package. The Package is provided “as is” and “as available” without express or implied warranty or condition of any kind.
+
+## Privacy 
+
+The access to the Package and use of it is governed by Nordhealth’s Privacy Policy. 
+
+## Intellectual Property Rights
+
+You acknowledge and agree that all copyright, rights in data, databases, trade-marks, names, images, logos and other intellectual property rights in the Package (“Intellectual Property Rights”) shall remain at all times vested in Nordhealth and its subsidiaries and that these are protected by copyright and other laws and international treaty provisions.
+
+Nothing contained in the Package shall be construed as conferring by implication or otherwise any license or right to use any of the Intellectual Property Rights displayed or subsisting on or in the Package other than in accordance with these Terms of Use.
+
+## Limitation of Liability 
+
+While Nordhealth takes all reasonable steps to ensure that the Package is properly functioning at all times, Nordhealth does not warrant that this Package will be uninterrupted, timely, secure or error-free, that defects will be corrected, or that this Package is free of software bugs or other defects.
+
+Nordhealth shall not be liable to you for any loss or damage you suffer as a result of using this Package. You must take your own precautions (including, but not limited to, installing adequate protective measures to guard against software viruses and ensuring that you retain up-to-date copies of all data) to protect yourself against loss or damage.
+
+## Governing Law 
+
+Your use of the Package will be governed by and construed in accordance with the laws of Finland.
 --------------------------------------------------------------------------------
