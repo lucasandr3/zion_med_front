@@ -1,9 +1,9 @@
 <div class="relative min-h-[300px]">
   @if (showSkeleton()) {
     <zm-skeleton-list [rows]="6" />
-  } @else if (!listaPronta) {
+  } @else if (!listaPronta()) {
   } @else {
-    @if (estadoErro) {
+    @if (estadoErro()) {
       <div class="border-destructive/30 bg-destructive/10 text-foreground mb-6 rounded-xl border px-4 py-3 text-sm">
         Não foi possível carregar os dados. Tente novamente.
       </div>
@@ -12,13 +12,13 @@
     <div class="zm-content-enter">
       <!-- KPI Cards -->
       <div class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <a routerLink="/plataforma/clientes" class="dash-kpi-card group" zTooltip="Ver clientes">
+        <a routerLink="/plataforma/clientes" class="dash-kpi-card group">
           <div class="dash-kpi-icon bg-chart-4/15">
             <span class="material-symbols-outlined text-chart-4 text-[22px]">apartment</span>
           </div>
           <div class="min-w-0 flex-1">
             <p class="dash-kpi-label">Tenants</p>
-            <p class="dash-kpi-value">{{ tenantsCount }}</p>
+            <p class="dash-kpi-value">{{ tenantsCount() }}</p>
             <p class="dash-kpi-sub">clientes cadastrados</p>
           </div>
           <span class="material-symbols-outlined dash-kpi-arrow">chevron_right</span>
@@ -30,7 +30,7 @@
           </div>
           <div class="min-w-0 flex-1">
             <p class="dash-kpi-label">Empresas</p>
-            <p class="dash-kpi-value">{{ clinicsCount }}</p>
+            <p class="dash-kpi-value">{{ clinicsCount() }}</p>
             <p class="dash-kpi-sub">clínicas / filiais</p>
           </div>
         </div>
@@ -41,7 +41,7 @@
           </div>
           <div class="min-w-0 flex-1">
             <p class="dash-kpi-label">Usuários</p>
-            <p class="dash-kpi-value">{{ usersCount }}</p>
+            <p class="dash-kpi-value">{{ usersCount() }}</p>
             <p class="dash-kpi-sub">contas ativas</p>
           </div>
         </div>
@@ -52,7 +52,7 @@
           </div>
           <div class="min-w-0 flex-1">
             <p class="dash-kpi-label">Leads</p>
-            <p class="dash-kpi-value">{{ leadsCount }}</p>
+            <p class="dash-kpi-value">{{ leadsCount() }}</p>
             <p class="dash-kpi-sub">da landing page</p>
           </div>
           <span class="material-symbols-outlined dash-kpi-arrow">chevron_right</span>
@@ -63,27 +63,27 @@
       <div class="mb-6">
         <h3 class="text-muted-foreground mb-3 text-[11px] font-bold uppercase tracking-[0.15em]">Acesso rápido</h3>
         <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-          <a routerLink="/plataforma/clientes" class="dash-shortcut" zTooltip="Gerenciar clientes">
+          <a routerLink="/plataforma/clientes" class="dash-shortcut">
             <span class="material-symbols-outlined dash-shortcut-icon">apartment</span>
             <span class="dash-shortcut-label">Clientes</span>
           </a>
-          <a routerLink="/plataforma/leads" class="dash-shortcut" zTooltip="Ver leads">
+          <a routerLink="/plataforma/leads" class="dash-shortcut">
             <span class="material-symbols-outlined dash-shortcut-icon">request_quote</span>
             <span class="dash-shortcut-label">Leads</span>
           </a>
-          <a routerLink="/plataforma/planos" class="dash-shortcut" zTooltip="Gerenciar planos">
+          <a routerLink="/plataforma/planos" class="dash-shortcut">
             <span class="material-symbols-outlined dash-shortcut-icon">subscriptions</span>
             <span class="dash-shortcut-label">Planos</span>
           </a>
-          <a routerLink="/plataforma/assinaturas" class="dash-shortcut" zTooltip="Ver assinaturas">
+          <a routerLink="/plataforma/assinaturas" class="dash-shortcut">
             <span class="material-symbols-outlined dash-shortcut-icon">receipt_long</span>
             <span class="dash-shortcut-label">Assinaturas</span>
           </a>
-          <a routerLink="/plataforma/faturas" class="dash-shortcut" zTooltip="Ver faturas">
+          <a routerLink="/plataforma/faturas" class="dash-shortcut">
             <span class="material-symbols-outlined dash-shortcut-icon">payments</span>
             <span class="dash-shortcut-label">Faturas</span>
           </a>
-          <a routerLink="/plataforma/configuracoes" class="dash-shortcut" zTooltip="Configurações da plataforma">
+          <a routerLink="/plataforma/configuracoes" class="dash-shortcut">
             <span class="material-symbols-outlined dash-shortcut-icon">settings</span>
             <span class="dash-shortcut-label">Configurações</span>
           </a>
@@ -99,11 +99,11 @@
               <span class="material-symbols-outlined text-primary text-lg">apartment</span>
               <h3 class="text-foreground text-sm font-semibold">Últimos clientes</h3>
             </div>
-            <a routerLink="/plataforma/clientes" class="dash-panel-link" zTooltip="Ver todos os clientes">Ver todos</a>
+            <a routerLink="/plataforma/clientes" class="dash-panel-link">Ver todos</a>
           </div>
           <div class="dash-panel-body">
-            @for (t of ultimosTenants; track t.id) {
-              <a [routerLink]="['/plataforma/clientes', t.id]" class="dash-list-item" zTooltip="Ver detalhes">
+            @for (t of ultimosTenants(); track t.id) {
+              <a [routerLink]="['/plataforma/clientes', t.id]" class="dash-list-item">
                 <div class="dash-avatar bg-primary/15 text-primary">
                   {{ (t.name || '').charAt(0) | uppercase }}
                 </div>
@@ -129,10 +129,10 @@
               <span class="material-symbols-outlined text-chart-5 text-lg">request_quote</span>
               <h3 class="text-foreground text-sm font-semibold">Leads recentes</h3>
             </div>
-            <a routerLink="/plataforma/leads" class="dash-panel-link" zTooltip="Ver todos os leads">Ver todos</a>
+            <a routerLink="/plataforma/leads" class="dash-panel-link">Ver todos</a>
           </div>
           <div class="dash-panel-body">
-            @for (l of ultimosLeads; track l.id) {
+            @for (l of ultimosLeads(); track l.id) {
               <div class="dash-list-item cursor-default">
                 <div class="dash-avatar bg-chart-5/15 text-chart-5">
                   {{ (l.name || '').charAt(0) | uppercase }}
@@ -162,10 +162,10 @@
             <span class="material-symbols-outlined text-muted-foreground text-lg">history</span>
             <h3 class="text-foreground text-sm font-semibold">Atividade recente</h3>
           </div>
-          <a routerLink="/plataforma/logs" class="dash-panel-link" zTooltip="Ver todos os logs">Ver todos</a>
+          <a routerLink="/plataforma/logs" class="dash-panel-link">Ver todos</a>
         </div>
         <div class="dash-panel-body">
-          @for (log of ultimosLogs; track log.id) {
+          @for (log of ultimosLogs(); track log.id) {
             <div class="dash-list-item cursor-default">
               <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-muted">
                 <span class="material-symbols-outlined text-primary text-base">{{ logIcon(log.action) }}</span>

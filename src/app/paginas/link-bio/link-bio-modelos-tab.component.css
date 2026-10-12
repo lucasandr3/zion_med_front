@@ -13,21 +13,27 @@
   }
 }
 
-/* Cards de modelo (grade) — z-card */
-.link-bio-config .link-bio-model-z-card {
-  border-color: var(--border, var(--c-border)) !important;
-  background: var(--card, var(--c-surface)) !important;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+/* Cards de modelo (grade) — chrome só no nord-card */
+.link-bio-config .link-bio-model-g-card {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
   min-height: 4.25rem;
+  transition: transform 0.15s ease;
 }
 
-.link-bio-model-z-card__body {
+.link-bio-config .link-bio-model-g-card nord-card {
+  --n-card-box-shadow: 0 0 0 1px var(--border, var(--c-border));
+  transition: box-shadow 0.15s ease;
+}
+
+.link-bio-model-g-card__body {
   display: flex;
   align-items: flex-start;
   gap: 0.875rem;
 }
 
-.link-bio-model-z-card__text {
+.link-bio-model-g-card__text {
   flex: 1;
   min-width: 0;
   display: flex;
@@ -35,21 +41,25 @@
   gap: 0.375rem;
 }
 
-.link-bio-model-z-card__title-row {
+.link-bio-model-g-card__title-row {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 0.5rem;
 }
 
-.link-bio-config .link-bio-model-z-card:hover {
-  border-color: color-mix(in oklch, var(--primary, var(--c-primary)) 40%, var(--border, var(--c-border))) !important;
+.link-bio-config .link-bio-model-g-card:hover {
   transform: translateY(-1px);
 }
 
-.link-bio-config .link-bio-model-z-card--selected {
-  border-color: var(--primary, var(--c-primary)) !important;
-  box-shadow: 0 0 0 3px color-mix(in oklch, var(--primary, var(--c-primary)) 18%, transparent);
+.link-bio-config .link-bio-model-g-card:hover nord-card {
+  --n-card-box-shadow: 0 0 0 1px color-mix(in oklch, var(--primary, var(--c-primary)) 40%, var(--border, var(--c-border)));
+}
+
+.link-bio-config .link-bio-model-g-card--selected nord-card {
+  --n-card-box-shadow:
+    0 0 0 1px var(--primary, var(--c-primary)),
+    0 0 0 4px color-mix(in oklch, var(--primary, var(--c-primary)) 18%, transparent);
 }
 
 .link-bio-model-z-radio {

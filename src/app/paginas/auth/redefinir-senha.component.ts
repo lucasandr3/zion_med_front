@@ -1,13 +1,14 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectionStrategy, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../core/services/auth.service';
+import { GestgoBrandMarkComponent } from '../../shared/components/gestgo-brand-mark/gestgo-brand-mark.component';
 
 @Component({
   selector: 'app-redefinir-senha',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [RouterLink, FormsModule, GestgoBrandMarkComponent],
   templateUrl: './redefinir-senha.component.html',
   styleUrl: './redefinir-senha.component.css',
 })
@@ -20,10 +21,10 @@ export class RedefinirSenhaComponent implements OnInit {
   email = '';
   senha = '';
   senhaConfirmacao = '';
-  mostrarSenha = false;
-  sucesso = false;
-  carregando = false;
-  erro = '';
+  readonly mostrarSenha = signal(false);
+  readonly sucesso = signal(false);
+  readonly carregando = signal(false);
+  readonly erro = signal('');
   ano = new Date().getFullYear();
 
   ngOnInit(): void {
@@ -41,20 +42,20 @@ export class RedefinirSenhaComponent implements OnInit {
   }
 
   enviar(): void {
-    this.erro = '';
+    this.erro.set('');
     if (!this.token || !this.email) {
-      this.erro = 'Link inválido. Use o link que enviamos por e-mail.';
+      this.erro.set('Link inválido. Use o link que enviamos por e-mail.');
       return;
     }
     if (this.senha.length < 8) {
-      this.erro = 'A senha deve ter no mínimo 8 caracteres.';
+      this.erro.set('A senha deve ter no mínimo 8 caracteres.');
       return;
     }
     if (this.senha !== this.senhaConfirmacao) {
-      this.erro = 'As senhas não coincidem.';
+      this.erro.set('As senhas não coincidem.');
       return;
     }
-    this.carregando = true;
+    this.carregando.set(true);
     this.auth
       .resetPassword({
         token: this.token,
@@ -64,13 +65,13 @@ export class RedefinirSenhaComponent implements OnInit {
       })
       .subscribe({
         next: () => {
-          this.carregando = false;
-          this.sucesso = true;
+          this.carregando.set(false);
+          this.sucesso.set(true);
         },
         error: (err) => {
-          this.carregando = false;
+          this.carregando.set(false);
           const msg = err.error?.message ?? err.error?.errors?.email?.[0] ?? 'Link inválido ou expirado. Tente solicitar um novo.';
-          this.erro = typeof msg === 'string' ? msg : 'Link inválido ou expirado.';
+          this.erro.set(typeof msg === 'string' ? msg : 'Link inválido ou expirado.');
         },
       });
   }

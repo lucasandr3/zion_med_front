@@ -1,0 +1,38 @@
+:host {
+  display: block;
+  margin-block-start: var(--n-space-s, 0.5rem);
+}
+
+/* Sair: hover em vermelho transparente — padrão pesquisa_app */
+.shell-nav-logout {
+  --n-button-background-color: transparent;
+  --n-button-border-color: transparent;
+  --n-button-box-shadow: none;
+  --n-button-justify-content: flex-start;
+  transition:
+    background-color 120ms ease,
+    color 120ms ease;
+  width: 100%;
+}
+
+.shell-nav-logout:hover,
+.shell-nav-logout:focus-visible {
+  --n-button-background-color: color-mix(
+    in srgb,
+    var(--n-color-status-danger, #c62828) 14%,
+    transparent
+  );
+  --n-button-color: var(--n-color-status-danger, #c62828);
+  --n-button-border-color: transparent;
+  --n-button-box-shadow: none;
+}
+
+.shell-nav-logout:hover nord-icon,
+.shell-nav-logout:focus-visible nord-icon {
+  color: var(--n-color-status-danger, #c62828);
+}
+
+/* Rail recolhido: só o ícone */
+:host-context(nord-navigation[data-rail-collapsed]) .shell-nav-logout {
+  --n-button-justify-content: center;
+}

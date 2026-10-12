@@ -34,8 +34,7 @@ const DEFAULT_AREAS: { icon: string; title: string; description: string }[] = [
     icon: '🧬',
     title: 'Saúde intestinal',
     description: 'Microbiota, disbiose, SII e doenças inflamatórias.',
-  },
-];
+  }];
 
 @Component({
   selector: 'app-link-bio-public-layout-nutri',
@@ -129,8 +128,7 @@ export class LinkBioPublicLayoutNutriComponent {
         subtitle: 'Via videochamada',
         available: true,
         icon: 'computer',
-      },
-    ];
+      }];
   }
 
   get conveniosList(): string[] {

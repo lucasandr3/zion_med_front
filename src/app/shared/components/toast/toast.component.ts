@@ -1,87 +1,85 @@
-import { ChangeDetectionStrategy, Component, computed, input, ViewEncapsulation } from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  ElementRef,
+  inject,
+  OnDestroy,
+} from '@angular/core';
+import { ToastService } from '../../../core/services/toast.service';
 
-import type { ClassValue } from 'clsx';
-import { NgxSonnerToaster, type ToastOptions } from 'ngx-sonner';
-
-import { mergeClasses } from '@/shared/utils/merge-classes';
-
-import { toastVariants, type ZardToastVariants } from './toast.variants';
-
-/** Classes padrão por toast (padrão shadcn/Zard + tokens do tema). */
-const ZARD_DEFAULT_TOAST_OPTIONS: ToastOptions = {
-  classes: {
-    toast:
-      'group toast flex w-full items-center gap-3 rounded-lg border border-border bg-background p-4 text-foreground shadow-lg',
-    title: 'text-sm font-semibold',
-    description: 'text-sm text-muted-foreground',
-    actionButton:
-      'inline-flex h-[length:var(--button-height)] min-h-[length:var(--button-height)] shrink-0 items-center justify-center rounded-md border border-border bg-transparent px-3 text-sm font-medium transition-colors hover:bg-secondary',
-    cancelButton:
-      'inline-flex h-[length:var(--button-height)] min-h-[length:var(--button-height)] shrink-0 items-center justify-center rounded-md border border-border bg-transparent px-3 text-sm font-medium transition-colors hover:bg-secondary',
-    closeButton:
-      'absolute right-2 top-2 rounded-md p-1 text-foreground/50 opacity-0 transition-opacity hover:text-foreground group-hover:opacity-100',
-  },
-};
-
+/**
+ * Host global de toasts Nord (`nord-toast-group`).
+ * Posição: centro inferior da viewport.
+ */
 @Component({
-  selector: 'z-toast, z-toaster',
-  imports: [NgxSonnerToaster],
-  template: `
-    <ngx-sonner-toaster
-      [theme]="theme()"
-      [class]="classes()"
-      [style]="toasterStyle"
-      [position]="position()"
-      [richColors]="richColors()"
-      [expand]="expand()"
-      [duration]="duration()"
-      [visibleToasts]="visibleToasts()"
-      [closeButton]="closeButton()"
-      [toastOptions]="mergedToastOptions()"
-      [dir]="dir()"
-    />
-  `,
+  selector: 'gestgo-toaster',
+  standalone: true,
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  encapsulation: ViewEncapsulation.None,
-  exportAs: 'zToast',
+  template: `
+    <nord-toast-group #group>
+      @if (toast.visible()) {
+        <nord-toast
+          [variant]="toast.variant()"
+          [autoDismiss]="toast.durationMs()"
+          (dismiss)="toast.hide()"
+        >
+          {{ toast.message() }}
+        </nord-toast>
+      }
+    </nord-toast-group>
+  `,
+  styles: `
+    :host {
+      visibility: visible !important;
+      display: contents;
+    }
+  `,
+  exportAs: 'gestgoToaster',
 })
-export class ZardToastComponent {
-  readonly class = input<ClassValue>('');
-  readonly variant = input<ZardToastVariants>('default');
-  readonly theme = input<'light' | 'dark' | 'system'>('system');
-  readonly position = input<'top-left' | 'top-center' | 'top-right' | 'bottom-left' | 'bottom-center' | 'bottom-right'>(
-    'bottom-right',
-  );
+export class GestgoToasterComponent implements AfterViewInit, OnDestroy {
+  readonly toast = inject(ToastService);
+  private readonly host = inject(ElementRef<HTMLElement>);
+  private injectedStyle: HTMLStyleElement | null = null;
 
-  readonly richColors = input<boolean>(false);
-  readonly expand = input<boolean>(false);
-  readonly duration = input<number>(4000);
-  readonly visibleToasts = input<number>(3);
-  readonly closeButton = input<boolean>(false);
-  readonly toastOptions = input<ToastOptions>({});
-  readonly dir = input<'ltr' | 'rtl' | 'auto'>('auto');
+  ngAfterViewInit(): void {
+    void this.positionToastGroupBottomCenter();
+  }
 
-  /** Variáveis CSS do Sonner alinhadas aos tokens Zard (popover/border/radius). */
-  protected readonly toasterStyle: Record<string, string> = {
-    '--normal-bg': 'var(--popover)',
-    '--normal-text': 'var(--popover-foreground)',
-    '--normal-border': 'var(--border)',
-    '--border-radius': 'var(--radius)',
-  };
+  ngOnDestroy(): void {
+    this.injectedStyle?.remove();
+    this.injectedStyle = null;
+  }
 
-  protected readonly classes = computed(() =>
-    mergeClasses('toaster group', toastVariants({ variant: this.variant() }), this.class()),
-  );
+  private async positionToastGroupBottomCenter(): Promise<void> {
+    await customElements.whenDefined('nord-toast-group');
+    const group = this.host.nativeElement.querySelector('nord-toast-group');
+    if (!(group instanceof HTMLElement) || !group.shadowRoot) return;
 
-  protected readonly mergedToastOptions = computed((): ToastOptions => {
-    const custom = this.toastOptions();
-    return {
-      ...ZARD_DEFAULT_TOAST_OPTIONS,
-      ...custom,
-      classes: {
-        ...ZARD_DEFAULT_TOAST_OPTIONS.classes,
-        ...custom.classes,
-      },
-    };
-  });
+    const style = document.createElement('style');
+    style.textContent = `
+      .n-toast-group {
+        inset-inline: 0 !important;
+        inset-inline-end: 0 !important;
+        inset-block-end: 0 !important;
+        inset-block-start: auto !important;
+        align-items: center !important;
+        margin: 0 auto 1.25rem !important;
+        width: 100% !important;
+        max-inline-size: none !important;
+        box-sizing: border-box;
+        padding-inline: 1rem;
+      }
+      ::slotted(nord-toast) {
+        margin-inline: auto;
+      }
+    `;
+    group.shadowRoot.appendChild(style);
+    this.injectedStyle = style;
+  }
 }
+
+/** @deprecated Use GestgoToasterComponent */
+export { GestgoToasterComponent as GestgoToastComponent };

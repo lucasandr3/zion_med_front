@@ -1,1 +1,7 @@
-/* Layout principal (margin-left da sidebar em styles.css) */
+/*
+ * Shell do tenant. A base visual vive em `../shell-nord.css`;
+ * aqui ficam apenas ajustes específicos do contexto `app`.
+ */
+.trial-banner a {
+  color: var(--primary, var(--c-primary));
+}

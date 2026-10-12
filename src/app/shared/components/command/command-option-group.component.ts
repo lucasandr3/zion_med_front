@@ -11,14 +11,14 @@ import {
 
 import type { ClassValue } from 'clsx';
 
-import { ZardCommandOptionComponent } from '@/shared/components/command/command-option.component';
-import { ZardCommandComponent } from '@/shared/components/command/command.component';
+import { GestgoCommandOptionComponent } from '@/shared/components/command/command-option.component';
+import { GestgoCommandComponent } from '@/shared/components/command/command.component';
 import { commandGroupHeadingVariants, commandGroupVariants } from '@/shared/components/command/command.variants';
 import { mergeClasses } from '@/shared/utils/merge-classes';
 
-export abstract class ZardCommandOptionGroup {
-  abstract registerOption(option: ZardCommandOptionComponent): void;
-  abstract unregisterOption(option: ZardCommandOptionComponent): void;
+export abstract class GestgoCommandOptionGroup {
+  abstract registerOption(option: GestgoCommandOptionComponent): void;
+  abstract unregisterOption(option: GestgoCommandOptionComponent): void;
 }
 
 @Component({
@@ -41,10 +41,10 @@ export abstract class ZardCommandOptionGroup {
   encapsulation: ViewEncapsulation.None,
   exportAs: 'zCommandOptionGroup',
 })
-export class ZardCommandOptionGroupComponent implements ZardCommandOptionGroup {
-  private readonly commandComponent = inject(ZardCommandComponent, { optional: true });
-  private readonly optionComponentsAsChildren = contentChildren(ZardCommandOptionComponent, { descendants: true });
-  private readonly registeredOptionComponents = signal<ZardCommandOptionComponent[]>([]);
+export class GestgoCommandOptionGroupComponent implements GestgoCommandOptionGroup {
+  private readonly commandComponent = inject(GestgoCommandComponent, { optional: true });
+  private readonly optionComponentsAsChildren = contentChildren(GestgoCommandOptionComponent, { descendants: true });
+  private readonly registeredOptionComponents = signal<GestgoCommandOptionComponent[]>([]);
 
   readonly zLabel = input.required<string>();
   readonly class = input<ClassValue>('');
@@ -71,11 +71,11 @@ export class ZardCommandOptionGroupComponent implements ZardCommandOptionGroup {
     return this.optionComponents().some(option => filteredOptions.includes(option));
   });
 
-  registerOption(option: ZardCommandOptionComponent) {
+  registerOption(option: GestgoCommandOptionComponent) {
     this.registeredOptionComponents.update(current => [...current, option]);
   }
 
-  unregisterOption(option: ZardCommandOptionComponent) {
+  unregisterOption(option: GestgoCommandOptionComponent) {
     this.registeredOptionComponents.update(current => current.filter(o => o !== option));
   }
 }

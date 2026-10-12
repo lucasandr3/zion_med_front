@@ -9,8 +9,7 @@ import {
 describe('formulario-publico-cosign.util', () => {
   const fields = [
     { name_key: 'assinatura_paciente', label: 'Assinatura do paciente', type: 'signature', required: true },
-    { name_key: 'assinatura_responsavel', label: 'Responsável / cirurgião', type: 'signature', required: false },
-  ] as const;
+    { name_key: 'assinatura_responsavel', label: 'Responsável / cirurgião', type: 'signature', required: false }] as const;
 
   it('identifica slot profissional pelo rótulo', () => {
     expect(pickProfessionalSignatureField([...fields])?.name_key).toBe('assinatura_responsavel');

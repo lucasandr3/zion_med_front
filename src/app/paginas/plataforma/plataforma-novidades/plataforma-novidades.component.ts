@@ -1,13 +1,14 @@
-import { Component, OnDestroy, OnInit, inject, Signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnDestroy, OnInit, inject, Signal, ChangeDetectionStrategy, signal, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NovidadesService, ReleaseNote, ReleaseNoteItem, ReleaseNoteItemType } from '../../../core/services/novidades.service';
 import { PlataformaHeaderService } from '../../../core/services/plataforma-header.service';
 import { LoadingService } from '../../../shared/services/loading.service';
 import { ZmSkeletonListComponent } from '../../../shared/components/skeletons';
 import { ZmEmptyStateComponent } from '../../../shared/components/ui';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
-import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
+
+import { GestgoBadgeComponent } from '@/shared/components/badge/badge.component';
+import { GestgoComboboxComponent, type GestgoComboboxOption } from '@/shared/components/combobox';
+import { NORD_FORM_IMPORTS } from '@/shared/nord';
 import { ToastService } from '../../../core/services/toast.service';
 import { ConfirmDialogService } from '../../../core/services/confirm-dialog.service';
 
@@ -17,28 +18,29 @@ interface FormItem {
 }
 
 @Component({
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'app-plataforma-novidades',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CommonModule,
     FormsModule,
     ZmSkeletonListComponent,
     ZmEmptyStateComponent,
-    ZardButtonComponent,
-    ZardBadgeComponent,
-  ],
+    GestgoBadgeComponent,
+    GestgoComboboxComponent,
+    ...NORD_FORM_IMPORTS],
   templateUrl: './plataforma-novidades.component.html',
   styleUrl: './plataforma-novidades.component.css',
 })
 export class PlataformaNovidadesComponent implements OnInit, OnDestroy {
   showSkeleton!: Signal<boolean>;
-  listaPronta = false;
-  erro = false;
-  notas: ReleaseNote[] = [];
-  excluindoId: number | null = null;
-  salvando = false;
-  editandoId: number | null = null;
-  exibirFormulario = false;
+  readonly listaPronta = signal(false);
+  readonly erro = signal(false);
+  readonly notas = signal<ReleaseNote[]>([]);
+  readonly excluindoId = signal<number | null>(null);
+  readonly salvando = signal(false);
+  readonly editandoId = signal<number | null>(null);
+  readonly exibirFormulario = signal(false);
 
   formVersion = '';
   formTitle = '';
@@ -47,7 +49,7 @@ export class PlataformaNovidadesComponent implements OnInit, OnDestroy {
   formPublished = true;
   formItems: FormItem[] = [{ type: 'feature', text: '' }];
 
-  readonly tipos: { value: ReleaseNoteItemType; label: string }[] = [
+  readonly tipos: GestgoComboboxOption[] = [
     { value: 'feature', label: 'Novidade' },
     { value: 'improvement', label: 'Melhoria' },
     { value: 'fix', label: 'Correção' },
@@ -76,20 +78,20 @@ export class PlataformaNovidadesComponent implements OnInit, OnDestroy {
     this.showSkeleton = showSkeleton;
     data$.subscribe({
       next: (res) => {
-        this.listaPronta = true;
-        this.erro = false;
-        this.notas = res.data ?? [];
+        this.listaPronta.set(true);
+        this.erro.set(false);
+        this.notas.set(res.data ?? []);
       },
       error: () => {
-        this.listaPronta = true;
-        this.erro = true;
+        this.listaPronta.set(true);
+        this.erro.set(true);
       },
     });
   }
 
   abrirNovo(): void {
-    this.editandoId = null;
-    this.exibirFormulario = true;
+    this.editandoId.set(null);
+    this.exibirFormulario.set(true);
     this.formVersion = '';
     this.formTitle = '';
     this.formSummary = '';
@@ -99,8 +101,8 @@ export class PlataformaNovidadesComponent implements OnInit, OnDestroy {
   }
 
   editar(nota: ReleaseNote): void {
-    this.editandoId = nota.id;
-    this.exibirFormulario = true;
+    this.editandoId.set(nota.id);
+    this.exibirFormulario.set(true);
     this.formVersion = nota.version;
     this.formTitle = nota.title;
     this.formSummary = nota.summary ?? '';
@@ -113,8 +115,8 @@ export class PlataformaNovidadesComponent implements OnInit, OnDestroy {
   }
 
   cancelarFormulario(): void {
-    this.exibirFormulario = false;
-    this.editandoId = null;
+    this.exibirFormulario.set(false);
+    this.editandoId.set(null);
   }
 
   adicionarItem(): void {
@@ -145,22 +147,23 @@ export class PlataformaNovidadesComponent implements OnInit, OnDestroy {
       items,
     };
 
-    this.salvando = true;
-    const wasEditing = this.editandoId != null;
-    const req = this.editandoId
-      ? this.novidadesService.updatePlatform(this.editandoId, payload)
+    this.salvando.set(true);
+    const wasEditing = this.editandoId() != null;
+    const editingId = this.editandoId();
+    const req = editingId
+      ? this.novidadesService.updatePlatform(editingId, payload)
       : this.novidadesService.createPlatform(payload);
 
     req.subscribe({
       next: () => {
-        this.salvando = false;
-        this.exibirFormulario = false;
-        this.editandoId = null;
+        this.salvando.set(false);
+        this.exibirFormulario.set(false);
+        this.editandoId.set(null);
         this.carregar();
         this.toast.success('Novidades', wasEditing ? 'Release atualizada.' : 'Release publicada.');
       },
       error: () => {
-        this.salvando = false;
+        this.salvando.set(false);
         this.toast.error('Erro', 'Não foi possível salvar a release.');
       },
     });
@@ -177,15 +180,15 @@ export class PlataformaNovidadesComponent implements OnInit, OnDestroy {
     });
     if (!ok) return;
 
-    this.excluindoId = nota.id;
+    this.excluindoId.set(nota.id);
     this.novidadesService.deletePlatform(nota.id).subscribe({
       next: () => {
-        this.excluindoId = null;
+        this.excluindoId.set(null);
         this.carregar();
         this.toast.success('Removida', `Release v${nota.version} excluída.`);
       },
       error: () => {
-        this.excluindoId = null;
+        this.excluindoId.set(null);
         this.toast.error('Erro', 'Não foi possível remover a release.');
       },
     });

@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, Subject, tap, catchError, of, map } from 'rxjs';
@@ -114,6 +114,9 @@ export class AuthService {
   /** Emite após tema/modo ser aplicados a partir da API (ex.: pós-`/me`). */
   private appearanceAppliedSubject = new Subject<void>();
   readonly appearanceApplied$ = this.appearanceAppliedSubject.asObservable();
+  /** Contador signal para consumidores zoneless (templates/effects). */
+  private readonly appearanceAppliedTick = signal(0);
+  readonly appearanceVersion = this.appearanceAppliedTick.asReadonly();
 
   constructor() {
     this.loadFromStorage();
@@ -122,6 +125,7 @@ export class AuthService {
   /** Para o cabeçalho reler `localStorage`/`body` quando a sessão sincronizar com o servidor. */
   notifyAppearanceApplied(): void {
     this.appearanceAppliedSubject.next();
+    this.appearanceAppliedTick.update((n) => n + 1);
   }
 
   private loadFromStorage(): void {
@@ -149,7 +153,7 @@ export class AuthService {
     } catch {}
   }
 
-  /** Usado após login ou cadastro (comece) para definir token e contexto. */
+  /** Usado após login para definir token e contexto. */
   setSessionFromLoginData(data: LoginResponse['data']): void {
     if (typeof localStorage !== 'undefined' && data.token) {
       localStorage.setItem(TOKEN_KEY, data.token);
@@ -276,8 +280,7 @@ export class AuthService {
       ['/clinica/configuracoes', () => this.hasPermission('organization.manage')],
       ['/clinica/integracoes', () => this.hasPermission('organization.manage')],
       ['/usuarios', () => this.hasPermission('users.manage')],
-      ['/organizacao/permissoes', () => this.hasPermission('users.manage')],
-    ];
+      ['/organizacao/permissoes', () => this.hasPermission('users.manage')]];
     for (const [path, ok] of routes) {
       if (ok()) return path;
     }

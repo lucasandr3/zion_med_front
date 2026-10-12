@@ -1,15 +1,5 @@
-import {
-  afterNextRender,
-  Component,
-  inject,
-  Injector,
-  OnInit,
-  PLATFORM_ID,
-  runInInjectionContext,
-  Signal,
-  ViewChild,
-} from '@angular/core';
-import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { afterNextRender, Component, inject, Injector, OnInit, PLATFORM_ID, runInInjectionContext, Signal, ViewChild, ChangeDetectionStrategy, signal, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import {
@@ -45,53 +35,50 @@ import { normalizeGooglePlaceId } from './link-bio-google-review-link.util';
 
 const LINK_BIO_PREVIEW_SESSION_KEY = 'zm_link_bio_preview';
 
-import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
-import { ZardBadgeComponent } from '@/shared/components/badge';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
-import { ZardTabComponent, ZardTabGroupComponent } from '@/shared/components/tabs';
+import { NORD_FORM_IMPORTS } from '@/shared/nord';
+import { GestgoTabComponent, GestgoTabGroupComponent } from '@/shared/components/tabs';
 import { prefetchPublicFormQr } from '../../core/utils/public-form-qr.util';
 import { LinkBioSidePreviewComponent } from './link-bio-side-preview.component';
 
 @Component({
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'app-pagina-link-bio',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { class: 'n-page n-page--flush' },
   imports: [
-    ...ZARD_FORM_CONTROL_IMPORTS,
-    CommonModule,
+    ...NORD_FORM_IMPORTS,
     FormsModule,
     ZmSkeletonLinkBioComponent,
-    ZardBadgeComponent,
-    ZardButtonComponent,
-    ZardTabComponent,
-    ZardTabGroupComponent,
+    GestgoTabComponent,
+    GestgoTabGroupComponent,
     LinkBioSidePreviewComponent,
     LinkBioVisaoGeralTabComponent,
     LinkBioLinksTabComponent,
     LinkBioFormsTabComponent,
     LinkBioAparenciaTabComponent,
     LinkBioConteudoExtraTabComponent,
-    LinkBioModelosTabComponent,
-  ],
+    LinkBioModelosTabComponent],
   templateUrl: './link-bio.component.html',
   styleUrl: './link-bio.component.css',
 })
 export class LinkBioComponent implements OnInit {
-  state: LinkBioState | null = null;
+  readonly state = signal<LinkBioState | null>(null);
   showSkeleton!: Signal<boolean>;
-  erro = '';
+  readonly erro = signal('');
   abaPrincipal: AbaPrincipal = 'visaoGeral';
   abaAtiva: Aba = 'modelos';
 
-  @ViewChild('mainTabGroup') mainTabGroup?: ZardTabGroupComponent;
+  @ViewChild('mainTabGroup') mainTabGroup?: GestgoTabGroupComponent;
 
   private readonly injector = inject(Injector);
 
   aparenciaModelo: LinkBioLayoutModel = 1;
   linkAvaliePlaceIdManual = '';
   extraForm: LinkBioExtraFormState = createEmptyExtraFormState();
-  previewSessionVersion = 0;
+  readonly previewSessionVersion = signal(0);
 
-  previewUrlSafe: SafeResourceUrl | null = null;
+  readonly previewUrlSafe = signal<SafeResourceUrl | null>(null);
 
   private linkBioService = inject(LinkBioService);
   private loadingService = inject(LoadingService);
@@ -100,29 +87,29 @@ export class LinkBioComponent implements OnInit {
   private router = inject(Router);
 
   get links(): LinkBioLink[] {
-    return this.state?.links ?? [];
+    return this.state()?.links ?? [];
   }
 
   get forms(): LinkBioFormLink[] {
-    return this.state?.forms ?? [];
+    return this.state()?.forms ?? [];
   }
 
   get metrics() {
-    return this.state?.metrics;
+    return this.state()?.metrics;
   }
 
   get previewAoLado(): boolean {
     return this.abaAtiva === 'links' || this.abaAtiva === 'forms' || this.abaAtiva === 'aparencia';
   }
 
-  modeloPersistido: LinkBioLayoutModel = 1;
+  readonly modeloPersistido = signal<LinkBioLayoutModel>(1);
 
   get modeloDirty(): boolean {
-    return this.state != null && this.aparenciaModelo !== this.modeloPersistido;
+    return this.state() != null && this.aparenciaModelo !== this.modeloPersistido();
   }
 
   get layoutPublicadoLabel(): string {
-    return linkBioModelLabel(this.modeloPersistido);
+    return linkBioModelLabel(this.modeloPersistido());
   }
 
   get layoutSelecionadoLabel(): string {
@@ -130,8 +117,8 @@ export class LinkBioComponent implements OnInit {
   }
 
   private getPreviewUrl(cacheBust?: boolean): string | null {
-    const slug = this.state?.clinic?.slug;
-    const publicUrl = this.state?.public_url ?? '';
+    const slug = this.state()?.clinic?.slug;
+    const publicUrl = this.state()?.public_url ?? '';
     if (!slug) return publicUrl || null;
     if (!isPlatformBrowser(this.platformId)) return publicUrl || null;
     const origin = typeof window !== 'undefined' ? window.location.origin : '';
@@ -143,7 +130,7 @@ export class LinkBioComponent implements OnInit {
   syncDraftToSessionForPreviews(): void {
     if (!isPlatformBrowser(this.platformId)) return;
     try {
-      const payload = buildExtraPayload(this.extraForm, this.state?.clinic?.link_bio_extra);
+      const payload = buildExtraPayload(this.extraForm, this.state()?.clinic?.link_bio_extra);
       if (!payload) {
         sessionStorage.removeItem(LINK_BIO_PREVIEW_SESSION_KEY);
       } else {
@@ -152,12 +139,13 @@ export class LinkBioComponent implements OnInit {
     } catch {
       /* ignore */
     }
-    this.previewSessionVersion = Date.now();
+    this.previewSessionVersion.set(Date.now());
   }
 
   onExtraClinicUpdated(): void {
-    if (this.state) {
-      this.extraForm = applyExtraToFormState(this.state.clinic.link_bio_extra);
+    const current = this.state();
+    if (current) {
+      this.extraForm = applyExtraToFormState(current.clinic.link_bio_extra);
     }
     if (isPlatformBrowser(this.platformId)) {
       try {
@@ -166,13 +154,13 @@ export class LinkBioComponent implements OnInit {
         /* ignore */
       }
     }
-    this.previewSessionVersion = Date.now();
+    this.previewSessionVersion.set(Date.now());
     this.syncDraftToSessionForPreviews();
   }
 
   atualizarPreviewUrl(): void {
     const url = this.getPreviewUrl(true);
-    this.previewUrlSafe = url ? this.sanitizer.bypassSecurityTrustResourceUrl(url) : null;
+    this.previewUrlSafe.set(url ? this.sanitizer.bypassSecurityTrustResourceUrl(url) : null);
   }
 
   ngOnInit(): void {
@@ -185,24 +173,25 @@ export class LinkBioComponent implements OnInit {
     data$.subscribe({
       next: (s) => this.aplicarEstadoLinkBio(s),
       error: () => {
-        this.erro = 'Não foi possível carregar o link na bio.';
+        this.erro.set('Não foi possível carregar o link na bio.');
       },
     });
   }
 
   aplicarEstadoLinkBio(s: LinkBioState): void {
-    this.state = {
+    const next = {
       ...s,
       clinic: normalizeLinkBioClinic(s.clinic),
     };
-    const c = this.state.clinic;
+    this.state.set(next);
+    const c = next.clinic;
     this.aparenciaModelo = (c.link_bio_model as LinkBioLayoutModel) ?? 1;
-    this.modeloPersistido = this.aparenciaModelo;
+    this.modeloPersistido.set(this.aparenciaModelo);
     this.linkAvaliePlaceIdManual = normalizeGooglePlaceId(c.google_place_id) ?? '';
     this.extraForm = applyExtraToFormState(c.link_bio_extra);
     this.syncDraftToSessionForPreviews();
     const previewUrl = this.getPreviewUrl(true);
-    this.previewUrlSafe = previewUrl ? this.sanitizer.bypassSecurityTrustResourceUrl(previewUrl) : null;
+    this.previewUrlSafe.set(previewUrl ? this.sanitizer.bypassSecurityTrustResourceUrl(previewUrl) : null);
     if (s.public_url) prefetchPublicFormQr(s.public_url);
   }
 

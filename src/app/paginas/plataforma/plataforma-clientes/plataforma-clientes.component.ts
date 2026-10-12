@@ -1,28 +1,17 @@
-import { Component, OnInit, inject, Signal } from '@angular/core';
+import { Component, OnInit, inject, Signal, ChangeDetectionStrategy, signal, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { CommonModule } from '@angular/common';
-import { ZardCardComponent } from '@/shared/components/card/card.component';
-import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
 import { PlataformaService, PlatformTenant } from '../../../core/services/plataforma.service';
 import { LoadingService } from '../../../shared/services/loading.service';
-import { ZmSkeletonListComponent } from '../../../shared/components/skeletons';
-import { ZmEmptyStateComponent } from '../../../shared/components/ui';
+import { ListSkeletonComponent } from '../../../shared/components/list-skeleton/list-skeleton.component';
 import { statusAssinaturaOuCobrancaPt } from '../../../core/utils/status-labels-pt';
-
-import { ZardTableImports } from '@/shared/components/table';
 
 @Component({
   selector: 'app-plataforma-clientes',
   standalone: true,
-  imports: [
-    ...ZardTableImports,
-    CommonModule,
-    RouterLink,
-    ZardCardComponent,
-    ZardBadgeComponent,
-    ZmSkeletonListComponent,
-    ZmEmptyStateComponent,
-  ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { class: 'n-page-list' },
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  imports: [RouterLink, ListSkeletonComponent],
   templateUrl: './plataforma-clientes.component.html',
   styleUrl: './plataforma-clientes.component.css',
 })
@@ -30,9 +19,9 @@ export class PlataformaClientesComponent implements OnInit {
   protected readonly rotuloStatusAssinaturaCobranca = statusAssinaturaOuCobrancaPt;
 
   showSkeleton!: Signal<boolean>;
-  listaPronta = false;
-  estadoErro = false;
-  tenants: PlatformTenant[] = [];
+  readonly listaPronta = signal(false);
+  readonly estadoErro = signal(false);
+  readonly tenants = signal<PlatformTenant[]>([]);
 
   private plataformaService = inject(PlataformaService);
   private loadingService = inject(LoadingService);
@@ -42,21 +31,14 @@ export class PlataformaClientesComponent implements OnInit {
     this.showSkeleton = showSkeleton;
     data$.subscribe({
       next: (res) => {
-        this.listaPronta = true;
-        this.tenants = res.data ?? [];
+        this.listaPronta.set(true);
+        this.tenants.set(res.data ?? []);
       },
       error: () => {
-        this.listaPronta = true;
-        this.estadoErro = true;
+        this.listaPronta.set(true);
+        this.estadoErro.set(true);
       },
     });
-  }
-
-  iniciais(nome: string): string {
-    const partes = (nome || '').trim().split(/\s+/).filter(Boolean);
-    if (partes.length === 0) return '?';
-    if (partes.length === 1) return partes[0].charAt(0).toUpperCase();
-    return (partes[0].charAt(0) + partes[partes.length - 1].charAt(0)).toUpperCase();
   }
 
   planosRotulo(tenant: PlatformTenant): string {
@@ -65,11 +47,11 @@ export class PlataformaClientesComponent implements OnInit {
     return plans.join(', ');
   }
 
-  badgeTipoStatus(status?: string | null): 'default' | 'secondary' | 'destructive' | 'outline' {
+  badgeVariant(status?: string | null): 'success' | 'warning' | 'danger' | 'neutral' | 'info' {
     const k = (status ?? '').toLowerCase();
-    if (['active', 'ok'].includes(k)) return 'default';
-    if (['trial', 'attention', 'past_due'].includes(k)) return 'secondary';
-    if (['blocked', 'inactive'].includes(k)) return 'destructive';
-    return 'outline';
+    if (['active', 'ok'].includes(k)) return 'success';
+    if (['trial', 'attention', 'past_due'].includes(k)) return 'warning';
+    if (['blocked', 'inactive'].includes(k)) return 'danger';
+    return 'neutral';
   }
 }

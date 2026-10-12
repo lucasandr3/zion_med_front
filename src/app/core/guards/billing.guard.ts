@@ -13,8 +13,7 @@ const ALLOWED_WHEN_BLOCKED = [
   '/conta/perfil',
   '/clinica/configuracoes',
   '/clinica/escolher',
-  '/dashboard',
-];
+  '/dashboard'];
 
 /**
  * Redireciona quando a organização não pode usar o app (trial expirado / cobrança pendente).

@@ -17,7 +17,7 @@ import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideSearch } from '@ng-icons/lucide';
 import type { ClassValue } from 'clsx';
 
-import { ZardCommandComponent } from '@/shared/components/command/command.component';
+import { GestgoCommandComponent } from '@/shared/components/command/command.component';
 import { commandInputVariants } from '@/shared/components/command/command.variants';
 import { mergeClasses } from '@/shared/utils/merge-classes';
 
@@ -51,17 +51,16 @@ import { mergeClasses } from '@/shared/utils/merge-classes';
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => ZardCommandInputComponent),
+      useExisting: forwardRef(() => GestgoCommandInputComponent),
       multi: true,
-    },
-  ],
+    }],
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   viewProviders: [provideIcons({ lucideSearch })],
   exportAs: 'zCommandInput',
 })
-export class ZardCommandInputComponent implements ControlValueAccessor {
-  private readonly commandComponent = inject(ZardCommandComponent, { optional: true });
+export class GestgoCommandInputComponent implements ControlValueAccessor {
+  private readonly commandComponent = inject(GestgoCommandComponent, { optional: true });
   readonly searchInput = viewChild.required<ElementRef<HTMLInputElement>>('searchInput');
 
   readonly placeholder = input<string>('Type a command or search...');

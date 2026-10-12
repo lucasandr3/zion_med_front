@@ -26,8 +26,7 @@ export const ASSISTANT_TOURS: AssistantTour[] = [
         selector: '[data-go-tour="dashboard-shortcuts"]',
         title: 'Atalhos',
         body: 'Use os atalhos para ir rápido a Modelos, Protocolos e Pessoas.',
-      },
-    ],
+      }],
   },
   {
     id: 'tour.templates.list',
@@ -50,8 +49,7 @@ export const ASSISTANT_TOURS: AssistantTour[] = [
         selector: '[data-go-tour="templates-search"]',
         title: 'Busca e filtros',
         body: 'Filtre por categoria ou nome para encontrar fichas rapidamente.',
-      },
-    ],
+      }],
   },
   {
     id: 'tour.links-publicos',
@@ -62,8 +60,7 @@ export const ASSISTANT_TOURS: AssistantTour[] = [
         selector: '[data-go-tour="links-publicos-list"]',
         title: 'Links ativos',
         body: 'Aqui ficam os formulários públicos ativos para copiar URL ou QR Code.',
-      },
-    ],
+      }],
   },
   {
     id: 'tour.envios',
@@ -80,8 +77,7 @@ export const ASSISTANT_TOURS: AssistantTour[] = [
         selector: '[data-go-tour="envios-list"]',
         title: 'Acompanhamento',
         body: 'Reenvie ou cancele envios conforme o status.',
-      },
-    ],
+      }],
   },
   {
     id: 'tour.protocolos.list',
@@ -98,8 +94,7 @@ export const ASSISTANT_TOURS: AssistantTour[] = [
         selector: '[data-go-tour="protocolos-list"]',
         title: 'Inbox de protocolos',
         body: 'Abra um item para revisar, aprovar, baixar PDF ou dossiê.',
-      },
-    ],
+      }],
   },
   {
     id: 'tour.protocolos.detail',
@@ -116,8 +111,7 @@ export const ASSISTANT_TOURS: AssistantTour[] = [
         selector: '[data-go-tour="protocolo-timeline"]',
         title: 'Timeline',
         body: 'Acompanhe o histórico de eventos e evidências da submissão.',
-      },
-    ],
+      }],
   },
   {
     id: 'tour.pessoas.list',
@@ -134,7 +128,5 @@ export const ASSISTANT_TOURS: AssistantTour[] = [
         selector: '[data-go-tour="pessoas-search"]',
         title: 'Busca',
         body: 'Pesquise por nome ou contato e abra a ficha com histórico de protocolos.',
-      },
-    ],
-  },
-];
+      }],
+  }];

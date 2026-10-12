@@ -1,13 +1,13 @@
 import { Component, Input } from '@angular/core';
 
-import { ZardSkeletonComponent } from '@/shared/components/skeleton';
+import { GestgoSkeletonComponent } from '@/shared/components/skeleton';
 
 @Component({
   selector: 'zm-skeleton-card',
   standalone: true,
-  imports: [ZardSkeletonComponent],
+  imports: [GestgoSkeletonComponent],
   template: `
-    <z-skeleton
+    <g-skeleton
       class="w-full rounded-xl border border-border"
       [style.height.px]="height"
       aria-hidden="true"

@@ -20,8 +20,7 @@ describe('formulario-publico-field.util', () => {
     const opts = getFieldOptions(baseField({ type: 'select', options: 'Sim,Não' }));
     expect(opts).toEqual([
       { value: 'Sim', label: 'Sim' },
-      { value: 'Não', label: 'Não' },
-    ]);
+      { value: 'Não', label: 'Não' }]);
   });
 
   it('detecta checkbox preenchido', () => {

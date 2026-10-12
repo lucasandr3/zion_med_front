@@ -1,29 +1,26 @@
-import { Component, OnInit, inject, Signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { ZardCardComponent } from '@/shared/components/card/card.component';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
+import { Component, OnInit, inject, Signal, ChangeDetectionStrategy, signal, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { PlataformaService, PlatformAuditLog } from '../../../core/services/plataforma.service';
 import { LoadingService } from '../../../shared/services/loading.service';
-import { ZmSkeletonListComponent } from '../../../shared/components/skeletons';
-import { ZmEmptyStateComponent } from '../../../shared/components/ui';
+import { ListSkeletonComponent } from '../../../shared/components/list-skeleton/list-skeleton.component';
 
-import { ZardTableImports } from '@/shared/components/table';
 @Component({
   selector: 'app-plataforma-logs',
   standalone: true,
-  imports: [
-    ...ZardTableImports,CommonModule, ZardCardComponent, ZardButtonComponent, ZmSkeletonListComponent, ZmEmptyStateComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { class: 'n-page-list' },
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  imports: [ListSkeletonComponent],
   templateUrl: './plataforma-logs.component.html',
   styleUrl: './plataforma-logs.component.css',
 })
 export class PlataformaLogsComponent implements OnInit {
   showSkeleton!: Signal<boolean>;
-  listaPronta = false;
-  error = '';
-  logs: PlatformAuditLog[] = [];
-  currentPage = 1;
-  lastPage = 1;
-  total = 0;
+  readonly listaPronta = signal(false);
+  readonly error = signal('');
+  readonly logs = signal<PlatformAuditLog[]>([]);
+  readonly currentPage = signal(1);
+  readonly lastPage = signal(1);
+  readonly total = signal(0);
 
   private plataformaService = inject(PlataformaService);
   private loadingService = inject(LoadingService);
@@ -34,28 +31,28 @@ export class PlataformaLogsComponent implements OnInit {
 
   carregar(): void {
     const { data$, showSkeleton } = this.loadingService.loadWithThreshold(
-      this.plataformaService.getPlatformLogs(this.currentPage),
+      this.plataformaService.getPlatformLogs(this.currentPage()),
     );
     this.showSkeleton = showSkeleton;
     data$.subscribe({
       next: (res) => {
-        this.listaPronta = true;
-        this.error = '';
-        this.logs = res.data ?? [];
-        this.currentPage = res.meta?.current_page ?? 1;
-        this.lastPage = res.meta?.last_page ?? 1;
-        this.total = res.meta?.total ?? 0;
+        this.listaPronta.set(true);
+        this.error.set('');
+        this.logs.set(res.data ?? []);
+        this.currentPage.set(res.meta?.current_page ?? 1);
+        this.lastPage.set(res.meta?.last_page ?? 1);
+        this.total.set(res.meta?.total ?? 0);
       },
       error: () => {
-        this.listaPronta = true;
-        this.error = 'Não foi possível carregar os logs.';
+        this.listaPronta.set(true);
+        this.error.set('Não foi possível carregar os logs.');
       },
     });
   }
 
   goToPage(page: number): void {
-    if (page < 1 || page > this.lastPage) return;
-    this.currentPage = page;
+    if (page < 1 || page > this.lastPage()) return;
+    this.currentPage.set(page);
     this.carregar();
   }
 

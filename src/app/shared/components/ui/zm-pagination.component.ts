@@ -1,12 +1,12 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 
 export type ZmPaginationBlock = number | 'ellipsis';
 
 @Component({
   selector: 'zm-pagination',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './zm-pagination.component.html',
   styleUrl: './zm-pagination.component.css',
 })

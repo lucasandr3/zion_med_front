@@ -1,69 +1,55 @@
-import { Component, OnInit, OnDestroy, inject, Signal, ViewChild, TemplateRef, ViewContainerRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, Signal, ViewChild, TemplateRef, ViewContainerRef, ChangeDetectionStrategy, signal, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProtocolosService, Protocolo } from '../../core/services/protocolos.service';
 import { TemplatesService, Template } from '../../core/services/templates.service';
 import { LoadingService } from '../../shared/services/loading.service';
-import { ZmSkeletonListComponent } from '../../shared/components/skeletons';
-import { ZmPaginationComponent, ZmEmptyStateComponent } from '../../shared/components/ui';
-import { ZardCardComponent } from '@/shared/components/card/card.component';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
-import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
-import { ZardSheetService } from '@/shared/components/sheet/sheet.service';
-import type { ZardSheetRef } from '@/shared/components/sheet/sheet-ref';
-
-import { FlatpickrDirective } from 'angularx-flatpickr';
-
-import { ZardComboboxComponent, type ZardComboboxOption } from '@/shared/components/combobox';
-import { ZardTableImports } from '@/shared/components/table';
-import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
+import { ListSkeletonComponent } from '../../shared/components/list-skeleton/list-skeleton.component';
+import { ZmPaginationComponent } from '../../shared/components/ui';
+import { GestgoSheetService } from '@/shared/components/sheet/sheet.service';
+import type { GestgoSheetRef } from '@/shared/components/sheet/sheet-ref';
+import { GestgoComboboxComponent, type GestgoComboboxOption } from '@/shared/components/combobox';
+import { NORD_FORM_IMPORTS } from '@/shared/nord';
+import { formatarDataHoraBr } from '@/shared/utils/date';
 @Component({
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'app-protocolos-listagem',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { class: 'n-page-list' },
   imports: [
-    ...ZARD_FORM_CONTROL_IMPORTS,
-    ...ZardTableImports,
-    FlatpickrDirective,
-    CommonModule,
+    ...NORD_FORM_IMPORTS,
     FormsModule,
     RouterLink,
-    ZmSkeletonListComponent,
+    ListSkeletonComponent,
     ZmPaginationComponent,
-    ZmEmptyStateComponent,
-    ZardCardComponent,
-    ZardButtonComponent,
-    ZardBadgeComponent,
-    ZardComboboxComponent,
-  ],
+    GestgoComboboxComponent],
   templateUrl: './protocolos-listagem.component.html',
 })
 export class ProtocolosListagemComponent implements OnInit, OnDestroy {
-  protocolos: Protocolo[] = [];
-  templates: Template[] = [];
-  meta: { current_page: number; last_page: number; per_page: number; total: number } = {
+  readonly protocolos = signal<Protocolo[]>([]);
+  readonly templates = signal<Template[]>([]);
+  readonly meta = signal<{ current_page: number; last_page: number; per_page: number; total: number }>({
     current_page: 1,
     last_page: 1,
     per_page: 20,
     total: 0,
-  };
+  });
   showSkeleton!: Signal<boolean>;
-  listaPronta = false;
-  erro = '';
-  exportando = false;
+  readonly listaPronta = signal(false);
+  readonly erro = signal('');
+  readonly exportando = signal(false);
 
   busca = '';
   template_id: number | '' = '';
   status: string = '';
   data_inicio = '';
   data_fim = '';
-  filterDrawerOpen = false;
-  /** Calendário no body para não ser cortado pelo overflow do sheet. */
-  flatpickrAppendTo!: HTMLElement;
+  readonly filterDrawerOpen = signal(false);
 
   @ViewChild('protocolosFiltrosTpl') protocolosFiltrosTpl?: TemplateRef<void>;
 
-  private filtrosSheetRef?: ZardSheetRef<void>;
+  private filtrosSheetRef?: GestgoSheetRef<void>;
 
   private protocolosService = inject(ProtocolosService);
   private templatesService = inject(TemplatesService);
@@ -71,21 +57,19 @@ export class ProtocolosListagemComponent implements OnInit, OnDestroy {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private readonly vcr = inject(ViewContainerRef);
-  private readonly zardSheet = inject(ZardSheetService);
+  private readonly gestgoSheet = inject(GestgoSheetService);
 
-  readonly opcoesStatusFiltro: ZardComboboxOption[] = [
+  readonly opcoesStatusFiltro: GestgoComboboxOption[] = [
     { value: '', label: 'Todas' },
     { value: 'pending', label: 'Pendente' },
     { value: 'approved', label: 'Aprovado' },
     { value: 'rejected', label: 'Reprovado' },
-    { value: 'revoked', label: 'Revogado' },
-  ];
+    { value: 'revoked', label: 'Revogado' }];
 
-  get opcoesTemplateFiltro(): ZardComboboxOption[] {
+  get opcoesTemplateFiltro(): GestgoComboboxOption[] {
     return [
       { value: '', label: 'Todos' },
-      ...this.templates.map((t) => ({ value: String(t.id), label: t.name })),
-    ];
+      ...this.templates().map((t) => ({ value: String(t.id), label: t.name }))];
   }
 
   get templateFiltroKey(): string {
@@ -108,12 +92,11 @@ export class ProtocolosListagemComponent implements OnInit, OnDestroy {
     this.filtrosSheetRef?.close();
   }
   ngOnInit(): void {
-    this.flatpickrAppendTo = document.body;
     const statusFromQuery = this.route.snapshot.queryParamMap.get('status');
     if (statusFromQuery) {
       this.status = statusFromQuery;
     }
-    this.templatesService.list().subscribe({ next: (t) => (this.templates = t) });
+    this.templatesService.list().subscribe({ next: (t) => this.templates.set(t) });
     this.carregar();
   }
 
@@ -147,13 +130,13 @@ export class ProtocolosListagemComponent implements OnInit, OnDestroy {
     this.showSkeleton = showSkeleton;
     data$.subscribe({
       next: (res) => {
-        this.listaPronta = true;
-        this.protocolos = res.data;
-        this.meta = res.meta;
+        this.listaPronta.set(true);
+        this.protocolos.set(res.data);
+        this.meta.set(res.meta);
       },
       error: () => {
-        this.listaPronta = true;
-        this.erro = 'Não foi possível carregar os protocolos.';
+        this.listaPronta.set(true);
+        this.erro.set('Não foi possível carregar os protocolos.');
       },
     });
   }
@@ -180,19 +163,23 @@ export class ProtocolosListagemComponent implements OnInit, OnDestroy {
     if (!this.protocolosFiltrosTpl) {
       return;
     }
-    this.filterDrawerOpen = true;
-    this.filtrosSheetRef = this.zardSheet.create<void, void>({
+    this.filterDrawerOpen.set(true);
+    this.filtrosSheetRef = this.gestgoSheet.create<void, void>({
       zContent: this.protocolosFiltrosTpl,
       zViewContainerRef: this.vcr,
       zSide: 'right',
-      zSize: 'lg',
+      zSize: 'custom',
+      zWidth: 'min(100vw, 24rem)',
+      zHeight: '100dvh',
       zTitle: 'Filtros',
+      zCustomClasses: 'gestgo-filter-sheet-panel',
       zHideFooter: true,
       zOkText: null,
       zCancelText: null,
+      zMaskClosable: true,
       zAfterClose: () => {
         this.filtrosSheetRef = undefined;
-        this.filterDrawerOpen = false;
+        this.filterDrawerOpen.set(false);
       },
     });
   }
@@ -213,14 +200,11 @@ export class ProtocolosListagemComponent implements OnInit, OnDestroy {
   }
 
   dataFormatada(val: string | undefined): string {
-    if (!val) return '—';
-    const d = new Date(val);
-    if (isNaN(d.getTime())) return val;
-    return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+    return formatarDataHoraBr(val) || '—';
   }
 
   exportarCsv(): void {
-    this.exportando = true;
+    this.exportando.set(true);
     const params: { template_id?: number; status?: string; data_inicio?: string; data_fim?: string } = {};
     if (this.template_id !== '') params.template_id = Number(this.template_id);
     if (this.status) params.status = this.status;
@@ -235,14 +219,14 @@ export class ProtocolosListagemComponent implements OnInit, OnDestroy {
         a.download = `protocolos-${new Date().toISOString().slice(0, 10)}.csv`;
         a.click();
         URL.revokeObjectURL(url);
-        this.exportando = false;
+        this.exportando.set(false);
       },
-      error: () => (this.exportando = false),
+      error: () => this.exportando.set(false),
     });
   }
 
   exportarPdf(): void {
-    this.exportando = true;
+    this.exportando.set(true);
     const params: { template_id?: number; status?: string; data_inicio?: string; data_fim?: string; limit?: number } = { limit: 50 };
     if (this.template_id !== '') params.template_id = Number(this.template_id);
     if (this.status) params.status = this.status;
@@ -257,14 +241,14 @@ export class ProtocolosListagemComponent implements OnInit, OnDestroy {
         a.download = `protocolos-pdf-${new Date().toISOString().slice(0, 10)}.pdf`;
         a.click();
         URL.revokeObjectURL(url);
-        this.exportando = false;
+        this.exportando.set(false);
       },
-      error: () => (this.exportando = false),
+      error: () => this.exportando.set(false),
     });
   }
 
   contagemTexto(): string {
-    const n = this.meta.total;
+    const n = this.meta().total;
     return n === 1 ? '1 registro' : `${n} registros`;
   }
 }

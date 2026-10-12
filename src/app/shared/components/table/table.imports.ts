@@ -1,19 +1,18 @@
 import {
-  ZardTableComponent,
-  ZardTableHeaderComponent,
-  ZardTableBodyComponent,
-  ZardTableRowComponent,
-  ZardTableHeadComponent,
-  ZardTableCellComponent,
-  ZardTableCaptionComponent,
+  GestgoTableComponent,
+  GestgoTableHeaderComponent,
+  GestgoTableBodyComponent,
+  GestgoTableRowComponent,
+  GestgoTableHeadComponent,
+  GestgoTableCellComponent,
+  GestgoTableCaptionComponent,
 } from './table.component';
 
-export const ZardTableImports = [
-  ZardTableComponent,
-  ZardTableHeaderComponent,
-  ZardTableBodyComponent,
-  ZardTableRowComponent,
-  ZardTableHeadComponent,
-  ZardTableCellComponent,
-  ZardTableCaptionComponent,
-] as const;
+export const GestgoTableImports = [
+  GestgoTableComponent,
+  GestgoTableHeaderComponent,
+  GestgoTableBodyComponent,
+  GestgoTableRowComponent,
+  GestgoTableHeadComponent,
+  GestgoTableCellComponent,
+  GestgoTableCaptionComponent] as const;

@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, Signal, signal } from '@angular/core';
+import { Component, OnInit, inject, Signal, signal, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { PessoasService, PessoaDetalhe } from '../../core/services/pessoas.service';
@@ -8,24 +8,25 @@ import { ToastService } from '../../core/services/toast.service';
 import { ConfirmDialogService } from '../../core/services/confirm-dialog.service';
 import { AuthService } from '../../core/services/auth.service';
 
-import { ZardCardComponent } from '@/shared/components/card/card.component';
+import { GestgoCardComponent } from '@/shared/components/card/card.component';
 import { ZmPageBackLinkComponent } from '../../shared/components/ui';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
-import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
-import { ZardTableImports } from '@/shared/components/table';
+
+import { GestgoBadgeComponent } from '@/shared/components/badge/badge.component';
+import { GestgoTableImports } from '@/shared/components/table';
+import { formatarDataBr, formatarDataHoraBr } from '@/shared/utils/date';
 @Component({
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'app-pessoas-detalhe',
   standalone: true,
+  host: { class: 'n-page' },
   imports: [
-    ...ZardTableImports,
+    ...GestgoTableImports,
     CommonModule,
     RouterLink,
     ZmSkeletonPessoaDetalheComponent,
-    ZardCardComponent,
+    GestgoCardComponent,
     ZmPageBackLinkComponent,
-    ZardButtonComponent,
-    ZardBadgeComponent,
-  ],
+    GestgoBadgeComponent],
   templateUrl: './pessoas-detalhe.component.html',
   styleUrl: './pessoas-detalhe.component.css',
 })
@@ -77,17 +78,11 @@ export class PessoasDetalheComponent implements OnInit {
   }
 
   dataFormatada(val: string | undefined | null): string {
-    if (!val) return '—';
-    const d = new Date(val);
-    if (isNaN(d.getTime())) return val;
-    return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+    return formatarDataHoraBr(val) || '—';
   }
 
   formatarDataCurta(val: string | undefined | null): string {
-    if (!val) return '—';
-    const d = new Date(val);
-    if (isNaN(d.getTime())) return val;
-    return d.toLocaleDateString('pt-BR');
+    return formatarDataBr(val) || '—';
   }
 
   statusProtocolo(s: string): string {

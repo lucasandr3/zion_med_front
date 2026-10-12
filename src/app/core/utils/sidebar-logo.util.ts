@@ -1,9 +1,8 @@
-import { GESTGO_THEME_LS, normalizeThemeKey } from '../services/user-appearance.sync';
-
-/** Ficheiros em `assets/logo/` alinhados aos temas da UI (modo Topo e marca). */
+/** Arquivo da marca por tema (`src/assets/logo/logo-*.png`). */
 const THEME_LOGO_FILE: Record<string, string> = {
   'gestgo-blue': 'logo-azul.png',
-  'ocean-blue': 'logo-ocean.png',
+  'zion-blue': 'logo-azul.png',
+  'ocean-blue': 'logo.png',
   'indigo-night': 'logo-indigo.png',
   'emerald-fresh': 'logo-emerald.png',
   'rose-elegant': 'logo-rose.png',
@@ -15,35 +14,39 @@ const THEME_LOGO_FILE: Record<string, string> = {
   'fuchsia-bold': 'logo-fucshia.png',
 };
 
+function canonicalThemeKey(theme: string): string {
+  return theme === 'zion-blue' ? 'gestgo-blue' : theme;
+}
+
+function readBodyThemeKey(): string {
+  if (typeof document === 'undefined') return 'ocean-blue';
+  const m = document.body.className.match(/(?:^|\s)theme-([a-z0-9-]+)/);
+  return canonicalThemeKey(m?.[1] ?? 'ocean-blue');
+}
+
+/** PNG colorido do tema (nunca a variante branca) — sidebar + favicon. */
+export function resolveThemeLogoSrc(themeKey?: string): string {
+  const key = canonicalThemeKey(themeKey ?? readBodyThemeKey());
+  const file = THEME_LOGO_FILE[key] ?? 'logo.png';
+  return `/assets/logo/${file}`;
+}
+
 /**
- * Logo na faixa da marca: com `shell-preset-tinted`, usa variante colorida do tema; caso contrário `logo.png`.
+ * Logo oficial Gestgo (PNG do sistema).
+ * Preset "Topo e marca" usa a variante branca; demais temas usam a arte colorida.
  */
 export function resolveSidebarLogoSrc(): string {
   if (typeof document === 'undefined') {
     return '/assets/logo/logo.png';
   }
-  const tinted = document.body.classList.contains('shell-preset-tinted');
-  if (!tinted) {
-    return '/assets/logo/logo.png';
+  if (document.body.classList.contains('shell-preset-tinted')) {
+    return '/assets/logo/logo-white.png';
   }
-  let themeKey = '';
-  for (const c of Array.from(document.body.classList)) {
-    if (c.startsWith('theme-')) {
-      themeKey = normalizeThemeKey(c.slice('theme-'.length));
-      break;
-    }
-  }
-  if (!themeKey) {
-    try {
-      const ls = localStorage.getItem(GESTGO_THEME_LS);
-      if (ls) themeKey = normalizeThemeKey(ls);
-    } catch {
-      /* ignore */
-    }
-  }
-  if (!themeKey) {
-    themeKey = 'ocean-blue';
-  }
-  const file = THEME_LOGO_FILE[themeKey] ?? 'logo.png';
-  return `/assets/logo/${file}`;
+  return resolveThemeLogoSrc();
+}
+
+/** Favicon = mesma arte colorida do tema (cache-bust por chave). */
+export function resolveThemeFaviconHref(themeKey?: string): string {
+  const key = canonicalThemeKey(themeKey ?? readBodyThemeKey());
+  return `${resolveThemeLogoSrc(key)}?theme=${encodeURIComponent(key)}`;
 }

@@ -64,8 +64,7 @@ function pickPublicFormLogoUrl(d: Record<string, unknown>): string | null {
     d['clinic_logo_path'],
     d['logo'],
     d['logoUrl'],
-    d['clinicLogoUrl'],
-  ];
+    d['clinicLogoUrl']];
   pushClinicLogoCandidates(candidates, nestRecord(d['clinic']));
   pushClinicLogoCandidates(candidates, nestRecord(d['clinica']));
   pushClinicLogoCandidates(candidates, nestRecord(d['company']));
@@ -116,8 +115,7 @@ function extractPublicLinkBioSlug(d: Record<string, unknown>): string | null {
     nestRecord(d['empresa']),
     nestRecord(d['attributes']),
     nestRecord(nestRecord(d['template'])?.['clinic'] as unknown),
-    nestRecord(nestRecord(d['template'])?.['clinica'] as unknown),
-  ];
+    nestRecord(nestRecord(d['template'])?.['clinica'] as unknown)];
   for (const r of nested) {
     const s = fromClinicLike(r);
     if (s) return s;
@@ -223,6 +221,10 @@ interface SubmitResponse {
   data: {
     message: string;
     protocol_number: string;
+    patient_download_token?: string;
+    patient_download_url?: string;
+    patient_download_expires_at?: string | null;
+    patient_copy_emailed?: boolean;
     feegow?: {
       enabled?: boolean;
       attempted?: boolean;
@@ -351,6 +353,23 @@ export class FormularioPublicoService {
   submit(token: string, payload: Record<string, unknown>): Observable<SubmitResponse['data']> {
     return this.http
       .post<SubmitResponse>(`${BASE}/formulario-publico/${encodeURIComponent(token)}/submit`, payload)
+      .pipe(map((r) => r.data));
+  }
+
+  /** Download da cópia PDF do paciente (token público de curta duração). */
+  downloadPatientCopy(copyToken: string): Observable<Blob> {
+    return this.http.get(`${BASE}/formulario-publico/copia/${encodeURIComponent(copyToken)}`, {
+      responseType: 'blob',
+    });
+  }
+
+  /** Envia o link da cópia para um e-mail informado na tela de sucesso. */
+  emailPatientCopy(copyToken: string, email: string): Observable<{ message: string }> {
+    return this.http
+      .post<{ data: { message: string } }>(
+        `${BASE}/formulario-publico/copia/${encodeURIComponent(copyToken)}/email`,
+        { email },
+      )
       .pipe(map((r) => r.data));
   }
 

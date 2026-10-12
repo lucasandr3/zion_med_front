@@ -2,89 +2,14 @@
   --cat-accent: var(--primary);
 }
 
-.templates-colecao-header {
-  display: flex;
-  flex-wrap: nowrap;
-  align-items: flex-start;
-  justify-content: flex-start;
-  gap: 1.25rem;
-  margin-bottom: 1.5rem;
+/* Alinha altura do button-group com Ordenar / Filtros (size padrão do nord-button). */
+.templates-view-group {
+  align-self: center;
 }
 
-.templates-colecao-header-actions {
-  display: flex;
-  flex-wrap: nowrap;
-  align-items: center;
-  width: 100%;
-  gap: 0.5rem;
-  overflow-x: auto;
-  scrollbar-width: thin;
-}
-
-.templates-colecao-btn-novo {
-  margin-left: auto;
-}
-
-.templates-filtros-panel,
-.templates-detalhe-filtros {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 1rem;
-}
-
-.templates-filtros-busca {
-  flex: 1 1 220px;
-  max-width: 320px;
-}
-
-.templates-detalhe-busca {
-  flex: 1 1 320px;
-  min-width: 240px;
-}
-
-.templates-filter-wrap {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.125rem;
-  height: var(--button-height);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 2px;
-  background: var(--muted);
-}
-
-.templates-filter-wrap > button {
-  height: var(--button-height-inner) !important;
-  min-height: var(--button-height-inner);
-}
-
-.templates-filter-btn--active {
-  background: var(--background) !important;
-  color: var(--foreground) !important;
-  box-shadow: var(--shadow-sm);
-}
-
-.templates-view-toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.125rem;
-  height: var(--button-height);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 2px;
-  background: var(--muted);
-}
-
-.templates-view-toggle > button {
-  height: var(--button-height-inner) !important;
-  min-height: var(--button-height-inner);
-}
-
-.templates-view-btn--active {
-  background: var(--background) !important;
-  color: var(--foreground) !important;
-  box-shadow: var(--shadow-sm);
+.templates-view-group nord-button {
+  --n-button-min-block-size: var(--n-space-xl, 2.75rem);
+  --_n-button-min-block-size: var(--n-space-xl, 2.75rem);
 }
 
 .templates-colecao-grid {
@@ -282,33 +207,12 @@
 }
 
 .templates-detalhe {
-  padding-bottom: 1rem;
+  padding-bottom: 0;
 }
 
-.templates-detalhe-toolbar {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
-}
-
-.templates-detalhe-toolbar-top {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: flex-start;
-  width: 100%;
-  gap: 0.75rem;
-}
-
-.templates-detalhe-toolbar-actions-right {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: flex-end;
-  margin-left: auto;
-  gap: 0.5rem;
+/* Mantém linhas full-bleed (igual Pessoas / Protocolos): o wrapper não cria caixa. */
+.templates-detalhe > .templates-detalhe-body {
+  display: contents;
 }
 
 .templates-table th:last-child,
@@ -423,14 +327,19 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 0.5rem;
-  margin-top: 0.85rem;
+  margin-top: auto;
+  padding-top: 0.85rem;
+  width: 100%;
 }
 
+.templates-modelo-card__actions nord-button,
 .templates-modelo-card__action {
+  display: block;
+  --n-button-box-shadow: none;
+  /* Ícone + rótulo no mesmo slot, agrupados ao centro. */
+  --n-button-justify-content: center;
   min-width: 0;
-  gap: 0.35rem;
-}
-
-.templates-modelo-card__action--primary {
-  font-weight: 600;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }

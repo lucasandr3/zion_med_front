@@ -1,10 +1,10 @@
-import { Component, Input, OnInit, OnDestroy, inject, ViewChild, TemplateRef, ViewContainerRef } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy, inject, ViewChild, TemplateRef, ViewContainerRef, ChangeDetectionStrategy, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { Router, RouterLink } from '@angular/router';
-import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../core/services/auth.service';
 import { UserAppearanceService } from '../../../core/services/user-appearance.service';
 import { SidebarMobileService } from '../../../core/services/sidebar-mobile.service';
+import { ShellSidebarCollapseService } from '../../../core/services/shell-sidebar-collapse.service';
 import { ClinicaService } from '../../../core/services/clinica.service';
 import { ShellNavLayoutService } from '../../../core/services/shell-nav-layout.service';
 import {
@@ -19,53 +19,39 @@ import {
   normalizeThemeKey,
   readNavLayoutFromDom,
   SHELL_PRESET_UI_OPTIONS,
+  syncThemeChrome,
   type NavLayout,
   type ShellPreset,
 } from '../../../core/services/user-appearance.sync';
 import { absoluteMediaUrl } from '../../../core/utils/absolute-media-url';
-import { resolveSidebarLogoSrc } from '../../../core/utils/sidebar-logo.util';
 import { BarraNavHorizontalComponent } from '../barra-nav-horizontal/barra-nav-horizontal.component';
-import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
-import { ZardMenuImports } from '../../../shared/components/menu/menu.imports';
-import { ZardAvatarComponent } from '@/shared/components/avatar/avatar.component';
-import { ZardSheetService } from '@/shared/components/sheet/sheet.service';
-import type { ZardSheetRef } from '@/shared/components/sheet/sheet-ref';
+import { GestgoBadgeComponent } from '@/shared/components/badge/badge.component';
+
+import { GestgoAvatarComponent } from '@/shared/components/avatar/avatar.component';
+import { GestgoBrandMarkComponent } from '@/shared/components/gestgo-brand-mark/gestgo-brand-mark.component';
+import { GestgoSheetService } from '@/shared/components/sheet/sheet.service';
+import type { GestgoSheetRef } from '@/shared/components/sheet/sheet-ref';
 import { GoAssistantShellService } from '../../../go-assistant/services/go-assistant-shell.service';
+import {
+  TEMAS as TEMAS_LIST,
+  temasOrdemGrade,
+  type ShellTema,
+} from '../shell-theme.config';
 
-export const TEMAS: { key: string; label: string; labelPt: string; color: string }[] = [
-  { key: 'gestgo-blue', label: 'Royal blue', labelPt: 'Azul Gestgo', color: '#1e40af' },
-  { key: 'ocean-blue', label: 'Brand green', labelPt: 'Verde marca', color: '#16a874' },
-  { key: 'indigo-night', label: 'Indigo Night', labelPt: 'Anil', color: '#3730a3' },
-  { key: 'emerald-fresh', label: 'Emerald Fresh', labelPt: 'Esmeralda', color: '#15803d' },
-  { key: 'rose-elegant', label: 'Rose Elegant', labelPt: 'Rosa', color: '#be185d' },
-  { key: 'amber-warm', label: 'Amber Warm', labelPt: 'Âmbar', color: '#b45309' },
-  { key: 'violet-dream', label: 'Violet Dream', labelPt: 'Violeta', color: '#6d28d9' },
-  { key: 'teal-ocean', label: 'Teal Ocean', labelPt: 'Verde-água', color: '#0f766e' },
-  { key: 'slate-pro', label: 'Slate Pro', labelPt: 'Ardósia', color: '#334155' },
-  { key: 'cyan-tech', label: 'Cyan Tech', labelPt: 'Ciano', color: '#0369a1' },
-  { key: 'fuchsia-bold', label: 'Fuchsia Bold', labelPt: 'Magenta', color: '#a21caf' },
-];
-
-/** Ordem na grade 6+5 (alinhada ao painel visual de referência). */
-const TEMAS_GRADE_ORDER = [
-  'gestgo-blue',
-  'indigo-night',
-  'rose-elegant',
-  'violet-dream',
-  'slate-pro',
-  'fuchsia-bold',
-  'ocean-blue',
-  'emerald-fresh',
-  'amber-warm',
-  'teal-ocean',
-  'cyan-tech',
-] as const;
+export { TEMAS } from '../shell-theme.config';
 
 @Component({
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'app-cabecalho',
   standalone: true,
-  imports: [CommonModule, RouterLink, ZardButtonComponent, ZardBadgeComponent, ZardAvatarComponent, BarraNavHorizontalComponent, ...ZardMenuImports],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+    RouterLink,
+    GestgoBadgeComponent,
+    GestgoAvatarComponent,
+    GestgoBrandMarkComponent,
+    BarraNavHorizontalComponent,
+  ],
   templateUrl: './cabecalho.component.html',
   styleUrl: './cabecalho.component.css',
 })
@@ -87,15 +73,14 @@ export class CabecalhoComponent implements OnInit, OnDestroy {
   ehAdminPlataforma = false;
   podeGerenciarClinica = false;
 
-  temas = TEMAS;
+  temas = TEMAS_LIST;
 
   /** Temas na ordem da grade de círculos (6 + 5). */
-  get temasOrdemGrade(): { key: string; label: string; labelPt: string; color: string }[] {
-    const byKey = new Map(this.temas.map((t) => [t.key, t]));
-    return TEMAS_GRADE_ORDER.map((k) => byKey.get(k)).filter((t): t is (typeof TEMAS)[number] => t != null);
+  get temasOrdemGrade(): ShellTema[] {
+    return temasOrdemGrade();
   }
 
-  get temaAtualMeta(): (typeof TEMAS)[number] | undefined {
+  get temaAtualMeta(): ShellTema | undefined {
     return this.temas.find((t) => t.key === this.temaAtual);
   }
 
@@ -134,12 +119,11 @@ export class CabecalhoComponent implements OnInit, OnDestroy {
   navLayoutAtual: NavLayout = 'sidebar';
   readonly shellPresetOptions = SHELL_PRESET_UI_OPTIONS;
   readonly navLayoutOptions = NAV_LAYOUT_UI_OPTIONS;
-  /** Classes padrão do `z-avatar` (Zard) nos chips de perfil do header. */
+  /** Classes padrão do `g-avatar` (Gestgo) nos chips de perfil do header. */
   readonly avatarChipClass =
     'shrink-0 !bg-primary !text-primary-foreground [&>img]:object-cover [&>span]:text-[0.65rem] [&>span]:font-bold';
   themeDrawerMode: 'light' | 'dark' | 'auto' = 'light';
   sidebarColapsada = false;
-  sidebarLogoSrc = '/assets/logo/logo.png';
   nomeUsuario = 'Usuário';
   iniciaisUsuario = 'U';
   emailUsuario = '';
@@ -155,14 +139,17 @@ export class CabecalhoComponent implements OnInit, OnDestroy {
   private router = inject(Router);
   private appearance = inject(UserAppearanceService);
   private sidebarMobile = inject(SidebarMobileService);
+  private sidebarCollapse = inject(ShellSidebarCollapseService);
   private clinicaService = inject(ClinicaService);
   private readonly shellNavLayout = inject(ShellNavLayoutService);
   private readonly vcr = inject(ViewContainerRef);
-  private readonly zardSheet = inject(ZardSheetService);
+  private readonly gestgoSheet = inject(GestgoSheetService);
   private readonly goAssistant = inject(GoAssistantShellService);
-  private temaSheetRef?: ZardSheetRef<void>;
+  private temaSheetRef?: GestgoSheetRef<void>;
 
   ngOnInit(): void {
+    this.sidebarCollapse.ensureHydrated();
+    this.sidebarColapsada = this.sidebarCollapse.collapsed();
     this.syncTemaControlsFromBrowser();
     if (this.themeDrawerMode === 'auto') {
       this._applyAutoMode();
@@ -191,7 +178,6 @@ export class CabecalhoComponent implements OnInit, OnDestroy {
       this.emailUsuario = u.email || '';
       this.iniciaisUsuario = this.nomeUsuario.slice(0, 2).toUpperCase() || 'U';
     }
-    this.sidebarLogoSrc = resolveSidebarLogoSrc();
   }
 
   private syncMenuPermissoes(): void {
@@ -309,6 +295,7 @@ export class CabecalhoComponent implements OnInit, OnDestroy {
     this.modoEscuro = dark;
     document.body.classList.toggle('dark', dark);
     try { localStorage.setItem('gestgo_dark_mode', dark ? '1' : '0'); } catch {}
+    syncThemeChrome();
     if (this.auth.isAuthenticated()) {
       this.appearance.patchAppearance({ ui_dark_mode: dark }).subscribe({ error: () => {} });
     }
@@ -331,15 +318,11 @@ export class CabecalhoComponent implements OnInit, OnDestroy {
       return;
     }
     if (isMobile) {
-      /* Igual ao backend: apenas alternar estado; sidebar/overlay reagem por classe no elemento */
-      this.sidebarMobile.setOpen(!this.sidebarMobile.isOpen);
+      this.sidebarMobile.toggle();
       return;
     }
-    this.sidebarColapsada = !this.sidebarColapsada;
-    document.body.classList.toggle('sidebar-collapsed', this.sidebarColapsada);
-    try {
-      localStorage.setItem('gestgo_sidebar_collapsed', this.sidebarColapsada ? '1' : '0');
-    } catch {}
+    this.sidebarCollapse.toggle();
+    this.sidebarColapsada = this.sidebarCollapse.collapsed();
   }
 
   /** Define modo escuro (true) ou claro (false); usado no drawer de tema */
@@ -349,6 +332,7 @@ export class CabecalhoComponent implements OnInit, OnDestroy {
     try {
       localStorage.setItem('gestgo_dark_mode', this.modoEscuro ? '1' : '0');
     } catch {}
+    syncThemeChrome();
     if (this.auth.isAuthenticated()) {
       this.appearance.patchAppearance({ ui_dark_mode: escuro }).subscribe({ error: () => {} });
     }
@@ -362,7 +346,7 @@ export class CabecalhoComponent implements OnInit, OnDestroy {
     if (!this.temaSheetTpl) {
       return;
     }
-    this.temaSheetRef = this.zardSheet.create<void, void>({
+    this.temaSheetRef = this.gestgoSheet.create<void, void>({
       zContent: this.temaSheetTpl,
       zViewContainerRef: this.vcr,
       zSide: 'right',
@@ -397,6 +381,7 @@ export class CabecalhoComponent implements OnInit, OnDestroy {
     try {
       localStorage.setItem('gestgo_theme', canonical);
     } catch {}
+    syncThemeChrome();
     if (this.auth.isAuthenticated()) {
       this.appearance.patchAppearance({ ui_theme: canonical }).subscribe({ error: () => {} });
     }

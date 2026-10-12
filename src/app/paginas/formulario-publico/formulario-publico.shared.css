@@ -631,30 +631,12 @@
   background-color: #fff;
 }
 
-/* Garante que o input do Flatpickr (alt + original) siga exatamente o mesmo visual do .fp-input */
-.fp-field-group :is(input.flatpickr-input, input.flatpickr-alt-input, .flatpickr-wrapper input) {
+/* Nord date picker no formulário público */
+.fp-nord-date,
+.fp-field-group nord-date-picker {
+  display: block;
   width: 100%;
-  padding: 0.75rem 0.875rem;
-  border-radius: 0.5rem;
-  border: 1.5px solid var(--fp-cream-200);
-  font-family: inherit;
-  font-size: 1rem;
-  font-weight: 400;
-  color: var(--fp-ink-800);
-  background-color: #fff;
-  outline: none;
-  box-sizing: border-box;
-  appearance: none;
-  -webkit-appearance: none;
-  transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s;
-}
-
-.fp-field-group :is(input.flatpickr-input, input.flatpickr-alt-input, .flatpickr-wrapper input)::placeholder {
-  color: #a3a3a3;
-}
-
-.fp-field-group :is(input.flatpickr-input, input.flatpickr-alt-input, .flatpickr-wrapper input):focus {
-  border-color: #0a0a0a;
+  max-width: 100%;
 }
 
 .form-publico-page.dark .fp-field-group :is(input.flatpickr-input, input.flatpickr-alt-input, .flatpickr-wrapper input) {
@@ -1184,7 +1166,7 @@
   color: #a3a39a;
 }
 
-.fp-kiosk .fp-scroll {
+.fp-totem .fp-scroll {
   padding-top: 0.5rem;
 }
 
@@ -1342,18 +1324,18 @@
   }
 }
 
-/* Marca: repassa accent para componentes globais (z-checkbox, focus rings) */
+/* Marca: repassa accent para componentes globais (g-checkbox, focus rings) */
 .form-publico-page.fp-branded {
   --c-primary: var(--fp-brand-500);
   --c-focus: color-mix(in srgb, var(--fp-brand-500) 28%, transparent);
 }
 
-.form-publico-page.fp-branded :is(.form-checkbox, .z-checkbox-native):checked {
+.form-publico-page.fp-branded :is(.form-checkbox, .g-checkbox-native):checked {
   background-color: var(--fp-brand-500);
   border-color: var(--fp-brand-500);
 }
 
-.form-publico-page.fp-branded :is(.form-checkbox, .z-checkbox-native):focus-visible {
+.form-publico-page.fp-branded :is(.form-checkbox, .g-checkbox-native):focus-visible {
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--fp-brand-500) 28%, transparent);
 }
 

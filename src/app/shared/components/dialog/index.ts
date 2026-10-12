@@ -1,4 +1,4 @@
-export { ZardDialogComponent, ZardDialogOptions } from './dialog.component';
+export { GestgoDialogComponent, GestgoDialogOptions } from './dialog.component';
 export { type OnClickCallback as DialogOnClickCallback } from './dialog.component';
 export * from './dialog.service';
 export * from './dialog-ref';

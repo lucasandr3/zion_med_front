@@ -1,17 +1,7 @@
-import {
-  afterNextRender,
-  Component,
-  Injector,
-  OnDestroy,
-  OnInit,
-  inject,
-  runInInjectionContext,
-  Signal,
-  ViewChild,
-} from '@angular/core';
+import { afterNextRender, Component, Injector, OnDestroy, OnInit, inject, runInInjectionContext, Signal, ViewChild, ChangeDetectionStrategy, signal, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
   ProtocolosService,
@@ -29,13 +19,15 @@ import { ConfirmDialogService } from '../../core/services/confirm-dialog.service
 import { AuthService } from '../../core/services/auth.service';
 import { ClinicaService, ClinicaConfig } from '../../core/services/clinica.service';
 import { PessoasService, Pessoa } from '../../core/services/pessoas.service';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
-import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
-import type { ZardBadgeTypeVariants } from '@/shared/components/badge/badge.variants';
-import { ZardCardComponent } from '@/shared/components/card/card.component';
-import { ZardTabComponent, ZardTabGroupComponent } from '@/shared/components/tabs';
-import { ZardAvatarComponent } from '@/shared/components/avatar/avatar.component';
-import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
+
+import { GestgoBadgeComponent } from '@/shared/components/badge/badge.component';
+import type { GestgoBadgeTypeVariants } from '@/shared/components/badge/badge.variants';
+import { GestgoCardComponent } from '@/shared/components/card/card.component';
+import { GestgoTabComponent, GestgoTabGroupComponent } from '@/shared/components/tabs';
+import { GestgoAvatarComponent } from '@/shared/components/avatar/avatar.component';
+import { NORD_FORM_IMPORTS } from '@/shared/nord';
+import { formatarDataBr, formatarDataHoraBr, formatarSeDataIso } from '@/shared/utils/date';
+import html2pdf from 'html2pdf.js';
 
 /** Linha do documento de impressão: agrupamento dinâmico de campos do template. */
 interface DocLinhaCampo {
@@ -55,63 +47,66 @@ const PROTOCOLO_ABA_IDS: ProtocoloAbaId[] = [
   'historico',
   'assinaturas',
   'comentarios',
-  'impressao',
-];
+  'impressao'];
 
 @Component({
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'app-protocolos-detalhe',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { class: 'n-page n-page--flush' },
   imports: [
-    CommonModule,
     FormsModule,
     RouterLink,
     ZmSkeletonProtocoloDetalheComponent,
     ZmEmptyStateComponent,
     ZmPageBackLinkComponent,
-    ZardButtonComponent,
-    ZardBadgeComponent,
-    ZardCardComponent,
-    ZardTabComponent,
-    ZardTabGroupComponent,
-    ZardAvatarComponent,
-    ...ZARD_FORM_CONTROL_IMPORTS,
-  ],
+    GestgoBadgeComponent,
+    GestgoCardComponent,
+    GestgoTabComponent,
+    GestgoTabGroupComponent,
+    GestgoAvatarComponent,
+    ...NORD_FORM_IMPORTS],
   templateUrl: './protocolos-detalhe.component.html',
   styleUrl: './protocolos-detalhe.component.css',
 })
 export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
-  abaAtiva: ProtocoloAbaId = 'visao-geral';
+  readonly abaAtiva = signal<ProtocoloAbaId>('visao-geral');
 
-  @ViewChild('protocoloTabGroup') protocoloTabGroup?: ZardTabGroupComponent;
-  protocolo: ProtocoloDetalheData | null = null;
+  @ViewChild('protocoloTabGroup') protocoloTabGroup?: GestgoTabGroupComponent;
+  readonly protocolo = signal<ProtocoloDetalheData | null>(null);
   showSkeleton!: Signal<boolean>;
-  erro = '';
-  comentarioEnviando = false;
-  revisaoEnviando = false;
-  gerandoPdf = false;
-  gerandoDossie = false;
+  readonly erro = signal('');
+  readonly comentarioEnviando = signal(false);
+  readonly revisaoEnviando = signal(false);
+  readonly gerandoPdf = signal(false);
+  readonly gerandoDossie = signal(false);
+  /** Preview do PDF na própria página (sem pop-up). */
+  readonly pdfPreviewUrl = signal<SafeResourceUrl | null>(null);
+  private pdfPreviewObjectUrl: string | null = null;
+  private readonly sanitizer = inject(DomSanitizer);
 
-  revisaoFormVisible = false;
+  readonly revisaoFormVisible = signal(false);
   revisaoAprovado = true;
   comentarioRevisao = '';
   profissionalExplicou = false;
   novoComentario = '';
-  revogarFormVisible = false;
+  readonly revogarFormVisible = signal(false);
   motivoRevogacao = '';
-  revogando = false;
-  solicitandoReconsentimento = false;
+  readonly revogando = signal(false);
+  readonly solicitandoReconsentimento = signal(false);
 
   /** Rascunho dos campos internos da equipe (modelos Estética). */
   staffDraft: Record<string, unknown> = {};
-  staffSalvando = false;
+  readonly staffSalvando = signal(false);
   mostrarCamposVazios = false;
 
-  clinicaConfig: ClinicaConfig | null = null;
-  pessoaCompleta: Pessoa | null = null;
-  docHash = '';
-  docCode = '';
-  docVerifyUrl = '';
-  docQrDataUrl = '';
+  readonly clinicaConfig = signal<ClinicaConfig | null>(null);
+  readonly pessoaCompleta = signal<Pessoa | null>(null);
+  readonly docHash = signal('');
+  readonly docCode = signal('');
+  readonly docVerifyUrl = signal('');
+  readonly docQrDataUrl = signal('');
 
   private readonly route = inject(ActivatedRoute);
   private readonly protocolosService = inject(ProtocolosService);
@@ -136,86 +131,88 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
 
   private carregarConfigClinica(): void {
     this.clinicaService.getConfiguracoes().subscribe({
-      next: (cfg) => (this.clinicaConfig = cfg),
+      next: (cfg) => this.clinicaConfig.set(cfg),
       error: () => {},
     });
   }
 
   private carregarPessoaCompleta(): void {
-    const personId = this.protocolo?.person?.id;
+    const personId = this.protocolo()?.person?.id;
     if (!personId) {
-      this.pessoaCompleta = null;
+      this.pessoaCompleta.set(null);
       return;
     }
     this.pessoasService.get(personId).subscribe({
-      next: (p) => (this.pessoaCompleta = p),
-      error: () => (this.pessoaCompleta = null),
+      next: (p) => this.pessoaCompleta.set(p),
+      error: () => this.pessoaCompleta.set(null),
     });
   }
 
   private async gerarAutenticacaoDocumento(): Promise<void> {
-    if (!this.protocolo) return;
+    const protocolo = this.protocolo();
+    if (!protocolo) return;
     try {
-      const hashFromProtocol = (this.protocolo.document_hash || '').trim().toLowerCase();
-      const hashFromSignature = (this.protocolo.signatures ?? [])
+      const hashFromProtocol = (protocolo.document_hash || '').trim().toLowerCase();
+      const hashFromSignature = (protocolo.signatures ?? [])
         .map((s) => (s.document_hash || '').trim().toLowerCase())
         .find((h) => h.length >= 8);
       const hash = hashFromProtocol || hashFromSignature || '';
 
       if (!hash) {
-        this.docHash = '';
-        this.docCode = '';
-        this.docVerifyUrl = '';
-        this.docQrDataUrl = '';
+        this.docHash.set('');
+        this.docCode.set('');
+        this.docVerifyUrl.set('');
+        this.docQrDataUrl.set('');
         return;
       }
 
-      this.docHash = hash;
-      this.docCode = hash.substring(0, 8).toUpperCase();
+      this.docHash.set(hash);
+      this.docCode.set(hash.substring(0, 8).toUpperCase());
       const origin = typeof window !== 'undefined' ? window.location.origin : '';
-      this.docVerifyUrl = origin ? `${origin}/verificar/${this.docCode}` : `/verificar/${this.docCode}`;
+      this.docVerifyUrl.set(origin ? `${origin}/verificar/${this.docCode()}` : `/verificar/${this.docCode()}`);
       const QR: any = await import('qrcode');
       const qrFn = QR.toDataURL ?? QR.default?.toDataURL;
       if (qrFn) {
-        this.docQrDataUrl = await qrFn.call(QR.default ?? QR, this.docVerifyUrl, {
+        this.docQrDataUrl.set(await qrFn.call(QR.default ?? QR, this.docVerifyUrl(), {
           margin: 0,
           width: 96,
           color: { dark: '#0f172a', light: '#ffffff' },
-        });
+        }));
       }
     } catch {
-      this.docHash = '';
-      this.docCode = '';
-      this.docVerifyUrl = '';
-      this.docQrDataUrl = '';
+      this.docHash.set('');
+      this.docCode.set('');
+      this.docVerifyUrl.set('');
+      this.docQrDataUrl.set('');
     }
   }
 
   ngOnDestroy(): void {
+    this.fecharPdfPreview();
     this.aplicarClasseImpressaoSomenteDocumento(false);
   }
 
   carregar(id: number): void {
-    this.erro = '';
+    this.erro.set('');
     const { data$, showSkeleton } = this.loadingService.loadWithThreshold(this.protocolosService.get(id));
     this.showSkeleton = showSkeleton;
     data$.subscribe({
       next: (p) => {
-        this.protocolo = p;
+        this.protocolo.set(p);
         this.initStaffDraft();
         this.carregarPessoaCompleta();
         void this.gerarAutenticacaoDocumento();
         this.syncTabGroupFromAba();
       },
       error: () => {
-        this.erro = 'Não foi possível carregar o protocolo.';
+        this.erro.set('Não foi possível carregar o protocolo.');
       },
     });
   }
 
   private initStaffDraft(): void {
     this.staffDraft = {};
-    const p = this.protocolo;
+    const p = this.protocolo();
     if (!p?.staff_fields?.length) {
       return;
     }
@@ -231,17 +228,17 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
   }
 
   temCamposEquipe(): boolean {
-    return (this.protocolo?.staff_fields?.length ?? 0) > 0;
+    return (this.protocolo()?.staff_fields?.length ?? 0) > 0;
   }
 
   salvarRegistroEquipe(): void {
-    if (!this.protocolo?.id || !this.temCamposEquipe()) {
+    if (!this.protocolo()?.id || !this.temCamposEquipe()) {
       return;
     }
-    this.staffSalvando = true;
-    this.protocolosService.saveStaffValues(this.protocolo.id, { ...this.staffDraft }).subscribe({
+    this.staffSalvando.set(true);
+    this.protocolosService.saveStaffValues(this.protocolo()!.id, { ...this.staffDraft }).subscribe({
       next: (p) => {
-        this.protocolo = p;
+        this.protocolo.set(p);
         this.initStaffDraft();
         this.toast.success('Registro salvo', 'Dados da equipe atualizados no protocolo.');
       },
@@ -249,30 +246,31 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
         this.toast.error('Erro', 'Não foi possível salvar o registro da equipe.');
       },
       complete: () => {
-        this.staffSalvando = false;
+        this.staffSalvando.set(false);
       },
     });
   }
 
   get isPending(): boolean {
-    const s = this.protocolo?.status?.toLowerCase();
+    const s = this.protocolo()?.status?.toLowerCase();
     return s === 'pending' || s === 'pendente';
   }
 
   get isApproved(): boolean {
-    const s = this.protocolo?.status?.toLowerCase();
+    const s = this.protocolo()?.status?.toLowerCase();
     return s === 'approved' || s === 'aprovado';
   }
 
   get isRevoked(): boolean {
-    const s = this.protocolo?.status?.toLowerCase();
+    const s = this.protocolo()?.status?.toLowerCase();
     return s === 'revoked' || s === 'revogado';
   }
 
   get isConsentExpired(): boolean {
-    if (this.protocolo?.consent_expired) return true;
-    if (!this.isApproved || !this.protocolo?.consent_valid_until) return false;
-    const until = new Date(this.protocolo.consent_valid_until);
+    const protocolo = this.protocolo();
+    if (protocolo?.consent_expired) return true;
+    if (!this.isApproved || !protocolo?.consent_valid_until) return false;
+    const until = new Date(protocolo.consent_valid_until);
     return !isNaN(until.getTime()) && until.getTime() < Date.now();
   }
 
@@ -281,17 +279,17 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
   }
 
   get podeSolicitarReconsentimento(): boolean {
-    return this.isConsentimentoProtocolo && this.isConsentExpired && !!this.protocolo?.person_id;
+    return this.isConsentimentoProtocolo && this.isConsentExpired && !!this.protocolo()?.person_id;
   }
 
   get isConsentimentoProtocolo(): boolean {
-    const kind = (this.protocolo?.document_snapshot?.document_kind || this.protocolo?.template?.document_kind || '').toLowerCase();
-    const category = (this.protocolo?.template?.category || '').toLowerCase();
+    const kind = (this.protocolo()?.document_snapshot?.document_kind || this.protocolo()?.template?.document_kind || '').toLowerCase();
+    const category = (this.protocolo()?.template?.category || '').toLowerCase();
     return kind === 'consentimento' || category === 'consentimento';
   }
 
   statusLabel(): string {
-    const s = this.protocolo?.status;
+    const s = this.protocolo()?.status;
     if (!s) return '';
     if (this.isConsentExpired) return 'Vencido';
     const map: Record<string, string> = {
@@ -326,15 +324,15 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
   }
 
   setAbaAtiva(aba: ProtocoloAbaId): void {
-    this.abaAtiva = aba;
+    this.abaAtiva.set(aba);
     this.aplicarClasseImpressaoSomenteDocumento(aba === 'impressao');
     this.syncTabGroupFromAba();
   }
 
-  onZardTabChange(event: { index: number }): void {
+  onGestgoTabChange(event: { index: number }): void {
     const aba = PROTOCOLO_ABA_IDS[event.index];
     if (aba) {
-      this.abaAtiva = aba;
+      this.abaAtiva.set(aba);
       this.aplicarClasseImpressaoSomenteDocumento(aba === 'impressao');
     }
   }
@@ -342,7 +340,7 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
   private syncTabGroupFromAba(): void {
     runInInjectionContext(this.injector, () => {
       afterNextRender(() => {
-        const index = PROTOCOLO_ABA_IDS.indexOf(this.abaAtiva);
+        const index = PROTOCOLO_ABA_IDS.indexOf(this.abaAtiva());
         if (index >= 0) {
           this.protocoloTabGroup?.selectTabByIndex(index);
         }
@@ -358,7 +356,7 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
   }
 
   tabLabelAssinaturas(): string {
-    const n = this.protocolo?.signatures?.length ?? 0;
+    const n = this.protocolo()?.signatures?.length ?? 0;
     return n > 0 ? `Assinaturas (${n})` : 'Assinaturas';
   }
 
@@ -367,7 +365,7 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
     return n > 0 ? `Comentários (${n})` : 'Comentários';
   }
 
-  statusBadgeType(): ZardBadgeTypeVariants {
+  statusBadgeType(): GestgoBadgeTypeVariants {
     const tone = this.statusBadgeTone();
     if (tone === 'red') return 'destructive';
     if (tone === 'green') return 'secondary';
@@ -385,9 +383,309 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
     return '';
   }
 
+  /** Imprime via iframe oculto — não depende de pop-up. */
   imprimirFicha(): void {
-    this.aplicarClasseImpressaoSomenteDocumento(this.abaAtiva === 'impressao');
-    window.print();
+    if (this.abaAtiva() !== 'impressao') {
+      this.setAbaAtiva('impressao');
+    }
+    const el = document.getElementById('documento-impressao');
+    if (!el) {
+      this.toast.error('Impressão', 'Documento não encontrado. Abra a aba Impressão e tente de novo.');
+      return;
+    }
+
+    void this.comIframeDocumento(el, 'print', async (iframe) => {
+      const win = iframe.contentWindow;
+      if (!win) throw new Error('Não foi possível preparar a impressão.');
+      await new Promise<void>((resolve) => setTimeout(resolve, 80));
+      await new Promise<void>((resolve) => {
+        const done = () => resolve();
+        win.addEventListener('afterprint', done, { once: true });
+        win.focus();
+        win.print();
+        // Fallback se o browser não disparar afterprint
+        setTimeout(done, 2000);
+      });
+    }).catch((err: unknown) => {
+      this.toast.error('Impressão', err instanceof Error ? err.message : 'Não foi possível imprimir.');
+    });
+  }
+
+  private montarHtmlImpressaoIsolada(el: HTMLElement, modo: 'print' | 'pdf' = 'print'): string {
+    const clone = el.cloneNode(true) as HTMLElement;
+    clone.removeAttribute('id');
+    clone.querySelectorAll('img').forEach((img) => {
+      const src = img.getAttribute('src');
+      if (!src || src.startsWith('data:') || src.startsWith('blob:') || /^https?:/i.test(src)) return;
+      try {
+        img.setAttribute('src', new URL(src, window.location.href).href);
+      } catch {
+        /* ignore */
+      }
+    });
+
+    const titulo = this.tituloDocumento() || 'Documento';
+    const extraBodyClass = modo === 'pdf' ? ' modo-pdf' : '';
+    return `<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>${this.escapeHtml(titulo)}</title>
+  <style>${this.cssDocumentoImpressaoIsolado()}</style>
+</head>
+<body class="${extraBodyClass.trim()}">
+  ${clone.outerHTML}
+</body>
+</html>`;
+  }
+
+  /** Cria iframe com o HTML isolado, espera imagens e executa `acao`. */
+  private async comIframeDocumento(
+    el: HTMLElement,
+    modo: 'print' | 'pdf',
+    acao: (iframe: HTMLIFrameElement) => Promise<void>,
+  ): Promise<void> {
+    const iframe = document.createElement('iframe');
+    iframe.setAttribute('title', 'documento-impressao');
+    // Fora da viewport, mas com tamanho A4 real — width/height 0 quebra o layout do print.
+    iframe.style.cssText =
+      'position:fixed;left:-10000px;top:0;width:794px;height:1123px;border:0;opacity:0;pointer-events:none;z-index:-1;';
+    document.body.appendChild(iframe);
+
+    const doc = iframe.contentDocument;
+    if (!doc) {
+      iframe.remove();
+      throw new Error('Não foi possível preparar o documento.');
+    }
+
+    doc.open();
+    doc.write(this.montarHtmlImpressaoIsolada(el, modo));
+    doc.close();
+
+    await new Promise<void>((resolve) => {
+      if (doc.readyState === 'complete') {
+        setTimeout(() => resolve(), 60);
+        return;
+      }
+      iframe.addEventListener('load', () => setTimeout(() => resolve(), 60), { once: true });
+    });
+
+    const imgs = Array.from(doc.images);
+    if (imgs.length > 0) {
+      await Promise.all(
+        imgs.map(
+          (img) =>
+            new Promise<void>((resolve) => {
+              if (img.complete) {
+                resolve();
+                return;
+              }
+              img.addEventListener('load', () => resolve(), { once: true });
+              img.addEventListener('error', () => resolve(), { once: true });
+            }),
+        ),
+      );
+    }
+
+    const target = doc.querySelector('.documento') as HTMLElement | null;
+    if (target) {
+      const fullHeight = Math.max(target.scrollHeight, doc.body.scrollHeight, 1123);
+      iframe.style.height = `${fullHeight + 48}px`;
+    }
+
+    try {
+      await acao(iframe);
+    } finally {
+      iframe.remove();
+    }
+  }
+
+  private escapeHtml(value: string): string {
+    return value
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  /** CSS autocontido (só hex/rgb) para impressão / PDF. */
+  private cssDocumentoImpressaoIsolado(): string {
+    return `
+@page { size: A4 portrait; margin: 12mm 14mm; }
+* { box-sizing: border-box; }
+html, body {
+  margin: 0;
+  padding: 0;
+  background: #ffffff;
+  color: #0f172a;
+  font-family: Roboto, Arial, Helvetica, sans-serif;
+  font-size: 11.5px;
+  line-height: 1.45;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+/* Canvas A4 (794px @ 96dpi) — altura pelo conteúdo (evita página extra) */
+body.modo-pdf {
+  width: 794px;
+  min-height: 0;
+  padding: 0;
+  margin: 0;
+  overflow: visible;
+  background: #ffffff;
+}
+.protocolo-print-sheet.documento,
+.documento {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  /* Print: padding 0 — margens vêm do @page (já ok na impressão) */
+  padding: 0;
+  border: none;
+  box-shadow: none;
+  background: #ffffff;
+  color: #0f172a;
+}
+/* PDF: mesmo padding da prévia — sem min-height (evita 2ª página em branco) */
+body.modo-pdf .documento {
+  width: 794px;
+  max-width: 794px;
+  min-height: 0;
+  height: auto;
+  padding: 14mm 18mm 18mm;
+  overflow: visible;
+}
+.dp-header {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px 24px;
+  border-bottom: 2px solid #0f172a;
+  padding-bottom: 14px;
+  margin-bottom: 18px;
+  width: 100%;
+}
+.dp-header-brand {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  min-width: 0;
+  flex: 1 1 55%;
+  max-width: 58%;
+}
+.dp-header-brand-text { display: flex; flex-direction: column; min-width: 0; }
+.dp-logo-wrap {
+  width: 88px; height: 68px; border-radius: 8px; overflow: hidden; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: #fff; border: 1px solid #e5e7eb;
+}
+.dp-logo { width: 100%; height: 100%; object-fit: cover; display: block; }
+.dp-clinic-name { font-size: 18px; font-weight: 800; color: #0f172a; line-height: 1.15; }
+.dp-clinic-sub {
+  font-size: 9.5px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: #64748b; margin-top: 4px; font-weight: 600;
+}
+.dp-clinic-meta { display: flex; flex-direction: column; gap: 3px; margin-top: 8px; font-size: 10px; color: #1f2937; }
+.dp-clinic-meta-line { display: flex; flex-wrap: wrap; gap: 0 6px; }
+.dp-header-doc {
+  display: flex; flex-direction: column; align-items: flex-end; text-align: right;
+  flex: 0 1 40%; max-width: 42%; min-width: 0;
+}
+.dp-form-title {
+  font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: #0f172a; text-align: right; font-weight: 800; line-height: 1.35; width: 100%;
+}
+.dp-form-number { font-size: 10px; color: #64748b; text-align: right; margin-top: 6px; width: 100%; }
+.dp-form-number strong { color: #0f172a; font-weight: 700; }
+.dp-section { margin-bottom: 16px; }
+.dp-section-heading {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase;
+  color: #0f172a; font-weight: 700; margin: 0 0 12px;
+}
+.dp-section-heading::after { content: ''; flex: 1; height: 1px; background: #cbd5e1; }
+.dp-id-card {
+  border: 1px solid #cbd5e1; border-radius: 4px; padding: 14px 16px;
+  margin-bottom: 18px; background: #fafbfc;
+}
+.dp-id-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px 18px; }
+.dp-id-item { display: flex; flex-direction: column; min-width: 0; }
+.dp-id-item--wide { grid-column: span 2; }
+.dp-id-label {
+  font-size: 8.5px; letter-spacing: 0.12em; text-transform: uppercase;
+  color: #64748b; font-weight: 700; margin-bottom: 2px;
+}
+.dp-id-value { font-size: 11.5px; color: #0f172a; font-weight: 600; line-height: 1.35; word-break: break-word; }
+.dp-grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 12px 16px; }
+.dp-cell { grid-column: span 12; min-width: 0; }
+.dp-cell--full { grid-column: span 12; }
+.dp-cell--half { grid-column: span 6; }
+.dp-cell--third { grid-column: span 4; }
+.dp-label {
+  display: block; font-size: 8.5px; letter-spacing: 0.12em; text-transform: uppercase;
+  color: #64748b; margin-bottom: 5px; font-weight: 700;
+}
+.dp-value {
+  border-bottom: 1px solid #e5e7eb; min-height: 24px; padding: 5px 0 6px;
+  color: #0f172a; word-break: break-word; white-space: pre-wrap; line-height: 1.5;
+  font-size: 12px; font-weight: 600;
+}
+.dp-value--textarea { min-height: 60px; font-weight: 500; }
+.dp-empty, .dp-empty-value { color: #64748b; font-style: italic; }
+.dp-checkbox-group, .dp-radio-group { display: flex; flex-wrap: wrap; gap: 8px 22px; padding: 4px 0 6px; }
+.dp-checkbox-group span, .dp-radio-group span {
+  font-size: 11.5px; color: #0f172a; display: inline-flex; align-items: center; gap: 6px;
+}
+.dp-checkbox-group span::before, .dp-radio-group span::before {
+  content: ''; width: 12px; height: 12px; border: 1px solid #94a3b8; display: inline-block; flex-shrink: 0;
+}
+.dp-radio-group span::before { border-radius: 999px; }
+.dp-checkbox-group span.dp-checked::before, .dp-radio-group span.dp-checked::before {
+  background: #0f172a; border-color: #0f172a;
+}
+.dp-signature-area {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px 36px;
+  margin: 18px 0 22px;
+}
+.dp-sig-block { min-width: 0; }
+.dp-sig-line {
+  min-height: 56px; border-bottom: 1px solid #0f172a; display: flex;
+  align-items: flex-end; justify-content: center; margin-bottom: 6px;
+}
+.dp-sig-line img { max-height: 48px; max-width: 100%; object-fit: contain; }
+.dp-sig-date { align-items: center; font-size: 12px; font-weight: 600; }
+.dp-sig-name { font-size: 11px; font-weight: 700; color: #0f172a; min-height: 16px; }
+.dp-sig-label { font-size: 9px; color: #64748b; text-transform: uppercase; letter-spacing: 0.1em; margin-top: 2px; }
+.dp-auth {
+  display: grid; grid-template-columns: 1fr auto; gap: 16px 20px; align-items: start;
+  border: 1px solid #cbd5e1; border-radius: 4px; padding: 12px 14px; margin-top: 8px;
+}
+.dp-auth-legal { margin: 0 0 10px; font-size: 9.5px; color: #334155; line-height: 1.45; }
+.dp-auth-row { margin-bottom: 8px; }
+.dp-auth-label {
+  display: block; font-size: 8px; letter-spacing: 0.12em; text-transform: uppercase;
+  color: #64748b; font-weight: 700; margin-bottom: 2px;
+}
+.dp-auth-value { font-size: 10.5px; color: #0f172a; font-weight: 600; word-break: break-all; }
+.dp-auth-value--mono, .dp-auth-hash { font-family: ui-monospace, Consolas, monospace; font-size: 9px; }
+.dp-auth-qr { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.dp-auth-qr img { width: 96px; height: 96px; object-fit: contain; }
+.dp-auth-qr-label { font-size: 8px; letter-spacing: 0.1em; text-transform: uppercase; color: #64748b; }
+.dp-footer {
+  display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;
+  margin-top: 18px; padding: 12px 0 4px; border-top: 1px solid #e5e7eb;
+  font-size: 9px; line-height: 1.45; color: #64748b; overflow: visible;
+  text-transform: uppercase; font-weight: 600; letter-spacing: 0.06em;
+}
+.dp-footer__left, .dp-footer__right { flex: 1; min-width: 0; line-height: 1.45; }
+.dp-footer__right { text-align: right; }
+@media print {
+  html, body { width: 100%; }
+  .dp-header, .dp-id-card, .dp-auth, .dp-signature-area { break-inside: avoid; page-break-inside: avoid; }
+}
+`;
   }
 
   private aplicarClasseImpressaoSomenteDocumento(ativo: boolean): void {
@@ -395,65 +693,143 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
     document.body.classList.toggle('print-document-only', ativo);
   }
 
-  /** Baixa o PDF gerado no backend (DomPDF). */
+  /** Baixa PDF gerado a partir do documento da aba Impressão (igual à tela). */
   baixarFichaPdf(): void {
-    if (!this.protocolo || this.gerandoPdf) return;
-    this.gerandoPdf = true;
+    if (!this.protocolo() || this.gerandoPdf()) return;
+    this.gerandoPdf.set(true);
     const arquivo = this.nomeArquivoPdf();
-    this.protocolosService.pdf(this.protocolo.id).subscribe({
-      next: (blob) => {
-        if (!this.eBlobPdf(blob)) {
-          this.gerandoPdf = false;
-          return;
-        }
+    void this.gerarPdfBlobDaTela()
+      .then((blob) => {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
         a.download = arquivo;
         a.click();
         URL.revokeObjectURL(url);
-        this.gerandoPdf = false;
-      },
-      error: (err) => {
-        this.gerandoPdf = false;
-        void this.tratarErroPdf(err);
-      },
-    });
+      })
+      .catch((err: unknown) => {
+        this.toast.error('PDF', err instanceof Error ? err.message : 'Não foi possível gerar o PDF da tela.');
+      })
+      .finally(() => this.gerandoPdf.set(false));
   }
 
-  /** Abre o PDF do backend em nova aba. */
+  /** Abre o PDF na própria página (sem pop-up). */
   visualizarFichaPdf(): void {
-    if (!this.protocolo || this.gerandoPdf) return;
-    const previewWindow = window.open('', '_blank');
-    if (!previewWindow) {
-      this.toast.error('PDF', 'Permita pop-ups neste site para visualizar o PDF.');
-      return;
+    if (!this.protocolo() || this.gerandoPdf()) return;
+    this.gerandoPdf.set(true);
+    void this.gerarPdfBlobDaTela()
+      .then((blob) => {
+        this.fecharPdfPreview();
+        const pdfBlob =
+          blob.type === 'application/pdf' ? blob : new Blob([blob], { type: 'application/pdf' });
+        this.pdfPreviewObjectUrl = URL.createObjectURL(pdfBlob);
+        this.pdfPreviewUrl.set(this.sanitizer.bypassSecurityTrustResourceUrl(this.pdfPreviewObjectUrl));
+      })
+      .catch((err: unknown) => {
+        this.toast.error('PDF', err instanceof Error ? err.message : 'Não foi possível gerar o PDF da tela.');
+      })
+      .finally(() => this.gerandoPdf.set(false));
+  }
+
+  fecharPdfPreview(): void {
+    this.pdfPreviewUrl.set(null);
+    if (this.pdfPreviewObjectUrl) {
+      URL.revokeObjectURL(this.pdfPreviewObjectUrl);
+      this.pdfPreviewObjectUrl = null;
     }
-    this.escreverCarregandoPdf(previewWindow);
-    this.gerandoPdf = true;
-    this.protocolosService.pdf(this.protocolo.id).subscribe({
-      next: (blob) => {
-        if (!this.eBlobPdf(blob)) {
-          if (!previewWindow.closed) previewWindow.close();
-          this.gerandoPdf = false;
-          return;
-        }
-        const url = URL.createObjectURL(blob);
-        previewWindow.location.replace(url);
-        setTimeout(() => URL.revokeObjectURL(url), 120_000);
-        this.gerandoPdf = false;
-      },
-      error: (err) => {
-        if (!previewWindow.closed) previewWindow.close();
-        this.gerandoPdf = false;
-        void this.tratarErroPdf(err);
-      },
-    });
   }
 
   private nomeArquivoPdf(): string {
-    const p = this.protocolo;
+    const p = this.protocolo();
     return `protocolo-${p?.protocol_number || p?.id || 'documento'}.pdf`;
+  }
+
+  /**
+   * Gera PDF A4 a partir do HTML isolado — mesmo padding/layout da prévia na tela.
+   * Margem do jsPDF = 0 porque o recuo já está no `.documento` (14mm/18mm).
+   */
+  private async gerarPdfBlobDaTela(): Promise<Blob> {
+    if (this.abaAtiva() !== 'impressao') {
+      this.setAbaAtiva('impressao');
+      await new Promise((r) => setTimeout(r, 180));
+    }
+
+    const el = document.getElementById('documento-impressao');
+    if (!el) {
+      throw new Error('Documento de impressão não encontrado. Abra a aba Impressão e tente de novo.');
+    }
+
+    const resultado: { blob: Blob | null } = { blob: null };
+
+    await this.comIframeDocumento(el, 'pdf', async (iframe) => {
+      const doc = iframe.contentDocument;
+      const target = doc?.querySelector('.documento') as HTMLElement | null;
+      if (!doc || !target) {
+        throw new Error('Documento de impressão inválido.');
+      }
+
+      // Espelha a prévia: A4 + padding interno (altura = conteúdo + folga no rodapé)
+      const a4Px = 1123;
+      target.style.width = '794px';
+      target.style.maxWidth = '794px';
+      target.style.minHeight = '0';
+      target.style.height = 'auto';
+      target.style.margin = '0';
+      target.style.padding = '14mm 18mm 18mm';
+      target.style.border = 'none';
+      target.style.boxShadow = 'none';
+      target.style.overflow = 'visible';
+      await new Promise<void>((resolve) => setTimeout(resolve, 60));
+
+      const contentWidth = 794;
+      // +24 evita corte do rodapé no html2canvas (não reduzir abaixo do conteúdo real)
+      const contentHeight = Math.ceil(Math.max(target.scrollHeight, target.offsetHeight, 1)) + 24;
+      const fitsOnePage = contentHeight <= a4Px + 4;
+
+      const html2pdfOpts: Record<string, unknown> = {
+        margin: 0,
+        filename: this.nomeArquivoPdf(),
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: {
+          scale: 2,
+          useCORS: true,
+          allowTaint: true,
+          logging: false,
+          backgroundColor: '#ffffff',
+          width: contentWidth,
+          height: contentHeight,
+          windowWidth: contentWidth,
+          windowHeight: contentHeight,
+          scrollX: 0,
+          scrollY: 0,
+          x: 0,
+          y: 0,
+        },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+      };
+      if (!fitsOnePage) {
+        html2pdfOpts['pagebreak'] = { mode: ['css', 'legacy'] };
+      }
+
+      const worker = html2pdf().set(html2pdfOpts).from(target);
+      const pdf = (await worker.toPdf().get('pdf')) as {
+        internal: { getNumberOfPages: () => number };
+        deletePage: (n: number) => void;
+        output: (type: string) => Blob;
+      };
+      // Remove página fantasma em branco no final (comum no html2pdf)
+      if (fitsOnePage) {
+        while (pdf.internal.getNumberOfPages() > 1) {
+          pdf.deletePage(pdf.internal.getNumberOfPages());
+        }
+      }
+      resultado.blob = pdf.output('blob');
+    });
+
+    if (!resultado.blob?.size) {
+      throw new Error('O PDF gerado está vazio.');
+    }
+    return resultado.blob;
   }
 
   private eBlobPdf(blob: Blob): boolean {
@@ -487,67 +863,17 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
     this.toast.error('PDF', this.mensagemErroApi(err, fallback));
   }
 
-  private escreverCarregandoPdf(janela: Window): void {
-    janela.document.write(`
-      <!doctype html>
-      <html lang="pt-BR">
-        <head>
-          <meta charset="utf-8" />
-          <meta name="viewport" content="width=device-width, initial-scale=1" />
-          <title>Carregando PDF...</title>
-          <style>
-            body {
-              margin: 0;
-              min-height: 100vh;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              font-family: Roboto, Arial, sans-serif;
-              background: #f8fafc;
-              color: #0f172a;
-            }
-            .box {
-              display: inline-flex;
-              align-items: center;
-              gap: 10px;
-              background: #fff;
-              border: 1px solid #e2e8f0;
-              border-radius: 10px;
-              padding: 14px 16px;
-              font-weight: 600;
-            }
-            .spinner {
-              width: 16px;
-              height: 16px;
-              border: 2px solid #cbd5e1;
-              border-top-color: #7c3aed;
-              border-radius: 50%;
-              animation: spin 0.8s linear infinite;
-            }
-            @keyframes spin { to { transform: rotate(360deg); } }
-          </style>
-        </head>
-        <body>
-          <div class="box">
-            <span class="spinner" aria-hidden="true"></span>
-            <span>Carregando PDF...</span>
-          </div>
-        </body>
-      </html>
-    `);
-    janela.document.close();
-  }
-
   /** Nome da clínica/empresa atual para o cabeçalho do documento. */
   clinicaNome(): string {
-    if (this.clinicaConfig?.name) return this.clinicaConfig.name;
+    const name = this.clinicaConfig()?.name;
+    if (name) return name;
     const org = this.auth.getCurrentOrganization();
     return (org?.name as string) || 'Documento';
   }
 
   /** Subtítulo abaixo do nome da clínica (nicho ou padrão). */
   clinicaSubtitulo(): string {
-    const niche = this.clinicaConfig?.niche;
+    const niche = this.clinicaConfig()?.niche;
     if (niche) return niche;
     const org = this.auth.getCurrentOrganization();
     const niche2 = (org as { niche?: string } | null)?.niche;
@@ -556,28 +882,28 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
   }
 
   get clinicaLogo(): string {
-    return this.clinicaConfig?.logo_url || '';
+    return this.clinicaConfig()?.logo_url || '';
   }
 
   get clinicaCnpj(): string {
-    const raw = (this.clinicaConfig?.billing_document as string) || '';
+    const raw = (this.clinicaConfig()?.billing_document as string) || '';
     return this.formatarCnpj(raw);
   }
 
   get clinicaTelefone(): string {
-    return this.formatarTelefone(this.clinicaConfig?.phone);
+    return this.formatarTelefone(this.clinicaConfig()?.phone);
   }
 
   get clinicaEmail(): string {
     return (
-      (this.clinicaConfig?.contact_email as string) ||
-      (this.clinicaConfig?.notification_email as string) ||
+      (this.clinicaConfig()?.contact_email as string) ||
+      (this.clinicaConfig()?.notification_email as string) ||
       ''
     );
   }
 
   get clinicaEndereco(): string {
-    const c = this.clinicaConfig;
+    const c = this.clinicaConfig();
     if (!c) return '';
     const a = c.address_data;
     if (a) {
@@ -587,8 +913,7 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
         a.complemento,
         a.bairro,
         a.cidade && a.uf ? `${a.cidade}/${a.uf}` : a.cidade,
-        a.cep ? `CEP ${a.cep}` : null,
-      ];
+        a.cep ? `CEP ${a.cep}` : null];
       const filtradas = partes.filter((s) => !!s && String(s).trim().length > 0);
       if (filtradas.length > 0) return filtradas.join(' · ');
     }
@@ -627,15 +952,15 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
   }
 
   formatarDataCurta(d: string | null | undefined): string {
-    if (!d) return '';
-    const date = new Date(d);
-    if (isNaN(date.getTime())) return d;
-    return date.toLocaleDateString('pt-BR');
+    return formatarDataBr(d);
   }
 
   calcularIdade(birthDate: string | null | undefined): string {
     if (!birthDate) return '';
-    const d = new Date(birthDate);
+    const only = /^(\d{4})-(\d{2})-(\d{2})/.exec(birthDate.trim());
+    const d = only
+      ? new Date(Number(only[1]), Number(only[2]) - 1, Number(only[3]))
+      : new Date(birthDate);
     if (isNaN(d.getTime())) return '';
     const hoje = new Date();
     let idade = hoje.getFullYear() - d.getFullYear();
@@ -651,7 +976,7 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
   }
 
   dataDocumentoPorExtenso(): string {
-    const source = this.protocolo?.submitted_at || this.protocolo?.created_at;
+    const source = this.protocolo()?.submitted_at || this.protocolo()?.created_at;
     if (!source) return '—';
     const d = new Date(source);
     if (isNaN(d.getTime())) return source;
@@ -664,7 +989,7 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
 
   /** Retorna o valor BRUTO armazenado para um campo (sem stringificar). */
   private rawValorCampo(field: ProtocoloField): unknown {
-    const p = this.protocolo;
+    const p = this.protocolo();
     if (!p) return null;
     const key = field.name_key;
     const keyed = p.values_keyed?.[key];
@@ -687,10 +1012,9 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
       if (['false', '0', 'não', 'nao', 'no', 'off'].includes(t)) return 'Não';
     }
     if (field.type === 'date') {
-      const d = new Date(String(raw));
-      if (!isNaN(d.getTime())) return d.toLocaleDateString('pt-BR');
+      return formatarDataBr(String(raw)) || String(raw).trim();
     }
-    return String(raw).trim();
+    return formatarSeDataIso(String(raw).trim());
   }
 
   /** Para campos do tipo radio: marca a opção selecionada. */
@@ -707,7 +1031,7 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
     if (Array.isArray(raw)) {
       return raw.some((it) => String(it).trim().toLowerCase() === alvo);
     }
-    const partes = String(raw).split(/[;,]/).map((p) => p.trim().toLowerCase());
+    const partes = String(raw).split(/[;]/).map((p) => p.trim().toLowerCase());
     if (partes.includes(alvo)) return true;
     return String(raw).trim().toLowerCase() === alvo;
   }
@@ -784,8 +1108,8 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
 
   camposRespostas(): ProtocoloField[] {
     const snapshot =
-      this.protocolo?.document_snapshot?.fields_snapshot ??
-      this.protocolo?.template_version?.fields_snapshot;
+      this.protocolo()?.document_snapshot?.fields_snapshot ??
+      this.protocolo()?.template_version?.fields_snapshot;
     if (snapshot?.length) {
       return [...snapshot]
         .map((f) => ({
@@ -797,13 +1121,13 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
         }))
         .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
     }
-    const fields = this.protocolo?.template?.fields;
+    const fields = this.protocolo()?.template?.fields;
     if (!fields?.length) return [];
     return [...fields].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
   }
 
   versaoTemplateLabel(): string {
-    const v = this.protocolo?.template_version?.version ?? this.protocolo?.document_snapshot?.template_version;
+    const v = this.protocolo()?.template_version?.version ?? this.protocolo()?.document_snapshot?.template_version;
     return v != null ? `v${v}` : '';
   }
 
@@ -824,7 +1148,7 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
   }
 
   anexoParaCampo(nameKey: string): ProtocoloAttachment | undefined {
-    return this.protocolo?.attachments?.find((a) => a.field_key === nameKey);
+    return this.protocolo()?.attachments?.find((a) => a.field_key === nameKey);
   }
 
   /** Anexo com URL garantida (para o template da aba Respostas). */
@@ -835,7 +1159,7 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
   }
 
   assinaturaParaCampo(nameKey: string): ProtocoloSignature | undefined {
-    return this.protocolo?.signatures?.find((s) => s.field_key === nameKey);
+    return this.protocolo()?.signatures?.find((s) => s.field_key === nameKey);
   }
 
   /** Campos longos ocupam a linha inteira da grade. */
@@ -856,12 +1180,15 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
       if (n === 'true' || n === '1' || n === 'sim') return 'Sim';
       if (n === 'false' || n === '0' || n === 'não' || n === 'nao') return 'Não';
     }
-    return raw;
+    if (field.type === 'date') {
+      return formatarDataBr(raw) || raw;
+    }
+    return formatarSeDataIso(raw);
   }
 
   totalComentarios(): number {
     let total = this.eventosComentarios().length;
-    if (this.protocolo?.review_comment?.trim()) total += 1;
+    if (this.protocolo()?.review_comment?.trim()) total += 1;
     return total;
   }
 
@@ -882,51 +1209,44 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
   }
 
   templateNome(): string {
-    if (!this.protocolo) return '—';
-    if (this.protocolo.template_name) return this.protocolo.template_name;
-    return (this.protocolo.template as { name?: string } | undefined)?.name ?? '—';
+    const protocolo = this.protocolo();
+    if (!protocolo) return '—';
+    if (protocolo.template_name) return protocolo.template_name;
+    return (protocolo.template as { name?: string } | undefined)?.name ?? '—';
   }
 
   dataFormatada(val: string | undefined): string {
     if (!val) return '—';
-    const d = new Date(val);
-    if (isNaN(d.getTime())) return val;
-    return d.toLocaleDateString('pt-BR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
+    return formatarDataHoraBr(val) || val;
   }
 
   abrirRevisao(aprovado: boolean): void {
     if (!this.podeRevisarProtocolo) return;
-    const jaMostrandoMesmaDecisao = this.revisaoFormVisible && this.revisaoAprovado === aprovado;
+    const jaMostrandoMesmaDecisao = this.revisaoFormVisible() && this.revisaoAprovado === aprovado;
     if (jaMostrandoMesmaDecisao) {
-      this.revisaoFormVisible = false;
+      this.revisaoFormVisible.set(false);
       return;
     }
-    this.revogarFormVisible = false;
+    this.revogarFormVisible.set(false);
     this.revisaoAprovado = aprovado;
     this.profissionalExplicou = false;
-    this.revisaoFormVisible = true;
+    this.revisaoFormVisible.set(true);
     setTimeout(() => {
       document.getElementById('revisao_form')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }, 50);
   }
 
   fecharRevisao(): void {
-    this.revisaoFormVisible = false;
+    this.revisaoFormVisible.set(false);
     this.comentarioRevisao = '';
     this.profissionalExplicou = false;
   }
 
   abrirRevogacao(): void {
     if (!this.podeRevogarProtocolo) return;
-    this.revisaoFormVisible = false;
-    this.revogarFormVisible = !this.revogarFormVisible;
-    if (this.revogarFormVisible) {
+    this.revisaoFormVisible.set(false);
+    this.revogarFormVisible.set(!this.revogarFormVisible());
+    if (this.revogarFormVisible()) {
       setTimeout(() => {
         document.getElementById('revogar_form')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }, 50);
@@ -934,13 +1254,13 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
   }
 
   fecharRevogacao(): void {
-    this.revogarFormVisible = false;
+    this.revogarFormVisible.set(false);
     this.motivoRevogacao = '';
   }
 
   toggleFormRevisao(): void {
     if (!this.podeRevisarProtocolo) return;
-    this.revisaoFormVisible = !this.revisaoFormVisible;
+    this.revisaoFormVisible.set(!this.revisaoFormVisible());
   }
 
   baixarPdf(): void {
@@ -948,27 +1268,27 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
   }
 
   baixarDossie(): void {
-    if (!this.protocolo || this.gerandoDossie) return;
-    this.gerandoDossie = true;
-    this.protocolosService.dossie(this.protocolo.id).subscribe({
+    if (!this.protocolo() || this.gerandoDossie()) return;
+    this.gerandoDossie.set(true);
+    this.protocolosService.dossie(this.protocolo()!.id).subscribe({
       next: (blob) => {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `dossie-${this.protocolo!.protocol_number || this.protocolo!.id}.zip`;
+        a.download = `dossie-${this.protocolo()!.protocol_number || this.protocolo()!.id}.zip`;
         a.click();
         URL.revokeObjectURL(url);
-        this.gerandoDossie = false;
+        this.gerandoDossie.set(false);
       },
       error: () => {
-        this.gerandoDossie = false;
+        this.gerandoDossie.set(false);
         this.toast.error('Download', 'Não foi possível baixar o dossiê.');
       },
     });
   }
 
   async enviarRevisao(): Promise<void> {
-    if (!this.protocolo || !this.podeRevisarProtocolo) return;
+    if (!this.protocolo() || !this.podeRevisarProtocolo) return;
     if (this.revisaoAprovado === false) {
       const ok = await this.confirm.request({
         title: 'Reprovar protocolo?',
@@ -978,18 +1298,18 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
       });
       if (!ok) return;
     }
-    this.revisaoEnviando = true;
+    this.revisaoEnviando.set(true);
     this.protocolosService
       .aprovar(
-        this.protocolo.id,
+        this.protocolo()!.id,
         this.revisaoAprovado,
         this.comentarioRevisao || undefined,
         this.revisaoAprovado && this.isConsentimentoProtocolo ? this.profissionalExplicou : undefined,
       )
       .subscribe({
         next: () => {
-          this.revisaoEnviando = false;
-          this.revisaoFormVisible = false;
+          this.revisaoEnviando.set(false);
+          this.revisaoFormVisible.set(false);
           this.comentarioRevisao = '';
           this.profissionalExplicou = false;
           if (this.revisaoAprovado) {
@@ -997,18 +1317,18 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
           } else {
             this.toast.warning('Protocolo reprovado', 'A revisão foi registrada.');
           }
-          this.carregar(this.protocolo!.id);
+          this.carregar(this.protocolo()!.id);
         },
         error: (err) => {
-          this.revisaoEnviando = false;
-          this.erro = this.mensagemErroApi(err, 'Não foi possível enviar a revisão.');
-          this.toast.error('Erro', this.erro);
+          this.revisaoEnviando.set(false);
+          this.erro.set(this.mensagemErroApi(err, 'Não foi possível enviar a revisão.'));
+          this.toast.error('Erro', this.erro());
         },
       });
   }
 
   async enviarRevogacao(): Promise<void> {
-    if (!this.protocolo || !this.podeRevogarProtocolo) return;
+    if (!this.protocolo() || !this.podeRevogarProtocolo) return;
     const reason = this.motivoRevogacao.trim();
     if (reason.length < 5) {
       this.toast.warning('Motivo', 'Informe o motivo da revogação (mínimo 5 caracteres).');
@@ -1021,66 +1341,66 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
       variant: 'danger',
     });
     if (!ok) return;
-    this.revogando = true;
-    this.protocolosService.revogar(this.protocolo.id, reason).subscribe({
+    this.revogando.set(true);
+    this.protocolosService.revogar(this.protocolo()!.id, reason).subscribe({
       next: () => {
-        this.revogando = false;
-        this.revogarFormVisible = false;
+        this.revogando.set(false);
+        this.revogarFormVisible.set(false);
         this.motivoRevogacao = '';
         this.toast.success('Protocolo revogado', 'A revogação foi registrada.');
-        this.carregar(this.protocolo!.id);
+        this.carregar(this.protocolo()!.id);
       },
       error: (err) => {
-        this.revogando = false;
-        this.erro = this.mensagemErroApi(err, 'Não foi possível revogar o protocolo.');
-        this.toast.error('Erro', this.erro);
+        this.revogando.set(false);
+        this.erro.set(this.mensagemErroApi(err, 'Não foi possível revogar o protocolo.'));
+        this.toast.error('Erro', this.erro());
       },
     });
   }
 
   async solicitarReconsentimento(): Promise<void> {
-    if (!this.protocolo || !this.podeSolicitarReconsentimento) return;
+    if (!this.protocolo() || !this.podeSolicitarReconsentimento) return;
     const ok = await this.confirm.request({
       title: 'Solicitar reconsentimento?',
       message: 'Um novo link do termo será enviado ao paciente (e-mail ou WhatsApp cadastrado na ficha). O protocolo vencido permanece no histórico.',
       confirmLabel: 'Enviar link',
     });
     if (!ok) return;
-    this.solicitandoReconsentimento = true;
-    this.protocolosService.solicitarReconsentimento(this.protocolo.id).subscribe({
+    this.solicitandoReconsentimento.set(true);
+    this.protocolosService.solicitarReconsentimento(this.protocolo()!.id).subscribe({
       next: (res) => {
-        this.solicitandoReconsentimento = false;
+        this.solicitandoReconsentimento.set(false);
         this.toast.success('Reconsentimento enviado', res.message);
-        this.carregar(this.protocolo!.id);
+        this.carregar(this.protocolo()!.id);
       },
       error: (err) => {
-        this.solicitandoReconsentimento = false;
-        this.erro = this.mensagemErroApi(err, 'Não foi possível solicitar reconsentimento.');
-        this.toast.error('Erro', this.erro);
+        this.solicitandoReconsentimento.set(false);
+        this.erro.set(this.mensagemErroApi(err, 'Não foi possível solicitar reconsentimento.'));
+        this.toast.error('Erro', this.erro());
       },
     });
   }
 
   enviarComentario(): void {
-    if (!this.protocolo || !this.novoComentario.trim()) return;
-    this.comentarioEnviando = true;
-    this.protocolosService.comentario(this.protocolo.id, this.novoComentario.trim()).subscribe({
+    if (!this.protocolo() || !this.novoComentario.trim()) return;
+    this.comentarioEnviando.set(true);
+    this.protocolosService.comentario(this.protocolo()!.id, this.novoComentario.trim()).subscribe({
       next: () => {
-        this.comentarioEnviando = false;
+        this.comentarioEnviando.set(false);
         this.novoComentario = '';
         this.toast.success('Comentário adicionado', 'Seu comentário foi publicado.');
-        this.carregar(this.protocolo!.id);
+        this.carregar(this.protocolo()!.id);
       },
       error: (err) => {
-        this.comentarioEnviando = false;
-        this.erro = this.mensagemErroApi(err, 'Não foi possível adicionar o comentário.');
-        this.toast.error('Erro', this.erro);
+        this.comentarioEnviando.set(false);
+        this.erro.set(this.mensagemErroApi(err, 'Não foi possível adicionar o comentário.'));
+        this.toast.error('Erro', this.erro());
       },
     });
   }
 
   eventosTimeline(): ProtocoloEvent[] {
-    const p = this.protocolo;
+    const p = this.protocolo();
     if (!p) return [];
     if (p.events?.length) return p.events;
     return [
@@ -1090,18 +1410,17 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
         body: undefined,
         user: undefined,
         created_at: p.created_at,
-      },
-    ];
+      }];
   }
 
   camposTemplate(): ProtocoloField[] {
-    const fields = this.protocolo?.template?.fields;
+    const fields = this.protocolo()?.template?.fields;
     if (!fields?.length) return [];
     return fields.filter((f) => f.type !== 'file' && f.type !== 'signature');
   }
 
   valorCampo(field: ProtocoloField): string {
-    const p = this.protocolo;
+    const p = this.protocolo();
     if (!p) return '—';
     const key = field.name_key;
     const val = p.values_keyed?.[key] ?? (p.form_data as Record<string, unknown>)?.[key];
@@ -1141,11 +1460,11 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
     return t !== '—' && t.trim().length > 0;
   }
 
-  /** Texto do banner superior na aba Respostas (padrão visual do protocolo). */
-  mensagemBannerTopo(): string {
-    const s = this.protocolo?.status?.toLowerCase();
+  /** Descrição curta do status (exibida no bloco Status da aba Dados). */
+  statusDescricao(): string {
+    const s = this.protocolo()?.status?.toLowerCase();
     if (s === 'approved' || s === 'aprovado') {
-      return 'Protocolo aprovado — registro concluído.';
+      return 'Protocolo aprovado. Registro concluído.';
     }
     if (s === 'rejected' || s === 'reprovado') {
       return 'Este protocolo foi reprovado na revisão.';
@@ -1153,17 +1472,20 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
     if (s === 'pending' || s === 'pendente') {
       return 'Aguardando revisão da equipe.';
     }
-    return 'Detalhes do protocolo e respostas do formulário.';
+    if (s === 'revoked' || s === 'revogado') {
+      return 'Consentimento revogado.';
+    }
+    return '';
   }
 
-  dataBannerTopo(): string {
-    const raw = this.protocolo?.approved_at || this.protocolo?.submitted_at || this.protocolo?.created_at;
+  statusDataReferencia(): string {
+    const raw = this.protocolo()?.approved_at || this.protocolo()?.submitted_at || this.protocolo()?.created_at;
     return raw ? this.formatarDataCurta(raw) : '';
   }
 
   statusBadgeTone(): 'green' | 'red' | 'amber' | 'gray' {
     if (this.isConsentExpired) return 'amber';
-    const s = this.protocolo?.status?.toLowerCase();
+    const s = this.protocolo()?.status?.toLowerCase();
     if (s === 'approved' || s === 'aprovado') return 'green';
     if (s === 'rejected' || s === 'reprovado' || s === 'revoked' || s === 'revogado') return 'red';
     if (s === 'pending' || s === 'pendente') return 'amber';

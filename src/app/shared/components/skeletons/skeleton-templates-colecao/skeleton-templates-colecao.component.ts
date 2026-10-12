@@ -1,34 +1,34 @@
 import { Component, Input, ViewEncapsulation } from '@angular/core';
 
-import { ZardSkeletonComponent } from '@/shared/components/skeleton';
+import { GestgoSkeletonComponent } from '@/shared/components/skeleton';
 
 export type ZmSkeletonTemplatesColecaoVisual = 'cards' | 'pastas';
 
 @Component({
   selector: 'zm-skeleton-templates-colecao',
   standalone: true,
-  imports: [ZardSkeletonComponent],
+  imports: [GestgoSkeletonComponent],
   template: `
     <div class="skel-templates-colecao" aria-hidden="true">
       <header class="skel-templates-colecao__header">
-        <z-skeleton class="skel-templates-colecao__toolbar-btn skel-templates-colecao__toolbar-btn--wide" />
-        <z-skeleton class="skel-templates-colecao__toolbar-btn" />
-        <z-skeleton class="skel-templates-colecao__view-toggle" />
-        <z-skeleton class="skel-templates-colecao__toolbar-btn skel-templates-colecao__toolbar-btn--novo" />
+        <g-skeleton class="skel-templates-colecao__toolbar-btn skel-templates-colecao__toolbar-btn--wide" />
+        <g-skeleton class="skel-templates-colecao__toolbar-btn" />
+        <g-skeleton class="skel-templates-colecao__view-toggle" />
+        <g-skeleton class="skel-templates-colecao__toolbar-btn skel-templates-colecao__toolbar-btn--novo" />
       </header>
 
       @if (visual === 'pastas') {
         <div class="skel-templates-colecao__pastas">
           @for (i of folderIndices; track i) {
             <div class="skel-templates-colecao__pasta">
-              <z-skeleton class="skel-templates-colecao__pasta-icon" />
-              <z-skeleton class="skel-templates-colecao__pasta-title" />
-              <z-skeleton class="skel-templates-colecao__pasta-meta" />
+              <g-skeleton class="skel-templates-colecao__pasta-icon" />
+              <g-skeleton class="skel-templates-colecao__pasta-title" />
+              <g-skeleton class="skel-templates-colecao__pasta-meta" />
             </div>
           }
           <div class="skel-templates-colecao__pasta skel-templates-colecao__pasta--novo">
-            <z-skeleton class="skel-templates-colecao__pasta-icon" />
-            <z-skeleton class="skel-templates-colecao__pasta-title" />
+            <g-skeleton class="skel-templates-colecao__pasta-icon" />
+            <g-skeleton class="skel-templates-colecao__pasta-title" />
           </div>
         </div>
       } @else {
@@ -36,20 +36,20 @@ export type ZmSkeletonTemplatesColecaoVisual = 'cards' | 'pastas';
           @for (i of cardIndices; track i) {
             <div class="skel-templates-colecao__card">
               <div class="skel-templates-colecao__card-top">
-                <z-skeleton class="skel-templates-colecao__icon" />
-                <z-skeleton class="skel-templates-colecao__title" />
-                <z-skeleton class="skel-templates-colecao__count" />
+                <g-skeleton class="skel-templates-colecao__icon" />
+                <g-skeleton class="skel-templates-colecao__title" />
+                <g-skeleton class="skel-templates-colecao__count" />
               </div>
               <div class="skel-templates-colecao__card-foot">
-                <z-skeleton class="skel-templates-colecao__updated" />
-                <z-skeleton class="skel-templates-colecao__arrow" />
+                <g-skeleton class="skel-templates-colecao__updated" />
+                <g-skeleton class="skel-templates-colecao__arrow" />
               </div>
             </div>
           }
           <div class="skel-templates-colecao__card skel-templates-colecao__card--novo">
-            <z-skeleton class="skel-templates-colecao__novo-icon" />
-            <z-skeleton class="skel-templates-colecao__novo-label" />
-            <z-skeleton class="skel-templates-colecao__novo-hint" />
+            <g-skeleton class="skel-templates-colecao__novo-icon" />
+            <g-skeleton class="skel-templates-colecao__novo-label" />
+            <g-skeleton class="skel-templates-colecao__novo-hint" />
           </div>
         </div>
       }

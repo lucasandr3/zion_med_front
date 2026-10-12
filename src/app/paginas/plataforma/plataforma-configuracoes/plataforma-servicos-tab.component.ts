@@ -1,5 +1,4 @@
-import { Component, Input, OnChanges, Output, EventEmitter, SimpleChanges, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, Input, OnChanges, Output, EventEmitter, SimpleChanges, inject, signal, ChangeDetectionStrategy, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
   PlataformaService,
@@ -7,10 +6,11 @@ import {
 } from '../../../core/services/plataforma.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { environment } from '../../../../environments/environment';
-import { ZardCardComponent } from '@/shared/components/card/card.component';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
-import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
-import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
+import { GestgoCardComponent } from '@/shared/components/card/card.component';
+import { GestgoComboboxComponent, type GestgoComboboxOption } from '@/shared/components/combobox';
+
+import { GestgoBadgeComponent } from '@/shared/components/badge/badge.component';
+import { NORD_FORM_IMPORTS } from '@/shared/nord';
 
 export type PlatformServiceId = 'asaas' | 'resend' | 'minio' | 'status';
 
@@ -31,17 +31,37 @@ const COMPONENT_OPTIONS: Record<string, string> = {
   billing: 'Pagamentos & Billing',
 };
 
+const STATUS_OPTIONS: GestgoComboboxOption[] = [
+  { value: 'operational', label: 'Operacional' },
+  { value: 'degraded', label: 'Degradado' },
+  { value: 'outage', label: 'Indisponível' },
+  { value: 'maintenance', label: 'Manutenção' },
+];
+
+const SEVERITY_OPTIONS: GestgoComboboxOption[] = [
+  { value: 'none', label: 'Nenhuma' },
+  { value: 'low', label: 'Baixa' },
+  { value: 'medium', label: 'Média' },
+  { value: 'high', label: 'Alta' },
+  { value: 'critical', label: 'Crítica' },
+];
+
+const MAILER_OPTIONS: GestgoComboboxOption[] = [
+  { value: 'resend', label: 'Resend (produção)' },
+  { value: 'log', label: 'Log (desenvolvimento)' },
+];
+
 @Component({
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'app-plataforma-servicos-tab',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CommonModule,
     FormsModule,
-    ZardCardComponent,
-    ZardButtonComponent,
-    ZardBadgeComponent,
-    ...ZARD_FORM_CONTROL_IMPORTS,
-  ],
+    GestgoCardComponent,
+    GestgoBadgeComponent,
+    GestgoComboboxComponent,
+    ...NORD_FORM_IMPORTS],
   templateUrl: './plataforma-servicos-tab.component.html',
   styleUrl: './plataforma-servicos-tab.component.css',
 })
@@ -59,12 +79,15 @@ export class PlataformaServicosTabComponent implements OnChanges {
 
   readonly activeServico = signal<PlatformServiceId | null>(null);
   readonly componentOptions = COMPONENT_OPTIONS;
+  readonly opcoesMailer = MAILER_OPTIONS;
+  readonly opcoesStatus = STATUS_OPTIONS;
+  readonly opcoesSeverity = SEVERITY_OPTIONS;
 
-  savingSettings = false;
-  savingStatus = false;
-  successSettings = '';
-  successStatus = '';
-  error = '';
+  readonly savingSettings = signal(false);
+  readonly savingStatus = signal(false);
+  readonly successSettings = signal('');
+  readonly successStatus = signal('');
+  readonly error = signal('');
 
   asaasBaseUrl = '';
   asaasApiKey = '';
@@ -151,8 +174,7 @@ export class PlataformaServicosTabComponent implements OnChanges {
         icon: 'monitoring',
         status: this.serviceStatus === 'operational' ? 'ok' : 'warn',
         statusLabel: this.serviceStatusLabel(this.serviceStatus),
-      },
-    ];
+      }];
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -163,16 +185,16 @@ export class PlataformaServicosTabComponent implements OnChanges {
 
   selecionarServico(id: PlatformServiceId): void {
     this.activeServico.set(id);
-    this.error = '';
-    this.successSettings = '';
-    this.successStatus = '';
+    this.error.set('');
+    this.successSettings.set('');
+    this.successStatus.set('');
   }
 
   voltarLista(): void {
     this.activeServico.set(null);
-    this.error = '';
-    this.successSettings = '';
-    this.successStatus = '';
+    this.error.set('');
+    this.successSettings.set('');
+    this.successStatus.set('');
   }
 
   statusBadgeType(status: PlatformServiceCard['status']): 'default' | 'destructive' | 'secondary' {
@@ -182,9 +204,9 @@ export class PlataformaServicosTabComponent implements OnChanges {
   }
 
   submitSettings(): void {
-    this.error = '';
-    this.successSettings = '';
-    this.savingSettings = true;
+    this.error.set('');
+    this.successSettings.set('');
+    this.savingSettings.set(true);
 
     this.plataformaService
       .updateSettings({
@@ -214,8 +236,8 @@ export class PlataformaServicosTabComponent implements OnChanges {
       })
       .subscribe({
         next: (res) => {
-          this.savingSettings = false;
-          this.successSettings = 'Configurações salvas.';
+          this.savingSettings.set(false);
+          this.successSettings.set('Configurações salvas.');
           this.toast.success('Configurações salvas', 'O serviço foi atualizado.');
           if (res.data) {
             this.applySettingsData(res.data);
@@ -227,17 +249,17 @@ export class PlataformaServicosTabComponent implements OnChanges {
           this.resendApiKey = '';
         },
         error: () => {
-          this.savingSettings = false;
-          this.error = 'Não foi possível salvar as configurações.';
-          this.toast.error('Erro', this.error);
+          this.savingSettings.set(false);
+          this.error.set('Não foi possível salvar as configurações.');
+          this.toast.error('Erro', this.error());
         },
       });
   }
 
   submitStatus(): void {
-    this.error = '';
-    this.successStatus = '';
-    this.savingStatus = true;
+    this.error.set('');
+    this.successStatus.set('');
+    this.savingStatus.set(true);
 
     this.plataformaService
       .updateStatus({
@@ -248,14 +270,14 @@ export class PlataformaServicosTabComponent implements OnChanges {
       })
       .subscribe({
         next: () => {
-          this.savingStatus = false;
-          this.successStatus = 'Status atualizado.';
+          this.savingStatus.set(false);
+          this.successStatus.set('Status atualizado.');
           this.toast.success('Status atualizado', 'O status operacional foi gravado.');
         },
         error: () => {
-          this.savingStatus = false;
-          this.error = 'Não foi possível atualizar o status.';
-          this.toast.error('Erro', this.error);
+          this.savingStatus.set(false);
+          this.error.set('Não foi possível atualizar o status.');
+          this.toast.error('Erro', this.error());
         },
       });
   }

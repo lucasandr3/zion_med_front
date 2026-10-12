@@ -1,24 +1,37 @@
-import { Component, OnInit, DestroyRef, inject, Signal } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  DestroyRef,
+  inject,
+  Signal,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  signal,
+  CUSTOM_ELEMENTS_SCHEMA,
+  ViewChild,
+  TemplateRef,
+  ViewContainerRef,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { catchError, forkJoin, of } from 'rxjs';
 import { TemplatesService, Template } from '../../core/services/templates.service';
 import { DashboardService } from '../../core/services/dashboard.service';
 import { LoadingService } from '../../shared/services/loading.service';
-import {
-  ZmSkeletonTemplatesColecaoComponent,
-  ZmSkeletonTemplatesDetalheComponent,
-} from '../../shared/components/skeletons';
+import { ZmSkeletonTemplatesColecaoComponent } from '../../shared/components/skeletons';
+import { ListSkeletonComponent } from '../../shared/components/list-skeleton/list-skeleton.component';
 import { ZmEmptyStateComponent } from '../../shared/components/ui';
-import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
-import { ZardCardComponent } from '@/shared/components/card/card.component';
-import { ZardInputDirective } from '@/shared/components/input/input.directive';
+import { GestgoCardComponent } from '@/shared/components/card/card.component';
 import { ToastService } from '../../core/services/toast.service';
 import { ConfirmDialogService } from '../../core/services/confirm-dialog.service';
 import { TemplatePublishGuardService } from '../../core/services/template-publish-guard.service';
+import { GestgoSheetService } from '@/shared/components/sheet/sheet.service';
+import type { GestgoSheetRef } from '@/shared/components/sheet/sheet-ref';
+import { GestgoComboboxComponent, type GestgoComboboxOption } from '@/shared/components/combobox';
+
+type FiltroStatus = 'all' | 'ativo' | 'publico';
 
 /** Rótulos de categoria (igual ao backend FormTemplate::categoryLabels) */
 const CATEGORY_LABELS: Record<string, string> = {
@@ -84,61 +97,63 @@ type OrdenacaoColecao = 'fixa' | 'az' | 'recente';
 type ModoDetalhe = 'tabela' | 'cards';
 type ModoColecao = 'cards' | 'lista';
 
-import { ZardTableImports } from '@/shared/components/table';
-import { ZardTooltipImports } from '@/shared/components/tooltip';
-import { ZardMenuImports } from '@/shared/components/menu/menu.imports';
 @Component({
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'app-templates-listagem',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { class: 'n-page-list' },
   imports: [
-    ...ZardTableImports,
-    ...ZardTooltipImports,
-    ...ZardMenuImports,
-    CommonModule,
     RouterLink,
     FormsModule,
     ZmSkeletonTemplatesColecaoComponent,
-    ZmSkeletonTemplatesDetalheComponent,
+    ListSkeletonComponent,
     ZmEmptyStateComponent,
-    ZardCardComponent,
-    ZardButtonComponent,
-    ZardBadgeComponent,
-    ZardInputDirective,
+    GestgoCardComponent,
+    GestgoComboboxComponent,
   ],
   templateUrl: './templates-listagem.component.html',
   styleUrl: './templates-listagem.component.css',
 })
-export class TemplatesListagemComponent implements OnInit {
-  templates: Template[] = [];
+export class TemplatesListagemComponent implements OnInit, OnDestroy {
+  readonly templates = signal<Template[]>([]);
   showSkeleton!: Signal<boolean>;
-  listaPronta = false;
-  erro = '';
+  readonly listaPronta = signal(false);
+  readonly erro = signal('');
 
-  /** Filtro: 'all' | 'ativo' | 'publico' */
-  filtroAtual: 'all' | 'ativo' | 'publico' = 'all';
+  filtroAtual: FiltroStatus = 'all';
+  filtroDraft: FiltroStatus = 'all';
   buscaTexto = '';
 
   /** Grupos por categoria (chave = category ou 'personalizado') */
   grupos: { key: string; label: string; items: Template[] }[] = [];
 
   /** Query `?categoria=` — lista modelos só dessa categoria */
-  categoriaAberta: string | null = null;
+  readonly categoriaAberta = signal<string | null>(null);
 
-  /** Painel lateral de filtros (busca + status) */
-  filtrosPainelAberto = false;
+  readonly filterDrawerOpen = signal(false);
 
   /** Ordenação dos cards na coleção */
-  ordenacao: OrdenacaoColecao = 'fixa';
-  modoColecaoVisual: ModoColecao = 'cards';
-  modoDetalhe: ModoDetalhe = 'cards';
+  readonly ordenacao = signal<OrdenacaoColecao>('fixa');
+  readonly modoColecaoVisual = signal<ModoColecao>('cards');
+  readonly modoDetalhe = signal<ModoDetalhe>('cards');
 
   readonly categoryLabels = CATEGORY_LABELS;
 
-  removendoId: number | null = null;
-  publicandoId: number | null = null;
-  duplicandoId: number | null = null;
-  menuItem: Template | null = null;
-  respostasPorTemplate: Record<number, number> = {};
+  readonly removendoId = signal<number | null>(null);
+  readonly publicandoId = signal<number | null>(null);
+  readonly duplicandoId = signal<number | null>(null);
+  readonly respostasPorTemplate = signal<Record<number, number>>({});
+
+  readonly opcoesStatusFiltro = signal<GestgoComboboxOption[]>([
+    { value: 'all', label: 'Todos' },
+    { value: 'ativo', label: 'Ativos' },
+    { value: 'publico', label: 'Públicos' },
+  ]);
+
+  @ViewChild('templatesFiltrosTpl') templatesFiltrosTpl?: TemplateRef<void>;
+
+  private filtrosSheetRef?: GestgoSheetRef<void>;
 
   private templatesService = inject(TemplatesService);
   private dashboardService = inject(DashboardService);
@@ -149,18 +164,25 @@ export class TemplatesListagemComponent implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private destroyRef = inject(DestroyRef);
+  private readonly vcr = inject(ViewContainerRef);
+  private readonly gestgoSheet = inject(GestgoSheetService);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   constructor() {
     this.route.queryParams.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((q) => {
       const raw = q['categoria'];
       const next =
         typeof raw === 'string' && raw.trim() !== '' ? canonicalCategoryKey(raw.trim()) : null;
-      this.categoriaAberta = next;
+      this.categoriaAberta.set(next);
       if (next) {
-        this.filtrosPainelAberto = false;
+        this.filtrosSheetRef?.close();
       }
       this.validarCategoriaNaUrl();
     });
+  }
+
+  ngOnDestroy(): void {
+    this.filtrosSheetRef?.close();
   }
 
   ngOnInit(): void {
@@ -173,36 +195,36 @@ export class TemplatesListagemComponent implements OnInit {
     this.showSkeleton = showSkeleton;
     data$.subscribe({
       next: ({ templates, dashboard }) => {
-        this.listaPronta = true;
-        this.templates = templates;
-        this.respostasPorTemplate = dashboard?.respostas_por_template ?? {};
+        this.listaPronta.set(true);
+        this.templates.set(templates);
+        this.respostasPorTemplate.set(dashboard?.respostas_por_template ?? {});
         this.montarGrupos();
         this.validarCategoriaNaUrl();
       },
       error: () => {
-        this.listaPronta = true;
-        this.erro = 'Não foi possível carregar os templates.';
+        this.listaPronta.set(true);
+        this.erro.set('Não foi possível carregar os templates.');
       },
     });
   }
 
   /** Vista em grade da coleção (sem query categoria) */
   get modoColecao(): boolean {
-    return !this.categoriaAberta;
+    return !this.categoriaAberta();
   }
 
   get grupoDetalhe(): { key: string; label: string; items: Template[] } | null {
-    if (!this.categoriaAberta) return null;
-    const q = canonicalCategoryKey(this.categoriaAberta);
+    if (!this.categoriaAberta()) return null;
+    const q = canonicalCategoryKey(this.categoriaAberta());
     return this.grupos.find((g) => g.key === q) ?? null;
   }
 
   get gruposParaColecao(): { key: string; label: string; items: Template[] }[] {
     const base = this.grupos.filter((g) => this.grupoVisivel(g));
     const copy = [...base];
-    if (this.ordenacao === 'az') {
+    if (this.ordenacao() === 'az') {
       copy.sort((a, b) => a.label.localeCompare(b.label, 'pt-BR'));
-    } else if (this.ordenacao === 'recente') {
+    } else if (this.ordenacao() === 'recente') {
       copy.sort((a, b) => {
         const ta = this.isoMaisRecente(a.items) ?? '';
         const tb = this.isoMaisRecente(b.items) ?? '';
@@ -213,21 +235,21 @@ export class TemplatesListagemComponent implements OnInit {
   }
 
   rotuloOrdenacao(): string {
-    if (this.ordenacao === 'az') return 'A–Z';
-    if (this.ordenacao === 'recente') return 'Recentes';
+    if (this.ordenacao() === 'az') return 'A–Z';
+    if (this.ordenacao() === 'recente') return 'Recentes';
     return 'Padrão';
   }
 
   tituloOrdenacao(): string {
-    if (this.ordenacao === 'az') return 'Ordenar: nome da categoria (A–Z)';
-    if (this.ordenacao === 'recente') return 'Ordenar: última atualização na categoria';
+    if (this.ordenacao() === 'az') return 'Ordenar: nome da categoria (A–Z)';
+    if (this.ordenacao() === 'recente') return 'Ordenar: última atualização na categoria';
     return 'Ordenar: ordem padrão do sistema';
   }
 
   ciclarOrdenacao(): void {
     const seq: OrdenacaoColecao[] = ['fixa', 'az', 'recente'];
-    const i = seq.indexOf(this.ordenacao);
-    this.ordenacao = seq[(i + 1) % seq.length];
+    const i = seq.indexOf(this.ordenacao());
+    this.ordenacao.set(seq[(i + 1) % seq.length]);
   }
 
   corAccent(key: string): string {
@@ -238,20 +260,82 @@ export class TemplatesListagemComponent implements OnInit {
     void this.router.navigate(['/templates']);
   }
 
-  toggleFiltrosPainel(): void {
-    this.filtrosPainelAberto = !this.filtrosPainelAberto;
+  get temFiltrosAtivos(): boolean {
+    return this.filtroAtual !== 'all';
   }
 
-  setFiltro(f: 'all' | 'ativo' | 'publico'): void {
+  get quantidadeFiltrosAtivos(): number {
+    return this.filtroAtual !== 'all' ? 1 : 0;
+  }
+
+  selecionarStatusFiltro(key: string | null): void {
+    if (key === 'ativo' || key === 'publico') {
+      this.filtroDraft = key;
+      return;
+    }
+    this.filtroDraft = 'all';
+  }
+
+  openFilterDrawer(): void {
+    if (this.filtrosSheetRef) {
+      this.filtrosSheetRef.close();
+      return;
+    }
+    if (!this.templatesFiltrosTpl) {
+      return;
+    }
+    this.filtroDraft = this.filtroAtual;
+    this.filterDrawerOpen.set(true);
+    this.filtrosSheetRef = this.gestgoSheet.create<void, void>({
+      zContent: this.templatesFiltrosTpl,
+      zViewContainerRef: this.vcr,
+      zSide: 'right',
+      zSize: 'custom',
+      zWidth: 'min(100vw, 24rem)',
+      zHeight: '100dvh',
+      zTitle: 'Filtros',
+      zCustomClasses: 'gestgo-filter-sheet-panel',
+      zHideFooter: true,
+      zOkText: null,
+      zCancelText: null,
+      zMaskClosable: true,
+      zAfterClose: () => {
+        this.filtrosSheetRef = undefined;
+        this.filterDrawerOpen.set(false);
+      },
+    });
+  }
+
+  aplicarFiltros(): void {
+    this.filtroAtual = this.filtroDraft;
+    this.filtrosSheetRef?.close();
+    this.cdr.markForCheck();
+  }
+
+  limparFiltros(): void {
+    this.filtroDraft = 'all';
+    this.filtroAtual = 'all';
+    this.filtrosSheetRef?.close();
+    this.cdr.markForCheck();
+  }
+
+  limparBuscaEFiltros(): void {
+    this.buscaTexto = '';
+    this.limparFiltros();
+  }
+
+  setFiltro(f: FiltroStatus): void {
     this.filtroAtual = f;
+    this.filtroDraft = f;
+    this.cdr.markForCheck();
   }
 
   setModoDetalhe(modo: ModoDetalhe): void {
-    this.modoDetalhe = modo;
+    this.modoDetalhe.set(modo);
   }
 
   setModoColecaoVisual(modo: ModoColecao): void {
-    this.modoColecaoVisual = modo;
+    this.modoColecaoVisual.set(modo);
   }
 
   /** Retorna os itens do grupo que passam no filtro e na busca */
@@ -292,7 +376,7 @@ export class TemplatesListagemComponent implements OnInit {
   }
 
   respostasModelo(t: Template): number {
-    return this.respostasPorTemplate[t.id] ?? 0;
+    return this.respostasPorTemplate()[t.id] ?? 0;
   }
 
   rotuloRespostas(t: Template): string {
@@ -302,10 +386,6 @@ export class TemplatesListagemComponent implements OnInit {
 
   rotuloPublicar(t: Template): string {
     return t.public_enabled ? 'Tirar publicação' : 'Publicar';
-  }
-
-  iconePublicar(t: Template): string {
-    return t.public_enabled ? 'link_off' : 'public';
   }
 
   rotuloAtualizacaoGrupo(grupo: { items: Template[] }): string {
@@ -336,17 +416,17 @@ export class TemplatesListagemComponent implements OnInit {
       variant: 'danger',
     });
     if (!ok) return;
-    this.removendoId = t.id;
+    this.removendoId.set(t.id);
     this.templatesService.delete(t.id).subscribe({
       next: () => {
-        this.removendoId = null;
-        this.templates = this.templates.filter((x) => x.id !== t.id);
+        this.removendoId.set(null);
+        this.templates.set(this.templates().filter((x) => x.id !== t.id));
         this.montarGrupos();
         this.validarCategoriaNaUrl();
         this.toast.success('Template removido', `${nome} foi excluído.`);
       },
       error: () => {
-        this.removendoId = null;
+        this.removendoId.set(null);
         this.toast.error('Erro ao remover', 'Não foi possível remover o template.');
       },
     });
@@ -355,19 +435,19 @@ export class TemplatesListagemComponent implements OnInit {
   duplicar(t: Template, event: Event): void {
     event.preventDefault();
     event.stopPropagation();
-    if (this.duplicandoId === t.id) return;
-    this.duplicandoId = t.id;
+    if (this.duplicandoId() === t.id) return;
+    this.duplicandoId.set(t.id);
     this.templatesService.duplicar(t.id).subscribe({
       next: (novo) => {
-        this.duplicandoId = null;
-        this.templates = [novo, ...this.templates];
+        this.duplicandoId.set(null);
+        this.templates.set([novo, ...this.templates()]);
         this.montarGrupos();
         this.validarCategoriaNaUrl();
         this.toast.success('Modelo duplicado', `${novo.name} foi criado. O link público fica desativado até você publicar.`);
         void this.router.navigate(['/templates', novo.id, 'editar']);
       },
       error: () => {
-        this.duplicandoId = null;
+        this.duplicandoId.set(null);
         this.toast.error('Erro ao duplicar', 'Não foi possível duplicar este modelo.');
       },
     });
@@ -377,7 +457,7 @@ export class TemplatesListagemComponent implements OnInit {
     event.preventDefault();
     event.stopPropagation();
 
-    if (this.publicandoId === t.id) return;
+    if (this.publicandoId() === t.id) return;
 
     if (t.public_enabled) {
       void this.despublicarModelo(t);
@@ -399,53 +479,59 @@ export class TemplatesListagemComponent implements OnInit {
     });
     if (!ok) return;
 
-    this.publicandoId = t.id;
+    this.publicandoId.set(t.id);
     this.templatesService.desativarLink(t.id).subscribe({
       next: () => {
-        this.publicandoId = null;
+        this.publicandoId.set(null);
         this.marcarTemplateComoNaoPublico(t.id);
         this.toast.success('Publicação removida', 'O link público foi desativado.');
       },
       error: () => {
-        this.publicandoId = null;
+        this.publicandoId.set(null);
         this.toast.error('Erro ao despublicar', 'Não foi possível remover a publicação deste modelo.');
       },
     });
   }
 
   private publicarModelo(t: Template): void {
-    this.publicandoId = t.id;
-    void this.publishGuard.confirmPublishIfNeeded(t.id).then((confirmed) => {
-      if (!confirmed) {
-        this.publicandoId = null;
-        return;
-      }
-      this.templatesService.gerarLink(t.id).subscribe({
-        next: async (resp) => {
-          this.publicandoId = null;
-          const publicUrl = String(resp?.data?.public_url ?? t.public_url ?? '').trim();
-          this.marcarTemplateComoPublico(t.id, publicUrl);
+    this.publicandoId.set(t.id);
+    void this.publishGuard
+      .confirmPublishIfNeeded(t.id)
+      .then((confirmed) => {
+        if (!confirmed) {
+          this.publicandoId.set(null);
+          return;
+        }
+        this.templatesService.gerarLink(t.id).subscribe({
+          next: async (resp) => {
+            this.publicandoId.set(null);
+            const publicUrl = String(resp?.data?.public_url ?? t.public_url ?? '').trim();
+            this.marcarTemplateComoPublico(t.id, publicUrl);
 
-          if (publicUrl !== '') {
-            const copied = await this.copiarTexto(publicUrl);
-            if (copied) {
-              this.toast.success('Link publicado', 'Link público copiado para a área de transferência.');
-              return;
+            if (publicUrl !== '') {
+              const copied = await this.copiarTexto(publicUrl);
+              if (copied) {
+                this.toast.success('Link publicado', 'Link público copiado para a área de transferência.');
+                return;
+              }
             }
-          }
-          this.toast.success('Link publicado', 'O link público foi ativado para este modelo.');
-        },
-        error: () => {
-          this.publicandoId = null;
-          this.toast.error('Erro ao publicar', 'Não foi possível publicar o link deste modelo.');
-        },
+            this.toast.success('Link publicado', 'O link público foi ativado para este modelo.');
+          },
+          error: (err: unknown) => {
+            this.publicandoId.set(null);
+            void this.publishGuard.reportPublishFailure(err, t.id);
+          },
+        });
+      })
+      .catch(() => {
+        this.publicandoId.set(null);
+        this.toast.error('Erro ao publicar', 'Não foi possível validar as alterações do modelo.');
       });
-    });
   }
 
   private montarGrupos(): void {
     const byCategory = new Map<string, Template[]>();
-    for (const t of this.templates) {
+    for (const t of this.templates()) {
       const key = canonicalCategoryKey(t.category);
       if (!byCategory.has(key)) byCategory.set(key, []);
       byCategory.get(key)!.push(t);
@@ -466,7 +552,7 @@ export class TemplatesListagemComponent implements OnInit {
   }
 
   private marcarTemplateComoNaoPublico(templateId: number): void {
-    for (const item of this.templates) {
+    for (const item of this.templates()) {
       if (item.id !== templateId) continue;
       item.public_enabled = false;
       item.public_url = '';
@@ -474,7 +560,7 @@ export class TemplatesListagemComponent implements OnInit {
   }
 
   private marcarTemplateComoPublico(templateId: number, publicUrl: string): void {
-    for (const item of this.templates) {
+    for (const item of this.templates()) {
       if (item.id !== templateId) continue;
       item.public_enabled = true;
       if (publicUrl !== '') item.public_url = publicUrl;
@@ -501,8 +587,8 @@ export class TemplatesListagemComponent implements OnInit {
   }
 
   private validarCategoriaNaUrl(): void {
-    if (!this.categoriaAberta || !this.listaPronta) return;
-    const q = canonicalCategoryKey(this.categoriaAberta);
+    if (!this.categoriaAberta() || !this.listaPronta()) return;
+    const q = canonicalCategoryKey(this.categoriaAberta());
     const grupo = this.grupos.find((g) => g.key === q);
     if (!grupo) {
       void this.router.navigate(['/templates'], { replaceUrl: true });

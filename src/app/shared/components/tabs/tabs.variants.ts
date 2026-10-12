@@ -69,14 +69,13 @@ export const tabButtonVariants = cva('hover:bg-transparent rounded-none shrink-0
       zActivePosition: 'right',
       isActive: true,
       class: 'border-r-2 border-r-primary',
-    },
-  ],
+    }],
   defaultVariants: {
     zActivePosition: 'bottom',
     isActive: false,
   },
 });
 
-export type ZardTabVariants = VariantProps<typeof tabContainerVariants> &
+export type GestgoTabVariants = VariantProps<typeof tabContainerVariants> &
   VariantProps<typeof tabNavVariants> &
   VariantProps<typeof tabButtonVariants> & { zAlignTabs: zAlign };

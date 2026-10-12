@@ -1,16 +1,24 @@
-import { Component, OnInit, inject, Signal } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  inject,
+  Signal,
+  ChangeDetectionStrategy,
+  signal,
+  CUSTOM_ELEMENTS_SCHEMA,
+  ElementRef,
+  effect,
+  viewChild,
+} from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { CommonModule } from '@angular/common';
 import { LinksPublicosService, LinkPublico } from '../../core/services/links-publicos.service';
+import { TemplatesService } from '../../core/services/templates.service';
 import { ToastService } from '../../core/services/toast.service';
+import { ConfirmDialogService } from '../../core/services/confirm-dialog.service';
 import { LoadingService } from '../../shared/services/loading.service';
 import { ZmSkeletonLinksPublicosComponent } from '../../shared/components/skeletons';
-import { ZmEmptyStateComponent, ZmPaginationComponent } from '../../shared/components/ui';
-import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
-import { ZardCardComponent } from '@/shared/components/card/card.component';
-import { ZardMenuImports } from '../../shared/components/menu/menu.imports';
-import { ZardSkeletonComponent } from '@/shared/components/skeleton/skeleton.component';
+import { ZmPaginationComponent } from '../../shared/components/ui';
+import { GestgoSkeletonComponent } from '@/shared/components/skeleton/skeleton.component';
 import {
   downloadPublicFormQrPng,
   getOrCreatePublicFormQrDataUrl,
@@ -23,89 +31,118 @@ interface LinkPublicoItem {
   category_label?: string;
   public_url: string;
   public_token?: string;
+  public_enabled?: boolean;
   submission_count?: number;
+  last_submission_at?: string | null;
   updated_at?: string;
 }
 
+type NordModalElement = HTMLElement & {
+  showModal: () => void;
+  close: (returnValue?: string) => void;
+  open: boolean;
+  shadowRoot: ShadowRoot | null;
+};
+
+const CENTER_STYLE_ATTR = 'data-gestgo-modal-center';
+
 @Component({
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'app-pagina-links-publicos',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { class: 'n-page-list' },
   imports: [
-    CommonModule,
     RouterLink,
     ZmSkeletonLinksPublicosComponent,
-    ZmEmptyStateComponent,
     ZmPaginationComponent,
-    ZardBadgeComponent,
-    ZardButtonComponent,
-    ZardCardComponent,
-    ZardSkeletonComponent,
-    ...ZardMenuImports,
+    GestgoSkeletonComponent,
   ],
   templateUrl: './links-publicos.component.html',
   styleUrl: './links-publicos.component.css',
 })
 export class LinksPublicosComponent implements OnInit {
-  templates: LinkPublicoItem[] = [];
-  meta: { current_page: number; last_page: number; per_page: number; total: number } = {
+  readonly templates = signal<LinkPublicoItem[]>([]);
+  readonly meta = signal<{ current_page: number; last_page: number; per_page: number; total: number }>({
     current_page: 1,
     last_page: 1,
-    per_page: 10,
+    per_page: 12,
     total: 0,
-  };
+  });
   showSkeleton!: Signal<boolean>;
-  listaPronta = false;
-  erro = '';
-  copiedTemplateId: number | null = null;
-  qrAberto = false;
-  qrCarregando = false;
-  qrDataUrl = '';
-  qrItem: LinkPublicoItem | null = null;
-  menuItem: LinkPublicoItem | null = null;
+  readonly listaPronta = signal(false);
+  readonly erro = signal('');
+  readonly copiedTemplateId = signal<number | null>(null);
+  readonly desativandoId = signal<number | null>(null);
+  readonly qrAberto = signal(false);
+  readonly qrCarregando = signal(false);
+  readonly qrDataUrl = signal('');
+  readonly qrItem = signal<LinkPublicoItem | null>(null);
 
+  private readonly qrModalRef = viewChild<ElementRef<NordModalElement>>('qrModal');
   private linksService = inject(LinksPublicosService);
+  private templatesService = inject(TemplatesService);
   private loadingService = inject(LoadingService);
   private toast = inject(ToastService);
+  private confirm = inject(ConfirmDialogService);
+
+  constructor() {
+    effect(() => {
+      const shouldOpen = this.qrAberto();
+      const el = this.qrModalRef()?.nativeElement;
+      if (!el) return;
+      queueMicrotask(() => {
+        this.ensureModalCentered(el);
+        if (shouldOpen && !el.open) {
+          el.showModal();
+        } else if (!shouldOpen && el.open) {
+          el.close();
+        }
+      });
+    });
+  }
 
   ngOnInit(): void {
     this.carregar(1);
   }
 
   carregar(page = 1): void {
-    this.erro = '';
-    this.listaPronta = false;
+    this.erro.set('');
+    this.listaPronta.set(false);
     const { data$, showSkeleton } = this.loadingService.loadWithThreshold(
-      this.linksService.list({ page, per_page: this.meta.per_page }),
+      this.linksService.list({ page, per_page: this.meta().per_page }),
     );
     this.showSkeleton = showSkeleton;
     data$.subscribe({
       next: ({ data: list, meta }) => {
-        this.listaPronta = true;
-        this.meta = meta;
+        this.listaPronta.set(true);
+        this.meta.set(meta);
         const base = typeof window !== 'undefined' ? window.location.origin : '';
-        this.templates = list.map((t: LinkPublico) => ({
+        this.templates.set(list.map((t: LinkPublico) => ({
           id: t.template_id ?? t.id,
           name: t.template_name ?? t.name ?? '',
           category_label: t.category_label,
           public_url: t.public_url ?? (t.public_token ? `${base}/f/${t.public_token}` : ''),
           public_token: t.public_token,
+          public_enabled: t.public_enabled !== false,
           submission_count: t.submission_count,
+          last_submission_at: t.last_submission_at ?? null,
           updated_at: t.updated_at ?? t.created_at,
-        }));
-        for (const item of this.templates) {
+        })));
+        for (const item of this.templates()) {
           prefetchPublicFormQr(item.public_url);
         }
       },
       error: () => {
-        this.listaPronta = true;
-        this.erro = 'Não foi possível carregar os formulários públicos.';
-        this.toast.error('Erro ao carregar', this.erro);
+        this.listaPronta.set(true);
+        this.erro.set('Não foi possível carregar os formulários públicos.');
+        this.toast.error('Erro ao carregar', this.erro());
       },
     });
   }
 
   contagemTexto(): string {
-    const { total, current_page, last_page, per_page } = this.meta;
+    const { total, current_page, last_page, per_page } = this.meta();
     if (total === 0) return 'Nenhum formulário público';
     if (last_page <= 1) {
       return `${total} ${total === 1 ? 'formulário público' : 'formulários públicos'}`;
@@ -118,23 +155,37 @@ export class LinksPublicosComponent implements OnInit {
   iconeTemplate(item: LinkPublicoItem): string {
     const cat = (item.category_label ?? item.name ?? '').toLowerCase();
     if (cat.includes('anamnese')) return 'clinical_notes';
-    if (cat.includes('cadastro') || cat.includes('ficha')) return 'assignment';
-    if (cat.includes('retorno') || cat.includes('avalia')) return 'stethoscope';
-    if (cat.includes('consent')) return 'verified_user';
-    return 'description';
+    if (cat.includes('cadastro') || cat.includes('ficha')) return 'description';
+    if (cat.includes('retorno') || cat.includes('avalia')) return 'assignment_turned_in';
+    if (cat.includes('consent')) return 'check_circle';
+    return 'draft';
   }
 
-  metaLinha(item: LinkPublicoItem): string | null {
-    const partes: string[] = [];
-    if (item.submission_count != null) {
-      const n = item.submission_count;
-      partes.push(`${n} ${n === 1 ? 'resposta' : 'respostas'}`);
+  urlCurta(url: string): string {
+    if (!url) return '';
+    try {
+      const parsed = new URL(url);
+      const path = `${parsed.host}${parsed.pathname}`.replace(/\/$/, '');
+      return path.length > 28 ? `${path.slice(0, 25)}...` : path;
+    } catch {
+      return url.length > 28 ? `${url.slice(0, 25)}...` : url;
     }
-    if (item.updated_at) {
-      const rel = this.formatRelativeDate(item.updated_at);
-      if (rel) partes.push(rel);
-    }
-    return partes.length ? partes.join(' · ') : null;
+  }
+
+  ultimaRespostaLabel(item: LinkPublicoItem): string {
+    const iso = item.last_submission_at;
+    if (!iso) return '—';
+    const date = new Date(iso);
+    if (Number.isNaN(date.getTime())) return '—';
+    const diffMs = Date.now() - date.getTime();
+    const diffMin = Math.floor(diffMs / 60_000);
+    if (diffMin < 1) return 'agora';
+    if (diffMin < 60) return `${diffMin} min`;
+    const diffHours = Math.floor(diffMin / 60);
+    if (diffHours < 24) return `${diffHours} h`;
+    const diffDays = Math.floor(diffHours / 24);
+    if (diffDays < 30) return `${diffDays} d`;
+    return date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
   }
 
   copiarLink(templateId: number, url: string): void {
@@ -146,11 +197,11 @@ export class LinksPublicosComponent implements OnInit {
       navigator.clipboard
         .writeText(url)
         .then(() => {
-          this.copiedTemplateId = templateId;
+          this.copiedTemplateId.set(templateId);
           this.toast.success('Link copiado', 'Você já pode colar e enviar para o paciente.');
           setTimeout(() => {
-            if (this.copiedTemplateId === templateId) {
-              this.copiedTemplateId = null;
+            if (this.copiedTemplateId() === templateId) {
+              this.copiedTemplateId.set(null);
             }
           }, 2000);
         })
@@ -162,29 +213,66 @@ export class LinksPublicosComponent implements OnInit {
     this.toast.error('Navegador incompatível', 'Seu navegador não permite copiar automaticamente.');
   }
 
+  async desativarLinkPublico(item: LinkPublicoItem, event: Event): Promise<void> {
+    event.preventDefault();
+    event.stopPropagation();
+    if (this.desativandoId() === item.id) return;
+
+    const nome = item.name?.trim() || 'este formulário';
+    const ok = await this.confirm.request({
+      title: 'Desativar link público?',
+      messageBefore: 'O formulário ',
+      emphasis: nome,
+      messageAfter: ' deixará de ser acessível pelo link atual. Você poderá publicar novamente depois.',
+      confirmLabel: 'Sim, desativar',
+      variant: 'danger',
+    });
+    if (!ok) return;
+
+    this.desativandoId.set(item.id);
+    this.templatesService.desativarLink(item.id).subscribe({
+      next: () => {
+        this.desativandoId.set(null);
+        this.templates.update((list) => list.filter((t) => t.id !== item.id));
+        this.meta.update((m) => ({ ...m, total: Math.max(0, m.total - 1) }));
+        this.toast.success('Link desativado', 'O formulário público foi removido desta lista.');
+      },
+      error: () => {
+        this.desativandoId.set(null);
+        this.toast.error('Erro ao desativar', 'Não foi possível desativar o link deste formulário.');
+      },
+    });
+  }
+
   async abrirQr(item: LinkPublicoItem): Promise<void> {
     if (!item.public_url) {
       this.toast.warning('Link indisponível', 'Este formulário ainda não possui URL pública.');
       return;
     }
-    this.qrItem = item;
-    this.qrAberto = true;
-    this.qrCarregando = true;
-    this.qrDataUrl = '';
+    this.qrItem.set(item);
+    this.qrAberto.set(true);
+    this.qrCarregando.set(true);
+    this.qrDataUrl.set('');
     try {
-      this.qrDataUrl = await getOrCreatePublicFormQrDataUrl(item.public_url);
+      this.qrDataUrl.set(await getOrCreatePublicFormQrDataUrl(item.public_url));
     } catch {
       this.toast.error('QR code', 'Não foi possível gerar o QR code deste link.');
       this.fecharQr();
     } finally {
-      this.qrCarregando = false;
+      this.qrCarregando.set(false);
     }
   }
 
   baixarQr(): void {
-    if (!this.qrDataUrl || !this.qrItem) return;
-    downloadPublicFormQrPng(this.qrDataUrl, this.qrItem.name);
+    if (!this.qrDataUrl() || !this.qrItem()) return;
+    downloadPublicFormQrPng(this.qrDataUrl(), this.qrItem()!.name);
     this.toast.success('Download iniciado', 'O QR code foi salvo no seu dispositivo.');
+  }
+
+  copiarLinkQr(): void {
+    const item = this.qrItem();
+    if (!item?.public_url) return;
+    this.copiarLink(item.id, item.public_url);
   }
 
   async baixarQrDireto(item: LinkPublicoItem): Promise<void> {
@@ -202,25 +290,31 @@ export class LinksPublicosComponent implements OnInit {
   }
 
   fecharQr(): void {
-    this.qrAberto = false;
-    this.qrCarregando = false;
-    this.qrItem = null;
+    this.qrAberto.set(false);
+    this.qrCarregando.set(false);
+    this.qrItem.set(null);
+    this.qrDataUrl.set('');
   }
 
-  private formatRelativeDate(iso: string): string {
-    const date = new Date(iso);
-    if (Number.isNaN(date.getTime())) return '';
-    const diffMs = Date.now() - date.getTime();
-    const diffMin = Math.floor(diffMs / 60_000);
-    if (diffMin < 1) return 'atualizado agora';
-    if (diffMin < 60) return `atualizado há ${diffMin} min`;
-    const diffHours = Math.floor(diffMin / 60);
-    if (diffHours < 24) return `atualizado há ${diffHours} ${diffHours === 1 ? 'hora' : 'horas'}`;
-    const diffDays = Math.floor(diffHours / 24);
-    if (diffDays === 1) return 'atualizado há 1 dia';
-    if (diffDays < 30) return `atualizado há ${diffDays} dias`;
-    const diffMonths = Math.floor(diffDays / 30);
-    if (diffMonths === 1) return 'atualizado há 1 mês';
-    return `atualizado há ${diffMonths} meses`;
+  /** Nord modal ancora no topo; centraliza via shadow DOM (igual confirm-dialog). */
+  private ensureModalCentered(el: NordModalElement): void {
+    const root = el.shadowRoot;
+    if (!root || root.querySelector(`style[${CENTER_STYLE_ATTR}]`)) return;
+    const style = document.createElement('style');
+    style.setAttribute(CENTER_STYLE_ATTR, '');
+    style.textContent = `
+      .n-modal-backdrop {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        box-sizing: border-box !important;
+        min-block-size: 100% !important;
+        padding-block: var(--n-space-l) !important;
+      }
+      .n-modal {
+        margin-block: 0 !important;
+      }
+    `;
+    root.appendChild(style);
   }
 }

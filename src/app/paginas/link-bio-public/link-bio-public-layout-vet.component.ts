@@ -20,8 +20,7 @@ const DEFAULT_SPECIES: { label: string; active: boolean }[] = [
   { label: '🐇 Coelhos', active: false },
   { label: '🐹 Hamsters', active: false },
   { label: '🐦 Aves', active: false },
-  { label: '🦎 Répteis', active: false },
-];
+  { label: '🦎 Répteis', active: false }];
 
 const DEFAULT_VET_SERVICES: { icon: string; title: string }[] = [
   { icon: '💉', title: 'Vacinas' },
@@ -29,8 +28,7 @@ const DEFAULT_VET_SERVICES: { icon: string; title: string }[] = [
   { icon: '🩺', title: 'Consulta' },
   { icon: '✂️', title: 'Cirurgia' },
   { icon: '🛁', title: 'Banho e tosa' },
-  { icon: '🏥', title: 'Internação' },
-];
+  { icon: '🏥', title: 'Internação' }];
 
 @Component({
   selector: 'app-link-bio-public-layout-vet',

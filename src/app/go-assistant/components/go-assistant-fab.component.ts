@@ -23,7 +23,8 @@ import { GoAssistantShellService } from '../services/go-assistant-shell.service'
         position: fixed;
         right: 1.25rem;
         bottom: 1.25rem;
-        z-index: 40;
+        /* Acima do conteúdo; abaixo do drawer/modal Nord */
+        z-index: calc(var(--n-index-sticky, 300) + 10);
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -61,8 +62,7 @@ import { GoAssistantShellService } from '../services/go-assistant-shell.service'
           bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
         }
       }
-    `,
-  ],
+    `],
 })
 export class GoAssistantFabComponent {
   readonly shell = inject(GoAssistantShellService);

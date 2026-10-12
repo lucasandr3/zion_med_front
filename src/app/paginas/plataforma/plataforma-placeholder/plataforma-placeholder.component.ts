@@ -1,11 +1,12 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ZardCardComponent } from '@/shared/components/card/card.component';
+import { GestgoCardComponent } from '@/shared/components/card/card.component';
 
 @Component({
   selector: 'app-plataforma-placeholder',
   standalone: true,
-  imports: [CommonModule, ZardCardComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [CommonModule, GestgoCardComponent],
   templateUrl: './plataforma-placeholder.component.html',
   styleUrl: './plataforma-placeholder.component.css',
 })

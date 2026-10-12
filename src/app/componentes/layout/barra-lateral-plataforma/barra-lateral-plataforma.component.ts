@@ -2,88 +2,58 @@ import {
   Component,
   Input,
   OnInit,
-  OnDestroy,
   inject,
-  PLATFORM_ID,
-  NgZone,
+  ChangeDetectionStrategy,
+  signal,
+  CUSTOM_ELEMENTS_SCHEMA,
 } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
-import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { Subscription } from 'rxjs';
 import { AuthService } from '../../../core/services/auth.service';
-import { resolveSidebarLogoSrc } from '../../../core/utils/sidebar-logo.util';
 import { SidebarMobileService } from '../../../core/services/sidebar-mobile.service';
-import { ZardTooltipImports } from '@/shared/components/tooltip';
-import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
-import { ZardMenuLabelComponent } from '../../../shared/components/menu/menu-label.component';
-import { ZardMenuImports } from '../../../shared/components/menu/menu.imports';
-import { ZardAvatarComponent } from '@/shared/components/avatar/avatar.component';
+import { ShellSidebarCollapseService } from '../../../core/services/shell-sidebar-collapse.service';
+
+import { GestgoBadgeComponent } from '@/shared/components/badge/badge.component';
+
+import { GestgoAvatarComponent } from '@/shared/components/avatar/avatar.component';
+import { GestgoBrandMarkComponent } from '@/shared/components/gestgo-brand-mark/gestgo-brand-mark.component';
 
 @Component({
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'app-barra-lateral-plataforma',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CommonModule,
     RouterLink,
     RouterLinkActive,
-    ...ZardTooltipImports,
-    ZardBadgeComponent,
-    ZardButtonComponent,
-    ZardMenuLabelComponent,
-    ...ZardMenuImports,
-    ZardAvatarComponent,
+    GestgoBadgeComponent,
+    GestgoAvatarComponent,
+    GestgoBrandMarkComponent,
   ],
   templateUrl: './barra-lateral-plataforma.component.html',
   styleUrl: './barra-lateral-plataforma.component.css',
 })
-export class BarraLateralPlataformaComponent implements OnInit, OnDestroy {
-  /** Contador vindo do layout (mesmo valor do cabeçalho). */
+export class BarraLateralPlataformaComponent implements OnInit {
   @Input() notificacoesNaoLidas = 0;
-  nomeUsuario = 'Usuário';
-  iniciaisUsuario = 'U';
-  emailUsuario = '';
 
-  /** Com Topo e marca, variante do logo em `assets/logo` conforme o tema. */
-  sidebarLogoSrc = '/assets/logo/logo.png';
+  private readonly nomeUsuarioSignal = signal('Usuário');
+  private readonly iniciaisUsuarioSignal = signal('U');
+  private readonly emailUsuarioSignal = signal('');
 
-  private auth = inject(AuthService);
-  private router = inject(Router);
-  private sidebarMobile = inject(SidebarMobileService);
+  readonly nomeUsuario = this.nomeUsuarioSignal.asReadonly();
+  readonly iniciaisUsuario = this.iniciaisUsuarioSignal.asReadonly();
+  readonly emailUsuario = this.emailUsuarioSignal.asReadonly();
 
-  sidebarOpenMobile = false;
-  sidebarColapsada = false;
-  private sidebarObserver: MutationObserver | null = null;
-  private appearanceSub?: Subscription;
-  private platformId = inject(PLATFORM_ID);
-  private ngZone = inject(NgZone);
+  private readonly auth = inject(AuthService);
+  private readonly router = inject(Router);
+  private readonly sidebarMobile = inject(SidebarMobileService);
+  private readonly sidebarCollapse = inject(ShellSidebarCollapseService);
+
+  readonly sidebarOpenMobile = this.sidebarMobile.isOpen;
+  readonly sidebarColapsada = this.sidebarCollapse.collapsed;
 
   ngOnInit(): void {
+    this.sidebarCollapse.ensureHydrated();
     this.atualizarDados();
-    this.sincronizarEstadoSidebar();
-    this.appearanceSub = this.auth.appearanceApplied$.subscribe(() => {
-      this.ngZone.run(() => this.refreshSidebarLogo());
-    });
-    this.sidebarMobile.getOpen().subscribe((open) => {
-      this.sidebarOpenMobile = open;
-      if (typeof document !== 'undefined') {
-        document.body.style.overflow = open ? 'hidden' : '';
-      }
-    });
-  }
-
-  ngOnDestroy(): void {
-    this.sidebarObserver?.disconnect();
-    this.appearanceSub?.unsubscribe();
-  }
-
-  private atualizarDados(): void {
-    const u = this.auth.getUser();
-    if (u) {
-      this.nomeUsuario = u.name || 'Usuário';
-      this.emailUsuario = u.email || '';
-      this.iniciaisUsuario = this.nomeUsuario.slice(0, 2).toUpperCase() || 'U';
-    }
   }
 
   fecharSidebarMobile(): void {
@@ -95,26 +65,16 @@ export class BarraLateralPlataformaComponent implements OnInit, OnDestroy {
   }
 
   tooltipQuandoColapsada(texto: string): string {
-    return this.sidebarColapsada ? texto : '';
+    return this.sidebarColapsada() ? texto : '';
   }
 
-  private refreshSidebarLogo(): void {
-    if (!isPlatformBrowser(this.platformId)) return;
-    this.sidebarLogoSrc = resolveSidebarLogoSrc();
-  }
-
-  private sincronizarEstadoSidebar(): void {
-    if (!isPlatformBrowser(this.platformId) || typeof document === 'undefined') return;
-
-    const atualizar = (): void => {
-      this.ngZone.run(() => {
-        this.sidebarColapsada = document.body.classList.contains('sidebar-collapsed');
-        this.refreshSidebarLogo();
-      });
-    };
-
-    atualizar();
-    this.sidebarObserver = new MutationObserver(atualizar);
-    this.sidebarObserver.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+  private atualizarDados(): void {
+    const u = this.auth.getUser();
+    if (u) {
+      const nome = u.name || 'Usuário';
+      this.nomeUsuarioSignal.set(nome);
+      this.emailUsuarioSignal.set(u.email || '');
+      this.iniciaisUsuarioSignal.set(nome.slice(0, 2).toUpperCase() || 'U');
+    }
   }
 }

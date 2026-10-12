@@ -1,5 +1,5 @@
 import { OverlayModule } from '@angular/cdk/overlay';
 
-import { ZardTooltipComponent, ZardTooltipDirective } from './tooltip';
+import { GestgoTooltipComponent, GestgoTooltipDirective } from './tooltip';
 
-export const ZardTooltipImports = [ZardTooltipComponent, ZardTooltipDirective, OverlayModule] as const;
+export const GestgoTooltipImports = [GestgoTooltipComponent, GestgoTooltipDirective, OverlayModule] as const;

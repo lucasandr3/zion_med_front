@@ -1,52 +1,53 @@
-import { Component, OnInit, inject, Signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject, Signal, ChangeDetectionStrategy, signal, computed, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 import { DocumentSendsService, DocumentSendItem } from '../../core/services/document-sends.service';
 import { PessoasService, Pessoa } from '../../core/services/pessoas.service';
-import { TemplatesService, Template } from '../../core/services/templates.service';
+import { LinksPublicosService } from '../../core/services/links-publicos.service';
 import { LoadingService } from '../../shared/services/loading.service';
-import { ZmSkeletonListComponent } from '../../shared/components/skeletons';
-import { ZmPaginationComponent, ZmEmptyStateComponent } from '../../shared/components/ui';
-import { ZardComboboxComponent, type ZardComboboxOption } from '@/shared/components/combobox';
+import { ListSkeletonComponent } from '../../shared/components/list-skeleton/list-skeleton.component';
+import { ZmPaginationComponent } from '../../shared/components/ui';
+import { GestgoComboboxComponent, type GestgoComboboxOption } from '@/shared/components/combobox';
 import { ToastService } from '../../core/services/toast.service';
 import { ConfirmDialogService } from '../../core/services/confirm-dialog.service';
-import { ZardCardComponent } from '@/shared/components/card/card.component';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
+
+interface DocumentoPublicoOpcao {
+  id: number;
+  name: string;
+}
 
 type Caixa = 'pendentes' | 'assinados' | 'expirados' | 'cancelados';
 
-import { ZardTableImports } from '@/shared/components/table';
-import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
+import { NORD_FORM_IMPORTS } from '@/shared/nord';
+import { formatarDataHoraBr } from '@/shared/utils/date';
 @Component({
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'app-envios',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { class: 'n-page-list' },
   imports: [
-    ...ZARD_FORM_CONTROL_IMPORTS,
-    ...ZardTableImports,
-    CommonModule,
+    ...NORD_FORM_IMPORTS,
     FormsModule,
-    ZmSkeletonListComponent,
+    ListSkeletonComponent,
     ZmPaginationComponent,
-    ZmEmptyStateComponent,
-    ZardComboboxComponent,
-    ZardCardComponent,
-    ZardButtonComponent,
+    GestgoComboboxComponent,
   ],
   templateUrl: './envios.component.html',
   styleUrl: './envios.component.css',
 })
 export class EnviosComponent implements OnInit {
-  envios: DocumentSendItem[] = [];
-  templates: Template[] = [];
-  caixaAtual: Caixa = 'pendentes';
-  meta = { current_page: 1, last_page: 1, per_page: 20, total: 0 };
+  readonly envios = signal<DocumentSendItem[]>([]);
+  /** Mesma fonte da tela Links públicos (`/links-publicos`). */
+  readonly documentosPublicos = signal<DocumentoPublicoOpcao[]>([]);
+  readonly caixaAtual = signal<Caixa>('pendentes');
+  readonly meta = signal({ current_page: 1, last_page: 1, per_page: 20, total: 0 });
   showSkeleton!: Signal<boolean>;
-  listaPronta = false;
-  erro = '';
-  acaoId: number | null = null;
+  readonly listaPronta = signal(false);
+  readonly erro = signal('');
+  readonly acaoId = signal<number | null>(null);
 
-  mostrarNovoEnvio = false;
+  readonly mostrarNovoEnvio = signal(false);
   novoEnvio = {
     template_id: 0,
     channel: 'email' as 'email' | 'whatsapp',
@@ -56,17 +57,17 @@ export class EnviosComponent implements OnInit {
     recipient_phone: '',
   };
   pessoaBusca = '';
-  pessoaSugestoes: Pessoa[] = [];
-  pessoaSelecionada: Pessoa | null = null;
-  buscandoPessoas = false;
-  enviando = false;
-  erroNovo = '';
+  readonly pessoaSugestoes = signal<Pessoa[]>([]);
+  readonly pessoaSelecionada = signal<Pessoa | null>(null);
+  readonly buscandoPessoas = signal(false);
+  readonly enviando = signal(false);
+  readonly erroNovo = signal('');
   private pessoaBusca$ = new Subject<string>();
   private suprimirBuscaAutomatica = false;
 
   private documentSendsService = inject(DocumentSendsService);
   private pessoasService = inject(PessoasService);
-  private templatesService = inject(TemplatesService);
+  private linksPublicosService = inject(LinksPublicosService);
   private loadingService = inject(LoadingService);
   private toast = inject(ToastService);
   private confirm = inject(ConfirmDialogService);
@@ -75,72 +76,79 @@ export class EnviosComponent implements OnInit {
     { key: 'pendentes', label: 'Pendentes' },
     { key: 'assinados', label: 'Assinados' },
     { key: 'expirados', label: 'Expirados' },
-    { key: 'cancelados', label: 'Cancelados' },
-  ];
+    { key: 'cancelados', label: 'Cancelados' }];
 
-  get templatesPublicos(): Template[] {
-    return this.templates.filter((template) => template.is_active !== false && template.public_enabled === true);
-  }
-
-  get opcoesTemplatesPublicos(): ZardComboboxOption[] {
-    return this.templatesPublicos.map((template) => ({
-      value: String(template.id),
-      label: template.name,
-    }));
-  }
+  readonly opcoesTemplatesPublicos = computed<GestgoComboboxOption[]>(() =>
+    this.documentosPublicos().map((doc) => ({
+      value: String(doc.id),
+      label: doc.name,
+    })),
+  );
 
   get templateSelecionadoKey(): string {
     return this.novoEnvio.template_id ? `${this.novoEnvio.template_id}` : '';
   }
 
   ngOnInit(): void {
-    this.templatesService.list({ is_active: true }).subscribe({
-      next: (templates) => {
-        this.templates = templates;
-        const primeiroTemplatePublico = this.templatesPublicos[0];
-        if (primeiroTemplatePublico && this.novoEnvio.template_id <= 0) {
-          this.novoEnvio.template_id = primeiroTemplatePublico.id;
-        }
-      },
-    });
+    this.carregarDocumentosPublicos();
     this.pessoaBusca$
       .pipe(debounceTime(280), distinctUntilChanged())
       .subscribe((termo) => this.buscarPessoasPorTermo(termo));
     this.carregar();
   }
 
+  /** Carrega documentos com link público ativo — mesmo endpoint da listagem Links públicos. */
+  private carregarDocumentosPublicos(): void {
+    // API valida per_page max 50 (LinksPublicosIndexRequest).
+    this.linksPublicosService.list({ page: 1, per_page: 50 }).subscribe({
+      next: ({ data }) => {
+        const docs = data
+          .map((item) => ({
+            id: Number(item.template_id ?? item.id) || 0,
+            name: (item.template_name ?? item.name ?? '').trim(),
+          }))
+          .filter((item) => item.id > 0 && item.name.length > 0);
+        this.documentosPublicos.set(docs);
+        const primeiro = docs[0];
+        if (primeiro && this.novoEnvio.template_id <= 0) {
+          this.novoEnvio.template_id = primeiro.id;
+        } else if (!primeiro) {
+          this.novoEnvio.template_id = 0;
+        }
+      },
+      error: () => {
+        this.documentosPublicos.set([]);
+        this.toast.error('Documentos', 'Não foi possível carregar os documentos públicos.');
+      },
+    });
+  }
+
   setCaixa(c: Caixa): void {
-    this.caixaAtual = c;
+    this.caixaAtual.set(c);
     this.carregar(1);
   }
 
   carregar(page = 1): void {
-    this.erro = '';
+    this.erro.set('');
     const { data$, showSkeleton } = this.loadingService.loadWithThreshold(
-      this.documentSendsService.list({ caixa: this.caixaAtual, per_page: 20, page }),
+      this.documentSendsService.list({ caixa: this.caixaAtual(), per_page: 20, page }),
     );
     this.showSkeleton = showSkeleton;
     data$.subscribe({
       next: (res) => {
-        this.listaPronta = true;
-        this.envios = res.data;
-        this.meta = res.meta;
+        this.listaPronta.set(true);
+        this.envios.set(res.data);
+        this.meta.set(res.meta);
       },
       error: () => {
-        this.listaPronta = true;
-        this.erro = 'Não foi possível carregar os envios.';
+        this.listaPronta.set(true);
+        this.erro.set('Não foi possível carregar os envios.');
       },
     });
   }
 
   dataFormatada(s: string | null): string {
-    if (!s) return '—';
-    try {
-      const d = new Date(s);
-      return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-    } catch {
-      return s;
-    }
+    return formatarDataHoraBr(s) || '—';
   }
 
   statusLabel(status: string): string {
@@ -207,45 +215,49 @@ export class EnviosComponent implements OnInit {
       variant: 'danger',
     });
     if (!ok) return;
-    this.acaoId = item.id;
+    this.acaoId.set(item.id);
     this.documentSendsService.cancel(item.id).subscribe({
       next: () => {
-        this.acaoId = null;
+        this.acaoId.set(null);
         this.carregar();
         this.toast.success('Envio cancelado', 'O link foi invalidado.');
       },
       error: (err) => {
-        this.acaoId = null;
-        this.erro = err.error?.message ?? 'Não foi possível cancelar.';
-        this.toast.error('Erro', this.erro);
+        this.acaoId.set(null);
+        this.erro.set(err.error?.message ?? 'Não foi possível cancelar.');
+        this.toast.error('Erro', this.erro());
       },
     });
   }
 
   reenviar(item: DocumentSendItem): void {
     if (item.status !== 'pendente') return;
-    this.acaoId = item.id;
+    this.acaoId.set(item.id);
     this.documentSendsService.reenvio(item.id).subscribe({
       next: () => {
-        this.acaoId = null;
+        this.acaoId.set(null);
         this.carregar();
         this.toast.success('Link reenviado', 'Uma nova tentativa foi registrada.');
       },
       error: (err) => {
-        this.acaoId = null;
-        this.erro = err.error?.message ?? 'Não foi possível reenviar.';
-        this.toast.error('Erro', this.erro);
+        this.acaoId.set(null);
+        this.erro.set(err.error?.message ?? 'Não foi possível reenviar.');
+        this.toast.error('Erro', this.erro());
       },
     });
   }
 
   abrirNovoEnvio(): void {
-    this.mostrarNovoEnvio = true;
-    this.erroNovo = '';
+    this.mostrarNovoEnvio.set(true);
+    this.erroNovo.set('');
     this.pessoaBusca = '';
-    this.pessoaSugestoes = [];
-    this.pessoaSelecionada = null;
-    const primeiroTemplatePublico = this.templatesPublicos[0];
+    this.pessoaSugestoes.set([]);
+    this.pessoaSelecionada.set(null);
+    // Garante lista atualizada ao abrir o formulário
+    if (this.documentosPublicos().length === 0) {
+      this.carregarDocumentosPublicos();
+    }
+    const primeiroTemplatePublico = this.documentosPublicos()[0];
     this.novoEnvio = {
       template_id: primeiroTemplatePublico?.id ?? 0,
       channel: 'email',
@@ -261,18 +273,18 @@ export class EnviosComponent implements OnInit {
   }
 
   selecionarPessoa(p: Pessoa): void {
-    this.pessoaSelecionada = p;
+    this.pessoaSelecionada.set(p);
     this.novoEnvio.person_id = p.id;
-    this.pessoaSugestoes = [];
+    this.pessoaSugestoes.set([]);
     this.suprimirBuscaAutomatica = true;
     this.pessoaBusca = `${p.name} · ${this.documentoPessoaDisplay(p)}`;
   }
 
   limparPessoa(): void {
-    this.pessoaSelecionada = null;
+    this.pessoaSelecionada.set(null);
     this.novoEnvio.person_id = null;
     this.pessoaBusca = '';
-    this.pessoaSugestoes = [];
+    this.pessoaSugestoes.set([]);
   }
 
   onPessoaBuscaChange(value: string): void {
@@ -280,8 +292,8 @@ export class EnviosComponent implements OnInit {
       this.suprimirBuscaAutomatica = false;
       return;
     }
-    if (this.pessoaSelecionada && this.pessoaBusca !== `${this.pessoaSelecionada.name} · ${this.documentoPessoaDisplay(this.pessoaSelecionada)}`) {
-      this.pessoaSelecionada = null;
+    if (this.pessoaSelecionada() && this.pessoaBusca !== `${this.pessoaSelecionada()!.name} · ${this.documentoPessoaDisplay(this.pessoaSelecionada()!)}`) {
+      this.pessoaSelecionada.set(null);
       this.novoEnvio.person_id = null;
     }
     this.pessoaBusca$.next(value.trim());
@@ -303,35 +315,35 @@ export class EnviosComponent implements OnInit {
 
   private buscarPessoasPorTermo(termo: string): void {
     if (termo.length < 2) {
-      this.pessoaSugestoes = [];
-      this.buscandoPessoas = false;
+      this.pessoaSugestoes.set([]);
+      this.buscandoPessoas.set(false);
       return;
     }
-    this.buscandoPessoas = true;
+    this.buscandoPessoas.set(true);
     const termoCapitalizado = termo.charAt(0).toUpperCase() + termo.slice(1);
     this.pessoasService.list({ search: termo, per_page: 15, page: 1 }).subscribe({
       next: (res) => {
         const ativos = res.data.filter((p) => p.status === 'active');
         if (ativos.length > 0 || termoCapitalizado === termo) {
-          this.buscandoPessoas = false;
-          this.pessoaSugestoes = this.filtrarPessoasCaseInsensitive(ativos, termo);
+          this.buscandoPessoas.set(false);
+          this.pessoaSugestoes.set(this.filtrarPessoasCaseInsensitive(ativos, termo));
           return;
         }
         this.pessoasService.list({ search: termoCapitalizado, per_page: 15, page: 1 }).subscribe({
           next: (fallbackRes) => {
-            this.buscandoPessoas = false;
+            this.buscandoPessoas.set(false);
             const fallbackAtivos = fallbackRes.data.filter((p) => p.status === 'active');
-            this.pessoaSugestoes = this.filtrarPessoasCaseInsensitive(fallbackAtivos, termo);
+            this.pessoaSugestoes.set(this.filtrarPessoasCaseInsensitive(fallbackAtivos, termo));
           },
           error: () => {
-            this.buscandoPessoas = false;
-            this.pessoaSugestoes = [];
+            this.buscandoPessoas.set(false);
+            this.pessoaSugestoes.set([]);
           },
         });
       },
       error: () => {
-        this.buscandoPessoas = false;
-        this.pessoaSugestoes = [];
+        this.buscandoPessoas.set(false);
+        this.pessoaSugestoes.set([]);
       },
     });
   }
@@ -381,51 +393,53 @@ export class EnviosComponent implements OnInit {
   }
 
   fecharNovoEnvio(): void {
-    this.mostrarNovoEnvio = false;
+    this.mostrarNovoEnvio.set(false);
   }
 
   enviarNovo(): void {
-    this.erroNovo = '';
+    this.erroNovo.set('');
     if (this.novoEnvio.template_id <= 0) {
-      this.erroNovo = 'Selecione um documento público.';
+      this.erroNovo.set('Selecione um documento público.');
       return;
     }
-    const templateSelecionadoEhPublico = this.templatesPublicos.some((template) => template.id === this.novoEnvio.template_id);
+    const templateSelecionadoEhPublico = this.documentosPublicos().some(
+      (template) => template.id === this.novoEnvio.template_id,
+    );
     if (!templateSelecionadoEhPublico) {
-      this.erroNovo = 'Selecione um documento público válido da clínica.';
+      this.erroNovo.set('Selecione um documento público válido da clínica.');
       return;
     }
     if (this.novoEnvio.destino === 'pessoa') {
       if (!this.novoEnvio.person_id) {
-        this.erroNovo = 'Busque e selecione uma pessoa.';
+        this.erroNovo.set('Busque e selecione uma pessoa.');
         return;
       }
-      if (this.novoEnvio.channel === 'email' && !this.pessoaSelecionada?.email && !this.novoEnvio.recipient_email?.trim()) {
-        this.erroNovo = 'A pessoa não tem e-mail cadastrado. Informe manualmente ou cadastre o e-mail na ficha.';
+      if (this.novoEnvio.channel === 'email' && !this.pessoaSelecionada()?.email && !this.novoEnvio.recipient_email?.trim()) {
+        this.erroNovo.set('A pessoa não tem e-mail cadastrado. Informe manualmente ou cadastre o e-mail na ficha.');
         return;
       }
-      if (this.novoEnvio.channel === 'whatsapp' && !this.pessoaSelecionada?.phone && !this.novoEnvio.recipient_phone?.trim()) {
-        this.erroNovo = 'A pessoa não tem telefone cadastrado. Informe manualmente ou cadastre na ficha.';
+      if (this.novoEnvio.channel === 'whatsapp' && !this.pessoaSelecionada()?.phone && !this.novoEnvio.recipient_phone?.trim()) {
+        this.erroNovo.set('A pessoa não tem telefone cadastrado. Informe manualmente ou cadastre na ficha.');
         return;
       }
-      if (this.novoEnvio.channel === 'whatsapp' && !this.pessoaSelecionada?.phone && this.phoneDigits(this.novoEnvio.recipient_phone).length < 10) {
-        this.erroNovo = 'A pessoa não tem telefone cadastrado. Informe manualmente ou cadastre na ficha.';
+      if (this.novoEnvio.channel === 'whatsapp' && !this.pessoaSelecionada()?.phone && this.phoneDigits(this.novoEnvio.recipient_phone).length < 10) {
+        this.erroNovo.set('A pessoa não tem telefone cadastrado. Informe manualmente ou cadastre na ficha.');
         return;
       }
     } else {
       if (this.novoEnvio.channel === 'email') {
         if (!this.novoEnvio.recipient_email?.trim()) {
-          this.erroNovo = 'Informe o e-mail do destinatário.';
+          this.erroNovo.set('Informe o e-mail do destinatário.');
           return;
         }
       } else {
         if (this.phoneDigits(this.novoEnvio.recipient_phone).length < 10) {
-          this.erroNovo = 'Informe o telefone (WhatsApp).';
+          this.erroNovo.set('Informe o telefone (WhatsApp).');
           return;
         }
       }
     }
-    this.enviando = true;
+    this.enviando.set(true);
     const payload: Parameters<DocumentSendsService['store']>[0] = {
       template_id: this.novoEnvio.template_id,
       channel: this.novoEnvio.channel,
@@ -447,15 +461,15 @@ export class EnviosComponent implements OnInit {
     }
     this.documentSendsService.store(payload).subscribe({
       next: () => {
-        this.enviando = false;
+        this.enviando.set(false);
         this.fecharNovoEnvio();
         this.setCaixa('pendentes');
         this.toast.success('Envio criado', 'O link do documento foi enviado.');
       },
       error: (err) => {
-        this.enviando = false;
-        this.erroNovo = err.error?.message ?? 'Não foi possível enviar.';
-        this.toast.error('Erro no envio', this.erroNovo);
+        this.enviando.set(false);
+        this.erroNovo.set(err.error?.message ?? 'Não foi possível enviar.');
+        this.toast.error('Erro no envio', this.erroNovo());
       },
     });
   }

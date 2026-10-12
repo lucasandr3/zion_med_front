@@ -2,135 +2,47 @@
   display: contents;
 }
 
-.go-assistant-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 45;
-  margin: 0;
-  padding: 0;
-  border: 0;
-  background: rgb(15 23 42 / 0.4);
-  cursor: pointer;
-}
-
 .go-assistant-panel {
-  position: fixed;
-  inset-block: 0;
-  right: 0;
-  z-index: 50;
   display: flex;
+  flex: 1;
   flex-direction: column;
-  width: min(100vw, 26.5rem);
-  height: 100dvh;
-  background: var(--background);
-  color: var(--foreground);
-  border-left: 1px solid var(--border);
-  box-shadow: -16px 0 48px -24px rgb(0 0 0 / 0.35);
-  animation: go-assistant-slide-in 0.22s ease-out;
-}
-
-@keyframes go-assistant-slide-in {
-  from {
-    transform: translateX(100%);
-  }
-  to {
-    transform: translateX(0);
-  }
-}
-
-.go-assistant-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 0.75rem;
-  padding: 1rem 1.1rem 0.85rem;
-  border-bottom: 1px solid var(--border);
-  background: var(--card, var(--background));
-}
-
-.go-assistant-header h2 {
-  margin: 0;
-  font-size: 1rem;
-  font-weight: 600;
-  line-height: 1.3;
-  color: var(--foreground);
+  min-height: 0;
+  height: 100%;
+  background: var(--n-color-surface, var(--background));
+  color: var(--n-color-text, var(--foreground));
 }
 
 .go-assistant-context {
-  margin: 0.3rem 0 0;
-  font-size: 0.8125rem;
+  margin: 0;
+  padding: var(--n-space-s, 0.75rem) var(--n-space-m, 1rem);
+  font-size: var(--n-font-size-s, 0.875rem);
   line-height: 1.35;
-  color: var(--muted-foreground);
-}
-
-.go-assistant-close {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  color: var(--n-color-text-weaker, var(--muted-foreground));
+  border-bottom: 1px solid var(--n-color-border, var(--border));
   flex-shrink: 0;
-  width: 2rem;
-  height: 2rem;
-  border-radius: var(--radius, 0.5rem);
-  border: 0;
-  background: transparent;
-  color: var(--muted-foreground);
-  cursor: pointer;
-}
-
-.go-assistant-close:hover {
-  background: var(--muted);
-  color: var(--foreground);
 }
 
 .go-assistant-search-wrap {
-  position: relative;
-  padding: 0.85rem 1.1rem;
-  border-bottom: 1px solid var(--border);
-  background: var(--background);
+  flex-shrink: 0;
+  padding: var(--n-space-m, 1rem);
+  border-bottom: 1px solid var(--n-color-border, var(--border));
 }
 
-.go-assistant-search-icon {
-  position: absolute;
-  left: 1.7rem;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 1.15rem;
-  color: var(--muted-foreground);
-  pointer-events: none;
-}
-
-.go-assistant-search {
-  box-sizing: border-box;
+.go-assistant-search-wrap .form-search-wrap {
+  flex: none;
+  min-width: 0;
   width: 100%;
-  border: 1px solid var(--border);
-  background: var(--card, var(--background));
-  color: var(--foreground);
-  border-radius: var(--radius, 0.5rem);
-  padding: 0.65rem 0.85rem 0.65rem 2.4rem;
-  font-size: 0.875rem;
-  line-height: 1.4;
-  outline: none;
-}
-
-.go-assistant-search::placeholder {
-  color: var(--muted-foreground);
-}
-
-.go-assistant-search:focus {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 18%, transparent);
 }
 
 .go-assistant-body {
   flex: 1;
   min-height: 0;
   overflow: auto;
-  padding: 1rem 1.1rem 1.5rem;
-  background: var(--background);
+  padding: var(--n-space-l, 1.25rem) var(--n-space-m, 1rem);
 }
 
 .go-assistant-section {
-  margin-bottom: 1.35rem;
+  margin-bottom: var(--n-space-l, 1.25rem);
 }
 
 .go-assistant-section:last-child {
@@ -138,12 +50,12 @@
 }
 
 .go-assistant-section h3 {
-  margin: 0 0 0.6rem;
-  font-size: 0.7rem;
-  font-weight: 600;
-  letter-spacing: 0.05em;
+  margin: 0 0 var(--n-space-s, 0.75rem);
+  font-size: var(--n-font-size-xs, 0.75rem);
+  font-weight: var(--n-font-weight-heading, 700);
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--muted-foreground);
+  color: var(--n-color-text-weaker, var(--muted-foreground));
 }
 
 .go-assistant-list {
@@ -158,13 +70,13 @@
   gap: 0.7rem;
   width: 100%;
   text-align: left;
-  border: 1px solid var(--border);
-  background: var(--card, var(--background));
-  color: var(--foreground);
-  border-radius: var(--radius, 0.5rem);
+  border: 1px solid var(--n-color-border, var(--border));
+  background: var(--n-color-surface, var(--card, var(--background)));
+  color: var(--n-color-text, var(--foreground));
+  border-radius: var(--n-border-radius, var(--radius, 0.5rem));
   padding: 0.75rem 0.85rem;
   cursor: pointer;
-  font-size: 0.875rem;
+  font-size: var(--n-font-size-s, 0.875rem);
   line-height: 1.35;
   transition:
     background 0.15s ease,
@@ -172,14 +84,13 @@
 }
 
 .go-assistant-item:hover {
-  background: color-mix(in srgb, var(--muted) 65%, var(--card, var(--background)));
-  border-color: color-mix(in srgb, var(--border) 70%, var(--primary) 30%);
+  background: var(--n-color-active, color-mix(in srgb, var(--muted) 65%, var(--card, var(--background))));
+  border-color: color-mix(in srgb, var(--n-color-border, var(--border)) 70%, var(--n-color-accent, var(--primary)) 30%);
 }
 
 .go-assistant-item .material-symbols-outlined {
   margin-top: 0.05rem;
-  font-size: 1.2rem;
-  color: var(--primary);
+  color: var(--n-color-accent, var(--primary));
   flex-shrink: 0;
 }
 
@@ -200,10 +111,10 @@
   align-items: center;
   justify-content: center;
   gap: 0.35rem;
-  border-radius: var(--radius, 0.5rem);
-  border: 1px solid var(--border);
-  background: var(--card, var(--background));
-  color: var(--foreground);
+  border-radius: var(--n-border-radius, var(--radius, 0.5rem));
+  border: 1px solid var(--n-color-border, var(--border));
+  background: var(--n-color-surface, var(--card, var(--background)));
+  color: var(--n-color-text, var(--foreground));
   padding: 0.55rem 0.85rem;
   font-size: 0.8125rem;
   font-weight: 500;
@@ -212,9 +123,9 @@
 }
 
 .go-assistant-btn.primary {
-  background: var(--primary);
-  border-color: var(--primary);
-  color: var(--primary-foreground);
+  background: var(--n-color-accent, var(--primary));
+  border-color: var(--n-color-accent, var(--primary));
+  color: var(--n-color-on-accent, var(--primary-foreground));
 }
 
 .go-assistant-btn:hover {
@@ -233,18 +144,14 @@
   align-self: flex-start;
   margin-bottom: 0.65rem;
   padding: 0.28rem 0.6rem;
-  border-radius: 9999px;
-  border: 1px solid color-mix(in srgb, var(--primary) 28%, var(--border));
-  background: color-mix(in srgb, var(--primary) 12%, transparent);
-  color: var(--primary);
+  border-radius: var(--n-border-radius, var(--radius, 0.5rem));
+  border: 1px solid color-mix(in srgb, var(--n-color-accent, var(--primary)) 28%, var(--n-color-border, var(--border)));
+  background: color-mix(in srgb, var(--n-color-accent, var(--primary)) 12%, transparent);
+  color: var(--n-color-accent, var(--primary));
   font-size: 0.7rem;
   font-weight: 600;
   letter-spacing: 0.02em;
   text-transform: uppercase;
-}
-
-.go-assistant-explain__badge .material-symbols-outlined {
-  font-size: 0.95rem;
 }
 
 .go-assistant-steps {
@@ -274,8 +181,8 @@
   width: 1.4rem;
   height: 1.4rem;
   border-radius: 9999px;
-  background: color-mix(in srgb, var(--primary) 16%, transparent);
-  color: var(--primary);
+  background: color-mix(in srgb, var(--n-color-accent, var(--primary)) 16%, transparent);
+  color: var(--n-color-accent, var(--primary));
   font-size: 0.72rem;
   font-weight: 700;
   line-height: 1;
@@ -285,16 +192,16 @@
   flex: 1;
   min-width: 0;
   padding-top: 0.1rem;
-  font-size: 0.875rem;
+  font-size: var(--n-font-size-s, 0.875rem);
   line-height: 1.45;
-  color: var(--foreground);
+  color: var(--n-color-text, var(--foreground));
 }
 
 .go-assistant-empty {
   margin: 0 0 0.75rem;
-  font-size: 0.875rem;
+  font-size: var(--n-font-size-s, 0.875rem);
   line-height: 1.45;
-  color: var(--muted-foreground);
+  color: var(--n-color-text-weaker, var(--muted-foreground));
 }
 
 .go-assistant-back {
@@ -303,7 +210,7 @@
   gap: 0.25rem;
   border: 0;
   background: transparent;
-  color: var(--primary);
+  color: var(--n-color-accent, var(--primary));
   font-size: 0.8125rem;
   font-weight: 500;
   cursor: pointer;
@@ -321,5 +228,5 @@
   font-weight: 600;
   line-height: 1.3;
   letter-spacing: -0.015em;
-  color: var(--foreground);
+  color: var(--n-color-text, var(--foreground));
 }

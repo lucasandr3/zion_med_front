@@ -1,19 +1,20 @@
-import { Component, OnInit, inject, Signal } from '@angular/core';
+import { Component, OnInit, inject, Signal, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { catchError, map, of, switchMap } from 'rxjs';
 import { LoadingService } from '../../shared/services/loading.service';
 import { ZmSkeletonListComponent } from '../../shared/components/skeletons';
-import { ZardCheckboxComponent } from '@/shared/components/checkbox';
+import { NORD_FORM_IMPORTS } from '@/shared/nord';
+
 import { Template, TemplateCampo, TemplatesService } from '../../core/services/templates.service';
 
 type PreviewValue = string | number | boolean;
 
 @Component({
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'app-templates-preview',
   standalone: true,
-  imports: [CommonModule, FormsModule, ZmSkeletonListComponent, ZardCheckboxComponent],
+  imports: [FormsModule, ZmSkeletonListComponent, ...NORD_FORM_IMPORTS],
   templateUrl: './templates-preview.component.html',
   styleUrl: './templates-preview.component.css',
 })

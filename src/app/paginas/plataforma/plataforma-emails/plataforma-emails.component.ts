@@ -1,15 +1,14 @@
-import { Component, OnInit, computed, inject, Signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, Signal, computed, inject, signal, ChangeDetectionStrategy, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { forkJoin } from 'rxjs';
-import { ZardCardComponent } from '@/shared/components/card/card.component';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
-import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
-import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
-import { ZardTableImports } from '@/shared/components/table';
-import { ZardTabComponent, ZardTabGroupComponent } from '@/shared/components/tabs';
-import { ZardComboboxComponent, type ZardComboboxGroup, type ZardComboboxOption } from '@/shared/components/combobox';
+import { GestgoCardComponent } from '@/shared/components/card/card.component';
+
+import { GestgoBadgeComponent } from '@/shared/components/badge/badge.component';
+import { NORD_FORM_IMPORTS } from '@/shared/nord';
+import { GestgoTableImports } from '@/shared/components/table';
+import { GestgoTabComponent, GestgoTabGroupComponent } from '@/shared/components/tabs';
+import { GestgoComboboxComponent, type GestgoComboboxGroup, type GestgoComboboxOption } from '@/shared/components/combobox';
 import {
   PlataformaService,
   PlatformManualEmail,
@@ -27,41 +26,44 @@ import {
 } from './plataforma-email-templates';
 
 @Component({
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'app-plataforma-emails',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { class: 'n-page n-page--flush' },
   imports: [
-    CommonModule,
     FormsModule,
     RouterLink,
-    ZardCardComponent,
-    ZardButtonComponent,
-    ZardBadgeComponent,
-    ZardTabComponent,
-    ZardTabGroupComponent,
-    ZardComboboxComponent,
-    ...ZARD_FORM_CONTROL_IMPORTS,
-    ...ZardTableImports,
+    GestgoCardComponent,
+    GestgoBadgeComponent,
+    GestgoTabComponent,
+    GestgoTabGroupComponent,
+    GestgoComboboxComponent,
+    ...NORD_FORM_IMPORTS,
+    ...GestgoTableImports,
     ZmSkeletonListComponent,
-    ZmEmptyStateComponent,
-  ],
+    ZmEmptyStateComponent],
   templateUrl: './plataforma-emails.component.html',
   styleUrl: './plataforma-emails.component.css',
 })
 export class PlataformaEmailsComponent implements OnInit {
   showSkeleton!: Signal<boolean>;
-  listaPronta = false;
-  estadoErro = '';
-  saving = false;
-  loadingHistorico = false;
-  formError = '';
+  readonly listaPronta = signal(false);
+  readonly estadoErro = signal('');
+  readonly saving = signal(false);
+  readonly loadingHistorico = signal(false);
+  readonly formError = signal('');
 
-  recipientsData: PlatformManualEmailRecipientsData | null = null;
-  emails: PlatformManualEmail[] = [];
-  currentPage = 1;
-  lastPage = 1;
-  total = 0;
+  private readonly recipientsDataSignal = signal<PlatformManualEmailRecipientsData | null>(null);
+  readonly recipientsData = this.recipientsDataSignal.asReadonly();
+  readonly emails = signal<PlatformManualEmail[]>([]);
+  readonly currentPage = signal(1);
+  readonly lastPage = signal(1);
+  readonly total = signal(0);
 
-  category: PlatformManualEmailCategory = 'general';
+  private readonly categorySignal = signal<PlatformManualEmailCategory>('general');
+  get category(): PlatformManualEmailCategory { return this.categorySignal(); }
+  set category(v: PlatformManualEmailCategory) { this.categorySignal.set(v); }
   templateKey = '';
   recipientKey = 'custom';
   toEmail = '';
@@ -78,7 +80,7 @@ export class PlataformaEmailsComponent implements OnInit {
   private toast = inject(ToastService);
 
   readonly recipientGroups = computed(() => {
-    const recipients = this.recipientsData?.recipients ?? [];
+    const recipients = this.recipientsData()?.recipients ?? [];
     const groups = new Map<string, PlatformManualEmailRecipient[]>();
 
     recipients.forEach((item) => {
@@ -91,17 +93,16 @@ export class PlataformaEmailsComponent implements OnInit {
     return Array.from(groups.entries()).map(([label, items]) => ({ label, items }));
   });
 
-  private readonly defaultCategoryOptions: ZardComboboxOption[] = [
+  private readonly defaultCategoryOptions: GestgoComboboxOption[] = [
     { value: 'contact', label: 'Contato' },
     { value: 'billing', label: 'Cobrança' },
     { value: 'general', label: 'Geral' },
-    { value: 'support', label: 'Suporte' },
-  ];
+    { value: 'support', label: 'Suporte' }];
 
-  readonly categoryOptions = computed((): ZardComboboxOption[] => {
+  readonly categoryOptions = computed((): GestgoComboboxOption[] => {
     const merged = new Map(this.defaultCategoryOptions.map((item) => [item.value, item]));
 
-    (this.recipientsData?.categories ?? []).forEach((item) => {
+    (this.recipientsData()?.categories ?? []).forEach((item) => {
       merged.set(item.value, { value: item.value, label: item.label });
     });
 
@@ -115,24 +116,22 @@ export class PlataformaEmailsComponent implements OnInit {
   );
 
   readonly whatsappButtonConfigured = computed(
-    () => Boolean(this.recipientsData?.whatsapp_number?.trim())
+    () => Boolean(this.recipientsData()?.whatsapp_number?.trim())
   );
 
-  readonly templateOptions = computed((): ZardComboboxOption[] => {
+  readonly templateOptions = computed((): GestgoComboboxOption[] => {
     const filtered = PLATFORM_EMAIL_TEMPLATES.filter((item) => item.category === this.category);
 
     return [
       { value: '', label: 'Escrever do zero' },
-      ...filtered.map((item) => ({ value: item.id, label: item.label })),
-    ];
+      ...filtered.map((item) => ({ value: item.id, label: item.label }))];
   });
 
-  readonly recipientComboboxGroups = computed((): ZardComboboxGroup[] => {
-    const groups: ZardComboboxGroup[] = [
+  readonly recipientComboboxGroups = computed((): GestgoComboboxGroup[] => {
+    const groups: GestgoComboboxGroup[] = [
       {
         options: [{ value: this.customRecipientKey, label: 'E-mail personalizado' }],
-      },
-    ];
+      }];
 
     this.recipientGroups().forEach((group) => {
       groups.push({
@@ -162,27 +161,27 @@ export class PlataformaEmailsComponent implements OnInit {
 
     data$.subscribe({
       next: ({ recipients, history }) => {
-        this.listaPronta = true;
-        this.estadoErro = '';
-        this.recipientsData = recipients.data;
+        this.listaPronta.set(true);
+        this.estadoErro.set('');
+        this.recipientsDataSignal.set(recipients.data);
         this.aplicarHistorico(history);
       },
       error: () => {
-        this.listaPronta = true;
-        this.estadoErro = 'Não foi possível carregar os dados de e-mail.';
+        this.listaPronta.set(true);
+        this.estadoErro.set('Não foi possível carregar os dados de e-mail.');
       },
     });
   }
 
-  carregarHistorico(page = this.currentPage): void {
-    this.loadingHistorico = true;
+  carregarHistorico(page = this.currentPage()): void {
+    this.loadingHistorico.set(true);
     this.plataformaService.getManualEmails(page).subscribe({
       next: (history) => {
-        this.loadingHistorico = false;
+        this.loadingHistorico.set(false);
         this.aplicarHistorico(history);
       },
       error: () => {
-        this.loadingHistorico = false;
+        this.loadingHistorico.set(false);
         this.toast.error('Não foi possível carregar o histórico.');
       },
     });
@@ -249,7 +248,7 @@ export class PlataformaEmailsComponent implements OnInit {
       return;
     }
 
-    const recipient = this.recipientsData?.recipients.find((item) => item.id === this.recipientKey);
+    const recipient = this.recipientsData()?.recipients.find((item) => item.id === this.recipientKey);
     if (!recipient) {
       return;
     }
@@ -272,10 +271,10 @@ export class PlataformaEmailsComponent implements OnInit {
   }
 
   submit(): void {
-    this.formError = '';
+    this.formError.set('');
 
-    if (!this.recipientsData?.mail_configured) {
-      this.formError = 'Configure o Resend em Configurações da plataforma antes de enviar.';
+    if (!this.recipientsData()?.mail_configured) {
+      this.formError.set('Configure o Resend em Configurações da plataforma antes de enviar.');
       return;
     }
 
@@ -284,11 +283,11 @@ export class PlataformaEmailsComponent implements OnInit {
     const body = this.body.trim();
 
     if (!toEmail || !subject || !body) {
-      this.formError = 'Preencha destinatário, assunto e mensagem.';
+      this.formError.set('Preencha destinatário, assunto e mensagem.');
       return;
     }
 
-    this.saving = true;
+    this.saving.set(true);
     const category = this.usesSupportEmailLayout() ? 'support' : this.category;
     const toName = this.resolveRecipientName();
 
@@ -305,23 +304,23 @@ export class PlataformaEmailsComponent implements OnInit {
       })
       .subscribe({
         next: (res) => {
-          this.saving = false;
+          this.saving.set(false);
           this.toast.success(res.message ?? 'E-mail enviado com sucesso.');
           this.resetForm();
           this.carregarHistorico(1);
         },
         error: (err) => {
-          this.saving = false;
-          this.formError = err?.error?.message ?? 'Não foi possível enviar o e-mail.';
+          this.saving.set(false);
+          this.formError.set(err?.error?.message ?? 'Não foi possível enviar o e-mail.');
         },
       });
   }
 
   goToPage(page: number): void {
-    if (page < 1 || page > this.lastPage) {
+    if (page < 1 || page > this.lastPage()) {
       return;
     }
-    this.currentPage = page;
+    this.currentPage.set(page);
     this.carregarHistorico(page);
   }
 
@@ -349,10 +348,10 @@ export class PlataformaEmailsComponent implements OnInit {
   }
 
   private aplicarHistorico(history: { data?: PlatformManualEmail[]; meta?: { current_page?: number; last_page?: number; total?: number } }): void {
-    this.emails = history.data ?? [];
-    this.currentPage = history.meta?.current_page ?? 1;
-    this.lastPage = history.meta?.last_page ?? 1;
-    this.total = history.meta?.total ?? 0;
+    this.emails.set(history.data ?? []);
+    this.currentPage.set(history.meta?.current_page ?? 1);
+    this.lastPage.set(history.meta?.last_page ?? 1);
+    this.total.set(history.meta?.total ?? 0);
   }
 
   private resetForm(): void {
@@ -394,17 +393,17 @@ export class PlataformaEmailsComponent implements OnInit {
   }
 
   private templateContext(): { nome?: string | null; produto?: string | null; empresa?: string | null } {
-    const recipient = this.recipientsData?.recipients.find((item) => item.id === this.recipientKey);
+    const recipient = this.recipientsData()?.recipients.find((item) => item.id === this.recipientKey);
 
     return {
       nome: this.toName.trim() || recipient?.name || recipient?.organization_name || null,
-      produto: this.recipientsData?.from_name ?? 'Gestgo',
+      produto: this.recipientsData()?.from_name ?? 'Gestgo',
       empresa: recipient?.organization_name ?? recipient?.tenant_name ?? null,
     };
   }
 
   private aplicarAssuntoPadrao(): void {
-    const product = this.recipientsData?.from_name ?? 'Gestgo';
+    const product = this.recipientsData()?.from_name ?? 'Gestgo';
     const map: Record<PlatformManualEmailCategory, string> = {
       contact: `[${product}] Contato`,
       billing: `[${product}] Cobrança`,

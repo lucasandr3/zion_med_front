@@ -18,8 +18,7 @@ const POSITIVE_TERMS = [
   'doctor',
   'prestador',
   'cirurgião',
-  'cirurgiao',
-];
+  'cirurgiao'];
 
 const NEGATIVE_TERMS = [
   'paciente',
@@ -30,8 +29,7 @@ const NEGATIVE_TERMS = [
   'acompanhante',
   'assistido',
   'responsável legal',
-  'responsavel legal',
-];
+  'responsavel legal'];
 
 export function pickProfessionalSignatureField(fields: FormularioPublicoField[]): FormularioPublicoField | null {
   const slots = fields.filter((f) => fieldType(f) === 'signature');

@@ -19,20 +19,19 @@ import {
   type TemplateRef,
   type Type,
   viewChild,
-  type ViewContainerRef,
-} from '@angular/core';
+  type ViewContainerRef, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideX } from '@ng-icons/lucide';
 
 import { mergeClasses, noopFn } from '@/shared/utils/merge-classes';
 
-import type { ZardDialogRef } from './dialog-ref';
+import type { GestgoDialogRef } from './dialog-ref';
 import { dialogVariants } from './dialog.variants';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
+
 
 export type OnClickCallback<T> = (instance: T) => false | void | object;
-export class ZardDialogOptions<T, U> {
+export class GestgoDialogOptions<T, U> {
   zCancelIcon?: string;
   zCancelText?: string | null;
   zClosable?: boolean;
@@ -54,21 +53,14 @@ export class ZardDialogOptions<T, U> {
 }
 
 @Component({
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'z-dialog',
-  imports: [OverlayModule, PortalModule, ZardButtonComponent, NgIcon],
+  imports: [OverlayModule, PortalModule, NgIcon],
   template: `
     @if (config.zClosable || config.zClosable === undefined) {
-      <button
-        type="button"
-        data-testid="z-close-header-button"
-        z-button
-        zType="ghost"
-        zSize="sm"
-        class="absolute top-1 right-1"
-        (click)="onCloseClick()"
-      >
+      <nord-button type="button" data-testid="z-close-header-button" variant="plain" size="s" class="absolute top-1 right-1" (click)="onCloseClick()">
         <ng-icon name="lucideX" class="size-4!" />
-      </button>
+      </nord-button>
     }
 
     @if (config.zTitle || config.zDescription) {
@@ -94,30 +86,23 @@ export class ZardDialogOptions<T, U> {
     @if (!config.zHideFooter) {
       <footer class="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end sm:gap-0 sm:space-x-2">
         @if (config.zCancelText !== null) {
-          <button type="button" data-testid="z-cancel-button" z-button zType="outline" (click)="onCloseClick()">
+          <nord-button type="button" data-testid="z-cancel-button" variant="default" (click)="onCloseClick()">
             @if (config.zCancelIcon) {
               <ng-icon [svg]="config.zCancelIcon" class="size-4!" />
             }
 
             {{ config.zCancelText ?? 'Cancel' }}
-          </button>
+          </nord-button>
         }
 
         @if (config.zOkText !== null) {
-          <button
-            type="button"
-            data-testid="z-ok-button"
-            z-button
-            [zType]="config.zOkDestructive ? 'destructive' : 'default'"
-            [zDisabled]="config.zOkDisabled"
-            (click)="onOkClick()"
-          >
+          <nord-button type="button" data-testid="z-ok-button" [attr.variant]="config.zOkDestructive ? 'danger' : 'primary'" [attr.disabled]="config.zOkDisabled" (click)="onOkClick()">
             @if (config.zOkIcon) {
               <ng-icon [svg]="config.zOkIcon" class="size-4!" />
             }
 
             {{ config.zOkText ?? 'OK' }}
-          </button>
+          </nord-button>
         }
       </footer>
     }
@@ -156,12 +141,12 @@ export class ZardDialogOptions<T, U> {
   },
   exportAs: 'zDialog',
 })
-export class ZardDialogComponent<T, U> extends BasePortalOutlet {
+export class GestgoDialogComponent<T, U> extends BasePortalOutlet {
   private readonly host = inject(ElementRef<HTMLElement>);
-  protected readonly config = inject(ZardDialogOptions<T, U>);
+  protected readonly config = inject(GestgoDialogOptions<T, U>);
 
   protected readonly classes = computed(() => mergeClasses(dialogVariants(), this.config.zCustomClasses));
-  dialogRef?: ZardDialogRef<T>;
+  dialogRef?: GestgoDialogRef<T>;
 
   protected readonly isStringContent = typeof this.config.zContent === 'string';
 

@@ -1,55 +1,87 @@
-import { Component, EventEmitter, Input, Output, inject, OnChanges, SimpleChanges } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  OnChanges,
+  SimpleChanges,
+  computed,
+  inject,
+  input,
+  output,
+  signal, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 import { OnboardingService } from '../../../../core/services/onboarding.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { ToastService } from '../../../../core/services/toast.service';
+import { TemplatePublishGuardService } from '../../../../core/services/template-publish-guard.service';
 import { Template } from '../../../../core/services/templates.service';
-import { ZardCardComponent } from '@/shared/components/card/card.component';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
-
 const DISMISS_PREFIX = 'zm_onboarding_dismiss_';
 
 @Component({
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'zm-dashboard-onboarding-wizard',
   standalone: true,
-  imports: [CommonModule, RouterLink, ZardCardComponent, ZardButtonComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [RouterLink],
   templateUrl: './zm-dashboard-onboarding-wizard.component.html',
   styleUrl: './zm-dashboard-onboarding-wizard.component.css',
 })
 export class ZmDashboardOnboardingWizardComponent implements OnChanges {
-  @Input({ required: true }) visible = false;
-  @Output() dismissed = new EventEmitter<void>();
-  @Output() linkGenerated = new EventEmitter<void>();
+  readonly visible = input.required<boolean>();
+  readonly dismissed = output<void>();
+  readonly linkGenerated = output<void>();
 
   private onboarding = inject(OnboardingService);
   private auth = inject(AuthService);
   private toast = inject(ToastService);
+  private publishGuard = inject(TemplatePublishGuardService);
+  private destroyRef = inject(DestroyRef);
 
-  templates: Template[] = [];
-  carregandoTemplates = false;
-  templateSelecionadoId: number | null = null;
-  linkPublicoUrl = '';
-  gerandoLink = false;
-  linkCopiado = false;
+  readonly templates = signal<Template[]>([]);
+  readonly carregandoTemplates = signal(false);
+  readonly templateSelecionadoId = signal<number | null>(null);
+  readonly linkPublicoUrl = signal('');
+  readonly gerandoLink = signal(false);
+  readonly linkCopiado = signal(false);
+
+  private copyResetTimer: ReturnType<typeof setTimeout> | null = null;
+
+  readonly nomeTemplateSelecionado = computed(() => {
+    const id = this.templateSelecionadoId();
+    const template = this.templates().find((item) => item.id === id);
+    return template ? `Modelo selecionado: ${template.name}` : '';
+  });
+
+  constructor() {
+    this.destroyRef.onDestroy(() => this.clearCopyTimer());
+  }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['visible']?.currentValue === true && this.templates.length === 0 && !this.carregandoTemplates) {
+    if (
+      changes['visible']?.currentValue === true &&
+      this.templates().length === 0 &&
+      !this.carregandoTemplates()
+    ) {
       this.carregarTemplates();
     }
   }
 
   carregarTemplates(): void {
-    this.carregandoTemplates = true;
+    this.carregandoTemplates.set(true);
     this.onboarding
       .listTemplates()
-      .pipe(finalize(() => (this.carregandoTemplates = false)))
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.carregandoTemplates.set(false)),
+      )
       .subscribe({
         next: (items) => {
-          this.templates = items.slice(0, 8);
-          if (this.templates.length === 1) {
-            this.templateSelecionadoId = this.templates[0].id;
+          const slice = items.slice(0, 8);
+          this.templates.set(slice);
+          if (slice.length === 1) {
+            this.templateSelecionadoId.set(slice[0].id);
           }
         },
         error: () => {
@@ -59,9 +91,10 @@ export class ZmDashboardOnboardingWizardComponent implements OnChanges {
   }
 
   selecionarTemplate(id: number): void {
-    this.templateSelecionadoId = id;
-    this.linkPublicoUrl = '';
-    this.linkCopiado = false;
+    this.templateSelecionadoId.set(id);
+    this.linkPublicoUrl.set('');
+    this.linkCopiado.set(false);
+    this.clearCopyTimer();
   }
 
   iconeTemplate(template: Template): string {
@@ -119,40 +152,41 @@ export class ZmDashboardOnboardingWizardComponent implements OnChanges {
     return null;
   }
 
-  nomeTemplateSelecionado(): string {
-    const template = this.templates.find((item) => item.id === this.templateSelecionadoId);
-    return template ? `Modelo selecionado: ${template.name}` : '';
-  }
-
   gerarLink(): void {
-    if (!this.templateSelecionadoId) {
+    const templateId = this.templateSelecionadoId();
+    if (!templateId) {
       this.toast.error('Selecione um modelo', 'Escolha um formulário antes de gerar o link.');
       return;
     }
 
-    this.gerandoLink = true;
+    this.gerandoLink.set(true);
     this.onboarding
-      .gerarLinkPublico(this.templateSelecionadoId)
-      .pipe(finalize(() => (this.gerandoLink = false)))
+      .gerarLinkPublico(templateId)
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.gerandoLink.set(false)),
+      )
       .subscribe({
         next: (url) => {
-          this.linkPublicoUrl = url;
+          this.linkPublicoUrl.set(url);
           this.linkGenerated.emit();
           this.toast.success('Link gerado', 'Copie e envie para seu paciente ou publique no link na bio.');
         },
-        error: () => {
-          this.toast.error('Erro', 'Não foi possível gerar o link público.');
+        error: (err: unknown) => {
+          void this.publishGuard.reportPublishFailure(err, templateId);
         },
       });
   }
 
   copiarLink(): void {
-    if (!this.linkPublicoUrl || !navigator.clipboard) {
+    const url = this.linkPublicoUrl();
+    if (!url || !navigator.clipboard) {
       return;
     }
-    navigator.clipboard.writeText(this.linkPublicoUrl).then(() => {
-      this.linkCopiado = true;
-      setTimeout(() => (this.linkCopiado = false), 2500);
+    navigator.clipboard.writeText(url).then(() => {
+      this.linkCopiado.set(true);
+      this.clearCopyTimer();
+      this.copyResetTimer = setTimeout(() => this.linkCopiado.set(false), 2500);
     });
   }
 
@@ -176,6 +210,13 @@ export class ZmDashboardOnboardingWizardComponent implements OnChanges {
       return localStorage.getItem(`${DISMISS_PREFIX}${orgId}`) === '1';
     } catch {
       return false;
+    }
+  }
+
+  private clearCopyTimer(): void {
+    if (this.copyResetTimer != null) {
+      clearTimeout(this.copyResetTimer);
+      this.copyResetTimer = null;
     }
   }
 }

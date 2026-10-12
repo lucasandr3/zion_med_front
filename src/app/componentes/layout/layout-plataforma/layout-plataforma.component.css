@@ -1,1 +1,26 @@
-/* Reutiliza margin-left da sidebar (mesmo padrão do layout-app) */
+/*
+ * Shell da plataforma. A base visual vive em `../shell-nord.css`.
+ * Brand empilhado também reforçado em styles.css (global).
+ */
+.gestgo-shell__subtitle {
+  display: none;
+}
+
+.gestgo-shell__brand-word {
+  align-items: flex-start !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0.1rem !important;
+}
+
+.gestgo-shell__brand-title,
+.gestgo-shell__brand-tag {
+  display: block !important;
+  margin: 0 !important;
+}
+
+@media (min-width: 768px) {
+  .gestgo-shell__subtitle {
+    display: block;
+  }
+}

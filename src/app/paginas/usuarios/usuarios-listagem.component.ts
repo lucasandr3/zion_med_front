@@ -1,40 +1,31 @@
-import { Component, OnInit, inject, Signal } from '@angular/core';
+import { Component, OnInit, inject, Signal, ChangeDetectionStrategy, signal, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { CommonModule } from '@angular/common';
 import { UsuariosService, Usuario } from '../../core/services/usuarios.service';
 import { LoadingService } from '../../shared/services/loading.service';
-import { ZmSkeletonUsuariosListagemComponent } from '../../shared/components/skeletons';
-import { ZmEmptyStateComponent } from '../../shared/components/ui';
-import { ZardCardComponent } from '@/shared/components/card/card.component';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
+import { ListSkeletonComponent } from '../../shared/components/list-skeleton/list-skeleton.component';
 import { AuthService } from '../../core/services/auth.service';
 import { ToastService } from '../../core/services/toast.service';
 import { ConfirmDialogService } from '../../core/services/confirm-dialog.service';
-import { ZardTooltipImports } from '@/shared/components/tooltip';
 
-import { ZardTableImports } from '@/shared/components/table';
 @Component({
   selector: 'app-usuarios-listagem',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  host: { class: 'n-page-list' },
   imports: [
-    ...ZardTableImports,
-    CommonModule,
     RouterLink,
-    ZmSkeletonUsuariosListagemComponent,
-    ZmEmptyStateComponent,
-    ...ZardTooltipImports,
-    ZardCardComponent,
-    ZardButtonComponent,
+    ListSkeletonComponent,
   ],
   templateUrl: './usuarios-listagem.component.html',
   styleUrl: './usuarios-listagem.component.css',
 })
 export class UsuariosListagemComponent implements OnInit {
-  usuarios: Usuario[] = [];
+  readonly usuarios = signal<Usuario[]>([]);
   showSkeleton!: Signal<boolean>;
-  listaPronta = false;
-  erro = '';
-  desativandoId: number | null = null;
+  readonly listaPronta = signal(false);
+  readonly erro = signal('');
+  readonly desativandoId = signal<number | null>(null);
 
   private usuariosService = inject(UsuariosService);
   private loadingService = inject(LoadingService);
@@ -48,12 +39,12 @@ export class UsuariosListagemComponent implements OnInit {
     this.showSkeleton = showSkeleton;
     data$.subscribe({
       next: (list) => {
-        this.listaPronta = true;
-        this.usuarios = list;
+        this.listaPronta.set(true);
+        this.usuarios.set(list);
       },
       error: () => {
-        this.listaPronta = true;
-        this.erro = 'Não foi possível carregar os usuários.';
+        this.listaPronta.set(true);
+        this.erro.set('Não foi possível carregar os usuários.');
       },
     });
   }
@@ -78,17 +69,17 @@ export class UsuariosListagemComponent implements OnInit {
       variant: 'danger',
     });
     if (!ok) return;
-    this.desativandoId = u.id;
+    this.desativandoId.set(u.id);
     this.usuariosService.delete(u.id).subscribe({
       next: () => {
-        this.desativandoId = null;
-        this.usuarios = this.usuarios.filter((x) => x.id !== u.id);
+        this.desativandoId.set(null);
+        this.usuarios.set(this.usuarios().filter((x) => x.id !== u.id));
         this.toast.success('Usuário desativado', 'O acesso foi revogado.');
       },
       error: () => {
-        this.desativandoId = null;
-        this.erro = 'Não foi possível desativar o usuário.';
-        this.toast.error('Erro', this.erro);
+        this.desativandoId.set(null);
+        this.erro.set('Não foi possível desativar o usuário.');
+        this.toast.error('Erro', this.erro());
       },
     });
   }

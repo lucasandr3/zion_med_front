@@ -1,26 +1,24 @@
-import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
+import { Component, OnInit, Inject, PLATFORM_ID, ChangeDetectionStrategy, signal, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../core/services/auth.service';
-import { ZardButtonComponent } from '@/shared/components/button';
-import { ZardCheckboxComponent } from '@/shared/components/checkbox';
-import { ZardInputDirective } from '@/shared/components/input/input.directive';
-import { ZardTooltipImports } from '@/shared/components/tooltip';
+import { UserAppearanceService } from '../../core/services/user-appearance.service';
+import {
+  GESTGO_APPEARANCE_MODE_LS,
+  GESTGO_DARK_LS,
+  GESTGO_LOGIN_DARK_CHOICE_SS,
+  applyUserAppearanceToBrowser,
+  syncThemeChrome,
+} from '../../core/services/user-appearance.sync';
+import { GestgoBrandMarkComponent } from '../../shared/components/gestgo-brand-mark/gestgo-brand-mark.component';
 
 @Component({
   selector: 'app-pagina-login',
   standalone: true,
-  imports: [
-    CommonModule,
-    RouterLink,
-    FormsModule,
-    ZardButtonComponent,
-    ZardInputDirective,
-    ZardCheckboxComponent,
-    ...ZardTooltipImports,
-  ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  imports: [RouterLink, FormsModule, GestgoBrandMarkComponent],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css',
 })
@@ -28,17 +26,17 @@ export class LoginComponent implements OnInit {
   email = '';
   senha = '';
   lembrar = false;
-  mostrarSenha = false;
-  estadoCarregando = false;
-  estadoErro = false;
-  mensagemErro = '';
+  readonly estadoCarregando = signal(false);
+  readonly estadoErro = signal(false);
+  readonly mensagemErro = signal('');
   ano = new Date().getFullYear();
-  iconeTema = 'dark_mode';
+  readonly iconeTema = signal('dark_mode');
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: object,
     private router: Router,
-    private auth: AuthService
+    private auth: AuthService,
+    private appearance: UserAppearanceService,
   ) {}
 
   ngOnInit(): void {
@@ -49,28 +47,75 @@ export class LoginComponent implements OnInit {
     }
   }
 
+  onEmailInput(ev: Event): void {
+    const el = ev.target as HTMLElement & { value?: string };
+    this.email = el.value ?? '';
+  }
+
+  onSenhaInput(ev: Event): void {
+    const el = ev.target as HTMLElement & { value?: string };
+    this.senha = el.value ?? '';
+  }
+
+  onLembrarChange(ev: Event): void {
+    const el = ev.target as HTMLElement & { checked?: boolean };
+    this.lembrar = !!el.checked;
+  }
+
   alternarTema(): void {
-    if (isPlatformBrowser(this.platformId)) {
-      document.body.classList.toggle('dark');
-      localStorage.setItem('gestgo_dark_mode', document.body.classList.contains('dark') ? '1' : '0');
-      this.atualizarIconeTema();
-    }
+    if (!isPlatformBrowser(this.platformId)) return;
+    const dark = !document.body.classList.contains('dark');
+    document.body.classList.toggle('dark', dark);
+    try {
+      localStorage.setItem(GESTGO_DARK_LS, dark ? '1' : '0');
+      localStorage.removeItem(GESTGO_APPEARANCE_MODE_LS);
+      sessionStorage.setItem(GESTGO_LOGIN_DARK_CHOICE_SS, dark ? '1' : '0');
+    } catch {}
+    syncThemeChrome();
+    this.atualizarIconeTema();
   }
 
   private atualizarIconeTema(): void {
-    this.iconeTema = document.body.classList.contains('dark') ? 'light_mode' : 'dark_mode';
+    this.iconeTema.set(
+      document.body.classList.contains('dark') ? 'light_mode' : 'dark_mode',
+    );
+  }
+
+  /** Persiste na conta o modo escolhido no login (a flag em session impede /me de reverter). */
+  private sincronizarModoLoginComConta(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+    let choice: string | null = null;
+    try {
+      choice = sessionStorage.getItem(GESTGO_LOGIN_DARK_CHOICE_SS);
+    } catch {
+      return;
+    }
+    if (choice !== '0' && choice !== '1') return;
+
+    const dark = choice === '1';
+    applyUserAppearanceToBrowser({ ui_dark_mode: dark });
+    this.auth.notifyAppearanceApplied();
+    this.appearance.patchAppearance({ ui_dark_mode: dark }).subscribe({
+      next: () => {
+        try {
+          sessionStorage.removeItem(GESTGO_LOGIN_DARK_CHOICE_SS);
+        } catch {}
+      },
+      error: () => {},
+    });
   }
 
   enviar(): void {
-    this.estadoErro = false;
-    this.mensagemErro = '';
-    this.estadoCarregando = true;
+    this.estadoErro.set(false);
+    this.mensagemErro.set('');
+    this.estadoCarregando.set(true);
     if (isPlatformBrowser(this.platformId) && this.email) {
       localStorage.setItem('gestgo_login_email', this.email);
     }
     this.auth.login(this.email, this.senha).subscribe({
       next: (res) => {
-        this.estadoCarregando = false;
+        this.estadoCarregando.set(false);
+        this.sincronizarModoLoginComConta();
         const isPlatformAdmin = res.data.user?.role === 'platform_admin';
         if (isPlatformAdmin) {
           this.router.navigate(['/plataforma']);
@@ -84,10 +129,10 @@ export class LoginComponent implements OnInit {
         }
       },
       error: (err) => {
-        this.estadoCarregando = false;
-        this.estadoErro = true;
+        this.estadoCarregando.set(false);
+        this.estadoErro.set(true);
         const msg = err.error?.message ?? err.error?.errors?.email?.[0] ?? 'Credenciais inválidas. Tente novamente.';
-        this.mensagemErro = typeof msg === 'string' ? msg : 'Credenciais inválidas. Tente novamente.';
+        this.mensagemErro.set(typeof msg === 'string' ? msg : 'Credenciais inválidas. Tente novamente.');
       },
     });
   }

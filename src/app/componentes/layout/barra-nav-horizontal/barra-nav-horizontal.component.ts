@@ -1,9 +1,8 @@
-import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, inject } from '@angular/core';
+import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, inject, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { filter, Subscription } from 'rxjs';
 import { AuthService } from '../../../core/services/auth.service';
-import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
-import { ZardMenuImports } from '@/shared/components/menu/menu.imports';
+import { GestgoBadgeComponent } from '@/shared/components/badge/badge.component';
 import {
   SHELL_NAV_APP_SECTIONS,
   SHELL_NAV_APP_STANDALONE,
@@ -15,9 +14,10 @@ import {
 } from '../shell-nav.config';
 
 @Component({
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'app-barra-nav-horizontal',
   standalone: true,
-  imports: [RouterLink, RouterLinkActive, ZardBadgeComponent, ...ZardMenuImports],
+  imports: [RouterLink, RouterLinkActive, GestgoBadgeComponent],
   templateUrl: './barra-nav-horizontal.component.html',
   styleUrl: './barra-nav-horizontal.component.css',
 })

@@ -1,8 +1,7 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { ZardCheckboxComponent } from '@/shared/components/checkbox';
+
 import { FormularioPublicoQuizQuestion } from '../../core/services/formulario-publico.service';
 import {
   clearSignatureCanvas,
@@ -13,9 +12,11 @@ import {
 import { ASSISTED_COSIGN_FIELD_KEY } from './formulario-publico-cosign.util';
 
 @Component({
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'zm-formulario-publico-consent',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, ZardCheckboxComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [FormsModule, RouterLink],
   templateUrl: './formulario-publico-consent.component.html',
 })
 export class FormularioPublicoConsentComponent {

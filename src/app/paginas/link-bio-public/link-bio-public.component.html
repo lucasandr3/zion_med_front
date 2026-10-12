@@ -20,9 +20,9 @@
     </div>
   }
 
-  @if (!showSkeleton() && data && clinic && kioskMode) {
+  @if (!showSkeleton() && data && clinic && totemMode) {
     <div class="zm-content-enter">
-      <app-link-bio-public-kiosk
+      <app-link-bio-public-totem
         [clinic]="clinic"
         [allLinks]="allLinks"
         [publicSlug]="slug"
@@ -33,7 +33,7 @@
     </div>
   }
 
-  @if (!showSkeleton() && data && clinic && !kioskMode && model === 1) {
+  @if (!showSkeleton() && data && clinic && !totemMode && model === 1) {
     <div class="zm-content-enter">
       <app-link-bio-public-layout-generic
         [clinic]="clinic"
@@ -48,7 +48,7 @@
     </div>
   }
 
-  @if (!showSkeleton() && data && clinic && !kioskMode && model >= 2 && model <= 5) {
+  @if (!showSkeleton() && data && clinic && !totemMode && model >= 2 && model <= 5) {
     <div class="zm-content-enter">
     <app-link-bio-public-layouts
       [model]="layoutModelLegacy()"
@@ -65,7 +65,7 @@
     </div>
   }
 
-  @if (!showSkeleton() && data && clinic && !kioskMode && model === 6) {
+  @if (!showSkeleton() && data && clinic && !totemMode && model === 6) {
     <div class="zm-content-enter">
     <app-link-bio-public-layout-vet
       [clinic]="clinic"
@@ -81,7 +81,7 @@
     </div>
   }
 
-  @if (!showSkeleton() && data && clinic && !kioskMode && model === 7) {
+  @if (!showSkeleton() && data && clinic && !totemMode && model === 7) {
     <div class="zm-content-enter">
     <app-link-bio-public-layout-pedia
       [clinic]="clinic"
@@ -97,7 +97,7 @@
     </div>
   }
 
-  @if (!showSkeleton() && data && clinic && !kioskMode && model === 8) {
+  @if (!showSkeleton() && data && clinic && !totemMode && model === 8) {
     <div class="zm-content-enter">
     <app-link-bio-public-layout-nutri
       [clinic]="clinic"

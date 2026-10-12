@@ -11,8 +11,8 @@ import {
   type ViewContainerRef,
 } from '@angular/core';
 
-import { ZardDialogRef } from './dialog-ref';
-import { ZardDialogComponent, ZardDialogOptions } from './dialog.component';
+import { GestgoDialogRef } from './dialog-ref';
+import { GestgoDialogComponent, GestgoDialogOptions } from './dialog.component';
 
 type ContentType<T> = ComponentType<T> | TemplateRef<T> | string;
 
@@ -21,23 +21,23 @@ export const Z_MODAL_DATA = new InjectionToken<any>('Z_MODAL_DATA');
 @Injectable({
   providedIn: 'root',
 })
-export class ZardDialogService {
+export class GestgoDialogService {
   private overlay = inject(Overlay);
   private injector = inject(Injector);
   private platformId = inject(PLATFORM_ID);
 
-  create<T, U>(config: ZardDialogOptions<T, U>): ZardDialogRef<T> {
+  create<T, U>(config: GestgoDialogOptions<T, U>): GestgoDialogRef<T> {
     return this.open<T, U>(config.zContent as ComponentType<T>, config);
   }
 
-  private open<T, U>(componentOrTemplateRef: ContentType<T>, config: ZardDialogOptions<T, U>) {
+  private open<T, U>(componentOrTemplateRef: ContentType<T>, config: GestgoDialogOptions<T, U>) {
     const overlayRef = this.createOverlay();
 
     if (!overlayRef) {
-      return new ZardDialogRef(
+      return new GestgoDialogRef(
         undefined as unknown as OverlayRef,
         config,
-        undefined as unknown as ZardDialogComponent<T, U>,
+        undefined as unknown as GestgoDialogComponent<T, U>,
         this.platformId,
       );
     }
@@ -63,33 +63,32 @@ export class ZardDialogService {
     return undefined;
   }
 
-  private attachDialogContainer<T, U>(overlayRef: OverlayRef, config: ZardDialogOptions<T, U>) {
+  private attachDialogContainer<T, U>(overlayRef: OverlayRef, config: GestgoDialogOptions<T, U>) {
     const injector = Injector.create({
       parent: this.injector,
       providers: [
         { provide: OverlayRef, useValue: overlayRef },
-        { provide: ZardDialogOptions, useValue: config },
-      ],
+        { provide: GestgoDialogOptions, useValue: config }],
     });
 
-    const containerPortal = new ComponentPortal<ZardDialogComponent<T, U>>(
-      ZardDialogComponent,
+    const containerPortal = new ComponentPortal<GestgoDialogComponent<T, U>>(
+      GestgoDialogComponent,
       config.zViewContainerRef,
       injector,
     );
 
-    const containerRef = overlayRef.attach<ZardDialogComponent<T, U>>(containerPortal);
+    const containerRef = overlayRef.attach<GestgoDialogComponent<T, U>>(containerPortal);
 
     return containerRef.instance;
   }
 
   private attachDialogContent<T, U>(
     componentOrTemplateRef: ContentType<T>,
-    dialogContainer: ZardDialogComponent<T, U>,
+    dialogContainer: GestgoDialogComponent<T, U>,
     overlayRef: OverlayRef,
-    config: ZardDialogOptions<T, U>,
+    config: GestgoDialogOptions<T, U>,
   ) {
-    const dialogRef = new ZardDialogRef<T>(overlayRef, config, dialogContainer, this.platformId);
+    const dialogRef = new GestgoDialogRef<T>(overlayRef, config, dialogContainer, this.platformId);
 
     if (componentOrTemplateRef instanceof TemplateRef) {
       dialogContainer.attachTemplatePortal(
@@ -112,13 +111,12 @@ export class ZardDialogService {
     return dialogRef;
   }
 
-  private createInjector<T, U>(dialogRef: ZardDialogRef<T>, config: ZardDialogOptions<T, U>) {
+  private createInjector<T, U>(dialogRef: GestgoDialogRef<T>, config: GestgoDialogOptions<T, U>) {
     return Injector.create({
       parent: this.injector,
       providers: [
-        { provide: ZardDialogRef, useValue: dialogRef },
-        { provide: Z_MODAL_DATA, useValue: config.zData },
-      ],
+        { provide: GestgoDialogRef, useValue: dialogRef },
+        { provide: Z_MODAL_DATA, useValue: config.zData }],
     });
   }
 }

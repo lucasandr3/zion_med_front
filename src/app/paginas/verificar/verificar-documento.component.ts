@@ -1,5 +1,4 @@
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { PublicPageBodyService } from '../../core/services/public-page-body.service';
@@ -12,7 +11,7 @@ import {
 @Component({
   selector: 'app-verificar-documento',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [FormsModule, RouterLink],
   templateUrl: './verificar-documento.component.html',
   styleUrl: './verificar-documento.component.css',
 })

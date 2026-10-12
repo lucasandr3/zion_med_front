@@ -7,7 +7,13 @@ export interface ShellNavItem {
   permission?: string;
   /** Exibe se o usuário tiver ao menos uma das permissões. */
   permissionsAny?: string[];
+  /** Exibe só quem pode alternar entre empresas do mesmo tenant. */
+  requiresSwitchClinic?: boolean;
   badge?: 'notifications' | 'novidades' | 'trial';
+}
+
+export interface ShellNavVisibilityOptions {
+  canSwitchClinic?: boolean;
 }
 
 export interface ShellNavSection {
@@ -75,17 +81,18 @@ export const SHELL_NAV_APP_SECTIONS: ShellNavSection[] = [
 
 /** Itens avulsos no menu horizontal tenant (fora de seções). */
 export const SHELL_NAV_APP_STANDALONE: ShellNavItem[] = [
-  { route: '/novidades', label: 'Novidades', icon: 'new_releases', badge: 'novidades' },
+  { route: '/novidades', label: 'Novidades', icon: 'check_circle', badge: 'novidades' },
   { route: '/notificacoes', label: 'Notificações', icon: 'notifications', permission: 'notifications.access', badge: 'notifications' },
 ];
 
-/** Sidebar tenant — fonte única para barra-lateral. */
+/** Sidebar tenant — fonte única para barra-lateral / shell Nord. */
 export const SHELL_NAV_SIDEBAR: ShellNavSection[] = [
   {
     id: 'menu',
     label: 'Menu',
     icon: 'menu',
     items: [
+      { route: '/clinica/escolher', label: 'Trocar empresa', icon: 'swap_horiz', requiresSwitchClinic: true },
       { route: '/dashboard', label: 'Dashboard', icon: 'bar_chart', permission: 'dashboard.access', exact: true },
       { route: '/templates', label: 'Modelos de fichas', icon: 'app_registration', permission: 'templates.manage' },
       { route: '/links-publicos', label: 'Formulários públicos', icon: 'list_alt', permissionsAny: ['templates.manage', 'submissions.view'] },
@@ -99,7 +106,7 @@ export const SHELL_NAV_SIDEBAR: ShellNavSection[] = [
     label: '',
     icon: 'notifications',
     items: [
-      { route: '/novidades', label: 'Novidades', icon: 'new_releases', badge: 'novidades' },
+      { route: '/novidades', label: 'Novidades', icon: 'check_circle', badge: 'novidades' },
       { route: '/notificacoes', label: 'Notificações', icon: 'notifications', permission: 'notifications.access', badge: 'notifications' },
       { route: '/assinatura', label: 'Assinatura', icon: 'credit_card', permission: 'billing.manage', badge: 'trial' },
     ],
@@ -171,7 +178,38 @@ export const SHELL_NAV_PLATAFORMA_SECTIONS: ShellNavSection[] = [
     icon: 'settings',
     items: [
       { route: '/plataforma/planos', label: 'Planos', icon: 'featured_play_list' },
-      { route: '/plataforma/novidades', label: 'Novidades', icon: 'new_releases' },
+      { route: '/plataforma/novidades', label: 'Novidades', icon: 'check_circle' },
+      { route: '/plataforma/configuracoes', label: 'Configurações', icon: 'settings' },
+      { route: '/plataforma/logs', label: 'Logs', icon: 'history' },
+    ],
+  },
+];
+
+/** Sidebar plataforma — fonte única para o shell Nord da plataforma. */
+export const SHELL_NAV_PLATAFORMA_SIDEBAR: ShellNavSection[] = [
+  {
+    id: 'menu',
+    label: 'Menu',
+    icon: 'menu',
+    items: [
+      { route: '/plataforma', label: 'Dashboard', icon: 'bar_chart', exact: true },
+      { route: '/plataforma/clientes', label: 'Clientes', icon: 'emoji_transportation' },
+      { route: '/plataforma/organizacoes-online', label: 'Empresas online', icon: 'sensors' },
+      { route: '/plataforma/leads', label: 'Leads', icon: '3p' },
+      { route: '/plataforma/trafego-landing', label: 'Tráfego da landing', icon: 'monitoring' },
+      { route: '/plataforma/assinaturas', label: 'Assinaturas', icon: 'add_card' },
+      { route: '/plataforma/faturas', label: 'Faturas / cobranças', icon: 'payments' },
+      { route: '/plataforma/emails', label: 'E-mails', icon: 'mail' },
+      { route: '/plataforma/notificacoes', label: 'Notificações', icon: 'notifications', badge: 'notifications' },
+    ],
+  },
+  {
+    id: 'plataforma',
+    label: 'Plataforma',
+    icon: 'settings',
+    items: [
+      { route: '/plataforma/planos', label: 'Planos', icon: 'featured_play_list' },
+      { route: '/plataforma/novidades', label: 'Novidades', icon: 'check_circle' },
       { route: '/plataforma/configuracoes', label: 'Configurações', icon: 'settings' },
       { route: '/plataforma/logs', label: 'Logs', icon: 'history' },
     ],
@@ -186,8 +224,10 @@ export function shellNavItemVisivel(
   item: ShellNavItem,
   hasPermission: (key: string) => boolean,
   context: 'app' | 'plataforma',
+  opts?: ShellNavVisibilityOptions,
 ): boolean {
   if (context === 'plataforma') return true;
+  if (item.requiresSwitchClinic && !opts?.canSwitchClinic) return false;
   if (item.permission) return hasPermission(item.permission);
   if (item.permissionsAny?.length) {
     return item.permissionsAny.some((p) => hasPermission(p));
@@ -199,6 +239,7 @@ export function shellNavSectionVisivel(
   section: ShellNavSection,
   hasPermission: (key: string) => boolean,
   context: 'app' | 'plataforma',
+  opts?: ShellNavVisibilityOptions,
 ): boolean {
-  return section.items.some((item) => shellNavItemVisivel(item, hasPermission, context));
+  return section.items.some((item) => shellNavItemVisivel(item, hasPermission, context, opts));
 }

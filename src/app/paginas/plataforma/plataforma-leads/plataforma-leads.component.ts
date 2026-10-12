@@ -1,25 +1,23 @@
-import { Component, OnInit, inject, Signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { ZardCardComponent } from '@/shared/components/card/card.component';
+import { Component, OnInit, inject, Signal, ChangeDetectionStrategy, signal, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { PlataformaService, PlatformLead } from '../../../core/services/plataforma.service';
 import { LoadingService } from '../../../shared/services/loading.service';
-import { ZmSkeletonListComponent } from '../../../shared/components/skeletons';
-import { ZmEmptyStateComponent } from '../../../shared/components/ui';
+import { ListSkeletonComponent } from '../../../shared/components/list-skeleton/list-skeleton.component';
 
-import { ZardTableImports } from '@/shared/components/table';
 @Component({
   selector: 'app-plataforma-leads',
   standalone: true,
-  imports: [
-    ...ZardTableImports,CommonModule, ZardCardComponent, ZmSkeletonListComponent, ZmEmptyStateComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { class: 'n-page-list' },
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  imports: [ListSkeletonComponent],
   templateUrl: './plataforma-leads.component.html',
   styleUrl: './plataforma-leads.component.css',
 })
 export class PlataformaLeadsComponent implements OnInit {
   showSkeleton!: Signal<boolean>;
-  listaPronta = false;
-  estadoErro = false;
-  leads: PlatformLead[] = [];
+  readonly listaPronta = signal(false);
+  readonly estadoErro = signal(false);
+  readonly leads = signal<PlatformLead[]>([]);
 
   private plataformaService = inject(PlataformaService);
   private loadingService = inject(LoadingService);
@@ -29,12 +27,12 @@ export class PlataformaLeadsComponent implements OnInit {
     this.showSkeleton = showSkeleton;
     data$.subscribe({
       next: (res) => {
-        this.listaPronta = true;
-        this.leads = res.data ?? [];
+        this.listaPronta.set(true);
+        this.leads.set(res.data ?? []);
       },
       error: () => {
-        this.listaPronta = true;
-        this.estadoErro = true;
+        this.listaPronta.set(true);
+        this.estadoErro.set(true);
       },
     });
   }

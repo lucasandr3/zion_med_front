@@ -4,19 +4,19 @@ import { RouterLink } from '@angular/router';
 import { provideIcons } from '@ng-icons/core';
 import { lucideFolderOpen } from '@ng-icons/lucide';
 
-import { ZardButtonComponent } from '../button/button.component';
-import { ZardEmptyComponent } from '../empty/empty.component';
+
+import { GestgoEmptyComponent } from '../empty/empty.component';
 
 /**
- * Wrapper compatível com a API legada; renderiza `z-empty` (Zard).
+ * Wrapper compatível com a API legada; renderiza `g-empty` (Gestgo).
  */
 @Component({
   selector: 'zm-empty-state',
   standalone: true,
-  imports: [ZardEmptyComponent, ZardButtonComponent, RouterLink],
+  imports: [GestgoEmptyComponent, RouterLink],
   viewProviders: [provideIcons({ lucideFolderOpen })],
   template: `
-    <z-empty
+    <g-empty
       class="border-0 bg-transparent py-6"
       zIcon="lucideFolderOpen"
       [zTitle]="title"
@@ -26,7 +26,7 @@ import { ZardEmptyComponent } from '../empty/empty.component';
     />
     <ng-template #actionTpl>
       @if (actionLabel && actionLink) {
-        <a z-button [routerLink]="actionLink" class="gap-2 no-underline">
+        <a [routerLink]="actionLink" class="gap-2 no-underline">
           @if (actionIcon) {
             <span class="material-symbols-outlined text-base">{{ actionIcon }}</span>
           }

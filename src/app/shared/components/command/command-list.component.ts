@@ -16,7 +16,7 @@ import { mergeClasses } from '@/shared/utils/merge-classes';
   encapsulation: ViewEncapsulation.None,
   exportAs: 'zCommandList',
 })
-export class ZardCommandListComponent {
+export class GestgoCommandListComponent {
   readonly class = input<ClassValue>('');
 
   protected readonly classes = computed(() => mergeClasses(commandListVariants(), this.class()));

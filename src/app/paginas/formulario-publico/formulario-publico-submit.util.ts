@@ -11,6 +11,7 @@ export interface FormularioPublicoSubmitContext {
   personCpfDigits: string;
   personCode?: string;
   personBirthDate?: string;
+  personNameConfirmed?: boolean;
   signingSecurityLevel?: string;
   otpChannel: 'email' | 'whatsapp';
   otpPhone: string;
@@ -125,6 +126,9 @@ export function buildFormularioPublicoSubmitPayload(ctx: FormularioPublicoSubmit
   }
   if (ctx.personBirthDate) {
     payload['_person_birth_date'] = ctx.personBirthDate;
+  }
+  if (ctx.personNameConfirmed) {
+    payload['_person_name_confirmed'] = true;
   }
 
   if (ctx.clinicalStepsCompleted?.length) {

@@ -18,13 +18,13 @@ import {
   untracked,
 } from '@angular/core';
 
-import { ZardMenuManagerService } from './menu-manager.service';
-import { MENU_POSITIONS_MAP, type ZardMenuPlacement } from './menu-positions';
+import { GestgoMenuManagerService } from './menu-manager.service';
+import { MENU_POSITIONS_MAP, type GestgoMenuPlacement } from './menu-positions';
 
-export type ZardMenuTrigger = 'click' | 'hover';
+export type GestgoMenuTrigger = 'click' | 'hover';
 
 @Directive({
-  selector: '[z-menu]',
+  selector: '[g-menu]',
   host: {
     role: 'button',
     '[attr.tabindex]': "'0'",
@@ -38,16 +38,15 @@ export type ZardMenuTrigger = 'click' | 'hover';
     {
       directive: CdkMenuTrigger,
       inputs: ['cdkMenuTriggerFor: zMenuTriggerFor'],
-    },
-  ],
+    }],
 })
-export class ZardMenuDirective implements OnInit, OnDestroy {
-  private static readonly MENU_CONTENT_SELECTOR = '.cdk-overlay-pane [z-menu-content]';
+export class GestgoMenuDirective implements OnInit, OnDestroy {
+  private static readonly MENU_CONTENT_SELECTOR = '.cdk-overlay-pane [g-menu-content]';
 
   protected readonly cdkTrigger = inject(CdkMenuTrigger, { host: true });
   private readonly document = inject(DOCUMENT);
   private readonly elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
-  private readonly menuManager = inject(ZardMenuManagerService);
+  private readonly menuManager = inject(GestgoMenuManagerService);
   private readonly platformId = inject(PLATFORM_ID);
 
   private closeTimeout: ReturnType<typeof setTimeout> | null = null;
@@ -55,9 +54,9 @@ export class ZardMenuDirective implements OnInit, OnDestroy {
 
   readonly zMenuTriggerFor = input.required<TemplateRef<void>>();
   readonly zDisabled = input<boolean, BooleanInput>(false, { transform: booleanAttribute });
-  readonly zTrigger = input<ZardMenuTrigger>('click');
+  readonly zTrigger = input<GestgoMenuTrigger>('click');
   readonly zHoverDelay = input<number>(100);
-  readonly zPlacement = input<ZardMenuPlacement>('bottomLeft');
+  readonly zPlacement = input<GestgoMenuPlacement>('bottomLeft');
 
   private readonly menuPositions = computed(() => this.getPositionsByPlacement(this.zPlacement()));
 
@@ -70,7 +69,7 @@ export class ZardMenuDirective implements OnInit, OnDestroy {
     });
   }
 
-  private getPositionsByPlacement(placement: ZardMenuPlacement): ConnectedPosition[] {
+  private getPositionsByPlacement(placement: GestgoMenuPlacement): ConnectedPosition[] {
     return MENU_POSITIONS_MAP[placement] || MENU_POSITIONS_MAP['bottomLeft'];
   }
 
@@ -134,7 +133,7 @@ export class ZardMenuDirective implements OnInit, OnDestroy {
   }
 
   private setupMenuContentListeners(): void {
-    const menuContent = this.document.querySelector(ZardMenuDirective.MENU_CONTENT_SELECTOR);
+    const menuContent = this.document.querySelector(GestgoMenuDirective.MENU_CONTENT_SELECTOR);
     if (!menuContent) {
       return;
     }
@@ -166,9 +165,9 @@ export class ZardMenuDirective implements OnInit, OnDestroy {
     }
 
     const isMovingToTrigger = this.elementRef.nativeElement.contains(relatedTarget);
-    const isMovingToMenu = relatedTarget.closest(ZardMenuDirective.MENU_CONTENT_SELECTOR);
+    const isMovingToMenu = relatedTarget.closest(GestgoMenuDirective.MENU_CONTENT_SELECTOR);
     const isMovingToOtherTrigger =
-      relatedTarget.matches('[z-menu]') && !this.elementRef.nativeElement.contains(relatedTarget);
+      relatedTarget.matches('[g-menu]') && !this.elementRef.nativeElement.contains(relatedTarget);
 
     if (isMovingToOtherTrigger) {
       return false;

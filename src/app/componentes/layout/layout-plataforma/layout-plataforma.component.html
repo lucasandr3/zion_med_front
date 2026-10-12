@@ -1,13 +1,108 @@
-<app-barra-lateral-plataforma [notificacoesNaoLidas]="notificacoesNaoLidas" />
-<div class="main-wrapper flex flex-col min-h-screen bg-background">
-  <app-cabecalho [titulo]="tituloPagina" [subtitulo]="subtituloPagina" [notificacoesNaoLidas]="notificacoesNaoLidas" [novidadesNaoVistas]="novidadesNaoVistas" notificacoesRouterLink="/plataforma/notificacoes" shellContext="plataforma" />
-  <main class="flex-1 px-4 sm:px-6 lg:px-8 py-6 lg:py-6 bg-background">
-    @if (urlVoltar && !voltarIntegrado) {
-      <div class="zm-page-back-bar mb-4">
-        <zm-page-back-link [url]="urlVoltar" [label]="labelVoltar" />
-      </div>
+<nord-layout
+  class="gestgo-shell"
+  sticky
+  persist-nav-state
+  collapse-mode="rail"
+  padding="none"
+  hide-default-nav-toggle
+  hide-collapse-button
+>
+  <nord-navigation slot="nav" class="gestgo-shell__nav">
+    <a
+      slot="header"
+      class="gestgo-shell__brand"
+      href="/plataforma"
+      (click)="go($event, '/plataforma')"
+      aria-label="Gestgo plataforma"
+    >
+      <span class="gestgo-shell__brand-logo">
+        <zm-gestgo-brand-mark />
+      </span>
+      <span class="gestgo-shell__brand-word" aria-hidden="true">
+        <span class="gestgo-shell__brand-title">gest<span class="gestgo-shell__brand-go">go</span></span>
+        <span class="gestgo-shell__brand-tag">PLATAFORMA</span>
+      </span>
+    </a>
+
+    @for (section of navSections; track section.id) {
+      <nord-nav-group [attr.heading]="section.label || null">
+        @for (item of section.items; track item.route) {
+          <nord-nav-item
+            [href]="item.route"
+            [active]="isActive(item)"
+            [attr.badge]="badgeTexto(item)"
+            (click)="go($event, item.route)"
+          >
+            <span slot="icon" class="material-symbols-outlined gestgo-shell__nav-icon" aria-hidden="true">{{ item.icon }}</span>
+            {{ item.label }}
+            <span slot="rail-tooltip">{{ item.label }}</span>
+          </nord-nav-item>
+        }
+      </nord-nav-group>
     }
-    <router-outlet />
-  </main>
-</div>
+
+    <nord-button
+      slot="footer"
+      expand
+      variant="plain"
+      type="button"
+      aria-describedby="nav-logout-tooltip"
+      (click)="sair()"
+    >
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">logout</span>
+      Sair
+    </nord-button>
+    <nord-tooltip id="nav-logout-tooltip" position="inline-end" [delay]="0">Sair</nord-tooltip>
+  </nord-navigation>
+
+  <nord-top-bar slot="top-bar" id="top-header" class="gestgo-shell__top-bar">
+    <div class="gestgo-shell__top-bar-start">
+      <nord-button
+        class="gestgo-shell__nav-toggle"
+        square
+        variant="plain"
+        type="button"
+        aria-label="Alternar menu"
+        (click)="toggleNav($event)"
+      >
+        <span class="material-symbols-outlined gestgo-mi gestgo-mi--m" aria-hidden="true">menu</span>
+      </nord-button>
+      <div class="gestgo-shell__heading">
+        <h1 class="gestgo-shell__title">{{ tituloPagina() }}</h1>
+        @if (subtituloPagina(); as subtitulo) {
+          <p class="gestgo-shell__subtitle">{{ subtitulo }}</p>
+        }
+      </div>
+    </div>
+
+    <app-shell-top-bar-actions
+      #topBarActions
+      slot="end"
+      notificacoesRouterLink="/plataforma/notificacoes"
+      [notificacoesNaoLidas]="notificacoesNaoLidas()"
+      [novidadesNaoVistas]="novidadesNaoVistas()"
+    />
+    <nord-dropdown
+      #accountMenu
+      slot="end"
+      gestgoAccountMenu
+      [shellContext]="'plataforma'"
+      (openTheme)="topBarActions.alternarMenuTema()"
+    ></nord-dropdown>
+    <nord-tooltip slot="end" id="account-menu-tooltip" [delay]="0">{{
+      accountMenu.nomeUsuario
+    }}</nord-tooltip>
+  </nord-top-bar>
+
+  <div class="gestgo-shell__content">
+    <main class="gestgo-shell__main bg-background px-4 py-6 sm:px-6 lg:px-8 lg:py-6">
+      @if (urlVoltar() && !voltarIntegrado()) {
+        <div class="zm-page-back-bar mb-4">
+          <zm-page-back-link [url]="urlVoltar()" [label]="labelVoltar()" />
+        </div>
+      }
+      <router-outlet />
+    </main>
+  </div>
+</nord-layout>
 <go-assistant-host />

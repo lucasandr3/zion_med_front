@@ -15,12 +15,12 @@ import { type ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR } from '@angu
 import type { IconName } from '@ng-icons/core';
 import type { ClassValue } from 'clsx';
 
-import { ZardCommandInputComponent } from '@/shared/components/command/command-input.component';
-import { ZardCommandOptionComponent } from '@/shared/components/command/command-option.component';
-import { commandVariants, type ZardCommandSizeVariants } from '@/shared/components/command/command.variants';
+import { GestgoCommandInputComponent } from '@/shared/components/command/command-input.component';
+import { GestgoCommandOptionComponent } from '@/shared/components/command/command-option.component';
+import { commandVariants, type GestgoCommandSizeVariants } from '@/shared/components/command/command.variants';
 import { mergeClasses } from '@/shared/utils/merge-classes';
 
-export interface ZardCommandOption {
+export interface GestgoCommandOption {
   value: unknown;
   label: string;
   disabled?: boolean;
@@ -31,22 +31,22 @@ export interface ZardCommandOption {
   key?: string;
 }
 
-export interface ZardCommandGroup {
+export interface GestgoCommandGroup {
   label: string;
-  options: ZardCommandOption[];
+  options: GestgoCommandOption[];
 }
 
-export interface ZardCommandConfig {
+export interface GestgoCommandConfig {
   placeholder?: string;
   emptyText?: string;
-  groups: ZardCommandGroup[];
+  groups: GestgoCommandGroup[];
   dividers?: boolean;
-  onSelect?: (option: ZardCommandOption) => void;
+  onSelect?: (option: GestgoCommandOption) => void;
 }
 
-export abstract class ZardCommand {
-  abstract registerOption(option: ZardCommandOptionComponent): void;
-  abstract unregisterOption(option: ZardCommandOptionComponent): void;
+export abstract class GestgoCommand {
+  abstract registerOption(option: GestgoCommandOptionComponent): void;
+  abstract unregisterOption(option: GestgoCommandOptionComponent): void;
 }
 
 @Component({
@@ -66,10 +66,9 @@ export abstract class ZardCommand {
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => ZardCommandComponent),
+      useExisting: forwardRef(() => GestgoCommandComponent),
       multi: true,
-    },
-  ],
+    }],
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: {
@@ -80,16 +79,16 @@ export abstract class ZardCommand {
   },
   exportAs: 'zCommand',
 })
-export class ZardCommandComponent implements ControlValueAccessor, ZardCommand {
-  private readonly commandInput = contentChild(ZardCommandInputComponent);
-  private readonly optionComponentsAsChildren = contentChildren(ZardCommandOptionComponent, { descendants: true });
-  private readonly registeredOptionComponents = signal<ZardCommandOptionComponent[]>([]);
+export class GestgoCommandComponent implements ControlValueAccessor, GestgoCommand {
+  private readonly commandInput = contentChild(GestgoCommandInputComponent);
+  private readonly optionComponentsAsChildren = contentChildren(GestgoCommandOptionComponent, { descendants: true });
+  private readonly registeredOptionComponents = signal<GestgoCommandOptionComponent[]>([]);
 
-  readonly size = input<ZardCommandSizeVariants>('default');
+  readonly size = input<GestgoCommandSizeVariants>('default');
   readonly class = input<ClassValue>('');
 
-  readonly zCommandChange = output<ZardCommandOption>();
-  readonly zCommandSelected = output<ZardCommandOption>();
+  readonly zCommandChange = output<GestgoCommandOption>();
+  readonly zCommandSelected = output<GestgoCommandOption>();
 
   // Internal signals for search functionality
   readonly searchTerm = signal('');
@@ -99,11 +98,11 @@ export class ZardCommandComponent implements ControlValueAccessor, ZardCommand {
     this.optionComponentsAsChildren().length ? this.optionComponentsAsChildren() : this.registeredOptionComponents(),
   );
 
-  registerOption(option: ZardCommandOptionComponent) {
+  registerOption(option: GestgoCommandOptionComponent) {
     this.registeredOptionComponents.update(current => [...current, option]);
   }
 
-  unregisterOption(option: ZardCommandOptionComponent) {
+  unregisterOption(option: GestgoCommandOptionComponent) {
     this.registeredOptionComponents.update(current => current.filter(o => o !== option));
   }
 
@@ -175,8 +174,8 @@ export class ZardCommandComponent implements ControlValueAccessor, ZardCommand {
     this.updateSelectedOption();
   }
 
-  selectOption(option: ZardCommandOptionComponent) {
-    const commandOption: ZardCommandOption = {
+  selectOption(option: GestgoCommandOptionComponent) {
+    const commandOption: GestgoCommandOption = {
       value: option.zValue(),
       label: option.zLabel(),
       disabled: option.zDisabled(),

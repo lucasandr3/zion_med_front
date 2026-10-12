@@ -1,26 +1,23 @@
-import { Component, OnInit, inject, Signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { ZardCardComponent } from '@/shared/components/card/card.component';
-import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
+import { Component, OnInit, inject, Signal, ChangeDetectionStrategy, signal, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { PlataformaService, PlatformOrganizationPresence } from '../../../core/services/plataforma.service';
 import { LoadingService } from '../../../shared/services/loading.service';
-import { ZmSkeletonListComponent } from '../../../shared/components/skeletons';
-import { ZmEmptyStateComponent } from '../../../shared/components/ui';
+import { ListSkeletonComponent } from '../../../shared/components/list-skeleton/list-skeleton.component';
 
-import { ZardTableImports } from '@/shared/components/table';
 @Component({
   selector: 'app-plataforma-organizacoes-online',
   standalone: true,
-  imports: [
-    ...ZardTableImports,CommonModule, ZardCardComponent, ZardBadgeComponent, ZmSkeletonListComponent, ZmEmptyStateComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { class: 'n-page-list' },
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  imports: [ListSkeletonComponent],
   templateUrl: './plataforma-organizacoes-online.component.html',
   styleUrl: './plataforma-organizacoes-online.component.css',
 })
 export class PlataformaOrganizacoesOnlineComponent implements OnInit {
   showSkeleton!: Signal<boolean>;
-  listaPronta = false;
-  estadoErro = false;
-  linhas: PlatformOrganizationPresence[] = [];
+  readonly listaPronta = signal(false);
+  readonly estadoErro = signal(false);
+  readonly linhas = signal<PlatformOrganizationPresence[]>([]);
 
   private plataformaService = inject(PlataformaService);
   private loadingService = inject(LoadingService);
@@ -30,13 +27,23 @@ export class PlataformaOrganizacoesOnlineComponent implements OnInit {
     this.showSkeleton = showSkeleton;
     data$.subscribe({
       next: (res) => {
-        this.listaPronta = true;
-        this.linhas = res.data ?? [];
+        this.listaPronta.set(true);
+        this.linhas.set(res.data ?? []);
       },
       error: () => {
-        this.listaPronta = true;
-        this.estadoErro = true;
+        this.listaPronta.set(true);
+        this.estadoErro.set(true);
       },
     });
+  }
+
+  formatarData(iso?: string | null): string {
+    if (!iso) return '—';
+    try {
+      const d = new Date(iso);
+      return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+    } catch {
+      return iso;
+    }
   }
 }

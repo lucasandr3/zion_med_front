@@ -1,15 +1,16 @@
-<div class="link-bio-tab-panel link-bio-fade-in">
+<div class="lb-wrap link-bio-fade-in">
   <zm-link-bio-overview-header
     [clinicName]="state.clinic.name"
     [publicUrl]="publicUrl"
     [publicUrlAbrir]="publicUrlAbrirNoNavegador"
-    [recepcaoKioskUrl]="recepcaoKioskUrl"
-    [headerMeta]="headerMeta"
+    [totemUrl]="totemUrl"
+    [totemUrlAbrir]="totemUrlAbrirNoNavegador"
     [copiedLink]="copiedPrincipalLink"
+    [copiedTotem]="copiedTotemLink"
+    [visitasHoje]="state.metrics.visitas_hoje"
+    [cliques]="state.metrics.total_clicks_last_30"
     (copyLink)="copiarLinkPrincipal()"
-    (openQr)="abrirQr()"
-    (editContent)="editContent.emit()"
-    (copyRecepcao)="copiarLinkRecepcao()"
+    (copyTotem)="copiarLinkTotem()"
   />
 
   @if (state.metrics) {
@@ -21,20 +22,9 @@
       [forms]="state.forms"
       [layoutModel]="layoutModel"
       [statsPeriodo]="statsPeriodo"
-      [insightBannerFechado]="insightBannerFechado"
-      [atualizandoStats]="atualizandoStats"
       [ctrMediaSetor]="ctrMediaSetor"
       (statsPeriodoChange)="selecionarPeriodoStats($event)"
-      (refreshStats)="atualizarDadosEstatisticas()"
-      (closeInsight)="fecharInsightBanner()"
       (applySuggestion)="applySuggestion.emit($event)"
     />
   }
 </div>
-
-<zm-link-bio-qr-dialog
-  [open]="qrAberto"
-  [publicUrl]="publicUrl"
-  [clinicName]="state.clinic.name"
-  (closed)="fecharQr()"
-/>

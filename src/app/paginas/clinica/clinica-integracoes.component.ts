@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy, signal, computed, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -17,34 +17,35 @@ import {
 } from '../../core/services/integracoes.service';
 import { ToastService } from '../../core/services/toast.service';
 import { ConfirmDialogService } from '../../core/services/confirm-dialog.service';
-import { ZardTableImports } from '@/shared/components/table';
-import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
-import { ZardCardComponent } from '@/shared/components/card/card.component';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
-import { ZardTabComponent, ZardTabGroupComponent } from '@/shared/components/tabs';
-import { ZardBadgeComponent } from '@/shared/components/badge';
-import type { ZardBadgeTypeVariants } from '@/shared/components/badge/badge.variants';
+import { GestgoTableImports } from '@/shared/components/table';
+import { NORD_FORM_IMPORTS } from '@/shared/nord';
+import { GestgoCardComponent } from '@/shared/components/card/card.component';
+
+import { GestgoTabComponent, GestgoTabGroupComponent } from '@/shared/components/tabs';
+import { GestgoBadgeComponent } from '@/shared/components/badge';
+import type { GestgoBadgeTypeVariants } from '@/shared/components/badge/badge.variants';
 import { scrambleDocsUiUrl, scrambleOpenApiJsonUrl } from '../../core/utils/api-docs-url.util';
 
 type AbaIntegracao = 'api' | 'webhooks' | 'entregas' | 'sistemas';
 
 @Component({
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'app-clinica-integracoes',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { class: 'n-page n-page--flush' },
   imports: [
-    ...ZARD_FORM_CONTROL_IMPORTS,
-    ...ZardTableImports,
+    ...NORD_FORM_IMPORTS,
+    ...GestgoTableImports,
     CommonModule,
     FormsModule,
     RouterLink,
     ZmSkeletonIntegracoesComponent,
     ZmSkeletonIntegracoesSistemasComponent,
-    ZardCardComponent,
-    ZardButtonComponent,
-    ZardTabComponent,
-    ZardTabGroupComponent,
-    ZardBadgeComponent,
-  ],
+    GestgoCardComponent,
+    GestgoTabComponent,
+    GestgoTabGroupComponent,
+    GestgoBadgeComponent],
   templateUrl: './clinica-integracoes.component.html',
   styleUrl: './clinica-integracoes.component.css',
 })
@@ -55,53 +56,39 @@ export class ClinicaIntegracoesComponent implements OnInit {
 
   private readonly tabIds: AbaIntegracao[] = ['api', 'webhooks', 'entregas', 'sistemas'];
 
-  state: IntegracoesState | null = null;
-  carregando = false;
-  erro = '';
-  abaAtiva: AbaIntegracao = 'api';
-  carregandoSistemas = false;
-  sistemas: IntegracaoSistemaItem[] = [];
+  readonly state = signal<IntegracoesState | null>(null);
+  readonly carregando = signal(false);
+  readonly erro = signal('');
+  readonly abaAtiva = signal<AbaIntegracao>('api');
+  readonly carregandoSistemas = signal(false);
+  readonly sistemas = signal<IntegracaoSistemaItem[]>([]);
 
   novoTokenNome = '';
-  ultimoTokenGerado: { token: string; name: string } | null = null;
+  readonly ultimoTokenGerado = signal<{ token: string; name: string } | null>(null);
 
   novoWebhookUrl = '';
   novoWebhookEventos: string[] = [];
   novoWebhookSecret = '';
   novoWebhookDescricao = '';
-  tokenCriando = false;
-  webhookCriando = false;
-  reenviandoId: number | null = null;
+  readonly tokenCriando = signal(false);
+  readonly webhookCriando = signal(false);
+  readonly reenviandoId = signal<number | null>(null);
 
   readonly docsApiUrl = scrambleDocsUiUrl();
   readonly docsApiJsonUrl = scrambleOpenApiJsonUrl();
+
+  readonly tokens = computed(() => this.state()?.tokens ?? []);
+  readonly webhooks = computed(() => this.state()?.webhooks ?? []);
+  readonly deliveries = computed(() => this.state()?.deliveries ?? []);
+  readonly eventLabels = computed(() => this.state()?.event_labels ?? {});
+  readonly availableEvents = computed(() => this.state()?.available_events ?? []);
 
   ngOnInit(): void {
     this.carregar();
     this.carregarSistemas();
   }
 
-  get tokens(): IntegracoesToken[] {
-    return this.state?.tokens ?? [];
-  }
-
-  get webhooks(): IntegracoesWebhook[] {
-    return this.state?.webhooks ?? [];
-  }
-
-  get deliveries() {
-    return this.state?.deliveries ?? [];
-  }
-
-  get eventLabels(): Record<string, string> {
-    return this.state?.event_labels ?? {};
-  }
-
-  get availableEvents(): string[] {
-    return this.state?.available_events ?? [];
-  }
-
-  onZardTabChange(event: { index: number }): void {
+  onGestgoTabChange(event: { index: number }): void {
     const tab = this.tabIds[event.index];
     if (tab) {
       this.ativarAba(tab);
@@ -109,39 +96,40 @@ export class ClinicaIntegracoesComponent implements OnInit {
   }
 
   ativarAba(aba: AbaIntegracao): void {
-    this.abaAtiva = aba;
+    this.abaAtiva.set(aba);
     if (aba === 'sistemas') {
       this.carregarSistemas();
     }
   }
 
   carregar(): void {
-    this.carregando = true;
+    this.carregando.set(true);
+    this.erro.set('');
     this.service.get().subscribe({
       next: (s) => {
-        this.state = s;
-        this.carregando = false;
+        this.state.set(s);
+        this.carregando.set(false);
       },
       error: () => {
-        this.carregando = false;
-        this.erro = 'Não foi possível carregar as integrações.';
+        this.carregando.set(false);
+        this.erro.set('Não foi possível carregar as integrações.');
       },
     });
   }
 
   criarToken(): void {
     if (!this.novoTokenNome.trim()) return;
-    this.tokenCriando = true;
+    this.tokenCriando.set(true);
     this.service.criarToken(this.novoTokenNome.trim()).subscribe({
       next: (res) => {
-        this.tokenCriando = false;
-        this.ultimoTokenGerado = { token: res.token, name: res.name };
+        this.tokenCriando.set(false);
+        this.ultimoTokenGerado.set({ token: res.token, name: res.name });
         this.novoTokenNome = '';
         this.carregar();
         this.toast.success('Token criado', 'Guarde o token com segurança; ele não será exibido novamente.');
       },
       error: () => {
-        this.tokenCriando = false;
+        this.tokenCriando.set(false);
         this.toast.error('Erro', 'Não foi possível criar o token.');
       },
     });
@@ -176,7 +164,7 @@ export class ClinicaIntegracoesComponent implements OnInit {
 
   criarWebhook(): void {
     if (!this.novoWebhookUrl.trim() || this.novoWebhookEventos.length === 0) return;
-    this.webhookCriando = true;
+    this.webhookCriando.set(true);
     const payload = {
       url: this.novoWebhookUrl.trim(),
       events: this.novoWebhookEventos,
@@ -185,7 +173,7 @@ export class ClinicaIntegracoesComponent implements OnInit {
     };
     this.service.criarWebhook(payload).subscribe({
       next: () => {
-        this.webhookCriando = false;
+        this.webhookCriando.set(false);
         this.novoWebhookUrl = '';
         this.novoWebhookEventos = [];
         this.novoWebhookSecret = '';
@@ -194,7 +182,7 @@ export class ClinicaIntegracoesComponent implements OnInit {
         this.toast.success('Webhook criado', 'O endpoint foi registrado.');
       },
       error: () => {
-        this.webhookCriando = false;
+        this.webhookCriando.set(false);
         this.toast.error('Erro', 'Não foi possível criar o webhook.');
       },
     });
@@ -223,15 +211,15 @@ export class ClinicaIntegracoesComponent implements OnInit {
   }
 
   reenviar(d: IntegracoesDelivery): void {
-    this.reenviandoId = d.id;
+    this.reenviandoId.set(d.id);
     this.service.reenviarDelivery(d.id).subscribe({
       next: () => {
-        this.reenviandoId = null;
+        this.reenviandoId.set(null);
         this.carregar();
         this.toast.success('Reenvio solicitado', 'A entrega foi colocada na fila novamente.');
       },
       error: () => {
-        this.reenviandoId = null;
+        this.reenviandoId.set(null);
         this.toast.error('Erro', 'Não foi possível reenviar.');
       },
     });
@@ -239,18 +227,19 @@ export class ClinicaIntegracoesComponent implements OnInit {
 
   formatarEventosWebhook(wh: IntegracoesWebhook): string {
     if (!wh?.events?.length) return '';
-    return wh.events.map((ev) => this.eventLabels[ev] || ev).join(', ');
+    const labels = this.eventLabels();
+    return wh.events.map((ev) => labels[ev] || ev).join(', ');
   }
 
   carregarSistemas(): void {
-    this.carregandoSistemas = true;
+    this.carregandoSistemas.set(true);
     this.service.getSistemas().subscribe({
       next: (sistemas) => {
-        this.sistemas = sistemas;
-        this.carregandoSistemas = false;
+        this.sistemas.set(sistemas);
+        this.carregandoSistemas.set(false);
       },
       error: () => {
-        this.carregandoSistemas = false;
+        this.carregandoSistemas.set(false);
         this.toast.error('Erro', 'Não foi possível carregar os sistemas de integração.');
       },
     });
@@ -271,7 +260,7 @@ export class ClinicaIntegracoesComponent implements OnInit {
     }
   }
 
-  statusBadgeType(status: IntegracaoSistemaStatus): ZardBadgeTypeVariants {
+  statusBadgeType(status: IntegracaoSistemaStatus): GestgoBadgeTypeVariants {
     switch (status) {
       case 'ok':
         return 'default';

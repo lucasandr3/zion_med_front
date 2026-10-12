@@ -36,6 +36,11 @@ export const sheetVariants = cva(
         class: 'size-full sm:max-w-lg',
       },
       {
+        zSide: ['left', 'right'],
+        zSize: 'custom',
+        class: 'h-full',
+      },
+      {
         zSide: ['top', 'bottom'],
         zSize: 'default',
         class: 'h-auto',
@@ -49,12 +54,11 @@ export const sheetVariants = cva(
         zSide: ['top', 'bottom'],
         zSize: 'lg',
         class: 'h-3/4',
-      },
-    ],
+      }],
     defaultVariants: {
       zSide: 'right',
       zSize: 'default',
     },
   },
 );
-export type ZardSheetVariants = VariantProps<typeof sheetVariants>;
+export type GestgoSheetVariants = VariantProps<typeof sheetVariants>;

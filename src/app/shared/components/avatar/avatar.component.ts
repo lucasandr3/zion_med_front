@@ -16,14 +16,14 @@ import { mergeClasses } from '@/shared/utils/merge-classes';
 import {
   avatarVariants,
   imageVariants,
-  type ZardAvatarShapeVariants,
-  type ZardAvatarSizeVariants,
+  type GestgoAvatarShapeVariants,
+  type GestgoAvatarSizeVariants,
 } from './avatar.variants';
 
-export type ZardAvatarStatus = 'online' | 'offline' | 'doNotDisturb' | 'away';
+export type GestgoAvatarStatus = 'online' | 'offline' | 'doNotDisturb' | 'away';
 
 @Component({
-  selector: 'z-avatar, [z-avatar]',
+  selector: 'g-avatar, [g-avatar]',
   imports: [NgOptimizedImage],
   template: `
     @if (zFallback() && (!hasImageSrc() || imageError() || !imageLoaded())) {
@@ -122,17 +122,17 @@ export type ZardAvatarStatus = 'online' | 'offline' | 'doNotDisturb' | 'away';
     '[attr.data-slot]': '"avatar"',
     '[attr.data-status]': 'zStatus() ?? null',
   },
-  exportAs: 'zAvatar',
+  exportAs: 'gAvatar',
 })
-export class ZardAvatarComponent {
+export class GestgoAvatarComponent {
   readonly class = input<string>('');
   readonly zAlt = input<string>('');
   readonly zFallback = input<string>('');
   readonly zPriority = input(false, { transform: booleanAttribute });
-  readonly zShape = input<ZardAvatarShapeVariants>('circle');
-  readonly zSize = input<ZardAvatarSizeVariants>('default');
+  readonly zShape = input<GestgoAvatarShapeVariants>('circle');
+  readonly zSize = input<GestgoAvatarSizeVariants>('default');
   readonly zSrc = input<string | SafeUrl>('');
-  readonly zStatus = input<ZardAvatarStatus>();
+  readonly zStatus = input<GestgoAvatarStatus>();
 
   protected readonly imageError = signal(false);
   protected readonly imageLoaded = signal(false);

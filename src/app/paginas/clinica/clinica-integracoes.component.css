@@ -1,40 +1,24 @@
-/* Integrações — layout alinhado à tela Empresa (configurações) */
-
-:host {
-  display: block;
-  width: 100%;
-  margin-top: -1.5rem;
-}
+/* Integrações — edge-to-edge via host n-page--flush (igual Empresa) */
 
 .integracoes-page {
-  width: calc(100% + 2rem);
+  width: 100%;
   max-width: none;
-  margin-left: -1rem;
-  margin-right: -1rem;
   color: var(--foreground);
-}
-
-@media (min-width: 640px) {
-  .integracoes-page {
-    width: calc(100% + 3rem);
-    margin-left: -1.5rem;
-    margin-right: -1.5rem;
-  }
-}
-
-@media (min-width: 1024px) {
-  .integracoes-page {
-    width: calc(100% + 4rem);
-    margin-left: -2rem;
-    margin-right: -2rem;
-  }
 }
 
 .integracoes-shell {
   display: flex;
   flex-direction: column;
   width: 100%;
-  background: var(--background);
+  background: var(--card);
+}
+
+.integracoes-shell .clinica-config,
+.integracoes-shell .integracoes-config {
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 auto;
+  width: 100%;
 }
 
 .integracoes-alerts {
@@ -42,7 +26,7 @@
 }
 
 :host ::ng-deep .integracoes-shell .integracoes-tabs-bar,
-:host ::ng-deep .integracoes-shell .config-zard-tabs--layout > .grid {
+:host ::ng-deep .integracoes-shell .config-gestgo-tabs--layout > .grid {
   position: sticky;
   top: 0;
   z-index: 30;
@@ -54,7 +38,7 @@
   border-bottom: 1px solid var(--border, var(--c-border)) !important;
 }
 
-:host ::ng-deep .integracoes-shell .config-zard-tabs--no-nav-rule nav[role='tablist'] {
+:host ::ng-deep .integracoes-shell .config-gestgo-tabs--no-nav-rule nav[role='tablist'] {
   flex-shrink: 0;
   width: 100%;
   margin: 0 !important;
@@ -65,55 +49,88 @@
   border-bottom: none !important;
 }
 
-:host ::ng-deep .config-zard-tabs nav[role='tablist'] button[role='tab'][aria-selected='true'] {
+:host ::ng-deep .config-gestgo-tabs nav[role='tablist'] button[role='tab'][aria-selected='true'] {
   color: var(--primary);
   border-bottom-color: var(--primary) !important;
 }
 
-.config-zard-tabs--layout {
+.config-gestgo-tabs--layout {
   display: flex;
   flex-direction: column;
   flex: 0 0 auto;
   width: 100%;
   margin: 0;
   padding: 0;
-  background: var(--background);
+  background: var(--card);
   border: none;
 }
 
-:host ::ng-deep .integracoes-shell .config-zard-tabs--layout > .flex-1 {
+:host ::ng-deep .integracoes-shell .config-gestgo-tabs--layout > .flex-1 {
   display: block;
   flex: 0 0 auto !important;
   width: 100%;
   min-height: 0 !important;
   height: auto !important;
-  background: var(--background);
+  background: var(--card);
 }
 
-:host ::ng-deep .integracoes-shell .config-zard-tabs--layout > .flex-1 [role='tabpanel'] {
+:host ::ng-deep .integracoes-shell .config-gestgo-tabs--layout > .flex-1 [role='tabpanel'] {
   display: block;
   width: 100%;
   outline: none;
+  border: none;
+  box-shadow: none;
+  background: var(--card);
 }
 
-:host ::ng-deep .integracoes-shell .config-zard-tabs--layout > .flex-1 [role='tabpanel'][hidden] {
+:host ::ng-deep .integracoes-shell .config-gestgo-tabs--layout > .flex-1 [role='tabpanel'][hidden] {
   display: none !important;
 }
 
+/* Conteúdo das abas full-bleed (igual Empresa) */
 .clinica-config .config-tab-panel {
   box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
   width: 100%;
-  padding: 1.25rem;
-  padding-bottom: 0;
-  background: var(--background);
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  background: var(--card);
+  border: none;
+  box-shadow: none;
+}
+
+.clinica-config .config-tab-panel > g-card.section-card {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin: 0;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+
+:host ::ng-deep .clinica-config .config-tab-panel > g-card.section-card nord-card {
+  --n-card-box-shadow: none !important;
+  --n-card-border-color: transparent !important;
+  --n-card-padding: 0 !important;
+  --n-card-slot-padding: 0 !important;
+  --n-card-border-radius: 0 !important;
+  --n-card-background-color: var(--card);
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  background: var(--card) !important;
+}
+
+.integracoes-shell zm-skeleton-integracoes {
+  display: block;
+  width: 100%;
 }
 
 @media (min-width: 640px) {
-  .clinica-config .config-tab-panel {
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
-  }
-
   .integracoes-alerts {
     padding-left: 1.5rem;
     padding-right: 1.5rem;
@@ -121,11 +138,6 @@
 }
 
 @media (min-width: 1024px) {
-  .clinica-config .config-tab-panel {
-    padding-left: 2rem;
-    padding-right: 2rem;
-  }
-
   .integracoes-alerts {
     padding-left: 2rem;
     padding-right: 2rem;

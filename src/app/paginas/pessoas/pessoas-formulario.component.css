@@ -1,18 +1,41 @@
+/* Campo = label + controle empilhados; grids usam items-end para alinhar a base */
+.pessoa-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  min-width: 0;
+}
+
 .pessoa-form-label {
   display: block;
-  margin-bottom: 0.375rem;
+  margin: 0;
+  min-height: 1.2em;
   font-size: 0.75rem;
   font-weight: 600;
   line-height: 1.2;
   color: var(--foreground, var(--c-text));
 }
 
-.pessoa-formulario z-combobox button[z-button] {
-  height: var(--control-height);
-  min-height: var(--control-height);
+/* Host real é n-page — alinhar altura dos controles Nord à dos inputs nativos */
+:host z-combobox,
+:host .pessoa-form-field z-combobox {
+  display: block;
+  width: 100%;
 }
 
-.pessoa-form-lgpd z-checkbox {
+:host z-combobox nord-combobox,
+:host .pessoa-form-field z-combobox nord-combobox {
+  --n-combobox-block-size: var(--control-height, 2.5rem);
+  width: 100%;
+}
+
+:host nord-date-picker,
+:host .pessoa-form-field nord-date-picker {
+  --n-input-block-size: var(--control-height, 2.5rem);
+  --_n-input-block-size: var(--control-height, 2.5rem);
+  width: 100%;
+}
+
+.pessoa-form-lgpd g-checkbox {
   align-items: flex-start;
 }
-

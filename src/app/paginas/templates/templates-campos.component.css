@@ -57,12 +57,11 @@
   min-height: 1.125rem;
 }
 
-.templates-campos z-combobox button[z-button] {
-  height: var(--control-height);
-  min-height: var(--control-height);
+.templates-campos z-combobox nord-combobox {
+  --n-combobox-block-size: var(--control-height);
 }
 
-.templates-campos z-checkbox {
+.templates-campos g-checkbox {
   align-items: flex-start;
 }
 

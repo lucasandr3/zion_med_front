@@ -7,7 +7,7 @@ import { mergeClasses } from '@/shared/utils/merge-classes';
 import { skeletonVariants } from './skeleton.variants';
 
 @Component({
-  selector: 'z-skeleton',
+  selector: 'g-skeleton',
   template: `
     <div data-slot="skeleton" [class]="classes()"></div>
   `,
@@ -16,9 +16,9 @@ import { skeletonVariants } from './skeleton.variants';
   host: {
     class: 'block',
   },
-  exportAs: 'zSkeleton',
+  exportAs: 'gSkeleton',
 })
-export class ZardSkeletonComponent {
+export class GestgoSkeletonComponent {
   readonly class = input<ClassValue>('');
 
   protected readonly classes = computed(() => mergeClasses(skeletonVariants(), this.class()));

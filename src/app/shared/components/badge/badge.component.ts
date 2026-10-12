@@ -4,10 +4,10 @@ import type { ClassValue } from 'clsx';
 
 import { mergeClasses } from '@/shared/utils/merge-classes';
 
-import { badgeVariants, type ZardBadgeShapeVariants, type ZardBadgeTypeVariants } from './badge.variants';
+import { badgeVariants, type GestgoBadgeShapeVariants, type GestgoBadgeTypeVariants } from './badge.variants';
 
 @Component({
-  selector: 'z-badge',
+  selector: 'g-badge',
   template: `
     <ng-content />
   `,
@@ -16,11 +16,11 @@ import { badgeVariants, type ZardBadgeShapeVariants, type ZardBadgeTypeVariants 
   host: {
     '[class]': 'classes()',
   },
-  exportAs: 'zBadge',
+  exportAs: 'gBadge',
 })
-export class ZardBadgeComponent {
-  readonly zType = input<ZardBadgeTypeVariants>('default');
-  readonly zShape = input<ZardBadgeShapeVariants>('default');
+export class GestgoBadgeComponent {
+  readonly zType = input<GestgoBadgeTypeVariants>('default');
+  readonly zShape = input<GestgoBadgeShapeVariants>('default');
 
   readonly class = input<ClassValue>('');
 

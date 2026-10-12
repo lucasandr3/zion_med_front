@@ -71,5 +71,5 @@ export const commandShortcutVariants = cva('ml-auto text-xs tracking-widest text
   defaultVariants: {},
 });
 
-export type ZardCommandSizeVariants = NonNullable<VariantProps<typeof commandVariants>['size']>;
-export type ZardCommandItemVariants = NonNullable<VariantProps<typeof commandItemVariants>['variant']>;
+export type GestgoCommandSizeVariants = NonNullable<VariantProps<typeof commandVariants>['size']>;
+export type GestgoCommandItemVariants = NonNullable<VariantProps<typeof commandItemVariants>['variant']>;

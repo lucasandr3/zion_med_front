@@ -1,4 +1,4 @@
-import { ApplicationConfig, ErrorHandler, provideZoneChangeDetection, isDevMode } from '@angular/core';
+import { ApplicationConfig, ErrorHandler, provideZonelessChangeDetection, isDevMode } from '@angular/core';
 import { IMAGE_LOADER, type ImageLoaderConfig } from '@angular/common';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
@@ -6,7 +6,7 @@ import { provideFlatpickrDefaults } from 'angularx-flatpickr';
 import { provideEnvironmentNgxMask } from 'ngx-mask';
 import { Portuguese } from 'flatpickr/dist/l10n/pt';
 
-import { provideZard } from '@/shared/core/provider/providezard';
+import { provideNord } from '@/shared/nord/provide-nord';
 import { routes } from './app.routes';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { errorHubInterceptor } from './core/interceptors/error-hub.interceptor';
@@ -22,8 +22,8 @@ export const appConfig: ApplicationConfig = {
   providers: [
     { provide: ErrorHandler, useClass: GlobalErrorHandler },
     { provide: IMAGE_LOADER, useValue: absoluteMediaImageLoader },
-    provideZard(),
-    provideZoneChangeDetection({ eventCoalescing: true }),
+    provideNord(),
+    provideZonelessChangeDetection(),
     provideRouter(routes),
     provideHttpClient(withInterceptors([authInterceptor, errorHubInterceptor])),
     provideFlatpickrDefaults({
@@ -42,6 +42,5 @@ export const appConfig: ApplicationConfig = {
     provideServiceWorker('ngsw-worker.js', {
       enabled: !isDevMode(),
       registrationStrategy: 'registerWhenStable:5000',
-    }),
-  ],
+    })],
 };

@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, ChangeDetectionStrategy, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
@@ -7,23 +7,25 @@ import {
   PlataformaIntegracoesService,
 } from '../../../core/services/plataforma-integracoes.service';
 import { ToastService } from '../../../core/services/toast.service';
-import { ZardCardComponent } from '@/shared/components/card/card.component';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
-import { ZardBadgeComponent } from '@/shared/components/badge';
-import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
-import type { ZardBadgeTypeVariants } from '@/shared/components/badge/badge.variants';
+import { GestgoCardComponent } from '@/shared/components/card/card.component';
+import { GestgoComboboxComponent, type GestgoComboboxOption } from '@/shared/components/combobox';
+
+import { GestgoBadgeComponent } from '@/shared/components/badge';
+import { NORD_FORM_IMPORTS } from '@/shared/nord';
+import type { GestgoBadgeTypeVariants } from '@/shared/components/badge/badge.variants';
 
 @Component({
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'app-plataforma-integracoes-tab',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,
-    ZardCardComponent,
-    ZardButtonComponent,
-    ZardBadgeComponent,
-    ...ZARD_FORM_CONTROL_IMPORTS,
-  ],
+    GestgoCardComponent,
+    GestgoBadgeComponent,
+    GestgoComboboxComponent,
+    ...NORD_FORM_IMPORTS],
   templateUrl: './plataforma-integracoes-tab.component.html',
   styleUrl: './plataforma-integracoes-tab.component.css',
 })
@@ -46,7 +48,7 @@ export class PlataformaIntegracoesTabComponent implements OnInit {
   systemName = '';
   version = '1.0.0';
 
-  readonly connectorTypes = [
+  readonly connectorTypes: GestgoComboboxOption[] = [
     { value: 'CRM', label: 'CRM' },
     { value: 'ERP', label: 'ERP' },
     { value: 'BILLING', label: 'Billing' },
@@ -145,8 +147,8 @@ export class PlataformaIntegracoesTabComponent implements OnInit {
     );
   }
 
-  statusBadgeType(status: string): ZardBadgeTypeVariants {
-    const map: Record<string, ZardBadgeTypeVariants> = {
+  statusBadgeType(status: string): GestgoBadgeTypeVariants {
+    const map: Record<string, GestgoBadgeTypeVariants> = {
       active: 'default',
       inactive: 'secondary',
       not_configured: 'outline',

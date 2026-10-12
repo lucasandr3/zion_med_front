@@ -85,7 +85,7 @@ Equipe {{produto}}`,
     id: 'billing-overdue',
     category: 'billing',
     label: 'Fatura vencida',
-    subject: '[{{produto}}] Fatura vencida — ação necessária',
+    subject: '[{{produto}}] Fatura vencida: ação necessária',
     body: `Olá, {{nome}}!
 
 A fatura da assinatura de {{empresa}} encontra-se vencida.
@@ -174,7 +174,7 @@ Equipe {{produto}}`,
 
 Gostaríamos de saber como tem sido sua experiência com o {{produto}} em {{empresa}}.
 
-Sua opinião é muito importante para continuarmos melhorando. Responda este e-mail com seu feedback — levamos cada retorno a sério.
+Sua opinião é muito importante para continuarmos melhorando. Responda este e-mail com seu feedback. Levamos cada retorno a sério.
 
 Atenciosamente,
 Equipe {{produto}}`,
@@ -235,7 +235,7 @@ Obrigado por escolher o {{produto}}. Estamos à disposição para ajudar!`,
     id: 'support-welcome',
     category: 'support',
     label: 'Boas-vindas com suporte',
-    subject: '[{{produto}}] Bem-vindo(a) — estamos aqui para ajudar',
+    subject: '[{{produto}}] Bem-vindo(a). Estamos aqui para ajudar',
     body: `Olá, {{nome}}, tudo bem?
 
 Seja bem-vindo(a) ao {{produto}}! 🚀
@@ -258,8 +258,7 @@ Passando para saber se está tudo certo com o uso do {{produto}} em {{empresa}}.
 Por favor, responda este e-mail se houver algo em que possamos ajudar.
 
 Obrigado por escolher o {{produto}}. Estamos à disposição para ajudar!`,
-  },
-];
+  }];
 
 export interface PlatformEmailTemplateContext {
   nome?: string | null;

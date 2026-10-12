@@ -15,8 +15,7 @@ export const MENU_POSITIONS_MAP: { [key: string]: ConnectedPosition[] } = {
       overlayX: 'start',
       overlayY: 'bottom',
       offsetY: -8,
-    },
-  ],
+    }],
   bottomCenter: [
     {
       originX: 'center',
@@ -31,8 +30,7 @@ export const MENU_POSITIONS_MAP: { [key: string]: ConnectedPosition[] } = {
       overlayX: 'center',
       overlayY: 'bottom',
       offsetY: -8,
-    },
-  ],
+    }],
   bottomRight: [
     {
       originX: 'end',
@@ -47,8 +45,7 @@ export const MENU_POSITIONS_MAP: { [key: string]: ConnectedPosition[] } = {
       overlayX: 'end',
       overlayY: 'bottom',
       offsetY: -8,
-    },
-  ],
+    }],
   topLeft: [
     {
       originX: 'start',
@@ -63,8 +60,7 @@ export const MENU_POSITIONS_MAP: { [key: string]: ConnectedPosition[] } = {
       overlayX: 'start',
       overlayY: 'top',
       offsetY: 8,
-    },
-  ],
+    }],
   topCenter: [
     {
       originX: 'center',
@@ -79,8 +75,7 @@ export const MENU_POSITIONS_MAP: { [key: string]: ConnectedPosition[] } = {
       overlayX: 'center',
       overlayY: 'top',
       offsetY: 8,
-    },
-  ],
+    }],
   topRight: [
     {
       originX: 'end',
@@ -95,8 +90,7 @@ export const MENU_POSITIONS_MAP: { [key: string]: ConnectedPosition[] } = {
       overlayX: 'end',
       overlayY: 'top',
       offsetY: 8,
-    },
-  ],
+    }],
   leftTop: [
     {
       originX: 'start',
@@ -111,8 +105,7 @@ export const MENU_POSITIONS_MAP: { [key: string]: ConnectedPosition[] } = {
       overlayX: 'start',
       overlayY: 'top',
       offsetX: 8,
-    },
-  ],
+    }],
   leftCenter: [
     {
       originX: 'start',
@@ -127,8 +120,7 @@ export const MENU_POSITIONS_MAP: { [key: string]: ConnectedPosition[] } = {
       overlayX: 'start',
       overlayY: 'center',
       offsetX: 8,
-    },
-  ],
+    }],
   leftBottom: [
     {
       originX: 'start',
@@ -143,8 +135,7 @@ export const MENU_POSITIONS_MAP: { [key: string]: ConnectedPosition[] } = {
       overlayX: 'start',
       overlayY: 'bottom',
       offsetX: 8,
-    },
-  ],
+    }],
   rightTop: [
     {
       originX: 'end',
@@ -159,8 +150,7 @@ export const MENU_POSITIONS_MAP: { [key: string]: ConnectedPosition[] } = {
       overlayX: 'end',
       overlayY: 'top',
       offsetX: -8,
-    },
-  ],
+    }],
   rightCenter: [
     {
       originX: 'end',
@@ -175,8 +165,7 @@ export const MENU_POSITIONS_MAP: { [key: string]: ConnectedPosition[] } = {
       overlayX: 'end',
       overlayY: 'center',
       offsetX: -8,
-    },
-  ],
+    }],
   rightBottom: [
     {
       originX: 'end',
@@ -191,11 +180,10 @@ export const MENU_POSITIONS_MAP: { [key: string]: ConnectedPosition[] } = {
       overlayX: 'end',
       overlayY: 'bottom',
       offsetX: -8,
-    },
-  ],
+    }],
 };
 
-export type ZardMenuPlacement =
+export type GestgoMenuPlacement =
   | 'bottomLeft'
   | 'bottomCenter'
   | 'bottomRight'

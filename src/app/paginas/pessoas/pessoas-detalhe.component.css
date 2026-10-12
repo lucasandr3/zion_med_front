@@ -122,7 +122,7 @@
   gap: 0.75rem;
 }
 
-/* KPIs aninhados no card de abas — fundo elevado (padrão dashboard / Zard) */
+/* KPIs aninhados no card de abas — fundo elevado (padrão dashboard / Gestgo) */
 .pessoa-stat-card {
   border-color: var(--border, var(--c-border)) !important;
   background: var(--muted, var(--c-elevated)) !important;

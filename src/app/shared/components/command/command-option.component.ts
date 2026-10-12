@@ -14,12 +14,12 @@ import {
 import { NgIcon, type IconName } from '@ng-icons/core';
 import type { ClassValue } from 'clsx';
 
-import type { ZardCommandOptionGroupComponent } from '@/shared/components/command/command-option-group.component';
-import { ZardCommandComponent } from '@/shared/components/command/command.component';
+import type { GestgoCommandOptionGroupComponent } from '@/shared/components/command/command-option-group.component';
+import { GestgoCommandComponent } from '@/shared/components/command/command.component';
 import {
   commandItemVariants,
   commandShortcutVariants,
-  type ZardCommandItemVariants,
+  type GestgoCommandItemVariants,
 } from '@/shared/components/command/command.variants';
 import { mergeClasses } from '@/shared/utils/merge-classes';
 
@@ -53,9 +53,9 @@ import { mergeClasses } from '@/shared/utils/merge-classes';
   encapsulation: ViewEncapsulation.None,
   exportAs: 'zCommandOption',
 })
-export class ZardCommandOptionComponent {
+export class GestgoCommandOptionComponent {
   private readonly elementRef = inject(ElementRef);
-  private readonly parentCommandComponent = inject(ZardCommandComponent, { optional: true });
+  private readonly parentCommandComponent = inject(GestgoCommandComponent, { optional: true });
 
   readonly zValue = input.required<unknown>();
   readonly zLabel = input.required<string>();
@@ -63,10 +63,10 @@ export class ZardCommandOptionComponent {
   readonly zIcon = input<IconName>();
   readonly zShortcut = input<string>('');
   readonly zDisabled = input(false, { transform: booleanAttribute });
-  readonly variant = input<ZardCommandItemVariants>('default');
+  readonly variant = input<GestgoCommandItemVariants>('default');
   readonly class = input<ClassValue>('');
-  readonly parentCommand = input<ZardCommandComponent | null>(null);
-  readonly commandGroup = input<ZardCommandOptionGroupComponent | null>(null);
+  readonly parentCommand = input<GestgoCommandComponent | null>(null);
+  readonly commandGroup = input<GestgoCommandOptionGroupComponent | null>(null);
 
   readonly isSelected = signal(false);
 

@@ -1,34 +1,9 @@
-/* Conta perfil — layout de abas igual a Empresa (clinica-configuracoes) */
+/* Conta perfil — edge-to-edge via host n-page--flush */
 
-:host {
-  display: block;
-  width: 100%;
-  margin-top: -1.5rem;
-}
-
-/* Compensa padding do <main> — barra de abas até as bordas */
 .conta-perfil-page {
-  width: calc(100% + 2rem);
+  width: 100%;
   max-width: none;
-  margin-left: -1rem;
-  margin-right: -1rem;
   color: var(--foreground);
-}
-
-@media (min-width: 640px) {
-  .conta-perfil-page {
-    width: calc(100% + 3rem);
-    margin-left: -1.5rem;
-    margin-right: -1.5rem;
-  }
-}
-
-@media (min-width: 1024px) {
-  .conta-perfil-page {
-    width: calc(100% + 4rem);
-    margin-left: -2rem;
-    margin-right: -2rem;
-  }
 }
 
 .conta-perfil-shell {
@@ -41,7 +16,7 @@
 .conta-perfil-shell 
 /* Barra de abas fixa no topo — mesmo fundo dos cards */
 :host ::ng-deep .conta-perfil-shell .conta-perfil-tabs-bar,
-:host ::ng-deep .conta-perfil-shell .config-zard-tabs--layout > .grid {
+:host ::ng-deep .conta-perfil-shell .config-gestgo-tabs--layout > .grid {
   position: sticky;
   top: 0;
   z-index: 30;
@@ -53,7 +28,7 @@
   border-bottom: 1px solid var(--border, var(--c-border)) !important;
 }
 
-:host ::ng-deep .conta-perfil-shell .config-zard-tabs--no-nav-rule nav[role='tablist'] {
+:host ::ng-deep .conta-perfil-shell .config-gestgo-tabs--no-nav-rule nav[role='tablist'] {
   flex-shrink: 0;
   width: 100%;
   margin: 0 !important;
@@ -64,12 +39,12 @@
   border-bottom: none !important;
 }
 
-:host ::ng-deep .conta-perfil-shell .config-zard-tabs nav[role='tablist'] button[role='tab'][aria-selected='true'] {
+:host ::ng-deep .conta-perfil-shell .config-gestgo-tabs nav[role='tablist'] button[role='tab'][aria-selected='true'] {
   color: var(--primary, var(--c-primary));
   border-bottom-color: var(--primary, var(--c-primary)) !important;
 }
 
-:host ::ng-deep .conta-perfil-shell .config-zard-tabs--layout {
+:host ::ng-deep .conta-perfil-shell .config-gestgo-tabs--layout {
   display: flex;
   flex-direction: column;
   flex: 0 0 auto;
@@ -80,7 +55,7 @@
   border: none;
 }
 
-:host ::ng-deep .conta-perfil-shell .config-zard-tabs--layout > .flex-1 {
+:host ::ng-deep .conta-perfil-shell .config-gestgo-tabs--layout > .flex-1 {
   display: block;
   flex: 0 0 auto !important;
   width: 100%;
@@ -89,13 +64,13 @@
   background: var(--background);
 }
 
-:host ::ng-deep .conta-perfil-shell .config-zard-tabs--layout > .flex-1 [role='tabpanel'] {
+:host ::ng-deep .conta-perfil-shell .config-gestgo-tabs--layout > .flex-1 [role='tabpanel'] {
   display: block;
   width: 100%;
   outline: none;
 }
 
-:host ::ng-deep .conta-perfil-shell .config-zard-tabs--layout > .flex-1 [role='tabpanel'][hidden] {
+:host ::ng-deep .conta-perfil-shell .config-gestgo-tabs--layout > .flex-1 [role='tabpanel'][hidden] {
   display: none !important;
 }
 
@@ -132,7 +107,7 @@
   background: transparent !important;
 }
 
-.conta-perfil-page z-card.section-card {
+.conta-perfil-page g-card.section-card {
   display: flex;
   flex-direction: column;
   gap: 0;
@@ -147,7 +122,7 @@
   box-shadow: none;
 }
 
-.conta-perfil-page z-card.section-card [data-slot='card-content'] {
+.conta-perfil-page g-card.section-card [data-slot='card-content'] {
   padding: 0;
   gap: 0;
 }
@@ -280,7 +255,7 @@
   height: auto;
 }
 
-.conta-perfil-page z-card.section-card--danger {
+.conta-perfil-page g-card.section-card--danger {
   border-color: color-mix(in srgb, var(--destructive, #dc2626) 28%, var(--border, var(--c-border)));
 }
 

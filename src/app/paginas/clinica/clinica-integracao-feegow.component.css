@@ -3,71 +3,24 @@
   font-weight: 600;
 }
 
-
-:host {
-  display: block;
-  width: 100%;
-}
-
 .feegow-page {
-  width: calc(100% + 2rem);
+  width: 100%;
   max-width: none;
-  margin-left: -1rem;
-  margin-right: -1rem;
   color: var(--foreground);
-}
-
-@media (min-width: 640px) {
-  .feegow-page {
-    width: calc(100% + 3rem);
-    margin-left: -1.5rem;
-    margin-right: -1.5rem;
-  }
-}
-
-@media (min-width: 1024px) {
-  .feegow-page {
-    width: calc(100% + 4rem);
-    margin-left: -2rem;
-    margin-right: -2rem;
-  }
 }
 
 .feegow-shell {
   display: flex;
   flex-direction: column;
   width: 100%;
-  background: var(--background);
 }
 
 .feegow-config {
   box-sizing: border-box;
   width: 100%;
-  padding: 1.25rem;
   padding-bottom: 2rem;
-  background: var(--background);
-}
-
-.feegow-alerts {
-  padding: 0 1.25rem;
 }
 
 .feegow-config .section-header .sistema-logo-header {
   object-fit: contain;
-}
-
-@media (min-width: 640px) {
-  .feegow-config,
-  .feegow-alerts {
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
-  }
-}
-
-@media (min-width: 1024px) {
-  .feegow-config,
-  .feegow-alerts {
-    padding-left: 2rem;
-    padding-right: 2rem;
-  }
 }

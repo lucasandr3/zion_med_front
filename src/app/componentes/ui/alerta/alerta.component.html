@@ -1,8 +1,8 @@
 @let estilos = {
-  info:    { bg: 'rgba(59,130,246,0.08)',  border: 'rgba(59,130,246,0.25)',  text: 'var(--c-primary)', icon: 'info' },
-  success: { bg: 'rgba(34,197,94,0.08)',   border: 'rgba(34,197,94,0.25)',   text: '#22c55e',          icon: 'check_circle' },
-  warning: { bg: 'rgba(234,179,8,0.08)',   border: 'rgba(234,179,8,0.25)',   text: '#ca8a04',          icon: 'warning' },
-  error:   { bg: 'rgba(239,68,68,0.08)',   border: 'rgba(239,68,68,0.25)',   text: '#ef4444',          icon: 'cancel' }
+  info:    { bg: 'var(--c-info-soft)',    border: 'color-mix(in srgb, var(--c-info) 32%, var(--c-border))',    text: 'var(--c-info)',    icon: 'info' },
+  success: { bg: 'var(--c-success-soft)', border: 'color-mix(in srgb, var(--c-success) 32%, var(--c-border))', text: 'var(--c-success)', icon: 'check_circle' },
+  warning: { bg: 'var(--c-warning-soft)', border: 'color-mix(in srgb, var(--c-warning) 32%, var(--c-border))', text: 'var(--c-warning)', icon: 'warning' },
+  error:   { bg: 'var(--c-danger-soft)',  border: 'color-mix(in srgb, var(--c-danger) 32%, var(--c-border))',  text: 'var(--c-danger)',  icon: 'cancel' }
 };
 @let s = estilos[tipo] || estilos['info'];
 <div role="alert" class="flex items-start gap-2.5 rounded-lg border p-3 text-[0.8125rem] {{ classe }}" [style.background]="s.bg" [style.border-color]="s.border" [style.color]="s.text">

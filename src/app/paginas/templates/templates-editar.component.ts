@@ -1,41 +1,41 @@
-import { Component, OnInit, inject, Signal, signal } from '@angular/core';
+import { Component, OnInit, inject, Signal, signal, ChangeDetectionStrategy, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TemplatesService, Template, TemplateCategory, TemplateComprehensionQuestion } from '../../core/services/templates.service';
 import { LoadingService } from '../../shared/services/loading.service';
 import { ZmSkeletonTemplateFormularioComponent } from '../../shared/components/skeletons';
 import { ZmPageBackLinkComponent } from '../../shared/components/ui';
 import { ToastService } from '../../core/services/toast.service';
-import { ZardComboboxComponent, type ZardComboboxOption } from '@/shared/components/combobox';
-import { ZardCardComponent } from '@/shared/components/card/card.component';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
-import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
+import { GestgoComboboxComponent, type GestgoComboboxOption } from '@/shared/components/combobox';
+import { GestgoCardComponent } from '@/shared/components/card/card.component';
+
+import { NORD_FORM_IMPORTS } from '@/shared/nord';
 
 @Component({
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'app-templates-editar',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { class: 'n-page templates-editar' },
   imports: [
-    ...ZARD_FORM_CONTROL_IMPORTS,
-    CommonModule,
+    ...NORD_FORM_IMPORTS,
     RouterLink,
     FormsModule,
     ZmSkeletonTemplateFormularioComponent,
     ZmPageBackLinkComponent,
-    ZardComboboxComponent,
-    ZardCardComponent,
-    ZardButtonComponent,
+    GestgoComboboxComponent,
+    GestgoCardComponent
   ],
   templateUrl: './templates-editar.component.html',
   styleUrl: './templates-editar.component.css',
 })
 export class TemplatesEditarComponent implements OnInit {
-  template: Template | null = null;
+  readonly template = signal<Template | null>(null);
   name = '';
   description = '';
   categoriaSelecionada = '';
   novaCategoria = '';
-  categorias: TemplateCategory[] = [];
+  readonly categorias = signal<TemplateCategory[]>([]);
   is_active = true;
   public_enabled = false;
   public_require_person_link = false;
@@ -46,9 +46,9 @@ export class TemplatesEditarComponent implements OnInit {
   consent_validity_days: number | null = null;
   quizQuestions: TemplateComprehensionQuestion[] = [];
   showSkeleton!: Signal<boolean>;
-  listaPronta = false;
-  salvando = false;
-  erro = '';
+  readonly listaPronta = signal(false);
+  readonly salvando = signal(false);
+  readonly erro = signal('');
 
   private route = inject(ActivatedRoute);
   private router = inject(Router);
@@ -56,44 +56,42 @@ export class TemplatesEditarComponent implements OnInit {
   private loadingService = inject(LoadingService);
   private toast = inject(ToastService);
 
-  get opcoesDocumento(): ZardComboboxOption[] {
+  get opcoesDocumento(): GestgoComboboxOption[] {
     return [
       { value: 'ficha', label: 'Ficha / anamnese' },
       { value: 'consentimento', label: 'Consentimento informado' },
-      { value: 'ciencia_lgpd', label: 'Ciência LGPD / privacidade' },
-    ];
+      { value: 'ciencia_lgpd', label: 'Ciência LGPD / privacidade' }];
   }
 
-  get opcoesCategoria(): ZardComboboxOption[] {
+  get opcoesCategoria(): GestgoComboboxOption[] {
     return [
       { value: '', label: 'Sem categoria' },
-      ...this.categorias.map((cat) => ({ value: cat.key, label: cat.name })),
-      { value: '__nova__', label: 'Nova categoria…' },
-    ];
+      ...this.categorias().map((cat) => ({ value: cat.key, label: cat.name })),
+      { value: '__nova__', label: 'Nova categoria…' }];
   }
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
     if (!id) {
       this.showSkeleton = signal(false).asReadonly();
-      this.listaPronta = true;
-      this.erro = 'ID inválido';
+      this.listaPronta.set(true);
+      this.erro.set('ID inválido');
       return;
     }
     const { data$, showSkeleton } = this.loadingService.loadWithThreshold(this.templatesService.get(Number(id)));
     this.showSkeleton = showSkeleton;
     this.templatesService.categories().subscribe({
       next: (items) => {
-        this.categorias = items;
+        this.categorias.set(items);
       },
       error: () => {
-        this.categorias = [];
+        this.categorias.set([]);
       },
     });
     data$.subscribe({
       next: (t) => {
-        this.listaPronta = true;
-        this.template = t;
+        this.listaPronta.set(true);
+        this.template.set(t);
         this.name = t.name ?? '';
         this.description = t.description ?? '';
         this.categoriaSelecionada = t.category ?? '';
@@ -120,20 +118,21 @@ export class TemplatesEditarComponent implements OnInit {
             : [];
       },
       error: () => {
-        this.listaPronta = true;
-        this.erro = 'Template não encontrado.';
+        this.listaPronta.set(true);
+        this.erro.set('Template não encontrado.');
       },
     });
   }
 
   salvar(): void {
-    if (!this.template || !this.name.trim()) return;
-    this.salvando = true;
-    this.erro = '';
+    const tpl = this.template();
+    if (!tpl || !this.name.trim()) return;
+    this.salvando.set(true);
+    this.erro.set('');
     const usarNovaCategoria = this.categoriaSelecionada === '__nova__';
     const categoriaCustom = this.novaCategoria.trim();
     this.templatesService
-      .update(this.template.id, {
+      .update(tpl.id, {
         name: this.name.trim(),
         description: this.description.trim() || undefined,
         category: !usarNovaCategoria ? this.categoriaSelecionada || undefined : undefined,
@@ -151,14 +150,14 @@ export class TemplatesEditarComponent implements OnInit {
       })
       .subscribe({
         next: () => {
-          this.salvando = false;
+          this.salvando.set(false);
           const label = this.name.trim();
           this.toast.success('Template salvo!', `${label} foi salvo com sucesso.`);
           this.router.navigate(['/templates']);
         },
         error: () => {
-          this.salvando = false;
-          this.erro = 'Não foi possível salvar.';
+          this.salvando.set(false);
+          this.erro.set('Não foi possível salvar.');
           this.toast.error('Erro ao salvar', 'Não foi possível salvar as alterações.');
         },
       });
@@ -200,8 +199,7 @@ export class TemplatesEditarComponent implements OnInit {
         prompt: '',
         options: ['Sim', 'Não'],
         correct_index: 0,
-      },
-    ];
+      }];
   }
 
   removeQuizQuestion(index: number): void {

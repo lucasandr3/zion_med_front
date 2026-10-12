@@ -1,52 +1,85 @@
-import { Component, OnInit, inject, HostListener, PLATFORM_ID } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  HostListener,
+  OnInit,
+  PLATFORM_ID,
+  inject,
+  signal,
+} from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
-import { Router, RouterLink, RouterOutlet, NavigationEnd } from '@angular/router';
+import { NavigationEnd, Router, RouterLink, RouterOutlet } from '@angular/router';
 import { filter } from 'rxjs';
-import { BarraLateralComponent } from '../barra-lateral/barra-lateral.component';
-import { CabecalhoComponent } from '../cabecalho/cabecalho.component';
-import { CommonModule } from '@angular/common';
 import { NotificacoesService } from '../../../core/services/notificacoes.service';
 import { NovidadesService } from '../../../core/services/novidades.service';
 import { SidebarMobileService } from '../../../core/services/sidebar-mobile.service';
 import { BillingBlockedStateService } from '../../../core/services/billing-blocked-state.service';
 import { AuthService, TrialNotice } from '../../../core/services/auth.service';
 import { OrganizationPresenceService } from '../../../core/services/organization-presence.service';
-import { ZmAssinaturaBloqueadaCardComponent, ZmPageBackLinkComponent } from '../../../shared/components/ui';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
+import { disableHorizontalNavInDom } from '../../../core/services/user-appearance.sync';
+import {
+  ZmAssinaturaBloqueadaCardComponent,
+  ZmPageBackLinkComponent,
+} from '../../../shared/components/ui';
+import { GestgoBrandMarkComponent } from '../../../shared/components/gestgo-brand-mark/gestgo-brand-mark.component';
 import { GoAssistantHostComponent } from '../../../go-assistant';
+import {
+  SHELL_NAV_SIDEBAR,
+  ShellNavItem,
+  ShellNavSection,
+  shellNavItemVisivel,
+  shellNavSectionVisivel,
+} from '../shell-nav.config';
+import { ShellAccountMenuComponent } from '../shell-account-menu/shell-account-menu.component';
+import { ShellTopBarActionsComponent } from '../shell-top-bar-actions/shell-top-bar-actions.component';
+
 @Component({
   selector: 'app-layout-app',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   imports: [
-    CommonModule,
     RouterLink,
     RouterOutlet,
-    BarraLateralComponent,
-    CabecalhoComponent,
     ZmAssinaturaBloqueadaCardComponent,
     ZmPageBackLinkComponent,
-    ZardButtonComponent,
+    GestgoBrandMarkComponent,
     GoAssistantHostComponent,
+    ShellTopBarActionsComponent,
+    ShellAccountMenuComponent,
   ],
   templateUrl: './layout-app.component.html',
-  styleUrl: './layout-app.component.css',
+  styleUrls: ['../shell-nord.css', './layout-app.component.css'],
 })
 export class LayoutAppComponent implements OnInit {
-  tituloPagina = 'Painel';
-  urlVoltar: string | null = null;
-  labelVoltar: string | null = null;
-  voltarIntegrado = false;
-  notificacoesNaoLidas = 0;
-  novidadesNaoVistas = 0;
-  trialNotice: TrialNotice | null = null;
-  private router = inject(Router);
-  private notif = inject(NotificacoesService);
-  private novidades = inject(NovidadesService);
-  private sidebarMobile = inject(SidebarMobileService);
-  private auth = inject(AuthService);
-  private billingBlockedState = inject(BillingBlockedStateService);
-  private organizationPresence = inject(OrganizationPresenceService);
-  private platformId = inject(PLATFORM_ID);
+  readonly navSections = SHELL_NAV_SIDEBAR;
+
+  private readonly tituloPaginaSignal = signal('Painel');
+  private readonly urlVoltarSignal = signal<string | null>(null);
+  private readonly labelVoltarSignal = signal<string | null>(null);
+  private readonly voltarIntegradoSignal = signal(false);
+  private readonly notificacoesNaoLidasSignal = signal(0);
+  private readonly novidadesNaoVistasSignal = signal(0);
+  private readonly trialNoticeSignal = signal<TrialNotice | null>(null);
+  private readonly urlAtualSignal = signal('/');
+
+  readonly tituloPagina = this.tituloPaginaSignal.asReadonly();
+  readonly urlVoltar = this.urlVoltarSignal.asReadonly();
+  readonly labelVoltar = this.labelVoltarSignal.asReadonly();
+  readonly voltarIntegrado = this.voltarIntegradoSignal.asReadonly();
+  readonly notificacoesNaoLidas = this.notificacoesNaoLidasSignal.asReadonly();
+  readonly novidadesNaoVistas = this.novidadesNaoVistasSignal.asReadonly();
+  readonly trialNotice = this.trialNoticeSignal.asReadonly();
+
+  private readonly router = inject(Router);
+  private readonly notif = inject(NotificacoesService);
+  private readonly novidades = inject(NovidadesService);
+  private readonly sidebarMobile = inject(SidebarMobileService);
+  private readonly auth = inject(AuthService);
+  private readonly billingBlockedState = inject(BillingBlockedStateService);
+  private readonly organizationPresence = inject(OrganizationPresenceService);
+  private readonly platformId = inject(PLATFORM_ID);
 
   @HostListener('window:pagehide')
   onWindowPageHide(): void {
@@ -54,6 +87,93 @@ export class LayoutAppComponent implements OnInit {
       return;
     }
     this.organizationPresence.sendLeaveBeaconIfTenantSession();
+  }
+
+  secaoVisivel(section: ShellNavSection): boolean {
+    return shellNavSectionVisivel(section, (p) => this.auth.hasPermission(p), 'app', {
+      canSwitchClinic: this.auth.canSwitchClinic(),
+    });
+  }
+
+  itemVisivel(item: ShellNavItem): boolean {
+    return shellNavItemVisivel(item, (p) => this.auth.hasPermission(p), 'app', {
+      canSwitchClinic: this.auth.canSwitchClinic(),
+    });
+  }
+
+  /** Texto do badge do `nord-nav-item` (contador ou dias restantes do trial). */
+  badgeTexto(item: ShellNavItem): string | null {
+    if (item.badge === 'trial') {
+      const trial = this.trialNotice();
+      if (!trial?.visible) return null;
+      return trial.days_remaining === 1 ? '1 dia' : `${trial.days_remaining} dias`;
+    }
+    const total =
+      item.badge === 'notifications'
+        ? this.notificacoesNaoLidas()
+        : item.badge === 'novidades'
+          ? this.novidadesNaoVistas()
+          : 0;
+    if (total <= 0) return null;
+    return total > 99 ? '99+' : String(total);
+  }
+
+  isActive(item: ShellNavItem): boolean {
+    const url = this.urlAtualSignal();
+    if (item.exact) {
+      return url === item.route;
+    }
+    return url === item.route || url.startsWith(item.route + '/');
+  }
+
+  go(event: Event, path: string): void {
+    event.preventDefault();
+    void this.router.navigateByUrl(path);
+  }
+
+  /** Alterna o menu Nord (`nav-open`) — substitui `nord-nav-toggle` para usar Material Icons. */
+  toggleNav(event: Event): void {
+    event.preventDefault();
+    const host = event.currentTarget as HTMLElement | null;
+    const layout = host?.closest('nord-layout') as (HTMLElement & { navOpen?: boolean }) | null;
+    if (!layout) return;
+    layout.navOpen = !layout.navOpen;
+  }
+
+  sair(): void {
+    this.auth.logout().subscribe(() => void this.router.navigate(['/autenticacao']));
+  }
+
+  /** Aviso global de cobrança (exceto na própria página de assinatura). */
+  mostrarAvisoCobrancaGlobal(): boolean {
+    if (!this.billingBlockedState.isActive()) return false;
+    return this.caminhoAtual() !== '/assinatura';
+  }
+
+  ngOnInit(): void {
+    disableHorizontalNavInDom();
+    if (this.auth.isAuthenticated()) {
+      this.auth.me().subscribe({
+        next: () => {
+          this.trialNoticeSignal.set(this.auth.getTrialNotice());
+        },
+        error: () => {},
+      });
+    }
+    this.router.events.pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd)).subscribe(() => {
+      this.sidebarMobile.setOpen(false);
+      this.billingBlockedState.clear();
+      this.updateFromActivatedRoute();
+      this.atualizarBadgeNotificacoes();
+      this.atualizarBadgeNovidades();
+    });
+    this.updateFromActivatedRoute();
+    this.atualizarBadgeNotificacoes();
+    this.atualizarBadgeNovidades();
+  }
+
+  private caminhoAtual(): string {
+    return this.router.url.split('?')[0].replace(/\/$/, '') || '/';
   }
 
   private updateFromActivatedRoute(): void {
@@ -67,12 +187,14 @@ export class LayoutAppComponent implements OnInit {
       labelVoltar?: string;
       voltarIntegrado?: boolean;
     };
-    const path = this.router.url.split('?')[0].replace(/\/$/, '') || '/';
-    const categoriaAtual = typeof route.queryParams['categoria'] === 'string' ? route.queryParams['categoria'] : null;
-    this.tituloPagina = this.resolvePageTitle(path, categoriaAtual, data.titulo);
-    this.urlVoltar = data.urlVoltar ?? null;
-    this.labelVoltar = data.labelVoltar ?? null;
-    this.voltarIntegrado = data.voltarIntegrado === true;
+    const path = this.caminhoAtual();
+    const categoriaAtual =
+      typeof route.queryParams['categoria'] === 'string' ? route.queryParams['categoria'] : null;
+    this.urlAtualSignal.set(path);
+    this.tituloPaginaSignal.set(this.resolvePageTitle(path, categoriaAtual, data.titulo));
+    this.urlVoltarSignal.set(data.urlVoltar ?? null);
+    this.labelVoltarSignal.set(data.labelVoltar ?? null);
+    this.voltarIntegradoSignal.set(data.voltarIntegrado === true);
   }
 
   private resolvePageTitle(path: string, categoria: string | null, fallbackTitle?: string): string {
@@ -118,43 +240,15 @@ export class LayoutAppComponent implements OnInit {
       .replace(/\b\w/g, (c) => c.toUpperCase());
   }
 
-  /** Aviso global de cobrança (exceto na própria página de assinatura). */
-  mostrarAvisoCobrancaGlobal(): boolean {
-    if (!this.billingBlockedState.isActive()) return false;
-    const path = this.router.url.split('?')[0].replace(/\/$/, '') || '/';
-    return path !== '/assinatura';
-  }
-
-  ngOnInit(): void {
-    if (this.auth.isAuthenticated()) {
-      this.auth.me().subscribe({
-        next: () => {
-          this.trialNotice = this.auth.getTrialNotice();
-        },
-        error: () => {},
-      });
-    }
-    this.router.events.pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd)).subscribe(() => {
-      this.sidebarMobile.setOpen(false);
-      this.billingBlockedState.clear();
-      this.updateFromActivatedRoute();
-      this.atualizarBadgeNotificacoes();
-      this.atualizarBadgeNovidades();
-    });
-    this.updateFromActivatedRoute();
-    this.atualizarBadgeNotificacoes();
-    this.atualizarBadgeNovidades();
-  }
-
   private atualizarBadgeNovidades(): void {
-    this.novidades.getNaoVistasCount().subscribe((n) => (this.novidadesNaoVistas = n));
+    this.novidades.getNaoVistasCount().subscribe((n) => this.novidadesNaoVistasSignal.set(n));
   }
 
   private atualizarBadgeNotificacoes(): void {
     if (!this.auth.hasPermission('notifications.access')) {
-      this.notificacoesNaoLidas = 0;
+      this.notificacoesNaoLidasSignal.set(0);
       return;
     }
-    this.notif.getNaoLidasCount().subscribe((n) => (this.notificacoesNaoLidas = n));
+    this.notif.getNaoLidasCount().subscribe((n) => this.notificacoesNaoLidasSignal.set(n));
   }
 }

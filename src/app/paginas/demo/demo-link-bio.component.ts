@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, inject, PLATFORM_ID } from '@angular/core';
-import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { LinkBioPublicLayoutsComponent } from '../link-bio-public/link-bio-public-layouts.component';
 import { LinkBioPublicLayoutGenericComponent } from '../link-bio-public/link-bio-public-layout-generic.component';
@@ -204,21 +204,18 @@ const MOCK_DOCS: LinkBioPublicDocItem[] = [
   {
     type: 'form',
     item: { id: 3, name: 'Pesquisa de Satisfação', public_url: 'https://gestgo.com.br/f/demo-pesquisa' },
-  },
-];
+  }];
 
 @Component({
   selector: 'app-demo-link-bio',
   standalone: true,
   imports: [
-    CommonModule,
     RouterLink,
     LinkBioPublicLayoutGenericComponent,
     LinkBioPublicLayoutsComponent,
     LinkBioPublicLayoutVetComponent,
     LinkBioPublicLayoutPediaComponent,
-    LinkBioPublicLayoutNutriComponent,
-  ],
+    LinkBioPublicLayoutNutriComponent],
   template: `
     @if (!embedMode) {
       <div class="demo-banner">

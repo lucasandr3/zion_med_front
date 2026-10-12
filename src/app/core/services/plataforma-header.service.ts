@@ -1,5 +1,5 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { Injectable, Injector, inject, signal } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 
 export interface PlataformaHeaderOverride {
   titulo: string;
@@ -7,22 +7,25 @@ export interface PlataformaHeaderOverride {
 }
 
 /**
- * Permite que páginas filhas do layout plataforma (ex.: detalhe do tenant)
- * definam título e subtítulo do header dinamicamente.
+ * Permite que páginas filhas do layout plataforma definam título/subtítulo do header.
  */
 @Injectable({ providedIn: 'root' })
 export class PlataformaHeaderService {
-  private readonly override$ = new BehaviorSubject<PlataformaHeaderOverride | null>(null);
+  private readonly injector = inject(Injector);
+  private readonly overrideSignal = signal<PlataformaHeaderOverride | null>(null);
 
+  readonly override = this.overrideSignal.asReadonly();
+
+  /** Compatível com subscribers legados; preferir `override()` em código novo. */
   getOverride() {
-    return this.override$.asObservable();
+    return toObservable(this.overrideSignal, { injector: this.injector });
   }
 
   setHeader(titulo: string, subtitulo: string | null = null): void {
-    this.override$.next({ titulo, subtitulo });
+    this.overrideSignal.set({ titulo, subtitulo });
   }
 
   clearHeader(): void {
-    this.override$.next(null);
+    this.overrideSignal.set(null);
   }
 }

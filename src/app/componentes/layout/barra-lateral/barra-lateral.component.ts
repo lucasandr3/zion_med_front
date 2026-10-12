@@ -2,23 +2,20 @@ import {
   Component,
   Input,
   OnInit,
-  OnDestroy,
   inject,
-  PLATFORM_ID,
-  NgZone,
+  ChangeDetectionStrategy,
+  signal,
+  CUSTOM_ELEMENTS_SCHEMA,
 } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
-import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { Subscription } from 'rxjs';
 import { AuthService, TrialNotice } from '../../../core/services/auth.service';
-import { resolveSidebarLogoSrc } from '../../../core/utils/sidebar-logo.util';
 import { SidebarMobileService } from '../../../core/services/sidebar-mobile.service';
-import { ZardTooltipImports } from '@/shared/components/tooltip';
-import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
-import { ZardMenuLabelComponent } from '../../../shared/components/menu/menu-label.component';
-import { ZardMenuImports } from '../../../shared/components/menu/menu.imports';
-import { ZardAvatarComponent } from '@/shared/components/avatar/avatar.component';
+import { ShellSidebarCollapseService } from '../../../core/services/shell-sidebar-collapse.service';
+
+import { GestgoBadgeComponent } from '@/shared/components/badge/badge.component';
+
+import { GestgoAvatarComponent } from '@/shared/components/avatar/avatar.component';
+import { GestgoBrandMarkComponent } from '@/shared/components/gestgo-brand-mark/gestgo-brand-mark.component';
 import {
   SHELL_NAV_SIDEBAR,
   ShellNavItem,
@@ -28,76 +25,64 @@ import {
 } from '../shell-nav.config';
 
 @Component({
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'app-barra-lateral',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CommonModule,
     RouterLink,
     RouterLinkActive,
-    ...ZardTooltipImports,
-    ZardBadgeComponent,
-    ZardButtonComponent,
-    ZardMenuLabelComponent,
-    ...ZardMenuImports,
-    ZardAvatarComponent,
+    GestgoBadgeComponent,
+    GestgoAvatarComponent,
+    GestgoBrandMarkComponent,
   ],
   templateUrl: './barra-lateral.component.html',
   styleUrl: './barra-lateral.component.css',
 })
-export class BarraLateralComponent implements OnInit, OnDestroy {
-  /** Contador vindo do layout (fonte única com o cabeçalho). */
+export class BarraLateralComponent implements OnInit {
   @Input() notificacoesNaoLidas = 0;
   @Input() novidadesNaoVistas = 0;
   @Input() trialNotice: TrialNotice | null = null;
 
   readonly navSections = SHELL_NAV_SIDEBAR;
 
-  nomeUsuario = 'Usuário';
-  iniciaisUsuario = 'U';
-  emailUsuario = '';
-  exibirTrocarEmpresa = false;
-  ehAdminPlataforma = false;
-  podeGerenciarClinica = false;
+  private readonly nomeUsuarioSignal = signal('Usuário');
+  private readonly iniciaisUsuarioSignal = signal('U');
+  private readonly emailUsuarioSignal = signal('');
+  private readonly exibirTrocarEmpresaSignal = signal(false);
+  private readonly ehAdminPlataformaSignal = signal(false);
+  private readonly podeGerenciarClinicaSignal = signal(false);
 
-  /** Com Topo e marca, variante do logo em `assets/logo` conforme o tema. */
-  sidebarLogoSrc = '/assets/logo/logo.png';
+  readonly nomeUsuario = this.nomeUsuarioSignal.asReadonly();
+  readonly iniciaisUsuario = this.iniciaisUsuarioSignal.asReadonly();
+  readonly emailUsuario = this.emailUsuarioSignal.asReadonly();
+  readonly exibirTrocarEmpresa = this.exibirTrocarEmpresaSignal.asReadonly();
+  readonly ehAdminPlataforma = this.ehAdminPlataformaSignal.asReadonly();
+  readonly podeGerenciarClinica = this.podeGerenciarClinicaSignal.asReadonly();
 
-  private auth = inject(AuthService);
-  private router = inject(Router);
-  private sidebarMobile = inject(SidebarMobileService);
+  private readonly auth = inject(AuthService);
+  private readonly router = inject(Router);
+  private readonly sidebarMobile = inject(SidebarMobileService);
+  private readonly sidebarCollapse = inject(ShellSidebarCollapseService);
 
-  sidebarOpenMobile = false;
-  sidebarColapsada = false;
-  private sidebarObserver: MutationObserver | null = null;
-  private appearanceSub?: Subscription;
-  private platformId = inject(PLATFORM_ID);
-  private ngZone = inject(NgZone);
+  readonly sidebarOpenMobile = this.sidebarMobile.isOpen;
+  readonly sidebarColapsada = this.sidebarCollapse.collapsed;
 
   ngOnInit(): void {
+    this.sidebarCollapse.ensureHydrated();
     this.atualizarDados();
-    this.sincronizarEstadoSidebar();
-    this.appearanceSub = this.auth.appearanceApplied$.subscribe(() => {
-      this.ngZone.run(() => this.refreshSidebarLogo());
-    });
-    this.sidebarMobile.getOpen().subscribe((open) => {
-      this.sidebarOpenMobile = open;
-      if (typeof document !== 'undefined') {
-        document.body.style.overflow = open ? 'hidden' : '';
-      }
-    });
-  }
-
-  ngOnDestroy(): void {
-    this.sidebarObserver?.disconnect();
-    this.appearanceSub?.unsubscribe();
-  }
-
-  itemVisivel(item: ShellNavItem): boolean {
-    return shellNavItemVisivel(item, (p) => this.auth.hasPermission(p), 'app');
   }
 
   secaoVisivel(section: ShellNavSection): boolean {
-    return shellNavSectionVisivel(section, (p) => this.auth.hasPermission(p), 'app');
+    return shellNavSectionVisivel(section, (p) => this.auth.hasPermission(p), 'app', {
+      canSwitchClinic: this.auth.canSwitchClinic(),
+    });
+  }
+
+  itemVisivel(item: ShellNavItem): boolean {
+    return shellNavItemVisivel(item, (p) => this.auth.hasPermission(p), 'app', {
+      canSwitchClinic: this.auth.canSwitchClinic(),
+    });
   }
 
   badgeCount(item: ShellNavItem): number {
@@ -125,40 +110,21 @@ export class BarraLateralComponent implements OnInit, OnDestroy {
   }
 
   tooltipQuandoColapsada(texto: string): string {
-    return this.sidebarColapsada ? texto : '';
+    return this.sidebarColapsada() ? texto : '';
   }
 
   private atualizarDados(): void {
     const u = this.auth.getUser();
     if (u) {
-      this.nomeUsuario = u.name || 'Usuário';
-      this.emailUsuario = u.email || '';
-      this.iniciaisUsuario = this.nomeUsuario.slice(0, 2).toUpperCase() || 'U';
-      this.ehAdminPlataforma = u.role === 'platform_admin';
-      this.podeGerenciarClinica = this.auth.hasPermission('organization.manage');
+      const nome = u.name || 'Usuário';
+      this.nomeUsuarioSignal.set(nome);
+      this.emailUsuarioSignal.set(u.email || '');
+      this.iniciaisUsuarioSignal.set(nome.slice(0, 2).toUpperCase() || 'U');
+      this.ehAdminPlataformaSignal.set(u.role === 'platform_admin');
+      this.podeGerenciarClinicaSignal.set(this.auth.hasPermission('organization.manage'));
     } else {
-      this.podeGerenciarClinica = false;
+      this.podeGerenciarClinicaSignal.set(false);
     }
-    this.exibirTrocarEmpresa = this.auth.canSwitchClinic();
-  }
-
-  private refreshSidebarLogo(): void {
-    if (!isPlatformBrowser(this.platformId)) return;
-    this.sidebarLogoSrc = resolveSidebarLogoSrc();
-  }
-
-  private sincronizarEstadoSidebar(): void {
-    if (!isPlatformBrowser(this.platformId) || typeof document === 'undefined') return;
-
-    const atualizar = (): void => {
-      this.ngZone.run(() => {
-        this.sidebarColapsada = document.body.classList.contains('sidebar-collapsed');
-        this.refreshSidebarLogo();
-      });
-    };
-
-    atualizar();
-    this.sidebarObserver = new MutationObserver(atualizar);
-    this.sidebarObserver.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+    this.exibirTrocarEmpresaSignal.set(this.auth.canSwitchClinic());
   }
 }

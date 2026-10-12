@@ -7,12 +7,11 @@
   color: var(--foreground, var(--c-text));
 }
 
-.templates-editar z-combobox button[z-button] {
-  height: var(--control-height);
-  min-height: var(--control-height);
+.templates-editar z-combobox nord-combobox {
+  --n-combobox-block-size: var(--control-height);
 }
 
-.templates-editar z-checkbox {
+.templates-editar g-checkbox {
   align-items: flex-start;
 }
 

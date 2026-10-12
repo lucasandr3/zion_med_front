@@ -6,7 +6,7 @@ const DEFAULT_ACCENT = '#0a0a0a';
 /** Presets alinhados ao `ThemeService` do backend. */
 const PUBLIC_THEME_ACCENT: Record<string, string> = {
   'gestgo-blue': '#1e40af',
-  'ocean-blue': '#2563eb',
+  'ocean-blue': '#14B87A',
   'indigo-night': '#4f46e5',
   'emerald-fresh': '#10b981',
   'rose-elegant': '#f43f5e',

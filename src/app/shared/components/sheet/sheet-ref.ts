@@ -4,14 +4,32 @@ import { EventEmitter, Inject, PLATFORM_ID } from '@angular/core';
 
 import { filter, fromEvent, Subject, takeUntil } from 'rxjs';
 
-import type { ZardSheetComponent, ZardSheetOptions } from './sheet.component';
+import type { GestgoSheetComponent, GestgoSheetOptions } from './sheet.component';
 
 const enum eTriggerAction {
   CANCEL = 'cancel',
   OK = 'ok',
 }
 
-export class ZardSheetRef<T = any, R = any, U = any> {
+/** Popouts Nord (date/combobox/dropdown) vão para o body — não fechar o sheet ao interagir com eles. */
+function isNordFloatingOverlayTarget(target: EventTarget | null): boolean {
+  if (!(target instanceof Element)) {
+    return false;
+  }
+  return !!target.closest(
+    [
+      'nord-popout',
+      'nord-dropdown',
+      'nord-calendar',
+      'nord-popover',
+      'nord-select',
+      '[data-nord-popout]',
+      '.flatpickr-calendar',
+    ].join(','),
+  );
+}
+
+export class GestgoSheetRef<T = any, R = any, U = any> {
   private destroy$ = new Subject<void>();
   private isClosing = false;
   protected result?: R;
@@ -19,8 +37,8 @@ export class ZardSheetRef<T = any, R = any, U = any> {
 
   constructor(
     private overlayRef: OverlayRef,
-    private config: ZardSheetOptions<T, U>,
-    private containerInstance: ZardSheetComponent<T, U>,
+    private config: GestgoSheetOptions<T, U>,
+    private containerInstance: GestgoSheetComponent<T, U>,
     @Inject(PLATFORM_ID) private platformId: object,
   ) {
     this.containerInstance.cancelTriggered.subscribe(() => this.trigger(eTriggerAction.CANCEL));
@@ -29,7 +47,10 @@ export class ZardSheetRef<T = any, R = any, U = any> {
     if ((this.config.zMaskClosable ?? true) && isPlatformBrowser(this.platformId)) {
       this.overlayRef
         .outsidePointerEvents()
-        .pipe(takeUntil(this.destroy$))
+        .pipe(
+          filter((event) => !isNordFloatingOverlayTarget(event.target)),
+          takeUntil(this.destroy$),
+        )
         .subscribe(() => this.close());
     }
 

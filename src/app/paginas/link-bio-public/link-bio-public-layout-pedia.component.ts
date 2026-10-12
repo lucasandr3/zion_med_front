@@ -29,14 +29,12 @@ const DEFAULT_STEPS: { title: string; subtitle: string; tone: 'sky' | 'lemon' | 
     title: 'Chegue 10 min antes',
     subtitle: 'Para confirmar os dados na recepção com tranquilidade',
     tone: 'mint',
-  },
-];
+  }];
 
 const DEFAULT_AGE_BANDS: { emoji: string; title: string; range: string; theme: 'sky' | 'lemon' | 'coral' }[] = [
   { emoji: '👶', title: 'Recém-nascido', range: '0 – 28 dias', theme: 'sky' },
   { emoji: '🧒', title: 'Criança', range: '1 – 10 anos', theme: 'lemon' },
-  { emoji: '🧑', title: 'Adolescente', range: '11 – 18 anos', theme: 'coral' },
-];
+  { emoji: '🧑', title: 'Adolescente', range: '11 – 18 anos', theme: 'coral' }];
 
 @Component({
   selector: 'app-link-bio-public-layout-pedia',

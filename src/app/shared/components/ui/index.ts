@@ -1,12 +1,12 @@
 export { ZmPaginationComponent } from './zm-pagination.component';
-/** @deprecated Prefira `z-empty` diretamente; este wrapper mantém a API `title` / `actionLink`. */
+/** @deprecated Prefira `g-empty` diretamente; este wrapper mantém a API `title` / `actionLink`. */
 export { ZmEmptyStateComponent } from './zm-empty-state.component';
-export { ZardEmptyComponent } from '../empty';
+export { GestgoEmptyComponent } from '../empty';
 export { ZmAssinaturaBloqueadaCardComponent } from './zm-assinatura-bloqueada-card/zm-assinatura-bloqueada-card.component';
 export { ZmPageBackLinkComponent } from './zm-page-back-link.component';
 export { ZmAppUpdateBannerComponent } from './zm-app-update-banner.component';
-/** @deprecated Use `ZardComboboxComponent` de `@/shared/components/combobox` */
+/** @deprecated Use `GestgoComboboxComponent` de `@/shared/components/combobox` */
 export { ZmSearchableSelectComponent } from './zm-searchable-select.component';
-/** @deprecated Use `ZardComboboxOption` */
+/** @deprecated Use `GestgoComboboxOption` */
 export type { ZmSearchableSelectOption } from './zm-searchable-select.component';
-export { ZardComboboxComponent, type ZardComboboxOption, type ZardComboboxGroup } from '../combobox';
+export { GestgoComboboxComponent, type GestgoComboboxOption, type GestgoComboboxGroup } from '../combobox';

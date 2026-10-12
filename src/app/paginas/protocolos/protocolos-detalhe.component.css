@@ -1,173 +1,138 @@
-/* —— Protocolo detalhe (Zard) —— */
+/* —— Protocolo detalhe (Gestgo) —— */
 
 :host {
-  display: block;
-  box-sizing: border-box;
-  width: calc(100% + 2rem);
-  max-width: none;
-  margin-top: -1.5rem;
-  margin-right: -1rem;
-  margin-bottom: -1.5rem;
-  margin-left: -1rem;
-  min-height: calc(100dvh - var(--shell-header-height));
-  background: var(--card);
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  width: 100%;
+  min-height: 100%;
+  height: 100%;
 }
 
-@media (min-width: 640px) {
-  :host {
-    width: calc(100% + 3rem);
-    margin-right: -1.5rem;
-    margin-left: -1.5rem;
-  }
-}
-
-@media (min-width: 1024px) {
-  :host {
-    width: calc(100% + 4rem);
-    margin-right: -2rem;
-    margin-left: -2rem;
-  }
-}
-
-/* Ocupa toda a largura do :host (full-bleed no <main>) */
 .protocolo-detalhe-page {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
   width: 100%;
   max-width: none;
   margin: 0;
-  min-height: 100%;
-  background: var(--card);
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
   color: var(--foreground);
+  background: var(--n-color-surface, var(--card));
 }
 
 .protocolo-detalhe-shell {
   display: flex;
   flex-direction: column;
-  min-height: 100%;
+  flex: 1 1 auto;
+  min-height: 0;
+  height: 100%;
   width: 100%;
-  background: var(--card);
-  /* border-top: 1px solid var(--border); */
   border-bottom: none;
   overflow: hidden;
 }
 
-.protocolo-detalhe-sticky-top {
-  --protocolo-head-h: 5.25rem;
-  position: sticky;
-  top: 0;
-  z-index: 31;
-  flex-shrink: 0;
-  background: var(--card);
-}
-
-.protocolo-detalhe-header {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 0.75rem 1rem;
-  padding: 0.875rem 1.25rem;
-  margin: 0;
-  background: var(--card);
-}
-
-.protocolo-detalhe-header__actions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.5rem 0.75rem;
-}
-
-.protocolo-detalhe-header__group {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.protocolo-detalhe-header__group--review {
-  padding-left: 0.75rem;
-  border-left: 1px solid var(--border);
-}
-
-@media (max-width: 639px) {
-  .protocolo-detalhe-header__group--review {
-    width: 100%;
-    padding-left: 0;
-    border-left: none;
-    padding-top: 0.25rem;
-    border-top: 1px solid var(--border);
-  }
-}
-
-/* Barra de abas — linha em cima e embaixo */
-:host ::ng-deep .protocolo-detalhe-shell .protocolo-detalhe-tabs-bar,
-:host ::ng-deep .protocolo-detalhe-shell .protocolo-zard-tabs--layout > .grid {
-  position: sticky;
-  top: var(--protocolo-head-h, 5.25rem);
-  z-index: 30;
-  flex-shrink: 0;
-  width: 100%;
-  background: var(--card);
-  box-sizing: border-box;
-  border-top: 1px solid var(--border, var(--c-border)) !important;
-  border-bottom: 1px solid var(--border, var(--c-border)) !important;
-}
-
-:host ::ng-deep .protocolo-detalhe-shell .protocolo-zard-tabs--no-nav-rule nav[role='tablist'] {
-  flex-shrink: 0;
-  width: 100%;
-  margin: 0 !important;
-  margin-bottom: 0 !important;
-  padding: 0.5rem 1.25rem 0;
-  border-top: none !important;
-  border-bottom: none !important;
-}
-
-:host ::ng-deep .protocolo-zard-tabs nav[role='tablist'] button[role='tab'][aria-selected='true'] {
-  color: var(--primary);
-  border-bottom-color: var(--primary) !important;
-}
-
-.protocolo-zard-tabs--layout {
-  display: flex;
+/* Abas (nord-tab-group): host + painéis em coluna com altura limitada */
+.protocolo-gestgo-tabs--layout {
+  display: flex !important;
   flex-direction: column;
-  flex: 1;
+  flex: 1 1 auto;
   min-height: 0;
+  height: 100%;
   width: 100%;
   margin: 0;
   padding: 0;
   background: var(--card);
   border: none;
+  box-shadow: none;
 }
 
-:host ::ng-deep .protocolo-detalhe-shell .protocolo-zard-tabs--layout > .flex-1 {
+:host ::ng-deep .protocolo-gestgo-tabs--layout .g-tab-group__nord,
+:host ::ng-deep .protocolo-gestgo-tabs--layout nord-tab-group {
+  display: flex !important;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  height: 100%;
+  width: 100%;
+  border-bottom: 1px solid var(--border, var(--c-border));
+}
+
+:host ::ng-deep .protocolo-gestgo-tabs--layout .g-tab-group__panel {
   display: flex;
   flex-direction: column;
   flex: 1 1 auto;
   min-height: 0;
+  height: 100%;
   width: 100%;
-  overflow-y: auto;
-  background: var(--card);
-}
-
-:host ::ng-deep .protocolo-detalhe-shell .protocolo-zard-tabs--layout > .flex-1 [role='tabpanel'] {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  min-height: 100%;
-  width: 100%;
+  overflow: auto;
   background: var(--card);
   outline: none;
+  border: none;
+  box-shadow: none;
+}
+
+:host ::ng-deep .protocolo-gestgo-tabs--layout .g-tab-group__panel[hidden] {
+  display: none !important;
 }
 
 .protocolo-tab-panel {
   box-sizing: border-box;
-  flex: 1;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
   width: 100%;
   max-width: none;
-  margin: 15px 0 0;
-  padding: 1.25rem;
+  min-height: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
   background: var(--card);
+  border: none;
+  box-shadow: none;
+}
+
+/* Conteúdo flat — sem “caixa” flutuante */
+.protocolo-tab-panel > g-card.section-card {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 100%;
+  height: 100%;
+  margin: 0;
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+
+:host ::ng-deep .protocolo-tab-panel > g-card.section-card nord-card {
+  flex: 1 1 auto;
+  display: flex !important;
+  flex-direction: column;
+  min-height: 100%;
+  height: 100%;
+  --n-card-box-shadow: none !important;
+  --n-card-border-color: transparent !important;
+  --n-card-padding: 0 !important;
+  --n-card-slot-padding: 0 !important;
+  --n-card-border-radius: 0 !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+:host ::ng-deep .protocolo-tab-panel > g-card.section-card .section-body {
+  flex: 1 1 auto;
+}
+
+.pd-header-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
 }
 
 .protocolo-detalhe-shell .pd-revisao-card {
@@ -216,7 +181,7 @@
   margin-top: 0.125rem;
 }
 
-.protocolo-detail-person z-avatar {
+.protocolo-detail-person g-avatar {
   flex-shrink: 0;
   background: color-mix(in srgb, var(--primary) 12%, var(--muted));
   color: var(--primary);
@@ -224,7 +189,7 @@
   font-weight: 700;
 }
 
-.protocolo-detail-field--status z-badge {
+.protocolo-detail-field--status g-badge {
   margin-top: 0.125rem;
 }
 
@@ -315,41 +280,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
-}
-
-.pd-alert-top {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1rem;
-  margin-bottom: 1rem;
-  background: color-mix(in srgb, var(--primary) 10%, var(--card));
-  border: 1px solid color-mix(in srgb, var(--primary) 24%, var(--border));
-  border-radius: 0.5rem;
-}
-
-.pd-alert-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 999px;
-  background: var(--primary);
-  flex-shrink: 0;
-}
-
-.pd-alert-text {
-  margin: 0;
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: var(--foreground);
-  flex: 1;
-  min-width: 0;
-}
-
-.pd-alert-date {
-  margin-left: auto;
-  font-size: 0.75rem;
-  color: var(--muted-foreground);
   flex-shrink: 0;
 }
 
@@ -776,22 +706,39 @@
   margin-bottom: 1rem;
 }
 
-/* Aba Impressão — preview em folha A4 */
+/* Aba Impressão — área cinza com scroll próprio (documento A4 completo) */
+:host ::ng-deep .protocolo-gestgo-tabs--layout .g-tab-group__panel:has(.protocolo-tab-panel--impressao) {
+  overflow: hidden !important;
+  min-height: 0 !important;
+}
+
 .protocolo-tab-panel--impressao {
   display: flex;
   flex-direction: column;
-  padding: 1rem 1.25rem 1.5rem;
-  background: color-mix(in srgb, var(--muted) 55%, var(--background));
+  flex: 1 1 auto;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  max-height: calc(100dvh - 11.5rem);
+  overflow: hidden;
+  padding: 0;
+  background: #e8edf2;
 }
 
 .protocolo-print-preview {
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  flex: 1;
+  flex: 1 1 auto;
+  width: 100%;
   min-height: 0;
-  padding: 1.25rem 0.75rem 1.75rem;
-  overflow: auto;
+  height: 100%;
+  padding: 1.25rem 0.75rem 2.5rem;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
 }
 
 .protocolo-print-sheet.documento {
@@ -806,15 +753,18 @@
   width: 210mm;
   max-width: calc(100% - 1.5rem);
   min-height: 297mm;
+  height: auto;
+  flex-shrink: 0;
   margin: 0 auto;
   padding: 14mm 18mm 16mm;
-  background: var(--paper);
-  color: var(--ink);
+  background: #ffffff;
+  color: #0f172a;
   font-family: 'Roboto', ui-sans-serif, system-ui, sans-serif;
   font-size: 11.5px;
   line-height: 1.45;
   position: relative;
-  border: 1px solid color-mix(in srgb, var(--border) 70%, #94a3b8);
+  overflow: visible;
+  border: 1px solid #94a3b8;
   border-radius: 2px;
   box-shadow:
     0 1px 2px rgba(15, 23, 42, 0.05),
@@ -871,16 +821,8 @@
     grid-template-columns: 1fr;
   }
 
-  .protocolo-detalhe-header__actions {
-    width: 100%;
-  }
-
-  .protocolo-zard-tabs nav[role='tablist'] {
-    padding: 0 1rem;
-  }
-
   .protocolo-tab-panel {
-    padding: 1rem;
+    padding: 0;
   }
 }
 
@@ -908,6 +850,62 @@
   color: #0f172a;
   font-weight: 600;
   font-size: 0.9rem;
+}
+
+.dp-generating-card .btn-spinner {
+  border-color: color-mix(in srgb, var(--n-color-accent, var(--c-primary)) 22%, #e2e8f0);
+  border-right-color: transparent;
+  border-top-color: var(--n-color-accent, var(--c-primary));
+  color: var(--n-color-accent, var(--c-primary));
+}
+
+.dp-pdf-preview-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(2px);
+}
+
+.dp-pdf-preview-panel {
+  display: flex;
+  flex-direction: column;
+  width: min(920px, 100%);
+  height: min(92vh, 1100px);
+  background: #ffffff;
+  border: 1px solid var(--rule-soft, #e5e7eb);
+  border-radius: 0.75rem;
+  overflow: hidden;
+  box-shadow: 0 18px 48px rgba(15, 23, 42, 0.22);
+}
+
+.dp-pdf-preview-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.65rem 0.85rem;
+  border-bottom: 1px solid var(--rule-soft, #e5e7eb);
+  background: #f8fafc;
+  flex-shrink: 0;
+}
+
+.dp-pdf-preview-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.dp-pdf-preview-frame {
+  flex: 1 1 auto;
+  width: 100%;
+  min-height: 0;
+  border: 0;
+  background: #525659;
 }
 
 .dp-header {
@@ -1493,31 +1491,30 @@
     margin: 12mm 16mm 12mm 16mm;
   }
 
-  .protocolo-detalhe-sticky-top,
-  .protocolo-detalhe-shell > .grid,
+  .n-form-toolbar,
+  .protocolo-detalhe-tabs-bar,
+  .protocolo-gestgo-tabs--layout > .grid,
   .pd-print-toolbar,
-  .dp-generating-overlay {
+  .dp-generating-overlay,
+  .dp-pdf-preview-overlay {
     display: none !important;
   }
 
-  .protocolo-detalhe-page {
-    margin: 0 !important;
-    width: 100% !important;
-  }
-
-  .protocolo-detalhe-shell {
-    border: none !important;
-    min-height: 0 !important;
-  }
-
-  .protocolo-tab-panel--impressao {
-    padding: 0 !important;
-    background: #fff !important;
-  }
-
+  .protocolo-detalhe-page,
+  .protocolo-detalhe-shell,
+  .protocolo-gestgo-tabs--layout,
+  .protocolo-tab-panel--impressao,
   .protocolo-print-preview {
+    display: block !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+    margin: 0 !important;
     padding: 0 !important;
     background: #fff !important;
+    border: none !important;
+    box-shadow: none !important;
   }
 
   .protocolo-print-sheet.documento {
@@ -1529,9 +1526,66 @@
     border: none !important;
     border-radius: 0 !important;
     box-shadow: none !important;
+    background: #fff !important;
+    color: #0f172a !important;
   }
 
   .protocolo-print-sheet.documento::after {
     display: none !important;
+  }
+
+  /* Cabeçalho em duas colunas — evita sobreposição na impressão */
+  .dp-header {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    justify-content: space-between !important;
+    align-items: flex-start !important;
+    gap: 12px 20px !important;
+    width: 100% !important;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .dp-header-brand {
+    display: flex !important;
+    flex: 1 1 52% !important;
+    max-width: 58% !important;
+    min-width: 0 !important;
+    align-items: flex-start !important;
+  }
+
+  .dp-header-doc {
+    display: flex !important;
+    flex: 0 1 40% !important;
+    flex-direction: column !important;
+    align-items: flex-end !important;
+    text-align: right !important;
+    min-width: 0 !important;
+    max-width: 42% !important;
+  }
+
+  .dp-form-title,
+  .dp-form-number {
+    text-align: right !important;
+    width: 100% !important;
+  }
+
+  .dp-form-title {
+    font-size: 11px !important;
+    letter-spacing: 0.12em !important;
+    line-height: 1.35 !important;
+    white-space: normal !important;
+  }
+
+  .dp-clinic-name {
+    font-size: 16px !important;
+  }
+
+  .dp-auth,
+  .dp-signature-area,
+  .dp-id-card {
+    break-inside: avoid;
+    page-break-inside: avoid;
   }
 }

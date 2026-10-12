@@ -1,6 +1,5 @@
-import { Component, OnInit, inject, Signal } from '@angular/core';
+import { Component, OnInit, inject, Signal, ChangeDetectionStrategy, signal, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 import { switchMap, map, catchError, of } from 'rxjs';
@@ -10,6 +9,11 @@ import { ZmSkeletonTemplateCamposComponent } from '../../shared/components/skele
 import { ToastService } from '../../core/services/toast.service';
 import { ConfirmDialogService } from '../../core/services/confirm-dialog.service';
 import { TemplatePublishGuardService } from '../../core/services/template-publish-guard.service';
+import {
+  extractApiErrorMessage,
+  extractClinicalValidationIssues,
+  formatClinicalValidationMessage,
+} from '../../core/utils/clinical-validation.util';
 
 const TYPE_OPTIONS: { value: string; label: string }[] = [
   { value: 'text', label: 'Texto curto' },
@@ -23,8 +27,7 @@ const TYPE_OPTIONS: { value: string; label: string }[] = [
   { value: 'signature', label: 'Assinatura' },
   { value: 'heading', label: 'Título de seção' },
   { value: 'notice', label: 'Texto informativo (termo)' },
-  { value: 'section_break', label: 'Quebra de etapa' },
-];
+  { value: 'section_break', label: 'Quebra de etapa' }];
 
 const TYPE_ICONS: Record<string, string> = {
   text: 'text_fields',
@@ -53,17 +56,16 @@ const CONSENT_HINTS = [
   { key: 'cuidado', label: 'Cuidados pré/pós' },
   { key: 'recusa', label: 'Direito de recusa / revogação' },
   { key: 'autoriz', label: 'Autorização explícita do procedimento' },
-  { key: 'assinatura', label: 'Assinatura do paciente' },
-];
+  { key: 'assinatura', label: 'Assinatura do paciente' }];
 
-import { ZardTableImports } from '@/shared/components/table';
-import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
+import { GestgoTableImports } from '@/shared/components/table';
+import { NORD_FORM_IMPORTS } from '@/shared/nord';
 import { ZmPageBackLinkComponent } from '../../shared/components/ui';
-import { ZardCardComponent } from '@/shared/components/card/card.component';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
-import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
-import { ZardComboboxComponent, type ZardComboboxOption } from '@/shared/components/combobox';
-import { ZardTooltipImports } from '@/shared/components/tooltip';
+import { GestgoCardComponent } from '@/shared/components/card/card.component';
+
+import { GestgoBadgeComponent } from '@/shared/components/badge/badge.component';
+import { GestgoComboboxComponent, type GestgoComboboxOption } from '@/shared/components/combobox';
+
 import {
   buildVisibilityRulesPayload,
   FIELD_VISIBILITY_OPERATORS,
@@ -73,39 +75,38 @@ import {
 import { CLINICAL_STEP_KINDS, CLINICAL_STEP_LABELS } from '../../core/utils/clinical-step.util';
 
 @Component({
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'app-templates-campos',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { class: 'n-page' },
   imports: [
-    ...ZARD_FORM_CONTROL_IMPORTS,
-    ...ZardTableImports,
-    ...ZardTooltipImports,
-    CommonModule,
+    ...NORD_FORM_IMPORTS,
+    ...GestgoTableImports,
     RouterLink,
     FormsModule,
     DragDropModule,
     ZmSkeletonTemplateCamposComponent,
     ZmPageBackLinkComponent,
-    ZardCardComponent,
-    ZardButtonComponent,
-    ZardBadgeComponent,
-    ZardComboboxComponent,
-  ],
+    GestgoCardComponent,
+    GestgoBadgeComponent,
+    GestgoComboboxComponent],
   templateUrl: './templates-campos.component.html',
   styleUrl: './templates-campos.component.css',
 })
 export class TemplatesCamposComponent implements OnInit {
   templateId = '';
-  template: Template | null = null;
-  campos: TemplateCampo[] = [];
-  linkPublicoUrl = '';
+  readonly template = signal<Template | null>(null);
+  readonly campos = signal<TemplateCampo[]>([]);
+  readonly linkPublicoUrl = signal('');
   showSkeleton!: Signal<boolean>;
-  listaPronta = false;
-  erro = '';
-  gerandoLink = false;
-  desativandoLink = false;
-  salvandoCampo = false;
-  removendoId: number | null = null;
-  reordenando = false;
+  readonly listaPronta = signal(false);
+  readonly erro = signal('');
+  readonly gerandoLink = signal(false);
+  readonly desativandoLink = signal(false);
+  readonly salvandoCampo = signal(false);
+  readonly removendoId = signal<number | null>(null);
+  readonly reordenando = signal(false);
 
   /** Formulário "Adicionar campo" */
   novoType = 'text';
@@ -128,14 +129,14 @@ export class TemplatesCamposComponent implements OnInit {
   editVisibilityOperator: FieldVisibilityOperator = 'equals';
   editVisibilityValue = '';
   editClinicalStepKind = '';
-  aplicandoEstruturaTcle = false;
+  readonly aplicandoEstruturaTcle = signal(false);
 
   actorsVisibilityEnabled = false;
   actorsVisibilityField = '';
   actorsVisibilityOperator: FieldVisibilityOperator = 'equals';
   actorsVisibilityValue = '';
   actorsRequireGuardian = false;
-  salvandoActorsRules = false;
+  readonly salvandoActorsRules = signal(false);
 
   readonly typeOptions = TYPE_OPTIONS;
   readonly typeIcons = TYPE_ICONS;
@@ -156,7 +157,7 @@ export class TemplatesCamposComponent implements OnInit {
     return parseInt(this.templateId, 10) || 0;
   }
 
-  get opcoesTipo(): ZardComboboxOption[] {
+  get opcoesTipo(): GestgoComboboxOption[] {
     return this.typeOptions.map((opt) => ({ value: opt.value, label: opt.label }));
   }
 
@@ -173,12 +174,12 @@ export class TemplatesCamposComponent implements OnInit {
   }
 
   get isConsentimento(): boolean {
-    const kind = (this.template?.document_kind || this.template?.category || '').toLowerCase();
+    const kind = (this.template()?.document_kind || this.template()?.category || '').toLowerCase();
     return kind === 'consentimento';
   }
 
   get consentHints(): { key: string; label: string; present: boolean }[] {
-    const blob = this.campos.map((c) => `${c.label} ${c.name_key}`.toLowerCase()).join(' | ');
+    const blob = this.campos().map((c) => `${c.label} ${c.name_key}`.toLowerCase()).join(' | ');
     return CONSENT_HINTS.map((h) => ({
       ...h,
       present:
@@ -195,7 +196,7 @@ export class TemplatesCamposComponent implements OnInit {
 
   get editVisibilityFieldOptions(): { value: string; label: string }[] {
     if (!this.editCampo) return [];
-    return this.campos
+    return this.campos()
       .filter((c) => !STRUCTURAL_TYPES.has(c.type) && c.name_key !== this.editCampo?.name_key)
       .map((c) => ({ value: c.name_key, label: `${c.label} (${c.name_key})` }));
   }
@@ -205,7 +206,7 @@ export class TemplatesCamposComponent implements OnInit {
   }
 
   get actorsVisibilityFieldOptions(): { value: string; label: string }[] {
-    return this.campos
+    return this.campos()
       .filter((c) => !STRUCTURAL_TYPES.has(c.type))
       .map((c) => ({ value: c.name_key, label: `${c.label} (${c.name_key})` }));
   }
@@ -229,7 +230,7 @@ export class TemplatesCamposComponent implements OnInit {
   carregar(): void {
     const id = this.idNum;
     if (!id) return;
-    this.erro = '';
+    this.erro.set('');
     const load$ = this.templatesService.get(id).pipe(
       switchMap((t) =>
         this.templatesService.getCampos(id).pipe(
@@ -242,35 +243,36 @@ export class TemplatesCamposComponent implements OnInit {
     this.showSkeleton = showSkeleton;
     data$.subscribe({
       next: ({ t, list }) => {
-        this.listaPronta = true;
-        this.template = t;
-        if (t.public_url) this.linkPublicoUrl = t.public_url;
-        this.campos = [...list].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+        this.listaPronta.set(true);
+        this.template.set(t);
+        if (t.public_url) this.linkPublicoUrl.set(t.public_url);
+        this.campos.set([...list].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0)));
         this.loadActorsVisibilityRules(t);
       },
       error: () => {
-        this.listaPronta = true;
-        this.erro = 'Não foi possível carregar o template.';
+        this.listaPronta.set(true);
+        this.erro.set('Não foi possível carregar o template.');
       },
     });
   }
 
   onCamposDrop(event: CdkDragDrop<TemplateCampo[]>): void {
-    if (event.previousIndex === event.currentIndex || this.reordenando) return;
-    const previous = [...this.campos];
-    moveItemInArray(this.campos, event.previousIndex, event.currentIndex);
-    this.campos = this.campos.map((c, i) => ({ ...c, sort_order: i + 1 }));
+    if (event.previousIndex === event.currentIndex || this.reordenando()) return;
+    const previous = [...this.campos()];
+    const next = [...previous];
+    moveItemInArray(next, event.previousIndex, event.currentIndex);
+    this.campos.set(next.map((c, i) => ({ ...c, sort_order: i + 1 })));
     const id = this.idNum;
     if (!id) return;
-    this.reordenando = true;
-    this.templatesService.reorderCampos(id, this.campos.map((c) => c.id)).subscribe({
+    this.reordenando.set(true);
+    this.templatesService.reorderCampos(id, this.campos().map((c) => c.id)).subscribe({
       next: () => {
-        this.reordenando = false;
+        this.reordenando.set(false);
         this.toast.success('Ordem salva', 'A ordem dos campos foi atualizada.');
       },
       error: () => {
-        this.reordenando = false;
-        this.campos = previous;
+        this.reordenando.set(false);
+        this.campos.set(previous);
         this.toast.error('Erro', 'Não foi possível salvar a nova ordem.');
       },
     });
@@ -298,10 +300,10 @@ export class TemplatesCamposComponent implements OnInit {
         .map((s) => s.trim())
         .filter(Boolean);
     }
-    this.salvandoCampo = true;
+    this.salvandoCampo.set(true);
     this.templatesService.storeCampo(id, payload).subscribe({
       next: () => {
-        this.salvandoCampo = false;
+        this.salvandoCampo.set(false);
         this.novoLabel = '';
         this.novoNameKey = '';
         this.novoMostrarOpcoesAvancadas = false;
@@ -311,9 +313,9 @@ export class TemplatesCamposComponent implements OnInit {
         this.toast.success('Campo adicionado', 'O novo campo foi salvo.');
       },
       error: (err) => {
-        this.salvandoCampo = false;
-        this.erro = err?.error?.message ?? 'Não foi possível adicionar o campo.';
-        this.toast.error('Erro', this.erro);
+        this.salvandoCampo.set(false);
+        this.erro.set(err?.error?.message ?? 'Não foi possível adicionar o campo.');
+        this.toast.error('Erro', this.erro());
       },
     });
   }
@@ -364,18 +366,18 @@ export class TemplatesCamposComponent implements OnInit {
       this.editVisibilityValue,
     );
     payload.clinical_step_kind = this.editClinicalStepKind?.trim() || null;
-    this.salvandoCampo = true;
+    this.salvandoCampo.set(true);
     this.templatesService.updateCampo(id, this.editCampo.id, payload).subscribe({
       next: () => {
-        this.salvandoCampo = false;
+        this.salvandoCampo.set(false);
         this.fecharModal();
         this.carregar();
         this.toast.success('Campo atualizado', 'As alterações foram salvas.');
       },
       error: (err) => {
-        this.salvandoCampo = false;
-        this.erro = err?.error?.message ?? 'Não foi possível salvar.';
-        this.toast.error('Erro ao salvar', this.erro);
+        this.salvandoCampo.set(false);
+        this.erro.set(err?.error?.message ?? 'Não foi possível salvar.');
+        this.toast.error('Erro ao salvar', this.erro());
       },
     });
   }
@@ -392,17 +394,17 @@ export class TemplatesCamposComponent implements OnInit {
     if (!ok) return;
     const id = this.idNum;
     if (!id) return;
-    this.removendoId = c.id;
+    this.removendoId.set(c.id);
     this.templatesService.destroyCampo(id, c.id).subscribe({
       next: () => {
-        this.removendoId = null;
+        this.removendoId.set(null);
         this.carregar();
         this.toast.success('Campo removido', `${c.label} foi excluído.`);
       },
       error: () => {
-        this.removendoId = null;
-        this.erro = 'Não foi possível remover o campo.';
-        this.toast.error('Erro', this.erro);
+        this.removendoId.set(null);
+        this.erro.set('Não foi possível remover o campo.');
+        this.toast.error('Erro', this.erro());
       },
     });
   }
@@ -410,49 +412,56 @@ export class TemplatesCamposComponent implements OnInit {
   gerarLink(): void {
     const id = this.idNum;
     if (!id) return;
-    this.gerandoLink = true;
-    void this.publishGuard.confirmPublishIfNeeded(id).then((confirmed) => {
-      if (!confirmed) {
-        this.gerandoLink = false;
-        return;
-      }
-      this.templatesService.gerarLink(id).subscribe({
-        next: (res) => {
-          this.gerandoLink = false;
-          const url = (res as { data?: { public_url?: string } })?.data?.public_url;
-          if (url) this.linkPublicoUrl = url;
-          else if (typeof window !== 'undefined') {
-            const token = (res as { data?: { token?: string } })?.data?.token;
-            if (token) this.linkPublicoUrl = `${window.location.origin}/f/${token}`;
-          }
-          this.carregar();
-          this.toast.success('Link público gerado', 'O link está disponível para copiar.');
-        },
-        error: (err) => {
-          this.gerandoLink = false;
-          this.erro = err?.error?.message ?? 'Não foi possível gerar o link.';
-          const issues = err?.error?.clinical_validation as { message?: string; level?: string }[] | undefined;
-          if (Array.isArray(issues) && issues.length) {
-            this.toast.warning('Validação clínica', issues.map((i) => i.message).filter(Boolean).join(' '));
-          }
-          this.toast.error('Erro', this.erro);
-        },
+    this.gerandoLink.set(true);
+    void this.publishGuard
+      .confirmPublishIfNeeded(id)
+      .then((confirmed) => {
+        if (!confirmed) {
+          this.gerandoLink.set(false);
+          return;
+        }
+        this.templatesService.gerarLink(id).subscribe({
+          next: (res) => {
+            this.gerandoLink.set(false);
+            const url = (res as { data?: { public_url?: string } })?.data?.public_url;
+            if (url) this.linkPublicoUrl.set(url);
+            else if (typeof window !== 'undefined') {
+              const token = (res as { data?: { token?: string } })?.data?.token;
+              if (token) this.linkPublicoUrl.set(`${window.location.origin}/f/${token}`);
+            }
+            this.carregar();
+            this.toast.success('Link público gerado', 'O link está disponível para copiar.');
+          },
+          error: (err: unknown) => {
+            this.gerandoLink.set(false);
+            const issues = extractClinicalValidationIssues(err);
+            this.erro.set(
+              issues.length
+                ? formatClinicalValidationMessage(issues)
+                : extractApiErrorMessage(err, 'Não foi possível gerar o link.'),
+            );
+            void this.publishGuard.reportPublishFailure(err, id);
+          },
+        });
+      })
+      .catch(() => {
+        this.gerandoLink.set(false);
+        this.toast.error('Erro ao publicar', 'Não foi possível validar as alterações do modelo.');
       });
-    });
   }
 
   aplicarEstruturaTcle(): void {
     const id = this.idNum;
-    if (!id || this.aplicandoEstruturaTcle) return;
-    this.aplicandoEstruturaTcle = true;
+    if (!id || this.aplicandoEstruturaTcle()) return;
+    this.aplicandoEstruturaTcle.set(true);
     this.templatesService.aplicarEstruturaTcle(id).subscribe({
       next: () => {
-        this.aplicandoEstruturaTcle = false;
+        this.aplicandoEstruturaTcle.set(false);
         this.carregar();
         this.toast.success('Etapas clínicas', 'Estrutura TCLE aplicada aos campos.');
       },
       error: (err) => {
-        this.aplicandoEstruturaTcle = false;
+        this.aplicandoEstruturaTcle.set(false);
         this.toast.error('Erro', err?.error?.message ?? 'Não foi possível aplicar a estrutura TCLE.');
       },
     });
@@ -460,10 +469,10 @@ export class TemplatesCamposComponent implements OnInit {
 
   toggleUsesClinicalSteps(enabled: boolean): void {
     const id = this.idNum;
-    if (!id || !this.template) return;
+    if (!id || !this.template()) return;
     this.templatesService.update(id, { uses_clinical_steps: enabled }).subscribe({
       next: () => {
-        this.template = { ...this.template!, uses_clinical_steps: enabled };
+        this.template.set({ ...this.template()!, uses_clinical_steps: enabled });
         this.toast.success('Etapas clínicas', enabled ? 'Wizard clínico ativado.' : 'Wizard clínico desativado.');
       },
       error: () => this.toast.error('Erro', 'Não foi possível atualizar etapas clínicas.'),
@@ -480,26 +489,26 @@ export class TemplatesCamposComponent implements OnInit {
     if (!ok) return;
     const id = this.idNum;
     if (!id) return;
-    this.desativandoLink = true;
+    this.desativandoLink.set(true);
     this.templatesService.desativarLink(id).subscribe({
       next: () => {
-        this.desativandoLink = false;
-        this.linkPublicoUrl = '';
+        this.desativandoLink.set(false);
+        this.linkPublicoUrl.set('');
         this.carregar();
         this.toast.success('Link desativado', 'O link público foi removido.');
       },
       error: () => {
-        this.desativandoLink = false;
-        this.erro = 'Não foi possível desativar o link.';
-        this.toast.error('Erro', this.erro);
+        this.desativandoLink.set(false);
+        this.erro.set('Não foi possível desativar o link.');
+        this.toast.error('Erro', this.erro());
       },
     });
   }
 
   copiarLink(event?: Event): void {
-    if (!this.linkPublicoUrl) return;
+    if (!this.linkPublicoUrl()) return;
     const btn = (event?.currentTarget ?? null) as HTMLElement | null;
-    navigator.clipboard.writeText(this.linkPublicoUrl).then(() => {
+    navigator.clipboard.writeText(this.linkPublicoUrl()).then(() => {
       const lbl = btn?.querySelector('.copy-label');
       if (lbl) {
         const t = lbl.textContent;
@@ -538,7 +547,7 @@ export class TemplatesCamposComponent implements OnInit {
   private gerarNameKey(label: string): string {
     const base = this.normalizarNameKey(label);
     if (!base) return `campo_${Date.now()}`;
-    const existentes = new Set(this.campos.map((c) => c.name_key));
+    const existentes = new Set(this.campos().map((c) => c.name_key));
     if (!existentes.has(base)) return base;
     let idx = 2;
     while (existentes.has(`${base}_${idx}`)) idx += 1;
@@ -567,8 +576,8 @@ export class TemplatesCamposComponent implements OnInit {
 
   salvarActorsVisibilityRules(): void {
     const id = this.idNum;
-    if (!id || !this.template) return;
-    this.salvandoActorsRules = true;
+    if (!id || !this.template()) return;
+    this.salvandoActorsRules.set(true);
     const rules = buildVisibilityRulesPayload(
       this.actorsVisibilityEnabled,
       this.actorsVisibilityField,
@@ -580,12 +589,12 @@ export class TemplatesCamposComponent implements OnInit {
       : null;
     this.templatesService.update(id, { actors_visibility_rules: payload }).subscribe({
       next: () => {
-        this.salvandoActorsRules = false;
+        this.salvandoActorsRules.set(false);
         this.toast.success('Regras salvas', 'Visibilidade do bloco responsável atualizada.');
         this.carregar();
       },
       error: () => {
-        this.salvandoActorsRules = false;
+        this.salvandoActorsRules.set(false);
         this.toast.error('Erro', 'Não foi possível salvar as regras do responsável.');
       },
     });

@@ -1,20 +1,7 @@
-import {
-  AfterViewInit,
-  Component,
-  ElementRef,
-  EventEmitter,
-  Input,
-  OnChanges,
-  Output,
-  QueryList,
-  SimpleChanges,
-  ViewChildren,
-} from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnChanges, Output, QueryList, SimpleChanges, ViewChildren, ChangeDetectionStrategy, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+
 import { FormsModule } from '@angular/forms';
-import { FlatpickrDirective, provideFlatpickrDefaults } from 'angularx-flatpickr';
-import { Portuguese } from 'flatpickr/dist/l10n/pt';
-import { ZardCheckboxComponent } from '@/shared/components/checkbox';
+
 import { FormularioPublicoField } from '../../core/services/formulario-publico.service';
 import { fieldPlaceholder, fieldType, getFieldOptions } from './formulario-publico-field.util';
 import {
@@ -32,23 +19,14 @@ import {
   elementNeedsVerticalScroll,
   isElementScrolledToBottom,
 } from './formulario-publico-term-scroll.util';
+import { NORD_FORM_IMPORTS } from '@/shared/nord';
 
 @Component({
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'zm-formulario-publico-fields',
   standalone: true,
-  imports: [CommonModule, FormsModule, FlatpickrDirective, ZardCheckboxComponent],
-  providers: [
-    provideFlatpickrDefaults({
-      locale: Portuguese,
-      dateFormat: 'Y-m-d',
-      altInput: true,
-      altFormat: 'd/m/Y',
-      altInputClass: 'fp-input',
-      allowInput: true,
-      disableMobile: true,
-      static: false,
-    }),
-  ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [FormsModule, ...NORD_FORM_IMPORTS],
   templateUrl: './formulario-publico-fields.component.html',
 })
 export class FormularioPublicoFieldsComponent implements AfterViewInit, OnChanges {

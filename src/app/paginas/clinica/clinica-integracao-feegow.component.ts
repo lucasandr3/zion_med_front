@@ -1,28 +1,30 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { finalize } from 'rxjs';
 import { IntegracoesService, FeegowConfigState } from '../../core/services/integracoes.service';
 import { ToastService } from '../../core/services/toast.service';
 import { ZmSkeletonIntegracaoFeegowComponent } from '../../shared/components/skeletons';
-import { ZARD_FORM_CONTROL_IMPORTS } from '@/shared/components/input';
-import { ZardCardComponent } from '@/shared/components/card/card.component';
-import { ZardButtonComponent } from '@/shared/components/button/button.component';
-import { ZardBadgeComponent } from '@/shared/components/badge';
-import type { ZardBadgeTypeVariants } from '@/shared/components/badge/badge.variants';
+import { ZmPageBackLinkComponent } from '../../shared/components/ui';
+import { NORD_FORM_IMPORTS } from '@/shared/nord';
+import { GestgoCardComponent } from '@/shared/components/card/card.component';
+
+import { GestgoBadgeComponent } from '@/shared/components/badge';
+import type { GestgoBadgeTypeVariants } from '@/shared/components/badge/badge.variants';
 
 @Component({
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'app-clinica-integracao-feegow',
   standalone: true,
+  host: { class: 'n-page' },
   imports: [
-    ...ZARD_FORM_CONTROL_IMPORTS,
+    ...NORD_FORM_IMPORTS,
     CommonModule,
     FormsModule,
     ZmSkeletonIntegracaoFeegowComponent,
-    ZardCardComponent,
-    ZardButtonComponent,
-    ZardBadgeComponent,
-  ],
+    ZmPageBackLinkComponent,
+    GestgoCardComponent,
+    GestgoBadgeComponent],
   templateUrl: './clinica-integracao-feegow.component.html',
   styleUrl: './clinica-integracao-feegow.component.css',
 })
@@ -130,7 +132,7 @@ export class ClinicaIntegracaoFeegowComponent implements OnInit {
     }
   }
 
-  statusBadgeType(status: FeegowConfigState['status'] | undefined): ZardBadgeTypeVariants {
+  statusBadgeType(status: FeegowConfigState['status'] | undefined): GestgoBadgeTypeVariants {
     switch (status) {
       case 'ok':
         return 'default';

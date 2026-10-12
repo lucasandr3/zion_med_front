@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, ElementRef, EventEmitter, HostListener, Input, Output, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
@@ -10,7 +10,7 @@ export interface ZmSearchableSelectOption {
 @Component({
   selector: 'zm-searchable-select',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [FormsModule],
   templateUrl: './zm-searchable-select.component.html',
   styleUrl: './zm-searchable-select.component.css',
 })
