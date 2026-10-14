@@ -4,9 +4,39 @@ import { GestgoCardComponent } from '@/shared/components/card/card.component';
 import {
   LandingAnalyticsData,
   LandingAnalyticsService,
+  ProductFunnelData,
 } from '../../../core/services/landing-analytics.service';
 import { LoadingService } from '../../../shared/services/loading.service';
 import { ZmSkeletonListComponent } from '../../../shared/components/skeletons';
+import { catchError, forkJoin, of } from 'rxjs';
+
+const FUNNEL_LABELS: Record<string, string> = {
+  signup_completed: 'Cadastros',
+  email_verified: 'E-mail verificado',
+  trial_started: 'Trial iniciado',
+  template_created: 'Modelo criado',
+  template_published: 'Modelo publicado',
+  first_form_shared: 'Primeiro envio',
+  first_protocol_completed: 'Primeiro protocolo',
+  checkout_started: 'Checkout iniciado',
+  checkout_failed: 'Checkout falhou',
+  payment_confirmed: 'Pagamento confirmado',
+  subscription_cancelled: 'Cancelamentos',
+};
+
+const FUNNEL_ORDER = [
+  'signup_completed',
+  'email_verified',
+  'trial_started',
+  'template_created',
+  'template_published',
+  'first_form_shared',
+  'first_protocol_completed',
+  'checkout_started',
+  'payment_confirmed',
+  'checkout_failed',
+  'subscription_cancelled',
+];
 
 @Component({
   selector: 'app-plataforma-trafico-landing',
@@ -22,6 +52,7 @@ export class PlataformaTraficoLandingComponent implements OnInit {
   readonly estadoErro = signal(false);
   readonly atualizando = signal(false);
   readonly stats = signal<LandingAnalyticsData | null>(null);
+  readonly funnel = signal<ProductFunnelData | null>(null);
 
   private landingAnalytics = inject(LandingAnalyticsService);
   private loadingService = inject(LoadingService);
@@ -31,12 +62,20 @@ export class PlataformaTraficoLandingComponent implements OnInit {
   }
 
   carregar(): void {
-    const { data$, showSkeleton } = this.loadingService.loadWithThreshold(this.landingAnalytics.getStats());
+    const { data$, showSkeleton } = this.loadingService.loadWithThreshold(
+      forkJoin({
+        landing: this.landingAnalytics.getStats(),
+        funnel: this.landingAnalytics.getProductFunnel(30).pipe(
+          catchError(() => of({ data: null as ProductFunnelData | null })),
+        ),
+      }),
+    );
     this.showSkeleton = showSkeleton;
     data$.subscribe({
       next: (res) => {
         this.listaPronta.set(true);
-        this.stats.set(res.data);
+        this.stats.set(res.landing.data);
+        this.funnel.set(res.funnel.data ?? null);
       },
       error: () => {
         this.listaPronta.set(true);
@@ -48,16 +87,42 @@ export class PlataformaTraficoLandingComponent implements OnInit {
   atualizar(): void {
     if (this.atualizando()) return;
     this.atualizando.set(true);
-    this.landingAnalytics.getStats().subscribe({
+    forkJoin({
+      landing: this.landingAnalytics.getStats(),
+      funnel: this.landingAnalytics.getProductFunnel(30).pipe(
+        catchError(() => of({ data: null as ProductFunnelData | null })),
+      ),
+    }).subscribe({
       next: (res) => {
         this.atualizando.set(false);
-        this.stats.set(res.data);
+        this.stats.set(res.landing.data);
+        this.funnel.set(res.funnel.data ?? null);
       },
       error: () => {
         this.atualizando.set(false);
         this.estadoErro.set(true);
       },
     });
+  }
+
+  get funilEtapas(): { key: string; label: string; count: number }[] {
+    const totals = this.funnel()?.totals ?? {};
+    return FUNNEL_ORDER.map((key) => ({
+      key,
+      label: FUNNEL_LABELS[key] ?? key,
+      count: Number(totals[key] ?? 0),
+    }));
+  }
+
+  get abandonoRecente(): { organization_id: number; last_event: string; label: string; niche: string; when: string }[] {
+    const rows = this.funnel()?.abandonment ?? [];
+    return rows.slice(0, 12).map((r) => ({
+      organization_id: r.organization_id,
+      last_event: r.last_event,
+      label: FUNNEL_LABELS[r.last_event] ?? r.last_event,
+      niche: r.niche || '—',
+      when: r.occurred_at ? new Date(r.occurred_at).toLocaleString('pt-BR') : '—',
+    }));
   }
 
   get diasVisitas(): { date: string; label: string; count: number; percent: number; ghost: boolean }[] {

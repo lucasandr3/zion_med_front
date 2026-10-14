@@ -108,6 +108,18 @@
         <a routerLink="/assinatura" class="shrink-0 font-semibold">Ver assinatura</a>
       </div>
     }
+    @if (billingNotice(); as billing) {
+      <div
+        class="billing-banner flex flex-wrap items-center justify-between gap-3 border-b border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-foreground sm:px-6 lg:px-8"
+        role="status"
+      >
+        <span class="flex items-center gap-2 text-muted-foreground">
+          <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">warning</span>
+          {{ billing.message }}
+        </span>
+        <a routerLink="/assinatura" class="shrink-0 font-semibold">Regularizar pagamento</a>
+      </div>
+    }
     @if (mostrarAvisoCobrancaGlobal()) {
       <div class="px-4 pt-3 sm:px-6 lg:px-8">
         <zm-assinatura-bloqueada-card variant="compact" />

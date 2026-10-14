@@ -32,6 +32,7 @@ export interface BillingOrganization {
   subscription_status: string | null;
   billing_status: string | null;
   trial_ends_at?: string | null;
+  grace_ends_at?: string | null;
   /** Trial em andamento (API pode enviar mesmo com subscription_status active após cadastro). */
   is_on_trial?: boolean;
 }

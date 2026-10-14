@@ -136,6 +136,22 @@ export class BillingComponent implements OnInit {
     }
   }
 
+  get carenciaAte(): string {
+    const o = this.state()?.organization;
+    if (!o?.grace_ends_at || String(o.subscription_status ?? '').toLowerCase() !== 'past_due') {
+      return '';
+    }
+    try {
+      return new Date(o.grace_ends_at).toLocaleDateString('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+      });
+    } catch {
+      return '';
+    }
+  }
+
   get pagamentosPendentes(): BillingPayment[] {
     return this.pagamentos.filter((p) => this.pagamentoPendente(p));
   }
@@ -145,7 +161,7 @@ export class BillingComponent implements OnInit {
   }
 
   get bannerVariant(): 'info' | 'warning' | 'success' {
-    if (this.mostrarPendenciaPrimeiroPagamento) return 'warning';
+    if (this.carenciaAte || this.mostrarPendenciaPrimeiroPagamento) return 'warning';
     if (this.mostrarCartaoGerenciado && this.assinaturaAtiva()) return 'success';
     return 'info';
   }
@@ -161,6 +177,9 @@ export class BillingComponent implements OnInit {
   }
 
   get orientacaoTitulo(): string {
+    if (this.carenciaAte) {
+      return 'Pagamento em atraso — período de carência';
+    }
     if (this.mostrarPendenciaPrimeiroPagamento && this.temCobrancaPendente) {
       return 'Conclua o pagamento para ativar sua assinatura';
     }
@@ -180,6 +199,9 @@ export class BillingComponent implements OnInit {
   }
 
   get orientacaoDescricao(): string {
+    if (this.carenciaAte) {
+      return `Regularize até ${this.carenciaAte} para evitar a suspensão do acesso. Seus documentos permanecem salvos.`;
+    }
     if (this.mostrarPendenciaPrimeiroPagamento && this.temCobrancaPendente) {
       return 'Já existe uma cobrança gerada. Pague com PIX ou boleto na seção abaixo. Não é necessário assinar novamente o mesmo plano.';
     }

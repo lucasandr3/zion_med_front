@@ -1,0 +1,82 @@
+.agenda-aba-group {
+  flex-wrap: wrap;
+}
+
+.agenda-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.agenda-panel__title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--foreground, var(--c-text));
+}
+
+.agenda-panel__hint {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--muted-foreground, var(--c-muted));
+  line-height: 1.45;
+}
+
+.agenda-form-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1rem;
+  align-items: flex-end;
+}
+
+.agenda-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.agenda-field--grow {
+  flex: 1 1 14rem;
+}
+
+.agenda-field--narrow {
+  flex: 0 0 7.5rem;
+}
+
+.agenda-days {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  margin-top: 0.25rem;
+}
+
+.agenda-day-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+}
+
+.agenda-day-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 4.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--foreground, var(--c-text));
+}
+
+.agenda-day-sep {
+  font-size: 0.8125rem;
+  color: var(--muted-foreground, var(--c-muted));
+}
+
+.agenda-time {
+  width: 7.5rem;
+}
+
+.agenda-time:disabled {
+  opacity: 0.45;
+}

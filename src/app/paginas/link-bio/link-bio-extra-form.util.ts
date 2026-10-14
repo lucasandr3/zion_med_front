@@ -60,6 +60,11 @@ export interface LinkBioExtraFormState {
   pedParentNoticeBody: string;
   pedFirstVisitSteps: LinkBioPedStepFormRow[];
   pedAgeBands: LinkBioPedAgeBandFormRow[];
+  appointmentCtaEnabled: boolean;
+  appointmentCtaMode: 'external' | 'feegow' | 'gestgo';
+  appointmentCtaLabel: string;
+  appointmentUrl: string;
+  appointmentFeegowUrl: string;
 }
 
 export function createEmptyExtraFormState(): LinkBioExtraFormState {
@@ -88,6 +93,11 @@ export function createEmptyExtraFormState(): LinkBioExtraFormState {
     pedParentNoticeBody: '',
     pedFirstVisitSteps: [],
     pedAgeBands: [],
+    appointmentCtaEnabled: false,
+    appointmentCtaMode: 'external',
+    appointmentCtaLabel: 'Agendar atendimento',
+    appointmentUrl: '',
+    appointmentFeegowUrl: '',
   };
 }
 
@@ -151,6 +161,14 @@ export function applyExtraToFormState(extra: unknown): LinkBioExtraFormState {
     pedAgeBands: pedAgeBands.length
       ? pedAgeBands.map((b) => ({ emoji: b.emoji ?? '', title: b.title ?? '', range: b.range ?? '' }))
       : [],
+    appointmentCtaEnabled: !!e.appointment_cta_enabled,
+    appointmentCtaMode:
+      e.appointment_cta_mode === 'feegow' || e.appointment_cta_mode === 'gestgo'
+        ? e.appointment_cta_mode
+        : 'external',
+    appointmentCtaLabel: e.appointment_cta_label ?? 'Agendar atendimento',
+    appointmentUrl: typeof e.appointment_url === 'string' ? e.appointment_url : '',
+    appointmentFeegowUrl: typeof e.appointment_feegow_url === 'string' ? e.appointment_feegow_url : '',
   };
 }
 
@@ -250,6 +268,32 @@ export function buildExtraPayload(form: LinkBioExtraFormState, existingExtra: un
       range: trim(b.range),
     }));
   } else delete merged['ped_age_bands'];
+
+  if (form.appointmentCtaEnabled) {
+    merged['appointment_cta_enabled'] = true;
+    merged['appointment_cta_mode'] = form.appointmentCtaMode || 'external';
+    setOrDelete('appointment_cta_label', trim(form.appointmentCtaLabel) || 'Agendar atendimento');
+    const ext = trim(form.appointmentUrl);
+    if (ext) {
+      merged['appointment_url'] = /^https:\/\//i.test(ext) ? ext : `https://${ext.replace(/^\/+/, '')}`;
+    } else {
+      delete merged['appointment_url'];
+    }
+    const feegow = trim(form.appointmentFeegowUrl);
+    if (feegow) {
+      merged['appointment_feegow_url'] = /^https:\/\//i.test(feegow)
+        ? feegow
+        : `https://${feegow.replace(/^\/+/, '')}`;
+    } else {
+      delete merged['appointment_feegow_url'];
+    }
+  } else {
+    delete merged['appointment_cta_enabled'];
+    delete merged['appointment_cta_mode'];
+    delete merged['appointment_cta_label'];
+    delete merged['appointment_url'];
+    delete merged['appointment_feegow_url'];
+  }
 
   return Object.keys(merged).length ? (merged as LinkBioExtra) : null;
 }

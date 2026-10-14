@@ -85,7 +85,8 @@ function hasContactEmail(clinic: LinkBioClinic): boolean {
 }
 
 function layoutUsesConteudoExtra(model: LinkBioLayoutModel): boolean {
-  return model !== 1;
+  // Todos os 8 presets do catálogo 2026-10 aceitam algum conteúdo extra.
+  return model >= 1 && model <= 8;
 }
 
 /** Sugestões ordenadas por prioridade — só o que a página ainda não oferece. */
@@ -215,13 +216,13 @@ export function buildLinkBioOverviewSuggestions(input: LinkBioPageAuditInput): L
     });
   }
 
-  if (layoutModel === 5 && (extra.team?.filter((m) => m.name?.trim()).length ?? 0) === 0) {
+  if (layoutModel === 7 && (extra.team?.filter((m) => m.name?.trim()).length ?? 0) === 0) {
     suggestions.push({
       id: 'equipe',
       icon: 'groups',
       tone: 'purple',
       title: 'Cadastrar equipe',
-      subtitle: 'O layout multi profissionais destaca cada membro da equipe',
+      subtitle: 'O layout multiprofissional destaca cada membro da equipe',
       aba: 'conteudoExtra',
       priority: 50,
     });
@@ -239,13 +240,13 @@ export function buildLinkBioOverviewSuggestions(input: LinkBioPageAuditInput): L
     });
   }
 
-  if (layoutModel === 2 && (extra.modalities?.length ?? 0) === 0) {
+  if ([3, 4, 5, 8].includes(layoutModel) && (extra.modalities?.length ?? 0) === 0) {
     suggestions.push({
       id: 'modalidades',
       icon: 'home_work',
       tone: 'purple',
       title: 'Definir modalidades de atendimento',
-      subtitle: 'Informe se atende online, presencial ou ambos',
+      subtitle: 'Liste procedimentos ou tipos de atendimento na página pública',
       aba: 'conteudoExtra',
       priority: 46,
     });

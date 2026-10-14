@@ -33,11 +33,13 @@
     </div>
   }
 
-  @if (!showSkeleton() && data && clinic && !totemMode && model === 1) {
+  @if (!showSkeleton() && data && clinic && !totemMode) {
     <div class="zm-content-enter">
-      <app-link-bio-public-layout-generic
+      <app-link-bio-public-layout-preset
+        [model]="model"
         [clinic]="clinic"
-        [allLinks]="allLinks"
+        [bioLinks]="links"
+        [allDocs]="allLinks"
         [googleReviews]="googleReviews"
         [publicSlug]="slug"
         [linkBioPreview]="linkBioPreview"
@@ -45,71 +47,6 @@
         (toggleDark)="toggleDark()"
         (share)="sharePage()"
       />
-    </div>
-  }
-
-  @if (!showSkeleton() && data && clinic && !totemMode && model >= 2 && model <= 5) {
-    <div class="zm-content-enter">
-    <app-link-bio-public-layouts
-      [model]="layoutModelLegacy()"
-      [clinic]="clinic"
-      [bioLinks]="links"
-      [googleReviews]="googleReviews"
-      [dark]="dark"
-      [allDocs]="allLinks"
-      [publicSlug]="slug"
-      [linkBioPreview]="linkBioPreview"
-      (toggleDark)="toggleDark()"
-      (share)="sharePage()"
-    />
-    </div>
-  }
-
-  @if (!showSkeleton() && data && clinic && !totemMode && model === 6) {
-    <div class="zm-content-enter">
-    <app-link-bio-public-layout-vet
-      [clinic]="clinic"
-      [bioLinks]="links"
-      [googleReviews]="googleReviews"
-      [dark]="dark"
-      [allDocs]="allLinks"
-      [publicSlug]="slug"
-      [linkBioPreview]="linkBioPreview"
-      (toggleDark)="toggleDark()"
-      (share)="sharePage()"
-    />
-    </div>
-  }
-
-  @if (!showSkeleton() && data && clinic && !totemMode && model === 7) {
-    <div class="zm-content-enter">
-    <app-link-bio-public-layout-pedia
-      [clinic]="clinic"
-      [bioLinks]="links"
-      [googleReviews]="googleReviews"
-      [dark]="dark"
-      [allDocs]="allLinks"
-      [publicSlug]="slug"
-      [linkBioPreview]="linkBioPreview"
-      (toggleDark)="toggleDark()"
-      (share)="sharePage()"
-    />
-    </div>
-  }
-
-  @if (!showSkeleton() && data && clinic && !totemMode && model === 8) {
-    <div class="zm-content-enter">
-    <app-link-bio-public-layout-nutri
-      [clinic]="clinic"
-      [bioLinks]="links"
-      [googleReviews]="googleReviews"
-      [dark]="dark"
-      [allDocs]="allLinks"
-      [publicSlug]="slug"
-      [linkBioPreview]="linkBioPreview"
-      (toggleDark)="toggleDark()"
-      (share)="sharePage()"
-    />
     </div>
   }
 </div>

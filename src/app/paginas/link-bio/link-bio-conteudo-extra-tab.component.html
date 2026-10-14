@@ -17,14 +17,14 @@
                   </p>
                 } @else {
                   <p class="m-0 mt-1.5">
-                    Seu layout publicado hoje é <strong>{{ layoutPublicadoLabel }}</strong> (genérico), então estes campos
-                    <strong>não aparecem</strong> na página pública até você publicar um layout temático na aba Modelos.
+                    Seu layout publicado hoje é <strong>{{ layoutPublicadoLabel }}</strong>, então estes campos
+                    podem diferir do que o visitante vê até você publicar o modelo selecionado na aba Modelos.
                   </p>
                 }
               } @else {
                 <p class="m-0">
-                  O layout <strong>{{ conteudoExtraModeloAtivoLabel }}</strong> não usa conteúdo extra.
-                  Escolha um layout temático (2 a 8) na aba <strong>Modelos</strong> para ver os campos correspondentes.
+                  O layout <strong>{{ conteudoExtraModeloAtivoLabel }}</strong> não usa conteúdo extra neste momento.
+                  Escolha outro modelo na aba <strong>Modelos</strong> para ver os campos correspondentes.
                 </p>
               }
               @if (modelDirty && conteudoExtraTemCamposParaModelo) {
@@ -83,6 +83,49 @@
 
               @if (extraMostraTextosLinks) {
               <g-card class="section-card lb-extra-card gap-0 rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
+                <p class="text-xs font-bold uppercase tracking-wider mb-1" style="color:var(--c-muted)">Agendar atendimento</p>
+                <p class="text-[11px] mb-4" style="color:var(--c-muted)">
+                  CTA da vitrine (não reserva horários sozinho). URL externa, Feegow ou agenda Gestgo quando ativa.
+                </p>
+                <div class="flex flex-col gap-4">
+                  <label class="flex items-center gap-2 text-sm">
+                    <input type="checkbox" [(ngModel)]="extraForm.appointmentCtaEnabled" name="extra_appt_on" (ngModelChange)="onDraftChange()" />
+                    Exibir botão “Agendar atendimento”
+                  </label>
+                  @if (extraForm.appointmentCtaEnabled) {
+                    <div>
+                      <label class="form-label">Texto do botão</label>
+                      <input type="text" class="w-full" [(ngModel)]="extraForm.appointmentCtaLabel" name="extra_appt_label" maxlength="80" placeholder="Agendar atendimento" (ngModelChange)="onDraftChange()" />
+                    </div>
+                    <div>
+                      <label class="form-label">Destino</label>
+                      <select class="w-full" [(ngModel)]="extraForm.appointmentCtaMode" name="extra_appt_mode" (ngModelChange)="onDraftChange()">
+                        <option value="external">URL externa (Calendly etc.)</option>
+                        <option value="feegow">URL Feegow / integração</option>
+                        <option value="gestgo">Agenda Gestgo (nativa)</option>
+                      </select>
+                    </div>
+                    @if (extraForm.appointmentCtaMode === 'external') {
+                      <div>
+                        <label class="form-label">URL HTTPS</label>
+                        <input type="url" class="w-full" [(ngModel)]="extraForm.appointmentUrl" name="extra_appt_url" maxlength="500" placeholder="https://calendly.com/sua-clinica" (ngModelChange)="onDraftChange()" />
+                        <p class="text-[11px] mt-1" style="color:var(--c-muted)">Não promete disponibilidade em tempo real.</p>
+                      </div>
+                    }
+                    @if (extraForm.appointmentCtaMode === 'feegow') {
+                      <div>
+                        <label class="form-label">URL Feegow (HTTPS)</label>
+                        <input type="url" class="w-full" [(ngModel)]="extraForm.appointmentFeegowUrl" name="extra_appt_feegow" maxlength="500" placeholder="https://..." (ngModelChange)="onDraftChange()" />
+                      </div>
+                    }
+                    @if (extraForm.appointmentCtaMode === 'gestgo') {
+                      <p class="text-[11px] m-0" style="color:var(--c-muted)">O paciente será enviado para a agenda pública Gestgo da clínica (/a/seu-slug).</p>
+                    }
+                  }
+                </div>
+              </g-card>
+
+              <g-card class="section-card lb-extra-card gap-0 rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
                 <p class="text-xs font-bold uppercase tracking-wider mb-1" style="color:var(--c-muted)">Textos e links</p>
                 <p class="text-[11px] mb-4" style="color:var(--c-muted)">Campos usados no layout <strong style="color:var(--c-text)">{{ conteudoExtraModeloAtivoLabel }}</strong>.</p>
                 <div class="flex flex-col gap-4">
@@ -114,133 +157,8 @@
               </g-card>
               }
 
-              @if (extraMostraSecao('vet_exam')) {
-              <g-card class="section-card lb-extra-card gap-0 rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
-                <p class="text-xs font-bold uppercase tracking-wider mb-1" style="color:var(--c-muted)">Resultados de exames (veterinária)</p>
-                <p class="text-[11px] mb-4" style="color:var(--c-muted)">
-                  Exibido no layout <strong style="color:var(--c-text)">Clínica veterinária (6)</strong> como botão abaixo do WhatsApp e dos atalhos. Deixe a URL vazia para ocultar o botão na página pública.
-                </p>
-                <div class="flex flex-col gap-4">
-                  <div>
-                    <label class="form-label">URL do portal de exames</label>
-                    <input
-                      type="url" class="w-full"
-                      [(ngModel)]="extraForm.vetExamResultsUrl"
-                      name="extra_vet_exam_url"
-                      maxlength="500"
-                      placeholder="https://laboratorio.com.br/resultados"
-                    />
-                  </div>
-                  <div>
-                    <label class="form-label">Rótulo do botão (opcional)</label>
-                    <input
-                      type="text" class="w-full"
-                      [(ngModel)]="extraForm.vetExamResultsLabel"
-                      name="extra_vet_exam_label"
-                      maxlength="120"
-                      placeholder="Consultar resultados"
-                    />
-                  </div>
-                  <div>
-                    <label class="form-label">Subtítulo (opcional)</label>
-                    <input
-                      type="text" class="w-full"
-                      [(ngModel)]="extraForm.vetExamResultsSubtitle"
-                      name="extra_vet_exam_sub"
-                      maxlength="200"
-                      placeholder="Acesso ao portal do laboratório"
-                    />
-                  </div>
-                </div>
-              </g-card>
-              }
-
-              @if (extraMostraSecao('vet_cover')) {
-              <!-- ══ VETERINÁRIA (M6) ══ -->
-              <g-card class="section-card lb-extra-card gap-0 rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
-                <p class="text-xs font-bold uppercase tracking-wider mb-1" style="color:var(--c-muted)">Clínica veterinária: textos da capa</p>
-                <p class="text-[11px] mb-4" style="color:var(--c-muted)">Campos do layout <strong style="color:var(--c-text)">Clínica veterinária (6)</strong>. Deixe vazio para usar o texto padrão.</p>
-                <div class="flex flex-col gap-4">
-                  <div>
-                    <label class="form-label">Rótulo acima do nome (kicker da capa)</label>
-                    <input type="text" class="w-full" [(ngModel)]="extraForm.vetCoverKicker" name="extra_vet_kicker" maxlength="80" placeholder="Ex.: Medicina veterinária" (ngModelChange)="onDraftChange()" />
-                  </div>
-                  <div>
-                    <label class="form-label">Texto do botão WhatsApp</label>
-                    <input type="text" class="w-full" [(ngModel)]="extraForm.vetWaCtaLabel" name="extra_vet_wa" maxlength="80" placeholder="Ex.: Marcar consulta para o pet" (ngModelChange)="onDraftChange()" />
-                  </div>
-                  <div>
-                    <label class="form-label">Título da seção de fichas</label>
-                    <input type="text" class="w-full" [(ngModel)]="extraForm.vetDocsSectionTitle" name="extra_vet_docs_title" maxlength="80" placeholder="Ex.: Fichas do pet" (ngModelChange)="onDraftChange()" />
-                  </div>
-                  <div>
-                    <label class="form-label">Introdução da seção de fichas</label>
-                    <input type="text" class="w-full" [(ngModel)]="extraForm.vetDocsIntro" name="extra_vet_docs_intro" maxlength="200" placeholder="Ex.: Preencha antes da consulta do seu bichinho" (ngModelChange)="onDraftChange()" />
-                  </div>
-                </div>
-              </g-card>
-              }
-
-              @if (extraMostraSecao('vet_species')) {
-              <g-card class="section-card lb-extra-card gap-0 rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
-                <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
-                  <div>
-                    <p class="text-xs font-bold uppercase tracking-wider" style="color:var(--c-muted)">Espécies atendidas</p>
-                    <p class="text-[11px] mt-1" style="color:var(--c-muted)">Layout veterinária (6). Se vazio, usa padrão (Cães, Gatos, Coelhos…).</p>
-                  </div>
-                  <nord-button type="button" variant="default" size="s" class="gap-1.5" (click)="adicionarSpeciesChip()">
-                    <span class="material-symbols-outlined text-base">add</span>
-                    Adicionar
-                  </nord-button>
-                </div>
-                @if (extraForm.speciesChips.length === 0) {
-                  <p class="text-xs py-2" style="color:var(--c-muted)">Nenhuma espécie personalizada. Clique em Adicionar para criar.</p>
-                }
-                <div class="flex flex-col gap-3">
-                  @for (chip of extraForm.speciesChips; track $index) {
-                    <div class="flex gap-2 items-center">
-                      <input type="text" class="w-full flex-1 min-w-0" [(ngModel)]="extraForm.speciesChips[$index].label" [name]="'sp_label_' + $index" maxlength="40" placeholder="Ex.: 🐕 Cães" />
-                      <nord-checkbox [(ngModel)]="extraForm.speciesChips[$index].active" [name]="'sp_active_' + $index" title="Ativa (chip destacado)" label="Ativa"></nord-checkbox>
-                      <nord-button type="button" variant="plain" size="s" class="shrink-0 min-w-9 px-2" (click)="removerSpeciesChip($index)" aria-label="Remover espécie">
-                        <span class="material-symbols-outlined text-base">close</span>
-                      </nord-button>
-                    </div>
-                  }
-                </div>
-              </g-card>
-              }
-
-              @if (extraMostraSecao('vet_services')) {
-              <g-card class="section-card lb-extra-card gap-0 rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
-                <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
-                  <div>
-                    <p class="text-xs font-bold uppercase tracking-wider" style="color:var(--c-muted)">Serviços da clínica veterinária</p>
-                    <p class="text-[11px] mt-1" style="color:var(--c-muted)">Layout veterinária (6). Se vazio, usa padrão (Vacinas, Exames, Cirurgia…).</p>
-                  </div>
-                  <nord-button type="button" variant="default" size="s" class="gap-1.5" (click)="adicionarVetServiceCard()">
-                    <span class="material-symbols-outlined text-base">add</span>
-                    Adicionar
-                  </nord-button>
-                </div>
-                @if (extraForm.vetServiceCards.length === 0) {
-                  <p class="text-xs py-2" style="color:var(--c-muted)">Nenhum serviço personalizado. Clique em Adicionar para criar.</p>
-                }
-                <div class="flex flex-col gap-2">
-                  @for (svc of extraForm.vetServiceCards; track $index) {
-                    <div class="flex gap-2 items-center">
-                      <input type="text" class="w-18 shrink-0" [(ngModel)]="extraForm.vetServiceCards[$index].icon" [name]="'vsvc_icon_' + $index" maxlength="4" placeholder="💉" />
-                      <input type="text" class="w-full flex-1 min-w-0" [(ngModel)]="extraForm.vetServiceCards[$index].title" [name]="'vsvc_title_' + $index" maxlength="60" placeholder="Ex.: Vacinas" />
-                      <nord-button type="button" variant="plain" size="s" class="shrink-0 min-w-9 px-2" (click)="removerVetServiceCard($index)" aria-label="Remover serviço">
-                        <span class="material-symbols-outlined text-base">close</span>
-                      </nord-button>
-                    </div>
-                  }
-                </div>
-              </g-card>
-              }
-
               @if (extraMostraSecao('ped_texts')) {
-              <!-- ══ PEDIATRIA (M7) ══ -->
+              <!-- ══ PEDIATRIA (M6) ══ -->
               <g-card class="section-card lb-extra-card gap-0 rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
                 <p class="text-xs font-bold uppercase tracking-wider mb-1" style="color:var(--c-muted)">Pediatria: textos e alertas</p>
                 <p class="text-[11px] mb-4" style="color:var(--c-muted)">Campos do layout <strong style="color:var(--c-text)">Pediatria (7)</strong>. Deixe vazio para usar o texto padrão.</p>
@@ -278,7 +196,7 @@
                 <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
                   <div>
                     <p class="text-xs font-bold uppercase tracking-wider" style="color:var(--c-muted)">Passos da primeira consulta</p>
-                    <p class="text-[11px] mt-1" style="color:var(--c-muted)">Layout pediatria (7). Se vazio, usa padrão (3 passos).</p>
+                    <p class="text-[11px] mt-1" style="color:var(--c-muted)">Layout pediatria (6). Se vazio, usa padrão (3 passos).</p>
                   </div>
                   <nord-button type="button" variant="default" size="s" class="gap-1.5" (click)="adicionarPedStep()">
                     <span class="material-symbols-outlined text-base">add</span>
@@ -314,7 +232,7 @@
                 <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
                   <div>
                     <p class="text-xs font-bold uppercase tracking-wider" style="color:var(--c-muted)">Faixas etárias atendidas</p>
-                    <p class="text-[11px] mt-1" style="color:var(--c-muted)">Layout pediatria (7). Se vazio, usa padrão (Recém-nascido, Criança, Adolescente).</p>
+                    <p class="text-[11px] mt-1" style="color:var(--c-muted)">Layout pediatria (6). Se vazio, usa padrão (Recém-nascido, Criança, Adolescente).</p>
                   </div>
                   <nord-button type="button" variant="default" size="s" class="gap-1.5" (click)="adicionarPedAgeBand()">
                     <span class="material-symbols-outlined text-base">add</span>
@@ -356,7 +274,7 @@
                 <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
                   <div>
                     <p class="text-xs font-bold uppercase tracking-wider" style="color:var(--c-muted)">Convênios aceitos</p>
-                    <p class="text-[11px] mt-1" style="color:var(--c-muted)">Layouts: odontologia (4), pediatria (7) e nutricionista (8)</p>
+                    <p class="text-[11px] mt-1" style="color:var(--c-muted)">Layouts: odontologia (4), nutrição (5) e pediatria (6)</p>
                   </div>
                   <nord-button type="button" variant="default" size="s" class="gap-1.5" (click)="adicionarConvenioLinha()">
                     <span class="material-symbols-outlined text-base">add</span>
@@ -381,7 +299,7 @@
                 <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
                   <div>
                     <p class="text-xs font-bold uppercase tracking-wider" style="color:var(--c-muted)">Modalidades de atendimento</p>
-                    <p class="text-[11px] mt-1" style="color:var(--c-muted)">Layouts: odontologia (4) e nutricionista (8). Se vazio, a página usa padrão (Online / Presencial).</p>
+                    <p class="text-[11px] mt-1" style="color:var(--c-muted)">Layouts: estética (3), odontologia (4), nutrição (5) e fisioterapia (8). Se vazio, a página usa especialidades/padrão.</p>
                   </div>
                   <nord-button type="button" variant="default" size="s" class="gap-1.5" (click)="adicionarModalidade()">
                     <span class="material-symbols-outlined text-base">add</span>

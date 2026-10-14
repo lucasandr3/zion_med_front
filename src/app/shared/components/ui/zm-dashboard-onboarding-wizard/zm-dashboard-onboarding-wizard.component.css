@@ -329,3 +329,40 @@
   min-width: 0;
   word-break: break-all;
 }
+
+.onboarding-wizard__steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  list-style: none;
+  margin: 0 0 1rem;
+  padding: 0;
+}
+
+.onboarding-wizard__step {
+  align-items: center;
+  color: var(--n-color-text-weak, #667);
+  display: inline-flex;
+  font-size: 0.75rem;
+  font-weight: 600;
+  gap: 0.4rem;
+}
+
+.onboarding-wizard__step--active {
+  color: var(--n-color-text, #111);
+}
+
+.onboarding-wizard__step--done {
+  color: var(--n-color-accent, var(--c-primary));
+}
+
+.onboarding-wizard__step-num {
+  align-items: center;
+  background: color-mix(in srgb, var(--n-color-accent, var(--c-primary)) 12%, transparent);
+  border-radius: 999px;
+  display: inline-flex;
+  font-size: 0.6875rem;
+  height: 1.35rem;
+  justify-content: center;
+  width: 1.35rem;
+}

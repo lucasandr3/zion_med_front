@@ -14,11 +14,7 @@ import { absoluteMediaUrl } from '../../core/utils/absolute-media-url';
 import { normalizeLinkBioClinic, parseLinkBioExtra } from '../../core/utils/link-bio-clinic-normalize.util';
 import { PublicPageBodyService } from '../../core/services/public-page-body.service';
 import { LoadingService } from '../../shared/services/loading.service';
-import { LinkBioPublicLayoutsComponent } from './link-bio-public-layouts.component';
-import { LinkBioPublicLayoutGenericComponent } from './link-bio-public-layout-generic.component';
-import { LinkBioPublicLayoutVetComponent } from './link-bio-public-layout-vet.component';
-import { LinkBioPublicLayoutPediaComponent } from './link-bio-public-layout-pedia.component';
-import { LinkBioPublicLayoutNutriComponent } from './link-bio-public-layout-nutri.component';
+import { LinkBioPublicLayoutPresetComponent } from './link-bio-public-layout-preset.component';
 import { LinkBioPublicTotemComponent } from './link-bio-public-totem.component';
 import { isTotemQueryParam } from '../link-bio/link-bio-public-url.util';
 import type { LinkBioLayoutModel } from '../../core/services/link-bio.service';
@@ -28,11 +24,7 @@ import type { LinkBioLayoutModel } from '../../core/services/link-bio.service';
   standalone: true,
   imports: [
     LinkBioPublicTotemComponent,
-    LinkBioPublicLayoutGenericComponent,
-    LinkBioPublicLayoutsComponent,
-    LinkBioPublicLayoutVetComponent,
-    LinkBioPublicLayoutPediaComponent,
-    LinkBioPublicLayoutNutriComponent],
+    LinkBioPublicLayoutPresetComponent],
   templateUrl: './link-bio-public.component.html',
   styleUrl: './link-bio-public.component.css',
 })
@@ -156,13 +148,6 @@ export class LinkBioPublicComponent implements OnInit, OnDestroy {
   get model(): LinkBioLayoutModel {
     const value = this.clinic?.link_bio_model;
     return value && [1, 2, 3, 4, 5, 6, 7, 8].includes(value) ? value : 1;
-  }
-
-  /** Para o componente de layouts 2–5 (só usar quando model ∈ {2,3,4,5}). */
-  layoutModelLegacy(): 2 | 3 | 4 | 5 {
-    const v = this.model;
-    if (v === 2 || v === 3 || v === 4 || v === 5) return v;
-    return 2;
   }
 
   get links(): LinkBioLink[] {

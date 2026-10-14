@@ -29,11 +29,29 @@ export interface LandingAnalyticsData {
   click_breakdown: LandingAnalyticsClickRow[];
 }
 
+export interface ProductFunnelAbandonmentRow {
+  organization_id: number;
+  last_event: string;
+  occurred_at: string;
+  niche?: string | null;
+}
+
+export interface ProductFunnelData {
+  days: number;
+  totals: Record<string, number>;
+  by_day: { date: string; counts: Record<string, number> }[];
+  abandonment?: ProductFunnelAbandonmentRow[];
+}
+
 @Injectable({ providedIn: 'root' })
 export class LandingAnalyticsService {
   private api = inject(ApiService);
 
   getStats(): Observable<{ data: LandingAnalyticsData }> {
     return this.api.get<{ data: LandingAnalyticsData }>('/platform/landing-analytics');
+  }
+
+  getProductFunnel(days = 30): Observable<{ data: ProductFunnelData }> {
+    return this.api.get<{ data: ProductFunnelData }>(`/platform/product-funnel?days=${days}`);
   }
 }

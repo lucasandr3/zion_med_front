@@ -167,6 +167,15 @@ export interface PlatformResendSettings {
   api_key_preview?: string | null;
 }
 
+export interface PlatformFormImportSettings {
+  provider?: 'openai' | 'heuristic';
+  model?: string;
+  base_url?: string;
+  configured?: boolean;
+  api_key_preview?: string | null;
+  retention_days?: number;
+}
+
 export interface PlatformSettingsData {
   product_name: string;
   base_url?: string | null;
@@ -179,6 +188,7 @@ export interface PlatformSettingsData {
   webhook_secret_preview?: string | null;
   minio?: PlatformMinioSettings;
   resend?: PlatformResendSettings;
+  form_import?: PlatformFormImportSettings;
   service_status: string;
   service_status_severity: string;
   service_status_message: string;
@@ -397,6 +407,11 @@ export class PlataformaService {
     mail_whatsapp_number?: string | null;
     mail_primary_color?: string | null;
     mail_product_name?: string | null;
+    form_import_provider?: 'openai' | 'heuristic' | null;
+    openai_api_key?: string | null;
+    form_import_openai_model?: string | null;
+    openai_base_url?: string | null;
+    form_import_retention_days?: number | null;
   }): Observable<{ data?: PlatformSettingsData; message?: string }> {
     return this.api.put<{ data?: PlatformSettingsData; message?: string }>('/platform/settings', payload);
   }

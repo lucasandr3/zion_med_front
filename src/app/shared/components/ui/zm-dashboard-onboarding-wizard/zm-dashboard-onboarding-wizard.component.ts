@@ -44,7 +44,20 @@ export class ZmDashboardOnboardingWizardComponent implements OnChanges {
   readonly templateSelecionadoId = signal<number | null>(null);
   readonly linkPublicoUrl = signal('');
   readonly gerandoLink = signal(false);
+  readonly enviandoParaMim = signal(false);
   readonly linkCopiado = signal(false);
+
+  readonly checklist = [
+    { key: 'template', label: 'Escolher um modelo' },
+    { key: 'public_link', label: 'Publicar link' },
+    { key: 'first_send', label: 'Testar no seu e-mail' },
+  ] as const;
+
+  readonly passoAtivo = computed(() => {
+    if (!this.templateSelecionadoId()) return 1;
+    if (!this.linkPublicoUrl()) return 2;
+    return 3;
+  });
 
   private copyResetTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -78,7 +91,7 @@ export class ZmDashboardOnboardingWizardComponent implements OnChanges {
       )
       .subscribe({
         next: (items) => {
-          const slice = items.slice(0, 8);
+          const slice = items.slice(0, 3);
           this.templates.set(slice);
           if (slice.length === 1) {
             this.templateSelecionadoId.set(slice[0].id);
@@ -170,7 +183,34 @@ export class ZmDashboardOnboardingWizardComponent implements OnChanges {
         next: (url) => {
           this.linkPublicoUrl.set(url);
           this.linkGenerated.emit();
-          this.toast.success('Link gerado', 'Copie e envie para seu paciente ou publique no link na bio.');
+          this.toast.success('Link gerado', 'Copie e envie para seu paciente ou teste no seu e-mail.');
+        },
+        error: (err: unknown) => {
+          void this.publishGuard.reportPublishFailure(err, templateId);
+        },
+      });
+  }
+
+  enviarParaMim(): void {
+    const templateId = this.templateSelecionadoId();
+    if (!templateId) {
+      this.toast.error('Selecione um modelo', 'Escolha um formulário antes de enviar o teste.');
+      return;
+    }
+    this.enviandoParaMim.set(true);
+    this.onboarding
+      .enviarParaMim(templateId)
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.enviandoParaMim.set(false)),
+      )
+      .subscribe({
+        next: (res) => {
+          if (res.public_url) {
+            this.linkPublicoUrl.set(res.public_url);
+          }
+          this.linkGenerated.emit();
+          this.toast.success('Teste enviado', res.message || 'Abra o e-mail da sua conta para preencher a ficha.');
         },
         error: (err: unknown) => {
           void this.publishGuard.reportPublishFailure(err, templateId);

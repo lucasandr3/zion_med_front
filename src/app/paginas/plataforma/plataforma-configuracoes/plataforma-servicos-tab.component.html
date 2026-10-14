@@ -219,6 +219,104 @@
             </form>
           }
 
+          @case ('openai') {
+            <form class="settings-form" (ngSubmit)="submitSettings()">
+              <g-card class="settings-card">
+                <header class="settings-card__header">
+                  <h3 class="settings-card__title">OpenAI (importação de fichas)</h3>
+                  <p class="settings-card__subtitle">
+                    Extração de campos a partir de PDF/foto/texto.
+                    @if (formImportConfigured) {
+                      <span class="settings-badge settings-badge--ok">{{ formImportProvider === 'heuristic' ? 'Heurística' : 'Configurado' }}</span>
+                    } @else {
+                      <span class="settings-badge settings-badge--warn">Chave pendente</span>
+                    }
+                  </p>
+                </header>
+                <div class="settings-fields">
+                  <div class="settings-field-row">
+                    <div class="settings-field">
+                      <label id="form_import_provider_label" class="settings-label">Provedor</label>
+                      <z-combobox
+                        zWidth="full"
+                        [(ngModel)]="formImportProvider"
+                        name="form_import_provider"
+                        [options]="opcoesFormImportProvider"
+                        placeholder="Selecione…"
+                        [searchable]="false"
+                        [clearable]="false"
+                        ariaLabel="Provedor de importação"
+                        ariaDescribedBy="form_import_provider_label"
+                      />
+                    </div>
+                    <div class="settings-field">
+                      <label for="form_import_openai_model" class="settings-label">Modelo</label>
+                      <input
+                        type="text"
+                        id="form_import_openai_model"
+                        [(ngModel)]="formImportModel"
+                        name="form_import_openai_model"
+                        class="w-full font-mono text-xs"
+                        maxlength="128"
+                        placeholder="gpt-4o-mini"
+                        [disabled]="formImportProvider === 'heuristic'"
+                      />
+                    </div>
+                  </div>
+                  <div class="settings-field settings-field--wide">
+                    <label for="openai_api_key" class="settings-label">Chave da API</label>
+                    <input
+                      type="password"
+                      id="openai_api_key"
+                      [(ngModel)]="openaiApiKey"
+                      name="openai_api_key"
+                      class="w-full font-mono text-xs"
+                      maxlength="512"
+                      autocomplete="new-password"
+                      [placeholder]="openaiApiKeyPreview ? 'Atual: ' + openaiApiKeyPreview : 'sk-...'"
+                      [disabled]="formImportProvider === 'heuristic'"
+                    />
+                    <p class="settings-hint">Deixe em branco para manter a chave atual. Usada só na importação de fichas.</p>
+                  </div>
+                  <div class="settings-field settings-field--wide">
+                    <label for="openai_base_url" class="settings-label">URL base da API</label>
+                    <input
+                      type="url"
+                      id="openai_base_url"
+                      [(ngModel)]="openaiBaseUrl"
+                      name="openai_base_url"
+                      class="w-full font-mono text-xs"
+                      maxlength="255"
+                      placeholder="https://api.openai.com/v1"
+                      [disabled]="formImportProvider === 'heuristic'"
+                    />
+                  </div>
+                  <div class="settings-field">
+                    <label for="form_import_retention_days" class="settings-label">Retenção da fonte (dias)</label>
+                    <input
+                      type="number"
+                      id="form_import_retention_days"
+                      [(ngModel)]="formImportRetentionDays"
+                      name="form_import_retention_days"
+                      class="w-full"
+                      min="1"
+                      max="365"
+                    />
+                    <p class="settings-hint">Após este prazo, o job diário remove a fonte/arquivo da importação (LGPD).</p>
+                  </div>
+                </div>
+                @if (successSettings()) {
+                  <p class="settings-alert settings-alert--success">{{ successSettings() }}</p>
+                }
+                <div class="settings-form-actions settings-form-actions--inline">
+                  <nord-button type="submit" size="s" [attr.disabled]="savingSettings()" [attr.loading]="savingSettings()">
+                    {{ savingSettings() ? 'Salvando…' : 'Salvar OpenAI' }}
+                  </nord-button>
+                </div>
+              </g-card>
+            </form>
+          }
+
           @case ('minio') {
             <form class="settings-form" (ngSubmit)="submitSettings()">
               <g-card class="settings-card">

@@ -1,0 +1,414 @@
+<div class="n-form-toolbar">
+  <div class="n-form-toolbar__start">
+    <zm-page-back-link />
+  </div>
+  <div class="n-form-toolbar__end">
+    @if (step() > 0) {
+      <nord-button type="button" size="s" variant="plain" (click)="restart()">
+        <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">refresh</span>
+        Nova importação
+      </nord-button>
+    }
+    @if (step() === 3) {
+      <nord-button type="button" size="s" variant="default" (click)="salvarRascunho()" [attr.loading]="salvando() || null">
+        <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">save</span>
+        Salvar rascunho
+      </nord-button>
+      <nord-button type="button" size="s" variant="primary" (click)="salvarModelo()" [attr.loading]="salvando() || null">
+        <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">check</span>
+        Salvar como modelo
+      </nord-button>
+    }
+  </div>
+</div>
+
+<div class="n-page-list__content n-page-list__content--padded zm-content-enter">
+  <p class="import-lead text-sm text-muted-foreground mb-4">
+    Envie PDF ou foto da ficha em branco. A OpenAI sugere campos — você revisa ao lado do original e salva como modelo.
+  </p>
+
+  <nav class="import-stepper mb-4" aria-label="Etapas da importação">
+    @for (s of steps; track s.index) {
+      <button
+        type="button"
+        class="import-step"
+        [class.import-step--active]="stepState(s.index) === 'active'"
+        [class.import-step--done]="stepState(s.index) === 'done'"
+        [disabled]="stepDisabled(s.index)"
+        (click)="gotoStep(s.index)"
+      >
+        <span class="import-step__num">
+          @if (stepState(s.index) === 'done') {
+            <span class="material-symbols-outlined" aria-hidden="true">check</span>
+          } @else {
+            {{ s.index + 1 }}
+          }
+        </span>
+        <span class="import-step__text">
+          <strong>{{ s.title }}</strong>
+          <small>{{ s.subtitle }}</small>
+        </span>
+      </button>
+    }
+  </nav>
+
+  @if (erro()) {
+    <nord-banner variant="danger" class="mb-4">
+      <p>{{ erro() }}</p>
+    </nord-banner>
+  }
+
+  @if (step() === 0) {
+    <div class="import-two-col">
+      <g-card class="import-panel">
+        <div class="import-card__head">
+          <h2 class="import-section-title">Envie sua ficha atual</h2>
+          <span class="import-chip">Etapa 1 de 4</span>
+        </div>
+        <label
+          class="import-dropzone"
+          [class.import-dropzone--over]="dragOver()"
+          (dragover)="onDragOver($event)"
+          (dragleave)="onDragLeave($event)"
+          (drop)="onDrop($event)"
+        >
+          <span class="import-dropzone__icon material-symbols-outlined" aria-hidden="true">upload_file</span>
+          <h3>Arraste o arquivo aqui</h3>
+          <p>Ou selecione PDF, foto ou texto da ficha em branco que você usa hoje.</p>
+          <span class="import-dropzone__btn">Selecionar arquivo</span>
+          <small>PDF, JPG, PNG ou TXT · até 10 MB</small>
+          <input
+            type="file"
+            accept=".pdf,.jpg,.jpeg,.png,.txt,application/pdf,image/*"
+            (change)="onFileSelected($event)"
+            [disabled]="!consentBlankAck()"
+          />
+        </label>
+      </g-card>
+
+      <aside class="import-side">
+        <g-card class="import-panel">
+          <div class="import-card__head">
+            <h3 class="import-section-title">O que será identificado</h3>
+            <span class="material-symbols-outlined text-primary" aria-hidden="true">auto_awesome</span>
+          </div>
+          <ul class="import-checklist">
+            <li>Seções e títulos</li>
+            <li>Campos de texto e datas</li>
+            <li>Perguntas com alternativas</li>
+            <li>Pontos que exigem conferência</li>
+          </ul>
+          <div class="import-divider"></div>
+          <h3 class="import-section-title">Sua ficha continua sendo sua</h3>
+          <p class="text-sm text-muted-foreground m-0 mt-1 leading-relaxed">
+            O original serve só como referência. Nada é publicado até você revisar e aprovar as perguntas.
+          </p>
+        </g-card>
+        <div class="import-callout mt-3">
+          <span class="material-symbols-outlined" aria-hidden="true">info</span>
+          <div>
+            <strong>Prefira fichas em branco</strong>
+            <p>Evite enviar dados de paciente. O arquivo é usado apenas para extrair a estrutura dos campos.</p>
+          </div>
+        </div>
+        <label class="import-consent mt-3 flex items-start gap-2 text-sm">
+          <input type="checkbox" [checked]="consentBlankAck()" (change)="consentBlankAck.set($any($event.target).checked)" />
+          <span>
+            Confirmo que o arquivo é uma <strong>ficha em branco</strong>, sem dados pessoais ou clínicos de pacientes.
+            A fonte será descartada automaticamente após o prazo de retenção da plataforma (padrão 30 dias).
+          </span>
+        </label>
+        @if (importItem()?.retention_days) {
+          <p class="text-xs text-muted-foreground mt-2 m-0">
+            Retenção desta importação: {{ importItem()?.retention_days }} dias
+            @if (importItem()?.source_purge_after) {
+              (fonte elegível para exclusão após {{ importItem()?.source_purge_after }}).
+            }
+          </p>
+        }
+      </aside>
+    </div>
+  }
+
+  @if (step() === 1) {
+    <div class="import-two-col">
+      <g-card class="import-panel" aria-busy="true">
+        <div class="import-card__head">
+          <h2 class="import-section-title">{{ canGoCompare() ? 'Resultado preparado' : 'Preparando importação…' }}</h2>
+          <span class="import-chip">{{ progressPct() }}%</span>
+        </div>
+        <div class="import-progress-meta">
+          <b>{{ statusLabel() }}</b>
+          <span>{{ pendingFileName() || importItem()?.source_original_name || 'Arquivo' }}</span>
+        </div>
+        <div class="import-progress-track" role="progressbar" [attr.aria-valuenow]="progressPct()" aria-valuemin="0" aria-valuemax="100">
+          <div class="import-progress-fill" [style.width.%]="progressPct()"></div>
+        </div>
+        <ul class="import-tasks">
+          @for (t of processTasks(); track t.label) {
+            <li [class.import-tasks__item--done]="t.state === 'done'" [class.import-tasks__item--current]="t.state === 'current'">
+              <span class="import-tasks__dot">
+                @if (t.state === 'done') {
+                  <span class="material-symbols-outlined" aria-hidden="true">check</span>
+                }
+              </span>
+              <span class="import-tasks__label">{{ t.label }}</span>
+              <span class="import-tasks__state">
+                {{ t.state === 'done' ? 'Concluído' : t.state === 'current' ? 'Em execução' : 'Pendente' }}
+              </span>
+            </li>
+          }
+        </ul>
+        <div class="import-footer">
+          <nord-button type="button" size="s" variant="plain" (click)="gotoStep(0)" [attr.disabled]="enviando() || null">
+            Voltar
+          </nord-button>
+          <nord-button
+            type="button"
+            size="s"
+            variant="primary"
+            (click)="continueToCompare()"
+            [attr.disabled]="!canGoCompare() || null"
+          >
+            Comparar campos
+          </nord-button>
+        </div>
+      </g-card>
+
+      <aside class="import-side">
+        <g-card class="import-panel">
+          <div class="import-card__head">
+            <h3 class="import-section-title">Documento desta sessão</h3>
+          </div>
+          @if (sourcePreviewSafe(); as url) {
+            <div class="import-doc-tile">
+              @if (sourceKind() === 'pdf') {
+                <iframe [src]="url" title="Prévia do PDF"></iframe>
+              } @else if (sourceKind() === 'image') {
+                <img [src]="url" alt="Prévia do documento" />
+              } @else {
+                <p class="text-sm text-muted-foreground">Prévia disponível na etapa Comparar.</p>
+              }
+            </div>
+          } @else {
+            <p class="text-sm text-muted-foreground m-0">
+              {{ pendingFileName() || 'Arquivo enviado' }}
+              @if (pendingFileSize()) {
+                · {{ pendingFileSize() }}
+              }
+            </p>
+          }
+        </g-card>
+      </aside>
+    </div>
+  }
+
+  @if (step() === 2) {
+    <div class="import-callout import-callout--info mb-4">
+      <span class="material-symbols-outlined" aria-hidden="true">info</span>
+      <div>
+        <strong>Compare o documento com os campos digitais</strong>
+        <p>Clique em uma pergunta para conferir tipo, opções e obrigatoriedade. O original fica à esquerda.</p>
+      </div>
+    </div>
+
+    <div class="import-compare">
+      <g-card class="import-panel import-viewer">
+        <div class="import-card__head">
+          <h2 class="import-section-title">Documento original</h2>
+          <span class="import-chip">{{ pendingFileName() || importItem()?.source_original_name || 'Fonte' }}</span>
+        </div>
+        <div class="import-viewer__toolbar">
+          <span class="text-xs text-muted-foreground">Zoom {{ zoom() }}%</span>
+          <div class="import-viewer__zoom">
+            <button type="button" class="import-icon-btn" (click)="zoomOut()" aria-label="Diminuir zoom">−</button>
+            <button type="button" class="import-icon-btn" (click)="zoomIn()" aria-label="Aumentar zoom">+</button>
+          </div>
+        </div>
+        <div class="import-doc-canvas">
+          @if (sourcePreviewLoading()) {
+            <p class="text-sm text-muted-foreground">Carregando original…</p>
+          } @else if (sourcePreviewSafe(); as url) {
+            @if (sourceKind() === 'pdf') {
+              <iframe [src]="url" title="Documento original PDF"></iframe>
+            } @else if (sourceKind() === 'image') {
+              <img [src]="url" [style.transform]="'scale(' + zoom() / 100 + ')'" alt="Documento original" />
+            } @else {
+              <p class="text-sm text-muted-foreground">Prévia visual não disponível para este tipo. Use o trecho original de cada campo.</p>
+            }
+          } @else {
+            <p class="text-sm text-muted-foreground">Original indisponível para prévia.</p>
+          }
+        </div>
+      </g-card>
+
+      <g-card class="import-panel import-fields-panel">
+        <div class="import-card__head">
+          <div>
+            <h2 class="import-section-title">Campos convertidos</h2>
+            <p class="text-xs text-muted-foreground m-0 mt-1">{{ statusLabel() }}</p>
+          </div>
+          <span class="import-chip"><b>{{ fields().length }}</b> perguntas</span>
+        </div>
+
+        @if (importItem()?.warnings?.length) {
+          <div class="import-warnings">
+            @for (w of importItem()!.warnings!; track $index) {
+              <p>{{ w.message }}</p>
+            }
+          </div>
+        }
+
+        <ol class="import-field-list">
+          @for (f of fields(); track f.name_key + '-' + $index; let i = $index) {
+            <li>
+              <button
+                type="button"
+                class="import-field-row"
+                [class.import-field-row--active]="selectedIndex() === i"
+                (click)="selectField(i)"
+              >
+                <span class="import-field-row__type">{{ f.type }}</span>
+                <span class="import-field-row__main">
+                  <strong>{{ f.label }}</strong>
+                  @if (f.source_text) {
+                    <small>{{ f.source_text }}</small>
+                  }
+                </span>
+                <span class="import-field-row__page">p.{{ f.page || 1 }}</span>
+              </button>
+            </li>
+          }
+        </ol>
+
+        @if (selectedField(); as f) {
+          <div class="import-mini-editor">
+            <h3 class="import-section-title mb-2">Ajuste rápido</h3>
+            <div class="import-editor__grid">
+              <label>
+                <span>Rótulo</span>
+                <input class="w-full" type="text" [ngModel]="f.label" (ngModelChange)="updateSelected({ label: $event })" />
+              </label>
+              <label>
+                <span>Tipo</span>
+                <select class="w-full" [ngModel]="f.type" (ngModelChange)="updateSelected({ type: $event })">
+                  <option value="text">text</option>
+                  <option value="textarea">textarea</option>
+                  <option value="number">number</option>
+                  <option value="date">date</option>
+                  <option value="radio">radio</option>
+                  <option value="checkbox">checkbox</option>
+                  <option value="select">select</option>
+                  <option value="signature">signature</option>
+                  <option value="heading">heading</option>
+                  <option value="notice">notice</option>
+                </select>
+              </label>
+              <label class="import-check">
+                <input type="checkbox" [ngModel]="!!f.required" (ngModelChange)="updateSelected({ required: $event })" />
+                Obrigatório
+              </label>
+            </div>
+          </div>
+        }
+
+        <div class="import-footer">
+          <nord-button type="button" size="s" variant="plain" (click)="gotoStep(1)">Voltar</nord-button>
+          <nord-button type="button" size="s" variant="primary" (click)="continueToReview()" [attr.disabled]="!canGoReview() || null">
+            Revisar ficha
+          </nord-button>
+        </div>
+      </g-card>
+    </div>
+  }
+
+  @if (step() === 3) {
+    <g-card class="import-panel mb-4">
+      <div class="import-card__head import-card__head--wrap">
+        <div>
+          <h2 class="import-section-title">Revisar e salvar</h2>
+          <p class="text-xs text-muted-foreground m-0 mt-1">{{ fields().length }} campos · {{ statusLabel() }}</p>
+        </div>
+        <nord-button type="button" size="s" variant="plain" (click)="addField()" [attr.disabled]="salvando() || null">
+          <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">add</span>
+          Adicionar campo
+        </nord-button>
+      </div>
+      <label class="import-name">
+        <span>Nome do modelo</span>
+        <input class="w-full" type="text" [ngModel]="templateName()" (ngModelChange)="templateName.set($event)" />
+      </label>
+    </g-card>
+
+    <div class="import-review-grid">
+      <g-card class="import-panel import-list">
+        <h3 class="import-section-title">Campos sugeridos</h3>
+        <ol>
+          @for (f of fields(); track f.name_key + '-' + $index; let i = $index) {
+            <li>
+              <button
+                type="button"
+                class="import-list__item"
+                [class.import-list__item--active]="selectedIndex() === i"
+                (click)="selectField(i)"
+              >
+                <span class="import-list__type">{{ f.type }}</span>
+                <span class="import-list__label">{{ f.label }}</span>
+              </button>
+            </li>
+          }
+        </ol>
+      </g-card>
+
+      <g-card class="import-panel import-editor">
+        @if (selectedField(); as f) {
+          <h3 class="import-section-title mb-3">Editar campo</h3>
+          <div class="import-editor__grid">
+            <label>
+              <span>Rótulo</span>
+              <input class="w-full" type="text" [ngModel]="f.label" (ngModelChange)="updateSelected({ label: $event })" />
+            </label>
+            <label>
+              <span>Tipo</span>
+              <select class="w-full" [ngModel]="f.type" (ngModelChange)="updateSelected({ type: $event })">
+                <option value="text">text</option>
+                <option value="textarea">textarea</option>
+                <option value="number">number</option>
+                <option value="date">date</option>
+                <option value="radio">radio</option>
+                <option value="checkbox">checkbox</option>
+                <option value="select">select</option>
+                <option value="signature">signature</option>
+                <option value="heading">heading</option>
+                <option value="notice">notice</option>
+              </select>
+            </label>
+            <label>
+              <span>Chave</span>
+              <input class="w-full" type="text" [ngModel]="f.name_key" (ngModelChange)="updateSelected({ name_key: $event })" />
+            </label>
+            <label class="import-check">
+              <input type="checkbox" [ngModel]="!!f.required" (ngModelChange)="updateSelected({ required: $event })" />
+              Obrigatório
+            </label>
+            @if (f.type === 'radio' || f.type === 'select' || f.type === 'checkbox') {
+              <label class="import-span-2">
+                <span>Opções (uma por linha)</span>
+                <textarea class="w-full" rows="4" [ngModel]="optionsText()" (ngModelChange)="setOptionsText($event)"></textarea>
+              </label>
+            }
+            @if (f.source_text) {
+              <p class="import-span-2 text-xs text-muted-foreground m-0">Trecho original: {{ f.source_text }}</p>
+            }
+          </div>
+          <div class="mt-4 flex flex-wrap gap-2">
+            <nord-button type="button" size="s" variant="plain" (click)="gotoStep(2)">Voltar à comparação</nord-button>
+            <nord-button type="button" size="s" variant="danger" (click)="removeSelected()">Excluir campo</nord-button>
+          </div>
+        } @else {
+          <p class="text-sm text-muted-foreground">Selecione um campo à esquerda.</p>
+        }
+      </g-card>
+    </div>
+  }
+</div>

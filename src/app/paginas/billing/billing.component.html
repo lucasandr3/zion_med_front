@@ -22,7 +22,7 @@
       <nord-card padding="m" class="billing-card">
         <h3 slot="header">Situação atual</h3>
         <p class="billing-card__sub">
-          {{ statusAssinatura }}{{ trialAte ? ' · Teste até ' + trialAte : '' }}{{ nomePlanoAtual ? ' · Plano ' + nomePlanoAtual : '' }}
+          {{ statusAssinatura }}{{ trialAte ? ' · Teste até ' + trialAte : '' }}{{ carenciaAte ? ' · Carência até ' + carenciaAte : '' }}{{ nomePlanoAtual ? ' · Plano ' + nomePlanoAtual : '' }}
         </p>
 
         @if (mostrarCartaoGerenciado && assinaturaAtiva()) {

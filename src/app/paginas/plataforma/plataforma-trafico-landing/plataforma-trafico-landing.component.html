@@ -27,6 +27,54 @@
         </div>
       </div>
 
+      @if (funnel(); as f) {
+        <g-card class="landing-traffic-fade-in-2 mb-7 p-5">
+          <h3 class="text-foreground mb-1 text-sm font-bold">Funil de produto ({{ f.days }} dias)</h3>
+          <p class="text-muted-foreground mb-4 text-[11px]">
+            Eventos de cadastro → ativação → checkout, sem dados clínicos ou PII.
+          </p>
+          <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+            @for (step of funilEtapas; track step.key) {
+              <div class="landing-traffic-metric">
+                <p class="landing-traffic-metric-label">{{ step.label }}</p>
+                <p class="landing-traffic-metric-value">{{ step.count }}</p>
+              </div>
+            }
+          </div>
+          @if (abandonoRecente.length) {
+            <div class="mt-5">
+              <h4 class="text-foreground mb-2 text-xs font-bold uppercase tracking-wide">Última etapa por organização</h4>
+              <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs">
+                  <thead class="text-muted-foreground">
+                    <tr>
+                      <th class="py-1 pr-3 font-medium">Org</th>
+                      <th class="py-1 pr-3 font-medium">Nicho</th>
+                      <th class="py-1 pr-3 font-medium">Última etapa</th>
+                      <th class="py-1 font-medium">Quando</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (row of abandonoRecente; track row.organization_id) {
+                      <tr class="border-border/60 border-t">
+                        <td class="py-1.5 pr-3">
+                          <a [routerLink]="['/plataforma/clientes', row.organization_id]" class="font-medium">
+                            #{{ row.organization_id }}
+                          </a>
+                        </td>
+                        <td class="py-1.5 pr-3">{{ row.niche }}</td>
+                        <td class="py-1.5 pr-3">{{ row.label }}</td>
+                        <td class="py-1.5">{{ row.when }}</td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          }
+        </g-card>
+      }
+
       <div class="landing-traffic-fade-in-2 mb-7 grid grid-cols-2 gap-3 lg:grid-cols-4">
         <div class="landing-traffic-metric">
           <p class="landing-traffic-metric-label">Visitantes hoje</p>

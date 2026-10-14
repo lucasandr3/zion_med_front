@@ -1,13 +1,16 @@
 import {
   Component,
   Input,
+  OnDestroy,
   OnInit,
   inject,
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   signal,
   CUSTOM_ELEMENTS_SCHEMA,
 } from '@angular/core';
-import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { NavigationEnd, Router, RouterLink } from '@angular/router';
+import { filter, Subscription } from 'rxjs';
 import { AuthService, TrialNotice } from '../../../core/services/auth.service';
 import { SidebarMobileService } from '../../../core/services/sidebar-mobile.service';
 import { ShellSidebarCollapseService } from '../../../core/services/shell-sidebar-collapse.service';
@@ -20,6 +23,7 @@ import {
   SHELL_NAV_SIDEBAR,
   ShellNavItem,
   ShellNavSection,
+  shellNavItemActive,
   shellNavItemVisivel,
   shellNavSectionVisivel,
 } from '../shell-nav.config';
@@ -31,7 +35,6 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     RouterLink,
-    RouterLinkActive,
     GestgoBadgeComponent,
     GestgoAvatarComponent,
     GestgoBrandMarkComponent,
@@ -39,7 +42,7 @@ import {
   templateUrl: './barra-lateral.component.html',
   styleUrl: './barra-lateral.component.css',
 })
-export class BarraLateralComponent implements OnInit {
+export class BarraLateralComponent implements OnInit, OnDestroy {
   @Input() notificacoesNaoLidas = 0;
   @Input() novidadesNaoVistas = 0;
   @Input() trialNotice: TrialNotice | null = null;
@@ -62,8 +65,10 @@ export class BarraLateralComponent implements OnInit {
 
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly cdr = inject(ChangeDetectorRef);
   private readonly sidebarMobile = inject(SidebarMobileService);
   private readonly sidebarCollapse = inject(ShellSidebarCollapseService);
+  private routerSub?: Subscription;
 
   readonly sidebarOpenMobile = this.sidebarMobile.isOpen;
   readonly sidebarColapsada = this.sidebarCollapse.collapsed;
@@ -71,6 +76,13 @@ export class BarraLateralComponent implements OnInit {
   ngOnInit(): void {
     this.sidebarCollapse.ensureHydrated();
     this.atualizarDados();
+    this.routerSub = this.router.events
+      .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))
+      .subscribe(() => this.cdr.markForCheck());
+  }
+
+  ngOnDestroy(): void {
+    this.routerSub?.unsubscribe();
   }
 
   secaoVisivel(section: ShellNavSection): boolean {
@@ -83,6 +95,10 @@ export class BarraLateralComponent implements OnInit {
     return shellNavItemVisivel(item, (p) => this.auth.hasPermission(p), 'app', {
       canSwitchClinic: this.auth.canSwitchClinic(),
     });
+  }
+
+  navItemAtivo(item: ShellNavItem): boolean {
+    return shellNavItemActive(item, this.router.url);
   }
 
   badgeCount(item: ShellNavItem): number {

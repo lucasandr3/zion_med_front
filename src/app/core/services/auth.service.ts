@@ -88,6 +88,13 @@ export interface TrialNotice {
   message: string;
 }
 
+export interface BillingNotice {
+  visible: boolean;
+  days_remaining: number;
+  grace_ends_at: string;
+  message: string;
+}
+
 export interface MeResponse {
   data: {
     user: User;
@@ -95,6 +102,7 @@ export interface MeResponse {
     /** Legado */
     clinic?: Organization | null;
     trial_notice?: TrialNotice | null;
+    billing_notice?: BillingNotice | null;
   };
 }
 
@@ -110,6 +118,8 @@ export class AuthService {
   private _currentOrganizationId: string | null = null;
   /** Aviso de fim de trial (preenchido após `/me`). */
   private _trialNotice: TrialNotice | null = null;
+  /** Aviso de carência past_due (preenchido após `/me`). */
+  private _billingNotice: BillingNotice | null = null;
 
   /** Emite após tema/modo ser aplicados a partir da API (ex.: pós-`/me`). */
   private appearanceAppliedSubject = new Subject<void>();
@@ -202,6 +212,10 @@ export class AuthService {
 
   getTrialNotice(): TrialNotice | null {
     return this._trialNotice;
+  }
+
+  getBillingNotice(): BillingNotice | null {
+    return this._billingNotice;
   }
 
   getOrganizations(): Organization[] {
@@ -354,6 +368,7 @@ export class AuthService {
     this._organizations = [];
     this._currentOrganizationId = null;
     this._trialNotice = null;
+    this._billingNotice = null;
   }
 
   me(): Observable<MeResponse> {
@@ -368,6 +383,7 @@ export class AuthService {
           else this._organizations.push(org);
         }
         this._trialNotice = res.data.trial_notice?.visible ? res.data.trial_notice : null;
+        this._billingNotice = res.data.billing_notice?.visible ? res.data.billing_notice : null;
         this.persist();
         applyUserAppearanceToBrowser(res.data.user);
         this.notifyAppearanceApplied();

@@ -4,9 +4,13 @@
       <zm-page-back-link />
     </div>
     <div class="n-form-toolbar__end">
-      <nord-button type="button" size="s" variant="primary" routerLink="/templates/criar-em-branco">
+      <nord-button type="button" size="s" variant="default" routerLink="/templates/criar-em-branco">
         <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">add</span>
         Em branco
+      </nord-button>
+      <nord-button type="button" size="s" variant="primary" routerLink="/templates/importar">
+        <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">auto_awesome</span>
+        Importar ficha
       </nord-button>
     </div>
   </div>
@@ -21,6 +25,28 @@
     } @else if (!listaPronta()) {
     } @else {
       <div class="zm-content-enter">
+      <a
+        routerLink="/templates/importar"
+        class="import-cta mb-6 rounded-xl p-5 flex items-center justify-between gap-4 no-underline transition-colors"
+        style="background: color-mix(in srgb, var(--c-primary) 10%, var(--c-surface)); border: 1px solid color-mix(in srgb, var(--c-primary) 28%, var(--c-border)); color: var(--c-text)"
+      >
+        <div class="flex items-start gap-3 min-w-0">
+          <span
+            class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+            style="background: var(--c-primary); color: #fff"
+          >
+            <span class="material-symbols-outlined" aria-hidden="true">auto_awesome</span>
+          </span>
+          <div class="min-w-0">
+            <p class="text-sm font-semibold m-0">Importar minha ficha</p>
+            <p class="text-xs m-0 mt-1" style="color: var(--c-muted)">
+              Envie PDF ou foto da ficha atual. A IA sugere os campos — você revisa ao lado do original e salva como modelo.
+            </p>
+          </div>
+        </div>
+        <span class="material-symbols-outlined shrink-0" style="color: var(--c-primary)" aria-hidden="true">arrow_forward</span>
+      </a>
+
       <!-- Busca -->
       <div class="mb-4">
         <div class="form-search-wrap w-full">

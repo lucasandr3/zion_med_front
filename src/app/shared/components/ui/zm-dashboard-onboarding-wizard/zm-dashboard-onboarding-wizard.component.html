@@ -6,10 +6,10 @@
           <span class="material-symbols-outlined">link</span>
         </div>
         <div class="min-w-0">
-          <p class="onboarding-wizard__kicker">Primeiros passos</p>
-          <h2 id="onboarding-wizard-title" class="onboarding-wizard__title">Gere seu primeiro link público</h2>
+          <p class="onboarding-wizard__kicker">Primeiros passos · {{ passoAtivo() }}/3</p>
+          <h2 id="onboarding-wizard-title" class="onboarding-wizard__title">Publique sua primeira ficha</h2>
           <p class="onboarding-wizard__subtitle">
-            Escolha um modelo e compartilhe com pacientes, ou adicione ao link na bio.
+            Escolha um modelo, gere o link e teste no seu e-mail — sem integrações obrigatórias.
           </p>
         </div>
       </div>
@@ -18,9 +18,22 @@
       </nord-button>
     </div>
 
+    <ol class="onboarding-wizard__steps" aria-label="Checklist de onboarding">
+      @for (step of checklist; track step.key; let i = $index) {
+        <li
+          class="onboarding-wizard__step"
+          [class.onboarding-wizard__step--done]="passoAtivo() > i + 1 || (i === 2 && linkPublicoUrl())"
+          [class.onboarding-wizard__step--active]="passoAtivo() === i + 1"
+        >
+          <span class="onboarding-wizard__step-num" aria-hidden="true">{{ i + 1 }}</span>
+          <span>{{ step.label }}</span>
+        </li>
+      }
+    </ol>
+
     @if (carregandoTemplates()) {
       <div class="onboarding-wizard__grid" aria-busy="true" aria-label="Carregando modelos">
-        @for (i of [1, 2, 3, 4, 5, 6, 7, 8]; track i) {
+        @for (i of [1, 2, 3]; track i) {
           <div class="onboarding-template-skeleton" aria-hidden="true"></div>
         }
       </div>
@@ -68,14 +81,21 @@
             size="s"
             (click)="gerarLink()"
             [attr.loading]="gerandoLink() || null"
-            [attr.disabled]="gerandoLink() || !templateSelecionadoId() || null"
+            [attr.disabled]="gerandoLink() || enviandoParaMim() || !templateSelecionadoId() || null"
           >
             <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">link</span>
             Gerar link público
           </nord-button>
-          <nord-button variant="default" size="s" [routerLink]="['/link-bio']">
-            <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">account_circle</span>
-            Configurar link na bio
+          <nord-button
+            type="button"
+            variant="default"
+            size="s"
+            (click)="enviarParaMim()"
+            [attr.loading]="enviandoParaMim() || null"
+            [attr.disabled]="gerandoLink() || enviandoParaMim() || !templateSelecionadoId() || null"
+          >
+            <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">mail</span>
+            Enviar teste para mim
           </nord-button>
         </div>
         @if (templateSelecionadoId()) {

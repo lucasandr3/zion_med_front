@@ -1,0 +1,182 @@
+<div class="n-page-list__toolbar">
+  <div class="n-page-list__toolbar-start">
+    <nord-button-group class="agenda-aba-group" aria-label="Seções da agenda">
+      @for (aba of abas; track aba.key) {
+        <nord-button
+          type="button"
+          [attr.variant]="abaAtiva() === aba.key ? 'primary' : 'default'"
+          [attr.aria-pressed]="abaAtiva() === aba.key"
+          (click)="setAba(aba.key)"
+        >
+          {{ aba.label }}
+        </nord-button>
+      }
+    </nord-button-group>
+  </div>
+  <div class="n-page-list__toolbar-end">
+    @if (abaAtiva() === 'reservas') {
+      <nord-button type="button" variant="default" size="s" (click)="reload()" [attr.loading]="carregando() || null" title="Atualizar">
+        <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">refresh</span>
+        Atualizar
+      </nord-button>
+    }
+    @if (abaAtiva() === 'servicos') {
+      <nord-button type="button" variant="primary" size="s" (click)="criarServico()" [attr.loading]="salvando() || null">
+        <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">add</span>
+        Adicionar serviço
+      </nord-button>
+    }
+    @if (abaAtiva() === 'expediente') {
+      <nord-button type="button" variant="primary" size="s" (click)="salvarExpediente()" [attr.loading]="salvando() || null">
+        <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">save</span>
+        Salvar expediente
+      </nord-button>
+    }
+  </div>
+</div>
+
+<div class="n-page-list__content" data-go-tour="agenda-content">
+  @if (erro()) {
+    <div class="n-page-list__panel">
+      <p class="n-muted n-small" style="color: var(--n-color-status-danger, #c62828)">{{ erro() }}</p>
+    </div>
+  } @else if (carregando() && !listaPronta()) {
+    <div class="n-page-list__panel">
+      <app-list-skeleton [count]="6" />
+    </div>
+  } @else if (abaAtiva() === 'reservas') {
+    @if (reservas().length === 0) {
+      <div class="n-page-list__empty">
+        <nord-empty-state>
+          <h2>Nenhuma reserva</h2>
+          <p>Configure serviços e expediente, depois compartilhe o CTA Gestgo no Link na Bio.</p>
+          <nord-button variant="primary" type="button" (click)="setAba('servicos')">
+            <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">medical_services</span>
+            Configurar serviços
+          </nord-button>
+        </nord-empty-state>
+      </div>
+    } @else {
+      <div class="n-page-list__table zm-content-enter">
+        @for (a of reservas(); track a.id) {
+          <div class="n-page-list__row">
+            <div class="n-page-list__row-main">
+              <div class="n-page-list__row-title">{{ a.patient_name }}</div>
+              <div class="n-page-list__row-meta">
+                {{ formatDt(a.starts_at) }}
+                · {{ a.service?.name || 'Serviço' }}
+                @if (a.patient_email) {
+                  · {{ a.patient_email }}
+                }
+                @if (a.patient_phone) {
+                  · {{ a.patient_phone }}
+                }
+              </div>
+            </div>
+            <div class="n-page-list__actions">
+              <nord-badge [variant]="statusBadgeVariant(a.status)">{{ statusLabel(a.status) }}</nord-badge>
+              @if (a.status === 'confirmed') {
+                <nord-button
+                  square
+                  variant="plain"
+                  aria-label="Cancelar reserva"
+                  [attr.disabled]="acaoId() !== null"
+                  (click)="cancelar(a)"
+                >
+                  <span class="material-symbols-outlined text-lg">cancel</span>
+                </nord-button>
+              }
+            </div>
+          </div>
+        }
+      </div>
+      <div class="n-page-list__footer">
+        <span class="n-muted n-small">{{ reservas().length }} reserva(s)</span>
+      </div>
+    }
+  } @else if (abaAtiva() === 'servicos') {
+    <div class="n-page-list__content--padded zm-content-enter space-y-4">
+      <div class="n-page-list__panel agenda-panel">
+        <h3 class="agenda-panel__title">Novo serviço</h3>
+        <p class="agenda-panel__hint">Duração em minutos. Opcionalmente vincule um modelo de ficha depois da confirmação.</p>
+        <div class="agenda-form-grid">
+          <div class="agenda-field agenda-field--grow">
+            <label class="form-label" for="svc_name">Nome</label>
+            <input id="svc_name" class="w-full" [(ngModel)]="novoServico.name" name="svc_name" placeholder="Ex.: Consulta" />
+          </div>
+          <div class="agenda-field agenda-field--narrow">
+            <label class="form-label" for="svc_dur">Duração (min)</label>
+            <input
+              id="svc_dur"
+              type="number"
+              class="w-full"
+              [(ngModel)]="novoServico.duration_minutes"
+              name="svc_dur"
+              min="10"
+              max="480"
+            />
+          </div>
+        </div>
+      </div>
+
+      @if (servicos().length === 0) {
+        <div class="n-page-list__empty">
+          <nord-empty-state>
+            <h2>Nenhum serviço</h2>
+            <p>Cadastre ao menos um serviço para liberar horários na agenda pública.</p>
+          </nord-empty-state>
+        </div>
+      } @else {
+        <div class="n-page-list__table">
+          @for (s of servicos(); track s.id) {
+            <div class="n-page-list__row">
+              <div class="n-page-list__row-main">
+                <div class="n-page-list__row-title">{{ s.name }}</div>
+                <div class="n-page-list__row-meta">{{ s.duration_minutes }} min · {{ s.is_active === false ? 'Inativo' : 'Ativo' }}</div>
+              </div>
+              <div class="n-page-list__actions">
+                <nord-button square variant="plain" aria-label="Remover serviço" (click)="removerServico(s)">
+                  <span class="material-symbols-outlined text-lg">delete</span>
+                </nord-button>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  } @else if (abaAtiva() === 'expediente') {
+    <div class="n-page-list__content--padded zm-content-enter">
+      <div class="n-page-list__panel agenda-panel">
+        <h3 class="agenda-panel__title">Expediente semanal</h3>
+        <p class="agenda-panel__hint">Defina os dias e horários em que a agenda pública oferece slots.</p>
+        <div class="agenda-days">
+          @for (d of weekdays; track d.value) {
+            <div class="agenda-day-row">
+              <label class="agenda-day-check">
+                <input type="checkbox" [checked]="ruleFor(d.value).enabled" (change)="toggleDay(d.value, $event)" />
+                <span>{{ d.label }}</span>
+              </label>
+              <input
+                type="time"
+                class="agenda-time"
+                [ngModel]="ruleFor(d.value).start"
+                (ngModelChange)="setRuleTime(d.value, 'start', $event)"
+                [name]="'st_' + d.value"
+                [disabled]="!ruleFor(d.value).enabled"
+              />
+              <span class="agenda-day-sep">até</span>
+              <input
+                type="time"
+                class="agenda-time"
+                [ngModel]="ruleFor(d.value).end"
+                (ngModelChange)="setRuleTime(d.value, 'end', $event)"
+                [name]="'en_' + d.value"
+                [disabled]="!ruleFor(d.value).enabled"
+              />
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  }
+</div>
