@@ -95,6 +95,28 @@ export class FormularioPublicoFieldsComponent implements AfterViewInit, OnChange
     this.fieldChange.emit();
   }
 
+  /** Valor string para nord-input / nord-textarea / nord-select. */
+  asString(value: unknown): string {
+    if (value == null || value === false) return '';
+    if (value instanceof Date) return value.toISOString().slice(0, 10);
+    return String(value);
+  }
+
+  nordEventValue(event: Event): string {
+    const t = event.target as { value?: string } | null;
+    return t?.value ?? '';
+  }
+
+  onNordTextInput(key: string, event: Event): void {
+    this.valores[key] = this.nordEventValue(event);
+    this.onCampoAlterado();
+  }
+
+  onNordSelectChange(key: string, event: Event): void {
+    this.valores[key] = this.nordEventValue(event);
+    this.onCampoAlterado();
+  }
+
   onFileSelected(event: Event, key: string): void {
     this.fileSelected.emit({ event, key });
   }

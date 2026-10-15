@@ -18,6 +18,7 @@ import {
   linkBioPresetMeta,
   type LinkBioPresetMeta,
 } from './link-bio-preset.util';
+import { resolvePublicAccentHex } from '../../core/utils/public-theme-accent';
 import { LinkBioPublicGoogleReviewsComponent } from './link-bio-public-google-reviews.component';
 
 @Component({
@@ -51,6 +52,36 @@ export class LinkBioPublicLayoutPresetComponent {
     return linkBioPresetMeta(this.model);
   }
 
+  /** Mapeia chaves do preset SVG legado → Material Symbols. */
+  materialIcon(key: string | null | undefined): string {
+    const map: Record<string, string> = {
+      arrow: 'arrow_forward',
+      chevron: 'chevron_right',
+      calendar: 'calendar_month',
+      file: 'description',
+      pin: 'location_on',
+      message: 'chat',
+      clock: 'schedule',
+      check: 'check',
+      share: 'share',
+      sun: 'light_mode',
+      moon: 'dark_mode',
+      heart: 'favorite',
+      leaf: 'eco',
+      spark: 'auto_awesome',
+      users: 'group',
+      shield: 'verified_user',
+      clipboard: 'assignment',
+      stethoscope: 'medical_services',
+      tooth: 'dentistry',
+      mail: 'mail',
+      phone: 'call',
+      instagram: 'photo_camera',
+    };
+    const k = (key ?? '').trim().toLowerCase();
+    return map[k] || 'circle';
+  }
+
   get extra(): LinkBioExtra {
     return parseLinkBioExtra(this.clinic.link_bio_extra);
   }
@@ -63,14 +94,23 @@ export class LinkBioPublicLayoutPresetComponent {
   }
 
   get themeVars(): Record<string, string> {
-    const accent = this.clinic.accent_hex?.trim();
-    const brand = accent || this.meta.brand;
+    const resolved =
+      resolvePublicAccentHex(this.clinic.public_theme, this.clinic.accent_hex) ||
+      this.clinic.accent_hex?.trim() ||
+      '';
+    const hasAccent = /^#[0-9A-Fa-f]{6}$/.test(resolved);
+    const brand = hasAccent ? resolved : this.meta.brand;
+    const brandDark = hasAccent ? brand : this.meta.brandDark;
+    const brandSoft = hasAccent
+      ? this.dark
+        ? `color-mix(in srgb, ${brand} 22%, #1d2625)`
+        : `color-mix(in srgb, ${brand} 16%, white)`
+      : this.meta.brandSoft;
     return {
       '--brand': brand,
-      '--brand-dark': accent ? brand : this.meta.brandDark,
-      '--brand-soft': accent
-        ? `color-mix(in srgb, ${brand} 16%, white)`
-        : this.meta.brandSoft,
+      // No escuro, --brand-dark acompanha o tema (CSS antigo forçava cinza-verde)
+      '--brand-dark': this.dark ? brand : brandDark,
+      '--brand-soft': brandSoft,
     };
   }
 
@@ -306,7 +346,10 @@ export class LinkBioPublicLayoutPresetComponent {
     if (extra && extra['appointment_cta_enabled']) {
       const mode = String(extra['appointment_cta_mode'] || 'external');
       if (mode === 'gestgo' && this.clinic?.slug) {
-        return `/a/${this.clinic.slug}`;
+        const path = `/a/${this.clinic.slug}`;
+        return typeof window !== 'undefined' && window.location?.origin
+          ? `${window.location.origin}${path}`
+          : path;
       }
       if (mode === 'feegow') {
         const u = String(extra['appointment_feegow_url'] || extra['appointment_url'] || '').trim();

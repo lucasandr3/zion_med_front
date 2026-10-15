@@ -1,11 +1,10 @@
-import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 
 @Component({
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'zm-formulario-publico-preenchedora',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [FormsModule],
   templateUrl: './formulario-publico-preenchedora.component.html',
 })
 export class FormularioPublicoPreenchedoraComponent {
@@ -16,4 +15,16 @@ export class FormularioPublicoPreenchedoraComponent {
   @Output() submitterNameChange = new EventEmitter<string>();
   @Output() submitterEmailChange = new EventEmitter<string>();
   @Output() identityChange = new EventEmitter<void>();
+
+  onNameInput(event: Event): void {
+    const value = (event.target as { value?: string } | null)?.value ?? '';
+    this.submitterNameChange.emit(value);
+    this.identityChange.emit();
+  }
+
+  onEmailInput(event: Event): void {
+    const value = (event.target as { value?: string } | null)?.value ?? '';
+    this.submitterEmailChange.emit(value);
+    this.identityChange.emit();
+  }
 }

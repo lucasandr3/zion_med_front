@@ -212,7 +212,7 @@
                 />
               </div>
               <div class="field">
-                <nord-button type="button" variant="default" size="s" (click)="carregarRetencaoPreview()" [attr.loading]="carregandoRetencaoPreview()" [attr.disabled]="carregandoRetencaoPreview()">
+                <nord-button type="button" variant="default" size="s" (click)="carregarRetencaoPreview()" [attr.loading]="carregandoRetencaoPreview() || null" [attr.disabled]="carregandoRetencaoPreview() || null">
                   Verificar protocolos elegíveis
                 </nord-button>
                 @if (retencaoPreview(); as rp) {
@@ -640,7 +640,7 @@
                   Crie a conexão da sua empresa para enviar links e avisos pelo WhatsApp.
                   Em seguida, escaneie o QR Code com o celular da clínica.
                 </p>
-                <nord-button type="button" size="s" class="inline-flex items-center gap-2" (click)="criarInstanciaWhatsapp()" [attr.disabled]="waCriandoInstancia()">
+                <nord-button type="button" size="s" class="inline-flex items-center gap-2" (click)="criarInstanciaWhatsapp()" [attr.disabled]="waCriandoInstancia() || null">
                   @if (waCriandoInstancia()) {
                     <span class="btn-spinner" aria-hidden="true"></span>
                   } @else {
@@ -703,7 +703,7 @@
                 }
                 @if (!waSessaoAtiva) {
                   <div class="wa-status-action">
-                    <nord-button type="button" variant="default" size="s" class="inline-flex items-center gap-2" (click)="buscarQrWhatsapp()" [attr.disabled]="waQrCarregando()">
+                    <nord-button type="button" variant="default" size="s" class="inline-flex items-center gap-2" (click)="buscarQrWhatsapp()" [attr.disabled]="waQrCarregando() || null">
                       @if (waQrCarregando()) {
                         <span class="btn-spinner" aria-hidden="true"></span>
                       } @else {
@@ -730,7 +730,7 @@
                     <input id="wa-phone-conectar" type="text" class="w-full" [(ngModel)]="waPhoneConectar" name="waPhoneConectar" placeholder="5511999999999" autocomplete="tel" />
                   </div>
                   <div class="wa-actions-row">
-                    <nord-button type="button" size="s" class="inline-flex items-center gap-2" (click)="iniciarConexaoWhatsapp()" [attr.disabled]="waConectando()">
+                    <nord-button type="button" size="s" class="inline-flex items-center gap-2" (click)="iniciarConexaoWhatsapp()" [attr.disabled]="waConectando() || null">
                       @if (waConectando()) {
                         <span class="btn-spinner" aria-hidden="true"></span>
                       } @else {
@@ -738,7 +738,7 @@
                       }
                       {{ waConectando() ? 'Iniciando…' : 'Iniciar conexão' }}
                     </nord-button>
-                    <nord-button type="button" variant="default" size="s" class="inline-flex items-center gap-2" (click)="buscarQrWhatsapp()" [attr.disabled]="waQrCarregando()">
+                    <nord-button type="button" variant="default" size="s" class="inline-flex items-center gap-2" (click)="buscarQrWhatsapp()" [attr.disabled]="waQrCarregando() || null">
                       @if (waQrCarregando()) {
                         <span class="btn-spinner" aria-hidden="true"></span>
                       } @else {
@@ -764,7 +764,7 @@
                     <label for="wa-phone-pair">Telefone do aparelho</label>
                     <input id="wa-phone-pair" type="text" class="w-full" [(ngModel)]="waPhonePair" name="waPhonePair" placeholder="5511999999999" autocomplete="tel" />
                   </div>
-                  <nord-button type="button" variant="default" size="s" class="mb-3 inline-flex items-center gap-2" (click)="solicitarPairWhatsapp()" [attr.disabled]="waPairCarregando()">
+                  <nord-button type="button" variant="default" size="s" class="mb-3 inline-flex items-center gap-2" (click)="solicitarPairWhatsapp()" [attr.disabled]="waPairCarregando() || null">
                     @if (waPairCarregando()) {
                       <span class="btn-spinner" aria-hidden="true"></span>
                     }
@@ -826,7 +826,7 @@
                     Atualizar status
                   </nord-button>
                   @if (wa.connected === true || wa.logged_in === true) {
-                    <nord-button type="button" variant="default" size="s" class="inline-flex items-center gap-2" (click)="desconectarWhatsapp()" [attr.disabled]="waDesconectando()">
+                    <nord-button type="button" variant="default" size="s" class="inline-flex items-center gap-2" (click)="desconectarWhatsapp()" [attr.disabled]="waDesconectando() || null">
                       @if (waDesconectando()) {
                         <span class="btn-spinner" aria-hidden="true"></span>
                       } @else {
@@ -837,7 +837,7 @@
                   }
                 }
                 @if (wa.server_configured && !wa.instance_configured) {
-                  <nord-button type="button" size="s" class="inline-flex items-center gap-2" (click)="criarInstanciaWhatsapp()" [attr.disabled]="waCriandoInstancia()">
+                  <nord-button type="button" size="s" class="inline-flex items-center gap-2" (click)="criarInstanciaWhatsapp()" [attr.disabled]="waCriandoInstancia() || null">
                     @if (waCriandoInstancia()) {
                       <span class="btn-spinner" aria-hidden="true"></span>
                     } @else {
@@ -847,7 +847,7 @@
                   </nord-button>
                 }
                 @if (wa.instance_configured && waPodeEnviarTesteNoFooter) {
-                  <nord-button type="button" size="s" class="inline-flex items-center gap-2" (click)="enviarTesteWhatsapp()" [attr.disabled]="waTestEnviando()">
+                  <nord-button type="button" size="s" class="inline-flex items-center gap-2" (click)="enviarTesteWhatsapp()" [attr.disabled]="waTestEnviando() || null">
                     @if (waTestEnviando()) {
                       <span class="btn-spinner" aria-hidden="true"></span>
                     } @else {
@@ -857,7 +857,7 @@
                   </nord-button>
                 }
                 @if (wa.instance_configured) {
-                  <nord-button type="button" variant="default" size="s" class="inline-flex items-center gap-2 text-destructive border-destructive/40 hover:text-destructive" (click)="removerIntegracaoWhatsapp()" [attr.disabled]="waRemovendo()">
+                  <nord-button type="button" variant="default" size="s" class="inline-flex items-center gap-2 text-destructive border-destructive/40 hover:text-destructive" (click)="removerIntegracaoWhatsapp()" [attr.disabled]="waRemovendo() || null">
                     @if (waRemovendo()) {
                       <span class="btn-spinner" aria-hidden="true"></span>
                     } @else {

@@ -1,83 +1,57 @@
-<header class="fp-sticky-header">
-  <div class="fp-header-inner">
-    <div class="fp-header-row">
-      <div class="fp-brand">
-        @if (logoUrl) {
-          <div class="fp-logo fp-logo--img">
-            <img
-              [src]="logoUrl"
-              [alt]="data.clinic_name ? 'Logo ' + data.clinic_name : 'Logo da clínica'"
-              loading="lazy"
-              (error)="logoError.emit()"
-            />
-          </div>
-        } @else {
-          <div class="fp-logo" aria-hidden="true">{{ clinicInitial }}</div>
-        }
-        <div>
-          <p class="fp-clinic-name">{{ data.clinic_name ?? 'Clínica' }}</p>
-          @if (!hidePlatformBranding) {
-            <p class="fp-sub">Formulário por Gestgo</p>
-          }
-        </div>
+<header class="fp-clinic-header">
+  <div class="fp-brand">
+    @if (logoUrl) {
+      <div class="fp-logo fp-logo--img">
+        <img
+          [src]="logoUrl"
+          [alt]="data.clinic_name ? 'Logo ' + data.clinic_name : 'Logo da clínica'"
+          loading="lazy"
+          (error)="logoError.emit()"
+        />
       </div>
-      <div class="fp-header-actions">
-      <button type="button" (click)="toggleLargeText.emit()" class="fp-icon-btn" [attr.aria-pressed]="largeTextMode" aria-label="Alternar texto ampliado">
-        <span class="fp-a11y-icon" aria-hidden="true">A+</span>
-      </button>
-      <button type="button" (click)="toggleDark.emit()" class="fp-icon-btn" aria-label="Alternar tema claro ou escuro">
-        @if (dark) {
-          <svg class="fp-theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-            <circle cx="12" cy="12" r="5" />
-            <line x1="12" y1="1" x2="12" y2="3" />
-            <line x1="12" y1="21" x2="12" y2="23" />
-            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
-            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
-            <line x1="1" y1="12" x2="3" y2="12" />
-            <line x1="21" y1="12" x2="23" y2="12" />
-            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
-            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
-          </svg>
-        } @else {
-          <svg class="fp-theme-icon fp-theme-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-            <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
-          </svg>
-        }
-      </button>
-      </div>
-    </div>
-    @if (personFormUnlocked) {
-      <div class="fp-progress-block" role="region" aria-label="Progresso do preenchimento do formulário">
-        <div class="fp-progress-labels">
-          <span class="fp-progress-hint" id="fp-progress-hint">Progresso</span>
-          <span class="fp-progress-count" id="fp-progress-count">{{ progressCountLabel }}</span>
-        </div>
-        <div
-          class="fp-progress-track"
-          role="progressbar"
-          [attr.aria-valuemin]="0"
-          [attr.aria-valuemax]="100"
-          [attr.aria-valuenow]="progressPercent"
-          aria-labelledby="fp-progress-hint fp-progress-count"
-        >
-          <div class="fp-progress-fill" [style.width.%]="progressPercent"></div>
-        </div>
-        @if (usesFormSteps && clinicalSteps.length > 1) {
-          <ol class="fp-stepper" aria-label="Etapas clínicas do formulário">
-            @for (step of clinicalSteps; track step.stepNumber) {
-              <li
-                class="fp-stepper-item"
-                [class.fp-stepper-item--current]="$index + 1 === currentStepNumber"
-                [class.fp-stepper-item--done]="$index + 1 < currentStepNumber"
-                [attr.aria-current]="$index + 1 === currentStepNumber ? 'step' : null"
-              >
-                <span class="fp-stepper-dot" aria-hidden="true"></span>
-                <span class="fp-stepper-label">{{ step.title }}</span>
-              </li>
-            }
-          </ol>
-        }
-      </div>
+    } @else {
+      <div class="fp-logo" aria-hidden="true">{{ clinicInitial }}</div>
     }
+    <div class="fp-clinic-name-wrap">
+      <strong class="fp-clinic-name">{{ data.clinic_name ?? 'Clínica' }}</strong>
+      <span class="fp-sub">
+        {{ data.template.name || 'Documento digital' }}
+        @if (!hidePlatformBranding) {
+          · Gestgo
+        }
+      </span>
+    </div>
+  </div>
+  <div class="fp-clinic-actions">
+    <button
+      type="button"
+      (click)="toggleLargeText.emit()"
+      class="fp-icon-btn"
+      [attr.aria-pressed]="largeTextMode"
+      title="Aumentar o tamanho do texto"
+      aria-label="Alternar texto ampliado"
+    >
+      <span class="fp-a11y-icon" aria-hidden="true">A+</span>
+    </button>
+    <button
+      type="button"
+      (click)="openHelp.emit()"
+      class="fp-icon-btn"
+      title="Preciso de ajuda"
+      aria-label="Ajuda"
+    >
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s fp-theme-icon" aria-hidden="true">help</span>
+    </button>
+    <button
+      type="button"
+      (click)="toggleDark.emit()"
+      class="fp-icon-btn"
+      title="Modo claro ou escuro"
+      aria-label="Alternar tema claro ou escuro"
+    >
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s fp-theme-icon" aria-hidden="true">
+        {{ dark ? 'light_mode' : 'dark_mode' }}
+      </span>
+    </button>
   </div>
 </header>

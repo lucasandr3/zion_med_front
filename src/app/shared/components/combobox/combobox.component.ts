@@ -72,6 +72,7 @@ type NordComboboxElement = HTMLElement & {
     <nord-combobox
       #nord
       class="z-combobox__control"
+      hide-label
       [attr.placeholder]="placeholder() || null"
       [attr.disabled]="disabledState() || null"
       [attr.size]="nordSize()"
@@ -210,7 +211,8 @@ export class GestgoComboboxComponent implements ControlValueAccessor {
       const el = this.nordRef()?.nativeElement;
       if (!el) return;
 
-      el.options = this.nordOptions();
+      // Cópia nova: o nord-combobox às vezes ignora a mesma referência / update in-place.
+      el.options = this.nordOptions().map((o) => ({ ...o }));
       el.clearable = this.clearable();
       el.size = this.nordSize();
       el.disabled = this.disabledState();

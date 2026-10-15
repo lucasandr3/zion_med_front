@@ -16,7 +16,7 @@
     @if (template()) {
       <div class="n-form-toolbar__end">
         @if (isConsentimento) {
-          <nord-button type="button" variant="default" [attr.loading]="aplicandoEstruturaTcle()" [attr.disabled]="aplicandoEstruturaTcle()" (click)="aplicarEstruturaTcle()">
+          <nord-button type="button" variant="default" [attr.loading]="aplicandoEstruturaTcle() || null" [attr.disabled]="aplicandoEstruturaTcle() || null" (click)="aplicarEstruturaTcle()">
             <span slot="start" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">account_tree</span>
             Aplicar estrutura TCLE
           </nord-button>
@@ -32,14 +32,14 @@
               Abrir
             </nord-button>
           </a>
-          <nord-button type="button" variant="default" [attr.loading]="desativandoLink()" [attr.disabled]="desativandoLink()" (click)="desativarLink()">
+          <nord-button type="button" variant="default" [attr.loading]="desativandoLink() || null" [attr.disabled]="desativandoLink() || null" (click)="desativarLink()">
             @if (!desativandoLink()) {
               <span slot="start" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">link_off</span>
             }
             {{ desativandoLink() ? 'Desativando…' : 'Desativar link' }}
           </nord-button>
         } @else {
-          <nord-button type="button" variant="primary" [attr.loading]="gerandoLink()" [attr.disabled]="gerandoLink()" (click)="gerarLink()">
+          <nord-button type="button" variant="primary" [attr.loading]="gerandoLink() || null" [attr.disabled]="gerandoLink() || null" (click)="gerarLink()">
             @if (!gerandoLink()) {
               <span slot="start" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">public</span>
             }
@@ -124,7 +124,7 @@
               <nord-checkbox [(ngModel)]="actorsRequireGuardian" name="actors_require_guardian" label="Exigir nome do responsável legal quando o bloco aparecer"></nord-checkbox>
             }
             <div class="flex justify-end">
-              <nord-button type="button" size="s" [attr.loading]="salvandoActorsRules()" [attr.disabled]="salvandoActorsRules()" (click)="salvarActorsVisibilityRules()">
+              <nord-button type="button" size="s" [attr.loading]="salvandoActorsRules() || null" [attr.disabled]="salvandoActorsRules() || null" (click)="salvarActorsVisibilityRules()">
                 Salvar regras do responsável
               </nord-button>
             </div>
@@ -220,7 +220,7 @@
             @if (!isNovoStructural) {
               <nord-checkbox [(ngModel)]="novoRequired" name="new_required" label="Campo obrigatório"></nord-checkbox>
             }
-            <nord-button type="button" size="s" class="inline-flex items-center gap-1.5" [attr.loading]="salvandoCampo()" [attr.disabled]="salvandoCampo() || !novoLabel.trim()" (click)="adicionarCampo()">
+            <nord-button type="button" size="s" class="inline-flex items-center gap-1.5" [attr.loading]="salvandoCampo() || null" [attr.disabled]="salvandoCampo() || !novoLabel.trim()" (click)="adicionarCampo()">
               @if (!salvandoCampo()) {
                 <span class="material-symbols-outlined text-sm" aria-hidden="true">add</span>
               }
@@ -469,7 +469,7 @@
 
       <div class="flex justify-end gap-2 border-t border-border px-5 py-4" card-footer>
         <nord-button type="button" variant="default" size="s" (click)="fecharModal()">Cancelar</nord-button>
-        <nord-button type="button" size="s" [attr.loading]="salvandoCampo()" [attr.disabled]="salvandoCampo()" (click)="salvarEdicao()">
+        <nord-button type="button" size="s" [attr.loading]="salvandoCampo() || null" [attr.disabled]="salvandoCampo() || null" (click)="salvarEdicao()">
           {{ salvandoCampo() ? 'Salvando…' : 'Salvar' }}
         </nord-button>
       </div>

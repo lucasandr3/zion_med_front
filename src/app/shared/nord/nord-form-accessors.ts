@@ -155,7 +155,7 @@ export class NordDatePickerValueAccessor implements ControlValueAccessor {
   @HostListener('change', ['$event'])
   onHostChange(ev: Event): void {
     const raw = String((ev.target as NordStringControl).value ?? '');
-    this.onChange(raw);
+    this.onChange(toIsoDate(raw));
   }
 
   @HostListener('blur')
@@ -188,7 +188,7 @@ export class NordTimePickerValueAccessor implements ControlValueAccessor {
   }
 
   writeValue(value: string | null | undefined): void {
-    this.renderer.setProperty(this.el.nativeElement, 'value', value ?? '');
+    this.renderer.setProperty(this.el.nativeElement, 'value', toIsoTime(value));
   }
 
   registerOnChange(fn: (v: string) => void): void {
@@ -206,13 +206,22 @@ export class NordTimePickerValueAccessor implements ControlValueAccessor {
   @HostListener('change', ['$event'])
   onHostChange(ev: Event): void {
     const raw = String((ev.target as NordStringControl).value ?? '');
-    this.onChange(raw);
+    this.onChange(toIsoTime(raw));
   }
 
   @HostListener('blur')
   onHostBlur(): void {
     this.onTouched();
   }
+}
+
+/** Normaliza para `HH:mm` (API Laravel `date_format:H:i`). */
+function toIsoTime(value: string | null | undefined): string {
+  const s = String(value ?? '').trim();
+  if (!s) return '';
+  const m = s.match(/^(\d{1,2}):(\d{2})/);
+  if (!m) return s.slice(0, 5);
+  return `${m[1].padStart(2, '0')}:${m[2]}`;
 }
 
 function toIsoDate(value: string | Date | null | undefined): string {
@@ -226,6 +235,10 @@ function toIsoDate(value: string | Date | null | undefined): string {
   }
   const s = String(value).trim();
   if (/^\d{4}-\d{2}-\d{2}/.test(s)) return s.slice(0, 10);
+  const br = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+  if (br) {
+    return `${br[3]}-${br[2].padStart(2, '0')}-${br[1].padStart(2, '0')}`;
+  }
   return s;
 }
 

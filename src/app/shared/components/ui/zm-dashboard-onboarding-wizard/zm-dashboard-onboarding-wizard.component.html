@@ -6,14 +6,15 @@
           <span class="material-symbols-outlined">link</span>
         </div>
         <div class="min-w-0">
-          <p class="onboarding-wizard__kicker">Primeiros passos · {{ passoAtivo() }}/3</p>
+          <p class="onboarding-wizard__kicker">Primeiros passos · {{ passoAtivo() }}/4</p>
           <h2 id="onboarding-wizard-title" class="onboarding-wizard__title">Publique sua primeira ficha</h2>
           <p class="onboarding-wizard__subtitle">
-            Escolha um modelo, gere o link e teste no seu e-mail — sem integrações obrigatórias.
+            Escolha o segmento, um modelo (ou importe o seu), gere o link e teste — sem integrações obrigatórias.
           </p>
         </div>
       </div>
-      <nord-button type="button" variant="plain" size="s" class="onboarding-wizard__dismiss shrink-0" (click)="dispensar()">
+      <nord-button type="button" variant="default" class="shrink-0" (click)="dispensar()">
+        <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">schedule</span>
         Lembrar depois
       </nord-button>
     </div>
@@ -22,7 +23,7 @@
       @for (step of checklist; track step.key; let i = $index) {
         <li
           class="onboarding-wizard__step"
-          [class.onboarding-wizard__step--done]="passoAtivo() > i + 1 || (i === 2 && linkPublicoUrl())"
+          [class.onboarding-wizard__step--done]="passoAtivo() > i + 1 || (i === 3 && linkPublicoUrl())"
           [class.onboarding-wizard__step--active]="passoAtivo() === i + 1"
         >
           <span class="onboarding-wizard__step-num" aria-hidden="true">{{ i + 1 }}</span>
@@ -30,6 +31,27 @@
         </li>
       }
     </ol>
+
+    <div class="onboarding-segment">
+      <p class="onboarding-wizard__kicker">Qual é o seu foco?</p>
+      <div class="onboarding-segment__grid">
+        @for (seg of segmentos; track seg.key) {
+          <button
+            type="button"
+            class="onboarding-template-btn"
+            [class.onboarding-template-btn--selected]="segmento() === seg.key"
+            (click)="selecionarSegmento(seg.key)"
+          >
+            <span class="onboarding-template-btn__name">{{ seg.label }}</span>
+          </button>
+        }
+      </div>
+      <div class="onboarding-wizard__actions">
+        <a routerLink="/templates/importar" class="no-underline text-sm font-semibold" style="color: var(--primary)">
+          Prefiro importar minha ficha com IA →
+        </a>
+      </div>
+    </div>
 
     @if (carregandoTemplates()) {
       <div class="onboarding-wizard__grid" aria-busy="true" aria-label="Carregando modelos">
@@ -78,7 +100,6 @@
           <nord-button
             type="button"
             variant="primary"
-            size="s"
             (click)="gerarLink()"
             [attr.loading]="gerandoLink() || null"
             [attr.disabled]="gerandoLink() || enviandoParaMim() || !templateSelecionadoId() || null"
@@ -89,7 +110,6 @@
           <nord-button
             type="button"
             variant="default"
-            size="s"
             (click)="enviarParaMim()"
             [attr.loading]="enviandoParaMim() || null"
             [attr.disabled]="gerandoLink() || enviandoParaMim() || !templateSelecionadoId() || null"
@@ -117,7 +137,7 @@
           </div>
           <div class="onboarding-wizard__link-row">
             <code class="onboarding-wizard__link-url">{{ linkPublicoUrl() }}</code>
-            <nord-button type="button" variant="primary" size="s" (click)="copiarLink()">
+            <nord-button type="button" variant="primary" (click)="copiarLink()">
               <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">
                 {{ linkCopiado() ? 'check' : 'content_copy' }}
               </span>

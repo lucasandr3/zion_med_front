@@ -27,6 +27,10 @@ export const routes: Routes = [
   { path: 'l/demo/:model', loadComponent: () => import('./paginas/demo/demo-link-bio.component').then(m => m.DemoLinkBioComponent) },
   { path: 'l/:slug', loadComponent: () => import('./paginas/link-bio-public/link-bio-public.component').then(m => m.LinkBioPublicComponent) },
   {
+    path: 'planos',
+    loadComponent: () => import('./paginas/marketing/planos.component').then((m) => m.PlanosComponent),
+  },
+  {
     path: 'para/:slug',
     loadComponent: () => import('./paginas/marketing/para-segmento.component').then((m) => m.ParaSegmentoComponent),
   },

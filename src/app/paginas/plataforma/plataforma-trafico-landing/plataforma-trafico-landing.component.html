@@ -42,6 +42,10 @@
             }
           </div>
           @if (abandonoRecente.length) {
+            <div class="mb-4 rounded-lg border border-amber-300/60 bg-amber-50 px-3 py-2 text-sm text-amber-950 dark:border-amber-700/50 dark:bg-amber-950/30 dark:text-amber-100">
+              {{ abandonoRecente.length }} organização(ões) pararam no funil — priorize contato para trial/checkout.
+              Contagem sem PII clínico.
+            </div>
             <div class="mt-5">
               <h4 class="text-foreground mb-2 text-xs font-bold uppercase tracking-wide">Última etapa por organização</h4>
               <div class="overflow-x-auto">

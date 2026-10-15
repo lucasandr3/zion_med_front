@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit, inject, PLATFORM_ID, Signal, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { isPlatformBrowser } from '@angular/common';
+import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { Title, Meta } from '@angular/platform-browser';
 import {
   LinkBioService,
@@ -14,6 +14,8 @@ import { absoluteMediaUrl } from '../../core/utils/absolute-media-url';
 import { normalizeLinkBioClinic, parseLinkBioExtra } from '../../core/utils/link-bio-clinic-normalize.util';
 import { PublicPageBodyService } from '../../core/services/public-page-body.service';
 import { LoadingService } from '../../shared/services/loading.service';
+import { resolvePublicAccentHex } from '../../core/utils/public-theme-accent';
+import { linkBioPresetMeta } from './link-bio-preset.util';
 import { LinkBioPublicLayoutPresetComponent } from './link-bio-public-layout-preset.component';
 import { LinkBioPublicTotemComponent } from './link-bio-public-totem.component';
 import { isTotemQueryParam } from '../link-bio/link-bio-public-url.util';
@@ -51,6 +53,7 @@ export class LinkBioPublicComponent implements OnInit, OnDestroy {
     try {
       this.dark = localStorage.getItem('gestgo_bio_dark') === '1';
     } catch {}
+    this.syncThemeColor();
     const slug = this.route.snapshot.paramMap.get('slug') ?? '';
     this.slug = slug;
     if (!slug) {
@@ -82,9 +85,10 @@ export class LinkBioPublicComponent implements OnInit, OnDestroy {
         this.data = { ...d, clinic };
         this.applyPreviewFromAdminSession();
         if (this.data?.clinic) {
-          this.data.clinic = normalizeLinkBioClinic(this.data.clinic);
+          this.data.clinic = normalizeLinkBioClinic(this.data.clinic, { publicPage: true });
         }
         this.updateMeta();
+        this.syncThemeColor();
       },
       error: () => {
         this.erro = 'Link na bio não encontrado.';
@@ -174,6 +178,51 @@ export class LinkBioPublicComponent implements OnInit, OnDestroy {
     try {
       localStorage.setItem('gestgo_bio_dark', this.dark ? '1' : '0');
     } catch {}
+    this.syncThemeColor();
+  }
+
+  /**
+   * Status bar + barra de progresso = cor do tema da clínica (não o verde Gestgo).
+   * Preferência: accent da API → brand do modelo visual → --brand no DOM.
+   */
+  private syncThemeColor(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+    if (this.dark) {
+      this.publicPageBody.setThemeColor('#151a1b');
+      return;
+    }
+    if (this.data && this.model === 7) {
+      this.publicPageBody.setThemeColor('#34285e');
+      return;
+    }
+    const clinic = this.data?.clinic;
+    const fromApi = clinic
+      ? resolvePublicAccentHex(clinic.public_theme, clinic.accent_hex)
+      : null;
+    if (fromApi) {
+      this.publicPageBody.setThemeColor(fromApi);
+      return;
+    }
+    // Sem accent na API: usa a cor do layout (ex. azul do modelo genérico), não o verde do painel.
+    if (this.data) {
+      const presetBrand = linkBioPresetMeta(this.model).brand;
+      if (presetBrand) {
+        this.publicPageBody.setThemeColor(presetBrand);
+        return;
+      }
+    }
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        const root = document.querySelector('.lb-preset-root') as HTMLElement | null;
+        const brand = root ? getComputedStyle(root).getPropertyValue('--brand').trim() : '';
+        const solid =
+          brand && /^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/.test(brand)
+            ? brand
+            : linkBioPresetMeta(1).brand;
+        this.publicPageBody.setThemeColor(solid);
+        this.publicPageBody.reapplyLockedThemeColor();
+      });
+    });
   }
 
   sharePage(): void {

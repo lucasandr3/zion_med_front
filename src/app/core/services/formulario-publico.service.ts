@@ -289,16 +289,18 @@ interface OtpVerifyResponse {
 
 function normalizeFormularioPublicoShow(raw: FormularioPublicoData & Record<string, unknown>): FormularioPublicoData {
   const rec = raw as Record<string, unknown>;
-  const theme =
-    (typeof rec['form_public_theme'] === 'string' ? rec['form_public_theme'] : null) ??
-    (typeof rec['public_theme'] === 'string' ? rec['public_theme'] : null);
+  // Só o tema da ficha — não usar `public_theme` da org/Link Bio como fallback
+  const formTheme =
+    typeof rec['form_public_theme'] === 'string' && rec['form_public_theme'].trim() !== ''
+      ? String(rec['form_public_theme']).trim()
+      : null;
 
   return {
     ...(raw as FormularioPublicoData),
     clinic_slug: extractPublicLinkBioSlug(rec) ?? (typeof rec['clinic_slug'] === 'string' ? rec['clinic_slug'] : null),
-    form_public_theme: theme,
-    public_theme: theme,
-    accent_hex: typeof rec['accent_hex'] === 'string' ? rec['accent_hex'] : null,
+    form_public_theme: formTheme,
+    public_theme: formTheme,
+    accent_hex: formTheme && typeof rec['accent_hex'] === 'string' ? rec['accent_hex'] : null,
     form_accent_hex: typeof rec['form_accent_hex'] === 'string' ? rec['form_accent_hex'] : null,
     hide_platform_branding: rec['hide_platform_branding'] === true,
   };
@@ -330,16 +332,16 @@ export class FormularioPublicoService {
               lu != null && String(lu).trim() !== ''
                 ? absoluteMediaUrl(String(lu).trim()) ?? String(lu).trim()
                 : null;
-            const accentFromBio = pub.clinic?.accent_hex;
-            const formAccentFromBio = pub.clinic?.form_accent_hex;
-            const themeFromBio = pub.clinic?.form_public_theme ?? pub.clinic?.public_theme;
+            // Só logo / branding — tema da ficha NÃO herda Link Bio (`public_theme` / accent da bio)
             return {
               ...normalized,
               logo_url: resolved,
-              form_public_theme: normalized.form_public_theme ?? themeFromBio ?? null,
-              public_theme: normalized.public_theme ?? themeFromBio ?? null,
-              accent_hex: normalized.accent_hex ?? accentFromBio ?? null,
-              form_accent_hex: normalized.form_accent_hex ?? formAccentFromBio ?? null,
+              form_public_theme: normalized.form_public_theme ?? pub.clinic?.form_public_theme ?? null,
+              public_theme:
+                normalized.form_public_theme ?? pub.clinic?.form_public_theme ?? null,
+              accent_hex: normalized.accent_hex ?? null,
+              form_accent_hex:
+                normalized.form_accent_hex ?? pub.clinic?.form_accent_hex ?? null,
               hide_platform_branding:
                 normalized.hide_platform_branding === true || pub.clinic?.hide_platform_branding === true,
             } as FormularioPublicoData;

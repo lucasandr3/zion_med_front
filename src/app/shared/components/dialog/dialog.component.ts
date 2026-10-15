@@ -79,7 +79,7 @@ export class GestgoDialogOptions<T, U> {
       <ng-template cdkPortalOutlet />
 
       @if (isStringContent) {
-        <div data-testid="z-content" [innerHTML]="config.zContent"></div>
+        <div data-testid="z-content">{{ config.zContent }}</div>
       }
     </main>
 

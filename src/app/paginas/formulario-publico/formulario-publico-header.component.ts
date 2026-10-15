@@ -8,6 +8,7 @@ import { ClinicalFormStepMeta } from '../../core/utils/clinical-step.util';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [],
   templateUrl: './formulario-publico-header.component.html',
+  styles: `:host { display: contents; }`,
 })
 export class FormularioPublicoHeaderComponent {
   @Input({ required: true }) data!: FormularioPublicoData;
@@ -27,5 +28,12 @@ export class FormularioPublicoHeaderComponent {
 
   @Output() toggleDark = new EventEmitter<void>();
   @Output() toggleLargeText = new EventEmitter<void>();
+  @Output() openHelp = new EventEmitter<void>();
   @Output() logoError = new EventEmitter<void>();
+
+  /** Índices 1..N para segmentos de progresso (estilo premium). */
+  get segmentIndexes(): number[] {
+    const n = Math.max(1, this.totalFormSteps || 1);
+    return Array.from({ length: n }, (_, i) => i + 1);
+  }
 }

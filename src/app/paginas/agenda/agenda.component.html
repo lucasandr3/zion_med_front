@@ -1,36 +1,52 @@
 <div class="n-page-list__toolbar">
   <div class="n-page-list__toolbar-start">
-    <nord-button-group class="agenda-aba-group" aria-label="Seções da agenda">
-      @for (aba of abas; track aba.key) {
+    <nord-button-group aria-label="Visão da agenda">
+      @for (v of visoes; track v.key) {
         <nord-button
           type="button"
-          [attr.variant]="abaAtiva() === aba.key ? 'primary' : 'default'"
-          [attr.aria-pressed]="abaAtiva() === aba.key"
-          (click)="setAba(aba.key)"
+          [attr.variant]="visao() === v.key ? 'primary' : 'default'"
+          [attr.aria-pressed]="visao() === v.key"
+          (click)="setVisao(v.key)"
         >
-          {{ aba.label }}
+          {{ v.label }}
         </nord-button>
       }
     </nord-button-group>
+    @if (visao() !== 'config') {
+      <span class="agenda-count n-muted n-small">{{ reservasAtivasCount() }} compromisso(s) no período</span>
+    }
   </div>
   <div class="n-page-list__toolbar-end">
-    @if (abaAtiva() === 'reservas') {
-      <nord-button type="button" variant="default" size="s" (click)="reload()" [attr.loading]="carregando() || null" title="Atualizar">
+    @if (visao() === 'config' && configSecao() === 'expediente') {
+      <nord-button
+        type="button"
+        variant="primary"
+        (click)="salvarExpediente()"
+        [attr.loading]="salvando() || null"
+      >
+        <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">check</span>
+        Salvar
+      </nord-button>
+    } @else if (visao() === 'config' && configSecao() === 'servicos') {
+      <nord-button type="button" variant="default" title="Atualizar" (click)="reload()" [attr.loading]="carregando() || null">
         <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">refresh</span>
         Atualizar
       </nord-button>
-    }
-    @if (abaAtiva() === 'servicos') {
-      <nord-button type="button" variant="primary" size="s" (click)="criarServico()" [attr.loading]="salvando() || null">
+      <nord-button type="button" variant="primary" title="Novo serviço" (click)="abrirNovoServico()">
         <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">add</span>
-        Adicionar serviço
+        Novo serviço
       </nord-button>
-    }
-    @if (abaAtiva() === 'expediente') {
-      <nord-button type="button" variant="primary" size="s" (click)="salvarExpediente()" [attr.loading]="salvando() || null">
-        <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">save</span>
-        Salvar expediente
+    } @else {
+      <nord-button type="button" variant="default" title="Atualizar agenda" (click)="reload()" [attr.loading]="carregando() || null">
+        <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">refresh</span>
+        Atualizar
       </nord-button>
+      @if (visao() !== 'config') {
+        <nord-button type="button" variant="primary" title="Novo compromisso" (click)="abrirNovo()">
+          <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">add</span>
+          Novo compromisso
+        </nord-button>
+      }
     }
   </div>
 </div>
@@ -44,15 +60,67 @@
     <div class="n-page-list__panel">
       <app-list-skeleton [count]="6" />
     </div>
-  } @else if (abaAtiva() === 'reservas') {
+  } @else if (visao() === 'mes') {
+    <div class="agenda-cal zm-content-enter">
+      <div class="agenda-cal__nav">
+        <div class="agenda-cal__nav-left">
+          <nord-button type="button" size="s" square variant="default" (click)="mesAnterior()" aria-label="Mês anterior">
+            <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">chevron_left</span>
+          </nord-button>
+          <nord-button type="button" size="s" square variant="default" (click)="mesProximo()" aria-label="Próximo mês">
+            <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">chevron_right</span>
+          </nord-button>
+          <nord-button type="button" size="s" variant="default" (click)="irHoje()">Hoje</nord-button>
+        </div>
+        <h2 class="agenda-cal__title">{{ mesTitulo() }}</h2>
+        <div class="agenda-cal__legend">
+          <span><i class="agenda-dot agenda-dot--ok"></i> Confirmada</span>
+          <span><i class="agenda-dot agenda-dot--done"></i> Concluída</span>
+          <span><i class="agenda-dot agenda-dot--off"></i> Cancelada</span>
+        </div>
+      </div>
+
+      <div class="agenda-cal__weekdays" aria-hidden="true">
+        @for (d of diasSemanaLabels; track d) {
+          <div>{{ d }}</div>
+        }
+      </div>
+
+      <div class="agenda-cal__grid">
+        @for (cell of cells(); track cell.key) {
+          <button
+            type="button"
+            class="agenda-cal__cell"
+            [class.agenda-cal__cell--out]="!cell.inMonth"
+            [class.agenda-cal__cell--today]="cell.isToday"
+            [class.agenda-cal__cell--selected]="cell.key === selectedDay() && modalAberto()"
+            (click)="selecionarDia(cell.key)"
+          >
+            <span class="agenda-cal__daynum">{{ cell.day }}</span>
+            <div class="agenda-cal__events">
+              @for (ev of cell.events.slice(0, 3); track ev.id) {
+                <span class="agenda-cal__chip" [attr.data-status]="ev.status" [title]="ev.patient_name">
+                  <i class="agenda-dot" [class]="dotClass(ev.status)"></i>
+                  {{ horaCurta(ev.starts_at) }} {{ ev.patient_name }}
+                </span>
+              }
+              @if (cell.events.length > 3) {
+                <span class="agenda-cal__more">+{{ cell.events.length - 3 }} mais</span>
+              }
+            </div>
+          </button>
+        }
+      </div>
+    </div>
+  } @else if (visao() === 'lista') {
     @if (reservas().length === 0) {
       <div class="n-page-list__empty">
         <nord-empty-state>
           <h2>Nenhuma reserva</h2>
-          <p>Configure serviços e expediente, depois compartilhe o CTA Gestgo no Link na Bio.</p>
-          <nord-button variant="primary" type="button" (click)="setAba('servicos')">
-            <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">medical_services</span>
-            Configurar serviços
+          <p>Adicione um compromisso ou compartilhe a agenda pública pelo Link na Bio.</p>
+          <nord-button variant="primary" type="button" (click)="abrirNovo()">
+            <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">add</span>
+            Novo compromisso
           </nord-button>
         </nord-empty-state>
       </div>
@@ -63,11 +131,7 @@
             <div class="n-page-list__row-main">
               <div class="n-page-list__row-title">{{ a.patient_name }}</div>
               <div class="n-page-list__row-meta">
-                {{ formatDt(a.starts_at) }}
-                · {{ a.service?.name || 'Serviço' }}
-                @if (a.patient_email) {
-                  · {{ a.patient_email }}
-                }
+                {{ formatDt(a.starts_at) }} · {{ a.service?.name || 'Serviço' }}
                 @if (a.patient_phone) {
                   · {{ a.patient_phone }}
                 }
@@ -75,14 +139,11 @@
             </div>
             <div class="n-page-list__actions">
               <nord-badge [variant]="statusBadgeVariant(a.status)">{{ statusLabel(a.status) }}</nord-badge>
+              @if (formStatusLabel(a.form_status); as fichaLabel) {
+                <nord-badge [variant]="formStatusBadgeVariant(a.form_status)">{{ fichaLabel }}</nord-badge>
+              }
               @if (a.status === 'confirmed') {
-                <nord-button
-                  square
-                  variant="plain"
-                  aria-label="Cancelar reserva"
-                  [attr.disabled]="acaoId() !== null"
-                  (click)="cancelar(a)"
-                >
+                <nord-button square variant="plain" aria-label="Cancelar reserva" (click)="cancelar(a)">
                   <span class="material-symbols-outlined text-lg">cancel</span>
                 </nord-button>
               }
@@ -90,93 +151,453 @@
           </div>
         }
       </div>
-      <div class="n-page-list__footer">
-        <span class="n-muted n-small">{{ reservas().length }} reserva(s)</span>
-      </div>
     }
-  } @else if (abaAtiva() === 'servicos') {
-    <div class="n-page-list__content--padded zm-content-enter space-y-4">
-      <div class="n-page-list__panel agenda-panel">
-        <h3 class="agenda-panel__title">Novo serviço</h3>
-        <p class="agenda-panel__hint">Duração em minutos. Opcionalmente vincule um modelo de ficha depois da confirmação.</p>
-        <div class="agenda-form-grid">
-          <div class="agenda-field agenda-field--grow">
-            <label class="form-label" for="svc_name">Nome</label>
-            <input id="svc_name" class="w-full" [(ngModel)]="novoServico.name" name="svc_name" placeholder="Ex.: Consulta" />
-          </div>
-          <div class="agenda-field agenda-field--narrow">
-            <label class="form-label" for="svc_dur">Duração (min)</label>
-            <input
-              id="svc_dur"
-              type="number"
-              class="w-full"
-              [(ngModel)]="novoServico.duration_minutes"
-              name="svc_dur"
-              min="10"
-              max="480"
-            />
-          </div>
-        </div>
+  } @else {
+    <div class="agenda-config zm-content-enter">
+      <div class="agenda-config__nav" role="tablist" aria-label="Seções da configuração">
+        @for (s of configSecoes; track s.key) {
+          <button
+            type="button"
+            class="agenda-config__tab"
+            role="tab"
+            [attr.aria-selected]="configSecao() === s.key"
+            [class.agenda-config__tab--active]="configSecao() === s.key"
+            (click)="setConfigSecao(s.key)"
+          >
+            <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">{{ s.icon }}</span>
+            {{ s.label }}
+          </button>
+        }
       </div>
 
-      @if (servicos().length === 0) {
-        <div class="n-page-list__empty">
-          <nord-empty-state>
-            <h2>Nenhum serviço</h2>
-            <p>Cadastre ao menos um serviço para liberar horários na agenda pública.</p>
-          </nord-empty-state>
+      @if (configSecao() === 'servicos') {
+        <div class="agenda-config__servicos" role="tabpanel">
+          <div class="agenda-config__banner">
+            <p class="agenda-note agenda-note--inline">
+              Tipos de atendimento da agenda interna e da página pública
+              (<code class="agenda-code">/a/seu-slug</code>). Não listam no Link na Bio — só entram no
+              agendamento público se o CTA estiver em <strong>Agenda Gestgo</strong>.
+            </p>
+          </div>
+
+          @if (servicos().length === 0) {
+            <div class="n-page-list__empty">
+              <nord-empty-state>
+                <h2>Nenhum serviço</h2>
+                <p>Cadastre ao menos um para criar compromissos e liberar a agenda pública.</p>
+                <nord-button variant="primary" type="button" (click)="abrirNovoServico()">
+                  <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">add</span>
+                  Novo serviço
+                </nord-button>
+              </nord-empty-state>
+            </div>
+          } @else {
+            <div class="n-page-list__table">
+              @for (s of servicos(); track s.id) {
+                <div class="n-page-list__row">
+                  <button type="button" class="n-page-list__row-main agenda-servico-row-btn" (click)="abrirEditarServico(s)">
+                    <span class="agenda-svc-thumb" aria-hidden="true">
+                      @if (servicePhotoUrl(s); as photo) {
+                        <img [src]="photo" alt="" />
+                      } @else {
+                        <span class="material-symbols-outlined">image</span>
+                      }
+                    </span>
+                    <span class="agenda-svc-row-text">
+                      <div class="n-page-list__row-title">{{ s.name }}</div>
+                      <div class="n-page-list__row-meta">{{ servicoMeta(s) }}</div>
+                    </span>
+                  </button>
+                  <div class="n-page-list__actions">
+                    <nord-button square variant="plain" aria-label="Editar serviço" (click)="abrirEditarServico(s)">
+                      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">edit</span>
+                    </nord-button>
+                    <nord-button square variant="plain" aria-label="Remover serviço" (click)="removerServico(s)">
+                      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">delete</span>
+                    </nord-button>
+                  </div>
+                </div>
+              }
+            </div>
+          }
         </div>
       } @else {
-        <div class="n-page-list__table">
-          @for (s of servicos(); track s.id) {
-            <div class="n-page-list__row">
-              <div class="n-page-list__row-main">
-                <div class="n-page-list__row-title">{{ s.name }}</div>
-                <div class="n-page-list__row-meta">{{ s.duration_minutes }} min · {{ s.is_active === false ? 'Inativo' : 'Ativo' }}</div>
+        <div class="agenda-config__body agenda-expediente" role="tabpanel">
+          <div class="agenda-expediente__toolbar">
+            <p class="agenda-expediente__hint">Configure uma vez e replique para os demais dias.</p>
+            <nord-button type="button" variant="default" size="s" (click)="aplicarSegundaDiasUteis()">
+              <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">content_copy</span>
+              Aplicar Segunda aos dias úteis
+            </nord-button>
+          </div>
+
+          <div class="agenda-expediente__table" role="table" aria-label="Expediente semanal" [attr.data-rules]="rulesVersion()">
+            <div class="agenda-expediente__head" role="row">
+              <span role="columnheader">Dia</span>
+              <span role="columnheader">Ativo</span>
+              <span role="columnheader">Horário de atendimento</span>
+              <span role="columnheader">Total</span>
+            </div>
+
+            @for (d of weekdays; track d.full) {
+              <div
+                class="agenda-expediente__row"
+                role="row"
+                [class.agenda-expediente__row--off]="!ruleFor(d.value).enabled"
+              >
+                <span class="agenda-expediente__day" role="cell">{{ d.full }}</span>
+                <div class="agenda-expediente__ativo" role="cell">
+                  <nord-toggle
+                    [ngModel]="ruleFor(d.value).enabled"
+                    (ngModelChange)="toggleDay(d.value, $event)"
+                    [name]="'day_' + d.value"
+                    [attr.aria-label]="'Ativar ' + d.full"
+                  ></nord-toggle>
+                </div>
+                <div class="agenda-expediente__hours" role="cell">
+                  @if (ruleFor(d.value).enabled) {
+                    <div class="agenda-expediente__intervals">
+                      @for (interval of ruleFor(d.value).intervals; track $index) {
+                        <div class="agenda-expediente__interval">
+                          <span class="agenda-expediente__atende">Atende</span>
+                          <nord-time-picker
+                            class="agenda-expediente__time"
+                            hide-label
+                            expand
+                            label="Início"
+                            start="00:00"
+                            end="23:30"
+                            [ngModel]="interval.start"
+                            (ngModelChange)="setIntervalTime(d.value, $index, 'start', $event)"
+                            [name]="'st_' + d.value + '_' + $index"
+                            placeholder="09:00"
+                          ></nord-time-picker>
+                          <span class="agenda-expediente__dash" aria-hidden="true">—</span>
+                          <nord-time-picker
+                            class="agenda-expediente__time"
+                            hide-label
+                            expand
+                            label="Fim"
+                            start="00:00"
+                            end="23:30"
+                            [ngModel]="interval.end"
+                            (ngModelChange)="setIntervalTime(d.value, $index, 'end', $event)"
+                            [name]="'en_' + d.value + '_' + $index"
+                            placeholder="18:00"
+                          ></nord-time-picker>
+                          @if (ruleFor(d.value).intervals.length > 1) {
+                            <button
+                              type="button"
+                              class="agenda-expediente__remove"
+                              (click)="removeInterval(d.value, $index)"
+                              aria-label="Remover intervalo"
+                            >
+                              <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">close</span>
+                            </button>
+                          }
+                          @if ($index === ruleFor(d.value).intervals.length - 1) {
+                            <button type="button" class="agenda-expediente__pausa" (click)="addPausa(d.value)">
+                              + pausa
+                            </button>
+                          }
+                        </div>
+                      }
+                    </div>
+                  } @else {
+                    <span class="agenda-expediente__closed">Fechado</span>
+                  }
+                </div>
+                <span class="agenda-expediente__total" role="cell">
+                  @if (ruleFor(d.value).enabled) {
+                    {{ dayTotalLabel(d.value) }}
+                  }
+                </span>
               </div>
-              <div class="n-page-list__actions">
-                <nord-button square variant="plain" aria-label="Remover serviço" (click)="removerServico(s)">
-                  <span class="material-symbols-outlined text-lg">delete</span>
-                </nord-button>
+            }
+          </div>
+
+        </div>
+      }
+    </div>
+  }
+</div>
+
+@if (servicoModalAberto()) {
+  <nord-modal
+    #servicoModal
+    class="agenda-servico-modal"
+    size="m"
+    aria-labelledby="agenda-servico-modal-title"
+    (cancel)="onServicoModalCancel($event)"
+    (close)="fecharServicoModal()"
+  >
+    <h2 slot="header" id="agenda-servico-modal-title">
+      {{ novoServico.id ? 'Editar serviço' : 'Novo serviço' }}
+    </h2>
+    <div class="agenda-form-grid agenda-form-grid--modal">
+      <div class="agenda-field agenda-field--full">
+        <label class="form-label">Foto do serviço (opcional)</label>
+        <div class="agenda-svc-photo">
+          <div class="agenda-svc-photo__preview" aria-hidden="true">
+            @if (servicoPhotoPreview()) {
+              <img [src]="servicoPhotoPreview()!" alt="" />
+            } @else {
+              <span class="material-symbols-outlined">image</span>
+            }
+          </div>
+          <div class="agenda-svc-photo__actions">
+            <input
+              #svcPhotoInput
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/gif"
+              class="sr-only"
+              (change)="onServicoPhotoSelected($event)"
+            />
+            <nord-button type="button" size="s" variant="default" (click)="svcPhotoInput.click()">
+              {{ servicoPhotoPreview() ? 'Trocar foto' : 'Enviar foto' }}
+            </nord-button>
+            @if (servicoPhotoPreview() || novoServico.photo_url) {
+              <nord-button type="button" size="s" variant="plain" (click)="removerServicoFoto()">
+                Remover
+              </nord-button>
+            }
+            <p class="agenda-field-hint m-0">JPG, PNG ou WebP · até 2 MB. Aparece na agenda pública.</p>
+          </div>
+        </div>
+      </div>
+      <div class="agenda-field agenda-field--grow">
+        <label class="form-label" for="svc_name">Nome</label>
+        <nord-input
+          id="svc_name"
+          name="svc_name"
+          expand
+          hide-label
+          label="Nome"
+          placeholder="Ex.: Consulta"
+          [value]="novoServico.name"
+          (input)="novoServico.name = onNordInput($event)"
+        ></nord-input>
+      </div>
+      <div class="agenda-field agenda-field--narrow">
+        <label class="form-label" for="svc_dur">Duração (min)</label>
+        <nord-input
+          id="svc_dur"
+          name="svc_dur"
+          type="number"
+          expand
+          hide-label
+          label="Duração (min)"
+          min="10"
+          max="480"
+          [value]="'' + novoServico.duration_minutes"
+          (input)="novoServico.duration_minutes = onNordNumberInput($event)"
+        ></nord-input>
+      </div>
+      <div class="agenda-field agenda-field--grow">
+        <label class="form-label" for="svc_price">Valor (opcional)</label>
+        <nord-input
+          id="svc_price"
+          name="svc_price"
+          expand
+          hide-label
+          label="Valor"
+          placeholder="0,00"
+          inputmode="numeric"
+          [value]="novoServico.priceDisplay"
+          (input)="onServicoPriceInput($event)"
+        ></nord-input>
+      </div>
+      <div class="agenda-field agenda-field--full">
+        <nord-checkbox
+          [(ngModel)]="novoServico.show_price"
+          name="svc_show_price"
+          label="Mostrar valor na agenda pública"
+          [attr.disabled]="novoServico.priceNumber == null || null"
+        ></nord-checkbox>
+        <p class="agenda-field-hint">Se desmarcado, o valor fica só na configuração interna.</p>
+      </div>
+      <div class="agenda-field agenda-field--full">
+        <nord-checkbox
+          [(ngModel)]="novoServico.pedir_ficha"
+          name="svc_pedir_ficha"
+          label="Pedir ficha após a reserva"
+          (ngModelChange)="onServicoPedirFichaToggle($event)"
+        ></nord-checkbox>
+        <p class="agenda-field-hint">
+          Se marcado, o paciente recebe o link da ficha ao confirmar o horário. A reserva segue confirmada
+          mesmo se ele preencher depois.
+        </p>
+        @if (novoServico.pedir_ficha) {
+          <label class="form-label" id="svc_ficha_label">Qual ficha</label>
+          @if (opcoesFichaServico().length === 0) {
+            <p class="agenda-field-hint">
+              Nenhuma ficha publicada. Em Modelos de fichas, clique em Publicar no modelo e abra este
+              serviço de novo.
+            </p>
+          } @else {
+            <z-combobox
+              class="w-full"
+              zWidth="full"
+              [attr.data-fichas]="fichasComboKey()"
+              [options]="opcoesFichaServico()"
+              [value]="servicoFichaValue()"
+              placeholder="Selecione um modelo"
+              searchPlaceholder="Buscar ficha..."
+              emptyText="Nenhuma ficha encontrada."
+              ariaLabel="Qual ficha"
+              ariaLabelledby="svc_ficha_label"
+              (pointerdown)="armServicoModalDismissGuard()"
+              (zValueChange)="onServicoFichaChange($event)"
+            />
+          }
+        }
+      </div>
+    </div>
+    <nord-button-group slot="footer" variant="spaced">
+      <nord-button expand type="button" variant="default" (click)="fecharServicoModal(true)">Cancelar</nord-button>
+      <nord-button
+        expand
+        type="button"
+        variant="primary"
+        (click)="salvarServico()"
+        [attr.loading]="salvando() || null"
+        [attr.disabled]="!novoServico.name.trim() || null"
+      >
+        <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">check</span>
+        Salvar
+      </nord-button>
+    </nord-button-group>
+  </nord-modal>
+}
+
+@if (modalAberto()) {
+  <nord-modal
+    #diaModal
+    class="agenda-dia-modal"
+    size="m"
+    aria-labelledby="agenda-dia-modal-title"
+    (close)="fecharModal()"
+  >
+    <h2 slot="header" id="agenda-dia-modal-title">{{ modalTitulo() }}</h2>
+
+    @if (modalModo() === 'dia') {
+      @if (eventosDiaSelecionado().length === 0) {
+        <p class="n-muted n-small m-0">Nenhum compromisso neste dia.</p>
+      } @else {
+        <div class="agenda-modal-list">
+          @for (a of eventosDiaSelecionado(); track a.id) {
+            <div class="agenda-modal-row">
+              <div class="agenda-modal-row__main">
+                <div class="agenda-modal-row__title">{{ a.patient_name }}</div>
+                <div class="agenda-modal-row__meta">
+                  {{ formatDt(a.starts_at) }} · {{ a.service?.name || 'Serviço' }}
+                  @if (a.patient_phone) {
+                    · {{ a.patient_phone }}
+                  }
+                </div>
+              </div>
+              <div class="agenda-modal-row__actions">
+                <nord-badge [variant]="statusBadgeVariant(a.status)">{{ statusLabel(a.status) }}</nord-badge>
+                @if (formStatusLabel(a.form_status); as fichaLabel) {
+                  <nord-badge [variant]="formStatusBadgeVariant(a.form_status)">{{ fichaLabel }}</nord-badge>
+                }
+                @if (a.status === 'confirmed') {
+                  <nord-button square variant="plain" aria-label="Cancelar" (click)="cancelar(a)">
+                    <span class="material-symbols-outlined text-lg">cancel</span>
+                  </nord-button>
+                }
               </div>
             </div>
           }
         </div>
       }
-    </div>
-  } @else if (abaAtiva() === 'expediente') {
-    <div class="n-page-list__content--padded zm-content-enter">
-      <div class="n-page-list__panel agenda-panel">
-        <h3 class="agenda-panel__title">Expediente semanal</h3>
-        <p class="agenda-panel__hint">Defina os dias e horários em que a agenda pública oferece slots.</p>
-        <div class="agenda-days">
-          @for (d of weekdays; track d.value) {
-            <div class="agenda-day-row">
-              <label class="agenda-day-check">
-                <input type="checkbox" [checked]="ruleFor(d.value).enabled" (change)="toggleDay(d.value, $event)" />
-                <span>{{ d.label }}</span>
-              </label>
-              <input
-                type="time"
-                class="agenda-time"
-                [ngModel]="ruleFor(d.value).start"
-                (ngModelChange)="setRuleTime(d.value, 'start', $event)"
-                [name]="'st_' + d.value"
-                [disabled]="!ruleFor(d.value).enabled"
-              />
-              <span class="agenda-day-sep">até</span>
-              <input
-                type="time"
-                class="agenda-time"
-                [ngModel]="ruleFor(d.value).end"
-                (ngModelChange)="setRuleTime(d.value, 'end', $event)"
-                [name]="'en_' + d.value"
-                [disabled]="!ruleFor(d.value).enabled"
-              />
-            </div>
-          }
+      <nord-button-group slot="footer" variant="spaced">
+        <nord-button expand type="button" variant="default" (click)="fecharModal()">Fechar</nord-button>
+        <nord-button expand type="button" variant="primary" (click)="abrirCriarNoModal()">
+          <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">add</span>
+          Novo compromisso
+        </nord-button>
+      </nord-button-group>
+    } @else {
+      <div class="agenda-form-grid agenda-form-grid--modal">
+        <div class="agenda-field agenda-field--grow">
+          <label class="form-label" for="novo_nome">Paciente</label>
+          <nord-input
+            id="novo_nome"
+            name="novo_nome"
+            expand
+            hide-label
+            label="Paciente"
+            placeholder="Nome completo"
+            [value]="novo.patient_name"
+            (input)="novo.patient_name = onNordInput($event)"
+          ></nord-input>
+        </div>
+        <div class="agenda-field agenda-field--grow">
+          <label class="form-label" for="novo_svc">Serviço</label>
+          <select id="novo_svc" class="w-full" [(ngModel)]="novo.service_id" name="novo_svc">
+            <option [ngValue]="null">Selecione…</option>
+            @for (s of servicos(); track s.id) {
+              <option [ngValue]="s.id">{{ s.name }} ({{ s.duration_minutes }} min)</option>
+            }
+          </select>
+        </div>
+        <div class="agenda-field agenda-field--half">
+          <label class="form-label" for="novo_data">Data</label>
+          <nord-date-picker
+            id="novo_data"
+            name="novo_data"
+            expand
+            hide-label
+            label="Data"
+            [(ngModel)]="novo.date"
+            placeholder="dd/mm/aaaa"
+          ></nord-date-picker>
+        </div>
+        <div class="agenda-field agenda-field--half">
+          <label class="form-label" for="novo_hora">Horário</label>
+          <nord-time-picker
+            id="novo_hora"
+            name="novo_hora"
+            expand
+            hide-label
+            label="Horário"
+            [(ngModel)]="novo.time"
+            placeholder="09:00"
+          ></nord-time-picker>
+        </div>
+        <div class="agenda-field agenda-field--half">
+          <label class="form-label" for="novo_email">E-mail</label>
+          <nord-input
+            id="novo_email"
+            name="novo_email"
+            type="email"
+            expand
+            hide-label
+            label="E-mail"
+            [value]="novo.patient_email"
+            (input)="novo.patient_email = onNordInput($event)"
+          ></nord-input>
+        </div>
+        <div class="agenda-field agenda-field--half">
+          <label class="form-label" for="novo_phone">Telefone</label>
+          <nord-input
+            id="novo_phone"
+            name="novo_phone"
+            expand
+            hide-label
+            label="Telefone"
+            [value]="novo.patient_phone"
+            (input)="novo.patient_phone = onNordInput($event)"
+          ></nord-input>
         </div>
       </div>
-    </div>
-  }
-</div>
+      <nord-button-group slot="footer" variant="spaced">
+        <nord-button expand type="button" variant="default" (click)="cancelarCriar()">Cancelar</nord-button>
+        <nord-button expand type="button" variant="primary" (click)="salvarNovo()" [attr.loading]="salvando() || null">
+          Salvar compromisso
+        </nord-button>
+      </nord-button-group>
+    }
+  </nord-modal>
+}

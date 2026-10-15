@@ -3,6 +3,7 @@ import { ApiService } from './api.service';
 import { map, Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { normalizeLinkBioClinic } from '../utils/link-bio-clinic-normalize.util';
+import { normalizePublicAppUrl } from '../utils/public-form-url.util';
 
 export interface LinkBioLink {
   id: number;
@@ -220,9 +221,12 @@ export class LinkBioService {
         const d = r.data;
         return {
           clinic: normalizeLinkBioClinic(d.clinic),
-          public_url: d.public_url,
+          public_url: normalizePublicAppUrl(d.public_url),
           links: d.bio_links ?? [],
-          forms: d.form_links_public ?? [],
+          forms: (d.form_links_public ?? []).map((f) => ({
+            ...f,
+            public_url: normalizePublicAppUrl(f.public_url),
+          })),
           available_icons: d.available_icons ?? {},
           available_themes: d.available_themes ?? {},
           metrics: {
@@ -333,11 +337,16 @@ export class LinkBioService {
       return null;
     }
     const root = environment.apiUrl.replace(/\/+$/, '');
-    let url = `${root}/api/v1/link-bio/public/${encodeURIComponent(slug)}/cta/${channel}`;
+    const params = new URLSearchParams();
     if (channel === 'team_whatsapp' && teamRef != null && !Number.isNaN(Number(teamRef))) {
-      url += `?ref=${Number(teamRef)}`;
+      params.set('ref', String(Number(teamRef)));
     }
-    return url;
+    // Origem real do SPA (porta dinâmica do ng serve) — a API monta /a/:slug com isso.
+    if (typeof window !== 'undefined' && window.location?.origin) {
+      params.set('front', window.location.origin);
+    }
+    const qs = params.toString();
+    return `${root}/api/v1/link-bio/public/${encodeURIComponent(slug)}/cta/${channel}${qs ? `?${qs}` : ''}`;
   }
 
   /** Página pública do Link Bio por slug (sem autenticação). */
@@ -349,6 +358,10 @@ export class LinkBioService {
         map((r) => ({
           ...r.data,
           clinic: normalizeLinkBioClinic(r.data.clinic),
+          form_links: (r.data.form_links ?? []).map((f) => ({
+            ...f,
+            public_url: normalizePublicAppUrl(f.public_url),
+          })),
         }))
       );
   }

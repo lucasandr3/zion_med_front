@@ -1,13 +1,13 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { CommonModule, DOCUMENT } from '@angular/common';
+import { CommonModule, CurrencyPipe, DOCUMENT } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { LandingSegment, LandingService } from '../../core/services/landing.service';
+import { LandingPublicData, LandingSegment, LandingService } from '../../core/services/landing.service';
 import { Title } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-para-segmento',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, CurrencyPipe],
   template: `
     <div class="para-page">
       <header class="para-top">
@@ -58,6 +58,26 @@ import { Title } from '@angular/platform-browser';
             <h2>Para quem não é</h2>
             <p>Não substitui ERP, prontuário completo nem agenda com comissões e faturamento. Complementa a documentação assinada.</p>
           </section>
+
+          @if (landing()?.plans?.length) {
+            <section class="para-section">
+              <h2>Preços para testar</h2>
+              <p class="para-sub" style="margin-bottom:0.75rem">
+                @if (landing()?.trial_days; as days) {
+                  {{ days }} dias de teste. Sem cartão no início.
+                }
+              </p>
+              <div class="para-plans">
+                @for (p of landing()!.plans!; track p.key) {
+                  <div class="para-plan">
+                    <strong>{{ p.name }}</strong>
+                    <span>{{ p.value | currency: 'BRL' : 'symbol-narrow' : '1.0-0' : 'pt-BR' }}/mês</span>
+                  </div>
+                }
+              </div>
+              <a routerLink="/planos" class="para-link" (click)="track('pricing')">Ver planos completos</a>
+            </section>
+          }
 
           @if (s.faq?.length) {
             <section class="para-section">
@@ -189,16 +209,34 @@ import { Title } from '@angular/platform-browser';
       .para-link {
         color: #0f6b4a;
       }
+      .para-plans {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-bottom: 0.65rem;
+      }
+      .para-plan {
+        background: #fff;
+        border: 1px solid #d7e4dc;
+        border-radius: 0.55rem;
+        padding: 0.55rem 0.75rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.15rem;
+        min-width: 7.5rem;
+        font-size: 0.9rem;
+      }
     `,
   ],
 })
 export class ParaSegmentoComponent implements OnInit {
   private route = inject(ActivatedRoute);
-  private landing = inject(LandingService);
+  private landingApi = inject(LandingService);
   private title = inject(Title);
   private doc = inject(DOCUMENT);
 
   readonly segment = signal<LandingSegment | null>(null);
+  readonly landing = signal<LandingPublicData | null>(null);
   readonly erro = signal('');
 
   ngOnInit(): void {
@@ -208,8 +246,9 @@ export class ParaSegmentoComponent implements OnInit {
       return;
     }
     const path = `/para/${slug}`;
-    this.landing.recordView(path).subscribe({ error: () => undefined });
-    this.landing.getSegment(slug).subscribe({
+    this.landingApi.recordView(path).subscribe({ error: () => undefined });
+    this.landingApi.getLanding().subscribe({ next: (d) => this.landing.set(d), error: () => undefined });
+    this.landingApi.getSegment(slug).subscribe({
       next: (s) => {
         this.segment.set(s);
         this.title.setTitle(s.seo_title || `${s.h1} | Gestgo`);
@@ -221,6 +260,6 @@ export class ParaSegmentoComponent implements OnInit {
 
   track(channel: string): void {
     const slug = this.route.snapshot.paramMap.get('slug') || '';
-    this.landing.recordCta(channel, `/para/${slug}`).subscribe({ error: () => undefined });
+    this.landingApi.recordCta(channel, `/para/${slug}`).subscribe({ error: () => undefined });
   }
 }

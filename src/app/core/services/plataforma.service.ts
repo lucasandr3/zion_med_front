@@ -129,6 +129,7 @@ export interface PlatformPlan {
   name: string;
   key: string;
   value: number;
+  value_yearly?: number | null;
   description?: string | null;
   sort_order?: number;
   is_active: boolean;
@@ -363,11 +364,29 @@ export class PlataformaService {
     return this.api.get<{ data: PlatformPlan }>('/platform/plans/' + id);
   }
 
-  createPlan(payload: { key: string; name: string; value: number; description?: string | null; sort_order?: number; is_active?: boolean }): Observable<{ data: PlatformPlan }> {
+  createPlan(payload: {
+    key: string;
+    name: string;
+    value: number;
+    value_yearly?: number | null;
+    description?: string | null;
+    sort_order?: number;
+    is_active?: boolean;
+  }): Observable<{ data: PlatformPlan }> {
     return this.api.post<{ data: PlatformPlan }>('/platform/plans', payload);
   }
 
-  updatePlan(id: number | string, payload: { name: string; value: number; description?: string | null; sort_order?: number; is_active?: boolean }): Observable<{ data: PlatformPlan }> {
+  updatePlan(
+    id: number | string,
+    payload: {
+      name: string;
+      value: number;
+      value_yearly?: number | null;
+      description?: string | null;
+      sort_order?: number;
+      is_active?: boolean;
+    }
+  ): Observable<{ data: PlatformPlan }> {
     return this.api.put<{ data: PlatformPlan }>('/platform/plans/' + id, payload);
   }
 

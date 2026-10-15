@@ -13,6 +13,18 @@
   </nord-button>
   <nord-tooltip id="go-assistant-tooltip" [delay]="0">Go Assistant (Ctrl+/)</nord-tooltip>
 
+  @if (podeAgenda) {
+    <a
+      routerLink="/agenda"
+      class="cabecalho-toolbar-action relative header-desktop-only-flex"
+      aria-describedby="agenda-tooltip"
+      aria-label="Agenda"
+    >
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--m" aria-hidden="true">calendar_month</span>
+    </a>
+    <nord-tooltip id="agenda-tooltip" [delay]="0">Agenda</nord-tooltip>
+  }
+
   @if (podeImportarFicha) {
     <a
       routerLink="/templates/importar"

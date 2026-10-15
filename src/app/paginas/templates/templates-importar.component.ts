@@ -42,7 +42,7 @@ const STEPS: StepMeta[] = [
   selector: 'app-templates-importar',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { class: 'n-page-list' },
+  host: { class: 'n-page' },
   imports: [CommonModule, FormsModule, ZmPageBackLinkComponent, GestgoCardComponent],
   templateUrl: './templates-importar.component.html',
   styleUrl: './templates-importar.component.css',

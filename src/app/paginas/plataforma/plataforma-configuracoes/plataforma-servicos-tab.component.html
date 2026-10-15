@@ -1,7 +1,7 @@
 <div class="servicos-tab">
   <div class="config-tab-panel">
     @if (activeServico() === null) {
-      <g-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
+      <g-card class="section-card gap-0 overflow-hidden rounded-none border-0 bg-card py-0 shadow-none **:data-[slot=card-content]:p-0">
         <div class="section-header">
           <div class="icon-wrap"><span class="material-symbols-outlined">dns</span></div>
           <div>
@@ -87,7 +87,7 @@
                   <p class="settings-alert settings-alert--success">{{ successSettings() }}</p>
                 }
                 <div class="settings-form-actions settings-form-actions--inline">
-                  <nord-button type="submit" size="s" [attr.disabled]="savingSettings()" [attr.loading]="savingSettings()">
+                  <nord-button type="submit" size="m" [attr.disabled]="savingSettings() || null" [attr.loading]="savingSettings() || null">
                     {{ savingSettings() ? 'Salvando…' : 'Salvar Asaas' }}
                   </nord-button>
                 </div>
@@ -122,7 +122,7 @@
                         [searchable]="false"
                         [clearable]="false"
                         ariaLabel="Driver de e-mail"
-                        ariaDescribedBy="mail_mailer_label"
+                        ariaLabelledby="mail_mailer_label"
                       />
                     </div>
                     <div class="settings-field">
@@ -211,7 +211,7 @@
                   <p class="settings-alert settings-alert--success">{{ successSettings() }}</p>
                 }
                 <div class="settings-form-actions settings-form-actions--inline">
-                  <nord-button type="submit" size="s" [attr.disabled]="savingSettings()" [attr.loading]="savingSettings()">
+                  <nord-button type="submit" size="m" [attr.disabled]="savingSettings() || null" [attr.loading]="savingSettings() || null">
                     {{ savingSettings() ? 'Salvando…' : 'Salvar Resend' }}
                   </nord-button>
                 </div>
@@ -245,8 +245,7 @@
                         placeholder="Selecione…"
                         [searchable]="false"
                         [clearable]="false"
-                        ariaLabel="Provedor de importação"
-                        ariaDescribedBy="form_import_provider_label"
+                        ariaLabelledby="form_import_provider_label"
                       />
                     </div>
                     <div class="settings-field">
@@ -309,7 +308,7 @@
                   <p class="settings-alert settings-alert--success">{{ successSettings() }}</p>
                 }
                 <div class="settings-form-actions settings-form-actions--inline">
-                  <nord-button type="submit" size="s" [attr.disabled]="savingSettings()" [attr.loading]="savingSettings()">
+                  <nord-button type="submit" size="m" [attr.disabled]="savingSettings() || null" [attr.loading]="savingSettings() || null">
                     {{ savingSettings() ? 'Salvando…' : 'Salvar OpenAI' }}
                   </nord-button>
                 </div>
@@ -373,7 +372,7 @@
                   <p class="settings-alert settings-alert--success">{{ successSettings() }}</p>
                 }
                 <div class="settings-form-actions settings-form-actions--inline">
-                  <nord-button type="submit" size="s" [attr.disabled]="savingSettings()" [attr.loading]="savingSettings()">
+                  <nord-button type="submit" size="m" [attr.disabled]="savingSettings() || null" [attr.loading]="savingSettings() || null">
                     {{ savingSettings() ? 'Salvando…' : 'Salvar MinIO' }}
                   </nord-button>
                 </div>
@@ -404,7 +403,7 @@
                         [searchable]="false"
                         [clearable]="false"
                         ariaLabel="Status geral"
-                        ariaDescribedBy="service_status_label"
+                        ariaLabelledby="service_status_label"
                       />
                     </div>
                     <div class="settings-field">
@@ -418,7 +417,7 @@
                         [searchable]="false"
                         [clearable]="false"
                         ariaLabel="Criticidade"
-                        ariaDescribedBy="service_severity_label"
+                        ariaLabelledby="service_maintenance_label"
                       />
                     </div>
                   </div>
@@ -452,7 +451,7 @@
                   <p class="settings-alert settings-alert--success">{{ successStatus() }}</p>
                 }
                 <div class="settings-form-actions settings-form-actions--inline">
-                  <nord-button type="submit" [attr.disabled]="savingStatus()" [attr.loading]="savingStatus()">
+                  <nord-button type="submit" [attr.disabled]="savingStatus() || null" [attr.loading]="savingStatus() || null">
                     {{ savingStatus() ? 'Atualizando…' : 'Atualizar status' }}
                   </nord-button>
                 </div>

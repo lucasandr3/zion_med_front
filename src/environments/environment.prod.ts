@@ -1,6 +1,8 @@
 export const environment = {
   production: true,
   apiUrl: 'https://api.gestgo.com.br',
+  /** Base canônica do SPA para /f/:token e links compartilháveis. */
+  appUrl: 'https://app.gestgo.com.br',
   errorHub: {
     // Chave injetada no CI/CD (nunca commitar ek_live_*). Sem chave = desabilitado.
     enabled: false,

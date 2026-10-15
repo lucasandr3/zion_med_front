@@ -147,6 +147,29 @@
           <p class="billing-card__sub">{{ descricaoSecaoPlanos }}</p>
 
           <div class="billing-pay-method">
+            <p class="billing-label">Periodicidade</p>
+            <p class="billing-muted billing-pay-method__hint">{{ dicaEconomiaAnual }}</p>
+            <nord-button-group aria-label="Periodicidade da assinatura">
+              <nord-button
+                type="button"
+                [attr.variant]="cicloCobranca() === 'MONTHLY' ? 'primary' : 'default'"
+                [attr.aria-pressed]="cicloCobranca() === 'MONTHLY'"
+                (click)="selecionarCiclo('MONTHLY')"
+              >
+                Mensal
+              </nord-button>
+              <nord-button
+                type="button"
+                [attr.variant]="cicloCobranca() === 'YEARLY' ? 'primary' : 'default'"
+                [attr.aria-pressed]="cicloCobranca() === 'YEARLY'"
+                (click)="selecionarCiclo('YEARLY')"
+              >
+                Anual
+              </nord-button>
+            </nord-button-group>
+          </div>
+
+          <div class="billing-pay-method">
             <p class="billing-label">Como pagar ao assinar</p>
             <p class="billing-muted billing-pay-method__hint">
               Válido apenas ao confirmar um plano abaixo. Não altera cobranças já geradas.
@@ -181,7 +204,7 @@
                 <div class="billing-plan__inner">
                   <p class="billing-plan__name">{{ plano.name }}</p>
                   <p class="billing-plan__price">
-                    R$ {{ plano.value | number:'1.2-2':'pt-BR' }}
+                    R$ {{ valorExibidoPlano(plano) | number:'1.2-2':'pt-BR' }}
                     <span class="billing-plan__cycle">{{ rotuloPeriodicidade(plano) }}</span>
                   </p>
                   @if (plano.description) {

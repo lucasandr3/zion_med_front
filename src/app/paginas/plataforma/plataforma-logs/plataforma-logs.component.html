@@ -44,7 +44,7 @@
         <div class="n-page-list__actions">
           <nord-button
             variant="default"
-            size="s"
+            size="m"
             type="button"
             [attr.disabled]="currentPage() <= 1 || null"
             (click)="goToPage(currentPage() - 1)"
@@ -54,7 +54,7 @@
           </nord-button>
           <nord-button
             variant="default"
-            size="s"
+            size="m"
             type="button"
             [attr.disabled]="currentPage() >= lastPage() || null"
             (click)="goToPage(currentPage() + 1)"

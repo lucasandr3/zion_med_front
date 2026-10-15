@@ -14,6 +14,7 @@ import {
   extractClinicalValidationIssues,
   formatClinicalValidationMessage,
 } from '../../core/utils/clinical-validation.util';
+import { buildPublicFormUrl, normalizePublicAppUrl } from '../../core/utils/public-form-url.util';
 
 const TYPE_OPTIONS: { value: string; label: string }[] = [
   { value: 'text', label: 'Texto curto' },
@@ -245,7 +246,7 @@ export class TemplatesCamposComponent implements OnInit {
       next: ({ t, list }) => {
         this.listaPronta.set(true);
         this.template.set(t);
-        if (t.public_url) this.linkPublicoUrl.set(t.public_url);
+        if (t.public_url) this.linkPublicoUrl.set(normalizePublicAppUrl(t.public_url));
         this.campos.set([...list].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0)));
         this.loadActorsVisibilityRules(t);
       },
@@ -424,10 +425,10 @@ export class TemplatesCamposComponent implements OnInit {
           next: (res) => {
             this.gerandoLink.set(false);
             const url = (res as { data?: { public_url?: string } })?.data?.public_url;
-            if (url) this.linkPublicoUrl.set(url);
-            else if (typeof window !== 'undefined') {
+            if (url) this.linkPublicoUrl.set(normalizePublicAppUrl(url));
+            else {
               const token = (res as { data?: { token?: string } })?.data?.token;
-              if (token) this.linkPublicoUrl.set(`${window.location.origin}/f/${token}`);
+              if (token) this.linkPublicoUrl.set(buildPublicFormUrl(token));
             }
             this.carregar();
             this.toast.success('Link público gerado', 'O link está disponível para copiar.');
