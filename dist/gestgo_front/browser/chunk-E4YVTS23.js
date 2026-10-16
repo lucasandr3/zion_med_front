@@ -1,1 +1,0 @@
-import{R as t,ma as a}from"./chunk-ZGJMN2J2.js";var i=class e{active=a(!1);isActive=this.active.asReadonly();activate(){this.active.set(!0)}clear(){this.active.set(!1)}static \u0275fac=function(o){return new(o||e)};static \u0275prov=t({token:e,factory:e.\u0275fac,providedIn:"root"})};export{i as a};
