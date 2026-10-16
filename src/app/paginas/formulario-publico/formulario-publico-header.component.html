@@ -27,6 +27,7 @@
       type="button"
       (click)="toggleLargeText.emit()"
       class="fp-icon-btn"
+      [class.is-pressed]="largeTextMode"
       [attr.aria-pressed]="largeTextMode"
       title="Aumentar o tamanho do texto"
       aria-label="Alternar texto ampliado"

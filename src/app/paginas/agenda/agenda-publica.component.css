@@ -18,10 +18,12 @@
 
 .public-page {
   min-height: 100vh;
+  min-height: 100dvh;
   background: #f6f9f6;
   position: relative;
   overflow: hidden;
   font-size: 14px;
+  box-sizing: border-box;
 }
 /* Sem degradê decorativo — fundo sólido (claro e escuro) */
 .public-page:before {
@@ -111,16 +113,18 @@
 }
 
 .public-header {
-  height: 82px;
+  min-height: 82px;
+  height: auto;
   max-width: 1240px;
   margin: auto;
-  padding: 0 24px;
+  padding: 12px 24px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   position: relative;
   z-index: 2;
   border-bottom: 1px solid rgba(39, 90, 66, 0.09);
+  box-sizing: border-box;
 }
 .clinicbrand {
   display: flex;
@@ -829,8 +833,9 @@
 
 @media (max-width: 680px) {
   .public-header {
-    padding: 0 17px;
-    height: 70px;
+    padding: 12px 17px;
+    min-height: 64px;
+    height: auto;
   }
   .public-header-actions .help {
     display: none;

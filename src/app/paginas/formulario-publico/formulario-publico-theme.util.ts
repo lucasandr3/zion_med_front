@@ -66,11 +66,37 @@ function accentForUi(accent: string): string {
   return accent;
 }
 
+const ACCENT_CACHE_PREFIX = 'gestgo_fp_accent_';
+
+/** Cor já vista neste link, para o preload usar o tema antes da API responder. */
+export function fpReadCachedFormAccent(token: string): string | null {
+  if (!token || typeof localStorage === 'undefined') return null;
+  try {
+    const value = localStorage.getItem(ACCENT_CACHE_PREFIX + token);
+    return isValidHex(value) ? value.toLowerCase() : null;
+  } catch {
+    return null;
+  }
+}
+
+export function fpWriteCachedFormAccent(token: string, accent: string | null | undefined): void {
+  if (!token || !isValidHex(accent) || typeof localStorage === 'undefined') return;
+  try {
+    localStorage.setItem(ACCENT_CACHE_PREFIX + token, accent.toLowerCase());
+  } catch {
+    /* ignore */
+  }
+}
+
 /** Variáveis CSS aplicadas na página pública do formulário. */
-export function buildFormularioPublicoThemeVars(data: FormularioPublicoData | null | undefined): Record<string, string> {
-  const resolved = resolveFormularioPublicoAccent(data);
+export function buildFormularioPublicoThemeVars(
+  data: FormularioPublicoData | null | undefined,
+  accentOverride?: string | null,
+): Record<string, string> {
+  const resolved = isValidHex(accentOverride) ? accentOverride.toLowerCase() : resolveFormularioPublicoAccent(data);
   const accent = accentForUi(resolved);
   const hasCustomAccent =
+    isValidHex(accentOverride) ||
     !!String(data?.form_public_theme ?? '').trim() ||
     (isValidHex(data?.accent_hex) && data!.accent_hex!.toLowerCase() !== DEFAULT_ACCENT);
 
