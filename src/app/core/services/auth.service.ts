@@ -1,12 +1,14 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { Observable, Subject, tap, catchError, of, map } from 'rxjs';
+import { Observable, Subject, tap, catchError, of, map, switchMap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { applyUserAppearanceToBrowser } from './user-appearance.sync';
 import { AppUpdateService } from './app-update.service';
 
 const TOKEN_KEY = 'gestgo_token';
+const SESSION_FLAG_KEY = 'gestgo_session';
+const CSRF_KEY = 'gestgo_xsrf';
 const PRESENCE_LEAVE_TOKEN_KEY = 'gestgo_presence_leave_token';
 const USER_KEY = 'gestgo_user';
 const ORGANIZATIONS_KEY = 'gestgo_organizations';
@@ -68,11 +70,11 @@ export type Clinic = Organization;
 
 export interface LoginResponse {
   data: {
-    token: string;
-    token_type: string;
     user: User;
     current_organization_id: number | null;
     organizations: Organization[];
+    /** Renovado depois que a sessão é regenerada no login. */
+    csrf_token?: string;
     /** Token HMAC de curta duração para sendBeacon (não é o Sanctum). */
     presence_leave_token?: string | null;
     /** Legado */
@@ -149,6 +151,7 @@ export class AuthService {
       if (u) this._user = JSON.parse(u);
       if (orgsJson) this._organizations = JSON.parse(orgsJson);
       if (oid) this._currentOrganizationId = oid;
+      localStorage.removeItem(TOKEN_KEY);
     } catch {}
   }
 
@@ -163,12 +166,11 @@ export class AuthService {
     } catch {}
   }
 
-  /** Usado após login para definir token e contexto. */
+  /** Usado após login para marcar a sessão e o contexto de UI. */
   setSessionFromLoginData(data: LoginResponse['data']): void {
-    if (typeof localStorage !== 'undefined' && data.token) {
-      localStorage.setItem(TOKEN_KEY, data.token);
-      this.persistPresenceLeaveToken(data.presence_leave_token);
-    }
+    this.markSessionActive();
+    if (data.csrf_token) this.persistCsrf(data.csrf_token);
+    this.persistPresenceLeaveToken(data.presence_leave_token);
     this._user = data.user;
     this._organizations = data.organizations ?? data.clinics ?? [];
     const cid = data.current_organization_id ?? data.current_clinic_id;
@@ -186,8 +188,38 @@ export class AuthService {
     this.persist();
   }
 
+  /** Legado. A sessão do app não fica mais em localStorage. */
   getToken(): string | null {
-    return typeof localStorage !== 'undefined' ? localStorage.getItem(TOKEN_KEY) : null;
+    return null;
+  }
+
+  getCsrfToken(): string | null {
+    if (typeof sessionStorage === 'undefined') return null;
+    try {
+      return sessionStorage.getItem(CSRF_KEY);
+    } catch {
+      return null;
+    }
+  }
+
+  clearCsrfToken(): void {
+    this.persistCsrf(null);
+  }
+
+  /** Garante um token CSRF da sessão antes de POST/PUT/PATCH/DELETE. */
+  ensureCsrf(): Observable<string> {
+    const existing = this.getCsrfToken();
+    if (existing) return of(existing);
+
+    return this.http
+      .get<{ data?: { csrf_token?: string } }>(`${this.baseUrl}/api/v1/auth/csrf`)
+      .pipe(
+        map((res) => {
+          const token = res.data?.csrf_token ?? '';
+          if (token) this.persistCsrf(token);
+          return token;
+        }),
+      );
   }
 
   getPresenceLeaveToken(): string | null {
@@ -196,6 +228,22 @@ export class AuthService {
 
   setPresenceLeaveToken(token: string | null | undefined): void {
     this.persistPresenceLeaveToken(token);
+  }
+
+  private markSessionActive(): void {
+    if (typeof localStorage === 'undefined') return;
+    try {
+      localStorage.setItem(SESSION_FLAG_KEY, '1');
+      localStorage.removeItem(TOKEN_KEY);
+    } catch {}
+  }
+
+  private persistCsrf(token: string | null | undefined): void {
+    if (typeof sessionStorage === 'undefined') return;
+    try {
+      if (token) sessionStorage.setItem(CSRF_KEY, token);
+      else sessionStorage.removeItem(CSRF_KEY);
+    } catch {}
   }
 
   private persistPresenceLeaveToken(token: string | null | undefined): void {
@@ -258,7 +306,7 @@ export class AuthService {
   }
 
   isAuthenticated(): boolean {
-    return !!this.getToken();
+    return typeof localStorage !== 'undefined' && localStorage.getItem(SESSION_FLAG_KEY) === '1';
   }
 
   isPlatformAdmin(): boolean {
@@ -318,34 +366,18 @@ export class AuthService {
   }
 
   login(email: string, password: string): Observable<LoginResponse> {
-    return this.http
-      .post<LoginResponse>(`${this.baseUrl}/api/v1/auth/login`, { email, password })
-      .pipe(
-        tap((res) => {
-          const d = res.data;
-          if (typeof localStorage !== 'undefined') {
-            localStorage.setItem(TOKEN_KEY, d.token);
-            this.persistPresenceLeaveToken(d.presence_leave_token);
-          }
-          this._user = d.user;
-          this._organizations = d.organizations ?? d.clinics ?? [];
-          const cid = d.current_organization_id ?? d.current_clinic_id;
-          this._currentOrganizationId = cid != null ? String(cid) : null;
-          this.persist();
-          applyUserAppearanceToBrowser(d.user);
-          this.notifyAppearanceApplied();
-          this.appUpdate.checkNow();
-        })
-      );
+    return this.ensureCsrf().pipe(
+      switchMap(() => this.http.post<LoginResponse>(`${this.baseUrl}/api/v1/auth/login`, { email, password })),
+      tap((res) => this.setSessionFromLoginData(res.data)),
+    );
   }
 
   logout(): Observable<unknown> {
-    const token = this.getToken();
-    if (!token) {
+    if (!this.isAuthenticated() && !this.getUser()) {
       this.clearSession();
       return of(null);
     }
-    return this.http.post(`${this.baseUrl}/api/v1/auth/logout`, {}, { headers: { Authorization: `Bearer ${token}` } }).pipe(
+    return this.http.post(`${this.baseUrl}/api/v1/auth/logout`, {}).pipe(
       tap(() => this.clearSession()),
       catchError(() => {
         this.clearSession();
@@ -357,6 +389,7 @@ export class AuthService {
   clearSession(): void {
     if (typeof localStorage !== 'undefined') {
       localStorage.removeItem(TOKEN_KEY);
+      localStorage.removeItem(SESSION_FLAG_KEY);
       localStorage.removeItem(PRESENCE_LEAVE_TOKEN_KEY);
       localStorage.removeItem(USER_KEY);
       localStorage.removeItem(ORGANIZATIONS_KEY);
@@ -364,6 +397,7 @@ export class AuthService {
       localStorage.removeItem(CLINICS_KEY_LEGACY);
       localStorage.removeItem(CLINIC_ID_KEY_LEGACY);
     }
+    this.persistCsrf(null);
     this._user = null;
     this._organizations = [];
     this._currentOrganizationId = null;
