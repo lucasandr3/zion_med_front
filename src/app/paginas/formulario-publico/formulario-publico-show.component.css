@@ -25,7 +25,7 @@
   --fp-surface: #ffffff;
   --fp-soft: #f5f8f6;
   --fp-border: #dfe8e3;
-  --fp-bg-page: #eff4f1;
+  --fp-bg-page: #ffffff;
   --fp-bg-header: color-mix(in srgb, var(--fp-surface) 96%, transparent);
   --fp-radius: 18px;
   --fp-radius-lg: 26px;
@@ -47,19 +47,37 @@
   --fp-brand-soft: color-mix(in srgb, var(--fp-brand-500) 14%, #ffffff);
 }
 
-/* Dark = superfícies da referência; accent continua das configs */
+/* Dark = fundo neutro; accent continua das configs. Nord herda estes tokens (a página pública não usa body.dark). */
 .form-publico-page.dark {
+  color-scheme: dark;
   --fp-ink-800: #f2f5f3;
   --fp-ink-900: #f2f5f3;
   --fp-cream-400: #9eaea5;
   --fp-cream-600: #9eaea5;
-  --fp-border: #344139;
-  --fp-surface: #1c2620;
-  --fp-soft: #25312a;
-  --fp-bg-page: #101713;
+  --fp-border: #2a2a2a;
+  --fp-surface: #111111;
+  --fp-soft: #1a1a1a;
+  --fp-bg-page: #050505;
   --fp-bg-header: color-mix(in srgb, var(--fp-surface) 96%, transparent);
-  --fp-brand-soft: color-mix(in srgb, var(--fp-brand-500) 22%, #1c2620);
+  --fp-brand-soft: color-mix(in srgb, var(--fp-brand-500) 22%, #111111);
   --fp-danger: #ff9da3;
   --fp-danger-soft: #49262b;
   color: #f2f5f3;
+  --n-color-text: #f2f5f3;
+  --n-color-text-weak: #c8d0cc;
+  --n-color-text-weaker: #9eaea5;
+  --n-color-text-weakest: #7d8b86;
+  --n-color-text-on-accent: #ffffff;
+  --n-color-surface: #1a1a1a;
+  --n-color-background: #111111;
+  --n-color-surface-raised: #222222;
+  --n-color-border: #2a2a2a;
+  --n-color-border-strong: #3a3a3a;
+  --n-color-icon: #c8d0cc;
+  --n-input-background: #1a1a1a;
+  --n-input-background-inactive: #1a1a1a;
+  --n-textarea-background: #1a1a1a;
+  --n-textarea-background-inactive: #1a1a1a;
+  --n-color-accent: var(--fp-brand-500);
+  --n-color-accent-hover: var(--fp-brand-600);
 }

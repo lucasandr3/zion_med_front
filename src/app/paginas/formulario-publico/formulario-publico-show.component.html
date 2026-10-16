@@ -1,11 +1,25 @@
 <div
   class="form-publico-page"
+  [class.fp-is-loading]="showSkeleton()"
   [class.dark]="dark()"
+  [class.fp-large-text]="largeTextMode()"
   [class.fp-totem]="totemMode()"
   [class.fp-branded]="isBranded"
   [ngStyle]="themeVars"
 >
   <a class="fp-skip-link" href="#fp-main-content">Pular para o conteúdo</a>
+
+  @if (showSkeleton()) {
+    <div class="fp-preload" role="status" aria-live="polite" aria-busy="true">
+      <div class="fp-preload-mark" aria-hidden="true">
+        <span class="material-symbols-outlined gestgo-mi" aria-hidden="true">description</span>
+      </div>
+      <p class="fp-preload-label">{{ preloadLabel }}</p>
+      <div class="fp-preload-track" aria-hidden="true">
+        <span class="fp-preload-bar"></span>
+      </div>
+    </div>
+  }
 
   <div class="fp-layout" #fpScroll>
     <main class="fp-patient" id="form-main">
@@ -33,12 +47,6 @@
       }
 
       <div class="fp-patient-body" id="fp-main-content" tabindex="-1">
-        @if (showSkeleton()) {
-          <div class="fp-loading-shell" role="status" aria-live="polite" aria-busy="true">
-            <span class="fp-loading-ring" aria-hidden="true"></span>
-            <p class="fp-loading-hint">Carregando formulário…</p>
-          </div>
-        }
         @if (!showSkeleton() && erro() && !data()) {
           <div class="fp-error-card">
             <p class="fp-error-text">{{ erro() }}</p>
@@ -307,10 +315,12 @@
         />
       }
 
+      @if (!showSkeleton()) {
       <div class="fp-footnote">
         <span class="material-symbols-outlined gestgo-mi gestgo-mi--xs" aria-hidden="true">lock</span>
         Preenchimento seguro · Gestgo
       </div>
+      }
     </main>
 
     @if (!totemMode()) {
@@ -421,31 +431,77 @@
   </div>
 
   @if (helpOpen()) {
-    <div class="fp-modal-backdrop" (click)="closeHelp()" role="presentation">
-      <div
-        class="fp-modal"
-        role="dialog"
-        aria-modal="true"
-        aria-label="Precisa de ajuda?"
-        (click)="$event.stopPropagation()"
-      >
-        <div class="fp-modal-head">
+    <dialog
+      class="fp-help-dialog"
+      #helpDialog
+      aria-label="Precisa de ajuda?"
+      (cancel)="onHelpCancel($event)"
+      (click)="onHelpDialogClick($event)"
+    >
+      <div class="fp-drawer" (click)="$event.stopPropagation()">
+        <div class="fp-drawer-head">
           <h2>Precisa de ajuda?</h2>
           <button type="button" class="fp-icon-btn" (click)="closeHelp()" aria-label="Fechar">
             <span class="material-symbols-outlined gestgo-mi gestgo-mi--s fp-theme-icon" aria-hidden="true">close</span>
           </button>
         </div>
-        <p>Esta experiência foi desenhada para ser simples, mesmo para quem não costuma preencher fichas no celular.</p>
-        <ul>
-          <li>Responda uma etapa por vez e toque em <strong>Continuar</strong>.</li>
-          <li>Se faltar uma resposta, mostraremos onde corrigir.</li>
-          <li>Use o botão <strong>A+</strong> no topo para aumentar o texto.</li>
-          <li>Em caso de dificuldade, entre em contato com a clínica.</li>
-        </ul>
-        <button type="button" class="fp-step-btn fp-step-btn--back" style="width:100%;margin-top:12px" (click)="closeHelp()">
-          Entendi
-        </button>
+        <div class="fp-drawer-body">
+          <p class="fp-drawer-lead">Preencha com calma. Uma etapa de cada vez já é suficiente.</p>
+
+          <ol class="fp-help-steps">
+            <li>
+              <span class="fp-help-index" aria-hidden="true">1</span>
+              <div>
+                <strong>Uma etapa por vez</strong>
+                <p>Responda o que aparece na tela e toque em Continuar.</p>
+              </div>
+            </li>
+            <li>
+              <span class="fp-help-index" aria-hidden="true">2</span>
+              <div>
+                <strong>Se faltar algo</strong>
+                <p>Mostramos o campo para corrigir antes de avançar.</p>
+              </div>
+            </li>
+            <li>
+              <span class="fp-help-index" aria-hidden="true">3</span>
+              <div>
+                <strong>Revise e envie</strong>
+                <p>No fim, confira as respostas e confirme o envio.</p>
+              </div>
+            </li>
+          </ol>
+
+          <p class="fp-help-kicker">Na tela</p>
+          <ul class="fp-help-tools">
+            <li>
+              <span class="fp-bullet-icon" aria-hidden="true">
+                <span class="fp-a11y-icon">A+</span>
+              </span>
+              <div>
+                <strong>Texto maior</strong>
+                <p>O botão A+ no topo aumenta a leitura.</p>
+              </div>
+            </li>
+            <li>
+              <span class="fp-bullet-icon" aria-hidden="true">
+                <span class="material-symbols-outlined gestgo-mi gestgo-mi--s">dark_mode</span>
+              </span>
+              <div>
+                <strong>Modo escuro</strong>
+                <p>O ícone ao lado do A+ troca o fundo da página.</p>
+              </div>
+            </li>
+          </ul>
+
+          <div class="fp-hint-box">Se ainda ficar difícil, fale com a clínica.</div>
+        </div>
+        <div class="fp-drawer-foot">
+          <button type="button" class="fp-step-btn fp-step-btn--next" (click)="closeHelp()">
+            Entendi
+          </button>
+        </div>
       </div>
-    </div>
+    </dialog>
   }
 </div>

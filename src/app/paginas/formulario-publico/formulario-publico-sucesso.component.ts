@@ -71,8 +71,8 @@ export class FormularioPublicoSucessoComponent implements OnInit, OnDestroy {
     } catch {
       /* ignore */
     }
-    this.publicPageBody.applyPageBackground(this.dark() ? '#101713' : '#eff4f1');
-    this.publicPageBody.setThemeColor(this.dark() ? '#101713' : '#eff4f1');
+    this.publicPageBody.applyPageBackground(this.dark() ? '#050505' : '#ffffff');
+    this.publicPageBody.setThemeColor(this.dark() ? '#050505' : '#ffffff');
   }
 
   ngOnDestroy(): void {

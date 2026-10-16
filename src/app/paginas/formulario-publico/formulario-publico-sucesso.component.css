@@ -11,12 +11,12 @@
 
 .sucesso-page {
   min-height: 100dvh;
-  background: #eff4f1;
+  background: #ffffff;
   color: #18312b;
 }
 
 .sucesso-page.dark {
-  background: #101713;
+  background: #050505;
   color: #f2f5f3;
 }
 
@@ -36,8 +36,8 @@
 }
 
 .sucesso-page.dark .sucesso-card {
-  background: #1c2620;
-  border-color: #344139;
+  background: #111111;
+  border-color: #2a2a2a;
   box-shadow: none;
 }
 
@@ -148,8 +148,8 @@
 }
 
 .sucesso-page.dark .protocol-box {
-  background: #25312a;
-  border-color: #344139;
+  background: #1a1a1a;
+  border-color: #2a2a2a;
 }
 
 .protocol-label {
@@ -201,8 +201,8 @@
 }
 
 .sucesso-page.dark .protocol-copy {
-  background: #1c2620;
-  border-color: #344139;
+  background: #111111;
+  border-color: #2a2a2a;
   color: color-mix(in srgb, var(--fp-brand-500) 70%, #fff);
 }
 
@@ -250,9 +250,9 @@
 }
 
 .sucesso-page.dark .fp-submit-btn--secondary {
-  background: #1c2620;
+  background: #111111;
   color: #f2f5f3;
-  border-color: #344139;
+  border-color: #2a2a2a;
 }
 
 .sucesso-email {
@@ -289,7 +289,7 @@
 }
 
 .sucesso-page.dark .fp-input {
-  background: #1c2620;
+  background: #111111;
   border-color: #48594d;
   color: #f2f5f3;
 }

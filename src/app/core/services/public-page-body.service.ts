@@ -83,7 +83,7 @@ export class PublicPageBodyService {
     this.document.documentElement.style.backgroundColor = normalized;
     this.document.documentElement.classList.toggle(
       'gestgo-public-page-dark',
-      normalized === '#101713' || normalized === '#0a0a0a',
+      normalized === '#050505' || normalized === '#101713' || normalized === '#0a0a0a',
     );
   }
 

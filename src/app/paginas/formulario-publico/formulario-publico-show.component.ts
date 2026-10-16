@@ -83,6 +83,8 @@ import {
 import {
   buildFormularioPublicoThemeVars,
   formularioPublicoHasBranding,
+  fpReadCachedFormAccent,
+  fpWriteCachedFormAccent,
 } from './formulario-publico-theme.util';
 
 @Component({
@@ -168,6 +170,10 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
   private clinicalStepsCompleted: { kind: string; completed_at: string }[] = [];
   /** Token da reserva da agenda pública (`?a=`), vincula a ficha ao atendimento. */
   private appointmentToken = '';
+  /** Accent deste link, lido antes da API para o preload. */
+  private cachedAccent: string | null = null;
+  /** Tipo do documento deste link, para o texto do preload. */
+  private cachedDocKind: string | null = null;
 
   private route = inject(ActivatedRoute);
   private router = inject(Router);
@@ -178,6 +184,8 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
 
   constructor() {
     this.token = this.route.snapshot.paramMap.get('token') ?? '';
+    this.cachedAccent = fpReadCachedFormAccent(this.token);
+    this.cachedDocKind = this.readCachedDocKind();
     this.appointmentToken = (this.route.snapshot.queryParamMap.get('a') ?? '').trim();
     this.totemMode.set(
       this.route.snapshot.queryParamMap.get('totem') === '1' ||
@@ -200,7 +208,10 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
       this.erro.set('Link inválido.');
       return;
     }
-    const { data$, showSkeleton } = this.loadingService.loadWithThreshold(this.formularioService.getByToken(this.token));
+    const { data$, showSkeleton } = this.loadingService.loadWithThreshold(
+      this.formularioService.getByToken(this.token),
+      0,
+    );
     this.showSkeleton = showSkeleton;
     data$.subscribe({
       next: (d) => this.onFormLoaded(d),
@@ -213,6 +224,11 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
   private onFormLoaded(d: FormularioPublicoData): void {
     this.logoImageFailed.set(false);
     this.data.set(d);
+    const accent = buildFormularioPublicoThemeVars(d)['--fp-brand-500'];
+    this.cachedAccent = accent ?? this.cachedAccent;
+    fpWriteCachedFormAccent(this.token, accent);
+    this.cachedDocKind = this.docKindFrom(d);
+    this.writeCachedDocKind(this.cachedDocKind);
     this.personGateOk.set(false);
     this.personCpfDigits.set('');
     this.personCpfDisplay.set('');
@@ -968,12 +984,34 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
     this.scrollToFormTop();
   }
 
+  @ViewChild('helpDialog')
+  set helpDialogRef(el: ElementRef<HTMLDialogElement> | undefined) {
+    this.helpDialog = el;
+    const dialog = el?.nativeElement;
+    if (!dialog || dialog.open || typeof dialog.showModal !== 'function') return;
+    queueMicrotask(() => {
+      if (dialog.isConnected && !dialog.open) dialog.showModal();
+    });
+  }
+  private helpDialog?: ElementRef<HTMLDialogElement>;
+
   openHelp(): void {
     this.helpOpen.set(true);
   }
 
   closeHelp(): void {
+    const dialog = this.helpDialog?.nativeElement;
+    if (dialog?.open) dialog.close();
     this.helpOpen.set(false);
+  }
+
+  onHelpCancel(event: Event): void {
+    event.preventDefault();
+    this.closeHelp();
+  }
+
+  onHelpDialogClick(event: MouseEvent): void {
+    if (event.target === event.currentTarget) this.closeHelp();
   }
 
   toggleLargeText(): void {
@@ -987,7 +1025,46 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
     return !!this.data()?.hide_platform_branding;
   }
 
+  get preloadLabel(): string {
+    const kind = (this.data()?.template?.document_kind || this.cachedDocKind || '').toLowerCase();
+    if (kind === 'consentimento') return 'Carregando consentimento';
+    if (kind === 'ciencia_lgpd') return 'Carregando termo';
+    return 'Carregando ficha';
+  }
+
+  private docKindStorageKey(): string {
+    return `gestgo_fp_kind_${this.token}`;
+  }
+
+  private readCachedDocKind(): string | null {
+    if (!this.token || typeof localStorage === 'undefined') return null;
+    try {
+      const value = localStorage.getItem(this.docKindStorageKey());
+      return value?.trim() ? value : null;
+    } catch {
+      return null;
+    }
+  }
+
+  private writeCachedDocKind(kind: string | null): void {
+    if (!this.token || !kind || typeof localStorage === 'undefined') return;
+    try {
+      localStorage.setItem(this.docKindStorageKey(), kind);
+    } catch {
+      /* ignore */
+    }
+  }
+
+  private docKindFrom(data: FormularioPublicoData): string {
+    const kind = (data.template?.document_kind || '').trim().toLowerCase();
+    if (kind) return kind;
+    return (data.template?.category || '').toLowerCase() === 'consentimento' ? 'consentimento' : 'ficha';
+  }
+
   get themeVars(): Record<string, string> {
+    if (!this.data() && this.cachedAccent) {
+      return buildFormularioPublicoThemeVars(null, this.cachedAccent);
+    }
     return buildFormularioPublicoThemeVars(this.data());
   }
 
@@ -1251,9 +1328,9 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
       body.style.removeProperty('--fp-brand-500');
       body.style.removeProperty('--fp-accent-contrast');
     }
-    // Fundo da página = layout da referência (#eff4f1 / #101713), não o --c-bg do painel
-    this.publicPageBody.applyPageBackground(this.dark() ? '#101713' : '#eff4f1');
-    this.publicPageBody.setThemeColor(this.dark() ? '#101713' : '#eff4f1');
+    // Fundo da página: claro branco / escuro quase preto. A cor do tema fica nos destaques.
+    this.publicPageBody.applyPageBackground(this.dark() ? '#050505' : '#ffffff');
+    this.publicPageBody.setThemeColor(this.dark() ? '#050505' : '#ffffff');
   }
 
   private scrollToFormTop(): void {
