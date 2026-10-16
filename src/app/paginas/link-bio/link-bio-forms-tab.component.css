@@ -1,0 +1,35 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.link-bio-form-card {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--border, var(--c-border));
+  border-radius: 0.875rem;
+  background: var(--card, var(--c-surface, #fff));
+  color: var(--card-foreground, var(--c-text));
+  box-shadow: none;
+}
+
+.link-bio-form-card__inner {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+  padding: 1rem 1.125rem;
+}
+
+.link-bio-form-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+:host ::ng-deep .link-bio-form-card__actions nord-button {
+  flex: 0 0 auto;
+}

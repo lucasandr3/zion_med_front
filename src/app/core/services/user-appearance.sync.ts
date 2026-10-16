@@ -7,6 +7,11 @@ export const GESTGO_APPEARANCE_MODE_LS = 'gestgo_appearance_mode';
 export const GESTGO_SHELL_PRESET_LS = 'gestgo_shell_preset';
 /** Disposição do menu: `sidebar` (padrão) | `horizontal`. */
 export const GESTGO_NAV_LAYOUT_LS = 'gestgo_nav_layout';
+/**
+ * Escolha explícita de claro/escuro na tela de login (`'0'` | `'1'`).
+ * Tem prioridade sobre `ui_dark_mode` da API até o PATCH da conta concluir.
+ */
+export const GESTGO_LOGIN_DARK_CHOICE_SS = 'gestgo_login_dark_choice';
 
 export type NavLayout = 'sidebar' | 'horizontal';
 
@@ -32,19 +37,19 @@ export const SHELL_PRESET_UI_OPTIONS: ReadonlyArray<{
   {
     id: 'default',
     label: 'Padrão',
-    icon: 'navigation-dashboard',
+    icon: 'dashboard',
     description: 'Topo e menu iguais aos cartões (superfície neutra).',
   },
   {
     id: 'tinted',
     label: 'Topo e marca',
-    icon: 'file-picture',
+    icon: 'branding_watermark',
     description: 'Cor primária no cabeçalho e na faixa do nome Gestgo; o restante do menu segue o fundo padrão.',
   },
   {
     id: 'sidebar_dark',
     label: 'Menu escuro',
-    icon: 'navigation-drawer-right-expand',
+    icon: 'vertical_split',
     description: 'Barra lateral estilo painel; destaque no modo claro.',
   }];
 
@@ -58,13 +63,13 @@ export const NAV_LAYOUT_UI_OPTIONS: ReadonlyArray<{
   {
     id: 'sidebar',
     label: 'Lateral',
-    icon: 'navigation-drawer-left-expand',
+    icon: 'view_sidebar',
     description: 'Barra de navegação fixa à esquerda.',
   },
   {
     id: 'horizontal',
     label: 'Horizontal',
-    icon: 'interface-presentation-mode',
+    icon: 'view_week',
     description: 'Marca, menu e ações no topo.',
   }];
 
@@ -142,17 +147,11 @@ export function readThemePrimaryColor(): string {
   return raw || '#14B87A';
 }
 
-/** Favicon SVG tintado com a cor do tema (padrão pesquisa_app). */
-export function buildThemeFaviconDataUrl(primary: string): string {
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Gestgo">
-  <rect width="32" height="32" rx="8" fill="${primary}"/>
-  <path fill="#fff" d="M10.2 8.4h7.1c3.55 0 5.85 2.15 5.85 5.35 0 2.35-1.2 4.05-3.2 4.85l3.55 5h-3.35l-3.2-4.55h-3.45V23.6H10.2V8.4zm3.3 2.55v5.15h3.55c1.7 0 2.7-.9 2.7-2.55s-1-2.6-2.7-2.6H13.5z"/>
-</svg>`;
-  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
-}
+/** Fallback da marca Gestgo (tema ocean-blue). */
+export const GESTGO_BRAND_GREEN = '#14B87A';
 
 /**
- * Sincroniza accent Nord no `html`, meta theme-color e favicon com a cor do tema.
+ * Sincroniza accent Nord no `html`, meta theme-color e favicon com a logo do tema.
  * Chamar após trocar `body.theme-*` ou modo escuro.
  */
 export function syncThemeChrome(): void {
@@ -166,23 +165,54 @@ export function syncThemeChrome(): void {
   root.style.setProperty('--n-color-accent-secondary', primary);
   root.style.setProperty('--n-color-text-link', primary);
 
-  const meta = document.querySelector('meta[name="theme-color"]');
-  if (meta) {
-    meta.setAttribute('content', dark ? '#1d2025' : primary);
+  // Páginas públicas (/l, /a, /f…) mantêm a cor do tema da clínica (não a do painel)
+  const publicPage = document.documentElement.getAttribute('data-public-page') === '1';
+  if (publicPage) {
+    const locked = document.documentElement.getAttribute('data-theme-color');
+    if (locked && /^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/.test(locked)) {
+      document.documentElement.style.setProperty('--public-chrome-color', locked);
+      document.querySelectorAll('meta[name="theme-color"]').forEach((el) => el.remove());
+      const meta = document.createElement('meta');
+      meta.setAttribute('name', 'theme-color');
+      meta.setAttribute('content', locked);
+      document.head.appendChild(meta);
+    }
+  } else {
+    document.documentElement.style.removeProperty('--public-chrome-color');
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) {
+      meta.setAttribute('content', dark ? '#1d2025' : primary);
+    }
   }
 
-  let link =
-    document.querySelector<HTMLLinkElement>('link[rel="icon"][data-theme-favicon]') ??
-    document.querySelector<HTMLLinkElement>('link[rel="icon"][type="image/svg+xml"]');
-  if (!link) {
-    link = document.createElement('link');
-    link.rel = 'icon';
-    link.type = 'image/svg+xml';
-    document.head.prepend(link);
-  }
+  // Favicon = PNG oficial do tema (mesma arte da sidebar). Remove links estáticos concorrentes.
+  const m = document.body.className.match(/(?:^|\s)theme-([a-z0-9-]+)/);
+  const themeKey = normalizeThemeKey(m?.[1] ?? 'ocean-blue');
+  const logoFile: Record<string, string> = {
+    'gestgo-blue': 'logo-azul.png',
+    'ocean-blue': 'logo.png',
+    'indigo-night': 'logo-indigo.png',
+    'emerald-fresh': 'logo-emerald.png',
+    'rose-elegant': 'logo-rose.png',
+    'amber-warm': 'logo-amber.png',
+    'violet-dream': 'logo-violet.png',
+    'teal-ocean': 'logo-teal.png',
+    'slate-pro': 'logo-slate.png',
+    'cyan-tech': 'logo-cyan.png',
+    'fuchsia-bold': 'logo-fucshia.png',
+  };
+  const href = `/assets/logo/${logoFile[themeKey] ?? 'logo.png'}?theme=${encodeURIComponent(themeKey)}`;
+
+  document
+    .querySelectorAll<HTMLLinkElement>('link[rel="icon"], link[rel="shortcut icon"]')
+    .forEach((el) => el.remove());
+
+  const link = document.createElement('link');
+  link.rel = 'icon';
+  link.type = 'image/png';
   link.dataset['themeFavicon'] = '1';
-  link.type = 'image/svg+xml';
-  link.href = buildThemeFaviconDataUrl(primary);
+  link.href = href;
+  document.head.prepend(link);
 }
 
 /**
@@ -204,9 +234,16 @@ export function applyUserAppearanceToBrowser(fields: UserAppearanceFields): void
   }
 
   if (fields.ui_dark_mode !== null && fields.ui_dark_mode !== undefined) {
-    document.body.classList.toggle('dark', fields.ui_dark_mode);
+    let dark = fields.ui_dark_mode;
     try {
-      localStorage.setItem(GESTGO_DARK_LS, fields.ui_dark_mode ? '1' : '0');
+      const loginChoice = sessionStorage.getItem(GESTGO_LOGIN_DARK_CHOICE_SS);
+      if (loginChoice === '0' || loginChoice === '1') {
+        dark = loginChoice === '1';
+      }
+    } catch {}
+    document.body.classList.toggle('dark', dark);
+    try {
+      localStorage.setItem(GESTGO_DARK_LS, dark ? '1' : '0');
     } catch {}
   }
 

@@ -1,8 +1,6 @@
 import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnChanges, Output, QueryList, SimpleChanges, ViewChildren, ChangeDetectionStrategy, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
-import { FlatpickrDirective, provideFlatpickrDefaults } from 'angularx-flatpickr';
-import { Portuguese } from 'flatpickr/dist/l10n/pt';
 
 import { FormularioPublicoField } from '../../core/services/formulario-publico.service';
 import { fieldPlaceholder, fieldType, getFieldOptions } from './formulario-publico-field.util';
@@ -21,24 +19,14 @@ import {
   elementNeedsVerticalScroll,
   isElementScrolledToBottom,
 } from './formulario-publico-term-scroll.util';
+import { NORD_FORM_IMPORTS } from '@/shared/nord';
 
 @Component({
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'zm-formulario-publico-fields',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [FormsModule, FlatpickrDirective],
-  providers: [
-    provideFlatpickrDefaults({
-      locale: Portuguese,
-      dateFormat: 'Y-m-d',
-      altInput: true,
-      altFormat: 'd/m/Y',
-      altInputClass: 'fp-input',
-      allowInput: true,
-      disableMobile: true,
-      static: false,
-    })],
+  imports: [FormsModule, ...NORD_FORM_IMPORTS],
   templateUrl: './formulario-publico-fields.component.html',
 })
 export class FormularioPublicoFieldsComponent implements AfterViewInit, OnChanges {
@@ -105,6 +93,28 @@ export class FormularioPublicoFieldsComponent implements AfterViewInit, OnChange
 
   onCampoAlterado(): void {
     this.fieldChange.emit();
+  }
+
+  /** Valor string para nord-input / nord-textarea / nord-select. */
+  asString(value: unknown): string {
+    if (value == null || value === false) return '';
+    if (value instanceof Date) return value.toISOString().slice(0, 10);
+    return String(value);
+  }
+
+  nordEventValue(event: Event): string {
+    const t = event.target as { value?: string } | null;
+    return t?.value ?? '';
+  }
+
+  onNordTextInput(key: string, event: Event): void {
+    this.valores[key] = this.nordEventValue(event);
+    this.onCampoAlterado();
+  }
+
+  onNordSelectChange(key: string, event: Event): void {
+    this.valores[key] = this.nordEventValue(event);
+    this.onCampoAlterado();
   }
 
   onFileSelected(event: Event, key: string): void {

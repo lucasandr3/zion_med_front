@@ -8,6 +8,7 @@ import {
 } from '../../../core/services/plataforma-integracoes.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { GestgoCardComponent } from '@/shared/components/card/card.component';
+import { GestgoComboboxComponent, type GestgoComboboxOption } from '@/shared/components/combobox';
 
 import { GestgoBadgeComponent } from '@/shared/components/badge';
 import { NORD_FORM_IMPORTS } from '@/shared/nord';
@@ -23,6 +24,7 @@ import type { GestgoBadgeTypeVariants } from '@/shared/components/badge/badge.va
     FormsModule,
     GestgoCardComponent,
     GestgoBadgeComponent,
+    GestgoComboboxComponent,
     ...NORD_FORM_IMPORTS],
   templateUrl: './plataforma-integracoes-tab.component.html',
   styleUrl: './plataforma-integracoes-tab.component.css',
@@ -46,12 +48,13 @@ export class PlataformaIntegracoesTabComponent implements OnInit {
   systemName = '';
   version = '1.0.0';
 
-  readonly connectorTypes = [
+  readonly connectorTypes: GestgoComboboxOption[] = [
     { value: 'CRM', label: 'CRM' },
     { value: 'ERP', label: 'ERP' },
     { value: 'BILLING', label: 'Billing' },
     { value: 'FINANCEIRO', label: 'Financeiro' },
-    { value: 'CUSTOM', label: 'Personalizado' }];
+    { value: 'CUSTOM', label: 'Personalizado' },
+  ];
 
   ngOnInit(): void {
     this.carregar();

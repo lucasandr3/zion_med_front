@@ -8,112 +8,117 @@
       descricao="Não foi possível carregar os dados de cobrança enquanto a conta estiver bloqueada. Se você já efetuou o pagamento, aguarde a confirmação ou entre em contato com o suporte."
       [permitirIrAssinatura]="false"
     />
-  } @else if (erro()) {
-    <p class="billing-error-text">{{ erro() }}</p>
+  } @else if (erro() && !state()) {
+    <nord-banner variant="danger">
+      <p>{{ erro() }}</p>
+    </nord-banner>
   } @else if (state()) {
-  <div class="zm-content-enter billing-layout">
-    <section class="billing-intro" aria-labelledby="billing-intro-title">
-      <div class="billing-intro__icon" aria-hidden="true">
-        <span class="material-symbols-outlined">info</span>
-      </div>
-      <div>
-        <h2 id="billing-intro-title" class="billing-intro__title">{{ orientacaoTitulo }}</h2>
-        <p class="billing-intro__desc">{{ orientacaoDescricao }}</p>
-      </div>
-    </section>
+    <div class="zm-content-enter billing-layout">
+      <nord-banner [attr.variant]="bannerVariant">
+        <h2>{{ orientacaoTitulo }}</h2>
+        <p>{{ orientacaoDescricao }}</p>
+      </nord-banner>
 
-    <div class="billing-section-card section-card">
-      <div class="section-header">
-        <div class="icon-wrap w-7 h-7 rounded-lg flex items-center justify-center">
-          <span class="material-symbols-outlined text-sm">verified</span>
-        </div>
-        <div>
-          <p class="section-title text-xs font-bold uppercase tracking-wider">Situação atual</p>
-          <p class="billing-section-card__value">
-            {{ statusAssinatura }}{{ trialAte ? ' · Teste até ' + trialAte : '' }}{{ nomePlanoAtual ? ' · Plano ' + nomePlanoAtual : '' }}
-          </p>
-        </div>
-      </div>
-      <div class="section-body">
+      <nord-card padding="m" class="billing-card">
+        <h3 slot="header">Situação atual</h3>
+        <p class="billing-card__sub">
+          {{ statusAssinatura }}{{ trialAte ? ' · Teste até ' + trialAte : '' }}{{ carenciaAte ? ' · Carência até ' + carenciaAte : '' }}{{ nomePlanoAtual ? ' · Plano ' + nomePlanoAtual : '' }}
+        </p>
+
         @if (mostrarCartaoGerenciado && assinaturaAtiva()) {
-          <div class="billing-status-box billing-status-box--active">
-            <p class="billing-status-box__title">Assinatura ativa</p>
-            <p class="billing-status-box__text">Próxima cobrança: {{ assinaturaAtiva()?.next_due_date | date:'dd/MM/yyyy' }}</p>
-            <div class="billing-actions billing-actions--secondary">
-              <button type="button" class="btn-ghost text-sm inline-flex items-center gap-2" (click)="cancelarAssinatura(assinaturaAtiva()!)" [disabled]="acaoEmAndamento()">
-                @if (acaoEmAndamento()) {
-                  <span class="btn-spinner" aria-hidden="true"></span>
-                }
+          <div class="billing-status billing-status--success">
+            <div class="billing-status__head">
+              <nord-badge variant="success">Assinatura ativa</nord-badge>
+            </div>
+            <p class="billing-status__text">
+              Próxima cobrança: {{ assinaturaAtiva()?.next_due_date | date:'dd/MM/yyyy' }}
+            </p>
+            <div class="billing-actions">
+              <nord-button
+                type="button"
+                variant="plain"
+                size="m"
+                [attr.disabled]="acaoEmAndamento() || null"
+                [attr.loading]="acaoEmAndamento() || null"
+                (click)="cancelarAssinatura(assinaturaAtiva()!)"
+              >
                 Cancelar assinatura
-              </button>
+              </nord-button>
             </div>
           </div>
         }
+
         @if (mostrarPendenciaPrimeiroPagamento) {
-          <div class="billing-status-box billing-status-box--pending">
-            <p class="billing-status-box__title">Pagamento pendente</p>
-            <p class="billing-status-box__text">{{ mensagemPendenciaPrimeiroPagamento }}</p>
+          <div class="billing-status billing-status--warning">
+            <div class="billing-status__head">
+              <nord-badge variant="warning">Pagamento pendente</nord-badge>
+            </div>
+            <p class="billing-status__text">{{ mensagemPendenciaPrimeiroPagamento }}</p>
             @if (temCobrancaPendente) {
-              <p class="billing-status-box__hint">Role até <strong>Pagar agora</strong> para concluir com PIX ou boleto.</p>
+              <p class="billing-status__hint">Role até <strong>Pagar agora</strong> para concluir com PIX ou boleto.</p>
             }
             @if (assinaturaAtiva()) {
-              <div class="billing-actions billing-actions--secondary">
-                <button type="button" class="btn-ghost text-sm inline-flex items-center gap-2" (click)="cancelarAssinatura(assinaturaAtiva()!)" [disabled]="acaoEmAndamento()">
-                  @if (acaoEmAndamento()) {
-                    <span class="btn-spinner" aria-hidden="true"></span>
-                  }
+              <div class="billing-actions">
+                <nord-button
+                  type="button"
+                  variant="plain"
+                  size="m"
+                  [attr.disabled]="acaoEmAndamento() || null"
+                  [attr.loading]="acaoEmAndamento() || null"
+                  (click)="cancelarAssinatura(assinaturaAtiva()!)"
+                >
                   Cancelar assinatura pendente
-                </button>
+                </nord-button>
               </div>
             }
           </div>
         }
+
         @if (!mostrarCartaoGerenciado && !mostrarPendenciaPrimeiroPagamento && planos().length > 0 && !mostrarSelecaoPlano) {
-          <p class="billing-muted-text">Seu plano está ativo. Entre em contato com o suporte se precisar de ajuda com a cobrança.</p>
+          <p class="billing-muted">Seu plano está ativo. Entre em contato com o suporte se precisar de ajuda com a cobrança.</p>
         }
         @if (planos().length === 0) {
-          <p class="billing-muted-text">Nenhum plano disponível no momento.</p>
+          <p class="billing-muted">Nenhum plano disponível no momento.</p>
         }
-      </div>
-    </div>
+      </nord-card>
 
-    @if (pagamentos.length > 0) {
-      <div class="billing-section-card section-card" [class.billing-section-card--highlight]="temCobrancaPendente">
-        <div class="section-header">
-          <div class="icon-wrap w-7 h-7 rounded-lg flex items-center justify-center">
-            <span class="material-symbols-outlined text-sm">{{ temCobrancaPendente ? 'payments' : 'receipt_long' }}</span>
-          </div>
-          <div>
-            <p class="section-title text-xs font-bold uppercase tracking-wider">{{ rotuloSecaoPagamentos }}</p>
-            <p class="billing-section-card__value">{{ descricaoSecaoPagamentos }}</p>
-          </div>
-        </div>
-        <div class="section-body">
-          <ul class="list-none p-0 m-0">
+      @if (pagamentos.length > 0) {
+        <nord-card padding="m" class="billing-card" [class.billing-card--highlight]="temCobrancaPendente">
+          <h3 slot="header">{{ rotuloSecaoPagamentos }}</h3>
+          <p class="billing-card__sub">{{ descricaoSecaoPagamentos }}</p>
+
+          <div class="billing-payments">
             @for (p of pagamentos; track p.id) {
-              <li class="billing-payment-item" [class.billing-payment-item--pending]="pagamentoPendente(p)">
-                <div class="billing-payment-item__head">
-                  <div class="billing-payment-item__meta">
-                    <span class="billing-payment-item__date">{{ p.due_date | date:'dd/MM/yyyy' }}</span>
-                    <span class="billing-payment-item__status">{{ rotuloStatusFatura(p.status) }}</span>
+              <div class="billing-payment" [class.billing-payment--pending]="pagamentoPendente(p)">
+                <div class="billing-payment__head">
+                  <div class="billing-payment__meta">
+                    <span class="billing-payment__date">{{ p.due_date | date:'dd/MM/yyyy' }}</span>
+                    <nord-badge [attr.variant]="badgeStatusPagamento(p.status)">
+                      {{ rotuloStatusFatura(p.status) }}
+                    </nord-badge>
                   </div>
-                  <span class="billing-payment-item__value">R$ {{ p.value | number:'1.2-2':'pt-BR' }}</span>
+                  <span class="billing-payment__value">R$ {{ p.value | number:'1.2-2':'pt-BR' }}</span>
                 </div>
-                <div class="billing-payment-item__actions">
+
+                <div class="billing-payment__actions">
                   @if (p.bank_slip_url) {
-                    <a [href]="p.bank_slip_url" target="_blank" rel="noopener noreferrer" class="billing-link">Abrir boleto / fatura</a>
+                    <nord-button size="s" variant="plain" [href]="p.bank_slip_url" target="_blank" rel="noopener noreferrer">
+                      Abrir boleto / fatura
+                      <span slot="end" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">open_in_new</span>
+                    </nord-button>
                   }
                   @if (temPix(p) && pagamentoPendente(p)) {
-                    <button type="button" class="billing-pix-toggle" (click)="alternarPix(p)">
+                    <nord-button type="button" size="s" variant="plain" (click)="alternarPix(p)">
                       {{ pixExpandidoId() === p.id ? 'Ocultar PIX' : 'Pagar com PIX' }}
-                    </button>
+                    </nord-button>
                   }
                 </div>
+
                 @if (pixExpandidoId() === p.id && temPix(p)) {
-                  <div class="billing-pix-panel">
+                  <div class="billing-pix">
                     @if (p.pix_qr_encoded_image) {
                       <img
-                        class="billing-pix-qr"
+                        class="billing-pix__qr"
                         [src]="'data:image/png;base64,' + p.pix_qr_encoded_image"
                         alt="QR Code PIX"
                         width="180"
@@ -121,87 +126,121 @@
                       />
                     }
                     @if (p.pix_copy_paste) {
-                      <p class="billing-field-label">Copia e cola</p>
-                      <code class="billing-pix-code">{{ p.pix_copy_paste }}</code>
-                      <button type="button" class="btn-primary text-sm mt-2 inline-flex items-center gap-2" (click)="copiarPix(p.pix_copy_paste!)">
+                      <p class="billing-pix__label">Copia e cola</p>
+                      <code class="billing-pix__code">{{ p.pix_copy_paste }}</code>
+                      <nord-button type="button" variant="primary" size="m" (click)="copiarPix(p.pix_copy_paste!)">
+                        <span slot="start" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">content_copy</span>
                         Copiar código PIX
-                      </button>
+                      </nord-button>
                     }
                   </div>
-                }
-              </li>
-            }
-          </ul>
-        </div>
-      </div>
-    }
-
-    @if (planos().length > 0 && mostrarSelecaoPlano) {
-      <div class="billing-section-card section-card">
-        <div class="section-header">
-          <div class="icon-wrap w-7 h-7 rounded-lg flex items-center justify-center">
-            <span class="material-symbols-outlined text-sm">sell</span>
-          </div>
-          <div>
-            <p class="section-title text-xs font-bold uppercase tracking-wider">Escolher plano</p>
-            <p class="billing-section-card__value">{{ descricaoSecaoPlanos }}</p>
-          </div>
-        </div>
-        <div class="section-body">
-          <div class="billing-pay-method-block">
-            <p class="billing-subsection-label">Como pagar ao assinar</p>
-            <p class="billing-pay-method-hint">Válido apenas ao confirmar um plano abaixo — não altera cobranças já geradas.</p>
-            <div class="billing-pay-method-group" role="group" aria-label="Forma de pagamento ao assinar">
-              <button
-                type="button"
-                class="billing-pay-method"
-                [class.billing-pay-method--active]="formaPagamento() === 'PIX'"
-                [attr.aria-pressed]="formaPagamento() === 'PIX'"
-                (click)="selecionarFormaPagamento('PIX')"
-              >
-                PIX
-              </button>
-              <button
-                type="button"
-                class="billing-pay-method"
-                [class.billing-pay-method--active]="formaPagamento() === 'BOLETO'"
-                [attr.aria-pressed]="formaPagamento() === 'BOLETO'"
-                (click)="selecionarFormaPagamento('BOLETO')"
-              >
-                Boleto
-              </button>
-            </div>
-          </div>
-
-          <div class="billing-plan-grid">
-            @for (plano of planos(); track plano.key) {
-              <div class="billing-plan-card" [class.billing-plan-card--current]="somenteRotuloPlanoAtual(plano)">
-                <p class="billing-plan-card__name">{{ plano.name }}</p>
-                <p class="billing-plan-card__price">
-                  R$ {{ plano.value | number:'1.2-2':'pt-BR' }}
-                  <span class="billing-plan-card__cycle">{{ rotuloPeriodicidade(plano) }}</span>
-                </p>
-                @if (plano.description) {
-                  <p class="billing-plan-card__desc">{{ plano.description }}</p>
-                }
-                @if (somenteRotuloPlanoAtual(plano)) {
-                  <span class="billing-plan-card__badge">Plano atual</span>
-                } @else if (planoAguardandoPagamento(plano)) {
-                  <p class="billing-plan-card__wait">Cobrança gerada — pague na seção <strong>Pagar agora</strong> acima.</p>
-                } @else {
-                  <button type="button" class="btn-primary w-full inline-flex items-center justify-center gap-2" (click)="acaoPlano(plano)" [disabled]="acaoEmAndamento()">
-                    @if (acaoEmAndamento()) {
-                      <span class="btn-spinner" aria-hidden="true"></span>
-                    }
-                    {{ acaoEmAndamento() ? 'Processando…' : rotuloBotaoPlano(plano) }}
-                  </button>
                 }
               </div>
             }
           </div>
-        </div>
-      </div>
-    }
-  </div>
+        </nord-card>
+      }
+
+      @if (planos().length > 0 && mostrarSelecaoPlano) {
+        <nord-card padding="m" class="billing-card">
+          <h3 slot="header">Escolher plano</h3>
+          <p class="billing-card__sub">{{ descricaoSecaoPlanos }}</p>
+
+          <div class="billing-pay-method">
+            <p class="billing-label">Periodicidade</p>
+            <p class="billing-muted billing-pay-method__hint">{{ dicaEconomiaAnual }}</p>
+            <nord-button-group aria-label="Periodicidade da assinatura">
+              <nord-button
+                type="button"
+                [attr.variant]="cicloCobranca() === 'MONTHLY' ? 'primary' : 'default'"
+                [attr.aria-pressed]="cicloCobranca() === 'MONTHLY'"
+                (click)="selecionarCiclo('MONTHLY')"
+              >
+                Mensal
+              </nord-button>
+              <nord-button
+                type="button"
+                [attr.variant]="cicloCobranca() === 'YEARLY' ? 'primary' : 'default'"
+                [attr.aria-pressed]="cicloCobranca() === 'YEARLY'"
+                (click)="selecionarCiclo('YEARLY')"
+              >
+                Anual
+              </nord-button>
+            </nord-button-group>
+          </div>
+
+          <div class="billing-pay-method">
+            <p class="billing-label">Como pagar ao assinar</p>
+            <p class="billing-muted billing-pay-method__hint">
+              Válido apenas ao confirmar um plano abaixo. Não altera cobranças já geradas.
+            </p>
+            <nord-button-group aria-label="Forma de pagamento ao assinar">
+              <nord-button
+                type="button"
+                [attr.variant]="formaPagamento() === 'PIX' ? 'primary' : 'default'"
+                [attr.aria-pressed]="formaPagamento() === 'PIX'"
+                (click)="selecionarFormaPagamento('PIX')"
+              >
+                PIX
+              </nord-button>
+              <nord-button
+                type="button"
+                [attr.variant]="formaPagamento() === 'BOLETO' ? 'primary' : 'default'"
+                [attr.aria-pressed]="formaPagamento() === 'BOLETO'"
+                (click)="selecionarFormaPagamento('BOLETO')"
+              >
+                Boleto
+              </nord-button>
+            </nord-button-group>
+          </div>
+
+          <div class="billing-plan-grid">
+            @for (plano of planos(); track plano.key) {
+              <nord-card
+                padding="m"
+                class="billing-plan"
+                [class.billing-plan--current]="somenteRotuloPlanoAtual(plano)"
+              >
+                <div class="billing-plan__inner">
+                  <p class="billing-plan__name">{{ plano.name }}</p>
+                  <p class="billing-plan__price">
+                    R$ {{ valorExibidoPlano(plano) | number:'1.2-2':'pt-BR' }}
+                    <span class="billing-plan__cycle">{{ rotuloPeriodicidade(plano) }}</span>
+                  </p>
+                  @if (plano.description) {
+                    <p class="billing-plan__desc">{{ plano.description }}</p>
+                  }
+                  @if (somenteRotuloPlanoAtual(plano)) {
+                    <nord-badge variant="success">Plano atual</nord-badge>
+                  } @else if (planoAguardandoPagamento(plano)) {
+                    <nord-banner variant="warning" class="billing-plan__wait">
+                      <p>Cobrança gerada. Pague na seção <strong>Pagar agora</strong> acima.</p>
+                    </nord-banner>
+                  } @else {
+                    <nord-button
+                      type="button"
+                      variant="primary"
+                      size="m"
+                      expand
+                      [attr.disabled]="acaoEmAndamento() || null"
+                      [attr.loading]="acaoEmAndamento() || null"
+                      (click)="acaoPlano(plano)"
+                    >
+                      {{ acaoEmAndamento() ? 'Processando…' : rotuloBotaoPlano(plano) }}
+                    </nord-button>
+                  }
+                </div>
+              </nord-card>
+            }
+          </div>
+        </nord-card>
+      }
+
+      @if (erro() && state()) {
+        <nord-banner variant="danger">
+          <p>{{ erro() }}</p>
+        </nord-banner>
+      }
+    </div>
   }
 </div>

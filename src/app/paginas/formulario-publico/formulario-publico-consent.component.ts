@@ -10,13 +10,14 @@ import {
   startSignatureDraw,
 } from './formulario-publico-signature.util';
 import { ASSISTED_COSIGN_FIELD_KEY } from './formulario-publico-cosign.util';
+import { NORD_FORM_IMPORTS } from '@/shared/nord';
 
 @Component({
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'zm-formulario-publico-consent',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [FormsModule, RouterLink],
+  imports: [FormsModule, RouterLink, ...NORD_FORM_IMPORTS],
   templateUrl: './formulario-publico-consent.component.html',
 })
 export class FormularioPublicoConsentComponent {
@@ -59,6 +60,10 @@ export class FormularioPublicoConsentComponent {
 
   onQuizSelect(id: string, index: number): void {
     this.quizAnswerChange.emit({ id, index });
+  }
+
+  nordEventValue(event: Event): string {
+    return (event.target as { value?: string } | null)?.value ?? '';
   }
 
   startProfessionalSignature(e: MouseEvent | TouchEvent): void {

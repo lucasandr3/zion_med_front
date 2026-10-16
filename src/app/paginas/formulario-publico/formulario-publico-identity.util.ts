@@ -3,7 +3,7 @@ import { digitsOnlyCpf, formatCpfDisplay, isValidCpfDigits } from '../../core/ut
 export const FP_LS_SUBMITTER_NAME = 'gestgo_public_form_submitter_name';
 export const FP_LS_SUBMITTER_EMAIL = 'gestgo_public_form_submitter_email';
 const FP_LS_CPF_AUTH_PREFIX = 'gestgo_public_form_cpf_auth_';
-const CPF_AUTH_TTL_MS = 2 * 60 * 60 * 1000;
+const CPF_AUTH_TTL_MS = 30 * 60 * 1000;
 
 function storage(): Storage | null {
   try {

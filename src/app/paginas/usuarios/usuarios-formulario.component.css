@@ -7,9 +7,8 @@
   color: var(--foreground, var(--c-text));
 }
 
-.usuario-formulario z-combobox button[z-button] {
-  height: var(--control-height);
-  min-height: var(--control-height);
+.usuario-formulario z-combobox nord-combobox {
+  --n-combobox-block-size: var(--control-height);
 }
 
 .usuario-formulario g-checkbox {

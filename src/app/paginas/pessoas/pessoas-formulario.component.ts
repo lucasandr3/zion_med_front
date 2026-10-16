@@ -2,8 +2,6 @@ import { Component, OnInit, inject, Signal, signal, CUSTOM_ELEMENTS_SCHEMA } fro
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
-import { FlatpickrDirective, provideFlatpickrDefaults } from 'angularx-flatpickr';
-import { Portuguese } from 'flatpickr/dist/l10n/pt';
 import { PessoasService } from '../../core/services/pessoas.service';
 import { LoadingService } from '../../shared/services/loading.service';
 import { ZmSkeletonPessoaFormularioComponent } from '../../shared/components/skeletons';
@@ -32,21 +30,10 @@ import {
     ReactiveFormsModule,
     FormsModule,
     ZmSkeletonPessoaFormularioComponent,
-    FlatpickrDirective,
     GestgoCardComponent,
     GestgoComboboxComponent,
     ZmPageBackLinkComponent,
   ],
-  providers: [
-    provideFlatpickrDefaults({
-      locale: Portuguese,
-      dateFormat: 'Y-m-d',
-      altInput: true,
-      altFormat: 'd/m/Y',
-      allowInput: true,
-      disableMobile: true,
-      static: true,
-    })],
   templateUrl: './pessoas-formulario.component.html',
   styleUrl: './pessoas-formulario.component.css',
 })
@@ -89,13 +76,12 @@ export class PessoasFormularioComponent implements OnInit {
   phoneDisplay = '';
   phoneAltDisplay = '';
   cpfDisplay = '';
-  birth_date: string | Date | null = '';
+  birth_date: string | null = '';
 
   showSkeleton!: Signal<boolean>;
   listaPronta = false;
   salvando = false;
   erro = '';
-  flatpickrAppendTo!: HTMLElement;
 
   readonly opcoesSexo: GestgoComboboxOption[] = [
     { value: '', label: 'Selecione' },
@@ -131,7 +117,6 @@ export class PessoasFormularioComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.flatpickrAppendTo = document.body;
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.editMode = true;

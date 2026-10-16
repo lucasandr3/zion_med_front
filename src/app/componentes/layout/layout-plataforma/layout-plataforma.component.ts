@@ -4,13 +4,10 @@ import {
   CUSTOM_ELEMENTS_SCHEMA,
   OnDestroy,
   OnInit,
-  PLATFORM_ID,
   computed,
-  effect,
   inject,
   signal,
 } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { Subscription, filter } from 'rxjs';
 import { NotificacoesService } from '../../../core/services/notificacoes.service';
@@ -19,8 +16,8 @@ import { SidebarMobileService } from '../../../core/services/sidebar-mobile.serv
 import { PlataformaHeaderService } from '../../../core/services/plataforma-header.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { disableHorizontalNavInDom } from '../../../core/services/user-appearance.sync';
-import { resolveSidebarLogoSrc } from '../../../core/utils/sidebar-logo.util';
 import { ZmPageBackLinkComponent } from '../../../shared/components/ui';
+import { GestgoBrandMarkComponent } from '../../../shared/components/gestgo-brand-mark/gestgo-brand-mark.component';
 import { GoAssistantHostComponent } from '../../../go-assistant';
 import { SHELL_NAV_PLATAFORMA_SIDEBAR, ShellNavItem } from '../shell-nav.config';
 import { ShellAccountMenuComponent } from '../shell-account-menu/shell-account-menu.component';
@@ -34,6 +31,7 @@ import { ShellTopBarActionsComponent } from '../shell-top-bar-actions/shell-top-
   imports: [
     RouterOutlet,
     ZmPageBackLinkComponent,
+    GestgoBrandMarkComponent,
     GoAssistantHostComponent,
     ShellTopBarActionsComponent,
     ShellAccountMenuComponent,
@@ -52,14 +50,12 @@ export class LayoutPlataformaComponent implements OnInit, OnDestroy {
   private readonly notificacoesNaoLidasSignal = signal(0);
   private readonly novidadesNaoVistasSignal = signal(0);
   private readonly urlAtualSignal = signal('/plataforma');
-  private readonly sidebarLogoSrcSignal = signal('/assets/logo/logo.png');
 
   readonly urlVoltar = this.urlVoltarSignal.asReadonly();
   readonly labelVoltar = this.labelVoltarSignal.asReadonly();
   readonly voltarIntegrado = this.voltarIntegradoSignal.asReadonly();
   readonly notificacoesNaoLidas = this.notificacoesNaoLidasSignal.asReadonly();
   readonly novidadesNaoVistas = this.novidadesNaoVistasSignal.asReadonly();
-  readonly sidebarLogoSrc = this.sidebarLogoSrcSignal.asReadonly();
 
   readonly tituloPagina = computed(
     () => this.headerService.override()?.titulo ?? this.routeTituloSignal(),
@@ -75,15 +71,7 @@ export class LayoutPlataformaComponent implements OnInit, OnDestroy {
   private readonly sidebarMobile = inject(SidebarMobileService);
   private readonly headerService = inject(PlataformaHeaderService);
   private readonly auth = inject(AuthService);
-  private readonly platformId = inject(PLATFORM_ID);
   private routerSub?: Subscription;
-
-  constructor() {
-    effect(() => {
-      this.auth.appearanceVersion();
-      this.refreshSidebarLogo();
-    });
-  }
 
   badgeTexto(item: ShellNavItem): string | null {
     if (item.badge !== 'notifications') return null;
@@ -105,13 +93,21 @@ export class LayoutPlataformaComponent implements OnInit, OnDestroy {
     void this.router.navigateByUrl(path);
   }
 
+  /** Alterna o menu Nord (`nav-open`) — substitui `nord-nav-toggle` para usar Material Icons. */
+  toggleNav(event: Event): void {
+    event.preventDefault();
+    const host = event.currentTarget as HTMLElement | null;
+    const layout = host?.closest('nord-layout') as (HTMLElement & { navOpen?: boolean }) | null;
+    if (!layout) return;
+    layout.navOpen = !layout.navOpen;
+  }
+
   sair(): void {
     this.auth.logout().subscribe(() => void this.router.navigate(['/autenticacao']));
   }
 
   ngOnInit(): void {
     disableHorizontalNavInDom();
-    this.refreshSidebarLogo();
     if (this.auth.isAuthenticated()) {
       this.auth.me().subscribe({ error: () => {} });
     }
@@ -133,11 +129,6 @@ export class LayoutPlataformaComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.routerSub?.unsubscribe();
-  }
-
-  private refreshSidebarLogo(): void {
-    if (!isPlatformBrowser(this.platformId)) return;
-    this.sidebarLogoSrcSignal.set(resolveSidebarLogoSrc());
   }
 
   private updateFromActivatedRoute(): void {

@@ -8,17 +8,17 @@ import {
 } from '../../core/services/link-bio.service';
 
 /**
- * Modo totem/recepção: `/l/:slug?kiosk=1`. Visual igual ao formulário público
+ * Modo totem/recepção: `/l/:slug?totem=1`. Visual igual ao formulário público
  * (paleta cream/ink + Playfair). Mostra só a lista de links publicados.
  */
 @Component({
-  selector: 'app-link-bio-public-kiosk',
+  selector: 'app-link-bio-public-totem',
   standalone: true,
   imports: [RouterLink],
-  templateUrl: './link-bio-public-kiosk.component.html',
-  styleUrl: './link-bio-public-kiosk.component.css',
+  templateUrl: './link-bio-public-totem.component.html',
+  styleUrl: './link-bio-public-totem.component.css',
 })
-export class LinkBioPublicKioskComponent {
+export class LinkBioPublicTotemComponent {
   private linkBioService = inject(LinkBioService);
 
   @Input({ required: true }) clinic!: LinkBioClinic;

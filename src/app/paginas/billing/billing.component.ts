@@ -1,6 +1,15 @@
-import { Component, OnInit, inject, Signal, ChangeDetectionStrategy, signal } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  inject,
+  Signal,
+  ChangeDetectionStrategy,
+  signal,
+  CUSTOM_ELEMENTS_SCHEMA,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
+  BillingCycle,
   BillingPayment,
   BillingService,
   BillingState,
@@ -18,6 +27,7 @@ import { filterPaymentsWhenSubscriptionCanceled } from '../../core/utils/billing
 import { statusAssinaturaOuCobrancaPt, statusFaturaPt } from '../../core/utils/status-labels-pt';
 
 @Component({
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'app-pagina-billing',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -43,6 +53,7 @@ export class BillingComponent implements OnInit {
   readonly erroCobrancaBloqueada = signal(false);
   readonly acaoEmAndamento = signal(false);
   readonly formaPagamento = signal<BillingType>('PIX');
+  readonly cicloCobranca = signal<BillingCycle>('YEARLY');
   readonly pixExpandidoId = signal<number | null>(null);
 
   ngOnInit(): void {
@@ -60,9 +71,16 @@ export class BillingComponent implements OnInit {
         this.erroCobrancaBloqueada.set(false);
         this.state.set(data);
         this.planos.set(Object.entries(data.plans ?? {}).map(([key, p]) => ({ ...p, key })));
-        this.assinaturaAtiva.set(data.subscriptions.find(
+        const ativa =
+          data.subscriptions.find(
             (s) => String(s.status).toLowerCase() === 'active' && s.asaas_subscription_id
-          ) ?? null);
+          ) ?? null;
+        this.assinaturaAtiva.set(ativa);
+        if (String(ativa?.cycle ?? '').toUpperCase() === 'YEARLY') {
+          this.cicloCobranca.set('YEARLY');
+        } else if (String(ativa?.cycle ?? '').toUpperCase() === 'MONTHLY') {
+          this.cicloCobranca.set('MONTHLY');
+        }
         const pendentePix = this.pagamentos.find((p) => this.pagamentoPendente(p) && this.temPix(p));
         this.pixExpandidoId.set(pendentePix?.id ?? null);
       },
@@ -127,6 +145,22 @@ export class BillingComponent implements OnInit {
     }
   }
 
+  get carenciaAte(): string {
+    const o = this.state()?.organization;
+    if (!o?.grace_ends_at || String(o.subscription_status ?? '').toLowerCase() !== 'past_due') {
+      return '';
+    }
+    try {
+      return new Date(o.grace_ends_at).toLocaleDateString('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+      });
+    } catch {
+      return '';
+    }
+  }
+
   get pagamentosPendentes(): BillingPayment[] {
     return this.pagamentos.filter((p) => this.pagamentoPendente(p));
   }
@@ -135,7 +169,26 @@ export class BillingComponent implements OnInit {
     return this.pagamentosPendentes.length > 0;
   }
 
+  get bannerVariant(): 'info' | 'warning' | 'success' {
+    if (this.carenciaAte || this.mostrarPendenciaPrimeiroPagamento) return 'warning';
+    if (this.mostrarCartaoGerenciado && this.assinaturaAtiva()) return 'success';
+    return 'info';
+  }
+
+  badgeStatusPagamento(status: string | null | undefined): 'success' | 'warning' | 'danger' | 'neutral' {
+    const st = String(status ?? '').toUpperCase();
+    if (['RECEIVED', 'CONFIRMED', 'RECEIVED_IN_CASH'].includes(st)) return 'success';
+    if (['PENDING', 'AWAITING_RISK_ANALYSIS'].includes(st)) return 'warning';
+    if (['OVERDUE', 'REFUNDED', 'REFUND_REQUESTED', 'CHARGEBACK_REQUESTED', 'CHARGEBACK_DISPUTE'].includes(st)) {
+      return 'danger';
+    }
+    return 'neutral';
+  }
+
   get orientacaoTitulo(): string {
+    if (this.carenciaAte) {
+      return 'Pagamento em atraso — período de carência';
+    }
     if (this.mostrarPendenciaPrimeiroPagamento && this.temCobrancaPendente) {
       return 'Conclua o pagamento para ativar sua assinatura';
     }
@@ -155,8 +208,11 @@ export class BillingComponent implements OnInit {
   }
 
   get orientacaoDescricao(): string {
+    if (this.carenciaAte) {
+      return `Regularize até ${this.carenciaAte} para evitar a suspensão do acesso. Seus documentos permanecem salvos.`;
+    }
     if (this.mostrarPendenciaPrimeiroPagamento && this.temCobrancaPendente) {
-      return 'Já existe uma cobrança gerada. Pague com PIX ou boleto na seção abaixo — não é necessário assinar novamente o mesmo plano.';
+      return 'Já existe uma cobrança gerada. Pague com PIX ou boleto na seção abaixo. Não é necessário assinar novamente o mesmo plano.';
     }
     if (this.mostrarPendenciaPrimeiroPagamento) {
       return 'Selecione o plano e a forma de pagamento. Depois de confirmar, siga as instruções de PIX ou boleto que aparecerão nesta tela.';
@@ -211,15 +267,23 @@ export class BillingComponent implements OnInit {
     );
   }
 
-  rotuloPeriodicidade(plano: PlanoComChave): string {
-    const text = `${plano.name} ${plano.description ?? ''}`.toLowerCase();
-    if (/anual|\/ano|\bano\b|year|12\s*meses/.test(text)) {
-      return '/ano';
+  rotuloPeriodicidade(_plano?: PlanoComChave): string {
+    return this.cicloCobranca() === 'YEARLY' ? '/ano' : '/mês';
+  }
+
+  valorExibidoPlano(plano: PlanoComChave): number {
+    if (this.cicloCobranca() === 'YEARLY') {
+      const yearly = Number(plano.value_yearly);
+      if (Number.isFinite(yearly) && yearly > 0) {
+        return yearly;
+      }
+      return Math.round(Number(plano.value || 0) * 10 * 100) / 100;
     }
-    if (/mensal|\/mês|\/mes|\bmês\b|\bmes\b|month/.test(text)) {
-      return '/mês';
-    }
-    return '/mês';
+    return Number(plano.value || 0);
+  }
+
+  selecionarCiclo(ciclo: BillingCycle): void {
+    this.cicloCobranca.set(ciclo);
   }
 
   /** Só “Plano atual” sem botão quando a assinatura está em modo gerenciado (não pendência pós-trial). */
@@ -256,6 +320,12 @@ export class BillingComponent implements OnInit {
     this.formaPagamento.set(tipo);
   }
 
+  get dicaEconomiaAnual(): string {
+    return this.cicloCobranca() === 'YEARLY'
+      ? 'Anual à vista: 12 meses pelo preço de 10 (≈16% de economia).'
+      : 'Mensal: cobrança recorrente a cada mês.';
+  }
+
   pagamentoPendente(p: BillingPayment): boolean {
     const st = String(p.status ?? '').toUpperCase();
     return ['PENDING', 'OVERDUE', 'AWAITING_RISK_ANALYSIS'].includes(st);
@@ -283,7 +353,7 @@ export class BillingComponent implements OnInit {
   checkout(planKey: string): void {
     this.acaoEmAndamento.set(true);
     this.erro.set('');
-    this.billingService.checkout(planKey, this.formaPagamento()).subscribe({
+    this.billingService.checkout(planKey, this.formaPagamento(), this.cicloCobranca()).subscribe({
       next: (res) => {
         this.acaoEmAndamento.set(false);
         this.toast.success(
@@ -334,7 +404,7 @@ export class BillingComponent implements OnInit {
     if (!ok) return;
     this.acaoEmAndamento.set(true);
     this.erro.set('');
-    this.billingService.changePlan(planKey, this.formaPagamento()).subscribe({
+    this.billingService.changePlan(planKey, this.formaPagamento(), this.cicloCobranca()).subscribe({
       next: (res) => {
         this.acaoEmAndamento.set(false);
         this.toast.success('Plano alterado', res.data?.message ?? 'O plano foi atualizado.');

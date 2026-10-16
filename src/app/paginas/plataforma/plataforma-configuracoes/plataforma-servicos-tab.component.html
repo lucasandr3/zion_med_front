@@ -1,7 +1,7 @@
 <div class="servicos-tab">
   <div class="config-tab-panel">
     @if (activeServico() === null) {
-      <g-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
+      <g-card class="section-card gap-0 overflow-hidden rounded-none border-0 bg-card py-0 shadow-none **:data-[slot=card-content]:p-0">
         <div class="section-header">
           <div class="icon-wrap"><span class="material-symbols-outlined">dns</span></div>
           <div>
@@ -87,7 +87,7 @@
                   <p class="settings-alert settings-alert--success">{{ successSettings() }}</p>
                 }
                 <div class="settings-form-actions settings-form-actions--inline">
-                  <nord-button type="submit" size="s" [attr.disabled]="savingSettings()" [attr.loading]="savingSettings()">
+                  <nord-button type="submit" size="m" [attr.disabled]="savingSettings() || null" [attr.loading]="savingSettings() || null">
                     {{ savingSettings() ? 'Salvando…' : 'Salvar Asaas' }}
                   </nord-button>
                 </div>
@@ -112,11 +112,18 @@
                 <div class="settings-fields">
                   <div class="settings-field-row">
                     <div class="settings-field">
-                      <label for="mail_mailer" class="settings-label">Driver</label>
-                      <select id="mail_mailer" [(ngModel)]="mailMailer" name="mail_mailer" class="w-full">
-                        <option value="resend">Resend (produção)</option>
-                        <option value="log">Log (desenvolvimento)</option>
-                      </select>
+                      <label id="mail_mailer_label" class="settings-label">Driver</label>
+                      <z-combobox
+                        zWidth="full"
+                        [(ngModel)]="mailMailer"
+                        name="mail_mailer"
+                        [options]="opcoesMailer"
+                        placeholder="Selecione…"
+                        [searchable]="false"
+                        [clearable]="false"
+                        ariaLabel="Driver de e-mail"
+                        ariaLabelledby="mail_mailer_label"
+                      />
                     </div>
                     <div class="settings-field">
                       <label for="resend_api_key" class="settings-label">Chave da API</label>
@@ -204,8 +211,105 @@
                   <p class="settings-alert settings-alert--success">{{ successSettings() }}</p>
                 }
                 <div class="settings-form-actions settings-form-actions--inline">
-                  <nord-button type="submit" size="s" [attr.disabled]="savingSettings()" [attr.loading]="savingSettings()">
+                  <nord-button type="submit" size="m" [attr.disabled]="savingSettings() || null" [attr.loading]="savingSettings() || null">
                     {{ savingSettings() ? 'Salvando…' : 'Salvar Resend' }}
+                  </nord-button>
+                </div>
+              </g-card>
+            </form>
+          }
+
+          @case ('openai') {
+            <form class="settings-form" (ngSubmit)="submitSettings()">
+              <g-card class="settings-card">
+                <header class="settings-card__header">
+                  <h3 class="settings-card__title">OpenAI (importação de fichas)</h3>
+                  <p class="settings-card__subtitle">
+                    Extração de campos a partir de PDF/foto/texto.
+                    @if (formImportConfigured) {
+                      <span class="settings-badge settings-badge--ok">{{ formImportProvider === 'heuristic' ? 'Heurística' : 'Configurado' }}</span>
+                    } @else {
+                      <span class="settings-badge settings-badge--warn">Chave pendente</span>
+                    }
+                  </p>
+                </header>
+                <div class="settings-fields">
+                  <div class="settings-field-row">
+                    <div class="settings-field">
+                      <label id="form_import_provider_label" class="settings-label">Provedor</label>
+                      <z-combobox
+                        zWidth="full"
+                        [(ngModel)]="formImportProvider"
+                        name="form_import_provider"
+                        [options]="opcoesFormImportProvider"
+                        placeholder="Selecione…"
+                        [searchable]="false"
+                        [clearable]="false"
+                        ariaLabelledby="form_import_provider_label"
+                      />
+                    </div>
+                    <div class="settings-field">
+                      <label for="form_import_openai_model" class="settings-label">Modelo</label>
+                      <input
+                        type="text"
+                        id="form_import_openai_model"
+                        [(ngModel)]="formImportModel"
+                        name="form_import_openai_model"
+                        class="w-full font-mono text-xs"
+                        maxlength="128"
+                        placeholder="gpt-4o-mini"
+                        [disabled]="formImportProvider === 'heuristic'"
+                      />
+                    </div>
+                  </div>
+                  <div class="settings-field settings-field--wide">
+                    <label for="openai_api_key" class="settings-label">Chave da API</label>
+                    <input
+                      type="password"
+                      id="openai_api_key"
+                      [(ngModel)]="openaiApiKey"
+                      name="openai_api_key"
+                      class="w-full font-mono text-xs"
+                      maxlength="512"
+                      autocomplete="new-password"
+                      [placeholder]="openaiApiKeyPreview ? 'Atual: ' + openaiApiKeyPreview : 'sk-...'"
+                      [disabled]="formImportProvider === 'heuristic'"
+                    />
+                    <p class="settings-hint">Deixe em branco para manter a chave atual. Usada só na importação de fichas.</p>
+                  </div>
+                  <div class="settings-field settings-field--wide">
+                    <label for="openai_base_url" class="settings-label">URL base da API</label>
+                    <input
+                      type="url"
+                      id="openai_base_url"
+                      [(ngModel)]="openaiBaseUrl"
+                      name="openai_base_url"
+                      class="w-full font-mono text-xs"
+                      maxlength="255"
+                      placeholder="https://api.openai.com/v1"
+                      [disabled]="formImportProvider === 'heuristic'"
+                    />
+                  </div>
+                  <div class="settings-field">
+                    <label for="form_import_retention_days" class="settings-label">Retenção da fonte (dias)</label>
+                    <input
+                      type="number"
+                      id="form_import_retention_days"
+                      [(ngModel)]="formImportRetentionDays"
+                      name="form_import_retention_days"
+                      class="w-full"
+                      min="1"
+                      max="365"
+                    />
+                    <p class="settings-hint">Após este prazo, o job diário remove a fonte/arquivo da importação (LGPD).</p>
+                  </div>
+                </div>
+                @if (successSettings()) {
+                  <p class="settings-alert settings-alert--success">{{ successSettings() }}</p>
+                }
+                <div class="settings-form-actions settings-form-actions--inline">
+                  <nord-button type="submit" size="m" [attr.disabled]="savingSettings() || null" [attr.loading]="savingSettings() || null">
+                    {{ savingSettings() ? 'Salvando…' : 'Salvar OpenAI' }}
                   </nord-button>
                 </div>
               </g-card>
@@ -268,7 +372,7 @@
                   <p class="settings-alert settings-alert--success">{{ successSettings() }}</p>
                 }
                 <div class="settings-form-actions settings-form-actions--inline">
-                  <nord-button type="submit" size="s" [attr.disabled]="savingSettings()" [attr.loading]="savingSettings()">
+                  <nord-button type="submit" size="m" [attr.disabled]="savingSettings() || null" [attr.loading]="savingSettings() || null">
                     {{ savingSettings() ? 'Salvando…' : 'Salvar MinIO' }}
                   </nord-button>
                 </div>
@@ -289,23 +393,32 @@
                 <div class="settings-fields">
                   <div class="settings-field-row">
                     <div class="settings-field">
-                      <label for="service_status" class="settings-label">Status geral</label>
-                      <select id="service_status" [(ngModel)]="serviceStatus" name="status" class="w-full">
-                        <option value="operational">Operacional</option>
-                        <option value="degraded">Degradado</option>
-                        <option value="outage">Indisponível</option>
-                        <option value="maintenance">Manutenção</option>
-                      </select>
+                      <label id="service_status_label" class="settings-label">Status geral</label>
+                      <z-combobox
+                        zWidth="full"
+                        [(ngModel)]="serviceStatus"
+                        name="status"
+                        [options]="opcoesStatus"
+                        placeholder="Selecione…"
+                        [searchable]="false"
+                        [clearable]="false"
+                        ariaLabel="Status geral"
+                        ariaLabelledby="service_status_label"
+                      />
                     </div>
                     <div class="settings-field">
-                      <label for="service_severity" class="settings-label">Criticidade</label>
-                      <select id="service_severity" [(ngModel)]="serviceStatusSeverity" name="severity" class="w-full">
-                        <option value="none">Nenhuma</option>
-                        <option value="low">Baixa</option>
-                        <option value="medium">Média</option>
-                        <option value="high">Alta</option>
-                        <option value="critical">Crítica</option>
-                      </select>
+                      <label id="service_severity_label" class="settings-label">Criticidade</label>
+                      <z-combobox
+                        zWidth="full"
+                        [(ngModel)]="serviceStatusSeverity"
+                        name="severity"
+                        [options]="opcoesSeverity"
+                        placeholder="Selecione…"
+                        [searchable]="false"
+                        [clearable]="false"
+                        ariaLabel="Criticidade"
+                        ariaLabelledby="service_maintenance_label"
+                      />
                     </div>
                   </div>
                   <div class="settings-field settings-field--wide">
@@ -318,12 +431,17 @@
                       @for (key of getComponentKeys(); track key) {
                         <div class="settings-component-row">
                           <span class="settings-component-label">{{ componentOptions[key] }}</span>
-                          <select [(ngModel)]="serviceComponents[key]" [name]="'comp_' + key" class="settings-component-select text-xs">
-                            <option value="operational">Operacional</option>
-                            <option value="degraded">Degradado</option>
-                            <option value="outage">Indisponível</option>
-                            <option value="maintenance">Manutenção</option>
-                          </select>
+                          <z-combobox
+                            class="settings-component-select"
+                            zWidth="full"
+                            [(ngModel)]="serviceComponents[key]"
+                            [name]="'comp_' + key"
+                            [options]="opcoesStatus"
+                            placeholder="Selecione…"
+                            [searchable]="false"
+                            [clearable]="false"
+                            [ariaLabel]="'Status de ' + componentOptions[key]"
+                          />
                         </div>
                       }
                     </div>
@@ -333,7 +451,7 @@
                   <p class="settings-alert settings-alert--success">{{ successStatus() }}</p>
                 }
                 <div class="settings-form-actions settings-form-actions--inline">
-                  <nord-button type="submit" [attr.disabled]="savingStatus()" [attr.loading]="savingStatus()">
+                  <nord-button type="submit" [attr.disabled]="savingStatus() || null" [attr.loading]="savingStatus() || null">
                     {{ savingStatus() ? 'Atualizando…' : 'Atualizar status' }}
                   </nord-button>
                 </div>

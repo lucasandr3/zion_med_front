@@ -218,7 +218,7 @@ export class TemplatesCriarComponent implements OnInit {
       return 'Revisão pendente';
     }
     if (t.legal_review_status === 'draft' || t.clinical_review_status === 'draft') {
-      return 'Rascunho — revisar antes de usar';
+      return 'Rascunho: revisar antes de usar';
     }
     return null;
   }

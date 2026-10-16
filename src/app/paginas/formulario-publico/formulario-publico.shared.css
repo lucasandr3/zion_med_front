@@ -1,211 +1,4 @@
-/* ── Header ── */
-.fp-sticky-header {
-  position: relative;
-  flex-shrink: 0;
-  z-index: 20;
-  background: var(--fp-bg-header);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border-bottom: 1px solid var(--fp-border);
-}
-
-.fp-header-inner {
-  max-width: 32rem;
-  margin: 0 auto;
-  padding: 0.75rem 1rem 0.75rem;
-}
-
-.fp-header-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-}
-
-.fp-brand {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  min-width: 0;
-}
-
-.fp-logo {
-  width: 2.25rem;
-  height: 2.25rem;
-  border-radius: 0.5rem;
-  background: var(--fp-ink-900);
-  color: #fff;
-  font-family: 'Roboto', ui-sans-serif, system-ui, sans-serif;
-  font-size: 0.9375rem;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.fp-logo--img {
-  padding: 0;
-  background: transparent;
-  overflow: hidden;
-}
-
-.fp-logo--img img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-  border-radius: 0.5rem;
-}
-
-.form-publico-page.dark .fp-logo--img {
-  background: transparent;
-  border: none;
-}
-
-.form-publico-page.dark .fp-logo {
-  background: var(--fp-cream-100);
-  color: var(--fp-ink-900);
-}
-
-.fp-clinic-name {
-  font-family: 'Roboto', ui-sans-serif, system-ui, sans-serif;
-  font-size: 0.8125rem;
-  font-weight: 600;
-  line-height: 1.25;
-  color: var(--fp-ink-800);
-  margin: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  max-width: 14rem;
-}
-
-.form-publico-page.dark .fp-clinic-name {
-  color: var(--fp-cream-100);
-}
-
-.fp-sub {
-  font-size: 0.6875rem;
-  color: var(--fp-cream-600);
-  margin: 0;
-}
-
-.form-publico-page.dark .fp-sub {
-  color: #a3a3a3;
-}
-
-.fp-icon-btn {
-  border: none;
-  background: transparent;
-  padding: 0.5rem;
-  border-radius: 0.5rem;
-  cursor: pointer;
-  color: var(--fp-cream-600);
-  transition: background 0.15s, opacity 0.15s;
-  flex-shrink: 0;
-}
-
-.fp-icon-btn:hover {
-  background: var(--fp-cream-100);
-}
-
-.form-publico-page.dark .fp-icon-btn:hover {
-  background: rgba(255, 255, 255, 0.06);
-}
-
-.fp-theme-icon {
-  width: 1rem;
-  height: 1rem;
-  display: block;
-  color: var(--fp-ink-800);
-}
-
-.fp-theme-moon {
-  color: var(--fp-cream-600);
-}
-
-.form-publico-page.dark .fp-theme-icon {
-  color: #fafafa;
-}
-
-.form-publico-page.dark .fp-theme-moon {
-  color: #a3a3a3;
-}
-
-/* Progress */
-.fp-progress-block {
-  padding-top: 0.5rem;
-}
-
-.fp-progress-labels {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  margin-bottom: 0.375rem;
-}
-
-.fp-progress-hint {
-  font-family: 'Roboto', ui-sans-serif, system-ui, sans-serif;
-  font-size: 0.6875rem;
-  font-weight: 500;
-  color: var(--fp-cream-600);
-}
-
-.form-publico-page.dark .fp-progress-hint {
-  color: #a3a3a3;
-}
-
-.fp-progress-count {
-  font-family: 'Roboto', ui-sans-serif, system-ui, sans-serif;
-  font-size: 0.6875rem;
-  font-weight: 600;
-  color: #0a0a0a;
-  letter-spacing: 0.02em;
-}
-
-.form-publico-page.dark .fp-progress-count {
-  color: #fafafa;
-}
-
-.fp-progress-track {
-  height: 0.375rem;
-  border-radius: 0.5rem;
-  background: #e5e5e2;
-  overflow: hidden;
-}
-
-.form-publico-page.dark .fp-progress-track {
-  background: #2a2a2a;
-}
-
-.fp-progress-fill {
-  height: 100%;
-  border-radius: 0.5rem;
-  background: var(--fp-brand-500);
-  transition: width 0.35s ease;
-}
-
-.form-publico-page.dark .fp-progress-fill {
-  background: var(--fp-brand-500);
-}
-
-/* ── Área rolável (entre header e footer) ── */
-.fp-scroll {
-  flex: 1;
-  min-height: 0;
-  overflow-x: hidden;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior-y: contain;
-  padding-bottom: 1.25rem;
-}
-
-.fp-container {
-  max-width: 32rem;
-  margin: 0 auto;
-  padding: 1.5rem 1rem 2rem;
-}
+/* Header / progress / shell: ver formulario-publico-layout.css */
 
 .fp-error-card {
   border-radius: 0.5rem;
@@ -228,7 +21,7 @@
   color: #a3a3a3;
 }
 
-/* Title */
+/* Title (tipografia no layout.css) */
 .fp-title-block {
   margin-bottom: 1.5rem;
   animation: fpFadeUp 0.4s ease both;
@@ -245,33 +38,6 @@
 
 .form-publico-page.dark .fp-gate-eyebrow {
   color: #5eead4;
-}
-
-.fp-title {
-  font-family: 'Roboto', ui-sans-serif, system-ui, sans-serif;
-  font-size: clamp(1.25rem, 3vw, 1.5rem);
-  font-weight: 500;
-  font-style: normal;
-  font-synthesis: none;
-  line-height: 1.2;
-  letter-spacing: -0.015em;
-  color: var(--fp-ink-800);
-  margin: 0;
-}
-
-.form-publico-page.dark .fp-title {
-  color: #fafafa;
-}
-
-.fp-lead {
-  font-size: 0.875rem;
-  color: var(--fp-cream-600);
-  margin: 0.5rem 0 0;
-  line-height: 1.55;
-}
-
-.form-publico-page.dark .fp-lead {
-  color: #a3a3a3;
 }
 
 .fp-lgpd-note {
@@ -334,11 +100,22 @@
   background: rgba(198, 40, 40, 0.2);
 }
 
-/* Form */
+/* Form — gap entre blocos (preenchedora, fields, consent…); ver também layout.css */
 .fp-form {
+  display: grid;
+  gap: 1.5rem;
+}
+
+/* Campos do passo: gap entre grupos (label+controle) */
+zm-formulario-publico-fields,
+zm-formulario-publico-consent,
+zm-formulario-publico-otp,
+zm-formulario-publico-feegow,
+zm-formulario-publico-gate {
   display: flex;
   flex-direction: column;
-  gap: 0;
+  gap: 1.25rem;
+  width: 100%;
 }
 
 .fp-feegow-card {
@@ -393,7 +170,7 @@
 .fp-feegow-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 0.25rem 0.75rem;
+  gap: 1rem 0.75rem;
 }
 
 @media (min-width: 560px) {
@@ -457,7 +234,7 @@
 .fp-preenchedora-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 0.75rem;
+  gap: 1.25rem;
 }
 
 @media (min-width: 480px) {
@@ -473,7 +250,10 @@
 }
 
 .fp-field-group {
-  margin-bottom: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 0;
 }
 
 .fp-field-animate {
@@ -493,15 +273,17 @@
   animation-delay: 0.08s;
 }
 
+/* Labels = referência .field label (15px / 680) */
 .fp-field-label {
-  font-family: 'Roboto', ui-sans-serif, system-ui, sans-serif;
   display: block;
-  font-size: 0.8125rem;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 680;
+  letter-spacing: normal;
+  text-transform: none;
+  line-height: 1.45;
   color: var(--fp-ink-800);
-  margin-bottom: 0.375rem;
+  margin: 0;
 }
 
 .fp-section-title {
@@ -631,30 +413,12 @@
   background-color: #fff;
 }
 
-/* Garante que o input do Flatpickr (alt + original) siga exatamente o mesmo visual do .fp-input */
-.fp-field-group :is(input.flatpickr-input, input.flatpickr-alt-input, .flatpickr-wrapper input) {
+/* Nord date picker no formulário público */
+.fp-nord-date,
+.fp-field-group nord-date-picker {
+  display: block;
   width: 100%;
-  padding: 0.75rem 0.875rem;
-  border-radius: 0.5rem;
-  border: 1.5px solid var(--fp-cream-200);
-  font-family: inherit;
-  font-size: 1rem;
-  font-weight: 400;
-  color: var(--fp-ink-800);
-  background-color: #fff;
-  outline: none;
-  box-sizing: border-box;
-  appearance: none;
-  -webkit-appearance: none;
-  transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s;
-}
-
-.fp-field-group :is(input.flatpickr-input, input.flatpickr-alt-input, .flatpickr-wrapper input)::placeholder {
-  color: #a3a3a3;
-}
-
-.fp-field-group :is(input.flatpickr-input, input.flatpickr-alt-input, .flatpickr-wrapper input):focus {
-  border-color: #0a0a0a;
+  max-width: 100%;
 }
 
 .form-publico-page.dark .fp-field-group :is(input.flatpickr-input, input.flatpickr-alt-input, .flatpickr-wrapper input) {
@@ -1001,130 +765,21 @@
   background: rgba(255, 255, 255, 0.08);
 }
 
-/* Footer */
-.fp-footer {
-  flex-shrink: 0;
-  position: relative;
-  z-index: 30;
-  background: var(--fp-bg-header);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border-top: 1px solid var(--fp-border);
-  padding: 1rem;
-  padding-bottom: max(1rem, env(safe-area-inset-bottom));
-}
-
-.fp-footer-inner {
-  max-width: 32rem;
-  margin: 0 auto;
-}
-
-.fp-footer-inner--steps {
-  display: flex;
-  gap: 0.625rem;
-  align-items: stretch;
-}
-
-.fp-step-btn {
-  font-family: 'Roboto', ui-sans-serif, system-ui, sans-serif;
-  flex: 1;
-  min-height: 3rem;
-  padding: 0.875rem 1rem;
-  border-radius: 0.5rem;
-  font-size: 0.9375rem;
-  font-weight: 600;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.4rem;
-  transition: background 0.15s, border-color 0.15s, transform 0.1s;
-}
-
-.fp-step-btn--back {
-  border: 1px solid var(--fp-border);
-  background: transparent;
-  color: var(--fp-ink-800);
-}
-
-.form-publico-page.dark .fp-step-btn--back {
-  color: #fafafa;
-  border-color: #2a2a2a;
-}
-
-.fp-step-btn--back:hover {
-  background: color-mix(in srgb, var(--fp-ink-800) 5%, transparent);
-}
-
-.fp-step-btn--next {
-  border: none;
-  background: var(--fp-ink-800);
-  color: #fff;
-}
-
-.form-publico-page.dark .fp-step-btn--next {
-  background: #fafafa;
-  color: var(--fp-ink-900);
-}
-
-.fp-submit-btn--solo {
-  width: 100%;
-}
-
-.fp-footer-inner--steps .fp-submit-btn {
-  flex: 1;
-  width: auto;
-}
-
-.fp-submit-btn {
-  font-family: 'Roboto', ui-sans-serif, system-ui, sans-serif;
-  width: 100%;
-  padding: 0.9375rem 1rem;
-  border: none;
-  border-radius: 0.5rem;
-  background: var(--fp-ink-800);
-  color: #fff;
-  font-size: 0.9375rem;
-  font-weight: 600;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  transition: background 0.15s, transform 0.1s, opacity 0.2s;
-}
-
-.form-publico-page.dark .fp-submit-btn {
-  background: #fafafa;
-  color: var(--fp-ink-900);
-}
-
-.fp-submit-btn:hover:not(:disabled) {
-  background: #2d2a26;
-}
-
-.form-publico-page.dark .fp-submit-btn:hover:not(:disabled) {
-  background: #fff;
-}
-
-.fp-submit-btn:active:not(:disabled) {
-  transform: scale(0.99);
-}
-
+/* Footer / CTAs: ver formulario-publico-layout.css */
 .fp-submit-btn:disabled {
   opacity: 0.55;
   cursor: not-allowed;
 }
 
 .fp-submit-icon {
-  width: 1rem;
-  height: 1rem;
+  font-size: 1.0625rem;
+  line-height: 1;
   flex-shrink: 0;
 }
 
 .fp-spin {
-  width: 1.125rem;
-  height: 1.125rem;
+  font-size: 1.125rem;
+  line-height: 1;
   flex-shrink: 0;
   animation: fpSpin 0.7s linear infinite;
 }
@@ -1184,12 +839,15 @@
   color: #a3a39a;
 }
 
-.fp-kiosk .fp-scroll {
+.fp-totem .fp-scroll {
   padding-top: 0.5rem;
 }
 
 .fp-otp-card {
-  margin: 1rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin: 0;
   padding: 1.25rem 1rem;
   border-radius: 12px;
   border: 1px solid var(--fp-border);
@@ -1242,7 +900,10 @@
 .fp-actors-block,
 .fp-assisted-block,
 .fp-quiz-block {
-  margin: 1rem 0 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin: 0;
   padding: 1rem;
   border-radius: 10px;
   border: 1px solid var(--fp-border);
@@ -1316,7 +977,7 @@
 }
 
 .fp-actors-block .fp-field-group + .fp-field-group {
-  margin-top: 0.65rem;
+  margin-top: 0;
 }
 
 .fp-check-row {
@@ -1513,11 +1174,11 @@
   margin: 0 0 1rem;
   font-size: 1.05rem;
   font-weight: 600;
-  color: var(--fp-text, #171717);
+  color: #2b2b2b;
 }
 
 .form-publico-page.dark .fp-step-heading {
-  color: #f5f5f5;
+  color: #e8e8e8;
 }
 
 .fp-stepper {
@@ -1593,4 +1254,127 @@ body.gestgo-fp-large-text .form-publico-page {
 .form-publico-page .fp-link:focus-visible {
   outline: 2px solid var(--fp-brand-500, #2563eb);
   outline-offset: 2px;
+}
+
+/* Shell / intro / tipografia: ver formulario-publico-layout.css */
+
+.fp-optional {
+  margin-left: 0.35rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--fp-cream-600);
+}
+
+/* field-group / label: ver bloco principal acima */
+
+.fp-nord-control {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  --n-input-border-radius: 12px;
+}
+
+.fp-nord-textarea {
+  min-height: 6.5rem;
+}
+
+/* Radios / checkbox cards (premium .choice) */
+.fp-choices {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.fp-choices--row {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.fp-choices--single {
+  grid-template-columns: 1fr;
+}
+
+@media (max-width: 540px) {
+  .fp-choices--row {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 355px) {
+  .fp-choices--row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.fp-choice {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-height: 54px;
+  padding: 13px 14px;
+  border-radius: 12px;
+  border: 1px solid #dce6df;
+  background: var(--fp-surface);
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s;
+  user-select: none;
+}
+
+.fp-choice:hover {
+  border-color: color-mix(in srgb, var(--fp-brand-500) 40%, #a5cdb7);
+  background: var(--fp-soft);
+}
+
+.fp-choice--selected {
+  border-color: var(--fp-brand-500);
+  background: var(--fp-brand-soft);
+}
+
+.fp-choice-input {
+  width: 19px;
+  height: 19px;
+  accent-color: var(--fp-brand-500);
+  margin: 0;
+  flex-shrink: 0;
+}
+
+.fp-choice-label {
+  font-size: 14px;
+  font-weight: 550;
+  color: var(--fp-ink-800);
+  line-height: 1.35;
+}
+
+.fp-choice--selected .fp-choice-label {
+  font-weight: 700;
+}
+
+.form-publico-page.dark .fp-choice {
+  background: var(--fp-surface);
+  border-color: var(--fp-border);
+}
+
+.form-publico-page.dark .fp-choice:hover {
+  background: var(--fp-soft);
+}
+
+.form-publico-page.dark .fp-choice--selected {
+  background: var(--fp-brand-soft);
+  border-color: var(--fp-brand-500);
+}
+
+.fp-choice--check {
+  padding: 0.65rem 0.85rem;
+}
+
+.fp-choice--check nord-checkbox {
+  width: 100%;
+}
+
+/* Footer CTAs: ver formulario-publico-layout.css */
+
+.fp-field-group--invalid .fp-nord-control {
+  --n-color-border: var(--fp-danger);
+}
+
+.fp-radio-grid {
+  display: none; /* legado: UI migrada para .fp-choices */
 }

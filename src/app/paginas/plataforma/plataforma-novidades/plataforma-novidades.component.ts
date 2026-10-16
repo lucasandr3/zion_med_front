@@ -7,6 +7,8 @@ import { ZmSkeletonListComponent } from '../../../shared/components/skeletons';
 import { ZmEmptyStateComponent } from '../../../shared/components/ui';
 
 import { GestgoBadgeComponent } from '@/shared/components/badge/badge.component';
+import { GestgoComboboxComponent, type GestgoComboboxOption } from '@/shared/components/combobox';
+import { NORD_FORM_IMPORTS } from '@/shared/nord';
 import { ToastService } from '../../../core/services/toast.service';
 import { ConfirmDialogService } from '../../../core/services/confirm-dialog.service';
 
@@ -24,7 +26,9 @@ interface FormItem {
     FormsModule,
     ZmSkeletonListComponent,
     ZmEmptyStateComponent,
-    GestgoBadgeComponent],
+    GestgoBadgeComponent,
+    GestgoComboboxComponent,
+    ...NORD_FORM_IMPORTS],
   templateUrl: './plataforma-novidades.component.html',
   styleUrl: './plataforma-novidades.component.css',
 })
@@ -45,10 +49,11 @@ export class PlataformaNovidadesComponent implements OnInit, OnDestroy {
   formPublished = true;
   formItems: FormItem[] = [{ type: 'feature', text: '' }];
 
-  readonly tipos: { value: ReleaseNoteItemType; label: string }[] = [
+  readonly tipos: GestgoComboboxOption[] = [
     { value: 'feature', label: 'Novidade' },
     { value: 'improvement', label: 'Melhoria' },
-    { value: 'fix', label: 'Correção' }];
+    { value: 'fix', label: 'Correção' },
+  ];
 
   private novidadesService = inject(NovidadesService);
   private headerService = inject(PlataformaHeaderService);

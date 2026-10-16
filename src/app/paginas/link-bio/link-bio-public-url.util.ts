@@ -21,17 +21,25 @@ export function resolvePublicUrlForBrowser(
   return publicUrl;
 }
 
-/** Modo totem/recepção (`?kiosk=1`). */
-export function buildRecepcaoKioskUrl(baseUrl: string): string {
+/** Modo totem/recepção (`?totem=1`). Aceita legado `kiosk=1` na leitura. */
+export function buildRecepcaoTotemUrl(baseUrl: string): string {
   if (!baseUrl.trim()) return '';
   try {
     const u = new URL(baseUrl);
-    u.searchParams.set('kiosk', '1');
+    u.searchParams.delete('kiosk');
+    u.searchParams.set('totem', '1');
     return u.toString();
   } catch {
     const sep = baseUrl.includes('?') ? '&' : '?';
-    return `${baseUrl}${sep}kiosk=1`;
+    return `${baseUrl}${sep}totem=1`;
   }
+}
+
+/** @deprecated Use {@link buildRecepcaoTotemUrl}. */
+export const buildRecepcaoKioskUrl = buildRecepcaoTotemUrl;
+
+export function isTotemQueryParam(get: (key: string) => string | null): boolean {
+  return get('totem') === '1' || get('kiosk') === '1';
 }
 
 export function buildHeaderMetaLinha(metrics: LinkBioMetrics | undefined): string | null {

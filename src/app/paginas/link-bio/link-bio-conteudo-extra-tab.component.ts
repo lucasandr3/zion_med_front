@@ -35,6 +35,7 @@ const LINK_BIO_FOTO_PROFISSIONAL_MAX_BYTES = 2 * 1024 * 1024;
     RouterLink,
     GestgoCardComponent],
   templateUrl: './link-bio-conteudo-extra-tab.component.html',
+  styleUrl: './link-bio-conteudo-extra-tab.component.css',
 })
 export class LinkBioConteudoExtraTabComponent {
   @Input({ required: true }) state!: LinkBioState;

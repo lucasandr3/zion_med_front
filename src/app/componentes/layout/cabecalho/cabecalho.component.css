@@ -205,7 +205,8 @@
   width: 1.75rem;
 }
 
-.shell-horizontal-brand__logo img {
+.shell-horizontal-brand__logo img,
+.shell-horizontal-brand__logo zm-gestgo-brand-mark {
   border-radius: 0.375rem;
   height: 100%;
   object-fit: contain;
@@ -236,7 +237,8 @@
   width: 1.75rem;
 }
 
-.shell-horizontal-brand__logo--gestgo img {
+.shell-horizontal-brand__logo--gestgo img,
+.shell-horizontal-brand__logo--gestgo zm-gestgo-brand-mark {
   border-radius: 0;
 }
 
@@ -249,10 +251,14 @@
 }
 
 .shell-horizontal-brand__title {
-  color: var(--gestgo-brand-title, var(--foreground, var(--c-text)));
+  color: var(--gestgo-brand-deep, #063d36);
   font-size: 0.9375rem;
   font-weight: 800;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.06em;
+}
+
+.shell-horizontal-brand__go {
+  color: var(--gestgo-brand-green, var(--c-primary));
 }
 
 .shell-horizontal-brand__tag {
@@ -261,6 +267,21 @@
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
+}
+
+:host-context(body.dark) .shell-horizontal-brand__title,
+:host-context(body.shell-preset-sidebar-dark) .shell-horizontal-brand__title,
+:host-context(body.shell-preset-tinted) .shell-horizontal-brand__title {
+  color: #fff;
+}
+
+:host-context(body.dark) .shell-horizontal-brand__go,
+:host-context(body.shell-preset-sidebar-dark) .shell-horizontal-brand__go {
+  color: color-mix(in srgb, var(--c-primary) 68%, #ffffff);
+}
+
+:host-context(body.shell-preset-tinted) .shell-horizontal-brand__go {
+  color: #ffffff;
 }
 
 .shell-horizontal-divider {

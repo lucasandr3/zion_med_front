@@ -236,8 +236,19 @@
 
 /* Settings / shells de abas edge-to-edge (sem padding do host) */
 .n-page--flush {
+  display: flex;
+  flex-direction: column;
   padding: 0;
   background: var(--n-color-surface);
+  min-height: 100%;
+  height: 100%;
+}
+
+/* Em flush / list o toolbar não precisa compensar padding do host */
+.n-page--flush .n-form-toolbar,
+.n-page-list > .n-form-toolbar {
+  margin: 0;
+  flex-shrink: 0;
 }
 
 .n-form-toolbar {

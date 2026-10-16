@@ -84,6 +84,16 @@ export class ShellTopBarActionsComponent implements OnInit, OnDestroy {
     return this.auth.hasPermission('notifications.access');
   }
 
+  get podeImportarFicha(): boolean {
+    if (this.auth.isPlatformAdmin()) return false;
+    return this.auth.hasPermission('templates.manage');
+  }
+
+  get podeAgenda(): boolean {
+    if (this.auth.isPlatformAdmin()) return false;
+    return this.auth.hasPermission('organization.manage');
+  }
+
   ngOnInit(): void {
     this.syncTemaControlsFromBrowser();
     if (this.themeDrawerMode === 'auto') {

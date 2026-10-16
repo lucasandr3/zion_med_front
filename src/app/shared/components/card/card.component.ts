@@ -16,14 +16,14 @@ import { mergeClasses } from '@/shared/utils/merge-classes';
 
 /**
  * Compat `g-card` sobre `nord-card` (padrão pesquisa_app).
- * Mantém `[zTitle]` / `[zDescription]` / `[zAction]` para não reescrever todas as telas.
+ * O host é só wrapper — o chrome visual fica só no `nord-card` (evita card dentro de card).
  */
 @Component({
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'g-card',
   imports: [GestgoStringTemplateOutletDirective],
   template: `
-    <nord-card padding="m" [class]="hostClass()">
+    <nord-card padding="m" class="g-card__surface" [class]="surfaceClass()">
       @let title = zTitle();
       @if (title) {
         <h2 slot="header" class="g-card__title n-reset">
@@ -59,9 +59,39 @@ import { mergeClasses } from '@/shared/utils/merge-classes';
     </nord-card>
   `,
   styles: `
+    /*
+     * Um único chrome visual: o de .n-card no shadow do nord-card.
+     * Host Angular e o custom element nord-card ficam sem border/bg/shadow —
+     * senão Tailwind (border/bg-card) ou CSS de página pintam por fora e
+     * parece card dentro de card.
+     */
     :host {
       display: block;
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
       visibility: visible !important;
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+      padding: 0 !important;
+      margin: 0;
+      border-radius: 0 !important;
+      gap: 0 !important;
+    }
+
+    :host .g-card__surface,
+    :host nord-card {
+      display: block;
+      width: 100%;
+      max-width: 100%;
+      box-sizing: border-box;
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+      padding: 0 !important;
+      margin: 0;
+      border-radius: 0 !important;
     }
 
     .g-card__title {
@@ -96,7 +126,7 @@ export class GestgoCardComponent {
 
   readonly zActionClick = output<void>();
 
-  protected readonly hostClass = computed(() => mergeClasses(this.class()));
+  protected readonly surfaceClass = computed(() => mergeClasses(this.class()));
 
   protected onClick(): void {
     this.zActionClick.emit();

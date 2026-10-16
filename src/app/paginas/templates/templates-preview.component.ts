@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { catchError, map, of, switchMap } from 'rxjs';
 import { LoadingService } from '../../shared/services/loading.service';
 import { ZmSkeletonListComponent } from '../../shared/components/skeletons';
+import { NORD_FORM_IMPORTS } from '@/shared/nord';
 
 import { Template, TemplateCampo, TemplatesService } from '../../core/services/templates.service';
 
@@ -13,7 +14,7 @@ type PreviewValue = string | number | boolean;
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'app-templates-preview',
   standalone: true,
-  imports: [FormsModule, ZmSkeletonListComponent],
+  imports: [FormsModule, ZmSkeletonListComponent, ...NORD_FORM_IMPORTS],
   templateUrl: './templates-preview.component.html',
   styleUrl: './templates-preview.component.css',
 })

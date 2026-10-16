@@ -2,11 +2,11 @@
 <html lang="pt-BR" class="scroll-smooth">
 <head>
   <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Gestgo — Fichas e consentimentos digitais para saúde e bem-estar</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+  <title>Gestgo - Fichas e consentimentos digitais para saúde e bem-estar</title>
   <meta name="description" content="Digitalize fichas e consentimentos: clientes recebem um link, preenchem antes do atendimento e assinam digitalmente. Protocolo, PDF automático e histórico organizado. Trial grátis."/>
   <meta name="referrer" content="strict-origin-when-cross-origin"/>
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; media-src 'self' blob:; worker-src 'self' blob:; connect-src 'self' https://api.gestgo.com.br https://api-homolog.gestgo.com.br https://api-errorhub.zionai.com.br http://zion_med.test http://localhost:* http://127.0.0.1:* ws://localhost:* ws://127.0.0.1:*; frame-src 'self'; frame-ancestors 'self'; base-uri 'self'; form-action 'self'; object-src 'none'"/>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; media-src 'self' blob:; worker-src 'self' blob:; connect-src 'self' https://api.gestgo.com.br https://api-homolog.gestgo.com.br https://api-errorhub.zionai.com.br http://localhost:* http://127.0.0.1:* ws://localhost:* ws://127.0.0.1:*; frame-src 'self' blob:; child-src 'self' blob:; base-uri 'self'; form-action 'self'; object-src 'self' blob:"/>
   <meta http-equiv="X-Content-Type-Options" content="nosniff"/>
   <base href="/">
   <link rel="canonical" href="https://gestgo.com.br/"/>
@@ -14,7 +14,7 @@
   <!-- Open Graph -->
   <meta property="og:type" content="website"/>
   <meta property="og:site_name" content="Gestgo"/>
-  <meta property="og:title" content="Gestgo — Fichas e consentimentos digitais para saúde e bem-estar"/>
+  <meta property="og:title" content="Gestgo: Fichas e consentimentos digitais para saúde e bem-estar"/>
   <meta property="og:description" content="Digitalize fichas e consentimentos: clientes recebem um link, preenchem antes do atendimento e assinam digitalmente. Protocolo, PDF automático e histórico organizado. Trial grátis."/>
   <meta property="og:url" content="https://gestgo.com.br/"/>
   <meta property="og:locale" content="pt_BR"/>
@@ -22,15 +22,13 @@
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image"/>
-  <meta name="twitter:title" content="Gestgo — Fichas e consentimentos digitais para saúde e bem-estar"/>
+  <meta name="twitter:title" content="Gestgo: Fichas e consentimentos digitais para saúde e bem-estar"/>
   <meta name="twitter:description" content="Digitalize fichas e consentimentos: clientes recebem um link, preenchem antes do atendimento e assinam digitalmente. Protocolo, PDF automático e histórico organizado. Trial grátis."/>
   <meta name="twitter:image" content="/assets/logo/logo.png"/>
 
-  <!-- Favicons -->
+  <!-- Favicons (href do tema aplicado no boot script; fallback = marca verde) -->
   <meta name="theme-color" content="#14B87A"/>
-  <link rel="icon" type="image/png" href="favicon-96x96.png" sizes="96x96"/>
-  <link rel="icon" type="image/svg+xml" href="favicon.svg" data-theme-favicon="1"/>
-  <link rel="shortcut icon" href="favicon.ico"/>
+  <link rel="icon" type="image/png" href="/assets/logo/logo.png" data-theme-favicon="1"/>
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png"/>
   <meta name="apple-mobile-web-app-title" content="Gestgo"/>
   <link rel="manifest" href="site.webmanifest"/>
@@ -61,7 +59,7 @@
         "@type": "WebSite",
         "name": "Gestgo",
         "url": "https://gestgo.com.br/",
-        "description": "Fichas e consentimentos digitais para negócios de saúde e bem-estar — sem papel na recepção.",
+        "description": "Fichas e consentimentos digitais para negócios de saúde e bem-estar, sem papel na recepção.",
         "publisher": { "@id": "https://gestgo.com.br/#organization" }
       }
     ]
@@ -85,19 +83,34 @@
         var nav = localStorage.getItem('gestgo_nav_layout') || 'sidebar';
         if (nav === 'horizontal') document.body.classList.add('shell-nav-horizontal');
 
-        /* Accent Nord + favicon + theme-color no boot (antes do Angular) */
-        var primary = getComputedStyle(document.body).getPropertyValue('--c-primary').trim() || '#14B87A';
+        /* Accent Nord + favicon + theme-color no boot (antes do Angular/CSS) */
+        var themeColors = {
+          'gestgo-blue': '#1e40af', 'ocean-blue': '#14B87A', 'indigo-night': '#3730a3',
+          'emerald-fresh': '#15803d', 'rose-elegant': '#be185d', 'amber-warm': '#b45309',
+          'violet-dream': '#6d28d9', 'teal-ocean': '#0f766e', 'slate-pro': '#334155',
+          'cyan-tech': '#0369a1', 'fuchsia-bold': '#a21caf'
+        };
+        var logoFiles = {
+          'gestgo-blue': 'logo-azul.png', 'ocean-blue': 'logo.png', 'indigo-night': 'logo-indigo.png',
+          'emerald-fresh': 'logo-emerald.png', 'rose-elegant': 'logo-rose.png', 'amber-warm': 'logo-amber.png',
+          'violet-dream': 'logo-violet.png', 'teal-ocean': 'logo-teal.png', 'slate-pro': 'logo-slate.png',
+          'cyan-tech': 'logo-cyan.png', 'fuchsia-bold': 'logo-fucshia.png'
+        };
+        var primary = themeColors[theme] || getComputedStyle(document.body).getPropertyValue('--c-primary').trim() || '#14B87A';
         var root = document.documentElement;
         root.style.setProperty('--n-color-accent', primary);
         root.style.setProperty('--n-color-accent-secondary', primary);
         root.style.setProperty('--n-color-text-link', primary);
         var meta = document.querySelector('meta[name="theme-color"]');
         if (meta) meta.setAttribute('content', document.body.classList.contains('dark') ? '#1d2025' : primary);
-        var fav = document.querySelector('link[rel="icon"][data-theme-favicon]');
-        if (fav) {
-          var svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="'+primary+'"/><path fill="#fff" d="M10.2 8.4h7.1c3.55 0 5.85 2.15 5.85 5.35 0 2.35-1.2 4.05-3.2 4.85l3.55 5h-3.35l-3.2-4.55h-3.45V23.6H10.2V8.4zm3.3 2.55v5.15h3.55c1.7 0 2.7-.9 2.7-2.55s-1-2.6-2.7-2.6H13.5z"/></svg>';
-          fav.setAttribute('href', 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg));
-        }
+        var favHref = '/assets/logo/' + (logoFiles[theme] || 'logo.png') + '?theme=' + encodeURIComponent(theme);
+        document.querySelectorAll('link[rel="icon"], link[rel="shortcut icon"]').forEach(function(el){ el.remove(); });
+        var fav = document.createElement('link');
+        fav.rel = 'icon';
+        fav.type = 'image/png';
+        fav.setAttribute('data-theme-favicon', '1');
+        fav.href = favHref;
+        document.head.prepend(fav);
       } catch(e) {}
     })();
   </script>

@@ -1,12 +1,13 @@
 import { Component, inject, ChangeDetectionStrategy, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
+import { GestgoBrandMarkComponent } from '../../shared/components/gestgo-brand-mark/gestgo-brand-mark.component';
 
 @Component({
   selector: 'app-verificacao-pendente',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink],
+  imports: [RouterLink, GestgoBrandMarkComponent],
   templateUrl: './verificacao-pendente.component.html',
   styleUrl: './verificacao-pendente.component.css',
 })

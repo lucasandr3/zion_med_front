@@ -9,6 +9,12 @@ import { ZmSkeletonTemplateCamposComponent } from '../../shared/components/skele
 import { ToastService } from '../../core/services/toast.service';
 import { ConfirmDialogService } from '../../core/services/confirm-dialog.service';
 import { TemplatePublishGuardService } from '../../core/services/template-publish-guard.service';
+import {
+  extractApiErrorMessage,
+  extractClinicalValidationIssues,
+  formatClinicalValidationMessage,
+} from '../../core/utils/clinical-validation.util';
+import { buildPublicFormUrl, normalizePublicAppUrl } from '../../core/utils/public-form-url.util';
 
 const TYPE_OPTIONS: { value: string; label: string }[] = [
   { value: 'text', label: 'Texto curto' },
@@ -240,7 +246,7 @@ export class TemplatesCamposComponent implements OnInit {
       next: ({ t, list }) => {
         this.listaPronta.set(true);
         this.template.set(t);
-        if (t.public_url) this.linkPublicoUrl.set(t.public_url);
+        if (t.public_url) this.linkPublicoUrl.set(normalizePublicAppUrl(t.public_url));
         this.campos.set([...list].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0)));
         this.loadActorsVisibilityRules(t);
       },
@@ -408,34 +414,41 @@ export class TemplatesCamposComponent implements OnInit {
     const id = this.idNum;
     if (!id) return;
     this.gerandoLink.set(true);
-    void this.publishGuard.confirmPublishIfNeeded(id).then((confirmed) => {
-      if (!confirmed) {
+    void this.publishGuard
+      .confirmPublishIfNeeded(id)
+      .then((confirmed) => {
+        if (!confirmed) {
+          this.gerandoLink.set(false);
+          return;
+        }
+        this.templatesService.gerarLink(id).subscribe({
+          next: (res) => {
+            this.gerandoLink.set(false);
+            const url = (res as { data?: { public_url?: string } })?.data?.public_url;
+            if (url) this.linkPublicoUrl.set(normalizePublicAppUrl(url));
+            else {
+              const token = (res as { data?: { token?: string } })?.data?.token;
+              if (token) this.linkPublicoUrl.set(buildPublicFormUrl(token));
+            }
+            this.carregar();
+            this.toast.success('Link público gerado', 'O link está disponível para copiar.');
+          },
+          error: (err: unknown) => {
+            this.gerandoLink.set(false);
+            const issues = extractClinicalValidationIssues(err);
+            this.erro.set(
+              issues.length
+                ? formatClinicalValidationMessage(issues)
+                : extractApiErrorMessage(err, 'Não foi possível gerar o link.'),
+            );
+            void this.publishGuard.reportPublishFailure(err, id);
+          },
+        });
+      })
+      .catch(() => {
         this.gerandoLink.set(false);
-        return;
-      }
-      this.templatesService.gerarLink(id).subscribe({
-        next: (res) => {
-          this.gerandoLink.set(false);
-          const url = (res as { data?: { public_url?: string } })?.data?.public_url;
-          if (url) this.linkPublicoUrl.set(url);
-          else if (typeof window !== 'undefined') {
-            const token = (res as { data?: { token?: string } })?.data?.token;
-            if (token) this.linkPublicoUrl.set(`${window.location.origin}/f/${token}`);
-          }
-          this.carregar();
-          this.toast.success('Link público gerado', 'O link está disponível para copiar.');
-        },
-        error: (err) => {
-          this.gerandoLink.set(false);
-          this.erro.set(err?.error?.message ?? 'Não foi possível gerar o link.');
-          const issues = err?.error?.clinical_validation as { message?: string; level?: string }[] | undefined;
-          if (Array.isArray(issues) && issues.length) {
-            this.toast.warning('Validação clínica', issues.map((i) => i.message).filter(Boolean).join(' '));
-          }
-          this.toast.error('Erro', this.erro());
-        },
+        this.toast.error('Erro ao publicar', 'Não foi possível validar as alterações do modelo.');
       });
-    });
   }
 
   aplicarEstruturaTcle(): void {

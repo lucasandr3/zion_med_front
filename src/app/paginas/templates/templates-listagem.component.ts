@@ -1,4 +1,18 @@
-import { Component, OnInit, DestroyRef, inject, Signal, ChangeDetectionStrategy, signal, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  DestroyRef,
+  inject,
+  Signal,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  signal,
+  CUSTOM_ELEMENTS_SCHEMA,
+  ViewChild,
+  TemplateRef,
+  ViewContainerRef,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -13,6 +27,12 @@ import { GestgoCardComponent } from '@/shared/components/card/card.component';
 import { ToastService } from '../../core/services/toast.service';
 import { ConfirmDialogService } from '../../core/services/confirm-dialog.service';
 import { TemplatePublishGuardService } from '../../core/services/template-publish-guard.service';
+import { GestgoSheetService } from '@/shared/components/sheet/sheet.service';
+import type { GestgoSheetRef } from '@/shared/components/sheet/sheet-ref';
+import { GestgoComboboxComponent, type GestgoComboboxOption } from '@/shared/components/combobox';
+import { normalizePublicAppUrl } from '../../core/utils/public-form-url.util';
+
+type FiltroStatus = 'all' | 'ativo' | 'publico';
 
 /** Rótulos de categoria (igual ao backend FormTemplate::categoryLabels) */
 const CATEGORY_LABELS: Record<string, string> = {
@@ -91,18 +111,19 @@ type ModoColecao = 'cards' | 'lista';
     ListSkeletonComponent,
     ZmEmptyStateComponent,
     GestgoCardComponent,
+    GestgoComboboxComponent,
   ],
   templateUrl: './templates-listagem.component.html',
   styleUrl: './templates-listagem.component.css',
 })
-export class TemplatesListagemComponent implements OnInit {
+export class TemplatesListagemComponent implements OnInit, OnDestroy {
   readonly templates = signal<Template[]>([]);
   showSkeleton!: Signal<boolean>;
   readonly listaPronta = signal(false);
   readonly erro = signal('');
 
-  /** Filtro: 'all' | 'ativo' | 'publico' */
-  filtroAtual: 'all' | 'ativo' | 'publico' = 'all';
+  filtroAtual: FiltroStatus = 'all';
+  filtroDraft: FiltroStatus = 'all';
   buscaTexto = '';
 
   /** Grupos por categoria (chave = category ou 'personalizado') */
@@ -111,8 +132,7 @@ export class TemplatesListagemComponent implements OnInit {
   /** Query `?categoria=` — lista modelos só dessa categoria */
   readonly categoriaAberta = signal<string | null>(null);
 
-  /** Painel lateral de filtros (busca + status) */
-  readonly filtrosPainelAberto = signal(false);
+  readonly filterDrawerOpen = signal(false);
 
   /** Ordenação dos cards na coleção */
   readonly ordenacao = signal<OrdenacaoColecao>('fixa');
@@ -126,6 +146,16 @@ export class TemplatesListagemComponent implements OnInit {
   readonly duplicandoId = signal<number | null>(null);
   readonly respostasPorTemplate = signal<Record<number, number>>({});
 
+  readonly opcoesStatusFiltro = signal<GestgoComboboxOption[]>([
+    { value: 'all', label: 'Todos' },
+    { value: 'ativo', label: 'Ativos' },
+    { value: 'publico', label: 'Públicos' },
+  ]);
+
+  @ViewChild('templatesFiltrosTpl') templatesFiltrosTpl?: TemplateRef<void>;
+
+  private filtrosSheetRef?: GestgoSheetRef<void>;
+
   private templatesService = inject(TemplatesService);
   private dashboardService = inject(DashboardService);
   private loadingService = inject(LoadingService);
@@ -135,6 +165,9 @@ export class TemplatesListagemComponent implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private destroyRef = inject(DestroyRef);
+  private readonly vcr = inject(ViewContainerRef);
+  private readonly gestgoSheet = inject(GestgoSheetService);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   constructor() {
     this.route.queryParams.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((q) => {
@@ -143,10 +176,14 @@ export class TemplatesListagemComponent implements OnInit {
         typeof raw === 'string' && raw.trim() !== '' ? canonicalCategoryKey(raw.trim()) : null;
       this.categoriaAberta.set(next);
       if (next) {
-        this.filtrosPainelAberto.set(false);
+        this.filtrosSheetRef?.close();
       }
       this.validarCategoriaNaUrl();
     });
+  }
+
+  ngOnDestroy(): void {
+    this.filtrosSheetRef?.close();
   }
 
   ngOnInit(): void {
@@ -224,12 +261,74 @@ export class TemplatesListagemComponent implements OnInit {
     void this.router.navigate(['/templates']);
   }
 
-  toggleFiltrosPainel(): void {
-    this.filtrosPainelAberto.set(!this.filtrosPainelAberto());
+  get temFiltrosAtivos(): boolean {
+    return this.filtroAtual !== 'all';
   }
 
-  setFiltro(f: 'all' | 'ativo' | 'publico'): void {
+  get quantidadeFiltrosAtivos(): number {
+    return this.filtroAtual !== 'all' ? 1 : 0;
+  }
+
+  selecionarStatusFiltro(key: string | null): void {
+    if (key === 'ativo' || key === 'publico') {
+      this.filtroDraft = key;
+      return;
+    }
+    this.filtroDraft = 'all';
+  }
+
+  openFilterDrawer(): void {
+    if (this.filtrosSheetRef) {
+      this.filtrosSheetRef.close();
+      return;
+    }
+    if (!this.templatesFiltrosTpl) {
+      return;
+    }
+    this.filtroDraft = this.filtroAtual;
+    this.filterDrawerOpen.set(true);
+    this.filtrosSheetRef = this.gestgoSheet.create<void, void>({
+      zContent: this.templatesFiltrosTpl,
+      zViewContainerRef: this.vcr,
+      zSide: 'right',
+      zSize: 'custom',
+      zWidth: 'min(100vw, 24rem)',
+      zHeight: '100dvh',
+      zTitle: 'Filtros',
+      zCustomClasses: 'gestgo-filter-sheet-panel',
+      zHideFooter: true,
+      zOkText: null,
+      zCancelText: null,
+      zMaskClosable: true,
+      zAfterClose: () => {
+        this.filtrosSheetRef = undefined;
+        this.filterDrawerOpen.set(false);
+      },
+    });
+  }
+
+  aplicarFiltros(): void {
+    this.filtroAtual = this.filtroDraft;
+    this.filtrosSheetRef?.close();
+    this.cdr.markForCheck();
+  }
+
+  limparFiltros(): void {
+    this.filtroDraft = 'all';
+    this.filtroAtual = 'all';
+    this.filtrosSheetRef?.close();
+    this.cdr.markForCheck();
+  }
+
+  limparBuscaEFiltros(): void {
+    this.buscaTexto = '';
+    this.limparFiltros();
+  }
+
+  setFiltro(f: FiltroStatus): void {
     this.filtroAtual = f;
+    this.filtroDraft = f;
+    this.cdr.markForCheck();
   }
 
   setModoDetalhe(modo: ModoDetalhe): void {
@@ -288,10 +387,6 @@ export class TemplatesListagemComponent implements OnInit {
 
   rotuloPublicar(t: Template): string {
     return t.public_enabled ? 'Tirar publicação' : 'Publicar';
-  }
-
-  iconePublicar(t: Template): string {
-    return t.public_enabled ? 'link_off' : 'public';
   }
 
   rotuloAtualizacaoGrupo(grupo: { items: Template[] }): string {
@@ -401,32 +496,38 @@ export class TemplatesListagemComponent implements OnInit {
 
   private publicarModelo(t: Template): void {
     this.publicandoId.set(t.id);
-    void this.publishGuard.confirmPublishIfNeeded(t.id).then((confirmed) => {
-      if (!confirmed) {
-        this.publicandoId.set(null);
-        return;
-      }
-      this.templatesService.gerarLink(t.id).subscribe({
-        next: async (resp) => {
+    void this.publishGuard
+      .confirmPublishIfNeeded(t.id)
+      .then((confirmed) => {
+        if (!confirmed) {
           this.publicandoId.set(null);
-          const publicUrl = String(resp?.data?.public_url ?? t.public_url ?? '').trim();
-          this.marcarTemplateComoPublico(t.id, publicUrl);
+          return;
+        }
+        this.templatesService.gerarLink(t.id).subscribe({
+          next: async (resp) => {
+            this.publicandoId.set(null);
+            const publicUrl = normalizePublicAppUrl(resp?.data?.public_url ?? t.public_url ?? '');
+            this.marcarTemplateComoPublico(t.id, publicUrl);
 
-          if (publicUrl !== '') {
-            const copied = await this.copiarTexto(publicUrl);
-            if (copied) {
-              this.toast.success('Link publicado', 'Link público copiado para a área de transferência.');
-              return;
+            if (publicUrl !== '') {
+              const copied = await this.copiarTexto(publicUrl);
+              if (copied) {
+                this.toast.success('Link publicado', 'Link público copiado para a área de transferência.');
+                return;
+              }
             }
-          }
-          this.toast.success('Link publicado', 'O link público foi ativado para este modelo.');
-        },
-        error: () => {
-          this.publicandoId.set(null);
-          this.toast.error('Erro ao publicar', 'Não foi possível publicar o link deste modelo.');
-        },
+            this.toast.success('Link publicado', 'O link público foi ativado para este modelo.');
+          },
+          error: (err: unknown) => {
+            this.publicandoId.set(null);
+            void this.publishGuard.reportPublishFailure(err, t.id);
+          },
+        });
+      })
+      .catch(() => {
+        this.publicandoId.set(null);
+        this.toast.error('Erro ao publicar', 'Não foi possível validar as alterações do modelo.');
       });
-    });
   }
 
   private montarGrupos(): void {

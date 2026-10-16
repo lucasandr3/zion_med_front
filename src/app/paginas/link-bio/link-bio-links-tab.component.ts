@@ -23,6 +23,7 @@ import { GestgoBadgeComponent } from '@/shared/components/badge';
 
 import { GestgoCardComponent } from '@/shared/components/card/card.component';
 import { GestgoComboboxComponent, type GestgoComboboxOption } from '@/shared/components/combobox';
+import { isSafePublicUrl } from '../../core/utils/safe-public-url';
 
 export type LinkBioLinksTabNavigate = 'aparencia';
 
@@ -142,6 +143,10 @@ export class LinkBioLinksTabComponent {
 
   salvarNovoLink(): void {
     if (!this.novoLabel.trim() || !this.novoUrl.trim()) return;
+    if (!isSafePublicUrl(this.novoUrl.trim())) {
+      this.toast.error('URL inválida', 'Use apenas links https, mailto ou tel.');
+      return;
+    }
     this.salvandoNovoLink = true;
     this.linkBioService.createLink({ label: this.novoLabel.trim(), url: this.novoUrl.trim(), icon: this.novoIcon }).subscribe({
       next: () => {
@@ -202,10 +207,15 @@ export class LinkBioLinksTabComponent {
 
   salvarEdicao(link: LinkBioLink): void {
     if (!this.editandoId) return;
+    const nextUrl = this.editUrl.trim() || link.url;
+    if (!isSafePublicUrl(nextUrl)) {
+      this.toast.error('URL inválida', 'Use apenas links https, mailto ou tel.');
+      return;
+    }
     this.salvandoEdicaoId = link.id;
     const payload = {
       label: this.editLabel.trim() || link.label,
-      url: this.editUrl.trim() || link.url,
+      url: nextUrl,
       icon: this.editIcon || link.icon || 'link',
     };
     this.linkBioService.updateLink(link.id, payload).subscribe({

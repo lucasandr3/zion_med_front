@@ -27,12 +27,34 @@ export const routes: Routes = [
   { path: 'l/demo/:model', loadComponent: () => import('./paginas/demo/demo-link-bio.component').then(m => m.DemoLinkBioComponent) },
   { path: 'l/:slug', loadComponent: () => import('./paginas/link-bio-public/link-bio-public.component').then(m => m.LinkBioPublicComponent) },
   {
+    path: 'planos',
+    loadComponent: () => import('./paginas/marketing/planos.component').then((m) => m.PlanosComponent),
+  },
+  {
+    path: 'para/:slug',
+    loadComponent: () => import('./paginas/marketing/para-segmento.component').then((m) => m.ParaSegmentoComponent),
+  },
+  {
+    path: 'como-funciona/:slug',
+    loadComponent: () => import('./paginas/marketing/como-funciona.component').then((m) => m.ComoFuncionaComponent),
+  },
+  {
+    path: 'a/:slug',
+    loadComponent: () => import('./paginas/agenda/agenda-publica.component').then((m) => m.AgendaPublicaComponent),
+  },
+  {
     path: '',
     loadComponent: () => import('./componentes/layout/layout-app/layout-app.component').then(m => m.LayoutAppComponent),
     canActivate: [authGuard, billingGuard],
     children: [
       { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
-      { path: 'dashboard', canActivate: [permissionGuard], loadComponent: () => import('./paginas/dashboard/dashboard.component').then(m => m.DashboardComponent), data: { titulo: 'Dashboard', permission: 'dashboard.access' } },
+      { path: 'dashboard', canActivate: [permissionGuard], loadComponent: () => import('./paginas/dashboard/dashboard.component').then(m => m.DashboardComponent), data: { titulo: 'Visão geral', permission: 'dashboard.access' } },
+      {
+        path: 'agenda',
+        canActivate: [permissionGuard],
+        loadComponent: () => import('./paginas/agenda/agenda.component').then((m) => m.AgendaComponent),
+        data: { titulo: 'Agenda', permission: 'organization.manage' },
+      },
       { path: 'billing', redirectTo: 'assinatura', pathMatch: 'full' },
       {
         path: 'assinatura',
@@ -58,10 +80,11 @@ export const routes: Routes = [
       { path: 'templates', canActivate: [permissionGuard], loadComponent: () => import('./paginas/templates/templates-listagem.component').then(m => m.TemplatesListagemComponent), data: { titulo: 'Modelos de fichas', permission: 'templates.manage' } },
       { path: 'templates/criar', canActivate: [permissionGuard], loadComponent: () => import('./paginas/templates/templates-criar.component').then(m => m.TemplatesCriarComponent), data: { titulo: 'Novo modelo', permission: 'templates.manage', urlVoltar: '/templates', labelVoltar: 'Voltar para modelos', voltarIntegrado: true } },
       { path: 'templates/criar-em-branco', canActivate: [permissionGuard], loadComponent: () => import('./paginas/templates/templates-criar-em-branco.component').then(m => m.TemplatesCriarEmBrancoComponent), data: { titulo: 'Novo modelo (em branco)', permission: 'templates.manage', urlVoltar: '/templates', labelVoltar: 'Voltar para modelos', voltarIntegrado: true } },
+      { path: 'templates/importar', canActivate: [permissionGuard], loadComponent: () => import('./paginas/templates/templates-importar.component').then(m => m.TemplatesImportarComponent), data: { titulo: 'Importar ficha', permission: 'templates.manage', urlVoltar: '/templates', labelVoltar: 'Voltar para modelos', voltarIntegrado: true } },
       { path: 'templates/:id/editar', canActivate: [permissionGuard], loadComponent: () => import('./paginas/templates/templates-editar.component').then(m => m.TemplatesEditarComponent), data: { titulo: 'Editar modelo', permission: 'templates.manage', urlVoltar: '/templates', labelVoltar: 'Voltar para modelos', voltarIntegrado: true } },
       { path: 'templates/:id/campos', canActivate: [permissionGuard], loadComponent: () => import('./paginas/templates/templates-campos.component').then(m => m.TemplatesCamposComponent), data: { titulo: 'Campos do modelo', permission: 'templates.manage', urlVoltar: '/templates', labelVoltar: 'Voltar para modelos', voltarIntegrado: true } },
       { path: 'clinica/configuracoes', canActivate: [permissionGuard], loadComponent: () => import('./paginas/clinica/clinica-configuracoes.component').then(m => m.ClinicaConfiguracoesComponent), data: { titulo: 'Empresa', permission: 'organization.manage' } },
-      { path: 'clinica/escolher', canActivate: [canSwitchOrganizationGuard], loadComponent: () => import('./paginas/clinica/clinica-escolher.component').then(m => m.ClinicaEscolherComponent), data: { titulo: 'Escolher empresa', urlVoltar: '/dashboard', labelVoltar: 'Painel', voltarIntegrado: true } },
+      { path: 'clinica/escolher', canActivate: [canSwitchOrganizationGuard], loadComponent: () => import('./paginas/clinica/clinica-escolher.component').then(m => m.ClinicaEscolherComponent), data: { titulo: 'Escolher empresa', urlVoltar: '/dashboard', labelVoltar: 'Dashboard', voltarIntegrado: true } },
       { path: 'clinica/integracoes', canActivate: [permissionGuard], loadComponent: () => import('./paginas/clinica/clinica-integracoes.component').then(m => m.ClinicaIntegracoesComponent), data: { titulo: 'Integrações', permission: 'organization.manage' } },
       { path: 'clinica/integracoes/sistemas/feegow', canActivate: [permissionGuard], loadComponent: () => import('./paginas/clinica/clinica-integracao-feegow.component').then(m => m.ClinicaIntegracaoFeegowComponent), data: { titulo: 'Integração Feegow', permission: 'organization.manage', urlVoltar: '/clinica/integracoes', labelVoltar: 'Voltar para integrações', voltarIntegrado: true } },
       { path: 'link-bio', canActivate: [permissionGuard], loadComponent: () => import('./paginas/link-bio/link-bio.component').then(m => m.LinkBioComponent), data: { titulo: 'Link na bio', permission: 'organization.manage' } },

@@ -93,17 +93,35 @@
 
             <g-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-5">
               <p class="text-xs font-bold uppercase tracking-wider mb-4" style="color:var(--c-muted)">Topo da página pública</p>
-              <div class="z-segment" role="group" aria-label="Modo do topo da página">
-                <nord-button type="button" variant="plain" size="s" class="z-segment-btn" [class.z-segment-btn--active]="coverMode === 'banner'" (click)="coverMode = 'banner'">
+              <nord-button-group class="link-bio-cover-mode-group" aria-label="Modo do topo da página">
+                <nord-button
+                  type="button"
+                  size="s"
+                  [attr.variant]="coverMode === 'banner' ? 'primary' : 'default'"
+                  [attr.aria-pressed]="coverMode === 'banner'"
+                  (click)="coverMode = 'banner'"
+                >
                   Usar banner
                 </nord-button>
-                <nord-button type="button" variant="plain" size="s" class="z-segment-btn" [class.z-segment-btn--active]="coverMode === 'solid'" (click)="coverMode = 'solid'">
+                <nord-button
+                  type="button"
+                  size="s"
+                  [attr.variant]="coverMode === 'solid' ? 'primary' : 'default'"
+                  [attr.aria-pressed]="coverMode === 'solid'"
+                  (click)="coverMode = 'solid'"
+                >
                   Cor sólida
                 </nord-button>
-                <nord-button type="button" variant="plain" size="s" class="z-segment-btn" [class.z-segment-btn--active]="coverMode === 'none'" (click)="coverMode = 'none'">
+                <nord-button
+                  type="button"
+                  size="s"
+                  [attr.variant]="coverMode === 'none' ? 'primary' : 'default'"
+                  [attr.aria-pressed]="coverMode === 'none'"
+                  (click)="coverMode = 'none'"
+                >
                   Sem banner
                 </nord-button>
-              </div>
+              </nord-button-group>
               @if (coverMode === 'solid') {
                 <div class="mt-4">
                   <label class="form-label">Cor sólida</label>
@@ -156,14 +174,20 @@
 
           <div class="sticky-footer-spacer" aria-hidden="true"></div>
           <div class="sticky-footer">
-            <div style="font-size:12px;color:var(--c-muted)">Alterações não salvas</div>
+            <div class="text-xs text-muted-foreground">Alterações não salvas</div>
             <div class="footer-btns">
-              <a routerLink="/dashboard" class="gap-2 no-underline">
-                <span class="material-symbols-outlined text-base">close</span>
+              <nord-button type="button" routerLink="/dashboard">
+                <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">close</span>
                 Cancelar
-              </a>
-              <nord-button type="submit" form="link-bio-form-aparencia" size="s" class="gap-2" [attr.disabled]="salvando" [attr.loading]="salvando">
-                <span class="material-symbols-outlined text-base">save</span>
+              </nord-button>
+              <nord-button
+                type="submit"
+                form="link-bio-form-aparencia"
+                variant="primary"
+                [attr.disabled]="salvando || null"
+                [attr.loading]="salvando || null"
+              >
+                <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">save</span>
                 {{ salvando ? 'Salvando…' : 'Salvar aparência' }}
               </nord-button>
             </div>

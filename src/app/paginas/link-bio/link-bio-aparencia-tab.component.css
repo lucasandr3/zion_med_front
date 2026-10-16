@@ -1,3 +1,49 @@
+/* Mesmo padrão visual do subnav / Notificações */
+:host .link-bio-cover-mode-group {
+  display: flex;
+  flex-wrap: wrap;
+  max-width: 100%;
+  --n-button-group-box-shadow: 0 0 0 1px var(--border, #e7eae8);
+  --n-button-group-border-radius: 0.5rem;
+}
+
+:host ::ng-deep .link-bio-cover-mode-group nord-button {
+  --n-button-box-shadow: none !important;
+  --n-button-border-color: transparent;
+  outline: none !important;
+}
+
+:host ::ng-deep .link-bio-cover-mode-group nord-button:focus,
+:host ::ng-deep .link-bio-cover-mode-group nord-button:focus-visible,
+:host ::ng-deep .link-bio-cover-mode-group nord-button:focus-within,
+:host ::ng-deep .link-bio-cover-mode-group nord-button:active {
+  --n-button-box-shadow: none !important;
+  --n-button-border-color: transparent;
+  outline: none !important;
+  z-index: 0 !important;
+}
+
+:host ::ng-deep .link-bio-cover-mode-group nord-button[variant='primary'],
+:host ::ng-deep .link-bio-cover-mode-group nord-button[variant='primary']:focus,
+:host ::ng-deep .link-bio-cover-mode-group nord-button[variant='primary']:focus-visible {
+  --n-button-border-color: transparent;
+  --n-button-box-shadow: none !important;
+}
+
+:host ::ng-deep .link-bio-cover-mode-group nord-button[variant='primary']::before,
+:host ::ng-deep .link-bio-cover-mode-group nord-button[variant='primary']::after {
+  display: none !important;
+  content: none !important;
+}
+
+:host ::ng-deep .link-bio-cover-mode-group nord-button:not(:last-child) {
+  box-shadow: inset -1px 0 0 var(--border, #e7eae8) !important;
+}
+
+:host ::ng-deep .link-bio-cover-mode-group nord-button[variant='primary']:not(:last-child) {
+  box-shadow: none !important;
+}
+
 :host .link-bio-appearance-visual-subtitle .vtitle {
   font-size: 1.125rem;
   font-weight: 700;

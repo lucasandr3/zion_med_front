@@ -1,196 +1,343 @@
+/* Layout alinhado à tela de sucesso da referência premium */
+
 :host {
   display: block;
-  font-family: 'Roboto', ui-sans-serif, system-ui, sans-serif;
+  font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
-  font-feature-settings: 'kern' 1, 'liga' 1, 'clig' 1;
+  --fp-brand-500: #0c9368;
+  --fp-brand-600: #0c7658;
+  --fp-brand-soft: #e8f7f0;
 }
 
 .sucesso-page {
-  min-height: 100vh;
-  background: #fafafa;
-  color: #0a0a0a;
+  min-height: 100dvh;
+  background: #eff4f1;
+  color: #18312b;
 }
 
 .sucesso-page.dark {
-  background: #0a0a0a;
-  color: #fafafa;
+  background: #101713;
+  color: #f2f5f3;
 }
 
 .sucesso-inner {
-  padding-top: 4rem;
-  padding-bottom: 3rem;
+  max-width: 28rem;
+  margin: 0 auto;
+  padding: 2.5rem 1.15rem 3rem;
 }
 
 .sucesso-card {
-  border-radius: 0.5rem;
-  padding: 2rem 1.5rem;
+  border-radius: 26px;
+  padding: 2rem 1.5rem 1.75rem;
   text-align: center;
   background: #fff;
-  border: 1px solid #d4d4d0;
+  border: 1px solid #dfe8e3;
+  box-shadow: 0 20px 60px rgba(18, 68, 46, 0.07);
 }
 
 .sucesso-page.dark .sucesso-card {
-  background: #141414;
-  border-color: #2a2a2a;
+  background: #1c2620;
+  border-color: #344139;
+  box-shadow: none;
 }
 
 .success-icon-wrap {
-  width: 4rem;
-  height: 4rem;
-  border-radius: 50%;
-  border: 1.5px solid #0a0a0a;
-  background: transparent;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 1.5rem;
-  color: #0a0a0a;
+  width: 77px;
+  height: 77px;
+  border-radius: 100%;
+  background: #e0f6e9;
+  display: grid;
+  place-items: center;
+  margin: 5px auto 19px;
+  color: #08865c;
   animation: sucessoPop 0.5s ease both;
 }
 
 .sucesso-page.dark .success-icon-wrap {
-  border-color: #fafafa;
-  color: #fafafa;
+  background: #204d36;
+  color: #b2e8c6;
 }
 
-.success-icon-wrap svg {
-  stroke: currentColor;
+.success-icon-wrap .material-symbols-outlined {
+  font-size: 2.375rem;
+  line-height: 1;
+  font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 48;
+  color: currentColor;
 }
 
 .sucesso-title {
-  font-family: 'Roboto', ui-sans-serif, system-ui, sans-serif;
-  font-size: clamp(1.625rem, 4.5vw, 2rem);
-  font-weight: 400;
-  font-style: normal;
-  font-synthesis: none;
-  letter-spacing: -0.02em;
-  margin: 0 0 0.5rem;
-  color: #0a0a0a;
+  margin: 0 0 9px;
+  font-size: 31px;
+  font-weight: 760;
+  letter-spacing: -0.045em;
+  color: #18312b;
+  line-height: 1.16;
 }
 
 .sucesso-page.dark .sucesso-title {
-  color: #fafafa;
+  color: #f2f5f3;
 }
 
-.bio-text {
-  color: #0a0a0a;
-}
-.sucesso-page.dark .bio-text {
-  color: #fafafa;
-}
-.bio-muted {
-  color: #5c5c58;
-}
-.sucesso-page.dark .bio-muted {
-  color: #a3a3a3;
-}
-.bio-border {
-  border-color: #d4d4d0;
-}
-.sucesso-page.dark .bio-border {
-  border-color: #2a2a2a;
-}
-.bio-bg-soft {
-  background: #f2f2f0;
-}
-.sucesso-page.dark .bio-bg-soft {
-  background: #1a1a1a;
-}
-
-.logo-wrap {
-  width: 3rem;
-  height: 3rem;
-  border-radius: 0.5rem;
-  background: #0a0a0a;
+.sucesso-clinic {
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 8px;
+  margin: 0 0 10px;
 }
-.logo-wrap--img {
-  padding: 2px;
-  background: #fff;
+
+.logo-wrap {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: var(--fp-brand-soft);
+  color: var(--fp-brand-600);
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
   overflow: hidden;
-  border: 1px solid #d4d4d0;
 }
+
+.logo-wrap--img {
+  padding: 0;
+  background: transparent;
+}
+
 .logo-wrap--img img {
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: cover;
   display: block;
-  border-radius: 0.5rem;
-}
-.sucesso-page.dark .logo-wrap {
-  background: #fafafa;
-}
-.sucesso-page.dark .logo-wrap--img {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: #2a2a2a;
-}
-.logo-initial {
-  font-family: 'Roboto', ui-sans-serif, system-ui, sans-serif;
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: #fafafa;
-}
-.sucesso-page.dark .logo-initial {
-  color: #0a0a0a;
 }
 
-.fp-input {
-  display: block;
-  width: 100%;
-  box-sizing: border-box;
-  border: 1px solid #e5e5e5;
-  border-radius: 0.5rem;
-  padding: 0.65rem 0.75rem;
-  font-size: 0.9375rem;
+.logo-initial {
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.sucesso-clinic-name {
+  font-size: 14px;
+  font-weight: 650;
+  margin: 0;
+  color: #18312b;
+}
+
+.sucesso-page.dark .sucesso-clinic-name {
+  color: #f2f5f3;
+}
+
+.sucesso-lead {
+  color: #6c7c76;
+  font-size: 14px;
+  line-height: 1.7;
+  max-width: 380px;
+  margin: 0 auto 19px;
+}
+
+.sucesso-page.dark .sucesso-lead {
+  color: #9eaea5;
+}
+
+.protocol-box {
+  text-align: left;
+  padding: 19px 21px;
+  border-radius: 17px;
+  background: #f5f8f6;
+  border: 1px solid #dfe8e3;
+  margin: 22px 0 16px;
+}
+
+.sucesso-page.dark .protocol-box {
+  background: #25312a;
+  border-color: #344139;
+}
+
+.protocol-label {
+  font-size: 11px;
+  color: #6c7c76;
+  font-weight: 780;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.sucesso-page.dark .protocol-label {
+  color: #9eaea5;
+}
+
+.protocol-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-top: 7px;
+}
+
+.protocol-number {
+  font-size: 20px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  margin: 0;
+  color: #18312b;
+  word-break: break-all;
+}
+
+.sucesso-page.dark .protocol-number {
+  color: #f2f5f3;
+}
+
+.protocol-copy {
   background: #fff;
-  color: #0a0a0a;
+  border: 1px solid #dfe8e3;
+  border-radius: 9px;
+  padding: 7px 10px;
+  color: var(--fp-brand-600);
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  flex-shrink: 0;
+  font-family: inherit;
 }
-.sucesso-page.dark .fp-input {
-  background: #141414;
-  border-color: #2a2a2a;
-  color: #fafafa;
+
+.sucesso-page.dark .protocol-copy {
+  background: #1c2620;
+  border-color: #344139;
+  color: color-mix(in srgb, var(--fp-brand-500) 70%, #fff);
 }
-.fp-input:focus {
-  outline: 2px solid #0a0a0a;
-  outline-offset: 1px;
-}
-.sucesso-page.dark .fp-input:focus {
-  outline-color: #fafafa;
+
+.sucesso-actions {
+  display: grid;
+  gap: 10px;
+  margin: 15px 0 8px;
 }
 
 .fp-submit-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 0;
-  border-radius: 0.5rem;
-  padding: 0.75rem 1rem;
-  font-size: 0.9375rem;
-  font-weight: 600;
-  background: #0a0a0a;
+  gap: 9px;
+  min-height: 52px;
+  width: 100%;
+  border: 1px solid var(--fp-brand-600);
+  border-radius: 12px;
+  padding: 11px 17px;
+  font-size: 14px;
+  font-weight: 750;
+  background: var(--fp-brand-600);
   color: #fff;
   cursor: pointer;
+  font-family: inherit;
 }
-.sucesso-page.dark .fp-submit-btn {
-  background: #fafafa;
-  color: #0a0a0a;
+
+.fp-submit-btn:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--fp-brand-600) 88%, #000);
 }
+
 .fp-submit-btn:disabled {
-  opacity: 0.6;
+  opacity: 0.55;
   cursor: not-allowed;
 }
 
+.fp-submit-btn--secondary {
+  background: #fff;
+  color: #18312b;
+  border-color: #dfe8e3;
+}
+
+.fp-submit-btn--secondary:hover:not(:disabled) {
+  background: #f5f8f6;
+}
+
+.sucesso-page.dark .fp-submit-btn--secondary {
+  background: #1c2620;
+  color: #f2f5f3;
+  border-color: #344139;
+}
+
+.sucesso-email {
+  margin-top: 1rem;
+  text-align: left;
+}
+
+.sucesso-email label {
+  display: block;
+  font-size: 11px;
+  font-weight: 780;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #6c7c76;
+  margin-bottom: 6px;
+}
+
+.sucesso-page.dark .sucesso-email label {
+  color: #9eaea5;
+}
+
+.fp-input {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 52px;
+  border: 1px solid #cddbd3;
+  border-radius: 12px;
+  padding: 13px 15px;
+  font-size: 15px;
+  background: #fff;
+  color: #18312b;
+  font-family: inherit;
+}
+
+.sucesso-page.dark .fp-input {
+  background: #1c2620;
+  border-color: #48594d;
+  color: #f2f5f3;
+}
+
+.fp-input:focus {
+  outline: 0;
+  border-color: var(--fp-brand-500);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--fp-brand-500) 18%, transparent);
+}
+
+.sucesso-hint {
+  font-size: 12px;
+  color: #6c7c76;
+  line-height: 1.55;
+  margin: 12px 0 0;
+  text-align: left;
+}
+
+.sucesso-page.dark .sucesso-hint {
+  color: #9eaea5;
+}
+
 @keyframes sucessoPop {
-  0% {
+  from {
     transform: scale(0.85);
     opacity: 0;
   }
-  100% {
+  to {
     transform: scale(1);
     opacity: 1;
+  }
+}
+
+@media (max-width: 540px) {
+  .sucesso-title {
+    font-size: 27px;
+  }
+  .protocol-number {
+    font-size: 17px;
+  }
+  .sucesso-inner {
+    padding-top: 1.5rem;
+  }
+  .sucesso-card {
+    border-radius: 0;
+    border-left: 0;
+    border-right: 0;
+    box-shadow: none;
+    min-height: calc(100dvh - 3rem);
   }
 }

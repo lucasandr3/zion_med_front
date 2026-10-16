@@ -365,7 +365,7 @@ export class LinkBioPublicLayoutsComponent {
   /** Texto do bloco convênio (modelo 4). */
   get dentalConvenioLine(): string {
     const c = this.conveniosM4;
-    if (!c.length) return 'Particular e demais convênios — consulte na recepção';
+    if (!c.length) return 'Particular e demais convênios. Consulte na recepção';
     return c.join(' · ');
   }
 

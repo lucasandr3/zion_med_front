@@ -58,44 +58,47 @@
         Nome do responsável legal
         @if (requireGuardian) { <span class="fp-required" aria-hidden="true">*</span> }
       </label>
-      <input
+      <nord-input
         id="fpGuardianName"
-        type="text"
-        class="fp-input"
-        [ngModel]="guardianName"
-        (ngModelChange)="guardianNameChange.emit($event)"
         name="fpGuardianName"
-        [ngModelOptions]="{ standalone: true }"
-        [required]="requireGuardian"
+        expand
+        hide-label
+        label="Nome do responsável legal"
+        [value]="guardianName"
+        (input)="guardianNameChange.emit(nordEventValue($event))"
+        class="fp-nord-control"
+        [attr.required]="requireGuardian ? true : null"
         [attr.aria-required]="requireGuardian ? true : null"
-        [placeholder]="requireGuardian ? 'Obrigatório para menor ou incapaz' : 'Opcional — menor ou incapaz'"
-      />
+        [placeholder]="requireGuardian ? 'Obrigatório para menor ou incapaz' : 'Opcional (menor ou incapaz)'"
+      ></nord-input>
     </div>
     <div class="fp-field-group">
       <label class="fp-field-label" for="fpGuardianRelation">Parentesco / relação</label>
-      <input
+      <nord-input
         id="fpGuardianRelation"
-        type="text"
-        class="fp-input"
-        [ngModel]="guardianRelation"
-        (ngModelChange)="guardianRelationChange.emit($event)"
         name="fpGuardianRelation"
-        [ngModelOptions]="{ standalone: true }"
+        expand
+        hide-label
+        label="Parentesco / relação"
+        [value]="guardianRelation"
+        (input)="guardianRelationChange.emit(nordEventValue($event))"
+        class="fp-nord-control"
         placeholder="Ex.: mãe, tutor"
-      />
+      ></nord-input>
     </div>
     <div class="fp-field-group">
       <label class="fp-field-label" for="fpWitnessName">Nome da testemunha</label>
-      <input
+      <nord-input
         id="fpWitnessName"
-        type="text"
-        class="fp-input"
-        [ngModel]="witnessName"
-        (ngModelChange)="witnessNameChange.emit($event)"
         name="fpWitnessName"
-        [ngModelOptions]="{ standalone: true }"
+        expand
+        hide-label
+        label="Nome da testemunha"
+        [value]="witnessName"
+        (input)="witnessNameChange.emit(nordEventValue($event))"
+        class="fp-nord-control"
         placeholder="Opcional"
-      />
+      ></nord-input>
     </div>
   </div>
 }
@@ -122,17 +125,18 @@
           <label class="fp-field-label" for="fpProfessionalSignerName">
             Nome completo do profissional <span class="fp-required" aria-hidden="true">*</span>
           </label>
-          <input
+          <nord-input
             id="fpProfessionalSignerName"
-            type="text"
-            class="fp-input"
-            [ngModel]="professionalSignerName"
-            (ngModelChange)="professionalSignerNameChange.emit($event)"
             name="fpProfessionalSignerName"
-            [ngModelOptions]="{ standalone: true }"
+            expand
+            hide-label
+            label="Nome completo do profissional"
+            [value]="professionalSignerName"
+            (input)="professionalSignerNameChange.emit(nordEventValue($event))"
+            class="fp-nord-control"
             required
-            placeholder="Ex.: Dra. Ana Silva — CRM 12345"
-          />
+            placeholder="Ex.: Dra. Ana Silva, CRM 12345"
+          ></nord-input>
         </div>
         <p class="fp-sig-help">Assine com o dedo (celular) ou mouse (computador) no espaço abaixo.</p>
         <canvas

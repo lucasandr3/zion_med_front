@@ -1,50 +1,66 @@
-<div class="n-form-toolbar">
-  <div class="n-form-toolbar__start">
+<div class="n-page-list__toolbar">
+  <div class="n-page-list__toolbar-start">
     <zm-page-back-link />
   </div>
-  <div class="n-form-toolbar__end">
-    <span class="n-muted n-small">Selecione qual empresa deseja acessar no painel.</span>
+  <div class="n-page-list__toolbar-end">
+    @if (empresaAtualNome()) {
+      <span class="n-muted n-small">Empresa atual: <strong>{{ empresaAtualNome() }}</strong></span>
+    } @else {
+      <span class="n-muted n-small">Selecione qual empresa deseja acessar no dashboard.</span>
+    }
   </div>
 </div>
 
-@if (showSkeleton()) {
-  <app-list-skeleton [count]="5" />
-} @else if (!listaPronta()) {
-} @else if (erro()) {
-  <p class="n-muted n-small" style="color: var(--n-color-status-danger, #c62828)">{{ erro() }}</p>
-} @else if (clinicas().length === 0) {
-  <div class="n-page-list__empty" style="min-height: 16rem">
-    <nord-empty-state>
-      <h2>Nenhuma empresa disponível.</h2>
-    </nord-empty-state>
-  </div>
-} @else {
-  <div class="zm-content-enter n-stack-gap">
-    <nord-card padding="none">
-      <div class="n-page-list__table">
-        @for (c of clinicas(); track c.id) {
-          <div class="n-page-list__row">
-            <div class="n-page-list__row-main">
-              <div class="n-page-list__row-title">{{ c.name }}</div>
-              @if (c.users_count != null) {
-                <div class="n-page-list__row-meta">{{ c.users_count }} usuário(s)</div>
-              }
-            </div>
-            <div class="n-page-list__actions">
-              <nord-button
-                type="button"
-                size="s"
-                [attr.disabled]="escolhendoId() !== null"
-                [attr.loading]="escolhendoId() === c.id"
-                (click)="escolher(c.id)"
-                title="Selecionar esta empresa"
-              >
-                {{ escolhendoId() === c.id ? 'Selecionando…' : 'Selecionar' }}
-              </nord-button>
-            </div>
+<div class="n-page-list__content">
+  @if (showSkeleton()) {
+    <div class="n-page-list__panel">
+      <app-list-skeleton [count]="5" />
+    </div>
+  } @else if (erro()) {
+    <div class="n-page-list__panel">
+      <p class="n-muted n-small" style="color: var(--n-color-status-danger, #c62828)">{{ erro() }}</p>
+    </div>
+  } @else if (!listaPronta()) {
+  } @else if (clinicas().length === 0) {
+    <div class="n-page-list__empty">
+      <nord-empty-state>
+        <h2>Nenhuma empresa disponível.</h2>
+      </nord-empty-state>
+    </div>
+  } @else {
+    <div class="n-page-list__table">
+      @for (c of clinicas(); track c.id) {
+        <div class="n-page-list__row" [class.n-page-list__row--current]="isAtual(c)">
+          <div class="n-page-list__row-main">
+            <div class="n-page-list__row-title">{{ c.name }}</div>
+            @if (c.users_count != null) {
+              <div class="n-page-list__row-meta">{{ c.users_count }} usuário(s)</div>
+            }
           </div>
-        }
-      </div>
-    </nord-card>
-  </div>
-}
+          <div class="n-page-list__actions">
+            @if (isAtual(c)) {
+              <nord-button type="button" size="s" [attr.disabled]="true">Atual</nord-button>
+            }
+            <nord-button
+              type="button"
+              variant="primary"
+              size="s"
+              [attr.disabled]="escolhendoId() !== null || isAtual(c) || null"
+              [attr.loading]="escolhendoId() === c.id || null"
+              (click)="escolher(c)"
+              [title]="isAtual(c) ? 'Empresa selecionada' : 'Selecionar esta empresa'"
+            >
+              @if (escolhendoId() === c.id) {
+                Selecionando…
+              } @else if (isAtual(c)) {
+                Selecionada
+              } @else {
+                Selecionar
+              }
+            </nord-button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

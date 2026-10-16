@@ -1,11 +1,13 @@
-import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { NORD_FORM_IMPORTS } from '@/shared/nord';
 
 @Component({
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'zm-formulario-publico-gate',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [FormsModule],
+  imports: [FormsModule, ...NORD_FORM_IMPORTS],
   templateUrl: './formulario-publico-gate.component.html',
 })
 export class FormularioPublicoGateComponent {
@@ -47,6 +49,10 @@ export class FormularioPublicoGateComponent {
     return this.isCpfMode
       ? 'Para iniciar o preenchimento, informe seu CPF e a data de nascimento cadastrados na clínica.'
       : 'Para iniciar o preenchimento, informe o código e a data de nascimento cadastrados na clínica.';
+  }
+
+  nordEventValue(event: Event): string {
+    return (event.target as { value?: string } | null)?.value ?? '';
   }
 
   onCpfInput(value: string): void {

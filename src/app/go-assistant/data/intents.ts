@@ -410,7 +410,7 @@ export const ASSISTANT_INTENTS: AssistantIntent[] = [
     tutorial: [
       { order: 1, text: 'Abra Integrações.' },
       { order: 2, text: 'Crie um token de API ou configure webhooks de saída.' },
-      { order: 3, text: 'Guarde o segredo com segurança — ele não é exibido novamente.' }],
+      { order: 3, text: 'Guarde o segredo com segurança. Ele não é exibido novamente.' }],
     actions: [
       { id: 'open', label: 'Abrir Integrações', type: 'navigate', route: '/clinica/integracoes', permission: 'organization.manage' }],
   },

@@ -1,13 +1,13 @@
 <div class="integracoes-page relative">
-  @if (carregando) {
+  @if (carregando()) {
     <div class="integracoes-shell">
       <div class="clinica-config integracoes-config">
         <zm-skeleton-integracoes />
       </div>
     </div>
-  } @else if (erro) {
-    <p class="integracoes-alerts text-sm text-destructive">{{ erro }}</p>
-  } @else if (state) {
+  } @else if (erro()) {
+    <p class="integracoes-alerts text-sm text-destructive">{{ erro() }}</p>
+  } @else if (state()) {
     <div class="integracoes-shell zm-content-enter">
       <div class="clinica-config integracoes-config">
         <g-tab-group
@@ -41,17 +41,17 @@
                 </div>
               </g-card>
 
-              @if (ultimoTokenGerado) {
+              @if (ultimoTokenGerado(); as tokenGerado) {
                 <g-card
                   class="section-card section-card--highlight gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0"
                 >
                   <div class="section-header">
                     <div class="icon-wrap"><span class="material-symbols-outlined">key</span></div>
-                    <span class="section-title">Token criado: {{ ultimoTokenGerado.name }}</span>
+                    <span class="section-title">Token criado: {{ tokenGerado.name }}</span>
                   </div>
                   <div class="section-body">
                     <p class="hint mb-3">Copie e guarde em local seguro. Este valor não será exibido novamente.</p>
-                    <code class="block break-all rounded-md bg-muted p-3 text-xs">{{ ultimoTokenGerado.token }}</code>
+                    <code class="block break-all rounded-md bg-muted p-3 text-xs">{{ tokenGerado.token }}</code>
                   </div>
                 </g-card>
               }
@@ -77,19 +77,19 @@
                           placeholder="Ex: ERP, Sistema externo"
                           required
                         />
-                        <nord-button type="submit" size="s" class="inline-flex shrink-0 items-center gap-2" [attr.disabled]="tokenCriando">
-                          @if (tokenCriando) {
+                        <nord-button type="submit" size="s" class="inline-flex shrink-0 items-center gap-2" [attr.disabled]="tokenCriando() || null">
+                          @if (tokenCriando()) {
                             <span class="btn-spinner" aria-hidden="true"></span>
                           } @else {
                             <span class="material-symbols-outlined text-base">add</span>
                           }
-                          {{ tokenCriando ? 'Criando…' : 'Criar token' }}
+                          {{ tokenCriando() ? 'Criando…' : 'Criar token' }}
                         </nord-button>
                       </div>
                     </div>
                   </form>
 
-                  @if (tokens.length > 0) {
+                  @if (tokens().length > 0) {
                     <div class="zm-table-wrap mt-4">
                     <table z-table class="text-sm">
                       <thead z-table-header>
@@ -100,7 +100,7 @@
                         </tr>
                       </thead>
                       <tbody z-table-body>
-                        @for (t of tokens; track t.id) {
+                        @for (t of tokens(); track t.id) {
                           <tr z-table-row>
                             <td z-table-cell>{{ t.name }}</td>
                             <td z-table-cell class="text-muted-foreground">{{ t.created_at | date:'dd/MM/yyyy HH:mm' }}</td>
@@ -140,12 +140,12 @@
                     <div class="field mb-0">
                       <label>Eventos</label>
                       <div class="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2">
-                        @for (ev of availableEvents; track ev) {
+                        @for (ev of availableEvents(); track ev) {
                           <nord-checkbox
                             [ngModel]="novoWebhookEventos.includes(ev)"
                             (ngModelChange)="toggleEvento(ev, $event)"
                             [name]="'webhook_ev_' + ev"
-                            [attr.label]="eventLabels[ev] || ev"
+                            [attr.label]="eventLabels()[ev] || ev"
                           ></nord-checkbox>
                         }
                       </div>
@@ -158,19 +158,19 @@
                       <label>Descrição <span class="opt">opcional</span></label>
                       <input type="text" class="max-w-xs w-full" [(ngModel)]="novoWebhookDescricao" name="novoWebhookDescricao" placeholder="Ex: ERP principal" />
                     </div>
-                    <nord-button type="submit" size="s" class="inline-flex w-fit items-center gap-2" [attr.disabled]="webhookCriando">
-                      @if (webhookCriando) {
+                    <nord-button type="submit" size="s" class="inline-flex w-fit items-center gap-2" [attr.disabled]="webhookCriando() || null">
+                      @if (webhookCriando()) {
                         <span class="btn-spinner" aria-hidden="true"></span>
                       } @else {
                         <span class="material-symbols-outlined text-base">add</span>
                       }
-                      {{ webhookCriando ? 'Salvando…' : 'Adicionar webhook' }}
+                      {{ webhookCriando() ? 'Salvando…' : 'Adicionar webhook' }}
                     </nord-button>
                   </form>
 
-                  @if (webhooks.length > 0) {
+                  @if (webhooks().length > 0) {
                     <div class="flex flex-col gap-3">
-                      @for (wh of webhooks; track wh.id) {
+                      @for (wh of webhooks(); track wh.id) {
                         <g-card class="webhook-item-card gap-0 overflow-hidden rounded-lg border-border bg-card py-0 shadow-none **:data-[slot=card-content]:p-0">
                           <div class="flex flex-wrap items-start justify-between gap-3 p-4 text-sm">
                             <div class="min-w-0 flex-1">
@@ -204,7 +204,7 @@
                   <span class="section-title">Últimas entregas de webhook</span>
                 </div>
                 <div class="section-body">
-                  @if (deliveries.length === 0) {
+                  @if (deliveries().length === 0) {
                     <p class="text-sm text-muted-foreground">Nenhuma entrega registrada.</p>
                   } @else {
                     <div class="zm-table-wrap">
@@ -219,10 +219,10 @@
                           </tr>
                         </thead>
                         <tbody z-table-body>
-                          @for (d of deliveries; track d.id) {
+                          @for (d of deliveries(); track d.id) {
                             <tr z-table-row>
                               <td z-table-cell class="text-muted-foreground">{{ d.created_at | date:'dd/MM/yyyy HH:mm:ss' }}</td>
-                              <td z-table-cell>{{ eventLabels[d.event] || d.event }}</td>
+                              <td z-table-cell>{{ eventLabels()[d.event] || d.event }}</td>
                               <td z-table-cell>{{ d.webhook_id }}</td>
                               <td z-table-cell>
                                 @if (d.response_code != null && d.response_code >= 200 && d.response_code < 300) {
@@ -233,11 +233,11 @@
                               </td>
                               <td z-table-cell class="text-right">
                                 @if ((d.response_code == null || d.response_code < 200 || d.response_code >= 300) && d.id) {
-                                  <nord-button type="button" variant="default" size="s" class="inline-flex items-center gap-2" (click)="reenviar(d)" [attr.disabled]="reenviandoId === d.id">
-                                    @if (reenviandoId === d.id) {
+                                  <nord-button type="button" variant="default" size="s" class="inline-flex items-center gap-2" (click)="reenviar(d)" [attr.disabled]="reenviandoId() === d.id || null">
+                                    @if (reenviandoId() === d.id) {
                                       <span class="btn-spinner btn-spinner--xs" aria-hidden="true"></span>
                                     }
-                                    {{ reenviandoId === d.id ? 'Reenviando…' : 'Reenviar' }}
+                                    {{ reenviandoId() === d.id ? 'Reenviando…' : 'Reenviar' }}
                                   </nord-button>
                                 }
                               </td>
@@ -260,13 +260,13 @@
                   <span class="section-title">Sistemas integrados</span>
                 </div>
                 <div class="section-body">
-                  @if (carregandoSistemas) {
+                  @if (carregandoSistemas()) {
                     <zm-skeleton-integracoes-sistemas />
-                  } @else if (sistemas.length === 0) {
+                  } @else if (sistemas().length === 0) {
                     <p class="text-sm text-muted-foreground">Nenhum sistema encontrado.</p>
                   } @else {
                     <div class="sistemas-grid">
-                      @for (s of sistemas; track s.key) {
+                      @for (s of sistemas(); track s.key) {
                         @let link = sistemaLink(s);
                         <a class="sistema-card" [routerLink]="link ?? ['/clinica/integracoes']">
                           <div class="flex items-start justify-between gap-2">

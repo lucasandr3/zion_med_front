@@ -8,9 +8,9 @@ import { ListSkeletonComponent } from '../../shared/components/list-skeleton/lis
 import { ZmPaginationComponent } from '../../shared/components/ui';
 import { GestgoSheetService } from '@/shared/components/sheet/sheet.service';
 import type { GestgoSheetRef } from '@/shared/components/sheet/sheet-ref';
-import { FlatpickrDirective } from 'angularx-flatpickr';
 import { GestgoComboboxComponent, type GestgoComboboxOption } from '@/shared/components/combobox';
 import { NORD_FORM_IMPORTS } from '@/shared/nord';
+import { formatarDataHoraBr } from '@/shared/utils/date';
 @Component({
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'app-protocolos-listagem',
@@ -19,7 +19,6 @@ import { NORD_FORM_IMPORTS } from '@/shared/nord';
   host: { class: 'n-page-list' },
   imports: [
     ...NORD_FORM_IMPORTS,
-    FlatpickrDirective,
     FormsModule,
     RouterLink,
     ListSkeletonComponent,
@@ -47,8 +46,6 @@ export class ProtocolosListagemComponent implements OnInit, OnDestroy {
   data_inicio = '';
   data_fim = '';
   readonly filterDrawerOpen = signal(false);
-  /** Calendário no body para não ser cortado pelo overflow do sheet. */
-  flatpickrAppendTo!: HTMLElement;
 
   @ViewChild('protocolosFiltrosTpl') protocolosFiltrosTpl?: TemplateRef<void>;
 
@@ -95,7 +92,6 @@ export class ProtocolosListagemComponent implements OnInit, OnDestroy {
     this.filtrosSheetRef?.close();
   }
   ngOnInit(): void {
-    this.flatpickrAppendTo = document.body;
     const statusFromQuery = this.route.snapshot.queryParamMap.get('status');
     if (statusFromQuery) {
       this.status = statusFromQuery;
@@ -172,11 +168,15 @@ export class ProtocolosListagemComponent implements OnInit, OnDestroy {
       zContent: this.protocolosFiltrosTpl,
       zViewContainerRef: this.vcr,
       zSide: 'right',
-      zSize: 'lg',
+      zSize: 'custom',
+      zWidth: 'min(100vw, 24rem)',
+      zHeight: '100dvh',
       zTitle: 'Filtros',
+      zCustomClasses: 'gestgo-filter-sheet-panel',
       zHideFooter: true,
       zOkText: null,
       zCancelText: null,
+      zMaskClosable: true,
       zAfterClose: () => {
         this.filtrosSheetRef = undefined;
         this.filterDrawerOpen.set(false);
@@ -200,10 +200,7 @@ export class ProtocolosListagemComponent implements OnInit, OnDestroy {
   }
 
   dataFormatada(val: string | undefined): string {
-    if (!val) return '—';
-    const d = new Date(val);
-    if (isNaN(d.getTime())) return val;
-    return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+    return formatarDataHoraBr(val) || '—';
   }
 
   exportarCsv(): void {

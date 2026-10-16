@@ -15,9 +15,9 @@ import { finalize } from 'rxjs';
 import { OnboardingService } from '../../../../core/services/onboarding.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { ToastService } from '../../../../core/services/toast.service';
+import { TemplatePublishGuardService } from '../../../../core/services/template-publish-guard.service';
 import { Template } from '../../../../core/services/templates.service';
-import { GestgoCardComponent } from '@/shared/components/card/card.component';
-
+import { normalizePublicAppUrl } from '../../../../core/utils/public-form-url.util';
 
 const DISMISS_PREFIX = 'zm_onboarding_dismiss_';
 
@@ -26,7 +26,7 @@ const DISMISS_PREFIX = 'zm_onboarding_dismiss_';
   selector: 'zm-dashboard-onboarding-wizard',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, GestgoCardComponent],
+  imports: [RouterLink],
   templateUrl: './zm-dashboard-onboarding-wizard.component.html',
   styleUrl: './zm-dashboard-onboarding-wizard.component.css',
 })
@@ -38,6 +38,7 @@ export class ZmDashboardOnboardingWizardComponent implements OnChanges {
   private onboarding = inject(OnboardingService);
   private auth = inject(AuthService);
   private toast = inject(ToastService);
+  private publishGuard = inject(TemplatePublishGuardService);
   private destroyRef = inject(DestroyRef);
 
   readonly templates = signal<Template[]>([]);
@@ -45,7 +46,31 @@ export class ZmDashboardOnboardingWizardComponent implements OnChanges {
   readonly templateSelecionadoId = signal<number | null>(null);
   readonly linkPublicoUrl = signal('');
   readonly gerandoLink = signal(false);
+  readonly enviandoParaMim = signal(false);
   readonly linkCopiado = signal(false);
+
+  readonly checklist = [
+    { key: 'segment', label: 'Segmento' },
+    { key: 'template', label: 'Escolher um modelo' },
+    { key: 'public_link', label: 'Publicar link' },
+    { key: 'first_send', label: 'Testar no seu e-mail' },
+  ] as const;
+
+  readonly segmentos = [
+    { key: 'fisioterapia-dermatofuncional', label: 'Dermatofuncional' },
+    { key: 'estetica-facial', label: 'Estética facial' },
+    { key: 'odontologia', label: 'Odontologia' },
+    { key: 'outro', label: 'Outro' },
+  ] as const;
+
+  readonly segmento = signal<string | null>(null);
+
+  readonly passoAtivo = computed(() => {
+    if (!this.segmento()) return 1;
+    if (!this.templateSelecionadoId()) return 2;
+    if (!this.linkPublicoUrl()) return 3;
+    return 4;
+  });
 
   private copyResetTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -79,7 +104,7 @@ export class ZmDashboardOnboardingWizardComponent implements OnChanges {
       )
       .subscribe({
         next: (items) => {
-          const slice = items.slice(0, 8);
+          const slice = items.slice(0, 3);
           this.templates.set(slice);
           if (slice.length === 1) {
             this.templateSelecionadoId.set(slice[0].id);
@@ -89,6 +114,15 @@ export class ZmDashboardOnboardingWizardComponent implements OnChanges {
           this.toast.error('Erro', 'Não foi possível carregar os modelos.');
         },
       });
+  }
+
+  selecionarSegmento(key: string): void {
+    this.segmento.set(key);
+    try {
+      localStorage.setItem('zm_onboarding_segment', key);
+    } catch {
+      /* ignore */
+    }
   }
 
   selecionarTemplate(id: number): void {
@@ -169,12 +203,39 @@ export class ZmDashboardOnboardingWizardComponent implements OnChanges {
       )
       .subscribe({
         next: (url) => {
-          this.linkPublicoUrl.set(url);
+          this.linkPublicoUrl.set(normalizePublicAppUrl(url));
           this.linkGenerated.emit();
-          this.toast.success('Link gerado', 'Copie e envie para seu paciente ou publique no link na bio.');
+          this.toast.success('Link gerado', 'Copie e envie para seu paciente ou teste no seu e-mail.');
         },
-        error: () => {
-          this.toast.error('Erro', 'Não foi possível gerar o link público.');
+        error: (err: unknown) => {
+          void this.publishGuard.reportPublishFailure(err, templateId);
+        },
+      });
+  }
+
+  enviarParaMim(): void {
+    const templateId = this.templateSelecionadoId();
+    if (!templateId) {
+      this.toast.error('Selecione um modelo', 'Escolha um formulário antes de enviar o teste.');
+      return;
+    }
+    this.enviandoParaMim.set(true);
+    this.onboarding
+      .enviarParaMim(templateId)
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.enviandoParaMim.set(false)),
+      )
+      .subscribe({
+        next: (res) => {
+          if (res.public_url) {
+            this.linkPublicoUrl.set(normalizePublicAppUrl(res.public_url));
+          }
+          this.linkGenerated.emit();
+          this.toast.success('Teste enviado', res.message || 'Abra o e-mail da sua conta para preencher a ficha.');
+        },
+        error: (err: unknown) => {
+          void this.publishGuard.reportPublishFailure(err, templateId);
         },
       });
   }

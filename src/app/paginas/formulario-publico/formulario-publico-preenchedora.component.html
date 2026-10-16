@@ -3,29 +3,34 @@
   <div class="fp-preenchedora-grid">
     <div class="fp-field-group">
       <label for="submitterName" class="fp-field-label">Seu nome</label>
-      <input
+      <nord-input
         id="submitterName"
-        type="text"
-        [ngModel]="submitterName"
-        (ngModelChange)="submitterNameChange.emit($event); identityChange.emit()"
         name="submitterName"
-        class="fp-input"
+        expand
+        hide-label
+        label="Seu nome"
+        [value]="submitterName"
+        (input)="onNameInput($event)"
+        class="fp-nord-control"
         placeholder="Nome para contato"
         [attr.autocomplete]="personLinkRequired ? 'off' : 'name'"
-      />
+      ></nord-input>
     </div>
     <div class="fp-field-group">
       <label for="submitterEmail" class="fp-field-label">Seu e-mail</label>
-      <input
+      <nord-input
         id="submitterEmail"
-        type="email"
-        [ngModel]="submitterEmail"
-        (ngModelChange)="submitterEmailChange.emit($event); identityChange.emit()"
         name="submitterEmail"
-        class="fp-input"
+        type="email"
+        expand
+        hide-label
+        label="Seu e-mail"
+        [value]="submitterEmail"
+        (input)="onEmailInput($event)"
+        class="fp-nord-control"
         placeholder="email@exemplo.com"
         [attr.autocomplete]="personLinkRequired ? 'off' : 'email'"
-      />
+      ></nord-input>
     </div>
   </div>
 </div>

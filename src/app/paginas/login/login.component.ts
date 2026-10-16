@@ -3,13 +3,22 @@ import { isPlatformBrowser } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../core/services/auth.service';
+import { UserAppearanceService } from '../../core/services/user-appearance.service';
+import {
+  GESTGO_APPEARANCE_MODE_LS,
+  GESTGO_DARK_LS,
+  GESTGO_LOGIN_DARK_CHOICE_SS,
+  applyUserAppearanceToBrowser,
+  syncThemeChrome,
+} from '../../core/services/user-appearance.sync';
+import { GestgoBrandMarkComponent } from '../../shared/components/gestgo-brand-mark/gestgo-brand-mark.component';
 
 @Component({
   selector: 'app-pagina-login',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
-  imports: [RouterLink, FormsModule],
+  imports: [RouterLink, FormsModule, GestgoBrandMarkComponent],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css',
 })
@@ -21,12 +30,13 @@ export class LoginComponent implements OnInit {
   readonly estadoErro = signal(false);
   readonly mensagemErro = signal('');
   ano = new Date().getFullYear();
-  readonly iconeTema = signal('interface-mode-dark');
+  readonly iconeTema = signal('dark_mode');
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: object,
     private router: Router,
-    private auth: AuthService
+    private auth: AuthService,
+    private appearance: UserAppearanceService,
   ) {}
 
   ngOnInit(): void {
@@ -53,17 +63,46 @@ export class LoginComponent implements OnInit {
   }
 
   alternarTema(): void {
-    if (isPlatformBrowser(this.platformId)) {
-      document.body.classList.toggle('dark');
-      localStorage.setItem('gestgo_dark_mode', document.body.classList.contains('dark') ? '1' : '0');
-      this.atualizarIconeTema();
-    }
+    if (!isPlatformBrowser(this.platformId)) return;
+    const dark = !document.body.classList.contains('dark');
+    document.body.classList.toggle('dark', dark);
+    try {
+      localStorage.setItem(GESTGO_DARK_LS, dark ? '1' : '0');
+      localStorage.removeItem(GESTGO_APPEARANCE_MODE_LS);
+      sessionStorage.setItem(GESTGO_LOGIN_DARK_CHOICE_SS, dark ? '1' : '0');
+    } catch {}
+    syncThemeChrome();
+    this.atualizarIconeTema();
   }
 
   private atualizarIconeTema(): void {
     this.iconeTema.set(
-      document.body.classList.contains('dark') ? 'interface-mode-light' : 'interface-mode-dark',
+      document.body.classList.contains('dark') ? 'light_mode' : 'dark_mode',
     );
+  }
+
+  /** Persiste na conta o modo escolhido no login (a flag em session impede /me de reverter). */
+  private sincronizarModoLoginComConta(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+    let choice: string | null = null;
+    try {
+      choice = sessionStorage.getItem(GESTGO_LOGIN_DARK_CHOICE_SS);
+    } catch {
+      return;
+    }
+    if (choice !== '0' && choice !== '1') return;
+
+    const dark = choice === '1';
+    applyUserAppearanceToBrowser({ ui_dark_mode: dark });
+    this.auth.notifyAppearanceApplied();
+    this.appearance.patchAppearance({ ui_dark_mode: dark }).subscribe({
+      next: () => {
+        try {
+          sessionStorage.removeItem(GESTGO_LOGIN_DARK_CHOICE_SS);
+        } catch {}
+      },
+      error: () => {},
+    });
   }
 
   enviar(): void {
@@ -76,6 +115,7 @@ export class LoginComponent implements OnInit {
     this.auth.login(this.email, this.senha).subscribe({
       next: (res) => {
         this.estadoCarregando.set(false);
+        this.sincronizarModoLoginComConta();
         const isPlatformAdmin = res.data.user?.role === 'platform_admin';
         if (isPlatformAdmin) {
           this.router.navigate(['/plataforma']);

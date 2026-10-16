@@ -1,192 +1,136 @@
 import { Component, OnInit, OnDestroy, inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { LinkBioPublicLayoutsComponent } from '../link-bio-public/link-bio-public-layouts.component';
-import { LinkBioPublicLayoutGenericComponent } from '../link-bio-public/link-bio-public-layout-generic.component';
-import { LinkBioPublicLayoutVetComponent } from '../link-bio-public/link-bio-public-layout-vet.component';
-import { LinkBioPublicLayoutPediaComponent } from '../link-bio-public/link-bio-public-layout-pedia.component';
-import { LinkBioPublicLayoutNutriComponent } from '../link-bio-public/link-bio-public-layout-nutri.component';
+import { LinkBioPublicLayoutPresetComponent } from '../link-bio-public/link-bio-public-layout-preset.component';
 import type { LinkBioClinic, LinkBioLink, LinkBioPublicDocItem } from '../../core/services/link-bio.service';
 import { PublicPageBodyService } from '../../core/services/public-page-body.service';
 
 const MOCK_CLINICS: Record<number, Partial<LinkBioClinic> & { id: number; name: string; slug: string }> = {
   1: {
     id: 9001,
-    name: 'Clínica São Paulo',
+    name: 'Dra. Clara Mendes',
     slug: 'demo-1',
-    short_description: 'Clínica geral multidisciplinar',
-    logo_url: null,
-    cover_image_url: null,
-    /** Sem faixa hero — alinhado ao layout genérico “limpo” na prévia da landing */
-    cover_mode: 'none',
-    cover_color: null,
-    accent_hex: '#1e293b',
+    short_description: 'Atendimento individual, acolhedor e organizado.',
+    accent_hex: '#206D58',
     phone: '11999999999',
-    contact_email: 'contato@clinicasp.com.br',
-    address: 'Rua Central, 45 · São Paulo, SP',
+    contact_email: 'clara@exemplo.com',
+    address: 'Av. Paulista, 1000 · São Paulo, SP',
     maps_url: '#',
     is_open_now: true,
     link_bio_model: 1,
-    link_bio_extra: {},
-    specialties_list: ['Clínica Geral', 'Cardiologia', 'Endocrinologia'],
-    business_hours_grid: {
-      '1': { label: 'Seg', text: '08:00–18:00' },
-      '2': { label: 'Ter', text: '08:00–18:00' },
-      '3': { label: 'Qua', text: '08:00–18:00' },
-      '4': { label: 'Qui', text: '08:00–18:00' },
-      '5': { label: 'Sex', text: '08:00–17:00' },
-      '6': { label: 'Sáb', text: '–' },
-      '7': { label: 'Dom', text: '–' },
-    },
-    founded_year: 2010,
+    link_bio_extra: { hero_tagline: 'Cuidar de você começa com uma boa conversa.' },
+    specialties_list: ['Consulta individual', 'Retorno'],
   },
   2: {
     id: 9002,
-    name: 'Dra. Ana Costa',
+    name: 'Clínica Horizonte',
     slug: 'demo-2',
-    short_description: 'Dermatologia clínica e estética',
-    logo_url: null,
-    cover_image_url: null,
+    short_description: 'Seu cuidado, com mais simplicidade.',
+    accent_hex: '#24334A',
     phone: '11999999999',
-    contact_email: 'ana@dracosta.com.br',
-    address: 'Av. Paulista, 1200 · São Paulo, SP',
+    contact_email: 'contato@horizonte.com.br',
+    address: 'Rua Central, 45 · São Paulo, SP',
     maps_url: '#',
     is_open_now: true,
     link_bio_model: 2,
-    link_bio_extra: { hero_tagline: 'Dermatologista · CRM 45.678', modalities: [{ title: 'Teleconsulta', subtitle: 'Via Google Meet', available: true }, { title: 'Presencial', subtitle: 'Av. Paulista', available: true }] },
-    specialties_list: ['Dermatologia'],
-    business_hours_grid: { '1': { label: 'Seg', text: '09:00–17:00' }, '2': { label: 'Ter', text: '09:00–17:00' }, '3': { label: 'Qua', text: '09:00–17:00' }, '4': { label: 'Qui', text: '09:00–17:00' }, '5': { label: 'Sex', text: '09:00–16:00' } },
+    link_bio_extra: {},
+    specialties_list: ['Clínica Geral', 'Cardiologia', 'Endocrinologia'],
   },
   3: {
     id: 9003,
-    name: 'Studio Belle Estética',
+    name: 'Ateliê da Pele',
     slug: 'demo-3',
-    short_description: 'Estética avançada e harmonização facial',
-    logo_url: null,
-    cover_image_url: null,
+    short_description: 'Estética facial com documentos digitais.',
+    accent_hex: '#806044',
     phone: '11999999999',
-    contact_email: 'contato@studiobelle.com.br',
+    contact_email: 'contato@ateliedapele.com.br',
     address: 'Rua Oscar Freire, 890 · São Paulo, SP',
     maps_url: '#',
     is_open_now: true,
     link_bio_model: 3,
-    link_bio_extra: { brand_subtitle: 'Estética avançada', specialties_list: ['Botox', 'Preenchimento', 'Bioestimuladores', 'Peeling', 'Limpeza de Pele', 'Microagulhamento'] },
-    specialties_list: [],
-    business_hours_grid: { '1': { label: 'Seg', text: '10:00–19:00' }, '2': { label: 'Ter', text: '10:00–19:00' }, '3': { label: 'Qua', text: '10:00–19:00' }, '4': { label: 'Qui', text: '10:00–19:00' }, '5': { label: 'Sex', text: '10:00–18:00' }, '6': { label: 'Sáb', text: '09:00–14:00' } },
+    link_bio_extra: { hero_tagline: 'Sua beleza, no seu próprio tempo.' },
+    specialties_list: ['Botox', 'Preenchimento', 'Bioestimuladores', 'Peeling'],
   },
   4: {
     id: 9004,
-    name: 'OdontoSmile',
+    name: 'Oral Prime',
     slug: 'demo-4',
-    short_description: 'Odontologia completa para toda a família',
-    logo_url: null,
-    cover_image_url: null,
+    short_description: 'Odontologia completa para a família.',
+    accent_hex: '#1764A8',
     phone: '11999999999',
-    contact_email: 'contato@odontosmile.com.br',
+    contact_email: 'contato@oralprime.com.br',
     address: 'Rua Augusta, 320 · São Paulo, SP',
     maps_url: '#',
-    is_open_now: false,
+    is_open_now: true,
     link_bio_model: 4,
-    link_bio_extra: { council_type: 'CRO', council_number: '12345', convenios: ['Amil', 'Bradesco Saúde', 'SulAmérica', 'Unimed'] },
+    link_bio_extra: { convenios: ['Amil', 'Bradesco Saúde', 'SulAmérica', 'Unimed'] },
     specialties_list: ['Ortodontia', 'Implantes', 'Endodontia'],
-    business_hours_grid: { '1': { label: 'Seg', text: '08:00–18:00' }, '2': { label: 'Ter', text: '08:00–18:00' }, '3': { label: 'Qua', text: '08:00–18:00' }, '4': { label: 'Qui', text: '08:00–18:00' }, '5': { label: 'Sex', text: '08:00–17:00' } },
-    founded_year: 2015,
   },
   5: {
     id: 9005,
-    name: 'Instituto Saúde Integrar',
+    name: 'Raiz Nutrição',
     slug: 'demo-5',
-    short_description: 'Clínica multidisciplinar com equipe completa',
-    logo_url: null,
-    cover_image_url: null,
+    short_description: 'Nutrição clínica e funcional.',
+    accent_hex: '#3E6345',
+    phone: '11999999999',
+    contact_email: 'ola@raiznutri.com.br',
+    address: 'Rua Bem-Estar, 150 · São Paulo, SP',
+    maps_url: '#',
+    is_open_now: true,
+    link_bio_model: 5,
+    link_bio_extra: {},
+    specialties_list: ['Nutrição clínica', 'Emagrecimento', 'Esportiva'],
+  },
+  6: {
+    id: 9006,
+    name: 'Pequenos Horizontes',
+    slug: 'demo-6',
+    short_description: 'Pediatria com acolhimento para a família.',
+    accent_hex: '#286D8A',
+    phone: '11999999999',
+    contact_email: 'contato@pequenos.com.br',
+    address: 'Alameda Infância, 88 · São Paulo, SP',
+    maps_url: '#',
+    is_open_now: true,
+    link_bio_model: 6,
+    link_bio_extra: {},
+    specialties_list: ['Pediatria', 'Puericultura'],
+  },
+  7: {
+    id: 9007,
+    name: 'Núcleo Integrar',
+    slug: 'demo-7',
+    short_description: 'Clínica multiprofissional.',
+    accent_hex: '#6250AA',
     phone: '11999999999',
     contact_email: 'contato@integrar.com.br',
     address: 'Rua Funchal, 573 · São Paulo, SP',
     maps_url: '#',
     is_open_now: true,
-    link_bio_model: 5,
-    link_bio_extra: { hero_tagline: '6 especialistas · Desde 2018', team: [{ name: 'Dr. Rafael Mendes', credential: 'CRM 34.567', notes: 'Cardiologia', whatsapp: '' }, { name: 'Dra. Juliana Alves', credential: 'CRP 06/12345', notes: 'Psicologia', whatsapp: '' }, { name: 'Dr. Carlos Lima', credential: 'CRO 45.678', notes: 'Odontologia', whatsapp: '' }] },
-    specialties_list: ['Cardiologia', 'Psicologia', 'Odontologia', 'Nutrição'],
-    business_hours_grid: { '1': { label: 'Seg', text: '07:00–20:00' }, '2': { label: 'Ter', text: '07:00–20:00' }, '3': { label: 'Qua', text: '07:00–20:00' }, '4': { label: 'Qui', text: '07:00–20:00' }, '5': { label: 'Sex', text: '07:00–19:00' }, '6': { label: 'Sáb', text: '08:00–13:00' } },
-    founded_year: 2018,
-  },
-  6: {
-    id: 9006,
-    name: 'VetCare Animal',
-    slug: 'demo-6',
-    short_description: 'Clínica veterinária para cães e gatos',
-    logo_url: null,
-    cover_image_url: null,
-    phone: '11999999999',
-    contact_email: 'contato@vetcare.com.br',
-    address: 'Rua dos Bichos, 200 · São Paulo, SP',
-    maps_url: '#',
-    is_open_now: true,
-    link_bio_model: 6,
-    link_bio_extra: {},
-    specialties_list: ['Clínica Geral', 'Cirurgia'],
-    business_hours_grid: {
-      '1': { label: 'Seg', text: '09:00–19:00' },
-      '2': { label: 'Ter', text: '09:00–19:00' },
-      '3': { label: 'Qua', text: '09:00–19:00' },
-      '4': { label: 'Qui', text: '09:00–19:00' },
-      '5': { label: 'Sex', text: '09:00–18:00' },
-      '6': { label: 'Sáb', text: '09:00–14:00' },
-      '7': { label: 'Dom', text: '–' },
-    },
-    founded_year: 2014,
-  },
-  7: {
-    id: 9007,
-    name: 'Crescer Pediatria',
-    slug: 'demo-7',
-    short_description: 'Saúde infantil com carinho e evidência',
-    logo_url: null,
-    cover_image_url: null,
-    phone: '11999999999',
-    contact_email: 'contato@crescerpedia.com.br',
-    address: 'Alameda Infância, 88 · São Paulo, SP',
-    maps_url: '#',
-    is_open_now: true,
     link_bio_model: 7,
-    link_bio_extra: {},
-    specialties_list: ['Pediatria', 'Puericultura'],
-    business_hours_grid: {
-      '1': { label: 'Seg', text: '08:00–18:00' },
-      '2': { label: 'Ter', text: '08:00–18:00' },
-      '3': { label: 'Qua', text: '08:00–18:00' },
-      '4': { label: 'Qui', text: '08:00–18:00' },
-      '5': { label: 'Sex', text: '08:00–17:00' },
-      '6': { label: 'Sáb', text: '08:00–12:00' },
-      '7': { label: 'Dom', text: '–' },
+    link_bio_extra: {
+      team: [
+        { name: 'Dr. Rafael Mendes', credential: 'CRM 34.567', notes: 'Cardiologia' },
+        { name: 'Dra. Juliana Alves', credential: 'CRP 06/12345', notes: 'Psicologia' },
+        { name: 'Dr. Carlos Lima', credential: 'CRO 45.678', notes: 'Odontologia' },
+      ],
     },
-    founded_year: 2016,
+    specialties_list: ['Cardiologia', 'Psicologia', 'Odontologia', 'Nutrição'],
   },
   8: {
     id: 9008,
-    name: 'Nutri Vida',
+    name: 'Essentia Dermato',
     slug: 'demo-8',
-    short_description: 'Nutrição clínica e funcional',
-    logo_url: null,
-    cover_image_url: null,
+    short_description: 'Fisioterapia dermatofuncional.',
+    accent_hex: '#3E736C',
     phone: '11999999999',
-    contact_email: 'ola@nutrivida.com.br',
-    address: 'Rua Bem-Estar, 150 · São Paulo, SP',
+    contact_email: 'contato@essentia.com.br',
+    address: 'Rua da Pele, 220 · São Paulo, SP',
     maps_url: '#',
     is_open_now: true,
     link_bio_model: 8,
-    link_bio_extra: {},
-    specialties_list: ['Nutrição clínica', 'Emagrecimento', 'Esportiva'],
-    business_hours_grid: {
-      '1': { label: 'Seg', text: '09:00–19:00' },
-      '2': { label: 'Ter', text: '09:00–19:00' },
-      '3': { label: 'Qua', text: '09:00–19:00' },
-      '4': { label: 'Qui', text: '09:00–19:00' },
-      '5': { label: 'Sex', text: '09:00–18:00' },
-      '6': { label: 'Sáb', text: '–' },
-      '7': { label: 'Dom', text: '–' },
-    },
-    founded_year: 2019,
+    link_bio_extra: { hero_tagline: 'Ciência e cuidado para a saúde da sua pele.' },
+    specialties_list: ['Avaliação dermato', 'Pós-operatório', 'Saúde da pele', 'Tratamento funcional'],
   },
 };
 
@@ -201,21 +145,12 @@ const MOCK_DOCS: LinkBioPublicDocItem[] = [
     type: 'form',
     item: { id: 2, name: 'Termo de Consentimento', public_url: 'https://gestgo.com.br/f/demo-consentimento' },
   },
-  {
-    type: 'form',
-    item: { id: 3, name: 'Pesquisa de Satisfação', public_url: 'https://gestgo.com.br/f/demo-pesquisa' },
-  }];
+];
 
 @Component({
   selector: 'app-demo-link-bio',
   standalone: true,
-  imports: [
-    RouterLink,
-    LinkBioPublicLayoutGenericComponent,
-    LinkBioPublicLayoutsComponent,
-    LinkBioPublicLayoutVetComponent,
-    LinkBioPublicLayoutPediaComponent,
-    LinkBioPublicLayoutNutriComponent],
+  imports: [RouterLink, LinkBioPublicLayoutPresetComponent],
   template: `
     @if (!embedMode) {
       <div class="demo-banner">
@@ -228,77 +163,21 @@ const MOCK_DOCS: LinkBioPublicDocItem[] = [
     }
 
     @if (clinic) {
-      @switch (modelNum) {
-        @case (1) {
-          <app-link-bio-public-layout-generic
-            [clinic]="clinic"
-            [allLinks]="allDocs"
-            [publicSlug]="clinic.slug!"
-            [linkBioPreview]="false"
-            [dark]="dark"
-            [embedMode]="embedMode"
-            (toggleDark)="toggleDark()"
-            (share)="onShare()"
-          />
-        }
-        @case (2) {
-          <app-link-bio-public-layouts
-            [model]="2" [clinic]="clinic" [bioLinks]="bioLinks" [allDocs]="allDocs"
-            [publicSlug]="clinic.slug!" [linkBioPreview]="false"
-            [dark]="dark" (toggleDark)="toggleDark()" (share)="onShare()"
-          />
-        }
-        @case (3) {
-          <app-link-bio-public-layouts
-            [model]="3" [clinic]="clinic" [bioLinks]="bioLinks" [allDocs]="allDocs"
-            [publicSlug]="clinic.slug!" [linkBioPreview]="false"
-            [dark]="dark" (toggleDark)="toggleDark()" (share)="onShare()"
-          />
-        }
-        @case (4) {
-          <app-link-bio-public-layouts
-            [model]="4" [clinic]="clinic" [bioLinks]="bioLinks" [allDocs]="allDocs"
-            [publicSlug]="clinic.slug!" [linkBioPreview]="false"
-            [dark]="dark" (toggleDark)="toggleDark()" (share)="onShare()"
-          />
-        }
-        @case (5) {
-          <app-link-bio-public-layouts
-            [model]="5" [clinic]="clinic" [bioLinks]="bioLinks" [allDocs]="allDocs"
-            [publicSlug]="clinic.slug!" [linkBioPreview]="false"
-            [dark]="dark" (toggleDark)="toggleDark()" (share)="onShare()"
-          />
-        }
-        @case (6) {
-          <app-link-bio-public-layout-vet
-            [clinic]="clinic" [bioLinks]="bioLinks" [allDocs]="allDocs"
-            [publicSlug]="clinic.slug!" [linkBioPreview]="false"
-            [dark]="dark" (toggleDark)="toggleDark()" (share)="onShare()"
-          />
-        }
-        @case (7) {
-          <app-link-bio-public-layout-pedia
-            [clinic]="clinic" [bioLinks]="bioLinks" [allDocs]="allDocs"
-            [publicSlug]="clinic.slug!" [linkBioPreview]="false"
-            [dark]="dark" (toggleDark)="toggleDark()" (share)="onShare()"
-          />
-        }
-        @case (8) {
-          <app-link-bio-public-layout-nutri
-            [clinic]="clinic" [bioLinks]="bioLinks" [allDocs]="allDocs"
-            [publicSlug]="clinic.slug!" [linkBioPreview]="false"
-            [dark]="dark" (toggleDark)="toggleDark()" (share)="onShare()"
-          />
-        }
-        @default {
-          <div style="text-align: center; padding: 100px 24px; color: #888">
-            Layout não encontrado. <a routerLink="/" style="color: #3b82f6">Voltar ao site</a>
-          </div>
-        }
-      }
+      <app-link-bio-public-layout-preset
+        [model]="modelNum"
+        [clinic]="clinic"
+        [bioLinks]="bioLinks"
+        [allDocs]="allDocs"
+        [publicSlug]="clinic.slug!"
+        [linkBioPreview]="false"
+        [dark]="dark"
+        [embedMode]="embedMode"
+        (toggleDark)="toggleDark()"
+        (share)="onShare()"
+      />
     } @else {
       <div style="text-align: center; padding: 100px 24px; color: #888">
-        Carregando demonstração...
+        Layout não encontrado. <a routerLink="/" style="color: #3b82f6">Voltar ao site</a>
       </div>
     }
   `,
@@ -312,10 +191,9 @@ const MOCK_DOCS: LinkBioPublicDocItem[] = [
 })
 export class DemoLinkBioComponent implements OnInit, OnDestroy {
   clinic: LinkBioClinic | null = null;
-  modelNum = 1;
-  /** Oculta faixa fixa quando aberto dentro do iframe da landing (query embed=1) */
+  modelNum: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 = 1;
   embedMode = false;
-  dark = true;
+  dark = false;
   bioLinks = MOCK_BIO_LINKS;
   allDocs = MOCK_DOCS;
 
@@ -324,38 +202,28 @@ export class DemoLinkBioComponent implements OnInit, OnDestroy {
   private publicPageBody = inject(PublicPageBodyService);
 
   ngOnInit(): void {
-    this.publicPageBody.enterPublicPage();
     this.embedMode = this.route.snapshot.queryParamMap.get('embed') === '1';
-    const modelParam = this.route.snapshot.paramMap.get('model') ?? '1';
-    this.modelNum = parseInt(modelParam, 10) || 1;
-    if (this.modelNum < 1 || this.modelNum > 8) this.modelNum = 1;
-
+    const raw = Number(this.route.snapshot.paramMap.get('model') || this.route.snapshot.queryParamMap.get('model') || 1);
+    this.modelNum = ([1, 2, 3, 4, 5, 6, 7, 8].includes(raw) ? raw : 1) as 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
     const mock = MOCK_CLINICS[this.modelNum];
-    if (mock) {
-      this.clinic = mock as LinkBioClinic;
-    }
-
+    this.clinic = mock ? ({ ...mock } as LinkBioClinic) : null;
     if (isPlatformBrowser(this.platformId)) {
-      try {
-        this.dark = localStorage.getItem('gestgo_bio_dark') !== '0';
-      } catch {}
+      this.publicPageBody.enterPublicPage();
     }
   }
 
   ngOnDestroy(): void {
-    this.publicPageBody.leavePublicPage();
+    if (isPlatformBrowser(this.platformId)) {
+      this.publicPageBody.leavePublicPage();
+    }
   }
 
   toggleDark(): void {
     this.dark = !this.dark;
-    if (isPlatformBrowser(this.platformId)) {
-      try { localStorage.setItem('gestgo_bio_dark', this.dark ? '1' : '0'); } catch {}
-    }
   }
 
   onShare(): void {
-    if (isPlatformBrowser(this.platformId) && navigator.share) {
-      navigator.share({ title: this.clinic?.name ?? 'Demo', url: window.location.href }).catch(() => {});
-    }
+    if (!isPlatformBrowser(this.platformId)) return;
+    void navigator.clipboard?.writeText(location.href);
   }
 }

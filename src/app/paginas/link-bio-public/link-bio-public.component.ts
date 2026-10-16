@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit, inject, PLATFORM_ID, Signal, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { isPlatformBrowser } from '@angular/common';
+import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { Title, Meta } from '@angular/platform-browser';
 import {
   LinkBioService,
@@ -14,31 +14,26 @@ import { absoluteMediaUrl } from '../../core/utils/absolute-media-url';
 import { normalizeLinkBioClinic, parseLinkBioExtra } from '../../core/utils/link-bio-clinic-normalize.util';
 import { PublicPageBodyService } from '../../core/services/public-page-body.service';
 import { LoadingService } from '../../shared/services/loading.service';
-import { LinkBioPublicLayoutsComponent } from './link-bio-public-layouts.component';
-import { LinkBioPublicLayoutGenericComponent } from './link-bio-public-layout-generic.component';
-import { LinkBioPublicLayoutVetComponent } from './link-bio-public-layout-vet.component';
-import { LinkBioPublicLayoutPediaComponent } from './link-bio-public-layout-pedia.component';
-import { LinkBioPublicLayoutNutriComponent } from './link-bio-public-layout-nutri.component';
-import { LinkBioPublicKioskComponent } from './link-bio-public-kiosk.component';
+import { resolvePublicAccentHex } from '../../core/utils/public-theme-accent';
+import { linkBioPresetMeta } from './link-bio-preset.util';
+import { LinkBioPublicLayoutPresetComponent } from './link-bio-public-layout-preset.component';
+import { LinkBioPublicTotemComponent } from './link-bio-public-totem.component';
+import { isTotemQueryParam } from '../link-bio/link-bio-public-url.util';
 import type { LinkBioLayoutModel } from '../../core/services/link-bio.service';
 
 @Component({
   selector: 'app-link-bio-public',
   standalone: true,
   imports: [
-    LinkBioPublicKioskComponent,
-    LinkBioPublicLayoutGenericComponent,
-    LinkBioPublicLayoutsComponent,
-    LinkBioPublicLayoutVetComponent,
-    LinkBioPublicLayoutPediaComponent,
-    LinkBioPublicLayoutNutriComponent],
+    LinkBioPublicTotemComponent,
+    LinkBioPublicLayoutPresetComponent],
   templateUrl: './link-bio-public.component.html',
   styleUrl: './link-bio-public.component.css',
 })
 export class LinkBioPublicComponent implements OnInit, OnDestroy {
   slug = '';
-  /** Hub totem: `/l/:slug?kiosk=1` — lista só os links publicados. */
-  kioskMode = false;
+  /** Hub totem: `/l/:slug?totem=1` — lista só os links publicados. */
+  totemMode = false;
   data: LinkBioPublicData | null = null;
   showSkeleton!: Signal<boolean>;
   erro = '';
@@ -54,10 +49,11 @@ export class LinkBioPublicComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.publicPageBody.enterPublicPage();
-    this.kioskMode = this.route.snapshot.queryParamMap.get('kiosk') === '1';
+    this.totemMode = isTotemQueryParam((k) => this.route.snapshot.queryParamMap.get(k));
     try {
       this.dark = localStorage.getItem('gestgo_bio_dark') === '1';
     } catch {}
+    this.syncThemeColor();
     const slug = this.route.snapshot.paramMap.get('slug') ?? '';
     this.slug = slug;
     if (!slug) {
@@ -89,9 +85,10 @@ export class LinkBioPublicComponent implements OnInit, OnDestroy {
         this.data = { ...d, clinic };
         this.applyPreviewFromAdminSession();
         if (this.data?.clinic) {
-          this.data.clinic = normalizeLinkBioClinic(this.data.clinic);
+          this.data.clinic = normalizeLinkBioClinic(this.data.clinic, { publicPage: true });
         }
         this.updateMeta();
+        this.syncThemeColor();
       },
       error: () => {
         this.erro = 'Link na bio não encontrado.';
@@ -157,13 +154,6 @@ export class LinkBioPublicComponent implements OnInit, OnDestroy {
     return value && [1, 2, 3, 4, 5, 6, 7, 8].includes(value) ? value : 1;
   }
 
-  /** Para o componente de layouts 2–5 (só usar quando model ∈ {2,3,4,5}). */
-  layoutModelLegacy(): 2 | 3 | 4 | 5 {
-    const v = this.model;
-    if (v === 2 || v === 3 || v === 4 || v === 5) return v;
-    return 2;
-  }
-
   get links(): LinkBioLink[] {
     return this.data?.links ?? [];
   }
@@ -188,6 +178,51 @@ export class LinkBioPublicComponent implements OnInit, OnDestroy {
     try {
       localStorage.setItem('gestgo_bio_dark', this.dark ? '1' : '0');
     } catch {}
+    this.syncThemeColor();
+  }
+
+  /**
+   * Status bar + barra de progresso = cor do tema da clínica (não o verde Gestgo).
+   * Preferência: accent da API → brand do modelo visual → --brand no DOM.
+   */
+  private syncThemeColor(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+    if (this.dark) {
+      this.publicPageBody.setThemeColor('#151a1b');
+      return;
+    }
+    if (this.data && this.model === 7) {
+      this.publicPageBody.setThemeColor('#34285e');
+      return;
+    }
+    const clinic = this.data?.clinic;
+    const fromApi = clinic
+      ? resolvePublicAccentHex(clinic.public_theme, clinic.accent_hex)
+      : null;
+    if (fromApi) {
+      this.publicPageBody.setThemeColor(fromApi);
+      return;
+    }
+    // Sem accent na API: usa a cor do layout (ex. azul do modelo genérico), não o verde do painel.
+    if (this.data) {
+      const presetBrand = linkBioPresetMeta(this.model).brand;
+      if (presetBrand) {
+        this.publicPageBody.setThemeColor(presetBrand);
+        return;
+      }
+    }
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        const root = document.querySelector('.lb-preset-root') as HTMLElement | null;
+        const brand = root ? getComputedStyle(root).getPropertyValue('--brand').trim() : '';
+        const solid =
+          brand && /^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/.test(brand)
+            ? brand
+            : linkBioPresetMeta(1).brand;
+        this.publicPageBody.setThemeColor(solid);
+        this.publicPageBody.reapplyLockedThemeColor();
+      });
+    });
   }
 
   sharePage(): void {

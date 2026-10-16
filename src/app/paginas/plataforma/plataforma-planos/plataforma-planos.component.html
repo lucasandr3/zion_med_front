@@ -5,8 +5,8 @@
     </span>
   </div>
   <div class="n-form-toolbar__end">
-    <nord-button variant="primary" size="s" type="button" [routerLink]="['/plataforma/planos/novo']" title="Criar novo plano">
-      <nord-icon name="interface-add" size="s"></nord-icon>
+    <nord-button variant="primary" size="m" type="button" [routerLink]="['/plataforma/planos/novo']" title="Criar novo plano">
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">add</span>
       Novo plano
     </nord-button>
   </div>
@@ -23,54 +23,61 @@
   <div class="n-page-list__empty" style="min-height: 16rem">
     <nord-empty-state>
       <h2>Nenhum plano cadastrado.</h2>
-      <nord-button variant="primary" [routerLink]="['/plataforma/planos/novo']">
-        <nord-icon name="interface-add" size="s"></nord-icon>
+      <nord-button variant="primary" size="m" [routerLink]="['/plataforma/planos/novo']">
+        <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">add</span>
         Criar primeiro plano
       </nord-button>
     </nord-empty-state>
   </div>
 } @else {
   <div class="zm-content-enter n-stack-gap">
-    <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+    <div class="planos-grid">
       @for (p of planos(); track p.id) {
-        <g-card class="gap-3 py-4 shadow-sm **:data-[slot=card-content]:px-5">
-          <div class="flex items-center justify-between gap-2">
-            <span class="n-section-title">{{ p.name }}</span>
-            <g-badge zType="secondary" zShape="pill">{{ p.key }}</g-badge>
-          </div>
-          <p class="text-primary m-0 text-2xl font-bold">
-            R$ {{ formatarValor(p.value) }}
-            <span class="n-muted n-small font-normal">/mês</span>
-          </p>
-          @if (p.description) {
-            <p class="n-muted n-small m-0 mt-2 flex-1 leading-relaxed">{{ p.description }}</p>
-          }
-          <div class="n-actions border-t border-border pt-3" style="margin-top: 0.75rem">
-            @if (!p.is_active) {
-              <g-badge zType="outline" zShape="pill">Inativo</g-badge>
-            }
-            <nord-button
-              size="s"
-              variant="default"
-              [routerLink]="['/plataforma/planos', p.id, 'editar']"
-              title="Editar plano"
-            >
-              <nord-icon name="interface-edit" size="s"></nord-icon>
-              Editar
-            </nord-button>
-            <nord-button
-              size="s"
-              variant="danger"
-              type="button"
-              [attr.disabled]="excluindoId() === p.id"
-              [attr.loading]="excluindoId() === p.id"
-              (click)="excluir(p)"
-              title="Excluir plano"
-            >
-              Excluir
-            </nord-button>
-          </div>
-        </g-card>
+        <div class="plano-card-wrap">
+          <g-card class="plano-card gap-0 py-0 shadow-sm">
+            <div class="plano-card__body">
+              <div class="flex items-center justify-between gap-2">
+                <span class="n-section-title">{{ p.name }}</span>
+                <g-badge zType="secondary" zShape="pill">{{ p.key }}</g-badge>
+              </div>
+              <p class="text-primary m-0 text-2xl font-bold">
+                R$ {{ formatarValor(p.value) }}
+                <span class="n-muted n-small font-normal">/mês</span>
+              </p>
+              <p class="n-muted n-small m-0">
+                Anual: R$ {{ formatarValor(p.value_yearly != null && p.value_yearly > 0 ? p.value_yearly : p.value * 10) }}/ano
+              </p>
+              <p class="plano-card__desc n-muted n-small m-0 leading-relaxed">
+                {{ p.description || '' }}
+              </p>
+              <div class="plano-card__actions n-actions border-t border-border">
+                @if (!p.is_active) {
+                  <g-badge zType="outline" zShape="pill">Inativo</g-badge>
+                }
+                <nord-button
+                  size="m"
+                  variant="default"
+                  [routerLink]="['/plataforma/planos', p.id, 'editar']"
+                  title="Editar plano"
+                >
+                  <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">edit</span>
+                  Editar
+                </nord-button>
+                <nord-button
+                  size="m"
+                  variant="danger"
+                  type="button"
+                  [attr.disabled]="excluindoId() === p.id || null"
+                  [attr.loading]="excluindoId() === p.id || null"
+                  (click)="excluir(p)"
+                  title="Excluir plano"
+                >
+                  Excluir
+                </nord-button>
+              </div>
+            </div>
+          </g-card>
+        </div>
       }
     </div>
   </div>

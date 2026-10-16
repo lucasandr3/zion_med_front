@@ -4,9 +4,13 @@
       <zm-page-back-link />
     </div>
     <div class="n-form-toolbar__end">
-      <nord-button type="button" size="s" variant="primary" routerLink="/templates/criar-em-branco">
-        <nord-icon name="interface-add" size="s" aria-hidden="true"></nord-icon>
+      <nord-button type="button" size="s" variant="default" routerLink="/templates/criar-em-branco">
+        <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">add</span>
         Em branco
+      </nord-button>
+      <nord-button type="button" size="s" variant="primary" routerLink="/templates/importar">
+        <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">auto_awesome</span>
+        Importar ficha
       </nord-button>
     </div>
   </div>
@@ -21,11 +25,33 @@
     } @else if (!listaPronta()) {
     } @else {
       <div class="zm-content-enter">
+      <a
+        routerLink="/templates/importar"
+        class="import-cta mb-6 rounded-xl p-5 flex items-center justify-between gap-4 no-underline transition-colors"
+        style="background: color-mix(in srgb, var(--c-primary) 10%, var(--c-surface)); border: 1px solid color-mix(in srgb, var(--c-primary) 28%, var(--c-border)); color: var(--c-text)"
+      >
+        <div class="flex items-start gap-3 min-w-0">
+          <span
+            class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+            style="background: var(--c-primary); color: #fff"
+          >
+            <span class="material-symbols-outlined" aria-hidden="true">auto_awesome</span>
+          </span>
+          <div class="min-w-0">
+            <p class="text-sm font-semibold m-0">Importar minha ficha</p>
+            <p class="text-xs m-0 mt-1" style="color: var(--c-muted)">
+              Envie PDF ou foto da ficha atual. A IA sugere os campos — você revisa ao lado do original e salva como modelo.
+            </p>
+          </div>
+        </div>
+        <span class="material-symbols-outlined shrink-0" style="color: var(--c-primary)" aria-hidden="true">arrow_forward</span>
+      </a>
+
       <!-- Busca -->
       <div class="mb-4">
-        <div class="relative w-full">
-          <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none text-lg" style="color: var(--c-muted)">search</span>
-          <input type="text" [(ngModel)]="buscaTexto" placeholder="Buscar modelo..." class="w-full pl-10 pr-4 py-2.5 rounded-lg text-sm min-w-0 border font-sans" style="background: var(--c-surface); border-color: var(--c-border); color: var(--c-text)" />
+        <div class="form-search-wrap w-full">
+          <span class="material-symbols-outlined form-search-icon" aria-hidden="true">search</span>
+          <input type="text" [(ngModel)]="buscaTexto" placeholder="Buscar modelo..." class="form-search-input w-full text-sm" aria-label="Buscar modelo" />
         </div>
       </div>
 
@@ -44,7 +70,7 @@
       <!-- Section -->
       <div class="flex items-center justify-between mb-4">
         <span class="text-[11px] font-semibold uppercase tracking-wider" style="color: var(--c-muted)">
-          Biblioteca — {{ specialtyLabel() }}
+          Biblioteca: {{ specialtyLabel() }}
         </span>
         <span class="text-xs tabular-nums" style="color: var(--c-muted)">
           {{ bibliotecaMeta()?.approved_count ?? 0 }} revisados · {{ cardsVisiveis.length }} {{ cardsVisiveis.length === 1 ? 'modelo' : 'modelos' }}

@@ -19,7 +19,7 @@
       [attr.aria-expanded]="filterDrawerOpen() ? 'true' : 'false'"
       title="Filtros"
     >
-      <nord-icon name="interface-filter" size="s"></nord-icon>
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">filter_list</span>
       Filtros
       @if (temFiltrosAtivos) {
         <nord-badge variant="neutral">{{ quantidadeFiltrosAtivos }}</nord-badge>
@@ -32,7 +32,7 @@
       title="Nova pessoa"
       data-go-tour="pessoas-new"
     >
-      <nord-icon name="user-add" size="s"></nord-icon>
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">person_add</span>
       Nova pessoa
     </nord-button>
   </div>
@@ -54,7 +54,7 @@
         <h2>Nenhuma pessoa encontrada</h2>
         <p>Cadastre a primeira pessoa ou ajuste os filtros de busca.</p>
         <nord-button variant="primary" [routerLink]="['/pessoas/criar']">
-          <nord-icon name="user-add" size="s"></nord-icon>
+          <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">person_add</span>
           Cadastrar primeira pessoa
         </nord-button>
       </nord-empty-state>
@@ -136,46 +136,38 @@
         <div class="zm-filter-sheet__dates">
           <div class="zm-filter-field">
             <label class="zm-filter-label" for="pessoas-filtro-inicio">Cadastro a partir de</label>
-            <input
+            <nord-date-picker
               id="pessoas-filtro-inicio"
-              type="text"
-              mwlFlatpickr
+              expand
+              hide-label
+              label="Cadastro a partir de"
               [(ngModel)]="created_from"
               name="pessoas_filtro_inicio"
-              class="w-full text-sm"
-              placeholder="dd/mm/aaaa"
-              [altInput]="true"
-              [appendTo]="flatpickrAppendTo"
-              [static]="false"
-              autocomplete="off"
-            />
+              placeholder="dd/mm/aaaa">
+            </nord-date-picker>
           </div>
           <div class="zm-filter-field">
             <label class="zm-filter-label" for="pessoas-filtro-fim">Cadastro até</label>
-            <input
+            <nord-date-picker
               id="pessoas-filtro-fim"
-              type="text"
-              mwlFlatpickr
+              expand
+              hide-label
+              label="Cadastro até"
               [(ngModel)]="created_to"
               name="pessoas_filtro_fim"
-              class="w-full text-sm"
-              placeholder="dd/mm/aaaa"
-              [altInput]="true"
-              [appendTo]="flatpickrAppendTo"
-              [static]="false"
-              autocomplete="off"
-            />
+              placeholder="dd/mm/aaaa">
+            </nord-date-picker>
           </div>
         </div>
       </div>
     </div>
     <footer class="zm-filter-sheet__footer">
-      <nord-button variant="default" type="button" class="min-w-0 flex-1" (click)="limparFiltros()">
-        <nord-icon name="interface-filter" size="s"></nord-icon>
+      <nord-button variant="default" type="button" (click)="limparFiltros()">
+        <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">filter_list</span>
         Limpar
       </nord-button>
-      <nord-button variant="primary" type="button" class="min-w-0 flex-1" (click)="aplicarFiltros()">
-        <nord-icon name="interface-checked" size="s"></nord-icon>
+      <nord-button variant="primary" type="button" (click)="aplicarFiltros()">
+        <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">check</span>
         Aplicar
       </nord-button>
     </footer>

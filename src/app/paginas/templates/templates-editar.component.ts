@@ -16,7 +16,7 @@ import { NORD_FORM_IMPORTS } from '@/shared/nord';
   selector: 'app-templates-editar',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { class: 'n-page' },
+  host: { class: 'n-page templates-editar' },
   imports: [
     ...NORD_FORM_IMPORTS,
     RouterLink,

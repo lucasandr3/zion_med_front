@@ -1,28 +1,29 @@
 import {
   Component,
   Input,
+  OnDestroy,
   OnInit,
   inject,
-  PLATFORM_ID,
   ChangeDetectionStrategy,
-  effect,
+  ChangeDetectorRef,
   signal,
   CUSTOM_ELEMENTS_SCHEMA,
 } from '@angular/core';
-import { Router, RouterLink, RouterLinkActive } from '@angular/router';
-import { isPlatformBrowser } from '@angular/common';
+import { NavigationEnd, Router, RouterLink } from '@angular/router';
+import { filter, Subscription } from 'rxjs';
 import { AuthService, TrialNotice } from '../../../core/services/auth.service';
-import { resolveSidebarLogoSrc } from '../../../core/utils/sidebar-logo.util';
 import { SidebarMobileService } from '../../../core/services/sidebar-mobile.service';
 import { ShellSidebarCollapseService } from '../../../core/services/shell-sidebar-collapse.service';
 
 import { GestgoBadgeComponent } from '@/shared/components/badge/badge.component';
 
 import { GestgoAvatarComponent } from '@/shared/components/avatar/avatar.component';
+import { GestgoBrandMarkComponent } from '@/shared/components/gestgo-brand-mark/gestgo-brand-mark.component';
 import {
   SHELL_NAV_SIDEBAR,
   ShellNavItem,
   ShellNavSection,
+  shellNavItemActive,
   shellNavItemVisivel,
   shellNavSectionVisivel,
 } from '../shell-nav.config';
@@ -34,13 +35,14 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     RouterLink,
-    RouterLinkActive,
     GestgoBadgeComponent,
-    GestgoAvatarComponent],
+    GestgoAvatarComponent,
+    GestgoBrandMarkComponent,
+  ],
   templateUrl: './barra-lateral.component.html',
   styleUrl: './barra-lateral.component.css',
 })
-export class BarraLateralComponent implements OnInit {
+export class BarraLateralComponent implements OnInit, OnDestroy {
   @Input() notificacoesNaoLidas = 0;
   @Input() novidadesNaoVistas = 0;
   @Input() trialNotice: TrialNotice | null = null;
@@ -53,7 +55,6 @@ export class BarraLateralComponent implements OnInit {
   private readonly exibirTrocarEmpresaSignal = signal(false);
   private readonly ehAdminPlataformaSignal = signal(false);
   private readonly podeGerenciarClinicaSignal = signal(false);
-  private readonly sidebarLogoSrcSignal = signal('/assets/logo/logo.png');
 
   readonly nomeUsuario = this.nomeUsuarioSignal.asReadonly();
   readonly iniciaisUsuario = this.iniciaisUsuarioSignal.asReadonly();
@@ -61,36 +62,43 @@ export class BarraLateralComponent implements OnInit {
   readonly exibirTrocarEmpresa = this.exibirTrocarEmpresaSignal.asReadonly();
   readonly ehAdminPlataforma = this.ehAdminPlataformaSignal.asReadonly();
   readonly podeGerenciarClinica = this.podeGerenciarClinicaSignal.asReadonly();
-  readonly sidebarLogoSrc = this.sidebarLogoSrcSignal.asReadonly();
 
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly cdr = inject(ChangeDetectorRef);
   private readonly sidebarMobile = inject(SidebarMobileService);
   private readonly sidebarCollapse = inject(ShellSidebarCollapseService);
-  private readonly platformId = inject(PLATFORM_ID);
+  private routerSub?: Subscription;
 
   readonly sidebarOpenMobile = this.sidebarMobile.isOpen;
   readonly sidebarColapsada = this.sidebarCollapse.collapsed;
 
-  constructor() {
-    effect(() => {
-      this.auth.appearanceVersion();
-      this.refreshSidebarLogo();
-    });
-  }
-
   ngOnInit(): void {
     this.sidebarCollapse.ensureHydrated();
     this.atualizarDados();
-    this.refreshSidebarLogo();
+    this.routerSub = this.router.events
+      .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))
+      .subscribe(() => this.cdr.markForCheck());
+  }
+
+  ngOnDestroy(): void {
+    this.routerSub?.unsubscribe();
   }
 
   secaoVisivel(section: ShellNavSection): boolean {
-    return shellNavSectionVisivel(section, (p) => this.auth.hasPermission(p), 'app');
+    return shellNavSectionVisivel(section, (p) => this.auth.hasPermission(p), 'app', {
+      canSwitchClinic: this.auth.canSwitchClinic(),
+    });
   }
 
   itemVisivel(item: ShellNavItem): boolean {
-    return shellNavItemVisivel(item, (p) => this.auth.hasPermission(p), 'app');
+    return shellNavItemVisivel(item, (p) => this.auth.hasPermission(p), 'app', {
+      canSwitchClinic: this.auth.canSwitchClinic(),
+    });
+  }
+
+  navItemAtivo(item: ShellNavItem): boolean {
+    return shellNavItemActive(item, this.router.url);
   }
 
   badgeCount(item: ShellNavItem): number {
@@ -134,10 +142,5 @@ export class BarraLateralComponent implements OnInit {
       this.podeGerenciarClinicaSignal.set(false);
     }
     this.exibirTrocarEmpresaSignal.set(this.auth.canSwitchClinic());
-  }
-
-  private refreshSidebarLogo(): void {
-    if (!isPlatformBrowser(this.platformId)) return;
-    this.sidebarLogoSrcSignal.set(resolveSidebarLogoSrc());
   }
 }

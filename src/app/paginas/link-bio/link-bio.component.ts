@@ -36,8 +36,6 @@ import { normalizeGooglePlaceId } from './link-bio-google-review-link.util';
 const LINK_BIO_PREVIEW_SESSION_KEY = 'zm_link_bio_preview';
 
 import { NORD_FORM_IMPORTS } from '@/shared/nord';
-import { GestgoBadgeComponent } from '@/shared/components/badge';
-
 import { GestgoTabComponent, GestgoTabGroupComponent } from '@/shared/components/tabs';
 import { prefetchPublicFormQr } from '../../core/utils/public-form-qr.util';
 import { LinkBioSidePreviewComponent } from './link-bio-side-preview.component';
@@ -52,7 +50,6 @@ import { LinkBioSidePreviewComponent } from './link-bio-side-preview.component';
     ...NORD_FORM_IMPORTS,
     FormsModule,
     ZmSkeletonLinkBioComponent,
-    GestgoBadgeComponent,
     GestgoTabComponent,
     GestgoTabGroupComponent,
     LinkBioSidePreviewComponent,

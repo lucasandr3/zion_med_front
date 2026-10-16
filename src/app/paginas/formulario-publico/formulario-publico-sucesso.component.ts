@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { PublicPageBodyService } from '../../core/services/public-page-body.service';
 import { FormularioPublicoService } from '../../core/services/formulario-publico.service';
 import { ToastService } from '../../core/services/toast.service';
+import { isAllowedPatientDownloadUrl } from '../../core/utils/safe-public-url';
 
 @Component({
   selector: 'app-formulario-publico-sucesso',
@@ -70,10 +71,25 @@ export class FormularioPublicoSucessoComponent implements OnInit, OnDestroy {
     } catch {
       /* ignore */
     }
+    this.publicPageBody.applyPageBackground(this.dark() ? '#101713' : '#eff4f1');
+    this.publicPageBody.setThemeColor(this.dark() ? '#101713' : '#eff4f1');
   }
 
   ngOnDestroy(): void {
     this.publicPageBody.leavePublicPage();
+  }
+
+  copiarProtocolo(): void {
+    const p = this.protocolNumber();
+    if (!p) return;
+    if (navigator.clipboard?.writeText) {
+      navigator.clipboard.writeText(p).then(
+        () => this.toast.success('Copiado', 'Protocolo copiado.'),
+        () => this.toast.info('Protocolo', p),
+      );
+    } else {
+      this.toast.info('Protocolo', p);
+    }
   }
 
   baixarCopia(): void {
@@ -93,7 +109,7 @@ export class FormularioPublicoSucessoComponent implements OnInit, OnDestroy {
       error: () => {
         this.downloading.set(false);
         const url = this.patientDownloadUrl();
-        if (url) {
+        if (url && isAllowedPatientDownloadUrl(url)) {
           window.open(url, '_blank', 'noopener');
           return;
         }

@@ -18,52 +18,57 @@
               }
 
               <form class="settings-form" (ngSubmit)="submitPlatformParams()">
-                <g-card class="settings-card">
-                  <header class="settings-card__header">
-                    <h3 class="settings-card__title">Parâmetros da plataforma</h3>
-                    <p class="settings-card__subtitle">Trial, bloqueio e identidade do produto (banco de dados).</p>
-                  </header>
-
-                  <div class="settings-fields">
-                    <div class="settings-field settings-field--wide">
-                      <label for="product_name" class="settings-label">Nome do produto</label>
-                      <input type="text" id="product_name" [(ngModel)]="productName" name="product_name" class="w-full" required maxlength="128" placeholder="Ex: ZionMed" />
-                    </div>
-
-                    <div class="settings-field-row">
-                      <div class="settings-field">
-                        <label for="trial_days" class="settings-label">Trial (dias)</label>
-                        <input type="number" id="trial_days" [(ngModel)]="trialDays" name="trial_days" class="w-full" min="0" max="365" required placeholder="14" />
-                      </div>
-                      <div class="settings-field">
-                        <label for="grace_days" class="settings-label">Grace (dias)</label>
-                        <input type="number" id="grace_days" [(ngModel)]="graceDays" name="grace_days" class="w-full" min="0" max="90" required placeholder="7" />
-                      </div>
-                    </div>
-
-                    <div class="settings-field settings-field--wide">
-                      <label for="block_mode" class="settings-label">Modo de bloqueio</label>
-                      <select id="block_mode" [(ngModel)]="blockMode" name="block_mode" class="w-full">
-                        <option value="soft">soft</option>
-                        <option value="hard">hard</option>
-                      </select>
-                      <p class="settings-hint">soft = bloqueia app e libera /assinatura; hard = bloqueia tudo exceto logout.</p>
-                    </div>
-
-                    <div class="settings-field settings-field--wide">
-                      <label for="multi_empresa_plan" class="settings-label">Plano multi-empresa (chave do plano)</label>
-                      <input type="text" id="multi_empresa_plan" [(ngModel)]="multiEmpresaPlan" name="multi_empresa_plan" class="w-full" maxlength="64" required placeholder="ex: enterprise" />
+                <g-card class="section-card gap-0 overflow-hidden rounded-none border-0 bg-card py-0 shadow-none **:data-[slot=card-content]:p-0">
+                  <div class="section-header">
+                    <div class="icon-wrap"><span class="material-symbols-outlined">settings</span></div>
+                    <div>
+                      <span class="section-title">Parâmetros da plataforma</span>
+                      <p class="section-subtitle">Trial, bloqueio e identidade do produto (banco de dados).</p>
                     </div>
                   </div>
 
-                  @if (successSettings()) {
-                    <p class="settings-alert settings-alert--success">{{ successSettings() }}</p>
-                  }
+                  <div class="section-body">
+                    <div class="settings-fields">
+                      <div class="settings-field settings-field--wide">
+                        <label for="product_name" class="settings-label">Nome do produto</label>
+                        <input type="text" id="product_name" [(ngModel)]="productName" name="product_name" class="w-full" required maxlength="128" placeholder="Ex: ZionMed" />
+                      </div>
 
-                  <div class="settings-form-actions settings-form-actions--inline">
-                    <nord-button type="submit" size="s" [attr.disabled]="savingSettings()" [attr.loading]="savingSettings()">
-                      {{ savingSettings() ? 'Salvando…' : 'Salvar parâmetros' }}
-                    </nord-button>
+                      <div class="settings-field-row">
+                        <div class="settings-field">
+                          <label for="trial_days" class="settings-label">Trial (dias)</label>
+                          <input type="number" id="trial_days" [(ngModel)]="trialDays" name="trial_days" class="w-full" min="0" max="365" required placeholder="14" />
+                        </div>
+                        <div class="settings-field">
+                          <label for="grace_days" class="settings-label">Grace (dias)</label>
+                          <input type="number" id="grace_days" [(ngModel)]="graceDays" name="grace_days" class="w-full" min="0" max="90" required placeholder="7" />
+                        </div>
+                      </div>
+
+                      <div class="settings-field settings-field--wide">
+                        <label for="block_mode" class="settings-label">Modo de bloqueio</label>
+                        <select id="block_mode" [(ngModel)]="blockMode" name="block_mode" class="w-full">
+                          <option value="soft">soft</option>
+                          <option value="hard">hard</option>
+                        </select>
+                        <p class="settings-hint">soft = bloqueia app e libera /assinatura; hard = bloqueia tudo exceto logout.</p>
+                      </div>
+
+                      <div class="settings-field settings-field--wide">
+                        <label for="multi_empresa_plan" class="settings-label">Plano multi-empresa (chave do plano)</label>
+                        <input type="text" id="multi_empresa_plan" [(ngModel)]="multiEmpresaPlan" name="multi_empresa_plan" class="w-full" maxlength="64" required placeholder="ex: enterprise" />
+                      </div>
+                    </div>
+
+                    @if (successSettings()) {
+                      <p class="settings-alert settings-alert--success">{{ successSettings() }}</p>
+                    }
+
+                    <div class="settings-form-actions settings-form-actions--inline">
+                      <nord-button type="submit" size="m" [attr.disabled]="savingSettings() || null" [attr.loading]="savingSettings() || null">
+                        {{ savingSettings() ? 'Salvando…' : 'Salvar parâmetros' }}
+                      </nord-button>
+                    </div>
                   </div>
                 </g-card>
               </form>

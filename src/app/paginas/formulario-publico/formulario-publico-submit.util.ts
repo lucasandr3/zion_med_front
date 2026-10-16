@@ -30,6 +30,8 @@ export interface FormularioPublicoSubmitContext {
     witness_name?: string;
   };
   clinicalStepsCompleted?: { kind: string; completed_at: string }[];
+  /** Token público da reserva (`?a=`), vincula a ficha ao atendimento. */
+  appointmentToken?: string | null;
 }
 
 export function buildFormularioPublicoSubmitPayload(ctx: FormularioPublicoSubmitContext): Record<string, unknown> {
@@ -133,6 +135,10 @@ export function buildFormularioPublicoSubmitPayload(ctx: FormularioPublicoSubmit
 
   if (ctx.clinicalStepsCompleted?.length) {
     payload['_clinical_steps_completed'] = ctx.clinicalStepsCompleted;
+  }
+
+  if (ctx.appointmentToken?.trim()) {
+    payload['_appointment_token'] = ctx.appointmentToken.trim();
   }
 
   return payload;

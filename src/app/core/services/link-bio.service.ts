@@ -3,6 +3,7 @@ import { ApiService } from './api.service';
 import { map, Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { normalizeLinkBioClinic } from '../utils/link-bio-clinic-normalize.util';
+import { normalizePublicAppUrl } from '../utils/public-form-url.util';
 
 export interface LinkBioLink {
   id: number;
@@ -21,10 +22,14 @@ export interface LinkBioFormLink {
   last_submission_at?: string | null;
 }
 
-/** IDs de layout da página pública (1 = genérico; 2–8 = temas específicos). */
+/**
+ * IDs do catálogo Link na Bio 2026-10:
+ * 1 Solo, 2 Genérico, 3 Estética, 4 Odontologia, 5 Nutrição,
+ * 6 Pediatria, 7 Multiprofissional, 8 Fisioterapia dermatofuncional.
+ */
 export type LinkBioLayoutModel = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
 
-/** Opcional: convênios, equipe, Instagram, textos, veterinária (6), pediatria (7), nutrição (8), etc. */
+/** Opcional: convênios, equipe, Instagram, textos por preset (pediatria, etc.). */
 export interface LinkBioExtra {
   hero_tagline?: string;
   council_registration?: string;
@@ -33,23 +38,25 @@ export interface LinkBioExtra {
   instagram_url?: string;
   modalities?: { title: string; subtitle?: string; available?: boolean }[];
   team?: { name: string; credential?: string; notes?: string; whatsapp?: string }[];
-  /** Modelo 6 — rótulo acima do nome (ex.: Medicina veterinária). */
+  /** @deprecated Removido com o layout veterinário; mantido só para JSON legado. */
   layout_cover_kicker?: string;
-  /** Modelo 6 — chips de espécies; `active` destaca o chip. */
+  /** @deprecated */
   species_chips?: { label: string; active?: boolean }[];
-  /** Modelo 6 — cards de serviço (emoji + título). */
+  /** @deprecated */
   vet_service_cards?: { icon?: string; title: string }[];
-  /** Modelo 6 — texto do botão WhatsApp. */
+  /** @deprecated */
   vet_wa_cta_label?: string;
+  /** @deprecated */
   vet_docs_section_title?: string;
+  /** @deprecated */
   vet_docs_intro?: string;
-  /** Modelo 6 — URL externa para portal de resultados de exames (laboratório parceiro). */
+  /** @deprecated */
   vet_exam_results_url?: string;
-  /** Modelo 6 — rótulo do botão de resultados de exames. */
+  /** @deprecated */
   vet_exam_results_label?: string;
-  /** Modelo 6 — subtítulo curto exibido sob o rótulo (ex.: "Acesso ao laboratório"). */
+  /** @deprecated */
   vet_exam_results_subtitle?: string;
-  /** Modelo 7 — rótulo da capa (ex.: Pediatria). */
+  /** Modelo 6 (Pediatria) — rótulo da capa. */
   ped_cover_kicker?: string;
   ped_parent_notice_title?: string;
   ped_parent_notice_body?: string;
@@ -58,6 +65,12 @@ export interface LinkBioExtra {
   ped_docs_section_title?: string;
   ped_docs_intro?: string;
   ped_wa_cta_label?: string;
+  /** CTA de agendamento (M-09). */
+  appointment_cta_enabled?: boolean;
+  appointment_cta_mode?: 'external' | 'feegow' | 'gestgo' | string;
+  appointment_cta_label?: string;
+  appointment_url?: string;
+  appointment_feegow_url?: string;
 }
 
 export interface LinkBioClinic {
@@ -116,7 +129,8 @@ export type LinkBioCtaChannel =
   | 'email'
   | 'phone'
   | 'instagram'
-  | 'team_whatsapp';
+  | 'team_whatsapp'
+  | 'appointment';
 
 /** Discriminação de cliques (links da bio + CTAs da página). */
 export interface LinkBioClickBreakdownRow {
@@ -207,9 +221,12 @@ export class LinkBioService {
         const d = r.data;
         return {
           clinic: normalizeLinkBioClinic(d.clinic),
-          public_url: d.public_url,
+          public_url: normalizePublicAppUrl(d.public_url),
           links: d.bio_links ?? [],
-          forms: d.form_links_public ?? [],
+          forms: (d.form_links_public ?? []).map((f) => ({
+            ...f,
+            public_url: normalizePublicAppUrl(f.public_url),
+          })),
           available_icons: d.available_icons ?? {},
           available_themes: d.available_themes ?? {},
           metrics: {
@@ -320,11 +337,16 @@ export class LinkBioService {
       return null;
     }
     const root = environment.apiUrl.replace(/\/+$/, '');
-    let url = `${root}/api/v1/link-bio/public/${encodeURIComponent(slug)}/cta/${channel}`;
+    const params = new URLSearchParams();
     if (channel === 'team_whatsapp' && teamRef != null && !Number.isNaN(Number(teamRef))) {
-      url += `?ref=${Number(teamRef)}`;
+      params.set('ref', String(Number(teamRef)));
     }
-    return url;
+    // Origem real do SPA (porta dinâmica do ng serve) — a API monta /a/:slug com isso.
+    if (typeof window !== 'undefined' && window.location?.origin) {
+      params.set('front', window.location.origin);
+    }
+    const qs = params.toString();
+    return `${root}/api/v1/link-bio/public/${encodeURIComponent(slug)}/cta/${channel}${qs ? `?${qs}` : ''}`;
   }
 
   /** Página pública do Link Bio por slug (sem autenticação). */
@@ -336,6 +358,10 @@ export class LinkBioService {
         map((r) => ({
           ...r.data,
           clinic: normalizeLinkBioClinic(r.data.clinic),
+          form_links: (r.data.form_links ?? []).map((f) => ({
+            ...f,
+            public_url: normalizePublicAppUrl(f.public_url),
+          })),
         }))
       );
   }

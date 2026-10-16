@@ -46,11 +46,41 @@ nord-button:active {
 }
 
 /*
- * Material Symbols em nord-button — só corrige line-height (não mexer em nord-icon:
- * display:inline-flex no host some o SVG).
+ * Button group toggle (aria-pressed): fundo na cor do tema.
+ * O Nord aplica via ::slotted --n-color-status-info-weak; !important vence isso
+ * em dashboard, envios, templates e qualquer outro nord-button-group.
  */
-nord-button .material-symbols-outlined {
-  font-size: 1.125rem;
+nord-button-group nord-button[aria-pressed='true'],
+nord-button-group nord-button[aria-pressed=''] {
+  --n-button-background-color: var(--n-color-accent, var(--c-primary)) !important;
+  --n-button-background-color-hover: var(--n-color-accent-hover, var(--c-primary)) !important;
+  --n-button-border-color: var(--n-color-accent, var(--c-primary)) !important;
+  --n-button-border-color-hover: var(--n-color-accent-hover, var(--c-primary)) !important;
+  --n-button-color: var(--n-color-text-on-accent, var(--n-color-accent-text, #ffffff)) !important;
+  --n-button-color-hover: var(--n-color-text-on-accent, var(--n-color-accent-text, #ffffff)) !important;
+}
+
+/*
+ * Material Symbols — tamanhos alinhados aos size do nord-icon (s/m/…).
+ */
+.gestgo-mi {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  color: currentColor;
+  vertical-align: middle;
+  user-select: none;
+}
+.gestgo-mi--xxs { font-size: 0.875rem; }
+.gestgo-mi--xs { font-size: 1rem; }
+.gestgo-mi--s { font-size: 1.125rem; }
+.gestgo-mi--m { font-size: 1.25rem; }
+.gestgo-mi--l { font-size: 1.5rem; }
+
+nord-button .material-symbols-outlined,
+nord-dropdown-item .material-symbols-outlined {
   line-height: 1;
   vertical-align: middle;
 }
@@ -80,6 +110,7 @@ nord-popout,
 nord-tooltip,
 nord-tab-group,
 nord-tab,
+nord-tab-panel,
 nord-avatar,
 nord-badge,
 nord-icon,
@@ -88,12 +119,27 @@ nord-skeleton {
   visibility: visible !important;
 }
 
+/* Badge Nord: respiro lateral (texto não cola na curva da pílula) */
+nord-badge {
+  --n-badge-padding-inline: 0.75rem;
+}
+
 /*
  * Tokens Nord claros no modo claro Gestgo.
  * Importante: NÃO carregar nord-dark.css em angular.json — ele redefine
  * `:root { color-scheme: dark; --n-color-active: … }` e deixa inputs/ícones
  * pretos mesmo com data-color-scheme=light. Estes overrides cobrem o vazamento.
  */
+:root {
+  /*
+   * Tipografia premium Gestgo: Inter (não Nordhealth Sans) e zero sem barra.
+   * Nord ativa 'zero' 1 por padrão — glifo com slash, mais “dev” do que clínico.
+   */
+  --n-font-family: "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  --n-font-features: "kern" 1, "tnum" 1, "calt" 1, "case" 1, "cv05" 1, "zero" 0, "cv08" 0, "ss03" 1;
+  --n-font-features-reduced: "kern" 1, "tnum" 0, "calt" 1, "case" 1, "cv05" 1, "zero" 0, "cv08" 0, "ss03" 1;
+}
+
 :root,
 html[data-color-scheme='light'],
 body:not(.dark) {
@@ -191,10 +237,10 @@ html[data-color-scheme='dark'] {
     --font-heading: "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
     --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
 
-    --radius: 0.5rem;
+    --radius: 7px;
     --radius-xs: 0.375rem;
-    --radius-sm: 0.375rem;
-    --radius-md: 0.5rem;
+    --radius-sm: 7px;
+    --radius-md: 7px;
     --radius-lg: 0.75rem;
     --radius-xl: 1rem;
     --radius-2xl: 1rem;
@@ -260,9 +306,15 @@ html[data-color-scheme='dark'] {
     --gestgo-brand-title: var(--sidebar-foreground, var(--foreground, var(--c-text)));
     --gestgo-brand-tag: var(--muted-foreground, var(--c-muted));
     --gestgo-brand-logo-shadow: none;
+    /* Fallbacks; o binding real ao tema fica em `body` (abaixo) */
+    --gestgo-brand-green: #14b87a;
+    --gestgo-brand-deep: #063d36;
 
     /* Shell — alinhado aos tokens Gestgo (presets via body.shell-preset-* podem sobrescrever) */
-    --shell-header-height: 3.5rem; /* h-14 — #top-header */
+    --shell-header-height: 3.5rem; /* h-14 — #top-header / nav brand */
+    /* Alinha Nord: top-bar (52px) e nav header (72px/xxl) na mesma faixa */
+    --n-size-top-bar: var(--shell-header-height);
+    --n-navigation-header-block-size: var(--shell-header-height);
     --shell-header-bg: var(--sidebar, var(--background, var(--c-surface)));
     --shell-sidebar-bg: var(--sidebar, var(--c-surface));
 
@@ -299,8 +351,13 @@ html[data-color-scheme='dark'] {
     /* Altura de inputs, selects e combobox trigger (alinhados em toolbars) */
     --control-height: 40px;
     --control-height-inner: calc(var(--control-height) - 4px);
-    --control-radius: 5px;
+    --control-radius: 7px;
     --control-font-size: 14px;
+
+    /* Raio Nord — botões, cards, nav ativo, inputs, etc. */
+    --n-border-radius: 7px;
+    --n-border-radius-s: 7px;
+    --n-card-border-radius: 7px;
 
     /* Tokens Nord de controle (referência pesquisa_app) */
     --n-input-block-size: var(--control-height);
@@ -338,6 +395,16 @@ html[data-color-scheme='dark'] {
 body.shell-preset-tinted {
     --shell-header-bg: var(--c-primary);
     --shell-sidebar-bg: var(--sidebar, var(--background, var(--c-surface)));
+    /* Contraste no header/marca verdes: texto e ícones claros */
+    --shell-header-fg: #ffffff;
+    --shell-header-muted: rgb(255 255 255 / 0.78);
+    --shell-header-control: #ffffff;
+    --shell-header-control-hover: rgb(255 255 255 / 0.16);
+    --shell-header-border: transparent;
+    --gestgo-brand-deep: #ffffff;
+    --gestgo-brand-green: #ffffff;
+    --gestgo-brand-tag: rgb(255 255 255 / 0.72);
+    --n-color-icon: #ffffff;
 }
 
 /* Dark + topo e marca: nav alinhada aos tokens escuros */
@@ -362,6 +429,31 @@ body.dark.shell-preset-tinted {
 .theme-slate-pro     { --c-primary: #334155; --c-accent: #475569; --c-focus: rgba(51,65,85,.18); }
 .theme-cyan-tech     { --c-primary: #0369a1; --c-accent: #0284c7; --c-focus: rgba(3,105,161,.18); }
 .theme-fuchsia-bold  { --c-primary: #a21caf; --c-accent: #c026d3; --c-focus: rgba(162,28,175,.18); }
+
+/*
+ * Wordmark gest/go — “go” acompanha o primary do tema; “gest” usa o verde
+ * escuro canônico da marca (#063D36, igual logo.svg / marca), não um mix
+ * do primary (ficava mais escuro/sujo que o da logo).
+ */
+body {
+  --gestgo-brand-green: var(--c-primary);
+  --gestgo-brand-deep: #063d36;
+}
+
+/* Temas não-verdes: escurece o primary para o “gest” acompanhar a cor do tema */
+body.theme-gestgo-blue,
+body.theme-zion-blue,
+body.theme-indigo-night,
+body.theme-rose-elegant,
+body.theme-amber-warm,
+body.theme-violet-dream,
+body.theme-teal-ocean,
+body.theme-slate-pro,
+body.theme-cyan-tech,
+body.theme-fuchsia-bold,
+body.theme-emerald-fresh {
+  --gestgo-brand-deep: color-mix(in srgb, var(--c-primary) 58%, #000000);
+}
 
 /* ══════════════════════════════════════════════════════════════════════════
    MODO ESCURO — ponte legado → tokens Nord (pesquisa html.dark)
@@ -455,7 +547,7 @@ body.dark.shell-preset-tinted {
 
 /* ─── Gestgo UI — tema neutral + integração marca (`--c-*` definido acima) ──── */
 :root {
-  --radius: 0.5rem;
+  --radius: 7px;
   --background: #F8FAF6;
   --foreground: #17201F;
   --card: #FFFFFF;
@@ -557,6 +649,18 @@ body {
   --n-color-accent-active: color-mix(in srgb, var(--c-primary) 72%, #000);
   --n-color-accent-secondary: var(--c-primary);
   --n-color-text-link: var(--c-primary);
+  /* Checkbox/radio nativos e destaque de seleção de texto */
+  accent-color: var(--c-primary);
+}
+
+::selection {
+  background: color-mix(in srgb, var(--c-primary) 36%, transparent);
+  color: inherit;
+}
+
+::-moz-selection {
+  background: color-mix(in srgb, var(--c-primary) 36%, transparent);
+  color: inherit;
 }
 
 body.dark {
@@ -653,7 +757,8 @@ body.app-update-banner-visible {
         color: var(--c-text);
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
-        font-feature-settings: "kern" 1, "liga" 1, "clig" 1;
+        font-feature-settings: "kern" 1, "liga" 1, "clig" 1, "zero" 0;
+        font-variant-numeric: tabular-nums lining-nums;
         font-variant-ligatures: common-ligatures contextual;
         transition: background-color 0.25s ease, color 0.25s ease;
         min-height: 100vh;
@@ -721,11 +826,16 @@ body.app-update-banner-visible {
 }
 
 .gestgo-shell__brand-title {
+  color: var(--gestgo-brand-deep, #063d36) !important;
   display: block !important;
-  font-size: 1.15rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  line-height: 1.15;
+  font-size: 1.2rem;
+  font-weight: 800;
+  letter-spacing: -0.06em;
+  line-height: 1.1;
+}
+
+.gestgo-shell__brand-go {
+  color: var(--gestgo-brand-green, var(--c-primary)) !important;
 }
 
 .gestgo-shell__brand-tag {
@@ -736,6 +846,32 @@ body.app-update-banner-visible {
   line-height: 1.2;
   margin: 0 !important;
   text-transform: uppercase;
+}
+
+body.dark .gestgo-shell__brand-title,
+body.shell-preset-sidebar-dark .gestgo-shell__brand-title,
+body.shell-preset-tinted .gestgo-shell__brand-title {
+  color: #fff;
+}
+
+body.dark,
+body.shell-preset-sidebar-dark {
+  --gestgo-brand-deep: color-mix(in srgb, var(--c-primary) 38%, #ffffff);
+  --gestgo-brand-green: var(--c-primary);
+}
+
+body.dark .gestgo-shell__brand-go,
+body.shell-preset-sidebar-dark .gestgo-shell__brand-go {
+  color: color-mix(in srgb, var(--c-primary) 68%, #ffffff);
+}
+
+body.shell-preset-tinted .gestgo-shell__brand-title,
+body.shell-preset-tinted .gestgo-shell__brand-go {
+  color: #ffffff !important;
+}
+
+body.shell-preset-tinted .gestgo-shell__brand-tag {
+  color: var(--gestgo-brand-tag, rgb(255 255 255 / 0.72)) !important;
 }
 
 /* Popup Nord — borda 1px + sombra suave (referência account menu) */
@@ -790,8 +926,9 @@ body.dark nord-dropdown {
 }
 
 [data-slot='sheet'].cabecalho-theme-sheet-panel > nord-button[data-testid='z-close-header-button'] {
-  inset-block-start: 0.65rem;
-  inset-inline-end: 0.5rem;
+  top: calc(var(--shell-header-height, 3.5rem) / 2);
+  right: 0.625rem;
+  transform: translateY(-50%);
   z-index: 1;
 }
 
@@ -799,6 +936,113 @@ body.dark nord-dropdown {
   min-height: 0;
   overflow: hidden;
   padding: 0;
+}
+
+/* Drawer Go Assistant — mesmo chrome do tema, um pouco mais largo */
+[data-slot='sheet'].go-assistant-sheet-panel {
+  gap: 0 !important;
+  inset-block: 0 !important;
+  top: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  height: 100dvh !important;
+  min-height: 100dvh !important;
+  max-height: 100dvh !important;
+  max-width: min(100vw, 26.5rem) !important;
+  width: min(100vw, 26.5rem) !important;
+  border-radius: 0 !important;
+  background: var(--n-color-surface, var(--background)) !important;
+  color: var(--n-color-text, var(--foreground));
+  box-shadow: var(--n-box-shadow-nav, 0 0 24px rgb(0 0 0 / 0.12));
+}
+
+[data-slot='sheet'].go-assistant-sheet-panel [data-slot='sheet-header'] {
+  align-items: center;
+  background: var(--n-color-surface, var(--background));
+  border-bottom: 1px solid var(--n-color-border, var(--border));
+  display: flex;
+  flex-shrink: 0;
+  min-height: var(--shell-header-height, 3.5rem);
+  padding: 0 3rem 0 1rem;
+}
+
+[data-slot='sheet'].go-assistant-sheet-panel [data-slot='sheet-title'] {
+  font-size: var(--n-font-size-m, 1rem);
+  font-weight: var(--n-font-weight-heading, 700);
+  line-height: 1.25;
+}
+
+[data-slot='sheet'].go-assistant-sheet-panel > nord-button[data-testid='z-close-header-button'] {
+  top: calc(var(--shell-header-height, 3.5rem) / 2);
+  right: 0.625rem;
+  transform: translateY(-50%);
+  z-index: 1;
+}
+
+[data-slot='sheet'].go-assistant-sheet-panel > main {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+  padding: 0;
+}
+
+/* Drawer de filtros — mais estreito, fundo surface (branco / escuro) */
+[data-slot='sheet'].gestgo-filter-sheet-panel {
+  gap: 0 !important;
+  inset-block: 0 !important;
+  top: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  height: 100dvh !important;
+  min-height: 100dvh !important;
+  max-height: 100dvh !important;
+  max-width: min(100vw, 24rem) !important;
+  width: min(100vw, 24rem) !important;
+  border-radius: 0 !important;
+  background: var(--n-color-surface, #fff) !important;
+  color: var(--n-color-text, var(--foreground));
+  box-shadow: var(--n-box-shadow-nav, 0 0 24px rgb(0 0 0 / 0.12));
+}
+
+[data-slot='sheet'].gestgo-filter-sheet-panel [data-slot='sheet-header'] {
+  align-items: center;
+  background: var(--n-color-surface, #fff);
+  border-bottom: 1px solid var(--n-color-border, var(--border));
+  display: flex;
+  flex-shrink: 0;
+  min-height: var(--shell-header-height, 3.5rem);
+  padding: 0 3rem 0 1.25rem;
+}
+
+[data-slot='sheet'].gestgo-filter-sheet-panel [data-slot='sheet-title'] {
+  font-size: var(--n-font-size-m, 1rem);
+  font-weight: var(--n-font-weight-heading, 700);
+  line-height: 1.25;
+}
+
+[data-slot='sheet'].gestgo-filter-sheet-panel > nord-button[data-testid='z-close-header-button'] {
+  top: calc(var(--shell-header-height, 3.5rem) / 2);
+  right: 0.625rem;
+  transform: translateY(-50%);
+  z-index: 1;
+}
+
+[data-slot='sheet'].gestgo-filter-sheet-panel > main {
+  background: var(--n-color-surface, #fff);
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+  padding: 0;
+}
+
+body.dark [data-slot='sheet'].gestgo-filter-sheet-panel,
+body.dark [data-slot='sheet'].gestgo-filter-sheet-panel [data-slot='sheet-header'],
+body.dark [data-slot='sheet'].gestgo-filter-sheet-panel > main {
+  background: var(--n-color-surface, rgb(22, 24, 29)) !important;
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
@@ -817,8 +1061,7 @@ nord-input,
 nord-input[size='s'],
 nord-input[size='l'],
 nord-date-picker,
-nord-number-field,
-nord-combobox {
+nord-number-field {
   --n-input-block-size: var(--control-height);
   --n-input-border-radius: var(--control-radius);
   --n-input-font-size: var(--control-font-size);
@@ -827,7 +1070,109 @@ nord-combobox {
   --_n-input-font-size: var(--control-font-size);
 }
 
+nord-combobox,
+z-combobox {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  inline-size: 100%;
+  box-sizing: border-box;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+  margin: 0;
+  --n-combobox-block-size: var(--control-height);
+}
+
+z-combobox nord-combobox {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  inline-size: 100%;
+  box-sizing: border-box;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+}
+
+nord-date-picker,
+nord-time-picker {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  cursor: pointer;
+  --n-input-block-size: var(--control-height);
+  --_n-input-block-size: var(--control-height);
+  --n-input-font-size: var(--control-font-size);
+  --_n-input-font-size: var(--control-font-size);
+  --n-input-border-radius: var(--control-radius);
+  --_n-input-border-radius: var(--control-radius);
+  /* Toggle do calendário no slot=end — sem “caixa dentro da caixa” */
+  --n-button-background-color: transparent;
+  --n-button-background-color-hover: color-mix(in srgb, var(--n-color-text) 6%, transparent);
+  --n-button-border-color: transparent;
+  --n-button-border-color-hover: transparent;
+  --n-button-box-shadow: none;
+  --n-button-box-shadow-hover: none;
+  --n-button-color: var(--n-color-text-weaker, var(--muted-foreground));
+  --n-button-color-hover: var(--n-color-text, var(--foreground));
+  --n-button-padding-inline: 0.35rem;
+}
+
+nord-date-picker:focus-within,
+nord-time-picker:focus-within {
+  --n-button-color: var(--n-color-accent, var(--c-primary, var(--primary)));
+}
+
+/* Calendário/dropdown Nord acima do sheet CDK */
+nord-popout {
+  z-index: calc(var(--n-index-modal, 900) + 20) !important;
+}
+
+/*
+ * Combobox popup — opções com menos indentação à esquerda.
+ * O Nord reserva coluna de check em todas as linhas; sem ícone, some o vão.
+ */
+nord-combobox .n-option {
+  gap: 0.35rem !important;
+  padding-inline-end: 0.625rem !important;
+  padding-inline-start: 0.625rem !important;
+}
+
+nord-combobox .n-option-check {
+  block-size: 1rem !important;
+  flex: 0 0 1rem !important;
+  inline-size: 1rem !important;
+}
+
+nord-combobox .n-option-check:not(:has(nord-icon)) {
+  display: none !important;
+  flex: 0 !important;
+  inline-size: 0 !important;
+  min-inline-size: 0 !important;
+}
+
+nord-date-picker[size='s'],
+nord-time-picker[size='s'],
+nord-date-picker[size='m'],
+nord-time-picker[size='m'],
+nord-date-picker[size='l'],
+nord-time-picker[size='l'] {
+  --n-input-block-size: var(--control-height);
+  --_n-input-block-size: var(--control-height);
+}
+
 nord-select {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
   --n-select-block-size: var(--control-height);
   --_n-select-block-size: var(--control-height);
 }
@@ -839,18 +1184,26 @@ nord-textarea {
 }
 
 /*
- * Inputs nativos nas páginas — mesma caixa do Nord:
+ * Inputs nativos — mesma caixa do Nord:
  * borda --n-color-border-strong + fundo --n-input-background / surface.
+ * Inclui sheets/drawers (CDK overlay fora de .n-page), senão o preflight
+ * zera a borda e o campo some no fundo branco.
  */
 .form-input,
 .form-select,
 textarea.form-input,
-.n-page input:not([type='checkbox']):not([type='radio']):not([type='hidden']):not([type='file']):not([type='range']):not([type='submit']):not([type='button']):not([type='reset']):not([type='image']):not([type='color']),
-.n-page-list input:not([type='checkbox']):not([type='radio']):not([type='hidden']):not([type='file']):not([type='range']):not([type='submit']):not([type='button']):not([type='reset']):not([type='image']):not([type='color']),
+.n-page input:not([type='checkbox']):not([type='radio']):not([type='hidden']):not([type='file']):not([type='range']):not([type='submit']):not([type='button']):not([type='reset']):not([type='image']):not([type='color']):not(nord-combobox *):not(nord-select *):not(nord-date-picker *):not(nord-time-picker *):not(z-combobox *),
+.n-page-list input:not([type='checkbox']):not([type='radio']):not([type='hidden']):not([type='file']):not([type='range']):not([type='submit']):not([type='button']):not([type='reset']):not([type='image']):not([type='color']):not(nord-combobox *):not(nord-select *):not(nord-date-picker *):not(nord-time-picker *):not(z-combobox *),
+[data-slot='sheet'] input:not([type='checkbox']):not([type='radio']):not([type='hidden']):not([type='file']):not([type='range']):not([type='submit']):not([type='button']):not([type='reset']):not([type='image']):not([type='color']):not(nord-combobox *):not(nord-select *):not(nord-date-picker *):not(nord-time-picker *):not(z-combobox *),
+.zm-filter-sheet input:not([type='checkbox']):not([type='radio']):not([type='hidden']):not([type='file']):not([type='range']):not([type='submit']):not([type='button']):not([type='reset']):not([type='image']):not([type='color']):not(nord-combobox *):not(nord-select *):not(nord-date-picker *):not(nord-time-picker *):not(z-combobox *),
 .n-page textarea,
 .n-page-list textarea,
+[data-slot='sheet'] textarea,
+.zm-filter-sheet textarea,
 .n-page select,
-.n-page-list select {
+.n-page-list select,
+[data-slot='sheet'] select,
+.zm-filter-sheet select {
   appearance: none;
   background-color: var(--n-input-background, var(--n-color-surface, var(--c-surface)));
   border: 1px solid var(--n-color-border-strong, var(--c-border));
@@ -869,10 +1222,14 @@ textarea.form-input,
 
 .form-input:not(textarea.form-input),
 .form-select,
-.n-page input:not([type='checkbox']):not([type='radio']):not([type='hidden']):not([type='file']):not([type='range']):not([type='submit']):not([type='button']):not([type='reset']):not([type='image']):not([type='color']),
-.n-page-list input:not([type='checkbox']):not([type='radio']):not([type='hidden']):not([type='file']):not([type='range']):not([type='submit']):not([type='button']):not([type='reset']):not([type='image']):not([type='color']),
+.n-page input:not([type='checkbox']):not([type='radio']):not([type='hidden']):not([type='file']):not([type='range']):not([type='submit']):not([type='button']):not([type='reset']):not([type='image']):not([type='color']):not(nord-combobox *):not(nord-select *):not(nord-date-picker *):not(nord-time-picker *):not(z-combobox *),
+.n-page-list input:not([type='checkbox']):not([type='radio']):not([type='hidden']):not([type='file']):not([type='range']):not([type='submit']):not([type='button']):not([type='reset']):not([type='image']):not([type='color']):not(nord-combobox *):not(nord-select *):not(nord-date-picker *):not(nord-time-picker *):not(z-combobox *),
+[data-slot='sheet'] input:not([type='checkbox']):not([type='radio']):not([type='hidden']):not([type='file']):not([type='range']):not([type='submit']):not([type='button']):not([type='reset']):not([type='image']):not([type='color']):not(nord-combobox *):not(nord-select *):not(nord-date-picker *):not(nord-time-picker *):not(z-combobox *),
+.zm-filter-sheet input:not([type='checkbox']):not([type='radio']):not([type='hidden']):not([type='file']):not([type='range']):not([type='submit']):not([type='button']):not([type='reset']):not([type='image']):not([type='color']):not(nord-combobox *):not(nord-select *):not(nord-date-picker *):not(nord-time-picker *):not(z-combobox *),
 .n-page select,
-.n-page-list select {
+.n-page-list select,
+[data-slot='sheet'] select,
+.zm-filter-sheet select {
   height: var(--n-input-block-size, var(--control-height));
   min-height: var(--n-input-block-size, var(--control-height));
   padding-block: 0;
@@ -880,6 +1237,8 @@ textarea.form-input,
 
 .n-page textarea,
 .n-page-list textarea,
+[data-slot='sheet'] textarea,
+.zm-filter-sheet textarea,
 textarea.form-input {
   height: auto;
   min-height: 5.5rem;
@@ -889,13 +1248,62 @@ textarea.form-input {
 
 .form-input:hover,
 .form-select:hover,
-.n-page input:hover:not([type='checkbox']):not([type='radio']):not([type='hidden']):not([type='file']):not([disabled]),
-.n-page-list input:hover:not([type='checkbox']):not([type='radio']):not([type='hidden']):not([type='file']):not([disabled]),
+.n-page input:hover:not([type='checkbox']):not([type='radio']):not([type='hidden']):not([type='file']):not([disabled]):not(nord-combobox *):not(nord-select *):not(nord-date-picker *):not(nord-time-picker *):not(z-combobox *),
+.n-page-list input:hover:not([type='checkbox']):not([type='radio']):not([type='hidden']):not([type='file']):not([disabled]):not(nord-combobox *):not(nord-select *):not(nord-date-picker *):not(nord-time-picker *):not(z-combobox *),
+[data-slot='sheet'] input:hover:not([type='checkbox']):not([type='radio']):not([type='hidden']):not([type='file']):not([disabled]):not(nord-combobox *):not(nord-select *):not(nord-date-picker *):not(nord-time-picker *):not(z-combobox *),
+.zm-filter-sheet input:hover:not([type='checkbox']):not([type='radio']):not([type='hidden']):not([type='file']):not([disabled]):not(nord-combobox *):not(nord-select *):not(nord-date-picker *):not(nord-time-picker *):not(z-combobox *),
 .n-page textarea:hover,
 .n-page-list textarea:hover,
+[data-slot='sheet'] textarea:hover,
+.zm-filter-sheet textarea:hover,
 .n-page select:hover,
-.n-page-list select:hover {
+.n-page-list select:hover,
+[data-slot='sheet'] select:hover,
+.zm-filter-sheet select:hover {
   border-color: var(--n-color-border-hover, var(--c-border));
+}
+
+/*
+ * Nord combobox/select/date usam <input> no light DOM.
+ * O estilo global de .n-page input criava uma 2ª caixa dentro do .n-control.
+ */
+:is(nord-combobox, nord-select, nord-date-picker, nord-time-picker, z-combobox) input,
+.n-page :is(nord-combobox, nord-select, nord-date-picker, nord-time-picker, z-combobox) input,
+.n-page-list :is(nord-combobox, nord-select, nord-date-picker, nord-time-picker, z-combobox) input,
+[data-slot='sheet'] :is(nord-combobox, nord-select, nord-date-picker, nord-time-picker, z-combobox) input,
+.zm-filter-sheet :is(nord-combobox, nord-select, nord-date-picker, nord-time-picker, z-combobox) input {
+  appearance: none !important;
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  height: auto !important;
+  margin: 0 !important;
+  min-height: 0 !important;
+  outline: none !important;
+  padding: 0 !important;
+  width: auto !important;
+}
+
+:is(nord-combobox, nord-select, nord-date-picker, nord-time-picker, z-combobox) input:hover,
+:is(nord-combobox, nord-select, nord-date-picker, nord-time-picker, z-combobox) input:focus,
+:is(nord-combobox, nord-select, nord-date-picker, nord-time-picker, z-combobox) input:focus-visible,
+.n-page :is(nord-combobox, nord-select, nord-date-picker, nord-time-picker, z-combobox) input:hover,
+.n-page :is(nord-combobox, nord-select, nord-date-picker, nord-time-picker, z-combobox) input:focus,
+.n-page :is(nord-combobox, nord-select, nord-date-picker, nord-time-picker, z-combobox) input:focus-visible,
+.n-page-list :is(nord-combobox, nord-select, nord-date-picker, nord-time-picker, z-combobox) input:hover,
+.n-page-list :is(nord-combobox, nord-select, nord-date-picker, nord-time-picker, z-combobox) input:focus,
+.n-page-list :is(nord-combobox, nord-select, nord-date-picker, nord-time-picker, z-combobox) input:focus-visible,
+[data-slot='sheet'] :is(nord-combobox, nord-select, nord-date-picker, nord-time-picker, z-combobox) input:hover,
+[data-slot='sheet'] :is(nord-combobox, nord-select, nord-date-picker, nord-time-picker, z-combobox) input:focus,
+[data-slot='sheet'] :is(nord-combobox, nord-select, nord-date-picker, nord-time-picker, z-combobox) input:focus-visible,
+.zm-filter-sheet :is(nord-combobox, nord-select, nord-date-picker, nord-time-picker, z-combobox) input:hover,
+.zm-filter-sheet :is(nord-combobox, nord-select, nord-date-picker, nord-time-picker, z-combobox) input:focus,
+.zm-filter-sheet :is(nord-combobox, nord-select, nord-date-picker, nord-time-picker, z-combobox) input:focus-visible {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
 }
 
 .form-input:focus,
@@ -904,29 +1312,71 @@ textarea.form-input {
 .form-select:focus-visible,
 textarea.form-input:focus,
 textarea.form-input:focus-visible,
-.n-page input:focus:not([type='checkbox']):not([type='radio']),
-.n-page input:focus-visible:not([type='checkbox']):not([type='radio']),
-.n-page-list input:focus:not([type='checkbox']):not([type='radio']),
-.n-page-list input:focus-visible:not([type='checkbox']):not([type='radio']),
+.n-page input:focus:not([type='checkbox']):not([type='radio']):not(nord-combobox *):not(nord-select *):not(nord-date-picker *):not(nord-time-picker *):not(z-combobox *),
+.n-page input:focus-visible:not([type='checkbox']):not([type='radio']):not(nord-combobox *):not(nord-select *):not(nord-date-picker *):not(nord-time-picker *):not(z-combobox *),
+.n-page-list input:focus:not([type='checkbox']):not([type='radio']):not(nord-combobox *):not(nord-select *):not(nord-date-picker *):not(nord-time-picker *):not(z-combobox *),
+.n-page-list input:focus-visible:not([type='checkbox']):not([type='radio']):not(nord-combobox *):not(nord-select *):not(nord-date-picker *):not(nord-time-picker *):not(z-combobox *),
+[data-slot='sheet'] input:focus:not([type='checkbox']):not([type='radio']):not(nord-combobox *):not(nord-select *):not(nord-date-picker *):not(nord-time-picker *):not(z-combobox *),
+[data-slot='sheet'] input:focus-visible:not([type='checkbox']):not([type='radio']):not(nord-combobox *):not(nord-select *):not(nord-date-picker *):not(nord-time-picker *):not(z-combobox *),
+.zm-filter-sheet input:focus:not([type='checkbox']):not([type='radio']):not(nord-combobox *):not(nord-select *):not(nord-date-picker *):not(nord-time-picker *):not(z-combobox *),
+.zm-filter-sheet input:focus-visible:not([type='checkbox']):not([type='radio']):not(nord-combobox *):not(nord-select *):not(nord-date-picker *):not(nord-time-picker *):not(z-combobox *),
 .n-page textarea:focus,
 .n-page textarea:focus-visible,
 .n-page-list textarea:focus,
 .n-page-list textarea:focus-visible,
+[data-slot='sheet'] textarea:focus,
+[data-slot='sheet'] textarea:focus-visible,
+.zm-filter-sheet textarea:focus,
+.zm-filter-sheet textarea:focus-visible,
 .n-page select:focus,
 .n-page select:focus-visible,
 .n-page-list select:focus,
-.n-page-list select:focus-visible {
-  border-color: var(--n-color-accent, var(--c-primary));
+.n-page-list select:focus-visible,
+[data-slot='sheet'] select:focus,
+[data-slot='sheet'] select:focus-visible,
+.zm-filter-sheet select:focus,
+.zm-filter-sheet select:focus-visible {
+  border-color: var(--c-primary, var(--n-color-accent)) !important;
   box-shadow: none !important;
   outline: none !important;
+}
+
+/*
+ * Controles Nord (input/select/combobox/date/time): no foco a borda
+ * usa a cor do tema (--c-primary), via token que o Nord lê no shadow.
+ */
+nord-input:focus-within,
+nord-select:focus-within,
+nord-combobox:focus-within,
+nord-date-picker:focus-within,
+nord-time-picker:focus-within,
+z-combobox:focus-within,
+nord-textarea:focus-within,
+nord-number-field:focus-within {
+  --n-input-border-color: var(--c-primary) !important;
+  --n-color-accent: var(--c-primary) !important;
+  --_n-input-border-color: var(--c-primary) !important;
+  --_n-combobox-border-color: var(--c-primary) !important;
+}
+
+/* Combobox (light DOM): reforça borda do .n-control no foco */
+nord-combobox:focus-within .n-control,
+z-combobox:focus-within nord-combobox .n-control {
+  --_n-combobox-border-color: var(--c-primary) !important;
+  border-color: var(--c-primary) !important;
+  box-shadow: 0 0 0 1px var(--c-primary) !important;
 }
 
 .form-input::placeholder,
 textarea.form-input::placeholder,
 .n-page input::placeholder,
 .n-page-list input::placeholder,
+[data-slot='sheet'] input::placeholder,
+.zm-filter-sheet input::placeholder,
 .n-page textarea::placeholder,
-.n-page-list textarea::placeholder {
+.n-page-list textarea::placeholder,
+[data-slot='sheet'] textarea::placeholder,
+.zm-filter-sheet textarea::placeholder {
   color: var(--n-color-text-weakest, var(--c-muted));
   opacity: 1;
 }
@@ -935,10 +1385,16 @@ textarea.form-input::placeholder,
 .form-select:disabled,
 .n-page input:disabled,
 .n-page-list input:disabled,
+[data-slot='sheet'] input:disabled,
+.zm-filter-sheet input:disabled,
 .n-page textarea:disabled,
 .n-page-list textarea:disabled,
+[data-slot='sheet'] textarea:disabled,
+.zm-filter-sheet textarea:disabled,
 .n-page select:disabled,
-.n-page-list select:disabled {
+.n-page-list select:disabled,
+[data-slot='sheet'] select:disabled,
+.zm-filter-sheet select:disabled {
   background-color: var(--n-input-background-inactive, var(--n-color-surface));
   color: var(--n-color-text-weaker, var(--c-muted));
   cursor: not-allowed;
@@ -1049,6 +1505,28 @@ textarea.form-input::placeholder,
     border-color: var(--c-primary) !important;
 }
 
+/* Páginas públicas: fundo do layout premium (não --c-bg do painel) */
+html[data-public-page],
+html[data-public-page] body {
+  background-color: #eff4f1 !important;
+}
+html[data-public-page].gestgo-public-page-dark,
+html[data-public-page].gestgo-public-page-dark body,
+html[data-public-page] body.gestgo-public-dark {
+  background-color: #101713 !important;
+}
+
+/* Safe area em páginas públicas (iOS notch) — reforço global */
+html[data-public-page] .form-publico-page .fp-clinic-header {
+  padding-top: constant(safe-area-inset-top);
+  padding-top: max(52px, calc(12px + env(safe-area-inset-top, 0px)));
+}
+@media (min-width: 541px) {
+  html[data-public-page] .form-publico-page .fp-clinic-header {
+    padding-top: 21px;
+  }
+}
+
 /* Formulário público — legibilidade (Roboto + espaçamento); inputs herdam `--leading-form` onde aplicável */
 .form-publico-page {
     text-rendering: optimizeLegibility;
@@ -1139,13 +1617,22 @@ input[type="checkbox"]:not(.sr-only):not(.g-checkbox-input):not(.n-input),
     -webkit-appearance: none;
     width: 1.25rem;
     height: 1.25rem;
-    border-radius: 0.25rem;
+    border-radius: 5px;
     border: 1.5px solid var(--c-border);
     background-color: var(--c-surface);
     cursor: pointer;
     flex-shrink: 0;
     transition: background-color 0.15s, border-color 0.15s;
     background-image: none;
+}
+
+.g-checkbox-input {
+    border-radius: 5px;
+}
+
+/* nord-checkbox: cantos 5px (token usado no input do shadow) */
+nord-checkbox {
+  --n-border-radius-s: 5px;
 }
 input[type="checkbox"]:not(.sr-only):not(.g-checkbox-input):not(.n-input):hover,
 .form-checkbox:hover,
@@ -1162,11 +1649,20 @@ input[type="checkbox"]:not(.sr-only):not(.g-checkbox-input):not(.n-input):checke
     background-position: center;
     background-repeat: no-repeat;
 }
+input[type="checkbox"]:not(.sr-only):not(.g-checkbox-input):not(.n-input):focus,
 input[type="checkbox"]:not(.sr-only):not(.g-checkbox-input):not(.n-input):focus-visible,
+.form-checkbox:focus,
 .form-checkbox:focus-visible,
+.g-checkbox-native:focus,
 .g-checkbox-native:focus-visible {
-    outline: none;
-    box-shadow: 0 0 0 3px var(--c-focus);
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+nord-checkbox,
+nord-checkbox:focus,
+nord-checkbox:focus-within {
+  outline: none !important;
 }
 .dark input[type="checkbox"]:not(.sr-only):not(.g-checkbox-input):not(.n-input):not(:checked),
 .dark .form-checkbox:not(:checked),
@@ -1416,13 +1912,26 @@ table.data-table {
     top: 50%;
     transform: translateY(-50%);
     font-size: 1.125rem;
-    color: var(--c-muted);
+    color: var(--muted-foreground, var(--c-muted));
     pointer-events: none;
+    z-index: 1;
 }
 
-.form-search-wrap .form-input.form-search-input,
-.form-search-wrap input.form-search-input {
-    padding-left: 2.5rem;
+/*
+ * padding-left precisa vencer o shorthand `padding` das regras
+ * `.n-page input:not(...)` (especificidade alta por causa dos :not).
+ */
+.form-search-wrap > input.form-search-input,
+.form-search-wrap > input.form-input,
+.n-page .form-search-wrap > input.form-search-input,
+.n-page-list .form-search-wrap > input.form-search-input,
+.n-form-toolbar .form-search-wrap > input.form-search-input,
+[data-slot='sheet'] .form-search-wrap > input.form-search-input,
+.n-page input.pl-9,
+.n-page-list input.pl-9,
+.n-page input.pl-10,
+.n-page-list input.pl-10 {
+    padding-left: 2.5rem !important;
 }
 
 /* Drawer de filtros — entrada suave */
@@ -1456,10 +1965,13 @@ table.data-table {
     line-height: 1.25;
   }
 
+  [data-slot='sheet'] > nord-button[data-testid='z-close-header-button'],
   [data-slot='sheet'] [data-testid='z-close-header-button'] {
-    top: calc(var(--shell-header-height) / 2);
-    right: 0.75rem;
+    position: absolute;
+    top: calc(var(--shell-header-height, 3.5rem) / 2);
+    right: 0.625rem;
     transform: translateY(-50%);
+    z-index: 2;
   }
 
   [data-slot='sheet'].cabecalho-theme-sheet-panel {
@@ -1472,9 +1984,32 @@ table.data-table {
     border-radius: 0 !important;
   }
 
-  [data-slot='sheet'].cabecalho-theme-sheet-panel [data-testid='z-close-header-button'] {
-    top: calc(var(--shell-header-height) / 2);
+  [data-slot='sheet'].cabecalho-theme-sheet-panel [data-testid='z-close-header-button'],
+  [data-slot='sheet'].go-assistant-sheet-panel [data-testid='z-close-header-button'],
+  [data-slot='sheet'].gestgo-filter-sheet-panel [data-testid='z-close-header-button'] {
+    top: calc(var(--shell-header-height, 3.5rem) / 2);
     right: 0.625rem;
+    transform: translateY(-50%);
+  }
+
+  [data-slot='sheet'].go-assistant-sheet-panel {
+    inset-block: 0 !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    height: 100dvh !important;
+    min-height: 100dvh !important;
+    max-height: 100dvh !important;
+    border-radius: 0 !important;
+  }
+
+  [data-slot='sheet'].gestgo-filter-sheet-panel {
+    inset-block: 0 !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    height: 100dvh !important;
+    min-height: 100dvh !important;
+    max-height: 100dvh !important;
+    border-radius: 0 !important;
   }
 
   [data-slot='sheet'] > main {
@@ -1486,30 +2021,40 @@ table.data-table {
   }
 
   .zm-filter-sheet {
+    background: var(--n-color-surface, #fff);
+    box-sizing: border-box;
     display: flex;
-    min-height: 0;
     flex: 1;
     flex-direction: column;
     height: 100%;
-    padding: 1rem 1rem 1.25rem;
+    min-height: 0;
+    /* Padding lateral maior evita borda dos inputs “cortada” no overflow */
+    padding: 1.25rem 1.25rem 1.35rem;
   }
 
   .zm-filter-sheet__body {
-    min-height: 0;
     flex: 1;
+    min-height: 0;
+    overflow-x: hidden;
     overflow-y: auto;
+    /* Espaço para borda/focus ring dos controles em 100% */
+    padding: 2px;
+    margin: -2px;
   }
 
   .zm-filter-sheet__fields {
     display: flex;
     flex-direction: column;
     gap: 1.25rem;
+    min-width: 0;
   }
 
   .zm-filter-field {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
+    min-width: 0;
+    width: 100%;
   }
 
   .zm-filter-label {
@@ -1523,22 +2068,61 @@ table.data-table {
   .zm-filter-sheet__dates {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 1rem;
+    gap: 0.75rem;
+    min-width: 0;
   }
 
   .zm-filter-sheet__footer {
+    background: var(--n-color-surface, #fff);
+    border-top: 1px solid var(--border, var(--c-border));
     display: flex;
     flex-shrink: 0;
+    align-items: center;
+    justify-content: space-between;
     gap: 0.5rem;
     margin-top: 1.25rem;
     padding-top: 1rem;
-    border-top: 1px solid var(--border, var(--c-border));
   }
 
-  /* Combobox / flatpickr no sheet: mesma altura que z-input (--control-height) */
-  .zm-filter-sheet z-combobox button[z-button] {
-    height: var(--control-height);
-    min-height: var(--control-height);
+  .zm-filter-sheet__footer > nord-button {
+    flex: 0 0 auto;
+    width: auto;
+    max-width: none;
+  }
+
+  /* Combobox / inputs Nord no sheet: largura total + altura alinhada */
+  [data-slot='sheet'] z-combobox,
+  [data-slot='sheet'] nord-combobox,
+  [data-slot='sheet'] nord-input,
+  [data-slot='sheet'] nord-date-picker,
+  .zm-filter-sheet z-combobox,
+  .zm-filter-sheet nord-combobox,
+  .zm-filter-sheet nord-input,
+  .zm-filter-sheet nord-date-picker {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+
+  [data-slot='sheet'] nord-combobox,
+  .zm-filter-sheet nord-combobox,
+  .zm-filter-sheet z-combobox nord-combobox {
+    --n-combobox-block-size: var(--control-height);
+  }
+
+  [data-slot='sheet'] nord-input,
+  [data-slot='sheet'] nord-date-picker,
+  .zm-filter-sheet nord-input,
+  .zm-filter-sheet nord-date-picker {
+    --n-input-block-size: var(--control-height);
+    --_n-input-block-size: var(--control-height);
+  }
+
+  body.dark .zm-filter-sheet,
+  body.dark .zm-filter-sheet__footer {
+    background: var(--n-color-surface, rgb(22, 24, 29));
   }
 
   @media (max-width: 380px) {
@@ -2267,9 +2851,10 @@ body.shell-nav-horizontal .top-header.top-header--horizontal {
     border-bottom: 1px solid var(--border, var(--c-border));
 }
 
-/* Ícones do cabeçalho (z-button ghost): modo normal vs preset Topo e marca (--c-muted / --c-text) */
+/* Ícones do cabeçalho: modo normal vs preset Topo e marca */
 #top-header button.cabecalho-toolbar-action,
-#top-header a.cabecalho-toolbar-action {
+#top-header a.cabecalho-toolbar-action,
+#top-header nord-button.cabecalho-toolbar-action {
     color: var(--muted-foreground);
 }
 body.shell-preset-tinted #top-header,
@@ -2279,12 +2864,69 @@ body.shell-preset-tinted .top-header {
     --c-muted: rgba(255, 255, 255, 0.82);
     --c-border: rgba(255, 255, 255, 0.22);
     --c-soft: rgba(255, 255, 255, 0.14);
+    --shell-header-fg: #ffffff;
+    --shell-header-muted: rgb(255 255 255 / 0.78);
+    --shell-header-control: #ffffff;
+    --shell-header-control-hover: rgb(255 255 255 / 0.16);
+    --n-color-icon: #ffffff;
+    color: #ffffff;
 }
 
-/* Linha inferior igual ao header em modo padrão (não misturar com a cor primária) */
+body.shell-preset-tinted #top-header .gestgo-shell__title,
+body.shell-preset-tinted #top-header .gestgo-shell__subtitle {
+    color: #ffffff !important;
+}
+
+/* Menu: só ícone branco, sem caixa branca do nord-button */
+body.shell-preset-tinted #top-header .gestgo-shell__nav-toggle,
+body.shell-preset-tinted #top-header nord-button.gestgo-shell__nav-toggle {
+    --n-button-background-color: transparent !important;
+    --n-button-border-color: transparent !important;
+    --n-button-box-shadow: none !important;
+    --n-button-color: #ffffff !important;
+    background: transparent !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+    color: #ffffff !important;
+}
+
+body.shell-preset-tinted #top-header .gestgo-shell__nav-toggle:hover,
+body.shell-preset-tinted #top-header nord-button.gestgo-shell__nav-toggle:hover {
+    --n-button-background-color: rgb(255 255 255 / 0.14) !important;
+    background: rgb(255 255 255 / 0.14) !important;
+    color: #ffffff !important;
+}
+
+body.shell-preset-tinted #top-header .gestgo-shell__nav-toggle .material-symbols-outlined {
+    color: #ffffff !important;
+}
+
+body.shell-preset-tinted #top-header button.cabecalho-toolbar-action,
+body.shell-preset-tinted #top-header a.cabecalho-toolbar-action,
+body.shell-preset-tinted #top-header nord-button.cabecalho-toolbar-action,
+body.shell-preset-tinted #top-header .cabecalho-toolbar-action .material-symbols-outlined,
+body.shell-preset-tinted #top-header app-shell-top-bar-actions .material-symbols-outlined {
+    color: rgba(255, 255, 255, 0.92) !important;
+}
+
+/* Topo e marca: sem borda inferior no top-bar (nav header também não tem) */
 body.shell-preset-tinted:not(.dark) #top-header,
 body.shell-preset-tinted:not(.dark) .top-header {
-    border-bottom: 1px solid var(--color-border);
+    border-bottom: none;
+}
+
+/* Mesma altura explícita: top-bar = faixa da marca na sidebar */
+#top-header.gestgo-shell__top-bar,
+nord-top-bar.gestgo-shell__top-bar {
+    box-sizing: border-box;
+    --n-size-top-bar: var(--shell-header-height, 3.5rem);
+    height: var(--shell-header-height, 3.5rem);
+    min-height: var(--shell-header-height, 3.5rem);
+    max-height: var(--shell-header-height, 3.5rem);
+}
+
+nord-navigation.gestgo-shell__nav {
+    --n-navigation-header-block-size: var(--shell-header-height, 3.5rem);
 }
 
 body.dark.shell-preset-tinted #top-header,
@@ -2385,7 +3027,8 @@ body.sidebar-collapsed #sidebar[data-shell] .sidebar-brand__text {
     width: 1.75rem;
 }
 
-#sidebar[data-shell] .sidebar-logo-chip__img {
+#sidebar[data-shell] .sidebar-logo-chip__img,
+#sidebar[data-shell] .sidebar-logo-chip zm-gestgo-brand-mark {
     height: 100%;
     object-fit: contain;
     width: 100%;
@@ -2400,10 +3043,14 @@ body.sidebar-collapsed #sidebar[data-shell] .sidebar-brand__text {
 }
 
 #sidebar[data-shell] .sidebar-brand__title {
-    color: var(--gestgo-brand-title);
+    color: var(--gestgo-brand-deep, #063d36);
     font-size: 0.9375rem;
     font-weight: 800;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.06em;
+}
+
+#sidebar[data-shell] .sidebar-brand__go {
+    color: var(--gestgo-brand-green, var(--c-primary));
 }
 
 #sidebar[data-shell] .sidebar-brand__tag {
@@ -2414,22 +3061,39 @@ body.sidebar-collapsed #sidebar[data-shell] .sidebar-brand__text {
     text-transform: uppercase;
 }
 
-/* z-button ghost no header: hover/foco sem fundo muted claro sobre o primário */
-body.shell-preset-tinted #top-header button.cabecalho-toolbar-action,
-body.shell-preset-tinted #top-header a.cabecalho-toolbar-action {
-    color: rgba(255, 255, 255, 0.9);
+body.dark #sidebar[data-shell] .sidebar-brand__title,
+body.shell-preset-sidebar-dark #sidebar[data-shell] .sidebar-brand__title,
+body.shell-preset-tinted #sidebar[data-shell] .sidebar-brand__title {
+    color: #fff;
 }
 
+body.dark #sidebar[data-shell] .sidebar-brand__go,
+body.shell-preset-sidebar-dark #sidebar[data-shell] .sidebar-brand__go {
+    color: color-mix(in srgb, var(--c-primary) 68%, #ffffff);
+}
+
+body.shell-preset-tinted #sidebar[data-shell] .sidebar-brand__go {
+    color: #ffffff;
+}
+
+body.shell-preset-tinted #sidebar[data-shell] .sidebar-brand__tag {
+    color: var(--gestgo-brand-tag, rgb(255 255 255 / 0.72)) !important;
+}
+
+/* Hover/foco dos controles do header no preset Topo e marca */
 body.shell-preset-tinted #top-header button.cabecalho-toolbar-action:hover,
 body.shell-preset-tinted #top-header a.cabecalho-toolbar-action:hover,
+body.shell-preset-tinted #top-header nord-button.cabecalho-toolbar-action:hover,
 body.shell-preset-tinted #top-header button.cabecalho-toolbar-action[aria-expanded='true'],
-body.shell-preset-tinted #top-header a.cabecalho-toolbar-action[aria-expanded='true'] {
+body.shell-preset-tinted #top-header a.cabecalho-toolbar-action[aria-expanded='true'],
+body.shell-preset-tinted #top-header nord-button.cabecalho-toolbar-action[aria-expanded='true'] {
     background-color: rgba(255, 255, 255, 0.14) !important;
     color: #ffffff !important;
 }
 
 body.shell-preset-tinted #top-header button.cabecalho-toolbar-action:focus-visible,
-body.shell-preset-tinted #top-header a.cabecalho-toolbar-action:focus-visible {
+body.shell-preset-tinted #top-header a.cabecalho-toolbar-action:focus-visible,
+body.shell-preset-tinted #top-header nord-button.cabecalho-toolbar-action:focus-visible {
     --tw-ring-color: rgba(255, 255, 255, 0.35);
 }
 
@@ -3239,37 +3903,50 @@ body.dark.shell-preset-sidebar-dark .sidebar {
   position: relative;
 }
 
-/* Flatpickr (altInput): input visível com a mesma altura/visual do z-input */
-:not(.form-publico-page) .flatpickr-wrapper input:not([type="hidden"]) {
+/* Flatpickr (altInput): mesma caixa Nord dos inputs (inclui drawers/sheets) */
+:not(.form-publico-page) .flatpickr-wrapper input:not([type='hidden']),
+[data-slot='sheet'] .flatpickr-wrapper input:not([type='hidden']),
+.zm-filter-sheet .flatpickr-wrapper input:not([type='hidden']),
+[data-slot='sheet'] input.flatpickr-input:not([type='hidden']),
+.zm-filter-sheet input.flatpickr-input:not([type='hidden']) {
+  appearance: none;
   box-sizing: border-box;
   display: block;
   width: 100%;
-  height: var(--control-height);
-  min-height: var(--control-height);
-  padding: 0.25rem 0.625rem;
-  border-radius: 0.5rem;
-  border: 1px solid var(--input, var(--color-border, var(--c-border)));
-  background-color: transparent;
+  height: var(--n-input-block-size, var(--control-height));
+  min-height: var(--n-input-block-size, var(--control-height));
+  padding: 0 0.75rem;
+  border-radius: var(--n-input-border-radius, var(--control-radius, 0.5rem));
+  border: 1px solid var(--n-color-border-strong, var(--input, var(--c-border)));
+  background-color: var(--n-input-background, var(--n-color-surface, var(--c-surface)));
   font-family: inherit;
-  font-size: 0.875rem;
+  font-size: var(--n-input-font-size, var(--control-font-size, 0.875rem));
   font-weight: 400;
   line-height: 1.25rem;
-  color: var(--foreground, var(--c-text));
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  color: var(--n-color-text, var(--foreground, var(--c-text)));
+  transition: border-color 0.15s ease, background-color 0.25s ease;
   outline: none;
 }
 
-:not(.form-publico-page) .flatpickr-wrapper input:not([type="hidden"])::placeholder {
-  color: var(--muted-foreground, var(--c-muted));
-  opacity: 0.7;
+:not(.form-publico-page) .flatpickr-wrapper input:not([type='hidden'])::placeholder,
+[data-slot='sheet'] .flatpickr-wrapper input:not([type='hidden'])::placeholder,
+.zm-filter-sheet .flatpickr-wrapper input:not([type='hidden'])::placeholder {
+  color: var(--n-color-text-weakest, var(--muted-foreground, var(--c-muted)));
+  opacity: 1;
 }
 
-:not(.form-publico-page) .flatpickr-wrapper input:not([type="hidden"]):focus {
-  border-color: var(--ring, var(--c-primary));
+:not(.form-publico-page) .flatpickr-wrapper input:not([type='hidden']):focus,
+[data-slot='sheet'] .flatpickr-wrapper input:not([type='hidden']):focus,
+.zm-filter-sheet .flatpickr-wrapper input:not([type='hidden']):focus {
+  border-color: var(--n-color-accent, var(--ring, var(--c-primary)));
+  box-shadow: none !important;
+  outline: none !important;
 }
 
-body.dark :not(.form-publico-page) .flatpickr-wrapper input:not([type="hidden"]) {
-  background-color: color-mix(in srgb, var(--input, #222222) 30%, transparent);
+body.dark :not(.form-publico-page) .flatpickr-wrapper input:not([type='hidden']),
+body.dark [data-slot='sheet'] .flatpickr-wrapper input:not([type='hidden']),
+body.dark .zm-filter-sheet .flatpickr-wrapper input:not([type='hidden']) {
+  background-color: var(--n-input-background, var(--n-color-surface));
 }
 .flatpickr-calendar { border-radius: 0.5rem; }
 .flatpickr-calendar.open {
@@ -3677,7 +4354,7 @@ body.dark .flatpickr-calendar .flatpickr-weekwrapper span.flatpickr-day { color:
 .clinica-config .config-gestgo-tabs {
   width: 100%;
 }
-/* padding do painel das abas: clinica-configuracoes.component.css */
+
 .clinica-config .config-progress { margin-bottom: 20px; margin-top: 24px; }
 .clinica-config .config-progress-bar {
   background: var(--c-soft); border-radius: 0.5rem; height: 4px; margin-top: 6px;
@@ -3685,9 +4362,9 @@ body.dark .flatpickr-calendar .flatpickr-weekwrapper span.flatpickr-day { color:
 .clinica-config .config-progress-bar .fill {
   height: 4px; border-radius: 0.5rem; background: var(--c-primary); transition: width 0.3s;
 }
-.clinica-config .section-card,
-.clinica-config g-card.section-card,
-.link-bio-config .section-card {
+.clinica-config .section-card:not(g-card),
+.link-bio-config .section-card:not(g-card),
+.plataforma-config .section-card:not(g-card) {
   display: flex;
   flex-direction: column;
   gap: 0;
@@ -3701,20 +4378,71 @@ body.dark .flatpickr-calendar .flatpickr-weekwrapper span.flatpickr-day { color:
 }
 
 .clinica-config g-card.section-card,
-.link-bio-config g-card.section-card {
-  padding-top: 0;
-  padding-bottom: 0;
+.link-bio-config g-card.section-card,
+.plataforma-config g-card.section-card {
+  display: block;
+  margin-bottom: 0;
+  background: transparent;
+  border: none;
+  padding: 0;
+  box-shadow: none;
+}
+
+/* Empresa + Link bio + Admin: seções full-bleed (sem caixa flutuante), igual protocolo detalhe */
+.clinica-config g-card.section-card nord-card,
+.link-bio-config g-card.section-card nord-card,
+.plataforma-config g-card.section-card nord-card {
+  margin-bottom: 0;
+  --n-card-border-radius: 0;
+  --n-card-box-shadow: none;
+  --n-card-border-color: transparent;
+  --n-card-padding: 0;
+  --n-card-slot-padding: 0;
+  --n-card-background-color: var(--card);
+  color: var(--card-foreground);
+  border: none !important;
+  box-shadow: none !important;
+  background: var(--card) !important;
+}
+
+/* Cards de modelo / tiles internos mantêm caixa própria */
+.link-bio-config g-card.link-bio-model-g-card nord-card {
+  --n-card-border-radius: 0.875rem;
+  --n-card-box-shadow: 0 0 0 1px var(--border, var(--c-border));
+  border: none !important;
 }
 
 .clinica-config g-card.section-card [data-slot='card-content'],
-.link-bio-config g-card.section-card [data-slot='card-content'] {
+.link-bio-config g-card.section-card [data-slot='card-content'],
+.plataforma-config g-card.section-card [data-slot='card-content'] {
   padding: 0;
   gap: 0;
 }
 
-/* Link bio: cards sem section-body — padding no slot (evita conteúdo colado na borda) */
-.link-bio-config g-card.section-card:not(:has(.section-body)) [data-slot='card-content'] {
-  padding: 1.25rem 1.5rem;
+/*
+ * Link bio: cards sem section-body — g-card/nord-card não usam [data-slot=card-content].
+ * Padding no host (vence g-card { padding:0 !important }) + sem overflow que corta tipografia.
+ */
+.link-bio-config g-card.section-card:not(:has(.section-body)) {
+  padding: 1.25rem 1.5rem !important;
+  box-sizing: border-box !important;
+  overflow: visible !important;
+}
+
+.link-bio-config g-card.section-card:not(:has(.section-body)) nord-card {
+  --n-card-padding: 0 !important;
+  --n-card-slot-padding: 0 !important;
+  overflow: visible !important;
+}
+
+.link-bio-config g-card.section-card:not(:has(.section-body)) .g-card__footer,
+.link-bio-config g-card.section-card:not(:has(.section-body)) [slot='footer'] {
+  display: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  min-height: 0 !important;
+  height: 0 !important;
+  border: none !important;
 }
 
 /* Cards de modelo na grade */
@@ -3727,8 +4455,9 @@ body.dark .flatpickr-calendar .flatpickr-weekwrapper span.flatpickr-day { color:
 }
 
 .clinica-config .section-header,
-.link-bio-config .section-header {
-  padding: 1rem 1.25rem;
+.link-bio-config .section-header,
+.plataforma-config .section-header {
+  padding: 0.75rem 1.25rem;
   border-bottom: 1px solid var(--border);
   display: flex;
   align-items: center;
@@ -3736,7 +4465,8 @@ body.dark .flatpickr-calendar .flatpickr-weekwrapper span.flatpickr-day { color:
 }
 
 .clinica-config .section-header .icon-wrap,
-.link-bio-config .section-header .icon-wrap {
+.link-bio-config .section-header .icon-wrap,
+.plataforma-config .section-header .icon-wrap {
   width: 1.75rem;
   height: 1.75rem;
   background: color-mix(in srgb, var(--primary) 12%, transparent);
@@ -3747,17 +4477,29 @@ body.dark .flatpickr-calendar .flatpickr-weekwrapper span.flatpickr-day { color:
 }
 
 .clinica-config .section-header .icon-wrap .material-symbols-outlined,
-.link-bio-config .section-header .icon-wrap .material-symbols-outlined {
+.link-bio-config .section-header .icon-wrap .material-symbols-outlined,
+.plataforma-config .section-header .icon-wrap .material-symbols-outlined {
   font-size: 0.875rem;
   color: var(--primary);
 }
 
 .clinica-config .section-title,
-.link-bio-config .section-title {
+.link-bio-config .section-title,
+.plataforma-config .section-title {
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+  color: var(--muted-foreground);
+}
+
+.plataforma-config .section-subtitle {
+  margin: 0.25rem 0 0;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  font-weight: 400;
+  letter-spacing: normal;
+  text-transform: none;
   color: var(--muted-foreground);
 }
 
@@ -3770,38 +4512,48 @@ body.dark .flatpickr-calendar .flatpickr-weekwrapper span.flatpickr-day { color:
   color: var(--muted-foreground);
 }
 
-.clinica-config g-card.section-card--highlight {
-  border-color: color-mix(in srgb, var(--primary) 35%, var(--border));
+.clinica-config g-card.section-card--highlight nord-card {
+  --n-card-box-shadow: none;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--primary) 35%, var(--border));
 }
 .clinica-config .section-body,
-.link-bio-config .section-body { padding: 20px; }
+.link-bio-config .section-body,
+.plataforma-config .section-body { padding: 1rem 1.25rem; }
 
 /* ══════════════════════════════════════════════════════════════════════════
    PROTOCOLO DETALHE
    ══════════════════════════════════════════════════════════════════════════ */
-/* Barra de abas do protocolo — linha em cima e embaixo (classe no wrapper via zNavWrapperClass) */
-.protocolo-detalhe-page .protocolo-detalhe-tabs-bar,
-.protocolo-detalhe-page .protocolo-detalhe-shell .protocolo-gestgo-tabs--layout > .grid {
-  width: 100%;
-  border-top: 1px solid var(--border, var(--c-border)) !important;
-  border-bottom: 1px solid var(--border, var(--c-border)) !important;
-  box-shadow: none !important;
-  background: var(--card) !important;
-}
-
-.protocolo-detalhe-page .protocolo-detalhe-shell .protocolo-gestgo-tabs--no-nav-rule nav[role='tablist'] {
-  border-top: none !important;
-  border-bottom: none !important;
-  margin-bottom: 0 !important;
-}
+/* Abas do protocolo — nord-tab-group nativo */
 
 .protocolo-detalhe-page g-card.section-card {
+  margin-bottom: 0;
+  background: transparent;
+  border: none;
+  padding: 0;
+  box-shadow: none;
+  flex: 1 1 auto;
+  min-height: 0;
+  height: 100%;
+}
+
+/* Sem chrome de card: ocupa a aba inteira (sem borda/sombra/padding do Nord) */
+.protocolo-detalhe-page g-card.section-card nord-card {
+  display: flex !important;
+  flex-direction: column;
+  flex: 1 1 auto;
   overflow: hidden;
-  margin-bottom: 1rem;
-  gap: 0;
-  padding-top: 0;
-  padding-bottom: 0;
-  border-radius: 0.875rem;
+  margin: 0;
+  height: 100%;
+  min-height: 100%;
+  --n-card-border-radius: 0;
+  --n-card-box-shadow: none;
+  --n-card-border-color: transparent;
+  --n-card-padding: 0;
+  --n-card-slot-padding: 0;
+  --n-card-background-color: var(--card);
+  border: none !important;
+  box-shadow: none !important;
+  background: var(--card) !important;
 }
 
 .protocolo-detalhe-page g-card.section-card [data-slot='card-content'] {
@@ -3810,7 +4562,7 @@ body.dark .flatpickr-calendar .flatpickr-weekwrapper span.flatpickr-day { color:
 }
 
 .protocolo-detalhe-page .section-header {
-  padding: 1rem 1.25rem;
+  padding: 0.75rem 1rem;
   border-bottom: 1px solid var(--border);
   display: flex;
   align-items: center;
@@ -3847,7 +4599,7 @@ body.dark .flatpickr-calendar .flatpickr-weekwrapper span.flatpickr-day { color:
 }
 
 .protocolo-detalhe-page .section-body {
-  padding: 1.25rem;
+  padding: 1rem;
 }
 .clinica-config .field { margin-bottom: 18px; }
 .clinica-config .field:last-child { margin-bottom: 0; }
@@ -4169,26 +4921,64 @@ body.dark .flatpickr-calendar.hasTime.noCalendar .flatpickr-time input:focus {
 .clinica-config .btn-secondary:hover,
 .link-bio-config .btn-secondary:hover { color: var(--c-text); }
 
-/* Impressão: quando em aba de documento, imprime somente a ficha. */
+/* Impressão: só a ficha (sem visibility:hidden — quebra flex/grid do documento). */
 @media print {
-  body.print-document-only * {
-    visibility: hidden !important;
+  body.print-document-only {
+    background: #fff !important;
   }
 
-  body.print-document-only #documento-impressao,
-  body.print-document-only #documento-impressao * {
-    visibility: visible !important;
+  body.print-document-only nord-layout,
+  body.print-document-only nord-navigation,
+  body.print-document-only nord-top-bar,
+  body.print-document-only .n-form-toolbar,
+  body.print-document-only .protocolo-detalhe-tabs-bar,
+  body.print-document-only go-assistant-host,
+  body.print-document-only .go-assistant-fab,
+  body.print-document-only zm-page-back-link,
+  body.print-document-only .dp-generating-overlay {
+    display: none !important;
   }
 
-  body.print-document-only #documento-impressao {
-    position: absolute !important;
-    top: 0 !important;
-    left: 0 !important;
+  body.print-document-only .gestgo-shell__main,
+  body.print-document-only .protocolo-detalhe-page,
+  body.print-document-only .protocolo-detalhe-shell,
+  body.print-document-only .protocolo-gestgo-tabs--layout,
+  body.print-document-only .protocolo-gestgo-tabs--layout > .flex-1,
+  body.print-document-only .protocolo-gestgo-tabs--layout > .flex-1 [role='tabpanel'],
+  body.print-document-only .protocolo-tab-panel--impressao,
+  body.print-document-only .protocolo-print-preview {
+    display: block !important;
+    position: static !important;
+    overflow: visible !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
     width: 100% !important;
     margin: 0 !important;
     padding: 0 !important;
-    z-index: 9999 !important;
+    border: none !important;
     background: #fff !important;
+    box-shadow: none !important;
+    transform: none !important;
+  }
+
+  body.print-document-only #documento-impressao {
+    display: block !important;
+    position: static !important;
+    width: 100% !important;
+    max-width: none !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    background: #fff !important;
+    color: #0f172a !important;
+  }
+
+  body.print-document-only #documento-impressao::after {
+    display: none !important;
   }
 }
 

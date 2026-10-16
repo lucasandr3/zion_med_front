@@ -7,11 +7,12 @@ import {
 import { ToastService } from '../../../core/services/toast.service';
 import { environment } from '../../../../environments/environment';
 import { GestgoCardComponent } from '@/shared/components/card/card.component';
+import { GestgoComboboxComponent, type GestgoComboboxOption } from '@/shared/components/combobox';
 
 import { GestgoBadgeComponent } from '@/shared/components/badge/badge.component';
 import { NORD_FORM_IMPORTS } from '@/shared/nord';
 
-export type PlatformServiceId = 'asaas' | 'resend' | 'minio' | 'status';
+export type PlatformServiceId = 'asaas' | 'resend' | 'minio' | 'openai' | 'status';
 
 export interface PlatformServiceCard {
   id: PlatformServiceId;
@@ -30,6 +31,31 @@ const COMPONENT_OPTIONS: Record<string, string> = {
   billing: 'Pagamentos & Billing',
 };
 
+const STATUS_OPTIONS: GestgoComboboxOption[] = [
+  { value: 'operational', label: 'Operacional' },
+  { value: 'degraded', label: 'Degradado' },
+  { value: 'outage', label: 'Indisponível' },
+  { value: 'maintenance', label: 'Manutenção' },
+];
+
+const SEVERITY_OPTIONS: GestgoComboboxOption[] = [
+  { value: 'none', label: 'Nenhuma' },
+  { value: 'low', label: 'Baixa' },
+  { value: 'medium', label: 'Média' },
+  { value: 'high', label: 'Alta' },
+  { value: 'critical', label: 'Crítica' },
+];
+
+const MAILER_OPTIONS: GestgoComboboxOption[] = [
+  { value: 'resend', label: 'Resend (produção)' },
+  { value: 'log', label: 'Log (desenvolvimento)' },
+];
+
+const FORM_IMPORT_PROVIDER_OPTIONS: GestgoComboboxOption[] = [
+  { value: 'openai', label: 'OpenAI (recomendado)' },
+  { value: 'heuristic', label: 'Heurística local (sem IA)' },
+];
+
 @Component({
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'app-plataforma-servicos-tab',
@@ -39,6 +65,7 @@ const COMPONENT_OPTIONS: Record<string, string> = {
     FormsModule,
     GestgoCardComponent,
     GestgoBadgeComponent,
+    GestgoComboboxComponent,
     ...NORD_FORM_IMPORTS],
   templateUrl: './plataforma-servicos-tab.component.html',
   styleUrl: './plataforma-servicos-tab.component.css',
@@ -57,6 +84,10 @@ export class PlataformaServicosTabComponent implements OnChanges {
 
   readonly activeServico = signal<PlatformServiceId | null>(null);
   readonly componentOptions = COMPONENT_OPTIONS;
+  readonly opcoesMailer = MAILER_OPTIONS;
+  readonly opcoesFormImportProvider = FORM_IMPORT_PROVIDER_OPTIONS;
+  readonly opcoesStatus = STATUS_OPTIONS;
+  readonly opcoesSeverity = SEVERITY_OPTIONS;
 
   readonly savingSettings = signal(false);
   readonly savingStatus = signal(false);
@@ -100,6 +131,14 @@ export class PlataformaServicosTabComponent implements OnChanges {
   uploadingLogo = false;
   uploadingSignature = false;
 
+  formImportProvider: 'openai' | 'heuristic' = 'openai';
+  openaiApiKey = '';
+  formImportModel = 'gpt-4o-mini';
+  formImportRetentionDays = 30;
+  openaiBaseUrl = 'https://api.openai.com/v1';
+  formImportConfigured = false;
+  openaiApiKeyPreview: string | null = null;
+
   serviceStatus = 'operational';
   serviceStatusSeverity = 'none';
   serviceStatusMessage = '';
@@ -141,6 +180,20 @@ export class PlataformaServicosTabComponent implements OnChanges {
         status: this.minioConfigured ? 'ok' : 'warn',
         statusLabel: this.minioConfigured ? 'Configurado' : 'Pendente',
         meta: this.minioEndpoint || undefined,
+      },
+      {
+        id: 'openai',
+        name: 'OpenAI',
+        description: 'Importação inteligente de fichas (extração de campos).',
+        icon: 'auto_awesome',
+        status: this.formImportConfigured ? 'ok' : 'warn',
+        statusLabel:
+          this.formImportProvider === 'heuristic'
+            ? 'Heurística'
+            : this.formImportConfigured
+              ? 'Configurado'
+              : 'Pendente',
+        meta: this.formImportModel || undefined,
       },
       {
         id: 'status',
@@ -208,6 +261,11 @@ export class PlataformaServicosTabComponent implements OnChanges {
         mail_whatsapp_number: this.mailWhatsappNumber.trim() || null,
         mail_primary_color: this.mailPrimaryColor.trim() || null,
         mail_product_name: this.mailProductName.trim() || null,
+        form_import_provider: this.formImportProvider,
+        openai_api_key: this.openaiApiKey.trim() || null,
+        form_import_openai_model: this.formImportModel.trim() || null,
+        openai_base_url: this.openaiBaseUrl.trim() || null,
+        form_import_retention_days: Number(this.formImportRetentionDays) || 30,
       })
       .subscribe({
         next: (res) => {
@@ -222,6 +280,7 @@ export class PlataformaServicosTabComponent implements OnChanges {
           this.asaasWebhookSecret = '';
           this.minioSecretKey = '';
           this.resendApiKey = '';
+          this.openaiApiKey = '';
         },
         error: () => {
           this.savingSettings.set(false);
@@ -328,6 +387,14 @@ export class PlataformaServicosTabComponent implements OnChanges {
     this.mailProductName = resend?.product_name ?? '';
     this.resendConfigured = resend?.configured ?? false;
     this.resendApiKeyPreview = resend?.api_key_preview ?? null;
+
+    const formImport = d.form_import;
+    this.formImportProvider = formImport?.provider === 'heuristic' ? 'heuristic' : 'openai';
+    this.formImportModel = formImport?.model ?? 'gpt-4o-mini';
+    this.formImportRetentionDays = formImport?.retention_days ?? 30;
+    this.openaiBaseUrl = formImport?.base_url ?? 'https://api.openai.com/v1';
+    this.formImportConfigured = formImport?.configured ?? false;
+    this.openaiApiKeyPreview = formImport?.api_key_preview ?? null;
 
     this.serviceStatus = d.service_status ?? 'operational';
     this.serviceStatusSeverity = d.service_status_severity ?? 'none';

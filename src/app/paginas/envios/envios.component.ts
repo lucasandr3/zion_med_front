@@ -1,9 +1,9 @@
-import { Component, OnInit, inject, Signal, ChangeDetectionStrategy, signal, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { Component, OnInit, inject, Signal, ChangeDetectionStrategy, signal, computed, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 import { DocumentSendsService, DocumentSendItem } from '../../core/services/document-sends.service';
 import { PessoasService, Pessoa } from '../../core/services/pessoas.service';
-import { TemplatesService, Template } from '../../core/services/templates.service';
+import { LinksPublicosService } from '../../core/services/links-publicos.service';
 import { LoadingService } from '../../shared/services/loading.service';
 import { ListSkeletonComponent } from '../../shared/components/list-skeleton/list-skeleton.component';
 import { ZmPaginationComponent } from '../../shared/components/ui';
@@ -11,9 +11,15 @@ import { GestgoComboboxComponent, type GestgoComboboxOption } from '@/shared/com
 import { ToastService } from '../../core/services/toast.service';
 import { ConfirmDialogService } from '../../core/services/confirm-dialog.service';
 
+interface DocumentoPublicoOpcao {
+  id: number;
+  name: string;
+}
+
 type Caixa = 'pendentes' | 'assinados' | 'expirados' | 'cancelados';
 
 import { NORD_FORM_IMPORTS } from '@/shared/nord';
+import { formatarDataHoraBr } from '@/shared/utils/date';
 @Component({
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'app-envios',
@@ -32,7 +38,8 @@ import { NORD_FORM_IMPORTS } from '@/shared/nord';
 })
 export class EnviosComponent implements OnInit {
   readonly envios = signal<DocumentSendItem[]>([]);
-  readonly templates = signal<Template[]>([]);
+  /** Mesma fonte da tela Links públicos (`/links-publicos`). */
+  readonly documentosPublicos = signal<DocumentoPublicoOpcao[]>([]);
   readonly caixaAtual = signal<Caixa>('pendentes');
   readonly meta = signal({ current_page: 1, last_page: 1, per_page: 20, total: 0 });
   showSkeleton!: Signal<boolean>;
@@ -60,7 +67,7 @@ export class EnviosComponent implements OnInit {
 
   private documentSendsService = inject(DocumentSendsService);
   private pessoasService = inject(PessoasService);
-  private templatesService = inject(TemplatesService);
+  private linksPublicosService = inject(LinksPublicosService);
   private loadingService = inject(LoadingService);
   private toast = inject(ToastService);
   private confirm = inject(ConfirmDialogService);
@@ -71,35 +78,49 @@ export class EnviosComponent implements OnInit {
     { key: 'expirados', label: 'Expirados' },
     { key: 'cancelados', label: 'Cancelados' }];
 
-  get templatesPublicos(): Template[] {
-    return this.templates().filter((template) => template.is_active !== false && template.public_enabled === true);
-  }
-
-  get opcoesTemplatesPublicos(): GestgoComboboxOption[] {
-    return this.templatesPublicos.map((template) => ({
-      value: String(template.id),
-      label: template.name,
-    }));
-  }
+  readonly opcoesTemplatesPublicos = computed<GestgoComboboxOption[]>(() =>
+    this.documentosPublicos().map((doc) => ({
+      value: String(doc.id),
+      label: doc.name,
+    })),
+  );
 
   get templateSelecionadoKey(): string {
     return this.novoEnvio.template_id ? `${this.novoEnvio.template_id}` : '';
   }
 
   ngOnInit(): void {
-    this.templatesService.list({ is_active: true }).subscribe({
-      next: (templates) => {
-        this.templates.set(templates);
-        const primeiroTemplatePublico = this.templatesPublicos[0];
-        if (primeiroTemplatePublico && this.novoEnvio.template_id <= 0) {
-          this.novoEnvio.template_id = primeiroTemplatePublico.id;
-        }
-      },
-    });
+    this.carregarDocumentosPublicos();
     this.pessoaBusca$
       .pipe(debounceTime(280), distinctUntilChanged())
       .subscribe((termo) => this.buscarPessoasPorTermo(termo));
     this.carregar();
+  }
+
+  /** Carrega documentos com link público ativo — mesmo endpoint da listagem Links públicos. */
+  private carregarDocumentosPublicos(): void {
+    // API valida per_page max 50 (LinksPublicosIndexRequest).
+    this.linksPublicosService.list({ page: 1, per_page: 50 }).subscribe({
+      next: ({ data }) => {
+        const docs = data
+          .map((item) => ({
+            id: Number(item.template_id ?? item.id) || 0,
+            name: (item.template_name ?? item.name ?? '').trim(),
+          }))
+          .filter((item) => item.id > 0 && item.name.length > 0);
+        this.documentosPublicos.set(docs);
+        const primeiro = docs[0];
+        if (primeiro && this.novoEnvio.template_id <= 0) {
+          this.novoEnvio.template_id = primeiro.id;
+        } else if (!primeiro) {
+          this.novoEnvio.template_id = 0;
+        }
+      },
+      error: () => {
+        this.documentosPublicos.set([]);
+        this.toast.error('Documentos', 'Não foi possível carregar os documentos públicos.');
+      },
+    });
   }
 
   setCaixa(c: Caixa): void {
@@ -127,13 +148,7 @@ export class EnviosComponent implements OnInit {
   }
 
   dataFormatada(s: string | null): string {
-    if (!s) return '—';
-    try {
-      const d = new Date(s);
-      return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-    } catch {
-      return s;
-    }
+    return formatarDataHoraBr(s) || '—';
   }
 
   statusLabel(status: string): string {
@@ -238,7 +253,11 @@ export class EnviosComponent implements OnInit {
     this.pessoaBusca = '';
     this.pessoaSugestoes.set([]);
     this.pessoaSelecionada.set(null);
-    const primeiroTemplatePublico = this.templatesPublicos[0];
+    // Garante lista atualizada ao abrir o formulário
+    if (this.documentosPublicos().length === 0) {
+      this.carregarDocumentosPublicos();
+    }
+    const primeiroTemplatePublico = this.documentosPublicos()[0];
     this.novoEnvio = {
       template_id: primeiroTemplatePublico?.id ?? 0,
       channel: 'email',
@@ -383,7 +402,9 @@ export class EnviosComponent implements OnInit {
       this.erroNovo.set('Selecione um documento público.');
       return;
     }
-    const templateSelecionadoEhPublico = this.templatesPublicos.some((template) => template.id === this.novoEnvio.template_id);
+    const templateSelecionadoEhPublico = this.documentosPublicos().some(
+      (template) => template.id === this.novoEnvio.template_id,
+    );
     if (!templateSelecionadoEhPublico) {
       this.erroNovo.set('Selecione um documento público válido da clínica.');
       return;

@@ -11,7 +11,7 @@
           [routerLink]="['/pessoas', pessoa.id, 'editar']"
           title="Editar pessoa"
         >
-          <nord-icon name="interface-edit" size="s" aria-hidden="true"></nord-icon>
+          <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">edit</span>
           Editar
         </nord-button>
         @if (podeSolicitarReconsentimento) {
@@ -38,7 +38,7 @@
             [attr.loading]="inativando"
             title="Inativar pessoa"
           >
-            <nord-icon name="user-block" size="s" aria-hidden="true"></nord-icon>
+            <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">person_off</span>
             Inativar
           </nord-button>
         }
@@ -96,6 +96,10 @@
             <span class="material-symbols-outlined pessoa-tab__icon">inbox</span>
             Protocolos
             <span class="pessoa-tab__count">{{ pessoa!.recent_protocols?.length || 0 }}</span>
+          </button>
+          <button type="button" class="pessoa-tab" [class.pessoa-tab--active]="abaAtiva === 'historico'" (click)="setAbaAtiva('historico')">
+            <span class="material-symbols-outlined pessoa-tab__icon">timeline</span>
+            Histórico
           </button>
         </div>
 
@@ -233,6 +237,58 @@
                 </div>
               }
             </div>
+          }
+
+          @if (abaAtiva === 'historico') {
+            @if (historicoCarregando) {
+              <p class="text-sm text-muted-foreground">Carregando linha do tempo…</p>
+            } @else if (historicoErro) {
+              <p class="text-sm text-destructive">{{ historicoErro }}</p>
+            } @else if (historico.length === 0) {
+              <div class="pessoa-vazio">
+                <span class="material-symbols-outlined">timeline</span>
+                <p>Nenhum evento documental registrado.</p>
+              </div>
+            } @else {
+              <ul class="m-0 p-0 list-none space-y-3">
+                @for (item of historico; track item.kind + '-' + item.id) {
+                  <li class="border border-border rounded-lg px-3 py-3 text-sm">
+                    <div class="flex flex-wrap items-start justify-between gap-2">
+                      <div>
+                        <div class="font-medium">{{ item.title }}</div>
+                        <div class="text-muted-foreground text-xs mt-0.5">
+                          {{ labelHistoricoKind(item.kind) }}
+                          @if (item.template_version) { · v{{ item.template_version }} }
+                          @if (item.protocol_number) { · {{ item.protocol_number }} }
+                          @if (item.professional_name) { · {{ item.professional_name }} }
+                          @if (item.has_pdf) { · PDF }
+                          @if (item.review_status) { · revisão: {{ item.review_status }} }
+                          @if (item.channel) { · {{ item.channel }} }
+                        </div>
+                      </div>
+                      <div class="text-right shrink-0">
+                        <div class="text-xs text-muted-foreground">{{ dataFormatada(item.occurred_at) }}</div>
+                        @if (item.status) {
+                          <g-badge zShape="pill" zType="outline" [class]="statusProtocoloBadgeClass(item.status)">
+                            {{ statusProtocolo(item.status) }}
+                          </g-badge>
+                        }
+                      </div>
+                    </div>
+                    <div class="mt-2 flex flex-wrap gap-3">
+                      @if (item.route_hint) {
+                        <a [routerLink]="item.route_hint" class="pessoa-field-link">Abrir</a>
+                      }
+                      @if (podeSolicitarReconsentimento && item.kind === 'protocol') {
+                        <button type="button" class="pessoa-field-link bg-transparent border-0 p-0 cursor-pointer" (click)="solicitarReconsentimento()">
+                          Solicitar reconsentimento
+                        </button>
+                      }
+                    </div>
+                  </li>
+                }
+              </ul>
+            }
           }
         </div>
       </g-card>

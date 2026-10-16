@@ -3,12 +3,12 @@
     <div class="n-form-toolbar__start">
       <zm-page-back-link />
       @if (template()) {
-        <nord-button type="button" size="s" [routerLink]="['/templates', templateId, 'editar']">
-          <nord-icon name="interface-edit" size="s" aria-hidden="true"></nord-icon>
+        <nord-button type="button" [routerLink]="['/templates', templateId, 'editar']">
+          <span slot="start" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">edit</span>
           Editar modelo
         </nord-button>
-        <nord-button type="button" size="s" [routerLink]="['/templates', templateId, 'preview']" target="_blank" rel="noopener noreferrer">
-          <nord-icon name="interface-new-window" size="s" aria-hidden="true"></nord-icon>
+        <nord-button type="button" [routerLink]="['/templates', templateId, 'preview']" target="_blank" rel="noopener noreferrer">
+          <span slot="start" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">open_in_new</span>
           Pré-visualizar
         </nord-button>
       }
@@ -16,32 +16,32 @@
     @if (template()) {
       <div class="n-form-toolbar__end">
         @if (isConsentimento) {
-          <nord-button type="button" variant="default" size="s" [attr.loading]="aplicandoEstruturaTcle()" [attr.disabled]="aplicandoEstruturaTcle()" (click)="aplicarEstruturaTcle()">
-            <span class="material-symbols-outlined text-base" aria-hidden="true">account_tree</span>
+          <nord-button type="button" variant="default" [attr.loading]="aplicandoEstruturaTcle() || null" [attr.disabled]="aplicandoEstruturaTcle() || null" (click)="aplicarEstruturaTcle()">
+            <span slot="start" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">account_tree</span>
             Aplicar estrutura TCLE
           </nord-button>
         }
         @if (linkPublicoUrl()) {
-          <nord-button type="button" size="s" (click)="copiarLink($event)">
-            <span class="material-symbols-outlined text-base" aria-hidden="true">content_copy</span>
+          <nord-button type="button" (click)="copiarLink($event)">
+            <span slot="start" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">content_copy</span>
             <span class="copy-label">Copiar link</span>
           </nord-button>
           <a [href]="linkPublicoUrl()" target="_blank" rel="noopener" class="no-underline">
-            <nord-button type="button" size="s">
-              <nord-icon name="interface-new-window" size="s" aria-hidden="true"></nord-icon>
+            <nord-button type="button" variant="primary">
+              <span slot="start" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">open_in_new</span>
               Abrir
             </nord-button>
           </a>
-          <nord-button type="button" variant="default" size="s" [attr.loading]="desativandoLink()" [attr.disabled]="desativandoLink()" (click)="desativarLink()">
+          <nord-button type="button" variant="default" [attr.loading]="desativandoLink() || null" [attr.disabled]="desativandoLink() || null" (click)="desativarLink()">
             @if (!desativandoLink()) {
-              <span class="material-symbols-outlined text-base" aria-hidden="true">link_off</span>
+              <span slot="start" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">link_off</span>
             }
             {{ desativandoLink() ? 'Desativando…' : 'Desativar link' }}
           </nord-button>
         } @else {
-          <nord-button type="button" size="s" [attr.loading]="gerandoLink()" [attr.disabled]="gerandoLink()" (click)="gerarLink()">
+          <nord-button type="button" variant="primary" [attr.loading]="gerandoLink() || null" [attr.disabled]="gerandoLink() || null" (click)="gerarLink()">
             @if (!gerandoLink()) {
-              <span class="material-symbols-outlined text-base" aria-hidden="true">link</span>
+              <span slot="start" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">public</span>
             }
             {{ gerandoLink() ? 'Publicando…' : 'Publicar link' }}
           </nord-button>
@@ -83,31 +83,29 @@
             @if (actorsVisibilityEnabled) {
               <div class="templates-campos-form-grid">
                 <div class="templates-campos-field templates-campos-field--full">
-                  <label class="templates-campos-form-label" for="actors_visibility_field">Campo de referência</label>
-                  <select
-                    id="actors_visibility_field"
-                    class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  <label class="templates-campos-form-label" id="actors_visibility_field_label">Campo de referência</label>
+                  <z-combobox
+                    zWidth="full"
                     [(ngModel)]="actorsVisibilityField"
                     name="actors_visibility_field"
-                  >
-                    <option value="">Selecione…</option>
-                    @for (opt of actorsVisibilityFieldOptions; track opt.value) {
-                      <option [value]="opt.value">{{ opt.label }}</option>
-                    }
-                  </select>
+                    [options]="actorsVisibilityFieldOptions"
+                    placeholder="Selecione…"
+                    ariaLabel="Campo de referência"
+                    ariaDescribedBy="actors_visibility_field_label"
+                  />
                 </div>
                 <div class="templates-campos-field">
-                  <label class="templates-campos-form-label" for="actors_visibility_operator">Condição</label>
-                  <select
-                    id="actors_visibility_operator"
-                    class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  <label class="templates-campos-form-label" id="actors_visibility_operator_label">Condição</label>
+                  <z-combobox
+                    zWidth="full"
                     [(ngModel)]="actorsVisibilityOperator"
                     name="actors_visibility_operator"
-                  >
-                    @for (op of visibilityOperators; track op.value) {
-                      <option [value]="op.value">{{ op.label }}</option>
-                    }
-                  </select>
+                    [options]="visibilityOperators"
+                    placeholder="Selecione…"
+                    [searchable]="false"
+                    ariaLabel="Condição"
+                    ariaDescribedBy="actors_visibility_operator_label"
+                  />
                 </div>
                 @if (actorsVisibilityNeedsValue) {
                   <div class="templates-campos-field">
@@ -126,7 +124,7 @@
               <nord-checkbox [(ngModel)]="actorsRequireGuardian" name="actors_require_guardian" label="Exigir nome do responsável legal quando o bloco aparecer"></nord-checkbox>
             }
             <div class="flex justify-end">
-              <nord-button type="button" size="s" [attr.loading]="salvandoActorsRules()" [attr.disabled]="salvandoActorsRules()" (click)="salvarActorsVisibilityRules()">
+              <nord-button type="button" size="s" [attr.loading]="salvandoActorsRules() || null" [attr.disabled]="salvandoActorsRules() || null" (click)="salvarActorsVisibilityRules()">
                 Salvar regras do responsável
               </nord-button>
             </div>
@@ -135,7 +133,9 @@
       }
 
       @if (erro()) {
-        <p class="mb-4 text-sm text-destructive">{{ erro() }}</p>
+        <nord-banner variant="danger" class="mb-4">
+          <p style="white-space: pre-line">{{ erro() }}</p>
+        </nord-banner>
       }
 
       <g-card class="mb-4 gap-0 overflow-hidden border-border bg-card py-0 shadow-sm">
@@ -220,7 +220,7 @@
             @if (!isNovoStructural) {
               <nord-checkbox [(ngModel)]="novoRequired" name="new_required" label="Campo obrigatório"></nord-checkbox>
             }
-            <nord-button type="button" size="s" class="inline-flex items-center gap-1.5" [attr.loading]="salvandoCampo()" [attr.disabled]="salvandoCampo() || !novoLabel.trim()" (click)="adicionarCampo()">
+            <nord-button type="button" size="s" class="inline-flex items-center gap-1.5" [attr.loading]="salvandoCampo() || null" [attr.disabled]="salvandoCampo() || !novoLabel.trim()" (click)="adicionarCampo()">
               @if (!salvandoCampo()) {
                 <span class="material-symbols-outlined text-sm" aria-hidden="true">add</span>
               }
@@ -404,31 +404,29 @@
             @if (editVisibilityEnabled) {
               <div class="templates-campos-form-grid">
                 <div class="templates-campos-field templates-campos-field--full">
-                  <label class="templates-campos-form-label" for="edit_visibility_field">Campo de referência</label>
-                  <select
-                    id="edit_visibility_field"
-                    class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  <label class="templates-campos-form-label" id="edit_visibility_field_label">Campo de referência</label>
+                  <z-combobox
+                    zWidth="full"
                     [(ngModel)]="editVisibilityField"
                     name="edit_visibility_field"
-                  >
-                    <option value="">Selecione…</option>
-                    @for (opt of editVisibilityFieldOptions; track opt.value) {
-                      <option [value]="opt.value">{{ opt.label }}</option>
-                    }
-                  </select>
+                    [options]="editVisibilityFieldOptions"
+                    placeholder="Selecione…"
+                    ariaLabel="Campo de referência"
+                    ariaDescribedBy="edit_visibility_field_label"
+                  />
                 </div>
                 <div class="templates-campos-field">
-                  <label class="templates-campos-form-label" for="edit_visibility_operator">Condição</label>
-                  <select
-                    id="edit_visibility_operator"
-                    class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  <label class="templates-campos-form-label" id="edit_visibility_operator_label">Condição</label>
+                  <z-combobox
+                    zWidth="full"
                     [(ngModel)]="editVisibilityOperator"
                     name="edit_visibility_operator"
-                  >
-                    @for (op of visibilityOperators; track op.value) {
-                      <option [value]="op.value">{{ op.label }}</option>
-                    }
-                  </select>
+                    [options]="visibilityOperators"
+                    placeholder="Selecione…"
+                    [searchable]="false"
+                    ariaLabel="Condição"
+                    ariaDescribedBy="edit_visibility_operator_label"
+                  />
                 </div>
                 @if (editVisibilityNeedsValue) {
                   <div class="templates-campos-field">
@@ -452,18 +450,17 @@
         }
 
         <div class="border-t border-border px-5 py-4">
-          <label class="templates-campos-form-label" for="edit_clinical_step">Etapa clínica (wizard público)</label>
-          <select
-            id="edit_clinical_step"
-            class="w-full"
+          <label class="templates-campos-form-label" id="edit_clinical_step_label">Etapa clínica (wizard público)</label>
+          <z-combobox
+            zWidth="full"
             [(ngModel)]="editClinicalStepKind"
             name="edit_clinical_step"
-          >
-            <option value="">Automático / sem etapa</option>
-            @for (opt of clinicalStepOptions; track opt.value) {
-              <option [value]="opt.value">{{ opt.label }}</option>
-            }
-          </select>
+            [options]="clinicalStepOptions"
+            placeholder="Automático / sem etapa"
+            [searchable]="false"
+            ariaLabel="Etapa clínica"
+            ariaDescribedBy="edit_clinical_step_label"
+          />
           <p class="mt-1 text-xs text-muted-foreground">
             Define em qual bloco clínico o campo aparece no formulário público (TCLE).
           </p>
@@ -472,7 +469,7 @@
 
       <div class="flex justify-end gap-2 border-t border-border px-5 py-4" card-footer>
         <nord-button type="button" variant="default" size="s" (click)="fecharModal()">Cancelar</nord-button>
-        <nord-button type="button" size="s" [attr.loading]="salvandoCampo()" [attr.disabled]="salvandoCampo()" (click)="salvarEdicao()">
+        <nord-button type="button" size="s" [attr.loading]="salvandoCampo() || null" [attr.disabled]="salvandoCampo() || null" (click)="salvarEdicao()">
           {{ salvandoCampo() ? 'Salvando…' : 'Salvar' }}
         </nord-button>
       </div>

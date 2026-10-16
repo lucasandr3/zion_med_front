@@ -1,7 +1,9 @@
 @for (f of fields; track trackByKey($index, f)) {
   @if (fieldType(f) === 'heading') {
     <div class="fp-field-group fp-field-animate fp-structural fp-heading">
-      <h2 class="fp-section-title">{{ f.label }}</h2>
+      <div class="fp-section-head">
+        <h2 class="fp-section-title">{{ f.label }}</h2>
+      </div>
     </div>
   } @else if (fieldType(f) === 'notice') {
     @if (termScrollRequired) {
@@ -19,19 +21,21 @@
         <p class="fp-notice-text">{{ f.label }}</p>
       </div>
     } @else {
-      <div class="fp-field-group fp-field-animate fp-structural fp-notice">
+      <div class="fp-field-group fp-field-animate fp-structural fp-notice fp-hint-box">
         <p class="fp-notice-text">{{ f.label }}</p>
       </div>
     }
   } @else if (fieldType(f) === 'section_break') {
     <div class="fp-field-group fp-field-animate fp-structural fp-section-break" role="separator" [attr.aria-label]="f.label || 'Nova etapa'"></div>
   } @else {
-  <div class="fp-field-group fp-field-animate">
+  <div class="fp-field-group fp-field-animate" [class.fp-field-group--invalid]="isFieldInvalid(f.name_key)">
     @if (fieldType(f) !== 'checkbox') {
       <label [for]="'field_' + f.name_key" class="fp-field-label">
         {{ f.label }}
         @if (f.required) {
           <span class="fp-required" aria-hidden="true">*</span>
+        } @else {
+          <span class="fp-optional">(opcional)</span>
         }
       </label>
     }
@@ -42,97 +46,117 @@
 
     @switch (fieldType(f)) {
       @case ('text') {
-        <input
+        <nord-input
           [id]="'field_' + f.name_key"
-          type="text"
-          [(ngModel)]="valores[f.name_key]"
-          (ngModelChange)="onCampoAlterado()"
           [name]="f.name_key"
-          class="fp-input"
-          [required]="f.required"
-          [attr.aria-required]="f.required ? true : null"
+          expand
+          hide-label
+          [attr.label]="f.label"
+          [placeholder]="fieldPlaceholder(f)"
+          [value]="asString(valores[f.name_key])"
+          (input)="onNordTextInput(f.name_key, $event)"
+          class="fp-nord-control"
+          [attr.required]="f.required ? true : null"
           [attr.aria-invalid]="isFieldInvalid(f.name_key) ? true : null"
           [attr.aria-describedby]="isFieldInvalid(f.name_key) ? 'error_' + f.name_key : null"
-          [placeholder]="fieldPlaceholder(f)"
-        />
+        ></nord-input>
       }
       @case ('textarea') {
-        <textarea
+        <nord-textarea
           [id]="'field_' + f.name_key"
-          [(ngModel)]="valores[f.name_key]"
-          (ngModelChange)="onCampoAlterado()"
           [name]="f.name_key"
-          class="fp-input fp-textarea"
-          rows="4"
-          [required]="f.required"
+          expand
+          hide-label
+          [attr.label]="f.label"
           [placeholder]="fieldPlaceholder(f)"
-        ></textarea>
-      }
-      @case ('number') {
-        <input
-          [id]="'field_' + f.name_key"
-          type="number"
-          [(ngModel)]="valores[f.name_key]"
-          (ngModelChange)="onCampoAlterado()"
-          [name]="f.name_key"
-          class="fp-input"
-          [required]="f.required"
-          [attr.aria-required]="f.required ? true : null"
+          [value]="asString(valores[f.name_key])"
+          (input)="onNordTextInput(f.name_key, $event)"
+          class="fp-nord-control fp-nord-textarea"
+          rows="4"
+          [attr.required]="f.required ? true : null"
           [attr.aria-invalid]="isFieldInvalid(f.name_key) ? true : null"
           [attr.aria-describedby]="isFieldInvalid(f.name_key) ? 'error_' + f.name_key : null"
+        ></nord-textarea>
+      }
+      @case ('number') {
+        <nord-input
+          [id]="'field_' + f.name_key"
+          [name]="f.name_key"
+          type="number"
+          expand
+          hide-label
+          [attr.label]="f.label"
           [placeholder]="fieldPlaceholder(f)"
           inputmode="numeric"
-        />
+          [value]="asString(valores[f.name_key])"
+          (input)="onNordTextInput(f.name_key, $event)"
+          class="fp-nord-control"
+          [attr.required]="f.required ? true : null"
+          [attr.aria-invalid]="isFieldInvalid(f.name_key) ? true : null"
+          [attr.aria-describedby]="isFieldInvalid(f.name_key) ? 'error_' + f.name_key : null"
+        ></nord-input>
       }
       @case ('date') {
-        <input
+        <nord-date-picker
           [id]="'field_' + f.name_key"
-          type="text"
-          mwlFlatpickr
+          expand
+          hide-label
+          [attr.label]="f.label"
           [(ngModel)]="valores[f.name_key]"
           (ngModelChange)="onCampoAlterado()"
           [name]="f.name_key"
-          class="fp-input"
-          [required]="f.required"
-          placeholder="dd/mm/aaaa"
-          [altInput]="true"
-          [altInputClass]="'fp-input'"
-          [convertModelValue]="true"
-        />
+          class="fp-nord-date fp-nord-control"
+          [attr.required]="f.required ? true : null"
+          placeholder="dd/mm/aaaa">
+        </nord-date-picker>
       }
       @case ('checkbox') {
-        <nord-checkbox class="fp-field-checkbox" [(ngModel)]="valores[f.name_key]" (ngModelChange)="onCampoAlterado()" [name]="f.name_key" [attr.required]="f.required ? true : null">
-          <span slot="label">
-            {{ f.label }}
-            @if (f.required) {
-              <span class="fp-required" aria-hidden="true">*</span>
-            }
-          </span>
-        </nord-checkbox>
-      }
-      @case ('select') {
-        <div class="fp-select-wrap">
-          <select
-            [id]="'field_' + f.name_key"
+        <div class="fp-choice fp-choice--check" [class.fp-choice--selected]="!!valores[f.name_key]">
+          <nord-checkbox
+            class="fp-field-checkbox"
             [(ngModel)]="valores[f.name_key]"
             (ngModelChange)="onCampoAlterado()"
             [name]="f.name_key"
-            class="fp-input fp-select"
-            [required]="f.required"
-            spellcheck="false"
-            autocomplete="off"
+            [attr.required]="f.required ? true : null"
           >
-            <option value="">Selecione</option>
-            @for (opt of getFieldOptions(f); track opt.value) {
-              <option [value]="opt.value">{{ opt.label }}</option>
-            }
-          </select>
+            <span slot="label">
+              {{ f.label }}
+              @if (f.required) {
+                <span class="fp-required" aria-hidden="true">*</span>
+              }
+            </span>
+          </nord-checkbox>
         </div>
       }
-      @case ('radio') {
-        <div class="fp-radio-grid" [class.fp-radio-grid-single]="getFieldOptions(f).length === 1">
+      @case ('select') {
+        <nord-select
+          [id]="'field_' + f.name_key"
+          [name]="f.name_key"
+          expand
+          hide-label
+          [attr.label]="f.label"
+          [value]="asString(valores[f.name_key])"
+          (change)="onNordSelectChange(f.name_key, $event)"
+          class="fp-nord-control"
+          [attr.required]="f.required ? true : null"
+          [attr.aria-invalid]="isFieldInvalid(f.name_key) ? true : null"
+        >
+          <option value="">Selecione uma opção</option>
           @for (opt of getFieldOptions(f); track opt.value) {
-            <label class="fp-radio-option" [class.fp-radio-selected]="valores[f.name_key] === opt.value">
+            <option [value]="opt.value" [selected]="asString(valores[f.name_key]) === opt.value">{{ opt.label }}</option>
+          }
+        </nord-select>
+      }
+      @case ('radio') {
+        <div
+          class="fp-choices"
+          [class.fp-choices--row]="getFieldOptions(f).length === 3"
+          [class.fp-choices--single]="getFieldOptions(f).length === 1"
+          role="radiogroup"
+          [attr.aria-labelledby]="'field_' + f.name_key"
+        >
+          @for (opt of getFieldOptions(f); track opt.value) {
+            <label class="fp-choice" [class.fp-choice--selected]="valores[f.name_key] === opt.value">
               <input
                 type="radio"
                 [(ngModel)]="valores[f.name_key]"
@@ -140,10 +164,9 @@
                 [name]="f.name_key"
                 [value]="opt.value"
                 [required]="f.required"
-                class="fp-visually-hidden"
+                class="fp-choice-input"
               />
-              <span class="fp-radio-dot" aria-hidden="true"><span class="fp-radio-dot-inner"></span></span>
-              <span class="fp-radio-label-text">{{ opt.label }}</span>
+              <span class="fp-choice-label">{{ opt.label }}</span>
             </label>
           }
         </div>
@@ -159,7 +182,7 @@
           />
           @if (valores[f.name_key]) {
             <div class="fp-file-actions">
-              <span class="fp-field-hint">Arquivo selecionado — enviaremos junto com o formulário.</span>
+              <span class="fp-field-hint">Arquivo selecionado. Enviaremos junto com o formulário.</span>
               <button type="button" class="fp-link-btn" (click)="clearFile(f.name_key)">Remover</button>
             </div>
           }
@@ -187,16 +210,18 @@
         ></canvas>
         <div class="fp-sig-typed" [id]="'sig_typed_' + f.name_key">
           <label class="fp-field-label" [for]="'typed_sig_' + f.name_key">Alternativa acessível: digite seu nome completo</label>
-          <input
+          <nord-input
             [id]="'typed_sig_' + f.name_key"
-            type="text"
-            class="fp-input"
-            [value]="typedSignatureValue(f.name_key)"
-            (input)="onTypedSignatureInput(f.name_key, $any($event.target).value)"
+            expand
+            hide-label
+            label="Nome completo como assinatura"
+            class="fp-nord-control"
             autocomplete="name"
             placeholder="Nome completo como assinatura"
+            [value]="typedSignatureValue(f.name_key)"
+            (input)="onTypedSignatureInput(f.name_key, nordEventValue($event))"
             [attr.aria-invalid]="isFieldInvalid(f.name_key) ? true : null"
-          />
+          ></nord-input>
         </div>
         <input type="hidden" [name]="f.name_key" [ngModel]="valores[f.name_key]" [required]="f.required" />
         <div class="fp-sig-footer">
@@ -205,7 +230,17 @@
         </div>
       }
       @default {
-        <input [id]="'field_' + f.name_key" type="text" [(ngModel)]="valores[f.name_key]" [name]="f.name_key" class="fp-input" [required]="f.required" />
+        <nord-input
+          [id]="'field_' + f.name_key"
+          [name]="f.name_key"
+          expand
+          hide-label
+          [attr.label]="f.label"
+          [value]="asString(valores[f.name_key])"
+          (input)="onNordTextInput(f.name_key, $event)"
+          class="fp-nord-control"
+          [attr.required]="f.required ? true : null"
+        ></nord-input>
       }
     }
   </div>
