@@ -6,6 +6,8 @@ import { BillingUi, normalizeBillingUi } from '../utils/billing-ui';
 export interface Plano {
   name: string;
   value: number;
+  /** Valor anual (10× mensal se a API não enviar). */
+  value_yearly?: number;
   description?: string;
 }
 
@@ -15,12 +17,14 @@ export interface PlanoComChave extends Plano {
 }
 
 export type BillingType = 'BOLETO' | 'PIX';
+export type BillingCycle = 'MONTHLY' | 'YEARLY';
 
 export interface Subscription {
   id: number;
   asaas_subscription_id: string | null;
   plan_key: string;
   billing_type?: BillingType | string;
+  cycle?: BillingCycle | string;
   status: string;
   next_due_date: string | null;
   created_at?: string;
@@ -32,6 +36,7 @@ export interface BillingOrganization {
   subscription_status: string | null;
   billing_status: string | null;
   trial_ends_at?: string | null;
+  grace_ends_at?: string | null;
   /** Trial em andamento (API pode enviar mesmo com subscription_status active após cadastro). */
   is_on_trial?: boolean;
 }
@@ -89,10 +94,14 @@ export class BillingService {
   }
 
   /** Cria assinatura para o plano (plan_key). */
-  checkout(planKey: string, billingType: BillingType = 'PIX'): Observable<{ data?: { message?: string; subscription_id?: number; plan_key?: string; next_due_date?: string } }> {
-    return this.api.post<{ data?: { message?: string; subscription_id?: number; plan_key?: string; next_due_date?: string } }>(
+  checkout(
+    planKey: string,
+    billingType: BillingType = 'PIX',
+    cycle: BillingCycle = 'MONTHLY'
+  ): Observable<{ data?: { message?: string; subscription_id?: number; plan_key?: string; cycle?: BillingCycle; next_due_date?: string } }> {
+    return this.api.post<{ data?: { message?: string; subscription_id?: number; plan_key?: string; cycle?: BillingCycle; next_due_date?: string } }>(
       '/billing/checkout',
-      { plan_key: planKey, billing_type: billingType }
+      { plan_key: planKey, billing_type: billingType, cycle }
     );
   }
 
@@ -105,10 +114,14 @@ export class BillingService {
   }
 
   /** Troca de plano (cancela atual e cria nova com plan_key). */
-  changePlan(planKey: string, billingType: BillingType = 'PIX'): Observable<{ data?: { message?: string; subscription_id?: number; plan_key?: string; next_due_date?: string } }> {
-    return this.api.post<{ data?: { message?: string; subscription_id?: number; plan_key?: string; next_due_date?: string } }>(
+  changePlan(
+    planKey: string,
+    billingType: BillingType = 'PIX',
+    cycle: BillingCycle = 'MONTHLY'
+  ): Observable<{ data?: { message?: string; subscription_id?: number; plan_key?: string; cycle?: BillingCycle; next_due_date?: string } }> {
+    return this.api.post<{ data?: { message?: string; subscription_id?: number; plan_key?: string; cycle?: BillingCycle; next_due_date?: string } }>(
       '/billing/change-plan',
-      { plan_key: planKey, billing_type: billingType }
+      { plan_key: planKey, billing_type: billingType, cycle }
     );
   }
 }

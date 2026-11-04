@@ -177,6 +177,11 @@
   line-height: 1.15;
   letter-spacing: -0.02em;
   margin: 1rem 0 0;
+  color: #2b2b2b;
+}
+
+.page.dark .head h1 {
+  color: #e8e8e8;
 }
 
 .subtitle {

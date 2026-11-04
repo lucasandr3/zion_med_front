@@ -18,67 +18,142 @@
   <div class="fp-feegow-grid">
     <div class="fp-field-group">
       <label class="fp-field-label" for="feegow_paciente_id">Paciente ID (Feegow) *</label>
-      <input id="feegow_paciente_id" type="number" [(ngModel)]="valores['feegow_paciente_id']" name="feegow_paciente_id" class="fp-input" required />
+      <nord-input
+        id="feegow_paciente_id"
+        name="feegow_paciente_id"
+        type="number"
+        expand
+        hide-label
+        label="Paciente ID (Feegow)"
+        [value]="asString(valores['feegow_paciente_id'])"
+        (input)="onNordValue('feegow_paciente_id', $event)"
+        class="fp-nord-control"
+        required
+      ></nord-input>
     </div>
     <div class="fp-field-group">
       <label class="fp-field-label" for="feegow_profissional_id">Profissional *</label>
       @if (hasFeegowProfessionalOptions()) {
-        <select
+        <nord-select
           id="feegow_profissional_id"
-          [(ngModel)]="valores['feegow_profissional_id']"
           name="feegow_profissional_id"
-          class="fp-input fp-select"
-          (ngModelChange)="onProfissionalChange()"
+          expand
+          hide-label
+          label="Profissional"
+          [value]="asString(valores['feegow_profissional_id'])"
+          (change)="onNordValue('feegow_profissional_id', $event); onProfissionalChange()"
+          class="fp-nord-control"
           required
         >
           <option value="">Selecione</option>
           @for (opt of feegowProfessionalsOptions(); track opt.value) {
-            <option [value]="opt.value">{{ opt.label }}</option>
+            <option [value]="opt.value" [selected]="asString(valores['feegow_profissional_id']) === opt.value">{{ opt.label }}</option>
           }
-        </select>
+        </nord-select>
       } @else {
-        <input id="feegow_profissional_id" type="number" [(ngModel)]="valores['feegow_profissional_id']" name="feegow_profissional_id" class="fp-input" required />
+        <nord-input
+          id="feegow_profissional_id"
+          name="feegow_profissional_id"
+          type="number"
+          expand
+          hide-label
+          label="Profissional"
+          [value]="asString(valores['feegow_profissional_id'])"
+          (input)="onNordValue('feegow_profissional_id', $event)"
+          class="fp-nord-control"
+          required
+        ></nord-input>
       }
     </div>
     <div class="fp-field-group">
       <label class="fp-field-label" for="feegow_especialidade_id">Especialidade *</label>
-      <select id="feegow_especialidade_id" [(ngModel)]="valores['feegow_especialidade_id']" name="feegow_especialidade_id" class="fp-input fp-select" required>
+      <nord-select
+        id="feegow_especialidade_id"
+        name="feegow_especialidade_id"
+        expand
+        hide-label
+        label="Especialidade"
+        [value]="asString(valores['feegow_especialidade_id'])"
+        (change)="onNordValue('feegow_especialidade_id', $event)"
+        class="fp-nord-control"
+        required
+      >
         <option value="">Selecione</option>
         @for (opt of feegowSpecialtiesOptions(); track opt.value) {
-          <option [value]="opt.value">{{ opt.label }}</option>
+          <option [value]="opt.value" [selected]="asString(valores['feegow_especialidade_id']) === opt.value">{{ opt.label }}</option>
         }
-      </select>
+      </nord-select>
     </div>
     <div class="fp-field-group">
       <label class="fp-field-label" for="feegow_procedimento_id">Procedimento *</label>
       @if (hasFeegowProcedureOptions()) {
-        <select id="feegow_procedimento_id" [(ngModel)]="valores['feegow_procedimento_id']" name="feegow_procedimento_id" class="fp-input fp-select" required>
+        <nord-select
+          id="feegow_procedimento_id"
+          name="feegow_procedimento_id"
+          expand
+          hide-label
+          label="Procedimento"
+          [value]="asString(valores['feegow_procedimento_id'])"
+          (change)="onNordValue('feegow_procedimento_id', $event)"
+          class="fp-nord-control"
+          required
+        >
           <option value="">Selecione</option>
           @for (opt of feegowProceduresOptions(); track opt.value) {
-            <option [value]="opt.value">{{ opt.label }}</option>
+            <option [value]="opt.value" [selected]="asString(valores['feegow_procedimento_id']) === opt.value">{{ opt.label }}</option>
           }
-        </select>
+        </nord-select>
       } @else {
-        <input id="feegow_procedimento_id" type="number" [(ngModel)]="valores['feegow_procedimento_id']" name="feegow_procedimento_id" class="fp-input" required />
+        <nord-input
+          id="feegow_procedimento_id"
+          name="feegow_procedimento_id"
+          type="number"
+          expand
+          hide-label
+          label="Procedimento"
+          [value]="asString(valores['feegow_procedimento_id'])"
+          (input)="onNordValue('feegow_procedimento_id', $event)"
+          class="fp-nord-control"
+          required
+        ></nord-input>
       }
     </div>
     <div class="fp-field-group">
       <label class="fp-field-label" for="feegow_local_id">Local *</label>
-      <select id="feegow_local_id" [(ngModel)]="valores['feegow_local_id']" name="feegow_local_id" class="fp-input fp-select" required>
+      <nord-select
+        id="feegow_local_id"
+        name="feegow_local_id"
+        expand
+        hide-label
+        label="Local"
+        [value]="asString(valores['feegow_local_id'])"
+        (change)="onNordValue('feegow_local_id', $event)"
+        class="fp-nord-control"
+        required
+      >
         <option value="">Selecione</option>
         @for (opt of feegowLocalsOptions(); track opt.value) {
-          <option [value]="opt.value">{{ opt.label }}</option>
+          <option [value]="opt.value" [selected]="asString(valores['feegow_local_id']) === opt.value">{{ opt.label }}</option>
         }
-      </select>
+      </nord-select>
     </div>
     <div class="fp-field-group">
       <label class="fp-field-label" for="feegow_convenio_id">Convênio</label>
-      <select id="feegow_convenio_id" [(ngModel)]="valores['feegow_convenio_id']" name="feegow_convenio_id" class="fp-input fp-select">
+      <nord-select
+        id="feegow_convenio_id"
+        name="feegow_convenio_id"
+        expand
+        hide-label
+        label="Convênio"
+        [value]="asString(valores['feegow_convenio_id'])"
+        (change)="onNordValue('feegow_convenio_id', $event)"
+        class="fp-nord-control"
+      >
         <option value="">Não informado</option>
         @for (opt of feegowInsurancesOptions(); track opt.value) {
-          <option [value]="opt.value">{{ opt.label }}</option>
+          <option [value]="opt.value" [selected]="asString(valores['feegow_convenio_id']) === opt.value">{{ opt.label }}</option>
         }
-      </select>
+      </nord-select>
     </div>
     <div class="fp-field-group">
       <label class="fp-field-label" for="feegow_data">Data *</label>
@@ -88,29 +163,49 @@
         hide-label
         label="Data"
         [(ngModel)]="valores['feegow_data']"
+        (ngModelChange)="onCampoAlterado()"
         name="feegow_data"
-        class="fp-nord-date"
+        class="fp-nord-date fp-nord-control"
         required
         placeholder="dd/mm/aaaa">
       </nord-date-picker>
     </div>
     <div class="fp-field-group">
       <label class="fp-field-label" for="feegow_horario">Horário *</label>
-      <select id="feegow_horario" [(ngModel)]="valores['feegow_horario']" name="feegow_horario" class="fp-input fp-select" required>
+      <nord-select
+        id="feegow_horario"
+        name="feegow_horario"
+        expand
+        hide-label
+        label="Horário"
+        [value]="asString(valores['feegow_horario'])"
+        (change)="onNordValue('feegow_horario', $event)"
+        class="fp-nord-control"
+        required
+      >
         <option value="">Selecione</option>
         @for (hr of feegowHorariosDisponiveis(); track hr) {
-          <option [value]="hr">{{ hr }}</option>
+          <option [value]="hr" [selected]="asString(valores['feegow_horario']) === hr">{{ hr }}</option>
         }
-      </select>
+      </nord-select>
     </div>
     <div class="fp-field-group">
       <label class="fp-field-label" for="feegow_canal_id">Canal</label>
-      <select id="feegow_canal_id" [(ngModel)]="valores['feegow_canal_id']" name="feegow_canal_id" class="fp-input fp-select">
+      <nord-select
+        id="feegow_canal_id"
+        name="feegow_canal_id"
+        expand
+        hide-label
+        label="Canal"
+        [value]="asString(valores['feegow_canal_id'])"
+        (change)="onNordValue('feegow_canal_id', $event)"
+        class="fp-nord-control"
+      >
         <option value="">Não informado</option>
         @for (opt of feegowChannelsOptions(); track opt.value) {
-          <option [value]="opt.value">{{ opt.label }}</option>
+          <option [value]="opt.value" [selected]="asString(valores['feegow_canal_id']) === opt.value">{{ opt.label }}</option>
         }
-      </select>
+      </nord-select>
     </div>
   </div>
 
@@ -119,9 +214,8 @@
       {{ feegowBuscandoDisponibilidade() ? 'Consultando horários…' : 'Consultar horários disponíveis' }}
     </button>
     @if (feegowDisponibilidadeErro()) {
-      <span class="fp-feegow-error">{{ feegowDisponibilidadeErro() }}</span>
+      <p class="fp-feegow-error">{{ feegowDisponibilidadeErro() }}</p>
     }
   </div>
   }
 </div>
-<div class="fp-section-div" aria-hidden="true"></div>

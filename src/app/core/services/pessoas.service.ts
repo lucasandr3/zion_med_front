@@ -194,4 +194,27 @@ export class PessoasService {
       .post<{ data: { message: string; send_id: number; channel: string; protocol_id?: number } }>(`/pessoas/${id}/reconsentimento`, body)
       .pipe(map((r) => r.data));
   }
+
+  historicoDocumental(id: number, perPage = 30): Observable<PessoaHistoricoItem[]> {
+    return this.api
+      .get<{ data: PessoaHistoricoItem[] }>(`/pessoas/${id}/historico-documental`, { per_page: perPage })
+      .pipe(map((r) => r.data ?? []));
+  }
+}
+
+export interface PessoaHistoricoItem {
+  kind: 'protocol' | 'document_send' | string;
+  id: number;
+  occurred_at?: string | null;
+  title: string;
+  status?: string | null;
+  protocol_number?: string | null;
+  template_id?: number | null;
+  template_version?: number | string | null;
+  review_status?: string | null;
+  professional_name?: string | null;
+  has_pdf?: boolean;
+  signed_at?: string | null;
+  channel?: string | null;
+  route_hint?: string | null;
 }

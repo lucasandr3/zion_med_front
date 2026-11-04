@@ -24,6 +24,7 @@ import {
   getOrCreatePublicFormQrDataUrl,
   prefetchPublicFormQr,
 } from '../../core/utils/public-form-qr.util';
+import { buildPublicFormUrl, normalizePublicAppUrl } from '../../core/utils/public-form-url.util';
 
 interface LinkPublicoItem {
   id: number;
@@ -117,12 +118,13 @@ export class LinksPublicosComponent implements OnInit {
       next: ({ data: list, meta }) => {
         this.listaPronta.set(true);
         this.meta.set(meta);
-        const base = typeof window !== 'undefined' ? window.location.origin : '';
         this.templates.set(list.map((t: LinkPublico) => ({
           id: t.template_id ?? t.id,
           name: t.template_name ?? t.name ?? '',
           category_label: t.category_label,
-          public_url: t.public_url ?? (t.public_token ? `${base}/f/${t.public_token}` : ''),
+          public_url: normalizePublicAppUrl(
+            t.public_url || (t.public_token ? buildPublicFormUrl(t.public_token) : ''),
+          ),
           public_token: t.public_token,
           public_enabled: t.public_enabled !== false,
           submission_count: t.submission_count,

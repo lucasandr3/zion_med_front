@@ -15,7 +15,7 @@ import { NotificacoesService } from '../../../core/services/notificacoes.service
 import { NovidadesService } from '../../../core/services/novidades.service';
 import { SidebarMobileService } from '../../../core/services/sidebar-mobile.service';
 import { BillingBlockedStateService } from '../../../core/services/billing-blocked-state.service';
-import { AuthService, TrialNotice } from '../../../core/services/auth.service';
+import { AuthService, BillingNotice, TrialNotice } from '../../../core/services/auth.service';
 import { OrganizationPresenceService } from '../../../core/services/organization-presence.service';
 import { disableHorizontalNavInDom } from '../../../core/services/user-appearance.sync';
 import {
@@ -26,6 +26,7 @@ import { GestgoBrandMarkComponent } from '../../../shared/components/gestgo-bran
 import { GoAssistantHostComponent } from '../../../go-assistant';
 import {
   SHELL_NAV_SIDEBAR,
+  shellNavItemActive,
   ShellNavItem,
   ShellNavSection,
   shellNavItemVisivel,
@@ -62,6 +63,7 @@ export class LayoutAppComponent implements OnInit {
   private readonly notificacoesNaoLidasSignal = signal(0);
   private readonly novidadesNaoVistasSignal = signal(0);
   private readonly trialNoticeSignal = signal<TrialNotice | null>(null);
+  private readonly billingNoticeSignal = signal<BillingNotice | null>(null);
   private readonly urlAtualSignal = signal('/');
 
   readonly tituloPagina = this.tituloPaginaSignal.asReadonly();
@@ -71,6 +73,7 @@ export class LayoutAppComponent implements OnInit {
   readonly notificacoesNaoLidas = this.notificacoesNaoLidasSignal.asReadonly();
   readonly novidadesNaoVistas = this.novidadesNaoVistasSignal.asReadonly();
   readonly trialNotice = this.trialNoticeSignal.asReadonly();
+  readonly billingNotice = this.billingNoticeSignal.asReadonly();
 
   private readonly router = inject(Router);
   private readonly notif = inject(NotificacoesService);
@@ -119,11 +122,7 @@ export class LayoutAppComponent implements OnInit {
   }
 
   isActive(item: ShellNavItem): boolean {
-    const url = this.urlAtualSignal();
-    if (item.exact) {
-      return url === item.route;
-    }
-    return url === item.route || url.startsWith(item.route + '/');
+    return shellNavItemActive(item, this.urlAtualSignal());
   }
 
   go(event: Event, path: string): void {
@@ -156,6 +155,7 @@ export class LayoutAppComponent implements OnInit {
       this.auth.me().subscribe({
         next: () => {
           this.trialNoticeSignal.set(this.auth.getTrialNotice());
+          this.billingNoticeSignal.set(this.auth.getBillingNotice());
         },
         error: () => {},
       });

@@ -128,6 +128,11 @@ export function buildFormFieldStepState(
   const totalFormSteps = steps.length || 1;
   const safeIndex = Math.min(Math.max(currentStepIndex, 0), totalFormSteps - 1);
   const currentClinical = clinicalSteps[safeIndex];
+  const currentFields = steps[safeIndex] ?? [];
+  const headingTitle = currentFields.find((f) => {
+    const t = (f.type ?? '').toLowerCase();
+    return t === 'heading' || t === 'section' || isFormStepBreakField(f);
+  })?.label?.trim();
 
   return {
     steps,
@@ -137,11 +142,11 @@ export function buildFormFieldStepState(
     usesFormSteps: steps.length > 1,
     totalFormSteps,
     currentStepNumber: safeIndex + 1,
-    currentStepTitle: currentClinical?.title ?? `Etapa ${safeIndex + 1}`,
+    currentStepTitle: currentClinical?.title ?? headingTitle ?? `Etapa ${safeIndex + 1}`,
     currentStepKind: currentClinical?.kind ?? 'geral',
     isFirstFormStep: safeIndex <= 0,
     isLastFormStep: safeIndex >= totalFormSteps - 1,
-    currentStepFields: steps[safeIndex] ?? [],
+    currentStepFields: currentFields,
   };
 }
 

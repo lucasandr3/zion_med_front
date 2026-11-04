@@ -1,29 +1,37 @@
 @import './formulario-publico.shared.css';
+@import './formulario-publico-layout.css';
 
 :host {
   display: block;
   height: 100dvh;
   min-height: 100dvh;
-  font-family: 'Roboto', ui-sans-serif, system-ui, sans-serif;
+  font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
   font-feature-settings: 'kern' 1, 'liga' 1, 'clig' 1;
   font-variant-ligatures: common-ligatures contextual;
-  --fp-cream-50: #fafafa;
-  --fp-cream-100: #f2f2f0;
-  --fp-cream-200: #d4d4d0;
-  --fp-cream-400: #8a8a85;
-  --fp-cream-600: #5c5c58;
-  --fp-ink-800: #0a0a0a;
-  --fp-ink-900: #050505;
-  --fp-brand-400: #2a2a2a;
-  --fp-brand-500: #0a0a0a;
-  --fp-brand-600: #0a0a0a;
-  --fp-danger: #c62828;
-  --fp-bg-page: var(--fp-cream-50);
-  --fp-bg-header: color-mix(in srgb, var(--fp-cream-50) 94%, transparent);
-  --fp-border: var(--fp-cream-200);
+  /* Layout tokens = GESTGO_FORMULARIO_PUBLICO_PREMIUM (--brand* sobrescrito por form_public_theme) */
+  --fp-brand-400: #0c9368;
+  --fp-brand-500: #0c9368;
+  --fp-brand-600: #0c7658;
+  --fp-brand-soft: #e8f7f0;
+  --fp-ink-800: #18312b;
+  --fp-ink-900: #18312b;
+  --fp-cream-400: #91a29a;
+  --fp-cream-600: #6c7c76;
+  --fp-danger: #ba3a42;
+  --fp-danger-soft: #fff2f3;
+  --fp-surface: #ffffff;
+  --fp-soft: #f5f8f6;
+  --fp-border: #dfe8e3;
+  --fp-bg-page: #ffffff;
+  --fp-bg-header: color-mix(in srgb, var(--fp-surface) 96%, transparent);
+  --fp-radius: 18px;
+  --fp-radius-lg: 26px;
+  --n-color-accent: var(--fp-brand-500);
+  --n-color-accent-hover: var(--fp-brand-600);
+  --n-color-text-link: var(--fp-brand-600);
 }
 
 .form-publico-page {
@@ -34,11 +42,42 @@
   overflow: hidden;
   background: var(--fp-bg-page);
   color: var(--fp-ink-800);
+  line-height: 1.5;
+  font-size: 16px;
+  --fp-brand-soft: color-mix(in srgb, var(--fp-brand-500) 14%, #ffffff);
 }
 
+/* Dark = fundo neutro; accent continua das configs. Nord herda estes tokens (a página pública não usa body.dark). */
 .form-publico-page.dark {
-  --fp-bg-page: #0a0a0a;
-  --fp-bg-header: color-mix(in srgb, #0a0a0a 94%, transparent);
+  color-scheme: dark;
+  --fp-ink-800: #f2f5f3;
+  --fp-ink-900: #f2f5f3;
+  --fp-cream-400: #9eaea5;
+  --fp-cream-600: #9eaea5;
   --fp-border: #2a2a2a;
-  color: #fafafa;
+  --fp-surface: #111111;
+  --fp-soft: #1a1a1a;
+  --fp-bg-page: #050505;
+  --fp-bg-header: color-mix(in srgb, var(--fp-surface) 96%, transparent);
+  --fp-brand-soft: color-mix(in srgb, var(--fp-brand-500) 22%, #111111);
+  --fp-danger: #ff9da3;
+  --fp-danger-soft: #49262b;
+  color: #f2f5f3;
+  --n-color-text: #f2f5f3;
+  --n-color-text-weak: #c8d0cc;
+  --n-color-text-weaker: #9eaea5;
+  --n-color-text-weakest: #7d8b86;
+  --n-color-text-on-accent: #ffffff;
+  --n-color-surface: #1a1a1a;
+  --n-color-background: #111111;
+  --n-color-surface-raised: #222222;
+  --n-color-border: #2a2a2a;
+  --n-color-border-strong: #3a3a3a;
+  --n-color-icon: #c8d0cc;
+  --n-input-background: #1a1a1a;
+  --n-input-background-inactive: #1a1a1a;
+  --n-textarea-background: #1a1a1a;
+  --n-textarea-background-inactive: #1a1a1a;
+  --n-color-accent: var(--fp-brand-500);
+  --n-color-accent-hover: var(--fp-brand-600);
 }

@@ -20,7 +20,7 @@ import { AppUpdateService } from '../../../core/services/app-update.service';
               <p class="zm-app-update-banner__desc">{{ description() }}</p>
             </div>
           </div>
-          <nord-button variant="primary" size="s" type="button" class="zm-app-update-banner__action gap-2" (click)="updates.applyUpdate()" [attr.loading]="updates.applying()" [attr.disabled]="updates.applying()">
+          <nord-button variant="primary" size="s" type="button" class="zm-app-update-banner__action gap-2" (click)="updates.applyUpdate()" [attr.loading]="updates.applying() || null" [attr.disabled]="updates.applying() || null">
             {{ updates.applying() ? 'Atualizando…' : 'Atualizar agora' }}
           </nord-button>
         </div>

@@ -129,6 +129,7 @@ export interface PlatformPlan {
   name: string;
   key: string;
   value: number;
+  value_yearly?: number | null;
   description?: string | null;
   sort_order?: number;
   is_active: boolean;
@@ -167,6 +168,15 @@ export interface PlatformResendSettings {
   api_key_preview?: string | null;
 }
 
+export interface PlatformFormImportSettings {
+  provider?: 'openai' | 'heuristic';
+  model?: string;
+  base_url?: string;
+  configured?: boolean;
+  api_key_preview?: string | null;
+  retention_days?: number;
+}
+
 export interface PlatformSettingsData {
   product_name: string;
   base_url?: string | null;
@@ -179,6 +189,7 @@ export interface PlatformSettingsData {
   webhook_secret_preview?: string | null;
   minio?: PlatformMinioSettings;
   resend?: PlatformResendSettings;
+  form_import?: PlatformFormImportSettings;
   service_status: string;
   service_status_severity: string;
   service_status_message: string;
@@ -353,11 +364,29 @@ export class PlataformaService {
     return this.api.get<{ data: PlatformPlan }>('/platform/plans/' + id);
   }
 
-  createPlan(payload: { key: string; name: string; value: number; description?: string | null; sort_order?: number; is_active?: boolean }): Observable<{ data: PlatformPlan }> {
+  createPlan(payload: {
+    key: string;
+    name: string;
+    value: number;
+    value_yearly?: number | null;
+    description?: string | null;
+    sort_order?: number;
+    is_active?: boolean;
+  }): Observable<{ data: PlatformPlan }> {
     return this.api.post<{ data: PlatformPlan }>('/platform/plans', payload);
   }
 
-  updatePlan(id: number | string, payload: { name: string; value: number; description?: string | null; sort_order?: number; is_active?: boolean }): Observable<{ data: PlatformPlan }> {
+  updatePlan(
+    id: number | string,
+    payload: {
+      name: string;
+      value: number;
+      value_yearly?: number | null;
+      description?: string | null;
+      sort_order?: number;
+      is_active?: boolean;
+    }
+  ): Observable<{ data: PlatformPlan }> {
     return this.api.put<{ data: PlatformPlan }>('/platform/plans/' + id, payload);
   }
 
@@ -397,6 +426,11 @@ export class PlataformaService {
     mail_whatsapp_number?: string | null;
     mail_primary_color?: string | null;
     mail_product_name?: string | null;
+    form_import_provider?: 'openai' | 'heuristic' | null;
+    openai_api_key?: string | null;
+    form_import_openai_model?: string | null;
+    openai_base_url?: string | null;
+    form_import_retention_days?: number | null;
   }): Observable<{ data?: PlatformSettingsData; message?: string }> {
     return this.api.put<{ data?: PlatformSettingsData; message?: string }>('/platform/settings', payload);
   }

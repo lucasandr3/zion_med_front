@@ -21,7 +21,9 @@
 .zm-top-progress-bar {
   height: 100%;
   width: 0%;
-  background: var(--c-primary);
-  box-shadow: 0 0 10px color-mix(in srgb, var(--c-primary) 45%, transparent);
+  /* Páginas públicas definem --public-chrome-color (tema da clínica); senão accent/painel. */
+  background: var(--public-chrome-color, var(--n-color-accent, var(--c-primary)));
+  box-shadow: 0 0 10px
+    color-mix(in srgb, var(--public-chrome-color, var(--n-color-accent, var(--c-primary))) 45%, transparent);
   transition: width 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }

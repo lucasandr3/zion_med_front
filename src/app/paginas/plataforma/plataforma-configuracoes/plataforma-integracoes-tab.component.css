@@ -2,37 +2,11 @@
   width: 100%;
 }
 
-.section-card {
-  border: 1px solid color-mix(in srgb, var(--primary) 20%, var(--border));
-}
-
-.section-header {
+.settings-form {
   display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  border-bottom: 1px solid var(--border);
-  padding: 1rem 1.25rem;
-}
-
-.section-title {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--foreground);
-}
-
-.icon-wrap {
-  display: flex;
-  height: 2rem;
-  width: 2rem;
-  align-items: center;
-  justify-content: center;
-  border-radius: 0.625rem;
-  background: color-mix(in srgb, var(--primary) 12%, transparent);
-  color: var(--primary);
-}
-
-.section-body {
-  padding: 1rem 1.25rem 1.25rem;
+  flex-direction: column;
+  gap: 0;
+  width: 100%;
 }
 
 .hint {

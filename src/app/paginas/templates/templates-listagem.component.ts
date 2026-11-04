@@ -30,6 +30,7 @@ import { TemplatePublishGuardService } from '../../core/services/template-publis
 import { GestgoSheetService } from '@/shared/components/sheet/sheet.service';
 import type { GestgoSheetRef } from '@/shared/components/sheet/sheet-ref';
 import { GestgoComboboxComponent, type GestgoComboboxOption } from '@/shared/components/combobox';
+import { normalizePublicAppUrl } from '../../core/utils/public-form-url.util';
 
 type FiltroStatus = 'all' | 'ativo' | 'publico';
 
@@ -505,7 +506,7 @@ export class TemplatesListagemComponent implements OnInit, OnDestroy {
         this.templatesService.gerarLink(t.id).subscribe({
           next: async (resp) => {
             this.publicandoId.set(null);
-            const publicUrl = String(resp?.data?.public_url ?? t.public_url ?? '').trim();
+            const publicUrl = normalizePublicAppUrl(resp?.data?.public_url ?? t.public_url ?? '');
             this.marcarTemplateComoPublico(t.id, publicUrl);
 
             if (publicUrl !== '') {

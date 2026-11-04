@@ -53,6 +53,16 @@
         />
 
         <div class="dash-kpi-grid">
+          <a routerLink="/agenda" class="dash-kpi dash-kpi--neutral n-reset">
+            <div class="dash-kpi__top">
+              <span class="dash-kpi__title">Agenda</span>
+              <span class="dash-kpi__icon" aria-hidden="true">
+                <span class="material-symbols-outlined gestgo-mi gestgo-mi--s">calendar_month</span>
+              </span>
+            </div>
+            <p class="dash-kpi__value n-reset">Abrir</p>
+            <span class="dash-kpi__badge">Compromissos e expediente</span>
+          </a>
           <a routerLink="/protocolos" class="dash-kpi dash-kpi--green n-reset">
             <div class="dash-kpi__top">
               <span class="dash-kpi__title">Pendentes hoje</span>
@@ -73,16 +83,6 @@
             <p class="dash-kpi__value n-reset">{{ totalTemplates() }}</p>
             <span class="dash-kpi__badge">Total na empresa</span>
           </div>
-          <a routerLink="/protocolos" class="dash-kpi dash-kpi--neutral n-reset">
-            <div class="dash-kpi__top">
-              <span class="dash-kpi__title">Respostas</span>
-              <span class="dash-kpi__icon" aria-hidden="true">
-                <span class="material-symbols-outlined gestgo-mi gestgo-mi--s">bar_chart</span>
-              </span>
-            </div>
-            <p class="dash-kpi__value n-reset">{{ respostasPeriodoSelecionado }}</p>
-            <span class="dash-kpi__badge dash-kpi__badge--outline">{{ periodRangeLabel() }} · vs 30d</span>
-          </a>
           <a routerLink="/links-publicos" class="dash-kpi dash-kpi--violet n-reset">
             <div class="dash-kpi__top">
               <span class="dash-kpi__title">Links públicos</span>

@@ -1,17 +1,18 @@
 import { FormularioPublicoData } from '../../core/services/formulario-publico.service';
 import { normalizeThemeKey } from '../../core/services/user-appearance.sync';
 
-const DEFAULT_ACCENT = '#0a0a0a';
+/** Verde Gestgo (referência premium) — nunca preto: no escuro CTA/destaques sumiam. */
+const DEFAULT_ACCENT = '#0c9368';
 
-/** Presets alinhados ao `ThemeService` do backend. */
-const PUBLIC_THEME_ACCENT: Record<string, string> = {
+/** Presets alinhados ao `ThemeService` do backend (só fichas públicas). */
+const FORM_THEME_ACCENT: Record<string, string> = {
   'gestgo-blue': '#1e40af',
   'ocean-blue': '#14B87A',
   'indigo-night': '#4f46e5',
   'emerald-fresh': '#10b981',
   'rose-elegant': '#f43f5e',
   'amber-warm': '#f59e0b',
-  'violet-dream': '#8b5cf6',
+  'violet-dream': '#6d28d9',
   'teal-ocean': '#14b8a6',
   'slate-pro': '#475569',
   'cyan-tech': '#06b6d4',
@@ -24,14 +25,12 @@ function isValidHex(hex: string | null | undefined): hex is string {
   return !!hex && /^#[0-9a-fA-F]{6}$/.test(hex.trim());
 }
 
-/** Cor de destaque resolvida para CSS (preset, custom ou accent_hex da API). */
+/**
+ * Tema da ficha pública — independente da Link Bio / agenda.
+ * Usa apenas `form_public_theme` + `form_accent_hex` (e `accent_hex` já resolvido pela API da ficha).
+ */
 export function resolveFormularioPublicoAccent(data: FormularioPublicoData | null | undefined): string {
-  const fromApi = data?.accent_hex?.trim();
-  if (isValidHex(fromApi)) {
-    return fromApi.toLowerCase();
-  }
-
-  const theme = normalizeThemeKey(String(data?.form_public_theme ?? data?.public_theme ?? ''));
+  const theme = normalizeThemeKey(String(data?.form_public_theme ?? '').trim());
   if (!theme) {
     return DEFAULT_ACCENT;
   }
@@ -41,27 +40,82 @@ export function resolveFormularioPublicoAccent(data: FormularioPublicoData | nul
     if (isValidHex(custom)) {
       return custom.toLowerCase();
     }
-    return PUBLIC_THEME_ACCENT['custom'];
+    return FORM_THEME_ACCENT['custom'];
   }
 
-  return PUBLIC_THEME_ACCENT[theme] ?? DEFAULT_ACCENT;
+  // accent_hex da API pública da ficha já vem de form_public_theme (não da Link Bio)
+  const fromApi = data?.accent_hex?.trim();
+  if (isValidHex(fromApi)) {
+    return fromApi.toLowerCase();
+  }
+
+  return FORM_THEME_ACCENT[theme] ?? DEFAULT_ACCENT;
+}
+
+/** Accent muito escuro some no modo escuro — usa tom mais claro para CTAs/destaques. */
+function accentForUi(accent: string): string {
+  const raw = accent.replace('#', '');
+  if (!/^[0-9a-fA-F]{6}$/.test(raw)) return DEFAULT_ACCENT;
+  const n = parseInt(raw, 16);
+  const r = (n >> 16) & 255;
+  const g = (n >> 8) & 255;
+  const b = n & 255;
+  const luminance = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
+  // Pretos / onyx / slate muito escuros
+  if (luminance < 0.18) return DEFAULT_ACCENT;
+  return accent;
+}
+
+const ACCENT_CACHE_PREFIX = 'gestgo_fp_accent_';
+
+/** Cor já vista neste link, para o preload usar o tema antes da API responder. */
+export function fpReadCachedFormAccent(token: string): string | null {
+  if (!token || typeof localStorage === 'undefined') return null;
+  try {
+    const value = localStorage.getItem(ACCENT_CACHE_PREFIX + token);
+    return isValidHex(value) ? value.toLowerCase() : null;
+  } catch {
+    return null;
+  }
+}
+
+export function fpWriteCachedFormAccent(token: string, accent: string | null | undefined): void {
+  if (!token || !isValidHex(accent) || typeof localStorage === 'undefined') return;
+  try {
+    localStorage.setItem(ACCENT_CACHE_PREFIX + token, accent.toLowerCase());
+  } catch {
+    /* ignore */
+  }
 }
 
 /** Variáveis CSS aplicadas na página pública do formulário. */
-export function buildFormularioPublicoThemeVars(data: FormularioPublicoData | null | undefined): Record<string, string> {
-  const accent = resolveFormularioPublicoAccent(data);
-  const hasCustomAccent = accent !== DEFAULT_ACCENT;
+export function buildFormularioPublicoThemeVars(
+  data: FormularioPublicoData | null | undefined,
+  accentOverride?: string | null,
+): Record<string, string> {
+  const resolved = isValidHex(accentOverride) ? accentOverride.toLowerCase() : resolveFormularioPublicoAccent(data);
+  const accent = accentForUi(resolved);
+  const hasCustomAccent =
+    isValidHex(accentOverride) ||
+    !!String(data?.form_public_theme ?? '').trim() ||
+    (isValidHex(data?.accent_hex) && data!.accent_hex!.toLowerCase() !== DEFAULT_ACCENT);
 
+  // --fp-brand-soft fica no CSS (claro/escuro); só o accent vem das configs
   return {
     '--fp-brand-400': accent,
     '--fp-brand-500': accent,
     '--fp-brand-600': accent,
+    '--n-color-accent': accent,
+    '--n-color-accent-hover': accent,
+    '--n-color-text-link': accent,
     '--fp-accent-contrast': '#ffffff',
     ...(hasCustomAccent ? { '--fp-branded': '1' } : {}),
   };
 }
 
 export function formularioPublicoHasBranding(data: FormularioPublicoData | null | undefined): boolean {
-  const theme = data?.form_public_theme ?? data?.public_theme;
-  return resolveFormularioPublicoAccent(data) !== DEFAULT_ACCENT || !!theme;
+  const theme = String(data?.form_public_theme ?? '').trim();
+  if (theme) return true;
+  const accent = resolveFormularioPublicoAccent(data);
+  return accent !== DEFAULT_ACCENT && accentForUi(accent) === accent;
 }

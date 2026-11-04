@@ -1,0 +1,393 @@
+@if (pageErro()) {
+  <div class="public-page public-page--erro" [class.dark]="dark()">
+    <p class="page-erro">{{ pageErro() }}</p>
+  </div>
+} @else {
+  <div class="public-page" [class.dark]="dark()" [ngStyle]="themeStyle()">
+    <header class="public-header">
+      <div class="clinicbrand">
+        <span class="clinicmark">{{ clinicInitial() }}</span>
+        <div>
+          <strong>{{ clinicName() || 'Agenda' }}</strong>
+          <small>Agendamento online · Gestgo</small>
+        </div>
+      </div>
+      <div class="public-header-actions">
+        <span class="help">
+          <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">verified_user</span>
+          Reserva segura
+        </span>
+        <button
+          type="button"
+          class="theme-toggle"
+          [attr.aria-label]="dark() ? 'Ativar tema claro' : 'Ativar tema escuro'"
+          (click)="toggleDark()"
+        >
+          <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">{{ dark() ? 'light_mode' : 'dark_mode' }}</span>
+        </button>
+      </div>
+    </header>
+
+    <main class="public-wrap">
+      <section class="public-story">
+        <div class="kicker">Cuidado em cada detalhe</div>
+        <h1>Seu próximo momento de <em>bem-estar</em> começa aqui.</h1>
+        <p>
+          Escolha o atendimento ideal, encontre um horário que combine com você e confirme com tranquilidade.
+        </p>
+        <div class="story-line">
+          <div class="bar"></div>
+          <small>Um cuidado mais simples, desde o primeiro contato</small>
+        </div>
+        <div class="benefit">
+          <div class="bico"><span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">calendar_month</span></div>
+          <div>
+            <strong>Horários que se encaixam na sua rotina</strong>
+            <small>Veja a disponibilidade antes de informar seus dados.</small>
+          </div>
+        </div>
+        <div class="benefit">
+          <div class="bico"><span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">description</span></div>
+          <div>
+            <strong>Confirmação clara</strong>
+            <small>Receba o resumo do horário assim que reservar.</small>
+          </div>
+        </div>
+        <div class="benefit">
+          <div class="bico"><span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">favorite</span></div>
+          <div>
+            <strong>Uma experiência pensada para você</strong>
+            <small>Agendamento confortável no celular ou no computador.</small>
+          </div>
+        </div>
+        <div class="public-watermark">
+          <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">verified_user</span>
+          Powered by Gestgo
+        </div>
+      </section>
+
+      <section class="booking-card" aria-label="Agendamento online">
+        <div class="book-head">
+          <span class="context">Agendamento online</span>
+          <h2>{{ step() === 4 ? 'Reserva confirmada' : 'Reserve seu atendimento' }}</h2>
+          <p>
+            {{
+              step() === 4
+                ? 'Guarde as informações do seu horário.'
+                : 'Uma experiência simples, do início à confirmação.'
+            }}
+          </p>
+          @if (step() < 4) {
+            <div class="steps" aria-hidden="true">
+              <div class="stepbar" [class.on]="step() >= 1"></div>
+              <div class="stepbar" [class.on]="step() >= 2"></div>
+              <div class="stepbar" [class.on]="step() >= 3"></div>
+            </div>
+          }
+        </div>
+
+        <div class="booking-body">
+          @if (formErro()) {
+            <div class="form-erro" role="alert">{{ formErro() }}</div>
+          }
+
+          @if (step() === 1) {
+            <div class="stage-label">01 / 03 · Atendimento</div>
+            <h3>Como podemos cuidar de você?</h3>
+            <p class="stage-intro">Selecione o serviço para descobrir as próximas datas.</p>
+
+            @for (s of services(); track s.id) {
+              <button
+                type="button"
+                class="service-choice"
+                [class.selected]="serviceId() === s.id"
+                (click)="chooseService(s.id)"
+              >
+                <span class="symbol" aria-hidden="true">
+                  @if (servicePhoto(s); as photo) {
+                    <img class="symbol-photo" [src]="photo" [alt]="s.name" />
+                  } @else {
+                    <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">favorite</span>
+                  }
+                </span>
+                <span class="choice-main">
+                  <strong>{{ s.name }}</strong>
+                  <small>Atendimento personalizado · {{ s.duration_minutes }} min</small>
+                </span>
+                <span class="choice-end">
+                  <strong>{{ formatPrice(s) }}</strong>
+                  <span class="radio"></span>
+                </span>
+              </button>
+            } @empty {
+              <div class="privacy-note">Nenhum serviço disponível no momento.</div>
+            }
+
+            <div class="booking-bottom">
+              <button
+                type="button"
+                class="btn btn-primary btn-block"
+                [disabled]="!services().length"
+                (click)="goNext()"
+              >
+                Escolher data e horário
+                <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">arrow_forward</span>
+              </button>
+              <div class="trust-row">
+                <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">schedule</span>
+                Sem ligações. Reserve no seu tempo.
+              </div>
+            </div>
+          }
+
+          @if (step() === 2) {
+            <div class="stage-label">02 / 03 · Disponibilidade</div>
+            <h3>Encontre o horário ideal</h3>
+            <p class="stage-intro">Escolha o dia e um horário disponível.</p>
+
+            @if (selectedService(); as svc) {
+              <div class="booking-summary">
+                <div>
+                  <strong>{{ svc.name }}</strong>
+                  <small>{{ svc.duration_minutes }} minutos · {{ formatPrice(svc) }}</small>
+                </div>
+                <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">check</span>
+              </div>
+            }
+
+            <div class="public-cal-head">
+              <strong>{{ monthLabel() }}</strong>
+              <div class="public-cal-arrows">
+                <button type="button" title="Mês anterior" [disabled]="!canPrevMonth()" (click)="shiftMonth(-1)">
+                  <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">chevron_left</span>
+                </button>
+                <button type="button" title="Próximo mês" [disabled]="!canNextMonth()" (click)="shiftMonth(1)">
+                  <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">chevron_right</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="date-grid" role="grid" aria-label="Calendário">
+              @for (h of ['SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SÁB', 'DOM']; track h) {
+                <div class="date-heading">{{ h }}</div>
+              }
+              @for (cell of calendarCells(); track $index) {
+                @if (cell.spacer) {
+                  <span class="datecell spacer"></span>
+                } @else {
+                  <button
+                    type="button"
+                    class="datecell"
+                    [class.chosen]="date() === cell.iso"
+                    [disabled]="cell.disabled"
+                    (click)="chooseDate(cell.iso)"
+                  >
+                    {{ cell.day }}
+                  </button>
+                }
+              }
+            </div>
+
+            @if (date()) {
+              <div class="slots-title">
+                <strong>Horários disponíveis</strong>
+                <span>{{ dateLabel() }}</span>
+              </div>
+
+              @if (slotsLoading()) {
+                <p class="ap-muted">Carregando horários…</p>
+              } @else if (slotGroups().length) {
+                @for (g of slotGroups(); track g.label) {
+                  <div class="slot-group">
+                    <div class="slot-group__label">{{ g.label }}</div>
+                    <div class="slot-list">
+                      @for (slot of g.items; track slot.starts_at) {
+                        <button
+                          type="button"
+                          class="slot"
+                          [class.selected]="selectedSlot() === slot.starts_at"
+                          (click)="chooseSlot(slot.starts_at)"
+                        >
+                          {{ formatSlot(slot.starts_at) }}
+                        </button>
+                      }
+                    </div>
+                  </div>
+                }
+              } @else {
+                <div class="privacy-note">
+                  Sem horários neste dia. Escolha outra data ou confira o expediente da clínica.
+                </div>
+              }
+            }
+
+            <div class="booking-bottom">
+              <div class="nav-row">
+                <button type="button" class="btn btn-ghost" (click)="goBack()">
+                  <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">chevron_left</span>
+                  Voltar
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-primary nav-row__grow"
+                  [disabled]="!selectedSlot()"
+                  (click)="goNext()"
+                >
+                  Continuar
+                  <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">arrow_forward</span>
+                </button>
+              </div>
+              <div class="trust-row">
+                <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">verified_user</span>
+                Disponibilidade recalculada ao reservar.
+              </div>
+            </div>
+          }
+
+          @if (step() === 3) {
+            <div class="stage-label">03 / 03 · Seus dados</div>
+            <h3>Estamos quase lá</h3>
+            <p class="stage-intro">Precisamos apenas dos dados para identificar esta reserva.</p>
+
+            <div class="summary-ticket">
+              @if (selectedService(); as svc) {
+                <div class="ticket-line">
+                  <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">favorite</span>
+                  <div>
+                    <span>{{ svc.name }}</span>
+                    <small>Atendimento selecionado</small>
+                  </div>
+                </div>
+              }
+              <div class="ticket-line">
+                <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">calendar_month</span>
+                <div>
+                  <span>{{ dateLabel() }} · {{ selectedSlotLabel() }}</span>
+                  <small>
+                    @if (selectedService(); as svc) {
+                      {{ svc.duration_minutes }} minutos · {{ formatPrice(svc) }}
+                    }
+                  </small>
+                </div>
+              </div>
+            </div>
+
+            <label class="field">
+              <span>Nome completo *</span>
+              <input
+                class="input"
+                name="name"
+                autocomplete="name"
+                minlength="3"
+                maxlength="160"
+                required
+                placeholder="Como podemos chamar você?"
+                [ngModel]="patientName()"
+                (ngModelChange)="patientName.set($event)"
+              />
+            </label>
+            <div class="field-cols">
+              <label class="field">
+                <span>WhatsApp *</span>
+                <input
+                  class="input"
+                  name="phone"
+                  type="tel"
+                  inputmode="numeric"
+                  autocomplete="tel"
+                  maxlength="20"
+                  placeholder="(00) 00000-0000"
+                  [ngModel]="patientPhone()"
+                  (ngModelChange)="onPhoneInput($event)"
+                />
+              </label>
+              <label class="field">
+                <span>E-mail (opcional)</span>
+                <input
+                  class="input"
+                  name="email"
+                  type="email"
+                  autocomplete="email"
+                  placeholder="voce@email.com"
+                  [ngModel]="patientEmail()"
+                  (ngModelChange)="patientEmail.set($event)"
+                />
+              </label>
+            </div>
+
+            <div class="privacy-note">
+              <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">verified_user</span>
+              Seus dados são usados apenas para esta reserva. Informe e-mail ou telefone para contato.
+            </div>
+
+            <div class="booking-bottom nav-row">
+              <button type="button" class="btn btn-ghost" (click)="goBack()" [disabled]="sending()">
+                <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">chevron_left</span>
+                Voltar
+              </button>
+              <button
+                type="button"
+                class="btn btn-primary nav-row__grow"
+                [disabled]="sending()"
+                (click)="enviar()"
+              >
+                {{ sending() ? 'Reservando…' : 'Confirmar reserva' }}
+                <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">check</span>
+              </button>
+            </div>
+          }
+
+          @if (step() === 4) {
+            @if (confirm(); as c) {
+              <div class="success-view">
+                <div class="success-icon" aria-hidden="true">
+                  <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">check</span>
+                </div>
+                <div class="stage-label">Reserva confirmada</div>
+                <h3>Prontinho{{ c.patientFirstName ? ', ' + c.patientFirstName : '' }}!</h3>
+                <p>Seu horário foi reservado. Guarde o código {{ c.tokenHint }}… para referência.</p>
+                <div class="summary-ticket">
+                  <div class="ticket-line">
+                    <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">favorite</span>
+                    <div>
+                      <span>{{ c.serviceName }}</span>
+                      <small>Serviço reservado</small>
+                    </div>
+                  </div>
+                  <div class="ticket-line">
+                    <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">calendar_month</span>
+                    <div>
+                      <span>{{ confirmWhenLabel() }}</span>
+                      <small>Horário · {{ c.duration }} minutos</small>
+                    </div>
+                  </div>
+                </div>
+                @if (c.form?.public_url) {
+                  <div class="ap-form-invite">
+                    <div class="ap-form-invite__title">Prepare seu atendimento</div>
+                    <p>
+                      Sua ficha
+                      @if (c.form?.name) {
+                        “{{ c.form!.name }}”
+                      }
+                      está disponível para preenchimento pelo celular.
+                    </p>
+                    <a class="btn btn-primary btn-block" [href]="c.form!.public_url">
+                      Preencher minha ficha →
+                    </a>
+                    <p class="ap-form-invite__later">A reserva já está confirmada. Você pode concluir a ficha depois.</p>
+                  </div>
+                }
+                <button type="button" class="btn btn-ghost btn-block" (click)="novaReserva()">
+                  Nova reserva
+                </button>
+              </div>
+            }
+          }
+        </div>
+      </section>
+    </main>
+
+    <footer class="public-foot">Agendamento online · Gestgo</footer>
+  </div>
+}

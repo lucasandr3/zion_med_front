@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, Signal, signal, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { PessoasService, PessoaDetalhe } from '../../core/services/pessoas.service';
+import { PessoasService, PessoaDetalhe, PessoaHistoricoItem } from '../../core/services/pessoas.service';
 import { LoadingService } from '../../shared/services/loading.service';
 import { ZmSkeletonPessoaDetalheComponent } from '../../shared/components/skeletons';
 import { ToastService } from '../../core/services/toast.service';
@@ -37,7 +37,10 @@ export class PessoasDetalheComponent implements OnInit {
   erro = '';
   inativando = false;
   solicitandoReconsentimento = false;
-  abaAtiva: 'dados' | 'estatisticas' | 'protocolos' = 'dados';
+  abaAtiva: 'dados' | 'estatisticas' | 'protocolos' | 'historico' = 'dados';
+  historico: PessoaHistoricoItem[] = [];
+  historicoCarregando = false;
+  historicoErro = '';
 
   private route = inject(ActivatedRoute);
   private router = inject(Router);
@@ -127,8 +130,33 @@ export class PessoasDetalheComponent implements OnInit {
     return 'border-transparent bg-[color-mix(in_srgb,var(--c-success)_14%,transparent)] text-[var(--c-success)]';
   }
 
-  setAbaAtiva(aba: 'dados' | 'estatisticas' | 'protocolos'): void {
+  setAbaAtiva(aba: 'dados' | 'estatisticas' | 'protocolos' | 'historico'): void {
     this.abaAtiva = aba;
+    if (aba === 'historico' && this.pessoa && !this.historico.length && !this.historicoCarregando) {
+      this.carregarHistorico();
+    }
+  }
+
+  carregarHistorico(): void {
+    if (!this.pessoa) return;
+    this.historicoCarregando = true;
+    this.historicoErro = '';
+    this.pessoasService.historicoDocumental(this.pessoa.id).subscribe({
+      next: (items) => {
+        this.historico = items;
+        this.historicoCarregando = false;
+      },
+      error: () => {
+        this.historicoCarregando = false;
+        this.historicoErro = 'Não foi possível carregar o histórico documental.';
+      },
+    });
+  }
+
+  labelHistoricoKind(kind: string): string {
+    if (kind === 'protocol') return 'Protocolo';
+    if (kind === 'document_send') return 'Envio';
+    return kind;
   }
 
   async inativar(): Promise<void> {

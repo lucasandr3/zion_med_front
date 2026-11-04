@@ -814,7 +814,25 @@ body.app-update-banner-visible {
 /*
  * Marca da sidebar Nord — Gestgo + PLATAFORMA empilhados
  * (global: o slot do nord-navigation pode anular CSS encapsulado).
+ *
+ * Header da nav fora de "Topo e marca": o Nord usa o accent quando há
+ * top-bar. O override em :host-context() não aplica no Firefox.
  */
+body:not(.shell-preset-tinted) nord-navigation.gestgo-shell__nav {
+  --n-navigation-header-background: var(--shell-header-bg, var(--n-color-nav-surface, var(--n-color-header)));
+  --n-navigation-header-color: var(--shell-header-fg, var(--n-color-text));
+  --n-navigation-header-toggle-icon-color: var(--shell-header-control, var(--n-color-icon));
+  --n-navigation-header-divider: 1px solid var(--shell-header-border, var(--n-color-border));
+  --n-navigation-header-focus-style: none;
+}
+
+body.shell-preset-sidebar-dark nord-navigation.gestgo-shell__nav {
+  --n-navigation-header-background: var(--shell-sidebar-bg, var(--shell-nav-bg));
+  --n-navigation-header-color: var(--shell-nav-fg, #eceef1);
+  --n-navigation-header-toggle-icon-color: var(--shell-nav-muted, rgb(255 255 255 / 0.8));
+  --n-navigation-header-divider: 1px solid rgb(255 255 255 / 0.08);
+  --n-navigation-header-focus-style: none;
+}
 .gestgo-shell__brand-word {
   align-items: flex-start !important;
   display: flex !important;
@@ -1505,6 +1523,23 @@ textarea.form-input::placeholder,
     border-color: var(--c-primary) !important;
 }
 
+/* Páginas públicas: fundo do layout premium (não --c-bg do painel) */
+html[data-public-page],
+html[data-public-page] body {
+  background-color: #eff4f1 !important;
+}
+html[data-public-page]:has(.form-publico-page:not(.dark)),
+html[data-public-page]:has(.form-publico-page:not(.dark)) body,
+html[data-public-page]:has(.sucesso-page:not(.dark)),
+html[data-public-page]:has(.sucesso-page:not(.dark)) body {
+  background-color: #ffffff !important;
+}
+html[data-public-page].gestgo-public-page-dark,
+html[data-public-page].gestgo-public-page-dark body,
+html[data-public-page] body.gestgo-public-dark {
+  background-color: #050505 !important;
+}
+
 /* Formulário público — legibilidade (Roboto + espaçamento); inputs herdam `--leading-form` onde aplicável */
 .form-publico-page {
     text-rendering: optimizeLegibility;
@@ -1595,13 +1630,22 @@ input[type="checkbox"]:not(.sr-only):not(.g-checkbox-input):not(.n-input),
     -webkit-appearance: none;
     width: 1.25rem;
     height: 1.25rem;
-    border-radius: 0.25rem;
+    border-radius: 5px;
     border: 1.5px solid var(--c-border);
     background-color: var(--c-surface);
     cursor: pointer;
     flex-shrink: 0;
     transition: background-color 0.15s, border-color 0.15s;
     background-image: none;
+}
+
+.g-checkbox-input {
+    border-radius: 5px;
+}
+
+/* nord-checkbox: cantos 5px (token usado no input do shadow) */
+nord-checkbox {
+  --n-border-radius-s: 5px;
 }
 input[type="checkbox"]:not(.sr-only):not(.g-checkbox-input):not(.n-input):hover,
 .form-checkbox:hover,
@@ -4332,7 +4376,8 @@ body.dark .flatpickr-calendar .flatpickr-weekwrapper span.flatpickr-day { color:
   height: 4px; border-radius: 0.5rem; background: var(--c-primary); transition: width 0.3s;
 }
 .clinica-config .section-card:not(g-card),
-.link-bio-config .section-card:not(g-card) {
+.link-bio-config .section-card:not(g-card),
+.plataforma-config .section-card:not(g-card) {
   display: flex;
   flex-direction: column;
   gap: 0;
@@ -4346,7 +4391,8 @@ body.dark .flatpickr-calendar .flatpickr-weekwrapper span.flatpickr-day { color:
 }
 
 .clinica-config g-card.section-card,
-.link-bio-config g-card.section-card {
+.link-bio-config g-card.section-card,
+.plataforma-config g-card.section-card {
   display: block;
   margin-bottom: 0;
   background: transparent;
@@ -4355,9 +4401,10 @@ body.dark .flatpickr-calendar .flatpickr-weekwrapper span.flatpickr-day { color:
   box-shadow: none;
 }
 
-/* Empresa + Link bio: seções full-bleed (sem caixa flutuante), igual protocolo detalhe */
+/* Empresa + Link bio + Admin: seções full-bleed (sem caixa flutuante), igual protocolo detalhe */
 .clinica-config g-card.section-card nord-card,
-.link-bio-config g-card.section-card nord-card {
+.link-bio-config g-card.section-card nord-card,
+.plataforma-config g-card.section-card nord-card {
   margin-bottom: 0;
   --n-card-border-radius: 0;
   --n-card-box-shadow: none;
@@ -4379,7 +4426,8 @@ body.dark .flatpickr-calendar .flatpickr-weekwrapper span.flatpickr-day { color:
 }
 
 .clinica-config g-card.section-card [data-slot='card-content'],
-.link-bio-config g-card.section-card [data-slot='card-content'] {
+.link-bio-config g-card.section-card [data-slot='card-content'],
+.plataforma-config g-card.section-card [data-slot='card-content'] {
   padding: 0;
   gap: 0;
 }
@@ -4420,7 +4468,8 @@ body.dark .flatpickr-calendar .flatpickr-weekwrapper span.flatpickr-day { color:
 }
 
 .clinica-config .section-header,
-.link-bio-config .section-header {
+.link-bio-config .section-header,
+.plataforma-config .section-header {
   padding: 0.75rem 1.25rem;
   border-bottom: 1px solid var(--border);
   display: flex;
@@ -4429,7 +4478,8 @@ body.dark .flatpickr-calendar .flatpickr-weekwrapper span.flatpickr-day { color:
 }
 
 .clinica-config .section-header .icon-wrap,
-.link-bio-config .section-header .icon-wrap {
+.link-bio-config .section-header .icon-wrap,
+.plataforma-config .section-header .icon-wrap {
   width: 1.75rem;
   height: 1.75rem;
   background: color-mix(in srgb, var(--primary) 12%, transparent);
@@ -4440,17 +4490,29 @@ body.dark .flatpickr-calendar .flatpickr-weekwrapper span.flatpickr-day { color:
 }
 
 .clinica-config .section-header .icon-wrap .material-symbols-outlined,
-.link-bio-config .section-header .icon-wrap .material-symbols-outlined {
+.link-bio-config .section-header .icon-wrap .material-symbols-outlined,
+.plataforma-config .section-header .icon-wrap .material-symbols-outlined {
   font-size: 0.875rem;
   color: var(--primary);
 }
 
 .clinica-config .section-title,
-.link-bio-config .section-title {
+.link-bio-config .section-title,
+.plataforma-config .section-title {
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+  color: var(--muted-foreground);
+}
+
+.plataforma-config .section-subtitle {
+  margin: 0.25rem 0 0;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  font-weight: 400;
+  letter-spacing: normal;
+  text-transform: none;
   color: var(--muted-foreground);
 }
 
@@ -4468,7 +4530,8 @@ body.dark .flatpickr-calendar .flatpickr-weekwrapper span.flatpickr-day { color:
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--primary) 35%, var(--border));
 }
 .clinica-config .section-body,
-.link-bio-config .section-body { padding: 1rem 1.25rem; }
+.link-bio-config .section-body,
+.plataforma-config .section-body { padding: 1rem 1.25rem; }
 
 /* ══════════════════════════════════════════════════════════════════════════
    PROTOCOLO DETALHE

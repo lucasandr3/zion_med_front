@@ -1,0 +1,328 @@
+<div [class]="rootClass" [ngStyle]="themeVars">
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand-mini">
+        @if (brandImage) {
+          <img class="logo-small" [src]="brandImage" [alt]="clinic.name" style="object-fit:cover;padding:0" />
+        } @else {
+          <span class="logo-small">{{ initials }}</span>
+        }
+        <span>{{ clinic.name }}</span>
+      </div>
+      <div class="topactions">
+        <button type="button" class="iconbtn" [attr.aria-label]="dark ? 'Ativar tema claro' : 'Ativar tema escuro'" (click)="onToggleDark()">
+          <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">{{ dark ? 'light_mode' : 'dark_mode' }}</span>
+        </button>
+        <button type="button" class="iconbtn" aria-label="Compartilhar link" (click)="onShare()">
+          <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">share</span>
+        </button>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero" id="inicio">
+        <div class="hero-content">
+          <div class="eyebrow"><span class="dot"></span>{{ eyebrow }}</div>
+          <h1>{{ headline }}</h1>
+          @if (councilLine) {
+            <p class="council-line">{{ councilLine }}</p>
+          }
+          <p class="description">{{ description }}</p>
+
+          <div class="hero-art" aria-hidden="true">
+            @if (portraitUrl) {
+              <img [src]="portraitUrl" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:19px" />
+            } @else {
+              <div class="art-orb"></div>
+              <div class="art-emblem">
+                <span class="material-symbols-outlined gestgo-mi gestgo-mi--m" aria-hidden="true">{{ materialIcon(meta.artIcon) }}</span>
+              </div>
+              <div class="art-copy">{{ meta.artCopy }}</div>
+              <div class="art-sparkle">
+                <span class="material-symbols-outlined gestgo-mi gestgo-mi--m" aria-hidden="true">auto_awesome</span>
+              </div>
+            }
+          </div>
+
+          <div class="feature-row">
+            @for (pill of meta.pills; track pill) {
+              <span class="pill">
+                <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">check</span>{{ pill }}
+              </span>
+            }
+          </div>
+
+          <div class="cta-stack">
+            @if (appointmentUrl) {
+              <a class="btn btn-primary" [href]="trackCta('appointment', appointmentUrl)" target="_blank" rel="noopener noreferrer">
+                <span class="material-symbols-outlined gestgo-mi gestgo-mi--m" aria-hidden="true">calendar_month</span>
+                {{ primaryCtaLabel }}
+                <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">arrow_forward</span>
+              </a>
+            }
+            @if (whatsapp) {
+              <a class="btn btn-secondary" [href]="trackCta('whatsapp', whatsapp)" target="_blank" rel="noopener noreferrer">
+                <span class="material-symbols-outlined gestgo-mi gestgo-mi--m" aria-hidden="true">chat</span>
+                Tirar dúvidas pelo WhatsApp
+              </a>
+            }
+          </div>
+        </div>
+      </section>
+
+      @if (showParentNotice) {
+        <section class="section">
+          <div class="block-note">
+            <span class="material-symbols-outlined gestgo-mi gestgo-mi--m" aria-hidden="true">verified_user</span>
+            <div>
+              <strong>{{ parentNoticeTitle }}</strong>
+              <small>{{ parentNoticeBody }}</small>
+            </div>
+          </div>
+        </section>
+      }
+
+      <section class="section" id="servicos">
+        <div class="section-label">CONHEÇA NOSSOS ATENDIMENTOS</div>
+        <div class="section-split">
+          <h2>{{ meta.servicesTitle }}</h2>
+          @if (appointmentUrl) {
+            <a class="textlink" [href]="trackCta('appointment', appointmentUrl)" target="_blank" rel="noopener noreferrer">
+              Agendar <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">arrow_forward</span>
+            </a>
+          }
+        </div>
+
+        @if (meta.showSpecialtyFilter) {
+          <div class="filter-tabs" role="tablist" aria-label="Filtrar especialidade">
+            @for (opt of filterOptions; track opt) {
+              <button
+                type="button"
+                class="filter-tab"
+                [class.active]="specialtyFilter === opt"
+                (click)="selectSpecialty(opt)"
+              >{{ opt }}</button>
+            }
+          </div>
+        }
+
+        @if (meta.showAgeTabs) {
+          <div class="age-tabs" role="tablist" aria-label="Faixa etária">
+            @for (band of ageBands; track band.title; let i = $index) {
+              <button
+                type="button"
+                class="filter-tab"
+                [class.active]="ageBandIndex === i"
+                [attr.aria-pressed]="ageBandIndex === i"
+                (click)="selectAge(i)"
+              >@if (band.emoji) { {{ band.emoji }} }{{ band.title }}</button>
+            }
+          </div>
+          <p class="subtext" id="age-info">{{ ageInfo }}</p>
+        }
+
+        <div class="services-grid">
+          @for (service of filteredServices; track service.title) {
+            <div class="service">
+              <span class="service-symbol">
+                <span class="material-symbols-outlined gestgo-mi gestgo-mi--m" aria-hidden="true">{{ materialIcon(service.icon) }}</span>
+              </span>
+              <strong>{{ service.title }}</strong>
+              <small>{{ service.subtitle }}</small>
+            </div>
+          }
+        </div>
+
+        @if (convenios.length) {
+          <div class="block-note" style="margin-top:18px">
+            <span class="material-symbols-outlined gestgo-mi gestgo-mi--m" aria-hidden="true">verified_user</span>
+            <div>
+              <strong>Convênios</strong>
+              <small>{{ convenios.join(' · ') }}</small>
+            </div>
+          </div>
+        }
+      </section>
+
+      @if (meta.showSteps) {
+        <section class="section">
+          <div class="section-label">COMO FUNCIONA</div>
+          <h2>Antes de começar</h2>
+          <div class="steps">
+            @for (step of steps; track step; let i = $index) {
+              <div class="step">
+                <span class="step-index">{{ i + 1 | number:'2.0-0' }}</span>
+                <span>{{ step }}</span>
+              </div>
+            }
+          </div>
+        </section>
+      }
+
+      @if (team.length && model === 7) {
+        <section class="section">
+          <div class="section-label">EQUIPE</div>
+          <h2>Profissionais</h2>
+          <div class="form-list">
+            @for (member of team; track member.name; let i = $index) {
+              @if (teamWhatsappHref(member, i); as waHref) {
+                <a class="form-row" [href]="waHref" target="_blank" rel="noopener noreferrer">
+                  <span class="form-icon"><span class="material-symbols-outlined gestgo-mi gestgo-mi--m" aria-hidden="true">group</span></span>
+                  <span class="form-info">
+                    <strong>{{ member.name }}</strong>
+                    <small>{{ member.credential || member.notes || 'Falar no WhatsApp' }}</small>
+                  </span>
+                  <span class="form-arrow"><span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">chat</span></span>
+                </a>
+              } @else {
+                <div class="form-row" style="cursor:default">
+                  <span class="form-icon"><span class="material-symbols-outlined gestgo-mi gestgo-mi--m" aria-hidden="true">group</span></span>
+                  <span class="form-info">
+                    <strong>{{ member.name }}</strong>
+                    <small>{{ member.credential || member.notes || 'Especialista' }}</small>
+                  </span>
+                </div>
+              }
+            }
+          </div>
+        </section>
+      }
+
+      <section class="section" id="documentos">
+        <div class="section-label">DOCUMENTAÇÃO DIGITAL</div>
+        <h2>{{ docsTitle }}</h2>
+        <p class="subtext">{{ docsSub }}</p>
+        @if (formDocs.length) {
+          <div class="form-list">
+            @for (doc of formDocs; track doc.type + '-' + doc.item.id) {
+              @if (doc.type === 'form') {
+                <a class="form-row" [routerLink]="['/f', formToken(doc.item)]">
+                  <span class="form-icon"><span class="material-symbols-outlined gestgo-mi gestgo-mi--m" aria-hidden="true">assignment</span></span>
+                  <span class="form-info">
+                    <strong>{{ docTitle(doc) }}</strong>
+                    <small>{{ docSubtitle(doc) }}</small>
+                  </span>
+                  <span class="form-arrow"><span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">chevron_right</span></span>
+                </a>
+              } @else {
+                <a class="form-row" [href]="hrefBioLink(doc.item)" target="_blank" rel="noopener noreferrer">
+                  <span class="form-icon"><span class="material-symbols-outlined gestgo-mi gestgo-mi--m" aria-hidden="true">description</span></span>
+                  <span class="form-info">
+                    <strong>{{ docTitle(doc) }}</strong>
+                    <small>{{ docSubtitle(doc) }}</small>
+                  </span>
+                  <span class="form-arrow"><span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">chevron_right</span></span>
+                </a>
+              }
+            }
+          </div>
+        } @else {
+          <div class="block-note">
+            <span class="material-symbols-outlined gestgo-mi gestgo-mi--m" aria-hidden="true">verified_user</span>
+            <div>
+              <strong>Nenhum documento público no momento</strong>
+              <small>Quando a clínica publicar fichas, elas aparecem aqui.</small>
+            </div>
+          </div>
+        }
+      </section>
+
+      <section class="section" id="informacoes">
+        <div class="section-label">INFORMAÇÕES ÚTEIS</div>
+        <h2>Estamos por aqui.</h2>
+        <div class="info-links">
+          @if (mapsUrl) {
+            <a class="info-link" [href]="trackCta('maps', mapsUrl)" target="_blank" rel="noopener noreferrer">
+              <span class="material-symbols-outlined gestgo-mi gestgo-mi--m" aria-hidden="true">location_on</span>Como chegar
+              <span class="end"><span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">chevron_right</span></span>
+            </a>
+          }
+          @if (whatsapp) {
+            <a class="info-link" [href]="trackCta('whatsapp', whatsapp)" target="_blank" rel="noopener noreferrer">
+              <span class="material-symbols-outlined gestgo-mi gestgo-mi--m" aria-hidden="true">chat</span>Falar com a equipe
+              <span class="end"><span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">chevron_right</span></span>
+            </a>
+          }
+          @if (instagramUrl) {
+            <a class="info-link" [href]="trackCta('instagram', instagramUrl)" target="_blank" rel="noopener noreferrer">
+              <span class="material-symbols-outlined gestgo-mi gestgo-mi--m" aria-hidden="true">photo_camera</span>Instagram
+              <span class="end"><span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">chevron_right</span></span>
+            </a>
+          }
+          @if (emailHref) {
+            <a class="info-link" [href]="trackCta('email', emailHref)">
+              <span class="material-symbols-outlined gestgo-mi gestgo-mi--m" aria-hidden="true">mail</span>E-mail
+              <span class="end"><span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">chevron_right</span></span>
+            </a>
+          }
+          @if (phoneHref) {
+            <a class="info-link" [href]="trackCta('phone', phoneHref)">
+              <span class="material-symbols-outlined gestgo-mi gestgo-mi--m" aria-hidden="true">call</span>Telefone
+              <span class="end"><span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">chevron_right</span></span>
+            </a>
+          }
+          @if (clinic.address) {
+            <div class="info-link" style="cursor:default">
+              <span class="material-symbols-outlined gestgo-mi gestgo-mi--m" aria-hidden="true">location_on</span>{{ clinic.address }}
+            </div>
+          }
+        </div>
+
+        @if (hasHours) {
+          <div class="hours-block">
+            <div class="section-label" style="margin-top:22px;margin-bottom:10px">HORÁRIOS</div>
+            @if (clinic.is_open_now != null) {
+              <p class="hours-status" [class.open]="clinic.is_open_now" [class.closed]="!clinic.is_open_now">
+                {{ clinic.is_open_now ? 'Aberto agora' : 'Fechado no momento' }}
+              </p>
+            }
+            <ul class="hours-list">
+              @for (row of hoursRows; track row.label) {
+                <li>
+                  <span>{{ row.label }}</span>
+                  <strong>{{ row.text }}</strong>
+                </li>
+              }
+            </ul>
+          </div>
+        }
+      </section>
+
+      @if (showGoogleReviews) {
+        <section class="section lb-preset-reviews">
+          <app-link-bio-public-google-reviews [reviews]="googleReviews!" [dark]="dark" />
+        </section>
+      }
+
+      <section class="section">
+        <div class="section-label">DÚVIDAS FREQUENTES</div>
+        <h2>Antes de começar</h2>
+        <div class="mini-faq">
+          <details class="faqitem">
+            <summary>Preciso instalar algum aplicativo?<span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">chevron_right</span></summary>
+            <p>Não. A experiência funciona no navegador do celular, sem instalação.</p>
+          </details>
+          <details class="faqitem">
+            <summary>Posso preencher a ficha antes de chegar?<span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">chevron_right</span></summary>
+            <p>Sim, quando a clínica disponibilizar o formulário correto ou enviar um link individual.</p>
+          </details>
+          <details class="faqitem">
+            <summary>Como funciona o agendamento?<span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">chevron_right</span></summary>
+            <p>O botão de agendar abre o canal configurado pela clínica (WhatsApp, agenda externa ou integração). Não há reserva automática nesta página.</p>
+          </details>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="footerbrand">{{ clinic.name }}</div>
+      <div class="tinyline"></div>
+      <div class="footertext">
+        Uma experiência pensada para o seu cuidado.<br>
+        @if (!clinic.hide_platform_branding) {
+          Fichas digitais com <span class="powered">Gestgo</span>
+        }
+      </div>
+    </footer>
+  </div>
+</div>

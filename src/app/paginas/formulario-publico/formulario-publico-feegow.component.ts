@@ -82,6 +82,22 @@ export class FormularioPublicoFeegowComponent implements OnChanges {
     return this.feegowProfessionalsOptions().length > 0;
   }
 
+  asString(value: unknown): string {
+    if (value == null || value === false) return '';
+    if (value instanceof Date) return value.toISOString().slice(0, 10);
+    return String(value);
+  }
+
+  onNordValue(key: string, event: Event): void {
+    const value = (event.target as { value?: string } | null)?.value ?? '';
+    this.valores[key] = value;
+    this.onCampoAlterado();
+  }
+
+  onCampoAlterado(): void {
+    this.valoresChange.emit();
+  }
+
   onProfissionalChange(): void {
     const selected = String(this.valores['feegow_profissional_id'] || '');
     if (selected && this.feegowHorasPorProfissional()[selected]?.length) {

@@ -96,7 +96,7 @@ export class GestgoSheetOptions<T, U> {
       <ng-template cdkPortalOutlet />
 
       @if (isStringContent) {
-        <div data-testid="z-content" data-slot="sheet-content" [innerHTML]="config.zContent"></div>
+        <div data-testid="z-content" data-slot="sheet-content">{{ config.zContent }}</div>
       }
     </main>
 

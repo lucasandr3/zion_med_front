@@ -12,9 +12,9 @@
 }
 
 .login-page {
-  --login-green: #1a8e5f;
-  --login-green-deep: #147a50;
-  --login-mint: #9fe3c0;
+  --login-green: var(--c-primary, #14b87a);
+  --login-green-deep: var(--c-primary-active, var(--c-accent, #087d64));
+  --login-mint: color-mix(in srgb, #fff 78%, var(--login-green));
   --login-ink: #17201c;
   --login-muted: #6b7570;
   --login-floor: #f7f9f7;
@@ -341,18 +341,11 @@
 
 /* Tokens de dark no .login-page (não no :host) — senão os claros do bloco acima vencem. */
 :host-context(body.dark) .login-page {
-  --login-green: #1f9d69;
-  --login-green-deep: #178556;
-  --login-mint: #8fd9b4;
   --login-ink: #f2f5f3;
   --login-muted: #9aa59e;
   --login-floor: #121816;
   --login-border: #2a332e;
   color-scheme: dark;
-}
-
-:host-context(body.dark) .login-brand {
-  background: #157a52;
 }
 
 :host-context(body.dark) .login-theme-btn {

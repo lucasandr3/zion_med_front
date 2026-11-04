@@ -32,7 +32,11 @@
 
         @for (item of section.items; track item.route) {
           @if (itemVisivel(item)) {
-            <a [routerLink]="item.route" routerLinkActive="router-link-active" [routerLinkActiveOptions]="{ exact: item.exact ?? false }" class="shell-sidebar-nav relative w-full justify-start gap-2 px-2.5 font-normal text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground [&.router-link-active]:border-none [&.router-link-active]:bg-sidebar-primary/14 [&.router-link-active]:font-semibold [&.router-link-active]:text-sidebar-primary">
+            <a
+              [routerLink]="item.route"
+              class="shell-sidebar-nav relative w-full justify-start gap-2 px-2.5 font-normal text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground [&.router-link-active]:border-none [&.router-link-active]:bg-sidebar-primary/14 [&.router-link-active]:font-semibold [&.router-link-active]:text-sidebar-primary"
+              [class.router-link-active]="navItemAtivo(item)"
+            >
               <span class="material-symbols-outlined shrink-0 text-[19px]">{{ item.icon }}</span>
               <span class="sidebar-label">{{ item.label }}</span>
               @if (item.badge === 'trial' && badgeTrialLabel(item); as trialLabel) {

@@ -3,6 +3,11 @@ export interface ShellNavItem {
   label: string;
   icon: string;
   exact?: boolean;
+  /**
+   * Prefixos filhos que NÃO devem ativar este item (ex.: Modelos vs Importar).
+   * Só aplica quando `exact` é falso.
+   */
+  activeExceptPrefixes?: string[];
   /** Exige esta permissão para exibir o item. */
   permission?: string;
   /** Exibe se o usuário tiver ao menos uma das permissões. */
@@ -30,11 +35,19 @@ export interface ShellNavSectionView extends ShellNavSection {
 /** Itens do menu tenant (app) — legado / referência plana. */
 export const SHELL_NAV_APP: ShellNavItem[] = [
   { route: '/dashboard', label: 'Painel', icon: 'dashboard', permission: 'dashboard.access', exact: true },
-  { route: '/templates', label: 'Modelos de fichas', icon: 'description', permission: 'templates.manage' },
+  {
+    route: '/templates',
+    label: 'Modelos de fichas',
+    icon: 'description',
+    permission: 'templates.manage',
+    activeExceptPrefixes: ['/templates/importar'],
+  },
+  { route: '/templates/importar', label: 'Importar ficha', icon: 'auto_awesome', permission: 'templates.manage', exact: true },
   { route: '/links-publicos', label: 'Formulários públicos', icon: 'link', permissionsAny: ['templates.manage', 'submissions.view'] },
   { route: '/envios', label: 'Envios de documento', icon: 'send', permissionsAny: ['templates.manage', 'submissions.view'] },
   { route: '/protocolos', label: 'Protocolos', icon: 'inbox', permission: 'submissions.view' },
   { route: '/pessoas', label: 'Pessoas', icon: 'group', permission: 'submissions.view' },
+  { route: '/agenda', label: 'Agenda', icon: 'calendar_month', permission: 'organization.manage' },
   { route: '/notificacoes', label: 'Notificações', icon: 'notifications', permission: 'notifications.access', badge: 'notifications' },
   { route: '/clinica/configuracoes', label: 'Empresa', icon: 'business', permission: 'organization.manage' },
   { route: '/link-bio', label: 'Link na bio', icon: 'link', permission: 'organization.manage' },
@@ -58,11 +71,19 @@ export const SHELL_NAV_APP_SECTIONS: ShellNavSection[] = [
     label: 'Operação',
     icon: 'work',
     items: [
-      { route: '/templates', label: 'Modelos de fichas', icon: 'app_registration', permission: 'templates.manage' },
+      {
+        route: '/templates',
+        label: 'Modelos de fichas',
+        icon: 'app_registration',
+        permission: 'templates.manage',
+        activeExceptPrefixes: ['/templates/importar'],
+      },
+      { route: '/templates/importar', label: 'Importar ficha', icon: 'auto_awesome', permission: 'templates.manage', exact: true },
       { route: '/links-publicos', label: 'Formulários públicos', icon: 'list_alt', permissionsAny: ['templates.manage', 'submissions.view'] },
       { route: '/envios', label: 'Envios de documento', icon: 'send', permissionsAny: ['templates.manage', 'submissions.view'] },
       { route: '/protocolos', label: 'Protocolos', icon: 'article_person', permission: 'submissions.view' },
       { route: '/pessoas', label: 'Pessoas', icon: 'group', permission: 'submissions.view' },
+      { route: '/agenda', label: 'Agenda', icon: 'calendar_month', permission: 'organization.manage' },
     ],
   },
   {
@@ -94,11 +115,19 @@ export const SHELL_NAV_SIDEBAR: ShellNavSection[] = [
     items: [
       { route: '/clinica/escolher', label: 'Trocar empresa', icon: 'swap_horiz', requiresSwitchClinic: true },
       { route: '/dashboard', label: 'Dashboard', icon: 'bar_chart', permission: 'dashboard.access', exact: true },
-      { route: '/templates', label: 'Modelos de fichas', icon: 'app_registration', permission: 'templates.manage' },
+      {
+        route: '/templates',
+        label: 'Modelos de fichas',
+        icon: 'app_registration',
+        permission: 'templates.manage',
+        activeExceptPrefixes: ['/templates/importar'],
+      },
+      { route: '/templates/importar', label: 'Importar ficha', icon: 'auto_awesome', permission: 'templates.manage', exact: true },
       { route: '/links-publicos', label: 'Formulários públicos', icon: 'list_alt', permissionsAny: ['templates.manage', 'submissions.view'] },
       { route: '/envios', label: 'Envios de documento', icon: 'send', permissionsAny: ['templates.manage', 'submissions.view'] },
       { route: '/protocolos', label: 'Protocolos', icon: 'article_person', permission: 'submissions.view' },
       { route: '/pessoas', label: 'Pessoas', icon: 'group', permission: 'submissions.view' },
+      { route: '/agenda', label: 'Agenda', icon: 'calendar_month', permission: 'organization.manage' },
     ],
   },
   {
@@ -233,6 +262,30 @@ export function shellNavItemVisivel(
     return item.permissionsAny.some((p) => hasPermission(p));
   }
   return true;
+}
+
+/** Compara rota atual com item do menu (suporta exact e exclusões de prefixo). */
+export function shellNavItemActive(item: ShellNavItem, urlOrPath: string): boolean {
+  const path = (urlOrPath.split('?')[0] || '/').replace(/\/$/, '') || '/';
+  const alvo = (item.route || '/').replace(/\/$/, '') || '/';
+
+  if (item.exact) {
+    return path === alvo;
+  }
+
+  if (path === alvo) {
+    return true;
+  }
+
+  if (!path.startsWith(alvo + '/')) {
+    return false;
+  }
+
+  const excluded = item.activeExceptPrefixes ?? [];
+  return !excluded.some((prefix) => {
+    const p = prefix.replace(/\/$/, '') || '/';
+    return path === p || path.startsWith(p + '/');
+  });
 }
 
 export function shellNavSectionVisivel(

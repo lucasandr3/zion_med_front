@@ -479,6 +479,11 @@ input.n-input:focus-visible,
   outline: none !important;
   box-shadow: none !important;
 }
+/* Somente checkbox: border-radius 5px */
+:host(nord-checkbox) input[type='checkbox'],
+:host(nord-checkbox) input.n-input {
+  border-radius: 5px !important;
+}
 `;
 
 /** Padding + underline da aba ativa na cor do tema (shadow de nord-tab). */

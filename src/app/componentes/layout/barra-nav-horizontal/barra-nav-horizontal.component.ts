@@ -6,6 +6,7 @@ import { GestgoBadgeComponent } from '@/shared/components/badge/badge.component'
 import {
   SHELL_NAV_APP_SECTIONS,
   SHELL_NAV_APP_STANDALONE,
+  shellNavItemActive,
   SHELL_NAV_PLATAFORMA_SECTIONS,
   SHELL_NAV_PLATAFORMA_STANDALONE,
   shellNavItemVisivel,
@@ -56,11 +57,11 @@ export class BarraNavHorizontalComponent implements OnInit, OnChanges, OnDestroy
 
   secaoAtiva(secao: ShellNavSectionView): boolean {
     const path = this.pathAtual();
-    return secao.visibleItems.some((item) => this.rotaAtiva(item.route, !!item.exact, path));
+    return secao.visibleItems.some((item) => shellNavItemActive(item, path));
   }
 
   linkAtivo(item: ShellNavItem): boolean {
-    return this.rotaAtiva(item.route, !!item.exact, this.pathAtual());
+    return shellNavItemActive(item, this.pathAtual());
   }
 
   private atualizarMenu(): void {
@@ -85,9 +86,4 @@ export class BarraNavHorizontalComponent implements OnInit, OnChanges, OnDestroy
     return this.router.url.split('?')[0].replace(/\/$/, '') || '/';
   }
 
-  private rotaAtiva(route: string, exact: boolean, path: string): boolean {
-    const alvo = route.replace(/\/$/, '') || '/';
-    if (exact) return path === alvo;
-    return path === alvo || path.startsWith(alvo + '/');
-  }
 }

@@ -52,13 +52,33 @@ export function linkBioSpecialtiesList(clinic: LinkBioClinic): string[] {
     .filter(Boolean);
 }
 
+/**
+ * Endereço exibível na Link Bio pública.
+ * Remove placeholders internos (ex.: seed QA) que não são endereço real.
+ */
+export function linkBioPublicAddress(raw: string | null | undefined): string {
+  const t = trim(raw);
+  if (!t) return '';
+  if (/\(qa\)/i.test(t)) return '';
+  if (/ambiente de testes/i.test(t)) return '';
+  if (/^teste\b/i.test(t) && t.length < 48) return '';
+  return t;
+}
+
 /** Normaliza clínica vinda da API antes de renderizar Link Bio (admin ou público). */
-export function normalizeLinkBioClinic(clinic: LinkBioClinic): LinkBioClinic {
+export function normalizeLinkBioClinic(
+  clinic: LinkBioClinic,
+  opts?: { publicPage?: boolean },
+): LinkBioClinic {
   const link_bio_extra = parseLinkBioExtra(clinic.link_bio_extra);
   const specialties_list = linkBioSpecialtiesList({ ...clinic, link_bio_extra });
+  const address = opts?.publicPage
+    ? linkBioPublicAddress(clinic.address) || null
+    : clinic.address;
 
   return {
     ...clinic,
+    address,
     link_bio_extra,
     specialties_list,
   };

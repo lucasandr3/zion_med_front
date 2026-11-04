@@ -8,10 +8,11 @@ export class LoadingService {
     data$: Observable<T>;
     showSkeleton: Signal<boolean>;
   } {
-    const showSkeleton = signal(false);
+    const showSkeleton = signal(thresholdMs <= 0);
 
     const data$ = defer(() => {
-      let tid: ReturnType<typeof setTimeout> | null = setTimeout(() => showSkeleton.set(true), thresholdMs);
+      let tid: ReturnType<typeof setTimeout> | null =
+        thresholdMs <= 0 ? null : setTimeout(() => showSkeleton.set(true), thresholdMs);
       return observable.pipe(
         finalize(() => {
           if (tid !== null) {

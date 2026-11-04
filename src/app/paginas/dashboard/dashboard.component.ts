@@ -685,12 +685,19 @@ export class DashboardComponent implements OnInit {
     return status;
   }
 
-  private atualizarWizardOnboarding(dash: { onboarding?: { needs_public_link?: boolean }; links_publicos_count?: number }): void {
+  private atualizarWizardOnboarding(dash: {
+    onboarding?: { needs_public_link?: boolean; completed?: boolean };
+    links_publicos_count?: number;
+  }): void {
     const orgId = this.authService.getCurrentOrganizationId();
+    const completed = !!dash.onboarding?.completed;
     const needsLink = dash.onboarding?.needs_public_link ?? (dash.links_publicos_count ?? 0) === 0;
-    this.mostrarWizardOnboarding.set(!this.semClinica() &&
-      needsLink &&
-      !ZmDashboardOnboardingWizardComponent.isDismissedForOrg(orgId));
+    this.mostrarWizardOnboarding.set(
+      !this.semClinica() &&
+        !completed &&
+        needsLink &&
+        !ZmDashboardOnboardingWizardComponent.isDismissedForOrg(orgId),
+    );
   }
 
   onWizardOnboardingDismissed(): void {

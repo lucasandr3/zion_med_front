@@ -34,6 +34,14 @@ export const ASSISTANT_SCREENS: AssistantScreen[] = [
     quickAskIntentIds: ['templates.create', 'templates.fields'],
   },
   {
+    id: 'templates.import',
+    moduleId: 'templates',
+    title: 'Importar ficha',
+    routePatterns: ['/templates/importar'],
+    permissionsAny: ['templates.manage'],
+    quickAskIntentIds: ['templates.create', 'templates.fields'],
+  },
+  {
     id: 'templates.edit',
     moduleId: 'templates',
     title: 'Editar modelo',

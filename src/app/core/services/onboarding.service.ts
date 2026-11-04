@@ -27,4 +27,11 @@ export class OnboardingService {
       map((r) => r.data?.public_url ?? ''),
     );
   }
+
+  /** Envia o link de teste para o e-mail do usuário logado. */
+  enviarParaMim(templateId: number): Observable<{ public_url?: string; message?: string }> {
+    return this.api
+      .post<LinkResponse>(`/onboarding/templates/${templateId}/enviar-para-mim`, {})
+      .pipe(map((r) => r.data ?? {}));
+  }
 }

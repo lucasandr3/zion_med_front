@@ -172,7 +172,7 @@
                   </div>
 
                   <div class="form-actions">
-                    <nord-button type="submit" size="s" [attr.disabled]="saving()" [attr.loading]="saving()">
+                    <nord-button type="submit" size="m" [attr.disabled]="saving() || null" [attr.loading]="saving() || null">
                       {{ saving() ? 'Enviando…' : 'Enviar e-mail' }}
                     </nord-button>
                   </div>
@@ -256,10 +256,10 @@
                     <div card-footer class="border-border flex items-center justify-between gap-3 border-t px-4 py-3">
                       <span class="text-muted-foreground text-xs">Página {{ currentPage() }} de {{ lastPage() }} ({{ total() }} registros)</span>
                       <div class="flex gap-2">
-                        <nord-button variant="default" size="s" type="button" [attr.disabled]="currentPage() <= 1" (click)="goToPage(currentPage() - 1)">
+                        <nord-button variant="default" size="m" type="button" [attr.disabled]="currentPage() <= 1" (click)="goToPage(currentPage() - 1)">
                           Anterior
                         </nord-button>
-                        <nord-button variant="default" size="s" type="button" [attr.disabled]="currentPage()>= lastPage()"
+                        <nord-button variant="default" size="m" type="button" [attr.disabled]="currentPage()>= lastPage()"
                           (click)="goToPage(currentPage() + 1)"
                         >
                           Próxima

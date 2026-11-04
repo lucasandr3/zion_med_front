@@ -109,6 +109,10 @@ export class PlataformaConfiguracoesComponent implements OnInit {
         mail_whatsapp_number: data.resend?.whatsapp_number ?? null,
         mail_primary_color: data.resend?.primary_color ?? null,
         mail_product_name: data.resend?.product_name ?? null,
+        form_import_provider: data.form_import?.provider === 'heuristic' ? 'heuristic' : 'openai',
+        openai_api_key: null,
+        form_import_openai_model: data.form_import?.model ?? null,
+        openai_base_url: data.form_import?.base_url ?? null,
       })
       .subscribe({
         next: (res) => {

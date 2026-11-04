@@ -3,3 +3,19 @@
 .space-y-4 > * + * {
   margin-top: 1rem;
 }
+
+.plano-valores-row {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+}
+
+@media (min-width: 640px) {
+  .plano-valores-row {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.plano-valor-field {
+  min-width: 0;
+}

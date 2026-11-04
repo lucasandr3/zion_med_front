@@ -51,6 +51,10 @@ export class FormularioPublicoGateComponent {
       : 'Para iniciar o preenchimento, informe o código e a data de nascimento cadastrados na clínica.';
   }
 
+  nordEventValue(event: Event): string {
+    return (event.target as { value?: string } | null)?.value ?? '';
+  }
+
   onCpfInput(value: string): void {
     this.cpfChange.emit(value);
   }

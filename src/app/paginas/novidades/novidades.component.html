@@ -109,7 +109,7 @@
 
       @if (podeCarregarMais) {
         <div class="novidades-page__load-more">
-          <nord-button variant="default" size="s" type="button" [attr.loading]="carregandoMais()" [attr.disabled]="carregandoMais()" (click)="carregar(false)">
+          <nord-button variant="default" size="s" type="button" [attr.loading]="carregandoMais() || null" [attr.disabled]="carregandoMais() || null" (click)="carregar(false)">
             Carregar versões anteriores
           </nord-button>
         </div>

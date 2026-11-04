@@ -244,8 +244,9 @@
   height: 100%;
 }
 
-/* Em flush o toolbar não precisa compensar padding do host */
-.n-page--flush .n-form-toolbar {
+/* Em flush / list o toolbar não precisa compensar padding do host */
+.n-page--flush .n-form-toolbar,
+.n-page-list > .n-form-toolbar {
   margin: 0;
   flex-shrink: 0;
 }

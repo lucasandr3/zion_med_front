@@ -165,9 +165,24 @@ export function syncThemeChrome(): void {
   root.style.setProperty('--n-color-accent-secondary', primary);
   root.style.setProperty('--n-color-text-link', primary);
 
-  const meta = document.querySelector('meta[name="theme-color"]');
-  if (meta) {
-    meta.setAttribute('content', dark ? '#1d2025' : primary);
+  // Páginas públicas (/l, /a, /f…) mantêm a cor do tema da clínica (não a do painel)
+  const publicPage = document.documentElement.getAttribute('data-public-page') === '1';
+  if (publicPage) {
+    const locked = document.documentElement.getAttribute('data-theme-color');
+    if (locked && /^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/.test(locked)) {
+      document.documentElement.style.setProperty('--public-chrome-color', locked);
+      document.querySelectorAll('meta[name="theme-color"]').forEach((el) => el.remove());
+      const meta = document.createElement('meta');
+      meta.setAttribute('name', 'theme-color');
+      meta.setAttribute('content', locked);
+      document.head.appendChild(meta);
+    }
+  } else {
+    document.documentElement.style.removeProperty('--public-chrome-color');
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) {
+      meta.setAttribute('content', dark ? '#1d2025' : primary);
+    }
   }
 
   // Favicon = PNG oficial do tema (mesma arte da sidebar). Remove links estáticos concorrentes.

@@ -162,6 +162,11 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  color: #2b2b2b;
+}
+
+.lb-p7-root.dark .lb-p7-header-title {
+  color: #e8e8e8;
 }
 
 .lb-p7-header-actions {
@@ -299,7 +304,11 @@
   font-size: 1.5rem;
   font-weight: 800;
   letter-spacing: -0.03em;
-  color: var(--p7-on-surface);
+  color: #2b2b2b;
+}
+
+.lb-p7-root.dark .lb-p7-hero-title {
+  color: #e8e8e8;
 }
 
 .lb-p7-hero-sub {
@@ -558,11 +567,11 @@
   margin: 0;
   font-size: 1.125rem;
   font-weight: 800;
-  color: var(--p7-accent-deep);
+  color: #2b2b2b;
 }
 
 .lb-p7-root.dark .lb-p7-bento-wide-title {
-  color: color-mix(in srgb, var(--p7-accent-soft) 88%, white);
+  color: #e8e8e8;
 }
 
 .lb-p7-bento-wide-sub {

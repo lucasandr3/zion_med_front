@@ -1,11 +1,10 @@
-import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 
 @Component({
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'zm-formulario-publico-otp',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [FormsModule],
   templateUrl: './formulario-publico-otp.component.html',
 })
 export class FormularioPublicoOtpComponent {
@@ -27,4 +26,26 @@ export class FormularioPublicoOtpComponent {
   @Output() identityChange = new EventEmitter<void>();
   @Output() sendOtp = new EventEmitter<void>();
   @Output() verifyOtp = new EventEmitter<void>();
+
+  private nordValue(event: Event): string {
+    return (event.target as { value?: string } | null)?.value ?? '';
+  }
+
+  onChannelChange(event: Event): void {
+    const value = this.nordValue(event);
+    this.otpChannelChange.emit(value === 'whatsapp' ? 'whatsapp' : 'email');
+  }
+
+  onEmailInput(event: Event): void {
+    this.submitterEmailChange.emit(this.nordValue(event));
+    this.identityChange.emit();
+  }
+
+  onPhoneInput(event: Event): void {
+    this.otpPhoneChange.emit(this.nordValue(event));
+  }
+
+  onCodeInput(event: Event): void {
+    this.otpCodeChange.emit(this.nordValue(event));
+  }
 }

@@ -26,6 +26,27 @@
   display: block;
 }
 
+/*
+ * Fora de "Topo e marca", o Nord pinta o header da nav com o accent
+ * (.n-has-top-bar .n-layout-nav). O reset via :host-context() no shadow
+ * não vale no Firefox; a variável no elemento da nav vale em todos.
+ */
+body:not(.shell-preset-tinted) nord-navigation.gestgo-shell__nav {
+  --n-navigation-header-background: var(--shell-header-bg, var(--n-color-nav-surface, var(--n-color-header)));
+  --n-navigation-header-color: var(--shell-header-fg, var(--n-color-text));
+  --n-navigation-header-toggle-icon-color: var(--shell-header-control, var(--n-color-icon));
+  --n-navigation-header-divider: 1px solid var(--shell-header-border, var(--n-color-border));
+  --n-navigation-header-focus-style: none;
+}
+
+body.shell-preset-sidebar-dark nord-navigation.gestgo-shell__nav {
+  --n-navigation-header-background: var(--shell-sidebar-bg, var(--shell-nav-bg));
+  --n-navigation-header-color: var(--shell-nav-fg, #eceef1);
+  --n-navigation-header-toggle-icon-color: var(--shell-nav-muted, rgb(255 255 255 / 0.8));
+  --n-navigation-header-divider: 1px solid rgb(255 255 255 / 0.08);
+  --n-navigation-header-focus-style: none;
+}
+
 body.shell-preset-tinted .gestgo-shell {
   --shell-header-fg: #ffffff;
   --shell-header-muted: rgb(255 255 255 / 0.78);

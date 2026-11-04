@@ -3,15 +3,16 @@
     <zm-page-back-link />
   </div>
   <div class="n-form-toolbar__end">
-    <nord-button type="button" routerLink="/plataforma/planos">
+    <nord-button type="button" size="m" routerLink="/plataforma/planos">
       <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">close</span>
       Cancelar
     </nord-button>
     <nord-button
       variant="primary"
+      size="m"
       type="button"
-      [attr.loading]="saving()"
-      [attr.disabled]="saving()"
+      [attr.loading]="saving() || null"
+      [attr.disabled]="saving() || null"
       (click)="submit()"
     >
       <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">check</span>
@@ -54,19 +55,58 @@
           <input type="text" id="name" [(ngModel)]="name" name="name" class="w-full" maxlength="128" required placeholder="Ex: Core" />
         </div>
 
-        <div>
-          <label for="value_display" class="text-foreground mb-1 block text-xs font-medium">Valor (R$/mês)</label>
-          <input
-            type="text"
-            id="value_display" class="w-40"
-            placeholder="0,00"
-            inputmode="decimal"
-            autocomplete="off"
-            [ngModel]="valueDisplay"
-            (ngModelChange)="onValueInput($event)"
-            name="value_display"
-            (blur)="onValueBlur()"
-          />
+        <div class="plano-valores-row">
+          <div class="plano-valor-field">
+            <label for="value_display" class="text-foreground mb-1 block text-xs font-medium">Valor (R$/mês)</label>
+            <input
+              type="text"
+              id="value_display"
+              class="w-full"
+              placeholder="0,00"
+              inputmode="numeric"
+              autocomplete="off"
+              [ngModel]="valueDisplay"
+              (ngModelChange)="onValueInput($event)"
+              name="value_display"
+              (blur)="onValueBlur()"
+            />
+          </div>
+          <div class="plano-valor-field">
+            <label for="discount_percent" class="text-foreground mb-1 block text-xs font-medium">Desconto anual (%)</label>
+            <input
+              type="number"
+              id="discount_percent"
+              class="w-full"
+              name="discount_percent"
+              min="0"
+              max="100"
+              step="0.01"
+              [(ngModel)]="discountPercent"
+              (ngModelChange)="onDiscountChange($event)"
+            />
+            <p class="text-muted-foreground mt-1 m-0 text-xs">Ex.: 16,67% ≈ 12 meses pelo preço de 10.</p>
+          </div>
+          <div class="plano-valor-field">
+            <label for="value_yearly_display" class="text-foreground mb-1 block text-xs font-medium">Valor anual (R$/ano)</label>
+            <input
+              type="text"
+              id="value_yearly_display"
+              class="w-full"
+              placeholder="0,00"
+              inputmode="numeric"
+              autocomplete="off"
+              [ngModel]="valueYearlyDisplay"
+              (ngModelChange)="onValueYearlyInput($event)"
+              name="value_yearly_display"
+              (blur)="onValueYearlyBlur()"
+            />
+            <p class="text-muted-foreground mt-1 m-0 text-xs">
+              12 × mensal com {{ discountPercent }}% de desconto.
+              @if (economiaAnual() > 0) {
+                Economia de R$ {{ formatBrlPublic(economiaAnual()) }} vs 12 mensalidades.
+              }
+            </p>
+          </div>
         </div>
 
         <div>

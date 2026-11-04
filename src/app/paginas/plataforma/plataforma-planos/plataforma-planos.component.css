@@ -1,1 +1,67 @@
 /* Usa variáveis globais e .platform-table em styles.css */
+
+.planos-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  align-items: stretch;
+}
+
+@media (min-width: 768px) {
+  .planos-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .planos-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.plano-card-wrap {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 100%;
+}
+
+.plano-card-wrap > .plano-card {
+  flex: 1 1 auto;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+:host ::ng-deep .plano-card-wrap > .plano-card > nord-card {
+  flex: 1 1 auto;
+  height: 100%;
+  display: flex !important;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+.plano-card__body {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 0.75rem;
+  height: 100%;
+  min-height: 100%;
+  box-sizing: border-box;
+  padding: 1.25rem;
+}
+
+.plano-card__desc {
+  flex: 1 1 auto;
+  min-height: 2.75rem;
+}
+
+.plano-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: auto;
+  padding-top: 0.75rem;
+}
