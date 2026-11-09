@@ -4,7 +4,7 @@ import { RouterLink } from '@angular/router';
 import { Title } from '@angular/platform-browser';
 import { LandingPublicData, LandingService } from '../../core/services/landing.service';
 
-type CycleUi = 'MONTHLY' | 'YEARLY';
+type CycleUi = 'MONTHLY' | 'SEMIANNUALLY' | 'YEARLY';
 
 @Component({
   selector: 'app-planos',
@@ -43,6 +43,14 @@ type CycleUi = 'MONTHLY' | 'YEARLY';
           <button
             type="button"
             class="planos-cycle__btn"
+            [class.planos-cycle__btn--active]="ciclo() === 'SEMIANNUALLY'"
+            (click)="ciclo.set('SEMIANNUALLY')"
+          >
+            Semestral
+          </button>
+          <button
+            type="button"
+            class="planos-cycle__btn"
             [class.planos-cycle__btn--active]="ciclo() === 'YEARLY'"
             (click)="ciclo.set('YEARLY')"
           >
@@ -52,6 +60,8 @@ type CycleUi = 'MONTHLY' | 'YEARLY';
         <p class="planos-cycle-hint">
           @if (ciclo() === 'YEARLY') {
             Anual à vista: 12 meses pelo preço de 10.
+          } @else if (ciclo() === 'SEMIANNUALLY') {
+            Semestral à vista: 6 meses pelo preço de 5.
           } @else {
             Cobrança mensal recorrente.
           }
@@ -68,7 +78,9 @@ type CycleUi = 'MONTHLY' | 'YEARLY';
                 <h2>{{ p.name }}</h2>
                 <p class="planos-price">
                   {{ preco(p) | currency: 'BRL' : 'symbol-narrow' : '1.0-0' : 'pt-BR' }}
-                  <span>{{ ciclo() === 'YEARLY' ? '/ano' : '/mês' }}</span>
+                  <span>{{
+                    ciclo() === 'YEARLY' ? '/ano' : ciclo() === 'SEMIANNUALLY' ? '/semestre' : '/mês'
+                  }}</span>
                 </p>
                 <ul>
                   <li>Fichas e consentimentos digitais</li>
@@ -246,13 +258,20 @@ export class PlanosComponent implements OnInit {
     });
   }
 
-  preco(p: { value: number; value_yearly?: number }): number {
+  preco(p: { value: number; value_yearly?: number; value_semiannual?: number }): number {
     if (this.ciclo() === 'YEARLY') {
       const yearly = Number(p.value_yearly);
       if (Number.isFinite(yearly) && yearly > 0) {
         return yearly;
       }
       return Math.round(Number(p.value || 0) * 10);
+    }
+    if (this.ciclo() === 'SEMIANNUALLY') {
+      const semi = Number(p.value_semiannual);
+      if (Number.isFinite(semi) && semi > 0) {
+        return semi;
+      }
+      return Math.round(Number(p.value || 0) * 5);
     }
     return Number(p.value || 0);
   }

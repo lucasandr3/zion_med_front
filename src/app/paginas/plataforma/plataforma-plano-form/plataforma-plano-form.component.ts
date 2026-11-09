@@ -55,7 +55,9 @@ export class PlataformaPlanoFormComponent implements OnInit, OnDestroy {
   valueNumber = 0;
   valueYearlyDisplay = '';
   valueYearlyNumber = 0;
-  /** Desconto aplicado sobre 12 × mensal para obter o anual. */
+  valueSemiannualDisplay = '';
+  valueSemiannualNumber = 0;
+  /** Desconto aplicado sobre 12 × mensal (e 6 × mensal no semestral). */
   discountPercent = DEFAULT_DISCOUNT_PERCENT;
   description = '';
   sortOrder = 0;
@@ -127,6 +129,12 @@ export class PlataformaPlanoFormComponent implements OnInit, OnDestroy {
         : this.calcularAnual(this.valueNumber, DEFAULT_DISCOUNT_PERCENT);
     this.valueYearlyNumber = yearly;
     this.valueYearlyDisplay = this.formatBrl(yearly);
+    const semi =
+      p.value_semiannual != null && Number(p.value_semiannual) > 0
+        ? Number(p.value_semiannual)
+        : this.calcularSemestral(this.valueNumber, DEFAULT_DISCOUNT_PERCENT);
+    this.valueSemiannualNumber = semi;
+    this.valueSemiannualDisplay = this.formatBrl(semi);
     this.discountPercent = this.inferirDesconto(this.valueNumber, yearly);
     this.description = p.description ?? '';
     this.sortOrder = p.sort_order ?? 0;
@@ -156,6 +164,13 @@ export class PlataformaPlanoFormComponent implements OnInit, OnDestroy {
     this.cdr.markForCheck();
   }
 
+  onValueSemiannualInput(raw: string): void {
+    const parsed = this.parseMoneyMask(raw);
+    this.valueSemiannualDisplay = parsed.display;
+    this.valueSemiannualNumber = parsed.number;
+    this.cdr.markForCheck();
+  }
+
   onValueBlur(): void {
     this.valueDisplay = this.formatBrl(this.valueNumber);
     this.cdr.markForCheck();
@@ -166,9 +181,20 @@ export class PlataformaPlanoFormComponent implements OnInit, OnDestroy {
     this.cdr.markForCheck();
   }
 
+  onValueSemiannualBlur(): void {
+    this.valueSemiannualDisplay = this.formatBrl(this.valueSemiannualNumber);
+    this.cdr.markForCheck();
+  }
+
   economiaAnual(): number {
     const cheio = this.valueNumber * 12;
     const economia = cheio - this.valueYearlyNumber;
+    return economia > 0 ? Math.round(economia * 100) / 100 : 0;
+  }
+
+  economiaSemestral(): number {
+    const cheio = this.valueNumber * 6;
+    const economia = cheio - this.valueSemiannualNumber;
     return economia > 0 ? Math.round(economia * 100) / 100 : 0;
   }
 
@@ -180,6 +206,9 @@ export class PlataformaPlanoFormComponent implements OnInit, OnDestroy {
     const yearly = this.calcularAnual(this.valueNumber, this.discountPercent);
     this.valueYearlyNumber = yearly;
     this.valueYearlyDisplay = yearly > 0 ? this.formatBrl(yearly) : '';
+    const semi = this.calcularSemestral(this.valueNumber, this.discountPercent);
+    this.valueSemiannualNumber = semi;
+    this.valueSemiannualDisplay = semi > 0 ? this.formatBrl(semi) : '';
     this.cdr.markForCheck();
   }
 
@@ -188,6 +217,13 @@ export class PlataformaPlanoFormComponent implements OnInit, OnDestroy {
     if (!mensal || mensal <= 0) return 0;
     const pct = Math.min(100, Math.max(0, descontoPct)) / 100;
     return Math.round(mensal * 12 * (1 - pct) * 100) / 100;
+  }
+
+  /** Semestral = 6 × mensal × (1 − desconto%). */
+  private calcularSemestral(mensal: number, descontoPct: number): number {
+    if (!mensal || mensal <= 0) return 0;
+    const pct = Math.min(100, Math.max(0, descontoPct)) / 100;
+    return Math.round(mensal * 6 * (1 - pct) * 100) / 100;
   }
 
   /** Infere % de desconto a partir de mensal e anual salvos. */
@@ -248,6 +284,10 @@ export class PlataformaPlanoFormComponent implements OnInit, OnDestroy {
       this.valueYearlyNumber > 0
         ? this.valueYearlyNumber
         : this.calcularAnual(this.valueNumber, this.discountPercent);
+    const valueSemiannual =
+      this.valueSemiannualNumber > 0
+        ? this.valueSemiannualNumber
+        : this.calcularSemestral(this.valueNumber, this.discountPercent);
 
     this.saving.set(true);
     if (this.isEdit && this.id) {
@@ -256,6 +296,7 @@ export class PlataformaPlanoFormComponent implements OnInit, OnDestroy {
           name,
           value: this.valueNumber,
           value_yearly: valueYearly,
+          value_semiannual: valueSemiannual,
           description: this.description.trim() || null,
           sort_order: this.sortOrder,
           is_active: this.isActive,
@@ -280,6 +321,7 @@ export class PlataformaPlanoFormComponent implements OnInit, OnDestroy {
           name,
           value: this.valueNumber,
           value_yearly: valueYearly,
+          value_semiannual: valueSemiannual,
           description: this.description.trim() || null,
           sort_order: this.sortOrder,
           is_active: this.isActive,

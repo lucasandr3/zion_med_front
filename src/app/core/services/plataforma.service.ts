@@ -130,6 +130,7 @@ export interface PlatformPlan {
   key: string;
   value: number;
   value_yearly?: number | null;
+  value_semiannual?: number | null;
   description?: string | null;
   sort_order?: number;
   is_active: boolean;
@@ -369,6 +370,7 @@ export class PlataformaService {
     name: string;
     value: number;
     value_yearly?: number | null;
+    value_semiannual?: number | null;
     description?: string | null;
     sort_order?: number;
     is_active?: boolean;
@@ -382,6 +384,7 @@ export class PlataformaService {
       name: string;
       value: number;
       value_yearly?: number | null;
+      value_semiannual?: number | null;
       description?: string | null;
       sort_order?: number;
       is_active?: boolean;

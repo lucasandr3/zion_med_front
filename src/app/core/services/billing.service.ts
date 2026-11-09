@@ -8,6 +8,7 @@ export interface Plano {
   value: number;
   /** Valor anual (10× mensal se a API não enviar). */
   value_yearly?: number;
+  value_semiannual?: number;
   description?: string;
 }
 
@@ -17,7 +18,7 @@ export interface PlanoComChave extends Plano {
 }
 
 export type BillingType = 'BOLETO' | 'PIX';
-export type BillingCycle = 'MONTHLY' | 'YEARLY';
+export type BillingCycle = 'MONTHLY' | 'SEMIANNUALLY' | 'YEARLY';
 
 export interface Subscription {
   id: number;
