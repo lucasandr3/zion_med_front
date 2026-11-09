@@ -23,6 +23,7 @@ import { LinksPublicosService, type LinkPublico } from '../../core/services/link
 import { ToastService } from '../../core/services/toast.service';
 import { ConfirmDialogService } from '../../core/services/confirm-dialog.service';
 import { ListSkeletonComponent } from '../../shared/components/list-skeleton/list-skeleton.component';
+import { ZmPageBackLinkComponent } from '../../shared/components/ui';
 import { GestgoComboboxComponent, type GestgoComboboxOption } from '@/shared/components/combobox';
 import { NORD_FORM_IMPORTS } from '@/shared/nord';
 import { formatarDataBr, formatarDataHoraBr } from '@/shared/utils/date';
@@ -83,7 +84,13 @@ const MESES = [
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'n-page-list' },
-  imports: [...NORD_FORM_IMPORTS, FormsModule, ListSkeletonComponent, GestgoComboboxComponent],
+  imports: [
+    ...NORD_FORM_IMPORTS,
+    FormsModule,
+    ListSkeletonComponent,
+    GestgoComboboxComponent,
+    ZmPageBackLinkComponent,
+  ],
   templateUrl: './agenda.component.html',
   styleUrl: './agenda.component.css',
 })
@@ -98,10 +105,9 @@ export class AgendaComponent implements OnInit {
 
   readonly weekdays = WEEKDAYS;
   readonly diasSemanaLabels = ['Dom.', 'Seg.', 'Ter.', 'Qua.', 'Qui.', 'Sex.', 'Sáb.'];
-  readonly visoes: { key: VisaoAgenda; label: string }[] = [
+  readonly visoes: { key: Exclude<VisaoAgenda, 'config'>; label: string }[] = [
     { key: 'mes', label: 'Mês' },
     { key: 'lista', label: 'Lista' },
-    { key: 'config', label: 'Configuração' },
   ];
 
   readonly configSecoes: { key: ConfigSecao; label: string; icon: string }[] = [
@@ -110,6 +116,8 @@ export class AgendaComponent implements OnInit {
   ];
 
   readonly visao = signal<VisaoAgenda>('mes');
+  /** Visão de calendário/lista a restaurar ao sair das configurações. */
+  private visaoAgendaAnterior: Exclude<VisaoAgenda, 'config'> = 'mes';
   readonly configSecao = signal<ConfigSecao>('servicos');
   readonly cursor = signal(new Date());
   readonly selectedDay = signal<string | null>(null);
@@ -306,8 +314,22 @@ export class AgendaComponent implements OnInit {
     return id != null ? String(id) : null;
   }
 
-  setVisao(v: VisaoAgenda): void {
+  setVisao(v: Exclude<VisaoAgenda, 'config'>): void {
+    this.visaoAgendaAnterior = v;
     this.visao.set(v);
+  }
+
+  abrirConfiguracoes(secao: ConfigSecao = 'servicos'): void {
+    const atual = this.visao();
+    if (atual !== 'config') {
+      this.visaoAgendaAnterior = atual;
+    }
+    this.configSecao.set(secao);
+    this.visao.set('config');
+  }
+
+  voltarAgenda(): void {
+    this.visao.set(this.visaoAgendaAnterior);
   }
 
   setConfigSecao(secao: ConfigSecao): void {

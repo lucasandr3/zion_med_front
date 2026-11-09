@@ -2,6 +2,17 @@
   white-space: nowrap;
 }
 
+.agenda-config-heading {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.agenda-config-heading .n-page-list__toolbar-title {
+  line-height: 1.2;
+}
+
 .agenda-code {
   font-size: 0.75rem;
   padding: 0.1rem 0.35rem;

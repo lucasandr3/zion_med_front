@@ -1,18 +1,24 @@
 <div class="n-page-list__toolbar">
   <div class="n-page-list__toolbar-start">
-    <nord-button-group aria-label="Visão da agenda">
-      @for (v of visoes; track v.key) {
-        <nord-button
-          type="button"
-          [attr.variant]="visao() === v.key ? 'primary' : 'default'"
-          [attr.aria-pressed]="visao() === v.key"
-          (click)="setVisao(v.key)"
-        >
-          {{ v.label }}
-        </nord-button>
-      }
-    </nord-button-group>
-    @if (visao() !== 'config') {
+    @if (visao() === 'config') {
+      <zm-page-back-link [clickable]="true" label="Voltar" (backClick)="voltarAgenda()" />
+      <div class="agenda-config-heading">
+        <span class="n-page-list__toolbar-title">Configurações da agenda</span>
+        <span class="n-muted n-small">Serviços e expediente do agendamento</span>
+      </div>
+    } @else {
+      <nord-button-group aria-label="Visão da agenda">
+        @for (v of visoes; track v.key) {
+          <nord-button
+            type="button"
+            [attr.variant]="visao() === v.key ? 'primary' : 'default'"
+            [attr.aria-pressed]="visao() === v.key"
+            (click)="setVisao(v.key)"
+          >
+            {{ v.label }}
+          </nord-button>
+        }
+      </nord-button-group>
       <span class="agenda-count n-muted n-small">{{ reservasAtivasCount() }} compromisso(s) no período</span>
     }
   </div>
@@ -41,12 +47,19 @@
         <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">refresh</span>
         Atualizar
       </nord-button>
-      @if (visao() !== 'config') {
-        <nord-button type="button" variant="primary" title="Novo compromisso" (click)="abrirNovo()">
-          <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">add</span>
-          Novo compromisso
-        </nord-button>
-      }
+      <nord-button
+        type="button"
+        variant="default"
+        title="Configurações da agenda"
+        (click)="abrirConfiguracoes()"
+      >
+        <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">settings</span>
+        Configurações
+      </nord-button>
+      <nord-button type="button" variant="primary" title="Novo compromisso" (click)="abrirNovo()">
+        <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">add</span>
+        Novo compromisso
+      </nord-button>
     }
   </div>
 </div>
