@@ -130,6 +130,7 @@ export interface PlatformPlan {
   key: string;
   value: number;
   value_yearly?: number | null;
+  value_semiannual?: number | null;
   description?: string | null;
   sort_order?: number;
   is_active: boolean;
@@ -297,6 +298,13 @@ export class PlataformaService {
     return this.api.get<{ data: PlatformTenantDetail }>(`/platform/tenants/${id}`);
   }
 
+  deleteTenant(
+    id: number,
+    confirmName: string,
+  ): Observable<{ data: { message: string; deleted: Record<string, unknown> } }> {
+    return this.api.delete(`/platform/tenants/${id}`, { confirm_name: confirmName });
+  }
+
   getLeads(): Observable<{ data: PlatformLead[] }> {
     return this.api.get<{ data: PlatformLead[] }>('/platform/leads');
   }
@@ -369,6 +377,7 @@ export class PlataformaService {
     name: string;
     value: number;
     value_yearly?: number | null;
+    value_semiannual?: number | null;
     description?: string | null;
     sort_order?: number;
     is_active?: boolean;
@@ -382,6 +391,7 @@ export class PlataformaService {
       name: string;
       value: number;
       value_yearly?: number | null;
+      value_semiannual?: number | null;
       description?: string | null;
       sort_order?: number;
       is_active?: boolean;

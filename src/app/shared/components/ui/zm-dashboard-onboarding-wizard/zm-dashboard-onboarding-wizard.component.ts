@@ -8,7 +8,9 @@ import {
   inject,
   input,
   output,
-  signal, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+  signal,
+  CUSTOM_ELEMENTS_SCHEMA,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
@@ -20,6 +22,16 @@ import { Template } from '../../../../core/services/templates.service';
 import { normalizePublicAppUrl } from '../../../../core/utils/public-form-url.util';
 
 const DISMISS_PREFIX = 'zm_onboarding_dismiss_';
+const SEGMENT_KEY = 'zm_onboarding_segment';
+const PROGRESS_PREFIX = 'zm_onboarding_progress_';
+
+type OnboardingStepKey =
+  | 'segment'
+  | 'template'
+  | 'personalize'
+  | 'public_link'
+  | 'test_fill'
+  | 'see_result';
 
 @Component({
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
@@ -48,39 +60,60 @@ export class ZmDashboardOnboardingWizardComponent implements OnChanges {
   readonly gerandoLink = signal(false);
   readonly enviandoParaMim = signal(false);
   readonly linkCopiado = signal(false);
+  readonly personalizou = signal(false);
+  readonly testouPreenchimento = signal(false);
+  readonly viuResultado = signal(false);
 
-  readonly checklist = [
-    { key: 'segment', label: 'Segmento' },
-    { key: 'template', label: 'Escolher um modelo' },
-    { key: 'public_link', label: 'Publicar link' },
-    { key: 'first_send', label: 'Testar no seu e-mail' },
-  ] as const;
+  readonly checklist: ReadonlyArray<{ key: OnboardingStepKey; label: string }> = [
+    { key: 'segment', label: 'Especialidade' },
+    { key: 'template', label: 'Modelo' },
+    { key: 'personalize', label: 'Visualizar' },
+    { key: 'public_link', label: 'Link de teste' },
+    { key: 'test_fill', label: 'Preencher' },
+    { key: 'see_result', label: 'PDF / histórico' },
+  ];
 
   readonly segmentos = [
-    { key: 'fisioterapia-dermatofuncional', label: 'Dermatofuncional' },
-    { key: 'estetica-facial', label: 'Estética facial' },
+    { key: 'estetica-facial', label: 'Estética' },
+    { key: 'fisioterapia-dermatofuncional', label: 'Fisioterapia' },
+    { key: 'podologia', label: 'Podologia' },
     { key: 'odontologia', label: 'Odontologia' },
     { key: 'outro', label: 'Outro' },
   ] as const;
 
   readonly segmento = signal<string | null>(null);
 
+  /** 1..6 conforme progresso mínimo para ativação. */
   readonly passoAtivo = computed(() => {
     if (!this.segmento()) return 1;
     if (!this.templateSelecionadoId()) return 2;
-    if (!this.linkPublicoUrl()) return 3;
-    return 4;
+    if (!this.personalizou()) return 3;
+    if (!this.linkPublicoUrl()) return 4;
+    if (!this.testouPreenchimento()) return 5;
+    if (!this.viuResultado()) return 6;
+    return 6;
   });
+
+  readonly ativacaoConcluida = computed(
+    () =>
+      !!this.segmento() &&
+      !!this.templateSelecionadoId() &&
+      this.personalizou() &&
+      !!this.linkPublicoUrl() &&
+      this.testouPreenchimento() &&
+      this.viuResultado(),
+  );
 
   private copyResetTimer: ReturnType<typeof setTimeout> | null = null;
 
   readonly nomeTemplateSelecionado = computed(() => {
     const id = this.templateSelecionadoId();
     const template = this.templates().find((item) => item.id === id);
-    return template ? `Modelo selecionado: ${template.name}` : '';
+    return template ? template.name : '';
   });
 
   constructor() {
+    this.restaurarProgressoLocal();
     this.destroyRef.onDestroy(() => this.clearCopyTimer());
   }
 
@@ -104,9 +137,9 @@ export class ZmDashboardOnboardingWizardComponent implements OnChanges {
       )
       .subscribe({
         next: (items) => {
-          const slice = items.slice(0, 3);
+          const slice = items.slice(0, 4);
           this.templates.set(slice);
-          if (slice.length === 1) {
+          if (slice.length === 1 && !this.templateSelecionadoId()) {
             this.templateSelecionadoId.set(slice[0].id);
           }
         },
@@ -119,17 +152,27 @@ export class ZmDashboardOnboardingWizardComponent implements OnChanges {
   selecionarSegmento(key: string): void {
     this.segmento.set(key);
     try {
-      localStorage.setItem('zm_onboarding_segment', key);
+      localStorage.setItem(SEGMENT_KEY, key);
     } catch {
       /* ignore */
     }
+    this.persistirProgresso();
   }
 
   selecionarTemplate(id: number): void {
     this.templateSelecionadoId.set(id);
     this.linkPublicoUrl.set('');
     this.linkCopiado.set(false);
+    this.personalizou.set(false);
+    this.testouPreenchimento.set(false);
+    this.viuResultado.set(false);
     this.clearCopyTimer();
+    this.persistirProgresso();
+  }
+
+  marcarPersonalizado(): void {
+    this.personalizou.set(true);
+    this.persistirProgresso();
   }
 
   iconeTemplate(template: Template): string {
@@ -142,21 +185,6 @@ export class ZmDashboardOnboardingWizardComponent implements OnChanges {
     }
     if (label.includes('checklist') || label.includes('sala')) {
       return 'checklist';
-    }
-    if (label.includes('toxina') || label.includes('botul')) {
-      return 'vaccines';
-    }
-    if (label.includes('preenchimento') || label.includes('ácido') || label.includes('acido')) {
-      return 'water_drop';
-    }
-    if (label.includes('depilação') || label.includes('depilacao') || label.includes('laser')) {
-      return 'flare';
-    }
-    if (label.includes('peeling') || label.includes('lumínic') || label.includes('luminic')) {
-      return 'light_mode';
-    }
-    if (label.includes('corporal') || label.includes('corpo')) {
-      return 'accessibility_new';
     }
     if (label.includes('anamnese')) {
       return 'clinical_notes';
@@ -193,6 +221,9 @@ export class ZmDashboardOnboardingWizardComponent implements OnChanges {
       this.toast.error('Selecione um modelo', 'Escolha um formulário antes de gerar o link.');
       return;
     }
+    if (!this.personalizou()) {
+      this.personalizou.set(true);
+    }
 
     this.gerandoLink.set(true);
     this.onboarding
@@ -205,7 +236,8 @@ export class ZmDashboardOnboardingWizardComponent implements OnChanges {
         next: (url) => {
           this.linkPublicoUrl.set(normalizePublicAppUrl(url));
           this.linkGenerated.emit();
-          this.toast.success('Link gerado', 'Copie e envie para seu paciente ou teste no seu e-mail.');
+          this.persistirProgresso();
+          this.toast.success('Link gerado', 'Abra o link e preencha com dados fictícios para testar.');
         },
         error: (err: unknown) => {
           void this.publishGuard.reportPublishFailure(err, templateId);
@@ -231,13 +263,36 @@ export class ZmDashboardOnboardingWizardComponent implements OnChanges {
           if (res.public_url) {
             this.linkPublicoUrl.set(normalizePublicAppUrl(res.public_url));
           }
+          this.testouPreenchimento.set(true);
           this.linkGenerated.emit();
-          this.toast.success('Teste enviado', res.message || 'Abra o e-mail da sua conta para preencher a ficha.');
+          this.persistirProgresso();
+          this.toast.success(
+            'Teste enviado',
+            res.message || 'Abra o e-mail da sua conta e preencha com dados fictícios.',
+          );
         },
         error: (err: unknown) => {
           void this.publishGuard.reportPublishFailure(err, templateId);
         },
       });
+  }
+
+  abrirLinkTeste(): void {
+    const url = this.linkPublicoUrl();
+    if (!url) return;
+    window.open(url, '_blank', 'noopener,noreferrer');
+    this.testouPreenchimento.set(true);
+    this.persistirProgresso();
+  }
+
+  marcarTesteFeito(): void {
+    this.testouPreenchimento.set(true);
+    this.persistirProgresso();
+  }
+
+  marcarResultadoVisto(): void {
+    this.viuResultado.set(true);
+    this.persistirProgresso();
   }
 
   copiarLink(): void {
@@ -250,6 +305,26 @@ export class ZmDashboardOnboardingWizardComponent implements OnChanges {
       this.clearCopyTimer();
       this.copyResetTimer = setTimeout(() => this.linkCopiado.set(false), 2500);
     });
+  }
+
+  passoConcluido(index: number): boolean {
+    const step = this.checklist[index]?.key;
+    switch (step) {
+      case 'segment':
+        return !!this.segmento();
+      case 'template':
+        return !!this.templateSelecionadoId();
+      case 'personalize':
+        return this.personalizou();
+      case 'public_link':
+        return !!this.linkPublicoUrl();
+      case 'test_fill':
+        return this.testouPreenchimento();
+      case 'see_result':
+        return this.viuResultado();
+      default:
+        return false;
+    }
   }
 
   dispensar(): void {
@@ -272,6 +347,92 @@ export class ZmDashboardOnboardingWizardComponent implements OnChanges {
       return localStorage.getItem(`${DISMISS_PREFIX}${orgId}`) === '1';
     } catch {
       return false;
+    }
+  }
+
+  static clearDismissForOrg(orgId: string | number | undefined | null): void {
+    if (orgId == null || orgId === '') {
+      return;
+    }
+    try {
+      localStorage.removeItem(`${DISMISS_PREFIX}${orgId}`);
+    } catch {
+      /* ignore */
+    }
+  }
+
+  static isAtivacaoConcluidaLocal(orgId: string | number | undefined | null): boolean {
+    if (orgId == null || orgId === '') {
+      return false;
+    }
+    try {
+      const raw = localStorage.getItem(`${PROGRESS_PREFIX}${orgId}`);
+      if (!raw) return false;
+      const data = JSON.parse(raw) as {
+        templateId?: number;
+        personalizou?: boolean;
+        link?: string;
+        testou?: boolean;
+        viuResultado?: boolean;
+      };
+      return (
+        !!data.templateId &&
+        !!data.personalizou &&
+        !!data.link &&
+        !!data.testou &&
+        !!data.viuResultado
+      );
+    } catch {
+      return false;
+    }
+  }
+
+  private restaurarProgressoLocal(): void {
+    try {
+      const seg = localStorage.getItem(SEGMENT_KEY);
+      if (seg) this.segmento.set(seg);
+    } catch {
+      /* ignore */
+    }
+
+    const orgId = this.auth.getCurrentOrganizationId();
+    if (orgId == null) return;
+    try {
+      const raw = localStorage.getItem(`${PROGRESS_PREFIX}${orgId}`);
+      if (!raw) return;
+      const data = JSON.parse(raw) as {
+        templateId?: number;
+        personalizou?: boolean;
+        link?: string;
+        testou?: boolean;
+        viuResultado?: boolean;
+      };
+      if (data.templateId) this.templateSelecionadoId.set(Number(data.templateId));
+      if (data.personalizou) this.personalizou.set(true);
+      if (data.link) this.linkPublicoUrl.set(String(data.link));
+      if (data.testou) this.testouPreenchimento.set(true);
+      if (data.viuResultado) this.viuResultado.set(true);
+    } catch {
+      /* ignore */
+    }
+  }
+
+  private persistirProgresso(): void {
+    const orgId = this.auth.getCurrentOrganizationId();
+    if (orgId == null) return;
+    try {
+      localStorage.setItem(
+        `${PROGRESS_PREFIX}${orgId}`,
+        JSON.stringify({
+          templateId: this.templateSelecionadoId(),
+          personalizou: this.personalizou(),
+          link: this.linkPublicoUrl(),
+          testou: this.testouPreenchimento(),
+          viuResultado: this.viuResultado(),
+        }),
+      );
+    } catch {
+      /* ignore */
     }
   }
 

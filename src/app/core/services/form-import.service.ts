@@ -22,6 +22,13 @@ export interface FormImportWarning {
 
 export type FormImportSourceKind = 'image' | 'pdf' | 'text' | 'file';
 
+export interface FormImportPageMeta {
+  page_number: number;
+  original_name?: string | null;
+  mime?: string | null;
+  size?: number | null;
+}
+
 export interface FormImportItem {
   id: number;
   status: string;
@@ -32,6 +39,8 @@ export interface FormImportItem {
   source_size?: number | null;
   source_kind?: FormImportSourceKind | null;
   has_source?: boolean;
+  source_page_count?: number | null;
+  pages?: FormImportPageMeta[] | null;
   extracted_schema?: { fields?: FormImportField[] } | null;
   reviewed_schema?: { fields?: FormImportField[] } | null;
   warnings?: FormImportWarning[] | null;
@@ -49,9 +58,14 @@ export interface FormImportItem {
 export class FormImportService {
   private api = inject(ApiService);
 
-  create(file: File, idempotencyKey?: string, consentBlankAck = true): Observable<FormImportItem> {
+  create(files: File | File[], idempotencyKey?: string, consentBlankAck = true): Observable<FormImportItem> {
+    const list = (Array.isArray(files) ? files : [files]).filter(Boolean);
     const fd = new FormData();
-    fd.append('file', file);
+    if (list.length === 1) {
+      fd.append('file', list[0]);
+    } else {
+      list.forEach((file, index) => fd.append(`files[${index}]`, file));
+    }
     if (idempotencyKey) {
       fd.append('idempotency_key', idempotencyKey);
     }
@@ -65,8 +79,9 @@ export class FormImportService {
     return this.api.get<{ data: FormImportItem }>(`/form-imports/${id}`).pipe(map((r) => r.data));
   }
 
-  getSourceBlob(id: number): Observable<Blob> {
-    return this.api.getBlob(`/form-imports/${id}/source`);
+  getSourceBlob(id: number, page = 1): Observable<Blob> {
+    const q = page > 1 ? `?page=${page}` : '';
+    return this.api.getBlob(`/form-imports/${id}/source${q}`);
   }
 
   saveDraft(id: number, fields: FormImportField[]): Observable<FormImportItem> {

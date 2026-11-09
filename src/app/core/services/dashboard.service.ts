@@ -33,6 +33,12 @@ export interface DashboardData {
   onboarding?: {
     needs_public_link: boolean;
     public_links_count: number;
+    templates_count?: number;
+    sends_count?: number;
+    submissions_count?: number;
+    progress?: number;
+    completed?: boolean;
+    checklist?: Array<{ key: string; label: string; done: boolean }>;
   };
 }
 

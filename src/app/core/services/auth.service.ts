@@ -331,12 +331,14 @@ export class AuthService {
   getDefaultTenantPath(): string {
     const routes: [string, () => boolean][] = [
       ['/dashboard', () => this.hasPermission('dashboard.access')],
+      ['/pessoas', () => this.hasPermission('submissions.view')],
+      ['/documentos', () => this.hasPermission('templates.manage') || this.hasPermission('submissions.view')],
       ['/notificacoes', () => this.hasPermission('notifications.access')],
       ['/protocolos', () => this.hasPermission('submissions.view')],
-      ['/pessoas', () => this.hasPermission('submissions.view')],
       ['/templates', () => this.hasPermission('templates.manage')],
       ['/links-publicos', () => this.hasPermission('templates.manage') || this.hasPermission('submissions.view')],
       ['/envios', () => this.hasPermission('templates.manage') || this.hasPermission('submissions.view')],
+      ['/configuracoes', () => this.hasPermission('organization.manage') || this.hasPermission('users.manage') || this.hasPermission('billing.manage')],
       ['/assinatura', () => this.hasPermission('billing.manage')],
       ['/link-bio', () => this.hasPermission('organization.manage')],
       ['/clinica/configuracoes', () => this.hasPermission('organization.manage')],

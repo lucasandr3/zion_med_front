@@ -3,13 +3,16 @@
     <div class="onboarding-wizard__header">
       <div class="onboarding-wizard__header-main">
         <div class="onboarding-wizard__icon" aria-hidden="true">
-          <span class="material-symbols-outlined">link</span>
+          <span class="material-symbols-outlined">rocket_launch</span>
         </div>
         <div class="min-w-0">
-          <p class="onboarding-wizard__kicker">Primeiros passos · {{ passoAtivo() }}/4</p>
-          <h2 id="onboarding-wizard-title" class="onboarding-wizard__title">Publique sua primeira ficha</h2>
+          <p class="onboarding-wizard__kicker">Ativação · {{ passoAtivo() }}/6</p>
+          <h2 id="onboarding-wizard-title" class="onboarding-wizard__title">
+            Chegue ao primeiro documento concluído
+          </h2>
           <p class="onboarding-wizard__subtitle">
-            Escolha o segmento, um modelo (ou importe o seu), gere o link e teste — sem integrações obrigatórias.
+            Checklist curto: escolha a especialidade, um modelo, gere o link, teste com dados fictícios e
+            veja o resultado no painel.
           </p>
         </div>
       </div>
@@ -19,11 +22,11 @@
       </nord-button>
     </div>
 
-    <ol class="onboarding-wizard__steps" aria-label="Checklist de onboarding">
+    <ol class="onboarding-wizard__steps" aria-label="Checklist de ativação">
       @for (step of checklist; track step.key; let i = $index) {
         <li
           class="onboarding-wizard__step"
-          [class.onboarding-wizard__step--done]="passoAtivo() > i + 1 || (i === 3 && linkPublicoUrl())"
+          [class.onboarding-wizard__step--done]="passoConcluido(i)"
           [class.onboarding-wizard__step--active]="passoAtivo() === i + 1"
         >
           <span class="onboarding-wizard__step-num" aria-hidden="true">{{ i + 1 }}</span>
@@ -32,116 +35,228 @@
       }
     </ol>
 
-    <div class="onboarding-segment">
-      <p class="onboarding-wizard__kicker">Qual é o seu foco?</p>
-      <div class="onboarding-segment__grid">
-        @for (seg of segmentos; track seg.key) {
-          <button
-            type="button"
-            class="onboarding-template-btn"
-            [class.onboarding-template-btn--selected]="segmento() === seg.key"
-            (click)="selecionarSegmento(seg.key)"
-          >
-            <span class="onboarding-template-btn__name">{{ seg.label }}</span>
-          </button>
-        }
-      </div>
-      <div class="onboarding-wizard__actions">
-        <a routerLink="/templates/importar" class="no-underline text-sm font-semibold" style="color: var(--primary)">
-          Prefiro importar minha ficha com IA →
-        </a>
-      </div>
-    </div>
-
-    @if (carregandoTemplates()) {
-      <div class="onboarding-wizard__grid" aria-busy="true" aria-label="Carregando modelos">
-        @for (i of [1, 2, 3]; track i) {
-          <div class="onboarding-template-skeleton" aria-hidden="true"></div>
-        }
-      </div>
-    } @else if (templates().length === 0) {
-      <div class="onboarding-wizard__empty">
-        <span class="material-symbols-outlined onboarding-wizard__empty-icon" aria-hidden="true">folder_open</span>
-        <p class="onboarding-wizard__empty-text">
-          Nenhum modelo ativo encontrado. Crie um em branco ou escolha um modelo pronto na biblioteca.
-        </p>
-        <a routerLink="/templates/criar" class="no-underline">Abrir biblioteca</a>
+    @if (ativacaoConcluida()) {
+      <div class="onboarding-wizard__success" role="status">
+        <div class="onboarding-wizard__success-head">
+          <span class="material-symbols-outlined onboarding-wizard__success-icon" aria-hidden="true">
+            celebration
+          </span>
+          <div class="min-w-0">
+            <p class="onboarding-wizard__success-title">Ativação concluída</p>
+            <p class="onboarding-wizard__success-sub">
+              Você já conhece o fluxo principal. Continue publicando fichas reais quando quiser.
+            </p>
+          </div>
+        </div>
+        <div class="onboarding-wizard__actions">
+          <a routerLink="/protocolos" class="no-underline">
+            <nord-button type="button" variant="primary">Ver protocolos</nord-button>
+          </a>
+          <nord-button type="button" variant="default" (click)="dispensar()">Ocultar este guia</nord-button>
+        </div>
       </div>
     } @else {
-      <div class="onboarding-wizard__grid">
-        @for (t of templates(); track t.id) {
-          <button
-            type="button"
-            class="onboarding-template-btn"
-            [class.onboarding-template-btn--selected]="templateSelecionadoId() === t.id"
-            [attr.aria-pressed]="templateSelecionadoId() === t.id"
-            (click)="selecionarTemplate(t.id)"
-          >
-            <span class="onboarding-template-btn__icon" aria-hidden="true">
-              <span class="material-symbols-outlined">{{ iconeTemplate(t) }}</span>
-            </span>
-            <span class="onboarding-template-btn__body">
-              <span class="onboarding-template-btn__name">{{ t.name }}</span>
-              @if (categoriaTemplate(t)) {
-                <span class="onboarding-template-btn__category">{{ categoriaTemplate(t) }}</span>
-              }
-            </span>
-            @if (templateSelecionadoId() === t.id) {
-              <span class="onboarding-template-btn__check" aria-hidden="true">
-                <span class="material-symbols-outlined">check_circle</span>
-              </span>
-            }
-          </button>
-        }
-      </div>
-
-      <div class="onboarding-wizard__footer">
-        <div class="onboarding-wizard__actions">
-          <nord-button
-            type="button"
-            variant="primary"
-            (click)="gerarLink()"
-            [attr.loading]="gerandoLink() || null"
-            [attr.disabled]="gerandoLink() || enviandoParaMim() || !templateSelecionadoId() || null"
-          >
-            <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">link</span>
-            Gerar link público
-          </nord-button>
-          <nord-button
-            type="button"
-            variant="default"
-            (click)="enviarParaMim()"
-            [attr.loading]="enviandoParaMim() || null"
-            [attr.disabled]="gerandoLink() || enviandoParaMim() || !templateSelecionadoId() || null"
-          >
-            <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">mail</span>
-            Enviar teste para mim
-          </nord-button>
-        </div>
-        @if (templateSelecionadoId()) {
-          <p class="onboarding-wizard__hint">
-            <span class="material-symbols-outlined" aria-hidden="true">info</span>
-            {{ nomeTemplateSelecionado() }}
+      <!-- Passo 1: especialidade -->
+      @if (passoAtivo() === 1) {
+        <div class="onboarding-segment">
+          <p class="onboarding-wizard__kicker">Passo 1 · Especialidade</p>
+          <p class="onboarding-wizard__subtitle" style="margin-top: 0.35rem">
+            Isso ajuda a orientar os próximos modelos. Você pode mudar depois.
           </p>
-        }
-      </div>
+          <div class="onboarding-segment__grid">
+            @for (seg of segmentos; track seg.key) {
+              <button
+                type="button"
+                class="onboarding-template-btn"
+                [class.onboarding-template-btn--selected]="segmento() === seg.key"
+                (click)="selecionarSegmento(seg.key)"
+              >
+                <span class="onboarding-template-btn__name">{{ seg.label }}</span>
+              </button>
+            }
+          </div>
+        </div>
+      }
 
-      @if (linkPublicoUrl()) {
-        <div class="onboarding-wizard__success" role="status">
-          <div class="onboarding-wizard__success-head">
-            <span class="material-symbols-outlined onboarding-wizard__success-icon" aria-hidden="true">check_circle</span>
-            <div class="min-w-0">
-              <p class="onboarding-wizard__success-title">Link pronto para compartilhar</p>
-              <p class="onboarding-wizard__success-sub">Copie e envie para pacientes ou publique no link na bio.</p>
+      <!-- Passo 2: modelo -->
+      @if (passoAtivo() === 2) {
+        <div class="onboarding-segment">
+          <p class="onboarding-wizard__kicker">Passo 2 · Escolher um modelo</p>
+          <p class="onboarding-wizard__subtitle" style="margin-top: 0.35rem">
+            Selecione uma ficha pronta. Depois você pode personalizar.
+          </p>
+        </div>
+
+        @if (carregandoTemplates()) {
+          <div class="onboarding-wizard__grid" aria-busy="true" aria-label="Carregando modelos">
+            @for (i of [1, 2, 3]; track i) {
+              <div class="onboarding-template-skeleton" aria-hidden="true"></div>
+            }
+          </div>
+        } @else if (templates().length === 0) {
+          <div class="onboarding-wizard__empty">
+            <span class="material-symbols-outlined onboarding-wizard__empty-icon" aria-hidden="true">
+              folder_open
+            </span>
+            <p class="onboarding-wizard__empty-text">
+              Nenhum modelo ativo encontrado. Crie um em branco ou escolha na biblioteca.
+            </p>
+            <a routerLink="/templates/criar" class="no-underline">Abrir biblioteca</a>
+          </div>
+        } @else {
+          <div class="onboarding-wizard__grid">
+            @for (t of templates(); track t.id) {
+              <button
+                type="button"
+                class="onboarding-template-btn"
+                [class.onboarding-template-btn--selected]="templateSelecionadoId() === t.id"
+                [attr.aria-pressed]="templateSelecionadoId() === t.id"
+                (click)="selecionarTemplate(t.id)"
+              >
+                <span class="onboarding-template-btn__icon" aria-hidden="true">
+                  <span class="material-symbols-outlined">{{ iconeTemplate(t) }}</span>
+                </span>
+                <span class="onboarding-template-btn__body">
+                  <span class="onboarding-template-btn__name">{{ t.name }}</span>
+                  @if (categoriaTemplate(t)) {
+                    <span class="onboarding-template-btn__category">{{ categoriaTemplate(t) }}</span>
+                  }
+                </span>
+                @if (templateSelecionadoId() === t.id) {
+                  <span class="onboarding-template-btn__check" aria-hidden="true">
+                    <span class="material-symbols-outlined">check_circle</span>
+                  </span>
+                }
+              </button>
+            }
+          </div>
+          <div class="onboarding-wizard__actions" style="margin-top: 0.85rem">
+            <a routerLink="/templates/importar" class="no-underline text-sm font-semibold" style="color: var(--primary)">
+              Prefiro importar minha ficha →
+            </a>
+          </div>
+        }
+      }
+
+      <!-- Passo 3: visualizar / personalizar -->
+      @if (passoAtivo() === 3 && templateSelecionadoId(); as tid) {
+        <div class="onboarding-segment">
+          <p class="onboarding-wizard__kicker">Passo 3 · Visualizar ou personalizar</p>
+          <p class="onboarding-wizard__subtitle" style="margin-top: 0.35rem">
+            Abra o modelo <strong>{{ nomeTemplateSelecionado() }}</strong> para conferir os campos. Não precisa
+            configurar tudo agora.
+          </p>
+          <div class="onboarding-wizard__actions" style="margin-top: 0.85rem">
+            <a [routerLink]="['/templates', tid, 'campos']" class="no-underline">
+              <nord-button type="button" variant="default">
+                <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">edit</span>
+                Abrir campos do modelo
+              </nord-button>
+            </a>
+            <a [routerLink]="['/templates', tid, 'preview']" class="no-underline">
+              <nord-button type="button" variant="default">
+                <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">visibility</span>
+                Pré-visualizar
+              </nord-button>
+            </a>
+            <nord-button type="button" variant="primary" (click)="marcarPersonalizado()">
+              Continuar
+            </nord-button>
+          </div>
+        </div>
+      }
+
+      <!-- Passo 4: gerar link -->
+      @if (passoAtivo() === 4) {
+        <div class="onboarding-segment">
+          <p class="onboarding-wizard__kicker">Passo 4 · Gerar link de teste</p>
+          <p class="onboarding-wizard__subtitle" style="margin-top: 0.35rem">
+            Publique um link público para preencher no celular — use dados fictícios.
+          </p>
+          <div class="onboarding-wizard__actions" style="margin-top: 0.85rem">
+            <nord-button
+              type="button"
+              variant="primary"
+              (click)="gerarLink()"
+              [attr.loading]="gerandoLink() || null"
+              [attr.disabled]="gerandoLink() || enviandoParaMim() || !templateSelecionadoId() || null"
+            >
+              <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">link</span>
+              Gerar link público
+            </nord-button>
+          </div>
+        </div>
+      }
+
+      <!-- Passo 5: preencher e assinar -->
+      @if (passoAtivo() === 5) {
+        <div class="onboarding-segment">
+          <p class="onboarding-wizard__kicker">Passo 5 · Preencher e assinar (teste)</p>
+          <p class="onboarding-wizard__subtitle" style="margin-top: 0.35rem">
+            Abra o link e conclua a ficha com dados fictícios. Assim você vê a experiência do paciente.
+          </p>
+        </div>
+
+        @if (linkPublicoUrl()) {
+          <div class="onboarding-wizard__success" role="status">
+            <div class="onboarding-wizard__success-head">
+              <span class="material-symbols-outlined onboarding-wizard__success-icon" aria-hidden="true">
+                check_circle
+              </span>
+              <div class="min-w-0">
+                <p class="onboarding-wizard__success-title">Link pronto</p>
+                <p class="onboarding-wizard__success-sub">Use só para teste — sem dados reais de paciente.</p>
+              </div>
+            </div>
+            <div class="onboarding-wizard__link-row">
+              <code class="onboarding-wizard__link-url">{{ linkPublicoUrl() }}</code>
+              <nord-button type="button" variant="default" (click)="copiarLink()">
+                <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">
+                  {{ linkCopiado() ? 'check' : 'content_copy' }}
+                </span>
+                {{ linkCopiado() ? 'Copiado!' : 'Copiar' }}
+              </nord-button>
+            </div>
+            <div class="onboarding-wizard__actions" style="margin-top: 0.85rem">
+              <nord-button type="button" variant="primary" (click)="abrirLinkTeste()">
+                <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">open_in_new</span>
+                Abrir e preencher
+              </nord-button>
+              <nord-button
+                type="button"
+                variant="default"
+                (click)="enviarParaMim()"
+                [attr.loading]="enviandoParaMim() || null"
+                [attr.disabled]="gerandoLink() || enviandoParaMim() || null"
+              >
+                <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">mail</span>
+                Enviar para meu e-mail
+              </nord-button>
+              <nord-button type="button" variant="default" (click)="marcarTesteFeito()">
+                Já preenchi
+              </nord-button>
             </div>
           </div>
-          <div class="onboarding-wizard__link-row">
-            <code class="onboarding-wizard__link-url">{{ linkPublicoUrl() }}</code>
-            <nord-button type="button" variant="primary" (click)="copiarLink()">
-              <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">
-                {{ linkCopiado() ? 'check' : 'content_copy' }}
-              </span>
-              {{ linkCopiado() ? 'Copiado!' : 'Copiar' }}
+        }
+      }
+
+      <!-- Passo 6: ver PDF / histórico -->
+      @if (passoAtivo() === 6) {
+        <div class="onboarding-segment">
+          <p class="onboarding-wizard__kicker">Passo 6 · Ver PDF e histórico</p>
+          <p class="onboarding-wizard__subtitle" style="margin-top: 0.35rem">
+            Depois do preenchimento de teste, o documento aparece em Protocolos com PDF e informações de
+            verificação.
+          </p>
+          <div class="onboarding-wizard__actions" style="margin-top: 0.85rem">
+            <a routerLink="/protocolos" class="no-underline" (click)="marcarResultadoVisto()">
+              <nord-button type="button" variant="primary">
+                <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">folder_open</span>
+                Abrir protocolos
+              </nord-button>
+            </a>
+            <nord-button type="button" variant="default" (click)="marcarResultadoVisto()">
+              Marcar como concluído
             </nord-button>
           </div>
         </div>

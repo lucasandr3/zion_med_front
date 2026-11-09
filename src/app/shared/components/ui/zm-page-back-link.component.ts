@@ -1,8 +1,9 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, Input, inject } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, EventEmitter, Input, Output, inject } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 
 /**
  * Voltar no toolbar — `nord-button` + Material Symbols.
+ * Use `url`/`data.urlVoltar` para navegação, ou `clickable` + `(backClick)` para voltar na mesma tela.
  */
 @Component({
   selector: 'zm-page-back-link',
@@ -16,6 +17,16 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
         [routerLink]="backUrl"
         [attr.title]="backLabel"
         [attr.aria-label]="backLabel"
+      >
+        <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">arrow_back</span>
+        {{ backLabel }}
+      </nord-button>
+    } @else if (clickable) {
+      <nord-button
+        type="button"
+        [attr.title]="backLabel"
+        [attr.aria-label]="backLabel"
+        (click)="backClick.emit($event)"
       >
         <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">arrow_back</span>
         {{ backLabel }}
@@ -37,10 +48,16 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 export class ZmPageBackLinkComponent {
   @Input() url?: string | null;
   @Input() label?: string | null;
+  /** Quando true e sem `url`, emite `backClick` em vez de navegar. */
+  @Input() clickable = false;
+  @Output() readonly backClick = new EventEmitter<MouseEvent>();
 
   private readonly route = inject(ActivatedRoute);
 
   get backUrl(): string | null {
+    if (this.clickable) {
+      return null;
+    }
     const fromInput = this.url?.trim();
     if (fromInput) {
       return fromInput;

@@ -1,4 +1,5 @@
 import { Component, OnInit, inject, Signal, ChangeDetectionStrategy, signal, computed, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 import { DocumentSendsService, DocumentSendItem } from '../../core/services/document-sends.service';
@@ -71,6 +72,8 @@ export class EnviosComponent implements OnInit {
   private loadingService = inject(LoadingService);
   private toast = inject(ToastService);
   private confirm = inject(ConfirmDialogService);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
 
   readonly caixas: { key: Caixa; label: string }[] = [
     { key: 'pendentes', label: 'Pendentes' },
@@ -95,6 +98,15 @@ export class EnviosComponent implements OnInit {
       .pipe(debounceTime(280), distinctUntilChanged())
       .subscribe((termo) => this.buscarPessoasPorTermo(termo));
     this.carregar();
+    if (this.route.snapshot.queryParamMap.get('novo') === '1') {
+      this.abrirNovoEnvio();
+      void this.router.navigate([], {
+        relativeTo: this.route,
+        queryParams: { novo: null },
+        queryParamsHandling: 'merge',
+        replaceUrl: true,
+      });
+    }
   }
 
   /** Carrega documentos com link público ativo — mesmo endpoint da listagem Links públicos. */

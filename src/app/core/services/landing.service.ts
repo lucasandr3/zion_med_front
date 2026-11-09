@@ -32,7 +32,14 @@ export interface LandingHowItWorks {
 
 export interface LandingPublicData {
   trial_days?: number;
-  plans?: { key: string; name: string; value: number; value_yearly?: number; description?: string }[];
+  plans?: {
+    key: string;
+    name: string;
+    value: number;
+    value_yearly?: number;
+    value_semiannual?: number;
+    description?: string;
+  }[];
   segments?: LandingSegment[];
   how_it_works?: LandingHowItWorks[];
   headline?: string;

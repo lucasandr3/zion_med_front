@@ -7,7 +7,7 @@ import {
   signal,
   CUSTOM_ELEMENTS_SCHEMA,
 } from '@angular/core';
-import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { SidebarMobileService } from '../../../core/services/sidebar-mobile.service';
 import { ShellSidebarCollapseService } from '../../../core/services/shell-sidebar-collapse.service';
@@ -16,6 +16,11 @@ import { GestgoBadgeComponent } from '@/shared/components/badge/badge.component'
 
 import { GestgoAvatarComponent } from '@/shared/components/avatar/avatar.component';
 import { GestgoBrandMarkComponent } from '@/shared/components/gestgo-brand-mark/gestgo-brand-mark.component';
+import {
+  SHELL_NAV_PLATAFORMA_SIDEBAR,
+  ShellNavItem,
+  shellNavItemActive,
+} from '../shell-nav.config';
 
 @Component({
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
@@ -24,7 +29,6 @@ import { GestgoBrandMarkComponent } from '@/shared/components/gestgo-brand-mark/
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     RouterLink,
-    RouterLinkActive,
     GestgoBadgeComponent,
     GestgoAvatarComponent,
     GestgoBrandMarkComponent,
@@ -34,6 +38,8 @@ import { GestgoBrandMarkComponent } from '@/shared/components/gestgo-brand-mark/
 })
 export class BarraLateralPlataformaComponent implements OnInit {
   @Input() notificacoesNaoLidas = 0;
+
+  readonly navSections = SHELL_NAV_PLATAFORMA_SIDEBAR;
 
   private readonly nomeUsuarioSignal = signal('Usuário');
   private readonly iniciaisUsuarioSignal = signal('U');
@@ -66,6 +72,10 @@ export class BarraLateralPlataformaComponent implements OnInit {
 
   tooltipQuandoColapsada(texto: string): string {
     return this.sidebarColapsada() ? texto : '';
+  }
+
+  navItemAtivo(item: ShellNavItem): boolean {
+    return shellNavItemActive(item, this.router.url);
   }
 
   private atualizarDados(): void {

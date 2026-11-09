@@ -1,0 +1,75 @@
+<section class="nav-hub zm-content-enter" [attr.aria-label]="config.title">
+  @if (visibleKpis.length > 0) {
+    <div class="nav-hub__kpis" role="list">
+      @for (kpi of visibleKpis; track kpi.id) {
+        @if (kpi.route; as route) {
+          <a
+            class="nav-hub__kpi"
+            role="listitem"
+            [routerLink]="routePath(route)"
+            [queryParams]="routeQueryParams(route)"
+          >
+            <div class="nav-hub__kpi-label">
+              <span>{{ kpi.label }}</span>
+              <span class="material-symbols-outlined" aria-hidden="true">{{ kpi.icon }}</span>
+            </div>
+            <b class="nav-hub__kpi-value">{{ kpiDisplayValue(kpi) }}</b>
+            @if (kpi.hint) {
+              <small>{{ kpi.hint }}</small>
+            }
+          </a>
+        } @else {
+          <div class="nav-hub__kpi" role="listitem">
+            <div class="nav-hub__kpi-label">
+              <span>{{ kpi.label }}</span>
+              <span class="material-symbols-outlined" aria-hidden="true">{{ kpi.icon }}</span>
+            </div>
+            <b class="nav-hub__kpi-value">{{ kpiDisplayValue(kpi) }}</b>
+            @if (kpi.hint) {
+              <small>{{ kpi.hint }}</small>
+            }
+          </div>
+        }
+      }
+    </div>
+  }
+
+  @if (config.sectionTitle || visibleCards.length > 0) {
+    <div class="nav-hub__section-head">
+      <div>
+        @if (config.sectionTitle) {
+          <h2 class="nav-hub__section-title">{{ config.sectionTitle }}</h2>
+        }
+        @if (config.sectionSubtitle) {
+          <p class="nav-hub__section-subtitle">{{ config.sectionSubtitle }}</p>
+        }
+      </div>
+      @if (visibleCards.length > 0) {
+        <span class="nav-hub__pill">{{ visibleCards.length }} {{ visibleCards.length === 1 ? 'ação' : 'ações' }}</span>
+      }
+    </div>
+  }
+
+  @if (visibleCards.length === 0) {
+    <p class="nav-hub__empty">Nenhuma área disponível para o seu perfil.</p>
+  } @else {
+    <div class="nav-hub__grid">
+      @for (card of visibleCards; track card.id) {
+        <a
+          class="nav-hub__card"
+          [routerLink]="routePath(card.route)"
+          [queryParams]="routeQueryParams(card.route)"
+        >
+          <span class="nav-hub__card-icon" aria-hidden="true">
+            <span class="material-symbols-outlined">{{ card.icon }}</span>
+          </span>
+          <span class="nav-hub__card-body">
+            <span class="nav-hub__card-title">{{ card.title }}</span>
+            <span class="nav-hub__card-desc">{{ card.description }}</span>
+          </span>
+          <span class="material-symbols-outlined nav-hub__card-arrow" aria-hidden="true">chevron_right</span>
+        </a>
+      }
+    </div>
+  }
+</section>

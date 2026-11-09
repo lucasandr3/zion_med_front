@@ -1,21 +1,16 @@
 @if (modoColecao) {
-  <div class="n-page-list__toolbar">
-    <div class="n-page-list__toolbar-start">
-      <div class="form-search-wrap" data-go-tour="templates-search">
-        <span class="material-symbols-outlined form-search-icon" aria-hidden="true">search</span>
-        <input
-          type="text"
-          [(ngModel)]="buscaTexto"
-          placeholder="Buscar por nome do modelo..."
-          class="form-search-input w-full text-sm"
-          aria-label="Buscar modelo por nome"
-        />
-      </div>
-      <nord-button variant="default" type="button" class="shrink-0" [attr.title]="tituloOrdenacao()" (click)="ciclarOrdenacao()">
-        <span slot="start" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">sort</span>
-        Ordenar
-        <span class="n-muted n-small">{{ rotuloOrdenacao() }}</span>
-      </nord-button>
+  <div class="n-page-list__toolbar templates-toolbar">
+    <div class="templates-toolbar__search form-search-wrap" data-go-tour="templates-search">
+      <span class="material-symbols-outlined form-search-icon" aria-hidden="true">search</span>
+      <input
+        type="text"
+        [(ngModel)]="buscaTexto"
+        placeholder="Buscar por nome do modelo..."
+        class="form-search-input w-full text-sm"
+        aria-label="Buscar modelo por nome"
+      />
+    </div>
+    <div class="templates-toolbar__controls">
       <nord-button-group class="templates-view-group" aria-label="Visualização da coleção">
         <nord-button
           type="button"
@@ -25,7 +20,7 @@
           title="Visualizar em cards"
         >
           <span slot="start" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">grid_view</span>
-          Cards
+          <span class="templates-toolbar__label">Cards</span>
         </nord-button>
         <nord-button
           type="button"
@@ -35,11 +30,20 @@
           title="Visualizar como pastas"
         >
           <span slot="start" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">folder</span>
-          Pastas
+          <span class="templates-toolbar__label">Pastas</span>
         </nord-button>
       </nord-button-group>
-    </div>
-    <div class="n-page-list__toolbar-end">
+      <nord-button
+        variant="default"
+        type="button"
+        class="shrink-0"
+        [attr.title]="tituloOrdenacao()"
+        (click)="ciclarOrdenacao()"
+      >
+        <span slot="start" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">sort</span>
+        <span class="templates-toolbar__label">Ordenar</span>
+        <span class="n-muted n-small templates-toolbar__label">{{ rotuloOrdenacao() }}</span>
+      </nord-button>
       <nord-button
         type="button"
         class="shrink-0"
@@ -48,7 +52,7 @@
         title="Filtros"
       >
         <span slot="start" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">filter_list</span>
-        Filtros
+        <span class="templates-toolbar__label">Filtros</span>
         @if (temFiltrosAtivos) {
           <nord-badge variant="neutral">{{ quantidadeFiltrosAtivos }}</nord-badge>
         }
@@ -61,7 +65,7 @@
         title="Importar ficha com IA"
       >
         <span slot="start" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">auto_awesome</span>
-        Importar ficha
+        <span class="templates-toolbar__label">Importar ficha</span>
       </nord-button>
       <nord-button
         variant="primary"
@@ -69,10 +73,10 @@
         routerLink="/templates/criar-em-branco"
         class="shrink-0"
         title="Criar novo modelo"
-        data-go-tour="templates-new"
+        data-go-target="templates-new"
       >
         <span slot="start" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">add</span>
-        Novo modelo
+        <span class="templates-toolbar__label templates-toolbar__label--keep-sm">Novo modelo</span>
       </nord-button>
     </div>
   </div>
@@ -175,13 +179,13 @@
     }
   </div>
 } @else {
-  <div class="n-page-list__toolbar">
-    <div class="n-page-list__toolbar-start">
-      <nord-button variant="default" type="button" class="shrink-0" (click)="fecharCategoria()">
+  <div class="n-page-list__toolbar templates-toolbar">
+    <div class="templates-toolbar__leading">
+      <nord-button variant="default" type="button" class="shrink-0" (click)="fecharCategoria()" title="Voltar para coleção">
         <span slot="start" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">arrow_back</span>
-        Voltar para coleção
+        <span class="templates-toolbar__label">Voltar para coleção</span>
       </nord-button>
-      <div class="form-search-wrap">
+      <div class="templates-toolbar__search form-search-wrap">
         <span class="material-symbols-outlined form-search-icon" aria-hidden="true">search</span>
         <input
           type="text"
@@ -192,20 +196,7 @@
         />
       </div>
     </div>
-    <div class="n-page-list__toolbar-end">
-      <nord-button
-        type="button"
-        class="shrink-0"
-        (click)="openFilterDrawer()"
-        [attr.aria-expanded]="filterDrawerOpen() ? 'true' : 'false'"
-        title="Filtros"
-      >
-        <span slot="start" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">filter_list</span>
-        Filtros
-        @if (temFiltrosAtivos) {
-          <nord-badge variant="neutral">{{ quantidadeFiltrosAtivos }}</nord-badge>
-        }
-      </nord-button>
+    <div class="templates-toolbar__controls">
       <nord-button-group class="templates-view-group" aria-label="Modo de visualização">
         <nord-button
           type="button"
@@ -215,7 +206,7 @@
           title="Visualizar em tabela"
         >
           <span slot="start" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">description</span>
-          Tabela
+          <span class="templates-toolbar__label">Tabela</span>
         </nord-button>
         <nord-button
           type="button"
@@ -225,16 +216,29 @@
           title="Visualizar em cards"
         >
           <span slot="start" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">grid_view</span>
-          Cards
+          <span class="templates-toolbar__label">Cards</span>
         </nord-button>
       </nord-button-group>
+      <nord-button
+        type="button"
+        class="shrink-0"
+        (click)="openFilterDrawer()"
+        [attr.aria-expanded]="filterDrawerOpen() ? 'true' : 'false'"
+        title="Filtros"
+      >
+        <span slot="start" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">filter_list</span>
+        <span class="templates-toolbar__label">Filtros</span>
+        @if (temFiltrosAtivos) {
+          <nord-badge variant="neutral">{{ quantidadeFiltrosAtivos }}</nord-badge>
+        }
+      </nord-button>
       <nord-button variant="default" type="button" routerLink="/templates/importar" class="shrink-0" title="Importar ficha com IA">
         <span slot="start" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">auto_awesome</span>
-        Importar ficha
+        <span class="templates-toolbar__label">Importar ficha</span>
       </nord-button>
       <nord-button variant="primary" type="button" routerLink="/templates/criar-em-branco" class="shrink-0" title="Criar novo modelo">
         <span slot="start" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">add</span>
-        Novo modelo
+        <span class="templates-toolbar__label templates-toolbar__label--keep-sm">Novo modelo</span>
       </nord-button>
     </div>
   </div>
