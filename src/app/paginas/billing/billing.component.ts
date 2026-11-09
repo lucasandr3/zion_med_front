@@ -280,17 +280,11 @@ export class BillingComponent implements OnInit {
   valorExibidoPlano(plano: PlanoComChave): number {
     if (this.cicloCobranca() === 'YEARLY') {
       const yearly = Number(plano.value_yearly);
-      if (Number.isFinite(yearly) && yearly > 0) {
-        return yearly;
-      }
-      return Math.round(Number(plano.value || 0) * 10 * 100) / 100;
+      return Number.isFinite(yearly) && yearly > 0 ? yearly : 0;
     }
     if (this.cicloCobranca() === 'SEMIANNUALLY') {
       const semi = Number(plano.value_semiannual);
-      if (Number.isFinite(semi) && semi > 0) {
-        return semi;
-      }
-      return Math.round(Number(plano.value || 0) * 5 * 100) / 100;
+      return Number.isFinite(semi) && semi > 0 ? semi : 0;
     }
     return Number(plano.value || 0);
   }
@@ -336,10 +330,10 @@ export class BillingComponent implements OnInit {
   get dicaEconomiaAnual(): string {
     const ciclo = this.cicloCobranca();
     if (ciclo === 'YEARLY') {
-      return 'Anual à vista: 12 meses pelo preço de 10 (≈16% de economia).';
+      return 'Anual: cobrança antecipada referente a 12 meses (valor do plano).';
     }
     if (ciclo === 'SEMIANNUALLY') {
-      return 'Semestral à vista: 6 meses pelo preço de 5 (≈16% de economia).';
+      return 'Semestral: cobrança antecipada referente a 6 meses (valor do plano).';
     }
     return 'Mensal: cobrança recorrente a cada mês.';
   }

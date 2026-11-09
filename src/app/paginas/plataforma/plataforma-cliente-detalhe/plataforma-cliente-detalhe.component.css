@@ -381,3 +381,31 @@
   color: var(--foreground);
   font-size: 0.8125rem;
 }
+
+.tenant-danger-zone {
+  border-color: color-mix(in oklch, var(--destructive) 35%, var(--border));
+}
+
+.tenant-danger-zone__inner {
+  align-items: flex-start;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: space-between;
+  padding: 1.125rem 1.25rem;
+}
+
+.tenant-danger-zone__title {
+  color: var(--destructive);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  margin: 0 0 0.35rem;
+}
+
+.tenant-danger-zone__text {
+  color: var(--muted-foreground);
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  margin: 0;
+  max-width: 42rem;
+}

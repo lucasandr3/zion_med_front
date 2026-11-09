@@ -30,12 +30,30 @@ interface StepMeta {
   subtitle: string;
 }
 
+interface PendingFile {
+  file: File;
+  name: string;
+  sizeLabel: string;
+  kind: FormImportSourceKind;
+  previewUrl: string | null;
+}
+
+interface PreviewPage {
+  page: number;
+  name: string;
+  kind: FormImportSourceKind;
+  url: SafeResourceUrl;
+}
+
 const STEPS: StepMeta[] = [
   { index: 0, title: 'Enviar arquivo', subtitle: 'Fotos ou PDF' },
   { index: 1, title: 'Processamento', subtitle: 'Estruturar perguntas' },
   { index: 2, title: 'Comparar', subtitle: 'Original × digital' },
   { index: 3, title: 'Revisar', subtitle: 'Editar e finalizar' },
 ];
+
+const MAX_FILES = 10;
+const MAX_BYTES = 10 * 1024 * 1024;
 
 @Component({
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
@@ -54,6 +72,7 @@ export class TemplatesImportarComponent implements OnDestroy {
   private sanitizer = inject(DomSanitizer);
 
   readonly steps = STEPS;
+  readonly maxFiles = MAX_FILES;
   readonly step = signal<ImportStep>(0);
   readonly dragOver = signal(false);
   readonly enviando = signal(false);
@@ -63,22 +82,41 @@ export class TemplatesImportarComponent implements OnDestroy {
   readonly selectedIndex = signal(0);
   readonly templateName = signal('');
   readonly erro = signal('');
-  readonly pendingFileName = signal('');
-  readonly pendingFileSize = signal('');
+  readonly pendingFiles = signal<PendingFile[]>([]);
   readonly sourceKind = signal<FormImportSourceKind>('file');
-  readonly sourcePreviewSafe = signal<SafeResourceUrl | null>(null);
+  readonly previewPages = signal<PreviewPage[]>([]);
+  readonly activePreviewPage = signal(1);
   readonly sourcePreviewLoading = signal(false);
   readonly zoom = signal(100);
   readonly consentBlankAck = signal(false);
 
   private pollSub: Subscription | null = null;
-  private sourceObjectUrl: string | null = null;
-  private localPreviewUrl: string | null = null;
+  private serverPreviewUrls: string[] = [];
 
   readonly selectedField = computed(() => {
     const list = this.fields();
     const i = this.selectedIndex();
     return list[i] ?? null;
+  });
+
+  readonly pendingFileName = computed(() => {
+    const files = this.pendingFiles();
+    if (!files.length) return this.importItem()?.source_original_name || '';
+    if (files.length === 1) return files[0].name;
+    return `${files.length} fotos · ${files[0].name}`;
+  });
+
+  readonly pendingFileSize = computed(() => {
+    const files = this.pendingFiles();
+    if (!files.length) return this.formatBytes(this.importItem()?.source_size);
+    const total = files.reduce((sum, f) => sum + f.file.size, 0);
+    return this.formatBytes(total);
+  });
+
+  readonly activePreview = computed(() => {
+    const pages = this.previewPages();
+    const page = this.activePreviewPage();
+    return pages.find((p) => p.page === page) ?? pages[0] ?? null;
   });
 
   readonly progressPct = computed(() => {
@@ -129,7 +167,10 @@ export class TemplatesImportarComponent implements OnDestroy {
   });
 
   readonly statusLabel = computed(() => {
-    if (this.enviando()) return 'Enviando arquivo…';
+    if (this.enviando()) {
+      const n = this.pendingFiles().length;
+      return n > 1 ? `Enviando ${n} arquivos…` : 'Enviando arquivo…';
+    }
     const st = this.importItem()?.status;
     switch (st) {
       case 'queued':
@@ -152,6 +193,10 @@ export class TemplatesImportarComponent implements OnDestroy {
   );
 
   readonly canGoReview = computed(() => this.canGoCompare() && this.fields().length > 0);
+
+  readonly canStartUpload = computed(
+    () => this.consentBlankAck() && this.pendingFiles().length > 0 && !this.enviando(),
+  );
 
   ngOnDestroy(): void {
     this.pollSub?.unsubscribe();
@@ -207,19 +252,44 @@ export class TemplatesImportarComponent implements OnDestroy {
       this.erro.set('Confirme que o arquivo é uma ficha em branco, sem dados de paciente.');
       return;
     }
-    const file = ev.dataTransfer?.files?.[0];
-    if (file) this.startUpload(file);
+    const list = Array.from(ev.dataTransfer?.files ?? []);
+    this.addFiles(list);
   }
 
   onFileSelected(ev: Event): void {
     const input = ev.target as HTMLInputElement;
-    const file = input.files?.[0];
+    const list = Array.from(input.files ?? []);
     input.value = '';
     if (!this.consentBlankAck()) {
       this.erro.set('Confirme que o arquivo é uma ficha em branco, sem dados de paciente.');
       return;
     }
-    if (file) this.startUpload(file);
+    this.addFiles(list);
+  }
+
+  removePending(index: number): void {
+    this.pendingFiles.update((list) => {
+      const next = [...list];
+      const [removed] = next.splice(index, 1);
+      if (removed?.previewUrl) URL.revokeObjectURL(removed.previewUrl);
+      return next;
+    });
+    this.refreshLocalPreviews();
+  }
+
+  clearPending(): void {
+    for (const item of this.pendingFiles()) {
+      if (item.previewUrl) URL.revokeObjectURL(item.previewUrl);
+    }
+    this.pendingFiles.set([]);
+    this.previewPages.set([]);
+    this.activePreviewPage.set(1);
+    this.erro.set('');
+  }
+
+  startUploadFromPending(): void {
+    if (!this.canStartUpload()) return;
+    this.startUpload(this.pendingFiles().map((p) => p.file));
   }
 
   restart(): void {
@@ -233,11 +303,11 @@ export class TemplatesImportarComponent implements OnDestroy {
     this.selectedIndex.set(0);
     this.templateName.set('');
     this.erro.set('');
-    this.pendingFileName.set('');
-    this.pendingFileSize.set('');
+    this.pendingFiles.set([]);
     this.sourceKind.set('file');
     this.zoom.set(100);
     this.consentBlankAck.set(false);
+    this.activePreviewPage.set(1);
   }
 
   continueToCompare(): void {
@@ -251,6 +321,10 @@ export class TemplatesImportarComponent implements OnDestroy {
     this.step.set(3);
   }
 
+  setPreviewPage(page: number): void {
+    this.activePreviewPage.set(page);
+  }
+
   zoomIn(): void {
     this.zoom.update((z) => Math.min(160, z + 10));
   }
@@ -261,6 +335,10 @@ export class TemplatesImportarComponent implements OnDestroy {
 
   selectField(i: number): void {
     this.selectedIndex.set(i);
+    const page = this.fields()[i]?.page;
+    if (page && this.previewPages().some((p) => p.page === page)) {
+      this.activePreviewPage.set(page);
+    }
   }
 
   updateSelected(patch: Partial<FormImportField>): void {
@@ -297,7 +375,7 @@ export class TemplatesImportarComponent implements OnDestroy {
         required: false,
         options: [],
         sort_order: n,
-        page: 1,
+        page: this.activePreviewPage() || 1,
       },
     ]);
     this.selectedIndex.set(Math.max(0, this.fields().length - 1));
@@ -349,19 +427,84 @@ export class TemplatesImportarComponent implements OnDestroy {
     return `${(size / (1024 * 1024)).toFixed(1)} MB`;
   }
 
-  private startUpload(file: File): void {
+  private addFiles(incoming: File[]): void {
+    if (!incoming.length) return;
+    this.erro.set('');
+
+    const current = [...this.pendingFiles()];
+    const next = [...current];
+
+    for (const file of incoming) {
+      if (next.length >= MAX_FILES) {
+        this.erro.set(`No máximo ${MAX_FILES} arquivos por importação.`);
+        break;
+      }
+      if (file.size > MAX_BYTES) {
+        this.erro.set(`"${file.name}" passa de 10 MB.`);
+        continue;
+      }
+      const kind = this.kindFromFile(file);
+      if (kind === 'file') {
+        this.erro.set(`Tipo não suportado: ${file.name}. Use PDF, JPG, PNG ou TXT.`);
+        continue;
+      }
+      next.push({
+        file,
+        name: file.name,
+        sizeLabel: this.formatBytes(file.size),
+        kind,
+        previewUrl: kind === 'image' || kind === 'pdf' ? URL.createObjectURL(file) : null,
+      });
+    }
+
+    const validationError = this.validateFileSet(next.map((p) => p.file));
+    if (validationError) {
+      // revoke newly added previews that won't stay
+      for (const item of next) {
+        if (!current.includes(item) && item.previewUrl) URL.revokeObjectURL(item.previewUrl);
+      }
+      this.erro.set(validationError);
+      return;
+    }
+
+    // revoke removed? we only append
+    this.pendingFiles.set(next);
+    this.refreshLocalPreviews();
+  }
+
+  private validateFileSet(files: File[]): string | null {
+    if (!files.length) return 'Selecione ao menos um arquivo.';
+    if (files.length > MAX_FILES) return `No máximo ${MAX_FILES} arquivos por importação.`;
+    if (files.length === 1) return null;
+
+    const nonImages = files.filter((f) => this.kindFromFile(f) !== 'image');
+    if (nonImages.length) {
+      return 'Para várias páginas, envie só fotos (JPG/PNG). PDF deve ser um único arquivo.';
+    }
+    return null;
+  }
+
+  private startUpload(files: File[]): void {
+    const validationError = this.validateFileSet(files);
+    if (validationError) {
+      this.erro.set(validationError);
+      return;
+    }
+
     this.erro.set('');
     this.pollSub?.unsubscribe();
-    this.clearAllPreviews();
-    this.setLocalPreview(file);
-    this.pendingFileName.set(file.name);
-    this.pendingFileSize.set(this.formatBytes(file.size));
-    this.sourceKind.set(this.kindFromFile(file));
+    this.revokeServerPreviews();
+    this.refreshLocalPreviews();
+    this.sourceKind.set(files.length > 1 ? 'image' : this.kindFromFile(files[0]));
     this.enviando.set(true);
     this.step.set(1);
-    this.templateName.set(file.name.replace(/\.[^.]+$/, ''));
+    this.templateName.set(
+      files.length === 1
+        ? files[0].name.replace(/\.[^.]+$/, '')
+        : files[0].name.replace(/\.[^.]+$/, '') + ` (${files.length} págs)`,
+    );
 
-    this.imports.create(file, undefined, true).subscribe({
+    this.imports.create(files, undefined, true).subscribe({
       next: (item) => {
         this.enviando.set(false);
         this.importItem.set(item);
@@ -423,43 +566,72 @@ export class TemplatesImportarComponent implements OnDestroy {
   }
 
   private ensureSourcePreview(): void {
-    if (this.sourcePreviewSafe() || this.sourcePreviewLoading()) return;
+    if (this.sourcePreviewLoading()) return;
     const item = this.importItem();
-    if (!item?.has_source) {
-      // keep local preview if available
-      return;
-    }
+    if (!item?.has_source) return;
+
+    // Prefer local previews already set from upload when available.
+    if (this.previewPages().length && this.pendingFiles().length) return;
+
+    const pageCount = Math.max(1, item.source_page_count || item.pages?.length || 1);
     this.sourcePreviewLoading.set(true);
-    this.imports.getSourceBlob(item.id).subscribe({
-      next: (blob) => {
-        this.revokeLocalPreview();
-        if (this.sourceObjectUrl) {
-          URL.revokeObjectURL(this.sourceObjectUrl);
-          this.sourceObjectUrl = null;
-        }
-        this.sourceObjectUrl = URL.createObjectURL(blob);
-        this.sourcePreviewSafe.set(
-          this.sanitizer.bypassSecurityTrustResourceUrl(this.sourceObjectUrl),
-        );
-        this.sourcePreviewLoading.set(false);
-      },
-      error: () => {
-        this.sourcePreviewLoading.set(false);
-        // local preview already set from upload when possible
-      },
+    this.revokeServerPreviews();
+
+    const requests = Array.from({ length: pageCount }, (_, i) => i + 1).map(
+      (page) =>
+        new Promise<PreviewPage | null>((resolve) => {
+          this.imports.getSourceBlob(item.id, page).subscribe({
+            next: (blob) => {
+              const objectUrl = URL.createObjectURL(blob);
+              this.serverPreviewUrls.push(objectUrl);
+              const meta = item.pages?.find((p) => p.page_number === page);
+              const mime = (meta?.mime || item.source_mime || blob.type || '').toLowerCase();
+              const name = meta?.original_name || item.source_original_name || `Página ${page}`;
+              let kind: FormImportSourceKind = 'file';
+              if (mime.startsWith('image/')) kind = 'image';
+              else if (mime.includes('pdf')) kind = 'pdf';
+              else if (mime.startsWith('text/')) kind = 'text';
+              resolve({
+                page,
+                name,
+                kind,
+                url: this.sanitizer.bypassSecurityTrustResourceUrl(objectUrl),
+              });
+            },
+            error: () => resolve(null),
+          });
+        }),
+    );
+
+    void Promise.all(requests).then((pages) => {
+      const valid = pages.filter((p): p is PreviewPage => !!p);
+      if (valid.length) {
+        this.previewPages.set(valid);
+        this.activePreviewPage.set(valid[0].page);
+        this.sourceKind.set(valid[0].kind);
+      }
+      this.sourcePreviewLoading.set(false);
     });
   }
 
-  private setLocalPreview(file: File): void {
-    this.revokeLocalPreview();
-    const kind = this.kindFromFile(file);
-    if (kind === 'image' || kind === 'pdf') {
-      this.localPreviewUrl = URL.createObjectURL(file);
-      this.sourcePreviewSafe.set(
-        this.sanitizer.bypassSecurityTrustResourceUrl(this.localPreviewUrl),
-      );
+  private refreshLocalPreviews(): void {
+    const files = this.pendingFiles();
+    const pages: PreviewPage[] = [];
+    files.forEach((item, index) => {
+      if (!item.previewUrl) return;
+      pages.push({
+        page: index + 1,
+        name: item.name,
+        kind: item.kind,
+        url: this.sanitizer.bypassSecurityTrustResourceUrl(item.previewUrl),
+      });
+    });
+    this.previewPages.set(pages);
+    if (pages.length) {
+      this.activePreviewPage.set(pages[0].page);
+      this.sourceKind.set(pages.length > 1 ? 'image' : pages[0].kind);
     } else {
-      this.sourcePreviewSafe.set(null);
+      this.activePreviewPage.set(1);
     }
   }
 
@@ -472,20 +644,17 @@ export class TemplatesImportarComponent implements OnDestroy {
     return 'file';
   }
 
-  private revokeLocalPreview(): void {
-    if (this.localPreviewUrl) {
-      URL.revokeObjectURL(this.localPreviewUrl);
-      this.localPreviewUrl = null;
-    }
+  private revokeServerPreviews(): void {
+    for (const url of this.serverPreviewUrls) URL.revokeObjectURL(url);
+    this.serverPreviewUrls = [];
   }
 
   private clearAllPreviews(): void {
-    if (this.sourceObjectUrl) {
-      URL.revokeObjectURL(this.sourceObjectUrl);
-      this.sourceObjectUrl = null;
+    this.revokeServerPreviews();
+    for (const item of this.pendingFiles()) {
+      if (item.previewUrl) URL.revokeObjectURL(item.previewUrl);
     }
-    this.revokeLocalPreview();
-    this.sourcePreviewSafe.set(null);
+    this.previewPages.set([]);
     this.sourcePreviewLoading.set(false);
   }
 }

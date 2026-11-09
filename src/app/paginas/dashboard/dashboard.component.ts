@@ -162,6 +162,7 @@ export class DashboardComponent implements OnInit {
   categoriasResumo: { key: string; label: string; count: number }[] = [];
   readonly periodoSelecionado = signal(7);
   readonly mostrarWizardOnboarding = signal(false);
+  readonly podeRetomarOnboarding = signal(false);
   readonly complianceReport = signal<ComplianceReportData | null>(null);
   readonly periodOptions = [
     { days: 7, label: '7 dias' },
@@ -266,7 +267,7 @@ export class DashboardComponent implements OnInit {
         this.variacaoRespostasPositiva.set(comparativo?.positiva ?? this.variacaoRespostasAbsoluta() >= 0);
         this.taxaAprovacaoResumo.set(dash.taxa_aprovacao ?? 0);
         this.linksPublicosCount.set(dash.links_publicos_count ?? 0);
-        this.atualizarWizardOnboarding(dash);
+        this.atualizarWizardOnboarding();
         const respostasPorTemplate = dash.respostas_por_template ?? {};
         this.ultimasSubmissoes.set((dash.ultimas_submissoes ?? []).map((s) => ({
           id: s.id,
@@ -685,27 +686,32 @@ export class DashboardComponent implements OnInit {
     return status;
   }
 
-  private atualizarWizardOnboarding(dash: {
-    onboarding?: { needs_public_link?: boolean; completed?: boolean };
-    links_publicos_count?: number;
-  }): void {
+  private atualizarWizardOnboarding(): void {
     const orgId = this.authService.getCurrentOrganizationId();
-    const completed = !!dash.onboarding?.completed;
-    const needsLink = dash.onboarding?.needs_public_link ?? (dash.links_publicos_count ?? 0) === 0;
-    this.mostrarWizardOnboarding.set(
-      !this.semClinica() &&
-        !completed &&
-        needsLink &&
-        !ZmDashboardOnboardingWizardComponent.isDismissedForOrg(orgId),
-    );
+    const dismissed = ZmDashboardOnboardingWizardComponent.isDismissedForOrg(orgId);
+    const localDone = ZmDashboardOnboardingWizardComponent.isAtivacaoConcluidaLocal(orgId);
+    // Guia dos 6 passos: não some só porque já existe link público / envio na API.
+    // Some apenas se dispensado ou se o checklist local dos 6 passos foi concluído.
+    const mostrar = !this.semClinica() && !dismissed && !localDone;
+
+    this.mostrarWizardOnboarding.set(mostrar);
+    this.podeRetomarOnboarding.set(!this.semClinica() && !mostrar);
+  }
+
+  retomarOnboarding(): void {
+    const orgId = this.authService.getCurrentOrganizationId();
+    ZmDashboardOnboardingWizardComponent.clearDismissForOrg(orgId);
+    this.mostrarWizardOnboarding.set(true);
+    this.podeRetomarOnboarding.set(false);
   }
 
   onWizardOnboardingDismissed(): void {
     this.mostrarWizardOnboarding.set(false);
+    this.podeRetomarOnboarding.set(true);
   }
 
   onWizardLinkGenerated(): void {
     this.linksPublicosCount.set(Math.max(1, this.linksPublicosCount() + 1));
-    this.mostrarWizardOnboarding.set(false);
+    // Mantém o wizard aberto para os passos 5–6 (preencher e ver resultado).
   }
 }

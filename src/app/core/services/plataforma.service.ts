@@ -298,6 +298,13 @@ export class PlataformaService {
     return this.api.get<{ data: PlatformTenantDetail }>(`/platform/tenants/${id}`);
   }
 
+  deleteTenant(
+    id: number,
+    confirmName: string,
+  ): Observable<{ data: { message: string; deleted: Record<string, unknown> } }> {
+    return this.api.delete(`/platform/tenants/${id}`, { confirm_name: confirmName });
+  }
+
   getLeads(): Observable<{ data: PlatformLead[] }> {
     return this.api.get<{ data: PlatformLead[] }>('/platform/leads');
   }

@@ -59,9 +59,9 @@ type CycleUi = 'MONTHLY' | 'SEMIANNUALLY' | 'YEARLY';
         </div>
         <p class="planos-cycle-hint">
           @if (ciclo() === 'YEARLY') {
-            Anual à vista: 12 meses pelo preço de 10.
+            Anual: cobrança antecipada de 12 meses.
           } @else if (ciclo() === 'SEMIANNUALLY') {
-            Semestral à vista: 6 meses pelo preço de 5.
+            Semestral: cobrança antecipada de 6 meses.
           } @else {
             Cobrança mensal recorrente.
           }
@@ -261,17 +261,11 @@ export class PlanosComponent implements OnInit {
   preco(p: { value: number; value_yearly?: number; value_semiannual?: number }): number {
     if (this.ciclo() === 'YEARLY') {
       const yearly = Number(p.value_yearly);
-      if (Number.isFinite(yearly) && yearly > 0) {
-        return yearly;
-      }
-      return Math.round(Number(p.value || 0) * 10);
+      return Number.isFinite(yearly) && yearly > 0 ? yearly : 0;
     }
     if (this.ciclo() === 'SEMIANNUALLY') {
       const semi = Number(p.value_semiannual);
-      if (Number.isFinite(semi) && semi > 0) {
-        return semi;
-      }
-      return Math.round(Number(p.value || 0) * 5);
+      return Number.isFinite(semi) && semi > 0 ? semi : 0;
     }
     return Number(p.value || 0);
   }

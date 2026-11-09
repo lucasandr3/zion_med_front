@@ -24,7 +24,7 @@
 
 <div class="zm-content-enter">
   <p class="import-lead text-sm text-muted-foreground mb-4">
-    Envie PDF ou foto da ficha em branco. A OpenAI sugere campos — você revisa ao lado do original e salva como modelo.
+    Envie PDF ou uma/mais fotos da ficha em branco. A OpenAI sugere campos — você revisa ao lado do original e salva como modelo.
   </p>
 
   <nav class="import-stepper mb-4" aria-label="Etapas da importação">
@@ -73,17 +73,57 @@
           (drop)="onDrop($event)"
         >
           <span class="import-dropzone__icon material-symbols-outlined" aria-hidden="true">upload_file</span>
-          <h3>Arraste o arquivo aqui</h3>
-          <p>Ou selecione PDF, foto ou texto da ficha em branco que você usa hoje.</p>
-          <span class="import-dropzone__btn">Selecionar arquivo</span>
-          <small>PDF, JPG, PNG ou TXT · até 10 MB</small>
+          <h3>Arraste os arquivos aqui</h3>
+          <p>PDF único, ou várias fotos (JPG/PNG) das páginas da mesma ficha em branco.</p>
+          <span class="import-dropzone__btn">Selecionar arquivos</span>
+          <small>PDF, JPG, PNG ou TXT · até {{ maxFiles }} fotos · 10 MB cada</small>
           <input
             type="file"
+            multiple
             accept=".pdf,.jpg,.jpeg,.png,.txt,application/pdf,image/*"
             (change)="onFileSelected($event)"
             [disabled]="!consentBlankAck()"
           />
         </label>
+
+        @if (pendingFiles().length) {
+          <div class="import-file-list">
+            <div class="import-card__head">
+              <h3 class="import-section-title">Arquivos desta importação</h3>
+              <button type="button" class="import-text-btn" (click)="clearPending()">Limpar</button>
+            </div>
+            <ul>
+              @for (f of pendingFiles(); track f.name + '-' + $index; let i = $index) {
+                <li>
+                  <span class="import-file-list__page">p.{{ i + 1 }}</span>
+                  <span class="import-file-list__main">
+                    <strong>{{ f.name }}</strong>
+                    <small>{{ f.sizeLabel }} · {{ f.kind }}</small>
+                  </span>
+                  <button type="button" class="import-icon-btn" (click)="removePending(i)" aria-label="Remover arquivo">×</button>
+                </li>
+              }
+            </ul>
+            <div class="import-footer">
+              <p class="text-xs text-muted-foreground m-0">
+                @if (pendingFiles().length > 1) {
+                  Ordem = páginas da ficha (1, 2, 3…).
+                } @else {
+                  Pronto para enviar.
+                }
+              </p>
+              <nord-button
+                type="button"
+                size="s"
+                variant="primary"
+                (click)="startUploadFromPending()"
+                [attr.disabled]="!canStartUpload() || null"
+              >
+                Importar {{ pendingFiles().length }} arquivo{{ pendingFiles().length > 1 ? 's' : '' }}
+              </nord-button>
+            </div>
+          </div>
+        }
       </g-card>
 
       <aside class="import-side">
@@ -114,7 +154,7 @@
         <label class="import-consent mt-3 flex items-start gap-2 text-sm">
           <input type="checkbox" [checked]="consentBlankAck()" (change)="consentBlankAck.set($any($event.target).checked)" />
           <span>
-            Confirmo que o arquivo é uma <strong>ficha em branco</strong>, sem dados pessoais ou clínicos de pacientes.
+            Confirmo que o(s) arquivo(s) é(são) uma <strong>ficha em branco</strong>, sem dados pessoais ou clínicos de pacientes.
             A fonte será descartada automaticamente após o prazo de retenção da plataforma (padrão 30 dias).
           </span>
         </label>
@@ -180,16 +220,21 @@
           <div class="import-card__head">
             <h3 class="import-section-title">Documento desta sessão</h3>
           </div>
-          @if (sourcePreviewSafe(); as url) {
+          @if (activePreview(); as preview) {
             <div class="import-doc-tile">
-              @if (sourceKind() === 'pdf') {
-                <iframe [src]="url" title="Prévia do PDF"></iframe>
-              } @else if (sourceKind() === 'image') {
-                <img [src]="url" alt="Prévia do documento" />
+              @if (preview.kind === 'pdf') {
+                <iframe [src]="preview.url" title="Prévia do PDF"></iframe>
+              } @else if (preview.kind === 'image') {
+                <img [src]="preview.url" alt="Prévia do documento" />
               } @else {
                 <p class="text-sm text-muted-foreground">Prévia disponível na etapa Comparar.</p>
               }
             </div>
+            @if (previewPages().length > 1) {
+              <p class="text-xs text-muted-foreground mt-2 m-0">
+                Página {{ preview.page }} de {{ previewPages().length }}
+              </p>
+            }
           } @else {
             <p class="text-sm text-muted-foreground m-0">
               {{ pendingFileName() || 'Arquivo enviado' }}
@@ -225,14 +270,28 @@
             <button type="button" class="import-icon-btn" (click)="zoomIn()" aria-label="Aumentar zoom">+</button>
           </div>
         </div>
+        @if (previewPages().length > 1) {
+          <div class="import-page-tabs" role="tablist" aria-label="Páginas do documento">
+            @for (p of previewPages(); track p.page) {
+              <button
+                type="button"
+                class="import-page-tab"
+                [class.import-page-tab--active]="activePreviewPage() === p.page"
+                (click)="setPreviewPage(p.page)"
+              >
+                p.{{ p.page }}
+              </button>
+            }
+          </div>
+        }
         <div class="import-doc-canvas">
           @if (sourcePreviewLoading()) {
             <p class="text-sm text-muted-foreground">Carregando original…</p>
-          } @else if (sourcePreviewSafe(); as url) {
-            @if (sourceKind() === 'pdf') {
-              <iframe [src]="url" title="Documento original PDF"></iframe>
-            } @else if (sourceKind() === 'image') {
-              <img [src]="url" [style.transform]="'scale(' + zoom() / 100 + ')'" alt="Documento original" />
+          } @else if (activePreview(); as preview) {
+            @if (preview.kind === 'pdf') {
+              <iframe [src]="preview.url" title="Documento original PDF"></iframe>
+            } @else if (preview.kind === 'image') {
+              <img [src]="preview.url" [style.transform]="'scale(' + zoom() / 100 + ')'" [alt]="'Documento original página ' + preview.page" />
             } @else {
               <p class="text-sm text-muted-foreground">Prévia visual não disponível para este tipo. Use o trecho original de cada campo.</p>
             }

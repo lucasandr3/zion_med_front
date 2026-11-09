@@ -3,6 +3,20 @@
     <div class="n-form-toolbar__start">
       <zm-page-back-link />
     </div>
+    @if (data(); as tenant) {
+      <div class="n-form-toolbar__end">
+        <nord-button
+          type="button"
+          variant="danger"
+          size="m"
+          [attr.loading]="excluindo() || null"
+          [attr.disabled]="excluindo() || null"
+          (click)="excluirTenant()"
+        >
+          Excluir cliente
+        </nord-button>
+      </div>
+    }
   </div>
 
   @if (showSkeleton()) {
@@ -272,6 +286,28 @@
             </div>
           }
         </section>
+
+        <g-card class="tenant-danger-zone gap-0 py-0">
+          <div class="tenant-danger-zone__inner">
+            <div class="min-w-0">
+              <h3 class="tenant-danger-zone__title">Zona de risco</h3>
+              <p class="tenant-danger-zone__text">
+                Exclui este tenant, empresas, usuários, pessoas, fichas e dados vinculados.
+                Use para limpar cadastros de teste. Ação irreversível.
+              </p>
+            </div>
+            <nord-button
+              type="button"
+              variant="danger"
+              size="m"
+              [attr.loading]="excluindo() || null"
+              [attr.disabled]="excluindo() || null"
+              (click)="excluirTenant()"
+            >
+              Excluir cliente e dados
+            </nord-button>
+          </div>
+        </g-card>
       </div>
     }
   }
