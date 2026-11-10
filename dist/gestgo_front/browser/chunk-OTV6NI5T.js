@@ -1,1 +1,0 @@
-import{a as o}from"./chunk-HHTBCEYM.js";import{T as r,Y as n,p as t}from"./chunk-TCEJIIEP.js";var s=class e{api=n(o);getDashboard(){return this.api.get("/dashboard").pipe(t(a=>a.data))}static \u0275fac=function(i){return new(i||e)};static \u0275prov=r({token:e,factory:e.\u0275fac,providedIn:"root"})};export{s as a};
