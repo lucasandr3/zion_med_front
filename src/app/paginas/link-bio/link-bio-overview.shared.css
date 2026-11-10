@@ -348,6 +348,27 @@
   background: linear-gradient(135deg, var(--c-success-soft, #e6f6ee), #f3fbf7);
 }
 
+:host-context(body.dark) .lb-featured {
+  border-color: color-mix(in srgb, var(--c-primary, #14b87a) 28%, var(--border, #303030));
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--c-primary, #14b87a) 18%, var(--card, #1c1c1c)),
+    var(--card, #1c1c1c)
+  );
+}
+
+:host-context(body.dark) .lb-featured__tag {
+  color: color-mix(in srgb, var(--c-primary, #14b87a) 70%, #fff 30%);
+}
+
+:host-context(body.dark) .lb-featured__title {
+  color: #fff;
+}
+
+:host-context(body.dark) .lb-featured__text {
+  color: rgb(190, 196, 204);
+}
+
 .lb-featured__icon {
   display: grid;
   place-items: center;
@@ -410,6 +431,7 @@
   border: 1px solid var(--border, #e7eae8);
   border-radius: 0.75rem;
   background: var(--card, #fff);
+  color: inherit;
   text-align: left;
   cursor: pointer;
   font-family: inherit;
@@ -417,8 +439,37 @@
 }
 
 .lb-item:hover {
-  border-color: #bfe3d0;
-  background: #fbfdfc;
+  border-color: color-mix(in srgb, var(--c-primary, #16a36a) 28%, var(--border, #e7eae8));
+  background: color-mix(in srgb, var(--c-primary, #16a36a) 8%, var(--card, #fff));
+}
+
+:host-context(body.dark) .lb-item {
+  background: var(--card, var(--n-color-surface, #1c1c1c));
+  border-color: var(--border, #303030);
+}
+
+:host-context(body.dark) .lb-item:hover {
+  border-color: color-mix(in srgb, var(--c-primary, #14b87a) 35%, var(--border, #303030));
+  background: color-mix(in srgb, #fff 8%, var(--card, #1c1c1c));
+}
+
+:host-context(body.dark) .lb-item:hover .lb-item__title,
+:host-context(body.dark) .lb-item__title {
+  color: #fff;
+}
+
+:host-context(body.dark) .lb-item:hover .lb-item__desc,
+:host-context(body.dark) .lb-item__desc {
+  color: rgb(190, 196, 204);
+}
+
+:host-context(body.dark) .lb-item:hover .lb-item__chevron,
+:host-context(body.dark) .lb-item__chevron {
+  color: rgb(190, 196, 204);
+}
+
+:host-context(body.dark) .lb-item__check {
+  border-color: rgb(100, 108, 118);
 }
 
 .lb-item__check {

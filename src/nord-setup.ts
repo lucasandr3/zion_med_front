@@ -350,11 +350,11 @@ const SHELL_SHADOW_TAGS = new Set(['nord-layout', 'nord-header', 'nord-navigatio
 
 /*
  * Item ativo: texto/ícone na cor do tema + fundo suave (não bloco sólido).
- * Remove também o anel duplo no foco do ativo.
+ * Dark: neutro (sem verde saturado) — :host-context porque o shadow não herda
+ * as vars de shell-nord.css com a mesma força do documento.
  */
 const NORD_NAV_ITEM_CSS = `
 :host {
-  /* Sem !important nas vars — shell-nord.css / dark / sidebar-dark sobrescrevem */
   --n-nav-item-color-active: color-mix(
     in srgb,
     var(--n-color-accent) 72%,
@@ -365,6 +365,16 @@ const NORD_NAV_ITEM_CSS = `
     var(--n-color-accent) 14%,
     transparent
   );
+}
+:host-context(body.dark),
+:host-context(html[data-color-scheme='dark']) {
+  --n-nav-item-color-active: #ffffff;
+  --n-nav-item-background-active: rgb(255 255 255 / 0.1);
+}
+:host-context(body.dark.shell-preset-sidebar-dark),
+:host-context(body.shell-preset-sidebar-dark) {
+  --n-nav-item-color-active: #ffffff;
+  --n-nav-item-background-active: rgb(255 255 255 / 0.12);
 }
 .n-nav-item:not(.n-rail-item) {
   block-size: 37px;
@@ -390,6 +400,19 @@ const NORD_NAV_ITEM_CSS = `
 :host([active]) .n-nav-icon,
 :host([active]) .material-symbols-outlined {
   color: var(--n-nav-item-color-active) !important;
+}
+/* Dark: força branco no ativo (não herda accent verde) */
+:host-context(body.dark):host([active]) .n-nav-item,
+:host-context(html[data-color-scheme='dark']):host([active]) .n-nav-item {
+  color: #ffffff !important;
+}
+:host-context(body.dark):host([active]) nord-icon,
+:host-context(body.dark):host([active]) .n-nav-icon,
+:host-context(body.dark):host([active]) .material-symbols-outlined,
+:host-context(html[data-color-scheme='dark']):host([active]) nord-icon,
+:host-context(html[data-color-scheme='dark']):host([active]) .n-nav-icon,
+:host-context(html[data-color-scheme='dark']):host([active]) .material-symbols-outlined {
+  color: #ffffff !important;
 }
 :host([active]) .n-nav-item:focus,
 :host([active]) .n-nav-item:focus-visible {
@@ -607,8 +630,9 @@ function getShellHeaderSheet(): CSSStyleSheet {
 function getNavItemSheet(): CSSStyleSheet {
   if (!navItemSheet) {
     navItemSheet = new CSSStyleSheet();
-    navItemSheet.replaceSync(NORD_NAV_ITEM_CSS);
   }
+  // Sempre sync — HMR atualiza shadows que já adotaram a sheet
+  navItemSheet.replaceSync(NORD_NAV_ITEM_CSS);
   return navItemSheet;
 }
 
@@ -695,14 +719,19 @@ function syncRailTooltipDelay(root: ShadowRoot): void {
 function injectNavItemStyles(host: Element): void {
   const root = host.shadowRoot;
   if (!root) return;
+  const sheet = getNavItemSheet();
   if (!navItemStyled.has(root)) {
     navItemStyled.add(root);
-    injectAdoptedOrStyle(root, getNavItemSheet(), NORD_NAV_ITEM_CSS, 'data-gestgo-nav-item');
+    injectAdoptedOrStyle(root, sheet, NORD_NAV_ITEM_CSS, 'data-gestgo-nav-item');
     // Tooltip do rail (sidebar fechada): delay 0 como no header
     new MutationObserver(() => syncRailTooltipDelay(root)).observe(root, {
       childList: true,
       subtree: true,
     });
+  } else {
+    // Fallback <style> (sem adoptedStyleSheets): atualiza texto no HMR
+    const fallback = root.querySelector('style[data-gestgo-nav-item]');
+    if (fallback) fallback.textContent = NORD_NAV_ITEM_CSS;
   }
   syncRailTooltipDelay(root);
 }
