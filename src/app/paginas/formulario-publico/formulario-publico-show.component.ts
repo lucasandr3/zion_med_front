@@ -31,9 +31,16 @@ import {
 import {
   applyGateCpfToFields,
   applyPersonPrefillToFields,
+  applySubmitterIdentityToFields,
+  filterIdentityCoveredFields,
   PersonPrefill,
+  resolveIdentityCoverage,
   resolveSubmitterFromPrefill,
 } from './formulario-publico-person-prefill.util';
+import {
+  applyGuardianActorsToFields,
+  filterGuardianCoveredFields,
+} from './formulario-publico-guardian-dedupe.util';
 import {
   fpClearCpfGateAuthorization,
   fpClearSubmitterIdentity,
@@ -536,6 +543,12 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
     this.enviando.set(true);
     this.erro.set('');
     this.recordClinicalStepCompletion();
+    if (this.showActorsBlock()) {
+      applyGuardianActorsToFields(data.fields, this.valores, {
+        guardianName: this.guardianName(),
+        guardianRelation: this.guardianRelation(),
+      });
+    }
     const payload = buildFormularioPublicoSubmitPayload({
       fields: this.visibleFormFields,
       valores: this.valores,
@@ -628,7 +641,19 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
   private get visibleFormFields(): FormularioPublicoField[] {
     const data = this.data();
     if (!data?.fields?.length) return [];
-    return filterVisibleFields(data.fields, this.valores);
+    let visible = filterVisibleFields(data.fields, this.valores);
+    // Só oculta nome/e-mail do modelo depois da identificação (ou com gate de pessoa).
+    const identityReady = this.identityPhaseDismissed() || this.personLinkRequired();
+    if (identityReady) {
+      const covered = resolveIdentityCoverage({
+        name: this.submitterName(),
+        email: this.submitterEmail(),
+      });
+      visible = filterIdentityCoveredFields(visible, covered, this.valores);
+    }
+    // Bloco fixo de responsável legal cobre nome/parentesco do modelo (mantém assinatura).
+    visible = filterGuardianCoveredFields(visible, this.showActorsBlock());
+    return visible;
   }
 
   private get stepState() {
@@ -960,6 +985,7 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
       this.scrollToFormTop();
       return;
     }
+    this.syncIdentityIntoFormFields();
     this.identityPhaseDismissed.set(true);
     this.afterStepChange('forward');
   }
@@ -972,6 +998,7 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
       );
       return;
     }
+    this.syncIdentityIntoFormFields();
     this.identityPhaseDismissed.set(true);
     fpAnnounceLiveRegion('Identificação concluída. Continuando para o formulário.');
     this.scrollToFormTop();
@@ -1208,6 +1235,17 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
     this.submitterName.set(submitter.name);
     this.submitterEmail.set(submitter.email);
     fpPersistSubmitterIdentity(this.submitterName(), this.submitterEmail());
+    this.syncIdentityIntoFormFields();
+  }
+
+  /** Propaga nome/e-mail já coletados para os campos do modelo (evita pedir de novo). */
+  private syncIdentityIntoFormFields(): void {
+    const data = this.data();
+    if (!data?.fields?.length) return;
+    applySubmitterIdentityToFields(data.fields, this.valores, {
+      name: this.submitterName(),
+      email: this.submitterEmail(),
+    });
   }
 
   private onOtpSent(message: string): void {

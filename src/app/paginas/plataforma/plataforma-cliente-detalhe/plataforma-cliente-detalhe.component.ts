@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, inject, Signal, ChangeDetectionStrategy, signal, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { GestgoCardComponent } from '@/shared/components/card/card.component';
 import { GestgoBadgeComponent } from '@/shared/components/badge/badge.component';
 
@@ -9,6 +9,8 @@ import {
   PlatformTenantDetail,
 } from '../../../core/services/plataforma.service';
 import { PlataformaHeaderService } from '../../../core/services/plataforma-header.service';
+import { ConfirmDialogService } from '../../../core/services/confirm-dialog.service';
+import { ToastService } from '../../../core/services/toast.service';
 import { LoadingService } from '../../../shared/services/loading.service';
 import { ZmSkeletonListComponent } from '../../../shared/components/skeletons';
 import { ZmEmptyStateComponent, ZmPageBackLinkComponent } from '../../../shared/components/ui';
@@ -35,12 +37,16 @@ export class PlataformaClienteDetalheComponent implements OnInit, OnDestroy {
   showSkeleton!: Signal<boolean>;
   readonly listaPronta = signal(false);
   readonly estadoErro = signal(false);
+  readonly excluindo = signal(false);
   readonly data = signal<PlatformTenantDetail | null>(null);
   clinicasExpandidas = new Set<number>();
 
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
   private plataformaService = inject(PlataformaService);
   private headerService = inject(PlataformaHeaderService);
+  private confirm = inject(ConfirmDialogService);
+  private toast = inject(ToastService);
   private loadingService = inject(LoadingService);
 
   ngOnInit(): void {
@@ -153,5 +159,46 @@ export class PlataformaClienteDetalheComponent implements OnInit, OnDestroy {
     const max = clinic.max_users;
     if (max == null) return `${clinic.users_count}`;
     return `${clinic.users_count}/${max}`;
+  }
+
+  async excluirTenant(): Promise<void> {
+    const detail = this.data();
+    if (!detail?.tenant || this.excluindo()) return;
+
+    const nome = detail.tenant.name;
+    const ok = await this.confirm.request({
+      title: 'Excluir cliente e todos os dados?',
+      messageBefore: 'Isso remove permanentemente ',
+      emphasis: nome,
+      messageAfter:
+        ', suas empresas, usuários, pessoas e fichas. Digite o nome do cliente na próxima etapa para confirmar.',
+      confirmLabel: 'Continuar',
+      variant: 'danger',
+    });
+    if (!ok) return;
+
+    const typed = window.prompt(`Para confirmar, digite exatamente o nome do cliente:\n${nome}`);
+    if (typed == null) return;
+    if (typed.trim().toLowerCase() !== nome.trim().toLowerCase()) {
+      this.toast.error('Nome incorreto', 'A exclusão foi cancelada.');
+      return;
+    }
+
+    this.excluindo.set(true);
+    this.plataformaService.deleteTenant(detail.tenant.id, typed.trim()).subscribe({
+      next: () => {
+        this.excluindo.set(false);
+        this.toast.success('Cliente removido', `${nome} e os dados vinculados foram excluídos.`);
+        void this.router.navigate(['/plataforma/clientes']);
+      },
+      error: (err) => {
+        this.excluindo.set(false);
+        const msg =
+          err?.error?.errors?.confirm_name?.[0] ||
+          err?.error?.message ||
+          'Não foi possível excluir o cliente.';
+        this.toast.error('Erro ao excluir', msg);
+      },
+    });
   }
 }

@@ -133,6 +133,7 @@
 }
 
 .import-dropzone {
+  position: relative;
   display: grid;
   justify-items: center;
   gap: 0.45rem;
@@ -146,10 +147,28 @@
   transition: border-color 0.15s, background 0.15s;
 }
 
+.import-dropzone:hover,
 .import-dropzone--over,
-.import-dropzone:hover {
+.import-dropzone:focus-visible {
   border-color: var(--c-primary);
   background: color-mix(in srgb, var(--c-primary) 8%, transparent);
+}
+
+.import-dropzone:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--c-primary) 55%, transparent);
+  outline-offset: 2px;
+}
+
+.import-file-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .import-dropzone__icon {
@@ -177,17 +196,114 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 2.25rem;
-  padding: 0.45rem 0.9rem;
+  min-height: 2.5rem;
+  padding: 0.55rem 1.1rem;
+  border: 0;
   border-radius: 0.5rem;
   background: var(--c-primary);
   color: #fff;
-  font-size: 0.8125rem;
+  font: inherit;
+  font-size: 0.875rem;
   font-weight: 650;
+  cursor: pointer;
 }
 
-.import-dropzone input {
-  display: none;
+.import-dropzone__btn:hover {
+  filter: brightness(1.05);
+}
+
+.import-dropzone__btn:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--c-primary) 55%, transparent);
+  outline-offset: 2px;
+}
+
+.import-file-list {
+  margin-top: 1rem;
+  border: 1px solid var(--c-border);
+  border-radius: 0.75rem;
+  padding: 0.85rem 1rem;
+  background: var(--c-surface, #fff);
+}
+
+.import-file-list ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.import-file-list li {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 0.65rem;
+  align-items: center;
+  padding: 0.55rem 0.15rem;
+  border-bottom: 1px solid var(--c-border);
+}
+
+.import-file-list li:last-child {
+  border-bottom: 0;
+}
+
+.import-file-list__page {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--c-muted);
+}
+
+.import-file-list__main {
+  min-width: 0;
+  display: grid;
+  gap: 0.1rem;
+}
+
+.import-file-list__main strong {
+  font-size: 0.8125rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.import-file-list__main small {
+  font-size: 0.7rem;
+  color: var(--c-muted);
+}
+
+.import-text-btn {
+  border: 0;
+  background: transparent;
+  color: var(--c-primary);
+  font-size: 0.75rem;
+  font-weight: 650;
+  cursor: pointer;
+  padding: 0.2rem 0.35rem;
+}
+
+.import-page-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-bottom: 0.65rem;
+}
+
+.import-page-tab {
+  min-width: 2.4rem;
+  height: 1.85rem;
+  border-radius: 0.45rem;
+  border: 1px solid var(--c-border);
+  background: transparent;
+  color: var(--c-muted);
+  font-size: 0.75rem;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.import-page-tab--active {
+  border-color: var(--c-primary);
+  background: color-mix(in srgb, var(--c-primary) 12%, transparent);
+  color: var(--c-text);
 }
 
 .import-checklist {
@@ -337,13 +453,64 @@
   font-size: 0.75rem;
 }
 
+.import-consent-box {
+  margin-top: 1rem;
+  padding: 0.95rem 1rem;
+  border: 1px solid var(--c-border);
+  border-radius: 0.75rem;
+  background: color-mix(in srgb, var(--c-primary) 6%, var(--c-surface, #fff));
+  display: grid;
+  gap: 0.55rem;
+}
+
+.import-consent {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  font-size: 0.875rem;
+  line-height: 1.45;
+  color: var(--c-text);
+  cursor: pointer;
+}
+
+.import-consent input {
+  margin-top: 0.2rem;
+  flex: 0 0 auto;
+  width: 1.05rem;
+  height: 1.05rem;
+  accent-color: var(--c-primary);
+}
+
 .import-footer {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   gap: 0.75rem;
   margin-top: 1.1rem;
   padding-top: 1rem;
   border-top: 1px solid var(--c-border);
+}
+
+.import-footer--cta {
+  position: sticky;
+  bottom: 0.5rem;
+  z-index: 2;
+  margin-top: 1.25rem;
+  padding: 0.85rem 0 0.15rem;
+  background: linear-gradient(
+    to top,
+    var(--c-surface, #fff) 70%,
+    color-mix(in srgb, var(--c-surface, #fff) 70%, transparent)
+  );
+  flex-wrap: wrap;
+}
+
+.import-footer__hint {
+  margin: 0;
+  flex: 1 1 12rem;
+  font-size: 0.8125rem;
+  color: var(--c-muted);
+  line-height: 1.4;
 }
 
 .import-doc-tile {

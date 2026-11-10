@@ -1,0 +1,86 @@
+.feedback-dialog {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-width: min(100%, 22rem);
+}
+
+.feedback-dialog__hint {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  color: var(--n-color-text-weaker, var(--muted-foreground));
+}
+
+.feedback-dialog__types {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}
+
+.feedback-dialog__type {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid var(--n-color-border, var(--border));
+  border-radius: var(--n-border-radius, var(--radius, 0.5rem));
+  background: var(--n-color-surface, var(--background));
+  color: var(--n-color-text, var(--foreground));
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.feedback-dialog__type.is-active {
+  border-color: var(--n-color-accent, var(--primary));
+  background: color-mix(in srgb, var(--n-color-accent, var(--primary)) 12%, transparent);
+  color: var(--n-color-accent, var(--primary));
+  font-weight: 600;
+}
+
+.feedback-dialog__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.feedback-dialog__label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--n-color-text-weaker, var(--muted-foreground));
+}
+
+.feedback-dialog__input,
+.feedback-dialog__textarea {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid var(--n-color-border, var(--border));
+  border-radius: var(--n-border-radius, var(--radius, 0.5rem));
+  background: var(--n-color-surface, var(--background));
+  color: var(--n-color-text, var(--foreground));
+  padding: 0.65rem 0.75rem;
+  font: inherit;
+  font-size: 0.9375rem;
+  line-height: 1.4;
+}
+
+.feedback-dialog__textarea {
+  resize: vertical;
+  min-height: 7rem;
+}
+
+.feedback-dialog__input:focus,
+.feedback-dialog__textarea:focus {
+  outline: 2px solid color-mix(in srgb, var(--n-color-accent, var(--primary)) 45%, transparent);
+  outline-offset: 1px;
+}
+
+.feedback-dialog__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  padding-top: 0.25rem;
+}

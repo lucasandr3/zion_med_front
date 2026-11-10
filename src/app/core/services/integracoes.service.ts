@@ -59,6 +59,46 @@ export interface FeegowConfigState {
   last_error?: string | null;
 }
 
+export interface TrinksConfigState {
+  enabled: boolean;
+  base_url: string;
+  has_token: boolean;
+  estabelecimento_id?: string | null;
+  status: IntegracaoSistemaStatus;
+  last_check_at?: string | null;
+  last_error?: string | null;
+}
+
+export interface ClinicorpConfigState {
+  enabled: boolean;
+  base_url: string;
+  api_user?: string | null;
+  has_token: boolean;
+  subscriber_id?: string | null;
+  status: IntegracaoSistemaStatus;
+  last_check_at?: string | null;
+  last_error?: string | null;
+}
+
+export interface NinsaudeConfigState {
+  enabled: boolean;
+  base_url: string;
+  account?: string | null;
+  username?: string | null;
+  has_password: boolean;
+  has_refresh_token: boolean;
+  status: IntegracaoSistemaStatus;
+  last_check_at?: string | null;
+  last_error?: string | null;
+}
+
+export type IntegracaoVendorTestResult = {
+  ok: boolean;
+  status: IntegracaoSistemaStatus;
+  message: string;
+  last_check_at?: string;
+};
+
 export interface FeegowCatalogos {
   specialties: unknown[];
   insurances: unknown[];
@@ -155,6 +195,70 @@ export class IntegracoesService {
           raw: unknown;
         };
       }>('/clinica/integracoes/sistemas/feegow/agendamentos', payload)
+      .pipe(map((r) => r.data));
+  }
+
+  getTrinks(): Observable<TrinksConfigState> {
+    return this.api.get<{ data: TrinksConfigState }>('/clinica/integracoes/sistemas/trinks').pipe(map((r) => r.data));
+  }
+
+  updateTrinks(payload: {
+    enabled: boolean;
+    base_url: string;
+    token?: string;
+    estabelecimento_id?: string;
+  }): Observable<TrinksConfigState> {
+    return this.api.put<{ data: TrinksConfigState }>('/clinica/integracoes/sistemas/trinks', payload).pipe(map((r) => r.data));
+  }
+
+  testTrinks(): Observable<IntegracaoVendorTestResult> {
+    return this.api
+      .post<{ data: IntegracaoVendorTestResult }>('/clinica/integracoes/sistemas/trinks/test', {})
+      .pipe(map((r) => r.data));
+  }
+
+  getClinicorp(): Observable<ClinicorpConfigState> {
+    return this.api.get<{ data: ClinicorpConfigState }>('/clinica/integracoes/sistemas/clinicorp').pipe(map((r) => r.data));
+  }
+
+  updateClinicorp(payload: {
+    enabled: boolean;
+    base_url: string;
+    api_user?: string;
+    token?: string;
+    subscriber_id?: string;
+  }): Observable<ClinicorpConfigState> {
+    return this.api
+      .put<{ data: ClinicorpConfigState }>('/clinica/integracoes/sistemas/clinicorp', payload)
+      .pipe(map((r) => r.data));
+  }
+
+  testClinicorp(): Observable<IntegracaoVendorTestResult> {
+    return this.api
+      .post<{ data: IntegracaoVendorTestResult }>('/clinica/integracoes/sistemas/clinicorp/test', {})
+      .pipe(map((r) => r.data));
+  }
+
+  getNinsaude(): Observable<NinsaudeConfigState> {
+    return this.api.get<{ data: NinsaudeConfigState }>('/clinica/integracoes/sistemas/ninsaude').pipe(map((r) => r.data));
+  }
+
+  updateNinsaude(payload: {
+    enabled: boolean;
+    base_url: string;
+    account?: string;
+    username?: string;
+    password?: string;
+    refresh_token?: string;
+  }): Observable<NinsaudeConfigState> {
+    return this.api
+      .put<{ data: NinsaudeConfigState }>('/clinica/integracoes/sistemas/ninsaude', payload)
+      .pipe(map((r) => r.data));
+  }
+
+  testNinsaude(): Observable<IntegracaoVendorTestResult> {
+    return this.api
+      .post<{ data: IntegracaoVendorTestResult }>('/clinica/integracoes/sistemas/ninsaude/test', {})
       .pipe(map((r) => r.data));
   }
 }

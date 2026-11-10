@@ -45,7 +45,16 @@
                 <span class="n-muted n-small font-normal">/mês</span>
               </p>
               <p class="n-muted n-small m-0">
-                Anual: R$ {{ formatarValor(p.value_yearly != null && p.value_yearly > 0 ? p.value_yearly : p.value * 10) }}/ano
+                Semestral: R$
+                {{
+                  formatarValor(
+                    p.value_semiannual != null && p.value_semiannual > 0
+                      ? p.value_semiannual
+                      : p.value * 5
+                  )
+                }}/semestre
+                · Anual: R$
+                {{ formatarValor(p.value_yearly != null && p.value_yearly > 0 ? p.value_yearly : p.value * 10) }}/ano
               </p>
               <p class="plano-card__desc n-muted n-small m-0 leading-relaxed">
                 {{ p.description || '' }}

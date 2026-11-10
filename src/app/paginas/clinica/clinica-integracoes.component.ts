@@ -24,7 +24,11 @@ import { GestgoCardComponent } from '@/shared/components/card/card.component';
 import { GestgoTabComponent, GestgoTabGroupComponent } from '@/shared/components/tabs';
 import { GestgoBadgeComponent } from '@/shared/components/badge';
 import type { GestgoBadgeTypeVariants } from '@/shared/components/badge/badge.variants';
-import { scrambleDocsUiUrl, scrambleOpenApiJsonUrl } from '../../core/utils/api-docs-url.util';
+import {
+  apiV1BaseUrl,
+  scrambleDocsUiUrl,
+  scrambleOpenApiJsonUrl,
+} from '../../core/utils/api-docs-url.util';
 
 type AbaIntegracao = 'api' | 'webhooks' | 'entregas' | 'sistemas';
 
@@ -54,7 +58,12 @@ export class ClinicaIntegracoesComponent implements OnInit {
   private toast = inject(ToastService);
   private confirm = inject(ConfirmDialogService);
 
-  private readonly tabIds: AbaIntegracao[] = ['api', 'webhooks', 'entregas', 'sistemas'];
+  /** Temporário: aba Sistemas oculta até liberar as integrações (Feegow/Trinks/etc.). */
+  readonly mostrarAbaSistemas = false;
+
+  private readonly tabIds: AbaIntegracao[] = this.mostrarAbaSistemas
+    ? ['api', 'webhooks', 'entregas', 'sistemas']
+    : ['api', 'webhooks', 'entregas'];
 
   readonly state = signal<IntegracoesState | null>(null);
   readonly carregando = signal(false);
@@ -76,6 +85,7 @@ export class ClinicaIntegracoesComponent implements OnInit {
 
   readonly docsApiUrl = scrambleDocsUiUrl();
   readonly docsApiJsonUrl = scrambleOpenApiJsonUrl();
+  readonly apiBaseUrl = apiV1BaseUrl();
 
   readonly tokens = computed(() => this.state()?.tokens ?? []);
   readonly webhooks = computed(() => this.state()?.webhooks ?? []);
@@ -85,7 +95,9 @@ export class ClinicaIntegracoesComponent implements OnInit {
 
   ngOnInit(): void {
     this.carregar();
-    this.carregarSistemas();
+    if (this.mostrarAbaSistemas) {
+      this.carregarSistemas();
+    }
   }
 
   onGestgoTabChange(event: { index: number }): void {
@@ -275,6 +287,9 @@ export class ClinicaIntegracoesComponent implements OnInit {
     if (sistema.key === 'feegow') {
       return ['/clinica/integracoes/sistemas/feegow'];
     }
+    if (sistema.key === 'trinks' || sistema.key === 'clinicorp' || sistema.key === 'ninsaude') {
+      return ['/clinica/integracoes/sistemas', sistema.key];
+    }
 
     return null;
   }
@@ -285,5 +300,12 @@ export class ClinicaIntegracoesComponent implements OnInit {
     }
 
     return null;
+  }
+
+  copiarApiBase(): void {
+    void navigator.clipboard.writeText(this.apiBaseUrl).then(
+      () => this.toast.success('Copiado', 'URL base da API copiada.'),
+      () => this.toast.error('Copiar', 'Não foi possível copiar a URL.'),
+    );
   }
 }

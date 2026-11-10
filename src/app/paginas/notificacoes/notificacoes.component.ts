@@ -254,6 +254,7 @@ export class NotificacoesComponent implements OnInit {
         protocolo_aprovado: 'check_circle',
         protocolo_reprovado: 'cancel',
         novo_lead: 'request_quote',
+        novo_feedback: 'feedback',
         faturas_vencidas: 'payments',
         assinaturas_pendentes: 'receipt_long',
         novo_usuario: 'person_add',
@@ -300,6 +301,7 @@ export class NotificacoesComponent implements OnInit {
       protocolo_aprovado: 'Protocolo',
       protocolo_reprovado: 'Protocolo',
       novo_lead: 'Lead',
+      novo_feedback: 'Feedback',
       faturas_vencidas: 'Cobrança',
       assinaturas_pendentes: 'Assinatura',
       novo_usuario: 'Usuário',
@@ -352,6 +354,9 @@ export class NotificacoesComponent implements OnInit {
     }
     if (tipo === 'novo_lead') {
       return { kind: 'router', commands: ['/plataforma/leads'], label: 'Ver leads' };
+    }
+    if (tipo === 'novo_feedback') {
+      return { kind: 'router', commands: ['/plataforma/feedback'], label: 'Ver feedback' };
     }
     if (tipo === 'faturas_vencidas') {
       return { kind: 'router', commands: ['/plataforma/faturas'], label: 'Ver faturas' };

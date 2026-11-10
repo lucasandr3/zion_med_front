@@ -1,0 +1,51 @@
+<div class="n-page-list__toolbar">
+  <div class="n-page-list__toolbar-start">
+    <span class="n-muted n-small">
+      {{ items().length }}
+      {{ items().length === 1 ? 'feedback' : 'feedbacks' }} recebidos
+    </span>
+  </div>
+</div>
+
+<div class="n-page-list__content">
+  @if (showSkeleton()) {
+    <div class="n-page-list__panel"><app-list-skeleton [count]="6" /></div>
+  } @else if (!listaPronta()) {
+  } @else if (estadoErro()) {
+    <div class="n-page-list__panel">
+      <p class="n-muted n-small" style="color:var(--n-color-status-danger,#c62828)">
+        Não foi possível carregar o feedback.
+      </p>
+    </div>
+  } @else if (items().length === 0) {
+    <div class="n-page-list__empty">
+      <nord-empty-state>
+        <h2>Nenhum feedback ainda.</h2>
+        <p>Sugestões e problemas enviados pelos usuários aparecerão aqui.</p>
+      </nord-empty-state>
+    </div>
+  } @else {
+    <div class="n-page-list__table">
+      @for (item of items(); track item.id) {
+        <div class="n-page-list__row">
+          <div class="n-page-list__row-main">
+            <div class="n-page-list__row-title">
+              <span class="feedback-type" [attr.data-type]="item.type">{{ tipoLabel(item.type) }}</span>
+              {{ item.title }}
+            </div>
+            <div class="n-page-list__row-meta">
+              {{ item.user_name || '—' }}
+              · {{ item.user_email || '—' }}
+              · {{ item.organization_name || 'Sem empresa' }}
+              · {{ origemLabel(item.source) }}
+              · {{ formatarData(item.created_at) }}
+            </div>
+            @if (item.message) {
+              <p class="feedback-message">{{ item.message }}</p>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

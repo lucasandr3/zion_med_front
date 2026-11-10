@@ -29,6 +29,11 @@
             <p class="dash-hero__sub">Métricas e gráficos do intervalo selecionado</p>
           </div>
           <div class="dash-hero__actions" data-go-tour="dashboard-shortcuts">
+            @if (podeRetomarOnboarding()) {
+              <nord-button type="button" size="m" variant="plain" (click)="retomarOnboarding()">
+                Guia de ativação
+              </nord-button>
+            }
             <nord-button-group aria-label="Intervalo em dias">
               @for (p of periodOptions; track p.days) {
                 <nord-button

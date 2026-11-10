@@ -87,6 +87,27 @@
             <p class="text-muted-foreground mt-1 m-0 text-xs">Ex.: 16,67% ≈ 12 meses pelo preço de 10.</p>
           </div>
           <div class="plano-valor-field">
+            <label for="value_semiannual_display" class="text-foreground mb-1 block text-xs font-medium">Valor semestral (R$/semestre)</label>
+            <input
+              type="text"
+              id="value_semiannual_display"
+              class="w-full"
+              placeholder="0,00"
+              inputmode="numeric"
+              autocomplete="off"
+              [ngModel]="valueSemiannualDisplay"
+              (ngModelChange)="onValueSemiannualInput($event)"
+              name="value_semiannual_display"
+              (blur)="onValueSemiannualBlur()"
+            />
+            <p class="text-muted-foreground mt-1 m-0 text-xs">
+              6 × mensal com {{ discountPercent }}% de desconto.
+              @if (economiaSemestral() > 0) {
+                Economia de R$ {{ formatBrlPublic(economiaSemestral()) }} vs 6 mensalidades.
+              }
+            </p>
+          </div>
+          <div class="plano-valor-field">
             <label for="value_yearly_display" class="text-foreground mb-1 block text-xs font-medium">Valor anual (R$/ano)</label>
             <input
               type="text"

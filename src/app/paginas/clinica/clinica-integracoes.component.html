@@ -27,15 +27,35 @@
                   <span class="section-title">Documentação da API</span>
                 </div>
                 <div class="section-body">
-                  <p class="hint mb-4">Documentação interativa (Scramble) e especificação OpenAPI para integrar com outros sistemas.</p>
-                  <div class="flex flex-wrap gap-3">
-                    <a [href]="docsApiUrl" target="_blank" rel="noopener" class="inline-flex items-center gap-2 no-underline">
-                      <span class="material-symbols-outlined text-base">menu_book</span>
-                      Documentação interativa
+                  <p class="hint mb-3">
+                    Documentação para sistemas externos: protocolos, templates, pessoas e webhooks.
+                  </p>
+                  <div class="docs-api-base mb-4">
+                    <span class="docs-api-base__label">URL base</span>
+                    <code class="docs-api-base__value">{{ apiBaseUrl }}</code>
+                    <nord-button type="button" size="s" variant="plain" title="Copiar URL base" (click)="copiarApiBase()">
+                      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">content_copy</span>
+                      Copiar
+                    </nord-button>
+                  </div>
+                  <div class="docs-actions flex flex-wrap gap-2">
+                    <a
+                      class="docs-action-link docs-action-link--primary"
+                      [href]="docsApiUrl"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">open_in_new</span>
+                      Abrir documentação
                     </a>
-                    <a [href]="docsApiJsonUrl" target="_blank" rel="noopener" class="inline-flex items-center gap-2 no-underline">
-                      <span class="material-symbols-outlined text-base">download</span>
-                      OpenAPI (JSON)
+                    <a
+                      class="docs-action-link docs-action-link--muted"
+                      [href]="docsApiJsonUrl"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">download</span>
+                      Baixar especificação
                     </a>
                   </div>
                 </div>
@@ -62,7 +82,7 @@
                   <span class="section-title">Token de API</span>
                 </div>
                 <div class="section-body">
-                  <p class="mb-2 text-sm">Gere um token para acessar a API REST (protocolos, templates).</p>
+                  <p class="mb-2 text-sm">Gere um token para o sistema externo acessar a API REST (protocolos, templates, pessoas e webhooks).</p>
                   <p class="hint mb-4">Use o header: <code class="mt-1 inline-block text-xs">Authorization: Bearer SEU_TOKEN</code></p>
                   <form (ngSubmit)="criarToken()" class="max-w-2xl">
                     <div class="field mb-0">
@@ -151,7 +171,7 @@
                       </div>
                     </div>
                     <div class="field mb-0">
-                      <label>Secret <span class="opt">opcional, para assinatura HMAC</span></label>
+                      <label>Segredo <span class="opt">opcional, para assinatura HMAC</span></label>
                       <input type="text" class="max-w-xs w-full" [(ngModel)]="novoWebhookSecret" name="novoWebhookSecret" placeholder="Chave secreta" />
                     </div>
                     <div class="field mb-0">
@@ -252,58 +272,60 @@
             </div>
           </g-tab>
 
-          <g-tab label="Sistemas" icon="computer">
-            <div class="config-tab-panel">
-              <g-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
-                <div class="section-header">
-                  <div class="icon-wrap"><span class="material-symbols-outlined">computer</span></div>
-                  <span class="section-title">Sistemas integrados</span>
-                </div>
-                <div class="section-body">
-                  @if (carregandoSistemas()) {
-                    <zm-skeleton-integracoes-sistemas />
-                  } @else if (sistemas().length === 0) {
-                    <p class="text-sm text-muted-foreground">Nenhum sistema encontrado.</p>
-                  } @else {
-                    <div class="sistemas-grid">
-                      @for (s of sistemas(); track s.key) {
-                        @let link = sistemaLink(s);
-                        <a class="sistema-card" [routerLink]="link ?? ['/clinica/integracoes']">
-                          <div class="flex items-start justify-between gap-2">
-                            <div class="flex min-w-0 items-center gap-2.5">
-                              @if (sistemaLogoSrc(s); as logoSrc) {
-                                <span class="sistema-logo-wrap">
-                                  <img [src]="logoSrc" [alt]="'Logo ' + s.name" class="sistema-logo" />
-                                </span>
-                              } @else {
-                                <span class="sistema-logo-wrap">
-                                  <span class="material-symbols-outlined text-base text-primary">computer</span>
-                                </span>
-                              }
-                              <div class="min-w-0">
-                                <div class="text-sm font-semibold text-foreground">{{ s.name }}</div>
-                                <div class="mt-0.5 max-w-[220px] truncate text-xs text-muted-foreground">
-                                  {{ s.description || 'Configuração da integração' }}
+          @if (mostrarAbaSistemas) {
+            <g-tab label="Sistemas" icon="computer">
+              <div class="config-tab-panel">
+                <g-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
+                  <div class="section-header">
+                    <div class="icon-wrap"><span class="material-symbols-outlined">computer</span></div>
+                    <span class="section-title">Sistemas integrados</span>
+                  </div>
+                  <div class="section-body">
+                    @if (carregandoSistemas()) {
+                      <zm-skeleton-integracoes-sistemas />
+                    } @else if (sistemas().length === 0) {
+                      <p class="text-sm text-muted-foreground">Nenhum sistema encontrado.</p>
+                    } @else {
+                      <div class="sistemas-grid">
+                        @for (s of sistemas(); track s.key) {
+                          @let link = sistemaLink(s);
+                          <a class="sistema-card" [routerLink]="link ?? ['/clinica/integracoes']">
+                            <div class="flex items-start justify-between gap-2">
+                              <div class="flex min-w-0 items-center gap-2.5">
+                                @if (sistemaLogoSrc(s); as logoSrc) {
+                                  <span class="sistema-logo-wrap">
+                                    <img [src]="logoSrc" [alt]="'Logo ' + s.name" class="sistema-logo" />
+                                  </span>
+                                } @else {
+                                  <span class="sistema-logo-wrap">
+                                    <span class="material-symbols-outlined text-base text-primary">computer</span>
+                                  </span>
+                                }
+                                <div class="min-w-0">
+                                  <div class="text-sm font-semibold text-foreground">{{ s.name }}</div>
+                                  <div class="mt-0.5 max-w-[220px] truncate text-xs text-muted-foreground">
+                                    {{ s.description || 'Configuração da integração' }}
+                                  </div>
                                 </div>
                               </div>
+                              <g-badge [zType]="statusBadgeType(s.status)" zShape="pill" class="shrink-0">
+                                {{ statusSistemaLabel(s.status) }}
+                              </g-badge>
                             </div>
-                            <g-badge [zType]="statusBadgeType(s.status)" zShape="pill" class="shrink-0">
-                              {{ statusSistemaLabel(s.status) }}
-                            </g-badge>
-                          </div>
-                          @if (s.last_check_at) {
-                            <p class="mt-2.5 text-xs text-muted-foreground">
-                              Última verificação: {{ s.last_check_at | date:'dd/MM/yyyy HH:mm' }}
-                            </p>
-                          }
-                        </a>
-                      }
-                    </div>
-                  }
-                </div>
-              </g-card>
-            </div>
-          </g-tab>
+                            @if (s.last_check_at) {
+                              <p class="mt-2.5 text-xs text-muted-foreground">
+                                Última verificação: {{ s.last_check_at | date:'dd/MM/yyyy HH:mm' }}
+                              </p>
+                            }
+                          </a>
+                        }
+                      </div>
+                    }
+                  </div>
+                </g-card>
+              </div>
+            </g-tab>
+          }
         </g-tab-group>
       </div>
     </div>

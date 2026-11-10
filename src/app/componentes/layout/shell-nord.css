@@ -204,17 +204,16 @@ nord-navigation[data-rail-collapsed] .gestgo-shell__brand-logo {
   margin-block-start: var(--n-space-s);
 }
 
-/* Dark padrão: tint accent um pouco mais forte (soft-active) */
+/*
+ * Dark: ativo neutro (texto claro + pill suave), sem verde saturado.
+ * O estilo efetivo no shadow está em nord-setup.ts (:host-context).
+ */
 body.dark:not(.shell-preset-sidebar-dark) .gestgo-shell__nav nord-nav-item {
-  --n-nav-item-color-active: var(--n-color-accent);
-  --n-nav-item-background-active: color-mix(
-    in srgb,
-    var(--n-color-accent) 22%,
-    transparent
-  );
+  --n-nav-item-color-active: #ffffff;
+  --n-nav-item-background-active: rgb(255 255 255 / 0.1);
 }
 
-/* Menu escuro — pesquisa: itens claros + ativo branco on-accent */
+/* Menu escuro — itens claros + ativo neutro */
 body.shell-preset-sidebar-dark .gestgo-shell__brand {
   background: var(--shell-sidebar-bg, var(--shell-nav-bg));
   color: var(--shell-nav-fg, #fff);
@@ -224,10 +223,15 @@ body.shell-preset-sidebar-dark .gestgo-shell__brand {
 body.shell-preset-sidebar-dark .gestgo-shell__nav nord-nav-item {
   --n-nav-item-color: var(--shell-nav-item, rgb(255 255 255 / 0.88));
   --n-nav-item-color-hover: var(--shell-nav-item-hover, #fff);
-  --n-nav-item-color-active: var(--n-color-text-on-accent, #fff);
-  --n-nav-item-background-active: var(--n-color-accent);
+  --n-nav-item-color-active: #fff;
+  --n-nav-item-background-active: rgb(255 255 255 / 0.12);
   --n-color-icon: var(--shell-nav-item, rgb(255 255 255 / 0.88));
   color: var(--shell-nav-item, rgb(255 255 255 / 0.88));
+}
+
+body.dark.shell-preset-sidebar-dark .gestgo-shell__nav nord-nav-item {
+  --n-nav-item-color-active: #fff;
+  --n-nav-item-background-active: rgb(255 255 255 / 0.12);
 }
 
 body.shell-preset-sidebar-dark .gestgo-shell__nav nord-nav-group {

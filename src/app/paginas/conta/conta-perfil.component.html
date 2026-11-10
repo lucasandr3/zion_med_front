@@ -48,6 +48,39 @@
               </p>
             </div>
           </g-card>
+
+          <g-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
+            <div class="section-header">
+              <div class="icon-wrap">
+                <span class="material-symbols-outlined" aria-hidden="true">system_update</span>
+              </div>
+              <span class="section-title">Atualizações do sistema</span>
+            </div>
+            <div class="section-body">
+              <p class="m-0 mb-4 text-sm leading-relaxed text-muted-foreground">
+                Quando houver uma versão nova, o GestGo avisa no topo da tela. Você também pode verificar agora.
+                @if (versaoNovidades(); as version) {
+                  <span class="block mt-1">Última novidade publicada: <strong class="text-foreground">{{ version }}</strong>.</span>
+                }
+              </p>
+              <div class="flex flex-wrap items-center gap-2">
+                <nord-button
+                  type="button"
+                  size="s"
+                  class="inline-flex items-center gap-2"
+                  (click)="verificarAtualizacao()"
+                  [attr.disabled]="verificandoAtualizacao() || null"
+                  [attr.loading]="verificandoAtualizacao() || null"
+                >
+                  <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">system_update</span>
+                  {{ verificandoAtualizacao() ? 'Verificando…' : 'Verificar atualização' }}
+                </nord-button>
+                <a routerLink="/novidades" class="text-sm font-semibold text-primary no-underline hover:underline">
+                  Ver novidades
+                </a>
+              </div>
+            </div>
+          </g-card>
           </div>
         </g-tab>
 

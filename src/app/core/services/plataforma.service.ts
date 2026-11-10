@@ -97,6 +97,19 @@ export interface PlatformLead {
   created_at?: string;
 }
 
+export interface PlatformFeedback {
+  id: number;
+  type: 'suggestion' | 'bug' | string;
+  title: string;
+  message: string;
+  source?: string | null;
+  page_url?: string | null;
+  user_name?: string | null;
+  user_email?: string | null;
+  organization_name?: string | null;
+  created_at?: string;
+}
+
 export interface PlatformSubscription {
   id?: number;
   tenant_id: number;
@@ -130,6 +143,7 @@ export interface PlatformPlan {
   key: string;
   value: number;
   value_yearly?: number | null;
+  value_semiannual?: number | null;
   description?: string | null;
   sort_order?: number;
   is_active: boolean;
@@ -297,8 +311,19 @@ export class PlataformaService {
     return this.api.get<{ data: PlatformTenantDetail }>(`/platform/tenants/${id}`);
   }
 
+  deleteTenant(
+    id: number,
+    confirmName: string,
+  ): Observable<{ data: { message: string; deleted: Record<string, unknown> } }> {
+    return this.api.delete(`/platform/tenants/${id}`, { confirm_name: confirmName });
+  }
+
   getLeads(): Observable<{ data: PlatformLead[] }> {
     return this.api.get<{ data: PlatformLead[] }>('/platform/leads');
+  }
+
+  getFeedback(): Observable<{ data: PlatformFeedback[] }> {
+    return this.api.get<{ data: PlatformFeedback[] }>('/platform/feedback');
   }
 
   getSubscriptions(): Observable<{ data: PlatformSubscription[] }> {
@@ -369,6 +394,7 @@ export class PlataformaService {
     name: string;
     value: number;
     value_yearly?: number | null;
+    value_semiannual?: number | null;
     description?: string | null;
     sort_order?: number;
     is_active?: boolean;
@@ -382,6 +408,7 @@ export class PlataformaService {
       name: string;
       value: number;
       value_yearly?: number | null;
+      value_semiannual?: number | null;
       description?: string | null;
       sort_order?: number;
       is_active?: boolean;

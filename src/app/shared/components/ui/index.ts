@@ -1,4 +1,5 @@
 export { ZmPaginationComponent } from './zm-pagination.component';
+export { ZmNavigationHubComponent } from './zm-navigation-hub/zm-navigation-hub.component';
 /** @deprecated Prefira `g-empty` diretamente; este wrapper mantém a API `title` / `actionLink`. */
 export { ZmEmptyStateComponent } from './zm-empty-state.component';
 export { GestgoEmptyComponent } from '../empty';

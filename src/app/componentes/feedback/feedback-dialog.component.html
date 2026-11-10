@@ -1,0 +1,64 @@
+<div class="feedback-dialog">
+  <p class="feedback-dialog__hint">
+    Conte o que está pensando — sugestão de melhoria ou um problema que encontrou.
+  </p>
+
+  <div class="feedback-dialog__types" role="group" aria-label="Tipo de feedback">
+    <button
+      type="button"
+      class="feedback-dialog__type"
+      [class.is-active]="type === 'suggestion'"
+      (click)="selecionarTipo('suggestion')"
+    >
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">lightbulb</span>
+      Sugestão
+    </button>
+    <button
+      type="button"
+      class="feedback-dialog__type"
+      [class.is-active]="type === 'bug'"
+      (click)="selecionarTipo('bug')"
+    >
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">bug_report</span>
+      Problema / bug
+    </button>
+  </div>
+
+  <label class="feedback-dialog__field">
+    <span class="feedback-dialog__label">Título</span>
+    <input
+      class="feedback-dialog__input"
+      type="text"
+      maxlength="160"
+      [(ngModel)]="title"
+      placeholder="Resumo em poucas palavras"
+      [disabled]="enviando"
+    />
+  </label>
+
+  <label class="feedback-dialog__field">
+    <span class="feedback-dialog__label">Detalhes</span>
+    <textarea
+      class="feedback-dialog__textarea"
+      rows="5"
+      maxlength="4000"
+      [(ngModel)]="message"
+      placeholder="Descreva o contexto, o que esperava e o que aconteceu"
+      [disabled]="enviando"
+    ></textarea>
+  </label>
+
+  <div class="feedback-dialog__actions">
+    <nord-button type="button" variant="default" (click)="cancelar()" [attr.disabled]="enviando || null">
+      Cancelar
+    </nord-button>
+    <nord-button
+      type="button"
+      variant="primary"
+      (click)="enviar()"
+      [attr.disabled]="enviando || !title.trim() || !message.trim() || null"
+    >
+      {{ enviando ? 'Enviando…' : 'Enviar feedback' }}
+    </nord-button>
+  </div>
+</div>

@@ -160,6 +160,14 @@
               </nord-button>
               <nord-button
                 type="button"
+                [attr.variant]="cicloCobranca() === 'SEMIANNUALLY' ? 'primary' : 'default'"
+                [attr.aria-pressed]="cicloCobranca() === 'SEMIANNUALLY'"
+                (click)="selecionarCiclo('SEMIANNUALLY')"
+              >
+                Semestral
+              </nord-button>
+              <nord-button
+                type="button"
                 [attr.variant]="cicloCobranca() === 'YEARLY' ? 'primary' : 'default'"
                 [attr.aria-pressed]="cicloCobranca() === 'YEARLY'"
                 (click)="selecionarCiclo('YEARLY')"

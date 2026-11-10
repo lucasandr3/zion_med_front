@@ -1,14 +1,12 @@
 import { Component, computed, inject, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-
-
-
+import { RouterLink } from '@angular/router';
 import { AppUpdateService } from '../../../core/services/app-update.service';
 
 @Component({
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'zm-app-update-banner',
   standalone: true,
-  imports: [],
+  imports: [RouterLink],
   template: `
     @if (updates.updateReady() || updates.updateBlocked()) {
       <div class="zm-app-update-banner" role="alertdialog" aria-modal="true" aria-live="assertive">
@@ -18,9 +16,20 @@ import { AppUpdateService } from '../../../core/services/app-update.service';
             <div class="zm-app-update-banner__text">
               <p class="zm-app-update-banner__title">{{ title() }}</p>
               <p class="zm-app-update-banner__desc">{{ description() }}</p>
+              @if (!updates.updateBlocked()) {
+                <a routerLink="/novidades" class="zm-app-update-banner__link">Ver novidades</a>
+              }
             </div>
           </div>
-          <nord-button variant="primary" size="s" type="button" class="zm-app-update-banner__action gap-2" (click)="updates.applyUpdate()" [attr.loading]="updates.applying() || null" [attr.disabled]="updates.applying() || null">
+          <nord-button
+            variant="primary"
+            size="s"
+            type="button"
+            class="zm-app-update-banner__action gap-2"
+            (click)="updates.applyUpdate()"
+            [attr.loading]="updates.applying() || null"
+            [attr.disabled]="updates.applying() || null"
+          >
             {{ updates.applying() ? 'Atualizando…' : 'Atualizar agora' }}
           </nord-button>
         </div>
@@ -82,22 +91,42 @@ import { AppUpdateService } from '../../../core/services/app-update.service';
         opacity: 0.92;
       }
 
+      .zm-app-update-banner__link {
+        display: inline-block;
+        margin-top: 0.35rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: inherit;
+        text-decoration: underline;
+        text-underline-offset: 2px;
+        opacity: 0.95;
+      }
+
+      .zm-app-update-banner__link:hover {
+        opacity: 1;
+      }
+
       .zm-app-update-banner__action {
         flex-shrink: 0;
         font-weight: 600;
       }
-    `],
+    `,
+  ],
 })
 export class ZmAppUpdateBannerComponent {
   readonly updates = inject(AppUpdateService);
 
-  readonly title = computed(() =>
-    this.updates.updateBlocked() ? 'Atualização obrigatória' : 'Nova versão disponível',
-  );
+  readonly title = computed(() => {
+    if (this.updates.updateBlocked()) {
+      return 'Atualização obrigatória';
+    }
+    const version = this.updates.latestReleaseVersion();
+    return version ? `Nova versão disponível (${version})` : 'Nova versão disponível';
+  });
 
   readonly description = computed(() =>
     this.updates.updateBlocked()
       ? 'Não foi possível carregar a versão mais recente. Atualize agora para continuar usando o sistema.'
-      : 'Uma atualização do Gestgo está pronta. Clique em atualizar. A página será recarregada automaticamente.',
+      : 'Uma atualização do GestGo está pronta. Clique em atualizar — a página será recarregada automaticamente.',
   );
 }

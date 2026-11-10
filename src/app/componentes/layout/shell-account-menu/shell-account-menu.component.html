@@ -26,7 +26,7 @@
   @if (shellContext === 'app' && podeVerBillingNoHeader) {
     <nord-dropdown-item href="/assinatura" (click)="go($event, '/assinatura')">
       <span slot="start" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">credit_card</span>
-      Assinatura
+      Meu plano e cobrança
     </nord-dropdown-item>
   }
   @if (ehAdminPlataforma) {
@@ -38,6 +38,14 @@
   <nord-dropdown-item (click)="abrirTema()">
     <span slot="start" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">palette</span>
     Tema e aparência
+  </nord-dropdown-item>
+  <nord-dropdown-item (click)="abrirFeedback()">
+    <span slot="start" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">feedback</span>
+    Enviar feedback
+  </nord-dropdown-item>
+  <nord-dropdown-item (click)="verificarAtualizacao()" [attr.disabled]="verificandoAtualizacao || null">
+    <span slot="start" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">system_update</span>
+    {{ verificandoAtualizacao ? 'Verificando…' : 'Verificar atualização' }}
   </nord-dropdown-item>
 </nord-dropdown-group>
 

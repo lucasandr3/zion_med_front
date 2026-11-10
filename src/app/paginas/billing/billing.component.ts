@@ -76,9 +76,12 @@ export class BillingComponent implements OnInit {
             (s) => String(s.status).toLowerCase() === 'active' && s.asaas_subscription_id
           ) ?? null;
         this.assinaturaAtiva.set(ativa);
-        if (String(ativa?.cycle ?? '').toUpperCase() === 'YEARLY') {
+        const cycle = String(ativa?.cycle ?? '').toUpperCase();
+        if (cycle === 'YEARLY') {
           this.cicloCobranca.set('YEARLY');
-        } else if (String(ativa?.cycle ?? '').toUpperCase() === 'MONTHLY') {
+        } else if (cycle === 'SEMIANNUALLY' || cycle === 'SEMIANNUAL') {
+          this.cicloCobranca.set('SEMIANNUALLY');
+        } else if (cycle === 'MONTHLY') {
           this.cicloCobranca.set('MONTHLY');
         }
         const pendentePix = this.pagamentos.find((p) => this.pagamentoPendente(p) && this.temPix(p));
@@ -268,16 +271,20 @@ export class BillingComponent implements OnInit {
   }
 
   rotuloPeriodicidade(_plano?: PlanoComChave): string {
-    return this.cicloCobranca() === 'YEARLY' ? '/ano' : '/mês';
+    const ciclo = this.cicloCobranca();
+    if (ciclo === 'YEARLY') return '/ano';
+    if (ciclo === 'SEMIANNUALLY') return '/semestre';
+    return '/mês';
   }
 
   valorExibidoPlano(plano: PlanoComChave): number {
     if (this.cicloCobranca() === 'YEARLY') {
       const yearly = Number(plano.value_yearly);
-      if (Number.isFinite(yearly) && yearly > 0) {
-        return yearly;
-      }
-      return Math.round(Number(plano.value || 0) * 10 * 100) / 100;
+      return Number.isFinite(yearly) && yearly > 0 ? yearly : 0;
+    }
+    if (this.cicloCobranca() === 'SEMIANNUALLY') {
+      const semi = Number(plano.value_semiannual);
+      return Number.isFinite(semi) && semi > 0 ? semi : 0;
     }
     return Number(plano.value || 0);
   }
@@ -321,9 +328,14 @@ export class BillingComponent implements OnInit {
   }
 
   get dicaEconomiaAnual(): string {
-    return this.cicloCobranca() === 'YEARLY'
-      ? 'Anual à vista: 12 meses pelo preço de 10 (≈16% de economia).'
-      : 'Mensal: cobrança recorrente a cada mês.';
+    const ciclo = this.cicloCobranca();
+    if (ciclo === 'YEARLY') {
+      return 'Anual: cobrança antecipada referente a 12 meses (valor do plano).';
+    }
+    if (ciclo === 'SEMIANNUALLY') {
+      return 'Semestral: cobrança antecipada referente a 6 meses (valor do plano).';
+    }
+    return 'Mensal: cobrança recorrente a cada mês.';
   }
 
   pagamentoPendente(p: BillingPayment): boolean {
