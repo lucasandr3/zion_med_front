@@ -16,6 +16,7 @@ import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { AuthService } from '../../../core/services/auth.service';
 import { ClinicaService } from '../../../core/services/clinica.service';
+import { FeedbackDialogService } from '../../../core/services/feedback-dialog.service';
 
 type NordDropdownHost = HTMLElement & {
   open?: boolean;
@@ -57,6 +58,7 @@ export class ShellAccountMenuComponent implements OnInit, AfterViewInit, OnDestr
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly clinicaService = inject(ClinicaService);
+  private readonly feedbackDialog = inject(FeedbackDialogService);
   private readonly cdr = inject(ChangeDetectorRef);
 
   get podeVerBillingNoHeader(): boolean {
@@ -97,6 +99,10 @@ export class ShellAccountMenuComponent implements OnInit, AfterViewInit, OnDestr
 
   abrirTema(): void {
     this.openTheme.emit();
+  }
+
+  abrirFeedback(): void {
+    this.feedbackDialog.open('account_menu');
   }
 
   sair(): void {

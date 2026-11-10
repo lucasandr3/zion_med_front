@@ -78,7 +78,7 @@ export const SHELL_NAV_SIDEBAR: ShellNavSection[] = [
       { route: '/agenda', label: 'Agenda', icon: 'calendar_month', permission: 'organization.manage' },
       {
         route: '/documentos',
-        label: 'Documentos e envios',
+        label: 'Documentos',
         icon: 'folder_open',
         permissionsAny: ['templates.manage', 'submissions.view'],
         exact: true,
@@ -126,6 +126,13 @@ export const SHELL_NAV_SIDEBAR: ShellNavSection[] = [
           '/assinatura',
         ],
       },
+      {
+        route: '/clinica/escolher',
+        label: 'Trocar empresa',
+        icon: 'swap_horiz',
+        requiresSwitchClinic: true,
+        exact: true,
+      },
     ],
   },
 ];
@@ -143,6 +150,7 @@ export const SHELL_NAV_PLATAFORMA: ShellNavItem[] = [
   { route: '/plataforma/assinaturas', label: 'Assinaturas', icon: 'receipt_long' },
   { route: '/plataforma/faturas', label: 'Faturas', icon: 'payments' },
   { route: '/plataforma/emails', label: 'E-mails', icon: 'mail' },
+  { route: '/plataforma/feedback', label: 'Feedback', icon: 'feedback' },
   { route: '/plataforma/notificacoes', label: 'Notificações', icon: 'notifications', badge: 'notifications' },
   { route: '/plataforma/planos', label: 'Planos', icon: 'subscriptions' },
   { route: '/plataforma/configuracoes', label: 'Config.', icon: 'settings' },
@@ -197,6 +205,7 @@ export const SHELL_NAV_PLATAFORMA_SIDEBAR: ShellNavSection[] = [
         exact: true,
         activeAlsoPrefixes: [
           '/plataforma/emails',
+          '/plataforma/feedback',
           '/plataforma/notificacoes',
           '/plataforma/novidades',
         ],

@@ -1,0 +1,26 @@
+.feedback-type {
+  display: inline-block;
+  margin-right: 0.4rem;
+  padding: 0.1rem 0.45rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  vertical-align: middle;
+  background: color-mix(in srgb, var(--n-color-accent, var(--primary)) 14%, transparent);
+  color: var(--n-color-accent, var(--primary));
+}
+
+.feedback-type[data-type='bug'] {
+  background: color-mix(in srgb, var(--n-color-status-danger, #c62828) 14%, transparent);
+  color: var(--n-color-status-danger, #c62828);
+}
+
+.feedback-message {
+  margin: 0.45rem 0 0;
+  font-size: 0.875rem;
+  line-height: 1.45;
+  color: var(--n-color-text, var(--foreground));
+  white-space: pre-wrap;
+}

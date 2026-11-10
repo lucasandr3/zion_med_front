@@ -26,6 +26,7 @@ export class ZmNavigationHubComponent {
   private auth = inject(AuthService);
 
   get visibleCards(): NavigationHubCard[] {
+    // requiresMultiEmpresa já é resolvido em HubPage (cards filtrados na config).
     return (this.config?.cards ?? []).filter((card) => this.cardAllowed(card));
   }
 
@@ -42,9 +43,8 @@ export class ZmNavigationHubComponent {
   }
 
   kpiDisplayValue(kpi: NavigationHubKpi): string {
-    if (this.kpisLoading) return '—';
     const raw = this.kpiValues?.[kpi.id];
-    if (raw == null || Number.isNaN(Number(raw))) return '—';
+    if (raw == null || Number.isNaN(Number(raw))) return '0';
     return String(Math.max(0, Math.trunc(Number(raw)))).padStart(2, '0');
   }
 

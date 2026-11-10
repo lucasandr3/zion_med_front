@@ -158,7 +158,15 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
   readonly retencaoPreview = signal<{ enabled: boolean; eligible_count: number; already_anonymized_count: number; cutoff_date: string | null } | null>(null);
   readonly carregandoRetencaoPreview = signal(false);
 
-  private readonly configTabIds = ['dados', 'identidade', 'visual', 'whatsapp', 'empresas', 'logs'] as const;
+  private readonly configTabIds = [
+    'dados',
+    'identidade',
+    'formularios',
+    'visual',
+    'whatsapp',
+    'empresas',
+    'logs',
+  ] as const;
 
   @ViewChild('configTabGroup') configTabGroup?: GestgoTabGroupComponent;
 

@@ -184,3 +184,65 @@
   height: 34px;
   object-fit: contain;
 }
+
+.docs-api-base {
+  align-items: center;
+  background: color-mix(in srgb, var(--muted, #eef2f2) 70%, transparent);
+  border: 1px solid var(--border);
+  border-radius: 0.65rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.75rem;
+  padding: 0.55rem 0.75rem;
+}
+
+.docs-api-base__label {
+  color: var(--muted-foreground);
+  font-size: 0.7rem;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.docs-api-base__value {
+  flex: 1 1 12rem;
+  font-size: 0.8rem;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.docs-action-link {
+  align-items: center;
+  background: var(--card, #fff);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  color: inherit;
+  display: inline-flex;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  gap: 0.35rem;
+  padding: 0.4rem 0.75rem;
+  text-decoration: none;
+}
+
+.docs-action-link:hover {
+  border-color: color-mix(in srgb, var(--primary, #0f766e) 35%, var(--border));
+}
+
+.docs-action-link--muted {
+  color: var(--muted-foreground);
+}
+
+.docs-action-link--primary {
+  background: var(--primary, var(--n-color-accent, #0f766e));
+  border-color: var(--primary, var(--n-color-accent, #0f766e));
+  color: var(--primary-foreground, #fff);
+}
+
+.docs-action-link--primary:hover {
+  background: color-mix(in srgb, var(--primary, var(--n-color-accent, #0f766e)) 88%, #000);
+  border-color: color-mix(in srgb, var(--primary, var(--n-color-accent, #0f766e)) 88%, #000);
+  color: var(--primary-foreground, #fff);
+}

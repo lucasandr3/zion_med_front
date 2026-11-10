@@ -1,0 +1,21 @@
+.sistema-help-steps li {
+  color: var(--muted-foreground);
+}
+
+.sistema-page {
+  width: 100%;
+  max-width: none;
+  color: var(--foreground);
+}
+
+.sistema-shell {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.sistema-config {
+  box-sizing: border-box;
+  width: 100%;
+  padding-bottom: 2rem;
+}

@@ -1,0 +1,133 @@
+<div class="sistema-page relative">
+  <div class="n-form-toolbar">
+    <div class="n-form-toolbar__start">
+      <zm-page-back-link />
+    </div>
+  </div>
+
+  @if (carregando) {
+    <p class="text-sm text-muted-foreground">Carregando…</p>
+  } @else if (erro) {
+    <p class="text-sm text-destructive">{{ erro }}</p>
+  } @else {
+    <div class="sistema-shell zm-content-enter">
+      <div class="clinica-config sistema-config">
+        <g-card class="section-card mb-4 gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
+          <div class="section-header">
+            <div class="icon-wrap"><span class="material-symbols-outlined">computer</span></div>
+            <span class="section-title">Status da integração</span>
+            <g-badge [zType]="statusBadgeType(status)" zShape="pill" class="ml-auto shrink-0">
+              {{ statusLabel(status) }}
+            </g-badge>
+          </div>
+          <div class="section-body">
+            <p class="hint">{{ vendor.authHint }}</p>
+            @if (lastCheckAt) {
+              <p class="mt-2 text-sm text-muted-foreground">
+                Última verificação: {{ lastCheckAt | date:'dd/MM/yyyy HH:mm' }}
+              </p>
+            }
+            @if (lastError) {
+              <p class="mt-2 text-sm text-destructive">{{ lastError }}</p>
+            }
+          </div>
+        </g-card>
+
+        <g-card class="section-card mb-4 gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
+          <div class="section-header">
+            <div class="icon-wrap"><span class="material-symbols-outlined">help</span></div>
+            <span class="section-title">Como conectar o {{ vendor.name }}</span>
+          </div>
+          <div class="section-body">
+            <ol class="sistema-help-steps m-0 pl-5 text-sm text-muted-foreground space-y-2">
+              @for (step of vendor.helpSteps; track step) {
+                <li>{{ step }}</li>
+              }
+            </ol>
+            <p class="hint mt-4 mb-0">
+              Docs:
+              <a [href]="vendor.docsUrl" target="_blank" rel="noopener noreferrer" class="text-brand underline-offset-2 hover:underline">
+                documentação oficial {{ vendor.name }}
+              </a>
+            </p>
+          </div>
+        </g-card>
+
+        <g-card class="section-card gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
+          <div class="section-header">
+            <div class="icon-wrap"><span class="material-symbols-outlined">settings</span></div>
+            <span class="section-title">Configuração {{ vendor.name }}</span>
+          </div>
+          <div class="section-body">
+            <div class="field">
+              <nord-toggle [(ngModel)]="form.enabled" name="vendor_enabled">Ativar integração {{ vendor.name }}</nord-toggle>
+            </div>
+
+            <div class="field">
+              <label>Base URL</label>
+              <input type="url" class="w-full" [(ngModel)]="form.base_url" name="vendor_base_url" [placeholder]="vendor.defaultBaseUrl" />
+            </div>
+
+            @if (vendor.key === 'trinks') {
+              <div class="field">
+                <label>API Key (X-Api-Key)</label>
+                <input type="password" class="w-full" [(ngModel)]="form.token" name="trinks_token" placeholder="Cole uma nova chave para atualizar" />
+                <p class="hint">{{ hasToken ? 'Chave já configurada. Preencha só se quiser trocar.' : 'Nenhuma chave salva ainda.' }}</p>
+              </div>
+              <div class="field">
+                <label>ID do estabelecimento (opcional)</label>
+                <input type="text" class="w-full" [(ngModel)]="form.estabelecimento_id" name="trinks_estabelecimento_id" placeholder="Ex.: 12345" />
+              </div>
+            }
+
+            @if (vendor.key === 'clinicorp') {
+              <div class="field">
+                <label>Usuário API</label>
+                <input type="text" class="w-full" [(ngModel)]="form.api_user" name="clinicorp_api_user" placeholder="Usuário API" />
+              </div>
+              <div class="field">
+                <label>Token API</label>
+                <input type="password" class="w-full" [(ngModel)]="form.token" name="clinicorp_token" placeholder="Cole um novo token para atualizar" />
+                <p class="hint">{{ hasToken ? 'Token já configurado. Preencha só se quiser trocar.' : 'Nenhum token salvo ainda.' }}</p>
+              </div>
+              <div class="field">
+                <label>Subscriber ID</label>
+                <input type="text" class="w-full" [(ngModel)]="form.subscriber_id" name="clinicorp_subscriber_id" placeholder="ID do assinante" />
+              </div>
+            }
+
+            @if (vendor.key === 'ninsaude') {
+              <div class="field">
+                <label>Refresh token (preferencial)</label>
+                <input type="password" class="w-full" [(ngModel)]="form.refresh_token" name="ninsaude_refresh_token" placeholder="Cole um novo refresh token para atualizar" />
+                <p class="hint">{{ hasRefreshToken ? 'Refresh token já configurado.' : 'Opcional se usar conta/usuário/senha.' }}</p>
+              </div>
+              <div class="field">
+                <label>Conta</label>
+                <input type="text" class="w-full" [(ngModel)]="form.account" name="ninsaude_account" placeholder="Conta Ninsaúde" />
+              </div>
+              <div class="field">
+                <label>Usuário</label>
+                <input type="text" class="w-full" [(ngModel)]="form.username" name="ninsaude_username" placeholder="Usuário" />
+              </div>
+              <div class="field">
+                <label>Senha</label>
+                <input type="password" class="w-full" [(ngModel)]="form.password" name="ninsaude_password" placeholder="Cole uma nova senha para atualizar" />
+                <p class="hint">{{ hasPassword ? 'Senha já configurada. Preencha só se quiser trocar.' : 'Usado no login se não houver refresh token.' }}</p>
+              </div>
+            }
+
+            <div class="flex flex-wrap gap-3">
+              <nord-button type="button" size="s" class="inline-flex items-center gap-2" (click)="salvar()" [attr.disabled]="salvando">
+                {{ salvando ? 'Salvando…' : 'Salvar configuração' }}
+              </nord-button>
+              <nord-button type="button" variant="default" size="s" class="inline-flex items-center gap-2" (click)="testarConexao()" [attr.disabled]="testando">
+                {{ testando ? 'Testando…' : 'Testar conexão' }}
+              </nord-button>
+            </div>
+          </div>
+        </g-card>
+      </div>
+    </div>
+  }
+</div>

@@ -1,7 +1,9 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  ElementRef,
   OnDestroy,
+  ViewChild,
   computed,
   inject,
   signal,
@@ -66,6 +68,8 @@ const MAX_BYTES = 10 * 1024 * 1024;
   styleUrl: './templates-importar.component.css',
 })
 export class TemplatesImportarComponent implements OnDestroy {
+  @ViewChild('fileInput') private fileInput?: ElementRef<HTMLInputElement>;
+
   private imports = inject(FormImportService);
   private toast = inject(ToastService);
   private router = inject(Router);
@@ -235,6 +239,10 @@ export class TemplatesImportarComponent implements OnDestroy {
     this.step.set(3);
   }
 
+  openFilePicker(): void {
+    this.fileInput?.nativeElement?.click();
+  }
+
   onDragOver(ev: DragEvent): void {
     ev.preventDefault();
     this.dragOver.set(true);
@@ -248,10 +256,6 @@ export class TemplatesImportarComponent implements OnDestroy {
   onDrop(ev: DragEvent): void {
     ev.preventDefault();
     this.dragOver.set(false);
-    if (!this.consentBlankAck()) {
-      this.erro.set('Confirme que o arquivo é uma ficha em branco, sem dados de paciente.');
-      return;
-    }
     const list = Array.from(ev.dataTransfer?.files ?? []);
     this.addFiles(list);
   }
@@ -260,10 +264,6 @@ export class TemplatesImportarComponent implements OnDestroy {
     const input = ev.target as HTMLInputElement;
     const list = Array.from(input.files ?? []);
     input.value = '';
-    if (!this.consentBlankAck()) {
-      this.erro.set('Confirme que o arquivo é uma ficha em branco, sem dados de paciente.');
-      return;
-    }
     this.addFiles(list);
   }
 

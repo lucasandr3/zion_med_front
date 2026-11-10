@@ -97,6 +97,19 @@ export interface PlatformLead {
   created_at?: string;
 }
 
+export interface PlatformFeedback {
+  id: number;
+  type: 'suggestion' | 'bug' | string;
+  title: string;
+  message: string;
+  source?: string | null;
+  page_url?: string | null;
+  user_name?: string | null;
+  user_email?: string | null;
+  organization_name?: string | null;
+  created_at?: string;
+}
+
 export interface PlatformSubscription {
   id?: number;
   tenant_id: number;
@@ -307,6 +320,10 @@ export class PlataformaService {
 
   getLeads(): Observable<{ data: PlatformLead[] }> {
     return this.api.get<{ data: PlatformLead[] }>('/platform/leads');
+  }
+
+  getFeedback(): Observable<{ data: PlatformFeedback[] }> {
+    return this.api.get<{ data: PlatformFeedback[] }>('/platform/feedback');
   }
 
   getSubscriptions(): Observable<{ data: PlatformSubscription[] }> {
