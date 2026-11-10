@@ -46,7 +46,7 @@
     </div>
   }
 
-  @if (config.sectionTitle || visibleCards.length > 0) {
+  @if (config.sectionTitle || config.sectionSubtitle) {
     <div class="nav-hub__section-head">
       <div>
         @if (config.sectionTitle) {
@@ -56,9 +56,6 @@
           <p class="nav-hub__section-subtitle">{{ config.sectionSubtitle }}</p>
         }
       </div>
-      @if (visibleCards.length > 0) {
-        <span class="nav-hub__pill">{{ visibleCards.length }} {{ visibleCards.length === 1 ? 'ação' : 'ações' }}</span>
-      }
     </div>
   }
 
