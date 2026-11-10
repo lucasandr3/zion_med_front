@@ -14,9 +14,11 @@ import {
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { AppUpdateService } from '../../../core/services/app-update.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { ClinicaService } from '../../../core/services/clinica.service';
 import { FeedbackDialogService } from '../../../core/services/feedback-dialog.service';
+import { ToastService } from '../../../core/services/toast.service';
 
 type NordDropdownHost = HTMLElement & {
   open?: boolean;
@@ -50,6 +52,7 @@ export class ShellAccountMenuComponent implements OnInit, AfterViewInit, OnDestr
   nomeEmpresa = '';
   exibirTrocarEmpresa = false;
   ehAdminPlataforma = false;
+  verificandoAtualizacao = false;
 
   private clinicaSub?: Subscription;
   private toggleClickCleanup?: () => void;
@@ -59,6 +62,8 @@ export class ShellAccountMenuComponent implements OnInit, AfterViewInit, OnDestr
   private readonly router = inject(Router);
   private readonly clinicaService = inject(ClinicaService);
   private readonly feedbackDialog = inject(FeedbackDialogService);
+  private readonly appUpdate = inject(AppUpdateService);
+  private readonly toast = inject(ToastService);
   private readonly cdr = inject(ChangeDetectorRef);
 
   get podeVerBillingNoHeader(): boolean {
@@ -103,6 +108,36 @@ export class ShellAccountMenuComponent implements OnInit, AfterViewInit, OnDestr
 
   abrirFeedback(): void {
     this.feedbackDialog.open('account_menu');
+  }
+
+  verificarAtualizacao(): void {
+    if (this.verificandoAtualizacao) return;
+    this.verificandoAtualizacao = true;
+    this.cdr.markForCheck();
+    void this.host.nativeElement.hide?.(false);
+
+    void this.appUpdate.checkNow().then((result) => {
+      this.verificandoAtualizacao = false;
+      this.cdr.markForCheck();
+
+      switch (result) {
+        case 'ready':
+          this.toast.success('Atualização pronta', 'Clique em Atualizar agora no banner do topo.');
+          break;
+        case 'none':
+          this.toast.info('Você já está na versão mais recente', 'Nenhuma atualização pendente.');
+          break;
+        case 'unavailable':
+          this.toast.info(
+            'Verificação indisponível aqui',
+            'A atualização automática funciona na versão publicada do sistema.',
+          );
+          break;
+        default:
+          this.toast.warning('Não foi possível verificar', 'Tente novamente em alguns instantes.');
+          break;
+      }
+    });
   }
 
   sair(): void {

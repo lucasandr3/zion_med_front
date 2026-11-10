@@ -3,9 +3,11 @@ import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
+import { AppUpdateService } from '../../core/services/app-update.service';
 import { AuthService, User } from '../../core/services/auth.service';
 import { ContaPerfilService } from '../../core/services/conta-perfil.service';
 import { ConfirmDialogService } from '../../core/services/confirm-dialog.service';
+import { NovidadesService } from '../../core/services/novidades.service';
 import { ToastService } from '../../core/services/toast.service';
 import { LoadingService } from '../../shared/services/loading.service';
 import { ZmSkeletonContaPerfilComponent } from '../../shared/components/skeletons';
@@ -74,9 +76,13 @@ export class ContaPerfilComponent implements OnInit {
   private loadingService = inject(LoadingService);
   private router = inject(Router);
   private destroyRef = inject(DestroyRef);
+  private appUpdate = inject(AppUpdateService);
+  private novidades = inject(NovidadesService);
 
   showSkeleton!: Signal<boolean>;
   listaPronta = false;
+  readonly verificandoAtualizacao = signal(false);
+  readonly versaoNovidades = signal<string | null>(null);
 
   readonly previewUrlServidor = signal<string | null>(null);
   readonly opcoesFontes: GestgoComboboxOption[] = FONTES_ASSINATURA.map((f) => ({
@@ -128,6 +134,11 @@ export class ContaPerfilComponent implements OnInit {
   exportandoDados = false;
 
   ngOnInit(): void {
+    this.novidades.latest().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (latest) => this.versaoNovidades.set(latest.latest_version?.trim() || null),
+      error: () => this.versaoNovidades.set(null),
+    });
+
     const { data$, showSkeleton } = this.loadingService.loadWithThreshold(this.auth.me());
     this.showSkeleton = showSkeleton;
     data$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
@@ -143,6 +154,31 @@ export class ContaPerfilComponent implements OnInit {
         this.prefillNomeAssinaturaSeVazio();
         this.scheduleInitAssinatura();
       },
+    });
+  }
+
+  verificarAtualizacao(): void {
+    if (this.verificandoAtualizacao()) return;
+    this.verificandoAtualizacao.set(true);
+    void this.appUpdate.checkNow().then((result) => {
+      this.verificandoAtualizacao.set(false);
+      switch (result) {
+        case 'ready':
+          this.toast.success('Atualização pronta', 'Clique em Atualizar agora no banner do topo.');
+          break;
+        case 'none':
+          this.toast.info('Você já está na versão mais recente', 'Nenhuma atualização pendente.');
+          break;
+        case 'unavailable':
+          this.toast.info(
+            'Verificação indisponível aqui',
+            'A atualização automática funciona na versão publicada do sistema.',
+          );
+          break;
+        default:
+          this.toast.warning('Não foi possível verificar', 'Tente novamente em alguns instantes.');
+          break;
+      }
     });
   }
 
