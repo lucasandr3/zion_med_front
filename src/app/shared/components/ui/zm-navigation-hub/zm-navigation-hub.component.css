@@ -67,14 +67,33 @@ a.nav-hub__kpi:focus-visible {
 }
 
 .nav-hub__kpi-value {
+  align-items: center;
   color: var(--foreground);
-  display: block;
+  display: inline-flex;
   font-size: 1.7rem;
   font-variant-numeric: tabular-nums;
   font-weight: 700;
   letter-spacing: -0.04em;
   line-height: 1.15;
   margin: 0.35rem 0 0.1rem;
+  min-height: 1.15em;
+}
+
+.nav-hub__kpi-spinner {
+  animation: nav-hub-spin 0.7s linear infinite;
+  border: 2px solid color-mix(in oklch, #0f766e 22%, transparent);
+  border-radius: 999px;
+  border-top-color: #0f766e;
+  display: inline-block;
+  flex-shrink: 0;
+  height: 1.15rem;
+  width: 1.15rem;
+}
+
+@keyframes nav-hub-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .nav-hub__kpi small {

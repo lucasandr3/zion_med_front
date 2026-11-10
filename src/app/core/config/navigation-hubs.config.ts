@@ -8,6 +8,10 @@ export interface NavigationHubCard {
   permission?: string;
   /** Exibe se tiver ao menos uma das permissões. */
   permissionsAny?: string[];
+  /** Exibe só quando a conta pode gerenciar multiempresa (plano Enterprise). */
+  requiresMultiEmpresa?: boolean;
+  /** Exibe só quando o usuário pode alternar entre empresas. */
+  requiresSwitchClinic?: boolean;
 }
 
 export interface NavigationHubKpi {
@@ -39,33 +43,18 @@ export interface NavigationHubConfig {
 
 export const HUB_DOCUMENTOS: NavigationHubConfig = {
   id: 'documentos',
-  title: 'Documentos e envios',
-  subtitle: 'Todas as formas de criar, enviar e acompanhar sua documentação.',
+  title: 'Documentos',
+  subtitle: 'Crie, organize e acompanhe a documentação da sua empresa.',
   sectionTitle: 'O que você deseja fazer?',
   sectionSubtitle: 'Escolha uma ação ou acesse a área correspondente.',
-  primaryCta: {
-    label: 'Novo envio',
-    route: '/envios?novo=1',
-    icon: 'add',
-    permissionsAny: ['templates.manage', 'submissions.view'],
-  },
+  // Temporário: envios ocultos
+  // primaryCta: {
+  //   label: 'Novo envio',
+  //   route: '/envios?novo=1',
+  //   icon: 'add',
+  //   permissionsAny: ['templates.manage', 'submissions.view'],
+  // },
   kpis: [
-    {
-      id: 'aguardando',
-      label: 'Aguardando preenchimento',
-      icon: 'send',
-      hint: 'Envios pendentes',
-      route: '/envios',
-      permissionsAny: ['templates.manage', 'submissions.view'],
-    },
-    {
-      id: 'concluidos',
-      label: 'Documentos concluídos',
-      icon: 'assignment_turned_in',
-      hint: 'Assinados',
-      route: '/envios',
-      permissionsAny: ['templates.manage', 'submissions.view'],
-    },
     {
       id: 'modelos',
       label: 'Modelos disponíveis',
@@ -74,24 +63,40 @@ export const HUB_DOCUMENTOS: NavigationHubConfig = {
       route: '/templates',
       permission: 'templates.manage',
     },
+    {
+      id: 'protocolos',
+      label: 'Protocolos recebidos',
+      icon: 'article_person',
+      hint: 'Fichas respondidas',
+      route: '/protocolos',
+      permission: 'submissions.view',
+    },
+    {
+      id: 'formularios',
+      label: 'Formulários públicos',
+      icon: 'list_alt',
+      hint: 'Links ativos',
+      route: '/links-publicos',
+      permissionsAny: ['templates.manage', 'submissions.view'],
+    },
   ],
   cards: [
-    {
-      id: 'novo',
-      title: 'Novo envio',
-      description: 'Escolha uma ficha e compartilhe o link de preenchimento com a pessoa.',
-      icon: 'send',
-      route: '/envios?novo=1',
-      permissionsAny: ['templates.manage', 'submissions.view'],
-    },
-    {
-      id: 'envios',
-      title: 'Envios realizados',
-      description: 'Veja o que foi enviado, o que está pendente e o que foi concluído.',
-      icon: 'send',
-      route: '/envios',
-      permissionsAny: ['templates.manage', 'submissions.view'],
-    },
+    // {
+    //   id: 'novo',
+    //   title: 'Novo envio',
+    //   description: 'Escolha uma ficha e compartilhe o link de preenchimento com a pessoa.',
+    //   icon: 'send',
+    //   route: '/envios?novo=1',
+    //   permissionsAny: ['templates.manage', 'submissions.view'],
+    // },
+    // {
+    //   id: 'envios',
+    //   title: 'Envios realizados',
+    //   description: 'Veja o que foi enviado, o que está pendente e o que foi concluído.',
+    //   icon: 'send',
+    //   route: '/envios',
+    //   permissionsAny: ['templates.manage', 'submissions.view'],
+    // },
     {
       id: 'protocolos',
       title: 'Protocolos',
@@ -141,6 +146,15 @@ export const HUB_CONFIGURACOES: NavigationHubConfig = {
       icon: 'emoji_transportation',
       route: '/clinica/configuracoes',
       permission: 'organization.manage',
+    },
+    {
+      id: 'empresas',
+      title: 'Empresas do grupo',
+      description: 'Gerencie filiais do grupo e cadastre novas empresas da conta.',
+      icon: 'business_center',
+      route: '/clinica/configuracoes?tab=empresas',
+      permission: 'organization.manage',
+      requiresMultiEmpresa: true,
     },
     {
       id: 'usuarios',
@@ -237,7 +251,7 @@ export const HUB_PLATAFORMA_FINANCEIRO: NavigationHubConfig = {
 export const HUB_PLATAFORMA_COMUNICACAO: NavigationHubConfig = {
   id: 'plataforma-comunicacao',
   title: 'Comunicação',
-  subtitle: 'E-mails, notificações e novidades do produto.',
+  subtitle: 'E-mails, notificações, feedback e novidades do produto.',
   cards: [
     {
       id: 'emails',
@@ -245,6 +259,13 @@ export const HUB_PLATAFORMA_COMUNICACAO: NavigationHubConfig = {
       description: 'Envie mensagens manuais de contato, cobrança ou aviso.',
       icon: 'mail',
       route: '/plataforma/emails',
+    },
+    {
+      id: 'feedback',
+      title: 'Feedback',
+      description: 'Consulte sugestões e problemas enviados pelos usuários.',
+      icon: 'feedback',
+      route: '/plataforma/feedback',
     },
     {
       id: 'notificacoes',

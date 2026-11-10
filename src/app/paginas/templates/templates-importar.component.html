@@ -65,9 +65,15 @@
           <h2 class="import-section-title">Envie sua ficha atual</h2>
           <span class="import-chip">Etapa 1 de 4</span>
         </div>
-        <label
+
+        <div
           class="import-dropzone"
           [class.import-dropzone--over]="dragOver()"
+          role="button"
+          tabindex="0"
+          (click)="openFilePicker()"
+          (keydown.enter)="openFilePicker()"
+          (keydown.space)="$event.preventDefault(); openFilePicker()"
           (dragover)="onDragOver($event)"
           (dragleave)="onDragLeave($event)"
           (drop)="onDrop($event)"
@@ -75,16 +81,19 @@
           <span class="import-dropzone__icon material-symbols-outlined" aria-hidden="true">upload_file</span>
           <h3>Arraste os arquivos aqui</h3>
           <p>PDF único, ou várias fotos (JPG/PNG) das páginas da mesma ficha em branco.</p>
-          <span class="import-dropzone__btn">Selecionar arquivos</span>
+          <button type="button" class="import-dropzone__btn" (click)="$event.stopPropagation(); openFilePicker()">
+            Selecionar arquivos
+          </button>
           <small>PDF, JPG, PNG ou TXT · até {{ maxFiles }} fotos · 10 MB cada</small>
           <input
+            #fileInput
             type="file"
+            class="import-file-input"
             multiple
             accept=".pdf,.jpg,.jpeg,.png,.txt,application/pdf,image/*"
             (change)="onFileSelected($event)"
-            [disabled]="!consentBlankAck()"
           />
-        </label>
+        </div>
 
         @if (pendingFiles().length) {
           <div class="import-file-list">
@@ -104,26 +113,58 @@
                 </li>
               }
             </ul>
-            <div class="import-footer">
-              <p class="text-xs text-muted-foreground m-0">
-                @if (pendingFiles().length > 1) {
-                  Ordem = páginas da ficha (1, 2, 3…).
-                } @else {
-                  Pronto para enviar.
-                }
-              </p>
-              <nord-button
-                type="button"
-                size="s"
-                variant="primary"
-                (click)="startUploadFromPending()"
-                [attr.disabled]="!canStartUpload() || null"
-              >
-                Importar {{ pendingFiles().length }} arquivo{{ pendingFiles().length > 1 ? 's' : '' }}
-              </nord-button>
-            </div>
+            @if (pendingFiles().length > 1) {
+              <p class="text-xs text-muted-foreground m-0 mt-2">Ordem = páginas da ficha (1, 2, 3…).</p>
+            }
           </div>
         }
+
+        <div class="import-consent-box">
+          <label class="import-consent">
+            <input
+              type="checkbox"
+              [checked]="consentBlankAck()"
+              (change)="consentBlankAck.set($any($event.target).checked)"
+            />
+            <span>
+              Confirmo que o(s) arquivo(s) é(são) uma <strong>ficha em branco</strong>, sem dados pessoais ou clínicos de pacientes.
+              A fonte será descartada após o prazo de retenção (padrão 30 dias).
+            </span>
+          </label>
+          @if (importItem()?.retention_days) {
+            <p class="text-xs text-muted-foreground m-0">
+              Retenção desta importação: {{ importItem()?.retention_days }} dias
+              @if (importItem()?.source_purge_after) {
+                (fonte elegível para exclusão após {{ importItem()?.source_purge_after }}).
+              }
+            </p>
+          }
+        </div>
+
+        <div class="import-footer import-footer--cta">
+          <p class="import-footer__hint">
+            @if (!pendingFiles().length) {
+              Selecione os arquivos para continuar.
+            } @else if (!consentBlankAck()) {
+              Marque a confirmação acima para liberar a importação.
+            } @else {
+              Pronto para enviar.
+            }
+          </p>
+          <nord-button
+            type="button"
+            size="m"
+            variant="primary"
+            (click)="startUploadFromPending()"
+            [attr.disabled]="!canStartUpload() || null"
+          >
+            @if (pendingFiles().length) {
+              Confirmar e importar {{ pendingFiles().length }} arquivo{{ pendingFiles().length > 1 ? 's' : '' }}
+            } @else {
+              Confirmar e importar
+            }
+          </nord-button>
+        </div>
       </g-card>
 
       <aside class="import-side">
@@ -151,21 +192,6 @@
             <p>Evite enviar dados de paciente. O arquivo é usado apenas para extrair a estrutura dos campos.</p>
           </div>
         </div>
-        <label class="import-consent mt-3 flex items-start gap-2 text-sm">
-          <input type="checkbox" [checked]="consentBlankAck()" (change)="consentBlankAck.set($any($event.target).checked)" />
-          <span>
-            Confirmo que o(s) arquivo(s) é(são) uma <strong>ficha em branco</strong>, sem dados pessoais ou clínicos de pacientes.
-            A fonte será descartada automaticamente após o prazo de retenção da plataforma (padrão 30 dias).
-          </span>
-        </label>
-        @if (importItem()?.retention_days) {
-          <p class="text-xs text-muted-foreground mt-2 m-0">
-            Retenção desta importação: {{ importItem()?.retention_days }} dias
-            @if (importItem()?.source_purge_after) {
-              (fonte elegível para exclusão após {{ importItem()?.source_purge_after }}).
-            }
-          </p>
-        }
       </aside>
     </div>
   }

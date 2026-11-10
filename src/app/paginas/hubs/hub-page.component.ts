@@ -11,10 +11,13 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { catchError, forkJoin, of } from 'rxjs';
 import {
   NAVIGATION_HUBS,
+  NavigationHubCard,
   NavigationHubConfig,
 } from '../../core/config/navigation-hubs.config';
 import { AuthService } from '../../core/services/auth.service';
-import { DocumentSendsService } from '../../core/services/document-sends.service';
+import { ClinicaService } from '../../core/services/clinica.service';
+import { LinksPublicosService } from '../../core/services/links-publicos.service';
+import { ProtocolosService } from '../../core/services/protocolos.service';
 import { TemplatesService } from '../../core/services/templates.service';
 import {
   NavigationHubKpiValues,
@@ -60,8 +63,10 @@ export class HubPageComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private auth = inject(AuthService);
-  private documentSends = inject(DocumentSendsService);
+  private clinica = inject(ClinicaService);
   private templates = inject(TemplatesService);
+  private protocolos = inject(ProtocolosService);
+  private linksPublicos = inject(LinksPublicosService);
 
   readonly config = signal<NavigationHubConfig | null>(null);
   readonly kpiValues = signal<NavigationHubKpiValues>({});
@@ -81,18 +86,56 @@ export class HubPageComponent implements OnInit {
       return;
     }
 
-    const visible = hub.cards.filter((card) => this.allowed(card));
-
-    // Solo com 1 card no hub de configurações: ir direto.
-    if (hubId === 'configuracoes' && visible.length === 1) {
-      void this.router.navigateByUrl(visible[0]!.route.split('?')[0]!);
+    if (hubId === 'configuracoes') {
+      const canSwitch = this.auth.canSwitchClinic();
+      if (this.auth.hasPermission('organization.manage')) {
+        this.clinica.getConfiguracoesPage().subscribe({
+          next: (data) =>
+            this.applyHub(hubId, hub, {
+              canMultiEmpresa: !!data.can_add_multi_empresa,
+              canSwitchClinic: canSwitch,
+            }),
+          error: () =>
+            this.applyHub(hubId, hub, { canMultiEmpresa: false, canSwitchClinic: canSwitch }),
+        });
+        return;
+      }
+      this.applyHub(hubId, hub, { canMultiEmpresa: false, canSwitchClinic: canSwitch });
       return;
     }
 
-    this.config.set(hub);
+    this.applyHub(hubId, hub, { canMultiEmpresa: false, canSwitchClinic: false });
+  }
+
+  private applyHub(
+    hubId: string,
+    hub: NavigationHubConfig,
+    opts: { canMultiEmpresa: boolean; canSwitchClinic: boolean },
+  ): void {
+    const cards = hub.cards.filter((card) => this.cardVisible(card, opts));
+
+    // Solo com 1 card no hub de configurações: ir direto.
+    if (hubId === 'configuracoes' && cards.length === 1) {
+      const only = cards[0]!;
+      void this.router.navigate([this.routePath(only.route)], {
+        queryParams: this.routeQueryParams(only.route),
+      });
+      return;
+    }
+
+    this.config.set({ ...hub, cards });
     if (hubId === 'documentos' && (hub.kpis?.length ?? 0) > 0) {
       this.carregarKpisDocumentos();
     }
+  }
+
+  private cardVisible(
+    card: NavigationHubCard,
+    opts: { canMultiEmpresa: boolean; canSwitchClinic: boolean },
+  ): boolean {
+    if (card.requiresMultiEmpresa && !opts.canMultiEmpresa) return false;
+    if (card.requiresSwitchClinic && !opts.canSwitchClinic) return false;
+    return this.allowed(card);
   }
 
   routePath(route: string): string {
@@ -121,37 +164,38 @@ export class HubPageComponent implements OnInit {
   private carregarKpisDocumentos(): void {
     this.kpisLoading.set(true);
 
-    const podeEnvios =
-      this.auth.hasPermission('templates.manage') || this.auth.hasPermission('submissions.view');
     const podeModelos = this.auth.hasPermission('templates.manage');
-
-    const pendentes$ = podeEnvios
-      ? this.documentSends.list({ caixa: 'pendentes', per_page: 1, page: 1 }).pipe(
-          catchError(() => of({ meta: { total: null as number | null } })),
-        )
-      : of({ meta: { total: null as number | null } });
-
-    const assinados$ = podeEnvios
-      ? this.documentSends.list({ caixa: 'assinados', per_page: 1, page: 1 }).pipe(
-          catchError(() => of({ meta: { total: null as number | null } })),
-        )
-      : of({ meta: { total: null as number | null } });
+    const podeProtocolos = this.auth.hasPermission('submissions.view');
+    const podeFormularios =
+      this.auth.hasPermission('templates.manage') || this.auth.hasPermission('submissions.view');
 
     const modelos$ = podeModelos
       ? this.templates.list().pipe(catchError(() => of(null)))
       : of(null);
 
-    forkJoin({ pendentes: pendentes$, assinados: assinados$, modelos: modelos$ }).subscribe({
-      next: ({ pendentes, assinados, modelos }) => {
+    const protocolos$ = podeProtocolos
+      ? this.protocolos.list({ per_page: 1, page: 1 }).pipe(
+          catchError(() => of({ meta: { total: null as number | null } })),
+        )
+      : of({ meta: { total: null as number | null } });
+
+    const formularios$ = podeFormularios
+      ? this.linksPublicos.list({ per_page: 1, page: 1 }).pipe(
+          catchError(() => of({ meta: { total: null as number | null } })),
+        )
+      : of({ meta: { total: null as number | null } });
+
+    forkJoin({ modelos: modelos$, protocolos: protocolos$, formularios: formularios$ }).subscribe({
+      next: ({ modelos, protocolos, formularios }) => {
         this.kpiValues.set({
-          aguardando: pendentes.meta?.total ?? null,
-          concluidos: assinados.meta?.total ?? null,
           modelos: modelos == null ? null : modelos.length,
+          protocolos: protocolos.meta?.total ?? null,
+          formularios: formularios.meta?.total ?? null,
         });
         this.kpisLoading.set(false);
       },
       error: () => {
-        this.kpiValues.set({ aguardando: null, concluidos: null, modelos: null });
+        this.kpiValues.set({ modelos: null, protocolos: null, formularios: null });
         this.kpisLoading.set(false);
       },
     });

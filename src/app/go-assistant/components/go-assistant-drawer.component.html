@@ -46,6 +46,14 @@
             }
 
             <section class="go-assistant-section">
+              <h3>Feedback</h3>
+              <button type="button" class="go-assistant-item" (click)="abrirFeedback()">
+                <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">feedback</span>
+                <span>Enviar sugestão ou reportar problema</span>
+              </button>
+            </section>
+
+            <section class="go-assistant-section">
               <h3>Últimos acessos</h3>
               @if (shell.loadingHistory()) {
                 <p class="go-assistant-empty">Carregando…</p>

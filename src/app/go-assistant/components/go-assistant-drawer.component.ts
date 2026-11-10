@@ -14,6 +14,7 @@ import type { GestgoSheetRef } from '@/shared/components/sheet/sheet-ref';
 import { GestgoSheetService } from '@/shared/components/sheet/sheet.service';
 import { getTourByScreenId } from '../data';
 import type { AssistantAction, AssistantIntent } from '../models/assistant.types';
+import { FeedbackDialogService } from '../../core/services/feedback-dialog.service';
 import { GoAssistantActionService } from '../services/go-assistant-action.service';
 import { GoAssistantContextService } from '../services/go-assistant-context.service';
 import { GoAssistantShellService } from '../services/go-assistant-shell.service';
@@ -37,6 +38,7 @@ export class GoAssistantDrawerComponent {
   readonly tour = inject(GoAssistantTourService);
 
   private readonly gestgoSheet = inject(GestgoSheetService);
+  private readonly feedbackDialog = inject(FeedbackDialogService);
   private readonly vcr = inject(ViewContainerRef);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -74,6 +76,11 @@ export class GoAssistantDrawerComponent {
     const screen = this.context.currentScreen();
     this.tour.start(screen?.tourId);
     this.shell.close();
+  }
+
+  abrirFeedback(): void {
+    this.shell.close();
+    this.feedbackDialog.open('go_assistant');
   }
 
   visibleActions(intent: AssistantIntent): AssistantAction[] {

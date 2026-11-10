@@ -13,7 +13,13 @@
               <span>{{ kpi.label }}</span>
               <span class="material-symbols-outlined" aria-hidden="true">{{ kpi.icon }}</span>
             </div>
-            <b class="nav-hub__kpi-value">{{ kpiDisplayValue(kpi) }}</b>
+            <b class="nav-hub__kpi-value" [attr.aria-busy]="kpisLoading || null">
+              @if (kpisLoading) {
+                <span class="nav-hub__kpi-spinner" aria-label="Carregando"></span>
+              } @else {
+                {{ kpiDisplayValue(kpi) }}
+              }
+            </b>
             @if (kpi.hint) {
               <small>{{ kpi.hint }}</small>
             }
@@ -24,7 +30,13 @@
               <span>{{ kpi.label }}</span>
               <span class="material-symbols-outlined" aria-hidden="true">{{ kpi.icon }}</span>
             </div>
-            <b class="nav-hub__kpi-value">{{ kpiDisplayValue(kpi) }}</b>
+            <b class="nav-hub__kpi-value" [attr.aria-busy]="kpisLoading || null">
+              @if (kpisLoading) {
+                <span class="nav-hub__kpi-spinner" aria-label="Carregando"></span>
+              } @else {
+                {{ kpiDisplayValue(kpi) }}
+              }
+            </b>
             @if (kpi.hint) {
               <small>{{ kpi.hint }}</small>
             }
