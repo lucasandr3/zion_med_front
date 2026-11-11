@@ -2,12 +2,13 @@ import { ApplicationRef, inject, Injectable, PLATFORM_ID, signal } from '@angula
 import { isPlatformBrowser } from '@angular/common';
 import { SwUpdate, VersionReadyEvent } from '@angular/service-worker';
 import { filter, first, interval } from 'rxjs';
-import { AuthService } from './auth.service';
 import { NovidadesService } from './novidades.service';
 
 /** Verificação periódica em segundo plano (15 min). */
 const CHECK_INTERVAL_MS = 15 * 60 * 1000;
 const BODY_BANNER_CLASS = 'app-update-banner-visible';
+/** Mesma chave de `AuthService` — evita DI circular Auth ↔ AppUpdate. */
+const SESSION_FLAG_KEY = 'gestgo_session';
 
 export type AppUpdateCheckResult = 'ready' | 'none' | 'unavailable' | 'error';
 
@@ -17,7 +18,6 @@ export class AppUpdateService {
   private readonly appRef = inject(ApplicationRef);
   private readonly swUpdate = inject(SwUpdate, { optional: true });
   private readonly novidades = inject(NovidadesService);
-  private readonly auth = inject(AuthService);
 
   readonly updateReady = signal(false);
   readonly updateBlocked = signal(false);
@@ -91,7 +91,8 @@ export class AppUpdateService {
 
   private refreshReleaseMeta(): void {
     // Endpoint autenticado — não chamar em links públicos do cliente.
-    if (!this.auth.isAuthenticated()) {
+    // Checa a flag de sessão direto (AuthService já injeta este serviço).
+    if (typeof localStorage === 'undefined' || localStorage.getItem(SESSION_FLAG_KEY) !== '1') {
       return;
     }
     this.novidades.latest().subscribe({
