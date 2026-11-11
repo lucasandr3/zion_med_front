@@ -2,6 +2,7 @@ import { ApplicationRef, inject, Injectable, PLATFORM_ID, signal } from '@angula
 import { isPlatformBrowser } from '@angular/common';
 import { SwUpdate, VersionReadyEvent } from '@angular/service-worker';
 import { filter, first, interval } from 'rxjs';
+import { AuthService } from './auth.service';
 import { NovidadesService } from './novidades.service';
 
 /** Verificação periódica em segundo plano (15 min). */
@@ -16,6 +17,7 @@ export class AppUpdateService {
   private readonly appRef = inject(ApplicationRef);
   private readonly swUpdate = inject(SwUpdate, { optional: true });
   private readonly novidades = inject(NovidadesService);
+  private readonly auth = inject(AuthService);
 
   readonly updateReady = signal(false);
   readonly updateBlocked = signal(false);
@@ -88,6 +90,10 @@ export class AppUpdateService {
   }
 
   private refreshReleaseMeta(): void {
+    // Endpoint autenticado — não chamar em links públicos do cliente.
+    if (!this.auth.isAuthenticated()) {
+      return;
+    }
     this.novidades.latest().subscribe({
       next: (latest) => {
         const version = latest.latest_version?.trim() || null;

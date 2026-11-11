@@ -10,6 +10,40 @@ import { environment } from '../../../environments/environment';
 const CSRF_RETRIED = new HttpContextToken<boolean>(() => false);
 const MUTATING = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
 
+/** APIs públicas (paciente/visitante) — nunca redirecionar para login em 401. */
+const PUBLIC_API_MARKERS = [
+  '/formulario-publico',
+  '/link-bio/public',
+  '/agenda/public',
+  '/auth/login',
+  '/auth/csrf',
+  '/auth/forgot-password',
+  '/auth/reset-password',
+  '/auth/logout',
+  '/auth/verify-email',
+  '/landing',
+  '/comece',
+  '/demonstracao',
+  '/verificar/',
+  '/status',
+  '/product-events',
+] as const;
+
+/** Rotas SPA abertas ao cliente — 401 de qualquer API não deve forçar /autenticacao. */
+const PUBLIC_SPA_PREFIXES = ['/f/', '/l/', '/a/', '/verificar', '/planos', '/para/', '/como-funciona/', '/autenticacao', '/esqueci-a-senha', '/redefinir-senha', '/verificar-email', '/termos-de-uso', '/privacidade', '/f/sucesso'] as const;
+
+function isPublicApiUrl(url: string): boolean {
+  return PUBLIC_API_MARKERS.some((marker) => url.includes(marker));
+}
+
+function isPublicSpaRoute(url: string): boolean {
+  const path = (url || '').split('?')[0] || '';
+  if (path === '/f/sucesso' || path.startsWith('/f/sucesso')) return true;
+  if (path === '/verificar' || path.startsWith('/verificar/')) return true;
+  if (path === '/planos') return true;
+  return PUBLIC_SPA_PREFIXES.some((prefix) => path === prefix.replace(/\/$/, '') || path.startsWith(prefix));
+}
+
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const auth = inject(AuthService);
   const router = inject(Router);
@@ -21,7 +55,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   }
 
   const organizationId = auth.getCurrentOrganizationId();
-  const isPublicForm = req.url.includes('formulario-publico');
+  const isPublicApi = isPublicApiUrl(req.url);
   const headers: Record<string, string> = {
     Accept:
       req.responseType === 'blob'
@@ -29,7 +63,8 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
         : 'application/json',
   };
 
-  if (!isPublicForm && organizationId != null && organizationId !== '') {
+  // Em APIs públicas não envia contexto de clínica da sessão do painel.
+  if (!isPublicApi && organizationId != null && organizationId !== '') {
     headers['X-Organization-Id'] = String(organizationId);
     headers['X-Clinic-Id'] = String(organizationId);
   }
@@ -54,32 +89,37 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
           switchMap((token) => {
             const retriedHeaders: Record<string, string> = { ...headers };
             if (token) retriedHeaders['X-CSRF-TOKEN'] = token;
-            return next(req.clone({
-              context: req.context.set(CSRF_RETRIED, true),
-              withCredentials: true,
-              setHeaders: retriedHeaders,
-            }));
+            return next(
+              req.clone({
+                context: req.context.set(CSRF_RETRIED, true),
+                withCredentials: true,
+                setHeaders: retriedHeaders,
+              }),
+            );
           }),
           catchError(() => throwError(() => err)),
         );
       }
 
-      const skipAuthRedirect = isPublicForm
-        || req.url.includes('/auth/login')
-        || req.url.includes('/auth/csrf')
-        || req.url.includes('/auth/forgot-password')
-        || req.url.includes('/auth/reset-password')
-        || req.url.includes('/auth/logout');
+      const onPublicPage = isPublicSpaRoute(router.url);
+      const skipAuthRedirect = isPublicApi || onPublicPage;
 
       if (err.status === 401 && !skipAuthRedirect) {
         auth.clearSession();
-        router.navigate(['/autenticacao']);
-      } else if (err.status === 403 && auth.isAuthenticated() && req.url.includes('/api/v1/') && !req.url.includes('auth/send-verification-email')) {
+        void router.navigate(['/autenticacao']);
+      } else if (
+        err.status === 403 &&
+        auth.isAuthenticated() &&
+        req.url.includes('/api/v1/') &&
+        !req.url.includes('auth/send-verification-email') &&
+        !onPublicPage
+      ) {
         const body = err.error;
         const code = extractApiErrorCode(body);
-        const msg = (typeof body === 'object' && body && 'message' in body
-          ? String((body as { message?: string }).message ?? '')
-          : ''
+        const msg = (
+          typeof body === 'object' && body && 'message' in body
+            ? String((body as { message?: string }).message ?? '')
+            : ''
         ).toLowerCase();
         if (code === 'billing_blocked') {
           const url = req.url;
@@ -90,11 +130,11 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
           return throwError(() => err);
         }
         if (code === 'email_unverified' || msg.includes('verif')) {
-          router.navigate(['/verificacao-pendente']);
+          void router.navigate(['/verificacao-pendente']);
           return throwError(() => err);
         }
       }
       return throwError(() => err);
-    })
+    }),
   );
 };
