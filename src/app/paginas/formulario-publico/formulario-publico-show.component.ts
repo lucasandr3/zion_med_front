@@ -69,6 +69,7 @@ import {
   resolveProfessionalCosignFieldKey,
   shouldShowAssistedCosignBlock,
 } from './formulario-publico-cosign.util';
+import { clearSignatureCanvas } from './formulario-publico-signature.util';
 import {
   clearFileInputByKey,
   FORM_PUBLIC_FILE_MAX_BYTES,
@@ -177,6 +178,7 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
   private clinicalStepsCompleted: { kind: string; completed_at: string }[] = [];
   /** Token da reserva da agenda pública (`?a=`), vincula a ficha ao atendimento. */
   private appointmentToken = '';
+  private sendToken = '';
   /** Accent deste link, lido antes da API para o preload. */
   private cachedAccent: string | null = null;
   /** Tipo do documento deste link, para o texto do preload. */
@@ -194,6 +196,7 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
     this.cachedAccent = fpReadCachedFormAccent(this.token);
     this.cachedDocKind = this.readCachedDocKind();
     this.appointmentToken = (this.route.snapshot.queryParamMap.get('a') ?? '').trim();
+    this.sendToken = (this.route.snapshot.queryParamMap.get('s') ?? '').trim();
     this.totemMode.set(
       this.route.snapshot.queryParamMap.get('totem') === '1' ||
         this.route.snapshot.queryParamMap.get('kiosk') === '1',
@@ -577,6 +580,7 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
       },
       clinicalStepsCompleted: this.clinicalStepsCompleted,
       appointmentToken: this.appointmentToken || null,
+      sendToken: this.sendToken || null,
     });
 
     this.formularioService.submit(this.token, payload).subscribe({
@@ -1319,9 +1323,17 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
 
   private resetAfterTotemSubmit(): void {
     fpClearCpfGateAuthorization(this.token);
+    fpClearSubmitterIdentity();
+    this.submitterName.set('');
+    this.submitterEmail.set('');
     this.personGateOk.set(false);
+    this.personGateErro.set('');
     this.personCpfDigits.set('');
     this.personCpfDisplay.set('');
+    this.personCode.set('');
+    this.personBirthDate.set('');
+    this.personValidatedName.set(null);
+    this.personValidatedId.set(null);
     this.personPendingConfirmName.set(null);
     this.personNameConfirmed.set(false);
     this.acceptTerms.set(false);
@@ -1335,12 +1347,40 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
     this.quizAnswers.set({});
     this.otpVerified.set(false);
     this.otpCode.set('');
+    this.otpPhone.set('');
+    this.appointmentToken = '';
+    // Mantém sendToken só se o totem foi aberto por convite pontual (raro); limpa por segurança.
+    this.sendToken = '';
     const data = this.data();
     if (data) {
+      for (const field of data.fields) {
+        if (fieldType(field) === 'signature') {
+          clearSignatureCanvas(field.name_key);
+        }
+      }
       resetFormularioPublicoValores(data.fields, this.valores);
     }
+    this.valoresRevision.update((n) => n + 1);
     this.feegowBlock?.resetAvailabilityState();
     this.resetFormSteps();
+    // Remove ?a= / ?s= da URL para o próximo paciente não herdar contexto anterior.
+    if (typeof window !== 'undefined') {
+      try {
+        const url = new URL(window.location.href);
+        let changed = false;
+        for (const key of ['a', 's']) {
+          if (url.searchParams.has(key)) {
+            url.searchParams.delete(key);
+            changed = true;
+          }
+        }
+        if (changed) {
+          window.history.replaceState({}, '', url.toString());
+        }
+      } catch {
+        /* ignore */
+      }
+    }
   }
 
   private restoreCpfGateAuthorization(): void {
