@@ -32,6 +32,8 @@ export interface FormularioPublicoSubmitContext {
   clinicalStepsCompleted?: { kind: string; completed_at: string }[];
   /** Token público da reserva (`?a=`), vincula a ficha ao atendimento. */
   appointmentToken?: string | null;
+  /** Token do envio pontual (`?s=`), invalida-se ao cancelar o DocumentSend. */
+  sendToken?: string | null;
 }
 
 export function buildFormularioPublicoSubmitPayload(ctx: FormularioPublicoSubmitContext): Record<string, unknown> {
@@ -139,6 +141,10 @@ export function buildFormularioPublicoSubmitPayload(ctx: FormularioPublicoSubmit
 
   if (ctx.appointmentToken?.trim()) {
     payload['_appointment_token'] = ctx.appointmentToken.trim();
+  }
+
+  if (ctx.sendToken?.trim()) {
+    payload['_send_token'] = ctx.sendToken.trim();
   }
 
   return payload;
