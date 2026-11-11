@@ -16,8 +16,13 @@
   --fp-brand-500: #0c9368;
   --fp-brand-600: #0c7658;
   --fp-brand-soft: #e8f7f0;
+  --fp-ink-700: #3d524a;
   --fp-ink-800: #18312b;
   --fp-ink-900: #18312b;
+  --fp-cream-50: #f7faf8;
+  --fp-cream-100: #eef4f0;
+  --fp-cream-200: #dfe8e3;
+  --fp-cream-300: #c5d2cb;
   --fp-cream-400: #91a29a;
   --fp-cream-600: #6c7c76;
   --fp-danger: #ba3a42;
@@ -50,8 +55,13 @@
 /* Dark = fundo neutro; accent continua das configs. Nord herda estes tokens (a página pública não usa body.dark). */
 .form-publico-page.dark {
   color-scheme: dark;
+  --fp-ink-700: #c8d0cc;
   --fp-ink-800: #f2f5f3;
   --fp-ink-900: #f2f5f3;
+  --fp-cream-50: #141414;
+  --fp-cream-100: #1a1a1a;
+  --fp-cream-200: #2a2a2a;
+  --fp-cream-300: #3a3a3a;
   --fp-cream-400: #9eaea5;
   --fp-cream-600: #9eaea5;
   --fp-border: #2a2a2a;

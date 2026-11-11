@@ -1623,7 +1623,11 @@ html[data-public-page] body.gestgo-public-dark {
  * Checkbox nativo / g-checkbox.
  * Exclui `.n-input` (input interno do nord-checkbox) para não sobrescrever o Nord.
  */
-input[type="checkbox"]:not(.sr-only):not(.g-checkbox-input):not(.n-input),
+/*
+ * Checkbox nativo / g-checkbox (painel).
+ * Páginas públicas (`html[data-public-page]`) ficam de fora — usam o visual próprio.
+ */
+html:not([data-public-page]) input[type="checkbox"]:not(.sr-only):not(.g-checkbox-input):not(.n-input),
 .form-checkbox,
 .g-checkbox-native {
     appearance: none;
@@ -1647,12 +1651,12 @@ input[type="checkbox"]:not(.sr-only):not(.g-checkbox-input):not(.n-input),
 nord-checkbox {
   --n-border-radius-s: 5px;
 }
-input[type="checkbox"]:not(.sr-only):not(.g-checkbox-input):not(.n-input):hover,
+html:not([data-public-page]) input[type="checkbox"]:not(.sr-only):not(.g-checkbox-input):not(.n-input):hover,
 .form-checkbox:hover,
 .g-checkbox-native:hover {
     border-color: var(--c-muted);
 }
-input[type="checkbox"]:not(.sr-only):not(.g-checkbox-input):not(.n-input):checked,
+html:not([data-public-page]) input[type="checkbox"]:not(.sr-only):not(.g-checkbox-input):not(.n-input):checked,
 .form-checkbox:checked,
 .g-checkbox-native:checked {
     background-color: var(--c-primary);
@@ -1662,8 +1666,8 @@ input[type="checkbox"]:not(.sr-only):not(.g-checkbox-input):not(.n-input):checke
     background-position: center;
     background-repeat: no-repeat;
 }
-input[type="checkbox"]:not(.sr-only):not(.g-checkbox-input):not(.n-input):focus,
-input[type="checkbox"]:not(.sr-only):not(.g-checkbox-input):not(.n-input):focus-visible,
+html:not([data-public-page]) input[type="checkbox"]:not(.sr-only):not(.g-checkbox-input):not(.n-input):focus,
+html:not([data-public-page]) input[type="checkbox"]:not(.sr-only):not(.g-checkbox-input):not(.n-input):focus-visible,
 .form-checkbox:focus,
 .form-checkbox:focus-visible,
 .g-checkbox-native:focus,
@@ -1677,7 +1681,7 @@ nord-checkbox:focus,
 nord-checkbox:focus-within {
   outline: none !important;
 }
-.dark input[type="checkbox"]:not(.sr-only):not(.g-checkbox-input):not(.n-input):not(:checked),
+html:not([data-public-page]) .dark input[type="checkbox"]:not(.sr-only):not(.g-checkbox-input):not(.n-input):not(:checked),
 .dark .form-checkbox:not(:checked),
 .dark .g-checkbox-native:not(:checked) {
     background-color: var(--c-surface);
@@ -1685,7 +1689,7 @@ nord-checkbox:focus-within {
 }
 
 /* Radio: mesmo padrão dos checkboxes — círculo, borda tema, miolo primary quando marcado */
-input[type="radio"]:not(.sr-only),
+html:not([data-public-page]) input[type="radio"]:not(.sr-only),
 .form-radio {
     appearance: none;
     -webkit-appearance: none;
@@ -1700,15 +1704,15 @@ input[type="radio"]:not(.sr-only),
     margin: 0;
     vertical-align: middle;
 }
-input[type="radio"]:not(.sr-only):hover,
+html:not([data-public-page]) input[type="radio"]:not(.sr-only):hover,
 .form-radio:hover {
     border-color: var(--c-muted);
 }
-input[type="radio"]:not(.sr-only):not(:checked),
+html:not([data-public-page]) input[type="radio"]:not(.sr-only):not(:checked),
 .form-radio:not(:checked) {
     background-image: none;
 }
-input[type="radio"]:not(.sr-only):checked,
+html:not([data-public-page]) input[type="radio"]:not(.sr-only):checked,
 .form-radio:checked {
     border-color: var(--c-primary);
     background-color: var(--c-surface);
@@ -1720,12 +1724,12 @@ input[type="radio"]:not(.sr-only):checked,
         transparent 39%
     );
 }
-input[type="radio"]:not(.sr-only):focus-visible,
+html:not([data-public-page]) input[type="radio"]:not(.sr-only):focus-visible,
 .form-radio:focus-visible {
     outline: none;
     box-shadow: 0 0 0 3px var(--c-focus);
 }
-.dark input[type="radio"]:not(.sr-only):not(:checked),
+html:not([data-public-page]) .dark input[type="radio"]:not(.sr-only):not(:checked),
 .dark .form-radio:not(:checked) {
     background-color: var(--c-surface);
     border-color: var(--c-border);
