@@ -126,8 +126,8 @@ zm-formulario-publico-otp {
 .fp-feegow-card {
   border-radius: 0.5rem;
   padding: 0.875rem 1rem;
-  background: var(--fp-cream-100);
-  border: 1.5px solid var(--fp-cream-200);
+  background: var(--fp-cream-100, var(--fp-soft, #eef4f0));
+  border: 1.5px solid var(--fp-cream-200, var(--fp-border, #dfe8e3));
   margin-bottom: 0.25rem;
   animation: fpFadeUp 0.4s 0.04s ease both;
 }
@@ -387,7 +387,7 @@ zm-formulario-publico-otp {
   width: 100%;
   padding: 0.75rem 0.875rem;
   border-radius: 0.5rem;
-  border: 1.5px solid var(--fp-cream-200);
+  border: 1.5px solid var(--fp-cream-200, var(--fp-border, #dfe8e3));
   font-family: inherit;
   font-size: 1rem;
   font-weight: 400;
@@ -450,7 +450,7 @@ zm-formulario-publico-otp {
   margin-right: 0.75rem;
   padding: 0.4rem 0.75rem;
   border-radius: 0.5rem;
-  border: 1px solid var(--fp-cream-200);
+  border: 1px solid var(--fp-cream-200, var(--fp-border, #dfe8e3));
   background: var(--fp-cream-50, #faf8f5);
   font-family: inherit;
   font-size: 0.8125rem;
@@ -551,7 +551,7 @@ zm-formulario-publico-otp {
   padding: 0.6875rem 0.875rem;
   border-radius: 0.5rem;
   cursor: pointer;
-  border: 1.5px solid var(--fp-cream-200);
+  border: 1.5px solid var(--fp-cream-200, var(--fp-border, #dfe8e3));
   background: #fff;
   font-size: 0.875rem;
   font-weight: 500;
@@ -568,7 +568,7 @@ zm-formulario-publico-otp {
 
 .fp-radio-option:hover {
   border-color: var(--fp-cream-400);
-  background: var(--fp-cream-50);
+  background: var(--fp-cream-50, var(--fp-soft, #f7faf8));
 }
 
 .form-publico-page.dark .fp-radio-option:hover {
@@ -712,7 +712,7 @@ zm-formulario-publico-otp {
   max-width: 100%;
   height: 7.5rem;
   border-radius: 0.5rem;
-  border: 1.5px solid var(--fp-cream-200);
+  border: 1.5px solid var(--fp-cream-200, var(--fp-border, #dfe8e3));
   background: #fff;
   cursor: crosshair;
   touch-action: none;
@@ -1140,7 +1140,7 @@ zm-formulario-publico-otp {
 }
 
 .form-publico-page.fp-branded .fp-file-input::file-selector-button {
-  border-color: color-mix(in srgb, var(--fp-brand-500) 35%, var(--fp-cream-200));
+  border-color: color-mix(in srgb, var(--fp-brand-500) 35%, var(--fp-cream-200, var(--fp-border, #dfe8e3)));
   color: var(--fp-brand-500);
 }
 
