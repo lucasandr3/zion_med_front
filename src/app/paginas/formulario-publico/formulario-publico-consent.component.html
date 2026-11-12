@@ -1,7 +1,7 @@
 @if (showComprehensionSection && quizQuestions.length > 0) {
   <div class="fp-quiz-block">
-    <p class="fp-quiz-title">Confirme sua compreensão</p>
-    <p class="fp-quiz-hint">Responda corretamente. Se errar, revise o termo e tente novamente.</p>
+    <p class="fp-quiz-title">Confirme que entendeu</p>
+    <p class="fp-quiz-hint">Responda às perguntas. Se errar, volte ao termo, leia de novo e tente outra vez.</p>
     @for (q of quizQuestions; track q.id) {
       <fieldset class="fp-quiz-question">
         <legend class="fp-quiz-prompt">{{ q.prompt }}</legend>
@@ -28,12 +28,12 @@
   @if (showComprehensionSection && requireComprehension) {
     @if (requireTermScroll && !termScrollCompleted) {
       <p class="fp-term-scroll-gate-hint" role="status">
-        Leia todas as seções do termo acima (role até o final) para habilitar a declaração de compreensão clínica.
+        Role até o final de cada seção do termo acima para poder marcar a confirmação.
       </p>
     }
     <nord-checkbox class="fp-consent-checkbox" [ngModel]="comprehensionAck" (ngModelChange)="comprehensionAckChange.emit($event)" name="fpComprehensionAck" [ngModelOptions]="{ standalone: true }" [attr.disabled]="requireTermScroll && !termScrollCompleted" (click)="$event.stopPropagation()">
       <span slot="label" class="fp-check-label-inline">
-        Declaro que li e compreendi as informações deste termo sobre o procedimento, riscos, benefícios, alternativas, cuidados e o direito de recusa, conforme descrito acima.
+        Li e entendi o termo: o procedimento, os riscos, os benefícios, as alternativas, os cuidados e que posso recusar.
       </span>
     </nord-checkbox>
   }
@@ -41,9 +41,9 @@
   @if (showPrivacySection) {
   <nord-checkbox class="fp-consent-checkbox" [ngModel]="acceptTerms" (ngModelChange)="acceptTermsChange.emit($event)" name="fpAcceptTerms" [ngModelOptions]="{ standalone: true }" (click)="$event.stopPropagation()">
     <span slot="label" class="fp-check-label-inline">
-      Declaro que li o aviso sobre uso dos dados e a
+      Li o aviso sobre uso dos meus dados e a
       <a routerLink="/privacidade" target="_blank" rel="noopener" class="fp-link">Política de Privacidade</a>.
-      Estou ciente de que minha assinatura eletrônica integra este documento (ciência de privacidade, distinta da compreensão clínica acima).
+      Minha assinatura fará parte deste documento.
     </span>
   </nord-checkbox>
   }
@@ -52,7 +52,7 @@
 
 @if (showActorsAssistedSection && showActors) {
   <div class="fp-actors-block">
-    <p class="fp-actors-title">Responsável legal / testemunha (quando aplicável)</p>
+    <p class="fp-actors-title">Responsável legal ou testemunha (se precisar)</p>
     <div class="fp-field-group">
       <label class="fp-field-label" for="fpGuardianName">
         Nome do responsável legal
@@ -107,20 +107,20 @@
   <div class="fp-assisted-block">
     <nord-checkbox class="fp-consent-checkbox" [ngModel]="professionalExplained" (ngModelChange)="professionalExplainedChange.emit($event)" name="fpProfessionalExplained" [ngModelOptions]="{ standalone: true }">
       <span slot="label" class="fp-check-label-inline">
-        Confirmo, como profissional, que expliquei riscos, benefícios, alternativas e o direito de recusa ao paciente (modo assistido).
+        Confirmo, como profissional, que expliquei ao paciente os riscos, benefícios, alternativas e o direito de recusa.
       </span>
     </nord-checkbox>
 
     @if (!showAssistedCosignBlock) {
       <p class="fp-field-hint" style="margin-top:0.75rem">
-        Preencha também o campo de assinatura do profissional no formulário acima antes de enviar.
+        Assine também no campo de assinatura do profissional no formulário acima.
       </p>
     }
 
     @if (showAssistedCosignBlock) {
       <div class="fp-cosign-block">
-        <p class="fp-cosign-title">Assinatura do profissional (co-assinatura)</p>
-        <p class="fp-field-hint">Registre sua assinatura no mesmo documento. Na aprovação clínica, o sistema não repetirá esta assinatura.</p>
+        <p class="fp-cosign-title">Assinatura do profissional</p>
+        <p class="fp-field-hint">Assine neste documento. Depois, na aprovação, a clínica não pedirá essa assinatura de novo.</p>
         <div class="fp-field-group">
           <label class="fp-field-label" for="fpProfessionalSignerName">
             Nome completo do profissional <span class="fp-required" aria-hidden="true">*</span>

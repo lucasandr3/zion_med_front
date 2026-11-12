@@ -41,7 +41,7 @@
     }
 
     @if (isFieldInvalid(f.name_key)) {
-      <p class="fp-field-error" [id]="'error_' + f.name_key" role="alert">Preencha este campo obrigatório.</p>
+      <p class="fp-field-error" [id]="'error_' + f.name_key" role="alert">{{ fieldRequiredHint(f.label) }}</p>
     }
 
     @switch (fieldType(f)) {

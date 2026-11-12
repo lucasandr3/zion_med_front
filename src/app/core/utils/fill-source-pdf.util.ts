@@ -1,10 +1,17 @@
 import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFPage } from 'pdf-lib';
-import type { PrintLayout, PrintLayoutPlacement } from './print-layout.util';
+import {
+  normalizeOptionValue,
+  type PrintLayout,
+  type PrintLayoutPlacement,
+} from './print-layout.util';
 
 export interface FillSourcePdfFieldValue {
   name_key: string;
   text?: string;
+  /** Checkbox booleano (sem opções). */
   checked?: boolean;
+  /** Opções selecionadas (radio/checkbox múltiplo), já normalizadas ou brutas. */
+  selected_options?: string[];
   /** Data URL ou bytes de PNG/JPEG (assinatura). */
   imageBytes?: Uint8Array;
   imageMime?: 'png' | 'jpg';
@@ -39,7 +46,15 @@ export async function fillSourcePdf(input: FillSourcePdfInput): Promise<Blob> {
 
     const kind = placement.kind || 'text';
     if (kind === 'checkbox') {
-      if (value.checked) drawCheckmark(page, placement);
+      const option = (placement.option ?? '').trim();
+      if (option) {
+        const selected = (value.selected_options || []).map(normalizeOptionValue);
+        if (selected.includes(normalizeOptionValue(option))) {
+          drawCheckmark(page, placement);
+        }
+      } else if (value.checked) {
+        drawCheckmark(page, placement);
+      }
       continue;
     }
 
