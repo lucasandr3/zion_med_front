@@ -163,6 +163,85 @@
           </div>
         }
 
+        <div class="space-y-3 rounded-lg border border-border p-4">
+          <div>
+            <p class="templates-form-label mb-0">Documento original (PDF)</p>
+            <p class="mt-1 text-xs text-muted-foreground">
+              Anexe o PDF oficial da clínica (contrato, termo, ficha). Fica disponível para download no modelo e no protocolo.
+              O PDF preenchido continua sendo gerado após o envio.
+            </p>
+          </div>
+
+          <input
+            #sourceFileInput
+            type="file"
+            accept="application/pdf,.pdf"
+            class="sr-only"
+            [disabled]="sourceUploading() || sourceRemoving()"
+            (change)="onSourceDocumentSelected($event)"
+          />
+
+          @if (template()?.has_source_document) {
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div class="min-w-0">
+                <p class="m-0 truncate text-sm font-medium text-foreground">
+                  {{ template()?.source_document_original_name || 'documento-original.pdf' }}
+                </p>
+                @if (formatSourceSize(template()?.source_document_size)) {
+                  <p class="m-0 text-xs text-muted-foreground">{{ formatSourceSize(template()?.source_document_size) }}</p>
+                }
+              </div>
+              <div class="flex flex-wrap gap-2">
+                <nord-button
+                  variant="default"
+                  size="s"
+                  type="button"
+                  (click)="baixarSourceDocument()"
+                  [attr.loading]="sourceDownloading() || null"
+                  [attr.disabled]="sourceDownloading() || sourceRemoving() || null"
+                >
+                  <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">download</span>
+                  Baixar
+                </nord-button>
+                <nord-button
+                  variant="default"
+                  size="s"
+                  type="button"
+                  [attr.loading]="sourceUploading() || null"
+                  [attr.disabled]="sourceUploading() || sourceRemoving() || null"
+                  (click)="sourceFileInput.click()"
+                >
+                  <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">upload_file</span>
+                  Substituir
+                </nord-button>
+                <nord-button
+                  variant="plain"
+                  size="s"
+                  type="button"
+                  (click)="removerSourceDocument()"
+                  [attr.loading]="sourceRemoving() || null"
+                  [attr.disabled]="sourceUploading() || sourceRemoving() || null"
+                >
+                  <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">delete</span>
+                  Remover
+                </nord-button>
+              </div>
+            </div>
+          } @else {
+            <nord-button
+              variant="default"
+              size="s"
+              type="button"
+              [attr.loading]="sourceUploading() || null"
+              [attr.disabled]="sourceUploading() || null"
+              (click)="sourceFileInput.click()"
+            >
+              <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">attach_file</span>
+              Anexar PDF
+            </nord-button>
+          }
+        </div>
+
         <div>
           <label class="templates-form-label" id="template-edit-category-label">Categoria</label>
           <z-combobox
