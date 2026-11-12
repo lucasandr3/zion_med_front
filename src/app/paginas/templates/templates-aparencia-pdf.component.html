@@ -56,7 +56,8 @@
       oficial da clínica ({{ template()?.source_document_original_name || 'documento original' }}).
     </p>
     <p class="aparencia-hint">
-      1) Clique num campo à esquerda · 2) Arraste um retângulo no PDF · 3) Salve.
+      Em rádio/checkbox com opções, mapeie <strong>cada opção</strong> (cada bolinha no PDF).
+      Depois arraste para ajustar. Salve ao terminar.
       {{ mappedCount }} área(s) mapeada(s)@if (dirty()) { · alterações não salvas}.
     </p>
   </div>
@@ -68,29 +69,96 @@
         <span>{{ campos().length }}</span>
       </div>
       <ul class="aparencia-field-list">
+        <li class="aparencia-field-group aparencia-field-group--extras">
+          <div class="aparencia-field-group__title">
+            <span class="aparencia-field__label">Extras da clínica</span>
+            <span class="aparencia-field__meta">Opcional · logo / assinatura institucional</span>
+          </div>
+          <ul class="aparencia-option-list">
+            @for (extra of systemTargets; track extra.name_key) {
+              <li>
+                <button
+                  type="button"
+                  class="aparencia-field aparencia-field--option"
+                  [class.aparencia-field--active]="isSelected({ name_key: extra.name_key })"
+                  [class.aparencia-field--mapped]="isMapped({ name_key: extra.name_key })"
+                  (click)="selecionarExtra(extra.name_key)"
+                >
+                  <span class="aparencia-field__label">{{ extra.label }}</span>
+                  <span class="aparencia-field__meta">{{ extra.hint }}</span>
+                </button>
+                @if (isMapped({ name_key: extra.name_key })) {
+                  <button
+                    type="button"
+                    class="aparencia-field__remove"
+                    title="Remover área"
+                    (click)="removerCampo({ name_key: extra.name_key }, $event)"
+                  >
+                    ×
+                  </button>
+                }
+              </li>
+            }
+          </ul>
+        </li>
+
         @for (c of campos(); track c.id) {
-          <li>
-            <button
-              type="button"
-              class="aparencia-field"
-              [class.aparencia-field--active]="selectedKey() === c.name_key"
-              [class.aparencia-field--mapped]="isMapped(c.name_key)"
-              (click)="selecionarCampo(c.name_key)"
-            >
-              <span class="aparencia-field__label">{{ c.label }}</span>
-              <span class="aparencia-field__meta">{{ c.type }} · {{ c.name_key }}</span>
-            </button>
-            @if (isMapped(c.name_key)) {
+          @if (fieldHasOptionTargets(c)) {
+            <li class="aparencia-field-group">
+              <div class="aparencia-field-group__title" [class.aparencia-field--mapped]="isFieldFullyMapped(c)">
+                <span class="aparencia-field__label">{{ c.label }}</span>
+                <span class="aparencia-field__meta">{{ c.type }} · mapeie cada opção</span>
+              </div>
+              <ul class="aparencia-option-list">
+                @for (opt of fieldOptions(c); track opt) {
+                  <li>
+                    <button
+                      type="button"
+                      class="aparencia-field aparencia-field--option"
+                      [class.aparencia-field--active]="isSelected({ name_key: c.name_key, option: opt })"
+                      [class.aparencia-field--mapped]="isMapped({ name_key: c.name_key, option: opt })"
+                      (click)="selecionarCampo(c.name_key, opt)"
+                    >
+                      <span class="aparencia-field__label">{{ opt }}</span>
+                    </button>
+                    @if (isMapped({ name_key: c.name_key, option: opt })) {
+                      <button
+                        type="button"
+                        class="aparencia-field__remove"
+                        title="Remover área"
+                        (click)="removerCampo({ name_key: c.name_key, option: opt }, $event)"
+                      >
+                        ×
+                      </button>
+                    }
+                  </li>
+                }
+              </ul>
+            </li>
+          } @else {
+            <li>
               <button
                 type="button"
-                class="aparencia-field__remove"
-                title="Remover área"
-                (click)="removerCampo(c.name_key, $event)"
+                class="aparencia-field"
+                [class.aparencia-field--active]="isSelected({ name_key: c.name_key })"
+                [class.aparencia-field--mapped]="isMapped({ name_key: c.name_key })"
+                (click)="selecionarCampo(c.name_key)"
               >
-                ×
+                <span class="aparencia-field__label">{{ c.label }}</span>
+                <span class="aparencia-field__meta">{{ c.type }} · {{ c.name_key }}</span>
               </button>
-            }
-          </li>
+              @if (isMapped({ name_key: c.name_key })) {
+                <button
+                  type="button"
+                  class="aparencia-field__remove"
+                  title="Remover área"
+                  (click)="removerCampo({ name_key: c.name_key }, $event)"
+                >
+                  ×
+                </button>
+              }
+            </li>
+          }
         }
       </ul>
     </g-card>

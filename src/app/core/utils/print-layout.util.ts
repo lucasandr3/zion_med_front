@@ -5,6 +5,11 @@ export type PrintLayoutKind = 'text' | 'checkbox' | 'signature' | 'image';
 
 export interface PrintLayoutPlacement {
   name_key: string;
+  /**
+   * Para radio/checkbox com opções: marca só se a resposta for esta opção.
+   * Sem option = área do campo inteiro (texto ou checkbox booleano).
+   */
+  option?: string | null;
   /** Página 0-based. */
   page: number;
   /** Coordenadas normalizadas (0–1) a partir do canto superior esquerdo. */
@@ -22,8 +27,47 @@ export interface PrintLayout {
   placements: PrintLayoutPlacement[];
 }
 
+export interface PrintLayoutTarget {
+  name_key: string;
+  option?: string | null;
+}
+
+/** Extras opcionais (não vêm dos campos do formulário). */
+export const SYSTEM_PRINT_TARGETS: Array<{
+  name_key: string;
+  label: string;
+  hint: string;
+  kind: PrintLayoutKind;
+}> = [
+  {
+    name_key: '__clinic_logo',
+    label: 'Logo da clínica',
+    hint: 'Opcional · carimbo/logo no PDF',
+    kind: 'image',
+  },
+  {
+    name_key: '__clinic_signature',
+    label: 'Assinatura da clínica',
+    hint: 'Opcional · carimbo/assinatura institucional (usa a logo)',
+    kind: 'signature',
+  },
+];
+
+export function isSystemPrintTarget(nameKey: string): boolean {
+  return nameKey.startsWith('__');
+}
+
 export function emptyPrintLayout(): PrintLayout {
   return { version: 1, placements: [] };
+}
+
+export function placementIdentity(p: PrintLayoutTarget): string {
+  const opt = (p.option ?? '').trim();
+  return opt ? `${p.name_key}::${opt}` : p.name_key;
+}
+
+export function samePlacement(a: PrintLayoutTarget, b: PrintLayoutTarget): boolean {
+  return a.name_key === b.name_key && (a.option ?? '').trim() === (b.option ?? '').trim();
 }
 
 export function parsePrintLayout(raw: unknown): PrintLayout | null {
@@ -53,9 +97,13 @@ export function parsePrintLayout(raw: unknown): PrintLayout | null {
     const align: PrintLayoutAlign =
       alignRaw === 'center' || alignRaw === 'right' ? alignRaw : 'left';
     const font_size = Number(p['font_size']);
+    const optionRaw = p['option'];
+    const option =
+      typeof optionRaw === 'string' && optionRaw.trim() !== '' ? optionRaw.trim() : null;
 
     placements.push({
       name_key,
+      option,
       page: Math.floor(page),
       x: clamp01(x),
       y: clamp01(y),
@@ -74,12 +122,22 @@ export function hasUsablePrintLayout(layout: PrintLayout | null | undefined): bo
   return !!layout && Array.isArray(layout.placements) && layout.placements.length > 0;
 }
 
-export function inferPlacementKind(fieldType: string | null | undefined): PrintLayoutKind {
+export function inferPlacementKind(
+  fieldType: string | null | undefined,
+  hasOption = false,
+): PrintLayoutKind {
   const t = (fieldType || '').toLowerCase();
   if (t === 'signature') return 'signature';
-  if (t === 'checkbox') return 'checkbox';
   if (t === 'file') return 'image';
+  if (hasOption) return 'checkbox';
+  if (t === 'checkbox' || t === 'radio') return 'checkbox';
   return 'text';
+}
+
+export function normalizeOptionValue(value: string | null | undefined): string {
+  return String(value ?? '')
+    .trim()
+    .toLowerCase();
 }
 
 function clamp01(n: number): number {

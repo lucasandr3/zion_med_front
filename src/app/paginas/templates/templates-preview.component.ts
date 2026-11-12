@@ -1,9 +1,17 @@
-import { Component, OnInit, inject, Signal, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import {
+  Component,
+  OnDestroy,
+  OnInit,
+  Signal,
+  ViewEncapsulation,
+  CUSTOM_ELEMENTS_SCHEMA,
+  inject,
+} from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { catchError, map, of, switchMap } from 'rxjs';
 import { LoadingService } from '../../shared/services/loading.service';
-import { ZmSkeletonListComponent } from '../../shared/components/skeletons';
+import { PublicPageBodyService } from '../../core/services/public-page-body.service';
 import { NORD_FORM_IMPORTS } from '@/shared/nord';
 
 import { Template, TemplateCampo, TemplatesService } from '../../core/services/templates.service';
@@ -14,11 +22,12 @@ type PreviewValue = string | number | boolean;
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'app-templates-preview',
   standalone: true,
-  imports: [FormsModule, ZmSkeletonListComponent, ...NORD_FORM_IMPORTS],
+  imports: [FormsModule, ...NORD_FORM_IMPORTS],
   templateUrl: './templates-preview.component.html',
   styleUrl: './templates-preview.component.css',
+  encapsulation: ViewEncapsulation.None,
 })
-export class TemplatesPreviewComponent implements OnInit {
+export class TemplatesPreviewComponent implements OnInit, OnDestroy {
   templateId = '';
   template: Template | null = null;
   campos: TemplateCampo[] = [];
@@ -31,6 +40,7 @@ export class TemplatesPreviewComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private templatesService = inject(TemplatesService);
   private loadingService = inject(LoadingService);
+  private publicPageBody = inject(PublicPageBodyService);
 
   constructor() {
     this.templateId = this.route.snapshot.paramMap.get('id') ?? '';
@@ -41,10 +51,20 @@ export class TemplatesPreviewComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.publicPageBody.enterPublicPage();
+    this.lockPageScroll();
     try {
       this.dark = localStorage.getItem('gestgo_form_dark_mode') === '1';
-    } catch {}
+    } catch {
+      /* ignore */
+    }
+    this.syncDarkChrome();
     this.carregar();
+  }
+
+  ngOnDestroy(): void {
+    this.unlockPageScroll();
+    this.publicPageBody.leavePublicPage();
   }
 
   carregar(): void {
@@ -56,9 +76,9 @@ export class TemplatesPreviewComponent implements OnInit {
       switchMap((template) =>
         this.templatesService.getCampos(id).pipe(
           map((campos) => ({ template, campos })),
-          catchError(() => of({ template, campos: [] as TemplateCampo[] }))
-        )
-      )
+          catchError(() => of({ template, campos: [] as TemplateCampo[] })),
+        ),
+      ),
     );
 
     const { data$, showSkeleton } = this.loadingService.loadWithThreshold(load$);
@@ -72,7 +92,7 @@ export class TemplatesPreviewComponent implements OnInit {
       },
       error: () => {
         this.listaPronta = true;
-        this.erro = 'Nao foi possivel carregar o preview do modelo.';
+        this.erro = 'Não foi possível carregar a prévia do modelo.';
       },
     });
   }
@@ -140,11 +160,39 @@ export class TemplatesPreviewComponent implements OnInit {
     this.dark = !this.dark;
     try {
       localStorage.setItem('gestgo_form_dark_mode', this.dark ? '1' : '0');
-    } catch {}
+    } catch {
+      /* ignore */
+    }
+    this.syncDarkChrome();
+  }
+
+  private syncDarkChrome(): void {
+    if (this.dark) {
+      this.publicPageBody.applyPageBackground('#050505');
+    } else {
+      this.publicPageBody.applyPageBackground('#eff4f1');
+    }
+  }
+
+  private lockPageScroll(): void {
+    document.documentElement.style.overflow = 'hidden';
+    document.documentElement.style.height = '100dvh';
+    document.body.style.overflow = 'hidden';
+    document.body.style.height = '100dvh';
+  }
+
+  private unlockPageScroll(): void {
+    document.documentElement.style.removeProperty('overflow');
+    document.documentElement.style.removeProperty('height');
+    document.body.style.removeProperty('overflow');
+    document.body.style.removeProperty('height');
   }
 
   get requiredFieldsTotal(): number {
-    return this.campos.filter((c) => !!c.required).length;
+    return this.campos.filter((c) => {
+      const t = this.fieldType(c);
+      return !!c.required && t !== 'heading' && t !== 'notice' && t !== 'section_break';
+    }).length;
   }
 
   get requiredFieldsFilled(): number {

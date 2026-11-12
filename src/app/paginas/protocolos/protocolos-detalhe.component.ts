@@ -1360,10 +1360,34 @@ body.modo-pdf .documento {
       }
 
       item.text = this.valorCampoDocumento(field);
-      if (type === 'checkbox') {
+      if (type === 'radio' || type === 'select') {
+        const v = item.text.trim();
+        item.selected_options = v ? [v] : [];
+      } else if (type === 'checkbox' && field.options && field.options.length > 0) {
+        item.selected_options = field.options.filter((opt) => this.opcaoSelecionadaCheckbox(field, opt));
+        item.checked = item.selected_options.length > 0;
+      } else if (type === 'checkbox') {
         item.checked = this.checkboxBooleanoMarcado(field) || item.text.trim().length > 0;
       }
       out.push(item);
+    }
+
+    // Extras opcionais do mapa (logo / assinatura institucional)
+    const logoUrl = (this.clinicaLogo || '').trim();
+    if (logoUrl) {
+      const img = await fetchImageBytes(logoUrl);
+      if (img) {
+        out.push({
+          name_key: '__clinic_logo',
+          imageBytes: img.bytes,
+          imageMime: img.mime,
+        });
+        out.push({
+          name_key: '__clinic_signature',
+          imageBytes: img.bytes,
+          imageMime: img.mime,
+        });
+      }
     }
 
     return out;
