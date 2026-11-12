@@ -19,6 +19,7 @@ import { ConfirmDialogService } from '../../core/services/confirm-dialog.service
 import { AuthService } from '../../core/services/auth.service';
 import { ClinicaService, ClinicaConfig } from '../../core/services/clinica.service';
 import { PessoasService, Pessoa } from '../../core/services/pessoas.service';
+import { TemplatesService } from '../../core/services/templates.service';
 
 import { GestgoBadgeComponent } from '@/shared/components/badge/badge.component';
 import type { GestgoBadgeTypeVariants } from '@/shared/components/badge/badge.variants';
@@ -80,6 +81,7 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
   readonly revisaoEnviando = signal(false);
   readonly gerandoPdf = signal(false);
   readonly gerandoDossie = signal(false);
+  readonly baixandoOriginal = signal(false);
   /** Preview do PDF na própria página (sem pop-up). */
   readonly pdfPreviewUrl = signal<SafeResourceUrl | null>(null);
   private pdfPreviewObjectUrl: string | null = null;
@@ -109,6 +111,7 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
 
   private readonly route = inject(ActivatedRoute);
   private readonly protocolosService = inject(ProtocolosService);
+  private readonly templatesService = inject(TemplatesService);
   private readonly loadingService = inject(LoadingService);
   private readonly toast = inject(ToastService);
   private readonly confirm = inject(ConfirmDialogService);
@@ -1285,6 +1288,35 @@ body.modo-pdf .documento {
       error: () => {
         this.gerandoDossie.set(false);
         this.toast.error('Download', 'Não foi possível baixar o dossiê.');
+      },
+    });
+  }
+
+  get temDocumentoOriginal(): boolean {
+    return !!this.protocolo()?.template?.has_source_document;
+  }
+
+  baixarDocumentoOriginal(): void {
+    const p = this.protocolo();
+    const templateId = p?.template?.id ?? p?.template_id;
+    if (!p || !templateId || !this.temDocumentoOriginal || this.baixandoOriginal()) return;
+    this.baixandoOriginal.set(true);
+    this.templatesService.downloadSourceDocument(templateId).subscribe({
+      next: (blob) => {
+        this.baixandoOriginal.set(false);
+        const name =
+          p.template?.source_document_original_name ||
+          `documento-original-${p.protocol_number || p.id}.pdf`;
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = name;
+        a.click();
+        URL.revokeObjectURL(url);
+      },
+      error: () => {
+        this.baixandoOriginal.set(false);
+        this.toast.error('Documento original', 'Não foi possível baixar o PDF original.');
       },
     });
   }

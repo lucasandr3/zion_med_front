@@ -67,6 +67,11 @@ export interface Template {
   public_person_link_mode?: 'code' | 'cpf' | string;
   /** URL do formulário público quando o link está ativo (API pode retornar no GET template) */
   public_url?: string;
+  /** PDF original do documento (layout da clínica) anexado ao modelo. */
+  has_source_document?: boolean;
+  source_document_original_name?: string | null;
+  source_document_mime?: string | null;
+  source_document_size?: number | null;
   created_at: string;
   updated_at: string;
 }
@@ -224,6 +229,23 @@ export class TemplatesService {
 
   delete(id: number): Observable<void> {
     return this.api.delete<unknown>(`/templates/${id}`).pipe(map(() => undefined));
+  }
+
+  /** Anexa PDF original do documento ao modelo. */
+  uploadSourceDocument(id: number, file: File): Observable<Template> {
+    const form = new FormData();
+    form.append('file', file);
+    return this.api.postFormData<OneResponse>(`/templates/${id}/source-document`, form).pipe(map((r) => r.data));
+  }
+
+  /** Baixa o PDF original anexado ao modelo. */
+  downloadSourceDocument(id: number): Observable<Blob> {
+    return this.api.getBlob(`/templates/${id}/source-document`);
+  }
+
+  /** Remove o PDF original anexado ao modelo. */
+  deleteSourceDocument(id: number): Observable<Template> {
+    return this.api.delete<OneResponse>(`/templates/${id}/source-document`).pipe(map((r) => r.data));
   }
 
   getCampos(templateId: number): Observable<TemplateCampo[]> {

@@ -9,6 +9,20 @@
           <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">download</span>
           {{ gerandoPdf() ? 'Gerando…' : 'Baixar PDF' }}
         </nord-button>
+        @if (temDocumentoOriginal) {
+          <nord-button
+            variant="default"
+            size="s"
+            type="button"
+            (click)="baixarDocumentoOriginal()"
+            title="Baixar PDF original do modelo"
+            [attr.loading]="baixandoOriginal() || null"
+            [attr.disabled]="baixandoOriginal() || null"
+          >
+            <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">description</span>
+            {{ baixandoOriginal() ? 'Baixando…' : 'PDF original' }}
+          </nord-button>
+        }
         <nord-button variant="default" size="s" type="button" (click)="baixarDossie()" title="Baixar dossiê (ZIP)" [attr.loading]="gerandoDossie() || null" [attr.disabled]="gerandoDossie() || null">
           <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">draft</span>
           {{ gerandoDossie() ? 'Gerando…' : 'Dossiê ZIP' }}

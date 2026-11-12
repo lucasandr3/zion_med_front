@@ -83,7 +83,15 @@ export interface ProtocoloSignature {
 }
 
 export type ProtocoloDetalheData = Protocolo & {
-  template?: { name?: string; fields?: ProtocoloField[]; document_kind?: string; category?: string };
+  template?: {
+    id?: number;
+    name?: string;
+    fields?: ProtocoloField[];
+    document_kind?: string;
+    category?: string;
+    has_source_document?: boolean;
+    source_document_original_name?: string | null;
+  };
   template_version?: {
     id?: number;
     version?: number;
