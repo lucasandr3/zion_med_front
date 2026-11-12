@@ -1,8 +1,9 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpContext } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
+import { SEND_SESSION_CREDENTIALS } from '../interceptors/auth.interceptor';
 import { absoluteMediaUrl } from '../utils/absolute-media-url';
 import { FieldVisibilityRules } from '../utils/field-visibility.util';
 import { LinkBioService } from './link-bio.service';
@@ -352,9 +353,20 @@ export class FormularioPublicoService {
     );
   }
 
-  submit(token: string, payload: Record<string, unknown>): Observable<SubmitResponse['data']> {
+  /**
+   * @param options.useClinicSession — só no modo assistido (`?assistido=1`): envia cookie
+   *   da sessão do painel para validar o profissional. Link do paciente permanece anônimo.
+   */
+  submit(
+    token: string,
+    payload: Record<string, unknown>,
+    options?: { useClinicSession?: boolean },
+  ): Observable<SubmitResponse['data']> {
+    const context = new HttpContext().set(SEND_SESSION_CREDENTIALS, options?.useClinicSession === true);
     return this.http
-      .post<SubmitResponse>(`${BASE}/formulario-publico/${encodeURIComponent(token)}/submit`, payload)
+      .post<SubmitResponse>(`${BASE}/formulario-publico/${encodeURIComponent(token)}/submit`, payload, {
+        context,
+      })
       .pipe(map((r) => r.data));
   }
 
