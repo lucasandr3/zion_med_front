@@ -7,6 +7,8 @@ import { NovidadesService } from './novidades.service';
 /** Verificação periódica em segundo plano (15 min). */
 const CHECK_INTERVAL_MS = 15 * 60 * 1000;
 const BODY_BANNER_CLASS = 'app-update-banner-visible';
+/** Mesma chave de `AuthService` — evita DI circular Auth ↔ AppUpdate. */
+const SESSION_FLAG_KEY = 'gestgo_session';
 
 export type AppUpdateCheckResult = 'ready' | 'none' | 'unavailable' | 'error';
 
@@ -88,6 +90,11 @@ export class AppUpdateService {
   }
 
   private refreshReleaseMeta(): void {
+    // Endpoint autenticado — não chamar em links públicos do cliente.
+    // Checa a flag de sessão direto (AuthService já injeta este serviço).
+    if (typeof localStorage === 'undefined' || localStorage.getItem(SESSION_FLAG_KEY) !== '1') {
+      return;
+    }
     this.novidades.latest().subscribe({
       next: (latest) => {
         const version = latest.latest_version?.trim() || null;

@@ -27,7 +27,6 @@ import { GestgoTabComponent, GestgoTabGroupComponent } from '@/shared/components
 import { GestgoAvatarComponent } from '@/shared/components/avatar/avatar.component';
 import { NORD_FORM_IMPORTS } from '@/shared/nord';
 import { formatarDataBr, formatarDataHoraBr, formatarSeDataIso } from '@/shared/utils/date';
-import html2pdf from 'html2pdf.js';
 
 /** Linha do documento de impressão: agrupamento dinâmico de campos do template. */
 interface DocLinhaCampo {
@@ -785,6 +784,9 @@ body.modo-pdf .documento {
       // +24 evita corte do rodapé no html2canvas (não reduzir abaixo do conteúdo real)
       const contentHeight = Math.ceil(Math.max(target.scrollHeight, target.offsetHeight, 1)) + 24;
       const fitsOnePage = contentHeight <= a4Px + 4;
+
+      const html2pdfMod: any = await import('html2pdf.js');
+      const html2pdf = html2pdfMod.default ?? html2pdfMod;
 
       const html2pdfOpts: Record<string, unknown> = {
         margin: 0,
