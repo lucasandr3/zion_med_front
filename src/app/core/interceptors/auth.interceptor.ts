@@ -10,6 +10,12 @@ import { environment } from '../../../environments/environment';
 const CSRF_RETRIED = new HttpContextToken<boolean>(() => false);
 const MUTATING = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
 
+/**
+ * Opt-in: enviar cookie de sessão do painel em API pública normalmente anônima.
+ * Usado só no submit do formulário público em modo assistido (`?assistido=1`).
+ */
+export const SEND_SESSION_CREDENTIALS = new HttpContextToken<boolean>(() => false);
+
 /** APIs públicas (paciente/visitante) — nunca redirecionar para login em 401. */
 const PUBLIC_API_MARKERS = [
   '/formulario-publico',
@@ -29,11 +35,32 @@ const PUBLIC_API_MARKERS = [
   '/product-events',
 ] as const;
 
+/**
+ * APIs de visitante/paciente: não enviar cookie da sessão do painel.
+ * Evita misturar clínica logada com formulário público / link-bio / agenda pública.
+ * Auth (login/csrf/logout) continua com credentials.
+ */
+const STATELESS_PUBLIC_API_MARKERS = [
+  '/formulario-publico',
+  '/link-bio/public',
+  '/agenda/public',
+  '/landing',
+  '/comece',
+  '/demonstracao',
+  '/verificar/',
+  '/status',
+  '/product-events',
+] as const;
+
 /** Rotas SPA abertas ao cliente — 401 de qualquer API não deve forçar /autenticacao. */
 const PUBLIC_SPA_PREFIXES = ['/f/', '/l/', '/a/', '/verificar', '/planos', '/para/', '/como-funciona/', '/autenticacao', '/esqueci-a-senha', '/redefinir-senha', '/verificar-email', '/termos-de-uso', '/privacidade', '/f/sucesso'] as const;
 
 function isPublicApiUrl(url: string): boolean {
   return PUBLIC_API_MARKERS.some((marker) => url.includes(marker));
+}
+
+function isStatelessPublicApiUrl(url: string): boolean {
+  return STATELESS_PUBLIC_API_MARKERS.some((marker) => url.includes(marker));
 }
 
 function isPublicSpaRoute(url: string): boolean {
@@ -56,6 +83,8 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   const organizationId = auth.getCurrentOrganizationId();
   const isPublicApi = isPublicApiUrl(req.url);
+  const withCredentials =
+    !isStatelessPublicApiUrl(req.url) || req.context.get(SEND_SESSION_CREDENTIALS);
   const headers: Record<string, string> = {
     Accept:
       req.responseType === 'blob'
@@ -69,7 +98,8 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     headers['X-Clinic-Id'] = String(organizationId);
   }
 
-  if (MUTATING.has(req.method)) {
+  // CSRF só quando a request leva sessão (APIs do painel / modo assistido).
+  if (withCredentials && MUTATING.has(req.method)) {
     const csrf = auth.getCsrfToken();
     if (csrf) headers['X-CSRF-TOKEN'] = csrf;
   }
@@ -79,11 +109,16 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     headers['Content-Type'] = 'application/json';
   }
 
-  const clone = req.clone({ setHeaders: headers, withCredentials: true });
+  const clone = req.clone({ setHeaders: headers, withCredentials });
 
   return next(clone).pipe(
     catchError((err: HttpErrorResponse) => {
-      if (err.status === 419 && MUTATING.has(req.method) && !req.context.get(CSRF_RETRIED)) {
+      if (
+        withCredentials &&
+        err.status === 419 &&
+        MUTATING.has(req.method) &&
+        !req.context.get(CSRF_RETRIED)
+      ) {
         auth.clearCsrfToken();
         return auth.ensureCsrf().pipe(
           switchMap((token) => {

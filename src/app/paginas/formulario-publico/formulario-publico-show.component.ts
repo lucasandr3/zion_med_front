@@ -583,40 +583,47 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
       sendToken: this.sendToken || null,
     });
 
-    this.formularioService.submit(this.token, payload).subscribe({
-      next: (r) => {
-        this.enviando.set(false);
-        if (r.feegow?.code === 'consent_blocks_procedure') {
-          this.toast.warning(
-            'Agendamento Feegow',
-            r.feegow.message ?? 'O formulário foi enviado, mas o agendamento foi bloqueado por pendência de consentimento.',
+    this.formularioService
+      .submit(this.token, payload, { useClinicSession: this.assistedMode() })
+      .subscribe({
+        next: (r) => {
+          this.enviando.set(false);
+          if (r.feegow?.code === 'consent_blocks_procedure') {
+            this.toast.warning(
+              'Agendamento Feegow',
+              r.feegow.message ?? 'O formulário foi enviado, mas o agendamento foi bloqueado por pendência de consentimento.',
+            );
+          }
+          if (this.totemMode()) {
+            this.toast.success('Enviado', `Protocolo ${r.protocol_number ?? ''} registrado.`);
+            this.resetAfterTotemSubmit();
+            return;
+          }
+          fpClearCpfGateAuthorization(this.token);
+          fpPersistSubmitterIdentity(this.submitterName(), this.submitterEmail());
+          this.router.navigate(['/f/sucesso'], {
+            state: {
+              protocol_number: r.protocol_number,
+              clinic_name: this.data()?.clinic_name,
+              clinic_logo_url: this.data()?.logo_url ?? null,
+              patient_download_token: r.patient_download_token ?? null,
+              patient_download_url: r.patient_download_url ?? null,
+              patient_download_expires_at: r.patient_download_expires_at ?? null,
+              submitter_email: this.submitterEmail().trim() || null,
+            },
+          });
+        },
+        error: (err) => {
+          this.enviando.set(false);
+          this.erro.set(
+            err.error?.message ??
+              (err.error?.errors
+                ? Object.values(err.error.errors).flat().join(' ')
+                : 'Não foi possível enviar. Tente novamente.'),
           );
-        }
-        if (this.totemMode()) {
-          this.toast.success('Enviado', `Protocolo ${r.protocol_number ?? ''} registrado.`);
-          this.resetAfterTotemSubmit();
-          return;
-        }
-        fpClearCpfGateAuthorization(this.token);
-        fpPersistSubmitterIdentity(this.submitterName(), this.submitterEmail());
-        this.router.navigate(['/f/sucesso'], {
-          state: {
-            protocol_number: r.protocol_number,
-            clinic_name: this.data()?.clinic_name,
-            clinic_logo_url: this.data()?.logo_url ?? null,
-            patient_download_token: r.patient_download_token ?? null,
-            patient_download_url: r.patient_download_url ?? null,
-            patient_download_expires_at: r.patient_download_expires_at ?? null,
-            submitter_email: this.submitterEmail().trim() || null,
-          },
-        });
-      },
-      error: (err) => {
-        this.enviando.set(false);
-        this.erro.set(err.error?.message ?? (err.error?.errors ? Object.values(err.error.errors).flat().join(' ') : 'Não foi possível enviar. Tente novamente.'));
-        this.toast.error('Não foi possível enviar', this.erro());
-      },
-    });
+          this.toast.error('Não foi possível enviar', this.erro());
+        },
+      });
   }
 
   feegowEnabled(): boolean {
