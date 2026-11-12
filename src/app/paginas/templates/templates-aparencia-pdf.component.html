@@ -56,8 +56,8 @@
       oficial da clínica ({{ template()?.source_document_original_name || 'documento original' }}).
     </p>
     <p class="aparencia-hint">
-      Em rádio/checkbox com opções, mapeie <strong>cada opção</strong> (cada bolinha no PDF).
-      Depois arraste para ajustar. Salve ao terminar.
+      Selecione um item e <strong>desenhe</strong> no PDF. Para mover, <strong>arraste a caixa azul</strong>;
+      o cantinho redimensiona. Em rádio, mapeie cada opção.
       {{ mappedCount }} área(s) mapeada(s)@if (dirty()) { · alterações não salvas}.
     </p>
   </div>
@@ -182,13 +182,40 @@
 
       <div class="aparencia-canvas-wrap">
         <canvas #pdfCanvas class="aparencia-pdf-canvas" aria-hidden="true"></canvas>
-        <canvas
-          #overlayCanvas
-          class="aparencia-overlay-canvas"
-          (pointerdown)="onOverlayPointerDown($event)"
-          (pointermove)="onOverlayPointerMove($event)"
-          (pointerup)="onOverlayPointerUp($event)"
-        ></canvas>
+        <div
+          #overlayLayer
+          class="aparencia-overlay-layer"
+          (pointerdown)="onLayerPointerDown($event)"
+        >
+          @for (p of placementsOnPage(); track trackPlacement(p)) {
+            <div
+              class="aparencia-box"
+              [class.aparencia-box--selected]="isSelected(p)"
+              [style.left.%]="p.x * 100"
+              [style.top.%]="p.y * 100"
+              [style.width.%]="p.w * 100"
+              [style.height.%]="p.h * 100"
+              (pointerdown)="onBoxPointerDown($event, p)"
+            >
+              <span class="aparencia-box__label">{{ placementTitle(p) }}</span>
+              <button
+                type="button"
+                class="aparencia-box__handle"
+                title="Redimensionar"
+                (pointerdown)="onResizePointerDown($event, p)"
+              ></button>
+            </div>
+          }
+          @if (draftBox(); as draft) {
+            <div
+              class="aparencia-box aparencia-box--draft"
+              [style.left.%]="draft.x * 100"
+              [style.top.%]="draft.y * 100"
+              [style.width.%]="draft.w * 100"
+              [style.height.%]="draft.h * 100"
+            ></div>
+          }
+        </div>
       </div>
     </div>
   </div>
