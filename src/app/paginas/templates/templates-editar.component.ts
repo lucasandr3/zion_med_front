@@ -8,6 +8,7 @@ import { ZmPageBackLinkComponent } from '../../shared/components/ui';
 import { ToastService } from '../../core/services/toast.service';
 import { GestgoComboboxComponent, type GestgoComboboxOption } from '@/shared/components/combobox';
 import { GestgoCardComponent } from '@/shared/components/card/card.component';
+import { hasUsablePrintLayout, parsePrintLayout } from '../../core/utils/print-layout.util';
 
 import { NORD_FORM_IMPORTS } from '@/shared/nord';
 
@@ -271,7 +272,10 @@ export class TemplatesEditarComponent implements OnInit {
       next: (updated) => {
         this.sourceUploading.set(false);
         this.template.set(updated);
-        this.toast.success('PDF original', 'Documento anexado ao modelo.');
+        this.toast.success(
+          'PDF original',
+          'Documento anexado. Em seguida, use “Mapear aparência” para marcar onde cada resposta entra.',
+        );
       },
       error: (err) => {
         this.sourceUploading.set(false);
@@ -328,5 +332,13 @@ export class TemplatesEditarComponent implements OnInit {
     if (bytes < 1024) return `${bytes} B`;
     if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  }
+
+  get aparenciaMapeada(): boolean {
+    return hasUsablePrintLayout(parsePrintLayout(this.template()?.print_layout));
+  }
+
+  get aparenciaMappedCount(): number {
+    return parsePrintLayout(this.template()?.print_layout)?.placements.length ?? 0;
   }
 }

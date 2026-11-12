@@ -11,7 +11,11 @@ import {
   LinkBioPublicDocItem,
   LinkBioService,
 } from '../../core/services/link-bio.service';
-import { linkBioHeaderBrandImageUrl, linkBioHeroPortraitUrl } from '../../core/utils/link-bio-public-assets';
+import {
+  linkBioHeaderBrandImageUrl,
+  linkBioHeroBannerUrl,
+  linkBioProfessionalPortraitUrl,
+} from '../../core/utils/link-bio-public-assets';
 import { linkBioSpecialtiesList, parseLinkBioExtra } from '../../core/utils/link-bio-clinic-normalize.util';
 import {
   initialsFromName,
@@ -122,8 +126,14 @@ export class LinkBioPublicLayoutPresetComponent {
     return linkBioHeaderBrandImageUrl(this.clinic);
   }
 
+  /** Avatar circular da profissional — não é capa do hero. */
   get portraitUrl(): string | null {
-    return linkBioHeroPortraitUrl(this.clinic);
+    return linkBioProfessionalPortraitUrl(this.clinic);
+  }
+
+  /** Capa/banner do bloco hero-art (só cover_image). */
+  get heroBannerUrl(): string | null {
+    return linkBioHeroBannerUrl(this.clinic);
   }
 
   get eyebrow(): string {

@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { ApiService } from './api.service';
 import { map, Observable } from 'rxjs';
 import { FieldVisibilityRules } from '../utils/field-visibility.util';
+import { PrintLayout } from '../utils/print-layout.util';
 
 export type TemplateReviewStatus = 'draft' | 'pending' | 'approved';
 
@@ -72,6 +73,8 @@ export interface Template {
   source_document_original_name?: string | null;
   source_document_mime?: string | null;
   source_document_size?: number | null;
+  /** Mapa de áreas no PDF original (separado dos campos do formulário). */
+  print_layout?: PrintLayout | null;
   created_at: string;
   updated_at: string;
 }
@@ -222,7 +225,18 @@ export class TemplatesService {
 
   update(
     id: number,
-    payload: Partial<Template & { public_require_person_link?: boolean; public_person_link_mode?: string; document_kind?: string; consent_validity_days?: number | null; comprehension_quiz?: TemplateComprehensionQuestion[] | null; actors_visibility_rules?: FieldVisibilityRules | null; new_category?: string }>
+    payload: Partial<
+      Template & {
+        public_require_person_link?: boolean;
+        public_person_link_mode?: string;
+        document_kind?: string;
+        consent_validity_days?: number | null;
+        comprehension_quiz?: TemplateComprehensionQuestion[] | null;
+        actors_visibility_rules?: FieldVisibilityRules | null;
+        new_category?: string;
+        print_layout?: PrintLayout | null;
+      }
+    >,
   ): Observable<Template> {
     return this.api.put<OneResponse>(`/templates/${id}`, payload).pipe(map((r) => r.data));
   }

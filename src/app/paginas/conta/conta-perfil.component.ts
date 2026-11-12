@@ -15,8 +15,6 @@ import { NORD_FORM_IMPORTS } from '@/shared/nord';
 import { GestgoCardComponent } from '@/shared/components/card/card.component';
 
 import { GestgoTabComponent, GestgoTabGroupComponent } from '@/shared/components/tabs';
-import { GestgoComboboxComponent, type GestgoComboboxOption } from '@/shared/components/combobox';
-
 
 type ModoAssinatura = 'desenhar' | 'modelo';
 
@@ -60,7 +58,6 @@ function mensagemErroApi(err: { error?: { message?: string; errors?: Record<stri
     GestgoCardComponent,
     GestgoTabComponent,
     GestgoTabGroupComponent,
-    GestgoComboboxComponent,
     ZmSkeletonContaPerfilComponent],
   templateUrl: './conta-perfil.component.html',
   styleUrl: './conta-perfil.component.css',
@@ -85,10 +82,6 @@ export class ContaPerfilComponent implements OnInit {
   readonly versaoNovidades = signal<string | null>(null);
 
   readonly previewUrlServidor = signal<string | null>(null);
-  readonly opcoesFontes: GestgoComboboxOption[] = FONTES_ASSINATURA.map((f) => ({
-    value: f.id,
-    label: f.label,
-  }));
 
   usuarioAtual(): User | null {
     return this.auth.getUser();
@@ -124,10 +117,14 @@ export class ContaPerfilComponent implements OnInit {
   /** Nome livre para o modelo tipográfico (pré-preenche com o nome do perfil ao carregar). */
   nomeTextoAssinatura = '';
 
-  /** Nenhuma fonte até o usuário escolher. */
-  fonteSelecionadaId = '';
+  /** Pré-seleciona o primeiro estilo para o botão Salvar já ficar utilizável. */
+  fonteSelecionadaId = FONTES_ASSINATURA[0]?.id ?? '';
+
+  /** Marca se o canvas de desenho tem traço (habilita Salvar). */
+  readonly desenhoTemTraco = signal(false);
 
   salvando = false;
+  readonly fontesAssinatura = FONTES_ASSINATURA;
   senhaExclusao = '';
   confirmouExclusao = false;
   excluindoConta = false;
@@ -193,15 +190,31 @@ export class ContaPerfilComponent implements OnInit {
     this.setModo(ev.index === 0 ? 'desenhar' : 'modelo');
   }
 
-  onFonteComboboxChange(value: string | null): void {
-    this.fonteSelecionadaId = value ?? '';
+  selecionarFonte(id: string): void {
+    this.fonteSelecionadaId = id;
     this.onFonteChange();
+  }
+
+  textoPreviewFonte(fonte: DefinicaoFonteAssinatura): string {
+    const nome = this.textoNomeModelo().trim() || this.nomeExibicao();
+    const curto = nome.split(/\s+/).slice(0, 2).join(' ');
+    return curto || fonte.label;
+  }
+
+  podeSalvarModelo(): boolean {
+    return !!this.fonteSelecionadaId && this.textoNomeModelo().trim().length > 0 && !this.salvando;
+  }
+
+  podeSalvarDesenho(): boolean {
+    return this.desenhoTemTraco() && !this.salvando;
   }
 
   setModo(m: ModoAssinatura): void {
     this.modo = m;
     if (m === 'modelo') {
-      queueMicrotask(() => this.desenharModeloNoCanvas());
+      queueMicrotask(() => {
+        void this.desenharModeloQuandoFontesProntas();
+      });
     }
   }
 
@@ -278,6 +291,7 @@ export class ContaPerfilComponent implements OnInit {
   endDesenho(): void {
     const canvas = this.getCanvasDesenho();
     if (canvas) (canvas as unknown as { _signing?: boolean })._signing = false;
+    this.desenhoTemTraco.set(this.canvasTemTraço(canvas));
   }
 
   private pontoEvento(e: MouseEvent | TouchEvent, canvas: HTMLCanvasElement): { x: number; y: number } {
@@ -306,9 +320,22 @@ export class ContaPerfilComponent implements OnInit {
 
   limparDesenho(): void {
     this.initCanvasDesenho();
+    this.desenhoTemTraco.set(false);
   }
 
   onFonteChange(): void {
+    void this.desenharModeloQuandoFontesProntas();
+  }
+
+  private async desenharModeloQuandoFontesProntas(): Promise<void> {
+    const def = this.definicaoFonteSelecionada();
+    if (def && typeof document !== 'undefined' && document.fonts?.load) {
+      try {
+        await document.fonts.load(`${def.size}px ${def.family}`);
+      } catch {
+        /* segue com fallback do sistema */
+      }
+    }
     this.desenharModeloNoCanvas();
   }
 
@@ -369,28 +396,33 @@ export class ContaPerfilComponent implements OnInit {
     const ctx = canvas.getContext('2d');
     if (!ctx) return false;
     const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
-    for (let i = 0; i < data.length; i += 4 * 48) {
+    // Amostra a cada 4 pixels (16 bytes) — traços finos ainda são detectados.
+    for (let i = 0; i < data.length; i += 16) {
       const r = data[i];
       const g = data[i + 1];
       const b = data[i + 2];
       const a = data[i + 3];
-      if (a > 10 && (r < 250 || g < 250 || b < 250)) return true;
+      if (a > 8 && (r < 248 || g < 248 || b < 248)) return true;
     }
     return false;
   }
 
   salvarDesenho(): void {
+    if (this.salvando) return;
     const canvas = this.getCanvasDesenho();
-    if (!canvas || !this.canvasTemTraço(canvas)) {
+    const ok = this.canvasTemTraço(canvas);
+    this.desenhoTemTraco.set(ok);
+    if (!canvas || !ok) {
       this.toast.warning('Assinatura vazia', 'Desenhe no quadro antes de salvar.');
       return;
     }
     this.enviar(canvas.toDataURL('image/png'));
   }
 
-  salvarModelo(): void {
+  async salvarModelo(): Promise<void> {
+    if (this.salvando) return;
     if (!this.fonteSelecionadaId) {
-      this.toast.warning('Estilo obrigatório', 'Escolha o tipo de assinatura no menu.');
+      this.toast.warning('Estilo obrigatório', 'Escolha o tipo de assinatura.');
       return;
     }
     if (!this.textoNomeModelo().trim()) {
@@ -398,7 +430,7 @@ export class ContaPerfilComponent implements OnInit {
       return;
     }
 
-    this.desenharModeloNoCanvas();
+    await this.desenharModeloQuandoFontesProntas();
     const canvas = this.getCanvasModelo();
     if (!canvas) return;
     this.enviar(canvas.toDataURL('image/png'));

@@ -234,6 +234,54 @@
   margin-top: 1rem;
 }
 
+.sig-font-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr));
+  gap: 0.5rem;
+  margin-top: 0.35rem;
+}
+
+.sig-font-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.35rem;
+  width: 100%;
+  min-height: 4.25rem;
+  padding: 0.65rem 0.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--border, var(--c-border));
+  background: var(--card, var(--c-elevated, #fff));
+  color: var(--foreground, inherit);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.sig-font-chip:hover {
+  border-color: color-mix(in srgb, var(--primary, #2563eb) 45%, var(--border, #cbd5e1));
+}
+
+.sig-font-chip.is-selected {
+  border-color: var(--primary, #2563eb);
+  box-shadow: 0 0 0 1px var(--primary, #2563eb);
+}
+
+.sig-font-chip__sample {
+  font-size: 1.35rem;
+  line-height: 1.2;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sig-font-chip__label {
+  font-family: system-ui, sans-serif;
+  font-size: 0.7rem;
+  color: var(--muted-foreground, #64748b);
+}
+
 .sig-footer-actions {
   margin-top: 1.5rem;
   padding-top: 1.25rem;

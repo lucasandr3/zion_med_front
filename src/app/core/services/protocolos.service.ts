@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { ApiService } from './api.service';
 import { map, Observable } from 'rxjs';
+import type { PrintLayout } from '../utils/print-layout.util';
 
 export interface Protocolo {
   id: number;
@@ -91,6 +92,7 @@ export type ProtocoloDetalheData = Protocolo & {
     category?: string;
     has_source_document?: boolean;
     source_document_original_name?: string | null;
+    print_layout?: PrintLayout | null;
   };
   template_version?: {
     id?: number;
