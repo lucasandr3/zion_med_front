@@ -182,8 +182,8 @@ export class TemplatesEditarComponent implements OnInit {
     }
   }
 
-  onValidityDaysChange(raw: string): void {
-    const digits = (raw || '').replace(/\D/g, '');
+  onValidityDaysChange(raw: string | number | null): void {
+    const digits = String(raw ?? '').replace(/\D/g, '');
     if (!digits) {
       this.consent_validity_days = null;
       return;
