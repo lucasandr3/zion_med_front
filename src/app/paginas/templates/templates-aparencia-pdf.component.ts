@@ -67,6 +67,7 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
 
   private pdfDoc: PdfJsDoc | null = null;
   private pdfObjectUrl: string | null = null;
+  private workerBlobUrl: string | null = null;
   private dragStart: { x: number; y: number } | null = null;
   private renderToken = 0;
 
@@ -117,6 +118,7 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.pdfDoc?.destroy?.();
     if (this.pdfObjectUrl) URL.revokeObjectURL(this.pdfObjectUrl);
+    if (this.workerBlobUrl) URL.revokeObjectURL(this.workerBlobUrl);
   }
 
   get mappedCount(): number {
@@ -287,16 +289,11 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
           if (this.pdfObjectUrl) URL.revokeObjectURL(this.pdfObjectUrl);
           this.pdfObjectUrl = URL.createObjectURL(blob);
           const pdfjs = await import('pdfjs-dist');
-          // Worker servido via assets (angular.json) — evita MIME text/html do fallback SPA
-          pdfjs.GlobalWorkerOptions.workerSrc = this.pdfWorkerSrc();
-
           const data = new Uint8Array(await blob.arrayBuffer());
-          const loadingTask = pdfjs.getDocument({ data });
-          this.pdfDoc = (await loadingTask.promise) as unknown as PdfJsDoc;
+          this.pdfDoc = (await this.openPdfDocument(pdfjs, data)) as unknown as PdfJsDoc;
           this.pageCount.set(this.pdfDoc.numPages);
           this.pageIndex.set(0);
           this.carregando.set(false);
-          // Espera o canvas existir no DOM
           setTimeout(() => void this.renderPage(), 0);
         } catch (err) {
           console.error('[aparencia-pdf] falha ao abrir PDF', err);
@@ -311,8 +308,43 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
     });
   }
 
-  /** Caminho do worker compatível com base href do Angular. */
-  private pdfWorkerSrc(): string {
+  private async openPdfDocument(
+    pdfjs: typeof import('pdfjs-dist'),
+    data: Uint8Array,
+  ): Promise<PdfJsDoc> {
+    const cdnWorker = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
+
+    // 1) Blob com MIME text/javascript (contorna application/octet-stream do host)
+    try {
+      pdfjs.GlobalWorkerOptions.workerSrc = await this.workerSrcFromLocalAsset();
+      return (await pdfjs.getDocument({ data: data.slice() }).promise) as unknown as PdfJsDoc;
+    } catch (err) {
+      console.warn('[aparencia-pdf] worker blob falhou, tentando CDN', err);
+    }
+
+    // 2) CDN com MIME correto
+    pdfjs.GlobalWorkerOptions.workerSrc = cdnWorker;
+    return (await pdfjs.getDocument({ data: data.slice() }).promise) as unknown as PdfJsDoc;
+  }
+
+  /**
+   * Baixa o worker como texto e recria Blob com MIME JS.
+   * Evita o bloqueio de module script com application/octet-stream.
+   */
+  private async workerSrcFromLocalAsset(): Promise<string> {
+    if (this.workerBlobUrl) return this.workerBlobUrl;
+
+    const assetUrl = this.pdfWorkerAssetUrl();
+    const res = await fetch(assetUrl, { credentials: 'same-origin' });
+    if (!res.ok) throw new Error(`asset ${res.status}`);
+    const code = await res.text();
+    if (!code || code.trimStart().startsWith('<!')) throw new Error('asset HTML');
+    const workerBlob = new Blob([code], { type: 'text/javascript' });
+    this.workerBlobUrl = URL.createObjectURL(workerBlob);
+    return this.workerBlobUrl;
+  }
+
+  private pdfWorkerAssetUrl(): string {
     const base = document.querySelector('base')?.getAttribute('href') || '/';
     try {
       return new URL('assets/pdfjs/pdf.worker.min.mjs', window.location.origin + base).toString();
