@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   CUSTOM_ELEMENTS_SCHEMA,
   ElementRef,
   OnDestroy,
@@ -43,6 +44,21 @@ type PdfJsDoc = {
   destroy?: () => void;
 };
 
+type Gesture =
+  | { mode: 'draw'; startX: number; startY: number }
+  | {
+      mode: 'move';
+      target: PrintLayoutTarget;
+      grabX: number;
+      grabY: number;
+      start: PrintLayoutPlacement;
+    }
+  | {
+      mode: 'resize';
+      target: PrintLayoutTarget;
+      start: PrintLayoutPlacement;
+    };
+
 @Component({
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'app-templates-aparencia-pdf',
@@ -55,7 +71,7 @@ type PdfJsDoc = {
 })
 export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
   @ViewChild('pdfCanvas', { static: false }) pdfCanvas?: ElementRef<HTMLCanvasElement>;
-  @ViewChild('overlayCanvas', { static: false }) overlayCanvas?: ElementRef<HTMLCanvasElement>;
+  @ViewChild('overlayLayer', { static: false }) overlayLayer?: ElementRef<HTMLElement>;
 
   readonly template = signal<Template | null>(null);
   readonly campos = signal<TemplateCampo[]>([]);
@@ -67,29 +83,20 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
   readonly selectedTarget = signal<PrintLayoutTarget | null>(null);
   readonly placements = signal<PrintLayoutPlacement[]>([]);
   readonly dirty = signal(false);
+  readonly draftBox = signal<{ x: number; y: number; w: number; h: number } | null>(null);
   readonly systemTargets = SYSTEM_PRINT_TARGETS;
+
+  readonly placementsOnPage = computed(() =>
+    this.placements().filter((p) => p.page === this.pageIndex()),
+  );
 
   private pdfDoc: PdfJsDoc | null = null;
   private pdfObjectUrl: string | null = null;
   private workerBlobUrl: string | null = null;
-  private gesture:
-    | { mode: 'draw'; startX: number; startY: number }
-    | {
-        mode: 'move';
-        target: PrintLayoutTarget;
-        grabX: number;
-        grabY: number;
-        start: PrintLayoutPlacement;
-      }
-    | {
-        mode: 'resize';
-        target: PrintLayoutTarget;
-        startX: number;
-        startY: number;
-        start: PrintLayoutPlacement;
-      }
-    | null = null;
+  private gesture: Gesture | null = null;
   private renderToken = 0;
+  private readonly onWinMove = (e: PointerEvent) => this.onPointerMove(e);
+  private readonly onWinUp = (e: PointerEvent) => this.onPointerUp(e);
 
   private route = inject(ActivatedRoute);
   private templatesService = inject(TemplatesService);
@@ -136,6 +143,7 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.detachWindowListeners();
     this.pdfDoc?.destroy?.();
     if (this.pdfObjectUrl) URL.revokeObjectURL(this.pdfObjectUrl);
     if (this.workerBlobUrl) URL.revokeObjectURL(this.workerBlobUrl);
@@ -143,6 +151,10 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
 
   get mappedCount(): number {
     return this.placements().length;
+  }
+
+  trackPlacement(p: PrintLayoutPlacement): string {
+    return `${p.name_key}::${p.option ?? ''}@${p.page}`;
   }
 
   campoLabel(nameKey: string): string {
@@ -169,7 +181,6 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
     return [];
   }
 
-  /** Radio / checkbox / select com opções → mapear cada opção (bolinha no PDF). */
   fieldHasOptionTargets(campo: TemplateCampo): boolean {
     const t = (campo.type || '').toLowerCase();
     return (
@@ -201,8 +212,6 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
     const existing = this.placements().find((p) => samePlacement(p, target));
     if (existing && existing.page !== this.pageIndex()) {
       void this.goToPage(existing.page);
-    } else {
-      this.drawOverlays();
     }
   }
 
@@ -212,7 +221,6 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
     const cur = this.selectedTarget();
     if (cur && samePlacement(cur, target)) this.selectedTarget.set(null);
     this.dirty.set(true);
-    this.drawOverlays();
   }
 
   placementTitle(p: PrintLayoutPlacement): string {
@@ -235,230 +243,64 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
     void this.goToPage(this.pageIndex() + 1);
   }
 
-  onOverlayPointerDown(event: PointerEvent): void {
-    const canvas = this.overlayCanvas?.nativeElement;
-    if (!canvas) return;
-    const { x, y } = this.pointerNorm(event, canvas);
-    const page = this.pageIndex();
+  /** Clique no fundo do PDF → desenha nova área. */
+  onLayerPointerDown(event: PointerEvent): void {
+    if ((event.target as HTMLElement | null)?.closest?.('.aparencia-box')) return;
+    event.preventDefault();
+    const layer = this.overlayLayer?.nativeElement;
+    if (!layer) return;
+    const { x, y } = this.pointerNorm(event, layer);
 
-    // Redimensionar pelo canto SE da área selecionada
-    const cur = this.selectedTarget();
-    const selected = cur
-      ? this.placements().find((p) => samePlacement(p, cur) && p.page === page)
-      : undefined;
-    if (selected && this.hitResizeHandle(selected, x, y)) {
-      this.gesture = {
-        mode: 'resize',
-        target: { name_key: selected.name_key, option: selected.option ?? null },
-        startX: x,
-        startY: y,
-        start: { ...selected },
-      };
-      canvas.setPointerCapture(event.pointerId);
-      canvas.style.cursor = 'nwse-resize';
-      return;
-    }
-
-    // Arrastar área existente (mesmo sem selecionar antes)
-    const hit = this.findPlacementAt(x, y, page);
-    if (hit) {
-      this.selectedTarget.set({ name_key: hit.name_key, option: hit.option ?? null });
-      this.gesture = {
-        mode: 'move',
-        target: { name_key: hit.name_key, option: hit.option ?? null },
-        grabX: x - hit.x,
-        grabY: y - hit.y,
-        start: { ...hit },
-      };
-      canvas.setPointerCapture(event.pointerId);
-      canvas.style.cursor = 'grabbing';
-      this.drawOverlays();
-      return;
-    }
-
-    // Desenhar nova área (precisa de campo/opção selecionado)
     if (!this.selectedTarget()) {
       this.toast.warning(
         'Aparência do PDF',
-        'Selecione um campo (ou opção de rádio) à esquerda, ou arraste uma área já marcada.',
+        'Selecione um campo (ou opção) à esquerda e desenhe no PDF. Para mover, arraste a caixa azul.',
       );
       return;
     }
+
     this.gesture = { mode: 'draw', startX: x, startY: y };
-    canvas.setPointerCapture(event.pointerId);
-    canvas.style.cursor = 'crosshair';
+    this.draftBox.set({ x, y, w: 0, h: 0 });
+    this.attachWindowListeners();
   }
 
-  onOverlayPointerMove(event: PointerEvent): void {
-    const canvas = this.overlayCanvas?.nativeElement;
-    if (!canvas) return;
-    const { x, y } = this.pointerNorm(event, canvas);
-
-    if (!this.gesture) {
-      this.updateHoverCursor(canvas, x, y);
-      return;
-    }
-
-    if (this.gesture.mode === 'draw') {
-      this.drawOverlays({
-        x: Math.min(this.gesture.startX, x),
-        y: Math.min(this.gesture.startY, y),
-        w: Math.abs(x - this.gesture.startX),
-        h: Math.abs(y - this.gesture.startY),
-      });
-      return;
-    }
-
-    if (this.gesture.mode === 'move') {
-      const start = this.gesture.start;
-      const next = {
-        ...start,
-        x: clamp01(x - this.gesture.grabX),
-        y: clamp01(y - this.gesture.grabY),
-      };
-      // Mantém a caixa dentro da página
-      next.x = Math.min(next.x, 1 - start.w);
-      next.y = Math.min(next.y, 1 - start.h);
-      this.patchPlacement(this.gesture.target, next);
-      return;
-    }
-
-    if (this.gesture.mode === 'resize') {
-      const start = this.gesture.start;
-      const nextW = Math.max(0.01, x - start.x);
-      const nextH = Math.max(0.008, y - start.y);
-      this.patchPlacement(this.gesture.target, {
-        ...start,
-        w: Math.min(nextW, 1 - start.x),
-        h: Math.min(nextH, 1 - start.y),
-      });
-    }
-  }
-
-  onOverlayPointerUp(event: PointerEvent): void {
-    const canvas = this.overlayCanvas?.nativeElement;
-    const gesture = this.gesture;
-    this.gesture = null;
-    if (canvas) {
-      try {
-        canvas.releasePointerCapture(event.pointerId);
-      } catch {
-        /* ignore */
-      }
-      canvas.style.cursor = 'crosshair';
-    }
-    if (!gesture) return;
-
-    if (gesture.mode === 'move' || gesture.mode === 'resize') {
-      this.dirty.set(true);
-      this.drawOverlays();
-      return;
-    }
-
-    // draw
-    const target = this.selectedTarget();
-    if (!target) {
-      this.drawOverlays();
-      return;
-    }
-    const { x, y } = canvas
-      ? this.pointerNorm(event, canvas)
-      : { x: gesture.startX, y: gesture.startY };
-    const box = {
-      x: Math.min(gesture.startX, x),
-      y: Math.min(gesture.startY, y),
-      w: Math.abs(x - gesture.startX),
-      h: Math.abs(y - gesture.startY),
+  /** Arrastar caixa existente. */
+  onBoxPointerDown(event: PointerEvent, p: PrintLayoutPlacement): void {
+    event.preventDefault();
+    event.stopPropagation();
+    const layer = this.overlayLayer?.nativeElement;
+    if (!layer) return;
+    const { x, y } = this.pointerNorm(event, layer);
+    const target: PrintLayoutTarget = { name_key: p.name_key, option: p.option ?? null };
+    this.selectedTarget.set(target);
+    this.gesture = {
+      mode: 'move',
+      target,
+      grabX: x - p.x,
+      grabY: y - p.y,
+      start: { ...p },
     };
-    if (box.w < 0.01 || box.h < 0.008) {
-      this.drawOverlays();
-      return;
-    }
+    this.attachWindowListeners();
+  }
 
-    const field = this.campos().find((c) => c.name_key === target.name_key);
-    const system = SYSTEM_PRINT_TARGETS.find((t) => t.name_key === target.name_key);
-    const hasOption = !!(target.option && target.option.trim());
-    const placement: PrintLayoutPlacement = {
-      name_key: target.name_key,
-      option: hasOption ? target.option : null,
-      page: this.pageIndex(),
-      x: box.x,
-      y: box.y,
-      w: box.w,
-      h: box.h,
-      kind: system?.kind ?? inferPlacementKind(field?.type, hasOption),
-      align: 'left',
-      font_size: field?.type === 'textarea' ? 10 : 11,
+  /** Redimensionar pelo canto. */
+  onResizePointerDown(event: PointerEvent, p: PrintLayoutPlacement): void {
+    event.preventDefault();
+    event.stopPropagation();
+    const target: PrintLayoutTarget = { name_key: p.name_key, option: p.option ?? null };
+    this.selectedTarget.set(target);
+    this.gesture = {
+      mode: 'resize',
+      target,
+      start: { ...p },
     };
-    const others = this.placements().filter((p) => !samePlacement(p, placement));
-    this.placements.set([...others, placement]);
-    this.dirty.set(true);
-    this.drawOverlays();
-  }
-
-  private pointerNorm(
-    event: PointerEvent,
-    canvas: HTMLCanvasElement,
-  ): { x: number; y: number } {
-    const rect = canvas.getBoundingClientRect();
-    return {
-      x: clamp01((event.clientX - rect.left) / rect.width),
-      y: clamp01((event.clientY - rect.top) / rect.height),
-    };
-  }
-
-  private findPlacementAt(x: number, y: number, page: number): PrintLayoutPlacement | null {
-    // Prioriza a selecionada, depois a de cima (última na lista)
-    const onPage = this.placements().filter((p) => p.page === page);
-    const cur = this.selectedTarget();
-    const selected = cur ? onPage.find((p) => samePlacement(p, cur)) : undefined;
-    if (selected && this.pointInBox(x, y, selected)) return selected;
-    for (let i = onPage.length - 1; i >= 0; i--) {
-      const p = onPage[i]!;
-      if (this.pointInBox(x, y, p)) return p;
-    }
-    return null;
-  }
-
-  private pointInBox(x: number, y: number, box: PrintLayoutPlacement): boolean {
-    return x >= box.x && x <= box.x + box.w && y >= box.y && y <= box.y + box.h;
-  }
-
-  private hitResizeHandle(box: PrintLayoutPlacement, x: number, y: number): boolean {
-    const hx = box.x + box.w;
-    const hy = box.y + box.h;
-    const tol = 0.012;
-    return Math.abs(x - hx) <= tol && Math.abs(y - hy) <= tol;
-  }
-
-  private patchPlacement(target: PrintLayoutTarget, next: PrintLayoutPlacement): void {
-    this.placements.set(
-      this.placements().map((p) => (samePlacement(p, target) ? next : p)),
-    );
-    this.drawOverlays();
-  }
-
-  private updateHoverCursor(canvas: HTMLCanvasElement, x: number, y: number): void {
-    const page = this.pageIndex();
-    const cur = this.selectedTarget();
-    const selected = cur
-      ? this.placements().find((p) => samePlacement(p, cur) && p.page === page)
-      : undefined;
-    if (selected && this.hitResizeHandle(selected, x, y)) {
-      canvas.style.cursor = 'nwse-resize';
-      return;
-    }
-    if (this.findPlacementAt(x, y, page)) {
-      canvas.style.cursor = 'grab';
-      return;
-    }
-    canvas.style.cursor = this.selectedTarget() ? 'crosshair' : 'default';
+    this.attachWindowListeners();
   }
 
   limparTudo(): void {
     this.placements.set([]);
     this.dirty.set(true);
-    this.drawOverlays();
+    this.draftBox.set(null);
   }
 
   salvar(): void {
@@ -497,6 +339,102 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
       });
   }
 
+  private onPointerMove(event: PointerEvent): void {
+    if (!this.gesture) return;
+    const layer = this.overlayLayer?.nativeElement;
+    if (!layer) return;
+    const { x, y } = this.pointerNorm(event, layer);
+
+    if (this.gesture.mode === 'draw') {
+      this.draftBox.set({
+        x: Math.min(this.gesture.startX, x),
+        y: Math.min(this.gesture.startY, y),
+        w: Math.abs(x - this.gesture.startX),
+        h: Math.abs(y - this.gesture.startY),
+      });
+      return;
+    }
+
+    if (this.gesture.mode === 'move') {
+      const start = this.gesture.start;
+      let nx = clamp01(x - this.gesture.grabX);
+      let ny = clamp01(y - this.gesture.grabY);
+      nx = Math.min(nx, 1 - start.w);
+      ny = Math.min(ny, 1 - start.h);
+      this.patchPlacement(this.gesture.target, { ...start, x: nx, y: ny });
+      return;
+    }
+
+    if (this.gesture.mode === 'resize') {
+      const start = this.gesture.start;
+      const nextW = Math.max(0.01, Math.min(x - start.x, 1 - start.x));
+      const nextH = Math.max(0.008, Math.min(y - start.y, 1 - start.y));
+      this.patchPlacement(this.gesture.target, { ...start, w: nextW, h: nextH });
+    }
+  }
+
+  private onPointerUp(event: PointerEvent): void {
+    const gesture = this.gesture;
+    this.gesture = null;
+    this.detachWindowListeners();
+    if (!gesture) return;
+
+    if (gesture.mode === 'move' || gesture.mode === 'resize') {
+      this.dirty.set(true);
+      return;
+    }
+
+    const draft = this.draftBox();
+    this.draftBox.set(null);
+    const target = this.selectedTarget();
+    if (!target || !draft || draft.w < 0.01 || draft.h < 0.008) return;
+
+    const field = this.campos().find((c) => c.name_key === target.name_key);
+    const system = SYSTEM_PRINT_TARGETS.find((t) => t.name_key === target.name_key);
+    const hasOption = !!(target.option && target.option.trim());
+    const placement: PrintLayoutPlacement = {
+      name_key: target.name_key,
+      option: hasOption ? target.option : null,
+      page: this.pageIndex(),
+      x: draft.x,
+      y: draft.y,
+      w: draft.w,
+      h: draft.h,
+      kind: system?.kind ?? inferPlacementKind(field?.type, hasOption),
+      align: 'left',
+      font_size: field?.type === 'textarea' ? 10 : 11,
+    };
+    const others = this.placements().filter((p) => !samePlacement(p, placement));
+    this.placements.set([...others, placement]);
+    this.dirty.set(true);
+  }
+
+  private attachWindowListeners(): void {
+    window.addEventListener('pointermove', this.onWinMove, { passive: false });
+    window.addEventListener('pointerup', this.onWinUp, { passive: false });
+    window.addEventListener('pointercancel', this.onWinUp, { passive: false });
+  }
+
+  private detachWindowListeners(): void {
+    window.removeEventListener('pointermove', this.onWinMove);
+    window.removeEventListener('pointerup', this.onWinUp);
+    window.removeEventListener('pointercancel', this.onWinUp);
+  }
+
+  private pointerNorm(event: PointerEvent, el: HTMLElement): { x: number; y: number } {
+    const rect = el.getBoundingClientRect();
+    const w = Math.max(1, rect.width);
+    const h = Math.max(1, rect.height);
+    return {
+      x: clamp01((event.clientX - rect.left) / w),
+      y: clamp01((event.clientY - rect.top) / h),
+    };
+  }
+
+  private patchPlacement(target: PrintLayoutTarget, next: PrintLayoutPlacement): void {
+    this.placements.set(this.placements().map((p) => (samePlacement(p, target) ? next : p)));
+  }
+
   private loadPdf(templateId: number): void {
     this.templatesService.downloadSourceDocument(templateId).subscribe({
       next: async (blob) => {
@@ -529,7 +467,6 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
   ): Promise<PdfJsDoc> {
     const cdnWorker = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
-    // 1) Blob com MIME text/javascript (contorna application/octet-stream do host)
     try {
       pdfjs.GlobalWorkerOptions.workerSrc = await this.workerSrcFromLocalAsset();
       return (await pdfjs.getDocument({ data: data.slice() }).promise) as unknown as PdfJsDoc;
@@ -537,15 +474,10 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
       console.warn('[aparencia-pdf] worker blob falhou, tentando CDN', err);
     }
 
-    // 2) CDN com MIME correto
     pdfjs.GlobalWorkerOptions.workerSrc = cdnWorker;
     return (await pdfjs.getDocument({ data: data.slice() }).promise) as unknown as PdfJsDoc;
   }
 
-  /**
-   * Baixa o worker como texto e recria Blob com MIME JS.
-   * Evita o bloqueio de module script com application/octet-stream.
-   */
   private async workerSrcFromLocalAsset(): Promise<string> {
     if (this.workerBlobUrl) return this.workerBlobUrl;
 
@@ -571,8 +503,7 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
   private async renderPage(): Promise<void> {
     const doc = this.pdfDoc;
     const canvas = this.pdfCanvas?.nativeElement;
-    const overlay = this.overlayCanvas?.nativeElement;
-    if (!doc || !canvas || !overlay) return;
+    if (!doc || !canvas) return;
 
     const token = ++this.renderToken;
     const page = await doc.getPage(this.pageIndex() + 1);
@@ -581,58 +512,10 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
     const viewport = page.getViewport({ scale: 1.35 });
     canvas.width = Math.floor(viewport.width);
     canvas.height = Math.floor(viewport.height);
-    overlay.width = canvas.width;
-    overlay.height = canvas.height;
 
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
     await page.render({ canvasContext: ctx, viewport, canvas }).promise;
-    if (token !== this.renderToken) return;
-    this.drawOverlays();
-  }
-
-  private drawOverlays(draft?: { x: number; y: number; w: number; h: number }): void {
-    const overlay = this.overlayCanvas?.nativeElement;
-    if (!overlay) return;
-    const ctx = overlay.getContext('2d');
-    if (!ctx) return;
-    const w = overlay.width;
-    const h = overlay.height;
-    ctx.clearRect(0, 0, w, h);
-
-    for (const p of this.placements()) {
-      if (p.page !== this.pageIndex()) continue;
-      const selected = this.isSelected(p);
-      ctx.strokeStyle = selected ? '#0f766e' : '#2563eb';
-      ctx.fillStyle = selected ? 'rgba(15, 118, 110, 0.18)' : 'rgba(37, 99, 235, 0.14)';
-      ctx.lineWidth = selected ? 2.5 : 1.5;
-      ctx.fillRect(p.x * w, p.y * h, p.w * w, p.h * h);
-      ctx.strokeRect(p.x * w, p.y * h, p.w * w, p.h * h);
-      ctx.fillStyle = selected ? '#0f766e' : '#1d4ed8';
-      ctx.font = '600 11px Roboto, Arial, sans-serif';
-      ctx.fillText(this.placementTitle(p).slice(0, 42), p.x * w + 4, p.y * h + 14);
-
-      if (selected) {
-        const hx = (p.x + p.w) * w;
-        const hy = (p.y + p.h) * h;
-        const size = 8;
-        ctx.fillStyle = '#0f766e';
-        ctx.fillRect(hx - size / 2, hy - size / 2, size, size);
-        ctx.strokeStyle = '#ffffff';
-        ctx.lineWidth = 1.5;
-        ctx.strokeRect(hx - size / 2, hy - size / 2, size, size);
-      }
-    }
-
-    if (draft && draft.w > 0 && draft.h > 0) {
-      ctx.strokeStyle = '#ea580c';
-      ctx.fillStyle = 'rgba(234, 88, 12, 0.16)';
-      ctx.lineWidth = 2;
-      ctx.setLineDash([6, 4]);
-      ctx.fillRect(draft.x * w, draft.y * h, draft.w * w, draft.h * h);
-      ctx.strokeRect(draft.x * w, draft.y * h, draft.w * w, draft.h * h);
-      ctx.setLineDash([]);
-    }
   }
 }
 
