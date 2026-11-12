@@ -195,6 +195,9 @@ export interface FormularioPublicoData {
   form_accent_hex?: string | null;
   /** Oculta "Formulário por Gestgo" no cabeçalho público. */
   hide_platform_branding?: boolean;
+  /** PDF original (layout da clínica) disponível para o paciente baixar. */
+  has_source_document?: boolean;
+  source_document_original_name?: string | null;
   /** `basic` ou `reinforced` (OTP antes de assinar). */
   signing_security_level?: string;
   /** Evolution configurado para OTP por WhatsApp. */
@@ -375,6 +378,14 @@ export class FormularioPublicoService {
     return this.http.get(`${BASE}/formulario-publico/copia/${encodeURIComponent(copyToken)}`, {
       responseType: 'blob',
     });
+  }
+
+  /** Download do PDF original (em branco / layout da clínica) pelo token público do formulário. */
+  downloadSourceDocument(token: string): Observable<Blob> {
+    return this.http.get(
+      `${BASE}/formulario-publico/${encodeURIComponent(token)}/documento-original`,
+      { responseType: 'blob' },
+    );
   }
 
   /** Envia o link da cópia para um e-mail informado na tela de sucesso. */

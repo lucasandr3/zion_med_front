@@ -65,14 +65,15 @@
           <label class="templates-form-label" id="template-edit-kind-label">Tipo de documento</label>
           <z-combobox
             class="w-full"
+            zWidth="full"
             ariaLabelledby="template-edit-kind-label"
             [options]="opcoesDocumento"
-            [ngModel]="document_kind"
-            (ngModelChange)="onDocumentKindChange($event)"
-            name="document_kind"
+            [value]="document_kind"
+            (zValueChange)="onDocumentKindChange($event)"
           />
           <p class="mt-1.5 text-xs text-muted-foreground">
             Separar ficha, consentimento clínico e ciência de privacidade evita misturar finalidades no mesmo modelo.
+            Validade em dias e quiz valem para o tipo <strong>Consentimento informado</strong> (TCLE).
           </p>
         </div>
 
@@ -84,7 +85,7 @@
               type="number"
               min="1"
               max="3650"
-              [ngModel]="consent_validity_days ?? ''"
+              [ngModel]="consent_validity_days"
               (ngModelChange)="onValidityDaysChange($event)"
               name="consent_validity_days"
               class="w-full"

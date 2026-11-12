@@ -164,6 +164,7 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
   readonly otpErro = signal('');
   showSkeleton!: Signal<boolean>;
   readonly enviando = signal(false);
+  readonly baixandoOriginal = signal(false);
   readonly erro = signal('');
   readonly dark = signal(false);
   logoImageFailed = signal(false);
@@ -601,17 +602,20 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
           }
           fpClearCpfGateAuthorization(this.token);
           fpPersistSubmitterIdentity(this.submitterName(), this.submitterEmail());
-          this.router.navigate(['/f/sucesso'], {
-            state: {
-              protocol_number: r.protocol_number,
-              clinic_name: this.data()?.clinic_name,
-              clinic_logo_url: this.data()?.logo_url ?? null,
-              patient_download_token: r.patient_download_token ?? null,
-              patient_download_url: r.patient_download_url ?? null,
-              patient_download_expires_at: r.patient_download_expires_at ?? null,
-              submitter_email: this.submitterEmail().trim() || null,
-            },
-          });
+        this.router.navigate(['/f/sucesso'], {
+          state: {
+            protocol_number: r.protocol_number,
+            clinic_name: this.data()?.clinic_name,
+            clinic_logo_url: this.data()?.logo_url ?? null,
+            patient_download_token: r.patient_download_token ?? null,
+            patient_download_url: r.patient_download_url ?? null,
+            patient_download_expires_at: r.patient_download_expires_at ?? null,
+            submitter_email: this.submitterEmail().trim() || null,
+            public_form_token: this.token || null,
+            has_source_document: !!this.data()?.has_source_document,
+            source_document_original_name: this.data()?.source_document_original_name ?? null,
+          },
+        });
         },
         error: (err) => {
           this.enviando.set(false);
@@ -624,6 +628,31 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
           this.toast.error('Não foi possível enviar', this.erro());
         },
       });
+  }
+
+  temDocumentoOriginal(): boolean {
+    return !!this.data()?.has_source_document;
+  }
+
+  baixarDocumentoOriginal(): void {
+    if (!this.token || !this.temDocumentoOriginal() || this.baixandoOriginal()) return;
+    this.baixandoOriginal.set(true);
+    this.formularioService.downloadSourceDocument(this.token).subscribe({
+      next: (blob) => {
+        this.baixandoOriginal.set(false);
+        const name = this.data()?.source_document_original_name || 'documento-original.pdf';
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = name;
+        a.click();
+        URL.revokeObjectURL(url);
+      },
+      error: () => {
+        this.baixandoOriginal.set(false);
+        this.toast.error('Documento original', 'Não foi possível baixar o PDF agora.');
+      },
+    });
   }
 
   feegowEnabled(): boolean {
