@@ -287,17 +287,19 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
           if (this.pdfObjectUrl) URL.revokeObjectURL(this.pdfObjectUrl);
           this.pdfObjectUrl = URL.createObjectURL(blob);
           const pdfjs = await import('pdfjs-dist');
-          const workerUrl = new URL('pdfjs-dist/build/pdf.worker.min.mjs', import.meta.url).toString();
-          pdfjs.GlobalWorkerOptions.workerSrc = workerUrl;
+          // Worker servido via assets (angular.json) — evita MIME text/html do fallback SPA
+          pdfjs.GlobalWorkerOptions.workerSrc = this.pdfWorkerSrc();
 
-          const loadingTask = pdfjs.getDocument({ url: this.pdfObjectUrl });
+          const data = new Uint8Array(await blob.arrayBuffer());
+          const loadingTask = pdfjs.getDocument({ data });
           this.pdfDoc = (await loadingTask.promise) as unknown as PdfJsDoc;
           this.pageCount.set(this.pdfDoc.numPages);
           this.pageIndex.set(0);
           this.carregando.set(false);
           // Espera o canvas existir no DOM
           setTimeout(() => void this.renderPage(), 0);
-        } catch {
+        } catch (err) {
+          console.error('[aparencia-pdf] falha ao abrir PDF', err);
           this.carregando.set(false);
           this.erro.set('Não foi possível abrir o PDF original.');
         }
@@ -307,6 +309,16 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
         this.erro.set('Não foi possível baixar o PDF original.');
       },
     });
+  }
+
+  /** Caminho do worker compatível com base href do Angular. */
+  private pdfWorkerSrc(): string {
+    const base = document.querySelector('base')?.getAttribute('href') || '/';
+    try {
+      return new URL('assets/pdfjs/pdf.worker.min.mjs', window.location.origin + base).toString();
+    } catch {
+      return '/assets/pdfjs/pdf.worker.min.mjs';
+    }
   }
 
   private async renderPage(): Promise<void> {
