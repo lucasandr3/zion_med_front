@@ -606,6 +606,16 @@
 
         <g-tab label="Impressão" icon="print">
           <div class="protocolo-tab-panel protocolo-tab-panel--impressao">
+            @if (temAparenciaPdfMapeada) {
+              <p class="protocolo-print-brand-hint">
+                Este protocolo tem mapa de aparência: ao baixar ou visualizar o PDF, as respostas entram no layout original da clínica.
+              </p>
+            } @else if (temDocumentoOriginal) {
+              <p class="protocolo-print-brand-hint protocolo-print-brand-hint--warn">
+                Há PDF original no modelo, mas a aparência ainda não foi mapeada. O download usa o layout padrão até mapear em
+                <a [routerLink]="['/templates', protocolo()!.template_id || protocolo()!.template?.id, 'aparencia-pdf']">Mapear aparência</a>.
+              </p>
+            }
             <div class="protocolo-print-preview">
             <div id="documento-impressao" class="protocolo-print-sheet documento">
               <header class="dp-header">

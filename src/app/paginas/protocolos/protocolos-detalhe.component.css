@@ -725,6 +725,29 @@
   background: #e8edf2;
 }
 
+.protocolo-print-brand-hint {
+  margin: 0.75rem 1rem 0;
+  padding: 0.65rem 0.85rem;
+  border-radius: 8px;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  color: #065f46;
+  font-size: 0.82rem;
+  line-height: 1.4;
+}
+
+.protocolo-print-brand-hint--warn {
+  background: #fffbeb;
+  border-color: #fcd34d;
+  color: #92400e;
+}
+
+.protocolo-print-brand-hint a {
+  color: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+}
+
 .protocolo-print-preview {
   display: flex;
   justify-content: center;

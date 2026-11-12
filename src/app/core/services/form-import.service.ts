@@ -92,13 +92,25 @@ export class FormImportService {
 
   commit(id: number, payload: { name?: string; fields?: FormImportField[] }): Observable<{
     form_import: FormImportItem;
-    template: { id: number; name: string };
+    template: {
+      id: number;
+      name: string;
+      has_source_document?: boolean;
+      source_document_original_name?: string | null;
+    };
   }> {
     return this.api
-      .post<{ data: { form_import: FormImportItem; template: { id: number; name: string } } }>(
-        `/form-imports/${id}/commit`,
-        payload,
-      )
+      .post<{
+        data: {
+          form_import: FormImportItem;
+          template: {
+            id: number;
+            name: string;
+            has_source_document?: boolean;
+            source_document_original_name?: string | null;
+          };
+        };
+      }>(`/form-imports/${id}/commit`, payload)
       .pipe(map((r) => r.data));
   }
 }

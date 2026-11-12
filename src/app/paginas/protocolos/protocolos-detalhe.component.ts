@@ -20,6 +20,9 @@ import { AuthService } from '../../core/services/auth.service';
 import { ClinicaService, ClinicaConfig } from '../../core/services/clinica.service';
 import { PessoasService, Pessoa } from '../../core/services/pessoas.service';
 import { TemplatesService } from '../../core/services/templates.service';
+import { fillSourcePdf, fetchImageBytes, type FillSourcePdfFieldValue } from '../../core/utils/fill-source-pdf.util';
+import { hasUsablePrintLayout, parsePrintLayout } from '../../core/utils/print-layout.util';
+import { firstValueFrom } from 'rxjs';
 
 import { GestgoBadgeComponent } from '@/shared/components/badge/badge.component';
 import type { GestgoBadgeTypeVariants } from '@/shared/components/badge/badge.variants';
@@ -748,9 +751,13 @@ body.modo-pdf .documento {
 
   /**
    * Gera PDF A4 a partir do HTML isolado — mesmo padding/layout da prévia na tela.
+   * Se o modelo tiver PDF original + mapa de aparência, preenche em cima do layout da clínica.
    * Margem do jsPDF = 0 porque o recuo já está no `.documento` (14mm/18mm).
    */
   private async gerarPdfBlobDaTela(): Promise<Blob> {
+    const branded = await this.gerarPdfComAparenciaClinica();
+    if (branded) return branded;
+
     if (this.abaAtiva() !== 'impressao') {
       this.setAbaAtiva('impressao');
       await new Promise((r) => setTimeout(r, 180));
@@ -1294,6 +1301,72 @@ body.modo-pdf .documento {
 
   get temDocumentoOriginal(): boolean {
     return !!this.protocolo()?.template?.has_source_document;
+  }
+
+  get temAparenciaPdfMapeada(): boolean {
+    return hasUsablePrintLayout(parsePrintLayout(this.protocolo()?.template?.print_layout));
+  }
+
+  /** PDF preenchido no layout original da clínica (se houver mapa). */
+  private async gerarPdfComAparenciaClinica(): Promise<Blob | null> {
+    const p = this.protocolo();
+    const templateId = p?.template?.id ?? p?.template_id;
+    if (!p || !templateId || !this.temDocumentoOriginal) return null;
+
+    let layout = parsePrintLayout(p.template?.print_layout);
+    if (!hasUsablePrintLayout(layout)) {
+      try {
+        const tpl = await firstValueFrom(this.templatesService.get(templateId));
+        layout = parsePrintLayout(tpl.print_layout);
+        if (p.template) p.template.print_layout = layout;
+      } catch {
+        return null;
+      }
+    }
+    if (!layout || !hasUsablePrintLayout(layout)) return null;
+
+    const sourceBlob = await firstValueFrom(this.templatesService.downloadSourceDocument(templateId));
+    const sourceBytes = new Uint8Array(await sourceBlob.arrayBuffer());
+    const values = await this.montarValoresPrintLayout();
+    return fillSourcePdf({ sourcePdfBytes: sourceBytes, layout, values });
+  }
+
+  private async montarValoresPrintLayout(): Promise<FillSourcePdfFieldValue[]> {
+    const fields = this.protocolo()?.template?.fields || this.camposRespostas();
+    const out: FillSourcePdfFieldValue[] = [];
+
+    for (const field of fields) {
+      const item: FillSourcePdfFieldValue = { name_key: field.name_key };
+      const type = (field.type || '').toLowerCase();
+
+      if (type === 'signature') {
+        const url = this.assinaturaDocumento(field.name_key);
+        if (url) {
+          const img = await fetchImageBytes(url);
+          if (img) {
+            item.imageBytes = img.bytes;
+            item.imageMime = img.mime;
+          }
+        }
+        out.push(item);
+        continue;
+      }
+
+      if (type === 'checkbox' && (!field.options || field.options.length === 0)) {
+        item.checked = this.checkboxBooleanoMarcado(field);
+        item.text = this.valorCampoDocumento(field);
+        out.push(item);
+        continue;
+      }
+
+      item.text = this.valorCampoDocumento(field);
+      if (type === 'checkbox') {
+        item.checked = this.checkboxBooleanoMarcado(field) || item.text.trim().length > 0;
+      }
+      out.push(item);
+    }
+
+    return out;
   }
 
   baixarDocumentoOriginal(): void {
