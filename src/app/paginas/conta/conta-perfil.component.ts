@@ -23,20 +23,55 @@ interface DefinicaoFonteAssinatura {
   label: string;
   family: string;
   size: number;
+  /** Agrupa estilos bem diferentes na grade. */
+  group: 'elegante' | 'moderna' | 'mao' | 'impacto' | 'formal';
 }
 
 const FONTES_ASSINATURA: DefinicaoFonteAssinatura[] = [
-  { id: 'great-vibes', label: 'Cursiva clássica', family: '"Great Vibes", cursive', size: 38 },
-  { id: 'dancing-script', label: 'Cursiva suave', family: '"Dancing Script", cursive', size: 36 },
-  { id: 'allura', label: 'Traço fluido uniforme', family: '"Allura", cursive', size: 36 },
-  { id: 'pacifico', label: 'Arredondada moderna', family: '"Pacifico", cursive', size: 32 },
-  { id: 'sacramento', label: 'Cursiva elegante alta', family: '"Sacramento", cursive', size: 40 },
-  { id: 'alex-brush', label: 'Pincel suave', family: '"Alex Brush", cursive', size: 40 },
-  { id: 'mr-dafoe', label: 'Estilo hollywoodiano', family: '"Mr Dafoe", cursive', size: 38 },
-  { id: 'italianno', label: 'Tradicional fina', family: '"Italianno", cursive', size: 42 },
-  { id: 'tangerine', label: 'Minimalista fina', family: '"Tangerine", cursive', size: 44 },
-  { id: 'sofia', label: 'Manuscrito simples', family: '"Sofia", cursive', size: 34 },
-  { id: 'caveat', label: 'Informal à mão', family: '"Caveat", cursive', size: 40 }];
+  // Elegantes (cursivas clássicas)
+  { id: 'great-vibes', label: 'Cursiva clássica', family: '"Great Vibes", cursive', size: 38, group: 'elegante' },
+  { id: 'allura', label: 'Traço fluido', family: '"Allura", cursive', size: 36, group: 'elegante' },
+  { id: 'alex-brush', label: 'Pincel suave', family: '"Alex Brush", cursive', size: 40, group: 'elegante' },
+  { id: 'parisienne', label: 'Francesa leve', family: '"Parisienne", cursive', size: 36, group: 'elegante' },
+  { id: 'pinyon-script', label: 'Convite clássico', family: '"Pinyon Script", cursive', size: 34, group: 'elegante' },
+  { id: 'italianno', label: 'Tradicional fina', family: '"Italianno", cursive', size: 42, group: 'elegante' },
+  // Modernas / arredondadas
+  { id: 'pacifico', label: 'Arredondada moderna', family: '"Pacifico", cursive', size: 32, group: 'moderna' },
+  { id: 'satisfy', label: 'Fluxo contemporâneo', family: '"Satisfy", cursive', size: 36, group: 'moderna' },
+  { id: 'yellowtail', label: 'Retrô ousada', family: '"Yellowtail", cursive', size: 38, group: 'moderna' },
+  { id: 'marck-script', label: 'Script marcada', family: '"Marck Script", cursive', size: 34, group: 'moderna' },
+  { id: 'style-script', label: 'Estilo editorial', family: '"Style Script", cursive', size: 36, group: 'moderna' },
+  { id: 'meow-script', label: 'Cursiva jovial', family: '"Meow Script", cursive', size: 36, group: 'moderna' },
+  // À mão / casuais (bem distintas das cursivas)
+  { id: 'caveat', label: 'Caderno à mão', family: '"Caveat", cursive', size: 40, group: 'mao' },
+  { id: 'kalam', label: 'Caneta escolar', family: '"Kalam", cursive', size: 34, group: 'mao' },
+  { id: 'architects-daughter', label: 'Letra de arquiteto', family: '"Architects Daughter", cursive', size: 30, group: 'mao' },
+  { id: 'homemade-apple', label: 'Rabisco natural', family: '"Homemade Apple", cursive', size: 32, group: 'mao' },
+  { id: 'shadows-into-light', label: 'Impressa solta', family: '"Shadows Into Light", cursive', size: 34, group: 'mao' },
+  { id: 'nothing-you-could-do', label: 'Traço fino irregular', family: '"Nothing You Could Do", cursive', size: 34, group: 'mao' },
+  { id: 'reenie-beanie', label: 'Bilhete rápido', family: '"Reenie Beanie", cursive', size: 40, group: 'mao' },
+  { id: 'gloria-hallelujah', label: 'Agenda pessoal', family: '"Gloria Hallelujah", cursive', size: 28, group: 'mao' },
+  // Impacto / marcador
+  { id: 'rock-salt', label: 'Carimbo à mão', family: '"Rock Salt", cursive', size: 28, group: 'impacto' },
+  { id: 'permanent-marker', label: 'Marcador grosso', family: '"Permanent Marker", cursive', size: 30, group: 'impacto' },
+  { id: 'mr-dafoe', label: 'Hollywood bold', family: '"Mr Dafoe", cursive', size: 38, group: 'impacto' },
+  { id: 'norican', label: 'Assinatura firme', family: '"Norican", cursive', size: 36, group: 'impacto' },
+  // Formais / cerimônia
+  { id: 'sacramento', label: 'Elegante alta', family: '"Sacramento", cursive', size: 40, group: 'formal' },
+  { id: 'tangerine', label: 'Minimalista fina', family: '"Tangerine", cursive', size: 44, group: 'formal' },
+  { id: 'dancing-script', label: 'Cursiva suave', family: '"Dancing Script", cursive', size: 36, group: 'formal' },
+  { id: 'windsong', label: 'Caligrafia aérea', family: '"WindSong", cursive', size: 34, group: 'formal' },
+  { id: 'imperial-script', label: 'Imperial cerimonial', family: '"Imperial Script", cursive', size: 36, group: 'formal' },
+  { id: 'birthstone', label: 'Joia tipográfica', family: '"Birthstone", cursive', size: 40, group: 'formal' },
+];
+
+const GRUPOS_FONTE_ASSINATURA: Array<{ id: DefinicaoFonteAssinatura['group']; title: string }> = [
+  { id: 'elegante', title: 'Elegantes' },
+  { id: 'moderna', title: 'Modernas' },
+  { id: 'mao', title: 'À mão / casuais' },
+  { id: 'impacto', title: 'Marcador / impacto' },
+  { id: 'formal', title: 'Formais' },
+];
 
 function mensagemErroApi(err: { error?: { message?: string; errors?: Record<string, string[]> } }): string {
   const e = err.error;
@@ -125,6 +160,11 @@ export class ContaPerfilComponent implements OnInit {
 
   salvando = false;
   readonly fontesAssinatura = FONTES_ASSINATURA;
+  readonly gruposFonteAssinatura = GRUPOS_FONTE_ASSINATURA;
+
+  fontesDoGrupo(group: DefinicaoFonteAssinatura['group']): DefinicaoFonteAssinatura[] {
+    return FONTES_ASSINATURA.filter((f) => f.group === group);
+  }
   senhaExclusao = '';
   confirmouExclusao = false;
   excluindoConta = false;

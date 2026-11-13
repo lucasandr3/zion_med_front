@@ -18,6 +18,7 @@ import { ToastService } from '../../core/services/toast.service';
 import { ConfirmDialogService } from '../../core/services/confirm-dialog.service';
 import { AuthService } from '../../core/services/auth.service';
 import { ClinicaService, ClinicaConfig } from '../../core/services/clinica.service';
+import { ContaPerfilService } from '../../core/services/conta-perfil.service';
 import { PessoasService, Pessoa } from '../../core/services/pessoas.service';
 import { TemplatesService } from '../../core/services/templates.service';
 import { fillSourcePdf, fetchImageBytes, type FillSourcePdfFieldValue } from '../../core/utils/fill-source-pdf.util';
@@ -123,6 +124,7 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
   private readonly confirm = inject(ConfirmDialogService);
   private readonly auth = inject(AuthService);
   private readonly clinicaService = inject(ClinicaService);
+  private readonly contaPerfilService = inject(ContaPerfilService);
   private readonly pessoasService = inject(PessoasService);
   private readonly injector = inject(Injector);
 
@@ -353,9 +355,10 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
   }
 
   /** Na aba Impressão, se houver mapa, carrega a prévia embutida (sem abrir o modal). */
-  private garantirPreviewAparenciaClinica(): void {
+  private garantirPreviewAparenciaClinica(force = false): void {
     if (!this.temAparenciaPdfMapeada) return;
-    if (this.brandedInlinePreviewUrl() || this.gerandoPdf()) return;
+    if (this.gerandoPdf()) return;
+    if (!force && this.brandedInlinePreviewUrl()) return;
     this.gerandoPdf.set(true);
     void this.gerarPdfBlobDaTela()
       .then((blob) => {
@@ -430,11 +433,24 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
     return '';
   }
 
-  /** Imprime via iframe oculto — não depende de pop-up. */
+  /** Imprime via iframe oculto — não depende de pop-up. Com mapa, usa o PDF branded. */
   imprimirFicha(): void {
     if (this.abaAtiva() !== 'impressao') {
       this.setAbaAtiva('impressao');
     }
+
+    if (this.temAparenciaPdfMapeada) {
+      if (this.gerandoPdf()) return;
+      this.gerandoPdf.set(true);
+      void this.gerarPdfBlobDaTela()
+        .then((blob) => this.imprimirPdfBlob(blob))
+        .catch((err: unknown) => {
+          this.toast.error('Impressão', err instanceof Error ? err.message : 'Não foi possível imprimir.');
+        })
+        .finally(() => this.gerandoPdf.set(false));
+      return;
+    }
+
     const el = document.getElementById('documento-impressao');
     if (!el) {
       this.toast.error('Impressão', 'Documento não encontrado. Abra a aba Impressão e tente de novo.');
@@ -456,6 +472,36 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
     }).catch((err: unknown) => {
       this.toast.error('Impressão', err instanceof Error ? err.message : 'Não foi possível imprimir.');
     });
+  }
+
+  private async imprimirPdfBlob(blob: Blob): Promise<void> {
+    const pdfBlob =
+      blob.type === 'application/pdf' ? blob : new Blob([blob], { type: 'application/pdf' });
+    const url = URL.createObjectURL(pdfBlob);
+    const iframe = document.createElement('iframe');
+    iframe.setAttribute('aria-hidden', 'true');
+    iframe.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;opacity:0;pointer-events:none';
+    document.body.appendChild(iframe);
+    try {
+      await new Promise<void>((resolve, reject) => {
+        iframe.onload = () => resolve();
+        iframe.onerror = () => reject(new Error('Falha ao carregar PDF para impressão.'));
+        iframe.src = url;
+      });
+      const win = iframe.contentWindow;
+      if (!win) throw new Error('Não foi possível preparar a impressão.');
+      await new Promise<void>((resolve) => setTimeout(resolve, 120));
+      await new Promise<void>((resolve) => {
+        const done = () => resolve();
+        win.addEventListener('afterprint', done, { once: true });
+        win.focus();
+        win.print();
+        setTimeout(done, 2500);
+      });
+    } finally {
+      iframe.remove();
+      URL.revokeObjectURL(url);
+    }
   }
 
   private montarHtmlImpressaoIsolada(el: HTMLElement, modo: 'print' | 'pdf' = 'print'): string {
@@ -1360,7 +1406,10 @@ body.modo-pdf .documento {
       try {
         const tpl = await firstValueFrom(this.templatesService.get(templateId));
         layout = parsePrintLayout(tpl.print_layout);
-        if (p.template) p.template.print_layout = layout;
+        if (p.template) {
+          p.template.print_layout = layout;
+          p.template.has_source_document = tpl.has_source_document ?? p.template.has_source_document;
+        }
       } catch {
         return null;
       }
@@ -1371,40 +1420,18 @@ body.modo-pdf .documento {
     const sourceBytes = new Uint8Array(await sourceBlob.arrayBuffer());
     const values = await this.montarValoresPrintLayout();
 
-    // Se o mapa pede assinatura/logo e o browser não conseguiu baixar (CORS MinIO),
-    // usa o PDF do servidor — lá a imagem sai direto do storage.
-    const precisaImagem = layout.placements.some(
-      (pl) =>
-        pl.kind === 'signature' ||
-        pl.kind === 'image' ||
-        pl.name_key === '__clinic_logo' ||
-        pl.name_key === '__clinic_signature' ||
-        pl.name_key === '__verify_qr',
-    );
-    if (precisaImagem) {
-      const faltando = layout.placements
-        .filter(
-          (pl) =>
-            pl.kind === 'signature' ||
-            pl.kind === 'image' ||
-            pl.name_key === '__clinic_logo' ||
-            pl.name_key === '__clinic_signature' ||
-            pl.name_key === '__verify_qr',
-        )
-        .some((pl) => {
-          const v = values.find((x) => x.name_key === pl.name_key);
-          return !v?.imageBytes?.length;
-        });
-      if (faltando) {
-        try {
-          return await firstValueFrom(this.protocolosService.pdf(p.id, { fresh: true }));
-        } catch {
-          // segue com o fill local (sem assinatura) em vez de falhar tudo
-        }
+    try {
+      // Fill local com logo/assinatura via API autenticada (sem CORS MinIO).
+      // Nunca troca o mapa por DomPDF genérico só porque faltou uma imagem.
+      return await fillSourcePdf({ sourcePdfBytes: sourceBytes, layout, values });
+    } catch (err) {
+      console.warn('[protocolo-pdf] fill local falhou, tentando servidor', err);
+      try {
+        return await firstValueFrom(this.protocolosService.pdf(p.id, { fresh: true }));
+      } catch {
+        return null;
       }
     }
-
-    return fillSourcePdf({ sourcePdfBytes: sourceBytes, layout, values });
   }
 
   private async montarValoresPrintLayout(): Promise<FillSourcePdfFieldValue[]> {
@@ -1462,17 +1489,14 @@ body.modo-pdf .documento {
       seen.add(key);
     }
 
-    // Logo da clínica
-    const logoUrl = (this.clinicaLogo || '').trim();
-    if (logoUrl) {
-      const img = await fetchImageBytes(logoUrl);
-      if (img) {
-        out.push({
-          name_key: '__clinic_logo',
-          imageBytes: img.bytes,
-          imageMime: img.mime,
-        });
-      }
+    // Logo da clínica (API autenticada → URL MinIO)
+    const logoImg = await this.resolverImagemLogoClinica();
+    if (logoImg) {
+      out.push({
+        name_key: '__clinic_logo',
+        imageBytes: logoImg.bytes,
+        imageMime: logoImg.mime,
+      });
     }
 
     // Assinatura da clínica: eletrônica do usuário > co-assinatura do protocolo > logo
@@ -1508,11 +1532,50 @@ body.modo-pdf .documento {
     return out;
   }
 
+  private async blobToImageBytes(
+    blob: Blob,
+  ): Promise<{ bytes: Uint8Array; mime: 'png' | 'jpg' } | null> {
+    if (!blob || blob.size < 8) return null;
+    const type = (blob.type || '').toLowerCase();
+    if (type.includes('json') || type.includes('html') || type.includes('text')) return null;
+    const bytes = new Uint8Array(await blob.arrayBuffer());
+    if (bytes.length < 8) return null;
+    const mime: 'png' | 'jpg' =
+      type.includes('jpeg') || type.includes('jpg') || (bytes[0] === 0xff && bytes[1] === 0xd8)
+        ? 'jpg'
+        : 'png';
+    return { bytes, mime };
+  }
+
+  private async resolverImagemLogoClinica(): Promise<{
+    bytes: Uint8Array;
+    mime: 'png' | 'jpg';
+  } | null> {
+    try {
+      const blob = await firstValueFrom(this.clinicaService.downloadLogo());
+      const fromApi = await this.blobToImageBytes(blob);
+      if (fromApi) return fromApi;
+    } catch {
+      // fallback URL
+    }
+    const logoUrl = (this.clinicaLogo || '').trim();
+    if (!logoUrl) return null;
+    return fetchImageBytes(logoUrl);
+  }
+
   /** Imagem para o extra `__clinic_signature` no mapa de aparência. */
   private async resolverImagemAssinaturaClinica(): Promise<{
     bytes: Uint8Array;
     mime: 'png' | 'jpg';
   } | null> {
+    try {
+      const blob = await firstValueFrom(this.contaPerfilService.downloadElectronicSignature());
+      const fromApi = await this.blobToImageBytes(blob);
+      if (fromApi) return fromApi;
+    } catch {
+      // sem assinatura no perfil ou 404
+    }
+
     const electronic = (this.auth.getUser()?.electronic_signature_url || '').trim();
     if (electronic) {
       const img = await fetchImageBytes(electronic);
@@ -1525,11 +1588,7 @@ body.modo-pdf .documento {
       if (img) return img;
     }
 
-    const logoUrl = (this.clinicaLogo || '').trim();
-    if (logoUrl) {
-      return fetchImageBytes(logoUrl);
-    }
-    return null;
+    return this.resolverImagemLogoClinica();
   }
 
   private encontrarAssinaturaProfissionalNoProtocolo(): ProtocoloSignature | undefined {

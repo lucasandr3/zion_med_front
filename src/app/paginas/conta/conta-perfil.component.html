@@ -169,20 +169,28 @@
                     </div>
                     <div class="mb-4">
                       <p class="perfil-field-label" id="perfil-fonte-label">Escolha o tipo / estilo</p>
-                      <div class="sig-font-grid" role="listbox" aria-labelledby="perfil-fonte-label">
-                        @for (fonte of fontesAssinatura; track fonte.id) {
-                          <button
-                            type="button"
-                            role="option"
-                            class="sig-font-chip"
-                            [class.is-selected]="fonteSelecionadaId === fonte.id"
-                            [attr.aria-selected]="fonteSelecionadaId === fonte.id"
-                            [style.font-family]="fonte.family"
-                            (click)="selecionarFonte(fonte.id)"
-                          >
-                            <span class="sig-font-chip__sample">{{ textoPreviewFonte(fonte) }}</span>
-                            <span class="sig-font-chip__label">{{ fonte.label }}</span>
-                          </button>
+                      <p class="sig-font-hint">Opções bem diferentes: elegantes, modernas, à mão, marcador e formais.</p>
+                      <div class="sig-font-groups" role="listbox" aria-labelledby="perfil-fonte-label">
+                        @for (grupo of gruposFonteAssinatura; track grupo.id) {
+                          <div class="sig-font-group">
+                            <span class="sig-font-group__title">{{ grupo.title }}</span>
+                            <div class="sig-font-grid">
+                              @for (fonte of fontesDoGrupo(grupo.id); track fonte.id) {
+                                <button
+                                  type="button"
+                                  role="option"
+                                  class="sig-font-chip"
+                                  [class.is-selected]="fonteSelecionadaId === fonte.id"
+                                  [attr.aria-selected]="fonteSelecionadaId === fonte.id"
+                                  [style.font-family]="fonte.family"
+                                  (click)="selecionarFonte(fonte.id)"
+                                >
+                                  <span class="sig-font-chip__sample">{{ textoPreviewFonte(fonte) }}</span>
+                                  <span class="sig-font-chip__label">{{ fonte.label }}</span>
+                                </button>
+                              }
+                            </div>
+                          </div>
                         }
                       </div>
                     </div>
