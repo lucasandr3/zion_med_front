@@ -1,10 +1,6 @@
 <header class="ae-header">
   <div class="ae-brand">
     <zm-page-back-link />
-    @if (template()?.id) {
-      <a class="ae-link" [routerLink]="['/templates', template()!.id, 'editar']">Modelo</a>
-      <a class="ae-link" [routerLink]="['/templates', template()!.id, 'campos']">Campos</a>
-    }
   </div>
   <div class="ae-heading">
     <span class="ae-eyebrow">DOCUMENTOS · EDITOR DE CAMPOS</span>
@@ -210,15 +206,15 @@
         </div>
       }
 
-      <div class="ae-stage-scroll">
+      <div class="ae-stage-scroll" #stageScroll>
         <div
           class="ae-stage-frame"
-          [style.width.px]="stageWidth() * zoom()"
-          [style.height.px]="stageHeight() * zoom()"
+          [style.width.px]="displayWidth()"
+          [style.height.px]="displayHeight()"
         >
           <div
             class="ae-stage"
-            [style.transform]="'scale(' + zoom() + ')'"
+            [style.transform]="'scale(' + displayScale() + ')'"
             [style.width.px]="stageWidth()"
             [style.height.px]="stageHeight()"
           >
