@@ -161,8 +161,9 @@ export class ProtocolosService {
     return this.api.get<OneResponse>(`/protocols/${id}`).pipe(map((r) => r.data));
   }
 
-  pdf(id: number): Observable<Blob> {
-    return this.api.getBlob(`/protocols/${id}/pdf`);
+  pdf(id: number, opts?: { fresh?: boolean }): Observable<Blob> {
+    const params = opts?.fresh ? { fresh: 1 } : undefined;
+    return this.api.getBlob(`/protocols/${id}/pdf`, params);
   }
 
   /** ZIP com PDF do protocolo + JSON de evidências (dossiê). */

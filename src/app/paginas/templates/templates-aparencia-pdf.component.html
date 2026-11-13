@@ -57,7 +57,8 @@
     </p>
     <p class="aparencia-hint">
       Selecione um item e <strong>desenhe</strong> no PDF. Para mover, <strong>arraste a caixa azul</strong>;
-      o cantinho redimensiona. Em rádio, mapeie cada opção.
+      o cantinho redimensiona. Em rádio, mapeie cada opção. Em data, mapeie <strong>Dia</strong>,
+      <strong>Mês</strong> e <strong>Ano</strong> nos espaços ___ / ___ / ____.
       {{ mappedCount }} área(s) mapeada(s)@if (dirty()) { · alterações não salvas}.
     </p>
   </div>
@@ -107,26 +108,29 @@
             <li class="aparencia-field-group">
               <div class="aparencia-field-group__title" [class.aparencia-field--mapped]="isFieldFullyMapped(c)">
                 <span class="aparencia-field__label">{{ c.label }}</span>
-                <span class="aparencia-field__meta">{{ c.type }} · mapeie cada opção</span>
+                <span class="aparencia-field__meta">
+                  {{ c.type }} ·
+                  {{ fieldIsDate(c) ? 'mapeie Dia / Mês / Ano' : 'mapeie cada opção' }}
+                </span>
               </div>
               <ul class="aparencia-option-list">
-                @for (opt of fieldOptions(c); track opt) {
+                @for (t of fieldMapTargets(c); track t.option) {
                   <li>
                     <button
                       type="button"
                       class="aparencia-field aparencia-field--option"
-                      [class.aparencia-field--active]="isSelected({ name_key: c.name_key, option: opt })"
-                      [class.aparencia-field--mapped]="isMapped({ name_key: c.name_key, option: opt })"
-                      (click)="selecionarCampo(c.name_key, opt)"
+                      [class.aparencia-field--active]="isSelected({ name_key: c.name_key, option: t.option })"
+                      [class.aparencia-field--mapped]="isMapped({ name_key: c.name_key, option: t.option })"
+                      (click)="selecionarCampo(c.name_key, t.option)"
                     >
-                      <span class="aparencia-field__label">{{ opt }}</span>
+                      <span class="aparencia-field__label">{{ t.label }}</span>
                     </button>
-                    @if (isMapped({ name_key: c.name_key, option: opt })) {
+                    @if (isMapped({ name_key: c.name_key, option: t.option })) {
                       <button
                         type="button"
                         class="aparencia-field__remove"
                         title="Remover área"
-                        (click)="removerCampo({ name_key: c.name_key, option: opt }, $event)"
+                        (click)="removerCampo({ name_key: c.name_key, option: t.option }, $event)"
                       >
                         ×
                       </button>
@@ -186,6 +190,9 @@
           #overlayLayer
           class="aparencia-overlay-layer"
           (pointerdown)="onLayerPointerDown($event)"
+          (pointermove)="onOverlayPointerMove($event)"
+          (pointerup)="onOverlayPointerUp($event)"
+          (pointercancel)="onOverlayPointerUp($event)"
         >
           @for (p of placementsOnPage(); track trackPlacement(p)) {
             <div
