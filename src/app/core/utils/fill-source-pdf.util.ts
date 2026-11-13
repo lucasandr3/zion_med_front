@@ -116,25 +116,24 @@ function pageBox(page: PDFPage, placement: PrintLayoutPlacement) {
 }
 
 /**
- * Desenha texto cabendo na caixa, alinhado ao topo (acima da linha do formulário).
+ * Desenha texto cabendo na caixa, apoiado na base (sobre a underline do formulário).
+ * O preview do mapa usa a mesma lógica visual (texto colado embaixo da caixa).
  */
 function drawTextInBox(page: PDFPage, font: PDFFont, placement: PrintLayoutPlacement, text: string): void {
   const { x, yBottom, boxW, boxH } = pageBox(page, placement);
   const maxWidth = Math.max(6, boxW - 2);
-  // Fonte menor que a caixa → não “corta” a linha / o rótulo
   const preferred =
-    placement.font_size ?? Math.max(7, Math.min(10, boxH * 0.52));
+    placement.font_size ?? Math.max(7, Math.min(10, boxH * 0.72));
   const singleLine =
     !/\s/.test(text) || text.length <= 28 || isDatePartOption(placement.option);
 
   if (singleLine) {
-    const fontSize = fitFontSize(text, font, maxWidth, boxH * 0.85, preferred);
+    const fontSize = fitFontSize(text, font, maxWidth, boxH * 0.92, preferred);
     const lineWidth = font.widthOfTextAtSize(text, fontSize);
     let drawX = x + 1.5;
     if (placement.align === 'center') drawX = x + (boxW - lineWidth) / 2;
     if (placement.align === 'right') drawX = x + boxW - lineWidth - 1.5;
-    // Baseline perto do topo da caixa (formulário com underline embaixo)
-    const drawY = textBaselineTop(yBottom, boxH, fontSize);
+    const drawY = textBaselineBottom(yBottom, boxH, fontSize);
     page.drawText(text, {
       x: Math.max(0, drawX),
       y: drawY,
@@ -159,7 +158,8 @@ function drawTextInBox(page: PDFPage, font: PDFFont, placement: PrintLayoutPlace
   }
 
   const lineHeight = fontSize * 1.15;
-  let cursorY = textBaselineTop(yBottom, boxH, fontSize);
+  const blockH = lines.length * lineHeight;
+  let cursorY = yBottom + Math.min(boxH, blockH) - fontSize * 0.2;
   for (const line of lines) {
     if (cursorY < yBottom - 1) break;
     const lineWidth = font.widthOfTextAtSize(line, fontSize);
@@ -177,11 +177,10 @@ function drawTextInBox(page: PDFPage, font: PDFFont, placement: PrintLayoutPlace
   }
 }
 
-/** Baseline no terço superior da caixa — texto acima da linha do formulário. */
-function textBaselineTop(yBottom: number, boxH: number, fontSize: number): number {
-  const top = yBottom + boxH;
-  const padTop = Math.min(2.5, boxH * 0.12);
-  return Math.max(yBottom, top - padTop - fontSize * 0.78);
+/** Baseline na base da caixa — alinhado à underline (igual ao preview do mapa). */
+function textBaselineBottom(yBottom: number, boxH: number, fontSize: number): number {
+  const pad = Math.min(1.2, Math.max(0.4, boxH * 0.06));
+  return yBottom + pad;
 }
 
 function fitFontSize(

@@ -332,6 +332,9 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
     this.abaAtiva.set(aba);
     this.aplicarClasseImpressaoSomenteDocumento(aba === 'impressao');
     this.syncTabGroupFromAba();
+    if (aba === 'impressao') {
+      this.garantirPreviewAparenciaClinica();
+    }
   }
 
   onGestgoTabChange(event: { index: number }): void {
@@ -339,7 +342,17 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
     if (aba) {
       this.abaAtiva.set(aba);
       this.aplicarClasseImpressaoSomenteDocumento(aba === 'impressao');
+      if (aba === 'impressao') {
+        this.garantirPreviewAparenciaClinica();
+      }
     }
+  }
+
+  /** Na aba Impressão, se houver mapa, mostra o PDF da clínica (não o layout padrão). */
+  private garantirPreviewAparenciaClinica(): void {
+    if (!this.temAparenciaPdfMapeada) return;
+    if (this.pdfPreviewUrl() || this.gerandoPdf()) return;
+    this.visualizarFichaPdf();
   }
 
   private syncTabGroupFromAba(): void {
@@ -1336,7 +1349,8 @@ body.modo-pdf .documento {
         pl.kind === 'signature' ||
         pl.kind === 'image' ||
         pl.name_key === '__clinic_logo' ||
-        pl.name_key === '__clinic_signature',
+        pl.name_key === '__clinic_signature' ||
+        pl.name_key === '__verify_qr',
     );
     if (precisaImagem) {
       const faltando = layout.placements
@@ -1345,7 +1359,8 @@ body.modo-pdf .documento {
             pl.kind === 'signature' ||
             pl.kind === 'image' ||
             pl.name_key === '__clinic_logo' ||
-            pl.name_key === '__clinic_signature',
+            pl.name_key === '__clinic_signature' ||
+            pl.name_key === '__verify_qr',
         )
         .some((pl) => {
           const v = values.find((x) => x.name_key === pl.name_key);
@@ -1439,6 +1454,26 @@ body.modo-pdf .documento {
         imageBytes: clinicSig.bytes,
         imageMime: clinicSig.mime,
       });
+    }
+
+    // QR + código de verificação (mesmo da aba Impressão / e-mail)
+    if (!this.docQrDataUrl() && !this.docCode()) {
+      await this.gerarAutenticacaoDocumento();
+    }
+    const qrDataUrl = (this.docQrDataUrl() || '').trim();
+    if (qrDataUrl) {
+      const img = await fetchImageBytes(qrDataUrl);
+      if (img) {
+        out.push({
+          name_key: '__verify_qr',
+          imageBytes: img.bytes,
+          imageMime: img.mime,
+        });
+      }
+    }
+    const code = (this.docCode() || '').trim();
+    if (code) {
+      out.push({ name_key: '__verify_code', text: code });
     }
 
     return out;

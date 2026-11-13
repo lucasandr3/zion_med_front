@@ -201,12 +201,30 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
     return t === 'date' || t === 'datetime';
   }
 
-  /** Alvos mapeáveis: opções de rádio/checkbox ou Dia/Mês/Ano. */
-  fieldMapTargets(campo: TemplateCampo): Array<{ option: string; label: string }> {
+  fieldIsChoice(campo: TemplateCampo): boolean {
+    const t = (campo.type || '').toLowerCase();
+    return (t === 'radio' || t === 'checkbox' || t === 'select') && this.fieldOptions(campo).length > 0;
+  }
+
+  /**
+   * Alvos mapeáveis.
+   * Rádio/select: primeiro “Resposta em texto” (uma caixa com “Casado”), depois ✓ por opção.
+   */
+  fieldMapTargets(campo: TemplateCampo): Array<{ option: string | null; label: string }> {
     if (this.fieldIsDate(campo)) {
       return DATE_PART_TARGETS.map((d) => ({ option: d.option, label: d.label }));
     }
+    if (this.fieldIsChoice(campo)) {
+      return [
+        { option: null, label: 'Resposta em texto (uma caixa)' },
+        ...this.fieldOptions(campo).map((opt) => ({ option: opt, label: `✓ ${opt}` })),
+      ];
+    }
     return this.fieldOptions(campo).map((opt) => ({ option: opt, label: opt }));
+  }
+
+  trackMapTarget(t: { option: string | null }): string {
+    return t.option ?? '__text__';
   }
 
   isMapped(target: PrintLayoutTarget): boolean {
@@ -226,9 +244,40 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
         this.isMapped({ name_key: key, option: 'month_name' });
       return hasDay && hasYear && hasMonth;
     }
+    // Estado civil etc.: basta o texto OU as marcações por opção
+    if (this.fieldIsChoice(campo)) {
+      if (this.isMapped({ name_key: campo.name_key })) return true;
+      return this.fieldOptions(campo).every((opt) =>
+        this.isMapped({ name_key: campo.name_key, option: opt }),
+      );
+    }
     return this.fieldMapTargets(campo).every((t) =>
       this.isMapped({ name_key: campo.name_key, option: t.option }),
     );
+  }
+
+  /** Texto de exemplo dentro da caixa — mesma posição visual do PDF gerado (base). */
+  previewSample(p: PrintLayoutPlacement): string {
+    if (p.kind === 'checkbox') return '✓';
+    if (p.name_key === '__verify_qr') return 'QR';
+    if (p.name_key === '__verify_code') return 'A1B2C3D4';
+    if (p.kind === 'signature' || p.kind === 'image') return 'assinatura';
+    if (isDatePartOption(p.option)) {
+      if (p.option === 'day') return '12';
+      if (p.option === 'month') return '11';
+      if (p.option === 'month_name') return 'novembro';
+      if (p.option === 'year') return '2026';
+    }
+    if (p.option) return p.option;
+    const label = this.campoLabel(p.name_key);
+    return label.length > 18 ? `${label.slice(0, 16)}…` : label || 'texto';
+  }
+
+  previewFontPx(p: PrintLayoutPlacement): number {
+    const layerH = this.overlayLayer?.nativeElement?.clientHeight || 900;
+    const boxH = Math.max(8, p.h * layerH);
+    const preferred = p.font_size ?? Math.max(7, Math.min(10, boxH * 0.72));
+    return Math.max(6, Math.min(preferred, boxH * 0.92));
   }
 
   isSelected(target: PrintLayoutTarget): boolean {
@@ -482,12 +531,16 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
       font_size: field?.type === 'textarea' ? 9 : isDatePart ? 10 : 9,
     };
 
-    // Data pode se repetir no PDF: cada desenho adiciona uma caixa.
-    // Rádio/checkbox: uma caixa por opção (substitui a anterior).
-    if (isChoiceOption) {
+    // Texto único de rádio/select (ex.: estado civil): uma caixa e remove ✓ antigos do campo.
+    if (field && this.fieldIsChoice(field) && !hasOption) {
+      const others = this.placements().filter((p) => p.name_key !== target.name_key);
+      this.placements.set([...others, placement]);
+    } else if (isChoiceOption) {
+      // Uma caixa por opção (substitui a anterior da mesma opção).
       const others = this.placements().filter((p) => !samePlacement(p, placement));
       this.placements.set([...others, placement]);
     } else {
+      // Data etc.: pode repetir no PDF.
       this.placements.set([...this.placements(), placement]);
     }
     this.dirty.set(true);
