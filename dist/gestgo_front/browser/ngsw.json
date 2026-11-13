@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1794575338030,
+  "timestamp": 1794588167105,
   "index": "/index.html",
   "assetGroups": [
     {
@@ -17,7 +17,6 @@
         "/chunk-2MBRZSF6.js",
         "/chunk-36CPNXCB.js",
         "/chunk-36WKIIYI.js",
-        "/chunk-377G4H4Q.js",
         "/chunk-3N6II6YN.js",
         "/chunk-3UWZZC5J.js",
         "/chunk-3ZJWEFAX.js",
@@ -71,6 +70,7 @@
         "/chunk-GU4BSW2A.js",
         "/chunk-H3XPWDGR.js",
         "/chunk-H4UK3KGU.js",
+        "/chunk-HG56UG4P.js",
         "/chunk-HGV2JEHZ.js",
         "/chunk-HIDYVHG7.js",
         "/chunk-HOPH4LKC.js",
@@ -158,9 +158,9 @@
         "/chunk-ZEQPEWJ2.js",
         "/favicon.ico",
         "/index.html",
-        "/main-FQBW4DPM.js",
+        "/main-QP3NUHMV.js",
         "/manifest.webmanifest",
-        "/styles-QMEVLFRG.css"
+        "/styles-3Z3F3XTI.css"
       ],
       "patterns": []
     },
@@ -240,7 +240,6 @@
     "/chunk-2MBRZSF6.js": "21186249cf042564ff112be39f62108c208358a6",
     "/chunk-36CPNXCB.js": "d15b2fabb45ec6276e53723b253af4f1add8ee72",
     "/chunk-36WKIIYI.js": "af89a30207fc965bd8de8341250d5b6784a5fb60",
-    "/chunk-377G4H4Q.js": "fcd5f5ee0c01785f77fe46d7557ba578163ee730",
     "/chunk-3N6II6YN.js": "4449cb28e1337be918357bd9640b8e66d3e05397",
     "/chunk-3UWZZC5J.js": "f76a256699498ca877ba7bf44b40e76cd3ddb82c",
     "/chunk-3ZJWEFAX.js": "2ceb09335963d0a6232a5f795d8a9af1460819e0",
@@ -294,6 +293,7 @@
     "/chunk-GU4BSW2A.js": "0b9da3d5b5a1ce60d493cf6eb6fc03b787a09575",
     "/chunk-H3XPWDGR.js": "47702b5a1f480f753141f2402d4eb63b8bc07037",
     "/chunk-H4UK3KGU.js": "a4bad04720485cd75bd16ba4b02ddcbd3c112924",
+    "/chunk-HG56UG4P.js": "70c369fa246fe3dea97286ab01137d5e3da6a76f",
     "/chunk-HGV2JEHZ.js": "7d3ce1d4e3285140ee9a01f6451c2455e680161e",
     "/chunk-HIDYVHG7.js": "0a5fbd029fcebda5abad7a9a1b0ecb4c9e4cbeb3",
     "/chunk-HOPH4LKC.js": "5699b96b7de1bc6373f35d3a5bd8979e171a7e71",
@@ -390,12 +390,12 @@
     "/icons/icon-512x512.png": "34dcd9bcacea5478018dc393f331c0933006d363",
     "/icons/icon-72x72.png": "78abd0cbb580c9a9f57e844c7c10d30844a04246",
     "/icons/icon-96x96.png": "883993fc03814a185721c32883cc0ba7ea196aa3",
-    "/index.html": "64115791b9d5d655258b35f2b21d7e5247364cf9",
-    "/main-FQBW4DPM.js": "a7ba2cd7785a2f0953d1b14bfb5c9744923d8806",
+    "/index.html": "6fc8b00b4e878c1a37c5c34bf698cdc2162efc3e",
+    "/main-QP3NUHMV.js": "0f175467692e633e08d7ce9f999e42dae60ca66f",
     "/manifest.webmanifest": "abf3d97e3e9e4851ca3b5518567b8a8e1f2a1c9f",
     "/media/nordhealth-mono-I772J2U7.woff": "bdf090792a422094dc0539a69f5d113972385ce2",
     "/media/nordhealth-sans-QAOBVEJB.woff2": "f4cf732763710b1578dcb10fada6484284e39ac3",
-    "/styles-QMEVLFRG.css": "6f5e5002bba735268af430a97180854c13a09062",
+    "/styles-3Z3F3XTI.css": "d90d924e5227fba70e14492e7ba5551d703df5b7",
     "/web-app-manifest-192x192.png": "a2c9ba169a453313078abcc5c286468db1064c97",
     "/web-app-manifest-512x512.png": "14aeb6695111f05316051c238297f895a45aac61"
   },
