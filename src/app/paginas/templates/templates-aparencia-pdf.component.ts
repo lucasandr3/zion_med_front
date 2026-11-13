@@ -15,6 +15,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TemplatesService, Template, TemplateCampo } from '../../core/services/templates.service';
 import { ToastService } from '../../core/services/toast.service';
+import { ShellSidebarCollapseService } from '../../core/services/shell-sidebar-collapse.service';
 import { ZmPageBackLinkComponent } from '../../shared/components/ui';
 import {
   DATE_PART_TARGETS,
@@ -68,7 +69,7 @@ type Gesture =
   selector: 'app-templates-aparencia-pdf',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { class: 'templates-aparencia-pdf ae-root' },
+  host: { class: 'n-page n-page--flush templates-aparencia-pdf ae-root' },
   imports: [RouterLink, FormsModule, ZmPageBackLinkComponent],
   templateUrl: './templates-aparencia-pdf.component.html',
   styleUrl: './templates-aparencia-pdf.component.css',
@@ -76,6 +77,7 @@ type Gesture =
 export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
   @ViewChild('pdfCanvas', { static: false }) pdfCanvas?: ElementRef<HTMLCanvasElement>;
   @ViewChild('overlayLayer', { static: false }) overlayLayer?: ElementRef<HTMLElement>;
+  @ViewChild('stageScroll', { static: false }) stageScroll?: ElementRef<HTMLElement>;
 
   readonly template = signal<Template | null>(null);
   readonly campos = signal<TemplateCampo[]>([]);
@@ -92,11 +94,14 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
   readonly systemTargets = SYSTEM_PRINT_TARGETS;
   readonly fieldSearch = signal('');
   readonly viewMode = signal<'edit' | 'preview'>('edit');
-  readonly zoom = signal(0.9);
+  /** Multiplicador relativo ao encaixe na altura do painel (1 = cabe sem scroll vertical). */
+  readonly zoom = signal(1);
   readonly hintVisible = signal(true);
   readonly mobileTab = signal<'fields' | 'document' | 'inspector'>('document');
   readonly stageWidth = signal(0);
   readonly stageHeight = signal(0);
+  readonly viewportWidth = signal(0);
+  readonly viewportHeight = signal(0);
 
   readonly placementsOnPage = computed(() =>
     this.placements().filter((p) => p.page === this.pageIndex()),
@@ -137,6 +142,22 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
     return 'Arraste as caixas ou use o painel de ajustes.';
   });
 
+  /** Escala de encaixe (contain) na área do documento — prioriza caber na altura. */
+  readonly fitScale = computed(() => {
+    const sw = this.stageWidth();
+    const sh = this.stageHeight();
+    const vw = this.viewportWidth();
+    const vh = this.viewportHeight();
+    if (sw <= 0 || sh <= 0 || vw <= 0 || vh <= 0) return 1;
+    return Math.min(vw / sw, vh / sh);
+  });
+
+  readonly displayScale = computed(() => this.fitScale() * this.zoom());
+
+  readonly displayWidth = computed(() => this.stageWidth() * this.displayScale());
+
+  readonly displayHeight = computed(() => this.stageHeight() * this.displayScale());
+
   get zoomPercent(): number {
     return Math.round(this.zoom() * 100);
   }
@@ -147,12 +168,21 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
   private gesture: Gesture | null = null;
   private renderToken = 0;
   private activePointerId: number | null = null;
+  private stageResizeObserver: ResizeObserver | null = null;
+  private sidebarWasCollapsed: boolean | null = null;
 
   private route = inject(ActivatedRoute);
   private templatesService = inject(TemplatesService);
   private toast = inject(ToastService);
+  private sidebarCollapse = inject(ShellSidebarCollapseService);
 
   ngOnInit(): void {
+    this.sidebarCollapse.ensureHydrated();
+    this.sidebarWasCollapsed = this.sidebarCollapse.collapsed();
+    if (!this.sidebarWasCollapsed) {
+      this.sidebarCollapse.setCollapsed(true);
+    }
+
     const id = Number(this.route.snapshot.paramMap.get('id'));
     if (!Number.isFinite(id) || id <= 0) {
       this.carregando.set(false);
@@ -194,9 +224,14 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.releasePointerCapture();
+    this.stageResizeObserver?.disconnect();
+    this.stageResizeObserver = null;
     this.pdfDoc?.destroy?.();
     if (this.pdfObjectUrl) URL.revokeObjectURL(this.pdfObjectUrl);
     if (this.workerBlobUrl) URL.revokeObjectURL(this.workerBlobUrl);
+    if (this.sidebarWasCollapsed === false) {
+      this.sidebarCollapse.setCollapsed(false);
+    }
   }
 
   @HostListener('window:keydown', ['$event'])
@@ -239,7 +274,8 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
   }
 
   zoomIn(): void {
-    this.zoom.set(Math.min(1.6, Math.round((this.zoom() + 0.1) * 10) / 10));
+    // Máx. 1 = ainda cabe na altura (sem scroll vertical).
+    this.zoom.set(Math.min(1, Math.round((this.zoom() + 0.1) * 10) / 10));
   }
 
   zoomOut(): void {
@@ -820,6 +856,34 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
     await page.render({ canvasContext: ctx, viewport, canvas }).promise;
+    this.ensureStageObserver();
+    this.measureStageViewport();
+  }
+
+  private ensureStageObserver(): void {
+    if (this.stageResizeObserver || typeof ResizeObserver === 'undefined') return;
+    const el = this.stageScroll?.nativeElement;
+    if (!el) {
+      setTimeout(() => this.ensureStageObserver(), 0);
+      return;
+    }
+    this.stageResizeObserver = new ResizeObserver(() => this.measureStageViewport());
+    this.stageResizeObserver.observe(el);
+    this.measureStageViewport();
+  }
+
+  private measureStageViewport(): void {
+    const el = this.stageScroll?.nativeElement;
+    if (!el) return;
+    const style = getComputedStyle(el);
+    const padX =
+      (parseFloat(style.paddingLeft) || 0) + (parseFloat(style.paddingRight) || 0);
+    const padY =
+      (parseFloat(style.paddingTop) || 0) + (parseFloat(style.paddingBottom) || 0);
+    const nextW = Math.max(0, Math.floor(el.clientWidth - padX));
+    const nextH = Math.max(0, Math.floor(el.clientHeight - padY));
+    if (nextW !== this.viewportWidth()) this.viewportWidth.set(nextW);
+    if (nextH !== this.viewportHeight()) this.viewportHeight.set(nextH);
   }
 }
 
