@@ -1,256 +1,417 @@
-<div class="n-form-toolbar">
-  <div class="n-form-toolbar__start">
+<header class="ae-header">
+  <div class="ae-brand">
     <zm-page-back-link />
     @if (template()?.id) {
-      <nord-button variant="plain" size="s" type="button" [routerLink]="['/templates', template()!.id, 'editar']">
-        Voltar ao modelo
-      </nord-button>
-      <nord-button variant="plain" size="s" type="button" [routerLink]="['/templates', template()!.id, 'campos']">
-        Campos
-      </nord-button>
+      <a class="ae-link" [routerLink]="['/templates', template()!.id, 'editar']">Modelo</a>
+      <a class="ae-link" [routerLink]="['/templates', template()!.id, 'campos']">Campos</a>
     }
   </div>
-  <div class="n-form-toolbar__end">
+  <div class="ae-heading">
+    <span class="ae-eyebrow">DOCUMENTOS · EDITOR DE CAMPOS</span>
+    <strong>{{ template()?.name || 'Aparência do PDF' }}</strong>
+  </div>
+  <div class="ae-header-actions">
+    <span class="ae-save-state">
+      @if (dirty()) { Alterações não salvas } @else if (mappedCount > 0) { Mapa salvo } @else { Sem áreas mapeadas }
+    </span>
     @if (template()?.has_source_document) {
-      <nord-button
-        variant="default"
-        size="s"
-        type="button"
-        (click)="limparTudo()"
-        [attr.disabled]="salvando() || mappedCount === 0 || null"
-      >
+      <button type="button" class="ae-btn ae-btn--quiet" (click)="limparTudo()" [disabled]="salvando() || mappedCount === 0">
         Limpar mapa
-      </nord-button>
-      <nord-button
-        variant="primary"
-        size="s"
+      </button>
+      <button
         type="button"
+        class="ae-btn ae-btn--primary"
         (click)="salvar()"
-        [attr.loading]="salvando() || null"
-        [attr.disabled]="salvando() || !dirty() || null"
+        [disabled]="salvando() || !dirty()"
       >
         {{ salvando() ? 'Salvando…' : 'Salvar aparência' }}
-      </nord-button>
+      </button>
     }
   </div>
-</div>
+</header>
 
 @if (erro()) {
-  <p class="mb-4 text-sm text-destructive">{{ erro() }}</p>
-  @if (!template()?.has_source_document && template()?.id) {
-    <nord-button variant="primary" size="s" type="button" [routerLink]="['/templates', template()!.id, 'editar']">
-      Ir para o modelo e anexar PDF
-    </nord-button>
-  }
+  <div class="ae-error">
+    <p>{{ erro() }}</p>
+    @if (!template()?.has_source_document && template()?.id) {
+      <a class="ae-btn ae-btn--primary" [routerLink]="['/templates', template()!.id, 'editar']">Anexar PDF no modelo</a>
+    }
+  </div>
 }
 
 @if (carregando()) {
-  <p class="text-sm text-muted-foreground">Carregando PDF e campos…</p>
+  <p class="ae-loading">Carregando PDF e campos…</p>
 }
 
 @if (!carregando() && !erro() && template()) {
-  <div class="aparencia-intro">
-    <h1 class="aparencia-title">Aparência do PDF</h1>
-    <p class="aparencia-desc">
-      O formulário digital continua igual. Aqui você só marca <strong>onde cada resposta entra</strong> no PDF
-      oficial da clínica ({{ template()?.source_document_original_name || 'documento original' }}).
-    </p>
-    <p class="aparencia-hint">
-      O texto azul dentro da caixa mostra <strong>onde a resposta vai ficar</strong> no PDF — alinhe a base
-      da caixa com a linha do formulário. Em estado civil / rádio: use
-      <strong>Resposta em texto</strong> (uma caixa) em vez de marcar cada opção.
-      Em data: Dia / Mês / Ano (pode repetir).
-      {{ mappedCount }} área(s) mapeada(s)@if (dirty()) { · alterações não salvas}.
-    </p>
+  <div class="ae-mobile-tabs" role="tablist">
+    <button type="button" [class.active]="mobileTab() === 'fields'" (click)="mobileTab.set('fields')">Campos</button>
+    <button type="button" [class.active]="mobileTab() === 'document'" (click)="mobileTab.set('document')">Documento</button>
+    <button type="button" [class.active]="mobileTab() === 'inspector'" (click)="mobileTab.set('inspector')">Ajustes</button>
   </div>
 
-  <div class="aparencia-layout">
-    <g-card class="aparencia-fields">
-      <div class="aparencia-fields__head">
-        <h2>Campos do formulário</h2>
-        <span>{{ campos().length }}</span>
+  <main class="ae-workspace">
+    <!-- Campos -->
+    <aside class="ae-panel ae-fields" [class.mobile-active]="mobileTab() === 'fields'" data-panel="fields">
+      <div class="ae-panel-header">
+        <div>
+          <span class="ae-eyebrow">ETAPA 01</span>
+          <h2>Campos do formulário</h2>
+          <p>Escolha um campo para posicionar no PDF.</p>
+        </div>
+        <span class="ae-count-pill">{{ campos().length }}</span>
       </div>
-      <ul class="aparencia-field-list">
-        <li class="aparencia-field-group aparencia-field-group--extras">
-          <div class="aparencia-field-group__title">
-            <span class="aparencia-field__label">Extras da clínica</span>
-            <span class="aparencia-field__meta">Opcional · logo / assinatura institucional</span>
-          </div>
-          <ul class="aparencia-option-list">
-            @for (extra of systemTargets; track extra.name_key) {
-              <li>
-                <button
-                  type="button"
-                  class="aparencia-field aparencia-field--option"
-                  [class.aparencia-field--active]="isSelected({ name_key: extra.name_key })"
-                  [class.aparencia-field--mapped]="isMapped({ name_key: extra.name_key })"
-                  (click)="selecionarExtra(extra.name_key)"
-                >
-                  <span class="aparencia-field__label">{{ extra.label }}</span>
-                  <span class="aparencia-field__meta">{{ extra.hint }}</span>
-                </button>
-                @if (isMapped({ name_key: extra.name_key })) {
-                  <button
-                    type="button"
-                    class="aparencia-field__remove"
-                    title="Remover área"
-                    (click)="removerCampo({ name_key: extra.name_key }, $event)"
-                  >
-                    ×
-                  </button>
-                }
-              </li>
-            }
-          </ul>
-        </li>
 
-        @for (c of campos(); track c.id) {
+      <label class="ae-search">
+        <span aria-hidden="true">⌕</span>
+        <input
+          type="search"
+          placeholder="Buscar campo…"
+          [ngModel]="fieldSearch()"
+          (ngModelChange)="fieldSearch.set($event)"
+        />
+      </label>
+
+      <div class="ae-group-heading">
+        <span>EXTRAS DA CLÍNICA</span>
+        <span>{{ mappedExtrasCount() }} mapeados</span>
+      </div>
+      <div class="ae-field-list ae-field-list--compact">
+        @for (extra of filteredSystemTargets(); track extra.name_key) {
+          <button
+            type="button"
+            class="ae-field-item"
+            [class.selected]="isSelected({ name_key: extra.name_key })"
+            (click)="selecionarExtra(extra.name_key); mobileTab.set('document')"
+          >
+            <span class="ae-field-glyph">{{ extra.kind === 'image' ? '▣' : extra.kind === 'signature' ? '✎' : 'Aa' }}</span>
+            <span class="ae-field-info">
+              <strong>{{ extra.label }}</strong>
+              <small>{{ extra.hint }}</small>
+            </span>
+            <span class="ae-field-dot" [class.mapped]="isMapped({ name_key: extra.name_key })"></span>
+          </button>
+        }
+      </div>
+
+      <div class="ae-group-heading">
+        <span>CAMPOS DO MODELO</span>
+        <span>{{ mappedCount }} áreas</span>
+      </div>
+      <div class="ae-field-list">
+        @for (c of filteredCampos(); track c.id) {
           @if (fieldHasOptionTargets(c)) {
-            <li class="aparencia-field-group">
-              <div class="aparencia-field-group__title" [class.aparencia-field--mapped]="isFieldFullyMapped(c)">
-                <span class="aparencia-field__label">{{ c.label }}</span>
-                <span class="aparencia-field__meta">
-                  {{ c.type }} ·
+            <div class="ae-field-subgroup">
+              <div class="ae-field-subgroup__title" [class.mapped]="isFieldFullyMapped(c)">
+                <strong>{{ c.label }}</strong>
+                <small>
                   {{
                     fieldIsDate(c)
-                      ? 'pode repetir no PDF'
+                      ? 'Dia / Mês / Ano'
                       : fieldIsChoice(c)
-                        ? 'texto OU ✓ por opção'
-                        : 'mapeie cada opção'
+                        ? 'Texto ou ✓'
+                        : c.type
                   }}
-                </span>
+                </small>
               </div>
-              <ul class="aparencia-option-list">
-                @for (t of fieldMapTargets(c); track trackMapTarget(t)) {
-                  <li>
-                    <button
-                      type="button"
-                      class="aparencia-field aparencia-field--option"
-                      [class.aparencia-field--active]="isSelected({ name_key: c.name_key, option: t.option })"
-                      [class.aparencia-field--mapped]="isMapped({ name_key: c.name_key, option: t.option })"
-                      (click)="selecionarCampo(c.name_key, t.option)"
+              @for (t of fieldMapTargets(c); track trackMapTarget(t)) {
+                <button
+                  type="button"
+                  class="ae-field-item ae-field-item--nested"
+                  [class.selected]="isSelected({ name_key: c.name_key, option: t.option })"
+                  (click)="selecionarCampo(c.name_key, t.option); mobileTab.set('document')"
+                >
+                  <span class="ae-field-glyph">{{ t.option === null ? 'Aa' : '✓' }}</span>
+                  <span class="ae-field-info">
+                    <strong>{{ t.label }}</strong>
+                    @if (mappedCountFor({ name_key: c.name_key, option: t.option }) > 1) {
+                      <small>{{ mappedCountFor({ name_key: c.name_key, option: t.option }) }} áreas</small>
+                    }
+                  </span>
+                  <span
+                    class="ae-field-dot"
+                    [class.mapped]="isMapped({ name_key: c.name_key, option: t.option })"
+                  ></span>
+                </button>
+              }
+            </div>
+          } @else {
+            <button
+              type="button"
+              class="ae-field-item"
+              [class.selected]="isSelected({ name_key: c.name_key })"
+              (click)="selecionarCampo(c.name_key); mobileTab.set('document')"
+            >
+              <span class="ae-field-glyph">{{ fieldGlyph(c.type) }}</span>
+              <span class="ae-field-info">
+                <strong>{{ c.label }}</strong>
+                <small>{{ c.type }}</small>
+              </span>
+              <span class="ae-field-dot" [class.mapped]="isMapped({ name_key: c.name_key })"></span>
+            </button>
+          }
+        }
+      </div>
+
+      <div class="ae-panel-footer">
+        <p>Selecione um campo e desenhe no PDF. Em estado civil, use <strong>Resposta em texto</strong>.</p>
+      </div>
+    </aside>
+
+    <!-- Documento -->
+    <section class="ae-document" [class.mobile-active]="mobileTab() === 'document'" data-panel="document">
+      <div class="ae-doc-toolbar">
+        <div class="ae-toolbar-group">
+          <span class="ae-eyebrow">ETAPA 02</span>
+          <strong>Posicione e confira</strong>
+          <span class="ae-source-badge" [title]="template()?.source_document_original_name || ''">
+            {{ template()?.source_document_original_name || 'PDF original' }}
+          </span>
+        </div>
+      </div>
+
+      <div class="ae-view-toolbar">
+        <div class="ae-segmented" role="group" aria-label="Modo">
+          <button type="button" [class.active]="viewMode() === 'edit'" (click)="viewMode.set('edit')">
+            ✥ &nbsp;Editar campos
+          </button>
+          <button type="button" [class.active]="viewMode() === 'preview'" (click)="viewMode.set('preview')">
+            ◉ &nbsp;Prévia
+          </button>
+        </div>
+        <div class="ae-toolbar-right">
+          <div class="ae-page-switch">
+            <button type="button" (click)="prevPage()" [disabled]="pageIndex() <= 0" aria-label="Página anterior">‹</button>
+            <span>{{ pageIndex() + 1 }} / {{ pageCount() || 1 }}</span>
+            <button
+              type="button"
+              (click)="nextPage()"
+              [disabled]="pageIndex() >= pageCount() - 1"
+              aria-label="Próxima página"
+            >
+              ›
+            </button>
+          </div>
+          <div class="ae-zoom">
+            <button type="button" (click)="zoomOut()" aria-label="Reduzir zoom">−</button>
+            <span>{{ zoomPercent }}%</span>
+            <button type="button" (click)="zoomIn()" aria-label="Aumentar zoom">＋</button>
+          </div>
+        </div>
+      </div>
+
+      @if (hintVisible()) {
+        <div class="ae-hint">
+          <span class="ae-hint-icon">✦</span>
+          <span>
+            Selecione um campo e desenhe a caixa. O texto azul mostra onde a resposta assenta — alinhe na linha do formulário.
+          </span>
+          <button type="button" (click)="hintVisible.set(false)" aria-label="Fechar dica">×</button>
+        </div>
+      }
+
+      <div class="ae-stage-scroll">
+        <div
+          class="ae-stage-frame"
+          [style.width.px]="stageWidth() * zoom()"
+          [style.height.px]="stageHeight() * zoom()"
+        >
+          <div
+            class="ae-stage"
+            [style.transform]="'scale(' + zoom() + ')'"
+            [style.width.px]="stageWidth()"
+            [style.height.px]="stageHeight()"
+          >
+            <div class="ae-page" [style.width.px]="stageWidth()" [style.height.px]="stageHeight()">
+              <canvas #pdfCanvas class="ae-pdf-canvas" aria-hidden="true"></canvas>
+              <div
+                #overlayLayer
+                class="ae-overlay"
+                [class.ae-overlay--preview]="viewMode() === 'preview'"
+                (pointerdown)="onLayerPointerDown($event)"
+                (pointermove)="onOverlayPointerMove($event)"
+                (pointerup)="onOverlayPointerUp($event)"
+                (pointercancel)="onOverlayPointerUp($event)"
+              >
+                @for (p of placementsOnPage(); track trackPlacement(p)) {
+                  <div
+                    class="ae-box"
+                    [class.ae-box--selected]="isBoxSelected(p)"
+                    [class.ae-box--check]="p.kind === 'checkbox'"
+                    [style.left.%]="p.x * 100"
+                    [style.top.%]="p.y * 100"
+                    [style.width.%]="p.w * 100"
+                    [style.height.%]="p.h * 100"
+                    (pointerdown)="onBoxPointerDown($event, p)"
+                  >
+                    @if (viewMode() === 'edit') {
+                      <span class="ae-box-label">{{ placementTitle(p) }}</span>
+                    }
+                    <span
+                      class="ae-box-sample"
+                      [style.font-size.px]="previewFontPx(p)"
+                      [style.text-align]="p.align || 'left'"
+                      >{{ previewSample(p) }}</span
                     >
-                      <span class="aparencia-field__label">{{ t.label }}</span>
-                      @if (mappedCountFor({ name_key: c.name_key, option: t.option }) > 1) {
-                        <span class="aparencia-field__meta">
-                          {{ mappedCountFor({ name_key: c.name_key, option: t.option }) }} áreas
-                        </span>
-                      }
-                    </button>
-                    @if (isMapped({ name_key: c.name_key, option: t.option })) {
+                    @if (viewMode() === 'edit') {
                       <button
                         type="button"
-                        class="aparencia-field__remove"
-                        title="Remover área(s)"
-                        (click)="removerCampo({ name_key: c.name_key, option: t.option }, $event)"
+                        class="ae-box-remove"
+                        title="Excluir esta caixa"
+                        (pointerdown)="$event.stopPropagation()"
+                        (click)="removerBox(p, $event)"
                       >
                         ×
                       </button>
+                      <button
+                        type="button"
+                        class="ae-box-handle"
+                        title="Redimensionar"
+                        (pointerdown)="onResizePointerDown($event, p)"
+                      ></button>
                     }
-                  </li>
+                  </div>
                 }
-              </ul>
-            </li>
-          } @else {
-            <li>
-              <button
-                type="button"
-                class="aparencia-field"
-                [class.aparencia-field--active]="isSelected({ name_key: c.name_key })"
-                [class.aparencia-field--mapped]="isMapped({ name_key: c.name_key })"
-                (click)="selecionarCampo(c.name_key)"
-              >
-                <span class="aparencia-field__label">{{ c.label }}</span>
-                <span class="aparencia-field__meta">{{ c.type }} · {{ c.name_key }}</span>
-              </button>
-              @if (isMapped({ name_key: c.name_key })) {
-                <button
-                  type="button"
-                  class="aparencia-field__remove"
-                  title="Remover área"
-                  (click)="removerCampo({ name_key: c.name_key }, $event)"
-                >
-                  ×
-                </button>
-              }
-            </li>
-          }
-        }
-      </ul>
-    </g-card>
-
-    <div class="aparencia-viewer">
-      <div class="aparencia-viewer__toolbar">
-        <nord-button variant="plain" size="s" type="button" (click)="prevPage()" [attr.disabled]="pageIndex() <= 0 || null">
-          Página anterior
-        </nord-button>
-        <span>Página {{ pageIndex() + 1 }} / {{ pageCount() || 1 }}</span>
-        <nord-button
-          variant="plain"
-          size="s"
-          type="button"
-          (click)="nextPage()"
-          [attr.disabled]="pageIndex() >= pageCount() - 1 || null"
-        >
-          Próxima página
-        </nord-button>
-      </div>
-
-      <div class="aparencia-canvas-wrap">
-        <canvas #pdfCanvas class="aparencia-pdf-canvas" aria-hidden="true"></canvas>
-        <div
-          #overlayLayer
-          class="aparencia-overlay-layer"
-          (pointerdown)="onLayerPointerDown($event)"
-          (pointermove)="onOverlayPointerMove($event)"
-          (pointerup)="onOverlayPointerUp($event)"
-          (pointercancel)="onOverlayPointerUp($event)"
-        >
-          @for (p of placementsOnPage(); track trackPlacement(p)) {
-            <div
-              class="aparencia-box"
-              [class.aparencia-box--selected]="isSelected(p)"
-              [class.aparencia-box--check]="p.kind === 'checkbox'"
-              [style.left.%]="p.x * 100"
-              [style.top.%]="p.y * 100"
-              [style.width.%]="p.w * 100"
-              [style.height.%]="p.h * 100"
-              (pointerdown)="onBoxPointerDown($event, p)"
-            >
-              <span class="aparencia-box__meta">{{ placementTitle(p) }}</span>
-              <span
-                class="aparencia-box__sample"
-                [style.font-size.px]="previewFontPx(p)"
-                >{{ previewSample(p) }}</span
-              >
-              <button
-                type="button"
-                class="aparencia-box__remove"
-                title="Excluir esta caixa"
-                (pointerdown)="$event.stopPropagation()"
-                (click)="removerBox(p, $event)"
-              >
-                ×
-              </button>
-              <button
-                type="button"
-                class="aparencia-box__handle"
-                title="Redimensionar"
-                (pointerdown)="onResizePointerDown($event, p)"
-              ></button>
+                @if (draftBox(); as draft) {
+                  <div
+                    class="ae-box ae-box--draft"
+                    [style.left.%]="draft.x * 100"
+                    [style.top.%]="draft.y * 100"
+                    [style.width.%]="draft.w * 100"
+                    [style.height.%]="draft.h * 100"
+                  ></div>
+                }
+              </div>
             </div>
-          }
-          @if (draftBox(); as draft) {
-            <div
-              class="aparencia-box aparencia-box--draft"
-              [style.left.%]="draft.x * 100"
-              [style.top.%]="draft.y * 100"
-              [style.width.%]="draft.w * 100"
-              [style.height.%]="draft.h * 100"
-            ></div>
-          }
+          </div>
         </div>
       </div>
-    </div>
-  </div>
+
+      <div class="ae-doc-status">
+        <span>{{ statusText() }}</span>
+        <span>PDF original · formulário digital continua igual</span>
+      </div>
+    </section>
+
+    <!-- Inspector -->
+    <aside class="ae-panel ae-inspector" [class.mobile-active]="mobileTab() === 'inspector'" data-panel="inspector">
+      <div class="ae-panel-header">
+        <div>
+          <span class="ae-eyebrow">ETAPA 03</span>
+          <h2>Ajustes do campo</h2>
+          <p>Posição e aparência da caixa.</p>
+        </div>
+      </div>
+
+      @if (selectedPlacement(); as sel) {
+        <div class="ae-inspector-body">
+          <div class="ae-selected-heading">
+            <div class="ae-field-icon">Aa</div>
+            <div>
+              <span class="ae-eyebrow">CAIXA SELECIONADA</span>
+              <h3>{{ placementTitle(sel) }}</h3>
+            </div>
+            <span class="ae-mapped-label">Mapeado</span>
+          </div>
+
+          <section class="ae-insp-section">
+            <div class="ae-section-title">
+              <span>Posição na página</span>
+              <span class="ae-tiny">% do PDF</span>
+            </div>
+            <div class="ae-two-col">
+              <label>
+                X
+                <input
+                  type="number"
+                  min="0"
+                  max="100"
+                  step="0.1"
+                  [ngModel]="pct(sel.x)"
+                  (ngModelChange)="patchSelectedNumeric('x', $event)"
+                />
+              </label>
+              <label>
+                Y
+                <input
+                  type="number"
+                  min="0"
+                  max="100"
+                  step="0.1"
+                  [ngModel]="pct(sel.y)"
+                  (ngModelChange)="patchSelectedNumeric('y', $event)"
+                />
+              </label>
+              <label>
+                Largura
+                <input
+                  type="number"
+                  min="0.5"
+                  max="100"
+                  step="0.1"
+                  [ngModel]="pct(sel.w)"
+                  (ngModelChange)="patchSelectedNumeric('w', $event)"
+                />
+              </label>
+              <label>
+                Altura
+                <input
+                  type="number"
+                  min="0.5"
+                  max="100"
+                  step="0.1"
+                  [ngModel]="pct(sel.h)"
+                  (ngModelChange)="patchSelectedNumeric('h', $event)"
+                />
+              </label>
+            </div>
+            <p class="ae-help">Arraste no PDF ou use as setas do teclado (Shift = 10×).</p>
+          </section>
+
+          <section class="ae-insp-section">
+            <div class="ae-section-title"><span>Aparência</span></div>
+            <div class="ae-two-col">
+              <label>
+                Fonte
+                <input
+                  type="number"
+                  min="6"
+                  max="28"
+                  step="1"
+                  [ngModel]="sel.font_size ?? 9"
+                  (ngModelChange)="patchSelectedFont($event)"
+                />
+              </label>
+              <label>
+                Alinhamento
+                <select [ngModel]="sel.align || 'left'" (ngModelChange)="patchSelectedAlign($event)">
+                  <option value="left">Esquerda</option>
+                  <option value="center">Centro</option>
+                  <option value="right">Direita</option>
+                </select>
+              </label>
+            </div>
+          </section>
+
+          <div class="ae-insp-actions">
+            <button type="button" class="ae-btn ae-btn--danger full" (click)="removerBox(sel)">
+              Remover posição
+            </button>
+          </div>
+        </div>
+      } @else {
+        <div class="ae-inspector-empty">
+          <div class="ae-empty-illu" aria-hidden="true"><span>▤</span></div>
+          <strong>Selecione um campo</strong>
+          <p>Clique à esquerda ou numa caixa do documento para ajustar.</p>
+        </div>
+      }
+
+      <div class="ae-insp-footer">
+        <strong>Atalhos</strong>
+        <span>← ↑ ↓ → mover</span>
+        <span>Shift + setas mover mais</span>
+      </div>
+    </aside>
+  </main>
 }

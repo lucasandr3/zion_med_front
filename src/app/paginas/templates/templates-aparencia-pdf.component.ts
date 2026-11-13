@@ -4,6 +4,7 @@ import {
   computed,
   CUSTOM_ELEMENTS_SCHEMA,
   ElementRef,
+  HostListener,
   OnDestroy,
   OnInit,
   ViewChild,
@@ -15,8 +16,6 @@ import { FormsModule } from '@angular/forms';
 import { TemplatesService, Template, TemplateCampo } from '../../core/services/templates.service';
 import { ToastService } from '../../core/services/toast.service';
 import { ZmPageBackLinkComponent } from '../../shared/components/ui';
-import { GestgoCardComponent } from '@/shared/components/card/card.component';
-import { NORD_FORM_IMPORTS } from '@/shared/nord';
 import {
   DATE_PART_TARGETS,
   emptyPrintLayout,
@@ -29,6 +28,7 @@ import {
   samePlacementBox,
   SYSTEM_PRINT_TARGETS,
   type PrintLayout,
+  type PrintLayoutAlign,
   type PrintLayoutPlacement,
   type PrintLayoutTarget,
 } from '../../core/utils/print-layout.util';
@@ -68,8 +68,8 @@ type Gesture =
   selector: 'app-templates-aparencia-pdf',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { class: 'n-page templates-aparencia-pdf' },
-  imports: [...NORD_FORM_IMPORTS, RouterLink, FormsModule, ZmPageBackLinkComponent, GestgoCardComponent],
+  host: { class: 'templates-aparencia-pdf ae-root' },
+  imports: [RouterLink, FormsModule, ZmPageBackLinkComponent],
   templateUrl: './templates-aparencia-pdf.component.html',
   styleUrl: './templates-aparencia-pdf.component.css',
 })
@@ -85,14 +85,61 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
   readonly pageIndex = signal(0);
   readonly pageCount = signal(0);
   readonly selectedTarget = signal<PrintLayoutTarget | null>(null);
+  readonly selectedUid = signal<string | null>(null);
   readonly placements = signal<PrintLayoutPlacement[]>([]);
   readonly dirty = signal(false);
   readonly draftBox = signal<{ x: number; y: number; w: number; h: number } | null>(null);
   readonly systemTargets = SYSTEM_PRINT_TARGETS;
+  readonly fieldSearch = signal('');
+  readonly viewMode = signal<'edit' | 'preview'>('edit');
+  readonly zoom = signal(0.9);
+  readonly hintVisible = signal(true);
+  readonly mobileTab = signal<'fields' | 'document' | 'inspector'>('document');
+  readonly stageWidth = signal(0);
+  readonly stageHeight = signal(0);
 
   readonly placementsOnPage = computed(() =>
     this.placements().filter((p) => p.page === this.pageIndex()),
   );
+
+  readonly selectedPlacement = computed(() => {
+    const uid = this.selectedUid();
+    if (!uid) return null;
+    return this.placements().find((p) => p.uid === uid) ?? null;
+  });
+
+  readonly filteredCampos = computed(() => {
+    const q = this.fieldSearch().trim().toLowerCase();
+    if (!q) return this.campos();
+    return this.campos().filter(
+      (c) =>
+        c.label.toLowerCase().includes(q) ||
+        c.name_key.toLowerCase().includes(q) ||
+        (c.type || '').toLowerCase().includes(q),
+    );
+  });
+
+  readonly filteredSystemTargets = computed(() => {
+    const q = this.fieldSearch().trim().toLowerCase();
+    if (!q) return this.systemTargets;
+    return this.systemTargets.filter(
+      (t) => t.label.toLowerCase().includes(q) || t.name_key.toLowerCase().includes(q),
+    );
+  });
+
+  readonly mappedExtrasCount = computed(
+    () => this.systemTargets.filter((t) => this.isMapped({ name_key: t.name_key })).length,
+  );
+
+  readonly statusText = computed(() => {
+    if (!this.selectedTarget()) return 'Selecione um campo e desenhe no PDF.';
+    if (this.viewMode() === 'preview') return 'Prévia das respostas nas áreas mapeadas.';
+    return 'Arraste as caixas ou use o painel de ajustes.';
+  });
+
+  get zoomPercent(): number {
+    return Math.round(this.zoom() * 100);
+  }
 
   private pdfDoc: PdfJsDoc | null = null;
   private pdfObjectUrl: string | null = null;
@@ -152,8 +199,95 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
     if (this.workerBlobUrl) URL.revokeObjectURL(this.workerBlobUrl);
   }
 
+  @HostListener('window:keydown', ['$event'])
+  onKeydown(event: KeyboardEvent): void {
+    const sel = this.selectedPlacement();
+    if (!sel || this.viewMode() !== 'edit') return;
+    const tag = (event.target as HTMLElement | null)?.tagName?.toLowerCase();
+    if (tag === 'input' || tag === 'textarea' || tag === 'select') return;
+
+    const step = event.shiftKey ? 0.01 : 0.002;
+    let dx = 0;
+    let dy = 0;
+    if (event.key === 'ArrowLeft') dx = -step;
+    else if (event.key === 'ArrowRight') dx = step;
+    else if (event.key === 'ArrowUp') dy = -step;
+    else if (event.key === 'ArrowDown') dy = step;
+    else return;
+
+    event.preventDefault();
+    const next = {
+      ...sel,
+      x: clamp01(Math.min(sel.x + dx, 1 - sel.w)),
+      y: clamp01(Math.min(sel.y + dy, 1 - sel.h)),
+    };
+    this.patchPlacementByUid(sel.uid!, next);
+    this.dirty.set(true);
+  }
+
   get mappedCount(): number {
     return this.placements().length;
+  }
+
+  fieldGlyph(type: string | null | undefined): string {
+    const t = (type || '').toLowerCase();
+    if (t === 'signature') return '✎';
+    if (t === 'checkbox' || t === 'radio') return '☑';
+    if (t === 'date' || t === 'datetime') return '📅';
+    if (t === 'file') return '▣';
+    return 'Aa';
+  }
+
+  zoomIn(): void {
+    this.zoom.set(Math.min(1.6, Math.round((this.zoom() + 0.1) * 10) / 10));
+  }
+
+  zoomOut(): void {
+    this.zoom.set(Math.max(0.5, Math.round((this.zoom() - 0.1) * 10) / 10));
+  }
+
+  pct(n: number): number {
+    return Math.round(n * 1000) / 10;
+  }
+
+  isBoxSelected(p: PrintLayoutPlacement): boolean {
+    return !!p.uid && p.uid === this.selectedUid();
+  }
+
+  patchSelectedNumeric(key: 'x' | 'y' | 'w' | 'h', value: number | string): void {
+    const sel = this.selectedPlacement();
+    if (!sel?.uid) return;
+    const n = Number(value);
+    if (!Number.isFinite(n)) return;
+    const v = clamp01(n / 100);
+    const next = { ...sel, [key]: v };
+    if (key === 'x') next.x = Math.min(v, 1 - sel.w);
+    if (key === 'y') next.y = Math.min(v, 1 - sel.h);
+    if (key === 'w') next.w = Math.max(0.005, Math.min(v, 1 - sel.x));
+    if (key === 'h') next.h = Math.max(0.005, Math.min(v, 1 - sel.y));
+    this.patchPlacementByUid(sel.uid, next);
+    this.dirty.set(true);
+  }
+
+  patchSelectedFont(value: number | string): void {
+    const sel = this.selectedPlacement();
+    if (!sel?.uid) return;
+    const n = Number(value);
+    if (!Number.isFinite(n)) return;
+    this.patchPlacementByUid(sel.uid, {
+      ...sel,
+      font_size: Math.min(28, Math.max(6, Math.round(n))),
+    });
+    this.dirty.set(true);
+  }
+
+  patchSelectedAlign(value: string): void {
+    const sel = this.selectedPlacement();
+    if (!sel?.uid) return;
+    const align: PrintLayoutAlign =
+      value === 'center' || value === 'right' ? value : 'left';
+    this.patchPlacementByUid(sel.uid, { ...sel, align });
+    this.dirty.set(true);
   }
 
   trackPlacement(p: PrintLayoutPlacement): string {
@@ -289,16 +423,24 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
     const target: PrintLayoutTarget = { name_key: nameKey, option: option ?? null };
     this.selectedTarget.set(target);
     const existing = this.placements().find((p) => samePlacement(p, target));
-    if (existing && existing.page !== this.pageIndex()) {
-      void this.goToPage(existing.page);
+    if (existing) {
+      this.selectedUid.set(existing.uid || null);
+      if (existing.page !== this.pageIndex()) {
+        void this.goToPage(existing.page);
+      }
+    } else {
+      this.selectedUid.set(null);
     }
   }
 
   removerCampo(target: PrintLayoutTarget, event?: Event): void {
     event?.stopPropagation();
+    const removed = this.placements().filter((p) => samePlacement(p, target));
     this.placements.set(this.placements().filter((p) => !samePlacement(p, target)));
     const cur = this.selectedTarget();
     if (cur && samePlacement(cur, target)) this.selectedTarget.set(null);
+    const uid = this.selectedUid();
+    if (uid && removed.some((p) => p.uid === uid)) this.selectedUid.set(null);
     this.dirty.set(true);
   }
 
@@ -329,7 +471,8 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
 
   /** Clique no fundo do PDF → desenha nova área. */
   onLayerPointerDown(event: PointerEvent): void {
-    if ((event.target as HTMLElement | null)?.closest?.('.aparencia-box')) return;
+    if ((event.target as HTMLElement | null)?.closest?.('.ae-box')) return;
+    if (this.viewMode() === 'preview') return;
     if (event.button !== 0 && event.pointerType === 'mouse') return;
     event.preventDefault();
     const layer = this.overlayLayer?.nativeElement;
@@ -339,7 +482,7 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
     if (!this.selectedTarget()) {
       this.toast.warning(
         'Aparência do PDF',
-        'Selecione um campo (ou Dia/Mês/Ano) à esquerda e desenhe no PDF. Para mover, arraste a caixa azul.',
+        'Selecione um campo (ou Dia/Mês/Ano) à esquerda e desenhe no PDF. Para mover, arraste a caixa.',
       );
       return;
     }
@@ -351,6 +494,7 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
 
   /** Arrastar caixa existente. */
   onBoxPointerDown(event: PointerEvent, p: PrintLayoutPlacement): void {
+    if (this.viewMode() === 'preview') return;
     if (event.button !== 0 && event.pointerType === 'mouse') return;
     event.preventDefault();
     event.stopPropagation();
@@ -364,6 +508,7 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
       );
     }
     this.selectedTarget.set({ name_key: p.name_key, option: p.option ?? null });
+    this.selectedUid.set(uid);
     this.gesture = {
       mode: 'move',
       uid,
@@ -376,6 +521,7 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
 
   /** Redimensionar pelo canto. */
   onResizePointerDown(event: PointerEvent, p: PrintLayoutPlacement): void {
+    if (this.viewMode() === 'preview') return;
     if (event.button !== 0 && event.pointerType === 'mouse') return;
     event.preventDefault();
     event.stopPropagation();
@@ -388,6 +534,7 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
       );
     }
     this.selectedTarget.set({ name_key: p.name_key, option: p.option ?? null });
+    this.selectedUid.set(uid);
     this.gesture = {
       mode: 'resize',
       uid,
@@ -400,6 +547,7 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
   removerBox(p: PrintLayoutPlacement, event?: Event): void {
     event?.stopPropagation();
     this.placements.set(this.placements().filter((item) => !samePlacementBox(item, p)));
+    if (p.uid && this.selectedUid() === p.uid) this.selectedUid.set(null);
     this.dirty.set(true);
   }
 
@@ -419,6 +567,7 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
 
   limparTudo(): void {
     this.placements.set([]);
+    this.selectedUid.set(null);
     this.dirty.set(true);
     this.draftBox.set(null);
   }
@@ -543,6 +692,7 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
       // Data etc.: pode repetir no PDF.
       this.placements.set([...this.placements(), placement]);
     }
+    this.selectedUid.set(placement.uid!);
     this.dirty.set(true);
   }
 
@@ -660,8 +810,12 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
     if (token !== this.renderToken) return;
 
     const viewport = page.getViewport({ scale: 1.35 });
-    canvas.width = Math.floor(viewport.width);
-    canvas.height = Math.floor(viewport.height);
+    const w = Math.floor(viewport.width);
+    const h = Math.floor(viewport.height);
+    canvas.width = w;
+    canvas.height = h;
+    this.stageWidth.set(w);
+    this.stageHeight.set(h);
 
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
