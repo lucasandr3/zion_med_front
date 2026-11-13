@@ -234,11 +234,37 @@
   margin-top: 1rem;
 }
 
+.sig-font-hint {
+  margin: 0.15rem 0 0.65rem;
+  font-size: 0.75rem;
+  color: var(--muted-foreground, #64748b);
+  line-height: 1.4;
+}
+
+.sig-font-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-height: min(52vh, 420px);
+  overflow-y: auto;
+  padding-right: 0.25rem;
+  scrollbar-width: thin;
+}
+
+.sig-font-group__title {
+  display: block;
+  font-size: 0.68rem;
+  font-weight: 750;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted-foreground, #64748b);
+  margin-bottom: 0.4rem;
+}
+
 .sig-font-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr));
   gap: 0.5rem;
-  margin-top: 0.35rem;
 }
 
 .sig-font-chip {
