@@ -23,8 +23,10 @@ import {
   hasUsablePrintLayout,
   inferPlacementKind,
   isDatePartOption,
+  newPlacementUid,
   parsePrintLayout,
   samePlacement,
+  samePlacementBox,
   SYSTEM_PRINT_TARGETS,
   type PrintLayout,
   type PrintLayoutPlacement,
@@ -50,14 +52,14 @@ type Gesture =
   | { mode: 'draw'; startX: number; startY: number }
   | {
       mode: 'move';
-      target: PrintLayoutTarget;
+      uid: string;
       grabX: number;
       grabY: number;
       start: PrintLayoutPlacement;
     }
   | {
       mode: 'resize';
-      target: PrintLayoutTarget;
+      uid: string;
       start: PrintLayoutPlacement;
     };
 
@@ -155,7 +157,11 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
   }
 
   trackPlacement(p: PrintLayoutPlacement): string {
-    return `${p.name_key}::${p.option ?? ''}@${p.page}`;
+    return p.uid || `${p.name_key}::${p.option ?? ''}@${p.page}:${p.x}:${p.y}`;
+  }
+
+  mappedCountFor(target: PrintLayoutTarget): number {
+    return this.placements().filter((p) => samePlacement(p, target)).length;
   }
 
   campoLabel(nameKey: string): string {
@@ -210,6 +216,15 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
   isFieldFullyMapped(campo: TemplateCampo): boolean {
     if (!this.fieldHasOptionTargets(campo)) {
       return this.isMapped({ name_key: campo.name_key });
+    }
+    if (this.fieldIsDate(campo)) {
+      const key = campo.name_key;
+      const hasDay = this.isMapped({ name_key: key, option: 'day' });
+      const hasYear = this.isMapped({ name_key: key, option: 'year' });
+      const hasMonth =
+        this.isMapped({ name_key: key, option: 'month' }) ||
+        this.isMapped({ name_key: key, option: 'month_name' });
+      return hasDay && hasYear && hasMonth;
     }
     return this.fieldMapTargets(campo).every((t) =>
       this.isMapped({ name_key: campo.name_key, option: t.option }),
@@ -293,14 +308,19 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
     const layer = this.overlayLayer?.nativeElement;
     if (!layer) return;
     const { x, y } = this.pointerNorm(event, layer);
-    const target: PrintLayoutTarget = { name_key: p.name_key, option: p.option ?? null };
-    this.selectedTarget.set(target);
+    const uid = p.uid || newPlacementUid();
+    if (!p.uid) {
+      this.placements.set(
+        this.placements().map((item) => (samePlacementBox(item, p) ? { ...item, uid } : item)),
+      );
+    }
+    this.selectedTarget.set({ name_key: p.name_key, option: p.option ?? null });
     this.gesture = {
       mode: 'move',
-      target,
+      uid,
       grabX: x - p.x,
       grabY: y - p.y,
-      start: { ...p },
+      start: { ...p, uid },
     };
     this.capturePointer(event, layer);
   }
@@ -312,14 +332,26 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
     event.stopPropagation();
     const layer = this.overlayLayer?.nativeElement;
     if (!layer) return;
-    const target: PrintLayoutTarget = { name_key: p.name_key, option: p.option ?? null };
-    this.selectedTarget.set(target);
+    const uid = p.uid || newPlacementUid();
+    if (!p.uid) {
+      this.placements.set(
+        this.placements().map((item) => (samePlacementBox(item, p) ? { ...item, uid } : item)),
+      );
+    }
+    this.selectedTarget.set({ name_key: p.name_key, option: p.option ?? null });
     this.gesture = {
       mode: 'resize',
-      target,
-      start: { ...p },
+      uid,
+      start: { ...p, uid },
     };
     this.capturePointer(event, layer);
+  }
+
+  /** Remove só esta caixa (útil quando a data se repete no PDF). */
+  removerBox(p: PrintLayoutPlacement, event?: Event): void {
+    event?.stopPropagation();
+    this.placements.set(this.placements().filter((item) => !samePlacementBox(item, p)));
+    this.dirty.set(true);
   }
 
   onOverlayPointerMove(event: PointerEvent): void {
@@ -400,7 +432,7 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
       let ny = clamp01(y - this.gesture.grabY);
       nx = Math.min(nx, 1 - start.w);
       ny = Math.min(ny, 1 - start.h);
-      this.patchPlacement(this.gesture.target, { ...start, x: nx, y: ny });
+      this.patchPlacementByUid(this.gesture.uid, { ...start, x: nx, y: ny });
       return;
     }
 
@@ -408,7 +440,7 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
       const start = this.gesture.start;
       const nextW = Math.max(0.01, Math.min(x - start.x, 1 - start.x));
       const nextH = Math.max(0.008, Math.min(y - start.y, 1 - start.y));
-      this.patchPlacement(this.gesture.target, { ...start, w: nextW, h: nextH });
+      this.patchPlacementByUid(this.gesture.uid, { ...start, w: nextW, h: nextH });
     }
   }
 
@@ -431,9 +463,15 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
     const field = this.campos().find((c) => c.name_key === target.name_key);
     const system = SYSTEM_PRINT_TARGETS.find((t) => t.name_key === target.name_key);
     const hasOption = !!(target.option && target.option.trim());
+    const isDatePart = hasOption && isDatePartOption(target.option);
+    const isChoiceOption =
+      hasOption &&
+      (field?.type === 'radio' || field?.type === 'checkbox' || field?.type === 'select');
+
     const placement: PrintLayoutPlacement = {
       name_key: target.name_key,
       option: hasOption ? target.option : null,
+      uid: newPlacementUid(),
       page: this.pageIndex(),
       x: draft.x,
       y: draft.y,
@@ -441,10 +479,17 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
       h: draft.h,
       kind: system?.kind ?? inferPlacementKind(field?.type, hasOption),
       align: 'left',
-      font_size: field?.type === 'textarea' ? 10 : hasOption && isDatePartOption(target.option) ? 12 : 11,
+      font_size: field?.type === 'textarea' ? 9 : isDatePart ? 10 : 9,
     };
-    const others = this.placements().filter((p) => !samePlacement(p, placement));
-    this.placements.set([...others, placement]);
+
+    // Data pode se repetir no PDF: cada desenho adiciona uma caixa.
+    // Rádio/checkbox: uma caixa por opção (substitui a anterior).
+    if (isChoiceOption) {
+      const others = this.placements().filter((p) => !samePlacement(p, placement));
+      this.placements.set([...others, placement]);
+    } else {
+      this.placements.set([...this.placements(), placement]);
+    }
     this.dirty.set(true);
   }
 
@@ -481,8 +526,10 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
     };
   }
 
-  private patchPlacement(target: PrintLayoutTarget, next: PrintLayoutPlacement): void {
-    this.placements.set(this.placements().map((p) => (samePlacement(p, target) ? next : p)));
+  private patchPlacementByUid(uid: string, next: PrintLayoutPlacement): void {
+    this.placements.set(
+      this.placements().map((p) => (p.uid === uid || (!p.uid && samePlacementBox(p, next)) ? { ...next, uid } : p)),
+    );
   }
 
   private loadPdf(templateId: number): void {

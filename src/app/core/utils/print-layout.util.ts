@@ -7,10 +7,12 @@ export interface PrintLayoutPlacement {
   name_key: string;
   /**
    * Para radio/checkbox: marca só se a resposta for esta opção.
-   * Para date: `day` | `month` | `year` (preenche só essa parte).
+   * Para date: `day` | `month` | `month_name` | `year` (preenche só essa parte).
    * Sem option = área do campo inteiro (texto ou checkbox booleano).
    */
   option?: string | null;
+  /** Identifica uma caixa específica (permite repetir Dia/Mês/Ano em vários pontos do PDF). */
+  uid?: string;
   /** Página 0-based. */
   page: number;
   /** Coordenadas normalizadas (0–1) a partir do canto superior esquerdo. */
@@ -71,6 +73,26 @@ export function samePlacement(a: PrintLayoutTarget, b: PrintLayoutTarget): boole
   return a.name_key === b.name_key && (a.option ?? '').trim() === (b.option ?? '').trim();
 }
 
+/** Mesma caixa física (uid); fallback legado por chave+posição. */
+export function samePlacementBox(
+  a: Pick<PrintLayoutPlacement, 'uid' | 'name_key' | 'option' | 'page' | 'x' | 'y' | 'w' | 'h'>,
+  b: Pick<PrintLayoutPlacement, 'uid' | 'name_key' | 'option' | 'page' | 'x' | 'y' | 'w' | 'h'>,
+): boolean {
+  if (a.uid && b.uid) return a.uid === b.uid;
+  return (
+    samePlacement(a, b) &&
+    a.page === b.page &&
+    Math.abs(a.x - b.x) < 1e-6 &&
+    Math.abs(a.y - b.y) < 1e-6 &&
+    Math.abs(a.w - b.w) < 1e-6 &&
+    Math.abs(a.h - b.h) < 1e-6
+  );
+}
+
+export function newPlacementUid(): string {
+  return `p_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 9)}`;
+}
+
 export function parsePrintLayout(raw: unknown): PrintLayout | null {
   if (!raw || typeof raw !== 'object') return null;
   const rec = raw as Record<string, unknown>;
@@ -101,10 +123,14 @@ export function parsePrintLayout(raw: unknown): PrintLayout | null {
     const optionRaw = p['option'];
     const option =
       typeof optionRaw === 'string' && optionRaw.trim() !== '' ? optionRaw.trim() : null;
+    const uidRaw = p['uid'];
+    const uid =
+      typeof uidRaw === 'string' && uidRaw.trim() !== '' ? uidRaw.trim() : newPlacementUid();
 
     placements.push({
       name_key,
       option,
+      uid,
       page: Math.floor(page),
       x: clamp01(x),
       y: clamp01(y),
@@ -141,42 +167,66 @@ export function normalizeOptionValue(value: string | null | undefined): string {
     .toLowerCase();
 }
 
-/** Partes de data para formulários com Dia / Mês / Ano separados. */
-export const DATE_PART_TARGETS: Array<{ option: 'day' | 'month' | 'year'; label: string }> = [
+export type DatePartOption = 'day' | 'month' | 'month_name' | 'year';
+
+/** Partes de data — dá para mapear a mesma parte várias vezes (ex.: ___/___/____ e “São Paulo, __ de ____ de ____”). */
+export const DATE_PART_TARGETS: Array<{ option: DatePartOption; label: string }> = [
   { option: 'day', label: 'Dia' },
-  { option: 'month', label: 'Mês' },
+  { option: 'month', label: 'Mês (número)' },
+  { option: 'month_name', label: 'Mês (extenso)' },
   { option: 'year', label: 'Ano' },
 ];
 
-export function isDatePartOption(option: string | null | undefined): option is 'day' | 'month' | 'year' {
+const MONTH_NAMES_PT = [
+  'janeiro',
+  'fevereiro',
+  'março',
+  'abril',
+  'maio',
+  'junho',
+  'julho',
+  'agosto',
+  'setembro',
+  'outubro',
+  'novembro',
+  'dezembro',
+] as const;
+
+export function isDatePartOption(option: string | null | undefined): option is DatePartOption {
   const o = (option || '').trim().toLowerCase();
-  return o === 'day' || o === 'month' || o === 'year';
+  return o === 'day' || o === 'month' || o === 'month_name' || o === 'year';
 }
 
-/** Extrai dia/mês/ano de texto BR (dd/mm/aaaa) ou ISO (aaaa-mm-dd). */
-export function extractDatePart(text: string, part: 'day' | 'month' | 'year'): string {
+/** Extrai dia/mês/ano (ou mês por extenso) de texto BR (dd/mm/aaaa) ou ISO (aaaa-mm-dd). */
+export function extractDatePart(text: string, part: DatePartOption): string {
   const raw = String(text || '').trim();
   if (!raw) return '';
 
+  let day = '';
+  let month = '';
+  let year = '';
+
   const br = /^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2,4})$/.exec(raw);
   if (br) {
-    const d = br[1]!.padStart(2, '0');
-    const m = br[2]!.padStart(2, '0');
-    let y = br[3]!;
-    if (y.length === 2) y = `20${y}`;
-    if (part === 'day') return d;
-    if (part === 'month') return m;
-    return y;
+    day = br[1]!.padStart(2, '0');
+    month = br[2]!.padStart(2, '0');
+    year = br[3]!;
+    if (year.length === 2) year = `20${year}`;
+  } else {
+    const iso = /^(\d{4})-(\d{2})-(\d{2})/.exec(raw);
+    if (iso) {
+      year = iso[1]!;
+      month = iso[2]!;
+      day = iso[3]!;
+    }
   }
 
-  const iso = /^(\d{4})-(\d{2})-(\d{2})/.exec(raw);
-  if (iso) {
-    if (part === 'year') return iso[1]!;
-    if (part === 'month') return iso[2]!;
-    return iso[3]!;
-  }
-
-  return '';
+  if (!day || !month || !year) return '';
+  if (part === 'day') return day;
+  if (part === 'month') return month;
+  if (part === 'year') return year;
+  const idx = Number(month) - 1;
+  return MONTH_NAMES_PT[idx] ?? '';
 }
 
 function clamp01(n: number): number {
