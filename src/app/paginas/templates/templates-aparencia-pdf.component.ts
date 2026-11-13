@@ -24,6 +24,7 @@ import {
   hasUsablePrintLayout,
   inferPlacementKind,
   isDatePartOption,
+  isDocDateTarget,
   newPlacementUid,
   parsePrintLayout,
   samePlacement,
@@ -141,7 +142,7 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
   });
 
   readonly mappedExtrasCount = computed(
-    () => this.systemTargets.filter((t) => this.isMapped({ name_key: t.name_key })).length,
+    () => this.systemTargets.filter((t) => this.isExtraMapped(t.name_key)).length,
   );
 
   readonly statusText = computed(() => {
@@ -347,8 +348,24 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
     return this.campos().find((c) => c.name_key === nameKey)?.label || nameKey;
   }
 
-  selecionarExtra(nameKey: string): void {
-    this.selecionarCampo(nameKey);
+  selecionarExtra(nameKey: string, option?: string | null): void {
+    this.selecionarCampo(nameKey, option);
+  }
+
+  isExtraMapped(nameKey: string): boolean {
+    return this.placements().some((p) => p.name_key === nameKey);
+  }
+
+  isDocDateExtra(nameKey: string): boolean {
+    return isDocDateTarget(nameKey);
+  }
+
+  /** Alvos da data genérica (completa + partes), repetíveis no PDF. */
+  docDateMapTargets(): Array<{ option: string | null; label: string }> {
+    return [
+      { option: null, label: 'Data completa (dd/mm/aaaa)' },
+      ...DATE_PART_TARGETS.map((d) => ({ option: d.option as string, label: d.label })),
+    ];
   }
 
   fieldOptions(campo: TemplateCampo): string[] {
@@ -385,11 +402,15 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
 
   /**
    * Alvos mapeáveis.
-   * Rádio/select: primeiro “Resposta em texto” (uma caixa com “Casado”), depois ✓ por opção.
+   * Data: completa (uma caixa) OU partes (dia/mês/ano) — pode misturar os dois.
+   * Rádio/select: primeiro “Resposta em texto”, depois ✓ por opção.
    */
   fieldMapTargets(campo: TemplateCampo): Array<{ option: string | null; label: string }> {
     if (this.fieldIsDate(campo)) {
-      return DATE_PART_TARGETS.map((d) => ({ option: d.option, label: d.label }));
+      return [
+        { option: null, label: 'Data completa (dd/mm/aaaa)' },
+        ...DATE_PART_TARGETS.map((d) => ({ option: d.option as string, label: d.label })),
+      ];
     }
     if (this.fieldIsChoice(campo)) {
       return [
@@ -398,6 +419,23 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
       ];
     }
     return this.fieldOptions(campo).map((opt) => ({ option: opt, label: opt }));
+  }
+
+  /** Ícone do alvo na lista (data completa vs partes vs ✓). */
+  targetGlyph(campo: TemplateCampo | null, option: string | null): string {
+    if ((campo && this.fieldIsDate(campo)) || !campo) {
+      if (option === null) return 'Aa';
+      if (option === 'day') return '12';
+      if (option === 'month') return '11';
+      if (option === 'month_name') return 'nov';
+      if (option === 'year') return '26';
+      return 'Aa';
+    }
+    return option === null ? 'Aa' : '✓';
+  }
+
+  dateTargetGlyph(option: string | null): string {
+    return this.targetGlyph(null, option);
   }
 
   trackMapTarget(t: { option: string | null }): string {
@@ -414,6 +452,8 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
     }
     if (this.fieldIsDate(campo)) {
       const key = campo.name_key;
+      // Completa (uma caixa) OU o trio dia + mês + ano
+      if (this.isMapped({ name_key: key })) return true;
       const hasDay = this.isMapped({ name_key: key, option: 'day' });
       const hasYear = this.isMapped({ name_key: key, option: 'year' });
       const hasMonth =
@@ -450,6 +490,8 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
     }
     if (p.option) return p.option;
 
+    if (isDocDateTarget(p.name_key)) return '13/11/2026';
+
     // Exemplos realistas (não o rótulo do campo) para a prévia parecer o PDF preenchido.
     const key = `${p.name_key} ${this.campoLabel(p.name_key)}`.toLowerCase();
     if (/nome|cedente|paciente|titular/.test(key)) return 'Lucas Silva';
@@ -460,7 +502,8 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
     if (/cpf/.test(key)) return '098.613.856-81';
     if (/endere[cç]o/.test(key)) return 'Rua Exemplo, 100';
     if (/telefone|celular|whatsapp|fone/.test(key)) return '(34) 99893-8363';
-    if (/nasc|birth|data/.test(key)) return '31/01/1990';
+    if (/nasc|birth/.test(key)) return '31/01/1990';
+    if (/\bdata\b/.test(key)) return '13/11/2026';
     if (/e-?mail|email/.test(key)) return 'lucas@email.com';
     if (/cidade/.test(key)) return 'São Paulo';
     if (/bairro/.test(key)) return 'Centro';
@@ -640,35 +683,46 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
     if (!tpl || this.salvando()) return;
     const layout: PrintLayout = {
       version: 1,
-      placements: this.placements(),
+      placements: this.placements().map((p) => ({
+        ...p,
+        x: clamp01(p.x),
+        y: clamp01(p.y),
+        w: Math.min(1, Math.max(0.005, p.w)),
+        h: Math.min(1, Math.max(0.005, p.h)),
+      })),
     };
     this.salvando.set(true);
-    this.templatesService
-      .update(tpl.id, {
-        name: tpl.name,
-        print_layout: layout,
-      })
-      .subscribe({
-        next: (updated) => {
-          this.salvando.set(false);
-          this.template.set(updated);
-          this.dirty.set(false);
-          this.toast.success(
+    this.templatesService.updatePrintLayout(tpl.id, layout).subscribe({
+      next: (updated) => {
+        this.salvando.set(false);
+        const saved = parsePrintLayout(updated.print_layout);
+        if (layout.placements.length > 0 && !hasUsablePrintLayout(saved)) {
+          this.toast.error(
             'Aparência do PDF',
-            hasUsablePrintLayout(layout)
-              ? 'Mapa salvo. O PDF preenchido usará o layout da clínica.'
-              : 'Mapa limpo. O PDF voltará ao layout padrão.',
+            'O servidor não confirmou o mapa. Tente salvar de novo.',
           );
-        },
-        error: (err) => {
-          this.salvando.set(false);
-          const msg =
-            err?.error?.message ||
-            err?.error?.errors?.print_layout?.[0] ||
-            'Não foi possível salvar o mapa.';
-          this.toast.error('Aparência do PDF', msg);
-        },
-      });
+          return;
+        }
+        this.template.set(updated);
+        if (saved) this.placements.set(saved.placements);
+        this.dirty.set(false);
+        this.toast.success(
+          'Aparência do PDF',
+          hasUsablePrintLayout(saved)
+            ? `Mapa salvo (${saved!.placements.length} áreas). O protocolo usará este layout.`
+            : 'Mapa limpo. O PDF voltará ao layout padrão.',
+        );
+      },
+      error: (err) => {
+        this.salvando.set(false);
+        const msg =
+          err?.error?.message ||
+          err?.error?.errors?.print_layout?.[0] ||
+          err?.error?.errors?.['print_layout.placements']?.[0] ||
+          'Não foi possível salvar o mapa.';
+        this.toast.error('Aparência do PDF', msg);
+      },
+    });
   }
 
   private onPointerMove(event: PointerEvent): void {

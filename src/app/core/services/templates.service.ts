@@ -241,6 +241,13 @@ export class TemplatesService {
     return this.api.put<OneResponse>(`/templates/${id}`, payload).pipe(map((r) => r.data));
   }
 
+  /** Salva só o mapa de aparência do PDF (endpoint dedicado). */
+  updatePrintLayout(id: number, print_layout: PrintLayout | null): Observable<Template> {
+    return this.api
+      .put<OneResponse>(`/templates/${id}/print-layout`, { print_layout })
+      .pipe(map((r) => r.data));
+  }
+
   delete(id: number): Observable<void> {
     return this.api.delete<unknown>(`/templates/${id}`).pipe(map(() => undefined));
   }

@@ -76,26 +76,66 @@
       >
         <span class="ae-group-heading__left">
           <span class="ae-chevron" [class.is-open]="extrasOpen()" aria-hidden="true">▾</span>
-          <span>EXTRAS DA CLÍNICA</span>
+          <span class="ae-group-heading__title">EXTRAS DA CLÍNICA</span>
         </span>
-        <span>{{ mappedExtrasCount() }} mapeados</span>
+        <span class="ae-group-heading__meta">{{ mappedExtrasCount() }} mapeados</span>
       </button>
       @if (extrasOpen() || fieldSearch().trim()) {
         <div class="ae-field-list ae-field-list--compact">
           @for (extra of filteredSystemTargets(); track extra.name_key) {
-            <button
-              type="button"
-              class="ae-field-item"
-              [class.selected]="isSelected({ name_key: extra.name_key })"
-              (click)="selecionarExtra(extra.name_key); mobileTab.set('document')"
-            >
-              <span class="ae-field-glyph">{{ extra.kind === 'image' ? '▣' : extra.kind === 'signature' ? '✎' : 'Aa' }}</span>
-              <span class="ae-field-info">
-                <strong>{{ extra.label }}</strong>
-                <small>{{ extra.hint }}</small>
-              </span>
-              <span class="ae-field-dot" [class.mapped]="isMapped({ name_key: extra.name_key })"></span>
-            </button>
+            @if (extra.dateParts) {
+              <div class="ae-field-subgroup" [class.is-collapsed]="!isSubgroupOpen(extra.name_key)">
+                <button
+                  type="button"
+                  class="ae-field-subgroup__title"
+                  [class.mapped]="isExtraMapped(extra.name_key)"
+                  [attr.aria-expanded]="isSubgroupOpen(extra.name_key)"
+                  (click)="toggleSubgroup(extra.name_key)"
+                >
+                  <span class="ae-chevron ae-chevron--sm" [class.is-open]="isSubgroupOpen(extra.name_key)" aria-hidden="true">▾</span>
+                  <span class="ae-field-subgroup__text">
+                    <strong>{{ extra.label }}</strong>
+                    <small>Completa ou partes · repetível</small>
+                  </span>
+                </button>
+                @if (isSubgroupOpen(extra.name_key)) {
+                  @for (t of docDateMapTargets(); track trackMapTarget(t)) {
+                    <button
+                      type="button"
+                      class="ae-field-item ae-field-item--nested"
+                      [class.selected]="isSelected({ name_key: extra.name_key, option: t.option })"
+                      (click)="selecionarExtra(extra.name_key, t.option); mobileTab.set('document')"
+                    >
+                      <span class="ae-field-glyph">{{ dateTargetGlyph(t.option) }}</span>
+                      <span class="ae-field-info">
+                        <strong>{{ t.label }}</strong>
+                        @if (mappedCountFor({ name_key: extra.name_key, option: t.option }) > 1) {
+                          <small>{{ mappedCountFor({ name_key: extra.name_key, option: t.option }) }} áreas</small>
+                        }
+                      </span>
+                      <span
+                        class="ae-field-dot"
+                        [class.mapped]="isMapped({ name_key: extra.name_key, option: t.option })"
+                      ></span>
+                    </button>
+                  }
+                }
+              </div>
+            } @else {
+              <button
+                type="button"
+                class="ae-field-item"
+                [class.selected]="isSelected({ name_key: extra.name_key })"
+                (click)="selecionarExtra(extra.name_key); mobileTab.set('document')"
+              >
+                <span class="ae-field-glyph">{{ extra.kind === 'image' ? '▣' : extra.kind === 'signature' ? '✎' : 'Aa' }}</span>
+                <span class="ae-field-info">
+                  <strong>{{ extra.label }}</strong>
+                  <small>{{ extra.hint }}</small>
+                </span>
+                <span class="ae-field-dot" [class.mapped]="isExtraMapped(extra.name_key)"></span>
+              </button>
+            }
           }
         </div>
       }
@@ -108,9 +148,9 @@
       >
         <span class="ae-group-heading__left">
           <span class="ae-chevron" [class.is-open]="camposOpen()" aria-hidden="true">▾</span>
-          <span>CAMPOS DO MODELO</span>
+          <span class="ae-group-heading__title">CAMPOS DO MODELO</span>
         </span>
-        <span>{{ mappedCount }} áreas</span>
+        <span class="ae-group-heading__meta">{{ mappedCount }} áreas</span>
       </button>
       @if (camposOpen() || fieldSearch().trim()) {
         <div class="ae-field-list">
@@ -130,7 +170,7 @@
                     <small>
                       {{
                         fieldIsDate(c)
-                          ? 'Dia / Mês / Ano'
+                          ? 'Completa ou partes'
                           : fieldIsChoice(c)
                             ? 'Texto ou ✓'
                             : c.type
@@ -146,7 +186,7 @@
                       [class.selected]="isSelected({ name_key: c.name_key, option: t.option })"
                       (click)="selecionarCampo(c.name_key, t.option); mobileTab.set('document')"
                     >
-                      <span class="ae-field-glyph">{{ t.option === null ? 'Aa' : '✓' }}</span>
+                      <span class="ae-field-glyph">{{ targetGlyph(c, t.option) }}</span>
                       <span class="ae-field-info">
                         <strong>{{ t.label }}</strong>
                         @if (mappedCountFor({ name_key: c.name_key, option: t.option }) > 1) {
