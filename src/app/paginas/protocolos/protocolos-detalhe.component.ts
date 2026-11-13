@@ -1559,7 +1559,21 @@ body.modo-pdf .documento {
       out.push({ name_key: '__verify_code', text: code });
     }
 
+    // Data genérica do documento (assinatura/aprovação) — extra repetível no mapa
+    out.push({ name_key: '__doc_date', text: this.formatarDataDocumento() });
+
     return out;
+  }
+
+  /** Data do documento para o extra `__doc_date` (aprovação > envio > hoje). */
+  private formatarDataDocumento(): string {
+    const p = this.protocolo();
+    const raw = p?.approved_at || p?.submitted_at || p?.created_at || '';
+    const d = raw ? new Date(raw) : new Date();
+    const base = Number.isNaN(d.getTime()) ? new Date() : d;
+    const dd = String(base.getDate()).padStart(2, '0');
+    const mm = String(base.getMonth() + 1).padStart(2, '0');
+    return `${dd}/${mm}/${base.getFullYear()}`;
   }
 
   private async blobToImageBytes(

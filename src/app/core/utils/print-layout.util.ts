@@ -41,6 +41,8 @@ export const SYSTEM_PRINT_TARGETS: Array<{
   label: string;
   hint: string;
   kind: PrintLayoutKind;
+  /** Se true, oferece completa + dia/mês/ano (repetível). */
+  dateParts?: boolean;
 }> = [
   {
     name_key: '__clinic_logo',
@@ -53,6 +55,13 @@ export const SYSTEM_PRINT_TARGETS: Array<{
     label: 'Assinatura da clínica',
     hint: 'Opcional · assinatura eletrônica do profissional (Conta) ou co-assinatura do protocolo',
     kind: 'signature',
+  },
+  {
+    name_key: '__doc_date',
+    label: 'Data do documento',
+    hint: 'Uso geral · data da assinatura/aprovação — pode repetir (completa ou partes)',
+    kind: 'text',
+    dateParts: true,
   },
   {
     name_key: '__verify_qr',
@@ -68,8 +77,15 @@ export const SYSTEM_PRINT_TARGETS: Array<{
   },
 ];
 
+/** name_key da data genérica (assinatura / hoje), independente dos campos do modelo. */
+export const DOC_DATE_NAME_KEY = '__doc_date';
+
 export function isSystemPrintTarget(nameKey: string): boolean {
   return nameKey.startsWith('__');
+}
+
+export function isDocDateTarget(nameKey: string): boolean {
+  return nameKey === DOC_DATE_NAME_KEY;
 }
 
 export function emptyPrintLayout(): PrintLayout {
@@ -182,7 +198,10 @@ export function normalizeOptionValue(value: string | null | undefined): string {
 
 export type DatePartOption = 'day' | 'month' | 'month_name' | 'year';
 
-/** Partes de data — dá para mapear a mesma parte várias vezes (ex.: ___/___/____ e “São Paulo, __ de ____ de ____”). */
+/**
+ * Partes de data (além da “Data completa” com option null).
+ * Dá para mapear a mesma parte várias vezes (ex.: ___/___/____ e “São Paulo, __ de ____ de ____”).
+ */
 export const DATE_PART_TARGETS: Array<{ option: DatePartOption; label: string }> = [
   { option: 'day', label: 'Dia' },
   { option: 'month', label: 'Mês (número)' },

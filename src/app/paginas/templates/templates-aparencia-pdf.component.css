@@ -282,8 +282,8 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 7px;
-  color: var(--ae-muted);
+  gap: 10px;
+  color: #0f172a;
   font-size: 10px;
   letter-spacing: 0.07em;
   font-weight: 800;
@@ -301,7 +301,7 @@
   text-align: left;
   font: inherit;
   letter-spacing: 0.07em;
-  color: var(--ae-muted);
+  color: #0f172a;
 }
 
 .ae-group-heading--toggle:hover {
@@ -313,14 +313,25 @@
   align-items: center;
   gap: 6px;
   min-width: 0;
+  flex: 1 1 auto;
+  overflow: hidden;
 }
 
-.ae-group-heading span:last-child {
-  color: color-mix(in srgb, var(--ae-primary) 70%, var(--ae-muted));
+.ae-group-heading__title {
+  color: #0f172a;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ae-group-heading__meta {
+  flex: 0 0 auto;
+  color: var(--ae-muted);
   letter-spacing: 0;
   text-transform: none;
   white-space: nowrap;
   font-weight: 700;
+  font-size: 10px;
 }
 
 .ae-chevron {
