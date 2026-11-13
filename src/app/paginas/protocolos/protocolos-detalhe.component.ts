@@ -209,14 +209,39 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
     this.showSkeleton = showSkeleton;
     data$.subscribe({
       next: (p) => {
+        this.fecharBrandedInlinePreview();
         this.protocolo.set(p);
         this.initStaffDraft();
         this.carregarPessoaCompleta();
         void this.gerarAutenticacaoDocumento();
         this.syncTabGroupFromAba();
+        this.hidratarPrintLayoutDoModelo(p);
       },
       error: () => {
         this.erro.set('Não foi possível carregar o protocolo.');
+      },
+    });
+  }
+
+  /** Atualiza print_layout do template embutido com o mapa atual do modelo. */
+  private hidratarPrintLayoutDoModelo(p: ProtocoloDetalheData): void {
+    const templateId = p.template?.id ?? p.template_id;
+    if (!templateId) return;
+    this.templatesService.get(templateId).subscribe({
+      next: (tpl) => {
+        const cur = this.protocolo();
+        if (!cur || (cur.template?.id ?? cur.template_id) !== templateId) return;
+        if (!cur.template) return;
+        cur.template.print_layout = parsePrintLayout(tpl.print_layout);
+        cur.template.has_source_document =
+          tpl.has_source_document ?? cur.template.has_source_document;
+        this.protocolo.set({ ...cur, template: { ...cur.template } });
+        if (this.abaAtiva() === 'impressao') {
+          this.garantirPreviewAparenciaClinica(true);
+        }
+      },
+      error: () => {
+        /* mantém o que veio no protocolo */
       },
     });
   }
@@ -339,7 +364,7 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
     this.aplicarClasseImpressaoSomenteDocumento(aba === 'impressao');
     this.syncTabGroupFromAba();
     if (aba === 'impressao') {
-      this.garantirPreviewAparenciaClinica();
+      this.garantirPreviewAparenciaClinica(true);
     }
   }
 
@@ -349,7 +374,7 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
       this.abaAtiva.set(aba);
       this.aplicarClasseImpressaoSomenteDocumento(aba === 'impressao');
       if (aba === 'impressao') {
-        this.garantirPreviewAparenciaClinica();
+        this.garantirPreviewAparenciaClinica(true);
       }
     }
   }
@@ -1401,28 +1426,33 @@ body.modo-pdf .documento {
     const templateId = p?.template?.id ?? p?.template_id;
     if (!p || !templateId || !this.temDocumentoOriginal) return null;
 
+    // Sempre buscar o mapa vivo do modelo — o template embutido no protocolo pode estar
+    // desatualizado (posições antigas ≠ o que foi mapeado na prévia do editor).
     let layout = parsePrintLayout(p.template?.print_layout);
-    if (!hasUsablePrintLayout(layout)) {
-      try {
-        const tpl = await firstValueFrom(this.templatesService.get(templateId));
-        layout = parsePrintLayout(tpl.print_layout);
-        if (p.template) {
-          p.template.print_layout = layout;
-          p.template.has_source_document = tpl.has_source_document ?? p.template.has_source_document;
-        }
-      } catch {
-        return null;
+    let hasSource = !!p.template?.has_source_document;
+    try {
+      const tpl = await firstValueFrom(this.templatesService.get(templateId));
+      const live = parsePrintLayout(tpl.print_layout);
+      if (hasUsablePrintLayout(live)) {
+        layout = live;
       }
+      hasSource = !!(tpl.has_source_document ?? hasSource);
+      if (p.template) {
+        p.template.print_layout = layout;
+        p.template.has_source_document = hasSource;
+      }
+    } catch {
+      // segue com o que veio no protocolo
     }
-    if (!layout || !hasUsablePrintLayout(layout)) return null;
+    if (!hasSource || !layout || !hasUsablePrintLayout(layout)) return null;
 
     const sourceBlob = await firstValueFrom(this.templatesService.downloadSourceDocument(templateId));
     const sourceBytes = new Uint8Array(await sourceBlob.arrayBuffer());
     const values = await this.montarValoresPrintLayout();
 
     try {
-      // Fill local com logo/assinatura via API autenticada (sem CORS MinIO).
-      // Nunca troca o mapa por DomPDF genérico só porque faltou uma imagem.
+      // Fill local (mesmas coords CropBox da prévia do mapa). Nunca troca por DomPDF
+      // genérico só porque faltou logo/assinatura.
       return await fillSourcePdf({ sourcePdfBytes: sourceBytes, layout, values });
     } catch (err) {
       console.warn('[protocolo-pdf] fill local falhou, tentando servidor', err);

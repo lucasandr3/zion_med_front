@@ -17,6 +17,7 @@ import { TemplatesService, Template, TemplateCampo } from '../../core/services/t
 import { ToastService } from '../../core/services/toast.service';
 import { ShellSidebarCollapseService } from '../../core/services/shell-sidebar-collapse.service';
 import { ZmPageBackLinkComponent } from '../../shared/components/ui';
+import { GestgoComboboxComponent, type GestgoComboboxOption } from '@/shared/components/combobox';
 import {
   DATE_PART_TARGETS,
   emptyPrintLayout,
@@ -70,13 +71,19 @@ type Gesture =
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'n-page n-page--flush templates-aparencia-pdf ae-root' },
-  imports: [RouterLink, FormsModule, ZmPageBackLinkComponent],
+  imports: [RouterLink, FormsModule, ZmPageBackLinkComponent, GestgoComboboxComponent],
   templateUrl: './templates-aparencia-pdf.component.html',
   styleUrl: './templates-aparencia-pdf.component.css',
 })
 export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
   @ViewChild('pdfCanvas', { static: false }) pdfCanvas?: ElementRef<HTMLCanvasElement>;
   @ViewChild('overlayLayer', { static: false }) overlayLayer?: ElementRef<HTMLElement>;
+
+  readonly alignOptions: GestgoComboboxOption[] = [
+    { value: 'left', label: 'Esquerda' },
+    { value: 'center', label: 'Centro' },
+    { value: 'right', label: 'Direita' },
+  ];
 
   readonly template = signal<Template | null>(null);
   readonly campos = signal<TemplateCampo[]>([]);
@@ -98,6 +105,11 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
   readonly mobileTab = signal<'fields' | 'document' | 'inspector'>('document');
   readonly stageWidth = signal(0);
   readonly stageHeight = signal(0);
+  /** Seções laterais dobráveis. */
+  readonly extrasOpen = signal(true);
+  readonly camposOpen = signal(true);
+  /** Subgrupos (ex.: estado civil) recolhidos por name_key. */
+  readonly collapsedSubgroups = signal<Record<string, boolean>>({});
 
   readonly placementsOnPage = computed(() =>
     this.placements().filter((p) => p.page === this.pageIndex()),
@@ -250,6 +262,25 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
     return 'Aa';
   }
 
+  toggleExtras(): void {
+    this.extrasOpen.update((v) => !v);
+  }
+
+  toggleCampos(): void {
+    this.camposOpen.update((v) => !v);
+  }
+
+  isSubgroupOpen(nameKey: string): boolean {
+    // Com busca ativa, mantém subgrupos abertos para achar o campo.
+    if (this.fieldSearch().trim()) return true;
+    return !this.collapsedSubgroups()[nameKey];
+  }
+
+  toggleSubgroup(nameKey: string): void {
+    const cur = this.collapsedSubgroups();
+    this.collapsedSubgroups.set({ ...cur, [nameKey]: !cur[nameKey] });
+  }
+
   zoomIn(): void {
     this.zoom.set(Math.min(1.6, Math.round((this.zoom() + 0.1) * 10) / 10));
   }
@@ -293,7 +324,7 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
     this.dirty.set(true);
   }
 
-  patchSelectedAlign(value: string): void {
+  patchSelectedAlign(value: string | null): void {
     const sel = this.selectedPlacement();
     if (!sel?.uid) return;
     const align: PrintLayoutAlign =
@@ -407,7 +438,10 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
     if (p.kind === 'checkbox') return '✓';
     if (p.name_key === '__verify_qr') return 'QR';
     if (p.name_key === '__verify_code') return 'A1B2C3D4';
-    if (p.kind === 'signature' || p.kind === 'image') return 'assinatura';
+    if (p.name_key === '__clinic_logo') return 'logo';
+    if (p.kind === 'signature' || p.kind === 'image' || p.name_key === '__clinic_signature') {
+      return 'assinatura';
+    }
     if (isDatePartOption(p.option)) {
       if (p.option === 'day') return '12';
       if (p.option === 'month') return '11';
@@ -415,6 +449,23 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
       if (p.option === 'year') return '2026';
     }
     if (p.option) return p.option;
+
+    // Exemplos realistas (não o rótulo do campo) para a prévia parecer o PDF preenchido.
+    const key = `${p.name_key} ${this.campoLabel(p.name_key)}`.toLowerCase();
+    if (/nome|cedente|paciente|titular/.test(key)) return 'Lucas Silva';
+    if (/nacional/.test(key)) return 'Brasileiro';
+    if (/estado.?civil|civil/.test(key)) return 'Casado(a)';
+    if (/profiss/.test(key)) return 'Empresário';
+    if (/\brg\b/.test(key)) return '16.569.832';
+    if (/cpf/.test(key)) return '098.613.856-81';
+    if (/endere[cç]o/.test(key)) return 'Rua Exemplo, 100';
+    if (/telefone|celular|whatsapp|fone/.test(key)) return '(34) 99893-8363';
+    if (/nasc|birth|data/.test(key)) return '31/01/1990';
+    if (/e-?mail|email/.test(key)) return 'lucas@email.com';
+    if (/cidade/.test(key)) return 'São Paulo';
+    if (/bairro/.test(key)) return 'Centro';
+    if (/cep/.test(key)) return '01310-100';
+
     const label = this.campoLabel(p.name_key);
     return label.length > 18 ? `${label.slice(0, 16)}…` : label || 'texto';
   }
