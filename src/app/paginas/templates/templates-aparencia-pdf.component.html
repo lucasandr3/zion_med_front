@@ -68,86 +68,117 @@
         />
       </label>
 
-      <div class="ae-group-heading">
-        <span>EXTRAS DA CLÍNICA</span>
+      <button
+        type="button"
+        class="ae-group-heading ae-group-heading--toggle"
+        [attr.aria-expanded]="extrasOpen()"
+        (click)="toggleExtras()"
+      >
+        <span class="ae-group-heading__left">
+          <span class="ae-chevron" [class.is-open]="extrasOpen()" aria-hidden="true">▾</span>
+          <span>EXTRAS DA CLÍNICA</span>
+        </span>
         <span>{{ mappedExtrasCount() }} mapeados</span>
-      </div>
-      <div class="ae-field-list ae-field-list--compact">
-        @for (extra of filteredSystemTargets(); track extra.name_key) {
-          <button
-            type="button"
-            class="ae-field-item"
-            [class.selected]="isSelected({ name_key: extra.name_key })"
-            (click)="selecionarExtra(extra.name_key); mobileTab.set('document')"
-          >
-            <span class="ae-field-glyph">{{ extra.kind === 'image' ? '▣' : extra.kind === 'signature' ? '✎' : 'Aa' }}</span>
-            <span class="ae-field-info">
-              <strong>{{ extra.label }}</strong>
-              <small>{{ extra.hint }}</small>
-            </span>
-            <span class="ae-field-dot" [class.mapped]="isMapped({ name_key: extra.name_key })"></span>
-          </button>
-        }
-      </div>
-
-      <div class="ae-group-heading">
-        <span>CAMPOS DO MODELO</span>
-        <span>{{ mappedCount }} áreas</span>
-      </div>
-      <div class="ae-field-list">
-        @for (c of filteredCampos(); track c.id) {
-          @if (fieldHasOptionTargets(c)) {
-            <div class="ae-field-subgroup">
-              <div class="ae-field-subgroup__title" [class.mapped]="isFieldFullyMapped(c)">
-                <strong>{{ c.label }}</strong>
-                <small>
-                  {{
-                    fieldIsDate(c)
-                      ? 'Dia / Mês / Ano'
-                      : fieldIsChoice(c)
-                        ? 'Texto ou ✓'
-                        : c.type
-                  }}
-                </small>
-              </div>
-              @for (t of fieldMapTargets(c); track trackMapTarget(t)) {
-                <button
-                  type="button"
-                  class="ae-field-item ae-field-item--nested"
-                  [class.selected]="isSelected({ name_key: c.name_key, option: t.option })"
-                  (click)="selecionarCampo(c.name_key, t.option); mobileTab.set('document')"
-                >
-                  <span class="ae-field-glyph">{{ t.option === null ? 'Aa' : '✓' }}</span>
-                  <span class="ae-field-info">
-                    <strong>{{ t.label }}</strong>
-                    @if (mappedCountFor({ name_key: c.name_key, option: t.option }) > 1) {
-                      <small>{{ mappedCountFor({ name_key: c.name_key, option: t.option }) }} áreas</small>
-                    }
-                  </span>
-                  <span
-                    class="ae-field-dot"
-                    [class.mapped]="isMapped({ name_key: c.name_key, option: t.option })"
-                  ></span>
-                </button>
-              }
-            </div>
-          } @else {
+      </button>
+      @if (extrasOpen() || fieldSearch().trim()) {
+        <div class="ae-field-list ae-field-list--compact">
+          @for (extra of filteredSystemTargets(); track extra.name_key) {
             <button
               type="button"
               class="ae-field-item"
-              [class.selected]="isSelected({ name_key: c.name_key })"
-              (click)="selecionarCampo(c.name_key); mobileTab.set('document')"
+              [class.selected]="isSelected({ name_key: extra.name_key })"
+              (click)="selecionarExtra(extra.name_key); mobileTab.set('document')"
             >
-              <span class="ae-field-glyph">{{ fieldGlyph(c.type) }}</span>
+              <span class="ae-field-glyph">{{ extra.kind === 'image' ? '▣' : extra.kind === 'signature' ? '✎' : 'Aa' }}</span>
               <span class="ae-field-info">
-                <strong>{{ c.label }}</strong>
-                <small>{{ c.type }}</small>
+                <strong>{{ extra.label }}</strong>
+                <small>{{ extra.hint }}</small>
               </span>
-              <span class="ae-field-dot" [class.mapped]="isMapped({ name_key: c.name_key })"></span>
+              <span class="ae-field-dot" [class.mapped]="isMapped({ name_key: extra.name_key })"></span>
             </button>
           }
-        }
-      </div>
+        </div>
+      }
+
+      <button
+        type="button"
+        class="ae-group-heading ae-group-heading--toggle"
+        [attr.aria-expanded]="camposOpen()"
+        (click)="toggleCampos()"
+      >
+        <span class="ae-group-heading__left">
+          <span class="ae-chevron" [class.is-open]="camposOpen()" aria-hidden="true">▾</span>
+          <span>CAMPOS DO MODELO</span>
+        </span>
+        <span>{{ mappedCount }} áreas</span>
+      </button>
+      @if (camposOpen() || fieldSearch().trim()) {
+        <div class="ae-field-list">
+          @for (c of filteredCampos(); track c.id) {
+            @if (fieldHasOptionTargets(c)) {
+              <div class="ae-field-subgroup" [class.is-collapsed]="!isSubgroupOpen(c.name_key)">
+                <button
+                  type="button"
+                  class="ae-field-subgroup__title"
+                  [class.mapped]="isFieldFullyMapped(c)"
+                  [attr.aria-expanded]="isSubgroupOpen(c.name_key)"
+                  (click)="toggleSubgroup(c.name_key)"
+                >
+                  <span class="ae-chevron ae-chevron--sm" [class.is-open]="isSubgroupOpen(c.name_key)" aria-hidden="true">▾</span>
+                  <span class="ae-field-subgroup__text">
+                    <strong>{{ c.label }}</strong>
+                    <small>
+                      {{
+                        fieldIsDate(c)
+                          ? 'Dia / Mês / Ano'
+                          : fieldIsChoice(c)
+                            ? 'Texto ou ✓'
+                            : c.type
+                      }}
+                    </small>
+                  </span>
+                </button>
+                @if (isSubgroupOpen(c.name_key)) {
+                  @for (t of fieldMapTargets(c); track trackMapTarget(t)) {
+                    <button
+                      type="button"
+                      class="ae-field-item ae-field-item--nested"
+                      [class.selected]="isSelected({ name_key: c.name_key, option: t.option })"
+                      (click)="selecionarCampo(c.name_key, t.option); mobileTab.set('document')"
+                    >
+                      <span class="ae-field-glyph">{{ t.option === null ? 'Aa' : '✓' }}</span>
+                      <span class="ae-field-info">
+                        <strong>{{ t.label }}</strong>
+                        @if (mappedCountFor({ name_key: c.name_key, option: t.option }) > 1) {
+                          <small>{{ mappedCountFor({ name_key: c.name_key, option: t.option }) }} áreas</small>
+                        }
+                      </span>
+                      <span
+                        class="ae-field-dot"
+                        [class.mapped]="isMapped({ name_key: c.name_key, option: t.option })"
+                      ></span>
+                    </button>
+                  }
+                }
+              </div>
+            } @else {
+              <button
+                type="button"
+                class="ae-field-item"
+                [class.selected]="isSelected({ name_key: c.name_key })"
+                (click)="selecionarCampo(c.name_key); mobileTab.set('document')"
+              >
+                <span class="ae-field-glyph">{{ fieldGlyph(c.type) }}</span>
+                <span class="ae-field-info">
+                  <strong>{{ c.label }}</strong>
+                  <small>{{ c.type }}</small>
+                </span>
+                <span class="ae-field-dot" [class.mapped]="isMapped({ name_key: c.name_key })"></span>
+              </button>
+            }
+          }
+        </div>
+      }
 
       <div class="ae-panel-footer">
         <p>Selecione um campo e desenhe no PDF. Em estado civil, use <strong>Resposta em texto</strong>.</p>
@@ -177,15 +208,24 @@
         </div>
         <div class="ae-toolbar-right">
           <div class="ae-page-switch">
-            <button type="button" (click)="prevPage()" [disabled]="pageIndex() <= 0" aria-label="Página anterior">‹</button>
-            <span>{{ pageIndex() + 1 }} / {{ pageCount() || 1 }}</span>
             <button
               type="button"
+              class="ae-nav-btn"
+              (click)="prevPage()"
+              [disabled]="pageIndex() <= 0"
+              title="Página anterior"
+            >
+              Anterior
+            </button>
+            <span class="ae-page-meta">Página {{ pageIndex() + 1 }} de {{ pageCount() || 1 }}</span>
+            <button
+              type="button"
+              class="ae-nav-btn"
               (click)="nextPage()"
               [disabled]="pageIndex() >= pageCount() - 1"
-              aria-label="Próxima página"
+              title="Próxima página"
             >
-              ›
+              Próxima
             </button>
           </div>
           <div class="ae-zoom">
@@ -378,14 +418,17 @@
                   (ngModelChange)="patchSelectedFont($event)"
                 />
               </label>
-              <label>
-                Alinhamento
-                <select [ngModel]="sel.align || 'left'" (ngModelChange)="patchSelectedAlign($event)">
-                  <option value="left">Esquerda</option>
-                  <option value="center">Centro</option>
-                  <option value="right">Direita</option>
-                </select>
-              </label>
+              <div class="ae-align-field">
+                <span class="ae-align-field__label" id="ae-align-label">Alinhamento</span>
+                <z-combobox
+                  class="w-full"
+                  zWidth="full"
+                  ariaLabelledby="ae-align-label"
+                  [options]="alignOptions"
+                  [value]="sel.align || 'left'"
+                  (zValueChange)="patchSelectedAlign($event)"
+                />
+              </div>
             </div>
           </section>
 
