@@ -56,10 +56,10 @@
       oficial da clínica ({{ template()?.source_document_original_name || 'documento original' }}).
     </p>
     <p class="aparencia-hint">
-      Selecione um item e <strong>desenhe só sobre a linha em branco</strong> (depois do rótulo, sem cobrir
-      “Nome:”, “CPF:” etc.). Arraste para ajustar; o × da caixa exclui só aquela.
-      Em data: <strong>Dia</strong>, <strong>Mês (número/extenso)</strong> e <strong>Ano</strong> —
-      pode repetir no PDF.
+      O texto azul dentro da caixa mostra <strong>onde a resposta vai ficar</strong> no PDF — alinhe a base
+      da caixa com a linha do formulário. Em estado civil / rádio: use
+      <strong>Resposta em texto</strong> (uma caixa) em vez de marcar cada opção.
+      Em data: Dia / Mês / Ano (pode repetir).
       {{ mappedCount }} área(s) mapeada(s)@if (dirty()) { · alterações não salvas}.
     </p>
   </div>
@@ -111,11 +111,17 @@
                 <span class="aparencia-field__label">{{ c.label }}</span>
                 <span class="aparencia-field__meta">
                   {{ c.type }} ·
-                  {{ fieldIsDate(c) ? 'pode repetir no PDF' : 'mapeie cada opção' }}
+                  {{
+                    fieldIsDate(c)
+                      ? 'pode repetir no PDF'
+                      : fieldIsChoice(c)
+                        ? 'texto OU ✓ por opção'
+                        : 'mapeie cada opção'
+                  }}
                 </span>
               </div>
               <ul class="aparencia-option-list">
-                @for (t of fieldMapTargets(c); track t.option) {
+                @for (t of fieldMapTargets(c); track trackMapTarget(t)) {
                   <li>
                     <button
                       type="button"
@@ -135,7 +141,7 @@
                       <button
                         type="button"
                         class="aparencia-field__remove"
-                        title="Remover todas as áreas desta parte"
+                        title="Remover área(s)"
                         (click)="removerCampo({ name_key: c.name_key, option: t.option }, $event)"
                       >
                         ×
@@ -204,13 +210,19 @@
             <div
               class="aparencia-box"
               [class.aparencia-box--selected]="isSelected(p)"
+              [class.aparencia-box--check]="p.kind === 'checkbox'"
               [style.left.%]="p.x * 100"
               [style.top.%]="p.y * 100"
               [style.width.%]="p.w * 100"
               [style.height.%]="p.h * 100"
               (pointerdown)="onBoxPointerDown($event, p)"
             >
-              <span class="aparencia-box__label">{{ placementTitle(p) }}</span>
+              <span class="aparencia-box__meta">{{ placementTitle(p) }}</span>
+              <span
+                class="aparencia-box__sample"
+                [style.font-size.px]="previewFontPx(p)"
+                >{{ previewSample(p) }}</span
+              >
               <button
                 type="button"
                 class="aparencia-box__remove"

@@ -186,9 +186,9 @@
 .aparencia-box {
   position: absolute;
   box-sizing: border-box;
-  border: 2px solid #2563eb;
-  background: rgba(37, 99, 235, 0.16);
-  border-radius: 2px;
+  border: 1px solid #2563eb;
+  background: rgba(37, 99, 235, 0.08);
+  border-radius: 1px;
   cursor: grab;
   min-width: 8px;
   min-height: 8px;
@@ -203,8 +203,12 @@
 
 .aparencia-box--selected {
   border-color: #0f766e;
-  background: rgba(15, 118, 110, 0.2);
+  background: rgba(15, 118, 110, 0.12);
   z-index: 3;
+}
+
+.aparencia-box--check {
+  background: rgba(37, 99, 235, 0.14);
 }
 
 .aparencia-box--draft {
@@ -215,20 +219,50 @@
   cursor: crosshair;
 }
 
-.aparencia-box__label {
-  display: block;
-  padding: 2px 4px;
-  font-size: 10px;
-  font-weight: 700;
+.aparencia-box__meta {
+  position: absolute;
+  top: -14px;
+  left: 0;
+  max-width: 140%;
+  padding: 0 2px;
+  font-size: 9px;
+  font-weight: 650;
   color: #1d4ed8;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   pointer-events: none;
+  line-height: 1.1;
 }
 
-.aparencia-box--selected .aparencia-box__label {
+.aparencia-box--selected .aparencia-box__meta {
   color: #0f766e;
+}
+
+/** Preview WYSIWYG: mesma âncora do PDF (base da caixa = onde o texto assenta). */
+.aparencia-box__sample {
+  position: absolute;
+  left: 2px;
+  right: 2px;
+  bottom: 1px;
+  margin: 0;
+  padding: 0;
+  font-family: Helvetica, Arial, sans-serif;
+  font-weight: 400;
+  color: #1e3a8a;
+  line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: clip;
+  pointer-events: none;
+}
+
+.aparencia-box--check .aparencia-box__sample {
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-weight: 700;
+  color: #0f172a;
 }
 
 .aparencia-box__handle {

@@ -54,6 +54,18 @@ export const SYSTEM_PRINT_TARGETS: Array<{
     hint: 'Opcional · assinatura eletrônica do profissional (Conta) ou co-assinatura do protocolo',
     kind: 'signature',
   },
+  {
+    name_key: '__verify_qr',
+    label: 'QR de verificação',
+    hint: 'Opcional · QR Code do link /verificar (autenticidade)',
+    kind: 'image',
+  },
+  {
+    name_key: '__verify_code',
+    label: 'Código de verificação',
+    hint: 'Opcional · código curto (8 caracteres) do documento',
+    kind: 'text',
+  },
 ];
 
 export function isSystemPrintTarget(nameKey: string): boolean {
@@ -156,8 +168,9 @@ export function inferPlacementKind(
   const t = (fieldType || '').toLowerCase();
   if (t === 'signature') return 'signature';
   if (t === 'file') return 'image';
+  // Opção específica → ✓ ; sem opção em rádio/select → texto da resposta (“Casado”)
   if (hasOption && (t === 'checkbox' || t === 'radio' || t === 'select')) return 'checkbox';
-  if (t === 'checkbox' || t === 'radio') return 'checkbox';
+  if (t === 'checkbox' && !hasOption) return 'checkbox';
   return 'text';
 }
 
