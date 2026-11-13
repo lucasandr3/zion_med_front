@@ -245,6 +245,23 @@
   z-index: 4;
 }
 
+.aparencia-box__remove {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: 1px solid #fecaca;
+  border-radius: 999px;
+  background: #fff;
+  color: #b91c1c;
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+  z-index: 5;
+}
+
 @media (max-width: 960px) {
   .aparencia-layout {
     grid-template-columns: 1fr;

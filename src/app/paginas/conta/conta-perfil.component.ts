@@ -255,8 +255,8 @@ export class ContaPerfilComponent implements OnInit {
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    // Fundo transparente — no PDF a assinatura não tapa o papel/guilhoché.
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.strokeStyle = '#0f172a';
     ctx.lineWidth = 2;
     ctx.lineCap = 'round';
@@ -350,8 +350,7 @@ export class ContaPerfilComponent implements OnInit {
     if (!ctx) return;
     const w = canvas.width;
     const h = canvas.height;
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, 0, w, h);
+    ctx.clearRect(0, 0, w, h);
 
     const def = this.definicaoFonteSelecionada();
     const texto = this.textoNomeModelo().trim();
@@ -391,6 +390,42 @@ export class ContaPerfilComponent implements OnInit {
     ctx.fillText(texto, w / 2, h / 2);
   }
 
+  /** Exporta PNG com pixels brancos/quase brancos transparentes. */
+  private canvasToTransparentPng(canvas: HTMLCanvasElement): string {
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+    if (!ctx) return canvas.toDataURL('image/png');
+    const w = canvas.width;
+    const h = canvas.height;
+    const src = ctx.getImageData(0, 0, w, h);
+    const out = document.createElement('canvas');
+    out.width = w;
+    out.height = h;
+    const octx = out.getContext('2d');
+    if (!octx) return canvas.toDataURL('image/png');
+    const copy = octx.createImageData(w, h);
+    const s = src.data;
+    const d = copy.data;
+    for (let i = 0; i < s.length; i += 4) {
+      const r = s[i]!;
+      const g = s[i + 1]!;
+      const b = s[i + 2]!;
+      const a = s[i + 3]!;
+      d[i] = r;
+      d[i + 1] = g;
+      d[i + 2] = b;
+      if (a < 8 || (r >= 245 && g >= 245 && b >= 245)) {
+        d[i + 3] = 0;
+      } else if (r >= 230 && g >= 230 && b >= 230) {
+        const brightness = (r + g + b) / 3;
+        d[i + 3] = Math.round(Math.max(0, Math.min(a, (255 - brightness) * 4)));
+      } else {
+        d[i + 3] = a;
+      }
+    }
+    octx.putImageData(copy, 0, 0);
+    return out.toDataURL('image/png');
+  }
+
   private canvasTemTraço(canvas: HTMLCanvasElement | null): boolean {
     if (!canvas) return false;
     const ctx = canvas.getContext('2d');
@@ -416,7 +451,7 @@ export class ContaPerfilComponent implements OnInit {
       this.toast.warning('Assinatura vazia', 'Desenhe no quadro antes de salvar.');
       return;
     }
-    this.enviar(canvas.toDataURL('image/png'));
+    this.enviar(this.canvasToTransparentPng(canvas));
   }
 
   async salvarModelo(): Promise<void> {
@@ -433,7 +468,7 @@ export class ContaPerfilComponent implements OnInit {
     await this.desenharModeloQuandoFontesProntas();
     const canvas = this.getCanvasModelo();
     if (!canvas) return;
-    this.enviar(canvas.toDataURL('image/png'));
+    this.enviar(this.canvasToTransparentPng(canvas));
   }
 
   private enviar(imageBase64: string): void {

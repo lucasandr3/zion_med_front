@@ -56,9 +56,10 @@
       oficial da clínica ({{ template()?.source_document_original_name || 'documento original' }}).
     </p>
     <p class="aparencia-hint">
-      Selecione um item e <strong>desenhe</strong> no PDF. Para mover, <strong>arraste a caixa azul</strong>;
-      o cantinho redimensiona. Em rádio, mapeie cada opção. Em data, mapeie <strong>Dia</strong>,
-      <strong>Mês</strong> e <strong>Ano</strong> nos espaços ___ / ___ / ____.
+      Selecione um item e <strong>desenhe só sobre a linha em branco</strong> (depois do rótulo, sem cobrir
+      “Nome:”, “CPF:” etc.). Arraste para ajustar; o × da caixa exclui só aquela.
+      Em data: <strong>Dia</strong>, <strong>Mês (número/extenso)</strong> e <strong>Ano</strong> —
+      pode repetir no PDF.
       {{ mappedCount }} área(s) mapeada(s)@if (dirty()) { · alterações não salvas}.
     </p>
   </div>
@@ -110,7 +111,7 @@
                 <span class="aparencia-field__label">{{ c.label }}</span>
                 <span class="aparencia-field__meta">
                   {{ c.type }} ·
-                  {{ fieldIsDate(c) ? 'mapeie Dia / Mês / Ano' : 'mapeie cada opção' }}
+                  {{ fieldIsDate(c) ? 'pode repetir no PDF' : 'mapeie cada opção' }}
                 </span>
               </div>
               <ul class="aparencia-option-list">
@@ -124,12 +125,17 @@
                       (click)="selecionarCampo(c.name_key, t.option)"
                     >
                       <span class="aparencia-field__label">{{ t.label }}</span>
+                      @if (mappedCountFor({ name_key: c.name_key, option: t.option }) > 1) {
+                        <span class="aparencia-field__meta">
+                          {{ mappedCountFor({ name_key: c.name_key, option: t.option }) }} áreas
+                        </span>
+                      }
                     </button>
                     @if (isMapped({ name_key: c.name_key, option: t.option })) {
                       <button
                         type="button"
                         class="aparencia-field__remove"
-                        title="Remover área"
+                        title="Remover todas as áreas desta parte"
                         (click)="removerCampo({ name_key: c.name_key, option: t.option }, $event)"
                       >
                         ×
@@ -205,6 +211,15 @@
               (pointerdown)="onBoxPointerDown($event, p)"
             >
               <span class="aparencia-box__label">{{ placementTitle(p) }}</span>
+              <button
+                type="button"
+                class="aparencia-box__remove"
+                title="Excluir esta caixa"
+                (pointerdown)="$event.stopPropagation()"
+                (click)="removerBox(p, $event)"
+              >
+                ×
+              </button>
               <button
                 type="button"
                 class="aparencia-box__handle"
