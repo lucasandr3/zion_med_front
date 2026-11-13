@@ -206,15 +206,15 @@
         </div>
       }
 
-      <div class="ae-stage-scroll" #stageScroll>
+      <div class="ae-stage-scroll">
         <div
           class="ae-stage-frame"
-          [style.width.px]="displayWidth()"
-          [style.height.px]="displayHeight()"
+          [style.width.px]="stageWidth() * zoom()"
+          [style.height.px]="stageHeight() * zoom()"
         >
           <div
             class="ae-stage"
-            [style.transform]="'scale(' + displayScale() + ')'"
+            [style.transform]="'scale(' + zoom() + ')'"
             [style.width.px]="stageWidth()"
             [style.height.px]="stageHeight()"
           >
