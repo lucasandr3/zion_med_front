@@ -3,6 +3,10 @@ export const environment = {
   apiUrl: 'https://api-homolog.gestgo.com.br',
   /** Vazio = usar a origem atual do browser (host de homolog). */
   appUrl: '',
+  painelUrl: '',
+  mobileAppUrl: '',
+  mobileHosts: [] as string[],
+  painelHosts: [] as string[],
   errorHub: {
     // Chave injetada no CI/CD (nunca commitar ek_live_*). Sem chave = desabilitado.
     enabled: false,

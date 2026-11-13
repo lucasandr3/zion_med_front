@@ -1,0 +1,55 @@
+<div class="gm-backrow">
+  <a class="gm-icon-btn" routerLink="/m/ferramentas" aria-label="Voltar">
+    <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">arrow_back</span>
+  </a>
+  <div>
+    <h1>Pacotes e sessões</h1>
+    <small>Saldo real da clínica</small>
+  </div>
+</div>
+
+<div class="gm-panel">
+  <div class="gm-field">
+    <label>Cliente</label>
+    <input type="text" [(ngModel)]="clientName" />
+  </div>
+  <div class="gm-field">
+    <label>Serviço / pacote</label>
+    <input type="text" [(ngModel)]="label" />
+  </div>
+  <div class="gm-field">
+    <label>Total de sessões</label>
+    <input type="number" min="1" [(ngModel)]="total" />
+  </div>
+  <button type="button" class="gm-btn" (click)="criar()">Criar pacote</button>
+</div>
+
+@if (loading()) {
+  <p class="gm-loading">Carregando…</p>
+} @else if (items().length === 0) {
+  <p class="gm-empty">Nenhum pacote ainda.</p>
+} @else {
+  @for (p of items(); track p.id) {
+    <div class="gm-panel">
+      <div class="gm-packrow">
+        <b style="font-size:13px">{{ p.client_name }}</b>
+        <span class="gm-status" [class.ok]="p.status === 'completed'">
+          {{ p.status === 'completed' ? 'Concluído' : 'Em andamento' }}
+        </span>
+      </div>
+      <span class="gm-card__sub" style="margin-top:5px">{{ p.label }}</span>
+      <div class="gm-progress"><span [style.width.%]="pct(p)"></span></div>
+      <div class="gm-packrow">
+        <span class="gm-hint"><b>{{ p.done_sessions }} de {{ p.total_sessions }}</b> sessões realizadas</span>
+        <button
+          type="button"
+          class="gm-small-btn"
+          (click)="registrar(p.id)"
+          [disabled]="p.done_sessions >= p.total_sessions"
+        >
+          Registrar sessão
+        </button>
+      </div>
+    </div>
+  }
+}

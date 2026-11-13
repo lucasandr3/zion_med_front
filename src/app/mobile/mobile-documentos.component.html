@@ -1,0 +1,42 @@
+<div class="gm-backrow">
+  <a class="gm-icon-btn" routerLink="/m" aria-label="Voltar">
+    <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">arrow_back</span>
+  </a>
+  <div>
+    <h1>Documentos e assinaturas</h1>
+    <small>Acompanhe o status das fichas</small>
+  </div>
+</div>
+
+<p class="gm-sub">Visualize o andamento dos documentos enviados pelo Gestgo.</p>
+
+<div class="gm-pills">
+  <button type="button" class="gm-pill" [class.is-on]="filter() === 'pending'" (click)="setFilter('pending')">Pendentes</button>
+  <button type="button" class="gm-pill" [class.is-on]="filter() === 'approved'" (click)="setFilter('approved')">Assinadas</button>
+  <button type="button" class="gm-pill" [class.is-on]="filter() === ''" (click)="setFilter('')">Todas</button>
+</div>
+
+@if (loading()) {
+  <div class="gm-preload gm-preload--inline" aria-busy="true">
+    <div class="gm-preload__bar"><span></span></div>
+    <p class="gm-preload__hint">Carregando documentos…</p>
+  </div>
+} @else if (error()) {
+  <div class="gm-error">
+    <p>{{ error() }}</p>
+    <button type="button" class="gm-btn gm-btn--secondary" (click)="carregar()">Tentar de novo</button>
+  </div>
+} @else if (items().length === 0) {
+  <p class="gm-empty">Não há documentos nessa situação.</p>
+} @else {
+  @for (p of items(); track p.id) {
+    <button type="button" class="gm-card" (click)="abrirDocumento(p.id)">
+      <span class="gm-avatar">{{ iniciais(pacienteNome(p)) }}</span>
+      <span class="gm-card__body">
+        <span class="gm-card__title">{{ pacienteNome(p) }}</span>
+        <span class="gm-card__sub">{{ p.template_name || 'Documento' }}</span>
+      </span>
+      <span class="gm-status" [class.ok]="p.status === 'approved'">{{ statusLabel(p.status) }}</span>
+    </button>
+  }
+}

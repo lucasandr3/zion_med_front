@@ -12,7 +12,10 @@ export class ApiService {
     let httpParams = new HttpParams();
     if (params) {
       Object.entries(params).forEach(([k, v]) => {
-        if (v !== undefined && v !== null && v !== '') httpParams = httpParams.set(k, String(v));
+        if (v === undefined || v === null || v === '') return;
+        // Laravel `boolean` aceita 0/1 — não a string "true"/"false".
+        const serialized = typeof v === 'boolean' ? (v ? '1' : '0') : String(v);
+        httpParams = httpParams.set(k, serialized);
       });
     }
     return this.http.get<T>(`${this.base}${path}`, { params: httpParams });
@@ -48,7 +51,9 @@ export class ApiService {
     let httpParams = new HttpParams();
     if (params) {
       Object.entries(params).forEach(([k, v]) => {
-        if (v !== undefined && v !== null && v !== '') httpParams = httpParams.set(k, String(v));
+        if (v === undefined || v === null || v === '') return;
+        const serialized = typeof v === 'boolean' ? (v ? '1' : '0') : String(v);
+        httpParams = httpParams.set(k, serialized);
       });
     }
     return this.http.get(`${this.base}${path}`, { params: httpParams, responseType: 'blob' });
