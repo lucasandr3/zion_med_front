@@ -85,9 +85,12 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
   readonly gerandoPdf = signal(false);
   readonly gerandoDossie = signal(false);
   readonly baixandoOriginal = signal(false);
-  /** Preview do PDF na própria página (sem pop-up). */
+  /** Preview do PDF em modal (botão Visualizar PDF). */
   readonly pdfPreviewUrl = signal<SafeResourceUrl | null>(null);
   private pdfPreviewObjectUrl: string | null = null;
+  /** Prévia embutida na aba Impressão quando há mapa da clínica. */
+  readonly brandedInlinePreviewUrl = signal<SafeResourceUrl | null>(null);
+  private brandedInlineObjectUrl: string | null = null;
   private readonly sanitizer = inject(DomSanitizer);
 
   readonly revisaoFormVisible = signal(false);
@@ -194,6 +197,7 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.fecharPdfPreview();
+    this.fecharBrandedInlinePreview();
     this.aplicarClasseImpressaoSomenteDocumento(false);
   }
 
@@ -348,11 +352,36 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
     }
   }
 
-  /** Na aba Impressão, se houver mapa, mostra o PDF da clínica (não o layout padrão). */
+  /** Na aba Impressão, se houver mapa, carrega a prévia embutida (sem abrir o modal). */
   private garantirPreviewAparenciaClinica(): void {
     if (!this.temAparenciaPdfMapeada) return;
-    if (this.pdfPreviewUrl() || this.gerandoPdf()) return;
-    this.visualizarFichaPdf();
+    if (this.brandedInlinePreviewUrl() || this.gerandoPdf()) return;
+    this.gerandoPdf.set(true);
+    void this.gerarPdfBlobDaTela()
+      .then((blob) => {
+        this.fecharBrandedInlinePreview();
+        const pdfBlob =
+          blob.type === 'application/pdf' ? blob : new Blob([blob], { type: 'application/pdf' });
+        this.brandedInlineObjectUrl = URL.createObjectURL(pdfBlob);
+        this.brandedInlinePreviewUrl.set(
+          this.sanitizer.bypassSecurityTrustResourceUrl(this.brandedInlineObjectUrl),
+        );
+      })
+      .catch((err: unknown) => {
+        this.toast.error(
+          'Prévia',
+          err instanceof Error ? err.message : 'Não foi possível gerar a prévia do PDF da clínica.',
+        );
+      })
+      .finally(() => this.gerandoPdf.set(false));
+  }
+
+  private fecharBrandedInlinePreview(): void {
+    this.brandedInlinePreviewUrl.set(null);
+    if (this.brandedInlineObjectUrl) {
+      URL.revokeObjectURL(this.brandedInlineObjectUrl);
+      this.brandedInlineObjectUrl = null;
+    }
   }
 
   private syncTabGroupFromAba(): void {

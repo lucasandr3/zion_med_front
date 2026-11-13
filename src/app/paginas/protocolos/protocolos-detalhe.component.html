@@ -610,14 +610,14 @@
               <p class="protocolo-print-brand-hint">
                 Layout da clínica mapeado — a prévia abaixo (e o PDF do e-mail/download) usa o documento original preenchido.
               </p>
-              @if (gerandoPdf() && !pdfPreviewUrl()) {
-                <p class="text-sm text-muted-foreground">Gerando prévia do PDF da clínica…</p>
+              @if (gerandoPdf() && !brandedInlinePreviewUrl()) {
+                <p class="text-sm text-muted-foreground px-4">Gerando prévia do PDF da clínica…</p>
               }
-              @if (pdfPreviewUrl(); as previewUrl) {
+              @if (brandedInlinePreviewUrl(); as brandedUrl) {
                 <div class="protocolo-branded-preview">
                   <iframe
                     class="protocolo-branded-preview__frame"
-                    [src]="previewUrl"
+                    [src]="brandedUrl"
                     title="PDF com aparência da clínica"
                   ></iframe>
                 </div>
