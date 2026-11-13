@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1794574758615,
+  "timestamp": 1794575338030,
   "index": "/index.html",
   "assetGroups": [
     {
@@ -138,7 +138,7 @@
         "/chunk-VU36HRJX.js",
         "/chunk-VX42HGRU.js",
         "/chunk-W2O4OOQC.js",
-        "/chunk-WFQXF6NT.js",
+        "/chunk-W5P52ASP.js",
         "/chunk-WHLRNRJR.js",
         "/chunk-WHSUZGW7.js",
         "/chunk-WMQVPEX2.js",
@@ -158,7 +158,7 @@
         "/chunk-ZEQPEWJ2.js",
         "/favicon.ico",
         "/index.html",
-        "/main-AQWM4TTE.js",
+        "/main-FQBW4DPM.js",
         "/manifest.webmanifest",
         "/styles-QMEVLFRG.css"
       ],
@@ -361,7 +361,7 @@
     "/chunk-VU36HRJX.js": "f4c53edc0a4e248f22f20cefff4e1324991e1bf8",
     "/chunk-VX42HGRU.js": "ef5a8d2be20e3fd22ec75ce58ff274650685844a",
     "/chunk-W2O4OOQC.js": "a6e7d304df20ddfd1d08ce17c11eff65ababd3f0",
-    "/chunk-WFQXF6NT.js": "181d9fd2c5ee9eb92c323f8cb89d20c2a20c3b41",
+    "/chunk-W5P52ASP.js": "755e5eeb88b3d88676aa4f7c5a1c80e079e80acb",
     "/chunk-WHLRNRJR.js": "e48468f5814123944e7e779a4bf17329cc9da21c",
     "/chunk-WHSUZGW7.js": "ab12e66b6bfffa754c72ff4927cff75da5d35269",
     "/chunk-WMQVPEX2.js": "b5715e7ea7d981ea451e63e62f6b4b6609126280",
@@ -390,8 +390,8 @@
     "/icons/icon-512x512.png": "34dcd9bcacea5478018dc393f331c0933006d363",
     "/icons/icon-72x72.png": "78abd0cbb580c9a9f57e844c7c10d30844a04246",
     "/icons/icon-96x96.png": "883993fc03814a185721c32883cc0ba7ea196aa3",
-    "/index.html": "9b9f8294a339f069b7c7ece11f5e91ffe699e7a2",
-    "/main-AQWM4TTE.js": "062521777d3c72e0227e2dff6320ea062caf83cf",
+    "/index.html": "64115791b9d5d655258b35f2b21d7e5247364cf9",
+    "/main-FQBW4DPM.js": "a7ba2cd7785a2f0953d1b14bfb5c9744923d8806",
     "/manifest.webmanifest": "abf3d97e3e9e4851ca3b5518567b8a8e1f2a1c9f",
     "/media/nordhealth-mono-I772J2U7.woff": "bdf090792a422094dc0539a69f5d113972385ce2",
     "/media/nordhealth-sans-QAOBVEJB.woff2": "f4cf732763710b1578dcb10fada6484284e39ac3",
