@@ -1328,16 +1328,52 @@ body.modo-pdf .documento {
     const sourceBlob = await firstValueFrom(this.templatesService.downloadSourceDocument(templateId));
     const sourceBytes = new Uint8Array(await sourceBlob.arrayBuffer());
     const values = await this.montarValoresPrintLayout();
+
+    // Se o mapa pede assinatura/logo e o browser não conseguiu baixar (CORS MinIO),
+    // usa o PDF do servidor — lá a imagem sai direto do storage.
+    const precisaImagem = layout.placements.some(
+      (pl) =>
+        pl.kind === 'signature' ||
+        pl.kind === 'image' ||
+        pl.name_key === '__clinic_logo' ||
+        pl.name_key === '__clinic_signature',
+    );
+    if (precisaImagem) {
+      const faltando = layout.placements
+        .filter(
+          (pl) =>
+            pl.kind === 'signature' ||
+            pl.kind === 'image' ||
+            pl.name_key === '__clinic_logo' ||
+            pl.name_key === '__clinic_signature',
+        )
+        .some((pl) => {
+          const v = values.find((x) => x.name_key === pl.name_key);
+          return !v?.imageBytes?.length;
+        });
+      if (faltando) {
+        try {
+          return await firstValueFrom(this.protocolosService.pdf(p.id, { fresh: true }));
+        } catch {
+          // segue com o fill local (sem assinatura) em vez de falhar tudo
+        }
+      }
+    }
+
     return fillSourcePdf({ sourcePdfBytes: sourceBytes, layout, values });
   }
 
   private async montarValoresPrintLayout(): Promise<FillSourcePdfFieldValue[]> {
-    const fields = this.protocolo()?.template?.fields || this.camposRespostas();
+    const fields = this.camposRespostas().length
+      ? this.camposRespostas()
+      : this.protocolo()?.template?.fields || [];
     const out: FillSourcePdfFieldValue[] = [];
+    const seen = new Set<string>();
 
     for (const field of fields) {
       const item: FillSourcePdfFieldValue = { name_key: field.name_key };
       const type = (field.type || '').toLowerCase();
+      seen.add(field.name_key);
 
       if (type === 'signature') {
         const url = this.assinaturaDocumento(field.name_key);
@@ -1372,7 +1408,17 @@ body.modo-pdf .documento {
       out.push(item);
     }
 
-    // Extras opcionais do mapa (logo / assinatura institucional)
+    // Co-assinatura / assinaturas extras (ex.: assinatura_profissional) fora do snapshot de campos
+    for (const sig of this.protocolo()?.signatures || []) {
+      const key = (sig.field_key || '').trim();
+      if (!key || seen.has(key) || !sig.url) continue;
+      const img = await fetchImageBytes(sig.url);
+      if (!img) continue;
+      out.push({ name_key: key, imageBytes: img.bytes, imageMime: img.mime });
+      seen.add(key);
+    }
+
+    // Logo da clínica
     const logoUrl = (this.clinicaLogo || '').trim();
     if (logoUrl) {
       const img = await fetchImageBytes(logoUrl);
@@ -1382,15 +1428,71 @@ body.modo-pdf .documento {
           imageBytes: img.bytes,
           imageMime: img.mime,
         });
-        out.push({
-          name_key: '__clinic_signature',
-          imageBytes: img.bytes,
-          imageMime: img.mime,
-        });
       }
     }
 
+    // Assinatura da clínica: eletrônica do usuário > co-assinatura do protocolo > logo
+    const clinicSig = await this.resolverImagemAssinaturaClinica();
+    if (clinicSig) {
+      out.push({
+        name_key: '__clinic_signature',
+        imageBytes: clinicSig.bytes,
+        imageMime: clinicSig.mime,
+      });
+    }
+
     return out;
+  }
+
+  /** Imagem para o extra `__clinic_signature` no mapa de aparência. */
+  private async resolverImagemAssinaturaClinica(): Promise<{
+    bytes: Uint8Array;
+    mime: 'png' | 'jpg';
+  } | null> {
+    const electronic = (this.auth.getUser()?.electronic_signature_url || '').trim();
+    if (electronic) {
+      const img = await fetchImageBytes(electronic);
+      if (img) return img;
+    }
+
+    const professional = this.encontrarAssinaturaProfissionalNoProtocolo();
+    if (professional?.url) {
+      const img = await fetchImageBytes(professional.url);
+      if (img) return img;
+    }
+
+    const logoUrl = (this.clinicaLogo || '').trim();
+    if (logoUrl) {
+      return fetchImageBytes(logoUrl);
+    }
+    return null;
+  }
+
+  private encontrarAssinaturaProfissionalNoProtocolo(): ProtocoloSignature | undefined {
+    const sigs = this.protocolo()?.signatures || [];
+    const byKey = sigs.find((s) => (s.field_key || '').trim() === 'assinatura_profissional');
+    if (byKey) return byKey;
+
+    const fields = this.camposRespostas();
+    const positive = ['profissional', 'responsavel', 'responsável', 'clinica', 'clínica', 'equipe', 'medico', 'médico'];
+    const negative = ['paciente', 'cliente', 'titular', 'acompanhante'];
+    let best: ProtocoloSignature | undefined;
+    let bestScore = Number.NEGATIVE_INFINITY;
+
+    for (const field of fields.filter((f) => f.type === 'signature')) {
+      const hay = `${field.name_key} ${field.label}`.toLowerCase();
+      let score = 0;
+      for (const w of positive) if (hay.includes(w)) score += 3;
+      for (const w of negative) if (hay.includes(w)) score -= 5;
+      if (score <= 0) continue;
+      const sig = this.assinaturaParaCampo(field.name_key);
+      if (!sig?.url) continue;
+      if (score > bestScore) {
+        bestScore = score;
+        best = sig;
+      }
+    }
+    return best;
   }
 
   baixarDocumentoOriginal(): void {

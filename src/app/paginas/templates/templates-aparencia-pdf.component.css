@@ -180,6 +180,7 @@
   cursor: crosshair;
   touch-action: none;
   user-select: none;
+  -webkit-user-select: none;
 }
 
 .aparencia-box {
@@ -192,6 +193,8 @@
   min-width: 8px;
   min-height: 8px;
   z-index: 2;
+  touch-action: none;
+  user-select: none;
 }
 
 .aparencia-box:active {

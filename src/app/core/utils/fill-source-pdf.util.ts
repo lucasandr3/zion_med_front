@@ -1,5 +1,7 @@
 import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFPage } from 'pdf-lib';
 import {
+  extractDatePart,
+  isDatePartOption,
   normalizeOptionValue,
   type PrintLayout,
   type PrintLayoutPlacement,
@@ -45,6 +47,7 @@ export async function fillSourcePdf(input: FillSourcePdfInput): Promise<Blob> {
     if (!value) continue;
 
     const kind = placement.kind || 'text';
+
     if (kind === 'checkbox') {
       const option = (placement.option ?? '').trim();
       if (option) {
@@ -58,12 +61,13 @@ export async function fillSourcePdf(input: FillSourcePdfInput): Promise<Blob> {
       continue;
     }
 
-    if ((kind === 'signature' || kind === 'image') && value.imageBytes?.length) {
+    // Assinatura/imagem: usa bytes mesmo se kind veio como text por mapeamento antigo
+    if (value.imageBytes?.length && (kind === 'signature' || kind === 'image' || !value.text)) {
       await drawImage(pdfDoc, page, placement, value.imageBytes, value.imageMime || 'png');
       continue;
     }
 
-    const text = (value.text || '').trim();
+    const text = resolvePlacementText(value, placement);
     if (!text) continue;
     drawTextInBox(page, font, placement, text);
   }
@@ -74,31 +78,72 @@ export async function fillSourcePdf(input: FillSourcePdfInput): Promise<Blob> {
   return new Blob([ab], { type: 'application/pdf' });
 }
 
+function resolvePlacementText(
+  value: FillSourcePdfFieldValue,
+  placement: PrintLayoutPlacement,
+): string {
+  const raw = (value.text || '').trim();
+  if (!raw) return '';
+  const opt = (placement.option ?? '').trim();
+  if (isDatePartOption(opt)) {
+    return extractDatePart(raw, opt);
+  }
+  return raw;
+}
+
 function pageBox(page: PDFPage, placement: PrintLayoutPlacement) {
   const { width, height } = page.getSize();
   const boxW = placement.w * width;
   const boxH = placement.h * height;
   const x = placement.x * width;
-  // UI usa origem no topo; pdf-lib no canto inferior esquerdo
   const yBottom = height - placement.y * height - boxH;
   return { x, yBottom, boxW, boxH, pageHeight: height };
 }
 
+/**
+ * Desenha texto cabendo na caixa: reduz fonte em vez de quebrar no meio
+ * (evita datas tipo 12/11/2026 virarem "1" + "2/11/2026").
+ */
 function drawTextInBox(page: PDFPage, font: PDFFont, placement: PrintLayoutPlacement, text: string): void {
   const { x, yBottom, boxW, boxH } = pageBox(page, placement);
-  const fontSize = placement.font_size ?? Math.max(8, Math.min(14, boxH * 0.7));
-  const maxWidth = Math.max(8, boxW - 2);
-  const lines = wrapText(text, font, fontSize, maxWidth);
-  const lineHeight = fontSize * 1.2;
-  const totalH = lines.length * lineHeight;
-  let cursorY = yBottom + boxH - fontSize - 1;
-  if (totalH < boxH) {
-    // alinha no topo da caixa
-    cursorY = yBottom + boxH - fontSize - 1;
+  const maxWidth = Math.max(6, boxW - 2);
+  const preferred = placement.font_size ?? Math.max(8, Math.min(12, boxH * 0.65));
+  const singleLine = !/\s/.test(text) || text.length <= 24 || isDatePartOption(placement.option);
+
+  if (singleLine) {
+    const fontSize = fitFontSize(text, font, maxWidth, boxH, preferred);
+    const lineWidth = font.widthOfTextAtSize(text, fontSize);
+    let drawX = x + 1;
+    if (placement.align === 'center') drawX = x + (boxW - lineWidth) / 2;
+    if (placement.align === 'right') drawX = x + boxW - lineWidth - 1;
+    const drawY = yBottom + (boxH - fontSize) / 2;
+    page.drawText(text, {
+      x: Math.max(0, drawX),
+      y: Math.max(yBottom, drawY),
+      size: fontSize,
+      font,
+      color: rgb(0.06, 0.09, 0.16),
+    });
+    return;
   }
 
+  let fontSize = preferred;
+  let lines = wrapText(text, font, fontSize, maxWidth);
+  while (fontSize > 6 && lines.length * fontSize * 1.2 > boxH) {
+    fontSize -= 0.5;
+    lines = wrapText(text, font, fontSize, maxWidth);
+  }
+  while (fontSize > 6) {
+    const tooWide = lines.some((ln) => font.widthOfTextAtSize(ln, fontSize) > maxWidth + 0.5);
+    if (!tooWide) break;
+    fontSize -= 0.5;
+    lines = wrapText(text, font, fontSize, maxWidth);
+  }
+
+  const lineHeight = fontSize * 1.2;
+  let cursorY = yBottom + boxH - fontSize - 1;
   for (const line of lines) {
-    if (cursorY < yBottom - 2) break;
+    if (cursorY < yBottom - 1) break;
     const lineWidth = font.widthOfTextAtSize(line, fontSize);
     let drawX = x + 1;
     if (placement.align === 'center') drawX = x + (boxW - lineWidth) / 2;
@@ -109,10 +154,26 @@ function drawTextInBox(page: PDFPage, font: PDFFont, placement: PrintLayoutPlace
       size: fontSize,
       font,
       color: rgb(0.06, 0.09, 0.16),
-      maxWidth,
     });
     cursorY -= lineHeight;
   }
+}
+
+function fitFontSize(
+  text: string,
+  font: PDFFont,
+  maxWidth: number,
+  maxHeight: number,
+  preferred: number,
+): number {
+  let size = preferred;
+  while (size > 6 && font.widthOfTextAtSize(text, size) > maxWidth) {
+    size -= 0.5;
+  }
+  while (size > 6 && size > maxHeight * 0.95) {
+    size -= 0.5;
+  }
+  return size;
 }
 
 function drawCheckmark(page: PDFPage, placement: PrintLayoutPlacement): void {
@@ -187,16 +248,100 @@ function wrapText(text: string, font: PDFFont, fontSize: number, maxWidth: numbe
   return lines.length ? lines : [''];
 }
 
-export async function fetchImageBytes(url: string): Promise<{ bytes: Uint8Array; mime: 'png' | 'jpg' } | null> {
+function dataUrlToBytes(dataUrl: string): { bytes: Uint8Array; mime: 'png' | 'jpg' } | null {
+  const m = /^data:(image\/(?:png|jpe?g));base64,(.+)$/i.exec(dataUrl.trim());
+  if (!m) return null;
+  const mime: 'png' | 'jpg' = /jpe?g/i.test(m[1]!) ? 'jpg' : 'png';
   try {
-    const res = await fetch(url, { credentials: 'include' });
-    if (!res.ok) return null;
-    const buf = new Uint8Array(await res.arrayBuffer());
-    const ct = (res.headers.get('content-type') || '').toLowerCase();
-    if (ct.includes('jpeg') || ct.includes('jpg') || url.toLowerCase().includes('.jpg')) {
-      return { bytes: buf, mime: 'jpg' };
+    const bin = atob(m[2]!);
+    const bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    return { bytes, mime };
+  } catch {
+    return null;
+  }
+}
+
+function sniffMime(bytes: Uint8Array, hint?: string | null, url?: string): 'png' | 'jpg' {
+  if (bytes.length >= 3 && bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff) return 'jpg';
+  const h = (hint || '').toLowerCase();
+  if (h.includes('jpeg') || h.includes('jpg')) return 'jpg';
+  if ((url || '').toLowerCase().includes('.jpg') || (url || '').toLowerCase().includes('.jpeg')) return 'jpg';
+  return 'png';
+}
+
+async function fetchBytesOnce(
+  url: string,
+  credentials: RequestCredentials,
+): Promise<{ bytes: Uint8Array; mime: 'png' | 'jpg' } | null> {
+  const res = await fetch(url, { credentials, mode: 'cors' });
+  if (!res.ok) return null;
+  const buf = new Uint8Array(await res.arrayBuffer());
+  if (!buf.length) return null;
+  return { bytes: buf, mime: sniffMime(buf, res.headers.get('content-type'), url) };
+}
+
+/** Fallback quando o MinIO não envia CORS no fetch, mas libera no <img>. */
+async function imageElementToBytes(url: string): Promise<{ bytes: Uint8Array; mime: 'png' | 'jpg' } | null> {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    const timer = window.setTimeout(() => {
+      img.src = '';
+      resolve(null);
+    }, 12000);
+    img.onload = () => {
+      window.clearTimeout(timer);
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.max(1, img.naturalWidth || img.width);
+        canvas.height = Math.max(1, img.naturalHeight || img.height);
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          resolve(null);
+          return;
+        }
+        ctx.drawImage(img, 0, 0);
+        const dataUrl = canvas.toDataURL('image/png');
+        resolve(dataUrlToBytes(dataUrl));
+      } catch {
+        resolve(null);
+      }
+    };
+    img.onerror = () => {
+      window.clearTimeout(timer);
+      resolve(null);
+    };
+    img.src = url;
+  });
+}
+
+/**
+ * Baixa bytes de imagem para embutir no PDF.
+ * URLs assinadas do MinIO costumam falhar com credentials:include — tenta omit + canvas.
+ */
+export async function fetchImageBytes(url: string): Promise<{ bytes: Uint8Array; mime: 'png' | 'jpg' } | null> {
+  const trimmed = (url || '').trim();
+  if (!trimmed) return null;
+
+  if (trimmed.startsWith('data:')) {
+    return dataUrlToBytes(trimmed);
+  }
+
+  const absolute = /^https?:\/\//i.test(trimmed);
+  const attempts: RequestCredentials[] = absolute ? ['omit', 'include'] : ['include', 'omit'];
+
+  for (const cred of attempts) {
+    try {
+      const got = await fetchBytesOnce(trimmed, cred);
+      if (got) return got;
+    } catch {
+      // tenta próxima estratégia
     }
-    return { bytes: buf, mime: 'png' };
+  }
+
+  try {
+    return await imageElementToBytes(trimmed);
   } catch {
     return null;
   }

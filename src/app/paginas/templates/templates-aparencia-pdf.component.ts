@@ -18,9 +18,11 @@ import { ZmPageBackLinkComponent } from '../../shared/components/ui';
 import { GestgoCardComponent } from '@/shared/components/card/card.component';
 import { NORD_FORM_IMPORTS } from '@/shared/nord';
 import {
+  DATE_PART_TARGETS,
   emptyPrintLayout,
   hasUsablePrintLayout,
   inferPlacementKind,
+  isDatePartOption,
   parsePrintLayout,
   samePlacement,
   SYSTEM_PRINT_TARGETS,
@@ -95,8 +97,7 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
   private workerBlobUrl: string | null = null;
   private gesture: Gesture | null = null;
   private renderToken = 0;
-  private readonly onWinMove = (e: PointerEvent) => this.onPointerMove(e);
-  private readonly onWinUp = (e: PointerEvent) => this.onPointerUp(e);
+  private activePointerId: number | null = null;
 
   private route = inject(ActivatedRoute);
   private templatesService = inject(TemplatesService);
@@ -143,7 +144,7 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.detachWindowListeners();
+    this.releasePointerCapture();
     this.pdfDoc?.destroy?.();
     if (this.pdfObjectUrl) URL.revokeObjectURL(this.pdfObjectUrl);
     if (this.workerBlobUrl) URL.revokeObjectURL(this.workerBlobUrl);
@@ -183,9 +184,23 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
 
   fieldHasOptionTargets(campo: TemplateCampo): boolean {
     const t = (campo.type || '').toLowerCase();
+    if (t === 'date' || t === 'datetime') return true;
     return (
       (t === 'radio' || t === 'checkbox' || t === 'select') && this.fieldOptions(campo).length > 0
     );
+  }
+
+  fieldIsDate(campo: TemplateCampo): boolean {
+    const t = (campo.type || '').toLowerCase();
+    return t === 'date' || t === 'datetime';
+  }
+
+  /** Alvos mapeáveis: opções de rádio/checkbox ou Dia/Mês/Ano. */
+  fieldMapTargets(campo: TemplateCampo): Array<{ option: string; label: string }> {
+    if (this.fieldIsDate(campo)) {
+      return DATE_PART_TARGETS.map((d) => ({ option: d.option, label: d.label }));
+    }
+    return this.fieldOptions(campo).map((opt) => ({ option: opt, label: opt }));
   }
 
   isMapped(target: PrintLayoutTarget): boolean {
@@ -196,8 +211,8 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
     if (!this.fieldHasOptionTargets(campo)) {
       return this.isMapped({ name_key: campo.name_key });
     }
-    return this.fieldOptions(campo).every((opt) =>
-      this.isMapped({ name_key: campo.name_key, option: opt }),
+    return this.fieldMapTargets(campo).every((t) =>
+      this.isMapped({ name_key: campo.name_key, option: t.option }),
     );
   }
 
@@ -225,7 +240,12 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
 
   placementTitle(p: PrintLayoutPlacement): string {
     const base = this.campoLabel(p.name_key);
-    return p.option ? `${base}: ${p.option}` : base;
+    if (!p.option) return base;
+    if (isDatePartOption(p.option)) {
+      const label = DATE_PART_TARGETS.find((d) => d.option === p.option)?.label || p.option;
+      return `${base}: ${label}`;
+    }
+    return `${base}: ${p.option}`;
   }
 
   async goToPage(index: number): Promise<void> {
@@ -246,6 +266,7 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
   /** Clique no fundo do PDF → desenha nova área. */
   onLayerPointerDown(event: PointerEvent): void {
     if ((event.target as HTMLElement | null)?.closest?.('.aparencia-box')) return;
+    if (event.button !== 0 && event.pointerType === 'mouse') return;
     event.preventDefault();
     const layer = this.overlayLayer?.nativeElement;
     if (!layer) return;
@@ -254,18 +275,19 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
     if (!this.selectedTarget()) {
       this.toast.warning(
         'Aparência do PDF',
-        'Selecione um campo (ou opção) à esquerda e desenhe no PDF. Para mover, arraste a caixa azul.',
+        'Selecione um campo (ou Dia/Mês/Ano) à esquerda e desenhe no PDF. Para mover, arraste a caixa azul.',
       );
       return;
     }
 
     this.gesture = { mode: 'draw', startX: x, startY: y };
     this.draftBox.set({ x, y, w: 0, h: 0 });
-    this.attachWindowListeners();
+    this.capturePointer(event, layer);
   }
 
   /** Arrastar caixa existente. */
   onBoxPointerDown(event: PointerEvent, p: PrintLayoutPlacement): void {
+    if (event.button !== 0 && event.pointerType === 'mouse') return;
     event.preventDefault();
     event.stopPropagation();
     const layer = this.overlayLayer?.nativeElement;
@@ -280,13 +302,16 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
       grabY: y - p.y,
       start: { ...p },
     };
-    this.attachWindowListeners();
+    this.capturePointer(event, layer);
   }
 
   /** Redimensionar pelo canto. */
   onResizePointerDown(event: PointerEvent, p: PrintLayoutPlacement): void {
+    if (event.button !== 0 && event.pointerType === 'mouse') return;
     event.preventDefault();
     event.stopPropagation();
+    const layer = this.overlayLayer?.nativeElement;
+    if (!layer) return;
     const target: PrintLayoutTarget = { name_key: p.name_key, option: p.option ?? null };
     this.selectedTarget.set(target);
     this.gesture = {
@@ -294,7 +319,21 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
       target,
       start: { ...p },
     };
-    this.attachWindowListeners();
+    this.capturePointer(event, layer);
+  }
+
+  onOverlayPointerMove(event: PointerEvent): void {
+    if (!this.gesture) return;
+    if (this.activePointerId !== null && event.pointerId !== this.activePointerId) return;
+    event.preventDefault();
+    this.onPointerMove(event);
+  }
+
+  onOverlayPointerUp(event: PointerEvent): void {
+    if (!this.gesture) return;
+    if (this.activePointerId !== null && event.pointerId !== this.activePointerId) return;
+    event.preventDefault();
+    this.onPointerUp(event);
   }
 
   limparTudo(): void {
@@ -373,10 +412,10 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
     }
   }
 
-  private onPointerUp(event: PointerEvent): void {
+  private onPointerUp(_event: PointerEvent): void {
     const gesture = this.gesture;
     this.gesture = null;
-    this.detachWindowListeners();
+    this.releasePointerCapture();
     if (!gesture) return;
 
     if (gesture.mode === 'move' || gesture.mode === 'resize') {
@@ -402,23 +441,34 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
       h: draft.h,
       kind: system?.kind ?? inferPlacementKind(field?.type, hasOption),
       align: 'left',
-      font_size: field?.type === 'textarea' ? 10 : 11,
+      font_size: field?.type === 'textarea' ? 10 : hasOption && isDatePartOption(target.option) ? 12 : 11,
     };
     const others = this.placements().filter((p) => !samePlacement(p, placement));
     this.placements.set([...others, placement]);
     this.dirty.set(true);
   }
 
-  private attachWindowListeners(): void {
-    window.addEventListener('pointermove', this.onWinMove, { passive: false });
-    window.addEventListener('pointerup', this.onWinUp, { passive: false });
-    window.addEventListener('pointercancel', this.onWinUp, { passive: false });
+  private capturePointer(event: PointerEvent, layer: HTMLElement): void {
+    this.activePointerId = event.pointerId;
+    try {
+      layer.setPointerCapture(event.pointerId);
+    } catch {
+      // Alguns browsers rejeitam se o pointer já terminou
+    }
   }
 
-  private detachWindowListeners(): void {
-    window.removeEventListener('pointermove', this.onWinMove);
-    window.removeEventListener('pointerup', this.onWinUp);
-    window.removeEventListener('pointercancel', this.onWinUp);
+  private releasePointerCapture(): void {
+    const layer = this.overlayLayer?.nativeElement;
+    const id = this.activePointerId;
+    this.activePointerId = null;
+    if (!layer || id === null) return;
+    try {
+      if (layer.hasPointerCapture?.(id)) {
+        layer.releasePointerCapture(id);
+      }
+    } catch {
+      // ignore
+    }
   }
 
   private pointerNorm(event: PointerEvent, el: HTMLElement): { x: number; y: number } {

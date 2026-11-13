@@ -6,7 +6,8 @@ export type PrintLayoutKind = 'text' | 'checkbox' | 'signature' | 'image';
 export interface PrintLayoutPlacement {
   name_key: string;
   /**
-   * Para radio/checkbox com opções: marca só se a resposta for esta opção.
+   * Para radio/checkbox: marca só se a resposta for esta opção.
+   * Para date: `day` | `month` | `year` (preenche só essa parte).
    * Sem option = área do campo inteiro (texto ou checkbox booleano).
    */
   option?: string | null;
@@ -48,7 +49,7 @@ export const SYSTEM_PRINT_TARGETS: Array<{
   {
     name_key: '__clinic_signature',
     label: 'Assinatura da clínica',
-    hint: 'Opcional · carimbo/assinatura institucional (usa a logo)',
+    hint: 'Opcional · assinatura eletrônica do profissional (Conta) ou co-assinatura do protocolo',
     kind: 'signature',
   },
 ];
@@ -129,7 +130,7 @@ export function inferPlacementKind(
   const t = (fieldType || '').toLowerCase();
   if (t === 'signature') return 'signature';
   if (t === 'file') return 'image';
-  if (hasOption) return 'checkbox';
+  if (hasOption && (t === 'checkbox' || t === 'radio' || t === 'select')) return 'checkbox';
   if (t === 'checkbox' || t === 'radio') return 'checkbox';
   return 'text';
 }
@@ -138,6 +139,44 @@ export function normalizeOptionValue(value: string | null | undefined): string {
   return String(value ?? '')
     .trim()
     .toLowerCase();
+}
+
+/** Partes de data para formulários com Dia / Mês / Ano separados. */
+export const DATE_PART_TARGETS: Array<{ option: 'day' | 'month' | 'year'; label: string }> = [
+  { option: 'day', label: 'Dia' },
+  { option: 'month', label: 'Mês' },
+  { option: 'year', label: 'Ano' },
+];
+
+export function isDatePartOption(option: string | null | undefined): option is 'day' | 'month' | 'year' {
+  const o = (option || '').trim().toLowerCase();
+  return o === 'day' || o === 'month' || o === 'year';
+}
+
+/** Extrai dia/mês/ano de texto BR (dd/mm/aaaa) ou ISO (aaaa-mm-dd). */
+export function extractDatePart(text: string, part: 'day' | 'month' | 'year'): string {
+  const raw = String(text || '').trim();
+  if (!raw) return '';
+
+  const br = /^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2,4})$/.exec(raw);
+  if (br) {
+    const d = br[1]!.padStart(2, '0');
+    const m = br[2]!.padStart(2, '0');
+    let y = br[3]!;
+    if (y.length === 2) y = `20${y}`;
+    if (part === 'day') return d;
+    if (part === 'month') return m;
+    return y;
+  }
+
+  const iso = /^(\d{4})-(\d{2})-(\d{2})/.exec(raw);
+  if (iso) {
+    if (part === 'year') return iso[1]!;
+    if (part === 'month') return iso[2]!;
+    return iso[3]!;
+  }
+
+  return '';
 }
 
 function clamp01(n: number): number {
