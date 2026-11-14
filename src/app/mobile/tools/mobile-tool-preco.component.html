@@ -1,0 +1,53 @@
+<div class="gm-backrow">
+  <a class="gm-icon-btn" routerLink="/m/ferramentas" aria-label="Voltar">
+    <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">arrow_back</span>
+  </a>
+  <div>
+    <h1>Preço e lucro</h1>
+    <small>Simulador de precificação</small>
+  </div>
+</div>
+
+<p class="gm-sub">Monte um preço com insumos, tempo, taxas e margem. Não é aconselhamento financeiro.</p>
+
+<div class="gm-panel">
+  <div class="gm-twocol">
+    <div class="gm-field">
+      <label>Custo de materiais (R$)</label>
+      <input type="number" min="0" step="0.01" [(ngModel)]="materiais" />
+    </div>
+    <div class="gm-field">
+      <label>Tempo (minutos)</label>
+      <input type="number" min="0" [(ngModel)]="minutos" />
+    </div>
+  </div>
+  <div class="gm-twocol">
+    <div class="gm-field">
+      <label>Valor da hora (R$)</label>
+      <input type="number" min="0" step="0.01" [(ngModel)]="valorHora" />
+    </div>
+    <div class="gm-field">
+      <label>Taxas (%)</label>
+      <input type="number" min="0" max="99" step="0.1" [(ngModel)]="taxa" />
+    </div>
+  </div>
+  <div class="gm-field">
+    <label>Margem de lucro desejada (%)</label>
+    <input type="number" min="0" max="99" [(ngModel)]="margem" />
+  </div>
+  <button type="button" class="gm-btn" (click)="calcular()" [disabled]="loading()">
+    {{ loading() ? 'Calculando…' : 'Calcular preço sugerido' }}
+  </button>
+</div>
+
+@if (error()) {
+  <div class="gm-notice">{{ error() }}</div>
+}
+@if (result(); as r) {
+  <div class="gm-result">
+    <span class="gm-result__label">Preço sugerido</span>
+    <strong>{{ money(r.price) }}</strong>
+    <small>Base {{ money(r.cost) }} · Taxas {{ money(r.fee) }} · Lucro estimado {{ money(r.profit) }}</small>
+  </div>
+  <p class="gm-hint">Fórmula: (materiais + valor do tempo) ÷ (1 − taxas − margem). Não inclui aluguel, impostos ou custos não informados.</p>
+}

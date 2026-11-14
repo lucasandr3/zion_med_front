@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 
 import { FormularioPublicoField } from '../../core/services/formulario-publico.service';
 import { fieldPlaceholder, fieldType, getFieldOptions } from './formulario-publico-field.util';
+import { publicFieldRequiredHint } from './formulario-publico-errors.util';
 import {
   clearSignatureCanvas,
   endSignatureDraw,
@@ -48,6 +49,7 @@ export class FormularioPublicoFieldsComponent implements AfterViewInit, OnChange
   readonly fieldType = fieldType;
   readonly getFieldOptions = getFieldOptions;
   readonly fieldPlaceholder = fieldPlaceholder;
+  readonly fieldRequiredHint = publicFieldRequiredHint;
 
   trackByKey(_index: number, f: FormularioPublicoField): string {
     return f.name_key;

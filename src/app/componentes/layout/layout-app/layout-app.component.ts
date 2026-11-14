@@ -34,6 +34,7 @@ import {
 } from '../shell-nav.config';
 import { ShellAccountMenuComponent } from '../shell-account-menu/shell-account-menu.component';
 import { ShellTopBarActionsComponent } from '../shell-top-bar-actions/shell-top-bar-actions.component';
+import { peekMobileReturnTo } from '../../../core/utils/gestgo-experience.util';
 
 @Component({
   selector: 'app-layout-app',
@@ -192,8 +193,9 @@ export class LayoutAppComponent implements OnInit {
       typeof route.queryParams['categoria'] === 'string' ? route.queryParams['categoria'] : null;
     this.urlAtualSignal.set(path);
     this.tituloPaginaSignal.set(this.resolvePageTitle(path, categoriaAtual, data.titulo));
-    this.urlVoltarSignal.set(data.urlVoltar ?? null);
-    this.labelVoltarSignal.set(data.labelVoltar ?? null);
+    const mobileReturn = peekMobileReturnTo(path);
+    this.urlVoltarSignal.set(mobileReturn ?? data.urlVoltar ?? null);
+    this.labelVoltarSignal.set(mobileReturn ? 'Voltar ao app' : (data.labelVoltar ?? null));
     this.voltarIntegradoSignal.set(data.voltarIntegrado === true);
   }
 

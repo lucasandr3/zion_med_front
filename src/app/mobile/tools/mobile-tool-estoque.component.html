@@ -1,0 +1,49 @@
+<div class="gm-backrow">
+  <a class="gm-icon-btn" routerLink="/m/ferramentas" aria-label="Voltar">
+    <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">arrow_back</span>
+  </a>
+  <div>
+    <h1>Estoque e validade</h1>
+    <small>Lista da clínica</small>
+  </div>
+</div>
+
+<div class="gm-panel">
+  <div class="gm-field">
+    <label>Item</label>
+    <input type="text" [(ngModel)]="name" />
+  </div>
+  <div class="gm-twocol">
+    <div class="gm-field">
+      <label>Qtd (rótulo)</label>
+      <input type="text" [(ngModel)]="quantityLabel" placeholder="2 caixas" />
+    </div>
+    <div class="gm-field">
+      <label>Qtd numérica</label>
+      <input type="number" min="0" [(ngModel)]="quantity" />
+    </div>
+  </div>
+  <div class="gm-field">
+    <label>Validade</label>
+    <input type="date" [(ngModel)]="expiresOn" />
+  </div>
+  <button type="button" class="gm-btn" (click)="criar()">Adicionar</button>
+</div>
+
+@if (loading()) {
+  <p class="gm-loading">Carregando…</p>
+} @else if (items().length === 0) {
+  <p class="gm-empty">Nenhum item cadastrado.</p>
+} @else {
+  @for (item of items(); track item.id) {
+    <div class="gm-card" style="cursor:default">
+      <span class="gm-avatar">·</span>
+      <span class="gm-card__body">
+        <span class="gm-card__title">{{ item.name }}</span>
+        <span class="gm-card__sub">{{ item.quantity_label || (item.quantity ?? '—') }}</span>
+      </span>
+      <span class="gm-status" [class.ok]="item.status === 'ok'">{{ statusLabel(item.status) }}</span>
+      <button type="button" class="gm-link" (click)="remover(item.id)">Remover</button>
+    </div>
+  }
+}

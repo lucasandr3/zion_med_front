@@ -128,3 +128,26 @@
 }
 .lb-preset-root .material-symbols-outlined.gestgo-mi--s { font-size: 1rem; }
 .lb-preset-root .material-symbols-outlined.gestgo-mi--m { font-size: 1.1875rem; }
+
+/* Avatar da profissional — separado do bloco decorativo/capa do hero */
+.lb-preset-root .hero-portrait {
+  display: flex;
+  justify-content: flex-start;
+  margin: 14px 0 4px;
+}
+.lb-preset-root .hero-portrait__img {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid rgba(255, 255, 255, 0.95);
+  box-shadow: 0 10px 28px rgba(21, 36, 40, 0.14);
+}
+.lb-preset-root .hero-art__banner {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 19px;
+}

@@ -29,9 +29,15 @@
           }
           <p class="description">{{ description }}</p>
 
+          @if (portraitUrl) {
+            <div class="hero-portrait">
+              <img [src]="portraitUrl" [alt]="clinic.name" class="hero-portrait__img" />
+            </div>
+          }
+
           <div class="hero-art" aria-hidden="true">
-            @if (portraitUrl) {
-              <img [src]="portraitUrl" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:19px" />
+            @if (heroBannerUrl) {
+              <img [src]="heroBannerUrl" alt="" class="hero-art__banner" />
             } @else {
               <div class="art-orb"></div>
               <div class="art-emblem">

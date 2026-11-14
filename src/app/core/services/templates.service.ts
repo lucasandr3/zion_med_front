@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { ApiService } from './api.service';
 import { map, Observable } from 'rxjs';
 import { FieldVisibilityRules } from '../utils/field-visibility.util';
+import { PrintLayout } from '../utils/print-layout.util';
 
 export type TemplateReviewStatus = 'draft' | 'pending' | 'approved';
 
@@ -67,6 +68,13 @@ export interface Template {
   public_person_link_mode?: 'code' | 'cpf' | string;
   /** URL do formulário público quando o link está ativo (API pode retornar no GET template) */
   public_url?: string;
+  /** PDF original do documento (layout da clínica) anexado ao modelo. */
+  has_source_document?: boolean;
+  source_document_original_name?: string | null;
+  source_document_mime?: string | null;
+  source_document_size?: number | null;
+  /** Mapa de áreas no PDF original (separado dos campos do formulário). */
+  print_layout?: PrintLayout | null;
   created_at: string;
   updated_at: string;
 }
@@ -217,13 +225,48 @@ export class TemplatesService {
 
   update(
     id: number,
-    payload: Partial<Template & { public_require_person_link?: boolean; public_person_link_mode?: string; document_kind?: string; consent_validity_days?: number | null; comprehension_quiz?: TemplateComprehensionQuestion[] | null; actors_visibility_rules?: FieldVisibilityRules | null; new_category?: string }>
+    payload: Partial<
+      Template & {
+        public_require_person_link?: boolean;
+        public_person_link_mode?: string;
+        document_kind?: string;
+        consent_validity_days?: number | null;
+        comprehension_quiz?: TemplateComprehensionQuestion[] | null;
+        actors_visibility_rules?: FieldVisibilityRules | null;
+        new_category?: string;
+        print_layout?: PrintLayout | null;
+      }
+    >,
   ): Observable<Template> {
     return this.api.put<OneResponse>(`/templates/${id}`, payload).pipe(map((r) => r.data));
   }
 
+  /** Salva só o mapa de aparência do PDF (endpoint dedicado). */
+  updatePrintLayout(id: number, print_layout: PrintLayout | null): Observable<Template> {
+    return this.api
+      .put<OneResponse>(`/templates/${id}/print-layout`, { print_layout })
+      .pipe(map((r) => r.data));
+  }
+
   delete(id: number): Observable<void> {
     return this.api.delete<unknown>(`/templates/${id}`).pipe(map(() => undefined));
+  }
+
+  /** Anexa PDF original do documento ao modelo. */
+  uploadSourceDocument(id: number, file: File): Observable<Template> {
+    const form = new FormData();
+    form.append('file', file);
+    return this.api.postFormData<OneResponse>(`/templates/${id}/source-document`, form).pipe(map((r) => r.data));
+  }
+
+  /** Baixa o PDF original anexado ao modelo. */
+  downloadSourceDocument(id: number): Observable<Blob> {
+    return this.api.getBlob(`/templates/${id}/source-document`);
+  }
+
+  /** Remove o PDF original anexado ao modelo. */
+  deleteSourceDocument(id: number): Observable<Template> {
+    return this.api.delete<OneResponse>(`/templates/${id}/source-document`).pipe(map((r) => r.data));
   }
 
   getCampos(templateId: number): Observable<TemplateCampo[]> {

@@ -1,0 +1,54 @@
+<div class="gm-header">
+  <div>
+    <div class="gm-logo">gest<span>go</span></div>
+    <div class="gm-tagline">Seu dia, mais simples.</div>
+  </div>
+  <div class="gm-header__actions">
+    <button type="button" class="gm-icon-btn" (click)="abrirNotificacoes()" aria-label="Notificações">
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">notifications</span>
+    </button>
+    <button type="button" class="gm-icon-btn" (click)="abrirMenu()" aria-label="Menu da conta">
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">person</span>
+    </button>
+  </div>
+</div>
+
+<h1 class="gm-title">Fichas e documentos</h1>
+<p class="gm-sub">Modelos preparados para enviar pelo celular.</p>
+
+<label class="gm-search">
+  <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">search</span>
+  <input
+    type="search"
+    placeholder="Buscar um modelo…"
+    [ngModel]="query()"
+    (ngModelChange)="query.set($event)"
+    aria-label="Buscar modelo"
+  />
+</label>
+
+@if (loading()) {
+  <div class="gm-preload gm-preload--inline" aria-busy="true">
+    <div class="gm-preload__bar"><span></span></div>
+    <p class="gm-preload__hint">Carregando modelos…</p>
+  </div>
+} @else if (error()) {
+  <p class="gm-error">{{ error() }}</p>
+} @else if (filtered().length === 0) {
+  <p class="gm-empty">Você ainda não tem modelos disponíveis. Crie-os no painel completo.</p>
+  <button type="button" class="gm-btn gm-btn--secondary" (click)="abrirPainelModelos()">Abrir modelos no painel</button>
+} @else {
+  @for (t of filtered(); track t.id) {
+    <div class="gm-toolcard" style="cursor:default">
+      <span class="gm-tile__icon" aria-hidden="true">
+        <span class="material-symbols-outlined gestgo-mi gestgo-mi--m">description</span>
+      </span>
+      <span class="gm-toolcard__text">
+        <b>{{ t.name }}</b>
+        <small>{{ t.category || t.document_kind || 'Modelo' }}</small>
+      </span>
+      <button type="button" class="gm-small-btn" (click)="enviar(t.id)">Enviar</button>
+    </div>
+  }
+  <div class="gm-notice">Os envios usam o fluxo real do Gestgo. Confira os dados antes de compartilhar com a paciente.</div>
+}

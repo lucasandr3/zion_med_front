@@ -1,0 +1,33 @@
+<div class="gm-backrow">
+  <a class="gm-icon-btn" routerLink="/m/ferramentas" aria-label="Voltar">
+    <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">arrow_back</span>
+  </a>
+  <div>
+    <h1>Checklist da sala</h1>
+    <small>Persistido na sua conta</small>
+  </div>
+</div>
+
+@if (loading()) {
+  <p class="gm-loading">Carregando…</p>
+} @else {
+  <div class="gm-result">
+    <span class="gm-result__label">ITENS CONCLUÍDOS</span>
+    <strong>{{ doneCount() }} de {{ items().length }}</strong>
+    <div class="gm-progress"><span [style.width.%]="progress()"></span></div>
+  </div>
+
+  <div class="gm-panel">
+    @for (item of items(); track item.id) {
+      <label class="gm-list-check">
+        <input type="checkbox" [checked]="item.done" (change)="toggle(item.id)" />
+        <span [style.text-decoration]="item.done ? 'line-through' : 'none'" [style.color]="item.done ? '#9ea5b3' : 'inherit'">
+          {{ item.label }}
+        </span>
+      </label>
+    }
+  </div>
+
+  <button type="button" class="gm-btn gm-btn--secondary" (click)="reset()">Reiniciar checklist</button>
+  <p class="gm-hint" style="margin-top:12px">Não substitui protocolos profissionais de biossegurança.</p>
+}

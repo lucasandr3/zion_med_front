@@ -1,0 +1,57 @@
+<div class="gm-backrow">
+  <a class="gm-icon-btn" routerLink="/m/ferramentas" aria-label="Voltar">
+    <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">arrow_back</span>
+  </a>
+  <div>
+    <h1>Orçamento rápido</h1>
+    <small>Compartilhar proposta</small>
+  </div>
+</div>
+
+<p class="gm-sub">Crie uma mensagem de orçamento sem sair do celular.</p>
+
+<div class="gm-panel">
+  <div class="gm-field">
+    <label>Nome</label>
+    <input type="text" [(ngModel)]="nome" placeholder="Ex.: Mariana" />
+  </div>
+  <div class="gm-field">
+    <label>Serviço ou procedimento</label>
+    <input type="text" [(ngModel)]="procedimento" placeholder="Ex.: Limpeza de pele" />
+  </div>
+  <div class="gm-twocol">
+    <div class="gm-field">
+      <label>Valor por sessão (R$)</label>
+      <input type="number" min="0" step="0.01" [(ngModel)]="valorSessao" />
+    </div>
+    <div class="gm-field">
+      <label>Quantidade de sessões</label>
+      <input type="number" min="1" step="1" [(ngModel)]="sessoes" />
+    </div>
+  </div>
+  <div class="gm-field">
+    <label>Desconto total (R$)</label>
+    <input type="number" min="0" step="0.01" [(ngModel)]="desconto" />
+  </div>
+  <label class="gm-hint" style="display:flex;gap:8px;align-items:center;margin-bottom:12px">
+    <input type="checkbox" [(ngModel)]="salvar" />
+    Salvar proposta no Gestgo
+  </label>
+  <button type="button" class="gm-btn" (click)="gerar()" [disabled]="loading()">
+    {{ loading() ? 'Gerando…' : 'Gerar orçamento' }}
+  </button>
+</div>
+
+@if (quote(); as q) {
+  <div class="gm-result">
+    <span class="gm-result__label">Total da proposta</span>
+    <strong>{{ money(q.total) }}</strong>
+    <small>{{ q.sessions }} sessão(ões)</small>
+  </div>
+  <div class="gm-msg">{{ q.message }}</div>
+  <div class="gm-actions">
+    <button type="button" class="gm-btn gm-btn--secondary" (click)="copiar()">Copiar</button>
+    <button type="button" class="gm-btn" (click)="whatsapp()">WhatsApp</button>
+  </div>
+  <p class="gm-hint" style="margin-top:10px">Abertura do WhatsApp não envia automaticamente — revise antes de mandar.</p>
+}

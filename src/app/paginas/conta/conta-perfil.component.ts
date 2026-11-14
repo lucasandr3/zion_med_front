@@ -15,8 +15,6 @@ import { NORD_FORM_IMPORTS } from '@/shared/nord';
 import { GestgoCardComponent } from '@/shared/components/card/card.component';
 
 import { GestgoTabComponent, GestgoTabGroupComponent } from '@/shared/components/tabs';
-import { GestgoComboboxComponent, type GestgoComboboxOption } from '@/shared/components/combobox';
-
 
 type ModoAssinatura = 'desenhar' | 'modelo';
 
@@ -25,20 +23,55 @@ interface DefinicaoFonteAssinatura {
   label: string;
   family: string;
   size: number;
+  /** Agrupa estilos bem diferentes na grade. */
+  group: 'elegante' | 'moderna' | 'mao' | 'impacto' | 'formal';
 }
 
 const FONTES_ASSINATURA: DefinicaoFonteAssinatura[] = [
-  { id: 'great-vibes', label: 'Cursiva clássica', family: '"Great Vibes", cursive', size: 38 },
-  { id: 'dancing-script', label: 'Cursiva suave', family: '"Dancing Script", cursive', size: 36 },
-  { id: 'allura', label: 'Traço fluido uniforme', family: '"Allura", cursive', size: 36 },
-  { id: 'pacifico', label: 'Arredondada moderna', family: '"Pacifico", cursive', size: 32 },
-  { id: 'sacramento', label: 'Cursiva elegante alta', family: '"Sacramento", cursive', size: 40 },
-  { id: 'alex-brush', label: 'Pincel suave', family: '"Alex Brush", cursive', size: 40 },
-  { id: 'mr-dafoe', label: 'Estilo hollywoodiano', family: '"Mr Dafoe", cursive', size: 38 },
-  { id: 'italianno', label: 'Tradicional fina', family: '"Italianno", cursive', size: 42 },
-  { id: 'tangerine', label: 'Minimalista fina', family: '"Tangerine", cursive', size: 44 },
-  { id: 'sofia', label: 'Manuscrito simples', family: '"Sofia", cursive', size: 34 },
-  { id: 'caveat', label: 'Informal à mão', family: '"Caveat", cursive', size: 40 }];
+  // Elegantes (cursivas clássicas)
+  { id: 'great-vibes', label: 'Cursiva clássica', family: '"Great Vibes", cursive', size: 38, group: 'elegante' },
+  { id: 'allura', label: 'Traço fluido', family: '"Allura", cursive', size: 36, group: 'elegante' },
+  { id: 'alex-brush', label: 'Pincel suave', family: '"Alex Brush", cursive', size: 40, group: 'elegante' },
+  { id: 'parisienne', label: 'Francesa leve', family: '"Parisienne", cursive', size: 36, group: 'elegante' },
+  { id: 'pinyon-script', label: 'Convite clássico', family: '"Pinyon Script", cursive', size: 34, group: 'elegante' },
+  { id: 'italianno', label: 'Tradicional fina', family: '"Italianno", cursive', size: 42, group: 'elegante' },
+  // Modernas / arredondadas
+  { id: 'pacifico', label: 'Arredondada moderna', family: '"Pacifico", cursive', size: 32, group: 'moderna' },
+  { id: 'satisfy', label: 'Fluxo contemporâneo', family: '"Satisfy", cursive', size: 36, group: 'moderna' },
+  { id: 'yellowtail', label: 'Retrô ousada', family: '"Yellowtail", cursive', size: 38, group: 'moderna' },
+  { id: 'marck-script', label: 'Script marcada', family: '"Marck Script", cursive', size: 34, group: 'moderna' },
+  { id: 'style-script', label: 'Estilo editorial', family: '"Style Script", cursive', size: 36, group: 'moderna' },
+  { id: 'meow-script', label: 'Cursiva jovial', family: '"Meow Script", cursive', size: 36, group: 'moderna' },
+  // À mão / casuais (bem distintas das cursivas)
+  { id: 'caveat', label: 'Caderno à mão', family: '"Caveat", cursive', size: 40, group: 'mao' },
+  { id: 'kalam', label: 'Caneta escolar', family: '"Kalam", cursive', size: 34, group: 'mao' },
+  { id: 'architects-daughter', label: 'Letra de arquiteto', family: '"Architects Daughter", cursive', size: 30, group: 'mao' },
+  { id: 'homemade-apple', label: 'Rabisco natural', family: '"Homemade Apple", cursive', size: 32, group: 'mao' },
+  { id: 'shadows-into-light', label: 'Impressa solta', family: '"Shadows Into Light", cursive', size: 34, group: 'mao' },
+  { id: 'nothing-you-could-do', label: 'Traço fino irregular', family: '"Nothing You Could Do", cursive', size: 34, group: 'mao' },
+  { id: 'reenie-beanie', label: 'Bilhete rápido', family: '"Reenie Beanie", cursive', size: 40, group: 'mao' },
+  { id: 'gloria-hallelujah', label: 'Agenda pessoal', family: '"Gloria Hallelujah", cursive', size: 28, group: 'mao' },
+  // Impacto / marcador
+  { id: 'rock-salt', label: 'Carimbo à mão', family: '"Rock Salt", cursive', size: 28, group: 'impacto' },
+  { id: 'permanent-marker', label: 'Marcador grosso', family: '"Permanent Marker", cursive', size: 30, group: 'impacto' },
+  { id: 'mr-dafoe', label: 'Hollywood bold', family: '"Mr Dafoe", cursive', size: 38, group: 'impacto' },
+  { id: 'norican', label: 'Assinatura firme', family: '"Norican", cursive', size: 36, group: 'impacto' },
+  // Formais / cerimônia
+  { id: 'sacramento', label: 'Elegante alta', family: '"Sacramento", cursive', size: 40, group: 'formal' },
+  { id: 'tangerine', label: 'Minimalista fina', family: '"Tangerine", cursive', size: 44, group: 'formal' },
+  { id: 'dancing-script', label: 'Cursiva suave', family: '"Dancing Script", cursive', size: 36, group: 'formal' },
+  { id: 'windsong', label: 'Caligrafia aérea', family: '"WindSong", cursive', size: 34, group: 'formal' },
+  { id: 'imperial-script', label: 'Imperial cerimonial', family: '"Imperial Script", cursive', size: 36, group: 'formal' },
+  { id: 'birthstone', label: 'Joia tipográfica', family: '"Birthstone", cursive', size: 40, group: 'formal' },
+];
+
+const GRUPOS_FONTE_ASSINATURA: Array<{ id: DefinicaoFonteAssinatura['group']; title: string }> = [
+  { id: 'elegante', title: 'Elegantes' },
+  { id: 'moderna', title: 'Modernas' },
+  { id: 'mao', title: 'À mão / casuais' },
+  { id: 'impacto', title: 'Marcador / impacto' },
+  { id: 'formal', title: 'Formais' },
+];
 
 function mensagemErroApi(err: { error?: { message?: string; errors?: Record<string, string[]> } }): string {
   const e = err.error;
@@ -60,7 +93,6 @@ function mensagemErroApi(err: { error?: { message?: string; errors?: Record<stri
     GestgoCardComponent,
     GestgoTabComponent,
     GestgoTabGroupComponent,
-    GestgoComboboxComponent,
     ZmSkeletonContaPerfilComponent],
   templateUrl: './conta-perfil.component.html',
   styleUrl: './conta-perfil.component.css',
@@ -85,10 +117,6 @@ export class ContaPerfilComponent implements OnInit {
   readonly versaoNovidades = signal<string | null>(null);
 
   readonly previewUrlServidor = signal<string | null>(null);
-  readonly opcoesFontes: GestgoComboboxOption[] = FONTES_ASSINATURA.map((f) => ({
-    value: f.id,
-    label: f.label,
-  }));
 
   usuarioAtual(): User | null {
     return this.auth.getUser();
@@ -124,10 +152,19 @@ export class ContaPerfilComponent implements OnInit {
   /** Nome livre para o modelo tipográfico (pré-preenche com o nome do perfil ao carregar). */
   nomeTextoAssinatura = '';
 
-  /** Nenhuma fonte até o usuário escolher. */
-  fonteSelecionadaId = '';
+  /** Pré-seleciona o primeiro estilo para o botão Salvar já ficar utilizável. */
+  fonteSelecionadaId = FONTES_ASSINATURA[0]?.id ?? '';
+
+  /** Marca se o canvas de desenho tem traço (habilita Salvar). */
+  readonly desenhoTemTraco = signal(false);
 
   salvando = false;
+  readonly fontesAssinatura = FONTES_ASSINATURA;
+  readonly gruposFonteAssinatura = GRUPOS_FONTE_ASSINATURA;
+
+  fontesDoGrupo(group: DefinicaoFonteAssinatura['group']): DefinicaoFonteAssinatura[] {
+    return FONTES_ASSINATURA.filter((f) => f.group === group);
+  }
   senhaExclusao = '';
   confirmouExclusao = false;
   excluindoConta = false;
@@ -193,15 +230,31 @@ export class ContaPerfilComponent implements OnInit {
     this.setModo(ev.index === 0 ? 'desenhar' : 'modelo');
   }
 
-  onFonteComboboxChange(value: string | null): void {
-    this.fonteSelecionadaId = value ?? '';
+  selecionarFonte(id: string): void {
+    this.fonteSelecionadaId = id;
     this.onFonteChange();
+  }
+
+  textoPreviewFonte(fonte: DefinicaoFonteAssinatura): string {
+    const nome = this.textoNomeModelo().trim() || this.nomeExibicao();
+    const curto = nome.split(/\s+/).slice(0, 2).join(' ');
+    return curto || fonte.label;
+  }
+
+  podeSalvarModelo(): boolean {
+    return !!this.fonteSelecionadaId && this.textoNomeModelo().trim().length > 0 && !this.salvando;
+  }
+
+  podeSalvarDesenho(): boolean {
+    return this.desenhoTemTraco() && !this.salvando;
   }
 
   setModo(m: ModoAssinatura): void {
     this.modo = m;
     if (m === 'modelo') {
-      queueMicrotask(() => this.desenharModeloNoCanvas());
+      queueMicrotask(() => {
+        void this.desenharModeloQuandoFontesProntas();
+      });
     }
   }
 
@@ -242,8 +295,8 @@ export class ContaPerfilComponent implements OnInit {
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    // Fundo transparente — no PDF a assinatura não tapa o papel/guilhoché.
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.strokeStyle = '#0f172a';
     ctx.lineWidth = 2;
     ctx.lineCap = 'round';
@@ -278,6 +331,7 @@ export class ContaPerfilComponent implements OnInit {
   endDesenho(): void {
     const canvas = this.getCanvasDesenho();
     if (canvas) (canvas as unknown as { _signing?: boolean })._signing = false;
+    this.desenhoTemTraco.set(this.canvasTemTraço(canvas));
   }
 
   private pontoEvento(e: MouseEvent | TouchEvent, canvas: HTMLCanvasElement): { x: number; y: number } {
@@ -306,9 +360,22 @@ export class ContaPerfilComponent implements OnInit {
 
   limparDesenho(): void {
     this.initCanvasDesenho();
+    this.desenhoTemTraco.set(false);
   }
 
   onFonteChange(): void {
+    void this.desenharModeloQuandoFontesProntas();
+  }
+
+  private async desenharModeloQuandoFontesProntas(): Promise<void> {
+    const def = this.definicaoFonteSelecionada();
+    if (def && typeof document !== 'undefined' && document.fonts?.load) {
+      try {
+        await document.fonts.load(`${def.size}px ${def.family}`);
+      } catch {
+        /* segue com fallback do sistema */
+      }
+    }
     this.desenharModeloNoCanvas();
   }
 
@@ -323,8 +390,7 @@ export class ContaPerfilComponent implements OnInit {
     if (!ctx) return;
     const w = canvas.width;
     const h = canvas.height;
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, 0, w, h);
+    ctx.clearRect(0, 0, w, h);
 
     const def = this.definicaoFonteSelecionada();
     const texto = this.textoNomeModelo().trim();
@@ -364,33 +430,74 @@ export class ContaPerfilComponent implements OnInit {
     ctx.fillText(texto, w / 2, h / 2);
   }
 
+  /** Exporta PNG com pixels brancos/quase brancos transparentes. */
+  private canvasToTransparentPng(canvas: HTMLCanvasElement): string {
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+    if (!ctx) return canvas.toDataURL('image/png');
+    const w = canvas.width;
+    const h = canvas.height;
+    const src = ctx.getImageData(0, 0, w, h);
+    const out = document.createElement('canvas');
+    out.width = w;
+    out.height = h;
+    const octx = out.getContext('2d');
+    if (!octx) return canvas.toDataURL('image/png');
+    const copy = octx.createImageData(w, h);
+    const s = src.data;
+    const d = copy.data;
+    for (let i = 0; i < s.length; i += 4) {
+      const r = s[i]!;
+      const g = s[i + 1]!;
+      const b = s[i + 2]!;
+      const a = s[i + 3]!;
+      d[i] = r;
+      d[i + 1] = g;
+      d[i + 2] = b;
+      if (a < 8 || (r >= 245 && g >= 245 && b >= 245)) {
+        d[i + 3] = 0;
+      } else if (r >= 230 && g >= 230 && b >= 230) {
+        const brightness = (r + g + b) / 3;
+        d[i + 3] = Math.round(Math.max(0, Math.min(a, (255 - brightness) * 4)));
+      } else {
+        d[i + 3] = a;
+      }
+    }
+    octx.putImageData(copy, 0, 0);
+    return out.toDataURL('image/png');
+  }
+
   private canvasTemTraço(canvas: HTMLCanvasElement | null): boolean {
     if (!canvas) return false;
     const ctx = canvas.getContext('2d');
     if (!ctx) return false;
     const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
-    for (let i = 0; i < data.length; i += 4 * 48) {
+    // Amostra a cada 4 pixels (16 bytes) — traços finos ainda são detectados.
+    for (let i = 0; i < data.length; i += 16) {
       const r = data[i];
       const g = data[i + 1];
       const b = data[i + 2];
       const a = data[i + 3];
-      if (a > 10 && (r < 250 || g < 250 || b < 250)) return true;
+      if (a > 8 && (r < 248 || g < 248 || b < 248)) return true;
     }
     return false;
   }
 
   salvarDesenho(): void {
+    if (this.salvando) return;
     const canvas = this.getCanvasDesenho();
-    if (!canvas || !this.canvasTemTraço(canvas)) {
+    const ok = this.canvasTemTraço(canvas);
+    this.desenhoTemTraco.set(ok);
+    if (!canvas || !ok) {
       this.toast.warning('Assinatura vazia', 'Desenhe no quadro antes de salvar.');
       return;
     }
-    this.enviar(canvas.toDataURL('image/png'));
+    this.enviar(this.canvasToTransparentPng(canvas));
   }
 
-  salvarModelo(): void {
+  async salvarModelo(): Promise<void> {
+    if (this.salvando) return;
     if (!this.fonteSelecionadaId) {
-      this.toast.warning('Estilo obrigatório', 'Escolha o tipo de assinatura no menu.');
+      this.toast.warning('Estilo obrigatório', 'Escolha o tipo de assinatura.');
       return;
     }
     if (!this.textoNomeModelo().trim()) {
@@ -398,10 +505,10 @@ export class ContaPerfilComponent implements OnInit {
       return;
     }
 
-    this.desenharModeloNoCanvas();
+    await this.desenharModeloQuandoFontesProntas();
     const canvas = this.getCanvasModelo();
     if (!canvas) return;
-    this.enviar(canvas.toDataURL('image/png'));
+    this.enviar(this.canvasToTransparentPng(canvas));
   }
 
   private enviar(imageBase64: string): void {

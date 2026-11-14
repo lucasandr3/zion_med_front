@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { ApiService } from './api.service';
 import { map, Observable } from 'rxjs';
+import type { PrintLayout } from '../utils/print-layout.util';
 
 export interface Protocolo {
   id: number;
@@ -83,7 +84,16 @@ export interface ProtocoloSignature {
 }
 
 export type ProtocoloDetalheData = Protocolo & {
-  template?: { name?: string; fields?: ProtocoloField[]; document_kind?: string; category?: string };
+  template?: {
+    id?: number;
+    name?: string;
+    fields?: ProtocoloField[];
+    document_kind?: string;
+    category?: string;
+    has_source_document?: boolean;
+    source_document_original_name?: string | null;
+    print_layout?: PrintLayout | null;
+  };
   template_version?: {
     id?: number;
     version?: number;
@@ -151,8 +161,9 @@ export class ProtocolosService {
     return this.api.get<OneResponse>(`/protocols/${id}`).pipe(map((r) => r.data));
   }
 
-  pdf(id: number): Observable<Blob> {
-    return this.api.getBlob(`/protocols/${id}/pdf`);
+  pdf(id: number, opts?: { fresh?: boolean }): Observable<Blob> {
+    const params = opts?.fresh ? { fresh: 1 } : undefined;
+    return this.api.getBlob(`/protocols/${id}/pdf`, params);
   }
 
   /** ZIP com PDF do protocolo + JSON de evidências (dossiê). */

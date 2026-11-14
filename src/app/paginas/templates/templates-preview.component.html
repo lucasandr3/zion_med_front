@@ -1,157 +1,252 @@
-<div class="form-publico-page preview-draft-page" [class.dark]="dark">
+<div class="form-publico-page preview-draft-page" [class.dark]="dark" [class.fp-is-loading]="showSkeleton()">
   @if (showSkeleton()) {
-    <div class="fp-container">
-      <zm-skeleton-list [rows]="6" />
+    <div class="fp-preload" role="status" aria-live="polite" aria-busy="true">
+      <div class="fp-preload-mark" aria-hidden="true">
+        <span class="material-symbols-outlined gestgo-mi" aria-hidden="true">description</span>
+      </div>
+      <p class="fp-preload-label">Carregando prévia…</p>
+      <div class="fp-preload-track" aria-hidden="true">
+        <span class="fp-preload-bar"></span>
+      </div>
     </div>
-  } @else if (!listaPronta) {
-  } @else if (template) {
-    <header class="fp-sticky-header">
-      <div class="fp-header-inner">
-        <div class="fp-header-row">
+  }
+
+  <div class="fp-layout">
+    <main class="fp-patient" id="form-main">
+      @if (!showSkeleton() && template) {
+        <header class="fp-clinic-header">
           <div class="fp-brand">
             <div class="fp-logo" aria-hidden="true">R</div>
-            <div>
-              <p class="fp-clinic-name">Modo rascunho</p>
-              <p class="fp-sub">Pre-visualizacao interna da clinica</p>
+            <div class="fp-clinic-name-wrap">
+              <strong class="fp-clinic-name">Prévia do modelo</strong>
+              <span class="fp-sub">Rascunho interno · não envia dados</span>
             </div>
           </div>
-          <button type="button" (click)="toggleDark()" class="fp-icon-btn" aria-label="Alternar tema claro ou escuro">
-            @if (dark) {
-              <span class="material-symbols-outlined">light_mode</span>
-            } @else {
-              <span class="material-symbols-outlined">dark_mode</span>
+          <div class="fp-clinic-actions">
+            <button
+              type="button"
+              (click)="toggleDark()"
+              class="fp-icon-btn"
+              title="Modo claro ou escuro"
+              aria-label="Alternar tema claro ou escuro"
+            >
+              <span class="material-symbols-outlined gestgo-mi gestgo-mi--s fp-theme-icon" aria-hidden="true">
+                {{ dark ? 'light_mode' : 'dark_mode' }}
+              </span>
+            </button>
+          </div>
+        </header>
+
+        <div class="fp-patient-body" id="fp-main-content" tabindex="-1">
+          <div class="fp-patient-content zm-content-enter">
+            <div class="preview-draft-note" role="status">
+              <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">visibility</span>
+              Simulação fiel do formulário público. Este modo não publica e não envia dados.
+            </div>
+
+            <p class="fp-eyebrow">Pré-visualização</p>
+            <h1 class="fp-title">{{ template.name }}</h1>
+            @if (template.description) {
+              <p class="fp-lead">{{ template.description }}</p>
             }
-          </button>
-        </div>
-        <div class="fp-progress-block">
-          <div class="fp-progress-labels">
-            <span class="fp-progress-hint">Progresso</span>
-            <span class="fp-progress-count">
-              @if (requiredFieldsTotal > 0) {
-                {{ requiredFieldsFilled }} de {{ requiredFieldsTotal }} obrigatorios
-              } @else {
-                Nenhum campo obrigatorio
-              }
-            </span>
-          </div>
-          <div class="fp-progress-track">
-            <div class="fp-progress-fill" [style.width.%]="progressPercent"></div>
-          </div>
-        </div>
-      </div>
-    </header>
 
-    <div class="fp-scroll">
-      <div class="fp-container zm-content-enter">
-        <div class="fp-title-block">
-          <h1 class="fp-title">{{ template.name }}</h1>
-          @if (template.description) {
-            <p class="fp-lead">{{ template.description }}</p>
-          }
-          <div class="preview-draft-note">
-            <span class="material-symbols-outlined">visibility</span>
-            Simulacao fiel do formulario. Este modo nao publica e nao envia dados.
-          </div>
-          <div class="fp-required-legend">
-            <span class="fp-asterisk">*</span>
-            <span>Campos obrigatorios</span>
-          </div>
-        </div>
+            <div class="fp-progress-block" style="margin-top: 1rem">
+              <div class="fp-progress-labels">
+                <strong>Progresso</strong>
+                <span>
+                  @if (requiredFieldsTotal > 0) {
+                    {{ requiredFieldsFilled }} de {{ requiredFieldsTotal }} obrigatórios
+                  } @else {
+                    Nenhum campo obrigatório
+                  }
+                </span>
+              </div>
+              <div class="fp-progress-track">
+                <div class="fp-progress-fill" [style.width.%]="progressPercent"></div>
+              </div>
+            </div>
 
-        @if (campos.length === 0) {
-          <div class="fp-banner-error">Este modelo ainda nao possui campos configurados.</div>
-        } @else {
-          <form class="fp-form" novalidate>
-            @for (campo of campos; track trackCampo($index, campo)) {
-              <div class="fp-field-group fp-field-animate">
-                @if (fieldType(campo) !== 'checkbox') {
-                  <label class="fp-field-label" [for]="'preview_' + campo.name_key">
-                    {{ campo.label }}
-                    @if (campo.required) {
-                      <span class="fp-required">*</span>
-                    }
-                  </label>
-                }
+            <p class="fp-required-legend">
+              <span class="fp-asterisk">*</span>
+              <span>Campos obrigatórios</span>
+            </p>
 
-                @switch (fieldType(campo)) {
-                  @case ('text') {
-                    <input [id]="'preview_' + campo.name_key" type="text" [(ngModel)]="valores[campo.name_key]" [name]="'preview_' + campo.name_key" class="fp-input" [required]="!!campo.required" />
-                  }
-                  @case ('textarea') {
-                    <textarea [id]="'preview_' + campo.name_key" [(ngModel)]="valores[campo.name_key]" [name]="'preview_' + campo.name_key" class="fp-input fp-textarea" rows="4" [required]="!!campo.required"></textarea>
-                  }
-                  @case ('number') {
-                    <input [id]="'preview_' + campo.name_key" type="number" [(ngModel)]="valores[campo.name_key]" [name]="'preview_' + campo.name_key" class="fp-input" [required]="!!campo.required" />
-                  }
-                  @case ('date') {
-                    <nord-date-picker
-                      [id]="'preview_' + campo.name_key"
-                      expand
-                      hide-label
-                      [attr.label]="campo.label"
-                      [(ngModel)]="valores[campo.name_key]"
-                      [name]="'preview_' + campo.name_key"
-                      class="fp-nord-date"
-                      [attr.required]="campo.required ? true : null"
-                      placeholder="dd/mm/aaaa">
-                    </nord-date-picker>
-                  }
-                  @case ('select') {
-                    <select [id]="'preview_' + campo.name_key" [(ngModel)]="valores[campo.name_key]" [name]="'preview_' + campo.name_key" class="fp-input fp-select" [required]="!!campo.required">
-                      <option value="">Selecione</option>
-                      @for (opt of getFieldOptions(campo); track opt.value) {
-                        <option [value]="opt.value">{{ opt.label }}</option>
-                      }
-                    </select>
-                  }
-                  @case ('radio') {
-                    <div class="fp-radio-grid">
-                      @for (opt of getFieldOptions(campo); track opt.value) {
-                        <label class="fp-radio-option" [class.fp-radio-selected]="valores[campo.name_key] === opt.value">
-                          <input type="radio" [(ngModel)]="valores[campo.name_key]" [name]="'preview_' + campo.name_key" [value]="opt.value" [required]="!!campo.required" class="fp-visually-hidden" />
-                          <span class="fp-radio-dot" aria-hidden="true"><span class="fp-radio-dot-inner"></span></span>
-                          <span class="fp-radio-label-text">{{ opt.label }}</span>
+            @if (erro) {
+              <div class="fp-banner-error" role="alert">{{ erro }}</div>
+            } @else if (campos.length === 0) {
+              <div class="fp-banner-error" role="status">Este modelo ainda não possui campos configurados.</div>
+            } @else {
+              <form class="fp-form" novalidate>
+                @for (campo of campos; track trackCampo($index, campo)) {
+                  @if (fieldType(campo) === 'heading') {
+                    <div class="fp-field-group fp-field-animate fp-structural fp-heading">
+                      <div class="fp-section-head">
+                        <h2 class="fp-section-title">{{ campo.label }}</h2>
+                      </div>
+                    </div>
+                  } @else if (fieldType(campo) === 'notice') {
+                    <div class="fp-field-group fp-field-animate fp-structural fp-notice fp-hint-box">
+                      <p class="fp-notice-text">{{ campo.label }}</p>
+                    </div>
+                  } @else if (fieldType(campo) === 'section_break' || fieldType(campo) === 'page_break' || fieldType(campo) === 'step_break') {
+                    <div class="fp-field-group fp-field-animate fp-structural fp-section-break" role="separator" [attr.aria-label]="campo.label || 'Nova etapa'"></div>
+                  } @else {
+                    <div class="fp-field-group fp-field-animate">
+                      @if (fieldType(campo) !== 'checkbox') {
+                        <label class="fp-field-label" [for]="'preview_' + campo.name_key">
+                          {{ campo.label }}
+                          @if (campo.required) {
+                            <span class="fp-required" aria-hidden="true">*</span>
+                          } @else {
+                            <span class="fp-optional">(opcional)</span>
+                          }
                         </label>
+                      }
+
+                      @switch (fieldType(campo)) {
+                        @case ('text') {
+                          <input
+                            [id]="'preview_' + campo.name_key"
+                            type="text"
+                            [(ngModel)]="valores[campo.name_key]"
+                            [name]="'preview_' + campo.name_key"
+                            class="fp-input"
+                            [required]="!!campo.required"
+                          />
+                        }
+                        @case ('textarea') {
+                          <textarea
+                            [id]="'preview_' + campo.name_key"
+                            [(ngModel)]="valores[campo.name_key]"
+                            [name]="'preview_' + campo.name_key"
+                            class="fp-input fp-textarea"
+                            rows="4"
+                            [required]="!!campo.required"
+                          ></textarea>
+                        }
+                        @case ('number') {
+                          <input
+                            [id]="'preview_' + campo.name_key"
+                            type="number"
+                            [(ngModel)]="valores[campo.name_key]"
+                            [name]="'preview_' + campo.name_key"
+                            class="fp-input"
+                            [required]="!!campo.required"
+                          />
+                        }
+                        @case ('date') {
+                          <nord-date-picker
+                            [id]="'preview_' + campo.name_key"
+                            expand
+                            hide-label
+                            [attr.label]="campo.label"
+                            [(ngModel)]="valores[campo.name_key]"
+                            [name]="'preview_' + campo.name_key"
+                            class="fp-nord-date fp-nord-control"
+                            [attr.required]="campo.required ? true : null"
+                            placeholder="dd/mm/aaaa"
+                          ></nord-date-picker>
+                        }
+                        @case ('select') {
+                          <select
+                            [id]="'preview_' + campo.name_key"
+                            [(ngModel)]="valores[campo.name_key]"
+                            [name]="'preview_' + campo.name_key"
+                            class="fp-input fp-select"
+                            [required]="!!campo.required"
+                          >
+                            <option value="">Selecione uma opção</option>
+                            @for (opt of getFieldOptions(campo); track opt.value) {
+                              <option [value]="opt.value">{{ opt.label }}</option>
+                            }
+                          </select>
+                        }
+                        @case ('radio') {
+                          <div
+                            class="fp-choices"
+                            [class.fp-choices--row]="getFieldOptions(campo).length === 3"
+                            [class.fp-choices--single]="getFieldOptions(campo).length === 1"
+                            role="radiogroup"
+                            [attr.aria-labelledby]="'preview_' + campo.name_key"
+                          >
+                            @for (opt of getFieldOptions(campo); track opt.value) {
+                              <label class="fp-choice" [class.fp-choice--selected]="valores[campo.name_key] === opt.value">
+                                <input
+                                  type="radio"
+                                  [(ngModel)]="valores[campo.name_key]"
+                                  [name]="'preview_' + campo.name_key"
+                                  [value]="opt.value"
+                                  [required]="!!campo.required"
+                                  class="fp-choice-input"
+                                />
+                                <span class="fp-choice-label">{{ opt.label }}</span>
+                              </label>
+                            }
+                          </div>
+                        }
+                        @case ('checkbox') {
+                          <div class="fp-choice fp-choice--check" [class.fp-choice--selected]="!!valores[campo.name_key]">
+                            <nord-checkbox
+                              class="fp-field-checkbox"
+                              [(ngModel)]="valores[campo.name_key]"
+                              [name]="'preview_' + campo.name_key"
+                              [attr.required]="campo.required ? true : null"
+                            >
+                              <span slot="label">
+                                {{ campo.label }}
+                                @if (campo.required) {
+                                  <span class="fp-required" aria-hidden="true">*</span>
+                                }
+                              </span>
+                            </nord-checkbox>
+                          </div>
+                        }
+                        @case ('file') {
+                          <input
+                            [id]="'preview_' + campo.name_key"
+                            type="file"
+                            class="fp-input fp-file-input"
+                            [name]="'preview_' + campo.name_key"
+                          />
+                        }
+                        @case ('signature') {
+                          <p class="fp-sig-help">Assine com o dedo (celular) ou mouse (computador) no espaço abaixo.</p>
+                          <div class="preview-signature" aria-hidden="true">Área de assinatura (rascunho)</div>
+                        }
+                        @default {
+                          <input
+                            [id]="'preview_' + campo.name_key"
+                            type="text"
+                            [(ngModel)]="valores[campo.name_key]"
+                            [name]="'preview_' + campo.name_key"
+                            class="fp-input"
+                            [required]="!!campo.required"
+                          />
+                        }
                       }
                     </div>
                   }
-                  @case ('checkbox') {
-                    <nord-checkbox [(ngModel)]="valores[campo.name_key]" [name]="'preview_' + campo.name_key">
-                      <span slot="label">
-                        {{ campo.label }}
-                        @if (campo.required) {
-                          <span class="fp-required">*</span>
-                        }
-                      </span>
-                    </nord-checkbox>
-                  }
-                  @case ('file') {
-                    <input [id]="'preview_' + campo.name_key" type="file" class="fp-input fp-file-input" [name]="'preview_' + campo.name_key" />
-                  }
-                  @case ('signature') {
-                    <p class="fp-sig-help">Assine com o dedo (celular) ou mouse (computador) no espaco abaixo.</p>
-                    <div class="preview-signature">Area de assinatura (rascunho)</div>
-                  }
-                  @default {
-                    <input [id]="'preview_' + campo.name_key" type="text" [(ngModel)]="valores[campo.name_key]" [name]="'preview_' + campo.name_key" class="fp-input" [required]="!!campo.required" />
-                  }
                 }
-              </div>
+              </form>
             }
-          </form>
-        }
-      </div>
-    </div>
+          </div>
+        </div>
 
-    <footer class="fp-footer">
-      <div class="fp-footer-inner">
-        <button type="button" class="fp-submit-btn preview-submit-disabled" title="Rascunho nao envia dados">
-          <span class="material-symbols-outlined" style="font-size: 16px">draft</span>
-          Rascunho (sem envio)
-        </button>
-      </div>
-    </footer>
-  } @else if (erro) {
-    <p class="text-sm" style="color: var(--c-error, #dc2626)">{{ erro }}</p>
-  }
+        <footer class="fp-footer">
+          <div class="fp-footer-inner">
+            <button type="button" class="fp-submit-btn fp-submit-btn--solo preview-submit-disabled" title="Rascunho não envia dados">
+              <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">draft</span>
+              Rascunho (sem envio)
+            </button>
+          </div>
+        </footer>
+      } @else if (!showSkeleton() && erro) {
+        <div class="fp-patient-body">
+          <div class="fp-error-card">
+            <p class="fp-error-text">{{ erro }}</p>
+          </div>
+        </div>
+      }
+    </main>
+  </div>
 </div>

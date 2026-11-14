@@ -40,6 +40,8 @@
     "ng-apexcharts": "^3.0.0",
     "ngx-mask": "^21.1.0",
     "ngx-sonner": "^3.1.0",
+    "pdf-lib": "^1.17.1",
+    "pdfjs-dist": "^6.5.438",
     "postcss": "^8.5.8",
     "qrcode": "^1.5.4",
     "rxjs": "~7.8.0",

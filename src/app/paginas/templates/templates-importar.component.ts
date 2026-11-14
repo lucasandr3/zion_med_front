@@ -408,8 +408,23 @@ export class TemplatesImportarComponent implements OnDestroy {
       .subscribe({
         next: (res) => {
           this.salvando.set(false);
+          const tpl = res.template as {
+            id: number;
+            name: string;
+            has_source_document?: boolean;
+          };
+          const veioDePdf =
+            tpl.has_source_document === true || this.importItem()?.source_kind === 'pdf';
+          if (veioDePdf) {
+            this.toast.success(
+              'Modelo criado',
+              'PDF da clínica anexado. Mapeie a aparência para o PDF preenchido ficar igual ao original.',
+            );
+            void this.router.navigate(['/templates', tpl.id, 'aparencia-pdf']);
+            return;
+          }
           this.toast.success('Modelo criado', 'Revise os campos e publique o link quando estiver pronto.');
-          void this.router.navigate(['/templates', res.template.id, 'campos']);
+          void this.router.navigate(['/templates', tpl.id, 'campos']);
         },
         error: (err: unknown) => {
           this.salvando.set(false);

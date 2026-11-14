@@ -8,6 +8,7 @@ import { ZmPageBackLinkComponent } from '../../shared/components/ui';
 import { ToastService } from '../../core/services/toast.service';
 import { GestgoComboboxComponent, type GestgoComboboxOption } from '@/shared/components/combobox';
 import { GestgoCardComponent } from '@/shared/components/card/card.component';
+import { hasUsablePrintLayout, parsePrintLayout } from '../../core/utils/print-layout.util';
 
 import { NORD_FORM_IMPORTS } from '@/shared/nord';
 
@@ -49,6 +50,9 @@ export class TemplatesEditarComponent implements OnInit {
   readonly listaPronta = signal(false);
   readonly salvando = signal(false);
   readonly erro = signal('');
+  readonly sourceUploading = signal(false);
+  readonly sourceDownloading = signal(false);
+  readonly sourceRemoving = signal(false);
 
   private route = inject(ActivatedRoute);
   private router = inject(Router);
@@ -179,8 +183,8 @@ export class TemplatesEditarComponent implements OnInit {
     }
   }
 
-  onValidityDaysChange(raw: string): void {
-    const digits = (raw || '').replace(/\D/g, '');
+  onValidityDaysChange(raw: string | number | null): void {
+    const digits = String(raw ?? '').replace(/\D/g, '');
     if (!digits) {
       this.consent_validity_days = null;
       return;
@@ -245,5 +249,96 @@ export class TemplatesEditarComponent implements OnInit {
       })
       .filter((q) => q.prompt.length > 0);
     return cleaned.length > 0 ? cleaned : null;
+  }
+
+  onSourceDocumentSelected(event: Event): void {
+    const tpl = this.template();
+    const input = event.target as HTMLInputElement | null;
+    const file = input?.files?.[0] ?? null;
+    if (input) input.value = '';
+    if (!tpl || !file) return;
+
+    if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
+      this.toast.error('PDF original', 'Envie apenas arquivo PDF.');
+      return;
+    }
+    if (file.size > 20 * 1024 * 1024) {
+      this.toast.error('PDF original', 'O PDF pode ter no máximo 20 MB.');
+      return;
+    }
+
+    this.sourceUploading.set(true);
+    this.templatesService.uploadSourceDocument(tpl.id, file).subscribe({
+      next: (updated) => {
+        this.sourceUploading.set(false);
+        this.template.set(updated);
+        this.toast.success(
+          'PDF original',
+          'Documento anexado. Em seguida, use “Mapear aparência” para marcar onde cada resposta entra.',
+        );
+      },
+      error: (err) => {
+        this.sourceUploading.set(false);
+        const msg =
+          err?.error?.message ||
+          err?.error?.errors?.file?.[0] ||
+          'Não foi possível anexar o PDF.';
+        this.toast.error('PDF original', msg);
+      },
+    });
+  }
+
+  baixarSourceDocument(): void {
+    const tpl = this.template();
+    if (!tpl?.has_source_document || this.sourceDownloading()) return;
+    this.sourceDownloading.set(true);
+    this.templatesService.downloadSourceDocument(tpl.id).subscribe({
+      next: (blob) => {
+        this.sourceDownloading.set(false);
+        const name = tpl.source_document_original_name || `modelo-${tpl.id}-original.pdf`;
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = name;
+        a.click();
+        URL.revokeObjectURL(url);
+      },
+      error: () => {
+        this.sourceDownloading.set(false);
+        this.toast.error('PDF original', 'Não foi possível baixar o documento.');
+      },
+    });
+  }
+
+  removerSourceDocument(): void {
+    const tpl = this.template();
+    if (!tpl?.has_source_document || this.sourceRemoving()) return;
+    this.sourceRemoving.set(true);
+    this.templatesService.deleteSourceDocument(tpl.id).subscribe({
+      next: (updated) => {
+        this.sourceRemoving.set(false);
+        this.template.set(updated);
+        this.toast.success('PDF original', 'Documento removido do modelo.');
+      },
+      error: () => {
+        this.sourceRemoving.set(false);
+        this.toast.error('PDF original', 'Não foi possível remover o documento.');
+      },
+    });
+  }
+
+  formatSourceSize(bytes: number | null | undefined): string {
+    if (bytes == null || !Number.isFinite(bytes) || bytes <= 0) return '';
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  }
+
+  get aparenciaMapeada(): boolean {
+    return hasUsablePrintLayout(parsePrintLayout(this.template()?.print_layout));
+  }
+
+  get aparenciaMappedCount(): number {
+    return parsePrintLayout(this.template()?.print_layout)?.placements.length ?? 0;
   }
 }

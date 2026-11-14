@@ -12,7 +12,7 @@ import { GestgoComboboxComponent, type GestgoComboboxOption } from '@/shared/com
 import { GestgoBadgeComponent } from '@/shared/components/badge/badge.component';
 import { NORD_FORM_IMPORTS } from '@/shared/nord';
 
-export type PlatformServiceId = 'asaas' | 'resend' | 'minio' | 'openai' | 'status';
+export type PlatformServiceId = 'asaas' | 'resend' | 'minio' | 'openai' | 'webpush' | 'status';
 
 export interface PlatformServiceCard {
   id: PlatformServiceId;
@@ -91,9 +91,11 @@ export class PlataformaServicosTabComponent implements OnChanges {
 
   readonly savingSettings = signal(false);
   readonly savingStatus = signal(false);
+  readonly generatingVapid = signal(false);
   readonly successSettings = signal('');
   readonly successStatus = signal('');
   readonly error = signal('');
+  readonly ultimoParVapid = signal<{ public_key: string; private_key: string } | null>(null);
 
   asaasBaseUrl = '';
   asaasApiKey = '';
@@ -138,6 +140,11 @@ export class PlataformaServicosTabComponent implements OnChanges {
   openaiBaseUrl = 'https://api.openai.com/v1';
   formImportConfigured = false;
   openaiApiKeyPreview: string | null = null;
+
+  vapidSubject = 'mailto:suporte@gestgo.com.br';
+  vapidPublicKey: string | null = null;
+  vapidPrivatePreview: string | null = null;
+  webpushConfigured = false;
 
   serviceStatus = 'operational';
   serviceStatusSeverity = 'none';
@@ -196,6 +203,15 @@ export class PlataformaServicosTabComponent implements OnChanges {
         meta: this.formImportModel || undefined,
       },
       {
+        id: 'webpush',
+        name: 'Web Push',
+        description: 'Notificações push do Gestgo Mobile (chaves VAPID).',
+        icon: 'notifications_active',
+        status: this.webpushConfigured ? 'ok' : 'warn',
+        statusLabel: this.webpushConfigured ? 'Configurado' : 'Pendente',
+        meta: this.vapidSubject || undefined,
+      },
+      {
         id: 'status',
         name: 'Status do serviço',
         description: 'Página pública /status e banner na landing.',
@@ -216,6 +232,9 @@ export class PlataformaServicosTabComponent implements OnChanges {
     this.error.set('');
     this.successSettings.set('');
     this.successStatus.set('');
+    if (id !== 'webpush') {
+      this.ultimoParVapid.set(null);
+    }
   }
 
   voltarLista(): void {
@@ -223,6 +242,7 @@ export class PlataformaServicosTabComponent implements OnChanges {
     this.error.set('');
     this.successSettings.set('');
     this.successStatus.set('');
+    this.ultimoParVapid.set(null);
   }
 
   statusBadgeType(status: PlatformServiceCard['status']): 'default' | 'destructive' | 'secondary' {
@@ -266,6 +286,7 @@ export class PlataformaServicosTabComponent implements OnChanges {
         form_import_openai_model: this.formImportModel.trim() || null,
         openai_base_url: this.openaiBaseUrl.trim() || null,
         form_import_retention_days: Number(this.formImportRetentionDays) || 30,
+        vapid_subject: this.vapidSubject.trim() || null,
       })
       .subscribe({
         next: (res) => {
@@ -318,6 +339,55 @@ export class PlataformaServicosTabComponent implements OnChanges {
 
   getComponentKeys(): string[] {
     return Object.keys(this.componentOptions);
+  }
+
+  gerarChavesVapid(): void {
+    this.error.set('');
+    this.successSettings.set('');
+    this.generatingVapid.set(true);
+    this.ultimoParVapid.set(null);
+
+    this.plataformaService.generateWebPushVapid({ subject: this.vapidSubject.trim() || null }).subscribe({
+      next: (res) => {
+        this.generatingVapid.set(false);
+        const publicKey = res.data?.public_key ?? res.data?.webpush?.public_key ?? null;
+        const privateKey = res.data?.private_key ?? null;
+        if (publicKey && privateKey) {
+          this.ultimoParVapid.set({ public_key: publicKey, private_key: privateKey });
+        }
+        if (res.data?.webpush) {
+          const base = this.settings;
+          if (base) {
+            const nextSettings: PlatformSettingsData = {
+              ...base,
+              webpush: { ...base.webpush, ...res.data.webpush },
+            };
+            this.applySettingsData(nextSettings);
+            this.settingsUpdated.emit(nextSettings);
+          } else {
+            this.vapidSubject = res.data.webpush.subject || this.vapidSubject;
+            this.vapidPublicKey = res.data.webpush.public_key ?? null;
+            this.vapidPrivatePreview = res.data.webpush.private_key_preview ?? null;
+            this.webpushConfigured = res.data.webpush.configured ?? false;
+          }
+        }
+        this.successSettings.set(res.message || 'Chaves VAPID geradas.');
+        this.toast.success('VAPID gerado', 'Copie as chaves se precisar. Assinaturas antigas foram invalidadas.');
+      },
+      error: (err) => {
+        this.generatingVapid.set(false);
+        const msg = err?.error?.message ?? 'Não foi possível gerar as chaves VAPID.';
+        this.error.set(msg);
+        this.toast.error('Erro', msg);
+      },
+    });
+  }
+
+  copiarTexto(texto: string): void {
+    navigator.clipboard.writeText(texto).then(
+      () => this.toast.success('Copiado', 'Conteúdo copiado para a área de transferência.'),
+      () => this.toast.error('Erro', 'Não foi possível copiar.'),
+    );
   }
 
   onMailLogoSelected(event: Event): void {
@@ -395,6 +465,12 @@ export class PlataformaServicosTabComponent implements OnChanges {
     this.openaiBaseUrl = formImport?.base_url ?? 'https://api.openai.com/v1';
     this.formImportConfigured = formImport?.configured ?? false;
     this.openaiApiKeyPreview = formImport?.api_key_preview ?? null;
+
+    const webpush = d.webpush;
+    this.vapidSubject = webpush?.subject || 'mailto:suporte@gestgo.com.br';
+    this.vapidPublicKey = webpush?.public_key ?? null;
+    this.vapidPrivatePreview = webpush?.private_key_preview ?? null;
+    this.webpushConfigured = webpush?.configured ?? false;
 
     this.serviceStatus = d.service_status ?? 'operational';
     this.serviceStatusSeverity = d.service_status_severity ?? 'none';

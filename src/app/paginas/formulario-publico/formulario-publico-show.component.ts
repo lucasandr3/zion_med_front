@@ -57,6 +57,7 @@ import {
 } from './formulario-publico-signing.util';
 import { computeFormularioPublicoProgress } from './formulario-publico-progress.util';
 import { findPendingRequiredFields, findStepIndexForField } from './formulario-publico-validation.util';
+import { humanizePublicFormSubmitError } from './formulario-publico-errors.util';
 import {
   filterVisibleFields,
   requiresGuardianName,
@@ -164,6 +165,7 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
   readonly otpErro = signal('');
   showSkeleton!: Signal<boolean>;
   readonly enviando = signal(false);
+  readonly baixandoOriginal = signal(false);
   readonly erro = signal('');
   readonly dark = signal(false);
   logoImageFailed = signal(false);
@@ -490,35 +492,39 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
       this.avancarEtapa();
       return;
     }
+    // Só a lista de campos do template (required da API + visíveis).
+    // Não usar ngForm.valid: controles extras (agenda, nord, hidden) geravam falso "obrigatório".
     if (!this.validarCamposObrigatorios(this.visibleFormFields)) return;
-    if (this.ngForm && !this.ngForm.valid) {
-      this.toast.warning('Campos obrigatórios', 'Preencha ou corrija os campos marcados com * antes de enviar.');
-      return;
-    }
     const fields = data.fields;
     const hasSignatures = templateHasSignatureFields(fields) && hasFilledSignatures(fields, this.valores);
     if (this.isConsentimentoDocumento() && !this.comprehensionAck()) {
-      this.toast.warning('Compreensão clínica', 'Marque que leu e compreendeu riscos, benefícios, alternativas e o direito de recusa.');
+      this.toast.warning(
+        'Quase lá',
+        'Marque a caixa confirmando que leu e compreendeu o termo (riscos, benefícios, alternativas e direito de recusa).',
+      );
       return;
     }
     if (this.termScrollRequired && !this.termScrollCompleted()) {
-      this.toast.warning('Leitura do termo', 'Role até o final de todas as seções do termo antes de confirmar a compreensão.');
+      this.toast.warning('Leitura do termo', 'Role até o final de cada seção do termo antes de continuar.');
       return;
     }
     if (!this.quizCompleto()) {
-      this.toast.warning('Quiz de compreensão', 'Responda todas as perguntas de compreensão antes de enviar.');
+      this.toast.warning('Perguntas do termo', 'Responda às perguntas abaixo do termo para mostrar que entendeu.');
       return;
     }
     if (hasSignatures && !this.acceptTerms()) {
-      this.toast.warning('Termo de ciência', 'Marque a caixa confirmando que leu o aviso de privacidade antes de assinar e enviar.');
+      this.toast.warning(
+        'Privacidade',
+        'Marque a caixa da política de privacidade antes de assinar e enviar.',
+      );
       return;
     }
     if (this.assistedMode() && !this.professionalExplained()) {
-      this.toast.warning('Modo assistido', 'O profissional deve confirmar que explicou o termo antes do envio.');
+      this.toast.warning('Confirmação do profissional', 'Confirme que explicou o termo ao paciente antes de enviar.');
       return;
     }
     if (this.assistedMode() && !this.professionalSignerName().trim()) {
-      this.toast.warning('Modo assistido', 'Informe o nome do profissional que assina o documento.');
+      this.toast.warning('Nome do profissional', 'Informe o nome completo do profissional que assina.');
       return;
     }
     if (
@@ -529,17 +535,20 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
       this.toast.warning(
         'Assinatura do profissional',
         usesDedicatedBlock
-          ? 'Assine no bloco de co-assinatura do profissional antes de enviar.'
-          : 'Preencha o campo de assinatura do profissional no formulário antes de enviar.',
+          ? 'Assine no espaço do profissional antes de enviar.'
+          : 'Preencha a assinatura do profissional no formulário antes de enviar.',
       );
       return;
     }
     if (this.requireGuardianBlock() && !this.guardianName().trim()) {
-      this.toast.warning('Responsável legal', 'Informe o nome do responsável legal.');
+      this.toast.warning('Responsável legal', 'Informe o nome completo do responsável legal.');
       return;
     }
     if (signingSecurityReinforced(data.signing_security_level) && hasSignatures && !this.otpVerified()) {
-      this.toast.warning('Verificação', 'Envie e confirme o código OTP (e-mail ou WhatsApp) antes de enviar o formulário.');
+      this.toast.warning(
+        'Código de verificação',
+        'Peça o código por e-mail ou WhatsApp e confirme antes de enviar.',
+      );
       return;
     }
 
@@ -583,22 +592,25 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
       sendToken: this.sendToken || null,
     });
 
-    this.formularioService.submit(this.token, payload).subscribe({
-      next: (r) => {
-        this.enviando.set(false);
-        if (r.feegow?.code === 'consent_blocks_procedure') {
-          this.toast.warning(
-            'Agendamento Feegow',
-            r.feegow.message ?? 'O formulário foi enviado, mas o agendamento foi bloqueado por pendência de consentimento.',
-          );
-        }
-        if (this.totemMode()) {
-          this.toast.success('Enviado', `Protocolo ${r.protocol_number ?? ''} registrado.`);
-          this.resetAfterTotemSubmit();
-          return;
-        }
-        fpClearCpfGateAuthorization(this.token);
-        fpPersistSubmitterIdentity(this.submitterName(), this.submitterEmail());
+    this.formularioService
+      .submit(this.token, payload, { useClinicSession: this.assistedMode() })
+      .subscribe({
+        next: (r) => {
+          this.enviando.set(false);
+          if (r.feegow?.code === 'consent_blocks_procedure') {
+            this.toast.warning(
+              'Agendamento',
+              r.feegow.message ??
+                'O formulário foi enviado. O agendamento ficou pendente até a clínica liberar o consentimento.',
+            );
+          }
+          if (this.totemMode()) {
+            this.toast.success('Enviado', `Protocolo ${r.protocol_number ?? ''} registrado.`);
+            this.resetAfterTotemSubmit();
+            return;
+          }
+          fpClearCpfGateAuthorization(this.token);
+          fpPersistSubmitterIdentity(this.submitterName(), this.submitterEmail());
         this.router.navigate(['/f/sucesso'], {
           state: {
             protocol_number: r.protocol_number,
@@ -608,13 +620,42 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
             patient_download_url: r.patient_download_url ?? null,
             patient_download_expires_at: r.patient_download_expires_at ?? null,
             submitter_email: this.submitterEmail().trim() || null,
+            public_form_token: this.token || null,
+            has_source_document: !!this.data()?.has_source_document,
+            source_document_original_name: this.data()?.source_document_original_name ?? null,
           },
         });
+        },
+        error: (err) => {
+          this.enviando.set(false);
+          const friendly = humanizePublicFormSubmitError(err, data.fields);
+          this.erro.set(friendly);
+          this.toast.error('Não foi possível enviar', friendly);
+        },
+      });
+  }
+
+  temDocumentoOriginal(): boolean {
+    return !!this.data()?.has_source_document;
+  }
+
+  baixarDocumentoOriginal(): void {
+    if (!this.token || !this.temDocumentoOriginal() || this.baixandoOriginal()) return;
+    this.baixandoOriginal.set(true);
+    this.formularioService.downloadSourceDocument(this.token).subscribe({
+      next: (blob) => {
+        this.baixandoOriginal.set(false);
+        const name = this.data()?.source_document_original_name || 'documento-original.pdf';
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = name;
+        a.click();
+        URL.revokeObjectURL(url);
       },
-      error: (err) => {
-        this.enviando.set(false);
-        this.erro.set(err.error?.message ?? (err.error?.errors ? Object.values(err.error.errors).flat().join(' ') : 'Não foi possível enviar. Tente novamente.'));
-        this.toast.error('Não foi possível enviar', this.erro());
+      error: () => {
+        this.baixandoOriginal.set(false);
+        this.toast.error('Documento original', 'Não foi possível baixar o PDF agora.');
       },
     });
   }
@@ -997,8 +1038,8 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
   avancarDaIdentidade(): void {
     if (this.needsOtpBlock() && !this.otpVerified()) {
       this.toast.warning(
-        'Verificação',
-        'Envie e confirme o código OTP (e-mail ou WhatsApp) antes de continuar.',
+        'Código de verificação',
+        'Peça o código por e-mail ou WhatsApp e confirme antes de continuar.',
       );
       return;
     }
@@ -1155,15 +1196,18 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
       return true;
     }
     if (this.showComprehensionSection && this.isConsentimentoDocumento() && !this.comprehensionAck()) {
-      this.toast.warning('Compreensão clínica', 'Marque que leu e compreendeu riscos, benefícios, alternativas e o direito de recusa.');
+      this.toast.warning(
+        'Quase lá',
+        'Marque a caixa confirmando que leu e compreendeu o termo.',
+      );
       return false;
     }
     if (this.showComprehensionSection && !this.quizCompleto()) {
-      this.toast.warning('Quiz de compreensão', 'Responda todas as perguntas de compreensão antes de continuar.');
+      this.toast.warning('Perguntas do termo', 'Responda às perguntas abaixo do termo para continuar.');
       return false;
     }
     if (this.showPrivacySection && templateHasSignatureFields(this.visibleFormFields) && !this.acceptTerms()) {
-      this.toast.warning('Termo de ciência', 'Marque a caixa de privacidade antes de continuar.');
+      this.toast.warning('Privacidade', 'Marque a caixa da política de privacidade antes de continuar.');
       return false;
     }
     return true;
@@ -1306,17 +1350,20 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
         this.afterStepChange('back');
       }
     }
-    const firstKey = pendentes[0]!.name_key;
-    fpAnnounceLiveRegion(`Campo obrigatório pendente: ${pendentes[0]!.label}.`);
+    const first = pendentes[0]!;
+    const firstKey = first.name_key;
+    const firstLabel = (first.label ?? '').trim() || 'campo pendente';
+    fpAnnounceLiveRegion(`Falta preencher: ${firstLabel}.`);
     queueMicrotask(() => {
       const el = document.getElementById(`field_${firstKey}`) as HTMLElement | null;
       fpFocusElement(el);
     });
+    const more = pendentes.length > 1 ? ` (e mais ${pendentes.length - 1})` : '';
     this.toast.warning(
-      'Campos obrigatórios',
+      'Falta preencher',
       this.usesFormSteps
-        ? 'Preencha os campos marcados com * nesta etapa antes de continuar.'
-        : 'Preencha os campos marcados com * antes de enviar.',
+        ? `Preencha «${firstLabel}»${more} nesta etapa para continuar. Campos com * são obrigatórios.`
+        : `Preencha «${firstLabel}»${more} para enviar. Campos com * são obrigatórios.`,
     );
     return false;
   }

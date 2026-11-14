@@ -1,13 +1,13 @@
 <div class="fp-feegow-card" [class.fp-feegow-card--blocked]="schedulingBlocked">
-  <p class="fp-feegow-title">Agendamento Feegow</p>
+  <p class="fp-feegow-title">Agendamento (opcional)</p>
 
   @if (schedulingBlocked) {
     <div class="fp-feegow-block-banner" role="status">
-      <strong>Agendamento indisponível.</strong>
-      {{ schedulingBlockMessage || 'Consentimento pendente ou inválido. Conclua a revisão clínica antes de agendar o procedimento.' }}
+      <strong>Agendamento indisponível no momento.</strong>
+      {{ schedulingBlockMessage || 'A clínica ainda precisa liberar este consentimento antes do agendamento. Você pode preencher o restante do formulário normalmente.' }}
     </div>
   } @else {
-    <p class="fp-field-hint" style="margin-top:0">Esta seção aparece apenas para empresas com integração Feegow ativa.</p>
+    <p class="fp-field-hint" style="margin-top:0">Preencha esta parte só se quiser agendar agora. Os demais campos do formulário não dependem dela.</p>
   }
 
   @if (feegowMeta?.warning) {
@@ -17,7 +17,7 @@
   @if (!schedulingBlocked) {
   <div class="fp-feegow-grid">
     <div class="fp-field-group">
-      <label class="fp-field-label" for="feegow_paciente_id">Paciente ID (Feegow) *</label>
+      <label class="fp-field-label" for="feegow_paciente_id">Paciente (código na agenda)</label>
       <nord-input
         id="feegow_paciente_id"
         name="feegow_paciente_id"
@@ -28,11 +28,10 @@
         [value]="asString(valores['feegow_paciente_id'])"
         (input)="onNordValue('feegow_paciente_id', $event)"
         class="fp-nord-control"
-        required
       ></nord-input>
     </div>
     <div class="fp-field-group">
-      <label class="fp-field-label" for="feegow_profissional_id">Profissional *</label>
+      <label class="fp-field-label" for="feegow_profissional_id">Profissional</label>
       @if (hasFeegowProfessionalOptions()) {
         <nord-select
           id="feegow_profissional_id"
@@ -43,7 +42,6 @@
           [value]="asString(valores['feegow_profissional_id'])"
           (change)="onNordValue('feegow_profissional_id', $event); onProfissionalChange()"
           class="fp-nord-control"
-          required
         >
           <option value="">Selecione</option>
           @for (opt of feegowProfessionalsOptions(); track opt.value) {
@@ -61,12 +59,11 @@
           [value]="asString(valores['feegow_profissional_id'])"
           (input)="onNordValue('feegow_profissional_id', $event)"
           class="fp-nord-control"
-          required
         ></nord-input>
       }
     </div>
     <div class="fp-field-group">
-      <label class="fp-field-label" for="feegow_especialidade_id">Especialidade *</label>
+      <label class="fp-field-label" for="feegow_especialidade_id">Especialidade</label>
       <nord-select
         id="feegow_especialidade_id"
         name="feegow_especialidade_id"
@@ -76,7 +73,6 @@
         [value]="asString(valores['feegow_especialidade_id'])"
         (change)="onNordValue('feegow_especialidade_id', $event)"
         class="fp-nord-control"
-        required
       >
         <option value="">Selecione</option>
         @for (opt of feegowSpecialtiesOptions(); track opt.value) {
@@ -85,7 +81,7 @@
       </nord-select>
     </div>
     <div class="fp-field-group">
-      <label class="fp-field-label" for="feegow_procedimento_id">Procedimento *</label>
+      <label class="fp-field-label" for="feegow_procedimento_id">Procedimento</label>
       @if (hasFeegowProcedureOptions()) {
         <nord-select
           id="feegow_procedimento_id"
@@ -96,7 +92,6 @@
           [value]="asString(valores['feegow_procedimento_id'])"
           (change)="onNordValue('feegow_procedimento_id', $event)"
           class="fp-nord-control"
-          required
         >
           <option value="">Selecione</option>
           @for (opt of feegowProceduresOptions(); track opt.value) {
@@ -114,12 +109,11 @@
           [value]="asString(valores['feegow_procedimento_id'])"
           (input)="onNordValue('feegow_procedimento_id', $event)"
           class="fp-nord-control"
-          required
         ></nord-input>
       }
     </div>
     <div class="fp-field-group">
-      <label class="fp-field-label" for="feegow_local_id">Local *</label>
+      <label class="fp-field-label" for="feegow_local_id">Local</label>
       <nord-select
         id="feegow_local_id"
         name="feegow_local_id"
@@ -129,7 +123,6 @@
         [value]="asString(valores['feegow_local_id'])"
         (change)="onNordValue('feegow_local_id', $event)"
         class="fp-nord-control"
-        required
       >
         <option value="">Selecione</option>
         @for (opt of feegowLocalsOptions(); track opt.value) {
@@ -156,7 +149,7 @@
       </nord-select>
     </div>
     <div class="fp-field-group">
-      <label class="fp-field-label" for="feegow_data">Data *</label>
+      <label class="fp-field-label" for="feegow_data">Data</label>
       <nord-date-picker
         id="feegow_data"
         expand
@@ -166,12 +159,11 @@
         (ngModelChange)="onCampoAlterado()"
         name="feegow_data"
         class="fp-nord-date fp-nord-control"
-        required
         placeholder="dd/mm/aaaa">
       </nord-date-picker>
     </div>
     <div class="fp-field-group">
-      <label class="fp-field-label" for="feegow_horario">Horário *</label>
+      <label class="fp-field-label" for="feegow_horario">Horário</label>
       <nord-select
         id="feegow_horario"
         name="feegow_horario"
@@ -181,7 +173,6 @@
         [value]="asString(valores['feegow_horario'])"
         (change)="onNordValue('feegow_horario', $event)"
         class="fp-nord-control"
-        required
       >
         <option value="">Selecione</option>
         @for (hr of feegowHorariosDisponiveis(); track hr) {
