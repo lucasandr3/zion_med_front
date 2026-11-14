@@ -1,0 +1,87 @@
+@if (detailId(); as id) {
+  <div class="gm-backrow">
+    <button type="button" class="gm-icon-btn" (click)="fecharDetalhe()" aria-label="Voltar">
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">arrow_back</span>
+    </button>
+    <div>
+      <h1>Paciente</h1>
+      <small>{{ detail()?.name || 'Carregando…' }}</small>
+    </div>
+  </div>
+
+  @if (detailLoading()) {
+    <p class="gm-loading">Carregando…</p>
+  } @else if (detail(); as p) {
+    <div class="gm-panel" style="display:flex;gap:12px;align-items:center">
+      <span class="gm-avatar" style="width:54px;height:54px">{{ iniciais(p.name) }}</span>
+      <div>
+        <strong>{{ p.name }}</strong>
+        <p class="gm-card__sub" style="margin:4px 0 0">{{ p.code || 'Cadastro' }}</p>
+      </div>
+    </div>
+
+    <h2 class="gm-section" style="display:block;margin:16px 0 10px">Ações rápidas</h2>
+    <div class="gm-tiles">
+      <button type="button" class="gm-tile" (click)="enviarFicha(p.id)">
+        <span class="gm-tile__icon"><span class="material-symbols-outlined gestgo-mi gestgo-mi--m">send</span></span>
+        <strong>Enviar ficha</strong>
+        <small>Selecionar modelo Gestgo</small>
+      </button>
+      <button type="button" class="gm-tile" (click)="abrirDocumentos()">
+        <span class="gm-tile__icon"><span class="material-symbols-outlined gestgo-mi gestgo-mi--m">folder_open</span></span>
+        <strong>Documentos</strong>
+        <small>Acompanhar fichas e assinaturas</small>
+      </button>
+    </div>
+  }
+} @else {
+  <div class="gm-header">
+    <div>
+      <div class="gm-logo">gest<span>go</span></div>
+      <div class="gm-tagline">Seu dia, mais simples.</div>
+    </div>
+    <div class="gm-header__actions">
+      <button type="button" class="gm-icon-btn" (click)="abrirNotificacoes()" aria-label="Notificações">
+        <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">notifications</span>
+      </button>
+      <button type="button" class="gm-icon-btn" (click)="abrirMenu()" aria-label="Menu da conta">
+        <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">person</span>
+      </button>
+    </div>
+  </div>
+
+  <h1 class="gm-title">Pacientes</h1>
+  <p class="gm-sub">Encontre e consulte informações rapidamente.</p>
+
+  <label class="gm-search">
+    <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">search</span>
+    <input
+      type="search"
+      placeholder="Buscar paciente…"
+      [ngModel]="query()"
+      (ngModelChange)="onQuery($event)"
+      aria-label="Buscar paciente"
+    />
+  </label>
+
+  @if (loading()) {
+    <div class="gm-preload gm-preload--inline" aria-busy="true">
+      <div class="gm-preload__bar"><span></span></div>
+      <p class="gm-preload__hint">Carregando pacientes…</p>
+    </div>
+  } @else if (error()) {
+    <p class="gm-error">{{ error() }}</p>
+  } @else if (items().length === 0) {
+    <p class="gm-empty">Nenhum paciente encontrado.</p>
+  } @else {
+    @for (p of items(); track p.id; let i = $index) {
+      <button type="button" class="gm-card" (click)="abrirDetalhe(p.id)">
+        <span class="gm-avatar" [class.teal]="i % 3 === 0" [class.orange]="i % 3 === 2">{{ iniciais(p.name) }}</span>
+        <span class="gm-card__body">
+          <span class="gm-card__title">{{ p.name }}</span>
+          <span class="gm-card__sub">{{ p.phone || p.email || p.code || 'Cadastro' }}</span>
+        </span>
+      </button>
+    }
+  }
+}

@@ -21,8 +21,12 @@ export class FormularioPublicoSucessoComponent implements OnInit, OnDestroy {
   readonly clinicLogoUrl = signal<string | null>(null);
   readonly patientDownloadToken = signal<string | null>(null);
   readonly patientDownloadUrl = signal<string | null>(null);
+  readonly publicFormToken = signal<string | null>(null);
+  readonly hasSourceDocument = signal(false);
+  readonly sourceDocumentName = signal<string | null>(null);
   readonly patientCopyEmailedHint = signal(false);
   readonly downloading = signal(false);
+  readonly downloadingOriginal = signal(false);
   readonly dark = signal(false);
 
   /** R7: captura de e-mail quando a cópia ainda não foi enviada. */
@@ -45,6 +49,9 @@ export class FormularioPublicoSucessoComponent implements OnInit, OnDestroy {
           patient_download_url?: string | null;
           submitter_email?: string | null;
           patient_copy_emailed?: boolean | null;
+          public_form_token?: string | null;
+          has_source_document?: boolean | null;
+          source_document_original_name?: string | null;
         }
       | undefined;
     this.protocolNumber.set(state?.protocol_number ?? null);
@@ -53,6 +60,9 @@ export class FormularioPublicoSucessoComponent implements OnInit, OnDestroy {
     this.clinicLogoUrl.set(logo != null && String(logo).trim() !== '' ? String(logo) : null);
     this.patientDownloadToken.set(state?.patient_download_token?.trim() || null);
     this.patientDownloadUrl.set(state?.patient_download_url?.trim() || null);
+    this.publicFormToken.set(state?.public_form_token?.trim() || null);
+    this.hasSourceDocument.set(state?.has_source_document === true);
+    this.sourceDocumentName.set(state?.source_document_original_name?.trim() || null);
     // Só esconde a captura se a API confirmou o envio (não inferir só pelo e-mail digitado no formulário).
     this.patientCopyEmailedHint.set(state?.patient_copy_emailed === true);
     if (state?.submitter_email) {
@@ -90,6 +100,28 @@ export class FormularioPublicoSucessoComponent implements OnInit, OnDestroy {
     } else {
       this.toast.info('Protocolo', p);
     }
+  }
+
+  baixarDocumentoOriginal(): void {
+    const token = this.publicFormToken();
+    if (!token || !this.hasSourceDocument() || this.downloadingOriginal()) return;
+    this.downloadingOriginal.set(true);
+    this.formularioService.downloadSourceDocument(token).subscribe({
+      next: (blob) => {
+        this.downloadingOriginal.set(false);
+        const name = this.sourceDocumentName() || 'documento-original.pdf';
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = name;
+        a.click();
+        URL.revokeObjectURL(url);
+      },
+      error: () => {
+        this.downloadingOriginal.set(false);
+        this.toast.error('Documento original', 'Não foi possível baixar o PDF agora.');
+      },
+    });
   }
 
   baixarCopia(): void {

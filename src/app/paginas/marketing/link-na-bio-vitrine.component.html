@@ -1,0 +1,41 @@
+<div class="lbv">
+  <header class="lbv__top">
+    <a routerLink="/autenticacao" class="lbv__brand">gest<em>go</em></a>
+    <nav>
+      <a routerLink="/planos">Planos</a>
+      <a routerLink="/autenticacao">Entrar</a>
+    </nav>
+  </header>
+
+  <section class="lbv__hero">
+    <p class="lbv__kicker">Link na Bio Gestgo</p>
+    <h1>Sua clínica também pode ter uma página digital.</h1>
+    <p>
+      Reúna contato, localização, formulários públicos e o seu link de agendamento em uma página com a
+      sua identidade — conectada ao fluxo de documentação do Gestgo.
+    </p>
+  </section>
+
+  <section class="lbv__grid" aria-label="Modelos demonstrativos">
+    @for (item of featured; track item.model) {
+      <article class="lbv__card">
+        <div class="lbv__phone" aria-hidden="true">
+          <span>{{ item.title }}</span>
+        </div>
+        <h2>{{ item.title }}</h2>
+        <p>{{ item.blurb }}</p>
+        <a [routerLink]="['/l/demo', item.model]" target="_blank" rel="noopener">Ver modelo funcionando ↗</a>
+      </article>
+    }
+  </section>
+
+  <p class="lbv__foot">
+    Demonstrações fictícias. Agendamento real só quando houver URL externa ou integração configurada.
+    Não substitui ERP nem agenda nativa completa.
+  </p>
+
+  <div class="lbv__cta">
+    <a class="lbv__btn" routerLink="/autenticacao">Testar grátis</a>
+    <a class="lbv__btn lbv__btn--ghost" routerLink="/planos">Ver planos</a>
+  </div>
+</div>

@@ -1,0 +1,52 @@
+<div class="gm-backrow">
+  <a class="gm-icon-btn" routerLink="/m/ferramentas" aria-label="Voltar">
+    <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">arrow_back</span>
+  </a>
+  <div>
+    <h1>Mensagens prontas</h1>
+    <small>Salvas na sua clínica</small>
+  </div>
+</div>
+
+@if (loading()) {
+  <p class="gm-loading">Carregando modelos…</p>
+} @else {
+  <p class="gm-sub">Edite e salve no Gestgo. Envio pelo WhatsApp continua manual.</p>
+
+  <div class="gm-panel">
+    <div class="gm-field">
+      <label>Modelo</label>
+      <select [ngModel]="selectedId()" (ngModelChange)="onSelect(+$event)">
+        @for (t of templates(); track t.id) {
+          <option [ngValue]="t.id">{{ t.label }}</option>
+        }
+      </select>
+    </div>
+    <div class="gm-field">
+      <label>Nome</label>
+      <input type="text" [ngModel]="nome()" (ngModelChange)="nome.set($event)" placeholder="Ex.: Mariana" />
+    </div>
+    <div class="gm-field">
+      <label>Procedimento</label>
+      <input
+        type="text"
+        [ngModel]="procedimento()"
+        (ngModelChange)="procedimento.set($event)"
+        placeholder="Ex.: limpeza de pele"
+      />
+    </div>
+    <div class="gm-field">
+      <label>Texto editável (use &#123;nome&#125; e &#123;procedimento&#125;)</label>
+      <textarea [ngModel]="draft()" (ngModelChange)="draft.set($event)"></textarea>
+    </div>
+    <button type="button" class="gm-btn gm-btn--soft" (click)="salvar()" [disabled]="saving()">
+      {{ saving() ? 'Salvando…' : 'Salvar no Gestgo' }}
+    </button>
+  </div>
+
+  <div class="gm-msg">{{ preview() }}</div>
+  <div class="gm-actions">
+    <button type="button" class="gm-btn gm-btn--secondary" (click)="copiar()">Copiar</button>
+    <button type="button" class="gm-btn" (click)="whatsapp()">WhatsApp</button>
+  </div>
+}

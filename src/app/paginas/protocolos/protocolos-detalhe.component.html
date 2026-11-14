@@ -9,6 +9,20 @@
           <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">download</span>
           {{ gerandoPdf() ? 'Gerando…' : 'Baixar PDF' }}
         </nord-button>
+        @if (temDocumentoOriginal) {
+          <nord-button
+            variant="default"
+            size="s"
+            type="button"
+            (click)="baixarDocumentoOriginal()"
+            title="Baixar PDF original do modelo"
+            [attr.loading]="baixandoOriginal() || null"
+            [attr.disabled]="baixandoOriginal() || null"
+          >
+            <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">description</span>
+            {{ baixandoOriginal() ? 'Baixando…' : 'PDF original' }}
+          </nord-button>
+        }
         <nord-button variant="default" size="s" type="button" (click)="baixarDossie()" title="Baixar dossiê (ZIP)" [attr.loading]="gerandoDossie() || null" [attr.disabled]="gerandoDossie() || null">
           <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">draft</span>
           {{ gerandoDossie() ? 'Gerando…' : 'Dossiê ZIP' }}
@@ -592,7 +606,29 @@
 
         <g-tab label="Impressão" icon="print">
           <div class="protocolo-tab-panel protocolo-tab-panel--impressao">
-            <div class="protocolo-print-preview">
+            @if (temAparenciaPdfMapeada) {
+              <p class="protocolo-print-brand-hint">
+                Layout da clínica mapeado — a prévia abaixo (e o PDF do e-mail/download) usa o documento original preenchido.
+              </p>
+              @if (gerandoPdf() && !brandedInlinePreviewUrl()) {
+                <p class="text-sm text-muted-foreground px-4">Gerando prévia do PDF da clínica…</p>
+              }
+              @if (brandedInlinePreviewUrl(); as brandedUrl) {
+                <div class="protocolo-branded-preview">
+                  <iframe
+                    class="protocolo-branded-preview__frame"
+                    [src]="brandedUrl"
+                    title="PDF com aparência da clínica"
+                  ></iframe>
+                </div>
+              }
+            } @else if (temDocumentoOriginal) {
+              <p class="protocolo-print-brand-hint protocolo-print-brand-hint--warn">
+                Há PDF original no modelo, mas a aparência ainda não foi mapeada. O download usa o layout padrão até mapear em
+                <a [routerLink]="['/templates', protocolo()!.template_id || protocolo()!.template?.id, 'aparencia-pdf']">Mapear aparência</a>.
+              </p>
+            }
+            <div class="protocolo-print-preview" [class.protocolo-print-preview--hidden]="temAparenciaPdfMapeada">
             <div id="documento-impressao" class="protocolo-print-sheet documento">
               <header class="dp-header">
                 <div class="dp-header-brand">

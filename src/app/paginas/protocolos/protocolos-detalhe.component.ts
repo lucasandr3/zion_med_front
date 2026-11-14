@@ -18,7 +18,12 @@ import { ToastService } from '../../core/services/toast.service';
 import { ConfirmDialogService } from '../../core/services/confirm-dialog.service';
 import { AuthService } from '../../core/services/auth.service';
 import { ClinicaService, ClinicaConfig } from '../../core/services/clinica.service';
+import { ContaPerfilService } from '../../core/services/conta-perfil.service';
 import { PessoasService, Pessoa } from '../../core/services/pessoas.service';
+import { TemplatesService } from '../../core/services/templates.service';
+import { fillSourcePdf, fetchImageBytes, type FillSourcePdfFieldValue } from '../../core/utils/fill-source-pdf.util';
+import { hasUsablePrintLayout, parsePrintLayout } from '../../core/utils/print-layout.util';
+import { firstValueFrom } from 'rxjs';
 
 import { GestgoBadgeComponent } from '@/shared/components/badge/badge.component';
 import type { GestgoBadgeTypeVariants } from '@/shared/components/badge/badge.variants';
@@ -80,9 +85,13 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
   readonly revisaoEnviando = signal(false);
   readonly gerandoPdf = signal(false);
   readonly gerandoDossie = signal(false);
-  /** Preview do PDF na própria página (sem pop-up). */
+  readonly baixandoOriginal = signal(false);
+  /** Preview do PDF em modal (botão Visualizar PDF). */
   readonly pdfPreviewUrl = signal<SafeResourceUrl | null>(null);
   private pdfPreviewObjectUrl: string | null = null;
+  /** Prévia embutida na aba Impressão quando há mapa da clínica. */
+  readonly brandedInlinePreviewUrl = signal<SafeResourceUrl | null>(null);
+  private brandedInlineObjectUrl: string | null = null;
   private readonly sanitizer = inject(DomSanitizer);
 
   readonly revisaoFormVisible = signal(false);
@@ -109,11 +118,13 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
 
   private readonly route = inject(ActivatedRoute);
   private readonly protocolosService = inject(ProtocolosService);
+  private readonly templatesService = inject(TemplatesService);
   private readonly loadingService = inject(LoadingService);
   private readonly toast = inject(ToastService);
   private readonly confirm = inject(ConfirmDialogService);
   private readonly auth = inject(AuthService);
   private readonly clinicaService = inject(ClinicaService);
+  private readonly contaPerfilService = inject(ContaPerfilService);
   private readonly pessoasService = inject(PessoasService);
   private readonly injector = inject(Injector);
 
@@ -188,6 +199,7 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.fecharPdfPreview();
+    this.fecharBrandedInlinePreview();
     this.aplicarClasseImpressaoSomenteDocumento(false);
   }
 
@@ -197,14 +209,39 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
     this.showSkeleton = showSkeleton;
     data$.subscribe({
       next: (p) => {
+        this.fecharBrandedInlinePreview();
         this.protocolo.set(p);
         this.initStaffDraft();
         this.carregarPessoaCompleta();
         void this.gerarAutenticacaoDocumento();
         this.syncTabGroupFromAba();
+        this.hidratarPrintLayoutDoModelo(p);
       },
       error: () => {
         this.erro.set('Não foi possível carregar o protocolo.');
+      },
+    });
+  }
+
+  /** Atualiza print_layout do template embutido com o mapa atual do modelo. */
+  private hidratarPrintLayoutDoModelo(p: ProtocoloDetalheData): void {
+    const templateId = p.template?.id ?? p.template_id;
+    if (!templateId) return;
+    this.templatesService.get(templateId).subscribe({
+      next: (tpl) => {
+        const cur = this.protocolo();
+        if (!cur || (cur.template?.id ?? cur.template_id) !== templateId) return;
+        if (!cur.template) return;
+        cur.template.print_layout = parsePrintLayout(tpl.print_layout);
+        cur.template.has_source_document =
+          tpl.has_source_document ?? cur.template.has_source_document;
+        this.protocolo.set({ ...cur, template: { ...cur.template } });
+        if (this.abaAtiva() === 'impressao') {
+          this.garantirPreviewAparenciaClinica(true);
+        }
+      },
+      error: () => {
+        /* mantém o que veio no protocolo */
       },
     });
   }
@@ -326,6 +363,9 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
     this.abaAtiva.set(aba);
     this.aplicarClasseImpressaoSomenteDocumento(aba === 'impressao');
     this.syncTabGroupFromAba();
+    if (aba === 'impressao') {
+      this.garantirPreviewAparenciaClinica(true);
+    }
   }
 
   onGestgoTabChange(event: { index: number }): void {
@@ -333,6 +373,42 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
     if (aba) {
       this.abaAtiva.set(aba);
       this.aplicarClasseImpressaoSomenteDocumento(aba === 'impressao');
+      if (aba === 'impressao') {
+        this.garantirPreviewAparenciaClinica(true);
+      }
+    }
+  }
+
+  /** Na aba Impressão, se houver mapa, carrega a prévia embutida (sem abrir o modal). */
+  private garantirPreviewAparenciaClinica(force = false): void {
+    if (!this.temAparenciaPdfMapeada) return;
+    if (this.gerandoPdf()) return;
+    if (!force && this.brandedInlinePreviewUrl()) return;
+    this.gerandoPdf.set(true);
+    void this.gerarPdfBlobDaTela()
+      .then((blob) => {
+        this.fecharBrandedInlinePreview();
+        const pdfBlob =
+          blob.type === 'application/pdf' ? blob : new Blob([blob], { type: 'application/pdf' });
+        this.brandedInlineObjectUrl = URL.createObjectURL(pdfBlob);
+        this.brandedInlinePreviewUrl.set(
+          this.sanitizer.bypassSecurityTrustResourceUrl(this.brandedInlineObjectUrl),
+        );
+      })
+      .catch((err: unknown) => {
+        this.toast.error(
+          'Prévia',
+          err instanceof Error ? err.message : 'Não foi possível gerar a prévia do PDF da clínica.',
+        );
+      })
+      .finally(() => this.gerandoPdf.set(false));
+  }
+
+  private fecharBrandedInlinePreview(): void {
+    this.brandedInlinePreviewUrl.set(null);
+    if (this.brandedInlineObjectUrl) {
+      URL.revokeObjectURL(this.brandedInlineObjectUrl);
+      this.brandedInlineObjectUrl = null;
     }
   }
 
@@ -382,11 +458,24 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
     return '';
   }
 
-  /** Imprime via iframe oculto — não depende de pop-up. */
+  /** Imprime via iframe oculto — não depende de pop-up. Com mapa, usa o PDF branded. */
   imprimirFicha(): void {
     if (this.abaAtiva() !== 'impressao') {
       this.setAbaAtiva('impressao');
     }
+
+    if (this.temAparenciaPdfMapeada) {
+      if (this.gerandoPdf()) return;
+      this.gerandoPdf.set(true);
+      void this.gerarPdfBlobDaTela()
+        .then((blob) => this.imprimirPdfBlob(blob))
+        .catch((err: unknown) => {
+          this.toast.error('Impressão', err instanceof Error ? err.message : 'Não foi possível imprimir.');
+        })
+        .finally(() => this.gerandoPdf.set(false));
+      return;
+    }
+
     const el = document.getElementById('documento-impressao');
     if (!el) {
       this.toast.error('Impressão', 'Documento não encontrado. Abra a aba Impressão e tente de novo.');
@@ -408,6 +497,36 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
     }).catch((err: unknown) => {
       this.toast.error('Impressão', err instanceof Error ? err.message : 'Não foi possível imprimir.');
     });
+  }
+
+  private async imprimirPdfBlob(blob: Blob): Promise<void> {
+    const pdfBlob =
+      blob.type === 'application/pdf' ? blob : new Blob([blob], { type: 'application/pdf' });
+    const url = URL.createObjectURL(pdfBlob);
+    const iframe = document.createElement('iframe');
+    iframe.setAttribute('aria-hidden', 'true');
+    iframe.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;opacity:0;pointer-events:none';
+    document.body.appendChild(iframe);
+    try {
+      await new Promise<void>((resolve, reject) => {
+        iframe.onload = () => resolve();
+        iframe.onerror = () => reject(new Error('Falha ao carregar PDF para impressão.'));
+        iframe.src = url;
+      });
+      const win = iframe.contentWindow;
+      if (!win) throw new Error('Não foi possível preparar a impressão.');
+      await new Promise<void>((resolve) => setTimeout(resolve, 120));
+      await new Promise<void>((resolve) => {
+        const done = () => resolve();
+        win.addEventListener('afterprint', done, { once: true });
+        win.focus();
+        win.print();
+        setTimeout(done, 2500);
+      });
+    } finally {
+      iframe.remove();
+      URL.revokeObjectURL(url);
+    }
   }
 
   private montarHtmlImpressaoIsolada(el: HTMLElement, modo: 'print' | 'pdf' = 'print'): string {
@@ -745,9 +864,13 @@ body.modo-pdf .documento {
 
   /**
    * Gera PDF A4 a partir do HTML isolado — mesmo padding/layout da prévia na tela.
+   * Se o modelo tiver PDF original + mapa de aparência, preenche em cima do layout da clínica.
    * Margem do jsPDF = 0 porque o recuo já está no `.documento` (14mm/18mm).
    */
   private async gerarPdfBlobDaTela(): Promise<Blob> {
+    const branded = await this.gerarPdfComAparenciaClinica();
+    if (branded) return branded;
+
     if (this.abaAtiva() !== 'impressao') {
       this.setAbaAtiva('impressao');
       await new Promise((r) => setTimeout(r, 180));
@@ -1285,6 +1408,281 @@ body.modo-pdf .documento {
       error: () => {
         this.gerandoDossie.set(false);
         this.toast.error('Download', 'Não foi possível baixar o dossiê.');
+      },
+    });
+  }
+
+  get temDocumentoOriginal(): boolean {
+    return !!this.protocolo()?.template?.has_source_document;
+  }
+
+  get temAparenciaPdfMapeada(): boolean {
+    return hasUsablePrintLayout(parsePrintLayout(this.protocolo()?.template?.print_layout));
+  }
+
+  /** PDF preenchido no layout original da clínica (se houver mapa). */
+  private async gerarPdfComAparenciaClinica(): Promise<Blob | null> {
+    const p = this.protocolo();
+    const templateId = p?.template?.id ?? p?.template_id;
+    if (!p || !templateId || !this.temDocumentoOriginal) return null;
+
+    // Sempre buscar o mapa vivo do modelo — o template embutido no protocolo pode estar
+    // desatualizado (posições antigas ≠ o que foi mapeado na prévia do editor).
+    let layout = parsePrintLayout(p.template?.print_layout);
+    let hasSource = !!p.template?.has_source_document;
+    try {
+      const tpl = await firstValueFrom(this.templatesService.get(templateId));
+      const live = parsePrintLayout(tpl.print_layout);
+      if (hasUsablePrintLayout(live)) {
+        layout = live;
+      }
+      hasSource = !!(tpl.has_source_document ?? hasSource);
+      if (p.template) {
+        p.template.print_layout = layout;
+        p.template.has_source_document = hasSource;
+      }
+    } catch {
+      // segue com o que veio no protocolo
+    }
+    if (!hasSource || !layout || !hasUsablePrintLayout(layout)) return null;
+
+    const sourceBlob = await firstValueFrom(this.templatesService.downloadSourceDocument(templateId));
+    const sourceBytes = new Uint8Array(await sourceBlob.arrayBuffer());
+    const values = await this.montarValoresPrintLayout();
+
+    try {
+      // Fill local (mesmas coords CropBox da prévia do mapa). Nunca troca por DomPDF
+      // genérico só porque faltou logo/assinatura.
+      return await fillSourcePdf({ sourcePdfBytes: sourceBytes, layout, values });
+    } catch (err) {
+      console.warn('[protocolo-pdf] fill local falhou, tentando servidor', err);
+      try {
+        return await firstValueFrom(this.protocolosService.pdf(p.id, { fresh: true }));
+      } catch {
+        return null;
+      }
+    }
+  }
+
+  private async montarValoresPrintLayout(): Promise<FillSourcePdfFieldValue[]> {
+    const fields = this.camposRespostas().length
+      ? this.camposRespostas()
+      : this.protocolo()?.template?.fields || [];
+    const out: FillSourcePdfFieldValue[] = [];
+    const seen = new Set<string>();
+
+    for (const field of fields) {
+      const item: FillSourcePdfFieldValue = { name_key: field.name_key };
+      const type = (field.type || '').toLowerCase();
+      seen.add(field.name_key);
+
+      if (type === 'signature') {
+        const url = this.assinaturaDocumento(field.name_key);
+        if (url) {
+          const img = await fetchImageBytes(url);
+          if (img) {
+            item.imageBytes = img.bytes;
+            item.imageMime = img.mime;
+          }
+        }
+        out.push(item);
+        continue;
+      }
+
+      if (type === 'checkbox' && (!field.options || field.options.length === 0)) {
+        item.checked = this.checkboxBooleanoMarcado(field);
+        item.text = this.valorCampoDocumento(field);
+        out.push(item);
+        continue;
+      }
+
+      item.text = this.valorCampoDocumento(field);
+      if (type === 'radio' || type === 'select') {
+        const v = item.text.trim();
+        item.selected_options = v ? [v] : [];
+      } else if (type === 'checkbox' && field.options && field.options.length > 0) {
+        item.selected_options = field.options.filter((opt) => this.opcaoSelecionadaCheckbox(field, opt));
+        item.checked = item.selected_options.length > 0;
+      } else if (type === 'checkbox') {
+        item.checked = this.checkboxBooleanoMarcado(field) || item.text.trim().length > 0;
+      }
+      out.push(item);
+    }
+
+    // Co-assinatura / assinaturas extras (ex.: assinatura_profissional) fora do snapshot de campos
+    for (const sig of this.protocolo()?.signatures || []) {
+      const key = (sig.field_key || '').trim();
+      if (!key || seen.has(key) || !sig.url) continue;
+      const img = await fetchImageBytes(sig.url);
+      if (!img) continue;
+      out.push({ name_key: key, imageBytes: img.bytes, imageMime: img.mime });
+      seen.add(key);
+    }
+
+    // Logo da clínica (API autenticada → URL MinIO)
+    const logoImg = await this.resolverImagemLogoClinica();
+    if (logoImg) {
+      out.push({
+        name_key: '__clinic_logo',
+        imageBytes: logoImg.bytes,
+        imageMime: logoImg.mime,
+      });
+    }
+
+    // Assinatura da clínica: eletrônica do usuário > co-assinatura do protocolo > logo
+    const clinicSig = await this.resolverImagemAssinaturaClinica();
+    if (clinicSig) {
+      out.push({
+        name_key: '__clinic_signature',
+        imageBytes: clinicSig.bytes,
+        imageMime: clinicSig.mime,
+      });
+    }
+
+    // QR + código de verificação (mesmo da aba Impressão / e-mail)
+    if (!this.docQrDataUrl() && !this.docCode()) {
+      await this.gerarAutenticacaoDocumento();
+    }
+    const qrDataUrl = (this.docQrDataUrl() || '').trim();
+    if (qrDataUrl) {
+      const img = await fetchImageBytes(qrDataUrl);
+      if (img) {
+        out.push({
+          name_key: '__verify_qr',
+          imageBytes: img.bytes,
+          imageMime: img.mime,
+        });
+      }
+    }
+    const code = (this.docCode() || '').trim();
+    if (code) {
+      out.push({ name_key: '__verify_code', text: code });
+    }
+
+    // Data genérica do documento (assinatura/aprovação) — extra repetível no mapa
+    out.push({ name_key: '__doc_date', text: this.formatarDataDocumento() });
+
+    return out;
+  }
+
+  /** Data do documento para o extra `__doc_date` (aprovação > envio > hoje). */
+  private formatarDataDocumento(): string {
+    const p = this.protocolo();
+    const raw = p?.approved_at || p?.submitted_at || p?.created_at || '';
+    const d = raw ? new Date(raw) : new Date();
+    const base = Number.isNaN(d.getTime()) ? new Date() : d;
+    const dd = String(base.getDate()).padStart(2, '0');
+    const mm = String(base.getMonth() + 1).padStart(2, '0');
+    return `${dd}/${mm}/${base.getFullYear()}`;
+  }
+
+  private async blobToImageBytes(
+    blob: Blob,
+  ): Promise<{ bytes: Uint8Array; mime: 'png' | 'jpg' } | null> {
+    if (!blob || blob.size < 8) return null;
+    const type = (blob.type || '').toLowerCase();
+    if (type.includes('json') || type.includes('html') || type.includes('text')) return null;
+    const bytes = new Uint8Array(await blob.arrayBuffer());
+    if (bytes.length < 8) return null;
+    const mime: 'png' | 'jpg' =
+      type.includes('jpeg') || type.includes('jpg') || (bytes[0] === 0xff && bytes[1] === 0xd8)
+        ? 'jpg'
+        : 'png';
+    return { bytes, mime };
+  }
+
+  private async resolverImagemLogoClinica(): Promise<{
+    bytes: Uint8Array;
+    mime: 'png' | 'jpg';
+  } | null> {
+    try {
+      const blob = await firstValueFrom(this.clinicaService.downloadLogo());
+      const fromApi = await this.blobToImageBytes(blob);
+      if (fromApi) return fromApi;
+    } catch {
+      // fallback URL
+    }
+    const logoUrl = (this.clinicaLogo || '').trim();
+    if (!logoUrl) return null;
+    return fetchImageBytes(logoUrl);
+  }
+
+  /** Imagem para o extra `__clinic_signature` no mapa de aparência. */
+  private async resolverImagemAssinaturaClinica(): Promise<{
+    bytes: Uint8Array;
+    mime: 'png' | 'jpg';
+  } | null> {
+    try {
+      const blob = await firstValueFrom(this.contaPerfilService.downloadElectronicSignature());
+      const fromApi = await this.blobToImageBytes(blob);
+      if (fromApi) return fromApi;
+    } catch {
+      // sem assinatura no perfil ou 404
+    }
+
+    const electronic = (this.auth.getUser()?.electronic_signature_url || '').trim();
+    if (electronic) {
+      const img = await fetchImageBytes(electronic);
+      if (img) return img;
+    }
+
+    const professional = this.encontrarAssinaturaProfissionalNoProtocolo();
+    if (professional?.url) {
+      const img = await fetchImageBytes(professional.url);
+      if (img) return img;
+    }
+
+    return this.resolverImagemLogoClinica();
+  }
+
+  private encontrarAssinaturaProfissionalNoProtocolo(): ProtocoloSignature | undefined {
+    const sigs = this.protocolo()?.signatures || [];
+    const byKey = sigs.find((s) => (s.field_key || '').trim() === 'assinatura_profissional');
+    if (byKey) return byKey;
+
+    const fields = this.camposRespostas();
+    const positive = ['profissional', 'responsavel', 'responsável', 'clinica', 'clínica', 'equipe', 'medico', 'médico'];
+    const negative = ['paciente', 'cliente', 'titular', 'acompanhante'];
+    let best: ProtocoloSignature | undefined;
+    let bestScore = Number.NEGATIVE_INFINITY;
+
+    for (const field of fields.filter((f) => f.type === 'signature')) {
+      const hay = `${field.name_key} ${field.label}`.toLowerCase();
+      let score = 0;
+      for (const w of positive) if (hay.includes(w)) score += 3;
+      for (const w of negative) if (hay.includes(w)) score -= 5;
+      if (score <= 0) continue;
+      const sig = this.assinaturaParaCampo(field.name_key);
+      if (!sig?.url) continue;
+      if (score > bestScore) {
+        bestScore = score;
+        best = sig;
+      }
+    }
+    return best;
+  }
+
+  baixarDocumentoOriginal(): void {
+    const p = this.protocolo();
+    const templateId = p?.template?.id ?? p?.template_id;
+    if (!p || !templateId || !this.temDocumentoOriginal || this.baixandoOriginal()) return;
+    this.baixandoOriginal.set(true);
+    this.templatesService.downloadSourceDocument(templateId).subscribe({
+      next: (blob) => {
+        this.baixandoOriginal.set(false);
+        const name =
+          p.template?.source_document_original_name ||
+          `documento-original-${p.protocol_number || p.id}.pdf`;
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = name;
+        a.click();
+        URL.revokeObjectURL(url);
+      },
+      error: () => {
+        this.baixandoOriginal.set(false);
+        this.toast.error('Documento original', 'Não foi possível baixar o PDF original.');
       },
     });
   }

@@ -1,0 +1,71 @@
+<div class="gm-shell">
+  <div class="gm-notch" aria-hidden="true"></div>
+
+  @if (booting()) {
+    <div class="gm-preload gm-preload--shell" aria-busy="true" aria-label="Carregando Gestgo">
+      <div class="gm-preload__logo">gest<span>go</span></div>
+      <div class="gm-preload__bar"><span></span></div>
+      <p class="gm-preload__hint">Abrindo seu app…</p>
+    </div>
+  }
+
+  <main class="gm-scroll" [class.gm-scroll--full]="hideTabBar()" [class.gm-scroll--booting]="booting()">
+    <router-outlet />
+  </main>
+
+  @if (!hideTabBar()) {
+    <nav class="gm-nav" aria-label="Navegação Gestgo Mobile">
+      @for (tab of tabs; track tab.path) {
+        <a
+          class="gm-nav__item"
+          [routerLink]="tab.path"
+          routerLinkActive="is-active"
+          [routerLinkActiveOptions]="{ exact: tab.exact }"
+        >
+          <span class="gm-nav__icon" aria-hidden="true">
+            <span class="material-symbols-outlined gestgo-mi gestgo-mi--s">{{ tab.icon }}</span>
+          </span>
+          {{ tab.label }}
+        </a>
+      }
+    </nav>
+  }
+
+  @if (sheet()) {
+    <div class="gm-sheet-shade" (click)="fecharMenu()" role="presentation"></div>
+    <div class="gm-sheet" role="dialog" [attr.aria-label]="notificationsOpen() ? 'Notificações' : 'Menu'">
+      <div class="gm-sheet__handle"></div>
+
+      @if (notificationsOpen()) {
+        <h3 class="gm-sheet__hello">Notificações</h3>
+        <p class="gm-sheet__sub">Avisos do Gestgo e resumo das fichas.</p>
+        <div class="gm-sheet__line"><span>Fichas pendentes</span><b>{{ pendingCount() }}</b></div>
+        <div class="gm-sheet__line"><span>Documentos assinados</span><b>{{ signedCount() }}</b></div>
+        <div class="gm-sheet__line"><span>Não lidas</span><b>{{ unreadNotifs() }}</b></div>
+
+        @if (recentNotifs().length) {
+          <div class="gm-sheet__notifs">
+            @for (n of recentNotifs(); track n.id) {
+              <button type="button" class="gm-sheet__notif" (click)="abrirNotificacao(n)">
+                <span class="gm-sheet__notif-title">{{ notifTitle(n) }}</span>
+                <span class="gm-sheet__notif-sub">{{ notifBody(n) }}</span>
+              </button>
+            }
+          </div>
+        }
+
+        <a class="gm-sheet__btn" routerLink="/m/documentos" [queryParams]="{ status: 'pending' }" (click)="fecharMenu()">Ver pendências</a>
+        <a class="gm-sheet__btn gm-sheet__btn--ghost" routerLink="/m/configuracoes" (click)="fecharMenu()">Configurações e push</a>
+        <button type="button" class="gm-sheet__btn gm-sheet__btn--soft" (click)="fecharMenu()">Fechar</button>
+      } @else {
+        <p class="gm-sheet__hello">{{ nomeUsuario }}</p>
+        <p class="gm-sheet__sub">Conta e aparência do app.</p>
+        <a class="gm-sheet__btn" routerLink="/m/configuracoes" (click)="fecharMenu()">
+          Configurações
+        </a>
+        <button type="button" class="gm-sheet__btn gm-sheet__btn--ghost" (click)="sair()">Sair</button>
+        <button type="button" class="gm-sheet__btn gm-sheet__btn--soft" (click)="fecharMenu()">Fechar</button>
+      }
+    </div>
+  }
+</div>

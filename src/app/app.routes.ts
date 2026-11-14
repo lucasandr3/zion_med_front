@@ -5,6 +5,7 @@ import { devGuard } from './core/guards/dev.guard';
 import { platformGuard } from './core/guards/platform.guard';
 import { permissionGuard } from './core/guards/permission.guard';
 import { canSwitchOrganizationGuard } from './core/guards/can-switch-organization.guard';
+import { mobileExperienceGuard } from './core/guards/mobile-experience.guard';
 
 export const routes: Routes = [
   {
@@ -12,7 +13,7 @@ export const routes: Routes = [
     canActivate: [devGuard],
     loadComponent: () => import('./paginas/dev/dev-ui.component').then((m) => m.DevUiComponent),
   },
-  { path: 'autenticacao', loadComponent: () => import('./paginas/login/login.component').then(m => m.LoginComponent) },
+  { path: 'autenticacao', canActivate: [mobileExperienceGuard], loadComponent: () => import('./paginas/login/login.component').then(m => m.LoginComponent) },
   { path: 'esqueci-a-senha', loadComponent: () => import('./paginas/auth/esqueci-senha.component').then(m => m.EsqueciSenhaComponent) },
   { path: 'redefinir-senha', loadComponent: () => import('./paginas/auth/redefinir-senha.component').then(m => m.RedefinirSenhaComponent) },
   { path: 'verificar-email', loadComponent: () => import('./paginas/auth/verificar-email.component').then(m => m.VerificarEmailComponent) },
@@ -39,16 +40,118 @@ export const routes: Routes = [
     loadComponent: () => import('./paginas/marketing/como-funciona.component').then((m) => m.ComoFuncionaComponent),
   },
   {
+    path: 'link-na-bio',
+    loadComponent: () =>
+      import('./paginas/marketing/link-na-bio-vitrine.component').then((m) => m.LinkNaBioVitrineComponent),
+  },
+  {
     path: 'a/:slug',
     loadComponent: () => import('./paginas/agenda/agenda-publica.component').then((m) => m.AgendaPublicaComponent),
   },
   {
+    path: 'm/login',
+    loadComponent: () => import('./mobile/mobile-login.component').then((m) => m.MobileLoginComponent),
+    data: { titulo: 'Entrar · Gestgo Mobile' },
+  },
+  {
+    path: 'm',
+    canActivate: [authGuard, billingGuard],
+    loadComponent: () => import('./mobile/layout-mobile.component').then((m) => m.LayoutMobileComponent),
+    children: [
+      {
+        path: '',
+        loadComponent: () => import('./mobile/mobile-home.component').then((m) => m.MobileHomeComponent),
+        data: { titulo: 'Gestgo Mobile' },
+      },
+      {
+        path: 'pacientes',
+        loadComponent: () => import('./mobile/mobile-pacientes.component').then((m) => m.MobilePacientesComponent),
+        data: { titulo: 'Pacientes' },
+      },
+      {
+        path: 'fichas',
+        loadComponent: () => import('./mobile/mobile-fichas.component').then((m) => m.MobileFichasComponent),
+        data: { titulo: 'Fichas' },
+      },
+      {
+        path: 'documentos',
+        loadComponent: () => import('./mobile/mobile-documentos.component').then((m) => m.MobileDocumentosComponent),
+        data: { titulo: 'Documentos' },
+      },
+      {
+        path: 'configuracoes',
+        loadComponent: () =>
+          import('./mobile/mobile-configuracoes.component').then((m) => m.MobileConfiguracoesComponent),
+        data: { titulo: 'Configurações' },
+      },
+      {
+        path: 'ferramentas',
+        loadComponent: () =>
+          import('./mobile/mobile-ferramentas.component').then((m) => m.MobileFerramentasComponent),
+        data: { titulo: 'Ferramentas' },
+      },
+      {
+        path: 'ferramentas/preco',
+        loadComponent: () =>
+          import('./mobile/tools/mobile-tool-preco.component').then((m) => m.MobileToolPrecoComponent),
+        data: { titulo: 'Preço e lucro' },
+      },
+      {
+        path: 'ferramentas/orcamento',
+        loadComponent: () =>
+          import('./mobile/tools/mobile-tool-orcamento.component').then((m) => m.MobileToolOrcamentoComponent),
+        data: { titulo: 'Orçamento rápido' },
+      },
+      {
+        path: 'ferramentas/mensagens',
+        loadComponent: () =>
+          import('./mobile/tools/mobile-tool-mensagens.component').then((m) => m.MobileToolMensagensComponent),
+        data: { titulo: 'Mensagens prontas' },
+      },
+      {
+        path: 'ferramentas/checklist',
+        loadComponent: () =>
+          import('./mobile/tools/mobile-tool-checklist.component').then((m) => m.MobileToolChecklistComponent),
+        data: { titulo: 'Checklist da sala' },
+      },
+      {
+        path: 'ferramentas/pacotes',
+        loadComponent: () =>
+          import('./mobile/tools/mobile-tool-pacotes.component').then((m) => m.MobileToolPacotesComponent),
+        data: { titulo: 'Pacotes e sessões' },
+      },
+      {
+        path: 'ferramentas/estoque',
+        loadComponent: () =>
+          import('./mobile/tools/mobile-tool-estoque.component').then((m) => m.MobileToolEstoqueComponent),
+        data: { titulo: 'Estoque e validade' },
+      },
+      {
+        path: 'ferramentas/cartao',
+        loadComponent: () =>
+          import('./mobile/tools/mobile-tool-cartao.component').then((m) => m.MobileToolCartaoComponent),
+        data: { titulo: 'Taxas de cartão' },
+      },
+      {
+        path: 'ferramentas/retornos',
+        loadComponent: () =>
+          import('./mobile/tools/mobile-tool-retornos.component').then((m) => m.MobileToolRetornosComponent),
+        data: { titulo: 'Retornos' },
+      },
+    ],
+  },
+  {
     path: '',
     loadComponent: () => import('./componentes/layout/layout-app/layout-app.component').then(m => m.LayoutAppComponent),
-    canActivate: [authGuard, billingGuard],
+    canActivate: [authGuard, billingGuard, mobileExperienceGuard],
     children: [
       { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
-      { path: 'dashboard', canActivate: [permissionGuard], loadComponent: () => import('./paginas/dashboard/dashboard.component').then(m => m.DashboardComponent), data: { titulo: 'Visão geral', permission: 'dashboard.access' } },
+      {
+        path: 'dashboard',
+        canActivate: [permissionGuard],
+        loadComponent: () => import('./paginas/dashboard/dashboard.component').then(m => m.DashboardComponent),
+        data: { titulo: 'Visão geral', permission: 'dashboard.access' },
+      },
       {
         path: 'documentos',
         canActivate: [permissionGuard],
@@ -108,6 +211,7 @@ export const routes: Routes = [
       { path: 'templates/criar-em-branco', canActivate: [permissionGuard], loadComponent: () => import('./paginas/templates/templates-criar-em-branco.component').then(m => m.TemplatesCriarEmBrancoComponent), data: { titulo: 'Novo modelo (em branco)', permission: 'templates.manage', urlVoltar: '/templates', labelVoltar: 'Voltar para modelos', voltarIntegrado: true } },
       { path: 'templates/importar', canActivate: [permissionGuard], loadComponent: () => import('./paginas/templates/templates-importar.component').then(m => m.TemplatesImportarComponent), data: { titulo: 'Importar ficha', permission: 'templates.manage', urlVoltar: '/documentos', labelVoltar: 'Documentos', voltarIntegrado: true } },
       { path: 'templates/:id/editar', canActivate: [permissionGuard], loadComponent: () => import('./paginas/templates/templates-editar.component').then(m => m.TemplatesEditarComponent), data: { titulo: 'Editar modelo', permission: 'templates.manage', urlVoltar: '/templates', labelVoltar: 'Voltar para modelos', voltarIntegrado: true } },
+      { path: 'templates/:id/aparencia-pdf', canActivate: [permissionGuard], loadComponent: () => import('./paginas/templates/templates-aparencia-pdf.component').then(m => m.TemplatesAparenciaPdfComponent), data: { titulo: 'Aparência do PDF', permission: 'templates.manage', urlVoltar: '/templates', labelVoltar: 'Voltar para modelos', voltarIntegrado: true, voltarParaEditarModelo: true } },
       { path: 'templates/:id/campos', canActivate: [permissionGuard], loadComponent: () => import('./paginas/templates/templates-campos.component').then(m => m.TemplatesCamposComponent), data: { titulo: 'Campos do modelo', permission: 'templates.manage', urlVoltar: '/templates', labelVoltar: 'Voltar para modelos', voltarIntegrado: true } },
       { path: 'clinica/configuracoes', canActivate: [permissionGuard], loadComponent: () => import('./paginas/clinica/clinica-configuracoes.component').then(m => m.ClinicaConfiguracoesComponent), data: { titulo: 'Empresa', permission: 'organization.manage', urlVoltar: '/configuracoes', labelVoltar: 'Voltar para Configurações', voltarIntegrado: true } },
       { path: 'clinica/escolher', canActivate: [canSwitchOrganizationGuard], loadComponent: () => import('./paginas/clinica/clinica-escolher.component').then(m => m.ClinicaEscolherComponent), data: { titulo: 'Escolher empresa', urlVoltar: '/dashboard', labelVoltar: 'Dashboard', voltarIntegrado: true } },

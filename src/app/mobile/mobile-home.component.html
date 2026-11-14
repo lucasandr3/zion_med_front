@@ -1,0 +1,115 @@
+<div class="gm-header">
+  <div>
+    <div class="gm-logo">gest<span>go</span></div>
+    <div class="gm-tagline">Seu dia, mais simples.</div>
+  </div>
+  <div class="gm-header__actions">
+    <button type="button" class="gm-icon-btn" (click)="abrirNotificacoes()" aria-label="Notificações">
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">notifications</span>
+    </button>
+    <button type="button" class="gm-icon-btn" (click)="abrirMenu()" aria-label="Menu da conta">
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">person</span>
+    </button>
+  </div>
+</div>
+
+<p class="gm-hello">SEU GESTGO EM UM SÓ LUGAR</p>
+<h1 class="gm-title">Olá! 👋<br />Vamos facilitar seu dia?</h1>
+<p class="gm-sub">Consulte pacientes, envie fichas e acompanhe assinaturas sem complicação.</p>
+
+<div class="gm-cta">
+  <div class="gm-kicker">ACESSO RÁPIDO</div>
+  <h2>Envie uma ficha em segundos</h2>
+  <p>Escolha o modelo e compartilhe com a paciente.</p>
+  <a class="gm-cta__btn" routerLink="/m/fichas">
+    <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">send</span>
+    Enviar ficha agora
+  </a>
+</div>
+
+@if (loading()) {
+  <div class="gm-preload gm-preload--inline" aria-busy="true">
+    <div class="gm-preload__logo">gest<span>go</span></div>
+    <div class="gm-preload__bar"><span></span></div>
+    <p class="gm-preload__hint">Carregando resumo…</p>
+  </div>
+} @else if (error()) {
+  <div class="gm-error">
+    <p>{{ error() }}</p>
+    <button type="button" class="gm-btn gm-btn--secondary" (click)="carregar()">Tentar de novo</button>
+  </div>
+} @else {
+  <div class="gm-kpi">
+    <div class="gm-kpi__item">
+      <strong>{{ pad(total()) }}</strong>
+      <small>Documentos</small>
+    </div>
+    <div class="gm-kpi__item">
+      <strong class="warn">{{ pad(pendentes()) }}</strong>
+      <small>Pendentes</small>
+    </div>
+    <div class="gm-kpi__item">
+      <strong class="ok">{{ pad(assinados()) }}</strong>
+      <small>Assinados</small>
+    </div>
+  </div>
+
+  <div class="gm-section"><h2>Acesso rápido ao Gestgo</h2></div>
+  <div class="gm-tiles">
+    <a class="gm-tile" routerLink="/m/pacientes">
+      <span class="gm-tile__icon" aria-hidden="true">
+        <span class="material-symbols-outlined gestgo-mi gestgo-mi--m">group</span>
+      </span>
+      <strong>Pacientes</strong>
+      <small>Consultar cadastros</small>
+    </a>
+    <a class="gm-tile" routerLink="/m/fichas">
+      <span class="gm-tile__icon" aria-hidden="true">
+        <span class="material-symbols-outlined gestgo-mi gestgo-mi--m">description</span>
+      </span>
+      <strong>Modelos de fichas</strong>
+      <small>Escolher e enviar</small>
+    </a>
+    <a class="gm-tile" routerLink="/m/documentos" [queryParams]="{ status: 'pending' }">
+      <span class="gm-tile__icon" aria-hidden="true">
+        <span class="material-symbols-outlined gestgo-mi gestgo-mi--m">schedule</span>
+      </span>
+      <strong>Pendências</strong>
+      <small>Acompanhar documentos</small>
+    </a>
+    <a class="gm-tile" routerLink="/m/documentos" [queryParams]="{ status: 'approved' }">
+      <span class="gm-tile__icon" aria-hidden="true">
+        <span class="material-symbols-outlined gestgo-mi gestgo-mi--m">verified_user</span>
+      </span>
+      <strong>Assinaturas</strong>
+      <small>Ver documentos concluídos</small>
+    </a>
+    <a class="gm-tile" routerLink="/m/configuracoes">
+      <span class="gm-tile__icon" aria-hidden="true">
+        <span class="material-symbols-outlined gestgo-mi gestgo-mi--m">settings</span>
+      </span>
+      <strong>Configurações</strong>
+      <small>Tema, push e sair</small>
+    </a>
+  </div>
+
+  <div class="gm-section">
+    <h2>Fichas aguardando assinatura</h2>
+    <a class="gm-link" routerLink="/m/documentos" [queryParams]="{ status: 'pending' }">Ver todas →</a>
+  </div>
+
+  @if (pendingItems().length === 0) {
+    <p class="gm-empty">Nenhuma ficha pendente.</p>
+  } @else {
+    @for (p of pendingItems(); track p.id; let i = $index) {
+      <button type="button" class="gm-card" (click)="abrirDocumento(p.id)">
+        <span class="gm-avatar" [class.teal]="i % 3 === 0" [class.orange]="i % 3 === 2">{{ iniciais(pacienteNome(p)) }}</span>
+        <span class="gm-card__body">
+          <span class="gm-card__title">{{ pacienteNome(p) }}</span>
+          <span class="gm-card__sub">{{ p.template_name || 'Documento' }} · pendente</span>
+        </span>
+        <span class="gm-status">Pendente</span>
+      </button>
+    }
+  }
+}

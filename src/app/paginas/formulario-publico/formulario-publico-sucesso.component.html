@@ -52,6 +52,21 @@
             }
           </button>
         }
+        @if (hasSourceDocument() && publicFormToken()) {
+          <button
+            type="button"
+            class="fp-submit-btn"
+            style="margin-top: 0.75rem; background: transparent; color: inherit; border: 1px solid currentColor"
+            (click)="baixarDocumentoOriginal()"
+            [disabled]="downloadingOriginal()"
+          >
+            @if (downloadingOriginal()) {
+              Baixando original…
+            } @else {
+              Baixar documento original (PDF)
+            }
+          </button>
+        }
       </div>
 
       @if (patientDownloadToken()) {

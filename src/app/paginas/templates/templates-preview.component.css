@@ -1,38 +1,60 @@
 @import '../formulario-publico/formulario-publico-show.component.css';
 
-.preview-draft-page .fp-sub {
-  margin-bottom: 0;
+/* Prévia admin: mesmos tokens/layout do formulário público (/f/:token) */
+app-templates-preview {
+  display: block;
+  height: 100dvh;
+  min-height: 100dvh;
 }
 
-.preview-draft-note {
-  margin-top: 0.85rem;
+.preview-draft-page .preview-draft-note {
+  margin: 0 0 1rem;
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  border-radius: 0.5rem;
-  font-size: 0.76rem;
-  padding: 0.35rem 0.7rem;
-  background: color-mix(in srgb, var(--c-primary) 13%, transparent);
-  color: var(--c-primary);
+  gap: 0.45rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0.4rem 0.85rem;
+  background: color-mix(in srgb, var(--fp-brand-500) 14%, transparent);
+  color: var(--fp-brand-600);
+  border: 1px solid color-mix(in srgb, var(--fp-brand-500) 22%, transparent);
 }
 
-.preview-draft-actions {
-  margin-top: 0.9rem;
+.form-publico-page.dark.preview-draft-page .preview-draft-note {
+  background: color-mix(in srgb, var(--fp-brand-500) 22%, #111);
+  color: #d7f5e8;
+  border-color: color-mix(in srgb, var(--fp-brand-500) 35%, #2a2a2a);
+}
+
+.preview-draft-page .fp-required-legend {
+  margin: 0.85rem 0 1.1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+  color: var(--fp-cream-600);
 }
 
 .preview-signature {
-  border: 1px dashed var(--c-border);
-  border-radius: 0.5rem;
+  border: 1px dashed var(--fp-border);
+  border-radius: var(--fp-radius, 18px);
   min-height: 120px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--c-muted);
+  color: var(--fp-cream-600);
   font-size: 0.85rem;
-  background: var(--c-surface);
+  background: var(--fp-soft);
 }
 
 .preview-submit-disabled {
-  opacity: 0.9;
+  opacity: 0.92;
   cursor: default;
+  pointer-events: none;
+}
+
+/* Prévia em 1 coluna (sem aside do paciente real) */
+.preview-draft-page .fp-layout {
+  grid-template-columns: minmax(0, 728px);
 }

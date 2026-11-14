@@ -184,6 +184,11 @@ export class ClinicaService {
     return this.api.get<ConfigResponse>('/clinica/configuracoes').pipe(map((r) => this.mapConfigResponse(r)));
   }
 
+  /** Bytes do logo (API autenticada — sem CORS MinIO). */
+  downloadLogo(): Observable<Blob> {
+    return this.api.getBlob('/clinica/logo');
+  }
+
   /** Retorna a resposta completa da página de configurações. */
   getConfiguracoesPage(query?: Record<string, string>): Observable<ConfigPageData> {
     return this.api.get<ConfigPageResponse>('/clinica/configuracoes', query).pipe(

@@ -1,9 +1,14 @@
 import { Component, CUSTOM_ELEMENTS_SCHEMA, EventEmitter, Input, Output, inject } from '@angular/core';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import {
+  clearMobileBridge,
+  peekMobileReturnTo,
+} from '../../../core/utils/gestgo-experience.util';
 
 /**
  * Voltar no toolbar — `nord-button` + Material Symbols.
  * Use `url`/`data.urlVoltar` para navegação, ou `clickable` + `(backClick)` para voltar na mesma tela.
+ * Se a página foi aberta a partir do Gestgo Mobile, força retorno ao `/m`.
  */
 @Component({
   selector: 'zm-page-back-link',
@@ -11,12 +16,13 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   imports: [RouterLink],
   template: `
-    @if (backUrl) {
+    @if (resolvedBackUrl) {
       <nord-button
         type="button"
-        [routerLink]="backUrl"
+        [routerLink]="resolvedBackUrl"
         [attr.title]="backLabel"
         [attr.aria-label]="backLabel"
+        (click)="onNavigateBack()"
       >
         <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">arrow_back</span>
         {{ backLabel }}
@@ -53,10 +59,15 @@ export class ZmPageBackLinkComponent {
   @Output() readonly backClick = new EventEmitter<MouseEvent>();
 
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
 
-  get backUrl(): string | null {
+  get resolvedBackUrl(): string | null {
     if (this.clickable) {
       return null;
+    }
+    const fromMobile = peekMobileReturnTo(this.router.url);
+    if (fromMobile) {
+      return fromMobile;
     }
     const fromInput = this.url?.trim();
     if (fromInput) {
@@ -67,11 +78,20 @@ export class ZmPageBackLinkComponent {
   }
 
   get backLabel(): string {
+    if (peekMobileReturnTo(this.router.url)) {
+      return 'Voltar ao app';
+    }
     const fromInput = this.label?.trim();
     if (fromInput) {
       return fromInput;
     }
     const fromRoute = this.route.snapshot.data['labelVoltar'];
     return typeof fromRoute === 'string' && fromRoute.trim() !== '' ? fromRoute : 'Voltar';
+  }
+
+  onNavigateBack(): void {
+    if (peekMobileReturnTo(this.router.url)) {
+      clearMobileBridge();
+    }
   }
 }

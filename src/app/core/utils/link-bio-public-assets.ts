@@ -15,9 +15,25 @@ export function linkBioHeaderBrandImageUrl(c: LinkBioClinic): string | null {
 }
 
 /**
- * Foto grande no perfil / herói: `professional_photo_url` quando existir,
- * senão `logo_url` (legado).
+ * Foto do profissional para avatar circular / retrato.
+ * Sem fallback para logo (logo não deve virar “foto de pessoa” no hero).
+ */
+export function linkBioProfessionalPortraitUrl(c: LinkBioClinic): string | null {
+  return trimmedUrl(c.professional_photo_url);
+}
+
+/**
+ * Avatar de layouts temáticos: foto do profissional, senão logo (legado).
+ * Usar só em anéis/avatares — nunca como fundo full-bleed do hero.
  */
 export function linkBioHeroPortraitUrl(c: LinkBioClinic): string | null {
-  return trimmedUrl(c.professional_photo_url) ?? trimmedUrl(c.logo_url);
+  return linkBioProfessionalPortraitUrl(c) ?? trimmedUrl(c.logo_url);
+}
+
+/**
+ * Banner / capa do hero: somente `cover_image_url`.
+ * A foto do profissional não deve ocupar este papel.
+ */
+export function linkBioHeroBannerUrl(c: LinkBioClinic): string | null {
+  return trimmedUrl(c.cover_image_url);
 }

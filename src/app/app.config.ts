@@ -47,6 +47,7 @@ export const appConfig: ApplicationConfig = {
     }),
     provideServiceWorker('ngsw-worker.js', {
       enabled: !isDevMode(),
-      registrationStrategy: 'registerWhenStable:5000',
+      // Evita competir com o bootstrap e com as primeiras APIs nos 30s iniciais.
+      registrationStrategy: 'registerWhenStable:30000',
     })],
 };

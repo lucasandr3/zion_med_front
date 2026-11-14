@@ -128,6 +128,18 @@
                 Seus dados serão utilizados apenas para as finalidades deste formulário.
                 <a routerLink="/privacidade" target="_blank" rel="noopener" class="fp-link">Política de Privacidade</a>.
               </div>
+              @if (temDocumentoOriginal()) {
+                <button
+                  type="button"
+                  class="fp-link-btn"
+                  style="margin-top: 1rem"
+                  (click)="baixarDocumentoOriginal()"
+                  [disabled]="baixandoOriginal()"
+                >
+                  <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">download</span>
+                  {{ baixandoOriginal() ? 'Baixando…' : 'Baixar documento original (PDF)' }}
+                </button>
+              }
             } @else if (showIdentityPhase) {
               <div class="fp-section-head">
                 <p class="fp-eyebrow">ANTES DE COMEÇAR</p>
@@ -221,7 +233,7 @@
 
               @if (erro()) {
                 <div class="fp-banner-error error-summary" role="alert" aria-live="assertive">
-                  <strong>Falta só corrigir alguns campos.</strong>
+                  <strong>Falta um ajuste para enviar.</strong>
                   {{ erro() }}
                 </div>
               }

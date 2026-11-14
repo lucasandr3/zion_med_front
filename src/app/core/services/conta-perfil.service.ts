@@ -44,6 +44,11 @@ export class ContaPerfilService {
   private api = inject(ApiService);
   private auth = inject(AuthService);
 
+  /** Bytes da assinatura (API autenticada — sem CORS MinIO). */
+  downloadElectronicSignature(): Observable<Blob> {
+    return this.api.getBlob('/me/electronic-signature');
+  }
+
   patchElectronicSignature(body: { image_base64?: string; clear?: boolean }): Observable<ElectronicSignaturePatchResponse> {
     return this.api.patch<ElectronicSignaturePatchResponse>('/me/electronic-signature', body).pipe(
       tap((res) => {

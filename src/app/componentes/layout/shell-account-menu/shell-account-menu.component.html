@@ -17,6 +17,12 @@
     <span slot="start" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">person</span>
     Conta e privacidade
   </nord-dropdown-item>
+  @if (shellContext === 'app') {
+    <nord-dropdown-item href="/m" (click)="go($event, '/m')">
+      <span slot="start" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">smartphone</span>
+      Abrir Gestgo Mobile
+    </nord-dropdown-item>
+  }
   @if (shellContext === 'app' && exibirTrocarEmpresa) {
     <nord-dropdown-item href="/clinica/escolher" (click)="go($event, '/clinica/escolher')">
       <span slot="start" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">swap_horiz</span>

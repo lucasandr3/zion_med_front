@@ -19,6 +19,7 @@ import { AuthService } from '../../../core/services/auth.service';
 import { ClinicaService } from '../../../core/services/clinica.service';
 import { FeedbackDialogService } from '../../../core/services/feedback-dialog.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { setPreferPainelExperience } from '../../../core/utils/gestgo-experience.util';
 
 type NordDropdownHost = HTMLElement & {
   open?: boolean;
@@ -99,6 +100,9 @@ export class ShellAccountMenuComponent implements OnInit, AfterViewInit, OnDestr
 
   go(event: Event, path: string): void {
     event.preventDefault();
+    if (path === '/m' || path.startsWith('/m/')) {
+      setPreferPainelExperience(false);
+    }
     void this.router.navigateByUrl(path);
   }
 

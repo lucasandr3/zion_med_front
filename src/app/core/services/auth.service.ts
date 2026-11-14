@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, Subject, tap, catchError, of, map, switchMap } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { shouldAutoOpenMobile } from '../utils/gestgo-experience.util';
 import { applyUserAppearanceToBrowser } from './user-appearance.sync';
 import { AppUpdateService } from './app-update.service';
 
@@ -329,6 +330,9 @@ export class AuthService {
 
   /** Primeira rota do app tenant que o usuário pode abrir (pós-login ou após bloqueio de guard). */
   getDefaultTenantPath(): string {
+    // Celular: Gestgo Mobile (/m), salvo se o usuário pediu o painel completo.
+    if (shouldAutoOpenMobile()) return '/m';
+
     const routes: [string, () => boolean][] = [
       ['/dashboard', () => this.hasPermission('dashboard.access')],
       ['/pessoas', () => this.hasPermission('submissions.view')],
