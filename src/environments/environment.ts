@@ -1,6 +1,6 @@
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost:8000',
+  apiUrl: 'http://localhost:8080',
   /** Base do SPA para links públicos; vazio = usar window.location.origin. */
   appUrl: '',
   /** Painel completo (mesmo origin em dev). */

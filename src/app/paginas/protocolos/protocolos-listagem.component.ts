@@ -1,9 +1,10 @@
-import { Component, OnInit, OnDestroy, inject, Signal, ViewChild, TemplateRef, ViewContainerRef, ChangeDetectionStrategy, signal, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, ViewChild, TemplateRef, ViewContainerRef, ChangeDetectionStrategy, signal, CUSTOM_ELEMENTS_SCHEMA, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { Subject, switchMap, tap, catchError, finalize, of } from 'rxjs';
 import { ProtocolosService, Protocolo } from '../../core/services/protocolos.service';
 import { TemplatesService, Template } from '../../core/services/templates.service';
-import { LoadingService } from '../../shared/services/loading.service';
 import { ListSkeletonComponent } from '../../shared/components/list-skeleton/list-skeleton.component';
 import { ZmPaginationComponent } from '../../shared/components/ui';
 import { GestgoSheetService } from '@/shared/components/sheet/sheet.service';
@@ -35,7 +36,7 @@ export class ProtocolosListagemComponent implements OnInit, OnDestroy {
     per_page: 20,
     total: 0,
   });
-  showSkeleton!: Signal<boolean>;
+  readonly showSkeleton = signal(false);
   readonly listaPronta = signal(false);
   readonly erro = signal('');
   readonly exportando = signal(false);
@@ -53,11 +54,13 @@ export class ProtocolosListagemComponent implements OnInit, OnDestroy {
 
   private protocolosService = inject(ProtocolosService);
   private templatesService = inject(TemplatesService);
-  private loadingService = inject(LoadingService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private readonly vcr = inject(ViewContainerRef);
   private readonly gestgoSheet = inject(GestgoSheetService);
+  private readonly destroyRef = inject(DestroyRef);
+  /** Uma fila com switchMap: nova página cancela a request anterior. */
+  private readonly carregar$ = new Subject<number>();
 
   readonly opcoesStatusFiltro: GestgoComboboxOption[] = [
     { value: '', label: 'Todas' },
@@ -97,6 +100,42 @@ export class ProtocolosListagemComponent implements OnInit, OnDestroy {
       this.status = statusFromQuery;
     }
     this.templatesService.list().subscribe({ next: (t) => this.templates.set(t) });
+
+    this.carregar$
+      .pipe(
+        switchMap((page) => {
+          const params: Parameters<ProtocolosService['list']>[0] = { per_page: 20, page };
+          if (this.busca?.trim()) params.busca = this.busca.trim();
+          if (this.template_id !== '') params.template_id = Number(this.template_id);
+          if (this.status) params.status = this.status;
+          if (this.data_inicio) params.data_inicio = this.data_inicio;
+          if (this.data_fim) params.data_fim = this.data_fim;
+
+          this.erro.set('');
+          this.showSkeleton.set(false);
+          const skeletonTimer = setTimeout(() => this.showSkeleton.set(true), 300);
+
+          return this.protocolosService.list(params).pipe(
+            tap((res) => {
+              this.listaPronta.set(true);
+              this.protocolos.set(res.data);
+              this.meta.set(res.meta);
+            }),
+            catchError(() => {
+              this.listaPronta.set(true);
+              this.erro.set('Não foi possível carregar os protocolos.');
+              return of(null);
+            }),
+            finalize(() => {
+              clearTimeout(skeletonTimer);
+              this.showSkeleton.set(false);
+            }),
+          );
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe();
+
     this.carregar();
   }
 
@@ -119,26 +158,7 @@ export class ProtocolosListagemComponent implements OnInit, OnDestroy {
   }
 
   carregar(page = 1): void {
-    const params: Parameters<ProtocolosService['list']>[0] = { per_page: 20, page };
-    if (this.busca?.trim()) params.busca = this.busca.trim();
-    if (this.template_id !== '') params.template_id = Number(this.template_id);
-    if (this.status) params.status = this.status;
-    if (this.data_inicio) params.data_inicio = this.data_inicio;
-    if (this.data_fim) params.data_fim = this.data_fim;
-
-    const { data$, showSkeleton } = this.loadingService.loadWithThreshold(this.protocolosService.list(params));
-    this.showSkeleton = showSkeleton;
-    data$.subscribe({
-      next: (res) => {
-        this.listaPronta.set(true);
-        this.protocolos.set(res.data);
-        this.meta.set(res.meta);
-      },
-      error: () => {
-        this.listaPronta.set(true);
-        this.erro.set('Não foi possível carregar os protocolos.');
-      },
-    });
+    this.carregar$.next(page);
   }
 
   aplicarFiltros(): void {
