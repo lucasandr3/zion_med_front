@@ -13,7 +13,7 @@ export const routes: Routes = [
     canActivate: [devGuard],
     loadComponent: () => import('./paginas/dev/dev-ui.component').then((m) => m.DevUiComponent),
   },
-  { path: 'autenticacao', loadComponent: () => import('./paginas/login/login.component').then(m => m.LoginComponent) },
+  { path: 'autenticacao', canActivate: [mobileExperienceGuard], loadComponent: () => import('./paginas/login/login.component').then(m => m.LoginComponent) },
   { path: 'esqueci-a-senha', loadComponent: () => import('./paginas/auth/esqueci-senha.component').then(m => m.EsqueciSenhaComponent) },
   { path: 'redefinir-senha', loadComponent: () => import('./paginas/auth/redefinir-senha.component').then(m => m.RedefinirSenhaComponent) },
   { path: 'verificar-email', loadComponent: () => import('./paginas/auth/verificar-email.component').then(m => m.VerificarEmailComponent) },
