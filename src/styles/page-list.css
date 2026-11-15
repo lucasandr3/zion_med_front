@@ -275,6 +275,14 @@
   margin-inline-start: auto;
 }
 
+/* Altura uniforme dos botões do cabeçalho (padrão ~36px da referência). */
+.n-form-toolbar__end nord-button {
+  --n-button-min-block-size: 2.25rem;
+  --_n-button-min-block-size: 2.25rem;
+  min-block-size: 2.25rem;
+  align-items: center;
+}
+
 .n-form-row {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));

@@ -310,7 +310,7 @@
                         <nord-button type="button" variant="plain" size="s" aria-label="Editar campo" (click)="abrirModalEditar(c)" square>
                           <span class="material-symbols-outlined text-sm">edit</span>
                         </nord-button>
-                        <nord-button type="button" variant="plain" size="s" class="text-destructive hover:text-destructive" aria-label="Remover campo" [attr.loading]="removendoId() === c.id" [attr.disabled]="removendoId() === c.id" (click)="removerCampo(c)" square>
+                        <nord-button type="button" variant="plain" size="s" class="text-destructive hover:text-destructive" aria-label="Remover campo" [attr.loading]="removendoId() === c.id || null" [attr.disabled]="removendoId() === c.id || null" (click)="removerCampo(c)" square>
                           <span class="material-symbols-outlined text-sm">delete</span>
                         </nord-button>
                       </div>

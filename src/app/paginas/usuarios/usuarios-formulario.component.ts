@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, Signal, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { Component, OnInit, inject, Signal, signal, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { forkJoin } from 'rxjs';
@@ -78,11 +78,29 @@ export class UsuariosFormularioComponent implements OnInit {
     if (id) {
       this.editMode = true;
       this.usuarioId = Number(id);
+
+      const fromList = (history.state?.['usuario'] ?? null) as Usuario | null;
+      if (fromList?.id === this.usuarioId) {
+        this.patchFromUser(fromList);
+        this.showSkeleton = signal(false);
+        // Roles cacheados + dados da lista → form na hora; GET só sincroniza
+        this.usuariosService.roles().subscribe({
+          next: (roles) => {
+            this.rolesList = roles;
+            this.listaPronta = true;
+          },
+        });
+        this.usuariosService.get(this.usuarioId).subscribe({
+          next: (usuario) => this.patchFromUser(usuario),
+        });
+        return;
+      }
+
       const obs = forkJoin({
         usuario: this.usuariosService.get(this.usuarioId),
         roles: this.usuariosService.roles(),
       });
-      const { data$, showSkeleton } = this.loadingService.loadWithThreshold(obs);
+      const { data$, showSkeleton } = this.loadingService.loadWithThreshold(obs, 0);
       this.showSkeleton = showSkeleton;
       data$.subscribe({
         next: ({ usuario, roles }) => {
@@ -96,7 +114,7 @@ export class UsuariosFormularioComponent implements OnInit {
         },
       });
     } else {
-      const { data$, showSkeleton } = this.loadingService.loadWithThreshold(this.usuariosService.roles());
+      const { data$, showSkeleton } = this.loadingService.loadWithThreshold(this.usuariosService.roles(), 0);
       this.showSkeleton = showSkeleton;
       data$.subscribe({
         next: (roles) => {

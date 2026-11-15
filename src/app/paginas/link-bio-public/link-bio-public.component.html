@@ -2,7 +2,7 @@
   @if (showSkeleton()) {
     <div
       class="lb-bio-loading"
-      [class.lb-bio-loading--dark]="dark"
+      [class.lb-bio-loading--dark]="dark()"
       role="status"
       aria-live="polite"
       aria-busy="true"
@@ -14,36 +14,36 @@
     </div>
   }
 
-  @if (!showSkeleton() && erro && !data) {
+  @if (!showSkeleton() && erro() && !data()) {
     <div class="max-w-md mx-auto p-6 text-center">
-      <p class="muted">{{ erro }}</p>
+      <p class="muted">{{ erro() }}</p>
     </div>
   }
 
-  @if (!showSkeleton() && data && clinic && totemMode) {
+  @if (!showSkeleton() && data() && clinic() && totemMode) {
     <div class="zm-content-enter">
       <app-link-bio-public-totem
-        [clinic]="clinic"
-        [allLinks]="allLinks"
+        [clinic]="clinic()!"
+        [allLinks]="allLinks()"
         [publicSlug]="slug"
         [linkBioPreview]="linkBioPreview"
-        [dark]="dark"
+        [dark]="dark()"
         (toggleDark)="toggleDark()"
       />
     </div>
   }
 
-  @if (!showSkeleton() && data && clinic && !totemMode) {
+  @if (!showSkeleton() && data() && clinic() && !totemMode) {
     <div class="zm-content-enter">
       <app-link-bio-public-layout-preset
-        [model]="model"
-        [clinic]="clinic"
-        [bioLinks]="links"
-        [allDocs]="allLinks"
-        [googleReviews]="googleReviews"
+        [model]="model()"
+        [clinic]="clinic()!"
+        [bioLinks]="links()"
+        [allDocs]="allLinks()"
+        [googleReviews]="googleReviews()"
         [publicSlug]="slug"
         [linkBioPreview]="linkBioPreview"
-        [dark]="dark"
+        [dark]="dark()"
         (toggleDark)="toggleDark()"
         (share)="sharePage()"
       />

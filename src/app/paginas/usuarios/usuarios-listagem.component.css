@@ -1,1 +1,60 @@
-/* Layout em g-card na template; `.action-btn` permanece nos estilos globais onde aplicável */
+/* Ajustes locais da linha — mantém o chrome de n-page-list */
+
+.usuarios-row {
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 0.85rem 1rem;
+}
+
+.usuarios-row__avatar {
+  flex: 0 0 40px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-weight: 600;
+  font-size: 0.8125rem;
+  color: #fff;
+}
+
+.usuarios-row__name {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.usuarios-row__role {
+  font: 500 0.75rem ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  color: var(--n-color-text-weaker);
+  background: var(--n-color-surface-raised, var(--n-color-background));
+  border: 1px solid var(--n-color-border);
+  border-radius: 4px;
+  padding: 1px 6px;
+}
+
+.usuarios-row__contacts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+  margin-top: 0.2rem;
+}
+
+.usuarios-row__contact {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  white-space: nowrap;
+}
+
+.usuarios-row__contact .material-symbols-outlined {
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+@media (max-width: 720px) {
+  .usuarios-row {
+    flex-wrap: wrap;
+  }
+}

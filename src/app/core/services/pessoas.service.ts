@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { ApiService } from './api.service';
 import { map, Observable } from 'rxjs';
 import { Protocolo } from './protocolos.service';
+import { emailExibivel } from '../utils/email-display';
 
 export interface Pessoa {
   id: number;
@@ -101,14 +102,14 @@ export class PessoasService {
     if (params?.page) p['page'] = params.page;
     return this.api.get<ListResponse>('/pessoas', p).pipe(
       map((r) => ({
-        data: r.data,
+        data: r.data.map((p) => this.sanitizePessoa(p)),
         meta: r.meta,
       }))
     );
   }
 
   get(id: number): Observable<PessoaDetalhe> {
-    return this.api.get<OneResponse>(`/pessoas/${id}`).pipe(map((r) => r.data));
+    return this.api.get<OneResponse>(`/pessoas/${id}`).pipe(map((r) => this.sanitizePessoa(r.data)));
   }
 
   create(payload: {
@@ -143,7 +144,7 @@ export class PessoasService {
     notes?: string | null;
     status?: string;
   }): Observable<Pessoa> {
-    return this.api.post<OnePessoaResponse>('/pessoas', payload).pipe(map((r) => r.data));
+    return this.api.post<OnePessoaResponse>('/pessoas', payload).pipe(map((r) => this.sanitizePessoa(r.data)));
   }
 
   update(
@@ -181,7 +182,11 @@ export class PessoasService {
       status: string;
     }>
   ): Observable<Pessoa> {
-    return this.api.put<OnePessoaResponse>(`/pessoas/${id}`, payload).pipe(map((r) => r.data));
+    return this.api.put<OnePessoaResponse>(`/pessoas/${id}`, payload).pipe(map((r) => this.sanitizePessoa(r.data)));
+  }
+
+  private sanitizePessoa<T extends Pessoa>(pessoa: T): T {
+    return { ...pessoa, email: emailExibivel(pessoa.email) };
   }
 
   destroy(id: number): Observable<{ message: string }> {

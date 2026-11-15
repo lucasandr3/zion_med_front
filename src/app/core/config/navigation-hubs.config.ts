@@ -180,6 +180,14 @@ export const HUB_CONFIGURACOES: NavigationHubConfig = {
       route: '/assinatura',
       permission: 'billing.manage',
     },
+    {
+      id: 'integracoes',
+      title: 'Integrações',
+      description: 'Conecte sistemas externos e serviços usados no dia a dia.',
+      icon: 'linked_services',
+      route: '/clinica/integracoes',
+      permission: 'organization.manage',
+    },
   ],
 };
 

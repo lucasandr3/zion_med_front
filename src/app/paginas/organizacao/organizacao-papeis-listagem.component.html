@@ -16,7 +16,7 @@
 </div>
 
 <div class="n-page-list__content">
-  @if (showSkeleton()) {
+  @if (carregando()) {
     <div class="n-page-list__panel">
       <app-list-skeleton [count]="6" />
     </div>
@@ -24,7 +24,6 @@
     <div class="n-page-list__panel">
       <p class="n-muted n-small" style="color: var(--n-color-status-danger, #c62828)">{{ erro() }}</p>
     </div>
-  } @else if (!listaPronta()) {
   } @else if (papeis().length === 0) {
     <div class="n-page-list__empty">
       <nord-empty-state>

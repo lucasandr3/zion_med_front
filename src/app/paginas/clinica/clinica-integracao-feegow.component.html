@@ -85,13 +85,13 @@
             </div>
 
             <div class="flex flex-wrap gap-3">
-              <nord-button type="button" size="s" class="inline-flex items-center gap-2" (click)="salvar()" [attr.disabled]="salvando">
+              <nord-button type="button" size="s" class="inline-flex items-center gap-2" (click)="salvar()" [attr.disabled]="salvando || null">
                 @if (salvando) {
                   <span class="btn-spinner" aria-hidden="true"></span>
                 }
                 {{ salvando ? 'Salvando…' : 'Salvar configuração' }}
               </nord-button>
-              <nord-button type="button" variant="default" size="s" class="inline-flex items-center gap-2" (click)="testarConexao()" [attr.disabled]="testando">
+              <nord-button type="button" variant="default" size="s" class="inline-flex items-center gap-2" (click)="testarConexao()" [attr.disabled]="testando || null">
                 @if (testando) {
                   <span class="btn-spinner" aria-hidden="true"></span>
                 }
