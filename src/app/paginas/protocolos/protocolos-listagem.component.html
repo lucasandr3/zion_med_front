@@ -64,8 +64,8 @@
   } @else {
     <div class="n-page-list__table" id="protocolos-tbody">
       @for (grupo of grupos(); track grupo.key) {
-        <div class="n-page-list__section">
-          <h3 class="n-page-list__section-title">{{ grupo.label }}</h3>
+        <div class="n-page-list__section protocolos-day">
+          <h3 class="n-page-list__section-title protocolos-day__label">{{ grupo.label }}</h3>
         </div>
         @for (p of grupo.items; track p.id) {
           <div
@@ -79,18 +79,6 @@
             <div class="n-page-list__row-main">
               <div class="n-page-list__row-title protocolos-row__title">
                 <span class="protocolos-row__code">{{ p.protocol_number || p.id }}</span>
-                <nord-button
-                  square
-                  variant="plain"
-                  size="s"
-                  type="button"
-                  class="protocolos-row__copy"
-                  aria-label="Copiar protocolo"
-                  title="Copiar protocolo"
-                  (click)="copiarProtocolo(p, $event)"
-                >
-                  <span class="material-symbols-outlined text-base" aria-hidden="true">content_copy</span>
-                </nord-button>
               </div>
               <div class="n-page-list__row-meta protocolos-row__doc">{{ p.template_name || '—' }}</div>
               <div class="n-page-list__row-meta protocolos-row__people">{{ pessoasTexto(p) }}</div>
@@ -130,14 +118,12 @@
         }
       }
     </div>
-    @if (meta().last_page > 1 || meta().total > 0) {
-      <div class="n-page-list__footer">
-        <span class="n-muted n-small">{{ contagemTexto() }}</span>
-        @if (meta().last_page > 1) {
-          <zm-pagination [currentPage]="meta().current_page" [lastPage]="meta().last_page" (pageChange)="carregar($event)" />
-        }
-      </div>
-    }
+    <div class="n-page-list__footer">
+      <span class="n-muted n-small">{{ contagemTexto() }}</span>
+      @if (meta().last_page > 1) {
+        <zm-pagination [currentPage]="meta().current_page" [lastPage]="meta().last_page" (pageChange)="carregar($event)" />
+      }
+    </div>
     <nord-tooltip id="tip-protocolos-detalhes" [delay]="0">Detalhes</nord-tooltip>
   }
 </div>
