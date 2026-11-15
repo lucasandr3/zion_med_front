@@ -15,11 +15,18 @@ type MobileBridge = {
 type ExperienceEnv = {
   painelUrl?: string;
   mobileAppUrl?: string;
+  /** Quando false, a experiência `/m` fica desligada (sem auto-redirect nem acesso). */
+  mobileExperienceEnabled?: boolean;
   /** Hosts que devem abrir a experiência mobile por padrão (ex.: app. após migração). */
   mobileHosts?: string[];
   /** Hosts do painel completo (ex.: painel.). */
   painelHosts?: string[];
 };
+
+/** Flag de ambiente: experiência Gestgo Mobile ligada? */
+export function isMobileExperienceEnabled(): boolean {
+  return envExperience().mobileExperienceEnabled !== false;
+}
 
 function envExperience(): ExperienceEnv {
   return environment as typeof environment & ExperienceEnv;
@@ -56,6 +63,7 @@ export function isMobileViewport(widthPx?: number): boolean {
 
 /** Experiência sugerida no CTA Entrar do site. */
 export function suggestExperienceForViewport(widthPx?: number): GestgoExperience {
+  if (!isMobileExperienceEnabled()) return 'painel';
   return isMobileViewport(widthPx) ? 'mobile' : 'painel';
 }
 
@@ -144,6 +152,7 @@ export function consumeMobileReturnTo(): string | null {
  * - Ponte temporária (envio/detalhe) → não redireciona
  */
 export function shouldAutoOpenMobile(): boolean {
+  if (!isMobileExperienceEnabled()) return false;
   const host = currentHostname();
   const cfg = envExperience();
   if (hostMatches(host, cfg.painelHosts)) return false;
