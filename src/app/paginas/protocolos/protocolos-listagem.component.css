@@ -1,5 +1,23 @@
 /* Ajustes locais da linha — mantém o chrome de n-page-list */
 
+.protocolos-day {
+  display: flex;
+  align-items: center;
+  background: color-mix(in srgb, var(--n-color-border) 42%, var(--n-color-surface));
+  /* sobrescreve o padding assimétrico de .n-page-list__section */
+  padding: 0.55rem 1rem;
+  box-sizing: border-box;
+  min-block-size: 0;
+}
+
+.protocolos-day__label {
+  margin: 0;
+  color: var(--n-color-text-weak);
+  font-weight: 700;
+  line-height: 1;
+  display: block;
+}
+
 .protocolos-row {
   flex-wrap: nowrap;
   align-items: center;
@@ -14,16 +32,9 @@
 .protocolos-row__code {
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-size: 0.875rem;
+  font-weight: 700;
   letter-spacing: 0.02em;
-}
-
-.protocolos-row__copy {
-  opacity: 0;
-}
-
-.protocolos-row:hover .protocolos-row__copy,
-.protocolos-row:focus-within .protocolos-row__copy {
-  opacity: 1;
+  color: var(--n-color-text);
 }
 
 .protocolos-row__doc {
@@ -62,9 +73,5 @@
 
   .protocolos-row__when {
     display: none;
-  }
-
-  .protocolos-row__copy {
-    opacity: 1;
   }
 }

@@ -239,12 +239,6 @@ export class ProtocolosListagemComponent implements OnInit, OnDestroy {
     this.router.navigate(['/protocolos', p.id]);
   }
 
-  copiarProtocolo(p: Protocolo, event: Event): void {
-    event.stopPropagation();
-    const texto = p.protocol_number || String(p.id);
-    void navigator.clipboard?.writeText(texto);
-  }
-
   pessoasTexto(p: Protocolo): string {
     const req = p.submitter_name?.trim() || '—';
     const sig = p.person?.name?.trim() || req;
@@ -357,8 +351,8 @@ export class ProtocolosListagemComponent implements OnInit, OnDestroy {
   contagemTexto(): string {
     const shown = this.protocolos().length;
     const total = this.meta().total;
-    if (shown === total) return total === 1 ? '1 registro' : `${total} registros`;
-    return `${shown} de ${total} registros`;
+    if (shown === total) return total === 1 ? '1 protocolo' : `${total} protocolos`;
+    return `${shown} de ${total} protocolos`;
   }
 
   private agruparPorDia(items: Protocolo[]): ProtocoloGrupo[] {
