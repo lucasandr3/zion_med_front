@@ -6,7 +6,7 @@
         type="text"
         [(ngModel)]="busca"
         (keydown.enter)="carregar(1)"
-        placeholder="Buscar..."
+        placeholder="Buscar por protocolo, nome ou documento…"
         class="form-search-input w-full text-sm"
         aria-label="Buscar protocolos"
       />
@@ -54,64 +54,76 @@
       <nord-empty-state>
         <h2>Nenhum protocolo encontrado</h2>
         <p>Ajuste a busca ou os filtros para encontrar protocolos.</p>
+        @if (temFiltrosAtivos || busca.trim()) {
+          <nord-button variant="default" type="button" (click)="limparTudo()">
+            Limpar filtros
+          </nord-button>
+        }
       </nord-empty-state>
     </div>
   } @else {
     <div class="n-page-list__table" id="protocolos-tbody">
-      @for (p of protocolos(); track p.id) {
-        <div
-          class="n-page-list__row n-page-list__row--clickable"
-          role="link"
-          tabindex="0"
-          (click)="irParaDetalhe(p, $event)"
-          (keydown.enter)="irParaDetalhe(p, $event)"
-        >
-          <div class="n-page-list__row-main">
-            <div class="n-page-list__row-title">{{ p.protocol_number || p.id }}</div>
-            <div class="n-page-list__row-meta">
-              {{ dataFormatada(p.submitted_at || p.created_at) }}
-              · {{ p.template_name ?? '—' }}
-              · {{ p.person?.name ?? '—' }}
-              · {{ p.submitter_name ?? '—' }}
+      @for (grupo of grupos(); track grupo.key) {
+        <div class="n-page-list__section protocolos-day">
+          <h3 class="n-page-list__section-title protocolos-day__label">{{ grupo.label }}</h3>
+        </div>
+        @for (p of grupo.items; track p.id) {
+          <div
+            class="n-page-list__row n-page-list__row--clickable protocolos-row"
+            role="link"
+            tabindex="0"
+            [attr.title]="'Abrir ' + (p.protocol_number || p.id)"
+            (click)="irParaDetalhe(p, $event)"
+            (keydown.enter)="irParaDetalhe(p, $event)"
+          >
+            <div class="n-page-list__row-main">
+              <div class="n-page-list__row-title protocolos-row__title">
+                <span class="protocolos-row__code">{{ p.protocol_number || p.id }}</span>
+              </div>
+              <div class="n-page-list__row-meta protocolos-row__doc">{{ p.template_name || '—' }}</div>
+              <div class="n-page-list__row-meta protocolos-row__people">{{ pessoasTexto(p) }}</div>
+            </div>
+            <div
+              class="protocolos-row__when n-muted n-small"
+              [attr.title]="dataFormatada(p.submitted_at || p.created_at)"
+            >
+              <strong class="protocolos-row__time">{{ horaFormatada(p.submitted_at || p.created_at) }}</strong>
+              @if (isPendente(p)) {
+                <span [class.protocolos-row__late]="isAtrasado(p)">{{ relativo(p.submitted_at || p.created_at) }}</span>
+              } @else {
+                <span>{{ dataCurta(p.submitted_at || p.created_at) }}</span>
+              }
+            </div>
+            <div class="n-page-list__actions" (click)="$event.stopPropagation()">
+              @if (badgeVariant(p) === 'warning') {
+                <nord-badge variant="warning">{{ statusLabelFor(p) }}</nord-badge>
+              } @else if (badgeVariant(p) === 'success') {
+                <nord-badge variant="success">{{ statusLabelFor(p) }}</nord-badge>
+              } @else {
+                <nord-badge variant="danger">{{ statusLabelFor(p) }}</nord-badge>
+              }
+              <nord-button
+                square
+                variant="plain"
+                size="s"
+                [routerLink]="['/protocolos', p.id]"
+                aria-label="Ver detalhes do protocolo {{ p.protocol_number || p.id }}"
+                aria-describedby="tip-protocolos-detalhes"
+                title="Ver detalhes"
+              >
+                <span class="material-symbols-outlined text-base" aria-hidden="true">chevron_right</span>
+              </nord-button>
             </div>
           </div>
-          <div class="n-page-list__actions" (click)="$event.stopPropagation()">
-            @if (p.status === 'pending' || (p.status && p.status.toLowerCase() === 'pending')) {
-              <nord-badge variant="warning">{{ statusLabel(p.status) }}</nord-badge>
-            } @else if (p.status === 'approved' || (p.status && p.status.toLowerCase() === 'approved')) {
-              @if (p.consent_expired) {
-                <nord-badge variant="warning">Vencido</nord-badge>
-              } @else {
-                <nord-badge variant="success">{{ statusLabel(p.status) }}</nord-badge>
-              }
-            } @else if (p.status === 'revoked' || (p.status && p.status.toLowerCase() === 'revoked')) {
-              <nord-badge variant="danger">{{ statusLabel(p.status) }}</nord-badge>
-            } @else {
-              <nord-badge variant="danger">{{ statusLabel(p.status) }}</nord-badge>
-            }
-            <nord-button
-              square
-              variant="plain"
-              size="s"
-              [routerLink]="['/protocolos', p.id]"
-              aria-label="Ver detalhes do protocolo {{ p.protocol_number || p.id }}"
-              aria-describedby="tip-protocolos-detalhes"
-              title="Ver detalhes"
-            >
-              <span class="material-symbols-outlined text-base" aria-hidden="true">chevron_right</span>
-            </nord-button>
-          </div>
-        </div>
+        }
       }
     </div>
-    @if (meta().last_page > 1 || meta().total > 0) {
-      <div class="n-page-list__footer">
-        <span class="n-muted n-small">{{ contagemTexto() }}</span>
-        @if (meta().last_page > 1) {
-          <zm-pagination [currentPage]="meta().current_page" [lastPage]="meta().last_page" (pageChange)="carregar($event)" />
-        }
-      </div>
-    }
+    <div class="n-page-list__footer">
+      <span class="n-muted n-small">{{ contagemTexto() }}</span>
+      @if (meta().last_page > 1) {
+        <zm-pagination [currentPage]="meta().current_page" [lastPage]="meta().last_page" (pageChange)="carregar($event)" />
+      }
+    </div>
     <nord-tooltip id="tip-protocolos-detalhes" [delay]="0">Detalhes</nord-tooltip>
   }
 </div>

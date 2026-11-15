@@ -1,0 +1,92 @@
+@if (!bootDone()) {
+  <div class="gm-preload gm-preload--full" aria-busy="true" aria-label="Carregando Gestgo">
+    <div class="gm-login__mark gm-login__mark--preload">
+      <zm-gestgo-brand-mark />
+    </div>
+    <div class="gm-preload__bar"><span></span></div>
+  </div>
+} @else {
+  <div class="gm-login">
+    <header class="gm-login__hero">
+      <div class="gm-login__mark" aria-hidden="true">
+        <zm-gestgo-brand-mark />
+      </div>
+      <div class="gm-logo">gest<span>go</span></div>
+      <p class="gm-login__lead">Bem-vindo de volta</p>
+    </header>
+
+    <form class="gm-login__form" (ngSubmit)="enviar()" novalidate>
+      @if (error()) {
+        <div class="gm-notice">{{ error() }}</div>
+      }
+
+      <div class="gm-field">
+        <label for="gm-email">E-mail</label>
+        <input
+          id="gm-email"
+          type="email"
+          name="email"
+          autocomplete="username"
+          inputmode="email"
+          [(ngModel)]="email"
+          required
+          placeholder="voce@empresa.com.br"
+        />
+      </div>
+
+      <div class="gm-field">
+        <label for="gm-senha">Senha</label>
+        <div class="gm-login__password">
+          <input
+            id="gm-senha"
+            [type]="mostrarSenha() ? 'text' : 'password'"
+            name="senha"
+            autocomplete="current-password"
+            [(ngModel)]="senha"
+            required
+            placeholder="Sua senha"
+          />
+          <button
+            type="button"
+            class="gm-login__eye"
+            (click)="toggleSenha()"
+            [attr.aria-label]="mostrarSenha() ? 'Ocultar senha' : 'Mostrar senha'"
+          >
+            <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">
+              {{ mostrarSenha() ? 'visibility_off' : 'visibility' }}
+            </span>
+          </button>
+        </div>
+      </div>
+
+      <div class="gm-login__options">
+        <label class="gm-login__check">
+          <input type="checkbox" name="manter" [(ngModel)]="manterConectado" />
+          <span>Manter conectado</span>
+        </label>
+        <a class="gm-login__link" routerLink="/esqueci-a-senha">Esqueci a senha</a>
+      </div>
+
+      <button type="submit" class="gm-btn gm-login__submit" [disabled]="loading() || !email || !senha">
+        @if (loading()) {
+          <span class="gm-btn__spin" aria-hidden="true"></span>
+          Entrando…
+        } @else {
+          Entrar
+        }
+      </button>
+    </form>
+
+    <div class="gm-login__divider" role="separator"><span>ou</span></div>
+
+    <button type="button" class="gm-login__bio" (click)="entrarBiometria()" [disabled]="loading()">
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">fingerprint</span>
+      Entrar com biometria
+    </button>
+
+    <footer class="gm-login__footer">
+      <p>Precisa de ajuda?</p>
+      <a class="gm-login__link" href="mailto:suporte@gestgo.com.br">Falar com o suporte</a>
+    </footer>
+  </div>
+}

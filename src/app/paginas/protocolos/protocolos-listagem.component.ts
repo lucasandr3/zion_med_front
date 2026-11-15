@@ -1,16 +1,35 @@
-import { Component, OnInit, OnDestroy, inject, Signal, ViewChild, TemplateRef, ViewContainerRef, ChangeDetectionStrategy, signal, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  inject,
+  ViewChild,
+  TemplateRef,
+  ViewContainerRef,
+  ChangeDetectionStrategy,
+  signal,
+  computed,
+  CUSTOM_ELEMENTS_SCHEMA,
+  DestroyRef,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { Subject, switchMap, tap, catchError, finalize, of } from 'rxjs';
 import { ProtocolosService, Protocolo } from '../../core/services/protocolos.service';
 import { TemplatesService, Template } from '../../core/services/templates.service';
-import { LoadingService } from '../../shared/services/loading.service';
 import { ListSkeletonComponent } from '../../shared/components/list-skeleton/list-skeleton.component';
 import { ZmPaginationComponent } from '../../shared/components/ui';
 import { GestgoSheetService } from '@/shared/components/sheet/sheet.service';
 import type { GestgoSheetRef } from '@/shared/components/sheet/sheet-ref';
 import { GestgoComboboxComponent, type GestgoComboboxOption } from '@/shared/components/combobox';
 import { NORD_FORM_IMPORTS } from '@/shared/nord';
-import { formatarDataHoraBr } from '@/shared/utils/date';
+import { formatarDataBr, formatarDataHoraBr } from '@/shared/utils/date';
+
+type ProtocoloGrupo = { key: string; label: string; items: Protocolo[] };
+
+const LATE_AFTER_H = 24;
+
 @Component({
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'app-protocolos-listagem',
@@ -23,8 +42,10 @@ import { formatarDataHoraBr } from '@/shared/utils/date';
     RouterLink,
     ListSkeletonComponent,
     ZmPaginationComponent,
-    GestgoComboboxComponent],
+    GestgoComboboxComponent,
+  ],
   templateUrl: './protocolos-listagem.component.html',
+  styleUrls: ['./protocolos-listagem.component.css'],
 })
 export class ProtocolosListagemComponent implements OnInit, OnDestroy {
   readonly protocolos = signal<Protocolo[]>([]);
@@ -35,17 +56,19 @@ export class ProtocolosListagemComponent implements OnInit, OnDestroy {
     per_page: 20,
     total: 0,
   });
-  showSkeleton!: Signal<boolean>;
+  readonly showSkeleton = signal(false);
   readonly listaPronta = signal(false);
   readonly erro = signal('');
   readonly exportando = signal(false);
 
   busca = '';
   template_id: number | '' = '';
-  status: string = '';
+  status = '';
   data_inicio = '';
   data_fim = '';
   readonly filterDrawerOpen = signal(false);
+
+  readonly grupos = computed<ProtocoloGrupo[]>(() => this.agruparPorDia(this.protocolos()));
 
   @ViewChild('protocolosFiltrosTpl') protocolosFiltrosTpl?: TemplateRef<void>;
 
@@ -53,23 +76,27 @@ export class ProtocolosListagemComponent implements OnInit, OnDestroy {
 
   private protocolosService = inject(ProtocolosService);
   private templatesService = inject(TemplatesService);
-  private loadingService = inject(LoadingService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private readonly vcr = inject(ViewContainerRef);
   private readonly gestgoSheet = inject(GestgoSheetService);
+  private readonly destroyRef = inject(DestroyRef);
+  /** Uma fila com switchMap: nova página cancela a request anterior. */
+  private readonly carregar$ = new Subject<number>();
 
   readonly opcoesStatusFiltro: GestgoComboboxOption[] = [
     { value: '', label: 'Todas' },
     { value: 'pending', label: 'Pendente' },
     { value: 'approved', label: 'Aprovado' },
     { value: 'rejected', label: 'Reprovado' },
-    { value: 'revoked', label: 'Revogado' }];
+    { value: 'revoked', label: 'Revogado' },
+  ];
 
   get opcoesTemplateFiltro(): GestgoComboboxOption[] {
     return [
       { value: '', label: 'Todos' },
-      ...this.templates().map((t) => ({ value: String(t.id), label: t.name }))];
+      ...this.templates().map((t) => ({ value: String(t.id), label: t.name })),
+    ];
   }
 
   get templateFiltroKey(): string {
@@ -91,12 +118,49 @@ export class ProtocolosListagemComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.filtrosSheetRef?.close();
   }
+
   ngOnInit(): void {
     const statusFromQuery = this.route.snapshot.queryParamMap.get('status');
     if (statusFromQuery) {
       this.status = statusFromQuery;
     }
     this.templatesService.list().subscribe({ next: (t) => this.templates.set(t) });
+
+    this.carregar$
+      .pipe(
+        switchMap((page) => {
+          const params: Parameters<ProtocolosService['list']>[0] = { per_page: 20, page };
+          if (this.busca?.trim()) params.busca = this.busca.trim();
+          if (this.template_id !== '') params.template_id = Number(this.template_id);
+          if (this.status) params.status = this.status;
+          if (this.data_inicio) params.data_inicio = this.data_inicio;
+          if (this.data_fim) params.data_fim = this.data_fim;
+
+          this.erro.set('');
+          this.showSkeleton.set(false);
+          const skeletonTimer = setTimeout(() => this.showSkeleton.set(true), 300);
+
+          return this.protocolosService.list(params).pipe(
+            tap((res) => {
+              this.listaPronta.set(true);
+              this.protocolos.set(res.data);
+              this.meta.set(res.meta);
+            }),
+            catchError(() => {
+              this.listaPronta.set(true);
+              this.erro.set('Não foi possível carregar os protocolos.');
+              return of(null);
+            }),
+            finalize(() => {
+              clearTimeout(skeletonTimer);
+              this.showSkeleton.set(false);
+            }),
+          );
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe();
+
     this.carregar();
   }
 
@@ -119,26 +183,7 @@ export class ProtocolosListagemComponent implements OnInit, OnDestroy {
   }
 
   carregar(page = 1): void {
-    const params: Parameters<ProtocolosService['list']>[0] = { per_page: 20, page };
-    if (this.busca?.trim()) params.busca = this.busca.trim();
-    if (this.template_id !== '') params.template_id = Number(this.template_id);
-    if (this.status) params.status = this.status;
-    if (this.data_inicio) params.data_inicio = this.data_inicio;
-    if (this.data_fim) params.data_fim = this.data_fim;
-
-    const { data$, showSkeleton } = this.loadingService.loadWithThreshold(this.protocolosService.list(params));
-    this.showSkeleton = showSkeleton;
-    data$.subscribe({
-      next: (res) => {
-        this.listaPronta.set(true);
-        this.protocolos.set(res.data);
-        this.meta.set(res.meta);
-      },
-      error: () => {
-        this.listaPronta.set(true);
-        this.erro.set('Não foi possível carregar os protocolos.');
-      },
-    });
+    this.carregar$.next(page);
   }
 
   aplicarFiltros(): void {
@@ -153,6 +198,11 @@ export class ProtocolosListagemComponent implements OnInit, OnDestroy {
     this.data_fim = '';
     this.carregar(1);
     this.filtrosSheetRef?.close();
+  }
+
+  limparTudo(): void {
+    this.busca = '';
+    this.limparFiltros();
   }
 
   openFilterDrawer(): void {
@@ -185,8 +235,39 @@ export class ProtocolosListagemComponent implements OnInit, OnDestroy {
   }
 
   irParaDetalhe(p: Protocolo, event: Event): void {
-    if ((event.target as HTMLElement).closest('a, button')) return;
+    if ((event.target as HTMLElement).closest('a, button, nord-button')) return;
     this.router.navigate(['/protocolos', p.id]);
+  }
+
+  pessoasTexto(p: Protocolo): string {
+    const req = p.submitter_name?.trim() || '—';
+    const sig = p.person?.name?.trim() || req;
+    if (req === sig) return req;
+    return `Solicitante: ${req} · Signatário: ${sig}`;
+  }
+
+  isPendente(p: Protocolo): boolean {
+    return (p.status || '').toLowerCase() === 'pending';
+  }
+
+  isAtrasado(p: Protocolo): boolean {
+    if (!this.isPendente(p)) return false;
+    const d = this.parseDate(p.submitted_at || p.created_at);
+    if (!d) return false;
+    return (Date.now() - d.getTime()) / 36e5 > LATE_AFTER_H;
+  }
+
+  statusLabelFor(p: Protocolo): string {
+    if (p.consent_expired && (p.status || '').toLowerCase() === 'approved') return 'Vencido';
+    return this.statusLabel(p.status);
+  }
+
+  badgeVariant(p: Protocolo): 'warning' | 'success' | 'danger' {
+    const s = (p.status || '').toLowerCase();
+    if (p.consent_expired && s === 'approved') return 'warning';
+    if (s === 'pending') return 'warning';
+    if (s === 'approved') return 'success';
+    return 'danger';
   }
 
   statusLabel(s: string): string {
@@ -201,6 +282,26 @@ export class ProtocolosListagemComponent implements OnInit, OnDestroy {
 
   dataFormatada(val: string | undefined): string {
     return formatarDataHoraBr(val) || '—';
+  }
+
+  dataCurta(val: string | undefined): string {
+    return formatarDataBr(val) || '—';
+  }
+
+  horaFormatada(val: string | undefined): string {
+    const d = this.parseDate(val);
+    if (!d) return '—';
+    return d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  relativo(val: string | undefined): string {
+    const d = this.parseDate(val);
+    if (!d) return '';
+    const h = Math.floor((Date.now() - d.getTime()) / 36e5);
+    if (h < 1) return 'há minutos';
+    if (h < 24) return `há ${h} h`;
+    const days = Math.floor(h / 24);
+    return `há ${days} ${days === 1 ? 'dia' : 'dias'}`;
   }
 
   exportarCsv(): void {
@@ -248,7 +349,40 @@ export class ProtocolosListagemComponent implements OnInit, OnDestroy {
   }
 
   contagemTexto(): string {
-    const n = this.meta().total;
-    return n === 1 ? '1 registro' : `${n} registros`;
+    const shown = this.protocolos().length;
+    const total = this.meta().total;
+    if (shown === total) return total === 1 ? '1 protocolo' : `${total} protocolos`;
+    return `${shown} de ${total} protocolos`;
+  }
+
+  private agruparPorDia(items: Protocolo[]): ProtocoloGrupo[] {
+    const groups: ProtocoloGrupo[] = [];
+    let lastKey = '';
+    for (const p of items) {
+      const d = this.parseDate(p.submitted_at || p.created_at) ?? new Date(0);
+      const key = d.toDateString();
+      if (key !== lastKey) {
+        groups.push({ key, label: this.groupLabel(d), items: [] });
+        lastKey = key;
+      }
+      groups[groups.length - 1].items.push(p);
+    }
+    return groups;
+  }
+
+  private groupLabel(d: Date): string {
+    const hoje = new Date();
+    const a = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate());
+    const b = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    const diff = Math.round((a.getTime() - b.getTime()) / 864e5);
+    if (diff === 0) return 'Hoje';
+    if (diff === 1) return 'Ontem';
+    return formatarDataBr(d) || d.toLocaleDateString('pt-BR');
+  }
+
+  private parseDate(val: string | undefined): Date | null {
+    if (!val) return null;
+    const d = new Date(val);
+    return Number.isNaN(d.getTime()) ? null : d;
   }
 }

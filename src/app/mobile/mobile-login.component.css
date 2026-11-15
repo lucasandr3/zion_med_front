@@ -1,0 +1,275 @@
+:host {
+  display: block;
+  min-height: 100dvh;
+  color: var(--c-text, #17201f);
+  font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background:
+    radial-gradient(120% 60% at 50% -12%, color-mix(in srgb, var(--c-primary, #0f766e) 14%, transparent), transparent 62%),
+    linear-gradient(180deg, #f7fbfa 0%, #f3f7f6 100%);
+}
+
+.gm-login {
+  max-width: 414px;
+  margin: 0 auto;
+  min-height: 100dvh;
+  padding: calc(48px + env(safe-area-inset-top, 0px)) 28px calc(28px + env(safe-area-inset-bottom, 0px));
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+.gm-login__hero {
+  margin: 4px 0 34px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.gm-login__mark {
+  width: 72px;
+  height: 72px;
+  border-radius: 18px;
+  padding: 12px;
+  box-sizing: border-box;
+  background: #fff;
+  border: 1px solid color-mix(in srgb, var(--c-primary, #0f766e) 12%, #e5ebe9);
+  box-shadow: 0 10px 28px color-mix(in srgb, var(--c-primary, #0f766e) 12%, transparent);
+  margin-bottom: 16px;
+}
+
+.gm-login__mark--preload {
+  margin: 0 0 18px;
+}
+
+.gm-login__hero .gm-logo {
+  font-size: 34px;
+  letter-spacing: -0.08em;
+  line-height: 1;
+  font-weight: 850;
+  color: #1a2330;
+}
+
+.gm-login__hero .gm-logo span {
+  color: var(--c-primary, #0f766e);
+}
+
+.gm-login__lead {
+  margin: 10px 0 0;
+  font-size: 15px;
+  color: #6b7a76;
+  font-weight: 500;
+}
+
+.gm-login__form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.gm-login__form .gm-field {
+  margin: 0;
+}
+
+.gm-login__form .gm-field label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--c-primary, #0f766e);
+  margin-bottom: 8px;
+}
+
+.gm-login__form .gm-field input,
+.gm-login__password input {
+  min-height: 50px;
+  border-radius: 12px;
+  font-size: 15px;
+  border: 1px solid #dce5e2;
+  background: #fff;
+  color: var(--c-text, #17201f);
+  padding: 12px 14px;
+  width: 100%;
+  box-sizing: border-box;
+  outline: none;
+}
+
+.gm-login__form .gm-field input:focus,
+.gm-login__password input:focus {
+  border-color: var(--c-primary, #0f766e);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--c-primary, #0f766e) 16%, transparent);
+}
+
+.gm-login__password {
+  position: relative;
+}
+
+.gm-login__password input {
+  padding-right: 46px;
+}
+
+.gm-login__eye {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 40px;
+  height: 40px;
+  border: 0;
+  background: transparent;
+  color: #7a8a86;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  padding: 0;
+}
+
+.gm-login__eye:active {
+  color: var(--c-primary, #0f766e);
+}
+
+.gm-login__options {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: -2px;
+}
+
+.gm-login__check {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #3d4a47;
+  cursor: pointer;
+  user-select: none;
+}
+
+.gm-login__check input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--c-primary, #0f766e);
+  margin: 0;
+  flex-shrink: 0;
+}
+
+.gm-login__link {
+  color: var(--c-primary, #0f766e);
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.gm-login__submit {
+  margin-top: 4px;
+  min-height: 52px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 700;
+  background: var(--c-primary, #0f766e);
+  box-shadow: none;
+}
+
+.gm-login__divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 22px 0;
+  color: #9aa8a4;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.gm-login__divider::before,
+.gm-login__divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: #dde6e3;
+}
+
+.gm-login__bio {
+  width: 100%;
+  min-height: 52px;
+  border-radius: 12px;
+  border: 1px solid #d7e1de;
+  background: #fff;
+  color: #24302d;
+  font-size: 15px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  padding: 12px 16px;
+}
+
+.gm-login__bio .gestgo-mi {
+  color: var(--c-primary, #0f766e);
+  font-size: 1.35rem;
+}
+
+.gm-login__bio:active {
+  background: #f7fafa;
+}
+
+.gm-login__bio:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.gm-login__footer {
+  margin-top: auto;
+  padding-top: 36px;
+  text-align: center;
+}
+
+.gm-login__footer p {
+  margin: 0 0 6px;
+  font-size: 13px;
+  color: #7a8a86;
+  font-weight: 500;
+}
+
+.gm-login__form .gm-notice {
+  margin: 0;
+}
+
+.gm-btn__spin {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: gm-spin 0.7s linear infinite;
+}
+
+@keyframes gm-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (min-width: 901px) {
+  :host {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 16px;
+  }
+
+  .gm-login {
+    width: 414px;
+    min-height: min(820px, calc(100dvh - 40px));
+    border: 7px solid #22283d;
+    border-radius: 44px;
+    background:
+      radial-gradient(120% 60% at 50% -12%, color-mix(in srgb, var(--c-primary, #0f766e) 12%, transparent), transparent 62%),
+      #f7fbfa;
+    box-shadow:
+      0 35px 90px color-mix(in srgb, var(--c-text, #17201f) 22%, transparent),
+      0 0 0 1px #777b9a;
+  }
+}

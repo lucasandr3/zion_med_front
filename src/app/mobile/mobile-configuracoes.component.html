@@ -1,0 +1,103 @@
+<div class="gm-backrow">
+  <a class="gm-icon-btn" routerLink="/m" aria-label="Voltar">
+    <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">arrow_back</span>
+  </a>
+  <div>
+    <h1>Configurações</h1>
+    <small>Tema e notificações do app</small>
+  </div>
+</div>
+
+<section class="gm-panel">
+  <h2 class="gm-cfg__label">
+    <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">palette</span>
+    Aparência
+  </h2>
+  <p class="gm-hint" style="margin:0 0 14px">A cor acompanha o tema da sua conta Gestgo.</p>
+
+  <div class="gm-cfg__modes">
+    <button type="button" class="gm-cfg__mode" [class.is-on]="!modoEscuro()" (click)="aplicarModoEscuro(false)">
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--m" aria-hidden="true">light_mode</span>
+      Claro
+    </button>
+    <button type="button" class="gm-cfg__mode" [class.is-on]="modoEscuro()" (click)="aplicarModoEscuro(true)">
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--m" aria-hidden="true">dark_mode</span>
+      Escuro
+    </button>
+  </div>
+
+  <p class="gm-cfg__sub">Cor do tema</p>
+  <div class="gm-cfg__swatches" role="list">
+    @for (t of temas; track t.key) {
+      <button
+        type="button"
+        class="gm-cfg__swatch"
+        role="listitem"
+        [class.is-on]="temaAtual() === t.key"
+        [style.--swatch]="t.color"
+        [attr.aria-label]="t.labelPt"
+        [attr.title]="t.labelPt"
+        (click)="aplicarTema(t.key)"
+      >
+        @if (temaAtual() === t.key) {
+          <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">check</span>
+        }
+      </button>
+    }
+  </div>
+  <p class="gm-hint" style="margin:10px 0 0">Selecionado: <strong>{{ temaMeta?.labelPt ?? '—' }}</strong></p>
+</section>
+
+<section class="gm-panel">
+  <h2 class="gm-cfg__label">
+    <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">person</span>
+    Conta
+  </h2>
+  <p class="gm-hint" style="margin:0 0 14px">
+    {{ nomeUsuario }}{{ emailUsuario ? ' · ' + emailUsuario : '' }}
+  </p>
+  <button type="button" class="gm-btn gm-btn--secondary" (click)="sair()" [disabled]="saindo()">
+    <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">logout</span>
+    {{ saindo() ? 'Saindo…' : 'Sair' }}
+  </button>
+</section>
+
+<section class="gm-panel">
+  <h2 class="gm-cfg__label">
+    <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">notifications</span>
+    Notificações push
+  </h2>
+  <p class="gm-hint" style="margin:0 0 14px">
+    Receba avisos de fichas e protocolos mesmo com o app fechado. Sem dados sensíveis no texto.
+  </p>
+
+  @if (!pushSupported()) {
+    <div class="gm-notice">Este navegador não suporta notificações push.</div>
+  } @else {
+    <button
+      type="button"
+      class="gm-btn"
+      [class.gm-btn--secondary]="pushSubscribed()"
+      [disabled]="pushBusy()"
+      (click)="togglePush()"
+    >
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">
+        {{ pushSubscribed() ? 'notifications_off' : 'notifications_active' }}
+      </span>
+      {{ pushBusy() ? 'Aguarde…' : pushSubscribed() ? 'Desativar push' : 'Ativar push' }}
+    </button>
+    <p class="gm-hint" style="margin-top:10px">
+      Status:
+      @if (pushSubscribed()) {
+        ativo neste dispositivo
+      } @else if (pushPermission() === 'denied') {
+        bloqueado nas configurações do navegador
+      } @else {
+        desativado
+      }
+    </p>
+    @if (pushError()) {
+      <div class="gm-notice" style="margin-top:12px">{{ pushError() }}</div>
+    }
+  }
+</section>

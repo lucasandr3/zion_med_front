@@ -53,7 +53,7 @@ const STATELESS_PUBLIC_API_MARKERS = [
 ] as const;
 
 /** Rotas SPA abertas ao cliente — 401 de qualquer API não deve forçar /autenticacao. */
-const PUBLIC_SPA_PREFIXES = ['/f/', '/l/', '/a/', '/verificar', '/planos', '/para/', '/como-funciona/', '/autenticacao', '/esqueci-a-senha', '/redefinir-senha', '/verificar-email', '/termos-de-uso', '/privacidade', '/f/sucesso'] as const;
+const PUBLIC_SPA_PREFIXES = ['/f/', '/l/', '/a/', '/verificar', '/planos', '/para/', '/como-funciona/', '/link-na-bio', '/autenticacao', '/m/login', '/esqueci-a-senha', '/redefinir-senha', '/verificar-email', '/termos-de-uso', '/privacidade', '/f/sucesso'] as const;
 
 function isPublicApiUrl(url: string): boolean {
   return PUBLIC_API_MARKERS.some((marker) => url.includes(marker));
@@ -113,9 +113,13 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(clone).pipe(
     catchError((err: HttpErrorResponse) => {
+      // Laravel devolve 419; Spring Security CSRF devolve 403 com body vazio.
+      const csrfFailed =
+        err.status === 419 ||
+        (err.status === 403 && (err.error == null || err.error === ''));
       if (
         withCredentials &&
-        err.status === 419 &&
+        csrfFailed &&
         MUTATING.has(req.method) &&
         !req.context.get(CSRF_RETRIED)
       ) {
@@ -141,7 +145,10 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
       if (err.status === 401 && !skipAuthRedirect) {
         auth.clearSession();
-        void router.navigate(['/autenticacao']);
+        const path = (router.url || '').split('?')[0] || '';
+        const login =
+          path === '/m' || path.startsWith('/m/') ? '/m/login' : '/autenticacao';
+        void router.navigateByUrl(login);
       } else if (
         err.status === 403 &&
         auth.isAuthenticated() &&

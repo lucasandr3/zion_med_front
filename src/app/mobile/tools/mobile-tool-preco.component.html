@@ -1,0 +1,122 @@
+@if (isMobileShell) {
+  <div class="gm-backrow">
+    <a class="gm-icon-btn" [routerLink]="backLink" aria-label="Voltar">
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">arrow_back</span>
+    </a>
+    <div>
+      <h1>Preço e lucro</h1>
+      <small>Simulador de precificação</small>
+    </div>
+  </div>
+
+  <p class="gm-sub">Monte um preço com insumos, tempo, taxas e margem. Não é aconselhamento financeiro.</p>
+
+  <div class="gm-panel">
+    <div class="gm-twocol">
+      <div class="gm-field">
+        <label>Custo de materiais (R$)</label>
+        <input type="number" min="0" step="0.01" [(ngModel)]="materiais" />
+      </div>
+      <div class="gm-field">
+        <label>Tempo (minutos)</label>
+        <input type="number" min="0" [(ngModel)]="minutos" />
+      </div>
+    </div>
+    <div class="gm-twocol">
+      <div class="gm-field">
+        <label>Valor da hora (R$)</label>
+        <input type="number" min="0" step="0.01" [(ngModel)]="valorHora" />
+      </div>
+      <div class="gm-field">
+        <label>Taxas (%)</label>
+        <input type="number" min="0" max="99" step="0.1" [(ngModel)]="taxa" />
+      </div>
+    </div>
+    <div class="gm-field">
+      <label>Margem de lucro desejada (%)</label>
+      <input type="number" min="0" max="99" [(ngModel)]="margem" />
+    </div>
+    <button type="button" class="gm-btn" (click)="calcular()" [disabled]="loading()">
+      {{ loading() ? 'Calculando…' : 'Calcular preço sugerido' }}
+    </button>
+  </div>
+
+  @if (error()) {
+    <div class="gm-notice">{{ error() }}</div>
+  }
+  @if (result(); as r) {
+    <div class="gm-result">
+      <span class="gm-result__label">Preço sugerido</span>
+      <strong>{{ money(r.price) }}</strong>
+      <small>Base {{ money(r.cost) }} · Taxas {{ money(r.fee) }} · Lucro estimado {{ money(r.profit) }}</small>
+    </div>
+    <p class="gm-hint">Fórmula: (materiais + valor do tempo) ÷ (1 − taxas − margem). Não inclui aluguel, impostos ou custos não informados.</p>
+  }
+} @else {
+  <div class="n-form-toolbar">
+    <div class="n-form-toolbar__start">
+      <zm-page-back-link />
+    </div>
+    <div class="n-form-toolbar__end">
+      <nord-button
+        variant="primary"
+        type="button"
+        [attr.loading]="loading() || null"
+        [attr.disabled]="loading() || null"
+        (click)="calcular()"
+      >
+        <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">calculate</span>
+        Calcular preço sugerido
+      </nord-button>
+    </div>
+  </div>
+
+  <div class="ft-body zm-content-enter">
+    <g-card>
+      <p class="mb-5 text-sm text-muted-foreground">
+        Monte um preço com insumos, tempo, taxas e margem. Não é aconselhamento financeiro.
+      </p>
+      <form class="flex flex-col gap-5">
+        <div class="grid gap-5 md:grid-cols-2">
+          <div>
+            <label class="ft-label" for="ft-materiais">Custo de materiais (R$)</label>
+            <input id="ft-materiais" class="w-full" type="number" min="0" step="0.01" [(ngModel)]="materiais" name="materiais" />
+          </div>
+          <div>
+            <label class="ft-label" for="ft-minutos">Tempo (minutos)</label>
+            <input id="ft-minutos" class="w-full" type="number" min="0" [(ngModel)]="minutos" name="minutos" />
+          </div>
+          <div>
+            <label class="ft-label" for="ft-hora">Valor da hora (R$)</label>
+            <input id="ft-hora" class="w-full" type="number" min="0" step="0.01" [(ngModel)]="valorHora" name="valorHora" />
+          </div>
+          <div>
+            <label class="ft-label" for="ft-taxa">Taxas (%)</label>
+            <input id="ft-taxa" class="w-full" type="number" min="0" max="99" step="0.1" [(ngModel)]="taxa" name="taxa" />
+          </div>
+        </div>
+        <div>
+          <label class="ft-label" for="ft-margem">Margem de lucro desejada (%)</label>
+          <input id="ft-margem" class="w-full" type="number" min="0" max="99" [(ngModel)]="margem" name="margem" />
+        </div>
+      </form>
+    </g-card>
+
+    @if (error()) {
+      <p class="mt-4 text-sm text-destructive">{{ error() }}</p>
+    }
+
+    @if (result(); as r) {
+      <g-card class="mt-4">
+        <div class="ft-result">
+          <span class="ft-result__label">Preço sugerido</span>
+          <strong>{{ money(r.price) }}</strong>
+          <small>Base {{ money(r.cost) }} · Taxas {{ money(r.fee) }} · Lucro estimado {{ money(r.profit) }}</small>
+        </div>
+        <p class="ft-hint">
+          Fórmula: (materiais + valor do tempo) ÷ (1 − taxas − margem). Não inclui aluguel, impostos ou custos não informados.
+        </p>
+      </g-card>
+    }
+  </div>
+}

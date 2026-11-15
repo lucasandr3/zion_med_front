@@ -1,0 +1,77 @@
+/* Ajustes locais da linha — mantém o chrome de n-page-list */
+
+.protocolos-day {
+  display: flex;
+  align-items: center;
+  background: color-mix(in srgb, var(--n-color-border) 42%, var(--n-color-surface));
+  /* sobrescreve o padding assimétrico de .n-page-list__section */
+  padding: 0.55rem 1rem;
+  box-sizing: border-box;
+  min-block-size: 0;
+}
+
+.protocolos-day__label {
+  margin: 0;
+  color: var(--n-color-text-weak);
+  font-weight: 700;
+  line-height: 1;
+  display: block;
+}
+
+.protocolos-row {
+  flex-wrap: nowrap;
+  align-items: center;
+}
+
+.protocolos-row__title {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.protocolos-row__code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--n-color-text);
+}
+
+.protocolos-row__doc {
+  color: var(--n-color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.protocolos-row__people {
+  margin-top: 0.1rem;
+}
+
+.protocolos-row__when {
+  flex: 0 0 auto;
+  text-align: right;
+  white-space: nowrap;
+  line-height: 1.35;
+}
+
+.protocolos-row__time {
+  display: block;
+  color: var(--n-color-text);
+  font-weight: var(--n-font-weight-active, 600);
+}
+
+.protocolos-row__late {
+  color: var(--n-color-status-warning, #c2410c);
+  font-weight: var(--n-font-weight-active, 600);
+}
+
+@media (max-width: 720px) {
+  .protocolos-row {
+    flex-wrap: wrap;
+  }
+
+  .protocolos-row__when {
+    display: none;
+  }
+}

@@ -6,7 +6,7 @@
         type="text"
         [(ngModel)]="busca"
         (keydown.enter)="carregar(1)"
-        placeholder="Nome, código, telefone, e-mail ou CPF…"
+        placeholder="Buscar por nome, código, telefone, e-mail ou CPF…"
         class="form-search-input w-full text-sm"
         aria-label="Buscar pessoas"
       />
@@ -17,6 +17,8 @@
       type="button"
       (click)="openFilterDrawer()"
       [attr.aria-expanded]="filterDrawerOpen() ? 'true' : 'false'"
+      [class.ring-2]="temFiltrosAtivos"
+      [class.ring-ring]="temFiltrosAtivos"
       title="Filtros"
     >
       <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">filter_list</span>
@@ -51,11 +53,16 @@
   } @else if (pessoas().length === 0) {
     <div class="n-page-list__empty">
       <nord-empty-state>
-        <h2>Nenhuma pessoa encontrada</h2>
-        <p>Cadastre a primeira pessoa ou ajuste os filtros de busca.</p>
+        <h2>{{ temFiltrosAtivos || busca.trim() ? 'Nenhuma pessoa encontrada' : 'Nenhuma pessoa cadastrada ainda' }}</h2>
+        <p>{{ temFiltrosAtivos || busca.trim() ? 'Tente outro termo ou remova os filtros.' : 'Cadastre a primeira pessoa para começar.' }}</p>
+        @if (temFiltrosAtivos || busca.trim()) {
+          <nord-button variant="default" type="button" (click)="limparTudo()">
+            Limpar filtros
+          </nord-button>
+        }
         <nord-button variant="primary" [routerLink]="['/pessoas/criar']">
           <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">person_add</span>
-          Cadastrar primeira pessoa
+          Cadastrar pessoa
         </nord-button>
       </nord-empty-state>
     </div>
@@ -63,22 +70,70 @@
     <div class="n-page-list__table">
       @for (p of pessoas(); track p.id) {
         <div
-          class="n-page-list__row n-page-list__row--clickable"
+          class="n-page-list__row n-page-list__row--clickable pessoas-row"
           role="link"
           tabindex="0"
+          [attr.title]="'Abrir ' + p.name"
           (click)="irParaDetalhe(p, $event)"
           (keydown.enter)="irParaDetalhe(p, $event)"
         >
+          <div class="pessoas-row__avatar" [style.background]="corAvatar(p.name)" aria-hidden="true">
+            {{ iniciais(p.name) }}
+          </div>
           <div class="n-page-list__row-main">
-            <div class="n-page-list__row-title">{{ p.name }}</div>
-            <div class="n-page-list__row-meta">
-              {{ p.code }}
-              · {{ p.phone || '—' }}
-              · {{ p.email || '—' }}
-              · {{ formatarDataCurta(p.birth_date) }}
-              · {{ p.protocols_count ?? 0 }} protocolos
-              · {{ dataFormatada(p.last_protocol_at) }}
+            <div class="n-page-list__row-title pessoas-row__name">
+              {{ p.name }}
+              <span class="pessoas-row__code">{{ p.code }}</span>
             </div>
+            <div class="pessoas-row__contacts n-page-list__row-meta">
+              @if (p.phone) {
+                <span class="pessoas-row__contact">
+                  <span class="material-symbols-outlined" aria-hidden="true">call</span>
+                  {{ p.phone }}
+                </span>
+              }
+              @if (p.email) {
+                <span class="pessoas-row__contact">
+                  <span class="material-symbols-outlined" aria-hidden="true">mail</span>
+                  {{ p.email }}
+                </span>
+              }
+              @if (p.cpf) {
+                <span class="pessoas-row__contact">
+                  <span class="material-symbols-outlined" aria-hidden="true">badge</span>
+                  {{ cpfVisivel(p) }}
+                  <nord-button
+                    square
+                    variant="plain"
+                    size="s"
+                    type="button"
+                    class="pessoas-row__reveal"
+                    [attr.aria-label]="cpfRevelado(p.id) ? 'Ocultar CPF' : 'Mostrar CPF'"
+                    [attr.title]="cpfRevelado(p.id) ? 'Ocultar CPF' : 'Mostrar CPF'"
+                    (click)="alternarCpf(p, $event)"
+                  >
+                    <span class="material-symbols-outlined text-base" aria-hidden="true">
+                      {{ cpfRevelado(p.id) ? 'visibility_off' : 'visibility' }}
+                    </span>
+                  </nord-button>
+                </span>
+              }
+              @if (!p.phone && !p.email) {
+                <span class="pessoas-row__missing">Sem telefone ou e-mail</span>
+              }
+            </div>
+          </div>
+          <div class="pessoas-row__meta n-muted n-small" (click)="$event.stopPropagation()">
+            @if ((p.protocols_count ?? 0) > 0) {
+              <a class="pessoas-row__protocols" [routerLink]="['/pessoas', p.id]">
+                {{ p.protocols_count }} protocolo{{ (p.protocols_count ?? 0) > 1 ? 's' : '' }}
+              </a>
+              @if (p.last_protocol_at) {
+                <div>Último: {{ formatarDataCurta(p.last_protocol_at) }}</div>
+              }
+            } @else {
+              <span>Sem protocolos</span>
+            }
           </div>
           <div class="n-page-list__actions" (click)="$event.stopPropagation()">
             @if (p.status === 'active') {
@@ -86,6 +141,16 @@
             } @else {
               <nord-badge variant="neutral">Inativa</nord-badge>
             }
+            <nord-button
+              square
+              variant="plain"
+              size="s"
+              [routerLink]="['/pessoas', p.id]"
+              aria-label="Ver detalhes de {{ p.name }}"
+              title="Ver detalhes"
+            >
+              <span class="material-symbols-outlined text-base" aria-hidden="true">chevron_right</span>
+            </nord-button>
           </div>
         </div>
       }

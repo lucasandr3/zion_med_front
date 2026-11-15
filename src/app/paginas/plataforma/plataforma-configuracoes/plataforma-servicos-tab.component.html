@@ -380,6 +380,99 @@
             </form>
           }
 
+          @case ('webpush') {
+            <form class="settings-form" (ngSubmit)="submitSettings()">
+              <g-card class="settings-card">
+                <header class="settings-card__header">
+                  <h3 class="settings-card__title">Web Push (VAPID)</h3>
+                  <p class="settings-card__subtitle">
+                    Notificações do Gestgo Mobile.
+                    @if (webpushConfigured) {
+                      <span class="settings-badge settings-badge--ok">Configurado</span>
+                    } @else {
+                      <span class="settings-badge settings-badge--warn">Chaves pendentes</span>
+                    }
+                  </p>
+                </header>
+                <div class="settings-fields">
+                  <div class="settings-field settings-field--wide">
+                    <label for="vapid_subject" class="settings-label">Subject (contato)</label>
+                    <input
+                      type="text"
+                      id="vapid_subject"
+                      [(ngModel)]="vapidSubject"
+                      name="vapid_subject"
+                      class="w-full font-mono text-xs"
+                      maxlength="255"
+                      required
+                      placeholder="mailto:suporte@gestgo.com.br"
+                    />
+                    <p class="settings-hint">Identidade do remetente das notificações (mailto: ou URL HTTPS).</p>
+                  </div>
+                  <div class="settings-field settings-field--wide">
+                    <label class="settings-label">Chave pública</label>
+                    <div class="flex items-start gap-2">
+                      <input
+                        type="text"
+                        class="w-full font-mono text-xs"
+                        readonly
+                        [value]="vapidPublicKey || ''"
+                        [placeholder]="webpushConfigured ? '' : 'Gere as chaves para obter a pública'"
+                      />
+                      @if (vapidPublicKey) {
+                        <nord-button type="button" variant="default" size="s" (click)="copiarTexto(vapidPublicKey!)">Copiar</nord-button>
+                      }
+                    </div>
+                  </div>
+                  <div class="settings-field settings-field--wide">
+                    <label class="settings-label">Chave privada</label>
+                    <input
+                      type="text"
+                      class="w-full font-mono text-xs"
+                      readonly
+                      [value]="vapidPrivatePreview || ''"
+                      placeholder="•••• (gerada e armazenada com segurança)"
+                    />
+                    <p class="settings-hint">A privada só aparece em texto completo no momento da geração. Regenerar invalida as assinaturas dos dispositivos.</p>
+                  </div>
+                  @if (ultimoParVapid(); as par) {
+                    <div class="settings-field settings-field--wide">
+                      <p class="settings-alert settings-alert--success">Par gerado agora — copie se precisar guardar fora da plataforma.</p>
+                      <label class="settings-label">Pública (nova)</label>
+                      <div class="flex items-start gap-2 mb-2">
+                        <input type="text" class="w-full font-mono text-xs" readonly [value]="par.public_key" />
+                        <nord-button type="button" variant="default" size="s" (click)="copiarTexto(par.public_key)">Copiar</nord-button>
+                      </div>
+                      <label class="settings-label">Privada (nova)</label>
+                      <div class="flex items-start gap-2">
+                        <input type="text" class="w-full font-mono text-xs" readonly [value]="par.private_key" />
+                        <nord-button type="button" variant="default" size="s" (click)="copiarTexto(par.private_key)">Copiar</nord-button>
+                      </div>
+                    </div>
+                  }
+                </div>
+                @if (successSettings()) {
+                  <p class="settings-alert settings-alert--success">{{ successSettings() }}</p>
+                }
+                <div class="settings-form-actions settings-form-actions--inline">
+                  <nord-button type="submit" size="m" [attr.disabled]="savingSettings() || generatingVapid() || null" [attr.loading]="savingSettings() || null">
+                    {{ savingSettings() ? 'Salvando…' : 'Salvar subject' }}
+                  </nord-button>
+                  <nord-button
+                    type="button"
+                    variant="default"
+                    size="m"
+                    [attr.disabled]="savingSettings() || generatingVapid() || null"
+                    [attr.loading]="generatingVapid() || null"
+                    (click)="gerarChavesVapid()"
+                  >
+                    {{ generatingVapid() ? 'Gerando…' : webpushConfigured ? 'Regenerar chaves VAPID' : 'Gerar chaves VAPID' }}
+                  </nord-button>
+                </div>
+              </g-card>
+            </form>
+          }
+
           @case ('status') {
             <form class="settings-form" (ngSubmit)="submitStatus()">
               <g-card class="settings-card">

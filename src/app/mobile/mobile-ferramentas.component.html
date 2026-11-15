@@ -1,0 +1,82 @@
+@if (category()) {
+  <div class="gm-backrow">
+    <button type="button" class="gm-icon-btn" (click)="backToCategories()" aria-label="Voltar">
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">arrow_back</span>
+    </button>
+    <div>
+      <h1>{{ categoryMeta()?.title }}</h1>
+      <small>{{ categoryMeta()?.desc }}</small>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <p class="gm-loading">Carregando…</p>
+  } @else if (items().length === 0) {
+    <p class="gm-empty">Nenhuma ferramenta nesta categoria.</p>
+  } @else {
+    @for (t of items(); track t.key) {
+      @if (t.ready) {
+        <a class="gm-toolcard" [routerLink]="['/m/ferramentas', routeFor(t.key)]">
+          <span class="gm-tile__icon" aria-hidden="true">
+            <span class="material-symbols-outlined gestgo-mi gestgo-mi--m">{{ iconFor(t.key) }}</span>
+          </span>
+          <span class="gm-toolcard__text">
+            <b>{{ t.name }}</b>
+            <small>{{ descFor(t.key) }}</small>
+          </span>
+          <span class="gm-toolcard__chev" aria-hidden="true">
+            <span class="material-symbols-outlined gestgo-mi gestgo-mi--s">chevron_right</span>
+          </span>
+        </a>
+      } @else {
+        <div class="gm-toolcard" style="cursor:default;opacity:0.72">
+          <span class="gm-tile__icon" aria-hidden="true">
+            <span class="material-symbols-outlined gestgo-mi gestgo-mi--m">{{ iconFor(t.key) }}</span>
+          </span>
+          <span class="gm-toolcard__text">
+            <b>{{ t.name }}</b>
+            <small>{{ descFor(t.key) }}</small>
+          </span>
+          <span class="gm-soon">Em breve</span>
+        </div>
+      }
+    }
+  }
+} @else {
+  <div class="gm-header">
+    <div>
+      <div class="gm-logo">gest<span>go</span></div>
+      <div class="gm-tagline">Seu dia, mais simples.</div>
+    </div>
+    <div class="gm-header__actions">
+      <button type="button" class="gm-icon-btn" (click)="abrirNotificacoes()" aria-label="Notificações">
+        <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">notifications</span>
+      </button>
+      <button type="button" class="gm-icon-btn" (click)="abrirMenu()" aria-label="Menu da conta">
+        <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">person</span>
+      </button>
+    </div>
+  </div>
+
+  <h1 class="gm-title">Sua caixa de ferramentas</h1>
+  <p class="gm-sub">Escolha uma categoria para ver os recursos.</p>
+
+  @if (loading()) {
+    <p class="gm-loading">Carregando ferramentas…</p>
+  } @else {
+    @for (c of cats; track c.key) {
+      <button type="button" class="gm-toolcard" (click)="openCategory(c.key)">
+        <span class="gm-tile__icon" aria-hidden="true">
+          <span class="material-symbols-outlined gestgo-mi gestgo-mi--m">{{ catIcon(c.key) }}</span>
+        </span>
+        <span class="gm-toolcard__text">
+          <b>{{ c.title }}</b>
+          <small>{{ c.desc }} · {{ countFor(c.key) }} ferramentas</small>
+        </span>
+        <span class="gm-toolcard__chev" aria-hidden="true">
+          <span class="material-symbols-outlined gestgo-mi gestgo-mi--s">chevron_right</span>
+        </span>
+      </button>
+    }
+  }
+}
