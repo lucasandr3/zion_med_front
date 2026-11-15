@@ -1,9 +1,9 @@
-import { Component, OnInit, inject, Signal, signal, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { Component, OnInit, inject, signal, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
+import { finalize } from 'rxjs';
 import { PessoasService } from '../../core/services/pessoas.service';
-import { LoadingService } from '../../shared/services/loading.service';
 import { ZmSkeletonPessoaFormularioComponent } from '../../shared/components/skeletons';
 import { ToastService } from '../../core/services/toast.service';
 import { GestgoCardComponent } from '@/shared/components/card/card.component';
@@ -78,8 +78,7 @@ export class PessoasFormularioComponent implements OnInit {
   cpfDisplay = '';
   birth_date: string | null = '';
 
-  showSkeleton!: Signal<boolean>;
-  listaPronta = false;
+  readonly carregando = signal(false);
   salvando = false;
   erro = '';
 
@@ -109,7 +108,6 @@ export class PessoasFormularioComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private pessoasService = inject(PessoasService);
-  private loadingService = inject(LoadingService);
   private toast = inject(ToastService);
 
   get cancelLink(): string {
@@ -118,62 +116,73 @@ export class PessoasFormularioComponent implements OnInit {
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
-    if (id) {
-      this.editMode = true;
-      this.pessoaId = Number(id);
-      const { data$, showSkeleton } = this.loadingService.loadWithThreshold(this.pessoasService.get(this.pessoaId));
-      this.showSkeleton = showSkeleton;
-      data$.subscribe({
+    if (!id) return;
+
+    this.editMode = true;
+    this.pessoaId = Number(id);
+    if (Number.isNaN(this.pessoaId)) {
+      this.erro = 'Pessoa não encontrada.';
+      return;
+    }
+
+    this.carregando.set(true);
+    this.pessoasService
+      .get(this.pessoaId)
+      .pipe(finalize(() => this.carregando.set(false)))
+      .subscribe({
         next: (p) => {
-          this.listaPronta = true;
-          const phoneDigits = digitsOnlyPhone(p.phone ?? '');
-          const phoneAltDigits = digitsOnlyPhone(p.phone_alt ?? '');
-          const cpfDigits = digitsOnlyCpf(p.cpf ?? '');
-          this.pessoaForm.patchValue({
-            name: p.name ?? '',
-            email: p.email ?? '',
-            phoneDigits,
-            phoneAltDigits,
-            cpfDigits,
-            rg: p.rg ?? '',
-            age: p.age ?? null,
-            sex: (p.sex === 'F' || p.sex === 'M' || p.sex === 'O') ? p.sex : '',
-            marital_status: p.marital_status ?? '',
-            profession: p.profession ?? '',
-            referred_by: p.referred_by ?? '',
-            address: p.address ?? '',
-            neighborhood: p.neighborhood ?? '',
-            city: p.city ?? '',
-            cep: p.cep ?? '',
-            lead_source_instagram: !!p.lead_source_instagram,
-            lead_source_google: !!p.lead_source_google,
-            lead_source_facebook: !!p.lead_source_facebook,
-            lead_source_indicacao_amigo: !!p.lead_source_indicacao_amigo,
-            lead_source_indicacao_medica: !!p.lead_source_indicacao_medica,
-            lead_source_plano_saude: !!p.lead_source_plano_saude,
-            lead_source_outro: p.lead_source_outro ?? '',
-            has_health_plan: p.has_health_plan === 'sim' || p.has_health_plan === 'nao' ? p.has_health_plan : '',
-            health_plan_operator: p.health_plan_operator ?? '',
-            health_plan_card_number: p.health_plan_card_number ?? '',
-            lgpd_accept_comms: !!p.lgpd_accept_comms,
-            lgpd_accept_reminders: !!p.lgpd_accept_reminders,
-            notes: p.notes ?? '',
-            status: (p.status === 'inactive' ? 'inactive' : 'active') as 'active' | 'inactive',
-          });
-          this.phoneDisplay = formatPhoneBrDisplay(phoneDigits);
-          this.phoneAltDisplay = formatPhoneBrDisplay(phoneAltDigits);
-          this.cpfDisplay = formatCpfDisplay(cpfDigits);
-          this.birth_date = p.birth_date ? p.birth_date : '';
+          if (!p?.id) {
+            this.erro = 'Pessoa não encontrada.';
+            return;
+          }
+          try {
+            const phoneDigits = digitsOnlyPhone(p.phone ?? '');
+            const phoneAltDigits = digitsOnlyPhone(p.phone_alt ?? '');
+            const cpfDigits = digitsOnlyCpf(p.cpf ?? '');
+            this.pessoaForm.patchValue({
+              name: p.name ?? '',
+              email: p.email ?? '',
+              phoneDigits,
+              phoneAltDigits,
+              cpfDigits,
+              rg: p.rg ?? '',
+              age: p.age ?? null,
+              sex: (p.sex === 'F' || p.sex === 'M' || p.sex === 'O') ? p.sex : '',
+              marital_status: p.marital_status ?? '',
+              profession: p.profession ?? '',
+              referred_by: p.referred_by ?? '',
+              address: p.address ?? '',
+              neighborhood: p.neighborhood ?? '',
+              city: p.city ?? '',
+              cep: p.cep ?? '',
+              lead_source_instagram: !!p.lead_source_instagram,
+              lead_source_google: !!p.lead_source_google,
+              lead_source_facebook: !!p.lead_source_facebook,
+              lead_source_indicacao_amigo: !!p.lead_source_indicacao_amigo,
+              lead_source_indicacao_medica: !!p.lead_source_indicacao_medica,
+              lead_source_plano_saude: !!p.lead_source_plano_saude,
+              lead_source_outro: p.lead_source_outro ?? '',
+              has_health_plan: p.has_health_plan === 'sim' || p.has_health_plan === 'nao' ? p.has_health_plan : '',
+              health_plan_operator: p.health_plan_operator ?? '',
+              health_plan_card_number: p.health_plan_card_number ?? '',
+              lgpd_accept_comms: !!p.lgpd_accept_comms,
+              lgpd_accept_reminders: !!p.lgpd_accept_reminders,
+              notes: p.notes ?? '',
+              status: (p.status === 'inactive' ? 'inactive' : 'active') as 'active' | 'inactive',
+            });
+            this.phoneDisplay = formatPhoneBrDisplay(phoneDigits);
+            this.phoneAltDisplay = formatPhoneBrDisplay(phoneAltDigits);
+            this.cpfDisplay = formatCpfDisplay(cpfDigits);
+            this.birth_date = p.birth_date ? p.birth_date : '';
+            this.erro = '';
+          } catch {
+            this.erro = 'Não foi possível carregar o formulário.';
+          }
         },
         error: () => {
-          this.listaPronta = true;
           this.erro = 'Pessoa não encontrada.';
         },
       });
-    } else {
-      this.showSkeleton = signal(false).asReadonly();
-      this.listaPronta = true;
-    }
   }
 
   onPhoneModelChange(raw: string): void {

@@ -20,9 +20,8 @@
   </div>
 </div>
 
-@if (showSkeleton() && editMode) {
+@if (carregando()) {
   <zm-skeleton-pessoa-formulario />
-} @else if (!listaPronta) {
 } @else if (erro && editMode) {
   <p class="mb-4 text-sm text-destructive">{{ erro }}</p>
 } @else {

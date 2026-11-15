@@ -7,35 +7,42 @@
       <div class="n-form-toolbar__end">
         <nord-button
           type="button"
-          size="s"
           [routerLink]="['/pessoas', pessoa.id, 'editar']"
           title="Editar pessoa"
         >
           <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">edit</span>
           Editar
         </nord-button>
+        <nord-button
+          variant="primary"
+          type="button"
+          [routerLink]="['/envios']"
+          [queryParams]="{ person_id: pessoa.id }"
+          title="Novo protocolo"
+        >
+          <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">add</span>
+          Novo protocolo
+        </nord-button>
         @if (podeSolicitarReconsentimento) {
           <nord-button
             variant="default"
-            size="s"
             type="button"
             (click)="solicitarReconsentimento()"
-            [attr.loading]="solicitandoReconsentimento"
-            [attr.disabled]="solicitandoReconsentimento"
+            [attr.loading]="solicitandoReconsentimento || null"
+            [attr.disabled]="solicitandoReconsentimento || null"
             title="Enviar novo termo de consentimento"
           >
-            <span class="material-symbols-outlined text-base" aria-hidden="true">forward_to_inbox</span>
+            <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">forward_to_inbox</span>
             Reconsentimento
           </nord-button>
         }
         @if (podeInativar && pessoa.status === 'active') {
           <nord-button
             variant="danger"
-            size="s"
             type="button"
             (click)="inativar()"
-            [attr.disabled]="inativando"
-            [attr.loading]="inativando"
+            [attr.disabled]="inativando || null"
+            [attr.loading]="inativando || null"
             title="Inativar pessoa"
           >
             <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">person_off</span>
@@ -47,150 +54,254 @@
   </div>
 
   @if (erro) {
-    <p class="mb-4 text-sm text-destructive">{{ erro }}</p>
+    <p class="mb-4 px-4 text-sm text-destructive sm:px-0">{{ erro }}</p>
   }
 
-  @if (showSkeleton() && !pessoa) {
-    <zm-skeleton-pessoa-detalhe />
-  }
-
-  @if (!erro && pessoa) {
-    <div class="zm-content-enter space-y-6">
-
-      <g-card class="pessoa-header-card gap-0 py-5 shadow-sm **:data-[slot=card-content]:px-5">
-        <div class="flex items-start gap-3">
-          <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-            <span class="pessoa-avatar">{{ pessoa!.name.charAt(0) | uppercase }}</span>
-          </div>
-          <div>
-            <h1 class="pessoa-header__title">{{ pessoa!.name }}</h1>
+  @if (carregando()) {
+    <div class="px-4 sm:px-0">
+      <zm-skeleton-pessoa-detalhe />
+    </div>
+  } @else if (!erro && pessoa) {
+    <div class="zm-content-enter">
+      <g-card class="pessoa-ficha-card gap-0 overflow-hidden py-0 shadow-none border-0 rounded-none **:data-[slot=card-content]:p-0">
+        <div class="pessoa-header">
+          <div class="pessoa-avatar" aria-hidden="true">{{ iniciais(pessoa.name) }}</div>
+          <div class="pessoa-header__who">
+            <h1 class="pessoa-header__title">{{ pessoa.name }}</h1>
             <div class="pessoa-header__meta">
-              <span class="pessoa-header__code">{{ pessoa!.code }}</span>
-              <g-badge zShape="pill" zType="outline" [class]="statusPessoaBadgeClass()">
-                {{ pessoa!.status === 'active' ? 'Ativa' : 'Inativa' }}
-              </g-badge>
-              @if (pessoa!.consent_summary) {
-                <g-badge zShape="pill" zType="outline" [class]="statusConsentimentoBadgeClass()">
-                  {{ pessoa!.consent_summary.label }}
-                </g-badge>
-                @if (pessoa!.consent_summary.valid_until) {
-                  <span class="pessoa-header__code">até {{ formatarDataCurta(pessoa!.consent_summary.valid_until) }}</span>
+              <button
+                type="button"
+                class="pessoa-header__code"
+                title="Copiar código"
+                (click)="copiar(pessoa.code)"
+              >
+                {{ pessoa.code }}
+              </button>
+              <span class="pessoa-pill" [class.pessoa-pill--on]="pessoa.status === 'active'" [class.pessoa-pill--off]="pessoa.status !== 'active'">
+                {{ pessoa.status === 'active' ? 'Ativa' : 'Inativa' }}
+              </span>
+              @if (temConsentimentoValido()) {
+                <span class="pessoa-pill pessoa-pill--on">{{ pessoa.consent_summary?.label || 'Com consentimento' }}</span>
+                @if (pessoa.consent_summary?.valid_until) {
+                  <span class="n-muted n-small">até {{ formatarDataCurta(pessoa.consent_summary?.valid_until) }}</span>
                 }
+              } @else {
+                <button
+                  type="button"
+                  class="pessoa-pill pessoa-pill--warn"
+                  title="Registrar consentimento"
+                  [routerLink]="['/envios']"
+                  [queryParams]="{ person_id: pessoa.id }"
+                >
+                  Sem consentimento · <u>Registrar</u>
+                </button>
               }
             </div>
           </div>
+          <div class="pessoa-header__kpis">
+            <div>
+              <b>{{ totalProtocolos() }}</b>
+              protocolo{{ totalProtocolos() === 1 ? '' : 's' }}
+            </div>
+            <div>
+              <b>{{ ultimoProtocoloLabel() }}</b>
+              último protocolo
+            </div>
+          </div>
         </div>
-      </g-card>
 
-      <g-card class="pessoa-tabs-wrap gap-0 overflow-hidden py-0 shadow-sm **:data-[slot=card-content]:p-0">
-        <div class="pessoa-tabs-header">
-          <button type="button" class="pessoa-tab" [class.pessoa-tab--active]="abaAtiva === 'dados'" (click)="setAbaAtiva('dados')">
-            <span class="material-symbols-outlined pessoa-tab__icon">contact_page</span>
+        <div class="pessoa-tabs-header" role="tablist" aria-label="Seções da ficha">
+          <button type="button" role="tab" class="pessoa-tab" [class.pessoa-tab--active]="abaAtiva === 'dados'" [attr.aria-selected]="abaAtiva === 'dados'" (click)="setAbaAtiva('dados')">
             Dados
           </button>
-          <button type="button" class="pessoa-tab" [class.pessoa-tab--active]="abaAtiva === 'estatisticas'" (click)="setAbaAtiva('estatisticas')">
-            <span class="material-symbols-outlined pessoa-tab__icon">monitoring</span>
+          <button type="button" role="tab" class="pessoa-tab" [class.pessoa-tab--active]="abaAtiva === 'estatisticas'" [attr.aria-selected]="abaAtiva === 'estatisticas'" (click)="setAbaAtiva('estatisticas')">
             Estatísticas
           </button>
-          <button type="button" class="pessoa-tab" [class.pessoa-tab--active]="abaAtiva === 'protocolos'" (click)="setAbaAtiva('protocolos')">
-            <span class="material-symbols-outlined pessoa-tab__icon">inbox</span>
+          <button type="button" role="tab" class="pessoa-tab" [class.pessoa-tab--active]="abaAtiva === 'protocolos'" [attr.aria-selected]="abaAtiva === 'protocolos'" (click)="setAbaAtiva('protocolos')">
             Protocolos
-            <span class="pessoa-tab__count">{{ pessoa!.recent_protocols?.length || 0 }}</span>
+            <span class="pessoa-tab__count">{{ totalProtocolos() }}</span>
           </button>
-          <button type="button" class="pessoa-tab" [class.pessoa-tab--active]="abaAtiva === 'historico'" (click)="setAbaAtiva('historico')">
-            <span class="material-symbols-outlined pessoa-tab__icon">timeline</span>
+          <button type="button" role="tab" class="pessoa-tab" [class.pessoa-tab--active]="abaAtiva === 'historico'" [attr.aria-selected]="abaAtiva === 'historico'" (click)="setAbaAtiva('historico')">
             Histórico
           </button>
         </div>
 
-        <div class="pessoa-tab-panel p-6">
+        <div class="pessoa-tab-panel">
           @if (abaAtiva === 'dados') {
-            <div class="pessoa-grid">
-              <div>
-                <p class="pessoa-field-label">Telefone</p>
-                <p class="pessoa-field-value">{{ pessoa!.phone || '—' }}</p>
-              </div>
-              <div>
-                <p class="pessoa-field-label">E-mail</p>
-                <p class="pessoa-field-value">{{ pessoa!.email || '—' }}</p>
-              </div>
-              <div>
-                <p class="pessoa-field-label">Data de nascimento</p>
-                <p class="pessoa-field-value">{{ formatarDataCurta(pessoa!.birth_date) }}</p>
-              </div>
-              <div>
-                <p class="pessoa-field-label">CPF</p>
-                <p class="pessoa-field-value">{{ pessoa!.cpf || '—' }}</p>
-              </div>
-              <div>
-                <p class="pessoa-field-label">Criado em</p>
-                <p class="pessoa-field-value">{{ dataFormatada(pessoa!.created_at) }}</p>
-              </div>
-              <div>
-                <p class="pessoa-field-label">Atualizado em</p>
-                <p class="pessoa-field-value">{{ dataFormatada(pessoa!.updated_at) }}</p>
-              </div>
+            <div class="pessoa-sections">
+              <section class="pessoa-sec">
+                <h3 class="pessoa-sec__title">Contato</h3>
+                <dl class="pessoa-dl">
+                  <div>
+                    <dt>Telefone</dt>
+                    <dd>
+                      @if (pessoa.phone) {
+                        <span>{{ pessoa.phone }}</span>
+                        <nord-button square variant="plain" size="s" type="button" title="Copiar" aria-label="Copiar telefone" (click)="copiar(pessoa.phone!)">
+                          <span class="material-symbols-outlined text-base" aria-hidden="true">content_copy</span>
+                        </nord-button>
+                        <a class="pessoa-mini-link" [href]="'tel:' + telefoneHref(pessoa.phone)" title="Ligar" aria-label="Ligar">
+                          <span class="material-symbols-outlined" aria-hidden="true">call</span>
+                        </a>
+                      } @else {
+                        <span class="pessoa-empty-val">Não informado</span>
+                      }
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>E-mail</dt>
+                    <dd>
+                      @if (pessoa.email) {
+                        <span>{{ pessoa.email }}</span>
+                        <nord-button square variant="plain" size="s" type="button" title="Copiar" aria-label="Copiar e-mail" (click)="copiar(pessoa.email!)">
+                          <span class="material-symbols-outlined text-base" aria-hidden="true">content_copy</span>
+                        </nord-button>
+                        <a class="pessoa-mini-link" [href]="'mailto:' + pessoa.email" title="Enviar e-mail" aria-label="Enviar e-mail">
+                          <span class="material-symbols-outlined" aria-hidden="true">mail</span>
+                        </a>
+                      } @else {
+                        <span class="pessoa-empty-val">Não informado</span>
+                      }
+                    </dd>
+                  </div>
+                </dl>
+              </section>
+
+              <section class="pessoa-sec">
+                <h3 class="pessoa-sec__title">Identificação</h3>
+                <dl class="pessoa-dl">
+                  <div>
+                    <dt>CPF</dt>
+                    <dd>
+                      @if (pessoa.cpf) {
+                        <span>{{ cpfVisivel() }}</span>
+                        <nord-button
+                          square
+                          variant="plain"
+                          size="s"
+                          type="button"
+                          [attr.aria-label]="cpfRevelado ? 'Ocultar CPF' : 'Mostrar CPF'"
+                          [attr.title]="cpfRevelado ? 'Ocultar CPF' : 'Mostrar CPF'"
+                          (click)="alternarCpf()"
+                        >
+                          <span class="material-symbols-outlined text-base" aria-hidden="true">
+                            {{ cpfRevelado ? 'visibility_off' : 'visibility' }}
+                          </span>
+                        </nord-button>
+                      } @else {
+                        <span class="pessoa-empty-val">Não informado</span>
+                      }
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>Data de nascimento</dt>
+                    <dd>
+                      @if (pessoa.birth_date) {
+                        {{ formatarDataCurta(pessoa.birth_date) }}
+                        @if (idadeAnos() !== null) {
+                          <span class="n-muted">· {{ idadeAnos() }} anos</span>
+                        }
+                      } @else {
+                        <span class="pessoa-empty-val">Não informado</span>
+                      }
+                    </dd>
+                  </div>
+                </dl>
+              </section>
+
+              <section class="pessoa-sec">
+                <h3 class="pessoa-sec__title">Registro</h3>
+                <dl class="pessoa-dl">
+                  <div>
+                    <dt>Cadastrada em</dt>
+                    <dd>{{ dataFormatada(pessoa.created_at) }}</dd>
+                  </div>
+                  <div>
+                    <dt>Última atualização</dt>
+                    <dd>
+                      @if (mesmaDataCadastro()) {
+                        <span class="n-muted">sem alterações desde o cadastro</span>
+                      } @else {
+                        {{ dataFormatada(pessoa.updated_at) }}
+                      }
+                    </dd>
+                  </div>
+                </dl>
+              </section>
             </div>
 
-            @if (pessoa!.notes) {
+            @if (pessoa.notes) {
               <div class="pessoa-notes">
-                <p class="pessoa-field-label">Observações</p>
-                <p class="pessoa-field-value whitespace-pre-wrap">{{ pessoa!.notes }}</p>
+                <h3 class="pessoa-sec__title">Observações</h3>
+                <p class="pessoa-field-value whitespace-pre-wrap">{{ pessoa.notes }}</p>
               </div>
             }
           }
 
           @if (abaAtiva === 'estatisticas') {
-            @if (pessoa!.stats; as stats) {
+            @if (pessoa.stats; as stats) {
               <div class="pessoa-stats-grid">
-                <g-card class="pessoa-stat-card pessoa-stat-card--total gap-0 rounded-lg py-0 shadow-none **:data-[slot=card-content]:p-4">
+                <button type="button" class="pessoa-stat-btn" (click)="filtrarProtocolos('all')">
                   <div class="pessoa-stat-card__head">
                     <p class="pessoa-stat-card__label">Total</p>
                     <span class="pessoa-stat-card__icon pessoa-stat-card__icon--neutral" aria-hidden="true">
                       <span class="material-symbols-outlined">stacked_bar_chart</span>
                     </span>
                   </div>
-                  <p class="pessoa-stat-card__value">{{ stats.protocols_count }}</p>
-                </g-card>
-                <g-card class="pessoa-stat-card pessoa-stat-card--pending gap-0 rounded-lg py-0 shadow-none **:data-[slot=card-content]:p-4">
+                  <p class="pessoa-stat-card__value" [class.pessoa-stat-card__value--muted]="!stats.protocols_count">{{ stats.protocols_count }}</p>
+                </button>
+                <button type="button" class="pessoa-stat-btn pessoa-stat-btn--pending" (click)="filtrarProtocolos('pending')">
                   <div class="pessoa-stat-card__head">
                     <p class="pessoa-stat-card__label">Pendentes</p>
                     <span class="pessoa-stat-card__icon pessoa-stat-card__icon--warning" aria-hidden="true">
                       <span class="material-symbols-outlined">schedule</span>
                     </span>
                   </div>
-                  <p class="pessoa-stat-card__value">{{ stats.pending_protocols }}</p>
-                </g-card>
-                <g-card class="pessoa-stat-card pessoa-stat-card--success gap-0 rounded-lg py-0 shadow-none **:data-[slot=card-content]:p-4">
+                  <p class="pessoa-stat-card__value pessoa-stat-card__value--warning" [class.pessoa-stat-card__value--muted]="!stats.pending_protocols">{{ stats.pending_protocols }}</p>
+                </button>
+                <button type="button" class="pessoa-stat-btn pessoa-stat-btn--success" (click)="filtrarProtocolos('approved')">
                   <div class="pessoa-stat-card__head">
                     <p class="pessoa-stat-card__label">Aprovados</p>
                     <span class="pessoa-stat-card__icon pessoa-stat-card__icon--success" aria-hidden="true">
                       <span class="material-symbols-outlined">check_circle</span>
                     </span>
                   </div>
-                  <p class="pessoa-stat-card__value pessoa-stat-card__value--success">{{ stats.approved_protocols }}</p>
-                </g-card>
-                <g-card class="pessoa-stat-card pessoa-stat-card--danger gap-0 rounded-lg py-0 shadow-none **:data-[slot=card-content]:p-4">
+                  <p class="pessoa-stat-card__value pessoa-stat-card__value--success" [class.pessoa-stat-card__value--muted]="!stats.approved_protocols">{{ stats.approved_protocols }}</p>
+                </button>
+                <button type="button" class="pessoa-stat-btn pessoa-stat-btn--danger" (click)="filtrarProtocolos('rejected')">
                   <div class="pessoa-stat-card__head">
                     <p class="pessoa-stat-card__label">Reprovados</p>
                     <span class="pessoa-stat-card__icon pessoa-stat-card__icon--danger" aria-hidden="true">
                       <span class="material-symbols-outlined">cancel</span>
                     </span>
                   </div>
-                  <p class="pessoa-stat-card__value pessoa-stat-card__value--danger">{{ stats.rejected_protocols }}</p>
-                </g-card>
-                @if (stats.revoked_protocols != null) {
-                  <g-card class="pessoa-stat-card pessoa-stat-card--danger gap-0 rounded-lg py-0 shadow-none **:data-[slot=card-content]:p-4">
-                    <div class="pessoa-stat-card__head">
-                      <p class="pessoa-stat-card__label">Revogados</p>
-                      <span class="pessoa-stat-card__icon pessoa-stat-card__icon--danger" aria-hidden="true">
-                        <span class="material-symbols-outlined">undo</span>
-                      </span>
-                    </div>
-                    <p class="pessoa-stat-card__value pessoa-stat-card__value--danger">{{ stats.revoked_protocols }}</p>
-                  </g-card>
-                }
+                  <p class="pessoa-stat-card__value pessoa-stat-card__value--danger" [class.pessoa-stat-card__value--muted]="!stats.rejected_protocols">{{ stats.rejected_protocols }}</p>
+                </button>
+                <button type="button" class="pessoa-stat-btn" (click)="filtrarProtocolos('revoked')">
+                  <div class="pessoa-stat-card__head">
+                    <p class="pessoa-stat-card__label">Revogados</p>
+                    <span class="pessoa-stat-card__icon pessoa-stat-card__icon--neutral" aria-hidden="true">
+                      <span class="material-symbols-outlined">undo</span>
+                    </span>
+                  </div>
+                  <p class="pessoa-stat-card__value" [class.pessoa-stat-card__value--muted]="!(stats.revoked_protocols ?? 0)">{{ stats.revoked_protocols ?? 0 }}</p>
+                </button>
               </div>
+
+              <div class="pessoa-dist">
+                <h3 class="pessoa-sec__title">Distribuição dos protocolos</h3>
+                <div class="pessoa-dist__bar" role="img" [attr.aria-label]="'Distribuição por situação'">
+                  @for (seg of distribuicao(); track seg.key) {
+                    <i [style.width.%]="seg.pct" [style.background]="seg.color"></i>
+                  }
+                </div>
+                <div class="pessoa-dist__legend">
+                  @for (seg of distribuicao(); track seg.key) {
+                    <span [style.--c]="seg.color">{{ seg.label }} {{ seg.count }}</span>
+                  }
+                </div>
+              </div>
+              <p class="pessoa-note">Clique em um card para ver os protocolos daquela situação.</p>
             } @else {
               <div class="pessoa-vazio">
                 <span class="material-symbols-outlined">monitoring</span>
@@ -200,94 +311,94 @@
           }
 
           @if (abaAtiva === 'protocolos') {
-            <div class="zm-table-wrap">
-              @if (pessoa!.recent_protocols && pessoa!.recent_protocols.length > 0) {
-                <table z-table class="pessoa-table text-sm">
-                  <thead z-table-header>
-                    <tr z-table-row>
-                      <th z-table-head>Protocolo</th>
-                      <th z-table-head>Modelo</th>
-                      <th z-table-head>Situação</th>
-                      <th z-table-head>Data</th>
-                      <th z-table-head class="pessoa-table__actions"></th>
-                    </tr>
-                  </thead>
-                  <tbody z-table-body>
-                    @for (pr of pessoa!.recent_protocols!; track pr.id) {
-                      <tr z-table-row>
-                        <td z-table-cell class="pessoa-table__mono">{{ pr.protocol_number || pr.id }}</td>
-                        <td z-table-cell>{{ pr.template_name ?? '—' }}</td>
-                        <td z-table-cell>
-                          <g-badge zShape="pill" zType="outline" [class]="statusProtocoloBadgeClass(pr.status)">
-                            {{ statusProtocolo(pr.status) }}
-                          </g-badge>
-                        </td>
-                        <td z-table-cell class="pessoa-table__muted">{{ dataFormatada(pr.submitted_at || pr.created_at) }}</td>
-                        <td z-table-cell class="pessoa-table__actions">
-                          <a [routerLink]="['/protocolos', pr.id]" class="pessoa-field-link">Abrir</a>
-                        </td>
-                      </tr>
-                    }
-                  </tbody>
-                </table>
-              } @else {
-                <div class="pessoa-vazio">
-                  <span class="material-symbols-outlined">inbox</span>
-                  <p>Nenhum protocolo ainda.</p>
+            @if (filtroProtocolos !== 'all') {
+              <div class="pessoa-proto-filters">
+                <button type="button" class="pessoa-chipx" (click)="limparFiltroProtocolos()">
+                  Situação: {{ statusProtocolo(filtroProtocolos) }}
+                  <span class="material-symbols-outlined" aria-hidden="true">close</span>
+                </button>
+              </div>
+            }
+
+            @if (protocolosFiltrados().length > 0) {
+              <div class="pessoa-proto-list">
+                <div class="pessoa-proto-lh" aria-hidden="true">
+                  <div>Protocolo</div>
+                  <div>Modelo</div>
+                  <div>Situação</div>
+                  <div>Data</div>
+                  <div></div>
                 </div>
-              }
-            </div>
+                @for (pr of protocolosFiltrados(); track pr.id) {
+                  <a
+                    class="pessoa-proto-row"
+                    [routerLink]="['/protocolos', pr.id]"
+                    [attr.title]="'Abrir ' + (pr.protocol_number || pr.id)"
+                  >
+                    <div class="pessoa-proto-row__code">{{ pr.protocol_number || pr.id }}</div>
+                    <div class="pessoa-proto-row__model">{{ pr.template_name ?? '—' }}</div>
+                    <div>
+                      @if (badgeProtocoloVariant(pr.status) === 'warning') {
+                        <nord-badge variant="warning">{{ statusProtocolo(pr.status) }}</nord-badge>
+                      } @else if (badgeProtocoloVariant(pr.status) === 'success') {
+                        <nord-badge variant="success">{{ statusProtocolo(pr.status) }}</nord-badge>
+                      } @else if (badgeProtocoloVariant(pr.status) === 'neutral') {
+                        <nord-badge variant="neutral">{{ statusProtocolo(pr.status) }}</nord-badge>
+                      } @else {
+                        <nord-badge variant="danger">{{ statusProtocolo(pr.status) }}</nord-badge>
+                      }
+                    </div>
+                    <div class="pessoa-proto-row__when">
+                      <strong>{{ dataCurta(pr.submitted_at || pr.created_at) }}</strong>
+                      <span>{{ horaCurta(pr.submitted_at || pr.created_at) }}</span>
+                    </div>
+                    <span class="pessoa-proto-row__go material-symbols-outlined" aria-hidden="true">chevron_right</span>
+                  </a>
+                }
+              </div>
+            } @else {
+              <div class="pessoa-vazio">
+                <span class="material-symbols-outlined">inbox</span>
+                <strong>{{ filtroProtocolos === 'all' ? 'Nenhum protocolo para esta pessoa' : 'Nenhum protocolo nesta situação' }}</strong>
+                <p>{{ filtroProtocolos === 'all' ? 'Crie o primeiro para iniciar o fluxo de assinatura.' : 'Limpe o filtro para ver todos.' }}</p>
+                @if (filtroProtocolos === 'all') {
+                  <nord-button variant="primary" [routerLink]="['/envios']" [queryParams]="{ person_id: pessoa.id }">
+                    <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">add</span>
+                    Novo protocolo
+                  </nord-button>
+                }
+              </div>
+            }
           }
 
           @if (abaAtiva === 'historico') {
             @if (historicoCarregando) {
-              <p class="text-sm text-muted-foreground">Carregando linha do tempo…</p>
+              <p class="n-muted n-small">Carregando linha do tempo…</p>
             } @else if (historicoErro) {
               <p class="text-sm text-destructive">{{ historicoErro }}</p>
-            } @else if (historico.length === 0) {
+            } @else if (linhaDoTempo().length === 0) {
               <div class="pessoa-vazio">
                 <span class="material-symbols-outlined">timeline</span>
                 <p>Nenhum evento documental registrado.</p>
               </div>
             } @else {
-              <ul class="m-0 p-0 list-none space-y-3">
-                @for (item of historico; track item.kind + '-' + item.id) {
-                  <li class="border border-border rounded-lg px-3 py-3 text-sm">
-                    <div class="flex flex-wrap items-start justify-between gap-2">
-                      <div>
-                        <div class="font-medium">{{ item.title }}</div>
-                        <div class="text-muted-foreground text-xs mt-0.5">
-                          {{ labelHistoricoKind(item.kind) }}
-                          @if (item.template_version) { · v{{ item.template_version }} }
-                          @if (item.protocol_number) { · {{ item.protocol_number }} }
-                          @if (item.professional_name) { · {{ item.professional_name }} }
-                          @if (item.has_pdf) { · PDF }
-                          @if (item.review_status) { · revisão: {{ item.review_status }} }
-                          @if (item.channel) { · {{ item.channel }} }
-                        </div>
-                      </div>
-                      <div class="text-right shrink-0">
-                        <div class="text-xs text-muted-foreground">{{ dataFormatada(item.occurred_at) }}</div>
-                        @if (item.status) {
-                          <g-badge zShape="pill" zType="outline" [class]="statusProtocoloBadgeClass(item.status)">
-                            {{ statusProtocolo(item.status) }}
-                          </g-badge>
-                        }
-                      </div>
+              <ol class="pessoa-tl">
+                @for (ev of linhaDoTempo(); track ev.id) {
+                  <li>
+                    <span class="pessoa-tl__dot" aria-hidden="true">
+                      <span class="material-symbols-outlined">{{ ev.icon }}</span>
+                    </span>
+                    <div class="pessoa-tl__ev">
+                      {{ ev.title }}
+                      <span class="n-muted">· {{ dataFormatada(ev.at) }}</span>
                     </div>
-                    <div class="mt-2 flex flex-wrap gap-3">
-                      @if (item.route_hint) {
-                        <a [routerLink]="item.route_hint" class="pessoa-field-link">Abrir</a>
-                      }
-                      @if (podeSolicitarReconsentimento && item.kind === 'protocol') {
-                        <button type="button" class="pessoa-field-link bg-transparent border-0 p-0 cursor-pointer" (click)="solicitarReconsentimento()">
-                          Solicitar reconsentimento
-                        </button>
-                      }
-                    </div>
+                    <div class="pessoa-tl__sub">{{ ev.sub }}</div>
+                    @if (ev.route) {
+                      <a [routerLink]="ev.route" class="pessoa-field-link">Abrir</a>
+                    }
                   </li>
                 }
-              </ul>
+              </ol>
             }
           }
         </div>

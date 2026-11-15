@@ -91,7 +91,7 @@
                 (keyup.enter)="buscarPessoas()"
                 placeholder="Nome, código ou telefone…" class="flex-1"
               />
-              <nord-button variant="default" type="button" class="text-sm shrink-0" (click)="buscarPessoas()" [attr.disabled]="buscandoPessoas()">
+              <nord-button variant="default" type="button" class="text-sm shrink-0" (click)="buscarPessoas()" [attr.disabled]="buscandoPessoas() || null">
                 {{ buscandoPessoas() ? 'Buscando...' : 'Buscar' }}
               </nord-button>
               @if (pessoaSelecionada()) {
@@ -148,7 +148,7 @@
           </div>
         }
         <div class="novo-envio-actions">
-          <nord-button type="button" class="gap-2" (click)="enviarNovo()" [attr.disabled]="enviando()">
+          <nord-button type="button" class="gap-2" (click)="enviarNovo()" [attr.disabled]="enviando() || null">
             @if (enviando()) {
               <span class="btn-spinner" aria-hidden="true"></span>
             }
@@ -203,7 +203,7 @@
                 variant="plain"
                 aria-label="Reenviar"
                 aria-describedby="tip-envios-reenviar"
-                [attr.disabled]="acaoId() !== null"
+                [attr.disabled]="acaoId() !== null || null"
                 (click)="reenviar(e)"
               >
                 <span class="material-symbols-outlined text-lg">refresh</span>
@@ -213,7 +213,7 @@
                 variant="plain"
                 aria-label="Cancelar envio"
                 aria-describedby="tip-envios-cancelar"
-                [attr.disabled]="acaoId() !== null"
+                [attr.disabled]="acaoId() !== null || null"
                 (click)="cancelar(e)"
               >
                 <span class="material-symbols-outlined text-lg">cancel</span>

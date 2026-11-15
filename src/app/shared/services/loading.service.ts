@@ -1,9 +1,13 @@
 import { Injectable, Signal, signal } from '@angular/core';
-import { defer, finalize, shareReplay } from 'rxjs';
+import { defer, finalize } from 'rxjs';
 import type { Observable } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class LoadingService {
+  /**
+   * Dispara o observable sob demanda e mostra skeleton só se passar do threshold.
+   * Sem shareReplay: um subscribe = uma ida à rede (evita re-fetch por refCount).
+   */
   loadWithThreshold<T>(observable: Observable<T>, thresholdMs = 300): {
     data$: Observable<T>;
     showSkeleton: Signal<boolean>;
@@ -22,7 +26,7 @@ export class LoadingService {
           showSkeleton.set(false);
         }),
       );
-    }).pipe(shareReplay({ bufferSize: 1, refCount: true }));
+    });
 
     return { data$, showSkeleton: showSkeleton.asReadonly() };
   }

@@ -113,9 +113,13 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(clone).pipe(
     catchError((err: HttpErrorResponse) => {
+      // Laravel devolve 419; Spring Security CSRF devolve 403 com body vazio.
+      const csrfFailed =
+        err.status === 419 ||
+        (err.status === 403 && (err.error == null || err.error === ''));
       if (
         withCredentials &&
-        err.status === 419 &&
+        csrfFailed &&
         MUTATING.has(req.method) &&
         !req.context.get(CSRF_RETRIED)
       ) {

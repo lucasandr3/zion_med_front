@@ -11,6 +11,7 @@ import { GestgoComboboxComponent, type GestgoComboboxOption } from '@/shared/com
 
 import { GestgoBadgeComponent } from '@/shared/components/badge/badge.component';
 import { NORD_FORM_IMPORTS } from '@/shared/nord';
+import { emailExibivel } from '../../../core/utils/email-display';
 
 export type PlatformServiceId = 'asaas' | 'resend' | 'minio' | 'openai' | 'webpush' | 'status';
 
@@ -444,9 +445,9 @@ export class PlataformaServicosTabComponent implements OnChanges {
 
     const resend = d.resend;
     this.mailMailer = resend?.mailer === 'log' ? 'log' : 'resend';
-    this.mailFromAddress = resend?.from_address ?? '';
+    this.mailFromAddress = emailExibivel(resend?.from_address) ?? '';
     this.mailFromName = resend?.from_name ?? '';
-    this.mailSupportEmail = resend?.support_email ?? '';
+    this.mailSupportEmail = emailExibivel(resend?.support_email) ?? '';
     this.mailLogoUrl = resend?.logo_url ?? '';
     this.mailLogoPreviewUrl = resend?.logo_preview_url ?? resend?.logo_url ?? null;
     this.mailSignaturePreviewUrl = resend?.signature_photo_preview_url ?? null;
