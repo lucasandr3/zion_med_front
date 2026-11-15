@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { ApiService } from './api.service';
-import { map, Observable } from 'rxjs';
+import { map, Observable, shareReplay } from 'rxjs';
 
 export interface Usuario {
   id: number;
@@ -53,6 +53,7 @@ interface RolesResponse {
 @Injectable({ providedIn: 'root' })
 export class UsuariosService {
   private api = inject(ApiService);
+  private roles$?: Observable<Role[]>;
 
   list(): Observable<Usuario[]> {
     return this.api.get<ListResponse>('/usuarios').pipe(map((r) => r.data));
@@ -63,14 +64,25 @@ export class UsuariosService {
   }
 
   roles(): Observable<Role[]> {
-    return this.api.get<RolesResponse>('/usuarios/roles').pipe(
-      map((r) => {
-        const arr = Array.isArray(r.data) ? r.data : [];
-        return arr.map((x: Role | { value: string; label: string }) =>
-          typeof x === 'object' && x && 'value' in x ? { value: x.value, label: x.label ?? x.value } : { value: String(x), label: String(x) }
-        );
-      })
-    );
+    if (!this.roles$) {
+      this.roles$ = this.api.get<RolesResponse>('/usuarios/roles').pipe(
+        map((r) => {
+          const arr = Array.isArray(r.data) ? r.data : [];
+          return arr.map((x: Role | { value: string; label: string }) =>
+            typeof x === 'object' && x && 'value' in x
+              ? { value: x.value, label: x.label ?? x.value }
+              : { value: String(x), label: String(x) }
+          );
+        }),
+        shareReplay({ bufferSize: 1, refCount: false }),
+      );
+    }
+    return this.roles$;
+  }
+
+  /** Invalida cache de perfis após mudanças na organização. */
+  invalidateRolesCache(): void {
+    this.roles$ = undefined;
   }
 
   create(payload: UsuarioCreatePayload): Observable<Usuario> {

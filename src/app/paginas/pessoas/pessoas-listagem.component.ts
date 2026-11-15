@@ -1,8 +1,21 @@
-import { Component, OnInit, OnDestroy, inject, Signal, ViewChild, TemplateRef, ViewContainerRef, ChangeDetectionStrategy, signal, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  inject,
+  ViewChild,
+  TemplateRef,
+  ViewContainerRef,
+  ChangeDetectionStrategy,
+  signal,
+  CUSTOM_ELEMENTS_SCHEMA,
+  DestroyRef,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { Subject, switchMap, tap, catchError, finalize, of } from 'rxjs';
 import { PessoasService, Pessoa } from '../../core/services/pessoas.service';
-import { LoadingService } from '../../shared/services/loading.service';
 import { ListSkeletonComponent } from '../../shared/components/list-skeleton/list-skeleton.component';
 import { ZmPaginationComponent } from '../../shared/components/ui';
 import { GestgoSheetService } from '@/shared/components/sheet/sheet.service';
@@ -10,6 +23,10 @@ import type { GestgoSheetRef } from '@/shared/components/sheet/sheet-ref';
 import { GestgoComboboxComponent, type GestgoComboboxOption } from '@/shared/components/combobox';
 import { NORD_FORM_IMPORTS } from '@/shared/nord';
 import { formatarDataBr, formatarDataHoraBr } from '@/shared/utils/date';
+import { digitsOnlyCpf, formatCpfDisplay } from '../../core/utils/cpf';
+
+const AVATAR_COLORS = ['#12b886', '#3b82f6', '#a855f7', '#f97316', '#ec4899', '#0ea5a4'];
+
 @Component({
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'app-pessoas-listagem',
@@ -22,8 +39,10 @@ import { formatarDataBr, formatarDataHoraBr } from '@/shared/utils/date';
     RouterLink,
     ListSkeletonComponent,
     ZmPaginationComponent,
-    GestgoComboboxComponent],
+    GestgoComboboxComponent,
+  ],
   templateUrl: './pessoas-listagem.component.html',
+  styleUrls: ['./pessoas-listagem.component.css'],
 })
 export class PessoasListagemComponent implements OnInit, OnDestroy {
   readonly pessoas = signal<Pessoa[]>([]);
@@ -33,12 +52,13 @@ export class PessoasListagemComponent implements OnInit, OnDestroy {
     per_page: 20,
     total: 0,
   });
-  showSkeleton!: Signal<boolean>;
+  readonly showSkeleton = signal(false);
   readonly listaPronta = signal(false);
   readonly erro = signal('');
+  readonly cpfRevelados = signal<Set<number>>(new Set());
 
   busca = '';
-  status: string = '';
+  status = '';
   has_protocols: '' | '1' | '0' = '';
   created_from = '';
   created_to = '';
@@ -49,20 +69,23 @@ export class PessoasListagemComponent implements OnInit, OnDestroy {
   private filtrosSheetRef?: GestgoSheetRef<void>;
 
   private pessoasService = inject(PessoasService);
-  private loadingService = inject(LoadingService);
   private router = inject(Router);
   private readonly vcr = inject(ViewContainerRef);
   private readonly gestgoSheet = inject(GestgoSheetService);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly carregar$ = new Subject<number>();
 
   readonly opcoesStatusFiltro = signal<GestgoComboboxOption[]>([
     { value: '', label: 'Todas' },
     { value: 'active', label: 'Ativa' },
-    { value: 'inactive', label: 'Inativa' }]);
+    { value: 'inactive', label: 'Inativa' },
+  ]);
 
   readonly opcoesProtocolosFiltro = signal<GestgoComboboxOption[]>([
     { value: '', label: 'Todos' },
     { value: '1', label: 'Com protocolos' },
-    { value: '0', label: 'Sem protocolos' }]);
+    { value: '0', label: 'Sem protocolos' },
+  ]);
 
   selecionarStatusFiltro(key: string | null): void {
     this.status = key ?? '';
@@ -79,7 +102,40 @@ export class PessoasListagemComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.filtrosSheetRef?.close();
   }
+
   ngOnInit(): void {
+    this.carregar$
+      .pipe(
+        switchMap((page) => {
+          const params: Parameters<PessoasService['list']>[0] = { per_page: 20, page };
+          if (this.busca?.trim()) params.search = this.busca.trim();
+          if (this.status) params.status = this.status;
+          if (this.has_protocols !== '') params.has_protocols = this.has_protocols;
+          if (this.created_from) params.created_from = this.created_from;
+          if (this.created_to) params.created_to = this.created_to;
+
+          this.erro.set('');
+          this.showSkeleton.set(true);
+
+          return this.pessoasService.list(params).pipe(
+            tap((res) => {
+              this.listaPronta.set(true);
+              this.pessoas.set(res.data);
+              this.meta.set(res.meta);
+              this.cpfRevelados.set(new Set());
+            }),
+            catchError(() => {
+              this.listaPronta.set(true);
+              this.erro.set('Não foi possível carregar as pessoas.');
+              return of(null);
+            }),
+            finalize(() => this.showSkeleton.set(false)),
+          );
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe();
+
     this.carregar();
   }
 
@@ -97,26 +153,7 @@ export class PessoasListagemComponent implements OnInit, OnDestroy {
   }
 
   carregar(page = 1): void {
-    const params: Parameters<PessoasService['list']>[0] = { per_page: 20, page };
-    if (this.busca?.trim()) params.search = this.busca.trim();
-    if (this.status) params.status = this.status;
-    if (this.has_protocols !== '') params.has_protocols = this.has_protocols;
-    if (this.created_from) params.created_from = this.created_from;
-    if (this.created_to) params.created_to = this.created_to;
-
-    const { data$, showSkeleton } = this.loadingService.loadWithThreshold(this.pessoasService.list(params));
-    this.showSkeleton = showSkeleton;
-    data$.subscribe({
-      next: (res) => {
-        this.listaPronta.set(true);
-        this.pessoas.set(res.data);
-        this.meta.set(res.meta);
-      },
-      error: () => {
-        this.listaPronta.set(true);
-        this.erro.set('Não foi possível carregar as pessoas.');
-      },
-    });
+    this.carregar$.next(page);
   }
 
   aplicarFiltros(): void {
@@ -131,6 +168,11 @@ export class PessoasListagemComponent implements OnInit, OnDestroy {
     this.created_to = '';
     this.carregar(1);
     this.filtrosSheetRef?.close();
+  }
+
+  limparTudo(): void {
+    this.busca = '';
+    this.limparFiltros();
   }
 
   openFilterDrawer(): void {
@@ -163,8 +205,47 @@ export class PessoasListagemComponent implements OnInit, OnDestroy {
   }
 
   irParaDetalhe(p: Pessoa, event: Event): void {
-    if ((event.target as HTMLElement).closest('a, button')) return;
+    if ((event.target as HTMLElement).closest('a, button, nord-button')) return;
     this.router.navigate(['/pessoas', p.id]);
+  }
+
+  iniciais(name: string): string {
+    return name
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((p) => p[0])
+      .join('')
+      .toUpperCase();
+  }
+
+  corAvatar(name: string): string {
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) hash += name.charCodeAt(i);
+    return AVATAR_COLORS[hash % AVATAR_COLORS.length];
+  }
+
+  cpfRevelado(id: number): boolean {
+    return this.cpfRevelados().has(id);
+  }
+
+  cpfMascarado(cpf: string | null | undefined): string {
+    const d = digitsOnlyCpf(cpf ?? '');
+    if (d.length < 11) return cpf?.trim() || '—';
+    return `***.${d.slice(3, 6)}.***-**`;
+  }
+
+  cpfVisivel(p: Pessoa): string {
+    if (this.cpfRevelado(p.id)) return formatCpfDisplay(digitsOnlyCpf(p.cpf ?? '')) || (p.cpf ?? '—');
+    return this.cpfMascarado(p.cpf);
+  }
+
+  alternarCpf(p: Pessoa, event: Event): void {
+    event.stopPropagation();
+    const next = new Set(this.cpfRevelados());
+    if (next.has(p.id)) next.delete(p.id);
+    else next.add(p.id);
+    this.cpfRevelados.set(next);
   }
 
   dataFormatada(val: string | undefined | null): string {
@@ -176,7 +257,9 @@ export class PessoasListagemComponent implements OnInit, OnDestroy {
   }
 
   contagemTexto(): string {
-    const n = this.meta().total;
-    return n === 1 ? '1 registro' : `${n} registros`;
+    const shown = this.pessoas().length;
+    const total = this.meta().total;
+    if (shown === total) return total === 1 ? '1 pessoa' : `${total} pessoas`;
+    return `${shown} de ${total} pessoas`;
   }
 }

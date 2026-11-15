@@ -20,9 +20,8 @@
   </div>
 </div>
 
-@if (showSkeleton()) {
+@if (carregando()) {
   <zm-skeleton-permissao-formulario [novo]="novo" />
-} @else if (!listaPronta) {
 } @else if (erro) {
   <p class="text-sm text-destructive">{{ erro }}</p>
 } @else {

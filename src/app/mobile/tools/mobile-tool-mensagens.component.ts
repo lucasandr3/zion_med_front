@@ -1,21 +1,42 @@
-import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  OnInit,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { GestgoCardComponent } from '@/shared/components/card/card.component';
+import { ZmPageBackLinkComponent } from '../../shared/components/ui';
 import {
   MobileToolsService,
   type MobileMessageTemplate,
 } from '../../core/services/mobile-tools.service';
 import { ToastService } from '../../core/services/toast.service';
+import { injectMobileToolContext } from './mobile-tool-context';
 
 @Component({
   selector: 'app-mobile-tool-mensagens',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [FormsModule, RouterLink],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  host: {
+    '[class.n-page]': '!isMobileShell',
+    '[class.n-page--flush]': '!isMobileShell',
+    '[class.gm-tool--desktop]': '!isMobileShell',
+  },
+  imports: [FormsModule, RouterLink, GestgoCardComponent, ZmPageBackLinkComponent],
   templateUrl: './mobile-tool-mensagens.component.html',
-  styleUrls: ['../mobile-shared.css'],
+  styleUrls: ['../mobile-shared.css', './ferramentas-tool-desktop.css'],
 })
 export class MobileToolMensagensComponent implements OnInit {
+  private readonly toolCtx = injectMobileToolContext();
+  readonly isMobileShell = this.toolCtx.isMobileShell;
+  readonly backLink = this.toolCtx.backLink;
+
   private readonly tools = inject(MobileToolsService);
   private readonly toast = inject(ToastService);
 

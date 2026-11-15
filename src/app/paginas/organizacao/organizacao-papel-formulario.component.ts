@@ -1,13 +1,12 @@
-import { Component, OnInit, inject, Signal, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { Component, OnInit, inject, signal, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { forkJoin } from 'rxjs';
+import { forkJoin, finalize } from 'rxjs';
 import {
   OrganizationRolesService,
   PermissionCatalogItem,
   OrganizationRoleDetail,
 } from '../../core/services/organization-roles.service';
-import { LoadingService } from '../../shared/services/loading.service';
 import { ZmSkeletonPermissaoFormularioComponent } from '../../shared/components/skeletons';
 import { ToastService } from '../../core/services/toast.service';
 import { NORD_FORM_IMPORTS } from '@/shared/nord';
@@ -40,15 +39,13 @@ export class OrganizacaoPapelFormularioComponent implements OnInit {
   selecionadas = new Set<string>();
   detalhe: OrganizationRoleDetail | null = null;
 
-  showSkeleton!: Signal<boolean>;
-  listaPronta = false;
+  readonly carregando = signal(true);
   salvando = false;
   erro = '';
 
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private service = inject(OrganizationRolesService);
-  private loadingService = inject(LoadingService);
   private toast = inject(ToastService);
 
   get grupos(): { label: string; items: PermissionCatalogItem[] }[] {
@@ -71,40 +68,36 @@ export class OrganizacaoPapelFormularioComponent implements OnInit {
     this.novo = slug === 'novo';
 
     if (this.novo) {
-      const { data$, showSkeleton } = this.loadingService.loadWithThreshold(this.service.catalog());
-      this.showSkeleton = showSkeleton;
-      data$.subscribe({
-        next: (c) => {
-          this.catalog = c;
-          this.listaPronta = true;
-        },
-        error: () => {
-          this.listaPronta = true;
-          this.erro = 'Não foi possível carregar o catálogo de permissões.';
-        },
-      });
+      this.service
+        .catalog()
+        .pipe(finalize(() => this.carregando.set(false)))
+        .subscribe({
+          next: (c) => {
+            this.catalog = c ?? [];
+          },
+          error: () => {
+            this.erro = 'Não foi possível carregar o catálogo de permissões.';
+          },
+        });
       return;
     }
 
-    const obs = forkJoin({
+    forkJoin({
       catalog: this.service.catalog(),
       perfil: this.service.get(slug),
-    });
-    const { data$, showSkeleton } = this.loadingService.loadWithThreshold(obs);
-    this.showSkeleton = showSkeleton;
-    data$.subscribe({
-      next: ({ catalog, perfil }) => {
-        this.catalog = catalog;
-        this.detalhe = perfil;
-        this.label = perfil.label;
-        this.selecionadas = new Set(perfil.permissions ?? []);
-        this.listaPronta = true;
-      },
-      error: () => {
-        this.listaPronta = true;
-        this.erro = 'Perfil de permissões não encontrado ou sem autorização.';
-      },
-    });
+    })
+      .pipe(finalize(() => this.carregando.set(false)))
+      .subscribe({
+        next: ({ catalog, perfil }) => {
+          this.catalog = catalog ?? [];
+          this.detalhe = perfil;
+          this.label = perfil.label;
+          this.selecionadas = new Set(perfil.permissions ?? []);
+        },
+        error: () => {
+          this.erro = 'Perfil de permissões não encontrado ou sem autorização.';
+        },
+      });
   }
 
   setPerm(key: string, checked: boolean): void {
