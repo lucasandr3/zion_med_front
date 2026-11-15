@@ -5,6 +5,8 @@ export const environment = {
   appUrl: '',
   painelUrl: '',
   mobileAppUrl: '',
+  /** Desligado por enquanto. */
+  mobileExperienceEnabled: false,
   mobileHosts: [] as string[],
   painelHosts: [] as string[],
   errorHub: {

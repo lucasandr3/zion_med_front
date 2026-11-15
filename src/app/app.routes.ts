@@ -5,7 +5,11 @@ import { devGuard } from './core/guards/dev.guard';
 import { platformGuard } from './core/guards/platform.guard';
 import { permissionGuard } from './core/guards/permission.guard';
 import { canSwitchOrganizationGuard } from './core/guards/can-switch-organization.guard';
-import { mobileExperienceGuard } from './core/guards/mobile-experience.guard';
+import {
+  mobileExperienceGuard,
+  mobileLoginEnabledGuard,
+  mobileRoutesEnabledGuard,
+} from './core/guards/mobile-experience.guard';
 
 export const routes: Routes = [
   {
@@ -50,12 +54,13 @@ export const routes: Routes = [
   },
   {
     path: 'm/login',
+    canActivate: [mobileLoginEnabledGuard],
     loadComponent: () => import('./mobile/mobile-login.component').then((m) => m.MobileLoginComponent),
     data: { titulo: 'Entrar · Gestgo Mobile' },
   },
   {
     path: 'm',
-    canActivate: [authGuard, billingGuard],
+    canActivate: [mobileRoutesEnabledGuard, authGuard, billingGuard],
     loadComponent: () => import('./mobile/layout-mobile.component').then((m) => m.LayoutMobileComponent),
     children: [
       {
