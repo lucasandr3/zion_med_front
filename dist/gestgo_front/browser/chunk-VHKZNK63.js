@@ -1,0 +1,1 @@
+function r(t){if(!t?.trim())return!1;let n=t.trim();return!!(n.startsWith("eyJpdiI6")||n.includes('"iv"')||n.startsWith("eyJ")&&n.includes(".")&&!n.includes("@")&&n.length>40)}function e(t){if(!t?.trim())return null;let n=t.trim();return r(n)||!n.includes("@")?null:n}export{e as a};
