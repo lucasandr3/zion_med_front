@@ -1,21 +1,10 @@
 import { Injectable, inject } from '@angular/core';
 import { map, Observable } from 'rxjs';
 import { ApiService } from './api.service';
+import { ServicosService, type ClinicServiceItem } from './servicos.service';
 
-export interface AgendaServiceItem {
-  id: number;
-  name: string;
-  duration_minutes: number;
-  /** Valor em BRL; na API pública só vem preenchido se show_price=true. */
-  price?: number | string | null;
-  /** Se true, o valor aparece na agenda pública. */
-  show_price?: boolean;
-  /** Foto do serviço (miniatura na agenda pública). */
-  photo_url?: string | null;
-  form_template_id?: number | null;
-  is_active?: boolean;
-  sort_order?: number;
-}
+/** @deprecated Preferir ClinicServiceItem — mesmo catálogo compartilhado. */
+export type AgendaServiceItem = ClinicServiceItem;
 
 export interface AgendaAvailabilityRule {
   id?: number;
@@ -54,35 +43,31 @@ export interface AgendaPublicSlot {
 @Injectable({ providedIn: 'root' })
 export class AgendaService {
   private api = inject(ApiService);
+  private readonly servicos = inject(ServicosService);
 
+  /** Catálogo compartilhado (`/servicos`) — agenda só consome. */
   listServices(): Observable<AgendaServiceItem[]> {
-    return this.api.get<{ data: AgendaServiceItem[] }>('/agenda/servicos').pipe(map((r) => r.data));
+    return this.servicos.list();
   }
 
   createService(payload: Partial<AgendaServiceItem>): Observable<AgendaServiceItem> {
-    return this.api.post<{ data: AgendaServiceItem }>('/agenda/servicos', payload).pipe(map((r) => r.data));
+    return this.servicos.create(payload);
   }
 
   updateService(id: number, payload: Partial<AgendaServiceItem>): Observable<AgendaServiceItem> {
-    return this.api.put<{ data: AgendaServiceItem }>(`/agenda/servicos/${id}`, payload).pipe(map((r) => r.data));
+    return this.servicos.update(id, payload);
   }
 
   deleteService(id: number): Observable<unknown> {
-    return this.api.delete(`/agenda/servicos/${id}`);
+    return this.servicos.delete(id);
   }
 
   uploadServicePhoto(id: number, file: File): Observable<AgendaServiceItem> {
-    const form = new FormData();
-    form.append('photo', file, file.name);
-    return this.api
-      .postFormData<{ data: AgendaServiceItem }>(`/agenda/servicos/${id}/foto`, form)
-      .pipe(map((r) => r.data));
+    return this.servicos.uploadPhoto(id, file);
   }
 
   deleteServicePhoto(id: number): Observable<AgendaServiceItem> {
-    return this.api
-      .delete<{ data: AgendaServiceItem }>(`/agenda/servicos/${id}/foto`)
-      .pipe(map((r) => r.data));
+    return this.servicos.deletePhoto(id);
   }
 
   listAvailability(): Observable<AgendaAvailabilityRule[]> {

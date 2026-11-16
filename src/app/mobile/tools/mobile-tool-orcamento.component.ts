@@ -3,6 +3,7 @@ import {
   Component,
   CUSTOM_ELEMENTS_SCHEMA,
   OnInit,
+  ViewChild,
   inject,
   signal,
 } from '@angular/core';
@@ -15,6 +16,14 @@ import { ToastService } from '../../core/services/toast.service';
 import { injectMobileToolContext } from './mobile-tool-context';
 import { injectToolPersonContext, whatsappShareUrl } from './tool-person-context';
 import { ToolPersonBannerComponent } from './tool-person-banner.component';
+import {
+  ToolPersonFieldComponent,
+  type ToolPersonValue,
+} from './tool-person-field.component';
+import {
+  ToolServiceFieldComponent,
+  type ToolServiceValue,
+} from './tool-service-field.component';
 
 @Component({
   selector: 'app-mobile-tool-orcamento',
@@ -32,11 +41,16 @@ import { ToolPersonBannerComponent } from './tool-person-banner.component';
     GestgoCardComponent,
     ZmPageBackLinkComponent,
     ToolPersonBannerComponent,
+    ToolPersonFieldComponent,
+    ToolServiceFieldComponent,
   ],
   templateUrl: './mobile-tool-orcamento.component.html',
   styleUrls: ['../mobile-shared.css', './ferramentas-tool-desktop.css'],
 })
 export class MobileToolOrcamentoComponent implements OnInit {
+  @ViewChild(ToolPersonFieldComponent) private personField?: ToolPersonFieldComponent;
+  @ViewChild(ToolServiceFieldComponent) private serviceField?: ToolServiceFieldComponent;
+
   private readonly toolCtx = injectMobileToolContext();
   private readonly personCtx = injectToolPersonContext();
   private readonly router = inject(Router);
@@ -52,6 +66,7 @@ export class MobileToolOrcamentoComponent implements OnInit {
   nome = '';
   phone = '';
   procedimento = '';
+  serviceId: number | null = null;
   valorSessao = 180;
   sessoes = 3;
   desconto = 0;
@@ -126,26 +141,52 @@ export class MobileToolOrcamentoComponent implements OnInit {
     });
   }
 
-  gerar(): void {
-    if (!this.nome.trim()) {
-      this.toast.error('Orçamento', 'Informe o nome da pessoa.');
-      return;
+  onPersonChange(value: ToolPersonValue): void {
+    this.personId = value.personId;
+    this.nome = value.name;
+    this.phone = value.phone;
+  }
+
+  onServiceChange(value: ToolServiceValue): void {
+    this.serviceId = value.serviceId;
+    this.procedimento = value.name;
+    if (value.price != null && value.price > 0) {
+      this.valorSessao = value.price;
     }
-    if (!this.procedimento.trim()) {
-      this.toast.error('Orçamento', 'Informe o serviço ou procedimento.');
-      return;
-    }
+  }
+
+  async gerar(): Promise<void> {
     this.loading.set(true);
+    const person = (await this.personField?.ensurePerson()) ?? null;
+    if (!person?.name) {
+      this.loading.set(false);
+      this.toast.error('Orçamento', 'Informe ou cadastre a pessoa.');
+      return;
+    }
+    const service = (await this.serviceField?.ensureService()) ?? null;
+    if (!service?.name) {
+      this.loading.set(false);
+      this.toast.error('Orçamento', 'Informe ou cadastre o serviço.');
+      return;
+    }
+    this.personId = person.personId;
+    this.nome = person.name;
+    this.phone = person.phone;
+    this.serviceId = service.serviceId;
+    this.procedimento = service.name;
+    if (service.price != null && service.price > 0 && !(Number(this.valorSessao) > 0)) {
+      this.valorSessao = service.price;
+    }
     this.tools
       .previewQuote({
-        client_name: this.nome.trim(),
-        procedure: this.procedimento.trim(),
+        client_name: person.name,
+        procedure: service.name,
         sessions: Math.max(1, Math.floor(Number(this.sessoes) || 1)),
         unit_price: Number(this.valorSessao) || 0,
         discount: Math.max(0, Number(this.desconto) || 0),
         save: this.salvar,
-        person_id: this.personId,
-        phone: this.phone.trim() || null,
+        person_id: person.personId,
+        phone: person.phone || null,
       })
       .subscribe({
         next: (q) => {

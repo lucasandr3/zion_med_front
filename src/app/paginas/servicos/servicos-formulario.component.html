@@ -1,0 +1,143 @@
+<div class="n-form-toolbar">
+  <div class="n-form-toolbar__start">
+    <zm-page-back-link />
+  </div>
+  <div class="n-form-toolbar__end">
+    <nord-button type="button" routerLink="/servicos">
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">close</span>
+      Cancelar
+    </nord-button>
+    <nord-button
+      variant="primary"
+      type="button"
+      [attr.loading]="salvando() || null"
+      [attr.disabled]="salvando() || !name.trim() || null"
+      (click)="salvar()"
+    >
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">check</span>
+      {{ editMode() ? 'Salvar alterações' : 'Cadastrar serviço' }}
+    </nord-button>
+  </div>
+</div>
+
+@if (loading()) {
+  <p class="text-sm text-muted-foreground">Carregando…</p>
+} @else {
+  <div class="zm-content-enter">
+    <g-card>
+      <p class="mb-5 text-sm text-muted-foreground">
+        Cadastre o procedimento usado na agenda, orçamento, mensagens e pacotes.
+      </p>
+
+      <form class="servicos-form" (submit)="$event.preventDefault(); salvar()">
+        <div class="servicos-field servicos-field--full">
+          <label class="servicos-label">Foto (opcional)</label>
+          <div class="servicos-photo">
+            <div
+              class="servicos-photo__preview"
+              [class.servicos-photo__preview--initials]="!photoPreview()"
+              [style.background]="photoPreview() ? null : corAvatar(name)"
+              aria-hidden="true"
+            >
+              @if (photoPreview()) {
+                <img [src]="photoPreview()!" alt="" />
+              } @else {
+                {{ iniciais(name) }}
+              }
+            </div>
+            <div class="servicos-photo__actions">
+              <input
+                #photoInput
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/gif"
+                class="sr-only"
+                (change)="onPhotoSelected($event)"
+              />
+              <nord-button type="button" size="s" variant="default" (click)="photoInput.click()">
+                {{ photoPreview() ? 'Trocar foto' : 'Enviar foto' }}
+              </nord-button>
+              @if (photoPreview() || photo_url) {
+                <nord-button type="button" size="s" variant="plain" (click)="removePhoto()">Remover</nord-button>
+              }
+              <p class="servicos-hint">JPG, PNG ou WebP · até 2 MB</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="servicos-field">
+          <label class="servicos-label" for="svc-name">Nome</label>
+          <input
+            id="svc-name"
+            class="w-full"
+            type="text"
+            [(ngModel)]="name"
+            name="name"
+            placeholder="Ex.: Limpeza de pele"
+          />
+        </div>
+        <div class="servicos-field">
+          <label class="servicos-label" for="svc-dur">Duração (min)</label>
+          <input
+            id="svc-dur"
+            class="w-full"
+            type="number"
+            min="10"
+            max="480"
+            [(ngModel)]="duration_minutes"
+            name="duration"
+          />
+        </div>
+        <div class="servicos-field">
+          <label class="servicos-label" for="svc-price">Valor (opcional)</label>
+          <input
+            id="svc-price"
+            class="w-full"
+            type="text"
+            inputmode="numeric"
+            [ngModel]="priceDisplay"
+            (ngModelChange)="onPriceInput($event)"
+            name="price"
+            placeholder="0,00"
+          />
+        </div>
+        <div class="servicos-field servicos-field--full">
+          <nord-checkbox
+            [(ngModel)]="show_price"
+            name="show_price"
+            label="Mostrar valor na agenda pública"
+            [attr.disabled]="priceNumber == null || null"
+          ></nord-checkbox>
+        </div>
+        <div class="servicos-field servicos-field--full">
+          <nord-checkbox
+            [ngModel]="pedir_ficha"
+            (ngModelChange)="onFichaToggle($event)"
+            name="pedir_ficha"
+            label="Pedir ficha após a reserva na agenda"
+          ></nord-checkbox>
+          @if (pedir_ficha) {
+            <div class="servicos-ficha">
+              @if (opcoesFicha().length === 0) {
+                <p class="servicos-hint">Nenhuma ficha publicada. Publique um modelo em Documentos e volte aqui.</p>
+              } @else {
+                <label class="servicos-label" id="svc-ficha-label">Qual ficha</label>
+                <z-combobox
+                  class="w-full"
+                  zWidth="full"
+                  [options]="opcoesFicha()"
+                  [value]="fichaValue()"
+                  placeholder="Selecione um modelo"
+                  searchPlaceholder="Buscar ficha..."
+                  emptyText="Nenhuma ficha encontrada."
+                  ariaLabel="Qual ficha"
+                  ariaLabelledby="svc-ficha-label"
+                  (zValueChange)="onFichaChange($event)"
+                />
+              }
+            </div>
+          }
+        </div>
+      </form>
+    </g-card>
+  </div>
+}

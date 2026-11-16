@@ -196,6 +196,42 @@ export const routes: Routes = [
         data: { titulo: 'Agenda', permission: 'organization.manage' },
       },
       {
+        path: 'servicos',
+        canActivate: [permissionGuard],
+        loadComponent: () =>
+          import('./paginas/servicos/servicos-listagem.component').then((m) => m.ServicosListagemComponent),
+        data: {
+          titulo: 'Serviços',
+          permission: 'organization.manage',
+        },
+      },
+      {
+        path: 'servicos/criar',
+        canActivate: [permissionGuard],
+        loadComponent: () =>
+          import('./paginas/servicos/servicos-formulario.component').then((m) => m.ServicosFormularioComponent),
+        data: {
+          titulo: 'Novo serviço',
+          permission: 'organization.manage',
+          urlVoltar: '/servicos',
+          labelVoltar: 'Voltar para Serviços',
+          voltarIntegrado: true,
+        },
+      },
+      {
+        path: 'servicos/:id/editar',
+        canActivate: [permissionGuard],
+        loadComponent: () =>
+          import('./paginas/servicos/servicos-formulario.component').then((m) => m.ServicosFormularioComponent),
+        data: {
+          titulo: 'Editar serviço',
+          permission: 'organization.manage',
+          urlVoltar: '/servicos',
+          labelVoltar: 'Voltar para Serviços',
+          voltarIntegrado: true,
+        },
+      },
+      {
         path: 'utilitarios',
         canActivate: [permissionGuard],
         loadComponent: () => import('./paginas/hubs/hub-page.component').then((m) => m.HubPageComponent),
@@ -376,7 +412,7 @@ export const routes: Routes = [
       { path: 'templates/:id/campos', canActivate: [permissionGuard], loadComponent: () => import('./paginas/templates/templates-campos.component').then(m => m.TemplatesCamposComponent), data: { titulo: 'Campos do modelo', permission: 'templates.manage', urlVoltar: '/templates', labelVoltar: 'Voltar para modelos', voltarIntegrado: true } },
       { path: 'clinica/configuracoes', canActivate: [permissionGuard], loadComponent: () => import('./paginas/clinica/clinica-configuracoes.component').then(m => m.ClinicaConfiguracoesComponent), data: { titulo: 'Empresa', permission: 'organization.manage', urlVoltar: '/configuracoes', labelVoltar: 'Voltar para Configurações', voltarIntegrado: true } },
       { path: 'clinica/escolher', canActivate: [canSwitchOrganizationGuard], loadComponent: () => import('./paginas/clinica/clinica-escolher.component').then(m => m.ClinicaEscolherComponent), data: { titulo: 'Escolher empresa', urlVoltar: '/dashboard', labelVoltar: 'Dashboard', voltarIntegrado: true } },
-      { path: 'clinica/integracoes', canActivate: [permissionGuard], loadComponent: () => import('./paginas/clinica/clinica-integracoes.component').then(m => m.ClinicaIntegracoesComponent), data: { titulo: 'Integrações', permission: 'organization.manage' } },
+      { path: 'clinica/integracoes', canActivate: [permissionGuard], loadComponent: () => import('./paginas/clinica/clinica-integracoes.component').then(m => m.ClinicaIntegracoesComponent), data: { titulo: 'Integrações', permission: 'organization.manage', urlVoltar: '/configuracoes', labelVoltar: 'Voltar para Configurações', voltarIntegrado: true } },
       { path: 'clinica/integracoes/sistemas/feegow', canActivate: [permissionGuard], loadComponent: () => import('./paginas/clinica/clinica-integracao-feegow.component').then(m => m.ClinicaIntegracaoFeegowComponent), data: { titulo: 'Integração Feegow', permission: 'organization.manage', urlVoltar: '/clinica/integracoes', labelVoltar: 'Voltar para integrações', voltarIntegrado: true } },
       { path: 'clinica/integracoes/sistemas/:sistema', canActivate: [permissionGuard], loadComponent: () => import('./paginas/clinica/clinica-integracao-sistema.component').then(m => m.ClinicaIntegracaoSistemaComponent), data: { titulo: 'Integração de sistema', permission: 'organization.manage', urlVoltar: '/clinica/integracoes', labelVoltar: 'Voltar para integrações', voltarIntegrado: true } },
       { path: 'link-bio', canActivate: [permissionGuard], loadComponent: () => import('./paginas/link-bio/link-bio.component').then(m => m.LinkBioComponent), data: { titulo: 'Link na bio', permission: 'organization.manage' } },

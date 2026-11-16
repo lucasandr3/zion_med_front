@@ -38,9 +38,9 @@
         <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">refresh</span>
         Atualizar
       </nord-button>
-      <nord-button type="button" variant="primary" title="Novo serviço" (click)="abrirNovoServico()">
-        <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">add</span>
-        Novo serviço
+      <nord-button type="button" variant="primary" title="Gerenciar serviços" routerLink="/servicos">
+        <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">layers</span>
+        Gerenciar
       </nord-button>
     } @else {
       <nord-button type="button" variant="default" title="Atualizar agenda" (click)="reload()" [attr.loading]="carregando() || null">
@@ -187,47 +187,52 @@
         <div class="agenda-config__servicos" role="tabpanel">
           <div class="agenda-config__banner">
             <p class="agenda-note agenda-note--inline">
-              Tipos de atendimento da agenda interna e da página pública
-              (<code class="agenda-code">/a/seu-slug</code>). Não listam no Link na Bio — só entram no
-              agendamento público se o CTA estiver em <strong>Agenda Gestgo</strong>.
+              Serviços disponíveis nesta agenda. O cadastro fica em
+              <a routerLink="/servicos">Serviços</a>
+              (também usado em orçamento, mensagens e pacotes).
             </p>
           </div>
 
           @if (servicos().length === 0) {
             <div class="n-page-list__empty">
               <nord-empty-state>
-                <h2>Nenhum serviço</h2>
-                <p>Cadastre ao menos um para criar compromissos e liberar a agenda pública.</p>
-                <nord-button variant="primary" type="button" (click)="abrirNovoServico()">
+                <h2>Nenhum serviço na agenda</h2>
+                <p>Cadastre ao menos um no catálogo para criar compromissos e liberar a agenda pública.</p>
+                <nord-button variant="primary" type="button" routerLink="/servicos/criar">
                   <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">add</span>
-                  Novo serviço
+                  Cadastrar serviço
                 </nord-button>
               </nord-empty-state>
             </div>
           } @else {
             <div class="n-page-list__table">
               @for (s of servicos(); track s.id) {
-                <div class="n-page-list__row">
-                  <button type="button" class="n-page-list__row-main agenda-servico-row-btn" (click)="abrirEditarServico(s)">
-                    <span class="agenda-svc-thumb" aria-hidden="true">
-                      @if (servicePhotoUrl(s); as photo) {
+                <div
+                  class="n-page-list__row n-page-list__row--clickable"
+                  role="link"
+                  tabindex="0"
+                  [attr.title]="'Abrir ' + s.name"
+                  (click)="abrirServicoNoCatalogo(s)"
+                  (keydown.enter)="abrirServicoNoCatalogo(s)"
+                >
+                  <div class="n-page-list__row-main agenda-servico-row-btn">
+                    @if (servicePhotoUrl(s); as photo) {
+                      <span class="agenda-svc-thumb" aria-hidden="true">
                         <img [src]="photo" alt="" />
-                      } @else {
-                        <span class="material-symbols-outlined">image</span>
-                      }
-                    </span>
+                      </span>
+                    } @else {
+                      <span
+                        class="agenda-svc-thumb agenda-svc-thumb--initials"
+                        [style.background]="corAvatarServico(s.name)"
+                        aria-hidden="true"
+                      >
+                        {{ iniciaisServico(s.name) }}
+                      </span>
+                    }
                     <span class="agenda-svc-row-text">
                       <div class="n-page-list__row-title">{{ s.name }}</div>
                       <div class="n-page-list__row-meta">{{ servicoMeta(s) }}</div>
                     </span>
-                  </button>
-                  <div class="n-page-list__actions">
-                    <nord-button square variant="plain" aria-label="Editar serviço" (click)="abrirEditarServico(s)">
-                      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">edit</span>
-                    </nord-button>
-                    <nord-button square variant="plain" aria-label="Remover serviço" (click)="removerServico(s)">
-                      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">delete</span>
-                    </nord-button>
                   </div>
                 </div>
               }
@@ -334,154 +339,6 @@
     </div>
   }
 </div>
-
-@if (servicoModalAberto()) {
-  <nord-modal
-    #servicoModal
-    class="agenda-servico-modal"
-    size="m"
-    aria-labelledby="agenda-servico-modal-title"
-    (cancel)="onServicoModalCancel($event)"
-    (close)="fecharServicoModal()"
-  >
-    <h2 slot="header" id="agenda-servico-modal-title">
-      {{ novoServico.id ? 'Editar serviço' : 'Novo serviço' }}
-    </h2>
-    <div class="agenda-form-grid agenda-form-grid--modal">
-      <div class="agenda-field agenda-field--full">
-        <label class="form-label">Foto do serviço (opcional)</label>
-        <div class="agenda-svc-photo">
-          <div class="agenda-svc-photo__preview" aria-hidden="true">
-            @if (servicoPhotoPreview()) {
-              <img [src]="servicoPhotoPreview()!" alt="" />
-            } @else {
-              <span class="material-symbols-outlined">image</span>
-            }
-          </div>
-          <div class="agenda-svc-photo__actions">
-            <input
-              #svcPhotoInput
-              type="file"
-              accept="image/jpeg,image/png,image/webp,image/gif"
-              class="sr-only"
-              (change)="onServicoPhotoSelected($event)"
-            />
-            <nord-button type="button" size="s" variant="default" (click)="svcPhotoInput.click()">
-              {{ servicoPhotoPreview() ? 'Trocar foto' : 'Enviar foto' }}
-            </nord-button>
-            @if (servicoPhotoPreview() || novoServico.photo_url) {
-              <nord-button type="button" size="s" variant="plain" (click)="removerServicoFoto()">
-                Remover
-              </nord-button>
-            }
-            <p class="agenda-field-hint m-0">JPG, PNG ou WebP · até 2 MB. Aparece na agenda pública.</p>
-          </div>
-        </div>
-      </div>
-      <div class="agenda-field agenda-field--grow">
-        <label class="form-label" for="svc_name">Nome</label>
-        <nord-input
-          id="svc_name"
-          name="svc_name"
-          expand
-          hide-label
-          label="Nome"
-          placeholder="Ex.: Consulta"
-          [value]="novoServico.name"
-          (input)="novoServico.name = onNordInput($event)"
-        ></nord-input>
-      </div>
-      <div class="agenda-field agenda-field--narrow">
-        <label class="form-label" for="svc_dur">Duração (min)</label>
-        <nord-input
-          id="svc_dur"
-          name="svc_dur"
-          type="number"
-          expand
-          hide-label
-          label="Duração (min)"
-          min="10"
-          max="480"
-          [value]="'' + novoServico.duration_minutes"
-          (input)="novoServico.duration_minutes = onNordNumberInput($event)"
-        ></nord-input>
-      </div>
-      <div class="agenda-field agenda-field--grow">
-        <label class="form-label" for="svc_price">Valor (opcional)</label>
-        <nord-input
-          id="svc_price"
-          name="svc_price"
-          expand
-          hide-label
-          label="Valor"
-          placeholder="0,00"
-          inputmode="numeric"
-          [value]="novoServico.priceDisplay"
-          (input)="onServicoPriceInput($event)"
-        ></nord-input>
-      </div>
-      <div class="agenda-field agenda-field--full">
-        <nord-checkbox
-          [(ngModel)]="novoServico.show_price"
-          name="svc_show_price"
-          label="Mostrar valor na agenda pública"
-          [attr.disabled]="novoServico.priceNumber == null || null"
-        ></nord-checkbox>
-        <p class="agenda-field-hint">Se desmarcado, o valor fica só na configuração interna.</p>
-      </div>
-      <div class="agenda-field agenda-field--full">
-        <nord-checkbox
-          [(ngModel)]="novoServico.pedir_ficha"
-          name="svc_pedir_ficha"
-          label="Pedir ficha após a reserva"
-          (ngModelChange)="onServicoPedirFichaToggle($event)"
-        ></nord-checkbox>
-        <p class="agenda-field-hint">
-          Se marcado, o paciente recebe o link da ficha ao confirmar o horário. A reserva segue confirmada
-          mesmo se ele preencher depois.
-        </p>
-        @if (novoServico.pedir_ficha) {
-          <label class="form-label" id="svc_ficha_label">Qual ficha</label>
-          @if (opcoesFichaServico().length === 0) {
-            <p class="agenda-field-hint">
-              Nenhuma ficha publicada. Em Modelos de fichas, clique em Publicar no modelo e abra este
-              serviço de novo.
-            </p>
-          } @else {
-            <z-combobox
-              class="w-full"
-              zWidth="full"
-              [attr.data-fichas]="fichasComboKey()"
-              [options]="opcoesFichaServico()"
-              [value]="servicoFichaValue()"
-              placeholder="Selecione um modelo"
-              searchPlaceholder="Buscar ficha..."
-              emptyText="Nenhuma ficha encontrada."
-              ariaLabel="Qual ficha"
-              ariaLabelledby="svc_ficha_label"
-              (pointerdown)="armServicoModalDismissGuard()"
-              (zValueChange)="onServicoFichaChange($event)"
-            />
-          }
-        }
-      </div>
-    </div>
-    <nord-button-group slot="footer" variant="spaced">
-      <nord-button expand type="button" variant="default" (click)="fecharServicoModal(true)">Cancelar</nord-button>
-      <nord-button
-        expand
-        type="button"
-        variant="primary"
-        (click)="salvarServico()"
-        [attr.loading]="salvando() || null"
-        [attr.disabled]="!novoServico.name.trim() || null"
-      >
-        <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">check</span>
-        Salvar
-      </nord-button>
-    </nord-button-group>
-  </nord-modal>
-}
 
 @if (modalAberto()) {
   <nord-modal

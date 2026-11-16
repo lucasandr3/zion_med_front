@@ -455,8 +455,9 @@ nord-dropdown.account-menu {
   display: flex;
   flex: 1 1 auto;
   flex-direction: column;
-  min-block-size: 100%;
+  min-block-size: 0;
   height: 100%;
+  overflow: hidden;
 }
 
 .gestgo-shell__main {
@@ -467,6 +468,7 @@ nord-dropdown.account-menu {
   min-block-size: 0;
   /* Ocupa todo o espaço vertical sobrando abaixo do header/banners */
   flex-grow: 1;
+  overflow: hidden;
 }
 
 /* Angular deixa o router-outlet no DOM; evita bloco vazio no flex. */
@@ -483,8 +485,10 @@ nord-dropdown.account-menu {
   display: flex;
   flex: 1 1 auto;
   flex-direction: column;
-  min-block-size: 100%;
+  min-block-size: 0;
+  height: 100%;
   width: 100%;
+  overflow: hidden;
 }
 
 /* Páginas de conteúdo (forms/settings) — padding vem do host .n-page */
@@ -494,8 +498,12 @@ nord-dropdown.account-menu {
 
 .gestgo-shell__main > .n-page {
   flex: 1 1 auto;
-  min-block-size: 100%;
+  min-block-size: 0;
+  height: 100%;
   width: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .gestgo-shell__main > .n-page.n-page--flush {

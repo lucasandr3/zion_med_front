@@ -1,0 +1,91 @@
+<div class="tsf" [class.tsf--mobile]="mobile">
+  <div class="tsf-field">
+    <label class="tsf-label" [attr.for]="inputId">{{ label }}</label>
+    <div class="tsf-row">
+      <input
+        [id]="inputId"
+        class="tsf-input"
+        type="text"
+        [ngModel]="query"
+        (ngModelChange)="onQueryChange($event)"
+        placeholder="Buscar serviço cadastrado…"
+        autocomplete="off"
+      />
+      @if (selected()) {
+        <button type="button" class="tsf-btn" (click)="clearService()">Limpar</button>
+      }
+    </div>
+
+    @if (suggestions().length > 0) {
+      <ul class="tsf-list" role="listbox">
+        @for (s of suggestions(); track s.id) {
+          <li>
+            <button type="button" class="tsf-option" (click)="selectService(s)">
+              <span class="tsf-option__name">{{ s.name }}</span>
+              <span class="tsf-option__meta">{{ priceLabel(s) }}</span>
+            </button>
+          </li>
+        }
+      </ul>
+    } @else if (searching()) {
+      <p class="tsf-hint">Carregando serviços…</p>
+    } @else if (query.trim().length >= 2 && !selected() && !showCreate()) {
+      <div class="tsf-empty">
+        <p class="tsf-hint">Nenhum serviço encontrado.</p>
+        <button type="button" class="tsf-link" (click)="openCreate()">
+          Cadastrar “{{ query.trim() }}”
+        </button>
+      </div>
+    }
+
+    @if (!selected() && query.trim().length >= 2 && !showCreate() && suggestions().length > 0) {
+      <button type="button" class="tsf-link tsf-link--below" (click)="openCreate()">
+        Não está na lista? Cadastrar serviço
+      </button>
+    }
+  </div>
+
+  @if (showCreate()) {
+    <div class="tsf-create">
+      <p class="tsf-create__title">Cadastrar serviço</p>
+      <div class="tsf-create__grid">
+        <div class="tsf-field">
+          <label class="tsf-label" [attr.for]="inputId + '-name'">Nome</label>
+          <input [id]="inputId + '-name'" class="tsf-input" type="text" [(ngModel)]="createName" />
+        </div>
+        <div class="tsf-field">
+          <label class="tsf-label" [attr.for]="inputId + '-dur'">Duração (min)</label>
+          <input
+            [id]="inputId + '-dur'"
+            class="tsf-input"
+            type="number"
+            min="10"
+            max="480"
+            [(ngModel)]="createDuration"
+          />
+        </div>
+        <div class="tsf-field">
+          <label class="tsf-label" [attr.for]="inputId + '-price'">Preço (opcional)</label>
+          <input
+            [id]="inputId + '-price'"
+            class="tsf-input"
+            type="number"
+            min="0"
+            step="0.01"
+            [(ngModel)]="createPrice"
+          />
+        </div>
+      </div>
+      <div class="tsf-create__actions">
+        <button type="button" class="tsf-btn" (click)="cancelCreate()" [disabled]="creating()">Cancelar</button>
+        <button type="button" class="tsf-btn tsf-btn--primary" (click)="createService()" [disabled]="creating()">
+          {{ creating() ? 'Salvando…' : 'Cadastrar' }}
+        </button>
+      </div>
+    </div>
+  }
+
+  @if (selected(); as sel) {
+    <p class="tsf-hint tsf-hint--ok">Catálogo: {{ sel.name }} · {{ priceLabel(sel) }}</p>
+  }
+</div>

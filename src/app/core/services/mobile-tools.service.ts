@@ -166,6 +166,7 @@ export class MobileToolsService {
     total_sessions: number;
     done_sessions?: number;
     notes?: string;
+    person_id?: number | null;
   }): Observable<MobilePackage> {
     return this.api
       .post<{ data: MobilePackage }>('/mobile/tools/packages', payload)

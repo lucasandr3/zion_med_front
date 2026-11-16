@@ -9,7 +9,8 @@
   flex: 1 1 auto;
   flex-direction: column;
   height: 100%;
-  min-height: 100%;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .n-page-list__toolbar {
@@ -60,8 +61,10 @@
   flex: 1;
   min-height: 0;
   flex-direction: column;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
   background: var(--n-color-surface);
+  overscroll-behavior: contain;
 }
 
 .n-page-list__content--padded {
@@ -240,7 +243,11 @@
   box-sizing: border-box;
   display: block;
   flex: 1 1 auto;
-  min-height: 100%;
+  min-height: 0;
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
   padding: var(--n-space-m, 1rem);
   width: 100%;
 }

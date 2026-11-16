@@ -176,17 +176,24 @@
     <app-tool-person-banner [nome]="linkedNome" [phone]="linkedPhone" [mobile]="true" />
 
     <div class="gm-panel">
-      <div class="gm-field">
-        <label>Pessoa</label>
-        <input type="text" [(ngModel)]="clientName" placeholder="Nome de quem retornar" />
-      </div>
-      <div class="gm-field">
-        <label>WhatsApp</label>
-        <input type="tel" [(ngModel)]="clientPhone" placeholder="Ex.: 11999998888" />
-      </div>
+      <app-tool-person-field
+        [mobile]="true"
+        inputId="ft-ret-person-m"
+        [personId]="personId"
+        [name]="clientName"
+        [phone]="clientPhone"
+        (personChange)="onPersonChange($event)"
+      />
       <div class="gm-field">
         <label>Retornar em</label>
-        <input type="date" [(ngModel)]="dueOn" />
+        <nord-date-picker
+          expand
+          hide-label
+          label="Retornar em"
+          [(ngModel)]="dueOn"
+          name="dueOnMobile"
+          placeholder="dd/mm/aaaa"
+        ></nord-date-picker>
       </div>
       <div class="gm-field">
         <label>Motivo do retorno</label>
@@ -226,19 +233,24 @@
       <g-card>
         <p class="mb-5 text-sm text-muted-foreground">Defina pessoa, data e motivo do follow-up.</p>
         <form class="flex flex-col gap-5">
-          <div class="grid gap-5 md:grid-cols-3">
-            <div>
-              <label class="ft-label" for="ft-ret-nome">Pessoa</label>
-              <input id="ft-ret-nome" class="w-full" type="text" [(ngModel)]="clientName" name="clientName" placeholder="Nome de quem retornar" />
-            </div>
-            <div>
-              <label class="ft-label" for="ft-ret-phone">WhatsApp</label>
-              <input id="ft-ret-phone" class="w-full" type="tel" [(ngModel)]="clientPhone" name="clientPhone" placeholder="Ex.: 11999998888" />
-            </div>
-            <div>
-              <label class="ft-label" for="ft-ret-due">Retornar em</label>
-              <input id="ft-ret-due" class="w-full" type="date" [(ngModel)]="dueOn" name="dueOn" />
-            </div>
+          <app-tool-person-field
+            inputId="ft-ret-person"
+            [personId]="personId"
+            [name]="clientName"
+            [phone]="clientPhone"
+            (personChange)="onPersonChange($event)"
+          />
+          <div class="max-w-xs">
+            <label class="ft-label" for="ft-ret-due">Retornar em</label>
+            <nord-date-picker
+              id="ft-ret-due"
+              expand
+              hide-label
+              label="Retornar em"
+              [(ngModel)]="dueOn"
+              name="dueOn"
+              placeholder="dd/mm/aaaa"
+            ></nord-date-picker>
           </div>
           <div>
             <label class="ft-label" for="ft-ret-detail">Motivo do retorno</label>

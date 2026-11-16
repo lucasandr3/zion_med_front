@@ -3,6 +3,7 @@ import {
   Component,
   CUSTOM_ELEMENTS_SCHEMA,
   OnInit,
+  ViewChild,
   computed,
   inject,
   signal,
@@ -10,12 +11,17 @@ import {
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { GestgoCardComponent } from '@/shared/components/card/card.component';
+import { NORD_FORM_IMPORTS } from '@/shared/nord';
 import { ZmPageBackLinkComponent } from '../../shared/components/ui';
 import { MobileToolsService, type MobileFollowup } from '../../core/services/mobile-tools.service';
 import { ToastService } from '../../core/services/toast.service';
 import { injectMobileToolContext } from './mobile-tool-context';
 import { injectToolPersonContext, whatsappShareUrl } from './tool-person-context';
 import { ToolPersonBannerComponent } from './tool-person-banner.component';
+import {
+  ToolPersonFieldComponent,
+  type ToolPersonValue,
+} from './tool-person-field.component';
 
 type RetornoFiltro = 'pending' | 'contacted' | 'all';
 
@@ -43,11 +49,15 @@ const MOTIVOS = [
     GestgoCardComponent,
     ZmPageBackLinkComponent,
     ToolPersonBannerComponent,
+    ToolPersonFieldComponent,
+    ...NORD_FORM_IMPORTS,
   ],
   templateUrl: './mobile-tool-retornos.component.html',
   styleUrls: ['../mobile-shared.css', './ferramentas-tool-desktop.css'],
 })
 export class MobileToolRetornosComponent implements OnInit {
+  @ViewChild(ToolPersonFieldComponent) private personField?: ToolPersonFieldComponent;
+
   private readonly toolCtx = injectMobileToolContext();
   private readonly personCtx = injectToolPersonContext();
   private readonly router = inject(Router);
@@ -127,22 +137,37 @@ export class MobileToolRetornosComponent implements OnInit {
     });
   }
 
+  onPersonChange(value: ToolPersonValue): void {
+    this.personId = value.personId;
+    this.clientName = value.name;
+    this.clientPhone = value.phone;
+  }
+
   usarMotivo(motivo: string): void {
     this.detail = motivo;
   }
 
-  criar(): void {
-    if (!this.clientName.trim() || !this.detail.trim()) {
-      this.toast.error('Retornos', 'Informe a pessoa e o motivo do retorno.');
+  async criar(): Promise<void> {
+    if (!this.detail.trim()) {
+      this.toast.error('Retornos', 'Informe o motivo do retorno.');
       return;
     }
     this.creating.set(true);
+    const person = (await this.personField?.ensurePerson()) ?? null;
+    if (!person?.name) {
+      this.creating.set(false);
+      this.toast.error('Retornos', 'Informe ou cadastre a pessoa.');
+      return;
+    }
+    this.personId = person.personId;
+    this.clientName = person.name;
+    this.clientPhone = person.phone;
     this.tools
       .createFollowup({
-        client_name: this.clientName.trim(),
+        client_name: person.name,
         detail: this.detail.trim(),
-        person_id: this.personId,
-        phone: this.clientPhone.trim() || null,
+        person_id: person.personId,
+        phone: person.phone || null,
         due_on: this.dueOn || null,
       })
       .subscribe({

@@ -9,6 +9,7 @@ import {
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { GestgoCardComponent } from '@/shared/components/card/card.component';
+import { NORD_FORM_IMPORTS } from '@/shared/nord';
 import { ZmPageBackLinkComponent } from '../../shared/components/ui';
 import { MobileToolsService, type MobileStockItem } from '../../core/services/mobile-tools.service';
 import { ToastService } from '../../core/services/toast.service';
@@ -24,7 +25,7 @@ import { injectMobileToolContext } from './mobile-tool-context';
     '[class.n-page--flush]': '!isMobileShell',
     '[class.gm-tool--desktop]': '!isMobileShell',
   },
-  imports: [FormsModule, RouterLink, GestgoCardComponent, ZmPageBackLinkComponent],
+  imports: [FormsModule, RouterLink, GestgoCardComponent, ZmPageBackLinkComponent, ...NORD_FORM_IMPORTS],
   templateUrl: './mobile-tool-estoque.component.html',
   styleUrls: ['../mobile-shared.css', './ferramentas-tool-desktop.css'],
 })
