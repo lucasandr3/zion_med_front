@@ -51,10 +51,27 @@ export interface MobileStockItem {
 
 export interface MobileFollowup {
   id: number;
+  person_id?: number | null;
   client_name: string;
+  phone?: string | null;
   detail: string;
+  due_on?: string | null;
   status: string;
   contacted_at?: string | null;
+}
+
+export interface MobileQuote {
+  id: number;
+  person_id?: number | null;
+  client_name: string;
+  phone?: string | null;
+  procedure: string;
+  sessions: number;
+  unit_price: number;
+  discount: number;
+  total: number;
+  message: string;
+  created_at?: string | null;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -79,6 +96,10 @@ export class MobileToolsService {
       .pipe(map((r) => r.data));
   }
 
+  quotes(): Observable<MobileQuote[]> {
+    return this.api.get<{ data: MobileQuote[] }>('/mobile/tools/quotes').pipe(map((r) => r.data || []));
+  }
+
   previewQuote(payload: {
     client_name?: string;
     procedure?: string;
@@ -86,6 +107,8 @@ export class MobileToolsService {
     unit_price: number;
     discount?: number;
     save?: boolean;
+    person_id?: number | null;
+    phone?: string | null;
   }): Observable<{ total: number; sessions: number; message: string; id?: number | null }> {
     return this.api
       .post<{ data: { total: number; sessions: number; message: string; id?: number | null } }>(
@@ -181,7 +204,13 @@ export class MobileToolsService {
     return this.api.get<{ data: MobileFollowup[] }>('/mobile/tools/followups').pipe(map((r) => r.data));
   }
 
-  createFollowup(payload: { client_name: string; detail: string }): Observable<MobileFollowup> {
+  createFollowup(payload: {
+    client_name: string;
+    detail: string;
+    person_id?: number | null;
+    phone?: string | null;
+    due_on?: string | null;
+  }): Observable<MobileFollowup> {
     return this.api
       .post<{ data: MobileFollowup }>('/mobile/tools/followups', payload)
       .pipe(map((r) => r.data));

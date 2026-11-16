@@ -32,6 +32,21 @@
         <strong>Documentos</strong>
         <small>Acompanhar fichas e assinaturas</small>
       </button>
+      <button type="button" class="gm-tile" (click)="abrirUtilitario('orcamento', p)">
+        <span class="gm-tile__icon"><span class="material-symbols-outlined gestgo-mi gestgo-mi--m">receipt_long</span></span>
+        <strong>Orçamento</strong>
+        <small>Proposta pronta no WhatsApp</small>
+      </button>
+      <button type="button" class="gm-tile" (click)="abrirUtilitario('mensagens', p)">
+        <span class="gm-tile__icon"><span class="material-symbols-outlined gestgo-mi gestgo-mi--m">chat</span></span>
+        <strong>Mensagem</strong>
+        <small>Modelo com o nome preenchido</small>
+      </button>
+      <button type="button" class="gm-tile" (click)="abrirUtilitario('retornos', p)">
+        <span class="gm-tile__icon"><span class="material-symbols-outlined gestgo-mi gestgo-mi--m">event_repeat</span></span>
+        <strong>Retorno</strong>
+        <small>Agendar follow-up</small>
+      </button>
     </div>
   }
 } @else {

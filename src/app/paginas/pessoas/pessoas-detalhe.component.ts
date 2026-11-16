@@ -12,6 +12,7 @@ import { ZmPageBackLinkComponent } from '../../shared/components/ui';
 import { NORD_FORM_IMPORTS } from '@/shared/nord';
 import { formatarDataBr, formatarDataHoraBr } from '@/shared/utils/date';
 import { digitsOnlyCpf, formatCpfDisplay } from '../../core/utils/cpf';
+import { toolPersonQueryParams } from '../../mobile/tools/tool-person-context';
 import type { Protocolo } from '../../core/services/protocolos.service';
 
 type AbaFicha = 'dados' | 'estatisticas' | 'protocolos' | 'historico';
@@ -212,6 +213,11 @@ export class PessoasDetalheComponent implements OnInit {
 
   telefoneHref(phone: string): string {
     return phone.replace(/\D/g, '');
+  }
+
+  utilitarioQueryParams(): Record<string, string> {
+    if (!this.pessoa) return {};
+    return toolPersonQueryParams(this.pessoa);
   }
 
   cpfVisivel(): string {

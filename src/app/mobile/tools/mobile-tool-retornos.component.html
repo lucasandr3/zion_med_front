@@ -1,109 +1,263 @@
-@if (isMobileShell) {
-  <div class="gm-backrow">
-    <a class="gm-icon-btn" [routerLink]="backLink" aria-label="Voltar">
-      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">arrow_back</span>
-    </a>
-    <div>
-      <h1>Retornos</h1>
-      <small>Persistido na clínica</small>
-    </div>
-  </div>
-
-  <div class="gm-panel">
-    <div class="gm-field">
-      <label>Nome</label>
-      <input type="text" [(ngModel)]="clientName" />
-    </div>
-    <div class="gm-field">
-      <label>Detalhe</label>
-      <input type="text" [(ngModel)]="detail" placeholder="Follow-up após atendimento" />
-    </div>
-    <button type="button" class="gm-btn" (click)="criar()">Adicionar retorno</button>
-  </div>
-
-  @if (loading()) {
-    <p class="gm-loading">Carregando…</p>
-  } @else if (items().length === 0) {
-    <p class="gm-empty">Nenhum retorno pendente.</p>
-  } @else {
-    @for (item of items(); track item.id) {
-      <div class="gm-panel">
-        <div class="gm-packrow">
-          <b style="font-size:13px">{{ item.client_name }}</b>
-          <span class="gm-status" [class.ok]="item.status === 'contacted'">
-            {{ item.status === 'contacted' ? 'Contatado' : 'Pendente' }}
-          </span>
-        </div>
-        <p style="margin:8px 0 14px;font-size:12px;color:#758096">{{ item.detail }}</p>
-        <div class="gm-actions">
-          <button type="button" class="gm-btn gm-btn--secondary" (click)="whatsapp(item)">Mensagem</button>
-          <button type="button" class="gm-btn gm-btn--soft" (click)="toggle(item.id)">
-            {{ item.status === 'contacted' ? 'Desfazer' : 'Contatado' }}
-          </button>
-        </div>
+@if (mode === 'list') {
+  @if (isMobileShell) {
+    <div class="gm-backrow">
+      <a class="gm-icon-btn" [routerLink]="backLink" aria-label="Voltar">
+        <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">arrow_back</span>
+      </a>
+      <div>
+        <h1>Retornos</h1>
+        <small>{{ pendingCount() }} pendente(s)</small>
       </div>
+    </div>
+
+    <p class="gm-sub">Fila de follow-ups — quem precisa de um novo contato.</p>
+    <app-tool-person-banner [nome]="linkedNome" [phone]="linkedPhone" [mobile]="true" />
+
+    <a class="gm-btn" style="display:flex;text-align:center;margin-bottom:14px;text-decoration:none" [routerLink]="formLink" [queryParams]="personQuery()">
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">add</span>
+      Agendar retorno
+    </a>
+
+    <div class="gm-actions" style="margin:0 0 14px;flex-wrap:wrap">
+      <button type="button" class="gm-btn" [class.gm-btn--soft]="filtro() !== 'pending'" (click)="filtro.set('pending')">
+        <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">schedule</span>
+        Pendentes
+      </button>
+      <button type="button" class="gm-btn" [class.gm-btn--soft]="filtro() !== 'contacted'" (click)="filtro.set('contacted')">
+        <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">check_circle</span>
+        Contatados
+      </button>
+      <button type="button" class="gm-btn" [class.gm-btn--soft]="filtro() !== 'all'" (click)="filtro.set('all')">
+        <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">list</span>
+        Todos
+      </button>
+    </div>
+
+    @if (loading()) {
+      <p class="gm-loading">Carregando…</p>
+    } @else if (visible().length === 0) {
+      <p class="gm-empty">
+        @if (filtro() === 'pending') {
+          Nenhum retorno pendente. Bom sinal — ou hora de agendar o próximo.
+        } @else {
+          Nada neste filtro.
+        }
+      </p>
+    } @else {
+      @for (item of visible(); track item.id) {
+        <div class="gm-panel">
+          <div class="gm-packrow">
+            <b style="font-size:13px">{{ item.client_name }}</b>
+            <span
+              class="gm-status"
+              [class.ok]="item.status === 'contacted'"
+              [class.warn]="item.status !== 'contacted' && isOverdue(item)"
+            >
+              <span class="material-symbols-outlined" aria-hidden="true">{{ statusIcon(item) }}</span>
+              {{ statusLabel(item) }}
+            </span>
+          </div>
+          <p style="margin:8px 0 6px;font-size:12px;color:#758096">{{ item.detail }}</p>
+          @if (formatDue(item.due_on); as due) {
+            <p class="gm-hint" style="margin:0 0 6px">Retornar em {{ due }}</p>
+          }
+          @if (formatContato(item); as quando) {
+            <p class="gm-hint" style="margin:0 0 12px">Contato em {{ quando }}</p>
+          }
+          <div class="gm-actions">
+            <button type="button" class="gm-btn gm-btn--secondary" (click)="whatsapp(item)">
+              <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">chat</span>
+              WhatsApp
+            </button>
+            <button type="button" class="gm-btn gm-btn--soft" (click)="toggle(item.id)">
+              <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">
+                {{ item.status === 'contacted' ? 'replay' : 'check_circle' }}
+              </span>
+              {{ item.status === 'contacted' ? 'Reabrir' : 'Marcar contatado' }}
+            </button>
+          </div>
+        </div>
+      }
     }
+  } @else {
+    <div class="n-form-toolbar">
+      <div class="n-form-toolbar__start">
+        <zm-page-back-link />
+      </div>
+      <div class="n-form-toolbar__end">
+        <nord-button variant="primary" type="button" [routerLink]="formLink" [queryParams]="personQuery()">
+          <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">add</span>
+          Agendar retorno
+        </nord-button>
+      </div>
+    </div>
+
+    <div class="ft-body zm-content-enter">
+      <app-tool-person-banner [nome]="linkedNome" [phone]="linkedPhone" />
+      <p class="mb-4 text-sm text-muted-foreground">Fila de follow-ups da clínica.</p>
+
+      <div class="ft-seg mb-4">
+        <nord-button type="button" [variant]="filtro() === 'pending' ? 'primary' : 'default'" (click)="filtro.set('pending')">
+          <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">schedule</span>
+          Pendentes ({{ pendingCount() }})
+        </nord-button>
+        <nord-button type="button" [variant]="filtro() === 'contacted' ? 'primary' : 'default'" (click)="filtro.set('contacted')">
+          <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">check_circle</span>
+          Contatados
+        </nord-button>
+        <nord-button type="button" [variant]="filtro() === 'all' ? 'primary' : 'default'" (click)="filtro.set('all')">
+          <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">list</span>
+          Todos
+        </nord-button>
+      </div>
+
+      @if (loading()) {
+        <p class="text-sm text-muted-foreground">Carregando…</p>
+      } @else if (visible().length === 0) {
+        <p class="text-sm text-muted-foreground">
+          @if (filtro() === 'pending') {
+            Nenhum retorno pendente. Bom sinal — ou hora de agendar o próximo.
+          } @else {
+            Nada neste filtro.
+          }
+        </p>
+      } @else {
+        <div class="ft-list-gap">
+          @for (item of visible(); track item.id) {
+            <g-card>
+              <div class="ft-row">
+                <div class="font-medium">{{ item.client_name }}</div>
+                <span
+                  class="ft-status"
+                  [class.ft-status--ok]="item.status === 'contacted'"
+                  [class.ft-status--warn]="item.status !== 'contacted' && isOverdue(item)"
+                >
+                  <span class="material-symbols-outlined" aria-hidden="true">{{ statusIcon(item) }}</span>
+                  {{ statusLabel(item) }}
+                </span>
+              </div>
+              <p class="mt-2 text-sm text-muted-foreground">{{ item.detail }}</p>
+              @if (formatDue(item.due_on); as due) {
+                <p class="ft-hint">Retornar em {{ due }}</p>
+              }
+              @if (formatContato(item); as quando) {
+                <p class="ft-hint">Contato em {{ quando }}</p>
+              }
+              <div class="mt-4 flex flex-wrap gap-2">
+                <nord-button type="button" (click)="whatsapp(item)">
+                  <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">chat</span>
+                  WhatsApp
+                </nord-button>
+                <nord-button type="button" variant="primary" (click)="toggle(item.id)">
+                  <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">
+                    {{ item.status === 'contacted' ? 'replay' : 'check_circle' }}
+                  </span>
+                  {{ item.status === 'contacted' ? 'Reabrir' : 'Marcar contatado' }}
+                </nord-button>
+              </div>
+            </g-card>
+          }
+        </div>
+      }
+    </div>
   }
 } @else {
-  <div class="n-form-toolbar">
-    <div class="n-form-toolbar__start">
-      <zm-page-back-link />
+  @if (isMobileShell) {
+    <div class="gm-backrow">
+      <a class="gm-icon-btn" [routerLink]="listLink" [queryParams]="personQuery()" aria-label="Voltar">
+        <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">arrow_back</span>
+      </a>
+      <div>
+        <h1>Agendar retorno</h1>
+        <small>Novo follow-up</small>
+      </div>
     </div>
-    <div class="n-form-toolbar__end">
-      <nord-button variant="primary" type="button" (click)="criar()">
-        <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">add</span>
-        Adicionar retorno
-      </nord-button>
-    </div>
-  </div>
 
-  <div class="ft-body zm-content-enter">
-    <g-card class="mb-4">
-      <form class="flex flex-col gap-5">
-        <div class="grid gap-5 md:grid-cols-2">
-          <div>
-            <label class="ft-label" for="ft-ret-nome">Nome</label>
-            <input id="ft-ret-nome" class="w-full" type="text" [(ngModel)]="clientName" name="clientName" />
+    <app-tool-person-banner [nome]="linkedNome" [phone]="linkedPhone" [mobile]="true" />
+
+    <div class="gm-panel">
+      <div class="gm-field">
+        <label>Pessoa</label>
+        <input type="text" [(ngModel)]="clientName" placeholder="Nome de quem retornar" />
+      </div>
+      <div class="gm-field">
+        <label>WhatsApp</label>
+        <input type="tel" [(ngModel)]="clientPhone" placeholder="Ex.: 11999998888" />
+      </div>
+      <div class="gm-field">
+        <label>Retornar em</label>
+        <input type="date" [(ngModel)]="dueOn" />
+      </div>
+      <div class="gm-field">
+        <label>Motivo do retorno</label>
+        <input type="text" [(ngModel)]="detail" placeholder="Ex.: confirmar interesse no orçamento" />
+      </div>
+      <div class="gm-actions" style="margin-bottom:12px;flex-wrap:wrap">
+        @for (m of motivos; track m) {
+          <button type="button" class="gm-btn gm-btn--soft" (click)="usarMotivo(m)">{{ m }}</button>
+        }
+      </div>
+      <button type="button" class="gm-btn" (click)="criar()" [disabled]="creating()">
+        <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">event_repeat</span>
+        {{ creating() ? 'Salvando…' : 'Salvar retorno' }}
+      </button>
+    </div>
+  } @else {
+    <div class="n-form-toolbar">
+      <div class="n-form-toolbar__start">
+        <zm-page-back-link />
+      </div>
+      <div class="n-form-toolbar__end">
+        <nord-button
+          variant="primary"
+          type="button"
+          [attr.loading]="creating() || null"
+          [attr.disabled]="creating() || null"
+          (click)="criar()"
+        >
+          <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">event_repeat</span>
+          Salvar retorno
+        </nord-button>
+      </div>
+    </div>
+
+    <div class="ft-body zm-content-enter">
+      <app-tool-person-banner [nome]="linkedNome" [phone]="linkedPhone" />
+      <g-card>
+        <p class="mb-5 text-sm text-muted-foreground">Defina pessoa, data e motivo do follow-up.</p>
+        <form class="flex flex-col gap-5">
+          <div class="grid gap-5 md:grid-cols-3">
+            <div>
+              <label class="ft-label" for="ft-ret-nome">Pessoa</label>
+              <input id="ft-ret-nome" class="w-full" type="text" [(ngModel)]="clientName" name="clientName" placeholder="Nome de quem retornar" />
+            </div>
+            <div>
+              <label class="ft-label" for="ft-ret-phone">WhatsApp</label>
+              <input id="ft-ret-phone" class="w-full" type="tel" [(ngModel)]="clientPhone" name="clientPhone" placeholder="Ex.: 11999998888" />
+            </div>
+            <div>
+              <label class="ft-label" for="ft-ret-due">Retornar em</label>
+              <input id="ft-ret-due" class="w-full" type="date" [(ngModel)]="dueOn" name="dueOn" />
+            </div>
           </div>
           <div>
-            <label class="ft-label" for="ft-ret-detail">Detalhe</label>
+            <label class="ft-label" for="ft-ret-detail">Motivo do retorno</label>
             <input
               id="ft-ret-detail"
               class="w-full"
               type="text"
               [(ngModel)]="detail"
               name="detail"
-              placeholder="Follow-up após atendimento"
+              placeholder="Ex.: confirmar interesse no orçamento"
             />
           </div>
-        </div>
-      </form>
-    </g-card>
-
-    @if (loading()) {
-      <p class="text-sm text-muted-foreground">Carregando…</p>
-    } @else if (items().length === 0) {
-      <p class="text-sm text-muted-foreground">Nenhum retorno pendente.</p>
-    } @else {
-      <div class="ft-list-gap">
-        @for (item of items(); track item.id) {
-          <g-card>
-            <div class="ft-row">
-              <div class="font-medium">{{ item.client_name }}</div>
-              <span class="text-xs font-medium text-muted-foreground">
-                {{ item.status === 'contacted' ? 'Contatado' : 'Pendente' }}
-              </span>
-            </div>
-            <p class="mt-2 text-sm text-muted-foreground">{{ item.detail }}</p>
-            <div class="mt-4 flex flex-wrap gap-2">
-              <nord-button type="button" (click)="whatsapp(item)">Mensagem</nord-button>
-              <nord-button type="button" variant="primary" (click)="toggle(item.id)">
-                {{ item.status === 'contacted' ? 'Desfazer' : 'Contatado' }}
-              </nord-button>
-            </div>
-          </g-card>
-        }
-      </div>
-    }
-  </div>
+          <div class="ft-seg">
+            @for (m of motivos; track m) {
+              <nord-button type="button" (click)="usarMotivo(m)">{{ m }}</nord-button>
+            }
+          </div>
+        </form>
+      </g-card>
+    </div>
+  }
 }

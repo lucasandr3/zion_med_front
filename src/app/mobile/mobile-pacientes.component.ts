@@ -11,6 +11,7 @@ import { Subject, debounceTime, distinctUntilChanged, switchMap, of } from 'rxjs
 import { catchError } from 'rxjs/operators';
 import { PessoasService, type Pessoa, type PessoaDetalhe } from '../core/services/pessoas.service';
 import { preparePainelHop } from '../core/utils/gestgo-experience.util';
+import { toolPersonQueryParams } from './tools/tool-person-context';
 import { MobileShellService } from './mobile-shell.service';
 
 @Component({
@@ -114,5 +115,13 @@ export class MobilePacientesComponent implements OnInit {
 
   abrirDocumentos(): void {
     void this.router.navigate(['/m/documentos'], { queryParams: { status: '' } });
+  }
+
+  abrirUtilitario(tool: 'orcamento' | 'mensagens' | 'retornos', pessoa: PessoaDetalhe): void {
+    const create = tool === 'orcamento' || tool === 'retornos';
+    void this.router.navigate(
+      create ? ['/m/ferramentas', tool, 'novo'] : ['/m/ferramentas', tool],
+      { queryParams: toolPersonQueryParams(pessoa) },
+    );
   }
 }

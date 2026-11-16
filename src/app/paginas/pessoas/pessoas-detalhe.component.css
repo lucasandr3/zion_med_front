@@ -228,6 +228,12 @@
   font-weight: 600;
 }
 
+.pessoa-utilitarios {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
 .pessoa-dl {
   margin: 0;
   display: grid;

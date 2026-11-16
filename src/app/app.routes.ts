@@ -93,7 +93,7 @@ export const routes: Routes = [
         path: 'ferramentas',
         loadComponent: () =>
           import('./mobile/mobile-ferramentas.component').then((m) => m.MobileFerramentasComponent),
-        data: { titulo: 'Ferramentas' },
+        data: { titulo: 'Utilitários' },
       },
       {
         path: 'ferramentas/preco',
@@ -105,13 +105,19 @@ export const routes: Routes = [
         path: 'ferramentas/orcamento',
         loadComponent: () =>
           import('./mobile/tools/mobile-tool-orcamento.component').then((m) => m.MobileToolOrcamentoComponent),
-        data: { titulo: 'Orçamento rápido' },
+        data: { titulo: 'Orçamentos', toolMode: 'list' },
+      },
+      {
+        path: 'ferramentas/orcamento/novo',
+        loadComponent: () =>
+          import('./mobile/tools/mobile-tool-orcamento.component').then((m) => m.MobileToolOrcamentoComponent),
+        data: { titulo: 'Nova proposta', toolMode: 'form' },
       },
       {
         path: 'ferramentas/mensagens',
         loadComponent: () =>
           import('./mobile/tools/mobile-tool-mensagens.component').then((m) => m.MobileToolMensagensComponent),
-        data: { titulo: 'Mensagens prontas' },
+        data: { titulo: 'Mensagens' },
       },
       {
         path: 'ferramentas/checklist',
@@ -141,7 +147,13 @@ export const routes: Routes = [
         path: 'ferramentas/retornos',
         loadComponent: () =>
           import('./mobile/tools/mobile-tool-retornos.component').then((m) => m.MobileToolRetornosComponent),
-        data: { titulo: 'Retornos' },
+        data: { titulo: 'Retornos', toolMode: 'list' },
+      },
+      {
+        path: 'ferramentas/retornos/novo',
+        loadComponent: () =>
+          import('./mobile/tools/mobile-tool-retornos.component').then((m) => m.MobileToolRetornosComponent),
+        data: { titulo: 'Agendar retorno', toolMode: 'form' },
       },
     ],
   },
@@ -182,6 +194,150 @@ export const routes: Routes = [
         canActivate: [permissionGuard],
         loadComponent: () => import('./paginas/agenda/agenda.component').then((m) => m.AgendaComponent),
         data: { titulo: 'Agenda', permission: 'organization.manage' },
+      },
+      {
+        path: 'utilitarios',
+        canActivate: [permissionGuard],
+        loadComponent: () => import('./paginas/hubs/hub-page.component').then((m) => m.HubPageComponent),
+        data: {
+          titulo: 'Utilitários',
+          hubId: 'utilitarios',
+          permissionAny: ['submissions.view', 'organization.manage'],
+        },
+      },
+      {
+        path: 'utilitarios/orcamento',
+        canActivate: [permissionGuard],
+        loadComponent: () =>
+          import('./mobile/tools/mobile-tool-orcamento.component').then((m) => m.MobileToolOrcamentoComponent),
+        data: {
+          titulo: 'Orçamentos',
+          toolMode: 'list',
+          permissionAny: ['submissions.view', 'organization.manage'],
+          urlVoltar: '/utilitarios',
+          labelVoltar: 'Utilitários',
+          voltarIntegrado: true,
+        },
+      },
+      {
+        path: 'utilitarios/orcamento/novo',
+        canActivate: [permissionGuard],
+        loadComponent: () =>
+          import('./mobile/tools/mobile-tool-orcamento.component').then((m) => m.MobileToolOrcamentoComponent),
+        data: {
+          titulo: 'Nova proposta',
+          toolMode: 'form',
+          permissionAny: ['submissions.view', 'organization.manage'],
+          urlVoltar: '/utilitarios/orcamento',
+          labelVoltar: 'Orçamentos',
+          voltarIntegrado: true,
+        },
+      },
+      {
+        path: 'utilitarios/mensagens',
+        canActivate: [permissionGuard],
+        loadComponent: () =>
+          import('./mobile/tools/mobile-tool-mensagens.component').then((m) => m.MobileToolMensagensComponent),
+        data: {
+          titulo: 'Mensagens',
+          permissionAny: ['submissions.view', 'organization.manage'],
+          urlVoltar: '/utilitarios',
+          labelVoltar: 'Utilitários',
+          voltarIntegrado: true,
+        },
+      },
+      {
+        path: 'utilitarios/retornos',
+        canActivate: [permissionGuard],
+        loadComponent: () =>
+          import('./mobile/tools/mobile-tool-retornos.component').then((m) => m.MobileToolRetornosComponent),
+        data: {
+          titulo: 'Retornos',
+          toolMode: 'list',
+          permissionAny: ['submissions.view', 'organization.manage'],
+          urlVoltar: '/utilitarios',
+          labelVoltar: 'Utilitários',
+          voltarIntegrado: true,
+        },
+      },
+      {
+        path: 'utilitarios/retornos/novo',
+        canActivate: [permissionGuard],
+        loadComponent: () =>
+          import('./mobile/tools/mobile-tool-retornos.component').then((m) => m.MobileToolRetornosComponent),
+        data: {
+          titulo: 'Agendar retorno',
+          toolMode: 'form',
+          permissionAny: ['submissions.view', 'organization.manage'],
+          urlVoltar: '/utilitarios/retornos',
+          labelVoltar: 'Retornos',
+          voltarIntegrado: true,
+        },
+      },
+      {
+        path: 'utilitarios/preco',
+        canActivate: [permissionGuard],
+        loadComponent: () =>
+          import('./mobile/tools/mobile-tool-preco.component').then((m) => m.MobileToolPrecoComponent),
+        data: {
+          titulo: 'Preço e lucro',
+          permissionAny: ['submissions.view', 'organization.manage'],
+          urlVoltar: '/utilitarios',
+          labelVoltar: 'Utilitários',
+          voltarIntegrado: true,
+        },
+      },
+      {
+        path: 'utilitarios/cartao',
+        canActivate: [permissionGuard],
+        loadComponent: () =>
+          import('./mobile/tools/mobile-tool-cartao.component').then((m) => m.MobileToolCartaoComponent),
+        data: {
+          titulo: 'Taxas de cartão',
+          permissionAny: ['submissions.view', 'organization.manage'],
+          urlVoltar: '/utilitarios',
+          labelVoltar: 'Utilitários',
+          voltarIntegrado: true,
+        },
+      },
+      {
+        path: 'utilitarios/checklist',
+        canActivate: [permissionGuard],
+        loadComponent: () =>
+          import('./mobile/tools/mobile-tool-checklist.component').then((m) => m.MobileToolChecklistComponent),
+        data: {
+          titulo: 'Checklist da sala',
+          permissionAny: ['submissions.view', 'organization.manage'],
+          urlVoltar: '/utilitarios',
+          labelVoltar: 'Utilitários',
+          voltarIntegrado: true,
+        },
+      },
+      {
+        path: 'utilitarios/pacotes',
+        canActivate: [permissionGuard],
+        loadComponent: () =>
+          import('./mobile/tools/mobile-tool-pacotes.component').then((m) => m.MobileToolPacotesComponent),
+        data: {
+          titulo: 'Pacotes e sessões',
+          permissionAny: ['submissions.view', 'organization.manage'],
+          urlVoltar: '/utilitarios',
+          labelVoltar: 'Utilitários',
+          voltarIntegrado: true,
+        },
+      },
+      {
+        path: 'utilitarios/estoque',
+        canActivate: [permissionGuard],
+        loadComponent: () =>
+          import('./mobile/tools/mobile-tool-estoque.component').then((m) => m.MobileToolEstoqueComponent),
+        data: {
+          titulo: 'Estoque e validade',
+          permissionAny: ['submissions.view', 'organization.manage'],
+          urlVoltar: '/utilitarios',
+          labelVoltar: 'Utilitários',
+          voltarIntegrado: true,
+        },
       },
       { path: 'billing', redirectTo: 'assinatura', pathMatch: 'full' },
       {
