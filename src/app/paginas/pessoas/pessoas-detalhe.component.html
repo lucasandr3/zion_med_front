@@ -130,6 +130,39 @@
           @if (abaAtiva === 'dados') {
             <div class="pessoa-sections">
               <section class="pessoa-sec">
+                <h3 class="pessoa-sec__title">Utilitários</h3>
+                <div class="pessoa-utilitarios">
+                  <nord-button
+                    type="button"
+                    [routerLink]="['/utilitarios/orcamento/novo']"
+                    [queryParams]="utilitarioQueryParams()"
+                    title="Gerar orçamento para esta pessoa"
+                  >
+                    <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">receipt_long</span>
+                    Orçamento
+                  </nord-button>
+                  <nord-button
+                    type="button"
+                    [routerLink]="['/utilitarios/mensagens']"
+                    [queryParams]="utilitarioQueryParams()"
+                    title="Abrir mensagens com esta pessoa"
+                  >
+                    <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">chat</span>
+                    Mensagem
+                  </nord-button>
+                  <nord-button
+                    type="button"
+                    [routerLink]="['/utilitarios/retornos/novo']"
+                    [queryParams]="utilitarioQueryParams()"
+                    title="Registrar retorno para esta pessoa"
+                  >
+                    <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">event_repeat</span>
+                    Retorno
+                  </nord-button>
+                </div>
+              </section>
+
+              <section class="pessoa-sec">
                 <h3 class="pessoa-sec__title">Contato</h3>
                 <dl class="pessoa-dl">
                   <div>

@@ -314,9 +314,50 @@ export const HUB_PLATAFORMA_SISTEMA: NavigationHubConfig = {
   ],
 };
 
+export const HUB_UTILITARIOS: NavigationHubConfig = {
+  id: 'utilitarios',
+  title: 'Utilitários',
+  subtitle: 'Propostas, WhatsApp e follow-ups para converter e reter — no computador e no celular.',
+  sectionTitle: 'Comercial e relacionamento',
+  sectionSubtitle: 'Abra pela ficha da pessoa para já levar nome e telefone.',
+  primaryCta: {
+    label: 'Nova proposta',
+    route: '/utilitarios/orcamento/novo',
+    icon: 'receipt_long',
+    permissionsAny: ['submissions.view', 'organization.manage'],
+  },
+  cards: [
+    {
+      id: 'orcamento',
+      title: 'Orçamentos',
+      description: 'Listagem de propostas — reabra, copie ou envie no WhatsApp.',
+      icon: 'receipt_long',
+      route: '/utilitarios/orcamento',
+      permissionsAny: ['submissions.view', 'organization.manage'],
+    },
+    {
+      id: 'mensagens',
+      title: 'Mensagens',
+      description: 'Confirmação, pós-atendimento e reativação — modelos da clínica.',
+      icon: 'chat',
+      route: '/utilitarios/mensagens',
+      permissionsAny: ['submissions.view', 'organization.manage'],
+    },
+    {
+      id: 'retornos',
+      title: 'Retornos',
+      description: 'Fila de follow-ups pendentes para não perder oportunidade.',
+      icon: 'event_repeat',
+      route: '/utilitarios/retornos',
+      permissionsAny: ['submissions.view', 'organization.manage'],
+    },
+  ],
+};
+
 export const NAVIGATION_HUBS: Record<string, NavigationHubConfig> = {
   documentos: HUB_DOCUMENTOS,
   configuracoes: HUB_CONFIGURACOES,
+  utilitarios: HUB_UTILITARIOS,
   'plataforma-clientes': HUB_PLATAFORMA_CLIENTES,
   'plataforma-financeiro': HUB_PLATAFORMA_FINANCEIRO,
   'plataforma-comunicacao': HUB_PLATAFORMA_COMUNICACAO,

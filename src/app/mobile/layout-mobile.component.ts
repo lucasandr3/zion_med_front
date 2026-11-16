@@ -64,7 +64,7 @@ export class LayoutMobileComponent implements OnInit {
     { path: '/m', label: 'Início', icon: 'home', exact: true },
     { path: '/m/pacientes', label: 'Pacientes', icon: 'group', exact: false },
     { path: '/m/fichas', label: 'Fichas', icon: 'description', exact: false },
-    { path: '/m/ferramentas', label: 'Ferramentas', icon: 'handyman', exact: false },
+    { path: '/m/ferramentas', label: 'Utilitários', icon: 'widgets', exact: false },
   ] as const;
 
   readonly booting = this.shell.booting;

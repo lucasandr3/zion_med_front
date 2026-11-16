@@ -84,12 +84,26 @@ export const SHELL_NAV_SIDEBAR: ShellNavSection[] = [
         exact: true,
         activeAlsoPrefixes: ['/envios', '/protocolos'],
       },
+      {
+        route: '/utilitarios',
+        label: 'Utilitários',
+        icon: 'widgets',
+        permissionsAny: ['submissions.view', 'organization.manage'],
+        exact: true,
+        activeAlsoPrefixes: [
+          '/utilitarios/orcamento',
+          '/utilitarios/mensagens',
+          '/utilitarios/retornos',
+          '/utilitarios/orcamento/novo',
+          '/utilitarios/retornos/novo',
+        ],
+      },
     ],
   },
   {
-    id: 'ferramentas',
-    label: 'Ferramentas',
-    icon: 'build',
+    id: 'produtos',
+    label: 'Produtos',
+    icon: 'widgets',
     items: [
       {
         route: '/templates',

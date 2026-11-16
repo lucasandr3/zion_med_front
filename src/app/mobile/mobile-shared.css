@@ -388,6 +388,9 @@
 }
 
 .gm-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   font-size: 10px;
   padding: 5px 8px;
   border-radius: 100px;
@@ -397,9 +400,24 @@
   white-space: nowrap;
 }
 
+.gm-status .material-symbols-outlined {
+  font-size: 14px;
+  line-height: 1;
+}
+
 .gm-status.ok {
   background: #e4f8ef;
   color: #168e68;
+}
+
+.gm-status.warn {
+  background: #fde8e8;
+  color: #b42318;
+}
+
+.gm-btn .material-symbols-outlined {
+  font-size: 18px;
+  line-height: 1;
 }
 
 .gm-search {
