@@ -42,19 +42,22 @@
       @if (selected(); as sel) {
         <p class="gm-hint" style="margin:0 0 12px">Momento: {{ momentLabel(sel) }}</p>
       }
-      <div class="gm-field">
-        <label>Pessoa</label>
-        <input type="text" [ngModel]="nome()" (ngModelChange)="nome.set($event)" placeholder="Ex.: Mariana" />
-      </div>
-      <div class="gm-field">
-        <label>Procedimento</label>
-        <input
-          type="text"
-          [ngModel]="procedimento()"
-          (ngModelChange)="procedimento.set($event)"
-          placeholder="Ex.: limpeza de pele"
-        />
-      </div>
+      <app-tool-person-field
+        [mobile]="true"
+        inputId="ft-msg-person-m"
+        [personId]="personId()"
+        [name]="nome()"
+        [phone]="phone()"
+        (personChange)="onPersonChange($event)"
+      />
+      <app-tool-service-field
+        [mobile]="true"
+        label="Procedimento"
+        inputId="ft-msg-service-m"
+        [serviceId]="serviceId()"
+        [name]="procedimento()"
+        (serviceChange)="onServiceChange($event)"
+      />
       <div class="gm-field">
         <label>Texto (use &#123;nome&#125; e &#123;procedimento&#125;)</label>
         <textarea [ngModel]="draft()" (ngModelChange)="draft.set($event)"></textarea>
@@ -135,32 +138,20 @@
               }
             </select>
           </div>
-          <div class="grid gap-5 md:grid-cols-2">
-            <div>
-              <label class="ft-label" for="ft-msg-nome">Pessoa</label>
-              <input
-                id="ft-msg-nome"
-                class="w-full"
-                type="text"
-                [ngModel]="nome()"
-                (ngModelChange)="nome.set($event)"
-                name="nome"
-                placeholder="Ex.: Mariana"
-              />
-            </div>
-            <div>
-              <label class="ft-label" for="ft-msg-proc">Procedimento</label>
-              <input
-                id="ft-msg-proc"
-                class="w-full"
-                type="text"
-                [ngModel]="procedimento()"
-                (ngModelChange)="procedimento.set($event)"
-                name="procedimento"
-                placeholder="Ex.: limpeza de pele"
-              />
-            </div>
-          </div>
+          <app-tool-person-field
+            inputId="ft-msg-person"
+            [personId]="personId()"
+            [name]="nome()"
+            [phone]="phone()"
+            (personChange)="onPersonChange($event)"
+          />
+          <app-tool-service-field
+            label="Procedimento"
+            inputId="ft-msg-service"
+            [serviceId]="serviceId()"
+            [name]="procedimento()"
+            (serviceChange)="onServiceChange($event)"
+          />
           <div>
             <label class="ft-label" for="ft-msg-draft">Texto (use &#123;nome&#125; e &#123;procedimento&#125;)</label>
             <textarea

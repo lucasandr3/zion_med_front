@@ -11,6 +11,7 @@ import {
   CUSTOM_ELEMENTS_SCHEMA,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { catchError, forkJoin, of } from 'rxjs';
 import {
   AgendaAppointment,
@@ -24,7 +25,6 @@ import { ToastService } from '../../core/services/toast.service';
 import { ConfirmDialogService } from '../../core/services/confirm-dialog.service';
 import { ListSkeletonComponent } from '../../shared/components/list-skeleton/list-skeleton.component';
 import { ZmPageBackLinkComponent } from '../../shared/components/ui';
-import { GestgoComboboxComponent, type GestgoComboboxOption } from '@/shared/components/combobox';
 import { NORD_FORM_IMPORTS } from '@/shared/nord';
 import { formatarDataBr, formatarDataHoraBr } from '@/shared/utils/date';
 import { absoluteMediaUrl } from '../../core/utils/absolute-media-url';
@@ -87,8 +87,8 @@ const MESES = [
   imports: [
     ...NORD_FORM_IMPORTS,
     FormsModule,
+    RouterLink,
     ListSkeletonComponent,
-    GestgoComboboxComponent,
     ZmPageBackLinkComponent,
   ],
   templateUrl: './agenda.component.html',
@@ -100,8 +100,9 @@ export class AgendaComponent implements OnInit {
   private linksPublicosApi = inject(LinksPublicosService);
   private toast = inject(ToastService);
   private confirm = inject(ConfirmDialogService);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
   private readonly diaModalRef = viewChild<ElementRef<NordModalElement>>('diaModal');
-  private readonly servicoModalRef = viewChild<ElementRef<NordModalElement>>('servicoModal');
 
   readonly weekdays = WEEKDAYS;
   readonly diasSemanaLabels = ['Dom.', 'Seg.', 'Ter.', 'Qua.', 'Qui.', 'Sex.', 'Sáb.'];
@@ -111,21 +112,20 @@ export class AgendaComponent implements OnInit {
   ];
 
   readonly configSecoes: { key: ConfigSecao; label: string; icon: string }[] = [
-    { key: 'servicos', label: 'Serviços', icon: 'medical_services' },
+    { key: 'servicos', label: 'Serviços', icon: 'layers' },
     { key: 'expediente', label: 'Expediente', icon: 'schedule' },
   ];
 
   readonly visao = signal<VisaoAgenda>('mes');
   /** Visão de calendário/lista a restaurar ao sair das configurações. */
   private visaoAgendaAnterior: Exclude<VisaoAgenda, 'config'> = 'mes';
-  readonly configSecao = signal<ConfigSecao>('servicos');
+  readonly configSecao = signal<ConfigSecao>('expediente');
   readonly cursor = signal(new Date());
   readonly selectedDay = signal<string | null>(null);
   readonly modalAberto = signal(false);
   readonly modalModo = signal<ModalAgendaModo>('dia');
   /** Quando true, Cancelar no formulário volta à lista do dia em vez de fechar. */
   readonly criarVeioDoDia = signal(false);
-  readonly servicoModalAberto = signal(false);
   readonly servicos = signal<AgendaServiceItem[]>([]);
   readonly reservas = signal<AgendaAppointment[]>([]);
   readonly salvando = signal(false);
@@ -134,11 +134,6 @@ export class AgendaComponent implements OnInit {
   readonly erro = signal('');
   readonly acaoId = signal<number | null>(null);
   readonly fichasDisponiveis = signal<Template[]>([]);
-  readonly servicoPhotoPreview = signal<string | null>(null);
-  private servicoPhotoFile: File | null = null;
-  private servicoPhotoRemoved = false;
-  /** Evita fechar o modal no light-dismiss ao escolher opção do combobox. */
-  private ignoreServicoModalDismissUntil = 0;
 
   readonly modalTitulo = computed(() => {
     const day = this.selectedDay();
@@ -166,32 +161,8 @@ export class AgendaComponent implements OnInit {
       });
     });
 
-    effect(() => {
-      const shouldOpen = this.servicoModalAberto();
-      const el = this.resolveModalEl(this.servicoModalRef());
-      if (!shouldOpen || !el) return;
-      queueMicrotask(() => {
-        const modal = this.resolveModalEl(this.servicoModalRef());
-        if (!modal || !this.servicoModalAberto()) return;
-        this.ensureModalCentered(modal);
-        if (!modal.open) {
-          modal.showModal();
-        }
-      });
-    });
   }
 
-  novoServico = {
-    id: null as number | null,
-    name: '',
-    duration_minutes: 30,
-    priceDisplay: '',
-    priceNumber: null as number | null,
-    show_price: false,
-    pedir_ficha: false,
-    form_template_id: null as number | null,
-    photo_url: null as string | null,
-  };
   novo = {
     patient_name: '',
     patient_email: '',
@@ -257,6 +228,21 @@ export class AgendaComponent implements OnInit {
     this.bumpRules();
     this.reload();
     this.carregarFichasDisponiveis();
+
+    const config = (this.route.snapshot.queryParamMap.get('config') || '').trim();
+    if (config === 'servicos') {
+      void this.router.navigateByUrl('/servicos');
+      return;
+    }
+    if (config === 'expediente') {
+      this.abrirConfiguracoes('expediente');
+      void this.router.navigate([], {
+        relativeTo: this.route,
+        queryParams: { config: null },
+        queryParamsHandling: 'merge',
+        replaceUrl: true,
+      });
+    }
   }
 
   private carregarFichasDisponiveis(): void {
@@ -299,27 +285,12 @@ export class AgendaComponent implements OnInit {
     });
   }
 
-  readonly opcoesFichaServico = computed<GestgoComboboxOption[]>(() =>
-    this.fichasDisponiveis().map((t) => ({
-      value: String(t.id),
-      label: t.name,
-    })),
-  );
-
-  /** Remonta o combobox quando a lista chega (evita lista vazia no nord-combobox). */
-  readonly fichasComboKey = computed(() => this.opcoesFichaServico().length);
-
-  servicoFichaValue(): string | null {
-    const id = this.novoServico.form_template_id;
-    return id != null ? String(id) : null;
-  }
-
   setVisao(v: Exclude<VisaoAgenda, 'config'>): void {
     this.visaoAgendaAnterior = v;
     this.visao.set(v);
   }
 
-  abrirConfiguracoes(secao: ConfigSecao = 'servicos'): void {
+  abrirConfiguracoes(secao: ConfigSecao = 'expediente'): void {
     const atual = this.visao();
     if (atual !== 'config') {
       this.visaoAgendaAnterior = atual;
@@ -565,100 +536,8 @@ export class AgendaComponent implements OnInit {
     }
   }
 
-  abrirNovoServico(): void {
-    this.resetNovoServico();
-    this.carregarFichasDisponiveis();
-    this.servicoModalAberto.set(true);
-  }
-
-  abrirEditarServico(s: AgendaServiceItem): void {
-    const price = this.parsePriceNumber(s.price);
-    const photo = absoluteMediaUrl(s.photo_url) ?? s.photo_url ?? null;
-    const fichaId = s.form_template_id ?? null;
-    this.novoServico = {
-      id: s.id,
-      name: s.name,
-      duration_minutes: s.duration_minutes || 30,
-      priceDisplay: price != null ? this.formatBrl(price) : '',
-      priceNumber: price,
-      show_price: !!s.show_price,
-      pedir_ficha: fichaId != null,
-      form_template_id: fichaId,
-      photo_url: photo,
-    };
-    this.servicoPhotoFile = null;
-    this.servicoPhotoRemoved = false;
-    this.servicoPhotoPreview.set(photo);
-    this.carregarFichasDisponiveis();
-    this.servicoModalAberto.set(true);
-  }
-
-  /**
-   * O listbox do nord-combobox fica fora do diálogo; o clique na opção (ou o
-   * “fall-through” no backdrop) dispara light-dismiss. Bloqueia esse fechamento.
-   */
-  onServicoModalCancel(ev: Event): void {
-    if (Date.now() < this.ignoreServicoModalDismissUntil) {
-      ev.preventDefault();
-      ev.stopPropagation();
-      return;
-    }
-    const trigger = (ev as Event & { trigger?: Event }).trigger;
-    if (!trigger) return;
-    const path =
-      typeof trigger.composedPath === 'function' ? trigger.composedPath() : [];
-    const fromCombobox = path.some((node) => {
-      if (!(node instanceof HTMLElement)) return false;
-      const tag = node.tagName.toLowerCase();
-      if (tag === 'nord-combobox' || tag === 'nord-popout' || tag === 'nord-combobox-option') {
-        return true;
-      }
-      if (node.getAttribute('role') === 'listbox' || node.getAttribute('role') === 'option') {
-        return true;
-      }
-      return node.classList.contains('n-option') || node.classList.contains('n-popout');
-    });
-    if (fromCombobox) {
-      ev.preventDefault();
-      ev.stopPropagation();
-      this.ignoreServicoModalDismissUntil = Date.now() + 400;
-    }
-  }
-
-  fecharServicoModal(force = false): void {
-    if (!force && Date.now() < this.ignoreServicoModalDismissUntil) {
-      // Modal pode ter fechado no light-dismiss: reabre sem perder o formulário.
-      queueMicrotask(() => {
-        this.servicoModalAberto.set(true);
-        const el = this.resolveModalEl(this.servicoModalRef());
-        if (el && !el.open) {
-          this.ensureModalCentered(el);
-          el.showModal();
-        }
-      });
-      return;
-    }
-    this.ignoreServicoModalDismissUntil = 0;
-    if (!this.servicoModalAberto()) return;
-    this.servicoModalAberto.set(false);
-    this.resetNovoServico();
-    const el = this.resolveModalEl(this.servicoModalRef());
-    if (el?.open) {
-      el.close();
-    }
-  }
-
-  onServicoPriceInput(ev: Event): void {
-    const parsed = this.parseMoneyMask(this.onNordInput(ev));
-    this.novoServico.priceDisplay = parsed.display;
-    this.novoServico.priceNumber = parsed.number > 0 ? parsed.number : null;
-    if (this.novoServico.priceNumber == null) {
-      this.novoServico.show_price = false;
-    }
-    const target = ev.target as HTMLElement & { value?: string };
-    if (target && 'value' in target) {
-      target.value = parsed.display;
-    }
+  abrirServicoNoCatalogo(s: AgendaServiceItem): void {
+    void this.router.navigate(['/servicos', s.id, 'editar'], { state: { servico: s } });
   }
 
   servicoMeta(s: AgendaServiceItem): string {
@@ -677,83 +556,27 @@ export class AgendaComponent implements OnInit {
     return parts.join(' · ');
   }
 
-  private resetNovoServico(): void {
-    this.revokeServicoPhotoPreview();
-    this.novoServico = {
-      id: null,
-      name: '',
-      duration_minutes: 30,
-      priceDisplay: '',
-      priceNumber: null,
-      show_price: false,
-      pedir_ficha: false,
-      form_template_id: null,
-      photo_url: null,
-    };
-    this.servicoPhotoFile = null;
-    this.servicoPhotoRemoved = false;
-    this.servicoPhotoPreview.set(null);
-  }
-
-  onServicoPedirFichaToggle(checked: boolean): void {
-    this.novoServico.pedir_ficha = !!checked;
-    if (!this.novoServico.pedir_ficha) {
-      this.novoServico.form_template_id = null;
-      return;
-    }
-    if (!this.novoServico.form_template_id && this.fichasDisponiveis().length === 1) {
-      this.novoServico.form_template_id = this.fichasDisponiveis()[0].id;
-    }
-  }
-
-  /** Armar antes do click na opção (pointerdown), senão o light-dismiss ganha a corrida. */
-  armServicoModalDismissGuard(): void {
-    this.ignoreServicoModalDismissUntil = Date.now() + 500;
-  }
-
-  onServicoFichaChange(raw: string | null): void {
-    this.armServicoModalDismissGuard();
-    const n = Number(raw);
-    this.novoServico.form_template_id = Number.isFinite(n) && n > 0 ? n : null;
-    this.novoServico.pedir_ficha = this.novoServico.form_template_id != null || this.novoServico.pedir_ficha;
-  }
-
-  onServicoPhotoSelected(ev: Event): void {
-    const input = ev.target as HTMLInputElement;
-    const file = input.files?.[0] ?? null;
-    input.value = '';
-    if (!file) return;
-    if (!file.type.startsWith('image/')) {
-      this.toast.error('Arquivo inválido', 'Envie uma imagem JPG, PNG ou WebP.');
-      return;
-    }
-    if (file.size > 2 * 1024 * 1024) {
-      this.toast.error('Arquivo grande', 'A foto deve ter no máximo 2 MB.');
-      return;
-    }
-    this.revokeServicoPhotoPreview();
-    this.servicoPhotoFile = file;
-    this.servicoPhotoRemoved = false;
-    this.servicoPhotoPreview.set(URL.createObjectURL(file));
-  }
-
-  removerServicoFoto(): void {
-    this.revokeServicoPhotoPreview();
-    this.servicoPhotoFile = null;
-    this.servicoPhotoRemoved = true;
-    this.servicoPhotoPreview.set(null);
-    this.novoServico.photo_url = null;
-  }
-
-  private revokeServicoPhotoPreview(): void {
-    const cur = this.servicoPhotoPreview();
-    if (cur?.startsWith('blob:')) {
-      URL.revokeObjectURL(cur);
-    }
-  }
-
   servicePhotoUrl(s: AgendaServiceItem): string | null {
     return absoluteMediaUrl(s.photo_url) ?? s.photo_url ?? null;
+  }
+
+  iniciaisServico(name: string): string {
+    const letters = name
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((p) => p[0])
+      .join('')
+      .toUpperCase();
+    return letters || '?';
+  }
+
+  corAvatarServico(name: string): string {
+    const colors = ['#12b886', '#3b82f6', '#a855f7', '#f97316', '#ec4899', '#0ea5a4'];
+    const key = name.trim() || '?';
+    let hash = 0;
+    for (let i = 0; i < key.length; i++) hash += key.charCodeAt(i);
+    return colors[hash % colors.length];
   }
 
   private parsePriceNumber(raw: number | string | null | undefined): number | null {
@@ -762,20 +585,6 @@ export class AgendaComponent implements OnInit {
     return Number.isFinite(n) && n > 0 ? n : null;
   }
 
-  private parseMoneyMask(raw: string): { display: string; number: number } {
-    const digits = String(raw ?? '').replace(/\D/g, '').replace(/^0+(?=\d)/, '');
-    if (!digits) {
-      return { display: '', number: 0 };
-    }
-    const padded = digits.padStart(3, '0');
-    const cents = padded.slice(-2);
-    const intRaw = padded.slice(0, -2).replace(/^0+(?=\d)/, '') || '0';
-    const withDots = intRaw.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-    return {
-      display: `${withDots},${cents}`,
-      number: parseInt(digits, 10) / 100,
-    };
-  }
 
   private formatBrl(n: number): string {
     if (!Number.isFinite(n) || n < 0) n = 0;
@@ -929,91 +738,6 @@ export class AgendaComponent implements OnInit {
         done();
       },
       error: () => done(),
-    });
-  }
-
-  salvarServico(): void {
-    const name = this.novoServico.name.trim();
-    if (!name) {
-      this.toast.error('Informe o nome', 'Digite o nome do serviço.');
-      return;
-    }
-    if (this.novoServico.show_price && this.novoServico.priceNumber == null) {
-      this.toast.error('Informe o valor', 'Para exibir o preço na agenda pública, preencha o valor.');
-      return;
-    }
-    if (this.novoServico.pedir_ficha && !this.novoServico.form_template_id) {
-      this.toast.error('Escolha a ficha', 'Selecione qual modelo o paciente deve preencher após a reserva.');
-      return;
-    }
-    const payload = {
-      name,
-      duration_minutes: Number(this.novoServico.duration_minutes) || 30,
-      price: this.novoServico.priceNumber,
-      show_price: !!this.novoServico.show_price && this.novoServico.priceNumber != null,
-      form_template_id: this.novoServico.pedir_ficha ? this.novoServico.form_template_id : null,
-      is_active: true,
-    };
-    const editingId = this.novoServico.id;
-    const pendingPhoto = this.servicoPhotoFile;
-    const removePhoto = this.servicoPhotoRemoved && !pendingPhoto;
-    this.salvando.set(true);
-    const req$ = editingId
-      ? this.agenda.updateService(editingId, payload)
-      : this.agenda.createService(payload);
-    req$.subscribe({
-      next: (saved) => {
-        const id = saved.id;
-        const finish = () => {
-          this.salvando.set(false);
-          this.fecharServicoModal(true);
-          this.reload();
-          this.toast.success(editingId ? 'Serviço atualizado' : 'Serviço criado', '');
-        };
-        if (pendingPhoto) {
-          this.agenda.uploadServicePhoto(id, pendingPhoto).subscribe({
-            next: () => finish(),
-            error: (err) => {
-              this.salvando.set(false);
-              this.reload();
-              this.toast.error(
-                'Serviço salvo, mas a foto falhou',
-                err.error?.message ?? err.error?.errors?.photo?.[0] ?? 'Tente enviar a foto de novo.',
-              );
-            },
-          });
-          return;
-        }
-        if (removePhoto && editingId) {
-          this.agenda.deleteServicePhoto(editingId).subscribe({
-            next: () => finish(),
-            error: () => finish(),
-          });
-          return;
-        }
-        finish();
-      },
-      error: (err) => {
-        this.salvando.set(false);
-        this.toast.error('Erro', err.error?.message ?? 'Não foi possível salvar.');
-      },
-    });
-  }
-
-  async removerServico(s: AgendaServiceItem): Promise<void> {
-    const ok = await this.confirm.request({
-      title: 'Remover serviço?',
-      message: `O serviço “${s.name}” será removido.`,
-      confirmLabel: 'Sim, remover',
-      variant: 'danger',
-    });
-    if (!ok) return;
-    this.agenda.deleteService(s.id).subscribe({
-      next: () => {
-        this.reload();
-        this.toast.success('Serviço removido', '');
-      },
-      error: (err) => this.toast.error('Erro', err.error?.message ?? 'Falha ao remover.'),
     });
   }
 

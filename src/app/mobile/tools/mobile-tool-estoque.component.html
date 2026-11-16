@@ -26,7 +26,14 @@
     </div>
     <div class="gm-field">
       <label>Validade</label>
-      <input type="date" [(ngModel)]="expiresOn" />
+      <nord-date-picker
+        expand
+        hide-label
+        label="Validade"
+        [(ngModel)]="expiresOn"
+        name="expiresOnMobile"
+        placeholder="dd/mm/aaaa"
+      ></nord-date-picker>
     </div>
     <button type="button" class="gm-btn" (click)="criar()">Adicionar</button>
   </div>
@@ -87,7 +94,15 @@
         </div>
         <div class="max-w-xs">
           <label class="ft-label" for="ft-stock-exp">Validade</label>
-          <input id="ft-stock-exp" class="w-full" type="date" [(ngModel)]="expiresOn" name="expiresOn" />
+          <nord-date-picker
+            id="ft-stock-exp"
+            expand
+            hide-label
+            label="Validade"
+            [(ngModel)]="expiresOn"
+            name="expiresOn"
+            placeholder="dd/mm/aaaa"
+          ></nord-date-picker>
         </div>
       </form>
     </g-card>

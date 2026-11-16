@@ -3,6 +3,7 @@ import {
   Component,
   CUSTOM_ELEMENTS_SCHEMA,
   OnInit,
+  ViewChild,
   computed,
   inject,
   signal,
@@ -19,6 +20,14 @@ import { ToastService } from '../../core/services/toast.service';
 import { injectMobileToolContext } from './mobile-tool-context';
 import { injectToolPersonContext, whatsappShareUrl } from './tool-person-context';
 import { ToolPersonBannerComponent } from './tool-person-banner.component';
+import {
+  ToolPersonFieldComponent,
+  type ToolPersonValue,
+} from './tool-person-field.component';
+import {
+  ToolServiceFieldComponent,
+  type ToolServiceValue,
+} from './tool-service-field.component';
 
 export type MessageMoment = 'all' | 'confirmacao' | 'pos' | 'reativacao' | 'outros';
 
@@ -38,11 +47,16 @@ export type MessageMoment = 'all' | 'confirmacao' | 'pos' | 'reativacao' | 'outr
     GestgoCardComponent,
     ZmPageBackLinkComponent,
     ToolPersonBannerComponent,
+    ToolPersonFieldComponent,
+    ToolServiceFieldComponent,
   ],
   templateUrl: './mobile-tool-mensagens.component.html',
   styleUrls: ['../mobile-shared.css', './ferramentas-tool-desktop.css'],
 })
 export class MobileToolMensagensComponent implements OnInit {
+  @ViewChild(ToolPersonFieldComponent) private personField?: ToolPersonFieldComponent;
+  @ViewChild(ToolServiceFieldComponent) private serviceField?: ToolServiceFieldComponent;
+
   private readonly toolCtx = injectMobileToolContext();
   private readonly personCtx = injectToolPersonContext();
   readonly isMobileShell = this.toolCtx.isMobileShell;
@@ -56,6 +70,8 @@ export class MobileToolMensagensComponent implements OnInit {
   readonly templates = signal<MobileMessageTemplate[]>([]);
   readonly selectedId = signal<number | null>(null);
   readonly moment = signal<MessageMoment>('all');
+  readonly personId = signal<number | null>(null);
+  readonly serviceId = signal<number | null>(null);
   readonly nome = signal('');
   readonly phone = signal('');
   readonly linkedNome = signal('');
@@ -90,6 +106,7 @@ export class MobileToolMensagensComponent implements OnInit {
   );
 
   ngOnInit(): void {
+    this.personId.set(this.personCtx.personId);
     if (this.personCtx.nome) {
       this.nome.set(this.personCtx.nome);
       this.linkedNome.set(this.personCtx.nome);
@@ -175,7 +192,29 @@ export class MobileToolMensagensComponent implements OnInit {
     }
   }
 
-  whatsapp(): void {
+  onPersonChange(value: ToolPersonValue): void {
+    this.personId.set(value.personId);
+    this.nome.set(value.name);
+    this.phone.set(value.phone);
+  }
+
+  onServiceChange(value: ToolServiceValue): void {
+    this.serviceId.set(value.serviceId);
+    this.procedimento.set(value.name);
+  }
+
+  async whatsapp(): Promise<void> {
+    const person = (await this.personField?.ensurePerson()) ?? null;
+    if (person) {
+      this.personId.set(person.personId);
+      this.nome.set(person.name);
+      this.phone.set(person.phone);
+    }
+    const service = (await this.serviceField?.ensureService()) ?? null;
+    if (service?.name) {
+      this.serviceId.set(service.serviceId);
+      this.procedimento.set(service.name);
+    }
     window.open(whatsappShareUrl(this.preview(), this.phone()), '_blank', 'noopener,noreferrer');
   }
 }

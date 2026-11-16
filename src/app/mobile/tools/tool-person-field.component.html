@@ -1,0 +1,104 @@
+<div class="tpf" [class.tpf--mobile]="mobile">
+  <div class="tpf-row-fields">
+    <div class="tpf-field tpf-field--search">
+      <label class="tpf-label" [attr.for]="inputId">{{ label }}</label>
+      <div class="tpf-row">
+        <input
+          [id]="inputId"
+          class="tpf-input"
+          type="text"
+          [ngModel]="query"
+          (ngModelChange)="onQueryChange($event)"
+          placeholder="Buscar por nome, telefone ou código…"
+          autocomplete="off"
+        />
+        @if (selected()) {
+          <button type="button" class="tpf-btn" (click)="clearPerson()">Limpar</button>
+        }
+      </div>
+
+      @if (suggestions().length > 0) {
+        <ul class="tpf-list" role="listbox">
+          @for (p of suggestions(); track p.id) {
+            <li>
+              <button type="button" class="tpf-option" (click)="selectPerson(p)">
+                <span class="tpf-option__name">{{ p.name }}</span>
+                <span class="tpf-option__meta">{{ documento(p) }}</span>
+              </button>
+            </li>
+          }
+        </ul>
+      } @else if (searching()) {
+        <p class="tpf-hint">Buscando…</p>
+      } @else if (query.trim().length >= 2 && !selected() && !showCreate()) {
+        <div class="tpf-empty">
+          <p class="tpf-hint">Nenhuma pessoa encontrada.</p>
+          <button type="button" class="tpf-link" (click)="openCreate()">
+            Cadastrar “{{ query.trim() }}”
+          </button>
+        </div>
+      }
+
+      @if (!selected() && query.trim().length >= 2 && !showCreate() && suggestions().length > 0) {
+        <button type="button" class="tpf-link tpf-link--below" (click)="openCreate()">
+          Não está na lista? Cadastrar nova pessoa
+        </button>
+      }
+    </div>
+
+    <div class="tpf-field tpf-field--phone">
+      <label class="tpf-label" [attr.for]="inputId + '-phone'">WhatsApp</label>
+      <input
+        [id]="inputId + '-phone'"
+        class="tpf-input"
+        type="tel"
+        inputmode="numeric"
+        autocomplete="tel-national"
+        [ngModel]="phoneDraft"
+        (ngModelChange)="onPhoneChange($event)"
+        placeholder="(11) 98765-4321"
+      />
+    </div>
+  </div>
+
+  @if (showCreate()) {
+    <div class="tpf-create">
+      <p class="tpf-create__title">Cadastrar pessoa</p>
+      <div class="tpf-row-fields">
+        <div class="tpf-field">
+          <label class="tpf-label" [attr.for]="inputId + '-create-name'">Nome</label>
+          <input
+            [id]="inputId + '-create-name'"
+            class="tpf-input"
+            type="text"
+            [(ngModel)]="createName"
+            placeholder="Nome completo"
+          />
+        </div>
+        <div class="tpf-field tpf-field--phone">
+          <label class="tpf-label" [attr.for]="inputId + '-create-phone'">WhatsApp</label>
+          <input
+            [id]="inputId + '-create-phone'"
+            class="tpf-input"
+            type="tel"
+            inputmode="numeric"
+            autocomplete="tel-national"
+            [ngModel]="createPhone"
+            (ngModelChange)="onCreatePhoneChange($event)"
+            placeholder="(11) 98765-4321"
+          />
+        </div>
+      </div>
+      <div class="tpf-create__actions">
+        <button type="button" class="tpf-btn" (click)="cancelCreate()" [disabled]="creating()">Cancelar</button>
+        <button type="button" class="tpf-btn tpf-btn--primary" (click)="createPerson()" [disabled]="creating()">
+          {{ creating() ? 'Salvando…' : 'Cadastrar' }}
+        </button>
+      </div>
+    </div>
+  }
+
+  @if (selected(); as sel) {
+    <p class="tpf-hint tpf-hint--ok">Vinculada: {{ sel.name }}</p>
+  }
+</div>
