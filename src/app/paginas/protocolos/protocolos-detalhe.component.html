@@ -245,6 +245,16 @@
                       <p class="protocolo-detail-value font-mono text-xs break-all">{{ p.document_snapshot_hash }}</p>
                     </div>
                   }
+                  <div class="protocolo-detail-field">
+                    <p class="protocolo-detail-label">PDF arquivado</p>
+                    <g-badge zShape="pill" [zType]="pdfReadyBadgeType()">{{ pdfReadyLabel() }}</g-badge>
+                    @if (p.pdf_generated_at) {
+                      <p class="protocolo-detail-muted">Gerado em {{ dataFormatada(p.pdf_generated_at) }}</p>
+                    }
+                    @if (p.pdf_sha256) {
+                      <p class="protocolo-detail-muted font-mono text-xs break-all">{{ p.pdf_sha256 }}</p>
+                    }
+                  </div>
                   <div class="protocolo-detail-field protocolo-detail-field--status">
                     <p class="protocolo-detail-label">Status</p>
                     <g-badge zShape="pill" [zType]="statusBadgeType()" [class]="statusBadgeClass()">{{ statusLabel() }}</g-badge>

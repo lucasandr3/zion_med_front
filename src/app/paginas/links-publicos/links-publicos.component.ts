@@ -25,6 +25,7 @@ import {
   prefetchPublicFormQr,
 } from '../../core/utils/public-form-qr.util';
 import { buildPublicFormUrl, normalizePublicAppUrl } from '../../core/utils/public-form-url.util';
+import { buildDocumentInviteMessage, openWhatsappShare } from '../../core/utils/whatsapp-share.util';
 
 interface LinkPublicoItem {
   id: number;
@@ -188,6 +189,18 @@ export class LinksPublicosComponent implements OnInit {
     const diffDays = Math.floor(diffHours / 24);
     if (diffDays < 30) return `${diffDays} d`;
     return date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
+  }
+
+  /** MSG-03A — compartilha o link público via WhatsApp (sem telefone). */
+  compartilharWhatsapp(item: LinkPublicoItem): void {
+    const raw = item.public_url?.trim();
+    if (!raw) {
+      this.toast.warning('Link indisponível', 'Este formulário ainda não possui URL pública.');
+      return;
+    }
+    const url = normalizePublicAppUrl(raw) || raw;
+    openWhatsappShare(buildDocumentInviteMessage({ templateName: item.name, url }));
+    this.toast.success('WhatsApp', 'Abra o app e escolha o contato para enviar o link.');
   }
 
   copiarLink(templateId: number, url: string): void {

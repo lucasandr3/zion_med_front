@@ -115,9 +115,9 @@ export const HUB_DOCUMENTOS: NavigationHubConfig = {
     },
     {
       id: 'importar',
-      title: 'Importar ficha com IA',
-      description: 'Converta um PDF ou foto de ficha em um modelo digital.',
-      icon: 'auto_awesome',
+      title: 'Usar minha ficha atual',
+      description: 'Envie o PDF da ficha que você já usa e mapeie os campos no layout original.',
+      icon: 'upload_file',
       route: '/templates/importar',
       permission: 'templates.manage',
     },

@@ -603,20 +603,21 @@
 .slot-list {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
+  gap: 6px;
 }
 .public-page button.slot {
   display: grid;
   place-items: center;
   min-height: 44px;
-  padding: 11px 8px;
+  padding: 8px 6px;
   border: 1px solid var(--line2);
   color: #2b2b2b;
-  border-radius: 9px;
+  border-radius: 8px;
   background: #fff;
   font-size: 12px;
   font-weight: 740;
-  aspect-ratio: 1.35;
+  /* Densidade maior sem reduzir área de toque (VIS-14 agenda pública) */
+  aspect-ratio: 2.1;
   box-sizing: border-box;
 }
 .public-page button.slot:hover:not(:disabled) {
@@ -629,6 +630,10 @@
   background: var(--ap-brand-strong);
   border-color: var(--ap-brand-strong);
   color: #fff;
+}
+.public-page button.slot:focus-visible {
+  outline: 2px solid var(--ap-brand-strong, var(--ap-brand));
+  outline-offset: 2px;
 }
 .ap-muted {
   margin: 0 0 12px;

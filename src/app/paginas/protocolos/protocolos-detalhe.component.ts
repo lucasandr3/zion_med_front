@@ -23,6 +23,7 @@ import { PessoasService, Pessoa } from '../../core/services/pessoas.service';
 import { TemplatesService } from '../../core/services/templates.service';
 import { fillSourcePdf, fetchImageBytes, type FillSourcePdfFieldValue } from '../../core/utils/fill-source-pdf.util';
 import { hasUsablePrintLayout, parsePrintLayout } from '../../core/utils/print-layout.util';
+import { openWhatsappShare } from '../../core/utils/whatsapp-share.util';
 import { firstValueFrom } from 'rxjs';
 
 import { GestgoBadgeComponent } from '@/shared/components/badge/badge.component';
@@ -223,8 +224,25 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
     });
   }
 
-  /** Atualiza print_layout do template embutido com o mapa atual do modelo. */
+  /**
+   * DOC-02 — preferir print_layout congelado no document_snapshot.
+   * Só busca o mapa vivo do modelo se o snapshot não tiver aparência utilizável
+   * (protocolos antigos).
+   */
   private hidratarPrintLayoutDoModelo(p: ProtocoloDetalheData): void {
+    const snapshotLayout = parsePrintLayout(p.document_snapshot?.print_layout);
+    if (hasUsablePrintLayout(snapshotLayout) && p.template) {
+      p.template.print_layout = snapshotLayout;
+      if (p.document_snapshot?.has_source_document != null) {
+        p.template.has_source_document = p.document_snapshot.has_source_document;
+      }
+      this.protocolo.set({ ...p, template: { ...p.template } });
+      if (this.abaAtiva() === 'impressao') {
+        this.garantirPreviewAparenciaClinica(true);
+      }
+      return;
+    }
+
     const templateId = p.template?.id ?? p.template_id;
     if (!templateId) return;
     this.templatesService.get(templateId).subscribe({
@@ -232,6 +250,8 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
         const cur = this.protocolo();
         if (!cur || (cur.template?.id ?? cur.template_id) !== templateId) return;
         if (!cur.template) return;
+        // Não sobrescrever se o snapshot já foi aplicado depois desta chamada.
+        if (hasUsablePrintLayout(parsePrintLayout(cur.document_snapshot?.print_layout))) return;
         cur.template.print_layout = parsePrintLayout(tpl.print_layout);
         cur.template.has_source_document =
           tpl.has_source_document ?? cur.template.has_source_document;
@@ -335,6 +355,26 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
       revoked: 'Revogado',
     };
     return map[s.toLowerCase()] ?? s;
+  }
+
+  /** DOC-02 — estado observável da geração do PDF arquivado. */
+  pdfReadyLabel(): string {
+    const p = this.protocolo();
+    const status = p?.pdf_generation_status;
+    if (status === 'ready' || p?.pdf_ready) return 'Pronto';
+    if (status === 'failed') return 'Falha na geração';
+    if (status === 'partial') return 'Incompleto';
+    if (status === 'pending') return 'Gerando…';
+    if (p?.pdf_generated_at || p?.pdf_sha256) return 'Incompleto';
+    if (status == null) return 'Não arquivado';
+    return 'Pendente / gerando';
+  }
+
+  pdfReadyBadgeType(): GestgoBadgeTypeVariants {
+    const status = this.protocolo()?.pdf_generation_status;
+    if (status === 'ready' || this.protocolo()?.pdf_ready) return 'secondary';
+    if (status === 'failed' || status === 'partial') return 'destructive';
+    return 'outline';
   }
 
   assinaturaStatusLabel(status: string | undefined): string {
@@ -1417,7 +1457,11 @@ body.modo-pdf .documento {
   }
 
   get temAparenciaPdfMapeada(): boolean {
-    return hasUsablePrintLayout(parsePrintLayout(this.protocolo()?.template?.print_layout));
+    const p = this.protocolo();
+    return (
+      hasUsablePrintLayout(parsePrintLayout(p?.document_snapshot?.print_layout)) ||
+      hasUsablePrintLayout(parsePrintLayout(p?.template?.print_layout))
+    );
   }
 
   /** PDF preenchido no layout original da clínica (se houver mapa). */
@@ -1426,23 +1470,30 @@ body.modo-pdf .documento {
     const templateId = p?.template?.id ?? p?.template_id;
     if (!p || !templateId || !this.temDocumentoOriginal) return null;
 
-    // Sempre buscar o mapa vivo do modelo — o template embutido no protocolo pode estar
-    // desatualizado (posições antigas ≠ o que foi mapeado na prévia do editor).
-    let layout = parsePrintLayout(p.template?.print_layout);
-    let hasSource = !!p.template?.has_source_document;
-    try {
-      const tpl = await firstValueFrom(this.templatesService.get(templateId));
-      const live = parsePrintLayout(tpl.print_layout);
-      if (hasUsablePrintLayout(live)) {
-        layout = live;
+    // DOC-02 — snapshot histórico primeiro; mapa vivo só como fallback.
+    let layout =
+      parsePrintLayout(p.document_snapshot?.print_layout) ||
+      parsePrintLayout(p.template?.print_layout);
+    let hasSource =
+      p.document_snapshot?.has_source_document ?? !!p.template?.has_source_document;
+    if (!hasUsablePrintLayout(layout)) {
+      try {
+        const tpl = await firstValueFrom(this.templatesService.get(templateId));
+        const live = parsePrintLayout(tpl.print_layout);
+        if (hasUsablePrintLayout(live)) {
+          layout = live;
+        }
+        hasSource = !!(tpl.has_source_document ?? hasSource);
+        if (p.template) {
+          p.template.print_layout = layout;
+          p.template.has_source_document = hasSource;
+        }
+      } catch {
+        // segue com o que veio no protocolo
       }
-      hasSource = !!(tpl.has_source_document ?? hasSource);
-      if (p.template) {
-        p.template.print_layout = layout;
-        p.template.has_source_document = hasSource;
-      }
-    } catch {
-      // segue com o que veio no protocolo
+    } else if (p.template) {
+      p.template.print_layout = layout;
+      p.template.has_source_document = hasSource;
     }
     if (!hasSource || !layout || !hasUsablePrintLayout(layout)) return null;
 
@@ -1762,7 +1813,8 @@ body.modo-pdf .documento {
     if (!this.protocolo() || !this.podeSolicitarReconsentimento) return;
     const ok = await this.confirm.request({
       title: 'Solicitar reconsentimento?',
-      message: 'Um novo link do termo será enviado ao paciente (e-mail ou WhatsApp cadastrado na ficha). O protocolo vencido permanece no histórico.',
+      message:
+        'Um novo link do termo será preparado para o paciente (e-mail automático ou compartilhamento manual no WhatsApp). O protocolo vencido permanece no histórico.',
       confirmLabel: 'Enviar link',
     });
     if (!ok) return;
@@ -1770,7 +1822,18 @@ body.modo-pdf .documento {
     this.protocolosService.solicitarReconsentimento(this.protocolo()!.id).subscribe({
       next: (res) => {
         this.solicitandoReconsentimento.set(false);
-        this.toast.success('Reconsentimento enviado', res.message);
+        if (res.delivery_mode === 'manual' && res.share_message) {
+          openWhatsappShare(
+            res.share_message,
+            res.recipient_phone ?? this.pessoaCompleta()?.phone ?? null,
+          );
+          this.toast.success(
+            'WhatsApp',
+            'Link gerado. Abra o WhatsApp e envie a mensagem — não marcamos como entregue.',
+          );
+        } else {
+          this.toast.success('Reconsentimento enviado', res.message);
+        }
         this.carregar(this.protocolo()!.id);
       },
       error: (err) => {

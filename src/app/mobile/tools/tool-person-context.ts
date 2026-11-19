@@ -1,6 +1,7 @@
 import { inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { digitsOnlyPhone, phoneDigitsForApi } from '../../paginas/pessoas/pessoas-form.util';
+
+export { whatsappShareUrl, openWhatsappShare, buildDocumentInviteMessage } from '../../core/utils/whatsapp-share.util';
 
 export interface ToolPersonContext {
   personId: number | null;
@@ -31,11 +32,4 @@ export function toolPersonQueryParams(pessoa: {
   };
   if (pessoa.phone) params['phone'] = pessoa.phone;
   return params;
-}
-
-/** Abre WhatsApp com texto; usa o telefone quando disponível. */
-export function whatsappShareUrl(text: string, phone?: string | null): string {
-  const digits = phone ? phoneDigitsForApi(digitsOnlyPhone(phone)) : null;
-  const base = digits ? `https://wa.me/${digits}` : 'https://wa.me/';
-  return `${base}?text=${encodeURIComponent(text)}`;
 }

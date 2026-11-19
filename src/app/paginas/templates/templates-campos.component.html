@@ -26,6 +26,10 @@
             <span slot="start" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">content_copy</span>
             <span class="copy-label">Copiar link</span>
           </nord-button>
+          <nord-button type="button" (click)="compartilharWhatsappLink()">
+            <span slot="start" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">chat</span>
+            WhatsApp
+          </nord-button>
           <a [href]="linkPublicoUrl()" target="_blank" rel="noopener" class="no-underline">
             <nord-button type="button" variant="primary">
               <span slot="start" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">open_in_new</span>

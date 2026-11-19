@@ -7,6 +7,8 @@ export const environment = {
   mobileAppUrl: '',
   /** Desligado por enquanto. */
   mobileExperienceEnabled: false,
+  /** PDF-01C — detecção assistida por IA (desligada). */
+  printLayoutAiEnabled: false,
   mobileHosts: [] as string[],
   painelHosts: [] as string[],
   errorHub: {

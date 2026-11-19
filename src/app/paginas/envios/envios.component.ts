@@ -11,6 +11,7 @@ import { ZmPaginationComponent } from '../../shared/components/ui';
 import { GestgoComboboxComponent, type GestgoComboboxOption } from '@/shared/components/combobox';
 import { ToastService } from '../../core/services/toast.service';
 import { ConfirmDialogService } from '../../core/services/confirm-dialog.service';
+import { openWhatsappShare } from '../../core/utils/whatsapp-share.util';
 
 interface DocumentoPublicoOpcao {
   id: number;
@@ -98,15 +99,34 @@ export class EnviosComponent implements OnInit {
       .pipe(debounceTime(280), distinctUntilChanged())
       .subscribe((termo) => this.buscarPessoasPorTermo(termo));
     this.carregar();
-    if (this.route.snapshot.queryParamMap.get('novo') === '1') {
+    const qp = this.route.snapshot.queryParamMap;
+    const personId = Number(qp.get('person_id') || '');
+    const abrirNovo = qp.get('novo') === '1' || (Number.isFinite(personId) && personId > 0);
+    if (abrirNovo) {
       this.abrirNovoEnvio();
+      if (Number.isFinite(personId) && personId > 0) {
+        this.preencherPessoaDoQuery(personId);
+      }
       void this.router.navigate([], {
         relativeTo: this.route,
-        queryParams: { novo: null },
+        queryParams: { novo: null, person_id: null },
         queryParamsHandling: 'merge',
         replaceUrl: true,
       });
     }
+  }
+
+  /** PAC-05 micro — link da ficha (?person_id=) abre envio com pessoa pré-selecionada. */
+  private preencherPessoaDoQuery(personId: number): void {
+    this.novoEnvio.destino = 'pessoa';
+    this.pessoasService.get(personId).subscribe({
+      next: (p) => {
+        this.selecionarPessoa(p as Pessoa);
+      },
+      error: () => {
+        this.toast.warning('Pessoa', 'Não foi possível pré-selecionar a pessoa do link.');
+      },
+    });
   }
 
   /** Carrega documentos com link público ativo — mesmo endpoint da listagem Links públicos. */
@@ -177,6 +197,7 @@ export class EnviosComponent implements OnInit {
     const status = item.delivery_status ?? 'enviado';
     if (status === 'enviado') return 'Enviado';
     if (status === 'nao_enviado') return 'Não enviado';
+    if (status === 'aguardando_envio_manual') return 'Aguardando envio manual';
     return status;
   }
 
@@ -455,6 +476,7 @@ export class EnviosComponent implements OnInit {
     const payload: Parameters<DocumentSendsService['store']>[0] = {
       template_id: this.novoEnvio.template_id,
       channel: this.novoEnvio.channel,
+      ...(this.novoEnvio.channel === 'whatsapp' ? { delivery_mode: 'manual' as const } : {}),
     };
     if (this.novoEnvio.destino === 'pessoa' && this.novoEnvio.person_id) {
       payload.person_id = this.novoEnvio.person_id;
@@ -472,11 +494,22 @@ export class EnviosComponent implements OnInit {
       }
     }
     this.documentSendsService.store(payload).subscribe({
-      next: () => {
+      next: (res) => {
         this.enviando.set(false);
+        const data = res.data;
+        if (this.novoEnvio.channel === 'whatsapp' && data?.share_message) {
+          openWhatsappShare(data.share_message, data.recipient_phone || payload.recipient_phone);
+          this.fecharNovoEnvio();
+          this.setCaixa('pendentes');
+          this.toast.success(
+            'WhatsApp',
+            'Link gerado. Abra o WhatsApp e envie a mensagem — não marcamos como entregue.',
+          );
+          return;
+        }
         this.fecharNovoEnvio();
         this.setCaixa('pendentes');
-        this.toast.success('Envio criado', 'O link do documento foi enviado.');
+        this.toast.success('Envio criado', data?.message || 'O link do documento foi enviado.');
       },
       error: (err) => {
         this.enviando.set(false);

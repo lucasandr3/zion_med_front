@@ -27,8 +27,8 @@
 .nav-hub__kpi {
   background: var(--card, var(--n-color-surface, #fff));
   border: 1px solid var(--border);
-  border-radius: 0.875rem;
-  box-shadow: 0 9px 30px rgba(18, 57, 53, 0.045);
+  border-radius: var(--radius-lg, 0.75rem);
+  box-shadow: var(--shadow-sm, 0 1px 2px rgba(0, 0, 0, 0.04));
   color: inherit;
   display: flex;
   flex-direction: column;
@@ -43,14 +43,14 @@
 }
 
 a.nav-hub__kpi:hover {
-  background: color-mix(in srgb, var(--c-primary, #0f766e) 8%, var(--card, var(--n-color-surface, #fff)));
-  border-color: color-mix(in srgb, var(--c-primary, #0f766e) 28%, var(--border));
-  box-shadow: 0 8px 24px color-mix(in srgb, var(--c-primary, #0f766e) 12%, transparent);
+  background: color-mix(in srgb, var(--c-action, var(--c-primary, #087a55)) 8%, var(--card, var(--n-color-surface, #fff)));
+  border-color: color-mix(in srgb, var(--c-action, var(--c-primary, #087a55)) 28%, var(--border));
+  box-shadow: var(--shadow-md, 0 4px 12px rgba(0, 0, 0, 0.06));
   transform: translateY(-1px);
 }
 
 a.nav-hub__kpi:focus-visible {
-  outline: 2px solid #14b8a6;
+  outline: 2px solid var(--c-focus-ring, var(--c-action, #087a55));
   outline-offset: 2px;
 }
 
@@ -64,7 +64,7 @@ a.nav-hub__kpi:focus-visible {
 }
 
 .nav-hub__kpi-label .material-symbols-outlined {
-  color: var(--c-primary, #0f766e);
+  color: var(--c-brand-text, var(--c-action, var(--c-primary, #087d64)));
   font-size: 1.05rem;
 }
 
@@ -148,11 +148,11 @@ a.nav-hub__kpi:focus-visible {
   align-items: flex-start;
   background: var(--card, var(--n-color-surface, #fff));
   border: 1px solid var(--border);
-  border-radius: 0.75rem;
+  border-radius: var(--radius-lg, 0.75rem);
   color: inherit;
   display: flex;
   gap: 0.85rem;
-  min-height: 6.5rem;
+  min-height: 6.25rem;
   padding: 1rem 0.95rem;
   text-decoration: none;
   transition:
@@ -162,21 +162,21 @@ a.nav-hub__kpi:focus-visible {
 }
 
 .nav-hub__card:hover {
-  background: color-mix(in srgb, var(--c-primary, #0f766e) 10%, var(--card, var(--n-color-surface, #fff)));
-  border-color: color-mix(in srgb, var(--c-primary, #0f766e) 28%, var(--border));
-  box-shadow: 0 8px 24px color-mix(in srgb, var(--c-primary, #0f766e) 10%, transparent);
+  background: color-mix(in srgb, var(--c-action, var(--c-primary, #087a55)) 8%, var(--card, var(--n-color-surface, #fff)));
+  border-color: color-mix(in srgb, var(--c-action, var(--c-primary, #087a55)) 28%, var(--border));
+  box-shadow: var(--shadow-md, 0 4px 12px rgba(0, 0, 0, 0.06));
 }
 
 .nav-hub__card:focus-visible {
-  outline: 2px solid var(--c-primary, #14b8a6);
+  outline: 2px solid var(--c-focus-ring, var(--c-action, #087a55));
   outline-offset: 2px;
 }
 
 .nav-hub__card-icon {
   align-items: center;
-  background: color-mix(in srgb, var(--c-primary, #0f766e) 12%, transparent);
-  border-radius: 0.625rem;
-  color: var(--c-primary, #0f766e);
+  background: color-mix(in srgb, var(--c-primary, #14b87a) 14%, transparent);
+  border-radius: var(--radius-md, 0.5rem);
+  color: var(--c-brand-text, var(--c-action, #087d64));
   display: inline-flex;
   flex-shrink: 0;
   height: 2.5rem;
@@ -223,16 +223,17 @@ a.nav-hub__kpi:focus-visible {
 }
 
 .nav-hub__card-title {
-  color: var(--foreground);
+  color: var(--foreground, var(--c-text, #17201f));
   font-size: 0.9375rem;
   font-weight: 650;
+  letter-spacing: -0.01em;
 }
 
 .nav-hub__card-desc {
-  color: var(--muted-foreground);
+  color: var(--muted-foreground, var(--c-muted, #56635f));
   display: -webkit-box;
   font-size: 0.8125rem;
-  line-height: 1.4;
+  line-height: 1.45;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
   overflow: hidden;
