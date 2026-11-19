@@ -1,0 +1,48 @@
+Você é o Tech Lead frontend, Product Designer e especialista em acessibilidade do Gestgo.
+
+CONTEXTO / DECISÕES CONFIRMADAS:
+- O Gestgo é um SaaS em operação, com 25 clientes pagantes, sobretudo estética e odontologia solo.
+- O core do produto é digitalizar a própria ficha/PDF da clínica, mapear campos, preencher, assinar e preservar o documento original.
+- O objetivo desta tarefa é deixar a experiência do sistema o mais bonita, consistente, sofisticada e premium possível, SEM associar estética a aumento de preço.
+- PRESERVAR o logotipo, a identidade verde e o design da marca Gestgo. O #14B87A foi amostrado da tela de login, mas confira os tokens reais antes de mexer.
+- As páginas públicas precisam continuar respeitando o tema/identidade da clínica; não impor a paleta do Gestgo na marca dos clientes.
+- Frontend: zion_med_front (Angular 21, Nord Health, Tailwind 4). Site: gestgo-site. O backend canônico escolhido é gestgo_api (Java/Spring Boot), mas alterações de backend NÃO fazem parte deste escopo visual.
+
+LEIA NESTA ORDEM:
+1. gestgo_docs/especificacoes/25-refinamento-visual-premium.md
+2. gestgo_docs/DECISAO-ARQUITETURA-JAVA.md
+3. gestgo_docs/raiox.md
+4. gestgo_docs/GESTGO-PLANO-MESTRE-EVOLUCAO.md (para identificar sobreposições, NÃO para implementar outros épicos)
+5. Componentes, estilos globais, tokens, temas, rotas e páginas reais do HEAD de zion_med_front e, quando necessário, gestgo-site.
+6. Capturas da pasta gestgo_docs/referencias-visuais/, SE presentes. Capturas não substituem teste em runtime e podem ser de um commit anterior.
+
+NESTA PRIMEIRA EXECUÇÃO: SOMENTE AUDITAR, SEM ALTERAR CÓDIGO.
+
+A) Mapeie o design system atual: fontes, cores e CSS vars, Nord/Tailwind, espaçamentos, bordas, botões, inputs, cards, badges, status, focus, temas e customizações por organização.
+B) Identifique inconsistências, problemas de contraste e problemas de hierarquia visual nas telas: Login, Dashboard, Documentos, Pessoas, Protocolos, Serviços, Agenda interna, Agenda pública desktop/mobile, Formulário público desktop/mobile, Link na Bio e Site.
+C) Para cada problema, dê evidência (rota, arquivo/componente, seletor/token, estado visual), gravidade, mudança proposta e risco de regressão. NÃO presuma bugs em safe-area nem em onboarding sem verificar.
+D) Confirme quais tokens de cores aparecem REALMENTE no código e compare com a paleta proposta. Não substitua cegamente o verde #14B87A; melhore papéis semânticos e contraste mantendo a marca.
+E) Prepare PR-1 de fundação visual/contraste e PR-2 de componentes compartilhados com escopo fechado, arquivos exatos, testes, capturas antes/depois e rollback.
+F) Proponha matriz de visual regression para 320/360/390/430/768/1024/1280/1440 px, tema claro/escuro, estados vazio/cheio/erro e acessibilidade WCAG 2.2 AA.
+G) Indique explicitamente o que está fora de escopo e deve permanecer intocado: modelos publicados, PDFs e assinaturas históricas, API, billing, auth, lógica de agenda, integrações incompletas, menus intencionalmente ocultos.
+
+ENTREGA OBRIGATÓRIA:
+1. Resumo do sistema de design atual (com referências ao código).
+2. Lista priorizada de inconsistências visuais e acessibilidade por tela.
+3. Tabela de tokens atuais versus tokens semânticos candidatos, com relatório de contraste.
+4. Plano de execução dividido em PRs pequenos, sem refazer todo o sistema.
+5. Checklist de QA e evidências visuais de homologação.
+6. Lista de arquivos a modificar e testes a executar no primeiro PR.
+7. Riscos, dependências, mudanças propositalmente evitadas e perguntas bloqueantes, se houver.
+
+REGRAS:
+- Não implementar ou formatar código nesta primeira execução.
+- Não fazer rebranding, não mudar logo, não substituir a família verde, não criar funcionalidades novas.
+- Não instalar design system novo por conveniência.
+- Não mudar a identidade visual das clínicas nos fluxos públicos.
+- Não mudar API Java nem Laravel apenas para estética.
+- Não reduzir contraste, legibilidade, foco ou comportamento do produto.
+- Não utilizar dados reais de pacientes ou credenciais em screenshot/teste/log.
+- Não fazer deploy, migrations ou alterações em produção.
+- Se algo da especificação já estiver implementado, aponte como EXISTENTE e proponha apenas ajustes necessários.
+- Ao concluir a auditoria, AGUARDE minha aprovação expressa para iniciar o PR-1.
