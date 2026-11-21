@@ -35,9 +35,26 @@ import {
   type PrintLayoutPlacement,
   type PrintLayoutTarget,
 } from '../../core/utils/print-layout.util';
+import {
+  fillSourcePdf,
+  type FillSourcePdfFieldValue,
+} from '../../core/utils/fill-source-pdf.util';
+import {
+  detectPrintLayoutSuggestions,
+  mergeDetectResults,
+  normalizeApiDetectResult,
+  suggestionToPlacement,
+  type PrintLayoutSuggestion,
+} from '../../core/utils/detect-print-layout.util';
+import { firstValueFrom } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 type PdfJsPage = {
   getViewport: (opts: { scale: number }) => { width: number; height: number };
+  getTextContent: () => Promise<{
+    items: Array<{ str?: string; transform?: number[]; width?: number; height?: number }>;
+  }>;
+  getAnnotations: () => Promise<Array<Record<string, unknown>>>;
   render: (opts: {
     canvasContext: CanvasRenderingContext2D;
     viewport: { width: number; height: number };
@@ -51,6 +68,8 @@ type PdfJsDoc = {
   destroy?: () => void;
 };
 
+type GuideLine = { axis: 'x' | 'y'; pos: number };
+
 type Gesture =
   | { mode: 'draw'; startX: number; startY: number }
   | {
@@ -59,11 +78,19 @@ type Gesture =
       grabX: number;
       grabY: number;
       start: PrintLayoutPlacement;
+      starts: PrintLayoutPlacement[];
     }
   | {
       mode: 'resize';
       uid: string;
       start: PrintLayoutPlacement;
+    }
+  | {
+      mode: 'pan';
+      startClientX: number;
+      startClientY: number;
+      startScrollLeft: number;
+      startScrollTop: number;
     };
 
 @Component({
@@ -79,6 +106,7 @@ type Gesture =
 export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
   @ViewChild('pdfCanvas', { static: false }) pdfCanvas?: ElementRef<HTMLCanvasElement>;
   @ViewChild('overlayLayer', { static: false }) overlayLayer?: ElementRef<HTMLElement>;
+  @ViewChild('stageScroll', { static: false }) stageScroll?: ElementRef<HTMLElement>;
 
   readonly alignOptions: GestgoComboboxOption[] = [
     { value: 'left', label: 'Esquerda' },
@@ -95,6 +123,8 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
   readonly pageCount = signal(0);
   readonly selectedTarget = signal<PrintLayoutTarget | null>(null);
   readonly selectedUid = signal<string | null>(null);
+  /** Multi-seleção (Ctrl/Shift+clique). */
+  readonly selectedUids = signal<string[]>([]);
   readonly placements = signal<PrintLayoutPlacement[]>([]);
   readonly dirty = signal(false);
   readonly draftBox = signal<{ x: number; y: number; w: number; h: number } | null>(null);
@@ -111,16 +141,52 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
   readonly camposOpen = signal(true);
   /** Subgrupos (ex.: estado civil) recolhidos por name_key. */
   readonly collapsedSubgroups = signal<Record<string, boolean>>({});
+  readonly canUndo = signal(false);
+  readonly canRedo = signal(false);
+  readonly autosaving = signal(false);
+  readonly generatingPreview = signal(false);
+  readonly layoutWarnings = signal<string[]>([]);
+  readonly snapEnabled = signal(true);
+  readonly panTool = signal(false);
+  readonly spaceHeld = signal(false);
+  readonly guideLines = signal<GuideLine[]>([]);
+  /** Miniaturas JPEG (data URL) por página; string vazia = ainda não gerada. */
+  readonly pageThumbnails = signal<string[]>([]);
+  readonly suggestions = signal<PrintLayoutSuggestion[]>([]);
+  readonly detecting = signal(false);
+  readonly detectMessage = signal('');
 
   readonly placementsOnPage = computed(() =>
     this.placements().filter((p) => p.page === this.pageIndex()),
   );
+
+  readonly suggestionsOnPage = computed(() =>
+    this.suggestions().filter((s) => s.page === this.pageIndex()),
+  );
+
+  /** Contagem de áreas mapeadas por página (0-based). */
+  readonly fieldsPerPage = computed(() => {
+    const counts = new Array(Math.max(1, this.pageCount())).fill(0) as number[];
+    for (const p of this.placements()) {
+      if (p.page >= 0 && p.page < counts.length) counts[p.page] += 1;
+    }
+    return counts;
+  });
 
   readonly selectedPlacement = computed(() => {
     const uid = this.selectedUid();
     if (!uid) return null;
     return this.placements().find((p) => p.uid === uid) ?? null;
   });
+
+  readonly selectedPlacements = computed(() => {
+    const set = new Set(this.selectedUids());
+    return this.placements().filter((p) => p.uid && set.has(p.uid));
+  });
+
+  readonly selectedCount = computed(() => this.selectedUids().length);
+
+  readonly isPanning = computed(() => this.panTool() || this.spaceHeld());
 
   readonly filteredCampos = computed(() => {
     const q = this.fieldSearch().trim().toLowerCase();
@@ -146,9 +212,13 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
   );
 
   readonly statusText = computed(() => {
-    if (!this.selectedTarget()) return 'Selecione um campo e desenhe no PDF.';
     if (this.viewMode() === 'preview') return 'Prévia das respostas nas áreas mapeadas.';
-    return 'Arraste as caixas ou use o painel de ajustes.';
+    if (this.isPanning()) return 'Arraste para navegar no PDF (Espaço ou ferramenta mão).';
+    if (this.selectedCount() > 1) {
+      return `${this.selectedCount()} caixas selecionadas · alinhe no painel ou arraste juntas.`;
+    }
+    if (!this.selectedTarget()) return 'Selecione um campo e desenhe no PDF.';
+    return 'Arraste as caixas · Ctrl+clique multi-seleciona · snap nas guias.';
   });
 
   get zoomPercent(): number {
@@ -157,11 +227,17 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
 
   private pdfDoc: PdfJsDoc | null = null;
   private pdfObjectUrl: string | null = null;
+  private sourcePdfBytes: Uint8Array | null = null;
   private workerBlobUrl: string | null = null;
   private gesture: Gesture | null = null;
   private renderToken = 0;
   private activePointerId: number | null = null;
   private sidebarWasCollapsed: boolean | null = null;
+  private historyStack: PrintLayoutPlacement[][] = [];
+  private historyIndex = -1;
+  private historySuspended = false;
+  private clipboard: PrintLayoutPlacement | null = null;
+  private autosaveTimer: ReturnType<typeof setTimeout> | null = null;
 
   private route = inject(ActivatedRoute);
   private templatesService = inject(TemplatesService);
@@ -186,7 +262,7 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
       next: (tpl) => {
         this.template.set(tpl);
         const layout = parsePrintLayout(tpl.print_layout) ?? emptyPrintLayout();
-        this.placements.set(layout.placements);
+        this.replacePlacements(layout.placements, { markDirty: false, pushHistory: true });
         if (!tpl.has_source_document) {
           this.carregando.set(false);
           this.erro.set('Anexe o PDF original do modelo antes de mapear a aparência.');
@@ -215,6 +291,7 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.clearAutosaveTimer();
     this.releasePointerCapture();
     this.pdfDoc?.destroy?.();
     if (this.pdfObjectUrl) URL.revokeObjectURL(this.pdfObjectUrl);
@@ -226,10 +303,70 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
 
   @HostListener('window:keydown', ['$event'])
   onKeydown(event: KeyboardEvent): void {
-    const sel = this.selectedPlacement();
-    if (!sel || this.viewMode() !== 'edit') return;
     const tag = (event.target as HTMLElement | null)?.tagName?.toLowerCase();
     if (tag === 'input' || tag === 'textarea' || tag === 'select') return;
+
+    if (event.code === 'Space' && !event.repeat && !(event.ctrlKey || event.metaKey || event.altKey)) {
+      event.preventDefault();
+      this.spaceHeld.set(true);
+      return;
+    }
+
+    const mod = event.ctrlKey || event.metaKey;
+    const key = event.key.toLowerCase();
+
+    if (mod && key === 'a' && this.viewMode() === 'edit') {
+      event.preventDefault();
+      this.selecionarTodasNaPagina();
+      return;
+    }
+    if (mod && key === 'z' && !event.shiftKey) {
+      event.preventDefault();
+      this.undo();
+      return;
+    }
+    if ((mod && key === 'y') || (mod && event.shiftKey && key === 'z')) {
+      event.preventDefault();
+      this.redo();
+      return;
+    }
+    if (mod && key === 'd') {
+      event.preventDefault();
+      this.duplicarSelecionado();
+      return;
+    }
+    if (mod && key === 'c') {
+      event.preventDefault();
+      this.copiarSelecionado();
+      return;
+    }
+    if (mod && key === 'v') {
+      event.preventDefault();
+      this.colarClipboard();
+      return;
+    }
+    if (mod && key === 's') {
+      event.preventDefault();
+      this.salvar();
+      return;
+    }
+
+    if (this.viewMode() !== 'edit') return;
+
+    if (event.key === 'Escape') {
+      this.clearSelection();
+      return;
+    }
+
+    if (event.key === 'Delete' || event.key === 'Backspace') {
+      if (this.selectedCount() === 0) return;
+      event.preventDefault();
+      this.removerSelecionados();
+      return;
+    }
+
+    const selected = this.selectedPlacements();
+    if (!selected.length) return;
 
     const step = event.shiftKey ? 0.01 : 0.002;
     let dx = 0;
@@ -241,13 +378,18 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
     else return;
 
     event.preventDefault();
-    const next = {
-      ...sel,
-      x: clamp01(Math.min(sel.x + dx, 1 - sel.w)),
-      y: clamp01(Math.min(sel.y + dy, 1 - sel.h)),
-    };
-    this.patchPlacementByUid(sel.uid!, next);
-    this.dirty.set(true);
+    this.nudgeSelected(dx, dy);
+  }
+
+  @HostListener('window:keyup', ['$event'])
+  onKeyup(event: KeyboardEvent): void {
+    if (event.code === 'Space') {
+      this.spaceHeld.set(false);
+      if (this.gesture?.mode === 'pan') {
+        this.gesture = null;
+        this.releasePointerCapture();
+      }
+    }
   }
 
   get mappedCount(): number {
@@ -283,11 +425,237 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
   }
 
   zoomIn(): void {
-    this.zoom.set(Math.min(1.6, Math.round((this.zoom() + 0.1) * 10) / 10));
+    this.setZoom(Math.min(2, Math.round((this.zoom() + 0.1) * 10) / 10));
   }
 
   zoomOut(): void {
-    this.zoom.set(Math.max(0.5, Math.round((this.zoom() - 0.1) * 10) / 10));
+    this.setZoom(Math.max(0.5, Math.round((this.zoom() - 0.1) * 10) / 10));
+  }
+
+  setZoom(value: number): void {
+    this.zoom.set(Math.min(2, Math.max(0.5, Math.round(value * 100) / 100)));
+  }
+
+  zoomFitWidth(): void {
+    const scroll = document.querySelector('.ae-stage-scroll') as HTMLElement | null;
+    const stageW = this.stageWidth();
+    if (!scroll || stageW <= 0) {
+      this.setZoom(1);
+      return;
+    }
+    const available = Math.max(120, scroll.clientWidth - 32);
+    this.setZoom(available / stageW);
+  }
+
+  pageFieldCount(page: number): number {
+    return this.fieldsPerPage()[page] ?? 0;
+  }
+
+  undo(): void {
+    if (this.historyIndex <= 0) return;
+    this.historyIndex -= 1;
+    this.historySuspended = true;
+    this.placements.set(clonePlacements(this.historyStack[this.historyIndex]));
+    this.historySuspended = false;
+    this.syncHistoryFlags();
+    this.dirty.set(true);
+    this.refreshWarnings();
+    this.scheduleAutosave();
+  }
+
+  redo(): void {
+    if (this.historyIndex >= this.historyStack.length - 1) return;
+    this.historyIndex += 1;
+    this.historySuspended = true;
+    this.placements.set(clonePlacements(this.historyStack[this.historyIndex]));
+    this.historySuspended = false;
+    this.syncHistoryFlags();
+    this.dirty.set(true);
+    this.refreshWarnings();
+    this.scheduleAutosave();
+  }
+
+  duplicarSelecionado(): void {
+    const selected = this.selectedPlacements();
+    if (!selected.length || this.viewMode() !== 'edit') return;
+    const copies = selected.map((sel) => ({
+      ...sel,
+      uid: newPlacementUid(),
+      x: clamp01(Math.min(sel.x + 0.02, 1 - sel.w)),
+      y: clamp01(Math.min(sel.y + 0.02, 1 - sel.h)),
+    }));
+    this.replacePlacements([...this.placements(), ...copies], { markDirty: true, pushHistory: true });
+    this.setSelection(
+      copies.map((c) => c.uid!),
+      copies[copies.length - 1]?.uid,
+    );
+    const last = copies[copies.length - 1];
+    if (last) {
+      this.selectedTarget.set({ name_key: last.name_key, option: last.option ?? null });
+    }
+  }
+
+  copiarSelecionado(): void {
+    const sel = this.selectedPlacement();
+    if (!sel) return;
+    this.clipboard = { ...sel };
+    this.toast.info('Aparência do PDF', 'Caixa copiada. Ctrl+V para colar.');
+  }
+
+  colarClipboard(): void {
+    if (!this.clipboard || this.viewMode() !== 'edit') return;
+    const base = this.clipboard;
+    const copy: PrintLayoutPlacement = {
+      ...base,
+      uid: newPlacementUid(),
+      page: this.pageIndex(),
+      x: clamp01(Math.min(base.x + 0.02, 1 - base.w)),
+      y: clamp01(Math.min(base.y + 0.02, 1 - base.h)),
+    };
+    this.replacePlacements([...this.placements(), copy], { markDirty: true, pushHistory: true });
+    this.setSelection([copy.uid!], copy.uid);
+    this.selectedTarget.set({ name_key: copy.name_key, option: copy.option ?? null });
+  }
+
+  async detectarCampos(): Promise<void> {
+    if (!this.pdfDoc || this.detecting() || this.viewMode() !== 'edit') return;
+    this.detecting.set(true);
+    this.detectMessage.set('');
+    try {
+      const local = await detectPrintLayoutSuggestions(this.pdfDoc);
+      let remote = null;
+      const tplId = this.template()?.id;
+      if (tplId) {
+        try {
+          const apiRaw = await firstValueFrom(this.templatesService.detectPrintLayout(tplId));
+          remote = normalizeApiDetectResult(apiRaw);
+        } catch (apiErr) {
+          console.warn('[aparencia-pdf] detecção API indisponível; usando só o editor', apiErr);
+        }
+      }
+      let result = mergeDetectResults(local, remote);
+
+      // PDF-01C — só consulta stub/IA quando a flag está ligada e B ficou vazio/escaneado.
+      if (
+        environment.printLayoutAiEnabled &&
+        tplId &&
+        (result.suggestions.length === 0 || result.mode === 'scanned' || result.mode === 'empty')
+      ) {
+        try {
+          const aiRaw = await firstValueFrom(this.templatesService.detectPrintLayoutAi(tplId));
+          const ai = normalizeApiDetectResult(aiRaw);
+          if (ai.suggestions.length > 0) {
+            result = mergeDetectResults(result, ai);
+          } else if (ai.message && result.suggestions.length === 0) {
+            result = { ...result, message: ai.message, mode: ai.mode || result.mode };
+          }
+        } catch (aiErr) {
+          console.warn('[aparencia-pdf] detecção IA indisponível', aiErr);
+        }
+      }
+
+      this.suggestions.set(result.suggestions);
+      this.detectMessage.set(result.message);
+      if (result.suggestions.length === 0) {
+        this.toast.warning('Detecção', result.message);
+      } else {
+        this.toast.success('Detecção', result.message);
+        const first = result.suggestions[0];
+        if (first && first.page !== this.pageIndex()) {
+          void this.goToPage(first.page);
+        }
+      }
+    } catch (err) {
+      console.error('[aparencia-pdf] detecção falhou', err);
+      this.toast.error('Detecção', 'Não foi possível analisar o PDF.');
+    } finally {
+      this.detecting.set(false);
+    }
+  }
+
+  aceitarSugestao(s: PrintLayoutSuggestion): void {
+    const placement = suggestionToPlacement(s);
+    // Se já existe campo digital com name_key semelhante, reutiliza a chave
+    const matchCampo = this.campos().find(
+      (c) =>
+        c.name_key === s.name_key ||
+        c.label.toLowerCase() === s.label.toLowerCase() ||
+        c.name_key.replace(/_/g, '') === s.name_key.replace(/_/g, ''),
+    );
+    if (matchCampo) {
+      placement.name_key = matchCampo.name_key;
+      placement.kind = inferPlacementKind(matchCampo.type, false);
+    }
+    this.replacePlacements([...this.placements(), placement], {
+      markDirty: true,
+      pushHistory: true,
+    });
+    this.suggestions.set(this.suggestions().filter((x) => x.temporary_id !== s.temporary_id));
+    this.setSelection([placement.uid!], placement.uid);
+    this.selectedTarget.set({ name_key: placement.name_key, option: null });
+  }
+
+  rejeitarSugestao(s: PrintLayoutSuggestion): void {
+    this.suggestions.set(this.suggestions().filter((x) => x.temporary_id !== s.temporary_id));
+  }
+
+  aceitarTodasSugestoesDaPagina(): void {
+    const pageSugs = this.suggestionsOnPage();
+    if (!pageSugs.length) return;
+    const additions = pageSugs.map((s) => {
+      const p = suggestionToPlacement(s);
+      const matchCampo = this.campos().find((c) => c.name_key === s.name_key);
+      if (matchCampo) {
+        p.name_key = matchCampo.name_key;
+        p.kind = inferPlacementKind(matchCampo.type, false);
+      }
+      return p;
+    });
+    const ids = new Set(pageSugs.map((s) => s.temporary_id));
+    this.replacePlacements([...this.placements(), ...additions], {
+      markDirty: true,
+      pushHistory: true,
+    });
+    this.suggestions.set(this.suggestions().filter((s) => !ids.has(s.temporary_id)));
+  }
+
+  limparSugestoes(): void {
+    this.suggestions.set([]);
+    this.detectMessage.set('');
+  }
+
+  confidencePct(s: PrintLayoutSuggestion): number {
+    return Math.round((s.confidence || 0) * 100);
+  }
+
+  async gerarPreviewPdf(): Promise<void> {
+    if (!this.sourcePdfBytes || this.generatingPreview()) return;
+    const layout: PrintLayout = {
+      version: 1,
+      placements: this.placements(),
+    };
+    if (!hasUsablePrintLayout(layout)) {
+      this.toast.warning('Aparência do PDF', 'Mapeie ao menos uma área antes da prévia real.');
+      return;
+    }
+    this.generatingPreview.set(true);
+    try {
+      const values = this.buildSyntheticFillValues(layout.placements);
+      const blob = await fillSourcePdf({
+        sourcePdfBytes: this.sourcePdfBytes,
+        layout,
+        values,
+      });
+      const url = URL.createObjectURL(blob);
+      window.open(url, '_blank', 'noopener');
+      setTimeout(() => URL.revokeObjectURL(url), 60_000);
+      this.toast.success('Aparência do PDF', 'Prévia do PDF final aberta (dados sintéticos).');
+    } catch (err) {
+      console.error('[aparencia-pdf] prévia real falhou', err);
+      this.toast.error('Aparência do PDF', 'Não foi possível gerar a prévia do PDF.');
+    } finally {
+      this.generatingPreview.set(false);
+    }
   }
 
   pct(n: number): number {
@@ -295,7 +663,132 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
   }
 
   isBoxSelected(p: PrintLayoutPlacement): boolean {
-    return !!p.uid && p.uid === this.selectedUid();
+    return !!p.uid && this.selectedUids().includes(p.uid);
+  }
+
+  togglePanTool(): void {
+    this.panTool.update((v) => !v);
+  }
+
+  toggleSnap(): void {
+    this.snapEnabled.update((v) => !v);
+    if (!this.snapEnabled()) this.guideLines.set([]);
+  }
+
+  clearSelection(): void {
+    this.selectedUids.set([]);
+    this.selectedUid.set(null);
+  }
+
+  selecionarTodasNaPagina(): void {
+    const uids = this.placementsOnPage()
+      .map((p) => p.uid)
+      .filter((u): u is string => !!u);
+    this.selectedUids.set(uids);
+    this.selectedUid.set(uids[0] ?? null);
+  }
+
+  setSelection(uids: string[], primary?: string | null): void {
+    const unique = [...new Set(uids.filter(Boolean))];
+    this.selectedUids.set(unique);
+    this.selectedUid.set(primary ?? unique[unique.length - 1] ?? null);
+  }
+
+  nudgeSelected(dx: number, dy: number): void {
+    const selected = this.selectedPlacements();
+    if (!selected.length) return;
+    const byUid = new Map(selected.map((p) => [p.uid!, p]));
+    const next = this.placements().map((p) => {
+      if (!p.uid || !byUid.has(p.uid)) return p;
+      return {
+        ...p,
+        x: clamp01(Math.min(p.x + dx, 1 - p.w)),
+        y: clamp01(Math.min(p.y + dy, 1 - p.h)),
+      };
+    });
+    this.replacePlacements(next, { markDirty: true, pushHistory: true });
+  }
+
+  removerSelecionados(): void {
+    const set = new Set(this.selectedUids());
+    if (!set.size) return;
+    this.replacePlacements(
+      this.placements().filter((p) => !p.uid || !set.has(p.uid)),
+      { markDirty: true, pushHistory: true },
+    );
+    this.clearSelection();
+  }
+
+  /** Alinha caixas selecionadas entre si (mín. 2). */
+  alignSelection(mode: 'left' | 'right' | 'top' | 'bottom' | 'hcenter' | 'vcenter'): void {
+    const selected = this.selectedPlacements();
+    if (selected.length < 2) return;
+    const left = Math.min(...selected.map((p) => p.x));
+    const top = Math.min(...selected.map((p) => p.y));
+    const right = Math.max(...selected.map((p) => p.x + p.w));
+    const bottom = Math.max(...selected.map((p) => p.y + p.h));
+    const cx = (left + right) / 2;
+    const cy = (top + bottom) / 2;
+    const byUid = new Map(selected.map((p) => [p.uid!, p]));
+    const next = this.placements().map((p) => {
+      if (!p.uid || !byUid.has(p.uid)) return p;
+      let x = p.x;
+      let y = p.y;
+      if (mode === 'left') x = left;
+      if (mode === 'right') x = right - p.w;
+      if (mode === 'top') y = top;
+      if (mode === 'bottom') y = bottom - p.h;
+      if (mode === 'hcenter') x = cx - p.w / 2;
+      if (mode === 'vcenter') y = cy - p.h / 2;
+      return {
+        ...p,
+        x: clamp01(Math.min(x, 1 - p.w)),
+        y: clamp01(Math.min(y, 1 - p.h)),
+      };
+    });
+    this.replacePlacements(next, { markDirty: true, pushHistory: true });
+  }
+
+  distributeSelection(axis: 'h' | 'v'): void {
+    const selected = [...this.selectedPlacements()].sort((a, b) =>
+      axis === 'h' ? a.x - b.x : a.y - b.y,
+    );
+    if (selected.length < 3) return;
+    if (axis === 'h') {
+      const left = selected[0].x;
+      const right = selected[selected.length - 1].x + selected[selected.length - 1].w;
+      const totalW = selected.reduce((s, p) => s + p.w, 0);
+      const gap = (right - left - totalW) / (selected.length - 1);
+      let cursor = left;
+      const pos = new Map<string, number>();
+      for (const p of selected) {
+        pos.set(p.uid!, cursor);
+        cursor += p.w + gap;
+      }
+      const next = this.placements().map((p) =>
+        p.uid && pos.has(p.uid)
+          ? { ...p, x: clamp01(Math.min(pos.get(p.uid)!, 1 - p.w)) }
+          : p,
+      );
+      this.replacePlacements(next, { markDirty: true, pushHistory: true });
+      return;
+    }
+    const top = selected[0].y;
+    const bottom = selected[selected.length - 1].y + selected[selected.length - 1].h;
+    const totalH = selected.reduce((s, p) => s + p.h, 0);
+    const gap = (bottom - top - totalH) / (selected.length - 1);
+    let cursor = top;
+    const pos = new Map<string, number>();
+    for (const p of selected) {
+      pos.set(p.uid!, cursor);
+      cursor += p.h + gap;
+    }
+    const next = this.placements().map((p) =>
+      p.uid && pos.has(p.uid)
+        ? { ...p, y: clamp01(Math.min(pos.get(p.uid)!, 1 - p.h)) }
+        : p,
+    );
+    this.replacePlacements(next, { markDirty: true, pushHistory: true });
   }
 
   patchSelectedNumeric(key: 'x' | 'y' | 'w' | 'h', value: number | string): void {
@@ -309,8 +802,7 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
     if (key === 'y') next.y = Math.min(v, 1 - sel.h);
     if (key === 'w') next.w = Math.max(0.005, Math.min(v, 1 - sel.x));
     if (key === 'h') next.h = Math.max(0.005, Math.min(v, 1 - sel.y));
-    this.patchPlacementByUid(sel.uid, next);
-    this.dirty.set(true);
+    this.patchPlacementByUid(sel.uid, next, { commit: true });
   }
 
   patchSelectedFont(value: number | string): void {
@@ -321,8 +813,7 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
     this.patchPlacementByUid(sel.uid, {
       ...sel,
       font_size: Math.min(28, Math.max(6, Math.round(n))),
-    });
-    this.dirty.set(true);
+    }, { commit: true });
   }
 
   patchSelectedAlign(value: string | null): void {
@@ -330,8 +821,7 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
     if (!sel?.uid) return;
     const align: PrintLayoutAlign =
       value === 'center' || value === 'right' ? value : 'left';
-    this.patchPlacementByUid(sel.uid, { ...sel, align });
-    this.dirty.set(true);
+    this.patchPlacementByUid(sel.uid, { ...sel, align }, { commit: true });
   }
 
   trackPlacement(p: PrintLayoutPlacement): string {
@@ -529,25 +1019,32 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
     const target: PrintLayoutTarget = { name_key: nameKey, option: option ?? null };
     this.selectedTarget.set(target);
     const existing = this.placements().find((p) => samePlacement(p, target));
-    if (existing) {
-      this.selectedUid.set(existing.uid || null);
+    if (existing?.uid) {
+      this.setSelection([existing.uid], existing.uid);
       if (existing.page !== this.pageIndex()) {
         void this.goToPage(existing.page);
       }
     } else {
-      this.selectedUid.set(null);
+      this.clearSelection();
     }
   }
 
   removerCampo(target: PrintLayoutTarget, event?: Event): void {
     event?.stopPropagation();
     const removed = this.placements().filter((p) => samePlacement(p, target));
-    this.placements.set(this.placements().filter((p) => !samePlacement(p, target)));
+    this.replacePlacements(
+      this.placements().filter((p) => !samePlacement(p, target)),
+      { markDirty: true, pushHistory: true },
+    );
     const cur = this.selectedTarget();
     if (cur && samePlacement(cur, target)) this.selectedTarget.set(null);
-    const uid = this.selectedUid();
-    if (uid && removed.some((p) => p.uid === uid)) this.selectedUid.set(null);
-    this.dirty.set(true);
+    const removedUids = new Set(removed.map((p) => p.uid).filter(Boolean) as string[]);
+    if (removedUids.size) {
+      this.selectedUids.set(this.selectedUids().filter((u) => !removedUids.has(u)));
+      if (this.selectedUid() && removedUids.has(this.selectedUid()!)) {
+        this.selectedUid.set(this.selectedUids()[0] ?? null);
+      }
+    }
   }
 
   placementTitle(p: PrintLayoutPlacement): string {
@@ -575,20 +1072,33 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
     void this.goToPage(this.pageIndex() + 1);
   }
 
-  /** Clique no fundo do PDF → desenha nova área. */
+  /** Clique no fundo do PDF → pan, limpa seleção ou desenha nova área. */
   onLayerPointerDown(event: PointerEvent): void {
     if ((event.target as HTMLElement | null)?.closest?.('.ae-box')) return;
     if (this.viewMode() === 'preview') return;
+
+    const wantsPan =
+      this.isPanning() || event.button === 1 || (event.button === 0 && event.altKey);
+    if (wantsPan) {
+      event.preventDefault();
+      this.beginPan(event);
+      return;
+    }
+
     if (event.button !== 0 && event.pointerType === 'mouse') return;
     event.preventDefault();
     const layer = this.overlayLayer?.nativeElement;
     if (!layer) return;
     const { x, y } = this.pointerNorm(event, layer);
 
+    if (!(event.ctrlKey || event.metaKey || event.shiftKey)) {
+      this.clearSelection();
+    }
+
     if (!this.selectedTarget()) {
       this.toast.warning(
         'Aparência do PDF',
-        'Selecione um campo (ou Dia/Mês/Ano) à esquerda e desenhe no PDF. Para mover, arraste a caixa.',
+        'Selecione um campo (ou Dia/Mês/Ano) à esquerda e desenhe no PDF. Espaço+arrastar = pan.',
       );
       return;
     }
@@ -598,9 +1108,15 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
     this.capturePointer(event, layer);
   }
 
-  /** Arrastar caixa existente. */
+  /** Arrastar caixa existente (com multi-select). */
   onBoxPointerDown(event: PointerEvent, p: PrintLayoutPlacement): void {
     if (this.viewMode() === 'preview') return;
+    if (this.isPanning() || event.button === 1) {
+      event.preventDefault();
+      event.stopPropagation();
+      this.beginPan(event);
+      return;
+    }
     if (event.button !== 0 && event.pointerType === 'mouse') return;
     event.preventDefault();
     event.stopPropagation();
@@ -613,14 +1129,39 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
         this.placements().map((item) => (samePlacementBox(item, p) ? { ...item, uid } : item)),
       );
     }
+
+    const additive = event.ctrlKey || event.metaKey || event.shiftKey;
+    if (additive) {
+      const cur = this.selectedUids();
+      if (cur.includes(uid)) {
+        const next = cur.filter((u) => u !== uid);
+        this.setSelection(next, next[next.length - 1] ?? null);
+      } else {
+        this.setSelection([...cur, uid], uid);
+      }
+    } else if (!this.selectedUids().includes(uid)) {
+      this.setSelection([uid], uid);
+    } else {
+      this.selectedUid.set(uid);
+    }
+
     this.selectedTarget.set({ name_key: p.name_key, option: p.option ?? null });
-    this.selectedUid.set(uid);
+
+    const moveUids = new Set(
+      this.selectedUids().includes(uid) ? this.selectedUids() : [uid],
+    );
+    if (!moveUids.has(uid)) moveUids.add(uid);
+    const starts = this.placements()
+      .filter((item) => item.uid && moveUids.has(item.uid))
+      .map((item) => ({ ...item }));
+
     this.gesture = {
       mode: 'move',
       uid,
       grabX: x - p.x,
       grabY: y - p.y,
       start: { ...p, uid },
+      starts,
     };
     this.capturePointer(event, layer);
   }
@@ -640,7 +1181,7 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
       );
     }
     this.selectedTarget.set({ name_key: p.name_key, option: p.option ?? null });
-    this.selectedUid.set(uid);
+    this.setSelection([uid], uid);
     this.gesture = {
       mode: 'resize',
       uid,
@@ -652,9 +1193,32 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
   /** Remove só esta caixa (útil quando a data se repete no PDF). */
   removerBox(p: PrintLayoutPlacement, event?: Event): void {
     event?.stopPropagation();
-    this.placements.set(this.placements().filter((item) => !samePlacementBox(item, p)));
-    if (p.uid && this.selectedUid() === p.uid) this.selectedUid.set(null);
-    this.dirty.set(true);
+    if (p.uid && this.selectedUids().includes(p.uid) && this.selectedCount() > 1) {
+      this.removerSelecionados();
+      return;
+    }
+    this.replacePlacements(
+      this.placements().filter((item) => !samePlacementBox(item, p)),
+      { markDirty: true, pushHistory: true },
+    );
+    if (p.uid) {
+      this.selectedUids.set(this.selectedUids().filter((u) => u !== p.uid));
+      if (this.selectedUid() === p.uid) this.selectedUid.set(this.selectedUids()[0] ?? null);
+    }
+  }
+
+  private beginPan(event: PointerEvent): void {
+    const scroll = this.stageScroll?.nativeElement;
+    const layer = this.overlayLayer?.nativeElement;
+    if (!scroll || !layer) return;
+    this.gesture = {
+      mode: 'pan',
+      startClientX: event.clientX,
+      startClientY: event.clientY,
+      startScrollLeft: scroll.scrollLeft,
+      startScrollTop: scroll.scrollTop,
+    };
+    this.capturePointer(event, layer);
   }
 
   onOverlayPointerMove(event: PointerEvent): void {
@@ -672,15 +1236,16 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
   }
 
   limparTudo(): void {
-    this.placements.set([]);
-    this.selectedUid.set(null);
-    this.dirty.set(true);
+    this.replacePlacements([], { markDirty: true, pushHistory: true });
+    this.clearSelection();
     this.draftBox.set(null);
+    this.guideLines.set([]);
   }
 
-  salvar(): void {
+  salvar(fromAutosave = false): void {
     const tpl = this.template();
-    if (!tpl || this.salvando()) return;
+    if (!tpl || this.salvando() || this.autosaving()) return;
+    if (!this.dirty() && fromAutosave) return;
     const layout: PrintLayout = {
       version: 1,
       placements: this.placements().map((p) => ({
@@ -691,30 +1256,40 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
         h: Math.min(1, Math.max(0.005, p.h)),
       })),
     };
-    this.salvando.set(true);
+    if (fromAutosave) this.autosaving.set(true);
+    else this.salvando.set(true);
     this.templatesService.updatePrintLayout(tpl.id, layout).subscribe({
       next: (updated) => {
         this.salvando.set(false);
+        this.autosaving.set(false);
         const saved = parsePrintLayout(updated.print_layout);
         if (layout.placements.length > 0 && !hasUsablePrintLayout(saved)) {
-          this.toast.error(
-            'Aparência do PDF',
-            'O servidor não confirmou o mapa. Tente salvar de novo.',
-          );
+          if (!fromAutosave) {
+            this.toast.error(
+              'Aparência do PDF',
+              'O servidor não confirmou o mapa. Tente salvar de novo.',
+            );
+          }
           return;
         }
         this.template.set(updated);
-        if (saved) this.placements.set(saved.placements);
+        if (saved) {
+          this.replacePlacements(saved.placements, { markDirty: false, pushHistory: false });
+        }
         this.dirty.set(false);
-        this.toast.success(
-          'Aparência do PDF',
-          hasUsablePrintLayout(saved)
-            ? `Mapa salvo (${saved!.placements.length} áreas). O protocolo usará este layout.`
-            : 'Mapa limpo. O PDF voltará ao layout padrão.',
-        );
+        if (!fromAutosave) {
+          this.toast.success(
+            'Aparência do PDF',
+            hasUsablePrintLayout(saved)
+              ? `Mapa salvo (${saved!.placements.length} áreas). O protocolo usará este layout.`
+              : 'Mapa limpo. O PDF voltará ao layout padrão.',
+          );
+        }
       },
       error: (err) => {
         this.salvando.set(false);
+        this.autosaving.set(false);
+        if (fromAutosave) return;
         const msg =
           err?.error?.message ||
           err?.error?.errors?.print_layout?.[0] ||
@@ -727,6 +1302,17 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
 
   private onPointerMove(event: PointerEvent): void {
     if (!this.gesture) return;
+
+    if (this.gesture.mode === 'pan') {
+      const scroll = this.stageScroll?.nativeElement;
+      if (!scroll) return;
+      const dx = event.clientX - this.gesture.startClientX;
+      const dy = event.clientY - this.gesture.startClientY;
+      scroll.scrollLeft = this.gesture.startScrollLeft - dx;
+      scroll.scrollTop = this.gesture.startScrollTop - dy;
+      return;
+    }
+
     const layer = this.overlayLayer?.nativeElement;
     if (!layer) return;
     const { x, y } = this.pointerNorm(event, layer);
@@ -747,14 +1333,52 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
       let ny = clamp01(y - this.gesture.grabY);
       nx = Math.min(nx, 1 - start.w);
       ny = Math.min(ny, 1 - start.h);
-      this.patchPlacementByUid(this.gesture.uid, { ...start, x: nx, y: ny });
+
+      const movingUids = new Set(this.gesture.starts.map((s) => s.uid).filter(Boolean) as string[]);
+      const others = this.placementsOnPage().filter((p) => p.uid && !movingUids.has(p.uid));
+      const snapped = this.snapEnabled()
+        ? snapPlacement({ ...start, x: nx, y: ny }, others)
+        : { x: nx, y: ny, guides: [] as GuideLine[] };
+      this.guideLines.set(snapped.guides);
+
+      const dx = snapped.x - start.x;
+      const dy = snapped.y - start.y;
+      const startByUid = new Map(this.gesture.starts.map((s) => [s.uid!, s]));
+      this.placements.set(
+        this.placements().map((p) => {
+          if (!p.uid || !startByUid.has(p.uid)) return p;
+          const s = startByUid.get(p.uid)!;
+          return {
+            ...s,
+            x: clamp01(Math.min(s.x + dx, 1 - s.w)),
+            y: clamp01(Math.min(s.y + dy, 1 - s.h)),
+          };
+        }),
+      );
       return;
     }
 
     if (this.gesture.mode === 'resize') {
       const start = this.gesture.start;
-      const nextW = Math.max(0.01, Math.min(x - start.x, 1 - start.x));
-      const nextH = Math.max(0.008, Math.min(y - start.y, 1 - start.y));
+      let nextW = Math.max(0.01, Math.min(x - start.x, 1 - start.x));
+      let nextH = Math.max(0.008, Math.min(y - start.y, 1 - start.y));
+      if (this.snapEnabled()) {
+        const others = this.placementsOnPage().filter((p) => p.uid !== start.uid);
+        const rightTargets = [1, ...others.flatMap((o) => [o.x, o.x + o.w, o.x + o.w / 2])];
+        const bottomTargets = [1, ...others.flatMap((o) => [o.y, o.y + o.h, o.y + o.h / 2])];
+        const snapR = nearestSnap(start.x + nextW, rightTargets, SNAP_THRESHOLD);
+        const snapB = nearestSnap(start.y + nextH, bottomTargets, SNAP_THRESHOLD);
+        const guides: GuideLine[] = [];
+        if (snapR != null) {
+          nextW = Math.max(0.01, snapR - start.x);
+          guides.push({ axis: 'x', pos: snapR });
+        }
+        if (snapB != null) {
+          nextH = Math.max(0.008, snapB - start.y);
+          guides.push({ axis: 'y', pos: snapB });
+        }
+        this.guideLines.set(guides);
+      }
       this.patchPlacementByUid(this.gesture.uid, { ...start, w: nextW, h: nextH });
     }
   }
@@ -763,10 +1387,18 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
     const gesture = this.gesture;
     this.gesture = null;
     this.releasePointerCapture();
+    this.guideLines.set([]);
     if (!gesture) return;
 
+    if (gesture.mode === 'pan') {
+      return;
+    }
+
     if (gesture.mode === 'move' || gesture.mode === 'resize') {
+      this.pushHistorySnapshot();
       this.dirty.set(true);
+      this.refreshWarnings();
+      this.scheduleAutosave();
       return;
     }
 
@@ -798,19 +1430,18 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
     };
 
     // Texto único de rádio/select (ex.: estado civil): uma caixa e remove ✓ antigos do campo.
+    let nextList: PrintLayoutPlacement[];
     if (field && this.fieldIsChoice(field) && !hasOption) {
-      const others = this.placements().filter((p) => p.name_key !== target.name_key);
-      this.placements.set([...others, placement]);
+      nextList = [...this.placements().filter((p) => p.name_key !== target.name_key), placement];
     } else if (isChoiceOption) {
       // Uma caixa por opção (substitui a anterior da mesma opção).
-      const others = this.placements().filter((p) => !samePlacement(p, placement));
-      this.placements.set([...others, placement]);
+      nextList = [...this.placements().filter((p) => !samePlacement(p, placement)), placement];
     } else {
       // Data etc.: pode repetir no PDF.
-      this.placements.set([...this.placements(), placement]);
+      nextList = [...this.placements(), placement];
     }
-    this.selectedUid.set(placement.uid!);
-    this.dirty.set(true);
+    this.replacePlacements(nextList, { markDirty: true, pushHistory: true });
+    this.setSelection([placement.uid!], placement.uid);
   }
 
   private capturePointer(event: PointerEvent, layer: HTMLElement): void {
@@ -846,10 +1477,118 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
     };
   }
 
-  private patchPlacementByUid(uid: string, next: PrintLayoutPlacement): void {
-    this.placements.set(
-      this.placements().map((p) => (p.uid === uid || (!p.uid && samePlacementBox(p, next)) ? { ...next, uid } : p)),
+  private patchPlacementByUid(
+    uid: string,
+    next: PrintLayoutPlacement,
+    opts?: { commit?: boolean },
+  ): void {
+    const mapped = this.placements().map((p) =>
+      p.uid === uid || (!p.uid && samePlacementBox(p, next)) ? { ...next, uid } : p,
     );
+    if (opts?.commit) {
+      this.replacePlacements(mapped, { markDirty: true, pushHistory: true });
+      return;
+    }
+    this.placements.set(mapped);
+  }
+
+  private replacePlacements(
+    next: PrintLayoutPlacement[],
+    opts: { markDirty: boolean; pushHistory: boolean },
+  ): void {
+    this.placements.set(clonePlacements(next));
+    if (opts.pushHistory) this.pushHistorySnapshot();
+    if (opts.markDirty) {
+      this.dirty.set(true);
+      this.scheduleAutosave();
+    }
+    this.refreshWarnings();
+  }
+
+  private pushHistorySnapshot(): void {
+    if (this.historySuspended) return;
+    const snapshot = clonePlacements(this.placements());
+    if (this.historyIndex >= 0) {
+      const cur = this.historyStack[this.historyIndex];
+      if (cur && placementsEqual(cur, snapshot)) {
+        this.syncHistoryFlags();
+        return;
+      }
+    }
+    this.historyStack = this.historyStack.slice(0, this.historyIndex + 1);
+    this.historyStack.push(snapshot);
+    if (this.historyStack.length > 80) {
+      this.historyStack.shift();
+    } else {
+      this.historyIndex += 1;
+    }
+    this.historyIndex = this.historyStack.length - 1;
+    this.syncHistoryFlags();
+  }
+
+  private syncHistoryFlags(): void {
+    this.canUndo.set(this.historyIndex > 0);
+    this.canRedo.set(this.historyIndex >= 0 && this.historyIndex < this.historyStack.length - 1);
+  }
+
+  private scheduleAutosave(): void {
+    this.clearAutosaveTimer();
+    this.autosaveTimer = setTimeout(() => {
+      this.autosaveTimer = null;
+      if (this.dirty() && !this.salvando()) {
+        this.salvar(true);
+      }
+    }, 2500);
+  }
+
+  private clearAutosaveTimer(): void {
+    if (this.autosaveTimer) {
+      clearTimeout(this.autosaveTimer);
+      this.autosaveTimer = null;
+    }
+  }
+
+  private refreshWarnings(): void {
+    const list = this.placements();
+    const warnings: string[] = [];
+    for (const p of list) {
+      if (p.x < 0 || p.y < 0 || p.x + p.w > 1.002 || p.y + p.h > 1.002) {
+        warnings.push(`“${this.placementTitle(p)}” ultrapassa a página.`);
+      }
+      if (p.w < 0.01 || p.h < 0.008) {
+        warnings.push(`“${this.placementTitle(p)}” está muito pequena.`);
+      }
+    }
+    for (let i = 0; i < list.length; i++) {
+      for (let j = i + 1; j < list.length; j++) {
+        const a = list[i];
+        const b = list[j];
+        if (a.page !== b.page) continue;
+        if (boxesOverlap(a, b)) {
+          warnings.push(`Sobreposição: “${this.placementTitle(a)}” e “${this.placementTitle(b)}”.`);
+        }
+      }
+    }
+    this.layoutWarnings.set(warnings.slice(0, 8));
+  }
+
+  private buildSyntheticFillValues(placements: PrintLayoutPlacement[]): FillSourcePdfFieldValue[] {
+    const byKey = new Map<string, FillSourcePdfFieldValue>();
+    for (const p of placements) {
+      if (byKey.has(p.name_key)) continue;
+      const sample = this.previewSample(p);
+      if (p.kind === 'checkbox') {
+        byKey.set(p.name_key, {
+          name_key: p.name_key,
+          checked: true,
+          selected_options: p.option ? [p.option] : undefined,
+          text: sample,
+        });
+      } else {
+        byKey.set(p.name_key, { name_key: p.name_key, text: sample });
+      }
+    }
+    return [...byKey.values()];
   }
 
   private loadPdf(templateId: number): void {
@@ -860,11 +1599,17 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
           this.pdfObjectUrl = URL.createObjectURL(blob);
           const pdfjs = await import('pdfjs-dist');
           const data = new Uint8Array(await blob.arrayBuffer());
+          this.sourcePdfBytes = data.slice();
           this.pdfDoc = (await this.openPdfDocument(pdfjs, data)) as unknown as PdfJsDoc;
           this.pageCount.set(this.pdfDoc.numPages);
+          this.pageThumbnails.set(new Array(this.pdfDoc.numPages).fill(''));
           this.pageIndex.set(0);
           this.carregando.set(false);
-          setTimeout(() => void this.renderPage(), 0);
+          this.refreshWarnings();
+          setTimeout(() => {
+            void this.renderPage();
+            void this.renderThumbnails();
+          }, 0);
         } catch (err) {
           console.error('[aparencia-pdf] falha ao abrir PDF', err);
           this.carregando.set(false);
@@ -938,8 +1683,142 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
     if (!ctx) return;
     await page.render({ canvasContext: ctx, viewport, canvas }).promise;
   }
+
+  /** Gera miniaturas leves de cada página (máx. 24) sem bloquear a edição. */
+  private async renderThumbnails(): Promise<void> {
+    const doc = this.pdfDoc;
+    if (!doc) return;
+    const total = doc.numPages;
+    const limit = Math.min(total, 24);
+    const next = new Array(total).fill('') as string[];
+    for (let i = 1; i <= limit; i++) {
+      try {
+        const page = await doc.getPage(i);
+        const viewport = page.getViewport({ scale: 0.22 });
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.max(1, Math.floor(viewport.width));
+        canvas.height = Math.max(1, Math.floor(viewport.height));
+        const ctx = canvas.getContext('2d');
+        if (!ctx) continue;
+        await page.render({ canvasContext: ctx, viewport, canvas }).promise;
+        next[i - 1] = canvas.toDataURL('image/jpeg', 0.7);
+        // Atualiza progressivamente para a UI não esperar todas as páginas.
+        if (i === 1 || i === limit || i % 3 === 0) {
+          this.pageThumbnails.set([...next]);
+        }
+      } catch (err) {
+        console.warn('[aparencia-pdf] miniatura página', i, err);
+      }
+    }
+    this.pageThumbnails.set(next);
+  }
 }
 
 function clamp01(n: number): number {
   return Math.min(1, Math.max(0, n));
+}
+
+const SNAP_THRESHOLD = 0.008;
+
+function nearestSnap(value: number, targets: number[], threshold: number): number | null {
+  let best: number | null = null;
+  let bestDist = threshold;
+  for (const t of targets) {
+    const d = Math.abs(value - t);
+    if (d <= bestDist) {
+      bestDist = d;
+      best = t;
+    }
+  }
+  return best;
+}
+
+function snapPlacement(
+  box: PrintLayoutPlacement,
+  others: PrintLayoutPlacement[],
+): { x: number; y: number; guides: GuideLine[] } {
+  const pageTargetsX = [0, 0.5, 1];
+  const pageTargetsY = [0, 0.5, 1];
+  const otherX = others.flatMap((o) => [o.x, o.x + o.w, o.x + o.w / 2]);
+  const otherY = others.flatMap((o) => [o.y, o.y + o.h, o.y + o.h / 2]);
+  const xTargets = [...pageTargetsX, ...otherX];
+  const yTargets = [...pageTargetsY, ...otherY];
+
+  let x = box.x;
+  let y = box.y;
+  const guides: GuideLine[] = [];
+
+  const left = nearestSnap(box.x, xTargets, SNAP_THRESHOLD);
+  const right = nearestSnap(box.x + box.w, xTargets, SNAP_THRESHOLD);
+  const cx = nearestSnap(box.x + box.w / 2, xTargets, SNAP_THRESHOLD);
+  if (left != null) {
+    x = left;
+    guides.push({ axis: 'x', pos: left });
+  } else if (right != null) {
+    x = right - box.w;
+    guides.push({ axis: 'x', pos: right });
+  } else if (cx != null) {
+    x = cx - box.w / 2;
+    guides.push({ axis: 'x', pos: cx });
+  }
+
+  const top = nearestSnap(box.y, yTargets, SNAP_THRESHOLD);
+  const bottom = nearestSnap(box.y + box.h, yTargets, SNAP_THRESHOLD);
+  const cy = nearestSnap(box.y + box.h / 2, yTargets, SNAP_THRESHOLD);
+  if (top != null) {
+    y = top;
+    guides.push({ axis: 'y', pos: top });
+  } else if (bottom != null) {
+    y = bottom - box.h;
+    guides.push({ axis: 'y', pos: bottom });
+  } else if (cy != null) {
+    y = cy - box.h / 2;
+    guides.push({ axis: 'y', pos: cy });
+  }
+
+  return {
+    x: clamp01(Math.min(x, 1 - box.w)),
+    y: clamp01(Math.min(y, 1 - box.h)),
+    guides,
+  };
+}
+
+function clonePlacements(list: PrintLayoutPlacement[]): PrintLayoutPlacement[] {
+  return list.map((p) => ({ ...p }));
+}
+
+function placementsEqual(a: PrintLayoutPlacement[], b: PrintLayoutPlacement[]): boolean {
+  if (a.length !== b.length) return false;
+  for (let i = 0; i < a.length; i++) {
+    const x = a[i];
+    const y = b[i];
+    if (
+      x.uid !== y.uid ||
+      x.name_key !== y.name_key ||
+      x.option !== y.option ||
+      x.page !== y.page ||
+      x.x !== y.x ||
+      x.y !== y.y ||
+      x.w !== y.w ||
+      x.h !== y.h ||
+      x.align !== y.align ||
+      x.font_size !== y.font_size ||
+      x.kind !== y.kind
+    ) {
+      return false;
+    }
+  }
+  return true;
+}
+
+function boxesOverlap(a: PrintLayoutPlacement, b: PrintLayoutPlacement): boolean {
+  const ax2 = a.x + a.w;
+  const ay2 = a.y + a.h;
+  const bx2 = b.x + b.w;
+  const by2 = b.y + b.h;
+  const overlapW = Math.max(0, Math.min(ax2, bx2) - Math.max(a.x, b.x));
+  const overlapH = Math.max(0, Math.min(ay2, by2) - Math.max(a.y, b.y));
+  const area = overlapW * overlapH;
+  const minArea = Math.min(a.w * a.h, b.w * b.h);
+  return area > minArea * 0.35;
 }

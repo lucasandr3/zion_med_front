@@ -21,7 +21,7 @@ import { statusAssinaturaOuCobrancaPt } from '../../../core/utils/status-labels-
   selector: 'app-plataforma-cliente-detalhe',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { class: 'n-page' },
+  host: { class: 'n-page n-page--flush' },
   imports: [
     GestgoCardComponent,
     GestgoBadgeComponent,
@@ -39,6 +39,7 @@ export class PlataformaClienteDetalheComponent implements OnInit, OnDestroy {
   readonly estadoErro = signal(false);
   readonly excluindo = signal(false);
   readonly data = signal<PlatformTenantDetail | null>(null);
+  readonly abaAtiva = signal<'visao' | 'atividade' | 'empresas'>('visao');
   clinicasExpandidas = new Set<number>();
 
   private route = inject(ActivatedRoute);
@@ -60,8 +61,8 @@ export class PlataformaClienteDetalheComponent implements OnInit, OnDestroy {
         this.data.set(res.data);
         if (res.data?.tenant) {
           this.headerService.setHeader(
-            'Cliente: ' + res.data.tenant.name,
-            'Visão executiva do tenant e empresas vinculadas.',
+            'Cliente',
+            res.data.tenant.name + ' · ' + res.data.tenant.slug,
           );
         }
       },
@@ -153,6 +154,44 @@ export class PlataformaClienteDetalheComponent implements OnInit, OnDestroy {
   planoRotulo(clinic: PlatformTenantClinic): string {
     if (clinic.plan_name) return clinic.plan_name;
     return clinic.plan_key ?? '—';
+  }
+
+  clinicaPrincipal(detail: PlatformTenantDetail): PlatformTenantClinic | null {
+    return detail.clinics[0] ?? null;
+  }
+
+  statusPrincipal(clinic: PlatformTenantClinic): string | null {
+    return clinic.billing_status || clinic.subscription_status || null;
+  }
+
+  possuiAcessoBloqueado(detail: PlatformTenantDetail): boolean {
+    return detail.clinics.some((clinic) => clinic.can_access_app === false);
+  }
+
+  possuiIntegracoes(clinic: PlatformTenantClinic): boolean {
+    return !!clinic.whatsapp_notifications_enabled || !!clinic.feegow_enabled;
+  }
+
+  linkWhatsapp(clinic: PlatformTenantClinic | null): string | null {
+    if (!clinic?.phone) return null;
+    const digits = clinic.phone.replace(/\D/g, '');
+    if (!digits) return null;
+    return `https://wa.me/${digits.startsWith('55') ? digits : `55${digits}`}`;
+  }
+
+  abrirWhatsapp(clinic: PlatformTenantClinic | null): void {
+    const link = this.linkWhatsapp(clinic);
+    if (link) window.open(link, '_blank', 'noopener,noreferrer');
+  }
+
+  enviarEmail(clinic: PlatformTenantClinic | null): void {
+    if (clinic?.contact_email) window.location.href = `mailto:${clinic.contact_email}`;
+  }
+
+  statusAcesso(detail: PlatformTenantDetail): string {
+    if (this.possuiAcessoBloqueado(detail)) return 'Acesso bloqueado';
+    if (detail.clinics.some((clinic) => clinic.is_on_trial)) return 'Período de teste';
+    return 'Acesso liberado';
   }
 
   limiteUsuarios(clinic: PlatformTenantClinic): string {

@@ -135,22 +135,13 @@
               <span>Sem protocolos</span>
             }
           </div>
-          <div class="n-page-list__actions" (click)="$event.stopPropagation()">
+          <div class="n-page-list__actions">
             @if (p.status === 'active') {
               <nord-badge variant="success">Ativa</nord-badge>
             } @else {
               <nord-badge variant="neutral">Inativa</nord-badge>
             }
-            <nord-button
-              square
-              variant="plain"
-              size="s"
-              [routerLink]="['/pessoas', p.id]"
-              aria-label="Ver detalhes de {{ p.name }}"
-              title="Ver detalhes"
-            >
-              <span class="material-symbols-outlined text-base" aria-hidden="true">chevron_right</span>
-            </nord-button>
+            <span class="material-symbols-outlined n-page-list__chevron" aria-hidden="true">chevron_right</span>
           </div>
         </div>
       }

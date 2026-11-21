@@ -66,8 +66,8 @@ export class ZmDashboardOnboardingWizardComponent implements OnChanges {
 
   readonly checklist: ReadonlyArray<{ key: OnboardingStepKey; label: string }> = [
     { key: 'segment', label: 'Especialidade' },
-    { key: 'template', label: 'Modelo' },
-    { key: 'personalize', label: 'Visualizar' },
+    { key: 'template', label: 'Minha ficha' },
+    { key: 'personalize', label: 'Mapear' },
     { key: 'public_link', label: 'Link de teste' },
     { key: 'test_fill', label: 'Preencher' },
     { key: 'see_result', label: 'PDF / histórico' },

@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, Signal, ChangeDetectionStrategy, signal } from '@angular/core';
+import { Component, OnInit, inject, Signal, ChangeDetectionStrategy, computed, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { forkJoin } from 'rxjs';
@@ -14,8 +14,8 @@ import { ZmEmptyStateComponent } from '../../../shared/components/ui';
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'n-page' },
   imports: [CommonModule, RouterLink, ZmSkeletonListComponent, ZmEmptyStateComponent],
-  templateUrl: './plataforma-dashboard.component.html',
-  styleUrl: './plataforma-dashboard.component.css',
+  templateUrl: './plataforma-dashboard-v2.component.html',
+  styleUrl: './plataforma-dashboard-v2.component.css',
 })
 export class PlataformaDashboardComponent implements OnInit {
   showSkeleton!: Signal<boolean>;
@@ -25,6 +25,20 @@ export class PlataformaDashboardComponent implements OnInit {
   readonly clinicsCount = signal(0);
   readonly usersCount = signal(0);
   readonly leadsCount = signal(0);
+  readonly tenants = signal<PlatformTenant[]>([]);
+
+  readonly clientesAtivos = computed(() => this.tenants().filter((tenant) => this.situacaoTenant(tenant) === 'active').length);
+  readonly clientesEmTeste = computed(() => this.tenants().filter((tenant) => this.situacaoTenant(tenant) === 'trial').length);
+  readonly clientesComAtencao = computed(() => this.tenants().filter((tenant) => this.situacaoTenant(tenant) === 'attention').length);
+  readonly clientesInativos = computed(() => this.tenants().filter((tenant) => this.situacaoTenant(tenant) === 'inactive').length);
+  readonly saudeClientes = computed(() => {
+    const total = this.tenants().length;
+    return total ? Math.round((this.clientesAtivos() / total) * 100) : 100;
+  });
+  readonly leadsRecentes = computed(() => {
+    const limite = Date.now() - 30 * 24 * 60 * 60 * 1000;
+    return this.ultimosLeads().filter((lead) => lead.created_at && new Date(lead.created_at).getTime() >= limite).length;
+  });
 
   readonly ultimosTenants = signal<PlatformTenant[]>([]);
   readonly ultimosLeads = signal<PlatformLead[]>([]);
@@ -50,6 +64,7 @@ export class PlataformaDashboardComponent implements OnInit {
         this.usersCount.set(dashboard.data.users_count ?? 0);
         this.leadsCount.set(dashboard.data.leads_count ?? 0);
 
+        this.tenants.set(tenants.data ?? []);
         this.ultimosTenants.set((tenants.data ?? []).slice(0, 5));
         this.ultimosLeads.set((leads.data ?? []).slice(0, 5));
         this.ultimosLogs.set((logs.data ?? []).slice(0, 5));
@@ -59,6 +74,31 @@ export class PlataformaDashboardComponent implements OnInit {
         this.estadoErro.set(true);
       },
     });
+  }
+
+  iniciais(nome: string): string {
+    return nome.trim().split(/\s+/).slice(0, 2).map((parte) => parte[0]?.toUpperCase() ?? '').join('');
+  }
+
+  statusTenant(tenant: PlatformTenant): string {
+    const situacao = this.situacaoTenant(tenant);
+    if (situacao === 'active') return 'Ativo';
+    if (situacao === 'trial') return 'Em teste';
+    if (situacao === 'attention') return 'Requer atenção';
+    return 'Inativo';
+  }
+
+  statusTenantClasse(tenant: PlatformTenant): string {
+    return `is-${this.situacaoTenant(tenant)}`;
+  }
+
+  private situacaoTenant(tenant: PlatformTenant): 'active' | 'trial' | 'attention' | 'inactive' {
+    const subscription = (tenant.subscription_status ?? '').toLowerCase();
+    const billing = (tenant.billing_status ?? '').toLowerCase();
+    if (['overdue', 'past_due', 'blocked', 'suspended', 'unpaid'].includes(billing) || ['suspended', 'past_due'].includes(subscription)) return 'attention';
+    if (['trial', 'trialing', 'in_trial'].includes(subscription) || tenant.active_plans?.some((plan) => plan.toLowerCase().includes('trial'))) return 'trial';
+    if (['inactive', 'canceled', 'cancelled', 'disabled', 'expired'].includes(subscription)) return 'inactive';
+    return 'active';
   }
 
   formatarData(iso?: string | null): string {

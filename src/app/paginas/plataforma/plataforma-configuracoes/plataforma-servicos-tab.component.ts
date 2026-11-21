@@ -427,10 +427,14 @@ export class PlataformaServicosTabComponent implements OnChanges {
   }
 
   private applySettingsData(d: PlatformSettingsData): void {
-    this.asaasBaseUrl = d.base_url ?? '';
-    this.apiConfigured = d.api_configured ?? false;
-    this.asaasApiKeyPreview = d.api_key_preview ?? null;
-    this.asaasWebhookPreview = d.webhook_secret_preview ?? null;
+    const asaas = d.asaas;
+    this.asaasBaseUrl = asaas?.base_url ?? d.base_url ?? '';
+    this.apiConfigured = asaas?.api_key_configured ?? asaas?.configured ?? d.api_configured ?? false;
+    this.asaasApiKeyPreview = asaas?.api_key_preview ?? d.api_key_preview ?? null;
+    this.asaasWebhookPreview =
+      asaas?.webhook_secret_preview ??
+      d.webhook_secret_preview ??
+      (asaas?.webhook_secret_configured ? '••••••••' : null);
 
     const minio = d.minio;
     this.minioEndpoint = minio?.endpoint ?? '';

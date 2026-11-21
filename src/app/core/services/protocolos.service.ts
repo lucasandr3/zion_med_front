@@ -8,6 +8,11 @@ export interface Protocolo {
   protocol_number: string;
   document_hash?: string | null;
   document_snapshot_hash?: string | null;
+  pdf_sha256?: string | null;
+  pdf_generated_at?: string | null;
+  pdf_ready?: boolean;
+  /** DOC-02: ready | partial | pending | failed | null */
+  pdf_generation_status?: 'ready' | 'partial' | 'pending' | 'failed' | null;
   template_version_id?: number | null;
   status: string;
   template_id: number;
@@ -116,6 +121,8 @@ export type ProtocoloDetalheData = Protocolo & {
     template_name?: string;
     document_kind?: string;
     fields_snapshot?: ProtocoloField[];
+    print_layout?: PrintLayout | null;
+    has_source_document?: boolean;
     values?: Record<string, unknown>;
     submitted_at?: string;
   } | null;
@@ -192,10 +199,33 @@ export class ProtocolosService {
   }
 
   /** Envia link de reconsentimento quando o consentimento venceu. */
-  solicitarReconsentimento(id: number, channel?: 'email' | 'whatsapp'): Observable<{ message: string; send_id: number; channel: string }> {
+  solicitarReconsentimento(
+    id: number,
+    channel?: 'email' | 'whatsapp',
+  ): Observable<{
+    message: string;
+    send_id: number;
+    channel: string;
+    delivery_mode?: string;
+    delivery_status?: string;
+    public_url?: string;
+    share_message?: string;
+    recipient_phone?: string | null;
+  }> {
     const body = channel ? { channel } : {};
     return this.api
-      .post<{ data: { message: string; send_id: number; channel: string } }>(`/protocols/${id}/reconsentimento`, body)
+      .post<{
+        data: {
+          message: string;
+          send_id: number;
+          channel: string;
+          delivery_mode?: string;
+          delivery_status?: string;
+          public_url?: string;
+          share_message?: string;
+          recipient_phone?: string | null;
+        };
+      }>(`/protocols/${id}/reconsentimento`, body)
       .pipe(map((r) => r.data));
   }
 

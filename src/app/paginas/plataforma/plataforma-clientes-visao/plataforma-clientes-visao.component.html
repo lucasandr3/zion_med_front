@@ -1,0 +1,57 @@
+<div class="n-form-toolbar">
+  <div class="n-form-toolbar__start"><zm-page-back-link /></div>
+  <div class="n-form-toolbar__end">
+    <nord-button type="button" variant="primary" size="m" routerLink="/plataforma/clientes/listagem">
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">list_alt</span>
+      Ver listagem
+    </nord-button>
+  </div>
+</div>
+
+@if (showSkeleton()) {
+  <zm-skeleton-list [rows]="6" />
+} @else if (!listaPronta()) {
+} @else if (estadoErro()) {
+  <div class="clientes-overview-error" role="alert">Não foi possível carregar os indicadores de clientes.</div>
+} @else {
+  <div class="clientes-overview zm-content-enter">
+    <section class="clientes-overview-kpis" aria-label="Indicadores dos clientes">
+      <a class="overview-kpi overview-kpi--primary" routerLink="/plataforma/clientes/listagem">
+        <span class="overview-kpi__icon"><span class="material-symbols-outlined">apartment</span></span>
+        <span><small>Clientes cadastrados</small><strong>{{ metricas().total }}</strong><em>Total na plataforma</em></span>
+        <span class="material-symbols-outlined overview-kpi__arrow">chevron_right</span>
+      </a>
+      <a class="overview-kpi" routerLink="/plataforma/clientes/listagem" [queryParams]="{ filtro: 'ativos' }">
+        <span class="overview-kpi__icon is-success"><span class="material-symbols-outlined">verified</span></span>
+        <span><small>Ativos</small><strong>{{ metricas().ativos }}</strong><em>Com acesso liberado</em></span>
+        <span class="material-symbols-outlined overview-kpi__arrow">chevron_right</span>
+      </a>
+      <a class="overview-kpi" routerLink="/plataforma/clientes/listagem" [queryParams]="{ filtro: 'trial' }">
+        <span class="overview-kpi__icon is-warning"><span class="material-symbols-outlined">hourglass_top</span></span>
+        <span><small>Em teste</small><strong>{{ metricas().trial }}</strong><em>Acompanhar conversão</em></span>
+        <span class="material-symbols-outlined overview-kpi__arrow">chevron_right</span>
+      </a>
+      <a class="overview-kpi" routerLink="/plataforma/clientes/listagem" [queryParams]="{ filtro: 'inativos' }">
+        <span class="overview-kpi__icon is-danger"><span class="material-symbols-outlined">person_off</span></span>
+        <span><small>Inativos</small><strong>{{ metricas().inativos }}</strong><em>Revisar ou reativar</em></span>
+        <span class="material-symbols-outlined overview-kpi__arrow">chevron_right</span>
+      </a>
+    </section>
+
+    <section class="overview-section">
+      <div class="overview-section__heading"><div><h2>Atenção necessária</h2><p>Situações que merecem acompanhamento administrativo.</p></div></div>
+      <div class="overview-action-grid">
+        <a class="overview-action" routerLink="/plataforma/clientes/listagem" [queryParams]="{ filtro: 'bloqueados' }">
+          <span class="overview-action__icon is-danger"><span class="material-symbols-outlined">lock</span></span>
+          <span><strong>Cobrança bloqueada</strong><small>Clientes sem acesso por situação financeira.</small></span>
+          <b>{{ metricas().bloqueados }}</b><span class="material-symbols-outlined">chevron_right</span>
+        </a>
+        <a class="overview-action" routerLink="/plataforma/clientes/listagem" [queryParams]="{ filtro: 'duplicados' }">
+          <span class="overview-action__icon is-duplicate"><span class="material-symbols-outlined">content_copy</span></span>
+          <span><strong>Possíveis duplicados</strong><small>Cadastros que possuem o mesmo nome.</small></span>
+          <b>{{ metricas().duplicados }}</b><span class="material-symbols-outlined">chevron_right</span>
+        </a>
+      </div>
+    </section>
+  </div>
+}

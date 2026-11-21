@@ -1,56 +1,77 @@
-<div class="n-page-list__toolbar">
-  <div class="n-page-list__toolbar-start">
-    <span class="n-muted n-small">
-      {{ tenants().length }} {{ tenants().length === 1 ? 'cliente' : 'clientes' }} cadastrados
-    </span>
-  </div>
+<div class="n-form-toolbar">
+  <div class="n-form-toolbar__start"><zm-page-back-link /></div>
 </div>
 
-<div class="n-page-list__content">
-  @if (showSkeleton()) {
-    <div class="n-page-list__panel"><app-list-skeleton [count]="6" /></div>
-  } @else if (!listaPronta()) {
-  } @else if (estadoErro()) {
-    <div class="n-page-list__panel">
-      <p class="n-muted n-small" style="color:var(--n-color-status-danger,#c62828)">
-        Não foi possível carregar os clientes.
-      </p>
-    </div>
-  } @else if (tenants().length === 0) {
-    <div class="n-page-list__empty">
-      <nord-empty-state>
-        <h2>Nenhum tenant cadastrado.</h2>
-        <p>Quando um cliente for criado, ele será listado aqui.</p>
-      </nord-empty-state>
-    </div>
-  } @else {
-    <div class="n-page-list__table">
-      @for (tenant of tenants(); track tenant.id) {
-        <div
-          class="n-page-list__row n-page-list__row--clickable"
-          [routerLink]="['/plataforma/clientes', tenant.id]"
-          title="Ver detalhes de {{ tenant.name }}"
-        >
-          <div class="n-page-list__row-main">
-            <div class="n-page-list__row-title">{{ tenant.name }}</div>
-            <div class="n-page-list__row-meta">
-              {{ tenant.clinics_count }} {{ tenant.clinics_count === 1 ? 'empresa' : 'empresas' }}
-              @if (tenant.users_count != null) {
-                · {{ tenant.users_count }} {{ tenant.users_count === 1 ? 'usuário' : 'usuários' }}
-              }
-              · {{ planosRotulo(tenant) }}
-            </div>
-          </div>
-          <div class="n-page-list__actions">
-            @if (tenant.subscription_status) {
-              <nord-badge [attr.variant]="badgeVariant(tenant.subscription_status)">
-                {{ rotuloStatusAssinaturaCobranca(tenant.subscription_status) }}
-              </nord-badge>
-            }
-            <span class="material-symbols-outlined n-muted" aria-hidden="true">chevron_right</span>
-          </div>
+@if (showSkeleton()) {
+  <div class="clientes-loading n-page-list__panel"><app-list-skeleton [count]="6" /></div>
+} @else if (!listaPronta()) {
+} @else if (estadoErro()) {
+  <div class="clientes-feedback n-page-list__panel" role="alert">
+    <span class="material-symbols-outlined" aria-hidden="true">error</span>
+    <div><strong>Não foi possível carregar os clientes</strong><p>Atualize a página para tentar novamente.</p></div>
+  </div>
+} @else if (tenants().length === 0) {
+  <div class="n-page-list__empty">
+    <nord-empty-state><h2>Nenhum cliente cadastrado</h2><p>Quando um cliente for criado, ele será listado aqui.</p></nord-empty-state>
+  </div>
+} @else {
+  <section class="clientes-panel" aria-label="Lista de clientes">
+    <div class="clientes-toolbar">
+      <label class="clientes-search">
+        <span class="material-symbols-outlined" aria-hidden="true">search</span>
+        <span class="sr-only">Buscar cliente</span>
+        <input type="search" placeholder="Buscar por nome, slug ou plano" [value]="busca()" (input)="atualizarBusca($event)" autocomplete="off" />
+        @if (busca()) {
+          <button type="button" aria-label="Limpar busca" title="Limpar busca" (click)="busca.set('')"><span class="material-symbols-outlined" aria-hidden="true">close</span></button>
+        }
+      </label>
+      <div class="clientes-sort" aria-label="Ordenar clientes">
+        <span>Ordenar por</span>
+        <div class="clientes-segmented">
+          <button type="button" [class.is-active]="ordenacao() === 'prioridade'" [attr.aria-pressed]="ordenacao() === 'prioridade'" (click)="selecionarOrdenacao('prioridade')">Prioridade</button>
+          <button type="button" [class.is-active]="ordenacao() === 'nome'" [attr.aria-pressed]="ordenacao() === 'nome'" (click)="selecionarOrdenacao('nome')">Nome A–Z</button>
         </div>
+      </div>
+    </div>
+
+    <div class="clientes-filtros" aria-label="Filtrar clientes">
+      @for (filtro of filtros; track filtro.id) {
+        <button type="button" [class.is-active]="filtroAtivo() === filtro.id" [attr.aria-pressed]="filtroAtivo() === filtro.id" (click)="selecionarFiltro(filtro.id)">
+          {{ filtro.label }} <span>{{ quantidadeFiltro(filtro.id) }}</span>
+        </button>
       }
     </div>
-  }
-</div>
+
+    @if (tenantsVisiveis().length === 0) {
+      <div class="clientes-empty-filter">
+        <span class="material-symbols-outlined" aria-hidden="true">search_off</span>
+        <strong>Nenhum cliente encontrado</strong><p>Tente outro termo ou remova os filtros aplicados.</p>
+        <button type="button" (click)="limparFiltros()">Limpar filtros</button>
+      </div>
+    } @else {
+      <div class="clientes-lista">
+        @for (tenant of tenantsVisiveis(); track tenant.id) {
+          <a class="cliente-row" [routerLink]="['/plataforma/clientes', tenant.id]" title="Ver detalhes de {{ tenant.name }}">
+            <span class="cliente-avatar" aria-hidden="true">{{ iniciais(tenant.name) }}</span>
+            <span class="cliente-main">
+              <span class="cliente-title-line"><strong>{{ tenant.name }}</strong>@if (possivelDuplicado(tenant)) { <span class="cliente-tag">Possível duplicado</span> }</span>
+              <span class="cliente-meta">
+                {{ tenant.clinics_count }} {{ tenant.clinics_count === 1 ? 'empresa' : 'empresas' }}
+                @if (tenant.users_count != null) { · {{ tenant.users_count }} {{ tenant.users_count === 1 ? 'usuário' : 'usuários' }} }
+                · {{ planosRotulo(tenant) }}
+              </span>
+            </span>
+            <span class="cliente-situacao">{{ resumoSituacao(tenant) }}</span>
+            <span class="cliente-status">
+              @if (statusPrincipal(tenant); as status) {
+                <nord-badge [attr.variant]="badgeVariant(status)">{{ rotuloStatusAssinaturaCobranca(status) }}</nord-badge>
+              } @else { <nord-badge variant="neutral">Sem status</nord-badge> }
+              <span class="material-symbols-outlined cliente-chevron" aria-hidden="true">chevron_right</span>
+            </span>
+          </a>
+        }
+      </div>
+    }
+    <footer class="clientes-footer">Mostrando {{ tenantsVisiveis().length }} de {{ tenants().length }} {{ tenants().length === 1 ? 'cliente cadastrado' : 'clientes cadastrados' }}</footer>
+  </section>
+}

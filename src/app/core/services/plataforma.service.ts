@@ -199,14 +199,27 @@ export interface PlatformWebPushSettings {
   package_ready?: boolean;
 }
 
+export interface PlatformAsaasSettings {
+  base_url?: string | null;
+  api_key_configured?: boolean;
+  api_key_preview?: string | null;
+  api_key_needs_reentry?: boolean;
+  webhook_secret_configured?: boolean;
+  webhook_secret_preview?: string | null;
+  webhook_secret_needs_reentry?: boolean;
+  configured?: boolean;
+}
+
 export interface PlatformSettingsData {
   product_name: string;
+  asaas?: PlatformAsaasSettings;
+  /** Campos legados, anteriores ao agrupamento em `asaas`. */
   base_url?: string | null;
   trial_days: number;
   grace_days: number;
   block_mode: string;
   multi_empresa_plan: string;
-  api_configured: boolean;
+  api_configured?: boolean;
   api_key_preview?: string | null;
   webhook_secret_preview?: string | null;
   minio?: PlatformMinioSettings;

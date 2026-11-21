@@ -193,10 +193,35 @@ export class PessoasService {
     return this.api.delete<{ data: { message: string } }>(`/pessoas/${id}`).pipe(map((r) => r.data));
   }
 
-  solicitarReconsentimento(id: number, channel?: 'email' | 'whatsapp'): Observable<{ message: string; send_id: number; channel: string; protocol_id?: number }> {
+  solicitarReconsentimento(
+    id: number,
+    channel?: 'email' | 'whatsapp',
+  ): Observable<{
+    message: string;
+    send_id: number;
+    channel: string;
+    protocol_id?: number;
+    delivery_mode?: string;
+    delivery_status?: string;
+    public_url?: string;
+    share_message?: string;
+    recipient_phone?: string | null;
+  }> {
     const body = channel ? { channel } : {};
     return this.api
-      .post<{ data: { message: string; send_id: number; channel: string; protocol_id?: number } }>(`/pessoas/${id}/reconsentimento`, body)
+      .post<{
+        data: {
+          message: string;
+          send_id: number;
+          channel: string;
+          protocol_id?: number;
+          delivery_mode?: string;
+          delivery_status?: string;
+          public_url?: string;
+          share_message?: string;
+          recipient_phone?: string | null;
+        };
+      }>(`/pessoas/${id}/reconsentimento`, body)
       .pipe(map((r) => r.data));
   }
 

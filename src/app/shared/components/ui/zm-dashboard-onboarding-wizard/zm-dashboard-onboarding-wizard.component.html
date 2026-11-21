@@ -8,11 +8,11 @@
         <div class="min-w-0">
           <p class="onboarding-wizard__kicker">Ativação · {{ passoAtivo() }}/6</p>
           <h2 id="onboarding-wizard-title" class="onboarding-wizard__title">
-            Chegue ao primeiro documento concluído
+            Digitalize a ficha que você já usa
           </h2>
           <p class="onboarding-wizard__subtitle">
-            Checklist curto: escolha a especialidade, um modelo, gere o link, teste com dados fictícios e
-            veja o resultado no painel.
+            Importe seu PDF, mapeie os campos, publique um link de teste e veja o primeiro documento
+            assinado — sem reinventar o formulário da clínica.
           </p>
         </div>
       </div>
@@ -56,12 +56,12 @@
         </div>
       </div>
     } @else {
-      <!-- Passo 1: especialidade -->
+      <!-- Passo 1: especialidade (opcional) -->
       @if (passoAtivo() === 1) {
         <div class="onboarding-segment">
-          <p class="onboarding-wizard__kicker">Passo 1 · Especialidade</p>
+          <p class="onboarding-wizard__kicker">Passo 1 · Especialidade (opcional)</p>
           <p class="onboarding-wizard__subtitle" style="margin-top: 0.35rem">
-            Isso ajuda a orientar os próximos modelos. Você pode mudar depois.
+            Ajuda a sugerir exemplos. Não bloqueia o uso da sua ficha atual — você pode pular.
           </p>
           <div class="onboarding-segment__grid">
             @for (seg of segmentos; track seg.key) {
@@ -75,35 +75,42 @@
               </button>
             }
           </div>
+          <div class="onboarding-wizard__actions" style="margin-top: 0.85rem">
+            <nord-button type="button" variant="default" (click)="selecionarSegmento('outro')">
+              Pular especialidade
+            </nord-button>
+          </div>
         </div>
       }
 
-      <!-- Passo 2: modelo -->
+      <!-- Passo 2: usar minha ficha (CTA principal) + modelos prontos -->
       @if (passoAtivo() === 2) {
         <div class="onboarding-segment">
-          <p class="onboarding-wizard__kicker">Passo 2 · Escolher um modelo</p>
+          <p class="onboarding-wizard__kicker">Passo 2 · Sua ficha</p>
           <p class="onboarding-wizard__subtitle" style="margin-top: 0.35rem">
-            Selecione uma ficha pronta. Depois você pode personalizar.
+            O caminho principal do Gestgo: use o PDF que a clínica já imprime hoje.
           </p>
+          <div class="onboarding-wizard__actions" style="margin-top: 0.85rem">
+            <a routerLink="/templates/importar" class="no-underline">
+              <nord-button type="button" variant="primary">
+                <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">upload_file</span>
+                Usar minha ficha atual
+              </nord-button>
+            </a>
+            <a routerLink="/templates/criar" class="no-underline">
+              <nord-button type="button" variant="default">Começar com modelo</nord-button>
+            </a>
+          </div>
         </div>
 
         @if (carregandoTemplates()) {
-          <div class="onboarding-wizard__grid" aria-busy="true" aria-label="Carregando modelos">
+          <div class="onboarding-wizard__grid" aria-busy="true" aria-label="Carregando modelos" style="margin-top: 1rem">
             @for (i of [1, 2, 3]; track i) {
               <div class="onboarding-template-skeleton" aria-hidden="true"></div>
             }
           </div>
-        } @else if (templates().length === 0) {
-          <div class="onboarding-wizard__empty">
-            <span class="material-symbols-outlined onboarding-wizard__empty-icon" aria-hidden="true">
-              folder_open
-            </span>
-            <p class="onboarding-wizard__empty-text">
-              Nenhum modelo ativo encontrado. Crie um em branco ou escolha na biblioteca.
-            </p>
-            <a routerLink="/templates/criar" class="no-underline">Abrir biblioteca</a>
-          </div>
-        } @else {
+        } @else if (templates().length > 0) {
+          <p class="onboarding-wizard__kicker" style="margin-top: 1.1rem">Ou escolha um modelo pronto</p>
           <div class="onboarding-wizard__grid">
             @for (t of templates(); track t.id) {
               <button
@@ -130,36 +137,40 @@
               </button>
             }
           </div>
-          <div class="onboarding-wizard__actions" style="margin-top: 0.85rem">
-            <a routerLink="/templates/importar" class="no-underline text-sm font-semibold" style="color: var(--primary)">
-              Prefiro importar minha ficha →
-            </a>
+        } @else {
+          <div class="onboarding-wizard__empty" style="margin-top: 1rem">
+            <span class="material-symbols-outlined onboarding-wizard__empty-icon" aria-hidden="true">
+              upload_file
+            </span>
+            <p class="onboarding-wizard__empty-text">
+              Ainda não há modelos na conta. Importe o PDF da sua ficha para começar.
+            </p>
           </div>
         }
       }
 
-      <!-- Passo 3: visualizar / personalizar -->
+      <!-- Passo 3: mapear / personalizar -->
       @if (passoAtivo() === 3 && templateSelecionadoId(); as tid) {
         <div class="onboarding-segment">
-          <p class="onboarding-wizard__kicker">Passo 3 · Visualizar ou personalizar</p>
+          <p class="onboarding-wizard__kicker">Passo 3 · Mapear no PDF</p>
           <p class="onboarding-wizard__subtitle" style="margin-top: 0.35rem">
-            Abra o modelo <strong>{{ nomeTemplateSelecionado() }}</strong> para conferir os campos. Não precisa
-            configurar tudo agora.
+            Confira os campos de <strong>{{ nomeTemplateSelecionado() }}</strong> e posicione as respostas no
+            PDF original quando houver documento anexado.
           </p>
           <div class="onboarding-wizard__actions" style="margin-top: 0.85rem">
+            <a [routerLink]="['/templates', tid, 'aparencia-pdf']" class="no-underline">
+              <nord-button type="button" variant="primary">
+                <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">picture_as_pdf</span>
+                Mapear aparência do PDF
+              </nord-button>
+            </a>
             <a [routerLink]="['/templates', tid, 'campos']" class="no-underline">
               <nord-button type="button" variant="default">
                 <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">edit</span>
-                Abrir campos do modelo
+                Campos do modelo
               </nord-button>
             </a>
-            <a [routerLink]="['/templates', tid, 'preview']" class="no-underline">
-              <nord-button type="button" variant="default">
-                <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">visibility</span>
-                Pré-visualizar
-              </nord-button>
-            </a>
-            <nord-button type="button" variant="primary" (click)="marcarPersonalizado()">
+            <nord-button type="button" variant="default" (click)="marcarPersonalizado()">
               Continuar
             </nord-button>
           </div>

@@ -46,7 +46,7 @@ export const SHELL_NAV_APP: ShellNavItem[] = [
     permission: 'templates.manage',
     activeExceptPrefixes: ['/templates/importar'],
   },
-  { route: '/templates/importar', label: 'Importar ficha', icon: 'auto_awesome', permission: 'templates.manage', exact: true },
+  { route: '/templates/importar', label: 'Usar minha ficha', icon: 'upload_file', permission: 'templates.manage', exact: true },
   { route: '/links-publicos', label: 'Formulários públicos', icon: 'link', permissionsAny: ['templates.manage', 'submissions.view'] },
   { route: '/envios', label: 'Envios de documento', icon: 'send', permissionsAny: ['templates.manage', 'submissions.view'] },
   { route: '/protocolos', label: 'Protocolos', icon: 'inbox', permission: 'submissions.view' },
@@ -93,7 +93,7 @@ export const SHELL_NAV_SIDEBAR: ShellNavSection[] = [
         exact: true,
         activeAlsoPrefixes: [
           '/utilitarios/orcamento',
-          '/utilitarios/mensagens',
+          '/utilitarios/notificacoes',
           '/utilitarios/retornos',
           '/utilitarios/orcamento/novo',
           '/utilitarios/retornos/novo',

@@ -15,7 +15,7 @@ const PRIORITY_KEYS = new Set(['orcamento', 'mensagens', 'retornos']);
 
 const PRIORITY_FALLBACK: MobileToolCatalogItem[] = [
   { key: 'orcamento', name: 'Orçamentos', category: 'Financeiro', ready: true },
-  { key: 'mensagens', name: 'Mensagens', category: 'Relacionamento', ready: true },
+  { key: 'mensagens', name: 'Notificações', category: 'Relacionamento', ready: true },
   { key: 'retornos', name: 'Retornos', category: 'Relacionamento', ready: true },
 ];
 
@@ -65,7 +65,7 @@ export class MobileFerramentasComponent implements OnInit {
   routeFor(key: string): string {
     const map: Record<string, string> = {
       orcamento: 'orcamento',
-      mensagens: 'mensagens',
+      mensagens: 'notificacoes',
       retornos: 'retornos',
     };
     return map[key] || key;

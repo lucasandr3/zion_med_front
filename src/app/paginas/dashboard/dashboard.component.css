@@ -27,22 +27,24 @@
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--n-color-accent, var(--c-primary));
+  color: var(--c-brand-text, var(--n-color-text-link, var(--c-action, var(--c-primary))));
 }
 
 .dash-hero__title {
   margin: 0;
-  font-size: 1.75rem;
+  font-size: clamp(1.5rem, 2.2vw, 1.75rem);
   font-weight: 700;
   letter-spacing: -0.02em;
-  color: var(--n-color-text, var(--c-text));
+  color: var(--n-color-text, var(--c-text, #17201f));
   line-height: 1.15;
 }
 
 .dash-hero__sub {
   margin: 0.35rem 0 0;
   font-size: 0.875rem;
-  color: var(--n-color-text-weaker, var(--c-muted));
+  color: var(--n-color-text-weaker, var(--c-muted, #56635f));
+  max-width: 42rem;
+  line-height: 1.45;
 }
 
 .dash-hero__actions {

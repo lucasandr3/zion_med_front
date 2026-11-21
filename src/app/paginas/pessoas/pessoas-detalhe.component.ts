@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject, signal, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { finalize } from 'rxjs';
@@ -13,6 +13,7 @@ import { NORD_FORM_IMPORTS } from '@/shared/nord';
 import { formatarDataBr, formatarDataHoraBr } from '@/shared/utils/date';
 import { digitsOnlyCpf, formatCpfDisplay } from '../../core/utils/cpf';
 import { toolPersonQueryParams } from '../../mobile/tools/tool-person-context';
+import { openWhatsappShare } from '../../core/utils/whatsapp-share.util';
 import type { Protocolo } from '../../core/services/protocolos.service';
 
 type AbaFicha = 'dados' | 'estatisticas' | 'protocolos' | 'historico';
@@ -53,6 +54,7 @@ export class PessoasDetalheComponent implements OnInit {
   private toast = inject(ToastService);
   private confirm = inject(ConfirmDialogService);
   private auth = inject(AuthService);
+  private cdr = inject(ChangeDetectorRef);
 
   get podeInativar(): boolean {
     return this.auth.hasPermission('people.deactivate');
@@ -215,6 +217,12 @@ export class PessoasDetalheComponent implements OnInit {
     return phone.replace(/\D/g, '');
   }
 
+  /** MSG-03A — abre conversa WhatsApp (sem marcar entrega). */
+  abrirWhatsapp(phone: string, nome?: string | null): void {
+    const saudacao = nome?.trim() ? `Olá, ${nome.trim()}!` : 'Olá!';
+    openWhatsappShare(saudacao, phone);
+  }
+
   utilitarioQueryParams(): Record<string, string> {
     if (!this.pessoa) return {};
     return toolPersonQueryParams(this.pessoa);
@@ -320,10 +328,12 @@ export class PessoasDetalheComponent implements OnInit {
       next: (items) => {
         this.historico = items;
         this.historicoCarregando = false;
+        this.cdr.markForCheck();
       },
       error: () => {
         this.historicoCarregando = false;
         this.historicoErro = 'Não foi possível carregar o histórico documental.';
+        this.cdr.markForCheck();
       },
     });
   }
@@ -361,7 +371,8 @@ export class PessoasDetalheComponent implements OnInit {
     if (!this.pessoa || !this.podeSolicitarReconsentimento) return;
     const ok = await this.confirm.request({
       title: 'Solicitar reconsentimento?',
-      message: 'Será enviado um novo link do termo de consentimento ao paciente (e-mail ou WhatsApp da ficha).',
+      message:
+        'Será preparado um novo link do termo (e-mail automático ou compartilhamento manual no WhatsApp da ficha).',
       confirmLabel: 'Enviar link',
     });
     if (!ok) return;
@@ -369,7 +380,15 @@ export class PessoasDetalheComponent implements OnInit {
     this.pessoasService.solicitarReconsentimento(this.pessoa.id).subscribe({
       next: (res) => {
         this.solicitandoReconsentimento = false;
-        this.toast.success('Reconsentimento enviado', res.message);
+        if (res.delivery_mode === 'manual' && res.share_message) {
+          openWhatsappShare(res.share_message, res.recipient_phone ?? this.pessoa?.phone ?? null);
+          this.toast.success(
+            'WhatsApp',
+            'Link gerado. Abra o WhatsApp e envie a mensagem — não marcamos como entregue.',
+          );
+        } else {
+          this.toast.success('Reconsentimento enviado', res.message);
+        }
       },
       error: (err) => {
         this.solicitandoReconsentimento = false;

@@ -248,6 +248,51 @@ export class TemplatesService {
       .pipe(map((r) => r.data));
   }
 
+  /**
+   * PDF-01B — detecção determinística no PDF fonte (AcroForm no backend).
+   * Não altera print_layout; sugestões exigem revisão no editor.
+   */
+  detectPrintLayout(id: number): Observable<{
+    version?: number;
+    mode: string;
+    page_count: number;
+    has_text: boolean;
+    message: string;
+    suggestions: Array<Record<string, unknown>>;
+  }> {
+    return this.api
+      .post<{ data: {
+        version?: number;
+        mode: string;
+        page_count: number;
+        has_text: boolean;
+        message: string;
+        suggestions: Array<Record<string, unknown>>;
+      } }>(`/templates/${id}/print-layout/detect`, {})
+      .pipe(map((r) => r.data));
+  }
+
+  /** PDF-01C — detecção assistida (flag/stub no backend). */
+  detectPrintLayoutAi(id: number): Observable<{
+    version?: number;
+    mode: string;
+    page_count: number;
+    has_text: boolean;
+    message: string;
+    suggestions: Array<Record<string, unknown>>;
+  }> {
+    return this.api
+      .post<{ data: {
+        version?: number;
+        mode: string;
+        page_count: number;
+        has_text: boolean;
+        message: string;
+        suggestions: Array<Record<string, unknown>>;
+      } }>(`/templates/${id}/print-layout/detect-ai`, {})
+      .pipe(map((r) => r.data));
+  }
+
   delete(id: number): Observable<void> {
     return this.api.delete<unknown>(`/templates/${id}`).pipe(map(() => undefined));
   }

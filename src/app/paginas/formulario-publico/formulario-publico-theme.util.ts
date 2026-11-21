@@ -17,6 +17,13 @@ const FORM_THEME_ACCENT: Record<string, string> = {
   'slate-pro': '#475569',
   'cyan-tech': '#06b6d4',
   'fuchsia-bold': '#d946ef',
+  oceano: '#0ea5e9',
+  grafite: '#64748b',
+  indigo: '#6366f1',
+  rosa: '#f472b6',
+  lavanda: '#a78bfa',
+  coral: '#fb7185',
+  pessego: '#fb923c',
   'onyx-black': '#1a1410',
   custom: '#c9a84c',
 };

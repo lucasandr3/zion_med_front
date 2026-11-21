@@ -415,4 +415,44 @@ export class CabecalhoComponent implements OnInit, OnDestroy {
         .subscribe({ error: () => {} });
     }
   }
+
+  restaurarTemaPadrao(): void {
+    const tema = 'ocean-blue';
+    this._removeSysListener();
+    this.themeDrawerMode = 'light';
+    this.modoEscuro = false;
+    this.temaAtual = tema;
+    this.shellPresetAtual = 'default';
+    this.navLayoutAtual = 'sidebar';
+
+    document.body.classList.remove('dark');
+    Array.from(document.body.classList)
+      .filter((className) => className.startsWith('theme-'))
+      .forEach((className) => document.body.classList.remove(className));
+    document.body.classList.add(`theme-${tema}`);
+    applyShellPresetToDom('default');
+    applyNavLayoutToDom('sidebar');
+    this.shellNavLayout.refresh();
+
+    try {
+      localStorage.removeItem(GESTGO_APPEARANCE_MODE_LS);
+      localStorage.setItem('gestgo_dark_mode', '0');
+      localStorage.setItem('gestgo_theme', tema);
+    } catch {}
+
+    syncThemeChrome();
+    this.auth.notifyAppearanceApplied();
+    if (this.auth.isAuthenticated()) {
+      this.appearance.patchAppearance({
+        ui_theme: tema,
+        ui_dark_mode: false,
+        ui_shell_preset: null,
+        ui_nav_layout: null,
+      }).subscribe({ error: () => {} });
+    }
+  }
+
+  concluirTema(): void {
+    this.temaSheetRef?.close();
+  }
 }
