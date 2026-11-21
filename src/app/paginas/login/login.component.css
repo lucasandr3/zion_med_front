@@ -15,7 +15,7 @@
   /* Painel de marca: action AA (#087A55) — texto branco legível (VIS-14) */
   --login-green: var(--c-action, #087a55);
   --login-green-brand: var(--c-primary, #14b87a);
-  --login-green-deep: var(--c-action-active, #055a3e);
+  --login-green-deep: color-mix(in srgb, var(--c-action, var(--c-primary, #087a55)) 72%, #000);
   --login-mint: color-mix(in srgb, #fff 72%, var(--login-green-brand));
   --login-ink: #17201f;
   --login-muted: #56635f;

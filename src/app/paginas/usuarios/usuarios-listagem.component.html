@@ -99,7 +99,7 @@
               }
             </div>
           </div>
-          <div class="n-page-list__actions" (click)="$event.stopPropagation()">
+          <div class="n-page-list__actions">
             @if (u.active) {
               <nord-badge variant="success">Ativo</nord-badge>
             } @else {
@@ -130,17 +130,7 @@
                 <span class="material-symbols-outlined text-base" aria-hidden="true">person_off</span>
               </nord-button>
             }
-            <nord-button
-              square
-              variant="plain"
-              size="s"
-              [routerLink]="['/usuarios', u.id, 'editar']"
-              [state]="{ usuario: u }"
-              aria-label="Abrir {{ u.name }}"
-              title="Abrir"
-            >
-              <span class="material-symbols-outlined text-base" aria-hidden="true">chevron_right</span>
-            </nord-button>
+            <span class="material-symbols-outlined n-page-list__chevron" aria-hidden="true">chevron_right</span>
           </div>
         </div>
       }

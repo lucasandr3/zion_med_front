@@ -71,6 +71,13 @@ function isPublicSpaRoute(url: string): boolean {
   return PUBLIC_SPA_PREFIXES.some((prefix) => path === prefix.replace(/\/$/, '') || path.startsWith(prefix));
 }
 
+function isGenericSpringForbidden(body: unknown): boolean {
+  if (typeof body !== 'object' || body === null) return false;
+
+  const error = body as Record<string, unknown>;
+  return error['status'] === 403 && error['error'] === 'Forbidden' && typeof error['path'] === 'string';
+}
+
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const auth = inject(AuthService);
   const router = inject(Router);
@@ -113,10 +120,12 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(clone).pipe(
     catchError((err: HttpErrorResponse) => {
-      // Laravel devolve 419; Spring Security CSRF devolve 403 com body vazio.
+      // Laravel devolve 419. Spring Security pode devolver 403 vazio ou o
+      // corpo genérico do BasicErrorController quando o CSRF expirou.
       const csrfFailed =
         err.status === 419 ||
-        (err.status === 403 && (err.error == null || err.error === ''));
+        (err.status === 403 &&
+          (err.error == null || err.error === '' || isGenericSpringForbidden(err.error)));
       if (
         withCredentials &&
         csrfFailed &&

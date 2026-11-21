@@ -114,10 +114,15 @@ export const routes: Routes = [
         data: { titulo: 'Nova proposta', toolMode: 'form' },
       },
       {
-        path: 'ferramentas/mensagens',
+        path: 'ferramentas/notificacoes',
         loadComponent: () =>
           import('./mobile/tools/mobile-tool-mensagens.component').then((m) => m.MobileToolMensagensComponent),
-        data: { titulo: 'Mensagens' },
+        data: { titulo: 'Notificações' },
+      },
+      {
+        path: 'ferramentas/mensagens',
+        redirectTo: 'ferramentas/notificacoes',
+        pathMatch: 'full',
       },
       {
         path: 'ferramentas/checklist',
@@ -270,17 +275,22 @@ export const routes: Routes = [
         },
       },
       {
-        path: 'utilitarios/mensagens',
+        path: 'utilitarios/notificacoes',
         canActivate: [permissionGuard],
         loadComponent: () =>
           import('./mobile/tools/mobile-tool-mensagens.component').then((m) => m.MobileToolMensagensComponent),
         data: {
-          titulo: 'Mensagens',
+          titulo: 'Notificações',
           permissionAny: ['submissions.view', 'organization.manage'],
           urlVoltar: '/utilitarios',
           labelVoltar: 'Utilitários',
           voltarIntegrado: true,
         },
+      },
+      {
+        path: 'utilitarios/mensagens',
+        redirectTo: 'utilitarios/notificacoes',
+        pathMatch: 'full',
       },
       {
         path: 'utilitarios/retornos',
@@ -448,8 +458,9 @@ export const routes: Routes = [
         loadComponent: () => import('./paginas/hubs/hub-page.component').then((m) => m.HubPageComponent),
         data: { titulo: 'Plataforma e auditoria', hubId: 'plataforma-sistema' },
       },
-      { path: 'clientes', loadComponent: () => import('./paginas/plataforma/plataforma-clientes/plataforma-clientes.component').then(m => m.PlataformaClientesComponent), data: { titulo: 'Clientes', subtitulo: 'Visão geral dos clientes utilizando o Gestgo.', urlVoltar: '/plataforma/clientes-atividade', labelVoltar: 'Clientes e atividade', voltarIntegrado: true } },
-      { path: 'clientes/:id', loadComponent: () => import('./paginas/plataforma/plataforma-cliente-detalhe/plataforma-cliente-detalhe.component').then(m => m.PlataformaClienteDetalheComponent), data: { titulo: 'Cliente', urlVoltar: '/plataforma/clientes', labelVoltar: 'Voltar para Clientes', voltarIntegrado: true } },
+      { path: 'clientes', loadComponent: () => import('./paginas/plataforma/plataforma-clientes-visao/plataforma-clientes-visao.component').then(m => m.PlataformaClientesVisaoComponent), data: { titulo: 'Clientes', subtitulo: 'Indicadores e acompanhamento da base de clientes.', urlVoltar: '/plataforma/clientes-atividade', labelVoltar: 'Clientes e atividade', voltarIntegrado: true } },
+      { path: 'clientes/listagem', loadComponent: () => import('./paginas/plataforma/plataforma-clientes/plataforma-clientes.component').then(m => m.PlataformaClientesComponent), data: { titulo: 'Listagem de clientes', subtitulo: 'Consulte, filtre e acesse os clientes cadastrados.', urlVoltar: '/plataforma/clientes', labelVoltar: 'Voltar para Clientes', voltarIntegrado: true } },
+      { path: 'clientes/:id', loadComponent: () => import('./paginas/plataforma/plataforma-cliente-detalhe/plataforma-cliente-detalhe.component').then(m => m.PlataformaClienteDetalheComponent), data: { titulo: 'Cliente', urlVoltar: '/plataforma/clientes/listagem', labelVoltar: 'Voltar para a listagem', voltarIntegrado: true } },
       { path: 'leads', loadComponent: () => import('./paginas/plataforma/plataforma-leads/plataforma-leads.component').then(m => m.PlataformaLeadsComponent), data: { titulo: 'Leads', subtitulo: 'Solicitações de demonstração da landing.', urlVoltar: '/plataforma/clientes-atividade', labelVoltar: 'Clientes e atividade', voltarIntegrado: true } },
       {
         path: 'trafego-landing',

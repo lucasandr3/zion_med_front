@@ -318,14 +318,6 @@ export const HUB_UTILITARIOS: NavigationHubConfig = {
   id: 'utilitarios',
   title: 'Utilitários',
   subtitle: 'Propostas, WhatsApp e follow-ups para converter e reter — no computador e no celular.',
-  sectionTitle: 'Comercial e relacionamento',
-  sectionSubtitle: 'Abra pela ficha da pessoa para já levar nome e telefone.',
-  primaryCta: {
-    label: 'Nova proposta',
-    route: '/utilitarios/orcamento/novo',
-    icon: 'receipt_long',
-    permissionsAny: ['submissions.view', 'organization.manage'],
-  },
   cards: [
     {
       id: 'orcamento',
@@ -337,10 +329,10 @@ export const HUB_UTILITARIOS: NavigationHubConfig = {
     },
     {
       id: 'mensagens',
-      title: 'Mensagens',
+      title: 'Notificações',
       description: 'Confirmação, pós-atendimento e reativação — modelos da clínica.',
       icon: 'chat',
-      route: '/utilitarios/mensagens',
+      route: '/utilitarios/notificacoes',
       permissionsAny: ['submissions.view', 'organization.manage'],
     },
     {

@@ -12,6 +12,13 @@ const THEME_LOGO_FILE: Record<string, string> = {
   'slate-pro': 'logo-slate.png',
   'cyan-tech': 'logo-cyan.png',
   'fuchsia-bold': 'logo-fucshia.png',
+  oceano: 'logo-oceano.svg',
+  grafite: 'logo-grafite.svg',
+  indigo: 'logo-indigo-ref.svg',
+  rosa: 'logo-rosa.svg',
+  lavanda: 'logo-lavanda.svg',
+  coral: 'logo-coral.svg',
+  pessego: 'logo-pessego.svg',
 };
 
 function canonicalThemeKey(theme: string): string {

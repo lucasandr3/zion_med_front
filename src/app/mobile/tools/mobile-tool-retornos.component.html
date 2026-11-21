@@ -83,6 +83,20 @@
     <div class="n-form-toolbar">
       <div class="n-form-toolbar__start">
         <zm-page-back-link />
+        <div class="ft-seg">
+          <nord-button type="button" [variant]="filtro() === 'pending' ? 'primary' : 'default'" (click)="filtro.set('pending')">
+            <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">schedule</span>
+            Pendentes ({{ pendingCount() }})
+          </nord-button>
+          <nord-button type="button" [variant]="filtro() === 'contacted' ? 'primary' : 'default'" (click)="filtro.set('contacted')">
+            <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">check_circle</span>
+            Contatados
+          </nord-button>
+          <nord-button type="button" [variant]="filtro() === 'all' ? 'primary' : 'default'" (click)="filtro.set('all')">
+            <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">list</span>
+            Todos
+          </nord-button>
+        </div>
       </div>
       <div class="n-form-toolbar__end">
         <nord-button variant="primary" type="button" [routerLink]="formLink" [queryParams]="personQuery()">
@@ -94,33 +108,28 @@
 
     <div class="ft-body zm-content-enter">
       <app-tool-person-banner [nome]="linkedNome" [phone]="linkedPhone" />
-      <p class="mb-4 text-sm text-muted-foreground">Fila de follow-ups da clínica.</p>
-
-      <div class="ft-seg mb-4">
-        <nord-button type="button" [variant]="filtro() === 'pending' ? 'primary' : 'default'" (click)="filtro.set('pending')">
-          <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">schedule</span>
-          Pendentes ({{ pendingCount() }})
-        </nord-button>
-        <nord-button type="button" [variant]="filtro() === 'contacted' ? 'primary' : 'default'" (click)="filtro.set('contacted')">
-          <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">check_circle</span>
-          Contatados
-        </nord-button>
-        <nord-button type="button" [variant]="filtro() === 'all' ? 'primary' : 'default'" (click)="filtro.set('all')">
-          <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">list</span>
-          Todos
-        </nord-button>
-      </div>
 
       @if (loading()) {
         <p class="text-sm text-muted-foreground">Carregando…</p>
       } @else if (visible().length === 0) {
-        <p class="text-sm text-muted-foreground">
-          @if (filtro() === 'pending') {
-            Nenhum retorno pendente. Bom sinal — ou hora de agendar o próximo.
-          } @else {
-            Nada neste filtro.
-          }
-        </p>
+        <div class="n-page-list__empty">
+          <nord-empty-state>
+            @if (filtro() === 'pending') {
+              <h2>Nenhum retorno pendente</h2>
+              <p>Todos os acompanhamentos estão em dia. Agende um novo retorno quando precisar.</p>
+            } @else if (filtro() === 'contacted') {
+              <h2>Nenhum retorno contatado</h2>
+              <p>Os retornos marcados como contatados aparecerão neste filtro.</p>
+            } @else {
+              <h2>Nenhum retorno agendado</h2>
+              <p>Agende acompanhamentos para organizar os próximos contatos com seus pacientes.</p>
+            }
+            <nord-button variant="primary" type="button" [routerLink]="formLink" [queryParams]="personQuery()">
+              <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">add</span>
+              Agendar retorno
+            </nord-button>
+          </nord-empty-state>
+        </div>
       } @else {
         <div class="ft-list-gap">
           @for (item of visible(); track item.id) {

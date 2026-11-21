@@ -124,6 +124,12 @@ export class AgendaComponent implements OnInit {
   readonly selectedDay = signal<string | null>(null);
   readonly modalAberto = signal(false);
   readonly modalModo = signal<ModalAgendaModo>('dia');
+  readonly agendaCompacta = signal(
+    typeof window !== 'undefined' && window.matchMedia('(max-width: 900px)').matches,
+  );
+  readonly usarModalAgenda = computed(
+    () => this.modalAberto() && (this.agendaCompacta() || this.visao() !== 'mes'),
+  );
   /** Quando true, Cancelar no formulário volta à lista do dia em vez de fechar. */
   readonly criarVeioDoDia = signal(false);
   readonly servicos = signal<AgendaServiceItem[]>([]);
@@ -148,7 +154,7 @@ export class AgendaComponent implements OnInit {
 
   constructor() {
     effect(() => {
-      const shouldOpen = this.modalAberto();
+      const shouldOpen = this.usarModalAgenda();
       const el = this.resolveModalEl(this.diaModalRef());
       if (!shouldOpen || !el) return;
       queueMicrotask(() => {
@@ -160,6 +166,11 @@ export class AgendaComponent implements OnInit {
         }
       });
     });
+
+    if (typeof window !== 'undefined') {
+      const media = window.matchMedia('(max-width: 900px)');
+      media.addEventListener('change', (event) => this.agendaCompacta.set(event.matches));
+    }
 
   }
 
@@ -522,6 +533,13 @@ export class AgendaComponent implements OnInit {
       this.criarVeioDoDia.set(false);
       return;
     }
+    this.fecharModal();
+  }
+
+  onModalClose(event: Event): void {
+    // Date/time pickers e outros popovers internos também emitem `close`.
+    // Como o evento borbulha, ele não pode ser tratado como fechamento do modal.
+    if (event.target !== event.currentTarget) return;
     this.fecharModal();
   }
 

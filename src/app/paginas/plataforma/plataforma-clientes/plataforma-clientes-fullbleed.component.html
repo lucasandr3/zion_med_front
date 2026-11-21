@@ -1,0 +1,126 @@
+<div class="n-page-list__toolbar">
+  <div class="n-page-list__toolbar-start clientes-toolbar-start">
+    <zm-page-back-link />
+  </div>
+  <div class="n-page-list__toolbar-end">
+    <nord-button
+      type="button"
+      (click)="openFilterDrawer()"
+      [attr.aria-expanded]="filterDrawerOpen() ? 'true' : 'false'"
+      [class.ring-2]="temFiltrosAtivos"
+      [class.ring-ring]="temFiltrosAtivos"
+      title="Filtros"
+    >
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">filter_list</span>
+      Filtros
+      @if (temFiltrosAtivos) { <nord-badge variant="neutral">{{ quantidadeFiltrosAtivos }}</nord-badge> }
+    </nord-button>
+    <div class="form-search-wrap clientes-search-right">
+      <span class="material-symbols-outlined form-search-icon" aria-hidden="true">search</span>
+      <input
+        type="search"
+        class="form-search-input w-full text-sm"
+        placeholder="Buscar por nome, slug ou plano…"
+        aria-label="Buscar clientes"
+        [value]="busca()"
+        (input)="atualizarBusca($event)"
+        autocomplete="off"
+      />
+    </div>
+  </div>
+</div>
+
+<div class="n-page-list__content">
+  @if (showSkeleton()) {
+    <div class="n-page-list__panel"><app-list-skeleton [count]="6" /></div>
+  } @else if (!listaPronta()) {
+  } @else if (estadoErro()) {
+    <div class="n-page-list__panel clientes-error" role="alert">
+      <span class="material-symbols-outlined" aria-hidden="true">error</span>
+      <div><strong>Não foi possível carregar os clientes</strong><p>Atualize a página para tentar novamente.</p></div>
+    </div>
+  } @else if (tenants().length === 0) {
+    <div class="n-page-list__empty">
+      <nord-empty-state><h2>Nenhum cliente cadastrado</h2><p>Quando um cliente for criado, ele será listado aqui.</p></nord-empty-state>
+    </div>
+  } @else {
+    @if (tenantsFiltrados().length === 0) {
+      <div class="n-page-list__empty">
+        <nord-empty-state>
+          <h2>Nenhum cliente encontrado</h2>
+          <p>Tente outro termo ou remova os filtros aplicados.</p>
+          <nord-button variant="default" type="button" (click)="limparFiltros()">Limpar filtros</nord-button>
+        </nord-empty-state>
+      </div>
+    } @else {
+      <div class="n-page-list__table">
+        @for (tenant of tenantsVisiveis(); track tenant.id) {
+          <a class="n-page-list__row n-page-list__row--clickable cliente-row" [routerLink]="['/plataforma/clientes', tenant.id]" title="Ver detalhes de {{ tenant.name }}">
+            <span class="cliente-avatar" [style.background]="corAvatar(tenant.name)" aria-hidden="true">{{ iniciais(tenant.name) }}</span>
+            <span class="n-page-list__row-main cliente-main">
+              <span class="n-page-list__row-title cliente-title-line">
+                <strong>{{ tenant.name }}</strong>
+                @if (possivelDuplicado(tenant)) { <span class="cliente-tag">Possível duplicado</span> }
+              </span>
+              <span class="n-page-list__row-meta cliente-meta">
+                {{ tenant.clinics_count }} {{ tenant.clinics_count === 1 ? 'empresa' : 'empresas' }}
+                @if (tenant.users_count != null) { · {{ tenant.users_count }} {{ tenant.users_count === 1 ? 'usuário' : 'usuários' }} }
+                · {{ planosRotulo(tenant) }}
+              </span>
+            </span>
+            <span class="cliente-situacao n-muted n-small">{{ resumoSituacao(tenant) }}</span>
+            <span class="n-page-list__actions cliente-status">
+              @if (statusPrincipal(tenant); as status) {
+                <nord-badge [attr.variant]="badgeVariant(status)">{{ rotuloStatusAssinaturaCobranca(status) }}</nord-badge>
+              } @else { <nord-badge variant="neutral">Sem status</nord-badge> }
+              <span class="material-symbols-outlined n-page-list__chevron" aria-hidden="true">chevron_right</span>
+            </span>
+          </a>
+        }
+      </div>
+      <div class="n-page-list__footer">
+        <span class="n-muted n-small">{{ contagemTexto() }}</span>
+        @if (totalPaginas() > 1) {
+          <zm-pagination [currentPage]="paginaAtual()" [lastPage]="totalPaginas()" (pageChange)="irParaPagina($event)" />
+        }
+      </div>
+    }
+  }
+</div>
+
+<ng-template #clientesFiltrosTpl>
+  <div class="clientes-filtros-sheet zm-filter-sheet">
+    <div class="zm-filter-sheet__body">
+      <div class="zm-filter-sheet__fields">
+        <div class="zm-filter-field">
+          <span class="zm-filter-label">Situação</span>
+          <div class="clientes-filter-options" role="radiogroup" aria-label="Situação do cliente">
+            @for (filtro of filtros; track filtro.id) {
+              <button type="button" role="radio" [class.is-active]="filtroRascunho === filtro.id" [attr.aria-checked]="filtroRascunho === filtro.id" (click)="filtroRascunho = filtro.id">
+                <span>{{ filtro.label }}</span><small>{{ quantidadeFiltro(filtro.id) }}</small>
+              </button>
+            }
+          </div>
+        </div>
+        <div class="zm-filter-field">
+          <span class="zm-filter-label">Ordenação</span>
+          <div class="clientes-filter-options" role="radiogroup" aria-label="Ordenação dos clientes">
+            <button type="button" role="radio" [class.is-active]="ordenacaoRascunho === 'prioridade'" [attr.aria-checked]="ordenacaoRascunho === 'prioridade'" (click)="ordenacaoRascunho = 'prioridade'">
+              <span>Prioridade</span><small>Bloqueados e testes primeiro</small>
+            </button>
+            <button type="button" role="radio" [class.is-active]="ordenacaoRascunho === 'nome'" [attr.aria-checked]="ordenacaoRascunho === 'nome'" (click)="ordenacaoRascunho = 'nome'">
+              <span>Nome A–Z</span><small>Ordem alfabética</small>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <footer class="zm-filter-sheet__footer">
+      <button class="clientes-filter-footer__clear" type="button" (click)="limparFiltrosDrawer()">Limpar filtros</button>
+      <nord-button variant="primary" type="button" (click)="aplicarFiltrosDrawer()">
+        <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">check</span>
+        Aplicar
+      </nord-button>
+    </footer>
+  </div>
+</ng-template>

@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject, signal, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { finalize } from 'rxjs';
@@ -54,6 +54,7 @@ export class PessoasDetalheComponent implements OnInit {
   private toast = inject(ToastService);
   private confirm = inject(ConfirmDialogService);
   private auth = inject(AuthService);
+  private cdr = inject(ChangeDetectorRef);
 
   get podeInativar(): boolean {
     return this.auth.hasPermission('people.deactivate');
@@ -327,10 +328,12 @@ export class PessoasDetalheComponent implements OnInit {
       next: (items) => {
         this.historico = items;
         this.historicoCarregando = false;
+        this.cdr.markForCheck();
       },
       error: () => {
         this.historicoCarregando = false;
         this.historicoErro = 'Não foi possível carregar o histórico documental.';
+        this.cdr.markForCheck();
       },
     });
   }

@@ -65,12 +65,25 @@
 
     <div class="ft-body zm-content-enter">
       <app-tool-person-banner [nome]="linkedNome" [phone]="linkedPhone" />
-      <p class="mb-5 text-sm text-muted-foreground">Propostas salvas — reabra, copie ou envie no WhatsApp.</p>
 
       @if (historyLoading()) {
         <p class="text-sm text-muted-foreground">Carregando propostas…</p>
       } @else if (history().length === 0) {
-        <p class="text-sm text-muted-foreground">Nenhuma proposta ainda. Crie a primeira para começar.</p>
+        <div class="n-page-list__empty">
+          <nord-empty-state>
+            <h2>Nenhum orçamento cadastrado</h2>
+            <p>Crie uma proposta para apresentar valores e enviar ao paciente pelo WhatsApp.</p>
+            <nord-button
+              variant="primary"
+              type="button"
+              [routerLink]="formLink"
+              [queryParams]="personQuery()"
+            >
+              <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">add</span>
+              Novo orçamento
+            </nord-button>
+          </nord-empty-state>
+        </div>
       } @else {
         <div class="ft-list-gap">
           @for (item of history(); track item.id) {

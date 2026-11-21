@@ -74,7 +74,8 @@
       <app-list-skeleton [count]="6" />
     </div>
   } @else if (visao() === 'mes') {
-    <div class="agenda-cal zm-content-enter">
+    <div class="agenda-month-layout zm-content-enter">
+      <div class="agenda-cal">
       <div class="agenda-cal__nav">
         <div class="agenda-cal__nav-left">
           <nord-button type="button" size="s" square variant="default" (click)="mesAnterior()" aria-label="Mês anterior">
@@ -124,6 +125,100 @@
           </button>
         }
       </div>
+      </div>
+
+      @if (modalAberto() && !agendaCompacta()) {
+        <aside class="agenda-side" aria-labelledby="agenda-side-title">
+          <div class="agenda-side__header">
+            <div>
+              <h2 id="agenda-side-title">{{ modalTitulo() }}</h2>
+              <p>{{ modalModo() === 'criar' ? 'Preencha os dados do atendimento.' : 'Compromissos do dia selecionado.' }}</p>
+            </div>
+            <nord-button square variant="plain" type="button" aria-label="Fechar painel" (click)="fecharModal()">
+              <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">close</span>
+            </nord-button>
+          </div>
+
+          <div class="agenda-side__body">
+            @if (modalModo() === 'dia') {
+              @if (eventosDiaSelecionado().length === 0) {
+                <div class="agenda-side__empty">
+                  <span class="material-symbols-outlined" aria-hidden="true">event_available</span>
+                  <p>Nenhum compromisso neste dia.</p>
+                </div>
+              } @else {
+                <div class="agenda-modal-list">
+                  @for (a of eventosDiaSelecionado(); track a.id) {
+                    <div class="agenda-modal-row">
+                      <div class="agenda-modal-row__main">
+                        <div class="agenda-modal-row__title">{{ a.patient_name }}</div>
+                        <div class="agenda-modal-row__meta">
+                          {{ formatDt(a.starts_at) }} · {{ a.service?.name || 'Serviço' }}
+                          @if (a.patient_phone) { · {{ a.patient_phone }} }
+                        </div>
+                      </div>
+                      <div class="agenda-modal-row__actions">
+                        <nord-badge [variant]="statusBadgeVariant(a.status)">{{ statusLabel(a.status) }}</nord-badge>
+                        @if (a.status === 'confirmed') {
+                          <nord-button square variant="plain" aria-label="Cancelar" (click)="cancelar(a)">
+                            <span class="material-symbols-outlined text-lg">cancel</span>
+                          </nord-button>
+                        }
+                      </div>
+                    </div>
+                  }
+                </div>
+              }
+            } @else {
+              <div class="agenda-form-grid agenda-form-grid--side">
+                <div class="agenda-field">
+                  <label class="form-label" for="side_novo_nome">Paciente</label>
+                  <nord-input id="side_novo_nome" expand hide-label label="Paciente" placeholder="Nome completo" [value]="novo.patient_name" (input)="novo.patient_name = onNordInput($event)"></nord-input>
+                </div>
+                <div class="agenda-field">
+                  <label class="form-label" for="side_novo_svc">Serviço</label>
+                  <select id="side_novo_svc" class="w-full" [(ngModel)]="novo.service_id" name="side_novo_svc">
+                    <option [ngValue]="null">Selecione…</option>
+                    @for (s of servicos(); track s.id) {
+                      <option [ngValue]="s.id">{{ s.name }} ({{ s.duration_minutes }} min)</option>
+                    }
+                  </select>
+                </div>
+                <div class="agenda-side__two-cols">
+                  <div class="agenda-field">
+                    <label class="form-label" for="side_novo_data">Data</label>
+                    <nord-date-picker id="side_novo_data" expand hide-label label="Data" [(ngModel)]="novo.date" name="side_novo_data" placeholder="dd/mm/aaaa"></nord-date-picker>
+                  </div>
+                  <div class="agenda-field">
+                    <label class="form-label" for="side_novo_hora">Horário</label>
+                    <nord-time-picker id="side_novo_hora" expand hide-label label="Horário" [(ngModel)]="novo.time" name="side_novo_hora" placeholder="09:00"></nord-time-picker>
+                  </div>
+                </div>
+                <div class="agenda-field">
+                  <label class="form-label" for="side_novo_email">E-mail</label>
+                  <nord-input id="side_novo_email" type="email" expand hide-label label="E-mail" [value]="novo.patient_email" (input)="novo.patient_email = onNordInput($event)"></nord-input>
+                </div>
+                <div class="agenda-field">
+                  <label class="form-label" for="side_novo_phone">Telefone</label>
+                  <nord-input id="side_novo_phone" expand hide-label label="Telefone" [value]="novo.patient_phone" (input)="novo.patient_phone = onNordInput($event)"></nord-input>
+                </div>
+              </div>
+            }
+          </div>
+
+          <div class="agenda-side__footer">
+            @if (modalModo() === 'dia') {
+              <nord-button expand type="button" variant="primary" (click)="abrirCriarNoModal()">
+                <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">add</span>
+                Novo compromisso
+              </nord-button>
+            } @else {
+              <nord-button expand type="button" variant="default" (click)="cancelarCriar()">Cancelar</nord-button>
+              <nord-button expand type="button" variant="primary" (click)="salvarNovo()" [attr.loading]="salvando() || null">Salvar compromisso</nord-button>
+            }
+          </div>
+        </aside>
+      }
     </div>
   } @else if (visao() === 'lista') {
     @if (reservas().length === 0) {
@@ -340,13 +435,14 @@
   }
 </div>
 
-@if (modalAberto()) {
+@if (usarModalAgenda()) {
   <nord-modal
     #diaModal
     class="agenda-dia-modal"
     size="m"
     aria-labelledby="agenda-dia-modal-title"
-    (close)="fecharModal()"
+    [attr.persistent]="modalModo() === 'criar' ? '' : null"
+    (close)="onModalClose($event)"
   >
     <h2 slot="header" id="agenda-dia-modal-title">{{ modalTitulo() }}</h2>
 

@@ -128,7 +128,7 @@ export class MobileToolMensagensComponent implements OnInit {
       },
       error: () => {
         this.loading.set(false);
-        this.toast.error('Mensagens', 'Não foi possível carregar os modelos.');
+        this.toast.error('Notificações', 'Não foi possível carregar os modelos.');
       },
     });
   }
@@ -174,11 +174,11 @@ export class MobileToolMensagensComponent implements OnInit {
       next: (updated) => {
         this.templates.update((list) => list.map((t) => (t.id === updated.id ? updated : t)));
         this.saving.set(false);
-        this.toast.success('Mensagens', 'Modelo salvo na clínica.');
+        this.toast.success('Notificações', 'Modelo salvo na clínica.');
       },
       error: (err) => {
         this.saving.set(false);
-        this.toast.error('Mensagens', err?.error?.message || 'Falha ao salvar.');
+        this.toast.error('Notificações', err?.error?.message || 'Falha ao salvar.');
       },
     });
   }
@@ -186,9 +186,9 @@ export class MobileToolMensagensComponent implements OnInit {
   async copiar(): Promise<void> {
     try {
       await navigator.clipboard.writeText(this.preview());
-      this.toast.success('Mensagens', 'Texto copiado.');
+      this.toast.success('Notificações', 'Texto copiado.');
     } catch {
-      this.toast.error('Mensagens', 'Não foi possível copiar.');
+      this.toast.error('Notificações', 'Não foi possível copiar.');
     }
   }
 

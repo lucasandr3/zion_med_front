@@ -12,7 +12,7 @@ import {
   DestroyRef,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Router, RouterLink, ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { Subject, switchMap, tap, catchError, finalize, of } from 'rxjs';
 import { ProtocolosService, Protocolo } from '../../core/services/protocolos.service';
@@ -36,7 +36,6 @@ const LATE_AFTER_H = 24;
   imports: [
     ...NORD_FORM_IMPORTS,
     FormsModule,
-    RouterLink,
     ListSkeletonComponent,
     ZmPaginationComponent,
     GestgoComboboxComponent,

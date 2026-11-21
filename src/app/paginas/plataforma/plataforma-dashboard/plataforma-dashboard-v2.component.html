@@ -1,0 +1,113 @@
+<div class="dashboard-shell">
+  @if (showSkeleton()) {
+    <zm-skeleton-list [rows]="8" />
+  } @else if (!listaPronta()) {
+  } @else {
+    @if (estadoErro()) {
+      <div class="dashboard-feedback" role="alert">
+        <span class="material-symbols-outlined" aria-hidden="true">error</span>
+        <div><strong>Não foi possível atualizar a visão geral.</strong><p>Os dados podem estar temporariamente indisponíveis.</p></div>
+      </div>
+    }
+
+    <div class="dashboard-content zm-content-enter">
+      <section class="dashboard-hero" aria-labelledby="dashboard-title">
+        <div class="dashboard-hero__copy">
+          <span class="dashboard-eyebrow">Visão geral da plataforma</span>
+          <h2 id="dashboard-title">Sua operação, em uma leitura rápida.</h2>
+          <p>Acompanhe a base de clientes, identifique pontos de atenção e acesse as rotinas mais importantes.</p>
+          <div class="dashboard-hero__actions">
+            <a routerLink="/plataforma/clientes" class="dashboard-button dashboard-button--light">Ver clientes <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span></a>
+            <a routerLink="/plataforma/leads" class="dashboard-button dashboard-button--ghost">Acompanhar leads</a>
+          </div>
+        </div>
+        <div class="dashboard-health">
+          <div class="dashboard-health__top">
+            <div class="dashboard-health__ring" [style.--health]="saudeClientes()"><strong>{{ saudeClientes() }}%</strong></div>
+            <div><strong>Saúde da base</strong><span>Clientes ativos no portfólio</span></div>
+          </div>
+          <div class="dashboard-health__metrics">
+            <div><span>Ativos</span><strong>{{ clientesAtivos() }}</strong></div>
+            <div><span>Em teste</span><strong>{{ clientesEmTeste() }}</strong></div>
+            <div><span>Atenção</span><strong>{{ clientesComAtencao() }}</strong></div>
+          </div>
+        </div>
+      </section>
+
+      <nav class="dashboard-quick" aria-label="Acesso rápido">
+        @for (item of [
+          { route: '/plataforma/clientes', icon: 'apartment', title: 'Clientes', subtitle: 'Base e cadastros' },
+          { route: '/plataforma/assinaturas', icon: 'receipt_long', title: 'Assinaturas', subtitle: 'Planos e status' },
+          { route: '/plataforma/faturas', icon: 'payments', title: 'Faturas', subtitle: 'Cobranças e repasses' },
+          { route: '/plataforma/leads', icon: 'request_quote', title: 'Leads', subtitle: 'Oportunidades recentes' }
+        ]; track item.route) {
+          <a [routerLink]="item.route">
+            <span class="dashboard-quick__icon"><span class="material-symbols-outlined">{{ item.icon }}</span></span>
+            <span><strong>{{ item.title }}</strong><small>{{ item.subtitle }}</small></span>
+            <span class="material-symbols-outlined dashboard-quick__arrow">chevron_right</span>
+          </a>
+        }
+      </nav>
+
+      <section class="dashboard-section" aria-labelledby="summary-title">
+        <header class="dashboard-section__header">
+          <div><h2 id="summary-title">Resumo da operação</h2><p>Indicadores consolidados da plataforma</p></div>
+          <span class="dashboard-updated"><span class="material-symbols-outlined">sync</span> Atualizado agora</span>
+        </header>
+        <div class="dashboard-kpis">
+          <a routerLink="/plataforma/clientes" class="dashboard-kpi"><span class="dashboard-kpi__top"><span>Clientes</span><span class="dashboard-kpi__icon"><span class="material-symbols-outlined">domain</span></span></span><strong>{{ tenantsCount() }}</strong><small>{{ clientesAtivos() }} ativos na plataforma</small></a>
+          <div class="dashboard-kpi"><span class="dashboard-kpi__top"><span>Empresas</span><span class="dashboard-kpi__icon"><span class="material-symbols-outlined">business</span></span></span><strong>{{ clinicsCount() }}</strong><small>Clínicas e filiais cadastradas</small></div>
+          <div class="dashboard-kpi"><span class="dashboard-kpi__top"><span>Usuários</span><span class="dashboard-kpi__icon"><span class="material-symbols-outlined">group</span></span></span><strong>{{ usersCount() }}</strong><small>Contas vinculadas aos clientes</small></div>
+          <a routerLink="/plataforma/leads" class="dashboard-kpi"><span class="dashboard-kpi__top"><span>Leads</span><span class="dashboard-kpi__icon"><span class="material-symbols-outlined">trending_up</span></span></span><strong>{{ leadsCount() }}</strong><small>{{ leadsRecentes() }} entre os mais recentes</small></a>
+        </div>
+      </section>
+
+      <section class="dashboard-attention" aria-labelledby="attention-title">
+        <div class="dashboard-attention__header">
+          <div class="dashboard-attention__title"><span class="dashboard-attention__shield"><span class="material-symbols-outlined">health_and_safety</span></span><div><h2 id="attention-title">Saúde dos clientes</h2><p>Situações que merecem acompanhamento</p></div></div>
+          @if (clientesComAtencao() > 0) { <a routerLink="/plataforma/clientes/listagem" class="dashboard-status dashboard-status--warning">{{ clientesComAtencao() }} requerem atenção</a> }
+          @else { <span class="dashboard-status"><span class="material-symbols-outlined">check_circle</span> Tudo em dia</span> }
+        </div>
+        <div class="dashboard-attention__grid">
+          <div><span>Em período de teste</span><strong>{{ clientesEmTeste() }}</strong><small>Acompanhar conversão</small></div>
+          <div [class.is-warning]="clientesComAtencao() > 0"><span>Cobrança ou acesso</span><strong>{{ clientesComAtencao() }}</strong><small>Revisar situação</small></div>
+          <div><span>Clientes inativos</span><strong>{{ clientesInativos() }}</strong><small>Base fora de operação</small></div>
+        </div>
+      </section>
+
+      <div class="dashboard-columns">
+        <section class="dashboard-panel">
+          <header class="dashboard-panel__header"><div><h2>Últimos clientes</h2><p>Cadastros mais recentes da plataforma</p></div><a routerLink="/plataforma/clientes/listagem">Ver todos</a></header>
+          <div class="dashboard-panel__body">
+            @for (tenant of ultimosTenants(); track tenant.id) {
+              <a [routerLink]="['/plataforma/clientes', tenant.id]" class="dashboard-list-row">
+                <span class="dashboard-avatar">{{ iniciais(tenant.name) }}</span>
+                <span class="dashboard-list-row__main"><strong>{{ tenant.name }}</strong><small>{{ tenant.clinics_count }} {{ tenant.clinics_count === 1 ? 'empresa' : 'empresas' }} · {{ tenant.users_count ?? 0 }} usuários</small></span>
+                <span class="dashboard-client-status" [ngClass]="statusTenantClasse(tenant)">{{ statusTenant(tenant) }}</span>
+                <span class="material-symbols-outlined dashboard-list-chevron">chevron_right</span>
+              </a>
+            } @empty { <zm-empty-state title="Nenhum cliente" description="Os novos clientes aparecerão aqui." /> }
+          </div>
+        </section>
+
+        <section class="dashboard-panel">
+          <header class="dashboard-panel__header"><div><h2>Leads recentes</h2><p>Oportunidades recebidas pela landing page</p></div><a routerLink="/plataforma/leads">Ver todos</a></header>
+          <div class="dashboard-panel__body">
+            @for (lead of ultimosLeads(); track lead.id) {
+              <div class="dashboard-list-row"><span class="dashboard-avatar dashboard-avatar--lead">{{ iniciais(lead.name) }}</span><span class="dashboard-list-row__main"><strong>{{ lead.name }}</strong><small>{{ lead.email }}{{ lead.clinic ? ' · ' + lead.clinic : '' }}</small></span><time>{{ formatarData(lead.created_at) }}</time></div>
+            } @empty { <zm-empty-state title="Nenhum lead" description="Novas oportunidades aparecerão aqui." /> }
+          </div>
+        </section>
+      </div>
+
+      <section class="dashboard-panel dashboard-activity">
+        <header class="dashboard-panel__header"><div><h2>Atividade recente</h2><p>Últimas ações administrativas registradas</p></div><a routerLink="/plataforma/logs">Ver histórico</a></header>
+        <div class="dashboard-panel__body">
+          @for (log of ultimosLogs(); track log.id) {
+            <div class="dashboard-list-row dashboard-list-row--activity"><span class="dashboard-activity__icon"><span class="material-symbols-outlined">{{ logIcon(log.action) }}</span></span><span class="dashboard-list-row__main"><strong>{{ logActionLabel(log.action) }}@if (log.organization_name) { <span> · {{ log.organization_name }}</span> }</strong><small>{{ logDetalhe(log) }}</small></span><time>{{ formatarData(log.created_at) }}</time></div>
+          } @empty { <zm-empty-state title="Sem atividade recente" description="As ações administrativas aparecerão aqui." /> }
+        </div>
+      </section>
+    </div>
+  }
+</div>

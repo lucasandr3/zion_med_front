@@ -119,8 +119,9 @@ export class MobilePacientesComponent implements OnInit {
 
   abrirUtilitario(tool: 'orcamento' | 'mensagens' | 'retornos', pessoa: PessoaDetalhe): void {
     const create = tool === 'orcamento' || tool === 'retornos';
+    const route = tool === 'mensagens' ? 'notificacoes' : tool;
     void this.router.navigate(
-      create ? ['/m/ferramentas', tool, 'novo'] : ['/m/ferramentas', tool],
+      create ? ['/m/ferramentas', route, 'novo'] : ['/m/ferramentas', route],
       { queryParams: toolPersonQueryParams(pessoa) },
     );
   }

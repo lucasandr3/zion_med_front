@@ -93,7 +93,7 @@ export const SHELL_NAV_SIDEBAR: ShellNavSection[] = [
         exact: true,
         activeAlsoPrefixes: [
           '/utilitarios/orcamento',
-          '/utilitarios/mensagens',
+          '/utilitarios/notificacoes',
           '/utilitarios/retornos',
           '/utilitarios/orcamento/novo',
           '/utilitarios/retornos/novo',

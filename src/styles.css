@@ -301,8 +301,8 @@ html[data-color-scheme='dark'] {
     --c-primary-active: #087A55;
     /* Ação clicável com texto branco — não usar brand-500 direto */
     --c-action: var(--c-primary-active);
-    --c-action-hover: #066B4A;
-    --c-action-active: #055A3E;
+    --c-action-hover: color-mix(in srgb, var(--c-action) 86%, #000);
+    --c-action-active: color-mix(in srgb, var(--c-action) 72%, #000);
     --c-brand-soft: var(--brand-50);
     --c-brand-text: var(--brand-700);
     --c-accent:   var(--brand-700);
@@ -466,6 +466,13 @@ body.dark.shell-preset-tinted {
 .theme-slate-pro     { --c-primary: #334155; --c-action: #334155; --c-brand-text: #334155; --c-accent: #475569; --c-focus: rgba(51,65,85,.18); --c-focus-ring: #334155; }
 .theme-cyan-tech     { --c-primary: #0369a1; --c-action: #0369a1; --c-brand-text: #0369a1; --c-accent: #0284c7; --c-focus: rgba(3,105,161,.18); --c-focus-ring: #0369a1; }
 .theme-fuchsia-bold  { --c-primary: #a21caf; --c-action: #a21caf; --c-brand-text: #a21caf; --c-accent: #c026d3; --c-focus: rgba(162,28,175,.18); --c-focus-ring: #a21caf; }
+.theme-oceano        { --c-primary: #0ea5e9; --c-action: #0ea5e9; --c-brand-text: #0ea5e9; --c-accent: #38bdf8; --c-focus: rgba(14,165,233,.20); --c-focus-ring: #0ea5e9; }
+.theme-grafite       { --c-primary: #64748b; --c-action: #64748b; --c-brand-text: #64748b; --c-accent: #94a3b8; --c-focus: rgba(100,116,139,.20); --c-focus-ring: #64748b; }
+.theme-indigo        { --c-primary: #6366f1; --c-action: #6366f1; --c-brand-text: #6366f1; --c-accent: #818cf8; --c-focus: rgba(99,102,241,.20); --c-focus-ring: #6366f1; }
+.theme-rosa          { --c-primary: #f472b6; --c-action: #f472b6; --c-brand-text: #f472b6; --c-accent: #f9a8d4; --c-focus: rgba(244,114,182,.22); --c-focus-ring: #f472b6; }
+.theme-lavanda       { --c-primary: #a78bfa; --c-action: #a78bfa; --c-brand-text: #a78bfa; --c-accent: #c4b5fd; --c-focus: rgba(167,139,250,.22); --c-focus-ring: #a78bfa; }
+.theme-coral         { --c-primary: #fb7185; --c-action: #fb7185; --c-brand-text: #fb7185; --c-accent: #fda4af; --c-focus: rgba(251,113,133,.22); --c-focus-ring: #fb7185; }
+.theme-pessego       { --c-primary: #fb923c; --c-action: #fb923c; --c-brand-text: #fb923c; --c-accent: #fdba74; --c-focus: rgba(251,146,60,.22); --c-focus-ring: #fb923c; }
 
 /*
  * Wordmark gest/go — “go” acompanha o primary do tema; “gest” usa o verde
@@ -489,6 +496,16 @@ body.theme-slate-pro,
 body.theme-cyan-tech,
 body.theme-fuchsia-bold,
 body.theme-emerald-fresh {
+  --gestgo-brand-deep: color-mix(in srgb, var(--c-primary) 58%, #000000);
+}
+
+body.theme-oceano,
+body.theme-grafite,
+body.theme-indigo,
+body.theme-rosa,
+body.theme-lavanda,
+body.theme-coral,
+body.theme-pessego {
   --gestgo-brand-deep: color-mix(in srgb, var(--c-primary) 58%, #000000);
 }
 
@@ -592,6 +609,13 @@ body.theme-emerald-fresh {
 .dark.theme-slate-pro     { --c-primary: #94a3b8; --c-action: #94a3b8; --c-brand-text: #cbd5e1; --c-accent: #cbd5e1; --c-focus: rgba(148,163,184,.2); --c-focus-ring: #94a3b8; }
 .dark.theme-cyan-tech     { --c-primary: #38bdf8; --c-action: #38bdf8; --c-brand-text: #7dd3fc; --c-accent: #7dd3fc; --c-focus: rgba(56,189,248,.2); --c-focus-ring: #38bdf8; }
 .dark.theme-fuchsia-bold  { --c-primary: #e879f9; --c-action: #e879f9; --c-brand-text: #f0abfc; --c-accent: #f0abfc; --c-focus: rgba(232,121,249,.2); --c-focus-ring: #e879f9; }
+.dark.theme-oceano        { --c-primary: #38bdf8; --c-action: #0284c7; --c-brand-text: #7dd3fc; --c-accent: #7dd3fc; --c-focus: rgba(56,189,248,.22); --c-focus-ring: #38bdf8; }
+.dark.theme-grafite       { --c-primary: #94a3b8; --c-action: #64748b; --c-brand-text: #cbd5e1; --c-accent: #cbd5e1; --c-focus: rgba(148,163,184,.22); --c-focus-ring: #94a3b8; }
+.dark.theme-indigo        { --c-primary: #818cf8; --c-action: #6366f1; --c-brand-text: #a5b4fc; --c-accent: #a5b4fc; --c-focus: rgba(129,140,248,.22); --c-focus-ring: #818cf8; }
+.dark.theme-rosa          { --c-primary: #f9a8d4; --c-action: #db2777; --c-brand-text: #fbcfe8; --c-accent: #fbcfe8; --c-focus: rgba(249,168,212,.22); --c-focus-ring: #f9a8d4; }
+.dark.theme-lavanda       { --c-primary: #c4b5fd; --c-action: #8b5cf6; --c-brand-text: #ddd6fe; --c-accent: #ddd6fe; --c-focus: rgba(196,181,253,.22); --c-focus-ring: #c4b5fd; }
+.dark.theme-coral         { --c-primary: #fda4af; --c-action: #e11d48; --c-brand-text: #fecdd3; --c-accent: #fecdd3; --c-focus: rgba(253,164,175,.22); --c-focus-ring: #fda4af; }
+.dark.theme-pessego       { --c-primary: #fdba74; --c-action: #ea580c; --c-brand-text: #fed7aa; --c-accent: #fed7aa; --c-focus: rgba(253,186,116,.22); --c-focus-ring: #fdba74; }
 
 /* ─── Gestgo UI — tema neutral + integração marca (`--c-*` definido acima) ──── */
 :root {
@@ -666,7 +690,7 @@ body.theme-emerald-fresh {
   --sidebar-border: var(--n-color-border);
   --sidebar-ring: var(--c-primary);
   /* Shell padrão dark — pesquisa html.dark[data-shell-style=default] */
-  --shell-header-bg: var(--n-color-header);
+  --shell-header-bg: var(--n-color-nav-surface);
   --shell-sidebar-bg: var(--n-color-nav-surface);
   --shell-header-fg: var(--n-color-text);
   --shell-header-muted: var(--n-color-text-weaker);
@@ -3350,7 +3374,7 @@ body.shell-preset-sidebar-dark:not(.dark) {
 }
 
 body.dark.shell-preset-sidebar-dark {
-    --shell-header-bg: var(--n-color-header);
+    --shell-header-bg: var(--shell-sidebar-bg);
     --shell-sidebar-bg: rgb(12, 13, 16);
     --shell-nav-bg: rgb(12, 13, 16);
     --shell-nav-fg: rgb(236, 238, 241);
