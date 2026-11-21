@@ -46,16 +46,16 @@ export const SHELL_NAV_APP: ShellNavItem[] = [
     permission: 'templates.manage',
     activeExceptPrefixes: ['/templates/importar'],
   },
-  { route: '/templates/importar', label: 'Importar ficha', icon: 'auto_awesome', permission: 'templates.manage', exact: true },
+  { route: '/templates/importar', label: 'Usar minha ficha', icon: 'upload_file', permission: 'templates.manage', exact: true },
   { route: '/links-publicos', label: 'Formulários públicos', icon: 'link', permissionsAny: ['templates.manage', 'submissions.view'] },
   { route: '/envios', label: 'Envios de documento', icon: 'send', permissionsAny: ['templates.manage', 'submissions.view'] },
   { route: '/protocolos', label: 'Protocolos', icon: 'inbox', permission: 'submissions.view' },
   { route: '/pessoas', label: 'Pessoas', icon: 'group', permission: 'submissions.view' },
   { route: '/agenda', label: 'Agenda', icon: 'calendar_month', permission: 'organization.manage' },
+  { route: '/servicos', label: 'Serviços', icon: 'layers', permission: 'organization.manage' },
   { route: '/notificacoes', label: 'Notificações', icon: 'notifications', permission: 'notifications.access', badge: 'notifications' },
   { route: '/clinica/configuracoes', label: 'Empresa', icon: 'business', permission: 'organization.manage' },
   { route: '/link-bio', label: 'Link na bio', icon: 'link', permission: 'organization.manage' },
-  { route: '/clinica/integracoes', label: 'Integrações', icon: 'api', permission: 'organization.manage' },
   { route: '/usuarios', label: 'Usuários', icon: 'group', permission: 'users.manage' },
   { route: '/organizacao/permissoes', label: 'Permissões', icon: 'admin_panel_settings', permission: 'users.manage' },
 ];
@@ -76,6 +76,7 @@ export const SHELL_NAV_SIDEBAR: ShellNavSection[] = [
       { route: '/dashboard', label: 'Dashboard', icon: 'bar_chart', permission: 'dashboard.access', exact: true },
       { route: '/pessoas', label: 'Pessoas', icon: 'group', permission: 'submissions.view' },
       { route: '/agenda', label: 'Agenda', icon: 'calendar_month', permission: 'organization.manage' },
+      { route: '/servicos', label: 'Serviços', icon: 'layers', permission: 'organization.manage' },
       {
         route: '/documentos',
         label: 'Documentos',
@@ -84,12 +85,26 @@ export const SHELL_NAV_SIDEBAR: ShellNavSection[] = [
         exact: true,
         activeAlsoPrefixes: ['/envios', '/protocolos'],
       },
+      {
+        route: '/utilitarios',
+        label: 'Utilitários',
+        icon: 'widgets',
+        permissionsAny: ['submissions.view', 'organization.manage'],
+        exact: true,
+        activeAlsoPrefixes: [
+          '/utilitarios/orcamento',
+          '/utilitarios/notificacoes',
+          '/utilitarios/retornos',
+          '/utilitarios/orcamento/novo',
+          '/utilitarios/retornos/novo',
+        ],
+      },
     ],
   },
   {
-    id: 'ferramentas',
-    label: 'Ferramentas',
-    icon: 'build',
+    id: 'produtos',
+    label: 'Produtos',
+    icon: 'widgets',
     items: [
       {
         route: '/templates',
@@ -105,7 +120,6 @@ export const SHELL_NAV_SIDEBAR: ShellNavSection[] = [
         permissionsAny: ['templates.manage', 'submissions.view'],
       },
       { route: '/link-bio', label: 'Link na bio', icon: 'nest_heat_link_gen_3', permission: 'organization.manage' },
-      { route: '/clinica/integracoes', label: 'Integrações', icon: 'linked_services', permission: 'organization.manage' },
     ],
   },
   {
@@ -121,6 +135,7 @@ export const SHELL_NAV_SIDEBAR: ShellNavSection[] = [
         exact: true,
         activeAlsoPrefixes: [
           '/clinica/configuracoes',
+          '/clinica/integracoes',
           '/usuarios',
           '/organizacao/permissoes',
           '/assinatura',

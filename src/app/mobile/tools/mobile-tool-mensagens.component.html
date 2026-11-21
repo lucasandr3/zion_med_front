@@ -4,51 +4,74 @@
       <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">arrow_back</span>
     </a>
     <div>
-      <h1>Mensagens prontas</h1>
-      <small>Salvas na sua clínica</small>
+      <h1>Notificações</h1>
+      <small>Modelos prontos da clínica</small>
     </div>
   </div>
 
   @if (loading()) {
     <p class="gm-loading">Carregando modelos…</p>
   } @else {
-    <p class="gm-sub">Edite e salve no Gestgo. Envio pelo WhatsApp continua manual.</p>
+    <p class="gm-sub">Escolha o momento do contato, personalize e envie no WhatsApp.</p>
+
+    <app-tool-person-banner [nome]="linkedNome()" [phone]="linkedPhone()" [mobile]="true" />
+
+    <div class="gm-actions" style="margin-bottom:12px;flex-wrap:wrap">
+      @for (m of moments; track m.key) {
+        <button
+          type="button"
+          class="gm-btn"
+          [class.gm-btn--soft]="moment() !== m.key"
+          [class.gm-btn--secondary]="moment() === m.key"
+          (click)="setMoment(m.key)"
+        >
+          {{ m.label }}
+        </button>
+      }
+    </div>
 
     <div class="gm-panel">
       <div class="gm-field">
         <label>Modelo</label>
         <select [ngModel]="selectedId()" (ngModelChange)="onSelect(+$event)">
-          @for (t of templates(); track t.id) {
+          @for (t of filteredTemplates(); track t.id) {
             <option [ngValue]="t.id">{{ t.label }}</option>
           }
         </select>
       </div>
+      @if (selected(); as sel) {
+        <p class="gm-hint" style="margin:0 0 12px">Momento: {{ momentLabel(sel) }}</p>
+      }
+      <app-tool-person-field
+        [mobile]="true"
+        inputId="ft-msg-person-m"
+        [personId]="personId()"
+        [name]="nome()"
+        [phone]="phone()"
+        (personChange)="onPersonChange($event)"
+      />
+      <app-tool-service-field
+        [mobile]="true"
+        label="Procedimento"
+        inputId="ft-msg-service-m"
+        [serviceId]="serviceId()"
+        [name]="procedimento()"
+        (serviceChange)="onServiceChange($event)"
+      />
       <div class="gm-field">
-        <label>Nome</label>
-        <input type="text" [ngModel]="nome()" (ngModelChange)="nome.set($event)" placeholder="Ex.: Mariana" />
-      </div>
-      <div class="gm-field">
-        <label>Procedimento</label>
-        <input
-          type="text"
-          [ngModel]="procedimento()"
-          (ngModelChange)="procedimento.set($event)"
-          placeholder="Ex.: limpeza de pele"
-        />
-      </div>
-      <div class="gm-field">
-        <label>Texto editável (use &#123;nome&#125; e &#123;procedimento&#125;)</label>
+        <label>Texto (use &#123;nome&#125; e &#123;procedimento&#125;)</label>
         <textarea [ngModel]="draft()" (ngModelChange)="draft.set($event)"></textarea>
       </div>
       <button type="button" class="gm-btn gm-btn--soft" (click)="salvar()" [disabled]="saving()">
-        {{ saving() ? 'Salvando…' : 'Salvar no Gestgo' }}
+        {{ saving() ? 'Salvando…' : 'Salvar modelo' }}
       </button>
     </div>
 
+    <p class="gm-hint" style="margin:12px 0 6px">Pré-visualização</p>
     <div class="gm-msg">{{ preview() }}</div>
     <div class="gm-actions">
       <button type="button" class="gm-btn gm-btn--secondary" (click)="copiar()">Copiar</button>
-      <button type="button" class="gm-btn" (click)="whatsapp()">WhatsApp</button>
+      <button type="button" class="gm-btn" (click)="whatsapp()">Enviar no WhatsApp</button>
     </div>
   }
 } @else {
@@ -63,7 +86,7 @@
       </nord-button>
       <nord-button type="button" (click)="whatsapp()" [attr.disabled]="loading() || null">
         <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">chat</span>
-        WhatsApp
+        Enviar no WhatsApp
       </nord-button>
       <nord-button
         variant="primary"
@@ -73,7 +96,7 @@
         (click)="salvar()"
       >
         <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">check</span>
-        Salvar no Gestgo
+        Salvar modelo
       </nord-button>
     </div>
   </div>
@@ -82,8 +105,24 @@
     @if (loading()) {
       <p class="text-sm text-muted-foreground">Carregando modelos…</p>
     } @else {
+      <app-tool-person-banner [nome]="linkedNome()" [phone]="linkedPhone()" />
+
+      <div class="ft-seg mb-4">
+        @for (m of moments; track m.key) {
+          <nord-button
+            type="button"
+            [variant]="moment() === m.key ? 'primary' : 'default'"
+            (click)="setMoment(m.key)"
+          >
+            {{ m.label }}
+          </nord-button>
+        }
+      </div>
+
       <g-card>
-        <p class="mb-5 text-sm text-muted-foreground">Edite e salve no Gestgo. Envio pelo WhatsApp continua manual.</p>
+        <p class="mb-5 text-sm text-muted-foreground">
+          Modelos por momento do relacionamento — personalize e envie no WhatsApp.
+        </p>
         <form class="flex flex-col gap-5">
           <div>
             <label class="ft-label" for="ft-msg-modelo">Modelo</label>
@@ -94,39 +133,27 @@
               (ngModelChange)="onSelect(+$event)"
               name="modelo"
             >
-              @for (t of templates(); track t.id) {
-                <option [ngValue]="t.id">{{ t.label }}</option>
+              @for (t of filteredTemplates(); track t.id) {
+                <option [ngValue]="t.id">{{ t.label }} · {{ momentLabel(t) }}</option>
               }
             </select>
           </div>
-          <div class="grid gap-5 md:grid-cols-2">
-            <div>
-              <label class="ft-label" for="ft-msg-nome">Nome</label>
-              <input
-                id="ft-msg-nome"
-                class="w-full"
-                type="text"
-                [ngModel]="nome()"
-                (ngModelChange)="nome.set($event)"
-                name="nome"
-                placeholder="Ex.: Mariana"
-              />
-            </div>
-            <div>
-              <label class="ft-label" for="ft-msg-proc">Procedimento</label>
-              <input
-                id="ft-msg-proc"
-                class="w-full"
-                type="text"
-                [ngModel]="procedimento()"
-                (ngModelChange)="procedimento.set($event)"
-                name="procedimento"
-                placeholder="Ex.: limpeza de pele"
-              />
-            </div>
-          </div>
+          <app-tool-person-field
+            inputId="ft-msg-person"
+            [personId]="personId()"
+            [name]="nome()"
+            [phone]="phone()"
+            (personChange)="onPersonChange($event)"
+          />
+          <app-tool-service-field
+            label="Procedimento"
+            inputId="ft-msg-service"
+            [serviceId]="serviceId()"
+            [name]="procedimento()"
+            (serviceChange)="onServiceChange($event)"
+          />
           <div>
-            <label class="ft-label" for="ft-msg-draft">Texto editável (use &#123;nome&#125; e &#123;procedimento&#125;)</label>
+            <label class="ft-label" for="ft-msg-draft">Texto (use &#123;nome&#125; e &#123;procedimento&#125;)</label>
             <textarea
               id="ft-msg-draft"
               class="w-full min-h-32"
@@ -139,6 +166,7 @@
       </g-card>
 
       <g-card class="mt-4">
+        <span class="ft-result__label">Pré-visualização</span>
         <div class="ft-msg">{{ preview() }}</div>
       </g-card>
     }

@@ -13,7 +13,19 @@
 html[data-color-scheme='light'],
 html[data-color-scheme='dark'] {
   --n-color-accent-text: #ffffff;
-  --n-color-status-success: #14b87a;
+  /* Sucesso: tom AA em texto sobre fundo claro (não brand-500) */
+  --n-color-status-success: #087a55;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 a.nord-anchor-button {
@@ -186,6 +198,7 @@ body:not(.dark) {
 body.dark,
 html[data-color-scheme='dark'] {
   color-scheme: dark;
+  --n-color-status-success: #55d7a6;
   --n-color-text: rgb(222, 223, 225);
   --n-color-text-weak: rgb(222, 223, 225);
   --n-color-text-weaker: rgb(143, 148, 158);
@@ -252,22 +265,28 @@ html[data-color-scheme='dark'] {
    MODO CLARO — base
    ══════════════════════════════════════════════════════════════════════════ */
 :root {
-    /* Marca Gestgo — verde só em ações / estados (não em backgrounds) */
+    /*
+     * Marca Gestgo — papéis semânticos (VIS-14):
+     * brand.primary (#14B87A) = identidade / superfícies suaves / charts
+     * action.primary (#087A55) = botões e texto branco (WCAG AA ~5.35:1)
+     * brand.text (#087D64) = links/texto sobre fundo claro
+     */
     --brand-900: #063D36;
     --brand-700: #087D64;
+    --brand-600: #087A55;
     --brand-500: #14B87A;
     --brand-400: #20C989;
     --brand-100: #CFEDE1;
     --brand-50:  #EAF7F2;
 
-    --color-primary-dark:   #0E9D68;
+    --color-primary-dark:   #087A55;
     --color-primary-darker: #063D36;
     --color-primary-light:  #20C989;
     --color-primary-muted:  #EAF7F2;
 
     --color-text-primary:   #17201F;
-    --color-text-secondary: #56635F;
-    --color-text-muted:     #7B8783;
+    --color-text-secondary: #3D4A47;
+    --color-text-muted:     #56635F;
 
     --color-bg:             #FFFFFF;
     --color-bg-surface:     #F8FAF6;
@@ -279,11 +298,16 @@ html[data-color-scheme='dark'] {
 
     --c-primary:  #14B87A;
     --c-primary-hover:  #0E9D68;
-    --c-primary-active: #087D64;
+    --c-primary-active: #087A55;
+    /* Ação clicável com texto branco — não usar brand-500 direto */
+    --c-action: var(--c-primary-active);
+    --c-action-hover: color-mix(in srgb, var(--c-action) 86%, #000);
+    --c-action-active: color-mix(in srgb, var(--c-action) 72%, #000);
     --c-brand-soft: var(--brand-50);
     --c-brand-text: var(--brand-700);
     --c-accent:   var(--brand-700);
-    --c-focus:    rgba(20, 184, 122, 0.12);
+    --c-focus:    rgba(8, 122, 85, 0.22);
+    --c-focus-ring: #087A55;
 
     --c-bg:       #F8FAF6;
     --c-surface:  #FFFFFF;
@@ -292,6 +316,7 @@ html[data-color-scheme='dark'] {
 
     --c-text:     #17201F;
     --c-muted:    #56635F;
+    --c-text-secondary: #3D4A47;
     --c-border:   #DDE5E1;
 
     --c-btn-default-bg:    #FFFFFF;
@@ -393,17 +418,18 @@ html[data-color-scheme='dark'] {
 
 /* "Topo e marca" (shell-preset-tinted) — pesquisa branded-top */
 body.shell-preset-tinted {
-    --shell-header-bg: var(--c-primary);
+    /* action (AA) em vez de brand-500 — texto branco legível */
+    --shell-header-bg: var(--c-action, var(--c-primary-active, var(--c-primary)));
     --shell-sidebar-bg: var(--sidebar, var(--background, var(--c-surface)));
     /* Contraste no header/marca verdes: texto e ícones claros */
     --shell-header-fg: #ffffff;
-    --shell-header-muted: rgb(255 255 255 / 0.78);
+    --shell-header-muted: rgb(255 255 255 / 0.88);
     --shell-header-control: #ffffff;
     --shell-header-control-hover: rgb(255 255 255 / 0.16);
     --shell-header-border: transparent;
     --gestgo-brand-deep: #ffffff;
     --gestgo-brand-green: #ffffff;
-    --gestgo-brand-tag: rgb(255 255 255 / 0.72);
+    --gestgo-brand-tag: rgb(255 255 255 / 0.8);
     --n-color-icon: #ffffff;
 }
 
@@ -416,19 +442,37 @@ body.dark.shell-preset-tinted {
 }
 
 /* Temas claro — primary/accent com contraste WCAG AA mínimo 4.5:1 em fundo branco */
-/* Canônico: gestgo-blue (zion-blue mantido como alias legado — mesmas variáveis) */
+/* Canônico marca: ocean-blue. gestgo-blue/zion-blue = alias legado azul. */
 .theme-gestgo-blue,
-.theme-zion-blue     { --c-primary: #1e40af; --c-accent: #2563eb; --c-focus: rgba(30,64,175,.18); }
-.theme-ocean-blue    { --c-primary: #14B87A; --c-accent: #087D64; --c-focus: rgba(20,184,122,.12); --c-primary-hover: #0E9D68; --c-primary-active: #087D64; }
-.theme-indigo-night  { --c-primary: #3730a3; --c-accent: #4f46e5; --c-focus: rgba(55,48,163,.18); }
-.theme-emerald-fresh { --c-primary: #15803d; --c-accent: #16a34a; --c-focus: rgba(21,128,61,.18); }
-.theme-rose-elegant  { --c-primary: #be185d; --c-accent: #db2777; --c-focus: rgba(190,24,93,.18); }
-.theme-amber-warm    { --c-primary: #b45309; --c-accent: #d97706; --c-focus: rgba(180,83,9,.18); }
-.theme-violet-dream  { --c-primary: #6d28d9; --c-accent: #7c3aed; --c-focus: rgba(109,40,217,.18); }
-.theme-teal-ocean    { --c-primary: #0f766e; --c-accent: #0d9488; --c-focus: rgba(15,118,110,.18); }
-.theme-slate-pro     { --c-primary: #334155; --c-accent: #475569; --c-focus: rgba(51,65,85,.18); }
-.theme-cyan-tech     { --c-primary: #0369a1; --c-accent: #0284c7; --c-focus: rgba(3,105,161,.18); }
-.theme-fuchsia-bold  { --c-primary: #a21caf; --c-accent: #c026d3; --c-focus: rgba(162,28,175,.18); }
+.theme-zion-blue     { --c-primary: #1e40af; --c-action: #1e40af; --c-brand-text: #1e40af; --c-accent: #2563eb; --c-focus: rgba(30,64,175,.18); --c-focus-ring: #1e40af; }
+.theme-ocean-blue    {
+  --c-primary: #14B87A;
+  --c-accent: #087D64;
+  --c-focus: rgba(8,122,85,.22);
+  --c-primary-hover: #0E9D68;
+  --c-primary-active: #087A55;
+  --c-action: #087A55;
+  --c-action-hover: #066B4A;
+  --c-action-active: #055A3E;
+  --c-brand-text: #087D64;
+  --c-focus-ring: #087A55;
+}
+.theme-indigo-night  { --c-primary: #3730a3; --c-action: #3730a3; --c-brand-text: #3730a3; --c-accent: #4f46e5; --c-focus: rgba(55,48,163,.18); --c-focus-ring: #3730a3; }
+.theme-emerald-fresh { --c-primary: #15803d; --c-action: #15803d; --c-brand-text: #15803d; --c-accent: #16a34a; --c-focus: rgba(21,128,61,.18); --c-focus-ring: #15803d; }
+.theme-rose-elegant  { --c-primary: #be185d; --c-action: #be185d; --c-brand-text: #be185d; --c-accent: #db2777; --c-focus: rgba(190,24,93,.18); --c-focus-ring: #be185d; }
+.theme-amber-warm    { --c-primary: #b45309; --c-action: #b45309; --c-brand-text: #b45309; --c-accent: #d97706; --c-focus: rgba(180,83,9,.18); --c-focus-ring: #b45309; }
+.theme-violet-dream  { --c-primary: #6d28d9; --c-action: #6d28d9; --c-brand-text: #6d28d9; --c-accent: #7c3aed; --c-focus: rgba(109,40,217,.18); --c-focus-ring: #6d28d9; }
+.theme-teal-ocean    { --c-primary: #0f766e; --c-action: #0f766e; --c-brand-text: #0f766e; --c-accent: #0d9488; --c-focus: rgba(15,118,110,.18); --c-focus-ring: #0f766e; }
+.theme-slate-pro     { --c-primary: #334155; --c-action: #334155; --c-brand-text: #334155; --c-accent: #475569; --c-focus: rgba(51,65,85,.18); --c-focus-ring: #334155; }
+.theme-cyan-tech     { --c-primary: #0369a1; --c-action: #0369a1; --c-brand-text: #0369a1; --c-accent: #0284c7; --c-focus: rgba(3,105,161,.18); --c-focus-ring: #0369a1; }
+.theme-fuchsia-bold  { --c-primary: #a21caf; --c-action: #a21caf; --c-brand-text: #a21caf; --c-accent: #c026d3; --c-focus: rgba(162,28,175,.18); --c-focus-ring: #a21caf; }
+.theme-oceano        { --c-primary: #0ea5e9; --c-action: #0ea5e9; --c-brand-text: #0ea5e9; --c-accent: #38bdf8; --c-focus: rgba(14,165,233,.20); --c-focus-ring: #0ea5e9; }
+.theme-grafite       { --c-primary: #64748b; --c-action: #64748b; --c-brand-text: #64748b; --c-accent: #94a3b8; --c-focus: rgba(100,116,139,.20); --c-focus-ring: #64748b; }
+.theme-indigo        { --c-primary: #6366f1; --c-action: #6366f1; --c-brand-text: #6366f1; --c-accent: #818cf8; --c-focus: rgba(99,102,241,.20); --c-focus-ring: #6366f1; }
+.theme-rosa          { --c-primary: #f472b6; --c-action: #f472b6; --c-brand-text: #f472b6; --c-accent: #f9a8d4; --c-focus: rgba(244,114,182,.22); --c-focus-ring: #f472b6; }
+.theme-lavanda       { --c-primary: #a78bfa; --c-action: #a78bfa; --c-brand-text: #a78bfa; --c-accent: #c4b5fd; --c-focus: rgba(167,139,250,.22); --c-focus-ring: #a78bfa; }
+.theme-coral         { --c-primary: #fb7185; --c-action: #fb7185; --c-brand-text: #fb7185; --c-accent: #fda4af; --c-focus: rgba(251,113,133,.22); --c-focus-ring: #fb7185; }
+.theme-pessego       { --c-primary: #fb923c; --c-action: #fb923c; --c-brand-text: #fb923c; --c-accent: #fdba74; --c-focus: rgba(251,146,60,.22); --c-focus-ring: #fb923c; }
 
 /*
  * Wordmark gest/go — “go” acompanha o primary do tema; “gest” usa o verde
@@ -452,6 +496,16 @@ body.theme-slate-pro,
 body.theme-cyan-tech,
 body.theme-fuchsia-bold,
 body.theme-emerald-fresh {
+  --gestgo-brand-deep: color-mix(in srgb, var(--c-primary) 58%, #000000);
+}
+
+body.theme-oceano,
+body.theme-grafite,
+body.theme-indigo,
+body.theme-rosa,
+body.theme-lavanda,
+body.theme-coral,
+body.theme-pessego {
   --gestgo-brand-deep: color-mix(in srgb, var(--c-primary) 58%, #000000);
 }
 
@@ -531,19 +585,37 @@ body.theme-emerald-fresh {
     --gestgo-brand-logo-shadow: none;
 }
 
-/* Cada tema ajusta primary/accent/focus no dark — shade-400/300 para luminosidade adequada */
+/* Cada tema ajusta primary/action/accent/focus no dark — shade-400/300 para luminosidade adequada */
 .dark.theme-gestgo-blue,
-.dark.theme-zion-blue     { --c-primary: #60a5fa; --c-accent: #93c5fd; --c-focus: rgba(96,165,250,.2); }
-.dark.theme-ocean-blue    { --c-primary: #14B87A; --c-accent: #55D7A6; --c-focus: rgba(20,184,122,.22); --c-primary-hover: #20C989; --c-primary-active: #0FA36C; }
-.dark.theme-indigo-night  { --c-primary: #818cf8; --c-accent: #a5b4fc; --c-focus: rgba(129,140,248,.2); }
-.dark.theme-emerald-fresh { --c-primary: #4ade80; --c-accent: #86efac; --c-focus: rgba(74,222,128,.2); }
-.dark.theme-rose-elegant  { --c-primary: #fb7185; --c-accent: #fda4af; --c-focus: rgba(251,113,133,.2); }
-.dark.theme-amber-warm    { --c-primary: #fbbf24; --c-accent: #fde68a; --c-focus: rgba(251,191,36,.2); }
-.dark.theme-violet-dream  { --c-primary: #a78bfa; --c-accent: #c4b5fd; --c-focus: rgba(167,139,250,.2); }
-.dark.theme-teal-ocean    { --c-primary: #2dd4bf; --c-accent: #5eead4; --c-focus: rgba(45,212,191,.2); }
-.dark.theme-slate-pro     { --c-primary: #94a3b8; --c-accent: #cbd5e1; --c-focus: rgba(148,163,184,.2); }
-.dark.theme-cyan-tech     { --c-primary: #38bdf8; --c-accent: #7dd3fc; --c-focus: rgba(56,189,248,.2); }
-.dark.theme-fuchsia-bold  { --c-primary: #e879f9; --c-accent: #f0abfc; --c-focus: rgba(232,121,249,.2); }
+.dark.theme-zion-blue     { --c-primary: #60a5fa; --c-action: #60a5fa; --c-brand-text: #93c5fd; --c-accent: #93c5fd; --c-focus: rgba(96,165,250,.2); --c-focus-ring: #60a5fa; }
+.dark.theme-ocean-blue    {
+  --c-primary: #14B87A;
+  --c-action: #14B87A;
+  --c-action-hover: #20C989;
+  --c-action-active: #0FA36C;
+  --c-brand-text: #55D7A6;
+  --c-accent: #55D7A6;
+  --c-focus: rgba(20,184,122,.22);
+  --c-focus-ring: #14B87A;
+  --c-primary-hover: #20C989;
+  --c-primary-active: #0FA36C;
+}
+.dark.theme-indigo-night  { --c-primary: #818cf8; --c-action: #818cf8; --c-brand-text: #a5b4fc; --c-accent: #a5b4fc; --c-focus: rgba(129,140,248,.2); --c-focus-ring: #818cf8; }
+.dark.theme-emerald-fresh { --c-primary: #4ade80; --c-action: #4ade80; --c-brand-text: #86efac; --c-accent: #86efac; --c-focus: rgba(74,222,128,.2); --c-focus-ring: #4ade80; }
+.dark.theme-rose-elegant  { --c-primary: #fb7185; --c-action: #fb7185; --c-brand-text: #fda4af; --c-accent: #fda4af; --c-focus: rgba(251,113,133,.2); --c-focus-ring: #fb7185; }
+.dark.theme-amber-warm    { --c-primary: #fbbf24; --c-action: #fbbf24; --c-brand-text: #fde68a; --c-accent: #fde68a; --c-focus: rgba(251,191,36,.2); --c-focus-ring: #fbbf24; }
+.dark.theme-violet-dream  { --c-primary: #a78bfa; --c-action: #a78bfa; --c-brand-text: #c4b5fd; --c-accent: #c4b5fd; --c-focus: rgba(167,139,250,.2); --c-focus-ring: #a78bfa; }
+.dark.theme-teal-ocean    { --c-primary: #2dd4bf; --c-action: #2dd4bf; --c-brand-text: #5eead4; --c-accent: #5eead4; --c-focus: rgba(45,212,191,.2); --c-focus-ring: #2dd4bf; }
+.dark.theme-slate-pro     { --c-primary: #94a3b8; --c-action: #94a3b8; --c-brand-text: #cbd5e1; --c-accent: #cbd5e1; --c-focus: rgba(148,163,184,.2); --c-focus-ring: #94a3b8; }
+.dark.theme-cyan-tech     { --c-primary: #38bdf8; --c-action: #38bdf8; --c-brand-text: #7dd3fc; --c-accent: #7dd3fc; --c-focus: rgba(56,189,248,.2); --c-focus-ring: #38bdf8; }
+.dark.theme-fuchsia-bold  { --c-primary: #e879f9; --c-action: #e879f9; --c-brand-text: #f0abfc; --c-accent: #f0abfc; --c-focus: rgba(232,121,249,.2); --c-focus-ring: #e879f9; }
+.dark.theme-oceano        { --c-primary: #38bdf8; --c-action: #0284c7; --c-brand-text: #7dd3fc; --c-accent: #7dd3fc; --c-focus: rgba(56,189,248,.22); --c-focus-ring: #38bdf8; }
+.dark.theme-grafite       { --c-primary: #94a3b8; --c-action: #64748b; --c-brand-text: #cbd5e1; --c-accent: #cbd5e1; --c-focus: rgba(148,163,184,.22); --c-focus-ring: #94a3b8; }
+.dark.theme-indigo        { --c-primary: #818cf8; --c-action: #6366f1; --c-brand-text: #a5b4fc; --c-accent: #a5b4fc; --c-focus: rgba(129,140,248,.22); --c-focus-ring: #818cf8; }
+.dark.theme-rosa          { --c-primary: #f9a8d4; --c-action: #db2777; --c-brand-text: #fbcfe8; --c-accent: #fbcfe8; --c-focus: rgba(249,168,212,.22); --c-focus-ring: #f9a8d4; }
+.dark.theme-lavanda       { --c-primary: #c4b5fd; --c-action: #8b5cf6; --c-brand-text: #ddd6fe; --c-accent: #ddd6fe; --c-focus: rgba(196,181,253,.22); --c-focus-ring: #c4b5fd; }
+.dark.theme-coral         { --c-primary: #fda4af; --c-action: #e11d48; --c-brand-text: #fecdd3; --c-accent: #fecdd3; --c-focus: rgba(253,164,175,.22); --c-focus-ring: #fda4af; }
+.dark.theme-pessego       { --c-primary: #fdba74; --c-action: #ea580c; --c-brand-text: #fed7aa; --c-accent: #fed7aa; --c-focus: rgba(253,186,116,.22); --c-focus-ring: #fdba74; }
 
 /* ─── Gestgo UI — tema neutral + integração marca (`--c-*` definido acima) ──── */
 :root {
@@ -559,27 +631,27 @@ body.theme-emerald-fresh {
   --secondary: #F3F5F4;
   --secondary-foreground: #17201F;
   --muted: #F3F5F4;
-  --muted-foreground: #7B8783;
+  --muted-foreground: #56635F;
   --accent: #F1F4F2;
   --accent-foreground: #17201F;
   --destructive: #C64A4A;
   --destructive-foreground: #FFFFFF;
   --border: #DDE5E1;
   --input: #DDE5E1;
-  --ring: #14B87A;
+  --ring: var(--c-focus-ring, #087A55);
   --chart-1: #14B87A;
-  --chart-2: #087D64;
+  --chart-2: #087A55;
   --chart-3: #7CC4F8;
   --chart-4: #EAC66D;
   --chart-5: #F08A8A;
   --sidebar: #FFFFFF;
   --sidebar-foreground: #17201F;
-  --sidebar-primary: var(--c-primary);
+  --sidebar-primary: var(--c-action, var(--c-primary));
   --sidebar-primary-foreground: #FFFFFF;
   --sidebar-accent: #F1F4F2;
   --sidebar-accent-foreground: #17201F;
   --sidebar-border: #E9EFEC;
-  --sidebar-ring: #14B87A;
+  --sidebar-ring: var(--c-focus-ring, #087A55);
 }
 
 .dark {
@@ -618,7 +690,7 @@ body.theme-emerald-fresh {
   --sidebar-border: var(--n-color-border);
   --sidebar-ring: var(--c-primary);
   /* Shell padrão dark — pesquisa html.dark[data-shell-style=default] */
-  --shell-header-bg: var(--n-color-header);
+  --shell-header-bg: var(--n-color-nav-surface);
   --shell-sidebar-bg: var(--n-color-nav-surface);
   --shell-header-fg: var(--n-color-text);
   --shell-header-muted: var(--n-color-text-weaker);
@@ -636,21 +708,22 @@ body.theme-emerald-fresh {
   padrão do html e a sidebar/nav Nord não acompanhava a cor selecionada.
 */
 body {
-  --primary: var(--c-primary);
+  /*
+   * --c-action / --c-brand-text / --c-focus-ring vêm do :root (marca) ou de .theme-*.
+   * Botões e nav ativo usam action (AA); identidade brand permanece em --c-primary.
+   */
+  --primary: var(--c-action);
   --primary-foreground: #FFFFFF;
-  --sidebar-primary: var(--c-primary);
+  --sidebar-primary: var(--c-action);
   --sidebar-primary-foreground: #FFFFFF;
-  --sidebar-ring: var(--c-primary);
-  --ring: var(--c-focus);
-  /* Nord: nav ativo, botões primary, avatar, links */
-  --n-color-accent: var(--c-primary);
-  /* Derivados da primária atual — não usar --c-primary-hover do :root (fica verde legado) */
-  --n-color-accent-hover: color-mix(in srgb, var(--c-primary) 88%, #000);
-  --n-color-accent-active: color-mix(in srgb, var(--c-primary) 72%, #000);
+  --sidebar-ring: var(--c-focus-ring, var(--c-action));
+  --ring: var(--c-focus-ring, var(--c-action));
+  --n-color-accent: var(--c-action);
+  --n-color-accent-hover: var(--c-action-hover, color-mix(in srgb, var(--c-action) 88%, #000));
+  --n-color-accent-active: var(--c-action-active, color-mix(in srgb, var(--c-action) 72%, #000));
   --n-color-accent-secondary: var(--c-primary);
-  --n-color-text-link: var(--c-primary);
-  /* Checkbox/radio nativos e destaque de seleção de texto */
-  accent-color: var(--c-primary);
+  --n-color-text-link: var(--c-brand-text, var(--c-action));
+  accent-color: var(--c-action);
 }
 
 ::selection {
@@ -664,16 +737,16 @@ body {
 }
 
 body.dark {
-  --primary: var(--c-primary);
+  --primary: var(--c-action, var(--c-primary));
   --primary-foreground: #FFFFFF;
-  --sidebar-primary: var(--c-primary);
+  --sidebar-primary: var(--c-action, var(--c-primary));
   --sidebar-primary-foreground: #FFFFFF;
-  --sidebar-ring: var(--c-primary);
-  --n-color-accent: var(--c-primary);
-  --n-color-accent-hover: color-mix(in srgb, var(--c-primary) 88%, #fff);
-  --n-color-accent-active: color-mix(in srgb, var(--c-primary) 72%, #fff);
+  --sidebar-ring: var(--c-focus-ring, var(--c-primary));
+  --n-color-accent: var(--c-action, var(--c-primary));
+  --n-color-accent-hover: var(--c-action-hover, color-mix(in srgb, var(--c-action, var(--c-primary)) 88%, #fff));
+  --n-color-accent-active: var(--c-action-active, color-mix(in srgb, var(--c-action, var(--c-primary)) 72%, #fff));
   --n-color-accent-secondary: var(--c-primary);
-  --n-color-text-link: var(--c-primary);
+  --n-color-text-link: var(--c-brand-text, var(--c-primary));
 }
 
 body.app-update-banner-visible {
@@ -800,10 +873,34 @@ body.app-update-banner-visible {
         cursor: pointer;
     }
 
-    ::-webkit-scrollbar       { width: 5px; height: 5px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: var(--c-border); border-radius: 0.5rem; }
-    ::-webkit-scrollbar-thumb:hover { background: var(--c-muted); }
+    /* Scrollbar = padrão da sidebar Nord (.n-navigation-main) */
+    * {
+        scrollbar-width: thin;
+        scrollbar-color: var(--n-color-border-strong, var(--c-border)) transparent;
+    }
+
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    ::-webkit-scrollbar-track,
+    ::-webkit-scrollbar-corner {
+        background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background-color: var(--n-color-border-strong, var(--c-border));
+        border-radius: var(--n-border-radius-pill, 999px);
+        border: 2px solid transparent;
+        background-clip: content-box;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background-color: var(--n-color-border-hover, var(--c-muted));
+        background-clip: content-box;
+        border: 2px solid transparent;
+    }
 }
 
 /* Utilitário para dropdowns */
@@ -3277,7 +3374,7 @@ body.shell-preset-sidebar-dark:not(.dark) {
 }
 
 body.dark.shell-preset-sidebar-dark {
-    --shell-header-bg: var(--n-color-header);
+    --shell-header-bg: var(--shell-sidebar-bg);
     --shell-sidebar-bg: rgb(12, 13, 16);
     --shell-nav-bg: rgb(12, 13, 16);
     --shell-nav-fg: rgb(236, 238, 241);

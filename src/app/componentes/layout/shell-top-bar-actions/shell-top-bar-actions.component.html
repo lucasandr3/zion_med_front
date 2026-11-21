@@ -30,11 +30,11 @@
       routerLink="/templates/importar"
       class="cabecalho-toolbar-action relative header-desktop-only-flex"
       aria-describedby="importar-ficha-tooltip"
-      aria-label="Importar ficha"
+      aria-label="Usar minha ficha"
     >
       <span class="material-symbols-outlined gestgo-mi gestgo-mi--m" aria-hidden="true">auto_awesome</span>
     </a>
-    <nord-tooltip id="importar-ficha-tooltip" [delay]="0">Importar ficha</nord-tooltip>
+    <nord-tooltip id="importar-ficha-tooltip" [delay]="0">Usar minha ficha</nord-tooltip>
   }
 
   <div class="relative header-desktop-only-block">
@@ -126,21 +126,25 @@
 
     <section class="theme-section">
       <h3 class="theme-section__label">Barra lateral e topo</h3>
-      <p class="theme-section__hint">
-        <strong>Topo e marca</strong> aplica a cor primária só no cabeçalho e na faixa do Gestgo;
-        <strong>Menu escuro</strong> escurece a lateral inteira.
-      </p>
-      <div class="theme-options theme-options--3">
+
+      <div class="theme-shell-grid">
         @for (opt of shellPresetOptions; track opt.id) {
           <button
             type="button"
-            class="theme-option theme-option--compact"
+            class="theme-shell-card"
             [class.is-active]="shellPresetAtual === opt.id"
             [attr.aria-pressed]="shellPresetAtual === opt.id"
             [attr.title]="opt.description"
             (click)="aplicarShellPreset(opt.id)"
           >
-            {{ opt.label }}
+            <span class="theme-shell-preview" [class.theme-shell-preview--tinted]="opt.id === 'tinted'" [class.theme-shell-preview--dark-sidebar]="opt.id === 'sidebar_dark'" aria-hidden="true">
+              <span class="theme-shell-preview__sidebar"><span class="theme-shell-preview__brand"></span></span>
+              <span class="theme-shell-preview__main">
+                <span class="theme-shell-preview__header"></span>
+                <span class="theme-shell-preview__content"></span>
+              </span>
+            </span>
+            <span>{{ opt.label }}</span>
           </button>
         }
       </div>
@@ -149,11 +153,8 @@
 
     <section class="theme-section">
       <h3 class="theme-section__label">Cor do tema</h3>
-      <p class="theme-section__hint">
-        Botões, links e item ativo. O fundo do topo e do menu é controlado por
-        <strong>Barra lateral e topo</strong>.
-      </p>
-      <div class="theme-colors" role="list">
+
+      <div class="theme-colors mb-4" role="list">
         @for (t of temasOrdemGrade; track t.key) {
           <button
             type="button"
@@ -172,9 +173,15 @@
           </button>
         }
       </div>
-      <p class="theme-section__footnote">
+      <p class="theme-section__footnote mt-4">
         Selecionado: <strong>{{ temaAtualMeta?.labelPt ?? '—' }}</strong>
       </p>
+      <span class="text-sm text-muted-foreground">Botões, links e item ativo usam esta cor.</span>
     </section>
+
+    <footer class="theme-panel__footer">
+      <button type="button" class="theme-panel__restore" (click)="restaurarTemaPadrao()">Restaurar padrão</button>
+      <button type="button" class="theme-panel__done" (click)="concluirTema()">Concluir</button>
+    </footer>
   </div>
 </ng-template>

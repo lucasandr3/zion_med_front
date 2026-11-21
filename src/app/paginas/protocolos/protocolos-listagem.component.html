@@ -62,60 +62,59 @@
       </nord-empty-state>
     </div>
   } @else {
-    <div class="n-page-list__table" id="protocolos-tbody">
-      @for (grupo of grupos(); track grupo.key) {
-        <div class="n-page-list__section protocolos-day">
-          <h3 class="n-page-list__section-title protocolos-day__label">{{ grupo.label }}</h3>
+    <div class="n-page-list__table protocolos-table" id="protocolos-tbody">
+      <div class="protocolos-table__head" aria-hidden="true">
+        <div>Protocolo</div>
+        <div>Modelo</div>
+        <div>Pessoa</div>
+        <div>Situação</div>
+        <div class="protocolos-table__head-data">
+          Data
+          <span class="material-symbols-outlined" aria-hidden="true">arrow_downward</span>
         </div>
-        @for (p of grupo.items; track p.id) {
-          <div
-            class="n-page-list__row n-page-list__row--clickable protocolos-row"
-            role="link"
-            tabindex="0"
-            [attr.title]="'Abrir ' + (p.protocol_number || p.id)"
-            (click)="irParaDetalhe(p, $event)"
-            (keydown.enter)="irParaDetalhe(p, $event)"
-          >
-            <div class="n-page-list__row-main">
-              <div class="n-page-list__row-title protocolos-row__title">
-                <span class="protocolos-row__code">{{ p.protocol_number || p.id }}</span>
-              </div>
-              <div class="n-page-list__row-meta protocolos-row__doc">{{ p.template_name || '—' }}</div>
-              <div class="n-page-list__row-meta protocolos-row__people">{{ pessoasTexto(p) }}</div>
-            </div>
-            <div
-              class="protocolos-row__when n-muted n-small"
-              [attr.title]="dataFormatada(p.submitted_at || p.created_at)"
-            >
-              <strong class="protocolos-row__time">{{ horaFormatada(p.submitted_at || p.created_at) }}</strong>
-              @if (isPendente(p)) {
-                <span [class.protocolos-row__late]="isAtrasado(p)">{{ relativo(p.submitted_at || p.created_at) }}</span>
-              } @else {
-                <span>{{ dataCurta(p.submitted_at || p.created_at) }}</span>
-              }
-            </div>
-            <div class="n-page-list__actions" (click)="$event.stopPropagation()">
-              @if (badgeVariant(p) === 'warning') {
-                <nord-badge variant="warning">{{ statusLabelFor(p) }}</nord-badge>
-              } @else if (badgeVariant(p) === 'success') {
-                <nord-badge variant="success">{{ statusLabelFor(p) }}</nord-badge>
-              } @else {
-                <nord-badge variant="danger">{{ statusLabelFor(p) }}</nord-badge>
-              }
-              <nord-button
-                square
-                variant="plain"
-                size="s"
-                [routerLink]="['/protocolos', p.id]"
-                aria-label="Ver detalhes do protocolo {{ p.protocol_number || p.id }}"
-                aria-describedby="tip-protocolos-detalhes"
-                title="Ver detalhes"
-              >
-                <span class="material-symbols-outlined text-base" aria-hidden="true">chevron_right</span>
-              </nord-button>
-            </div>
+        <div></div>
+      </div>
+
+      @for (p of protocolos(); track p.id) {
+        <div
+          class="n-page-list__row n-page-list__row--clickable protocolos-row"
+          role="link"
+          tabindex="0"
+          [attr.title]="'Abrir ' + (p.protocol_number || p.id)"
+          (click)="irParaDetalhe(p, $event)"
+          (keydown.enter)="irParaDetalhe(p, $event)"
+        >
+          <div class="protocolos-row__code">{{ p.protocol_number || p.id }}</div>
+          <div class="protocolos-row__model" [attr.title]="p.template_name || null">
+            {{ p.template_name || '—' }}
           </div>
-        }
+          <div class="protocolos-row__person" [attr.title]="pessoaNome(p)">
+            {{ pessoaNome(p) }}
+          </div>
+          <div class="protocolos-row__status">
+            @if (badgeVariant(p) === 'warning') {
+              <nord-badge variant="warning">{{ statusLabelFor(p) }}</nord-badge>
+            } @else if (badgeVariant(p) === 'success') {
+              <nord-badge variant="success">{{ statusLabelFor(p) }}</nord-badge>
+            } @else {
+              <nord-badge variant="danger">{{ statusLabelFor(p) }}</nord-badge>
+            }
+          </div>
+          <div
+            class="protocolos-row__when"
+            [attr.title]="dataFormatada(p.submitted_at || p.created_at)"
+          >
+            <strong class="protocolos-row__datetime">{{ dataFormatada(p.submitted_at || p.created_at) }}</strong>
+            @if (isPendente(p)) {
+              <span class="protocolos-row__rel" [class.protocolos-row__late]="isAtrasado(p)">
+                {{ relativo(p.submitted_at || p.created_at) }}
+              </span>
+            }
+          </div>
+          <div class="protocolos-row__go">
+            <span class="material-symbols-outlined n-page-list__chevron" aria-hidden="true">chevron_right</span>
+          </div>
+        </div>
       }
     </div>
     <div class="n-page-list__footer">
@@ -124,7 +123,6 @@
         <zm-pagination [currentPage]="meta().current_page" [lastPage]="meta().last_page" (pageChange)="carregar($event)" />
       }
     </div>
-    <nord-tooltip id="tip-protocolos-detalhes" [delay]="0">Detalhes</nord-tooltip>
   }
 </div>
 

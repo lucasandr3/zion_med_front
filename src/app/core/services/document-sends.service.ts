@@ -54,14 +54,28 @@ export class DocumentSendsService {
   store(payload: {
     template_id: number;
     channel: 'email' | 'whatsapp';
+    /** MSG-03A: manual = abre wa.me; auto = Evolution (quando disponível). */
+    delivery_mode?: 'manual' | 'auto';
     person_id?: number | null;
     recipient_email?: string | null;
     recipient_phone?: string | null;
     expires_at?: string;
-  }): Observable<{ data: { message: string; id: number; sent_at: string } }> {
+  }): Observable<{
+    data: {
+      message: string;
+      id: number;
+      sent_at: string | null;
+      delivery_mode?: string;
+      delivery_status?: string;
+      public_url?: string;
+      share_message?: string;
+      recipient_phone?: string | null;
+    };
+  }> {
     const body: Record<string, unknown> = {
       template_id: payload.template_id,
       channel: payload.channel,
+      ...(payload.delivery_mode ? { delivery_mode: payload.delivery_mode } : {}),
       ...(payload.person_id != null ? { person_id: payload.person_id } : {}),
       ...(payload.channel === 'email' && payload.recipient_email != null && String(payload.recipient_email).trim() !== ''
         ? { recipient_email: payload.recipient_email }
@@ -71,6 +85,6 @@ export class DocumentSendsService {
         : {}),
       ...(payload.expires_at ? { expires_at: payload.expires_at } : {}),
     };
-    return this.api.post<{ data: { message: string; id: number; sent_at: string } }>('/document-sends', body);
+    return this.api.post('/document-sends', body);
   }
 }

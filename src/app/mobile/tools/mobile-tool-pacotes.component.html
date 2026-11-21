@@ -10,14 +10,23 @@
   </div>
 
   <div class="gm-panel">
-    <div class="gm-field">
-      <label>Cliente</label>
-      <input type="text" [(ngModel)]="clientName" />
-    </div>
-    <div class="gm-field">
-      <label>Serviço / pacote</label>
-      <input type="text" [(ngModel)]="label" />
-    </div>
+    <app-tool-person-field
+      [mobile]="true"
+      label="Cliente"
+      inputId="ft-pkg-person-m"
+      [personId]="personId"
+      [name]="clientName"
+      [phone]="clientPhone"
+      (personChange)="onPersonChange($event)"
+    />
+    <app-tool-service-field
+      [mobile]="true"
+      label="Serviço / pacote"
+      inputId="ft-pkg-service-m"
+      [serviceId]="serviceId"
+      [name]="label"
+      (serviceChange)="onServiceChange($event)"
+    />
     <div class="gm-field">
       <label>Total de sessões</label>
       <input type="number" min="1" [(ngModel)]="total" />
@@ -70,16 +79,21 @@
   <div class="ft-body zm-content-enter">
     <g-card class="mb-4">
       <form class="flex flex-col gap-5">
-        <div class="grid gap-5 md:grid-cols-2">
-          <div>
-            <label class="ft-label" for="ft-pkg-client">Cliente</label>
-            <input id="ft-pkg-client" class="w-full" type="text" [(ngModel)]="clientName" name="clientName" />
-          </div>
-          <div>
-            <label class="ft-label" for="ft-pkg-label">Serviço / pacote</label>
-            <input id="ft-pkg-label" class="w-full" type="text" [(ngModel)]="label" name="label" />
-          </div>
-        </div>
+        <app-tool-person-field
+          label="Cliente"
+          inputId="ft-pkg-person"
+          [personId]="personId"
+          [name]="clientName"
+          [phone]="clientPhone"
+          (personChange)="onPersonChange($event)"
+        />
+        <app-tool-service-field
+          label="Serviço / pacote"
+          inputId="ft-pkg-service"
+          [serviceId]="serviceId"
+          [name]="label"
+          (serviceChange)="onServiceChange($event)"
+        />
         <div class="max-w-xs">
           <label class="ft-label" for="ft-pkg-total">Total de sessões</label>
           <input id="ft-pkg-total" class="w-full" type="number" min="1" [(ngModel)]="total" name="total" />

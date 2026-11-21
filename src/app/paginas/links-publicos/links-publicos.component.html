@@ -69,6 +69,10 @@
                     <span slot="start" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">content_copy</span>
                     Copiar link
                   </nord-dropdown-item>
+                  <nord-dropdown-item (click)="compartilharWhatsapp(t)">
+                    <span slot="start" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">chat</span>
+                    WhatsApp
+                  </nord-dropdown-item>
                   <nord-dropdown-item (click)="abrirQr(t)">
                     <span slot="start" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">qr_code</span>
                     Ver QR code
@@ -128,6 +132,18 @@
             >
               <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">{{ copiedTemplateId() === t.id ? 'check' : 'content_copy' }}</span>
               {{ copiedTemplateId() === t.id ? 'Copiado!' : 'Copiar link' }}
+            </nord-button>
+            <nord-button
+              expand
+              variant="default"
+              type="button"
+              class="lp-card__action"
+              [attr.disabled]="!t.public_url || null"
+              title="Compartilhar no WhatsApp"
+              (click)="compartilharWhatsapp(t)"
+            >
+              <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">chat</span>
+              WhatsApp
             </nord-button>
             <nord-button
               expand

@@ -1,0 +1,37 @@
+:host { min-width:0; }
+.clientes-toolbar-start { gap:.75rem; }
+.clientes-search-right { width:min(24rem,42vw); }
+.clientes-segmented { display:flex; padding:.2rem; border:1px solid var(--border,var(--n-color-border)); border-radius:.5rem; background:var(--muted,var(--n-color-surface-raised)); }
+.clientes-segmented button { min-height:1.85rem; padding:0 .65rem; border:0; border-radius:.35rem; background:transparent; color:var(--muted-foreground,var(--n-color-text-weak)); font:inherit; font-size:.7rem; font-weight:600; cursor:pointer; }
+.clientes-segmented button.is-active { background:var(--card,var(--n-color-surface)); color:var(--foreground,var(--n-color-text)); }
+.clientes-filtros { display:flex; flex-wrap:wrap; gap:.45rem; padding:.75rem 1rem; }
+.clientes-filtros button { display:inline-flex; align-items:center; min-height:2rem; padding:0 .7rem; border:1px solid var(--border,var(--n-color-border)); border-radius:999px; background:transparent; color:var(--muted-foreground,var(--n-color-text-weak)); font:inherit; font-size:.72rem; font-weight:600; cursor:pointer; }
+.clientes-filtros button.is-active { border-color:color-mix(in srgb,var(--primary) 35%,var(--border)); background:color-mix(in srgb,var(--primary) 10%,transparent); color:var(--primary); }
+.clientes-filtros button span { display:grid; min-width:1.15rem; height:1.15rem; margin-left:.4rem; padding:0 .25rem; border-radius:999px; place-items:center; background:var(--muted); color:var(--muted-foreground); font-size:.62rem; }
+.cliente-row { display:grid; grid-template-columns:2.5rem minmax(13rem,1.3fr) minmax(10rem,.8fr) auto; align-items:center; gap:.8rem; min-height:4.5rem; color:inherit; text-decoration:none; }
+.cliente-avatar { display:grid; flex:0 0 40px; width:40px; height:40px; border-radius:50%; place-items:center; color:#fff; font-size:.8125rem; font-weight:600; }
+.cliente-main { display:flex; align-items:flex-start; flex-direction:column; gap:.25rem; min-width:0!important; }
+.cliente-title-line { display:flex; align-items:center; gap:.45rem; max-width:100%; }
+.cliente-title-line strong { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.cliente-tag { flex-shrink:0; padding:.15rem .45rem; border-radius:999px; background:color-mix(in srgb,#7047a5 12%,transparent); color:#7047a5; font-size:.6rem; font-weight:700; }
+.cliente-meta,.cliente-situacao { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.cliente-status { flex-wrap:nowrap; }
+.clientes-error { display:flex; align-items:flex-start; gap:.75rem; color:var(--destructive); }
+.clientes-error .material-symbols-outlined { font-size:1.2rem; }
+.clientes-error strong { display:block; font-size:.8rem; }
+.clientes-error p { margin:.2rem 0 0; color:var(--muted-foreground); font-size:.72rem; }
+.clientes-filtros-sheet { height:100%; }
+.clientes-filtros-sheet .zm-filter-sheet__body { margin-right:-1.25rem; padding-right:1.25rem; scrollbar-gutter:stable; }
+.clientes-filtros-sheet .zm-filter-sheet__footer { bottom:-1.35rem; margin:1.25rem -1.25rem -1.35rem; padding:1rem 1.25rem; position:sticky; z-index:2; }
+.clientes-filter-footer__clear { appearance:none; padding:.375rem 0; border:0; background:transparent; color:var(--muted-foreground,var(--n-color-text-weak)); font:inherit; font-size:.75rem; text-decoration:underline; text-underline-offset:.2rem; cursor:pointer; }
+.clientes-filter-footer__clear:hover { color:var(--foreground,var(--n-color-text)); }
+.clientes-filter-footer__clear:focus-visible { border-radius:.25rem; outline:2px solid var(--primary,var(--n-color-accent)); outline-offset:2px; }
+.clientes-filter-options { display:flex; flex-direction:column; gap:.5rem; margin-top:.45rem; }
+.clientes-filter-options button { display:flex; align-items:center; justify-content:space-between; gap:.75rem; width:100%; min-height:2.65rem; padding:.65rem .75rem; border:1px solid var(--border); border-radius:.5rem; background:var(--card); color:var(--foreground); font:inherit; text-align:left; cursor:pointer; }
+.clientes-filter-options button:hover { border-color:color-mix(in srgb,var(--primary) 40%,var(--border)); }
+.clientes-filter-options button.is-active { border-color:var(--primary); background:color-mix(in srgb,var(--primary) 8%,var(--card)); color:var(--primary); }
+.clientes-filter-options button span { font-size:.75rem; font-weight:650; }
+.clientes-filter-options button small { color:var(--muted-foreground); font-size:.65rem; font-weight:500; text-align:right; }
+@media (max-width:900px) { .cliente-row { grid-template-columns:2.5rem minmax(0,1fr) auto; } .cliente-situacao { display:none; } }
+@media (max-width:700px) { .cliente-status nord-badge { display:none; } .clientes-toolbar-start { min-width:auto; } .clientes-search-right { width:min(100%,18rem); } }
+@media (max-width:520px) { .clientes-search-right { width:100%; order:-1; } .n-page-list__toolbar-end { width:100%; } }

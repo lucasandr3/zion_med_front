@@ -8,12 +8,11 @@ import {
   ViewContainerRef,
   ChangeDetectionStrategy,
   signal,
-  computed,
   CUSTOM_ELEMENTS_SCHEMA,
   DestroyRef,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Router, RouterLink, ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { Subject, switchMap, tap, catchError, finalize, of } from 'rxjs';
 import { ProtocolosService, Protocolo } from '../../core/services/protocolos.service';
@@ -24,9 +23,7 @@ import { GestgoSheetService } from '@/shared/components/sheet/sheet.service';
 import type { GestgoSheetRef } from '@/shared/components/sheet/sheet-ref';
 import { GestgoComboboxComponent, type GestgoComboboxOption } from '@/shared/components/combobox';
 import { NORD_FORM_IMPORTS } from '@/shared/nord';
-import { formatarDataBr, formatarDataHoraBr } from '@/shared/utils/date';
-
-type ProtocoloGrupo = { key: string; label: string; items: Protocolo[] };
+import { formatarDataHoraBr } from '@/shared/utils/date';
 
 const LATE_AFTER_H = 24;
 
@@ -39,7 +36,6 @@ const LATE_AFTER_H = 24;
   imports: [
     ...NORD_FORM_IMPORTS,
     FormsModule,
-    RouterLink,
     ListSkeletonComponent,
     ZmPaginationComponent,
     GestgoComboboxComponent,
@@ -67,8 +63,6 @@ export class ProtocolosListagemComponent implements OnInit, OnDestroy {
   data_inicio = '';
   data_fim = '';
   readonly filterDrawerOpen = signal(false);
-
-  readonly grupos = computed<ProtocoloGrupo[]>(() => this.agruparPorDia(this.protocolos()));
 
   @ViewChild('protocolosFiltrosTpl') protocolosFiltrosTpl?: TemplateRef<void>;
 
@@ -239,11 +233,8 @@ export class ProtocolosListagemComponent implements OnInit, OnDestroy {
     this.router.navigate(['/protocolos', p.id]);
   }
 
-  pessoasTexto(p: Protocolo): string {
-    const req = p.submitter_name?.trim() || '—';
-    const sig = p.person?.name?.trim() || req;
-    if (req === sig) return req;
-    return `Solicitante: ${req} · Signatário: ${sig}`;
+  pessoaNome(p: Protocolo): string {
+    return p.person?.name?.trim() || p.submitter_name?.trim() || '—';
   }
 
   isPendente(p: Protocolo): boolean {
@@ -282,16 +273,6 @@ export class ProtocolosListagemComponent implements OnInit, OnDestroy {
 
   dataFormatada(val: string | undefined): string {
     return formatarDataHoraBr(val) || '—';
-  }
-
-  dataCurta(val: string | undefined): string {
-    return formatarDataBr(val) || '—';
-  }
-
-  horaFormatada(val: string | undefined): string {
-    const d = this.parseDate(val);
-    if (!d) return '—';
-    return d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
   }
 
   relativo(val: string | undefined): string {
@@ -353,31 +334,6 @@ export class ProtocolosListagemComponent implements OnInit, OnDestroy {
     const total = this.meta().total;
     if (shown === total) return total === 1 ? '1 protocolo' : `${total} protocolos`;
     return `${shown} de ${total} protocolos`;
-  }
-
-  private agruparPorDia(items: Protocolo[]): ProtocoloGrupo[] {
-    const groups: ProtocoloGrupo[] = [];
-    let lastKey = '';
-    for (const p of items) {
-      const d = this.parseDate(p.submitted_at || p.created_at) ?? new Date(0);
-      const key = d.toDateString();
-      if (key !== lastKey) {
-        groups.push({ key, label: this.groupLabel(d), items: [] });
-        lastKey = key;
-      }
-      groups[groups.length - 1].items.push(p);
-    }
-    return groups;
-  }
-
-  private groupLabel(d: Date): string {
-    const hoje = new Date();
-    const a = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate());
-    const b = new Date(d.getFullYear(), d.getMonth(), d.getDate());
-    const diff = Math.round((a.getTime() - b.getTime()) / 864e5);
-    if (diff === 0) return 'Hoje';
-    if (diff === 1) return 'Ontem';
-    return formatarDataBr(d) || d.toLocaleDateString('pt-BR');
   }
 
   private parseDate(val: string | undefined): Date | null {

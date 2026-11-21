@@ -115,9 +115,9 @@ export const HUB_DOCUMENTOS: NavigationHubConfig = {
     },
     {
       id: 'importar',
-      title: 'Importar ficha com IA',
-      description: 'Converta um PDF ou foto de ficha em um modelo digital.',
-      icon: 'auto_awesome',
+      title: 'Usar minha ficha atual',
+      description: 'Envie o PDF da ficha que você já usa e mapeie os campos no layout original.',
+      icon: 'upload_file',
       route: '/templates/importar',
       permission: 'templates.manage',
     },
@@ -314,9 +314,42 @@ export const HUB_PLATAFORMA_SISTEMA: NavigationHubConfig = {
   ],
 };
 
+export const HUB_UTILITARIOS: NavigationHubConfig = {
+  id: 'utilitarios',
+  title: 'Utilitários',
+  subtitle: 'Propostas, WhatsApp e follow-ups para converter e reter — no computador e no celular.',
+  cards: [
+    {
+      id: 'orcamento',
+      title: 'Orçamentos',
+      description: 'Listagem de propostas — reabra, copie ou envie no WhatsApp.',
+      icon: 'receipt_long',
+      route: '/utilitarios/orcamento',
+      permissionsAny: ['submissions.view', 'organization.manage'],
+    },
+    {
+      id: 'mensagens',
+      title: 'Notificações',
+      description: 'Confirmação, pós-atendimento e reativação — modelos da clínica.',
+      icon: 'chat',
+      route: '/utilitarios/notificacoes',
+      permissionsAny: ['submissions.view', 'organization.manage'],
+    },
+    {
+      id: 'retornos',
+      title: 'Retornos',
+      description: 'Fila de follow-ups pendentes para não perder oportunidade.',
+      icon: 'event_repeat',
+      route: '/utilitarios/retornos',
+      permissionsAny: ['submissions.view', 'organization.manage'],
+    },
+  ],
+};
+
 export const NAVIGATION_HUBS: Record<string, NavigationHubConfig> = {
   documentos: HUB_DOCUMENTOS,
   configuracoes: HUB_CONFIGURACOES,
+  utilitarios: HUB_UTILITARIOS,
   'plataforma-clientes': HUB_PLATAFORMA_CLIENTES,
   'plataforma-financeiro': HUB_PLATAFORMA_FINANCEIRO,
   'plataforma-comunicacao': HUB_PLATAFORMA_COMUNICACAO,

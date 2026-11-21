@@ -87,7 +87,7 @@ export class PlataformaConfiguracoesComponent implements OnInit {
     this.plataformaService
       .updateSettings({
         ...this.platformParams,
-        asaas_base_url: data.base_url ?? '',
+        asaas_base_url: data.asaas?.base_url ?? data.base_url ?? '',
         asaas_api_key: null,
         asaas_webhook_secret: null,
         minio_endpoint: data.minio?.endpoint ?? '',

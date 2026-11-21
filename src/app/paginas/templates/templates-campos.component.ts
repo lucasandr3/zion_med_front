@@ -15,6 +15,7 @@ import {
   formatClinicalValidationMessage,
 } from '../../core/utils/clinical-validation.util';
 import { buildPublicFormUrl, normalizePublicAppUrl } from '../../core/utils/public-form-url.util';
+import { buildDocumentInviteMessage, openWhatsappShare } from '../../core/utils/whatsapp-share.util';
 
 const TYPE_OPTIONS: { value: string; label: string }[] = [
   { value: 'text', label: 'Texto curto' },
@@ -517,6 +518,18 @@ export class TemplatesCamposComponent implements OnInit {
         setTimeout(() => { lbl.textContent = t ?? ''; }, 2000);
       }
     });
+  }
+
+  /** MSG-03A — abre WhatsApp com o link público (sem telefone específico). */
+  compartilharWhatsappLink(): void {
+    const url = this.linkPublicoUrl();
+    if (!url) return;
+    const msg = buildDocumentInviteMessage({
+      templateName: this.template()?.name,
+      url,
+    });
+    openWhatsappShare(msg);
+    this.toast.success('WhatsApp', 'Abra o app e escolha o contato para enviar o link.');
   }
 
   ordemFormatada(sortOrder: number): string {

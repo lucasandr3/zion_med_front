@@ -44,7 +44,7 @@ export const SHELL_PRESET_UI_OPTIONS: ReadonlyArray<{
     id: 'tinted',
     label: 'Topo e marca',
     icon: 'branding_watermark',
-    description: 'Cor primária no cabeçalho e na faixa do nome Gestgo; o restante do menu segue o fundo padrão.',
+    description: '',
   },
   {
     id: 'sidebar_dark',
@@ -200,6 +200,13 @@ export function syncThemeChrome(): void {
     'slate-pro': 'logo-slate.png',
     'cyan-tech': 'logo-cyan.png',
     'fuchsia-bold': 'logo-fucshia.png',
+    oceano: 'logo-oceano.svg',
+    grafite: 'logo-grafite.svg',
+    indigo: 'logo-indigo-ref.svg',
+    rosa: 'logo-rosa.svg',
+    lavanda: 'logo-lavanda.svg',
+    coral: 'logo-coral.svg',
+    pessego: 'logo-pessego.svg',
   };
   const href = `/assets/logo/${logoFile[themeKey] ?? 'logo.png'}?theme=${encodeURIComponent(themeKey)}`;
 
@@ -209,7 +216,7 @@ export function syncThemeChrome(): void {
 
   const link = document.createElement('link');
   link.rel = 'icon';
-  link.type = 'image/png';
+  link.type = href.includes('.svg') ? 'image/svg+xml' : 'image/png';
   link.dataset['themeFavicon'] = '1';
   link.href = href;
   document.head.prepend(link);

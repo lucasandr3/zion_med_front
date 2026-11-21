@@ -12,13 +12,15 @@
 }
 
 .login-page {
-  --login-green: var(--c-primary, #14b87a);
-  --login-green-deep: var(--c-primary-active, var(--c-accent, #087d64));
-  --login-mint: color-mix(in srgb, #fff 78%, var(--login-green));
-  --login-ink: #17201c;
-  --login-muted: #6b7570;
-  --login-floor: #f7f9f7;
-  --login-border: #e4ebe6;
+  /* Painel de marca: action AA (#087A55) — texto branco legível (VIS-14) */
+  --login-green: var(--c-action, #087a55);
+  --login-green-brand: var(--c-primary, #14b87a);
+  --login-green-deep: color-mix(in srgb, var(--c-action, var(--c-primary, #087a55)) 72%, #000);
+  --login-mint: color-mix(in srgb, #fff 72%, var(--login-green-brand));
+  --login-ink: #17201f;
+  --login-muted: #56635f;
+  --login-floor: #f8faf6;
+  --login-border: #dde5e1;
 
   box-sizing: border-box;
   display: grid;
@@ -44,7 +46,9 @@
   overflow: hidden;
   padding: clamp(1.75rem, 4vw, 2.75rem);
   color: #fff;
-  background: var(--login-green);
+  background:
+    radial-gradient(120% 80% at 0% 0%, color-mix(in srgb, var(--login-green-brand) 55%, transparent), transparent 55%),
+    linear-gradient(165deg, var(--login-green) 0%, var(--login-green-deep) 100%);
 }
 
 .login-brand__header {
@@ -87,7 +91,7 @@
   font-weight: 650;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: rgb(255 255 255 / 0.78);
+  color: rgb(255 255 255 / 0.9);
 }
 
 .login-brand__body {
@@ -104,7 +108,7 @@
   font-weight: 650;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: rgb(255 255 255 / 0.78);
+  color: rgb(255 255 255 / 0.9);
 }
 
 .login-brand__title {
@@ -126,7 +130,7 @@
   max-width: 24rem;
   font-size: 0.975rem;
   line-height: 1.55;
-  color: rgb(255 255 255 / 0.82);
+  color: rgb(255 255 255 / 0.92);
 }
 
 .login-brand__checklist {
@@ -167,7 +171,7 @@
   z-index: 2;
   margin-top: auto;
   font-size: 0.75rem;
-  color: rgb(255 255 255 / 0.55);
+  color: rgb(255 255 255 / 0.78);
 }
 
 /* ── Formulário ──────────────────────────────────────────────────────────── */
@@ -282,7 +286,7 @@
 }
 
 .login-link {
-  color: var(--login-green);
+  color: var(--c-brand-text, var(--login-green));
   font-size: 0.875rem;
   font-weight: 650;
   text-decoration: none;
@@ -292,6 +296,12 @@
 .login-link:hover {
   color: var(--login-green-deep);
   text-decoration: underline;
+}
+
+.login-link:focus-visible {
+  outline: 2px solid var(--c-focus-ring, var(--login-green));
+  outline-offset: 3px;
+  border-radius: 4px;
 }
 
 .login-error-banner {
@@ -304,7 +314,7 @@
   --n-button-border-radius: 0.625rem;
   width: 100%;
   margin-top: 0.15rem;
-  box-shadow: 0 10px 24px -10px color-mix(in srgb, var(--login-green) 70%, transparent);
+  box-shadow: 0 10px 24px -10px color-mix(in srgb, var(--login-green) 55%, transparent);
 }
 
 .login-register {
@@ -316,7 +326,7 @@
 
 .login-register a {
   margin-inline-start: 0.25rem;
-  color: var(--login-green);
+  color: var(--c-brand-text, var(--login-green));
   font-weight: 700;
   text-decoration: none;
 }
@@ -332,7 +342,7 @@
   gap: 0.35rem;
   margin: 1.5rem 0 0;
   font-size: 0.75rem;
-  color: color-mix(in srgb, var(--login-muted) 88%, transparent);
+  color: color-mix(in srgb, var(--login-muted) 92%, transparent);
 }
 
 .login-lgpd .material-symbols-outlined {
@@ -364,6 +374,7 @@
 
   .login-panel {
     padding: 1.5rem 1.25rem 2rem;
+    padding-bottom: calc(2rem + env(safe-area-inset-bottom, 0px));
   }
 
   .login-panel__brand-mobile {

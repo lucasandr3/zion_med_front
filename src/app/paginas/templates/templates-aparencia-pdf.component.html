@@ -8,9 +8,18 @@
   </div>
   <div class="ae-header-actions">
     <span class="ae-save-state">
-      @if (dirty()) { Alterações não salvas } @else if (mappedCount > 0) { Mapa salvo } @else { Sem áreas mapeadas }
+      @if (autosaving()) { Salvando rascunho… }
+      @else if (dirty()) { Alterações não salvas }
+      @else if (mappedCount > 0) { Mapa salvo }
+      @else { Sem áreas mapeadas }
     </span>
     @if (template()?.has_source_document) {
+      <button type="button" class="ae-btn ae-btn--quiet" (click)="undo()" [disabled]="!canUndo()" title="Desfazer (Ctrl+Z)">
+        Desfazer
+      </button>
+      <button type="button" class="ae-btn ae-btn--quiet" (click)="redo()" [disabled]="!canRedo()" title="Refazer (Ctrl+Y)">
+        Refazer
+      </button>
       <button type="button" class="ae-btn ae-btn--quiet" (click)="limparTudo()" [disabled]="salvando() || mappedCount === 0">
         Limpar mapa
       </button>
@@ -18,7 +27,7 @@
         type="button"
         class="ae-btn ae-btn--primary"
         (click)="salvar()"
-        [disabled]="salvando() || !dirty()"
+        [disabled]="salvando() || autosaving() || !dirty()"
       >
         {{ salvando() ? 'Salvando…' : 'Salvar aparência' }}
       </button>
@@ -268,13 +277,142 @@
               Próxima
             </button>
           </div>
+          @if (pageCount() > 1) {
+            <div class="ae-page-pills" role="tablist" aria-label="Páginas do PDF">
+              @for (count of fieldsPerPage(); track $index) {
+                <button
+                  type="button"
+                  class="ae-page-pill"
+                  [class.active]="pageIndex() === $index"
+                  [class.ae-page-pill--thumb]="!!pageThumbnails()[$index]"
+                  (click)="goToPage($index)"
+                  [title]="'Página ' + ($index + 1) + ' · ' + count + ' área(s)'"
+                >
+                  @if (pageThumbnails()[$index]; as thumb) {
+                    <img [src]="thumb" alt="" class="ae-page-thumb" />
+                  }
+                  <span class="ae-page-pill__meta">
+                    <strong>{{ $index + 1 }}</strong>
+                    <small>{{ count }}</small>
+                  </span>
+                </button>
+              }
+            </div>
+          }
           <div class="ae-zoom">
             <button type="button" (click)="zoomOut()" aria-label="Reduzir zoom">−</button>
             <span>{{ zoomPercent }}%</span>
             <button type="button" (click)="zoomIn()" aria-label="Aumentar zoom">＋</button>
+            <button type="button" class="ae-zoom-preset" (click)="setZoom(1)" title="100%">100%</button>
+            <button type="button" class="ae-zoom-preset" (click)="setZoom(1.5)" title="150%">150%</button>
+            <button type="button" class="ae-zoom-preset" (click)="setZoom(2)" title="200%">200%</button>
+            <button type="button" class="ae-zoom-preset" (click)="zoomFitWidth()" title="Ajustar à largura">Ajustar</button>
           </div>
+          <button
+            type="button"
+            class="ae-nav-btn"
+            [class.active]="panTool()"
+            (click)="togglePanTool()"
+            title="Mão / pan (ou segure Espaço)"
+          >
+            Mão
+          </button>
+          <button
+            type="button"
+            class="ae-nav-btn"
+            [class.active]="snapEnabled()"
+            (click)="toggleSnap()"
+            title="Encaixe magnético nas guias"
+          >
+            Snap
+          </button>
+          <button
+            type="button"
+            class="ae-nav-btn"
+            (click)="duplicarSelecionado()"
+            [disabled]="selectedCount() === 0 || viewMode() !== 'edit'"
+            title="Duplicar caixa (Ctrl+D)"
+          >
+            Duplicar
+          </button>
+          <button
+            type="button"
+            class="ae-nav-btn"
+            (click)="detectarCampos()"
+            [disabled]="detecting() || viewMode() !== 'edit' || !template()?.has_source_document"
+            title="Detectar campos (AcroForm / texto) — revisão obrigatória"
+          >
+            {{ detecting() ? 'Detectando…' : 'Detectar' }}
+          </button>
+          <button
+            type="button"
+            class="ae-nav-btn"
+            (click)="gerarPreviewPdf()"
+            [disabled]="generatingPreview() || mappedCount === 0"
+            title="Abrir PDF final com dados sintéticos"
+          >
+            {{ generatingPreview() ? 'Gerando…' : 'PDF real' }}
+          </button>
         </div>
       </div>
+
+      @if (suggestions().length) {
+        <div class="ae-detect-bar" role="status">
+          <span>
+            {{ suggestions().length }} sugestão(ões)
+            @if (detectMessage()) { · {{ detectMessage() }} }
+          </span>
+          <div class="ae-detect-bar__actions">
+            <button
+              type="button"
+              class="ae-nav-btn"
+              (click)="aceitarTodasSugestoesDaPagina()"
+              [disabled]="suggestionsOnPage().length === 0"
+            >
+              Aceitar página
+            </button>
+            <button type="button" class="ae-nav-btn" (click)="limparSugestoes()">Limpar sugestões</button>
+          </div>
+        </div>
+      }
+
+      @if (selectedCount() > 1 && viewMode() === 'edit') {
+        <div class="ae-batch-toolbar" role="toolbar" aria-label="Alinhar seleção">
+          <span class="ae-batch-toolbar__label">{{ selectedCount() }} selecionadas</span>
+          <button type="button" class="ae-nav-btn" (click)="alignSelection('left')" title="Alinhar à esquerda">⟸</button>
+          <button type="button" class="ae-nav-btn" (click)="alignSelection('hcenter')" title="Centralizar horizontal">⬌</button>
+          <button type="button" class="ae-nav-btn" (click)="alignSelection('right')" title="Alinhar à direita">⟹</button>
+          <button type="button" class="ae-nav-btn" (click)="alignSelection('top')" title="Alinhar ao topo">⟰</button>
+          <button type="button" class="ae-nav-btn" (click)="alignSelection('vcenter')" title="Centralizar vertical">⬍</button>
+          <button type="button" class="ae-nav-btn" (click)="alignSelection('bottom')" title="Alinhar à base">⟱</button>
+          <button
+            type="button"
+            class="ae-nav-btn"
+            (click)="distributeSelection('h')"
+            [disabled]="selectedCount() < 3"
+            title="Distribuir horizontalmente"
+          >
+            Dist. H
+          </button>
+          <button
+            type="button"
+            class="ae-nav-btn"
+            (click)="distributeSelection('v')"
+            [disabled]="selectedCount() < 3"
+            title="Distribuir verticalmente"
+          >
+            Dist. V
+          </button>
+        </div>
+      }
+
+      @if (layoutWarnings().length) {
+        <div class="ae-warnings" role="status">
+          @for (w of layoutWarnings(); track w) {
+            <span>{{ w }}</span>
+          }
+        </div>
+      }
 
       @if (hintVisible()) {
         <div class="ae-hint">
@@ -286,7 +424,11 @@
         </div>
       }
 
-      <div class="ae-stage-scroll">
+      <div
+        #stageScroll
+        class="ae-stage-scroll"
+        [class.ae-stage-scroll--pan]="isPanning()"
+      >
         <div
           class="ae-stage-frame"
           [style.width.px]="stageWidth() * zoom()"
@@ -304,11 +446,40 @@
                 #overlayLayer
                 class="ae-overlay"
                 [class.ae-overlay--preview]="viewMode() === 'preview'"
+                [class.ae-overlay--pan]="isPanning()"
                 (pointerdown)="onLayerPointerDown($event)"
                 (pointermove)="onOverlayPointerMove($event)"
                 (pointerup)="onOverlayPointerUp($event)"
                 (pointercancel)="onOverlayPointerUp($event)"
               >
+                @for (guide of guideLines(); track guide.axis + ':' + guide.pos) {
+                  <div
+                    class="ae-guide"
+                    [class.ae-guide--x]="guide.axis === 'x'"
+                    [class.ae-guide--y]="guide.axis === 'y'"
+                    [style.left.%]="guide.axis === 'x' ? guide.pos * 100 : null"
+                    [style.top.%]="guide.axis === 'y' ? guide.pos * 100 : null"
+                  ></div>
+                }
+                @for (s of suggestionsOnPage(); track s.temporary_id) {
+                  <div
+                    class="ae-box ae-box--suggestion"
+                    [style.left.%]="s.x * 100"
+                    [style.top.%]="s.y * 100"
+                    [style.width.%]="s.w * 100"
+                    [style.height.%]="s.h * 100"
+                  >
+                    <span class="ae-box-label">{{ s.label }} · {{ confidencePct(s) }}%</span>
+                    <div class="ae-sug-actions">
+                      <button type="button" class="ae-sug-btn ae-sug-btn--ok" title="Aceitar" (click)="aceitarSugestao(s)">
+                        ✓
+                      </button>
+                      <button type="button" class="ae-sug-btn ae-sug-btn--no" title="Rejeitar" (click)="rejeitarSugestao(s)">
+                        ×
+                      </button>
+                    </div>
+                  </div>
+                }
                 @for (p of placementsOnPage(); track trackPlacement(p)) {
                   <div
                     class="ae-box"
@@ -473,6 +644,9 @@
           </section>
 
           <div class="ae-insp-actions">
+            <button type="button" class="ae-btn ae-btn--quiet full" (click)="duplicarSelecionado()">
+              Duplicar caixa
+            </button>
             <button type="button" class="ae-btn ae-btn--danger full" (click)="removerBox(sel)">
               Remover posição
             </button>
@@ -488,8 +662,12 @@
 
       <div class="ae-insp-footer">
         <strong>Atalhos</strong>
-        <span>← ↑ ↓ → mover</span>
-        <span>Shift + setas mover mais</span>
+        <span>← ↑ ↓ → mover · Espaço pan</span>
+        <span>Ctrl+clique · multi-seleção</span>
+        <span>Ctrl+A · todas na página</span>
+        <span>Ctrl+Z / Y · desfazer/refazer</span>
+        <span>Ctrl+D · duplicar · Del · excluir</span>
+        <span>Ctrl+C / V · copiar/colar · Esc limpa</span>
       </div>
     </aside>
   </main>

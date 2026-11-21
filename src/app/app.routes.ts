@@ -93,7 +93,7 @@ export const routes: Routes = [
         path: 'ferramentas',
         loadComponent: () =>
           import('./mobile/mobile-ferramentas.component').then((m) => m.MobileFerramentasComponent),
-        data: { titulo: 'Ferramentas' },
+        data: { titulo: 'Utilitários' },
       },
       {
         path: 'ferramentas/preco',
@@ -105,13 +105,24 @@ export const routes: Routes = [
         path: 'ferramentas/orcamento',
         loadComponent: () =>
           import('./mobile/tools/mobile-tool-orcamento.component').then((m) => m.MobileToolOrcamentoComponent),
-        data: { titulo: 'Orçamento rápido' },
+        data: { titulo: 'Orçamentos', toolMode: 'list' },
+      },
+      {
+        path: 'ferramentas/orcamento/novo',
+        loadComponent: () =>
+          import('./mobile/tools/mobile-tool-orcamento.component').then((m) => m.MobileToolOrcamentoComponent),
+        data: { titulo: 'Nova proposta', toolMode: 'form' },
+      },
+      {
+        path: 'ferramentas/notificacoes',
+        loadComponent: () =>
+          import('./mobile/tools/mobile-tool-mensagens.component').then((m) => m.MobileToolMensagensComponent),
+        data: { titulo: 'Notificações' },
       },
       {
         path: 'ferramentas/mensagens',
-        loadComponent: () =>
-          import('./mobile/tools/mobile-tool-mensagens.component').then((m) => m.MobileToolMensagensComponent),
-        data: { titulo: 'Mensagens prontas' },
+        redirectTo: 'ferramentas/notificacoes',
+        pathMatch: 'full',
       },
       {
         path: 'ferramentas/checklist',
@@ -141,7 +152,13 @@ export const routes: Routes = [
         path: 'ferramentas/retornos',
         loadComponent: () =>
           import('./mobile/tools/mobile-tool-retornos.component').then((m) => m.MobileToolRetornosComponent),
-        data: { titulo: 'Retornos' },
+        data: { titulo: 'Retornos', toolMode: 'list' },
+      },
+      {
+        path: 'ferramentas/retornos/novo',
+        loadComponent: () =>
+          import('./mobile/tools/mobile-tool-retornos.component').then((m) => m.MobileToolRetornosComponent),
+        data: { titulo: 'Agendar retorno', toolMode: 'form' },
       },
     ],
   },
@@ -183,6 +200,191 @@ export const routes: Routes = [
         loadComponent: () => import('./paginas/agenda/agenda.component').then((m) => m.AgendaComponent),
         data: { titulo: 'Agenda', permission: 'organization.manage' },
       },
+      {
+        path: 'servicos',
+        canActivate: [permissionGuard],
+        loadComponent: () =>
+          import('./paginas/servicos/servicos-listagem.component').then((m) => m.ServicosListagemComponent),
+        data: {
+          titulo: 'Serviços',
+          permission: 'organization.manage',
+        },
+      },
+      {
+        path: 'servicos/criar',
+        canActivate: [permissionGuard],
+        loadComponent: () =>
+          import('./paginas/servicos/servicos-formulario.component').then((m) => m.ServicosFormularioComponent),
+        data: {
+          titulo: 'Novo serviço',
+          permission: 'organization.manage',
+          urlVoltar: '/servicos',
+          labelVoltar: 'Voltar para Serviços',
+          voltarIntegrado: true,
+        },
+      },
+      {
+        path: 'servicos/:id/editar',
+        canActivate: [permissionGuard],
+        loadComponent: () =>
+          import('./paginas/servicos/servicos-formulario.component').then((m) => m.ServicosFormularioComponent),
+        data: {
+          titulo: 'Editar serviço',
+          permission: 'organization.manage',
+          urlVoltar: '/servicos',
+          labelVoltar: 'Voltar para Serviços',
+          voltarIntegrado: true,
+        },
+      },
+      {
+        path: 'utilitarios',
+        canActivate: [permissionGuard],
+        loadComponent: () => import('./paginas/hubs/hub-page.component').then((m) => m.HubPageComponent),
+        data: {
+          titulo: 'Utilitários',
+          hubId: 'utilitarios',
+          permissionAny: ['submissions.view', 'organization.manage'],
+        },
+      },
+      {
+        path: 'utilitarios/orcamento',
+        canActivate: [permissionGuard],
+        loadComponent: () =>
+          import('./mobile/tools/mobile-tool-orcamento.component').then((m) => m.MobileToolOrcamentoComponent),
+        data: {
+          titulo: 'Orçamentos',
+          toolMode: 'list',
+          permissionAny: ['submissions.view', 'organization.manage'],
+          urlVoltar: '/utilitarios',
+          labelVoltar: 'Utilitários',
+          voltarIntegrado: true,
+        },
+      },
+      {
+        path: 'utilitarios/orcamento/novo',
+        canActivate: [permissionGuard],
+        loadComponent: () =>
+          import('./mobile/tools/mobile-tool-orcamento.component').then((m) => m.MobileToolOrcamentoComponent),
+        data: {
+          titulo: 'Nova proposta',
+          toolMode: 'form',
+          permissionAny: ['submissions.view', 'organization.manage'],
+          urlVoltar: '/utilitarios/orcamento',
+          labelVoltar: 'Orçamentos',
+          voltarIntegrado: true,
+        },
+      },
+      {
+        path: 'utilitarios/notificacoes',
+        canActivate: [permissionGuard],
+        loadComponent: () =>
+          import('./mobile/tools/mobile-tool-mensagens.component').then((m) => m.MobileToolMensagensComponent),
+        data: {
+          titulo: 'Notificações',
+          permissionAny: ['submissions.view', 'organization.manage'],
+          urlVoltar: '/utilitarios',
+          labelVoltar: 'Utilitários',
+          voltarIntegrado: true,
+        },
+      },
+      {
+        path: 'utilitarios/mensagens',
+        redirectTo: 'utilitarios/notificacoes',
+        pathMatch: 'full',
+      },
+      {
+        path: 'utilitarios/retornos',
+        canActivate: [permissionGuard],
+        loadComponent: () =>
+          import('./mobile/tools/mobile-tool-retornos.component').then((m) => m.MobileToolRetornosComponent),
+        data: {
+          titulo: 'Retornos',
+          toolMode: 'list',
+          permissionAny: ['submissions.view', 'organization.manage'],
+          urlVoltar: '/utilitarios',
+          labelVoltar: 'Utilitários',
+          voltarIntegrado: true,
+        },
+      },
+      {
+        path: 'utilitarios/retornos/novo',
+        canActivate: [permissionGuard],
+        loadComponent: () =>
+          import('./mobile/tools/mobile-tool-retornos.component').then((m) => m.MobileToolRetornosComponent),
+        data: {
+          titulo: 'Agendar retorno',
+          toolMode: 'form',
+          permissionAny: ['submissions.view', 'organization.manage'],
+          urlVoltar: '/utilitarios/retornos',
+          labelVoltar: 'Retornos',
+          voltarIntegrado: true,
+        },
+      },
+      {
+        path: 'utilitarios/preco',
+        canActivate: [permissionGuard],
+        loadComponent: () =>
+          import('./mobile/tools/mobile-tool-preco.component').then((m) => m.MobileToolPrecoComponent),
+        data: {
+          titulo: 'Preço e lucro',
+          permissionAny: ['submissions.view', 'organization.manage'],
+          urlVoltar: '/utilitarios',
+          labelVoltar: 'Utilitários',
+          voltarIntegrado: true,
+        },
+      },
+      {
+        path: 'utilitarios/cartao',
+        canActivate: [permissionGuard],
+        loadComponent: () =>
+          import('./mobile/tools/mobile-tool-cartao.component').then((m) => m.MobileToolCartaoComponent),
+        data: {
+          titulo: 'Taxas de cartão',
+          permissionAny: ['submissions.view', 'organization.manage'],
+          urlVoltar: '/utilitarios',
+          labelVoltar: 'Utilitários',
+          voltarIntegrado: true,
+        },
+      },
+      {
+        path: 'utilitarios/checklist',
+        canActivate: [permissionGuard],
+        loadComponent: () =>
+          import('./mobile/tools/mobile-tool-checklist.component').then((m) => m.MobileToolChecklistComponent),
+        data: {
+          titulo: 'Checklist da sala',
+          permissionAny: ['submissions.view', 'organization.manage'],
+          urlVoltar: '/utilitarios',
+          labelVoltar: 'Utilitários',
+          voltarIntegrado: true,
+        },
+      },
+      {
+        path: 'utilitarios/pacotes',
+        canActivate: [permissionGuard],
+        loadComponent: () =>
+          import('./mobile/tools/mobile-tool-pacotes.component').then((m) => m.MobileToolPacotesComponent),
+        data: {
+          titulo: 'Pacotes e sessões',
+          permissionAny: ['submissions.view', 'organization.manage'],
+          urlVoltar: '/utilitarios',
+          labelVoltar: 'Utilitários',
+          voltarIntegrado: true,
+        },
+      },
+      {
+        path: 'utilitarios/estoque',
+        canActivate: [permissionGuard],
+        loadComponent: () =>
+          import('./mobile/tools/mobile-tool-estoque.component').then((m) => m.MobileToolEstoqueComponent),
+        data: {
+          titulo: 'Estoque e validade',
+          permissionAny: ['submissions.view', 'organization.manage'],
+          urlVoltar: '/utilitarios',
+          labelVoltar: 'Utilitários',
+          voltarIntegrado: true,
+        },
+      },
       { path: 'billing', redirectTo: 'assinatura', pathMatch: 'full' },
       {
         path: 'assinatura',
@@ -220,7 +422,7 @@ export const routes: Routes = [
       { path: 'templates/:id/campos', canActivate: [permissionGuard], loadComponent: () => import('./paginas/templates/templates-campos.component').then(m => m.TemplatesCamposComponent), data: { titulo: 'Campos do modelo', permission: 'templates.manage', urlVoltar: '/templates', labelVoltar: 'Voltar para modelos', voltarIntegrado: true } },
       { path: 'clinica/configuracoes', canActivate: [permissionGuard], loadComponent: () => import('./paginas/clinica/clinica-configuracoes.component').then(m => m.ClinicaConfiguracoesComponent), data: { titulo: 'Empresa', permission: 'organization.manage', urlVoltar: '/configuracoes', labelVoltar: 'Voltar para Configurações', voltarIntegrado: true } },
       { path: 'clinica/escolher', canActivate: [canSwitchOrganizationGuard], loadComponent: () => import('./paginas/clinica/clinica-escolher.component').then(m => m.ClinicaEscolherComponent), data: { titulo: 'Escolher empresa', urlVoltar: '/dashboard', labelVoltar: 'Dashboard', voltarIntegrado: true } },
-      { path: 'clinica/integracoes', canActivate: [permissionGuard], loadComponent: () => import('./paginas/clinica/clinica-integracoes.component').then(m => m.ClinicaIntegracoesComponent), data: { titulo: 'Integrações', permission: 'organization.manage' } },
+      { path: 'clinica/integracoes', canActivate: [permissionGuard], loadComponent: () => import('./paginas/clinica/clinica-integracoes.component').then(m => m.ClinicaIntegracoesComponent), data: { titulo: 'Integrações', permission: 'organization.manage', urlVoltar: '/configuracoes', labelVoltar: 'Voltar para Configurações', voltarIntegrado: true } },
       { path: 'clinica/integracoes/sistemas/feegow', canActivate: [permissionGuard], loadComponent: () => import('./paginas/clinica/clinica-integracao-feegow.component').then(m => m.ClinicaIntegracaoFeegowComponent), data: { titulo: 'Integração Feegow', permission: 'organization.manage', urlVoltar: '/clinica/integracoes', labelVoltar: 'Voltar para integrações', voltarIntegrado: true } },
       { path: 'clinica/integracoes/sistemas/:sistema', canActivate: [permissionGuard], loadComponent: () => import('./paginas/clinica/clinica-integracao-sistema.component').then(m => m.ClinicaIntegracaoSistemaComponent), data: { titulo: 'Integração de sistema', permission: 'organization.manage', urlVoltar: '/clinica/integracoes', labelVoltar: 'Voltar para integrações', voltarIntegrado: true } },
       { path: 'link-bio', canActivate: [permissionGuard], loadComponent: () => import('./paginas/link-bio/link-bio.component').then(m => m.LinkBioComponent), data: { titulo: 'Link na bio', permission: 'organization.manage' } },
@@ -256,8 +458,9 @@ export const routes: Routes = [
         loadComponent: () => import('./paginas/hubs/hub-page.component').then((m) => m.HubPageComponent),
         data: { titulo: 'Plataforma e auditoria', hubId: 'plataforma-sistema' },
       },
-      { path: 'clientes', loadComponent: () => import('./paginas/plataforma/plataforma-clientes/plataforma-clientes.component').then(m => m.PlataformaClientesComponent), data: { titulo: 'Clientes', subtitulo: 'Visão geral dos clientes utilizando o Gestgo.', urlVoltar: '/plataforma/clientes-atividade', labelVoltar: 'Clientes e atividade', voltarIntegrado: true } },
-      { path: 'clientes/:id', loadComponent: () => import('./paginas/plataforma/plataforma-cliente-detalhe/plataforma-cliente-detalhe.component').then(m => m.PlataformaClienteDetalheComponent), data: { titulo: 'Cliente', urlVoltar: '/plataforma/clientes', labelVoltar: 'Voltar para Clientes', voltarIntegrado: true } },
+      { path: 'clientes', loadComponent: () => import('./paginas/plataforma/plataforma-clientes-visao/plataforma-clientes-visao.component').then(m => m.PlataformaClientesVisaoComponent), data: { titulo: 'Clientes', subtitulo: 'Indicadores e acompanhamento da base de clientes.', urlVoltar: '/plataforma/clientes-atividade', labelVoltar: 'Clientes e atividade', voltarIntegrado: true } },
+      { path: 'clientes/listagem', loadComponent: () => import('./paginas/plataforma/plataforma-clientes/plataforma-clientes.component').then(m => m.PlataformaClientesComponent), data: { titulo: 'Listagem de clientes', subtitulo: 'Consulte, filtre e acesse os clientes cadastrados.', urlVoltar: '/plataforma/clientes', labelVoltar: 'Voltar para Clientes', voltarIntegrado: true } },
+      { path: 'clientes/:id', loadComponent: () => import('./paginas/plataforma/plataforma-cliente-detalhe/plataforma-cliente-detalhe.component').then(m => m.PlataformaClienteDetalheComponent), data: { titulo: 'Cliente', urlVoltar: '/plataforma/clientes/listagem', labelVoltar: 'Voltar para a listagem', voltarIntegrado: true } },
       { path: 'leads', loadComponent: () => import('./paginas/plataforma/plataforma-leads/plataforma-leads.component').then(m => m.PlataformaLeadsComponent), data: { titulo: 'Leads', subtitulo: 'Solicitações de demonstração da landing.', urlVoltar: '/plataforma/clientes-atividade', labelVoltar: 'Clientes e atividade', voltarIntegrado: true } },
       {
         path: 'trafego-landing',

@@ -130,6 +130,28 @@
   gap: 0.5rem;
 }
 
+.ft-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--muted-foreground, #64748b);
+}
+
+.ft-status .material-symbols-outlined {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.ft-status--ok {
+  color: #168e68;
+}
+
+.ft-status--warn {
+  color: #b42318;
+}
+
 .ft-list-gap {
   display: flex;
   flex-direction: column;

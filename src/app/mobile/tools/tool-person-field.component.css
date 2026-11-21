@@ -1,0 +1,177 @@
+.tpf {
+  display: grid;
+  gap: 1rem;
+  position: relative;
+}
+
+.tpf--mobile {
+  gap: 12px;
+}
+
+.tpf-row-fields {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+@media (max-width: 640px) {
+  .tpf-row-fields {
+    grid-template-columns: 1fr;
+  }
+}
+
+.tpf-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  position: relative;
+  min-width: 0;
+}
+
+.tpf-field--search {
+  z-index: 2;
+}
+
+.tpf-field--phone {
+  max-width: 100%;
+}
+
+.tpf-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--c-muted, #64748b);
+}
+
+.tpf--mobile .tpf-label {
+  font-size: 0.8rem;
+}
+
+.tpf-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: stretch;
+}
+
+.tpf-input {
+  width: 100%;
+  min-width: 0;
+}
+
+.tpf-btn {
+  flex-shrink: 0;
+  border: 1px solid var(--c-border, #e2e8f0);
+  background: var(--c-surface, #fff);
+  color: var(--c-text, #0f172a);
+  border-radius: 0.5rem;
+  padding: 0.45rem 0.75rem;
+  font-size: 0.8125rem;
+  cursor: pointer;
+}
+
+.tpf-btn--primary {
+  background: var(--c-primary, #0f766e);
+  border-color: var(--c-primary, #0f766e);
+  color: #fff;
+}
+
+.tpf-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.tpf-list {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% + 4px);
+  z-index: 20;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  max-height: 12rem;
+  overflow: auto;
+  border: 1px solid var(--c-border, #e2e8f0);
+  border-radius: 0.5rem;
+  background: var(--c-surface, #fff);
+  box-shadow: 0 8px 24px rgb(15 23 42 / 0.12);
+}
+
+.tpf-option {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  text-align: left;
+  border: 0;
+  background: transparent;
+  color: var(--c-text, #0f172a);
+  padding: 0.65rem 0.75rem;
+  cursor: pointer;
+}
+
+.tpf-option:hover {
+  background: var(--c-bg-soft, #f8fafc);
+}
+
+.tpf-option__name {
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.tpf-option__meta {
+  font-size: 0.75rem;
+  color: var(--c-muted, #64748b);
+  font-variant-numeric: tabular-nums;
+}
+
+.tpf-hint {
+  margin: 0.35rem 0 0;
+  font-size: 0.75rem;
+  color: var(--c-muted, #64748b);
+}
+
+.tpf-hint--ok {
+  margin: 0;
+}
+
+.tpf-empty {
+  margin-top: 0.35rem;
+}
+
+.tpf-link {
+  border: 0;
+  background: transparent;
+  color: var(--c-primary, #0f766e);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
+}
+
+.tpf-link--below {
+  margin-top: 0.4rem;
+}
+
+.tpf-create {
+  border: 1px dashed var(--c-border, #e2e8f0);
+  border-radius: 0.75rem;
+  padding: 0.85rem;
+  display: grid;
+  gap: 0.75rem;
+  background: var(--c-bg-soft, #f8fafc);
+}
+
+.tpf-create__title {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--c-text, #0f172a);
+}
+
+.tpf-create__actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}

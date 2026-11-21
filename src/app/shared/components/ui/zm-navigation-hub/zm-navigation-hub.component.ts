@@ -45,7 +45,8 @@ export class ZmNavigationHubComponent {
   kpiDisplayValue(kpi: NavigationHubKpi): string {
     const raw = this.kpiValues?.[kpi.id];
     if (raw == null || Number.isNaN(Number(raw))) return '0';
-    return String(Math.max(0, Math.trunc(Number(raw)))).padStart(2, '0');
+    const value = Math.max(0, Math.trunc(Number(raw)));
+    return String(value);
   }
 
   routePath(route: string): string {

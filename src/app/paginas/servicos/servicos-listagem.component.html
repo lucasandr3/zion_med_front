@@ -1,0 +1,88 @@
+<div class="n-page-list__toolbar">
+  <div class="n-page-list__toolbar-start">
+    <div class="form-search-wrap">
+      <span class="material-symbols-outlined form-search-icon">search</span>
+      <input
+        type="text"
+        [(ngModel)]="busca"
+        (ngModelChange)="aplicarBusca()"
+        placeholder="Buscar por nome…"
+        class="form-search-input w-full text-sm"
+        aria-label="Buscar serviços"
+      />
+    </div>
+  </div>
+  <div class="n-page-list__toolbar-end">
+    <nord-button variant="primary" type="button" routerLink="/servicos/criar" title="Novo serviço">
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">add</span>
+      Novo serviço
+    </nord-button>
+  </div>
+</div>
+
+<div class="n-page-list__content">
+  @if (loading()) {
+    <div class="n-page-list__panel">
+      <app-list-skeleton [count]="6" />
+    </div>
+  } @else if (filtrados().length === 0) {
+    <div class="n-page-list__empty">
+      <nord-empty-state>
+        <h2>{{ busca.trim() ? 'Nenhum serviço encontrado' : 'Nenhum serviço cadastrado' }}</h2>
+        <p>
+          {{
+            busca.trim()
+              ? 'Tente outro termo de busca.'
+              : 'Cadastre os procedimentos usados na agenda, orçamento, mensagens e pacotes.'
+          }}
+        </p>
+        @if (busca.trim()) {
+          <nord-button variant="default" type="button" (click)="limparBusca()">Limpar busca</nord-button>
+        }
+        <nord-button variant="primary" type="button" routerLink="/servicos/criar">
+          <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">add</span>
+          Novo serviço
+        </nord-button>
+      </nord-empty-state>
+    </div>
+  } @else {
+    <div class="n-page-list__table">
+      @for (s of filtrados(); track s.id) {
+        <div
+          class="n-page-list__row n-page-list__row--clickable servicos-row"
+          role="link"
+          tabindex="0"
+          [attr.title]="'Editar ' + s.name"
+          (click)="irParaEditar(s, $event)"
+          (keydown.enter)="irParaEditar(s, $event)"
+        >
+          @if (photoUrl(s); as photo) {
+            <span class="servicos-thumb" aria-hidden="true">
+              <img [src]="photo" alt="" />
+            </span>
+          } @else {
+            <span
+              class="servicos-thumb servicos-thumb--initials"
+              [style.background]="corAvatar(s.name)"
+              aria-hidden="true"
+            >
+              {{ iniciais(s.name) }}
+            </span>
+          }
+          <div class="n-page-list__row-main">
+            <div class="n-page-list__row-title">{{ s.name }}</div>
+            <div class="n-page-list__row-meta">{{ meta(s) }}</div>
+          </div>
+          <div class="n-page-list__actions" (click)="$event.stopPropagation()">
+            <nord-button square variant="plain" aria-label="Editar" (click)="irParaEditar(s)">
+              <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">edit</span>
+            </nord-button>
+            <nord-button square variant="plain" aria-label="Remover" (click)="remover(s)">
+              <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">delete</span>
+            </nord-button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

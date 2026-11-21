@@ -9,6 +9,8 @@ export const environment = {
   mobileAppUrl: '',
   /** Liga/desliga a experiência Gestgo Mobile (`/m`). Desligado por enquanto. */
   mobileExperienceEnabled: false,
+  /** PDF-01C — detecção assistida por IA no mapeador (desligada; stub no backend). */
+  printLayoutAiEnabled: false,
   /** Hosts que forçam experiência mobile (vazio até painel. estar no ar). */
   mobileHosts: [] as string[],
   painelHosts: [] as string[],

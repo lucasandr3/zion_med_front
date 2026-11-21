@@ -61,7 +61,7 @@
             <label class="novo-envio-pill" [class.novo-envio-pill--active]="novoEnvio.channel === 'whatsapp'">
               <input type="radio" [(ngModel)]="novoEnvio.channel" name="novoChannel" value="whatsapp" class="novo-envio-pill-native" />
               <span class="novo-envio-pill-dot" aria-hidden="true"></span>
-              <span class="text-sm">WhatsApp</span>
+              <span class="text-sm">WhatsApp (manual)</span>
             </label>
           </div>
         </div>
@@ -152,7 +152,11 @@
             @if (enviando()) {
               <span class="btn-spinner" aria-hidden="true"></span>
             }
-            {{ enviando() ? 'Enviando…' : 'Enviar' }}
+            {{
+              enviando()
+                ? (novoEnvio.channel === 'whatsapp' ? 'Preparando…' : 'Enviando…')
+                : (novoEnvio.channel === 'whatsapp' ? 'Abrir WhatsApp' : 'Enviar')
+            }}
           </nord-button>
           <nord-button variant="default" type="button" (click)="fecharNovoEnvio()">Cancelar</nord-button>
         </div>
@@ -189,7 +193,7 @@
             </div>
           </div>
           <div class="n-page-list__actions">
-            <nord-badge [variant]="e.delivery_status === 'nao_enviado' ? 'danger' : 'success'">
+            <nord-badge [variant]="e.delivery_status === 'enviado' ? 'success' : 'warning'">
               {{ entregaLabel(e) }}
             </nord-badge>
             <nord-badge

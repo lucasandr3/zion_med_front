@@ -1,9 +1,179 @@
+<div class="cliente-detail-shell">
+  <div class="n-form-toolbar cliente-detail-toolbar">
+    <div class="n-form-toolbar__start"><zm-page-back-link /></div>
+    @if (data(); as detail) {
+      <div class="n-form-toolbar__end cliente-detail-actions">
+        @if (linkWhatsapp(clinicaPrincipal(detail))) {
+          <nord-button type="button" variant="default" size="m" (click)="abrirWhatsapp(clinicaPrincipal(detail))">
+            <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">chat</span>
+            WhatsApp
+          </nord-button>
+        }
+        @if (clinicaPrincipal(detail)?.contact_email) {
+          <nord-button type="button" variant="default" size="m" (click)="enviarEmail(clinicaPrincipal(detail))">
+            <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">mail</span>
+            E-mail
+          </nord-button>
+        }
+      </div>
+    }
+  </div>
+
+  @if (showSkeleton()) {
+    <zm-skeleton-list [rows]="8" />
+  } @else if (!listaPronta()) {
+  } @else if (estadoErro()) {
+    <div class="cliente-detail-error" role="alert">Não foi possível carregar o cliente.</div>
+  } @else if (data(); as detail) {
+    <div class="cliente-detail-content zm-content-enter">
+      <section class="cliente-profile">
+        <div class="tenant-hero-avatar" aria-hidden="true">{{ iniciais(detail.tenant.name) }}</div>
+        <div class="cliente-profile__body">
+          <div class="cliente-profile__title-line">
+            <h2>{{ detail.tenant.name }}</h2>
+            <g-badge [zType]="possuiAcessoBloqueado(detail) ? 'destructive' : 'default'" zShape="pill">
+              {{ statusAcesso(detail) }}
+            </g-badge>
+            @if (clinicaPrincipal(detail); as principal) {
+              @if (statusPrincipal(principal); as status) {
+                <g-badge [zType]="badgeTipoStatus(status)" zShape="pill">{{ rotuloStatusAssinaturaCobranca(status) }}</g-badge>
+              }
+            }
+          </div>
+          <p>{{ detail.tenant.slug }} · #{{ detail.tenant.id }} · Cadastro {{ formatarDataHora(detail.tenant.created_at) }} · Atualizado {{ formatarDataHora(detail.tenant.updated_at) }}</p>
+          <p class="cliente-profile__summary">
+            {{ detail.summary?.clinics_count ?? detail.clinics.length }} {{ (detail.summary?.clinics_count ?? detail.clinics.length) === 1 ? 'empresa' : 'empresas' }}
+            · {{ detail.summary?.users_count ?? 0 }} {{ (detail.summary?.users_count ?? 0) === 1 ? 'usuário' : 'usuários' }}
+            · {{ detail.summary?.people_count ?? 0 }} pessoas
+            · {{ detail.summary?.form_submissions_count ?? 0 }} protocolos
+          </p>
+        </div>
+      </section>
+
+      <nav class="cliente-tabs" aria-label="Seções da ficha">
+        <button type="button" [class.is-active]="abaAtiva() === 'visao'" [attr.aria-selected]="abaAtiva() === 'visao'" (click)="abaAtiva.set('visao')">Visão geral</button>
+        <button type="button" [class.is-active]="abaAtiva() === 'atividade'" [attr.aria-selected]="abaAtiva() === 'atividade'" (click)="abaAtiva.set('atividade')">Atividade</button>
+        <button type="button" [class.is-active]="abaAtiva() === 'empresas'" [attr.aria-selected]="abaAtiva() === 'empresas'" (click)="abaAtiva.set('empresas')">Empresas ({{ detail.clinics.length }})</button>
+      </nav>
+
+      @if (abaAtiva() === 'visao') {
+        <div class="cliente-tab-stack">
+          @if (possuiAcessoBloqueado(detail)) {
+            <div class="cliente-access-alert" role="alert">
+              <span class="material-symbols-outlined" aria-hidden="true">lock</span>
+              <div><strong>O acesso deste cliente está bloqueado</strong><p>Revise a assinatura e a situação da cobrança nas informações abaixo.</p></div>
+            </div>
+          }
+
+          @if (clinicaPrincipal(detail); as principal) {
+            <div class="cliente-overview-grid">
+              <section class="cliente-info-card">
+                <span class="cliente-card-eyebrow">Assinatura</span>
+                <div class="cliente-plan-line"><strong>{{ planoRotulo(principal) }}</strong><span>{{ formatarValor(principal.plan_value) }}<small>/mês</small></span></div>
+                <dl>
+                  <dt>Trial</dt><dd>{{ principal.trial_ends_at ? 'Até ' + formatarData(principal.trial_ends_at) : 'Não informado' }}</dd>
+                  <dt>Próx. vencimento</dt><dd>{{ formatarData(principal.latest_subscription?.next_due_date ?? principal.latest_subscription?.current_period_end) }}</dd>
+                  <dt>Gateway</dt><dd>{{ rotuloStatusAssinaturaCobranca(principal.latest_subscription?.status) }}</dd>
+                  <dt>ID no Asaas</dt><dd class="cliente-mono">{{ principal.asaas_customer_id || '—' }}</dd>
+                </dl>
+              </section>
+
+              <section class="cliente-info-card">
+                <div class="cliente-card-heading"><span class="cliente-card-eyebrow">Empresa principal</span><small>#{{ principal.id }} · {{ principal.slug || 'sem slug' }}</small></div>
+                <div class="cliente-plan-line"><strong>{{ principal.name }}</strong></div>
+                <dl>
+                  <dt>Contato</dt><dd>{{ principal.phone || principal.contact_email || '—' }}</dd>
+                  <dt>Razão de cobrança</dt><dd>{{ principal.billing_name || '—' }}</dd>
+                  <dt>Documento</dt><dd>{{ formatarDocumento(principal.billing_document) }}</dd>
+                  <dt>Integrações</dt><dd>{{ possuiIntegracoes(principal) ? 'Integrações ativas' : 'Sem integrações' }}</dd>
+                </dl>
+              </section>
+            </div>
+          } @else {
+            <div class="cliente-info-card"><zm-empty-state title="Nenhuma empresa vinculada" description="Este cliente ainda não possui empresas cadastradas." /></div>
+          }
+
+          <section class="cliente-info-card cliente-usage-card">
+            <div class="cliente-card-heading"><span class="cliente-card-eyebrow">Uso da plataforma</span><small>Resumo consolidado</small></div>
+            <div class="cliente-usage-grid">
+              <div><span class="material-symbols-outlined">business</span><strong>{{ detail.summary?.clinics_count ?? detail.clinics.length }}</strong><small>Empresas</small></div>
+              <div><span class="material-symbols-outlined">group</span><strong>{{ detail.summary?.users_count ?? 0 }}</strong><small>Usuários</small></div>
+              <div><span class="material-symbols-outlined">person</span><strong>{{ detail.summary?.people_count ?? 0 }}</strong><small>Pessoas</small></div>
+              <div><span class="material-symbols-outlined">assignment</span><strong>{{ detail.summary?.form_submissions_count ?? 0 }}</strong><small>Protocolos</small></div>
+            </div>
+          </section>
+        </div>
+      }
+
+      @if (abaAtiva() === 'atividade') {
+        <section class="cliente-info-card cliente-timeline-card">
+          <div class="cliente-card-heading"><span class="cliente-card-eyebrow">Linha do tempo</span><small>Eventos disponíveis no cadastro</small></div>
+          <ol class="cliente-timeline">
+            <li><span class="cliente-timeline__dot is-success"></span><div><strong>Cadastro criado</strong><small>{{ formatarDataHora(detail.tenant.created_at) }}</small></div></li>
+            @for (clinic of detail.clinics; track clinic.id) {
+              <li><span class="cliente-timeline__dot"></span><div><strong>Empresa vinculada: {{ clinic.name }}</strong><small>{{ formatarDataHora(clinic.created_at) }}</small></div></li>
+              @if (clinic.trial_ends_at) {
+                <li><span class="cliente-timeline__dot is-warning"></span><div><strong>Fim do período de teste</strong><small>{{ formatarData(clinic.trial_ends_at) }} · {{ clinic.name }}</small></div></li>
+              }
+            }
+            <li><span class="cliente-timeline__dot"></span><div><strong>Última atualização do cliente</strong><small>{{ formatarDataHora(detail.tenant.updated_at) }}</small></div></li>
+          </ol>
+        </section>
+      }
+
+      @if (abaAtiva() === 'empresas') {
+        <div class="cliente-tab-stack">
+          @if (detail.clinics.length === 0) {
+            <section class="cliente-info-card"><zm-empty-state title="Nenhuma empresa vinculada" description="Quando houver vínculo, as empresas aparecerão aqui." /></section>
+          } @else {
+            @for (clinic of detail.clinics; track clinic.id) {
+              <section class="cliente-info-card cliente-company-card">
+                <div class="cliente-company-header">
+                  <div><h3>{{ clinic.name }}</h3><p>#{{ clinic.id }} · {{ clinic.slug || '—' }}</p></div>
+                  <div class="tenant-clinic-badges">
+                    <g-badge [zType]="badgeTipoStatus(clinic.subscription_status)" zShape="pill">{{ rotuloStatusAssinaturaCobranca(clinic.subscription_status) }}</g-badge>
+                    <g-badge [zType]="badgeTipoAcesso(clinic.can_access_app)" zShape="pill">{{ clinic.can_access_app ? 'Acesso liberado' : 'Acesso bloqueado' }}</g-badge>
+                  </div>
+                </div>
+                <div class="cliente-company-grid">
+                  <div><span>Plano</span><strong>{{ planoRotulo(clinic) }}</strong><small>{{ formatarValor(clinic.plan_value) }}/mês</small></div>
+                  <div><span>Contato</span><strong>{{ clinic.phone || '—' }}</strong><small>{{ clinic.contact_email || 'Sem e-mail' }}</small></div>
+                  <div><span>Cobrança</span><strong>{{ clinic.billing_name || '—' }}</strong><small>{{ formatarDocumento(clinic.billing_document) }}</small></div>
+                  <div><span>Uso</span><strong>{{ clinic.users_count }} usuários · {{ clinic.people_count ?? 0 }} pessoas</strong><small>{{ clinic.form_submissions_count ?? 0 }} protocolos</small></div>
+                </div>
+                <button class="cliente-company-toggle" type="button" (click)="alternarDetalhes(clinic.id)">
+                  <span class="material-symbols-outlined">{{ detalheExpandido(clinic.id) ? 'expand_less' : 'expand_more' }}</span>
+                  {{ detalheExpandido(clinic.id) ? 'Ocultar detalhes' : 'Ver todos os detalhes' }}
+                </button>
+                @if (detalheExpandido(clinic.id)) {
+                  <div class="cliente-company-extra">
+                    <div><span>Endereço</span><strong>{{ clinic.address || '—' }}</strong></div>
+                    <div><span>E-mail de cobrança</span><strong>{{ clinic.billing_email || '—' }}</strong></div>
+                    <div><span>Limite de usuários</span><strong>{{ limiteUsuarios(clinic) }}</strong></div>
+                    <div><span>Cadastro</span><strong>{{ formatarDataHora(clinic.created_at) }}</strong></div>
+                  </div>
+                }
+              </section>
+            }
+          }
+        </div>
+      }
+
+      <section class="cliente-danger-card">
+        <div><h3>Zona de risco</h3><p>Exclui este cliente, empresas, usuários, pessoas, fichas e dados vinculados. Ação irreversível.</p></div>
+        <nord-button type="button" variant="danger" size="m" [attr.loading]="excluindo() || null" [attr.disabled]="excluindo() || null" (click)="excluirTenant()">Excluir cliente e dados</nord-button>
+      </section>
+    </div>
+  }
+</div>
+
+@if (false) {
 <div class="relative min-h-[300px] space-y-4">
   <div class="n-form-toolbar">
     <div class="n-form-toolbar__start">
       <zm-page-back-link />
     </div>
-    @if (data(); as tenant) {
+    @if (data()!; as tenant) {
       <div class="n-form-toolbar__end">
         <nord-button
           type="button"
@@ -29,7 +199,7 @@
       </div>
     }
 
-    @if (data(); as tenant) {
+    @if (data()!; as tenant) {
       <div class="zm-content-enter tenant-detail space-y-5">
         <!-- KPIs -->
         <div class="tenant-kpi-grid">
@@ -312,3 +482,4 @@
     }
   }
 </div>
+}

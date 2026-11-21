@@ -1,134 +1,301 @@
-@if (isMobileShell) {
-  <div class="gm-backrow">
-    <a class="gm-icon-btn" [routerLink]="backLink" aria-label="Voltar">
-      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">arrow_back</span>
+@if (mode === 'list') {
+  @if (isMobileShell) {
+    <div class="gm-backrow">
+      <a class="gm-icon-btn" [routerLink]="backLink" aria-label="Voltar">
+        <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">arrow_back</span>
+      </a>
+      <div>
+        <h1>Orçamentos</h1>
+        <small>Propostas da clínica</small>
+      </div>
+    </div>
+
+    <p class="gm-sub">Acompanhe propostas salvas e envie pelo WhatsApp.</p>
+    <app-tool-person-banner [nome]="linkedNome" [phone]="linkedPhone" [mobile]="true" />
+
+    <a class="gm-btn" style="display:flex;text-align:center;margin-bottom:14px;text-decoration:none" [routerLink]="formLink" [queryParams]="personQuery()">
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">add</span>
+      Nova proposta
     </a>
-    <div>
-      <h1>Orçamento rápido</h1>
-      <small>Compartilhar proposta</small>
-    </div>
-  </div>
 
-  <p class="gm-sub">Crie uma mensagem de orçamento sem sair do celular.</p>
-
-  <div class="gm-panel">
-    <div class="gm-field">
-      <label>Nome</label>
-      <input type="text" [(ngModel)]="nome" placeholder="Ex.: Mariana" />
-    </div>
-    <div class="gm-field">
-      <label>Serviço ou procedimento</label>
-      <input type="text" [(ngModel)]="procedimento" placeholder="Ex.: Limpeza de pele" />
-    </div>
-    <div class="gm-twocol">
-      <div class="gm-field">
-        <label>Valor por sessão (R$)</label>
-        <input type="number" min="0" step="0.01" [(ngModel)]="valorSessao" />
+    @if (historyLoading()) {
+      <p class="gm-loading">Carregando propostas…</p>
+    } @else if (history().length === 0) {
+      <p class="gm-empty">Nenhuma proposta ainda. Crie a primeira para começar.</p>
+    } @else {
+      @for (item of history(); track item.id) {
+        <div class="gm-panel">
+          <div class="gm-packrow">
+            <b style="font-size:13px">{{ item.client_name }}</b>
+            <span class="gm-hint" style="margin:0">{{ formatDate(item.created_at) }}</span>
+          </div>
+          <p style="margin:8px 0 4px;font-size:12px;color:#758096">
+            {{ item.procedure }} · {{ item.sessions }} sessão(ões)
+          </p>
+          <strong style="font-size:15px">{{ money(+item.total) }}</strong>
+          <div class="gm-actions" style="margin-top:12px">
+            <button type="button" class="gm-btn gm-btn--soft" (click)="reabrir(item)">
+              <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">open_in_new</span>
+              Reabrir
+            </button>
+            <button type="button" class="gm-btn gm-btn--secondary" (click)="copiar(item.message)">
+              <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">content_copy</span>
+              Copiar
+            </button>
+            <button type="button" class="gm-btn" (click)="whatsapp(item)">
+              <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">chat</span>
+              WhatsApp
+            </button>
+          </div>
+        </div>
+      }
+    }
+  } @else {
+    <div class="n-form-toolbar">
+      <div class="n-form-toolbar__start">
+        <zm-page-back-link />
       </div>
-      <div class="gm-field">
-        <label>Quantidade de sessões</label>
-        <input type="number" min="1" step="1" [(ngModel)]="sessoes" />
+      <div class="n-form-toolbar__end">
+        <nord-button variant="primary" type="button" [routerLink]="formLink" [queryParams]="personQuery()">
+          <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">add</span>
+          Nova proposta
+        </nord-button>
       </div>
     </div>
-    <div class="gm-field">
-      <label>Desconto total (R$)</label>
-      <input type="number" min="0" step="0.01" [(ngModel)]="desconto" />
-    </div>
-    <label class="gm-hint" style="display:flex;gap:8px;align-items:center;margin-bottom:12px">
-      <input type="checkbox" [(ngModel)]="salvar" />
-      Salvar proposta no Gestgo
-    </label>
-    <button type="button" class="gm-btn" (click)="gerar()" [disabled]="loading()">
-      {{ loading() ? 'Gerando…' : 'Gerar orçamento' }}
-    </button>
-  </div>
 
-  @if (quote(); as q) {
-    <div class="gm-result">
-      <span class="gm-result__label">Total da proposta</span>
-      <strong>{{ money(q.total) }}</strong>
-      <small>{{ q.sessions }} sessão(ões)</small>
+    <div class="ft-body zm-content-enter">
+      <app-tool-person-banner [nome]="linkedNome" [phone]="linkedPhone" />
+
+      @if (historyLoading()) {
+        <p class="text-sm text-muted-foreground">Carregando propostas…</p>
+      } @else if (history().length === 0) {
+        <div class="n-page-list__empty">
+          <nord-empty-state>
+            <h2>Nenhum orçamento cadastrado</h2>
+            <p>Crie uma proposta para apresentar valores e enviar ao paciente pelo WhatsApp.</p>
+            <nord-button
+              variant="primary"
+              type="button"
+              [routerLink]="formLink"
+              [queryParams]="personQuery()"
+            >
+              <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">add</span>
+              Novo orçamento
+            </nord-button>
+          </nord-empty-state>
+        </div>
+      } @else {
+        <div class="ft-list-gap">
+          @for (item of history(); track item.id) {
+            <g-card>
+              <div class="ft-row">
+                <div>
+                  <div class="font-medium">{{ item.client_name }}</div>
+                  <p class="mt-1 text-sm text-muted-foreground">
+                    {{ item.procedure }} · {{ item.sessions }} sessão(ões)
+                  </p>
+                </div>
+                <div class="text-right">
+                  <div class="font-semibold">{{ money(+item.total) }}</div>
+                  <p class="ft-hint" style="margin:0">{{ formatDate(item.created_at) }}</p>
+                </div>
+              </div>
+              <div class="mt-4 flex flex-wrap gap-2">
+                <nord-button type="button" (click)="reabrir(item)">
+                  <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">open_in_new</span>
+                  Reabrir
+                </nord-button>
+                <nord-button type="button" (click)="copiar(item.message)">
+                  <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">content_copy</span>
+                  Copiar
+                </nord-button>
+                <nord-button type="button" variant="primary" (click)="whatsapp(item)">
+                  <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">chat</span>
+                  WhatsApp
+                </nord-button>
+              </div>
+            </g-card>
+          }
+        </div>
+      }
     </div>
-    <div class="gm-msg">{{ q.message }}</div>
-    <div class="gm-actions">
-      <button type="button" class="gm-btn gm-btn--secondary" (click)="copiar()">Copiar</button>
-      <button type="button" class="gm-btn" (click)="whatsapp()">WhatsApp</button>
-    </div>
-    <p class="gm-hint" style="margin-top:10px">Abertura do WhatsApp não envia automaticamente — revise antes de mandar.</p>
   }
 } @else {
-  <div class="n-form-toolbar">
-    <div class="n-form-toolbar__start">
-      <zm-page-back-link />
+  @if (isMobileShell) {
+    <div class="gm-backrow">
+      <a class="gm-icon-btn" [routerLink]="listLink" [queryParams]="personQuery()" aria-label="Voltar">
+        <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">arrow_back</span>
+      </a>
+      <div>
+        <h1>Nova proposta</h1>
+        <small>Orçamento para WhatsApp</small>
+      </div>
     </div>
-    <div class="n-form-toolbar__end">
-      <nord-button
-        variant="primary"
-        type="button"
-        [attr.loading]="loading() || null"
-        [attr.disabled]="loading() || null"
-        (click)="gerar()"
-      >
-        <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">receipt_long</span>
-        Gerar orçamento
-      </nord-button>
-    </div>
-  </div>
 
-  <div class="ft-body zm-content-enter">
-    <g-card>
-      <p class="mb-5 text-sm text-muted-foreground">Crie uma proposta pronta para compartilhar com o cliente.</p>
-      <form class="flex flex-col gap-5">
-        <div>
-          <label class="ft-label" for="ft-orc-nome">Nome</label>
-          <input id="ft-orc-nome" class="w-full" type="text" [(ngModel)]="nome" name="nome" placeholder="Ex.: Mariana" />
+    <p class="gm-sub">Monte o valor, gere a mensagem e envie para fechar o atendimento.</p>
+    <app-tool-person-banner [nome]="linkedNome" [phone]="linkedPhone" [mobile]="true" />
+
+    <div class="gm-panel">
+      <app-tool-person-field
+        [mobile]="true"
+        inputId="ft-orc-person-m"
+        [personId]="personId"
+        [name]="nome"
+        [phone]="phone"
+        (personChange)="onPersonChange($event)"
+      />
+      <app-tool-service-field
+        [mobile]="true"
+        [emitPrice]="true"
+        inputId="ft-orc-service-m"
+        [serviceId]="serviceId"
+        [name]="procedimento"
+        (serviceChange)="onServiceChange($event)"
+      />
+      <div class="gm-twocol">
+        <div class="gm-field">
+          <label>Valor por sessão (R$)</label>
+          <input type="number" min="0" step="0.01" [(ngModel)]="valorSessao" />
         </div>
-        <div>
-          <label class="ft-label" for="ft-orc-proc">Serviço ou procedimento</label>
-          <input
-            id="ft-orc-proc"
-            class="w-full"
-            type="text"
-            [(ngModel)]="procedimento"
-            name="procedimento"
-            placeholder="Ex.: Limpeza de pele"
-          />
+        <div class="gm-field">
+          <label>Sessões</label>
+          <input type="number" min="1" step="1" [(ngModel)]="sessoes" />
         </div>
-        <div class="grid gap-5 md:grid-cols-2">
-          <div>
-            <label class="ft-label" for="ft-orc-valor">Valor por sessão (R$)</label>
-            <input id="ft-orc-valor" class="w-full" type="number" min="0" step="0.01" [(ngModel)]="valorSessao" name="valorSessao" />
-          </div>
-          <div>
-            <label class="ft-label" for="ft-orc-sessoes">Quantidade de sessões</label>
-            <input id="ft-orc-sessoes" class="w-full" type="number" min="1" step="1" [(ngModel)]="sessoes" name="sessoes" />
-          </div>
-        </div>
-        <div>
-          <label class="ft-label" for="ft-orc-desc">Desconto total (R$)</label>
-          <input id="ft-orc-desc" class="w-full" type="number" min="0" step="0.01" [(ngModel)]="desconto" name="desconto" />
-        </div>
-        <label class="flex items-center gap-2 text-sm text-muted-foreground">
-          <input type="checkbox" [(ngModel)]="salvar" name="salvar" />
-          Salvar proposta no Gestgo
-        </label>
-      </form>
-    </g-card>
+      </div>
+      <div class="gm-field">
+        <label>Desconto total (R$)</label>
+        <input type="number" min="0" step="0.01" [(ngModel)]="desconto" />
+      </div>
+
+      <div class="gm-result" style="margin:0 0 14px">
+        <span class="gm-result__label">Total estimado</span>
+        <strong>{{ money(previewTotal()) }}</strong>
+        <small>{{ sessoes }} × {{ money(+valorSessao) }}@if (+desconto > 0) { − {{ money(+desconto) }} }</small>
+      </div>
+
+      <label class="gm-hint" style="display:flex;gap:8px;align-items:center;margin-bottom:12px">
+        <input type="checkbox" [(ngModel)]="salvar" />
+        Salvar proposta no histórico da clínica
+      </label>
+      <button type="button" class="gm-btn" (click)="gerar()" [disabled]="loading()">
+        <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">receipt_long</span>
+        {{ loading() ? 'Gerando…' : 'Gerar proposta' }}
+      </button>
+    </div>
 
     @if (quote(); as q) {
-      <g-card class="mt-4">
-        <div class="ft-result">
-          <span class="ft-result__label">Total da proposta</span>
-          <strong>{{ money(q.total) }}</strong>
-          <small>{{ q.sessions }} sessão(ões)</small>
-        </div>
-        <div class="ft-msg">{{ q.message }}</div>
-        <div class="mt-4 flex flex-wrap gap-2">
-          <nord-button type="button" (click)="copiar()">Copiar</nord-button>
-          <nord-button variant="primary" type="button" (click)="whatsapp()">WhatsApp</nord-button>
-        </div>
-        <p class="ft-hint">Abertura do WhatsApp não envia automaticamente — revise antes de mandar.</p>
-      </g-card>
+      <div class="gm-result">
+        <span class="gm-result__label">Proposta pronta</span>
+        <strong>{{ money(q.total) }}</strong>
+        <small>{{ q.sessions }} sessão(ões)</small>
+      </div>
+      <div class="gm-msg">{{ q.message }}</div>
+      <div class="gm-actions">
+        <button type="button" class="gm-btn gm-btn--secondary" (click)="copiar()">
+          <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">content_copy</span>
+          Copiar
+        </button>
+        <button type="button" class="gm-btn" (click)="whatsapp()">
+          <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">chat</span>
+          Enviar no WhatsApp
+        </button>
+      </div>
+      <a class="gm-btn gm-btn--soft" style="display:flex;text-align:center;margin-top:12px;text-decoration:none" [routerLink]="listLink" [queryParams]="personQuery()">
+        <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">list</span>
+        Ver listagem
+      </a>
     }
-  </div>
+  } @else {
+    <div class="n-form-toolbar">
+      <div class="n-form-toolbar__start">
+        <zm-page-back-link />
+      </div>
+      <div class="n-form-toolbar__end">
+        <nord-button
+          variant="primary"
+          type="button"
+          [attr.loading]="loading() || null"
+          [attr.disabled]="loading() || null"
+          (click)="gerar()"
+        >
+          <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">receipt_long</span>
+          Gerar proposta
+        </nord-button>
+      </div>
+    </div>
+
+    <div class="ft-body zm-content-enter">
+      <app-tool-person-banner [nome]="linkedNome" [phone]="linkedPhone" />
+
+      <g-card>
+        <p class="mb-5 text-sm text-muted-foreground">
+          Monte a proposta comercial e envie pelo WhatsApp com o valor fechado.
+        </p>
+        <form class="flex flex-col gap-5">
+          <app-tool-person-field
+            inputId="ft-orc-person"
+            [personId]="personId"
+            [name]="nome"
+            [phone]="phone"
+            (personChange)="onPersonChange($event)"
+          />
+          <app-tool-service-field
+            [emitPrice]="true"
+            inputId="ft-orc-service"
+            [serviceId]="serviceId"
+            [name]="procedimento"
+            (serviceChange)="onServiceChange($event)"
+          />
+          <div class="grid gap-5 md:grid-cols-3">
+            <div>
+              <label class="ft-label" for="ft-orc-valor">Valor por sessão (R$)</label>
+              <input id="ft-orc-valor" class="w-full" type="number" min="0" step="0.01" [(ngModel)]="valorSessao" name="valorSessao" />
+            </div>
+            <div>
+              <label class="ft-label" for="ft-orc-sessoes">Sessões</label>
+              <input id="ft-orc-sessoes" class="w-full" type="number" min="1" step="1" [(ngModel)]="sessoes" name="sessoes" />
+            </div>
+            <div>
+              <label class="ft-label" for="ft-orc-desc">Desconto (R$)</label>
+              <input id="ft-orc-desc" class="w-full" type="number" min="0" step="0.01" [(ngModel)]="desconto" name="desconto" />
+            </div>
+          </div>
+          <div class="ft-result">
+            <span class="ft-result__label">Total estimado</span>
+            <strong>{{ money(previewTotal()) }}</strong>
+            <small>{{ sessoes }} × {{ money(+valorSessao) }}@if (+desconto > 0) { − {{ money(+desconto) }} }</small>
+          </div>
+          <label class="flex items-center gap-2 text-sm text-muted-foreground">
+            <input type="checkbox" [(ngModel)]="salvar" name="salvar" />
+            Salvar proposta no histórico da clínica
+          </label>
+        </form>
+      </g-card>
+
+      @if (quote(); as q) {
+        <g-card class="mt-4">
+          <div class="ft-result">
+            <span class="ft-result__label">Proposta pronta</span>
+            <strong>{{ money(q.total) }}</strong>
+            <small>{{ q.sessions }} sessão(ões)</small>
+          </div>
+          <div class="ft-msg">{{ q.message }}</div>
+          <div class="mt-4 flex flex-wrap gap-2">
+            <nord-button type="button" (click)="copiar()">
+              <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">content_copy</span>
+              Copiar
+            </nord-button>
+            <nord-button variant="primary" type="button" (click)="whatsapp()">
+              <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">chat</span>
+              Enviar no WhatsApp
+            </nord-button>
+            <nord-button type="button" [routerLink]="listLink" [queryParams]="personQuery()">
+              <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">list</span>
+              Ver listagem
+            </nord-button>
+          </div>
+        </g-card>
+      }
+    </div>
+  }
 }
