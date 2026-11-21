@@ -1,1 +1,0 @@
-import{g as o}from"./chunk-CECBHA2Z.js";import{Z as e}from"./chunk-6QJ7ZNCM.js";function n(){let t=(e(o).url.split("?")[0]||"/").replace(/\/$/,"")||"/";return{isMobileShell:t==="/m"||t.startsWith("/m/"),backLink:"/m/ferramentas"}}export{n as a};
