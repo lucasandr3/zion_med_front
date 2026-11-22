@@ -25,8 +25,8 @@
         <header class="dash-hero">
           <div class="dash-hero__text">
             <p class="dash-hero__eyebrow">Gestgo · Fichas e consentimentos</p>
-            <h1 class="dash-hero__title">Visão geral</h1>
-            <p class="dash-hero__sub">Métricas e gráficos do intervalo selecionado</p>
+            <h1 class="dash-hero__title">Visão geral da sua operação</h1>
+            <p class="dash-hero__sub">Acompanhe os atendimentos, documentos e indicadores mais importantes da empresa.</p>
           </div>
           <div class="dash-hero__actions" data-go-tour="dashboard-shortcuts">
             @if (podeRetomarOnboarding()) {
@@ -49,6 +49,29 @@
             </nord-button-group>
           </div>
         </header>
+
+        <nav class="dash-quick-grid" aria-label="Atalhos principais">
+          <a routerLink="/pessoas" class="dash-quick n-reset">
+            <span class="dash-quick__icon" aria-hidden="true"><span class="material-symbols-outlined gestgo-mi">group</span></span>
+            <span class="dash-quick__text"><strong>Pessoas</strong><small>Cadastros e histórico</small></span>
+            <span class="material-symbols-outlined gestgo-mi dash-quick__arrow" aria-hidden="true">chevron_right</span>
+          </a>
+          <a routerLink="/templates" class="dash-quick n-reset">
+            <span class="dash-quick__icon" aria-hidden="true"><span class="material-symbols-outlined gestgo-mi">description</span></span>
+            <span class="dash-quick__text"><strong>Modelos</strong><small>Gerenciar fichas</small></span>
+            <span class="material-symbols-outlined gestgo-mi dash-quick__arrow" aria-hidden="true">chevron_right</span>
+          </a>
+          <a routerLink="/links-publicos" class="dash-quick n-reset">
+            <span class="dash-quick__icon" aria-hidden="true"><span class="material-symbols-outlined gestgo-mi">add_link</span></span>
+            <span class="dash-quick__text"><strong>Links públicos</strong><small>Compartilhar formulários</small></span>
+            <span class="material-symbols-outlined gestgo-mi dash-quick__arrow" aria-hidden="true">chevron_right</span>
+          </a>
+          <a routerLink="/protocolos" class="dash-quick n-reset">
+            <span class="dash-quick__icon" aria-hidden="true"><span class="material-symbols-outlined gestgo-mi">fact_check</span></span>
+            <span class="dash-quick__text"><strong>Protocolos</strong><small>Revisar respostas</small></span>
+            <span class="material-symbols-outlined gestgo-mi dash-quick__arrow" aria-hidden="true">chevron_right</span>
+          </a>
+        </nav>
 
         <zm-dashboard-onboarding-wizard
           data-go-tour="dashboard-onboarding"
