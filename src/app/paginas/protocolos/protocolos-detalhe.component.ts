@@ -1158,9 +1158,15 @@ body.modo-pdf .documento {
     if (!p) return null;
     const key = field.name_key;
     const keyed = p.values_keyed?.[key];
-    if (keyed) {
-      if ('value_json' in keyed && keyed.value_json != null) return keyed.value_json;
-      if ('value_text' in keyed && keyed.value_text != null) return keyed.value_text;
+    if (keyed != null) {
+      if (typeof keyed === 'object') {
+        const entry = keyed as Record<string, unknown>;
+        if ('value_json' in entry && entry['value_json'] != null) return entry['value_json'];
+        if ('value_text' in entry && entry['value_text'] != null) return entry['value_text'];
+      }
+      // Respostas mais antigas podem vir diretamente como string, número,
+      // booleano ou array em values_keyed, sem o envelope value_*.
+      return keyed;
     }
     const form = p.form_data as Record<string, unknown> | undefined;
     return form?.[key] ?? null;
@@ -1497,7 +1503,17 @@ body.modo-pdf .documento {
     }
     if (!hasSource || !layout || !hasUsablePrintLayout(layout)) return null;
 
-    const sourceBlob = await firstValueFrom(this.templatesService.downloadSourceDocument(templateId));
+    let sourceBlob: Blob;
+    try {
+      sourceBlob = await firstValueFrom(this.templatesService.downloadSourceDocument(templateId));
+    } catch (err) {
+      // Alguns protocolos antigos mantêm has_source_document=true mesmo após o
+      // arquivo original ter sido removido. Nesse caso, usa o PDF padrão.
+      if (err instanceof HttpErrorResponse && err.status === 404 && p.template) {
+        p.template.has_source_document = false;
+      }
+      return null;
+    }
     const sourceBytes = new Uint8Array(await sourceBlob.arrayBuffer());
     const values = await this.montarValoresPrintLayout();
 
@@ -1731,8 +1747,13 @@ body.modo-pdf .documento {
         a.click();
         URL.revokeObjectURL(url);
       },
-      error: () => {
+      error: (err: unknown) => {
         this.baixandoOriginal.set(false);
+        if (err instanceof HttpErrorResponse && err.status === 404) {
+          if (p.template) p.template.has_source_document = false;
+          this.toast.warning('Documento original', 'O PDF original não está mais disponível.');
+          return;
+        }
         this.toast.error('Documento original', 'Não foi possível baixar o PDF original.');
       },
     });
