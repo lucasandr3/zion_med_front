@@ -469,3 +469,136 @@ a.dash-cat-row:hover {
 .min-w-0 {
   min-width: 0;
 }
+
+/* Revitalização: base limpa da v1 com profundidade e atalhos da v2. */
+.dash-hero {
+  --dash-accent: var(--n-color-accent, var(--c-primary, #0b7a57));
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  align-items: center;
+  padding: clamp(1.4rem, 3vw, 2rem);
+  border: 1px solid color-mix(in srgb, var(--dash-accent) 24%, var(--n-color-border, transparent));
+  border-radius: 1.125rem;
+  background:
+    radial-gradient(circle at 92% 5%, color-mix(in srgb, var(--dash-accent) 14%, transparent), transparent 38%),
+    color-mix(in srgb, var(--n-color-surface, #fff) 94%, var(--dash-accent) 6%);
+}
+
+.dash-hero::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  width: 15rem;
+  height: 15rem;
+  right: -7rem;
+  bottom: -9rem;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--dash-accent) 10%, transparent);
+}
+
+.dash-hero__text {
+  min-width: min(100%, 28rem);
+}
+
+.dash-hero__actions {
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.dash-quick-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.dash-quick {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+  min-height: 4.25rem;
+  padding: 0.8rem 0.9rem;
+  border: 1px solid var(--n-color-border, var(--c-border));
+  border-radius: 0.875rem;
+  background: var(--n-color-surface, #fff);
+  color: inherit;
+  text-decoration: none;
+  transition: border-color 150ms ease, box-shadow 150ms ease, transform 150ms ease;
+}
+
+.dash-quick:hover {
+  border-color: color-mix(in srgb, var(--n-color-accent, var(--c-primary)) 45%, var(--n-color-border, var(--c-border)));
+  box-shadow: 0 0.5rem 1.4rem color-mix(in srgb, var(--n-color-accent, var(--c-primary)) 10%, transparent);
+  transform: translateY(-2px);
+}
+
+.dash-quick__icon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.75rem;
+  background: color-mix(in srgb, var(--n-color-accent, var(--c-primary)) 12%, transparent);
+  color: var(--n-color-accent, var(--c-primary));
+}
+
+.dash-quick__text {
+  min-width: 0;
+  flex: 1;
+}
+
+.dash-quick__text strong,
+.dash-quick__text small {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dash-quick__text strong {
+  font-size: 0.875rem;
+}
+
+.dash-quick__text small {
+  margin-top: 0.15rem;
+  color: var(--n-color-text-weaker, var(--c-muted));
+  font-size: 0.75rem;
+}
+
+.dash-quick__arrow {
+  flex: 0 0 auto;
+  color: var(--n-color-text-weaker, var(--c-muted));
+  transition: transform 150ms ease, color 150ms ease;
+}
+
+.dash-quick:hover .dash-quick__arrow {
+  color: var(--n-color-accent, var(--c-primary));
+  transform: translateX(0.2rem);
+}
+
+@media (min-width: 1024px) {
+  .dash-quick-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 520px) {
+  .dash-quick-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dash-hero__actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dash-quick,
+  .dash-quick__arrow {
+    transition: none;
+  }
+}

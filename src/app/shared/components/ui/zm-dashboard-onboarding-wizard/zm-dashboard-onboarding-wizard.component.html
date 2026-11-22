@@ -11,17 +11,22 @@
             Digitalize a ficha que você já usa
           </h2>
           <p class="onboarding-wizard__subtitle">
-            Importe seu PDF, mapeie os campos, publique um link de teste e veja o primeiro documento
-            assinado — sem reinventar o formulário da clínica.
+            Próximo passo: {{ checklist[passoAtivo() - 1].label }}.
           </p>
+          <div class="onboarding-wizard__progress" role="progressbar" aria-label="Progresso da ativação" aria-valuemin="0" aria-valuemax="6" [attr.aria-valuenow]="passoAtivo()">
+            <span [style.width.%]="(passoAtivo() / 6) * 100"></span>
+          </div>
         </div>
       </div>
-      <nord-button type="button" variant="default" class="shrink-0" (click)="dispensar()">
-        <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">schedule</span>
-        Lembrar depois
-      </nord-button>
+      <div class="onboarding-wizard__header-actions">
+        <nord-button type="button" variant="primary" (click)="alternarExpansao()" [attr.aria-expanded]="expandido()">
+          {{ expandido() ? 'Recolher' : 'Continuar' }}
+        </nord-button>
+        <nord-button type="button" variant="default" (click)="dispensar()">Lembrar depois</nord-button>
+      </div>
     </div>
 
+    @if (expandido()) {
     <ol class="onboarding-wizard__steps" aria-label="Checklist de ativação">
       @for (step of checklist; track step.key; let i = $index) {
         <li
@@ -272,6 +277,7 @@
           </div>
         </div>
       }
+    }
     }
   </section>
 }

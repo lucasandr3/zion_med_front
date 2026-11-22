@@ -60,6 +60,7 @@ export class ZmDashboardOnboardingWizardComponent implements OnChanges {
   readonly gerandoLink = signal(false);
   readonly enviandoParaMim = signal(false);
   readonly linkCopiado = signal(false);
+  readonly expandido = signal(false);
   readonly personalizou = signal(false);
   readonly testouPreenchimento = signal(false);
   readonly viuResultado = signal(false);
@@ -103,6 +104,10 @@ export class ZmDashboardOnboardingWizardComponent implements OnChanges {
       this.testouPreenchimento() &&
       this.viuResultado(),
   );
+
+  alternarExpansao(): void {
+    this.expandido.update((value) => !value);
+  }
 
   private copyResetTimer: ReturnType<typeof setTimeout> | null = null;
 
