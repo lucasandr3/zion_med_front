@@ -42,6 +42,9 @@ export class TemplatesEditarComponent implements OnInit {
   public_require_person_link = false;
   /** Só usado se exigir vínculo com pessoa no link público. */
   public_person_link_mode: 'code' | 'cpf' = 'code';
+  /** PAC-05 — política de pré-preenchimento após o gate. */
+  public_prefill_from_person = true;
+  public_prefill_from_last_protocol = true;
   document_kind: 'ficha' | 'consentimento' | 'ciencia_lgpd' = 'ficha';
   /** Vazio = sem validade temporal. */
   consent_validity_days: number | null = null;
@@ -104,6 +107,8 @@ export class TemplatesEditarComponent implements OnInit {
         this.public_require_person_link = t.public_require_person_link ?? false;
         const mode = (t.public_person_link_mode ?? 'code').toString().toLowerCase();
         this.public_person_link_mode = mode === 'cpf' ? 'cpf' : 'code';
+        this.public_prefill_from_person = t.public_prefill_from_person ?? true;
+        this.public_prefill_from_last_protocol = t.public_prefill_from_last_protocol ?? true;
         const kind = (t.document_kind || (t.category === 'consentimento' ? 'consentimento' : 'ficha')).toString();
         this.document_kind =
           kind === 'consentimento' || kind === 'ciencia_lgpd' ? kind : 'ficha';
@@ -145,6 +150,10 @@ export class TemplatesEditarComponent implements OnInit {
         public_enabled: this.public_enabled,
         public_require_person_link: this.public_require_person_link,
         public_person_link_mode: this.public_require_person_link ? this.public_person_link_mode : undefined,
+        public_prefill_from_person: this.public_require_person_link ? this.public_prefill_from_person : true,
+        public_prefill_from_last_protocol: this.public_require_person_link
+          ? this.public_prefill_from_last_protocol
+          : true,
         document_kind: this.document_kind,
         consent_validity_days:
           this.document_kind === 'consentimento' && this.consent_validity_days != null && this.consent_validity_days > 0

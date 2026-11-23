@@ -168,12 +168,46 @@ export interface LinkBioGoogleReviews {
   reviews: LinkBioGoogleReview[];
 }
 
+/** Snapshot público do Gestgo Studio (modo Link), quando publicado. */
+export interface StudioLinkPublicData {
+  enabled: boolean;
+  specialtyKey: string;
+  templateId: string;
+  shared: {
+    displayName: string;
+    headline: string;
+    description: string;
+    ctaLabel: string;
+    city: string;
+    whatsapp: string;
+    instagram: string;
+    bookingUrl: string;
+    media?: {
+      heroUrl?: string | null;
+      portraitUrl?: string | null;
+      officeUrl?: string | null;
+    };
+  };
+  blocks: Array<{
+    id: string;
+    type: string;
+    enabled: boolean;
+    order: number;
+    variant: string;
+    title: string;
+    description: string;
+  }>;
+  themeOverrides?: Record<string, string | number>;
+  publishedAt?: string | null;
+}
+
 /** Resposta do endpoint público GET /link-bio/public/:slug */
 export interface LinkBioPublicData {
   clinic: LinkBioClinic;
   links: LinkBioLink[];
   form_links: { id: number; name: string; public_url: string }[];
   google_reviews?: LinkBioGoogleReviews | null;
+  studio_link?: StudioLinkPublicData | null;
 }
 
 export interface LinkBioState {

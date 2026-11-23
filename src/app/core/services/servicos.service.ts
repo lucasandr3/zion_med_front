@@ -11,6 +11,8 @@ export interface ClinicServiceItem {
   show_price?: boolean;
   photo_url?: string | null;
   form_template_id?: number | null;
+  /** AUT-06.1 — 2º documento opcional do pacote. */
+  form_template_optional_id?: number | null;
   is_active?: boolean;
   sort_order?: number;
 }

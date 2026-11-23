@@ -19,7 +19,7 @@ import {
   ApexResponsive,
 } from 'ng-apexcharts';
 import { isBillingBlockedError } from '../../core/utils/billing-blocked-error';
-import { DashboardService } from '../../core/services/dashboard.service';
+import { DashboardData, DashboardService } from '../../core/services/dashboard.service';
 import { ComplianceReportData, ComplianceService } from '../../core/services/compliance.service';
 import { TemplatesService, Template } from '../../core/services/templates.service';
 import { LoadingService } from '../../shared/services/loading.service';
@@ -163,6 +163,7 @@ export class DashboardComponent implements OnInit {
   readonly periodoSelecionado = signal(7);
   readonly mostrarWizardOnboarding = signal(false);
   readonly podeRetomarOnboarding = signal(false);
+  readonly serverOnboarding = signal<DashboardData['onboarding'] | null>(null);
   readonly complianceReport = signal<ComplianceReportData | null>(null);
   readonly periodOptions = [
     { days: 7, label: '7 dias' },
@@ -267,6 +268,7 @@ export class DashboardComponent implements OnInit {
         this.variacaoRespostasPositiva.set(comparativo?.positiva ?? this.variacaoRespostasAbsoluta() >= 0);
         this.taxaAprovacaoResumo.set(dash.taxa_aprovacao ?? 0);
         this.linksPublicosCount.set(dash.links_publicos_count ?? 0);
+        this.serverOnboarding.set(dash.onboarding ?? null);
         this.atualizarWizardOnboarding();
         const respostasPorTemplate = dash.respostas_por_template ?? {};
         this.ultimasSubmissoes.set((dash.ultimas_submissoes ?? []).map((s) => ({

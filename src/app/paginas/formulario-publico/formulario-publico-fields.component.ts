@@ -36,6 +36,11 @@ export class FormularioPublicoFieldsComponent implements AfterViewInit, OnChange
   @Input() termScrollRequired = false;
   @Input() noticeScrollState: Record<string, boolean> = {};
   @Input() invalidFieldKeys = new Set<string>();
+  /** PAC-05 — campos pré-preenchidos do cadastro (hint de revisão). */
+  @Input() prefilledFieldKeys: ReadonlySet<string> = new Set();
+  /** PAC-05 — subset preenchido a partir do último protocolo. */
+  @Input() prefillFromProtocolFieldKeys: ReadonlySet<string> = new Set();
+  @Input() prefillSourceLabel: string | null = null;
 
   @Output() fieldChange = new EventEmitter<void>();
   @Output() noticeScroll = new EventEmitter<{ key: string; scrolled: boolean }>();
@@ -67,6 +72,18 @@ export class FormularioPublicoFieldsComponent implements AfterViewInit, OnChange
 
   isNoticeScrolled(nameKey: string): boolean {
     return this.noticeScrollState[nameKey] === true;
+  }
+
+  isPrefillHint(nameKey: string): boolean {
+    return this.prefilledFieldKeys.has(nameKey);
+  }
+
+  prefillHintText(nameKey: string): string {
+    if (this.prefillFromProtocolFieldKeys.has(nameKey)) {
+      return 'Último protocolo · confira';
+    }
+    const source = (this.prefillSourceLabel || 'Cadastro da clínica').trim();
+    return `${source} · confira`;
   }
 
   onTermNoticeScroll(nameKey: string, event: Event): void {

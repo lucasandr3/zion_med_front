@@ -9,17 +9,23 @@ import { FormularioPublicoField } from '../../core/services/formulario-publico.s
 
 describe('formulario-publico-term-scroll.util', () => {
   const noticeField: FormularioPublicoField = {
+    id: 1,
     name_key: 'termo',
     label: 'Texto do termo',
     type: 'notice',
     required: false,
+    options: [],
+    sort_order: 0,
   };
 
   const textField: FormularioPublicoField = {
+    id: 2,
     name_key: 'nome',
     label: 'Nome',
     type: 'text',
     required: true,
+    options: [],
+    sort_order: 1,
   };
 
   it('detects notice fields', () => {

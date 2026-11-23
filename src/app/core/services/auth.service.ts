@@ -344,6 +344,7 @@ export class AuthService {
       ['/envios', () => this.hasPermission('templates.manage') || this.hasPermission('submissions.view')],
       ['/configuracoes', () => this.hasPermission('organization.manage') || this.hasPermission('users.manage') || this.hasPermission('billing.manage')],
       ['/assinatura', () => this.hasPermission('billing.manage')],
+      ['/studio', () => this.hasPermission('organization.manage')],
       ['/link-bio', () => this.hasPermission('organization.manage')],
       ['/clinica/configuracoes', () => this.hasPermission('organization.manage')],
       ['/clinica/integracoes', () => this.hasPermission('organization.manage')],

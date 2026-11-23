@@ -24,6 +24,7 @@ import { TemplatesService } from '../../core/services/templates.service';
 import { fillSourcePdf, fetchImageBytes, type FillSourcePdfFieldValue } from '../../core/utils/fill-source-pdf.util';
 import { hasUsablePrintLayout, parsePrintLayout } from '../../core/utils/print-layout.util';
 import { openWhatsappShare } from '../../core/utils/whatsapp-share.util';
+import { ProductTelemetryService } from '../../core/services/product-telemetry.service';
 import { firstValueFrom } from 'rxjs';
 
 import { GestgoBadgeComponent } from '@/shared/components/badge/badge.component';
@@ -122,6 +123,7 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
   private readonly templatesService = inject(TemplatesService);
   private readonly loadingService = inject(LoadingService);
   private readonly toast = inject(ToastService);
+  private readonly productTelemetry = inject(ProductTelemetryService);
   private readonly confirm = inject(ConfirmDialogService);
   private readonly auth = inject(AuthService);
   private readonly clinicaService = inject(ClinicaService);
@@ -1844,6 +1846,11 @@ body.modo-pdf .documento {
       next: (res) => {
         this.solicitandoReconsentimento.set(false);
         if (res.delivery_mode === 'manual' && res.share_message) {
+          this.productTelemetry.trackDocumentShare({
+            source: 'protocolos',
+            channel: 'whatsapp',
+            document_send_id: res.send_id ?? null,
+          });
           openWhatsappShare(
             res.share_message,
             res.recipient_phone ?? this.pessoaCompleta()?.phone ?? null,

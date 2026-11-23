@@ -108,9 +108,26 @@ export class MobilePacientesComponent implements OnInit {
     this.detail.set(null);
   }
 
-  enviarFicha(personId: number): void {
-    const hop = preparePainelHop(`/envios?person_id=${personId}`, '/m/pacientes');
+  enviarFicha(pessoa: PessoaDetalhe): void {
+    const parts = [`person_id=${pessoa.id}`];
+    const templateId = this.sugerirTemplateIdEnvio(pessoa);
+    if (templateId) parts.push(`template_id=${templateId}`);
+    const hop = preparePainelHop(`/envios?${parts.join('&')}`, '/m/pacientes');
     void this.router.navigate([hop.path], { queryParams: hop.queryParams });
+  }
+
+  private sugerirTemplateIdEnvio(pessoa: PessoaDetalhe): number | null {
+    const consent = pessoa.consent_summary;
+    if (consent?.status?.toLowerCase() === 'expired') {
+      const tid = Number(consent.template_id ?? 0);
+      if (tid > 0) return tid;
+    }
+    for (const pr of pessoa.recent_protocols ?? []) {
+      const tid = Number(pr.template_id ?? 0);
+      if (tid > 0) return tid;
+    }
+    const fromConsent = Number(consent?.template_id ?? 0);
+    return fromConsent > 0 ? fromConsent : null;
   }
 
   abrirDocumentos(): void {

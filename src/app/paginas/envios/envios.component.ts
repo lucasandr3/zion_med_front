@@ -7,11 +7,12 @@ import { PessoasService, Pessoa } from '../../core/services/pessoas.service';
 import { LinksPublicosService } from '../../core/services/links-publicos.service';
 import { LoadingService } from '../../shared/services/loading.service';
 import { ListSkeletonComponent } from '../../shared/components/list-skeleton/list-skeleton.component';
-import { ZmPaginationComponent } from '../../shared/components/ui';
+import { ZmEmptyStateComponent, ZmPaginationComponent } from '../../shared/components/ui';
 import { GestgoComboboxComponent, type GestgoComboboxOption } from '@/shared/components/combobox';
 import { ToastService } from '../../core/services/toast.service';
 import { ConfirmDialogService } from '../../core/services/confirm-dialog.service';
 import { openWhatsappShare } from '../../core/utils/whatsapp-share.util';
+import { ProductTelemetryService } from '../../core/services/product-telemetry.service';
 
 interface DocumentoPublicoOpcao {
   id: number;
@@ -32,6 +33,7 @@ import { formatarDataHoraBr } from '@/shared/utils/date';
     ...NORD_FORM_IMPORTS,
     FormsModule,
     ListSkeletonComponent,
+    ZmEmptyStateComponent,
     ZmPaginationComponent,
     GestgoComboboxComponent,
   ],
@@ -64,6 +66,9 @@ export class EnviosComponent implements OnInit {
   readonly buscandoPessoas = signal(false);
   readonly enviando = signal(false);
   readonly erroNovo = signal('');
+  /** PAC-05 — aviso quando pessoa/modelo vieram do deep-link da ficha. */
+  readonly prefillBanner = signal<string | null>(null);
+  private pendingTemplateIdFromQuery: number | null = null;
   private pessoaBusca$ = new Subject<string>();
   private suprimirBuscaAutomatica = false;
 
@@ -73,6 +78,7 @@ export class EnviosComponent implements OnInit {
   private loadingService = inject(LoadingService);
   private toast = inject(ToastService);
   private confirm = inject(ConfirmDialogService);
+  private productTelemetry = inject(ProductTelemetryService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
 
@@ -100,16 +106,28 @@ export class EnviosComponent implements OnInit {
       .subscribe((termo) => this.buscarPessoasPorTermo(termo));
     this.carregar();
     const qp = this.route.snapshot.queryParamMap;
+    const caixaQp = qp.get('caixa');
+    if (caixaQp === 'pendentes' || caixaQp === 'assinados' || caixaQp === 'expirados' || caixaQp === 'cancelados') {
+      this.caixaAtual.set(caixaQp);
+      this.carregar();
+    }
     const personId = Number(qp.get('person_id') || '');
-    const abrirNovo = qp.get('novo') === '1' || (Number.isFinite(personId) && personId > 0);
+    const templateId = Number(qp.get('template_id') || '');
+    const hasPerson = Number.isFinite(personId) && personId > 0;
+    const hasTemplate = Number.isFinite(templateId) && templateId > 0;
+    const abrirNovo = qp.get('novo') === '1' || hasPerson || hasTemplate;
     if (abrirNovo) {
+      if (hasTemplate) {
+        this.pendingTemplateIdFromQuery = templateId;
+      }
       this.abrirNovoEnvio();
-      if (Number.isFinite(personId) && personId > 0) {
+      if (hasPerson) {
         this.preencherPessoaDoQuery(personId);
       }
+      this.atualizarPrefillBanner(hasPerson, hasTemplate);
       void this.router.navigate([], {
         relativeTo: this.route,
-        queryParams: { novo: null, person_id: null },
+        queryParams: { novo: null, person_id: null, template_id: null },
         queryParamsHandling: 'merge',
         replaceUrl: true,
       });
@@ -141,11 +159,13 @@ export class EnviosComponent implements OnInit {
           }))
           .filter((item) => item.id > 0 && item.name.length > 0);
         this.documentosPublicos.set(docs);
-        const primeiro = docs[0];
-        if (primeiro && this.novoEnvio.template_id <= 0) {
-          this.novoEnvio.template_id = primeiro.id;
-        } else if (!primeiro) {
-          this.novoEnvio.template_id = 0;
+        if (!this.aplicarTemplatePendenteSePossivel(docs)) {
+          const primeiro = docs[0];
+          if (primeiro && this.novoEnvio.template_id <= 0) {
+            this.novoEnvio.template_id = primeiro.id;
+          } else if (!primeiro) {
+            this.novoEnvio.template_id = 0;
+          }
         }
       },
       error: () => {
@@ -290,9 +310,27 @@ export class EnviosComponent implements OnInit {
     if (this.documentosPublicos().length === 0) {
       this.carregarDocumentosPublicos();
     }
-    const primeiroTemplatePublico = this.documentosPublicos()[0];
+    const docs = this.documentosPublicos();
+    const primeiroTemplatePublico = docs[0];
+    let templateId = primeiroTemplatePublico?.id ?? 0;
+    if (this.pendingTemplateIdFromQuery) {
+      const match = docs.find((d) => d.id === this.pendingTemplateIdFromQuery);
+      if (match) {
+        templateId = match.id;
+        this.pendingTemplateIdFromQuery = null;
+      } else if (docs.length === 0) {
+        // lista ainda carregando — aplica em carregarDocumentosPublicos
+        templateId = this.pendingTemplateIdFromQuery;
+      } else {
+        this.toast.warning(
+          'Documento',
+          'O modelo sugerido não está entre os documentos públicos ativos. Selecione outro.',
+        );
+        this.pendingTemplateIdFromQuery = null;
+      }
+    }
     this.novoEnvio = {
-      template_id: primeiroTemplatePublico?.id ?? 0,
+      template_id: templateId,
       channel: 'email',
       destino: 'manual',
       person_id: null,
@@ -427,6 +465,8 @@ export class EnviosComponent implements OnInit {
 
   fecharNovoEnvio(): void {
     this.mostrarNovoEnvio.set(false);
+    this.prefillBanner.set(null);
+    this.pendingTemplateIdFromQuery = null;
   }
 
   enviarNovo(): void {
@@ -498,6 +538,12 @@ export class EnviosComponent implements OnInit {
         this.enviando.set(false);
         const data = res.data;
         if (this.novoEnvio.channel === 'whatsapp' && data?.share_message) {
+          this.productTelemetry.trackDocumentShare({
+            source: 'envios',
+            channel: 'whatsapp',
+            template_id: payload.template_id ?? null,
+            document_send_id: data?.id ?? null,
+          });
           openWhatsappShare(data.share_message, data.recipient_phone || payload.recipient_phone);
           this.fecharNovoEnvio();
           this.setCaixa('pendentes');
@@ -521,5 +567,41 @@ export class EnviosComponent implements OnInit {
 
   selecionarTemplatePublico(templateId: string | null): void {
     this.novoEnvio.template_id = Number(templateId ?? '') || 0;
+  }
+
+  private atualizarPrefillBanner(hasPerson: boolean, hasTemplate: boolean): void {
+    if (!hasPerson && !hasTemplate) {
+      this.prefillBanner.set(null);
+      return;
+    }
+    if (hasPerson && hasTemplate) {
+      this.prefillBanner.set('Pessoa e documento pré-preenchidos a partir da ficha. Confira e envie.');
+      return;
+    }
+    if (hasPerson) {
+      this.prefillBanner.set('Pessoa pré-selecionada a partir da ficha. Escolha o documento e envie.');
+      return;
+    }
+    this.prefillBanner.set('Documento sugerido a partir da ficha. Confira o destinatário e envie.');
+  }
+
+  /** PAC-05 — aplica template_id do deep-link quando a lista pública já carregou. */
+  private aplicarTemplatePendenteSePossivel(docs: DocumentoPublicoOpcao[]): boolean {
+    const pending = this.pendingTemplateIdFromQuery;
+    if (!pending) return false;
+    const match = docs.find((d) => d.id === pending);
+    if (match) {
+      this.novoEnvio.template_id = match.id;
+      this.pendingTemplateIdFromQuery = null;
+      return true;
+    }
+    if (docs.length > 0) {
+      this.toast.warning(
+        'Documento',
+        'O modelo sugerido não está entre os documentos públicos ativos. Selecione outro.',
+      );
+      this.pendingTemplateIdFromQuery = null;
+    }
+    return false;
   }
 }

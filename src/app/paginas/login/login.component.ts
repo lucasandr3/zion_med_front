@@ -3,6 +3,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../core/services/auth.service';
+import { DashboardService } from '../../core/services/dashboard.service';
 import { UserAppearanceService } from '../../core/services/user-appearance.service';
 import {
   GESTGO_APPEARANCE_MODE_LS,
@@ -37,6 +38,7 @@ export class LoginComponent implements OnInit {
     private router: Router,
     private auth: AuthService,
     private appearance: UserAppearanceService,
+    private dashboard: DashboardService,
   ) {}
 
   ngOnInit(): void {
@@ -123,7 +125,7 @@ export class LoginComponent implements OnInit {
         }
         const hasOrg = res.data.current_organization_id != null || res.data.current_clinic_id != null;
         if (hasOrg) {
-          void this.router.navigateByUrl(this.auth.getDefaultTenantPath());
+          this.navegarPosLoginTenant();
         } else {
           this.router.navigate(['/clinica/escolher']);
         }
@@ -133,6 +135,35 @@ export class LoginComponent implements OnInit {
         this.estadoErro.set(true);
         const msg = err.error?.message ?? err.error?.errors?.email?.[0] ?? 'Credenciais inválidas. Tente novamente.';
         this.mensagemErro.set(typeof msg === 'string' ? msg : 'Credenciais inválidas. Tente novamente.');
+      },
+    });
+  }
+
+  /** UX-04: se onboarding incompleto e há acesso a Documentos, leva ao hub (≤2 passos até o fluxo). */
+  private navegarPosLoginTenant(): void {
+    const fallback = this.auth.getDefaultTenantPath();
+    if (fallback === '/m' || fallback.startsWith('/m/')) {
+      void this.router.navigateByUrl(fallback);
+      return;
+    }
+
+    const canDocs =
+      this.auth.hasPermission('templates.manage') || this.auth.hasPermission('submissions.view');
+    if (!canDocs) {
+      void this.router.navigateByUrl(fallback);
+      return;
+    }
+
+    this.dashboard.getDashboard().subscribe({
+      next: (data) => {
+        if (data.onboarding && data.onboarding.completed === false) {
+          void this.router.navigateByUrl('/documentos');
+          return;
+        }
+        void this.router.navigateByUrl(fallback);
+      },
+      error: () => {
+        void this.router.navigateByUrl(fallback);
       },
     });
   }

@@ -185,6 +185,14 @@ export const ASSISTANT_SCREENS: AssistantScreen[] = [
     quickAskIntentIds: ['integracoes.feegow'],
   },
   {
+    id: 'studio',
+    moduleId: 'studio',
+    title: 'Gestgo Studio',
+    routePatterns: ['/studio'],
+    permissionsAny: ['organization.manage'],
+    quickAskIntentIds: [],
+  },
+  {
     id: 'link-bio',
     moduleId: 'link-bio',
     title: 'Link na bio',

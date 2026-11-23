@@ -13,12 +13,16 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
-import { finalize } from 'rxjs';
+import { catchError, finalize, of } from 'rxjs';
 import { OnboardingService } from '../../../../core/services/onboarding.service';
 import { AuthService } from '../../../../core/services/auth.service';
+import { ClinicaConfig, ClinicaService } from '../../../../core/services/clinica.service';
+import { DashboardData } from '../../../../core/services/dashboard.service';
+import { ProductTelemetryService } from '../../../../core/services/product-telemetry.service';
 import { ToastService } from '../../../../core/services/toast.service';
 import { TemplatePublishGuardService } from '../../../../core/services/template-publish-guard.service';
 import { Template } from '../../../../core/services/templates.service';
+import { nicheToSegmentKey, segmentKeyToNiche } from '../../../../core/utils/onboarding-niche.util';
 import { normalizePublicAppUrl } from '../../../../core/utils/public-form-url.util';
 
 const DISMISS_PREFIX = 'zm_onboarding_dismiss_';
@@ -44,11 +48,15 @@ type OnboardingStepKey =
 })
 export class ZmDashboardOnboardingWizardComponent implements OnChanges {
   readonly visible = input.required<boolean>();
+  /** Snapshot de GET /dashboard.onboarding — hidrata passos 2–5 sem depender só do localStorage. */
+  readonly serverOnboarding = input<DashboardData['onboarding'] | null>(null);
   readonly dismissed = output<void>();
   readonly linkGenerated = output<void>();
 
   private onboarding = inject(OnboardingService);
   private auth = inject(AuthService);
+  private clinica = inject(ClinicaService);
+  private telemetry = inject(ProductTelemetryService);
   private toast = inject(ToastService);
   private publishGuard = inject(TemplatePublishGuardService);
   private destroyRef = inject(DestroyRef);
@@ -64,6 +72,10 @@ export class ZmDashboardOnboardingWizardComponent implements OnChanges {
   readonly personalizou = signal(false);
   readonly testouPreenchimento = signal(false);
   readonly viuResultado = signal(false);
+  /** Marcos do servidor (checklist 3 passos do dashboard). */
+  readonly serverHasTemplate = signal(false);
+  readonly serverHasLink = signal(false);
+  readonly serverHasSend = signal(false);
 
   readonly checklist: ReadonlyArray<{ key: OnboardingStepKey; label: string }> = [
     { key: 'segment', label: 'Especialidade' },
@@ -84,25 +96,41 @@ export class ZmDashboardOnboardingWizardComponent implements OnChanges {
 
   readonly segmento = signal<string | null>(null);
 
+  private temTemplateLocalOuServer(): boolean {
+    return !!this.templateSelecionadoId() || this.serverHasTemplate();
+  }
+
+  private temLinkLocalOuServer(): boolean {
+    return !!this.linkPublicoUrl() || this.serverHasLink();
+  }
+
+  private temTesteLocalOuServer(): boolean {
+    return this.testouPreenchimento() || this.serverHasSend();
+  }
+
+  private temPersonalizacaoLocalOuServer(): boolean {
+    return this.personalizou() || this.serverHasTemplate();
+  }
+
   /** 1..6 conforme progresso mínimo para ativação. */
   readonly passoAtivo = computed(() => {
     if (!this.segmento()) return 1;
-    if (!this.templateSelecionadoId()) return 2;
-    if (!this.personalizou()) return 3;
-    if (!this.linkPublicoUrl()) return 4;
-    if (!this.testouPreenchimento()) return 5;
-    if (!this.viuResultado()) return 6;
+    if (!this.temTemplateLocalOuServer()) return 2;
+    if (!this.temPersonalizacaoLocalOuServer()) return 3;
+    if (!this.temLinkLocalOuServer()) return 4;
+    if (!this.temTesteLocalOuServer()) return 5;
+    if (!this.viuResultado() && !this.serverHasSend()) return 6;
     return 6;
   });
 
   readonly ativacaoConcluida = computed(
     () =>
       !!this.segmento() &&
-      !!this.templateSelecionadoId() &&
-      this.personalizou() &&
-      !!this.linkPublicoUrl() &&
-      this.testouPreenchimento() &&
-      this.viuResultado(),
+      this.temTemplateLocalOuServer() &&
+      this.temPersonalizacaoLocalOuServer() &&
+      this.temLinkLocalOuServer() &&
+      this.temTesteLocalOuServer() &&
+      (this.viuResultado() || this.serverHasSend()),
   );
 
   alternarExpansao(): void {
@@ -123,13 +151,58 @@ export class ZmDashboardOnboardingWizardComponent implements OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (
-      changes['visible']?.currentValue === true &&
-      this.templates().length === 0 &&
-      !this.carregandoTemplates()
-    ) {
-      this.carregarTemplates();
+    if (changes['serverOnboarding']) {
+      this.aplicarServerOnboarding(this.serverOnboarding());
     }
+    if (changes['visible']?.currentValue === true) {
+      this.hidratarSegmentoDaOrg();
+      if (this.templates().length === 0 && !this.carregandoTemplates()) {
+        this.carregarTemplates();
+      }
+    }
+  }
+
+  private aplicarServerOnboarding(data: DashboardData['onboarding'] | null | undefined): void {
+    if (!data) return;
+    this.serverHasTemplate.set((data.templates_count ?? 0) > 0);
+    this.serverHasLink.set((data.public_links_count ?? 0) > 0);
+    this.serverHasSend.set((data.sends_count ?? 0) + (data.submissions_count ?? 0) > 0);
+    if (this.serverHasTemplate() && !this.personalizou()) {
+      this.personalizou.set(true);
+    }
+    if (this.serverHasSend() && !this.testouPreenchimento()) {
+      this.testouPreenchimento.set(true);
+    }
+    if (this.serverHasSend() && !this.viuResultado()) {
+      this.viuResultado.set(true);
+    }
+  }
+
+  /** Preferência: LS por org → niche da clínica → LS legado global. */
+  private hidratarSegmentoDaOrg(): void {
+    if (this.segmento()) return;
+    const orgId = this.auth.getCurrentOrganizationId();
+    if (orgId != null) {
+      try {
+        const perOrg = localStorage.getItem(`${SEGMENT_KEY}_${orgId}`);
+        if (perOrg) {
+          this.segmento.set(perOrg);
+          return;
+        }
+      } catch {
+        /* ignore */
+      }
+    }
+
+    if (!this.auth.hasPermission('organization.manage')) return;
+    this.clinica
+      .getConfiguracoes()
+      .pipe(takeUntilDestroyed(this.destroyRef), catchError(() => of(null)))
+      .subscribe((cfg) => {
+        if (this.segmento() || !cfg?.niche) return;
+        const seg = nicheToSegmentKey(cfg.niche);
+        if (seg) this.segmento.set(seg);
+      });
   }
 
   carregarTemplates(): void {
@@ -156,12 +229,25 @@ export class ZmDashboardOnboardingWizardComponent implements OnChanges {
 
   selecionarSegmento(key: string): void {
     this.segmento.set(key);
+    const niche = segmentKeyToNiche(key);
+    const orgId = this.auth.getCurrentOrganizationId();
     try {
       localStorage.setItem(SEGMENT_KEY, key);
+      if (orgId != null) localStorage.setItem(`${SEGMENT_KEY}_${orgId}`, key);
     } catch {
       /* ignore */
     }
     this.persistirProgresso();
+    this.telemetry.trackOnboardingSegment({ segment: key, niche });
+
+    if (this.auth.hasPermission('organization.manage')) {
+      this.clinica
+        .updateConfiguracoes({ niche } as Partial<ClinicaConfig>)
+        .pipe(catchError(() => of(null)))
+        .subscribe(() => this.carregarTemplates());
+      return;
+    }
+    this.carregarTemplates();
   }
 
   selecionarTemplate(id: number): void {
@@ -318,15 +404,15 @@ export class ZmDashboardOnboardingWizardComponent implements OnChanges {
       case 'segment':
         return !!this.segmento();
       case 'template':
-        return !!this.templateSelecionadoId();
+        return this.temTemplateLocalOuServer();
       case 'personalize':
-        return this.personalizou();
+        return this.temPersonalizacaoLocalOuServer();
       case 'public_link':
-        return !!this.linkPublicoUrl();
+        return this.temLinkLocalOuServer();
       case 'test_fill':
-        return this.testouPreenchimento();
+        return this.temTesteLocalOuServer();
       case 'see_result':
-        return this.viuResultado();
+        return this.viuResultado() || this.serverHasSend();
       default:
         return false;
     }
@@ -393,14 +479,15 @@ export class ZmDashboardOnboardingWizardComponent implements OnChanges {
   }
 
   private restaurarProgressoLocal(): void {
+    const orgId = this.auth.getCurrentOrganizationId();
     try {
-      const seg = localStorage.getItem(SEGMENT_KEY);
+      const perOrg = orgId != null ? localStorage.getItem(`${SEGMENT_KEY}_${orgId}`) : null;
+      const seg = perOrg || localStorage.getItem(SEGMENT_KEY);
       if (seg) this.segmento.set(seg);
     } catch {
       /* ignore */
     }
 
-    const orgId = this.auth.getCurrentOrganizationId();
     if (orgId == null) return;
     try {
       const raw = localStorage.getItem(`${PROGRESS_PREFIX}${orgId}`);

@@ -114,6 +114,10 @@ export class ErrorHubService {
         customer_name: org?.name,
         route: this.router.url,
         status: err.status,
+        request_id:
+          err.headers?.get('X-Request-Id')
+          || req.headers.get('X-Request-Id')
+          || undefined,
         ...options?.business_context,
       },
       request: {

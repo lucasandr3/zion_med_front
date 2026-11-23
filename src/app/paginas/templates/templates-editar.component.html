@@ -327,6 +327,22 @@
               Antes de preencher, a pessoa informa o código da ficha e a data de nascimento e <strong>confirma o nome</strong> (útil para acompanhamentos).
             }
           </p>
+          <fieldset class="m-0 flex flex-col gap-2 border-0 p-0">
+            <legend class="templates-form-label mb-1">Pré-preenchimento (PAC-05)</legend>
+            <nord-checkbox
+              [(ngModel)]="public_prefill_from_person"
+              name="public_prefill_from_person"
+              label="Usar dados do cadastro da pessoa"
+            ></nord-checkbox>
+            <nord-checkbox
+              [(ngModel)]="public_prefill_from_last_protocol"
+              name="public_prefill_from_last_protocol"
+              label="Completar lacunas com o último protocolo deste modelo"
+            ></nord-checkbox>
+            <p class="m-0 text-xs text-muted-foreground">
+              Só demografia compatível (ex.: endereço, profissão). Campos de procedimento e assinatura não são reaproveitados.
+            </p>
+          </fieldset>
         }
       </form>
     </g-card>

@@ -10,6 +10,10 @@
   background: var(--fp-bg-page);
   color: var(--fp-ink-800);
   box-sizing: border-box;
+  /* VIS-14.4 — notch / home indicator em iOS */
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+  padding-left: env(safe-area-inset-left, 0px);
 }
 
 .form-publico-page.fp-is-loading .fp-layout {
@@ -949,7 +953,7 @@
 
 @media (max-width: 540px) {
   .fp-layout {
-    padding: 0 0 24px;
+    padding: 0 0 20px;
     max-width: none;
   }
   .fp-patient {
@@ -960,7 +964,7 @@
     overflow: visible;
   }
   .fp-clinic-header {
-    padding: 14px 17px;
+    padding: 12px 17px;
     align-items: center;
   }
   .fp-clinic-actions {
@@ -982,16 +986,16 @@
     font-size: 11px;
   }
   .fp-patient-content {
-    padding: 24px 19px 24px;
+    padding: 20px 19px 20px;
   }
   .fp-footer {
-    padding: 13px 17px;
-    padding-bottom: calc(13px + constant(safe-area-inset-bottom));
-    padding-bottom: calc(13px + env(safe-area-inset-bottom, 0px));
+    padding: 12px 17px;
+    padding-bottom: calc(12px + constant(safe-area-inset-bottom));
+    padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
   }
   .fp-intro-banner {
-    margin-bottom: 22px;
-    height: 114px;
+    margin-bottom: 18px;
+    height: 108px;
     padding: 0 19px;
   }
   .fp-intro-banner strong {

@@ -19,6 +19,7 @@ import {
   LinkBioLink,
   LinkBioPublicDocItem,
   LinkBioGoogleReviews,
+  StudioLinkPublicData,
 } from '../../core/services/link-bio.service';
 import { absoluteMediaUrl } from '../../core/utils/absolute-media-url';
 import { normalizeLinkBioClinic, parseLinkBioExtra } from '../../core/utils/link-bio-clinic-normalize.util';
@@ -28,6 +29,7 @@ import { resolvePublicAccentHex } from '../../core/utils/public-theme-accent';
 import { linkBioPresetMeta } from './link-bio-preset.util';
 import { LinkBioPublicLayoutPresetComponent } from './link-bio-public-layout-preset.component';
 import { LinkBioPublicTotemComponent } from './link-bio-public-totem.component';
+import { StudioLinkPublicComponent } from '../studio/studio-link-public.component';
 import { isTotemQueryParam } from '../link-bio/link-bio-public-url.util';
 import type { LinkBioLayoutModel } from '../../core/services/link-bio.service';
 
@@ -35,7 +37,7 @@ import type { LinkBioLayoutModel } from '../../core/services/link-bio.service';
   selector: 'app-link-bio-public',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [LinkBioPublicTotemComponent, LinkBioPublicLayoutPresetComponent],
+  imports: [LinkBioPublicTotemComponent, LinkBioPublicLayoutPresetComponent, StudioLinkPublicComponent],
   templateUrl: './link-bio-public.component.html',
   styleUrl: './link-bio-public.component.css',
 })
@@ -68,6 +70,19 @@ export class LinkBioPublicComponent implements OnInit, OnDestroy {
   readonly formLinks = computed(() => this.data()?.form_links ?? []);
 
   readonly googleReviews = computed<LinkBioGoogleReviews | null>(() => this.data()?.google_reviews ?? null);
+
+  /** Studio Link publicado substitui o layout legado 1–8 (Totem permanece legado). */
+  readonly studioLink = computed<StudioLinkPublicData | null>(() => {
+    const studio = this.data()?.studio_link;
+    if (!studio?.enabled || !studio.templateId) return null;
+    const shared = { ...studio.shared, media: { ...(studio.shared?.media ?? {}) } };
+    if (shared.media) {
+      shared.media.heroUrl = absoluteMediaUrl(shared.media.heroUrl) ?? shared.media.heroUrl;
+      shared.media.portraitUrl = absoluteMediaUrl(shared.media.portraitUrl) ?? shared.media.portraitUrl;
+      shared.media.officeUrl = absoluteMediaUrl(shared.media.officeUrl) ?? shared.media.officeUrl;
+    }
+    return { ...studio, shared };
+  });
 
   /** Lista unificada: bio links primeiro, depois formulários (como no Blade). */
   readonly allLinks = computed<LinkBioPublicDocItem[]>(() => {

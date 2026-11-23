@@ -1,0 +1,81 @@
+<div
+  class="slp"
+  [class.slp--dark]="dark()"
+  [attr.data-layout]="theme().layout"
+  [style.--sp-canvas]="theme().canvas"
+  [style.--sp-ink]="theme().ink"
+  [style.--sp-accent]="theme().accent"
+  [style.--sp-portrait]="
+    studio().shared.media?.portraitUrl ? 'url(' + studio().shared.media?.portraitUrl + ')' : 'none'
+  "
+  [style.--sp-hero]="studio().shared.media?.heroUrl ? 'url(' + studio().shared.media?.heroUrl + ')' : 'none'"
+>
+  <div class="slp__top">
+    <button type="button" class="slp__icon-btn" (click)="toggleDark.emit()" aria-label="Alternar tema">
+      <span class="material-symbols-outlined" aria-hidden="true">{{ dark() ? 'light_mode' : 'dark_mode' }}</span>
+    </button>
+    <button type="button" class="slp__icon-btn" (click)="share.emit()" aria-label="Compartilhar">
+      <span class="material-symbols-outlined" aria-hidden="true">ios_share</span>
+    </button>
+  </div>
+
+  <div class="slp__card">
+    <div class="slp__hero-band" aria-hidden="true"></div>
+    <div class="slp__avatar" aria-hidden="true"></div>
+    <p class="slp__kicker">{{ specialtyName() }}</p>
+    <h1>{{ studio().shared.displayName }}</h1>
+    @if (studio().shared.headline) {
+      <p class="slp__headline">{{ studio().shared.headline }}</p>
+    }
+    @if (studio().shared.description) {
+      <p class="slp__desc">{{ studio().shared.description }}</p>
+    }
+    @if (studio().shared.city) {
+      <p class="slp__city">{{ studio().shared.city }}</p>
+    }
+
+    <div class="slp__actions">
+      @if (bookingHref(); as book) {
+        <a class="slp__cta" [href]="book" rel="noopener">{{ studio().shared.ctaLabel || 'Agendar consulta' }}</a>
+      }
+      @if (whatsappHref(); as wa) {
+        <a class="slp__btn" [href]="wa" target="_blank" rel="noopener">WhatsApp</a>
+      }
+      @if (studio().shared.instagram) {
+        <a
+          class="slp__btn"
+          [href]="studio().shared.instagram.startsWith('http') ? studio().shared.instagram : 'https://instagram.com/' + studio().shared.instagram.replace('@','')"
+          target="_blank"
+          rel="noopener"
+        >
+          Instagram
+        </a>
+      }
+    </div>
+
+    @if (enabledBlocks().length) {
+      <div class="slp__blocks">
+        @for (block of enabledBlocks(); track block.id) {
+          <div class="slp__block">
+            <strong>{{ block.title || labelFor(block.type) }}</strong>
+            @if (block.description) {
+              <p>{{ block.description }}</p>
+            }
+          </div>
+        }
+      </div>
+    }
+
+    @if (allDocs().length) {
+      <div class="slp__links">
+        @for (doc of allDocs(); track $index) {
+          @if (doc.type === 'bio') {
+            <a class="slp__link" [href]="bioHref(doc.item)" rel="noopener">{{ doc.item.label }}</a>
+          } @else {
+            <a class="slp__link" [href]="doc.item.public_url" rel="noopener">{{ doc.item.name }}</a>
+          }
+        }
+      </div>
+    }
+  </div>
+</div>

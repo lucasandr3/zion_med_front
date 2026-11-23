@@ -344,6 +344,17 @@
           >
             {{ detecting() ? 'Detectando…' : 'Detectar' }}
           </button>
+          @if (temMapeamentoArquivado && mappedCount === 0) {
+            <button
+              type="button"
+              class="ae-nav-btn"
+              (click)="reaproveitarMapeamentoAnterior()"
+              [disabled]="reusingLayout() || viewMode() !== 'edit'"
+              title="PDF-01D — reaproveitar mapa da versão anterior do PDF (com revisão)"
+            >
+              {{ reusingLayout() ? 'Comparando…' : 'Reaproveitar mapa' }}
+            </button>
+          }
           <button
             type="button"
             class="ae-nav-btn"
@@ -355,6 +366,12 @@
           </button>
         </div>
       </div>
+
+      @if (reuseMessage() && mappedCount === 0) {
+        <div class="ae-detect-bar" role="status">
+          <span>{{ reuseMessage() }}</span>
+        </div>
+      }
 
       @if (suggestions().length) {
         <div class="ae-detect-bar" role="status">

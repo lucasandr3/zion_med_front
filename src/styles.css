@@ -4493,7 +4493,8 @@ body.dark .flatpickr-calendar .flatpickr-weekwrapper span.flatpickr-day { color:
 
 .clinica-config g-card.section-card,
 .link-bio-config g-card.section-card,
-.plataforma-config g-card.section-card {
+.plataforma-config g-card.section-card,
+.studio-config g-card.section-card {
   display: block;
   margin-bottom: 0;
   background: transparent;
@@ -4505,7 +4506,8 @@ body.dark .flatpickr-calendar .flatpickr-weekwrapper span.flatpickr-day { color:
 /* Empresa + Link bio + Admin: seções full-bleed (sem caixa flutuante), igual protocolo detalhe */
 .clinica-config g-card.section-card nord-card,
 .link-bio-config g-card.section-card nord-card,
-.plataforma-config g-card.section-card nord-card {
+.plataforma-config g-card.section-card nord-card,
+.studio-config g-card.section-card nord-card {
   margin-bottom: 0;
   --n-card-border-radius: 0;
   --n-card-box-shadow: none;
@@ -4528,7 +4530,8 @@ body.dark .flatpickr-calendar .flatpickr-weekwrapper span.flatpickr-day { color:
 
 .clinica-config g-card.section-card [data-slot='card-content'],
 .link-bio-config g-card.section-card [data-slot='card-content'],
-.plataforma-config g-card.section-card [data-slot='card-content'] {
+.plataforma-config g-card.section-card [data-slot='card-content'],
+.studio-config g-card.section-card [data-slot='card-content'] {
   padding: 0;
   gap: 0;
 }
@@ -4570,7 +4573,8 @@ body.dark .flatpickr-calendar .flatpickr-weekwrapper span.flatpickr-day { color:
 
 .clinica-config .section-header,
 .link-bio-config .section-header,
-.plataforma-config .section-header {
+.plataforma-config .section-header,
+.studio-config .section-header {
   padding: 0.75rem 1.25rem;
   border-bottom: 1px solid var(--border);
   display: flex;
@@ -4580,7 +4584,8 @@ body.dark .flatpickr-calendar .flatpickr-weekwrapper span.flatpickr-day { color:
 
 .clinica-config .section-header .icon-wrap,
 .link-bio-config .section-header .icon-wrap,
-.plataforma-config .section-header .icon-wrap {
+.plataforma-config .section-header .icon-wrap,
+.studio-config .section-header .icon-wrap {
   width: 1.75rem;
   height: 1.75rem;
   background: color-mix(in srgb, var(--primary) 12%, transparent);
@@ -4592,14 +4597,16 @@ body.dark .flatpickr-calendar .flatpickr-weekwrapper span.flatpickr-day { color:
 
 .clinica-config .section-header .icon-wrap .material-symbols-outlined,
 .link-bio-config .section-header .icon-wrap .material-symbols-outlined,
-.plataforma-config .section-header .icon-wrap .material-symbols-outlined {
+.plataforma-config .section-header .icon-wrap .material-symbols-outlined,
+.studio-config .section-header .icon-wrap .material-symbols-outlined {
   font-size: 0.875rem;
   color: var(--primary);
 }
 
 .clinica-config .section-title,
 .link-bio-config .section-title,
-.plataforma-config .section-title {
+.plataforma-config .section-title,
+.studio-config .section-title {
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -4617,7 +4624,8 @@ body.dark .flatpickr-calendar .flatpickr-weekwrapper span.flatpickr-day { color:
   color: var(--muted-foreground);
 }
 
-.clinica-config .section-header__hint {
+.clinica-config .section-header__hint,
+.studio-config .section-header__hint {
   margin-left: auto;
   font-size: 0.6875rem;
   font-weight: 400;
@@ -4632,7 +4640,8 @@ body.dark .flatpickr-calendar .flatpickr-weekwrapper span.flatpickr-day { color:
 }
 .clinica-config .section-body,
 .link-bio-config .section-body,
-.plataforma-config .section-body { padding: 1rem 1.25rem; }
+.plataforma-config .section-body,
+.studio-config .section-body { padding: 1rem 1.25rem; }
 
 /* ══════════════════════════════════════════════════════════════════════════
    PROTOCOLO DETALHE

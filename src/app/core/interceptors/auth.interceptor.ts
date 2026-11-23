@@ -55,12 +55,20 @@ const STATELESS_PUBLIC_API_MARKERS = [
 /** Rotas SPA abertas ao cliente — 401 de qualquer API não deve forçar /autenticacao. */
 const PUBLIC_SPA_PREFIXES = ['/f/', '/l/', '/a/', '/verificar', '/planos', '/para/', '/como-funciona/', '/link-na-bio', '/autenticacao', '/m/login', '/esqueci-a-senha', '/redefinir-senha', '/verificar-email', '/termos-de-uso', '/privacidade', '/f/sucesso'] as const;
 
+function matchesPublicApiMarker(url: string, marker: string): boolean {
+  // Público: POST /product-events. Autenticado: /product-events/app (cookie de sessão).
+  if (marker === '/product-events') {
+    return url.includes('/product-events') && !url.includes('/product-events/app');
+  }
+  return url.includes(marker);
+}
+
 function isPublicApiUrl(url: string): boolean {
-  return PUBLIC_API_MARKERS.some((marker) => url.includes(marker));
+  return PUBLIC_API_MARKERS.some((marker) => matchesPublicApiMarker(url, marker));
 }
 
 function isStatelessPublicApiUrl(url: string): boolean {
-  return STATELESS_PUBLIC_API_MARKERS.some((marker) => url.includes(marker));
+  return STATELESS_PUBLIC_API_MARKERS.some((marker) => matchesPublicApiMarker(url, marker));
 }
 
 function isPublicSpaRoute(url: string): boolean {

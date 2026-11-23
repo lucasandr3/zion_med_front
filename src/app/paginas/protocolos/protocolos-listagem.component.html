@@ -50,16 +50,30 @@
     </div>
   } @else if (!listaPronta()) {
   } @else if (protocolos().length === 0) {
-    <div class="n-page-list__empty">
-      <nord-empty-state>
-        <h2>Nenhum protocolo encontrado</h2>
-        <p>Ajuste a busca ou os filtros para encontrar protocolos.</p>
+    <div class="n-page-list__empty zm-content-enter">
+      <div class="n-page-list__empty-card">
         @if (temFiltrosAtivos || busca.trim()) {
-          <nord-button variant="default" type="button" (click)="limparTudo()">
-            Limpar filtros
-          </nord-button>
+          <zm-empty-state
+            title="Nenhum protocolo encontrado"
+            description="Ajuste a busca ou os filtros para encontrar protocolos."
+            actionLabel="Limpar filtros"
+            actionIcon="filter_alt_off"
+            (actionClick)="limparTudo()"
+            secondaryActionLabel="Hub Documentos"
+            secondaryActionLink="/documentos"
+          />
+        } @else {
+          <zm-empty-state
+            title="Nenhum protocolo ainda"
+            description="Quando alguém preencher uma ficha, o protocolo aparece aqui. Comece pelo hub Documentos."
+            actionLabel="Hub Documentos"
+            actionIcon="folder_open"
+            actionLink="/documentos"
+            secondaryActionLabel="Novo envio"
+            secondaryActionLink="/envios"
+          />
         }
-      </nord-empty-state>
+      </div>
     </div>
   } @else {
     <div class="n-page-list__table protocolos-table" id="protocolos-tbody">

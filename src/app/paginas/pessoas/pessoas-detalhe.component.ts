@@ -14,6 +14,7 @@ import { formatarDataBr, formatarDataHoraBr } from '@/shared/utils/date';
 import { digitsOnlyCpf, formatCpfDisplay } from '../../core/utils/cpf';
 import { toolPersonQueryParams } from '../../mobile/tools/tool-person-context';
 import { openWhatsappShare } from '../../core/utils/whatsapp-share.util';
+import { ProductTelemetryService } from '../../core/services/product-telemetry.service';
 import type { Protocolo } from '../../core/services/protocolos.service';
 
 type AbaFicha = 'dados' | 'estatisticas' | 'protocolos' | 'historico';
@@ -53,6 +54,7 @@ export class PessoasDetalheComponent implements OnInit {
   private pessoasService = inject(PessoasService);
   private toast = inject(ToastService);
   private confirm = inject(ConfirmDialogService);
+  private productTelemetry = inject(ProductTelemetryService);
   private auth = inject(AuthService);
   private cdr = inject(ChangeDetectorRef);
 
@@ -223,6 +225,37 @@ export class PessoasDetalheComponent implements OnInit {
     openWhatsappShare(saudacao, phone);
   }
 
+  /** PAC-05 — deep-link para Envios com pessoa + modelo sugerido. */
+  queryParamsEnvioDocumento(): Record<string, string | number> {
+    if (!this.pessoa) return {};
+    const params: Record<string, string | number> = { person_id: this.pessoa.id };
+    const templateId = this.sugerirTemplateIdEnvio();
+    if (templateId) params['template_id'] = templateId;
+    return params;
+  }
+
+  /** OPS-11 / PAC-05 — telemetria ao abrir envio recorrente (sem PII). */
+  onEnviarDocumentoClick(): void {
+    this.productTelemetry.trackRecurringPatientDocumentSend({
+      template_id: this.sugerirTemplateIdEnvio(),
+      consent_status: this.pessoa?.consent_summary?.status ?? null,
+    });
+  }
+
+  private sugerirTemplateIdEnvio(): number | null {
+    const consent = this.pessoa?.consent_summary;
+    const consentTid = Number(consent?.template_id ?? 0);
+    // Consentimento expirado / ausente: prioriza o mesmo modelo do último termo.
+    if (consentTid > 0 && consent?.status?.toLowerCase() !== 'valid') {
+      return consentTid;
+    }
+    for (const pr of this.pessoa?.recent_protocols ?? []) {
+      const tid = Number(pr.template_id ?? 0);
+      if (tid > 0) return tid;
+    }
+    return consentTid > 0 ? consentTid : null;
+  }
+
   utilitarioQueryParams(): Record<string, string> {
     if (!this.pessoa) return {};
     return toolPersonQueryParams(this.pessoa);
@@ -380,7 +413,19 @@ export class PessoasDetalheComponent implements OnInit {
     this.pessoasService.solicitarReconsentimento(this.pessoa.id).subscribe({
       next: (res) => {
         this.solicitandoReconsentimento = false;
+        this.productTelemetry.trackReconsentRequested({
+          template_id: this.pessoa?.consent_summary?.template_id ?? null,
+          document_send_id: res.send_id ?? null,
+          delivery_mode: res.delivery_mode ?? null,
+          consent_status: this.pessoa?.consent_summary?.status ?? null,
+        });
         if (res.delivery_mode === 'manual' && res.share_message) {
+          this.productTelemetry.trackDocumentShare({
+            source: 'pessoas',
+            channel: 'whatsapp',
+            template_id: this.pessoa?.consent_summary?.template_id ?? null,
+            document_send_id: res.send_id ?? null,
+          });
           openWhatsappShare(res.share_message, res.recipient_phone ?? this.pessoa?.phone ?? null);
           this.toast.success(
             'WhatsApp',

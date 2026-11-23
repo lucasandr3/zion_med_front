@@ -138,6 +138,13 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
   readonly validandoPerson = signal(false);
   readonly personValidatedName = signal<string | null>(null);
   readonly personValidatedId = signal<number | null>(null);
+  /** PAC-05 — chaves do formulário preenchidas a partir do cadastro. */
+  readonly prefilledFieldKeys = signal<ReadonlySet<string>>(new Set());
+  readonly prefillFromProtocolFieldKeys = signal<ReadonlySet<string>>(new Set());
+  readonly prefillSourceLabel = signal<string | null>(null);
+  readonly prefillPersonUpdatedAt = signal<string | null>(null);
+  readonly prefillLastProtocolAt = signal<string | null>(null);
+  readonly prefillReviewDismissed = signal(false);
   /** Nome pendente de confirmação explícita (Opção B). */
   readonly personPendingConfirmName = signal<string | null>(null);
   readonly personNameConfirmed = signal(false);
@@ -249,6 +256,12 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
     this.personGateErro.set('');
     this.personValidatedName.set(null);
     this.personValidatedId.set(null);
+    this.prefilledFieldKeys.set(new Set());
+    this.prefillFromProtocolFieldKeys.set(new Set());
+    this.prefillSourceLabel.set(null);
+    this.prefillPersonUpdatedAt.set(null);
+    this.prefillLastProtocolAt.set(null);
+    this.prefillReviewDismissed.set(false);
     this.personPendingConfirmName.set(null);
     this.personNameConfirmed.set(false);
     this.procedureSchedulingAllowed.set(true);
@@ -367,7 +380,7 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
           this.procedureSchedulingAllowed.set(r.procedure_scheduling_allowed !== false);
           this.consentSummaryLabel.set(r.consent_summary?.label ?? '');
           fpPersistCpfGateAuthorization(this.token, cpf);
-          this.applyPersonPrefill(r.prefill, r.name);
+          this.applyPersonPrefill(r.prefill, r.name, r.prefill_meta);
         },
         error: (err) => {
           this.validandoPerson.set(false);
@@ -398,7 +411,7 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
         this.personValidatedId.set(r.person_id);
         this.procedureSchedulingAllowed.set(r.procedure_scheduling_allowed !== false);
         this.consentSummaryLabel.set(r.consent_summary?.label ?? '');
-        this.applyPersonPrefill(r.prefill, r.name);
+        this.applyPersonPrefill(r.prefill, r.name, r.prefill_meta);
       },
       error: (err) => {
         this.validandoPerson.set(false);
@@ -423,6 +436,12 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
     this.personNameConfirmed.set(false);
     this.personValidatedName.set(null);
     this.personValidatedId.set(null);
+    this.prefilledFieldKeys.set(new Set());
+    this.prefillFromProtocolFieldKeys.set(new Set());
+    this.prefillSourceLabel.set(null);
+    this.prefillPersonUpdatedAt.set(null);
+    this.prefillLastProtocolAt.set(null);
+    this.prefillReviewDismissed.set(false);
     this.personGateErro.set('');
   }
 
@@ -1274,16 +1293,67 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
     }
   }
 
-  private applyPersonPrefill(prefill: PersonPrefill | undefined, validatedName?: string): void {
+  private applyPersonPrefill(
+    prefill: PersonPrefill | undefined,
+    validatedName?: string,
+    prefillMeta?: {
+      source?: string;
+      source_label?: string;
+      person_updated_at?: string | null;
+      reusable_keys?: string[];
+      from_last_protocol_keys?: string[];
+      last_protocol_at?: string | null;
+    },
+  ): void {
     const data = this.data();
     if (!data) return;
-    applyPersonPrefillToFields(data.fields, this.valores, prefill);
+    const fromProtocolKeys = prefillMeta?.from_last_protocol_keys ?? [];
+    const { applied, fromProtocol } = applyPersonPrefillToFields(
+      data.fields,
+      this.valores,
+      prefill,
+      fromProtocolKeys,
+    );
     applyGateCpfToFields(data.fields, this.valores, this.personCpfDigits());
+    this.prefilledFieldKeys.set(new Set(applied));
+    this.prefillFromProtocolFieldKeys.set(new Set(fromProtocol));
+    const hasProtocolOverlay = fromProtocolKeys.length > 0;
+    this.prefillSourceLabel.set(
+      prefillMeta?.source_label?.trim()
+        || (hasProtocolOverlay ? 'Cadastro e último termo' : 'Cadastro da clínica'),
+    );
+    this.prefillPersonUpdatedAt.set(prefillMeta?.person_updated_at ?? null);
+    this.prefillLastProtocolAt.set(prefillMeta?.last_protocol_at ?? null);
+    this.prefillReviewDismissed.set(false);
     const submitter = resolveSubmitterFromPrefill(prefill, validatedName);
     this.submitterName.set(submitter.name);
     this.submitterEmail.set(submitter.email);
     fpPersistSubmitterIdentity(this.submitterName(), this.submitterEmail());
     this.syncIdentityIntoFormFields();
+  }
+
+  get showPrefillReviewBanner(): boolean {
+    return !this.prefillReviewDismissed() && this.prefilledFieldKeys().size > 0;
+  }
+
+  dismissPrefillReview(): void {
+    this.prefillReviewDismissed.set(true);
+  }
+
+  formatPrefillUpdatedAt(): string | null {
+    const raw = this.prefillPersonUpdatedAt();
+    if (!raw) return null;
+    const d = new Date(raw);
+    if (Number.isNaN(d.getTime())) return null;
+    return d.toLocaleDateString('pt-BR');
+  }
+
+  formatPrefillLastProtocolAt(): string | null {
+    const raw = this.prefillLastProtocolAt();
+    if (!raw) return null;
+    const d = new Date(raw);
+    if (Number.isNaN(d.getTime())) return null;
+    return d.toLocaleDateString('pt-BR');
   }
 
   /** Propaga nome/e-mail já coletados para os campos do modelo (evita pedir de novo). */
@@ -1381,6 +1451,12 @@ export class FormularioPublicoShowComponent implements OnInit, OnDestroy {
     this.personBirthDate.set('');
     this.personValidatedName.set(null);
     this.personValidatedId.set(null);
+    this.prefilledFieldKeys.set(new Set());
+    this.prefillFromProtocolFieldKeys.set(new Set());
+    this.prefillSourceLabel.set(null);
+    this.prefillPersonUpdatedAt.set(null);
+    this.prefillLastProtocolAt.set(null);
+    this.prefillReviewDismissed.set(false);
     this.personPendingConfirmName.set(null);
     this.personNameConfirmed.set(false);
     this.acceptTerms.set(false);

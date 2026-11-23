@@ -91,7 +91,8 @@
   font-weight: 650;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: rgb(255 255 255 / 0.9);
+  /* VIS-14.4 — ≥0.92 no verde AA para contraste de texto auxiliar */
+  color: rgb(255 255 255 / 0.92);
 }
 
 .login-brand__body {
@@ -108,7 +109,7 @@
   font-weight: 650;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: rgb(255 255 255 / 0.9);
+  color: rgb(255 255 255 / 0.92);
 }
 
 .login-brand__title {
@@ -135,8 +136,8 @@
 
 .login-brand__checklist {
   display: grid;
-  gap: 0.7rem;
-  margin: 1.6rem 0 0;
+  gap: 0.55rem;
+  margin: 1.25rem 0 0;
   padding: 0;
   list-style: none;
 }
@@ -309,12 +310,36 @@
 }
 
 .login-submit {
+  /* VIS-14.4 — botão com contraste AA (#087A55), não o verde de marca #14B87A */
+  --n-color-accent: var(--login-green);
+  --n-color-accent-hover: var(--login-green-deep);
+  --n-color-accent-text: #ffffff;
+  --n-color-text-on-accent: #ffffff;
   --n-button-min-block-size: 44px;
   --_n-button-min-block-size: 44px;
   --n-button-border-radius: 0.625rem;
+  --n-button-background-color: var(--login-green) !important;
+  --n-button-background-color-hover: var(--login-green-deep) !important;
+  --n-button-border-color: var(--login-green) !important;
+  --n-button-border-color-hover: var(--login-green-deep) !important;
+  --n-button-color: #ffffff !important;
+  --n-button-color-hover: #ffffff !important;
   width: 100%;
   margin-top: 0.15rem;
   box-shadow: 0 10px 24px -10px color-mix(in srgb, var(--login-green) 55%, transparent);
+}
+
+.login-submit:focus-visible {
+  outline: 2px solid var(--c-focus-ring, var(--login-green));
+  outline-offset: 3px;
+}
+
+/* Autofill sem “flash” amarelo que quebra o contraste do painel */
+.login-field::part(control):-webkit-autofill,
+.login-field input:-webkit-autofill {
+  -webkit-text-fill-color: var(--login-ink);
+  box-shadow: 0 0 0 1000px var(--login-floor) inset;
+  transition: background-color 99999s ease-out;
 }
 
 .login-register {
@@ -374,7 +399,15 @@
 
   .login-panel {
     padding: 1.5rem 1.25rem 2rem;
+    padding-top: calc(1.5rem + env(safe-area-inset-top, 0px));
+    padding-right: calc(1.25rem + env(safe-area-inset-right, 0px));
     padding-bottom: calc(2rem + env(safe-area-inset-bottom, 0px));
+    padding-left: calc(1.25rem + env(safe-area-inset-left, 0px));
+  }
+
+  .login-theme-btn {
+    top: calc(0.75rem + env(safe-area-inset-top, 0px));
+    right: calc(0.75rem + env(safe-area-inset-right, 0px));
   }
 
   .login-panel__brand-mobile {

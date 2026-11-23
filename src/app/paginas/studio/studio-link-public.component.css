@@ -1,0 +1,185 @@
+.slp {
+  --sp-canvas: #f7efe7;
+  --sp-ink: #3a2b26;
+  --sp-accent: #b58c79;
+  --sp-portrait: none;
+  --sp-hero: none;
+  min-height: 100vh;
+  padding: 20px 14px 40px;
+  background:
+    radial-gradient(circle at top, color-mix(in srgb, var(--sp-accent) 18%, transparent), transparent 42%),
+    var(--sp-canvas);
+  color: var(--sp-ink);
+}
+
+.slp--dark {
+  --sp-canvas: #1b2420;
+  --sp-ink: #e8f0ea;
+  background:
+    radial-gradient(circle at top, color-mix(in srgb, var(--sp-accent) 22%, transparent), transparent 40%),
+    #121816;
+}
+
+.slp__top {
+  max-width: 420px;
+  margin: 0 auto 12px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.slp__icon-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  border: 1px solid color-mix(in srgb, var(--sp-ink) 14%, transparent);
+  background: color-mix(in srgb, #fff 70%, var(--sp-canvas));
+  color: var(--sp-ink);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+
+.slp--dark .slp__icon-btn {
+  background: color-mix(in srgb, #24302a 90%, black);
+}
+
+.slp__icon-btn .material-symbols-outlined {
+  font-size: 20px;
+}
+
+.slp__card {
+  position: relative;
+  max-width: 420px;
+  margin: 0 auto;
+  padding: 28px 20px 24px;
+  border-radius: 22px;
+  background: color-mix(in srgb, #fff 82%, var(--sp-canvas));
+  border: 1px solid color-mix(in srgb, var(--sp-ink) 10%, transparent);
+  box-shadow: 0 18px 50px color-mix(in srgb, var(--sp-ink) 12%, transparent);
+  text-align: center;
+  overflow: hidden;
+}
+
+.slp--dark .slp__card {
+  background: color-mix(in srgb, #1f2a24 92%, black);
+}
+
+.slp__hero-band {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 96px;
+  background:
+    var(--sp-hero),
+    linear-gradient(120deg, color-mix(in srgb, var(--sp-accent) 45%, white), var(--sp-accent));
+  background-size: cover;
+  background-position: center;
+  opacity: 0.9;
+}
+
+.slp__avatar {
+  position: relative;
+  z-index: 1;
+  width: 96px;
+  height: 96px;
+  margin: 42px auto 14px;
+  border-radius: 50%;
+  border: 4px solid color-mix(in srgb, #fff 80%, var(--sp-canvas));
+  background:
+    var(--sp-portrait),
+    linear-gradient(145deg, color-mix(in srgb, var(--sp-accent) 30%, white), var(--sp-accent));
+  background-size: cover;
+  background-position: center;
+  box-shadow: 0 12px 28px color-mix(in srgb, var(--sp-ink) 18%, transparent);
+}
+
+.slp__kicker {
+  margin: 0 0 8px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+.slp__card h1 {
+  margin: 0;
+  font-size: 1.7rem;
+  letter-spacing: -0.04em;
+  line-height: 1.15;
+}
+
+.slp__headline {
+  margin: 10px 0 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.slp__desc,
+.slp__city {
+  margin: 10px 0 0;
+  line-height: 1.5;
+  opacity: 0.85;
+  font-size: 0.92rem;
+}
+
+.slp__actions {
+  display: grid;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.slp__cta,
+.slp__btn,
+.slp__link {
+  display: block;
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-weight: 800;
+  font-size: 0.9rem;
+  text-decoration: none;
+}
+
+.slp__cta {
+  background: var(--sp-accent);
+  color: #fff;
+}
+
+.slp__btn,
+.slp__link,
+.slp__block {
+  background: color-mix(in srgb, #fff 70%, var(--sp-canvas));
+  color: var(--sp-ink);
+  border: 1px solid color-mix(in srgb, var(--sp-ink) 10%, transparent);
+}
+
+.slp--dark .slp__btn,
+.slp--dark .slp__link,
+.slp--dark .slp__block {
+  background: color-mix(in srgb, #24302a 88%, black);
+}
+
+.slp__blocks,
+.slp__links {
+  display: grid;
+  gap: 8px;
+  margin-top: 16px;
+  text-align: left;
+}
+
+.slp__block {
+  border-radius: 12px;
+  padding: 12px 14px;
+}
+
+.slp__block strong {
+  display: block;
+  font-size: 0.9rem;
+}
+
+.slp__block p {
+  margin: 4px 0 0;
+  font-size: 0.8rem;
+  opacity: 0.75;
+  line-height: 1.4;
+}

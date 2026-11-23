@@ -238,6 +238,27 @@
                 </div>
               }
 
+              @if (showPrefillReviewBanner) {
+                <div class="fp-prefill-review" role="status">
+                  <div class="fp-prefill-review__text">
+                    <strong>Dados do cadastro aplicados</strong>
+                    <span>
+                      Usamos informações de {{ prefillSourceLabel() || 'seu cadastro' }}
+                      @if (formatPrefillUpdatedAt(); as updatedAt) {
+                        (cadastro em {{ updatedAt }})
+                      }
+                      @if (formatPrefillLastProtocolAt(); as protocolAt) {
+                        · último termo em {{ protocolAt }}
+                      }
+                      . Confira e corrija o que mudou.
+                    </span>
+                  </div>
+                  <button type="button" class="fp-prefill-review__dismiss" (click)="dismissPrefillReview()">
+                    Entendi
+                  </button>
+                </div>
+              }
+
               @if (usesFormSteps) {
                 <h2 #fpStepHeading class="fp-step-heading visually-hidden" tabindex="-1">
                   Etapa {{ stepStateForTemplate.currentStepNumber }} de {{ stepStateForTemplate.totalFormSteps }}: {{ currentStepTitle }}
@@ -263,6 +284,9 @@
                   [termScrollRequired]="termScrollRequired"
                   [noticeScrollState]="noticeScrollState()"
                   [invalidFieldKeys]="invalidFieldKeys()"
+                  [prefilledFieldKeys]="prefilledFieldKeys()"
+                  [prefillFromProtocolFieldKeys]="prefillFromProtocolFieldKeys()"
+                  [prefillSourceLabel]="prefillSourceLabel()"
                   (fieldChange)="onCampoAlterado()"
                   (noticeScroll)="onNoticeScrolled($event)"
                   (fileSelected)="onFileSelected($event.event, $event.key)"

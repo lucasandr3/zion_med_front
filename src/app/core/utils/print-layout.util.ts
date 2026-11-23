@@ -25,9 +25,22 @@ export interface PrintLayoutPlacement {
   kind?: PrintLayoutKind;
 }
 
+export interface PdfPageFingerprint {
+  width: number;
+  height: number;
+  rotation: number;
+}
+
+export interface PdfLayoutFingerprint {
+  page_count: number;
+  pages: PdfPageFingerprint[];
+}
+
 export interface PrintLayout {
   version: 1;
   placements: PrintLayoutPlacement[];
+  /** PDF-01D — dimensões do PDF no momento do mapeamento. */
+  pdf_fingerprint?: PdfLayoutFingerprint;
 }
 
 export interface PrintLayoutTarget {
@@ -170,7 +183,32 @@ export function parsePrintLayout(raw: unknown): PrintLayout | null {
     });
   }
 
-  return { version: 1, placements };
+  const fpRaw = rec['pdf_fingerprint'];
+  let pdf_fingerprint: PdfLayoutFingerprint | undefined;
+  if (fpRaw && typeof fpRaw === 'object') {
+    const fp = fpRaw as Record<string, unknown>;
+    const pagesRaw = fp['pages'];
+    if (Array.isArray(pagesRaw) && pagesRaw.length > 0) {
+      const pages: PdfPageFingerprint[] = [];
+      for (const item of pagesRaw) {
+        if (!item || typeof item !== 'object') continue;
+        const pg = item as Record<string, unknown>;
+        const width = Number(pg['width']);
+        const height = Number(pg['height']);
+        const rotation = Number(pg['rotation'] ?? 0);
+        if (![width, height].every((n) => Number.isFinite(n) && n > 0)) continue;
+        pages.push({ width, height, rotation: Number.isFinite(rotation) ? rotation : 0 });
+      }
+      if (pages.length > 0) {
+        pdf_fingerprint = {
+          page_count: Number(fp['page_count']) || pages.length,
+          pages,
+        };
+      }
+    }
+  }
+
+  return { version: 1, placements, ...(pdf_fingerprint ? { pdf_fingerprint } : {}) };
 }
 
 export function hasUsablePrintLayout(layout: PrintLayout | null | undefined): boolean {

@@ -76,6 +76,7 @@
         <zm-dashboard-onboarding-wizard
           data-go-tour="dashboard-onboarding"
           [visible]="mostrarWizardOnboarding()"
+          [serverOnboarding]="serverOnboarding()"
           (dismissed)="onWizardOnboardingDismissed()"
           (linkGenerated)="onWizardLinkGenerated()"
         />

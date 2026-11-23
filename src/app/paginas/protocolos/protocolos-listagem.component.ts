@@ -18,7 +18,7 @@ import { Subject, switchMap, tap, catchError, finalize, of } from 'rxjs';
 import { ProtocolosService, Protocolo } from '../../core/services/protocolos.service';
 import { TemplatesService, Template } from '../../core/services/templates.service';
 import { ListSkeletonComponent } from '../../shared/components/list-skeleton/list-skeleton.component';
-import { ZmPaginationComponent } from '../../shared/components/ui';
+import { ZmEmptyStateComponent, ZmPaginationComponent } from '../../shared/components/ui';
 import { GestgoSheetService } from '@/shared/components/sheet/sheet.service';
 import type { GestgoSheetRef } from '@/shared/components/sheet/sheet-ref';
 import { GestgoComboboxComponent, type GestgoComboboxOption } from '@/shared/components/combobox';
@@ -37,6 +37,7 @@ const LATE_AFTER_H = 24;
     ...NORD_FORM_IMPORTS,
     FormsModule,
     ListSkeletonComponent,
+    ZmEmptyStateComponent,
     ZmPaginationComponent,
     GestgoComboboxComponent,
   ],
