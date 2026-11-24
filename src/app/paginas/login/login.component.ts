@@ -118,9 +118,8 @@ export class LoginComponent implements OnInit {
       next: (res) => {
         this.estadoCarregando.set(false);
         this.sincronizarModoLoginComConta();
-        const isPlatformAdmin = res.data.user?.role === 'platform_admin';
-        if (isPlatformAdmin) {
-          this.router.navigate(['/plataforma']);
+        if (this.auth.canAccessPlatform()) {
+          void this.router.navigateByUrl(this.auth.getDefaultPlatformPath());
           return;
         }
         const hasOrg = res.data.current_organization_id != null || res.data.current_clinic_id != null;

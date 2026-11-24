@@ -1,0 +1,62 @@
+<div class="n-page-list__toolbar">
+  <div class="n-page-list__toolbar-start">
+    <zm-page-back-link />
+    <span class="n-muted n-small">
+      {{ items().length }}
+      {{ items().length === 1 ? 'tarefa agendada' : 'tarefas agendadas' }}
+    </span>
+  </div>
+  <div class="n-page-list__toolbar-end">
+    <div class="n-page-list__actions">
+      <nord-button type="button" variant="default" size="m" (click)="carregar()">Atualizar</nord-button>
+    </div>
+  </div>
+</div>
+
+<div class="n-page-list__content">
+  @if (showSkeleton()) {
+    <div class="n-page-list__panel"><app-list-skeleton [count]="6" /></div>
+  } @else if (!listaPronta()) {
+  } @else if (error()) {
+    <div class="n-page-list__panel">
+      <p class="n-muted n-small" style="color:var(--n-color-status-danger,#c62828)">{{ error() }}</p>
+    </div>
+  } @else if (items().length === 0) {
+    <div class="n-page-list__empty">
+      <nord-empty-state>
+        <h2>Nenhum schedule cadastrado</h2>
+        <p>As tarefas agendadas da plataforma aparecerão aqui.</p>
+      </nord-empty-state>
+    </div>
+  } @else {
+    <div class="n-page-list__table">
+      @for (item of items(); track item.id) {
+        <a
+          class="n-page-list__row n-page-list__row--clickable"
+          [routerLink]="['/plataforma/filas/schedules', item.id]"
+          [attr.title]="'Ver detalhes de ' + item.name"
+        >
+          <div class="n-page-list__row-main">
+            <div class="n-page-list__row-title">
+              {{ item.name }}
+              <span class="schedule-status" [attr.data-enabled]="item.enabled">
+                {{ item.enabled ? 'Ativo' : 'Desligado' }}
+              </span>
+              <span class="schedule-run" [attr.data-status]="item.last_status || 'unknown'">
+                {{ statusLabel(item.last_status) }}
+              </span>
+            </div>
+            <div class="n-page-list__row-meta">
+              {{ item.cadence || '—' }}
+              · última: {{ formatarData(item.last_run_at) }}
+              @if (item.last_status === 'error' && item.last_message) {
+                · {{ item.last_message }}
+              }
+            </div>
+          </div>
+          <span class="material-symbols-outlined n-page-list__chevron" aria-hidden="true">chevron_right</span>
+        </a>
+      }
+    </div>
+  }
+</div>

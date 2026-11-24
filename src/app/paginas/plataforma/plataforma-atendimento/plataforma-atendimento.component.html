@@ -1,0 +1,288 @@
+<div class="n-page-list__toolbar">
+  <div class="n-page-list__toolbar-start">
+    <zm-page-back-link />
+    <div class="form-search-wrap">
+      <span class="material-symbols-outlined form-search-icon" aria-hidden="true">search</span>
+      <input
+        type="search"
+        class="form-search-input w-full text-sm"
+        placeholder="Buscar protocolo ou assunto…"
+        aria-label="Buscar chamados"
+        [value]="search()"
+        (input)="onSearch($event)"
+        autocomplete="off"
+      />
+    </div>
+  </div>
+  <div class="n-page-list__toolbar-end">
+    <span class="n-muted n-small">Aguardando resposta: {{ waiting() }}</span>
+    <nord-button
+      type="button"
+      (click)="openFilterDrawer()"
+      [attr.aria-expanded]="filterDrawerOpen() ? 'true' : 'false'"
+      [class.ring-2]="temFiltrosAtivos"
+      [class.ring-ring]="temFiltrosAtivos"
+      title="Filtros"
+    >
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">filter_list</span>
+      Filtros
+      @if (temFiltrosAtivos) {
+        <nord-badge variant="neutral">{{ quantidadeFiltrosAtivos }}</nord-badge>
+      }
+    </nord-button>
+    <nord-button type="button" variant="default" size="m" (click)="carregarLista()">Atualizar</nord-button>
+  </div>
+</div>
+
+<div class="n-page-list__content n-page-list__content--padded">
+  @if (error()) {
+    <p class="n-muted" style="color:var(--n-color-status-danger,#c62828)">{{ error() }}</p>
+  }
+
+  <div class="hd-layout">
+    <aside class="hd-list" aria-label="Conversas">
+      @if (loading() && items().length === 0) {
+        <p class="n-muted n-small">Carregando…</p>
+      } @else if (items().length === 0) {
+        <nord-empty-state>
+          <h2>Caixa vazia</h2>
+          <p>Chamados das clínicas aparecerão aqui.</p>
+          @if (temFiltrosAtivos || search().trim()) {
+            <nord-button variant="default" type="button" (click)="limparTudo()">Limpar filtros</nord-button>
+          }
+        </nord-empty-state>
+      } @else {
+        @for (item of items(); track item.id) {
+          <button
+            type="button"
+            class="hd-list__item"
+            [class.is-active]="selected()?.id === item.id"
+            (click)="selecionar(item)"
+          >
+            <div class="hd-list__title">
+              <span class="hd-prio" [attr.data-priority]="item.priority">{{ priorityLabel(item.priority) }}</span>
+              {{ item.protocol }} · {{ item.subject }}
+            </div>
+            <div class="hd-list__meta">
+              {{ item.organization_name || 'Cliente' }}
+              · {{ statusLabel(item.status) }}
+              · {{ item.assignee_name || 'Sem responsável' }}
+              · {{ formatarData(item.last_message_at || item.created_at) }}
+            </div>
+          </button>
+        }
+      }
+    </aside>
+
+    <section class="hd-thread" aria-label="Mensagens">
+      @if (!selected()) {
+        <nord-empty-state>
+          <h2>Selecione um chamado</h2>
+          <p>A conversa e o contexto aparecem ao escolher um item à esquerda.</p>
+        </nord-empty-state>
+      } @else {
+        <div class="hd-thread__messages">
+          @for (msg of selected()?.messages ?? []; track msg.id) {
+            <div class="hd-msg" [attr.data-role]="msg.author_role">
+              <div class="hd-msg__meta">
+                {{ msg.author_name || msg.author_role }}
+                · {{ formatarData(msg.created_at) }}
+              </div>
+              <div class="hd-msg__body">{{ msg.body }}</div>
+              @if (msg.attachments?.length) {
+                <div class="hd-attachments">
+                  @for (att of msg.attachments; track att.id) {
+                    <button type="button" class="hd-attachment" (click)="baixarAnexo(att)">
+                      {{ att.original_name }}
+                      @if (att.size) {
+                        <span>· {{ formatSize(att.size) }}</span>
+                      }
+                    </button>
+                  }
+                </div>
+              }
+            </div>
+          }
+        </div>
+        <div class="hd-composer">
+          @if (cannedReplies().length) {
+            <label class="hd-canned">
+              Resposta pronta
+              <select (change)="aplicarRespostaPronta($event)">
+                <option value="">Inserir modelo…</option>
+                @for (item of cannedReplies(); track item.id) {
+                  <option [value]="item.id">
+                    {{ item.title }}@if (item.shortcut) { ({{ item.shortcut }})}
+                  </option>
+                }
+              </select>
+            </label>
+          }
+          <textarea
+            rows="3"
+            placeholder="Responder ao cliente…"
+            [value]="draft()"
+            (input)="onDraft($event)"
+          ></textarea>
+          <label class="hd-files">
+            Anexos (até 3 · 5 MB)
+            <input type="file" multiple [accept]="acceptTypes" (change)="onDraftFiles($event)" />
+          </label>
+          @if (draftFiles().length) {
+            <ul class="hd-file-list">
+              @for (file of draftFiles(); track file.name + file.size) {
+                <li>{{ file.name }}</li>
+              }
+            </ul>
+          }
+          <nord-button type="button" variant="primary" [attr.disabled]="acting() || null" (click)="enviarResposta()">
+            Enviar
+          </nord-button>
+        </div>
+      }
+    </section>
+
+    <aside class="hd-context" aria-label="Contexto">
+      @if (selected(); as ticket) {
+        <h3>{{ ticket.protocol }}</h3>
+        <p class="n-muted n-small">{{ ticket.subject }}</p>
+        <dl class="hd-dl">
+          <div><dt>Status</dt><dd>{{ statusLabel(ticket.status) }}</dd></div>
+          <div><dt>Cliente</dt><dd>{{ ticket.organization_name || '—' }}</dd></div>
+          <div><dt>Plano</dt><dd>{{ ticket.plan_key || '—' }}</dd></div>
+          <div><dt>Solicitante</dt><dd>{{ ticket.requester_name || '—' }}</dd></div>
+          <div><dt>E-mail</dt><dd>{{ ticket.requester_email || '—' }}</dd></div>
+        </dl>
+
+        @if (canManage()) {
+          <div class="hd-triage">
+            <label>
+              Categoria
+              <select [value]="ticket.category" [attr.disabled]="acting() || null" (change)="onTriageCategory($event)">
+                @for (item of categories; track item.value) {
+                  <option [value]="item.value">{{ item.label }}</option>
+                }
+              </select>
+            </label>
+            <label>
+              Prioridade
+              <select [value]="ticket.priority" [attr.disabled]="acting() || null" (change)="onTriagePriority($event)">
+                @for (item of priorities; track item.value) {
+                  <option [value]="item.value">{{ item.label }}</option>
+                }
+              </select>
+            </label>
+            <label>
+              Responsável
+              <select
+                [value]="ticket.assignee_user_id ?? ''"
+                [attr.disabled]="acting() || null"
+                (change)="onTriageAssignee($event)"
+              >
+                <option value="">Sem responsável</option>
+                @for (agent of agents(); track agent.id) {
+                  <option [value]="agent.id">{{ agent.name }}</option>
+                }
+              </select>
+            </label>
+          </div>
+
+          <div class="hd-actions">
+            <nord-button type="button" size="s" variant="default" [attr.disabled]="acting() || null" (click)="assumirChamado()">Assumir</nord-button>
+            <nord-button type="button" size="s" variant="default" [attr.disabled]="acting() || null" (click)="atualizarStatus('in_progress')">Em atendimento</nord-button>
+            <nord-button type="button" size="s" variant="default" [attr.disabled]="acting() || null" (click)="atualizarStatus('resolved')">Resolver</nord-button>
+            <nord-button type="button" size="s" variant="plain" [attr.disabled]="acting() || null" (click)="atualizarStatus('closed')">Encerrar</nord-button>
+          </div>
+
+          <h4>Notas internas</h4>
+          <div class="hd-notes">
+            @for (note of ticket.notes ?? []; track note.id) {
+              <div class="hd-note">
+                <div class="hd-msg__meta">{{ note.author_name || 'Equipe' }} · {{ formatarData(note.created_at) }}</div>
+                <div>{{ note.body }}</div>
+              </div>
+            } @empty {
+              <p class="n-muted n-small">Nenhuma nota.</p>
+            }
+          </div>
+          <textarea rows="2" placeholder="Nota interna (invisível ao cliente)" [value]="noteDraft()" (input)="onNoteDraft($event)"></textarea>
+          <nord-button type="button" size="s" variant="default" [attr.disabled]="acting() || null" (click)="adicionarNota()">Salvar nota</nord-button>
+        } @else {
+          <dl class="hd-dl">
+            <div><dt>Categoria</dt><dd>{{ categoryLabel(ticket.category) }}</dd></div>
+            <div><dt>Prioridade</dt><dd>{{ priorityLabel(ticket.priority) }}</dd></div>
+            <div><dt>Responsável</dt><dd>{{ ticket.assignee_name || '—' }}</dd></div>
+          </dl>
+        }
+
+        @if (ticket.context) {
+          <h4>Contexto operacional</h4>
+          <pre class="hd-context-json">{{ ticket.context | json }}</pre>
+        }
+      }
+    </aside>
+  </div>
+</div>
+
+<ng-template #filtrosTpl>
+  <div class="zm-filter-sheet">
+    <div class="zm-filter-sheet__body">
+      <div class="zm-filter-sheet__fields">
+        <div class="zm-filter-field">
+          <span class="zm-filter-label">Status</span>
+          <div class="zm-filter-options" role="radiogroup" aria-label="Status do chamado">
+            @for (item of statusFiltros; track item.id) {
+              <button
+                type="button"
+                role="radio"
+                [class.is-active]="statusRascunho === item.id"
+                [attr.aria-checked]="statusRascunho === item.id"
+                (click)="statusRascunho = item.id"
+              >
+                <span>{{ item.label }}</span>
+              </button>
+            }
+          </div>
+        </div>
+
+        <div class="zm-filter-field">
+          <span class="zm-filter-label">Categoria</span>
+          <select [value]="categoryRascunho" (change)="categoryRascunho = $any($event.target).value || 'all'">
+            <option value="all">Todas</option>
+            @for (item of categories; track item.value) {
+              <option [value]="item.value">{{ item.label }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="zm-filter-field">
+          <span class="zm-filter-label">Prioridade</span>
+          <select [value]="priorityRascunho" (change)="priorityRascunho = $any($event.target).value || 'all'">
+            <option value="all">Todas</option>
+            @for (item of priorities; track item.value) {
+              <option [value]="item.value">{{ item.label }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="zm-filter-field">
+          <span class="zm-filter-label">Responsável</span>
+          <select [value]="assigneeRascunho" (change)="assigneeRascunho = $any($event.target).value || 'all'">
+            <option value="all">Todos</option>
+            <option value="unassigned">Sem responsável</option>
+            @for (agent of agents(); track agent.id) {
+              <option [value]="agent.id">{{ agent.name }}</option>
+            }
+          </select>
+        </div>
+      </div>
+    </div>
+    <footer class="zm-filter-sheet__footer">
+      <button class="zm-filter-sheet__clear" type="button" (click)="limparFiltrosDrawer()">Limpar filtros</button>
+      <nord-button variant="primary" type="button" (click)="aplicarFiltrosDrawer()">
+        <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">check</span>
+        Aplicar
+      </nord-button>
+    </footer>
+  </div>
+</ng-template>

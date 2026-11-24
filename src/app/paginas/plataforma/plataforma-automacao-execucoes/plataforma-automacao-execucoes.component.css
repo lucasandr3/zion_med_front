@@ -1,0 +1,32 @@
+.exec-status {
+  display: inline-block;
+  margin-left: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.1rem 0.45rem;
+  border-radius: 0.25rem;
+  background: var(--n-color-surface-raised, #f0f0f0);
+}
+
+.exec-status[data-status='completed'] {
+  background: color-mix(in srgb, var(--n-color-status-success, #2e7d32) 18%, transparent);
+  color: var(--n-color-status-success, #2e7d32);
+}
+
+.exec-status[data-status='failed'] {
+  background: color-mix(in srgb, var(--n-color-status-danger, #c62828) 18%, transparent);
+  color: var(--n-color-status-danger, #c62828);
+}
+
+.exec-status[data-status='cancelled'],
+.exec-status[data-status='ignored'] {
+  background: color-mix(in srgb, var(--n-color-status-warning, #ed6c02) 16%, transparent);
+  color: var(--n-color-status-warning, #ed6c02);
+}
+
+.exec-msg {
+  margin: 0.35rem 0 0;
+  font-size: 0.85rem;
+  color: var(--n-color-text-weaker, #666);
+  word-break: break-word;
+}

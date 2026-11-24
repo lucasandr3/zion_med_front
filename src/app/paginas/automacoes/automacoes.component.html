@@ -1,0 +1,104 @@
+<div class="n-page-list__toolbar">
+  <div class="n-page-list__toolbar-start">
+    <nord-button-group aria-label="Seções">
+      <nord-button
+        type="button"
+        [attr.variant]="aba() === 'regras' ? 'primary' : 'default'"
+        (click)="selecionarAba('regras')"
+      >
+        Automações ({{ activeCount() }} ativas)
+      </nord-button>
+      <nord-button
+        type="button"
+        [attr.variant]="aba() === 'historico' ? 'primary' : 'default'"
+        (click)="selecionarAba('historico')"
+      >
+        Histórico
+      </nord-button>
+    </nord-button-group>
+  </div>
+  <div class="n-page-list__toolbar-end">
+    <a routerLink="/automacoes/tarefas" class="auto-tasks-link">
+      Tarefas abertas ({{ tasksOpen() }})
+    </a>
+    <nord-button type="button" variant="default" size="m" [attr.disabled]="acting() || null" (click)="carregar()">
+      Atualizar
+    </nord-button>
+  </div>
+</div>
+
+<div class="n-page-list__content">
+  @if (showSkeleton()) {
+    <div class="n-page-list__panel"><app-list-skeleton [count]="6" /></div>
+  } @else if (!listaPronta()) {
+  } @else if (error()) {
+    <div class="n-page-list__panel">
+      <p class="n-muted n-small" style="color:var(--n-color-status-danger,#c62828)">{{ error() }}</p>
+    </div>
+  } @else if (aba() === 'regras' && items().length === 0) {
+    <div class="n-page-list__empty">
+      <nord-empty-state>
+        <h2>Nenhuma automação</h2>
+        <p>As regras iniciais serão criadas automaticamente.</p>
+      </nord-empty-state>
+    </div>
+  } @else if (aba() === 'historico' && executions().length === 0) {
+    <div class="n-page-list__empty">
+      <nord-empty-state>
+        <h2>Sem execuções</h2>
+        <p>Quando uma automação rodar, o resultado aparecerá aqui.</p>
+      </nord-empty-state>
+    </div>
+  } @else if (aba() === 'regras') {
+    <div class="n-page-list__table">
+      @for (item of items(); track item.id) {
+        <div class="n-page-list__row">
+          <div class="n-page-list__row-main">
+            <div class="n-page-list__row-title">
+              {{ item.name }}
+              <span class="auto-badge" [attr.data-status]="item.status">{{ statusLabel(item.status) }}</span>
+            </div>
+            <div class="n-page-list__row-meta">
+              {{ eventoLabel(item.trigger_event) }}
+              · {{ formatarData(item.updated_at) }}
+            </div>
+            @if (item.description) {
+              <p class="auto-desc">{{ item.description }}</p>
+            }
+          </div>
+          <div class="n-page-list__actions">
+            @if (item.status === 'active') {
+              <nord-button type="button" variant="plain" size="s" [attr.disabled]="acting() || null" (click)="pausar(item)">
+                Pausar
+              </nord-button>
+            } @else {
+              <nord-button type="button" variant="primary" size="s" [attr.disabled]="acting() || null" (click)="ativar(item)">
+                Ativar
+              </nord-button>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  } @else {
+    <div class="n-page-list__table">
+      @for (item of executions(); track item.id) {
+        <div class="n-page-list__row">
+          <div class="n-page-list__row-main">
+            <div class="n-page-list__row-title">
+              #{{ item.id }} · {{ eventoLabel(item.trigger_event) }}
+              <span class="auto-badge" [attr.data-status]="item.status">{{ statusLabel(item.status) }}</span>
+            </div>
+            <div class="n-page-list__row-meta">
+              automação #{{ item.automation_id }}
+              · {{ formatarData(item.created_at) }}
+            </div>
+            @if (item.result_message) {
+              <p class="auto-desc">{{ item.result_message }}</p>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

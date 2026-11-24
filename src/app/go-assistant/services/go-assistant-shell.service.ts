@@ -1,7 +1,10 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { Subscription, finalize, timeout } from 'rxjs';
+import { Router } from '@angular/router';
+import { Subscription, catchError, finalize, of, timeout } from 'rxjs';
+import { KnowledgeArticle, KnowledgeService } from '../../core/services/knowledge.service';
 import { getIntentById, getScreenById } from '../data';
 import type {
+  AssistantArticleHit,
   AssistantDrawerView,
   AssistantIntent,
   GoAssistantHistoryItem,
@@ -16,9 +19,13 @@ export class GoAssistantShellService {
   private readonly api = inject(GoAssistantApiService);
   private readonly context = inject(GoAssistantContextService);
   private readonly search = inject(GoAssistantSearchService);
+  private readonly knowledge = inject(KnowledgeService);
+  private readonly router = inject(Router);
 
   private historySub?: Subscription;
   private popularSub?: Subscription;
+  private knowledgeSub?: Subscription;
+  private querySeq = 0;
 
   readonly open = signal(false);
   readonly view = signal<AssistantDrawerView>({ kind: 'home' });
@@ -26,6 +33,7 @@ export class GoAssistantShellService {
   readonly history = signal<GoAssistantHistoryItem[]>([]);
   readonly popular = signal<GoAssistantPopularItem[]>([]);
   readonly loadingHistory = signal(false);
+  readonly searchingArticles = signal(false);
 
   toggle(): void {
     if (this.open()) {
@@ -77,37 +85,33 @@ export class GoAssistantShellService {
   onQueryChange(value: string): void {
     this.query.set(value);
     const trimmed = value.trim();
+    this.knowledgeSub?.unsubscribe();
     if (!trimmed) {
+      this.searchingArticles.set(false);
       this.view.set({ kind: 'home' });
       return;
     }
+
     const hits = this.search.search(trimmed);
-    if (hits.length === 0) {
-      this.api
-        .recordEvent({
-          kind: 'no_match',
-          query: trimmed,
-          route: this.context.context().route,
-          screen_id: this.context.currentScreen()?.id ?? null,
-        })
-        .subscribe();
-      this.view.set({
-        kind: 'empty',
-        query: trimmed,
-        suggestions: this.search.suggestWhenEmpty(5),
+    const seq = ++this.querySeq;
+    this.applySearchView(trimmed, hits, [], false);
+    this.searchingArticles.set(true);
+    this.knowledgeSub = this.knowledge
+      .searchHelp(trimmed)
+      .pipe(
+        timeout({ first: 8000 }),
+        catchError(() => of({ data: [] as KnowledgeArticle[] })),
+        finalize(() => {
+          if (seq === this.querySeq) {
+            this.searchingArticles.set(false);
+          }
+        }),
+      )
+      .subscribe((res) => {
+        if (seq !== this.querySeq) return;
+        const articles = this.mapArticles(res.data ?? []).slice(0, 6);
+        this.applySearchView(trimmed, hits, articles, true);
       });
-      return;
-    }
-    this.api
-      .recordEvent({
-        kind: 'search',
-        query: trimmed,
-        route: this.context.context().route,
-        screen_id: this.context.currentScreen()?.id ?? null,
-        meta: { hits: hits.length },
-      })
-      .subscribe();
-    this.view.set({ kind: 'search', query: trimmed, hits });
   }
 
   openIntent(intent: AssistantIntent): void {
@@ -130,6 +134,20 @@ export class GoAssistantShellService {
     if (intent && this.context.canSeeIntent(intent)) {
       this.openIntent(intent);
     }
+  }
+
+  openArticle(article: AssistantArticleHit): void {
+    this.close();
+    void this.router.navigate(['/ajuda'], { queryParams: { artigo: article.slug } });
+    this.api
+      .recordEvent({
+        kind: 'action',
+        title: article.title,
+        query: this.query(),
+        route: '/ajuda',
+        meta: { article_slug: article.slug, source: 'knowledge' },
+      })
+      .subscribe();
   }
 
   openHistoryItem(item: GoAssistantHistoryItem): void {
@@ -163,5 +181,67 @@ export class GoAssistantShellService {
 
   popularLabel(item: GoAssistantPopularItem): string {
     return item.title ?? getIntentById(item.intent_id)?.title ?? item.intent_id;
+  }
+
+  private applySearchView(
+    trimmed: string,
+    hits: ReturnType<GoAssistantSearchService['search']>,
+    articles: AssistantArticleHit[],
+    recordEvent: boolean,
+  ): void {
+    if (hits.length === 0 && articles.length === 0) {
+      if (recordEvent) {
+        this.api
+          .recordEvent({
+            kind: 'no_match',
+            query: trimmed,
+            route: this.context.context().route,
+            screen_id: this.context.currentScreen()?.id ?? null,
+          })
+          .subscribe();
+      }
+      this.view.set({
+        kind: 'empty',
+        query: trimmed,
+        suggestions: this.search.suggestWhenEmpty(5),
+        articles: [],
+      });
+      return;
+    }
+
+    if (recordEvent) {
+      this.api
+        .recordEvent({
+          kind: 'search',
+          query: trimmed,
+          route: this.context.context().route,
+          screen_id: this.context.currentScreen()?.id ?? null,
+          meta: { hits: hits.length, articles: articles.length },
+        })
+        .subscribe();
+    }
+
+    if (hits.length === 0) {
+      this.view.set({
+        kind: 'empty',
+        query: trimmed,
+        suggestions: this.search.suggestWhenEmpty(5),
+        articles,
+      });
+      return;
+    }
+
+    this.view.set({ kind: 'search', query: trimmed, hits, articles });
+  }
+
+  private mapArticles(list: KnowledgeArticle[]): AssistantArticleHit[] {
+    return list
+      .filter((item) => !!item.slug && !!item.title)
+      .map((item) => ({
+        id: item.id,
+        title: item.title,
+        slug: item.slug,
+        category: item.category,
+      }));
   }
 }

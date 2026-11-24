@@ -1,0 +1,58 @@
+<div class="n-page-list__toolbar">
+  <div class="n-page-list__toolbar-start">
+    @if (!selected()) {
+      <div class="form-search-wrap">
+        <span class="material-symbols-outlined form-search-icon" aria-hidden="true">search</span>
+        <input
+          type="search"
+          class="form-search-input w-full text-sm"
+          placeholder="Buscar artigos (ex.: assinatura, protocolo, trial)…"
+          aria-label="Buscar artigos de ajuda"
+          [value]="query()"
+          (input)="onQuery($event)"
+          autocomplete="off"
+        />
+      </div>
+    }
+  </div>
+  <div class="n-page-list__toolbar-end">
+    <a routerLink="/suporte" class="ajuda-link">Falar com atendimento</a>
+  </div>
+</div>
+
+<div class="n-page-list__content n-page-list__content--padded">
+  @if (error()) {
+    <p class="n-muted" style="color:var(--n-color-status-danger,#c62828)">{{ error() }}</p>
+  }
+
+  @if (selected(); as article) {
+    <article class="ajuda-article">
+      <nord-button type="button" variant="plain" size="s" (click)="voltarLista()">← Voltar</nord-button>
+      <p class="n-muted n-small">{{ categoryLabel(article.category) }}</p>
+      <h3>{{ article.title }}</h3>
+      <pre class="ajuda-content">{{ article.content }}</pre>
+      <p class="n-muted n-small">
+        Não resolveu?
+        <a routerLink="/suporte">Abrir atendimento humano</a>
+      </p>
+    </article>
+  } @else if (loading()) {
+    <p class="n-muted n-small">Carregando…</p>
+  } @else if (items().length === 0) {
+    <div class="n-page-list__empty">
+      <nord-empty-state>
+        <h2>Nenhum artigo</h2>
+        <p>Tente outro termo ou abra um atendimento.</p>
+      </nord-empty-state>
+    </div>
+  } @else {
+    <div class="ajuda-list">
+      @for (item of items(); track item.id) {
+        <button type="button" class="ajuda-card" (click)="abrir(item)">
+          <div class="ajuda-card__title">{{ item.title }}</div>
+          <div class="ajuda-card__meta">{{ categoryLabel(item.category) }}</div>
+        </button>
+      }
+    </div>
+  }
+</div>

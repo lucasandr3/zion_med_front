@@ -1,0 +1,98 @@
+<div class="n-page-list__toolbar">
+  <div class="n-page-list__toolbar-start">
+    <zm-page-back-link />
+  </div>
+  <div class="n-page-list__toolbar-end">
+    <nord-button
+      type="button"
+      (click)="openFilterDrawer()"
+      [attr.aria-expanded]="filterDrawerOpen() ? 'true' : 'false'"
+      [class.ring-2]="temFiltrosAtivos"
+      [class.ring-ring]="temFiltrosAtivos"
+      title="Filtros"
+    >
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">filter_list</span>
+      Filtros
+      @if (temFiltrosAtivos) { <nord-badge variant="neutral">{{ quantidadeFiltrosAtivos }}</nord-badge> }
+    </nord-button>
+    <div class="n-page-list__actions">
+      <nord-button type="button" variant="default" size="m" (click)="carregar()">
+        Atualizar
+      </nord-button>
+    </div>
+  </div>
+</div>
+
+<div class="n-page-list__content">
+  @if (showSkeleton()) {
+    <div class="n-page-list__panel"><app-list-skeleton [count]="6" /></div>
+  } @else if (!listaPronta()) {
+  } @else if (error()) {
+    <div class="n-page-list__panel">
+      <p class="n-muted n-small" style="color:var(--n-color-status-danger,#c62828)">{{ error() }}</p>
+    </div>
+  } @else if (listaAtual().length === 0) {
+    <div class="n-page-list__empty">
+      <nord-empty-state>
+        <h2>Nenhuma execução</h2>
+        <p>Quando um evento disparar uma automação, o resultado aparecerá aqui.</p>
+      </nord-empty-state>
+    </div>
+  } @else {
+    <div class="n-page-list__table">
+      @for (item of listaAtual(); track item.id) {
+        <div class="n-page-list__row">
+          <div class="n-page-list__row-main">
+            <div class="n-page-list__row-title">
+              #{{ item.id }} · {{ item.trigger_event }}
+              <span class="exec-status" [attr.data-status]="item.status">
+                {{ statusLabel(item.status) }}
+              </span>
+            </div>
+            <div class="n-page-list__row-meta">
+              automação #{{ item.automation_id }}
+              · tentativas {{ item.attempts ?? 0 }}
+              · {{ formatarData(item.created_at) }}
+            </div>
+            @if (item.result_message) {
+              <p class="exec-msg">{{ item.result_message }}</p>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>
+
+<ng-template #filtrosTpl>
+  <div class="zm-filter-sheet">
+    <div class="zm-filter-sheet__body">
+      <div class="zm-filter-sheet__fields">
+        <div class="zm-filter-field">
+          <span class="zm-filter-label">Situação</span>
+          <div class="zm-filter-options" role="radiogroup" aria-label="Filtrar execuções">
+            @for (item of filtros; track item.id) {
+              <button
+                type="button"
+                role="radio"
+                [class.is-active]="filtroRascunho === item.id"
+                [attr.aria-checked]="filtroRascunho === item.id"
+                (click)="filtroRascunho = item.id"
+              >
+                <span>{{ item.label }}</span>
+                <small>{{ quantidadeFiltro(item.id) }}</small>
+              </button>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+    <footer class="zm-filter-sheet__footer">
+      <button class="zm-filter-sheet__clear" type="button" (click)="limparFiltrosDrawer()">Limpar filtros</button>
+      <nord-button variant="primary" type="button" (click)="aplicarFiltrosDrawer()">
+        <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">check</span>
+        Aplicar
+      </nord-button>
+    </footer>
+  </div>
+</ng-template>

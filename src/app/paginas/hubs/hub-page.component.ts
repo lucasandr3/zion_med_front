@@ -18,6 +18,7 @@ import { AuthService } from '../../core/services/auth.service';
 import { ClinicaService } from '../../core/services/clinica.service';
 import { DashboardData, DashboardService } from '../../core/services/dashboard.service';
 import { LinksPublicosService } from '../../core/services/links-publicos.service';
+import { PlataformaService } from '../../core/services/plataforma.service';
 import { ProtocolosService } from '../../core/services/protocolos.service';
 import { TemplatesService } from '../../core/services/templates.service';
 import {
@@ -115,6 +116,7 @@ export class HubPageComponent implements OnInit {
   private protocolos = inject(ProtocolosService);
   private linksPublicos = inject(LinksPublicosService);
   private dashboard = inject(DashboardService);
+  private plataforma = inject(PlataformaService);
 
   readonly config = signal<NavigationHubConfig | null>(null);
   readonly kpiValues = signal<NavigationHubKpiValues>({});
@@ -176,6 +178,12 @@ export class HubPageComponent implements OnInit {
     if (hubId === 'documentos' && (hub.kpis?.length ?? 0) > 0) {
       this.carregarKpisDocumentos();
       this.carregarSoloNextStep();
+    }
+    if (hubId === 'plataforma-filas' && (hub.kpis?.length ?? 0) > 0) {
+      this.carregarKpisFilas();
+    }
+    if (hubId === 'plataforma-relacionamento' && (hub.kpis?.length ?? 0) > 0) {
+      this.carregarKpisRelacionamento();
     }
   }
 
@@ -268,6 +276,60 @@ export class HubPageComponent implements OnInit {
       route: '/protocolos',
       icon: 'article_person',
     };
+  }
+
+  private carregarKpisRelacionamento(): void {
+    this.kpisLoading.set(true);
+    this.plataforma.getRelationshipOverview().pipe(catchError(() => of(null))).subscribe({
+      next: (res) => {
+        const o = res?.data;
+        this.kpiValues.set({
+          tickets_waiting: o?.tickets_waiting ?? null,
+          tasks_open: o?.tasks_open ?? null,
+          automations_active: o?.automations_active ?? null,
+          executions_failed: o?.executions_failed ?? null,
+          trials_ending_3d: o?.trials_ending_3d ?? null,
+          articles_published: o?.articles_published ?? null,
+        });
+        this.kpisLoading.set(false);
+      },
+      error: () => {
+        this.kpiValues.set({
+          tickets_waiting: null,
+          tasks_open: null,
+          automations_active: null,
+          executions_failed: null,
+          trials_ending_3d: null,
+          articles_published: null,
+        });
+        this.kpisLoading.set(false);
+      },
+    });
+  }
+
+  private carregarKpisFilas(): void {
+    this.kpisLoading.set(true);
+    this.plataforma.getJobsOverview().pipe(catchError(() => of(null))).subscribe({
+      next: (res) => {
+        const o = res?.data;
+        this.kpiValues.set({
+          pending: o ? o.pending + o.reserved : null,
+          failed: o?.failed ?? null,
+          email_pending: o?.email_pending ?? null,
+          schedules_count: o?.schedules_count ?? null,
+        });
+        this.kpisLoading.set(false);
+      },
+      error: () => {
+        this.kpiValues.set({
+          pending: null,
+          failed: null,
+          email_pending: null,
+          schedules_count: null,
+        });
+        this.kpisLoading.set(false);
+      },
+    });
   }
 
   private carregarKpisDocumentos(): void {

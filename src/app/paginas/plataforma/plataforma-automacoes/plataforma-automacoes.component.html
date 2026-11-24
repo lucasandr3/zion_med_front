@@ -1,0 +1,270 @@
+<div class="n-page-list__toolbar">
+  <div class="n-page-list__toolbar-start">
+    <zm-page-back-link />
+  </div>
+  <div class="n-page-list__toolbar-end">
+    <nord-button
+      type="button"
+      (click)="openFilterDrawer()"
+      [attr.aria-expanded]="filterDrawerOpen() ? 'true' : 'false'"
+      [class.ring-2]="temFiltrosAtivos"
+      [class.ring-ring]="temFiltrosAtivos"
+      title="Filtros"
+    >
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">filter_list</span>
+      Filtros
+      @if (temFiltrosAtivos) { <nord-badge variant="neutral">{{ quantidadeFiltrosAtivos }}</nord-badge> }
+    </nord-button>
+    <div class="n-page-list__actions">
+      <nord-button type="button" variant="default" size="m" [attr.disabled]="acting() || null" (click)="carregar()">
+        Atualizar
+      </nord-button>
+      <nord-button type="button" variant="primary" size="m" (click)="novo()">Nova automação</nord-button>
+    </div>
+  </div>
+</div>
+
+<div class="n-page-list__content">
+  @if (editing()) {
+    <div class="auto-form n-page-list__panel">
+      <label>Nome<input type="text" [value]="name()" (input)="onName($event)" maxlength="160" /></label>
+      <label>Descrição<textarea rows="2" [value]="description()" (input)="onDescription($event)"></textarea></label>
+      <label>
+        Evento gatilho
+        <select [value]="triggerEvent()" (change)="onTrigger($event)">
+          @for (opt of triggerOptions; track opt.id) {
+            <option [value]="opt.id">{{ opt.label }} ({{ opt.id }})</option>
+          }
+        </select>
+      </label>
+      <label>
+        Status
+        <select [value]="status()" (change)="onStatus($event)">
+          <option value="draft">Rascunho</option>
+          <option value="active">Ativa</option>
+          <option value="paused">Pausada</option>
+        </select>
+      </label>
+      <label>
+        Atraso (segundos)
+        <input type="number" min="0" max="86400" [value]="waitSeconds()" (input)="onWait($event)" />
+      </label>
+
+      <section class="auto-form__block" aria-label="Condições">
+        <div class="auto-form__block-head">
+          <h3>Condições (opcional)</h3>
+          <nord-button
+            type="button"
+            size="s"
+            variant="default"
+            [attr.disabled]="conditions().length >= maxConditions || null"
+            (click)="adicionarCondicao()"
+          >
+            Adicionar condição
+          </nord-button>
+        </div>
+        <p class="n-muted n-small">Todas as condições devem ser verdadeiras (AND). Campos sugeridos: {{ fieldHint() }}</p>
+        @if (conditions().length === 0) {
+          <p class="n-muted n-small">Sem condições — a automação roda em todo evento do gatilho.</p>
+        }
+        @for (cond of conditions(); track $index; let i = $index) {
+          <div class="auto-form__row">
+            <label>
+              Campo
+              <input type="text" [value]="cond.field" (input)="onConditionField(i, $event)" placeholder="ex.: niche" />
+            </label>
+            <label>
+              Operador
+              <select [value]="cond.op" (change)="onConditionOp(i, $event)">
+                @for (op of conditionOps; track op.id) {
+                  <option [value]="op.id">{{ op.label }}</option>
+                }
+              </select>
+            </label>
+            @if (needsConditionValue(cond.op)) {
+              <label>
+                Valor
+                <input type="text" [value]="cond.value" (input)="onConditionValue(i, $event)" />
+              </label>
+            }
+            <div class="auto-form__row-actions">
+              <nord-button type="button" size="s" variant="plain" (click)="removerCondicao(i)">Remover</nord-button>
+            </div>
+          </div>
+        }
+      </section>
+
+      <section class="auto-form__block" aria-label="Ações">
+        <div class="auto-form__block-head">
+          <h3>Ações</h3>
+          <nord-button
+            type="button"
+            size="s"
+            variant="default"
+            [attr.disabled]="actions().length >= maxActions || null"
+            (click)="adicionarAcao()"
+          >
+            Adicionar ação
+          </nord-button>
+        </div>
+        <p class="n-muted n-small">Até {{ maxActions }} ações, executadas em sequência. {{ placeholderHint }}</p>
+
+        @for (action of actions(); track $index; let i = $index) {
+          <div class="auto-form__action">
+            <div class="auto-form__block-head">
+              <strong>Ação {{ i + 1 }}</strong>
+              <nord-button
+                type="button"
+                size="s"
+                variant="plain"
+                [attr.disabled]="actions().length <= 1 || null"
+                (click)="removerAcao(i)"
+              >
+                Remover
+              </nord-button>
+            </div>
+            <label>
+              Tipo
+              <select [value]="action.type" (change)="onActionType(i, $event)">
+                <option value="create_task">Criar tarefa</option>
+                <option value="send_email">Enviar e-mail</option>
+                <option value="send_email_template">Enviar e-mail (modelo)</option>
+                <option value="create_notification">Criar notificação</option>
+              </select>
+            </label>
+
+            @if (action.type === 'send_email') {
+              <label>Para<input type="text" [value]="action.to" (input)="onActionTo(i, $event)" /></label>
+              <label>Assunto<input type="text" [value]="action.subject" (input)="onActionSubject(i, $event)" /></label>
+              <label>Corpo<textarea rows="4" [value]="action.body" (input)="onActionBody(i, $event)"></textarea></label>
+            } @else if (action.type === 'send_email_template') {
+              <label>ID do modelo<input type="number" [value]="action.templateId" (input)="onActionTemplateId(i, $event)" /></label>
+              <label>Para (opcional)<input type="text" [value]="action.to" (input)="onActionTo(i, $event)" /></label>
+            } @else if (action.type === 'create_notification') {
+              <label>Título<input type="text" [value]="action.title" (input)="onActionTitle(i, $event)" /></label>
+              <label>Corpo<textarea rows="3" [value]="action.body" (input)="onActionBody(i, $event)"></textarea></label>
+            } @else {
+              <label>Título da tarefa<input type="text" [value]="action.title" (input)="onActionTitle(i, $event)" /></label>
+              <label>Descrição<textarea rows="3" [value]="action.body" (input)="onActionBody(i, $event)"></textarea></label>
+              <label>
+                Prioridade
+                <select [value]="action.priority" (change)="onActionPriority(i, $event)">
+                  <option value="low">Baixa</option>
+                  <option value="normal">Normal</option>
+                  <option value="high">Alta</option>
+                </select>
+              </label>
+              <label>related_type<input type="text" [value]="action.relatedType" (input)="onActionRelatedType(i, $event)" /></label>
+              <label>related_id<input type="text" [value]="action.relatedId" (input)="onActionRelatedId(i, $event)" /></label>
+            }
+          </div>
+        }
+      </section>
+
+      <div class="auto-form__actions">
+        <nord-button type="button" variant="primary" [attr.disabled]="acting() || null" (click)="salvar()">Salvar</nord-button>
+        <nord-button type="button" variant="plain" (click)="cancelar()">Cancelar</nord-button>
+      </div>
+    </div>
+  }
+
+  @if (showSkeleton()) {
+    <div class="n-page-list__panel"><app-list-skeleton [count]="6" /></div>
+  } @else if (!listaPronta()) {
+  } @else if (error()) {
+    <div class="n-page-list__panel">
+      <p class="n-muted n-small" style="color:var(--n-color-status-danger,#c62828)">{{ error() }}</p>
+    </div>
+  } @else if (listaAtual().length === 0) {
+    <div class="n-page-list__empty">
+      <nord-empty-state>
+        <h2>Nenhuma automação</h2>
+        <p>Crie regras PLATFORM com gatilho, condições e até {{ maxActions }} ações.</p>
+      </nord-empty-state>
+    </div>
+  } @else {
+    <div class="n-page-list__table">
+      @for (item of listaAtual(); track item.id) {
+        <div class="n-page-list__row">
+          <div class="n-page-list__row-main">
+            <div class="n-page-list__row-title">
+              {{ item.name }}
+              <span class="auto-status" [attr.data-status]="item.status">
+                {{ statusLabel(item.status) }}
+              </span>
+            </div>
+            <div class="n-page-list__row-meta">
+              {{ item.trigger_event }}
+              · {{ item.config?.actions?.length || 0 }} ação(ões)
+              · {{ item.config?.conditions?.length || 0 }} condição(ões)
+              · v{{ item.version ?? 1 }}
+              · {{ formatarData(item.updated_at) }}
+            </div>
+            @if (item.description) {
+              <p class="auto-desc">{{ item.description }}</p>
+            }
+          </div>
+          <div class="n-page-list__actions">
+            <nord-button type="button" variant="plain" size="s" [attr.disabled]="acting() || null" (click)="editar(item)">
+              Editar
+            </nord-button>
+            @if (item.status === 'active') {
+              <nord-button
+                type="button"
+                variant="plain"
+                size="s"
+                [attr.disabled]="acting() || null"
+                (click)="pausar(item)"
+              >
+                Pausar
+              </nord-button>
+            } @else {
+              <nord-button
+                type="button"
+                variant="primary"
+                size="s"
+                [attr.disabled]="acting() || null"
+                (click)="ativar(item)"
+              >
+                Ativar
+              </nord-button>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>
+
+<ng-template #filtrosTpl>
+  <div class="zm-filter-sheet">
+    <div class="zm-filter-sheet__body">
+      <div class="zm-filter-sheet__fields">
+        <div class="zm-filter-field">
+          <span class="zm-filter-label">Situação</span>
+          <div class="zm-filter-options" role="radiogroup" aria-label="Filtrar automações">
+            @for (item of filtros; track item.id) {
+              <button
+                type="button"
+                role="radio"
+                [class.is-active]="filtroRascunho === item.id"
+                [attr.aria-checked]="filtroRascunho === item.id"
+                (click)="filtroRascunho = item.id"
+              >
+                <span>{{ item.label }}</span>
+                <small>{{ quantidadeFiltro(item.id) }}</small>
+              </button>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+    <footer class="zm-filter-sheet__footer">
+      <button class="zm-filter-sheet__clear" type="button" (click)="limparFiltrosDrawer()">Limpar filtros</button>
+      <nord-button variant="primary" type="button" (click)="aplicarFiltrosDrawer()">
+        <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">check</span>
+        Aplicar
+      </nord-button>
+    </footer>
+  </div>
+</ng-template>

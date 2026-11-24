@@ -1,0 +1,125 @@
+<div class="n-page-list__toolbar">
+  <div class="n-page-list__toolbar-start">
+    <zm-page-back-link />
+  </div>
+  <div class="n-page-list__toolbar-end">
+    <nord-button
+      type="button"
+      (click)="openFilterDrawer()"
+      [attr.aria-expanded]="filterDrawerOpen() ? 'true' : 'false'"
+      [class.ring-2]="temFiltrosAtivos"
+      [class.ring-ring]="temFiltrosAtivos"
+      title="Filtros"
+    >
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">filter_list</span>
+      Filtros
+      @if (temFiltrosAtivos) { <nord-badge variant="neutral">{{ quantidadeFiltrosAtivos }}</nord-badge> }
+    </nord-button>
+    <div class="n-page-list__actions">
+      <nord-button type="button" variant="default" size="m" [attr.disabled]="acting() || null" (click)="carregar()">
+        Atualizar
+      </nord-button>
+    </div>
+  </div>
+</div>
+
+<div class="n-page-list__content">
+  <div class="task-create n-page-list__panel">
+    <nord-input
+      label="Nova tarefa"
+      hide-label
+      placeholder="Ex.: Revisar protocolo assinado"
+      [attr.value]="novaTitulo()"
+      (input)="onTituloInput($event)"
+    ></nord-input>
+    <nord-button type="button" variant="primary" size="m" [attr.disabled]="acting() || null" (click)="criar()">
+      Criar
+    </nord-button>
+  </div>
+
+  @if (showSkeleton()) {
+    <div class="n-page-list__panel"><app-list-skeleton [count]="6" /></div>
+  } @else if (!listaPronta()) {
+  } @else if (error()) {
+    <div class="n-page-list__panel">
+      <p class="n-muted n-small" style="color:var(--n-color-status-danger,#c62828)">{{ error() }}</p>
+    </div>
+  } @else if (listaAtual().length === 0) {
+    <div class="n-page-list__empty">
+      <nord-empty-state>
+        <h2>Nenhuma tarefa</h2>
+        <p>Tarefas manuais ou geradas por automações da clínica aparecerão aqui.</p>
+      </nord-empty-state>
+    </div>
+  } @else {
+    <div class="n-page-list__table">
+      @for (item of listaAtual(); track item.id) {
+        <div class="n-page-list__row">
+          <div class="n-page-list__row-main">
+            <div class="n-page-list__row-title">
+              {{ item.title }}
+              <span class="task-badge" [attr.data-status]="item.status">{{ item.status === 'done' ? 'Concluída' : 'Aberta' }}</span>
+              @if (item.priority === 'high') {
+                <span class="task-badge" data-status="high">Alta</span>
+              }
+            </div>
+            <div class="n-page-list__row-meta">
+              {{ item.origin === 'automation' ? 'Automação' : 'Manual' }}
+              · {{ formatarData(item.created_at) }}
+              @if (item.related_type) {
+                · {{ item.related_type }} #{{ item.related_id }}
+              }
+            </div>
+            @if (item.description) {
+              <p class="task-desc">{{ item.description }}</p>
+            }
+          </div>
+          <div class="n-page-list__actions">
+            @if (item.status === 'open') {
+              <nord-button type="button" variant="primary" size="s" [attr.disabled]="acting() || null" (click)="concluir(item)">
+                Concluir
+              </nord-button>
+            } @else {
+              <nord-button type="button" variant="plain" size="s" [attr.disabled]="acting() || null" (click)="reabrir(item)">
+                Reabrir
+              </nord-button>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>
+
+<ng-template #filtrosTpl>
+  <div class="zm-filter-sheet">
+    <div class="zm-filter-sheet__body">
+      <div class="zm-filter-sheet__fields">
+        <div class="zm-filter-field">
+          <span class="zm-filter-label">Situação</span>
+          <div class="zm-filter-options" role="radiogroup" aria-label="Filtrar tarefas">
+            @for (item of filtros; track item.id) {
+              <button
+                type="button"
+                role="radio"
+                [class.is-active]="filtroRascunho === item.id"
+                [attr.aria-checked]="filtroRascunho === item.id"
+                (click)="filtroRascunho = item.id"
+              >
+                <span>{{ item.label }}</span>
+                <small>{{ quantidadeFiltro(item.id) }}</small>
+              </button>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+    <footer class="zm-filter-sheet__footer">
+      <button class="zm-filter-sheet__clear" type="button" (click)="limparFiltrosDrawer()">Limpar filtros</button>
+      <nord-button variant="primary" type="button" (click)="aplicarFiltrosDrawer()">
+        <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">check</span>
+        Aplicar
+      </nord-button>
+    </footer>
+  </div>
+</ng-template>

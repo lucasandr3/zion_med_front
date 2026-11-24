@@ -22,7 +22,9 @@ export const permissionGuard: CanActivateFn = (route, state) => {
 
   if (allowed) return true;
 
-  const fallback = auth.getDefaultTenantPath();
+  const fallback = auth.canAccessPlatform()
+    ? auth.getDefaultPlatformPath()
+    : auth.getDefaultTenantPath();
   const current = normalizePath(state.url);
   const next = normalizePath(fallback);
   if (current === next) {

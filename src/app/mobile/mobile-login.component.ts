@@ -79,9 +79,8 @@ export class MobileLoginComponent implements OnInit {
       next: (res) => {
         this.loading.set(false);
         setPreferPainelExperience(false);
-        const isPlatformAdmin = res.data.user?.role === 'platform_admin';
-        if (isPlatformAdmin) {
-          void this.router.navigateByUrl('/plataforma');
+        if (this.auth.canAccessPlatform()) {
+          void this.router.navigateByUrl(this.auth.getDefaultPlatformPath());
           return;
         }
         const hasOrg =

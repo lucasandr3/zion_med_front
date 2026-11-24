@@ -1,0 +1,85 @@
+.jrn-form {
+  display: grid;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.jrn-form label {
+  display: grid;
+  gap: 0.25rem;
+  font-size: 0.85rem;
+}
+
+.jrn-form input,
+.jrn-form select,
+.jrn-form textarea {
+  width: 100%;
+  border: 1px solid var(--n-color-border, #ddd);
+  border-radius: 0.4rem;
+  padding: 0.5rem;
+  font: inherit;
+}
+
+.jrn-form__actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.jrn-exits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.jrn-check {
+  display: flex !important;
+  align-items: center;
+  gap: 0.4rem;
+  grid-template-columns: none !important;
+}
+
+.jrn-check input {
+  width: auto;
+}
+
+.jrn-step {
+  display: grid;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  border: 1px solid var(--n-color-border, #e5e7eb);
+  border-radius: 0.5rem;
+  background: var(--n-color-surface-raised, #fafafa);
+}
+
+.jrn-step__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.jrn-badge {
+  display: inline-block;
+  margin-left: 0.45rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.1rem 0.4rem;
+  border-radius: 0.25rem;
+  background: var(--n-color-surface-raised, #eee);
+}
+
+.jrn-badge[data-status='active'] {
+  background: color-mix(in srgb, var(--n-color-status-success, #2e7d32) 16%, transparent);
+  color: var(--n-color-status-success, #2e7d32);
+}
+
+.jrn-badge[data-status='paused'],
+.jrn-badge[data-status='draft'] {
+  background: color-mix(in srgb, var(--n-color-status-warning, #ed6c02) 16%, transparent);
+  color: var(--n-color-status-warning, #ed6c02);
+}
+
+.jrn-desc {
+  margin: 0.35rem 0 0;
+  font-size: 0.85rem;
+  color: var(--n-color-text-weaker, #666);
+}

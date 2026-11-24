@@ -278,4 +278,23 @@ export const ASSISTANT_SCREENS: AssistantScreen[] = [
     routePatterns: ['/plataforma/planos', '/plataforma/planos/novo', '/plataforma/planos/:id/editar'],
     permissionsAny: ['platform_admin'],
     quickAskIntentIds: ['plataforma.planos'],
-  }];
+  },
+  {
+    id: 'plataforma.filas',
+    moduleId: 'plataforma',
+    title: 'Filas e jobs',
+    routePatterns: [
+      '/plataforma/filas',
+      '/plataforma/filas/jobs',
+      '/plataforma/filas/schedules',
+      '/plataforma/relacionamento',
+      '/plataforma/relacionamento/automacoes',
+      '/plataforma/relacionamento/execucoes',
+      '/plataforma/relacionamento/tarefas',
+      '/plataforma/relacionamento/modelos',
+      '/plataforma/relacionamento/jornadas',
+    ],
+    permissionsAny: ['platform_admin'],
+    quickAskIntentIds: [],
+  },
+];
