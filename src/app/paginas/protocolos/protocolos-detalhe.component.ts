@@ -1961,9 +1961,9 @@ body.modo-pdf .documento {
     if (Array.isArray(raw)) return raw.join(', ') || '—';
     if (typeof raw === 'object') {
       const entry = raw as Record<string, unknown>;
-      if ('value_text' in entry && entry.value_text != null) return String(entry.value_text);
+      if ('value_text' in entry && entry['value_text'] != null) return String(entry['value_text']);
       if ('value_json' in entry) {
-        const j = entry.value_json;
+        const j = entry['value_json'];
         if (Array.isArray(j)) return j.join(', ');
         if (j != null) return String(j);
       }
