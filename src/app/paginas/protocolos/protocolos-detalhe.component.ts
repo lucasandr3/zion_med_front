@@ -236,34 +236,16 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * DOC-02 — preferir print_layout congelado no document_snapshot.
-   * Só busca o mapa vivo do modelo se o snapshot não tiver aparência utilizável
-   * (protocolos antigos). Também hidrata `template.fields` quando a API não manda
-   * (Java QA), para a aba Respostas e o preenchimento do PDF.
+   * Prefere o mapa vivo do modelo (remapear reflete na prévia/PDF).
+   * Snapshot do envio fica só como fallback se o modelo não tiver mapa.
+   * Também hidrata `template.fields` quando a API não manda (Java QA).
    */
   private hidratarPrintLayoutDoModelo(p: ProtocoloDetalheData): void {
     const snapshotLayout = parsePrintLayout(p.document_snapshot?.print_layout);
-    const needsFields =
-      !(p.document_snapshot?.fields_snapshot?.length) &&
-      !(p.template_version?.fields_snapshot?.length) &&
-      !(p.template?.fields?.length);
-    const hasSnapshotLayout = hasUsablePrintLayout(snapshotLayout);
-
-    if (hasSnapshotLayout && p.template && !needsFields) {
-      p.template.print_layout = snapshotLayout;
-      if (p.document_snapshot?.has_source_document != null) {
-        p.template.has_source_document = p.document_snapshot.has_source_document;
-      }
-      this.protocolo.set({ ...p, template: { ...p.template } });
-      if (this.abaAtiva() === 'impressao') {
-        this.garantirPreviewAparenciaClinica(true);
-      }
-      return;
-    }
-
     const templateId = p.template?.id ?? p.template_id;
+
     if (!templateId) {
-      if (hasSnapshotLayout && p.template) {
+      if (hasUsablePrintLayout(snapshotLayout) && p.template) {
         p.template.print_layout = snapshotLayout;
         this.protocolo.set({ ...p, template: { ...p.template } });
         if (this.abaAtiva() === 'impressao') {
@@ -272,6 +254,7 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
       }
       return;
     }
+
     this.templatesService.get(templateId).subscribe({
       next: (tpl) => {
         const cur = this.protocolo();
@@ -279,15 +262,14 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
         if (!cur.template) {
           cur.template = { id: templateId };
         }
+        const liveLayout = parsePrintLayout(tpl.print_layout);
         const snapLayout = parsePrintLayout(cur.document_snapshot?.print_layout);
-        if (hasUsablePrintLayout(snapLayout)) {
-          cur.template.print_layout = snapLayout;
-        } else {
-          cur.template.print_layout = parsePrintLayout(tpl.print_layout);
-        }
+        cur.template.print_layout = hasUsablePrintLayout(liveLayout)
+          ? liveLayout
+          : snapLayout;
         cur.template.has_source_document =
-          cur.document_snapshot?.has_source_document ??
           tpl.has_source_document ??
+          cur.document_snapshot?.has_source_document ??
           cur.template.has_source_document;
         if (!cur.template.fields?.length && tpl.fields?.length) {
           cur.template.fields = tpl.fields.map((f) => ({
@@ -307,7 +289,13 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
         }
       },
       error: () => {
-        /* mantém o que veio no protocolo */
+        if (hasUsablePrintLayout(snapshotLayout) && p.template) {
+          p.template.print_layout = snapshotLayout;
+          this.protocolo.set({ ...p, template: { ...p.template } });
+          if (this.abaAtiva() === 'impressao') {
+            this.garantirPreviewAparenciaClinica(true);
+          }
+        }
       },
     });
   }
@@ -1523,30 +1511,33 @@ body.modo-pdf .documento {
     const templateId = p?.template?.id ?? p?.template_id;
     if (!p || !templateId || !this.temDocumentoOriginal) return null;
 
-    // DOC-02 — snapshot histórico primeiro; mapa vivo só como fallback.
-    let layout =
-      parsePrintLayout(p.document_snapshot?.print_layout) ||
-      parsePrintLayout(p.template?.print_layout);
-    let hasSource =
-      p.document_snapshot?.has_source_document ?? !!p.template?.has_source_document;
-    if (!hasUsablePrintLayout(layout)) {
-      try {
-        const tpl = await firstValueFrom(this.templatesService.get(templateId));
-        const live = parsePrintLayout(tpl.print_layout);
-        if (hasUsablePrintLayout(live)) {
-          layout = live;
-        }
-        hasSource = !!(tpl.has_source_document ?? hasSource);
-        if (p.template) {
-          p.template.print_layout = layout;
-          p.template.has_source_document = hasSource;
-        }
-      } catch {
-        // segue com o que veio no protocolo
+    // Mapa vivo do modelo primeiro (remapear reflete); snapshot só como fallback.
+    let layout = parsePrintLayout(p.template?.print_layout);
+    let hasSource = !!p.template?.has_source_document;
+    try {
+      const tpl = await firstValueFrom(this.templatesService.get(templateId));
+      const live = parsePrintLayout(tpl.print_layout);
+      if (hasUsablePrintLayout(live)) {
+        layout = live;
+      } else if (!hasUsablePrintLayout(layout)) {
+        layout = parsePrintLayout(p.document_snapshot?.print_layout);
       }
-    } else if (p.template) {
-      p.template.print_layout = layout;
-      p.template.has_source_document = hasSource;
+      hasSource = !!(tpl.has_source_document ?? hasSource ?? p.document_snapshot?.has_source_document);
+      if (p.template) {
+        p.template.print_layout = layout;
+        p.template.has_source_document = hasSource;
+      }
+    } catch {
+      if (!hasUsablePrintLayout(layout)) {
+        layout = parsePrintLayout(p.document_snapshot?.print_layout);
+      }
+      hasSource =
+        hasSource ||
+        !!(p.document_snapshot?.has_source_document ?? p.template?.has_source_document);
+      if (p.template) {
+        p.template.print_layout = layout;
+        p.template.has_source_document = hasSource;
+      }
     }
     if (!hasSource || !layout || !hasUsablePrintLayout(layout)) return null;
 

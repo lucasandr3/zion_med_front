@@ -1415,7 +1415,7 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
           this.toast.success(
             'Aparência do PDF',
             hasUsablePrintLayout(saved)
-              ? `Mapa salvo (${saved!.placements.length} áreas). O protocolo usará este layout.`
+              ? `Mapa salvo (${saved!.placements.length} áreas). Prévia e PDF dos protocolos passam a usar este layout.`
               : 'Mapa limpo. O PDF voltará ao layout padrão.',
           );
         }
