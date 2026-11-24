@@ -177,17 +177,17 @@
               }
             </div>
             <div class="dashboard-attention__grid dashboard-attention__grid--wide">
-              <div [class.is-warning]="(compliance.summary.consent_expired ?? 0) > 0">
+              <div [class.is-warning]="compliance.summary.consent_expired > 0">
                 <span>Vencidos</span>
                 <strong>{{ compliance.summary.consent_expired }}</strong>
                 <small>Fora da validade</small>
               </div>
-              <div [class.is-warning]="(compliance.highlights.expiring_next_30_days ?? 0) > 0">
+              <div [class.is-warning]="compliance.highlights.expiring_next_30_days > 0">
                 <span>Vencem em 30 dias</span>
                 <strong>{{ compliance.highlights.expiring_next_30_days }}</strong>
                 <small>Atenção preventiva</small>
               </div>
-              <div [class.is-warning]="(compliance.summary.without_snapshot ?? 0) > 0">
+              <div [class.is-warning]="compliance.summary.without_snapshot > 0">
                 <span>Sem snapshot</span>
                 <strong>{{ compliance.summary.without_snapshot }}</strong>
                 <small>Evidência incompleta</small>
