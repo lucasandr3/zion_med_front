@@ -345,7 +345,7 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
       TEMAS.find((t) => t.key === canonicalThemeKey)?.color ??
       this.availableThemes[themeKey]?.primary ??
       this.availableThemes[canonicalThemeKey]?.primary ??
-      '#14B87A'
+      '#00877A'
     );
   }
 

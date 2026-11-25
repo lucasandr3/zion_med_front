@@ -17,6 +17,7 @@ import { ToastService } from '../../../core/services/toast.service';
 import { LoadingService } from '../../../shared/services/loading.service';
 import { ListSkeletonComponent } from '../../../shared/components/list-skeleton/list-skeleton.component';
 import { ZmPageBackLinkComponent } from '../../../shared/components/ui';
+import { GestgoComboboxComponent, type GestgoComboboxOption } from '@/shared/components/combobox';
 
 interface StepDraft {
   key: string;
@@ -35,7 +36,7 @@ interface StepDraft {
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'n-page-list' },
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
-  imports: [ListSkeletonComponent, ZmPageBackLinkComponent],
+  imports: [ListSkeletonComponent, ZmPageBackLinkComponent, GestgoComboboxComponent],
   templateUrl: './plataforma-relacionamento-jornadas.component.html',
   styleUrl: './plataforma-relacionamento-jornadas.component.css',
 })
@@ -63,6 +64,30 @@ export class PlataformaRelacionamentoJornadasComponent implements OnInit {
     { id: 'document.signed', label: 'Documento assinado' },
     { id: 'protocol.review_pending', label: 'Protocolo em revisão' },
     { id: 'support.ticket.created', label: 'Chamado aberto' },
+  ];
+
+  readonly entryComboOptions: GestgoComboboxOption[] = this.entryOptions.map((o) => ({
+    value: o.id,
+    label: `${o.label} (${o.id})`,
+  }));
+
+  readonly statusOptions: GestgoComboboxOption[] = [
+    { value: 'draft', label: 'Rascunho' },
+    { value: 'active', label: 'Ativa' },
+    { value: 'paused', label: 'Pausada' },
+  ];
+
+  readonly priorityOptions: GestgoComboboxOption[] = [
+    { value: 'low', label: 'Baixa' },
+    { value: 'normal', label: 'Normal' },
+    { value: 'high', label: 'Alta' },
+  ];
+
+  readonly conditionOpOptions: GestgoComboboxOption[] = [
+    { value: 'eq', label: 'eq' },
+    { value: 'neq', label: 'neq' },
+    { value: 'exists', label: 'exists' },
+    { value: 'not_exists', label: 'not_exists' },
   ];
 
   private plataformaService = inject(PlataformaService);
@@ -255,11 +280,11 @@ export class PlataformaRelacionamentoJornadasComponent implements OnInit {
   onDescription(e: Event): void {
     this.description.set((e.target as HTMLTextAreaElement).value);
   }
-  onEntry(e: Event): void {
-    this.entryEvent.set((e.target as HTMLSelectElement).value);
+  onEntry(value: string | null): void {
+    if (value) this.entryEvent.set(value);
   }
-  onStatus(e: Event): void {
-    this.status.set((e.target as HTMLSelectElement).value);
+  onStatus(value: string | null): void {
+    if (value) this.status.set(value);
   }
   onExitSubscription(e: Event): void {
     this.exitSubscription.set((e.target as HTMLInputElement).checked);
@@ -271,6 +296,14 @@ export class PlataformaRelacionamentoJornadasComponent implements OnInit {
   updateStep(index: number, field: keyof StepDraft, event: Event): void {
     const el = event.target as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
     const value = field === 'delay_days' ? Number(el.value) || 0 : el.value;
+    const list = this.steps().map((step, i) =>
+      i === index ? { ...step, [field]: value } : step,
+    );
+    this.steps.set(list);
+  }
+
+  updateStepValue(index: number, field: keyof StepDraft, value: string | null): void {
+    if (!value) return;
     const list = this.steps().map((step, i) =>
       i === index ? { ...step, [field]: value } : step,
     );

@@ -14,19 +14,31 @@
       <label>Título<input type="text" [value]="title()" (input)="onTitle($event)" maxlength="200" /></label>
       <label>
         Categoria
-        <select [value]="category()" (change)="onCategory($event)">
-          @for (c of categories; track c.id) {
-            <option [value]="c.id">{{ c.label }}</option>
-          }
-        </select>
+        <z-combobox
+          class="w-full"
+          zWidth="full"
+          [options]="categoryOptions"
+          [value]="category()"
+          [clearable]="false"
+          placeholder="Selecione…"
+          emptyText="Nenhum resultado."
+          ariaLabel="Categoria"
+          (zValueChange)="onCategory($event)"
+        />
       </label>
       <label>
         Visibilidade
-        <select [value]="visibility()" (change)="onVisibility($event)">
-          <option value="authenticated">Usuários autenticados</option>
-          <option value="public">Pública</option>
-          <option value="internal">Interna (equipe Gestgo)</option>
-        </select>
+        <z-combobox
+          class="w-full"
+          zWidth="full"
+          [options]="visibilityOptions"
+          [value]="visibility()"
+          [clearable]="false"
+          [searchable]="false"
+          emptyText="Nenhum resultado."
+          ariaLabel="Visibilidade"
+          (zValueChange)="onVisibility($event)"
+        />
       </label>
       <label>Conteúdo<textarea rows="10" [value]="content()" (input)="onContent($event)"></textarea></label>
       <div class="kb-form__actions">

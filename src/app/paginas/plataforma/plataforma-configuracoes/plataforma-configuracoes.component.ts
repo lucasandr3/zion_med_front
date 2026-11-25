@@ -5,6 +5,7 @@ import { LoadingService } from '../../../shared/services/loading.service';
 import { ZmSkeletonConfiguracoesComponent } from '../../../shared/components/skeletons';
 import { ToastService } from '../../../core/services/toast.service';
 import { GestgoCardComponent } from '@/shared/components/card/card.component';
+import { GestgoComboboxComponent, type GestgoComboboxOption } from '@/shared/components/combobox';
 
 import { NORD_FORM_IMPORTS } from '@/shared/nord';
 import { GestgoTabComponent, GestgoTabGroupComponent } from '@/shared/components/tabs';
@@ -20,6 +21,7 @@ import { PlataformaServicosTabComponent } from './plataforma-servicos-tab.compon
   imports: [
     FormsModule,
     GestgoCardComponent,
+    GestgoComboboxComponent,
     ...NORD_FORM_IMPORTS,
     ZmSkeletonConfiguracoesComponent,
     GestgoTabComponent,
@@ -42,6 +44,10 @@ export class PlataformaConfiguracoesComponent implements OnInit {
   trialDays = 14;
   graceDays = 7;
   blockMode = 'soft';
+  readonly blockModeOptions: GestgoComboboxOption[] = [
+    { value: 'soft', label: 'soft' },
+    { value: 'hard', label: 'hard' },
+  ];
   multiEmpresaPlan = '';
 
   private plataformaService = inject(PlataformaService);

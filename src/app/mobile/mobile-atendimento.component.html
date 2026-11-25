@@ -70,11 +70,18 @@
 
   <div class="gm-field">
     <label for="gm-sup-cat">Categoria</label>
-    <select id="gm-sup-cat" [ngModel]="category()" (ngModelChange)="category.set($event)">
-      @for (c of categorias; track c.value) {
-        <option [value]="c.value">{{ c.label }}</option>
-      }
-    </select>
+    <z-combobox
+      id="gm-sup-cat"
+      class="w-full"
+      zWidth="full"
+      [options]="categoriaOptions"
+      [value]="category()"
+      [clearable]="false"
+      placeholder="Selecione a categoria"
+      emptyText="Nenhuma categoria encontrada."
+      ariaLabel="Categoria"
+      (zValueChange)="onCategoryChange($event)"
+    />
   </div>
 
   <div class="gm-field">

@@ -31,19 +31,31 @@
       <label>Descrição<textarea rows="2" [value]="description()" (input)="onDescription($event)"></textarea></label>
       <label>
         Evento gatilho
-        <select [value]="triggerEvent()" (change)="onTrigger($event)">
-          @for (opt of triggerOptions; track opt.id) {
-            <option [value]="opt.id">{{ opt.label }} ({{ opt.id }})</option>
-          }
-        </select>
+        <z-combobox
+          class="w-full"
+          zWidth="full"
+          [options]="triggerComboOptions"
+          [value]="triggerEvent()"
+          [clearable]="false"
+          placeholder="Selecione…"
+          emptyText="Nenhum resultado."
+          ariaLabel="Evento gatilho"
+          (zValueChange)="onTrigger($event)"
+        />
       </label>
       <label>
         Status
-        <select [value]="status()" (change)="onStatus($event)">
-          <option value="draft">Rascunho</option>
-          <option value="active">Ativa</option>
-          <option value="paused">Pausada</option>
-        </select>
+        <z-combobox
+          class="w-full"
+          zWidth="full"
+          [options]="statusOptions"
+          [value]="status()"
+          [clearable]="false"
+          [searchable]="false"
+          emptyText="Nenhum resultado."
+          ariaLabel="Status"
+          (zValueChange)="onStatus($event)"
+        />
       </label>
       <label>
         Atraso (segundos)
@@ -75,11 +87,17 @@
             </label>
             <label>
               Operador
-              <select [value]="cond.op" (change)="onConditionOp(i, $event)">
-                @for (op of conditionOps; track op.id) {
-                  <option [value]="op.id">{{ op.label }}</option>
-                }
-              </select>
+              <z-combobox
+                class="w-full"
+                zWidth="full"
+                [options]="conditionOpOptions"
+                [value]="cond.op"
+                [clearable]="false"
+                [searchable]="false"
+                emptyText="Nenhum resultado."
+                ariaLabel="Operador"
+                (zValueChange)="onConditionOp(i, $event)"
+              />
             </label>
             @if (needsConditionValue(cond.op)) {
               <label>
@@ -125,12 +143,17 @@
             </div>
             <label>
               Tipo
-              <select [value]="action.type" (change)="onActionType(i, $event)">
-                <option value="create_task">Criar tarefa</option>
-                <option value="send_email">Enviar e-mail</option>
-                <option value="send_email_template">Enviar e-mail (modelo)</option>
-                <option value="create_notification">Criar notificação</option>
-              </select>
+              <z-combobox
+                class="w-full"
+                zWidth="full"
+                [options]="actionTypeOptions"
+                [value]="action.type"
+                [clearable]="false"
+                [searchable]="false"
+                emptyText="Nenhum resultado."
+                ariaLabel="Tipo de ação"
+                (zValueChange)="onActionType(i, $event)"
+              />
             </label>
 
             @if (action.type === 'send_email') {
@@ -148,11 +171,17 @@
               <label>Descrição<textarea rows="3" [value]="action.body" (input)="onActionBody(i, $event)"></textarea></label>
               <label>
                 Prioridade
-                <select [value]="action.priority" (change)="onActionPriority(i, $event)">
-                  <option value="low">Baixa</option>
-                  <option value="normal">Normal</option>
-                  <option value="high">Alta</option>
-                </select>
+                <z-combobox
+                  class="w-full"
+                  zWidth="full"
+                  [options]="priorityOptions"
+                  [value]="action.priority"
+                  [clearable]="false"
+                  [searchable]="false"
+                  emptyText="Nenhum resultado."
+                  ariaLabel="Prioridade"
+                  (zValueChange)="onActionPriority(i, $event)"
+                />
               </label>
               <label>related_type<input type="text" [value]="action.relatedType" (input)="onActionRelatedType(i, $event)" /></label>
               <label>related_id<input type="text" [value]="action.relatedId" (input)="onActionRelatedId(i, $event)" /></label>

@@ -90,7 +90,7 @@ export const SHELL_NAV_SIDEBAR: ShellNavSection[] = [
       },
       {
         route: '/utilitarios',
-        label: 'Utilitários',
+        label: 'Ferramentas',
         icon: 'widgets',
         permissionsAny: ['submissions.view', 'organization.manage'],
         exact: true,
@@ -100,6 +100,11 @@ export const SHELL_NAV_SIDEBAR: ShellNavSection[] = [
           '/utilitarios/retornos',
           '/utilitarios/orcamento/novo',
           '/utilitarios/retornos/novo',
+          '/utilitarios/checklist',
+          '/utilitarios/estoque',
+          '/utilitarios/pacotes',
+          '/utilitarios/preco',
+          '/utilitarios/cartao',
         ],
       },
       {

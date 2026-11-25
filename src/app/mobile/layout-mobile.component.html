@@ -60,7 +60,8 @@
           </div>
         }
 
-        <a class="gm-sheet__btn" routerLink="/m/documentos" [queryParams]="{ status: 'pending' }" (click)="fecharMenu()">Ver pendências</a>
+        <a class="gm-sheet__btn" routerLink="/m/avisos" (click)="fecharMenu()">Ver todas as notificações</a>
+        <a class="gm-sheet__btn gm-sheet__btn--ghost" routerLink="/m/documentos" [queryParams]="{ status: 'pending' }" (click)="fecharMenu()">Ver pendências</a>
         <a class="gm-sheet__btn gm-sheet__btn--ghost" routerLink="/m/configuracoes" (click)="fecharMenu()">Configurações e push</a>
         <button type="button" class="gm-sheet__btn gm-sheet__btn--soft" (click)="fecharMenu()">Fechar</button>
       } @else {
@@ -68,6 +69,12 @@
         <p class="gm-sheet__sub">Conta e aparência do app.</p>
         <a class="gm-sheet__btn" routerLink="/m/configuracoes" (click)="fecharMenu()">
           Configurações
+        </a>
+        <a class="gm-sheet__btn gm-sheet__btn--ghost" routerLink="/m/tarefas" (click)="fecharMenu()">
+          Tarefas
+        </a>
+        <a class="gm-sheet__btn gm-sheet__btn--ghost" routerLink="/m/ferramentas" (click)="fecharMenu()">
+          Ferramentas
         </a>
         <a class="gm-sheet__btn gm-sheet__btn--ghost" routerLink="/m/atendimento" (click)="fecharMenu()">
           Atendimento Gestgo

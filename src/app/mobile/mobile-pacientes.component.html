@@ -1,4 +1,31 @@
-@if (detailId(); as id) {
+@if (view() === 'form') {
+  <div class="gm-backrow">
+    <button type="button" class="gm-icon-btn" (click)="cancelarForm()" aria-label="Voltar">
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">arrow_back</span>
+    </button>
+    <div>
+      <h1>{{ editId() ? 'Editar paciente' : 'Novo paciente' }}</h1>
+      <small>Cadastro rápido</small>
+    </div>
+  </div>
+
+  <div class="gm-field">
+    <label for="p-nome">Nome</label>
+    <input id="p-nome" type="text" [(ngModel)]="form.name" placeholder="Nome completo" autocomplete="name" />
+  </div>
+  <div class="gm-field">
+    <label for="p-fone">Telefone</label>
+    <input id="p-fone" type="tel" [(ngModel)]="form.phone" placeholder="Opcional" autocomplete="tel" />
+  </div>
+  <div class="gm-field">
+    <label for="p-email">E-mail</label>
+    <input id="p-email" type="email" [(ngModel)]="form.email" placeholder="Opcional" autocomplete="email" />
+  </div>
+
+  <button type="button" class="gm-btn" [disabled]="salvando()" (click)="salvarForm()">
+    {{ salvando() ? 'Salvando…' : 'Salvar' }}
+  </button>
+} @else if (view() === 'detalhe' && detailId(); as id) {
   <div class="gm-backrow">
     <button type="button" class="gm-icon-btn" (click)="fecharDetalhe()" aria-label="Voltar">
       <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">arrow_back</span>
@@ -27,10 +54,20 @@
         <strong>Enviar ficha</strong>
         <small>Modelo e WhatsApp</small>
       </button>
-      <button type="button" class="gm-tile" (click)="abrirDocumentos()">
+      <button type="button" class="gm-tile" (click)="abrirDocumentos(p)">
         <span class="gm-tile__icon gm-tile__icon--chip"><span class="material-symbols-outlined gestgo-mi gestgo-mi--m">folder_open</span></span>
         <strong>Documentos</strong>
         <small>Fichas e assinaturas</small>
+      </button>
+      <button type="button" class="gm-tile" (click)="abrirEditar(p)">
+        <span class="gm-tile__icon gm-tile__icon--chip"><span class="material-symbols-outlined gestgo-mi gestgo-mi--m">edit</span></span>
+        <strong>Editar</strong>
+        <small>Nome, telefone, e-mail</small>
+      </button>
+      <button type="button" class="gm-tile" (click)="abrirEnvios()">
+        <span class="gm-tile__icon gm-tile__icon--chip"><span class="material-symbols-outlined gestgo-mi gestgo-mi--m">outgoing_mail</span></span>
+        <strong>Envios</strong>
+        <small>Status e lembretes</small>
       </button>
     </div>
 
@@ -82,8 +119,13 @@
     </div>
   </div>
 
-  <h1 class="gm-title">Pacientes</h1>
-  <p class="gm-sub">Busque, abra o resumo e envie uma ficha.</p>
+  <div class="gm-section gm-section--title">
+    <div>
+      <h1 class="gm-title" style="margin-bottom:6px">Pacientes</h1>
+      <p class="gm-sub" style="margin-bottom:0">Busque, cadastre e envie fichas.</p>
+    </div>
+    <button type="button" class="gm-pill is-on" (click)="abrirCriar()">+ Novo</button>
+  </div>
 
   <label class="gm-search">
     <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">search</span>

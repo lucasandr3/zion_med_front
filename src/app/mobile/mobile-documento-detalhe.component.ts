@@ -6,6 +6,7 @@ import {
   signal,
 } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ProtocoloPdfService } from '../core/services/protocolo-pdf.service';
 import {
   ProtocolosService,
   type ProtocoloDetalheData,
@@ -25,11 +26,13 @@ export class MobileDocumentoDetalheComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly protocolos = inject(ProtocolosService);
+  private readonly protocoloPdf = inject(ProtocoloPdfService);
   private readonly shell = inject(MobileShellService);
 
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
   readonly doc = signal<ProtocoloDetalheData | null>(null);
+  readonly baixandoPdf = signal(false);
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id') || 0);
@@ -73,6 +76,47 @@ export class MobileDocumentoDetalheComponent implements OnInit {
     if (d.template_id) q['template_id'] = String(d.template_id);
     if (d.person_id) q['person_id'] = String(d.person_id);
     void this.router.navigate(['/m/enviar'], { queryParams: q });
+  }
+
+  podeBaixarPdf(d: ProtocoloDetalheData): boolean {
+    if (d.status === 'approved' || d.pdf_ready || d.pdf_generation_status === 'ready') {
+      return true;
+    }
+    // Documento já submetido/preenchido pelo paciente (ainda pendente de revisão).
+    return d.status === 'pending' && !!(d.submitted_at || d.document_snapshot || d.values);
+  }
+
+  baixarPdf(d: ProtocoloDetalheData): void {
+    if (this.baixandoPdf() || !this.podeBaixarPdf(d)) return;
+    this.baixandoPdf.set(true);
+    void this.protocoloPdf
+      .baixarPdfPreenchido(d)
+      .then((blob) => {
+        this.baixandoPdf.set(false);
+        if (!blob?.size) {
+          this.shell.toast('PDF vazio ou indisponível');
+          return;
+        }
+        const type = (blob.type || '').toLowerCase();
+        if (type.includes('json')) {
+          this.shell.toast('Não foi possível gerar o PDF');
+          return;
+        }
+        const pdfBlob =
+          type.includes('pdf') || !type ? new Blob([blob], { type: 'application/pdf' }) : blob;
+        const nome = `protocolo-${d.protocol_number || d.id}.pdf`;
+        const url = URL.createObjectURL(pdfBlob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = nome;
+        a.click();
+        URL.revokeObjectURL(url);
+        this.shell.toast('Download iniciado');
+      })
+      .catch(() => {
+        this.baixandoPdf.set(false);
+        this.shell.toast('Não foi possível baixar o PDF');
+      });
   }
 
   abrirNoPainel(id: number): void {

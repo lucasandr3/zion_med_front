@@ -13,6 +13,7 @@ import { ToastService } from '../../../core/services/toast.service';
 import { LoadingService } from '../../../shared/services/loading.service';
 import { ListSkeletonComponent } from '../../../shared/components/list-skeleton/list-skeleton.component';
 import { ZmPageBackLinkComponent } from '../../../shared/components/ui';
+import { GestgoComboboxComponent, type GestgoComboboxOption } from '@/shared/components/combobox';
 
 @Component({
   selector: 'app-plataforma-conhecimento',
@@ -20,7 +21,7 @@ import { ZmPageBackLinkComponent } from '../../../shared/components/ui';
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'n-page-list' },
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
-  imports: [ListSkeletonComponent, ZmPageBackLinkComponent],
+  imports: [ListSkeletonComponent, ZmPageBackLinkComponent, GestgoComboboxComponent],
   templateUrl: './plataforma-conhecimento.component.html',
   styleUrl: './plataforma-conhecimento.component.css',
 })
@@ -50,6 +51,17 @@ export class PlataformaConhecimentoComponent implements OnInit {
     { id: 'planos_pagamentos', label: 'Planos e pagamentos' },
     { id: 'seguranca_privacidade', label: 'Segurança e privacidade' },
     { id: 'solucao_problemas', label: 'Solução de problemas' },
+  ];
+
+  readonly categoryOptions: GestgoComboboxOption[] = this.categories.map((c) => ({
+    value: c.id,
+    label: c.label,
+  }));
+
+  readonly visibilityOptions: GestgoComboboxOption[] = [
+    { value: 'authenticated', label: 'Usuários autenticados' },
+    { value: 'public', label: 'Pública' },
+    { value: 'internal', label: 'Interna (equipe Gestgo)' },
   ];
 
   private knowledge = inject(KnowledgeService);
@@ -178,10 +190,10 @@ export class PlataformaConhecimentoComponent implements OnInit {
   onContent(e: Event): void {
     this.content.set((e.target as HTMLTextAreaElement).value);
   }
-  onCategory(e: Event): void {
-    this.category.set((e.target as HTMLSelectElement).value);
+  onCategory(value: string | null): void {
+    if (value) this.category.set(value);
   }
-  onVisibility(e: Event): void {
-    this.visibility.set((e.target as HTMLSelectElement).value);
+  onVisibility(value: string | null): void {
+    if (value) this.visibility.set(value);
   }
 }

@@ -285,12 +285,9 @@
   color: var(--gm-ink);
 }
 
-.gm-kpi__item strong.warn {
-  color: #d7863b;
-}
-
+.gm-kpi__item strong.warn,
 .gm-kpi__item strong.ok {
-  color: var(--c-success, #087d64);
+  color: var(--gm-ink);
 }
 
 .gm-kpi__item small {
@@ -668,7 +665,7 @@
 }
 
 .gm-preload__logo span {
-  color: var(--gm-accent, var(--c-primary, #14b87a));
+  color: var(--gm-accent, var(--c-primary, #00877A));
 }
 
 .gm-preload__bar {
@@ -684,7 +681,7 @@
   height: 100%;
   width: 40%;
   border-radius: 99px;
-  background: var(--gm-accent, var(--c-primary, #14b87a));
+  background: var(--gm-accent, var(--c-primary, #00877A));
   animation: gm-preload-slide 1.05s ease-in-out infinite;
 }
 
@@ -719,7 +716,7 @@
   background-image: linear-gradient(
     90deg,
     transparent 0%,
-    var(--gm-accent, var(--c-primary, #14b87a)) 50%,
+    var(--gm-accent, var(--c-primary, #00877A)) 50%,
     transparent 100%
   );
   background-size: 40% 100%;
@@ -1158,6 +1155,70 @@
   align-items: center;
   justify-content: space-between;
   gap: 9px;
+}
+
+.gm-inline-add {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+}
+
+.gm-inline-add input {
+  flex: 1;
+  min-width: 0;
+  border: 1px solid var(--gm-line);
+  border-radius: 14px;
+  padding: 12px 14px;
+  font-size: 14px;
+  background: var(--gm-paper);
+  color: var(--gm-ink);
+}
+
+.gm-btn--compact {
+  margin: 0;
+  width: 48px;
+  min-width: 48px;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.gm-check-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--gm-line);
+}
+
+.gm-check-row:last-child {
+  border-bottom: 0;
+}
+
+.gm-check-row--done {
+  opacity: 0.7;
+}
+
+.gm-check-row nord-checkbox {
+  flex: 1;
+  min-width: 0;
+}
+
+.gm-card--static {
+  cursor: default;
+  margin-bottom: 0;
+}
+
+.gm-envio-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 10px 12px 12px;
+  background: color-mix(in srgb, var(--gm-paper) 92%, transparent);
+  border: 1px solid var(--gm-line);
+  border-top: 0;
+  border-radius: 0 0 22px 22px;
+  box-shadow: var(--gm-shadow-soft);
 }
 
 /* Tools abertas no painel desktop (mesmo componente do mobile). */

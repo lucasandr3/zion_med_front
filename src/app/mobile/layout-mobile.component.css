@@ -145,6 +145,7 @@
   height: 68px;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
+  /* Início · Agenda · Pacientes · Fichas — Ferramentas via Início/menu */
   background: color-mix(in srgb, var(--gm-paper) 86%, transparent);
   border: 1px solid var(--gm-line);
   border-radius: 22px;

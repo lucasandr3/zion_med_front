@@ -225,13 +225,20 @@
                   <nord-input id="side_novo_nome" expand hide-label label="Paciente" placeholder="Nome completo" [value]="novo.patient_name" (input)="novo.patient_name = onNordInput($event)"></nord-input>
                 </div>
                 <div class="agenda-field">
-                  <label class="form-label" for="side_novo_svc">Serviço</label>
-                  <select id="side_novo_svc" class="w-full" [(ngModel)]="novo.service_id" name="side_novo_svc">
-                    <option [ngValue]="null">Selecione…</option>
-                    @for (s of servicos(); track s.id) {
-                      <option [ngValue]="s.id">{{ s.name }} ({{ s.duration_minutes }} min)</option>
-                    }
-                  </select>
+                  <label class="form-label" id="side_novo_svc_label" for="side_novo_svc">Serviço</label>
+                  <z-combobox
+                    id="side_novo_svc"
+                    class="w-full"
+                    zWidth="full"
+                    [options]="servicoOptions()"
+                    [value]="serviceIdValue()"
+                    placeholder="Selecione…"
+                    emptyText="Nenhum serviço encontrado."
+                    ariaLabel="Serviço"
+                    ariaLabelledby="side_novo_svc_label"
+                    [clearable]="false"
+                    (zValueChange)="onServicoChange($event)"
+                  />
                 </div>
                 <div class="agenda-side__two-cols">
                   <div class="agenda-field">
@@ -602,13 +609,20 @@
           ></nord-input>
         </div>
         <div class="agenda-field agenda-field--grow">
-          <label class="form-label" for="novo_svc">Serviço</label>
-          <select id="novo_svc" class="w-full" [(ngModel)]="novo.service_id" name="novo_svc">
-            <option [ngValue]="null">Selecione…</option>
-            @for (s of servicos(); track s.id) {
-              <option [ngValue]="s.id">{{ s.name }} ({{ s.duration_minutes }} min)</option>
-            }
-          </select>
+          <label class="form-label" id="novo_svc_label" for="novo_svc">Serviço</label>
+          <z-combobox
+            id="novo_svc"
+            class="w-full"
+            zWidth="full"
+            [options]="servicoOptions()"
+            [value]="serviceIdValue()"
+            placeholder="Selecione…"
+            emptyText="Nenhum serviço encontrado."
+            ariaLabel="Serviço"
+            ariaLabelledby="novo_svc_label"
+            [clearable]="false"
+            (zValueChange)="onServicoChange($event)"
+          />
         </div>
         <div class="agenda-field agenda-field--half">
           <label class="form-label" for="novo_data">Data</label>

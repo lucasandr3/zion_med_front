@@ -101,7 +101,7 @@ import { Title } from '@angular/platform-browser';
       .para-page {
         min-height: 100vh;
         background:
-          radial-gradient(1200px 500px at 10% -10%, color-mix(in srgb, #14b87a 18%, transparent), transparent),
+          radial-gradient(1200px 500px at 10% -10%, color-mix(in srgb, #00877A 18%, transparent), transparent),
           linear-gradient(180deg, #f7faf8 0%, #eef3f0 100%);
         color: #122018;
         font-family: 'Segoe UI', system-ui, sans-serif;
@@ -163,7 +163,7 @@ import { Title } from '@angular/platform-browser';
         font-weight: 650;
       }
       .para-btn--primary {
-        background: #14b87a;
+        background: #00877A;
         color: #fff;
       }
       .para-btn--ghost {

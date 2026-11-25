@@ -11,7 +11,6 @@
     <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">auto_awesome</span>
     <span class="shell-assistant-btn__label">Assistente</span>
   </nord-button>
-  <nord-tooltip id="go-assistant-tooltip" [delay]="0">Assistente (Ctrl+/)</nord-tooltip>
 
   <nord-dropdown class="shell-help-menu">
     <nord-button
@@ -61,7 +60,6 @@
       }
     </nord-dropdown-group>
   </nord-dropdown>
-  <nord-tooltip id="help-menu-tooltip" [delay]="0">Ajuda</nord-tooltip>
 
   @if (podeVerNotificacoesNoHeader) {
     <a
@@ -77,11 +75,31 @@
         </span>
       }
     </a>
-    <nord-tooltip id="notifications-tooltip" [delay]="0">Notificações</nord-tooltip>
   }
 
-  <span class="shell-topbar-sep" aria-hidden="true"></span>
+  <span class="shell-topbar-sep shell-topbar-desktop-only" aria-hidden="true"></span>
+  <nord-button
+    variant="plain"
+    size="m"
+    type="button"
+    class="shell-logout-btn shell-topbar-desktop-only"
+    (click)="sair()"
+    aria-describedby="logout-tooltip"
+    aria-label="Sair"
+  >
+    <span class="shell-logout-btn__inner">
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">logout</span>
+      <span class="shell-logout-btn__label">Sair</span>
+    </span>
+  </nord-button>
 </div>
+
+<nord-tooltip id="go-assistant-tooltip" [delay]="0">Assistente (Ctrl+/)</nord-tooltip>
+<nord-tooltip id="help-menu-tooltip" [delay]="0">Ajuda</nord-tooltip>
+@if (podeVerNotificacoesNoHeader) {
+  <nord-tooltip id="notifications-tooltip" [delay]="0">Notificações</nord-tooltip>
+}
+<nord-tooltip id="logout-tooltip" [delay]="0">Sair</nord-tooltip>
 
 <ng-template #temaSheetContent>
   <div class="theme-panel__body">

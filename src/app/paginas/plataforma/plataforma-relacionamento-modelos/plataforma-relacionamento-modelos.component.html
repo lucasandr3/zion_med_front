@@ -25,11 +25,17 @@
       </label>
       <label>
         Status
-        <select [value]="status()" (change)="onStatus($event)">
-          <option value="active">Ativo</option>
-          <option value="paused">Pausado</option>
-          <option value="draft">Rascunho</option>
-        </select>
+        <z-combobox
+          class="w-full"
+          zWidth="full"
+          [options]="statusOptions"
+          [value]="status()"
+          [clearable]="false"
+          [searchable]="false"
+          emptyText="Nenhum resultado."
+          ariaLabel="Status"
+          (zValueChange)="onStatus($event)"
+        />
       </label>
       <div class="tpl-form__actions">
         <nord-button type="button" variant="primary" [attr.disabled]="acting() || null" (click)="salvar()">Salvar</nord-button>

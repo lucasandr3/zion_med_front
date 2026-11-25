@@ -5,59 +5,102 @@
     </a>
     <div>
       <h1>Pacotes e sessões</h1>
-      <small>Saldo real da clínica</small>
+      <small>{{ activeCount() }} em andamento</small>
     </div>
   </div>
 
-  <div class="gm-panel">
-    <app-tool-person-field
-      [mobile]="true"
-      label="Cliente"
-      inputId="ft-pkg-person-m"
-      [personId]="personId"
-      [name]="clientName"
-      [phone]="clientPhone"
-      (personChange)="onPersonChange($event)"
-    />
-    <app-tool-service-field
-      [mobile]="true"
-      label="Serviço / pacote"
-      inputId="ft-pkg-service-m"
-      [serviceId]="serviceId"
-      [name]="label"
-      (serviceChange)="onServiceChange($event)"
-    />
-    <div class="gm-field">
-      <label>Total de sessões</label>
-      <input type="number" min="1" [(ngModel)]="total" />
-    </div>
-    <button type="button" class="gm-btn" (click)="criar()">Criar pacote</button>
+  <div class="gm-pills" role="tablist" aria-label="Filtrar pacotes">
+    <button type="button" class="gm-pill" [class.is-on]="filter() === 'active'" (click)="setFilter('active')">Em andamento</button>
+    <button type="button" class="gm-pill" [class.is-on]="filter() === 'completed'" (click)="setFilter('completed')">Concluídos</button>
+    <button type="button" class="gm-pill" [class.is-on]="filter() === 'all'" (click)="setFilter('all')">Todos</button>
   </div>
+
+  @if (!showForm()) {
+    <button type="button" class="gm-btn" style="margin-bottom:14px" (click)="abrirForm()">
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">add</span>
+      Novo pacote
+    </button>
+  } @else {
+    <div class="gm-panel">
+      <app-tool-person-field
+        [mobile]="true"
+        label="Cliente"
+        inputId="ft-pkg-person-m"
+        [personId]="personId"
+        [name]="clientName"
+        [phone]="clientPhone"
+        (personChange)="onPersonChange($event)"
+      />
+      <app-tool-service-field
+        [mobile]="true"
+        label="Serviço / pacote"
+        inputId="ft-pkg-service-m"
+        [serviceId]="serviceId"
+        [name]="label"
+        (serviceChange)="onServiceChange($event)"
+      />
+      <div class="gm-field">
+        <label>Total de sessões</label>
+        <input type="number" min="1" [(ngModel)]="total" />
+      </div>
+      <button type="button" class="gm-btn" [disabled]="saving()" (click)="criar()">
+        {{ saving() ? 'Salvando…' : 'Criar pacote' }}
+      </button>
+      <button type="button" class="gm-btn gm-btn--secondary" (click)="fecharForm()">Cancelar</button>
+    </div>
+  }
 
   @if (loading()) {
-    <p class="gm-loading">Carregando…</p>
-  } @else if (items().length === 0) {
-    <p class="gm-empty">Nenhum pacote ainda.</p>
+    <div class="gm-preload gm-preload--inline" aria-busy="true">
+      <div class="gm-preload__bar"><span></span></div>
+      <p class="gm-preload__hint">Carregando pacotes…</p>
+    </div>
+  } @else if (filtered().length === 0) {
+    <div class="gm-empty-state">
+      <span class="gm-empty-state__icon" aria-hidden="true">
+        <span class="material-symbols-outlined gestgo-mi gestgo-mi--l">package_2</span>
+      </span>
+      <h2>{{ items().length === 0 ? 'Nenhum pacote' : 'Nada neste filtro' }}</h2>
+      <p>
+        @if (items().length === 0) {
+          Crie um pacote para controlar o saldo de sessões do paciente.
+        } @else {
+          Troque o filtro para ver outros pacotes.
+        }
+      </p>
+    </div>
   } @else {
-    @for (p of items(); track p.id) {
+    @for (p of filtered(); track p.id) {
       <div class="gm-panel">
         <div class="gm-packrow">
           <b style="font-size:13px">{{ p.client_name }}</b>
           <span class="gm-status" [class.ok]="p.status === 'completed'">
-            {{ p.status === 'completed' ? 'Concluído' : 'Em andamento' }}
+            {{ p.status === 'completed' ? 'Concluído' : remaining(p) + ' restante(s)' }}
           </span>
         </div>
         <span class="gm-card__sub" style="margin-top:5px">{{ p.label }}</span>
         <div class="gm-progress"><span [style.width.%]="pct(p)"></span></div>
-        <div class="gm-packrow">
-          <span class="gm-hint"><b>{{ p.done_sessions }} de {{ p.total_sessions }}</b> sessões realizadas</span>
+        <div class="gm-packrow" style="margin-top:8px">
+          <span class="gm-hint"><b>{{ p.done_sessions }} de {{ p.total_sessions }}</b> sessões</span>
+        </div>
+        <div class="gm-actions" style="margin-top:12px">
+          @if (p.status !== 'completed') {
+            <button
+              type="button"
+              class="gm-btn"
+              [disabled]="actingId() === p.id"
+              (click)="registrar(p)"
+            >
+              Registrar sessão
+            </button>
+          }
           <button
             type="button"
-            class="gm-small-btn"
-            (click)="registrar(p.id)"
-            [disabled]="p.done_sessions >= p.total_sessions"
+            class="gm-btn gm-btn--secondary"
+            [disabled]="actingId() === p.id"
+            (click)="arquivar(p)"
           >
-            Registrar sessão
+            Arquivar
           </button>
         </div>
       </div>
@@ -69,45 +112,79 @@
       <zm-page-back-link />
     </div>
     <div class="n-form-toolbar__end">
-      <nord-button variant="primary" type="button" (click)="criar()">
-        <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">add</span>
-        Criar pacote
-      </nord-button>
+      @if (!showForm()) {
+        <nord-button variant="primary" type="button" (click)="abrirForm()">
+          <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">add</span>
+          Novo pacote
+        </nord-button>
+      }
     </div>
   </div>
 
   <div class="ft-body zm-content-enter">
-    <g-card class="mb-4">
-      <form class="flex flex-col gap-5">
-        <app-tool-person-field
-          label="Cliente"
-          inputId="ft-pkg-person"
-          [personId]="personId"
-          [name]="clientName"
-          [phone]="clientPhone"
-          (personChange)="onPersonChange($event)"
-        />
-        <app-tool-service-field
-          label="Serviço / pacote"
-          inputId="ft-pkg-service"
-          [serviceId]="serviceId"
-          [name]="label"
-          (serviceChange)="onServiceChange($event)"
-        />
-        <div class="max-w-xs">
-          <label class="ft-label" for="ft-pkg-total">Total de sessões</label>
-          <input id="ft-pkg-total" class="w-full" type="number" min="1" [(ngModel)]="total" name="total" />
-        </div>
-      </form>
-    </g-card>
+    <div class="ft-pills mb-4" role="tablist" aria-label="Filtrar pacotes">
+      <button type="button" class="ft-pill" [class.is-on]="filter() === 'active'" (click)="setFilter('active')">
+        Em andamento ({{ activeCount() }})
+      </button>
+      <button type="button" class="ft-pill" [class.is-on]="filter() === 'completed'" (click)="setFilter('completed')">
+        Concluídos
+      </button>
+      <button type="button" class="ft-pill" [class.is-on]="filter() === 'all'" (click)="setFilter('all')">
+        Todos
+      </button>
+    </div>
+
+    @if (showForm()) {
+      <g-card class="mb-4">
+        <form class="flex flex-col gap-5">
+          <app-tool-person-field
+            label="Cliente"
+            inputId="ft-pkg-person"
+            [personId]="personId"
+            [name]="clientName"
+            [phone]="clientPhone"
+            (personChange)="onPersonChange($event)"
+          />
+          <app-tool-service-field
+            label="Serviço / pacote"
+            inputId="ft-pkg-service"
+            [serviceId]="serviceId"
+            [name]="label"
+            (serviceChange)="onServiceChange($event)"
+          />
+          <div class="max-w-xs">
+            <label class="ft-label" for="ft-pkg-total">Total de sessões</label>
+            <input id="ft-pkg-total" class="w-full" type="number" min="1" [(ngModel)]="total" name="total" />
+          </div>
+          <div class="flex gap-3">
+            <nord-button variant="primary" type="button" [attr.loading]="saving() || null" (click)="criar()">
+              Criar pacote
+            </nord-button>
+            <nord-button type="button" variant="plain" (click)="fecharForm()">Cancelar</nord-button>
+          </div>
+        </form>
+      </g-card>
+    }
 
     @if (loading()) {
       <p class="text-sm text-muted-foreground">Carregando…</p>
-    } @else if (items().length === 0) {
-      <p class="text-sm text-muted-foreground">Nenhum pacote ainda.</p>
+    } @else if (filtered().length === 0) {
+      <nord-empty-state>
+        <h2>{{ items().length === 0 ? 'Nenhum pacote' : 'Nada neste filtro' }}</h2>
+        <p>
+          @if (items().length === 0) {
+            Crie um pacote para controlar o saldo de sessões do paciente.
+          } @else {
+            Troque o filtro para ver outros pacotes.
+          }
+        </p>
+        @if (items().length === 0) {
+          <nord-button variant="primary" type="button" (click)="abrirForm()">Novo pacote</nord-button>
+        }
+      </nord-empty-state>
     } @else {
       <div class="ft-list-gap">
-        @for (p of items(); track p.id) {
+        @for (p of filtered(); track p.id) {
           <g-card>
             <div class="ft-row">
               <div>
@@ -115,23 +192,41 @@
                 <div class="text-sm text-muted-foreground">{{ p.label }}</div>
               </div>
               <div class="flex items-center gap-3">
-                <span class="text-xs font-medium text-muted-foreground">
-                  {{ p.status === 'completed' ? 'Concluído' : 'Em andamento' }}
-                </span>
-                <nord-button
-                  type="button"
-                  size="s"
-                  (click)="registrar(p.id)"
-                  [attr.disabled]="p.done_sessions >= p.total_sessions || null"
+                <span
+                  class="ft-badge"
+                  [class.ft-badge--ok]="p.status === 'completed'"
+                  [class.ft-badge--warn]="p.status !== 'completed'"
                 >
-                  Registrar sessão
-                </nord-button>
+                  {{ p.status === 'completed' ? 'Concluído' : remaining(p) + ' restante(s)' }}
+                </span>
               </div>
             </div>
             <div class="ft-progress"><span [style.width.%]="pct(p)"></span></div>
             <p class="mt-2 text-sm text-muted-foreground">
               <b>{{ p.done_sessions }} de {{ p.total_sessions }}</b> sessões realizadas
             </p>
+            <div class="ft-row-actions">
+              @if (p.status !== 'completed') {
+                <nord-button
+                  type="button"
+                  size="s"
+                  variant="primary"
+                  [attr.disabled]="actingId() === p.id || null"
+                  (click)="registrar(p)"
+                >
+                  Registrar sessão
+                </nord-button>
+              }
+              <nord-button
+                type="button"
+                size="s"
+                variant="plain"
+                [attr.disabled]="actingId() === p.id || null"
+                (click)="arquivar(p)"
+              >
+                Arquivar
+              </nord-button>
+            </div>
           </g-card>
         }
       </div>

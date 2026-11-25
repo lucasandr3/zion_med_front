@@ -7,7 +7,7 @@ const DEFAULT_ACCENT = '#0c9368';
 /** Presets alinhados ao `ThemeService` do backend (só fichas públicas). */
 const FORM_THEME_ACCENT: Record<string, string> = {
   'gestgo-blue': '#1e40af',
-  'ocean-blue': '#14B87A',
+  'ocean-blue': '#00877A',
   'indigo-night': '#4f46e5',
   'emerald-fresh': '#10b981',
   'rose-elegant': '#f43f5e',

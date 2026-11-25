@@ -35,8 +35,9 @@ import { GestgoSheetService } from '@/shared/components/sheet/sheet.service';
 import { temasOrdemGrade, TEMAS, type ShellTema } from '../shell-theme.config';
 
 /**
- * Ações do `nord-top-bar` (slot=end): Assistente, Ajuda, Notificações.
- * O menu da conta fica em `nord-dropdown[gestgoAccountMenu]` (filho direto do top-bar).
+ * Ações do `nord-top-bar` (slot=end): Assistente, Ajuda, Notificações, Sair (desktop).
+ * O menu da conta fica no footer da sidebar (`gestgo-shell-account-menu`).
+ * Este componente ainda expõe o drawer de tema aberto por esse menu.
  */
 @Component({
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
@@ -111,6 +112,10 @@ export class ShellTopBarActionsComponent implements OnInit, OnDestroy {
 
   abrirGoAssistant(): void {
     this.goAssistant.show();
+  }
+
+  sair(): void {
+    this.auth.logout().subscribe(() => void this.router.navigate(['/autenticacao']));
   }
 
   go(event: Event, path: string): void {

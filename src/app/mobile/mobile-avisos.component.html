@@ -1,0 +1,54 @@
+<div class="gm-backrow">
+  <a class="gm-icon-btn" routerLink="/m" aria-label="Voltar">
+    <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">arrow_back</span>
+  </a>
+  <div>
+    <h1>Notificações</h1>
+    <small>{{ unreadCount() }} não lida{{ unreadCount() === 1 ? '' : 's' }}</small>
+  </div>
+</div>
+
+<p class="gm-sub">Avisos do Gestgo e fichas — tudo em um só lugar.</p>
+
+@if (items().length && unreadCount() > 0) {
+  <button type="button" class="gm-btn gm-btn--secondary" [disabled]="acting()" (click)="marcarTodas()">
+    Marcar todas como lidas
+  </button>
+}
+
+@if (loading()) {
+  <div class="gm-preload gm-preload--inline" aria-busy="true">
+    <div class="gm-preload__bar"><span></span></div>
+    <p class="gm-preload__hint">Carregando avisos…</p>
+  </div>
+} @else if (error()) {
+  <div class="gm-error">
+    <p>{{ error() }}</p>
+    <button type="button" class="gm-btn gm-btn--secondary" (click)="carregar()">Tentar de novo</button>
+  </div>
+} @else if (items().length === 0) {
+  <div class="gm-empty-state">
+    <span class="gm-empty-state__icon" aria-hidden="true">
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--l">notifications</span>
+    </span>
+    <h2>Sem avisos</h2>
+    <p>Quando houver novidades do Gestgo, elas aparecem aqui.</p>
+  </div>
+} @else {
+  @for (n of items(); track n.id) {
+    <button type="button" class="gm-card" [class.gm-card--unread]="!n.read_at" (click)="abrir(n)">
+      <span class="gm-tile__icon gm-tile__icon--chip" aria-hidden="true">
+        <span class="material-symbols-outlined gestgo-mi gestgo-mi--m">
+          {{ n.read_at ? 'notifications' : 'mark_email_unread' }}
+        </span>
+      </span>
+      <span class="gm-card__body">
+        <span class="gm-card__title">{{ title(n) }}</span>
+        <span class="gm-card__sub">{{ body(n) || formatDate(n.created_at) }}</span>
+      </span>
+      @if (!n.read_at) {
+        <span class="gm-status warn">Nova</span>
+      }
+    </button>
+  }
+}

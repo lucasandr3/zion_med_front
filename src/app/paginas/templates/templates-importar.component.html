@@ -377,18 +377,18 @@
               </label>
               <label>
                 <span>Tipo</span>
-                <select class="w-full" [ngModel]="f.type" (ngModelChange)="updateSelected({ type: $event })">
-                  <option value="text">text</option>
-                  <option value="textarea">textarea</option>
-                  <option value="number">number</option>
-                  <option value="date">date</option>
-                  <option value="radio">radio</option>
-                  <option value="checkbox">checkbox</option>
-                  <option value="select">select</option>
-                  <option value="signature">signature</option>
-                  <option value="heading">heading</option>
-                  <option value="notice">notice</option>
-                </select>
+                <z-combobox
+                  class="w-full"
+                  zWidth="full"
+                  [options]="fieldTypeOptions"
+                  [value]="f.type"
+                  [clearable]="false"
+                  [searchable]="false"
+                  placeholder="Selecione…"
+                  emptyText="Nenhum resultado."
+                  ariaLabel="Tipo do campo"
+                  (zValueChange)="onFieldTypeChange($event)"
+                />
               </label>
               <label class="import-check">
                 <input type="checkbox" [ngModel]="!!f.required" (ngModelChange)="updateSelected({ required: $event })" />
@@ -456,18 +456,18 @@
             </label>
             <label>
               <span>Tipo</span>
-              <select class="w-full" [ngModel]="f.type" (ngModelChange)="updateSelected({ type: $event })">
-                <option value="text">text</option>
-                <option value="textarea">textarea</option>
-                <option value="number">number</option>
-                <option value="date">date</option>
-                <option value="radio">radio</option>
-                <option value="checkbox">checkbox</option>
-                <option value="select">select</option>
-                <option value="signature">signature</option>
-                <option value="heading">heading</option>
-                <option value="notice">notice</option>
-              </select>
+              <z-combobox
+                class="w-full"
+                zWidth="full"
+                [options]="fieldTypeOptions"
+                [value]="f.type"
+                [clearable]="false"
+                [searchable]="false"
+                placeholder="Selecione…"
+                emptyText="Nenhum resultado."
+                ariaLabel="Tipo do campo"
+                (zValueChange)="onFieldTypeChange($event)"
+              />
             </label>
             <label>
               <span>Chave</span>

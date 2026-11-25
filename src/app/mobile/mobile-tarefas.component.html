@@ -1,0 +1,80 @@
+<div class="gm-backrow">
+  <a class="gm-icon-btn" routerLink="/m" aria-label="Voltar">
+    <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">arrow_back</span>
+  </a>
+  <div>
+    <h1>Tarefas</h1>
+    <small>{{ openCount() }} abertas · {{ doneCount() }} concluídas</small>
+  </div>
+</div>
+
+<p class="gm-sub">Fila operacional rápida — sem o builder de automações.</p>
+
+<div class="gm-pills" role="tablist" aria-label="Filtrar tarefas">
+  <button type="button" class="gm-pill" role="tab" [class.is-on]="filtro() === 'open'" (click)="setFiltro('open')">
+    Abertas
+  </button>
+  <button type="button" class="gm-pill" role="tab" [class.is-on]="filtro() === 'done'" (click)="setFiltro('done')">
+    Concluídas
+  </button>
+  <button type="button" class="gm-pill" role="tab" [class.is-on]="filtro() === 'all'" (click)="setFiltro('all')">
+    Todas
+  </button>
+</div>
+
+<div class="gm-task-create">
+  <input
+    type="text"
+    placeholder="Nova tarefa…"
+    [ngModel]="novaTitulo()"
+    (ngModelChange)="novaTitulo.set($event)"
+    (keydown.enter)="criar()"
+    aria-label="Título da nova tarefa"
+  />
+  <button type="button" class="gm-btn gm-btn--compact" [disabled]="acting()" (click)="criar()">
+    Adicionar
+  </button>
+</div>
+
+@if (loading()) {
+  <div class="gm-preload gm-preload--inline" aria-busy="true">
+    <div class="gm-preload__bar"><span></span></div>
+    <p class="gm-preload__hint">Carregando tarefas…</p>
+  </div>
+} @else if (error()) {
+  <div class="gm-error">
+    <p>{{ error() }}</p>
+    <button type="button" class="gm-btn gm-btn--secondary" (click)="carregar()">Tentar de novo</button>
+  </div>
+} @else if (items().length === 0) {
+  <div class="gm-empty-state">
+    <span class="gm-empty-state__icon" aria-hidden="true">
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--l">task_alt</span>
+    </span>
+    <h2>Nada por aqui</h2>
+    <p>Nenhuma tarefa neste filtro.</p>
+  </div>
+} @else {
+  @for (item of items(); track item.id) {
+    <div class="gm-card gm-card--static" [class.gm-card--muted]="!isOpen(item)">
+      <span class="gm-tile__icon gm-tile__icon--chip" aria-hidden="true">
+        <span class="material-symbols-outlined gestgo-mi gestgo-mi--m">
+          {{ isOpen(item) ? 'radio_button_unchecked' : 'check_circle' }}
+        </span>
+      </span>
+      <span class="gm-card__body">
+        <span class="gm-card__title">{{ item.title }}</span>
+        <span class="gm-card__sub">
+          @if (item.priority === 'high') { Alta · }
+          @if (item.due_at) { até {{ formatDate(item.due_at) }} · }
+          {{ item.origin || 'Operacional' }}
+        </span>
+      </span>
+      @if (isOpen(item)) {
+        <button type="button" class="gm-pill is-on" [disabled]="acting()" (click)="concluir(item)">Concluir</button>
+      } @else {
+        <button type="button" class="gm-pill" [disabled]="acting()" (click)="reabrir(item)">Reabrir</button>
+      }
+    </div>
+  }
+}

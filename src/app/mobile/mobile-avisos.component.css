@@ -1,0 +1,8 @@
+.gm-btn {
+  margin-bottom: 14px;
+}
+
+.gm-card--unread {
+  border-color: color-mix(in srgb, var(--gm-accent) 35%, var(--gm-line));
+  background: color-mix(in srgb, var(--gm-accent) 6%, var(--gm-paper));
+}

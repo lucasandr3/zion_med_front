@@ -23,6 +23,7 @@ import {
 import { ToastService } from '../../core/services/toast.service';
 import { ZmPageBackLinkComponent } from '../../shared/components/ui/zm-page-back-link.component';
 import { GestgoCardComponent } from '@/shared/components/card/card.component';
+import { GestgoComboboxComponent, type GestgoComboboxOption } from '@/shared/components/combobox';
 
 type ImportStep = 0 | 1 | 2 | 3;
 
@@ -63,7 +64,7 @@ const MAX_BYTES = 10 * 1024 * 1024;
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'n-page' },
-  imports: [CommonModule, FormsModule, ZmPageBackLinkComponent, GestgoCardComponent],
+  imports: [CommonModule, FormsModule, ZmPageBackLinkComponent, GestgoCardComponent, GestgoComboboxComponent],
   templateUrl: './templates-importar.component.html',
   styleUrl: './templates-importar.component.css',
 })
@@ -74,6 +75,19 @@ export class TemplatesImportarComponent implements OnDestroy {
   private toast = inject(ToastService);
   private router = inject(Router);
   private sanitizer = inject(DomSanitizer);
+
+  readonly fieldTypeOptions: GestgoComboboxOption[] = [
+    'text',
+    'textarea',
+    'number',
+    'date',
+    'radio',
+    'checkbox',
+    'select',
+    'signature',
+    'heading',
+    'notice',
+  ].map((t) => ({ value: t, label: t }));
 
   readonly steps = STEPS;
   readonly maxFiles = MAX_FILES;
@@ -344,6 +358,10 @@ export class TemplatesImportarComponent implements OnDestroy {
   updateSelected(patch: Partial<FormImportField>): void {
     const i = this.selectedIndex();
     this.fields.update((list) => list.map((f, idx) => (idx === i ? { ...f, ...patch } : f)));
+  }
+
+  onFieldTypeChange(value: string | null): void {
+    if (value) this.updateSelected({ type: value });
   }
 
   optionsText(): string {

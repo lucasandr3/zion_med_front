@@ -30,14 +30,14 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
         padding: 0.75rem 0.9rem;
         border: 1px solid var(--border, #e2e8f0);
         border-radius: 0.75rem;
-        background: color-mix(in srgb, var(--c-primary, #14b87a) 8%, transparent);
+        background: color-mix(in srgb, var(--c-primary, #00877A) 8%, transparent);
       }
       .ft-person--mobile {
         margin: 0 0 12px;
         border-radius: 14px;
       }
       .ft-person .material-symbols-outlined {
-        color: var(--c-primary, #14b87a);
+        color: var(--c-primary, #00877A);
       }
       .ft-person__text {
         display: flex;

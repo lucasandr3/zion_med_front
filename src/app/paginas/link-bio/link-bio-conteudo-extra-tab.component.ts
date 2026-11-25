@@ -22,6 +22,7 @@ import {
 import { NORD_FORM_IMPORTS } from '@/shared/nord';
 
 import { GestgoCardComponent } from '@/shared/components/card/card.component';
+import { GestgoComboboxComponent, type GestgoComboboxOption } from '@/shared/components/combobox';
 
 const LINK_BIO_FOTO_PROFISSIONAL_MAX_BYTES = 2 * 1024 * 1024;
 
@@ -33,7 +34,8 @@ const LINK_BIO_FOTO_PROFISSIONAL_MAX_BYTES = 2 * 1024 * 1024;
     ...NORD_FORM_IMPORTS,
     FormsModule,
     RouterLink,
-    GestgoCardComponent],
+    GestgoCardComponent,
+    GestgoComboboxComponent],
   templateUrl: './link-bio-conteudo-extra-tab.component.html',
   styleUrl: './link-bio-conteudo-extra-tab.component.css',
 })
@@ -48,6 +50,12 @@ export class LinkBioConteudoExtraTabComponent {
   @Output() draftSync = new EventEmitter<void>();
   @Output() goToModelos = new EventEmitter<void>();
   @Output() clinicUpdated = new EventEmitter<void>();
+
+  readonly appointmentCtaModeOptions: GestgoComboboxOption[] = [
+    { value: 'external', label: 'URL externa (Calendly etc.)' },
+    { value: 'feegow', label: 'URL Feegow / integração' },
+    { value: 'gestgo', label: 'Agenda Gestgo (nativa)' },
+  ];
 
   salvando = false;
   enviandoFoto = false;

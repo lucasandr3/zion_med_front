@@ -95,7 +95,7 @@ import { LandingHowItWorks, LandingService } from '../../core/services/landing.s
         width: 1.6rem;
         height: 1.6rem;
         border-radius: 999px;
-        background: #14b87a;
+        background: #00877A;
         color: #fff;
         display: inline-flex;
         align-items: center;
@@ -113,7 +113,7 @@ import { LandingHowItWorks, LandingService } from '../../core/services/landing.s
         align-items: center;
       }
       .cf-btn {
-        background: #14b87a;
+        background: #00877A;
         color: #fff;
         text-decoration: none;
         padding: 0.7rem 1.1rem;

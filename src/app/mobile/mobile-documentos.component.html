@@ -10,6 +10,11 @@
 
 <p class="gm-sub">Acompanhe o status das fichas enviadas.</p>
 
+<a class="gm-btn gm-btn--secondary" routerLink="/m/envios" style="margin-bottom:14px">
+  <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">outgoing_mail</span>
+  Ver envios e lembretes
+</a>
+
 <div class="gm-pills" role="tablist" aria-label="Filtrar documentos">
   <button type="button" class="gm-pill" role="tab" [attr.aria-selected]="filter() === 'pending'" [class.is-on]="filter() === 'pending'" (click)="setFilter('pending')">Pendentes</button>
   <button type="button" class="gm-pill" role="tab" [attr.aria-selected]="filter() === 'approved'" [class.is-on]="filter() === 'approved'" (click)="setFilter('approved')">Assinadas</button>

@@ -113,7 +113,7 @@ body.shell-preset-tinted .gestgo-shell__brand {
 }
 
 .gestgo-shell__brand-title {
-  color: var(--gestgo-brand-deep, #063d36) !important;
+  color: var(--gestgo-brand-deep, #043d38) !important;
   display: block !important;
   font-size: 1.2rem;
   font-weight: 800;
@@ -238,62 +238,25 @@ body.shell-preset-sidebar-dark .gestgo-shell__nav nord-nav-group {
   --n-color-nav-heading: var(--shell-nav-muted, rgb(255 255 255 / 0.8));
 }
 
-/* Sair: filho direto slot=footer — seletor idêntico ao pesquisa */
-.gestgo-shell__nav > nord-button[slot='footer'] {
-  --n-button-background-color: transparent;
-  --n-button-border-color: transparent;
-  --n-button-box-shadow: none;
-  --n-button-justify-content: flex-start;
-  margin-block-start: var(--n-space-s);
-  transition:
-    background-color 120ms ease,
-    color 120ms ease;
+/* Footer da sidebar — wrapper como no Dashboard Nord (app-shell-footer) */
+.gestgo-shell__nav-footer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--n-space-s, 0.5rem);
+  width: 100%;
 }
 
-body.shell-preset-sidebar-dark .gestgo-shell__nav > nord-button[slot='footer'] {
-  --n-button-color: var(--shell-nav-item, rgb(255 255 255 / 0.88));
-  color: var(--shell-nav-item, rgb(255 255 255 / 0.88));
+.gestgo-shell__nav-footer > gestgo-shell-account-menu {
+  display: block;
+  width: 100%;
 }
 
-.gestgo-shell__nav > nord-button[slot='footer']:hover,
-.gestgo-shell__nav > nord-button[slot='footer']:focus-visible {
-  --n-button-background-color: color-mix(
-    in srgb,
-    var(--n-color-status-danger, #c62828) 14%,
-    transparent
-  );
-  --n-button-color: var(--n-color-status-danger, #c62828);
-  --n-button-border-color: transparent;
-  --n-button-box-shadow: none;
+.gestgo-shell__nav-footer nord-dropdown.account-menu {
+  width: 100%;
 }
 
-body.shell-preset-sidebar-dark .gestgo-shell__nav > nord-button[slot='footer']:hover,
-body.shell-preset-sidebar-dark .gestgo-shell__nav > nord-button[slot='footer']:focus-visible {
-  --n-button-background-color: rgb(255 80 80 / 0.16);
-  --n-button-color: #ff8a80;
-  color: #ff8a80;
-}
-
-.gestgo-shell__nav > nord-button[slot='footer']:hover nord-icon,
-.gestgo-shell__nav > nord-button[slot='footer']:focus-visible nord-icon,
-.gestgo-shell__nav > nord-button[slot='footer']:hover .material-symbols-outlined,
-.gestgo-shell__nav > nord-button[slot='footer']:focus-visible .material-symbols-outlined {
-  color: var(--n-color-status-danger, #c62828);
-}
-
-body.shell-preset-sidebar-dark .gestgo-shell__nav > nord-button[slot='footer']:hover nord-icon,
-body.shell-preset-sidebar-dark .gestgo-shell__nav > nord-button[slot='footer']:focus-visible nord-icon,
-body.shell-preset-sidebar-dark .gestgo-shell__nav > nord-button[slot='footer']:hover .material-symbols-outlined,
-body.shell-preset-sidebar-dark .gestgo-shell__nav > nord-button[slot='footer']:focus-visible .material-symbols-outlined {
-  color: #ff8a80;
-}
-
-nord-navigation[data-rail-collapsed] > nord-button[slot='footer'] {
-  --n-button-justify-content: center;
-}
-
-/* Tooltip "Sair" só faz sentido com a sidebar em rail (só ícone) */
-nord-navigation:not([data-rail-collapsed]) > nord-tooltip#nav-logout-tooltip {
+/* Tooltip da conta só no rail recolhido (só avatar) */
+nord-navigation:not([data-rail-collapsed]) .gestgo-shell__nav-footer > nord-tooltip#nav-account-tooltip {
   display: none;
 }
 
@@ -422,7 +385,9 @@ nord-dropdown.account-menu .account-menu__header-text {
   min-width: 0;
 }
 
+.gestgo-shell__top-bar .account-menu__email,
 .gestgo-shell__top-bar .account-menu__empresa,
+nord-dropdown.account-menu .account-menu__email,
 nord-dropdown.account-menu .account-menu__empresa {
   color: var(--n-color-text-weak);
   font-size: var(--n-font-size-s);

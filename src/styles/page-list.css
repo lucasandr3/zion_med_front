@@ -281,7 +281,7 @@
   padding: 0.45rem 0.9rem;
   border-radius: 0.5rem;
   border: none;
-  background: var(--c-action, #087a55);
+  background: var(--c-action, #006b61);
   color: #fff;
   font-weight: 600;
   text-decoration: none;
@@ -290,7 +290,7 @@
 
 .n-page-list__empty-card a:first-of-type:focus-visible,
 .n-page-list__empty-card button:first-of-type:focus-visible {
-  outline: 2px solid var(--c-focus-ring, var(--c-action, #087a55));
+  outline: 2px solid var(--c-focus-ring, var(--c-action, #00877a));
   outline-offset: 2px;
 }
 

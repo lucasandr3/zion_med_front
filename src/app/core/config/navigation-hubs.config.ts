@@ -485,8 +485,8 @@ export const HUB_PLATAFORMA_SISTEMA: NavigationHubConfig = {
 
 export const HUB_UTILITARIOS: NavigationHubConfig = {
   id: 'utilitarios',
-  title: 'Utilitários',
-  subtitle: 'Propostas, WhatsApp e follow-ups para converter e reter — no computador e no celular.',
+  title: 'Ferramentas',
+  subtitle: 'Propostas, box, estoque e follow-ups — no computador e no celular.',
   cards: [
     {
       id: 'orcamento',
@@ -510,6 +510,30 @@ export const HUB_UTILITARIOS: NavigationHubConfig = {
       description: 'Fila de follow-ups pendentes para não perder oportunidade.',
       icon: 'event_repeat',
       route: '/utilitarios/retornos',
+      permissionsAny: ['submissions.view', 'organization.manage'],
+    },
+    {
+      id: 'checklist',
+      title: 'Checklist da sala',
+      description: 'Conferência rápida antes do atendimento — personalize e reinicie.',
+      icon: 'checklist',
+      route: '/utilitarios/checklist',
+      permissionsAny: ['submissions.view', 'organization.manage'],
+    },
+    {
+      id: 'estoque',
+      title: 'Estoque e validade',
+      description: 'Materiais do box com alerta de estoque baixo e validade.',
+      icon: 'inventory_2',
+      route: '/utilitarios/estoque',
+      permissionsAny: ['submissions.view', 'organization.manage'],
+    },
+    {
+      id: 'pacotes',
+      title: 'Pacotes e sessões',
+      description: 'Saldo de sessões por paciente — registre e arquive pacotes.',
+      icon: 'package_2',
+      route: '/utilitarios/pacotes',
       permissionsAny: ['submissions.view', 'organization.manage'],
     },
     {

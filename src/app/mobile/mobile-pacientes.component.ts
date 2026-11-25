@@ -12,13 +12,15 @@ import { catchError } from 'rxjs/operators';
 import { PessoasService, type Pessoa, type PessoaDetalhe } from '../core/services/pessoas.service';
 import { MobileShellService } from './mobile-shell.service';
 
+type PacienteView = 'lista' | 'detalhe' | 'form';
+
 @Component({
   selector: 'app-mobile-pacientes',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [FormsModule],
   templateUrl: './mobile-pacientes.component.html',
-  styleUrls: ['./mobile-shared.css'],
+  styleUrls: ['./mobile-shared.css', './mobile-pacientes.component.css'],
 })
 export class MobilePacientesComponent implements OnInit {
   private readonly pessoas = inject(PessoasService);
@@ -31,9 +33,18 @@ export class MobilePacientesComponent implements OnInit {
   readonly error = signal<string | null>(null);
   readonly items = signal<Pessoa[]>([]);
   readonly query = signal('');
+  readonly view = signal<PacienteView>('lista');
   readonly detailId = signal<number | null>(null);
   readonly detail = signal<PessoaDetalhe | null>(null);
   readonly detailLoading = signal(false);
+  readonly salvando = signal(false);
+  readonly editId = signal<number | null>(null);
+
+  form = {
+    name: '',
+    phone: '',
+    email: '',
+  };
 
   ngOnInit(): void {
     this.search$
@@ -87,6 +98,7 @@ export class MobilePacientesComponent implements OnInit {
 
   abrirDetalhe(id: number): void {
     this.detailId.set(id);
+    this.view.set('detalhe');
     this.detailLoading.set(true);
     this.pessoas.get(id).subscribe({
       next: (p) => {
@@ -104,6 +116,63 @@ export class MobilePacientesComponent implements OnInit {
   fecharDetalhe(): void {
     this.detailId.set(null);
     this.detail.set(null);
+    this.view.set('lista');
+  }
+
+  abrirCriar(): void {
+    this.editId.set(null);
+    this.form = { name: '', phone: '', email: '' };
+    this.view.set('form');
+  }
+
+  abrirEditar(p: PessoaDetalhe): void {
+    this.editId.set(p.id);
+    this.form = {
+      name: p.name || '',
+      phone: p.phone || '',
+      email: p.email || '',
+    };
+    this.view.set('form');
+  }
+
+  cancelarForm(): void {
+    if (this.editId()) {
+      this.view.set('detalhe');
+      return;
+    }
+    this.view.set('lista');
+  }
+
+  salvarForm(): void {
+    const name = this.form.name.trim();
+    if (!name) {
+      this.shell.toast('Informe o nome');
+      return;
+    }
+    const payload = {
+      name,
+      phone: this.form.phone.trim() || null,
+      email: this.form.email.trim() || null,
+      status: 'active' as const,
+    };
+    this.salvando.set(true);
+    const id = this.editId();
+    const req$ = id
+      ? this.pessoas.update(id, payload)
+      : this.pessoas.create(payload);
+
+    req$.subscribe({
+      next: (pessoa) => {
+        this.salvando.set(false);
+        this.shell.toast(id ? 'Paciente atualizado' : 'Paciente criado');
+        this.search$.next(this.query().trim());
+        this.abrirDetalhe(pessoa.id);
+      },
+      error: (err) => {
+        this.salvando.set(false);
+        this.shell.toast(err?.error?.message ?? 'Não foi possível salvar');
+      },
+    });
   }
 
   enviarFicha(pessoa: PessoaDetalhe): void {
@@ -127,8 +196,14 @@ export class MobilePacientesComponent implements OnInit {
     return fromConsent > 0 ? fromConsent : null;
   }
 
-  abrirDocumentos(): void {
-    void this.router.navigate(['/m/documentos'], { queryParams: { status: '' } });
+  abrirDocumentos(pessoa?: PessoaDetalhe): void {
+    void this.router.navigate(['/m/documentos'], {
+      queryParams: { status: '', busca: pessoa?.name || undefined },
+    });
+  }
+
+  abrirEnvios(): void {
+    void this.router.navigate(['/m/envios']);
   }
 
   abrirProtocolo(id: number): void {

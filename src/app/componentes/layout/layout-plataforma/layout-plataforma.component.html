@@ -7,7 +7,7 @@
   hide-default-nav-toggle
   hide-collapse-button
 >
-  <nord-navigation slot="nav" class="gestgo-shell__nav">
+  <nord-navigation slot="nav" class="gestgo-shell__nav" sticky-footer>
     <a
       slot="header"
       class="gestgo-shell__brand"
@@ -41,18 +41,18 @@
       </nord-nav-group>
     }
 
-    <nord-button
-      slot="footer"
-      expand
-      variant="plain"
-      type="button"
-      aria-describedby="nav-logout-tooltip"
-      (click)="sair()"
-    >
-      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">logout</span>
-      Sair
-    </nord-button>
-    <nord-tooltip id="nav-logout-tooltip" position="inline-end" [delay]="0">Sair</nord-tooltip>
+    <!-- Nord Dashboard: slot=footer é um wrapper; o dropdown abre para o lado -->
+    <div slot="footer" class="gestgo-shell__nav-footer">
+      <gestgo-shell-account-menu
+        #accountMenu
+        placement="nav-footer"
+        [shellContext]="'plataforma'"
+        (openTheme)="topBarActions.alternarMenuTema()"
+      />
+      <nord-tooltip id="nav-account-tooltip" position="inline-end" [delay]="0">{{
+        accountMenu.nomeUsuario
+      }}</nord-tooltip>
+    </div>
   </nord-navigation>
 
   <nord-top-bar slot="top-bar" id="top-header" class="gestgo-shell__top-bar">
@@ -83,16 +83,6 @@
       [notificacoesNaoLidas]="notificacoesNaoLidas()"
       [novidadesNaoVistas]="novidadesNaoVistas()"
     />
-    <nord-dropdown
-      #accountMenu
-      slot="end"
-      gestgoAccountMenu
-      [shellContext]="'plataforma'"
-      (openTheme)="topBarActions.alternarMenuTema()"
-    ></nord-dropdown>
-    <nord-tooltip slot="end" id="account-menu-tooltip" [delay]="0">{{
-      accountMenu.nomeUsuario
-    }}</nord-tooltip>
   </nord-top-bar>
 
   <div class="gestgo-shell__content">

@@ -47,10 +47,18 @@
 
                       <div class="settings-field settings-field--wide">
                         <label for="block_mode" class="settings-label">Modo de bloqueio</label>
-                        <select id="block_mode" [(ngModel)]="blockMode" name="block_mode" class="w-full">
-                          <option value="soft">soft</option>
-                          <option value="hard">hard</option>
-                        </select>
+                        <z-combobox
+                          id="block_mode"
+                          class="w-full"
+                          zWidth="full"
+                          [(ngModel)]="blockMode"
+                          name="block_mode"
+                          [options]="blockModeOptions"
+                          [clearable]="false"
+                          [searchable]="false"
+                          emptyText="Nenhum resultado."
+                          ariaLabel="Modo de bloqueio"
+                        />
                         <p class="settings-hint">soft = bloqueia app e libera /assinatura; hard = bloqueia tudo exceto logout.</p>
                       </div>
 

@@ -20,19 +20,31 @@
       <label>Descrição<textarea rows="2" [value]="description()" (input)="onDescription($event)"></textarea></label>
       <label>
         Evento de entrada
-        <select [value]="entryEvent()" (change)="onEntry($event)">
-          @for (opt of entryOptions; track opt.id) {
-            <option [value]="opt.id">{{ opt.label }} ({{ opt.id }})</option>
-          }
-        </select>
+        <z-combobox
+          class="w-full"
+          zWidth="full"
+          [options]="entryComboOptions"
+          [value]="entryEvent()"
+          [clearable]="false"
+          placeholder="Selecione…"
+          emptyText="Nenhum resultado."
+          ariaLabel="Evento de entrada"
+          (zValueChange)="onEntry($event)"
+        />
       </label>
       <label>
         Status
-        <select [value]="status()" (change)="onStatus($event)">
-          <option value="draft">Rascunho</option>
-          <option value="active">Ativa</option>
-          <option value="paused">Pausada</option>
-        </select>
+        <z-combobox
+          class="w-full"
+          zWidth="full"
+          [options]="statusOptions"
+          [value]="status()"
+          [clearable]="false"
+          [searchable]="false"
+          emptyText="Nenhum resultado."
+          ariaLabel="Status"
+          (zValueChange)="onStatus($event)"
+        />
       </label>
       <div class="jrn-exits">
         <label class="jrn-check">
@@ -63,11 +75,17 @@
           <label>Descrição<textarea rows="2" [value]="step.description" (input)="updateStep($index, 'description', $event)"></textarea></label>
           <label>
             Prioridade
-            <select [value]="step.priority" (change)="updateStep($index, 'priority', $event)">
-              <option value="low">Baixa</option>
-              <option value="normal">Normal</option>
-              <option value="high">Alta</option>
-            </select>
+            <z-combobox
+              class="w-full"
+              zWidth="full"
+              [options]="priorityOptions"
+              [value]="step.priority"
+              [clearable]="false"
+              [searchable]="false"
+              emptyText="Nenhum resultado."
+              ariaLabel="Prioridade"
+              (zValueChange)="updateStepValue($index, 'priority', $event)"
+            />
           </label>
           <label>
             Condição (opcional) — campo
@@ -75,12 +93,17 @@
           </label>
           <label>
             Op
-            <select [value]="step.condition_op" (change)="updateStep($index, 'condition_op', $event)">
-              <option value="eq">eq</option>
-              <option value="neq">neq</option>
-              <option value="exists">exists</option>
-              <option value="not_exists">not_exists</option>
-            </select>
+            <z-combobox
+              class="w-full"
+              zWidth="full"
+              [options]="conditionOpOptions"
+              [value]="step.condition_op"
+              [clearable]="false"
+              [searchable]="false"
+              emptyText="Nenhum resultado."
+              ariaLabel="Operador da condição"
+              (zValueChange)="updateStepValue($index, 'condition_op', $event)"
+            />
           </label>
           <label>
             Valor

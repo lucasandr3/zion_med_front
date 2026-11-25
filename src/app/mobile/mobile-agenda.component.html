@@ -1,0 +1,305 @@
+@if (view() === 'detalhe' && selected(); as a) {
+  <div class="gm-backrow">
+    <button type="button" class="gm-icon-btn" (click)="voltarLista()" aria-label="Voltar">
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">arrow_back</span>
+    </button>
+    <div>
+      <h1>Compromisso</h1>
+      <small>{{ horaCurta(a.starts_at) }} · {{ dayTitle() }}</small>
+    </div>
+  </div>
+
+  <div class="gm-doc-hero">
+    <span
+      class="gm-status"
+      [class.ok]="a.status === 'confirmed' || a.status === 'completed'"
+      [class.warn]="a.status === 'cancelled'"
+    >
+      {{ statusLabel(a.status) }}
+    </span>
+    <h2>{{ a.patient_name }}</h2>
+    <p>{{ a.service?.name || 'Serviço' }} · {{ horaCurta(a.starts_at) }}</p>
+  </div>
+
+  <div class="gm-panel">
+    @if (a.patient_phone) {
+      <div class="gm-doc-row"><span>Telefone</span><strong>{{ a.patient_phone }}</strong></div>
+    }
+    @if (a.patient_email) {
+      <div class="gm-doc-row"><span>E-mail</span><strong>{{ a.patient_email }}</strong></div>
+    }
+    @if (formStatusLabel(a)) {
+      <div class="gm-doc-row"><span>Documento</span><strong>{{ formStatusLabel(a) }}</strong></div>
+    }
+    @if (a.notes) {
+      <div class="gm-doc-row"><span>Obs.</span><strong>{{ a.notes }}</strong></div>
+    }
+  </div>
+
+  @if (temFichaPendente(a)) {
+    <button type="button" class="gm-btn" [disabled]="acaoId() === a.id" (click)="compartilharFicha(a)">
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">send</span>
+      Enviar ficha no WhatsApp
+    </button>
+    <button type="button" class="gm-btn gm-btn--secondary" [disabled]="acaoId() === a.id" (click)="copiarLinkFicha(a)">
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">link</span>
+      Copiar link da ficha
+    </button>
+  }
+
+  @if (a.status === 'confirmed') {
+    <button type="button" class="gm-btn gm-btn--secondary" (click)="abrirReagendar(a)">
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">event_repeat</span>
+      Reagendar
+    </button>
+    <button type="button" class="gm-btn gm-btn--soft" [disabled]="acaoId() === a.id" (click)="cancelar(a)">
+      Cancelar horário
+    </button>
+  }
+} @else if (view() === 'criar') {
+  <div class="gm-backrow">
+    <button type="button" class="gm-icon-btn" (click)="voltarLista()" aria-label="Voltar">
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">arrow_back</span>
+    </button>
+    <div>
+      <h1>Novo compromisso</h1>
+      <small>{{ dayTitle() }}</small>
+    </div>
+  </div>
+
+  <div class="gm-field">
+    <label for="ag-nome">Paciente</label>
+    <input id="ag-nome" type="text" [(ngModel)]="novo.patient_name" placeholder="Nome completo" autocomplete="name" />
+  </div>
+  <div class="gm-field">
+    <label for="ag-fone">Telefone</label>
+    <input id="ag-fone" type="tel" [(ngModel)]="novo.patient_phone" placeholder="Opcional" autocomplete="tel" />
+  </div>
+  <div class="gm-field">
+    <label for="ag-email">E-mail</label>
+    <input id="ag-email" type="email" [(ngModel)]="novo.patient_email" placeholder="Opcional" autocomplete="email" />
+  </div>
+  <div class="gm-field">
+    <label id="ag-servico-label">Serviço</label>
+    <z-combobox
+      zWidth="full"
+      [options]="servicoOptions()"
+      [value]="serviceIdValue()"
+      placeholder="Selecione o serviço"
+      emptyText="Nenhum serviço encontrado."
+      ariaLabel="Serviço"
+      ariaLabelledby="ag-servico-label"
+      [clearable]="false"
+      (zValueChange)="onServicoChange($event)"
+    />
+  </div>
+  <div class="gm-field">
+    <label for="ag-hora">Horário</label>
+    <nord-time-picker
+      id="ag-hora"
+      name="ag_hora"
+      expand
+      hide-label
+      label="Horário"
+      [(ngModel)]="novo.time"
+      placeholder="09:00"
+    ></nord-time-picker>
+  </div>
+
+  @if (servicos().length === 0) {
+    <p class="gm-empty">Cadastre serviços no painel para agendar pelo celular.</p>
+    <a class="gm-btn gm-btn--secondary" routerLink="/m">Voltar ao início</a>
+  } @else {
+    <button type="button" class="gm-btn" [disabled]="salvando()" (click)="salvarNovo()">
+      {{ salvando() ? 'Salvando…' : 'Salvar compromisso' }}
+    </button>
+  }
+} @else if (view() === 'reagendar') {
+  <div class="gm-backrow">
+    <button type="button" class="gm-icon-btn" (click)="voltarLista()" aria-label="Voltar">
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">arrow_back</span>
+    </button>
+    <div>
+      <h1>Reagendar</h1>
+      <small>{{ reagendar.patient_name }}</small>
+    </div>
+  </div>
+
+  <div class="gm-field">
+    <label for="ag-re-data">Data</label>
+    <nord-date-picker
+      id="ag-re-data"
+      name="ag_re_data"
+      expand
+      hide-label
+      label="Data"
+      [(ngModel)]="reagendar.date"
+      placeholder="dd/mm/aaaa"
+    ></nord-date-picker>
+  </div>
+  <div class="gm-field">
+    <label for="ag-re-hora">Horário</label>
+    <nord-time-picker
+      id="ag-re-hora"
+      name="ag_re_hora"
+      expand
+      hide-label
+      label="Horário"
+      [(ngModel)]="reagendar.time"
+      placeholder="09:00"
+    ></nord-time-picker>
+  </div>
+
+  <button type="button" class="gm-btn" [disabled]="salvando()" (click)="salvarReagendar()">
+    {{ salvando() ? 'Salvando…' : 'Confirmar reagendamento' }}
+  </button>
+} @else {
+  <div class="gm-header">
+    <div>
+      <div class="gm-logo">gest<span>go</span></div>
+      <div class="gm-tagline">Seu dia, mais simples.</div>
+    </div>
+    <div class="gm-header__actions">
+      <button type="button" class="gm-icon-btn" (click)="abrirNotificacoes()" aria-label="Notificações">
+        <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">notifications</span>
+      </button>
+      <button type="button" class="gm-icon-btn" (click)="abrirMenu()" aria-label="Menu da conta">
+        <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">person</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="gm-agenda-hero">
+    <div class="gm-agenda-hero__text">
+      <h1 class="gm-title">Agenda</h1>
+      <p class="gm-sub">Confirme horários e envie fichas.</p>
+    </div>
+    <button type="button" class="gm-agenda-fab" (click)="abrirCriar()" aria-label="Novo compromisso">
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">add</span>
+      Novo
+    </button>
+  </div>
+
+  <div class="gm-weekcard" role="navigation" aria-label="Semana da agenda">
+    <div class="gm-weekcard__head">
+      <strong>{{ monthLabel() }}</strong>
+      <div class="gm-weekcard__nav">
+        <button type="button" class="gm-weekcard__chev" (click)="semanaAnterior()" aria-label="Semana anterior">
+          <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">chevron_left</span>
+        </button>
+        <button type="button" class="gm-weekcard__chev" (click)="semanaProxima()" aria-label="Próxima semana">
+          <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">chevron_right</span>
+        </button>
+      </div>
+    </div>
+    <div class="gm-weekstrip" role="listbox" aria-label="Dias da semana">
+      @for (day of weekDays(); track day.key) {
+        <button
+          type="button"
+          class="gm-weekday"
+          role="option"
+          [attr.aria-selected]="day.isSelected"
+          [class.is-selected]="day.isSelected"
+          [class.is-today]="day.isToday && !day.isSelected"
+          (click)="selecionarDia(day.key)"
+        >
+          <span class="gm-weekday__label">{{ day.weekday }}</span>
+          <span class="gm-weekday__num">{{ day.dayNum }}</span>
+          <span class="gm-weekday__dot" [class.is-on]="day.isSelected || day.hasEvents" aria-hidden="true"></span>
+        </button>
+      }
+    </div>
+  </div>
+
+  <label class="gm-search">
+    <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">search</span>
+    <input
+      type="search"
+      placeholder="Buscar paciente ou serviço…"
+      [ngModel]="query()"
+      (ngModelChange)="onQuery($event)"
+      aria-label="Buscar na agenda"
+    />
+  </label>
+
+  <div class="gm-dayhead">
+    <div class="gm-dayhead__text">
+      <h2>{{ buscando() ? 'Resultados' : dayTitle() }}</h2>
+      <p>
+        @if (buscando()) {
+          {{ listaAtivos().length }} encontrado{{ listaAtivos().length === 1 ? '' : 's' }}
+        } @else {
+          {{ ativosDoDia().length }} compromisso{{ ativosDoDia().length === 1 ? '' : 's' }}
+        }
+      </p>
+    </div>
+    <button type="button" class="gm-dayhead__hoje" [disabled]="isHoje() && !buscando()" (click)="irHoje()">Hoje</button>
+  </div>
+
+  @if (loading()) {
+    <div class="gm-preload gm-preload--inline" aria-busy="true">
+      <div class="gm-preload__bar"><span></span></div>
+      <p class="gm-preload__hint">Carregando agenda…</p>
+    </div>
+  } @else if (error()) {
+    <div class="gm-error">
+      <p>{{ error() }}</p>
+      <button type="button" class="gm-btn gm-btn--secondary" (click)="carregar()">Tentar de novo</button>
+    </div>
+  } @else if (listaAtivos().length === 0) {
+    <div class="gm-empty-state">
+      <span class="gm-empty-state__icon" aria-hidden="true">
+        <span class="material-symbols-outlined gestgo-mi gestgo-mi--l">
+          {{ buscando() ? 'search_off' : 'event_available' }}
+        </span>
+      </span>
+      <h2>{{ buscando() ? 'Nada encontrado' : 'Dia livre' }}</h2>
+      <p>
+        @if (buscando()) {
+          Nenhum compromisso corresponde à busca.
+        } @else {
+          Nenhum compromisso neste dia. Toque em Novo para agendar.
+        }
+      </p>
+    </div>
+  } @else {
+    <div class="gm-agenda-list">
+      @for (a of listaVisivel(); track a.id; let i = $index) {
+        <button
+          type="button"
+          class="gm-appt"
+          [class.gm-appt--muted]="a.status === 'cancelled'"
+          (click)="abrirDetalhe(a)"
+        >
+          <span class="gm-appt__time">
+            @if (buscando()) {
+              <span class="gm-appt__date">{{ dataCurta(a.starts_at) }}</span>
+            }
+            {{ horaCurta(a.starts_at) }}
+          </span>
+          <span class="gm-appt__card">
+            <span class="gm-avatar" [class.teal]="i % 3 === 0" [class.orange]="i % 3 === 2">
+              {{ iniciais(a.patient_name) }}
+            </span>
+            <span class="gm-card__body">
+              <span class="gm-card__title">{{ a.patient_name }}</span>
+              <span class="gm-card__sub">
+                {{ a.service?.name || 'Serviço' }}
+                @if (formStatusLabel(a)) {
+                  · {{ formStatusLabel(a) }}
+                }
+              </span>
+            </span>
+            <span
+              class="gm-status"
+              [class.ok]="a.status === 'confirmed' || a.status === 'completed'"
+              [class.warn]="a.status === 'cancelled' || a.form_status === 'pending'"
+            >
+              {{ a.form_status === 'pending' && a.status === 'confirmed' ? 'Ficha' : statusLabel(a.status) }}
+            </span>
+          </span>
+        </button>
+      }
+    </div>
+  }
+}

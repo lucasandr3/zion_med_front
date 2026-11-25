@@ -55,6 +55,9 @@ export class LayoutMobileComponent implements OnInit {
       /\/m\/ferramentas\/.+/.test(u) ||
       /\/m\/enviar/.test(u) ||
       /\/m\/documentos/.test(u) ||
+      /\/m\/envios/.test(u) ||
+      /\/m\/tarefas/.test(u) ||
+      /\/m\/avisos/.test(u) ||
       /\/m\/configuracoes/.test(u) ||
       /\/m\/atendimento/.test(u) ||
       /\/m\/pacientes\/\d+/.test(u)
@@ -65,9 +68,9 @@ export class LayoutMobileComponent implements OnInit {
 
   readonly tabs = [
     { path: '/m', label: 'Início', icon: 'home', exact: true },
+    { path: '/m/agenda', label: 'Agenda', icon: 'calendar_month', exact: false },
     { path: '/m/pacientes', label: 'Pacientes', icon: 'group', exact: false },
     { path: '/m/fichas', label: 'Fichas', icon: 'description', exact: false },
-    { path: '/m/ferramentas', label: 'Ferramentas', icon: 'widgets', exact: false },
   ] as const;
 
   readonly booting = this.shell.booting;

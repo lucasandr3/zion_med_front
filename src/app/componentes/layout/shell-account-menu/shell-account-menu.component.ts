@@ -10,6 +10,7 @@ import {
   OnDestroy,
   OnInit,
   Output,
+  ViewChild,
   inject,
 } from '@angular/core';
 import { Router } from '@angular/router';
@@ -18,33 +19,58 @@ import { AuthService } from '../../../core/services/auth.service';
 import { ClinicaService } from '../../../core/services/clinica.service';
 import { setPreferPainelExperience } from '../../../core/utils/gestgo-experience.util';
 
+type NordPopoutHost = HTMLElement & {
+  id: string;
+  initializeElements?: () => void;
+  updatePosition?: () => Promise<void>;
+  align?: string;
+  position?: string;
+  sideOffset?: number;
+  alignOffset?: number;
+  alwaysFloating?: boolean;
+};
+
 type NordDropdownHost = HTMLElement & {
   open?: boolean;
+  expand?: boolean;
+  align?: string;
+  position?: string;
+  sideOffset?: number;
+  alignOffset?: number;
+  alwaysFloating?: boolean;
   show?: () => void | Promise<void>;
   hide?: (restoreFocus?: boolean) => void | Promise<void>;
 };
 
 /**
- * Host = `nord-dropdown` com `slot="end"` no top-bar — igual ao pesquisa_app,
- * para receber os tokens `::slotted(nord-dropdown)` do Nord TopBar.
+ * Menu da conta Gestgo.
+ * Wrapper em torno de um `nord-dropdown` puro (não hospeda o CE) —
+ * evita âncora nula do popout por projeção Angular tardia.
  */
 @Component({
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
-  selector: 'nord-dropdown[gestgoAccountMenu]',
+  selector: 'gestgo-shell-account-menu',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    class: 'account-menu',
+    class: 'gestgo-shell-account-menu',
+    '[class.gestgo-shell-account-menu--nav-footer]': 'placement === "nav-footer"',
   },
   templateUrl: './shell-account-menu.component.html',
   styleUrl: './shell-account-menu.component.css',
 })
 export class ShellAccountMenuComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input() shellContext: 'app' | 'plataforma' = 'app';
+  /** Onde o menu aparece: top bar (legado) ou rodapé da sidebar (Nord). */
+  @Input() placement: 'topbar' | 'nav-footer' = 'topbar';
   /** Abre o drawer de tema (delegado ao top-bar-actions). */
   @Output() openTheme = new EventEmitter<void>();
 
+  @ViewChild('dropdown', { read: ElementRef })
+  private dropdownRef?: ElementRef<NordDropdownHost>;
+
   nomeUsuario = 'Usuário';
+  emailUsuario = '';
   iniciaisUsuario = 'U';
   /** Empresa/organização do contexto atual (tenant). */
   nomeEmpresa = '';
@@ -53,9 +79,9 @@ export class ShellAccountMenuComponent implements OnInit, AfterViewInit, OnDestr
   trialBadgeLabel: string | null = null;
 
   private clinicaSub?: Subscription;
-  private toggleClickCleanup?: () => void;
-  private openOnPointerDown = false;
-  private readonly host = inject(ElementRef<NordDropdownHost>);
+  private appearanceSub?: Subscription;
+  private openListenerCleanup?: () => void;
+
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly clinicaService = inject(ClinicaService);
@@ -66,30 +92,87 @@ export class ShellAccountMenuComponent implements OnInit, AfterViewInit, OnDestr
   }
 
   ngOnInit(): void {
-    this.syncMenuPermissoes();
+    this.syncUsuarioInfo();
     this.syncClinicInfo();
+    this.appearanceSub = this.auth.appearanceApplied$.subscribe(() => {
+      this.syncUsuarioInfo();
+      this.syncClinicInfo();
+    });
     this.clinicaSub = this.clinicaService.clinicBrandingUpdated$.subscribe(() => {
       this.syncClinicInfo();
-      this.cdr.markForCheck();
     });
   }
 
   ngAfterViewInit(): void {
-    // O nord-popout liga o clique no toggle no connectedCallback; se o Angular
-    // ainda não tiver projetado o botão, o listener fica órfão e o menu não abre.
-    this.scheduleToggleBind();
+    this.applyNavFooterAttrs();
+    this.rebindNordPopout();
+    // Toggle pode chegar um frame depois da projeção Angular.
+    queueMicrotask(() => this.rebindNordPopout());
+    setTimeout(() => this.rebindNordPopout(), 0);
+    setTimeout(() => this.rebindNordPopout(), 100);
+    this.bindOpenReposition();
   }
 
   ngOnDestroy(): void {
     this.clinicaSub?.unsubscribe();
-    this.toggleClickCleanup?.();
+    this.appearanceSub?.unsubscribe();
+    this.openListenerCleanup?.();
   }
 
-  private scheduleToggleBind(): void {
-    queueMicrotask(() => this.ensureToggleOpens());
-    setTimeout(() => this.ensureToggleOpens(), 0);
-    setTimeout(() => this.ensureToggleOpens(), 100);
-    setTimeout(() => this.ensureToggleOpens(), 300);
+  /** Dashboard Nord: expand + position inline-end + align end. */
+  private applyNavFooterAttrs(): void {
+    const el = this.dropdownRef?.nativeElement;
+    if (!el || this.placement !== 'nav-footer') return;
+    el.expand = true;
+    el.align = 'end';
+    el.position = 'inline-end';
+    el.sideOffset = 8;
+    el.alignOffset = 0;
+    el.alwaysFloating = true;
+  }
+
+  /**
+   * O nord-popout resolve a âncora no connectedCallback.
+   * Com toggle projetado depois, precisamos re-inicializar (via troca de id → handleIdChange).
+   */
+  private rebindNordPopout(): void {
+    const dropdown = this.dropdownRef?.nativeElement;
+    if (!dropdown) return;
+    this.applyNavFooterAttrs();
+
+    const toggle = dropdown.querySelector('[slot="toggle"]');
+    if (!(toggle instanceof HTMLElement)) return;
+
+    const popout = dropdown.shadowRoot?.querySelector('nord-popout') as NordPopoutHost | null;
+    if (!popout) return;
+
+    const id = popout.id || 'popout';
+    popout.removeAttribute('id');
+    queueMicrotask(() => {
+      popout.id = id;
+      if (this.placement === 'nav-footer') {
+        popout.align = 'end';
+        popout.position = 'inline-end';
+        popout.sideOffset = 8;
+        popout.alignOffset = 0;
+        popout.alwaysFloating = true;
+      }
+      void popout.updatePosition?.();
+    });
+  }
+
+  private bindOpenReposition(): void {
+    this.openListenerCleanup?.();
+    const dropdown = this.dropdownRef?.nativeElement;
+    if (!dropdown) return;
+
+    const onOpen = () => {
+      const popout = dropdown.shadowRoot?.querySelector('nord-popout') as NordPopoutHost | null;
+      void popout?.updatePosition?.();
+      requestAnimationFrame(() => void popout?.updatePosition?.());
+    };
+    dropdown.addEventListener('open', onOpen);
+    this.openListenerCleanup = () => dropdown.removeEventListener('open', onOpen);
   }
 
   go(event: Event, path: string): void {
@@ -108,43 +191,13 @@ export class ShellAccountMenuComponent implements OnInit, AfterViewInit, OnDestr
     this.auth.logout().subscribe(() => this.router.navigate(['/autenticacao']));
   }
 
-  private ensureToggleOpens(): void {
-    const dropdown = this.host.nativeElement;
-    const toggle = dropdown.querySelector('[slot="toggle"]');
-    if (!(toggle instanceof HTMLElement)) return;
-
-    this.toggleClickCleanup?.();
-
-    const onPointerDown = () => {
-      this.openOnPointerDown = !!dropdown.open;
-    };
-    const onClick = () => {
-      const wasOpen = this.openOnPointerDown;
-      // Depois do handler do Nord: se o estado não mudou, forçamos.
-      // (O popout pode ter ligado o clique antes do Angular projetar o toggle.)
-      requestAnimationFrame(() => {
-        if (wasOpen) {
-          if (dropdown.open) void dropdown.hide?.(false);
-        } else if (!dropdown.open) {
-          void dropdown.show?.();
-        }
-      });
-    };
-
-    toggle.addEventListener('pointerdown', onPointerDown, true);
-    toggle.addEventListener('click', onClick);
-    this.toggleClickCleanup = () => {
-      toggle.removeEventListener('pointerdown', onPointerDown, true);
-      toggle.removeEventListener('click', onClick);
-    };
-  }
-
-  private syncMenuPermissoes(): void {
+  private syncUsuarioInfo(): void {
     const u = this.auth.getUser();
     this.ehAdminPlataforma = u?.role === 'platform_admin';
     if (u) {
       const nome = (u.name || 'Usuário').trim() || 'Usuário';
       this.nomeUsuario = nome;
+      this.emailUsuario = (u.email || '').trim();
       this.iniciaisUsuario = this.initialsFromName(nome);
     }
     this.syncTrialBadge();
@@ -165,11 +218,10 @@ export class ShellAccountMenuComponent implements OnInit, AfterViewInit, OnDestr
     this.exibirTrocarEmpresa = this.auth.canSwitchClinic();
     this.nomeEmpresa = this.auth.getCurrentOrganization()?.name?.trim() ?? '';
     this.cdr.markForCheck();
-    // Reprojetar header (empresa) pode orphanar o listener do Nord no toggle.
-    this.scheduleToggleBind();
+    // Conteúdo do header pode re-projetar o toggle → reancorar.
+    queueMicrotask(() => this.rebindNordPopout());
   }
 
-  /** Mesma regra do pesquisa_app (Admin Acme → AA). */
   private initialsFromName(name: string): string {
     const parts = name.split(/\s+/).filter(Boolean);
     if (parts.length === 0) return 'U';

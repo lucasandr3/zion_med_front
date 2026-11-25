@@ -14,6 +14,7 @@ import {
   type SupportTicket,
 } from '../core/services/support.service';
 import { MobileShellService } from './mobile-shell.service';
+import { GestgoComboboxComponent, type GestgoComboboxOption } from '@/shared/components/combobox';
 
 type View = 'list' | 'detail' | 'novo';
 
@@ -21,7 +22,7 @@ type View = 'list' | 'detail' | 'novo';
   selector: 'app-mobile-atendimento',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [FormsModule, RouterLink],
+  imports: [FormsModule, RouterLink, GestgoComboboxComponent],
   templateUrl: './mobile-atendimento.component.html',
   styleUrls: ['./mobile-shared.css', './mobile-atendimento.component.css'],
 })
@@ -51,6 +52,15 @@ export class MobileAtendimentoComponent implements OnInit, OnDestroy {
     { value: 'privacidade_seguranca', label: 'Privacidade e segurança' },
     { value: 'solicitacao_administrativa', label: 'Solicitação administrativa' },
   ] as const;
+
+  readonly categoriaOptions: GestgoComboboxOption[] = this.categorias.map((c) => ({
+    value: c.value,
+    label: c.label,
+  }));
+
+  onCategoryChange(value: string | null): void {
+    if (value) this.category.set(value);
+  }
 
   ngOnInit(): void {
     this.carregar();

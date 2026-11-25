@@ -38,8 +38,15 @@
     }
   </div>
 
+  @if (podeBaixarPdf(d)) {
+    <button type="button" class="gm-btn" [disabled]="baixandoPdf()" (click)="baixarPdf(d)">
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">download</span>
+      {{ baixandoPdf() ? 'Preparando PDF…' : 'Baixar documento preenchido' }}
+    </button>
+  }
+
   @if (d.status === 'pending') {
-    <button type="button" class="gm-btn" (click)="reenviar(d)">
+    <button type="button" class="gm-btn gm-btn--secondary" (click)="reenviar(d)">
       <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">send</span>
       Compartilhar novamente
     </button>

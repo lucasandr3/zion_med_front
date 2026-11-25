@@ -12,10 +12,10 @@
 }
 
 .login-page {
-  /* Painel de marca: action AA (#087A55) — texto branco legível (VIS-14) */
-  --login-green: var(--c-action, #087a55);
-  --login-green-brand: var(--c-primary, #14b87a);
-  --login-green-deep: color-mix(in srgb, var(--c-action, var(--c-primary, #087a55)) 72%, #000);
+  /* Painel de marca: action AA (#006B61) — texto branco legível (VIS-14) */
+  --login-green: var(--c-action, #006B61);
+  --login-green-brand: var(--c-primary, #00877A);
+  --login-green-deep: color-mix(in srgb, var(--c-action, var(--c-primary, #006B61)) 72%, #000);
   --login-mint: color-mix(in srgb, #fff 72%, var(--login-green-brand));
   --login-ink: #17201f;
   --login-muted: #56635f;
@@ -310,7 +310,7 @@
 }
 
 .login-submit {
-  /* VIS-14.4 — botão com contraste AA (#087A55), não o verde de marca #14B87A */
+  /* VIS-14.4 — botão com contraste AA (#006B61), não o verde de marca #00877A */
   --n-color-accent: var(--login-green);
   --n-color-accent-hover: var(--login-green-deep);
   --n-color-accent-text: #ffffff;
