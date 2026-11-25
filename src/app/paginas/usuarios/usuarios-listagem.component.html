@@ -112,7 +112,7 @@
               [routerLink]="['/usuarios', u.id, 'editar']"
               [state]="{ usuario: u }"
               aria-label="Editar {{ u.name }}"
-              title="Editar"
+              aria-describedby="tip-usuarios-edit"
             >
               <span class="material-symbols-outlined text-base" aria-hidden="true">edit</span>
             </nord-button>
@@ -121,8 +121,9 @@
                 square
                 variant="plain"
                 size="s"
+                class="n-page-list__icon-btn--danger"
                 aria-label="Desativar {{ u.name }}"
-                title="Desativar"
+                aria-describedby="tip-usuarios-off"
                 [attr.disabled]="desativandoId() === u.id || null"
                 [attr.loading]="desativandoId() === u.id || null"
                 (click)="desativar(u)"
@@ -140,6 +141,9 @@
     </div>
   }
 </div>
+
+<nord-tooltip id="tip-usuarios-edit" [delay]="0">Editar</nord-tooltip>
+<nord-tooltip id="tip-usuarios-off" [delay]="0">Desativar</nord-tooltip>
 
 <ng-template #usuariosFiltrosTpl>
   <div class="usuarios-filtros-sheet zm-filter-sheet">

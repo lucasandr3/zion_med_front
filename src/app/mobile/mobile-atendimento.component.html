@@ -1,0 +1,134 @@
+@if (view() === 'list') {
+  <div class="gm-backrow">
+    <a class="gm-icon-btn" routerLink="/m/configuracoes" aria-label="Voltar">
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">arrow_back</span>
+    </a>
+    <div>
+      <h1>Atendimento</h1>
+      <small>Chamados com o Gestgo</small>
+    </div>
+  </div>
+
+  <button type="button" class="gm-btn" style="margin-bottom:14px" (click)="abrirNovo()">
+    <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">add_comment</span>
+    Abrir chamado
+  </button>
+
+  @if (loading()) {
+    <div class="gm-preload gm-preload--inline" aria-busy="true">
+      <div class="gm-preload__bar"><span></span></div>
+      <p class="gm-preload__hint">Carregando atendimentos…</p>
+    </div>
+  } @else if (error()) {
+    <div class="gm-error">
+      <p>{{ error() }}</p>
+      <button type="button" class="gm-btn gm-btn--secondary" (click)="carregar()">Tentar de novo</button>
+    </div>
+  } @else if (items().length === 0) {
+    <div class="gm-empty-state">
+      <span class="gm-empty-state__icon" aria-hidden="true">
+        <span class="material-symbols-outlined gestgo-mi gestgo-mi--l">support_agent</span>
+      </span>
+      <h2>Nenhum chamado</h2>
+      <p>Quando precisar de ajuda do Gestgo, abra um atendimento por aqui.</p>
+    </div>
+  } @else {
+    @for (t of items(); track t.id) {
+      <button type="button" class="gm-card" (click)="abrir(t.id)">
+        <span class="gm-tile__icon gm-tile__icon--chip" aria-hidden="true">
+          <span class="material-symbols-outlined gestgo-mi gestgo-mi--m">forum</span>
+        </span>
+        <span class="gm-card__body">
+          <span class="gm-card__title">{{ t.subject }}</span>
+          <span class="gm-card__sub">{{ t.protocol }} · {{ formatDate(t.last_message_at || t.updated_at || t.created_at) }}</span>
+        </span>
+        <span class="gm-status" [class.ok]="statusTone(t.status) === 'ok'" [class.warn]="statusTone(t.status) === 'warn'">
+          {{ statusLabel(t.status) }}
+        </span>
+      </button>
+    }
+  }
+} @else if (view() === 'novo') {
+  <div class="gm-backrow">
+    <button type="button" class="gm-icon-btn" (click)="voltarLista()" aria-label="Voltar">
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">arrow_back</span>
+    </button>
+    <div>
+      <h1>Novo chamado</h1>
+      <small>Fale com o time Gestgo</small>
+    </div>
+  </div>
+
+  @if (error()) {
+    <div class="gm-notice gm-notice--warn">{{ error() }}</div>
+  }
+
+  <div class="gm-field">
+    <label for="gm-sup-subject">Assunto</label>
+    <input id="gm-sup-subject" type="text" [ngModel]="subject()" (ngModelChange)="subject.set($event)" placeholder="Resumo do que precisa" />
+  </div>
+
+  <div class="gm-field">
+    <label for="gm-sup-cat">Categoria</label>
+    <select id="gm-sup-cat" [ngModel]="category()" (ngModelChange)="category.set($event)">
+      @for (c of categorias; track c.value) {
+        <option [value]="c.value">{{ c.label }}</option>
+      }
+    </select>
+  </div>
+
+  <div class="gm-field">
+    <label for="gm-sup-msg">Mensagem</label>
+    <textarea
+      id="gm-sup-msg"
+      rows="5"
+      [ngModel]="message()"
+      (ngModelChange)="message.set($event)"
+      placeholder="Descreva o problema ou a dúvida…"
+    ></textarea>
+  </div>
+
+  <button type="button" class="gm-btn" (click)="criar()" [disabled]="acting()">
+    {{ acting() ? 'Abrindo…' : 'Enviar chamado' }}
+  </button>
+} @else if (selected(); as t) {
+  <div class="gm-backrow">
+    <button type="button" class="gm-icon-btn" (click)="voltarLista()" aria-label="Voltar">
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">arrow_back</span>
+    </button>
+    <div>
+      <h1>{{ t.subject }}</h1>
+      <small>{{ t.protocol }} · {{ statusLabel(t.status) }}</small>
+    </div>
+  </div>
+
+  @if (error()) {
+    <div class="gm-notice gm-notice--warn">{{ error() }}</div>
+  }
+
+  <div class="gm-chat">
+    @for (m of mensagensPublicas(t); track m.id) {
+      <div class="gm-bubble" [class.is-mine]="isMine(m)">
+        <div class="gm-bubble__meta">{{ m.author_name || (isMine(m) ? 'Você' : 'Gestgo') }} · {{ formatDate(m.created_at) }}</div>
+        <div class="gm-bubble__body">{{ m.body }}</div>
+      </div>
+    } @empty {
+      <p class="gm-empty">Sem mensagens ainda.</p>
+    }
+  </div>
+
+  @if (t.status !== 'closed' && t.status !== 'resolved') {
+    <div class="gm-chat-compose">
+      <textarea
+        rows="3"
+        [ngModel]="draft()"
+        (ngModelChange)="draft.set($event)"
+        placeholder="Escreva sua resposta…"
+        aria-label="Responder chamado"
+      ></textarea>
+      <button type="button" class="gm-btn" (click)="responder()" [disabled]="acting() || !draft().trim()">
+        {{ acting() ? 'Enviando…' : 'Enviar' }}
+      </button>
+    </div>
+  }
+}

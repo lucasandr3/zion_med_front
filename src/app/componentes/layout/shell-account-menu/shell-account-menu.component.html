@@ -4,23 +4,26 @@
 
 <nord-avatar slot="header" size="s" [name]="nomeUsuario">{{ iniciaisUsuario }}</nord-avatar>
 <div slot="header" class="account-menu__header-text">
-  <p class="account-menu__signed-in">
-    Conectado como <span class="account-menu__name">{{ nomeUsuario }}</span>
-  </p>
+  <p class="account-menu__name-line">{{ nomeUsuario }}</p>
   @if (shellContext === 'app' && nomeEmpresa) {
-    <p class="account-menu__empresa">Empresa: <span class="account-menu__name">{{ nomeEmpresa }}</span></p>
+    <p class="account-menu__empresa">{{ nomeEmpresa }}</p>
+  } @else {
+    <p class="account-menu__empresa">Conta</p>
   }
 </div>
 
-<nord-dropdown-group>
+<nord-dropdown-group heading="Conta">
   <nord-dropdown-item href="/conta/perfil" (click)="go($event, '/conta/perfil')">
     <span slot="start" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">person</span>
     Conta e privacidade
   </nord-dropdown-item>
-  @if (shellContext === 'app') {
-    <nord-dropdown-item href="/m" (click)="go($event, '/m')">
-      <span slot="start" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">smartphone</span>
-      Abrir Gestgo Mobile
+  @if (shellContext === 'app' && podeVerBillingNoHeader) {
+    <nord-dropdown-item href="/assinatura" (click)="go($event, '/assinatura')">
+      <span slot="start" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">credit_card</span>
+      Meu plano e cobrança
+      @if (trialBadgeLabel; as trialLabel) {
+        <span slot="end" class="account-menu__trial-badge">{{ trialLabel }}</span>
+      }
     </nord-dropdown-item>
   }
   @if (shellContext === 'app' && exibirTrocarEmpresa) {
@@ -29,33 +32,28 @@
       Trocar empresa
     </nord-dropdown-item>
   }
-  @if (shellContext === 'app' && podeVerBillingNoHeader) {
-    <nord-dropdown-item href="/assinatura" (click)="go($event, '/assinatura')">
-      <span slot="start" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">credit_card</span>
-      Meu plano e cobrança
-    </nord-dropdown-item>
-  }
   @if (ehAdminPlataforma) {
     <nord-dropdown-item href="/plataforma" (click)="go($event, '/plataforma')">
       <span slot="start" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">shield</span>
       Admin da plataforma
     </nord-dropdown-item>
   }
+</nord-dropdown-group>
+
+<nord-dropdown-group heading="Preferências">
   <nord-dropdown-item (click)="abrirTema()">
     <span slot="start" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">palette</span>
     Tema e aparência
   </nord-dropdown-item>
-  <nord-dropdown-item (click)="abrirFeedback()">
-    <span slot="start" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">feedback</span>
-    Enviar feedback
-  </nord-dropdown-item>
-  <nord-dropdown-item (click)="verificarAtualizacao()" [attr.disabled]="verificandoAtualizacao || null">
-    <span slot="start" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">system_update</span>
-    {{ verificandoAtualizacao ? 'Verificando…' : 'Verificar atualização' }}
-  </nord-dropdown-item>
+  @if (shellContext === 'app') {
+    <nord-dropdown-item href="/m" (click)="go($event, '/m')">
+      <span slot="start" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">smartphone</span>
+      Abrir Gestgo Mobile
+    </nord-dropdown-item>
+  }
 </nord-dropdown-group>
 
-<nord-dropdown-item (click)="sair()">
+<nord-dropdown-item class="account-menu__logout" (click)="sair()">
   <span slot="start" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">logout</span>
   Sair
 </nord-dropdown-item>

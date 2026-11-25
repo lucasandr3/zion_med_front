@@ -11,7 +11,6 @@ import { catchError } from 'rxjs/operators';
 import { AuthService } from '../core/services/auth.service';
 import { DashboardService } from '../core/services/dashboard.service';
 import { ProtocolosService, type Protocolo } from '../core/services/protocolos.service';
-import { preparePainelHop } from '../core/utils/gestgo-experience.util';
 import { MobileShellService } from './mobile-shell.service';
 
 @Component({
@@ -37,7 +36,9 @@ export class MobileHomeComponent implements OnInit {
   readonly pendingItems = signal<Protocolo[]>([]);
 
   get nome(): string {
-    return this.auth.getUser()?.name?.split(/\s+/)[0] || 'olá';
+    const first = this.auth.getUser()?.name?.split(/\s+/)[0]?.trim();
+    if (!first) return 'olá';
+    return first.charAt(0).toUpperCase() + first.slice(1);
   }
 
   ngOnInit(): void {
@@ -112,7 +113,6 @@ export class MobileHomeComponent implements OnInit {
   }
 
   abrirDocumento(id: number): void {
-    const hop = preparePainelHop(`/protocolos/${id}`, '/m');
-    void this.router.navigate([hop.path], { queryParams: hop.queryParams });
+    void this.router.navigate(['/m/documentos', id]);
   }
 }

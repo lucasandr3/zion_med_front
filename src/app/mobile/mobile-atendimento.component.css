@@ -1,0 +1,64 @@
+.gm-chat {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 14px;
+  min-height: 180px;
+}
+
+.gm-bubble {
+  max-width: 88%;
+  align-self: flex-start;
+  background: var(--gm-paper);
+  border: 1px solid var(--gm-line);
+  border-radius: 16px 16px 16px 6px;
+  padding: 11px 13px;
+  box-shadow: var(--gm-shadow-soft);
+}
+
+.gm-bubble.is-mine {
+  align-self: flex-end;
+  background: var(--gm-pale);
+  border-color: color-mix(in srgb, var(--gm-accent) 22%, var(--gm-line));
+  border-radius: 16px 16px 6px 16px;
+}
+
+.gm-bubble__meta {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--gm-muted);
+  margin-bottom: 5px;
+}
+
+.gm-bubble__body {
+  font-size: 13px;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.gm-chat-compose {
+  position: sticky;
+  bottom: 0;
+  padding-top: 8px;
+  background: var(--gm-bg);
+}
+
+.gm-chat-compose textarea {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid var(--gm-line);
+  background: var(--gm-paper);
+  color: var(--gm-ink);
+  border-radius: 14px;
+  padding: 12px 13px;
+  font: inherit;
+  font-size: 14px;
+  resize: vertical;
+  margin-bottom: 10px;
+  outline: none;
+}
+
+.gm-chat-compose textarea:focus {
+  border-color: color-mix(in srgb, var(--gm-accent) 45%, var(--gm-line));
+}

@@ -13,15 +13,15 @@
   </div>
 </div>
 
-<p class="gm-hello">SEU GESTGO EM UM SÓ LUGAR</p>
-<h1 class="gm-title">Olá! 👋<br />Vamos facilitar seu dia?</h1>
-<p class="gm-sub">Consulte pacientes, envie fichas e acompanhe assinaturas sem complicação.</p>
+<p class="gm-hello">Olá, {{ nome }}</p>
+<h1 class="gm-title">Seu Gestgo<br />na palma da mão</h1>
+<p class="gm-sub">Pacientes, fichas e assinaturas — rápido, claro e sem o painel pesado.</p>
 
 <div class="gm-cta">
   <div class="gm-kicker">ACESSO RÁPIDO</div>
   <h2>Envie uma ficha em segundos</h2>
   <p>Escolha o modelo e compartilhe com a paciente.</p>
-  <a class="gm-cta__btn" routerLink="/m/fichas">
+  <a class="gm-cta__btn" routerLink="/m/enviar">
     <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">send</span>
     Enviar ficha agora
   </a>
@@ -54,42 +54,35 @@
     </div>
   </div>
 
-  <div class="gm-section"><h2>Acesso rápido ao Gestgo</h2></div>
+  <div class="gm-section"><h2>Acesso rápido</h2></div>
   <div class="gm-tiles">
     <a class="gm-tile" routerLink="/m/pacientes">
-      <span class="gm-tile__icon" aria-hidden="true">
+      <span class="gm-tile__icon gm-tile__icon--chip" aria-hidden="true">
         <span class="material-symbols-outlined gestgo-mi gestgo-mi--m">group</span>
       </span>
       <strong>Pacientes</strong>
       <small>Consultar cadastros</small>
     </a>
     <a class="gm-tile" routerLink="/m/fichas">
-      <span class="gm-tile__icon" aria-hidden="true">
+      <span class="gm-tile__icon gm-tile__icon--chip" aria-hidden="true">
         <span class="material-symbols-outlined gestgo-mi gestgo-mi--m">description</span>
       </span>
       <strong>Modelos de fichas</strong>
       <small>Escolher e enviar</small>
     </a>
     <a class="gm-tile" routerLink="/m/documentos" [queryParams]="{ status: 'pending' }">
-      <span class="gm-tile__icon" aria-hidden="true">
+      <span class="gm-tile__icon gm-tile__icon--chip" aria-hidden="true">
         <span class="material-symbols-outlined gestgo-mi gestgo-mi--m">schedule</span>
       </span>
       <strong>Pendências</strong>
       <small>Acompanhar documentos</small>
     </a>
     <a class="gm-tile" routerLink="/m/documentos" [queryParams]="{ status: 'approved' }">
-      <span class="gm-tile__icon" aria-hidden="true">
+      <span class="gm-tile__icon gm-tile__icon--chip" aria-hidden="true">
         <span class="material-symbols-outlined gestgo-mi gestgo-mi--m">verified_user</span>
       </span>
       <strong>Assinaturas</strong>
-      <small>Ver documentos concluídos</small>
-    </a>
-    <a class="gm-tile" routerLink="/m/configuracoes">
-      <span class="gm-tile__icon" aria-hidden="true">
-        <span class="material-symbols-outlined gestgo-mi gestgo-mi--m">settings</span>
-      </span>
-      <strong>Configurações</strong>
-      <small>Tema, push e sair</small>
+      <small>Documentos concluídos</small>
     </a>
   </div>
 
@@ -99,7 +92,13 @@
   </div>
 
   @if (pendingItems().length === 0) {
-    <p class="gm-empty">Nenhuma ficha pendente.</p>
+    <div class="gm-empty-state">
+      <span class="gm-empty-state__icon" aria-hidden="true">
+        <span class="material-symbols-outlined gestgo-mi gestgo-mi--l">verified</span>
+      </span>
+      <h2>Tudo em dia!</h2>
+      <p>Nenhuma ficha aguardando assinatura.</p>
+    </div>
   } @else {
     @for (p of pendingItems(); track p.id; let i = $index) {
       <button type="button" class="gm-card" (click)="abrirDocumento(p.id)">

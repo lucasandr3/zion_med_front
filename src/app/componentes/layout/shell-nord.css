@@ -406,18 +406,12 @@ body.shell-preset-tinted .gestgo-shell__top-bar > nord-dropdown.account-menu .ac
   --n-avatar-box-shadow: none;
 }
 
-.gestgo-shell__top-bar .account-menu__signed-in,
-nord-dropdown.account-menu .account-menu__signed-in {
-  color: var(--n-color-text-weak);
-  font-size: var(--n-font-size-s);
-  font-weight: var(--n-font-weight);
-  margin: 0;
-}
-
-.gestgo-shell__top-bar .account-menu__name,
-nord-dropdown.account-menu .account-menu__name {
+.gestgo-shell__top-bar .account-menu__name-line,
+nord-dropdown.account-menu .account-menu__name-line {
   color: var(--n-color-text);
+  font-size: var(--n-font-size-m, 0.875rem);
   font-weight: var(--n-font-weight-active);
+  margin: 0;
 }
 
 .gestgo-shell__top-bar .account-menu__header-text,

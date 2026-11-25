@@ -76,12 +76,30 @@
           </div>
           <div class="n-page-list__actions">
             @if (item.status === 'open') {
-              <nord-button type="button" variant="primary" size="s" [attr.disabled]="acting() || null" (click)="concluir(item)">
-                Concluir
+              <nord-button
+                type="button"
+                square
+                variant="plain"
+                size="s"
+                aria-label="Concluir"
+                aria-describedby="tip-task-done"
+                [attr.disabled]="acting() || null"
+                (click)="concluir(item)"
+              >
+                <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">check_circle</span>
               </nord-button>
             } @else {
-              <nord-button type="button" variant="plain" size="s" [attr.disabled]="acting() || null" (click)="reabrir(item)">
-                Reabrir
+              <nord-button
+                type="button"
+                square
+                variant="plain"
+                size="s"
+                aria-label="Reabrir"
+                aria-describedby="tip-task-reopen"
+                [attr.disabled]="acting() || null"
+                (click)="reabrir(item)"
+              >
+                <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">replay</span>
               </nord-button>
             }
           </div>
@@ -90,6 +108,9 @@
     </div>
   }
 </div>
+
+<nord-tooltip id="tip-task-done" [delay]="0">Concluir</nord-tooltip>
+<nord-tooltip id="tip-task-reopen" [delay]="0">Reabrir</nord-tooltip>
 
 <ng-template #filtrosTpl>
   <div class="zm-filter-sheet">

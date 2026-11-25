@@ -13,8 +13,8 @@
   </div>
 </div>
 
-<h1 class="gm-title">Fichas e documentos</h1>
-<p class="gm-sub">Modelos preparados para enviar pelo celular.</p>
+<h1 class="gm-title">Fichas</h1>
+<p class="gm-sub">Escolha um modelo e envie em poucos toques.</p>
 
 <label class="gm-search">
   <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">search</span>
@@ -35,9 +35,16 @@
 } @else if (error()) {
   <p class="gm-error">{{ error() }}</p>
 } @else if (filtered().length === 0) {
-  <p class="gm-empty">Você ainda não tem modelos disponíveis. Crie-os no painel completo.</p>
+  <div class="gm-empty-state">
+    <span class="gm-empty-state__icon" aria-hidden="true">
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--l">description</span>
+    </span>
+    <h2>Sem modelos ainda</h2>
+    <p>Crie ou ative modelos no painel completo.</p>
+  </div>
   <button type="button" class="gm-btn gm-btn--secondary" (click)="abrirPainelModelos()">Abrir modelos no painel</button>
 } @else {
+  <p class="gm-list-meta">{{ filtered().length }} modelo{{ filtered().length === 1 ? '' : 's' }}</p>
   @for (t of filtered(); track t.id) {
     <div class="gm-toolcard" style="cursor:default">
       <span class="gm-tile__icon" aria-hidden="true">
@@ -50,5 +57,4 @@
       <button type="button" class="gm-small-btn" (click)="enviar(t.id)">Enviar</button>
     </div>
   }
-  <div class="gm-notice">Os envios usam o fluxo real do Gestgo. Confira os dados antes de compartilhar com a paciente.</div>
 }

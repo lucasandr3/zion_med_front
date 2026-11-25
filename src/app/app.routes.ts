@@ -79,15 +79,32 @@ export const routes: Routes = [
         data: { titulo: 'Fichas' },
       },
       {
+        path: 'enviar',
+        loadComponent: () => import('./mobile/mobile-send.component').then((m) => m.MobileSendComponent),
+        data: { titulo: 'Enviar ficha' },
+      },
+      {
         path: 'documentos',
         loadComponent: () => import('./mobile/mobile-documentos.component').then((m) => m.MobileDocumentosComponent),
         data: { titulo: 'Documentos' },
+      },
+      {
+        path: 'documentos/:id',
+        loadComponent: () =>
+          import('./mobile/mobile-documento-detalhe.component').then((m) => m.MobileDocumentoDetalheComponent),
+        data: { titulo: 'Documento' },
       },
       {
         path: 'configuracoes',
         loadComponent: () =>
           import('./mobile/mobile-configuracoes.component').then((m) => m.MobileConfiguracoesComponent),
         data: { titulo: 'Configurações' },
+      },
+      {
+        path: 'atendimento',
+        loadComponent: () =>
+          import('./mobile/mobile-atendimento.component').then((m) => m.MobileAtendimentoComponent),
+        data: { titulo: 'Atendimento' },
       },
       {
         path: 'ferramentas',
@@ -260,6 +277,20 @@ export const routes: Routes = [
         },
       },
       {
+        path: 'automacoes/nova',
+        canActivate: [permissionGuard],
+        loadComponent: () =>
+          import('./paginas/automacoes/automacoes-formulario.component').then((m) => m.AutomacoesFormularioComponent),
+        data: {
+          titulo: 'Nova automação',
+          subtitulo: 'Defina gatilho, condições e ações da clínica.',
+          permission: 'organization.manage',
+          urlVoltar: '/automacoes',
+          labelVoltar: 'Automações',
+          voltarIntegrado: true,
+        },
+      },
+      {
         path: 'automacoes/tarefas',
         canActivate: [permissionGuard],
         loadComponent: () =>
@@ -269,6 +300,20 @@ export const routes: Routes = [
         data: {
           titulo: 'Tarefas operacionais',
           subtitulo: 'Fila gerada por automações ou criada pela equipe.',
+          permission: 'organization.manage',
+          urlVoltar: '/automacoes',
+          labelVoltar: 'Automações',
+          voltarIntegrado: true,
+        },
+      },
+      {
+        path: 'automacoes/:id/editar',
+        canActivate: [permissionGuard],
+        loadComponent: () =>
+          import('./paginas/automacoes/automacoes-formulario.component').then((m) => m.AutomacoesFormularioComponent),
+        data: {
+          titulo: 'Editar automação',
+          subtitulo: 'Ajuste gatilho, condições e ações da clínica.',
           permission: 'organization.manage',
           urlVoltar: '/automacoes',
           labelVoltar: 'Automações',

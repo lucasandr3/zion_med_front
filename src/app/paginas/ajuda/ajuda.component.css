@@ -1,45 +1,250 @@
-.ajuda-link {
-  font-size: 0.9rem;
-  color: var(--n-color-accent, #168765);
+.ajuda-error {
+  margin: 0 0 0.75rem;
+  color: var(--n-color-status-danger, #c62828);
 }
 
-.ajuda-list {
-  display: grid;
+.ajuda-home {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-height: 100%;
+}
+
+.ajuda-chips {
+  display: flex;
+  flex-wrap: wrap;
   gap: 0.5rem;
-  max-width: 44rem;
 }
 
-.ajuda-card {
-  text-align: left;
-  border: 1px solid var(--n-color-border, #e5e7eb);
+.ajuda-chip {
+  margin: 0;
+  padding: 0.35rem 0.8rem;
+  border: 1px solid var(--n-color-border, #e6ebe8);
+  border-radius: 999px;
   background: var(--n-color-surface, #fff);
-  border-radius: 0.5rem;
-  padding: 0.75rem 0.9rem;
+  color: var(--n-color-text-weaker, #4b5a54);
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 650;
   cursor: pointer;
 }
 
-.ajuda-card:hover {
-  border-color: color-mix(in srgb, var(--n-color-accent, #168765) 45%, #ccc);
+.ajuda-chip:hover {
+  background: color-mix(in srgb, var(--n-color-accent, #0b7a5c) 10%, #fff);
+  border-color: color-mix(in srgb, var(--n-color-accent, #0b7a5c) 35%, #ccc);
+  color: var(--n-color-accent, #075f47);
 }
 
-.ajuda-card__title {
-  font-weight: 600;
+.ajuda-chip--on,
+.ajuda-chip--on:hover {
+  background: color-mix(in srgb, var(--n-color-accent, #0b7a5c) 14%, #fff);
+  border-color: color-mix(in srgb, var(--n-color-accent, #0b7a5c) 40%, #ccc);
+  color: var(--n-color-accent, #075f47);
 }
 
-.ajuda-card__meta {
-  margin-top: 0.2rem;
-  font-size: 0.8rem;
-  color: var(--n-color-text-weaker, #666);
-}
-
-.ajuda-article {
-  max-width: 44rem;
-  display: grid;
-  gap: 0.5rem;
-}
-
-.ajuda-article h3 {
+.ajuda-sec-h h3 {
   margin: 0;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--n-color-text-weaker, #8a9892);
+}
+
+.ajuda-arts {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 18.5rem), 1fr));
+  gap: 0.75rem;
+}
+
+.ajuda-art {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  width: 100%;
+  margin: 0;
+  padding: 0.85rem 1rem;
+  text-align: left;
+  border: 1px solid var(--n-color-border, #e6ebe8);
+  border-radius: 0.5rem;
+  background: var(--n-color-surface, #fff);
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.ajuda-art:hover {
+  border-color: color-mix(in srgb, var(--n-color-accent, #0b7a5c) 45%, #ccc);
+  background: color-mix(in srgb, var(--n-color-accent, #0b7a5c) 4%, #fff);
+}
+
+.ajuda-art:focus-visible {
+  outline: 2px solid var(--c-focus-ring, var(--n-color-accent, #0b7a5c));
+  outline-offset: 2px;
+}
+
+.ajuda-art__ico {
+  flex: none;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.55rem;
+  display: grid;
+  place-items: center;
+  background: color-mix(in srgb, var(--n-color-accent, #0b7a5c) 12%, transparent);
+  color: var(--n-color-accent, #0b7a5c);
+}
+
+.ajuda-art__ico .material-symbols-outlined {
+  font-size: 1.15rem;
+}
+
+.ajuda-art__text {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.ajuda-art__text strong {
+  font-size: 0.9375rem;
+  font-weight: 650;
+  color: var(--n-color-text, #14211c);
+}
+
+.ajuda-art__text small {
+  font-size: 0.75rem;
+  font-weight: 650;
+  color: var(--n-color-text-weaker, #8a9892);
+}
+
+.ajuda-art__text em {
+  font-style: normal;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  color: var(--n-color-text-weaker, #4b5a54);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.ajuda-art__go {
+  flex: none;
+  align-self: center;
+  color: var(--n-color-text-weaker, #8a9892);
+  font-size: 1.25rem;
+}
+
+.ajuda-empty {
+  display: grid;
+  place-items: center;
+  gap: 0.5rem;
+  padding: 2rem 1rem;
+  text-align: center;
+  color: var(--n-color-text-weaker, #4b5a54);
+  background: var(--n-color-surface, #fff);
+  border: 1px dashed var(--n-color-border, #e6ebe8);
+  border-radius: 0.5rem;
+}
+
+.ajuda-empty .material-symbols-outlined {
+  font-size: 1.75rem;
+  color: var(--n-color-accent, #0b7a5c);
+}
+
+.ajuda-empty p {
+  margin: 0;
+  max-width: 28rem;
+  font-size: 0.875rem;
+}
+
+.ajuda-empty a {
+  color: var(--n-color-accent, #0b7a5c);
+  font-weight: 650;
+}
+
+.ajuda-help {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 0.85rem 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid color-mix(in srgb, var(--n-color-accent, #0b7a5c) 28%, #ccc);
+  background: color-mix(in srgb, var(--n-color-accent, #0b7a5c) 10%, #fff);
+}
+
+.ajuda-help__copy {
+  flex: 1;
+  min-width: 14rem;
+}
+
+.ajuda-help__copy strong {
+  display: block;
+  font-size: 0.9375rem;
+  color: var(--n-color-text, #14211c);
+}
+
+.ajuda-help__copy p {
+  margin: 0.15rem 0 0;
+  font-size: 0.8125rem;
+  color: var(--n-color-text-weaker, #4b5a54);
+}
+
+/* —— Artigo —— */
+.ajuda-article-view {
+  min-height: 100%;
+}
+
+.ajuda-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(16rem, 18rem);
+  gap: 0.75rem;
+  align-items: start;
+}
+
+.ajuda-doc {
+  background: var(--n-color-surface, #fff);
+  border: 1px solid var(--n-color-border, #e6ebe8);
+  border-radius: 0.5rem;
+  padding: 1rem;
+}
+
+.ajuda-tag {
+  display: inline-block;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--n-color-accent, #0b7a5c) 12%, #fff);
+  color: var(--n-color-accent, #075f47);
+}
+
+.ajuda-doc__title {
+  margin: 0.55rem 0 0.25rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--n-color-text, #14211c);
+}
+
+.ajuda-doc__lead {
+  margin: 0.35rem 0 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--n-color-text-weaker, #4b5a54);
+}
+
+.ajuda-doc__rule {
+  border: 0;
+  border-top: 1px solid var(--n-color-border, #e6ebe8);
+  margin: 0.85rem 0;
 }
 
 .ajuda-content {
@@ -47,7 +252,174 @@
   font: inherit;
   line-height: 1.55;
   margin: 0;
-  background: var(--n-color-surface-raised, #f7f7f7);
-  padding: 1rem;
+  padding: 0.85rem 1rem;
   border-radius: 0.5rem;
+  background: color-mix(in srgb, var(--n-color-background, #f6f8f7) 88%, #fff);
+  color: var(--n-color-text, #14211c);
+}
+
+.ajuda-pts {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.ajuda-pt {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.75rem 0.85rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--n-color-border, #e6ebe8);
+  background: color-mix(in srgb, var(--n-color-background, #f6f8f7) 90%, #fff);
+}
+
+.ajuda-pt--warn {
+  background: #fff8e8;
+  border-color: #f3e0ae;
+}
+
+.ajuda-pt__icon {
+  flex: none;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.45rem;
+  display: grid;
+  place-items: center;
+  background: var(--n-color-surface, #fff);
+  border: 1px solid var(--n-color-border, #e6ebe8);
+  color: var(--n-color-accent, #0b7a5c);
+}
+
+.ajuda-pt--warn .ajuda-pt__icon {
+  color: #a16207;
+  border-color: #f3e0ae;
+}
+
+.ajuda-pt__body {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.ajuda-pt__body strong {
+  font-size: 0.875rem;
+  color: var(--n-color-text, #14211c);
+}
+
+.ajuda-pt__body span {
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--n-color-text-weaker, #4b5a54);
+  white-space: pre-wrap;
+}
+
+.ajuda-fb {
+  margin-top: 1rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--n-color-border, #e6ebe8);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.ajuda-fb strong {
+  margin-right: 0.15rem;
+  font-size: 0.875rem;
+}
+
+.ajuda-fb__msg {
+  font-size: 0.8125rem;
+  color: var(--n-color-text-weaker, #4b5a54);
+}
+
+.ajuda-fb__msg a {
+  color: var(--n-color-accent, #0b7a5c);
+  font-weight: 650;
+}
+
+.ajuda-aside {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  position: sticky;
+  top: 0;
+}
+
+.ajuda-box {
+  background: var(--n-color-surface, #fff);
+  border: 1px solid var(--n-color-border, #e6ebe8);
+  border-radius: 0.5rem;
+  padding: 0.85rem 1rem;
+}
+
+.ajuda-box__title {
+  margin: 0 0 0.55rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--n-color-text-weaker, #8a9892);
+}
+
+.ajuda-box--cta {
+  background: color-mix(in srgb, var(--n-color-accent, #0b7a5c) 10%, #fff);
+  border-color: color-mix(in srgb, var(--n-color-accent, #0b7a5c) 28%, #ccc);
+}
+
+.ajuda-box--cta p {
+  margin: 0 0 0.75rem;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: var(--n-color-text-weaker, #4b5a54);
+}
+
+.ajuda-rel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.ajuda-rel__item {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 0.5rem 0.4rem;
+  border: 0;
+  border-radius: 0.4rem;
+  background: transparent;
+  text-align: left;
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 650;
+  color: var(--n-color-text, #14211c);
+  cursor: pointer;
+}
+
+.ajuda-rel__item:hover {
+  background: color-mix(in srgb, var(--n-color-accent, #0b7a5c) 10%, #fff);
+  color: var(--n-color-accent, #075f47);
+}
+
+.ajuda-rel__name {
+  display: block;
+}
+
+.ajuda-rel__item small {
+  display: block;
+  margin-top: 0.1rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--n-color-text-weaker, #8a9892);
+}
+
+@media (max-width: 900px) {
+  .ajuda-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .ajuda-aside {
+    position: static;
+  }
 }

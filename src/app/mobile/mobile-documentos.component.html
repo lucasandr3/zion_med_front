@@ -8,12 +8,12 @@
   </div>
 </div>
 
-<p class="gm-sub">Visualize o andamento dos documentos enviados pelo Gestgo.</p>
+<p class="gm-sub">Acompanhe o status das fichas enviadas.</p>
 
-<div class="gm-pills">
-  <button type="button" class="gm-pill" [class.is-on]="filter() === 'pending'" (click)="setFilter('pending')">Pendentes</button>
-  <button type="button" class="gm-pill" [class.is-on]="filter() === 'approved'" (click)="setFilter('approved')">Assinadas</button>
-  <button type="button" class="gm-pill" [class.is-on]="filter() === ''" (click)="setFilter('')">Todas</button>
+<div class="gm-pills" role="tablist" aria-label="Filtrar documentos">
+  <button type="button" class="gm-pill" role="tab" [attr.aria-selected]="filter() === 'pending'" [class.is-on]="filter() === 'pending'" (click)="setFilter('pending')">Pendentes</button>
+  <button type="button" class="gm-pill" role="tab" [attr.aria-selected]="filter() === 'approved'" [class.is-on]="filter() === 'approved'" (click)="setFilter('approved')">Assinadas</button>
+  <button type="button" class="gm-pill" role="tab" [attr.aria-selected]="filter() === ''" [class.is-on]="filter() === ''" (click)="setFilter('')">Todas</button>
 </div>
 
 @if (loading()) {
@@ -27,7 +27,13 @@
     <button type="button" class="gm-btn gm-btn--secondary" (click)="carregar()">Tentar de novo</button>
   </div>
 } @else if (items().length === 0) {
-  <p class="gm-empty">Não há documentos nessa situação.</p>
+  <div class="gm-empty-state">
+    <span class="gm-empty-state__icon" aria-hidden="true">
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--l">inbox</span>
+    </span>
+    <h2>Nada por aqui</h2>
+    <p>Não há documentos nessa situação.</p>
+  </div>
 } @else {
   @for (p of items(); track p.id) {
     <button type="button" class="gm-card" (click)="abrirDocumento(p.id)">

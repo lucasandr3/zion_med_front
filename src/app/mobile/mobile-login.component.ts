@@ -58,12 +58,6 @@ export class MobileLoginComponent implements OnInit {
     this.mostrarSenha.update((v) => !v);
   }
 
-  entrarBiometria(): void {
-    this.error.set(
-      'Biometria estará disponível neste dispositivo após o primeiro acesso e ativação nas configurações.',
-    );
-  }
-
   enviar(): void {
     this.error.set(null);
     this.loading.set(true);

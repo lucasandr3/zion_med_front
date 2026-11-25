@@ -15,7 +15,7 @@
   --n-avatar-text-color: var(--n-color-text-on-accent, #fff);
   --n-avatar-box-shadow: 0 0 0 1px
     color-mix(in srgb, var(--shell-header-fg, var(--n-color-text)) 12%, transparent);
-  --n-dropdown-size: 16.5rem;
+  --n-dropdown-size: 18.5rem;
   --n-popout-background: var(--n-color-surface, #fff);
   --n-popout-box-shadow:
     0 0 0 1px var(--n-color-border, #d5ddd9),
@@ -51,16 +51,15 @@
   min-width: 0;
 }
 
-.account-menu__signed-in {
-  color: var(--n-color-text-weak);
-  font-size: var(--n-font-size-s);
-  font-weight: var(--n-font-weight);
-  margin: 0;
-}
-
-.account-menu__name {
+.account-menu__name-line {
   color: var(--n-color-text);
+  font-size: var(--n-font-size-m, 0.875rem);
   font-weight: var(--n-font-weight-active);
+  margin: 0;
+  max-width: 14rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .account-menu__empresa {
@@ -72,4 +71,20 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.account-menu__trial-badge {
+  background: color-mix(in srgb, var(--n-color-status-warning, #f5a623) 18%, #fff);
+  border: 1px solid color-mix(in srgb, var(--n-color-status-warning, #f5a623) 40%, transparent);
+  border-radius: 999px;
+  color: #8a6410;
+  font-size: 0.65rem;
+  font-weight: 700;
+  line-height: 1.2;
+  padding: 0.15rem 0.5rem;
+  white-space: nowrap;
+}
+
+.account-menu__logout {
+  --n-dropdown-item-color: var(--n-color-status-danger, #b3261e);
 }

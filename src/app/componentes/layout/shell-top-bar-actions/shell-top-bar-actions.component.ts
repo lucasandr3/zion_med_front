@@ -11,9 +11,12 @@ import {
   ViewContainerRef,
   inject,
 } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { AppUpdateService } from '../../../core/services/app-update.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { FeedbackDialogService } from '../../../core/services/feedback-dialog.service';
+import { ToastService } from '../../../core/services/toast.service';
 import { UserAppearanceService } from '../../../core/services/user-appearance.service';
 import {
   applyShellPresetToDom,
@@ -32,7 +35,7 @@ import { GestgoSheetService } from '@/shared/components/sheet/sheet.service';
 import { temasOrdemGrade, TEMAS, type ShellTema } from '../shell-theme.config';
 
 /**
- * Ícones do `nord-top-bar` (slot=end) — padrão pesquisa_app.
+ * Ações do `nord-top-bar` (slot=end): Assistente, Ajuda, Notificações.
  * O menu da conta fica em `nord-dropdown[gestgoAccountMenu]` (filho direto do top-bar).
  */
 @Component({
@@ -48,11 +51,13 @@ export class ShellTopBarActionsComponent implements OnInit, OnDestroy {
   @Input() notificacoesNaoLidas = 0;
   @Input() novidadesNaoVistas = 0;
   @Input() notificacoesRouterLink = '/notificacoes';
+  @Input() shellContext: 'app' | 'plataforma' = 'app';
 
   temaAtual = 'ocean-blue';
   modoEscuro = false;
   shellPresetAtual: ShellPreset = 'default';
   themeDrawerMode: 'light' | 'dark' | 'auto' = 'light';
+  verificandoAtualizacao = false;
 
   readonly shellPresetOptions = SHELL_PRESET_UI_OPTIONS;
   readonly temasOrdemGrade = temasOrdemGrade();
@@ -68,6 +73,10 @@ export class ShellTopBarActionsComponent implements OnInit, OnDestroy {
   private readonly vcr = inject(ViewContainerRef);
   private readonly gestgoSheet = inject(GestgoSheetService);
   private readonly goAssistant = inject(GoAssistantShellService);
+  private readonly feedbackDialog = inject(FeedbackDialogService);
+  private readonly appUpdate = inject(AppUpdateService);
+  private readonly toast = inject(ToastService);
+  private readonly router = inject(Router);
   private readonly cdr = inject(ChangeDetectorRef);
   /** Exposto ao template para estado ativo do botão de tema. */
   temaSheetRef?: GestgoSheetRef<void>;
@@ -82,16 +91,6 @@ export class ShellTopBarActionsComponent implements OnInit, OnDestroy {
 
   get podeVerNotificacoesNoHeader(): boolean {
     return this.auth.hasPermission('notifications.access');
-  }
-
-  get podeImportarFicha(): boolean {
-    if (this.auth.isPlatformAdmin()) return false;
-    return this.auth.hasPermission('templates.manage');
-  }
-
-  get podeAgenda(): boolean {
-    if (this.auth.isPlatformAdmin()) return false;
-    return this.auth.hasPermission('organization.manage');
   }
 
   ngOnInit(): void {
@@ -112,6 +111,44 @@ export class ShellTopBarActionsComponent implements OnInit, OnDestroy {
 
   abrirGoAssistant(): void {
     this.goAssistant.show();
+  }
+
+  go(event: Event, path: string): void {
+    event.preventDefault();
+    void this.router.navigateByUrl(path);
+  }
+
+  abrirFeedback(): void {
+    this.feedbackDialog.open('header_help');
+  }
+
+  verificarAtualizacao(): void {
+    if (this.verificandoAtualizacao) return;
+    this.verificandoAtualizacao = true;
+    this.cdr.markForCheck();
+
+    void this.appUpdate.checkNow().then((result) => {
+      this.verificandoAtualizacao = false;
+      this.cdr.markForCheck();
+
+      switch (result) {
+        case 'ready':
+          this.toast.success('Atualização pronta', 'Clique em Atualizar agora no banner do topo.');
+          break;
+        case 'none':
+          this.toast.info('Você já está na versão mais recente', 'Nenhuma atualização pendente.');
+          break;
+        case 'unavailable':
+          this.toast.info(
+            'Verificação indisponível aqui',
+            'A atualização automática funciona na versão publicada do sistema.',
+          );
+          break;
+        default:
+          this.toast.warning('Não foi possível verificar', 'Tente novamente em alguns instantes.');
+          break;
+      }
+    });
   }
 
   alternarMenuTema(): void {

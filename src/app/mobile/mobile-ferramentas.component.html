@@ -13,13 +13,22 @@
   </div>
 </div>
 
-<h1 class="gm-title">Utilitários</h1>
-<p class="gm-sub">Orçamento, mensagens e retornos para o atendimento.</p>
+<h1 class="gm-title">Ferramentas</h1>
+<p class="gm-sub">Utilitários rápidos para o atendimento.</p>
 
 @if (loading()) {
-  <p class="gm-loading">Carregando utilitários…</p>
+  <div class="gm-preload gm-preload--inline" aria-busy="true">
+    <div class="gm-preload__bar"><span></span></div>
+    <p class="gm-preload__hint">Carregando ferramentas…</p>
+  </div>
 } @else if (items().length === 0) {
-  <p class="gm-empty">Nenhum utilitário disponível.</p>
+  <div class="gm-empty-state">
+    <span class="gm-empty-state__icon" aria-hidden="true">
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--l">widgets</span>
+    </span>
+    <h2>Nada por aqui</h2>
+    <p>Nenhuma ferramenta disponível no momento.</p>
+  </div>
 } @else {
   @for (t of items(); track t.key) {
     <a class="gm-toolcard" [routerLink]="['/m/ferramentas', routeFor(t.key)]">

@@ -516,7 +516,7 @@ export const HUB_UTILITARIOS: NavigationHubConfig = {
       id: 'automacoes',
       title: 'Automações',
       description: 'Quando acontece → criar tarefa ou avisar a equipe.',
-      icon: 'bolt',
+      icon: 'cable',
       route: '/automacoes',
       permission: 'organization.manage',
     },

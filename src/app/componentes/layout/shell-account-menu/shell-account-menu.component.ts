@@ -14,11 +14,8 @@ import {
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { AppUpdateService } from '../../../core/services/app-update.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { ClinicaService } from '../../../core/services/clinica.service';
-import { FeedbackDialogService } from '../../../core/services/feedback-dialog.service';
-import { ToastService } from '../../../core/services/toast.service';
 import { setPreferPainelExperience } from '../../../core/utils/gestgo-experience.util';
 
 type NordDropdownHost = HTMLElement & {
@@ -53,7 +50,7 @@ export class ShellAccountMenuComponent implements OnInit, AfterViewInit, OnDestr
   nomeEmpresa = '';
   exibirTrocarEmpresa = false;
   ehAdminPlataforma = false;
-  verificandoAtualizacao = false;
+  trialBadgeLabel: string | null = null;
 
   private clinicaSub?: Subscription;
   private toggleClickCleanup?: () => void;
@@ -62,9 +59,6 @@ export class ShellAccountMenuComponent implements OnInit, AfterViewInit, OnDestr
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly clinicaService = inject(ClinicaService);
-  private readonly feedbackDialog = inject(FeedbackDialogService);
-  private readonly appUpdate = inject(AppUpdateService);
-  private readonly toast = inject(ToastService);
   private readonly cdr = inject(ChangeDetectorRef);
 
   get podeVerBillingNoHeader(): boolean {
@@ -110,40 +104,6 @@ export class ShellAccountMenuComponent implements OnInit, AfterViewInit, OnDestr
     this.openTheme.emit();
   }
 
-  abrirFeedback(): void {
-    this.feedbackDialog.open('account_menu');
-  }
-
-  verificarAtualizacao(): void {
-    if (this.verificandoAtualizacao) return;
-    this.verificandoAtualizacao = true;
-    this.cdr.markForCheck();
-    void this.host.nativeElement.hide?.(false);
-
-    void this.appUpdate.checkNow().then((result) => {
-      this.verificandoAtualizacao = false;
-      this.cdr.markForCheck();
-
-      switch (result) {
-        case 'ready':
-          this.toast.success('Atualização pronta', 'Clique em Atualizar agora no banner do topo.');
-          break;
-        case 'none':
-          this.toast.info('Você já está na versão mais recente', 'Nenhuma atualização pendente.');
-          break;
-        case 'unavailable':
-          this.toast.info(
-            'Verificação indisponível aqui',
-            'A atualização automática funciona na versão publicada do sistema.',
-          );
-          break;
-        default:
-          this.toast.warning('Não foi possível verificar', 'Tente novamente em alguns instantes.');
-          break;
-      }
-    });
-  }
-
   sair(): void {
     this.auth.logout().subscribe(() => this.router.navigate(['/autenticacao']));
   }
@@ -187,7 +147,18 @@ export class ShellAccountMenuComponent implements OnInit, AfterViewInit, OnDestr
       this.nomeUsuario = nome;
       this.iniciaisUsuario = this.initialsFromName(nome);
     }
+    this.syncTrialBadge();
     this.cdr.markForCheck();
+  }
+
+  private syncTrialBadge(): void {
+    const trial = this.auth.getTrialNotice();
+    if (!trial?.visible) {
+      this.trialBadgeLabel = null;
+      return;
+    }
+    const dias = trial.days_remaining;
+    this.trialBadgeLabel = dias === 1 ? 'Trial · 1 dia' : `Trial · ${dias} dias`;
   }
 
   private syncClinicInfo(): void {

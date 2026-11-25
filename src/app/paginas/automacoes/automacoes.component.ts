@@ -4,11 +4,10 @@ import {
   CUSTOM_ELEMENTS_SCHEMA,
   OnInit,
   Signal,
-  computed,
   inject,
   signal,
 } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import {
   AutomationsService,
   OrgAutomationExecutionRow,
@@ -42,14 +41,19 @@ export class AutomacoesComponent implements OnInit {
   readonly activeCount = signal(0);
   readonly tasksOpen = signal(0);
 
-  readonly listaAtual = computed(() =>
-    this.aba() === 'regras' ? this.items() : this.executions(),
-  );
+  private readonly automations = inject(AutomationsService);
+  private readonly loadingService = inject(LoadingService);
+  private readonly toast = inject(ToastService);
+  private readonly confirm = inject(ConfirmDialogService);
+  private readonly router = inject(Router);
 
-  private automations = inject(AutomationsService);
-  private loadingService = inject(LoadingService);
-  private toast = inject(ToastService);
-  private confirm = inject(ConfirmDialogService);
+  private readonly triggerLabels: Record<string, string> = {
+    'document.signed': 'Documento assinado',
+    'protocol.review_pending': 'Protocolo em revisão',
+    'protocol.completed': 'Protocolo concluído',
+    'appointment.created': 'Agendamento criado',
+    'appointment.cancelled': 'Agendamento cancelado',
+  };
 
   ngOnInit(): void {
     this.carregar();
@@ -103,6 +107,14 @@ export class AutomacoesComponent implements OnInit {
     });
   }
 
+  novo(): void {
+    void this.router.navigateByUrl('/automacoes/nova');
+  }
+
+  editar(item: OrgAutomationRow): void {
+    void this.router.navigateByUrl(`/automacoes/${item.id}/editar`);
+  }
+
   async pausar(item: OrgAutomationRow): Promise<void> {
     const ok = await this.confirm.request({
       title: 'Pausar automação',
@@ -125,6 +137,12 @@ export class AutomacoesComponent implements OnInit {
   }
 
   async ativar(item: OrgAutomationRow): Promise<void> {
+    const ok = await this.confirm.request({
+      title: 'Ativar automação',
+      message: `Ativar "${item.name}"?`,
+      confirmLabel: 'Ativar',
+    });
+    if (!ok) return;
     this.acting.set(true);
     this.automations.activate(item.id).subscribe({
       next: () => {
@@ -140,18 +158,7 @@ export class AutomacoesComponent implements OnInit {
   }
 
   eventoLabel(event: string): string {
-    switch (event) {
-      case 'document.signed':
-        return 'Quando um documento é assinado';
-      case 'protocol.review_pending':
-        return 'Quando um protocolo aguarda revisão';
-      case 'appointment.created':
-        return 'Quando um agendamento é criado';
-      case 'appointment.cancelled':
-        return 'Quando um agendamento é cancelado';
-      default:
-        return event;
-    }
+    return this.triggerLabels[event] ?? event;
   }
 
   statusLabel(status: string): string {
@@ -160,6 +167,8 @@ export class AutomacoesComponent implements OnInit {
         return 'Ativa';
       case 'paused':
         return 'Pausada';
+      case 'draft':
+        return 'Rascunho';
       case 'completed':
         return 'Concluída';
       case 'failed':

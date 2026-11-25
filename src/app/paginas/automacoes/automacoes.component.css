@@ -23,7 +23,8 @@
 
 .auto-badge[data-status='paused'],
 .auto-badge[data-status='ignored'],
-.auto-badge[data-status='cancelled'] {
+.auto-badge[data-status='cancelled'],
+.auto-badge[data-status='draft'] {
   background: color-mix(in srgb, var(--n-color-status-warning, #ed6c02) 16%, transparent);
   color: var(--n-color-status-warning, #ed6c02);
 }

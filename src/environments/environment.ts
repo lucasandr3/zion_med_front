@@ -7,8 +7,8 @@ export const environment = {
   painelUrl: '',
   /** Experiência mobile — path /m no mesmo origin até migrar DNS. */
   mobileAppUrl: '',
-  /** Liga/desliga a experiência Gestgo Mobile (`/m`). Desligado por enquanto. */
-  mobileExperienceEnabled: false,
+  /** Liga/desliga a experiência Gestgo Mobile (`/m`). */
+  mobileExperienceEnabled: true,
   /** PDF-01C — detecção assistida (front). Backend: PRINT_LAYOUT_AI_ENABLED + OpenAI. */
   printLayoutAiEnabled: false,
   /** Hosts que forçam experiência mobile (vazio até painel. estar no ar). */

@@ -14,7 +14,6 @@ import { AuthService } from '../core/services/auth.service';
 import { NotificacoesService, type Notificacao } from '../core/services/notificacoes.service';
 import {
   clearMobileBridge,
-  preparePainelHop,
   setPreferPainelExperience,
 } from '../core/utils/gestgo-experience.util';
 import { MobileShellService } from './mobile-shell.service';
@@ -54,17 +53,21 @@ export class LayoutMobileComponent implements OnInit {
     const u = this.url();
     return (
       /\/m\/ferramentas\/.+/.test(u) ||
+      /\/m\/enviar/.test(u) ||
       /\/m\/documentos/.test(u) ||
       /\/m\/configuracoes/.test(u) ||
+      /\/m\/atendimento/.test(u) ||
       /\/m\/pacientes\/\d+/.test(u)
     );
   });
+
+  readonly toastMessage = this.shell.toastMessage;
 
   readonly tabs = [
     { path: '/m', label: 'Início', icon: 'home', exact: true },
     { path: '/m/pacientes', label: 'Pacientes', icon: 'group', exact: false },
     { path: '/m/fichas', label: 'Fichas', icon: 'description', exact: false },
-    { path: '/m/ferramentas', label: 'Utilitários', icon: 'widgets', exact: false },
+    { path: '/m/ferramentas', label: 'Ferramentas', icon: 'widgets', exact: false },
   ] as const;
 
   readonly booting = this.shell.booting;
@@ -114,11 +117,16 @@ export class LayoutMobileComponent implements OnInit {
     }
     const d = (n.data ?? {}) as Record<string, unknown>;
     if (d['submission_id']) {
-      const hop = preparePainelHop(`/protocolos/${d['submission_id']}`, '/m');
-      void this.router.navigate([hop.path], { queryParams: hop.queryParams });
+      void this.router.navigate(['/m/documentos', d['submission_id']]);
       return;
     }
     void this.router.navigate(['/m/documentos']);
+  }
+
+  abrirPainelCompleto(): void {
+    this.fecharMenu();
+    setPreferPainelExperience(true);
+    void this.router.navigateByUrl('/dashboard');
   }
 
   private carregarNotificacoes(): void {

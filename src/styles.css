@@ -97,7 +97,11 @@ nord-dropdown-item .material-symbols-outlined {
   vertical-align: middle;
 }
 
-/* Shell Nord + overlays críticos */
+/* Shell Nord + overlays críticos
+ * NÃO incluir nord-modal: o componente usa visibility:hidden quando fechado
+ * com position:fixed; inset:0. Forçar visible deixa o backdrop invisível
+ * capturando todos os cliques (ex.: /suporte).
+ */
 nord-layout,
 nord-navigation,
 nord-nav-group,
@@ -112,7 +116,6 @@ nord-input,
 nord-card,
 nord-banner,
 nord-stack,
-nord-modal,
 nord-toast,
 nord-toast-group,
 nord-dropdown,
@@ -128,6 +131,15 @@ nord-badge,
 nord-icon,
 nord-empty-state,
 nord-skeleton {
+  visibility: visible !important;
+}
+
+nord-modal:not([open]) {
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+nord-modal[open] {
   visibility: visible !important;
 }
 

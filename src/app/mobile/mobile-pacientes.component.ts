@@ -10,8 +10,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Subject, debounceTime, distinctUntilChanged, switchMap, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { PessoasService, type Pessoa, type PessoaDetalhe } from '../core/services/pessoas.service';
-import { preparePainelHop } from '../core/utils/gestgo-experience.util';
-import { toolPersonQueryParams } from './tools/tool-person-context';
 import { MobileShellService } from './mobile-shell.service';
 
 @Component({
@@ -109,11 +107,10 @@ export class MobilePacientesComponent implements OnInit {
   }
 
   enviarFicha(pessoa: PessoaDetalhe): void {
-    const parts = [`person_id=${pessoa.id}`];
+    const q: Record<string, string> = { person_id: String(pessoa.id) };
     const templateId = this.sugerirTemplateIdEnvio(pessoa);
-    if (templateId) parts.push(`template_id=${templateId}`);
-    const hop = preparePainelHop(`/envios?${parts.join('&')}`, '/m/pacientes');
-    void this.router.navigate([hop.path], { queryParams: hop.queryParams });
+    if (templateId) q['template_id'] = String(templateId);
+    void this.router.navigate(['/m/enviar'], { queryParams: q });
   }
 
   private sugerirTemplateIdEnvio(pessoa: PessoaDetalhe): number | null {
@@ -134,12 +131,21 @@ export class MobilePacientesComponent implements OnInit {
     void this.router.navigate(['/m/documentos'], { queryParams: { status: '' } });
   }
 
-  abrirUtilitario(tool: 'orcamento' | 'mensagens' | 'retornos', pessoa: PessoaDetalhe): void {
-    const create = tool === 'orcamento' || tool === 'retornos';
-    const route = tool === 'mensagens' ? 'notificacoes' : tool;
-    void this.router.navigate(
-      create ? ['/m/ferramentas', route, 'novo'] : ['/m/ferramentas', route],
-      { queryParams: toolPersonQueryParams(pessoa) },
-    );
+  abrirProtocolo(id: number): void {
+    void this.router.navigate(['/m/documentos', id]);
+  }
+
+  statusLabel(s: string): string {
+    if (s === 'approved') return 'Assinado';
+    if (s === 'pending') return 'Pendente';
+    if (s === 'rejected') return 'Recusado';
+    return s || '—';
+  }
+
+  formatDate(iso?: string | null): string {
+    if (!iso) return '—';
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return '—';
+    return d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
   }
 }

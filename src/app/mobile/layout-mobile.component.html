@@ -21,6 +21,8 @@
           [routerLink]="tab.path"
           routerLinkActive="is-active"
           [routerLinkActiveOptions]="{ exact: tab.exact }"
+          #rla="routerLinkActive"
+          [attr.aria-current]="rla.isActive ? 'page' : null"
         >
           <span class="gm-nav__icon" aria-hidden="true">
             <span class="material-symbols-outlined gestgo-mi gestgo-mi--s">{{ tab.icon }}</span>
@@ -32,8 +34,12 @@
   }
 
   @if (sheet()) {
-    <div class="gm-sheet-shade" (click)="fecharMenu()" role="presentation"></div>
-    <div class="gm-sheet" role="dialog" [attr.aria-label]="notificationsOpen() ? 'Notificações' : 'Menu'">
+    <div class="gm-sheet-shade gm-anim-fade" (click)="fecharMenu()" role="presentation"></div>
+    <div
+      class="gm-sheet gm-anim-sheet"
+      role="dialog"
+      [attr.aria-label]="notificationsOpen() ? 'Notificações' : 'Menu'"
+    >
       <div class="gm-sheet__handle"></div>
 
       @if (notificationsOpen()) {
@@ -63,9 +69,19 @@
         <a class="gm-sheet__btn" routerLink="/m/configuracoes" (click)="fecharMenu()">
           Configurações
         </a>
+        <a class="gm-sheet__btn gm-sheet__btn--ghost" routerLink="/m/atendimento" (click)="fecharMenu()">
+          Atendimento Gestgo
+        </a>
+        <button type="button" class="gm-sheet__btn gm-sheet__btn--ghost" (click)="abrirPainelCompleto()">
+          Abrir painel completo
+        </button>
         <button type="button" class="gm-sheet__btn gm-sheet__btn--ghost" (click)="sair()">Sair</button>
         <button type="button" class="gm-sheet__btn gm-sheet__btn--soft" (click)="fecharMenu()">Fechar</button>
       }
     </div>
+  }
+
+  @if (toastMessage(); as msg) {
+    <div class="gm-toast" role="status">{{ msg }}</div>
   }
 </div>
