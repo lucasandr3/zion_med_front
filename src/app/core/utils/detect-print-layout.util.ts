@@ -12,8 +12,15 @@ export interface PrintLayoutSuggestion {
   w: number;
   h: number;
   confidence: number;
-  source: 'acroform' | 'pdf_text' | 'pdf_line' | 'pdf_vision' | 'pdf_ai';
+  source: 'acroform' | 'pdf_text' | 'pdf_line' | 'pdf_vision' | 'pdf_ai' | 'pdf_field_match';
   needs_review: true;
+}
+
+/** Campos digitais do modelo usados na correspondência assistida (PDF-01C). */
+export interface KnownTemplateField {
+  name_key: string;
+  label: string;
+  type?: string;
 }
 
 export interface DetectPrintLayoutResult {
@@ -168,7 +175,8 @@ export function normalizeApiDetectResult(raw: {
       sourceRaw === 'pdf_text' ||
       sourceRaw === 'pdf_line' ||
       sourceRaw === 'pdf_vision' ||
-      sourceRaw === 'pdf_ai'
+      sourceRaw === 'pdf_ai' ||
+      sourceRaw === 'pdf_field_match'
         ? sourceRaw
         : 'acroform';
     const label = String(item['label'] || item['name_key'] || 'Campo');
@@ -232,6 +240,120 @@ export function mergeDetectResults(
         ? `${merged.length} sugestão(ões) encontradas. Revise e aceite as que fizerem sentido.`
         : local.message || remote.message,
   };
+}
+
+/**
+ * PDF-01C (sem provedor externo) — localiza no PDF os rótulos dos campos já
+ * definidos no modelo e propõe caixas à direita (exige revisão humana).
+ */
+export async function suggestFromKnownFields(
+  pdfDoc: PdfJsDocLike,
+  fields: KnownTemplateField[],
+): Promise<PrintLayoutSuggestion[]> {
+  const usable = fields.filter((f) => {
+    const key = (f.name_key || '').trim();
+    const label = (f.label || '').trim();
+    if (!key || !label) return false;
+    const type = (f.type || '').toLowerCase();
+    return !['heading', 'notice', 'section_break', 'page_break', 'step_break', 'file'].includes(type);
+  });
+  if (!usable.length) return [];
+
+  const out: PrintLayoutSuggestion[] = [];
+  const usedKeys = new Set<string>();
+
+  for (let pageIndex = 0; pageIndex < pdfDoc.numPages; pageIndex++) {
+    const page = await pdfDoc.getPage(pageIndex + 1);
+    const viewport = page.getViewport({ scale: 1 });
+    const pageW = Math.max(1, viewport.width);
+    const pageH = Math.max(1, viewport.height);
+    const textContent = await page.getTextContent().catch(() => ({ items: [] }));
+    const items = (textContent.items || [])
+      .map((it) => {
+        const str = String(it.str || '').trim();
+        const t = it.transform || [];
+        return {
+          str,
+          x: Number(t[4] ?? 0),
+          y: Number(t[5] ?? 0),
+          w: Number(it.width ?? 0),
+          h: Math.abs(Number(t[3] ?? it.height ?? 10)) || 10,
+        };
+      })
+      .filter((it) => it.str.length > 1);
+
+    for (const field of usable) {
+      if (usedKeys.has(field.name_key)) continue;
+      const match = findBestTextMatch(items, field.label, field.name_key);
+      if (!match) continue;
+      const box = textLabelToInputBox(match, pageW, pageH) ?? {
+        x: clamp01((match.x + match.w + 4) / pageW),
+        y: clamp01((pageH - match.y - match.h) / pageH),
+        w: 0.28,
+        h: Math.max(0.018, Math.min(0.04, (match.h * 1.35) / pageH)),
+      };
+      if (box.x + box.w > 0.99) box.w = Math.max(0.08, 0.99 - box.x);
+      out.push({
+        temporary_id: `sug-${newPlacementUid()}`,
+        label: field.label.trim(),
+        name_key: field.name_key,
+        kind: inferPlacementKindFromFieldType(field.type),
+        page: pageIndex,
+        ...box,
+        confidence: match.score >= 0.92 ? 0.82 : 0.68,
+        source: 'pdf_field_match',
+        needs_review: true,
+      });
+      usedKeys.add(field.name_key);
+    }
+  }
+
+  return dedupeSuggestions(out).slice(0, 80);
+}
+
+function findBestTextMatch(
+  items: Array<{ str: string; x: number; y: number; w: number; h: number }>,
+  label: string,
+  nameKey: string,
+): ({ str: string; x: number; y: number; w: number; h: number; score: number }) | null {
+  const targetLabel = normalizeMatch(label);
+  const targetKey = normalizeMatch(nameKey.replace(/_/g, ' '));
+  if (targetLabel.length < 2) return null;
+
+  let best: { item: (typeof items)[number]; score: number } | null = null;
+  for (const item of items) {
+    const raw = cleanLabel(item.str);
+    const norm = normalizeMatch(raw);
+    if (norm.length < 2) continue;
+    let score = 0;
+    if (norm === targetLabel) score = 1;
+    else if (norm.includes(targetLabel) || targetLabel.includes(norm)) score = 0.9;
+    else if (targetKey && (norm === targetKey || norm.includes(targetKey))) score = 0.85;
+    else continue;
+    // Prefer labels that look like form prompts
+    if (item.str.trim().endsWith(':') || item.str.trim().endsWith('：')) score += 0.05;
+    if (!best || score > best.score) best = { item, score };
+  }
+  if (!best || best.score < 0.85) return null;
+  return { ...best.item, score: best.score };
+}
+
+function normalizeMatch(value: string): string {
+  return value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[:：]+$/u, '')
+    .replace(/[^a-z0-9]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function inferPlacementKindFromFieldType(type: string | undefined): PrintLayoutKind {
+  const t = (type || '').toLowerCase();
+  if (t === 'checkbox' || t === 'radio') return 'checkbox';
+  if (t === 'signature') return 'signature';
+  return 'text';
 }
 
 function pdfRectToNorm(rect: number[], pageW: number, pageH: number): {

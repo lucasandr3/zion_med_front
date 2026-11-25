@@ -11,15 +11,20 @@
       </nord-button>
     </div>
   } @else if (templates().length === 0) {
-    <div class="n-page-list__empty">
-      <nord-empty-state>
-        <h2>Nenhum formulário público ativo</h2>
-        <p>Ative o link público em Modelos de fichas → Campos para gerar um link compartilhável com pacientes.</p>
-        <nord-button variant="primary" routerLink="/templates">
-          <span slot="start" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">description</span>
-          Ir para modelos de fichas
-        </nord-button>
-      </nord-empty-state>
+    <div class="n-page-list__empty zm-content-enter">
+      <div class="n-page-list__empty-card">
+        <zm-empty-state
+          title="Nenhum formulário público ativo"
+          description="Importe sua ficha ou ative o link em Modelos → Campos. O hub Documentos guia o fluxo completo."
+          actionLabel="Usar minha ficha atual"
+          actionIcon="upload_file"
+          actionLink="/templates/importar"
+          secondaryActionLabel="Hub Documentos"
+          secondaryActionLink="/documentos"
+          tertiaryActionLabel="Modelos"
+          tertiaryActionLink="/templates"
+        />
+      </div>
     </div>
   } @else {
     <div class="zm-content-enter links-publicos-grid">

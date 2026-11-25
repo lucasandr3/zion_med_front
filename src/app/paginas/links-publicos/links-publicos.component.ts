@@ -17,7 +17,7 @@ import { ToastService } from '../../core/services/toast.service';
 import { ConfirmDialogService } from '../../core/services/confirm-dialog.service';
 import { LoadingService } from '../../shared/services/loading.service';
 import { ZmSkeletonLinksPublicosComponent } from '../../shared/components/skeletons';
-import { ZmPaginationComponent } from '../../shared/components/ui';
+import { ZmEmptyStateComponent, ZmPaginationComponent } from '../../shared/components/ui';
 import { GestgoSkeletonComponent } from '@/shared/components/skeleton/skeleton.component';
 import {
   downloadPublicFormQrPng,
@@ -26,6 +26,7 @@ import {
 } from '../../core/utils/public-form-qr.util';
 import { buildPublicFormUrl, normalizePublicAppUrl } from '../../core/utils/public-form-url.util';
 import { buildDocumentInviteMessage, openWhatsappShare } from '../../core/utils/whatsapp-share.util';
+import { ProductTelemetryService } from '../../core/services/product-telemetry.service';
 
 interface LinkPublicoItem {
   id: number;
@@ -57,6 +58,7 @@ const CENTER_STYLE_ATTR = 'data-gestgo-modal-center';
   imports: [
     RouterLink,
     ZmSkeletonLinksPublicosComponent,
+    ZmEmptyStateComponent,
     ZmPaginationComponent,
     GestgoSkeletonComponent,
   ],
@@ -87,6 +89,7 @@ export class LinksPublicosComponent implements OnInit {
   private loadingService = inject(LoadingService);
   private toast = inject(ToastService);
   private confirm = inject(ConfirmDialogService);
+  private productTelemetry = inject(ProductTelemetryService);
 
   constructor() {
     effect(() => {
@@ -199,6 +202,11 @@ export class LinksPublicosComponent implements OnInit {
       return;
     }
     const url = normalizePublicAppUrl(raw) || raw;
+    this.productTelemetry.trackDocumentShare({
+      source: 'links_publicos',
+      channel: 'whatsapp',
+      template_id: item.id ?? null,
+    });
     openWhatsappShare(buildDocumentInviteMessage({ templateName: item.name, url }));
     this.toast.success('WhatsApp', 'Abra o app e escolha o contato para enviar o link.');
   }

@@ -2204,6 +2204,75 @@ table.data-table {
     max-width: none;
   }
 
+  .zm-filter-sheet__clear {
+    appearance: none;
+    padding: 0.375rem 0;
+    border: 0;
+    background: transparent;
+    color: var(--muted-foreground, var(--n-color-text-weak));
+    font: inherit;
+    font-size: 0.75rem;
+    text-decoration: underline;
+    text-underline-offset: 0.2rem;
+    cursor: pointer;
+  }
+
+  .zm-filter-sheet__clear:hover {
+    color: var(--foreground, var(--n-color-text));
+  }
+
+  .zm-filter-sheet__clear:focus-visible {
+    border-radius: 0.25rem;
+    outline: 2px solid var(--primary, var(--n-color-accent));
+    outline-offset: 2px;
+  }
+
+  .zm-filter-options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 0.45rem;
+  }
+
+  .zm-filter-options button {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    width: 100%;
+    min-height: 2.65rem;
+    padding: 0.65rem 0.75rem;
+    border: 1px solid var(--border, var(--n-color-border));
+    border-radius: 0.5rem;
+    background: var(--card, var(--n-color-surface));
+    color: var(--foreground, var(--n-color-text));
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .zm-filter-options button:hover {
+    border-color: color-mix(in srgb, var(--primary, var(--n-color-accent)) 40%, var(--border, var(--n-color-border)));
+  }
+
+  .zm-filter-options button.is-active {
+    border-color: var(--primary, var(--n-color-accent));
+    background: color-mix(in srgb, var(--primary, var(--n-color-accent)) 8%, var(--card, var(--n-color-surface)));
+    color: var(--primary, var(--n-color-accent));
+  }
+
+  .zm-filter-options button span {
+    font-size: 0.75rem;
+    font-weight: 650;
+  }
+
+  .zm-filter-options button small {
+    color: var(--muted-foreground, var(--n-color-text-weak));
+    font-size: 0.65rem;
+    font-weight: 500;
+    text-align: right;
+  }
+
   /* Combobox / inputs Nord no sheet: largura total + altura alinhada */
   [data-slot='sheet'] z-combobox,
   [data-slot='sheet'] nord-combobox,
@@ -4493,7 +4562,8 @@ body.dark .flatpickr-calendar .flatpickr-weekwrapper span.flatpickr-day { color:
 
 .clinica-config g-card.section-card,
 .link-bio-config g-card.section-card,
-.plataforma-config g-card.section-card {
+.plataforma-config g-card.section-card,
+.studio-config g-card.section-card {
   display: block;
   margin-bottom: 0;
   background: transparent;
@@ -4505,7 +4575,8 @@ body.dark .flatpickr-calendar .flatpickr-weekwrapper span.flatpickr-day { color:
 /* Empresa + Link bio + Admin: seções full-bleed (sem caixa flutuante), igual protocolo detalhe */
 .clinica-config g-card.section-card nord-card,
 .link-bio-config g-card.section-card nord-card,
-.plataforma-config g-card.section-card nord-card {
+.plataforma-config g-card.section-card nord-card,
+.studio-config g-card.section-card nord-card {
   margin-bottom: 0;
   --n-card-border-radius: 0;
   --n-card-box-shadow: none;
@@ -4528,7 +4599,8 @@ body.dark .flatpickr-calendar .flatpickr-weekwrapper span.flatpickr-day { color:
 
 .clinica-config g-card.section-card [data-slot='card-content'],
 .link-bio-config g-card.section-card [data-slot='card-content'],
-.plataforma-config g-card.section-card [data-slot='card-content'] {
+.plataforma-config g-card.section-card [data-slot='card-content'],
+.studio-config g-card.section-card [data-slot='card-content'] {
   padding: 0;
   gap: 0;
 }
@@ -4570,7 +4642,8 @@ body.dark .flatpickr-calendar .flatpickr-weekwrapper span.flatpickr-day { color:
 
 .clinica-config .section-header,
 .link-bio-config .section-header,
-.plataforma-config .section-header {
+.plataforma-config .section-header,
+.studio-config .section-header {
   padding: 0.75rem 1.25rem;
   border-bottom: 1px solid var(--border);
   display: flex;
@@ -4580,7 +4653,8 @@ body.dark .flatpickr-calendar .flatpickr-weekwrapper span.flatpickr-day { color:
 
 .clinica-config .section-header .icon-wrap,
 .link-bio-config .section-header .icon-wrap,
-.plataforma-config .section-header .icon-wrap {
+.plataforma-config .section-header .icon-wrap,
+.studio-config .section-header .icon-wrap {
   width: 1.75rem;
   height: 1.75rem;
   background: color-mix(in srgb, var(--primary) 12%, transparent);
@@ -4592,14 +4666,16 @@ body.dark .flatpickr-calendar .flatpickr-weekwrapper span.flatpickr-day { color:
 
 .clinica-config .section-header .icon-wrap .material-symbols-outlined,
 .link-bio-config .section-header .icon-wrap .material-symbols-outlined,
-.plataforma-config .section-header .icon-wrap .material-symbols-outlined {
+.plataforma-config .section-header .icon-wrap .material-symbols-outlined,
+.studio-config .section-header .icon-wrap .material-symbols-outlined {
   font-size: 0.875rem;
   color: var(--primary);
 }
 
 .clinica-config .section-title,
 .link-bio-config .section-title,
-.plataforma-config .section-title {
+.plataforma-config .section-title,
+.studio-config .section-title {
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -4617,7 +4693,8 @@ body.dark .flatpickr-calendar .flatpickr-weekwrapper span.flatpickr-day { color:
   color: var(--muted-foreground);
 }
 
-.clinica-config .section-header__hint {
+.clinica-config .section-header__hint,
+.studio-config .section-header__hint {
   margin-left: auto;
   font-size: 0.6875rem;
   font-weight: 400;
@@ -4632,7 +4709,8 @@ body.dark .flatpickr-calendar .flatpickr-weekwrapper span.flatpickr-day { color:
 }
 .clinica-config .section-body,
 .link-bio-config .section-body,
-.plataforma-config .section-body { padding: 1rem 1.25rem; }
+.plataforma-config .section-body,
+.studio-config .section-body { padding: 1rem 1.25rem; }
 
 /* ══════════════════════════════════════════════════════════════════════════
    PROTOCOLO DETALHE

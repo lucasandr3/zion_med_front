@@ -464,13 +464,13 @@
                         }
                       </div>
                       <div>
-                        <p class="pd-tl-title">{{ event.type_label || 'Evento' }}</p>
+                        <p class="pd-tl-title">{{ eventoLabel(event) }}</p>
                         @if (event.body) {
                           <p class="pd-tl-body">{{ event.body }}</p>
                         }
                         <p class="pd-tl-meta">
-                          @if (event.user?.name) {
-                            {{ event.user?.name }} ·
+                          @if (eventoUserName(event); as userName) {
+                            {{ userName }} ·
                           }
                           {{ dataFormatada(event.created_at) }}
                         </p>

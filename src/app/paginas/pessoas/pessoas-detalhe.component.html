@@ -17,11 +17,12 @@
           variant="primary"
           type="button"
           [routerLink]="['/envios']"
-          [queryParams]="{ person_id: pessoa.id }"
-          title="Novo protocolo"
+          [queryParams]="queryParamsEnvioDocumento()"
+          (click)="onEnviarDocumentoClick()"
+          title="Enviar documento para esta pessoa"
         >
           <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">add</span>
-          Novo protocolo
+          Enviar documento
         </nord-button>
         @if (podeSolicitarReconsentimento) {
           <nord-button
@@ -91,7 +92,8 @@
                   class="pessoa-pill pessoa-pill--warn"
                   title="Registrar consentimento"
                   [routerLink]="['/envios']"
-                  [queryParams]="{ person_id: pessoa.id }"
+                  [queryParams]="queryParamsEnvioDocumento()"
+                  (click)="onEnviarDocumentoClick()"
                 >
                   Sem consentimento · <u>Registrar</u>
                 </button>
@@ -406,9 +408,14 @@
                 <strong>{{ filtroProtocolos === 'all' ? 'Nenhum protocolo para esta pessoa' : 'Nenhum protocolo nesta situação' }}</strong>
                 <p>{{ filtroProtocolos === 'all' ? 'Crie o primeiro para iniciar o fluxo de assinatura.' : 'Limpe o filtro para ver todos.' }}</p>
                 @if (filtroProtocolos === 'all') {
-                  <nord-button variant="primary" [routerLink]="['/envios']" [queryParams]="{ person_id: pessoa.id }">
+                  <nord-button
+                    variant="primary"
+                    [routerLink]="['/envios']"
+                    [queryParams]="queryParamsEnvioDocumento()"
+                    (click)="onEnviarDocumentoClick()"
+                  >
                     <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">add</span>
-                    Novo protocolo
+                    Enviar documento
                   </nord-button>
                 }
               </div>

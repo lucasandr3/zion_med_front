@@ -10,10 +10,11 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import type { GestgoSheetRef } from '@/shared/components/sheet/sheet-ref';
 import { GestgoSheetService } from '@/shared/components/sheet/sheet.service';
 import { getTourByScreenId } from '../data';
-import type { AssistantAction, AssistantIntent } from '../models/assistant.types';
+import type { AssistantAction, AssistantArticleHit, AssistantIntent } from '../models/assistant.types';
 import { FeedbackDialogService } from '../../core/services/feedback-dialog.service';
 import { GoAssistantActionService } from '../services/go-assistant-action.service';
 import { GoAssistantContextService } from '../services/go-assistant-context.service';
@@ -39,6 +40,7 @@ export class GoAssistantDrawerComponent {
 
   private readonly gestgoSheet = inject(GestgoSheetService);
   private readonly feedbackDialog = inject(FeedbackDialogService);
+  private readonly router = inject(Router);
   private readonly vcr = inject(ViewContainerRef);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -81,6 +83,15 @@ export class GoAssistantDrawerComponent {
   abrirFeedback(): void {
     this.shell.close();
     this.feedbackDialog.open('go_assistant');
+  }
+
+  abrirAjuda(): void {
+    this.shell.close();
+    void this.router.navigateByUrl('/ajuda');
+  }
+
+  abrirArtigo(article: AssistantArticleHit): void {
+    this.shell.openArticle(article);
   }
 
   visibleActions(intent: AssistantIntent): AssistantAction[] {

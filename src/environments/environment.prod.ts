@@ -11,7 +11,7 @@ export const environment = {
   mobileAppUrl: 'https://app.gestgo.com.br/m',
   /** Desligado por enquanto. */
   mobileExperienceEnabled: false,
-  /** PDF-01C — detecção assistida por IA (desligada). */
+  /** PDF-01C — detecção assistida (front). Backend: PRINT_LAYOUT_AI_ENABLED + OpenAI. */
   printLayoutAiEnabled: false,
   /** Só ativar quando app. for exclusivo do mobile e o painel estiver em outro host. */
   mobileHosts: [] as string[],

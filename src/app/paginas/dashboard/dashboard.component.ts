@@ -1,4 +1,5 @@
-import { Component, OnInit, inject, Signal, ChangeDetectionStrategy, signal, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { Component, OnInit, inject, Signal, ChangeDetectionStrategy, signal, computed, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { NgClass } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { switchMap, catchError, of, forkJoin } from 'rxjs';
 import {
@@ -19,13 +20,14 @@ import {
   ApexResponsive,
 } from 'ng-apexcharts';
 import { isBillingBlockedError } from '../../core/utils/billing-blocked-error';
-import { DashboardService } from '../../core/services/dashboard.service';
+import { DashboardData, DashboardService } from '../../core/services/dashboard.service';
 import { ComplianceReportData, ComplianceService } from '../../core/services/compliance.service';
 import { TemplatesService, Template } from '../../core/services/templates.service';
 import { LoadingService } from '../../shared/services/loading.service';
 import { ZmAssinaturaBloqueadaCardComponent } from '../../shared/components/ui/zm-assinatura-bloqueada-card/zm-assinatura-bloqueada-card.component';
 import { ZmSkeletonDashboardComponent } from '../../shared/components/skeletons';
 import { ZmDashboardOnboardingWizardComponent } from '../../shared/components/ui/zm-dashboard-onboarding-wizard/zm-dashboard-onboarding-wizard.component';
+import { ZmEmptyStateComponent } from '../../shared/components/ui';
 import { AuthService } from '../../core/services/auth.service';
 
 /** Rótulos de categoria (alinhado a templates-listagem) */
@@ -129,11 +131,13 @@ type BarChartOptions = {
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'n-page' },
   imports: [
+    NgClass,
     RouterLink,
     ChartComponent,
     ZmSkeletonDashboardComponent,
     ZmAssinaturaBloqueadaCardComponent,
     ZmDashboardOnboardingWizardComponent,
+    ZmEmptyStateComponent,
   ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css',
@@ -163,6 +167,7 @@ export class DashboardComponent implements OnInit {
   readonly periodoSelecionado = signal(7);
   readonly mostrarWizardOnboarding = signal(false);
   readonly podeRetomarOnboarding = signal(false);
+  readonly serverOnboarding = signal<DashboardData['onboarding'] | null>(null);
   readonly complianceReport = signal<ComplianceReportData | null>(null);
   readonly periodOptions = [
     { days: 7, label: '7 dias' },
@@ -172,6 +177,15 @@ export class DashboardComponent implements OnInit {
   readonly areaChart = signal<AreaChartOptions>(this.buildAreaChart([]));
   readonly donutChart = signal<DonutChartOptions>(this.buildDonutChart(0, 0, 0));
   readonly barChart = signal<BarChartOptions>(this.buildBarChart([]));
+
+  /** Anel do hero — taxa de aprovação (paridade visual com “saúde da base” da plataforma). */
+  readonly saudeOperacao = computed(() => {
+    const taxa = this.taxaAprovacaoResumo();
+    if (taxa > 0) return Math.min(100, Math.round(taxa));
+    const total = this.totalStatus;
+    if (!total) return 100;
+    return Math.round((this.porStatus().approved / total) * 100);
+  });
 
   private dashboardService = inject(DashboardService);
   private complianceService = inject(ComplianceService);
@@ -267,6 +281,7 @@ export class DashboardComponent implements OnInit {
         this.variacaoRespostasPositiva.set(comparativo?.positiva ?? this.variacaoRespostasAbsoluta() >= 0);
         this.taxaAprovacaoResumo.set(dash.taxa_aprovacao ?? 0);
         this.linksPublicosCount.set(dash.links_publicos_count ?? 0);
+        this.serverOnboarding.set(dash.onboarding ?? null);
         this.atualizarWizardOnboarding();
         const respostasPorTemplate = dash.respostas_por_template ?? {};
         this.ultimasSubmissoes.set((dash.ultimas_submissoes ?? []).map((s) => ({
@@ -614,6 +629,23 @@ export class DashboardComponent implements OnInit {
     if (issue === 'consent_expired' || issue === 'without_snapshot') return 'danger';
     if (issue === 'pending_review') return 'warning';
     return 'neutral';
+  }
+
+  iniciais(nome: string): string {
+    return nome
+      .trim()
+      .split(/\s+/)
+      .slice(0, 2)
+      .map((parte) => parte[0]?.toUpperCase() ?? '')
+      .join('');
+  }
+
+  statusClienteClasse(status: string): string {
+    const s = (status || '').toLowerCase();
+    if (s.includes('aprov')) return 'is-active';
+    if (s.includes('pend')) return 'is-pending';
+    if (s.includes('recus') || s.includes('reprov') || s.includes('rejeit')) return 'is-rejected';
+    return 'is-inactive';
   }
 
   statusBadgeVariant(status: string): 'success' | 'warning' | 'danger' | 'neutral' {

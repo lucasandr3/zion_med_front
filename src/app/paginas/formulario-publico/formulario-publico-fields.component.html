@@ -38,6 +38,9 @@
           <span class="fp-optional">(opcional)</span>
         }
       </label>
+      @if (isPrefillHint(f.name_key)) {
+        <p class="fp-field-hint fp-field-hint--prefill">{{ prefillHintText(f.name_key) }}</p>
+      }
     }
 
     @if (isFieldInvalid(f.name_key)) {

@@ -1,0 +1,494 @@
+@if (loading()) {
+  <p class="studio-loading">Carregando Gestgo Studio…</p>
+} @else if (draft(); as d) {
+  <div class="studio-app" [class.studio-app--focused]="focusedPreview()">
+    <header class="studio-bar">
+      <div class="studio-bar__modes" role="group" aria-label="Formato da página">
+        <button
+          type="button"
+          [class.on]="mode() === 'link'"
+          (click)="setMode('link')"
+        >
+          <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">smartphone</span>
+          Link na Bio
+        </button>
+        <button
+          type="button"
+          [class.on]="mode() === 'site'"
+          (click)="setMode('site')"
+        >
+          <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">web</span>
+          Site profissional
+        </button>
+      </div>
+      <div class="studio-bar__actions">
+        @if (linkPublished()) {
+          <nord-badge variant="success">Link publicado</nord-badge>
+        } @else if (dirty()) {
+          <nord-badge variant="warning">Alterações locais</nord-badge>
+        } @else if (hasSavedDraft()) {
+          <nord-badge variant="neutral">Rascunho</nord-badge>
+        }
+        <button
+          type="button"
+          class="studio-btn"
+          [disabled]="saving() || !dirty()"
+          (click)="saveDraft()"
+        >
+          {{ saving() ? 'Salvando…' : 'Salvar rascunho' }}
+        </button>
+        @if (mode() === 'link') {
+          @if (linkPublished()) {
+            <button
+              type="button"
+              class="studio-btn"
+              [disabled]="publishing()"
+              (click)="unpublishLink()"
+            >
+              Despublicar
+            </button>
+            <button
+              type="button"
+              class="studio-btn studio-btn--dark"
+              [disabled]="publishing()"
+              (click)="publishLink()"
+            >
+              {{ publishing() ? 'Publicando…' : 'Atualizar ↗' }}
+            </button>
+          } @else {
+            <button
+              type="button"
+              class="studio-btn studio-btn--dark"
+              [disabled]="publishing()"
+              (click)="publishLink()"
+            >
+              {{ publishing() ? 'Publicando…' : 'Publicar ↗' }}
+            </button>
+          }
+        }
+      </div>
+    </header>
+
+    <div class="studio-body">
+      <aside class="studio-sidebar" aria-label="Especialidades e templates">
+        <div class="studio-side-head">
+          <span class="studio-micro">Biblioteca de modelos</span>
+          <h2>Escolha seu estilo.</h2>
+          <p class="studio-subtext">3 direções por especialidade. Um editor para Link e Site.</p>
+        </div>
+
+        <div class="studio-side-section">
+          <div class="studio-section-label">
+            01 · Especialidade
+            <span class="studio-count">8 nichos</span>
+          </div>
+          <div class="studio-specialties">
+            @for (spec of specialties; track spec.key) {
+              <button
+                type="button"
+                class="studio-spec"
+                [class.active]="d.specialtyKey === spec.key"
+                (click)="selectSpecialty(spec.key)"
+              >
+                <span class="material-symbols-outlined studio-spec__icon" aria-hidden="true">{{ spec.icon }}</span>
+                <strong>{{ spec.name }}</strong>
+              </button>
+            }
+          </div>
+        </div>
+
+        <div class="studio-side-section">
+          <div class="studio-section-label">
+            02 · Layout
+            <span class="studio-count">3 opções</span>
+          </div>
+          <div class="studio-template-list">
+            @for (tpl of specialty().templates; track tpl.id; let i = $index) {
+              <button
+                type="button"
+                class="studio-tpl"
+                [class.active]="selectedTemplate().id === tpl.id"
+                (click)="selectTemplate(tpl.id)"
+                [title]="tpl.tag"
+              >
+                <span
+                  class="studio-tpl__preview"
+                  [attr.data-layout]="tpl.layout"
+                  [style.--tb]="tpl.canvas"
+                  [style.--ta]="tpl.accent"
+                  [style.--ti]="tpl.ink"
+                >
+                  <i class="line1"></i>
+                  <i class="line2"></i>
+                  <i class="pill"></i>
+                  <i class="portraitmini"></i>
+                </span>
+                <span class="studio-tpl__text">
+                  <strong>{{ (i + 1).toString().padStart(2, '0') }} · {{ tpl.name }}</strong>
+                  <small>{{ tpl.tag }}</small>
+                </span>
+              </button>
+            }
+          </div>
+          <div class="studio-tip">
+            <b>Não é só trocar a cor.</b>
+            Cada direção altera composição, tipografia, cores e apresentação de conteúdo.
+          </div>
+        </div>
+
+        <div class="studio-side-footer">
+          <div class="studio-linknotice">
+            <strong>Um cadastro, duas experiências.</strong>
+            A página compacta e o site usam os mesmos serviços, agenda, fotos e informações.
+          </div>
+        </div>
+      </aside>
+
+      <main class="studio-preview-region">
+        <div class="studio-preview-toolbar">
+          <div>
+            <h1>{{ specialty().name }} / {{ selectedTemplate().name }}</h1>
+            <p>
+              {{ mode() === 'site' ? 'Site profissional' : 'Link na Bio' }}
+              · Veja o resultado antes de publicar
+            </p>
+          </div>
+          <div class="studio-preview-controls">
+            <div class="studio-device-toggle">
+              <button
+                type="button"
+                [class.active]="device() === 'desktop'"
+                (click)="setDevice('desktop')"
+                [disabled]="mode() === 'link'"
+              >
+                Desktop
+              </button>
+              <button
+                type="button"
+                [class.active]="device() === 'mobile'"
+                (click)="setDevice('mobile')"
+              >
+                Mobile
+              </button>
+            </div>
+            <button
+              type="button"
+              class="studio-btn studio-btn--icon"
+              title="Visualização sem distrações"
+              (click)="toggleFocus()"
+            >
+              {{ focusedPreview() ? '⤢' : '⤢' }}
+            </button>
+          </div>
+        </div>
+
+        <div class="studio-preview-surface">
+          <div class="studio-browser" [class.mobile]="device() === 'mobile' || mode() === 'link'">
+            <div class="studio-browser__chrome">
+              <i class="dot"></i>
+              <i class="dot"></i>
+              <i class="dot"></i>
+              <div class="studio-browser__url">{{ addressBar() }}</div>
+            </div>
+            <div class="studio-browser__viewport">
+              <app-studio-preview
+                [mode]="mode()"
+                [template]="previewTheme()"
+                [shared]="d.shared"
+                [blocks]="activeBlocks()"
+                [specialtyName]="specialty().name"
+              />
+            </div>
+          </div>
+        </div>
+
+        @if (legacyNote()) {
+          <p class="studio-prototype-note">{{ legacyNote() }}</p>
+        } @else {
+          <p class="studio-prototype-note">Prévia interativa · alterações salvas no rascunho do Gestgo Studio</p>
+        }
+      </main>
+
+      <aside class="studio-inspector" aria-label="Editor de personalização">
+        <div class="studio-inspector-head">
+          <div class="studio-micro">Editor visual</div>
+          <h2>Personalize tudo.</h2>
+          <p class="studio-subtext">As alterações são aplicadas imediatamente na prévia.</p>
+        </div>
+
+        <div class="studio-tabs" role="tablist">
+          @for (tab of inspectorTabs; track tab.id) {
+            <button
+              type="button"
+              role="tab"
+              [class.active]="inspectorTab() === tab.id"
+              [attr.aria-selected]="inspectorTab() === tab.id"
+              (click)="setInspectorTab(tab.id)"
+            >
+              {{ tab.label }}
+            </button>
+          }
+        </div>
+
+        <div class="studio-pane">
+          @switch (inspectorTab()) {
+            @case ('content') {
+              <div class="studio-inspector-title">Identidade e apresentação</div>
+              <label class="studio-field">
+                <span>Nome do profissional ou clínica</span>
+                <input type="text" [ngModel]="d.shared.displayName" (ngModelChange)="patchShared('displayName', $event)" />
+              </label>
+              <label class="studio-field">
+                <span>Título principal</span>
+                <textarea rows="2" [ngModel]="d.shared.headline" (ngModelChange)="patchShared('headline', $event)"></textarea>
+              </label>
+              <label class="studio-field">
+                <span>Descrição curta</span>
+                <textarea rows="3" [ngModel]="d.shared.description" (ngModelChange)="patchShared('description', $event)"></textarea>
+              </label>
+              <label class="studio-field">
+                <span>Texto do botão</span>
+                <input type="text" [ngModel]="d.shared.ctaLabel" (ngModelChange)="patchShared('ctaLabel', $event)" />
+              </label>
+              <label class="studio-field">
+                <span>Cidade e região</span>
+                <input type="text" [ngModel]="d.shared.city" (ngModelChange)="patchShared('city', $event)" />
+              </label>
+              <div class="studio-hr"></div>
+              <div class="studio-inspector-title">Canais e conversão</div>
+              <label class="studio-field">
+                <span>Link da agenda (https://)</span>
+                <input type="url" [ngModel]="d.shared.bookingUrl" (ngModelChange)="patchShared('bookingUrl', $event)" />
+              </label>
+              <label class="studio-field">
+                <span>WhatsApp com DDD</span>
+                <input type="text" inputmode="tel" [ngModel]="d.shared.whatsapp" (ngModelChange)="patchShared('whatsapp', $event)" />
+                <small class="studio-field-help">Apenas números; o link público usa este contato.</small>
+              </label>
+              <label class="studio-field">
+                <span>Instagram</span>
+                <input type="text" [ngModel]="d.shared.instagram" (ngModelChange)="patchShared('instagram', $event)" />
+              </label>
+            }
+            @case ('style') {
+              <div class="studio-inspector-title">Aparência deste template</div>
+              <p class="studio-mini-note">
+                Cores e tipografia são específicas desta opção. O conteúdo é compartilhado entre os modelos.
+              </p>
+              <div class="studio-hr"></div>
+              <label class="studio-field">
+                <span>Cor principal</span>
+                <span class="studio-color-input">
+                  <input type="color" [ngModel]="themeValue('accent')" (ngModelChange)="patchTheme('accent', $event)" />
+                  <input type="text" [ngModel]="themeValue('accent')" (ngModelChange)="patchTheme('accent', $event)" aria-label="Hex da cor principal" />
+                </span>
+              </label>
+              <label class="studio-field">
+                <span>Cor do texto</span>
+                <span class="studio-color-input">
+                  <input type="color" [ngModel]="themeValue('ink')" (ngModelChange)="patchTheme('ink', $event)" />
+                  <input type="text" [ngModel]="themeValue('ink')" (ngModelChange)="patchTheme('ink', $event)" aria-label="Hex do texto" />
+                </span>
+              </label>
+              <label class="studio-field">
+                <span>Cor de fundo</span>
+                <span class="studio-color-input">
+                  <input type="color" [ngModel]="themeValue('canvas')" (ngModelChange)="patchTheme('canvas', $event)" />
+                  <input type="text" [ngModel]="themeValue('canvas')" (ngModelChange)="patchTheme('canvas', $event)" aria-label="Hex do fundo" />
+                </span>
+              </label>
+              <label class="studio-field">
+                <span>Fonte dos títulos</span>
+                <select [ngModel]="themeValue('font')" (ngModelChange)="patchTheme('font', $event)">
+                  @for (f of fontOptions; track f.id) {
+                    <option [value]="f.id">{{ f.label }}</option>
+                  }
+                </select>
+              </label>
+              <label class="studio-field">
+                <span>Composição do topo</span>
+                <select [ngModel]="themeValue('layout')" (ngModelChange)="patchTheme('layout', $event)">
+                  @for (l of layoutOptions; track l.id) {
+                    <option [value]="l.id">{{ l.label }}</option>
+                  }
+                </select>
+              </label>
+              <label class="studio-field">
+                <span>Arredondamento</span>
+                <input
+                  type="range"
+                  min="0"
+                  max="34"
+                  step="1"
+                  [ngModel]="themeNumber('round', 12)"
+                  (ngModelChange)="patchThemeNumber('round', $event)"
+                />
+                <small class="studio-field-help">{{ themeNumber('round', 12) }} px</small>
+              </label>
+              <label class="studio-field">
+                <span>Espaçamento entre seções</span>
+                <input
+                  type="range"
+                  min="35"
+                  max="115"
+                  step="5"
+                  [ngModel]="themeNumber('space', 72)"
+                  (ngModelChange)="patchThemeNumber('space', $event)"
+                />
+                <small class="studio-field-help">{{ themeNumber('space', 72) }} px</small>
+              </label>
+              <button type="button" class="studio-template-reset" (click)="resetTheme()">
+                Restaurar design deste template
+              </button>
+            }
+            @case ('media') {
+              <div class="studio-inspector-title">Fotografia e identidade</div>
+              <p class="studio-mini-note">
+                Use imagens próprias. JPG, PNG ou WebP · máx. 2 MB por arquivo.
+              </p>
+              <div class="studio-hr"></div>
+              @for (item of mediaSlots; track item.slot) {
+                <label class="studio-media-card">
+                  <span class="studio-media-card__label">{{ item.label }}</span>
+                  <span
+                    class="studio-media-card__thumb"
+                    [style.background-image]="mediaUrl(item.slot) ? 'url(' + mediaUrl(item.slot) + ')' : 'none'"
+                  ></span>
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    [disabled]="uploading() !== null"
+                    (change)="onMediaSelected(item.slot, $event)"
+                  />
+                  <span class="studio-media-card__action">
+                    {{ uploading() === item.slot ? 'Enviando…' : 'Trocar imagem' }}
+                  </span>
+                </label>
+              }
+              <div class="studio-notice">
+                Dica: use enquadramentos editoriais reais. A fotografia é parte da percepção premium.
+              </div>
+            }
+            @case ('blocks') {
+              <div class="studio-inspector-title">Blocos do {{ mode() === 'site' ? 'site' : 'link' }}</div>
+              <p class="studio-mini-note">
+                Ative, oculte e reorganize as seções. No Link na Bio, os serviços aparecem em versão resumida.
+              </p>
+              <div class="studio-hr"></div>
+              @for (block of activeBlocks(); track block.id; let i = $index) {
+                <div class="studio-block-item" [class.enabled]="block.enabled">
+                  <div class="studio-block-top">
+                    <button
+                      type="button"
+                      class="studio-mini-toggle"
+                      [class.active]="block.enabled"
+                      [attr.aria-label]="(block.enabled ? 'Ocultar' : 'Mostrar') + ' ' + blockLabel(block.type)"
+                      (click)="toggleBlock(block.id)"
+                    ></button>
+                    <span class="studio-block-name">{{ blockLabel(block.type) }}</span>
+                    <div class="studio-block-tools">
+                      <button type="button" title="Subir" [disabled]="i === 0" (click)="moveBlock(block.id, -1)">↑</button>
+                      <button
+                        type="button"
+                        title="Descer"
+                        [disabled]="i === activeBlocks().length - 1"
+                        (click)="moveBlock(block.id, 1)"
+                      >
+                        ↓
+                      </button>
+                      <button
+                        type="button"
+                        title="Editar"
+                        (click)="toggleEditBlock(block.id)"
+                      >
+                        ⚙
+                      </button>
+                    </div>
+                  </div>
+                  @if (editBlockId() === block.id) {
+                    <div class="studio-block-edit">
+                      <label class="studio-field">
+                        <span>Título</span>
+                        <input
+                          type="text"
+                          [ngModel]="block.title"
+                          (ngModelChange)="patchBlock(block.id, 'title', $event)"
+                        />
+                      </label>
+                      <label class="studio-field">
+                        <span>Texto de apoio</span>
+                        <textarea
+                          rows="2"
+                          [ngModel]="block.description"
+                          (ngModelChange)="patchBlock(block.id, 'description', $event)"
+                        ></textarea>
+                      </label>
+                      @if (block.type === 'services') {
+                        <label class="studio-field">
+                          <span>Visual dos serviços</span>
+                          <select
+                            [ngModel]="block.variant"
+                            (ngModelChange)="patchBlock(block.id, 'variant', $event)"
+                          >
+                            <option value="cards">Cards em grade</option>
+                            <option value="list">Lista editorial</option>
+                            <option value="mosaic">Mosaico</option>
+                            <option value="compact">Compacto (Link)</option>
+                            <option value="grid">Grade (Site)</option>
+                          </select>
+                        </label>
+                      }
+                    </div>
+                  }
+                </div>
+              }
+            }
+            @case ('publish') {
+              <div class="studio-status-card">
+                <strong>● {{ linkPublished() ? 'Link publicado' : hasSavedDraft() ? 'Rascunho salvo' : 'Sem rascunho salvo' }}</strong>
+                <p>
+                  @if (linkPublished()) {
+                    /l/:slug usa o layout do Studio. Altere o rascunho e atualize a publicação quando quiser.
+                  } @else {
+                    Salve o rascunho e publique o Link para atualizar a URL pública.
+                  }
+                </p>
+              </div>
+              <div class="studio-inspector-title">Um conteúdo, duas URLs</div>
+              <div class="studio-field">
+                <span>Link na Bio</span>
+                <div class="studio-url-preview">{{ publicUrl() || 'app.gestgo.com.br/l/…' }}</div>
+              </div>
+              <div class="studio-field">
+                <span>Site profissional</span>
+                <div class="studio-url-preview">Em breve · mesma base de conteúdo</div>
+              </div>
+              @if (mode() === 'link') {
+                <button
+                  type="button"
+                  class="studio-btn studio-btn--dark studio-inspector-cta"
+                  [disabled]="publishing()"
+                  (click)="publishLink()"
+                >
+                  {{ publishing() ? 'Publicando…' : linkPublished() ? 'Atualizar publicação ↗' : 'Publicar Link ↗' }}
+                </button>
+                @if (linkPublished()) {
+                  <button
+                    type="button"
+                    class="studio-btn studio-inspector-cta"
+                    [disabled]="publishing()"
+                    (click)="unpublishLink()"
+                  >
+                    Despublicar Link
+                  </button>
+                }
+              }
+              <div class="studio-hr"></div>
+              <a routerLink="/link-bio" class="studio-legacy-link">Abrir Link na Bio legado</a>
+            }
+          }
+        </div>
+      </aside>
+    </div>
+  </div>
+}

@@ -66,6 +66,10 @@ export interface Template {
   public_require_person_link?: boolean;
   /** Quando `public_require_person_link`: `code` (código + nascimento) ou `cpf`. */
   public_person_link_mode?: 'code' | 'cpf' | string;
+  /** PAC-05 — pré-preencher demografia do cadastro após o gate. */
+  public_prefill_from_person?: boolean;
+  /** PAC-05 — completar lacunas com o último protocolo aprovado deste modelo. */
+  public_prefill_from_last_protocol?: boolean;
   /** URL do formulário público quando o link está ativo (API pode retornar no GET template) */
   public_url?: string;
   /** PDF original do documento (layout da clínica) anexado ao modelo. */
@@ -75,6 +79,7 @@ export interface Template {
   source_document_size?: number | null;
   /** Mapa de áreas no PDF original (separado dos campos do formulário). */
   print_layout?: PrintLayout | null;
+  print_layout_archived?: unknown | null;
   created_at: string;
   updated_at: string;
 }
@@ -207,6 +212,8 @@ export class TemplatesService {
     is_active?: boolean;
     public_enabled?: boolean;
     public_require_person_link?: boolean;
+    public_prefill_from_person?: boolean;
+    public_prefill_from_last_protocol?: boolean;
     fields?: unknown[];
   }): Observable<Template> {
     return this.api.post<OneResponse>('/templates', payload).pipe(map((r) => r.data));
@@ -229,12 +236,15 @@ export class TemplatesService {
       Template & {
         public_require_person_link?: boolean;
         public_person_link_mode?: string;
+        public_prefill_from_person?: boolean;
+        public_prefill_from_last_protocol?: boolean;
         document_kind?: string;
         consent_validity_days?: number | null;
         comprehension_quiz?: TemplateComprehensionQuestion[] | null;
         actors_visibility_rules?: FieldVisibilityRules | null;
         new_category?: string;
         print_layout?: PrintLayout | null;
+        print_layout_archived?: unknown | null;
       }
     >,
   ): Observable<Template> {

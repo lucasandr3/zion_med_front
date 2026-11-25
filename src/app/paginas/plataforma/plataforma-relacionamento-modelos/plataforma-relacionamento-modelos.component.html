@@ -1,0 +1,92 @@
+<div class="n-page-list__toolbar">
+  <div class="n-page-list__toolbar-start">
+    <zm-page-back-link />
+  </div>
+  <div class="n-page-list__toolbar-end">
+    <div class="n-page-list__actions">
+      <nord-button type="button" variant="default" size="m" [attr.disabled]="acting() || null" (click)="carregar()">
+        Atualizar
+      </nord-button>
+      <nord-button type="button" variant="primary" size="m" (click)="novo()">Novo modelo</nord-button>
+    </div>
+  </div>
+</div>
+
+<div class="n-page-list__content">
+  @if (editing()) {
+    <div class="tpl-form n-page-list__panel">
+      <label>Nome<input type="text" [value]="name()" (input)="onName($event)" maxlength="160" /></label>
+      <label>Categoria<input type="text" [value]="category()" (input)="onCategory($event)" maxlength="64" /></label>
+      <label>Assunto<input type="text" [value]="subject()" (input)="onSubject($event)" maxlength="255" /></label>
+      <label>Corpo<textarea rows="8" [value]="body()" (input)="onBody($event)"></textarea></label>
+      <label>
+        Variáveis (separadas por vírgula)
+        <input type="text" [value]="variables()" (input)="onVariables($event)" placeholder="lead_name, lead_email" />
+      </label>
+      <label>
+        Status
+        <select [value]="status()" (change)="onStatus($event)">
+          <option value="active">Ativo</option>
+          <option value="paused">Pausado</option>
+          <option value="draft">Rascunho</option>
+        </select>
+      </label>
+      <div class="tpl-form__actions">
+        <nord-button type="button" variant="primary" [attr.disabled]="acting() || null" (click)="salvar()">Salvar</nord-button>
+        <nord-button type="button" variant="plain" (click)="cancelar()">Cancelar</nord-button>
+      </div>
+    </div>
+  }
+
+  @if (showSkeleton()) {
+    <div class="n-page-list__panel"><app-list-skeleton [count]="6" /></div>
+  } @else if (!listaPronta()) {
+  } @else if (error()) {
+    <div class="n-page-list__panel">
+      <p class="n-muted n-small" style="color:var(--n-color-status-danger,#c62828)">{{ error() }}</p>
+    </div>
+  } @else if (items().length === 0) {
+    <div class="n-page-list__empty">
+      <nord-empty-state>
+        <h2>Nenhum modelo</h2>
+        <p>Crie modelos de e-mail para usar nas automações da plataforma.</p>
+      </nord-empty-state>
+    </div>
+  } @else {
+    <div class="n-page-list__table">
+      @for (item of items(); track item.id) {
+        <div class="n-page-list__row">
+          <div class="n-page-list__row-main">
+            <div class="n-page-list__row-title">
+              {{ item.name }}
+              <span class="tpl-badge" [attr.data-status]="item.status">
+                {{ item.status === 'active' ? 'Ativo' : item.status === 'draft' ? 'Rascunho' : 'Pausado' }}
+              </span>
+            </div>
+            <div class="n-page-list__row-meta">
+              {{ item.channel }}
+              @if (item.category) { · {{ item.category }} }
+              · v{{ item.version ?? 1 }}
+              · {{ formatarData(item.updated_at) }}
+            </div>
+            @if (item.subject) {
+              <p class="tpl-subject">{{ item.subject }}</p>
+            }
+          </div>
+          <div class="n-page-list__actions">
+            <nord-button type="button" variant="plain" size="s" (click)="editar(item)">Editar</nord-button>
+            @if (item.status === 'active') {
+              <nord-button type="button" variant="plain" size="s" [attr.disabled]="acting() || null" (click)="pausar(item)">
+                Pausar
+              </nord-button>
+            } @else {
+              <nord-button type="button" variant="primary" size="s" [attr.disabled]="acting() || null" (click)="ativar(item)">
+                Ativar
+              </nord-button>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

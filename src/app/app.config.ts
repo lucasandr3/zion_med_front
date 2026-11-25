@@ -10,6 +10,7 @@ import { Portuguese } from 'flatpickr/dist/l10n/pt';
 import { provideNord } from '@/shared/nord/provide-nord';
 import { routes } from './app.routes';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
+import { correlationIdInterceptor } from './core/interceptors/correlation-id.interceptor';
 import { AuthService } from './core/services/auth.service';
 import { errorHubInterceptor } from './core/interceptors/error-hub.interceptor';
 import { GlobalErrorHandler } from './core/handlers/global-error.handler';
@@ -27,7 +28,7 @@ export const appConfig: ApplicationConfig = {
     provideNord(),
     provideZonelessChangeDetection(),
     provideRouter(routes),
-    provideHttpClient(withInterceptors([authInterceptor, errorHubInterceptor])),
+    provideHttpClient(withInterceptors([correlationIdInterceptor, authInterceptor, errorHubInterceptor])),
     provideAppInitializer(() => {
       const auth = inject(AuthService);
       return firstValueFrom(auth.ensureCsrf().pipe(catchError(() => of(''))));

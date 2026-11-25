@@ -1,0 +1,40 @@
+.task-create {
+  display: flex;
+  gap: 0.75rem;
+  align-items: end;
+}
+
+.task-create nord-input {
+  flex: 1;
+}
+
+.task-badge {
+  display: inline-block;
+  margin-left: 0.45rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.1rem 0.4rem;
+  border-radius: 0.25rem;
+  background: var(--n-color-surface-raised, #eee);
+}
+
+.task-badge[data-status='open'] {
+  background: color-mix(in srgb, var(--n-color-status-warning, #ed6c02) 16%, transparent);
+  color: var(--n-color-status-warning, #ed6c02);
+}
+
+.task-badge[data-status='done'] {
+  background: color-mix(in srgb, var(--n-color-status-success, #2e7d32) 16%, transparent);
+  color: var(--n-color-status-success, #2e7d32);
+}
+
+.task-badge[data-status='high'] {
+  background: color-mix(in srgb, var(--n-color-status-danger, #c62828) 14%, transparent);
+  color: var(--n-color-status-danger, #c62828);
+}
+
+.task-desc {
+  margin: 0.35rem 0 0;
+  font-size: 0.85rem;
+  color: var(--n-color-text-weaker, #666);
+}

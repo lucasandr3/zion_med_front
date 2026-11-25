@@ -1,0 +1,153 @@
+<div class="n-page-list__toolbar">
+  <div class="n-page-list__toolbar-start">
+    <zm-page-back-link />
+  </div>
+  <div class="n-page-list__toolbar-end">
+    <div class="n-page-list__actions">
+      <span class="n-muted n-small">Matrículas ativas: {{ enrollmentsActive() }}</span>
+      <nord-button type="button" variant="default" size="m" [attr.disabled]="acting() || null" (click)="carregar()">
+        Atualizar
+      </nord-button>
+      <nord-button type="button" variant="primary" size="m" (click)="novo()">Nova jornada</nord-button>
+    </div>
+  </div>
+</div>
+
+<div class="n-page-list__content">
+  @if (editing()) {
+    <div class="jrn-form n-page-list__panel">
+      <label>Nome<input type="text" [value]="name()" (input)="onName($event)" maxlength="160" /></label>
+      <label>Descrição<textarea rows="2" [value]="description()" (input)="onDescription($event)"></textarea></label>
+      <label>
+        Evento de entrada
+        <select [value]="entryEvent()" (change)="onEntry($event)">
+          @for (opt of entryOptions; track opt.id) {
+            <option [value]="opt.id">{{ opt.label }} ({{ opt.id }})</option>
+          }
+        </select>
+      </label>
+      <label>
+        Status
+        <select [value]="status()" (change)="onStatus($event)">
+          <option value="draft">Rascunho</option>
+          <option value="active">Ativa</option>
+          <option value="paused">Pausada</option>
+        </select>
+      </label>
+      <div class="jrn-exits">
+        <label class="jrn-check">
+          <input type="checkbox" [checked]="exitSubscription()" (change)="onExitSubscription($event)" />
+          Sair se assinatura ativa
+        </label>
+        <label class="jrn-check">
+          <input type="checkbox" [checked]="exitTrialExpired()" (change)="onExitTrial($event)" />
+          Sair se trial expirado
+        </label>
+      </div>
+
+      <h4>Passos (tarefas internas)</h4>
+      @for (step of steps(); track $index) {
+        <div class="jrn-step">
+          <div class="jrn-step__head">
+            <strong>Passo {{ $index + 1 }}</strong>
+            @if (steps().length > 1) {
+              <nord-button type="button" variant="plain" size="s" (click)="removerPasso($index)">Remover</nord-button>
+            }
+          </div>
+          <label>Key<input type="text" [value]="step.key" (input)="updateStep($index, 'key', $event)" /></label>
+          <label>
+            Atraso (dias)
+            <input type="number" min="0" max="365" [value]="step.delay_days" (input)="updateStep($index, 'delay_days', $event)" />
+          </label>
+          <label>Título da tarefa<input type="text" [value]="step.title" (input)="updateStep($index, 'title', $event)" /></label>
+          <label>Descrição<textarea rows="2" [value]="step.description" (input)="updateStep($index, 'description', $event)"></textarea></label>
+          <label>
+            Prioridade
+            <select [value]="step.priority" (change)="updateStep($index, 'priority', $event)">
+              <option value="low">Baixa</option>
+              <option value="normal">Normal</option>
+              <option value="high">Alta</option>
+            </select>
+          </label>
+          <label>
+            Condição (opcional) — campo
+            <input type="text" [value]="step.condition_field" (input)="updateStep($index, 'condition_field', $event)" placeholder="org_activated" />
+          </label>
+          <label>
+            Op
+            <select [value]="step.condition_op" (change)="updateStep($index, 'condition_op', $event)">
+              <option value="eq">eq</option>
+              <option value="neq">neq</option>
+              <option value="exists">exists</option>
+              <option value="not_exists">not_exists</option>
+            </select>
+          </label>
+          <label>
+            Valor
+            <input type="text" [value]="step.condition_value" (input)="updateStep($index, 'condition_value', $event)" placeholder="false" />
+          </label>
+        </div>
+      }
+      <nord-button type="button" variant="default" size="s" (click)="adicionarPasso()">Adicionar passo</nord-button>
+
+      <div class="jrn-form__actions">
+        <nord-button type="button" variant="primary" [attr.disabled]="acting() || null" (click)="salvar()">Salvar</nord-button>
+        <nord-button type="button" variant="plain" (click)="cancelar()">Cancelar</nord-button>
+      </div>
+    </div>
+  }
+
+  @if (showSkeleton()) {
+    <div class="n-page-list__panel"><app-list-skeleton [count]="6" /></div>
+  } @else if (!listaPronta()) {
+  } @else if (error()) {
+    <div class="n-page-list__panel">
+      <p class="n-muted n-small" style="color:var(--n-color-status-danger,#c62828)">{{ error() }}</p>
+    </div>
+  } @else if (items().length === 0) {
+    <div class="n-page-list__empty">
+      <nord-empty-state>
+        <h2>Nenhuma jornada</h2>
+        <p>Crie sequências internas (onboarding, follow-up de leads, etc.).</p>
+      </nord-empty-state>
+    </div>
+  } @else {
+    <div class="n-page-list__table">
+      @for (item of items(); track item.id) {
+        <div class="n-page-list__row">
+          <div class="n-page-list__row-main">
+            <div class="n-page-list__row-title">
+              {{ item.name }}
+              <span class="jrn-badge" [attr.data-status]="item.status">
+                {{ statusLabel(item.status) }}
+              </span>
+            </div>
+            <div class="n-page-list__row-meta">
+              {{ item.entry_event }}
+              · v{{ item.version ?? 1 }}
+              · {{ item.active_enrollments ?? 0 }} matrícula(s)
+              · {{ formatarData(item.updated_at) }}
+            </div>
+            @if (item.description) {
+              <p class="jrn-desc">{{ item.description }}</p>
+            }
+          </div>
+          <div class="n-page-list__actions">
+            <nord-button type="button" variant="plain" size="s" [attr.disabled]="acting() || null" (click)="editar(item)">
+              Editar
+            </nord-button>
+            @if (item.status === 'active') {
+              <nord-button type="button" variant="plain" size="s" [attr.disabled]="acting() || null" (click)="pausar(item)">
+                Pausar
+              </nord-button>
+            } @else {
+              <nord-button type="button" variant="primary" size="s" [attr.disabled]="acting() || null" (click)="ativar(item)">
+                Ativar
+              </nord-button>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

@@ -247,6 +247,35 @@ export const routes: Routes = [
         },
       },
       {
+        path: 'automacoes',
+        canActivate: [permissionGuard],
+        loadComponent: () => import('./paginas/automacoes/automacoes.component').then((m) => m.AutomacoesComponent),
+        data: {
+          titulo: 'Automações',
+          subtitulo: 'Quando acontece → avisar a equipe ou criar tarefa.',
+          permission: 'organization.manage',
+          urlVoltar: '/utilitarios',
+          labelVoltar: 'Utilitários',
+          voltarIntegrado: true,
+        },
+      },
+      {
+        path: 'automacoes/tarefas',
+        canActivate: [permissionGuard],
+        loadComponent: () =>
+          import('./paginas/automacoes/automacoes-tarefas/automacoes-tarefas.component').then(
+            (m) => m.AutomacoesTarefasComponent,
+          ),
+        data: {
+          titulo: 'Tarefas operacionais',
+          subtitulo: 'Fila gerada por automações ou criada pela equipe.',
+          permission: 'organization.manage',
+          urlVoltar: '/automacoes',
+          labelVoltar: 'Automações',
+          voltarIntegrado: true,
+        },
+      },
+      {
         path: 'utilitarios/orcamento',
         canActivate: [permissionGuard],
         loadComponent: () =>
@@ -412,6 +441,15 @@ export const routes: Routes = [
       { path: 'pessoas/:id/editar', canActivate: [permissionGuard], loadComponent: () => import('./paginas/pessoas/pessoas-formulario.component').then(m => m.PessoasFormularioComponent), data: { titulo: 'Editar pessoa', permission: 'submissions.view', urlVoltar: '/pessoas', labelVoltar: 'Voltar para Pessoas', voltarIntegrado: true } },
       { path: 'pessoas/:id', canActivate: [permissionGuard], loadComponent: () => import('./paginas/pessoas/pessoas-detalhe.component').then(m => m.PessoasDetalheComponent), data: { titulo: 'Ficha da pessoa', permission: 'submissions.view', urlVoltar: '/pessoas', labelVoltar: 'Voltar para Pessoas', voltarIntegrado: true } },
       { path: 'notificacoes', canActivate: [permissionGuard], loadComponent: () => import('./paginas/notificacoes/notificacoes.component').then(m => m.NotificacoesComponent), data: { titulo: 'Notificações', permission: 'notifications.access' } },
+      {
+        path: 'suporte',
+        loadComponent: () => import('./paginas/suporte/suporte.component').then(m => m.SuporteComponent),
+        data: {
+          titulo: 'Atendimento Gestgo',
+          subtitulo: 'Fale com a equipe Gestgo de forma assíncrona.',
+        },
+      },
+      { path: 'ajuda', loadComponent: () => import('./paginas/ajuda/ajuda.component').then(m => m.AjudaComponent), data: { titulo: 'Central de ajuda', subtitulo: 'Artigos e tutoriais do Gestgo.' } },
       { path: 'novidades', loadComponent: () => import('./paginas/novidades/novidades.component').then(m => m.NovidadesComponent), data: { titulo: 'Novidades' } },
       { path: 'templates', canActivate: [permissionGuard], loadComponent: () => import('./paginas/templates/templates-listagem.component').then(m => m.TemplatesListagemComponent), data: { titulo: 'Modelos de fichas', permission: 'templates.manage' } },
       { path: 'templates/criar', canActivate: [permissionGuard], loadComponent: () => import('./paginas/templates/templates-criar.component').then(m => m.TemplatesCriarComponent), data: { titulo: 'Novo modelo', permission: 'templates.manage', urlVoltar: '/templates', labelVoltar: 'Voltar para modelos', voltarIntegrado: true } },
@@ -425,6 +463,7 @@ export const routes: Routes = [
       { path: 'clinica/integracoes', canActivate: [permissionGuard], loadComponent: () => import('./paginas/clinica/clinica-integracoes.component').then(m => m.ClinicaIntegracoesComponent), data: { titulo: 'Integrações', permission: 'organization.manage', urlVoltar: '/configuracoes', labelVoltar: 'Voltar para Configurações', voltarIntegrado: true } },
       { path: 'clinica/integracoes/sistemas/feegow', canActivate: [permissionGuard], loadComponent: () => import('./paginas/clinica/clinica-integracao-feegow.component').then(m => m.ClinicaIntegracaoFeegowComponent), data: { titulo: 'Integração Feegow', permission: 'organization.manage', urlVoltar: '/clinica/integracoes', labelVoltar: 'Voltar para integrações', voltarIntegrado: true } },
       { path: 'clinica/integracoes/sistemas/:sistema', canActivate: [permissionGuard], loadComponent: () => import('./paginas/clinica/clinica-integracao-sistema.component').then(m => m.ClinicaIntegracaoSistemaComponent), data: { titulo: 'Integração de sistema', permission: 'organization.manage', urlVoltar: '/clinica/integracoes', labelVoltar: 'Voltar para integrações', voltarIntegrado: true } },
+      { path: 'studio', canActivate: [permissionGuard], loadComponent: () => import('./paginas/studio/studio.component').then(m => m.StudioComponent), data: { titulo: 'Gestgo Studio', permission: 'organization.manage' } },
       { path: 'link-bio', canActivate: [permissionGuard], loadComponent: () => import('./paginas/link-bio/link-bio.component').then(m => m.LinkBioComponent), data: { titulo: 'Link na bio', permission: 'organization.manage' } },
       { path: 'usuarios', canActivate: [permissionGuard], loadComponent: () => import('./paginas/usuarios/usuarios-listagem.component').then(m => m.UsuariosListagemComponent), data: { titulo: 'Usuários', permission: 'users.manage', urlVoltar: '/configuracoes', labelVoltar: 'Voltar para Configurações', voltarIntegrado: true } },
       { path: 'usuarios/criar', canActivate: [permissionGuard], loadComponent: () => import('./paginas/usuarios/usuarios-formulario.component').then(m => m.UsuariosFormularioComponent), data: { titulo: 'Novo usuário', permission: 'users.manage', urlVoltar: '/usuarios', labelVoltar: 'Voltar para Usuários', voltarIntegrado: true } },
@@ -452,6 +491,127 @@ export const routes: Routes = [
         path: 'comunicacao',
         loadComponent: () => import('./paginas/hubs/hub-page.component').then((m) => m.HubPageComponent),
         data: { titulo: 'Comunicação', hubId: 'plataforma-comunicacao' },
+      },
+      {
+        path: 'relacionamento',
+        loadComponent: () => import('./paginas/hubs/hub-page.component').then((m) => m.HubPageComponent),
+        data: { titulo: 'Central de Relacionamento', hubId: 'plataforma-relacionamento' },
+      },
+      {
+        path: 'relacionamento/atendimento',
+        canActivate: [permissionGuard],
+        loadComponent: () =>
+          import('./paginas/plataforma/plataforma-atendimento/plataforma-atendimento.component').then(
+            (m) => m.PlataformaAtendimentoComponent
+          ),
+        data: {
+          titulo: 'Caixa de entrada',
+          subtitulo: 'Helpdesk híbrido — atendimento das clínicas.',
+          permission: 'support.tickets.view',
+          urlVoltar: '/plataforma/relacionamento',
+          labelVoltar: 'Central de Relacionamento',
+          voltarIntegrado: true,
+        },
+      },
+      {
+        path: 'relacionamento/tarefas',
+        loadComponent: () =>
+          import('./paginas/plataforma/plataforma-relacionamento-tarefas/plataforma-relacionamento-tarefas.component').then(
+            (m) => m.PlataformaRelacionamentoTarefasComponent
+          ),
+        data: {
+          titulo: 'Tarefas operacionais',
+          subtitulo: 'Fila humana da Central de Relacionamento.',
+          urlVoltar: '/plataforma/relacionamento',
+          labelVoltar: 'Central de Relacionamento',
+          voltarIntegrado: true,
+        },
+      },
+      {
+        path: 'relacionamento/jornadas',
+        loadComponent: () =>
+          import('./paginas/plataforma/plataforma-relacionamento-jornadas/plataforma-relacionamento-jornadas.component').then(
+            (m) => m.PlataformaRelacionamentoJornadasComponent
+          ),
+        data: {
+          titulo: 'Jornadas',
+          subtitulo: 'Sequências internas de onboarding e ativação.',
+          urlVoltar: '/plataforma/relacionamento',
+          labelVoltar: 'Central de Relacionamento',
+          voltarIntegrado: true,
+        },
+      },
+      {
+        path: 'relacionamento/modelos',
+        loadComponent: () =>
+          import('./paginas/plataforma/plataforma-relacionamento-modelos/plataforma-relacionamento-modelos.component').then(
+            (m) => m.PlataformaRelacionamentoModelosComponent
+          ),
+        data: {
+          titulo: 'Modelos de mensagens',
+          subtitulo: 'Biblioteca de comunicação da plataforma.',
+          urlVoltar: '/plataforma/relacionamento',
+          labelVoltar: 'Central de Relacionamento',
+          voltarIntegrado: true,
+        },
+      },
+      {
+        path: 'relacionamento/automacoes',
+        loadComponent: () =>
+          import('./paginas/plataforma/plataforma-automacoes/plataforma-automacoes.component').then(
+            (m) => m.PlataformaAutomacoesComponent
+          ),
+        data: {
+          titulo: 'Automações',
+          subtitulo: 'Regras PLATFORM do Automation Engine.',
+          urlVoltar: '/plataforma/relacionamento',
+          labelVoltar: 'Central de Relacionamento',
+          voltarIntegrado: true,
+        },
+      },
+      {
+        path: 'relacionamento/execucoes',
+        loadComponent: () =>
+          import('./paginas/plataforma/plataforma-automacao-execucoes/plataforma-automacao-execucoes.component').then(
+            (m) => m.PlataformaAutomacaoExecucoesComponent
+          ),
+        data: {
+          titulo: 'Histórico de execuções',
+          subtitulo: 'Resultados e falhas das automações da plataforma.',
+          urlVoltar: '/plataforma/relacionamento',
+          labelVoltar: 'Central de Relacionamento',
+          voltarIntegrado: true,
+        },
+      },
+      {
+        path: 'relacionamento/conhecimento',
+        loadComponent: () =>
+          import('./paginas/plataforma/plataforma-conhecimento/plataforma-conhecimento.component').then(
+            (m) => m.PlataformaConhecimentoComponent
+          ),
+        data: {
+          titulo: 'Base de conhecimento',
+          subtitulo: 'Artigos da central de ajuda e do Go Assistant.',
+          urlVoltar: '/plataforma/relacionamento',
+          labelVoltar: 'Central de Relacionamento',
+          voltarIntegrado: true,
+        },
+      },
+      {
+        path: 'relacionamento/respostas-prontas',
+        canActivate: [permissionGuard],
+        loadComponent: () =>
+          import('./paginas/plataforma/plataforma-respostas-prontas/plataforma-respostas-prontas.component').then(
+            (m) => m.PlataformaRespostasProntasComponent
+          ),
+        data: {
+          titulo: 'Respostas prontas',
+          subtitulo: 'Modelos rápidos para o inbox de atendimento.',
+          permission: 'support.canned.manage',
+          urlVoltar: '/plataforma/relacionamento',
+          labelVoltar: 'Central de Relacionamento',
+          voltarIntegrado: true,
+        },
       },
       {
         path: 'sistema',
@@ -506,6 +666,53 @@ export const routes: Routes = [
       { path: 'planos/:id/editar', loadComponent: () => import('./paginas/plataforma/plataforma-plano-form/plataforma-plano-form.component').then(m => m.PlataformaPlanoFormComponent), data: { titulo: 'Editar plano', urlVoltar: '/plataforma/planos', labelVoltar: 'Voltar para Planos', voltarIntegrado: true } },
       { path: 'configuracoes', loadComponent: () => import('./paginas/plataforma/plataforma-configuracoes/plataforma-configuracoes.component').then(m => m.PlataformaConfiguracoesComponent), data: { titulo: 'Configurações da plataforma', subtitulo: 'Parâmetros, integrações e serviços de infraestrutura.', urlVoltar: '/plataforma/sistema', labelVoltar: 'Plataforma e auditoria', voltarIntegrado: true } },
       { path: 'logs', loadComponent: () => import('./paginas/plataforma/plataforma-logs/plataforma-logs.component').then(m => m.PlataformaLogsComponent), data: { titulo: 'Meus logs de auditoria', subtitulo: 'Ações realizadas por você na plataforma', urlVoltar: '/plataforma/sistema', labelVoltar: 'Plataforma e auditoria', voltarIntegrado: true } },
+      {
+        path: 'filas',
+        loadComponent: () => import('./paginas/hubs/hub-page.component').then((m) => m.HubPageComponent),
+        data: { titulo: 'Filas e jobs', hubId: 'plataforma-filas' },
+      },
+      {
+        path: 'filas/jobs',
+        loadComponent: () =>
+          import('./paginas/plataforma/plataforma-filas/plataforma-filas.component').then(
+            (m) => m.PlataformaFilasComponent
+          ),
+        data: {
+          titulo: 'Jobs',
+          subtitulo: 'Fila pendente, falhos e contenção de e-mails.',
+          urlVoltar: '/plataforma/filas',
+          labelVoltar: 'Filas e jobs',
+          voltarIntegrado: true,
+        },
+      },
+      {
+        path: 'filas/schedules',
+        loadComponent: () =>
+          import('./paginas/plataforma/plataforma-filas-schedules/plataforma-filas-schedules.component').then(
+            (m) => m.PlataformaFilasSchedulesComponent
+          ),
+        data: {
+          titulo: 'Schedules',
+          subtitulo: 'Tarefas agendadas da plataforma.',
+          urlVoltar: '/plataforma/filas',
+          labelVoltar: 'Filas e jobs',
+          voltarIntegrado: true,
+        },
+      },
+      {
+        path: 'filas/schedules/:id',
+        loadComponent: () =>
+          import('./paginas/plataforma/plataforma-filas-schedule-detalhe/plataforma-filas-schedule-detalhe.component').then(
+            (m) => m.PlataformaFilasScheduleDetalheComponent
+          ),
+        data: {
+          titulo: 'Schedule',
+          subtitulo: 'Detalhe da tarefa agendada e última execução.',
+          urlVoltar: '/plataforma/filas/schedules',
+          labelVoltar: 'Schedules',
+          voltarIntegrado: true,
+        },
+      },
       {
         path: 'organizacoes-online',
         loadComponent: () =>

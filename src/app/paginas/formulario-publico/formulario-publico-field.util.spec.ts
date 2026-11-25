@@ -2,13 +2,14 @@ import { fieldType, getFieldOptions, isFieldFilled } from './formulario-publico-
 import { FormularioPublicoField } from '../../core/services/formulario-publico.service';
 
 describe('formulario-publico-field.util', () => {
-  const baseField = (overrides: Partial<FormularioPublicoField>): FormularioPublicoField => ({
+  const baseField = (overrides: Partial<FormularioPublicoField> = {}): FormularioPublicoField => ({
+    id: 1,
     name_key: 'campo',
     label: 'Campo',
     type: 'text',
     required: false,
     sort_order: 0,
-    options: null,
+    options: [],
     ...overrides,
   });
 
@@ -17,8 +18,16 @@ describe('formulario-publico-field.util', () => {
   });
 
   it('parseia opções em string separada por vírgula', () => {
-    const opts = getFieldOptions(baseField({ type: 'select', options: 'Sim,Não' }));
+    // getFieldOptions aceita string no runtime; o tipo público tipa array.
+    const opts = getFieldOptions(baseField({ type: 'select', options: ['Sim', 'Não'] }));
     expect(opts).toEqual([
+      { value: 'Sim', label: 'Sim' },
+      { value: 'Não', label: 'Não' }]);
+    const fromCsv = getFieldOptions({
+      ...baseField({ type: 'select' }),
+      options: 'Sim,Não' as unknown as unknown[],
+    });
+    expect(fromCsv).toEqual([
       { value: 'Sim', label: 'Sim' },
       { value: 'Não', label: 'Não' }]);
   });

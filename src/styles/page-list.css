@@ -215,6 +215,49 @@
   padding: var(--n-space-xl, 2rem) var(--n-space-m, 1rem);
 }
 
+/* VIS-14 — empty state do arco Documentos (alinhado a Modelos / hub). */
+.n-page-list__empty-card {
+  width: min(36rem, 100%);
+  margin: 0 auto;
+  border: 1px dashed var(--n-color-border, var(--border, #e2e8f0));
+  border-radius: 0.875rem;
+  background: color-mix(in srgb, var(--c-brand-soft, #e2f6ef) 35%, var(--n-color-surface, #fff));
+  box-shadow: none;
+  padding: 1.5rem 1rem;
+}
+
+.dark .n-page-list__empty-card,
+:root.dark .n-page-list__empty-card {
+  background: color-mix(in srgb, var(--n-color-surface-raised, #1a1a1a) 80%, transparent);
+}
+
+.n-page-list__empty-card a:first-of-type,
+.n-page-list__empty-card button:first-of-type {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.9rem;
+  border-radius: 0.5rem;
+  border: none;
+  background: var(--c-action, #087a55);
+  color: #fff;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.n-page-list__empty-card a:first-of-type:focus-visible,
+.n-page-list__empty-card button:first-of-type:focus-visible {
+  outline: 2px solid var(--c-focus-ring, var(--c-action, #087a55));
+  outline-offset: 2px;
+}
+
+.n-page-list__empty-card a:not(:first-of-type) {
+  color: var(--n-color-text, inherit);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
 .n-page-list__section {
   padding: 0.85rem 1rem 0.35rem;
   border-block-end: 1px solid var(--n-color-border);

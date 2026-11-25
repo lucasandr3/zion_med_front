@@ -96,7 +96,16 @@ export class ServicosListagemComponent implements OnInit {
     }
     if (s.form_template_id) {
       const ficha = this.fichas().find((t) => t.id === s.form_template_id);
-      parts.push(ficha ? `ficha: ${ficha.name}` : 'com ficha');
+      const opc = s.form_template_optional_id
+        ? this.fichas().find((t) => t.id === s.form_template_optional_id)
+        : null;
+      if (ficha && opc) {
+        parts.push(`pacote: ${ficha.name} + ${opc.name} (opc.)`);
+      } else if (ficha) {
+        parts.push(s.form_template_optional_id ? `pacote: ${ficha.name} + 1 opc.` : `pacote: ${ficha.name}`);
+      } else {
+        parts.push(s.form_template_optional_id ? 'pacote 2 docs' : 'com pacote documental');
+      }
     }
     if (s.is_active === false) parts.push('inativo');
     return parts.join(' · ');

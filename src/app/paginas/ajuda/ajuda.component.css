@@ -1,0 +1,53 @@
+.ajuda-link {
+  font-size: 0.9rem;
+  color: var(--n-color-accent, #168765);
+}
+
+.ajuda-list {
+  display: grid;
+  gap: 0.5rem;
+  max-width: 44rem;
+}
+
+.ajuda-card {
+  text-align: left;
+  border: 1px solid var(--n-color-border, #e5e7eb);
+  background: var(--n-color-surface, #fff);
+  border-radius: 0.5rem;
+  padding: 0.75rem 0.9rem;
+  cursor: pointer;
+}
+
+.ajuda-card:hover {
+  border-color: color-mix(in srgb, var(--n-color-accent, #168765) 45%, #ccc);
+}
+
+.ajuda-card__title {
+  font-weight: 600;
+}
+
+.ajuda-card__meta {
+  margin-top: 0.2rem;
+  font-size: 0.8rem;
+  color: var(--n-color-text-weaker, #666);
+}
+
+.ajuda-article {
+  max-width: 44rem;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.ajuda-article h3 {
+  margin: 0;
+}
+
+.ajuda-content {
+  white-space: pre-wrap;
+  font: inherit;
+  line-height: 1.55;
+  margin: 0;
+  background: var(--n-color-surface-raised, #f7f7f7);
+  padding: 1rem;
+  border-radius: 0.5rem;
+}

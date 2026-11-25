@@ -49,6 +49,8 @@ export interface ProtocoloEvent {
   type_label?: string;
   body?: string;
   user?: { name?: string };
+  /** Alguns backends (Java) enviam o nome solto em vez de `user`. */
+  user_name?: string;
   created_at?: string;
 }
 
@@ -126,10 +128,13 @@ export type ProtocoloDetalheData = Protocolo & {
     values?: Record<string, unknown>;
     submitted_at?: string;
   } | null;
-  /** Valores agregados (chave do campo → valor exibido). Inclui respostas do paciente e do registro da equipe. */
-  values?: Record<string, unknown>;
+  /**
+   * Valores agregados. Laravel: mapa chave→valor.
+   * Java QA: pode vir como array `{ key, value_text, value_json }[]`.
+   */
+  values?: Record<string, unknown> | Array<Record<string, unknown>>;
   form_data?: Record<string, unknown>;
-  values_keyed?: Record<string, { value_text?: string; value_json?: unknown }>;
+  values_keyed?: Record<string, { value_text?: string; value_json?: unknown } | unknown>;
   /** Definição dos campos preenchidos só pela equipe (modelos Estética). */
   staff_fields?: ProtocoloField[];
   events?: ProtocoloEvent[];

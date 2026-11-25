@@ -1,0 +1,52 @@
+.schedule-status,
+.schedule-run {
+  display: inline-block;
+  margin-left: 0.4rem;
+  padding: 0.1rem 0.45rem;
+  border-radius: 999px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  vertical-align: middle;
+  background: color-mix(in srgb, var(--muted, #e5e7eb) 80%, transparent);
+  color: var(--muted-foreground, var(--n-color-text-weak));
+}
+
+.schedule-status[data-enabled='true'] {
+  background: color-mix(in srgb, #168765 12%, transparent);
+  color: #168765;
+}
+
+.schedule-status[data-enabled='false'] {
+  background: color-mix(in srgb, var(--n-color-status-danger, #c62828) 12%, transparent);
+  color: var(--n-color-status-danger, #c62828);
+}
+
+.schedule-run[data-status='ok'] {
+  background: color-mix(in srgb, #168765 12%, transparent);
+  color: #168765;
+}
+
+.schedule-run[data-status='error'] {
+  background: color-mix(in srgb, var(--n-color-status-danger, #c62828) 12%, transparent);
+  color: var(--n-color-status-danger, #c62828);
+}
+
+.schedule-error {
+  margin: 0.45rem 0 0;
+  max-width: 52rem;
+  color: var(--n-color-status-danger, #c62828);
+  font-size: 0.875rem;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.schedule-ok-msg {
+  margin: 0.45rem 0 0;
+  max-width: 52rem;
+  color: var(--muted-foreground, var(--n-color-text-weak));
+  font-size: 0.8125rem;
+  line-height: 1.45;
+}

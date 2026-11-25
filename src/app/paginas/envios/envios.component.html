@@ -32,6 +32,9 @@
   @if (mostrarNovoEnvio()) {
     <div class="n-page-list__panel novo-envio-card">
       <h3 class="m-0 mb-4 text-base font-semibold text-foreground">Enviar link do documento</h3>
+      @if (prefillBanner()) {
+        <p class="novo-envio-prefill" role="status">{{ prefillBanner() }}</p>
+      }
       @if (erroNovo()) {
         <p class="mb-3 text-sm" style="color: var(--n-color-status-danger, #c62828)">{{ erroNovo() }}</p>
       }
@@ -172,15 +175,20 @@
     </div>
   } @else if (!listaPronta()) {
   } @else if (envios().length === 0) {
-    <div class="n-page-list__empty">
-      <nord-empty-state>
-        <h2>Nenhum envio nesta caixa</h2>
-        <p>Crie um novo envio ou selecione outra caixa.</p>
-        <nord-button variant="primary" (click)="abrirNovoEnvio()">
-          <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">add</span>
-          Novo envio
-        </nord-button>
-      </nord-empty-state>
+    <div class="n-page-list__empty zm-content-enter">
+      <div class="n-page-list__empty-card">
+        <zm-empty-state
+          title="Nenhum envio nesta caixa"
+          description="Importe ou publique uma ficha e compartilhe o link — ou crie um envio agora."
+          actionLabel="Novo envio"
+          actionIcon="add"
+          (actionClick)="abrirNovoEnvio()"
+          secondaryActionLabel="Hub Documentos"
+          secondaryActionLink="/documentos"
+          tertiaryActionLabel="Usar minha ficha"
+          tertiaryActionLink="/templates/importar"
+        />
+      </div>
     </div>
   } @else {
     <div class="n-page-list__table">

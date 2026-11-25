@@ -314,14 +314,37 @@ export class AuthService {
     return this._user?.role === 'platform_admin';
   }
 
+  isSupportAgent(): boolean {
+    return this._user?.role === 'support_agent';
+  }
+
+  /** Staff Gestgo: admin da plataforma ou agente de atendimento. */
+  canAccessPlatform(): boolean {
+    if (this.isPlatformAdmin() || this.isSupportAgent()) return true;
+    return this.hasPermission('platform.admin') || this.hasPermission('support.tickets.view');
+  }
+
   canSwitchClinic(): boolean {
     return this._user?.can_switch_clinic ?? false;
+  }
+
+  /** Destino padrão após login para staff da plataforma. */
+  getDefaultPlatformPath(): string {
+    if (this.isPlatformAdmin() || this.hasPermission('platform.admin')) {
+      return '/plataforma';
+    }
+    if (this.hasPermission('support.tickets.view')) {
+      return '/plataforma/relacionamento/atendimento';
+    }
+    return '/plataforma';
   }
 
   /** Verifica permissão no contexto atual (usa `user.permissions`; sem lista = negar). */
   hasPermission(key: string): boolean {
     const u = this._user;
     if (!u) return false;
+    // Admin da plataforma tem acesso total à área Gestgo (hub/nav não depende só do cache de /me).
+    if (u.role === 'platform_admin' || u.role === 'super_admin') return true;
     if (Array.isArray(u.permissions)) {
       return u.permissions.includes(key);
     }
@@ -344,6 +367,7 @@ export class AuthService {
       ['/envios', () => this.hasPermission('templates.manage') || this.hasPermission('submissions.view')],
       ['/configuracoes', () => this.hasPermission('organization.manage') || this.hasPermission('users.manage') || this.hasPermission('billing.manage')],
       ['/assinatura', () => this.hasPermission('billing.manage')],
+      ['/studio', () => this.hasPermission('organization.manage')],
       ['/link-bio', () => this.hasPermission('organization.manage')],
       ['/clinica/configuracoes', () => this.hasPermission('organization.manage')],
       ['/clinica/integracoes', () => this.hasPermission('organization.manage')],

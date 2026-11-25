@@ -220,10 +220,12 @@ zm-formulario-publico-otp {
 }
 
 .fp-optional {
-  font-weight: 400;
+  font-weight: 500;
   text-transform: none;
   letter-spacing: normal;
-  opacity: 0.85;
+  /* VIS-14.4 — contraste AA sem depender de opacity baixa */
+  opacity: 1;
+  color: var(--fp-cream-600, #5b6b63);
 }
 
 .fp-preenchedora-grid {
@@ -379,6 +381,64 @@ zm-formulario-publico-otp {
 
 .form-publico-page.dark .fp-field-hint {
   color: #737373;
+}
+
+.fp-field-hint--prefill {
+  margin-top: 0.2rem;
+  margin-bottom: 0.35rem;
+  color: color-mix(in srgb, var(--fp-brand-600, #1b7a57) 85%, var(--fp-cream-600, #6b7280));
+  font-weight: 600;
+}
+
+.form-publico-page.dark .fp-field-hint--prefill {
+  color: color-mix(in srgb, var(--fp-brand-500, #3dd68c) 70%, #a3a3a3);
+}
+
+.fp-prefill-review {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin: 0 0 1rem;
+  padding: 0.75rem 0.9rem;
+  border-radius: 0.65rem;
+  border: 1px solid color-mix(in srgb, var(--fp-brand-500, #1b7a57) 28%, transparent);
+  background: color-mix(in srgb, var(--fp-brand-soft, #e8f6ef) 88%, #ffffff);
+}
+
+.form-publico-page.dark .fp-prefill-review {
+  background: color-mix(in srgb, var(--fp-brand-500, #1b7a57) 18%, #1a1a1a);
+  border-color: color-mix(in srgb, var(--fp-brand-500, #1b7a57) 35%, transparent);
+}
+
+.fp-prefill-review__text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  color: inherit;
+}
+
+.fp-prefill-review__text strong {
+  font-size: 0.875rem;
+}
+
+.fp-prefill-review__dismiss {
+  flex-shrink: 0;
+  border: 0;
+  background: transparent;
+  color: var(--fp-brand-600, #1b7a57);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0.15rem 0.25rem;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.form-publico-page.dark .fp-prefill-review__dismiss {
+  color: color-mix(in srgb, var(--fp-brand-500, #3dd68c) 80%, #ffffff);
 }
 
 /* Inputs — usar background-color (não o shorthand background) no select, senão a seta SVG some ou reaparece em tile em alguns navegadores */
@@ -1365,9 +1425,9 @@ zm-formulario-publico-otp {
 
 .fp-optional {
   margin-left: 0.35rem;
-  font-size: 0.75rem;
+  font-size: 0.8125rem;
   font-weight: 500;
-  color: var(--fp-cream-600);
+  color: var(--fp-cream-600, #5b6b63);
 }
 
 /* field-group / label: ver bloco principal acima */

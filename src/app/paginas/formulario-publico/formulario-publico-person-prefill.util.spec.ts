@@ -61,8 +61,43 @@ describe('formulario-publico-person-prefill.util identity dedupe', () => {
 
     const fields = [field({ name_key: 'email', label: 'E-mail' })];
     const valores: Record<string, string | number | boolean | Date> = {};
-    applyPersonPrefillToFields(fields, valores, { email: 'a***@x.com' });
+    const result = applyPersonPrefillToFields(fields, valores, { email: 'a***@x.com' });
     expect(valores['email']).toBeUndefined();
+    expect(result.applied).toEqual([]);
+  });
+
+  it('PAC-05: retorna chaves aplicadas e preenche demografia do cadastro', () => {
+    const fields = [
+      field({ name_key: 'profissao', label: 'Profissão' }),
+      field({ name_key: 'cidade', label: 'Cidade' }),
+      field({ name_key: 'queixa', label: 'Queixa' }),
+    ];
+    const valores: Record<string, string | number | boolean | Date> = {};
+    const result = applyPersonPrefillToFields(fields, valores, {
+      profession: 'Dentista',
+      city: 'São Paulo',
+    });
+    expect(valores['profissao']).toBe('Dentista');
+    expect(valores['cidade']).toBe('São Paulo');
+    expect(valores['queixa']).toBeUndefined();
+    expect(result.applied).toEqual(['profissao', 'cidade']);
+    expect(result.fromProtocol).toEqual([]);
+  });
+
+  it('PAC-05: marca campos vindos do último protocolo', () => {
+    const fields = [
+      field({ name_key: 'cidade', label: 'Cidade' }),
+      field({ name_key: 'profissao', label: 'Profissão' }),
+    ];
+    const valores: Record<string, string | number | boolean | Date> = {};
+    const result = applyPersonPrefillToFields(
+      fields,
+      valores,
+      { city: 'Campinas', profession: 'Dentista' },
+      ['city'],
+    );
+    expect(result.applied).toEqual(['cidade', 'profissao']);
+    expect(result.fromProtocol).toEqual(['cidade']);
   });
 
   it('esconde campos cobertos quando já preenchidos', () => {

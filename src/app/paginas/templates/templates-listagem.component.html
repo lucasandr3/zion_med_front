@@ -95,9 +95,17 @@
     } @else {
       <div class="zm-content-enter">
         @if (templates().length === 0) {
-          <g-card class="mb-6 border-dashed border-border bg-muted/30 py-10 shadow-none **:data-[slot=card-content]:px-4">
-            <zm-empty-state title="Nenhum modelo cadastrado." actionLabel="Criar modelo" actionLink="/templates/criar-em-branco" />
-          </g-card>
+          <div class="n-page-list__empty-card mb-6">
+            <zm-empty-state
+              title="Nenhum modelo cadastrado."
+              description="Importe a ficha que você já usa no consultório ou comece pelo hub Documentos."
+              actionLabel="Usar minha ficha atual"
+              actionLink="/templates/importar"
+              actionIcon="upload_file"
+              secondaryActionLabel="Hub Documentos"
+              secondaryActionLink="/documentos"
+            />
+          </div>
         } @else if (gruposParaColecao.length === 0) {
           <g-card class="mb-6 border-dashed border-border bg-muted/40 py-8 text-center shadow-none **:data-[slot=card-content]:px-6">
             <p class="m-0 text-sm text-foreground">Nenhum modelo corresponde aos filtros atuais.</p>
