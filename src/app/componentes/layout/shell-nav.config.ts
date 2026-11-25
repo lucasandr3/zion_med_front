@@ -104,14 +104,14 @@ export const SHELL_NAV_SIDEBAR: ShellNavSection[] = [
           '/automacoes/tarefas',
         ],
       },
-      {
-        route: '/automacoes',
-        label: 'Automações',
-        icon: 'bolt',
-        permission: 'organization.manage',
-        exact: true,
-        activeAlsoPrefixes: ['/automacoes/tarefas'],
-      },
+      // {
+      //   route: '/automacoes',
+      //   label: 'Automações',
+      //   icon: 'bolt',
+      //   permission: 'organization.manage',
+      //   exact: true,
+      //   activeAlsoPrefixes: ['/automacoes/tarefas'],
+      // },
     ],
   },
   {
