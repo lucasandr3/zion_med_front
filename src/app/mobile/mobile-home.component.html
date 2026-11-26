@@ -1,27 +1,37 @@
-<div class="gm-header">
-  <div>
-    <div class="gm-logo">gest<span>go</span></div>
-    <div class="gm-tagline">Seu dia, mais simples.</div>
-  </div>
+<div class="gm-header gm-header--home">
+  <div class="gm-logo">gest<span>go</span></div>
   <div class="gm-header__actions">
-    <button type="button" class="gm-icon-btn" (click)="abrirNotificacoes()" aria-label="Notificações">
+    <button type="button" class="gm-icon-btn gm-icon-btn--bell" (click)="abrirNotificacoes()" aria-label="Notificações">
       <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">notifications</span>
+      @if (pendentes() > 0) {
+        <span class="gm-notif-dot" aria-hidden="true"></span>
+      }
     </button>
-    <button type="button" class="gm-icon-btn" (click)="abrirMenu()" aria-label="Menu da conta">
-      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">person</span>
+    <button type="button" class="gm-avatar-btn" (click)="abrirMenu()" [attr.aria-label]="'Menu de ' + nome">
+      {{ iniciaisUsuario }}
     </button>
   </div>
 </div>
 
-<p class="gm-hello">SEU GESTGO EM UM SÓ LUGAR</p>
-<h1 class="gm-title">Olá! 👋<br />Vamos facilitar seu dia?</h1>
-<p class="gm-sub">Consulte pacientes, envie fichas e acompanhe assinaturas sem complicação.</p>
+<p class="gm-dateline">{{ dataHoje }}</p>
+<h1 class="gm-greet">{{ saudacao }}, {{ nome }}</h1>
+<p class="gm-statusline">
+  @if (loading()) {
+    Carregando seu resumo…
+  } @else if (pendentes() === 0) {
+    Nenhuma ficha aguardando assinatura.
+  } @else if (pendentes() === 1) {
+    Você tem <strong>1 ficha</strong> aguardando assinatura.
+  } @else {
+    Você tem <strong>{{ pendentes() }} fichas</strong> aguardando assinatura.
+  }
+</p>
 
 <div class="gm-cta">
   <div class="gm-kicker">ACESSO RÁPIDO</div>
   <h2>Envie uma ficha em segundos</h2>
   <p>Escolha o modelo e compartilhe com a paciente.</p>
-  <a class="gm-cta__btn" routerLink="/m/fichas">
+  <a class="gm-cta__btn" routerLink="/m/enviar">
     <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">send</span>
     Enviar ficha agora
   </a>
@@ -54,42 +64,112 @@
     </div>
   </div>
 
-  <div class="gm-section"><h2>Acesso rápido ao Gestgo</h2></div>
-  <div class="gm-tiles">
-    <a class="gm-tile" routerLink="/m/pacientes">
-      <span class="gm-tile__icon" aria-hidden="true">
-        <span class="material-symbols-outlined gestgo-mi gestgo-mi--m">group</span>
+  <div class="gm-section">
+    <h2>Hoje</h2>
+    <a class="gm-link" routerLink="/m/agenda">Abrir agenda →</a>
+  </div>
+  <a class="gm-today" routerLink="/m/agenda">
+    <span class="gm-today__icon" aria-hidden="true">
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s">calendar_month</span>
+    </span>
+    <span class="gm-today__body">
+      @if (hojeCount() === 0) {
+        <strong>Sem compromissos hoje</strong>
+        <small>Aproveite para acompanhar as fichas pendentes.</small>
+      } @else if (proximoHoje(); as prox) {
+        <strong>
+          {{ hojeCount() }} compromisso{{ hojeCount() === 1 ? '' : 's' }} hoje
+        </strong>
+        <small>{{ horaCurta(prox.starts_at) }} · {{ prox.patient_name }}</small>
+      }
+    </span>
+  </a>
+
+  <div class="gm-section"><h2>Atalhos</h2></div>
+  <div class="gm-shortcuts" role="list">
+    <a class="gm-shortcut" routerLink="/m/agenda" role="listitem">
+      <span class="gm-shortcut__icon" aria-hidden="true">
+        <span class="material-symbols-outlined gestgo-mi gestgo-mi--s">calendar_month</span>
       </span>
-      <strong>Pacientes</strong>
-      <small>Consultar cadastros</small>
+      <span class="gm-shortcut__body">
+        <strong>Agenda</strong>
+        <small>Horários do dia</small>
+      </span>
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s gm-shortcut__chev" aria-hidden="true">chevron_right</span>
     </a>
-    <a class="gm-tile" routerLink="/m/fichas">
-      <span class="gm-tile__icon" aria-hidden="true">
-        <span class="material-symbols-outlined gestgo-mi gestgo-mi--m">description</span>
+    <a class="gm-shortcut" routerLink="/m/pacientes" role="listitem">
+      <span class="gm-shortcut__icon" aria-hidden="true">
+        <span class="material-symbols-outlined gestgo-mi gestgo-mi--s">group</span>
       </span>
-      <strong>Modelos de fichas</strong>
-      <small>Escolher e enviar</small>
+      <span class="gm-shortcut__body">
+        <strong>Pacientes</strong>
+        <small>Consultar cadastros</small>
+      </span>
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s gm-shortcut__chev" aria-hidden="true">chevron_right</span>
     </a>
-    <a class="gm-tile" routerLink="/m/documentos" [queryParams]="{ status: 'pending' }">
-      <span class="gm-tile__icon" aria-hidden="true">
-        <span class="material-symbols-outlined gestgo-mi gestgo-mi--m">schedule</span>
+    <a class="gm-shortcut" routerLink="/m/fichas" role="listitem">
+      <span class="gm-shortcut__icon" aria-hidden="true">
+        <span class="material-symbols-outlined gestgo-mi gestgo-mi--s">description</span>
       </span>
-      <strong>Pendências</strong>
-      <small>Acompanhar documentos</small>
+      <span class="gm-shortcut__body">
+        <strong>Modelos de fichas</strong>
+        <small>Escolher e enviar</small>
+      </span>
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s gm-shortcut__chev" aria-hidden="true">chevron_right</span>
     </a>
-    <a class="gm-tile" routerLink="/m/documentos" [queryParams]="{ status: 'approved' }">
-      <span class="gm-tile__icon" aria-hidden="true">
-        <span class="material-symbols-outlined gestgo-mi gestgo-mi--m">verified_user</span>
+    <a class="gm-shortcut" routerLink="/m/documentos" [queryParams]="{ status: 'pending' }" role="listitem">
+      <span class="gm-shortcut__icon" aria-hidden="true">
+        <span class="material-symbols-outlined gestgo-mi gestgo-mi--s">schedule</span>
       </span>
-      <strong>Assinaturas</strong>
-      <small>Ver documentos concluídos</small>
+      <span class="gm-shortcut__body">
+        <strong>Pendências</strong>
+        <small>Acompanhar documentos</small>
+      </span>
+      @if (pendentes() > 0) {
+        <span class="gm-shortcut__badge" [attr.aria-label]="pendentes() + ' pendências'">{{ pendentes() }}</span>
+      } @else {
+        <span class="material-symbols-outlined gestgo-mi gestgo-mi--s gm-shortcut__chev" aria-hidden="true">chevron_right</span>
+      }
     </a>
-    <a class="gm-tile" routerLink="/m/configuracoes">
-      <span class="gm-tile__icon" aria-hidden="true">
-        <span class="material-symbols-outlined gestgo-mi gestgo-mi--m">settings</span>
+    <a class="gm-shortcut" routerLink="/m/envios" role="listitem">
+      <span class="gm-shortcut__icon" aria-hidden="true">
+        <span class="material-symbols-outlined gestgo-mi gestgo-mi--s">mail</span>
       </span>
-      <strong>Configurações</strong>
-      <small>Tema, push e sair</small>
+      <span class="gm-shortcut__body">
+        <strong>Envios</strong>
+        <small>Reenvio e lembretes</small>
+      </span>
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s gm-shortcut__chev" aria-hidden="true">chevron_right</span>
+    </a>
+    <a class="gm-shortcut" routerLink="/m/tarefas" role="listitem">
+      <span class="gm-shortcut__icon" aria-hidden="true">
+        <span class="material-symbols-outlined gestgo-mi gestgo-mi--s">task_alt</span>
+      </span>
+      <span class="gm-shortcut__body">
+        <strong>Tarefas</strong>
+        <small>Fila operacional</small>
+      </span>
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s gm-shortcut__chev" aria-hidden="true">chevron_right</span>
+    </a>
+    <a class="gm-shortcut" routerLink="/m/avisos" role="listitem">
+      <span class="gm-shortcut__icon" aria-hidden="true">
+        <span class="material-symbols-outlined gestgo-mi gestgo-mi--s">notifications</span>
+      </span>
+      <span class="gm-shortcut__body">
+        <strong>Notificações</strong>
+        <small>Avisos do Gestgo</small>
+      </span>
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s gm-shortcut__chev" aria-hidden="true">chevron_right</span>
+    </a>
+    <a class="gm-shortcut" routerLink="/m/ferramentas" role="listitem">
+      <span class="gm-shortcut__icon" aria-hidden="true">
+        <span class="material-symbols-outlined gestgo-mi gestgo-mi--s">widgets</span>
+      </span>
+      <span class="gm-shortcut__body">
+        <strong>Ferramentas</strong>
+        <small>Orçamento, box e mais</small>
+      </span>
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s gm-shortcut__chev" aria-hidden="true">chevron_right</span>
     </a>
   </div>
 
@@ -99,7 +179,13 @@
   </div>
 
   @if (pendingItems().length === 0) {
-    <p class="gm-empty">Nenhuma ficha pendente.</p>
+    <div class="gm-empty-state">
+      <span class="gm-empty-state__icon" aria-hidden="true">
+        <span class="material-symbols-outlined gestgo-mi gestgo-mi--l">verified</span>
+      </span>
+      <h2>Tudo em dia!</h2>
+      <p>Nenhuma ficha aguardando assinatura.</p>
+    </div>
   } @else {
     @for (p of pendingItems(); track p.id; let i = $index) {
       <button type="button" class="gm-card" (click)="abrirDocumento(p.id)">

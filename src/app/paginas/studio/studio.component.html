@@ -299,19 +299,31 @@
               </label>
               <label class="studio-field">
                 <span>Fonte dos títulos</span>
-                <select [ngModel]="themeValue('font')" (ngModelChange)="patchTheme('font', $event)">
-                  @for (f of fontOptions; track f.id) {
-                    <option [value]="f.id">{{ f.label }}</option>
-                  }
-                </select>
+                <z-combobox
+                  class="w-full"
+                  zWidth="full"
+                  [options]="fontComboOptions"
+                  [value]="themeValue('font')"
+                  [clearable]="false"
+                  placeholder="Selecione…"
+                  emptyText="Nenhum resultado."
+                  ariaLabel="Fonte dos títulos"
+                  (zValueChange)="onThemeSelect('font', $event)"
+                />
               </label>
               <label class="studio-field">
                 <span>Composição do topo</span>
-                <select [ngModel]="themeValue('layout')" (ngModelChange)="patchTheme('layout', $event)">
-                  @for (l of layoutOptions; track l.id) {
-                    <option [value]="l.id">{{ l.label }}</option>
-                  }
-                </select>
+                <z-combobox
+                  class="w-full"
+                  zWidth="full"
+                  [options]="layoutComboOptions"
+                  [value]="themeValue('layout')"
+                  [clearable]="false"
+                  placeholder="Selecione…"
+                  emptyText="Nenhum resultado."
+                  ariaLabel="Composição do topo"
+                  (zValueChange)="onThemeSelect('layout', $event)"
+                />
               </label>
               <label class="studio-field">
                 <span>Arredondamento</span>
@@ -426,16 +438,17 @@
                       @if (block.type === 'services') {
                         <label class="studio-field">
                           <span>Visual dos serviços</span>
-                          <select
-                            [ngModel]="block.variant"
-                            (ngModelChange)="patchBlock(block.id, 'variant', $event)"
-                          >
-                            <option value="cards">Cards em grade</option>
-                            <option value="list">Lista editorial</option>
-                            <option value="mosaic">Mosaico</option>
-                            <option value="compact">Compacto (Link)</option>
-                            <option value="grid">Grade (Site)</option>
-                          </select>
+                          <z-combobox
+                            class="w-full"
+                            zWidth="full"
+                            [options]="serviceVariantOptions"
+                            [value]="block.variant"
+                            [clearable]="false"
+                            [searchable]="false"
+                            emptyText="Nenhum resultado."
+                            ariaLabel="Visual dos serviços"
+                            (zValueChange)="onBlockVariantSelect(block.id, $event)"
+                          />
                         </label>
                       }
                     </div>

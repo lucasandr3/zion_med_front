@@ -102,10 +102,6 @@ export class LayoutPlataformaComponent implements OnInit, OnDestroy {
     layout.navOpen = !layout.navOpen;
   }
 
-  sair(): void {
-    this.auth.logout().subscribe(() => void this.router.navigate(['/autenticacao']));
-  }
-
   ngOnInit(): void {
     disableHorizontalNavInDom();
     if (this.auth.isAuthenticated()) {

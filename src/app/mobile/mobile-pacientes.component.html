@@ -1,4 +1,31 @@
-@if (detailId(); as id) {
+@if (view() === 'form') {
+  <div class="gm-backrow">
+    <button type="button" class="gm-icon-btn" (click)="cancelarForm()" aria-label="Voltar">
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">arrow_back</span>
+    </button>
+    <div>
+      <h1>{{ editId() ? 'Editar paciente' : 'Novo paciente' }}</h1>
+      <small>Cadastro rápido</small>
+    </div>
+  </div>
+
+  <div class="gm-field">
+    <label for="p-nome">Nome</label>
+    <input id="p-nome" type="text" [(ngModel)]="form.name" placeholder="Nome completo" autocomplete="name" />
+  </div>
+  <div class="gm-field">
+    <label for="p-fone">Telefone</label>
+    <input id="p-fone" type="tel" [(ngModel)]="form.phone" placeholder="Opcional" autocomplete="tel" />
+  </div>
+  <div class="gm-field">
+    <label for="p-email">E-mail</label>
+    <input id="p-email" type="email" [(ngModel)]="form.email" placeholder="Opcional" autocomplete="email" />
+  </div>
+
+  <button type="button" class="gm-btn" [disabled]="salvando()" (click)="salvarForm()">
+    {{ salvando() ? 'Salvando…' : 'Salvar' }}
+  </button>
+} @else if (view() === 'detalhe' && detailId(); as id) {
   <div class="gm-backrow">
     <button type="button" class="gm-icon-btn" (click)="fecharDetalhe()" aria-label="Voltar">
       <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">arrow_back</span>
@@ -16,38 +43,65 @@
       <span class="gm-avatar" style="width:54px;height:54px">{{ iniciais(p.name) }}</span>
       <div>
         <strong>{{ p.name }}</strong>
-        <p class="gm-card__sub" style="margin:4px 0 0">{{ p.code || 'Cadastro' }}</p>
+        <p class="gm-card__sub" style="margin:4px 0 0">{{ p.phone || p.email || p.code || 'Cadastro' }}</p>
       </div>
     </div>
 
-    <h2 class="gm-section" style="display:block;margin:16px 0 10px">Ações rápidas</h2>
+    <h2 class="gm-section" style="display:block;margin:18px 0 10px">Ações</h2>
     <div class="gm-tiles">
       <button type="button" class="gm-tile" (click)="enviarFicha(p)">
-        <span class="gm-tile__icon"><span class="material-symbols-outlined gestgo-mi gestgo-mi--m">send</span></span>
+        <span class="gm-tile__icon gm-tile__icon--chip"><span class="material-symbols-outlined gestgo-mi gestgo-mi--m">send</span></span>
         <strong>Enviar ficha</strong>
-        <small>Selecionar modelo Gestgo</small>
+        <small>Modelo e WhatsApp</small>
       </button>
-      <button type="button" class="gm-tile" (click)="abrirDocumentos()">
-        <span class="gm-tile__icon"><span class="material-symbols-outlined gestgo-mi gestgo-mi--m">folder_open</span></span>
+      <button type="button" class="gm-tile" (click)="abrirDocumentos(p)">
+        <span class="gm-tile__icon gm-tile__icon--chip"><span class="material-symbols-outlined gestgo-mi gestgo-mi--m">folder_open</span></span>
         <strong>Documentos</strong>
-        <small>Acompanhar fichas e assinaturas</small>
+        <small>Fichas e assinaturas</small>
       </button>
-      <button type="button" class="gm-tile" (click)="abrirUtilitario('orcamento', p)">
-        <span class="gm-tile__icon"><span class="material-symbols-outlined gestgo-mi gestgo-mi--m">receipt_long</span></span>
-        <strong>Orçamento</strong>
-        <small>Proposta pronta no WhatsApp</small>
+      <button type="button" class="gm-tile" (click)="abrirEditar(p)">
+        <span class="gm-tile__icon gm-tile__icon--chip"><span class="material-symbols-outlined gestgo-mi gestgo-mi--m">edit</span></span>
+        <strong>Editar</strong>
+        <small>Nome, telefone, e-mail</small>
       </button>
-      <button type="button" class="gm-tile" (click)="abrirUtilitario('mensagens', p)">
-        <span class="gm-tile__icon"><span class="material-symbols-outlined gestgo-mi gestgo-mi--m">chat</span></span>
-        <strong>Mensagem</strong>
-        <small>Modelo com o nome preenchido</small>
-      </button>
-      <button type="button" class="gm-tile" (click)="abrirUtilitario('retornos', p)">
-        <span class="gm-tile__icon"><span class="material-symbols-outlined gestgo-mi gestgo-mi--m">event_repeat</span></span>
-        <strong>Retorno</strong>
-        <small>Agendar follow-up</small>
+      <button type="button" class="gm-tile" (click)="abrirEnvios()">
+        <span class="gm-tile__icon gm-tile__icon--chip"><span class="material-symbols-outlined gestgo-mi gestgo-mi--m">outgoing_mail</span></span>
+        <strong>Envios</strong>
+        <small>Status e lembretes</small>
       </button>
     </div>
+
+    <h2 class="gm-section" style="display:block;margin:8px 0 10px">Documentação</h2>
+    @if (p.consent_summary; as consent) {
+      <div class="gm-panel gm-doc-block">
+        <div class="gm-doc-block__top">
+          <span class="gm-status" [class.ok]="consent.status === 'valid'" [class.warn]="consent.status === 'expired' || consent.status === 'revoked'">
+            {{ consent.label || consent.status }}
+          </span>
+          @if (consent.valid_until) {
+            <small>até {{ formatDate(consent.valid_until) }}</small>
+          }
+        </div>
+        @if (consent.active_protocol_number) {
+          <p class="gm-card__sub">Protocolo {{ consent.active_protocol_number }}</p>
+        }
+      </div>
+    } @else {
+      <p class="gm-empty" style="padding:16px 0">Sem resumo de consentimento.</p>
+    }
+
+    @if (p.recent_protocols?.length) {
+      <div class="gm-section" style="margin-top:8px"><h2>Últimas fichas</h2></div>
+      @for (pr of p.recent_protocols; track pr.id; let i = $index) {
+        <button type="button" class="gm-card" (click)="abrirProtocolo(pr.id)">
+          <span class="gm-avatar" [class.teal]="i % 2 === 0">{{ iniciais(pr.template_name || 'Doc') }}</span>
+          <span class="gm-card__body">
+            <span class="gm-card__title">{{ pr.template_name || 'Documento' }}</span>
+            <span class="gm-card__sub">{{ statusLabel(pr.status) }} · {{ formatDate(pr.submitted_at || pr.created_at) }}</span>
+          </span>
+        </button>
+      }
+    }
   }
 } @else {
   <div class="gm-header">
@@ -65,8 +119,13 @@
     </div>
   </div>
 
-  <h1 class="gm-title">Pacientes</h1>
-  <p class="gm-sub">Encontre e consulte informações rapidamente.</p>
+  <div class="gm-section gm-section--title">
+    <div>
+      <h1 class="gm-title" style="margin-bottom:6px">Pacientes</h1>
+      <p class="gm-sub" style="margin-bottom:0">Busque, cadastre e envie fichas.</p>
+    </div>
+    <button type="button" class="gm-pill is-on" (click)="abrirCriar()">+ Novo</button>
+  </div>
 
   <label class="gm-search">
     <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">search</span>

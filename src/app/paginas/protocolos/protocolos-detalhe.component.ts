@@ -38,6 +38,7 @@ import { firstValueFrom } from 'rxjs';
 import { GestgoBadgeComponent } from '@/shared/components/badge/badge.component';
 import type { GestgoBadgeTypeVariants } from '@/shared/components/badge/badge.variants';
 import { GestgoCardComponent } from '@/shared/components/card/card.component';
+import { GestgoComboboxComponent, type GestgoComboboxOption } from '@/shared/components/combobox';
 import { GestgoTabComponent, GestgoTabGroupComponent } from '@/shared/components/tabs';
 import { GestgoAvatarComponent } from '@/shared/components/avatar/avatar.component';
 import { NORD_FORM_IMPORTS } from '@/shared/nord';
@@ -77,6 +78,7 @@ const PROTOCOLO_ABA_IDS: ProtocoloAbaId[] = [
     ZmPageBackLinkComponent,
     GestgoBadgeComponent,
     GestgoCardComponent,
+    GestgoComboboxComponent,
     GestgoTabComponent,
     GestgoTabGroupComponent,
     GestgoAvatarComponent,
@@ -316,6 +318,29 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
         this.staffDraft[k] = f.type === 'checkbox' ? false : '';
       }
     }
+  }
+
+  private readonly staffSelectOptionsCache = new WeakMap<ProtocoloField, GestgoComboboxOption[]>();
+
+  staffSelectOptions(field: ProtocoloField): GestgoComboboxOption[] {
+    let opts = this.staffSelectOptionsCache.get(field);
+    if (!opts) {
+      opts = (field.options ?? []).map((o) => ({ value: String(o), label: String(o) }));
+      this.staffSelectOptionsCache.set(field, opts);
+    }
+    return opts;
+  }
+
+  staffSelectValue(nameKey: string): string | null {
+    const raw = this.staffDraft[nameKey];
+    if (raw === undefined || raw === null || raw === '') {
+      return null;
+    }
+    return String(raw);
+  }
+
+  onStaffSelectChange(nameKey: string, value: string | null): void {
+    this.staffDraft[nameKey] = value ?? '';
   }
 
   temCamposEquipe(): boolean {

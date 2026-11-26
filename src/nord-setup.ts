@@ -131,6 +131,7 @@ import '@nordhealth/components/lib/Toast.js';
 import '@nordhealth/components/lib/ToastGroup.js';
 import '@nordhealth/components/lib/Tooltip.js';
 import '@nordhealth/components/lib/TopBar.js';
+import '@nordhealth/components/lib/Truncate.js';
 
 /*
  * Shell Nord: alinha a altura do header/top-bar com `--shell-header-height`

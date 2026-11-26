@@ -1,0 +1,279 @@
+<div class="n-form-toolbar">
+  <div class="n-form-toolbar__start">
+    <zm-page-back-link />
+  </div>
+  <div class="n-form-toolbar__end">
+    <nord-button type="button" (click)="cancelar()" [attr.disabled]="acting() || null">
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">close</span>
+      Cancelar
+    </nord-button>
+    <nord-button
+      type="button"
+      variant="primary"
+      [attr.loading]="acting() || null"
+      [attr.disabled]="acting() || loading() || null"
+      (click)="salvar()"
+    >
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">check</span>
+      {{ isEdit() ? 'Salvar alterações' : 'Criar automação' }}
+    </nord-button>
+  </div>
+</div>
+
+@if (loading()) {
+  <p class="text-sm text-muted-foreground">Carregando…</p>
+} @else {
+  <div class="zm-content-enter">
+    <g-card>
+      <p class="auto-lead">
+        Defina o gatilho, condições opcionais e as ações que a clínica deve executar automaticamente.
+      </p>
+
+      <form class="auto-form" (submit)="$event.preventDefault(); salvar()">
+        <div class="auto-field auto-field--full">
+          <label class="auto-label" for="auto-name">Nome</label>
+          <input
+            id="auto-name"
+            class="w-full"
+            type="text"
+            maxlength="160"
+            [value]="name()"
+            (input)="onName($event)"
+            placeholder="Ex.: Documento assinado — avisar equipe"
+          />
+        </div>
+
+        <div class="auto-field auto-field--full">
+          <label class="auto-label" for="auto-desc">Descrição</label>
+          <textarea
+            id="auto-desc"
+            class="w-full"
+            rows="2"
+            [value]="description()"
+            (input)="onDescription($event)"
+            placeholder="Opcional"
+          ></textarea>
+        </div>
+
+        <div class="auto-field">
+          <span class="auto-label" id="auto-trigger-label">Evento gatilho</span>
+          <z-combobox
+            zWidth="full"
+            [options]="triggerOptions"
+            [value]="triggerEvent()"
+            [clearable]="false"
+            ariaLabel="Evento gatilho"
+            ariaLabelledby="auto-trigger-label"
+            (zValueChange)="onTrigger($event)"
+          />
+        </div>
+
+        <div class="auto-field">
+          <span class="auto-label" id="auto-status-label">Status</span>
+          <z-combobox
+            zWidth="full"
+            [options]="statusOptions"
+            [value]="status()"
+            [clearable]="false"
+            ariaLabel="Status"
+            ariaLabelledby="auto-status-label"
+            (zValueChange)="onStatus($event)"
+          />
+        </div>
+
+        <div class="auto-field">
+          <label class="auto-label" for="auto-wait">Atraso (segundos)</label>
+          <input
+            id="auto-wait"
+            class="w-full"
+            type="number"
+            min="0"
+            max="86400"
+            [value]="waitSeconds()"
+            (input)="onWait($event)"
+          />
+        </div>
+
+        <section class="auto-block auto-field--full" aria-label="Condições">
+          <div class="auto-block__head">
+            <div>
+              <h3 class="auto-block__title">Condições (opcional)</h3>
+              <p class="auto-hint">Todas devem ser verdadeiras (AND). Campos: {{ fieldHint() }}</p>
+            </div>
+            <nord-button
+              type="button"
+              size="s"
+              variant="default"
+              [attr.disabled]="conditions().length >= maxConditions || null"
+              (click)="adicionarCondicao()"
+            >
+              Adicionar condição
+            </nord-button>
+          </div>
+
+          @if (conditions().length === 0) {
+            <p class="auto-hint">Sem condições — roda em todo evento do gatilho.</p>
+          }
+
+          @for (cond of conditions(); track $index; let i = $index) {
+            <div class="auto-row">
+              <div class="auto-field">
+                <label class="auto-label" [attr.for]="'cond-field-' + i">Campo</label>
+                <input
+                  class="w-full"
+                  [id]="'cond-field-' + i"
+                  type="text"
+                  [value]="cond.field"
+                  (input)="onConditionField(i, $event)"
+                  placeholder="ex.: status"
+                />
+              </div>
+              <div class="auto-field">
+                <span class="auto-label" [attr.id]="'cond-op-label-' + i">Operador</span>
+                <z-combobox
+                  zWidth="full"
+                  [options]="conditionOpOptions"
+                  [value]="cond.op"
+                  [clearable]="false"
+                  ariaLabel="Operador"
+                  [ariaLabelledby]="'cond-op-label-' + i"
+                  (zValueChange)="onConditionOp(i, $event)"
+                />
+              </div>
+              @if (needsConditionValue(cond.op)) {
+                <div class="auto-field">
+                  <label class="auto-label" [attr.for]="'cond-value-' + i">Valor</label>
+                  <input
+                    class="w-full"
+                    [id]="'cond-value-' + i"
+                    type="text"
+                    [value]="cond.value"
+                    (input)="onConditionValue(i, $event)"
+                  />
+                </div>
+              }
+              <div class="auto-row__actions">
+                <nord-button type="button" size="s" variant="plain" (click)="removerCondicao(i)">Remover</nord-button>
+              </div>
+            </div>
+          }
+        </section>
+
+        <section class="auto-block auto-field--full" aria-label="Ações">
+          <div class="auto-block__head">
+            <div>
+              <h3 class="auto-block__title">Ações</h3>
+              <p class="auto-hint">Até {{ maxActions }} ações em sequência. {{ placeholderHint }}</p>
+            </div>
+            <nord-button
+              type="button"
+              size="s"
+              variant="default"
+              [attr.disabled]="actions().length >= maxActions || null"
+              (click)="adicionarAcao()"
+            >
+              Adicionar ação
+            </nord-button>
+          </div>
+
+          @for (action of actions(); track $index; let i = $index) {
+            <div class="auto-action">
+              <div class="auto-block__head">
+                <strong>Ação {{ i + 1 }}</strong>
+                <nord-button
+                  type="button"
+                  size="s"
+                  variant="plain"
+                  [attr.disabled]="actions().length <= 1 || null"
+                  (click)="removerAcao(i)"
+                >
+                  Remover
+                </nord-button>
+              </div>
+
+              <div class="auto-field">
+                <span class="auto-label" [attr.id]="'action-type-label-' + i">Tipo</span>
+                <z-combobox
+                  zWidth="full"
+                  [options]="actionTypeOptions"
+                  [value]="action.type"
+                  [clearable]="false"
+                  ariaLabel="Tipo de ação"
+                  [ariaLabelledby]="'action-type-label-' + i"
+                  (zValueChange)="onActionType(i, $event)"
+                />
+              </div>
+
+              @if (action.type === 'send_email') {
+                <div class="auto-field">
+                  <label class="auto-label" [attr.for]="'action-to-' + i">Para</label>
+                  <input class="w-full" [id]="'action-to-' + i" type="text" [value]="action.to" (input)="onActionTo(i, $event)" />
+                </div>
+                <div class="auto-field">
+                  <label class="auto-label" [attr.for]="'action-subject-' + i">Assunto</label>
+                  <input class="w-full" [id]="'action-subject-' + i" type="text" [value]="action.subject" (input)="onActionSubject(i, $event)" />
+                </div>
+                <div class="auto-field auto-field--full">
+                  <label class="auto-label" [attr.for]="'action-body-' + i">Corpo</label>
+                  <textarea class="w-full" [id]="'action-body-' + i" rows="4" [value]="action.body" (input)="onActionBody(i, $event)"></textarea>
+                </div>
+              } @else if (action.type === 'create_notification') {
+                <div class="auto-field">
+                  <label class="auto-label" [attr.for]="'action-title-' + i">Título</label>
+                  <input class="w-full" [id]="'action-title-' + i" type="text" [value]="action.title" (input)="onActionTitle(i, $event)" />
+                </div>
+                <div class="auto-field auto-field--full">
+                  <label class="auto-label" [attr.for]="'action-body-' + i">Corpo</label>
+                  <textarea class="w-full" [id]="'action-body-' + i" rows="3" [value]="action.body" (input)="onActionBody(i, $event)"></textarea>
+                </div>
+              } @else {
+                <div class="auto-field">
+                  <label class="auto-label" [attr.for]="'action-title-' + i">Título da tarefa</label>
+                  <input class="w-full" [id]="'action-title-' + i" type="text" [value]="action.title" (input)="onActionTitle(i, $event)" />
+                </div>
+                <div class="auto-field">
+                  <span class="auto-label" [attr.id]="'action-prio-label-' + i">Prioridade</span>
+                  <z-combobox
+                    zWidth="full"
+                    [options]="priorityOptions"
+                    [value]="action.priority"
+                    [clearable]="false"
+                    ariaLabel="Prioridade"
+                    [ariaLabelledby]="'action-prio-label-' + i"
+                    (zValueChange)="onActionPriority(i, $event)"
+                  />
+                </div>
+                <div class="auto-field auto-field--full">
+                  <label class="auto-label" [attr.for]="'action-desc-' + i">Descrição</label>
+                  <textarea class="w-full" [id]="'action-desc-' + i" rows="3" [value]="action.body" (input)="onActionBody(i, $event)"></textarea>
+                </div>
+                <div class="auto-field">
+                  <label class="auto-label" [attr.for]="'action-rel-type-' + i">related_type</label>
+                  <input
+                    class="w-full"
+                    [id]="'action-rel-type-' + i"
+                    type="text"
+                    [value]="action.relatedType"
+                    (input)="onActionRelatedType(i, $event)"
+                    placeholder="ex.: form_submission"
+                  />
+                </div>
+                <div class="auto-field">
+                  <label class="auto-label" [attr.for]="'action-rel-id-' + i">related_id</label>
+                  <input
+                    class="w-full"
+                    [id]="'action-rel-id-' + i"
+                    type="text"
+                    [value]="action.relatedId"
+                    (input)="onActionRelatedId(i, $event)"
+                    [attr.placeholder]="relatedIdHint"
+                  />
+                </div>
+              }
+            </div>
+          }
+        </section>
+      </form>
+    </g-card>
+  </div>
+}

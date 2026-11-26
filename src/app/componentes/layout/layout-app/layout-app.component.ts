@@ -140,10 +140,6 @@ export class LayoutAppComponent implements OnInit {
     layout.navOpen = !layout.navOpen;
   }
 
-  sair(): void {
-    this.auth.logout().subscribe(() => void this.router.navigate(['/autenticacao']));
-  }
-
   /** Aviso global de cobrança (exceto na própria página de assinatura). */
   mostrarAvisoCobrancaGlobal(): boolean {
     if (!this.billingBlockedState.isActive()) return false;

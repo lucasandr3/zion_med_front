@@ -2,6 +2,12 @@ import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from './api.service';
 
+export interface OrgAutomationConfig {
+  wait_seconds?: number;
+  conditions?: Array<{ field?: string; op?: string; value?: unknown }>;
+  actions?: Array<Record<string, unknown>>;
+}
+
 export interface OrgAutomationRow {
   id: number;
   name: string;
@@ -10,6 +16,7 @@ export interface OrgAutomationRow {
   trigger_event: string;
   version?: number;
   updated_at?: string | null;
+  config?: OrgAutomationConfig;
 }
 
 export interface OrgAutomationsOverview {
@@ -49,12 +56,32 @@ export interface OrgOperationalTasksOverview {
   items: OrgOperationalTaskRow[];
 }
 
+export interface OrgAutomationPayload {
+  name: string;
+  description?: string;
+  trigger_event: string;
+  status: string;
+  config: OrgAutomationConfig;
+}
+
 @Injectable({ providedIn: 'root' })
 export class AutomationsService {
   private readonly api = inject(ApiService);
 
   list(): Observable<{ data: OrgAutomationsOverview }> {
     return this.api.get<{ data: OrgAutomationsOverview }>('/automations');
+  }
+
+  get(id: number): Observable<{ data: OrgAutomationRow }> {
+    return this.api.get<{ data: OrgAutomationRow }>(`/automations/${id}`);
+  }
+
+  create(payload: OrgAutomationPayload): Observable<{ data: OrgAutomationRow }> {
+    return this.api.post<{ data: OrgAutomationRow }>('/automations', payload);
+  }
+
+  update(id: number, payload: OrgAutomationPayload): Observable<{ data: OrgAutomationRow }> {
+    return this.api.put<{ data: OrgAutomationRow }>(`/automations/${id}`, payload);
   }
 
   overview(): Observable<{ data: { active: number; failed_executions: number; tasks_open: number } }> {

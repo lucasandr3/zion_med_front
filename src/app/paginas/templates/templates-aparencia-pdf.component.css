@@ -4,7 +4,7 @@
   --ae-line: var(--border, var(--n-color-border, #dfe8e4));
   --ae-bg: var(--muted, var(--n-color-background, #f5f8f6));
   --ae-surface: var(--card, var(--n-color-surface, #fff));
-  --ae-primary: var(--c-action, var(--primary, var(--n-color-accent, #087a55)));
+  --ae-primary: var(--c-action, var(--primary, var(--n-color-accent, #006B61)));
   --ae-primary-fg: var(--primary-foreground, #fff);
   --ae-shadow: 0 14px 50px color-mix(in srgb, var(--ae-ink) 12%, transparent);
 
@@ -990,8 +990,8 @@
 }
 
 .ae-sug-btn--ok {
-  color: #087a55;
-  border-color: color-mix(in srgb, #087a55 40%, var(--ae-line));
+  color: #006B61;
+  border-color: color-mix(in srgb, #006B61 40%, var(--ae-line));
 }
 
 .ae-sug-btn--no {

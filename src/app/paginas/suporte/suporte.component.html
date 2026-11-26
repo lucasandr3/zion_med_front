@@ -1,144 +1,322 @@
 <div class="n-page-list__toolbar">
   <div class="n-page-list__toolbar-start">
-    <a routerLink="/ajuda" class="suporte-help-link">Consultar ajuda</a>
+    @if (creating()) {
+      <zm-page-back-link [clickable]="true" label="Voltar" (backClick)="cancelarCriacao()" />
+    }
   </div>
   <div class="n-page-list__toolbar-end">
-    <nord-button type="button" variant="default" size="m" (click)="carregar()">Atualizar</nord-button>
-    <nord-button type="button" variant="primary" size="m" (click)="novo()">Novo atendimento</nord-button>
+    <nord-button type="button" variant="default" routerLink="/ajuda">
+      <span slot="start" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">menu_book</span>
+      Consultar ajuda
+    </nord-button>
+    <nord-button type="button" variant="default" (click)="carregar()" [attr.loading]="loading() || null">
+      <span slot="start" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">refresh</span>
+      Atualizar
+    </nord-button>
+    <nord-button type="button" variant="primary" (click)="novo()">
+      <span slot="start" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">add</span>
+      Novo atendimento
+    </nord-button>
   </div>
 </div>
 
 <div class="n-page-list__content n-page-list__content--padded">
-@if (error()) {
-  <p class="n-muted" style="color:var(--n-color-status-danger,#c62828)">{{ error() }}</p>
-}
+  @if (error()) {
+    <p class="suporte-error n-muted n-small">{{ error() }}</p>
+  }
 
-<div class="suporte-layout">
-  <aside class="suporte-list">
-    @if (loading() && items().length === 0) {
-      <p class="n-muted n-small">Carregando…</p>
-    } @else if (items().length === 0) {
-      <nord-empty-state>
-        <h2>Nenhum chamado</h2>
-        <p>Abra um atendimento para falar com a equipe Gestgo.</p>
-      </nord-empty-state>
-    } @else {
-      @for (item of items(); track item.id) {
-        <button
-          type="button"
-          class="suporte-list__item"
-          [class.is-active]="selected()?.id === item.id"
-          (click)="abrir(item)"
-        >
-          <div class="suporte-list__title">{{ item.protocol }}</div>
-          <div class="suporte-list__meta">{{ item.subject }} · {{ statusLabel(item.status) }}</div>
-        </button>
-      }
-    }
-  </aside>
+  <div class="suporte-layout zm-content-enter">
+    <aside class="suporte-panel suporte-list">
+      <div class="suporte-panel__head">
+        <h2>Meus atendimentos</h2>
+      </div>
 
-  <section class="suporte-thread">
-    @if (creating()) {
-      <div class="suporte-form">
-        <label>
-          Assunto
-          <input type="text" [value]="subject()" (input)="onSubject($event)" maxlength="200" />
-        </label>
-        <label>
-          Categoria
-          <select [value]="category()" (change)="onCategory($event)">
-            <option value="duvida_utilizacao">Dúvida de utilização</option>
-            <option value="problema_tecnico">Problema técnico</option>
-            <option value="comercial">Comercial</option>
-            <option value="financeiro">Financeiro</option>
-            <option value="sugestao">Sugestão</option>
-            <option value="privacidade_seguranca">Privacidade e segurança</option>
-            <option value="solicitacao_administrativa">Solicitação administrativa</option>
-          </select>
-        </label>
-        <label>
-          Mensagem
-          <textarea rows="5" [value]="message()" (input)="onMessage($event)"></textarea>
-        </label>
-        <label class="suporte-files">
-          Anexos (opcional, até 3 · 5 MB · PDF/imagem/TXT)
-          <input type="file" multiple [accept]="acceptTypes" (change)="onCreateFiles($event)" />
-        </label>
-        @if (createFiles().length) {
-          <ul class="suporte-file-list">
-            @for (file of createFiles(); track file.name + file.size) {
-              <li>{{ file.name }} · {{ formatSize(file.size) }}</li>
-            }
-          </ul>
-        }
-        <nord-button type="button" variant="primary" [attr.disabled]="acting() || null" (click)="criar()">
-          Abrir chamado
-        </nord-button>
-      </div>
-    } @else if (!selected()) {
-      <nord-empty-state>
-        <h2>Conversa</h2>
-        <p>Selecione um chamado ou inicie um novo atendimento.</p>
-      </nord-empty-state>
-    } @else {
-      <div class="suporte-thread__head">
-        <strong>{{ selected()?.protocol }}</strong>
-        <span class="n-muted n-small">{{ statusLabel(selected()?.status || '') }}</span>
-      </div>
-      <div class="suporte-messages">
-        @for (msg of selected()?.messages ?? []; track msg.id) {
-          <div class="suporte-msg" [attr.data-role]="msg.author_role">
-            <div class="suporte-msg__meta">
-              {{ msg.author_role === 'agent' ? 'Gestgo' : 'Você' }}
-              · {{ formatarData(msg.created_at) }}
-            </div>
-            <div>{{ msg.body }}</div>
-            @if (msg.attachments?.length) {
-              <div class="suporte-attachments">
-                @for (att of msg.attachments; track att.id) {
-                  <button type="button" class="suporte-attachment" (click)="baixarAnexo(att)">
-                    {{ att.original_name }}
-                    @if (att.size) {
-                      <span>· {{ formatSize(att.size) }}</span>
-                    }
-                  </button>
-                }
-              </div>
+      <div class="suporte-list__body">
+        @if (loading() && items().length === 0) {
+          <app-list-skeleton [count]="4" />
+        } @else if (items().length === 0) {
+          <div class="suporte-empty">
+            <span class="material-symbols-outlined" aria-hidden="true">support_agent</span>
+            <p>Nenhum chamado ainda. Abra um atendimento para falar com a equipe Gestgo.</p>
+          </div>
+        } @else {
+          <div class="suporte-list__items">
+            @for (item of items(); track item.id) {
+              <button
+                type="button"
+                class="suporte-item"
+                [class.suporte-item--on]="!creating() && selected()?.id === item.id"
+                (click)="abrir(item)"
+              >
+                <div class="suporte-item__row">
+                  <span class="suporte-proto">{{ item.protocol }}</span>
+                  <span class="suporte-badge" [attr.data-status]="statusTone(item.status)">
+                    {{ statusLabel(item.status) }}
+                  </span>
+                </div>
+                <strong class="suporte-item__title">{{ item.subject }}</strong>
+                <div class="suporte-item__meta">
+                  Última mensagem: {{ formatarDataCurta(item.last_message_at || item.updated_at || item.created_at) }}
+                </div>
+              </button>
             }
           </div>
         }
       </div>
-      @if (selected()?.status !== 'closed') {
-        <div class="suporte-composer">
-          <textarea rows="3" placeholder="Escreva sua mensagem…" [value]="draft()" (input)="onDraft($event)"></textarea>
-          <label class="suporte-files">
-            Anexos
-            <input type="file" multiple [accept]="acceptTypes" (change)="onDraftFiles($event)" />
+    </aside>
+
+    <section class="suporte-panel suporte-thread">
+      @if (creating()) {
+        <div class="suporte-panel__head">
+          <h2>Novo atendimento</h2>
+        </div>
+        <div class="suporte-form">
+          <label class="suporte-field">
+            <span>Assunto</span>
+            <input
+              type="text"
+              [value]="subject()"
+              (input)="onSubject($event)"
+              maxlength="200"
+              placeholder="Resumo do que precisa"
+            />
           </label>
-          @if (draftFiles().length) {
-            <ul class="suporte-file-list">
-              @for (file of draftFiles(); track file.name + file.size) {
-                <li>{{ file.name }}</li>
+          <div class="suporte-field">
+            <span id="suporte-categoria-label">Categoria</span>
+            <z-combobox
+              class="w-full"
+              zWidth="full"
+              [options]="categoriasOpcoes"
+              [value]="category()"
+              placeholder="Selecione a categoria"
+              emptyText="Nenhuma categoria encontrada."
+              ariaLabel="Categoria"
+              ariaLabelledby="suporte-categoria-label"
+              (zValueChange)="onCategoryChange($event)"
+            />
+          </div>
+          <label class="suporte-field">
+            <span>Mensagem</span>
+            <textarea
+              rows="5"
+              [value]="message()"
+              (input)="onMessage($event)"
+              placeholder="Descreva o que aconteceu e o que você já tentou…"
+            ></textarea>
+          </label>
+
+          @if (createFiles().length) {
+            <div class="suporte-chips">
+              @for (file of createFiles(); track file.name + file.size; let i = $index) {
+                <span class="suporte-chip">
+                  <span class="material-symbols-outlined" aria-hidden="true">attach_file</span>
+                  {{ file.name }} · {{ formatSize(file.size) }}
+                  <button type="button" (click)="removerCreateFile(i)" aria-label="Remover anexo">
+                    <span class="material-symbols-outlined" aria-hidden="true">close</span>
+                  </button>
+                </span>
               }
-            </ul>
+            </div>
           }
-          <nord-button type="button" variant="primary" [attr.disabled]="acting() || null" (click)="responder()">
-            Enviar
+
+          <div class="suporte-form__actions">
+            <label class="suporte-attach">
+              <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">attach_file</span>
+              Anexar arquivo
+              <input type="file" multiple [accept]="acceptTypes" (change)="onCreateFiles($event)" />
+            </label>
+            <span class="suporte-hint">Até 3 arquivos · 5 MB · PDF/imagem/TXT</span>
+            <div class="suporte-form__spacer"></div>
+            <nord-button type="button" variant="primary" [attr.disabled]="acting() || null" [attr.loading]="acting() || null" (click)="criar()">
+              <span slot="start" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">add_comment</span>
+              Abrir chamado
+            </nord-button>
+          </div>
+        </div>
+      } @else if (!selected()) {
+        <div class="suporte-empty suporte-empty--thread">
+          <span class="material-symbols-outlined" aria-hidden="true">forum</span>
+          <h2>Conversa</h2>
+          <p>Selecione um chamado ou inicie um novo atendimento.</p>
+          <nord-button type="button" variant="primary" (click)="novo()">
+            <span slot="start" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">add</span>
+            Novo atendimento
           </nord-button>
         </div>
-      }
-      @if (selected()?.status === 'resolved' || selected()?.status === 'closed') {
-        <div class="suporte-rate">
-          <span class="n-small">Avaliar atendimento:</span>
-          @for (n of [1, 2, 3, 4, 5]; track n) {
-            <nord-button type="button" size="s" variant="plain" (click)="avaliar(n)">{{ n }}</nord-button>
+      } @else {
+        <div class="suporte-thread__head">
+          <div class="suporte-thread__title-row">
+            <h2>{{ selected()?.subject }}</h2>
+            <span class="suporte-badge" [attr.data-status]="statusTone(selected()?.status || '')">
+              {{ statusLabel(selected()?.status || '') }}
+            </span>
+          </div>
+          <p class="suporte-thread__sub">
+            {{ selected()?.protocol }} · aberto em {{ formatarDataCurta(selected()?.created_at) }}
+          </p>
+          <div class="suporte-steps" aria-label="Andamento do atendimento">
+            @for (step of statusSteps(); track step.key; let i = $index) {
+              <div class="suporte-step" [class.suporte-step--done]="step.state === 'done'" [class.suporte-step--cur]="step.state === 'current'">
+                <span class="suporte-step__dot" aria-hidden="true">
+                  @if (step.state === 'done') {
+                    <span class="material-symbols-outlined">check</span>
+                  }
+                </span>
+                {{ step.label }}
+              </div>
+              @if (i < statusSteps().length - 1) {
+                <div class="suporte-step__bar" [class.suporte-step__bar--done]="step.state === 'done'" aria-hidden="true"></div>
+              }
+            }
+          </div>
+        </div>
+
+        <div class="suporte-messages" #messagesEl>
+          @for (group of messageDayGroups(); track group.day) {
+            <span class="suporte-day">{{ group.day }}</span>
+            @for (msg of group.messages; track msg.id) {
+              <div
+                class="suporte-msg"
+                [class.suporte-msg--me]="msg.author_role === 'customer'"
+                [class.suporte-msg--other]="msg.author_role !== 'customer'"
+              >
+                <div class="suporte-msg__meta">
+                  {{ msg.author_role === 'customer' ? 'Você' : (msg.author_name || 'Gestgo') }}
+                  · {{ formatarHora(msg.created_at) }}
+                </div>
+                <div class="suporte-msg__body">{{ msg.body }}</div>
+                @if (msg.attachments?.length) {
+                  <div class="suporte-attachments">
+                    @for (att of msg.attachments; track att.id) {
+                      <button type="button" class="suporte-attachment" (click)="abrirAnexo(att)">
+                        <span class="material-symbols-outlined" aria-hidden="true">{{ anexoIcone(att) }}</span>
+                        <span>{{ att.original_name }}</span>
+                        @if (att.size) {
+                          <span>· {{ formatSize(att.size) }}</span>
+                        }
+                      </button>
+                    }
+                  </div>
+                }
+              </div>
+            }
           }
-          @if (selected()?.satisfaction_score) {
-            <span class="n-muted n-small">Sua nota: {{ selected()?.satisfaction_score }}</span>
+
+          @if (selected()?.status === 'new') {
+            <p class="suporte-waiting-hint">
+              Recebemos sua solicitação. Você será avisado aqui quando houver resposta.
+            </p>
           }
         </div>
+
+        @if (selected()?.status !== 'closed') {
+          <div class="suporte-composer">
+            @if (draftFiles().length) {
+              <div class="suporte-chips">
+                @for (file of draftFiles(); track file.name + file.size; let i = $index) {
+                  <span class="suporte-chip">
+                    <span class="material-symbols-outlined" aria-hidden="true">attach_file</span>
+                    {{ file.name }} · {{ formatSize(file.size) }}
+                    <button type="button" (click)="removerDraftFile(i)" aria-label="Remover anexo">
+                      <span class="material-symbols-outlined" aria-hidden="true">close</span>
+                    </button>
+                  </span>
+                }
+              </div>
+            }
+
+            <textarea
+              rows="3"
+              placeholder="Escreva sua mensagem…"
+              [value]="draft()"
+              (input)="onDraft($event)"
+              (keydown)="onDraftKeydown($event)"
+            ></textarea>
+
+            <div class="suporte-composer__row">
+              <label class="suporte-attach">
+                <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">attach_file</span>
+                Anexar arquivo
+                <input type="file" multiple [accept]="acceptTypes" (change)="onDraftFiles($event)" />
+              </label>
+              <span class="suporte-hint">Enter envia · Shift+Enter quebra linha</span>
+              <div class="suporte-form__spacer"></div>
+              <nord-button
+                type="button"
+                variant="primary"
+                [attr.disabled]="acting() || null"
+                [attr.loading]="acting() || null"
+                (click)="responder()"
+              >
+                <span slot="start" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">send</span>
+                Enviar
+              </nord-button>
+            </div>
+          </div>
+        }
+
+        @if (selected()?.status === 'resolved' || selected()?.status === 'closed') {
+          <div class="suporte-rate">
+            <span>Avaliar atendimento:</span>
+            @for (n of [1, 2, 3, 4, 5]; track n) {
+              <nord-button
+                type="button"
+                size="s"
+                [attr.variant]="selected()?.satisfaction_score === n ? 'primary' : 'default'"
+                (click)="avaliar(n)"
+              >
+                {{ n }}
+              </nord-button>
+            }
+            @if (selected()?.satisfaction_score) {
+              <span class="n-muted n-small">Sua nota: {{ selected()?.satisfaction_score }}</span>
+            }
+          </div>
+        }
       }
+    </section>
+  </div>
+</div>
+
+<nord-modal
+  #anexoModal
+  class="suporte-anexo-modal"
+  size="xl"
+  scrollable
+  aria-labelledby="suporte-anexo-modal-title"
+  (close)="fecharPreviewAnexo()"
+>
+  <h2 slot="header" id="suporte-anexo-modal-title">
+    {{ previewAttachment()?.original_name || 'Anexo' }}
+  </h2>
+
+  <div class="suporte-anexo-modal__body">
+    @if (previewLoading()) {
+      <p class="n-muted n-small m-0">Carregando visualização…</p>
+    } @else if (previewUrl()) {
+      <img
+        class="suporte-anexo-modal__img"
+        [src]="previewUrl()"
+        [alt]="previewAttachment()?.original_name || 'Imagem anexada'"
+      />
+    } @else {
+      <p class="n-muted n-small m-0">Não foi possível carregar a imagem.</p>
     }
-  </section>
-</div>
-</div>
+  </div>
+
+  <nord-button-group slot="footer" variant="spaced">
+    <nord-button expand type="button" variant="default" (click)="fecharPreviewAnexo()">
+      Fechar
+    </nord-button>
+    <nord-button
+      expand
+      type="button"
+      variant="primary"
+      [attr.disabled]="!previewAttachment() || previewLoading() ? '' : null"
+      (click)="baixarPreviewAnexo()"
+    >
+      <span slot="start" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">download</span>
+      Baixar
+    </nord-button>
+  </nord-button-group>
+</nord-modal>

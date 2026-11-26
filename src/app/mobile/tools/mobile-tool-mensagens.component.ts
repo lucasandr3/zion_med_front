@@ -11,6 +11,7 @@ import {
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { GestgoCardComponent } from '@/shared/components/card/card.component';
+import { GestgoComboboxComponent, type GestgoComboboxOption } from '@/shared/components/combobox';
 import { ZmPageBackLinkComponent } from '../../shared/components/ui';
 import {
   MobileToolsService,
@@ -45,6 +46,7 @@ export type MessageMoment = 'all' | 'confirmacao' | 'pos' | 'reativacao' | 'outr
     FormsModule,
     RouterLink,
     GestgoCardComponent,
+    GestgoComboboxComponent,
     ZmPageBackLinkComponent,
     ToolPersonBannerComponent,
     ToolPersonFieldComponent,
@@ -92,6 +94,22 @@ export class MobileToolMensagensComponent implements OnInit {
     const list = this.templates();
     if (moment === 'all') return list;
     return list.filter((t) => this.momentOf(t) === moment);
+  });
+
+  readonly templateOptions = computed<GestgoComboboxOption[]>(() =>
+    this.filteredTemplates().map((t) => ({ value: String(t.id), label: t.label })),
+  );
+
+  readonly templateOptionsWithMoment = computed<GestgoComboboxOption[]>(() =>
+    this.filteredTemplates().map((t) => ({
+      value: String(t.id),
+      label: `${t.label} · ${this.momentLabel(t)}`,
+    })),
+  );
+
+  readonly selectedValue = computed(() => {
+    const id = this.selectedId();
+    return id == null ? null : String(id);
   });
 
   readonly selected = computed(() => {
@@ -145,6 +163,12 @@ export class MobileToolMensagensComponent implements OnInit {
         this.draft.set('');
       }
     }
+  }
+
+  onSelectValue(value: string | null): void {
+    if (!value) return;
+    const id = Number(value);
+    if (Number.isFinite(id)) this.onSelect(id);
   }
 
   onSelect(id: number): void {

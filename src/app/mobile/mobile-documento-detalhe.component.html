@@ -1,0 +1,63 @@
+<div class="gm-backrow">
+  <a class="gm-icon-btn" routerLink="/m/documentos" aria-label="Voltar">
+    <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">arrow_back</span>
+  </a>
+  <div>
+    <h1>Documento</h1>
+    <small>Resumo e ações rápidas</small>
+  </div>
+</div>
+
+@if (loading()) {
+  <div class="gm-preload gm-preload--inline" aria-busy="true">
+    <div class="gm-preload__bar"><span></span></div>
+    <p class="gm-preload__hint">Carregando documento…</p>
+  </div>
+} @else if (error()) {
+  <div class="gm-error">
+    <p>{{ error() }}</p>
+    <a class="gm-btn gm-btn--secondary" routerLink="/m/documentos">Voltar</a>
+  </div>
+} @else if (doc(); as d) {
+  <div class="gm-doc-hero">
+    <span class="gm-status" [class.ok]="d.status === 'approved'" [class.warn]="d.status === 'rejected'">
+      {{ statusLabel(d.status) }}
+    </span>
+    <h2>{{ d.template_name || d.template?.name || 'Documento' }}</h2>
+    <p>{{ pacienteNome(d) }}</p>
+  </div>
+
+  <div class="gm-panel">
+    <div class="gm-doc-row"><span>Protocolo</span><strong>{{ d.protocol_number || d.id }}</strong></div>
+    <div class="gm-doc-row"><span>Enviado</span><strong>{{ formatDate(d.submitted_at || d.created_at) }}</strong></div>
+    @if (d.approved_at) {
+      <div class="gm-doc-row"><span>Assinado</span><strong>{{ formatDate(d.approved_at) }}</strong></div>
+    }
+    @if (d.consent_valid_until) {
+      <div class="gm-doc-row"><span>Válido até</span><strong>{{ formatDate(d.consent_valid_until) }}</strong></div>
+    }
+  </div>
+
+  @if (podeBaixarPdf(d)) {
+    <button type="button" class="gm-btn" [disabled]="baixandoPdf()" (click)="baixarPdf(d)">
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">download</span>
+      {{ baixandoPdf() ? 'Preparando PDF…' : 'Baixar documento preenchido' }}
+    </button>
+  }
+
+  @if (d.status === 'pending') {
+    <button type="button" class="gm-btn gm-btn--secondary" (click)="reenviar(d)">
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">send</span>
+      Compartilhar novamente
+    </button>
+  }
+
+  <button type="button" class="gm-btn gm-btn--secondary" (click)="copiarProtocolo(d)">
+    <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">content_copy</span>
+    Copiar nº do protocolo
+  </button>
+
+  <button type="button" class="gm-btn gm-btn--soft" (click)="abrirNoPainel(d.id)">
+    Abrir detalhe completo no painel
+  </button>
+}

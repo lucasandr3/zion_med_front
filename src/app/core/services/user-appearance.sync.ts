@@ -142,13 +142,13 @@ export interface UserAppearanceFields {
 
 /** Cor primária resolvida do tema atual no `body` (fallback marca Gestgo). */
 export function readThemePrimaryColor(): string {
-  if (typeof document === 'undefined') return '#14B87A';
+  if (typeof document === 'undefined') return '#00877A';
   const raw = getComputedStyle(document.body).getPropertyValue('--c-primary').trim();
-  return raw || '#14B87A';
+  return raw || '#00877A';
 }
 
 /** Fallback da marca Gestgo (tema ocean-blue). */
-export const GESTGO_BRAND_GREEN = '#14B87A';
+export const GESTGO_BRAND_GREEN = '#00877A';
 
 /**
  * Sincroniza accent Nord no `html`, meta theme-color e favicon com a logo do tema.

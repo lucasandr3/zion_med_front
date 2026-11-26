@@ -15,16 +15,16 @@
   align-items: center;
   display: flex;
   flex-shrink: 0;
-  /* nord-top-bar slot=end usa gap: 1px */
-  gap: 1px;
+  gap: var(--n-space-xs, 0.25rem);
+  margin-inline-end: var(--n-space-m, 0.75rem);
 }
 
 /*
  * Controles plain — espelho de:
  * nord-top-bar > nord-button[slot='end'] / nord-dropdown[slot='end'] … (pesquisa)
  */
-.shell-topbar-actions > nord-button,
-.shell-topbar-actions > .header-desktop-only-block > nord-button {
+.shell-topbar-actions > nord-button:not(.shell-assistant-btn):not(.shell-logout-btn),
+.shell-topbar-actions > nord-dropdown .cabecalho-toolbar-action {
   --n-button-background-color: transparent;
   --n-button-border-color: transparent;
   --n-button-box-shadow: none;
@@ -32,18 +32,144 @@
   --n-button-color: var(--shell-header-control, var(--n-color-icon));
 }
 
-.shell-topbar-actions > nord-button:hover,
-.shell-topbar-actions > .header-desktop-only-block > nord-button:hover {
+.shell-topbar-actions > nord-button:not(.shell-assistant-btn):not(.shell-logout-btn):hover,
+.shell-topbar-actions > nord-dropdown .cabecalho-toolbar-action:hover,
+.shell-topbar-actions > nord-dropdown[open] .cabecalho-toolbar-action {
   --n-button-background-color: var(--shell-header-control-hover, var(--n-color-active));
 }
 
-.shell-topbar-actions > nord-button nord-icon,
-.shell-topbar-actions > .header-desktop-only-block > nord-button nord-icon,
+.shell-topbar-actions > nord-button:not(.shell-assistant-btn):not(.shell-logout-btn) nord-icon,
+.shell-topbar-actions > nord-dropdown nord-icon,
 .shell-topbar-actions > a.cabecalho-toolbar-action nord-icon,
-.shell-topbar-actions > nord-button .material-symbols-outlined,
-.shell-topbar-actions > .header-desktop-only-block > nord-button .material-symbols-outlined,
+.shell-topbar-actions > nord-button:not(.shell-assistant-btn):not(.shell-logout-btn) .material-symbols-outlined,
+.shell-topbar-actions > nord-dropdown .material-symbols-outlined,
 .shell-topbar-actions > a.cabecalho-toolbar-action .material-symbols-outlined {
   color: var(--shell-header-control, var(--n-color-icon));
+}
+
+/* Sair — desktop; hover em vermelho (padrão sidebar) */
+.shell-logout-btn {
+  --n-button-background-color: transparent;
+  --n-button-border-color: transparent;
+  --n-button-box-shadow: none;
+  --n-button-color: var(--shell-header-control, var(--n-color-text-weak, var(--muted-foreground)));
+  --n-button-font-weight: var(--n-font-weight-active, 600);
+  --n-button-gap: 0;
+  --n-button-padding-inline: 0.65rem;
+  border-radius: var(--n-border-radius, 0.5rem);
+}
+
+.shell-logout-btn:hover,
+.shell-logout-btn:focus-visible {
+  --n-button-background-color: color-mix(in srgb, var(--n-color-status-danger, #b3261e) 12%, transparent);
+  --n-button-color: var(--n-color-status-danger, #b3261e);
+}
+
+.shell-logout-btn__inner {
+  align-items: center;
+  display: inline-flex;
+  gap: 0.35rem;
+  line-height: 1;
+}
+
+.shell-logout-btn .material-symbols-outlined {
+  color: inherit;
+  display: block;
+  font-size: 1.125rem;
+  height: 1.125rem;
+  line-height: 1.125rem;
+  width: 1.125rem;
+}
+
+.shell-logout-btn__label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.125rem;
+}
+
+:host-context(body.shell-preset-tinted) .shell-logout-btn {
+  --n-button-color: #ffffff;
+}
+
+:host-context(body.shell-preset-tinted) .shell-logout-btn:hover,
+:host-context(body.shell-preset-tinted) .shell-logout-btn:focus-visible {
+  --n-button-background-color: rgb(255 255 255 / 0.16);
+  --n-button-color: #ffffff;
+}
+
+@media (max-width: 767px) {
+  .shell-topbar-desktop-only {
+    display: none !important;
+  }
+}
+
+/* Assistente — neutro (preto/branco), sem cor de marca */
+.shell-assistant-btn {
+  --n-button-background-color: var(--n-color-surface, #fff);
+  --n-button-border-color: var(--n-color-border, #e6ebe8);
+  --n-button-box-shadow: none;
+  --n-button-color: var(--n-color-text, #14211c);
+  --n-button-font-weight: var(--n-font-weight-active, 600);
+  --n-button-padding-inline: 0.85rem;
+  border-radius: var(--n-border-radius, 0.5rem);
+}
+
+.shell-assistant-btn:hover {
+  --n-button-background-color: var(--n-color-surface-raised, #f6f8f7);
+  --n-button-border-color: var(--n-color-border-strong, #d5ddd9);
+}
+
+.shell-assistant-btn .material-symbols-outlined {
+  color: inherit;
+}
+
+.shell-assistant-btn__label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+:host-context(body.shell-preset-tinted) .shell-assistant-btn {
+  --n-button-background-color: rgb(255 255 255 / 0.14);
+  --n-button-border-color: rgb(255 255 255 / 0.32);
+  --n-button-color: #ffffff;
+}
+
+:host-context(body.shell-preset-tinted) .shell-assistant-btn:hover {
+  --n-button-background-color: rgb(255 255 255 / 0.22);
+}
+
+.shell-topbar-sep {
+  align-self: center;
+  background: var(--shell-header-border, var(--n-color-border, #e6ebe8));
+  block-size: 1.5rem;
+  flex-shrink: 0;
+  inline-size: 1px;
+  margin-inline: 6px;
+}
+
+:host-context(body.shell-preset-tinted) .shell-topbar-sep {
+  background: rgb(255 255 255 / 0.28);
+}
+
+.shell-help-menu {
+  --n-dropdown-size: 16.5rem;
+  --n-button-background-color: transparent;
+  --n-button-border-color: transparent;
+  --n-button-box-shadow: none;
+}
+
+.shell-help-menu__count {
+  align-items: center;
+  background: var(--n-color-status-danger, #c62828);
+  border-radius: 999px;
+  color: #fff;
+  display: inline-flex;
+  font-size: 0.65rem;
+  font-weight: 700;
+  justify-content: center;
+  line-height: 1;
+  min-width: 1.1rem;
+  padding: 0.15rem 0.4rem;
 }
 
 /* Links do topo (ícone puro) — mesmo gabarito dos nord-button */
@@ -375,6 +501,16 @@ a.cabecalho-toolbar-action:hover {
   .header-desktop-only-block,
   .header-desktop-only-flex {
     display: none !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .shell-assistant-btn__label {
+    display: none;
+  }
+
+  .shell-assistant-btn {
+    --n-button-padding-inline: calc(var(--n-space-s) + 2px);
   }
 }
 

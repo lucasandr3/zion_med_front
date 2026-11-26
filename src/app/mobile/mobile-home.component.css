@@ -1,1 +1,228 @@
-/* usa mobile-shared.css */
+.gm-header--home {
+  margin-bottom: 18px;
+}
+
+.gm-header--home .gm-logo {
+  font-size: 28px;
+}
+
+.gm-icon-btn--bell {
+  position: relative;
+}
+
+.gm-notif-dot {
+  position: absolute;
+  top: 9px;
+  right: 10px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #f3a03a;
+  box-shadow: 0 0 0 2px var(--gm-paper);
+}
+
+.gm-avatar-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 0;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  background: var(--gm-pale);
+  color: var(--gm-accent-text);
+  font-size: 13px;
+  font-weight: 850;
+  letter-spacing: -0.02em;
+  cursor: pointer;
+  box-shadow: var(--gm-shadow-soft);
+  transition: transform 0.15s ease, filter 0.15s ease;
+}
+
+.gm-avatar-btn:active {
+  transform: scale(0.96);
+  filter: brightness(0.97);
+}
+
+.gm-dateline {
+  margin: 0 0 8px;
+  font-size: 12px;
+  font-weight: 750;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--gm-accent-text);
+}
+
+.gm-greet {
+  margin: 0 0 8px;
+  font-size: 30px;
+  line-height: 1.1;
+  letter-spacing: -0.05em;
+  font-weight: 850;
+  color: var(--gm-ink);
+}
+
+.gm-statusline {
+  margin: 0 0 22px;
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--gm-muted);
+  max-width: 34ch;
+}
+
+.gm-statusline strong {
+  color: var(--gm-ink);
+  font-weight: 800;
+}
+
+.gm-today {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 0 0 22px;
+  padding: 16px;
+  border-radius: 20px;
+  background: var(--gm-paper);
+  border: 1px solid var(--gm-line);
+  box-shadow: var(--gm-shadow-soft);
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.gm-today:active {
+  transform: scale(0.985);
+  box-shadow: none;
+}
+
+.gm-today__icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  background: var(--gm-pale);
+  color: var(--gm-accent-text);
+}
+
+.gm-today__icon .material-symbols-outlined {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.gm-today__body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.gm-today__body strong {
+  font-size: 14px;
+  font-weight: 850;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+}
+
+.gm-today__body small {
+  font-size: 12px;
+  color: var(--gm-muted);
+  line-height: 1.4;
+}
+
+.gm-shortcuts {
+  margin: 0 0 26px;
+  border-radius: 22px;
+  background: var(--gm-paper);
+  border: 1px solid var(--gm-line);
+  box-shadow: var(--gm-shadow-soft);
+  overflow: hidden;
+}
+
+.gm-shortcut {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 0;
+  border-bottom: 1px solid var(--gm-line);
+  background: transparent;
+  text-align: left;
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+  box-sizing: border-box;
+  transition: background 0.15s ease;
+}
+
+.gm-shortcut:last-child {
+  border-bottom: 0;
+}
+
+.gm-shortcut:active {
+  background: color-mix(in srgb, var(--gm-pale) 45%, transparent);
+}
+
+.gm-shortcut__icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  background: var(--gm-pale);
+  color: var(--gm-accent-text);
+}
+
+.gm-shortcut__icon .material-symbols-outlined {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.gm-shortcut__body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.gm-shortcut__body strong {
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.gm-shortcut__body small {
+  font-size: 12px;
+  color: var(--gm-muted);
+  line-height: 1.35;
+}
+
+.gm-shortcut__chev {
+  color: var(--gm-muted);
+  opacity: 0.65;
+  flex-shrink: 0;
+}
+
+.gm-shortcut__badge {
+  min-width: 26px;
+  height: 26px;
+  padding: 0 8px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: #f3a03a;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}

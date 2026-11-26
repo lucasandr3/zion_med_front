@@ -14,7 +14,7 @@ html[data-color-scheme='light'],
 html[data-color-scheme='dark'] {
   --n-color-accent-text: #ffffff;
   /* Sucesso: tom AA em texto sobre fundo claro (não brand-500) */
-  --n-color-status-success: #087a55;
+  --n-color-status-success: #00877a;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -97,7 +97,11 @@ nord-dropdown-item .material-symbols-outlined {
   vertical-align: middle;
 }
 
-/* Shell Nord + overlays críticos */
+/* Shell Nord + overlays críticos
+ * NÃO incluir nord-modal: o componente usa visibility:hidden quando fechado
+ * com position:fixed; inset:0. Forçar visible deixa o backdrop invisível
+ * capturando todos os cliques (ex.: /suporte).
+ */
 nord-layout,
 nord-navigation,
 nord-nav-group,
@@ -112,7 +116,6 @@ nord-input,
 nord-card,
 nord-banner,
 nord-stack,
-nord-modal,
 nord-toast,
 nord-toast-group,
 nord-dropdown,
@@ -128,6 +131,15 @@ nord-badge,
 nord-icon,
 nord-empty-state,
 nord-skeleton {
+  visibility: visible !important;
+}
+
+nord-modal:not([open]) {
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+nord-modal[open] {
   visibility: visible !important;
 }
 
@@ -267,22 +279,22 @@ html[data-color-scheme='dark'] {
 :root {
     /*
      * Marca Gestgo — papéis semânticos (VIS-14):
-     * brand.primary (#14B87A) = identidade / superfícies suaves / charts
-     * action.primary (#087A55) = botões e texto branco (WCAG AA ~5.35:1)
-     * brand.text (#087D64) = links/texto sobre fundo claro
+     * brand.primary (#00877A) = identidade / superfícies suaves / charts
+     * action.primary (#006B61) = botões e texto branco (WCAG AA)
+     * brand.text (#007066) = links/texto sobre fundo claro
      */
-    --brand-900: #063D36;
-    --brand-700: #087D64;
-    --brand-600: #087A55;
-    --brand-500: #14B87A;
-    --brand-400: #20C989;
-    --brand-100: #CFEDE1;
-    --brand-50:  #EAF7F2;
+    --brand-900: #043D38;
+    --brand-700: #007066;
+    --brand-600: #006B61;
+    --brand-500: #00877A;
+    --brand-400: #1A9B8F;
+    --brand-100: #D0EBE8;
+    --brand-50:  #E6F4F2;
 
-    --color-primary-dark:   #087A55;
-    --color-primary-darker: #063D36;
-    --color-primary-light:  #20C989;
-    --color-primary-muted:  #EAF7F2;
+    --color-primary-dark:   #006B61;
+    --color-primary-darker: #043D38;
+    --color-primary-light:  #1A9B8F;
+    --color-primary-muted:  #E6F4F2;
 
     --color-text-primary:   #17201F;
     --color-text-secondary: #3D4A47;
@@ -296,9 +308,9 @@ html[data-color-scheme='dark'] {
     --skeleton-base: #ECEFED;
     --skeleton-highlight: #F3F5F4;
 
-    --c-primary:  #14B87A;
-    --c-primary-hover:  #0E9D68;
-    --c-primary-active: #087A55;
+    --c-primary:  #00877A;
+    --c-primary-hover:  #007A6E;
+    --c-primary-active: #006B61;
     /* Ação clicável com texto branco — não usar brand-500 direto */
     --c-action: var(--c-primary-active);
     --c-action-hover: color-mix(in srgb, var(--c-action) 86%, #000);
@@ -306,8 +318,8 @@ html[data-color-scheme='dark'] {
     --c-brand-soft: var(--brand-50);
     --c-brand-text: var(--brand-700);
     --c-accent:   var(--brand-700);
-    --c-focus:    rgba(8, 122, 85, 0.22);
-    --c-focus-ring: #087A55;
+    --c-focus:    rgba(0, 135, 122, 0.22);
+    --c-focus-ring: #00877A;
 
     --c-bg:       #F8FAF6;
     --c-surface:  #FFFFFF;
@@ -332,8 +344,8 @@ html[data-color-scheme='dark'] {
     --gestgo-brand-tag: var(--muted-foreground, var(--c-muted));
     --gestgo-brand-logo-shadow: none;
     /* Fallbacks; o binding real ao tema fica em `body` (abaixo) */
-    --gestgo-brand-green: #14b87a;
-    --gestgo-brand-deep: #063d36;
+    --gestgo-brand-green: #00877a;
+    --gestgo-brand-deep: #043d38;
 
     /* Shell — alinhado aos tokens Gestgo (presets via body.shell-preset-* podem sobrescrever) */
     --shell-header-height: 3.5rem; /* h-14 — #top-header / nav brand */
@@ -344,8 +356,8 @@ html[data-color-scheme='dark'] {
     --shell-sidebar-bg: var(--sidebar, var(--c-surface));
 
     /* Semânticas (estado / feedback) — independentes do tema de marca */
-    --c-success: #087D64;
-    --c-success-soft: #EAF7F2;
+    --c-success: #007066;
+    --c-success-soft: #E6F4F2;
     --c-warning: #8A6414;
     --c-warning-soft: #FFF3D6;
     --c-danger: #C64A4A;
@@ -446,16 +458,16 @@ body.dark.shell-preset-tinted {
 .theme-gestgo-blue,
 .theme-zion-blue     { --c-primary: #1e40af; --c-action: #1e40af; --c-brand-text: #1e40af; --c-accent: #2563eb; --c-focus: rgba(30,64,175,.18); --c-focus-ring: #1e40af; }
 .theme-ocean-blue    {
-  --c-primary: #14B87A;
-  --c-accent: #087D64;
-  --c-focus: rgba(8,122,85,.22);
-  --c-primary-hover: #0E9D68;
-  --c-primary-active: #087A55;
-  --c-action: #087A55;
-  --c-action-hover: #066B4A;
-  --c-action-active: #055A3E;
-  --c-brand-text: #087D64;
-  --c-focus-ring: #087A55;
+  --c-primary: #00877A;
+  --c-accent: #007066;
+  --c-focus: rgba(0,135,122,.22);
+  --c-primary-hover: #007A6E;
+  --c-primary-active: #006B61;
+  --c-action: #006B61;
+  --c-action-hover: #005850;
+  --c-action-active: #004A44;
+  --c-brand-text: #007066;
+  --c-focus-ring: #00877A;
 }
 .theme-indigo-night  { --c-primary: #3730a3; --c-action: #3730a3; --c-brand-text: #3730a3; --c-accent: #4f46e5; --c-focus: rgba(55,48,163,.18); --c-focus-ring: #3730a3; }
 .theme-emerald-fresh { --c-primary: #15803d; --c-action: #15803d; --c-brand-text: #15803d; --c-accent: #16a34a; --c-focus: rgba(21,128,61,.18); --c-focus-ring: #15803d; }
@@ -476,12 +488,12 @@ body.dark.shell-preset-tinted {
 
 /*
  * Wordmark gest/go — “go” acompanha o primary do tema; “gest” usa o verde
- * escuro canônico da marca (#063D36, igual logo.svg / marca), não um mix
+ * escuro canônico da marca (#043D38, igual logo.svg / marca), não um mix
  * do primary (ficava mais escuro/sujo que o da logo).
  */
 body {
   --gestgo-brand-green: var(--c-primary);
-  --gestgo-brand-deep: #063d36;
+  --gestgo-brand-deep: #043d38;
 }
 
 /* Temas não-verdes: escurece o primary para o “gest” acompanhar a cor do tema */
@@ -589,16 +601,16 @@ body.theme-pessego {
 .dark.theme-gestgo-blue,
 .dark.theme-zion-blue     { --c-primary: #60a5fa; --c-action: #60a5fa; --c-brand-text: #93c5fd; --c-accent: #93c5fd; --c-focus: rgba(96,165,250,.2); --c-focus-ring: #60a5fa; }
 .dark.theme-ocean-blue    {
-  --c-primary: #14B87A;
-  --c-action: #14B87A;
-  --c-action-hover: #20C989;
-  --c-action-active: #0FA36C;
-  --c-brand-text: #55D7A6;
-  --c-accent: #55D7A6;
-  --c-focus: rgba(20,184,122,.22);
-  --c-focus-ring: #14B87A;
-  --c-primary-hover: #20C989;
-  --c-primary-active: #0FA36C;
+  --c-primary: #1A9B8F;
+  --c-action: #1A9B8F;
+  --c-action-hover: #26B5A8;
+  --c-action-active: #00877A;
+  --c-brand-text: #4DB8AD;
+  --c-accent: #4DB8AD;
+  --c-focus: rgba(0,135,122,.22);
+  --c-focus-ring: #1A9B8F;
+  --c-primary-hover: #26B5A8;
+  --c-primary-active: #00877A;
 }
 .dark.theme-indigo-night  { --c-primary: #818cf8; --c-action: #818cf8; --c-brand-text: #a5b4fc; --c-accent: #a5b4fc; --c-focus: rgba(129,140,248,.2); --c-focus-ring: #818cf8; }
 .dark.theme-emerald-fresh { --c-primary: #4ade80; --c-action: #4ade80; --c-brand-text: #86efac; --c-accent: #86efac; --c-focus: rgba(74,222,128,.2); --c-focus-ring: #4ade80; }
@@ -638,9 +650,9 @@ body.theme-pessego {
   --destructive-foreground: #FFFFFF;
   --border: #DDE5E1;
   --input: #DDE5E1;
-  --ring: var(--c-focus-ring, #087A55);
-  --chart-1: #14B87A;
-  --chart-2: #087A55;
+  --ring: var(--c-focus-ring, #00877A);
+  --chart-1: #00877A;
+  --chart-2: #006B61;
   --chart-3: #7CC4F8;
   --chart-4: #EAC66D;
   --chart-5: #F08A8A;
@@ -651,7 +663,7 @@ body.theme-pessego {
   --sidebar-accent: #F1F4F2;
   --sidebar-accent-foreground: #17201F;
   --sidebar-border: #E9EFEC;
-  --sidebar-ring: var(--c-focus-ring, #087A55);
+  --sidebar-ring: var(--c-focus-ring, #00877A);
 }
 
 .dark {
@@ -676,8 +688,8 @@ body.theme-pessego {
   /* Borda de input: nunca igual à surface (senão some no dark) */
   --input: var(--n-color-border-strong);
   --ring: var(--c-primary);
-  --chart-1: #14B87A;
-  --chart-2: #55D7A6;
+  --chart-1: #1A9B8F;
+  --chart-2: #4DB8AD;
   --chart-3: #7CC4F8;
   --chart-4: #EAC66D;
   --chart-5: #F08A8A;
@@ -941,7 +953,7 @@ body.shell-preset-sidebar-dark nord-navigation.gestgo-shell__nav {
 }
 
 .gestgo-shell__brand-title {
-  color: var(--gestgo-brand-deep, #063d36) !important;
+  color: var(--gestgo-brand-deep, #043d38) !important;
   display: block !important;
   font-size: 1.2rem;
   font-weight: 800;
@@ -3226,7 +3238,7 @@ body.sidebar-collapsed #sidebar[data-shell] .sidebar-brand__text {
 }
 
 #sidebar[data-shell] .sidebar-brand__title {
-    color: var(--gestgo-brand-deep, #063d36);
+    color: var(--gestgo-brand-deep, #043d38);
     font-size: 0.9375rem;
     font-weight: 800;
     letter-spacing: -0.06em;
@@ -3541,12 +3553,12 @@ body.shell-preset-sidebar-dark:not(.dark) .sidebar {
     --gestgo-brand-tag: color-mix(in srgb, var(--sidebar-foreground) 52%, transparent);
     --gestgo-brand-logo-shadow: none;
     /* fallback; cada `body.theme-*` sobrescreve com a primária do modo escuro */
-    --sidebar-primary: #14B87A;
+    --sidebar-primary: #00877A;
     --sidebar-primary-foreground: #FFFFFF;
     --sidebar-accent: #222222;
     --sidebar-accent-foreground: #F2F2F2;
     --sidebar-border: #242424;
-    --sidebar-ring: #14B87A;
+    --sidebar-ring: #00877A;
 
     background-color: var(--shell-sidebar-bg);
     border-right-color: var(--sidebar-border);
@@ -3609,7 +3621,7 @@ body.shell-preset-sidebar-dark:not(.dark).theme-zion-blue .sidebar {
 
 body.shell-preset-sidebar-dark:not(.dark).theme-ocean-blue #sidebar,
 body.shell-preset-sidebar-dark:not(.dark).theme-ocean-blue .sidebar {
-    --sidebar-primary: #14B87A;
+    --sidebar-primary: #00877A;
 }
 
 body.shell-preset-sidebar-dark:not(.dark).theme-indigo-night #sidebar,
@@ -4954,7 +4966,7 @@ body.dark .flatpickr-calendar.hasTime.noCalendar .flatpickr-time input {
 
 body.dark .flatpickr-calendar.hasTime.noCalendar .flatpickr-time input:hover,
 body.dark .flatpickr-calendar.hasTime.noCalendar .flatpickr-time input:focus {
-  background: color-mix(in srgb, var(--primary, #14B87A) 12%, var(--muted, #222222)) !important;
+  background: color-mix(in srgb, var(--primary, #00877A) 12%, var(--muted, #222222)) !important;
 }
 
 .clinica-config .schedule-row .flatpickr-wrapper { display: inline-block; width: auto; flex: 0 0 auto; }

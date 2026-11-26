@@ -54,6 +54,7 @@ export class PlataformaFeedbackComponent implements OnInit {
   origemLabel(source?: string | null): string {
     if (source === 'account_menu') return 'Menu da conta';
     if (source === 'go_assistant') return 'Go Assistant';
+    if (source === 'help_center') return 'Central de ajuda';
     return '—';
   }
 

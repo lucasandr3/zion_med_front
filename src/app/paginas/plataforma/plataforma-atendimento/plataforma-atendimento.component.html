@@ -15,7 +15,6 @@
     </div>
   </div>
   <div class="n-page-list__toolbar-end">
-    <span class="n-muted n-small">Aguardando resposta: {{ waiting() }}</span>
     <nord-button
       type="button"
       (click)="openFilterDrawer()"
@@ -24,205 +23,418 @@
       [class.ring-ring]="temFiltrosAtivos"
       title="Filtros"
     >
-      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">filter_list</span>
+      <span slot="start" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">filter_list</span>
       Filtros
       @if (temFiltrosAtivos) {
         <nord-badge variant="neutral">{{ quantidadeFiltrosAtivos }}</nord-badge>
       }
     </nord-button>
-    <nord-button type="button" variant="default" size="m" (click)="carregarLista()">Atualizar</nord-button>
+    <nord-button type="button" variant="default" (click)="carregarLista()" [attr.loading]="loading() || null">
+      <span slot="start" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">refresh</span>
+      Atualizar
+    </nord-button>
   </div>
 </div>
 
 <div class="n-page-list__content n-page-list__content--padded">
   @if (error()) {
-    <p class="n-muted" style="color:var(--n-color-status-danger,#c62828)">{{ error() }}</p>
+    <p class="hd-error n-muted n-small">{{ error() }}</p>
   }
 
-  <div class="hd-layout">
-    <aside class="hd-list" aria-label="Conversas">
-      @if (loading() && items().length === 0) {
-        <p class="n-muted n-small">Carregando…</p>
-      } @else if (items().length === 0) {
-        <nord-empty-state>
-          <h2>Caixa vazia</h2>
-          <p>Chamados das clínicas aparecerão aqui.</p>
-          @if (temFiltrosAtivos || search().trim()) {
-            <nord-button variant="default" type="button" (click)="limparTudo()">Limpar filtros</nord-button>
-          }
-        </nord-empty-state>
-      } @else {
-        @for (item of items(); track item.id) {
+  <div class="hd-layout zm-content-enter">
+    <aside class="hd-panel hd-list" aria-label="Conversas">
+      <div class="hd-panel__head">
+        <h2>Caixa de entrada</h2>
+      </div>
+
+      <div class="hd-tabs" role="tablist" aria-label="Atalhos da caixa">
+        @for (tab of listTabs; track tab.id) {
           <button
             type="button"
-            class="hd-list__item"
-            [class.is-active]="selected()?.id === item.id"
-            (click)="selecionar(item)"
+            class="hd-tab"
+            role="tab"
+            [class.hd-tab--on]="listTab() === tab.id"
+            [attr.aria-selected]="listTab() === tab.id"
+            (click)="setListTab(tab.id)"
           >
-            <div class="hd-list__title">
-              <span class="hd-prio" [attr.data-priority]="item.priority">{{ priorityLabel(item.priority) }}</span>
-              {{ item.protocol }} · {{ item.subject }}
-            </div>
-            <div class="hd-list__meta">
-              {{ item.organization_name || 'Cliente' }}
-              · {{ statusLabel(item.status) }}
-              · {{ item.assignee_name || 'Sem responsável' }}
-              · {{ formatarData(item.last_message_at || item.created_at) }}
-            </div>
+            {{ tab.label }}
+            @if (tab.id === 'waiting' && waiting() > 0) {
+              <b>{{ waiting() }}</b>
+            }
           </button>
         }
-      }
+      </div>
+
+      <div class="hd-list__body">
+        @if (loading() && items().length === 0) {
+          <app-list-skeleton [count]="5" />
+        } @else if (items().length === 0) {
+          <div class="hd-empty">
+            <span class="material-symbols-outlined" aria-hidden="true">inbox</span>
+            <p>Caixa vazia. Chamados das clínicas aparecerão aqui.</p>
+            @if (temFiltrosAtivos || search().trim()) {
+              <nord-button variant="default" type="button" size="s" (click)="limparTudo()">Limpar filtros</nord-button>
+            }
+          </div>
+        } @else {
+          <div class="hd-list__items">
+            @for (item of items(); track item.id) {
+              <button
+                type="button"
+                class="hd-item"
+                [class.hd-item--on]="selected()?.id === item.id"
+                (click)="selecionar(item)"
+              >
+                <div class="hd-item__row">
+                  <span class="hd-proto">{{ item.protocol }}</span>
+                  <span class="hd-badge" [attr.data-status]="statusTone(item.status)">
+                    {{ statusLabel(item.status) }}
+                  </span>
+                </div>
+                <strong class="hd-item__title">{{ item.subject }}</strong>
+                <div class="hd-item__meta">
+                  {{ item.organization_name || 'Cliente' }} · {{ item.assignee_name || 'Sem responsável' }}
+                </div>
+                <div class="hd-item__row">
+                  <span class="hd-prio" [class.hd-prio--alta]="item.priority === 'high' || item.priority === 'urgent'">
+                    Prioridade {{ priorityLabel(item.priority).toLowerCase() }}
+                  </span>
+                  <span class="hd-item__meta">{{ formatarDataCurta(item.last_message_at || item.created_at) }}</span>
+                </div>
+              </button>
+            }
+          </div>
+        }
+      </div>
     </aside>
 
-    <section class="hd-thread" aria-label="Mensagens">
+    <section class="hd-panel hd-thread" aria-label="Mensagens">
       @if (!selected()) {
-        <nord-empty-state>
+        <div class="hd-empty hd-empty--thread">
+          <span class="material-symbols-outlined" aria-hidden="true">forum</span>
           <h2>Selecione um chamado</h2>
           <p>A conversa e o contexto aparecem ao escolher um item à esquerda.</p>
-        </nord-empty-state>
+        </div>
       } @else {
-        <div class="hd-thread__messages">
-          @for (msg of selected()?.messages ?? []; track msg.id) {
-            <div class="hd-msg" [attr.data-role]="msg.author_role">
-              <div class="hd-msg__meta">
-                {{ msg.author_name || msg.author_role }}
-                · {{ formatarData(msg.created_at) }}
-              </div>
-              <div class="hd-msg__body">{{ msg.body }}</div>
-              @if (msg.attachments?.length) {
-                <div class="hd-attachments">
-                  @for (att of msg.attachments; track att.id) {
-                    <button type="button" class="hd-attachment" (click)="baixarAnexo(att)">
-                      {{ att.original_name }}
-                      @if (att.size) {
-                        <span>· {{ formatSize(att.size) }}</span>
-                      }
-                    </button>
+        <div class="hd-thread__head">
+          <div class="hd-thread__title-row">
+            <h2>{{ selected()?.subject }}</h2>
+            <span class="hd-badge" [attr.data-status]="statusTone(selected()?.status || '')">
+              {{ statusLabel(selected()?.status || '') }}
+            </span>
+            <span
+              class="hd-prio"
+              [class.hd-prio--alta]="selected()?.priority === 'high' || selected()?.priority === 'urgent'"
+            >
+              Prioridade {{ priorityLabel(selected()?.priority || '').toLowerCase() }}
+            </span>
+            <div class="hd-thread__spacer"></div>
+            @if (canManage() && !selected()?.assignee_user_id) {
+              <nord-button type="button" size="s" variant="default" [attr.disabled]="acting() || null" (click)="assumirChamado()">
+                <span slot="start" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">handshake</span>
+                Assumir
+              </nord-button>
+            }
+          </div>
+          <p class="hd-thread__sub">
+            {{ selected()?.protocol }} · {{ selected()?.organization_name || 'Cliente' }} ·
+            {{ selected()?.assignee_name || 'Sem responsável' }}
+          </p>
+        </div>
+
+        <div class="hd-messages" #messagesEl>
+          @for (group of messageDayGroups(); track group.day) {
+            <span class="hd-day">{{ group.day }}</span>
+            @for (msg of group.messages; track msg.id) {
+              <div
+                class="hd-msg"
+                [class.hd-msg--me]="msg.author_role === 'agent'"
+                [class.hd-msg--other]="msg.author_role === 'customer'"
+                [class.hd-msg--note]="msg.is_internal || msg.author_role === 'note'"
+              >
+                <div class="hd-msg__meta">
+                  @if (msg.is_internal || msg.author_role === 'note') {
+                    Nota interna · {{ msg.author_name || 'Equipe' }}
+                  } @else {
+                    {{ msg.author_role === 'agent' ? (msg.author_name || 'Gestgo') : (msg.author_name || 'Cliente') }}
                   }
+                  · {{ formatarHora(msg.created_at) }}
+                </div>
+                <div class="hd-msg__body">{{ msg.body }}</div>
+                @if (msg.attachments?.length) {
+                  <div class="hd-attachments">
+                    @for (att of msg.attachments; track att.id) {
+                      <button type="button" class="hd-attachment" (click)="abrirAnexo(att)">
+                        <span class="material-symbols-outlined" aria-hidden="true">{{ anexoIcone(att) }}</span>
+                        <span>{{ att.original_name }}</span>
+                        @if (att.size) {
+                          <span>· {{ formatSize(att.size) }}</span>
+                        }
+                      </button>
+                    }
+                  </div>
+                }
+              </div>
+            }
+          }
+
+          @for (note of selected()?.notes ?? []; track note.id) {
+            <div class="hd-msg hd-msg--note">
+              <div class="hd-msg__meta">
+                Nota interna · {{ note.author_name || 'Equipe' }} · {{ formatarHora(note.created_at) }}
+              </div>
+              <div class="hd-msg__body">{{ note.body }}</div>
+            </div>
+          }
+        </div>
+
+        @if (canManage() && selected()?.status !== 'closed') {
+          <div class="hd-composer" [class.hd-composer--note]="composeMode() === 'note'">
+            <div class="hd-composer__top">
+              <div class="hd-mode" role="tablist" aria-label="Modo de envio">
+                <button
+                  type="button"
+                  class="hd-mode__btn"
+                  [class.hd-mode__btn--on]="composeMode() === 'reply'"
+                  (click)="setComposeMode('reply')"
+                >
+                  Responder ao cliente
+                </button>
+                <button
+                  type="button"
+                  class="hd-mode__btn hd-mode__btn--note"
+                  [class.hd-mode__btn--on]="composeMode() === 'note'"
+                  (click)="setComposeMode('note')"
+                >
+                  Nota interna
+                </button>
+              </div>
+
+              @if (composeMode() === 'reply' && cannedReplyOptions().length) {
+                <div class="hd-canned">
+                  <z-combobox
+                    zWidth="full"
+                    [options]="cannedReplyOptions()"
+                    [value]="null"
+                    placeholder="Inserir resposta pronta…"
+                    emptyText="Nenhuma resposta pronta."
+                    ariaLabel="Resposta pronta"
+                    (zValueChange)="aplicarRespostaPronta($event)"
+                  />
                 </div>
               }
             </div>
-          }
-        </div>
-        <div class="hd-composer">
-          @if (cannedReplies().length) {
-            <label class="hd-canned">
-              Resposta pronta
-              <select (change)="aplicarRespostaPronta($event)">
-                <option value="">Inserir modelo…</option>
-                @for (item of cannedReplies(); track item.id) {
-                  <option [value]="item.id">
-                    {{ item.title }}@if (item.shortcut) { ({{ item.shortcut }})}
-                  </option>
+
+            @if (composeMode() === 'reply' && draftFiles().length) {
+              <div class="hd-chips">
+                @for (file of draftFiles(); track file.name + file.size; let i = $index) {
+                  <span class="hd-chip">
+                    <span class="material-symbols-outlined" aria-hidden="true">attach_file</span>
+                    {{ file.name }} · {{ formatSize(file.size) }}
+                    <button type="button" (click)="removerDraftFile(i)" aria-label="Remover anexo">
+                      <span class="material-symbols-outlined" aria-hidden="true">close</span>
+                    </button>
+                  </span>
                 }
-              </select>
-            </label>
-          }
-          <textarea
-            rows="3"
-            placeholder="Responder ao cliente…"
-            [value]="draft()"
-            (input)="onDraft($event)"
-          ></textarea>
-          <label class="hd-files">
-            Anexos (até 3 · 5 MB)
-            <input type="file" multiple [accept]="acceptTypes" (change)="onDraftFiles($event)" />
-          </label>
-          @if (draftFiles().length) {
-            <ul class="hd-file-list">
-              @for (file of draftFiles(); track file.name + file.size) {
-                <li>{{ file.name }}</li>
+              </div>
+            }
+
+            <textarea
+              rows="3"
+              [placeholder]="composeMode() === 'note' ? 'Nota interna (invisível ao cliente)…' : 'Responder ao cliente…'"
+              [value]="composeMode() === 'note' ? noteDraft() : draft()"
+              (input)="composeMode() === 'note' ? onNoteDraft($event) : onDraft($event)"
+              (keydown)="onComposerKeydown($event)"
+            ></textarea>
+
+            <div class="hd-composer__row">
+              @if (composeMode() === 'reply') {
+                <label class="hd-attach">
+                  <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">attach_file</span>
+                  Anexar (até 3 · 5 MB)
+                  <input type="file" multiple [accept]="acceptTypes" (change)="onDraftFiles($event)" />
+                </label>
+                <span class="hd-hint">Visível ao cliente · Enter envia</span>
+              } @else {
+                <span class="hd-hint">Só a equipe vê · Enter salva</span>
               }
-            </ul>
-          }
-          <nord-button type="button" variant="primary" [attr.disabled]="acting() || null" (click)="enviarResposta()">
-            Enviar
-          </nord-button>
-        </div>
+              <div class="hd-spacer"></div>
+              <nord-button
+                type="button"
+                variant="primary"
+                [attr.disabled]="acting() || null"
+                [attr.loading]="acting() || null"
+                (click)="enviarComposer()"
+              >
+                <span slot="start" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">
+                  {{ composeMode() === 'note' ? 'sticky_note_2' : 'send' }}
+                </span>
+                {{ composeMode() === 'note' ? 'Salvar nota' : 'Enviar resposta' }}
+              </nord-button>
+            </div>
+          </div>
+        }
       }
     </section>
 
-    <aside class="hd-context" aria-label="Contexto">
+    <aside class="hd-panel hd-side" aria-label="Contexto">
       @if (selected(); as ticket) {
-        <h3>{{ ticket.protocol }}</h3>
-        <p class="n-muted n-small">{{ ticket.subject }}</p>
-        <dl class="hd-dl">
-          <div><dt>Status</dt><dd>{{ statusLabel(ticket.status) }}</dd></div>
-          <div><dt>Cliente</dt><dd>{{ ticket.organization_name || '—' }}</dd></div>
-          <div><dt>Plano</dt><dd>{{ ticket.plan_key || '—' }}</dd></div>
-          <div><dt>Solicitante</dt><dd>{{ ticket.requester_name || '—' }}</dd></div>
-          <div><dt>E-mail</dt><dd>{{ ticket.requester_email || '—' }}</dd></div>
-        </dl>
+        <div class="hd-sec">
+          <h3 class="hd-sec__title">Detalhes</h3>
+          <dl class="hd-kv">
+            <dt>Protocolo</dt>
+            <dd class="hd-proto">{{ ticket.protocol }}</dd>
+            <dt>Cliente</dt>
+            <dd [title]="ticket.organization_name || ''">{{ ticket.organization_name || '—' }}</dd>
+            <dt>Plano</dt>
+            <dd>{{ ticket.plan_key || '—' }}</dd>
+            <dt>Solicitante</dt>
+            <dd [title]="ticket.requester_name || ''">{{ ticket.requester_name || '—' }}</dd>
+            <dt>E-mail</dt>
+            <dd [title]="ticket.requester_email || ''">{{ ticket.requester_email || '—' }}</dd>
+          </dl>
+        </div>
 
         @if (canManage()) {
-          <div class="hd-triage">
-            <label>
-              Categoria
-              <select [value]="ticket.category" [attr.disabled]="acting() || null" (change)="onTriageCategory($event)">
-                @for (item of categories; track item.value) {
-                  <option [value]="item.value">{{ item.label }}</option>
-                }
-              </select>
-            </label>
-            <label>
-              Prioridade
-              <select [value]="ticket.priority" [attr.disabled]="acting() || null" (change)="onTriagePriority($event)">
-                @for (item of priorities; track item.value) {
-                  <option [value]="item.value">{{ item.label }}</option>
-                }
-              </select>
-            </label>
-            <label>
-              Responsável
-              <select
-                [value]="ticket.assignee_user_id ?? ''"
-                [attr.disabled]="acting() || null"
-                (change)="onTriageAssignee($event)"
-              >
-                <option value="">Sem responsável</option>
-                @for (agent of agents(); track agent.id) {
-                  <option [value]="agent.id">{{ agent.name }}</option>
-                }
-              </select>
-            </label>
+          <div class="hd-sec">
+            <h3 class="hd-sec__title">Status</h3>
+            <div class="hd-stat">
+              @for (st of statusQuick; track st.value) {
+                <button
+                  type="button"
+                  class="hd-stat__btn"
+                  [class.hd-stat__btn--on]="ticket.status === st.value"
+                  [attr.disabled]="acting() || null"
+                  (click)="atualizarStatus(st.value)"
+                >
+                  {{ st.label }}
+                </button>
+              }
+            </div>
           </div>
 
-          <div class="hd-actions">
-            <nord-button type="button" size="s" variant="default" [attr.disabled]="acting() || null" (click)="assumirChamado()">Assumir</nord-button>
-            <nord-button type="button" size="s" variant="default" [attr.disabled]="acting() || null" (click)="atualizarStatus('in_progress')">Em atendimento</nord-button>
-            <nord-button type="button" size="s" variant="default" [attr.disabled]="acting() || null" (click)="atualizarStatus('resolved')">Resolver</nord-button>
-            <nord-button type="button" size="s" variant="plain" [attr.disabled]="acting() || null" (click)="atualizarStatus('closed')">Encerrar</nord-button>
+          <div class="hd-sec">
+            <h3 class="hd-sec__title">Classificação</h3>
+            <div class="hd-field">
+              <span id="hd-cat-label">Categoria</span>
+              <z-combobox
+                zWidth="full"
+                [options]="categoryOptions"
+                [value]="ticket.category"
+                [zDisabled]="acting()"
+                ariaLabel="Categoria"
+                ariaLabelledby="hd-cat-label"
+                (zValueChange)="onTriageCategory($event)"
+              />
+            </div>
+            <div class="hd-field">
+              <span id="hd-prio-label">Prioridade</span>
+              <z-combobox
+                zWidth="full"
+                [options]="priorityOptions"
+                [value]="ticket.priority"
+                [zDisabled]="acting()"
+                ariaLabel="Prioridade"
+                ariaLabelledby="hd-prio-label"
+                (zValueChange)="onTriagePriority($event)"
+              />
+            </div>
+            <div class="hd-field">
+              <span id="hd-ass-label">Responsável</span>
+              <z-combobox
+                zWidth="full"
+                [options]="assigneeOptions()"
+                [value]="assigneeValue(ticket)"
+                [zDisabled]="acting()"
+                ariaLabel="Responsável"
+                ariaLabelledby="hd-ass-label"
+                (zValueChange)="onTriageAssignee($event)"
+              />
+            </div>
           </div>
-
-          <h4>Notas internas</h4>
-          <div class="hd-notes">
-            @for (note of ticket.notes ?? []; track note.id) {
-              <div class="hd-note">
-                <div class="hd-msg__meta">{{ note.author_name || 'Equipe' }} · {{ formatarData(note.created_at) }}</div>
-                <div>{{ note.body }}</div>
-              </div>
-            } @empty {
-              <p class="n-muted n-small">Nenhuma nota.</p>
-            }
-          </div>
-          <textarea rows="2" placeholder="Nota interna (invisível ao cliente)" [value]="noteDraft()" (input)="onNoteDraft($event)"></textarea>
-          <nord-button type="button" size="s" variant="default" [attr.disabled]="acting() || null" (click)="adicionarNota()">Salvar nota</nord-button>
         } @else {
-          <dl class="hd-dl">
-            <div><dt>Categoria</dt><dd>{{ categoryLabel(ticket.category) }}</dd></div>
-            <div><dt>Prioridade</dt><dd>{{ priorityLabel(ticket.priority) }}</dd></div>
-            <div><dt>Responsável</dt><dd>{{ ticket.assignee_name || '—' }}</dd></div>
-          </dl>
+          <div class="hd-sec">
+            <h3 class="hd-sec__title">Classificação</h3>
+            <dl class="hd-kv">
+              <dt>Categoria</dt>
+              <dd>{{ categoryLabel(ticket.category) }}</dd>
+              <dt>Prioridade</dt>
+              <dd>{{ priorityLabel(ticket.priority) }}</dd>
+              <dt>Responsável</dt>
+              <dd>{{ ticket.assignee_name || '—' }}</dd>
+              <dt>Status</dt>
+              <dd>{{ statusLabel(ticket.status) }}</dd>
+            </dl>
+          </div>
         }
 
         @if (ticket.context) {
-          <h4>Contexto operacional</h4>
-          <pre class="hd-context-json">{{ ticket.context | json }}</pre>
+          <div class="hd-sec">
+            <details class="hd-details">
+              <summary>Contexto operacional</summary>
+              <dl class="hd-kv hd-kv--compact">
+                <dt>Módulo</dt>
+                <dd>{{ contextValue(ticket.context, 'module') }}</dd>
+                <dt>Rota</dt>
+                <dd>{{ contextValue(ticket.context, 'route') }}</dd>
+                <dt>Versão</dt>
+                <dd>{{ contextValue(ticket.context, 'frontend_version') }}</dd>
+              </dl>
+              <details class="hd-details hd-details--nested">
+                <summary>Ver JSON completo</summary>
+                <pre class="hd-context-json">{{ ticket.context | json }}</pre>
+              </details>
+            </details>
+          </div>
         }
+      } @else {
+        <div class="hd-empty">
+          <span class="material-symbols-outlined" aria-hidden="true">info</span>
+          <p>Detalhes do chamado selecionado.</p>
+        </div>
       }
     </aside>
   </div>
 </div>
+
+<nord-modal
+  #anexoModal
+  class="hd-anexo-modal"
+  size="xl"
+  scrollable
+  aria-labelledby="hd-anexo-modal-title"
+  (close)="fecharPreviewAnexo()"
+>
+  <h2 slot="header" id="hd-anexo-modal-title">
+    {{ previewAttachment()?.original_name || 'Anexo' }}
+  </h2>
+  <div class="hd-anexo-modal__body">
+    @if (previewLoading()) {
+      <p class="n-muted n-small m-0">Carregando visualização…</p>
+    } @else if (previewUrl()) {
+      <img
+        class="hd-anexo-modal__img"
+        [src]="previewUrl()"
+        [alt]="previewAttachment()?.original_name || 'Imagem anexada'"
+      />
+    } @else {
+      <p class="n-muted n-small m-0">Não foi possível carregar a imagem.</p>
+    }
+  </div>
+  <nord-button-group slot="footer" variant="spaced">
+    <nord-button expand type="button" variant="default" (click)="fecharPreviewAnexo()">Fechar</nord-button>
+    <nord-button
+      expand
+      type="button"
+      variant="primary"
+      [attr.disabled]="!previewAttachment() || previewLoading() ? '' : null"
+      (click)="baixarPreviewAnexo()"
+    >
+      <span slot="start" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">download</span>
+      Baixar
+    </nord-button>
+  </nord-button-group>
+</nord-modal>
 
 <ng-template #filtrosTpl>
   <div class="zm-filter-sheet">
@@ -246,41 +458,46 @@
         </div>
 
         <div class="zm-filter-field">
-          <span class="zm-filter-label">Categoria</span>
-          <select [value]="categoryRascunho" (change)="categoryRascunho = $any($event.target).value || 'all'">
-            <option value="all">Todas</option>
-            @for (item of categories; track item.value) {
-              <option [value]="item.value">{{ item.label }}</option>
-            }
-          </select>
+          <span class="zm-filter-label" id="hd-filter-cat-label">Categoria</span>
+          <z-combobox
+            zWidth="full"
+            [options]="filterCategoryOptions"
+            [value]="categoryRascunho"
+            ariaLabel="Categoria"
+            ariaLabelledby="hd-filter-cat-label"
+            (zValueChange)="onFilterCategory($event)"
+          />
         </div>
 
         <div class="zm-filter-field">
-          <span class="zm-filter-label">Prioridade</span>
-          <select [value]="priorityRascunho" (change)="priorityRascunho = $any($event.target).value || 'all'">
-            <option value="all">Todas</option>
-            @for (item of priorities; track item.value) {
-              <option [value]="item.value">{{ item.label }}</option>
-            }
-          </select>
+          <span class="zm-filter-label" id="hd-filter-prio-label">Prioridade</span>
+          <z-combobox
+            zWidth="full"
+            [options]="filterPriorityOptions"
+            [value]="priorityRascunho"
+            ariaLabel="Prioridade"
+            ariaLabelledby="hd-filter-prio-label"
+            (zValueChange)="onFilterPriority($event)"
+          />
         </div>
 
         <div class="zm-filter-field">
-          <span class="zm-filter-label">Responsável</span>
-          <select [value]="assigneeRascunho" (change)="assigneeRascunho = $any($event.target).value || 'all'">
-            <option value="all">Todos</option>
-            <option value="unassigned">Sem responsável</option>
-            @for (agent of agents(); track agent.id) {
-              <option [value]="agent.id">{{ agent.name }}</option>
-            }
-          </select>
+          <span class="zm-filter-label" id="hd-filter-ass-label">Responsável</span>
+          <z-combobox
+            zWidth="full"
+            [options]="filterAssigneeOptions()"
+            [value]="assigneeRascunho"
+            ariaLabel="Responsável"
+            ariaLabelledby="hd-filter-ass-label"
+            (zValueChange)="onFilterAssignee($event)"
+          />
         </div>
       </div>
     </div>
     <footer class="zm-filter-sheet__footer">
       <button class="zm-filter-sheet__clear" type="button" (click)="limparFiltrosDrawer()">Limpar filtros</button>
       <nord-button variant="primary" type="button" (click)="aplicarFiltrosDrawer()">
-        <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">check</span>
+        <span slot="start" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">check</span>
         Aplicar
       </nord-button>
     </footer>

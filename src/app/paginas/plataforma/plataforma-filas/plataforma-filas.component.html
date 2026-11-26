@@ -85,12 +85,16 @@
           <div class="n-page-list__actions">
             <nord-button
               type="button"
+              square
               variant="plain"
               size="s"
+              class="n-page-list__icon-btn--danger"
+              aria-label="Descartar"
+              aria-describedby="tip-fila-discard"
               [attr.disabled]="acting() || null"
               (click)="discardPending(job)"
             >
-              Descartar
+              <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">delete</span>
             </nord-button>
           </div>
         </div>
@@ -113,21 +117,28 @@
           <div class="n-page-list__actions">
             <nord-button
               type="button"
-              variant="primary"
+              square
+              variant="plain"
               size="s"
+              aria-label="Reprocessar"
+              aria-describedby="tip-fila-retry"
               [attr.disabled]="acting() || null"
               (click)="retryFailed(job)"
             >
-              Reprocessar
+              <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">replay</span>
             </nord-button>
             <nord-button
               type="button"
+              square
               variant="plain"
               size="s"
+              class="n-page-list__icon-btn--danger"
+              aria-label="Descartar"
+              aria-describedby="tip-fila-discard"
               [attr.disabled]="acting() || null"
               (click)="discardFailed(job)"
             >
-              Descartar
+              <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">delete</span>
             </nord-button>
           </div>
         </div>
@@ -135,6 +146,9 @@
     </div>
   }
 </div>
+
+<nord-tooltip id="tip-fila-retry" [delay]="0">Reprocessar</nord-tooltip>
+<nord-tooltip id="tip-fila-discard" [delay]="0">Descartar</nord-tooltip>
 
 <ng-template #filtrosTpl>
   <div class="zm-filter-sheet">

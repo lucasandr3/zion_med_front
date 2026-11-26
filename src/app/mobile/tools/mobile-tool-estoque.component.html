@@ -5,53 +5,103 @@
     </a>
     <div>
       <h1>Estoque e validade</h1>
-      <small>Lista da clínica</small>
+      <small>
+        @if (attentionCount() > 0) {
+          {{ attentionCount() }} item(ns) pedem atenção
+        } @else {
+          Materiais da clínica
+        }
+      </small>
     </div>
   </div>
 
-  <div class="gm-panel">
-    <div class="gm-field">
-      <label>Item</label>
-      <input type="text" [(ngModel)]="name" />
-    </div>
-    <div class="gm-twocol">
-      <div class="gm-field">
-        <label>Qtd (rótulo)</label>
-        <input type="text" [(ngModel)]="quantityLabel" placeholder="2 caixas" />
-      </div>
-      <div class="gm-field">
-        <label>Qtd numérica</label>
-        <input type="number" min="0" [(ngModel)]="quantity" />
-      </div>
-    </div>
-    <div class="gm-field">
-      <label>Validade</label>
-      <nord-date-picker
-        expand
-        hide-label
-        label="Validade"
-        [(ngModel)]="expiresOn"
-        name="expiresOnMobile"
-        placeholder="dd/mm/aaaa"
-      ></nord-date-picker>
-    </div>
-    <button type="button" class="gm-btn" (click)="criar()">Adicionar</button>
+  <div class="gm-pills" role="tablist" aria-label="Filtrar estoque">
+    <button type="button" class="gm-pill" [class.is-on]="filter() === 'all'" (click)="setFilter('all')">Todos</button>
+    <button type="button" class="gm-pill" [class.is-on]="filter() === 'attention'" (click)="setFilter('attention')">
+      Atenção
+    </button>
+    <button type="button" class="gm-pill" [class.is-on]="filter() === 'ok'" (click)="setFilter('ok')">Em dia</button>
   </div>
+
+  @if (!showForm()) {
+    <button type="button" class="gm-btn" style="margin-bottom:14px" (click)="abrirForm()">
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">add</span>
+      Novo item
+    </button>
+  } @else {
+    <div class="gm-panel">
+      <div class="gm-field">
+        <label>Item</label>
+        <input type="text" [(ngModel)]="name" placeholder="Ex.: Toxina botulínica" />
+      </div>
+      <div class="gm-twocol">
+        <div class="gm-field">
+          <label>Qtd (rótulo)</label>
+          <input type="text" [(ngModel)]="quantityLabel" placeholder="2 caixas" />
+        </div>
+        <div class="gm-field">
+          <label>Qtd numérica</label>
+          <input type="number" min="0" [(ngModel)]="quantity" />
+        </div>
+      </div>
+      <div class="gm-field">
+        <label>Validade</label>
+        <nord-date-picker
+          expand
+          hide-label
+          label="Validade"
+          [(ngModel)]="expiresOn"
+          name="expiresOnMobile"
+          placeholder="dd/mm/aaaa"
+        ></nord-date-picker>
+      </div>
+      <button type="button" class="gm-btn" [disabled]="saving()" (click)="criar()">
+        {{ saving() ? 'Salvando…' : 'Salvar item' }}
+      </button>
+      <button type="button" class="gm-btn gm-btn--secondary" (click)="fecharForm()">Cancelar</button>
+    </div>
+  }
 
   @if (loading()) {
-    <p class="gm-loading">Carregando…</p>
-  } @else if (items().length === 0) {
-    <p class="gm-empty">Nenhum item cadastrado.</p>
+    <div class="gm-preload gm-preload--inline" aria-busy="true">
+      <div class="gm-preload__bar"><span></span></div>
+      <p class="gm-preload__hint">Carregando estoque…</p>
+    </div>
+  } @else if (filtered().length === 0) {
+    <div class="gm-empty-state">
+      <span class="gm-empty-state__icon" aria-hidden="true">
+        <span class="material-symbols-outlined gestgo-mi gestgo-mi--l">inventory_2</span>
+      </span>
+      <h2>{{ items().length === 0 ? 'Estoque vazio' : 'Nada neste filtro' }}</h2>
+      <p>
+        @if (items().length === 0) {
+          Cadastre materiais e validade para acompanhar o box.
+        } @else {
+          Troque o filtro ou cadastre outro item.
+        }
+      </p>
+    </div>
   } @else {
-    @for (item of items(); track item.id) {
-      <div class="gm-card" style="cursor:default">
-        <span class="gm-avatar">·</span>
+    @for (item of filtered(); track item.id; let i = $index) {
+      <div class="gm-card gm-card--static">
+        <span class="gm-avatar" [class.orange]="statusTone(item.status) === 'warn'" [class.teal]="statusTone(item.status) === 'ok'">
+          {{ item.name.slice(0, 1).toUpperCase() }}
+        </span>
         <span class="gm-card__body">
           <span class="gm-card__title">{{ item.name }}</span>
-          <span class="gm-card__sub">{{ item.quantity_label || (item.quantity ?? '—') }}</span>
+          <span class="gm-card__sub">
+            {{ qtyText(item) }}
+            @if (item.expires_on) {
+              · val. {{ formatDate(item.expires_on) }}
+            }
+          </span>
         </span>
-        <span class="gm-status" [class.ok]="item.status === 'ok'">{{ statusLabel(item.status) }}</span>
-        <button type="button" class="gm-link" (click)="remover(item.id)">Remover</button>
+        <span class="gm-status" [class.ok]="statusTone(item.status) === 'ok'" [class.warn]="statusTone(item.status) === 'warn'">
+          {{ statusLabel(item.status) }}
+        </span>
+      </div>
+      <div class="gm-envio-actions" style="margin-top:-2px;margin-bottom:12px">
+        <button type="button" class="gm-pill" (click)="remover(item)">Remover</button>
       </div>
     }
   }
@@ -61,68 +111,134 @@
       <zm-page-back-link />
     </div>
     <div class="n-form-toolbar__end">
-      <nord-button variant="primary" type="button" (click)="criar()">
-        <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">add</span>
-        Adicionar
-      </nord-button>
+      @if (!showForm()) {
+        <nord-button variant="primary" type="button" (click)="abrirForm()">
+          <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">add</span>
+          Novo item
+        </nord-button>
+      }
     </div>
   </div>
 
   <div class="ft-body zm-content-enter">
-    <g-card class="mb-4">
-      <form class="flex flex-col gap-5">
-        <div>
-          <label class="ft-label" for="ft-stock-name">Item</label>
-          <input id="ft-stock-name" class="w-full" type="text" [(ngModel)]="name" name="name" />
-        </div>
-        <div class="grid gap-5 md:grid-cols-2">
+    <div class="ft-toolbar-row mb-4">
+      <div class="ft-filter-w">
+        <label class="ft-label" id="stock-filter-label">Filtro</label>
+        <z-combobox
+          zWidth="full"
+          [options]="filterOptions"
+          [value]="filter()"
+          [clearable]="false"
+          placeholder="Filtrar"
+          ariaLabelledby="stock-filter-label"
+          (zValueChange)="setFilter($event)"
+        />
+      </div>
+      @if (attentionCount() > 0) {
+        <p class="ft-hint" style="margin:0">{{ attentionCount() }} item(ns) pedem atenção</p>
+      }
+    </div>
+
+    @if (showForm()) {
+      <g-card class="mb-4">
+        <form class="flex flex-col gap-5" (ngSubmit)="criar()">
           <div>
-            <label class="ft-label" for="ft-stock-qlabel">Qtd (rótulo)</label>
-            <input
-              id="ft-stock-qlabel"
-              class="w-full"
-              type="text"
-              [(ngModel)]="quantityLabel"
-              name="quantityLabel"
-              placeholder="2 caixas"
-            />
+            <label class="ft-label" for="ft-stock-name">Item</label>
+            <nord-input
+              id="ft-stock-name"
+              expand
+              hide-label
+              label="Item"
+              [value]="name"
+              (input)="name = onNordInput($event)"
+              placeholder="Ex.: Toxina botulínica"
+            ></nord-input>
           </div>
-          <div>
-            <label class="ft-label" for="ft-stock-qty">Qtd numérica</label>
-            <input id="ft-stock-qty" class="w-full" type="number" min="0" [(ngModel)]="quantity" name="quantity" />
+          <div class="grid gap-5 md:grid-cols-2">
+            <div>
+              <label class="ft-label" for="ft-stock-qlabel">Qtd (rótulo)</label>
+              <nord-input
+                id="ft-stock-qlabel"
+                expand
+                hide-label
+                label="Qtd rótulo"
+                [value]="quantityLabel"
+                (input)="quantityLabel = onNordInput($event)"
+                placeholder="2 caixas"
+              ></nord-input>
+            </div>
+            <div>
+              <label class="ft-label" for="ft-stock-qty">Qtd numérica</label>
+              <nord-input
+                id="ft-stock-qty"
+                type="number"
+                expand
+                hide-label
+                label="Qtd numérica"
+                [value]="quantity ?? ''"
+                (input)="quantity = onNordNumber($event)"
+              ></nord-input>
+            </div>
           </div>
-        </div>
-        <div class="max-w-xs">
-          <label class="ft-label" for="ft-stock-exp">Validade</label>
-          <nord-date-picker
-            id="ft-stock-exp"
-            expand
-            hide-label
-            label="Validade"
-            [(ngModel)]="expiresOn"
-            name="expiresOn"
-            placeholder="dd/mm/aaaa"
-          ></nord-date-picker>
-        </div>
-      </form>
-    </g-card>
+          <div class="max-w-xs">
+            <label class="ft-label" for="ft-stock-exp">Validade</label>
+            <nord-date-picker
+              id="ft-stock-exp"
+              expand
+              hide-label
+              label="Validade"
+              [(ngModel)]="expiresOn"
+              name="expiresOn"
+              placeholder="dd/mm/aaaa"
+            ></nord-date-picker>
+          </div>
+          <div class="flex gap-3">
+            <nord-button variant="primary" type="submit" [attr.loading]="saving() || null">Salvar item</nord-button>
+            <nord-button type="button" variant="plain" (click)="fecharForm()">Cancelar</nord-button>
+          </div>
+        </form>
+      </g-card>
+    }
 
     @if (loading()) {
       <p class="text-sm text-muted-foreground">Carregando…</p>
-    } @else if (items().length === 0) {
-      <p class="text-sm text-muted-foreground">Nenhum item cadastrado.</p>
+    } @else if (filtered().length === 0) {
+      <nord-empty-state>
+        <h2>{{ items().length === 0 ? 'Estoque vazio' : 'Nada neste filtro' }}</h2>
+        <p>
+          @if (items().length === 0) {
+            Cadastre materiais e validade para acompanhar o box.
+          } @else {
+            Troque o filtro ou cadastre outro item.
+          }
+        </p>
+        @if (items().length === 0) {
+          <nord-button variant="primary" type="button" (click)="abrirForm()">Novo item</nord-button>
+        }
+      </nord-empty-state>
     } @else {
       <div class="ft-list-gap">
-        @for (item of items(); track item.id) {
+        @for (item of filtered(); track item.id) {
           <g-card>
             <div class="ft-row">
               <div>
                 <div class="font-medium">{{ item.name }}</div>
-                <div class="text-sm text-muted-foreground">{{ item.quantity_label || (item.quantity ?? '—') }}</div>
+                <div class="text-sm text-muted-foreground">
+                  {{ qtyText(item) }}
+                  @if (item.expires_on) {
+                    · validade {{ formatDate(item.expires_on) }}
+                  }
+                </div>
               </div>
               <div class="flex items-center gap-3">
-                <span class="text-xs font-medium text-muted-foreground">{{ statusLabel(item.status) }}</span>
-                <nord-button type="button" size="s" variant="plain" (click)="remover(item.id)">Remover</nord-button>
+                <span
+                  class="ft-badge"
+                  [class.ft-badge--ok]="statusTone(item.status) === 'ok'"
+                  [class.ft-badge--warn]="statusTone(item.status) === 'warn'"
+                >
+                  {{ statusLabel(item.status) }}
+                </span>
+                <nord-button type="button" size="s" variant="plain" (click)="remover(item)">Remover</nord-button>
               </div>
             </div>
           </g-card>

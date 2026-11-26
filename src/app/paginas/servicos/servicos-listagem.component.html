@@ -74,10 +74,23 @@
             <div class="n-page-list__row-meta">{{ meta(s) }}</div>
           </div>
           <div class="n-page-list__actions" (click)="$event.stopPropagation()">
-            <nord-button square variant="plain" aria-label="Editar" (click)="irParaEditar(s)">
+            <nord-button
+              square
+              variant="plain"
+              aria-label="Editar"
+              aria-describedby="tip-servico-edit"
+              (click)="irParaEditar(s)"
+            >
               <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">edit</span>
             </nord-button>
-            <nord-button square variant="plain" aria-label="Remover" (click)="remover(s)">
+            <nord-button
+              square
+              variant="plain"
+              class="n-page-list__icon-btn--danger"
+              aria-label="Remover"
+              aria-describedby="tip-servico-del"
+              (click)="remover(s)"
+            >
               <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">delete</span>
             </nord-button>
           </div>
@@ -86,3 +99,6 @@
     </div>
   }
 </div>
+
+<nord-tooltip id="tip-servico-edit" [delay]="0">Editar</nord-tooltip>
+<nord-tooltip id="tip-servico-del" [delay]="0">Remover</nord-tooltip>

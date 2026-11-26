@@ -9,7 +9,7 @@ import {
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TemplatesService, type Template } from '../core/services/templates.service';
-import { preparePainelHop, setPreferPainelExperience } from '../core/utils/gestgo-experience.util';
+import { setPreferPainelExperience } from '../core/utils/gestgo-experience.util';
 import { MobileShellService } from './mobile-shell.service';
 
 @Component({
@@ -45,7 +45,8 @@ export class MobileFichasComponent implements OnInit {
   ngOnInit(): void {
     this.templates.list({ is_active: true }).subscribe({
       next: (list) => {
-        this.items.set(list || []);
+        // Só modelos ativos (API + filtro local).
+        this.items.set((list || []).filter((t) => !!t.is_active));
         this.loading.set(false);
       },
       error: () => {
@@ -64,8 +65,7 @@ export class MobileFichasComponent implements OnInit {
   }
 
   enviar(templateId: number): void {
-    const hop = preparePainelHop(`/envios?template_id=${templateId}`, '/m/fichas');
-    void this.router.navigate([hop.path], { queryParams: hop.queryParams });
+    void this.router.navigate(['/m/enviar'], { queryParams: { template_id: templateId } });
   }
 
   abrirPainelModelos(): void {

@@ -14,7 +14,7 @@ import {
   normalizeThemeKey,
   syncThemeChrome,
 } from '../core/services/user-appearance.sync';
-import { setPreferPainelExperience } from '../core/utils/gestgo-experience.util';
+import { preparePainelHop, setPreferPainelExperience } from '../core/utils/gestgo-experience.util';
 import { temasOrdemGrade, TEMAS, type ShellTema } from '../componentes/layout/shell-theme.config';
 
 @Component({
@@ -48,6 +48,21 @@ export class MobileConfiguracoesComponent implements OnInit {
 
   get emailUsuario(): string {
     return this.auth.getUser()?.email || '';
+  }
+
+  get nomeEmpresa(): string {
+    return this.auth.getCurrentOrganization()?.name || '';
+  }
+
+  get iniciais(): string {
+    const parts = this.nomeUsuario.trim().split(/\s+/).filter(Boolean);
+    if (!parts.length) return 'G';
+    if (parts.length === 1) return parts[0]!.slice(0, 2).toUpperCase();
+    return `${parts[0]![0] ?? ''}${parts[1]![0] ?? ''}`.toUpperCase();
+  }
+
+  get podeTrocarEmpresa(): boolean {
+    return (this.auth.getOrganizations()?.length ?? 0) > 1;
   }
 
   ngOnInit(): void {
@@ -95,8 +110,26 @@ export class MobileConfiguracoesComponent implements OnInit {
   }
 
   togglePush(): void {
+    if (!this.pushSupported() || this.pushBusy()) return;
     const obs = this.pushSubscribed() ? this.push.disable() : this.push.enable();
     obs.subscribe(() => this.cdr.markForCheck());
+  }
+
+  abrirPainel(): void {
+    setPreferPainelExperience(true);
+    void this.router.navigateByUrl('/dashboard');
+  }
+
+  abrirPerfilPainel(): void {
+    setPreferPainelExperience(true);
+    const hop = preparePainelHop('/conta/perfil', '/m/configuracoes');
+    void this.router.navigate([hop.path], { queryParams: hop.queryParams });
+  }
+
+  trocarEmpresa(): void {
+    setPreferPainelExperience(true);
+    const hop = preparePainelHop('/clinica/escolher', '/m/configuracoes');
+    void this.router.navigate([hop.path], { queryParams: hop.queryParams });
   }
 
   sair(): void {

@@ -3,7 +3,7 @@ import { Observable } from 'rxjs';
 import { ApiService } from './api.service';
 
 export type FeedbackType = 'suggestion' | 'bug';
-export type FeedbackSource = 'account_menu' | 'go_assistant';
+export type FeedbackSource = 'account_menu' | 'go_assistant' | 'help_center' | 'header_help';
 
 export interface FeedbackPayload {
   type: FeedbackType;

@@ -74,14 +74,45 @@ export const routes: Routes = [
         data: { titulo: 'Pacientes' },
       },
       {
+        path: 'agenda',
+        loadComponent: () => import('./mobile/mobile-agenda.component').then((m) => m.MobileAgendaComponent),
+        data: { titulo: 'Agenda' },
+      },
+      {
+        path: 'tarefas',
+        loadComponent: () => import('./mobile/mobile-tarefas.component').then((m) => m.MobileTarefasComponent),
+        data: { titulo: 'Tarefas' },
+      },
+      {
         path: 'fichas',
         loadComponent: () => import('./mobile/mobile-fichas.component').then((m) => m.MobileFichasComponent),
         data: { titulo: 'Fichas' },
       },
       {
+        path: 'enviar',
+        loadComponent: () => import('./mobile/mobile-send.component').then((m) => m.MobileSendComponent),
+        data: { titulo: 'Enviar ficha' },
+      },
+      {
         path: 'documentos',
         loadComponent: () => import('./mobile/mobile-documentos.component').then((m) => m.MobileDocumentosComponent),
         data: { titulo: 'Documentos' },
+      },
+      {
+        path: 'documentos/:id',
+        loadComponent: () =>
+          import('./mobile/mobile-documento-detalhe.component').then((m) => m.MobileDocumentoDetalheComponent),
+        data: { titulo: 'Documento' },
+      },
+      {
+        path: 'envios',
+        loadComponent: () => import('./mobile/mobile-envios.component').then((m) => m.MobileEnviosComponent),
+        data: { titulo: 'Envios' },
+      },
+      {
+        path: 'avisos',
+        loadComponent: () => import('./mobile/mobile-avisos.component').then((m) => m.MobileAvisosComponent),
+        data: { titulo: 'Notificações' },
       },
       {
         path: 'configuracoes',
@@ -90,10 +121,16 @@ export const routes: Routes = [
         data: { titulo: 'Configurações' },
       },
       {
+        path: 'atendimento',
+        loadComponent: () =>
+          import('./mobile/mobile-atendimento.component').then((m) => m.MobileAtendimentoComponent),
+        data: { titulo: 'Atendimento' },
+      },
+      {
         path: 'ferramentas',
         loadComponent: () =>
           import('./mobile/mobile-ferramentas.component').then((m) => m.MobileFerramentasComponent),
-        data: { titulo: 'Utilitários' },
+        data: { titulo: 'Ferramentas' },
       },
       {
         path: 'ferramentas/preco',
@@ -241,7 +278,7 @@ export const routes: Routes = [
         canActivate: [permissionGuard],
         loadComponent: () => import('./paginas/hubs/hub-page.component').then((m) => m.HubPageComponent),
         data: {
-          titulo: 'Utilitários',
+          titulo: 'Ferramentas',
           hubId: 'utilitarios',
           permissionAny: ['submissions.view', 'organization.manage'],
         },
@@ -255,7 +292,21 @@ export const routes: Routes = [
           subtitulo: 'Quando acontece → avisar a equipe ou criar tarefa.',
           permission: 'organization.manage',
           urlVoltar: '/utilitarios',
-          labelVoltar: 'Utilitários',
+          labelVoltar: 'Ferramentas',
+          voltarIntegrado: true,
+        },
+      },
+      {
+        path: 'automacoes/nova',
+        canActivate: [permissionGuard],
+        loadComponent: () =>
+          import('./paginas/automacoes/automacoes-formulario.component').then((m) => m.AutomacoesFormularioComponent),
+        data: {
+          titulo: 'Nova automação',
+          subtitulo: 'Defina gatilho, condições e ações da clínica.',
+          permission: 'organization.manage',
+          urlVoltar: '/automacoes',
+          labelVoltar: 'Automações',
           voltarIntegrado: true,
         },
       },
@@ -276,6 +327,20 @@ export const routes: Routes = [
         },
       },
       {
+        path: 'automacoes/:id/editar',
+        canActivate: [permissionGuard],
+        loadComponent: () =>
+          import('./paginas/automacoes/automacoes-formulario.component').then((m) => m.AutomacoesFormularioComponent),
+        data: {
+          titulo: 'Editar automação',
+          subtitulo: 'Ajuste gatilho, condições e ações da clínica.',
+          permission: 'organization.manage',
+          urlVoltar: '/automacoes',
+          labelVoltar: 'Automações',
+          voltarIntegrado: true,
+        },
+      },
+      {
         path: 'utilitarios/orcamento',
         canActivate: [permissionGuard],
         loadComponent: () =>
@@ -285,7 +350,7 @@ export const routes: Routes = [
           toolMode: 'list',
           permissionAny: ['submissions.view', 'organization.manage'],
           urlVoltar: '/utilitarios',
-          labelVoltar: 'Utilitários',
+          labelVoltar: 'Ferramentas',
           voltarIntegrado: true,
         },
       },
@@ -312,7 +377,7 @@ export const routes: Routes = [
           titulo: 'Notificações',
           permissionAny: ['submissions.view', 'organization.manage'],
           urlVoltar: '/utilitarios',
-          labelVoltar: 'Utilitários',
+          labelVoltar: 'Ferramentas',
           voltarIntegrado: true,
         },
       },
@@ -331,7 +396,7 @@ export const routes: Routes = [
           toolMode: 'list',
           permissionAny: ['submissions.view', 'organization.manage'],
           urlVoltar: '/utilitarios',
-          labelVoltar: 'Utilitários',
+          labelVoltar: 'Ferramentas',
           voltarIntegrado: true,
         },
       },
@@ -358,7 +423,7 @@ export const routes: Routes = [
           titulo: 'Preço e lucro',
           permissionAny: ['submissions.view', 'organization.manage'],
           urlVoltar: '/utilitarios',
-          labelVoltar: 'Utilitários',
+          labelVoltar: 'Ferramentas',
           voltarIntegrado: true,
         },
       },
@@ -371,7 +436,7 @@ export const routes: Routes = [
           titulo: 'Taxas de cartão',
           permissionAny: ['submissions.view', 'organization.manage'],
           urlVoltar: '/utilitarios',
-          labelVoltar: 'Utilitários',
+          labelVoltar: 'Ferramentas',
           voltarIntegrado: true,
         },
       },
@@ -384,7 +449,7 @@ export const routes: Routes = [
           titulo: 'Checklist da sala',
           permissionAny: ['submissions.view', 'organization.manage'],
           urlVoltar: '/utilitarios',
-          labelVoltar: 'Utilitários',
+          labelVoltar: 'Ferramentas',
           voltarIntegrado: true,
         },
       },
@@ -397,7 +462,7 @@ export const routes: Routes = [
           titulo: 'Pacotes e sessões',
           permissionAny: ['submissions.view', 'organization.manage'],
           urlVoltar: '/utilitarios',
-          labelVoltar: 'Utilitários',
+          labelVoltar: 'Ferramentas',
           voltarIntegrado: true,
         },
       },
@@ -410,7 +475,7 @@ export const routes: Routes = [
           titulo: 'Estoque e validade',
           permissionAny: ['submissions.view', 'organization.manage'],
           urlVoltar: '/utilitarios',
-          labelVoltar: 'Utilitários',
+          labelVoltar: 'Ferramentas',
           voltarIntegrado: true,
         },
       },

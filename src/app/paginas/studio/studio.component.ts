@@ -13,6 +13,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { StudioService, type StudioPublishedSummary } from '../../core/services/studio.service';
 import { ToastService } from '../../core/services/toast.service';
 import { NORD_FORM_IMPORTS } from '@/shared/nord';
+import { GestgoComboboxComponent, type GestgoComboboxOption } from '@/shared/components/combobox';
 import {
   STUDIO_BLOCK_LABELS,
   STUDIO_SPECIALTIES,
@@ -37,7 +38,7 @@ const TOAST_TITLE = 'Gestgo Studio';
   changeDetection: ChangeDetectionStrategy.OnPush,
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   host: { class: 'n-page n-page--flush' },
-  imports: [...NORD_FORM_IMPORTS, RouterLink, FormsModule, StudioPreviewComponent],
+  imports: [...NORD_FORM_IMPORTS, RouterLink, FormsModule, StudioPreviewComponent, GestgoComboboxComponent],
   templateUrl: './studio.component.html',
   styleUrl: './studio.component.css',
 })
@@ -77,6 +78,22 @@ export class StudioComponent implements OnInit {
     { id: 'collage', label: 'Composição colagem' },
     { id: 'kinetic', label: 'Impacto tipográfico' },
     { id: 'gallery', label: 'Estilo galeria' },
+  ];
+
+  readonly fontComboOptions: GestgoComboboxOption[] = this.fontOptions.map((f) => ({
+    value: f.id,
+    label: f.label,
+  }));
+  readonly layoutComboOptions: GestgoComboboxOption[] = this.layoutOptions.map((l) => ({
+    value: l.id,
+    label: l.label,
+  }));
+  readonly serviceVariantOptions: GestgoComboboxOption[] = [
+    { value: 'cards', label: 'Cards em grade' },
+    { value: 'list', label: 'Lista editorial' },
+    { value: 'mosaic', label: 'Mosaico' },
+    { value: 'compact', label: 'Compacto (Link)' },
+    { value: 'grid', label: 'Grade (Site)' },
   ];
 
   readonly loading = signal(true);
@@ -304,6 +321,14 @@ export class StudioComponent implements OnInit {
       seededFromLegacy: false,
     });
     this.dirty.set(true);
+  }
+
+  onThemeSelect(field: ThemeField, value: string | null): void {
+    if (value) this.patchTheme(field, value);
+  }
+
+  onBlockVariantSelect(blockId: string, value: string | null): void {
+    if (value) this.patchBlock(blockId, 'variant', value);
   }
 
   patchTheme(field: ThemeField, value: string): void {

@@ -33,11 +33,17 @@
     <div class="gm-panel">
       <div class="gm-field">
         <label>Modelo</label>
-        <select [ngModel]="selectedId()" (ngModelChange)="onSelect(+$event)">
-          @for (t of filteredTemplates(); track t.id) {
-            <option [ngValue]="t.id">{{ t.label }}</option>
-          }
-        </select>
+        <z-combobox
+          class="w-full"
+          zWidth="full"
+          [options]="templateOptions()"
+          [value]="selectedValue()"
+          [clearable]="false"
+          placeholder="Selecione o modelo"
+          emptyText="Nenhum modelo encontrado."
+          ariaLabel="Modelo"
+          (zValueChange)="onSelectValue($event)"
+        />
       </div>
       @if (selected(); as sel) {
         <p class="gm-hint" style="margin:0 0 12px">Momento: {{ momentLabel(sel) }}</p>
@@ -126,17 +132,18 @@
         <form class="flex flex-col gap-5">
           <div>
             <label class="ft-label" for="ft-msg-modelo">Modelo</label>
-            <select
+            <z-combobox
               id="ft-msg-modelo"
               class="w-full"
-              [ngModel]="selectedId()"
-              (ngModelChange)="onSelect(+$event)"
-              name="modelo"
-            >
-              @for (t of filteredTemplates(); track t.id) {
-                <option [ngValue]="t.id">{{ t.label }} · {{ momentLabel(t) }}</option>
-              }
-            </select>
+              zWidth="full"
+              [options]="templateOptionsWithMoment()"
+              [value]="selectedValue()"
+              [clearable]="false"
+              placeholder="Selecione o modelo"
+              emptyText="Nenhum modelo encontrado."
+              ariaLabel="Modelo"
+              (zValueChange)="onSelectValue($event)"
+            />
           </div>
           <app-tool-person-field
             inputId="ft-msg-person"

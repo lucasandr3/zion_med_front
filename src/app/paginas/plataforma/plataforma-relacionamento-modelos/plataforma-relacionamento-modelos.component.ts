@@ -16,6 +16,7 @@ import { ToastService } from '../../../core/services/toast.service';
 import { LoadingService } from '../../../shared/services/loading.service';
 import { ListSkeletonComponent } from '../../../shared/components/list-skeleton/list-skeleton.component';
 import { ZmPageBackLinkComponent } from '../../../shared/components/ui';
+import { GestgoComboboxComponent, type GestgoComboboxOption } from '@/shared/components/combobox';
 
 @Component({
   selector: 'app-plataforma-relacionamento-modelos',
@@ -23,7 +24,7 @@ import { ZmPageBackLinkComponent } from '../../../shared/components/ui';
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'n-page-list' },
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
-  imports: [ListSkeletonComponent, ZmPageBackLinkComponent],
+  imports: [ListSkeletonComponent, ZmPageBackLinkComponent, GestgoComboboxComponent],
   templateUrl: './plataforma-relacionamento-modelos.component.html',
   styleUrl: './plataforma-relacionamento-modelos.component.css',
 })
@@ -41,6 +42,12 @@ export class PlataformaRelacionamentoModelosComponent implements OnInit {
   readonly body = signal('');
   readonly variables = signal('');
   readonly status = signal('active');
+
+  readonly statusOptions: GestgoComboboxOption[] = [
+    { value: 'active', label: 'Ativo' },
+    { value: 'paused', label: 'Pausado' },
+    { value: 'draft', label: 'Rascunho' },
+  ];
 
   private plataformaService = inject(PlataformaService);
   private loadingService = inject(LoadingService);
@@ -194,7 +201,7 @@ export class PlataformaRelacionamentoModelosComponent implements OnInit {
   onVariables(e: Event): void {
     this.variables.set((e.target as HTMLInputElement).value);
   }
-  onStatus(e: Event): void {
-    this.status.set((e.target as HTMLSelectElement).value);
+  onStatus(value: string | null): void {
+    if (value) this.status.set(value);
   }
 }

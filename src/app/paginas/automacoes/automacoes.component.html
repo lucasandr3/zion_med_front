@@ -24,6 +24,9 @@
     <nord-button type="button" variant="default" size="m" [attr.disabled]="acting() || null" (click)="carregar()">
       Atualizar
     </nord-button>
+    @if (aba() === 'regras') {
+      <nord-button type="button" variant="primary" size="m" (click)="novo()">Nova automação</nord-button>
+    }
   </div>
 </div>
 
@@ -39,7 +42,7 @@
     <div class="n-page-list__empty">
       <nord-empty-state>
         <h2>Nenhuma automação</h2>
-        <p>As regras iniciais serão criadas automaticamente.</p>
+        <p>Crie regras para a clínica ou aguarde as regras iniciais.</p>
       </nord-empty-state>
     </div>
   } @else if (aba() === 'historico' && executions().length === 0) {
@@ -60,6 +63,8 @@
             </div>
             <div class="n-page-list__row-meta">
               {{ eventoLabel(item.trigger_event) }}
+              · {{ item.config?.actions?.length || 0 }} ação(ões)
+              · {{ item.config?.conditions?.length || 0 }} condição(ões)
               · {{ formatarData(item.updated_at) }}
             </div>
             @if (item.description) {
@@ -67,13 +72,43 @@
             }
           </div>
           <div class="n-page-list__actions">
+            <nord-button
+              type="button"
+              square
+              variant="plain"
+              size="s"
+              aria-label="Editar"
+              aria-describedby="tip-auto-edit"
+              [attr.disabled]="acting() || null"
+              (click)="editar(item)"
+            >
+              <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">edit</span>
+            </nord-button>
             @if (item.status === 'active') {
-              <nord-button type="button" variant="plain" size="s" [attr.disabled]="acting() || null" (click)="pausar(item)">
-                Pausar
+              <nord-button
+                type="button"
+                square
+                variant="plain"
+                size="s"
+                aria-label="Pausar"
+                aria-describedby="tip-auto-pause"
+                [attr.disabled]="acting() || null"
+                (click)="pausar(item)"
+              >
+                <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">pause</span>
               </nord-button>
             } @else {
-              <nord-button type="button" variant="primary" size="s" [attr.disabled]="acting() || null" (click)="ativar(item)">
-                Ativar
+              <nord-button
+                type="button"
+                square
+                variant="plain"
+                size="s"
+                aria-label="Ativar"
+                aria-describedby="tip-auto-play"
+                [attr.disabled]="acting() || null"
+                (click)="ativar(item)"
+              >
+                <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">play_arrow</span>
               </nord-button>
             }
           </div>
@@ -102,3 +137,7 @@
     </div>
   }
 </div>
+
+<nord-tooltip id="tip-auto-edit" [delay]="0">Editar</nord-tooltip>
+<nord-tooltip id="tip-auto-pause" [delay]="0">Pausar</nord-tooltip>
+<nord-tooltip id="tip-auto-play" [delay]="0">Ativar</nord-tooltip>

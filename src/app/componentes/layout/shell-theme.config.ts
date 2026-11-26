@@ -6,7 +6,7 @@ export interface ShellTema {
 }
 
 export const TEMAS: ShellTema[] = [
-  { key: 'ocean-blue', label: 'Brand green', labelPt: 'Verde marca', color: '#14B87A' },
+  { key: 'ocean-blue', label: 'Brand green', labelPt: 'Verde marca', color: '#00877A' },
   { key: 'oceano', label: 'Ocean', labelPt: 'Oceano', color: '#0ea5e9' },
   { key: 'grafite', label: 'Graphite', labelPt: 'Grafite', color: '#64748b' },
   { key: 'indigo', label: 'Indigo', labelPt: 'Índigo', color: '#6366f1' },

@@ -4,74 +4,67 @@
     size="m"
     type="button"
     (click)="abrirGoAssistant()"
-    class="cabecalho-toolbar-action"
+    class="shell-assistant-btn"
     aria-describedby="go-assistant-tooltip"
-    aria-label="Abrir Go Assistant"
-    square
+    aria-label="Abrir Assistente"
   >
-    <span class="material-symbols-outlined gestgo-mi gestgo-mi--m" aria-hidden="true">smart_toy</span>
+    <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">auto_awesome</span>
+    <span class="shell-assistant-btn__label">Assistente</span>
   </nord-button>
-  <nord-tooltip id="go-assistant-tooltip" [delay]="0">Go Assistant (Ctrl+/)</nord-tooltip>
 
-  @if (podeAgenda) {
-    <a
-      routerLink="/agenda"
-      class="cabecalho-toolbar-action relative header-desktop-only-flex"
-      aria-describedby="agenda-tooltip"
-      aria-label="Agenda"
-    >
-      <span class="material-symbols-outlined gestgo-mi gestgo-mi--m" aria-hidden="true">calendar_month</span>
-    </a>
-    <nord-tooltip id="agenda-tooltip" [delay]="0">Agenda</nord-tooltip>
-  }
-
-  @if (podeImportarFicha) {
-    <a
-      routerLink="/templates/importar"
-      class="cabecalho-toolbar-action relative header-desktop-only-flex"
-      aria-describedby="importar-ficha-tooltip"
-      aria-label="Usar minha ficha"
-    >
-      <span class="material-symbols-outlined gestgo-mi gestgo-mi--m" aria-hidden="true">auto_awesome</span>
-    </a>
-    <nord-tooltip id="importar-ficha-tooltip" [delay]="0">Usar minha ficha</nord-tooltip>
-  }
-
-  <div class="relative header-desktop-only-block">
+  <nord-dropdown class="shell-help-menu">
     <nord-button
+      slot="toggle"
       variant="plain"
       size="m"
       type="button"
-      (click)="alternarMenuTema()"
       class="cabecalho-toolbar-action"
-      aria-describedby="theme-menu-tooltip"
-      aria-label="Tema e aparência"
+      aria-describedby="help-menu-tooltip"
+      aria-label="Ajuda"
       square
+      hide-dropdown-icon
     >
-      <span class="material-symbols-outlined gestgo-mi gestgo-mi--m" aria-hidden="true">palette</span>
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--m" aria-hidden="true">help</span>
     </nord-button>
-  </div>
-  <nord-tooltip id="theme-menu-tooltip" [delay]="0">Tema e aparência</nord-tooltip>
 
-  <a
-    routerLink="/novidades"
-    class="cabecalho-toolbar-action relative header-desktop-only-flex"
-    aria-describedby="novidades-tooltip"
-    aria-label="Novidades e versão"
-  >
-    <span class="material-symbols-outlined gestgo-mi gestgo-mi--m" aria-hidden="true">check_circle</span>
-    @if (novidadesNaoVistas > 0) {
-      <span class="shell-topbar-badge" aria-hidden="true">
-        {{ novidadesNaoVistas > 99 ? '99+' : novidadesNaoVistas }}
-      </span>
+    @if (shellContext === 'app') {
+      <nord-dropdown-group heading="Ajuda">
+        <nord-dropdown-item href="/ajuda" (click)="go($event, '/ajuda')">
+          <span slot="start" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">menu_book</span>
+          Central de ajuda
+        </nord-dropdown-item>
+        <nord-dropdown-item href="/suporte" (click)="go($event, '/suporte')">
+          <span slot="start" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">support_agent</span>
+          Falar com atendimento
+        </nord-dropdown-item>
+      </nord-dropdown-group>
     }
-  </a>
-  <nord-tooltip id="novidades-tooltip" [delay]="0">Novidades e versão</nord-tooltip>
+
+    <nord-dropdown-group>
+      <nord-dropdown-item (click)="abrirFeedback()">
+        <span slot="start" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">feedback</span>
+        Enviar feedback
+      </nord-dropdown-item>
+      <nord-dropdown-item (click)="verificarAtualizacao()" [attr.disabled]="verificandoAtualizacao || null">
+        <span slot="start" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">system_update</span>
+        {{ verificandoAtualizacao ? 'Verificando…' : 'Verificar atualização' }}
+      </nord-dropdown-item>
+      @if (shellContext === 'app') {
+        <nord-dropdown-item href="/novidades" (click)="go($event, '/novidades')">
+          <span slot="start" class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">check_circle</span>
+          Novidades e versão
+          @if (novidadesNaoVistas > 0) {
+            <span slot="end" class="shell-help-menu__count">{{ novidadesNaoVistas > 99 ? '99+' : novidadesNaoVistas }}</span>
+          }
+        </nord-dropdown-item>
+      }
+    </nord-dropdown-group>
+  </nord-dropdown>
 
   @if (podeVerNotificacoesNoHeader) {
     <a
       [routerLink]="notificacoesRouterLink"
-      class="cabecalho-toolbar-action relative header-desktop-only-flex"
+      class="cabecalho-toolbar-action relative"
       aria-describedby="notifications-tooltip"
       aria-label="Notificações"
     >
@@ -82,9 +75,31 @@
         </span>
       }
     </a>
-    <nord-tooltip id="notifications-tooltip" [delay]="0">Notificações</nord-tooltip>
   }
+
+  <span class="shell-topbar-sep shell-topbar-desktop-only" aria-hidden="true"></span>
+  <nord-button
+    variant="plain"
+    size="m"
+    type="button"
+    class="shell-logout-btn shell-topbar-desktop-only"
+    (click)="sair()"
+    aria-describedby="logout-tooltip"
+    aria-label="Sair"
+  >
+    <span class="shell-logout-btn__inner">
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">logout</span>
+      <span class="shell-logout-btn__label">Sair</span>
+    </span>
+  </nord-button>
 </div>
+
+<nord-tooltip id="go-assistant-tooltip" [delay]="0">Assistente (Ctrl+/)</nord-tooltip>
+<nord-tooltip id="help-menu-tooltip" [delay]="0">Ajuda</nord-tooltip>
+@if (podeVerNotificacoesNoHeader) {
+  <nord-tooltip id="notifications-tooltip" [delay]="0">Notificações</nord-tooltip>
+}
+<nord-tooltip id="logout-tooltip" [delay]="0">Sair</nord-tooltip>
 
 <ng-template #temaSheetContent>
   <div class="theme-panel__body">

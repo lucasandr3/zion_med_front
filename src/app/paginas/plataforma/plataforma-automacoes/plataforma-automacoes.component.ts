@@ -21,6 +21,7 @@ import { ToastService } from '../../../core/services/toast.service';
 import { LoadingService } from '../../../shared/services/loading.service';
 import { ListSkeletonComponent } from '../../../shared/components/list-skeleton/list-skeleton.component';
 import { ZmPageBackLinkComponent } from '../../../shared/components/ui';
+import { GestgoComboboxComponent, type GestgoComboboxOption } from '@/shared/components/combobox';
 import { GestgoSheetService } from '../../../shared/components/sheet/sheet.service';
 import type { GestgoSheetRef } from '../../../shared/components/sheet/sheet-ref';
 
@@ -66,7 +67,7 @@ const TRIGGER_FIELD_HINTS: Record<string, string> = {
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'n-page-list' },
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
-  imports: [ListSkeletonComponent, ZmPageBackLinkComponent],
+  imports: [ListSkeletonComponent, ZmPageBackLinkComponent, GestgoComboboxComponent],
   templateUrl: './plataforma-automacoes.component.html',
   styleUrl: './plataforma-automacoes.component.css',
 })
@@ -107,6 +108,35 @@ export class PlataformaAutomacoesComponent implements OnInit, OnDestroy {
     { id: 'neq', label: 'diferente de' },
     { id: 'exists', label: 'existe' },
     { id: 'not_exists', label: 'não existe' },
+  ];
+
+  readonly triggerComboOptions: GestgoComboboxOption[] = this.triggerOptions.map((o) => ({
+    value: o.id,
+    label: `${o.label} (${o.id})`,
+  }));
+
+  readonly conditionOpOptions: GestgoComboboxOption[] = this.conditionOps.map((o) => ({
+    value: o.id,
+    label: o.label,
+  }));
+
+  readonly statusOptions: GestgoComboboxOption[] = [
+    { value: 'draft', label: 'Rascunho' },
+    { value: 'active', label: 'Ativa' },
+    { value: 'paused', label: 'Pausada' },
+  ];
+
+  readonly actionTypeOptions: GestgoComboboxOption[] = [
+    { value: 'create_task', label: 'Criar tarefa' },
+    { value: 'send_email', label: 'Enviar e-mail' },
+    { value: 'send_email_template', label: 'Enviar e-mail (modelo)' },
+    { value: 'create_notification', label: 'Criar notificação' },
+  ];
+
+  readonly priorityOptions: GestgoComboboxOption[] = [
+    { value: 'low', label: 'Baixa' },
+    { value: 'normal', label: 'Normal' },
+    { value: 'high', label: 'Alta' },
   ];
 
   readonly placeholderHint = 'Use placeholders como {{lead_name}} nos campos de texto.';
@@ -336,8 +366,9 @@ export class PlataformaAutomacoesComponent implements OnInit, OnDestroy {
     );
   }
 
-  onActionType(index: number, event: Event): void {
-    this.updateAction(index, { type: (event.target as HTMLSelectElement).value as ActionType });
+  onActionType(index: number, value: string | null): void {
+    if (!value) return;
+    this.updateAction(index, { type: value as ActionType });
   }
   onActionTo(index: number, event: Event): void {
     this.updateAction(index, { to: (event.target as HTMLInputElement).value });
@@ -351,8 +382,9 @@ export class PlataformaAutomacoesComponent implements OnInit, OnDestroy {
   onActionTitle(index: number, event: Event): void {
     this.updateAction(index, { title: (event.target as HTMLInputElement).value });
   }
-  onActionPriority(index: number, event: Event): void {
-    this.updateAction(index, { priority: (event.target as HTMLSelectElement).value });
+  onActionPriority(index: number, value: string | null): void {
+    if (!value) return;
+    this.updateAction(index, { priority: value });
   }
   onActionTemplateId(index: number, event: Event): void {
     this.updateAction(index, { templateId: (event.target as HTMLInputElement).value });
@@ -382,8 +414,9 @@ export class PlataformaAutomacoesComponent implements OnInit, OnDestroy {
   onConditionField(index: number, event: Event): void {
     this.updateCondition(index, { field: (event.target as HTMLInputElement).value });
   }
-  onConditionOp(index: number, event: Event): void {
-    this.updateCondition(index, { op: (event.target as HTMLSelectElement).value as ConditionOp });
+  onConditionOp(index: number, value: string | null): void {
+    if (!value) return;
+    this.updateCondition(index, { op: value as ConditionOp });
   }
   onConditionValue(index: number, event: Event): void {
     this.updateCondition(index, { value: (event.target as HTMLInputElement).value });
@@ -463,11 +496,11 @@ export class PlataformaAutomacoesComponent implements OnInit, OnDestroy {
   onDescription(e: Event): void {
     this.description.set((e.target as HTMLTextAreaElement).value);
   }
-  onTrigger(e: Event): void {
-    this.triggerEvent.set((e.target as HTMLSelectElement).value);
+  onTrigger(value: string | null): void {
+    if (value) this.triggerEvent.set(value);
   }
-  onStatus(e: Event): void {
-    this.status.set((e.target as HTMLSelectElement).value);
+  onStatus(value: string | null): void {
+    if (value) this.status.set(value);
   }
   onWait(e: Event): void {
     this.waitSeconds.set(Number((e.target as HTMLInputElement).value) || 0);

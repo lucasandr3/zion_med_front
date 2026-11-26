@@ -26,6 +26,7 @@ import { ToastService } from '../../core/services/toast.service';
 import { ConfirmDialogService } from '../../core/services/confirm-dialog.service';
 import { ListSkeletonComponent } from '../../shared/components/list-skeleton/list-skeleton.component';
 import { ZmPageBackLinkComponent } from '../../shared/components/ui';
+import { GestgoComboboxComponent, type GestgoComboboxOption } from '@/shared/components/combobox';
 import { NORD_FORM_IMPORTS } from '@/shared/nord';
 import { formatarDataBr, formatarDataHoraBr } from '@/shared/utils/date';
 import { absoluteMediaUrl } from '../../core/utils/absolute-media-url';
@@ -94,6 +95,7 @@ const MESES = [
     RouterLink,
     ListSkeletonComponent,
     ZmPageBackLinkComponent,
+    GestgoComboboxComponent,
   ],
   templateUrl: './agenda.component.html',
   styleUrl: './agenda.component.css',
@@ -108,6 +110,13 @@ export class AgendaComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private readonly diaModalRef = viewChild<ElementRef<NordModalElement>>('diaModal');
+
+  readonly servicoOptions = computed<GestgoComboboxOption[]>(() =>
+    this.servicos().map((s) => ({
+      value: String(s.id),
+      label: `${s.name} (${s.duration_minutes} min)`,
+    })),
+  );
 
   readonly weekdays = WEEKDAYS;
   readonly diasSemanaLabels = ['Dom.', 'Seg.', 'Ter.', 'Qua.', 'Qui.', 'Sex.', 'Sáb.'];
@@ -385,6 +394,14 @@ export class AgendaComponent implements OnInit {
 
   onNordInput(ev: Event): string {
     return String((ev.target as HTMLInputElement & { value?: string }).value ?? '');
+  }
+
+  serviceIdValue(): string | null {
+    return this.novo.service_id != null ? String(this.novo.service_id) : null;
+  }
+
+  onServicoChange(value: string | null): void {
+    this.novo.service_id = value ? Number(value) : null;
   }
 
   onNordNumberInput(ev: Event): number {
