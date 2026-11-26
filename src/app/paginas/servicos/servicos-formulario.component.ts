@@ -62,6 +62,7 @@ export class ServicosFormularioComponent implements OnInit, OnDestroy {
   show_price = false;
   pedir_ficha = false;
   form_template_id: number | null = null;
+  form_template_optional_id: number | null = null;
   photo_url: string | null = null;
 
   private photoFile: File | null = null;
@@ -121,6 +122,7 @@ export class ServicosFormularioComponent implements OnInit, OnDestroy {
     this.pedir_ficha = !!checked;
     if (!this.pedir_ficha) {
       this.form_template_id = null;
+      this.form_template_optional_id = null;
       return;
     }
     if (!this.form_template_id && this.fichas().length === 1) {
@@ -131,10 +133,38 @@ export class ServicosFormularioComponent implements OnInit, OnDestroy {
   onFichaChange(raw: string | null): void {
     const n = Number(raw);
     this.form_template_id = Number.isFinite(n) && n > 0 ? n : null;
+    if (
+      this.form_template_optional_id != null &&
+      this.form_template_id != null &&
+      this.form_template_optional_id === this.form_template_id
+    ) {
+      this.form_template_optional_id = null;
+    }
+  }
+
+  onFichaOpcionalChange(raw: string | null): void {
+    const n = Number(raw);
+    const id = Number.isFinite(n) && n > 0 ? n : null;
+    if (id != null && this.form_template_id != null && id === this.form_template_id) {
+      this.toast.error('Documento opcional', 'Escolha um modelo diferente do obrigatório.');
+      this.form_template_optional_id = null;
+      return;
+    }
+    this.form_template_optional_id = id;
   }
 
   fichaValue(): string | null {
     return this.form_template_id != null ? String(this.form_template_id) : null;
+  }
+
+  fichaOpcionalValue(): string | null {
+    return this.form_template_optional_id != null ? String(this.form_template_optional_id) : null;
+  }
+
+  opcoesFichaOpcional(): GestgoComboboxOption[] {
+    return this.fichas()
+      .filter((t) => t.id !== this.form_template_id)
+      .map((t) => ({ value: String(t.id), label: t.name }));
   }
 
   onPhotoSelected(ev: Event): void {
@@ -193,7 +223,15 @@ export class ServicosFormularioComponent implements OnInit, OnDestroy {
       return;
     }
     if (this.pedir_ficha && !this.form_template_id) {
-      this.toast.error('Escolha a ficha', 'Selecione o modelo após a reserva.');
+      this.toast.error('Escolha a ficha', 'Selecione o documento obrigatório do pacote.');
+      return;
+    }
+    if (
+      this.pedir_ficha &&
+      this.form_template_optional_id != null &&
+      this.form_template_optional_id === this.form_template_id
+    ) {
+      this.toast.error('Documento opcional', 'Deve ser diferente do obrigatório.');
       return;
     }
     const payload = {
@@ -202,6 +240,7 @@ export class ServicosFormularioComponent implements OnInit, OnDestroy {
       price: this.priceNumber,
       show_price: !!this.show_price && this.priceNumber != null,
       form_template_id: this.pedir_ficha ? this.form_template_id : null,
+      form_template_optional_id: this.pedir_ficha ? this.form_template_optional_id : null,
       is_active: true,
     };
     const editingId = this.servicoId;
@@ -252,6 +291,7 @@ export class ServicosFormularioComponent implements OnInit, OnDestroy {
     const price = this.parsePrice(s.price);
     const photo = absoluteMediaUrl(s.photo_url) ?? s.photo_url ?? null;
     const fichaId = s.form_template_id ?? null;
+    const fichaOpcionalId = s.form_template_optional_id ?? null;
     this.servicoId = s.id;
     this.name = s.name;
     this.duration_minutes = s.duration_minutes || 30;
@@ -260,6 +300,7 @@ export class ServicosFormularioComponent implements OnInit, OnDestroy {
     this.show_price = !!s.show_price;
     this.pedir_ficha = fichaId != null;
     this.form_template_id = fichaId;
+    this.form_template_optional_id = fichaOpcionalId;
     this.photo_url = photo;
     this.photoFile = null;
     this.photoRemoved = false;

@@ -113,14 +113,15 @@
             [ngModel]="pedir_ficha"
             (ngModelChange)="onFichaToggle($event)"
             name="pedir_ficha"
-            label="Pedir ficha após a reserva na agenda"
+            label="Pacote documental: pedir ficha após a reserva"
           ></nord-checkbox>
           @if (pedir_ficha) {
             <div class="servicos-ficha">
+              <p class="servicos-hint">Até 2 documentos: 1 obrigatório + 1 opcional. A agenda mostra o progresso (ex.: 1 de 2).</p>
               @if (opcoesFicha().length === 0) {
                 <p class="servicos-hint">Nenhuma ficha publicada. Publique um modelo em Documentos e volte aqui.</p>
               } @else {
-                <label class="servicos-label" id="svc-ficha-label">Qual ficha</label>
+                <label class="servicos-label" id="svc-ficha-label">Documento obrigatório</label>
                 <z-combobox
                   class="w-full"
                   zWidth="full"
@@ -129,9 +130,22 @@
                   placeholder="Selecione um modelo"
                   searchPlaceholder="Buscar ficha..."
                   emptyText="Nenhuma ficha encontrada."
-                  ariaLabel="Qual ficha"
+                  ariaLabel="Documento obrigatório"
                   ariaLabelledby="svc-ficha-label"
                   (zValueChange)="onFichaChange($event)"
+                />
+                <label class="servicos-label" id="svc-ficha-opc-label" style="margin-top: 0.75rem">Documento opcional</label>
+                <z-combobox
+                  class="w-full"
+                  zWidth="full"
+                  [options]="opcoesFichaOpcional()"
+                  [value]="fichaOpcionalValue()"
+                  placeholder="Nenhum (opcional)"
+                  searchPlaceholder="Buscar ficha..."
+                  emptyText="Nenhuma ficha encontrada."
+                  ariaLabel="Documento opcional"
+                  ariaLabelledby="svc-ficha-opc-label"
+                  (zValueChange)="onFichaOpcionalChange($event)"
                 />
               }
             </div>

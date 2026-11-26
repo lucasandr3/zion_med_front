@@ -1,4 +1,4 @@
-<div class="dashboard" data-go-tour="dashboard-metrics">
+<div class="dashboard-shell" data-go-tour="dashboard-metrics">
   @if (showSkeleton()) {
     <zm-skeleton-dashboard />
   } @else if (!dashReady()) {
@@ -8,174 +8,214 @@
       descricao="Com assinatura pendente ou conta bloqueada por pagamento, o resumo e as métricas do painel não são carregados. Após a confirmação do pagamento, tudo volta a aparecer aqui."
     />
   } @else if (estadoErro()) {
-    <nord-banner variant="danger">
-      <p>{{ mensagemErro() }}</p>
-    </nord-banner>
+    <div class="dashboard-feedback" role="alert">
+      <span class="material-symbols-outlined" aria-hidden="true">error</span>
+      <div>
+        <strong>Não foi possível atualizar a visão geral.</strong>
+        <p>{{ mensagemErro() }}</p>
+      </div>
+    </div>
   } @else {
-    <div class="dash-page zm-content-enter">
+    <div class="dashboard-content zm-content-enter">
       @if (semClinica()) {
-        <nord-banner>
-          <h2>Selecione uma empresa</h2>
-          <p>Os números e atalhos do painel são exibidos por empresa.</p>
-          <nord-button slot="actions" variant="primary" size="m" [routerLink]="['/clinica/escolher']">
-            Escolher empresa
-          </nord-button>
-        </nord-banner>
+        <div class="dashboard-feedback" role="status">
+          <span class="material-symbols-outlined" aria-hidden="true">business</span>
+          <div>
+            <strong>Selecione uma empresa</strong>
+            <p>Os números e atalhos do painel são exibidos por empresa.</p>
+            <div class="dashboard-hero__actions" style="margin-top: 0.75rem">
+              <a routerLink="/clinica/escolher" class="dashboard-button dashboard-button--solid">Escolher empresa</a>
+            </div>
+          </div>
+        </div>
       } @else {
-        <header class="dash-hero">
-          <div class="dash-hero__text">
-            <p class="dash-hero__eyebrow">Gestgo · Fichas e consentimentos</p>
-            <h1 class="dash-hero__title">Visão geral</h1>
-            <p class="dash-hero__sub">Métricas e gráficos do intervalo selecionado</p>
-          </div>
-          <div class="dash-hero__actions" data-go-tour="dashboard-shortcuts">
-            @if (podeRetomarOnboarding()) {
-              <nord-button type="button" size="m" variant="plain" (click)="retomarOnboarding()">
-                Guia de ativação
-              </nord-button>
-            }
-            <nord-button-group aria-label="Intervalo em dias">
-              @for (p of periodOptions; track p.days) {
-                <nord-button
-                  type="button"
-                  size="m"
-                  [attr.variant]="periodoSelecionado() === p.days ? 'primary' : 'default'"
-                  [attr.aria-pressed]="periodoSelecionado() === p.days || null"
-                  (click)="selecionarPeriodo(p.days)"
-                >
-                  {{ p.label }}
-                </nord-button>
+        <section class="dashboard-hero" aria-labelledby="dashboard-title">
+          <div class="dashboard-hero__copy">
+            <span class="dashboard-eyebrow">Gestgo · Visão geral</span>
+            <h2 id="dashboard-title">Sua operação, em uma leitura rápida.</h2>
+            <p>Acompanhe atendimentos, documentos e indicadores mais importantes da empresa.</p>
+            <div class="dashboard-hero__actions" data-go-tour="dashboard-shortcuts">
+              <a routerLink="/protocolos" class="dashboard-button dashboard-button--light">
+                Ver protocolos
+                <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+              </a>
+              <a routerLink="/links-publicos" class="dashboard-button dashboard-button--ghost">Links públicos</a>
+              @if (podeRetomarOnboarding()) {
+                <button type="button" class="dashboard-button dashboard-button--ghost" (click)="retomarOnboarding()">
+                  Guia de ativação
+                </button>
               }
-            </nord-button-group>
+            </div>
           </div>
-        </header>
+          <div class="dashboard-health">
+            <div class="dashboard-health__top">
+              <div class="dashboard-health__ring" [style.--health]="saudeOperacao()">
+                <strong>{{ saudeOperacao() }}%</strong>
+              </div>
+              <div>
+                <strong>Saúde da operação</strong>
+                <span>Taxa de aprovação no período</span>
+              </div>
+            </div>
+            <div class="dashboard-health__metrics">
+              <div>
+                <span>Pendentes</span>
+                <strong>{{ pendentesHoje() }}</strong>
+              </div>
+              <div>
+                <span>7 dias</span>
+                <strong>{{ ultimos7Dias() }}</strong>
+              </div>
+              <div>
+                <span>Modelos</span>
+                <strong>{{ totalTemplates() }}</strong>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <nav class="dashboard-quick" aria-label="Acesso rápido">
+          @for (item of [
+            { route: '/pessoas', icon: 'group', title: 'Pessoas', subtitle: 'Cadastros e histórico' },
+            { route: '/templates', icon: 'description', title: 'Modelos', subtitle: 'Gerenciar fichas' },
+            { route: '/links-publicos', icon: 'add_link', title: 'Links públicos', subtitle: 'Compartilhar formulários' },
+            { route: '/protocolos', icon: 'fact_check', title: 'Protocolos', subtitle: 'Revisar respostas' }
+          ]; track item.route) {
+            <a [routerLink]="item.route">
+              <span class="dashboard-quick__icon"><span class="material-symbols-outlined">{{ item.icon }}</span></span>
+              <span><strong>{{ item.title }}</strong><small>{{ item.subtitle }}</small></span>
+              <span class="material-symbols-outlined dashboard-quick__arrow">chevron_right</span>
+            </a>
+          }
+        </nav>
 
         <zm-dashboard-onboarding-wizard
           data-go-tour="dashboard-onboarding"
           [visible]="mostrarWizardOnboarding()"
+          [serverOnboarding]="serverOnboarding()"
           (dismissed)="onWizardOnboardingDismissed()"
           (linkGenerated)="onWizardLinkGenerated()"
         />
 
-        <div class="dash-kpi-grid">
-          <a routerLink="/agenda" class="dash-kpi dash-kpi--neutral n-reset">
-            <div class="dash-kpi__top">
-              <span class="dash-kpi__title">Agenda</span>
-              <span class="dash-kpi__icon" aria-hidden="true">
-                <span class="material-symbols-outlined gestgo-mi gestgo-mi--s">calendar_month</span>
-              </span>
+        <section class="dashboard-section" aria-labelledby="summary-title">
+          <header class="dashboard-section__header">
+            <div>
+              <h2 id="summary-title">Resumo da operação</h2>
+              <p>Indicadores consolidados da empresa</p>
             </div>
-            <p class="dash-kpi__value n-reset">Abrir</p>
-            <span class="dash-kpi__badge">Compromissos e expediente</span>
-          </a>
-          <a routerLink="/protocolos" class="dash-kpi dash-kpi--green n-reset">
-            <div class="dash-kpi__top">
-              <span class="dash-kpi__title">Pendentes hoje</span>
-              <span class="dash-kpi__icon" aria-hidden="true">
-                <span class="material-symbols-outlined gestgo-mi gestgo-mi--s">pending_actions</span>
-              </span>
-            </div>
-            <p class="dash-kpi__value n-reset">{{ pendentesHoje() }}</p>
-            <span class="dash-kpi__badge">Aguardando revisão</span>
-          </a>
-          <div class="dash-kpi dash-kpi--blue">
-            <div class="dash-kpi__top">
-              <span class="dash-kpi__title">Modelos</span>
-              <span class="dash-kpi__icon" aria-hidden="true">
-                <span class="material-symbols-outlined gestgo-mi gestgo-mi--s">description</span>
-              </span>
-            </div>
-            <p class="dash-kpi__value n-reset">{{ totalTemplates() }}</p>
-            <span class="dash-kpi__badge">Total na empresa</span>
-          </div>
-          <a routerLink="/links-publicos" class="dash-kpi dash-kpi--violet n-reset">
-            <div class="dash-kpi__top">
-              <span class="dash-kpi__title">Links públicos</span>
-              <span class="dash-kpi__icon" aria-hidden="true">
-                <span class="material-symbols-outlined gestgo-mi gestgo-mi--s">link</span>
-              </span>
-            </div>
-            <p class="dash-kpi__value n-reset">{{ linksPublicosCount() }}</p>
-            <span class="dash-kpi__badge">Ativos para envio</span>
-          </a>
-        </div>
-
-        @if (complianceReport(); as compliance) {
-          <section class="dash-panel">
-            <div class="dash-panel__head">
-              <div>
-                <h2 class="dash-panel__title">Compliance de consentimentos</h2>
-                <p class="dash-panel__sub">Validade, evidências e revogação de termos</p>
-              </div>
-              @if (complianceSemPendenciaCritica()) {
-                <nord-badge variant="success">
-                  <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">check</span>
-                  Nenhuma pendência crítica
-                </nord-badge>
-              } @else {
-                <nord-badge variant="warning">Pendências de compliance</nord-badge>
+            <div class="dashboard-period" role="group" aria-label="Intervalo em dias">
+              @for (p of periodOptions; track p.days) {
+                <button
+                  type="button"
+                  class="dashboard-period__btn"
+                  [class.is-active]="periodoSelecionado() === p.days"
+                  [attr.aria-pressed]="periodoSelecionado() === p.days || null"
+                  (click)="selecionarPeriodo(p.days)"
+                >
+                  {{ p.label }}
+                </button>
               }
             </div>
-            <div class="dash-compliance-grid">
-              <div class="dash-stat">
-                <span class="dash-label">Vencidos</span>
-                <p class="dash-stat__value n-reset">{{ compliance.summary.consent_expired }}</p>
-                <p class="dash-stat__sub n-reset">Fora da validade</p>
+          </header>
+          <div class="dashboard-kpis">
+            <a routerLink="/agenda" class="dashboard-kpi">
+              <span class="dashboard-kpi__top">
+                <span>Agenda</span>
+                <span class="dashboard-kpi__icon"><span class="material-symbols-outlined">calendar_month</span></span>
+              </span>
+              <strong>Abrir</strong>
+              <small>Compromissos e expediente</small>
+            </a>
+            <a routerLink="/protocolos" class="dashboard-kpi">
+              <span class="dashboard-kpi__top">
+                <span>Pendentes hoje</span>
+                <span class="dashboard-kpi__icon"><span class="material-symbols-outlined">pending_actions</span></span>
+              </span>
+              <strong>{{ pendentesHoje() }}</strong>
+              <small>Aguardando revisão</small>
+            </a>
+            <div class="dashboard-kpi">
+              <span class="dashboard-kpi__top">
+                <span>Modelos</span>
+                <span class="dashboard-kpi__icon"><span class="material-symbols-outlined">description</span></span>
+              </span>
+              <strong>{{ totalTemplates() }}</strong>
+              <small>Total na empresa</small>
+            </div>
+            <a routerLink="/links-publicos" class="dashboard-kpi">
+              <span class="dashboard-kpi__top">
+                <span>Links públicos</span>
+                <span class="dashboard-kpi__icon"><span class="material-symbols-outlined">link</span></span>
+              </span>
+              <strong>{{ linksPublicosCount() }}</strong>
+              <small>Ativos para envio</small>
+            </a>
+          </div>
+        </section>
+
+        @if (complianceReport(); as compliance) {
+          <section class="dashboard-attention" aria-labelledby="attention-title">
+            <div class="dashboard-attention__header">
+              <div class="dashboard-attention__title">
+                <span class="dashboard-attention__shield">
+                  <span class="material-symbols-outlined">health_and_safety</span>
+                </span>
+                <div>
+                  <h2 id="attention-title">Compliance de consentimentos</h2>
+                  <p>Validade, evidências e cópia do paciente</p>
+                </div>
               </div>
-              <div class="dash-stat">
-                <span class="dash-label">Vencem em 30 dias</span>
-                <p class="dash-stat__value n-reset">{{ compliance.highlights.expiring_next_30_days }}</p>
-                <p class="dash-stat__sub n-reset">Atenção preventiva</p>
+              @if (complianceSemPendenciaCritica()) {
+                <span class="dashboard-status">
+                  <span class="material-symbols-outlined">check_circle</span>
+                  Tudo em dia
+                </span>
+              } @else {
+                <a routerLink="/protocolos" class="dashboard-status dashboard-status--warning">
+                  Pendências de compliance
+                </a>
+              }
+            </div>
+            <div class="dashboard-attention__grid dashboard-attention__grid--wide">
+              <div [class.is-warning]="compliance.summary.consent_expired > 0">
+                <span>Vencidos</span>
+                <strong>{{ compliance.summary.consent_expired }}</strong>
+                <small>Fora da validade</small>
               </div>
-              <div class="dash-stat">
-                <span class="dash-label">Sem snapshot</span>
-                <p class="dash-stat__value n-reset">{{ compliance.summary.without_snapshot }}</p>
-                <p class="dash-stat__sub n-reset">Evidência incompleta</p>
+              <div [class.is-warning]="compliance.highlights.expiring_next_30_days > 0">
+                <span>Vencem em 30 dias</span>
+                <strong>{{ compliance.highlights.expiring_next_30_days }}</strong>
+                <small>Atenção preventiva</small>
               </div>
-              <div class="dash-stat">
-                <span class="dash-label">Taxa de revogação</span>
-                <p class="dash-stat__value n-reset">{{ compliance.summary.revocation_rate_percent }}%</p>
-                <p class="dash-stat__sub n-reset">{{ compliance.summary.revoked }} revogados</p>
+              <div [class.is-warning]="compliance.summary.without_snapshot > 0">
+                <span>Sem snapshot</span>
+                <strong>{{ compliance.summary.without_snapshot }}</strong>
+                <small>Evidência incompleta</small>
               </div>
-              <div class="dash-stat">
-                <span class="dash-label">Cópia do paciente</span>
-                <p class="dash-stat__value n-reset">{{ compliance.summary.patient_copy_download_rate_percent ?? 0 }}%</p>
-                <p class="dash-stat__sub n-reset">
+              <div>
+                <span>Cópia do paciente</span>
+                <strong>{{ compliance.summary.patient_copy_download_rate_percent ?? 0 }}%</strong>
+                <small>
                   {{ compliance.summary.patient_copy_downloaded ?? 0 }} baixadas
                   de {{ compliance.summary.patient_copy_token_issued ?? 0 }} emitidas
-                </p>
-              </div>
-              <div class="dash-stat">
-                <span class="dash-label">Cópia por e-mail</span>
-                <p class="dash-stat__value n-reset">{{ compliance.summary.patient_copy_emailed ?? 0 }}</p>
-                <p class="dash-stat__sub n-reset">Links enviados ao paciente</p>
+                </small>
               </div>
             </div>
           </section>
         }
 
-        <div class="dash-split dash-split--charts">
-          <section class="dash-panel">
-            <div class="dash-panel__head">
+        <div class="dashboard-columns">
+          <section class="dashboard-panel">
+            <header class="dashboard-panel__header">
               <div>
-                <h2 class="dash-panel__title">Evolução de respostas</h2>
-                <div class="dash-evo-stats">
-                  <div>
-                    <span class="dash-label">Semana atual</span>
-                    <strong>{{ ultimos7Dias() }}</strong>
-                  </div>
-                  <div>
-                    <span class="dash-label">Semana anterior</span>
-                    <strong>{{ semanaAnterior() }}</strong>
-                  </div>
-                  <div>
-                    <span class="dash-label">Média 30d</span>
-                    <strong>{{ mediaSemanalUltimos30Dias }}</strong>
-                  </div>
-                </div>
+                <h2>Evolução de respostas</h2>
+                <p>
+                  Semana atual {{ ultimos7Dias() }} · anterior {{ semanaAnterior() }} · média 30d
+                  {{ mediaSemanalUltimos30Dias }}
+                </p>
               </div>
-            </div>
-            <div class="dash-chart-body">
+            </header>
+            <div class="dashboard-panel__body dashboard-panel__body--chart">
               <apx-chart
                 [series]="areaChart().series"
                 [chart]="areaChart().chart"
@@ -195,16 +235,14 @@
             </div>
           </section>
 
-          <section class="dash-panel">
-            <div class="dash-panel__head">
+          <section class="dashboard-panel">
+            <header class="dashboard-panel__header">
               <div>
-                <h2 class="dash-panel__title">Distribuição por status</h2>
-                <p class="dash-panel__sub">
-                  Taxa de aprovação: {{ taxaAprovacao }}% · Total de respostas: {{ totalStatus }}
-                </p>
+                <h2>Distribuição por status</h2>
+                <p>Taxa de aprovação: {{ taxaAprovacao }}% · Total: {{ totalStatus }}</p>
               </div>
-            </div>
-            <div class="dash-chart-body">
+            </header>
+            <div class="dashboard-panel__body dashboard-panel__body--chart">
               @if (totalStatus > 0) {
                 <apx-chart
                   [series]="donutChart().series"
@@ -220,21 +258,26 @@
                   [states]="donutChart().states"
                 />
               } @else {
-                <div class="dash-empty-box">
-                  <p class="n-reset">Sem dados ainda. A distribuição entre aprovadas, pendentes e recusadas aparece com a primeira resposta.</p>
-                </div>
+                <zm-empty-state
+                  title="Sem dados ainda"
+                  description="A distribuição aparece com a primeira resposta."
+                />
               }
             </div>
           </section>
         </div>
 
-        <div class="dash-split dash-split--2">
-          <section class="dash-panel dash-panel--fill">
-            <div class="dash-panel__head">
-              <h2 class="dash-panel__title">Modelos mais respondidos</h2>
-            </div>
-            @if (modelosMaisUsados().length > 0) {
-              <div class="dash-chart-body">
+        <div class="dashboard-columns">
+          <section class="dashboard-panel">
+            <header class="dashboard-panel__header">
+              <div>
+                <h2>Modelos mais respondidos</h2>
+                <p>Ranking por volume no período</p>
+              </div>
+              <a routerLink="/templates">Ver modelos</a>
+            </header>
+            <div class="dashboard-panel__body dashboard-panel__body--chart">
+              @if (modelosMaisUsados().length > 0) {
                 <apx-chart
                   [series]="barChart().series"
                   [chart]="barChart().chart"
@@ -248,97 +291,108 @@
                   [legend]="barChart().legend"
                   [states]="barChart().states"
                 />
-              </div>
-            } @else {
-              <div class="dash-empty-box">
-                <p class="n-reset">Sem respostas registradas ainda. Assim que houver volume, o ranking dos modelos aparece aqui.</p>
-              </div>
-            }
+              } @else {
+                <zm-empty-state
+                  title="Sem respostas ainda"
+                  description="O ranking dos modelos aparece com o primeiro volume."
+                />
+              }
+            </div>
           </section>
 
-          <section class="dash-panel dash-panel--fill">
-            <div class="dash-panel__head">
-              <h2 class="dash-panel__title">Últimas submissões</h2>
-              <a routerLink="/protocolos" class="dash-text-link">Ver protocolos</a>
+          <section class="dashboard-panel">
+            <header class="dashboard-panel__header">
+              <div>
+                <h2>Últimas submissões</h2>
+                <p>Protocolos recebidos recentemente</p>
+              </div>
+              <a routerLink="/protocolos">Ver todos</a>
+            </header>
+            <div class="dashboard-panel__body">
+              @for (item of ultimasSubmissoes(); track item.id) {
+                <a [routerLink]="['/protocolos', item.id]" class="dashboard-list-row">
+                  <span class="dashboard-avatar">{{ iniciais(item.paciente) }}</span>
+                  <span class="dashboard-list-row__main">
+                    <strong>{{ item.paciente }}</strong>
+                    <small>{{ item.modelo }} · {{ item.dataLabel }}</small>
+                  </span>
+                  <span class="dashboard-client-status" [ngClass]="statusClienteClasse(item.status)">
+                    {{ item.status }}
+                  </span>
+                  <span class="material-symbols-outlined dashboard-list-chevron">chevron_right</span>
+                </a>
+              } @empty {
+                <zm-empty-state
+                  title="Nenhuma submissão recente"
+                  description="Novos protocolos aparecem aqui assim que forem enviados."
+                />
+              }
             </div>
-            @if (ultimasSubmissoes().length > 0) {
-              <div class="dash-list">
-                @for (item of ultimasSubmissoes(); track item.id) {
-                  <a [routerLink]="['/protocolos', item.id]" class="dash-list__row n-reset">
-                    <div class="dash-list__main">
-                      <span class="dash-list__title">{{ item.paciente }}</span>
-                      <span class="dash-list__meta">{{ item.modelo }} · {{ item.dataLabel }}</span>
-                    </div>
-                    <nord-badge [attr.variant]="statusBadgeVariant(item.status)">{{ item.status }}</nord-badge>
-                  </a>
-                }
-              </div>
-            } @else {
-              <div class="dash-empty-box">
-                <p class="n-reset">Nenhuma submissão recente. Novos protocolos aparecem nesta lista assim que forem enviados.</p>
-              </div>
-            }
           </section>
         </div>
 
-        <div class="dash-split dash-split--bottom">
-          <section class="dash-panel">
-            <div class="dash-panel__head">
-              <h2 class="dash-panel__title">Últimos modelos</h2>
+        <div class="dashboard-columns">
+          <section class="dashboard-panel">
+            <header class="dashboard-panel__header">
+              <div>
+                <h2>Últimos modelos</h2>
+                <p>Cadastros mais recentes</p>
+              </div>
               @if (ultimosTemplates().length > 0) {
-                <a routerLink="/templates" class="dash-text-link">Ver todos</a>
+                <a routerLink="/templates">Ver todos</a>
+              }
+            </header>
+            <div class="dashboard-panel__body">
+              @for (t of ultimosTemplates(); track t.id) {
+                <a [routerLink]="['/templates', t.id, 'editar']" class="dashboard-list-row">
+                  <span class="dashboard-activity__icon">
+                    <span class="material-symbols-outlined">description</span>
+                  </span>
+                  <span class="dashboard-list-row__main">
+                    <strong>{{ t.name }}</strong>
+                    <small>{{ t.created_label }}</small>
+                  </span>
+                  <span
+                    class="dashboard-client-status"
+                    [class.is-active]="t.is_active"
+                    [class.is-inactive]="!t.is_active"
+                  >
+                    {{ t.is_active ? 'Ativo' : 'Inativo' }}
+                  </span>
+                  <span class="material-symbols-outlined dashboard-list-chevron">chevron_right</span>
+                </a>
+              } @empty {
+                <div class="dashboard-empty-cta">
+                  <zm-empty-state
+                    title="Nenhum modelo ainda"
+                    description="Crie o primeiro para começar a coletar respostas."
+                  />
+                  <a routerLink="/templates/criar-em-branco" class="dashboard-button dashboard-button--solid">
+                    Novo modelo
+                  </a>
+                </div>
               }
             </div>
-            @if (ultimosTemplates().length > 0) {
-              <div class="dash-list">
-                @for (t of ultimosTemplates(); track t.id) {
-                  <div class="dash-list__row dash-list__row--static">
-                    <div class="dash-list__main dash-list__main--icon">
-                      <span class="dash-list__icon" aria-hidden="true">
-                        <span class="material-symbols-outlined gestgo-mi gestgo-mi--s">description</span>
-                      </span>
-                      <div class="min-w-0">
-                        <span class="dash-list__title">{{ t.name }}</span>
-                        <span class="dash-list__meta">{{ t.created_label }}</span>
-                      </div>
-                    </div>
-                    <div class="dash-list__actions">
-                      <nord-badge [attr.variant]="t.is_active ? 'success' : 'neutral'">
-                        {{ t.is_active ? 'Ativo' : 'Inativo' }}
-                      </nord-badge>
-                      <nord-button
-                        size="s"
-                        square
-                        variant="plain"
-                        [routerLink]="['/templates', t.id, 'editar']"
-                        aria-label="Editar modelo"
-                        title="Editar"
-                      >
-                        <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">edit</span>
-                      </nord-button>
-                    </div>
-                  </div>
-                }
-              </div>
-            } @else {
-              <div class="dash-empty-box">
-                <p class="n-reset">Nenhum modelo ainda. Crie o primeiro para começar a coletar respostas.</p>
-                <nord-button variant="primary" size="s" [routerLink]="['/templates/criar-em-branco']">Novo modelo</nord-button>
-              </div>
-            }
           </section>
 
           @if (categoriasResumo.length > 0) {
-            <section class="dash-panel">
-              <div class="dash-panel__head">
-                <h2 class="dash-panel__title">Modelos por categoria</h2>
-              </div>
-              <div class="dash-cat-list">
+            <section class="dashboard-panel">
+              <header class="dashboard-panel__header">
+                <div>
+                  <h2>Modelos por categoria</h2>
+                  <p>Distribuição do catálogo</p>
+                </div>
+                <a routerLink="/templates">Ver modelos</a>
+              </header>
+              <div class="dashboard-panel__body">
                 @for (c of categoriasResumo; track c.key) {
-                  <a routerLink="/templates" class="dash-cat-row n-reset" [title]="'Ver modelos em ' + c.label">
-                    <span class="dash-cat-row__label">{{ c.label }}</span>
-                    <span class="dash-cat-row__count">{{ c.count }}</span>
-                    <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">chevron_right</span>
+                  <a routerLink="/templates" class="dashboard-list-row" [title]="'Ver modelos em ' + c.label">
+                    <span class="dashboard-list-row__main">
+                      <strong>{{ c.label }}</strong>
+                      <small>{{ c.count }} {{ c.count === 1 ? 'modelo' : 'modelos' }}</small>
+                    </span>
+                    <strong class="dashboard-cat-count">{{ c.count }}</strong>
+                    <span class="material-symbols-outlined dashboard-list-chevron">chevron_right</span>
                   </a>
                 }
               </div>

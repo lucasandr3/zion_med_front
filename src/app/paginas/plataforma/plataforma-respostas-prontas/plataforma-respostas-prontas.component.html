@@ -1,0 +1,106 @@
+<div class="n-page-list__toolbar">
+  <div class="n-page-list__toolbar-start">
+    <zm-page-back-link />
+  </div>
+  <div class="n-page-list__toolbar-end">
+    <nord-button type="button" variant="default" size="m" (click)="carregar()">Atualizar</nord-button>
+    <nord-button type="button" variant="primary" size="m" (click)="novo()">Nova resposta</nord-button>
+  </div>
+</div>
+
+<div class="n-page-list__content">
+  @if (editing()) {
+    <div class="cr-form n-page-list__panel">
+      <label>Título<input type="text" [value]="title()" (input)="onTitle($event)" maxlength="120" /></label>
+      <label>Categoria<input type="text" [value]="category()" (input)="onCategory($event)" maxlength="64" /></label>
+      <label>Atalho<input type="text" [value]="shortcut()" (input)="onShortcut($event)" placeholder="/ola" maxlength="32" /></label>
+      <label>Ordem<input type="number" min="0" [value]="sortOrder()" (input)="onSort($event)" /></label>
+      <label>Corpo<textarea rows="6" [value]="body()" (input)="onBody($event)"></textarea></label>
+      <div class="cr-form__actions">
+        <nord-button type="button" variant="primary" [attr.disabled]="acting() || null" (click)="salvar()">Salvar</nord-button>
+        <nord-button type="button" variant="plain" (click)="cancelar()">Cancelar</nord-button>
+      </div>
+    </div>
+  }
+
+  @if (showSkeleton()) {
+    <div class="n-page-list__panel"><app-list-skeleton [count]="6" /></div>
+  } @else if (!listaPronta()) {
+  } @else if (error()) {
+    <div class="n-page-list__panel">
+      <p class="n-muted n-small" style="color:var(--n-color-status-danger,#c62828)">{{ error() }}</p>
+    </div>
+  } @else if (items().length === 0) {
+    <div class="n-page-list__empty">
+      <nord-empty-state>
+        <h2>Nenhuma resposta pronta</h2>
+        <p>Crie modelos para agilizar o atendimento no inbox.</p>
+      </nord-empty-state>
+    </div>
+  } @else {
+    <div class="n-page-list__table">
+      @for (item of items(); track item.id) {
+        <div class="n-page-list__row">
+          <div class="n-page-list__row-main">
+            <div class="n-page-list__row-title">
+              {{ item.title }}
+              <span class="cr-badge" [attr.data-active]="item.active ? '1' : '0'">
+                {{ item.active ? 'Ativa' : 'Inativa' }}
+              </span>
+            </div>
+            <div class="n-page-list__row-meta">
+              {{ item.category || 'geral' }}
+              @if (item.shortcut) { · {{ item.shortcut }} }
+              · ordem {{ item.sort_order ?? 0 }}
+            </div>
+            <p class="cr-preview">{{ item.body }}</p>
+          </div>
+          <div class="n-page-list__actions">
+            <nord-button
+              type="button"
+              square
+              variant="plain"
+              size="s"
+              aria-label="Editar"
+              aria-describedby="tip-cr-edit"
+              (click)="editar(item)"
+            >
+              <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">edit</span>
+            </nord-button>
+            @if (item.active) {
+              <nord-button
+                type="button"
+                square
+                variant="plain"
+                size="s"
+                aria-label="Desativar"
+                aria-describedby="tip-cr-off"
+                [attr.disabled]="acting() || null"
+                (click)="desativar(item)"
+              >
+                <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">toggle_off</span>
+              </nord-button>
+            } @else {
+              <nord-button
+                type="button"
+                square
+                variant="plain"
+                size="s"
+                aria-label="Ativar"
+                aria-describedby="tip-cr-on"
+                [attr.disabled]="acting() || null"
+                (click)="ativar(item)"
+              >
+                <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">toggle_on</span>
+              </nord-button>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>
+
+<nord-tooltip id="tip-cr-edit" [delay]="0">Editar</nord-tooltip>
+<nord-tooltip id="tip-cr-off" [delay]="0">Desativar</nord-tooltip>
+<nord-tooltip id="tip-cr-on" [delay]="0">Ativar</nord-tooltip>

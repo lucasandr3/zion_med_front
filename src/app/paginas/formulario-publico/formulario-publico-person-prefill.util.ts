@@ -117,22 +117,7 @@ function resolvePersonPrefillValue(
   key: string,
   prefill: PersonPrefill,
 ): string | number | boolean | null {
-  const normalizedKey = normalizeKey(key);
-  const direct = (prefill as Record<string, unknown>)[normalizedKey];
-  if (direct !== undefined && direct !== null && String(direct).trim() !== '') {
-    return direct as string | number | boolean;
-  }
-
-  for (const [prefillKey, aliases] of Object.entries(PERSON_PREFILL_KEY_ALIASES)) {
-    const matched = aliases.some((alias) => normalizedKey.includes(normalizeKey(alias)));
-    if (!matched) continue;
-    const value = (prefill as Record<string, unknown>)[prefillKey];
-    if (value !== undefined && value !== null && String(value).trim() !== '') {
-      return value as string | number | boolean;
-    }
-  }
-
-  return null;
+  return resolvePersonPrefillMatch(key, prefill)?.value ?? null;
 }
 
 function fieldLooksLikeExcludedRelative(haystack: string): boolean {
@@ -229,32 +214,82 @@ export function applySubmitterIdentityToFields(
   });
 }
 
-/** Preenche campos vazios com dados da ficha (pós-validação CPF). */
+export type PersonPrefillApplyResult = {
+  applied: string[];
+  /** Campos cujo valor veio do último protocolo (demografia), não só do cadastro. */
+  fromProtocol: string[];
+};
+
+/**
+ * Preenche campos vazios com dados da ficha (pós-validação CPF).
+ * @returns chaves dos campos que receberam valor (para UI de revisão PAC-05).
+ */
 export function applyPersonPrefillToFields(
   fields: FormularioPublicoField[],
   valores: Record<string, string | number | boolean | Date>,
   prefill: PersonPrefill | undefined,
-): void {
+  fromLastProtocolKeys: ReadonlyArray<string> = [],
+): PersonPrefillApplyResult {
+  const applied: string[] = [];
+  const fromProtocol: string[] = [];
+  const protocolKeySet = new Set(
+    fromLastProtocolKeys.map((k) => normalizeKey(String(k))).filter(Boolean),
+  );
+
   fields.forEach((field) => {
     const fieldKey = field.name_key;
     const currentValue = valores[fieldKey];
     const currentText = String(currentValue ?? '').trim();
     if (currentText !== '' && !isMaskedPiiValue(currentText)) return;
 
-    const byNameKey = prefill ? resolvePersonPrefillValue(fieldKey, prefill) : null;
-    const byLabel = prefill ? resolvePersonPrefillValue(field.label, prefill) : null;
-    const nextValue = byNameKey ?? byLabel;
-    if (nextValue === null || nextValue === undefined) return;
-    if (isMaskedPiiValue(nextValue)) return;
+    const matched = prefill
+      ? resolvePersonPrefillMatch(fieldKey, prefill) ?? resolvePersonPrefillMatch(field.label, prefill)
+      : null;
+    if (!matched) return;
+    if (isMaskedPiiValue(matched.value)) return;
 
     if (fieldType(field) === 'number') {
-      const n = Number(nextValue);
-      if (!Number.isNaN(n)) valores[fieldKey] = n;
+      const n = Number(matched.value);
+      if (!Number.isNaN(n)) {
+        valores[fieldKey] = n;
+        applied.push(fieldKey);
+        if (protocolKeySet.has(normalizeKey(matched.prefillKey))) {
+          fromProtocol.push(fieldKey);
+        }
+      }
       return;
     }
 
-    valores[fieldKey] = String(nextValue);
+    valores[fieldKey] = String(matched.value);
+    applied.push(fieldKey);
+    if (protocolKeySet.has(normalizeKey(matched.prefillKey))) {
+      fromProtocol.push(fieldKey);
+    }
   });
+  return { applied, fromProtocol };
+}
+
+/** Resolve valor + chave demográfica usada (cadastro vs último protocolo). */
+function resolvePersonPrefillMatch(
+  key: string,
+  prefill: PersonPrefill,
+): { prefillKey: string; value: string | number | boolean } | null {
+  const normalizedKey = normalizeKey(key);
+  const direct = (prefill as Record<string, unknown>)[normalizedKey];
+  if (direct !== undefined && direct !== null && String(direct).trim() !== '') {
+    return { prefillKey: normalizedKey, value: direct as string | number | boolean };
+  }
+
+  for (const [prefillKey, aliases] of Object.entries(PERSON_PREFILL_KEY_ALIASES)) {
+    const matched = aliases.some((alias) => normalizedKey.includes(normalizeKey(alias)));
+    if (!matched) continue;
+    const value = (prefill as Record<string, unknown>)[prefillKey];
+    if (value !== undefined && value !== null && String(value).trim() !== '') {
+      return { prefillKey, value: value as string | number | boolean };
+    }
+  }
+
+  return null;
 }
 
 /**

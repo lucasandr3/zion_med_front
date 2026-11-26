@@ -16,6 +16,7 @@ import { catchError, forkJoin, of } from 'rxjs';
 import {
   AgendaAppointment,
   AgendaAvailabilityRule,
+  AgendaDocumentSendInvite,
   AgendaService,
   AgendaServiceItem,
 } from '../../core/services/agenda.service';
@@ -25,13 +26,17 @@ import { ToastService } from '../../core/services/toast.service';
 import { ConfirmDialogService } from '../../core/services/confirm-dialog.service';
 import { ListSkeletonComponent } from '../../shared/components/list-skeleton/list-skeleton.component';
 import { ZmPageBackLinkComponent } from '../../shared/components/ui';
+import { GestgoComboboxComponent, type GestgoComboboxOption } from '@/shared/components/combobox';
 import { NORD_FORM_IMPORTS } from '@/shared/nord';
 import { formatarDataBr, formatarDataHoraBr } from '@/shared/utils/date';
 import { absoluteMediaUrl } from '../../core/utils/absolute-media-url';
+import { normalizePublicAppUrl } from '../../core/utils/public-form-url.util';
+import { openWhatsappShare } from '../../core/utils/whatsapp-share.util';
+import { ProductTelemetryService } from '../../core/services/product-telemetry.service';
 
 type VisaoAgenda = 'mes' | 'lista' | 'config';
 type ConfigSecao = 'servicos' | 'expediente';
-type ModalAgendaModo = 'dia' | 'criar';
+type ModalAgendaModo = 'dia' | 'criar' | 'reagendar';
 
 type NordModalElement = HTMLElement & {
   showModal: () => void;
@@ -90,6 +95,7 @@ const MESES = [
     RouterLink,
     ListSkeletonComponent,
     ZmPageBackLinkComponent,
+    GestgoComboboxComponent,
   ],
   templateUrl: './agenda.component.html',
   styleUrl: './agenda.component.css',
@@ -100,9 +106,17 @@ export class AgendaComponent implements OnInit {
   private linksPublicosApi = inject(LinksPublicosService);
   private toast = inject(ToastService);
   private confirm = inject(ConfirmDialogService);
+  private productTelemetry = inject(ProductTelemetryService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private readonly diaModalRef = viewChild<ElementRef<NordModalElement>>('diaModal');
+
+  readonly servicoOptions = computed<GestgoComboboxOption[]>(() =>
+    this.servicos().map((s) => ({
+      value: String(s.id),
+      label: `${s.name} (${s.duration_minutes} min)`,
+    })),
+  );
 
   readonly weekdays = WEEKDAYS;
   readonly diasSemanaLabels = ['Dom.', 'Seg.', 'Ter.', 'Qua.', 'Qui.', 'Sex.', 'Sáb.'];
@@ -144,6 +158,7 @@ export class AgendaComponent implements OnInit {
   readonly modalTitulo = computed(() => {
     const day = this.selectedDay();
     if (this.modalModo() === 'criar') return 'Novo compromisso';
+    if (this.modalModo() === 'reagendar') return 'Reagendar compromisso';
     return day ? this.formatDiaTitulo(day) : 'Compromissos';
   });
 
@@ -179,6 +194,13 @@ export class AgendaComponent implements OnInit {
     patient_email: '',
     patient_phone: '',
     service_id: null as number | null,
+    date: '',
+    time: '09:00',
+  };
+
+  reagendar = {
+    id: null as number | null,
+    patient_name: '',
     date: '',
     time: '09:00',
   };
@@ -374,6 +396,14 @@ export class AgendaComponent implements OnInit {
     return String((ev.target as HTMLInputElement & { value?: string }).value ?? '');
   }
 
+  serviceIdValue(): string | null {
+    return this.novo.service_id != null ? String(this.novo.service_id) : null;
+  }
+
+  onServicoChange(value: string | null): void {
+    this.novo.service_id = value ? Number(value) : null;
+  }
+
   onNordNumberInput(ev: Event): number {
     const n = Number(this.onNordInput(ev));
     return Number.isFinite(n) ? n : 0;
@@ -505,6 +535,52 @@ export class AgendaComponent implements OnInit {
     return 'neutral';
   }
 
+  /** AUT-06 — progresso do pacote documental (1–2 docs). */
+  documentPackageProgress(a: AgendaAppointment): { done: number; total: number } | null {
+    const fromApi = a.document_progress;
+    if (fromApi && fromApi.required > 0) {
+      return {
+        done: Math.min(fromApi.completed, fromApi.required),
+        total: fromApi.required,
+      };
+    }
+    let total = 0;
+    let done = 0;
+    if (a.form_template_id && a.form_status !== 'not_applicable') {
+      total++;
+      if (a.form_status === 'completed') done++;
+    }
+    if (a.form_template_optional_id && a.form_status_optional !== 'not_applicable') {
+      total++;
+      if (a.form_status_optional === 'completed') done++;
+    }
+    if (total === 0) return null;
+    return { done, total };
+  }
+
+  documentProgressLabel(a: AgendaAppointment): string {
+    const p = this.documentPackageProgress(a);
+    if (!p) return '';
+    return `${p.done} de ${p.total}`;
+  }
+
+  documentProgressTitle(a: AgendaAppointment): string {
+    const name = a.document_progress?.template_name || a.form_template_name;
+    const p = this.documentPackageProgress(a);
+    const base = name
+      ? `Pacote documental: ${name}${p && p.total > 1 ? ` (+${p.total - 1} opcional)` : ''}`
+      : 'Pacote documental vinculado ao serviço';
+    if (!p) return base;
+    return `${base}. Progresso ${p.done} de ${p.total} — não autoriza o procedimento clinicamente.`;
+  }
+
+  documentProgressBadgeVariant(a: AgendaAppointment): 'success' | 'warning' | 'neutral' {
+    const p = this.documentPackageProgress(a);
+    if (!p) return 'neutral';
+    if (p.done >= p.total) return 'success';
+    return 'warning';
+  }
+
   dotClass(status: string): string {
     if (status === 'completed') return 'agenda-dot agenda-dot--done';
     if (status === 'cancelled') return 'agenda-dot agenda-dot--off';
@@ -528,12 +604,125 @@ export class AgendaComponent implements OnInit {
   }
 
   cancelarCriar(): void {
-    if (this.criarVeioDoDia()) {
+    if (this.criarVeioDoDia() || this.modalModo() === 'reagendar') {
       this.modalModo.set('dia');
       this.criarVeioDoDia.set(false);
+      this.reagendar = { id: null, patient_name: '', date: '', time: '09:00' };
       return;
     }
     this.fecharModal();
+  }
+
+  temFichaPendente(a: AgendaAppointment): boolean {
+    return a.status === 'confirmed' && a.form_status === 'pending' && !!a.form_template_id;
+  }
+
+  async copiarLinkFicha(a: AgendaAppointment): Promise<void> {
+    const send = await this.garantirDocumentSend(a);
+    if (!send?.public_url) return;
+    const url = normalizePublicAppUrl(send.public_url) || send.public_url;
+    try {
+      await navigator.clipboard.writeText(url);
+      this.toast.success('Link copiado', 'Envie ao paciente pelo canal que preferir.');
+    } catch {
+      this.toast.error('Erro', 'Não foi possível copiar o link.');
+    }
+  }
+
+  async compartilharFichaWhatsapp(a: AgendaAppointment): Promise<void> {
+    const send = await this.garantirDocumentSend(a);
+    if (!send?.share_message) return;
+    this.productTelemetry.trackDocumentShare({
+      source: 'agenda',
+      channel: 'whatsapp',
+      template_id: a.form_template_id ?? null,
+      document_send_id: send.id ?? null,
+      appointment_id: a.id,
+    });
+    openWhatsappShare(send.share_message, send.recipient_phone || a.patient_phone || null);
+  }
+
+  verEnvio(a: AgendaAppointment): void {
+    void this.garantirDocumentSend(a).then(() => {
+      void this.router.navigate(['/envios'], { queryParams: { caixa: 'pendentes' } });
+    });
+  }
+
+  private async garantirDocumentSend(a: AgendaAppointment): Promise<AgendaDocumentSendInvite | null> {
+    if (a.document_send?.public_url) return a.document_send;
+    this.acaoId.set(a.id);
+    try {
+      const send = await new Promise<AgendaDocumentSendInvite>((resolve, reject) => {
+        this.agenda.ensureDocumentInvite(a.id).subscribe({ next: resolve, error: reject });
+      });
+      this.patchAppointmentDocumentSend(a.id, send);
+      return send;
+    } catch (err: unknown) {
+      const message =
+        err && typeof err === 'object' && 'error' in err
+          ? (err as { error?: { message?: string } }).error?.message
+          : undefined;
+      this.toast.error('Convite', message ?? 'Não foi possível gerar o convite da ficha.');
+      return null;
+    } finally {
+      this.acaoId.set(null);
+    }
+  }
+
+  private patchAppointmentDocumentSend(id: number, send: AgendaDocumentSendInvite): void {
+    this.reservas.update((list) =>
+      list.map((item) => (item.id === id ? { ...item, document_send: send } : item)),
+    );
+  }
+
+  abrirReagendar(a: AgendaAppointment): void {
+    if (a.status !== 'confirmed') return;
+    const starts = new Date(a.starts_at);
+    const date = this.dateKey(starts);
+    const hh = String(starts.getHours()).padStart(2, '0');
+    const mm = String(starts.getMinutes()).padStart(2, '0');
+    this.reagendar = {
+      id: a.id,
+      patient_name: a.patient_name,
+      date,
+      time: `${hh}:${mm}`,
+    };
+    this.selectedDay.set(date);
+    this.criarVeioDoDia.set(this.modalAberto() && this.modalModo() === 'dia');
+    this.modalModo.set('reagendar');
+    this.modalAberto.set(true);
+  }
+
+  salvarReagendar(): void {
+    if (!this.reagendar.id || !this.reagendar.date || !this.reagendar.time) {
+      this.toast.error('Campos obrigatórios', 'Informe data e horário.');
+      return;
+    }
+    const startsAt = `${this.reagendar.date}T${this.reagendar.time}:00`;
+    this.salvando.set(true);
+    this.agenda
+      .updateAppointment(this.reagendar.id, {
+        status: 'confirmed',
+        starts_at: startsAt,
+      })
+      .subscribe({
+        next: () => {
+          this.salvando.set(false);
+          this.toast.success(
+            'Compromisso reagendado',
+            'O convite de ficha pendente foi mantido (sem novo envio).',
+          );
+          this.selectedDay.set(this.reagendar.date);
+          this.modalModo.set('dia');
+          this.criarVeioDoDia.set(false);
+          this.reagendar = { id: null, patient_name: '', date: '', time: '09:00' };
+          this.reloadPeriod();
+        },
+        error: (err) => {
+          this.salvando.set(false);
+          this.toast.error('Erro', err.error?.message ?? 'Não foi possível reagendar.');
+        },
+      });
   }
 
   onModalClose(event: Event): void {
@@ -798,7 +987,10 @@ export class AgendaComponent implements OnInit {
   async cancelar(a: AgendaAppointment): Promise<void> {
     const ok = await this.confirm.request({
       title: 'Cancelar reserva?',
-      message: `Cancelar o horário de ${a.patient_name} em ${this.formatDt(a.starts_at)}?`,
+      message:
+        a.form_status === 'pending' && a.form_template_id
+          ? `Cancelar o horário de ${a.patient_name} em ${this.formatDt(a.starts_at)}? O convite de ficha pendente também será revogado.`
+          : `Cancelar o horário de ${a.patient_name} em ${this.formatDt(a.starts_at)}?`,
       confirmLabel: 'Sim, cancelar',
       variant: 'danger',
     });
@@ -808,7 +1000,11 @@ export class AgendaComponent implements OnInit {
       next: () => {
         this.acaoId.set(null);
         this.reloadPeriod();
-        this.toast.success('Reserva cancelada', '');
+        const hadPendingForm = a.form_status === 'pending' && !!a.form_template_id;
+        this.toast.success(
+          'Reserva cancelada',
+          hadPendingForm ? 'Convite de ficha pendente também foi revogado.' : '',
+        );
       },
       error: (err) => {
         this.acaoId.set(null);

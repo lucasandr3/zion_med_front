@@ -1,0 +1,32 @@
+.gm-task-create {
+  display: flex;
+  gap: 8px;
+  margin: 0 0 18px;
+}
+
+.gm-task-create input {
+  flex: 1;
+  min-width: 0;
+  border: 1px solid var(--gm-line);
+  border-radius: 14px;
+  padding: 12px 14px;
+  font-size: 14px;
+  background: var(--gm-paper);
+  color: var(--gm-ink);
+}
+
+.gm-btn--compact {
+  margin: 0;
+  padding: 12px 14px;
+  width: auto;
+  flex-shrink: 0;
+}
+
+.gm-card--static {
+  cursor: default;
+  margin-bottom: 10px;
+}
+
+.gm-card--muted {
+  opacity: 0.65;
+}

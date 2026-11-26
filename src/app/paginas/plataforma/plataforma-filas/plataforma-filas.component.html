@@ -1,0 +1,184 @@
+<div class="n-page-list__toolbar">
+  <div class="n-page-list__toolbar-start">
+    <zm-page-back-link />
+  </div>
+  <div class="n-page-list__toolbar-end">
+    <nord-button
+      type="button"
+      (click)="openFilterDrawer()"
+      [attr.aria-expanded]="filterDrawerOpen() ? 'true' : 'false'"
+      [class.ring-2]="temFiltrosAtivos"
+      [class.ring-ring]="temFiltrosAtivos"
+      title="Filtros"
+    >
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">filter_list</span>
+      Filtros
+      @if (temFiltrosAtivos) { <nord-badge variant="neutral">{{ quantidadeFiltrosAtivos }}</nord-badge> }
+    </nord-button>
+    <div class="n-page-list__actions">
+      @if (filtro() === 'pendentes') {
+        <nord-button
+          type="button"
+          variant="default"
+          size="m"
+          [attr.disabled]="acting() || null"
+          (click)="purgeEmails()"
+        >
+          Limpar e-mails
+        </nord-button>
+      }
+      @if (filtro() === 'falhos' && falhos().length > 0) {
+        <nord-button
+          type="button"
+          variant="primary"
+          size="m"
+          [attr.disabled]="acting() || null"
+          (click)="retryAllFailed()"
+        >
+          Reprocessar todos
+        </nord-button>
+      }
+      <nord-button type="button" variant="default" size="m" [attr.disabled]="acting() || null" (click)="carregar()">
+        Atualizar
+      </nord-button>
+    </div>
+  </div>
+</div>
+
+<div class="n-page-list__content">
+  @if (showSkeleton()) {
+    <div class="n-page-list__panel"><app-list-skeleton [count]="6" /></div>
+  } @else if (!listaPronta()) {
+  } @else if (error()) {
+    <div class="n-page-list__panel">
+      <p class="n-muted n-small" style="color:var(--n-color-status-danger,#c62828)">{{ error() }}</p>
+    </div>
+  } @else if (listaAtual().length === 0) {
+    <div class="n-page-list__empty">
+      <nord-empty-state>
+        @if (filtro() === 'falhos') {
+          <h2>Nenhum job falho</h2>
+          <p>Jobs que esgotarem tentativas aparecerão aqui.</p>
+        } @else {
+          <h2>Fila vazia</h2>
+          <p>Nenhum job pendente no momento.</p>
+        }
+      </nord-empty-state>
+    </div>
+  } @else if (filtro() === 'pendentes') {
+    <div class="n-page-list__table">
+      @for (job of pendentes(); track job.id) {
+        <div class="n-page-list__row">
+          <div class="n-page-list__row-main">
+            <div class="n-page-list__row-title">
+              #{{ job.id }} · {{ jobTypeLabel(job.job_type) }}
+              <span class="filas-status" [attr.data-status]="job.status">
+                {{ job.status === 'reserved' ? 'Em execução' : 'Pendente' }}
+              </span>
+            </div>
+            <div class="n-page-list__row-meta">
+              {{ job.summary || '—' }}
+              · tentativas {{ job.attempts ?? 0 }}/{{ job.max_attempts ?? 3 }}
+              · {{ formatarData(job.created_at) }}
+            </div>
+          </div>
+          <div class="n-page-list__actions">
+            <nord-button
+              type="button"
+              square
+              variant="plain"
+              size="s"
+              class="n-page-list__icon-btn--danger"
+              aria-label="Descartar"
+              aria-describedby="tip-fila-discard"
+              [attr.disabled]="acting() || null"
+              (click)="discardPending(job)"
+            >
+              <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">delete</span>
+            </nord-button>
+          </div>
+        </div>
+      }
+    </div>
+  } @else {
+    <div class="n-page-list__table">
+      @for (job of falhos(); track job.id) {
+        <div class="n-page-list__row">
+          <div class="n-page-list__row-main">
+            <div class="n-page-list__row-title">#{{ job.id }} · {{ jobTypeLabel(job.job_type) }}</div>
+            <div class="n-page-list__row-meta">
+              {{ job.summary || '—' }}
+              · {{ formatarData(job.failed_at) }}
+            </div>
+            @if (job.exception) {
+              <p class="filas-exception">{{ job.exception }}</p>
+            }
+          </div>
+          <div class="n-page-list__actions">
+            <nord-button
+              type="button"
+              square
+              variant="plain"
+              size="s"
+              aria-label="Reprocessar"
+              aria-describedby="tip-fila-retry"
+              [attr.disabled]="acting() || null"
+              (click)="retryFailed(job)"
+            >
+              <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">replay</span>
+            </nord-button>
+            <nord-button
+              type="button"
+              square
+              variant="plain"
+              size="s"
+              class="n-page-list__icon-btn--danger"
+              aria-label="Descartar"
+              aria-describedby="tip-fila-discard"
+              [attr.disabled]="acting() || null"
+              (click)="discardFailed(job)"
+            >
+              <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">delete</span>
+            </nord-button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>
+
+<nord-tooltip id="tip-fila-retry" [delay]="0">Reprocessar</nord-tooltip>
+<nord-tooltip id="tip-fila-discard" [delay]="0">Descartar</nord-tooltip>
+
+<ng-template #filtrosTpl>
+  <div class="zm-filter-sheet">
+    <div class="zm-filter-sheet__body">
+      <div class="zm-filter-sheet__fields">
+        <div class="zm-filter-field">
+          <span class="zm-filter-label">Situação</span>
+          <div class="zm-filter-options" role="radiogroup" aria-label="Filtrar jobs">
+            @for (item of filtros; track item.id) {
+              <button
+                type="button"
+                role="radio"
+                [class.is-active]="filtroRascunho === item.id"
+                [attr.aria-checked]="filtroRascunho === item.id"
+                (click)="filtroRascunho = item.id"
+              >
+                <span>{{ item.label }}</span>
+                <small>{{ quantidadeFiltro(item.id) }}</small>
+              </button>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+    <footer class="zm-filter-sheet__footer">
+      <button class="zm-filter-sheet__clear" type="button" (click)="limparFiltrosDrawer()">Limpar filtros</button>
+      <nord-button variant="primary" type="button" (click)="aplicarFiltrosDrawer()">
+        <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">check</span>
+        Aplicar
+      </nord-button>
+    </footer>
+  </div>
+</ng-template>

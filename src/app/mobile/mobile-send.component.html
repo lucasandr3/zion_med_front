@@ -1,0 +1,151 @@
+<div class="gm-backrow">
+  <button type="button" class="gm-icon-btn" (click)="voltar()" aria-label="Voltar">
+    <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">arrow_back</span>
+  </button>
+  <div>
+    <h1>Enviar ficha</h1>
+    <small>
+      @switch (step()) {
+        @case ('template') { Escolha o modelo }
+        @case ('patient') { Escolha a paciente }
+        @case ('confirm') { Confirme e compartilhe }
+        @case ('done') { Pronto para enviar }
+      }
+    </small>
+  </div>
+</div>
+
+<div class="gm-steps" aria-hidden="true">
+  <span [class.is-on]="step() === 'template' || step() === 'patient' || step() === 'confirm' || step() === 'done'"></span>
+  <span [class.is-on]="step() === 'patient' || step() === 'confirm' || step() === 'done'"></span>
+  <span [class.is-on]="step() === 'confirm' || step() === 'done'"></span>
+</div>
+
+@if (error()) {
+  <div class="gm-notice gm-notice--warn">{{ error() }}</div>
+}
+
+@if (loading()) {
+  <div class="gm-preload gm-preload--inline" aria-busy="true">
+    <div class="gm-preload__bar"><span></span></div>
+    <p class="gm-preload__hint">Preparando envio…</p>
+  </div>
+} @else if (step() === 'template') {
+  <p class="gm-sub">Selecione um modelo com link público ativo.</p>
+  <label class="gm-search">
+    <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">search</span>
+    <input
+      type="search"
+      placeholder="Buscar modelo…"
+      [ngModel]="templateQuery()"
+      (ngModelChange)="templateQuery.set($event)"
+      aria-label="Buscar modelo"
+    />
+  </label>
+
+  @if (filteredTemplates().length === 0) {
+    <p class="gm-empty">Nenhum modelo público disponível. Crie ou ative no painel.</p>
+    <a class="gm-btn gm-btn--secondary" routerLink="/m">Voltar ao início</a>
+  } @else {
+    @for (t of filteredTemplates(); track t.id) {
+      <button type="button" class="gm-card" (click)="escolherTemplate(t.id, t.name)">
+        <span class="gm-tile__icon gm-tile__icon--chip" aria-hidden="true">
+          <span class="material-symbols-outlined gestgo-mi gestgo-mi--m">description</span>
+        </span>
+        <span class="gm-card__body">
+          <span class="gm-card__title">{{ t.name }}</span>
+          <span class="gm-card__sub">{{ t.category || 'Modelo' }}</span>
+        </span>
+        <span class="material-symbols-outlined gestgo-mi gestgo-mi--s gm-chevron" aria-hidden="true">chevron_right</span>
+      </button>
+    }
+  }
+} @else if (step() === 'patient') {
+  <p class="gm-sub">Para: <strong>{{ templateName() || 'modelo selecionado' }}</strong></p>
+  <label class="gm-search">
+    <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">search</span>
+    <input
+      type="search"
+      placeholder="Buscar paciente…"
+      [ngModel]="patientQuery()"
+      (ngModelChange)="onPatientQuery($event)"
+      aria-label="Buscar paciente"
+    />
+  </label>
+
+  @if (patientsLoading()) {
+    <p class="gm-loading">Buscando…</p>
+  } @else if (patients().length === 0) {
+    <p class="gm-empty">Nenhum paciente encontrado.</p>
+  } @else {
+    @for (p of patients(); track p.id; let i = $index) {
+      <button type="button" class="gm-card" (click)="escolherPaciente(p)">
+        <span class="gm-avatar" [class.teal]="i % 3 === 0" [class.orange]="i % 3 === 2">{{ iniciais(p.name) }}</span>
+        <span class="gm-card__body">
+          <span class="gm-card__title">{{ p.name }}</span>
+          <span class="gm-card__sub">{{ p.phone || p.email || p.code || 'Cadastro' }}</span>
+        </span>
+      </button>
+    }
+  }
+} @else if (step() === 'confirm') {
+  <div class="gm-panel gm-send-summary">
+    <div class="gm-send-summary__row">
+      <span>Modelo</span>
+      <strong>{{ templateName() || ('#' + templateId()) }}</strong>
+    </div>
+    <div class="gm-send-summary__row">
+      <span>Paciente</span>
+      <strong>{{ person()?.name || '—' }}</strong>
+    </div>
+  </div>
+
+  <div class="gm-field">
+    <label for="gm-send-phone">WhatsApp</label>
+    <input
+      id="gm-send-phone"
+      type="tel"
+      inputmode="tel"
+      [ngModel]="phoneOverride()"
+      (ngModelChange)="phoneOverride.set($event)"
+      placeholder="(11) 99999-0000"
+    />
+  </div>
+
+  <button type="button" class="gm-btn" (click)="enviarWhatsApp()" [disabled]="sending()">
+    @if (sending()) {
+      Enviando…
+    } @else {
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">chat</span>
+      Abrir no WhatsApp
+    }
+  </button>
+  <button type="button" class="gm-btn gm-btn--secondary" (click)="copiarLink()" [disabled]="sending()">
+    <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">content_copy</span>
+    Gerar e copiar link
+  </button>
+  <p class="gm-hint">O Gestgo gera o link seguro. No WhatsApp, confira a mensagem antes de enviar.</p>
+} @else {
+  <div class="gm-empty-state gm-empty-state--success">
+    <span class="gm-empty-state__icon" aria-hidden="true">
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--l">check_circle</span>
+    </span>
+    <h2>Ficha pronta</h2>
+    <p>Compartilhe o link com a paciente para ela preencher e assinar.</p>
+  </div>
+
+  @if (resultMessage() || resultUrl()) {
+    <div class="gm-panel gm-send-msg">{{ resultMessage() || resultUrl() }}</div>
+    <button type="button" class="gm-btn" (click)="compartilharResultado()">
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">chat</span>
+      Abrir WhatsApp
+    </button>
+    <button type="button" class="gm-btn gm-btn--secondary" (click)="copiarTexto(resultMessage() || resultUrl() || '')">
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">content_copy</span>
+      Copiar mensagem
+    </button>
+  }
+
+  <a class="gm-btn gm-btn--soft" routerLink="/m/documentos" [queryParams]="{ status: 'pending' }">Ver pendências</a>
+  <a class="gm-btn gm-btn--ghost" routerLink="/m">Voltar ao início</a>
+}

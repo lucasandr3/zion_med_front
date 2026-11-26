@@ -33,7 +33,23 @@
     </div>
   }
 
-  @if (!showSkeleton() && data() && clinic() && !totemMode) {
+  @if (!showSkeleton() && data() && clinic() && !totemMode && studioLink()) {
+    <div class="zm-content-enter">
+      <app-studio-link-public
+        [studio]="studioLink()!"
+        [publicSlug]="slug"
+        [clinicSlug]="clinic()!.slug"
+        [bioLinks]="links()"
+        [allDocs]="allLinks()"
+        [linkBioPreview]="linkBioPreview"
+        [dark]="dark()"
+        (toggleDark)="toggleDark()"
+        (share)="sharePage()"
+      />
+    </div>
+  }
+
+  @if (!showSkeleton() && data() && clinic() && !totemMode && !studioLink()) {
     <div class="zm-content-enter">
       <app-link-bio-public-layout-preset
         [model]="model()"

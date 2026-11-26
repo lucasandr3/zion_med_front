@@ -1,0 +1,77 @@
+<div class="n-page-list__toolbar">
+  <div class="n-page-list__toolbar-start">
+    <zm-page-back-link />
+  </div>
+  <div class="n-page-list__toolbar-end">
+    <div class="n-page-list__actions">
+      <nord-button type="button" variant="default" size="m" (click)="carregar()">Atualizar</nord-button>
+    </div>
+  </div>
+</div>
+
+<div class="n-page-list__content n-page-list__content--padded">
+  @if (showSkeleton()) {
+    <div class="n-page-list__panel"><app-list-skeleton [count]="4" /></div>
+  } @else if (!listaPronta()) {
+  } @else if (error()) {
+    <div class="n-page-list__panel">
+      <p class="n-muted n-small" style="color:var(--n-color-status-danger,#c62828)">{{ error() }}</p>
+    </div>
+  } @else if (item(); as s) {
+    <section class="schedule-detail">
+      <header class="schedule-detail__head">
+        <div>
+          <h2>{{ s.name }}</h2>
+          <p>{{ s.description || 'Sem descrição.' }}</p>
+        </div>
+        <div class="schedule-detail__badges">
+          <span class="schedule-status" [attr.data-enabled]="s.enabled">
+            {{ s.enabled ? 'Ativo' : 'Desligado' }}
+          </span>
+          <span class="schedule-run" [attr.data-status]="s.last_status || 'unknown'">
+            {{ statusLabel(s.last_status) }}
+          </span>
+        </div>
+      </header>
+
+      <dl class="schedule-detail__grid">
+        <div>
+          <dt>Identificador</dt>
+          <dd>{{ s.id }}</dd>
+        </div>
+        <div>
+          <dt>Frequência</dt>
+          <dd>{{ s.cadence || '—' }}</dd>
+        </div>
+        <div>
+          <dt>Fuso</dt>
+          <dd>{{ s.timezone || '—' }}</dd>
+        </div>
+        <div>
+          <dt>Última execução</dt>
+          <dd>{{ formatarData(s.last_run_at) }}</dd>
+        </div>
+        <div>
+          <dt>Duração</dt>
+          <dd>{{ s.last_duration_ms != null ? s.last_duration_ms + ' ms' : '—' }}</dd>
+        </div>
+        <div>
+          <dt>Status da última execução</dt>
+          <dd>{{ statusLabel(s.last_status) }}</dd>
+        </div>
+      </dl>
+
+      <div class="schedule-detail__message" [class.is-error]="s.last_status === 'error'">
+        <h3>{{ s.last_status === 'error' ? 'Erro da última execução' : 'Mensagem da última execução' }}</h3>
+        <p>{{ s.last_message || 'Nenhuma mensagem registrada ainda. Aguarde a próxima execução após o redeploy da API.' }}</p>
+      </div>
+    </section>
+  } @else {
+    <div class="n-page-list__empty">
+      <nord-empty-state>
+        <h2>Schedule não encontrado</h2>
+        <p>Volte à listagem e escolha outra tarefa.</p>
+      </nord-empty-state>
+    </div>
+  }
+</div>

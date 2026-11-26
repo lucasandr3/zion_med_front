@@ -1,0 +1,75 @@
+<div class="gm-backrow">
+  <a class="gm-icon-btn" routerLink="/m/documentos" aria-label="Voltar">
+    <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">arrow_back</span>
+  </a>
+  <div>
+    <h1>Envios</h1>
+    <small>Status, reenvio e lembrete</small>
+  </div>
+</div>
+
+<p class="gm-sub">Acompanhe convites enviados sem abrir o painel.</p>
+
+<div class="gm-pills" role="tablist" aria-label="Filtrar envios">
+  <button type="button" class="gm-pill" [class.is-on]="caixa() === 'pendentes'" (click)="setCaixa('pendentes')">Pendentes</button>
+  <button type="button" class="gm-pill" [class.is-on]="caixa() === 'assinados'" (click)="setCaixa('assinados')">Assinados</button>
+  <button type="button" class="gm-pill" [class.is-on]="caixa() === 'expirados'" (click)="setCaixa('expirados')">Expirados</button>
+  <button type="button" class="gm-pill" [class.is-on]="caixa() === ''" (click)="setCaixa('')">Todos</button>
+</div>
+
+@if (loading()) {
+  <div class="gm-preload gm-preload--inline" aria-busy="true">
+    <div class="gm-preload__bar"><span></span></div>
+    <p class="gm-preload__hint">Carregando envios…</p>
+  </div>
+} @else if (error()) {
+  <div class="gm-error">
+    <p>{{ error() }}</p>
+    <button type="button" class="gm-btn gm-btn--secondary" (click)="carregar()">Tentar de novo</button>
+  </div>
+} @else if (items().length === 0) {
+  <div class="gm-empty-state">
+    <span class="gm-empty-state__icon" aria-hidden="true">
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--l">outgoing_mail</span>
+    </span>
+    <h2>Nenhum envio</h2>
+    <p>Não há itens nesta caixa.</p>
+  </div>
+} @else {
+  @for (e of items(); track e.id; let i = $index) {
+    <div class="gm-envio-card">
+      <button type="button" class="gm-card gm-card--flat" (click)="abrirProtocolo(e)">
+        <span class="gm-avatar" [class.teal]="i % 3 === 0" [class.orange]="i % 3 === 2">{{ iniciais(pacienteNome(e)) }}</span>
+        <span class="gm-card__body">
+          <span class="gm-card__title">{{ pacienteNome(e) }}</span>
+          <span class="gm-card__sub">
+            {{ e.template_name || 'Documento' }}
+            · {{ formatDate(e.sent_at) }}
+            @if (e.reminded_at) {
+              · lembrete {{ formatDate(e.reminded_at) }}
+            }
+          </span>
+        </span>
+        <span
+          class="gm-status"
+          [class.ok]="e.status === 'assinado'"
+          [class.warn]="e.status === 'pendente' || e.status === 'expirado'"
+        >
+          {{ statusLabel(e) }}
+        </span>
+      </button>
+      <div class="gm-envio-actions">
+        @if (podeReenviar(e)) {
+          <button type="button" class="gm-pill is-on" [disabled]="acaoId() === e.id" (click)="reenviar(e)">
+            Reenviar / lembrar
+          </button>
+        }
+        @if (e.status === 'pendente') {
+          <button type="button" class="gm-pill" [disabled]="acaoId() === e.id" (click)="cancelar(e)">
+            Cancelar
+          </button>
+        }
+      </div>
+    </div>
+  }
+}

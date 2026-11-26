@@ -148,18 +148,17 @@
                           ></nord-date-picker>
                         }
                         @case ('select') {
-                          <select
+                          <z-combobox
                             [id]="'preview_' + campo.name_key"
-                            [(ngModel)]="valores[campo.name_key]"
-                            [name]="'preview_' + campo.name_key"
-                            class="fp-input fp-select"
-                            [required]="!!campo.required"
-                          >
-                            <option value="">Selecione uma opção</option>
-                            @for (opt of getFieldOptions(campo); track opt.value) {
-                              <option [value]="opt.value">{{ opt.label }}</option>
-                            }
-                          </select>
+                            class="w-full"
+                            zWidth="full"
+                            [options]="selectComboOptions(campo)"
+                            [value]="selectComboValue(campo)"
+                            placeholder="Selecione uma opção"
+                            emptyText="Nenhum resultado."
+                            [ariaLabel]="campo.label"
+                            (zValueChange)="onSelectComboChange(campo, $event)"
+                          />
                         }
                         @case ('radio') {
                           <div

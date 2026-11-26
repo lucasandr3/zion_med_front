@@ -4,100 +4,193 @@
   </a>
   <div>
     <h1>Configurações</h1>
-    <small>Tema e notificações do app</small>
+    <small>Conta, aparência e preferências</small>
   </div>
 </div>
 
-<section class="gm-panel">
-  <h2 class="gm-cfg__label">
-    <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">palette</span>
-    Aparência
-  </h2>
-  <p class="gm-hint" style="margin:0 0 14px">A cor acompanha o tema da sua conta Gestgo.</p>
+<section class="gm-cfg-profile">
+  <span class="gm-cfg-profile__avatar" aria-hidden="true">{{ iniciais }}</span>
+  <div class="gm-cfg-profile__text">
+    <strong>{{ nomeUsuario }}</strong>
+    @if (emailUsuario) {
+      <span>{{ emailUsuario }}</span>
+    }
+    @if (nomeEmpresa) {
+      <span class="gm-cfg-profile__org">{{ nomeEmpresa }}</span>
+    }
+  </div>
+</section>
 
-  <div class="gm-cfg__modes">
-    <button type="button" class="gm-cfg__mode" [class.is-on]="!modoEscuro()" (click)="aplicarModoEscuro(false)">
+<p class="gm-cfg-group">Aparência</p>
+<section class="gm-cfg-card">
+  <div class="gm-cfg-modes">
+    <button type="button" class="gm-cfg-mode" [class.is-on]="!modoEscuro()" (click)="aplicarModoEscuro(false)">
       <span class="material-symbols-outlined gestgo-mi gestgo-mi--m" aria-hidden="true">light_mode</span>
       Claro
     </button>
-    <button type="button" class="gm-cfg__mode" [class.is-on]="modoEscuro()" (click)="aplicarModoEscuro(true)">
+    <button type="button" class="gm-cfg-mode" [class.is-on]="modoEscuro()" (click)="aplicarModoEscuro(true)">
       <span class="material-symbols-outlined gestgo-mi gestgo-mi--m" aria-hidden="true">dark_mode</span>
       Escuro
     </button>
   </div>
 
-  <p class="gm-cfg__sub">Cor do tema</p>
-  <div class="gm-cfg__swatches" role="list">
-    @for (t of temas; track t.key) {
-      <button
-        type="button"
-        class="gm-cfg__swatch"
-        role="listitem"
-        [class.is-on]="temaAtual() === t.key"
-        [style.--swatch]="t.color"
-        [attr.aria-label]="t.labelPt"
-        [attr.title]="t.labelPt"
-        (click)="aplicarTema(t.key)"
-      >
-        @if (temaAtual() === t.key) {
-          <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">check</span>
-        }
-      </button>
-    }
-  </div>
-  <p class="gm-hint" style="margin:10px 0 0">Selecionado: <strong>{{ temaMeta?.labelPt ?? '—' }}</strong></p>
-</section>
+  <div class="gm-cfg-divider"></div>
 
-<section class="gm-panel">
-  <h2 class="gm-cfg__label">
-    <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">person</span>
-    Conta
-  </h2>
-  <p class="gm-hint" style="margin:0 0 14px">
-    {{ nomeUsuario }}{{ emailUsuario ? ' · ' + emailUsuario : '' }}
-  </p>
-  <button type="button" class="gm-btn gm-btn--secondary" (click)="sair()" [disabled]="saindo()">
-    <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">logout</span>
-    {{ saindo() ? 'Saindo…' : 'Sair' }}
-  </button>
-</section>
-
-<section class="gm-panel">
-  <h2 class="gm-cfg__label">
-    <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">notifications</span>
-    Notificações push
-  </h2>
-  <p class="gm-hint" style="margin:0 0 14px">
-    Receba avisos de fichas e protocolos mesmo com o app fechado. Sem dados sensíveis no texto.
-  </p>
-
-  @if (!pushSupported()) {
-    <div class="gm-notice">Este navegador não suporta notificações push.</div>
-  } @else {
-    <button
-      type="button"
-      class="gm-btn"
-      [class.gm-btn--secondary]="pushSubscribed()"
-      [disabled]="pushBusy()"
-      (click)="togglePush()"
-    >
-      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">
-        {{ pushSubscribed() ? 'notifications_off' : 'notifications_active' }}
-      </span>
-      {{ pushBusy() ? 'Aguarde…' : pushSubscribed() ? 'Desativar push' : 'Ativar push' }}
-    </button>
-    <p class="gm-hint" style="margin-top:10px">
-      Status:
-      @if (pushSubscribed()) {
-        ativo neste dispositivo
-      } @else if (pushPermission() === 'denied') {
-        bloqueado nas configurações do navegador
-      } @else {
-        desativado
+  <div class="gm-cfg-block">
+    <div class="gm-cfg-block__head">
+      <span>Cor do tema</span>
+      <small>{{ temaMeta?.labelPt ?? '—' }}</small>
+    </div>
+    <div class="gm-cfg-swatches" role="list">
+      @for (t of temas; track t.key) {
+        <button
+          type="button"
+          class="gm-cfg-swatch"
+          role="listitem"
+          [class.is-on]="temaAtual() === t.key"
+          [style.--swatch]="t.color"
+          [attr.aria-label]="t.labelPt"
+          [attr.title]="t.labelPt"
+          (click)="aplicarTema(t.key)"
+        >
+          @if (temaAtual() === t.key) {
+            <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">check</span>
+          }
+        </button>
       }
-    </p>
-    @if (pushError()) {
-      <div class="gm-notice" style="margin-top:12px">{{ pushError() }}</div>
-    }
-  }
+    </div>
+  </div>
 </section>
+
+<p class="gm-cfg-group">Notificações</p>
+<section class="gm-cfg-card">
+  <button
+    type="button"
+    class="gm-cfg-row"
+    [disabled]="!pushSupported() || pushBusy()"
+    (click)="togglePush()"
+  >
+    <span class="gm-cfg-row__icon" aria-hidden="true">
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s">notifications_active</span>
+    </span>
+    <span class="gm-cfg-row__body">
+      <strong>Avisos push</strong>
+      <small>
+        @if (!pushSupported()) {
+          Indisponível neste navegador
+        } @else if (pushBusy()) {
+          Atualizando…
+        } @else if (pushSubscribed()) {
+          Ativo neste dispositivo
+        } @else if (pushPermission() === 'denied') {
+          Bloqueado nas configs do navegador
+        } @else {
+          Fichas e protocolos — sem dados sensíveis
+        }
+      </small>
+    </span>
+    <span class="gm-switch" [class.is-on]="pushSubscribed()" aria-hidden="true">
+      <span class="gm-switch__knob"></span>
+    </span>
+  </button>
+  @if (pushError()) {
+    <div class="gm-cfg-note gm-cfg-note--warn">{{ pushError() }}</div>
+  }
+  <a class="gm-cfg-row" routerLink="/m/documentos" [queryParams]="{ status: 'pending' }">
+    <span class="gm-cfg-row__icon" aria-hidden="true">
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s">mark_email_unread</span>
+    </span>
+    <span class="gm-cfg-row__body">
+      <strong>Pendências documentais</strong>
+      <small>Ver fichas aguardando assinatura</small>
+    </span>
+    <span class="material-symbols-outlined gestgo-mi gestgo-mi--s gm-cfg-chev" aria-hidden="true">chevron_right</span>
+  </a>
+</section>
+
+<p class="gm-cfg-group">Experiência</p>
+<section class="gm-cfg-card">
+  <button type="button" class="gm-cfg-row" (click)="abrirPainel()">
+    <span class="gm-cfg-row__icon" aria-hidden="true">
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s">desktop_windows</span>
+    </span>
+    <span class="gm-cfg-row__body">
+      <strong>Abrir painel completo</strong>
+      <small>Modelos, envios avançados e gestão</small>
+    </span>
+    <span class="material-symbols-outlined gestgo-mi gestgo-mi--s gm-cfg-chev" aria-hidden="true">open_in_new</span>
+  </button>
+  <a class="gm-cfg-row" routerLink="/m/ferramentas">
+    <span class="gm-cfg-row__icon" aria-hidden="true">
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s">widgets</span>
+    </span>
+    <span class="gm-cfg-row__body">
+      <strong>Ferramentas do dia a dia</strong>
+      <small>Orçamento, mensagens e retornos</small>
+    </span>
+    <span class="material-symbols-outlined gestgo-mi gestgo-mi--s gm-cfg-chev" aria-hidden="true">chevron_right</span>
+  </a>
+  <a class="gm-cfg-row" routerLink="/m/fichas">
+    <span class="gm-cfg-row__icon" aria-hidden="true">
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s">description</span>
+    </span>
+    <span class="gm-cfg-row__body">
+      <strong>Modelos de fichas</strong>
+      <small>Enviar pelo celular</small>
+    </span>
+    <span class="material-symbols-outlined gestgo-mi gestgo-mi--s gm-cfg-chev" aria-hidden="true">chevron_right</span>
+  </a>
+</section>
+
+<p class="gm-cfg-group">Conta e suporte</p>
+<section class="gm-cfg-card">
+  <button type="button" class="gm-cfg-row" (click)="abrirPerfilPainel()">
+    <span class="gm-cfg-row__icon" aria-hidden="true">
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s">manage_accounts</span>
+    </span>
+    <span class="gm-cfg-row__body">
+      <strong>Conta e privacidade</strong>
+      <small>Dados cadastrais no painel</small>
+    </span>
+    <span class="material-symbols-outlined gestgo-mi gestgo-mi--s gm-cfg-chev" aria-hidden="true">open_in_new</span>
+  </button>
+  @if (podeTrocarEmpresa) {
+    <button type="button" class="gm-cfg-row" (click)="trocarEmpresa()">
+      <span class="gm-cfg-row__icon" aria-hidden="true">
+        <span class="material-symbols-outlined gestgo-mi gestgo-mi--s">swap_horiz</span>
+      </span>
+      <span class="gm-cfg-row__body">
+        <strong>Trocar empresa</strong>
+        <small>{{ nomeEmpresa || 'Selecionar organização' }}</small>
+      </span>
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s gm-cfg-chev" aria-hidden="true">open_in_new</span>
+    </button>
+  }
+  <a class="gm-cfg-row" routerLink="/m/atendimento">
+    <span class="gm-cfg-row__icon" aria-hidden="true">
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s">support_agent</span>
+    </span>
+    <span class="gm-cfg-row__body">
+      <strong>Atendimento Gestgo</strong>
+      <small>Abrir e acompanhar chamados</small>
+    </span>
+    <span class="material-symbols-outlined gestgo-mi gestgo-mi--s gm-cfg-chev" aria-hidden="true">chevron_right</span>
+  </a>
+  <a class="gm-cfg-row" href="mailto:suporte@gestgo.com.br">
+    <span class="gm-cfg-row__icon" aria-hidden="true">
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s">mail</span>
+    </span>
+    <span class="gm-cfg-row__body">
+      <strong>E-mail de suporte</strong>
+      <small>suporte@gestgo.com.br</small>
+    </span>
+    <span class="material-symbols-outlined gestgo-mi gestgo-mi--s gm-cfg-chev" aria-hidden="true">chevron_right</span>
+  </a>
+</section>
+
+<button type="button" class="gm-cfg-logout" (click)="sair()" [disabled]="saindo()">
+  <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">logout</span>
+  {{ saindo() ? 'Saindo…' : 'Sair da conta' }}
+</button>
+
+<p class="gm-cfg-foot">Gestgo Mobile · experiência otimizada para o celular</p>

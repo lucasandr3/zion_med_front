@@ -93,7 +93,7 @@ a.dashboard-list-row:hover { background:color-mix(in srgb,var(--primary) 6%,var(
 .dashboard-list-row__main small { margin-top:.15rem; color:var(--muted-foreground); font-size:.63rem; }
 .dashboard-list-row time { flex:0 0 auto; color:var(--muted-foreground); font-size:.6rem; }
 .dashboard-client-status { flex:0 0 auto; padding:.22rem .5rem; border-radius:999px; background:var(--muted); color:var(--muted-foreground); font-size:.58rem; font-weight:700; }
-.dashboard-client-status.is-active { background:#e7f6ee; color:#087a55; }
+.dashboard-client-status.is-active { background:#e7f6ee; color:#006B61; }
 .dashboard-client-status.is-trial { background:#edf4ff; color:#2763a7; }
 .dashboard-client-status.is-attention { background:#fff4dd; color:#9a5a00; }
 .dashboard-client-status.is-inactive { background:var(--muted); color:var(--muted-foreground); }

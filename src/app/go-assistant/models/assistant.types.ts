@@ -92,11 +92,18 @@ export interface AssistantSearchHit {
   score: number;
 }
 
+export interface AssistantArticleHit {
+  id: number;
+  title: string;
+  slug: string;
+  category: string;
+}
+
 export type AssistantDrawerView =
   | { kind: 'home' }
-  | { kind: 'search'; query: string; hits: AssistantSearchHit[] }
+  | { kind: 'search'; query: string; hits: AssistantSearchHit[]; articles: AssistantArticleHit[] }
   | { kind: 'intent'; intent: AssistantIntent }
-  | { kind: 'empty'; query: string; suggestions: AssistantIntent[] };
+  | { kind: 'empty'; query: string; suggestions: AssistantIntent[]; articles: AssistantArticleHit[] };
 
 export interface GoAssistantHistoryItem {
   id: number;

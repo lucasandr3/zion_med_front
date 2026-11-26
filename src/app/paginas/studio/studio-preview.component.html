@@ -1,0 +1,82 @@
+<div
+  class="sp"
+  [class.sp--link]="mode() === 'link'"
+  [class.sp--site]="mode() === 'site'"
+  [attr.data-layout]="template().layout"
+  [style.--sp-canvas]="template().canvas"
+  [style.--sp-ink]="template().ink"
+  [style.--sp-accent]="template().accent"
+  [style.--sp-hero]="shared().media?.heroUrl ? 'url(' + shared().media?.heroUrl + ')' : 'none'"
+  [style.--sp-portrait]="shared().media?.portraitUrl ? 'url(' + shared().media?.portraitUrl + ')' : 'none'"
+>
+  @if (mode() === 'link') {
+    <div class="sp-link">
+      <div class="sp-link__avatar" aria-hidden="true"></div>
+      <p class="sp-link__kicker">{{ specialtyName() }}</p>
+      <h3>{{ shared().displayName || template().name }}</h3>
+      <p class="sp-link__headline">{{ shared().headline }}</p>
+      <p class="sp-link__desc">{{ shared().description }}</p>
+      <div class="sp-link__actions">
+        @for (block of enabledBlocks(); track block.id) {
+          <div class="sp-link__chip">{{ labelFor(block.type) }}</div>
+        }
+      </div>
+      <button type="button" class="sp-cta" disabled>{{ shared().ctaLabel || 'Agendar consulta' }}</button>
+      @if (shared().whatsapp || shared().instagram) {
+        <div class="sp-link__social">
+          @if (shared().whatsapp) {
+            <span>WhatsApp</span>
+          }
+          @if (shared().instagram) {
+            <span>Instagram</span>
+          }
+        </div>
+      }
+    </div>
+  } @else {
+    <div class="sp-site">
+      <header class="sp-site__hero">
+        <div class="sp-site__copy">
+          <p class="sp-site__kicker">{{ specialtyName() }}</p>
+          <h3>{{ shared().displayName || template().name }}</h3>
+          <p class="sp-site__headline">{{ shared().headline }}</p>
+          <p>{{ shared().description }}</p>
+          <button type="button" class="sp-cta" disabled>{{ shared().ctaLabel || 'Agendar consulta' }}</button>
+        </div>
+        <div class="sp-site__media" aria-hidden="true">
+          <div class="sp-site__hero-photo"></div>
+          <div class="sp-site__portrait"></div>
+        </div>
+      </header>
+
+      @for (block of enabledBlocks(); track block.id) {
+        <section class="sp-section" [attr.data-type]="block.type">
+          <div class="sp-section__head">
+            <h4>{{ block.title || labelFor(block.type) }}</h4>
+            @if (block.description) {
+              <p>{{ block.description }}</p>
+            } @else {
+              <p>Seção {{ labelFor(block.type).toLowerCase() }} · variante {{ block.variant || 'padrão' }}</p>
+            }
+          </div>
+          @if (block.type === 'office' && shared().media?.officeUrl) {
+            <div
+              class="sp-section__office"
+              [style.background-image]="'url(' + shared().media?.officeUrl + ')'"
+            ></div>
+          } @else if (block.type === 'services' || block.type === 'team' || block.type === 'results') {
+            <div class="sp-section__cards">
+              <div></div>
+              <div></div>
+              <div></div>
+            </div>
+          } @else if (block.type === 'booking') {
+            <button type="button" class="sp-cta sp-cta--ghost" disabled>
+              {{ shared().ctaLabel || 'Agendar consulta' }}
+            </button>
+          }
+        </section>
+      }
+    </div>
+  }
+</div>

@@ -25,6 +25,10 @@ import { formatarDataBr } from '@/shared/utils/date';
 import { GestgoTabComponent, GestgoTabGroupComponent } from '@/shared/components/tabs';
 import { ToastService } from '../../core/services/toast.service';
 import { WhatsappEvolutionService, WhatsappEvolutionState } from '../../core/services/whatsapp-evolution.service';
+import {
+  WhatsappOfficialService,
+  type WhatsappOfficialStatus,
+} from '../../core/services/whatsapp-official.service';
 import { ConfirmDialogService } from '../../core/services/confirm-dialog.service';
 import {
   applyShellPresetToDom,
@@ -197,6 +201,11 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
    */
   readonly mostrarWhatsappEmpresa = false;
 
+  /** MSG-03B-0 — canal oficial Meta (status somente leitura; sem envio). */
+  readonly waOfficial = signal<WhatsappOfficialStatus | null>(null);
+  readonly waOfficialLoading = signal(false);
+  readonly waOfficialError = signal('');
+
   /** Aba WhatsApp (Evolution Go) */
   readonly waState = signal<WhatsappEvolutionState | null>(null);
   readonly waLoading = signal(false);
@@ -239,6 +248,7 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
   private loadingService = inject(LoadingService);
   private toast = inject(ToastService);
   private waService = inject(WhatsappEvolutionService);
+  private waOfficialService = inject(WhatsappOfficialService);
   private confirm = inject(ConfirmDialogService);
 
   get logoDisplayUrl(): string | null {
@@ -335,7 +345,7 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
       TEMAS.find((t) => t.key === canonicalThemeKey)?.color ??
       this.availableThemes[themeKey]?.primary ??
       this.availableThemes[canonicalThemeKey]?.primary ??
-      '#14B87A'
+      '#00877A'
     );
   }
 
@@ -534,6 +544,9 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
         this.syncShellPresetFromUser();
         this.syncAppliedThemeKey();
         this.syncTabGroupFromActiveTab();
+        if (tab === 'whatsapp') {
+          this.carregarWhatsappOfficial();
+        }
       },
       error: () => {
         this.listaPronta.set(true);
@@ -788,9 +801,40 @@ export class ClinicaConfiguracoesComponent implements OnInit, OnDestroy {
     if (tab === 'logs') {
       this.carregarLogs();
     }
-    if (tab === 'whatsapp' && this.mostrarWhatsappEmpresa) {
-      this.carregarWhatsapp();
+    if (tab === 'whatsapp') {
+      this.carregarWhatsappOfficial();
+      if (this.mostrarWhatsappEmpresa) {
+        this.carregarWhatsapp();
+      }
     }
+  }
+
+  carregarWhatsappOfficial(): void {
+    this.waOfficialLoading.set(true);
+    this.waOfficialError.set('');
+    this.waOfficialService.getStatus().subscribe({
+      next: (s) => {
+        this.waOfficial.set(s);
+        this.waOfficialLoading.set(false);
+      },
+      error: () => {
+        this.waOfficialLoading.set(false);
+        this.waOfficialError.set('Não foi possível carregar o status do canal oficial.');
+        this.waOfficial.set(null);
+      },
+    });
+  }
+
+  waOfficialStatusLabel(status: string | null | undefined): string {
+    if (status === 'connected') return 'Conectado';
+    if (status === 'pending') return 'Pendente';
+    return 'Desconectado';
+  }
+
+  waOfficialBadgeVariant(status: string | null | undefined): 'success' | 'warning' | 'neutral' {
+    if (status === 'connected') return 'success';
+    if (status === 'pending') return 'warning';
+    return 'neutral';
   }
 
   carregarWhatsapp(): void {

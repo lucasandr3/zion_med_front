@@ -44,16 +44,15 @@ export interface NavigationHubConfig {
 export const HUB_DOCUMENTOS: NavigationHubConfig = {
   id: 'documentos',
   title: 'Documentos',
-  subtitle: 'Crie, organize e acompanhe a documentação da sua empresa.',
+  subtitle: 'Importe sua ficha, envie e acompanhe as respostas — em poucos passos.',
   sectionTitle: 'O que você deseja fazer?',
-  sectionSubtitle: 'Escolha uma ação ou acesse a área correspondente.',
-  // Temporário: envios ocultos
-  // primaryCta: {
-  //   label: 'Novo envio',
-  //   route: '/envios?novo=1',
-  //   icon: 'add',
-  //   permissionsAny: ['templates.manage', 'submissions.view'],
-  // },
+  sectionSubtitle: 'Siga o fluxo: preparar ficha → enviar → acompanhar.',
+  primaryCta: {
+    label: 'Novo envio',
+    route: '/envios?novo=1',
+    icon: 'add',
+    permissionsAny: ['templates.manage', 'submissions.view'],
+  },
   kpis: [
     {
       id: 'modelos',
@@ -81,29 +80,13 @@ export const HUB_DOCUMENTOS: NavigationHubConfig = {
     },
   ],
   cards: [
-    // {
-    //   id: 'novo',
-    //   title: 'Novo envio',
-    //   description: 'Escolha uma ficha e compartilhe o link de preenchimento com a pessoa.',
-    //   icon: 'send',
-    //   route: '/envios?novo=1',
-    //   permissionsAny: ['templates.manage', 'submissions.view'],
-    // },
-    // {
-    //   id: 'envios',
-    //   title: 'Envios realizados',
-    //   description: 'Veja o que foi enviado, o que está pendente e o que foi concluído.',
-    //   icon: 'send',
-    //   route: '/envios',
-    //   permissionsAny: ['templates.manage', 'submissions.view'],
-    // },
     {
-      id: 'protocolos',
-      title: 'Protocolos',
-      description: 'Acesse as respostas e os registros associados às fichas recebidas.',
-      icon: 'article_person',
-      route: '/protocolos',
-      permission: 'submissions.view',
+      id: 'importar',
+      title: 'Usar minha ficha atual',
+      description: 'Envie o PDF da ficha que você já usa e mapeie os campos no layout original.',
+      icon: 'upload_file',
+      route: '/templates/importar',
+      permission: 'templates.manage',
     },
     {
       id: 'modelos',
@@ -114,12 +97,28 @@ export const HUB_DOCUMENTOS: NavigationHubConfig = {
       permission: 'templates.manage',
     },
     {
-      id: 'importar',
-      title: 'Usar minha ficha atual',
-      description: 'Envie o PDF da ficha que você já usa e mapeie os campos no layout original.',
-      icon: 'upload_file',
-      route: '/templates/importar',
-      permission: 'templates.manage',
+      id: 'novo',
+      title: 'Novo envio',
+      description: 'Escolha uma ficha e compartilhe o link de preenchimento com a pessoa.',
+      icon: 'send',
+      route: '/envios?novo=1',
+      permissionsAny: ['templates.manage', 'submissions.view'],
+    },
+    {
+      id: 'protocolos',
+      title: 'Protocolos',
+      description: 'Acesse as respostas e os registros associados às fichas recebidas.',
+      icon: 'article_person',
+      route: '/protocolos',
+      permission: 'submissions.view',
+    },
+    {
+      id: 'envios',
+      title: 'Envios realizados',
+      description: 'Veja o que foi enviado, o que está pendente e o que foi concluído.',
+      icon: 'outbox',
+      route: '/envios',
+      permissionsAny: ['templates.manage', 'submissions.view'],
     },
     {
       id: 'formularios',
@@ -256,6 +255,122 @@ export const HUB_PLATAFORMA_FINANCEIRO: NavigationHubConfig = {
   ],
 };
 
+export const HUB_PLATAFORMA_RELACIONAMENTO: NavigationHubConfig = {
+  id: 'plataforma-relacionamento',
+  title: 'Central de Relacionamento',
+  subtitle: 'Automações, jornadas e atendimento da operação Gestgo.',
+  sectionTitle: 'Operação comercial e suporte',
+  sectionSubtitle: 'Exceções do dia, automações, modelos e tarefas.',
+  kpis: [
+    {
+      id: 'tickets_waiting',
+      label: 'Chamados aguardando',
+      icon: 'support_agent',
+      hint: 'Inbox de atendimento',
+      route: '/plataforma/relacionamento/atendimento',
+      permission: 'support.tickets.view',
+    },
+    {
+      id: 'tasks_open',
+      label: 'Tarefas abertas',
+      icon: 'task_alt',
+      hint: 'Intervenção humana',
+      route: '/plataforma/relacionamento/tarefas',
+      permission: 'platform.admin',
+    },
+    {
+      id: 'automations_active',
+      label: 'Automações ativas',
+      icon: 'bolt',
+      hint: 'Escopo plataforma',
+      route: '/plataforma/relacionamento/automacoes',
+      permission: 'platform.admin',
+    },
+    {
+      id: 'trials_ending_3d',
+      label: 'Trials (3 dias)',
+      icon: 'hourglass_top',
+      hint: 'Conversão',
+      route: '/plataforma/clientes',
+      permission: 'platform.admin',
+    },
+    {
+      id: 'articles_published',
+      label: 'Artigos publicados',
+      icon: 'menu_book',
+      hint: 'Base de conhecimento',
+      route: '/plataforma/relacionamento/conhecimento',
+      permission: 'platform.admin',
+    },
+  ],
+  cards: [
+    {
+      id: 'atendimento',
+      title: 'Caixa de entrada',
+      description: 'Helpdesk híbrido — chamados das clínicas.',
+      icon: 'support_agent',
+      route: '/plataforma/relacionamento/atendimento',
+      permission: 'support.tickets.view',
+    },
+    {
+      id: 'tarefas',
+      title: 'Tarefas',
+      description: 'Fila operacional gerada por automações ou pela equipe.',
+      icon: 'task_alt',
+      route: '/plataforma/relacionamento/tarefas',
+      permission: 'platform.admin',
+    },
+    {
+      id: 'automacoes',
+      title: 'Automações',
+      description: 'Regras PLATFORM ativas — gatilho, condição e ações.',
+      icon: 'bolt',
+      route: '/plataforma/relacionamento/automacoes',
+      permission: 'platform.admin',
+    },
+    {
+      id: 'jornadas',
+      title: 'Jornadas',
+      description: 'Onboarding e sequências internas sem duplicar e-mails do funil.',
+      icon: 'route',
+      route: '/plataforma/relacionamento/jornadas',
+      permission: 'platform.admin',
+    },
+    {
+      id: 'modelos',
+      title: 'Modelos de mensagens',
+      description: 'Biblioteca de e-mails e respostas da plataforma.',
+      icon: 'description',
+      route: '/plataforma/relacionamento/modelos',
+      permission: 'platform.admin',
+    },
+    {
+      id: 'conhecimento',
+      title: 'Base de conhecimento',
+      description: 'Artigos da ajuda clínica e do Go Assistant.',
+      icon: 'menu_book',
+      route: '/plataforma/relacionamento/conhecimento',
+      permission: 'platform.admin',
+    },
+    {
+      id: 'respostas-prontas',
+      title: 'Respostas prontas',
+      description: 'Modelos rápidos para o inbox de atendimento.',
+      icon: 'quickreply',
+      route: '/plataforma/relacionamento/respostas-prontas',
+      permission: 'support.canned.manage',
+    },
+    {
+      id: 'execucoes',
+      title: 'Histórico de execuções',
+      description: 'Resultados, falhas e reprocessamento futuro.',
+      icon: 'history',
+      route: '/plataforma/relacionamento/execucoes',
+      permission: 'platform.admin',
+    },
+  ],
+};
+
 export const HUB_PLATAFORMA_COMUNICACAO: NavigationHubConfig = {
   id: 'plataforma-comunicacao',
   title: 'Comunicação',
@@ -292,6 +407,60 @@ export const HUB_PLATAFORMA_COMUNICACAO: NavigationHubConfig = {
   ],
 };
 
+export const HUB_PLATAFORMA_FILAS: NavigationHubConfig = {
+  id: 'plataforma-filas',
+  title: 'Filas e jobs',
+  subtitle: 'Acompanhe a fila interna, falhas e tarefas agendadas.',
+  sectionTitle: 'O que deseja acompanhar?',
+  sectionSubtitle: 'Abra a listagem de jobs ou os schedules da plataforma.',
+  kpis: [
+    {
+      id: 'pending',
+      label: 'Pendentes',
+      icon: 'hourglass_top',
+      hint: 'Aguardando ou em execução',
+      route: '/plataforma/filas/jobs?filtro=pendentes',
+    },
+    {
+      id: 'failed',
+      label: 'Falhos',
+      icon: 'error',
+      hint: 'Esgotaram tentativas',
+      route: '/plataforma/filas/jobs?filtro=falhos',
+    },
+    {
+      id: 'email_pending',
+      label: 'E-mails na fila',
+      icon: 'mail',
+      hint: 'Jobs de e-mail pendentes',
+      route: '/plataforma/filas/jobs?filtro=pendentes',
+    },
+    {
+      id: 'schedules_count',
+      label: 'Schedules',
+      icon: 'schedule',
+      hint: 'Tarefas agendadas',
+      route: '/plataforma/filas/schedules',
+    },
+  ],
+  cards: [
+    {
+      id: 'jobs',
+      title: 'Jobs',
+      description: 'Fila pendente e falhos — reprocessar, descartar ou limpar e-mails.',
+      icon: 'cloud_sync',
+      route: '/plataforma/filas/jobs',
+    },
+    {
+      id: 'schedules',
+      title: 'Schedules',
+      description: 'Tarefas agendadas da plataforma (cron e worker da fila).',
+      icon: 'schedule',
+      route: '/plataforma/filas/schedules',
+    },
+  ],
+};
+
 export const HUB_PLATAFORMA_SISTEMA: NavigationHubConfig = {
   id: 'plataforma-sistema',
   title: 'Plataforma e auditoria',
@@ -316,8 +485,8 @@ export const HUB_PLATAFORMA_SISTEMA: NavigationHubConfig = {
 
 export const HUB_UTILITARIOS: NavigationHubConfig = {
   id: 'utilitarios',
-  title: 'Utilitários',
-  subtitle: 'Propostas, WhatsApp e follow-ups para converter e reter — no computador e no celular.',
+  title: 'Ferramentas',
+  subtitle: 'Propostas, box, estoque e follow-ups — no computador e no celular.',
   cards: [
     {
       id: 'orcamento',
@@ -343,6 +512,46 @@ export const HUB_UTILITARIOS: NavigationHubConfig = {
       route: '/utilitarios/retornos',
       permissionsAny: ['submissions.view', 'organization.manage'],
     },
+    {
+      id: 'checklist',
+      title: 'Checklist da sala',
+      description: 'Conferência rápida antes do atendimento — personalize e reinicie.',
+      icon: 'checklist',
+      route: '/utilitarios/checklist',
+      permissionsAny: ['submissions.view', 'organization.manage'],
+    },
+    {
+      id: 'estoque',
+      title: 'Estoque e validade',
+      description: 'Materiais do box com alerta de estoque baixo e validade.',
+      icon: 'inventory_2',
+      route: '/utilitarios/estoque',
+      permissionsAny: ['submissions.view', 'organization.manage'],
+    },
+    {
+      id: 'pacotes',
+      title: 'Pacotes e sessões',
+      description: 'Saldo de sessões por paciente — registre e arquive pacotes.',
+      icon: 'package_2',
+      route: '/utilitarios/pacotes',
+      permissionsAny: ['submissions.view', 'organization.manage'],
+    },
+    {
+      id: 'automacoes',
+      title: 'Automações',
+      description: 'Quando acontece → criar tarefa ou avisar a equipe.',
+      icon: 'cable',
+      route: '/automacoes',
+      permission: 'organization.manage',
+    },
+    {
+      id: 'tarefas-operacionais',
+      title: 'Tarefas operacionais',
+      description: 'Fila da clínica gerada por automações ou criada manualmente.',
+      icon: 'task_alt',
+      route: '/automacoes/tarefas',
+      permission: 'organization.manage',
+    },
   ],
 };
 
@@ -353,5 +562,7 @@ export const NAVIGATION_HUBS: Record<string, NavigationHubConfig> = {
   'plataforma-clientes': HUB_PLATAFORMA_CLIENTES,
   'plataforma-financeiro': HUB_PLATAFORMA_FINANCEIRO,
   'plataforma-comunicacao': HUB_PLATAFORMA_COMUNICACAO,
+  'plataforma-relacionamento': HUB_PLATAFORMA_RELACIONAMENTO,
+  'plataforma-filas': HUB_PLATAFORMA_FILAS,
   'plataforma-sistema': HUB_PLATAFORMA_SISTEMA,
 };

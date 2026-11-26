@@ -1,0 +1,358 @@
+.gm-agenda-hero {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  margin: 0 0 18px;
+}
+
+.gm-agenda-hero__text {
+  min-width: 0;
+  flex: 1;
+}
+
+.gm-agenda-hero .gm-title {
+  margin-bottom: 6px;
+}
+
+.gm-agenda-hero .gm-sub {
+  margin-bottom: 0;
+  max-width: 22ch;
+}
+
+.gm-agenda-fab {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  margin-top: 4px;
+  padding: 11px 16px 11px 12px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--gm-accent);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  cursor: pointer;
+  box-shadow: 0 10px 22px color-mix(in srgb, var(--gm-accent) 34%, transparent);
+  transition: transform 0.15s ease, filter 0.15s ease;
+}
+
+.gm-agenda-fab:active {
+  transform: scale(0.96);
+  filter: brightness(0.96);
+}
+
+.gm-agenda-fab .material-symbols-outlined {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.gm-weekcard {
+  margin: 0 0 20px;
+  padding: 16px 14px 14px;
+  border-radius: 22px;
+  background: var(--gm-paper);
+  border: 1px solid var(--gm-line);
+  box-shadow: var(--gm-shadow-soft);
+}
+
+.gm-weekcard__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+  padding: 0 4px;
+}
+
+.gm-weekcard__head strong {
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  text-transform: capitalize;
+}
+
+.gm-weekcard__nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.gm-weekcard__chev {
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--gm-muted);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.gm-weekcard__chev:active {
+  color: var(--gm-accent);
+  background: var(--gm-pale);
+}
+
+.gm-weekcard__chev .material-symbols-outlined {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.gm-weekstrip {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.gm-weekday {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-height: 72px;
+  padding: 10px 2px 8px;
+  border: 1.5px solid transparent;
+  border-radius: 18px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
+}
+
+.gm-weekday:active {
+  transform: scale(0.96);
+}
+
+.gm-weekday__label {
+  font-size: 10px;
+  font-weight: 750;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--gm-muted);
+  line-height: 1;
+}
+
+.gm-weekday__num {
+  font-size: 16px;
+  font-weight: 850;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  color: var(--gm-ink);
+}
+
+.gm-weekday__dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: transparent;
+  margin-top: 2px;
+}
+
+.gm-weekday__dot.is-on {
+  background: color-mix(in srgb, var(--gm-accent) 55%, transparent);
+}
+
+.gm-weekday.is-today {
+  border-color: color-mix(in srgb, var(--gm-accent) 70%, transparent);
+}
+
+.gm-weekday.is-selected {
+  background: var(--gm-accent);
+  border-color: var(--gm-accent);
+  box-shadow: 0 8px 18px color-mix(in srgb, var(--gm-accent) 28%, transparent);
+}
+
+.gm-weekday.is-selected .gm-weekday__label,
+.gm-weekday.is-selected .gm-weekday__num {
+  color: #fff;
+}
+
+.gm-weekday.is-selected .gm-weekday__dot.is-on {
+  background: #fff;
+}
+
+.gm-dayhead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 0 16px;
+}
+
+.gm-dayhead__text {
+  min-width: 0;
+  flex: 1;
+}
+
+.gm-dayhead__text h2 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 850;
+  letter-spacing: -0.03em;
+  line-height: 1.25;
+}
+
+.gm-dayhead__text p {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: var(--gm-muted);
+}
+
+.gm-dayhead__hoje {
+  flex-shrink: 0;
+  margin-top: 2px;
+  padding: 8px 14px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--gm-pale);
+  color: var(--gm-accent-text);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  transition: transform 0.15s ease, filter 0.15s ease;
+}
+
+.gm-dayhead__hoje:active:not(:disabled) {
+  transform: scale(0.96);
+}
+
+.gm-dayhead__hoje:disabled {
+  cursor: default;
+  opacity: 1;
+}
+
+.gm-agenda-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.gm-appt {
+  display: flex;
+  align-items: stretch;
+  gap: 10px;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.gm-appt--muted {
+  opacity: 0.55;
+}
+
+.gm-appt__time {
+  flex-shrink: 0;
+  width: 46px;
+  padding-top: 14px;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--gm-ink);
+  line-height: 1.15;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.gm-appt__date {
+  font-size: 10px;
+  font-weight: 750;
+  color: var(--gm-muted);
+  text-transform: capitalize;
+  line-height: 1;
+}
+
+.gm-appt__card {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 14px;
+  border-radius: 18px;
+  background: var(--gm-paper);
+  border: 1px solid var(--gm-line);
+  box-shadow: var(--gm-shadow-soft);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.gm-appt:active .gm-appt__card {
+  transform: scale(0.985);
+  box-shadow: none;
+}
+
+.gm-appt .gm-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  font-size: 12px;
+}
+
+.gm-appt .gm-card__title {
+  font-size: 14px;
+}
+
+.gm-appt .gm-status {
+  align-self: center;
+}
+
+.gm-doc-hero {
+  margin: 4px 0 18px;
+}
+
+.gm-doc-hero h2 {
+  margin: 12px 0 6px;
+  font-size: 22px;
+  letter-spacing: -0.04em;
+  font-weight: 850;
+  line-height: 1.2;
+}
+
+.gm-doc-hero p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--gm-muted);
+}
+
+.gm-doc-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--gm-line);
+  font-size: 13px;
+}
+
+.gm-doc-row:last-child {
+  border-bottom: 0;
+}
+
+.gm-doc-row span {
+  color: var(--gm-muted);
+}
+
+.gm-doc-row strong {
+  font-weight: 800;
+  text-align: right;
+}
+
+.gm-btn {
+  margin-top: 10px;
+}
+
+.gm-field nord-date-picker,
+.gm-field nord-time-picker {
+  display: block;
+  width: 100%;
+}

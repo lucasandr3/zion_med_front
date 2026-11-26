@@ -99,11 +99,18 @@
                     </div>
                     <div>
                       <label class="form-label">Destino</label>
-                      <select class="w-full" [(ngModel)]="extraForm.appointmentCtaMode" name="extra_appt_mode" (ngModelChange)="onDraftChange()">
-                        <option value="external">URL externa (Calendly etc.)</option>
-                        <option value="feegow">URL Feegow / integração</option>
-                        <option value="gestgo">Agenda Gestgo (nativa)</option>
-                      </select>
+                      <z-combobox
+                        class="w-full"
+                        zWidth="full"
+                        [(ngModel)]="extraForm.appointmentCtaMode"
+                        name="extra_appt_mode"
+                        [options]="appointmentCtaModeOptions"
+                        [clearable]="false"
+                        [searchable]="false"
+                        emptyText="Nenhum resultado."
+                        ariaLabel="Modo do botão de agendamento"
+                        (ngModelChange)="onDraftChange()"
+                      />
                     </div>
                     @if (extraForm.appointmentCtaMode === 'external') {
                       <div>

@@ -1,7 +1,26 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable, of, throwError } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 import { ApiService } from './api.service';
+import { SupportTicket } from './support.service';
+
+export interface PlatformCannedReplyRow {
+  id: number;
+  title: string;
+  body: string;
+  category?: string | null;
+  shortcut?: string | null;
+  sort_order?: number;
+  active?: boolean;
+  updated_at?: string | null;
+}
+
+export interface PlatformSupportAgentRow {
+  id: number;
+  name: string;
+  email?: string | null;
+  role?: string | null;
+}
 
 export interface PlatformDashboardData {
   tenants_count: number;
@@ -95,6 +114,173 @@ export interface PlatformLead {
   phone: string | null;
   message: string | null;
   created_at?: string;
+}
+
+export interface PlatformJobRow {
+  id: number;
+  queue?: string;
+  job_type: string;
+  attempts?: number;
+  max_attempts?: number;
+  available_at?: string | null;
+  reserved_at?: string | null;
+  created_at?: string | null;
+  status?: 'pending' | 'reserved' | string;
+  summary?: string | null;
+}
+
+export interface PlatformFailedJobRow {
+  id: number;
+  queue?: string;
+  job_type: string;
+  failed_at?: string | null;
+  exception?: string | null;
+  summary?: string | null;
+}
+
+export interface PlatformJobsOverview {
+  queue_enabled: boolean;
+  funnel_recovery_enabled: boolean;
+  pending: number;
+  reserved: number;
+  failed: number;
+  failed_last_24h: number;
+  email_pending: number;
+  email_failed: number;
+  schedules_count?: number;
+  schedules?: PlatformScheduleRow[];
+  pending_jobs: PlatformJobRow[];
+  failed_jobs: PlatformFailedJobRow[];
+}
+
+export interface PlatformScheduleRow {
+  id: string;
+  name: string;
+  description?: string | null;
+  cadence?: string | null;
+  timezone?: string | null;
+  enabled: boolean;
+  last_status?: 'ok' | 'error' | 'unknown' | string | null;
+  last_run_at?: string | null;
+  last_message?: string | null;
+  last_duration_ms?: number | null;
+}
+
+export interface PlatformAutomationConfig {
+  wait_seconds?: number;
+  conditions?: Array<{ field?: string; op?: string; value?: unknown }>;
+  actions?: Array<Record<string, unknown>>;
+}
+
+export interface PlatformAutomationRow {
+  id: number;
+  name: string;
+  description?: string | null;
+  status: string;
+  trigger_event: string;
+  version?: number;
+  updated_at?: string | null;
+  config?: PlatformAutomationConfig;
+}
+
+export interface PlatformAutomationsOverview {
+  active: number;
+  failed_executions: number;
+  items: PlatformAutomationRow[];
+}
+
+export interface PlatformAutomationExecutionRow {
+  id: number;
+  automation_id: number;
+  trigger_event: string;
+  status: string;
+  result_message?: string | null;
+  attempts?: number;
+  created_at?: string | null;
+  finished_at?: string | null;
+}
+
+export interface PlatformRelationshipOverview {
+  tasks_open: number;
+  automations_active: number;
+  executions_failed: number;
+  templates_active: number;
+  journeys_active?: number;
+  enrollments_active?: number;
+  tickets_waiting?: number;
+  articles_published?: number;
+  leads_total: number;
+  trials_ending_3d: number;
+  exceptions?: Array<{
+    id: string;
+    label: string;
+    count: number;
+    route: string;
+    needs_attention?: boolean;
+  }>;
+}
+
+export interface PlatformJourneyStep {
+  key: string;
+  delay_days?: number;
+  conditions?: Array<{ field?: string; op?: string; value?: unknown }>;
+  actions?: Array<Record<string, unknown>>;
+}
+
+export interface PlatformJourneyConfig {
+  exit_when?: string[];
+  steps?: PlatformJourneyStep[];
+}
+
+export interface PlatformJourneyRow {
+  id: number;
+  name: string;
+  description?: string | null;
+  status: string;
+  entry_event: string;
+  version?: number;
+  active_enrollments?: number;
+  updated_at?: string | null;
+  config?: PlatformJourneyConfig;
+}
+
+export interface PlatformJourneysOverview {
+  active: number;
+  enrollments_active: number;
+  items: PlatformJourneyRow[];
+}
+
+export interface PlatformMessageTemplateRow {
+  id: number;
+  name: string;
+  channel: string;
+  category?: string | null;
+  subject?: string | null;
+  body?: string | null;
+  variables_json?: string[];
+  status: string;
+  version?: number;
+  updated_at?: string | null;
+}
+
+export interface PlatformOperationalTaskRow {
+  id: number;
+  title: string;
+  description?: string | null;
+  status: string;
+  priority?: string | null;
+  origin?: string | null;
+  related_type?: string | null;
+  related_id?: string | null;
+  due_at?: string | null;
+  created_at?: string | null;
+  completed_at?: string | null;
+}
+
+export interface PlatformOperationalTasksOverview {
+  open: number;
+  done: number;
+  items: PlatformOperationalTaskRow[];
 }
 
 export interface PlatformFeedback {
@@ -517,6 +703,437 @@ export class PlataformaService {
 
   getPlatformLogs(page = 1): Observable<PlatformLogsResponse> {
     return this.api.get<PlatformLogsResponse>('/platform/logs', { page });
+  }
+
+  getJobsOverview(): Observable<{ data: PlatformJobsOverview }> {
+    return this.api.get<{ data: PlatformJobsOverview }>('/platform/jobs');
+  }
+
+  getRelationshipOverview(): Observable<{ data: PlatformRelationshipOverview }> {
+    return this.api.get<{ data: PlatformRelationshipOverview }>('/platform/relationship/overview');
+  }
+
+  getPlatformCannedReplies(activeOnly = true): Observable<{ data: PlatformCannedReplyRow[] }> {
+    return this.api.get<{ data: PlatformCannedReplyRow[] }>('/platform/support/canned-replies', {
+      active: activeOnly ? 'true' : 'false',
+    });
+  }
+
+  createPlatformCannedReply(payload: {
+    title: string;
+    body: string;
+    category?: string;
+    shortcut?: string;
+    sort_order?: number;
+    active?: boolean;
+  }): Observable<{ data: PlatformCannedReplyRow }> {
+    return this.api.post<{ data: PlatformCannedReplyRow }>('/platform/support/canned-replies', payload);
+  }
+
+  updatePlatformCannedReply(
+    id: number,
+    payload: Partial<{
+      title: string;
+      body: string;
+      category: string;
+      shortcut: string;
+      sort_order: number;
+      active: boolean;
+    }>,
+  ): Observable<{ data: PlatformCannedReplyRow }> {
+    return this.api.put<{ data: PlatformCannedReplyRow }>(`/platform/support/canned-replies/${id}`, payload);
+  }
+
+  activatePlatformCannedReply(id: number): Observable<{ data: PlatformCannedReplyRow }> {
+    return this.api.post<{ data: PlatformCannedReplyRow }>(`/platform/support/canned-replies/${id}/activate`, {});
+  }
+
+  deactivatePlatformCannedReply(id: number): Observable<{ data: PlatformCannedReplyRow }> {
+    return this.api.post<{ data: PlatformCannedReplyRow }>(`/platform/support/canned-replies/${id}/deactivate`, {});
+  }
+
+  getPlatformSupportAgents(): Observable<{ data: PlatformSupportAgentRow[] }> {
+    return this.api.get<{ data: PlatformSupportAgentRow[] }>('/platform/support/agents');
+  }
+
+  getPlatformSupportInbox(params?: {
+    status?: string;
+    category?: string;
+    priority?: string;
+    assignee_user_id?: number | string;
+    q?: string;
+  }): Observable<{ data: { waiting_response: number; open: number; items: SupportTicket[] } }> {
+    return this.api.get<{ data: { waiting_response: number; open: number; items: SupportTicket[] } }>(
+      '/platform/support/tickets',
+      params,
+    );
+  }
+
+  getPlatformSupportTicket(id: number): Observable<{ data: SupportTicket }> {
+    return this.api.get<{ data: SupportTicket }>(`/platform/support/tickets/${id}`);
+  }
+
+  replyPlatformSupportTicket(id: number, message: string, files?: File[]): Observable<{ data: SupportTicket }> {
+    const list = files?.filter(Boolean) ?? [];
+    if (list.length === 0) {
+      return this.api.post<{ data: SupportTicket }>(`/platform/support/tickets/${id}/messages`, { message });
+    }
+    const form = new FormData();
+    if (message.trim()) form.append('message', message);
+    for (const file of list.slice(0, 3)) {
+      form.append('files', file, file.name);
+    }
+    return this.api.postFormData<{ data: SupportTicket }>(`/platform/support/tickets/${id}/messages`, form);
+  }
+
+  downloadPlatformSupportAttachment(ticketId: number, attachmentId: number): Observable<Blob> {
+    return this.api.getBlob(`/platform/support/tickets/${ticketId}/attachments/${attachmentId}`);
+  }
+
+  notePlatformSupportTicket(id: number, message: string): Observable<{ data: SupportTicket }> {
+    return this.api.post<{ data: SupportTicket }>(`/platform/support/tickets/${id}/notes`, { message });
+  }
+
+  updatePlatformSupportTicket(
+    id: number,
+    payload: {
+      status?: string;
+      priority?: string;
+      category?: string;
+      assignee_user_id?: number | null;
+    },
+  ): Observable<{ data: SupportTicket }> {
+    return this.api.post<{ data: SupportTicket }>(`/platform/support/tickets/${id}`, payload);
+  }
+
+  getRelationshipJourneys(): Observable<{ data: PlatformJourneysOverview }> {
+    return this.api.get<{ data: PlatformJourneysOverview }>('/platform/relationship/journeys');
+  }
+
+  getRelationshipJourney(id: number): Observable<{ data: PlatformJourneyRow }> {
+    return this.api.get<{ data: PlatformJourneyRow }>(`/platform/relationship/journeys/${id}`);
+  }
+
+  createRelationshipJourney(payload: {
+    name: string;
+    description?: string;
+    entry_event: string;
+    status?: string;
+    config: PlatformJourneyConfig;
+  }): Observable<{ data: PlatformJourneyRow }> {
+    return this.api.post<{ data: PlatformJourneyRow }>('/platform/relationship/journeys', payload);
+  }
+
+  updateRelationshipJourney(
+    id: number,
+    payload: Partial<{
+      name: string;
+      description: string;
+      entry_event: string;
+      status: string;
+      config: PlatformJourneyConfig;
+    }>,
+  ): Observable<{ data: PlatformJourneyRow }> {
+    return this.api.put<{ data: PlatformJourneyRow }>(`/platform/relationship/journeys/${id}`, payload);
+  }
+
+  pauseRelationshipJourney(id: number): Observable<{ data: { id?: number; status?: string } }> {
+    return this.api.post<{ data: { id?: number; status?: string } }>(
+      `/platform/relationship/journeys/${id}/pause`,
+      {},
+    );
+  }
+
+  activateRelationshipJourney(id: number): Observable<{ data: { id?: number; status?: string } }> {
+    return this.api.post<{ data: { id?: number; status?: string } }>(
+      `/platform/relationship/journeys/${id}/activate`,
+      {},
+    );
+  }
+
+  getRelationshipTemplates(): Observable<{ data: PlatformMessageTemplateRow[] }> {
+    return this.api.get<{ data: PlatformMessageTemplateRow[] }>('/platform/relationship/templates');
+  }
+
+  getRelationshipTemplate(id: number): Observable<{ data: PlatformMessageTemplateRow }> {
+    return this.api.get<{ data: PlatformMessageTemplateRow }>(`/platform/relationship/templates/${id}`);
+  }
+
+  createRelationshipTemplate(payload: {
+    name: string;
+    channel?: string;
+    category?: string;
+    subject?: string;
+    body: string;
+    variables_json?: string[];
+    status?: string;
+  }): Observable<{ data: PlatformMessageTemplateRow }> {
+    return this.api.post<{ data: PlatformMessageTemplateRow }>('/platform/relationship/templates', payload);
+  }
+
+  updateRelationshipTemplate(
+    id: number,
+    payload: Partial<{
+      name: string;
+      channel: string;
+      category: string;
+      subject: string;
+      body: string;
+      variables_json: string[];
+      status: string;
+    }>,
+  ): Observable<{ data: PlatformMessageTemplateRow }> {
+    return this.api.put<{ data: PlatformMessageTemplateRow }>(`/platform/relationship/templates/${id}`, payload);
+  }
+
+  pauseRelationshipTemplate(id: number): Observable<{ data: { id?: number; status?: string } }> {
+    return this.api.post<{ data: { id?: number; status?: string } }>(
+      `/platform/relationship/templates/${id}/pause`,
+      {},
+    );
+  }
+
+  activateRelationshipTemplate(id: number): Observable<{ data: { id?: number; status?: string } }> {
+    return this.api.post<{ data: { id?: number; status?: string } }>(
+      `/platform/relationship/templates/${id}/activate`,
+      {},
+    );
+  }
+
+  getRelationshipTasks(status?: string): Observable<{ data: PlatformOperationalTasksOverview }> {
+    const params = status ? { status } : undefined;
+    return this.api.get<{ data: PlatformOperationalTasksOverview }>('/platform/relationship/tasks', params);
+  }
+
+  createRelationshipTask(payload: {
+    title: string;
+    description?: string;
+    priority?: string;
+  }): Observable<{ data: { id?: number; status?: string; message?: string } }> {
+    return this.api.post<{ data: { id?: number; status?: string; message?: string } }>(
+      '/platform/relationship/tasks',
+      payload,
+    );
+  }
+
+  completeRelationshipTask(id: number): Observable<{ data: { id?: number; status?: string } }> {
+    return this.api.post<{ data: { id?: number; status?: string } }>(
+      `/platform/relationship/tasks/${id}/complete`,
+      {},
+    );
+  }
+
+  reopenRelationshipTask(id: number): Observable<{ data: { id?: number; status?: string } }> {
+    return this.api.post<{ data: { id?: number; status?: string } }>(
+      `/platform/relationship/tasks/${id}/reopen`,
+      {},
+    );
+  }
+
+  getPlatformAutomations(): Observable<{ data: PlatformAutomationsOverview }> {
+    return this.api.get<{ data: PlatformAutomationsOverview }>('/platform/automations');
+  }
+
+  getPlatformAutomation(id: number): Observable<{ data: PlatformAutomationRow }> {
+    return this.api.get<{ data: PlatformAutomationRow }>(`/platform/automations/${id}`);
+  }
+
+  createPlatformAutomation(payload: {
+    name: string;
+    description?: string;
+    trigger_event: string;
+    status?: string;
+    config: PlatformAutomationConfig;
+  }): Observable<{ data: PlatformAutomationRow }> {
+    return this.api.post<{ data: PlatformAutomationRow }>('/platform/automations', payload);
+  }
+
+  updatePlatformAutomation(
+    id: number,
+    payload: Partial<{
+      name: string;
+      description: string;
+      trigger_event: string;
+      status: string;
+      config: PlatformAutomationConfig;
+    }>,
+  ): Observable<{ data: PlatformAutomationRow }> {
+    return this.api.put<{ data: PlatformAutomationRow }>(`/platform/automations/${id}`, payload);
+  }
+
+  getPlatformAutomationExecutions(): Observable<{ data: PlatformAutomationExecutionRow[] }> {
+    return this.api.get<{ data: PlatformAutomationExecutionRow[] }>('/platform/automations/executions');
+  }
+
+  pausePlatformAutomation(id: number): Observable<{ data: { message?: string; id?: number; status?: string } }> {
+    return this.api.post<{ data: { message?: string; id?: number; status?: string } }>(
+      `/platform/automations/${id}/pause`,
+      {},
+    );
+  }
+
+  activatePlatformAutomation(id: number): Observable<{ data: { message?: string; id?: number; status?: string } }> {
+    return this.api.post<{ data: { message?: string; id?: number; status?: string } }>(
+      `/platform/automations/${id}/activate`,
+      {},
+    );
+  }
+
+  getJobSchedules(): Observable<{ data: PlatformScheduleRow[] }> {
+    return this.getJobsOverview().pipe(
+      map((res) => {
+        const fromApi = res.data?.schedules;
+        if (Array.isArray(fromApi) && fromApi.length > 0) {
+          return { data: fromApi };
+        }
+        return { data: this.defaultJobSchedules(res.data) };
+      }),
+      catchError(() => of({ data: this.defaultJobSchedules(null) })),
+    );
+  }
+
+  getJobSchedule(id: string): Observable<{ data: PlatformScheduleRow }> {
+    return this.getJobSchedules().pipe(
+      map((res) => {
+        const found = (res.data ?? []).find((item) => item.id === id);
+        if (!found) {
+          throw new Error('Schedule não encontrado.');
+        }
+        return { data: found };
+      }),
+      catchError((err) => throwError(() => err)),
+    );
+  }
+
+  /** Catálogo local — usado se a API ainda não devolver `schedules` no overview. */
+  private defaultJobSchedules(overview?: PlatformJobsOverview | null): PlatformScheduleRow[] {
+    const queueOn = overview?.queue_enabled !== false;
+    const funnelOn = overview?.funnel_recovery_enabled !== false;
+    const base = (row: Omit<PlatformScheduleRow, 'last_status'>): PlatformScheduleRow => ({
+      ...row,
+      last_status: 'unknown',
+      last_run_at: null,
+      last_message: null,
+      last_duration_ms: null,
+    });
+    return [
+      base({
+        id: 'job-worker-poll',
+        name: 'Worker da fila',
+        description: 'Processa jobs pendentes (e-mails, PDF, webhooks).',
+        cadence: 'a cada poucos segundos',
+        timezone: 'America/Sao_Paulo',
+        enabled: queueOn,
+      }),
+      base({
+        id: 'automation-outbox-poll',
+        name: 'Automation Engine (outbox)',
+        description: 'Consome eventos de domínio e agenda ações de automações.',
+        cadence: 'a cada poucos segundos',
+        timezone: 'America/Sao_Paulo',
+        enabled: true,
+      }),
+      base({
+        id: 'journey-step-poll',
+        name: 'Jornadas (passos agendados)',
+        description: 'Executa passos de jornadas quando vencem.',
+        cadence: 'a cada poucos segundos',
+        timezone: 'America/Sao_Paulo',
+        enabled: true,
+      }),
+      base({
+        id: 'prune-organization-presence',
+        name: 'Limpar presença online',
+        description: 'Remove sessões online antigas das empresas.',
+        cadence: 'todos os dias às 03:00',
+        timezone: 'America/Sao_Paulo',
+        enabled: true,
+      }),
+      base({
+        id: 'notify-platform-billing',
+        name: 'Avisos de cobrança',
+        description: 'Notifica admins sobre assinaturas pendentes e faturas vencidas.',
+        cadence: 'todos os dias às 08:00',
+        timezone: 'America/Sao_Paulo',
+        enabled: true,
+      }),
+      base({
+        id: 'send-document-reminders',
+        name: 'Lembretes de documento',
+        description: 'Envia lembretes de envios de documento pendentes.',
+        cadence: 'todos os dias às 09:00',
+        timezone: 'America/Sao_Paulo',
+        enabled: true,
+      }),
+      base({
+        id: 'purge-inactive-people',
+        name: 'Limpar pessoas inativas',
+        description: 'Remove cadastros de pessoas inativos conforme retenção.',
+        cadence: 'todos os dias às 04:15',
+        timezone: 'America/Sao_Paulo',
+        enabled: true,
+      }),
+      base({
+        id: 'apply-protocol-retention',
+        name: 'Retenção de protocolos',
+        description: 'Aplica política de retenção/expurgo de protocolos.',
+        cadence: 'todos os dias às 04:30',
+        timezone: 'America/Sao_Paulo',
+        enabled: true,
+      }),
+      base({
+        id: 'purge-expired-form-imports',
+        name: 'Limpar importações expiradas',
+        description: 'Remove importações de fichas não concluídas após a janela de retenção.',
+        cadence: 'todos os dias às 04:45',
+        timezone: 'America/Sao_Paulo',
+        enabled: true,
+      }),
+      base({
+        id: 'sync-expired-trials',
+        name: 'Sincronizar trials expirados',
+        description: 'Atualiza status de organizações com período de teste vencido.',
+        cadence: 'a cada hora',
+        timezone: 'America/Sao_Paulo',
+        enabled: true,
+      }),
+      base({
+        id: 'recover-leads-funnel',
+        name: 'Recuperação de funil',
+        description: 'E-mails de onboarding parado, trial acabando e checkout abandonado.',
+        cadence: 'todos os dias às 10:00',
+        timezone: 'America/Sao_Paulo',
+        enabled: funnelOn,
+      }),
+      base({
+        id: 'platform-health-check',
+        name: 'Health check da plataforma',
+        description: 'Verifica saúde dos serviços e registra falhas.',
+        cadence: 'a cada hora (minuto 5)',
+        timezone: 'America/Sao_Paulo',
+        enabled: true,
+      }),
+    ];
+  }
+
+  retryFailedJob(id: number): Observable<{ data?: { message?: string; job_id?: number }; message?: string }> {
+    return this.api.post(`/platform/jobs/failed/${id}/retry`, {});
+  }
+
+  retryAllFailedJobs(jobType?: string | null): Observable<{ data?: { message?: string; retried?: number }; message?: string }> {
+    return this.api.post('/platform/jobs/failed/retry-all', jobType ? { job_type: jobType } : {});
+  }
+
+  discardFailedJob(id: number): Observable<{ data?: { message?: string }; message?: string }> {
+    return this.api.delete(`/platform/jobs/failed/${id}`);
+  }
+
+  discardPendingJob(id: number): Observable<{ data?: { message?: string }; message?: string }> {
+    return this.api.delete(`/platform/jobs/pending/${id}`);
+  }
+
+  purgeEmailJobs(subjectFragment?: string | null): Observable<{ data?: { message?: string; removed?: number }; message?: string }> {
+    return this.api.post('/platform/jobs/purge-emails', subjectFragment ? { subject_fragment: subjectFragment } : {});
   }
 
   getManualEmailRecipients(): Observable<{ data: PlatformManualEmailRecipientsData }> {

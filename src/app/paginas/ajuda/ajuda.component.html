@@ -1,0 +1,185 @@
+<div class="n-page-list__toolbar">
+  <div class="n-page-list__toolbar-start">
+    @if (selected()) {
+      <zm-page-back-link [clickable]="true" label="Voltar" (backClick)="voltarLista()" />
+    } @else {
+      <div class="form-search-wrap">
+        <span class="material-symbols-outlined form-search-icon" aria-hidden="true">search</span>
+        <input
+          type="search"
+          class="form-search-input w-full text-sm"
+          placeholder="Buscar artigos (ex.: assinatura, protocolo, trial)…"
+          aria-label="Buscar artigos de ajuda"
+          [value]="query()"
+          (input)="onQuery($event)"
+          autocomplete="off"
+        />
+      </div>
+    }
+  </div>
+  <div class="n-page-list__toolbar-end">
+    <nord-button type="button" variant="default" routerLink="/suporte">
+      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">support_agent</span>
+      Falar com atendimento
+    </nord-button>
+  </div>
+</div>
+
+<div class="n-page-list__content n-page-list__content--padded">
+  @if (error()) {
+    <p class="ajuda-error n-muted n-small">{{ error() }}</p>
+  }
+
+  @if (selected(); as article) {
+    <div class="ajuda-article-view zm-content-enter">
+      <div class="ajuda-layout">
+        <article class="ajuda-doc">
+          <span class="ajuda-tag">{{ categoryLabel(article.category) }}</span>
+          <h2 class="ajuda-doc__title">{{ article.title }}</h2>
+          @if (articleSections().length && articleLead()) {
+            <p class="ajuda-doc__lead">{{ articleLead() }}</p>
+          }
+
+          <hr class="ajuda-doc__rule" />
+
+          @if (articleSections().length) {
+            <div class="ajuda-pts">
+              @for (section of articleSections(); track $index) {
+                <div class="ajuda-pt" [class.ajuda-pt--warn]="section.warn">
+                  <span class="ajuda-pt__icon" aria-hidden="true">
+                    <span class="material-symbols-outlined gestgo-mi gestgo-mi--s">{{ section.icon }}</span>
+                  </span>
+                  <div class="ajuda-pt__body">
+                    <strong>{{ section.title }}</strong>
+                    <span>{{ section.body }}</span>
+                  </div>
+                </div>
+              }
+            </div>
+          } @else {
+            <pre class="ajuda-content">{{ article.content }}</pre>
+          }
+
+          <div class="ajuda-fb">
+            <strong>Esta resposta ajudou?</strong>
+            <nord-button
+              type="button"
+              size="s"
+              [attr.variant]="feedback() === 'yes' ? 'primary' : 'default'"
+              [attr.disabled]="feedbackEnviando() || feedback() ? '' : null"
+              [attr.loading]="feedbackEnviando() && !feedback() ? '' : null"
+              (click)="registrarFeedback('yes')"
+            >
+              <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">thumb_up</span>
+              Sim
+            </nord-button>
+            <nord-button
+              type="button"
+              size="s"
+              [attr.variant]="feedback() === 'no' ? 'primary' : 'default'"
+              [attr.disabled]="feedbackEnviando() || feedback() ? '' : null"
+              (click)="registrarFeedback('no')"
+            >
+              <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">thumb_down</span>
+              Não
+            </nord-button>
+            @if (feedback() === 'yes') {
+              <span class="ajuda-fb__msg">Obrigado! Seu feedback foi salvo.</span>
+            } @else if (feedback() === 'no') {
+              <span class="ajuda-fb__msg">
+                Registramos sua resposta. <a routerLink="/suporte">Abra um atendimento</a> e ajudamos você.
+              </span>
+            }
+          </div>
+        </article>
+
+        <aside class="ajuda-aside">
+          @if (relatedItems().length) {
+            <div class="ajuda-box">
+              <h3 class="ajuda-box__title">Artigos relacionados</h3>
+              <div class="ajuda-rel">
+                @for (rel of relatedItems(); track rel.id) {
+                  <button type="button" class="ajuda-rel__item" (click)="abrir(rel)">
+                    <span class="ajuda-rel__name">{{ rel.title }}</span>
+                    <small>{{ categoryLabel(rel.category) }}</small>
+                  </button>
+                }
+              </div>
+            </div>
+          }
+
+          <div class="ajuda-box ajuda-box--cta">
+            <h3 class="ajuda-box__title">Ainda com dúvida?</h3>
+            <p>Fale com a equipe Gestgo e resolvemos junto com você.</p>
+            <nord-button type="button" variant="primary" expand routerLink="/suporte">
+              <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">chat</span>
+              Abrir atendimento humano
+            </nord-button>
+          </div>
+        </aside>
+      </div>
+    </div>
+  } @else {
+    <div class="ajuda-home zm-content-enter">
+      @if (categorias().length > 1) {
+        <div class="ajuda-chips" role="tablist" aria-label="Categorias">
+          @for (cat of categorias(); track cat.id) {
+            <button
+              type="button"
+              class="ajuda-chip"
+              role="tab"
+              [class.ajuda-chip--on]="category() === cat.id"
+              [attr.aria-selected]="category() === cat.id"
+              (click)="setCategory(cat.id)"
+            >
+              {{ cat.label }}
+            </button>
+          }
+        </div>
+      }
+
+      <div class="ajuda-sec-h">
+        <h3>{{ listHeading() }}</h3>
+      </div>
+
+      @if (loading() && items().length === 0) {
+        <app-list-skeleton [count]="4" />
+      } @else if (filteredItems().length === 0) {
+        <div class="ajuda-empty">
+          <span class="material-symbols-outlined" aria-hidden="true">search_off</span>
+          <p>
+            Nenhum artigo encontrado. Tente outra palavra ou
+            <a routerLink="/suporte">abra um atendimento</a>.
+          </p>
+        </div>
+      } @else {
+        <div class="ajuda-arts">
+          @for (item of filteredItems(); track item.id) {
+            <button type="button" class="ajuda-art" (click)="abrir(item)">
+              <span class="ajuda-art__ico" aria-hidden="true">
+                <span class="material-symbols-outlined">{{ categoryIcon(item.category) }}</span>
+              </span>
+              <span class="ajuda-art__text">
+                <strong>{{ item.title }}</strong>
+                <small>{{ categoryLabel(item.category) }}</small>
+                <em>{{ excerpt(item.content) }}</em>
+              </span>
+              <span class="material-symbols-outlined ajuda-art__go" aria-hidden="true">chevron_right</span>
+            </button>
+          }
+        </div>
+      }
+
+      <div class="ajuda-help">
+        <div class="ajuda-help__copy">
+          <strong>Não encontrou o que procurava?</strong>
+          <p>Nossa equipe responde em horário comercial.</p>
+        </div>
+        <nord-button type="button" variant="primary" routerLink="/suporte">
+          <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">support_agent</span>
+          Abrir atendimento
+        </nord-button>
+      </div>
+    </div>
+  }
+</div>

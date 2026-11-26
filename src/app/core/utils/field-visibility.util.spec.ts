@@ -26,8 +26,8 @@ describe('field-visibility.util', () => {
 
   it('exibe campo condicional quando condição bate', () => {
     expect(isFieldVisible(fields[1], { eh_menor: 'Sim' })).toBe(true);
-    expect(filterVisibleFields(fields, { eh_menor: 'Sim' })).toHaveLength(2);
-    expect(filterVisibleFields(fields, { eh_menor: 'Não' })).toHaveLength(1);
+    expect(filterVisibleFields(fields, { eh_menor: 'Sim' }).length).toBe(2);
+    expect(filterVisibleFields(fields, { eh_menor: 'Não' }).length).toBe(1);
   });
 
   it('avalia bloco de atores condicional', () => {

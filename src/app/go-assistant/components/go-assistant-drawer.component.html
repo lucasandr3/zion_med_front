@@ -94,12 +94,16 @@
               } @else {
                 <p class="go-assistant-empty">Pesquise acima para encontrar tutoriais do Gestgo.</p>
               }
+              <button type="button" class="go-assistant-item" (click)="abrirAjuda()">
+                <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">help</span>
+                <span>Abrir central de ajuda</span>
+              </button>
             </section>
           }
 
           @case ('search') {
             <section class="go-assistant-section">
-              <h3>Resultados</h3>
+              <h3>Tutoriais</h3>
               <div class="go-assistant-list">
                 @for (hit of view.hits; track hit.intent.id) {
                   <button type="button" class="go-assistant-item" (click)="openIntent(hit.intent)">
@@ -109,12 +113,47 @@
                 }
               </div>
             </section>
+            @if (view.articles.length) {
+              <section class="go-assistant-section">
+                <h3>Artigos de ajuda</h3>
+                <div class="go-assistant-list">
+                  @for (article of view.articles; track article.id) {
+                    <button type="button" class="go-assistant-item" (click)="abrirArtigo(article)">
+                      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">menu_book</span>
+                      <span>{{ article.title }}</span>
+                    </button>
+                  }
+                </div>
+              </section>
+            } @else if (shell.searchingArticles()) {
+              <p class="go-assistant-empty">Buscando artigos…</p>
+            }
           }
 
           @case ('empty') {
             <p class="go-assistant-empty">
               Não encontrei “{{ view.query }}” nas funcionalidades do Gestgo.
             </p>
+            @if (view.articles.length) {
+              <section class="go-assistant-section">
+                <h3>Artigos de ajuda</h3>
+                <div class="go-assistant-list">
+                  @for (article of view.articles; track article.id) {
+                    <button type="button" class="go-assistant-item" (click)="abrirArtigo(article)">
+                      <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">menu_book</span>
+                      <span>{{ article.title }}</span>
+                    </button>
+                  }
+                </div>
+              </section>
+            } @else if (shell.searchingArticles()) {
+              <p class="go-assistant-empty">Buscando artigos…</p>
+            } @else {
+              <button type="button" class="go-assistant-item" (click)="abrirAjuda()">
+                <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">help</span>
+                <span>Buscar na central de ajuda</span>
+              </button>
+            }
             @if (view.suggestions.length) {
               <section class="go-assistant-section">
                 <h3>Sugestões</h3>

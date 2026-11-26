@@ -113,11 +113,11 @@
 }
 
 .public-header {
-  min-height: 82px;
+  min-height: 64px;
   height: auto;
   max-width: 1240px;
   margin: auto;
-  padding: 12px 24px;
+  padding: 10px 24px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -193,17 +193,18 @@
 .public-wrap {
   max-width: 1230px;
   margin: 0 auto;
-  padding: 52px 24px 75px;
+  /* VIS-14.3 — menos respiro vertical/horizontal no desktop */
+  padding: 36px 24px 56px;
   display: grid;
   grid-template-columns: minmax(0, 0.93fr) minmax(440px, 1fr);
-  gap: 80px;
+  gap: 56px;
   align-items: start;
   position: relative;
   z-index: 1;
 }
 
 .public-story {
-  padding: 54px 0 0 16px;
+  padding: 28px 0 0 12px;
 }
 .public-story .kicker {
   font-size: 11px;
@@ -213,11 +214,11 @@
   color: var(--ap-brand-strong);
 }
 .public-story h1 {
-  font-size: clamp(40px, 4.2vw, 62px);
-  line-height: 1.07;
-  letter-spacing: -3px;
-  max-width: 570px;
-  margin: 20px 0 21px;
+  font-size: clamp(34px, 3.6vw, 52px);
+  line-height: 1.1;
+  letter-spacing: -2px;
+  max-width: 520px;
+  margin: 14px 0 14px;
   font-weight: 760;
   color: #2b2b2b;
 }
@@ -236,7 +237,7 @@
   display: flex;
   align-items: center;
   gap: 11px;
-  margin: 35px 0;
+  margin: 22px 0;
 }
 .story-line .bar {
   height: 1px;
@@ -254,7 +255,7 @@
   display: flex;
   gap: 13px;
   align-items: flex-start;
-  margin-top: 22px;
+  margin-top: 14px;
 }
 .benefit .bico {
   width: 35px;
@@ -285,7 +286,7 @@
   display: flex;
   gap: 9px;
   align-items: center;
-  margin-top: 57px;
+  margin-top: 32px;
   color: #8a8a8a;
   font-size: 11px;
 }
@@ -303,7 +304,7 @@
   overflow: hidden;
 }
 .book-head {
-  padding: 26px 31px 22px;
+  padding: 20px 24px 18px;
   border-bottom: 1px solid #ebf0eb;
 }
 .book-head .context {
@@ -329,7 +330,7 @@
 .steps {
   display: flex;
   gap: 6px;
-  margin-top: 22px;
+  margin-top: 14px;
 }
 .stepbar {
   height: 4px;
@@ -342,7 +343,7 @@
 }
 
 .booking-body {
-  padding: 28px 31px 28px;
+  padding: 20px 24px 22px;
 }
 .stage-label {
   font-size: 11px;
@@ -360,10 +361,10 @@
   font-weight: 740;
 }
 .stage-intro {
-  margin: 0 0 22px;
+  margin: 0 0 14px;
   color: #8a8a8a;
   font-size: 12px;
-  line-height: 1.65;
+  line-height: 1.55;
 }
 
 .form-erro {
@@ -456,13 +457,13 @@
 }
 
 .booking-bottom {
-  padding-top: 16px;
+  padding-top: 12px;
 }
 .trust-row {
   text-align: center;
   color: #8a8a8a;
   font-size: 11px;
-  margin-top: 15px;
+  margin-top: 10px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -579,8 +580,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: 5px;
-  margin-bottom: 9px;
+  margin-top: 12px;
+  margin-bottom: 8px;
   gap: 10px;
 }
 .slots-title strong {
@@ -592,13 +593,13 @@
   color: #8a8a8a;
 }
 .slot-group {
-  margin: 15px 0;
+  margin: 8px 0 10px;
 }
 .slot-group__label {
   font-size: 12px;
   font-weight: 700;
   color: #8a8a8a;
-  margin-bottom: 9px;
+  margin-bottom: 6px;
 }
 .slot-list {
   display: grid;
@@ -608,16 +609,15 @@
 .public-page button.slot {
   display: grid;
   place-items: center;
+  /* VIS-14.3 — toque ≥44px sem aspect-ratio alto (cartões menos “altos”) */
   min-height: 44px;
-  padding: 8px 6px;
+  padding: 10px 6px;
   border: 1px solid var(--line2);
   color: #2b2b2b;
   border-radius: 8px;
   background: #fff;
   font-size: 12px;
   font-weight: 740;
-  /* Densidade maior sem reduzir área de toque (VIS-14 agenda pública) */
-  aspect-ratio: 2.1;
   box-sizing: border-box;
 }
 .public-page button.slot:hover:not(:disabled) {
@@ -636,7 +636,7 @@
   outline-offset: 2px;
 }
 .ap-muted {
-  margin: 0 0 12px;
+  margin: 0 0 8px;
   font-size: 12px;
   color: #8a8a8a;
 }
@@ -867,13 +867,13 @@
     border-radius: 18px;
   }
   .book-head {
-    padding: 21px 20px 20px;
+    padding: 16px 16px 14px;
   }
   .book-head h2 {
-    font-size: 21px;
+    font-size: 20px;
   }
   .booking-body {
-    padding: 23px 20px 24px;
+    padding: 16px 16px 18px;
   }
   .booking-body h3 {
     font-size: 18px;

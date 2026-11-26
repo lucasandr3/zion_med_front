@@ -16,6 +16,7 @@ import {
 } from '../../core/utils/clinical-validation.util';
 import { buildPublicFormUrl, normalizePublicAppUrl } from '../../core/utils/public-form-url.util';
 import { buildDocumentInviteMessage, openWhatsappShare } from '../../core/utils/whatsapp-share.util';
+import { ProductTelemetryService } from '../../core/services/product-telemetry.service';
 
 const TYPE_OPTIONS: { value: string; label: string }[] = [
   { value: 'text', label: 'Texto curto' },
@@ -153,6 +154,7 @@ export class TemplatesCamposComponent implements OnInit {
   private loadingService = inject(LoadingService);
   private toast = inject(ToastService);
   private confirm = inject(ConfirmDialogService);
+  private productTelemetry = inject(ProductTelemetryService);
   private publishGuard = inject(TemplatePublishGuardService);
 
   get idNum(): number {
@@ -527,6 +529,11 @@ export class TemplatesCamposComponent implements OnInit {
     const msg = buildDocumentInviteMessage({
       templateName: this.template()?.name,
       url,
+    });
+    this.productTelemetry.trackDocumentShare({
+      source: 'templates_campos',
+      channel: 'whatsapp',
+      template_id: this.template()?.id ?? null,
     });
     openWhatsappShare(msg);
     this.toast.success('WhatsApp', 'Abra o app e escolha o contato para enviar o link.');

@@ -23,12 +23,22 @@ import { PessoasService, Pessoa } from '../../core/services/pessoas.service';
 import { TemplatesService } from '../../core/services/templates.service';
 import { fillSourcePdf, fetchImageBytes, type FillSourcePdfFieldValue } from '../../core/utils/fill-source-pdf.util';
 import { hasUsablePrintLayout, parsePrintLayout } from '../../core/utils/print-layout.util';
+import {
+  normalizeProtocoloDetalhe,
+  protocoloEventoLabel,
+  protocoloEventoUserName,
+  resolveFieldRawValue,
+  resolveValuesMap,
+  synthesizeFieldsFromValues,
+} from '../../core/utils/protocolo-detalhe.util';
 import { openWhatsappShare } from '../../core/utils/whatsapp-share.util';
+import { ProductTelemetryService } from '../../core/services/product-telemetry.service';
 import { firstValueFrom } from 'rxjs';
 
 import { GestgoBadgeComponent } from '@/shared/components/badge/badge.component';
 import type { GestgoBadgeTypeVariants } from '@/shared/components/badge/badge.variants';
 import { GestgoCardComponent } from '@/shared/components/card/card.component';
+import { GestgoComboboxComponent, type GestgoComboboxOption } from '@/shared/components/combobox';
 import { GestgoTabComponent, GestgoTabGroupComponent } from '@/shared/components/tabs';
 import { GestgoAvatarComponent } from '@/shared/components/avatar/avatar.component';
 import { NORD_FORM_IMPORTS } from '@/shared/nord';
@@ -68,6 +78,7 @@ const PROTOCOLO_ABA_IDS: ProtocoloAbaId[] = [
     ZmPageBackLinkComponent,
     GestgoBadgeComponent,
     GestgoCardComponent,
+    GestgoComboboxComponent,
     GestgoTabComponent,
     GestgoTabGroupComponent,
     GestgoAvatarComponent,
@@ -122,6 +133,7 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
   private readonly templatesService = inject(TemplatesService);
   private readonly loadingService = inject(LoadingService);
   private readonly toast = inject(ToastService);
+  private readonly productTelemetry = inject(ProductTelemetryService);
   private readonly confirm = inject(ConfirmDialogService);
   private readonly auth = inject(AuthService);
   private readonly clinicaService = inject(ClinicaService);
@@ -209,7 +221,8 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
     const { data$, showSkeleton } = this.loadingService.loadWithThreshold(this.protocolosService.get(id));
     this.showSkeleton = showSkeleton;
     data$.subscribe({
-      next: (p) => {
+      next: (raw) => {
+        const p = normalizeProtocoloDetalhe(raw);
         this.fecharBrandedInlinePreview();
         this.protocolo.set(p);
         this.initStaffDraft();
@@ -225,43 +238,66 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * DOC-02 — preferir print_layout congelado no document_snapshot.
-   * Só busca o mapa vivo do modelo se o snapshot não tiver aparência utilizável
-   * (protocolos antigos).
+   * Prefere o mapa vivo do modelo (remapear reflete na prévia/PDF).
+   * Snapshot do envio fica só como fallback se o modelo não tiver mapa.
+   * Também hidrata `template.fields` quando a API não manda (Java QA).
    */
   private hidratarPrintLayoutDoModelo(p: ProtocoloDetalheData): void {
     const snapshotLayout = parsePrintLayout(p.document_snapshot?.print_layout);
-    if (hasUsablePrintLayout(snapshotLayout) && p.template) {
-      p.template.print_layout = snapshotLayout;
-      if (p.document_snapshot?.has_source_document != null) {
-        p.template.has_source_document = p.document_snapshot.has_source_document;
-      }
-      this.protocolo.set({ ...p, template: { ...p.template } });
-      if (this.abaAtiva() === 'impressao') {
-        this.garantirPreviewAparenciaClinica(true);
+    const templateId = p.template?.id ?? p.template_id;
+
+    if (!templateId) {
+      if (hasUsablePrintLayout(snapshotLayout) && p.template) {
+        p.template.print_layout = snapshotLayout;
+        this.protocolo.set({ ...p, template: { ...p.template } });
+        if (this.abaAtiva() === 'impressao') {
+          this.garantirPreviewAparenciaClinica(true);
+        }
       }
       return;
     }
 
-    const templateId = p.template?.id ?? p.template_id;
-    if (!templateId) return;
     this.templatesService.get(templateId).subscribe({
       next: (tpl) => {
         const cur = this.protocolo();
         if (!cur || (cur.template?.id ?? cur.template_id) !== templateId) return;
-        if (!cur.template) return;
-        // Não sobrescrever se o snapshot já foi aplicado depois desta chamada.
-        if (hasUsablePrintLayout(parsePrintLayout(cur.document_snapshot?.print_layout))) return;
-        cur.template.print_layout = parsePrintLayout(tpl.print_layout);
+        if (!cur.template) {
+          cur.template = { id: templateId };
+        }
+        const liveLayout = parsePrintLayout(tpl.print_layout);
+        const snapLayout = parsePrintLayout(cur.document_snapshot?.print_layout);
+        cur.template.print_layout = hasUsablePrintLayout(liveLayout)
+          ? liveLayout
+          : snapLayout;
         cur.template.has_source_document =
-          tpl.has_source_document ?? cur.template.has_source_document;
+          tpl.has_source_document ??
+          cur.document_snapshot?.has_source_document ??
+          cur.template.has_source_document;
+        if (!cur.template.fields?.length && tpl.fields?.length) {
+          cur.template.fields = tpl.fields.map((f) => ({
+            name_key: f.name_key,
+            label: f.label,
+            type: f.type,
+            sort_order: f.sort_order,
+            required: f.required,
+            options: Array.isArray(f.options)
+              ? (f.options as unknown[]).map((o) => (typeof o === 'string' ? o : String(o)))
+              : undefined,
+          }));
+        }
         this.protocolo.set({ ...cur, template: { ...cur.template } });
         if (this.abaAtiva() === 'impressao') {
           this.garantirPreviewAparenciaClinica(true);
         }
       },
       error: () => {
-        /* mantém o que veio no protocolo */
+        if (hasUsablePrintLayout(snapshotLayout) && p.template) {
+          p.template.print_layout = snapshotLayout;
+          this.protocolo.set({ ...p, template: { ...p.template } });
+          if (this.abaAtiva() === 'impressao') {
+            this.garantirPreviewAparenciaClinica(true);
+          }
+        }
       },
     });
   }
@@ -272,15 +308,39 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
     if (!p?.staff_fields?.length) {
       return;
     }
-    const src = p.values ?? p.form_data ?? {};
+    const src = resolveValuesMap(p);
     for (const f of p.staff_fields) {
       const k = f.name_key;
-      if (Object.prototype.hasOwnProperty.call(src, k) && src[k] !== undefined && src[k] !== null) {
-        this.staffDraft[k] = src[k] as unknown;
+      const raw = resolveFieldRawValue(src, k);
+      if (raw !== undefined && raw !== null) {
+        this.staffDraft[k] = raw;
       } else {
         this.staffDraft[k] = f.type === 'checkbox' ? false : '';
       }
     }
+  }
+
+  private readonly staffSelectOptionsCache = new WeakMap<ProtocoloField, GestgoComboboxOption[]>();
+
+  staffSelectOptions(field: ProtocoloField): GestgoComboboxOption[] {
+    let opts = this.staffSelectOptionsCache.get(field);
+    if (!opts) {
+      opts = (field.options ?? []).map((o) => ({ value: String(o), label: String(o) }));
+      this.staffSelectOptionsCache.set(field, opts);
+    }
+    return opts;
+  }
+
+  staffSelectValue(nameKey: string): string | null {
+    const raw = this.staffDraft[nameKey];
+    if (raw === undefined || raw === null || raw === '') {
+      return null;
+    }
+    return String(raw);
+  }
+
+  onStaffSelectChange(nameKey: string, value: string | null): void {
+    this.staffDraft[nameKey] = value ?? '';
   }
 
   temCamposEquipe(): boolean {
@@ -294,7 +354,7 @@ export class ProtocolosDetalheComponent implements OnInit, OnDestroy {
     this.staffSalvando.set(true);
     this.protocolosService.saveStaffValues(this.protocolo()!.id, { ...this.staffDraft }).subscribe({
       next: (p) => {
-        this.protocolo.set(p);
+        this.protocolo.set(normalizeProtocoloDetalhe(p));
         this.initStaffDraft();
         this.toast.success('Registro salvo', 'Dados da equipe atualizados no protocolo.');
       },
@@ -1156,14 +1216,7 @@ body.modo-pdf .documento {
   private rawValorCampo(field: ProtocoloField): unknown {
     const p = this.protocolo();
     if (!p) return null;
-    const key = field.name_key;
-    const keyed = p.values_keyed?.[key];
-    if (keyed) {
-      if ('value_json' in keyed && keyed.value_json != null) return keyed.value_json;
-      if ('value_text' in keyed && keyed.value_text != null) return keyed.value_text;
-    }
-    const form = p.form_data as Record<string, unknown> | undefined;
-    return form?.[key] ?? null;
+    return resolveFieldRawValue(resolveValuesMap(p), field.name_key);
   }
 
   /** Texto do campo já formatado para o documento. */
@@ -1272,9 +1325,10 @@ body.modo-pdf .documento {
   }
 
   camposRespostas(): ProtocoloField[] {
+    const p = this.protocolo();
     const snapshot =
-      this.protocolo()?.document_snapshot?.fields_snapshot ??
-      this.protocolo()?.template_version?.fields_snapshot;
+      p?.document_snapshot?.fields_snapshot ??
+      p?.template_version?.fields_snapshot;
     if (snapshot?.length) {
       return [...snapshot]
         .map((f) => ({
@@ -1283,12 +1337,24 @@ body.modo-pdf .documento {
           type: f.type || 'text',
           sort_order: f.sort_order ?? 0,
           required: !!f.required,
+          options: Array.isArray((f as ProtocoloField).options)
+            ? (f as ProtocoloField).options
+            : undefined,
         }))
         .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
     }
-    const fields = this.protocolo()?.template?.fields;
-    if (!fields?.length) return [];
-    return [...fields].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+    const fields = p?.template?.fields;
+    if (fields?.length) {
+      return [...fields].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+    }
+    // Java QA antigo: sem fields_snapshot nem template.fields — deriva das respostas.
+    if (p) {
+      const valuesMap = resolveValuesMap(p);
+      if (Object.keys(valuesMap).length) {
+        return synthesizeFieldsFromValues(valuesMap);
+      }
+    }
+    return [];
   }
 
   versaoTemplateLabel(): string {
@@ -1470,34 +1536,47 @@ body.modo-pdf .documento {
     const templateId = p?.template?.id ?? p?.template_id;
     if (!p || !templateId || !this.temDocumentoOriginal) return null;
 
-    // DOC-02 — snapshot histórico primeiro; mapa vivo só como fallback.
-    let layout =
-      parsePrintLayout(p.document_snapshot?.print_layout) ||
-      parsePrintLayout(p.template?.print_layout);
-    let hasSource =
-      p.document_snapshot?.has_source_document ?? !!p.template?.has_source_document;
-    if (!hasUsablePrintLayout(layout)) {
-      try {
-        const tpl = await firstValueFrom(this.templatesService.get(templateId));
-        const live = parsePrintLayout(tpl.print_layout);
-        if (hasUsablePrintLayout(live)) {
-          layout = live;
-        }
-        hasSource = !!(tpl.has_source_document ?? hasSource);
-        if (p.template) {
-          p.template.print_layout = layout;
-          p.template.has_source_document = hasSource;
-        }
-      } catch {
-        // segue com o que veio no protocolo
+    // Mapa vivo do modelo primeiro (remapear reflete); snapshot só como fallback.
+    let layout = parsePrintLayout(p.template?.print_layout);
+    let hasSource = !!p.template?.has_source_document;
+    try {
+      const tpl = await firstValueFrom(this.templatesService.get(templateId));
+      const live = parsePrintLayout(tpl.print_layout);
+      if (hasUsablePrintLayout(live)) {
+        layout = live;
+      } else if (!hasUsablePrintLayout(layout)) {
+        layout = parsePrintLayout(p.document_snapshot?.print_layout);
       }
-    } else if (p.template) {
-      p.template.print_layout = layout;
-      p.template.has_source_document = hasSource;
+      hasSource = !!(tpl.has_source_document ?? hasSource ?? p.document_snapshot?.has_source_document);
+      if (p.template) {
+        p.template.print_layout = layout;
+        p.template.has_source_document = hasSource;
+      }
+    } catch {
+      if (!hasUsablePrintLayout(layout)) {
+        layout = parsePrintLayout(p.document_snapshot?.print_layout);
+      }
+      hasSource =
+        hasSource ||
+        !!(p.document_snapshot?.has_source_document ?? p.template?.has_source_document);
+      if (p.template) {
+        p.template.print_layout = layout;
+        p.template.has_source_document = hasSource;
+      }
     }
     if (!hasSource || !layout || !hasUsablePrintLayout(layout)) return null;
 
-    const sourceBlob = await firstValueFrom(this.templatesService.downloadSourceDocument(templateId));
+    let sourceBlob: Blob;
+    try {
+      sourceBlob = await firstValueFrom(this.templatesService.downloadSourceDocument(templateId));
+    } catch (err) {
+      // Alguns protocolos antigos mantêm has_source_document=true mesmo após o
+      // arquivo original ter sido removido. Nesse caso, usa o PDF padrão.
+      if (err instanceof HttpErrorResponse && err.status === 404 && p.template) {
+        p.template.has_source_document = false;
+      }
+      return null;
+    }
     const sourceBytes = new Uint8Array(await sourceBlob.arrayBuffer());
     const values = await this.montarValoresPrintLayout();
 
@@ -1731,8 +1810,13 @@ body.modo-pdf .documento {
         a.click();
         URL.revokeObjectURL(url);
       },
-      error: () => {
+      error: (err: unknown) => {
         this.baixandoOriginal.set(false);
+        if (err instanceof HttpErrorResponse && err.status === 404) {
+          if (p.template) p.template.has_source_document = false;
+          this.toast.warning('Documento original', 'O PDF original não está mais disponível.');
+          return;
+        }
         this.toast.error('Documento original', 'Não foi possível baixar o PDF original.');
       },
     });
@@ -1823,6 +1907,11 @@ body.modo-pdf .documento {
       next: (res) => {
         this.solicitandoReconsentimento.set(false);
         if (res.delivery_mode === 'manual' && res.share_message) {
+          this.productTelemetry.trackDocumentShare({
+            source: 'protocolos',
+            channel: 'whatsapp',
+            document_send_id: res.send_id ?? null,
+          });
           openWhatsappShare(
             res.share_message,
             res.recipient_phone ?? this.pessoaCompleta()?.phone ?? null,
@@ -1883,20 +1972,29 @@ body.modo-pdf .documento {
   }
 
   valorCampo(field: ProtocoloField): string {
-    const p = this.protocolo();
-    if (!p) return '—';
-    const key = field.name_key;
-    const val = p.values_keyed?.[key] ?? (p.form_data as Record<string, unknown>)?.[key];
-    if (val == null) return '—';
-    if (typeof val === 'object' && 'value_text' in val && val.value_text != null) return String(val.value_text);
-    if (typeof val === 'object' && 'value_json' in val) {
-      const j = (val as { value_json?: unknown }).value_json;
-      if (Array.isArray(j)) return j.join(', ');
-      if (j != null) return String(j);
+    const raw = this.rawValorCampo(field);
+    if (raw == null) return '—';
+    if (Array.isArray(raw)) return raw.join(', ') || '—';
+    if (typeof raw === 'object') {
+      const entry = raw as Record<string, unknown>;
+      if ('value_text' in entry && entry['value_text'] != null) return String(entry['value_text']);
+      if ('value_json' in entry) {
+        const j = entry['value_json'];
+        if (Array.isArray(j)) return j.join(', ');
+        if (j != null) return String(j);
+      }
+      return '—';
     }
-    if (typeof val === 'string') return val;
-    if (Array.isArray(val)) return val.join(', ');
-    return String(val);
+    const s = String(raw).trim();
+    return s || '—';
+  }
+
+  eventoLabel(event: ProtocoloEvent): string {
+    return protocoloEventoLabel(event);
+  }
+
+  eventoUserName(event: ProtocoloEvent): string | undefined {
+    return protocoloEventoUserName(event);
   }
 
   private mensagemErroApi(err: unknown, fallback: string): string {

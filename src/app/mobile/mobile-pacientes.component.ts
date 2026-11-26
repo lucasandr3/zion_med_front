@@ -10,9 +10,9 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Subject, debounceTime, distinctUntilChanged, switchMap, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { PessoasService, type Pessoa, type PessoaDetalhe } from '../core/services/pessoas.service';
-import { preparePainelHop } from '../core/utils/gestgo-experience.util';
-import { toolPersonQueryParams } from './tools/tool-person-context';
 import { MobileShellService } from './mobile-shell.service';
+
+type PacienteView = 'lista' | 'detalhe' | 'form';
 
 @Component({
   selector: 'app-mobile-pacientes',
@@ -20,7 +20,7 @@ import { MobileShellService } from './mobile-shell.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [FormsModule],
   templateUrl: './mobile-pacientes.component.html',
-  styleUrls: ['./mobile-shared.css'],
+  styleUrls: ['./mobile-shared.css', './mobile-pacientes.component.css'],
 })
 export class MobilePacientesComponent implements OnInit {
   private readonly pessoas = inject(PessoasService);
@@ -33,9 +33,18 @@ export class MobilePacientesComponent implements OnInit {
   readonly error = signal<string | null>(null);
   readonly items = signal<Pessoa[]>([]);
   readonly query = signal('');
+  readonly view = signal<PacienteView>('lista');
   readonly detailId = signal<number | null>(null);
   readonly detail = signal<PessoaDetalhe | null>(null);
   readonly detailLoading = signal(false);
+  readonly salvando = signal(false);
+  readonly editId = signal<number | null>(null);
+
+  form = {
+    name: '',
+    phone: '',
+    email: '',
+  };
 
   ngOnInit(): void {
     this.search$
@@ -89,6 +98,7 @@ export class MobilePacientesComponent implements OnInit {
 
   abrirDetalhe(id: number): void {
     this.detailId.set(id);
+    this.view.set('detalhe');
     this.detailLoading.set(true);
     this.pessoas.get(id).subscribe({
       next: (p) => {
@@ -106,23 +116,111 @@ export class MobilePacientesComponent implements OnInit {
   fecharDetalhe(): void {
     this.detailId.set(null);
     this.detail.set(null);
+    this.view.set('lista');
   }
 
-  enviarFicha(personId: number): void {
-    const hop = preparePainelHop(`/envios?person_id=${personId}`, '/m/pacientes');
-    void this.router.navigate([hop.path], { queryParams: hop.queryParams });
+  abrirCriar(): void {
+    this.editId.set(null);
+    this.form = { name: '', phone: '', email: '' };
+    this.view.set('form');
   }
 
-  abrirDocumentos(): void {
-    void this.router.navigate(['/m/documentos'], { queryParams: { status: '' } });
+  abrirEditar(p: PessoaDetalhe): void {
+    this.editId.set(p.id);
+    this.form = {
+      name: p.name || '',
+      phone: p.phone || '',
+      email: p.email || '',
+    };
+    this.view.set('form');
   }
 
-  abrirUtilitario(tool: 'orcamento' | 'mensagens' | 'retornos', pessoa: PessoaDetalhe): void {
-    const create = tool === 'orcamento' || tool === 'retornos';
-    const route = tool === 'mensagens' ? 'notificacoes' : tool;
-    void this.router.navigate(
-      create ? ['/m/ferramentas', route, 'novo'] : ['/m/ferramentas', route],
-      { queryParams: toolPersonQueryParams(pessoa) },
-    );
+  cancelarForm(): void {
+    if (this.editId()) {
+      this.view.set('detalhe');
+      return;
+    }
+    this.view.set('lista');
+  }
+
+  salvarForm(): void {
+    const name = this.form.name.trim();
+    if (!name) {
+      this.shell.toast('Informe o nome');
+      return;
+    }
+    const payload = {
+      name,
+      phone: this.form.phone.trim() || null,
+      email: this.form.email.trim() || null,
+      status: 'active' as const,
+    };
+    this.salvando.set(true);
+    const id = this.editId();
+    const req$ = id
+      ? this.pessoas.update(id, payload)
+      : this.pessoas.create(payload);
+
+    req$.subscribe({
+      next: (pessoa) => {
+        this.salvando.set(false);
+        this.shell.toast(id ? 'Paciente atualizado' : 'Paciente criado');
+        this.search$.next(this.query().trim());
+        this.abrirDetalhe(pessoa.id);
+      },
+      error: (err) => {
+        this.salvando.set(false);
+        this.shell.toast(err?.error?.message ?? 'Não foi possível salvar');
+      },
+    });
+  }
+
+  enviarFicha(pessoa: PessoaDetalhe): void {
+    const q: Record<string, string> = { person_id: String(pessoa.id) };
+    const templateId = this.sugerirTemplateIdEnvio(pessoa);
+    if (templateId) q['template_id'] = String(templateId);
+    void this.router.navigate(['/m/enviar'], { queryParams: q });
+  }
+
+  private sugerirTemplateIdEnvio(pessoa: PessoaDetalhe): number | null {
+    const consent = pessoa.consent_summary;
+    if (consent?.status?.toLowerCase() === 'expired') {
+      const tid = Number(consent.template_id ?? 0);
+      if (tid > 0) return tid;
+    }
+    for (const pr of pessoa.recent_protocols ?? []) {
+      const tid = Number(pr.template_id ?? 0);
+      if (tid > 0) return tid;
+    }
+    const fromConsent = Number(consent?.template_id ?? 0);
+    return fromConsent > 0 ? fromConsent : null;
+  }
+
+  abrirDocumentos(pessoa?: PessoaDetalhe): void {
+    void this.router.navigate(['/m/documentos'], {
+      queryParams: { status: '', busca: pessoa?.name || undefined },
+    });
+  }
+
+  abrirEnvios(): void {
+    void this.router.navigate(['/m/envios']);
+  }
+
+  abrirProtocolo(id: number): void {
+    void this.router.navigate(['/m/documentos', id]);
+  }
+
+  statusLabel(s: string): string {
+    if (s === 'approved') return 'Assinado';
+    if (s === 'pending') return 'Pendente';
+    if (s === 'rejected') return 'Recusado';
+    return s || '—';
+  }
+
+  formatDate(iso?: string | null): string {
+    if (!iso) return '—';
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return '—';
+    return d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
   }
 }

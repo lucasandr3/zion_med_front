@@ -14,6 +14,7 @@ import {
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TemplatesService, Template, TemplateCampo } from '../../core/services/templates.service';
+import { ProductTelemetryService } from '../../core/services/product-telemetry.service';
 import { ToastService } from '../../core/services/toast.service';
 import { ShellSidebarCollapseService } from '../../core/services/shell-sidebar-collapse.service';
 import { ZmPageBackLinkComponent } from '../../shared/components/ui';
@@ -43,11 +44,17 @@ import {
   detectPrintLayoutSuggestions,
   mergeDetectResults,
   normalizeApiDetectResult,
+  suggestFromKnownFields,
   suggestionToPlacement,
   type PrintLayoutSuggestion,
 } from '../../core/utils/detect-print-layout.util';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import {
+  buildPdfFingerprint,
+  parseArchivedPrintLayout,
+  planReuseFromArchived,
+} from '../../core/utils/reuse-print-layout.util';
 
 type PdfJsPage = {
   getViewport: (opts: { scale: number }) => { width: number; height: number };
@@ -155,6 +162,8 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
   readonly suggestions = signal<PrintLayoutSuggestion[]>([]);
   readonly detecting = signal(false);
   readonly detectMessage = signal('');
+  readonly reusingLayout = signal(false);
+  readonly reuseMessage = signal('');
 
   readonly placementsOnPage = computed(() =>
     this.placements().filter((p) => p.page === this.pageIndex()),
@@ -241,6 +250,7 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
 
   private route = inject(ActivatedRoute);
   private templatesService = inject(TemplatesService);
+  private productTelemetry = inject(ProductTelemetryService);
   private toast = inject(ToastService);
   private sidebarCollapse = inject(ShellSidebarCollapseService);
 
@@ -535,7 +545,28 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
       }
       let result = mergeDetectResults(local, remote);
 
-      // PDF-01C — só consulta stub/IA quando a flag está ligada e B ficou vazio/escaneado.
+      // PDF-01C — corresponde campos do modelo aos rótulos do PDF (local, com revisão).
+      const known = this.campos()
+        .filter((c) => !!c.name_key && !!c.label)
+        .map((c) => ({ name_key: c.name_key!, label: c.label, type: c.type }));
+      if (known.length > 0 && this.pdfDoc) {
+        try {
+          const matched = await suggestFromKnownFields(this.pdfDoc, known);
+          if (matched.length > 0) {
+            result = mergeDetectResults(result, {
+              mode: result.mode === 'empty' ? 'text' : result.mode,
+              page_count: result.page_count,
+              has_text: true,
+              suggestions: matched,
+              message: `${matched.length} correspondência(s) com campos do modelo.`,
+            });
+          }
+        } catch (matchErr) {
+          console.warn('[aparencia-pdf] correspondência de campos falhou', matchErr);
+        }
+      }
+
+      // PDF-01C — endpoint assistido (flag): provider/servidor pode complementar.
       if (
         environment.printLayoutAiEnabled &&
         tplId &&
@@ -544,7 +575,15 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
         try {
           const aiRaw = await firstValueFrom(this.templatesService.detectPrintLayoutAi(tplId));
           const ai = normalizeApiDetectResult(aiRaw);
-          if (ai.suggestions.length > 0) {
+          this.productTelemetry.trackPdfMapper('pdf_detect_ai_ran', {
+            template_id: tplId,
+            mode: ai.mode,
+            suggestions_count: ai.suggestions.length,
+            page_count: ai.page_count,
+          });
+          if (ai.mode === 'ai_disabled' && result.suggestions.length === 0) {
+            result = { ...result, message: ai.message, mode: ai.mode };
+          } else if (ai.suggestions.length > 0) {
             result = mergeDetectResults(result, ai);
           } else if (ai.message && result.suggestions.length === 0) {
             result = { ...result, message: ai.message, mode: ai.mode || result.mode };
@@ -556,6 +595,16 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
 
       this.suggestions.set(result.suggestions);
       this.detectMessage.set(result.message);
+      if (tplId) {
+        this.productTelemetry.trackPdfMapper('pdf_detect_ran', {
+          template_id: tplId,
+          mode: result.mode,
+          suggestions_count: result.suggestions.length,
+          page_count: result.page_count,
+          has_text: !!result.has_text,
+          source: remote ? 'local+api' : 'local',
+        });
+      }
       if (result.suggestions.length === 0) {
         this.toast.warning('Detecção', result.message);
       } else {
@@ -571,6 +620,51 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
     } finally {
       this.detecting.set(false);
     }
+  }
+
+  /** PDF-01D — reaproveita mapa arquivado se páginas/dimensões forem compatíveis. */
+  async reaproveitarMapeamentoAnterior(): Promise<void> {
+    if (this.reusingLayout() || this.viewMode() !== 'edit') return;
+    const archived = parseArchivedPrintLayout(this.template()?.print_layout_archived);
+    if (!archived) {
+      this.toast.warning('Reaproveitar', 'Não há mapeamento arquivado deste modelo.');
+      return;
+    }
+    if (!this.pdfDoc) {
+      this.toast.warning('Reaproveitar', 'Carregue o PDF antes de reaproveitar o mapa.');
+      return;
+    }
+    this.reusingLayout.set(true);
+    this.reuseMessage.set('');
+    try {
+      const fp = await buildPdfFingerprint(this.pdfDoc);
+      const known = new Set(this.campos().map((c) => c.name_key).filter(Boolean) as string[]);
+      const plan = planReuseFromArchived(archived, fp, known);
+      this.reuseMessage.set(plan.message);
+      if (plan.status !== 'compatible' || plan.copied.length === 0) {
+        this.toast.warning('Reaproveitar', plan.message);
+        return;
+      }
+      this.replacePlacements(plan.copied, { markDirty: true, pushHistory: true });
+      this.toast.success('Reaproveitar', plan.message);
+      this.refreshWarnings();
+      const tplId = this.template()?.id;
+      if (tplId) {
+        this.productTelemetry.trackPdfMapper('pdf_mapping_reused', {
+          template_id: tplId,
+          placements_count: plan.copied.length,
+        });
+      }
+    } catch (err) {
+      console.error('[aparencia-pdf] reaproveitar falhou', err);
+      this.toast.error('Reaproveitar', 'Não foi possível comparar o PDF com o mapa anterior.');
+    } finally {
+      this.reusingLayout.set(false);
+    }
+  }
+
+  get temMapeamentoArquivado(): boolean {
+    return !!parseArchivedPrintLayout(this.template()?.print_layout_archived);
   }
 
   aceitarSugestao(s: PrintLayoutSuggestion): void {
@@ -593,10 +687,26 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
     this.suggestions.set(this.suggestions().filter((x) => x.temporary_id !== s.temporary_id));
     this.setSelection([placement.uid!], placement.uid);
     this.selectedTarget.set({ name_key: placement.name_key, option: null });
+    const tplId = this.template()?.id;
+    if (tplId) {
+      this.productTelemetry.trackPdfMapper('pdf_suggestion_accepted', {
+        template_id: tplId,
+        source: s.source ?? null,
+        count: 1,
+      });
+    }
   }
 
   rejeitarSugestao(s: PrintLayoutSuggestion): void {
     this.suggestions.set(this.suggestions().filter((x) => x.temporary_id !== s.temporary_id));
+    const tplId = this.template()?.id;
+    if (tplId) {
+      this.productTelemetry.trackPdfMapper('pdf_suggestion_rejected', {
+        template_id: tplId,
+        source: s.source ?? null,
+        count: 1,
+      });
+    }
   }
 
   aceitarTodasSugestoesDaPagina(): void {
@@ -617,6 +727,14 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
       pushHistory: true,
     });
     this.suggestions.set(this.suggestions().filter((s) => !ids.has(s.temporary_id)));
+    const tplId = this.template()?.id;
+    if (tplId) {
+      this.productTelemetry.trackPdfMapper('pdf_suggestion_accepted', {
+        template_id: tplId,
+        count: pageSugs.length,
+        bulk: true,
+      });
+    }
   }
 
   limparSugestoes(): void {
@@ -1243,6 +1361,10 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
   }
 
   salvar(fromAutosave = false): void {
+    void this.salvarAsync(fromAutosave);
+  }
+
+  private async salvarAsync(fromAutosave = false): Promise<void> {
     const tpl = this.template();
     if (!tpl || this.salvando() || this.autosaving()) return;
     if (!this.dirty() && fromAutosave) return;
@@ -1256,6 +1378,13 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
         h: Math.min(1, Math.max(0.005, p.h)),
       })),
     };
+    if (this.pdfDoc && layout.placements.length > 0) {
+      try {
+        layout.pdf_fingerprint = await buildPdfFingerprint(this.pdfDoc);
+      } catch {
+        /* fingerprint opcional */
+      }
+    }
     if (fromAutosave) this.autosaving.set(true);
     else this.salvando.set(true);
     this.templatesService.updatePrintLayout(tpl.id, layout).subscribe({
@@ -1277,11 +1406,16 @@ export class TemplatesAparenciaPdfComponent implements OnInit, OnDestroy {
           this.replacePlacements(saved.placements, { markDirty: false, pushHistory: false });
         }
         this.dirty.set(false);
+        this.productTelemetry.trackPdfMapper('pdf_print_layout_saved', {
+          template_id: tpl.id,
+          placements_count: layout.placements.length,
+          autosave: !!fromAutosave,
+        });
         if (!fromAutosave) {
           this.toast.success(
             'Aparência do PDF',
             hasUsablePrintLayout(saved)
-              ? `Mapa salvo (${saved!.placements.length} áreas). O protocolo usará este layout.`
+              ? `Mapa salvo (${saved!.placements.length} áreas). Prévia e PDF dos protocolos passam a usar este layout.`
               : 'Mapa limpo. O PDF voltará ao layout padrão.',
           );
         }

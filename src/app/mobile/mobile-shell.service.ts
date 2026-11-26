@@ -19,6 +19,10 @@ export class MobileShellService {
   /** Splash/preload de abertura do shell autenticado. */
   readonly booting = signal(true);
 
+  /** Toast flutuante estilo app. */
+  readonly toastMessage = signal<string | null>(null);
+  private toastTimer: ReturnType<typeof setTimeout> | null = null;
+
   finishBoot(delayMs = 450): void {
     if (typeof window === 'undefined') {
       this.booting.set(false);
@@ -46,5 +50,14 @@ export class MobileShellService {
   setDocCounts(pending: number, signed: number): void {
     this.pendingCount.set(pending);
     this.signedCount.set(signed);
+  }
+
+  toast(message: string, ms = 2600): void {
+    if (this.toastTimer) clearTimeout(this.toastTimer);
+    this.toastMessage.set(message);
+    this.toastTimer = setTimeout(() => {
+      this.toastMessage.set(null);
+      this.toastTimer = null;
+    }, ms);
   }
 }

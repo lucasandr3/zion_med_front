@@ -11,8 +11,7 @@ export const platformGuard: CanActivateFn = () => {
     return false;
   }
 
-  const user = auth.getUser();
-  if (user?.role !== 'platform_admin') {
+  if (!auth.canAccessPlatform()) {
     router.navigate(['/dashboard']);
     return false;
   }

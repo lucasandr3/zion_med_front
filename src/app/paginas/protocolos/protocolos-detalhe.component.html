@@ -414,12 +414,17 @@
                             <input type="date" class="w-full" [(ngModel)]="staffDraft[sf.name_key]" [name]="'staff_' + sf.name_key" />
                           }
                           @case ('select') {
-                            <select class="w-full" [(ngModel)]="staffDraft[sf.name_key]" [name]="'staff_' + sf.name_key">
-                              <option value="">Selecione</option>
-                              @for (opt of sf.options ?? []; track opt) {
-                                <option [value]="opt">{{ opt }}</option>
-                              }
-                            </select>
+                            <z-combobox
+                              [id]="'staff_' + sf.name_key"
+                              class="w-full"
+                              zWidth="full"
+                              [options]="staffSelectOptions(sf)"
+                              [value]="staffSelectValue(sf.name_key)"
+                              placeholder="Selecione"
+                              emptyText="Nenhum resultado."
+                              [ariaLabel]="sf.label"
+                              (zValueChange)="onStaffSelectChange(sf.name_key, $event)"
+                            />
                           }
                           @case ('radio') {
                             <div class="pd-radio-stack">
@@ -464,13 +469,13 @@
                         }
                       </div>
                       <div>
-                        <p class="pd-tl-title">{{ event.type_label || 'Evento' }}</p>
+                        <p class="pd-tl-title">{{ eventoLabel(event) }}</p>
                         @if (event.body) {
                           <p class="pd-tl-body">{{ event.body }}</p>
                         }
                         <p class="pd-tl-meta">
-                          @if (event.user?.name) {
-                            {{ event.user?.name }} ·
+                          @if (eventoUserName(event); as userName) {
+                            {{ userName }} ·
                           }
                           {{ dataFormatada(event.created_at) }}
                         </p>

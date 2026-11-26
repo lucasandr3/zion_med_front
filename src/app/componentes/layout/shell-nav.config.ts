@@ -55,9 +55,12 @@ export const SHELL_NAV_APP: ShellNavItem[] = [
   { route: '/servicos', label: 'Serviços', icon: 'layers', permission: 'organization.manage' },
   { route: '/notificacoes', label: 'Notificações', icon: 'notifications', permission: 'notifications.access', badge: 'notifications' },
   { route: '/clinica/configuracoes', label: 'Empresa', icon: 'business', permission: 'organization.manage' },
+  // { route: '/studio', label: 'Gestgo Studio', icon: 'palette', permission: 'organization.manage' },
   { route: '/link-bio', label: 'Link na bio', icon: 'link', permission: 'organization.manage' },
   { route: '/usuarios', label: 'Usuários', icon: 'group', permission: 'users.manage' },
   { route: '/organizacao/permissoes', label: 'Permissões', icon: 'admin_panel_settings', permission: 'users.manage' },
+  { route: '/ajuda', label: 'Ajuda', icon: 'help', exact: true },
+  { route: '/suporte', label: 'Atendimento', icon: 'support_agent', exact: true },
 ];
 
 /** Itens avulsos no menu horizontal tenant (fora de seções). */
@@ -87,7 +90,7 @@ export const SHELL_NAV_SIDEBAR: ShellNavSection[] = [
       },
       {
         route: '/utilitarios',
-        label: 'Utilitários',
+        label: 'Ferramentas',
         icon: 'widgets',
         permissionsAny: ['submissions.view', 'organization.manage'],
         exact: true,
@@ -97,7 +100,20 @@ export const SHELL_NAV_SIDEBAR: ShellNavSection[] = [
           '/utilitarios/retornos',
           '/utilitarios/orcamento/novo',
           '/utilitarios/retornos/novo',
+          '/utilitarios/checklist',
+          '/utilitarios/estoque',
+          '/utilitarios/pacotes',
+          '/utilitarios/preco',
+          '/utilitarios/cartao',
         ],
+      },
+      {
+        route: '/automacoes',
+        label: 'Automações',
+        icon: 'cable',
+        permission: 'organization.manage',
+        exact: true,
+        activeAlsoPrefixes: ['/automacoes'],
       },
     ],
   },
@@ -119,6 +135,7 @@ export const SHELL_NAV_SIDEBAR: ShellNavSection[] = [
         icon: 'list_alt',
         permissionsAny: ['templates.manage', 'submissions.view'],
       },
+      // { route: '/studio', label: 'Gestgo Studio', icon: 'palette', permission: 'organization.manage' },
       { route: '/link-bio', label: 'Link na bio', icon: 'nest_heat_link_gen_3', permission: 'organization.manage' },
     ],
   },
@@ -127,6 +144,18 @@ export const SHELL_NAV_SIDEBAR: ShellNavSection[] = [
     label: 'Administração',
     icon: 'admin_panel_settings',
     items: [
+      {
+        route: '/ajuda',
+        label: 'Ajuda',
+        icon: 'help',
+        exact: true,
+      },
+      {
+        route: '/suporte',
+        label: 'Atendimento',
+        icon: 'support_agent',
+        exact: true,
+      },
       {
         route: '/configuracoes',
         label: 'Configurações',
@@ -157,19 +186,37 @@ export const SHELL_NAV_APP_SECTIONS: ShellNavSection[] = SHELL_NAV_SIDEBAR;
 
 /** Itens do menu plataforma — legado / referência plana. */
 export const SHELL_NAV_PLATAFORMA: ShellNavItem[] = [
-  { route: '/plataforma', label: 'Visão geral', icon: 'analytics', exact: true },
-  { route: '/plataforma/clientes', label: 'Clientes', icon: 'apartment' },
-  { route: '/plataforma/organizacoes-online', label: 'Online', icon: 'sensors' },
-  { route: '/plataforma/leads', label: 'Leads', icon: 'request_quote' },
-  { route: '/plataforma/trafego-landing', label: 'Tráfego', icon: 'monitoring' },
-  { route: '/plataforma/assinaturas', label: 'Assinaturas', icon: 'receipt_long' },
-  { route: '/plataforma/faturas', label: 'Faturas', icon: 'payments' },
-  { route: '/plataforma/emails', label: 'E-mails', icon: 'mail' },
-  { route: '/plataforma/feedback', label: 'Feedback', icon: 'feedback' },
-  { route: '/plataforma/notificacoes', label: 'Notificações', icon: 'notifications', badge: 'notifications' },
-  { route: '/plataforma/planos', label: 'Planos', icon: 'subscriptions' },
-  { route: '/plataforma/configuracoes', label: 'Config.', icon: 'settings' },
-  { route: '/plataforma/logs', label: 'Logs', icon: 'history' },
+  { route: '/plataforma', label: 'Visão geral', icon: 'analytics', exact: true, permission: 'platform.admin' },
+  { route: '/plataforma/clientes', label: 'Clientes', icon: 'apartment', permission: 'platform.admin' },
+  { route: '/plataforma/organizacoes-online', label: 'Online', icon: 'sensors', permission: 'platform.admin' },
+  { route: '/plataforma/leads', label: 'Leads', icon: 'request_quote', permission: 'platform.admin' },
+  { route: '/plataforma/trafego-landing', label: 'Tráfego', icon: 'monitoring', permission: 'platform.admin' },
+  { route: '/plataforma/assinaturas', label: 'Assinaturas', icon: 'receipt_long', permission: 'platform.admin' },
+  { route: '/plataforma/faturas', label: 'Faturas', icon: 'payments', permission: 'platform.admin' },
+  { route: '/plataforma/emails', label: 'E-mails', icon: 'mail', permission: 'platform.admin' },
+  { route: '/plataforma/feedback', label: 'Feedback', icon: 'feedback', permission: 'platform.admin' },
+  { route: '/plataforma/notificacoes', label: 'Notificações', icon: 'notifications', badge: 'notifications', permission: 'platform.admin' },
+  {
+    route: '/plataforma/relacionamento',
+    label: 'Relacionamento',
+    icon: 'handshake',
+    exact: true,
+    permissionsAny: ['platform.admin', 'support.tickets.view'],
+    activeAlsoPrefixes: [
+      '/plataforma/relacionamento/automacoes',
+      '/plataforma/relacionamento/execucoes',
+      '/plataforma/relacionamento/tarefas',
+      '/plataforma/relacionamento/modelos',
+      '/plataforma/relacionamento/jornadas',
+      '/plataforma/relacionamento/atendimento',
+      '/plataforma/relacionamento/conhecimento',
+      '/plataforma/relacionamento/respostas-prontas',
+    ],
+  },
+  { route: '/plataforma/planos', label: 'Planos', icon: 'subscriptions', permission: 'platform.admin' },
+  { route: '/plataforma/configuracoes', label: 'Config.', icon: 'settings', permission: 'platform.admin' },
+  { route: '/plataforma/filas', label: 'Filas', icon: 'cloud_sync', exact: true, permission: 'platform.admin', activeAlsoPrefixes: ['/plataforma/filas/jobs', '/plataforma/filas/schedules'] },
+  { route: '/plataforma/logs', label: 'Logs', icon: 'history', permission: 'platform.admin' },
 ];
 
 /** Sidebar plataforma — fonte única para o shell Nord da plataforma. */
@@ -179,7 +226,7 @@ export const SHELL_NAV_PLATAFORMA_SIDEBAR: ShellNavSection[] = [
     label: 'Visão geral',
     icon: 'bar_chart',
     items: [
-      { route: '/plataforma', label: 'Dashboard', icon: 'bar_chart', exact: true },
+      { route: '/plataforma', label: 'Dashboard', icon: 'bar_chart', exact: true, permission: 'platform.admin' },
     ],
   },
   {
@@ -192,6 +239,7 @@ export const SHELL_NAV_PLATAFORMA_SIDEBAR: ShellNavSection[] = [
         label: 'Clientes e atividade',
         icon: 'emoji_transportation',
         exact: true,
+        permission: 'platform.admin',
         activeAlsoPrefixes: [
           '/plataforma/clientes',
           '/plataforma/organizacoes-online',
@@ -204,6 +252,7 @@ export const SHELL_NAV_PLATAFORMA_SIDEBAR: ShellNavSection[] = [
         label: 'Financeiro',
         icon: 'add_card',
         exact: true,
+        permission: 'platform.admin',
         activeAlsoPrefixes: ['/plataforma/assinaturas', '/plataforma/faturas', '/plataforma/planos'],
       },
     ],
@@ -218,6 +267,7 @@ export const SHELL_NAV_PLATAFORMA_SIDEBAR: ShellNavSection[] = [
         label: 'Comunicação',
         icon: 'mail',
         exact: true,
+        permission: 'platform.admin',
         activeAlsoPrefixes: [
           '/plataforma/emails',
           '/plataforma/feedback',
@@ -226,10 +276,39 @@ export const SHELL_NAV_PLATAFORMA_SIDEBAR: ShellNavSection[] = [
         ],
       },
       {
+        route: '/plataforma/relacionamento',
+        label: 'Relacionamento',
+        icon: 'handshake',
+        exact: true,
+        permissionsAny: ['platform.admin', 'support.tickets.view'],
+        activeAlsoPrefixes: [
+          '/plataforma/relacionamento/automacoes',
+          '/plataforma/relacionamento/execucoes',
+          '/plataforma/relacionamento/tarefas',
+          '/plataforma/relacionamento/modelos',
+          '/plataforma/relacionamento/jornadas',
+          '/plataforma/relacionamento/atendimento',
+          '/plataforma/relacionamento/conhecimento',
+          '/plataforma/relacionamento/respostas-prontas',
+        ],
+      },
+      {
+        route: '/plataforma/filas',
+        label: 'Filas e jobs',
+        icon: 'cloud_sync',
+        exact: true,
+        permission: 'platform.admin',
+        activeAlsoPrefixes: [
+          '/plataforma/filas/jobs',
+          '/plataforma/filas/schedules',
+        ],
+      },
+      {
         route: '/plataforma/sistema',
         label: 'Plataforma e auditoria',
         icon: 'settings',
         exact: true,
+        permission: 'platform.admin',
         activeAlsoPrefixes: ['/plataforma/configuracoes', '/plataforma/logs'],
       },
     ],
@@ -240,7 +319,13 @@ export const SHELL_NAV_PLATAFORMA_SIDEBAR: ShellNavSection[] = [
 export const SHELL_NAV_PLATAFORMA_SECTIONS: ShellNavSection[] = SHELL_NAV_PLATAFORMA_SIDEBAR;
 
 export const SHELL_NAV_PLATAFORMA_STANDALONE: ShellNavItem[] = [
-  { route: '/plataforma/notificacoes', label: 'Notificações', icon: 'notifications', badge: 'notifications' },
+  {
+    route: '/plataforma/notificacoes',
+    label: 'Notificações',
+    icon: 'notifications',
+    badge: 'notifications',
+    permissionsAny: ['platform.admin', 'support.tickets.view'],
+  },
 ];
 
 export function shellNavItemVisivel(
@@ -249,12 +334,12 @@ export function shellNavItemVisivel(
   context: 'app' | 'plataforma',
   opts?: ShellNavVisibilityOptions,
 ): boolean {
-  if (context === 'plataforma') return true;
   if (item.requiresSwitchClinic && !opts?.canSwitchClinic) return false;
   if (item.permission) return hasPermission(item.permission);
   if (item.permissionsAny?.length) {
     return item.permissionsAny.some((p) => hasPermission(p));
   }
+  // Plataforma: item sem permissão explícita fica visível (compat).
   return true;
 }
 

@@ -168,7 +168,7 @@ type CycleUi = 'MONTHLY' | 'SEMIANNUALLY' | 'YEARLY';
         color: #3a4a42;
       }
       .planos-cycle__btn--active {
-        background: #14b87a;
+        background: #00877A;
         color: #fff;
         font-weight: 650;
       }
@@ -192,8 +192,8 @@ type CycleUi = 'MONTHLY' | 'SEMIANNUALLY' | 'YEARLY';
         gap: 0.65rem;
       }
       .planos-card--featured {
-        border-color: #14b87a;
-        box-shadow: 0 0 0 1px #14b87a;
+        border-color: #00877A;
+        box-shadow: 0 0 0 1px #00877A;
       }
       .planos-card h2 {
         margin: 0;
@@ -220,7 +220,7 @@ type CycleUi = 'MONTHLY' | 'SEMIANNUALLY' | 'YEARLY';
       .planos-cta {
         display: inline-flex;
         justify-content: center;
-        background: #14b87a;
+        background: #00877A;
         color: #fff;
         text-decoration: none;
         border-radius: 0.6rem;

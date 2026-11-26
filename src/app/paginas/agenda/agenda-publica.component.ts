@@ -24,6 +24,7 @@ import type { LinkBioLayoutModel } from '../../core/services/link-bio.service';
 import { normalizePublicAppUrl } from '../../core/utils/public-form-url.util';
 import { resolvePublicAccentHex, solidBrandSoft } from '../../core/utils/public-theme-accent';
 import { absoluteMediaUrl } from '../../core/utils/absolute-media-url';
+import { openWhatsappShare } from '../../core/utils/whatsapp-share.util';
 
 type BookStep = 1 | 2 | 3 | 4;
 
@@ -46,6 +47,11 @@ interface BookConfirm {
   tokenHint: string;
   patientFirstName: string;
   form?: AgendaPublicFormInvite | null;
+  documentSend?: {
+    public_url: string;
+    share_message: string;
+    delivery_mode: string;
+  } | null;
 }
 
 @Component({
@@ -360,12 +366,19 @@ export class AgendaPublicaComponent implements OnInit, OnDestroy {
         next: (res) => {
           this.sending.set(false);
           const first = this.patientName().trim().split(/\s+/)[0] || '';
+          const formUrl =
+            normalizePublicAppUrl(res.document_send?.public_url || res.form?.public_url || '') ||
+            res.document_send?.public_url ||
+            res.form?.public_url ||
+            '';
           const form = res.form
             ? {
                 ...res.form,
-                public_url: normalizePublicAppUrl(res.form.public_url) || res.form.public_url,
+                public_url: formUrl || res.form.public_url,
               }
-            : null;
+            : formUrl
+              ? { name: 'Ficha', public_url: formUrl, status: res.form_status || 'pending' }
+              : null;
           this.confirm.set({
             serviceName: res.service_name || svc?.name || 'Atendimento',
             startsAt: res.starts_at,
@@ -373,6 +386,13 @@ export class AgendaPublicaComponent implements OnInit, OnDestroy {
             tokenHint: res.public_token.slice(0, 8),
             patientFirstName: first,
             form,
+            documentSend: res.document_send
+              ? {
+                  public_url: formUrl || res.document_send.public_url,
+                  share_message: res.document_send.share_message,
+                  delivery_mode: res.document_send.delivery_mode,
+                }
+              : null,
           });
           this.step.set(4);
           this.publicPageBody.reapplyLockedThemeColor();
@@ -382,6 +402,13 @@ export class AgendaPublicaComponent implements OnInit, OnDestroy {
           this.formErro.set(err.error?.message ?? 'Não foi possível reservar.');
         },
       });
+  }
+
+  compartilharFichaWhatsapp(): void {
+    const c = this.confirm();
+    const msg = c?.documentSend?.share_message;
+    if (!msg) return;
+    openWhatsappShare(msg, this.patientPhone() || null);
   }
 
   novaReserva(): void {

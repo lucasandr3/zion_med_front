@@ -75,7 +75,7 @@ import { mergeClasses } from '@/shared/utils/merge-classes';
       border: none !important;
       box-shadow: none !important;
       padding: 0 !important;
-      margin: 0;
+      /* Não forçar margin:0 — páginas precisam espaçar cards empilhados */
       border-radius: 0 !important;
       gap: 0 !important;
     }

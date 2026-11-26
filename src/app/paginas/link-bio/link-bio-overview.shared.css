@@ -349,16 +349,16 @@
 }
 
 :host-context(body.dark) .lb-featured {
-  border-color: color-mix(in srgb, var(--c-primary, #14b87a) 28%, var(--border, #303030));
+  border-color: color-mix(in srgb, var(--c-primary, #00877A) 28%, var(--border, #303030));
   background: linear-gradient(
     135deg,
-    color-mix(in srgb, var(--c-primary, #14b87a) 18%, var(--card, #1c1c1c)),
+    color-mix(in srgb, var(--c-primary, #00877A) 18%, var(--card, #1c1c1c)),
     var(--card, #1c1c1c)
   );
 }
 
 :host-context(body.dark) .lb-featured__tag {
-  color: color-mix(in srgb, var(--c-primary, #14b87a) 70%, #fff 30%);
+  color: color-mix(in srgb, var(--c-primary, #00877A) 70%, #fff 30%);
 }
 
 :host-context(body.dark) .lb-featured__title {
@@ -449,7 +449,7 @@
 }
 
 :host-context(body.dark) .lb-item:hover {
-  border-color: color-mix(in srgb, var(--c-primary, #14b87a) 35%, var(--border, #303030));
+  border-color: color-mix(in srgb, var(--c-primary, #00877A) 35%, var(--border, #303030));
   background: color-mix(in srgb, #fff 8%, var(--card, #1c1c1c));
 }
 

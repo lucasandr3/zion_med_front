@@ -1,8 +1,16 @@
-/*
- * Host = nord-dropdown. Tokens do toggle (top-bar) + popout da referência.
- * Header raised / divisórias / Sair: shell-nord.css + nord-setup (shadow).
- */
 :host {
+  display: contents;
+}
+
+:host(.gestgo-shell-account-menu--nav-footer) {
+  display: block;
+  width: 100%;
+}
+
+/*
+ * Tokens no nord-dropdown filho (não mais no host Angular).
+ */
+.account-menu {
   --n-button-gap: calc(var(--n-space-xs) / 2);
   --n-button-background-color: transparent;
   --n-button-border-color: transparent;
@@ -15,22 +23,20 @@
   --n-avatar-text-color: var(--n-color-text-on-accent, #fff);
   --n-avatar-box-shadow: 0 0 0 1px
     color-mix(in srgb, var(--shell-header-fg, var(--n-color-text)) 12%, transparent);
-  --n-dropdown-size: 16.5rem;
+  --n-dropdown-size: 18.5rem;
   --n-popout-background: var(--n-color-surface, #fff);
   --n-popout-box-shadow:
     0 0 0 1px var(--n-color-border, #d5ddd9),
     0 8px 24px rgb(0 0 0 / 0.12),
     0 2px 8px rgb(0 0 0 / 0.06);
-  /* Afastar o botão da borda direita do header */
   margin-inline-end: 0.5rem;
 }
 
-:host(:is(:hover, [open], :focus-within)) {
+.account-menu:is(:hover, [open], :focus-within) {
   --n-button-background-color: var(--shell-header-control-hover, var(--n-color-active));
 }
 
-/* Topo e marca: avatar branco com iniciais na cor do tema */
-:host-context(body.shell-preset-tinted) {
+:host-context(body.shell-preset-tinted) .account-menu {
   --n-button-toggle-icon-color: rgba(255, 255, 255, 0.85);
 }
 
@@ -51,18 +57,18 @@
   min-width: 0;
 }
 
-.account-menu__signed-in {
-  color: var(--n-color-text-weak);
-  font-size: var(--n-font-size-s);
-  font-weight: var(--n-font-weight);
-  margin: 0;
-}
-
-.account-menu__name {
+.account-menu__name-line {
   color: var(--n-color-text);
+  font-size: var(--n-font-size-m, 0.875rem);
   font-weight: var(--n-font-weight-active);
+  margin: 0;
+  max-width: 14rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
+.account-menu__email,
 .account-menu__empresa {
   color: var(--n-color-text-weak);
   font-size: var(--n-font-size-s);
@@ -72,4 +78,93 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.account-menu__email {
+  color: var(--n-color-text-weaker, var(--n-color-text-weak));
+}
+
+.account-menu__trial-badge {
+  background: color-mix(in srgb, var(--n-color-status-warning, #f5a623) 18%, #fff);
+  border: 1px solid color-mix(in srgb, var(--n-color-status-warning, #f5a623) 40%, transparent);
+  border-radius: 999px;
+  color: #8a6410;
+  font-size: 0.65rem;
+  font-weight: 700;
+  line-height: 1.2;
+  padding: 0.15rem 0.5rem;
+  white-space: nowrap;
+}
+
+.account-menu__logout {
+  --n-dropdown-item-color: var(--n-color-status-danger, #b3261e);
+}
+
+/* ── Sidebar footer ───────────────────────────────────────────────────── */
+.account-menu--nav-footer {
+  display: block;
+  width: 100%;
+  margin-inline-end: 0;
+  margin-block-start: 0;
+  --n-button-padding-inline: var(--n-space-s);
+  --n-button-justify-content: flex-start;
+  --n-button-gap: var(--n-space-s);
+  --n-button-color: var(--n-nav-item-color, var(--n-color-text));
+  --n-button-toggle-icon-color: var(--n-nav-item-color, var(--n-color-text));
+  --n-avatar-box-shadow: none;
+}
+
+.account-menu--nav-footer:is(:hover, [open], :focus-within) {
+  --n-button-background-color: var(--n-color-nav-hover, var(--n-color-active, color-mix(in srgb, var(--n-color-text) 6%, transparent)));
+}
+
+.account-menu__nav-toggle {
+  width: 100%;
+}
+
+.account-menu__nav-toggle-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.05rem;
+  min-width: 0;
+  text-align: start;
+}
+
+.account-menu__nav-toggle-name {
+  font-size: var(--n-font-size-m, 0.875rem);
+  font-weight: var(--n-font-weight-active, 600);
+  line-height: 1.25;
+  max-width: 9.5rem;
+}
+
+.account-menu__nav-toggle-meta {
+  font-size: var(--n-font-size-s, 0.75rem);
+  font-weight: var(--n-font-weight, 400);
+  color: var(--n-color-text-weak, var(--n-color-text-weaker, #6b7280));
+  max-width: 9.5rem;
+}
+
+:host-context(nord-navigation[data-rail-collapsed]) .account-menu--nav-footer {
+  --n-button-justify-content: center;
+  --n-button-padding-inline: var(--n-space-xs);
+}
+
+:host-context(nord-navigation[data-rail-collapsed]) .account-menu--nav-footer .account-menu__nav-toggle-text {
+  display: none;
+}
+
+:host-context(body.shell-preset-sidebar-dark) .account-menu--nav-footer {
+  --n-button-color: var(--shell-nav-item, rgb(255 255 255 / 0.88));
+  --n-button-toggle-icon-color: var(--shell-nav-item, rgb(255 255 255 / 0.88));
+  --n-avatar-color: color-mix(in srgb, #fff 18%, transparent);
+  --n-avatar-text-color: #fff;
+}
+
+:host-context(body.shell-preset-sidebar-dark) .account-menu--nav-footer:is(:hover, [open], :focus-within) {
+  --n-button-background-color: rgb(255 255 255 / 0.1);
+}
+
+:host-context(body.shell-preset-sidebar-dark) .account-menu--nav-footer .account-menu__nav-toggle-meta {
+  color: var(--shell-nav-muted, rgb(255 255 255 / 0.65));
 }

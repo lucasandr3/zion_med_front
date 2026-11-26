@@ -1,0 +1,42 @@
+.kb-form {
+  display: grid;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.kb-form label {
+  display: grid;
+  gap: 0.25rem;
+  font-size: 0.85rem;
+}
+
+.kb-form input,
+.kb-form select,
+.kb-form textarea {
+  width: 100%;
+  border: 1px solid var(--n-color-border, #ddd);
+  border-radius: 0.4rem;
+  padding: 0.5rem;
+  font: inherit;
+}
+
+.kb-form__actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.kb-badge {
+  display: inline-block;
+  margin-left: 0.45rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.1rem 0.4rem;
+  border-radius: 0.25rem;
+  background: var(--n-color-surface-raised, #eee);
+  text-transform: uppercase;
+}
+
+.kb-badge[data-status='published'] {
+  background: color-mix(in srgb, var(--n-color-status-success, #2e7d32) 16%, transparent);
+  color: var(--n-color-status-success, #2e7d32);
+}

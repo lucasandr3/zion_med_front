@@ -132,7 +132,15 @@
           <div class="agenda-side__header">
             <div>
               <h2 id="agenda-side-title">{{ modalTitulo() }}</h2>
-              <p>{{ modalModo() === 'criar' ? 'Preencha os dados do atendimento.' : 'Compromissos do dia selecionado.' }}</p>
+              <p>
+                @if (modalModo() === 'criar') {
+                  Preencha os dados do atendimento.
+                } @else if (modalModo() === 'reagendar') {
+                  Escolha o novo horário. A ficha pendente não é duplicada.
+                } @else {
+                  Compromissos do dia selecionado.
+                }
+              </p>
             </div>
             <nord-button square variant="plain" type="button" aria-label="Fechar painel" (click)="fecharModal()">
               <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">close</span>
@@ -159,7 +167,27 @@
                       </div>
                       <div class="agenda-modal-row__actions">
                         <nord-badge [variant]="statusBadgeVariant(a.status)">{{ statusLabel(a.status) }}</nord-badge>
+                        @if (documentProgressLabel(a); as docsLabel) {
+                          <nord-badge
+                            [variant]="documentProgressBadgeVariant(a)"
+                            [attr.title]="documentProgressTitle(a)"
+                          >Documentos: {{ docsLabel }}</nord-badge>
+                        }
+                        @if (temFichaPendente(a)) {
+                          <nord-button square variant="plain" aria-label="Copiar link da ficha" (click)="copiarLinkFicha(a)">
+                            <span class="material-symbols-outlined text-lg">link</span>
+                          </nord-button>
+                          <nord-button square variant="plain" aria-label="WhatsApp" (click)="compartilharFichaWhatsapp(a)">
+                            <span class="material-symbols-outlined text-lg">chat</span>
+                          </nord-button>
+                          <nord-button square variant="plain" aria-label="Ver em Envios" (click)="verEnvio(a)">
+                            <span class="material-symbols-outlined text-lg">outbox</span>
+                          </nord-button>
+                        }
                         @if (a.status === 'confirmed') {
+                          <nord-button square variant="plain" aria-label="Reagendar" (click)="abrirReagendar(a)">
+                            <span class="material-symbols-outlined text-lg">event_repeat</span>
+                          </nord-button>
                           <nord-button square variant="plain" aria-label="Cancelar" (click)="cancelar(a)">
                             <span class="material-symbols-outlined text-lg">cancel</span>
                           </nord-button>
@@ -169,6 +197,27 @@
                   }
                 </div>
               }
+            } @else if (modalModo() === 'reagendar') {
+              <div class="agenda-form-grid agenda-form-grid--side">
+                <p class="n-muted n-small m-0">Paciente: <strong>{{ reagendar.patient_name }}</strong></p>
+                <div class="agenda-side__two-cols">
+                  <div class="agenda-field">
+                    <label class="form-label" for="side_reagendar_data">Nova data</label>
+                    <nord-date-picker id="side_reagendar_data" expand hide-label label="Data" [(ngModel)]="reagendar.date" name="side_reagendar_data" placeholder="dd/mm/aaaa"></nord-date-picker>
+                  </div>
+                  <div class="agenda-field">
+                    <label class="form-label" for="side_reagendar_hora">Novo horário</label>
+                    <nord-time-picker id="side_reagendar_hora" expand hide-label label="Horário" [(ngModel)]="reagendar.time" name="side_reagendar_hora" placeholder="09:00"></nord-time-picker>
+                  </div>
+                </div>
+                <p class="agenda-note agenda-note--inline n-small">O convite de ficha já enviado não é duplicado.</p>
+                <div class="agenda-side__actions">
+                  <nord-button type="button" variant="default" (click)="cancelarCriar()">Voltar</nord-button>
+                  <nord-button type="button" variant="primary" [disabled]="salvando()" (click)="salvarReagendar()">
+                    {{ salvando() ? 'Salvando…' : 'Salvar novo horário' }}
+                  </nord-button>
+                </div>
+              </div>
             } @else {
               <div class="agenda-form-grid agenda-form-grid--side">
                 <div class="agenda-field">
@@ -176,13 +225,20 @@
                   <nord-input id="side_novo_nome" expand hide-label label="Paciente" placeholder="Nome completo" [value]="novo.patient_name" (input)="novo.patient_name = onNordInput($event)"></nord-input>
                 </div>
                 <div class="agenda-field">
-                  <label class="form-label" for="side_novo_svc">Serviço</label>
-                  <select id="side_novo_svc" class="w-full" [(ngModel)]="novo.service_id" name="side_novo_svc">
-                    <option [ngValue]="null">Selecione…</option>
-                    @for (s of servicos(); track s.id) {
-                      <option [ngValue]="s.id">{{ s.name }} ({{ s.duration_minutes }} min)</option>
-                    }
-                  </select>
+                  <label class="form-label" id="side_novo_svc_label" for="side_novo_svc">Serviço</label>
+                  <z-combobox
+                    id="side_novo_svc"
+                    class="w-full"
+                    zWidth="full"
+                    [options]="servicoOptions()"
+                    [value]="serviceIdValue()"
+                    placeholder="Selecione…"
+                    emptyText="Nenhum serviço encontrado."
+                    ariaLabel="Serviço"
+                    ariaLabelledby="side_novo_svc_label"
+                    [clearable]="false"
+                    (zValueChange)="onServicoChange($event)"
+                  />
                 </div>
                 <div class="agenda-side__two-cols">
                   <div class="agenda-field">
@@ -247,10 +303,27 @@
             </div>
             <div class="n-page-list__actions">
               <nord-badge [variant]="statusBadgeVariant(a.status)">{{ statusLabel(a.status) }}</nord-badge>
-              @if (formStatusLabel(a.form_status); as fichaLabel) {
-                <nord-badge [variant]="formStatusBadgeVariant(a.form_status)">{{ fichaLabel }}</nord-badge>
+              @if (documentProgressLabel(a); as docsLabel) {
+                <nord-badge
+                  [variant]="documentProgressBadgeVariant(a)"
+                  [attr.title]="documentProgressTitle(a)"
+                >Documentos: {{ docsLabel }}</nord-badge>
+              }
+              @if (temFichaPendente(a)) {
+                <nord-button square variant="plain" aria-label="Copiar link da ficha" (click)="copiarLinkFicha(a)">
+                  <span class="material-symbols-outlined text-lg">link</span>
+                </nord-button>
+                <nord-button square variant="plain" aria-label="WhatsApp" (click)="compartilharFichaWhatsapp(a)">
+                  <span class="material-symbols-outlined text-lg">chat</span>
+                </nord-button>
+                <nord-button square variant="plain" aria-label="Ver em Envios" (click)="verEnvio(a)">
+                  <span class="material-symbols-outlined text-lg">outbox</span>
+                </nord-button>
               }
               @if (a.status === 'confirmed') {
+                <nord-button square variant="plain" aria-label="Reagendar" (click)="abrirReagendar(a)">
+                  <span class="material-symbols-outlined text-lg">event_repeat</span>
+                </nord-button>
                 <nord-button square variant="plain" aria-label="Cancelar reserva" (click)="cancelar(a)">
                   <span class="material-symbols-outlined text-lg">cancel</span>
                 </nord-button>
@@ -464,10 +537,27 @@
               </div>
               <div class="agenda-modal-row__actions">
                 <nord-badge [variant]="statusBadgeVariant(a.status)">{{ statusLabel(a.status) }}</nord-badge>
-                @if (formStatusLabel(a.form_status); as fichaLabel) {
-                  <nord-badge [variant]="formStatusBadgeVariant(a.form_status)">{{ fichaLabel }}</nord-badge>
+                @if (documentProgressLabel(a); as docsLabel) {
+                  <nord-badge
+                    [variant]="documentProgressBadgeVariant(a)"
+                    [attr.title]="documentProgressTitle(a)"
+                  >Documentos: {{ docsLabel }}</nord-badge>
+                }
+                @if (temFichaPendente(a)) {
+                  <nord-button square variant="plain" aria-label="Copiar link da ficha" (click)="copiarLinkFicha(a)">
+                    <span class="material-symbols-outlined text-lg">link</span>
+                  </nord-button>
+                  <nord-button square variant="plain" aria-label="WhatsApp" (click)="compartilharFichaWhatsapp(a)">
+                    <span class="material-symbols-outlined text-lg">chat</span>
+                  </nord-button>
+                  <nord-button square variant="plain" aria-label="Ver em Envios" (click)="verEnvio(a)">
+                    <span class="material-symbols-outlined text-lg">outbox</span>
+                  </nord-button>
                 }
                 @if (a.status === 'confirmed') {
+                  <nord-button square variant="plain" aria-label="Reagendar" (click)="abrirReagendar(a)">
+                    <span class="material-symbols-outlined text-lg">event_repeat</span>
+                  </nord-button>
                   <nord-button square variant="plain" aria-label="Cancelar" (click)="cancelar(a)">
                     <span class="material-symbols-outlined text-lg">cancel</span>
                   </nord-button>
@@ -482,6 +572,25 @@
         <nord-button expand type="button" variant="primary" (click)="abrirCriarNoModal()">
           <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">add</span>
           Novo compromisso
+        </nord-button>
+      </nord-button-group>
+    } @else if (modalModo() === 'reagendar') {
+      <div class="agenda-form-grid agenda-form-grid--modal">
+        <p class="n-muted n-small m-0">Paciente: <strong>{{ reagendar.patient_name }}</strong></p>
+        <div class="agenda-field">
+          <label class="form-label" for="reagendar_data">Nova data</label>
+          <nord-date-picker id="reagendar_data" expand hide-label label="Data" [(ngModel)]="reagendar.date" name="reagendar_data" placeholder="dd/mm/aaaa"></nord-date-picker>
+        </div>
+        <div class="agenda-field">
+          <label class="form-label" for="reagendar_hora">Novo horário</label>
+          <nord-time-picker id="reagendar_hora" expand hide-label label="Horário" [(ngModel)]="reagendar.time" name="reagendar_hora" placeholder="09:00"></nord-time-picker>
+        </div>
+        <p class="agenda-note agenda-note--inline n-small">O convite de ficha já enviado não é duplicado.</p>
+      </div>
+      <nord-button-group slot="footer" variant="spaced">
+        <nord-button expand type="button" variant="default" (click)="cancelarCriar()">Voltar</nord-button>
+        <nord-button expand type="button" variant="primary" [disabled]="salvando()" (click)="salvarReagendar()">
+          {{ salvando() ? 'Salvando…' : 'Salvar novo horário' }}
         </nord-button>
       </nord-button-group>
     } @else {
@@ -500,13 +609,20 @@
           ></nord-input>
         </div>
         <div class="agenda-field agenda-field--grow">
-          <label class="form-label" for="novo_svc">Serviço</label>
-          <select id="novo_svc" class="w-full" [(ngModel)]="novo.service_id" name="novo_svc">
-            <option [ngValue]="null">Selecione…</option>
-            @for (s of servicos(); track s.id) {
-              <option [ngValue]="s.id">{{ s.name }} ({{ s.duration_minutes }} min)</option>
-            }
-          </select>
+          <label class="form-label" id="novo_svc_label" for="novo_svc">Serviço</label>
+          <z-combobox
+            id="novo_svc"
+            class="w-full"
+            zWidth="full"
+            [options]="servicoOptions()"
+            [value]="serviceIdValue()"
+            placeholder="Selecione…"
+            emptyText="Nenhum serviço encontrado."
+            ariaLabel="Serviço"
+            ariaLabelledby="novo_svc_label"
+            [clearable]="false"
+            (zValueChange)="onServicoChange($event)"
+          />
         </div>
         <div class="agenda-field agenda-field--half">
           <label class="form-label" for="novo_data">Data</label>

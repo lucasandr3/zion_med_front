@@ -1,0 +1,41 @@
+.auto-tasks-link {
+  font-size: 0.9rem;
+  color: var(--n-color-accent, #168765);
+  margin-right: 0.5rem;
+  align-self: center;
+}
+
+.auto-badge {
+  display: inline-block;
+  margin-left: 0.45rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.1rem 0.4rem;
+  border-radius: 0.25rem;
+  background: var(--n-color-surface-raised, #eee);
+}
+
+.auto-badge[data-status='active'],
+.auto-badge[data-status='completed'] {
+  background: color-mix(in srgb, var(--n-color-status-success, #2e7d32) 16%, transparent);
+  color: var(--n-color-status-success, #2e7d32);
+}
+
+.auto-badge[data-status='paused'],
+.auto-badge[data-status='ignored'],
+.auto-badge[data-status='cancelled'],
+.auto-badge[data-status='draft'] {
+  background: color-mix(in srgb, var(--n-color-status-warning, #ed6c02) 16%, transparent);
+  color: var(--n-color-status-warning, #ed6c02);
+}
+
+.auto-badge[data-status='failed'] {
+  background: color-mix(in srgb, var(--n-color-status-danger, #c62828) 16%, transparent);
+  color: var(--n-color-status-danger, #c62828);
+}
+
+.auto-desc {
+  margin: 0.35rem 0 0;
+  font-size: 0.85rem;
+  color: var(--n-color-text-weaker, #666);
+}

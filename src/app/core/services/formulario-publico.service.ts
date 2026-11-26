@@ -268,6 +268,20 @@ interface ValidatePersonResponse {
       health_plan_operator?: string | null;
       health_plan_card_number?: string | null;
     };
+    /** PAC-05 — origem do pré-preenchimento após o gate. */
+    prefill_meta?: {
+      source?: string;
+      source_label?: string;
+      person_updated_at?: string | null;
+      reusable_keys?: string[];
+      from_last_protocol_keys?: string[];
+      last_protocol_id?: number | null;
+      last_protocol_at?: string | null;
+      policy?: {
+        from_person?: boolean;
+        from_last_protocol_demographics?: boolean;
+      };
+    };
     consent_summary?: FormularioPublicoConsentSummary;
     procedure_scheduling_allowed?: boolean;
   };

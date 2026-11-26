@@ -7,7 +7,6 @@ import {
 } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ProtocolosService, type Protocolo } from '../core/services/protocolos.service';
-import { preparePainelHop } from '../core/utils/gestgo-experience.util';
 
 type DocFilter = 'pending' | 'approved' | '';
 
@@ -82,7 +81,6 @@ export class MobileDocumentosComponent implements OnInit {
   }
 
   abrirDocumento(id: number): void {
-    const hop = preparePainelHop(`/protocolos/${id}`, '/m/documentos');
-    void this.router.navigate([hop.path], { queryParams: hop.queryParams });
+    void this.router.navigate(['/m/documentos', id]);
   }
 }

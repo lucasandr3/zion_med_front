@@ -1,0 +1,128 @@
+<div class="n-page-list__toolbar">
+  <div class="n-page-list__toolbar-start">
+    <zm-page-back-link />
+  </div>
+  <div class="n-page-list__toolbar-end">
+    <nord-button type="button" variant="default" size="m" (click)="carregar()">Atualizar</nord-button>
+    <nord-button type="button" variant="primary" size="m" (click)="novo()">Novo artigo</nord-button>
+  </div>
+</div>
+
+<div class="n-page-list__content">
+  @if (editing()) {
+    <div class="kb-form n-page-list__panel">
+      <label>Título<input type="text" [value]="title()" (input)="onTitle($event)" maxlength="200" /></label>
+      <label>
+        Categoria
+        <z-combobox
+          class="w-full"
+          zWidth="full"
+          [options]="categoryOptions"
+          [value]="category()"
+          [clearable]="false"
+          placeholder="Selecione…"
+          emptyText="Nenhum resultado."
+          ariaLabel="Categoria"
+          (zValueChange)="onCategory($event)"
+        />
+      </label>
+      <label>
+        Visibilidade
+        <z-combobox
+          class="w-full"
+          zWidth="full"
+          [options]="visibilityOptions"
+          [value]="visibility()"
+          [clearable]="false"
+          [searchable]="false"
+          emptyText="Nenhum resultado."
+          ariaLabel="Visibilidade"
+          (zValueChange)="onVisibility($event)"
+        />
+      </label>
+      <label>Conteúdo<textarea rows="10" [value]="content()" (input)="onContent($event)"></textarea></label>
+      <div class="kb-form__actions">
+        <nord-button type="button" variant="primary" [attr.disabled]="acting() || null" (click)="salvar()">Salvar</nord-button>
+        <nord-button type="button" variant="plain" (click)="cancelar()">Cancelar</nord-button>
+      </div>
+    </div>
+  }
+
+  @if (showSkeleton()) {
+    <div class="n-page-list__panel"><app-list-skeleton [count]="6" /></div>
+  } @else if (!listaPronta()) {
+  } @else if (error()) {
+    <div class="n-page-list__panel">
+      <p class="n-muted n-small" style="color:var(--n-color-status-danger,#c62828)">{{ error() }}</p>
+    </div>
+  } @else if (items().length === 0) {
+    <div class="n-page-list__empty">
+      <nord-empty-state>
+        <h2>Nenhum artigo</h2>
+        <p>Crie artigos para a central de ajuda e o Go Assistant.</p>
+      </nord-empty-state>
+    </div>
+  } @else {
+    <div class="n-page-list__table">
+      @for (item of items(); track item.id) {
+        <div class="n-page-list__row">
+          <div class="n-page-list__row-main">
+            <div class="n-page-list__row-title">
+              {{ item.title }}
+              <span class="kb-badge" [attr.data-status]="item.status">{{ item.status }}</span>
+            </div>
+            <div class="n-page-list__row-meta">
+              {{ categoryLabel(item.category) }}
+              · {{ item.visibility }}
+              · /{{ item.slug }}
+            </div>
+          </div>
+          <div class="n-page-list__actions">
+            <nord-button
+              type="button"
+              square
+              variant="plain"
+              size="s"
+              aria-label="Editar"
+              aria-describedby="tip-kb-edit"
+              (click)="editar(item)"
+            >
+              <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">edit</span>
+            </nord-button>
+            @if (item.status !== 'published') {
+              <nord-button
+                type="button"
+                square
+                variant="plain"
+                size="s"
+                aria-label="Publicar"
+                aria-describedby="tip-kb-publish"
+                [attr.disabled]="acting() || null"
+                (click)="publicar(item)"
+              >
+                <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">publish</span>
+              </nord-button>
+            } @else {
+              <nord-button
+                type="button"
+                square
+                variant="plain"
+                size="s"
+                aria-label="Arquivar"
+                aria-describedby="tip-kb-archive"
+                [attr.disabled]="acting() || null"
+                (click)="arquivar(item)"
+              >
+                <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">archive</span>
+              </nord-button>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>
+
+<nord-tooltip id="tip-kb-edit" [delay]="0">Editar</nord-tooltip>
+<nord-tooltip id="tip-kb-publish" [delay]="0">Publicar</nord-tooltip>
+<nord-tooltip id="tip-kb-archive" [delay]="0">Arquivar</nord-tooltip>

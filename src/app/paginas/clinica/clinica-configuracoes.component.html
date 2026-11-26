@@ -567,6 +567,35 @@
           <div class="config-tab-panel">
           <g-card class="section-card mb-4 gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
             <div class="section-header">
+              <div class="icon-wrap"><span class="material-symbols-outlined">verified_user</span></div>
+              <span class="section-title">Canal oficial (Meta)</span>
+            </div>
+            <div class="section-body">
+              @if (waOfficialLoading()) {
+                <p class="n-muted n-small m-0">Carregando status…</p>
+              } @else if (waOfficialError()) {
+                <p class="n-muted n-small m-0" style="color: var(--n-color-status-danger, #c62828)">{{ waOfficialError() }}</p>
+              } @else if (waOfficial(); as off) {
+                <div class="dark-toggle-card" style="align-items: flex-start">
+                  <span class="dark-toggle-info">
+                    <span class="dtitle block">WhatsApp Business Platform</span>
+                    <span class="dsub block">{{ off.message }}</span>
+                    @if (off.display_number_masked) {
+                      <span class="dsub block" style="margin-top: 0.35rem">Número: {{ off.display_number_masked }}</span>
+                    }
+                  </span>
+                  <nord-badge [variant]="waOfficialBadgeVariant(off.status)">
+                    {{ off.platform_enabled ? waOfficialStatusLabel(off.status) : 'Em preparação' }}
+                  </nord-badge>
+                </div>
+                <p class="n-muted n-small" style="margin-top: 0.75rem; margin-bottom: 0">
+                  Envio a pacientes continua pelo compartilhamento manual (link / wa.me) até o canal oficial estar ativo e templates aprovados.
+                </p>
+              }
+            </div>
+          </g-card>
+          <g-card class="section-card mb-4 gap-0 overflow-hidden rounded-[0.875rem] border-border bg-card py-0 shadow-sm **:data-[slot=card-content]:p-0">
+            <div class="section-header">
               <div class="icon-wrap"><span class="material-symbols-outlined">chat</span></div>
               <span class="section-title">Comunicação por WhatsApp</span>
             </div>

@@ -27,7 +27,7 @@
   <meta name="twitter:image" content="/assets/logo/logo.png"/>
 
   <!-- Favicons (href do tema aplicado no boot script; fallback = marca verde) -->
-  <meta name="theme-color" content="#14B87A"/>
+  <meta name="theme-color" content="#00877A"/>
   <link rel="icon" type="image/png" href="/assets/logo/logo.png" data-theme-favicon="1"/>
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png"/>
   <meta name="apple-mobile-web-app-title" content="Gestgo"/>
@@ -85,7 +85,7 @@
 
         /* Accent Nord + favicon + theme-color no boot (antes do Angular/CSS) */
         var themeColors = {
-          'gestgo-blue': '#1e40af', 'ocean-blue': '#14B87A', 'indigo-night': '#3730a3',
+          'gestgo-blue': '#1e40af', 'ocean-blue': '#00877A', 'indigo-night': '#3730a3',
           'emerald-fresh': '#15803d', 'rose-elegant': '#be185d', 'amber-warm': '#b45309',
           'violet-dream': '#6d28d9', 'teal-ocean': '#0f766e', 'slate-pro': '#334155',
           'cyan-tech': '#0369a1', 'fuchsia-bold': '#a21caf',
@@ -101,7 +101,7 @@
           'rosa': 'logo-rosa.svg', 'lavanda': 'logo-lavanda.svg', 'coral': 'logo-coral.svg',
           'pessego': 'logo-pessego.svg'
         };
-        var primary = themeColors[theme] || getComputedStyle(document.body).getPropertyValue('--c-primary').trim() || '#14B87A';
+        var primary = themeColors[theme] || getComputedStyle(document.body).getPropertyValue('--c-primary').trim() || '#00877A';
         var root = document.documentElement;
         root.style.setProperty('--n-color-accent', primary);
         root.style.setProperty('--n-color-accent-secondary', primary);

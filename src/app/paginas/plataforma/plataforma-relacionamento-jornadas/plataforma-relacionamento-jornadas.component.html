@@ -1,0 +1,207 @@
+<div class="n-page-list__toolbar">
+  <div class="n-page-list__toolbar-start">
+    <zm-page-back-link />
+  </div>
+  <div class="n-page-list__toolbar-end">
+    <div class="n-page-list__actions">
+      <span class="n-muted n-small">Matrículas ativas: {{ enrollmentsActive() }}</span>
+      <nord-button type="button" variant="default" size="m" [attr.disabled]="acting() || null" (click)="carregar()">
+        Atualizar
+      </nord-button>
+      <nord-button type="button" variant="primary" size="m" (click)="novo()">Nova jornada</nord-button>
+    </div>
+  </div>
+</div>
+
+<div class="n-page-list__content">
+  @if (editing()) {
+    <div class="jrn-form n-page-list__panel">
+      <label>Nome<input type="text" [value]="name()" (input)="onName($event)" maxlength="160" /></label>
+      <label>Descrição<textarea rows="2" [value]="description()" (input)="onDescription($event)"></textarea></label>
+      <label>
+        Evento de entrada
+        <z-combobox
+          class="w-full"
+          zWidth="full"
+          [options]="entryComboOptions"
+          [value]="entryEvent()"
+          [clearable]="false"
+          placeholder="Selecione…"
+          emptyText="Nenhum resultado."
+          ariaLabel="Evento de entrada"
+          (zValueChange)="onEntry($event)"
+        />
+      </label>
+      <label>
+        Status
+        <z-combobox
+          class="w-full"
+          zWidth="full"
+          [options]="statusOptions"
+          [value]="status()"
+          [clearable]="false"
+          [searchable]="false"
+          emptyText="Nenhum resultado."
+          ariaLabel="Status"
+          (zValueChange)="onStatus($event)"
+        />
+      </label>
+      <div class="jrn-exits">
+        <label class="jrn-check">
+          <input type="checkbox" [checked]="exitSubscription()" (change)="onExitSubscription($event)" />
+          Sair se assinatura ativa
+        </label>
+        <label class="jrn-check">
+          <input type="checkbox" [checked]="exitTrialExpired()" (change)="onExitTrial($event)" />
+          Sair se trial expirado
+        </label>
+      </div>
+
+      <h4>Passos (tarefas internas)</h4>
+      @for (step of steps(); track $index) {
+        <div class="jrn-step">
+          <div class="jrn-step__head">
+            <strong>Passo {{ $index + 1 }}</strong>
+            @if (steps().length > 1) {
+              <nord-button type="button" variant="plain" size="s" (click)="removerPasso($index)">Remover</nord-button>
+            }
+          </div>
+          <label>Key<input type="text" [value]="step.key" (input)="updateStep($index, 'key', $event)" /></label>
+          <label>
+            Atraso (dias)
+            <input type="number" min="0" max="365" [value]="step.delay_days" (input)="updateStep($index, 'delay_days', $event)" />
+          </label>
+          <label>Título da tarefa<input type="text" [value]="step.title" (input)="updateStep($index, 'title', $event)" /></label>
+          <label>Descrição<textarea rows="2" [value]="step.description" (input)="updateStep($index, 'description', $event)"></textarea></label>
+          <label>
+            Prioridade
+            <z-combobox
+              class="w-full"
+              zWidth="full"
+              [options]="priorityOptions"
+              [value]="step.priority"
+              [clearable]="false"
+              [searchable]="false"
+              emptyText="Nenhum resultado."
+              ariaLabel="Prioridade"
+              (zValueChange)="updateStepValue($index, 'priority', $event)"
+            />
+          </label>
+          <label>
+            Condição (opcional) — campo
+            <input type="text" [value]="step.condition_field" (input)="updateStep($index, 'condition_field', $event)" placeholder="org_activated" />
+          </label>
+          <label>
+            Op
+            <z-combobox
+              class="w-full"
+              zWidth="full"
+              [options]="conditionOpOptions"
+              [value]="step.condition_op"
+              [clearable]="false"
+              [searchable]="false"
+              emptyText="Nenhum resultado."
+              ariaLabel="Operador da condição"
+              (zValueChange)="updateStepValue($index, 'condition_op', $event)"
+            />
+          </label>
+          <label>
+            Valor
+            <input type="text" [value]="step.condition_value" (input)="updateStep($index, 'condition_value', $event)" placeholder="false" />
+          </label>
+        </div>
+      }
+      <nord-button type="button" variant="default" size="s" (click)="adicionarPasso()">Adicionar passo</nord-button>
+
+      <div class="jrn-form__actions">
+        <nord-button type="button" variant="primary" [attr.disabled]="acting() || null" (click)="salvar()">Salvar</nord-button>
+        <nord-button type="button" variant="plain" (click)="cancelar()">Cancelar</nord-button>
+      </div>
+    </div>
+  }
+
+  @if (showSkeleton()) {
+    <div class="n-page-list__panel"><app-list-skeleton [count]="6" /></div>
+  } @else if (!listaPronta()) {
+  } @else if (error()) {
+    <div class="n-page-list__panel">
+      <p class="n-muted n-small" style="color:var(--n-color-status-danger,#c62828)">{{ error() }}</p>
+    </div>
+  } @else if (items().length === 0) {
+    <div class="n-page-list__empty">
+      <nord-empty-state>
+        <h2>Nenhuma jornada</h2>
+        <p>Crie sequências internas (onboarding, follow-up de leads, etc.).</p>
+      </nord-empty-state>
+    </div>
+  } @else {
+    <div class="n-page-list__table">
+      @for (item of items(); track item.id) {
+        <div class="n-page-list__row">
+          <div class="n-page-list__row-main">
+            <div class="n-page-list__row-title">
+              {{ item.name }}
+              <span class="jrn-badge" [attr.data-status]="item.status">
+                {{ statusLabel(item.status) }}
+              </span>
+            </div>
+            <div class="n-page-list__row-meta">
+              {{ item.entry_event }}
+              · v{{ item.version ?? 1 }}
+              · {{ item.active_enrollments ?? 0 }} matrícula(s)
+              · {{ formatarData(item.updated_at) }}
+            </div>
+            @if (item.description) {
+              <p class="jrn-desc">{{ item.description }}</p>
+            }
+          </div>
+          <div class="n-page-list__actions">
+            <nord-button
+              type="button"
+              square
+              variant="plain"
+              size="s"
+              aria-label="Editar"
+              aria-describedby="tip-jrn-edit"
+              [attr.disabled]="acting() || null"
+              (click)="editar(item)"
+            >
+              <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">edit</span>
+            </nord-button>
+            @if (item.status === 'active') {
+              <nord-button
+                type="button"
+                square
+                variant="plain"
+                size="s"
+                aria-label="Pausar"
+                aria-describedby="tip-jrn-pause"
+                [attr.disabled]="acting() || null"
+                (click)="pausar(item)"
+              >
+                <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">pause</span>
+              </nord-button>
+            } @else {
+              <nord-button
+                type="button"
+                square
+                variant="plain"
+                size="s"
+                aria-label="Ativar"
+                aria-describedby="tip-jrn-play"
+                [attr.disabled]="acting() || null"
+                (click)="ativar(item)"
+              >
+                <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">play_arrow</span>
+              </nord-button>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>
+
+<nord-tooltip id="tip-jrn-edit" [delay]="0">Editar</nord-tooltip>
+<nord-tooltip id="tip-jrn-pause" [delay]="0">Pausar</nord-tooltip>
+<nord-tooltip id="tip-jrn-play" [delay]="0">Ativar</nord-tooltip>

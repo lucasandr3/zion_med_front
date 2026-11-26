@@ -30,10 +30,10 @@
 
     <main class="public-wrap">
       <section class="public-story">
-        <div class="kicker">Cuidado em cada detalhe</div>
-        <h1>Seu próximo momento de <em>bem-estar</em> começa aqui.</h1>
+        <div class="kicker">Agendamento online</div>
+        <h1>Seu próximo <em>atendimento</em> começa aqui.</h1>
         <p>
-          Escolha o atendimento ideal, encontre um horário que combine com você e confirme com tranquilidade.
+          Escolha o serviço, veja os horários disponíveis e confirme a reserva em poucos passos.
         </p>
         <div class="story-line">
           <div class="bar"></div>
@@ -74,7 +74,7 @@
             {{
               step() === 4
                 ? 'Guarde as informações do seu horário.'
-                : 'Uma experiência simples, do início à confirmação.'
+                : 'Escolha o serviço, a data e confirme.'
             }}
           </p>
           @if (step() < 4) {
@@ -375,6 +375,11 @@
                     <a class="btn btn-primary btn-block" [href]="c.form!.public_url">
                       Preencher minha ficha →
                     </a>
+                    @if (c.documentSend?.delivery_mode === 'manual' && c.documentSend?.share_message) {
+                      <button type="button" class="btn btn-ghost btn-block" (click)="compartilharFichaWhatsapp()">
+                        Abrir no WhatsApp
+                      </button>
+                    }
                     <p class="ap-form-invite__later">A reserva já está confirmada. Você pode concluir a ficha depois.</p>
                   </div>
                 }

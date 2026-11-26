@@ -13,6 +13,7 @@ import { catchError, map, of, switchMap } from 'rxjs';
 import { LoadingService } from '../../shared/services/loading.service';
 import { PublicPageBodyService } from '../../core/services/public-page-body.service';
 import { NORD_FORM_IMPORTS } from '@/shared/nord';
+import { GestgoComboboxComponent, type GestgoComboboxOption } from '@/shared/components/combobox';
 
 import { Template, TemplateCampo, TemplatesService } from '../../core/services/templates.service';
 
@@ -22,7 +23,7 @@ type PreviewValue = string | number | boolean;
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   selector: 'app-templates-preview',
   standalone: true,
-  imports: [FormsModule, ...NORD_FORM_IMPORTS],
+  imports: [FormsModule, ...NORD_FORM_IMPORTS, GestgoComboboxComponent],
   templateUrl: './templates-preview.component.html',
   styleUrl: './templates-preview.component.css',
   encapsulation: ViewEncapsulation.None,
@@ -105,6 +106,27 @@ export class TemplatesPreviewComponent implements OnInit, OnDestroy {
     const type = (campo.type ?? '').toLowerCase();
     if (type === 'anexo' || type === 'attachment') return 'file';
     return type;
+  }
+
+  private readonly selectComboCache = new WeakMap<TemplateCampo, GestgoComboboxOption[]>();
+
+  selectComboOptions(campo: TemplateCampo): GestgoComboboxOption[] {
+    let opts = this.selectComboCache.get(campo);
+    if (!opts) {
+      opts = this.getFieldOptions(campo).map((o) => ({ value: String(o.value), label: o.label }));
+      this.selectComboCache.set(campo, opts);
+    }
+    return opts;
+  }
+
+  selectComboValue(campo: TemplateCampo): string | null {
+    const raw = this.valores[campo.name_key];
+    if (raw === undefined || raw === null || raw === '') return null;
+    return String(raw);
+  }
+
+  onSelectComboChange(campo: TemplateCampo, value: string | null): void {
+    this.valores[campo.name_key] = value ?? '';
   }
 
   getFieldOptions(campo: TemplateCampo): { value: string; label: string }[] {

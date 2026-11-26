@@ -11,17 +11,22 @@
             Digitalize a ficha que você já usa
           </h2>
           <p class="onboarding-wizard__subtitle">
-            Importe seu PDF, mapeie os campos, publique um link de teste e veja o primeiro documento
-            assinado — sem reinventar o formulário da clínica.
+            Próximo passo: {{ checklist[passoAtivo() - 1].label }}.
           </p>
+          <div class="onboarding-wizard__progress" role="progressbar" aria-label="Progresso da ativação" aria-valuemin="0" aria-valuemax="6" [attr.aria-valuenow]="passoAtivo()">
+            <span [style.width.%]="(passoAtivo() / 6) * 100"></span>
+          </div>
         </div>
       </div>
-      <nord-button type="button" variant="default" class="shrink-0" (click)="dispensar()">
-        <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">schedule</span>
-        Lembrar depois
-      </nord-button>
+      <div class="onboarding-wizard__header-actions">
+        <nord-button type="button" variant="primary" (click)="alternarExpansao()" [attr.aria-expanded]="expandido()">
+          {{ expandido() ? 'Recolher' : 'Continuar' }}
+        </nord-button>
+        <nord-button type="button" variant="default" (click)="dispensar()">Lembrar depois</nord-button>
+      </div>
     </div>
 
+    @if (expandido()) {
     <ol class="onboarding-wizard__steps" aria-label="Checklist de ativação">
       @for (step of checklist; track step.key; let i = $index) {
         <li
@@ -60,7 +65,7 @@
       @if (passoAtivo() === 1) {
         <div class="onboarding-segment">
           <p class="onboarding-wizard__kicker">Passo 1 · Especialidade (opcional)</p>
-          <p class="onboarding-wizard__subtitle" style="margin-top: 0.35rem">
+          <p class="onboarding-wizard__subtitle onboarding-wizard__subtitle--tight">
             Ajuda a sugerir exemplos. Não bloqueia o uso da sua ficha atual — você pode pular.
           </p>
           <div class="onboarding-segment__grid">
@@ -75,7 +80,7 @@
               </button>
             }
           </div>
-          <div class="onboarding-wizard__actions" style="margin-top: 0.85rem">
+          <div class="onboarding-wizard__actions onboarding-wizard__actions--step">
             <nord-button type="button" variant="default" (click)="selecionarSegmento('outro')">
               Pular especialidade
             </nord-button>
@@ -87,10 +92,10 @@
       @if (passoAtivo() === 2) {
         <div class="onboarding-segment">
           <p class="onboarding-wizard__kicker">Passo 2 · Sua ficha</p>
-          <p class="onboarding-wizard__subtitle" style="margin-top: 0.35rem">
+          <p class="onboarding-wizard__subtitle onboarding-wizard__subtitle--tight">
             O caminho principal do Gestgo: use o PDF que a clínica já imprime hoje.
           </p>
-          <div class="onboarding-wizard__actions" style="margin-top: 0.85rem">
+          <div class="onboarding-wizard__actions onboarding-wizard__actions--step">
             <a routerLink="/templates/importar" class="no-underline">
               <nord-button type="button" variant="primary">
                 <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">upload_file</span>
@@ -104,13 +109,13 @@
         </div>
 
         @if (carregandoTemplates()) {
-          <div class="onboarding-wizard__grid" aria-busy="true" aria-label="Carregando modelos" style="margin-top: 1rem">
+          <div class="onboarding-wizard__grid onboarding-wizard__stack-gap" aria-busy="true" aria-label="Carregando modelos">
             @for (i of [1, 2, 3]; track i) {
               <div class="onboarding-template-skeleton" aria-hidden="true"></div>
             }
           </div>
         } @else if (templates().length > 0) {
-          <p class="onboarding-wizard__kicker" style="margin-top: 1.1rem">Ou escolha um modelo pronto</p>
+          <p class="onboarding-wizard__kicker onboarding-wizard__kicker--follow">Ou escolha um modelo pronto</p>
           <div class="onboarding-wizard__grid">
             @for (t of templates(); track t.id) {
               <button
@@ -138,7 +143,7 @@
             }
           </div>
         } @else {
-          <div class="onboarding-wizard__empty" style="margin-top: 1rem">
+          <div class="onboarding-wizard__empty onboarding-wizard__stack-gap">
             <span class="material-symbols-outlined onboarding-wizard__empty-icon" aria-hidden="true">
               upload_file
             </span>
@@ -153,11 +158,11 @@
       @if (passoAtivo() === 3 && templateSelecionadoId(); as tid) {
         <div class="onboarding-segment">
           <p class="onboarding-wizard__kicker">Passo 3 · Mapear no PDF</p>
-          <p class="onboarding-wizard__subtitle" style="margin-top: 0.35rem">
+          <p class="onboarding-wizard__subtitle onboarding-wizard__subtitle--tight">
             Confira os campos de <strong>{{ nomeTemplateSelecionado() }}</strong> e posicione as respostas no
             PDF original quando houver documento anexado.
           </p>
-          <div class="onboarding-wizard__actions" style="margin-top: 0.85rem">
+          <div class="onboarding-wizard__actions onboarding-wizard__actions--step">
             <a [routerLink]="['/templates', tid, 'aparencia-pdf']" class="no-underline">
               <nord-button type="button" variant="primary">
                 <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">picture_as_pdf</span>
@@ -181,10 +186,10 @@
       @if (passoAtivo() === 4) {
         <div class="onboarding-segment">
           <p class="onboarding-wizard__kicker">Passo 4 · Gerar link de teste</p>
-          <p class="onboarding-wizard__subtitle" style="margin-top: 0.35rem">
+          <p class="onboarding-wizard__subtitle onboarding-wizard__subtitle--tight">
             Publique um link público para preencher no celular — use dados fictícios.
           </p>
-          <div class="onboarding-wizard__actions" style="margin-top: 0.85rem">
+          <div class="onboarding-wizard__actions onboarding-wizard__actions--step">
             <nord-button
               type="button"
               variant="primary"
@@ -203,7 +208,7 @@
       @if (passoAtivo() === 5) {
         <div class="onboarding-segment">
           <p class="onboarding-wizard__kicker">Passo 5 · Preencher e assinar (teste)</p>
-          <p class="onboarding-wizard__subtitle" style="margin-top: 0.35rem">
+          <p class="onboarding-wizard__subtitle onboarding-wizard__subtitle--tight">
             Abra o link e conclua a ficha com dados fictícios. Assim você vê a experiência do paciente.
           </p>
         </div>
@@ -228,7 +233,7 @@
                 {{ linkCopiado() ? 'Copiado!' : 'Copiar' }}
               </nord-button>
             </div>
-            <div class="onboarding-wizard__actions" style="margin-top: 0.85rem">
+            <div class="onboarding-wizard__actions onboarding-wizard__actions--step">
               <nord-button type="button" variant="primary" (click)="abrirLinkTeste()">
                 <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">open_in_new</span>
                 Abrir e preencher
@@ -255,11 +260,11 @@
       @if (passoAtivo() === 6) {
         <div class="onboarding-segment">
           <p class="onboarding-wizard__kicker">Passo 6 · Ver PDF e histórico</p>
-          <p class="onboarding-wizard__subtitle" style="margin-top: 0.35rem">
+          <p class="onboarding-wizard__subtitle onboarding-wizard__subtitle--tight">
             Depois do preenchimento de teste, o documento aparece em Protocolos com PDF e informações de
             verificação.
           </p>
-          <div class="onboarding-wizard__actions" style="margin-top: 0.85rem">
+          <div class="onboarding-wizard__actions onboarding-wizard__actions--step">
             <a routerLink="/protocolos" class="no-underline" (click)="marcarResultadoVisto()">
               <nord-button type="button" variant="primary">
                 <span class="material-symbols-outlined gestgo-mi gestgo-mi--s" aria-hidden="true">folder_open</span>
@@ -272,6 +277,7 @@
           </div>
         </div>
       }
+    }
     }
   </section>
 }

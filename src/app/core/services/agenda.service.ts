@@ -24,8 +24,17 @@ export interface AgendaAppointment {
   patient_phone?: string | null;
   notes?: string | null;
   form_template_id?: number | null;
+  form_template_optional_id?: number | null;
   form_status?: 'not_applicable' | 'pending' | 'completed' | string;
+  form_status_optional?: 'not_applicable' | 'pending' | 'completed' | string;
   form_template_name?: string | null;
+  /** AUT-06 — progresso do pacote (1–2 docs). */
+  document_progress?: {
+    required: number;
+    completed: number;
+    template_name?: string | null;
+  } | null;
+  document_send?: AgendaDocumentSendInvite | null;
   service?: { id: number; name: string; duration_minutes: number };
 }
 
@@ -33,6 +42,16 @@ export interface AgendaPublicFormInvite {
   name: string;
   public_url: string;
   status: string;
+}
+
+/** AGD-07 — pendência criada em Envios após reserva confirmada. */
+export interface AgendaDocumentSendInvite {
+  id: number;
+  public_url: string;
+  share_message: string;
+  delivery_mode: 'manual' | 'pending_email' | string;
+  delivery_status?: string | null;
+  recipient_phone?: string | null;
 }
 
 export interface AgendaPublicSlot {
@@ -100,9 +119,18 @@ export class AgendaService {
       .pipe(map((r) => r.data));
   }
 
-  updateAppointment(id: number, payload: { status: string; notes?: string | null }): Observable<AgendaAppointment> {
+  updateAppointment(
+    id: number,
+    payload: { status?: string; starts_at?: string; notes?: string | null },
+  ): Observable<AgendaAppointment> {
     return this.api
       .patch<{ data: AgendaAppointment }>(`/agenda/reservas/${id}`, payload)
+      .pipe(map((r) => r.data));
+  }
+
+  ensureDocumentInvite(id: number): Observable<AgendaDocumentSendInvite> {
+    return this.api
+      .post<{ data: AgendaDocumentSendInvite }>(`/agenda/reservas/${id}/document-invite`, {})
       .pipe(map((r) => r.data));
   }
 
@@ -163,6 +191,7 @@ export class AgendaService {
     form_template_id?: number | null;
     form_status?: string;
     form?: AgendaPublicFormInvite | null;
+    document_send?: AgendaDocumentSendInvite | null;
   }> {
     return this.api
       .post<{ data: any }>(`/agenda/public/${encodeURIComponent(slug)}/reservas`, payload)
